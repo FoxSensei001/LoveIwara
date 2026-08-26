@@ -1,10 +1,15 @@
 import 'dart:async';
 
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -553,32 +558,22 @@ class _PaginationBarState extends State<PaginationBar>
       } else {
         // 显示错误提示
         if (!hasValidLowerBound) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(slang.t.common.pagination.invalidInput),
-              duration: const Duration(seconds: 2),
-            ),
+          showGlassToast(
+            slang.t.common.pagination.invalidInput,
+            type: GlassToastType.error,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                slang.t.common.pagination.invalidPageNumber(
-                  max: widget.totalPages,
-                ),
-              ),
-              duration: const Duration(seconds: 2),
-            ),
+          showGlassToast(
+            slang.t.common.pagination.invalidPageNumber(max: widget.totalPages),
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       // 输入非数字时显示错误提示
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(slang.t.common.pagination.invalidInput),
-          duration: const Duration(seconds: 2),
-        ),
+      showGlassToast(
+        slang.t.common.pagination.invalidInput,
+        type: GlassToastType.error,
       );
     }
     _pageController.clear();
@@ -587,48 +582,53 @@ class _PaginationBarState extends State<PaginationBar>
   // 显示页面跳转对话框
   void _showJumpPageDialog() {
     _pageController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(slang.t.common.pagination.jumpToPage),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!widget.isTotalCountUnknown)
-              Text(
-                slang.t.common.pagination.pleaseEnterPageNumber(
-                  max: widget.totalPages,
+    showAppDialog(
+      Builder(
+        builder: (context) => GlassAlertDialog(
+          title: slang.t.common.pagination.jumpToPage,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!widget.isTotalCountUnknown)
+                Text(
+                  slang.t.common.pagination.pleaseEnterPageNumber(
+                    max: widget.totalPages,
+                  ),
+                ),
+              const SizedBox(height: 16),
+              GlassInputSurface(
+                child: TextField(
+                  controller: _pageController,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: slang.t.common.pagination.pageNumber,
+                  ),
+                  onSubmitted: (_) {
+                    Navigator.of(context).pop();
+                    _jumpToPage();
+                  },
                 ),
               ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _pageController,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: slang.t.common.pagination.pageNumber,
-              ),
-              onSubmitted: (_) {
+            ],
+          ),
+          actions: [
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            GlassDialogAction(
+              label: slang.t.common.pagination.jump,
+              emphasized: false,
+              onPressed: () {
                 Navigator.of(context).pop();
                 _jumpToPage();
               },
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(slang.t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _jumpToPage();
-            },
-            child: Text(slang.t.common.pagination.jump),
-          ),
-        ],
       ),
     );
   }
@@ -705,9 +705,10 @@ class _PaginationBarState extends State<PaginationBar>
 
     // 「悬浮」模式：不用 BackdropFilter，改为从上方透明→底部半透明的渐变蒙层，
     // 控件本身是自带底色的玻璃胶囊，列表内容能从分页栏背后透出来。
+    final Widget result;
     if (widget.useBlurEffect) {
       const double fadeAbove = PaginationBar.fadeAboveExtent;
-      return Stack(
+      result = Stack(
         children: [
           Positioned.fill(
             child: LayoutBuilder(
@@ -728,8 +729,18 @@ class _PaginationBarState extends State<PaginationBar>
       );
     } else {
       // 直接返回常规内容
-      return barContent;
+      result = barContent;
     }
+
+    // 分页栏是浮在列表内容之上的固定底栏（不随列表滚动），与 header/浮动
+    // 底栏同属「chrome」——走 [GlassChromeLayer]：既钉死液态档（页码卡片/
+    // 翻页键这些 GlassSurface/GlassIconButton 跟 header 同一档），也把整条栏
+    // 收进**同一层玻璃**。
+    //
+    // 收进同一层是性能项，不是观感项：这条栏最多时有 5 块独立玻璃（首页/
+    // 上一页/页码/下一页/末页），拆开画就是 5 次 backdrop 采样、5 次整屏
+    // resolve。实测每多一层要 ~1ms 光栅（见 [GlassChromeLayer] 的归因表）。
+    return GlassChromeLayer(child: result);
   }
 
   /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。
@@ -827,7 +838,7 @@ class _PaginationBarState extends State<PaginationBar>
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildPageNumberPill(
                 context,
                 text: '${widget.currentPage + 1}',
@@ -839,7 +850,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _wrapWithTooltipIfNeeded(
                 widget.canGoNext,
                 child: _buildNavButton(
@@ -982,13 +993,13 @@ class _PaginationBarState extends State<PaginationBar>
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(0),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.chevron_left,
                 enabled: widget.currentPage > 0 && !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage - 1),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildPageNumberPill(
                 context,
                 text: '${widget.currentPage + 1} / ${widget.totalPages}',
@@ -1000,7 +1011,7 @@ class _PaginationBarState extends State<PaginationBar>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.chevron_right,
                 enabled:
@@ -1008,7 +1019,7 @@ class _PaginationBarState extends State<PaginationBar>
                     !widget.isLoading,
                 onPressed: () => widget.onPageChanged(widget.currentPage + 1),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: GlassTokens.chromeGap),
               _buildNavButton(
                 icon: Icons.last_page,
                 enabled:
@@ -1144,28 +1155,25 @@ class _PaginationBarState extends State<PaginationBar>
     required bool enabled,
     required VoidCallback onPressed,
   }) {
-    // 可用↔置灰要过渡：翻到第一页/最后一页时按钮直接掉一半透明度会「闪」，
-    // 与按钮自身的图标色过渡（GlassIconButton → GlassAnimatedColors）同步。
-    return AnimatedOpacity(
-      duration: GlassTokens.motionDuration,
-      curve: GlassTokens.motionCurve,
-      opacity: enabled ? 1.0 : 0.45,
-      child: GlassIconButton(
-        standalone: true,
-        size: 36,
-        iconSize: 18,
-        icon: Icon(icon),
-        color: enabled
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.onSurface,
-        onPressed: enabled
-            ? () {
-                // 添加触感反馈
-                HapticFeedback.lightImpact();
-                onPressed();
-              }
-            : null,
-      ),
+    // 可用↔置灰的过渡交给按钮自己的 GlassAnimatedColors（图标色平滑推移）。
+    // ⛔ 不要在外面套 AnimatedOpacity 压半透明：那会 saveLayer 把玻璃隔离，
+    // 置灰期间整枚键的折射是断的（见 GlassReveal 那条原语）。置灰的语义由
+    // 颜色表达——onSurface 38% 是全站「不可用」的统一取值。
+    return GlassIconButton(
+      standalone: true,
+      size: 36,
+      iconSize: 18,
+      icon: Icon(icon),
+      color: enabled
+          ? Theme.of(context).colorScheme.primary
+          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+      onPressed: enabled
+          ? () {
+              // 添加触感反馈
+              HapticFeedback.lightImpact();
+              onPressed();
+            }
+          : null,
     );
   }
 }

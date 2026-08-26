@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 「header 悬浮在列表之上」的通用骨架。
 ///
 /// - [body]：铺满整个区域的列表；调用方自己用 `paddingTop = headerExtent`
 ///   让出首屏位置（视口不能在外面套 Padding，否则内容滚不到 header 背后）。
-/// - 顶部渐变蒙层从 0 覆盖到 [headerExtent] + [GlassTokens.headerFadeExtent]，
-///   平台段为 [solidExtent]（一般是状态栏高度，没有状态栏传 0）。
+/// - 顶部渐变蒙层从 0 覆盖到 [headerExtent] 再往下一段尾巴（长度按
+///   [GlassTokens.scrimFadeTail] 的标定比例算，标准单行 header 正好是
+///   [GlassTokens.headerFadeExtent] 24）。平台段为 [solidExtent]（一般是状态栏
+///   高度，没有状态栏传 0）——**只盖状态栏**，header 行本身是淡出的一部分。
 /// - [header]：放在 [headerTop] 处的一行玻璃控件（可为 null，只要蒙层 + 留白）。
 ///
 /// # 详情 / 二级列表页标准配方
@@ -21,8 +24,15 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///   「返回圆钮（`GlassIconButton(standalone: true)` + `AppService.tryPop`）
 ///   / 中间 `GlassTitlePill`（可点按弹全文，别手写死标题）
 ///   / 右侧 `GlassButtonGroup`」。胶囊里：仅宽屏直出的键和等数据就绪的键都
-///   用 `GlassGroupSlot` 包；尾部固定一个 40×40 的 PopupMenuButton
-///   （`offset: Offset(0, 8)`、圆角 12），窄屏功能收进这里。
+///   用 `GlassGroupSlot` 包；尾部固定一个 `GlassGroupOverflowMenuButton`
+///   （或自己 `GlassIconButton` + `showGlassMenu`），窄屏功能收进这里。
+///   **不要再用 `PopupMenuButton`**——它吐出来的是块不透明的 Material 卡片，
+///   跟玻璃胶囊接不上（见 `glass_menu.dart`）。
+/// - header 行里这几块玻璃之间一律留 `SizedBox(width: 8)`：`liquid: true` 时
+///   本组件会把整行收进一个 [GlassBlendGroup]，那 8px 正是
+///   [GlassTokens.chromeBlend] 标定的「刚好不粘连、拖近才融合」的距离。
+///   间距改了就要连着 blend 一起改，否则要么静止态就糊成一条，要么怎么拖
+///   都不融合。
 /// - [body] 外包一层 `NotificationListener<ScrollNotification>`
 ///   （`depth == 0` 且纵向、`pixels >= 300`）驱动回到顶部浮钮的显隐；
 ///   浮钮放进 [extra]，`bottom = padding.bottom + 16 + (分页模式 ? 46 : 0)`
@@ -45,7 +55,29 @@ class GlassHeaderOverlay extends StatelessWidget {
     this.headerHeight,
     this.solidExtent = 0,
     this.extra = const [],
+    this.liquid = false,
+    this.blendHeader = true,
   });
+
+  /// header 行里并排的几块玻璃是否收进**同一层**、靠近时互相吞并
+  /// （见 [GlassBlendGroup]）。只在 [liquid] 为真时有意义。
+  ///
+  /// 默认开：头像圆钮被按住往右拖时，跟手形变会把它与中间那只胶囊之间的
+  /// 8px 间隙吃掉并融成一坨——与浮动底栏上「搜索圆钮拖向栏目胶囊」是同一种
+  /// 语言。要关掉的只有一种情形：header 里有玻璃要做
+  /// [GlassSurface.materialize] 材质淡入（同一层玻璃只有一份材质，淡入在
+  /// 融合态下无效，debug 下有 assert 盯着）。
+  final bool blendHeader;
+
+  /// 本页的浮层 chrome（[header] 与 [extra]）改用真液态玻璃
+  /// （[chromeGlassBackend]，真玻璃档下是 `liquid_glass_widgets` 那一档）。
+  ///
+  /// 开关放在这里而不是让页面自己包 `LiquidGlassScope`，是因为 [extra] 里的
+  /// 每一项都必须是 `Positioned`（Stack 的直接子级）——在外面包一层
+  /// InheritedWidget 会把 `Positioned` 埋起来，浮钮当场失去定位。这里从
+  /// **整个 Stack 之上**打开，再单独给 [body] 关掉：列表在滚动容器里，lens
+  /// 放进去会被 Android 的拉伸回弹渲染成纯黑（见 `liquid_glass_material.dart`）。
+  final bool liquid;
 
   final Widget body;
 
@@ -68,18 +100,23 @@ class GlassHeaderOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
+    final Widget stack = Stack(
       // 所有子项都是 Positioned；松约束下也要撑满，别被某个非 Positioned 的占位压成 0 高
       fit: StackFit.expand,
       children: [
-        Positioned.fill(child: body),
+        // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
+        Positioned.fill(
+          child: liquid
+              ? LiquidGlassScope(backend: GlassBackend.plain, child: body)
+              : body,
+        ),
         Positioned(
           top: 0,
           left: 0,
           right: 0,
-          child: EdgeFadeScrim.top(
-            height: headerExtent + GlassTokens.headerFadeExtent,
-            solidExtent: solidExtent,
+          child: EdgeFadeScrim.headerOverlay(
+            headerExtent: headerExtent,
+            plateauExtent: solidExtent,
           ),
         ),
         if (header != null)
@@ -88,10 +125,15 @@ class GlassHeaderOverlay extends StatelessWidget {
             left: 0,
             right: 0,
             height: headerHeight ?? GlassTokens.headerRowHeight,
-            child: header!,
+            // 融合层只能包**这一行**：它是一层玻璃 + 一次背景采样，包大了会
+            // 把整页都拖进同一次采样里。非液态档下它是纯透传。
+            child: blendHeader ? GlassBlendGroup(child: header!) : header!,
           ),
         ...extra,
       ],
     );
+    return liquid
+        ? LiquidGlassScope(backend: chromeGlassBackend(context), child: stack)
+        : stack;
   }
 }

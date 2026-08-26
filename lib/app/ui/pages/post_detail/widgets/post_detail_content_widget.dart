@@ -6,8 +6,10 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
+import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -321,12 +323,89 @@ class _PostBodyCard extends StatefulWidget {
 class _PostBodyCardState extends State<_PostBodyCard> {
   late bool _showOriginal;
   bool _hasProcessedContent = false;
+  late final MarkdownTranslationController _translationController;
+  final ConfigService _configService = Get.find();
+
+  static const double _translationPillHeight = 30.0;
 
   @override
   void initState() {
     super.initState();
-    _showOriginal = Get.find<ConfigService>()[ConfigKey
-        .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _translationController = MarkdownTranslationController();
+    _showOriginal =
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+  }
+
+  @override
+  void dispose() {
+    _translationController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTranslation() async {
+    await _translationController.translate(
+      widget.body,
+      originalText: widget.body,
+    );
+  }
+
+  /// 翻译入口：翻译图标（翻译中转菊花）+ 紧凑语言选择器，合装进一个胶囊。
+  /// 与 MediaDescriptionWidget 及 CommentItem 保持一致。
+  Widget _buildTranslationButton(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: SizedBox(
+        height: _translationPillHeight,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final busy = _translationController.isTranslating.value;
+              return InkWell(
+                borderRadius: BorderRadius.circular(999),
+                onTap: busy ? null : _handleTranslation,
+                child: Container(
+                  height: _translationPillHeight,
+                  padding: const EdgeInsets.only(left: 10, right: 4),
+                  alignment: Alignment.center,
+                  child: busy
+                      ? const SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.translate,
+                          size: 16,
+                          color: colorScheme.primary,
+                        ),
+                ),
+              );
+            }),
+            Obx(
+              () => SizedBox(
+                width: 34,
+                height: _translationPillHeight,
+                child: TranslationLanguageSelector(
+                  compact: true,
+                  extrimCompact: true,
+                  selectedLanguage: _configService.currentTranslationSort,
+                  onLanguageSelected: (sort) {
+                    _configService.updateTranslationLanguage(sort);
+                    if (_translationController.hasTranslation) {
+                      _handleTranslation();
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -364,16 +443,19 @@ class _PostBodyCardState extends State<_PostBodyCard> {
                 MarkdownOriginalTextToggle(
                   visible: _hasProcessedContent,
                   showOriginal: _showOriginal,
+                  pillSize: _translationPillHeight,
+                  padding: const EdgeInsets.only(right: 8),
                   onChanged: (v) => setState(() => _showOriginal = v),
                 ),
+                _buildTranslationButton(context),
               ],
             ),
             const SizedBox(height: 10),
             CustomMarkdownBody(
               data: widget.body,
               originalData: widget.body,
-              showTranslationButton: true,
-              translationButtonAtTop: true,
+              showTranslationButton: false,
+              translationController: _translationController,
               initialShowUnprocessedText: _showOriginal,
               onProcessedContentChanged: (hasProcessed) {
                 if (_hasProcessedContent == hasProcessed) return;

@@ -617,6 +617,16 @@ settings:
   defaultBrowserDesc: Please open the default link configuration item in the system settings and add the iwara.tv website link
   themeMode: Theme Mode
   themeModeDesc: This configuration determines the theme mode of the app
+  glassEffect: Glass Effect
+  glassEffectDesc: Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)
+  liquidGlassEffect: Liquid Glass
+  liquidGlassEffectDesc: Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices
+  plainGlassEffect: Lightweight Translucency
+  plainGlassEffectDesc: Translucent fills and outlines only, no blur. Best performance and battery life
+  glassEffectIntroTitle: Try the new glass effect
+  glassEffectIntroContent: Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.
+  glassEffectIntroHint: You can change this any time in Settings → Theme → Glass Effect.
+  glassEffectIntroDone: Keep it
   dynamicColor: Dynamic Color
   dynamicColorDesc: This configuration determines whether the app uses dynamic color
   useDynamicColor: Use Dynamic Color
@@ -1604,6 +1614,7 @@ download:
   allStatus: All Status
   typeLabel: 'Type: ${label}'
   allTypes: All Types
+  taskType: Type
   video: Video
   gallery: Gallery
   other: Other
@@ -2424,6 +2435,8 @@ searchFilter:
     latest: "Latest"
     views: "Views"
     likes: "Likes"
+  # Filter drawer
+  drawerSubtitle: "Changes apply instantly"
 
 firstTimeSetup:
   welcome:

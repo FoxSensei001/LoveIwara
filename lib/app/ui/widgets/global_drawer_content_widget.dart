@@ -2,6 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -16,9 +20,8 @@ import '../../services/login_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
-/// 底部悬浮圆按钮尺寸与留白（渐变高度、列表底部留白都由此派生）
-const double _kActionButtonSize = 44;
-const double _kActionIconSize = 24;
+/// 底部悬浮按钮留白（渐变高度、列表底部留白都由此派生）。
+/// 按钮尺寸本身交给 [GlassTokens.pillHeight]，不再本地重复定义。
 const double _kActionBottomMargin = 16;
 const double _kActionFadeExtent = 48;
 
@@ -45,16 +48,17 @@ class GlobalDrawerColumns extends StatelessWidget {
               Expanded(
                 child: Stack(
                   children: [
-                    ListView(
-                      // 底部留白让最后一项能完整滚到悬浮按钮上方
-                      padding: EdgeInsets.only(
-                        top: 8,
-                        bottom:
-                            _kActionBottomMargin +
-                            _kActionButtonSize +
-                            bottomInset,
-                      ),
-                      children: [
+                    RepaintBoundary(
+                      child: ListView(
+                        // 底部留白让最后一项能完整滚到悬浮按钮上方
+                        padding: EdgeInsets.only(
+                          top: 8,
+                          bottom:
+                              _kActionBottomMargin +
+                              GlassTokens.pillHeight +
+                              bottomInset,
+                        ),
+                        children: [
                         _buildSectionHeader(
                           context,
                           slang.t.settings.interaction,
@@ -245,10 +249,10 @@ class GlobalDrawerColumns extends StatelessWidget {
                           title: slang.t.settings.jumpLink,
                           onTap: () => LinkInputDialogWidget.show(),
                         ),
-
                         const SizedBox(height: 16),
                       ],
                     ),
+                  ),
                     // 渐变承托：列表全程透出，仅在按钮背后逐渐压暗（不随滚动变化）
                     Positioned(
                       left: 0,
@@ -256,7 +260,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       bottom: 0,
                       height:
                           _kActionBottomMargin +
-                          _kActionButtonSize +
+                          GlassTokens.pillHeight +
                           _kActionFadeExtent +
                           bottomInset,
                       child: IgnorePointer(
@@ -271,7 +275,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                       left: 16,
                       right: 16,
                       bottom: _kActionBottomMargin + bottomInset,
-                      height: _kActionButtonSize,
+                      height: GlassTokens.pillHeight,
                       child: _buildFloatingActions(context),
                     ),
                   ],
@@ -300,43 +304,51 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildFloatingActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _DrawerCircleButton(
-              icon: Icons.settings_outlined,
-              onTap: () {
-                AppService.switchGlobalDrawer();
-                NaviService.navigateToSettingsPage();
-              },
-            ),
-            const SizedBox(width: 8),
-            Obx(() {
-              final site = appService.currentSiteMode;
-              return _DrawerCircleButton(
-                icon: site.isAi ? Icons.auto_awesome : Icons.public,
-                onTap: () => _showSiteModeDialog(
-                  context,
-                  initialSite: _alternateSite(site),
-                ),
-              );
-            }),
-          ],
-        ),
-        // 未登录时右侧留空，左侧位置不变
-        Obx(
-          () => userService.hasLoadedProfile
-              ? _DrawerCircleButton(
-                  icon: Icons.logout_outlined,
-                  onTap: () => _showLogoutDialog(context),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
+    // 抽屉底部动作栏位于不透明渐变承托之上，使用 GlassBackend.plain（0 Shader 成本）
+    // 避免在抽屉滑出时对整个滑动子树和主页面进行高开销的 Backdrop 采样。
+    return LiquidGlassScope(
+      backend: GlassBackend.plain,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // 设置 + 站点切换是同一档「工具位」，收进一只玻璃胶囊。
+          // ⛔ 不给 tooltip：抽屉挂在 Navigator 之外，这棵子树里够不到
+          // Overlay，Tooltip 一弹就是「No Overlay widget found」。
+          GlassButtonGroup(
+            children: [
+              GlassIconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () {
+                  AppService.switchGlobalDrawer();
+                  NaviService.navigateToSettingsPage();
+                },
+              ),
+              Obx(() {
+                final site = appService.currentSiteMode;
+                return GlassIconButton(
+                  icon: Icon(site.isAi ? Icons.auto_awesome : Icons.public),
+                  onPressed: () => _showSiteModeDialog(
+                    context,
+                    initialSite: _alternateSite(site),
+                  ),
+                );
+              }),
+            ],
+          ),
+          // 退出登录是独立的破坏性动作，不与工具位共处一只胶囊；
+          // 未登录时右侧留空，左侧位置不变。
+          Obx(
+            () => userService.hasLoadedProfile
+                ? GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.logout_outlined),
+                    onPressed: () => _showLogoutDialog(context),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -430,113 +442,115 @@ class GlobalDrawerColumns extends StatelessWidget {
     final user = userService.currentUser.value;
     final headerUrl = CommonConstants.userProfileHeaderUrl(user?.header?.id);
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          AppService.switchGlobalDrawer();
-          if (!userService.isAuthenticated) {
-            LoginService.showLogin();
-          } else if (user == null) {
-            // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
-            showGlassToast(
-              slang.t.auth.loginSuccessProfilePending,
-              type: GlassToastType.warning,
-            );
-          } else {
-            NaviService.navigateToAuthorProfilePage(user.username);
-          }
-        },
-        child: Container(
-          height: 160 + MediaQuery.paddingOf(context).top,
-          width: double.infinity,
-          decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: CachedNetworkImage(
-                  imageUrl: headerUrl,
-                  fit: BoxFit.cover,
-                  errorWidget: (context, url, error) =>
-                      Container(color: Theme.of(context).primaryColor),
-                  httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
-                ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.1),
-                        Colors.black.withValues(alpha: 0.6),
-                      ],
-                    ),
+    return RepaintBoundary(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            AppService.switchGlobalDrawer();
+            if (!userService.isAuthenticated) {
+              LoginService.showLogin();
+            } else if (user == null) {
+              // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
+              showGlassToast(
+                slang.t.auth.loginSuccessProfilePending,
+                type: GlassToastType.warning,
+              );
+            } else {
+              NaviService.navigateToAuthorProfilePage(user.username);
+            }
+          },
+          child: Container(
+            height: 160 + MediaQuery.paddingOf(context).top,
+            width: double.infinity,
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CachedNetworkImage(
+                    imageUrl: headerUrl,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) =>
+                        Container(color: Theme.of(context).primaryColor),
+                    httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
                   ),
                 ),
-              ),
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 16,
-                child: Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: AvatarWidget(user: user, size: 60),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (userService.hasLoadedProfile) ...[
-                            buildUserName(
-                              context,
-                              user,
-                              fontSize: 18,
-                              bold: true,
-                              defaultNameColor: Colors.white,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '@${user!.username}',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ] else ...[
-                            Text(
-                              slang.t.auth.notLoggedIn,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              slang.t.auth.clickToLogin,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.1),
+                          Colors.black.withValues(alpha: 0.6),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: AvatarWidget(user: user, size: 60),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (userService.hasLoadedProfile) ...[
+                              buildUserName(
+                                context,
+                                user,
+                                fontSize: 18,
+                                bold: true,
+                                defaultNameColor: Colors.white,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '@${user!.username}',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ] else ...[
+                              Text(
+                                slang.t.auth.notLoggedIn,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                slang.t.auth.clickToLogin,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -601,38 +615,6 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 }
 
-class _DrawerCircleButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _DrawerCircleButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox.square(
-      dimension: _kActionButtonSize,
-      child: IconButton.filledTonal(
-        onPressed: onTap,
-        iconSize: _kActionIconSize,
-        icon: Icon(icon),
-        style: IconButton.styleFrom(
-          backgroundColor: colorScheme.surfaceContainerHighest,
-          foregroundColor: colorScheme.onSurfaceVariant,
-          hoverColor: colorScheme.primary.withValues(alpha: 0.08),
-          focusColor: colorScheme.primary.withValues(alpha: 0.08),
-          highlightColor: colorScheme.primary.withValues(alpha: 0.12),
-          padding: EdgeInsets.zero,
-          fixedSize: const Size.square(_kActionButtonSize),
-          minimumSize: const Size.square(_kActionButtonSize),
-          maximumSize: const Size.square(_kActionButtonSize),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      ),
-    );
-  }
-}
-
 class _SiteModeConfirmDialog extends StatefulWidget {
   final IwaraSite currentSite;
   final IwaraSite? initialSite;
@@ -664,8 +646,8 @@ class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: Text(t.siteMode.dialogTitle),
+    return GlassAlertDialog(
+      title: t.siteMode.dialogTitle,
       content: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: 420,
@@ -711,18 +693,19 @@ class _SiteModeConfirmDialogState extends State<_SiteModeConfirmDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        FilledButton(
+        GlassDialogAction(
+          label: t.common.confirm,
           onPressed: _selectedSite == widget.currentSite
               ? null
               : () async {
                   Navigator.of(context).pop();
                   await widget.onConfirm(_selectedSite);
                 },
-          child: Text(t.common.confirm),
         ),
       ],
     );
@@ -736,16 +719,17 @@ class LogoutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(slang.t.auth.logout),
+    return GlassAlertDialog(
+      title: slang.t.auth.logout,
       content: Text(slang.t.auth.logoutConfirmation),
       actions: [
-        TextButton(
-          child: Text(slang.t.common.cancel),
+        GlassDialogAction(
+          label: slang.t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.pop(context),
         ),
-        ElevatedButton(
-          child: Text(slang.t.common.confirm),
+        GlassDialogAction(
+          label: slang.t.common.confirm,
           onPressed: () async {
             Navigator.pop(context);
             try {

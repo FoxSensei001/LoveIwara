@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
@@ -145,6 +147,37 @@ class ThemeStepWidget extends StatelessWidget {
               isNarrow: isNarrow,
               onTap: () => themeService.setThemeMode(AppThemeMode.dark),
             ),
+            // 玻璃质感：与「设置 → 主题设置」里那一项、以及老用户看到的一次性
+            // 提醒（`GlassMaterialIntro`）是同一个开关，三处必须给同一份选择。
+            Padding(
+              padding: EdgeInsets.all(isNarrow ? 12 : 16),
+              child: Text(
+                slang.t.settings.glassEffect,
+                style:
+                    (isNarrow
+                            ? theme.textTheme.titleSmall
+                            : theme.textTheme.titleMedium)
+                        ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            _buildThemeOption(
+              context: context,
+              title: slang.t.settings.liquidGlassEffect,
+              subtitle: slang.t.settings.liquidGlassEffectDesc,
+              icon: Icons.blur_on,
+              isSelected: themeService.enableLiquidGlass,
+              isNarrow: isNarrow,
+              onTap: () => themeService.setLiquidGlassEnabled(true),
+            ),
+            _buildThemeOption(
+              context: context,
+              title: slang.t.settings.plainGlassEffect,
+              subtitle: slang.t.settings.plainGlassEffectDesc,
+              icon: Icons.filter_b_and_w,
+              isSelected: !themeService.enableLiquidGlass,
+              isNarrow: isNarrow,
+              onTap: () => themeService.setLiquidGlassEnabled(false),
+            ),
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
               child: Text(
@@ -156,14 +189,11 @@ class ThemeStepWidget extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            SwitchListTile(
+            GlassSwitchItem(
               title: Text(slang.t.settings.useDynamicColor),
               subtitle: Text(slang.t.settings.dynamicColorDesc),
               value: themeService.useDynamicColor,
               onChanged: (value) => themeService.setUseDynamicColor(value),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: isNarrow ? 12 : 16,
-              ),
             ),
             Padding(
               padding: EdgeInsets.all(isNarrow ? 12 : 16),
@@ -477,8 +507,8 @@ class ThemeStepWidget extends StatelessWidget {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.settings.pickColor),
+      GlassAlertDialog(
+        title: slang.t.settings.pickColor,
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -487,11 +517,14 @@ class ThemeStepWidget extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
             onPressed: () {
               final hex = pickerColor
                   .toARGB32()
@@ -501,7 +534,6 @@ class ThemeStepWidget extends StatelessWidget {
               themeService.addCustomThemeColor(hex);
               AppService.tryPop();
             },
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),

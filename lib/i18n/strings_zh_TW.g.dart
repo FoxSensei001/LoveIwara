@@ -765,6 +765,16 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結';
 	@override String get themeMode => '主題模式';
 	@override String get themeModeDesc => '此配置決定應用的主題模式';
+	@override String get glassEffect => '玻璃質感';
+	@override String get glassEffectDesc => '決定全域玻璃控件（頂欄膠囊、浮動底欄、選單、彈窗按鈕）使用哪種材質';
+	@override String get liquidGlassEffect => '液態玻璃';
+	@override String get liquidGlassEffectDesc => '真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電';
+	@override String get plainGlassEffect => '輕量半透明';
+	@override String get plainGlassEffectDesc => '只用半透明底色與描邊、不做模糊，效能與續航最好';
+	@override String get glassEffectIntroTitle => '試試新的玻璃質感';
+	@override String get glassEffectIntroContent => '這一版的頂欄、底欄與選單換成了液態玻璃（真實的模糊與折射）。若在裝置上覺得卡頓或偏好簡潔，可以現在換成輕量半透明。';
+	@override String get glassEffectIntroHint => '之後隨時可以在「設定 → 主題設定 → 玻璃質感」裡修改。';
+	@override String get glassEffectIntroDone => '就這樣';
 	@override String get dynamicColor => '動態顏色';
 	@override String get dynamicColorDesc => '此配置決定應用是否使用動態顏色';
 	@override String get useDynamicColor => '使用動態顏色';
@@ -1348,6 +1358,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get allStatus => '所有狀態';
 	@override String typeLabel({required Object label}) => '類型: ${label}';
 	@override String get allTypes => '所有類型';
+	@override String get taskType => '類型';
 	@override String get video => '影片';
 	@override String get gallery => '圖庫';
 	@override String get other => '其他';
@@ -2109,6 +2120,7 @@ class _TranslationsSearchFilterZhTw implements TranslationsSearchFilterEn {
 	@override String get forumPosts => '論壇貼文';
 	@override String get playlists => '播放清單';
 	@override late final _TranslationsSearchFilterSortTypesZhTw sortTypes = _TranslationsSearchFilterSortTypesZhTw._(_root);
+	@override String get drawerSubtitle => '變更即時生效';
 }
 
 // Path: tagSelector
@@ -4027,6 +4039,16 @@ extension on TranslationsZhTw {
 			'settings.defaultBrowserDesc' => '請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結',
 			'settings.themeMode' => '主題模式',
 			'settings.themeModeDesc' => '此配置決定應用的主題模式',
+			'settings.glassEffect' => '玻璃質感',
+			'settings.glassEffectDesc' => '決定全域玻璃控件（頂欄膠囊、浮動底欄、選單、彈窗按鈕）使用哪種材質',
+			'settings.liquidGlassEffect' => '液態玻璃',
+			'settings.liquidGlassEffectDesc' => '真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電',
+			'settings.plainGlassEffect' => '輕量半透明',
+			'settings.plainGlassEffectDesc' => '只用半透明底色與描邊、不做模糊，效能與續航最好',
+			'settings.glassEffectIntroTitle' => '試試新的玻璃質感',
+			'settings.glassEffectIntroContent' => '這一版的頂欄、底欄與選單換成了液態玻璃（真實的模糊與折射）。若在裝置上覺得卡頓或偏好簡潔，可以現在換成輕量半透明。',
+			'settings.glassEffectIntroHint' => '之後隨時可以在「設定 → 主題設定 → 玻璃質感」裡修改。',
+			'settings.glassEffectIntroDone' => '就這樣',
 			'settings.dynamicColor' => '動態顏色',
 			'settings.dynamicColorDesc' => '此配置決定應用是否使用動態顏色',
 			'settings.useDynamicColor' => '使用動態顏色',
@@ -4451,6 +4473,8 @@ extension on TranslationsZhTw {
 			'oreno3d.errors.serverError' => '伺服器內部錯誤',
 			'oreno3d.errors.serviceUnavailable' => '服務暫時不可用',
 			'oreno3d.errors.requestCancelled' => '請求已取消',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionError' => '網路連接錯誤，請檢查網路設定',
 			'oreno3d.errors.networkRequestFailed' => '網路請求失敗',
 			'oreno3d.errors.searchVideoError' => '搜尋影片時發生未知錯誤',
@@ -4461,8 +4485,6 @@ extension on TranslationsZhTw {
 			'oreno3d.loading.gettingVideoInfo' => '正在獲取影片資訊...',
 			'oreno3d.loading.cancel' => '取消',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '影片不存在或已被刪除',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => '無法獲取影片播放連結',
 			'oreno3d.messages.getVideoDetailFailed' => '獲取影片詳情失敗',
 			'firstTimeSetup.welcome.title' => '歡迎使用',
@@ -4965,6 +4987,8 @@ extension on TranslationsZhTw {
 			'download.waiting' => '等待中',
 			'download.paused' => '暫停中',
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
+			_ => null,
+		} ?? switch (path) {
 			'download.galleryDownloadCompletedWithName' => ({required Object galleryName}) => '圖庫下載完成: ${galleryName}',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下載完成: ${fileName}',
 			'download.searchTasks' => '搜尋下載任務...',
@@ -4972,11 +4996,10 @@ extension on TranslationsZhTw {
 			'download.allStatus' => '所有狀態',
 			'download.typeLabel' => ({required Object label}) => '類型: ${label}',
 			'download.allTypes' => '所有類型',
+			'download.taskType' => '類型',
 			'download.video' => '影片',
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
-			_ => null,
-		} ?? switch (path) {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
@@ -5478,6 +5501,8 @@ extension on TranslationsZhTw {
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '日誌空間即將用盡，建議清理舊日誌',
 			'log.cleaningOldLogs' => '正在自動清理舊日誌...',
 			'log.logCleaningCompleted' => '日誌清理完成',
+			_ => null,
+		} ?? switch (path) {
 			'log.logCleaningProcessMayNotBeCompleted' => '日誌清理過程可能未完成',
 			'log.cleanExceededLogs' => '清理超出限制的日誌',
 			'log.noLogsToExport' => '沒有可匯出的日誌資料',
@@ -5489,8 +5514,6 @@ extension on TranslationsZhTw {
 			'log.selectMergeRangeHint' => '請選擇要合併的日誌時間範圍',
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 天',
 			'log.logStats' => '日誌統計資訊',
-			_ => null,
-		} ?? switch (path) {
 			'log.todayLogs' => ({required Object count}) => '今日日誌: ${count} 條',
 			'log.recent7DaysLogs' => ({required Object count}) => '最近7天: ${count} 條',
 			'log.totalLogs' => ({required Object count}) => '總計日誌: ${count} 條',
@@ -5715,6 +5738,7 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '觀看次數',
 			'searchFilter.sortTypes.likes' => '按讚數',
+			'searchFilter.drawerSubtitle' => '變更即時生效',
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',
 			'tagSelector.addTag' => '新增標籤',

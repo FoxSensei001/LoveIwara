@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/video_description_widget.dart';
@@ -1071,66 +1074,41 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
               ),
         menuItems: [
           // 置顶菜单项：查看下载列表
-          PopupMenuItem<String>(
+          GlassMenuOption<String>(
             value: '__download_list__',
-            child: Row(
-              children: [
-                Icon(Icons.download_outlined, size: 18, color: primaryColor),
-                const SizedBox(width: UIConstants.iconTextSpacing),
-                Text(
-                  t.download.viewDownloadList,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: primaryColor,
-                  ),
-                ),
-              ],
-            ),
+            icon: Icons.download_outlined,
+            label: t.download.viewDownloadList,
           ),
           // 管理分类快捷入口：不用先弹出选清晰度的弹窗，直达管理页
-          PopupMenuItem<String>(
+          GlassMenuOption<String>(
             value: '__manage_categories__',
-            child: Row(
-              children: [
-                Icon(Icons.folder_outlined, size: 18, color: primaryColor),
-                const SizedBox(width: UIConstants.iconTextSpacing),
-                Text(
-                  t.download.category.manageTitle,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: primaryColor,
-                  ),
-                ),
-              ],
-            ),
+            icon: Icons.folder_outlined,
+            label: t.download.category.manageTitle,
           ),
-          // 分割线
-          const PopupMenuDivider(),
+          const GlassMenuSeparator(),
           // 清晰度选项：配上与播放器一致的分辨率图标，不再是赤裸文字
           //
           // value 用空字符串兜底而不是本地化的"未知"文案——它要传给
-          // _openDownloadPicker 做清晰度匹配，得和 sheet 内 `s.name?.toLowerCase() ?? ''`
-          // 的兜底值对上，否则名字为空的源会被错误匹配成排序后的第一个（画质最高）源。
-          ...sources.map((source) {
-            return PopupMenuItem<String>(
+          // _openDownloadPicker 做清晰度匹配，得和 sheet 内
+          // `s.name?.toLowerCase() ?? ''` 的兜底值对上，否则名字为空的源会被
+          // 错误匹配成排序后的第一个（画质最高）源。
+          ...sources.map(
+            (source) => GlassMenuOption<String>(
               value: source.name ?? '',
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    CommonUtils.getQualityIconAsset(source.name),
-                    width: 18,
-                    height: 18,
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurfaceVariant,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  const SizedBox(width: UIConstants.iconTextSpacing),
-                  Text(CommonUtils.getQualityDisplayLabel(t, source.name)),
-                ],
+              label: CommonUtils.getQualityDisplayLabel(t, source.name),
+              leading: SvgPicture.asset(
+                CommonUtils.getQualityIconAsset(source.name),
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                  // leading 槽位外面套了一层跟着行语义色走的 IconTheme，
+                  // SVG 不吃 IconTheme，得自己取一次当前色。
+                  Theme.of(context).colorScheme.onSurfaceVariant,
+                  BlendMode.srcIn,
+                ),
               ),
-            );
-          }),
+            ),
+          ),
         ],
         onMenuItemSelected: (value) {
           if (value == '__download_list__') {
@@ -1374,9 +1352,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
   /// 处理分享操作
   void _handleShareAction(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => ShareVideoBottomSheet(
         videoId: widget.controller.videoInfo.value?.id ?? '',
         videoTitle: widget.controller.videoInfo.value?.title ?? '',
@@ -1437,17 +1413,18 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
 
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.common.tips),
+      builder: (context) => GlassAlertDialog(
+        title: t.common.tips,
         content: Text(message),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.common.confirm,
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(t.common.confirm),
           ),
         ],
       ),

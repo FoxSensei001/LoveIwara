@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -6,6 +8,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -15,7 +18,9 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'dart:async';
 
 import '../../../../models/comment.model.dart';
-import '../../../widgets/comment_actions_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+
+import '../../../widgets/comment_actions_menu.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -71,7 +76,8 @@ class _CommentItemState extends State<CommentItem> {
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
-    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginal =
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
   }
 
   @override
@@ -83,19 +89,19 @@ class _CommentItemState extends State<CommentItem> {
   bool get _canReply => !widget.isReply && widget.comment.parent == null;
 
   /// 长按（整条评论或正文文本上）弹出操作菜单：复制 / 选择复制 / 回复。
-  void _showActionsSheet() {
-    showCommentActionsSheet(
+  /// [globalPosition] 是长按落点，菜单贴着它弹。
+  void _showActionsMenu(Offset globalPosition) {
+    showCommentActionsMenu(
       context: context,
+      globalPosition: globalPosition,
       text: widget.comment.body,
       onReply: _canReply ? _showReplyDialog : null,
     );
   }
 
   void _handleViewReplies() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentRepliesBottomSheet(
         parentComment: widget.comment,
         authorUserId: widget.authorUserId,
@@ -190,31 +196,21 @@ class _CommentItemState extends State<CommentItem> {
                 ),
               );
             }),
-            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            // 语言选择器自己不带尺寸，尺寸由这只槽位说了算
             Obx(
               () => SizedBox(
                 width: 34,
                 height: _actionPillHeight,
-                child: IconButtonTheme(
-                  data: IconButtonThemeData(
-                    style: IconButton.styleFrom(
-                      fixedSize: const Size(34, _actionPillHeight),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.center,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  child: TranslationLanguageSelector(
-                    compact: true,
-                    extrimCompact: true,
-                    selectedLanguage: _configService.currentTranslationSort,
-                    onLanguageSelected: (sort) {
-                      _configService.updateTranslationLanguage(sort);
-                      if (_translationController.hasTranslation) {
-                        _handleTranslation();
-                      }
-                    },
-                  ),
+                child: TranslationLanguageSelector(
+                  compact: true,
+                  extrimCompact: true,
+                  selectedLanguage: _configService.currentTranslationSort,
+                  onLanguageSelected: (sort) {
+                    _configService.updateTranslationLanguage(sort);
+                    if (_translationController.hasTranslation) {
+                      _handleTranslation();
+                    }
+                  },
                 ),
               ),
             ),
@@ -287,10 +283,8 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         initialText: widget.comment.body,
         title: slang.t.common.editComment,
@@ -315,10 +309,7 @@ class _CommentItemState extends State<CommentItem> {
             if (!mounted) return;
             if (result.isSuccess) {
               widget.onCommentEdited?.call(
-                widget.comment.copyWith(
-                  body: text,
-                  updatedAt: DateTime.now(),
-                ),
+                widget.comment.copyWith(body: text, updatedAt: DateTime.now()),
               );
               showGlassToast(
                 slang.t.common.commentUpdated,
@@ -349,10 +340,8 @@ class _CommentItemState extends State<CommentItem> {
       return;
     }
 
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,
@@ -404,72 +393,55 @@ class _CommentItemState extends State<CommentItem> {
         child: SizedBox(
           width: _actionPillHeight,
           height: _actionPillHeight,
-          child: PopupMenuButton<String>(
-            icon: Icon(
-              Icons.more_horiz,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            padding: EdgeInsets.zero,
-            position: PopupMenuPosition.under,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            constraints: const BoxConstraints(minWidth: 140),
-            itemBuilder: (context) => [
-              if (hasReplyOption)
-                PopupMenuItem(
-                  value: 'reply',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.reply, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.common.reply,
-                        style: const TextStyle(fontSize: 14),
+          // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton，吐出来是块不透明
+          // 的 Material 卡片）。Builder 是为了拿到触发钮自身的 context 量落点。
+          child: Builder(
+            builder: (anchorContext) => GlassPressable(
+              // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+              // （见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
+              onTap: () async {
+                final action = await showGlassMenu<String>(
+                  anchorContext: anchorContext,
+                  entries: [
+                    if (hasReplyOption)
+                      GlassMenuOption<String>(
+                        value: 'reply',
+                        icon: Icons.reply,
+                        label: t.common.reply,
+                      ),
+                    if (isOwner) ...[
+                      GlassMenuOption<String>(
+                        value: 'edit',
+                        icon: Icons.edit,
+                        label: t.common.edit,
+                      ),
+                      GlassMenuOption<String>(
+                        value: 'delete',
+                        icon: Icons.delete,
+                        label: t.common.delete,
+                        destructive: true,
                       ),
                     ],
-                  ),
+                  ],
+                );
+                switch (action) {
+                  case 'reply':
+                    _showReplyDialog();
+                  case 'edit':
+                    _showEditDialog();
+                  case 'delete':
+                    _showDeleteConfirmDialog();
+                }
+              },
+              builder: (context, pressed) => Center(
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
-              if (isOwner) ...[
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit, size: 16),
-                      const SizedBox(width: 8),
-                      Text(t.common.edit, style: const TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.common.delete,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
-            onSelected: (value) {
-              switch (value) {
-                case 'reply':
-                  _showReplyDialog();
-                  break;
-                case 'edit':
-                  _showEditDialog();
-                  break;
-                case 'delete':
-                  _showDeleteConfirmDialog();
-                  break;
-              }
-            },
+              ),
+            ),
           ),
         ),
       ),
@@ -546,158 +518,164 @@ class _CommentItemState extends State<CommentItem> {
       //（头像 / 名字 / 幽灵钮 / 菜单等内层手势优先，不受影响）
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: canReply ? _showReplyDialog : null,
-          onLongPress: _showActionsSheet,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 头像列
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: openProfile,
-                    child: AvatarWidget(
-                      user: comment.user,
-                      size: widget.isReply ? 30 : 36,
+        // 长按由外面这层接：一来 InkWell.onLongPress 给不出落点（菜单要贴着
+        // 手指弹），二来这层会把还按着的手指交给菜单，「按住 → 划到某一条 →
+        // 松手选中」才成立。InkWell 只留点按，不再注册长按识别器，两层不抢。
+        child: GlassLongPressMenuArea(
+          onMenu: _showActionsMenu,
+          child: InkWell(
+            onTap: canReply ? _showReplyDialog : null,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 头像列
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: openProfile,
+                      child: AvatarWidget(
+                        user: comment.user,
+                        size: widget.isReply ? 30 : 36,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // 内容列
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
-                      // 楼号固定钉在行尾（不能用 Flexible+Spacer 平分空间的写法：
-                      // 名字短时用不完的份额会留在行尾，楼号就贴不到最右）
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      onTap: openProfile,
-                                      child: buildUserName(
-                                        context,
-                                        comment.user,
-                                        fontSize: 14,
-                                        bold: true,
+                  const SizedBox(width: 10),
+                  // 内容列
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 名字行：左侧「名字 + 身份徽标」为一组占满剩余宽度，
+                        // 楼号固定钉在行尾（不能用 Flexible+Spacer 平分空间的写法：
+                        // 名字短时用不完的份额会留在行尾，楼号就贴不到最右）
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        onTap: openProfile,
+                                        child: buildUserName(
+                                          context,
+                                          comment.user,
+                                          fontSize: 14,
+                                          bold: true,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                if (isContentAuthor)
-                                  _buildIdentityChip(
-                                    t.common.author,
-                                    colorScheme.secondary,
-                                  ),
-                                if (isMe)
-                                  _buildIdentityChip(
-                                    t.common.me,
-                                    colorScheme.primary,
-                                  ),
-                              ],
-                            ),
-                          ),
-                          // 楼号（只有顶级评论显示），弱化为灰字
-                          if (comment.parent == null &&
-                              comment.floorNumber != null)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                '#${comment.floorNumber}',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.6),
-                                ),
+                                  if (isContentAuthor)
+                                    _buildIdentityChip(
+                                      t.common.author,
+                                      colorScheme.secondary,
+                                    ),
+                                  if (isMe)
+                                    _buildIdentityChip(
+                                      t.common.me,
+                                      colorScheme.primary,
+                                    ),
+                                ],
                               ),
                             ),
-                        ],
-                      ),
-                      if (metaLine.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          metaLine,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.2,
-                            color: colorScheme.onSurfaceVariant.withValues(
-                              alpha: 0.8,
+                            // 楼号（只有顶级评论显示），弱化为灰字
+                            if (comment.parent == null &&
+                                comment.floorNumber != null)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: Text(
+                                  '#${comment.floorNumber}',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurfaceVariant
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (metaLine.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            metaLine,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.2,
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.8,
+                              ),
                             ),
                           ),
+                        ],
+                        const SizedBox(height: 8),
+                        // 正文；SelectionArea 会吞掉 tap 传不到整条评论的
+                        // InkWell，点按回复需经 onTap 显式透传进去
+                        CustomMarkdownBody(
+                          data: comment.body,
+                          originalData: comment.body,
+                          showTranslationButton: false,
+                          translationController: _translationController,
+                          onTimestampSeek: widget.onTimestampSeek,
+                          onTap: canReply ? _showReplyDialog : null,
+                          onLongPress: _showActionsMenu,
+                          initialShowUnprocessedText: _showOriginal,
+                          onProcessedContentChanged: (hasProcessed) {
+                            if (_hasProcessedContent == hasProcessed) return;
+                            setState(() => _hasProcessedContent = hasProcessed);
+                          },
+                        ),
+                        const SizedBox(height: 4),
+                        // 动作行：回复 / 查看回复 …… 翻译 / 更多
+                        Row(
+                          children: [
+                            if (canReply) ...[
+                              _buildGhostAction(
+                                context,
+                                icon: Icons.reply,
+                                label: t.common.reply,
+                                onTap: _showReplyDialog,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            if (!widget.isReply && comment.numReplies > 0)
+                              Tooltip(
+                                message: t.common.viewReplies(
+                                  num: comment.numReplies,
+                                ),
+                                child: _buildGhostAction(
+                                  context,
+                                  icon: Icons.chat_bubble_outline,
+                                  label: '${comment.numReplies}',
+                                  color: colorScheme.primary,
+                                  onTap: _handleViewReplies,
+                                ),
+                              ),
+                            const Spacer(),
+                            MarkdownOriginalTextToggle(
+                              visible: _hasProcessedContent,
+                              showOriginal: _showOriginal,
+                              pillSize: _actionPillHeight,
+                              padding: const EdgeInsets.only(right: 8),
+                              onChanged: (v) =>
+                                  setState(() => _showOriginal = v),
+                            ),
+                            _buildTranslationControls(context),
+                            _buildActionMenu(context),
+                          ],
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      // 正文；SelectionArea 会吞掉 tap 传不到整条评论的
-                      // InkWell，点按回复需经 onTap 显式透传进去
-                      CustomMarkdownBody(
-                        data: comment.body,
-                        originalData: comment.body,
-                        showTranslationButton: false,
-                        translationController: _translationController,
-                        onTimestampSeek: widget.onTimestampSeek,
-                        onTap: canReply ? _showReplyDialog : null,
-                        onLongPress: _showActionsSheet,
-                        initialShowUnprocessedText: _showOriginal,
-                        onProcessedContentChanged: (hasProcessed) {
-                          if (_hasProcessedContent == hasProcessed) return;
-                          setState(() => _hasProcessedContent = hasProcessed);
-                        },
-                      ),
-                      const SizedBox(height: 4),
-                      // 动作行：回复 / 查看回复 …… 翻译 / 更多
-                      Row(
-                        children: [
-                          if (canReply) ...[
-                            _buildGhostAction(
-                              context,
-                              icon: Icons.reply,
-                              label: t.common.reply,
-                              onTap: _showReplyDialog,
-                            ),
-                            const SizedBox(width: 8),
-                          ],
-                          if (!widget.isReply && comment.numReplies > 0)
-                            Tooltip(
-                              message: t.common.viewReplies(
-                                num: comment.numReplies,
-                              ),
-                              child: _buildGhostAction(
-                                context,
-                                icon: Icons.chat_bubble_outline,
-                                label: '${comment.numReplies}',
-                                color: colorScheme.primary,
-                                onTap: _handleViewReplies,
-                              ),
-                            ),
-                          const Spacer(),
-                          MarkdownOriginalTextToggle(
-                            visible: _hasProcessedContent,
-                            showOriginal: _showOriginal,
-                            pillSize: _actionPillHeight,
-                            padding: const EdgeInsets.only(right: 8),
-                            onChanged: (v) => setState(() => _showOriginal = v),
-                          ),
-                          _buildTranslationControls(context),
-                          _buildActionMenu(context),
-                        ],
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

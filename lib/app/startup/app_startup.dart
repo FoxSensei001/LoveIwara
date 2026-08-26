@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/startup/restored_install_guard.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
@@ -46,6 +47,7 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/auth_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/glsl_shader_service.dart';
@@ -182,6 +184,17 @@ class AppStartupCoordinator implements AppStartupRunner {
 
     final configService = await ConfigService().init();
     _putIfAbsent<ConfigService>(configService);
+
+    // 配置有可能是从备份 / 换机搬过来的（Android 自动备份会把整个配置库带走）。
+    // 那种情况下首次引导和玻璃质感提醒的"已问过"标记也一起回来了，要在任何人
+    // 读到它们之前先复位——路由守卫和 GlassMaterialIntro 都晚于这里。
+    await RestoredInstallGuard.reconcile(configService);
+
+    // 玻璃材质开关要在**任何一块玻璃 build 之前**灌好：shader 预热和第一帧
+    // chrome 都读它，晚一步就会先渲染成真玻璃再跳回假玻璃。
+    applyGlassMaterialFromConfig(
+      configService[ConfigKey.ENABLE_LIQUID_GLASS_KEY] == true,
+    );
 
     // 日志策略要在 ConfigService 一就绪就应用，而不是等整个 core 初始化跑完。
     // 日志总开关出厂默认关闭，用户既然关了，剩下的启动流程就不该再按全价

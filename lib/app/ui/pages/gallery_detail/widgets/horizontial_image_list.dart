@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import TickerProvider
 import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 enum MediaItemType { image, video }
 
@@ -212,50 +212,38 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     }
   }
 
-  void _showImageMenu(BuildContext context, ImageItem item) {
+  /// 长按 / 右键图片弹出的操作菜单：走全站统一的玻璃面板。
+  ///
+  /// 原来是 `showAppDialog` 里塞一列 `ListTile` —— 一张居中的不透明卡片，
+  /// 既离手指远，又和全站其它菜单不是一套东西。面板贴着落点弹出
+  /// （[globalPosition]，见 [showGlassMenu] 的 globalAnchor）。
+  Future<void> _showImageMenu(
+    BuildContext context,
+    ImageItem item,
+    Offset globalPosition,
+  ) async {
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
         ? widget.menuItemsBuilder!(context, item)
         : <MenuItem>[];
 
-    // 如果没有菜单项，不显示对话框
+    // 如果没有菜单项，不显示菜单
     if (menuItems.isEmpty) return;
 
-    // 使用 showAppDialog 显示菜单
-    showAppDialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 300),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 菜单项列表
-              ...menuItems.asMap().entries.map((entry) {
-                final index = entry.key;
-                final menuItem = entry.value;
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(menuItem.icon),
-                      title: Text(menuItem.title),
-                      onTap: () {
-                        AppService.tryPop(); // 关闭对话框
-                        menuItem.onTap(); // 执行菜单项动作
-                      },
-                    ),
-                    // 添加分隔线，最后一项不添加
-                    if (index < menuItems.length - 1) const Divider(height: 1),
-                  ],
-                );
-              }),
-            ],
+    final picked = await showGlassMenu<int>(
+      anchorContext: context,
+      globalAnchor: globalPosition & Size.zero,
+      entries: [
+        for (final (index, menuItem) in menuItems.indexed)
+          GlassMenuOption<int>(
+            value: index,
+            icon: menuItem.icon,
+            label: menuItem.title,
           ),
-        ),
-      ),
-      barrierDismissible: true, // 点击外部关闭
+      ],
     );
+    if (picked == null) return;
+    menuItems[picked].onTap();
   }
 
   @override
@@ -413,30 +401,32 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         : content;
 
     return GestureDetector(
-      onLongPressStart: (details) {
-        _showImageMenu(context, imageItem);
-      },
       onSecondaryTapDown: (details) {
-        _showImageMenu(context, imageItem);
+        _showImageMenu(context, imageItem, details.globalPosition);
       },
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: widget.itemSpacing ?? 8.0, // 减小水平padding
-        ),
-        child: SizedBox(
-          height: containerSize.height,
-          child: AspectRatio(
-            aspectRatio: aspectRatio,
-            child: Material(
-              type: hasBackground
-                  ? MaterialType.canvas
-                  : MaterialType.transparency,
-              color: hasBackground ? backgroundColor : null,
-              borderRadius: itemBorderRadius, // 添加圆角
-              clipBehavior: Clip.antiAlias, // 确保圆角裁剪生效
-              child: InkWell(
-                onTap: () => widget.onItemTap?.call(imageItem),
-                child: mediaContent,
+      // 长按走 GlassLongPressMenuArea：手指不抬就能直接划到某一条上松手选中。
+      child: GlassLongPressMenuArea(
+        onMenu: (globalPosition) =>
+            _showImageMenu(context, imageItem, globalPosition),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.itemSpacing ?? 8.0, // 减小水平padding
+          ),
+          child: SizedBox(
+            height: containerSize.height,
+            child: AspectRatio(
+              aspectRatio: aspectRatio,
+              child: Material(
+                type: hasBackground
+                    ? MaterialType.canvas
+                    : MaterialType.transparency,
+                color: hasBackground ? backgroundColor : null,
+                borderRadius: itemBorderRadius, // 添加圆角
+                clipBehavior: Clip.antiAlias, // 确保圆角裁剪生效
+                child: InkWell(
+                  onTap: () => widget.onItemTap?.call(imageItem),
+                  child: mediaContent,
+                ),
               ),
             ),
           ),

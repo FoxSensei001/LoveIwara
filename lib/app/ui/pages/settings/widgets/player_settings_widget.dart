@@ -7,6 +7,9 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -129,8 +132,8 @@ class PlayerSettingsWidget extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     return Obx(
-      () => SwitchListTile(
-        secondary: Icon(iconData, color: theme.colorScheme.onSurfaceVariant),
+      () => GlassSwitchItem(
+        icon: iconData,
         title: Text(label, style: theme.textTheme.bodyLarge),
         subtitle: description == null
             ? null
@@ -261,21 +264,10 @@ class PlayerSettingsWidget extends StatelessWidget {
     Map<String, String>? optionLabels,
     Map<String, String>? optionDescriptions,
   }) async {
-    final t = slang.Translations.of(context);
     final result = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(title)),
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.pop(context),
-              tooltip: t.common.close,
-            ),
-          ],
-        ),
-        contentPadding: const EdgeInsets.only(top: 12, bottom: 16),
+      builder: (context) => GlassAlertDialog(
+        title: title,
         content: SizedBox(
           width: double.maxFinite,
           child: ConstrainedBox(
@@ -1019,28 +1011,22 @@ class _NumberSettingTileState extends State<_NumberSettingTile> {
           : null,
       trailing: SizedBox(
         width: 104,
-        child: TextField(
-          controller: _controller,
-          keyboardType: widget.keyboardType,
-          textAlign: TextAlign.end,
-          onChanged: _handleChanged,
-          style: theme.textTheme.bodyLarge,
-          decoration: InputDecoration(
-            isDense: true,
-            suffixText: widget.suffixText,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 10,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: hasError ? cs.error : cs.outline),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: hasError ? cs.error : cs.primary,
-                width: 2,
+        child: GlassInputSurface(
+          borderRadius: 10,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          error: hasError,
+          child: TextField(
+            controller: _controller,
+            keyboardType: widget.keyboardType,
+            textAlign: TextAlign.end,
+            onChanged: _handleChanged,
+            style: theme.textTheme.bodyLarge,
+            decoration: glassFieldDecoration(context).copyWith(
+              isDense: true,
+              suffixText: widget.suffixText,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 10,
               ),
             ),
           ),

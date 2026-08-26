@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 
 /// 标题组件：在标题**最前端**内联一个「翻译」按钮，与文本融为一体；
@@ -12,6 +13,14 @@ import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 /// - 是否显示折叠箭头由实际测量决定：仅当文本在预留出翻译按钮宽度后仍超过
 ///   [collapsedMaxLines] 行时才出现；此时点击标题文本本身（不止箭头）同样可以
 ///   展开 / 折叠。
+///
+/// 长按一律有去处：折叠态（以及不可选中的展开态）渲染的是一段纯 `Text`，
+/// 自己没有任何选中 / 复制能力——短标题连折叠箭头都不出现，用户想复制标题
+/// 就彻底没有入口。这两种情况统一补上「长按 → 完整标题弹窗」
+/// （[showGlassFullTitleDialog]：全文可自由选取 + 复制 / 翻译按钮），
+/// 与 header 里的 `GlassTitlePill` 长按落到同一个地方。
+/// 可选中的展开态（视频标题）里 `SelectableText` 自带的长按选中 + 复制工具条
+/// 更深、在手势竞技场里先赢一步，桌面端的拖选也照旧。
 class TranslatableTitle extends StatefulWidget {
   final String text;
   final TextStyle? style;
@@ -167,17 +176,25 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
             ? SelectableText.rich(rootSpan)
             : Text.rich(rootSpan, overflow: TextOverflow.clip);
 
-        return AnimatedCrossFade(
-          duration: animDuration,
-          sizeCurve: animCurve,
-          firstCurve: animCurve,
-          secondCurve: animCurve,
-          alignment: Alignment.topLeft,
-          crossFadeState: _expanded
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
-          firstChild: collapsedChild,
-          secondChild: expandedChild,
+        // 长按一律有去处（见类文档）。挂在最外层而不是每个 child 上：opaque 让
+        // 标题盒子里文字右边的空白也吃长按（短标题只占很窄一条），两态也就只有
+        // 一条代码路径。可选中的展开态里 SelectableText 自己的长按识别器比这层
+        // 深，竞技场里先它一步赢下，原本的长按选中 / 桌面拖选都不受影响。
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onLongPress: () => showGlassFullTitleDialog(context, displayText),
+          child: AnimatedCrossFade(
+            duration: animDuration,
+            sizeCurve: animCurve,
+            firstCurve: animCurve,
+            secondCurve: animCurve,
+            alignment: Alignment.topLeft,
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: collapsedChild,
+            secondChild: expandedChild,
+          ),
         );
       },
     );

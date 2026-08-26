@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 批量危险动作的**唯一**二次确认弹窗。
@@ -9,7 +8,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// 收口前：批量删除下载 / 删除历史 / 删除播放列表 / 移出播放列表 / 取消最爱
 /// 五处各写了一份 `AlertDialog`，措辞、按钮顺序、危险色用法都不一样，其中
 /// 下载页那份还是裸 `showDialog`（不走 `GlassDialogRoute`，出入场动画与全站
-/// 不是一套）。
+/// 不是一套）。结构层面现在收进 [GlassAlertDialog]（标题行/关闭钮/按钮配色
+/// 都是它管），这里只拼正文。
 ///
 /// 相比原来的「确定要删除选中的 N 条记录吗？」，这里多做两件事：
 ///
@@ -74,19 +74,8 @@ class _BatchConfirmDialog extends StatelessWidget {
     final shown = previewTitles.take(_maxPreview).toList();
     final int remaining = totalCount - shown.length;
 
-    return AlertDialog(
-      // 标题行关闭钮走全局约定的玻璃圆钮
-      title: Row(
-        children: [
-          Expanded(child: Text(title)),
-          GlassIconButton(
-            standalone: true,
-            icon: const Icon(Icons.close),
-            tooltip: t.common.close,
-            onPressed: () => AppService.tryPop(),
-          ),
-        ],
-      ),
+    return GlassAlertDialog(
+      title: title,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,19 +116,15 @@ class _BatchConfirmDialog extends StatelessWidget {
         ],
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(t.common.cancel),
         ),
-        FilledButton(
-          style: destructive
-              ? FilledButton.styleFrom(
-                  backgroundColor: cs.error,
-                  foregroundColor: cs.onError,
-                )
-              : null,
+        GlassDialogAction(
+          label: confirmLabel,
+          destructive: destructive,
           onPressed: () => Navigator.of(context).pop(true),
-          child: Text(confirmLabel),
         ),
       ],
     );

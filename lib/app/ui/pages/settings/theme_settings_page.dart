@@ -5,7 +5,9 @@ import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -30,6 +32,8 @@ class ThemeSettingsPage extends StatelessWidget {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               _buildThemeModeSection(context, themeService),
+              const SizedBox(height: 16),
+              _buildGlassEffectSection(context, themeService),
               const SizedBox(height: 16),
               _buildDynamicColorSection(context, themeService),
               const SizedBox(height: 16),
@@ -103,6 +107,69 @@ class ThemeSettingsPage extends StatelessWidget {
     );
   }
 
+  /// 玻璃质感：真液态玻璃（模糊 + 折射） ↔ 轻量半透明。
+  ///
+  /// 换的是全局材质档（`glassMaterialMode`），全站 chrome、菜单、弹窗按钮一起
+  /// 变，立刻生效不用重启。
+  Widget _buildGlassEffectSection(
+    BuildContext context,
+    ThemeService themeService,
+  ) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settings.glassEffect,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  t.settings.glassEffectDesc,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Obx(() {
+            final bool enabled = themeService.enableLiquidGlass;
+            return Column(
+              children: [
+                GlassChoiceItem<bool>(
+                  value: true,
+                  groupValue: enabled,
+                  onChanged: themeService.setLiquidGlassEnabled,
+                  title: Text(t.settings.liquidGlassEffect),
+                  subtitle: Text(t.settings.liquidGlassEffectDesc),
+                ),
+                GlassChoiceItem<bool>(
+                  value: false,
+                  groupValue: enabled,
+                  onChanged: themeService.setLiquidGlassEnabled,
+                  title: Text(t.settings.plainGlassEffect),
+                  subtitle: Text(t.settings.plainGlassEffectDesc),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDynamicColorSection(
     BuildContext context,
     ThemeService themeService,
@@ -125,7 +192,7 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
           const Divider(height: 1),
           Obx(
-            () => SwitchListTile(
+            () => GlassSwitchItem(
               title: Text(t.settings.useDynamicColor),
               subtitle: Text(t.settings.useDynamicColorDesc),
               value: themeService.useDynamicColor,
@@ -222,31 +289,37 @@ class ThemeSettingsPage extends StatelessWidget {
                 const SizedBox(width: 8),
                 Obx(() {
                   final disabled = themeService.useDynamicColor;
-                  return Opacity(
-                    opacity: disabled ? 0.5 : 1.0,
-                    child: GlassButtonGroup(
-                      children: [
-                        GlassIconButton(
-                          icon: const Icon(Icons.add),
-                          // 禁用时把 tooltip 换成原因说明，而不是沿用「选择颜色」——
-                          // 悬浮/长按能读到「为什么点不动」，不是死按钮。
-                          tooltip: disabled
-                              ? t.settings.customColorsDisabledByDynamicColor
-                              : t.settings.pickColor,
-                          onPressed: () {
-                            if (disabled) {
-                              // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
-                              showGlassToast(
-                                t.settings.customColorsDisabledByDynamicColor,
-                                type: GlassToastType.info,
-                              );
-                              return;
-                            }
-                            _showColorPicker(context, themeService);
-                          },
-                        ),
-                      ],
-                    ),
+                  // ⛔ 不用 Opacity 压半透明来表达「不可用」：那会 saveLayer
+                  // 把玻璃隔离，禁用期间整枚键的折射是断的（见 GlassReveal
+                  // 那条原语）。置灰由图标色表达，且走 GlassAnimatedColors
+                  // 平滑推移——onSurface 38% 是全站「不可用」的统一取值。
+                  return GlassButtonGroup(
+                    children: [
+                      GlassIconButton(
+                        icon: const Icon(Icons.add),
+                        color: disabled
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.38)
+                            : null,
+                        // 禁用时把 tooltip 换成原因说明，而不是沿用「选择颜色」——
+                        // 悬浮/长按能读到「为什么点不动」，不是死按钮。
+                        tooltip: disabled
+                            ? t.settings.customColorsDisabledByDynamicColor
+                            : t.settings.pickColor,
+                        onPressed: () {
+                          if (disabled) {
+                            // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
+                            showGlassToast(
+                              t.settings.customColorsDisabledByDynamicColor,
+                              type: GlassToastType.info,
+                            );
+                            return;
+                          }
+                          _showColorPicker(context, themeService);
+                        },
+                      ),
+                    ],
                   );
                 }),
               ],
@@ -401,19 +474,8 @@ class ThemeSettingsPage extends StatelessWidget {
     Color pickerColor =
         CommonConstants.dynamicLightColorScheme?.primary ?? Colors.orange;
     showAppDialog(
-      AlertDialog(
-        // 标题行关闭钮走全局约定的玻璃圆钮
-        title: Row(
-          children: [
-            Expanded(child: Text(t.settings.pickColor)),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => AppService.tryPop(),
-            ),
-          ],
-        ),
+      GlassAlertDialog(
+        title: t.settings.pickColor,
         content: SingleChildScrollView(
           child: ColorPicker(
             pickerColor: pickerColor,
@@ -422,11 +484,13 @@ class ThemeSettingsPage extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
             onPressed: () {
               final hex = pickerColor
                   .toARGB32()
@@ -436,7 +500,6 @@ class ThemeSettingsPage extends StatelessWidget {
               themeService.addCustomThemeColor(hex);
               AppService.tryPop();
             },
-            child: Text(t.common.confirm),
           ),
         ],
       ),

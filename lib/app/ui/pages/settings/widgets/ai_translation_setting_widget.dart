@@ -5,6 +5,11 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -121,14 +126,13 @@ class _AITranslationSettingsWidgetState
 
   void _showValidationDialog() {
     showAppDialog(
-      AlertDialog(
-        // title: Text('需要验证'),
-        title: Text(slang.t.translation.needVerification),
+      GlassAlertDialog(
+        title: slang.t.translation.needVerification,
         content: Text(slang.t.translation.needVerificationContent),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.translation.confirm,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),
@@ -596,20 +600,12 @@ class _AITranslationSettingsWidgetState
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: DropdownButton<String>(
-              isExpanded: true,
+            child: GlassDropdownField<String>(
               value: providers.contains(current) ? current : 'openai',
-              items: providers
-                  .map(
-                    (id) => DropdownMenuItem<String>(
-                      value: id,
-                      child: Text(
-                        labelFor(id),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                  .toList(),
+              items: [
+                for (final id in providers)
+                  GlassDropdownItem(value: id, label: labelFor(id)),
+              ],
               onChanged: (id) {
                 if (id == null) return;
                 configService[ConfigKey.AI_TRANSLATION_PROVIDER] = id;
@@ -645,21 +641,12 @@ class _AITranslationSettingsWidgetState
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: null,
-            hint: Text(slang.t.translation.selectProviderPreset),
-            items: _providerPresets
-                .map(
-                  (p) => DropdownMenuItem<String>(
-                    value: p.id,
-                    child: Text(
-                      _localizedPresetName(p),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
+          child: GlassDropdownField<String>(
+            hint: slang.t.translation.selectProviderPreset,
+            items: [
+              for (final p in _providerPresets)
+                GlassDropdownItem(value: p.id, label: _localizedPresetName(p)),
+            ],
             onChanged: (id) {
               if (id == null) return;
               final preset = _providerPresets.firstWhere((p) => p.id == id);
@@ -816,23 +803,24 @@ class _AITranslationSettingsWidgetState
   void _showModelPickerDialog(List<String> models) {
     final searchText = ''.obs;
     showAppDialog(
-      AlertDialog(
-        title: Text(slang.t.translation.selectModel),
+      GlassAlertDialog(
+        title: slang.t.translation.selectModel,
         content: SizedBox(
           width: 400,
           height: 480,
           child: Column(
             children: [
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: slang.t.translation.searchModel,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  isDense: true,
+              GlassInputSurface(
+                borderRadius: 8,
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: TextField(
+                  decoration: glassFieldDecoration(
+                    context,
+                    hint: slang.t.translation.searchModel,
+                    icon: Icons.search,
+                  ).copyWith(isDense: true),
+                  onChanged: (v) => searchText.value = v.toLowerCase(),
                 ),
-                onChanged: (v) => searchText.value = v.toLowerCase(),
               ),
               const SizedBox(height: 8),
               Expanded(
@@ -879,9 +867,9 @@ class _AITranslationSettingsWidgetState
           ),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.translation.confirm,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.translation.confirm),
           ),
         ],
       ),
@@ -1051,7 +1039,8 @@ class _AITranslationSettingsWidgetState
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Obx(
-        () => SwitchListTile(
+        () => GlassSwitchItem(
+          icon: Icons.translate,
           title: Text(
             slang.t.translation.enableAITranslation,
             style: Theme.of(context).textTheme.titleMedium,
@@ -1064,10 +1053,6 @@ class _AITranslationSettingsWidgetState
           ),
           value: _isAIEnabled.value,
           onChanged: _handleSwitchChange,
-          secondary: Icon(
-            Icons.translate,
-            color: Theme.of(context).colorScheme.primary,
-          ),
         ),
       ),
     );
@@ -1720,7 +1705,7 @@ class _AITranslationSettingsWidgetState
         Obx(
           () => Column(
             children: [
-              Slider(
+              GlassSlider(
                 value: temperatureValue.value,
                 min: 0.0,
                 max: 2.0,

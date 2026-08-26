@@ -20,10 +20,14 @@ import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -247,6 +251,116 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
   }
 
+  /// 浮在滚动视图之上的顶栏 chrome：左「返回」圆钮 + 右「更多」菜单位。
+  ///
+  /// 原先这两枚键挂在 [SliverAppBar] 的 `leading` / `actions` 上。位置没变
+  /// （AppBar 是 pinned 的），但那样它们就长在滚动容器里 —— 液态档的折射镜头
+  /// 进不了滚动容器（Android 的拉伸回弹会把它渲染成纯黑），于是整页只有这两枚
+  /// 键、外加中间那条主 Tab 胶囊停在传统档，而各 tab 自己的排序行
+  /// （`GlassHeaderOverlay(liquid: true)`）早就是液态的了——同一屏两种材质。
+  ///
+  /// 布局按详情页的标准配方来：横向 16、行高 [GlassTokens.headerRowHeight]，
+  /// 两侧之间隔着 `Spacer`，整行收进一个融合层（同 `GlassHeaderOverlay`）。
+  Widget _buildHeaderChrome(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      top: MediaQuery.paddingOf(context).top,
+      left: 0,
+      right: 0,
+      height: GlassTokens.headerRowHeight,
+      child: GlassChromeLayer(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.arrow_back),
+                tooltip: t.common.back,
+                onPressed: AppService.tryPop,
+              ),
+              const Spacer(),
+              // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+              // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+              // 或作者信息延迟加载时都会命中这次形变）。
+              Obx(
+                () =>
+                    GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 顶栏右侧的动作位。条目为 0 时收成 0 宽，只剩一条时直接显示那条动作
+  /// （见 [GlassOverflowMenuButton]），≥2 条才是 `⋮` + 玻璃菜单。
+  Widget _buildHeaderActionGroup(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final author = profileController.author.value;
+    final currentUserId = userService.currentUser.value?.id;
+    final actions = <GlassMenuAction>[
+      if (currentUserId != null && currentUserId == author?.id)
+        GlassMenuAction(
+          icon: Icons.article,
+          label: t.common.createPost,
+          onSelected: _showCreatePostDialog,
+        )
+      else if (currentUserId != null)
+        GlassMenuAction(
+          icon: Icons.message,
+          label: t.conversation.startConversation,
+          onSelected: () => showAppDialog(
+            NewConversationDialog(
+              initUserId: profileController.author.value?.id,
+              onSubmit: NaviService.navigateToConversationPage,
+            ),
+            barrierDismissible: true,
+          ),
+        ),
+      if (author != null)
+        GlassMenuAction(
+          icon: Icons.share,
+          label: t.common.share,
+          onSelected: () => _shareAuthor(context),
+        ),
+    ];
+
+    if (actions.isEmpty) {
+      return const KeyedSubtree(
+        key: ValueKey('actions-empty'),
+        child: SizedBox.shrink(),
+      );
+    }
+    return KeyedSubtree(
+      key: const ValueKey('actions-menu'),
+      child: GlassButtonGroup(
+        children: [GlassGroupOverflowMenuButton(actions: actions)],
+      ),
+    );
+  }
+
+  /// 分享用户主页。
+  void _shareAuthor(BuildContext context) {
+    final username = profileController.author.value?.username;
+    if (username == null) return;
+    showGlassBottomSheet(
+      builder: (context) => ShareUserBottomSheet(
+        username: username,
+        authorName: profileController.author.value?.name ?? '',
+        previewUrl:
+            profileController.headerBackgroundUrl.value ??
+            CommonConstants.defaultProfileHeaderUrl,
+        avatarUrl: profileController.author.value?.avatar?.avatarUrl,
+        followerCount: profileController.followerCounts.value,
+        followingCount: profileController.followingCounts.value,
+        commentCount: profileController.commentController.comments.value.length,
+      ),
+      context: context,
+    );
+  }
+
   /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
   Widget _buildScrollToTopFab(BuildContext context) {
     final t = slang.Translations.of(context);
@@ -257,23 +371,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             MediaQuery.paddingOf(context).bottom +
             16 +
             (_isPaginated.value ? PaginationBar.barHeight : 0),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _showBackToTop,
-          builder: (context, visible, _) => IgnorePointer(
-            ignoring: !visible,
-            child: AnimatedSlide(
-              duration: GlassTokens.motionDuration,
-              curve: GlassTokens.motionCurve,
-              offset: visible ? Offset.zero : const Offset(0, 0.4),
-              child: AnimatedOpacity(
-                duration: GlassTokens.motionDuration,
-                opacity: visible ? 1 : 0,
-                child: GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.vertical_align_top),
-                  tooltip: t.common.scrollToTop,
-                  onPressed: _scrollToTop,
-                ),
+        // group: false —— 浮钮走 GlassReveal 的 materialize 淡入。
+        child: GlassChromeLayer(
+          group: false,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _showBackToTop,
+            builder: (context, visible, _) => GlassReveal(
+              visible: visible,
+              builder: (context, m) => GlassIconButton(
+                materialize: m,
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollToTop,
               ),
             ),
           ),
@@ -318,151 +428,119 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
 
   void showCommentModal(BuildContext context) {
     final t = slang.Translations.of(context);
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return GlassDraggableBottomSheet(
           initialChildSize: 0.75,
           minChildSize: 0.2,
           maxChildSize: 0.92,
-          expand: false,
           snap: true,
           builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              // 底部弹窗自己让出系统手势条/导航条
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
-              child: Column(
-                children: [
-                  // 拖拽条
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 12, bottom: 4),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
+            return Column(
+              children: [
+                // 顶部标题栏
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  // 顶部标题栏
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          t.common.commentList,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: Row(
+                    children: [
+                      Text(
+                        t.common.commentList,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const Spacer(),
-                        // 排序 / 发评论合成一只玻璃胶囊
-                        GlassButtonGroup(
-                          children: [
-                            Obx(
-                              () => GlassIconButton(
-                                icon: Icon(
-                                  profileController
-                                          .commentController
-                                          .sortOrder
-                                          .value
-                                      ? Icons
-                                            .arrow_downward_rounded // 倒序图标
-                                      : Icons.arrow_upward_rounded, // 正序图标
-                                ),
-                                tooltip:
-                                    profileController
+                      ),
+                      const Spacer(),
+                      // 排序 / 发评论合成一只玻璃胶囊
+                      GlassButtonGroup(
+                        children: [
+                          Obx(
+                            () => GlassIconButton(
+                              icon: Icon(
+                                profileController
                                         .commentController
                                         .sortOrder
                                         .value
-                                    ? t.common.createTimeDesc
-                                    : t.common.createTimeAsc,
-                                onPressed: profileController
-                                    .commentController
-                                    .toggleSortOrder,
+                                    ? Icons
+                                          .arrow_downward_rounded // 倒序图标
+                                    : Icons.arrow_upward_rounded, // 正序图标
                               ),
+                              tooltip:
+                                  profileController
+                                      .commentController
+                                      .sortOrder
+                                      .value
+                                  ? t.common.createTimeDesc
+                                  : t.common.createTimeAsc,
+                              onPressed: profileController
+                                  .commentController
+                                  .toggleSortOrder,
                             ),
-                            // 添加评论按钮
-                            GlassIconButton(
-                              icon: const Icon(Icons.add_comment),
-                              tooltip: t.common.sendComment,
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => CommentInputBottomSheet(
-                                    title: t.common.sendComment,
-                                    submitText: t.common.send,
-                                    onSubmit: (text) async {
-                                      if (text.trim().isEmpty) {
-                                        showGlassToast(
-                                          t.errors.commentCanNotBeEmpty,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        return;
-                                      }
-                                      final UserService userService =
-                                          Get.find();
-                                      if (!userService.isAuthenticated) {
-                                        showGlassToast(
-                                          t.errors.pleaseLoginFirst,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        LoginService.showLogin();
-                                        return;
-                                      }
-                                      await profileController.commentController
-                                          .postComment(text);
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
-                        // 关闭按钮：弹层关闭键一律玻璃圆钮
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          tooltip: t.common.close,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 评论列表
-                  Expanded(
-                    child: Obx(
-                      () => CommentSection(
-                        controller: profileController.commentController,
-                        authorUserId: profileController.author.value?.id,
-                        scrollController: scrollController,
+                          ),
+                          // 添加评论按钮
+                          GlassIconButton(
+                            icon: const Icon(Icons.add_comment),
+                            tooltip: t.common.sendComment,
+                            onPressed: () {
+                              showGlassBottomSheet(
+                                context: context,
+                                builder: (context) => CommentInputBottomSheet(
+                                  title: t.common.sendComment,
+                                  submitText: t.common.send,
+                                  onSubmit: (text) async {
+                                    if (text.trim().isEmpty) {
+                                      showGlassToast(
+                                        t.errors.commentCanNotBeEmpty,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      return;
+                                    }
+                                    final UserService userService = Get.find();
+                                    if (!userService.isAuthenticated) {
+                                      showGlassToast(
+                                        t.errors.pleaseLoginFirst,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      LoginService.showLogin();
+                                      return;
+                                    }
+                                    await profileController.commentController
+                                        .postComment(text);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
+                      const SizedBox(width: 8),
+                      // 关闭按钮：弹层关闭键一律玻璃圆钮
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                // 评论列表
+                Expanded(
+                  child: Obx(
+                    () => CommentSection(
+                      controller: profileController.commentController,
+                      authorUserId: profileController.author.value?.id,
+                      scrollController: scrollController,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );
@@ -529,6 +607,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               ),
             ),
           ),
+          _buildHeaderChrome(context),
           _buildScrollToTopFab(context),
         ],
       );
@@ -544,8 +623,15 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               // 左侧区域 - 基本信息
               SizedBox(
                 width: 400, // 固定宽度
-                child: CustomScrollView(
-                  slivers: _buildHeaderSliver(context, false),
+                // chrome 浮在左栏之上而不是整页之上：它原本就画在这 400 宽里，
+                // 挪到页面级会让「更多」键跳到屏幕最右边。
+                child: Stack(
+                  children: [
+                    CustomScrollView(
+                      slivers: _buildHeaderSliver(context, false),
+                    ),
+                    _buildHeaderChrome(context),
+                  ],
                 ),
               ),
               // 分隔线
@@ -604,166 +690,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             : SystemUiOverlayStyle.dark,
         elevation: 0,
         scrolledUnderElevation: 0,
+        // 返回键与「更多」菜单不再挂在 AppBar 上：它们要走液态玻璃，而 lens
+        // 不能待在滚动容器里（Android 拉伸回弹会把它渲染成纯黑，见
+        // `liquid_glass_material.dart`）。改成浮在整棵滚动视图之上的一行 chrome，
+        // 见 [_buildHeaderChrome]——反正 SliverAppBar 是 pinned 的，位置一样。
         automaticallyImplyLeading: false,
-        leadingWidth: 16 + GlassTokens.pillHeight + 8,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Center(
-            child: GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.arrow_back),
-              tooltip: t.common.back,
-              onPressed: AppService.tryPop,
-            ),
-          ),
-        ),
-        actions: [
-          // 添加more按钮
-          Obx(() {
-            final popupMenuItems = <PopupMenuEntry<String>>[];
-            if (userService.currentUser.value?.id ==
-                profileController.author.value?.id) {
-              popupMenuItems.add(
-                PopupMenuItem(
-                  value: 'create',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.article),
-                      const SizedBox(width: 8),
-                      Text(t.common.createPost),
-                    ],
-                  ),
-                ),
-              );
-            } else if (userService.currentUser.value?.id != null) {
-              // 如果不是本人且已登录，显示发起对话选项
-              popupMenuItems.add(
-                PopupMenuItem(
-                  value: 'message',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.message),
-                      const SizedBox(width: 8),
-                      Text(t.conversation.startConversation),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            // 添加分享选项
-            if (profileController.author.value != null) {
-              popupMenuItems.add(
-                PopupMenuItem(
-                  value: 'share',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.share),
-                      const SizedBox(width: 8),
-                      Text(t.common.share),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
-            // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
-            // 或作者信息延迟加载时都会命中这次形变）。
-            final Widget content = popupMenuItems.isEmpty
-                ? const KeyedSubtree(
-                    key: ValueKey('actions-empty'),
-                    child: SizedBox.shrink(),
-                  )
-                : Center(
-                    key: const ValueKey('actions-menu'),
-                    child: GlassButtonGroup(
-                      children: [
-                        SizedBox(
-                          width: GlassTokens.groupIconButtonSize,
-                          height: GlassTokens.groupIconButtonSize,
-                          child: PopupMenuButton(
-                            padding: EdgeInsets.zero,
-                            icon: const Icon(
-                              Icons.more_vert,
-                              size: GlassTokens.iconSize,
-                            ),
-                            position: PopupMenuPosition.under,
-                            // 往下挪一点，别压住玻璃胶囊本身
-                            offset: const Offset(0, 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            onSelected: (value) {
-                              if (value == 'create') {
-                                _showCreatePostDialog();
-                              } else if (value == 'message') {
-                                showAppDialog(
-                                  NewConversationDialog(
-                                    initUserId:
-                                        profileController.author.value?.id,
-                                    onSubmit: () {
-                                      NaviService.navigateToConversationPage();
-                                    },
-                                  ),
-                                  barrierDismissible: true,
-                                );
-                              } else if (value == 'share') {
-                                // 分享用户主页
-                                final username =
-                                    profileController.author.value?.username;
-                                if (username != null) {
-                                  showModalBottomSheet(
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    builder: (context) => ShareUserBottomSheet(
-                                      username: username,
-                                      authorName:
-                                          profileController
-                                              .author
-                                              .value
-                                              ?.name ??
-                                          '',
-                                      previewUrl:
-                                          profileController
-                                              .headerBackgroundUrl
-                                              .value ??
-                                          CommonConstants
-                                              .defaultProfileHeaderUrl,
-                                      avatarUrl: profileController
-                                          .author
-                                          .value
-                                          ?.avatar
-                                          ?.avatarUrl,
-                                      followerCount: profileController
-                                          .followerCounts
-                                          .value,
-                                      followingCount: profileController
-                                          .followingCounts
-                                          .value,
-                                      commentCount: profileController
-                                          .commentController
-                                          .comments
-                                          .value
-                                          .length,
-                                    ),
-                                    context: context,
-                                  );
-                                }
-                              }
-                            },
-                            itemBuilder: (context) => popupMenuItems,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-            return GlassShapeSwitcher(child: content);
-          }),
-          const SizedBox(width: 16),
-          // 多选按钮
-          // Removed the Obx multi-select button from actions as per instruction.
-        ],
         flexibleSpace: LayoutBuilder(
           builder: (context, constraints) {
             final double statusBar = MediaQuery.of(context).padding.top;
@@ -1518,97 +1449,114 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
             left: 0,
             right: 0,
             height: primaryRowHeight,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
-              // 下拉钮——阈值与订阅页/热门列表页的子栏目胶囊共用同一约定
-              // （见 GlassSegmentedControl.minWidthFor）。
-              child: LayoutBuilder(
-                builder: (context, rowConstraints) {
-                  final primaryTabItems = [
-                    GlassSegmentItem(
-                      label: t.common.video,
-                      icon: const Icon(Icons.video_collection),
-                    ),
-                    GlassSegmentItem(
-                      label: t.common.gallery,
-                      icon: const Icon(Icons.image),
-                    ),
-                    GlassSegmentItem(
-                      label: t.common.playlist,
-                      icon: const Icon(Icons.playlist_play),
-                    ),
-                    GlassSegmentItem(
-                      label: t.common.post,
-                      icon: const Icon(Icons.article),
-                    ),
-                  ];
-                  final bool useSegmented =
-                      rowConstraints.maxWidth >=
-                      GlassSegmentedControl.minWidthFor(
-                        context,
-                        primaryTabItems,
-                      );
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Obx(() {
-                      // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
-                      // 的模式切换，header 不该毫无反应。
-                      // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
-                      // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
-                      final bool videoSelecting =
-                          _videoBatchController.isMultiSelect.value;
-                      final bool imageSelecting =
-                          _imageBatchController.isMultiSelect.value;
-                      final batch = primaryTC.index == 0
-                          ? _videoBatchController
-                          : (primaryTC.index == 1
-                                ? _imageBatchController
-                                : null);
-                      final bool selecting = primaryTC.index == 0
-                          ? videoSelecting
-                          : (primaryTC.index == 1 ? imageSelecting : false);
-                      if (batch != null && selecting) {
-                        return GlassCapsuleMorph(
-                          child: SizedBox(
-                            key: const ValueKey('selection'),
-                            width: 168,
-                            child: GlassSelectionSummary(
-                              selectedCount: batch.selectedCount,
-                              allSelected: false,
-                              // 懒加载列表够不到未加载的部分，不给全选
-                              onToggleAll: null,
-                            ),
-                          ),
+            // 主 Tab 胶囊与各 tab 自己的排序行（那些走的是
+            // `GlassHeaderOverlay(liquid: true)`）在同一屏上，材质必须一致：
+            // 这里就地供一层 chrome 档。它浮在 TabBarView 之上、不在任何滚动
+            // 容器里，可以放 lens。
+            // group: false —— 这一簇只有一块玻璃（主 Tab 胶囊），收进层里
+            // 省不出 backdrop 采样，反倒会把两样东西关掉：胶囊自己的按下底色，
+            // 以及分段控件那条果冻指示器的**玻璃透镜**那一趟（嵌套镜头在融合层
+            // 底下会被「照亮」，所以 GlassSegmentedControl 处在层里时会主动跳过
+            // 它，见 GlassBlendGroup.isInside）。
+            child: GlassChromeLayer(
+              group: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
+                // 下拉钮——阈值与订阅页/热门列表页的子栏目胶囊共用同一约定
+                // （见 GlassSegmentedControl.minWidthFor）。
+                child: LayoutBuilder(
+                  builder: (context, rowConstraints) {
+                    final primaryTabItems = [
+                      GlassSegmentItem(
+                        label: t.common.video,
+                        icon: const Icon(Icons.video_collection),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.gallery,
+                        icon: const Icon(Icons.image),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.playlist,
+                        icon: const Icon(Icons.playlist_play),
+                      ),
+                      GlassSegmentItem(
+                        label: t.common.post,
+                        icon: const Icon(Icons.article),
+                      ),
+                    ];
+                    final bool useSegmented =
+                        rowConstraints.maxWidth >=
+                        GlassSegmentedControl.minWidthFor(
+                          context,
+                          primaryTabItems,
                         );
-                      }
-                      return GlassCapsuleMorph(
-                        child: useSegmented
-                            ? GlassSegmentedControl(
-                                key: const ValueKey('segmented'),
-                                flat: true,
-                                selectedIndex: primaryTC.index,
-                                progress: primaryTC.animation,
-                                onChanged: primaryTC.animateTo,
-                                items: primaryTabItems,
-                              )
-                            : KeyedSubtree(
-                                key: const ValueKey('dropdown'),
-                                child: _buildPrimaryTabDropdown(
-                                  context,
-                                  primaryTabItems,
-                                ),
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Obx(() {
+                        // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                        // 的模式切换，header 不该毫无反应。
+                        // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
+                        // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
+                        final bool videoSelecting =
+                            _videoBatchController.isMultiSelect.value;
+                        final bool imageSelecting =
+                            _imageBatchController.isMultiSelect.value;
+                        final batch = primaryTC.index == 0
+                            ? _videoBatchController
+                            : (primaryTC.index == 1
+                                  ? _imageBatchController
+                                  : null);
+                        final bool selecting = primaryTC.index == 0
+                            ? videoSelecting
+                            : (primaryTC.index == 1 ? imageSelecting : false);
+                        if (batch != null && selecting) {
+                          return GlassCapsuleMorph(
+                            child: SizedBox(
+                              key: const ValueKey('selection'),
+                              width: 168,
+                              child: GlassSelectionSummary(
+                                selectedCount: batch.selectedCount,
+                                allSelected: false,
+                                // 懒加载列表够不到未加载的部分，不给全选
+                                onToggleAll: null,
                               ),
-                      );
-                    }),
-                  );
-                },
+                            ),
+                          );
+                        }
+                        return GlassCapsuleMorph(
+                          child: useSegmented
+                              ? GlassSegmentedControl(
+                                  key: const ValueKey('segmented'),
+                                  flat: true,
+                                  selectedIndex: primaryTC.index,
+                                  progress: primaryTC.animation,
+                                  onChanged: primaryTC.animateTo,
+                                  items: primaryTabItems,
+                                )
+                              : KeyedSubtree(
+                                  key: const ValueKey('dropdown'),
+                                  child: _buildPrimaryTabDropdown(
+                                    context,
+                                    primaryTabItems,
+                                  ),
+                                ),
+                        );
+                      }),
+                    );
+                  },
+                ),
               ),
             ),
           ),
           // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
           // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
-          Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
+          // group: false —— 坞是单块玻璃且走 materialize 淡入，材质淡入在
+          // 融合层里无效（见 GlassChromeLayer 最后一段）。
+          GlassChromeLayer(
+            group: false,
+            child: Obx(() => GlassSelectionDock(paginated: _isPaginated.value)),
+          ),
         ],
       ),
     );
@@ -1624,54 +1572,62 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     List<GlassSegmentItem> items,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    final index = primaryTC.index;
-    return PopupMenuButton<int>(
-      initialValue: index,
-      onSelected: (newIndex) => primaryTC.animateTo(newIndex),
-      position: PopupMenuPosition.under,
-      // 往下挪一点，别压住玻璃胶囊本身
-      offset: const Offset(0, 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: GlassTokens.pillHeight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14, right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GlassFlipLabel(
-                progress: primaryTC.animation!,
-                labels: [for (final item in items) item.label],
-                style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
-            ],
-          ),
-        ),
-      ),
-      itemBuilder: (context) => [
-        for (var i = 0; i < items.length; i++)
-          PopupMenuItem<int>(
-            value: i,
+    // Builder：落点与材质档位从触发位自身的 context 量出。
+    return Builder(
+      builder: (anchorContext) => GlassPressable(
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onTap: () => _openPrimaryTabMenu(anchorContext, items),
+        // 内容套在常驻的 GlassCapsuleMorph 里，按下不再自缩，免得和胶囊的
+        // 宽度形变打架；反馈交给菜单弹出本身。
+        scale: 1.0,
+        builder: (context, pressed) => SizedBox(
+          height: GlassTokens.pillHeight,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(items[i].label),
-                if (i == index) ...[
-                  const Spacer(),
-                  Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
+                GlassFlipLabel(
+                  progress: primaryTC.animation!,
+                  labels: [for (final item in items) item.label],
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 22,
+                  color: colorScheme.onSurface,
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openPrimaryTabMenu(
+    BuildContext anchorContext,
+    List<GlassSegmentItem> items,
+  ) async {
+    final int index = primaryTC.index;
+    final int? picked = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        for (var i = 0; i < items.length; i++)
+          GlassMenuOption<int>(
+            value: i,
+            label: items[i].label,
+            selected: i == index,
+          ),
       ],
     );
+    if (!mounted || picked == null) return;
+    primaryTC.animateTo(picked);
   }
 
   double _calculatePinnedHeaderHeight() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -105,20 +106,21 @@ class DefaultTagBlacklistReminder {
 
   static Future<void> _showReminderDialog() async {
     await showAppDialog(
-      AlertDialog(
-        title: Text(t.defaultBlacklistReminder.title),
+      GlassAlertDialog(
+        title: t.defaultBlacklistReminder.title,
         content: Text(t.defaultBlacklistReminder.content),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.defaultBlacklistReminder.dismiss,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.defaultBlacklistReminder.dismiss),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.defaultBlacklistReminder.goManage,
             onPressed: () {
               AppService.tryPop();
               NaviService.navigateToTagBlacklistPage();
             },
-            child: Text(t.defaultBlacklistReminder.goManage),
           ),
         ],
       ),

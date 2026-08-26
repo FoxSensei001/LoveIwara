@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_news.model.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:i_iwara/app/ui/pages/forum/forum_page.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/news/news_page.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:shimmer/shimmer.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 /// 社区栏目的目的地。
 ///
@@ -127,7 +125,6 @@ class CommunityPage extends StatefulWidget implements HomeWidgetInterface {
 
 class CommunityPageState extends State<CommunityPage> {
   final ConfigService _configService = Get.find<ConfigService>();
-  final UserService _userService = Get.find<UserService>();
 
   late CommunityDestination _destination;
 
@@ -242,72 +239,6 @@ class CommunityPageState extends State<CommunityPage> {
 
   // ------------------------------------------------------------ header 行
 
-  /// 左上角「我」圆钮：登录中显示闪烁占位，已登录显示头像（带未读红点）。
-  Widget _buildAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final Widget inner;
-      if (_userService.isLogining.value) {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-shimmer'),
-          child: Shimmer.fromColors(
-            baseColor: colorScheme.surfaceContainerHighest,
-            highlightColor: colorScheme.surface,
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        );
-      } else if (_userService.hasLoadedProfile &&
-          _userService.currentUser.value != null) {
-        inner = KeyedSubtree(
-          key: ValueKey('avatar-${_userService.currentUser.value?.id}'),
-          child: IgnorePointer(
-            child: AvatarWidget(
-              user: _userService.currentUser.value,
-              size: GlassTokens.pillHeight - 2,
-            ),
-          ),
-        );
-      } else {
-        inner = KeyedSubtree(
-          key: const ValueKey('avatar-placeholder'),
-          child: Icon(
-            Icons.account_circle,
-            size: 26,
-            color: colorScheme.onSurface,
-          ),
-        );
-      }
-      final count =
-          _userService.notificationCount.value +
-          _userService.messagesCount.value;
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            GlassShapeSwitcher(child: inner),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
   /// 中间的目的地下拉钮：论坛 ▾ / 更新 ▾ / 文章 ▾ / 广播 ▾。
   ///
   /// 选中新闻时标题**只显示分类名**（`📰 更新`），不写成「新闻 · 更新」——
@@ -354,54 +285,36 @@ class CommunityPageState extends State<CommunityPage> {
             style: labelStyle,
           );
 
-    final Widget button = Theme(
-      data: Theme.of(context).copyWith(
-        splashFactory: NoSplash.splashFactory,
-        highlightColor: Colors.transparent,
-      ),
-      child: PopupMenuButton<CommunityDestination>(
-        initialValue: _destination,
-        tooltip: _destinationLabel(t, _destination),
-        onSelected: _goTo,
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        itemBuilder: (context) => <PopupMenuEntry<CommunityDestination>>[
-          _destinationMenuItem(context, CommunityDestination.forum),
-          const PopupMenuDivider(),
-          // 三个新闻分类挂在一条分组标题下——菜单里保留「新闻」这层语义，
-          // 只有胶囊上的标题省掉它。
-          PopupMenuItem<CommunityDestination>(
-            enabled: false,
-            height: 32,
-            child: Text(
-              t.settings.news,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.6,
-                color: colorScheme.onSurfaceVariant,
+    // 无壳内容：玻璃壳统一由外层的 GlassCapsuleMorph 提供，下拉箭头在这一层
+    // 里面才会跟着胶囊的宽度一起伸缩。点开走 [showGlassMenu]（玻璃面板、跟手
+    // 形变、滑动取焦），不再是 Material 的 PopupMenuButton；后者需要 NoSplash
+    // 压水波，玻璃菜单反馈自绘，这层 Theme 包装一并去掉。
+    // Builder：落点与材质档位从触发位自身的 context 量出。
+    final Widget button = Tooltip(
+      message: _destinationLabel(t, _destination),
+      child: Builder(
+        builder: (anchorContext) => GlassPressable(
+          // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+          // 松手选中（见 GlassTapArea.opensOverlay）。
+          opensOverlay: true,
+          onTap: () => _openDestinationMenu(anchorContext),
+          // 内容套在常驻的 GlassCapsuleMorph 里，按下不自缩，免得和胶囊的
+          // 宽度形变打架；反馈交给菜单弹出本身。
+          scale: 1.0,
+          builder: (context, pressed) => SizedBox(
+            height: GlassTokens.pillHeight,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 14, right: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  label,
+                  Icon(
+                    Icons.arrow_drop_down_rounded,
+                    color: colorScheme.onSurface,
+                  ),
+                ],
               ),
-            ),
-          ),
-          for (final d in newsDestinations) _destinationMenuItem(context, d),
-        ],
-        // 无壳内容：玻璃壳统一由外层的 GlassCapsuleMorph 提供。
-        // 下拉箭头必须在这一层里面，才会跟着胶囊的宽度一起伸缩。
-        child: SizedBox(
-          height: GlassTokens.pillHeight,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14, right: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                label,
-                Icon(
-                  Icons.arrow_drop_down_rounded,
-                  color: colorScheme.onSurface,
-                ),
-              ],
             ),
           ),
         ),
@@ -419,26 +332,38 @@ class CommunityPageState extends State<CommunityPage> {
     );
   }
 
-  PopupMenuItem<CommunityDestination> _destinationMenuItem(
-    BuildContext context,
+  /// 目的地下拉的玻璃菜单：论坛 —（分隔线）— 更新 / 文章 / 广播。
+  ///
+  /// 旧的 Material 菜单在三个新闻分类上方挂了一条禁用的「新闻」分组标题；
+  /// [GlassMenuOption] 没有分组标题这种非选中行，改用 [GlassMenuSeparator]
+  /// 把论坛和三个新闻分类分开——三条分类自带图标 + 文案已足够区分，胶囊标题
+  /// 本来也早把「新闻」二字省掉了。
+  Future<void> _openDestinationMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final CommunityDestination? picked =
+        await showGlassMenu<CommunityDestination>(
+          anchorContext: anchorContext,
+          entries: [
+            _destinationOption(t, CommunityDestination.forum),
+            const GlassMenuSeparator(),
+            _destinationOption(t, CommunityDestination.newsUpdates),
+            _destinationOption(t, CommunityDestination.newsArticles),
+            _destinationOption(t, CommunityDestination.newsBroadcast),
+          ],
+        );
+    if (!mounted || picked == null) return;
+    _goTo(picked);
+  }
+
+  GlassMenuOption<CommunityDestination> _destinationOption(
+    slang.Translations t,
     CommunityDestination destination,
   ) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    final selected = destination == _destination;
-    return PopupMenuItem<CommunityDestination>(
+    return GlassMenuOption<CommunityDestination>(
       value: destination,
-      child: Row(
-        children: [
-          Icon(_destinationIcon(destination), size: 18),
-          const SizedBox(width: 10),
-          Expanded(child: Text(_destinationLabel(t, destination))),
-          if (selected) ...[
-            const SizedBox(width: 8),
-            Icon(Icons.check, size: 18, color: colorScheme.primary),
-          ],
-        ],
-      ),
+      icon: _destinationIcon(destination),
+      label: _destinationLabel(t, destination),
+      selected: destination == _destination,
     );
   }
 
@@ -516,6 +441,12 @@ class CommunityPageState extends State<CommunityPage> {
                                 ForumPage.globalKey.currentState?.refreshAll(),
                             showsLoading: true,
                           ),
+                          GlassMenuAction(
+                            icon: Icons.vertical_align_top,
+                            label: t.common.scrollToTop,
+                            onSelected: () => ForumPage.globalKey.currentState
+                                ?.scrollCurrentListToTop(),
+                          ),
                         ]
                       : [
                           GlassMenuAction(
@@ -544,49 +475,39 @@ class CommunityPageState extends State<CommunityPage> {
   }
 
   Widget _buildNewsLanguageButton(BuildContext context, NewsHeaderState state) {
-    final colorScheme = Theme.of(context).colorScheme;
     final current = state.language ?? IwaraNewsLanguage.en;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        splashFactory: NoSplash.splashFactory,
-        highlightColor: Colors.transparent,
-      ),
-      child: PopupMenuButton<IwaraNewsLanguage>(
-        initialValue: current,
+    // 动作胶囊里的一枚无壳图标位（玻璃壳由外层 GlassButtonGroup 提供），
+    // 点开走 showGlassMenu；Builder 拿触发位自身的 context 量落点/档位。
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: const Icon(Icons.translate_rounded),
         tooltip: _languageLabel(current),
-        onSelected: (value) =>
-            NewsPage.globalKey.currentState?.setLanguage(value),
-        position: PopupMenuPosition.under,
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        itemBuilder: (context) => [
-          for (final language in IwaraNewsLanguage.values)
-            PopupMenuItem<IwaraNewsLanguage>(
-              value: language,
-              child: Row(
-                children: [
-                  const Icon(Icons.translate_rounded, size: 18),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(_languageLabel(language))),
-                  if (language == current) ...[
-                    const SizedBox(width: 8),
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                  ],
-                ],
-              ),
-            ),
-        ],
-        child: SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: Icon(
-            Icons.translate_rounded,
-            size: GlassTokens.iconSize,
-            color: colorScheme.onSurface,
-          ),
-        ),
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onPressed: () => _openNewsLanguageMenu(anchorContext, current),
       ),
     );
+  }
+
+  Future<void> _openNewsLanguageMenu(
+    BuildContext anchorContext,
+    IwaraNewsLanguage current,
+  ) async {
+    final IwaraNewsLanguage? picked = await showGlassMenu<IwaraNewsLanguage>(
+      anchorContext: anchorContext,
+      entries: [
+        for (final language in IwaraNewsLanguage.values)
+          GlassMenuOption<IwaraNewsLanguage>(
+            value: language,
+            icon: Icons.translate_rounded,
+            label: _languageLabel(language),
+            selected: language == current,
+          ),
+      ],
+    );
+    if (!mounted || picked == null) return;
+    NewsPage.globalKey.currentState?.setLanguage(picked);
   }
 
   void _openForumSearch() {
@@ -603,6 +524,7 @@ class CommunityPageState extends State<CommunityPage> {
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
@@ -614,7 +536,7 @@ class CommunityPageState extends State<CommunityPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              _buildAvatarButton(context),
+              const IdentityAvatarButton(),
               const SizedBox(width: 8),
               Expanded(
                 child: Align(

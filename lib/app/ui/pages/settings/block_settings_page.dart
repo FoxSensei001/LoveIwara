@@ -8,8 +8,11 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -147,6 +150,7 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: TabBarView(
           controller: _tabController,
           physics: const ClampingScrollPhysics(),
@@ -206,52 +210,47 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
           tooltip: _t.addRule,
           onPressed: () => _addRule(context),
         ),
-        SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
+        // 导入/导出二级菜单：Builder 包一层拿到触发件自身 context 作为
+        // showGlassMenu 的锚点；GlassIconButton 非 standalone，因为它就在
+        // 这个 GlassButtonGroup 的透明图标位里。
+        Builder(
+          builder: (anchorContext) => GlassIconButton(
+            icon: const Icon(Icons.import_export),
             tooltip: _t.importExport,
-            icon: const Icon(Icons.import_export, size: GlassTokens.iconSize),
-            position: PopupMenuPosition.under,
-            // 往下挪一点，别压住玻璃胶囊本身
-            offset: const Offset(0, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: (v) {
-              if (v == 'import') {
-                _import(context);
-              } else if (v == 'export') {
-                _export(context);
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'import',
-                child: Row(
-                  children: [
-                    const Icon(Icons.file_download_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(_t.importRules),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'export',
-                child: Row(
-                  children: [
-                    const Icon(Icons.file_upload_outlined, size: 20),
-                    const SizedBox(width: 12),
-                    Text(_t.exportRules),
-                  ],
-                ),
-              ),
-            ],
+            // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+            // 松手选中（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onPressed: () => _openImportExportMenu(anchorContext),
           ),
         ),
       ],
     );
+  }
+
+  /// 导入/导出玻璃菜单：对应原来 PopupMenuButton 的两条 item。
+  Future<void> _openImportExportMenu(BuildContext anchorContext) async {
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption(
+          value: 'import',
+          icon: Icons.file_download_outlined,
+          label: _t.importRules,
+        ),
+        GlassMenuOption(
+          value: 'export',
+          icon: Icons.file_upload_outlined,
+          label: _t.exportRules,
+        ),
+      ],
+    );
+    if (picked == null) return;
+    if (!mounted) return;
+    if (picked == 'import') {
+      _import(context);
+    } else if (picked == 'export') {
+      _export(context);
+    }
   }
 
   /// 单个类型的规则列表（每条规则一张卡片）。
@@ -541,42 +540,40 @@ class _RuleTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Switch(value: rule.enabled, onChanged: onToggle),
-              PopupMenuButton<String>(
-                tooltip: '',
-                icon: const Icon(Icons.more_vert),
-                onSelected: (v) {
-                  if (v == 'edit') onEdit();
-                  if (v == 'delete') onDelete();
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'edit',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit_outlined, size: 18),
-                        const SizedBox(width: 10),
-                        Text(t.editRule),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete_outline,
-                          size: 18,
-                          color: scheme.error,
+              // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+              Builder(
+                builder: (anchorContext) => GlassPressable(
+                  // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+                  // （见 GlassTapArea.opensOverlay）。
+                  opensOverlay: true,
+                  onTap: () async {
+                    final action = await showGlassMenu<String>(
+                      anchorContext: anchorContext,
+                      entries: [
+                        GlassMenuOption<String>(
+                          value: 'edit',
+                          icon: Icons.edit_outlined,
+                          label: t.editRule,
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          t.deleteRule,
-                          style: TextStyle(color: scheme.error),
+                        GlassMenuOption<String>(
+                          value: 'delete',
+                          icon: Icons.delete_outline,
+                          label: t.deleteRule,
+                          destructive: true,
                         ),
                       ],
-                    ),
+                    );
+                    if (action == 'edit') {
+                      onEdit();
+                    } else if (action == 'delete') {
+                      onDelete();
+                    }
+                  },
+                  builder: (context, pressed) => const SizedBox.square(
+                    dimension: 40,
+                    child: Icon(Icons.more_vert),
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -899,25 +896,32 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TextField(
-          controller: _valueController,
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: t.value,
-            hintText: isRegex ? t.regexHint : null,
-            errorText: _error,
-            border: const OutlineInputBorder(),
-            suffixIcon: isRegex
-                ? IconButton(
-                    icon: const Icon(Icons.help_outline),
-                    tooltip: t.regexHelp,
-                    onPressed: _showRegexHelp,
-                  )
-                : null,
+        GlassInputSurface(
+          borderRadius: 8,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          error: _error != null,
+          child: TextField(
+            controller: _valueController,
+            autofocus: true,
+            decoration:
+                glassFieldDecoration(
+                  context,
+                  label: t.value,
+                  hint: isRegex ? t.regexHint : null,
+                  errorText: _error,
+                ).copyWith(
+                  suffixIcon: isRegex
+                      ? IconButton(
+                          icon: const Icon(Icons.help_outline),
+                          tooltip: t.regexHelp,
+                          onPressed: _showRegexHelp,
+                        )
+                      : null,
+                ),
+            onChanged: (_) {
+              if (_error != null) setState(() => _error = null);
+            },
           ),
-          onChanged: (_) {
-            if (_error != null) setState(() => _error = null);
-          },
         ),
         if (isRegex) ...[
           const SizedBox(height: 6),
@@ -936,8 +940,7 @@ class _RuleEditorSheetState extends State<_RuleEditorSheet> {
           ),
         ],
         const SizedBox(height: 4),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
+        GlassSwitchItem(
           title: Text(t.caseSensitive),
           value: _caseSensitive,
           onChanged: (v) => setState(() => _caseSensitive = v),
@@ -1233,21 +1236,19 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    textInputAction: TextInputAction.search,
-                    onChanged: _onSearchChanged,
-                    onSubmitted: (_) => _triggerSearch(),
-                    decoration: InputDecoration(
-                      hintText: t.conversation.searchUsers,
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                  child: GlassInputSurface(
+                    borderRadius: 8,
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      textInputAction: TextInputAction.search,
+                      onChanged: _onSearchChanged,
+                      onSubmitted: (_) => _triggerSearch(),
+                      decoration: glassFieldDecoration(
+                        context,
+                        hint: t.conversation.searchUsers,
+                        icon: Icons.search,
                       ),
                     ),
                   ),

@@ -96,6 +96,7 @@ class _TagBlacklistPageState extends State<TagBlacklistPage> {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: RefreshIndicator(
           // 指示器从 header 下方弹出
           displacement: headerExtent,

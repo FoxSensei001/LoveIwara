@@ -7,7 +7,12 @@ import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/tag_controller.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 通用标签选择器组件
 class TagSelectorWidget extends StatefulWidget {
@@ -102,10 +107,8 @@ class _TagSelectorWidgetState extends State<TagSelectorWidget> {
   }
 
   void _showTagSelectionDialog() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       builder: (context) => TagSelectionDialog(
         selectedTags: widget.selectedTags,
         onTagsChanged: widget.onTagsChanged,
@@ -143,17 +146,13 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    return Container(
-      height: screenHeight * 0.8,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+    return GlassBottomSheet(
+      maxHeightFactor: 0.8,
+      showCloseButton: false,
+      padding: EdgeInsets.zero,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // 头部
           Container(
@@ -176,27 +175,24 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                 ),
                 Row(
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onTagsChanged(_currentSelectedTags);
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.common.confirm,
+                          emphasized: true,
+                          onPressed: () {
+                            widget.onTagsChanged(_currentSelectedTags);
+                            Navigator.of(context).pop();
+                          },
                         ),
-                      ),
-                      child: Text(t.common.confirm),
+                      ],
                     ),
                     const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                    GlassIconButton(
+                      standalone: true,
                       icon: const Icon(Icons.close),
+                      tooltip: t.common.close,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
                 ),
@@ -210,36 +206,29 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(t.tagSelector.usageInstructions),
-                        duration: Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.help_outline, color: Colors.blue),
-                  tooltip: t.tagSelector.usageInstructionsTooltip,
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _showRemoveTagDialog,
-                  icon: const Icon(
-                    Icons.remove_circle_outline,
-                    color: Colors.red,
-                  ),
-                  tooltip: t.tagSelector.removeTagTooltip,
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _showAddTagDialog,
-                  icon: const Icon(
-                    Icons.add_circle_outline,
-                    color: Colors.green,
-                  ),
-                  tooltip: t.tagSelector.addTagTooltip,
+                GlassButtonGroup(
+                  children: [
+                    GlassIconButton(
+                      icon: const Icon(Icons.help_outline),
+                      color: Colors.blue,
+                      tooltip: t.tagSelector.usageInstructionsTooltip,
+                      onPressed: () {
+                        showGlassToast(t.tagSelector.usageInstructions);
+                      },
+                    ),
+                    GlassIconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: Colors.red,
+                      tooltip: t.tagSelector.removeTagTooltip,
+                      onPressed: _showRemoveTagDialog,
+                    ),
+                    GlassIconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: Colors.green,
+                      tooltip: t.tagSelector.addTagTooltip,
+                      onPressed: _showAddTagDialog,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -324,14 +313,12 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
   }
 
   void _showAddTagDialog() {
-    showDialog(context: context, builder: (context) => const AddTagDialog());
+    showAppDialog(const AddTagDialog());
   }
 
   void _showRemoveTagDialog() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       builder: (context) => RemoveTagDialog(
         onRemoveIds: (List<String> removedTags) {
           for (var id in removedTags) {
@@ -392,45 +379,51 @@ class _AddTagDialogState extends State<AddTagDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 1200,
-          minWidth: 400,
-          maxHeight: 800,
-        ),
+    return GlassAlertDialog(
+      title: null,
+      showCloseButton: false,
+      maxWidth: 900,
+      scrollable: false,
+      content: SizedBox(
+        // GlassAlertDialog 只限宽不限高，内部 ListView 需要有界高度才能滚动，
+        // 沿用原来 ConstrainedBox(maxHeight: 800) 的思路钉一个合理高度。
+        height: 600,
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Expanded(
+            Row(
+              children: [
+                Expanded(
+                  child: GlassInputSurface(
                     child: TextField(
                       controller: textEditingController,
-                      decoration: InputDecoration(
-                        hintText: t.search.searchTags,
+                      decoration: glassFieldDecoration(
+                        context,
+                        hint: t.search.searchTags,
                       ),
                       onSubmitted: (value) {
                         tagController.getTags(refresh: true);
                       },
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      tagController.getTags(refresh: true);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 8),
+                GlassIconButton(
+                  icon: const Icon(Icons.search),
+                  tooltip: t.search.searchTags,
+                  onPressed: () {
+                    tagController.getTags(refresh: true);
+                  },
+                ),
+                const SizedBox(width: 8),
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.close),
+                  tooltip: t.common.close,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Obx(() {
@@ -553,160 +546,121 @@ class _RemoveTagDialogState extends State<RemoveTagDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.6,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+    return GlassBottomSheet(
+      maxHeightFactor: 0.6,
+      scrollable: true,
+      title: t.tagSelector.deleteTag,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outline.withValues(alpha: 0.2),
-                ),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  t.tagSelector.deleteTag,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Row(
-                  children: [
-                    ElevatedButton(
-                      onPressed: selectedIds.isEmpty
-                          ? null
-                          : () {
-                              widget.onRemoveIds(selectedIds.toList());
-                              Navigator.of(context).pop();
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        foregroundColor: Theme.of(context).colorScheme.onError,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                      ),
-                      child: Text(t.tagSelector.delete),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
+          // 删除动作（原来放在标题行右侧，标题/关闭已交给 GlassBottomSheet）
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GlassButtonGroup(
+                children: [
+                  GlassTextActionButton(
+                    label: t.tagSelector.delete,
+                    destructive: true,
                     onPressed: selectedIds.isEmpty
                         ? null
                         : () {
-                            setState(() {
-                              selectedIds.clear();
-                            });
+                            widget.onRemoveIds(selectedIds.toList());
+                            Navigator.of(context).pop();
                           },
-                    child: Text(t.tagSelector.cancelSelection),
                   ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // 「取消选择 / 全选」收进同一坨玻璃胶囊，按住会一起蠕动
+          Align(
+            alignment: Alignment.centerLeft,
+            child: GlassButtonGroup(
+              children: [
+                GlassTextActionButton(
+                  label: t.tagSelector.cancelSelection,
+                  onPressed: selectedIds.isEmpty
+                      ? null
+                      : () {
+                          setState(() {
+                            selectedIds.clear();
+                          });
+                        },
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: widget.videoSearchTagHistory.isEmpty
-                        ? null
-                        : () {
-                            setState(() {
-                              if (selectedIds.length ==
-                                  widget.videoSearchTagHistory.length) {
-                                selectedIds.clear();
-                              } else {
-                                selectedIds = widget.videoSearchTagHistory
-                                    .map((tag) => tag.id)
-                                    .toSet();
-                              }
-                            });
-                          },
-                    child: Text(
+                GlassTextActionButton(
+                  label:
                       selectedIds.length == widget.videoSearchTagHistory.length
-                          ? t.tagSelector.cancelSelectAll
-                          : t.tagSelector.selectAll,
-                    ),
-                  ),
+                      ? t.tagSelector.cancelSelectAll
+                      : t.tagSelector.selectAll,
+                  onPressed: widget.videoSearchTagHistory.isEmpty
+                      ? null
+                      : () {
+                          setState(() {
+                            if (selectedIds.length ==
+                                widget.videoSearchTagHistory.length) {
+                              selectedIds.clear();
+                            } else {
+                              selectedIds = widget.videoSearchTagHistory
+                                  .map((tag) => tag.id)
+                                  .toSet();
+                            }
+                          });
+                        },
                 ),
               ],
             ),
           ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.start,
-                  children: widget.videoSearchTagHistory.map((tag) {
-                    return FilterChip(
-                      label: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(TagLocalizationService.displayName(tag.id)),
-                          if (tag.type == MediaRating.ECCHI.value ||
-                              tag.sensitive) ...[
-                            const SizedBox(width: 4),
-                            Icon(
-                              tag.type == MediaRating.ECCHI.value
-                                  ? Icons.local_offer
-                                  : Icons.warning,
-                              size: 12,
-                              color: Colors.red,
-                            ),
-                          ],
-                        ],
-                      ),
-                      selected: selectedIds.contains(tag.id),
-                      onSelected: (bool selected) {
-                        setState(() {
-                          if (selected) {
-                            selectedIds.add(tag.id);
-                          } else {
-                            selectedIds.remove(tag.id);
-                          }
-                        });
-                      },
-                      selectedColor: Theme.of(
-                        context,
-                      ).colorScheme.errorContainer,
-                      checkmarkColor: Theme.of(
-                        context,
-                      ).colorScheme.onErrorContainer,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.outline.withValues(alpha: 0.3),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.start,
+              children: widget.videoSearchTagHistory.map((tag) {
+                return FilterChip(
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(TagLocalizationService.displayName(tag.id)),
+                      if (tag.type == MediaRating.ECCHI.value ||
+                          tag.sensitive) ...[
+                        const SizedBox(width: 4),
+                        Icon(
+                          tag.type == MediaRating.ECCHI.value
+                              ? Icons.local_offer
+                              : Icons.warning,
+                          size: 12,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ],
+                  ),
+                  selected: selectedIds.contains(tag.id),
+                  onSelected: (bool selected) {
+                    setState(() {
+                      if (selected) {
+                        selectedIds.add(tag.id);
+                      } else {
+                        selectedIds.remove(tag.id);
+                      }
+                    });
+                  },
+                  selectedColor: Theme.of(context).colorScheme.errorContainer,
+                  checkmarkColor: Theme.of(
+                    context,
+                  ).colorScheme.onErrorContainer,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  side: BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                );
+              }).toList(),
             ),
           ),
         ],

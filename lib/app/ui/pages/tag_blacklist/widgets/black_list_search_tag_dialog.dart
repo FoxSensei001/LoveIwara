@@ -5,6 +5,8 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 class BlackListTagSearchDialog extends StatefulWidget {
@@ -119,42 +121,42 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
         ),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
+            // 标题行：图标 + 标题 + 玻璃关闭圆钮（全站弹窗铁律）
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: GlassComposerHeader(
+                title: t.search.searchTags,
+                icon: Icons.block,
+                onClose: () => AppService.tryPop(),
+              ),
+            ),
+            // 搜索行：玻璃输入壳 + 搜索圆钮
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: textEditingController,
-                      decoration: InputDecoration(
-                        hintText: t.search.searchTags,
+                    child: GlassInputSurface(
+                      child: TextField(
+                        controller: textEditingController,
+                        decoration: glassFieldDecoration(
+                          context,
+                          hint: t.search.searchTags,
+                        ),
+                        onSubmitted: (value) => _searchTags(),
                       ),
-                      onSubmitted: (value) => _searchTags(),
                     ),
                   ),
-                  IconButton(
+                  const SizedBox(width: 8),
+                  GlassIconButton(
+                    standalone: true,
                     icon: const Icon(Icons.search),
+                    tooltip: t.search.searchTags,
                     onPressed: () => _searchTags(),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      final bool success = await widget.onSave(selectedTags);
-                      if (success) {
-                        AppService.tryPop();
-                      }
-                    },
-                    child: Text(t.common.confirm),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      AppService.tryPop();
-                    },
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
             Obx(() {
               if (isLoading.value && tags.isEmpty) {
                 return const Expanded(
@@ -185,10 +187,14 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
                               ),
                             ),
                           const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: () => _searchTags(),
-                            icon: const Icon(Icons.refresh),
-                            label: Text(t.common.refresh),
+                          GlassButtonGroup(
+                            children: [
+                              GlassTextActionButton(
+                                label: t.common.refresh,
+                                emphasized: true,
+                                onPressed: () => _searchTags(),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -238,6 +244,43 @@ class _BlackListTagSearchDialogState extends State<BlackListTagSearchDialog> {
                 ),
               );
             }),
+            // 动作行：选中计数 + 确定（玻璃胶囊，长按会蠕动）
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Obx(
+                () => Row(
+                  children: [
+                    Text(
+                      t.common.selectedRecords(num: selectedTags.length),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    GlassButtonGroup(
+                      children: [
+                        GlassTextActionButton(
+                          label: t.common.confirm,
+                          emphasized: true,
+                          onPressed: selectedTags.isEmpty
+                              ? null
+                              : () async {
+                                  final bool success = await widget.onSave(
+                                    selectedTags,
+                                  );
+                                  if (success) {
+                                    AppService.tryPop();
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -134,7 +134,8 @@ class GlassToastWidget extends StatelessWidget {
         ),
         width: GlassTokens.strokeWidth,
       ),
-      boxShadow: GlassTokens.shadow(cs),
+      // ⛔ 不加 boxShadow：玻璃件一律不吐外投影，浮起来靠语义色染出的
+      // 竖向渐变 + 描边（见 GlassTokens 里已删的 shadow token 注释）。
     );
 
     final Widget body = Row(

@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -496,6 +498,30 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     }
   }
 
+  /// 画质选择：全站统一的玻璃菜单。原来是 `PopupMenuButton` + 一条
+  /// `enabled: false` 的假标题 + `CheckedPopupMenuItem`；标题现在走
+  /// [GlassMenuSectionHeader]，勾选态走 [GlassMenuOption.selected]。
+  Future<void> _openQualityMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuSectionHeader(t.common.selectImageQuality),
+        GlassMenuOption<String>(
+          value: galleryImageQualityStandard,
+          label: t.common.imageQualityStandard,
+          selected: _activeQuality == galleryImageQualityStandard,
+        ),
+        GlassMenuOption<String>(
+          value: galleryImageQualityOriginal,
+          label: t.common.imageQualityOriginal,
+          selected: _activeQuality == galleryImageQualityOriginal,
+        ),
+      ],
+    );
+    if (picked != null) _handleQualityChanged(picked);
+  }
+
   void _handleQualityChanged(String quality) {
     if (!_canSwitchQuality) {
       return;
@@ -581,8 +607,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   void _onDismissDragEnd(DragEndDetails details) {
     final dy = _dismissOffset.dy;
     final vy = details.velocity.pixelsPerSecond.dy;
-    final shouldDismiss =
-        dy.abs() > _dismissTriggerDistance || vy.abs() > 900;
+    final shouldDismiss = dy.abs() > _dismissTriggerDistance || vy.abs() > 900;
 
     if (shouldDismiss) {
       Navigator.of(context).maybePop();
@@ -964,49 +989,30 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                       Row(
                                         children: [
                                           if (_canSwitchQuality)
-                                            PopupMenuButton<String>(
+                                            // 画质面板走全站统一的玻璃菜单
+                                            // （原来是 PopupMenuButton）。
+                                            Builder(
                                               key: _qualityButtonKey,
-                                              tooltip:
-                                                  t.common.selectImageQuality,
-                                              initialValue: _activeQuality,
-                                              icon: const Icon(
-                                                Icons.hd_outlined,
-                                                color: Colors.white,
-                                              ),
-                                              onSelected: _handleQualityChanged,
-                                              itemBuilder: (context) => [
-                                                PopupMenuItem<String>(
-                                                  enabled: false,
-                                                  child: Text(
-                                                    t.common.selectImageQuality,
+                                              builder: (anchorContext) =>
+                                                  GlassPressable(
+                                                    // 长按也能打开，且长按不
+                                                    // 抬手可以直接划到某一条上
+                                                    // 松手选中（见
+                                                    // GlassTapArea.opensOverlay）。
+                                                    opensOverlay: true,
+                                                    onTap: () =>
+                                                        _openQualityMenu(
+                                                          anchorContext,
+                                                        ),
+                                                    builder: (context, pressed) =>
+                                                        const SizedBox.square(
+                                                          dimension: 48,
+                                                          child: Icon(
+                                                            Icons.hd_outlined,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
                                                   ),
-                                                ),
-                                                const PopupMenuDivider(),
-                                                CheckedPopupMenuItem<String>(
-                                                  value:
-                                                      galleryImageQualityStandard,
-                                                  checked:
-                                                      _activeQuality ==
-                                                      galleryImageQualityStandard,
-                                                  child: Text(
-                                                    t
-                                                        .common
-                                                        .imageQualityStandard,
-                                                  ),
-                                                ),
-                                                CheckedPopupMenuItem<String>(
-                                                  value:
-                                                      galleryImageQualityOriginal,
-                                                  checked:
-                                                      _activeQuality ==
-                                                      galleryImageQualityOriginal,
-                                                  child: Text(
-                                                    t
-                                                        .common
-                                                        .imageQualityOriginal,
-                                                  ),
-                                                ),
-                                              ],
                                             ),
                                           // 快捷键设置按钮
                                           IconButton(

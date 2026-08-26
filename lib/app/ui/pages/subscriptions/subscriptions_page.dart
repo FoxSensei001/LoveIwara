@@ -20,27 +20,27 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
-import 'package:i_iwara/app/services/saved_search_config_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/services/saved_search_config_service.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
 
 import 'controllers/media_list_controller.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
   static final globalKey = GlobalKey<SubscriptionsPageState>();
@@ -88,7 +88,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   bool get _isRatingFilterAvailable => selectedId.isEmpty;
 
   /// 用于打开右侧「已保存筛选」抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// header 形变专用的「视觉 tab」：横滑过半就算已经到了目标栏目。
   ///
@@ -166,12 +165,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     }
   }
 
-  List<PopupMenuEntry<String>> _buildTopBarMenuItems({
+  List<GlassMenuEntry> _buildTopBarMenuItems({
     required BuildContext context,
     required bool isWide,
   }) {
     final t = slang.Translations.of(context);
-    final List<PopupMenuEntry<String>> items = [];
+    final List<GlassMenuEntry> items = [];
 
     void addItem({
       required String value,
@@ -179,12 +178,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
       required String label,
     }) {
       items.add(
-        PopupMenuItem<String>(
-          value: value,
-          child: Row(
-            children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-          ),
-        ),
+        GlassMenuOption<String>(value: value, icon: icon, label: label),
       );
     }
 
@@ -217,7 +211,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         label: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
       );
     }
-    items.add(const PopupMenuDivider());
+    items.add(const GlassMenuSeparator());
     addItem(
       value: _menuActionTogglePagination,
       icon: mediaListController.isPaginated.value
@@ -259,6 +253,12 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     final t = slang.Translations.of(context);
     final bool filterVisible = _isFilterSupportedTab;
     return GlassButtonGroup(
+      // 与热门视频/图库同一口径：整只胶囊接跟手形变（按住拖动时玻璃跟着手指
+      // 走、松手弹回）。签名要囊括**所有会改变胶囊宽度**的外部状态——
+      // 宽窄屏（搜索键）、批量态（退出键）、当前 tab 支不支持筛选（两枚筛选
+      // 键），以及特别关注选中项（触发位的文案宽度会变）。
+      touchFlex: true,
+      touchFlexSignature: '$isWide|$isMultiSelect|$filterVisible|$selectedId',
       children: [
         GlassGroupSlot(
           visible: isWide,
@@ -298,21 +298,22 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             onPressed: () => batchController?.toggleMultiSelect(),
           ),
         ),
-        SizedBox(
-          width: GlassTokens.groupIconButtonSize,
-          height: GlassTokens.groupIconButtonSize,
-          child: PopupMenuButton<String>(
-            padding: EdgeInsets.zero,
-            icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-            position: PopupMenuPosition.under,
-            // 往下挪一点，别压住玻璃胶囊本身
-            offset: const Offset(0, 8),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            onSelected: _handleTopBarMenuAction,
-            itemBuilder: (context) =>
-                _buildTopBarMenuItems(context: context, isWide: isWide),
+        Builder(
+          builder: (anchorContext) => GlassIconButton(
+            icon: const Icon(Icons.more_vert),
+            // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+            // 松手选中（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onPressed: () async {
+              final action = await showGlassMenu<String>(
+                anchorContext: anchorContext,
+                entries: _buildTopBarMenuItems(
+                  context: anchorContext,
+                  isWide: isWide,
+                ),
+              );
+              if (action != null) _handleTopBarMenuAction(action);
+            },
           ),
         ),
       ],
@@ -339,54 +340,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         userList: userDropdownItems,
         selectedUserId: selectedId,
         onUserSelected: _onUserSelected,
-        flat: true,
-      );
-    });
-  }
-
-  /// 左上角「我」圆钮：已登录显示头像（带未读红点），未登录显示占位图标。
-  ///
-  /// 和其他栏目（热门视频 / 图库 / 论坛 / 最新）保持同一位置同一形状：
-  /// **圆形** = 身份入口。右侧胶囊里那枚方形头像是特别关注筛选，别混淆。
-  Widget _buildAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final user = userService.hasLoadedProfile
-          ? userService.currentUser.value
-          : null;
-      final count =
-          userService.notificationCount.value + userService.messagesCount.value;
-
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (user != null)
-              // 头像铺满圆钮（只留 1px 玻璃描边），不要一圈内边距
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
-              ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
       );
     });
   }
@@ -412,29 +365,21 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             (mediaListController.isPaginated.value
                 ? PaginationBar.barHeight
                 : 0),
-        child: IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: mediaListController.scrollToTop,
-              ),
-            ),
+        child: GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: mediaListController.scrollToTop,
           ),
         ),
       );
     });
   }
 
-  // 打开搜索对话框
+  // 打开搜索页面
   void _openSearchDialog() {
     SearchSegment segment;
     switch (_tabController.index) {
@@ -451,60 +396,67 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         segment = SearchSegment.video;
     }
 
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: segment,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
+    NaviService.navigateToSearchPage(
+      initialSegment: segment,
     );
   }
 
   /// 打开筛选弹窗（标签 / 年月 / 排序，订阅流下额外含评级）。
   ///
   /// 确认后只改 State，列表会在 didUpdateWidget 里按新参数重建数据源。
+  /// 打开右侧「筛选」抽屉。改动即时生效（列表在 didUpdateWidget 里按新参数重建
+  /// 数据源），抽屉常驻不关。
   void _openFilterDialog() {
-    showAppDialog(
-      PopularMediaSearchConfig(
-        searchTags: _filterTags,
-        searchYear: _filterDate,
-        searchRating: _filterRating,
-        showRating: _isRatingFilterAvailable,
-        sortOptions: _filterSortOptions,
-        selectedSortId: _filterSortId,
-        onConfirm: (tags, year, rating, sortId) {
-          if (!mounted) return;
-          setState(() {
-            _filterTags = tags;
-            _filterDate = year;
-            _filterRating = rating;
-            _filterSortId = sortId ?? _filterSortId;
-          });
+    showMediaFilterDrawer(
+      context: context,
+      tags: _filterTags,
+      date: _filterDate,
+      rating: _filterRating,
+      showRating: _isRatingFilterAvailable,
+      sortOptions: _filterSortOptions,
+      selectedSortId: _filterSortId,
+      onChanged: (tags, date, rating, sortId) {
+        if (!mounted) return;
+        setState(() {
+          _filterTags = tags;
+          _filterDate = date;
+          _filterRating = rating;
+          _filterSortId = sortId ?? _filterSortId;
+        });
+      },
+    );
+  }
+
+  /// 打开右侧「已保存筛选」抽屉（与热门视频/图库共用同一份配置池，走同一条路由）。
+  void _openSavedConfigDrawer() {
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (drawerContext) => SavedSearchConfigDrawer(
+        segment: SavedSearchConfigService.sharedSegment,
+        onApply: (config) {
+          Navigator.of(drawerContext).pop();
+          _applySavedConfig(config);
+        },
+        onAddCurrent: () {
+          Navigator.of(drawerContext).pop();
+          SavedSearchConfigDrawer.promptSaveCurrent(
+            segment: SavedSearchConfigService.sharedSegment,
+            tags: _filterTags,
+            date: _filterDate,
+            rating: _filterRating,
+          );
         },
       ),
     );
   }
 
-  /// 打开右侧「已保存筛选」抽屉（与热门视频/图库共用同一份配置池）。
-  void _openSavedConfigDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
-  }
-
-  /// 应用一条已保存的筛选配置，并关闭抽屉。
+  /// 应用一条已保存的筛选配置。
   void _applySavedConfig(SavedSearchConfig config) {
     setState(() {
       _filterTags = List<Tag>.from(config.tags);
       _filterDate = config.date;
       _filterRating = config.rating;
     });
-    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   @override
@@ -652,23 +604,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     ];
 
     return Scaffold(
-      key: _scaffoldKey,
-      // 抽屉盖在浮动底栏之上，不需要为底栏让位：还原系统原始底部安全区
-      endDrawer: RemoveFloatingBarInset(
-        child: SavedSearchConfigDrawer(
-          segment: SavedSearchConfigService.sharedSegment,
-          onApply: _applySavedConfig,
-          onAddCurrent: () {
-            _scaffoldKey.currentState?.closeEndDrawer();
-            SavedSearchConfigDrawer.promptSaveCurrent(
-              segment: SavedSearchConfigService.sharedSegment,
-              tags: _filterTags,
-              date: _filterDate,
-              rating: _filterRating,
-            );
-          },
-        ),
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;
@@ -679,6 +614,9 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
             controllers: [_videoBatchController, _imageBatchController],
             activeIndex: () => _tabController.index,
             child: GlassHeaderOverlay(
+              // 订阅：header 与浮层 chrome 走真折射透镜，列表本体留在传统档
+              // （见 GlassHeaderOverlay.liquid）。
+              liquid: true,
               headerExtent: headerExtent,
               headerTop: statusBarHeight,
               solidExtent: statusBarHeight,
@@ -776,7 +714,7 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    _buildAvatarButton(context),
+                    const IdentityAvatarButton(),
                     const SizedBox(width: 8),
                     _buildCenterCapsule(context, tabItems),
                     const SizedBox(width: 8),
@@ -883,54 +821,72 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
   Widget _buildTabDropdown(BuildContext context, List<GlassSegmentItem> items) {
     final colorScheme = Theme.of(context).colorScheme;
-    final index = _tabController.index;
-    return PopupMenuButton<int>(
-      initialValue: index,
-      onSelected: (newIndex) => _tabController.animateTo(newIndex),
-      position: PopupMenuPosition.under,
-      // 往下挪一点，别压住玻璃胶囊本身
-      offset: const Offset(0, 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: GlassTokens.pillHeight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14, right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GlassFlipLabel(
-                progress: _tabController.animation!,
-                labels: [for (final item in items) item.label],
-                style: TextStyle(
-                  color: colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                size: 22,
-                color: colorScheme.onSurface,
-              ),
-            ],
+    // 菜单走 [showGlassMenu]，材质跟着外层胶囊的档位走；Builder 是为了拿到
+    // 触发位自身的 context 去量落点。
+    return Builder(
+      builder: (anchorContext) => GlassPressable(
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onTap: () => _openTabMenu(anchorContext, items),
+        // 触发位是胶囊的全部内容，按下缩放会把整只胶囊带得一起抖；
+        // 反馈改成整只胶囊压深一档（换掉 PopupMenuButton 原本的水波）。
+        scale: 1.0,
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: GlassTokens.pillHeight,
+          decoration: BoxDecoration(
+            color: pressed
+                ? colorScheme.onSurface.withValues(alpha: 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
           ),
-        ),
-      ),
-      itemBuilder: (context) => [
-        for (var i = 0; i < items.length; i++)
-          PopupMenuItem<int>(
-            value: i,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 14, right: 8),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(items[i].label),
-                if (i == index) ...[
-                  const Spacer(),
-                  Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
+                GlassFlipLabel(
+                  progress: _tabController.animation!,
+                  labels: [for (final item in items) item.label],
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down,
+                  size: 22,
+                  color: colorScheme.onSurface,
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openTabMenu(
+    BuildContext anchorContext,
+    List<GlassSegmentItem> items,
+  ) async {
+    final index = _tabController.index;
+    final selected = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
+        for (var i = 0; i < items.length; i++)
+          GlassMenuOption<int>(
+            value: i,
+            label: items[i].label,
+            selected: i == index,
+          ),
       ],
     );
+    if (selected != null && mounted) {
+      _tabController.animateTo(selected);
+    }
   }
 
   Widget _buildLoggedInView(BuildContext context) {

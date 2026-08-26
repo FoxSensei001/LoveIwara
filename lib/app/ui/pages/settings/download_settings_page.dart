@@ -10,10 +10,15 @@ import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
+import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 
 class DownloadSettingsPage extends StatefulWidget {
@@ -613,7 +618,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 color: Theme.of(context).textTheme.bodySmall?.color,
               ),
             ),
-            Slider(
+            GlassSlider(
               value: current.toDouble(),
               min: 1,
               max: 5,
@@ -665,8 +670,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               ],
             ),
             Obx(
-              () => SwitchListTile(
-                contentPadding: EdgeInsets.zero,
+              () => GlassSwitchItem(
                 title: Text(
                   t
                       .settings
@@ -821,7 +825,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
             // 启用开关
             Obx(
-              () => SwitchListTile(
+              () => GlassSwitchItem(
                 title: Text(
                   t.settings.downloadSettings.enableCustomDownloadPath,
                 ),
@@ -864,25 +868,31 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    TextField(
-                      controller: _customPathController,
-                      focusNode: _customPathFocusNode,
-                      enabled: isEnabled,
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        labelText:
-                            t.settings.downloadSettings.customDownloadPathLabel,
-                        hintText:
-                            t.settings.downloadSettings.selectDownloadFolder,
-                        border: const OutlineInputBorder(),
-                        alignLabelWithHint: true,
+                    GlassInputSurface(
+                      borderRadius: 8,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: TextField(
+                        controller: _customPathController,
+                        focusNode: _customPathFocusNode,
+                        enabled: isEnabled,
+                        maxLines: null,
+                        decoration: glassFieldDecoration(
+                          context,
+                          hint:
+                              t.settings.downloadSettings.selectDownloadFolder,
+                          label: t
+                              .settings
+                              .downloadSettings
+                              .customDownloadPathLabel,
+                        ).copyWith(alignLabelWithHint: true),
+                        onChanged: (value) {
+                          // 只有在不是从配置更新时才更新配置
+                          if (!_isUpdatingFromConfig) {
+                            configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] =
+                                value;
+                          }
+                        },
                       ),
-                      onChanged: (value) {
-                        // 只有在不是从配置更新时才更新配置
-                        if (!_isUpdatingFromConfig) {
-                          configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = value;
-                        }
-                      },
                     ),
 
                     // 公共目录权限提示
@@ -1139,23 +1149,25 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     required ConfigKey configKey,
   }) {
     final t = slang.Translations.of(context);
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.refresh),
-          onPressed: () => _resetTemplate(controller, configKey),
-          tooltip: t.settings.downloadSettings.resetToDefault,
-        ),
+    return GlassInputSurface(
+      borderRadius: 8,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: TextField(
+        controller: controller,
+        decoration: glassFieldDecoration(context, hint: hint, label: label)
+            .copyWith(
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () => _resetTemplate(controller, configKey),
+                tooltip: t.settings.downloadSettings.resetToDefault,
+              ),
+            ),
+        onChanged: (value) {
+          if (filenameTemplateService.validateTemplate(value)) {
+            configService[configKey] = value;
+          }
+        },
       ),
-      onChanged: (value) {
-        if (filenameTemplateService.validateTemplate(value)) {
-          configService[configKey] = value;
-        }
-      },
     );
   }
 
@@ -1163,68 +1175,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final t = slang.Translations.of(context);
     final variables = filenameTemplateService.getSupportedVariables();
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 600, maxHeight: 600),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 标题栏
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.help_outline,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          t.settings.downloadSettings.supportedVariables,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimaryContainer,
-                              ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.close,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // 内容区域
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+    showAppDialog(
+      GlassAlertDialog(
+        title: t.settings.downloadSettings.supportedVariables,
+        maxWidth: 600,
+        scrollable: true,
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
                         Text(
                           t
                               .settings
@@ -1334,15 +1292,9 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 

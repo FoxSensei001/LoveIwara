@@ -7,8 +7,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../../models/image.model.dart';
 import '../../../../models/tag.model.dart';
-import '../../../../utils/show_app_dialog.dart';
-import '../../popular_media_list/widgets/popular_media_search_config_widget.dart';
+import '../../popular_media_list/widgets/media_filter_drawer.dart';
 import '../controllers/userz_image_model_list_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:get/get.dart';
@@ -109,24 +108,25 @@ class _ProfileImageModelTabListWidgetState
     );
   }
 
-  /// 打开筛选弹窗；确认后按「切换排序」同样的方式重建数据源。
+  /// 打开右侧「筛选」抽屉；改动即时生效，按「切换排序」同样的方式重建数据源。
+  ///
+  /// 不显示内容评级：服务端在带 `user=` 的查询里会忽略 `rating`。
   void _openFilterDialog() {
-    showAppDialog(
-      PopularMediaSearchConfig(
-        searchTags: _filterTags,
-        searchYear: _filterDate,
-        searchRating: '',
-        showRating: false,
-        onConfirm: (tags, year, rating, _) {
-          if (!mounted) return;
-          setState(() {
-            _filterTags = tags;
-            _filterDate = year;
-            imageListRepository.dispose();
-            _initRepository();
-          });
-        },
-      ),
+    showMediaFilterDrawer(
+      context: context,
+      tags: _filterTags,
+      date: _filterDate,
+      rating: '',
+      showRating: false,
+      onChanged: (tags, date, rating, _) {
+        if (!mounted) return;
+        setState(() {
+          _filterTags = tags;
+          _filterDate = date;
+          imageListRepository.dispose();
+          _initRepository();
+        });
+      },
     );
   }
 
@@ -179,6 +179,7 @@ class _ProfileImageModelTabListWidgetState
       headerTop: widget.overlayTopInset,
       headerHeight: sortRowHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: MediaListView<ImageModel>(
         paddingTop: headerExtent,
         sourceList: imageListRepository,

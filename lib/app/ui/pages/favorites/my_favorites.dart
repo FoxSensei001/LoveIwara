@@ -286,22 +286,14 @@ class _MyFavoritesState extends State<MyFavorites>
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -375,6 +367,7 @@ class _MyFavoritesState extends State<MyFavorites>
       headerExtent: headerExtent,
       headerTop: statusBarHeight,
       solidExtent: statusBarHeight,
+      liquid: true,
       body: TabBarView(
         controller: _tabController,
         physics: const ClampingScrollPhysics(),

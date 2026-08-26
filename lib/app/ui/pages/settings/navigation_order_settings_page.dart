@@ -7,7 +7,7 @@ import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -580,11 +580,9 @@ class _NavigationOrderSettingsPageState
                   final item = _navigationItems[key]!;
                   return GlassTabItem(icon: item.icon, label: item.title);
                 }).toList(),
-                trailing: GlassIconButton(
-                  standalone: true,
-                  size: GlassTokens.floatingActionSize,
-                  iconSize: 26,
-                  icon: const Icon(Icons.search),
+                action: GlassFloatingBarAction(
+                  icon: Icons.search,
+                  label: slang.t.common.search,
                   onPressed: () {},
                 ),
               ),
@@ -639,38 +637,24 @@ class _NavigationOrderSettingsPageState
 
   void _showResetConfirmDialog() {
     showAppDialog(
-      AlertDialog(
-        // 标题行关闭钮走全局约定的玻璃圆钮
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                slang.t.navigationOrderSettings.confirmResetNavigationOrder,
-              ),
-            ),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: slang.t.common.close,
-              onPressed: () => AppService.tryPop(),
-            ),
-          ],
-        ),
+      GlassAlertDialog(
+        title: slang.t.navigationOrderSettings.confirmResetNavigationOrder,
         content: Text(
           slang.t.navigationOrderSettings.confirmResetNavigationOrderDesc,
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.navigationOrderSettings.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.navigationOrderSettings.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.navigationOrderSettings.reset,
+            destructive: true,
             onPressed: () {
               _resetToDefaults();
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: Text(slang.t.navigationOrderSettings.reset),
           ),
         ],
       ),

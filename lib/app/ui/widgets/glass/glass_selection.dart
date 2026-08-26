@@ -252,7 +252,10 @@ class GlassSelectionBarContent extends StatelessWidget {
                   enabled: hasSelection,
                 ),
               for (final action in actions.skip(1)) ...[
-                SizedBox(width: standaloneButtons ? 6 : 2),
+                // 带壳那一档间距走 chromeGap：分页栏里这一排是收在同一层
+                // 玻璃里的（见 GlassChromeLayer），间距小于融合阈值会让几枚
+                // 圆钮在静止态就糊成一条。无壳那档只是图标间的留白，不受限。
+                SizedBox(width: standaloneButtons ? GlassTokens.chromeGap : 2),
                 GlassIconButton(
                   standalone: standaloneButtons,
                   size: standaloneButtons ? 36 : null,
@@ -263,7 +266,7 @@ class GlassSelectionBarContent extends StatelessWidget {
                   onPressed: hasSelection ? action.onPressed : null,
                 ),
               ],
-              const SizedBox(width: 6),
+              SizedBox(width: standaloneButtons ? GlassTokens.chromeGap : 6),
               if (!standaloneButtons) ...[_Divider(), const SizedBox(width: 2)],
               GlassIconButton(
                 standalone: standaloneButtons,
@@ -477,48 +480,56 @@ class _GlassSelectionDockState extends State<GlassSelectionDock>
       left: 0,
       right: 0,
       bottom: bottom,
+      // ⛔ 这里曾经在最外面裹 `Opacity(opacity: v)`——它会 saveLayer 把子树
+      // 隔离，坞身上那块玻璃的 backdrop 采样在整段出入场里都吃不到背景，读
+      // 起来是「按钮先浮上来、玻璃质感后补」（同 GlassReveal 那条原语的说明）。
+      // 位移/缩放是纯 Transform 可以留，淡入改走 GlassSurface.materialize。
+      //
+      // 为此把玻璃壳从 AnimatedBuilder 的 `child:` 挪进 builder 里——
+      // materialize 逐帧变化，壳没法再当作「不随动画重建的常量子树」缓存。
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (context, child) {
+        builder: (context, _) {
           if (_controller.isDismissed && !show) return const SizedBox.shrink();
           final double v = show
               ? GlassTokens.motionCurve.transform(_controller.value)
               : Curves.easeInCubic.transform(_controller.value);
           return IgnorePointer(
             ignoring: !show,
-            child: Opacity(
-              opacity: v,
-              child: Transform.translate(
-                // 从底部「浮上来」：位移 + 缩放 + 淡入三者同时发生
-                offset: Offset(0, (1 - v) * 16),
-                child: Transform.scale(scale: 0.92 + 0.08 * v, child: child),
+            child: Transform.translate(
+              // 从底部「浮上来」：位移 + 缩放 + 材质淡入三者同时发生
+              offset: Offset(0, (1 - v) * 16),
+              child: Transform.scale(
+                scale: 0.92 + 0.08 * v,
+                // 留出左右边距：坞是居中浮条，贴到屏幕边缘既难看也容易被
+                // 系统手势区吃掉
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Center(
+                    child: GlassSurface(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      materialize: v,
+                      child: AnimatedSize(
+                        duration: GlassTokens.groupMorphDuration,
+                        curve: GlassTokens.groupSlotCurve,
+                        clipBehavior: Clip.hardEdge,
+                        child: GlassSelectionBarContent(
+                          selectedCount:
+                              widget.selectedCount ?? scope?.selectedCount ?? 0,
+                          actions:
+                              widget.actions ??
+                              scope?.actions ??
+                              const <GlassSelectionAction>[],
+                          onClear: widget.onClear ?? scope?.onClear ?? () {},
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           );
         },
-        // 留出左右边距：坞是居中浮条，贴到屏幕边缘既难看也容易被系统手势区吃掉
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Center(
-            child: GlassSurface(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: AnimatedSize(
-                duration: GlassTokens.groupMorphDuration,
-                curve: GlassTokens.groupSlotCurve,
-                clipBehavior: Clip.hardEdge,
-                child: GlassSelectionBarContent(
-                  selectedCount:
-                      widget.selectedCount ?? scope?.selectedCount ?? 0,
-                  actions:
-                      widget.actions ??
-                      scope?.actions ??
-                      const <GlassSelectionAction>[],
-                  onClear: widget.onClear ?? scope?.onClear ?? () {},
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

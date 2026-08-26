@@ -5,7 +5,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 标签翻译纠错 / 反馈入口（项目 issue）。
@@ -28,40 +30,39 @@ void copyTagText(String text) {
 /// 弹出标签详情：同时展示「译文」与「原始标签」，并各自提供复制按钮。
 Future<void> showTagDetailDialog(BuildContext context, Tag tag) {
   final translation = TagLocalizationService.displayName(tag.id);
-  return showDialog(
-    context: context,
-    builder: (context) {
-      final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Text(t.common.tagInfo),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _TagDetailCopyRow(
-              label: t.common.tagTranslation,
-              value: translation,
-            ),
-            const SizedBox(height: 12),
-            _TagDetailCopyRow(
-              label: t.common.tagOriginalKey,
-              value: tag.id,
-            ),
-            const SizedBox(height: 8),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            // 翻译纠错 / 反馈引导
-            const TagTranslationFeedbackLink(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
+  return showAppDialog(
+    Builder(
+      builder: (context) {
+        final t = slang.Translations.of(context);
+        return GlassAlertDialog(
+          title: t.common.tagInfo,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _TagDetailCopyRow(
+                label: t.common.tagTranslation,
+                value: translation,
+              ),
+              const SizedBox(height: 12),
+              _TagDetailCopyRow(label: t.common.tagOriginalKey, value: tag.id),
+              const SizedBox(height: 8),
+              const Divider(height: 1),
+              const SizedBox(height: 8),
+              // 翻译纠错 / 反馈引导
+              const TagTranslationFeedbackLink(),
+            ],
           ),
-        ],
-      );
-    },
+          actions: [
+            GlassDialogAction(
+              label: t.common.close,
+              emphasized: false,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    ),
   );
 }
 
@@ -80,83 +81,83 @@ Future<void> showOreno3dTagDetailDialog(
     id: id,
     fallback: localizedName,
   );
-  return showDialog(
-    context: context,
-    builder: (context) {
-      final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Text(t.common.tagInfo),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _TagDetailCopyRow(
-              label: t.common.tagTranslation,
-              value: localizedName,
-            ),
-            const SizedBox(height: 12),
-            _TagDetailCopyRow(
-              label: t.common.tagOriginalKey,
-              value: original,
-            ),
-            const SizedBox(height: 8),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
-            // 翻译纠错 / 反馈引导
-            const TagTranslationFeedbackLink(),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
+  return showAppDialog(
+    Builder(
+      builder: (context) {
+        final t = slang.Translations.of(context);
+        return GlassAlertDialog(
+          title: t.common.tagInfo,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _TagDetailCopyRow(
+                label: t.common.tagTranslation,
+                value: localizedName,
+              ),
+              const SizedBox(height: 12),
+              _TagDetailCopyRow(
+                label: t.common.tagOriginalKey,
+                value: original,
+              ),
+              const SizedBox(height: 8),
+              const Divider(height: 1),
+              const SizedBox(height: 8),
+              // 翻译纠错 / 反馈引导
+              const TagTranslationFeedbackLink(),
+            ],
           ),
-        ],
-      );
-    },
+          actions: [
+            GlassDialogAction(
+              label: t.common.close,
+              emphasized: false,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    ),
   );
 }
 
 /// 弹出「标签本地化」引导说明：解释译名来源、搜索方式，并提供反馈入口。
 Future<void> showTagLocalizationGuideDialog(BuildContext context) {
-  return showDialog(
-    context: context,
-    builder: (context) {
-      final t = slang.Translations.of(context);
-      return AlertDialog(
-        title: Row(
-          children: [
-            Icon(
-              Icons.translate,
-              size: 20,
-              color: Theme.of(context).colorScheme.primary,
+  return showAppDialog(
+    Builder(
+      builder: (context) {
+        final t = slang.Translations.of(context);
+        return GlassAlertDialog(
+          title: t.common.tagLocalizationGuideTitle,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.translate,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t.common.tagLocalizationGuideContent,
+                  style: const TextStyle(fontSize: 14, height: 1.5),
+                ),
+                const SizedBox(height: 12),
+                const TagTranslationFeedbackLink(),
+              ],
             ),
-            const SizedBox(width: 8),
-            Expanded(child: Text(t.common.tagLocalizationGuideTitle)),
+          ),
+          actions: [
+            GlassDialogAction(
+              label: t.common.close,
+              emphasized: false,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
           ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                t.common.tagLocalizationGuideContent,
-                style: const TextStyle(fontSize: 14, height: 1.5),
-              ),
-              const SizedBox(height: 12),
-              const TagTranslationFeedbackLink(),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.common.close),
-          ),
-        ],
-      );
-    },
+        );
+      },
+    ),
   );
 }
 
@@ -225,10 +226,7 @@ class _TagDetailCopyRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              SelectableText(
-                value,
-                style: const TextStyle(fontSize: 15),
-              ),
+              SelectableText(value, style: const TextStyle(fontSize: 15)),
             ],
           ),
         ),

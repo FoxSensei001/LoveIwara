@@ -294,6 +294,8 @@ enum ConfigKey {
   CURRENT_PRESET_INDEX_KEY,
   CURRENT_CUSTOM_HEX_KEY,
   CUSTOM_THEME_COLORS_KEY,
+  ENABLE_LIQUID_GLASS_KEY, // 玻璃质感：true=真液态玻璃（模糊/折射），false=轻量半透明
+  GLASS_MATERIAL_INTRO_SHOWN, // 玻璃质感的一次性提醒是否已经露过面（引导页问过也算）
   RECORD_AND_RESTORE_VIDEO_PROGRESS,
   USE_AI_TRANSLATION,
   AI_TRANSLATION_BASE_URL,
@@ -366,6 +368,7 @@ enum ConfigKey {
   FULLSCREEN_ORIENTATION, // 进入全屏后的屏幕方向
   // 首次设置相关
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
+  INSTALL_MARKER_ISSUED, // 本次安装是否已经写过「安装标记」文件（见 RestoredInstallGuard）
   VIDEO_GESTURE_GUIDE_SHOWN, // 视频手势指引页是否已展示（首次进入视频详情前显示一次）
   // Anime4K 预设配置
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
@@ -489,6 +492,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'current_custom_hex';
       case ConfigKey.CUSTOM_THEME_COLORS_KEY:
         return 'custom_theme_colors';
+      case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
+        return 'enable_liquid_glass';
+      case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
+        return 'glass_material_intro_shown';
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
         return 'record_and_restore_video_progress';
       case ConfigKey.USE_AI_TRANSLATION:
@@ -617,6 +624,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'fullscreen_orientation';
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
         return 'first_time_setup_completed';
+      case ConfigKey.INSTALL_MARKER_ISSUED:
+        return 'install_marker_issued';
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return 'video_gesture_guide_shown';
       case ConfigKey.ANIME4K_PRESET_ID:
@@ -755,6 +764,10 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.CUSTOM_THEME_COLORS_KEY:
         return <String>[];
+      case ConfigKey.ENABLE_LIQUID_GLASS_KEY:
+        return true;
+      case ConfigKey.GLASS_MATERIAL_INTRO_SHOWN:
+        return false;
       case ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS:
         return true;
       case ConfigKey.USE_AI_TRANSLATION:
@@ -892,6 +905,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'landscape_left'; // 默认左侧横屏
       case ConfigKey.FIRST_TIME_SETUP_COMPLETED:
         return false;
+      case ConfigKey.INSTALL_MARKER_ISSUED:
+        return false; // 出厂未写过标记；写成功后置 true，此后标记消失即判定为还原安装
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return false; // 默认未展示，首次进入视频详情前显示一次
       case ConfigKey.ANIME4K_PRESET_ID:

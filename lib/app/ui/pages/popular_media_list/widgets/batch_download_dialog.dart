@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -106,8 +107,8 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
 
     LogUtils.d('构建批量下载对话框, 阶段: $_phase, 标题: $title', 'BatchDownloadDialog');
 
-    return AlertDialog(
-      title: Text(title.isNotEmpty ? title : t.download.batchDownload.title),
+    return GlassAlertDialog(
+      title: title.isNotEmpty ? title : t.download.batchDownload.title,
       content: SizedBox(
         width: 400, // 给予一个基础宽度，防止 layout 问题
         child: SingleChildScrollView(child: _buildContent(context, t)),
@@ -448,39 +449,45 @@ class _BatchDownloadDialogState<T> extends State<BatchDownloadDialog<T>> {
     }
   }
 
-  List<Widget> _buildActions(slang.Translations t) {
+  List<GlassDialogAction> _buildActions(slang.Translations t) {
     switch (_phase) {
       case _DialogPhase.selectQuality:
         return [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(t.common.cancel),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.download.batchDownload.startDownload,
             onPressed: _startDownload,
-            child: Text(t.download.batchDownload.startDownload),
           ),
         ];
       case _DialogPhase.downloading:
         return [
-          TextButton(onPressed: _cancelDownload, child: Text(t.common.cancel)),
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
+            onPressed: _cancelDownload,
+          ),
         ];
       case _DialogPhase.result:
         return [
-          TextButton(
+          GlassDialogAction(
+            label: t.download.viewDownloadList,
+            emphasized: false,
             onPressed: () {
               AppService.tryPop();
               widget.onComplete?.call(); // 清空选择
               NaviService.navigateToDownloadTaskListPage();
             },
-            child: Text(t.download.viewDownloadList),
           ),
-          FilledButton(
+          GlassDialogAction(
+            label: t.common.confirm,
             onPressed: () {
               AppService.tryPop();
               widget.onComplete?.call();
             },
-            child: Text(t.common.confirm),
           ),
         ];
     }

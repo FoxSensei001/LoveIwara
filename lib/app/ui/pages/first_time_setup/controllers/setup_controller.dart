@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/glass_material_intro.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -81,6 +82,9 @@ class SetupController extends GetxController {
   Future<void> completeSetup() async {
     // 标记首次设置完成
     await configService.setSetting(ConfigKey.FIRST_TIME_SETUP_COMPLETED, true);
+
+    // 玻璃质感在主题那一步里已经问过了，别让启动后的一次性提醒再问一遍。
+    await GlassMaterialIntro.markAsked();
 
     LogUtils.i('设置保存完成，标记首次设置已完成', '设置控制器');
 

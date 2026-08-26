@@ -33,11 +33,15 @@ class GlassInputSurface extends StatelessWidget {
     required this.child,
     this.borderRadius = 22,
     this.padding = EdgeInsets.zero,
+    this.error = false,
   });
 
   final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry padding;
+
+  /// 校验失败：描边转错误色。壳本身不显示错误文案，那仍由调用方在下方渲染。
+  final bool error;
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +49,14 @@ class GlassInputSurface extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: GlassTokens.fill(cs),
+        color: cs.surfaceContainerHighest.withValues(
+          alpha: cs.brightness == Brightness.dark ? 0.45 : 0.55,
+        ),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: GlassTokens.stroke(cs), width: 0.6),
+        border: Border.all(
+          color: error ? cs.error : GlassTokens.stroke(cs),
+          width: error ? 1.0 : 0.6,
+        ),
       ),
       child: child,
     );
@@ -321,7 +330,8 @@ class GlassSubmitButton extends StatelessWidget {
                   )
                 : animatedColors[0],
             borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-            boxShadow: enabled ? GlassTokens.shadow(cs) : null,
+            // ⛔ 不加 boxShadow：可提交与否已经由底色/前景色分得很开，
+            // 再吐一圈外投影会把这枚胶囊读成一张浮起来的卡片。
           ),
           child: Center(
             // 标签 ↔ 转圈原位交叉过渡，胶囊宽度平滑伸缩

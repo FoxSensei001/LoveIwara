@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
@@ -20,12 +21,98 @@ import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 class VideoDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
 
   const VideoDownloadTaskItem({super.key, required this.task});
+
+  /// 单个任务的操作菜单：右键和右侧的「更多」按钮共用这一份条目。
+  ///
+  /// 「更多」原来吐的是底部 sheet，和右键那条路长得不一样——同一堆操作两套
+  /// 观感。现在两条路都走全站统一的玻璃面板：右键时没有「触发件」，落点用
+  /// 指针处一个零尺寸的 `Rect` 给（[globalPosition]，见 [showGlassMenu] 的
+  /// globalAnchor）；「更多」按钮则贴着按钮自己弹，落点由 [context] 量出来。
+  Future<void> _showTaskMenu(
+    BuildContext context, {
+    Offset? globalPosition,
+  }) async {
+    final t = slang.Translations.of(context);
+    final action = await showGlassMenu<String>(
+      anchorContext: context,
+      globalAnchor: globalPosition == null ? null : globalPosition & Size.zero,
+      entries: [
+        GlassMenuOption<String>(
+          value: 'detail',
+          icon: Icons.info,
+          label: t.download.downloadDetail,
+        ),
+        GlassMenuOption<String>(
+          value: 'copyUrl',
+          icon: Icons.link,
+          label: t.download.copyDownloadUrl,
+        ),
+        GlassMenuOption<String>(
+          value: 'moveTo',
+          icon: Icons.drive_file_move_outline,
+          label: t.download.category.moveTo,
+        ),
+        if (task.status == DownloadStatus.completed) ...[
+          GlassMenuOption<String>(
+            value: 'open',
+            icon: Icons.open_in_new,
+            label: t.download.openFile,
+          ),
+          GlassMenuOption<String>(
+            value: 'playLocally',
+            icon: Icons.play_circle_outline,
+            label: t.download.playLocally,
+          ),
+          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
+            GlassMenuOption<String>(
+              value: 'reveal',
+              icon: Icons.folder_open,
+              label: t.download.showInFolder,
+            ),
+        ],
+        const GlassMenuSeparator(),
+        GlassMenuOption<String>(
+          value: 'delete',
+          icon: Icons.delete,
+          label: t.download.deleteTask,
+          destructive: true,
+        ),
+        GlassMenuOption<String>(
+          value: 'forceDelete',
+          icon: Icons.delete_forever,
+          label: t.download.forceDeleteTask,
+          destructive: true,
+        ),
+      ],
+    );
+    if (action == null || !context.mounted) return;
+    switch (action) {
+      case 'detail':
+        showDownloadDetailDialog(context, task);
+      case 'copyUrl':
+        _copyDownloadUrl(context);
+      case 'moveTo':
+        showMoveToCategorySheet(context, [task.id]);
+      case 'open':
+        _openFile(context);
+      case 'playLocally':
+        _playLocalVideo(context);
+      case 'reveal':
+        _showInFolder(context);
+      case 'delete':
+        _showDeleteConfirmDialog(context);
+      case 'forceDelete':
+        _showDeleteConfirmDialog(context, force: true);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,122 +173,10 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 ),
               // 内容层
               GestureDetector(
-                onSecondaryTapUp: (details) {
-                  final RenderBox overlay =
-                      Overlay.of(context).context.findRenderObject()
-                          as RenderBox;
-                  final RelativeRect position = RelativeRect.fromRect(
-                    Rect.fromPoints(
-                      details.globalPosition,
-                      details.globalPosition,
-                    ),
-                    Offset.zero & overlay.size,
-                  );
-                  showMenu(
-                    context: context,
-                    position: position,
-                    items: [
-                      // 查看下载详情
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.info),
-                            const SizedBox(width: 8),
-                            Text(t.download.downloadDetail),
-                          ],
-                        ),
-                        onTap: () => showDownloadDetailDialog(context, task),
-                      ),
-                      // 复制下载链接
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.link),
-                            const SizedBox(width: 8),
-                            Text(t.download.copyDownloadUrl),
-                          ],
-                        ),
-                        onTap: () => _copyDownloadUrl(context),
-                      ),
-                      // 移至分类
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.drive_file_move_outline),
-                            const SizedBox(width: 8),
-                            Text(t.download.category.moveTo),
-                          ],
-                        ),
-                        onTap: () =>
-                            showMoveToCategorySheet(context, [task.id]),
-                      ),
-                      if (task.status == DownloadStatus.completed) ...[
-                        PopupMenuItem(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.open_in_new),
-                              const SizedBox(width: 8),
-                              Text(t.download.openFile),
-                            ],
-                          ),
-                          onTap: () => _openFile(context),
-                        ),
-                        // 本地播放按钮
-                        PopupMenuItem(
-                          child: Row(
-                            children: [
-                              const Icon(Icons.play_circle_outline),
-                              const SizedBox(width: 8),
-                              Text(t.download.playLocally),
-                            ],
-                          ),
-                          onTap: () => _playLocalVideo(context),
-                        ),
-                        if (Platform.isWindows ||
-                            Platform.isMacOS ||
-                            Platform.isLinux)
-                          PopupMenuItem(
-                            child: Row(
-                              children: [
-                                const Icon(Icons.folder_open),
-                                const SizedBox(width: 8),
-                                Text(t.download.showInFolder),
-                              ],
-                            ),
-                            onTap: () => _showInFolder(context),
-                          ),
-                      ],
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Text(
-                              t.download.deleteTask,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                        onTap: () => _showDeleteConfirmDialog(context),
-                      ),
-                      // 强制删除
-                      PopupMenuItem(
-                        child: Row(
-                          children: [
-                            const Icon(Icons.delete, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Text(
-                              t.download.forceDeleteTask,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                        onTap: () =>
-                            _showDeleteConfirmDialog(context, force: true),
-                      ),
-                    ],
-                  );
-                },
+                onSecondaryTapUp: (details) => _showTaskMenu(
+                  context,
+                  globalPosition: details.globalPosition,
+                ),
                 child: InkWell(
                   onTap: () => _onTap(context),
                   mouseCursor: task.status == DownloadStatus.completed
@@ -496,10 +471,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
                 tooltip: t.download.viewVideoDetail,
               ),
             // 更多操作按钮
-            IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: () => _showMoreOptionsDialog(context),
+            DownloadMoreButton(
               tooltip: t.download.moreOptions,
+              onPressed: _showTaskMenu,
             ),
           ],
         ),
@@ -610,143 +584,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
     });
   }
 
-  void _showMoreOptionsDialog(BuildContext context) {
-    final t = slang.Translations.of(context);
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => SafeArea(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 标题
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        t.common.more,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-                // 可滚动的选项列表
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: Column(
-                      children: [
-                        // 查看下载详情
-                        ListTile(
-                          leading: const Icon(Icons.info),
-                          title: Text(t.download.downloadDetail),
-                          onTap: () => showDownloadDetailDialog(context, task),
-                        ),
-                        // 复制下载链接
-                        ListTile(
-                          leading: const Icon(Icons.link),
-                          title: Text(t.download.copyDownloadUrl),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _copyDownloadUrl(context);
-                          },
-                        ),
-                        // 移至分类
-                        ListTile(
-                          leading: const Icon(Icons.drive_file_move_outline),
-                          title: Text(t.download.category.moveTo),
-                          onTap: () {
-                            Navigator.pop(context);
-                            showMoveToCategorySheet(context, [task.id]);
-                          },
-                        ),
-                        if (task.status == DownloadStatus.completed) ...[
-                          ListTile(
-                            leading: const Icon(Icons.open_in_new),
-                            title: Text(t.download.openFile),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _openFile(context);
-                            },
-                          ),
-                          // 本地播放按钮
-                          ListTile(
-                            leading: const Icon(Icons.play_circle_outline),
-                            title: Text(t.download.playLocally),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _playLocalVideo(context);
-                            },
-                          ),
-                          if (Platform.isWindows ||
-                              Platform.isMacOS ||
-                              Platform.isLinux)
-                            ListTile(
-                              leading: const Icon(Icons.folder_open),
-                              title: Text(t.download.showInFolder),
-                              onTap: () {
-                                Navigator.pop(context);
-                                _showInFolder(context);
-                              },
-                            ),
-                        ],
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(
-                            t.download.deleteTask,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showDeleteConfirmDialog(context);
-                          },
-                        ),
-                        // 强制删除
-                        ListTile(
-                          leading: const Icon(Icons.delete, color: Colors.red),
-                          title: Text(
-                            t.download.forceDeleteTask,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showDeleteConfirmDialog(context, force: true);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _navigateToAuthorProfile(VideoDownloadExtData videoData) {
     if (videoData.authorUsername != null) {
       NaviService.navigateToAuthorProfilePage(videoData.authorUsername!);
@@ -843,14 +680,16 @@ class VideoDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.copyDownloadUrlSuccess)),
+        showGlassToast(
+          t.download.copyDownloadUrlSuccess,
+          type: GlassToastType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.copyDownloadUrlFailed)),
+        showGlassToast(
+          t.download.errors.copyDownloadUrlFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -865,8 +704,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -883,8 +723,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -899,8 +740,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -911,22 +753,20 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                t.download.errors.openFolderFailedWithMessage(
-                  message: result.message,
-                ),
-              ),
+          showGlassToast(
+            t.download.errors.openFolderFailedWithMessage(
+              message: result.message,
             ),
+            type: GlassToastType.error,
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(t.download.errors.openFolderFailed)),
+        showGlassToast(
+          t.download.errors.openFolderFailed,
+          type: GlassToastType.error,
         );
       }
     }
@@ -942,8 +782,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(t.download.errors.fileNotFound)),
+          showGlassToast(
+            t.download.errors.fileNotFound,
+            type: GlassToastType.error,
           );
         }
         return;
@@ -973,14 +814,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              t.download.errors.playLocallyFailedWithMessage(
-                message: e.toString(),
-              ),
-            ),
-          ),
+        showGlassToast(
+          t.download.errors.playLocallyFailedWithMessage(message: e.toString()),
+          type: GlassToastType.error,
         );
       }
     }
@@ -1004,21 +840,23 @@ class VideoDownloadTaskItem extends StatelessWidget {
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          AlertDialog(
-            title: Text(
-              force ? t.download.forceDeleteTask : t.download.deleteTask,
-            ),
+          GlassAlertDialog(
+            title: force ? t.download.forceDeleteTask : t.download.deleteTask,
             content: Text(
               force
                   ? t.download.forceDeleteTaskConfirmation
                   : t.download.deleteTaskConfirmation,
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => AppService.tryPop(),
-                child: Text(t.common.cancel),
               ),
-              TextButton(
+              GlassDialogAction(
+                label: t.common.confirm,
+                emphasized: false,
+                destructive: true,
                 onPressed: () {
                   AppService.tryPop();
                   DownloadService.to.deleteTask(
@@ -1026,10 +864,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
                     ignoreFileDeleteError: force,
                   );
                 },
-                child: Text(
-                  t.common.confirm,
-                  style: const TextStyle(color: Colors.red),
-                ),
               ),
             ],
           ),

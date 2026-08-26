@@ -12,11 +12,13 @@ import 'package:i_iwara/app/services/default_tag_blacklist_reminder.dart';
 import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 const double _kBodyHeightMin = 420;
 const double _kBodyHeightMax = 640;
@@ -27,46 +29,17 @@ enum _AuthFlow { login, register }
 class LoginDialog extends StatefulWidget {
   const LoginDialog({super.key});
 
-  /// 显示登录对话框
+  /// 显示登录对话框。
+  ///
+  /// 走 [showGlassDraggableBottomSheet] 而不是裸 `showModalBottomSheet` +
+  /// 手写 `DraggableScrollableSheet` 外壳——液态档只在这个收口点供应，裸
+  /// `showModalBottomSheet` 开出来的弹层读不到 scope，[_HeaderBar] 里的
+  /// `GlassSegmentedControl` / `GlassIconButton` 会静默落回传统档（2026-08-24
+  /// 用户真机报的「左上角 Tab 栏 / 右侧关闭按钮未适配」正是这个）。
   static Future<bool?> show(BuildContext context) {
-    return showModalBottomSheet<bool>(
+    return showGlassDraggableBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => DraggableScrollableSheet(
-        expand: false,
-        initialChildSize: 0.9,
-        minChildSize: 0.6,
-        maxChildSize: 1.0,
-        builder: (context, scrollController) {
-          final theme = Theme.of(context);
-          return Container(
-            decoration: BoxDecoration(
-              color: theme.scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withValues(alpha: 0.08),
-                  blurRadius: 24,
-                  offset: const Offset(0, -8),
-                ),
-              ],
-            ),
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                // 键盘 + 系统手势条/导航条
-                padding: EdgeInsets.only(
-                  bottom: computeSheetBottomInset(context),
-                ),
-                child: const LoginDialog(),
-              ),
-            ),
-          );
-        },
-      ),
+      builder: (context) => const LoginDialog(),
     );
   }
 
@@ -249,70 +222,65 @@ class _LoginDialogState extends State<LoginDialog> {
     final double availableHeight = (MediaQuery.of(context).size.height * 0.65)
         .clamp(_kBodyHeightMin, _kBodyHeightMax);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8),
-          const _SheetHandle(),
-          _HeaderBar(
-            flow: _flow,
-            onFlowChanged: _changeFlow,
-            onClose: () => Navigator.of(context).pop(false),
-          ),
-          SizedBox(
-            height: availableHeight,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              child: _flow == _AuthFlow.login
-                  ? _LoginFormSection(
-                      key: const ValueKey('login-form'),
-                      formKey: _loginFormKey,
-                      emailController: _loginEmailController,
-                      passwordController: _loginPasswordController,
-                      passwordFocusNode: _loginPasswordFocus,
-                      isLoading: _isLoading,
-                      rememberMe: _rememberMe,
-                      isPasswordVisible: _isPasswordVisible,
-                      onRememberMeChanged: (value) {
-                        _toggleRememberMe(value);
-                      },
-                      onSubmit: _submitLogin,
-                      onTogglePasswordVisibility: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    )
-                  : _RegisterNoticeSection(
-                      key: const ValueKey('register-notice'),
-                      onOpenWebsite: _openRegisterWebsite,
-                    ),
+    // 外壳（玻璃材质 + 圆角 + 拖拽条 + 安全区）收口到 GlassDraggableBottomSheet，
+    // 这里只负责标题行 + 可滚动内容——同 CommentRepliesBottomSheet 的写法。
+    // 标题行必须留在 scrollController 绑定的可滚动区域**之外**：分段胶囊
+    // 是一块真液态玻璃（GlassSegmentedControl 内部的 GlassSurface），lens
+    // 一旦身处滚动容器，Android 的拉伸回弹会把它隔进独立合成层、边缘渲染成
+    // 纯黑（见 liquid_glass_material.dart 文件头那条硬约束）。
+    return GlassDraggableBottomSheet(
+      initialChildSize: 0.9,
+      minChildSize: 0.6,
+      maxChildSize: 1.0,
+      builder: (context, scrollController) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _HeaderBar(
+              flow: _flow,
+              onFlowChanged: _changeFlow,
+              onClose: () => Navigator.of(context).pop(false),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SheetHandle extends StatelessWidget {
-  const _SheetHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(
-      context,
-    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.25);
-    return Container(
-      width: 44,
-      height: 4,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(2),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: SizedBox(
+                  height: availableHeight,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: _flow == _AuthFlow.login
+                        ? _LoginFormSection(
+                            key: const ValueKey('login-form'),
+                            formKey: _loginFormKey,
+                            emailController: _loginEmailController,
+                            passwordController: _loginPasswordController,
+                            passwordFocusNode: _loginPasswordFocus,
+                            isLoading: _isLoading,
+                            rememberMe: _rememberMe,
+                            isPasswordVisible: _isPasswordVisible,
+                            onRememberMeChanged: (value) {
+                              _toggleRememberMe(value);
+                            },
+                            onSubmit: _submitLogin,
+                            onTogglePasswordVisibility: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          )
+                        : _RegisterNoticeSection(
+                            key: const ValueKey('register-notice'),
+                            onOpenWebsite: _openRegisterWebsite,
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -332,36 +300,30 @@ class _HeaderBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Container(
+    // 不再画底部分隔线：玻璃胶囊本身已经有描边/投影交代边界，压在上面的
+    // 一条 Material 分隔线纯属多余（2026-08-24 用户真机指出「Tab 栏下方
+    // 多出一条横线」）。
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Theme.of(context).dividerColor),
-        ),
-      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SegmentedButton<_AuthFlow>(
-            segments: [
-              ButtonSegment<_AuthFlow>(
-                value: _AuthFlow.login,
-                label: Text(t.auth.login),
+          GlassSegmentedControl(
+            selectedIndex: _AuthFlow.values.indexOf(flow),
+            onChanged: (index) => onFlowChanged(_AuthFlow.values[index]),
+            items: [
+              GlassSegmentItem(
+                label: t.auth.login,
                 icon: const Icon(Icons.login),
               ),
-              ButtonSegment<_AuthFlow>(
-                value: _AuthFlow.register,
-                label: Text(t.auth.register),
+              GlassSegmentItem(
+                label: t.auth.register,
                 icon: const Icon(Icons.person_add),
               ),
             ],
-            selected: {flow},
-            showSelectedIcon: false,
-            onSelectionChanged: (value) {
-              onFlowChanged(value.first);
-            },
           ),
-          IconButton(
+          GlassIconButton(
+            standalone: true,
             icon: const Icon(Icons.close),
             tooltip: t.common.close,
             onPressed: onClose,

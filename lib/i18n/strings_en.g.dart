@@ -1891,6 +1891,36 @@ class TranslationsSettingsEn {
 	/// en: 'This configuration determines the theme mode of the app'
 	String get themeModeDesc => 'This configuration determines the theme mode of the app';
 
+	/// en: 'Glass Effect'
+	String get glassEffect => 'Glass Effect';
+
+	/// en: 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)'
+	String get glassEffectDesc => 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)';
+
+	/// en: 'Liquid Glass'
+	String get liquidGlassEffect => 'Liquid Glass';
+
+	/// en: 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices'
+	String get liquidGlassEffectDesc => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices';
+
+	/// en: 'Lightweight Translucency'
+	String get plainGlassEffect => 'Lightweight Translucency';
+
+	/// en: 'Translucent fills and outlines only, no blur. Best performance and battery life'
+	String get plainGlassEffectDesc => 'Translucent fills and outlines only, no blur. Best performance and battery life';
+
+	/// en: 'Try the new glass effect'
+	String get glassEffectIntroTitle => 'Try the new glass effect';
+
+	/// en: 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.'
+	String get glassEffectIntroContent => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.';
+
+	/// en: 'You can change this any time in Settings → Theme → Glass Effect.'
+	String get glassEffectIntroHint => 'You can change this any time in Settings → Theme → Glass Effect.';
+
+	/// en: 'Keep it'
+	String get glassEffectIntroDone => 'Keep it';
+
 	/// en: 'Dynamic Color'
 	String get dynamicColor => 'Dynamic Color';
 
@@ -3298,6 +3328,9 @@ class TranslationsDownloadEn {
 
 	/// en: 'All Types'
 	String get allTypes => 'All Types';
+
+	/// en: 'Type'
+	String get taskType => 'Type';
 
 	/// en: 'Video'
 	String get video => 'Video';
@@ -5297,6 +5330,9 @@ class TranslationsSearchFilterEn {
 	String get playlists => 'Playlists';
 
 	late final TranslationsSearchFilterSortTypesEn sortTypes = TranslationsSearchFilterSortTypesEn._(_root);
+
+	/// en: 'Changes apply instantly'
+	String get drawerSubtitle => 'Changes apply instantly';
 }
 
 // Path: firstTimeSetup
@@ -8848,6 +8884,16 @@ extension on Translations {
 			'settings.defaultBrowserDesc' => 'Please open the default link configuration item in the system settings and add the iwara.tv website link',
 			'settings.themeMode' => 'Theme Mode',
 			'settings.themeModeDesc' => 'This configuration determines the theme mode of the app',
+			'settings.glassEffect' => 'Glass Effect',
+			'settings.glassEffectDesc' => 'Chooses the material used by every glass control (header capsules, floating tab bar, menus, dialog buttons)',
+			'settings.liquidGlassEffect' => 'Liquid Glass',
+			'settings.liquidGlassEffectDesc' => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices',
+			'settings.plainGlassEffect' => 'Lightweight Translucency',
+			'settings.plainGlassEffectDesc' => 'Translucent fills and outlines only, no blur. Best performance and battery life',
+			'settings.glassEffectIntroTitle' => 'Try the new glass effect',
+			'settings.glassEffectIntroContent' => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now.',
+			'settings.glassEffectIntroHint' => 'You can change this any time in Settings → Theme → Glass Effect.',
+			'settings.glassEffectIntroDone' => 'Keep it',
 			'settings.dynamicColor' => 'Dynamic Color',
 			'settings.dynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',
 			'settings.useDynamicColor' => 'Use Dynamic Color',
@@ -9272,6 +9318,8 @@ extension on Translations {
 			'oreno3d.errors.serverError' => 'Internal server error',
 			'oreno3d.errors.serviceUnavailable' => 'Service temporarily unavailable',
 			'oreno3d.errors.requestCancelled' => 'Request cancelled',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionError' => 'Network connection error, please check network settings',
 			'oreno3d.errors.networkRequestFailed' => 'Network request failed',
 			'oreno3d.errors.searchVideoError' => 'Unknown error occurred while searching videos',
@@ -9282,8 +9330,6 @@ extension on Translations {
 			'oreno3d.loading.gettingVideoInfo' => 'Getting video information...',
 			'oreno3d.loading.cancel' => 'Cancel',
 			'oreno3d.messages.videoNotFoundOrDeleted' => 'Video not found or has been deleted',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => 'Unable to get video playback link',
 			'oreno3d.messages.getVideoDetailFailed' => 'Failed to get video details',
 			'signIn.pleaseLoginFirst' => 'Please login first',
@@ -9765,6 +9811,7 @@ extension on Translations {
 			'download.allStatus' => 'All Status',
 			'download.typeLabel' => ({required Object label}) => 'Type: ${label}',
 			'download.allTypes' => 'All Types',
+			'download.taskType' => 'Type',
 			'download.video' => 'Video',
 			'download.gallery' => 'Gallery',
 			'download.other' => 'Other',
@@ -9785,6 +9832,8 @@ extension on Translations {
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
+			_ => null,
+		} ?? switch (path) {
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
 			'download.deleteByDate.dialogTitle' => 'Delete by date',
@@ -9796,8 +9845,6 @@ extension on Translations {
 			'download.deleteByDate.notSet' => 'Not set',
 			'download.deleteByDate.daysUnit' => 'days',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => 'Delete tasks created more than ${days} day(s) ago',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => 'No tasks match the selected condition',
 			'download.deleteByDate.invalidRange' => 'Start date must be on or before end date',
 			'download.deleteByDate.confirmTitle' => 'Confirm deletion',
@@ -10299,6 +10346,8 @@ extension on Translations {
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
 			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
 			'crashRecoveryDialog.acknowledge' => 'Got it',
 			'crashRecoveryDialog.supportEmailCopied' => 'Email copied',
@@ -10310,8 +10359,6 @@ extension on Translations {
 			'linkInputDialog.multipleLinksDetected' => 'Multiple links detected, please select one:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Not a valid ${webName} link',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Link parsing error: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Unsupported Link',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?',
 			'linkInputDialog.openInBrowser' => 'Open in Browser',
@@ -10508,6 +10555,7 @@ extension on Translations {
 			'searchFilter.sortTypes.latest' => 'Latest',
 			'searchFilter.sortTypes.views' => 'Views',
 			'searchFilter.sortTypes.likes' => 'Likes',
+			'searchFilter.drawerSubtitle' => 'Changes apply instantly',
 			'firstTimeSetup.welcome.title' => 'Welcome',
 			'firstTimeSetup.welcome.subtitle' => 'Let\'s start your personalized setup journey',
 			'firstTimeSetup.welcome.description' => 'Just a few steps to tailor the best experience for you',

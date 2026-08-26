@@ -11,7 +11,6 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_post_dialog.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
@@ -28,6 +27,8 @@ import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 论坛页——社区栏目的「论坛」半边。
 ///
@@ -42,11 +43,7 @@ class ForumPage extends StatefulWidget {
   /// 由 [CommunityPage] 持有、本页写入：header 上论坛专属按钮的当前形态。
   final ValueNotifier<ForumHeaderState>? headerState;
 
-  const ForumPage({
-    super.key,
-    this.contentResetVersion = 0,
-    this.headerState,
-  });
+  const ForumPage({super.key, this.contentResetVersion = 0, this.headerState});
 
   @override
   State<ForumPage> createState() => ForumPageState();
@@ -182,7 +179,7 @@ class ForumPageState extends State<ForumPage> {
   }
 
   /// 当前可见列表回到顶部（“最近”或某个分类，二者同一时刻只挂载其一）。
-  void _scrollCurrentListToTop() {
+  void scrollCurrentListToTop() {
     for (final controller in [
       _recentThreadsScrollController,
       _categoryScrollController,
@@ -196,6 +193,8 @@ class ForumPageState extends State<ForumPage> {
       }
     }
   }
+
+  void _scrollCurrentListToTop() => scrollCurrentListToTop();
 
   void _updateBackToTop() {
     bool show = false;
@@ -487,22 +486,9 @@ class ForumPageState extends State<ForumPage> {
     );
   }
 
-  /// 论坛搜索弹窗。由社区 header 上的搜索键调用。
+  /// 论坛搜索。由社区 header 上的搜索键调用。
   void openSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: SearchSegment.forum,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
-    );
+    NaviService.navigateToSearchPage(initialSegment: SearchSegment.forum);
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；「最近」分页模式下抬到分页栏之上。
@@ -517,24 +503,23 @@ class ForumPageState extends State<ForumPage> {
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (_isPaginated.value && _selectedRailIndex == 0 ? 46 : 0),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _showBackToTop,
-          builder: (context, visible, _) => IgnorePointer(
-            ignoring: !visible,
-            child: AnimatedSlide(
-              duration: GlassTokens.motionDuration,
-              curve: GlassTokens.motionCurve,
-              offset: visible ? Offset.zero : const Offset(0, 0.4),
-              child: AnimatedOpacity(
-                duration: GlassTokens.motionDuration,
-                opacity: visible ? 1 : 0,
-                child: GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.vertical_align_top),
-                  tooltip: t.common.scrollToTop,
-                  onPressed: _scrollCurrentListToTop,
-                ),
+            (_isPaginated.value && _selectedRailIndex == 0
+                ? PaginationBar.barHeight
+                : 0),
+        // group: false —— 浮钮走 GlassReveal 的 materialize 淡入，材质淡入
+        // 在融合层里无效（见 GlassChromeLayer 最后一段）。
+        child: GlassChromeLayer(
+          group: false,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _showBackToTop,
+            builder: (context, visible, _) => GlassReveal(
+              visible: visible,
+              builder: (context, m) => GlassIconButton(
+                materialize: m,
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: _scrollCurrentListToTop,
               ),
             ),
           ),
@@ -554,7 +539,19 @@ class ForumPageState extends State<ForumPage> {
       fit: StackFit.expand,
       children: [
         // 内容铺满整个半边，自己用 effectivePaddingTop 让出 header
-        Positioned.fill(child: _buildBody(context, effectivePaddingTop)),
+        Positioned.fill(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.metrics.axis == Axis.vertical &&
+                  notification.depth == 0) {
+                final show = notification.metrics.pixels >= _backToTopOffset;
+                if (_showBackToTop.value != show) _showBackToTop.value = show;
+              }
+              return false;
+            },
+            child: _buildBody(context, effectivePaddingTop),
+          ),
+        ),
         _buildScrollToTopFab(context),
       ],
     );
@@ -1154,8 +1151,7 @@ class ForumPageState extends State<ForumPage> {
                   visible: _sitewideHasProcessed,
                   showOriginal: _sitewideShowOriginal,
                   padding: const EdgeInsets.only(right: 8),
-                  onChanged: (v) =>
-                      setState(() => _sitewideShowOriginal = v),
+                  onChanged: (v) => setState(() => _sitewideShowOriginal = v),
                 ),
                 _buildGhostAction(
                   icon: Icons.open_in_full,

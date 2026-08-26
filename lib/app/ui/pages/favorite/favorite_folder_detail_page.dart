@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -13,6 +15,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -23,6 +27,7 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 本地收藏夹详情：夹内作品列表（玻璃化 + 瀑布/分页双模式）。
 class FavoriteFolderDetailPage extends StatefulWidget {
@@ -86,21 +91,27 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     );
   }
 
-  Future<void> _openFilterSheet() async {
-    final result = await showModalBottomSheet<_FavoriteFilter>(
+  /// 打开右侧「筛选」抽屉。与全站其它筛选入口同一只抽屉、同一套手势，改动即时
+  /// 生效（关键字走防抖，不会逐字符重查）。
+  void _openFilterSheet() {
+    showGlassSideDrawer<void>(
       context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) =>
-          _FavoriteFilterSheet(initial: _filter, folderId: widget.folderId),
+      builder: (_) => _FavoriteFilterDrawer(
+        initial: _filter,
+        folderId: widget.folderId,
+        onChanged: _applyFilter,
+      ),
     );
-    if (result == null || !mounted) return;
+  }
 
+  void _applyFilter(_FavoriteFilter filter) {
+    if (!mounted) return;
     setState(() {
-      _filter = result;
-      _repository.searchText = result.searchText;
-      _repository.tagIds = result.tags.map((tag) => tag.id).toList();
-      _repository.startDate = result.dateRange?.start;
-      _repository.endDate = result.dateRange?.end;
+      _filter = filter;
+      _repository.searchText = filter.searchText;
+      _repository.tagIds = filter.tags.map((tag) => tag.id).toList();
+      _repository.startDate = filter.dateRange?.start;
+      _repository.endDate = filter.dateRange?.end;
     });
     _refreshList();
   }
@@ -141,22 +152,14 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -178,6 +181,7 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.depth == 0 &&
@@ -525,28 +529,20 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     final t = slang.Translations.of(context);
     final result = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Expanded(child: Text(t.favorite.removeItemTitle)),
-            GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-            ),
-          ],
-        ),
+      builder: (dialogContext) => GlassAlertDialog(
+        title: t.favorite.removeItemTitle,
         content: Text(t.favorite.removeItemConfirmWithTitle(title: item.title)),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -589,28 +585,63 @@ class _FavoriteFilter {
       (searchText?.isNotEmpty ?? false) || tags.isNotEmpty || dateRange != null;
 }
 
-/// 筛选弹窗：一次改完关键字 / 标签 / 时间范围再应用，避免逐字符触发重查。
-class _FavoriteFilterSheet extends StatefulWidget {
-  const _FavoriteFilterSheet({required this.initial, required this.folderId});
+/// 收藏夹内容的筛选抽屉：关键字 / 时间范围 / 标签。
+///
+/// 2026-08-26 从底部弹窗改成右侧抽屉，与全站其它筛选入口收口到同一只
+/// [showGlassSideDrawer]。同时去掉了「确认」——改动即时生效，只有关键字走
+/// 350ms 防抖（原来那颗确认钮存在的理由就是「避免逐字符触发重查」，防抖把这件
+/// 事做掉了，而且不用先想好再一次性提交）。
+class _FavoriteFilterDrawer extends StatefulWidget {
+  const _FavoriteFilterDrawer({
+    required this.initial,
+    required this.folderId,
+    required this.onChanged,
+  });
 
   final _FavoriteFilter initial;
   final String folderId;
+  final ValueChanged<_FavoriteFilter> onChanged;
 
   @override
-  State<_FavoriteFilterSheet> createState() => _FavoriteFilterSheetState();
+  State<_FavoriteFilterDrawer> createState() => _FavoriteFilterDrawerState();
 }
 
-class _FavoriteFilterSheetState extends State<_FavoriteFilterSheet> {
+class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
   late final TextEditingController _searchController = TextEditingController(
     text: widget.initial.searchText,
   );
   late List<Tag> _tags = List<Tag>.from(widget.initial.tags);
   late DateTimeRange? _dateRange = widget.initial.dateRange;
+  Timer? _debounce;
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  _FavoriteFilter get _current {
+    final text = _searchController.text.trim();
+    return _FavoriteFilter(
+      searchText: text.isEmpty ? null : text,
+      tags: _tags,
+      dateRange: _dateRange,
+    );
+  }
+
+  /// 离散改动（标签、时间范围）立刻生效；敲关键字等停手 350ms。
+  void _emit({required bool immediate}) {
+    _debounce?.cancel();
+    void push() {
+      if (mounted) widget.onChanged(_current);
+    }
+
+    if (immediate) {
+      push();
+    } else {
+      _debounce = Timer(const Duration(milliseconds: 350), push);
+    }
   }
 
   Future<void> _pickDateRange() async {
@@ -622,18 +653,16 @@ class _FavoriteFilterSheetState extends State<_FavoriteFilterSheet> {
     );
     if (picked == null || !mounted) return;
     setState(() => _dateRange = picked);
+    _emit(immediate: true);
   }
 
-  void _apply() {
-    Navigator.of(context).pop(
-      _FavoriteFilter(
-        searchText: _searchController.text.trim().isEmpty
-            ? null
-            : _searchController.text.trim(),
-        tags: _tags,
-        dateRange: _dateRange,
-      ),
-    );
+  void _reset() {
+    _searchController.clear();
+    setState(() {
+      _tags = [];
+      _dateRange = null;
+    });
+    _emit(immediate: true);
   }
 
   Widget _glassField(BuildContext context, {required Widget child}) {
@@ -651,166 +680,97 @@ class _FavoriteFilterSheetState extends State<_FavoriteFilterSheet> {
     );
   }
 
-  InputDecoration _fieldDecoration(
-    BuildContext context, {
-    required String hint,
-    required IconData icon,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-      border: InputBorder.none,
-      focusedBorder: InputBorder.none,
-      prefixIcon: Icon(icon, color: colorScheme.onSurfaceVariant),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
-      // 标签区把弹窗撑高了：限高 + 只让中间内容滚动，标题行与确认行常驻可见
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.85,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 标题行：标题 + 玻璃关闭圆钮
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 16, 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.searchFilter.filterSettings,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
+    return GlassFilterDrawerShell(
+      title: t.searchFilter.filterSettings,
+      subtitle: t.searchFilter.drawerSubtitle,
+      onReset: _current.isActive ? _reset : null,
+      children: [
+        GlassFilterSection(
+          title: t.favorite.searchItems,
+          child: _glassField(
+            context,
+            child: TextField(
+              controller: _searchController,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                hintText: t.favorite.searchItems,
+                hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                border: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
+              onChanged: (_) => _emit(immediate: false),
+              onSubmitted: (_) => _emit(immediate: true),
             ),
-            Flexible(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+          ),
+        ),
+        GlassFilterSection(
+          title: t.common.selectDateRange,
+          child: _glassField(
+            context,
+            child: InkWell(
+              onTap: _pickDateRange,
+              borderRadius: BorderRadius.circular(22),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+                child: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: _glassField(
-                        context,
-                        child: TextField(
-                          controller: _searchController,
-                          textInputAction: TextInputAction.done,
-                          decoration: _fieldDecoration(
-                            context,
-                            hint: t.favorite.searchItems,
-                            icon: Icons.search,
-                          ),
-                          onSubmitted: (_) => _apply(),
+                    Icon(
+                      Icons.date_range,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _dateRange == null
+                            ? t.common.selectDateRange
+                            : '${CommonUtils.formatDate(_dateRange!.start)} - '
+                                  '${CommonUtils.formatDate(_dateRange!.end)}',
+                        style: TextStyle(
+                          color: _dateRange == null
+                              ? colorScheme.onSurfaceVariant
+                              : colorScheme.onSurface,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // 时间范围：点按选择，已选中时右侧给一个清除钮
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                      child: _glassField(
-                        context,
-                        child: InkWell(
-                          onTap: _pickDateRange,
-                          borderRadius: BorderRadius.circular(22),
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.date_range,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _dateRange == null
-                                        ? t.common.selectDateRange
-                                        : '${CommonUtils.formatDate(_dateRange!.start)} - '
-                                              '${CommonUtils.formatDate(_dateRange!.end)}',
-                                    style: TextStyle(
-                                      color: _dateRange == null
-                                          ? colorScheme.onSurfaceVariant
-                                          : colorScheme.onSurface,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (_dateRange != null)
-                                  IconButton(
-                                    icon: const Icon(Icons.clear, size: 18),
-                                    tooltip: t.common.clearDateRange,
-                                    onPressed: () =>
-                                        setState(() => _dateRange = null),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
+                    if (_dateRange != null)
+                      IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        tooltip: t.common.clearDateRange,
+                        onPressed: () {
+                          setState(() => _dateRange = null);
+                          _emit(immediate: true);
+                        },
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                      child: FolderTagFilter(
-                        folderId: widget.folderId,
-                        selectedTags: _tags,
-                        onChanged: (tags) => setState(() => _tags = tags),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() {
-                        _tags = [];
-                        _dateRange = null;
-                      });
-                    },
-                    icon: const Icon(Icons.clear_all),
-                    label: Text(t.searchFilter.clearAll),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton(
-                    onPressed: _apply,
-                    child: Text(t.common.confirm),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        FolderTagFilter(
+          folderId: widget.folderId,
+          selectedTags: _tags,
+          onChanged: (tags) {
+            setState(() => _tags = tags);
+            _emit(immediate: true);
+          },
+        ),
+      ],
     );
   }
 }

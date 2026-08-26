@@ -13,7 +13,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_c
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -40,7 +40,7 @@ import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/gallery_image_scroller_widget.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 String _galleryCoverHeroTag(String imageModelId) =>
     'gallery_cover:$imageModelId';
@@ -211,22 +211,14 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -306,144 +298,112 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   }
 
   void showCommentModal(BuildContext context) {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return GlassDraggableBottomSheet(
           initialChildSize: 0.75,
           minChildSize: 0.2,
           maxChildSize: 0.92,
-          expand: false,
           snap: true,
           builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              // 底部弹窗自己让出系统手势条/导航条
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
-              child: Column(
-                children: [
-                  // 拖拽条
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 12, bottom: 4),
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
+            return Column(
+              children: [
+                // 顶部标题栏
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  // 顶部标题栏
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          slang.t.common.commentList,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: Row(
+                    children: [
+                      Text(
+                        slang.t.common.commentList,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const Spacer(),
-                        // 排序 / 发评论合成一只玻璃胶囊
-                        GlassButtonGroup(
-                          children: [
-                            Obx(
-                              () => GlassIconButton(
-                                onPressed: () {
-                                  commentController.toggleSortOrder();
-                                },
-                                icon: Icon(
-                                  commentController.sortOrder.value
-                                      ? Icons
-                                            .arrow_downward_rounded // 倒序图标
-                                      : Icons.arrow_upward_rounded, // 正序图标
-                                ),
-                                tooltip: commentController.sortOrder.value
-                                    ? slang.t.common.createTimeDesc
-                                    : slang.t.common.createTimeAsc,
-                              ),
-                            ),
-                            // 添加评论按钮
-                            GlassIconButton(
-                              icon: const Icon(Icons.add_comment),
-                              tooltip: slang.t.common.sendComment,
+                      ),
+                      const Spacer(),
+                      // 排序 / 发评论合成一只玻璃胶囊
+                      GlassButtonGroup(
+                        children: [
+                          Obx(
+                            () => GlassIconButton(
                               onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => CommentInputBottomSheet(
-                                    title: slang.t.common.sendComment,
-                                    submitText: slang.t.common.send,
-                                    onSubmit: (text) async {
-                                      if (text.trim().isEmpty) {
-                                        showGlassToast(
-                                          slang.t.errors.commentCanNotBeEmpty,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        return;
-                                      }
-                                      final UserService userService =
-                                          Get.find();
-                                      if (!userService.isAuthenticated) {
-                                        showGlassToast(
-                                          slang.t.errors.pleaseLoginFirst,
-                                          type: GlassToastType.error,
-                                          position: GlassToastPosition.bottom,
-                                        );
-                                        LoginService.showLogin();
-                                        return;
-                                      }
-                                      await commentController.postComment(text);
-                                    },
-                                  ),
-                                );
+                                commentController.toggleSortOrder();
                               },
+                              icon: Icon(
+                                commentController.sortOrder.value
+                                    ? Icons
+                                          .arrow_downward_rounded // 倒序图标
+                                    : Icons.arrow_upward_rounded, // 正序图标
+                              ),
+                              tooltip: commentController.sortOrder.value
+                                  ? slang.t.common.createTimeDesc
+                                  : slang.t.common.createTimeAsc,
                             ),
-                          ],
-                        ),
-                        const SizedBox(width: 8),
-                        // 关闭按钮：弹层关闭键一律玻璃圆钮
-                        GlassIconButton(
-                          standalone: true,
-                          icon: const Icon(Icons.close),
-                          tooltip: slang.t.common.close,
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // 评论列表
-                  Expanded(
-                    child: Obx(
-                      () => CommentSection(
-                        controller: commentController,
-                        authorUserId:
-                            detailController.imageModelInfo.value?.user?.id,
-                        scrollController: scrollController,
+                          ),
+                          // 添加评论按钮
+                          GlassIconButton(
+                            icon: const Icon(Icons.add_comment),
+                            tooltip: slang.t.common.sendComment,
+                            onPressed: () {
+                              showGlassBottomSheet(
+                                context: context,
+                                builder: (context) => CommentInputBottomSheet(
+                                  title: slang.t.common.sendComment,
+                                  submitText: slang.t.common.send,
+                                  onSubmit: (text) async {
+                                    if (text.trim().isEmpty) {
+                                      showGlassToast(
+                                        slang.t.errors.commentCanNotBeEmpty,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      return;
+                                    }
+                                    final UserService userService = Get.find();
+                                    if (!userService.isAuthenticated) {
+                                      showGlassToast(
+                                        slang.t.errors.pleaseLoginFirst,
+                                        type: GlassToastType.error,
+                                        position: GlassToastPosition.bottom,
+                                      );
+                                      LoginService.showLogin();
+                                      return;
+                                    }
+                                    await commentController.postComment(text);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
+                      const SizedBox(width: 8),
+                      // 关闭按钮：弹层关闭键一律玻璃圆钮
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: slang.t.common.close,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                ),
+                // 评论列表
+                Expanded(
+                  child: Obx(
+                    () => CommentSection(
+                      controller: commentController,
+                      authorUserId:
+                          detailController.imageModelInfo.value?.user?.id,
+                      scrollController: scrollController,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );
@@ -805,75 +765,60 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   /// 窄屏：分段胶囊行悬浮在相关列表之上（列表用 topInset 让位）。
   static const double _relatedTabsRowHeight = GlassTokens.pillHeight + 16;
 
+  /// 走 [GlassHeaderOverlay] 而不是手绘 `Stack + Positioned.fill`——不是抠好看，
+  /// 是接液态档的**必经之路**：这块 Stack 挂在外层 `ExtendedNestedScrollView`
+  /// 的 `body:` 上，而外层页面自己的 `GlassHeaderOverlay(liquid: true)`
+  /// 会把整个 `body` 强制按回 [GlassBackend.plain]（列表是滚动容器，装不得
+  /// lens，见该组件类文档）。分段胶囊虽然悬浮在列表**之上**、是货真价实的
+  /// chrome，但它人在 `body` 子树里，跟着一起被摁回了传统档——`GlassSegmentedControl`
+  /// 已经是「最新组件」，材质却始终没换过，2026-08-24 用户真机点开就是这个。
+  ///
+  /// 嵌一层自己的 `GlassHeaderOverlay(liquid: true)` 才能重新供上液态 scope
+  /// （子树里最近的 [LiquidGlassScope] 生效，会盖过外层那次强制 plain）——
+  /// 与 `profile_post_tab_list_widget.dart` 等各 tab 各自嵌一层的做法同源。
   Widget _buildNarrowRelatedArea(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: _buildRelatedTabBarView(
-            context,
-            topInset: _relatedTabsRowHeight,
-          ),
+    return GlassHeaderOverlay(
+      liquid: true,
+      headerExtent: _relatedTabsRowHeight,
+      headerHeight: _relatedTabsRowHeight,
+      header: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildRelatedSegmentedControl(context),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: _relatedTabsRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildRelatedSegmentedControl(context),
-            ),
-          ),
-        ),
-      ],
+      ),
+      body: _buildRelatedTabBarView(context, topInset: _relatedTabsRowHeight),
     );
   }
 
   /// 宽屏右列：相关图库（分段胶囊 + 瀑布流）。
   ///
-  /// 和窄屏的 [_buildNarrowRelatedArea] 同一套路：列表铺满整列、用 topInset 让位，
-  /// 分段行浮在它之上，卡片上滑时从胶囊背后穿过去。
-  ///
-  /// 与窄屏的差别在顶部那段状态栏：左列的状态栏留白是 SliverAppBar 自己吃掉的，
-  /// 右列没有 AppBar，得自己让出 `padding.top` 并补一条 EdgeFadeScrim 托底
-  /// （对应左列 header 的 flexibleSpace），否则卡片会滑进状态栏底下糊成一团。
+  /// 同 [_buildNarrowRelatedArea]：走 [GlassHeaderOverlay] 而不是手绘
+  /// `Stack + EdgeFadeScrim`。这一列本身不在左列那只 `GlassHeaderOverlay`
+  /// 里头——它是宽屏 `Row` 里的另一个孩子，够不着左列供的液态 scope，分段
+  /// 胶囊此前是彻头彻尾的**传统档**（不是被摁回去，是压根没供过）。改用
+  /// `GlassHeaderOverlay(liquid: true)` 自建一份 scope，顺带把手写的
+  /// `EdgeFadeScrim.top` 换成组件自带的那份（`headerExtent` / `solidExtent`
+  /// 语义与原手写代码一致，读起来更少一份要跟着改的重复）。
   /// 分段行按 headerRowHeight 居中，与左列 header 上的胶囊同一水平线。
   Widget _buildWideSideColumn(BuildContext context) {
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: _buildRelatedTabBarView(context, topInset: headerExtent),
+    return GlassHeaderOverlay(
+      liquid: true,
+      headerExtent: headerExtent,
+      headerTop: statusBarHeight,
+      solidExtent: statusBarHeight,
+      header: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: _buildRelatedSegmentedControl(context),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: EdgeFadeScrim.top(
-            height: headerExtent + GlassTokens.headerFadeExtent,
-            solidExtent: statusBarHeight,
-          ),
-        ),
-        Positioned(
-          top: statusBarHeight,
-          left: 0,
-          right: 0,
-          height: GlassTokens.headerRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _buildRelatedSegmentedControl(context),
-            ),
-          ),
-        ),
-      ],
+      ),
+      body: _buildRelatedTabBarView(context, topInset: headerExtent),
     );
   }
 
@@ -938,8 +883,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             errorMessage: errorMessage,
           );
 
-          final double headerExtent =
-              paddingTop + GlassTokens.headerRowHeight;
+          final double headerExtent = paddingTop + GlassTokens.headerRowHeight;
 
           if (isWide) {
             return Row(
@@ -948,6 +892,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                 // 左列：玻璃 header 悬浮在顶部，概览卡从它背后滚过
                 Expanded(
                   child: GlassHeaderOverlay(
+                    liquid: true,
                     headerExtent: headerExtent,
                     headerTop: paddingTop,
                     solidExtent: paddingTop,
@@ -982,6 +927,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             // 相关图库分段行分别悬浮在顶部（分段行悬浮在列表之上，列表以
             // topInset 让位）。
             return GlassHeaderOverlay(
+              liquid: true,
               headerExtent: headerExtent,
               headerTop: paddingTop,
               solidExtent: paddingTop,

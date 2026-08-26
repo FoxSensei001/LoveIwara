@@ -126,7 +126,10 @@ class DeviceFormFactorUtils {
   }
 
   /// 原生强制屏幕方向（仅 Android 生效；iOS/桌面 no-op）。
-  /// mode: 'landscape'（横屏，SENSOR_LANDSCAPE 无视系统自动旋转锁）/ 'portrait' / 'unlock'。
+  /// mode: 'landscape_left' / 'landscape_right'（固定横屏方向，
+  /// SCREEN_ORIENTATION_(REVERSE_)LANDSCAPE 无视系统自动旋转锁）/ 'portrait' / 'unlock'。
+  /// ⚠️ 不要再传笼统的 'landscape'：原生侧曾经把它映射成 SENSOR_LANDSCAPE（方向交
+  /// 给传感器决定），会整只吃掉用户在设置里选的左/右横屏方向。
   /// 兜底 setPreferredOrientations 在部分安卓机型 / 关闭自动旋转时不转屏的问题。
   static Future<void> forceNativeOrientation(String mode) async {
     if (!GetPlatform.isAndroid) return;

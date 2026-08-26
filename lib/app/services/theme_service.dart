@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/my_app.dart'
     show buildThemeData, appLightTheme, appThemeMode;
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/common/constants.dart';
 import '../models/theme_mode.model.dart';
 
@@ -13,6 +16,9 @@ class ThemeService extends GetxService {
   final _currentPresetIndex = 0.obs; // 当前预设颜色索引
   final _currentCustomHex = ''.obs; // 当前自定义颜色
   final _customThemeColors = <String>[].obs;
+
+  /// 玻璃质感：true = 真液态玻璃（模糊 + 折射），false = 轻量半透明。
+  final _enableLiquidGlass = true.obs;
 
   // 预设的主题色
   static const List<Color> presetColors = [
@@ -40,6 +46,8 @@ class ThemeService extends GetxService {
     _customThemeColors.value = List<String>.from(
       configService[ConfigKey.CUSTOM_THEME_COLORS_KEY],
     );
+    _enableLiquidGlass.value =
+        configService[ConfigKey.ENABLE_LIQUID_GLASS_KEY] == true;
   }
 
   bool get useDynamicColor => _useDynamicColor.value;
@@ -48,6 +56,25 @@ class ThemeService extends GetxService {
   String get currentCustomHex => _currentCustomHex.value;
   List<String> get customThemeColors => _customThemeColors;
   AppThemeMode get themeMode => _themeMode.value;
+  bool get enableLiquidGlass => _enableLiquidGlass.value;
+
+  /// 切换玻璃质感（主题设置里那一项）。立刻生效，不用重启。
+  ///
+  /// 真正让全站换材质的是 [glassMaterialMode]——它挂在 `runApp` 最外层的
+  /// [GlassMaterialScope] 上，一改就把所有读过档位的 Element（页面 chrome、
+  /// 弹窗、菜单、toast）标脏重建。这里的 Rx 只是给设置页那两个单选钮用的。
+  void setLiquidGlassEnabled(bool enabled) {
+    if (_enableLiquidGlass.value == enabled) return;
+    _enableLiquidGlass.value = enabled;
+    Get.find<ConfigService>()[ConfigKey.ENABLE_LIQUID_GLASS_KEY] = enabled;
+    applyGlassMaterialFromConfig(enabled);
+
+    // 冷启动时若是假玻璃档，shader 没预热过；这会儿现开真玻璃，第一块 lens 会
+    // 先渲染成磨砂再跳成折射。补一次预热把那一下跳变抹掉（失败也只是退回磨砂）。
+    if (enabled) {
+      unawaited(warmUpLiquidGlassShaders());
+    }
+  }
 
   // 检查颜色是否被选中
   bool isColorSelected(Color color) {

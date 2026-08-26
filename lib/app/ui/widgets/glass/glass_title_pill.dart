@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dialog_motion.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -119,36 +120,26 @@ class GlassTitlePill extends StatelessWidget {
   }
 }
 
-/// 完整标题弹窗：放大淡入动画出现，展示可选取的全文 + 翻译 / 关闭玻璃圆钮。
+/// 完整标题弹窗：轻微放大出现，展示可选取的全文 + 复制 / 翻译 / 关闭玻璃圆钮。
+///
+/// 走 [showAppDialog]（[GlassDialogRoute]）而不是自建 `showGeneralDialog`：
+/// 自建那版的 `transitionBuilder` 里裹着 `FadeTransition`，`RenderOpacity` 在
+/// α∈(0,1) 期间会 `saveLayer` 把子树隔离出去，里头玻璃圆钮的 backdrop 采样
+/// 什么都吃不到——就是 `showGlassMenu` 踩过的「文字先到、玻璃后补」那个坑。
+/// [GlassDialogTransition] 已经不含任何透明度层（只剩纯 `Transform` 的
+/// 缩放/位移），换过来才敢给里头的按钮接液态档。
+///
+/// 钉死 [GlassDialogMotion.scale]：这弹窗在窄屏也是一张居中卡片（不是整页
+/// 承载），走 `auto` 会在窄屏被判成整页位移，与「从标题胶囊里长出来」对不上。
 Future<void> showGlassFullTitleDialog(
   BuildContext context,
   String title, {
   String? subtitle,
 }) {
-  return showGeneralDialog<void>(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: slang.Translations.of(context).common.close,
-    barrierColor: Colors.black54,
-    transitionDuration: GlassTokens.motionDuration,
-    pageBuilder: (dialogContext, _, _) =>
-        _GlassFullTitleDialog(title: title, subtitle: subtitle),
-    transitionBuilder: (dialogContext, animation, _, child) {
-      final curved = CurvedAnimation(
-        parent: animation,
-        curve: GlassTokens.motionCurve,
-        reverseCurve: GlassTokens.motionCurve.flipped,
-      );
-      // 从标题胶囊所在的上方轻微放大淡入，呼应「从胶囊里长出来」
-      return FadeTransition(
-        opacity: curved,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: 0.92, end: 1.0).animate(curved),
-          alignment: Alignment.topCenter,
-          child: child,
-        ),
-      );
-    },
+  return showAppDialog<void>(
+    _GlassFullTitleDialog(title: title, subtitle: subtitle),
+    dialogContext: context,
+    motion: GlassDialogMotion.scale,
   );
 }
 
@@ -182,34 +173,40 @@ class _GlassFullTitleDialog extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                   const Spacer(),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.copy_outlined),
-                    tooltip: t.common.copy,
-                    onPressed: () async {
-                      await Clipboard.setData(
-                        ClipboardData(text: translateText),
-                      );
-                      showGlassToast(
-                        t.common.copiedToClipboard,
-                        type: GlassToastType.success,
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.translate),
-                    tooltip: t.common.translate,
-                    onPressed: () =>
-                        showTranslationDialog(context, text: translateText),
-                  ),
-                  const SizedBox(width: 8),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                    onPressed: () => Navigator.of(context).pop(),
+                  // 液态档由 [GlassDialogRoute] 在路由层供。
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.copy_outlined),
+                        tooltip: t.common.copy,
+                        onPressed: () async {
+                          await Clipboard.setData(
+                            ClipboardData(text: translateText),
+                          );
+                          showGlassToast(
+                            t.common.copiedToClipboard,
+                            type: GlassToastType.success,
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.translate),
+                        tooltip: t.common.translate,
+                        onPressed: () =>
+                            showTranslationDialog(context, text: translateText),
+                      ),
+                      const SizedBox(width: 8),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
                   ),
                 ],
               ),

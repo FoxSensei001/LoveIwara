@@ -11,7 +11,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 
 class ShareVideoBottomSheet extends StatefulWidget {
   final String videoId;
@@ -107,36 +107,11 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      // 底部弹窗自己让出系统手势条/导航条
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+    return GlassBottomSheet(
+      title: t.common.share,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 标题栏
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text(
-                  t.common.share,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
           // 分享预览图
           RepaintBoundary(
             key: _globalKey,
@@ -261,7 +236,6 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 32),
         ],
       ),
     );

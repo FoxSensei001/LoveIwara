@@ -86,8 +86,13 @@ class MainActivity : FlutterActivity() {
                 }
 
         // 原生强制屏幕方向：setPreferredOrientations 在部分机型 / 关闭系统自动旋转
-        // 时不生效（平板竖持点全屏出不来横屏的根因）。SENSOR_LANDSCAPE 由 App 主动请求，
-        // 无视系统自动旋转锁，直接把 Activity 转到横屏。
+        // 时不生效（平板竖持点全屏出不来横屏的根因）。LANDSCAPE/REVERSE_LANDSCAPE 由
+        // App 主动请求，无视系统自动旋转锁，直接把 Activity 转到指定的固定横屏方向。
+        // ⚠️ 早期这里用过 SENSOR_LANDSCAPE（方向交给传感器挑），会整只吃掉用户在设置
+        // 里选的左/右横屏方向——不管选左选右，设备静止时传感器几乎总是判成同一个
+        // 方向，表现为「设置形同虚设、恒定横屏左」。SCREEN_ORIENTATION_LANDSCAPE 对应
+        // Flutter 的 DeviceOrientation.landscapeLeft，REVERSE_LANDSCAPE 对应
+        // landscapeRight（与 Flutter 引擎自身在 Android 上的映射一致，无需镜像）。
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, ORIENTATION_CHANNEL)
                 .setMethodCallHandler { call, result ->
                     when (call.method) {
@@ -95,8 +100,10 @@ class MainActivity : FlutterActivity() {
                             val mode = call.arguments as? String
                             runOnUiThread {
                                 requestedOrientation = when (mode) {
-                                    "landscape" ->
-                                            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                                    "landscape_left" ->
+                                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                                    "landscape_right" ->
+                                            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
                                     "portrait" ->
                                             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                                     else -> ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED

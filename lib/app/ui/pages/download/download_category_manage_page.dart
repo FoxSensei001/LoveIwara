@@ -5,13 +5,17 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 /// 下载分类管理页（玻璃化）：新建 / 重命名 / 删除 / 拖拽排序。
 ///
@@ -143,15 +147,19 @@ class _DownloadCategoryManagePageState
   }
 
   /// 新建 / 重命名共用的输入弹窗；返回 null 表示取消或名称为空。
+  ///
+  /// 走 [showAppDialog] 而不是裸 `showDialog`——液态档只在
+  /// `GlassDialogRoute` 这一个收口点供应，裸 `showDialog` 开出来的弹窗读不到
+  /// scope，[_CategoryNameDialog] 里的 [GlassAlertDialog] / [GlassDialogAction]
+  /// 会静默落回传统档（见 `liquid_glass_material.dart` 文件头）。
   Future<String?> _promptCategoryName({
     required String dialogTitle,
     required String hintText,
     required String confirmLabel,
     String? initialValue,
   }) {
-    return showDialog<String>(
-      context: context,
-      builder: (_) => _CategoryNameDialog(
+    return showAppDialog<String>(
+      _CategoryNameDialog(
         dialogTitle: dialogTitle,
         hintText: hintText,
         confirmLabel: confirmLabel,
@@ -162,27 +170,33 @@ class _DownloadCategoryManagePageState
 
   Future<void> _delete(DownloadCategory category) async {
     final t = slang.Translations.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: _dialogTitleRow(dialogContext, t.download.category.deleteTitle),
-        content: Text(
-          t.download.category.deleteConfirm(
-            title: category.title,
-            count: category.itemCount ?? 0,
+    // 同上：换成 showAppDialog 才能接上液态档。GlassAlertDialog 不是自带
+    // context 的独立 Widget（不像 [_CategoryNameDialog]），这里用 Builder
+    // 现取一份挂在弹窗路由自己子树上的 context 给 pop 用。
+    final confirmed = await showAppDialog<bool>(
+      Builder(
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.download.category.deleteTitle,
+          content: Text(
+            t.download.category.deleteConfirm(
+              title: category.title,
+              count: category.itemCount ?? 0,
+            ),
           ),
+          actions: [
+            GlassDialogAction(
+              label: t.common.cancel,
+              emphasized: false,
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+            ),
+            GlassDialogAction(
+              label: t.common.delete,
+              emphasized: false,
+              destructive: true,
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(t.common.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.delete),
-          ),
-        ],
       ),
     );
 
@@ -226,6 +240,7 @@ class _DownloadCategoryManagePageState
       ),
       child: Scaffold(
         body: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,
@@ -296,22 +311,14 @@ class _DownloadCategoryManagePageState
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -470,70 +477,50 @@ class _DownloadCategoryManagePageState
                 ],
               ),
             ),
-            PopupMenuButton<String>(
-              icon: Icon(
-                Icons.more_vert,
-                size: 20,
-                color: colorScheme.onSurfaceVariant,
-              ),
-              padding: EdgeInsets.zero,
-              position: PopupMenuPosition.under,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (value) {
-                if (value == 'edit') {
-                  _rename(category);
-                } else if (value == 'delete') {
-                  _delete(category);
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit, size: 18),
-                      const SizedBox(width: 8),
-                      Text(t.common.edit),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete, size: 18, color: Colors.red),
-                      const SizedBox(width: 8),
-                      Text(
-                        t.common.delete,
-                        style: const TextStyle(color: Colors.red),
+            // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+            Builder(
+              builder: (anchorContext) => GlassPressable(
+                // 长按也能打开，且长按不抬手可以直接划到某一条上松手选中
+                // （见 GlassTapArea.opensOverlay）。
+                opensOverlay: true,
+                onTap: () async {
+                  final action = await showGlassMenu<String>(
+                    anchorContext: anchorContext,
+                    entries: [
+                      GlassMenuOption<String>(
+                        value: 'edit',
+                        icon: Icons.edit,
+                        label: t.common.edit,
+                      ),
+                      GlassMenuOption<String>(
+                        value: 'delete',
+                        icon: Icons.delete,
+                        label: t.common.delete,
+                        destructive: true,
                       ),
                     ],
+                  );
+                  if (action == 'edit') {
+                    _rename(category);
+                  } else if (action == 'delete') {
+                    _delete(category);
+                  }
+                },
+                builder: (context, pressed) => SizedBox.square(
+                  dimension: 40,
+                  child: Icon(
+                    Icons.more_vert,
+                    size: 20,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
-
-/// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-Widget _dialogTitleRow(BuildContext context, String title) {
-  return Row(
-    children: [
-      Expanded(child: Text(title)),
-      GlassIconButton(
-        standalone: true,
-        icon: const Icon(Icons.close),
-        tooltip: slang.Translations.of(context).common.close,
-        onPressed: () => Navigator.of(context).pop(),
-      ),
-    ],
-  );
 }
 
 /// 新建 / 重命名分类的输入弹窗。
@@ -583,8 +570,8 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: _dialogTitleRow(context, widget.dialogTitle),
+    return GlassAlertDialog(
+      title: widget.dialogTitle,
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -595,13 +582,15 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        TextButton(
+        GlassDialogAction(
+          label: widget.confirmLabel,
+          emphasized: false,
           onPressed: () => _submit(_controller.text),
-          child: Text(widget.confirmLabel),
         ),
       ],
     );

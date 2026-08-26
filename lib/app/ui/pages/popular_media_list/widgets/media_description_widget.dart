@@ -58,7 +58,8 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
     _contentKey = GlobalKey();
     _measureKey = GlobalKey();
     _translationController = MarkdownTranslationController();
-    _showOriginal = _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _showOriginal =
+        _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOverflow();
     });
@@ -128,31 +129,21 @@ class _MediaDescriptionWidgetState extends State<MediaDescriptionWidget> {
                 ),
               );
             }),
-            // 收紧语言选择器（内部是默认 48 触摸目标的 IconButton）到胶囊高度
+            // 语言选择器自己不带尺寸，尺寸由这只槽位说了算
             Obx(
               () => SizedBox(
                 width: 34,
                 height: _translationPillHeight,
-                child: IconButtonTheme(
-                  data: IconButtonThemeData(
-                    style: IconButton.styleFrom(
-                      fixedSize: const Size(34, _translationPillHeight),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.center,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                  child: TranslationLanguageSelector(
-                    compact: true,
-                    extrimCompact: true,
-                    selectedLanguage: _configService.currentTranslationSort,
-                    onLanguageSelected: (sort) {
-                      _configService.updateTranslationLanguage(sort);
-                      if (_translationController.hasTranslation) {
-                        _handleTranslation();
-                      }
-                    },
-                  ),
+                child: TranslationLanguageSelector(
+                  compact: true,
+                  extrimCompact: true,
+                  selectedLanguage: _configService.currentTranslationSort,
+                  onLanguageSelected: (sort) {
+                    _configService.updateTranslationLanguage(sort);
+                    if (_translationController.hasTranslation) {
+                      _handleTranslation();
+                    }
+                  },
                 ),
               ),
             ),

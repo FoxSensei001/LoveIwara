@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'emoji_special_text.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 class EnhancedEmojiTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -217,8 +218,8 @@ class _SimpleTextInputDialogState extends State<SimpleTextInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title),
+    return GlassAlertDialog(
+      title: widget.title,
       content: TextField(
         controller: _controller,
         maxLength: widget.maxLength,
@@ -227,16 +228,17 @@ class _SimpleTextInputDialogState extends State<SimpleTextInputDialog> {
         autofocus: true,
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: '取消',
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('取消'),
         ),
-        ElevatedButton(
+        GlassDialogAction(
+          label: '确定',
           onPressed: () {
             widget.onConfirm(_controller.text);
             Navigator.of(context).pop();
           },
-          child: const Text('确定'),
         ),
       ],
     );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/services/logging/log_models.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class CrashRecoveryDialog {
@@ -8,10 +11,9 @@ class CrashRecoveryDialog {
     BuildContext context,
     CrashRecoveryResult crashInfo,
   ) async {
-    return showDialog(
-      context: context,
+    return showAppDialog(
+      _CrashRecoveryDialogWidget(crashInfo: crashInfo),
       barrierDismissible: false,
-      builder: (context) => _CrashRecoveryDialogWidget(crashInfo: crashInfo),
     );
   }
 }
@@ -35,17 +37,20 @@ class _CrashRecoveryDialogWidgetState
     final t = slang.t;
     final theme = Theme.of(context);
 
-    return AlertDialog(
-      icon: Icon(
-        Icons.warning_amber_rounded,
-        color: theme.colorScheme.error,
-        size: 32,
-      ),
-      title: Text(t.crashRecoveryDialog.title),
+    return GlassAlertDialog(
+      title: t.crashRecoveryDialog.title,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Icon(
+              Icons.warning_amber_rounded,
+              color: theme.colorScheme.error,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 12),
           Text(t.crashRecoveryDialog.description),
           const SizedBox(height: 12),
           if (widget.crashInfo.previousVersion != null)
@@ -145,9 +150,9 @@ class _CrashRecoveryDialogWidgetState
         ],
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.crashRecoveryDialog.acknowledge,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.crashRecoveryDialog.acknowledge),
         ),
       ],
     );
@@ -156,11 +161,10 @@ class _CrashRecoveryDialogWidgetState
   Future<void> _copySupportEmail() async {
     await Clipboard.setData(const ClipboardData(text: _supportEmail));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(slang.t.crashRecoveryDialog.supportEmailCopied),
-        duration: const Duration(seconds: 1),
-      ),
+    showGlassToast(
+      slang.t.crashRecoveryDialog.supportEmailCopied,
+      type: GlassToastType.success,
+      duration: const Duration(seconds: 1),
     );
   }
 

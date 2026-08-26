@@ -8,9 +8,9 @@ import 'comment_item_widget.dart';
 import 'comment_skeleton_item_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
@@ -156,10 +156,8 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   }
 
   void _showReplyDialog() {
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,
@@ -422,111 +420,78 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    // DraggableScrollableSheet 需要我们使用它提供的 scrollController
-    return DraggableScrollableSheet(
+    // 外壳（玻璃材质 + 圆角 + 拖拽条 + 安全区）收口到 GlassDraggableBottomSheet，
+    // 这里只负责标题行 + 可滚动内容；scrollController 由壳的
+    // DraggableScrollableSheet 提供，接到内容的 ListView 上。
+    return GlassDraggableBottomSheet(
       initialChildSize: 0.75, // 初始高度 75%
       minChildSize: 0.2, // 最小高度 20%
       maxChildSize: 0.92, // 最大高度 92%
-      expand: false, // 不强制填满剩余空间
       snap: true, // 启用吸附行为
       builder: (context, scrollController) {
-        // 如果内部滚动控制器不同，应切换到使用此控制器。
-        // 但由于在 build 中，可以直接将 scrollController 传递给 ListView。
-        // 然而，initState 中已将 _onScroll 逻辑绑定到 _scrollController。
-        // 可能需要将监听器绑定到此控制器或进行
-
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(16.0),
-            ),
-          ),
-          // 底部弹窗自己让出系统手势条/导航条
-          padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 拖拽条
-              Center(
-                child: Container(
-                  margin: const EdgeInsets.only(top: 12, bottom: 4),
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 头部标题栏
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
               ),
-              // 头部标题栏
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(16.0),
+              // 标题行：图标 + 回复数 …… 回复圆钮 / 关闭圆钮
+              // 弹窗标题行的动作键一律玻璃圆钮，与全站其它弹窗同族
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.comment_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20.0,
                   ),
-                ),
-                // 标题行：图标 + 回复数 …… 回复圆钮 / 关闭圆钮
-                // 弹窗标题行的动作键一律玻璃圆钮，与全站其它弹窗同族
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.comment_outlined,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20.0,
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: Text(
-                        '$_replyCount ${t.common.replies}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Text(
+                      '$_replyCount ${t.common.replies}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.reply),
-                      tooltip: t.common.reply,
-                      onPressed: _showReplyDialog,
-                    ),
-                    const SizedBox(width: 8.0),
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.close_rounded),
-                      tooltip: t.common.close,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
+                  ),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.reply),
+                    tooltip: t.common.reply,
+                    onPressed: _showReplyDialog,
+                  ),
+                  const SizedBox(width: 8.0),
+                  GlassIconButton(
+                    standalone: true,
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: t.common.close,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
               ),
-              // 内容区域
-              Expanded(
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scrollInfo) {
-                    if (scrollInfo.metrics.pixels >=
-                            scrollInfo.metrics.maxScrollExtent - 200 &&
-                        !_isLoading &&
-                        _hasMore) {
-                      _loadReplies();
-                    }
-                    return false;
-                  },
-                  child: _buildContent(scrollController),
-                ),
+            ),
+            // 内容区域
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (ScrollNotification scrollInfo) {
+                  if (scrollInfo.metrics.pixels >=
+                          scrollInfo.metrics.maxScrollExtent - 200 &&
+                      !_isLoading &&
+                      _hasMore) {
+                    _loadReplies();
+                  }
+                  return false;
+                },
+                child: _buildContent(scrollController),
               ),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );

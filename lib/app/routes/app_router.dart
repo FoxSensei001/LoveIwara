@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
+import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -36,6 +37,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide_page.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
+import 'package:i_iwara/app/ui/pages/search/search_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_result.dart';
 import 'package:i_iwara/app/ui/pages/play_list/play_list_detail.dart';
 import 'package:i_iwara/app/ui/widgets/fade_branch_container.dart';
@@ -136,8 +138,12 @@ void refreshHomeBranch(int branchIndex) {
 /// 扩展到全屏）。其它平台（Android / 桌面）维持框架默认的 [MaterialPage] 转场，
 /// 行为完全不变。
 ///
-/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势），
-///   供含横向手势控件（TabBarView / 图集翻页 / 播放器横滑）的页面使用，避免抢手势。
+/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势）。
+///
+/// 页内的横向手势（TabBarView / 横向列表 / 横向 tab 条…）不需要页面自己声明：
+/// 每一页都自动包了 [SwipeBackScrollGuard]，按下那一刻就地判定落点，落在还能继续
+/// 朝返回方向滚的横向控件上就临时让位，滑到头则照常返回上一页。因此 [fullSwipe]
+/// 只在「整页都该退回边缘手势」时才需要传 `false`。
 ///
 /// 手势底层通过 [SwipeablePageRoute]（继承 [CupertinoPageRoute]）直接调用
 /// `navigator.pop()`，并会自动尊重页面上的 [PopScope]：当 `canPop: false` 时手势
@@ -154,7 +160,7 @@ Page<void> buildAdaptiveSwipeablePage(
       name: state.name ?? state.fullPath,
       arguments: state.extra,
       canOnlySwipeFromEdge: !fullSwipe,
-      builder: (context) => child,
+      builder: (context) => SwipeBackScrollGuard(child: child),
     );
   }
   return MaterialPage<void>(
@@ -496,6 +502,25 @@ final GoRouter appRouter = GoRouter(
           },
         ),
 
+        // 搜索配置页
+        GoRoute(
+          path: '/search',
+          name: 'search',
+          pageBuilder: (context, state) {
+            final extra = state.extra as SearchPageExtra?;
+            return buildAdaptiveSwipeablePage(
+              state,
+              SearchPage(
+                userInputKeywords: extra?.userInputKeywords ?? '',
+                initialSegment: extra?.initialSegment ?? SearchSegment.video,
+                initialFilters: extra?.initialFilters,
+                initialSort: extra?.initialSort,
+                onSearch: extra?.onSearch,
+              ),
+            );
+          },
+        ),
+
         // 搜索结果页
         GoRoute(
           path: '/search_result',
@@ -602,7 +627,6 @@ final GoRouter appRouter = GoRouter(
                     context,
                     state,
                     (isWide) => section.buildPage(isWideScreen: isWide),
-                    fullSwipe: section.allowsFullSwipeBack,
                   ),
                   routes: _settingsSubRoutesOf(section),
                 ),
@@ -1315,6 +1339,22 @@ class ForumThreadDetailExtra {
   final ForumThreadModel? initialThread;
 
   const ForumThreadDetailExtra({this.initialThread});
+}
+
+class SearchPageExtra {
+  final String userInputKeywords;
+  final SearchSegment initialSegment;
+  final List<Filter>? initialFilters;
+  final String? initialSort;
+  final Function(String, SearchSegment, List<Filter>, String)? onSearch;
+
+  const SearchPageExtra({
+    this.userInputKeywords = '',
+    this.initialSegment = SearchSegment.video,
+    this.initialFilters,
+    this.initialSort,
+    this.onSearch,
+  });
 }
 
 class SearchResultExtra {

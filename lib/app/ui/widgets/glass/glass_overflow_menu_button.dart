@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
@@ -49,7 +50,7 @@ class GlassMenuAction {
 ///   - ≥2 条 → `⋮`，点开弹菜单。
 ///
 /// 三档共用同一个 [GlassIconButton]（菜单不用 `PopupMenuButton` 而是自己
-/// `showMenu`），所以 widget 类型全程不变，`⋮` ↔ 具体动作图标的互换自动走
+/// [showGlassMenu]），所以 widget 类型全程不变，`⋮` ↔ 具体动作图标的互换自动走
 /// [GlassIconButton] 内置的 `GlassAnimatedIcon` 缩放交叉过渡，而不是瞬间跳一下
 /// ——这条是「液态玻璃 header 形变词汇表」里对按钮位换图标的统一要求。
 class GlassOverflowMenuButton extends StatelessWidget {
@@ -67,9 +68,6 @@ class GlassOverflowMenuButton extends StatelessWidget {
   final String? tooltip;
 
   final bool standalone;
-
-  /// 菜单相对按钮的落点：贴在按钮正下方，再往下挪一点别压住玻璃胶囊本身。
-  static const Offset _menuOffset = Offset(0, 8);
 
   @override
   Widget build(BuildContext context) {
@@ -100,38 +98,25 @@ class GlassOverflowMenuButton extends StatelessWidget {
         icon: const Icon(Icons.more_vert),
         tooltip: tooltip ?? MaterialLocalizations.of(context).showMenuTooltip,
         standalone: standalone,
+        // `⋮` 这枚位子存在的意义就是吐出一张菜单，所以长按也能打开，而且
+        // 长按不抬手可以直接划到某一条上松手选中（见 [GlassTapArea.opensOverlay]）。
+        opensOverlay: true,
         onPressed: () => _openMenu(anchorContext),
       ),
     );
   }
 
   Future<void> _openMenu(BuildContext anchorContext) async {
-    final renderObject = anchorContext.findRenderObject();
-    final overlay = Navigator.of(
-      anchorContext,
-    ).overlay?.context.findRenderObject();
-    if (renderObject is! RenderBox || overlay is! RenderBox) return;
-
-    // 与 PopupMenuButton(position: under, offset: (0,8)) 的落点算法一致
-    final Offset offset = Offset(0, renderObject.size.height) + _menuOffset;
-    final position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        renderObject.localToGlobal(offset, ancestor: overlay),
-        renderObject.localToGlobal(
-          renderObject.size.bottomRight(Offset.zero) + offset,
-          ancestor: overlay,
-        ),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    final selected = await showMenu<int>(
-      context: anchorContext,
-      position: position,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      items: [
+    final selected = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      entries: [
         for (var i = 0; i < actions.length; i++)
-          PopupMenuItem<int>(value: i, child: _buildMenuRow(anchorContext, i)),
+          GlassMenuOption<int>(
+            value: i,
+            icon: actions[i].icon,
+            label: actions[i].label,
+            destructive: actions[i].destructive,
+          ),
       ],
     );
 
@@ -139,20 +124,6 @@ class GlassOverflowMenuButton extends StatelessWidget {
     // 菜单是自带路由的弹层，选完这一帧按钮可能已经不在树上了
     if (selected < 0 || selected >= actions.length) return;
     actions[selected].onSelected();
-  }
-
-  Widget _buildMenuRow(BuildContext context, int index) {
-    final action = actions[index];
-    final Color? color = action.destructive
-        ? Theme.of(context).colorScheme.error
-        : null;
-    return Row(
-      children: [
-        Icon(action.icon, color: color),
-        const SizedBox(width: 12),
-        Text(action.label, style: TextStyle(color: color)),
-      ],
-    );
   }
 }
 

@@ -9,14 +9,10 @@ import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/app/ui/pages/community/community_page.dart';
-import 'package:i_iwara/app/ui/pages/search/search_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -25,6 +21,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
+import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 /// Home shell scaffold that wraps both tab pages and detail pages.
 /// Receives [Widget child] from go_router's ShellRoute.
@@ -422,6 +419,14 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     final displayOrder = _visibleOrder;
     final currentDisplayIndex = _currentDisplayIndexForOrder(displayOrder);
 
+    // 浮动底栏是整个 App 里最该「真的是玻璃」的一块：它常驻在滚动内容之上，
+    // 身后一直有东西在流动。它本身不在任何滚动容器里，正是折射透镜的适用场景。
+    //
+    // 这里不套 [LiquidGlassScope]：液态档下底栏整只（胶囊 + 果冻指示器 + 右侧
+    // 圆钮）都由 `liquid_glass_widgets` 自己画，内部没有 `GlassSurface`，套了
+    // 也没用——材质取值与全站 chrome 同源（`GlassTokens.widgetsGlass`）。
+    // 全局材质开关（真玻璃 / 假玻璃）由 [GlassFloatingTabBar] 自己认：假玻璃档
+    // 下它整只换成自绘的传统胶囊，不再有任何背景采样。
     return GlassFloatingTabBar(
       currentIndex: currentDisplayIndex,
       onTap: (index) => _handleNavigationTap(index, displayOrder),
@@ -429,12 +434,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
         final item = AppService.navigationItems[key]!;
         return GlassTabItem(icon: item.icon, label: item.title);
       }).toList(),
-      trailing: GlassIconButton(
-        standalone: true,
-        size: GlassTokens.floatingActionSize,
-        iconSize: 26,
-        icon: const Icon(Icons.search),
-        tooltip: slang.t.common.search,
+      action: GlassFloatingBarAction(
+        icon: Icons.search,
+        label: slang.t.common.search,
         onPressed: _openSearchForCurrentBranch,
       ),
     );
@@ -462,20 +464,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
       // subscription / video 及未知栏目统一默认视频分段
       _ => SearchSegment.video,
     };
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: '',
-        initialSegment: segment,
-        onSearch: (searchInfo, segment, filters, sort) {
-          NaviService.toSearchPage(
-            searchInfo: searchInfo,
-            segment: segment,
-            filters: filters,
-            sort: sort,
-          );
-        },
-      ),
-    );
+    NaviService.navigateToSearchPage(initialSegment: segment);
   }
 
   Widget _buildNavigationRail(
@@ -557,9 +546,22 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     final bool showAvatar = !_isAtHomeRoot;
     return GlassShapeSwitcher(
       child: showAvatar
-          ? KeyedSubtree(
-              key: const ValueKey('rail_identity_avatar'),
-              child: _buildRailAvatarButton(context),
+          ? const KeyedSubtree(
+              key: ValueKey('rail_identity_avatar'),
+              // ⛔ 这里**不传 forceLiquid**：侧栏是实心面，lens 在上面没有东西
+              // 可折射，而每一层液态玻璃都要一次整屏 resolve。2026-08-24 真机实测
+              // （视频详情页，播放中静置）：这一枚 44px 圆钮就是全页唯一的玻璃，
+              // 开着它 raster 8.23ms / 14.0 saveLayer 每帧，关掉 6.08ms / 8.0
+              // ——**一枚看不出效果的按钮吃掉 2.1ms**。
+              //
+              // 「看不出效果」不是推测：真/假玻璃两张截图逐像素比过，液态档下
+              // 这枚钮的壳几乎不可见（纯白 rail 折射不出东西），反倒是传统档的
+              // GlassTokens.fill 还能看出一圈柔和的壳。这正是 IdentityAvatarButton
+              // 类注释里早就记过的失效模式，当初据此让社区页跟随页面档位，只有
+              // 侧栏这一枚留了 forceLiquid——现在它也归队。
+              //
+              // 代价：这一枚失去长按跟手形变。它在实心面上本来也读不出液态感。
+              child: IdentityAvatarButton(),
             )
           : KeyedSubtree(
               key: const ValueKey('rail_identity_settings'),
@@ -572,48 +574,6 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
               ),
             ),
     );
-  }
-
-  Widget _buildRailAvatarButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Obx(() {
-      final user = userService.hasLoadedProfile
-          ? userService.currentUser.value
-          : null;
-      final count =
-          userService.notificationCount.value + userService.messagesCount.value;
-
-      return GlassSurface(
-        circle: true,
-        tooltip: t.common.me,
-        onTap: AppService.switchGlobalDrawer,
-        child: Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            if (user != null)
-              IgnorePointer(
-                child: AvatarWidget(
-                  user: user,
-                  size: GlassTokens.pillHeight - 2,
-                ),
-              )
-            else
-              Icon(
-                Icons.account_circle,
-                size: 26,
-                color: colorScheme.onSurface,
-              ),
-            Positioned(
-              right: 2,
-              top: 2,
-              child: GlassAnimatedDot(visible: count > 0),
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   double _computeRailWidth(BuildContext context, List<String> displayOrder) {

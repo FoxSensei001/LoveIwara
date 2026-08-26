@@ -618,6 +618,16 @@ settings:
   defaultBrowserDesc: 請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結
   themeMode: 主題模式
   themeModeDesc: 此配置決定應用的主題模式
+  glassEffect: 玻璃質感
+  glassEffectDesc: 決定全域玻璃控件（頂欄膠囊、浮動底欄、選單、彈窗按鈕）使用哪種材質
+  liquidGlassEffect: 液態玻璃
+  liquidGlassEffectDesc: 真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電
+  plainGlassEffect: 輕量半透明
+  plainGlassEffectDesc: 只用半透明底色與描邊、不做模糊，效能與續航最好
+  glassEffectIntroTitle: 試試新的玻璃質感
+  glassEffectIntroContent: 這一版的頂欄、底欄與選單換成了液態玻璃（真實的模糊與折射）。若在裝置上覺得卡頓或偏好簡潔，可以現在換成輕量半透明。
+  glassEffectIntroHint: 之後隨時可以在「設定 → 主題設定 → 玻璃質感」裡修改。
+  glassEffectIntroDone: 就這樣
   dynamicColor: 動態顏色
   dynamicColorDesc: 此配置決定應用是否使用動態顏色
   useDynamicColor: 使用動態顏色
@@ -1647,6 +1657,7 @@ download:
   allStatus: 所有狀態
   typeLabel: '類型: ${label}'
   allTypes: 所有類型
+  taskType: 類型
   video: 影片
   gallery: 圖庫
   other: 其他
@@ -2468,6 +2479,8 @@ searchFilter:
     latest: "最新"
     views: "觀看次數"
     likes: "按讚數"
+  # 篩選抽屜
+  drawerSubtitle: "變更即時生效"
 
 # 標籤選擇器元件
 tagSelector:

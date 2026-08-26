@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -25,7 +26,6 @@ import '../comment/widgets/comment_section_widget.dart';
 import 'controllers/post_detail_controller.dart';
 import 'widgets/post_detail_shimmer.dart';
 import '../../widgets/iwara_site_badge.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String postId;
@@ -93,142 +93,113 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void showCommentModal(BuildContext context) {
     final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     detailController.isCommentSheetVisible.value = true;
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
+        return GlassDraggableBottomSheet(
           initialChildSize: isSmallScreen ? 0.88 : 0.8,
           minChildSize: 0.25,
           maxChildSize: 0.95,
-          expand: false,
           builder: (context, scrollController) {
             final theme = Theme.of(context);
-            return Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              // 底部弹窗自己让出系统手势条/导航条
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 4),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.35,
-                      ),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isSmallScreen ? 12 : 16,
+                    4,
+                    isSmallScreen ? 12 : 16,
+                    8,
                   ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      isSmallScreen ? 12 : 16,
-                      4,
-                      isSmallScreen ? 12 : 16,
-                      8,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            slang.t.common.commentList,
-                            style: TextStyle(
-                              fontSize: isSmallScreen ? 16 : 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          slang.t.common.commentList,
+                          style: TextStyle(
+                            fontSize: isSmallScreen ? 16 : 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        // 排序 / 发评论 / 关闭进同一只玻璃动作胶囊
-                        GlassButtonGroup(
-                          children: [
-                            Obx(
-                              () => GlassIconButton(
-                                icon: Icon(
-                                  commentController.sortOrder.value
-                                      ? Icons.arrow_downward_rounded
-                                      : Icons.arrow_upward_rounded,
-                                ),
-                                tooltip: commentController.sortOrder.value
-                                    ? slang.t.common.createTimeDesc
-                                    : slang.t.common.createTimeAsc,
-                                onPressed: commentController.toggleSortOrder,
-                              ),
-                            ),
-                            GlassIconButton(
-                              icon: const Icon(Icons.add_comment),
-                              tooltip: slang.t.common.sendComment,
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => CommentInputBottomSheet(
-                                    title: slang.t.common.sendComment,
-                                    submitText: slang.t.common.send,
-                                    onSubmit: (text) async {
-                                      if (text.trim().isEmpty) {
-                                        showGlassToast(
-                                          slang.t.errors.commentCanNotBeEmpty,
-                                          type: GlassToastType.error,
-                                        );
-                                        return;
-                                      }
-                                      final UserService userService =
-                                          Get.find();
-                                      if (!userService.isAuthenticated) {
-                                        showGlassToast(
-                                          slang.t.errors.pleaseLoginFirst,
-                                          type: GlassToastType.error,
-                                        );
-                                        LoginService.showLogin();
-                                        return;
-                                      }
-                                      await commentController.postComment(text);
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                            GlassIconButton(
-                              icon: const Icon(Icons.close),
-                              tooltip: slang.t.common.close,
-                              onPressed: () {
-                                detailController.isCommentSheetVisible.value =
-                                    false;
-                                Navigator.pop(context);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: theme.colorScheme.outlineVariant.withValues(
-                      alpha: 0.4,
-                    ),
-                  ),
-                  Expanded(
-                    child: Obx(
-                      () => CommentSection(
-                        controller: commentController,
-                        authorUserId: detailController.postInfo.value?.user.id,
-                        scrollController: scrollController,
                       ),
+                      // 排序 / 发评论 / 关闭进同一只玻璃动作胶囊
+                      GlassButtonGroup(
+                        children: [
+                          Obx(
+                            () => GlassIconButton(
+                              icon: Icon(
+                                commentController.sortOrder.value
+                                    ? Icons.arrow_downward_rounded
+                                    : Icons.arrow_upward_rounded,
+                              ),
+                              tooltip: commentController.sortOrder.value
+                                  ? slang.t.common.createTimeDesc
+                                  : slang.t.common.createTimeAsc,
+                              onPressed: commentController.toggleSortOrder,
+                            ),
+                          ),
+                          GlassIconButton(
+                            icon: const Icon(Icons.add_comment),
+                            tooltip: slang.t.common.sendComment,
+                            onPressed: () {
+                              showGlassBottomSheet(
+                                context: context,
+                                builder: (context) => CommentInputBottomSheet(
+                                  title: slang.t.common.sendComment,
+                                  submitText: slang.t.common.send,
+                                  onSubmit: (text) async {
+                                    if (text.trim().isEmpty) {
+                                      showGlassToast(
+                                        slang.t.errors.commentCanNotBeEmpty,
+                                        type: GlassToastType.error,
+                                      );
+                                      return;
+                                    }
+                                    final UserService userService = Get.find();
+                                    if (!userService.isAuthenticated) {
+                                      showGlassToast(
+                                        slang.t.errors.pleaseLoginFirst,
+                                        type: GlassToastType.error,
+                                      );
+                                      LoginService.showLogin();
+                                      return;
+                                    }
+                                    await commentController.postComment(text);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                          GlassIconButton(
+                            icon: const Icon(Icons.close),
+                            tooltip: slang.t.common.close,
+                            onPressed: () {
+                              detailController.isCommentSheetVisible.value =
+                                  false;
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.4,
+                  ),
+                ),
+                Expanded(
+                  child: Obx(
+                    () => CommentSection(
+                      controller: commentController,
+                      authorUserId: detailController.postInfo.value?.user.id,
+                      scrollController: scrollController,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );
@@ -241,9 +212,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
   void _showShareSheet() {
     final post = detailController.postInfo.value;
     if (post == null) return;
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => SharePostBottomSheet(post: post),
       context: context,
     );
@@ -316,22 +285,14 @@ class _PostDetailPageState extends State<PostDetailPage> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -420,6 +381,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
       },
       child: Scaffold(
         body: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,

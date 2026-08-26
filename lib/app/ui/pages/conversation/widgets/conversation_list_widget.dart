@@ -17,6 +17,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 class ConversationListWidget extends StatefulWidget {
   final Function(ConversationModel) onConversationSelected;
@@ -27,8 +28,7 @@ class ConversationListWidget extends StatefulWidget {
   });
 
   @override
-  State<ConversationListWidget> createState() =>
-      _ConversationListWidgetState();
+  State<ConversationListWidget> createState() => _ConversationListWidgetState();
 }
 
 class _ConversationListWidgetState extends State<ConversationListWidget> {
@@ -107,22 +107,14 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -141,8 +133,7 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
     final bool unread = conversation.unread;
     // 最后一条是不是自己发的：是的话预览行前面带「我：」前缀
     final bool fromMe =
-        conversation.lastMessage.user.id ==
-        userService.currentUser.value?.id;
+        conversation.lastMessage.user.id == userService.currentUser.value?.id;
 
     // 未读会话铺一层极淡的主题色（与通知卡片同一套未读语言）
     final Color? cardColor = unread
@@ -202,14 +193,20 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
                 CommonUtils.formatFriendlyTimestamp(
                   conversation.lastMessage.createdAt,
                 ),
-                style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 2),
           Text(
             '@${otherParticipant.username}',
-            style: TextStyle(fontSize: 11.5, color: colorScheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 11.5,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 6),
           Row(
@@ -278,6 +275,7 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.metrics.axis == Axis.vertical &&
@@ -307,11 +305,11 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
                     ),
                     indicatorBuilder: (context, status) =>
                         myLoadingMoreIndicator(
-                      context,
-                      status,
-                      isSliver: true,
-                      loadingMoreBase: listSourceRepository,
-                    ),
+                          context,
+                          status,
+                          isSliver: true,
+                          loadingMoreBase: listSourceRepository,
+                        ),
                   ),
                 ),
               ],

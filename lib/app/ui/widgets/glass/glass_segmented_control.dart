@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 
 class GlassSegmentItem {
   const GlassSegmentItem({required this.label, this.icon});
@@ -18,6 +21,21 @@ class GlassSegmentItem {
 ///
 /// 支持「长按拾起」：长按后高亮块微放大并跟随手指滑动（跨段有触感反馈），
 /// 松手落在手指所在段——液态玻璃的跟手质感。
+///
+/// ## 高亮块在 [GlassBackend.liquidWidgets] 档下换成果冻玻璃指示器
+///
+/// 那一档里高亮块不再是一块 `DecoratedBox`，而是
+/// `liquid_glass_widgets` 的 `AnimatedGlassIndicator`——**静止时是实心药丸，
+/// 一开始移动就化成液态玻璃并被速度挤压（果冻物理），落位后再凝回实心**。
+/// 照他们自己的用法分成上下两趟画（见 `_buildJellyStack`）：
+///   - 第一趟在文字**底下**，只画实心药丸；
+///   - 第二趟在文字**上面**，只画玻璃——这样 shader 采样得到文字，
+///     滑过去的时候字会跟着折射。iOS 26 的分段控件就是这个读法。
+///
+/// 本组件其余能力**一概不变**：跟着 `TabBarView` 滑动实时联动
+/// （[progress]）、长按拾起跟手、选中项自动滚到可见、[minWidthFor] 断点。
+/// 这也是没有整只换成他们的 `GlassSegmentedControl` 的原因——那边没有外部
+/// progress 入口，滑页时指示器只能等页面落位后才动，不跟手。
 class GlassSegmentedControl extends StatefulWidget {
   const GlassSegmentedControl({
     super.key,
@@ -95,7 +113,10 @@ class GlassSegmentedControl extends StatefulWidget {
     }
     widths.sort((a, b) => b.compareTo(a));
 
-    final double effectiveMin = minVisibleItems.clamp(1, widths.length.toDouble());
+    final double effectiveMin = minVisibleItems.clamp(
+      1,
+      widths.length.toDouble(),
+    );
     final int fullCount = effectiveMin.floor();
     final double frac = effectiveMin - fullCount;
     double total = 0;
@@ -113,8 +134,32 @@ class GlassSegmentedControl extends StatefulWidget {
   State<GlassSegmentedControl> createState() => _GlassSegmentedControlState();
 }
 
+// ---- 果冻指示器（[GlassBackend.liquidWidgets] 档）----
+
+/// 化成玻璃 / 凝回实心的两段时长。凝回慢一点，落位后还能挂一小会儿余韵。
+const Duration _jellyRiseDuration = Duration(milliseconds: 180);
+const Duration _jellyFallDuration = Duration(milliseconds: 300);
+
+/// 认定「在动」的阈值：小数下标离最近的整数有这么远就算还在路上。
+/// 与他们内部那条 0.05 是同一个意思，只是我们的单位是「段」不是 alignment。
+const double _jellyMovingEpsilon = 0.02;
+
+/// 折射挤压强度，取他们 `GlassSegmentedControl` 的标定值。
+const double _jellyPinch = 0.4;
+
+/// 拖拽时药丸的胀出量。
+///
+/// 他们的默认值是 12/8，但那是给自带 2px 内边距、且外面没有壳的控件用的。
+/// 我们这只分段胶囊四周只有 [GlassSegmentedControl.capsuleInset]（4）的内缩，
+/// 外面还罩着一层会按形状裁切的玻璃壳（`GlassCapsuleMorph` → `GlassSurface`）
+/// ——胀出量一旦超过内缩，果冻在两端就会被切出一道直边，比不胀还难看。
+/// 所以按内缩本身取值、再留一像素给抗锯齿。
+const EdgeInsets _jellyExpansion = EdgeInsets.all(
+  GlassSegmentedControl.capsuleInset - 1,
+);
+
 class _GlassSegmentedControlState extends State<GlassSegmentedControl>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _rowKey = GlobalKey();
   List<GlobalKey> _itemKeys = [];
@@ -147,6 +192,36 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
   int? _lastHapticIndex;
   bool _cleanupScheduled = false;
 
+  // ---- 果冻指示器（只在 GlassBackend.liquidWidgets 档下用到）----
+
+  /// 指示器的「玻璃化」程度：0 = 静止的实心药丸，1 = 跟手的液态玻璃。
+  late final AnimationController _jelly = AnimationController(
+    vsync: this,
+    duration: _jellyRiseDuration,
+    reverseDuration: _jellyFallDuration,
+  );
+
+  /// `_jelly` 当前的目标端，用来避免每帧都重下一次 forward/reverse。
+  bool _jellyUp = false;
+
+  /// 没有 [GlassSegmentedControl.progress] 时的换段过渡。
+  ///
+  /// 传统档那条路用 `AnimatedPositioned` 隐式插值就够了，但果冻指示器是自己
+  /// 定位的（`exactOffset`/`exactWidth`），套不进 `AnimatedPositioned`，
+  /// 只能自己插。progress 驱动时这条闲置。
+  late final AnimationController _hop = AnimationController(
+    vsync: this,
+    duration: GlassTokens.motionDuration,
+  );
+  double? _hopFromLeft;
+  double? _hopFromWidth;
+
+  /// 指示器速度，单位与他们内部一致：**整条控件归一到 [-1, 1] 后每秒走多少**。
+  /// 喂给 `AnimatedGlassIndicator.velocity` 去算果冻挤压。
+  double _velocity = 0;
+  double? _lastT;
+  Duration? _lastStamp;
+
   @override
   void initState() {
     super.initState();
@@ -155,9 +230,66 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     _slideController.addListener(() {
       if (mounted && (_dragging || _releaseFrom != null)) setState(() {});
     });
+    // 果冻档的「在不在动」必须在**帧回调里**判，不能只在 build 里判：
+    // 动画停下来的那一帧之后 build 就不再跑了，玻璃会僵在半路凝不回去。
+    _slideController.addListener(_onMotionTick);
+    _hop.addListener(_onMotionTick);
+    widget.progress?.addListener(_onMotionTick);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _measure(animateScroll: false),
     );
+  }
+
+  /// 每一帧位置变化后：量一次速度，再决定玻璃该化开还是凝回。
+  void _onMotionTick() {
+    if (!mounted) return;
+    final double? t = _liveT;
+    if (t != null) _trackVelocity(t);
+    final bool moving = _dragging || _isBetweenSegments(t);
+    if (moving == _jellyUp) return;
+    _jellyUp = moving;
+    if (moving) {
+      _jelly.forward();
+    } else {
+      _jelly.reverse();
+    }
+  }
+
+  /// 当前的小数下标（拖拽/落位覆盖优先，其次 progress）。都没有时为 null。
+  double? get _liveT => _overrideT ?? widget.progress?.value;
+
+  bool _isBetweenSegments(double? t) {
+    if (t != null) return (t - t.roundToDouble()).abs() > _jellyMovingEpsilon;
+    return _hop.isAnimating;
+  }
+
+  void _trackVelocity(double t) {
+    final SchedulerBinding binding = SchedulerBinding.instance;
+    final double? lastT = _lastT;
+    final Duration? lastStamp = _lastStamp;
+    if (binding.schedulerPhase == SchedulerPhase.idle) {
+      // 不在帧里（例如外部直接改了 progress）：留下位置但不猜时间。
+      _lastT = t;
+      _lastStamp = null;
+      return;
+    }
+    final Duration now = binding.currentFrameTimeStamp;
+    _lastT = t;
+    _lastStamp = now;
+    if (lastT == null || lastStamp == null) return;
+    final double dt = (now - lastStamp).inMicroseconds / 1e6;
+    // 掉帧 / 页面挂起后回来：这一大段位移不代表速度，丢掉。
+    if (dt <= 0 || dt > 0.1) {
+      _velocity = 0;
+      return;
+    }
+    final int span = widget.items.length - 1;
+    if (span <= 0) {
+      _velocity = 0;
+      return;
+    }
+    // 「段/秒」换算成他们的单位：整条控件归一到 [-1, 1]，一个段 = 2/span。
+    _velocity = (t - lastT) / dt * (2 / span);
   }
 
   /// 覆盖位置：
@@ -275,6 +407,10 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
   @override
   void didUpdateWidget(covariant GlassSegmentedControl oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.progress, widget.progress)) {
+      oldWidget.progress?.removeListener(_onMotionTick);
+      widget.progress?.addListener(_onMotionTick);
+    }
     if (oldWidget.items.length != widget.items.length) {
       _rebuildKeys();
       _hasMeasured = false;
@@ -287,7 +423,10 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
 
   @override
   void dispose() {
+    widget.progress?.removeListener(_onMotionTick);
     _slideController.dispose();
+    _jelly.dispose();
+    _hop.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -339,6 +478,16 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
         _highlightWidth != width ||
         !_hasMeasured ||
         rectsChanged) {
+      // 果冻档没有 AnimatedPositioned 可用（指示器自己定位），换段时得自己
+      // 从旧位置插到新位置——记下起点并起跑。progress 驱动时这条不参与。
+      if (_hasMeasured &&
+          widget.progress == null &&
+          _highlightLeft != null &&
+          (_highlightLeft != left || _highlightWidth != width)) {
+        _hopFromLeft = _highlightLeft;
+        _hopFromWidth = _highlightWidth;
+        _hop.forward(from: 0);
+      }
       setState(() {
         _highlightLeft = left;
         _highlightWidth = width;
@@ -413,6 +562,11 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     final cs = Theme.of(context).colorScheme;
     const double inset = GlassSegmentedControl.capsuleInset;
     final double innerHeight = widget.height - inset * 2;
+    // 只有 widgets 那一档换果冻指示器；另外两档的高亮块一如既往。
+    final bool jelly =
+        LiquidGlassScope.of(context) == GlassBackend.liquidWidgets;
+    // 果冻那一趟**玻璃透镜**只在没被融合层罩着时才画，见 [_buildJellyStack]。
+    final bool jellyLens = jelly && !GlassBlendGroup.isInside(context);
 
     final Widget row = Row(
       key: _rowKey,
@@ -438,13 +592,15 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
             onLongPressMoveUpdate: _handleLongPressMove,
             onLongPressEnd: (_) => _finishDrag(commit: true),
             onLongPressCancel: () => _finishDrag(commit: false),
-            child: Stack(
-              children: [
-                if (_highlightLeft != null && _highlightWidth != null)
-                  _buildHighlight(cs, innerHeight),
-                row,
-              ],
-            ),
+            child: jelly
+                ? _buildJellyStack(cs, innerHeight, row, lens: jellyLens)
+                : Stack(
+                    children: [
+                      if (_highlightLeft != null && _highlightWidth != null)
+                        _buildHighlight(cs, innerHeight),
+                      row,
+                    ],
+                  ),
           ),
         ),
       ),
@@ -461,6 +617,128 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       padding: const EdgeInsets.symmetric(horizontal: inset, vertical: inset),
       clipContent: true,
       child: core,
+    );
+  }
+
+  /// 果冻档的三层：实心药丸 → 文字 → 玻璃。
+  ///
+  /// 玻璃那一趟压在文字**上面**是有意的：`AnimatedGlassIndicator` 的 premium
+  /// 通路靠采样身下的像素做折射，压在文字上滑过去时字才会跟着被镜头拉一下
+  /// ——这正是他们（和 iOS 26）分段控件的读法，也是这次要换过来的那个观感。
+  ///
+  /// ## ⚠️ 药丸那一趟的 thickness 恒为 0，不跟着果冻走
+  ///
+  /// `AnimatedGlassIndicator` 内部把实心药丸的不透明度定死成
+  /// `1 - thickness / 0.15`——thickness 一过 0.15 药丸就整只淡没，全靠玻璃透镜
+  /// 顶上。他们能这么做是因为原设计里指示器身后是有内容、有对比度的。
+  ///
+  /// 我们这儿不成立：header 底下压着 `EdgeFadeScrim`，是一片接近纯白的低对比
+  /// 背景，透镜（`baseAlphaMultiplier` 0.2，中心近乎全清）在上面**什么都显不出来**。
+  /// OnePlus Pad 真机实测：滑到两段之间时选中指示器整个消失，比不换还糟。
+  ///
+  /// 所以药丸这一趟固定喂 `thickness: 0`——它本来在 premium 通路下就长在果冻
+  /// Transform 外面（刚性、不参与挤压），喂 0 只是额外保证它**全程不透明**，
+  /// 顺带也不吃 [_jellyExpansion] 的胀出。果冻与折射由上面那趟玻璃单独承担。
+  ///
+  /// ## ⛔ [lens] = false：被融合层罩住时，玻璃那一趟必须整只不画
+  ///
+  /// 上面那段说的「透镜在这片近乎纯白的背景上什么都显不出来」，是把它当成
+  /// **良性无效**接受下来的。2026-08-23 给 header 行加上 [GlassBlendGroup] 之后
+  /// 这条前提当场翻掉：融合层把整行 chrome 收进一个 `LiquidGlassLayer` +
+  /// `BackdropGroup`，指示器身下不再是那片平坦的白，而是**折射过的玻璃输出**
+  /// ——透镜忽然有东西可折射了。用户当场报的就是这一条：
+  ///
+  /// > 主体色的 focus 背景下面出现了一层液态玻璃、透明的，只有切 tab 的时候
+  /// > 跟着 focus 区域出现和消失，之前是没有的。
+  ///
+  /// 每一处细节都对得上：只在换段途中出现（`thickness: _jelly.value` 只有
+  /// 途中非零）、跟着 focus 区域走（同一份几何）、比药丸大一圈所以从底下透出来
+  /// （[_jellyExpansion] 的胀出）。
+  ///
+  /// 既然这趟透镜在这个背景下本来就贡献不了观感（真机实测），被融合层照亮之后
+  /// 又只剩副作用，就在融合层底下**整只不画**——留下的正是换之前的样子：一枚
+  /// 不透明的实心药丸。融合层之外（传统档 / easy 档 / `blendHeader: false` /
+  /// 将来独立摆放的分段控件）一切照旧。
+  Widget _buildJellyStack(
+    ColorScheme cs,
+    double innerHeight,
+    Widget row, {
+    required bool lens,
+  }) {
+    return AnimatedBuilder(
+      // row 走 child 透传，逐帧重建的只有两趟指示器。
+      animation: Listenable.merge([
+        ?widget.progress,
+        _slideController,
+        _hop,
+        _jelly,
+      ]),
+      child: row,
+      builder: (context, child) {
+        final (double, double)? pos = _indicatorPos();
+        return Stack(
+          // 果冻胀出要能溢出，裁切交给外层玻璃壳。
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            if (pos != null)
+              _jellyIndicator(cs, pos, innerHeight, glass: false),
+            child!,
+            if (pos != null && lens)
+              _jellyIndicator(cs, pos, innerHeight, glass: true),
+          ],
+        );
+      },
+    );
+  }
+
+  /// 指示器此刻的 (left, width)。与传统档 `_buildHighlight` 取的是同一份几何，
+  /// 只是那边交给 `AnimatedPositioned`、这边得算出确切值喂给 `exactOffset`。
+  (double, double)? _indicatorPos() {
+    final double? t = _liveT;
+    if (t != null) {
+      final h = _interpolatedHighlight(t);
+      if (h != null) return h;
+    }
+    final double? left = _highlightLeft;
+    final double? width = _highlightWidth;
+    if (left == null || width == null) return null;
+    final double? fromLeft = _hopFromLeft;
+    final double? fromWidth = _hopFromWidth;
+    if (fromLeft != null && fromWidth != null && _hop.isAnimating) {
+      final double f = GlassTokens.motionCurve.transform(_hop.value);
+      return (
+        fromLeft + (left - fromLeft) * f,
+        fromWidth + (width - fromWidth) * f,
+      );
+    }
+    return (left, width);
+  }
+
+  Widget _jellyIndicator(
+    ColorScheme cs,
+    (double, double) pos,
+    double innerHeight, {
+    required bool glass,
+  }) {
+    return lgw.AnimatedGlassIndicator(
+      velocity: glass ? _velocity : 0,
+      itemCount: widget.items.length,
+      // exact 定位模式下 alignment 不参与计算，但参数是必填的。
+      alignment: Alignment.centerLeft,
+      // 药丸那趟恒 0：见 [_buildJellyStack] 上那段真机实测的说明。
+      thickness: glass ? _jelly.value : 0,
+      // premium 才有完整的 SDF 折射；非 Impeller 环境由包自己降级。
+      quality: lgw.GlassQuality.premium,
+      indicatorColor: GlassTokens.selectedHighlight(cs),
+      isBackgroundIndicator: false,
+      borderRadius: innerHeight / 2,
+      paintBackground: !glass,
+      paintGlass: glass,
+      exactOffset: pos.$1,
+      exactWidth: pos.$2,
+      settings: GlassTokens.widgetsIndicator,
+      pinchStrength: _jellyPinch,
+      expansion: _jellyExpansion,
     );
   }
 

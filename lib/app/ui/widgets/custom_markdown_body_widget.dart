@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -24,6 +25,7 @@ import 'package:i_iwara/app/utils/markdown_formatter.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_preview_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 
 class CustomMarkdownBody extends StatefulWidget {
   final String data;
@@ -47,7 +49,9 @@ class CustomMarkdownBody extends StatefulWidget {
   final VoidCallback? onTap;
   // 长按正文的回调（如评论区长按弹操作菜单）。同样挂在 SelectionArea 内侧，
   // 会取代其长按选中文本的默认行为——调用方应在菜单里提供「选择复制」入口。
-  final VoidCallback? onLongPress;
+  // 参数是长按落点的全局坐标：菜单要贴着手指弹（见 showCommentActionsMenu），
+  // 拿不到落点就只能贴着整段正文弹，长评论下会离手指很远。
+  final void Function(Offset globalPosition)? onLongPress;
   // 内容处理状态变化回调：本文与格式化结果有差异时为 true。post-frame 触发，
   // 调用方可安全 setState。
   //
@@ -474,8 +478,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
     final shouldContinue = await showAppDialog<bool>(
       Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.common.externalLinkWarning),
+        builder: (dialogContext) => GlassAlertDialog(
+          title: t.common.externalLinkWarning,
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -517,24 +521,15 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             ),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: t.common.cancelExternalLink,
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(dialogContext).colorScheme.primary,
-              ),
-              child: Text(
-                t.common.cancelExternalLink,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
             ),
-            FilledButton.icon(
+            // 打开外链是这张弹窗里「有风险」的那一侧，走 destructive 语义色
+            GlassDialogAction(
+              label: t.common.continueToExternalLink,
+              destructive: true,
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(dialogContext).colorScheme.error,
-                foregroundColor: Theme.of(dialogContext).colorScheme.onError,
-              ),
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: Text(t.common.continueToExternalLink),
             ),
           ],
         ),
@@ -577,22 +572,19 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         builder: (dialogContext) {
           final colorScheme = Theme.of(dialogContext).colorScheme;
 
-          Widget buildSiteButton(IwaraSite site) {
+          GlassDialogAction buildSiteButton(IwaraSite site) {
             final label = site == IwaraSite.ai
                 ? t.siteMode.aiSite
                 : t.siteMode.mainSite;
 
-            return FilledButton.icon(
+            return GlassDialogAction(
+              label: t.siteMode.openInSite(site: label),
               onPressed: () => Navigator.of(dialogContext).pop(site),
-              icon: Icon(
-                site == IwaraSite.ai ? Icons.auto_awesome : Icons.public,
-              ),
-              label: Text(t.siteMode.openInSite(site: label)),
             );
           }
 
-          return AlertDialog(
-            title: Text(t.siteMode.chooseLinkTargetTitle),
+          return GlassAlertDialog(
+            title: t.siteMode.chooseLinkTargetTitle,
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -624,18 +616,13 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               ),
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: Text(t.common.cancel),
               ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  buildSiteButton(IwaraSite.main),
-                  buildSiteButton(IwaraSite.ai),
-                ],
-              ),
+              buildSiteButton(IwaraSite.main),
+              buildSiteButton(IwaraSite.ai),
             ],
           );
         },
@@ -1193,10 +1180,12 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     );
     if (widget.onTap != null || widget.onLongPress != null) {
       // 必须挂在 SelectionArea 内侧（见 onTap / onLongPress 字段注释）
-      content = GestureDetector(
+      // 长按走 GlassLongPressMenuArea：除了给出落点，它还会把这根按着的
+      // 手指交给弹出来的菜单（按住不抬手直接划到某一条上松手即选中）。
+      content = GlassLongPressMenuArea(
         behavior: HitTestBehavior.translucent,
         onTap: widget.onTap,
-        onLongPress: widget.onLongPress,
+        onMenu: widget.onLongPress,
         child: content,
       );
     }

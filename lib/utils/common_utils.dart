@@ -90,11 +90,11 @@ class CommonUtils {
           // 根据重力感应选择横屏方向
           orientations = await _getGravityBasedOrientations();
         } else {
-          // 正常全屏，允许所有横屏方向
-          orientations = [
-            DeviceOrientation.landscapeLeft,
-            DeviceOrientation.landscapeRight,
-          ];
+          // 正常全屏：设置里没有「双向都行」的选项，一律按用户选择的固定方向进入。
+          // ⚠️ 这里曾经写死允许 landscapeLeft/landscapeRight 两个方向、完全不读取
+          // FULLSCREEN_ORIENTATION 配置，是「设置选左选右全部固定成左」这个回归的
+          // 根因之一（另一半在 forceNativeOrientation 的原生 SENSOR_LANDSCAPE）。
+          orientations = await _getConfigBasedOrientations();
         }
 
         LogUtils.i(
@@ -111,8 +111,15 @@ class CommonUtils {
         );
         await SystemChrome.setPreferredOrientations(orientations);
         // Android 原生兜底强制方向：确保关闭系统自动旋转 / 平板竖持也真旋转。
+        // 必须把 orientations 已经解析出的具体左右方向透传给原生层，不能再传笼统的
+        // 'landscape'——原生侧一旦用 SENSOR_LANDSCAPE 无视左右会重新导致同一个 bug。
+        final String nativeOrientationMode = toVerticalScreen
+            ? 'portrait'
+            : (orientations.first == DeviceOrientation.landscapeLeft
+                  ? 'landscape_left'
+                  : 'landscape_right');
         await DeviceFormFactorUtils.forceNativeOrientation(
-          toVerticalScreen ? 'portrait' : 'landscape',
+          nativeOrientationMode,
         );
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         // 此处使用media_kit_video的MethodChannel，

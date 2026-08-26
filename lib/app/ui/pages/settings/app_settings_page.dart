@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/config_backup_service.dart';
@@ -52,22 +56,29 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final result = await showDialog<int>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.autoDeleteHistoryDays),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: slang.t.settings.autoDeleteHistoryDays,
+        return GlassAlertDialog(
+          title: slang.t.settings.autoDeleteHistoryDays,
+          content: GlassInputSurface(
+            borderRadius: 8,
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: glassFieldDecoration(
+                dialogContext,
+                label: slang.t.settings.autoDeleteHistoryDays,
+              ),
             ),
           ),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(slang.t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.confirm,
               onPressed: () {
                 final parsed = int.tryParse(controller.text.trim());
                 if (parsed == null || parsed < 1) {
@@ -79,7 +90,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 }
                 Navigator.of(dialogContext).pop(parsed);
               },
-              child: Text(slang.t.common.confirm),
             ),
           ],
         );
@@ -99,87 +109,91 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   };
 
   void _showLanguageDialog(BuildContext context, ConfigService configService) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(slang.t.settings.language),
-          content: SizedBox(
-            width: double.minPositive,
-            child: Obx(
-              () => RadioGroup<String>(
-                groupValue: configService[ConfigKey.APPLICATION_LOCALE],
-                onChanged: (String? value) async {
-                  if (value != null) {
-                    // 更新配置
-                    configService.updateApplicationLocale(value);
+    showAppDialog(
+      Builder(
+        builder: (context) {
+          return GlassAlertDialog(
+            title: slang.t.settings.language,
+            content: SizedBox(
+              width: double.minPositive,
+              child: Obx(
+                () => RadioGroup<String>(
+                  groupValue: configService[ConfigKey.APPLICATION_LOCALE],
+                  onChanged: (String? value) async {
+                    if (value != null) {
+                      // 更新配置
+                      configService.updateApplicationLocale(value);
 
-                    // 立即切换语言
-                    if (value == 'system') {
-                      slang.LocaleSettings.useDeviceLocale();
-                    } else {
-                      // 根据语言代码找到对应的 AppLocale
-                      slang.AppLocale? targetLocale;
-                      for (final locale in slang.AppLocale.values) {
-                        if (locale.languageTag.toLowerCase() ==
-                            value.toLowerCase()) {
-                          targetLocale = locale;
-                          break;
+                      // 立即切换语言
+                      if (value == 'system') {
+                        slang.LocaleSettings.useDeviceLocale();
+                      } else {
+                        // 根据语言代码找到对应的 AppLocale
+                        slang.AppLocale? targetLocale;
+                        for (final locale in slang.AppLocale.values) {
+                          if (locale.languageTag.toLowerCase() ==
+                              value.toLowerCase()) {
+                            targetLocale = locale;
+                            break;
+                          }
+                        }
+                        if (targetLocale != null) {
+                          slang.LocaleSettings.setLocale(targetLocale);
                         }
                       }
-                      if (targetLocale != null) {
-                        slang.LocaleSettings.setLocale(targetLocale);
+
+                      // 强制刷新整个应用界面
+                      Get.forceAppUpdate();
+
+                      Navigator.of(context).pop();
+
+                      String message;
+                      String localeKey = value;
+                      if (localeKey == 'system') {
+                        // 获取设备语言，但确保是我们支持的语言
+                        String deviceLocale = CommonUtils.getDeviceLocale();
+                        // 检查设备语言是否在我们的支持列表中
+                        if (_languageChangedMessages.containsKey(
+                          deviceLocale,
+                        )) {
+                          localeKey = deviceLocale;
+                        } else {
+                          // 如果不支持，使用英语作为默认
+                          localeKey = 'en';
+                        }
                       }
+
+                      message =
+                          _languageChangedMessages[localeKey] ??
+                          _languageChangedMessages['en']!;
+
+                      showGlassToast(message, type: GlassToastType.success);
                     }
-
-                    // 强制刷新整个应用界面
-                    Get.forceAppUpdate();
-
-                    Navigator.of(context).pop();
-
-                    String message;
-                    String localeKey = value;
-                    if (localeKey == 'system') {
-                      // 获取设备语言，但确保是我们支持的语言
-                      String deviceLocale = CommonUtils.getDeviceLocale();
-                      // 检查设备语言是否在我们的支持列表中
-                      if (_languageChangedMessages.containsKey(deviceLocale)) {
-                        localeKey = deviceLocale;
-                      } else {
-                        // 如果不支持，使用英语作为默认
-                        localeKey = 'en';
-                      }
-                    }
-
-                    message =
-                        _languageChangedMessages[localeKey] ??
-                        _languageChangedMessages['en']!;
-
-                    showGlassToast(message, type: GlassToastType.success);
-                  }
-                },
-                child: ListView(
-                  shrinkWrap: true,
-                  children: _languageOptions.entries.map((entry) {
-                    return RadioListTile<String>(
-                      title: Text(entry.value),
-                      value: entry.key,
-                    );
-                  }).toList(),
+                  },
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: _languageOptions.entries.map((entry) {
+                      return RadioListTile<String>(
+                        title: Text(entry.value),
+                        value: entry.key,
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(slang.t.common.cancel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+            actions: <GlassDialogAction>[
+              GlassDialogAction(
+                label: slang.t.common.cancel,
+                emphasized: false,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -196,8 +210,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(slang.t.settings.exportConfig),
+            return GlassAlertDialog(
+              title: slang.t.settings.exportConfig,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,13 +232,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ],
               ),
               actions: [
-                TextButton(
+                GlassDialogAction(
+                  label: slang.t.common.cancel,
+                  emphasized: false,
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(slang.t.common.cancel),
                 ),
-                TextButton(
+                GlassDialogAction(
+                  label: slang.t.settings.exportConfig,
                   onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: Text(slang.t.settings.exportConfig),
                 ),
               ],
             );
@@ -250,17 +265,18 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.importConfig),
+        return GlassAlertDialog(
+          title: slang.t.settings.importConfig,
           content: Text(slang.t.settings.importConfigOverwriteWarning),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.cancel,
+              emphasized: false,
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(slang.t.common.cancel),
             ),
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.settings.importConfig,
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(slang.t.settings.importConfig),
             ),
           ],
         );
@@ -287,13 +303,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(slang.t.settings.importConfigRestartTitle),
+        return GlassAlertDialog(
+          title: slang.t.settings.importConfigRestartTitle,
           content: Text(slang.t.settings.importConfigRestartContent),
           actions: [
-            TextButton(
+            GlassDialogAction(
+              label: slang.t.common.confirm,
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(slang.t.common.confirm),
             ),
           ],
         );
@@ -330,7 +346,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(slang.t.settings.autoRecordHistory),
                         subtitle: Text(slang.t.settings.autoRecordHistoryDesc),
                         value: configService[ConfigKey.AUTO_RECORD_HISTORY_KEY],
@@ -349,7 +365,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           configService[ConfigKey.AUTO_DELETE_HISTORY_DAYS];
                       return Column(
                         children: [
-                          SwitchListTile(
+                          GlassSwitchItem(
                             title: Text(slang.t.settings.autoDeleteHistory),
                             subtitle: Text(
                               slang.t.settings.autoDeleteHistoryDesc,
@@ -360,14 +376,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                       .AUTO_DELETE_HISTORY_ENABLED] =
                                   value;
                             },
-                            shape: enabled
-                                ? null
-                                : const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.only(
-                                      bottomLeft: Radius.circular(16),
-                                      bottomRight: Radius.circular(16),
-                                    ),
-                                  ),
                           ),
                           if (enabled)
                             ListTile(
@@ -416,7 +424,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(
                           slang.t.settings.activeBackgroundPrivacyMode,
                         ),
@@ -431,12 +439,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   .ACTIVE_BACKGROUND_PRIVACY_MODE] =
                               value;
                         },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -461,7 +463,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       ),
                       const Divider(height: 1),
                       Obx(
-                        () => SwitchListTile(
+                        () => GlassSwitchItem(
                           title: Text(slang.t.settings.enableVibration),
                           subtitle: Text(slang.t.settings.enableVibrationDesc),
                           value: configService[ConfigKey.ENABLE_VIBRATION],
@@ -469,12 +471,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             configService[ConfigKey.ENABLE_VIBRATION] = value;
                             CommonConstants.enableVibration = value;
                           },
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(16),
-                              bottomRight: Radius.circular(16),
-                            ),
-                          ),
                         ),
                       ),
                     ],
@@ -588,7 +584,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                     ),
                     const Divider(height: 1),
                     Obx(
-                      () => SwitchListTile(
+                      () => GlassSwitchItem(
                         title: Text(
                           slang.t.settings.showUnprocessedMarkdownText,
                         ),
@@ -603,12 +599,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   .SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY] =
                               value;
                         },
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(16),
-                            bottomRight: Radius.circular(16),
-                          ),
-                        ),
                       ),
                     ),
                   ],

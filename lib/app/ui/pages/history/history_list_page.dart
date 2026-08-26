@@ -9,12 +9,16 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
@@ -237,6 +241,7 @@ class _HistoryListPageState extends State<HistoryListPage>
       headerTop: statusBarHeight,
       headerHeight: headerHeight,
       solidExtent: statusBarHeight,
+      liquid: true,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.depth == 0 &&
@@ -344,7 +349,6 @@ class _HistoryListPageState extends State<HistoryListPage>
                 color: GlassTokens.stroke(colorScheme),
                 width: GlassTokens.strokeWidth,
               ),
-              boxShadow: GlassTokens.shadow(colorScheme),
             ),
       child: TextField(
         controller: _searchController,
@@ -438,61 +442,51 @@ class _HistoryListPageState extends State<HistoryListPage>
           // 窄屏胶囊塞不下五个键，分页切换与清空历史收进这里
           GlassGroupSlot(
             visible: !isWide,
-            child: SizedBox(
-              width: GlassTokens.groupIconButtonSize,
-              height: GlassTokens.groupIconButtonSize,
-              child: PopupMenuButton<String>(
-                padding: EdgeInsets.zero,
-                icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-                position: PopupMenuPosition.under,
-                // 往下挪一点，别压住玻璃胶囊本身
-                offset: const Offset(0, 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onSelected: (value) {
-                  switch (value) {
-                    case _menuActionTogglePagination:
-                      _togglePaginationMode();
-                    case _menuActionClear:
-                      _showClearHistoryDialog();
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    value: _menuActionTogglePagination,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _isPaginated ? Icons.grid_view : Icons.view_stream,
-                        ),
-                        const SizedBox(width: 12),
-                        // 文案与图标一致：显示将要切换到的模式
-                        Text(
-                          _isPaginated
-                              ? t.common.pagination.waterfall
-                              : t.common.pagination.pagination,
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: _menuActionClear,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete_sweep),
-                        const SizedBox(width: 12),
-                        Text(t.common.clearAllHistory),
-                      ],
-                    ),
-                  ),
-                ],
+            child: Builder(
+              builder: (anchorContext) => GlassIconButton(
+                icon: const Icon(Icons.more_vert),
+                tooltip: t.common.more,
+                // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+                // 松手选中（见 GlassTapArea.opensOverlay）。
+                opensOverlay: true,
+                onPressed: () => _openMoreMenu(anchorContext),
               ),
             ),
           ),
         ],
       );
     });
+  }
+
+  /// 窄屏「更多」菜单：分页切换 + 清空历史。
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption(
+          value: _menuActionTogglePagination,
+          icon: _isPaginated ? Icons.grid_view : Icons.view_stream,
+          // 文案与图标一致：显示将要切换到的模式
+          label: _isPaginated
+              ? t.common.pagination.waterfall
+              : t.common.pagination.pagination,
+        ),
+        GlassMenuOption(
+          value: _menuActionClear,
+          icon: Icons.delete_sweep,
+          label: t.common.clearAllHistory,
+          destructive: true,
+        ),
+      ],
+    );
+    if (picked == null) return;
+    switch (picked) {
+      case _menuActionTogglePagination:
+        _togglePaginationMode();
+      case _menuActionClear:
+        _showClearHistoryDialog();
+    }
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
@@ -506,22 +500,14 @@ class _HistoryListPageState extends State<HistoryListPage>
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -749,21 +735,6 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(BuildContext context, String title) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: slang.t.common.close,
-          onPressed: () => AppService.tryPop(),
-        ),
-      ],
-    );
-  }
-
   Future<void> _selectDateRange() async {
     final controller = _currentController;
     final DateTimeRange? picked = await showDateRangePicker(
@@ -784,10 +755,13 @@ class _HistoryListPageState extends State<HistoryListPage>
     _notifyFilterChanged();
   }
 
+  /// 打开右侧「筛选」抽屉。与全站其它筛选入口同一只抽屉、同一套手势；
+  /// 这里本来就没有确认钮，改动一直是即时生效的。
   void _showFilterSheet() {
     final controller = _currentController;
-    showAppBottomSheet(
-      _FilterSheet(
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (_) => _HistoryFilterDrawer(
         controller: controller,
         onSelectDateRange: _selectDateRange,
         onClearDateRange: _clearDateRange,
@@ -797,7 +771,6 @@ class _HistoryListPageState extends State<HistoryListPage>
         },
         onDeleteRange: () => _confirmDeleteSelectedRange(controller),
       ),
-      isScrollControlled: true,
     );
   }
 
@@ -815,25 +788,27 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
     if (!mounted) return;
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
+      GlassAlertDialog(
+        title: slang.t.common.confirmDelete,
         content: Text(
           slang.t.common.deleteRecordsInDateRangeConfirm(num: count),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.delete,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               AppService.tryPop(); // 关闭确认框
               await controller.deleteRecordsInSelectedRange();
               _notifyFilterChanged();
               AppService.tryPop(); // 关闭筛选面板
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
           ),
         ],
       ),
@@ -845,17 +820,21 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryListController controller,
   ) {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.confirmDelete),
+      GlassAlertDialog(
+        title: slang.t.common.confirmDelete,
         content: Text(
           slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.delete,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               AppService.tryPop();
               await controller.historyDatabaseRepository.deleteRecord(
@@ -868,8 +847,6 @@ class _HistoryListPageState extends State<HistoryListPage>
                 type: GlassToastType.success,
               );
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.delete),
           ),
         ],
       ),
@@ -914,22 +891,24 @@ class _HistoryListPageState extends State<HistoryListPage>
     final itemType = controller.itemType;
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.clearAllHistory),
+      GlassAlertDialog(
+        title: slang.t.common.clearAllHistory,
         content: Text(slang.t.common.clearAllHistoryConfirm),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () async {
               await controller.clearHistoryByType(itemType);
               _notifyFilterChanged();
               AppService.tryPop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(slang.t.common.confirm),
           ),
         ],
       ),
@@ -938,8 +917,13 @@ class _HistoryListPageState extends State<HistoryListPage>
 }
 
 /// 筛选面板：排序开关 + 时间区间 + 按区间删除。
-class _FilterSheet extends StatelessWidget {
-  const _FilterSheet({
+/// 历史记录的筛选抽屉：排序（创建/更新时间）· 时间范围 · 按范围删除。
+///
+/// 2026-08-26 从底部弹窗改成右侧抽屉，与全站其它筛选入口收口到同一只
+/// [showGlassSideDrawer]。这里本来就没有确认钮——每一项都直接写进 controller，
+/// 与新抽屉「改动即时生效」的约定天然一致。
+class _HistoryFilterDrawer extends StatelessWidget {
+  const _HistoryFilterDrawer({
     required this.controller,
     required this.onSelectDateRange,
     required this.onClearDateRange,
@@ -958,122 +942,102 @@ class _FilterSheet extends StatelessWidget {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          // 底部一律走统一入口，别自己拼 viewInsets + 安全区
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 16,
-            top: 12,
-            bottom: computeSheetBottomInset(context) + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 标题行：标题 + 玻璃关闭圆钮
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.common.selectDateRange,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                    onPressed: () => AppService.tryPop(),
-                  ),
-                ],
+    return Obx(() {
+      final dateRange = controller.selectedDateRange.value;
+      return GlassFilterDrawerShell(
+        title: t.searchFilter.filterSettings,
+        subtitle: t.searchFilter.drawerSubtitle,
+        // 这里能「重置」的只有时间范围：排序总得选一个，没有「无排序」这一档
+        onReset: dateRange == null ? null : onClearDateRange,
+        children: [
+          GlassFilterSection(
+            title: t.common.sort,
+            child: GlassSwitchItem(
+              icon: Icons.swap_vert,
+              title: Text(
+                controller.orderByUpdated.value
+                    ? t.common.updatedAt
+                    : t.common.publishedAt,
               ),
-              const SizedBox(height: 8),
-              // 排序开关：创建时间/更新时间（倒序）
-              Obx(
-                () => SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    controller.orderByUpdated.value
-                        ? t.common.updatedAt
-                        : t.common.publishedAt,
+              subtitle: const Text('(DESC)'),
+              value: controller.orderByUpdated.value,
+              onChanged: onOrderChanged,
+            ),
+          ),
+          GlassFilterSection(
+            title: t.common.selectDateRange,
+            actions: [
+              if (dateRange != null)
+                IconButton(
+                  tooltip: t.common.clearDateRange,
+                  icon: const Icon(Icons.clear, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
                   ),
-                  subtitle: const Text('(DESC)'),
-                  value: controller.orderByUpdated.value,
-                  onChanged: onOrderChanged,
-                  secondary: const Icon(Icons.swap_vert),
+                  onPressed: onClearDateRange,
                 ),
-              ),
-              const SizedBox(height: 8),
-              // 时间区间：按钮一行 + 结果单独下一行
-              Obx(() {
-                final dateRange = controller.selectedDateRange.value;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(t.common.selectDateRange)),
-                        if (dateRange != null)
-                          IconButton(
-                            tooltip: t.common.clearDateRange,
-                            icon: const Icon(Icons.clear),
-                            onPressed: onClearDateRange,
-                          ),
-                        FilledButton(
-                          onPressed: onSelectDateRange,
-                          child: Text(t.common.selectDateRange),
-                        ),
-                      ],
-                    ),
-                    if (dateRange != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, left: 32),
+            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GlassSurface(
+                  height: null,
+                  borderRadius: BorderRadius.circular(16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  onTap: onSelectDateRange,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.date_range,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
                         child: Text(
-                          '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          dateRange == null
+                              ? t.common.selectDateRange
+                              : '${CommonUtils.formatDate(dateRange.start)} - '
+                                    '${CommonUtils.formatDate(dateRange.end)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: dateRange == null
+                                ? colorScheme.onSurfaceVariant
+                                : colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                  ],
-                );
-              }),
-              const SizedBox(height: 16),
-              // 删除当前所选时间范围内的历史记录（仅在已选范围时可用）
-              Obx(() {
-                final hasRange = controller.selectedDateRange.value != null;
-                final errorColor = colorScheme.error;
-                return SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: hasRange ? onDeleteRange : null,
-                    icon: const Icon(Icons.delete_sweep),
-                    label: Text(t.common.deleteRecordsInDateRange),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: errorColor,
-                      side: BorderSide(
-                        color: hasRange
-                            ? errorColor.withValues(alpha: 0.5)
-                            : Theme.of(
-                                context,
-                              ).disabledColor.withValues(alpha: 0.3),
-                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // 按当前所选时间范围删除历史（没选范围时不可用）
+                OutlinedButton.icon(
+                  onPressed: dateRange == null ? null : onDeleteRange,
+                  icon: const Icon(Icons.delete_sweep),
+                  label: Text(t.common.deleteRecordsInDateRange),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colorScheme.error,
+                    side: BorderSide(
+                      color: dateRange != null
+                          ? colorScheme.error.withValues(alpha: 0.5)
+                          : Theme.of(
+                              context,
+                            ).disabledColor.withValues(alpha: 0.3),
                     ),
                   ),
-                );
-              }),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ],
+      );
+    });
   }
 }

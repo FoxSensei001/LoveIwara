@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -16,24 +17,6 @@ import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-
-/// 底部弹窗顶部拖拽把手，与 comment_actions_sheet / BaseBottomSheetInput 同款。
-Widget _buildSheetDragHandle(BuildContext context) {
-  return Center(
-    child: Container(
-      margin: const EdgeInsets.only(top: 10, bottom: 2),
-      width: 40,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(2),
-      ),
-    ),
-  );
-}
 
 class NewConversationDialog extends StatefulWidget {
   const NewConversationDialog({super.key, this.initUserId, this.onSubmit});
@@ -88,10 +71,10 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   }
 
   void _showEmojiPicker() {
-    showModalBottomSheet(
+    // 走 showGlassBottomSheet 而不是裸 showModalBottomSheet：液态档供在那条
+    // 路由上，裸开的弹层里所有玻璃件都会静默落回传统档。
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
         onEmojiSelected: (imageUrl, size) {
@@ -133,21 +116,15 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
     bool showOriginal =
         Get.find<ConfigService>()[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
     bool hasProcessed = false;
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        expand: false,
         builder: (context, scrollController) => StatefulBuilder(
           builder: (context, setSheetState) => Column(
             children: [
-              _buildSheetDragHandle(context),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
                 child: GlassComposerHeader(
@@ -166,12 +143,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: EdgeInsets.fromLTRB(
-                    16.0,
-                    16.0,
-                    16.0,
-                    16.0 + computeSheetBottomInset(context),
-                  ),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -197,27 +169,21 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   }
 
   void _showMarkdownHelp() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
 
   void _showUserSearch() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        expand: false,
         builder: (context, scrollController) => _UserSearchSheet(
+          scrollController: scrollController,
           onUserSelected: (user) {
             setState(() {
               _selectedUser = user;
@@ -336,10 +302,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                                 )
                               : Row(
                                   children: [
-                                    AvatarWidget(
-                                      user: _selectedUser,
-                                      size: 40,
-                                    ),
+                                    AvatarWidget(user: _selectedUser, size: 40),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
@@ -435,8 +398,12 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
 
 class _UserSearchSheet extends StatefulWidget {
   final Function(User) onUserSelected;
+  final ScrollController scrollController;
 
-  const _UserSearchSheet({required this.onUserSelected});
+  const _UserSearchSheet({
+    required this.onUserSelected,
+    required this.scrollController,
+  });
 
   @override
   State<_UserSearchSheet> createState() => _UserSearchSheetState();
@@ -506,7 +473,6 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildSheetDragHandle(context),
         Padding(
           padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 12.0),
           child: GlassComposerHeader(
@@ -540,9 +506,7 @@ class _UserSearchSheetState extends State<_UserSearchSheet> {
         else
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.only(
-                bottom: computeSheetBottomInset(context),
-              ),
+              controller: widget.scrollController,
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
                 final user = _searchResults[index];

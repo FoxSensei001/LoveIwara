@@ -765,6 +765,16 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください';
 	@override String get themeMode => 'テーマモード';
 	@override String get themeModeDesc => 'この設定はアプリのテーマモードを決定します';
+	@override String get glassEffect => 'ガラスの質感';
+	@override String get glassEffectDesc => 'すべてのガラス要素（ヘッダーのカプセル、フローティングタブバー、メニュー、ダイアログのボタン）に使う素材を決めます';
+	@override String get liquidGlassEffect => 'リキッドガラス';
+	@override String get liquidGlassEffectDesc => '本物のぼかしと屈折を使う素材。見た目は最高ですが、低スペック端末ではコマ落ちや電池消費が増えることがあります';
+	@override String get plainGlassEffect => '軽量な半透明';
+	@override String get plainGlassEffectDesc => '半透明の下地と輪郭線だけでぼかしなし。動作と電池持ちが最も良好です';
+	@override String get glassEffectIntroTitle => '新しいガラスの質感を試す';
+	@override String get glassEffectIntroContent => 'このバージョンからヘッダー・タブバー・メニューがリキッドガラス（本物のぼかしと屈折）になりました。端末で重いと感じる場合やシンプルな見た目が好みなら、今すぐ軽量な半透明に切り替えられます。';
+	@override String get glassEffectIntroHint => '後からでも「設定 → テーマ設定 → ガラスの質感」でいつでも変更できます。';
+	@override String get glassEffectIntroDone => 'これでOK';
 	@override String get dynamicColor => 'ダイナミックカラー';
 	@override String get dynamicColorDesc => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します';
 	@override String get useDynamicColor => 'ダイナミックカラーを使用';
@@ -1320,6 +1330,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get allStatus => 'すべてのステータス';
 	@override String typeLabel({required Object label}) => 'タイプ: ${label}';
 	@override String get allTypes => 'すべてのタイプ';
+	@override String get taskType => '種類';
 	@override String get video => '動画';
 	@override String get gallery => 'ギャラリー';
 	@override String get other => 'その他';
@@ -2081,6 +2092,7 @@ class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
 	@override String get forumPosts => 'フォーラム投稿';
 	@override String get playlists => 'プレイリスト';
 	@override late final _TranslationsSearchFilterSortTypesJa sortTypes = _TranslationsSearchFilterSortTypesJa._(_root);
+	@override String get drawerSubtitle => '変更は即時反映されます';
 }
 
 // Path: firstTimeSetup
@@ -4027,6 +4039,16 @@ extension on TranslationsJa {
 			'settings.defaultBrowserDesc' => 'システム設定でデフォルトリンク設定項目を開き、iwara.tvサイトリンクを追加してください',
 			'settings.themeMode' => 'テーマモード',
 			'settings.themeModeDesc' => 'この設定はアプリのテーマモードを決定します',
+			'settings.glassEffect' => 'ガラスの質感',
+			'settings.glassEffectDesc' => 'すべてのガラス要素（ヘッダーのカプセル、フローティングタブバー、メニュー、ダイアログのボタン）に使う素材を決めます',
+			'settings.liquidGlassEffect' => 'リキッドガラス',
+			'settings.liquidGlassEffectDesc' => '本物のぼかしと屈折を使う素材。見た目は最高ですが、低スペック端末ではコマ落ちや電池消費が増えることがあります',
+			'settings.plainGlassEffect' => '軽量な半透明',
+			'settings.plainGlassEffectDesc' => '半透明の下地と輪郭線だけでぼかしなし。動作と電池持ちが最も良好です',
+			'settings.glassEffectIntroTitle' => '新しいガラスの質感を試す',
+			'settings.glassEffectIntroContent' => 'このバージョンからヘッダー・タブバー・メニューがリキッドガラス（本物のぼかしと屈折）になりました。端末で重いと感じる場合やシンプルな見た目が好みなら、今すぐ軽量な半透明に切り替えられます。',
+			'settings.glassEffectIntroHint' => '後からでも「設定 → テーマ設定 → ガラスの質感」でいつでも変更できます。',
+			'settings.glassEffectIntroDone' => 'これでOK',
 			'settings.dynamicColor' => 'ダイナミックカラー',
 			'settings.dynamicColorDesc' => 'この設定はアプリがダイナミックカラーを使用するかどうかを決定します',
 			'settings.useDynamicColor' => 'ダイナミックカラーを使用',
@@ -4451,6 +4473,8 @@ extension on TranslationsJa {
 			'oreno3d.errors.serverError' => 'サーバー内部エラー',
 			'oreno3d.errors.serviceUnavailable' => 'サービスが一時的に利用できません',
 			'oreno3d.errors.requestCancelled' => 'リクエストがキャンセルされました',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionError' => 'ネットワーク接続エラー、ネットワーク設定を確認してください',
 			'oreno3d.errors.networkRequestFailed' => 'ネットワークリクエストが失敗しました',
 			'oreno3d.errors.searchVideoError' => '動画検索中に不明なエラーが発生しました',
@@ -4461,8 +4485,6 @@ extension on TranslationsJa {
 			'oreno3d.loading.gettingVideoInfo' => '動画情報を取得中...',
 			'oreno3d.loading.cancel' => 'キャンセル',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '動画が見つからないか削除されました',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => '動画再生リンクを取得できません',
 			'oreno3d.messages.getVideoDetailFailed' => '動画詳細の取得に失敗しました',
 			'signIn.pleaseLoginFirst' => 'サインインする前にログインしてください',
@@ -4944,6 +4966,7 @@ extension on TranslationsJa {
 			'download.allStatus' => 'すべてのステータス',
 			'download.typeLabel' => ({required Object label}) => 'タイプ: ${label}',
 			'download.allTypes' => 'すべてのタイプ',
+			'download.taskType' => '種類',
 			'download.video' => '動画',
 			'download.gallery' => 'ギャラリー',
 			'download.other' => 'その他',
@@ -4964,6 +4987,8 @@ extension on TranslationsJa {
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
+			_ => null,
+		} ?? switch (path) {
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
 			'download.deleteByDate.dialogTitle' => '日付で削除',
@@ -4975,8 +5000,6 @@ extension on TranslationsJa {
 			'download.deleteByDate.notSet' => '未設定',
 			'download.deleteByDate.daysUnit' => '日',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '${days}日前より古いタスクを削除',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.noMatch' => '条件に一致するタスクがありません',
 			'download.deleteByDate.invalidRange' => '開始日は終了日以前にしてください',
 			'download.deleteByDate.confirmTitle' => '削除の確認',
@@ -5478,6 +5501,8 @@ extension on TranslationsJa {
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
 			'emoji.preview' => '絵文字プレビュー',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.library' => '絵文字ライブラリ',
 			'emoji.noEmojis' => '絵文字がありません',
 			'emoji.clickToAddEmojis' => '右上のボタンをクリックして絵文字を追加',
@@ -5489,8 +5514,6 @@ extension on TranslationsJa {
 			'emoji.close' => '閉じる',
 			'emoji.deleteImage' => '画像を削除',
 			'emoji.confirmDeleteImage' => 'この画像を削除してもよろしいですか？',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.cancel' => 'キャンセル',
 			'emoji.batchDelete' => '一括削除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
@@ -5687,6 +5710,7 @@ extension on TranslationsJa {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '視聴回数',
 			'searchFilter.sortTypes.likes' => 'いいね数',
+			'searchFilter.drawerSubtitle' => '変更は即時反映されます',
 			'firstTimeSetup.welcome.title' => 'ようこそ',
 			'firstTimeSetup.welcome.subtitle' => 'パーソナライズ設定を始めましょう',
 			'firstTimeSetup.welcome.description' => '数ステップで最適な体験を提供します',

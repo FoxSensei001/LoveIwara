@@ -10,8 +10,10 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -127,6 +129,7 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
   ) {
     final t = slang.Translations.of(context);
     return GlassHeaderOverlay(
+      liquid: true,
       headerExtent: headerExtent,
       headerTop: statusBarHeight,
       solidExtent: statusBarHeight,
@@ -164,27 +167,33 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             const SizedBox(width: 8),
             // 选择态下标题胶囊改报「已选 N 项」：单壳常驻、只换内容
             Expanded(
-              child: Obx(
-                () => GlassCapsuleMorph(
-                  child: controller.isMultiSelect.value
-                      ? SizedBox(
-                          key: const ValueKey('selection'),
-                          width: 168,
-                          child: GlassSelectionSummary(
-                            selectedCount: controller.selectedVideos.length,
-                            allSelected: false,
-                            onToggleAll: null,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                // 不套 Align 的话 Expanded 给的是紧约束，胶囊会被撑满整个
+                // 中间区域而不是抱住标题文字（对齐 my_favorites / author_profile
+                // 等页同款胶囊的写法）。
+                child: Obx(
+                  () => GlassCapsuleMorph(
+                    child: controller.isMultiSelect.value
+                        ? SizedBox(
+                            key: const ValueKey('selection'),
+                            width: 168,
+                            child: GlassSelectionSummary(
+                              selectedCount: controller.selectedVideos.length,
+                              allSelected: false,
+                              onToggleAll: null,
+                            ),
+                          )
+                        : KeyedSubtree(
+                            key: const ValueKey('title'),
+                            child: GlassTitlePill(
+                              flat: true,
+                              title: controller.playlistTitle.value.isEmpty
+                                  ? null
+                                  : controller.playlistTitle.value,
+                            ),
                           ),
-                        )
-                      : KeyedSubtree(
-                          key: const ValueKey('title'),
-                          child: GlassTitlePill(
-                            flat: true,
-                            title: controller.playlistTitle.value.isEmpty
-                                ? null
-                                : controller.playlistTitle.value,
-                          ),
-                        ),
+                  ),
                 ),
               ),
             ),
@@ -232,86 +241,67 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
             tooltip: t.common.refresh,
             onPressed: _refreshList,
           ),
-          SizedBox(
-            width: GlassTokens.groupIconButtonSize,
-            height: GlassTokens.groupIconButtonSize,
-            child: PopupMenuButton<_PlaylistDetailMenuAction>(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-              position: PopupMenuPosition.under,
-              // 往下挪一点，别压住玻璃胶囊本身
-              offset: const Offset(0, 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              onSelected: (action) {
-                switch (action) {
-                  case _PlaylistDetailMenuAction.editTitle:
-                    _showEditTitleDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.deletePlaylist:
-                    _showDeleteCurPlaylistConfirmDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.share:
-                    _showShareDialog();
-                    break;
-                  case _PlaylistDetailMenuAction.copyLink:
-                    _copyPlaylistLink();
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                if (widget.isMine)
-                  PopupMenuItem(
-                    value: _PlaylistDetailMenuAction.editTitle,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.edit),
-                        const SizedBox(width: 12),
-                        Text(t.common.editTitle),
-                      ],
-                    ),
-                  ),
-                if (widget.isMine)
-                  PopupMenuItem(
-                    value: _PlaylistDetailMenuAction.deletePlaylist,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.delete, color: Colors.red),
-                        const SizedBox(width: 12),
-                        Text(
-                          t.common.delete,
-                          style: const TextStyle(color: Colors.red),
-                        ),
-                      ],
-                    ),
-                  ),
-                PopupMenuItem(
-                  value: _PlaylistDetailMenuAction.share,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.share),
-                      const SizedBox(width: 12),
-                      Text(t.common.share),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _PlaylistDetailMenuAction.copyLink,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.copy),
-                      const SizedBox(width: 12),
-                      Text(t.galleryDetail.copyLink),
-                    ],
-                  ),
-                ),
-              ],
+          Builder(
+            builder: (anchorContext) => GlassIconButton(
+              icon: const Icon(Icons.more_vert),
+              tooltip: t.common.more,
+              // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+              // 松手选中（见 GlassTapArea.opensOverlay）。
+              opensOverlay: true,
+              onPressed: () => _openMoreMenu(anchorContext),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// 「更多」菜单：编辑标题 / 删除播放列表（均仅自己的列表）· 分享 · 复制链接。
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final action = await showGlassMenu<_PlaylistDetailMenuAction>(
+      anchorContext: anchorContext,
+      entries: [
+        if (widget.isMine)
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.editTitle,
+            icon: Icons.edit,
+            label: t.common.editTitle,
+          ),
+        if (widget.isMine)
+          GlassMenuOption(
+            value: _PlaylistDetailMenuAction.deletePlaylist,
+            icon: Icons.delete,
+            label: t.common.delete,
+            destructive: true,
+          ),
+        GlassMenuOption(
+          value: _PlaylistDetailMenuAction.share,
+          icon: Icons.share,
+          label: t.common.share,
+        ),
+        GlassMenuOption(
+          value: _PlaylistDetailMenuAction.copyLink,
+          icon: Icons.copy,
+          label: t.galleryDetail.copyLink,
+        ),
+      ],
+    );
+    if (action == null) return;
+    switch (action) {
+      case _PlaylistDetailMenuAction.editTitle:
+        _showEditTitleDialog();
+        break;
+      case _PlaylistDetailMenuAction.deletePlaylist:
+        _showDeleteCurPlaylistConfirmDialog();
+        break;
+      case _PlaylistDetailMenuAction.share:
+        _showShareDialog();
+        break;
+      case _PlaylistDetailMenuAction.copyLink:
+        _copyPlaylistLink();
+        break;
+    }
   }
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
@@ -325,22 +315,14 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -431,37 +413,20 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  Widget _dialogTitleRow(
-    BuildContext context,
-    String title, {
-    bool enabled = true,
-  }) {
-    final t = slang.Translations.of(context);
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: enabled ? () => AppService.tryPop() : null,
-        ),
-      ],
-    );
-  }
-
   void _showShareDialog() {
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.share),
+      GlassAlertDialog(
+        title: slang.t.common.share,
         content: Text(slang.t.common.areYouSureYouWantToShareThisPlaylist),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.share,
+            emphasized: false,
             onPressed: () {
               AppService.tryPop();
               ShareService.sharePlayListDetail(
@@ -469,7 +434,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                 controller.playlistTitle.value,
               );
             },
-            child: Text(slang.t.common.share),
           ),
         ],
       ),
@@ -504,8 +468,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
 
     showAppDialog(
-      AlertDialog(
-        title: _dialogTitleRow(context, slang.t.common.editTitle),
+      GlassAlertDialog(
+        title: slang.t.common.editTitle,
         content: TextField(
           controller: textController,
           decoration: InputDecoration(
@@ -515,18 +479,19 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           autofocus: true,
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.cancel,
+            emphasized: false,
             onPressed: () => AppService.tryPop(),
-            child: Text(slang.t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: slang.t.common.save,
             onPressed: () {
               if (textController.text.trim().isNotEmpty) {
                 controller.editTitle(textController.text.trim());
                 AppService.tryPop();
               }
             },
-            child: Text(slang.t.common.save),
           ),
         ],
       ),
@@ -577,23 +542,24 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       Obx(
         () => PopScope(
           canPop: !isLoading.value,
-          child: AlertDialog(
-            title: _dialogTitleRow(
-              context,
-              slang.t.common.confirmDelete,
-              enabled: !isLoading.value,
-            ),
+          child: GlassAlertDialog(
+            title: slang.t.common.confirmDelete,
+            showCloseButton: !isLoading.value,
             content: Text(
               slang.t.favorite.removeItemConfirmWithTitle(
                 title: controller.playlistTitle.value,
               ),
             ),
             actions: [
-              TextButton(
+              GlassDialogAction(
+                label: slang.t.common.cancel,
+                emphasized: false,
                 onPressed: isLoading.value ? null : () => AppService.tryPop(),
-                child: Text(slang.t.common.cancel),
               ),
-              TextButton(
+              GlassDialogAction(
+                label: slang.t.common.delete,
+                destructive: true,
+                loading: isLoading.value,
                 onPressed: isLoading.value
                     ? null
                     : () async {
@@ -609,14 +575,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
                         }
                         isLoading.value = false;
                       },
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: isLoading.value
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : Text(slang.t.common.delete),
               ),
             ],
           ),

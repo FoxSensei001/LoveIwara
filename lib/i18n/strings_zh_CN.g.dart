@@ -765,6 +765,16 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get defaultBrowserDesc => '请在系统设置中打开默认链接配置项，并添加网站链接';
 	@override String get themeMode => '主题模式';
 	@override String get themeModeDesc => '此配置决定应用的主题模式';
+	@override String get glassEffect => '玻璃质感';
+	@override String get glassEffectDesc => '决定全局玻璃控件（顶栏胶囊、浮动底栏、菜单、弹窗按钮）用哪种材质';
+	@override String get liquidGlassEffect => '液态玻璃';
+	@override String get liquidGlassEffectDesc => '真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电';
+	@override String get plainGlassEffect => '轻量半透明';
+	@override String get plainGlassEffectDesc => '只用半透明底色与描边、不做模糊，性能与续航最好';
+	@override String get glassEffectIntroTitle => '试试新的玻璃质感';
+	@override String get glassEffectIntroContent => '这一版的顶栏、底栏和菜单换成了液态玻璃（真实的模糊与折射）。如果设备上觉得卡或更喜欢简洁，可以现在换成轻量半透明。';
+	@override String get glassEffectIntroHint => '以后随时可以在「设置 → 主题设置 → 玻璃质感」里改。';
+	@override String get glassEffectIntroDone => '就这样';
 	@override String get dynamicColor => '动态颜色';
 	@override String get dynamicColorDesc => '此配置决定应用是否使用动态颜色';
 	@override String get useDynamicColor => '使用动态颜色';
@@ -1319,6 +1329,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get allStatus => '所有状态';
 	@override String typeLabel({required Object label}) => '类型: ${label}';
 	@override String get allTypes => '所有类型';
+	@override String get taskType => '类型';
 	@override String get video => '视频';
 	@override String get gallery => '图库';
 	@override String get other => '其他';
@@ -2081,6 +2092,7 @@ class _TranslationsSearchFilterZhCn implements TranslationsSearchFilterEn {
 	@override String get forumPosts => '论坛帖子';
 	@override String get playlists => '播放列表';
 	@override late final _TranslationsSearchFilterSortTypesZhCn sortTypes = _TranslationsSearchFilterSortTypesZhCn._(_root);
+	@override String get drawerSubtitle => '改动即时生效';
 }
 
 // Path: firstTimeSetup
@@ -4027,6 +4039,16 @@ extension on TranslationsZhCn {
 			'settings.defaultBrowserDesc' => '请在系统设置中打开默认链接配置项，并添加网站链接',
 			'settings.themeMode' => '主题模式',
 			'settings.themeModeDesc' => '此配置决定应用的主题模式',
+			'settings.glassEffect' => '玻璃质感',
+			'settings.glassEffectDesc' => '决定全局玻璃控件（顶栏胶囊、浮动底栏、菜单、弹窗按钮）用哪种材质',
+			'settings.liquidGlassEffect' => '液态玻璃',
+			'settings.liquidGlassEffectDesc' => '真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电',
+			'settings.plainGlassEffect' => '轻量半透明',
+			'settings.plainGlassEffectDesc' => '只用半透明底色与描边、不做模糊，性能与续航最好',
+			'settings.glassEffectIntroTitle' => '试试新的玻璃质感',
+			'settings.glassEffectIntroContent' => '这一版的顶栏、底栏和菜单换成了液态玻璃（真实的模糊与折射）。如果设备上觉得卡或更喜欢简洁，可以现在换成轻量半透明。',
+			'settings.glassEffectIntroHint' => '以后随时可以在「设置 → 主题设置 → 玻璃质感」里改。',
+			'settings.glassEffectIntroDone' => '就这样',
 			'settings.dynamicColor' => '动态颜色',
 			'settings.dynamicColorDesc' => '此配置决定应用是否使用动态颜色',
 			'settings.useDynamicColor' => '使用动态颜色',
@@ -4451,6 +4473,8 @@ extension on TranslationsZhCn {
 			'oreno3d.errors.serverError' => '服务器内部错误',
 			'oreno3d.errors.serviceUnavailable' => '服务暂时不可用',
 			'oreno3d.errors.requestCancelled' => '请求已取消',
+			_ => null,
+		} ?? switch (path) {
 			'oreno3d.errors.connectionError' => '网络连接错误，请检查网络设置',
 			'oreno3d.errors.networkRequestFailed' => '网络请求失败',
 			'oreno3d.errors.searchVideoError' => '搜索视频时发生未知错误',
@@ -4461,8 +4485,6 @@ extension on TranslationsZhCn {
 			'oreno3d.loading.gettingVideoInfo' => '正在获取视频信息...',
 			'oreno3d.loading.cancel' => '取消',
 			'oreno3d.messages.videoNotFoundOrDeleted' => '视频不存在或已被删除',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.messages.unableToGetVideoPlayLink' => '无法获取视频播放链接',
 			'oreno3d.messages.getVideoDetailFailed' => '获取视频详情失败',
 			'signIn.pleaseLoginFirst' => '请先登录',
@@ -4943,6 +4965,7 @@ extension on TranslationsZhCn {
 			'download.allStatus' => '所有状态',
 			'download.typeLabel' => ({required Object label}) => '类型: ${label}',
 			'download.allTypes' => '所有类型',
+			'download.taskType' => '类型',
 			'download.video' => '视频',
 			'download.gallery' => '图库',
 			'download.other' => '其他',
@@ -4964,6 +4987,8 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteByDate.menuTitle' => '按日期删除',
 			'download.deleteByDate.dialogTitle' => '按日期删除',
 			'download.deleteByDate.description' => '按创建日期批量删除下载任务。被占用的文件会跳过；文件已不存在的任务会一并清理。',
@@ -4975,8 +5000,6 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.daysUnit' => '天',
 			'download.deleteByDate.olderThanDaysHint' => ({required Object days}) => '删除 ${days} 天以前创建的任务',
 			'download.deleteByDate.noMatch' => '没有符合条件的任务',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteByDate.invalidRange' => '开始日期不能晚于结束日期',
 			'download.deleteByDate.confirmTitle' => '确认删除',
 			'download.deleteByDate.confirmContent' => ({required Object count}) => '确定删除这 ${count} 个下载任务及其文件吗？此操作不可撤销。',
@@ -5478,6 +5501,8 @@ extension on TranslationsZhCn {
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包链接已复制',
 			'emoji.preview' => '表情包预览',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.library' => '表情包库',
 			'emoji.noEmojis' => '暂无表情包',
 			'emoji.clickToAddEmojis' => '点击右上角按钮添加表情包',
@@ -5489,8 +5514,6 @@ extension on TranslationsZhCn {
 			'emoji.close' => '关闭',
 			'emoji.deleteImage' => '删除图片',
 			'emoji.confirmDeleteImage' => '确定要删除这张图片吗？',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.cancel' => '取消',
 			'emoji.batchDelete' => '批量删除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '确定要删除选中的${count}张图片吗？此操作不可撤销。',
@@ -5687,6 +5710,7 @@ extension on TranslationsZhCn {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '观看次数',
 			'searchFilter.sortTypes.likes' => '点赞数',
+			'searchFilter.drawerSubtitle' => '改动即时生效',
 			'firstTimeSetup.welcome.title' => '欢迎使用',
 			'firstTimeSetup.welcome.subtitle' => '让我们开始您的个性化设置之旅',
 			'firstTimeSetup.welcome.description' => '只需几步，即可为您量身定制最佳使用体验',

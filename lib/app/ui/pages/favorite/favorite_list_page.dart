@@ -4,8 +4,10 @@ import 'package:i_iwara/app/models/favorite/favorite_folder.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -108,20 +110,22 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     final t = slang.Translations.of(context);
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: _dialogTitleRow(context, t.favorite.deleteFolderTitle),
+      builder: (context) => GlassAlertDialog(
+        title: t.favorite.deleteFolderTitle,
         content: Text(
           t.favorite.deleteFolderConfirmWithTitle(title: folder.title),
         ),
         actions: [
-          TextButton(
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
           ),
-          TextButton(
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(t.common.confirm),
           ),
         ],
       ),
@@ -190,22 +194,6 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
     );
   }
 
-  /// 弹窗标题行：标题 + 玻璃关闭圆钮（全局统一约定）。
-  static Widget _dialogTitleRow(BuildContext context, String title) {
-    final t = slang.Translations.of(context);
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
-    );
-  }
-
   void _navigateToFolderDetail(String folderId, String? folderTitle) {
     NaviService.navigateToLocalFavoriteDetailPage(folderId, folderTitle);
   }
@@ -249,22 +237,14 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedSlide(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            offset: visible ? Offset.zero : const Offset(0, 0.4),
-            child: AnimatedOpacity(
-              duration: GlassTokens.motionDuration,
-              opacity: visible ? 1 : 0,
-              child: GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
-            ),
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: _scrollToTop,
           ),
         ),
       ),
@@ -282,6 +262,7 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             if (notification.depth == 0 &&
@@ -483,53 +464,44 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
                     ),
                   ),
                   if (folder.id != 'default')
-                    PopupMenuButton<String>(
-                      icon: Icon(
-                        Icons.more_vert,
-                        size: 20,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      padding: EdgeInsets.zero,
-                      position: PopupMenuPosition.under,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          _editFolder(folder);
-                        } else if (value == 'delete') {
-                          _deleteFolder(folder);
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'edit',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.edit, size: 18),
-                              const SizedBox(width: 8),
-                              Text(t.common.edit),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.delete,
-                                size: 18,
-                                color: Colors.red,
+                    // 菜单走全站统一的玻璃面板（原来是 PopupMenuButton）。
+                    Builder(
+                      builder: (anchorContext) => GlassPressable(
+                        // 长按也能打开，且长按不抬手可以直接划到某一条上松手
+                        // 选中（见 GlassTapArea.opensOverlay）。
+                        opensOverlay: true,
+                        onTap: () async {
+                          final action = await showGlassMenu<String>(
+                            anchorContext: anchorContext,
+                            entries: [
+                              GlassMenuOption<String>(
+                                value: 'edit',
+                                icon: Icons.edit,
+                                label: t.common.edit,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                t.common.delete,
-                                style: const TextStyle(color: Colors.red),
+                              GlassMenuOption<String>(
+                                value: 'delete',
+                                icon: Icons.delete,
+                                label: t.common.delete,
+                                destructive: true,
                               ),
                             ],
+                          );
+                          if (action == 'edit') {
+                            _editFolder(folder);
+                          } else if (action == 'delete') {
+                            _deleteFolder(folder);
+                          }
+                        },
+                        builder: (context, pressed) => SizedBox.square(
+                          dimension: 40,
+                          child: Icon(
+                            Icons.more_vert,
+                            size: 20,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         ),
-                      ],
+                      ),
                     ),
                 ],
               ),
@@ -682,11 +654,8 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    return AlertDialog(
-      title: _FavoriteListPageState._dialogTitleRow(
-        context,
-        widget.dialogTitle,
-      ),
+    return GlassAlertDialog(
+      title: widget.dialogTitle,
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -697,13 +666,14 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
         onSubmitted: _submit,
       ),
       actions: [
-        TextButton(
+        GlassDialogAction(
+          label: t.common.cancel,
+          emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
         ),
-        TextButton(
+        GlassDialogAction(
+          label: widget.confirmLabel,
           onPressed: () => _submit(_controller.text),
-          child: Text(widget.confirmLabel),
         ),
       ],
     );

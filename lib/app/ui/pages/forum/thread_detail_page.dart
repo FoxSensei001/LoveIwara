@@ -10,6 +10,7 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dar
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
@@ -263,10 +264,8 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       );
       return;
     }
-    showModalBottomSheet(
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => ForumReplyBottomSheet(
         threadId: thread.id,
         onSubmit: () {
@@ -279,9 +278,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
   void _showShareSheet() {
     final thread = _thread.value;
     if (thread == null) return;
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+    showGlassBottomSheet(
       builder: (context) => ShareThreadBottomSheet(thread: thread),
       context: context,
     );
@@ -366,25 +363,17 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
         bottom:
             MediaQuery.paddingOf(context).bottom +
             16 +
-            (isPaginated.value ? 46 : 0),
+            (isPaginated.value ? PaginationBar.barHeight : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => IgnorePointer(
-            ignoring: !visible,
-            child: AnimatedSlide(
-              duration: GlassTokens.motionDuration,
-              curve: GlassTokens.motionCurve,
-              offset: visible ? Offset.zero : const Offset(0, 0.4),
-              child: AnimatedOpacity(
-                duration: GlassTokens.motionDuration,
-                opacity: visible ? 1 : 0,
-                child: GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.vertical_align_top),
-                  tooltip: t.common.scrollToTop,
-                  onPressed: _scrollToTop,
-                ),
-              ),
+          builder: (context, visible, _) => GlassReveal(
+            visible: visible,
+            builder: (context, m) => GlassIconButton(
+              materialize: m,
+              standalone: true,
+              icon: const Icon(Icons.vertical_align_top),
+              tooltip: t.common.scrollToTop,
+              onPressed: _scrollToTop,
             ),
           ),
         ),
@@ -401,6 +390,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
 
     return Scaffold(
       body: GlassHeaderOverlay(
+        liquid: true,
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,

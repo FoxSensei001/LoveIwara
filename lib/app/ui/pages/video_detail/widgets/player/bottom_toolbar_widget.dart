@@ -3,6 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -273,143 +277,146 @@ class BottomToolbar extends StatelessWidget {
     int selectedMinutes = currentPosition.inMinutes.remainder(60);
     int selectedSeconds = currentPosition.inSeconds.remainder(60);
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(t.videoDetail.seekTo),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // 小时滑块
-                  if (totalHours > 0)
+    showAppDialog(
+      Builder(
+        builder: (BuildContext context) {
+          return GlassAlertDialog(
+            title: t.videoDetail.seekTo,
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 小时滑块
+                    if (totalHours > 0)
+                      Row(
+                        children: [
+                          Text(t.common.hour),
+                          Expanded(
+                            child: Slider(
+                              value: selectedHours.toDouble(),
+                              min: 0,
+                              max: totalHours.toDouble(),
+                              divisions: totalHours > 0 ? totalHours : 1,
+                              label: '$selectedHours ${t.common.hour}',
+                              onChanged: (double value) {
+                                setState(() {
+                                  selectedHours = value.round();
+                                  // 确保总时长不被超过
+                                  if (selectedHours == totalHours &&
+                                      (selectedMinutes > totalMinutes ||
+                                          (selectedMinutes == totalMinutes &&
+                                              selectedSeconds >
+                                                  totalSeconds))) {
+                                    selectedMinutes = totalMinutes;
+                                    selectedSeconds = totalSeconds;
+                                  }
+                                });
+                              },
+                            ),
+                          ),
+                          Text('$selectedHours'),
+                        ],
+                      ),
+                    // 分钟滑块
                     Row(
                       children: [
-                        Text(t.common.hour),
+                        Text(t.common.minute),
                         Expanded(
                           child: Slider(
-                            value: selectedHours.toDouble(),
+                            value: selectedMinutes.toDouble(),
                             min: 0,
-                            max: totalHours.toDouble(),
-                            divisions: totalHours > 0 ? totalHours : 1,
-                            label: '$selectedHours ${t.common.hour}',
+                            max: (selectedHours < totalHours)
+                                ? 59
+                                : totalMinutes.toDouble(),
+                            divisions: (selectedHours < totalHours)
+                                ? 59
+                                : (totalMinutes > 0 ? totalMinutes : 1),
+                            label: '$selectedMinutes ${t.common.minute}',
                             onChanged: (double value) {
                               setState(() {
-                                selectedHours = value.round();
+                                selectedMinutes = value.round();
                                 // 确保总时长不被超过
                                 if (selectedHours == totalHours &&
-                                    (selectedMinutes > totalMinutes ||
-                                        (selectedMinutes == totalMinutes &&
-                                            selectedSeconds > totalSeconds))) {
-                                  selectedMinutes = totalMinutes;
+                                    selectedMinutes == totalMinutes &&
+                                    selectedSeconds > totalSeconds) {
                                   selectedSeconds = totalSeconds;
                                 }
                               });
                             },
                           ),
                         ),
-                        Text('$selectedHours'),
+                        Text('$selectedMinutes'),
                       ],
                     ),
-                  // 分钟滑块
-                  Row(
-                    children: [
-                      Text(t.common.minute),
-                      Expanded(
-                        child: Slider(
-                          value: selectedMinutes.toDouble(),
-                          min: 0,
-                          max: (selectedHours < totalHours)
-                              ? 59
-                              : totalMinutes.toDouble(),
-                          divisions: (selectedHours < totalHours)
-                              ? 59
-                              : (totalMinutes > 0 ? totalMinutes : 1),
-                          label: '$selectedMinutes ${t.common.minute}',
-                          onChanged: (double value) {
-                            setState(() {
-                              selectedMinutes = value.round();
-                              // 确保总时长不被超过
-                              if (selectedHours == totalHours &&
-                                  selectedMinutes == totalMinutes &&
-                                  selectedSeconds > totalSeconds) {
-                                selectedSeconds = totalSeconds;
-                              }
-                            });
-                          },
+                    // 秒钟滑块
+                    Row(
+                      children: [
+                        Text(t.common.seconds),
+                        Expanded(
+                          child: Slider(
+                            value: selectedSeconds.toDouble(),
+                            min: 0,
+                            max:
+                                (selectedHours < totalHours ||
+                                    selectedMinutes < totalMinutes)
+                                ? 59
+                                : totalSeconds.toDouble(),
+                            divisions:
+                                (selectedHours < totalHours ||
+                                    selectedMinutes < totalMinutes)
+                                ? 59
+                                : (totalSeconds > 0 ? totalSeconds : 1),
+                            label: '$selectedSeconds ${t.common.seconds}',
+                            onChanged: (double value) {
+                              setState(() {
+                                selectedSeconds = value.round();
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                      Text('$selectedMinutes'),
-                    ],
-                  ),
-                  // 秒钟滑块
-                  Row(
-                    children: [
-                      Text(t.common.seconds),
-                      Expanded(
-                        child: Slider(
-                          value: selectedSeconds.toDouble(),
-                          min: 0,
-                          max:
-                              (selectedHours < totalHours ||
-                                  selectedMinutes < totalMinutes)
-                              ? 59
-                              : totalSeconds.toDouble(),
-                          divisions:
-                              (selectedHours < totalHours ||
-                                  selectedMinutes < totalMinutes)
-                              ? 59
-                              : (totalSeconds > 0 ? totalSeconds : 1),
-                          label: '$selectedSeconds ${t.common.seconds}',
-                          onChanged: (double value) {
-                            setState(() {
-                              selectedSeconds = value.round();
-                            });
-                          },
-                        ),
-                      ),
-                      Text('$selectedSeconds'),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // 关闭对话框
-                Navigator.of(context).pop();
-              },
-              child: Text(t.common.cancel),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // 构建新的跳转时间
-                final Duration newPosition = Duration(
-                  hours: selectedHours,
-                  minutes: selectedMinutes,
-                  seconds: selectedSeconds,
+                        Text('$selectedSeconds'),
+                      ],
+                    ),
+                  ],
                 );
-
-                // 确保跳转时间不超过总时长
-                final Duration clampedPosition = newPosition > totalDuration
-                    ? totalDuration
-                    : newPosition;
-
-                // 执行跳转
-                myVideoStateController.player.seek(clampedPosition);
-
-                // 关闭对话框
-                Navigator.of(context).pop();
               },
-              child: Text(t.common.confirm),
             ),
-          ],
-        );
-      },
+            actions: [
+              GlassDialogAction(
+                label: t.common.cancel,
+                emphasized: false,
+                onPressed: () {
+                  // 关闭对话框
+                  Navigator.of(context).pop();
+                },
+              ),
+              GlassDialogAction(
+                label: t.common.confirm,
+                onPressed: () {
+                  // 构建新的跳转时间
+                  final Duration newPosition = Duration(
+                    hours: selectedHours,
+                    minutes: selectedMinutes,
+                    seconds: selectedSeconds,
+                  );
+
+                  // 确保跳转时间不超过总时长
+                  final Duration clampedPosition = newPosition > totalDuration
+                      ? totalDuration
+                      : newPosition;
+
+                  // 执行跳转
+                  myVideoStateController.player.seek(clampedPosition);
+
+                  // 关闭对话框
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -523,46 +530,57 @@ class BottomToolbar extends StatelessWidget {
         }
       }
 
-      return PopupMenuButton<String>(
-        initialValue: currentResolution,
-        tooltip: t.videoDetail.switchResolution,
-        onSelected: applyResolution,
-        itemBuilder: (BuildContext context) {
-          return uniqueResolutions.map((VideoResolution resolution) {
-            final isSelected = resolution.label == currentResolution;
-            return PopupMenuItem<String>(
-              value: resolution.label,
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    _getResolutionIconAsset(resolution.label),
-                    colorFilter: ColorFilter.mode(
-                      Theme.of(context).iconTheme.color!,
-                      BlendMode.srcIn,
+      // 清晰度面板走全站统一的玻璃菜单（原来是 Material 的 PopupMenuButton，
+      // 吐出来的是块不透明卡片，跟全站已换成玻璃的下拉不是一套）。
+      return Tooltip(
+        message: t.videoDetail.switchResolution,
+        child: Builder(
+          builder: (anchorContext) => GlassPressable(
+            // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到
+            // 某一条上松手选中（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onTap: () async {
+              final picked = await showGlassMenu<String>(
+                anchorContext: anchorContext,
+                entries: [
+                  for (final resolution in uniqueResolutions)
+                    GlassMenuOption<String>(
+                      value: resolution.label,
+                      label: CommonUtils.getQualityDisplayLabel(
+                        t,
+                        resolution.label,
+                      ),
+                      leading: SvgPicture.asset(
+                        _getResolutionIconAsset(resolution.label),
+                        colorFilter: ColorFilter.mode(
+                          // leading 槽位外面套了一层跟着行语义色走的 IconTheme，
+                          // SVG 不吃 IconTheme，得自己取一次当前色。
+                          IconTheme.of(anchorContext).color ?? Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                        width: 20,
+                        height: 20,
+                      ),
+                      selected: resolution.label == currentResolution,
                     ),
-                    width: 24,
-                    height: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(CommonUtils.getQualityDisplayLabel(t, resolution.label)),
-                  if (isSelected) ...[
-                    const Spacer(),
-                    const Icon(Icons.check, color: Colors.blue),
-                  ],
                 ],
+              );
+              if (picked != null) applyResolution(picked);
+            },
+            builder: (context, pressed) => Container(
+              width: touchSize,
+              height: touchSize,
+              alignment: Alignment.center,
+              child: SvgPicture.asset(
+                _getResolutionIconAsset(currentResolution),
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+                width: iconSize,
+                height: iconSize,
               ),
-            );
-          }).toList();
-        },
-        child: Container(
-          width: touchSize,
-          height: touchSize,
-          alignment: Alignment.center,
-          child: SvgPicture.asset(
-            _getResolutionIconAsset(currentResolution),
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            width: iconSize,
-            height: iconSize,
+            ),
           ),
         ),
       );
@@ -639,26 +657,29 @@ class BottomToolbar extends StatelessWidget {
         ),
       );
 
-      return PopupMenuButton<double>(
-        initialValue: currentSpeed,
-        tooltip: t.videoDetail.switchPlaybackSpeed,
-        onSelected: applySpeed,
-        itemBuilder: (BuildContext context) {
-          return speeds.map((double speed) {
-            return PopupMenuItem<double>(
-              value: speed,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('${_formatPlaybackSpeed(speed)}x'),
-                  if (speed == currentSpeed)
-                    const Icon(Icons.check, color: Colors.blue),
+      return Tooltip(
+        message: t.videoDetail.switchPlaybackSpeed,
+        child: Builder(
+          builder: (anchorContext) => GlassPressable(
+            // 同上：长按开菜单 + 手指接力（见 GlassTapArea.opensOverlay）。
+            opensOverlay: true,
+            onTap: () async {
+              final picked = await showGlassMenu<double>(
+                anchorContext: anchorContext,
+                entries: [
+                  for (final speed in speeds)
+                    GlassMenuOption<double>(
+                      value: speed,
+                      label: '${_formatPlaybackSpeed(speed)}x',
+                      selected: speed == currentSpeed,
+                    ),
                 ],
-              ),
-            );
-          }).toList();
-        },
-        child: speedButtonChild,
+              );
+              if (picked != null) applySpeed(picked);
+            },
+            builder: (context, pressed) => speedButtonChild,
+          ),
+        ),
       );
     });
   }

@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/glass_material_intro.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
@@ -34,7 +35,28 @@ import 'ui/widgets/media_query_insets_fix.dart';
 ///
 /// Android 不再显式指定 predictive back 页面转场，恢复 Flutter 默认行为。
 ThemeData buildThemeData({required ColorScheme colorScheme}) {
-  return ThemeData(colorScheme: colorScheme, useMaterial3: true);
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    // ⛔ 触屏上不再由长按/点按唤出 tooltip（鼠标悬停不受影响，见
+    // `TooltipTriggerMode` 的文档：「This property does not affect mouse
+    // devices」）。
+    //
+    // 原因是它会**打断长按**：`Tooltip` 在触屏档默认注册一只
+    // `LongPressGestureRecognizer`，500ms 一到就宣布胜利、弹出黑条并震一下，
+    // 同时把同一个竞技场里的 tap 判负。而玻璃件的手感恰恰建立在「按住不放」
+    // 上——按住蠕动、按住拖着玩、按住等胶囊形变，全都在 500ms 之后才开始，
+    // 于是每次都被这条黑条截胡。
+    //
+    // 放在主题上而不是各个玻璃组件里，是因为这不是玻璃独有的毛病，而且
+    // `tooltip:` 这个参数散落在 `GlassIconButton` / `GlassSurface` /
+    // 裸 `Tooltip` / `IconButton` 一堆入口上，逐个去关必然漏。主题是所有
+    // `Tooltip` 的共同上游（`Tooltip` 读 `TooltipTheme` 兜底），一处钉死。
+    // 由 `test/glass_style_guard_test.dart` 盯着不许回退。
+    tooltipTheme: const TooltipThemeData(
+      triggerMode: TooltipTriggerMode.manual,
+    ),
+  );
 }
 
 /// Global reactive theme state – written by ThemeService / DynamicColorBuilder,
@@ -111,6 +133,9 @@ class _MyAppState extends State<MyApp> {
     PopCoordinator.init();
     Get.find<VersionService>().doAutoCheckUpdate();
     Get.find<DeepLinkService>().markReady();
+    // 玻璃质感的一次性提醒：自己会等到「没有链接在路上、没有别的弹窗、人确实
+    // 站在首页」才弹，等不到就留到下次启动（见 GlassMaterialIntro 的类文档）。
+    GlassMaterialIntro.scheduleAfterStartup();
     _ensureNetworkAndUserServiceReady();
 
     // 首次设置检查现在由 GoRouter redirect 处理，不需要手动跳转
@@ -494,15 +519,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     }
 
     // 如果没有找到支持的视频文件，显示提示
-    final ctx = rootNavigatorKey.currentContext;
-    if (ctx != null) {
-      ScaffoldMessenger.of(ctx).showSnackBar(
-        SnackBar(
-          content: Text(t.mediaPlayer.noSupportedVideoFile),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
+    showGlassToast(t.mediaPlayer.noSupportedVideoFile);
   }
 
   Widget _shortCutsWrapper(BuildContext context, Widget child) {
@@ -539,6 +556,10 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
   }
 
   Widget _buildDrawer() {
-    return Drawer(child: SizedBox.expand(child: GlobalDrawerColumns()));
+    return Drawer(
+      child: SizedBox.expand(
+        child: RepaintBoundary(child: GlobalDrawerColumns()),
+      ),
+    );
   }
 }

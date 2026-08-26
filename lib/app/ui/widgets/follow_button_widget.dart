@@ -6,18 +6,15 @@ import 'package:i_iwara/app/models/dto/user_dto.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 
 class FollowButtonWidget extends StatefulWidget {
   final User user;
@@ -85,170 +82,121 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     );
   }
 
-  // 显示关注选项底部菜单
-  void _showFollowOptionsSheet(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final RxBool isProcessing = false.obs;
+  /// 已关注态点按：贴着按钮弹一张玻璃菜单（特别关注 / 取消关注）。
+  ///
+  /// 原先是一张 bottom sheet（`showAppBottomSheet` + 两条 `ListTile`）。它从
+  /// 屏幕底部升起来、盖住半屏，代价与收益完全不成比例——两条选项而已；而且
+  /// 那两条 `ListTile` 是 Material 的，跟全站已经换成玻璃菜单的下拉不是一套。
+  /// 现在与 header 上的「更多」、播放器的清晰度/倍速走同一条 [showGlassMenu]：
+  /// 贴着按钮弹出，长按不抬手可以直接划到某一条上松手选中。
+  ///
+  /// 处理中的反馈也跟着变了：sheet 里那圈行内 spinner 没了（面板选完即关），
+  /// 改由按钮自己进 [_isLoading] 的 shimmer 态——反馈落在用户还看得见的地方。
+  Future<void> _showFollowOptions(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
     final UserDTO? likedUser = _userPreferenceService.getLikedUser(
       _currentUser.id,
     );
 
-    showAppBottomSheet(
-      Obx(
-        () => Container(
-          // 底部弹窗自己让出系统手势条/导航条
-          padding: EdgeInsets.only(
-            top: 12,
-            bottom: 20 + computeSheetBottomInset(context),
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: Container(
-                  width: 34,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-              ),
-              ListTile(
-                enabled: !isProcessing.value,
-                leading: Icon(
-                  likedUser != null ? Icons.star : Icons.star_border,
-                  color: likedUser != null ? Colors.amber : null,
-                ),
-                title: Text(
-                  likedUser != null
-                      ? t.common.cancelSpecialFollow
-                      : t.common.specialFollow,
-                ),
-                trailing: isProcessing.value
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : null,
-                onTap: () async {
-                  VibrateUtils.vibrate();
-                  final UserService userService = Get.find();
-                  if (!userService.isAuthenticated) {
-                    showGlassToast(
-                      t.errors.pleaseLoginFirst,
-                      type: GlassToastType.error,
-                    );
-                    LoginService.showLogin();
-                    return;
-                  }
-                  if (likedUser != null) {
-                    _userPreferenceService.removeLikedUser(likedUser);
-                  } else {
-                    _userPreferenceService.addLikedUser(
-                      UserDTO(
-                        id: _currentUser.id,
-                        name: _currentUser.name,
-                        username: _currentUser.username,
-                        avatarUrl: _currentUser.avatar?.avatarUrl ?? '',
-                        likedTime: DateTime.now(),
-                      ),
-                    );
-                    // 每次特别关注成功都提示一次去哪能快速用上它——不做持久化计数，
-                    // 不像普通关注的 tip 那样怕打扰：这是用户刚主动点出来的操作。
-                    showGlassToast(
-                      t.common.specialFollowTip,
-                      type: GlassToastType.success,
-                      position: GlassToastPosition.bottom,
-                    );
-                  }
-                  final rootNavigator = Navigator.of(
-                    context,
-                    rootNavigator: true,
-                  );
-                  if (rootNavigator.canPop()) {
-                    rootNavigator.pop();
-                  }
-                },
-              ),
-              ListTile(
-                enabled: !isProcessing.value,
-                leading: const Icon(Icons.notifications_off),
-                title: Text(t.common.unfollow),
-                trailing: isProcessing.value
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : null,
-                onTap: () async {
-                  VibrateUtils.vibrate();
-                  final UserService userService = Get.find();
-                  if (!userService.isAuthenticated) {
-                    showGlassToast(
-                      t.errors.pleaseLoginFirst,
-                      type: GlassToastType.error,
-                    );
-                    LoginService.showLogin();
-                    return;
-                  }
-                  isProcessing.value = true;
-                  try {
-                    final result = await _userService.unfollowUser(
-                      _currentUser.id,
-                    );
-                    if (!mounted) return;
-                    if (result.isSuccess) {
-                      final likedUser = _userPreferenceService.getLikedUser(
-                        _currentUser.id,
-                      );
-                      if (likedUser != null) {
-                        _userPreferenceService.removeLikedUser(likedUser);
-                      }
-
-                      final updatedUser = _currentUser.copyWith(
-                        following: false,
-                        friend: false,
-                      );
-                      setState(() {
-                        _currentUser = updatedUser;
-                      });
-                      widget.onUserUpdated?.call(updatedUser);
-                      if (OverlayTracker.instance.hasOverlay) {
-                        AppService.tryPop();
-                      }
-                    } else {
-                      showGlassToast(
-                        result.message,
-                        type: GlassToastType.error,
-                        position: GlassToastPosition.top,
-                      );
-                    }
-                  } catch (e) {
-                    showGlassToast(
-                      t.errors.failedToOperate,
-                      type: GlassToastType.error,
-                      position: GlassToastPosition.top,
-                    );
-                  } finally {
-                    isProcessing.value = false;
-                  }
-                },
-              ),
-            ],
-          ),
+    final String? action = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption<String>(
+          value: 'special',
+          icon: likedUser != null ? Icons.star : Icons.star_border,
+          label: likedUser != null
+              ? t.common.cancelSpecialFollow
+              : t.common.specialFollow,
+          selected: likedUser != null,
         ),
+        const GlassMenuSeparator(),
+        GlassMenuOption<String>(
+          value: 'unfollow',
+          icon: Icons.notifications_off,
+          label: t.common.unfollow,
+          destructive: true,
+        ),
+      ],
+    );
+    if (!mounted || action == null) return;
+
+    if (action == 'special') {
+      _toggleSpecialFollow(likedUser);
+    } else {
+      await _unfollow();
+    }
+  }
+
+  /// 特别关注 / 取消特别关注（纯本地偏好，不走网络）。
+  void _toggleSpecialFollow(UserDTO? likedUser) {
+    final t = slang.Translations.of(context);
+    VibrateUtils.vibrate();
+    if (!_userService.isAuthenticated) {
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      LoginService.showLogin();
+      return;
+    }
+    if (likedUser != null) {
+      _userPreferenceService.removeLikedUser(likedUser);
+      return;
+    }
+    _userPreferenceService.addLikedUser(
+      UserDTO(
+        id: _currentUser.id,
+        name: _currentUser.name,
+        username: _currentUser.username,
+        avatarUrl: _currentUser.avatar?.avatarUrl ?? '',
+        likedTime: DateTime.now(),
       ),
     );
+    // 每次特别关注成功都提示一次去哪能快速用上它——不做持久化计数，
+    // 不像普通关注的 tip 那样怕打扰：这是用户刚主动点出来的操作。
+    showGlassToast(
+      t.common.specialFollowTip,
+      type: GlassToastType.success,
+      position: GlassToastPosition.bottom,
+    );
+  }
+
+  Future<void> _unfollow() async {
+    final t = slang.Translations.of(context);
+    VibrateUtils.vibrate();
+    if (!_userService.isAuthenticated) {
+      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      LoginService.showLogin();
+      return;
+    }
+    setState(() => _isLoading = true);
+    try {
+      final result = await _userService.unfollowUser(_currentUser.id);
+      if (!mounted) return;
+      if (result.isSuccess) {
+        final likedUser = _userPreferenceService.getLikedUser(_currentUser.id);
+        if (likedUser != null) {
+          _userPreferenceService.removeLikedUser(likedUser);
+        }
+        final updatedUser = _currentUser.copyWith(
+          following: false,
+          friend: false,
+        );
+        setState(() => _currentUser = updatedUser);
+        widget.onUserUpdated?.call(updatedUser);
+      } else {
+        showGlassToast(
+          result.message,
+          type: GlassToastType.error,
+          position: GlassToastPosition.top,
+        );
+      }
+    } catch (e) {
+      showGlassToast(
+        t.errors.failedToOperate,
+        type: GlassToastType.error,
+        position: GlassToastPosition.top,
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _handleFollow(BuildContext context) async {
@@ -274,18 +222,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           final shouldShow =
               showFollowTipCount > 0 && random.nextDouble() < 0.5;
           if (shouldShow) {
-            final ctx = context;
-            if (ctx.mounted) {
-              ScaffoldMessenger.of(ctx).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-                  ),
-                  duration: const Duration(seconds: 3),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
+            showGlassToast(
+              "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
+              type: GlassToastType.success,
+            );
 
             final newCount = max(0, showFollowTipCount - 1);
             configService.setSetting(ConfigKey.SHOW_FOLLOW_TIP_COUNT, newCount);
@@ -340,29 +280,32 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
       );
     }
 
-    return Obx(() {
-      final isSpecialFollowed = _userPreferenceService.likedUsers.any(
-        (u) => u.id == _currentUser.id,
-      );
-      return ElevatedButton.icon(
-        style: isSpecialFollowed
-            ? ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                foregroundColor: Theme.of(
-                  context,
-                ).colorScheme.onPrimaryContainer,
-              )
-            : null,
-        onPressed: () {
-          _showFollowOptionsSheet(context);
-        },
-        icon: Icon(
-          isSpecialFollowed ? Icons.stars : Icons.notifications_active,
-          size: 18,
-        ),
-        label: Text(t.common.followed),
-      );
-    });
+    // Builder：菜单贴着**这枚按钮**弹出，落点与材质档位都从它自己的 context 量。
+    return Builder(
+      builder: (anchorContext) => Obx(() {
+        final isSpecialFollowed = _userPreferenceService.likedUsers.any(
+          (u) => u.id == _currentUser.id,
+        );
+        return ElevatedButton.icon(
+          style: isSpecialFollowed
+              ? ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onPrimaryContainer,
+                )
+              : null,
+          onPressed: () => _showFollowOptions(anchorContext),
+          icon: Icon(
+            isSpecialFollowed ? Icons.stars : Icons.notifications_active,
+            size: 18,
+          ),
+          label: Text(t.common.followed),
+        );
+      }),
+    );
   }
 
   Widget _buildIconOnly(BuildContext context) {
@@ -379,18 +322,20 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         onPressed: () => _handleFollow(context),
       );
     }
-    return Obx(() {
-      final isSpecialFollowed = _userPreferenceService.likedUsers.any(
-        (u) => u.id == _currentUser.id,
-      );
-      return ActionIconButtonScaffold(
-        icon: isSpecialFollowed ? Icons.star : Icons.notifications_active,
-        tooltip: t.common.followed,
-        label: t.common.followed,
-        selected: true,
-        highlightColor: isSpecialFollowed ? Colors.amber : null,
-        onPressed: () => _showFollowOptionsSheet(context),
-      );
-    });
+    return Builder(
+      builder: (anchorContext) => Obx(() {
+        final isSpecialFollowed = _userPreferenceService.likedUsers.any(
+          (u) => u.id == _currentUser.id,
+        );
+        return ActionIconButtonScaffold(
+          icon: isSpecialFollowed ? Icons.star : Icons.notifications_active,
+          tooltip: t.common.followed,
+          label: t.common.followed,
+          selected: true,
+          highlightColor: isSpecialFollowed ? Colors.amber : null,
+          onPressed: () => _showFollowOptions(anchorContext),
+        );
+      }),
+    );
   }
 }

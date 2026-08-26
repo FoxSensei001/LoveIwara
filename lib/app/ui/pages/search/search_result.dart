@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
@@ -19,17 +19,15 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-
-import 'search_dialog.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'widgets/saved_search_drawer.dart';
 
 class SearchResultController extends GetxController {
@@ -190,7 +188,6 @@ class _SearchResultState extends State<SearchResult> {
   late SearchResultController searchController;
 
   /// 用于打开右侧「已保存搜索」抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late final SavedSearchService _savedSearchService;
 
   @override
@@ -542,16 +539,14 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  // 显示搜索对话框（关键词取页面本地文本，见 _buildSearchPill 的注释）
+  // 打开搜索页面（关键词取页面本地文本，见 _buildSearchPill 的注释）
   void _showSearchDialog() {
-    showAppDialog(
-      SearchDialog(
-        userInputKeywords: _searchController.text,
-        initialSegment: searchController.selectedSegment.value,
-        initialSort: searchController.selectedSort.value,
-        initialFilters: searchController.filters.toList(),
-        onSearch: _handleSearchResult,
-      ),
+    NaviService.navigateToSearchPage(
+      userInputKeywords: _searchController.text,
+      initialSegment: searchController.selectedSegment.value,
+      initialSort: searchController.selectedSort.value,
+      initialFilters: searchController.filters.toList(),
+      onSearch: _handleSearchResult,
     );
   }
 
@@ -578,9 +573,13 @@ class _SearchResultState extends State<SearchResult> {
     searchController.refreshSearch();
   }
 
-  // 打开右侧「已保存搜索」抽屉
+  // 打开右侧「已保存搜索」抽屉（与筛选抽屉走同一条路由）
   void _openSavedSearchDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
+    showSavedSearchDrawer(
+      context: context,
+      onApply: _applySavedSearch,
+      onAddCurrent: _promptSaveCurrentSearch,
+    );
   }
 
   // 根据当前搜索条件生成一个默认名称
@@ -599,37 +598,11 @@ class _SearchResultState extends State<SearchResult> {
   // 弹出命名对话框，将当前搜索条件保存为一条已保存搜索
   Future<void> _promptSaveCurrentSearch() async {
     final t = slang.Translations.of(context);
-    // 收起抽屉，避免命名弹窗被遮挡
-    _scaffoldKey.currentState?.closeEndDrawer();
-
     final defaultName = _buildDefaultSearchName();
-    final controller = TextEditingController(text: defaultName);
-    final name = await showAppDialog<String>(
-      Builder(
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.savedSearch.namePromptTitle),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: t.savedSearch.nameLabel,
-              hintText: t.savedSearch.nameHint,
-            ),
-            onSubmitted: (v) => Navigator.of(dialogContext).pop(v.trim()),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(t.common.cancel),
-            ),
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(t.common.save),
-            ),
-          ],
-        ),
-      ),
+    final name = await showGlassPromptNameDialog(
+      title: t.savedSearch.namePromptTitle,
+      hint: t.savedSearch.nameHint,
+      initialText: defaultName,
     );
     if (name == null) return;
 
@@ -654,7 +627,7 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  // 应用一条已保存搜索并关闭抽屉
+  // 应用一条已保存搜索
   void _applySavedSearch(SavedSearch search) {
     // 注意顺序：updateSegment 会重置排序与筛选项，须在其后再设置排序/筛选项
     searchController.updateSearch(search.keyword);
@@ -675,7 +648,6 @@ class _SearchResultState extends State<SearchResult> {
 
     _searchController.text = search.keyword;
     searchController.refreshSearch();
-    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   IconData _segmentIcon(SearchSegment segment) {
@@ -723,71 +695,40 @@ class _SearchResultState extends State<SearchResult> {
     };
   }
 
-  // 打开筛选设置弹窗（确认后应用并刷新搜索）
+  /// 打开右侧「筛选」抽屉。改动即时生效（每次生效都会刷新搜索结果），抽屉常驻不关。
   void _showFilterDialog() {
-    final t = slang.Translations.of(context);
-    List<Filter> tempFilters = searchController.filters
-        .map((f) => f.copyWith())
-        .toList();
-
-    ResponsiveDialog.show(
+    showSearchFilterDrawer(
       context: context,
-      title: t.searchFilter.filterSettings,
-      maxWidth: 800,
-      headerActions: [
-        FilledButton(
-          onPressed: () {
-            searchController.updateFilters(
-              tempFilters.map((f) => f.copyWith()).toList(),
-            );
-            AppService.tryPop();
-          },
-          style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-          child: Text(t.common.confirm),
-        ),
-      ],
-      content: FilterBuilderWidget(
-        initialSegment: searchController.selectedSegment.value,
-        initialFilters: searchController.filters.toList(),
-        onFiltersChanged: (newFilters) {
-          tempFilters = newFilters;
-        },
-        destroyOnClose: true,
-      ),
+      segment: searchController.selectedSegment.value,
+      initialFilters: searchController.filters.toList(),
+      onFiltersChanged: searchController.updateFilters,
     );
   }
 
-  /// 分段入口：玻璃胶囊组里的 40×40 图标位 + 下拉菜单。
+  /// 分段入口：玻璃胶囊组里的图标位 + 玻璃下拉菜单。
   Widget _buildSegmentMenuButton(slang.Translations t, SearchSegment segment) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<SearchSegment>(
-        padding: EdgeInsets.zero,
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: Icon(_segmentIcon(segment)),
         tooltip: _segmentLabel(t, segment),
-        icon: Icon(_segmentIcon(segment), size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        initialValue: segment,
-        onSelected: searchController.updateSegment,
-        itemBuilder: (context) => [
-          for (final seg in SearchSegment.values)
-            PopupMenuItem<SearchSegment>(
-              value: seg,
-              child: Row(
-                children: [
-                  Icon(_segmentIcon(seg), size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(_segmentLabel(t, seg))),
-                  if (seg == segment)
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
-              ),
-            ),
-        ],
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onPressed: () async {
+          final picked = await showGlassMenu<SearchSegment>(
+            anchorContext: anchorContext,
+            entries: [
+              for (final seg in SearchSegment.values)
+                GlassMenuOption<SearchSegment>(
+                  value: seg,
+                  icon: _segmentIcon(seg),
+                  label: _segmentLabel(t, seg),
+                  selected: seg == segment,
+                ),
+            ],
+          );
+          if (picked != null) searchController.updateSegment(picked);
+        },
       ),
     );
   }
@@ -798,7 +739,6 @@ class _SearchResultState extends State<SearchResult> {
     SearchSegment segment,
     String sort,
   ) {
-    final colorScheme = Theme.of(context).colorScheme;
     final List<(String, String)> entries;
     if (segment == SearchSegment.oreno3d) {
       entries = [
@@ -814,34 +754,28 @@ class _SearchResultState extends State<SearchResult> {
       ];
     }
 
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<String>(
-        padding: EdgeInsets.zero,
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: Icon(_sortIconFor(segment, sort)),
         tooltip: t.common.sort,
-        icon: Icon(_sortIconFor(segment, sort), size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        initialValue: sort,
-        onSelected: searchController.updateSort,
-        itemBuilder: (context) => [
-          for (final (value, label) in entries)
-            PopupMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  Icon(_sortIconFor(segment, value), size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(label)),
-                  if (value == sort)
-                    Icon(Icons.check, size: 18, color: colorScheme.primary),
-                ],
-              ),
-            ),
-        ],
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onPressed: () async {
+          final picked = await showGlassMenu<String>(
+            anchorContext: anchorContext,
+            entries: [
+              for (final (value, label) in entries)
+                GlassMenuOption<String>(
+                  value: value,
+                  icon: _sortIconFor(segment, value),
+                  label: label,
+                  selected: value == sort,
+                ),
+            ],
+          );
+          if (picked != null) searchController.updateSort(picked);
+        },
       ),
     );
   }
@@ -872,27 +806,61 @@ class _SearchResultState extends State<SearchResult> {
       isMultiSelect = searchController.imageBatchController.isMultiSelect.value;
     }
 
-    PopupMenuItem<String> menuItem(String value, IconData icon, String label) {
-      return PopupMenuItem<String>(
-        value: value,
-        child: Row(
-          children: [Icon(icon), const SizedBox(width: 12), Text(label)],
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: GlassTokens.groupIconButtonSize,
-      height: GlassTokens.groupIconButtonSize,
-      child: PopupMenuButton<String>(
-        padding: EdgeInsets.zero,
-        icon: const Icon(Icons.more_vert, size: GlassTokens.iconSize),
-        position: PopupMenuPosition.under,
-        // 往下挪一点，别压住玻璃胶囊本身
-        offset: const Offset(0, 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        onSelected: (value) {
-          switch (value) {
+    return Builder(
+      builder: (anchorContext) => GlassIconButton(
+        icon: const Icon(Icons.more_vert),
+        tooltip: t.common.more,
+        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
+        // 松手选中（见 GlassTapArea.opensOverlay）。
+        opensOverlay: true,
+        onPressed: () async {
+          final picked = await showGlassMenu<String>(
+            anchorContext: anchorContext,
+            entries: [
+              if (toggleMultiSelect != null)
+                GlassMenuOption<String>(
+                  value: _menuActionToggleMultiSelect,
+                  icon: isMultiSelect ? Icons.close : Icons.checklist,
+                  label: isMultiSelect
+                      ? t.common.exitEditMode
+                      : t.common.editMode,
+                ),
+              GlassMenuOption<String>(
+                value: _menuActionRefresh,
+                icon: Icons.refresh,
+                label: t.common.refresh,
+              ),
+              GlassMenuOption<String>(
+                value: _menuActionTogglePagination,
+                icon: searchController.isPaginated.value
+                    ? Icons.grid_view
+                    : Icons.view_stream,
+                label: searchController.isPaginated.value
+                    ? t.common.pagination.waterfall
+                    : t.common.pagination.pagination,
+              ),
+              GlassMenuOption<String>(
+                value: _menuActionSavedSearch,
+                icon: Icons.bookmarks_outlined,
+                label: t.savedSearch.title,
+              ),
+              if (isBrowseMode) ...[
+                const GlassMenuSeparator(),
+                GlassMenuOption<String>(
+                  value: _menuActionTagInfo,
+                  icon: Icons.help_outline,
+                  label: t.common.tagInfo,
+                ),
+                GlassMenuOption<String>(
+                  value: _menuActionTranslate,
+                  icon: Icons.translate,
+                  label: t.common.translate,
+                ),
+              ],
+            ],
+          );
+          if (picked == null) return;
+          switch (picked) {
             case _menuActionToggleMultiSelect:
               toggleMultiSelect?.call();
               break;
@@ -914,34 +882,6 @@ class _SearchResultState extends State<SearchResult> {
               break;
           }
         },
-        itemBuilder: (context) => [
-          if (toggleMultiSelect != null)
-            menuItem(
-              _menuActionToggleMultiSelect,
-              isMultiSelect ? Icons.close : Icons.checklist,
-              isMultiSelect ? t.common.exitEditMode : t.common.editMode,
-            ),
-          menuItem(_menuActionRefresh, Icons.refresh, t.common.refresh),
-          menuItem(
-            _menuActionTogglePagination,
-            searchController.isPaginated.value
-                ? Icons.grid_view
-                : Icons.view_stream,
-            searchController.isPaginated.value
-                ? t.common.pagination.waterfall
-                : t.common.pagination.pagination,
-          ),
-          menuItem(
-            _menuActionSavedSearch,
-            Icons.bookmarks_outlined,
-            t.savedSearch.title,
-          ),
-          if (isBrowseMode) ...[
-            const PopupMenuDivider(),
-            menuItem(_menuActionTagInfo, Icons.help_outline, t.common.tagInfo),
-            menuItem(_menuActionTranslate, Icons.translate, t.common.translate),
-          ],
-        ],
       ),
     );
   }
@@ -999,11 +939,6 @@ class _SearchResultState extends State<SearchResult> {
     // （base_search_list 传 showBottomPadding: true），这里不再包 SafeArea；
     // 顶部让位交给列表的 paddingTop，内容滚动时从玻璃 header 背后经过。
     return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: SavedSearchDrawer(
-        onApply: _applySavedSearch,
-        onAddCurrent: _promptSaveCurrentSearch,
-      ),
       body: BatchDownloadSelectionScope(
         // 视频 / 图库两个控制器只广播当前 segment 那一个
         controllers: [
@@ -1016,6 +951,7 @@ class _SearchResultState extends State<SearchResult> {
           _ => -1,
         },
         child: GlassHeaderOverlay(
+          liquid: true,
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,
@@ -1079,17 +1015,16 @@ class _SearchResultState extends State<SearchResult> {
                     (searchController.isPaginated.value ? 46 : 0),
                 child: ValueListenableBuilder<bool>(
                   valueListenable: _showBackToTop,
-                  builder: (context, visible, _) => IgnorePointer(
-                    ignoring: !visible,
-                    child: AnimatedOpacity(
-                      duration: GlassTokens.motionDuration,
-                      opacity: visible ? 1 : 0,
-                      child: GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.vertical_align_top),
-                        tooltip: t.common.scrollToTop,
-                        onPressed: searchController.scrollToTop,
-                      ),
+                  builder: (context, visible, _) => GlassReveal(
+                    visible: visible,
+                    // 这处历来没有位移，只做材质淡入
+                    slideFrom: Offset.zero,
+                    builder: (context, m) => GlassIconButton(
+                      materialize: m,
+                      standalone: true,
+                      icon: const Icon(Icons.vertical_align_top),
+                      tooltip: t.common.scrollToTop,
+                      onPressed: searchController.scrollToTop,
                     ),
                   ),
                 ),

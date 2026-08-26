@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_repository.
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
 class ProfilePlaylistTabListWidget extends StatefulWidget {
   final String userId;
@@ -93,6 +94,7 @@ class _ProfilePlaylistTabListWidgetState
       headerTop: widget.overlayTopInset,
       headerHeight: headerHeight,
       solidExtent: widget.scrimSolidExtent,
+      liquid: true,
       body: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.axis == Axis.vertical) {
@@ -147,24 +149,23 @@ class _ProfilePlaylistTabListWidgetState
               (widget.isPaginated ? 46 : 0),
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
-            builder: (context, visible, _) => IgnorePointer(
-              ignoring: !visible,
-              child: AnimatedOpacity(
-                duration: GlassTokens.motionDuration,
-                opacity: visible ? 1 : 0,
-                child: GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.vertical_align_top),
-                  tooltip: t.common.scrollToTop,
-                  onPressed: () {
-                    if (!scrollTarget.hasClients) return;
-                    scrollTarget.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                    );
-                  },
-                ),
+            builder: (context, visible, _) => GlassReveal(
+              visible: visible,
+              // 这处历来没有位移，只做材质淡入
+              slideFrom: Offset.zero,
+              builder: (context, m) => GlassIconButton(
+                materialize: m,
+                standalone: true,
+                icon: const Icon(Icons.vertical_align_top),
+                tooltip: t.common.scrollToTop,
+                onPressed: () {
+                  if (!scrollTarget.hasClients) return;
+                  scrollTarget.animateTo(
+                    0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOutCubic,
+                  );
+                },
               ),
             ),
           ),

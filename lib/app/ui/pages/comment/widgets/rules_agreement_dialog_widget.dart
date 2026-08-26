@@ -8,7 +8,6 @@ import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 class RulesAgreementDialog extends StatefulWidget {
   final ScrollController scrollController;
 
@@ -157,12 +156,7 @@ class _RulesAgreementDialogState extends State<RulesAgreementDialog> {
           ),
         const Divider(height: 1),
         Container(
-          padding: EdgeInsets.fromLTRB(
-            16.0,
-            16.0,
-            16.0,
-            16.0 + computeSheetBottomInset(context),
-          ),
+          padding: const EdgeInsets.all(16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

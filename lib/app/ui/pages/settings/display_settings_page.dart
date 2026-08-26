@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
@@ -59,7 +60,7 @@ class DisplaySettingsPage extends StatelessWidget {
           Obx(
             () => Column(
               children: [
-                SwitchListTile(
+                GlassSwitchItem(
                   title: Text(slang.t.settings.useTraditionalPaginationMode),
                   subtitle: Text(
                     slang.t.settings.useTraditionalPaginationModeDesc,

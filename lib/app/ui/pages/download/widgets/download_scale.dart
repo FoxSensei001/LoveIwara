@@ -10,6 +10,7 @@
 // 2. 列表项内对写死的尺寸（缩略图 / padding / 头像等）乘以
 //    `DownloadUiScale.of(context)` 得到的系数即可。
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 /// 计算下载页的缩放系数。
 ///
@@ -112,6 +113,57 @@ class DownloadActionButtonTheme extends StatelessWidget {
         style: downloadActionIconButtonStyle(scale),
       ),
       child: child,
+    );
+  }
+}
+
+/// 条目里那只「更多」按钮：外观和身边的 [IconButton] 一致（同一份
+/// [downloadActionIconButtonStyle] 的尺寸），手感走全站玻璃那套。
+///
+/// 单独立一个组件，是因为它比邻座多两件事，而这两件都不能靠调用点各写一遍：
+///   - **长按也能开菜单，且不抬手可以直接划到某一条上松手选中**——由
+///     [GlassPressable.opensOverlay] 声明（见 `GlassTapArea.opensOverlay`）；
+///     `IconButton` 接不了这条。
+///   - **菜单要贴着这只按钮弹**，落点得拿按钮自身的 `RenderBox` 量，所以
+///     [onPressed] 收到的是 [Builder] 给的 anchorContext，而不是外层那张卡片。
+class DownloadMoreButton extends StatelessWidget {
+  const DownloadMoreButton({
+    super.key,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  final String tooltip;
+
+  /// 参数是这只按钮自身的 context，直接拿去当玻璃菜单的 `anchorContext`。
+  final void Function(BuildContext anchorContext) onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = DownloadUiScale.of(context);
+    return Tooltip(
+      message: tooltip,
+      child: Builder(
+        builder: (anchorContext) => GlassPressable(
+          opensOverlay: true,
+          onTap: () => onPressed(anchorContext),
+          builder: (context, pressed) => SizedBox(
+            height: 40 * scale,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4 * scale),
+              child: Center(
+                child: Icon(
+                  Icons.more_horiz,
+                  size: 22 * scale,
+                  // 与身边 IconButton 的默认前景色对齐（M3 的 icon button
+                  // 取 onSurfaceVariant，裸 Icon 走的是 iconTheme）。
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

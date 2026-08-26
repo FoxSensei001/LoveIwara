@@ -33,6 +33,7 @@ class FavoriteIwaraTagsPage extends StatelessWidget {
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: Obx(
           () => _FavoriteTagWall(
             paddingTop: headerExtent,
@@ -152,6 +153,7 @@ class _FavoriteOreno3dTagsPageState extends State<FavoriteOreno3dTagsPage>
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
+        liquid: true,
         body: TabBarView(
           controller: _tabController,
           physics: const ClampingScrollPhysics(),

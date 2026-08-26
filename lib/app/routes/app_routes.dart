@@ -25,6 +25,7 @@ abstract class Routes {
   static const ROOT = _Paths.ROOT;
   static const FIRST_TIME_SETUP = _Paths.FIRST_TIME_SETUP;
 
+  static const SEARCH = _Paths.SEARCH;
   static const SEARCH_RESULT = _Paths.SEARCH_RESULT;
 
   static const PLAY_LIST = _Paths.PLAY_LIST;
@@ -115,6 +116,7 @@ abstract class _Paths {
   static const THEME_SETTINGS_PAGE = '/theme_settings_page';
   static const AUTHOR_PROFILE = '/author_profile/:userName';
   static const NOT_FOUND = '/not_found';
+  static const SEARCH = '/search';
   static const SEARCH_RESULT = '/search_result';
   static const PLAYLIST_DETAIL = '/playlist_detail/:id';
   static const PLAY_LIST = '/play_list';

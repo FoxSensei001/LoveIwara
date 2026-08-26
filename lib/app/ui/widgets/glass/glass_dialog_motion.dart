@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
 /// 弹窗出入场的动画风格。
 ///
@@ -23,6 +24,23 @@ enum GlassDialogMotion {
 }
 
 /// 弹窗出入场过渡。入场/出场共用一条 [animation]，靠 `reverseCurve` 分别取曲线。
+///
+/// ⛔ **这里不再有 `FadeTransition`**。2026-08-24 之前用它包住整个 [child]
+/// （面板+正文），而 `RenderOpacity` 在 α∈(0,1) 期间会 `saveLayer` 把子树
+/// 隔离出去——面板若接了液态 lens（`GlassSurface` 的 `easyLens`/`liquidWidgets`
+/// 档），backdrop 采样吃不到身后像素，玻璃要等这层撤掉才「啪」地补上。
+/// `glass_menu.dart`/`liquid_glass_material.dart` 文件头记录的那次实锤就是
+/// 同一个坑，玻璃菜单已经改成不含透明度层的「卷开」；本文件现在照同一原则
+/// 处理弹窗：**形状**（缩放/位移）继续用 `Scale`/`SlideTransition`——纯
+/// `Transform`，不建 saveLayer，不影响折射；**材质**（玻璃自身的色调/描边/
+/// 投影透明度）改由 [GlassDialogMotionScope] 把驱动动画原样递给内容，内容
+/// 自己驱动 `GlassSurface.materialize`（同 [GlassIconButton]/`showGlassMenu`
+/// 那套），图层结构全程不变。
+///
+/// 非玻璃内容（不读 [GlassDialogMotionScope] 的旧式弹窗 body）不会再有淡入——
+/// 只剩缩放/位移，不是回归：这本身就是「不建透明度层」这条硬约束下唯一稳妥的
+/// 全局默认值，玻璃内容额外接的 `materialize` 是在这个基础上的加分项，不是
+/// 前提。
 class GlassDialogTransition extends StatelessWidget {
   const GlassDialogTransition({
     super.key,
@@ -52,21 +70,35 @@ class GlassDialogTransition extends StatelessWidget {
       reverseCurve: GlassTokens.dialogExitCurve,
     );
 
-    final faded = FadeTransition(opacity: curved, child: child);
+    // ⭐ 弹窗背景为不透明 Material 材质（surface），内部按钮采用轻量高效的
+    // GlassBackend.plain 档位（半透明底色 + 细边框 + 投影，0 Shader 开销）。
+    // 避免在 240ms 的缩放/平移动画中每帧对底层复杂页面进行昂贵的 Backdrop 采样。
+    //
+    // 配套 RepaintBoundary：使 ScaleTransition / SlideTransition 动画由合成器
+    // 硬件加速执行变换，无需在动画期间逐帧重新绘制弹窗内部内容。
+    final Widget scoped = RepaintBoundary(
+      child: GlassDialogMotionScope(
+        animation: curved,
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
+          child: LiquidGlassScope(backend: GlassBackend.plain, child: child),
+        ),
+      ),
+    );
 
     return switch (_resolve(context)) {
       GlassDialogMotion.scale => ScaleTransition(
         scale: curved.drive(Tween<double>(begin: _scaleBegin, end: 1)),
-        child: faded,
+        child: scoped,
       ),
       GlassDialogMotion.page => SlideTransition(
         position: curved.drive(
           Tween<Offset>(begin: const Offset(0, _slideBegin), end: Offset.zero),
         ),
-        child: faded,
+        child: scoped,
       ),
       // 兜底：_resolve 不会返回 auto。
-      GlassDialogMotion.auto => faded,
+      GlassDialogMotion.auto => scoped,
     };
   }
 
@@ -76,6 +108,35 @@ class GlassDialogTransition extends StatelessWidget {
         ? GlassDialogMotion.scale
         : GlassDialogMotion.page;
   }
+}
+
+/// 把弹窗出入场的驱动动画（0→1 入场，1→0 出场，已过曲线）沿子树下发。
+///
+/// 弹窗内容（典型是 [GlassAlertDialog]）拿它驱动自己的
+/// `GlassSurface.materialize`，让玻璃材质随入场动画同步淡入——不是靠
+/// `Opacity` 包一层，是压材质自身的色调/描边/投影透明度，图层结构不变。
+///
+/// 没有祖先 scope 时 [maybeOf] 返回 null——弹窗内容要能在非 `GlassDialogRoute`
+/// 语境下（单测、未来别的路由实现）照常工作，退化成静止态（materialize
+/// 恒为 1）。
+class GlassDialogMotionScope extends InheritedWidget {
+  const GlassDialogMotionScope({
+    super.key,
+    required this.animation,
+    required super.child,
+  });
+
+  final Animation<double> animation;
+
+  static Animation<double>? maybeOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<GlassDialogMotionScope>()
+        ?.animation;
+  }
+
+  @override
+  bool updateShouldNotify(GlassDialogMotionScope oldWidget) =>
+      animation != oldWidget.animation;
 }
 
 /// 带 [GlassDialogTransition] 的弹窗路由。

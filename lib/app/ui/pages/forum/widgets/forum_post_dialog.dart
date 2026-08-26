@@ -15,10 +15,10 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class ForumPostDialog extends StatefulWidget {
   const ForumPostDialog({super.key, this.onSubmit, this.initCategoryId});
@@ -129,10 +129,10 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showEmojiPicker() {
-    showModalBottomSheet(
+    // 走 showGlassBottomSheet 而不是裸 showModalBottomSheet：液态档供在那条
+    // 路由上，裸开的弹层里所有玻璃件都会静默落回传统档。
+    showGlassBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
         onEmojiSelected: (imageUrl, size) {
@@ -182,23 +182,19 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showMarkdownHelp() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => const MarkdownSyntaxHelp(),
     );
   }
 
   Future<void> _showRulesDialog() async {
-    final result = await showModalBottomSheet<bool>(
+    final result = await showGlassDraggableBottomSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.8,
         minChildSize: 0.5,
         maxChildSize: 0.95,
-        expand: false,
         builder: (context, scrollController) =>
             RulesAgreementDialog(scrollController: scrollController),
       ),
@@ -376,17 +372,12 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
   }
 
   void _showCategoryPicker() {
-    showModalBottomSheet(
+    showGlassDraggableBottomSheet(
       context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (context) => GlassDraggableBottomSheet(
         initialChildSize: 0.6,
         minChildSize: 0.3,
         maxChildSize: 0.9,
-        expand: false,
         builder: (context, scrollController) => Column(
           children: [
             Padding(
@@ -401,9 +392,6 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
             Expanded(
               child: ListView.builder(
                 controller: scrollController,
-                padding: EdgeInsets.only(
-                  bottom: computeSheetBottomInset(context),
-                ),
                 itemCount: _categories?.length ?? 0,
                 itemBuilder: (context, index) {
                   final category = _categories![index];

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 class MarkdownSyntaxHelp extends StatelessWidget {
   const MarkdownSyntaxHelp({super.key});
@@ -17,32 +17,12 @@ class MarkdownSyntaxHelp extends StatelessWidget {
     // 判断是否是窄屏设备（如手机）
     final isNarrowScreen = screenWidth < 600;
 
-    return DraggableScrollableSheet(
+    return GlassDraggableBottomSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
       maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-        ),
-        child: Column(
+      builder: (context, scrollController) => Column(
           children: [
-            // 拖拽条，与全站其它 DraggableScrollableSheet 同一口径
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 4),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               child: Row(
@@ -68,12 +48,7 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             Expanded(
               child: ListView(
                 controller: scrollController,
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  16,
-                  16,
-                  16 + computeSheetBottomInset(context),
-                ),
+                padding: const EdgeInsets.all(16),
                 children: [
                   _buildSection(
                     context,
@@ -144,7 +119,6 @@ class MarkdownSyntaxHelp extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 
