@@ -876,6 +876,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       title: Text(title),
       subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
       trailing: GlassDropdownField<String>(
+        // ListTile.trailing 拿到的是整条 tile 的宽度，撑满会把标题挤没
+        shrinkWrap: true,
         value: options.contains(value) ? value : options.first,
         enabled: onChanged != null,
         onChanged: onChanged == null

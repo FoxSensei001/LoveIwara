@@ -32,13 +32,28 @@ class GlassDropdownField<T> extends StatelessWidget {
     this.value,
     this.hint,
     this.enabled = true,
+    this.shrinkWrap = false,
   });
 
   final List<GlassDropdownItem<T>> items;
   final T? value;
   final ValueChanged<T?> onChanged;
   final String? hint;
+
+  /// false 时这一行会**撑满拿到的宽度**，箭头贴右——这是选择器该有的样子
+  /// （文字长短不该让箭头跟着晃）。
+  ///
+  /// 只有「按内容收缩才对」的位置才传 true，例如 `ListTile.trailing`：那里
+  /// 的约束是整条 tile 的宽度，撑满会把标题挤没。
+  final bool shrinkWrap;
+
+  /// 不可用时**要看得出来**：底色/描边压淡、文字与箭头走 disabled 前景色。
+  /// 光是点不动而样式不变会误导——用户会以为是自己没点准（2026-08-26 反馈：
+  /// 「没选年的时候月份点不了，可是它们两个的颜色都一样」）。
   final bool enabled;
+
+  /// Material 的 disabled 前景不透明度。
+  static const double _disabledAlpha = 0.38;
 
   @override
   Widget build(BuildContext context) {
@@ -81,36 +96,61 @@ class GlassDropdownField<T> extends StatelessWidget {
               if (picked != null) onChanged(picked);
             }
           : null,
-      builder: (context, pressed) => AnimatedContainer(
-        duration: GlassTokens.pressDuration,
-        curve: Curves.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: GlassTokens.stroke(cs), width: 0.6),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (selected?.icon != null) ...[
-              Icon(selected!.icon, size: 18, color: cs.onSurfaceVariant),
-              const SizedBox(width: 8),
-            ],
-            Flexible(
-              child: Text(
-                selected?.label ?? hint ?? '',
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: selected == null ? cs.onSurfaceVariant : cs.onSurface,
-                ),
-              ),
-            ),
-            const SizedBox(width: 6),
-            Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
-          ],
-        ),
-      ),
+      builder: (context, pressed) {
+        final Color labelColor = !enabled
+            ? cs.onSurface.withValues(alpha: _disabledAlpha)
+            : (selected == null ? cs.onSurfaceVariant : cs.onSurface);
+        final Color accessoryColor = enabled
+            ? cs.onSurfaceVariant
+            : cs.onSurfaceVariant.withValues(alpha: _disabledAlpha);
+        final Color fill = !enabled
+            ? GlassTokens.fill(cs).withValues(alpha: 0.4)
+            : (pressed ? GlassTokens.pressedFill(cs) : GlassTokens.fill(cs));
+        final Color stroke = enabled
+            ? GlassTokens.stroke(cs)
+            : GlassTokens.stroke(cs).withValues(alpha: 0.4);
+
+        final label = Text(
+          selected?.label ?? hint ?? '',
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.bodyMedium?.copyWith(color: labelColor),
+        );
+
+        return AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: fill,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: stroke, width: GlassTokens.strokeWidth),
+          ),
+          // 宽度有界就撑满、箭头贴右；无界（横向滚动行里）只能按内容收缩。
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final bool fillWidth =
+                  !shrinkWrap && constraints.maxWidth.isFinite;
+              return Row(
+                mainAxisSize: fillWidth
+                    ? MainAxisSize.max
+                    : MainAxisSize.min,
+                children: [
+                  if (selected?.icon != null) ...[
+                    Icon(selected!.icon, size: 18, color: accessoryColor),
+                    const SizedBox(width: 8),
+                  ],
+                  if (fillWidth)
+                    Expanded(child: label)
+                  else
+                    Flexible(child: label),
+                  const SizedBox(width: 6),
+                  Icon(Icons.expand_more, size: 18, color: accessoryColor),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
