@@ -5,7 +5,10 @@
 ///   - `adjudicate`：现有译名与 Danbooru 证据不一致，需要裁决保留还是替换
 ///
 /// 契约（与 tool/tag_verify/README.md 一致，收回时由 ingest.dart 强制校验）：
-///   - 每批默认 120 条，agent 读 `batch_XXX.in.json` 写 `batch_XXX.out.json`
+///   - 每批默认 120 条，agent 读 `batch_XXX.in.json`，
+///     **拷贝 `batch_XXX.tpl.json` 为 `batch_XXX.out.json` 后就地填值**
+///     （模板里 key 与条数已经排好，agent 不再有机会重排 key —— 实测它会整块丢掉
+///     输入中间的一段再拿别处的 key 凑数，提示词拦不住，把动作删掉才拦得住）
 ///   - **agent 永远不碰主词库**，合并只由 ingest.dart 做
 ///   - key 与条数必须与输入完全一致，不得增删
 ///   - 没有把握就 keep / 保留原文，不要编
@@ -21,6 +24,9 @@ import 'dart:io';
 const _defaultSize = 120;
 const _langs = ['zh-CN', 'zh-TW', 'ja', 'en'];
 final _paren = RegExp(r'[（(][^）)]*[）)]');
+
+/// 假名（不含 `・`，它是分隔符，「催眠・洗脑」这类是合格中文）。
+final _kana = RegExp(r'[぀-ゟ゠-ヺー-ヿ]');
 
 Map<String, dynamic> _json(String p) =>
     jsonDecode(File(p).readAsStringSync()) as Map<String, dynamic>;
@@ -112,6 +118,32 @@ void main(List<String> args) {
       });
     }
 
+    // 「已有译名，但中文位上写的还是日文」——多为上一轮按「没把握就保留原文」
+    // 留下的片假名人名。用户口径是这类也要音译成纯中文，否则界面照旧显示日文，
+    // 正是最初报障的那个现象。这类条目 missing 为空，走不到上面的补译分支，
+    // 必须单独收进队列。
+    final kanaLangs = _langs
+        .where((l) => l.startsWith('zh') && _kana.hasMatch('${cur[l] ?? ''}'))
+        .toList();
+    if (kanaLangs.isNotEmpty && !decidedOreno.contains(key)) {
+      tasks.add({
+        'dataset': 'oreno3d',
+        'key': key,
+        'type': 'translate',
+        'source': source,
+        'origin': entry['origin'],
+        'workCount': entry['workCount'],
+        'need': kanaLangs,
+        'known': {
+          for (final l in _langs)
+            if (!kanaLangs.contains(l) && '${cur[l] ?? ''}'.trim().isNotEmpty)
+              l: '${cur[l]}',
+        },
+        'note': '当前中文位仍是日文原文，请音译成纯中文（不要回填罗马音）',
+        'evidence': evidence,
+      });
+    }
+
     if (r['verdict'] == 'disagree' && !decidedOreno.contains(key)) {
       final pool = _cleanPool(
           (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
@@ -134,33 +166,86 @@ void main(List<String> args) {
   }
 
   // ---------------- iwara ----------------
+  //
+  // ⚠️ 这里**遍历原始标签表**，而不是遍历证据结果。
+  // 老实现只走 `iEv['results']` 且只处理 `disagree`，有两个后果：
+  //   1. 未补译的新标签压根不进队列——重抓带回 273 条时一条都排不出来；
+  //   2. 「拉不到 Danbooru 证据」会变成排队的阻塞条件，而证据只是线索，
+  //      不该决定一个词条要不要被翻译（agent 自己也能联网核实）。
+  // 现在证据是可选附加项：有就带上，没有就留空。
   final iLoc = _json('tool/data/iwara_tags/iwara_tags_localized.json');
   final iEv = _json('tool/tag_verify/out/evidence_iwara.json');
-  for (final r in (iEv['results'] as List).cast<Map<String, dynamic>>()) {
-    if (r['verdict'] != 'disagree') continue;
-    final key = r['key'] as String;
-    if (decidedIwara.contains(key)) continue;
+  final iEvByKey = <String, Map<String, dynamic>>{
+    for (final r in (iEv['results'] as List).cast<Map<String, dynamic>>())
+      '${r['key']}': r,
+  };
+  final iRaw = _json('tool/data/iwara_tags/iwara_tags.json');
+
+  for (final e in (iRaw['tags'] as List).cast<Map<String, dynamic>>()) {
+    final key = '${e['id']}';
     final source = key.replaceAll('_', ' ');
-    final cur = (iLoc[key] as Map?)?.cast<String, dynamic>() ?? const {};
-    final pool = _cleanPool(
-        (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
-    if (pool.isEmpty) continue;
-    final ev = _evidence(r);
+    final cur = (iLoc[key] as Map?)?.cast<String, dynamic>();
+    final r = iEvByKey[key];
+    final ev = r == null ? null : _evidence(r);
     final warn = _categoryWarning('iwara', ev);
-    final task = <String, dynamic>{
-      'dataset': 'iwara',
-      'key': key,
-      'type': 'adjudicate',
-      'source': source,
-      'current': {
-        for (final l in _langs)
-          if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
-      },
-      'candidates': pool,
-      'evidence': ev,
-    };
-    if (warn != null) task['warning'] = warn;
-    tasks.add(task);
+
+    Map<String, dynamic> mk(String type) {
+      final t = <String, dynamic>{
+        'dataset': 'iwara',
+        'key': key,
+        'type': type,
+        'source': source,
+        'tagType': e['type'],
+        'evidence': ?ev,
+      };
+      if (warn != null) t['warning'] = warn;
+      return t;
+    }
+
+    if (cur == null) {
+      tasks.add(mk('translate')
+        ..['need'] = _langs.toList()
+        ..['known'] = const <String, String>{});
+      continue;
+    }
+
+    final missing =
+        _langs.where((l) => '${cur[l] ?? ''}'.trim().isEmpty).toList();
+    if (missing.isNotEmpty) {
+      tasks.add(mk('translate')
+        ..['need'] = missing
+        ..['known'] = {
+          for (final l in _langs)
+            if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
+        });
+    }
+
+    // 与 oreno3d 侧同一条：中文位上写的还是日文，等于没译。
+    final kanaLangs = _langs
+        .where((l) => l.startsWith('zh') && _kana.hasMatch('${cur[l] ?? ''}'))
+        .toList();
+    if (kanaLangs.isNotEmpty && !decidedIwara.contains(key)) {
+      tasks.add(mk('translate')
+        ..['need'] = kanaLangs
+        ..['known'] = {
+          for (final l in _langs)
+            if (!kanaLangs.contains(l) && '${cur[l] ?? ''}'.trim().isNotEmpty)
+              l: '${cur[l]}',
+        }
+        ..['note'] = '当前中文位仍是日文原文，请音译成纯中文（不要回填罗马音）');
+    }
+
+    if (r != null && r['verdict'] == 'disagree' && !decidedIwara.contains(key)) {
+      final pool = _cleanPool(
+          (r['candidates'] as Map?)?.cast<String, dynamic>(), source);
+      if (pool.isEmpty) continue;
+      tasks.add(mk('adjudicate')
+        ..['current'] = {
+          for (final l in _langs)
+            if ('${cur[l] ?? ''}'.trim().isNotEmpty) l: '${cur[l]}',
+        }
+        ..['candidates'] = pool);
+    }
   }
 
   // 热门的先做：错在热门词条上影响面更大。
@@ -170,7 +255,9 @@ void main(List<String> args) {
   final outDir = Directory('tool/tag_verify/out/batches')
     ..createSync(recursive: true);
   for (final f in outDir.listSync()) {
-    if (f.path.endsWith('.in.json')) f.deleteSync();
+    if (f.path.endsWith('.in.json') || f.path.endsWith('.tpl.json')) {
+      f.deleteSync();
+    }
   }
 
   const enc = JsonEncoder.withIndent('  ');
@@ -183,14 +270,34 @@ void main(List<String> args) {
     // 要求输出原样回带。否则上一代的 .out.json 会被拿来比这一代的 .in.json，
     // 报出「漏了 120 条 / 凭空多出 120 条」这种把人引向错误方向的信息。
     final fingerprint = _fingerprint(slice.map((e) => '${e['key']}').toList());
-    File('${outDir.path}/batch_${n.toString().padLeft(3, '0')}.in.json')
-        .writeAsStringSync(enc.convert({
+    final stem = 'batch_${n.toString().padLeft(3, '0')}';
+    File('${outDir.path}/$stem.in.json').writeAsStringSync(enc.convert({
       'schema': 1,
       'batch': n,
       'inputFingerprint': fingerprint,
       'count': slice.length,
       'contract': _contract,
       'entries': slice,
+    }));
+
+    // 同时出一份「填空模板」：key 已按输入顺序排好、条数已对，agent 只需就地填值。
+    //
+    // 这不是锦上添花。实测 agent 会整块丢掉输入中间的一段（如第 60-78 位），
+    // 再从别的批次和凭空编造的 key 里补齐条数——**条数对得上，key 全错**。
+    // 提示词里写「不得增删 key」拦不住这个：它不是不知道规则，是自己重排了一遍 key。
+    // 模板把「重排 key」这个动作从流程里删掉，这一类错误就无从发生。
+    File('${outDir.path}/$stem.tpl.json').writeAsStringSync(enc.convert({
+      'batch': n,
+      'inputFingerprint': fingerprint,
+      'entries': [
+        for (final t in slice)
+          {
+            'key': t['key'],
+            if (t['type'] == 'adjudicate') 'decision': '',
+            'names': {for (final l in (t['need'] as List? ?? const [])) l: ''},
+            'reason': '',
+          },
+      ],
     }));
   }
 
@@ -201,7 +308,7 @@ void main(List<String> args) {
   stdout.writeln('共 ${tasks.length} 条待判断 -> $n 个批次（每批 $size）');
   byType.forEach((k, v) => stdout.writeln('  $k  $v'));
   stdout.writeln('输出目录 ${outDir.path}');
-  stdout.writeln('\n跑完把结果写成同名的 .out.json，然后：');
+  stdout.writeln('\n每批先 cp batch_XXX.tpl.json batch_XXX.out.json 再就地填值，然后：');
   stdout.writeln('  dart run tool/tag_verify/ingest.dart');
 }
 
@@ -261,7 +368,11 @@ const _contract = {
     'evidence.danbooruCategory 说明 Danbooru 那条 tag 讲的是什么：'
         'character=角色、copyright=作品、general=普通名词。'
         'iwara 是角色向站点，general 分类的候选常常与本标签的实际所指无关',
-    '绝不要把罗马音塞回中文译名（「天海琉夏」->「雨海Ruka」这种方向是错的）',
+    '绝不要把罗马音塞回中文译名（「天海琉夏」->「雨海Ruka」这种方向是错的）。'
+    '没有公认中文名的小众角色（多为个人势 VTuber）也要按通行读法音译成纯中文，'
+    '不要写成「杏户yuge」：词库同类词条压倒性是纯中文'
+    '（改造前 129 条含假名的 Vtuber 词条里只有 10 条含拉丁，'
+    '其中数条本就是拉丁艺名，还有一条正是上面那个反面例子）。',
   ],
 };
 

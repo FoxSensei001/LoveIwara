@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -22,10 +23,16 @@ class DictionarySnapshot {
   /// 条目数。仅在 [rev] 缺失时作为退化判据。
   final int count;
 
+  /// 产物构建时间（UTC）。**[rev] 是内容指纹、不带先后关系**，
+  /// 要回答「缓存那份和打包那份谁更新」只能靠它。
+  /// 本字段之前的产物没有它。
+  final DateTime? builtAt;
+
   const DictionarySnapshot({
     required this.version,
     required this.rev,
     required this.count,
+    this.builtAt,
   });
 
   bool get isEmpty => count == 0;
@@ -50,6 +57,7 @@ DictionarySnapshot? peekSnapshot(
       version: (decoded['version'] as num?)?.toInt() ?? 1,
       rev: decoded['rev'] as String?,
       count: count,
+      builtAt: DateTime.tryParse('${decoded['builtAt'] ?? ''}')?.toUtc(),
     );
   } catch (_) {
     return null;
@@ -62,10 +70,39 @@ DictionarySnapshot? peekSnapshot(
 /// 任意一边缺 `rev`（旧产物或旧缓存）时退回旧的条目数判据，保持向后兼容。
 bool shouldRebuild(DictionarySnapshot? loaded, DictionarySnapshot incoming) {
   if (loaded == null) return true;
+  // 指纹只答「一不一样」，`builtAt` 才答「谁更新」。远端明显更旧时不要降级——
+  // jsDelivr 的 @master 缓存可以滞后好几天，用户装的包却可能比它新。
+  final loadedAt = loaded.builtAt;
+  final incomingAt = incoming.builtAt;
+  if (loadedAt != null && incomingAt != null && incomingAt.isBefore(loadedAt)) {
+    return false;
+  }
   final a = loaded.rev;
   final b = incoming.rev;
   if (a != null && b != null) return a != b;
   return loaded.count != incoming.count;
+}
+
+/// 冷启动时「缓存那份」和「打包那份」谁该赢。
+///
+/// 老实现是缓存无条件优先，代价是：发版带了更新的词库，只要用户本地还留着
+/// 上一版的 CDN 缓存就一直用旧的——他若连不上 jsDelivr（国内常见），
+/// 新译名**永远**到不了他手里。
+///
+/// 判据是 `builtAt`：
+/// - 两边都有 → 新的赢；
+/// - 缓存没有、打包有 → 打包赢（没有 `builtAt` 的缓存必定早于这个字段本身）；
+/// - 其余（都没有 / 只有缓存有）→ 缓存赢，保持老行为。
+///
+/// 返回 true 表示该用打包资源。
+bool assetBeatsCache(DictionarySnapshot? cache, DictionarySnapshot? asset) {
+  if (cache == null) return true;
+  if (asset == null) return false;
+  final a = asset.builtAt;
+  final c = cache.builtAt;
+  if (a == null) return false;
+  if (c == null) return true;
+  return a.isAfter(c);
 }
 
 /// 两个本地化服务共用的 CDN 拉取 + 缓存落盘。
@@ -118,6 +155,34 @@ class TagDictionaryFetcher {
     } catch (e) {
       LogUtils.w('写入词库缓存失败: $e', logTag);
     }
+  }
+
+  /// 冷启动读词库：在「CDN 缓存」与「打包资源」之间取 `builtAt` 更新的那份。
+  ///
+  /// 收口在这里而不是各服务自己写一遍，是因为这段逻辑此前就是两份同构拷贝，
+  /// 而这类重复的代价是修一处漏一处。判据见 [assetBeatsCache]。
+  Future<String?> readFreshest({
+    required String assetKey,
+    required int Function(Map<String, dynamic> decoded) countEntries,
+  }) async {
+    final cache = await readCache();
+    String? asset;
+    try {
+      asset = await rootBundle.loadString(assetKey);
+    } catch (e) {
+      LogUtils.e('加载打包词库失败', tag: logTag, error: e);
+    }
+    if (cache == null) return asset;
+    if (asset == null) return cache;
+
+    final useAsset = assetBeatsCache(
+      peekSnapshot(cache, countEntries),
+      peekSnapshot(asset, countEntries),
+    );
+    if (useAsset) {
+      LogUtils.i('打包词库比 CDN 缓存新，本次用打包那份', logTag);
+    }
+    return useAsset ? asset : cache;
   }
 
   /// 读取缓存原文；不存在或为空返回 null。

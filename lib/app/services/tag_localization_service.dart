@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
@@ -163,25 +161,11 @@ class TagLocalizationService extends GetxService {
     _rebuild(raw, currentLocaleKey());
   }
 
-  /// 读取词库原始 JSON 文本：优先缓存的 CDN 快照，回退到打包资源。
-  Future<String?> _readSource() async {
-    try {
-      final file = await _cacheFile();
-      if (await file.exists()) {
-        final content = await file.readAsString();
-        if (content.isNotEmpty) return content;
-      }
-    } catch (e) {
-      LogUtils.w('读取标签词库缓存失败，回退到打包资源: $e', '标签本地化');
-    }
-    try {
-      return await rootBundle
-          .loadString(CommonConstants.iwaraTagsLocalizationAsset);
-    } catch (e) {
-      LogUtils.e('加载打包标签词库失败', tag: '标签本地化', error: e);
-      return null;
-    }
-  }
+  /// 读取词库原始 JSON 文本：缓存的 CDN 快照与打包资源之间取更新的那份。
+  Future<String?> _readSource() => _fetcher.readFreshest(
+        assetKey: CommonConstants.iwaraTagsLocalizationAsset,
+        countEntries: _countTags,
+      );
 
   void _scheduleCdnRefresh() {
     if (_cdnRefreshScheduled) return;
@@ -223,7 +207,6 @@ class TagLocalizationService extends GetxService {
   static int _countTags(Map<String, dynamic> decoded) =>
       (decoded['tags'] as Map?)?.length ?? 0;
 
-  Future<File> _cacheFile() => _fetcher.cacheFile();
 
   /// 解析原始 JSON，只为 [localeKey] 物化译名，重建精简映射。
   void _rebuild(String content, String localeKey) {
@@ -235,6 +218,7 @@ class TagLocalizationService extends GetxService {
         version: (decoded['version'] as num?)?.toInt() ?? 1,
         rev: decoded['rev'] as String?,
         count: tags.length,
+        builtAt: DateTime.tryParse('${decoded['builtAt'] ?? ''}')?.toUtc(),
       );
 
       final next = <String, _SlimTag>{};

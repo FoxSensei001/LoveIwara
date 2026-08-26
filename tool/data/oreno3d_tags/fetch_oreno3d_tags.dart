@@ -15,10 +15,18 @@ import 'package:html/parser.dart' as html_parser;
 //
 // 站点结构（已逆向确认）：
 //   /origins                 → 「原作一覧」单页全量，a.group-list-li-a，约 809 条
-//   /characters              → 「キャラクター一覧」单页全量，约 1579 条（含所属原作）
-//                              ?page=N 对主列表无效，每页都返回相同全量，按 id 去重即可
+//   /characters              → 「キャラクター一覧」**不是全量，是排行榜**：只列作品数 ≥ 10 的角色
+//                              （实测快照里最小 workCount 恰为 10，一刀切）。
+//                              ?page=N 对主列表无效，每页都返回相同全量，按 id 去重即可。
 //   /tags                    → 「タググループ一覧」，列出 tag-group（/tag-groups/:id）
 //   /tag-groups/:id          → 该组下的标签列表，a.group-list-li-a，约 166 条合计
+//                              **不属于任何分组的标签抓不到**（如 /tags/277 = iwara）
+//
+// ⚠️ 只爬列表页会漏掉大半词库：id 空间是密集的（characters 1..约 5265 几乎全部 200），
+//    而列表页只给得出 1600 条 → 约 70% 的角色永远拿不到译名，界面回退日文原名。
+//    因此在列表页之后再跑一遍「按 id 顺扫详情页」补全（--no-sweep 可关）。
+//    详情页的 breadcrumb JSON-LD 一次给齐「干净名称 + 所属原作」，
+//    作品数用页内视频卡数量兜底（长尾条目 < 一页 36 条，数得准）。
 //
 //   单条结构通用：
 //     <a href="/{kind}/{id}" class="group-list-li-a ...">
@@ -32,9 +40,18 @@ import 'package:html/parser.dart' as html_parser;
 //
 // 用法（仓库根目录执行）：
 //   dart run tool/data/oreno3d_tags/fetch_oreno3d_tags.dart --proxy 127.0.0.1:7890
+//   dart run tool/data/oreno3d_tags/fetch_oreno3d_tags.dart --no-sweep   # 只爬列表页（快，但不全）
 
 const String _baseUrl = 'https://oreno3d.com';
 const String _defaultOutputPath = 'tool/data/oreno3d_tags/oreno3d_tags.json';
+
+/// 顺扫默认参数：对第三方站点保持克制的低并发 + 批间隔。
+const int _defaultSweepConcurrency = 4;
+const int _defaultSweepDelayMs = 120;
+
+/// 越过「已知最大 id」后，连续这么多个 404 才认为扫到头。
+/// id 空间偶有空洞（被删条目），取值要明显大于空洞长度。
+const int _defaultSweepGap = 60;
 const String _userAgent =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
     '(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
@@ -50,6 +67,12 @@ Future<void> main(List<String> args) async {
     final client = _Oreno3dFetcher(
       proxy: config.proxy,
       cookieHeader: config.cookieHeader,
+      sweep: config.sweep,
+      sweepConcurrency: config.sweepConcurrency,
+      sweepDelayMs: config.sweepDelayMs,
+      sweepGap: config.sweepGap,
+      sweepFrom: config.sweepFrom,
+      sweepMax: config.sweepMax,
     );
 
     final snapshot = await client.fetchAll();
@@ -107,7 +130,15 @@ void _printUsage() {
   stdout.writeln('                        建议挂日本住宅类节点。');
   stdout.writeln('  --cookie <header>    可选 Cookie 头（如已有 cf_clearance）。');
   stdout.writeln('  --changes <path>     额外写出「相比旧快照的变更清单」JSON（增量重抓用）。');
-  stdout.writeln('  --no-diff           跳过与旧快照的对比。');
+  stdout.writeln('  --no-diff            跳过与旧快照的对比。');
+  stdout.writeln('  --no-sweep           跳过「按 id 顺扫详情页」补全。');
+  stdout.writeln('                        ⚠️ 列表页只列作品数 ≥ 10 的角色，关掉会漏约 70%。');
+  stdout.writeln('  --sweep-concurrency <n>  顺扫并发数。默认: $_defaultSweepConcurrency');
+  stdout.writeln('  --sweep-delay <ms>       每批之间的间隔毫秒。默认: $_defaultSweepDelayMs');
+  stdout.writeln('  --sweep-gap <n>          越过已知最大 id 后，连续多少个 404 就停。');
+  stdout.writeln('                            默认: $_defaultSweepGap');
+  stdout.writeln('  --sweep-from <id>        顺扫的起始 id（默认 1）。');
+  stdout.writeln('  --sweep-max <id>         顺扫的 id 上限（调试用，默认无上限）。');
 }
 
 _ScriptConfig _parseArgs(List<String> args) {
@@ -116,6 +147,19 @@ _ScriptConfig _parseArgs(List<String> args) {
   String? cookieHeader;
   String? changesPath;
   bool noDiff = false;
+  bool sweep = true;
+  int sweepConcurrency = _defaultSweepConcurrency;
+  int sweepDelayMs = _defaultSweepDelayMs;
+  int sweepGap = _defaultSweepGap;
+  int sweepFrom = 1;
+  int? sweepMax;
+
+  int readInt(List<String> args, int i, String flag) {
+    if (i >= args.length) throw ArgumentError('缺少 $flag 的值');
+    final value = int.tryParse(args[i]);
+    if (value == null || value <= 0) throw ArgumentError('$flag 需要正整数');
+    return value;
+  }
 
   for (int i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -142,6 +186,24 @@ _ScriptConfig _parseArgs(List<String> args) {
       case '--no-diff':
         noDiff = true;
         break;
+      case '--no-sweep':
+        sweep = false;
+        break;
+      case '--sweep-concurrency':
+        sweepConcurrency = readInt(args, ++i, arg);
+        break;
+      case '--sweep-delay':
+        sweepDelayMs = readInt(args, ++i, arg);
+        break;
+      case '--sweep-gap':
+        sweepGap = readInt(args, ++i, arg);
+        break;
+      case '--sweep-from':
+        sweepFrom = readInt(args, ++i, arg);
+        break;
+      case '--sweep-max':
+        sweepMax = readInt(args, ++i, arg);
+        break;
       default:
         throw ArgumentError('未知参数: $arg');
     }
@@ -153,6 +215,12 @@ _ScriptConfig _parseArgs(List<String> args) {
     cookieHeader: cookieHeader,
     changesPath: changesPath,
     noDiff: noDiff,
+    sweep: sweep,
+    sweepConcurrency: sweepConcurrency,
+    sweepDelayMs: sweepDelayMs,
+    sweepGap: sweepGap,
+    sweepFrom: sweepFrom,
+    sweepMax: sweepMax,
   );
 }
 
@@ -324,6 +392,12 @@ class _ScriptConfig {
     this.cookieHeader,
     this.changesPath,
     this.noDiff = false,
+    this.sweep = true,
+    this.sweepConcurrency = _defaultSweepConcurrency,
+    this.sweepDelayMs = _defaultSweepDelayMs,
+    this.sweepGap = _defaultSweepGap,
+    this.sweepFrom = 1,
+    this.sweepMax,
   });
 
   final String outputPath;
@@ -331,11 +405,25 @@ class _ScriptConfig {
   final String? cookieHeader;
   final String? changesPath;
   final bool noDiff;
+  final bool sweep;
+  final int sweepConcurrency;
+  final int sweepDelayMs;
+  final int sweepGap;
+  final int sweepFrom;
+  final int? sweepMax;
 }
 
 class _Oreno3dFetcher {
-  _Oreno3dFetcher({String? proxy, String? cookieHeader})
-    : _dio = Dio(
+  _Oreno3dFetcher({
+    String? proxy,
+    String? cookieHeader,
+    this.sweep = true,
+    this.sweepConcurrency = _defaultSweepConcurrency,
+    this.sweepDelayMs = _defaultSweepDelayMs,
+    this.sweepGap = _defaultSweepGap,
+    this.sweepFrom = 1,
+    this.sweepMax,
+  }) : _dio = Dio(
         BaseOptions(
           baseUrl: _baseUrl,
           connectTimeout: const Duration(seconds: 30),
@@ -369,19 +457,192 @@ class _Oreno3dFetcher {
 
   final Dio _dio;
 
+  final bool sweep;
+  final int sweepConcurrency;
+  final int sweepDelayMs;
+  final int sweepGap;
+  final int sweepFrom;
+  final int? sweepMax;
+
   Future<_Snapshot> fetchAll() async {
     final origins = await _fetchListing('origins', '/origins');
     final characters = await _fetchCharacters();
     final tagResult = await _fetchTags();
 
+    // 列表页拿到的只是「够热门」的那部分，长尾要靠顺扫详情页补。
+    final sweptOrigins = await _sweepDetails('origins', origins);
+    final sweptCharacters = await _sweepDetails('characters', characters);
+    final sweptTags = await _sweepDetails('tags', tagResult.tags);
+
     return _Snapshot(
       source: _baseUrl,
       fetchedAt: DateTime.now().toUtc(),
-      origins: origins,
-      characters: characters,
+      origins: sweptOrigins,
+      characters: sweptCharacters,
       tagGroups: tagResult.groups,
-      tags: tagResult.tags,
+      tags: sweptTags,
     );
+  }
+
+  /// 按 id 顺扫 `/{kind}/{id}` 详情页，补上列表页给不出的条目。
+  ///
+  /// 只请求 [known] 里没有的 id：列表页那份带排名与准确作品数，永远优先。
+  /// 扫过「已知最大 id」之后，连续 [sweepGap] 个 404 就收工——id 空间中间
+  /// 会有被删条目留下的空洞，所以判据是「连续」而不是「首个」404。
+  Future<List<_Entity>> _sweepDetails(String kind, List<_Entity> known) async {
+    if (!sweep) return known;
+
+    final knownIds = {for (final e in known) int.parse(e.id)};
+    final maxKnown = knownIds.isEmpty
+        ? 0
+        : knownIds.reduce((a, b) => a > b ? a : b);
+
+    stdout.writeln(
+      '  顺扫 /$kind：列表页 ${known.length} 条（最大 id $maxKnown），'
+      '并发 $sweepConcurrency，连续 $sweepGap 个 404 收工',
+    );
+
+    final found = <_Entity>[];
+    int missStreak = 0;
+    int requested = 0;
+    int id = sweepFrom;
+
+    while (true) {
+      if (sweepMax != null && id > sweepMax!) break;
+      // 越过已知最大 id 之后才允许用 404 连击收工，否则中间的空洞会提前打断。
+      if (id > maxKnown && missStreak >= sweepGap) break;
+
+      final batch = <int>[];
+      while (batch.length < sweepConcurrency) {
+        if (sweepMax != null && id > sweepMax!) break;
+        if (!knownIds.contains(id)) batch.add(id);
+        id++;
+      }
+      if (batch.isEmpty) continue;
+
+      final results = await Future.wait(batch.map((i) => _fetchDetail(kind, i)));
+      requested += batch.length;
+      for (int k = 0; k < results.length; k++) {
+        final entity = results[k];
+        if (entity != null) {
+          missStreak = 0;
+          found.add(entity);
+        } else if (batch[k] > maxKnown) {
+          // 只有越过已知最大 id 之后的 404 才算「扫到头」的证据；
+          // maxKnown 以内的空洞是被删条目，不该把收工判据提前触发。
+          missStreak++;
+        }
+      }
+
+      if (found.isNotEmpty && requested % 200 < sweepConcurrency) {
+        stdout.writeln(
+          '    …已请求 $requested 个 id，补到 ${found.length} 条（当前 id $id）',
+        );
+      }
+      if (sweepDelayMs > 0) {
+        await Future.delayed(Duration(milliseconds: sweepDelayMs));
+      }
+    }
+
+    stdout.writeln(
+      '  顺扫 /$kind 完成：请求 $requested 个 id，补到 ${found.length} 条'
+      '（合计 ${known.length + found.length} 条）',
+    );
+    return _dedup([...known, ...found]);
+  }
+
+  /// 抓单个详情页；404 返回 null（该 id 不存在）。
+  Future<_Entity?> _fetchDetail(String kind, int id) async {
+    final path = '/$kind/$id';
+    final body = await _getOrNullWithRetry(path);
+    if (body == null) return null;
+
+    final crumbs = _parseBreadcrumb(body);
+    // 面包屑最后一项就是本条目；缺失（页面结构变了）时不猜，跳过并出声。
+    final name = crumbs.isEmpty ? '' : crumbs.last.name;
+    if (name.isEmpty) {
+      stderr.writeln('    ⚠️ $path 解析不出名称，已跳过（页面结构可能变了）');
+      return null;
+    }
+
+    String? origin;
+    if (kind == 'characters' && crumbs.length >= 2) {
+      final parent = crumbs[crumbs.length - 2];
+      if (parent.id != null && parent.id!.startsWith('origins/')) {
+        origin = parent.name;
+      }
+    }
+
+    return _Entity(
+      id: '$id',
+      name: name,
+      url: '$_baseUrl$path',
+      workCount: await _workCountFromDetail(path, body),
+      origin: origin,
+    );
+  }
+
+  /// 详情页作品数。
+  ///
+  /// 无翻页时就是页内视频卡数。有翻页时**必须多翻一页把它数准**：
+  /// 这个数字在 App 里是露脸的（标签选择器显示「N 作品」并按它排序），
+  /// 留空会被当成 0——`tags/277`（iwara，9411 页）就会沉到选择器最底下。
+  /// 末页 = 满页数 × (末页号 - 1) + 末页卡片数，只多花一个请求，
+  /// 而且需要翻页的条目在顺扫里本就极少（排行榜已经收走了热门的那些）。
+  Future<int?> _workCountFromDetail(String path, String body) async {
+    final perPage = _countMovies(body);
+    final lastPage = RegExp(r'href="[^"]*[?&]page=(\d+)')
+        .allMatches(body)
+        .map((m) => int.parse(m.group(1)!))
+        .fold<int>(1, (a, b) => a > b ? a : b);
+    if (lastPage <= 1 || perPage == 0) return perPage;
+
+    final tail = await _getOrNullWithRetry('$path?page=$lastPage');
+    // 末页取不回来时不猜：宁可少算也不写个凭空的数，至少下界是真的。
+    if (tail == null) return perPage * (lastPage - 1);
+    return perPage * (lastPage - 1) + _countMovies(tail);
+  }
+
+  int _countMovies(String body) => RegExp(r'/movies/(\d+)')
+      .allMatches(body)
+      .map((m) => m.group(1)!)
+      .toSet()
+      .length;
+
+  /// 解析详情页的 BreadcrumbList JSON-LD：一次给齐「干净名称 + 所属原作」。
+  /// （`<h1>` 带站名后缀、列表页那套 class 在详情页根本不存在。）
+  List<_Crumb> _parseBreadcrumb(String body) {
+    final match = RegExp(
+      r'<script[^>]*application/ld\+json[^>]*>(.*?)</script>',
+      dotAll: true,
+    ).firstMatch(body);
+    if (match == null) return const [];
+    try {
+      final decoded = jsonDecode(match.group(1)!);
+      if (decoded is! Map || decoded['@type'] != 'BreadcrumbList') {
+        return const [];
+      }
+      final items = (decoded['itemListElement'] as List?) ?? const [];
+      final crumbs = <_Crumb>[];
+      for (final raw in items) {
+        final item = (raw as Map)['item'];
+        if (item is! Map) continue;
+        final url = '${item['@id'] ?? ''}';
+        final name = '${item['name'] ?? ''}'.trim();
+        if (name.isEmpty) continue;
+        crumbs.add(
+          _Crumb(
+            name: name,
+            id: url.startsWith('$_baseUrl/')
+                ? url.substring(_baseUrl.length + 1)
+                : null,
+          ),
+        );
+      }
+      return crumbs;
+    } catch (_) {
+      return const [];
+    }
   }
 
   /// 抓取「单页全量」型列表（origins）。tags 走分组、characters 单独处理。
@@ -508,6 +769,33 @@ class _Oreno3dFetcher {
     return html_parser.parse(body);
   }
 
+  /// 同 [_getWithRetry]，但把 404 当成「该 id 不存在」的正常结果返回 null，
+  /// 不重试也不抛——顺扫本来就要靠 404 判边界。
+  Future<String?> _getOrNullWithRetry(String path, {int maxAttempts = 4}) async {
+    Object? lastError;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        final response = await _dio.get<String>(path);
+        final status = response.statusCode ?? 0;
+        final body = response.data ?? '';
+        _throwIfCloudflareChallenge(status, body);
+        if (status == 404) return null;
+        if (status == 200) return body;
+        throw HttpException('GET $path 返回 $status');
+      } on _CloudflareChallengeException {
+        rethrow;
+      } catch (error) {
+        lastError = error;
+        if (attempt < maxAttempts) {
+          await Future.delayed(Duration(seconds: attempt));
+        }
+      }
+    }
+    // 顺扫是尽力而为：单个 id 反复失败时出声但不中断整轮抓取。
+    stderr.writeln('    ⚠️ GET $path 多次重试仍失败，已跳过: $lastError');
+    return null;
+  }
+
   Future<String> _getWithRetry(String path, {int maxAttempts = 6}) async {
     Object? lastError;
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -549,6 +837,13 @@ class _Oreno3dFetcher {
   }
 
   void close() => _dio.close(force: true);
+}
+
+/// 面包屑的一节：`name` 是干净显示名，`id` 形如 `origins/319`（站外链接为 null）。
+class _Crumb {
+  const _Crumb({required this.name, this.id});
+  final String name;
+  final String? id;
 }
 
 class _CloudflareChallengeException implements Exception {

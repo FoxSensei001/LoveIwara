@@ -18,6 +18,7 @@ Future<void> main(List<String> args) async {
     final client = _IwaraTagClient(
       pageSize: config.pageSize,
       cookieHeader: config.cookieHeader,
+      userAgent: config.userAgent,
     );
 
     final snapshot = await client.fetchAllTags();
@@ -58,12 +59,21 @@ void _printUsage() {
   stdout.writeln(
     '  --cookie <header>   Optional Cookie header for Cloudflare/session.',
   );
+  stdout.writeln(
+    '  --user-agent <ua>   Override the User-Agent.',
+  );
+  stdout.writeln(
+    '                       ⚠️ cf_clearance is bound to the (IP, User-Agent)'
+    ' pair that solved the challenge. If you copy the cookie out of a browser'
+    ' you MUST pass that browser\'s UA here, or Cloudflare rejects it.',
+  );
 }
 
 _ScriptConfig _parseArgs(List<String> args) {
   String outputPath = _defaultOutputPath;
   int pageSize = _defaultPageSize;
   String? cookieHeader;
+  String? userAgent;
 
   for (int i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -81,6 +91,15 @@ _ScriptConfig _parseArgs(List<String> args) {
         pageSize = int.parse(args[++i]);
         if (pageSize <= 0) {
           throw ArgumentError('--page-size must be greater than 0');
+        }
+        break;
+      case '--user-agent':
+        if (i + 1 >= args.length) {
+          throw ArgumentError('Missing value for --user-agent');
+        }
+        userAgent = args[++i].trim();
+        if (userAgent.isEmpty) {
+          throw ArgumentError('--user-agent cannot be empty');
         }
         break;
       case '--cookie':
@@ -101,6 +120,7 @@ _ScriptConfig _parseArgs(List<String> args) {
     outputPath: outputPath,
     pageSize: pageSize,
     cookieHeader: cookieHeader,
+    userAgent: userAgent,
   );
 }
 
@@ -120,15 +140,17 @@ class _ScriptConfig {
     required this.outputPath,
     required this.pageSize,
     this.cookieHeader,
+    this.userAgent,
   });
 
   final String outputPath;
   final int pageSize;
   final String? cookieHeader;
+  final String? userAgent;
 }
 
 class _IwaraTagClient {
-  _IwaraTagClient({required this.pageSize, this.cookieHeader})
+  _IwaraTagClient({required this.pageSize, this.cookieHeader, this.userAgent})
     : _dio = Dio(
         BaseOptions(
           baseUrl: 'https://apiq.iwara.tv',
@@ -148,7 +170,10 @@ class _IwaraTagClient {
     _dio.httpClientAdapter = IOHttpClientAdapter(
       createHttpClient: () {
         final client = HttpClient();
-        client.userAgent = null;
+        // ⚠️ cf_clearance 与「解出挑战的那对 (IP, User-Agent)」绑定。
+        // 从浏览器里复制 cookie 过来时必须连同那个浏览器的 UA 一起传，
+        // 否则 Cloudflare 照样拒。不传则沿用原来的「不发 UA」行为。
+        client.userAgent = userAgent;
         client.findProxy = (_) => 'DIRECT';
         return client;
       },
@@ -158,6 +183,7 @@ class _IwaraTagClient {
   final Dio _dio;
   final int pageSize;
   final String? cookieHeader;
+  final String? userAgent;
 
   Future<_TagSnapshot> fetchAllTags() async {
     final seenIds = <String>{};

@@ -55,6 +55,35 @@ void main() {
     });
   });
 
+  group('闸门 1b｜iwara 侧同样不许带着未补译的词条发布', () {
+    // 闸门 1 一直只查 oreno3d。iwara 侧重抓带回 273 条新标签时，
+    // 全套测试照样全绿——可以带着一堆会在界面上原样显示的标签发版而没人拦。
+    // 两份词库的发布前提是同一条，闸门也必须是同一条。
+    test('每个 iwara 标签都有自己的译名条目', () {
+      final raw = jsonDecode(
+        File('tool/data/iwara_tags/iwara_tags.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final loc = jsonDecode(
+        File('tool/data/iwara_tags/iwara_tags_localized.json')
+            .readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final ids = [
+        for (final e in (raw['tags'] as List)) '${(e as Map)['id']}',
+      ];
+
+      final unknown = loc.keys.where((k) => !ids.contains(k)).toList();
+      expect(unknown, isEmpty,
+          reason: '译名词典里有 ${unknown.length} 条 id 在原始数据中不存在'
+              '（上游删了标签？）：${unknown.take(10).join(', ')}');
+
+      final untranslated = ids.where((k) => !loc.containsKey(k)).toList()
+        ..sort();
+      expect(untranslated, isEmpty,
+          reason: '有 ${untranslated.length} 个 iwara 标签还没有译名，'
+              '发布前需要补译：${untranslated.take(10).join(', ')}');
+    });
+  });
+
   group('闸门 2｜人工修正不会被 AI 重译覆盖', () {
     test('overrides 永远压过 AI 译名，且只覆盖列出的语言', () {
       final aiV1 = {

@@ -28,10 +28,27 @@ dart run tool/data/iwara_tags/build_localized_min.dart
 flutter test test/tool/
 ```
 
+## ⛔ 输出必须从模板拷贝，不要自己排 key
+
+`make_batches` 每批同时产出一份 `batch_XXX.tpl.json`：key 已按输入顺序排好、
+条数已经对上、`names` 里该填哪几种语言也已列好，**agent 只负责就地填值**。
+
+```bash
+cp tool/tag_verify/out/batches/batch_004.tpl.json \
+   tool/tag_verify/out/batches/batch_004.out.json   # 然后就地填
+```
+
+这一步不是省事，是堵一类实测发生过的错误：agent 会**整块丢掉输入中间的一段**
+（如第 60-78 位共 19 条），再从别的批次和**凭空编造的 key** 里补齐条数——
+条数对得上、指纹对得上、格式无懈可击，但 key 全错。
+提示词里写「不得增删 key」拦不住它，因为它不是不知道规则，是自己重排了一遍 key。
+模板把「重排 key」这个动作从流程里删掉，这一类错误就无从发生。
+
 ## 给 Antigravity 的提示词
 
-> 读 `tool/tag_verify/out/batches/batch_001.in.json`，按里面 `contract` 的要求
-> 处理**每一条** entry，把结果写成同目录下的 `batch_001.out.json`。
+> 读 `tool/tag_verify/out/batches/batch_001.in.json`，
+> 把同目录的 `batch_001.tpl.json` 拷贝成 `batch_001.out.json`，
+> 然后按 `contract` 的要求**就地填满每一条** entry——只填值，不要动 key、不要重排顺序。
 >
 > 两类任务：
 > - `type: translate` —— 为 `need` 里列出的每个语言给出译名，写进 `names`。
@@ -44,6 +61,10 @@ flutter test test/tool/
 > - 输出的 key 与条数必须和输入完全一致，不得增删、不得改写 key
 > - 每条都要有一句话 `reason`
 > - **没有把握一律 keep / 保留原文**。宁可留日文原名，也不要给一个错的中文名
+> - **绝不要把罗马音塞回中文译名**（`天海琉夏` → `雨海Ruka` 是错的）。
+>   没有公认中文名的小众角色（多为个人势 VTuber）**也要音译成纯中文**，
+>   不要写成 `杏户yuge`——词库同类词条压倒性是纯中文（改造前 129 条含假名的
+>   Vtuber 词条里只有 10 条含拉丁，其中数条本就是拉丁艺名，还有一条正是上面那个反面例子）
 > - `candidates` 来自 Danbooru 的既有别名，是**线索不是答案**——
 >   它可能是日文写法（`暁`）、旧译名，甚至是别的角色
 > - 同名不同人的词条（同一个日文名、不同 `origin`）必须给出**不同**的译名，不要合并
