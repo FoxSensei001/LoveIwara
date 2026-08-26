@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -15,6 +14,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
     show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/default_download_task_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/video_download_task_item_widget.dart';
@@ -26,6 +26,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -67,13 +68,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   /// 高度就是胶囊高度、一点余量都没有——不补这一段，第一张卡片会紧贴分类条下沿。
   static const double _headerBottomGap = 8;
 
-  /// 分类条所占行高（与玻璃胶囊同高，标签本体略矮居中）。
+  /// 分类那一行的行高（与玻璃胶囊同高）。
   static const double _categoryStripHeight = GlassTokens.pillHeight;
 
-  /// 分类标签本体高度。
-  static const double _categoryChipHeight = 36;
-
   static const String _menuActionManageCategory = 'manageCategory';
+
+  /// 分类菜单里「管理分类」那一条的哨兵值——与任何分类 id 都不会撞。
+  static const String _menuValueManageCategory = '__manage_category__';
   static const String _menuActionDeleteByDate = 'deleteByDate';
   static const String _menuActionResumeAll = 'resumeAll';
   static const String _menuActionPauseAll = 'pauseAll';
@@ -81,8 +82,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
   final ScrollController _scrollController = ScrollController();
-  // 分类标签条的横向滚动控制器（用于鼠标滚轮转横向滑动）
-  final ScrollController _categoryStripController = ScrollController();
   late _HistoryDownloadTasksSource _historySource;
 
   /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
@@ -326,7 +325,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _searchDebounce?.cancel();
     _completedRevisionWorker?.dispose();
     _scrollController.dispose();
-    _categoryStripController.dispose();
     _showBackToTop.dispose();
     _historySource.dispose();
     _searchController.dispose();
@@ -418,9 +416,18 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                       ),
                     ),
                     const SizedBox(height: _headerRowGap),
-                    // 分类标签条：始终显示，便于发现并进入分类系统
-                    // （无分类时显示「全部 + 管理分类」入口）。
-                    _buildCategoryStrip(),
+                    // 分类筛选：一只胶囊报当前分类，点开才铺开全部
+                    // （无分类时它就是「管理分类」入口）。
+                    SizedBox(
+                      height: _categoryStripHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _buildCategoryPill(),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 extra: [
@@ -778,173 +785,100 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     if (moved == true) _exitSelectionMode();
   }
 
-  /// 顶部分类标签条：管理入口 / 全部 / 未分类 / 各分类（带计数）。
+  /// 分类筛选入口：一只玻璃胶囊报「当前在看哪个分类」，点开才铺开全部。
   ///
-  /// 标签本体是玻璃胶囊（选中态换成高亮底色），与 header 上的胶囊同族，
-  /// 不再用 Material 的 ChoiceChip / ActionChip。
+  /// # 为什么不是一排标签
+  ///
+  /// 这里原本是横向一排选中态标签（管理 / 全部 / 未分类 / 各分类）。它借的是
+  /// 分段胶囊的结构，于是长得和 tab 一模一样——可分类是**用户自己建的、数量
+  /// 不封顶**的东西，不是几个平级视图，用 tab 展示既名不副实，多起来还得横着
+  /// 拨才知道有哪些（2026-08-26 用户原话：「tab 不是用来展示这种效果的」）。
+  /// 现在走 [GlassDropdownPill]：当前分类亮在胶囊上，点开是一张列全的玻璃
+  /// 菜单（带计数 + 选中标记），末尾常驻「管理分类」——入口不再占着一整行，
+  /// 也不会被分类数量挤走。
+  ///
+  /// 一个分类都没有时，胶囊本身就是「管理分类」入口（不带 ▾，点了直接进管理
+  /// 页）：这条发现路径是原来那排标签唯一值得留下的东西。
   ///
   /// 数据直接来自 [DownloadService.categories] 这个可观察状态：在管理页新建 /
-  /// 删除 / 改名的那一刻，这里就已经是最新的了。此前它读的是页面自己的一份快照，
-  /// 靠 worker + 帧回调去补——那条链断掉时没有任何报错，表现就是「返回列表页没有
-  /// 新分类，下拉刷新才出来」。
-  Widget _buildCategoryStrip() {
-    return Obx(() => _buildCategoryStripContent(context));
+  /// 删除 / 改名的那一刻，这里就已经是最新的了。
+  Widget _buildCategoryPill() {
+    return Obx(() {
+      final t = slang.Translations.of(context);
+      final categories = DownloadService.to.categories;
+      if (categories.isEmpty) {
+        return GlassDropdownPill(
+          label: t.download.category.manageTitle,
+          icon: Icons.create_new_folder_outlined,
+          // 点了是跳管理页，不吐浮层——长按接力那套在这里没有意义。
+          opensOverlay: false,
+          showArrow: false,
+          onTap: (_) => _openCategoryManagePage(),
+        );
+      }
+      return GlassDropdownPill(
+        label: _categoryPillLabel(t),
+        icon: Icons.folder_outlined,
+        onTap: _openCategoryMenu,
+      );
+    });
   }
 
-  Widget _buildCategoryStripContent(BuildContext context) {
+  /// 胶囊上的字：当前分类 + 计数（「全部」没有计数，它不是一个分类）。
+  String _categoryPillLabel(slang.Translations t) {
+    final filter = _effectiveCategoryFilter;
+    if (filter == 'all') return t.common.all;
+    if (filter == 'uncategorized') {
+      return '${t.download.category.uncategorized} · '
+          '${DownloadService.to.uncategorizedCount.value}';
+    }
+    for (final c in DownloadService.to.categories) {
+      if (c.id == filter) return '${c.title} · ${c.itemCount ?? 0}';
+    }
+    return t.common.all;
+  }
+
+  /// 分类菜单：全部 / 未分类 / 各分类（带计数）+ 末尾的「管理分类」。
+  Future<void> _openCategoryMenu(BuildContext anchorContext) async {
     final t = slang.Translations.of(context);
     final categories = DownloadService.to.categories;
-    final uncategorizedCount = DownloadService.to.uncategorizedCount.value;
-    final activeFilter = _effectiveCategoryFilter;
-
-    // 整条分类条收进**一只共享的玻璃胶囊**（呼应 header 第一行按钮组的做法），
-    // 不再是每枚标签各自顶一块手绘 fill/stroke/shadow——那份手绘从不读
-    // LiquidGlassScope，液态档铺到这一页时第一行胶囊换了新材质，第二行分类条
-    // 却纹丝不动，读起来是「同一个 header 两种质感」。
-    //
-    // ⛔ 不能反过来给**每枚标签**各包一只 GlassSurface：胶囊会跟着 ListView
-    // 一起横向滚动，liquid_glass_easy 的 lens 一旦身处滚动容器，Android 的
-    // 拉伸回弹会把它隔进独立合成层、边缘渲染成纯黑（同一条硬约束见
-    // liquid_glass_material.dart 文件头）。这里改用 [GlassSegmentedControl]
-    // 同款结构：**一只静止的玻璃壳**扣在最外层，横向滚动的只是壳里的内容——
-    // 壳本身不随内容一起滚，不会撞上这条约束。
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GlassSurface(
-        height: _categoryStripHeight,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        clipContent: true,
-        child: Listener(
-          // 鼠标悬浮在分类条上滚动滚轮时，把纵向滚轮增量转成横向滑动。
-          // 仅当分类条确有横向可滚动空间时才接管事件，否则交还底层纵向列表。
-          onPointerSignal: (event) {
-            if (event is PointerScrollEvent &&
-                _categoryStripController.hasClients) {
-              final maxExtent =
-                  _categoryStripController.position.maxScrollExtent;
-              if (maxExtent <= 0) return;
-              final delta = event.scrollDelta.dy != 0
-                  ? event.scrollDelta.dy
-                  : event.scrollDelta.dx;
-              GestureBinding.instance.pointerSignalResolver.register(event, (
-                e,
-              ) {
-                if (!_categoryStripController.hasClients) return;
-                final target = (_categoryStripController.offset + delta)
-                    .clamp(
-                      0.0,
-                      _categoryStripController.position.maxScrollExtent,
-                    );
-                _categoryStripController.jumpTo(target);
-              });
-            }
-          },
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(
-              context,
-            ).copyWith(scrollbars: false),
-            child: ListView(
-              controller: _categoryStripController,
-              scrollDirection: Axis.horizontal,
-              // 玻璃壳自己已经留了 4 的内缩，标签不用再叠一层列表级内边距。
-              padding: EdgeInsets.zero,
-              children: [
-                // 管理 / 新建入口放在最前：无分类时用更醒目的「管理分类」标签。
-                _buildCategoryChip(
-                  label: categories.isEmpty
-                      ? t.download.category.manageTitle
-                      : t.download.category.manage,
-                  icon: categories.isEmpty
-                      ? Icons.create_new_folder_outlined
-                      : Icons.settings_outlined,
-                  selected: false,
-                  onTap: _openCategoryManagePage,
-                ),
-                _buildCategoryChip(
-                  label: t.common.all,
-                  selected: activeFilter == 'all',
-                  onTap: () => _onCategorySelected('all'),
-                ),
-                // 「未分类」仅在已有分类时才有意义（无分类时等同「全部」）。
-                if (categories.isNotEmpty)
-                  _buildCategoryChip(
-                    label: t.download.category.uncategorized,
-                    count: uncategorizedCount,
-                    selected: activeFilter == 'uncategorized',
-                    onTap: () => _onCategorySelected('uncategorized'),
-                  ),
-                for (final c in categories)
-                  _buildCategoryChip(
-                    label: c.title,
-                    count: c.itemCount ?? 0,
-                    selected: activeFilter == c.id,
-                    onTap: () => _onCategorySelected(c.id),
-                  ),
-              ],
-            ),
-          ),
+    final active = _effectiveCategoryFilter;
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuOption<String>(
+          value: 'all',
+          label: t.common.all,
+          selected: active == 'all',
         ),
-      ),
-    );
-  }
-
-  /// 单枚分类标签：不再自带玻璃壳（壳已收进 [_buildCategoryStripContent] 那只
-  /// 共享胶囊），这里只画「选中 / 按下」两级色块——底色 / 文字色都带过渡，
-  /// 切分类时是「同一枚标签亮起来」，不是瞬间换一块颜色。
-  Widget _buildCategoryChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-    int? count,
-    IconData? icon,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final Color foreground = selected
-        ? cs.onSecondaryContainer
-        : cs.onSurfaceVariant;
-
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: Center(
-        child: GlassPressable(
-          onTap: onTap,
-          scale: 0.95,
-          builder: (context, pressed) => AnimatedContainer(
-            duration: GlassTokens.motionDuration,
-            curve: GlassTokens.motionCurve,
-            height: _categoryChipHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: selected
-                  ? GlassTokens.selectedHighlight(cs)
-                  : (pressed
-                        ? cs.onSurface.withValues(alpha: 0.08)
-                        : Colors.transparent),
-              borderRadius: BorderRadius.circular(_categoryChipHeight / 2),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 16, color: foreground),
-                  const SizedBox(width: 6),
-                ],
-                AnimatedDefaultTextStyle(
-                  duration: GlassTokens.motionDuration,
-                  curve: GlassTokens.motionCurve,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: foreground,
-                  ),
-                  child: Text(count != null ? '$label · $count' : label),
-                ),
-              ],
-            ),
-          ),
+        GlassMenuOption<String>(
+          value: 'uncategorized',
+          label:
+              '${t.download.category.uncategorized} · '
+              '${DownloadService.to.uncategorizedCount.value}',
+          selected: active == 'uncategorized',
         ),
-      ),
+        const GlassMenuSeparator(),
+        for (final c in categories)
+          GlassMenuOption<String>(
+            value: c.id,
+            label: '${c.title} · ${c.itemCount ?? 0}',
+            selected: active == c.id,
+          ),
+        const GlassMenuSeparator(),
+        GlassMenuOption<String>(
+          value: _menuValueManageCategory,
+          label: t.download.category.manageTitle,
+          icon: Icons.settings_outlined,
+        ),
+      ],
     );
+    if (!mounted || picked == null) return;
+    if (picked == _menuValueManageCategory) {
+      _openCategoryManagePage();
+      return;
+    }
+    _onCategorySelected(picked);
   }
 
   /// 搜索输入：防抖后再落到筛选上。
@@ -1560,10 +1494,7 @@ class _DownloadFilterSelection {
 /// 改动即时生效——这里的重查是本地库查询，一次点选一次查完全不成问题，原来那颗
 /// 确认钮防的是「两个下拉各查一次」，收进一个面板之后已经没有意义。
 class _DownloadFilterDrawer extends StatefulWidget {
-  const _DownloadFilterDrawer({
-    required this.initial,
-    required this.onChanged,
-  });
+  const _DownloadFilterDrawer({required this.initial, required this.onChanged});
 
   final _DownloadFilterSelection initial;
   final ValueChanged<_DownloadFilterSelection> onChanged;
@@ -1641,19 +1572,17 @@ class _DownloadFilterDrawerState extends State<_DownloadFilterDrawer> {
     );
   }
 
-  /// 分段胶囊铺一行：段数固定但文案可长可短，胶囊自己能横向滚。
+  /// 分段胶囊铺一行：段数固定但文案可长可短，弹窗里摆不下（露不出 2.5 个
+  /// 完整段）就退化成下拉钮，见 [GlassAdaptiveSegmentedControl]。
   Widget _buildSegmentRow({
     required List<GlassSegmentItem> items,
     required int selectedIndex,
     required ValueChanged<int> onChanged,
   }) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: GlassSegmentedControl(
-        items: items,
-        selectedIndex: selectedIndex,
-        onChanged: onChanged,
-      ),
+    return GlassAdaptiveSegmentedControl(
+      items: items,
+      selectedIndex: selectedIndex,
+      onChanged: onChanged,
     );
   }
 }
