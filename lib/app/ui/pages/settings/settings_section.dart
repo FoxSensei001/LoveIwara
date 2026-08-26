@@ -68,16 +68,6 @@ enum SettingsSection {
     SettingsSection.diagnostics => 'diagnostics',
   };
 
-  /// iOS 上是否允许**整页**跟手侧滑返回。
-  ///
-  /// 页内有横向手势控件的分区必须关掉，退回「仅边缘可滑」，否则向右滑会和内部
-  /// 手势抢竞技场（同 `buildAdaptiveSwipeablePage` 的 fullSwipe 分级）。
-  bool get allowsFullSwipeBack => switch (this) {
-    // 屏蔽规则页是三个 Tab 的 TabBarView
-    SettingsSection.block => false,
-    _ => true,
-  };
-
   /// 当前平台是否提供该分区。
   bool get isAvailable => switch (this) {
     SettingsSection.network => ProxyUtil.isSupportedPlatform(),

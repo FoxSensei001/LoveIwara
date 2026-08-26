@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 /// `Slider` 的收口替代品。
@@ -9,6 +10,10 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///
 /// 自带独立三色轨道（`ThreeSectionSlider`）不在此列——那是自绘控件，不是
 /// `Slider`，样式已经自成一套。
+///
+/// 外面那层 [SwipeBackAbsorber] 是必需的：Material `Slider` 的横向拖拽识别器建在
+/// `_RenderSlider` 里，不经过 `GestureDetector`，[SwipeBackScrollGuard] 认不出来，
+/// 于是 iOS 上「整页跟手侧滑返回」会抢走向右拖动滑块的手势。
 class GlassSlider extends StatelessWidget {
   const GlassSlider({
     super.key,
@@ -34,22 +39,24 @@ class GlassSlider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return SliderTheme(
-      data: SliderTheme.of(context).copyWith(
-        activeTrackColor: cs.primary,
-        inactiveTrackColor: GlassTokens.fill(cs),
-        thumbColor: cs.primary,
-        overlayColor: cs.primary.withValues(alpha: 0.12),
-      ),
-      child: Slider(
-        value: value,
-        onChanged: onChanged,
-        min: min,
-        max: max,
-        divisions: divisions,
-        label: label,
-        onChangeStart: onChangeStart,
-        onChangeEnd: onChangeEnd,
+    return SwipeBackAbsorber(
+      child: SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          activeTrackColor: cs.primary,
+          inactiveTrackColor: GlassTokens.fill(cs),
+          thumbColor: cs.primary,
+          overlayColor: cs.primary.withValues(alpha: 0.12),
+        ),
+        child: Slider(
+          value: value,
+          onChanged: onChanged,
+          min: min,
+          max: max,
+          divisions: divisions,
+          label: label,
+          onChangeStart: onChangeStart,
+          onChangeEnd: onChangeEnd,
+        ),
       ),
     );
   }

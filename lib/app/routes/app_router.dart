@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
+import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
@@ -137,8 +138,12 @@ void refreshHomeBranch(int branchIndex) {
 /// 扩展到全屏）。其它平台（Android / 桌面）维持框架默认的 [MaterialPage] 转场，
 /// 行为完全不变。
 ///
-/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势），
-///   供含横向手势控件（TabBarView / 图集翻页 / 播放器横滑）的页面使用，避免抢手势。
+/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势）。
+///
+/// 页内的横向手势（TabBarView / 横向列表 / 横向 tab 条…）不需要页面自己声明：
+/// 每一页都自动包了 [SwipeBackScrollGuard]，按下那一刻就地判定落点，落在还能继续
+/// 朝返回方向滚的横向控件上就临时让位，滑到头则照常返回上一页。因此 [fullSwipe]
+/// 只在「整页都该退回边缘手势」时才需要传 `false`。
 ///
 /// 手势底层通过 [SwipeablePageRoute]（继承 [CupertinoPageRoute]）直接调用
 /// `navigator.pop()`，并会自动尊重页面上的 [PopScope]：当 `canPop: false` 时手势
@@ -155,7 +160,7 @@ Page<void> buildAdaptiveSwipeablePage(
       name: state.name ?? state.fullPath,
       arguments: state.extra,
       canOnlySwipeFromEdge: !fullSwipe,
-      builder: (context) => child,
+      builder: (context) => SwipeBackScrollGuard(child: child),
     );
   }
   return MaterialPage<void>(
@@ -622,7 +627,6 @@ final GoRouter appRouter = GoRouter(
                     context,
                     state,
                     (isWide) => section.buildPage(isWideScreen: isWide),
-                    fullSwipe: section.allowsFullSwipeBack,
                   ),
                   routes: _settingsSubRoutesOf(section),
                 ),
