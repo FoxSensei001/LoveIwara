@@ -1358,6 +1358,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get allStatus => '所有狀態';
 	@override String typeLabel({required Object label}) => '類型: ${label}';
 	@override String get allTypes => '所有類型';
+	@override String get taskType => '類型';
 	@override String get video => '影片';
 	@override String get gallery => '圖庫';
 	@override String get other => '其他';
@@ -2119,6 +2120,7 @@ class _TranslationsSearchFilterZhTw implements TranslationsSearchFilterEn {
 	@override String get forumPosts => '論壇貼文';
 	@override String get playlists => '播放清單';
 	@override late final _TranslationsSearchFilterSortTypesZhTw sortTypes = _TranslationsSearchFilterSortTypesZhTw._(_root);
+	@override String get drawerSubtitle => '變更即時生效';
 }
 
 // Path: tagSelector
@@ -4994,6 +4996,7 @@ extension on TranslationsZhTw {
 			'download.allStatus' => '所有狀態',
 			'download.typeLabel' => ({required Object label}) => '類型: ${label}',
 			'download.allTypes' => '所有類型',
+			'download.taskType' => '類型',
 			'download.video' => '影片',
 			'download.gallery' => '圖庫',
 			'download.other' => '其他',
@@ -5498,9 +5501,9 @@ extension on TranslationsZhTw {
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '日誌空間即將用盡，建議清理舊日誌',
 			'log.cleaningOldLogs' => '正在自動清理舊日誌...',
 			'log.logCleaningCompleted' => '日誌清理完成',
-			'log.logCleaningProcessMayNotBeCompleted' => '日誌清理過程可能未完成',
 			_ => null,
 		} ?? switch (path) {
+			'log.logCleaningProcessMayNotBeCompleted' => '日誌清理過程可能未完成',
 			'log.cleanExceededLogs' => '清理超出限制的日誌',
 			'log.noLogsToExport' => '沒有可匯出的日誌資料',
 			'log.exportingLogs' => '正在匯出日誌...',
@@ -5735,6 +5738,7 @@ extension on TranslationsZhTw {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '觀看次數',
 			'searchFilter.sortTypes.likes' => '按讚數',
+			'searchFilter.drawerSubtitle' => '變更即時生效',
 			'tagSelector.selectTags' => '選擇標籤',
 			'tagSelector.clickToSelectTags' => '點擊選擇標籤',
 			'tagSelector.addTag' => '新增標籤',

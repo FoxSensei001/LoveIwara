@@ -3329,6 +3329,9 @@ class TranslationsDownloadEn {
 	/// en: 'All Types'
 	String get allTypes => 'All Types';
 
+	/// en: 'Type'
+	String get taskType => 'Type';
+
 	/// en: 'Video'
 	String get video => 'Video';
 
@@ -5327,6 +5330,9 @@ class TranslationsSearchFilterEn {
 	String get playlists => 'Playlists';
 
 	late final TranslationsSearchFilterSortTypesEn sortTypes = TranslationsSearchFilterSortTypesEn._(_root);
+
+	/// en: 'Changes apply instantly'
+	String get drawerSubtitle => 'Changes apply instantly';
 }
 
 // Path: firstTimeSetup
@@ -9805,6 +9811,7 @@ extension on Translations {
 			'download.allStatus' => 'All Status',
 			'download.typeLabel' => ({required Object label}) => 'Type: ${label}',
 			'download.allTypes' => 'All Types',
+			'download.taskType' => 'Type',
 			'download.video' => 'Video',
 			'download.gallery' => 'Gallery',
 			'download.other' => 'Other',
@@ -9825,9 +9832,9 @@ extension on Translations {
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
-			'download.noMatchingTasks' => 'No matching tasks',
 			_ => null,
 		} ?? switch (path) {
+			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
 			'download.deleteByDate.dialogTitle' => 'Delete by date',
 			'download.deleteByDate.description' => 'Delete download tasks in bulk by creation date. Tasks whose files are in use are skipped; tasks whose files no longer exist are cleaned up.',
@@ -10339,9 +10346,9 @@ extension on Translations {
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
 			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
-			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
 			'crashRecoveryDialog.acknowledge' => 'Got it',
 			'crashRecoveryDialog.supportEmailCopied' => 'Email copied',
 			'linkInputDialog.title' => 'Input Link',
@@ -10548,6 +10555,7 @@ extension on Translations {
 			'searchFilter.sortTypes.latest' => 'Latest',
 			'searchFilter.sortTypes.views' => 'Views',
 			'searchFilter.sortTypes.likes' => 'Likes',
+			'searchFilter.drawerSubtitle' => 'Changes apply instantly',
 			'firstTimeSetup.welcome.title' => 'Welcome',
 			'firstTimeSetup.welcome.subtitle' => 'Let\'s start your personalized setup journey',
 			'firstTimeSetup.welcome.description' => 'Just a few steps to tailor the best experience for you',

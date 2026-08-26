@@ -20,15 +20,15 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
-import 'package:i_iwara/app/services/saved_search_config_service.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
+import 'package:i_iwara/app/services/saved_search_config_service.dart';
 
 import 'package:i_iwara/app/services/tutorial_service.dart';
 
 import 'controllers/media_list_controller.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import '../popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -88,7 +88,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   bool get _isRatingFilterAvailable => selectedId.isEmpty;
 
   /// 用于打开右侧「已保存筛选」抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// header 形变专用的「视觉 tab」：横滑过半就算已经到了目标栏目。
   ///
@@ -405,41 +404,59 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
   /// 打开筛选弹窗（标签 / 年月 / 排序，订阅流下额外含评级）。
   ///
   /// 确认后只改 State，列表会在 didUpdateWidget 里按新参数重建数据源。
+  /// 打开右侧「筛选」抽屉。改动即时生效（列表在 didUpdateWidget 里按新参数重建
+  /// 数据源），抽屉常驻不关。
   void _openFilterDialog() {
-    showAppDialog(
-      PopularMediaSearchConfig(
-        searchTags: _filterTags,
-        searchYear: _filterDate,
-        searchRating: _filterRating,
-        showRating: _isRatingFilterAvailable,
-        sortOptions: _filterSortOptions,
-        selectedSortId: _filterSortId,
-        onConfirm: (tags, year, rating, sortId) {
-          if (!mounted) return;
-          setState(() {
-            _filterTags = tags;
-            _filterDate = year;
-            _filterRating = rating;
-            _filterSortId = sortId ?? _filterSortId;
-          });
+    showMediaFilterDrawer(
+      context: context,
+      tags: _filterTags,
+      date: _filterDate,
+      rating: _filterRating,
+      showRating: _isRatingFilterAvailable,
+      sortOptions: _filterSortOptions,
+      selectedSortId: _filterSortId,
+      onChanged: (tags, date, rating, sortId) {
+        if (!mounted) return;
+        setState(() {
+          _filterTags = tags;
+          _filterDate = date;
+          _filterRating = rating;
+          _filterSortId = sortId ?? _filterSortId;
+        });
+      },
+    );
+  }
+
+  /// 打开右侧「已保存筛选」抽屉（与热门视频/图库共用同一份配置池，走同一条路由）。
+  void _openSavedConfigDrawer() {
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (drawerContext) => SavedSearchConfigDrawer(
+        segment: SavedSearchConfigService.sharedSegment,
+        onApply: (config) {
+          Navigator.of(drawerContext).pop();
+          _applySavedConfig(config);
+        },
+        onAddCurrent: () {
+          Navigator.of(drawerContext).pop();
+          SavedSearchConfigDrawer.promptSaveCurrent(
+            segment: SavedSearchConfigService.sharedSegment,
+            tags: _filterTags,
+            date: _filterDate,
+            rating: _filterRating,
+          );
         },
       ),
     );
   }
 
-  /// 打开右侧「已保存筛选」抽屉（与热门视频/图库共用同一份配置池）。
-  void _openSavedConfigDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
-  }
-
-  /// 应用一条已保存的筛选配置，并关闭抽屉。
+  /// 应用一条已保存的筛选配置。
   void _applySavedConfig(SavedSearchConfig config) {
     setState(() {
       _filterTags = List<Tag>.from(config.tags);
       _filterDate = config.date;
       _filterRating = config.rating;
     });
-    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   @override
@@ -587,23 +604,6 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
     ];
 
     return Scaffold(
-      key: _scaffoldKey,
-      // 抽屉盖在浮动底栏之上，不需要为底栏让位：还原系统原始底部安全区
-      endDrawer: RemoveFloatingBarInset(
-        child: SavedSearchConfigDrawer(
-          segment: SavedSearchConfigService.sharedSegment,
-          onApply: _applySavedConfig,
-          onAddCurrent: () {
-            _scaffoldKey.currentState?.closeEndDrawer();
-            SavedSearchConfigDrawer.promptSaveCurrent(
-              segment: SavedSearchConfigService.sharedSegment,
-              tags: _filterTags,
-              date: _filterDate,
-              rating: _filterRating,
-            );
-          },
-        ),
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;

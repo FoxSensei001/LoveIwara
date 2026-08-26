@@ -1616,6 +1616,7 @@ download:
   allStatus: 所有状态
   typeLabel: '类型: ${label}'
   allTypes: 所有类型
+  taskType: 类型
   video: 视频
   gallery: 图库
   other: 其他
@@ -2435,6 +2436,8 @@ searchFilter:
     latest: "最新"
     views: "观看次数"
     likes: "点赞数"
+  # 筛选抽屉
+  drawerSubtitle: "改动即时生效"
 
 firstTimeSetup:
   welcome:

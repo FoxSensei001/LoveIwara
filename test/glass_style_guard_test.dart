@@ -372,6 +372,10 @@ final _rawDialogRoute = RegExp(
 const _exemptFiles = <String>{
   'lib/app/ui/widgets/glass/glass_alert_dialog.dart',
   'lib/app/ui/widgets/glass/glass_dialog_motion.dart',
+  // 右侧抽屉唯一的路由入口（showGlassSideDrawer）。它**就是**替代品的定义处：
+  // showAppDialog 那条路由做的是居中/整页弹窗的出入场，贴右滑入的抽屉只能自己
+  // 起一条 showGeneralDialog。
+  'lib/app/ui/widgets/glass/glass_side_drawer.dart',
 };
 
 /// 当前欠账快照（2026-08-24）。**只许降，不许升。**
@@ -385,7 +389,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/download/widgets/download_picker_sheet.dart': 2,
   'lib/app/ui/pages/download/widgets/move_to_category_sheet.dart': 1,
   'lib/app/ui/pages/emoji_library/emoji_group_detail_page.dart': 5,
-  'lib/app/ui/pages/favorite/favorite_folder_detail_page.dart': 2,
   'lib/app/ui/pages/favorite/favorite_list_page.dart': 1,
   'lib/app/ui/pages/favorite_tags/favorite_tags_page.dart': 1,
   'lib/app/ui/pages/first_time_setup/widgets/welcome_step_widget.dart': 1,
@@ -393,7 +396,7 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/gallery_detail/gallery_detail_page.dart': 3,
   'lib/app/ui/pages/gallery_detail/widgets/image_widget.dart': 6,
   'lib/app/ui/pages/gallery_detail/widgets/video_player_widget.dart': 4,
-  'lib/app/ui/pages/history/history_list_page.dart': 3,
+  'lib/app/ui/pages/history/history_list_page.dart': 2,
   'lib/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart': 2,
   'lib/app/ui/pages/login/login_page_v2.dart': 4,
   'lib/app/ui/pages/news/news_detail_page.dart': 3,
@@ -407,14 +410,10 @@ const _rawMaterialButtonBaseline = <String, int>{
       2,
   'lib/app/ui/pages/popular_media_list/widgets/media_description_widget.dart':
       2,
-  'lib/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart':
-      2,
   'lib/app/ui/pages/popular_media_list/widgets/remove_search_tag_dialog.dart':
       1,
   'lib/app/ui/pages/post_detail/post_detail_page.dart': 2,
   'lib/app/ui/pages/post_detail/widgets/share_post_bottom_sheet.dart': 2,
-  'lib/app/ui/pages/search/search_result.dart': 2,
-  'lib/app/ui/pages/search/widgets/filter_builder_widget.dart': 4,
   'lib/app/ui/pages/settings/about_page.dart': 4,
   'lib/app/ui/pages/settings/block_settings_page.dart': 5,
   'lib/app/ui/pages/settings/diagnostics_page.dart': 1,
@@ -472,7 +471,6 @@ const _rawDialogRouteBaseline = <String, int>{
       1,
   'lib/app/ui/pages/popular_media_list/widgets/video_tile_list_item_widget.dart':
       1,
-  'lib/app/ui/pages/search/widgets/saved_search_drawer.dart': 1,
   'lib/app/ui/pages/settings/app_settings_page.dart': 4,
   'lib/app/ui/pages/settings/keybinding_settings_page.dart': 4,
   'lib/app/ui/pages/settings/widgets/download_test_widget.dart': 1,

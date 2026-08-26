@@ -1329,6 +1329,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get allStatus => '所有状态';
 	@override String typeLabel({required Object label}) => '类型: ${label}';
 	@override String get allTypes => '所有类型';
+	@override String get taskType => '类型';
 	@override String get video => '视频';
 	@override String get gallery => '图库';
 	@override String get other => '其他';
@@ -2091,6 +2092,7 @@ class _TranslationsSearchFilterZhCn implements TranslationsSearchFilterEn {
 	@override String get forumPosts => '论坛帖子';
 	@override String get playlists => '播放列表';
 	@override late final _TranslationsSearchFilterSortTypesZhCn sortTypes = _TranslationsSearchFilterSortTypesZhCn._(_root);
+	@override String get drawerSubtitle => '改动即时生效';
 }
 
 // Path: firstTimeSetup
@@ -4963,6 +4965,7 @@ extension on TranslationsZhCn {
 			'download.allStatus' => '所有状态',
 			'download.typeLabel' => ({required Object label}) => '类型: ${label}',
 			'download.allTypes' => '所有类型',
+			'download.taskType' => '类型',
 			'download.video' => '视频',
 			'download.gallery' => '图库',
 			'download.other' => '其他',
@@ -4984,9 +4987,9 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
-			'download.deleteByDate.menuTitle' => '按日期删除',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteByDate.menuTitle' => '按日期删除',
 			'download.deleteByDate.dialogTitle' => '按日期删除',
 			'download.deleteByDate.description' => '按创建日期批量删除下载任务。被占用的文件会跳过；文件已不存在的任务会一并清理。',
 			'download.deleteByDate.modeRange' => '日期区间',
@@ -5498,9 +5501,9 @@ extension on TranslationsZhCn {
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包链接已复制',
 			'emoji.preview' => '表情包预览',
-			'emoji.library' => '表情包库',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.library' => '表情包库',
 			'emoji.noEmojis' => '暂无表情包',
 			'emoji.clickToAddEmojis' => '点击右上角按钮添加表情包',
 			'emoji.addEmojis' => '添加表情包',
@@ -5707,6 +5710,7 @@ extension on TranslationsZhCn {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '观看次数',
 			'searchFilter.sortTypes.likes' => '点赞数',
+			'searchFilter.drawerSubtitle' => '改动即时生效',
 			'firstTimeSetup.welcome.title' => '欢迎使用',
 			'firstTimeSetup.welcome.subtitle' => '让我们开始您的个性化设置之旅',
 			'firstTimeSetup.welcome.description' => '只需几步，即可为您量身定制最佳使用体验',

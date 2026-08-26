@@ -27,6 +27,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -704,25 +705,30 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   bool get _hasAnyFilter =>
       _hasSheetFilter || _categoryFilter != 'all' || _searchQuery.isNotEmpty;
 
-  /// 打开筛选弹窗：一次改完状态 + 类型再应用，不像原来两个下拉各触发一次重查。
-  Future<void> _openFilterSheet() async {
-    final result = await showModalBottomSheet<_DownloadFilterSelection>(
+  /// 打开右侧「筛选」抽屉。与全站其它筛选入口同一只抽屉、同一套手势，
+  /// 状态 / 类型改动即时生效。
+  void _openFilterSheet() {
+    showGlassSideDrawer<void>(
       context: context,
-      isScrollControlled: true,
-      builder: (_) => _DownloadFilterSheet(
+      builder: (_) => _DownloadFilterDrawer(
         initial: _DownloadFilterSelection(
           status: _statusFilter,
           type: _typeFilter,
         ),
+        onChanged: (selection) {
+          if (!mounted) return;
+          if (selection.status == _statusFilter &&
+              selection.type == _typeFilter) {
+            return;
+          }
+          setState(() {
+            _statusFilter = selection.status;
+            _typeFilter = selection.type;
+          });
+          _applyFilters();
+        },
       ),
     );
-    if (result == null || !mounted) return;
-    if (result.status == _statusFilter && result.type == _typeFilter) return;
-    setState(() {
-      _statusFilter = result.status;
-      _typeFilter = result.type;
-    });
-    _applyFilters();
   }
 
   void _clearFilters() {
@@ -1547,20 +1553,26 @@ class _DownloadFilterSelection {
   final DownloadTypeFilter type;
 }
 
-/// 筛选弹窗：状态与类型一次改完再应用。
+/// 下载列表的筛选抽屉：状态 + 类型。
 ///
-/// 原来这两项是 header 上并排的两个下拉菜单，各自触发一次全量重查；收进弹窗后
-/// header 只留一枚带红点的筛选钮，条件是否生效一眼可见。
-class _DownloadFilterSheet extends StatefulWidget {
-  const _DownloadFilterSheet({required this.initial});
+/// 这两项原来是 header 上并排的两个下拉，各自触发一次全量重查；先收进底部弹窗
+/// （header 只留一枚带红点的筛选钮），2026-08-26 又随全站一起改成右侧抽屉。
+/// 改动即时生效——这里的重查是本地库查询，一次点选一次查完全不成问题，原来那颗
+/// 确认钮防的是「两个下拉各查一次」，收进一个面板之后已经没有意义。
+class _DownloadFilterDrawer extends StatefulWidget {
+  const _DownloadFilterDrawer({
+    required this.initial,
+    required this.onChanged,
+  });
 
   final _DownloadFilterSelection initial;
+  final ValueChanged<_DownloadFilterSelection> onChanged;
 
   @override
-  State<_DownloadFilterSheet> createState() => _DownloadFilterSheetState();
+  State<_DownloadFilterDrawer> createState() => _DownloadFilterDrawerState();
 }
 
-class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
+class _DownloadFilterDrawerState extends State<_DownloadFilterDrawer> {
   late DownloadStatusFilter _status = widget.initial.status;
   late DownloadTypeFilter _type = widget.initial.type;
 
@@ -1568,42 +1580,37 @@ class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
       DownloadStatusFilter.values;
   static const List<DownloadTypeFilter> _types = DownloadTypeFilter.values;
 
+  bool get _isActive =>
+      _status != DownloadStatusFilter.all || _type != DownloadTypeFilter.all;
+
+  void _emit() =>
+      widget.onChanged(_DownloadFilterSelection(status: _status, type: _type));
+
+  void _reset() {
+    setState(() {
+      _status = DownloadStatusFilter.all;
+      _type = DownloadTypeFilter.all;
+    });
+    _emit();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // 标题行：标题 + 玻璃关闭圆钮
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    t.searchFilter.filterSettings,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                GlassIconButton(
-                  standalone: true,
-                  icon: const Icon(Icons.close),
-                  tooltip: t.common.close,
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          // 状态：所有状态 / 失败 / 已下载
-          _buildSegmentRow(
+    return GlassFilterDrawerShell(
+      title: t.searchFilter.filterSettings,
+      subtitle: t.searchFilter.drawerSubtitle,
+      onReset: _isActive ? _reset : null,
+      children: [
+        GlassFilterSection(
+          title: t.download.downloadStatus,
+          child: _buildSegmentRow(
             selectedIndex: _statuses.indexOf(_status),
-            onChanged: (index) => setState(() => _status = _statuses[index]),
+            onChanged: (index) {
+              setState(() => _status = _statuses[index]);
+              _emit();
+            },
             items: [
               for (final s in _statuses)
                 GlassSegmentItem(
@@ -1612,10 +1619,15 @@ class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
                 ),
             ],
           ),
-          // 类型：所有类型 / 视频 / 图库 / 其他
-          _buildSegmentRow(
+        ),
+        GlassFilterSection(
+          title: t.download.taskType,
+          child: _buildSegmentRow(
             selectedIndex: _types.indexOf(_type),
-            onChanged: (index) => setState(() => _type = _types[index]),
+            onChanged: (index) {
+              setState(() => _type = _types[index]);
+              _emit();
+            },
             items: [
               for (final type in _types)
                 GlassSegmentItem(
@@ -1624,52 +1636,23 @@ class _DownloadFilterSheetState extends State<_DownloadFilterSheet> {
                 ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                GlassButtonGroup(
-                  children: [
-                    GlassTextActionButton(
-                      label: t.searchFilter.clearAll,
-                      onPressed: () => setState(() {
-                        _status = DownloadStatusFilter.all;
-                        _type = DownloadTypeFilter.all;
-                      }),
-                    ),
-                    GlassTextActionButton(
-                      label: t.common.confirm,
-                      emphasized: true,
-                      onPressed: () => Navigator.of(context).pop(
-                        _DownloadFilterSelection(status: _status, type: _type),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  /// 分段胶囊横向铺一行：段数固定但文案可长可短，胶囊自己能横向滚。
+  /// 分段胶囊铺一行：段数固定但文案可长可短，胶囊自己能横向滚。
   Widget _buildSegmentRow({
     required List<GlassSegmentItem> items,
     required int selectedIndex,
     required ValueChanged<int> onChanged,
   }) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: GlassSegmentedControl(
-          items: items,
-          selectedIndex: selectedIndex,
-          onChanged: onChanged,
-        ),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: GlassSegmentedControl(
+        items: items,
+        selectedIndex: selectedIndex,
+        onChanged: onChanged,
       ),
     );
   }

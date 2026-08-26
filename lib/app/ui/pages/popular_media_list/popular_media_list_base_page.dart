@@ -5,7 +5,6 @@ import 'package:i_iwara/app/models/video.model.dart';
 
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
-import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/services/saved_search_config_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
@@ -14,7 +13,8 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_medi
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/popular_media_search_config_widget.dart';
+import 'package:i_iwara/app/models/saved_search_config.model.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
@@ -22,6 +22,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -31,7 +32,6 @@ import 'package:flutter/rendering.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
@@ -91,7 +91,6 @@ class PopularMediaListPageBaseState<
   final UserService userService = Get.find<UserService>();
 
   /// 用于打开右侧「已保存筛选」抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// 已保存筛选的存储池：热门视频/图库与订阅页共用同一份配置。
   String get _segmentKey => SavedSearchConfigService.sharedSegment;
@@ -314,33 +313,50 @@ class PopularMediaListPageBaseState<
     _mediaListController.setActiveSort(sorts[_tabController.index].id);
   }
 
-  void _openParamsModal() {
-    showAppDialog(
-      PopularMediaSearchConfig(
-        searchTags: tags,
-        searchYear: year,
-        searchRating: rating,
-        // 本页的排序是 TabBar，这里不需要弹窗里的排序区，回调的 sortId 恒为 null
-        onConfirm: (tags, year, rating, _) {
-          setParams(tags: tags, year: year, rating: rating);
+  /// 打开右侧「筛选」抽屉。改动即时生效，抽屉常驻不关。
+  void _openFilterDrawer() {
+    showMediaFilterDrawer(
+      context: context,
+      tags: tags,
+      date: year,
+      rating: rating,
+      // 本页的排序是 TabBar，这里不需要抽屉里的排序区，回调的 sortId 恒为 null
+      onChanged: (tags, date, rating, _) {
+        setParams(tags: tags, year: date, rating: rating);
+      },
+    );
+  }
+
+  /// 打开右侧「已保存筛选」抽屉（独立于筛选抽屉的一份清单，走同一条路由）。
+  void _openSavedConfigDrawer() {
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (drawerContext) => SavedSearchConfigDrawer(
+        segment: _segmentKey,
+        onApply: (config) {
+          Navigator.of(drawerContext).pop();
+          _applySavedConfig(config);
+        },
+        onAddCurrent: () {
+          Navigator.of(drawerContext).pop();
+          SavedSearchConfigDrawer.promptSaveCurrent(
+            segment: _segmentKey,
+            tags: tags,
+            date: year,
+            rating: rating,
+          );
         },
       ),
     );
   }
 
-  /// 打开右侧「已保存筛选」抽屉。
-  void _openSavedConfigDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
-  }
-
-  /// 应用一条已保存的筛选配置，并关闭抽屉。
+  /// 应用一条已保存的筛选配置。
   void _applySavedConfig(SavedSearchConfig config) {
     setParams(
       tags: List<Tag>.from(config.tags),
       year: config.date,
       rating: config.rating,
     );
-    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   /// 过窄时的排序入口：下拉菜单（代替分段胶囊）。
@@ -529,7 +545,7 @@ class PopularMediaListPageBaseState<
             icon: const Icon(Icons.filter_list),
             tooltip: t.searchFilter.filterSettings,
             showBadge: _hasActiveFilter,
-            onPressed: _openParamsModal,
+            onPressed: _openFilterDrawer,
           ),
           GlassIconButton(
             icon: const Icon(Icons.bookmarks_outlined),
@@ -605,23 +621,6 @@ class PopularMediaListPageBaseState<
     final double headerExtent = statusBarHeight + headerRowHeight;
 
     return Scaffold(
-      key: _scaffoldKey,
-      // 抽屉盖在浮动底栏之上，不需要为底栏让位：还原系统原始底部安全区
-      endDrawer: RemoveFloatingBarInset(
-        child: SavedSearchConfigDrawer(
-          segment: _segmentKey,
-          onApply: _applySavedConfig,
-          onAddCurrent: () {
-            _scaffoldKey.currentState?.closeEndDrawer();
-            SavedSearchConfigDrawer.promptSaveCurrent(
-              segment: _segmentKey,
-              tags: tags,
-              date: year,
-              rating: rating,
-            );
-          },
-        ),
-      ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final bool isWide = MediaQuery.sizeOf(context).width > 600;

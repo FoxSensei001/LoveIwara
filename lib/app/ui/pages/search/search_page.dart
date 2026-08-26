@@ -12,9 +12,8 @@ import 'package:i_iwara/app/ui/widgets/google_search_panel_widget.dart';
 import 'package:i_iwara/app/models/search_record.model.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
-import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
@@ -182,6 +181,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void _openSavedSearchDrawer() {
     showSavedSearchDrawer(
+      context: context,
       onApply: _applySavedSearch,
       onAddCurrent: _promptSaveCurrentSearch,
     );
@@ -382,41 +382,14 @@ class _SearchPageState extends State<SearchPage> {
         .toList();
   }
 
-  void _showFilterDialog(
-    BuildContext context,
-    SearchSegment currentSegment,
-    slang.Translations t,
-  ) {
-    List<Filter> tempFilters = _filters.map((f) => f.copyWith()).toList();
-
-    ResponsiveDialog.show(
+  /// 打开右侧「筛选」抽屉。改动即时生效（这里只是把条件记进 [_filters]，真正
+  /// 发出去要等提交搜索），抽屉常驻不关。
+  void _showFilterDialog(BuildContext context, SearchSegment currentSegment) {
+    showSearchFilterDrawer(
       context: context,
-      title: t.searchFilter.filterSettings,
-      maxWidth: 800,
-      headerActions: [
-        GlassButtonGroup(
-          children: [
-            GlassTextActionButton(
-              label: t.common.confirm,
-              emphasized: true,
-              onPressed: () {
-                _filters.assignAll(
-                  tempFilters.map((f) => f.copyWith()).toList(),
-                );
-                AppService.tryPop();
-              },
-            ),
-          ],
-        ),
-      ],
-      content: FilterBuilderWidget(
-        initialSegment: currentSegment,
-        initialFilters: _filters.toList(),
-        onFiltersChanged: (newFilters) {
-          tempFilters = newFilters;
-        },
-        destroyOnClose: true,
-      ),
+      segment: currentSegment,
+      initialFilters: _filters.toList(),
+      onFiltersChanged: _filters.assignAll,
     );
   }
 
@@ -615,6 +588,9 @@ class _SearchPageState extends State<SearchPage> {
               if (showSort)
                 Builder(
                   builder: (anchorContext) => GlassSurface(
+                    // 这块玻璃就是菜单的触发件：长按也能打开，且长按不抬手可以
+                    // 直接划到某一条上松手选中（见 GlassTapArea.opensOverlay）。
+                    opensOverlay: true,
                     onTap: () async {
                       final picked = await showGlassMenu<String>(
                         anchorContext: anchorContext,
@@ -663,7 +639,7 @@ class _SearchPageState extends State<SearchPage> {
                   label: Text('$filterCount'),
                   backgroundColor: colorScheme.primary,
                   child: GlassSurface(
-                    onTap: () => _showFilterDialog(context, seg, t),
+                    onTap: () => _showFilterDialog(context, seg),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
@@ -996,6 +972,8 @@ class _SearchPageState extends State<SearchPage> {
                 if (showSort)
                   Builder(
                     builder: (anchorContext) => GlassSurface(
+                      // 同上：触发件要声明 opensOverlay 才有长按开菜单 + 手指接力
+                      opensOverlay: true,
                       onTap: () async {
                         final picked = await showGlassMenu<String>(
                           anchorContext: anchorContext,
@@ -1043,7 +1021,7 @@ class _SearchPageState extends State<SearchPage> {
                     label: Text('$filterCount'),
                     backgroundColor: colorScheme.primary,
                     child: GlassSurface(
-                      onTap: () => _showFilterDialog(context, seg, t),
+                      onTap: () => _showFilterDialog(context, seg),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 8,

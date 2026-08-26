@@ -3,17 +3,21 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 以「全局右侧抽屉」形式展示「已保存搜索」。
 ///
-/// 通过 root navigator 推入一个从屏幕右侧滑入的全高面板，覆盖整个界面。
+/// 走的是与筛选抽屉同一条路由 [showGlassSideDrawer]：同样的圆角、宽度、遮罩与
+/// 甩出手势，并且盖在浮动底栏之上。
 Future<void> showSavedSearchDrawer({
+  BuildContext? context,
   required void Function(SavedSearch search) onApply,
   required VoidCallback onAddCurrent,
 }) {
-  return showGlassRightDrawer(
+  return showGlassSideDrawer<void>(
+    context: context,
     builder: (ctx) => SavedSearchDrawer(
       onApply: (search) {
         Navigator.of(ctx).pop();

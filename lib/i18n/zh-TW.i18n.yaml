@@ -1657,6 +1657,7 @@ download:
   allStatus: 所有狀態
   typeLabel: '類型: ${label}'
   allTypes: 所有類型
+  taskType: 類型
   video: 影片
   gallery: 圖庫
   other: 其他
@@ -2478,6 +2479,8 @@ searchFilter:
     latest: "最新"
     views: "觀看次數"
     likes: "按讚數"
+  # 篩選抽屜
+  drawerSubtitle: "變更即時生效"
 
 # 標籤選擇器元件
 tagSelector:

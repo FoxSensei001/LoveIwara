@@ -12,12 +12,11 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_gall
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_video_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
-import 'package:i_iwara/app/ui/pages/tag_videos/widgets/tag_video_search_config_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 标签媒体列表页面 - 精简版本
@@ -175,21 +174,23 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     }
   }
 
+  /// 打开右侧「筛选」抽屉。标签是路由参数（这一页就是看这个标签的），锁定不可改，
+  /// 只放开年 / 月 / 评级；改动即时生效。
   void _openParamsModal() {
-    showAppDialog(
-      TagVideoSearchConfigWidget(
-        fixedTags: tags,
-        searchYear: year,
-        searchRating: rating,
-        onConfirm: (newTags, newYear, newRating) {
-          setState(() {
-            // 保持固定标签不变，只更新年份和评级
-            year = newYear;
-            rating = newRating;
-          });
-          _updateSearchParams();
-        },
-      ),
+    showMediaFilterDrawer(
+      context: context,
+      tags: tags,
+      date: year,
+      rating: rating,
+      tagsFixed: true,
+      onChanged: (_, newDate, newRating, _) {
+        if (!mounted) return;
+        setState(() {
+          year = newDate;
+          rating = newRating;
+        });
+        _updateSearchParams();
+      },
     );
   }
 

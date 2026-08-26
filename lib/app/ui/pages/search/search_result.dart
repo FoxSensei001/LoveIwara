@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/pages/search/widgets/filter_builder_widget.dart';
+import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
@@ -20,7 +20,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
-import 'package:i_iwara/app/ui/widgets/responsive_dialog_widget.dart';
 
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -189,7 +188,6 @@ class _SearchResultState extends State<SearchResult> {
   late SearchResultController searchController;
 
   /// 用于打开右侧「已保存搜索」抽屉。
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late final SavedSearchService _savedSearchService;
 
   @override
@@ -575,9 +573,13 @@ class _SearchResultState extends State<SearchResult> {
     searchController.refreshSearch();
   }
 
-  // 打开右侧「已保存搜索」抽屉
+  // 打开右侧「已保存搜索」抽屉（与筛选抽屉走同一条路由）
   void _openSavedSearchDrawer() {
-    _scaffoldKey.currentState?.openEndDrawer();
+    showSavedSearchDrawer(
+      context: context,
+      onApply: _applySavedSearch,
+      onAddCurrent: _promptSaveCurrentSearch,
+    );
   }
 
   // 根据当前搜索条件生成一个默认名称
@@ -596,9 +598,6 @@ class _SearchResultState extends State<SearchResult> {
   // 弹出命名对话框，将当前搜索条件保存为一条已保存搜索
   Future<void> _promptSaveCurrentSearch() async {
     final t = slang.Translations.of(context);
-    // 收起抽屉，避免命名弹窗被遮挡
-    _scaffoldKey.currentState?.closeEndDrawer();
-
     final defaultName = _buildDefaultSearchName();
     final name = await showGlassPromptNameDialog(
       title: t.savedSearch.namePromptTitle,
@@ -628,7 +627,7 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  // 应用一条已保存搜索并关闭抽屉
+  // 应用一条已保存搜索
   void _applySavedSearch(SavedSearch search) {
     // 注意顺序：updateSegment 会重置排序与筛选项，须在其后再设置排序/筛选项
     searchController.updateSearch(search.keyword);
@@ -649,7 +648,6 @@ class _SearchResultState extends State<SearchResult> {
 
     _searchController.text = search.keyword;
     searchController.refreshSearch();
-    _scaffoldKey.currentState?.closeEndDrawer();
   }
 
   IconData _segmentIcon(SearchSegment segment) {
@@ -697,37 +695,13 @@ class _SearchResultState extends State<SearchResult> {
     };
   }
 
-  // 打开筛选设置弹窗（确认后应用并刷新搜索）
+  /// 打开右侧「筛选」抽屉。改动即时生效（每次生效都会刷新搜索结果），抽屉常驻不关。
   void _showFilterDialog() {
-    final t = slang.Translations.of(context);
-    List<Filter> tempFilters = searchController.filters
-        .map((f) => f.copyWith())
-        .toList();
-
-    ResponsiveDialog.show(
+    showSearchFilterDrawer(
       context: context,
-      title: t.searchFilter.filterSettings,
-      maxWidth: 800,
-      headerActions: [
-        FilledButton(
-          onPressed: () {
-            searchController.updateFilters(
-              tempFilters.map((f) => f.copyWith()).toList(),
-            );
-            AppService.tryPop();
-          },
-          style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-          child: Text(t.common.confirm),
-        ),
-      ],
-      content: FilterBuilderWidget(
-        initialSegment: searchController.selectedSegment.value,
-        initialFilters: searchController.filters.toList(),
-        onFiltersChanged: (newFilters) {
-          tempFilters = newFilters;
-        },
-        destroyOnClose: true,
-      ),
+      segment: searchController.selectedSegment.value,
+      initialFilters: searchController.filters.toList(),
+      onFiltersChanged: searchController.updateFilters,
     );
   }
 
@@ -965,11 +939,6 @@ class _SearchResultState extends State<SearchResult> {
     // （base_search_list 传 showBottomPadding: true），这里不再包 SafeArea；
     // 顶部让位交给列表的 paddingTop，内容滚动时从玻璃 header 背后经过。
     return Scaffold(
-      key: _scaffoldKey,
-      endDrawer: SavedSearchDrawer(
-        onApply: _applySavedSearch,
-        onAddCurrent: _promptSaveCurrentSearch,
-      ),
       body: BatchDownloadSelectionScope(
         // 视频 / 图库两个控制器只广播当前 segment 那一个
         controllers: [

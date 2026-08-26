@@ -1617,6 +1617,7 @@ download:
   allStatus: すべてのステータス
   typeLabel: 'タイプ: ${label}'
   allTypes: すべてのタイプ
+  taskType: 種類
   video: 動画
   gallery: ギャラリー
   other: その他
@@ -2437,6 +2438,8 @@ searchFilter:
     latest: "最新"
     views: "視聴回数"
     likes: "いいね数"
+  # フィルタードロワー
+  drawerSubtitle: "変更は即時反映されます"
 
 firstTimeSetup:
   welcome:

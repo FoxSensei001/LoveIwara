@@ -1330,6 +1330,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get allStatus => 'すべてのステータス';
 	@override String typeLabel({required Object label}) => 'タイプ: ${label}';
 	@override String get allTypes => 'すべてのタイプ';
+	@override String get taskType => '種類';
 	@override String get video => '動画';
 	@override String get gallery => 'ギャラリー';
 	@override String get other => 'その他';
@@ -2091,6 +2092,7 @@ class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
 	@override String get forumPosts => 'フォーラム投稿';
 	@override String get playlists => 'プレイリスト';
 	@override late final _TranslationsSearchFilterSortTypesJa sortTypes = _TranslationsSearchFilterSortTypesJa._(_root);
+	@override String get drawerSubtitle => '変更は即時反映されます';
 }
 
 // Path: firstTimeSetup
@@ -4964,6 +4966,7 @@ extension on TranslationsJa {
 			'download.allStatus' => 'すべてのステータス',
 			'download.typeLabel' => ({required Object label}) => 'タイプ: ${label}',
 			'download.allTypes' => 'すべてのタイプ',
+			'download.taskType' => '種類',
 			'download.video' => '動画',
 			'download.gallery' => 'ギャラリー',
 			'download.other' => 'その他',
@@ -4984,9 +4987,9 @@ extension on TranslationsJa {
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
-			'download.noMatchingTasks' => '一致するタスクがありません',
 			_ => null,
 		} ?? switch (path) {
+			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
 			'download.deleteByDate.dialogTitle' => '日付で削除',
 			'download.deleteByDate.description' => '作成日でダウンロードタスクを一括削除します。使用中のファイルはスキップされ、ファイルが既に存在しないタスクは整理されます。',
@@ -5498,9 +5501,9 @@ extension on TranslationsJa {
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
 			'emoji.preview' => '絵文字プレビュー',
-			'emoji.library' => '絵文字ライブラリ',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.library' => '絵文字ライブラリ',
 			'emoji.noEmojis' => '絵文字がありません',
 			'emoji.clickToAddEmojis' => '右上のボタンをクリックして絵文字を追加',
 			'emoji.addEmojis' => '絵文字を追加',
@@ -5707,6 +5710,7 @@ extension on TranslationsJa {
 			'searchFilter.sortTypes.latest' => '最新',
 			'searchFilter.sortTypes.views' => '視聴回数',
 			'searchFilter.sortTypes.likes' => 'いいね数',
+			'searchFilter.drawerSubtitle' => '変更は即時反映されます',
 			'firstTimeSetup.welcome.title' => 'ようこそ',
 			'firstTimeSetup.welcome.subtitle' => 'パーソナライズ設定を始めましょう',
 			'firstTimeSetup.welcome.description' => '数ステップで最適な体験を提供します',

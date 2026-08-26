@@ -1614,6 +1614,7 @@ download:
   allStatus: All Status
   typeLabel: 'Type: ${label}'
   allTypes: All Types
+  taskType: Type
   video: Video
   gallery: Gallery
   other: Other
@@ -2434,6 +2435,8 @@ searchFilter:
     latest: "Latest"
     views: "Views"
     likes: "Likes"
+  # Filter drawer
+  drawerSubtitle: "Changes apply instantly"
 
 firstTimeSetup:
   welcome:

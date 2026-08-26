@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
@@ -754,10 +755,13 @@ class _HistoryListPageState extends State<HistoryListPage>
     _notifyFilterChanged();
   }
 
+  /// 打开右侧「筛选」抽屉。与全站其它筛选入口同一只抽屉、同一套手势；
+  /// 这里本来就没有确认钮，改动一直是即时生效的。
   void _showFilterSheet() {
     final controller = _currentController;
-    showAppBottomSheet(
-      _FilterSheet(
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (_) => _HistoryFilterDrawer(
         controller: controller,
         onSelectDateRange: _selectDateRange,
         onClearDateRange: _clearDateRange,
@@ -767,7 +771,6 @@ class _HistoryListPageState extends State<HistoryListPage>
         },
         onDeleteRange: () => _confirmDeleteSelectedRange(controller),
       ),
-      isScrollControlled: true,
     );
   }
 
@@ -914,8 +917,13 @@ class _HistoryListPageState extends State<HistoryListPage>
 }
 
 /// 筛选面板：排序开关 + 时间区间 + 按区间删除。
-class _FilterSheet extends StatelessWidget {
-  const _FilterSheet({
+/// 历史记录的筛选抽屉：排序（创建/更新时间）· 时间范围 · 按范围删除。
+///
+/// 2026-08-26 从底部弹窗改成右侧抽屉，与全站其它筛选入口收口到同一只
+/// [showGlassSideDrawer]。这里本来就没有确认钮——每一项都直接写进 controller，
+/// 与新抽屉「改动即时生效」的约定天然一致。
+class _HistoryFilterDrawer extends StatelessWidget {
+  const _HistoryFilterDrawer({
     required this.controller,
     required this.onSelectDateRange,
     required this.onClearDateRange,
@@ -934,121 +942,102 @@ class _FilterSheet extends StatelessWidget {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          // 底部一律走统一入口，别自己拼 viewInsets + 安全区
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 16,
-            top: 12,
-            bottom: computeSheetBottomInset(context) + 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 标题行：标题 + 玻璃关闭圆钮
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.common.selectDateRange,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close),
-                    tooltip: t.common.close,
-                    onPressed: () => AppService.tryPop(),
-                  ),
-                ],
+    return Obx(() {
+      final dateRange = controller.selectedDateRange.value;
+      return GlassFilterDrawerShell(
+        title: t.searchFilter.filterSettings,
+        subtitle: t.searchFilter.drawerSubtitle,
+        // 这里能「重置」的只有时间范围：排序总得选一个，没有「无排序」这一档
+        onReset: dateRange == null ? null : onClearDateRange,
+        children: [
+          GlassFilterSection(
+            title: t.common.sort,
+            child: GlassSwitchItem(
+              icon: Icons.swap_vert,
+              title: Text(
+                controller.orderByUpdated.value
+                    ? t.common.updatedAt
+                    : t.common.publishedAt,
               ),
-              const SizedBox(height: 8),
-              // 排序开关：创建时间/更新时间（倒序）
-              Obx(
-                () => GlassSwitchItem(
-                  icon: Icons.swap_vert,
-                  title: Text(
-                    controller.orderByUpdated.value
-                        ? t.common.updatedAt
-                        : t.common.publishedAt,
+              subtitle: const Text('(DESC)'),
+              value: controller.orderByUpdated.value,
+              onChanged: onOrderChanged,
+            ),
+          ),
+          GlassFilterSection(
+            title: t.common.selectDateRange,
+            actions: [
+              if (dateRange != null)
+                IconButton(
+                  tooltip: t.common.clearDateRange,
+                  icon: const Icon(Icons.clear, size: 18),
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
                   ),
-                  subtitle: const Text('(DESC)'),
-                  value: controller.orderByUpdated.value,
-                  onChanged: onOrderChanged,
+                  onPressed: onClearDateRange,
                 ),
-              ),
-              const SizedBox(height: 8),
-              // 时间区间：按钮一行 + 结果单独下一行
-              Obx(() {
-                final dateRange = controller.selectedDateRange.value;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.date_range),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(t.common.selectDateRange)),
-                        if (dateRange != null)
-                          IconButton(
-                            tooltip: t.common.clearDateRange,
-                            icon: const Icon(Icons.clear),
-                            onPressed: onClearDateRange,
-                          ),
-                        FilledButton(
-                          onPressed: onSelectDateRange,
-                          child: Text(t.common.selectDateRange),
-                        ),
-                      ],
-                    ),
-                    if (dateRange != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, left: 32),
+            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GlassSurface(
+                  height: null,
+                  borderRadius: BorderRadius.circular(16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  onTap: onSelectDateRange,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.date_range,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
                         child: Text(
-                          '${CommonUtils.formatDate(dateRange.start)} - ${CommonUtils.formatDate(dateRange.end)}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          dateRange == null
+                              ? t.common.selectDateRange
+                              : '${CommonUtils.formatDate(dateRange.start)} - '
+                                    '${CommonUtils.formatDate(dateRange.end)}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: dateRange == null
+                                ? colorScheme.onSurfaceVariant
+                                : colorScheme.onSurface,
+                          ),
                         ),
                       ),
-                  ],
-                );
-              }),
-              const SizedBox(height: 16),
-              // 删除当前所选时间范围内的历史记录（仅在已选范围时可用）
-              Obx(() {
-                final hasRange = controller.selectedDateRange.value != null;
-                final errorColor = colorScheme.error;
-                return SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: hasRange ? onDeleteRange : null,
-                    icon: const Icon(Icons.delete_sweep),
-                    label: Text(t.common.deleteRecordsInDateRange),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: errorColor,
-                      side: BorderSide(
-                        color: hasRange
-                            ? errorColor.withValues(alpha: 0.5)
-                            : Theme.of(
-                                context,
-                              ).disabledColor.withValues(alpha: 0.3),
-                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // 按当前所选时间范围删除历史（没选范围时不可用）
+                OutlinedButton.icon(
+                  onPressed: dateRange == null ? null : onDeleteRange,
+                  icon: const Icon(Icons.delete_sweep),
+                  label: Text(t.common.deleteRecordsInDateRange),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colorScheme.error,
+                    side: BorderSide(
+                      color: dateRange != null
+                          ? colorScheme.error.withValues(alpha: 0.5)
+                          : Theme.of(
+                              context,
+                            ).disabledColor.withValues(alpha: 0.3),
                     ),
                   ),
-                );
-              }),
-            ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ],
+      );
+    });
   }
 }

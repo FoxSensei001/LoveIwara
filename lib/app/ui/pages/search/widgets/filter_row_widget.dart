@@ -32,6 +32,9 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
   late TextEditingController _dateToController;
   final GlobalKey<FormFieldState> _formFieldKey = GlobalKey<FormFieldState>();
 
+  /// 本卡片拿到的宽度够不够并排放两列控件，由 build 里的 LayoutBuilder 定。
+  bool _narrow = true;
+
   @override
   void initState() {
     super.initState();
@@ -109,10 +112,25 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     final availableOperators = FilterConfig.getOperatorsForType(
       selectedField.type,
     );
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
     final colorScheme = Theme.of(context).colorScheme;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 按**自己拿到的宽度**分档，不是屏幕宽：这张卡片现在住在 380~460 宽的
+        // 筛选抽屉里，桌面端屏幕再宽也得按窄列排，否则「运算符 200 + 语言 120」
+        // 那一行会被挤到换行、看着像排版事故。
+        _narrow = constraints.maxWidth < 520;
+        return _buildCard(context, colorScheme, selectedField, availableOperators);
+      },
+    );
+  }
+
+  /// 卡片本体。
+  Widget _buildCard(
+    BuildContext context,
+    ColorScheme colorScheme,
+    FilterField selectedField,
+    List<FilterOperator> availableOperators,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 12),
@@ -144,8 +162,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
           const SizedBox(height: 12),
 
           // 操作符和语言选择（如果支持本地化）
-          if (isSmallScreen) ...[
-            // 小屏幕：垂直布局
+          if (_narrow) ...[
+            // 窄列：垂直布局
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -161,7 +179,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
               ],
             ),
           ] else ...[
-            // 大屏幕：水平布局
+            // 宽列：水平布局
             Wrap(
               spacing: 12,
               runSpacing: 12,
@@ -366,9 +384,6 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
     final t = slang.Translations.of(context);
     final fromValue = filter.value is Map ? filter.value['from'] ?? '' : '';
     final toValue = filter.value is Map ? filter.value['to'] ?? '' : '';
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 600;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -381,8 +396,8 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
           ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-        if (isSmallScreen) ...[
-          // 小屏幕：垂直布局
+        if (_narrow) ...[
+          // 窄列：垂直布局
           Column(
             children: [
               field.type == FilterFieldType.DATE
@@ -413,7 +428,7 @@ class _FilterRowWidgetState extends State<FilterRowWidget> {
             ],
           ),
         ] else ...[
-          // 大屏幕：水平布局
+          // 宽列：水平布局
           Row(
             children: [
               Expanded(
