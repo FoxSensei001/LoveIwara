@@ -215,6 +215,93 @@ void main() {
     });
   });
 
+  /// 死链自愈：Iwara 的下载地址会在 expires 还没到期时就 404（资源换了地址）。
+  /// 只看 expires 的刷新判断会把这类任务永远钉死在同一个死链上——真机上表现为
+  /// 「点多少次重试都是 404，但重新请求视频资源就能拿到能用的新地址」。
+  group('死链自愈判定', () {
+    test('404 / 410 / 403 都算链接已死，必须强制重新索取地址', () {
+      for (final status in const [404, 410, 403, 401]) {
+        expect(
+          DownloadService.isDeadLinkErrorType(
+            service.classifyError(
+              DioException(
+                requestOptions: RequestOptions(path: '/file/x'),
+                type: DioExceptionType.badResponse,
+                response: Response(
+                  requestOptions: RequestOptions(path: '/file/x'),
+                  statusCode: status,
+                ),
+              ),
+            ),
+          ),
+          isTrue,
+          reason: '$status 应触发强制刷新下载链接',
+        );
+      }
+    });
+
+    test('网络 / 磁盘 / 取消不算链接已死，别白跑一趟 API', () {
+      for (final type in const [
+        DownloadErrorType.network,
+        DownloadErrorType.diskFull,
+        DownloadErrorType.fileInUse,
+        DownloadErrorType.permission,
+        DownloadErrorType.cancelled,
+        DownloadErrorType.unknown,
+      ]) {
+        expect(DownloadService.isDeadLinkErrorType(type), isFalse);
+      }
+    });
+
+    test('只换签名（query / CDN 主机变了）算同一份文件，可以接着续传', () {
+      expect(
+        DownloadService.isSameRemoteFile(
+          'https://d.iwara.tv/file/abc123/preview?expires=100&hash=aaa',
+          'https://d.iwara.tv/file/abc123/preview?expires=999&hash=bbb',
+        ),
+        isTrue,
+      );
+      expect(
+        DownloadService.isSameRemoteFile(
+          'https://d.iwara.tv/file/abc123/preview?expires=100&hash=aaa',
+          'https://hime.iwara.tv/file/abc123/preview?expires=999&hash=bbb',
+        ),
+        isTrue,
+        reason: 'CDN 换节点不代表换了文件',
+      );
+    });
+
+    test('path 变了就是另一份文件，半截字节续不上必须删档重下', () {
+      expect(
+        DownloadService.isSameRemoteFile(
+          'https://d.iwara.tv/file/abc123/preview?expires=100',
+          'https://d.iwara.tv/file/zzz999/preview?expires=100',
+        ),
+        isFalse,
+      );
+      expect(
+        DownloadService.isSameRemoteFile(
+          'https://d.iwara.tv/file/abc123/preview?expires=100',
+          'https://d.iwara.tv/file/abc123/Source?expires=100',
+        ),
+        isFalse,
+      );
+      expect(
+        DownloadService.isSameRemoteFile('::not a url::', '::not a url::'),
+        isTrue,
+        reason: '完全相同的字符串不必解析',
+      );
+      expect(
+        DownloadService.isSameRemoteFile(
+          'https://d.iwara.tv/file/abc123/preview',
+          '',
+        ),
+        isFalse,
+        reason: '解析不出来时宁可重下，也不要把两份文件的字节拼在一起',
+      );
+    });
+  });
+
   test('失败原因分类能落库并读回', () async {
     final task = taskWithStatus('failed-one', DownloadStatus.failed)
       ..error = 'DioException [connection error]'

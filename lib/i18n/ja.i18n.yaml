@@ -606,8 +606,54 @@ settings:
   showUnprocessedMarkdownTextDesc: Markdownの元のテキストを表示
   markdown: Markdown
   activeBackgroundPrivacyMode: プライバシーモード
-  activeBackgroundPrivacyModeDesc: スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...
+  activeBackgroundPrivacyModeDesc: スクリーンショットと画面録画を禁止し、バックグラウンドでは画面を隠します
+  activeBackgroundPrivacyModeDescNonAndroid: バックグラウンドに移ると画面を隠します（このプラットフォームではスクリーンショットを防げません）
+  activeBackgroundPrivacyModeDescScreenshotOnly: スクリーンショットと画面録画を禁止します
   privacy: プライバシー
+  appLock: アプリロック
+  appLockEnabled: アプリロックを有効にする
+  appLockEnabledDesc: アプリを開くときに PIN または生体認証を要求し、バックグラウンドの画面も自動的に隠します
+  appLockEnabledSummary: オン · PIN で保護
+  appLockDisabledSummary: オフ
+  appLockTimeout: アプリを離れた後にロック
+  appLockTimeoutDesc: バックグラウンド移行後、再認証を要求するまでの時間
+  appLockAfterScreenOff: 画面ロック後にロック
+  appLockAfterScreenOffDesc: 端末の画面ロック後、アプリに戻るときに再認証を要求します
+  appLockTimeoutDisabled: 無効
+  appLockImmediately: すぐに
+  appLockSeconds: '${seconds} 秒'
+  appLockMinutes: '${minutes} 分'
+  appLockUseBiometrics: 生体認証を使用
+  appLockUseBiometricsDesc: 指紋認証または顔認証でロックを解除します
+  appLockBiometricsUnavailable: この端末で利用できる生体認証がありません
+  appLockSetPin: PIN を設定
+  appLockEnterPin: PIN を入力
+  appLockConfirmPin: PIN を確認
+  appLockCurrentPin: 現在の PIN を入力
+  appLockNewPin: 新しい PIN を入力
+  appLockPinRequirements: PIN は 4～8 桁の数字にしてください
+  appLockPinsDoNotMatch: PIN が一致しません
+  appLockInvalidPin: PIN が正しくありません
+  appLockSetupFailed: PIN を安全に保存できませんでした
+  appLockDisable: アプリロックを無効にするには PIN を入力してください
+  appLockChangePin: PIN を変更
+  appLockNow: 今すぐロック
+  appLockUnlock: ロック解除
+  appLockLockedTitle: ロックされています
+  appLockLockedDesc: 続行するには認証してください
+  appLockAuthenticateReason: ロックを解除するために認証してください
+  appLockEnableBiometricsReason: 生体認証によるロック解除を有効にするために認証してください
+  appLockBiometricFailed: 生体認証を完了できませんでした
+  appLockTooManyAttempts: '試行回数が多すぎます。${seconds} 秒後に再試行してください'
+  appLockCredentialUnavailableTitle: アプリロックの認証情報を読み取れません
+  appLockCredentialUnavailableDesc: システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。
+  appLockRetry: 再試行
+  appLockReset: アプリロックをリセット
+  appLockResetAction: リセット
+  appLockResetConfirmTitle: アプリロックをリセットしますか？
+  appLockResetConfirmDesc: アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。
+  appLockRetrySucceeded: 認証情報を読み取れました。PIN を入力してください。
+  appLockRetryFailed: 認証情報を読み取れませんでした
   forum: フォーラム
   news: ニュース
   community: コミュニティ

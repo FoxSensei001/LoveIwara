@@ -605,8 +605,54 @@ settings:
   showUnprocessedMarkdownTextDesc: Show the original text of the markdown
   markdown: Markdown
   activeBackgroundPrivacyMode: Privacy Mode
-  activeBackgroundPrivacyModeDesc: Prevent screenshots, hide screen when running in the background...
+  activeBackgroundPrivacyModeDesc: Block screenshots and screen recording, and hide the screen in the background
+  activeBackgroundPrivacyModeDescNonAndroid: Hide the screen when the app goes to the background (this platform cannot block screenshots)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Block screenshots and screen recording
   privacy: Privacy
+  appLock: App Lock
+  appLockEnabled: Enable app lock
+  appLockEnabledDesc: Require a PIN or biometrics to open the app; the background preview is hidden automatically
+  appLockEnabledSummary: On · PIN protected
+  appLockDisabledSummary: Off
+  appLockTimeout: Lock after leaving app
+  appLockTimeoutDesc: Time allowed in the background before authentication is required
+  appLockAfterScreenOff: Lock after screen lock
+  appLockAfterScreenOffDesc: Require authentication after the device screen is locked
+  appLockTimeoutDisabled: Disabled
+  appLockImmediately: Immediately
+  appLockSeconds: '${seconds} seconds'
+  appLockMinutes: '${minutes} minutes'
+  appLockUseBiometrics: Use biometrics
+  appLockUseBiometricsDesc: Unlock with fingerprint or face recognition
+  appLockBiometricsUnavailable: No enrolled biometrics are available on this device
+  appLockSetPin: Set PIN
+  appLockEnterPin: Enter PIN
+  appLockConfirmPin: Confirm PIN
+  appLockCurrentPin: Enter current PIN
+  appLockNewPin: Enter new PIN
+  appLockPinRequirements: PIN must contain 4–8 digits
+  appLockPinsDoNotMatch: PINs do not match
+  appLockInvalidPin: Incorrect PIN
+  appLockSetupFailed: Could not securely save the PIN
+  appLockDisable: Enter PIN to disable app lock
+  appLockChangePin: Change PIN
+  appLockNow: Lock now
+  appLockUnlock: Unlock
+  appLockLockedTitle: Locked
+  appLockLockedDesc: Authenticate to continue
+  appLockAuthenticateReason: Authenticate to unlock
+  appLockEnableBiometricsReason: Authenticate to enable biometric unlock
+  appLockBiometricFailed: Biometric authentication was not completed
+  appLockTooManyAttempts: 'Too many attempts. Try again in ${seconds}s'
+  appLockCredentialUnavailableTitle: Can't read the app lock credential
+  appLockCredentialUnavailableDesc: The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.
+  appLockRetry: Retry
+  appLockReset: Reset app lock
+  appLockResetAction: Reset
+  appLockResetConfirmTitle: Reset app lock?
+  appLockResetConfirmDesc: This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.
+  appLockRetrySucceeded: Credential read succeeded. Enter your PIN.
+  appLockRetryFailed: Still unable to read the credential
   forum: Forum
   news: News
   community: Community

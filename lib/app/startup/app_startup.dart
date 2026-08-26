@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
@@ -203,6 +204,11 @@ class AppStartupCoordinator implements AppStartupRunner {
     await logService.applyPolicy(
       LogService.policyFromConfig(configService, isProduction: isProduction),
     );
+
+    // 应用锁要在路由/UI 起来之前就位：init() 里读安全存储凭据，
+    // 决定这次冷启动是否直接进锁屏。
+    final appLockService = await AppLockService().init();
+    _putIfAbsent<AppLockService>(appLockService);
 
     await Get.find<AppService>().syncSiteModeFromConfig(configService);
 

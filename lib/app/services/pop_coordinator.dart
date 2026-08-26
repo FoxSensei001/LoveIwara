@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -80,8 +82,27 @@ class PopCoordinator {
     LogUtils.d('ensureDispatcherPriority: reason=$reason', 'PopCoordinator');
   }
 
+  /// 应用锁的锁屏正盖在所有东西上面吗？
+  ///
+  /// 锁屏是 `MaterialApp.router` 的 builder 里、Navigator **旁边**的一层
+  /// Stack sibling，不是一条路由——它自己那个 `PopScope(canPop: false)`
+  /// 因此拦不住任何东西：系统返回键照样落到底下的 GoRouter，在详情页锁上
+  /// 再按返回，底层页面会被真的 pop 掉，解锁后人已经不在原来那一页了。
+  /// 唯一够得着这条链路的地方就是返回键协调器本身。
+  static bool _isAppLocked() {
+    if (!Get.isRegistered<AppLockService>()) return false;
+    return Get.find<AppLockService>().isLocked.value;
+  }
+
   /// 系统返回键的回调，在 GoRouter 处理之前触发。
   static Future<bool> _handleSystemBack() async {
+    if (_isAppLocked()) {
+      // 消费掉：锁屏期间返回键什么都不做，底层路由栈保持原样。
+      _markSystemBackConsumed('appLocked');
+      LogUtils.d('系统返回键：应用锁锁定中，直接消费', 'PopCoordinator');
+      return true;
+    }
+
     if (wasSystemBackConsumedRecently()) {
       LogUtils.d('系统返回键：忽略短时间重复触发', 'PopCoordinator');
       return true;
@@ -123,6 +144,9 @@ class PopCoordinator {
   /// ESC/返回键是否应该显示“再按一次退出”的二次确认。
   /// 仅在真正的首页根路由上为 true（没有遮罩层、也没有内部可弹出的栈）。
   static bool shouldConfirmExitAtHomeRoot() {
+    // 锁屏期间不该出现「再按一次退出」——那条提示会盖在锁屏上。
+    if (_isAppLocked()) return false;
+
     final scaffoldState = AppService.globalDrawerKey.currentState;
     if (scaffoldState?.isDrawerOpen ?? false) return false;
     if (OverlayTracker.instance.hasOverlay) return false;
@@ -135,6 +159,12 @@ class PopCoordinator {
 
   /// 按照优先级链执行一次返回动作。
   static void handleBack(BuildContext context) {
+    // 锁屏期间任何返回动作都不执行（桌面端 ESC 也走这里）。
+    if (_isAppLocked()) {
+      LogUtils.d('handleBack -> 应用锁锁定中，忽略', 'PopCoordinator');
+      return;
+    }
+
     // 同步重入保护：见 [_handlingBack]。某个路由上的嵌套 PopScope 在
     // maybePop 的同步 onPopInvoked 里再次走到这里时，直接忽略，避免无限递归。
     if (_handlingBack) {

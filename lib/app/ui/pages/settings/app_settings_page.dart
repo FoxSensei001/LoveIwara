@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/app_lock_settings_section.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -406,44 +407,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ],
                 ),
               ),
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        slang.t.settings.privacy,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    Obx(
-                      () => GlassSwitchItem(
-                        title: Text(
-                          slang.t.settings.activeBackgroundPrivacyMode,
-                        ),
-                        subtitle: Text(
-                          slang.t.settings.activeBackgroundPrivacyModeDesc,
-                        ),
-                        value:
-                            configService[ConfigKey
-                                .ACTIVE_BACKGROUND_PRIVACY_MODE],
-                        onChanged: (value) {
-                          configService[ConfigKey
-                                  .ACTIVE_BACKGROUND_PRIVACY_MODE] =
-                              value;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // 隐私模式已并入应用锁那张卡（同属「隐私」，且共用后台遮罩）
+              const AppLockSettingsSection(),
               if (VibrateUtils.hasVibrator())
                 Card(
                   elevation: 2,

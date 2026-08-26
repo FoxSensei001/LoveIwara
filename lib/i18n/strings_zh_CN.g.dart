@@ -753,8 +753,54 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownTextDesc => '显示Markdown的原始文本';
 	@override String get markdown => 'Markdown';
 	@override String get activeBackgroundPrivacyMode => '隐私模式';
-	@override String get activeBackgroundPrivacyModeDesc => '禁止截图、后台运行时隐藏画面...';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截图与录屏，并在切到后台时隐藏画面';
+	@override String get activeBackgroundPrivacyModeDescNonAndroid => '切到后台时隐藏画面（当前平台无法阻止截图）';
+	@override String get activeBackgroundPrivacyModeDescScreenshotOnly => '禁止截图与录屏';
 	@override String get privacy => '隐私';
+	@override String get appLock => '应用锁';
+	@override String get appLockEnabled => '启用应用锁';
+	@override String get appLockEnabledDesc => '打开应用时需要使用 PIN 或生物验证，并自动隐藏后台画面';
+	@override String get appLockEnabledSummary => '已开启 · PIN 保护';
+	@override String get appLockDisabledSummary => '未开启';
+	@override String get appLockTimeout => '离开应用后锁定';
+	@override String get appLockTimeoutDesc => '应用进入后台多久后需要重新验证';
+	@override String get appLockAfterScreenOff => '锁屏后锁定';
+	@override String get appLockAfterScreenOffDesc => '系统锁屏后，再次进入应用时需要重新验证';
+	@override String get appLockTimeoutDisabled => '禁用';
+	@override String get appLockImmediately => '立即';
+	@override String appLockSeconds({required Object seconds}) => '${seconds} 秒';
+	@override String appLockMinutes({required Object minutes}) => '${minutes} 分钟';
+	@override String get appLockUseBiometrics => '使用生物验证';
+	@override String get appLockUseBiometricsDesc => '使用指纹或面容识别解锁';
+	@override String get appLockBiometricsUnavailable => '此设备没有可用的生物验证';
+	@override String get appLockSetPin => '设置 PIN';
+	@override String get appLockEnterPin => '输入 PIN';
+	@override String get appLockConfirmPin => '确认 PIN';
+	@override String get appLockCurrentPin => '输入当前 PIN';
+	@override String get appLockNewPin => '输入新 PIN';
+	@override String get appLockPinRequirements => 'PIN 必须为 4–8 位数字';
+	@override String get appLockPinsDoNotMatch => '两次输入的 PIN 不一致';
+	@override String get appLockInvalidPin => 'PIN 错误';
+	@override String get appLockSetupFailed => '无法安全保存 PIN';
+	@override String get appLockDisable => '输入 PIN 以关闭应用锁';
+	@override String get appLockChangePin => '修改 PIN';
+	@override String get appLockNow => '立即锁定';
+	@override String get appLockUnlock => '解锁';
+	@override String get appLockLockedTitle => '已锁定';
+	@override String get appLockLockedDesc => '请验证身份以继续使用';
+	@override String get appLockAuthenticateReason => '验证身份以解锁';
+	@override String get appLockEnableBiometricsReason => '验证身份以启用生物解锁';
+	@override String get appLockBiometricFailed => '未能完成生物验证';
+	@override String appLockTooManyAttempts({required Object seconds}) => '尝试次数过多，请在 ${seconds} 秒后重试';
+	@override String get appLockCredentialUnavailableTitle => '无法读取应用锁凭据';
+	@override String get appLockCredentialUnavailableDesc => '系统安全存储暂时不可用或凭据已损坏。应用保持锁定状态。可以先重试；若始终失败，可以重置应用锁——重置会关闭应用锁并清除已保存的 PIN。';
+	@override String get appLockRetry => '重试';
+	@override String get appLockReset => '重置应用锁';
+	@override String get appLockResetAction => '重置';
+	@override String get appLockResetConfirmTitle => '重置应用锁？';
+	@override String get appLockResetConfirmDesc => '将关闭应用锁并清除已保存的 PIN 与生物验证设置。之后可以重新设置。';
+	@override String get appLockRetrySucceeded => '已重新读取到凭据，请输入 PIN';
+	@override String get appLockRetryFailed => '仍然无法读取凭据';
 	@override String get forum => '论坛';
 	@override String get news => '新闻';
 	@override String get community => '社区';
@@ -4032,8 +4078,54 @@ extension on TranslationsZhCn {
 			'settings.showUnprocessedMarkdownTextDesc' => '显示Markdown的原始文本',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => '隐私模式',
-			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图、后台运行时隐藏画面...',
+			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图与录屏，并在切到后台时隐藏画面',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => '切到后台时隐藏画面（当前平台无法阻止截图）',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => '禁止截图与录屏',
 			'settings.privacy' => '隐私',
+			'settings.appLock' => '应用锁',
+			'settings.appLockEnabled' => '启用应用锁',
+			'settings.appLockEnabledDesc' => '打开应用时需要使用 PIN 或生物验证，并自动隐藏后台画面',
+			'settings.appLockEnabledSummary' => '已开启 · PIN 保护',
+			'settings.appLockDisabledSummary' => '未开启',
+			'settings.appLockTimeout' => '离开应用后锁定',
+			'settings.appLockTimeoutDesc' => '应用进入后台多久后需要重新验证',
+			'settings.appLockAfterScreenOff' => '锁屏后锁定',
+			'settings.appLockAfterScreenOffDesc' => '系统锁屏后，再次进入应用时需要重新验证',
+			'settings.appLockTimeoutDisabled' => '禁用',
+			'settings.appLockImmediately' => '立即',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} 秒',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} 分钟',
+			'settings.appLockUseBiometrics' => '使用生物验证',
+			'settings.appLockUseBiometricsDesc' => '使用指纹或面容识别解锁',
+			'settings.appLockBiometricsUnavailable' => '此设备没有可用的生物验证',
+			'settings.appLockSetPin' => '设置 PIN',
+			'settings.appLockEnterPin' => '输入 PIN',
+			'settings.appLockConfirmPin' => '确认 PIN',
+			'settings.appLockCurrentPin' => '输入当前 PIN',
+			'settings.appLockNewPin' => '输入新 PIN',
+			'settings.appLockPinRequirements' => 'PIN 必须为 4–8 位数字',
+			'settings.appLockPinsDoNotMatch' => '两次输入的 PIN 不一致',
+			'settings.appLockInvalidPin' => 'PIN 错误',
+			'settings.appLockSetupFailed' => '无法安全保存 PIN',
+			'settings.appLockDisable' => '输入 PIN 以关闭应用锁',
+			'settings.appLockChangePin' => '修改 PIN',
+			'settings.appLockNow' => '立即锁定',
+			'settings.appLockUnlock' => '解锁',
+			'settings.appLockLockedTitle' => '已锁定',
+			'settings.appLockLockedDesc' => '请验证身份以继续使用',
+			'settings.appLockAuthenticateReason' => '验证身份以解锁',
+			'settings.appLockEnableBiometricsReason' => '验证身份以启用生物解锁',
+			'settings.appLockBiometricFailed' => '未能完成生物验证',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => '尝试次数过多，请在 ${seconds} 秒后重试',
+			'settings.appLockCredentialUnavailableTitle' => '无法读取应用锁凭据',
+			'settings.appLockCredentialUnavailableDesc' => '系统安全存储暂时不可用或凭据已损坏。应用保持锁定状态。可以先重试；若始终失败，可以重置应用锁——重置会关闭应用锁并清除已保存的 PIN。',
+			'settings.appLockRetry' => '重试',
+			'settings.appLockReset' => '重置应用锁',
+			'settings.appLockResetAction' => '重置',
+			'settings.appLockResetConfirmTitle' => '重置应用锁？',
+			'settings.appLockResetConfirmDesc' => '将关闭应用锁并清除已保存的 PIN 与生物验证设置。之后可以重新设置。',
+			'settings.appLockRetrySucceeded' => '已重新读取到凭据，请输入 PIN',
+			'settings.appLockRetryFailed' => '仍然无法读取凭据',
 			'settings.forum' => '论坛',
 			'settings.news' => '新闻',
 			'settings.community' => '社区',
@@ -4432,6 +4524,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadPathSetTo' => '下载路径已设置为',
 			'settings.downloadSettings.setPathFailed' => '设置路径失败',
 			'settings.downloadSettings.variableTitle' => '标题',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => '作者名称',
 			'settings.downloadSettings.variableUsername' => '作者用户名',
 			'settings.downloadSettings.variableQuality' => '视频质量',
@@ -4478,8 +4572,6 @@ extension on TranslationsZhCn {
 			'oreno3d.errors.resourceNotFound' => '请求的资源不存在',
 			'oreno3d.errors.accessDenied' => '访问被拒绝，可能需要验证或权限',
 			'oreno3d.errors.serverError' => '服务器内部错误',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.errors.serviceUnavailable' => '服务暂时不可用',
 			'oreno3d.errors.requestCancelled' => '请求已取消',
 			'oreno3d.errors.connectionError' => '网络连接错误，请检查网络设置',
@@ -4946,6 +5038,8 @@ extension on TranslationsZhCn {
 			'download.resume' => '继续',
 			'download.copyDownloadUrl' => '复制下载链接',
 			'download.showInFolder' => '在文件夹中显示',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteTask' => '删除任务',
 			'download.deleteTaskConfirmation' => '确定要删除这个下载任务吗？\n任务的文件也会被删除。',
 			'download.forceDeleteTaskConfirmation' => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。',
@@ -4992,8 +5086,6 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.banner' => ({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停',
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
-			_ => null,
-		} ?? switch (path) {
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
@@ -5460,6 +5552,8 @@ extension on TranslationsZhCn {
 			'log.showLogStats' => '显示日志统计信息',
 			'log.logExportSuccess' => '日志导出成功',
 			'log.logExportFailed' => ({required Object error}) => '日志导出失败: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'log.showLogStatsDesc' => '查看各种类型日志的统计数据',
 			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			'log.clearAllLogs' => '清理所有日志',
@@ -5506,8 +5600,6 @@ extension on TranslationsZhCn {
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.copyEmojiLinkSuccess' => '表情包链接已复制',
 			'emoji.preview' => '表情包预览',
 			'emoji.library' => '表情包库',

@@ -1636,21 +1636,30 @@ class DownloadService extends GetxService {
         }
       } catch (e) {
         // 针对网络类错误做一点「智能重试」：
-        // 1) 403: 可能是签名/鉴权过期，视频任务需要强制刷新下载链接再重试
+        // 1) 链接已死（403 签名失效、404/410 资源换了地址）：视频任务必须强制
+        //    向 API 重新索取一份下载地址再重试。这类失败重试同一个 URL 永远是
+        //    同样的错——判定统一走 [isDeadLinkErrorType]，不要再按状态码零散判断。
         // 2) 连接中断: 尝试像 resumeTask 一样刷新下载链接后再重试一次。
-        final isDio403Error =
-            e is DioException && e.response?.statusCode == 403;
+        final isDeadLinkError = isDeadLinkErrorType(classifyError(e));
         final isConnectionClosedError =
             e is HttpException && e.message.contains('Connection closed');
+        final isVideoTask = task.extData?.type == DownloadTaskExtDataType.video;
 
-        if (isDio403Error &&
+        if (isVideoTask &&
             retryCount < maxRetries - 1 &&
-            task.extData?.type == DownloadTaskExtDataType.video) {
+            (isDeadLinkError || isConnectionClosedError)) {
           try {
-            final refreshed = await refreshVideoTask(task, force: true);
+            final refreshed = await refreshVideoTask(
+              task,
+              // 链接已死时不能只看 expires：Iwara 的地址会在没到期之前就 404，
+              // 「还没过期」的判断会把任务永远钉死在同一个死链上。
+              force: isDeadLinkError,
+            );
             if (refreshed != null) {
               LogUtils.w(
-                '检测到403，已强制刷新视频下载链接，准备重试: ${task.id}',
+                isDeadLinkError
+                    ? '检测到链接失效(${classifyError(e).name})，已强制刷新视频下载链接，准备重试: ${task.id}'
+                    : '检测到连接中断，已刷新视频下载链接，准备重试: ${task.id}',
                 'DownloadService',
               );
               task = refreshed;
@@ -1660,30 +1669,7 @@ class DownloadService extends GetxService {
             }
           } catch (refreshError) {
             LogUtils.w(
-              '403 时刷新视频任务链接失败，将按照普通错误处理: $refreshError',
-              'DownloadService',
-            );
-          }
-        }
-
-        if (isConnectionClosedError &&
-            retryCount < maxRetries - 1 &&
-            task.extData?.type == DownloadTaskExtDataType.video) {
-          try {
-            final refreshed = await refreshVideoTask(task);
-            if (refreshed != null) {
-              LogUtils.d(
-                '检测到连接中断，已刷新视频下载链接，准备重试: ${task.id}',
-                'DownloadService',
-              );
-              task = refreshed;
-              retryCount++;
-              await Future.delayed(retryDelay);
-              continue;
-            }
-          } catch (refreshError) {
-            LogUtils.w(
-              '连接中断时刷新视频任务链接失败，将按照普通错误处理: $refreshError',
+              '刷新视频任务链接失败，将按照普通错误处理: $refreshError',
               'DownloadService',
             );
           }
@@ -2034,6 +2020,52 @@ class DownloadService extends GetxService {
     return DownloadErrorType.unknown;
   }
 
+  /// 这次失败是不是「链接本身已经死了」。
+  ///
+  /// Iwara 的下载地址是带签名与有效期的临时地址：签名失效返回 403，资源被换到
+  /// 新地址（重新转码 / CDN 换路径）返回 404、410。这两类失败重试同一个 URL
+  /// 永远是同样的错，唯一的出路是向 API 重新索取一份地址——所以判定收在这里，
+  /// 下载重试与手动重试共用同一条判断，不要再各自去比状态码。
+  static bool isDeadLinkErrorType(DownloadErrorType type) =>
+      type == DownloadErrorType.notFound ||
+      type == DownloadErrorType.serverRejected;
+
+  /// 两个下载地址是否指向同一份远端文件。
+  ///
+  /// Iwara 的地址形如 `https://<cdn>/file/<fileId>/<quality>?expires=..&hash=..`：
+  /// 换签名只动 query（有时连 CDN 主机也会换），换文件才会动 path。因此只比
+  /// path。解析不出来时按「不同文件」处理——宁可重下，也不要把两份文件的字节
+  /// 拼在一起。
+  static bool isSameRemoteFile(String previousUrl, String newUrl) {
+    if (previousUrl == newUrl) return true;
+    try {
+      final previousPath = Uri.parse(previousUrl).path;
+      final newPath = Uri.parse(newUrl).path;
+      if (previousPath.isEmpty || newPath.isEmpty) return false;
+      return previousPath == newPath;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 远端换了一份新文件时，把已下的半截文件删掉并清零进度，让下一轮从头下。
+  Future<void> _discardPartialFile(DownloadTask task) async {
+    try {
+      final partial = File(task.savePath);
+      if (await partial.exists()) {
+        await partial.delete();
+        LogUtils.w(
+          '远端已换文件，删除续传不上的半截文件: ${task.fileName}',
+          'DownloadService',
+        );
+      }
+    } catch (e) {
+      LogUtils.w('删除失效的半截文件失败: $e', 'DownloadService');
+    }
+    task.downloadedBytes = 0;
+    task.totalBytes = 0;
+  }
+
   /// 记录一次失败的原因（文案 + 分类）。
   void _recordFailure(DownloadTask task, Object? error, {String? message}) {
     task.error = message ?? _getErrorMessage(error);
@@ -2072,7 +2104,12 @@ class DownloadService extends GetxService {
       task.status = DownloadStatus.pending;
       _publishTask(task, 'retrying');
       if (task.extData?.type == DownloadTaskExtDataType.video) {
-        final refreshed = await refreshVideoTask(task);
+        // 上一次就是死链失败的话，必须强制重新索取地址：只按 expires 判断的话，
+        // 「还没到期但已经 404」的地址会被原样拿回来，点多少次重试都是 404。
+        final wasDeadLink = isDeadLinkErrorType(
+          DownloadErrorType.parse(task.errorType),
+        );
+        final refreshed = await refreshVideoTask(task, force: wasDeadLink);
         if (refreshed == null) {
           // 刷新失败，退回失败状态并提示
           _showMessage(
@@ -2673,6 +2710,11 @@ class DownloadService extends GetxService {
 
       // 如果获取到新的链接，则更新任务信息
       if (newVideoDownloadUrl != null) {
+        if (!isSameRemoteFile(videoLink, newVideoDownloadUrl)) {
+          // 换签名只会动 query，动了 path 说明远端换成了另一份文件（重新转码等）：
+          // 已下的半截字节续不上，续传会拼出损坏文件，删档从头下。
+          await _discardPartialFile(task);
+        }
         task.url = newVideoDownloadUrl;
         return task;
       } else {

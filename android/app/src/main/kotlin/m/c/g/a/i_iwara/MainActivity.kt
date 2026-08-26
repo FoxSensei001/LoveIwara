@@ -1,6 +1,9 @@
 package m.c.g.a.i_iwara
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
@@ -12,7 +15,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
@@ -22,15 +25,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainActivity : FlutterActivity() {
+class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "i_iwara/volume_key"
     private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private val FILE_HANDLER_CHANNEL = "com.example.i_iwara/file_handler"
     private val DEVICE_FORM_FACTOR_CHANNEL = "i_iwara/device_form_factor"
     private val ORIENTATION_CHANNEL = "i_iwara/orientation"
+    private val APP_LOCK_CHANNEL = "i_iwara/app_lock"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
+    private var appLockChannel: MethodChannel? = null
+    private val screenLockReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == Intent.ACTION_SCREEN_OFF) {
+                appLockChannel?.invokeMethod("onSystemScreenLocked", null)
+            }
+        }
+    }
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
     private val REQUEST_CODE_PICK_DIRECTORY = 51423
@@ -38,6 +50,11 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        appLockChannel = MethodChannel(
+                flutterEngine.dartExecutor.binaryMessenger,
+                APP_LOCK_CHANNEL
+        )
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
                 call,
@@ -346,9 +363,23 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val filter = IntentFilter(Intent.ACTION_SCREEN_OFF)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(screenLockReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(screenLockReceiver, filter)
+        }
         
         // 处理启动时的 Intent（从文件管理器打开）
         handleIntent(intent)
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(screenLockReceiver)
+        appLockChannel = null
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -1855,11 +1855,149 @@ class TranslationsSettingsEn {
 	/// en: 'Privacy Mode'
 	String get activeBackgroundPrivacyMode => 'Privacy Mode';
 
-	/// en: 'Prevent screenshots, hide screen when running in the background...'
-	String get activeBackgroundPrivacyModeDesc => 'Prevent screenshots, hide screen when running in the background...';
+	/// en: 'Block screenshots and screen recording, and hide the screen in the background'
+	String get activeBackgroundPrivacyModeDesc => 'Block screenshots and screen recording, and hide the screen in the background';
+
+	/// en: 'Hide the screen when the app goes to the background (this platform cannot block screenshots)'
+	String get activeBackgroundPrivacyModeDescNonAndroid => 'Hide the screen when the app goes to the background (this platform cannot block screenshots)';
+
+	/// en: 'Block screenshots and screen recording'
+	String get activeBackgroundPrivacyModeDescScreenshotOnly => 'Block screenshots and screen recording';
 
 	/// en: 'Privacy'
 	String get privacy => 'Privacy';
+
+	/// en: 'App Lock'
+	String get appLock => 'App Lock';
+
+	/// en: 'Enable app lock'
+	String get appLockEnabled => 'Enable app lock';
+
+	/// en: 'Require a PIN or biometrics to open the app; the background preview is hidden automatically'
+	String get appLockEnabledDesc => 'Require a PIN or biometrics to open the app; the background preview is hidden automatically';
+
+	/// en: 'On · PIN protected'
+	String get appLockEnabledSummary => 'On · PIN protected';
+
+	/// en: 'Off'
+	String get appLockDisabledSummary => 'Off';
+
+	/// en: 'Lock after leaving app'
+	String get appLockTimeout => 'Lock after leaving app';
+
+	/// en: 'Time allowed in the background before authentication is required'
+	String get appLockTimeoutDesc => 'Time allowed in the background before authentication is required';
+
+	/// en: 'Lock after screen lock'
+	String get appLockAfterScreenOff => 'Lock after screen lock';
+
+	/// en: 'Require authentication after the device screen is locked'
+	String get appLockAfterScreenOffDesc => 'Require authentication after the device screen is locked';
+
+	/// en: 'Disabled'
+	String get appLockTimeoutDisabled => 'Disabled';
+
+	/// en: 'Immediately'
+	String get appLockImmediately => 'Immediately';
+
+	/// en: '${seconds} seconds'
+	String appLockSeconds({required Object seconds}) => '${seconds} seconds';
+
+	/// en: '${minutes} minutes'
+	String appLockMinutes({required Object minutes}) => '${minutes} minutes';
+
+	/// en: 'Use biometrics'
+	String get appLockUseBiometrics => 'Use biometrics';
+
+	/// en: 'Unlock with fingerprint or face recognition'
+	String get appLockUseBiometricsDesc => 'Unlock with fingerprint or face recognition';
+
+	/// en: 'No enrolled biometrics are available on this device'
+	String get appLockBiometricsUnavailable => 'No enrolled biometrics are available on this device';
+
+	/// en: 'Set PIN'
+	String get appLockSetPin => 'Set PIN';
+
+	/// en: 'Enter PIN'
+	String get appLockEnterPin => 'Enter PIN';
+
+	/// en: 'Confirm PIN'
+	String get appLockConfirmPin => 'Confirm PIN';
+
+	/// en: 'Enter current PIN'
+	String get appLockCurrentPin => 'Enter current PIN';
+
+	/// en: 'Enter new PIN'
+	String get appLockNewPin => 'Enter new PIN';
+
+	/// en: 'PIN must contain 4–8 digits'
+	String get appLockPinRequirements => 'PIN must contain 4–8 digits';
+
+	/// en: 'PINs do not match'
+	String get appLockPinsDoNotMatch => 'PINs do not match';
+
+	/// en: 'Incorrect PIN'
+	String get appLockInvalidPin => 'Incorrect PIN';
+
+	/// en: 'Could not securely save the PIN'
+	String get appLockSetupFailed => 'Could not securely save the PIN';
+
+	/// en: 'Enter PIN to disable app lock'
+	String get appLockDisable => 'Enter PIN to disable app lock';
+
+	/// en: 'Change PIN'
+	String get appLockChangePin => 'Change PIN';
+
+	/// en: 'Lock now'
+	String get appLockNow => 'Lock now';
+
+	/// en: 'Unlock'
+	String get appLockUnlock => 'Unlock';
+
+	/// en: 'Locked'
+	String get appLockLockedTitle => 'Locked';
+
+	/// en: 'Authenticate to continue'
+	String get appLockLockedDesc => 'Authenticate to continue';
+
+	/// en: 'Authenticate to unlock'
+	String get appLockAuthenticateReason => 'Authenticate to unlock';
+
+	/// en: 'Authenticate to enable biometric unlock'
+	String get appLockEnableBiometricsReason => 'Authenticate to enable biometric unlock';
+
+	/// en: 'Biometric authentication was not completed'
+	String get appLockBiometricFailed => 'Biometric authentication was not completed';
+
+	/// en: 'Too many attempts. Try again in ${seconds}s'
+	String appLockTooManyAttempts({required Object seconds}) => 'Too many attempts. Try again in ${seconds}s';
+
+	/// en: 'Can't read the app lock credential'
+	String get appLockCredentialUnavailableTitle => 'Can\'t read the app lock credential';
+
+	/// en: 'The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.'
+	String get appLockCredentialUnavailableDesc => 'The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.';
+
+	/// en: 'Retry'
+	String get appLockRetry => 'Retry';
+
+	/// en: 'Reset app lock'
+	String get appLockReset => 'Reset app lock';
+
+	/// en: 'Reset'
+	String get appLockResetAction => 'Reset';
+
+	/// en: 'Reset app lock?'
+	String get appLockResetConfirmTitle => 'Reset app lock?';
+
+	/// en: 'This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.'
+	String get appLockResetConfirmDesc => 'This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.';
+
+	/// en: 'Credential read succeeded. Enter your PIN.'
+	String get appLockRetrySucceeded => 'Credential read succeeded. Enter your PIN.';
+
+	/// en: 'Still unable to read the credential'
+	String get appLockRetryFailed => 'Still unable to read the credential';
 
 	/// en: 'Forum'
 	String get forum => 'Forum';
@@ -8887,8 +9025,54 @@ extension on Translations {
 			'settings.showUnprocessedMarkdownTextDesc' => 'Show the original text of the markdown',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => 'Privacy Mode',
-			'settings.activeBackgroundPrivacyModeDesc' => 'Prevent screenshots, hide screen when running in the background...',
+			'settings.activeBackgroundPrivacyModeDesc' => 'Block screenshots and screen recording, and hide the screen in the background',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => 'Hide the screen when the app goes to the background (this platform cannot block screenshots)',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => 'Block screenshots and screen recording',
 			'settings.privacy' => 'Privacy',
+			'settings.appLock' => 'App Lock',
+			'settings.appLockEnabled' => 'Enable app lock',
+			'settings.appLockEnabledDesc' => 'Require a PIN or biometrics to open the app; the background preview is hidden automatically',
+			'settings.appLockEnabledSummary' => 'On · PIN protected',
+			'settings.appLockDisabledSummary' => 'Off',
+			'settings.appLockTimeout' => 'Lock after leaving app',
+			'settings.appLockTimeoutDesc' => 'Time allowed in the background before authentication is required',
+			'settings.appLockAfterScreenOff' => 'Lock after screen lock',
+			'settings.appLockAfterScreenOffDesc' => 'Require authentication after the device screen is locked',
+			'settings.appLockTimeoutDisabled' => 'Disabled',
+			'settings.appLockImmediately' => 'Immediately',
+			'settings.appLockSeconds' => ({required Object seconds}) => '${seconds} seconds',
+			'settings.appLockMinutes' => ({required Object minutes}) => '${minutes} minutes',
+			'settings.appLockUseBiometrics' => 'Use biometrics',
+			'settings.appLockUseBiometricsDesc' => 'Unlock with fingerprint or face recognition',
+			'settings.appLockBiometricsUnavailable' => 'No enrolled biometrics are available on this device',
+			'settings.appLockSetPin' => 'Set PIN',
+			'settings.appLockEnterPin' => 'Enter PIN',
+			'settings.appLockConfirmPin' => 'Confirm PIN',
+			'settings.appLockCurrentPin' => 'Enter current PIN',
+			'settings.appLockNewPin' => 'Enter new PIN',
+			'settings.appLockPinRequirements' => 'PIN must contain 4–8 digits',
+			'settings.appLockPinsDoNotMatch' => 'PINs do not match',
+			'settings.appLockInvalidPin' => 'Incorrect PIN',
+			'settings.appLockSetupFailed' => 'Could not securely save the PIN',
+			'settings.appLockDisable' => 'Enter PIN to disable app lock',
+			'settings.appLockChangePin' => 'Change PIN',
+			'settings.appLockNow' => 'Lock now',
+			'settings.appLockUnlock' => 'Unlock',
+			'settings.appLockLockedTitle' => 'Locked',
+			'settings.appLockLockedDesc' => 'Authenticate to continue',
+			'settings.appLockAuthenticateReason' => 'Authenticate to unlock',
+			'settings.appLockEnableBiometricsReason' => 'Authenticate to enable biometric unlock',
+			'settings.appLockBiometricFailed' => 'Biometric authentication was not completed',
+			'settings.appLockTooManyAttempts' => ({required Object seconds}) => 'Too many attempts. Try again in ${seconds}s',
+			'settings.appLockCredentialUnavailableTitle' => 'Can\'t read the app lock credential',
+			'settings.appLockCredentialUnavailableDesc' => 'The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.',
+			'settings.appLockRetry' => 'Retry',
+			'settings.appLockReset' => 'Reset app lock',
+			'settings.appLockResetAction' => 'Reset',
+			'settings.appLockResetConfirmTitle' => 'Reset app lock?',
+			'settings.appLockResetConfirmDesc' => 'This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.',
+			'settings.appLockRetrySucceeded' => 'Credential read succeeded. Enter your PIN.',
+			'settings.appLockRetryFailed' => 'Still unable to read the credential',
 			'settings.forum' => 'Forum',
 			'settings.news' => 'News',
 			'settings.community' => 'Community',
@@ -9287,6 +9471,8 @@ extension on Translations {
 			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
 			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
 			'settings.downloadSettings.variableTitle' => 'Title',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => 'Author name',
 			'settings.downloadSettings.variableUsername' => 'Author username',
 			'settings.downloadSettings.variableQuality' => 'Video quality',
@@ -9333,8 +9519,6 @@ extension on Translations {
 			'oreno3d.errors.resourceNotFound' => 'Requested resource not found',
 			'oreno3d.errors.accessDenied' => 'Access denied, may require authentication or permission',
 			'oreno3d.errors.serverError' => 'Internal server error',
-			_ => null,
-		} ?? switch (path) {
 			'oreno3d.errors.serviceUnavailable' => 'Service temporarily unavailable',
 			'oreno3d.errors.requestCancelled' => 'Request cancelled',
 			'oreno3d.errors.connectionError' => 'Network connection error, please check network settings',
@@ -9801,6 +9985,8 @@ extension on Translations {
 			'download.copyDownloadUrl' => 'Copy Download URL',
 			'download.showInFolder' => 'Show in Folder',
 			'download.deleteTask' => 'Delete Task',
+			_ => null,
+		} ?? switch (path) {
 			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
 			'download.forceDeleteTask' => 'Force Delete Task',
 			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
@@ -9847,8 +10033,6 @@ extension on Translations {
 			'download.errorDetailCopyHint' => 'Long press to copy error details',
 			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
 			'download.restoredPaused.resume' => 'Resume all',
-			_ => null,
-		} ?? switch (path) {
 			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
@@ -10315,6 +10499,8 @@ extension on Translations {
 			'diagnostics.maxFileSizeSubtitle' => 'Rotate when threshold is reached',
 			'diagnostics.rotatedFileCountTitle' => 'Main log rotated file count',
 			'diagnostics.rotatedFileCountSubtitle' => 'Number of retained files excluding the current file',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
 			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
 			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',
@@ -10361,8 +10547,6 @@ extension on Translations {
 			'crashRecoveryDialog.lastException' => ({required Object message}) => 'Last exception: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => 'A UI hang was detected last time and recovered automatically',
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms',
-			_ => null,
-		} ?? switch (path) {
 			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
 			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
 			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
