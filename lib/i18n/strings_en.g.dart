@@ -1978,6 +1978,9 @@ class TranslationsSettingsEn {
 	/// en: 'Reset app lock'
 	String get appLockReset => 'Reset app lock';
 
+	/// en: 'Reset'
+	String get appLockResetAction => 'Reset';
+
 	/// en: 'Reset app lock?'
 	String get appLockResetConfirmTitle => 'Reset app lock?';
 
@@ -9057,6 +9060,7 @@ extension on Translations {
 			'settings.appLockCredentialUnavailableDesc' => 'The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.',
 			'settings.appLockRetry' => 'Retry',
 			'settings.appLockReset' => 'Reset app lock',
+			'settings.appLockResetAction' => 'Reset',
 			'settings.appLockResetConfirmTitle' => 'Reset app lock?',
 			'settings.appLockResetConfirmDesc' => 'This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.',
 			'settings.appLockRetrySucceeded' => 'Credential read succeeded. Enter your PIN.',
@@ -9461,9 +9465,9 @@ extension on Translations {
 			'settings.downloadSettings.variableTitle' => 'Title',
 			'settings.downloadSettings.variableAuthor' => 'Author name',
 			'settings.downloadSettings.variableUsername' => 'Author username',
-			'settings.downloadSettings.variableQuality' => 'Video quality',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableQuality' => 'Video quality',
 			'settings.downloadSettings.variableFilename' => 'Original filename',
 			'settings.downloadSettings.variableId' => 'Content ID',
 			'settings.downloadSettings.variableCount' => 'Gallery image count',
@@ -9975,9 +9979,9 @@ extension on Translations {
 			'download.deleteTask' => 'Delete Task',
 			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
 			'download.forceDeleteTask' => 'Force Delete Task',
-			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
 			_ => null,
 		} ?? switch (path) {
+			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s',
 			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => 'Paused ${downloaded}/${total} (${progress}%)',
@@ -10489,9 +10493,9 @@ extension on Translations {
 			'diagnostics.rotatedFileCountSubtitle' => 'Number of retained files excluding the current file',
 			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
 			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
-			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',
 			'diagnostics.hangRotatedFileCountSubtitle' => 'Control retained history for hang_events',
 			'diagnostics.healthSectionTitle' => 'Log Health',
 			'diagnostics.refreshMetrics' => 'Refresh Metrics',

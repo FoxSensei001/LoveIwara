@@ -794,6 +794,7 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get appLockCredentialUnavailableDesc => '系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。';
 	@override String get appLockRetry => '重試';
 	@override String get appLockReset => '重置應用鎖';
+	@override String get appLockResetAction => '重置';
 	@override String get appLockResetConfirmTitle => '重置應用鎖？';
 	@override String get appLockResetConfirmDesc => '將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。';
 	@override String get appLockRetrySucceeded => '已重新讀取到憑證，請輸入 PIN';
@@ -4116,6 +4117,7 @@ extension on TranslationsZhTw {
 			'settings.appLockCredentialUnavailableDesc' => '系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。',
 			'settings.appLockRetry' => '重試',
 			'settings.appLockReset' => '重置應用鎖',
+			'settings.appLockResetAction' => '重置',
 			'settings.appLockResetConfirmTitle' => '重置應用鎖？',
 			'settings.appLockResetConfirmDesc' => '將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。',
 			'settings.appLockRetrySucceeded' => '已重新讀取到憑證，請輸入 PIN',
@@ -4520,9 +4522,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.variableTitle' => '標題',
 			'settings.downloadSettings.variableAuthor' => '作者名稱',
 			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
-			'settings.downloadSettings.variableQuality' => '影片品質',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableQuality' => '影片品質',
 			'settings.downloadSettings.variableFilename' => '原始檔案名稱',
 			'settings.downloadSettings.variableId' => '內容ID',
 			'settings.downloadSettings.variableCount' => '圖庫圖片數量',
@@ -5034,9 +5036,9 @@ extension on TranslationsZhTw {
 			'download.download' => '下載',
 			'download.selectDownloadTitle' => '選擇下載',
 			'download.qualitySectionLabel' => '清晰度',
-			'download.saveToSectionLabel' => '儲存到',
 			_ => null,
 		} ?? switch (path) {
+			'download.saveToSectionLabel' => '儲存到',
 			'download.lastUsedBadge' => '上次選擇',
 			'download.pickedBadge' => '已選擇',
 			'download.forceDeleteTask' => '強制刪除任務',
@@ -5548,9 +5550,9 @@ extension on TranslationsZhTw {
 			'linkInputDialog.title' => '輸入連結',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
-			'linkInputDialog.validatorEmptyLink' => '請輸入連結',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.validatorEmptyLink' => '請輸入連結',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '未檢測到有效的${webName}連結',
 			'linkInputDialog.multipleLinksDetected' => '檢測到多個連結，請選擇一個：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '不是有效的${webName}連結',

@@ -646,6 +646,7 @@ settings:
   appLockCredentialUnavailableDesc: The system secure storage is temporarily unavailable, or the credential is corrupted. The app stays locked. Try again first; if it keeps failing you can reset the app lock, which turns it off and clears the saved PIN.
   appLockRetry: Retry
   appLockReset: Reset app lock
+  appLockResetAction: Reset
   appLockResetConfirmTitle: Reset app lock?
   appLockResetConfirmDesc: This turns off the app lock and clears the saved PIN and biometric setting. You can set it up again afterwards.
   appLockRetrySucceeded: Credential read succeeded. Enter your PIN.

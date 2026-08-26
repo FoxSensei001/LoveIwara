@@ -647,6 +647,7 @@ settings:
   appLockCredentialUnavailableDesc: 系統安全儲存暫時不可用或憑證已損毀。應用保持鎖定狀態。可以先重試；若始終失敗，可以重置應用鎖——重置會關閉應用鎖並清除已儲存的 PIN。
   appLockRetry: 重試
   appLockReset: 重置應用鎖
+  appLockResetAction: 重置
   appLockResetConfirmTitle: 重置應用鎖？
   appLockResetConfirmDesc: 將關閉應用鎖並清除已儲存的 PIN 與生物驗證設定。之後可以重新設定。
   appLockRetrySucceeded: 已重新讀取到憑證，請輸入 PIN

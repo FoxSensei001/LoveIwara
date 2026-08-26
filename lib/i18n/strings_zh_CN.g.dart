@@ -794,6 +794,7 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get appLockCredentialUnavailableDesc => '系统安全存储暂时不可用或凭据已损坏。应用保持锁定状态。可以先重试；若始终失败，可以重置应用锁——重置会关闭应用锁并清除已保存的 PIN。';
 	@override String get appLockRetry => '重试';
 	@override String get appLockReset => '重置应用锁';
+	@override String get appLockResetAction => '重置';
 	@override String get appLockResetConfirmTitle => '重置应用锁？';
 	@override String get appLockResetConfirmDesc => '将关闭应用锁并清除已保存的 PIN 与生物验证设置。之后可以重新设置。';
 	@override String get appLockRetrySucceeded => '已重新读取到凭据，请输入 PIN';
@@ -4116,6 +4117,7 @@ extension on TranslationsZhCn {
 			'settings.appLockCredentialUnavailableDesc' => '系统安全存储暂时不可用或凭据已损坏。应用保持锁定状态。可以先重试；若始终失败，可以重置应用锁——重置会关闭应用锁并清除已保存的 PIN。',
 			'settings.appLockRetry' => '重试',
 			'settings.appLockReset' => '重置应用锁',
+			'settings.appLockResetAction' => '重置',
 			'settings.appLockResetConfirmTitle' => '重置应用锁？',
 			'settings.appLockResetConfirmDesc' => '将关闭应用锁并清除已保存的 PIN 与生物验证设置。之后可以重新设置。',
 			'settings.appLockRetrySucceeded' => '已重新读取到凭据，请输入 PIN',
@@ -4520,9 +4522,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.variableTitle' => '标题',
 			'settings.downloadSettings.variableAuthor' => '作者名称',
 			'settings.downloadSettings.variableUsername' => '作者用户名',
-			'settings.downloadSettings.variableQuality' => '视频质量',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableQuality' => '视频质量',
 			'settings.downloadSettings.variableFilename' => '原始文件名',
 			'settings.downloadSettings.variableId' => '内容ID',
 			'settings.downloadSettings.variableCount' => '图库图片数量',
@@ -5034,9 +5036,9 @@ extension on TranslationsZhCn {
 			'download.showInFolder' => '在文件夹中显示',
 			'download.deleteTask' => '删除任务',
 			'download.deleteTaskConfirmation' => '确定要删除这个下载任务吗？\n任务的文件也会被删除。',
-			'download.forceDeleteTaskConfirmation' => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。',
 			_ => null,
 		} ?? switch (path) {
+			'download.forceDeleteTaskConfirmation' => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s',
 			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => '已暂停 • ${downloaded}/${total} (${progress}%)',
@@ -5548,9 +5550,9 @@ extension on TranslationsZhCn {
 			'log.logExportFailed' => ({required Object error}) => '日志导出失败: ${error}',
 			'log.showLogStatsDesc' => '查看各种类型日志的统计数据',
 			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
-			'log.clearAllLogs' => '清理所有日志',
 			_ => null,
 		} ?? switch (path) {
+			'log.clearAllLogs' => '清理所有日志',
 			'log.clearAllLogsDesc' => '清理所有日志数据',
 			'log.confirmClearAllLogs' => '确认清理',
 			'log.confirmClearAllLogsDesc' => '确定要清理所有日志数据吗？此操作不可撤销。',

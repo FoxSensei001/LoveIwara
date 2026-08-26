@@ -647,6 +647,7 @@ settings:
   appLockCredentialUnavailableDesc: システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。
   appLockRetry: 再試行
   appLockReset: アプリロックをリセット
+  appLockResetAction: リセット
   appLockResetConfirmTitle: アプリロックをリセットしますか？
   appLockResetConfirmDesc: アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。
   appLockRetrySucceeded: 認証情報を読み取れました。PIN を入力してください。

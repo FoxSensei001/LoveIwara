@@ -794,6 +794,7 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get appLockCredentialUnavailableDesc => 'システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。';
 	@override String get appLockRetry => '再試行';
 	@override String get appLockReset => 'アプリロックをリセット';
+	@override String get appLockResetAction => 'リセット';
 	@override String get appLockResetConfirmTitle => 'アプリロックをリセットしますか？';
 	@override String get appLockResetConfirmDesc => 'アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。';
 	@override String get appLockRetrySucceeded => '認証情報を読み取れました。PIN を入力してください。';
@@ -4116,6 +4117,7 @@ extension on TranslationsJa {
 			'settings.appLockCredentialUnavailableDesc' => 'システムのセキュアストレージが一時的に利用できないか、認証情報が破損しています。アプリはロックされたままです。まず再試行してください。それでも失敗する場合はアプリロックをリセットできます（アプリロックが無効になり、保存済みの PIN が削除されます）。',
 			'settings.appLockRetry' => '再試行',
 			'settings.appLockReset' => 'アプリロックをリセット',
+			'settings.appLockResetAction' => 'リセット',
 			'settings.appLockResetConfirmTitle' => 'アプリロックをリセットしますか？',
 			'settings.appLockResetConfirmDesc' => 'アプリロックを無効にし、保存済みの PIN と生体認証設定を削除します。後で再設定できます。',
 			'settings.appLockRetrySucceeded' => '認証情報を読み取れました。PIN を入力してください。',
@@ -4520,9 +4522,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.variableTitle' => 'タイトル',
 			'settings.downloadSettings.variableAuthor' => '作者名',
 			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
-			'settings.downloadSettings.variableQuality' => '動画品質',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableQuality' => '動画品質',
 			'settings.downloadSettings.variableFilename' => '元のファイル名',
 			'settings.downloadSettings.variableId' => 'コンテンツID',
 			'settings.downloadSettings.variableCount' => 'ギャラリー画像数',
@@ -5034,9 +5036,9 @@ extension on TranslationsJa {
 			'download.showInFolder' => 'フォルダーで表示',
 			'download.deleteTask' => 'タスクを削除',
 			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
-			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
 			_ => null,
 		} ?? switch (path) {
+			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s',
 			'download.pausedForDownloadedAndTotal' => ({required Object downloaded, required Object total, required Object progress}) => '一時停止中 ${downloaded}/${total} (${progress}%)',
@@ -5548,9 +5550,9 @@ extension on TranslationsJa {
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
-			'log.clearAllLogs' => 'すべてのログをクリア',
 			_ => null,
 		} ?? switch (path) {
+			'log.clearAllLogs' => 'すべてのログをクリア',
 			'log.clearAllLogsDesc' => 'すべてのログデータをクリア',
 			'log.confirmClearAllLogs' => '確認クリア',
 			'log.confirmClearAllLogsDesc' => 'すべてのログデータをクリアしますか？この操作は元に戻すことができません',
