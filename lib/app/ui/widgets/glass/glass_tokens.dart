@@ -350,12 +350,56 @@ abstract final class GlassTokens {
     ColorScheme cs, {
     required Color tint,
     double materialize = 1,
-    bool elevated = true,
+
+    /// 包自己画不画投影。融合层那条路上它是对的；单块玻璃那条路上要关掉，
+    /// 改由 `GlassOuterShadow` 画在形变层外面（见那个类）。
+    bool shadow = true,
   }) => lgw.LiquidGlassSettings(
     glassColor: tint,
     visibility: materialize,
-    shadowElevation: elevated ? materialize : 0.0,
+    // 显式给影子（而不是用他们的 shadowElevation 去缩放默认值）：
+    // 见 [widgetsShadow] 里那段「为什么要自己给」。空表＝这块不吐影子。
+    shadow: shadow ? widgetsShadow(alphaScale: materialize) : const [],
   );
+
+  /// 真玻璃档的投影（iOS 26 口径：一层弥散 + 一层贴地接触）。
+  ///
+  /// # 为什么要自己给，而不是用包的 `shadowElevation`
+  ///
+  /// 包默认是 6%/blur 8 + 2%/blur 2。blur 越大，影子伸得越远，而**单块玻璃
+  /// 是画在自己那层 RepaintBoundary 里的**——纹理只有布局那么大，伸出去的
+  /// 部分会被合成器整段切掉（见 [glassClipExpansion]）。要让影子完整就得把
+  /// 纹理外扩到 blur×3 那么多，而外扩是按面积收 GPU 内存的。
+  ///
+  /// 所以这里把 blur 收窄一档、不透明度补回来：看得见，但摊开得不远，
+  /// 一个 16px 的外扩就装得下。
+  ///
+  /// ⚠️ 两个液态档的投影都**只在浅色下画**（深色背景本来就吃掉投影，包自己
+  /// 按 iOS 26 的口径跳过）。传统档（假玻璃）一概不画，见上面那段 ⛔。
+  static List<BoxShadow> widgetsShadow({double alphaScale = 1}) => [
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.07 * alphaScale),
+      blurRadius: 6,
+      offset: const Offset(0, 2),
+    ),
+    BoxShadow(
+      color: Colors.black.withValues(alpha: 0.03 * alphaScale),
+      blurRadius: 2,
+      offset: const Offset(0, 1),
+    ),
+  ];
+
+  /// **单块**玻璃（不在融合层里）那层 RepaintBoundary 的裁剪外扩。
+  ///
+  /// 不给它，`AdaptiveGlass` 画的投影与跟手形变推出布局边界的那部分会在
+  /// 层边缘被硬切——2026-08-26 报障「液态玻璃的按钮、分组、按钮组都没有
+  /// 阴影」正是这条：影子画了，只是整圈都在纹理外面。融合层那边一直有外扩
+  /// （[chromeBlendClipExpansion]），所以 header 里成组的那些一直有影子，
+  /// 单块的（浮钮、弹窗里的键、`GlassChromeLayer(group: false)` 的胶囊）没有。
+  ///
+  /// 取值要盖住 [widgetsShadow] 的伸展（blur 6 → 约 10px，加 2px 偏移）
+  /// 再留一点给按压形变。
+  static const EdgeInsets glassClipExpansion = EdgeInsets.all(16);
 
   // ---- 相邻玻璃的融合（metaball）----
 

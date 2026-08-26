@@ -1,5 +1,7 @@
 import 'dart:ui' show clampDouble;
 
+import 'package:flutter/foundation.dart' show listEquals;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
@@ -764,16 +766,135 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
               cs,
               tint: tint ?? GlassTokens.widgetsTint(cs),
               materialize: m,
-              elevated: elevated,
+              // 包自己那份影子在这条路上画了也看不见（见下面 [GlassOuterShadow]
+              // 那段），关掉免得白花一次 GPU cutout。
+              shadow: false,
             ),
             allowElevation: elevated,
+            // 跟手形变会把玻璃推出布局边界，纹理不外扩就在层边缘硬切。
+            clipExpansion: GlassTokens.glassClipExpansion,
             child: child!,
           ),
         );
-        return wrapInteractive(glass);
+        // 影子画在**形变层外面**：借来的 `GlassButton(transparent)` 会
+        // `ClipPath(expansion: 0)` 把 child 裁到形状里（他们是为了不让交互
+        // 辉光漏成一个矩形），玻璃自己那层画的影子整圈都在形状外，正好被这刀
+        // 切光——2026-08-26 真机实锤：把影子调成红色 blur 12 也只在胶囊下缘
+        // 漏出一条发丝。融合态没这个问题（影子由上面那层融合层画，在
+        // ClipPath 之上），所以当时看到的是「header 里成组的有影子、单块的没有」。
+        return GlassOuterShadow(
+          shadows: elevated && cs.brightness == Brightness.light
+              ? GlassTokens.widgetsShadow(alphaScale: m)
+              : const [],
+          circle: circle,
+          cornerRadius: radius,
+          child: wrapInteractive(glass),
+        );
       },
     );
   }
+}
+
+/// 把 [shadows] 画在 [child] **外圈**（内部挖空），自己不参与裁剪。
+///
+/// # 为什么要有这么一个东西
+///
+/// 真玻璃档的投影本来是包自己画的，但**单块玻璃**（不在 [GlassBlendGroup] 里的
+/// 那些：浮钮、弹窗里的键、`GlassChromeLayer(group: false)` 的胶囊）是画在
+/// `AdaptiveGlass` 自己那层里的，而我们的跟手形变层借的是
+/// `GlassButton(style: transparent)`——那一档他们会 `ClipPath(expansion: 0)`
+/// 把 child 裁到按钮形状里（本意是不让交互辉光漏成一个矩形）。玻璃自己那层
+/// 画的影子整圈都在形状外，于是被这刀切光。
+///
+/// 2026-08-26 真机实锤：把影子临时调成红色 blur 12、裁剪外扩拉到 60，主 Tab
+/// 胶囊也只在下缘漏出一条发丝，而同屏那条**成组**的排序行红得发亮——成组那边
+/// 影子由上面的融合层画，在 ClipPath 之上，所以一直是好的。这就是「header 里
+/// 成组的有影子、单块的没有」的全部原因。
+///
+/// 画法与包内那套一致：先在一个离屏层里画模糊的形状，再用同一个形状
+/// `BlendMode.clear` 把内部挖掉——不挖的话半透明的玻璃会压在一块暗斑上，
+/// 等于自己把自己弄脏。
+///
+/// ⚠️ 它在形变层**外面**，所以按住蠕动时影子不跟着形变（停在静止轮廓上）。
+/// 想让影子跟着动就得回到包内那条路，而那条路正被上面那刀裁着。
+class GlassOuterShadow extends StatelessWidget {
+  const GlassOuterShadow({
+    super.key,
+    required this.child,
+    required this.shadows,
+    required this.circle,
+    required this.cornerRadius,
+  });
+
+  final Widget child;
+
+  /// 空表＝不画（深色档、[GlassSurface.elevated] 为假、材质还没淡入完）。
+  final List<BoxShadow> shadows;
+
+  final bool circle;
+
+  /// 与玻璃体同一个角半径；[circle] 为真时按半高取正圆。
+  final double cornerRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    if (shadows.isEmpty) return child;
+    return CustomPaint(
+      painter: _GlassOuterShadowPainter(
+        shadows: shadows,
+        circle: circle,
+        cornerRadius: cornerRadius,
+      ),
+      child: child,
+    );
+  }
+}
+
+class _GlassOuterShadowPainter extends CustomPainter {
+  const _GlassOuterShadowPainter({
+    required this.shadows,
+    required this.circle,
+    required this.cornerRadius,
+  });
+
+  final List<BoxShadow> shadows;
+  final bool circle;
+  final double cornerRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final double radius = circle ? size.shortestSide / 2 : cornerRadius;
+    final RRect body = RRect.fromRectAndRadius(rect, Radius.circular(radius));
+
+    double reach = 0;
+    for (final shadow in shadows) {
+      final double r =
+          shadow.blurRadius * 1.7321 +
+          shadow.spreadRadius +
+          shadow.offset.dy.abs();
+      if (r > reach) reach = r;
+    }
+
+    canvas.saveLayer(rect.inflate(reach + 4), Paint());
+    for (final shadow in shadows) {
+      canvas.drawRRect(
+        body.shift(shadow.offset).inflate(shadow.spreadRadius),
+        Paint()
+          ..color = shadow.color
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadow.blurSigma),
+      );
+    }
+    // 挖掉玻璃身下那块：半透明的玻璃压在暗斑上会整只变浑。
+    canvas.drawRRect(body, Paint()..blendMode = BlendMode.clear);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_GlassOuterShadowPainter oldDelegate) =>
+      oldDelegate.circle != circle ||
+      oldDelegate.cornerRadius != cornerRadius ||
+      !listEquals(oldDelegate.shadows, shadows);
 }
 
 /// 传统档（plain）的玻璃体容器，支持长按蠕动与跟手拉伸形变（[interactive]）。
