@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/tag_dictionary_refresh.dart';
@@ -132,7 +133,7 @@ class Oreno3dLocalizationService extends GetxService {
     final localeSetting =
         Get.find<ConfigService>().settings[ConfigKey.APPLICATION_LOCALE];
     if (localeSetting != null) {
-      _localeWorker = ever(localeSetting, (_) => _onLocaleChanged());
+      _localeWorker = rxEver(localeSetting, (_) => _onLocaleChanged());
     }
     _scheduleCdnRefresh();
     return this;

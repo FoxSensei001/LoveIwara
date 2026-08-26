@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -53,7 +54,7 @@ class AuthorProfileController extends GetxController {
 
     initFetch();
 
-    worker = ever(_userService.currentUser, (user) {
+    worker = rxEver(_userService.currentUser, (user) {
       if (user != null) {
         fetchRelationshipStatus();
       }

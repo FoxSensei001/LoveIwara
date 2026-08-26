@@ -4,6 +4,7 @@ import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/common/constants.dart' show CommonConstants;
@@ -436,7 +437,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       }
 
       // 监听 rebuildKey 的变化，当它变化时触发数据刷新
-      _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+      _rebuildKeyListener = rxEver(_mediaListController!.rebuildKey, (int key) {
         if (mounted) {
           refresh();
         }
@@ -503,7 +504,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
         if (widget.scrollController != null) {
           _mediaListController!.registerScrollToTopCallback(_scrollToTop);
         }
-        _rebuildKeyListener = ever(_mediaListController!.rebuildKey, (int key) {
+        _rebuildKeyListener = rxEver(_mediaListController!.rebuildKey, (int key) {
           if (mounted) refresh();
         }).call;
       }

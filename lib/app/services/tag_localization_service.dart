@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -133,7 +134,7 @@ class TagLocalizationService extends GetxService {
     final localeSetting =
         Get.find<ConfigService>().settings[ConfigKey.APPLICATION_LOCALE];
     if (localeSetting != null) {
-      _localeWorker = ever(localeSetting, (_) => _onLocaleChanged());
+      _localeWorker = rxEver(localeSetting, (_) => _onLocaleChanged());
     }
     // 词库就绪后再后台刷新，避免与首屏争抢资源。
     _scheduleCdnRefresh();

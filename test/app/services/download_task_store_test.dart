@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 
 DownloadTask task(
   String id,
@@ -173,6 +174,57 @@ void main() {
       ]);
 
       expect(store.failedIds, ['new', 'old']);
+    });
+  });
+
+  /// 「下载完成了，任务从下载中区消失，却不出现在历史区」这条 bug 的机制守卫。
+  ///
+  /// 历史区在库里分页，靠 [DownloadTaskStore.completedRevision] 失效重拉；列表页
+  /// 每次打开订阅一次、关闭时取消一次。真机上的表现是：第一次进页面好用，之后
+  /// 永远收不到失效信号（活跃区的 Obx 却一切正常），完成的任务两边都不在。
+  /// 根因是 GetX `ever()` 的 stream 在最后一个订阅者取消后永久失聪，见
+  /// `lib/utils/rx_ever.dart` 与 `test/utils/rx_ever_test.dart`。
+  group('历史区失效信号', () {
+    test('任务完成时把它移出活跃区并让历史区失效', () async {
+      store.hydrate([task('a', DownloadStatus.downloading)]);
+      var invalidations = 0;
+      final worker = rxEver<int>(
+        store.completedRevision,
+        (_) => invalidations++,
+      );
+
+      final done = task('a', DownloadStatus.completed);
+      store.upsert(done);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(store.downloadingIds, isEmpty);
+      expect(store.contains('a'), isFalse);
+      expect(invalidations, 1);
+      worker.dispose();
+    });
+
+    test('⭐ 页面二次打开（订阅 -> 取消 -> 再订阅）仍然收得到失效信号', () async {
+      store.hydrate([task('a', DownloadStatus.downloading)]);
+
+      // 第一次打开页面并离开
+      rxEver<int>(store.completedRevision, (_) {}).dispose();
+
+      // 第二次打开
+      var invalidations = 0;
+      final worker = rxEver<int>(
+        store.completedRevision,
+        (_) => invalidations++,
+      );
+
+      store.upsert(task('a', DownloadStatus.completed));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(
+        invalidations,
+        1,
+        reason: '收不到 = 历史区永远不会重拉，完成的任务凭空消失',
+      );
+      worker.dispose();
     });
   });
 

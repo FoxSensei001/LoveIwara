@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
@@ -30,7 +31,7 @@ class UserzImageModelListController extends GetxController {
     super.onInit();
     _imageModelService = Get.find<GalleryService>();
 
-    worker = ever(sort, (_) {
+    worker = rxEver(sort, (_) {
       // 当sort变化后，重置分页等参数
       fetchImageModels(refresh: true);
     });

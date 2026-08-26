@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
@@ -289,7 +290,12 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     unawaited(DownloadService.to.refreshCategories());
 
     // 需要订阅的只剩一件事：历史区（已完成任务分页在 DB 里，不在内存真源）。
-    _completedRevisionWorker = ever(_store.completedRevision, (int revision) {
+    //
+    // ⛔ 这里绝不能用 GetX 的 ever()：它走 Rx 的 stream，而 stream 在「第一个
+    // 订阅者取消」之后就永久失聪（见 rxEver 的文档）。本页第二次打开时，
+    // 「下载完成 -> 历史区重拉」这条链就是这么断的——活跃区（Obx）照常刷新，
+    // 完成的任务却既离开了活跃区又不出现在历史区，凭空消失。
+    _completedRevisionWorker = rxEver(_store.completedRevision, (int revision) {
       DownloadStateLog.receive(
         this,
         DownloadService.to,

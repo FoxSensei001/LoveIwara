@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_list_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
@@ -56,19 +57,19 @@ class SearchResultController extends GetxController {
     imageBatchController = BatchSelectController<ImageModel>();
 
     // 监听分页模式变化
-    ever(isPaginated, (bool val) {
+    rxEver(isPaginated, (bool val) {
       videoBatchController.setPaginatedMode(val);
       imageBatchController.setPaginatedMode(val);
     });
 
     // 监听搜索词变化，如果是分页模式则清空选择
-    ever(currentSearch, (_) {
+    rxEver(currentSearch, (_) {
       videoBatchController.onPageChanged();
       imageBatchController.onPageChanged();
     });
 
     // 监听分段变化，清空所有选择并退出多选模式
-    ever(selectedSegment, (_) {
+    rxEver(selectedSegment, (_) {
       videoBatchController.exitMultiSelect();
       imageBatchController.exitMultiSelect();
     });
