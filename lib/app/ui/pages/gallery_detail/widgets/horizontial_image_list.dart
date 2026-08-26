@@ -7,7 +7,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -108,12 +110,9 @@ class HorizontalImageList extends StatefulWidget {
   final BoxFit Function(ImageItem item)? imageFitBuilder; // 单个item fit 覆盖
   final Widget Function(BuildContext, ImageItem, Widget)?
   mediaContentBuilder; // 单个item内容包装器
-  final Color? scrollButtonColor;
   final double scrollOffset;
   final Color? backgroundColor; // 背景色
   final double wheelScrollFactor; // 滚轮滚动系数
-  final Widget Function(BuildContext, ImageItem, Offset)?
-  menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
   menuItemsBuilder; // 动态菜单项生成器
 
@@ -136,11 +135,9 @@ class HorizontalImageList extends StatefulWidget {
     this.aspectRatioBuilder,
     this.imageFitBuilder,
     this.mediaContentBuilder,
-    this.scrollButtonColor,
     this.scrollOffset = 300,
     this.backgroundColor,
     this.wheelScrollFactor = 5.0, // 修改默认滚动系数为更小的值
-    this.menuBuilder,
     this.menuItemsBuilder, // 使用动态菜单项生成器
   });
 
@@ -314,24 +311,18 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                   Positioned(
                     left: 8,
                     child: _buildScrollButton(
-                      Icons.arrow_back_ios_rounded,
-                      () => _scrollController.animateTo(
-                        _scrollController.offset - widget.scrollOffset,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                      ),
+                      icon: Icons.arrow_back_ios_rounded,
+                      tooltip: t.galleryDetail.scrollLeft,
+                      onPressed: () => _scrollBy(-widget.scrollOffset),
                     ),
                   ),
                 if (_showRightButton)
                   Positioned(
                     right: 8,
                     child: _buildScrollButton(
-                      Icons.arrow_forward_ios_rounded,
-                      () => _scrollController.animateTo(
-                        _scrollController.offset + widget.scrollOffset,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                      ),
+                      icon: Icons.arrow_forward_ios_rounded,
+                      tooltip: t.galleryDetail.scrollRight,
+                      onPressed: () => _scrollBy(widget.scrollOffset),
                     ),
                   ),
               ],
@@ -342,22 +333,41 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     );
   }
 
-  Widget _buildScrollButton(IconData icon, VoidCallback onPressed) {
-    return Material(
-      color: Colors.transparent,
-      child: Ink(
-        decoration: BoxDecoration(
-          color: widget.scrollButtonColor ?? Colors.black54,
-          shape: BoxShape.circle,
-        ),
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(icon, color: Colors.white, size: 20),
-          ),
-        ),
+  void _scrollBy(double delta) {
+    _scrollController.animateTo(
+      (_scrollController.offset + delta).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      ),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  /// 左右滚动钮：全站统一的玻璃圆钮。
+  ///
+  /// 原来是「black54 圆片 + InkWell + 20px 白图标」——全 App 只有这两枚是那个
+  /// 长相，而它俩恰恰悬浮在图片之上，是最该看出折射的位置。
+  ///
+  /// ⚠️ 外面必须单独供一层 chrome 档（[GlassChromeLayer]）：这条横向列表人在
+  /// 页面 `body` 子树里，而外层 `GlassHeaderOverlay(liquid: true)` 会把整个
+  /// `body` 摁回 [GlassBackend.plain]（列表是滚动容器，装不得 lens，见该组件
+  /// 类文档）。不重新供档的话这两枚钮永远是假玻璃——与相关图库分段胶囊当初
+  /// 那个坑同源。它们浮在内容**之上**、自己不在滚动里，正是透镜的适用场景。
+  ///
+  /// `group: false`：左右各在一边，隔着整条列表，不成簇（见 GlassChromeLayer）。
+  Widget _buildScrollButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return GlassChromeLayer(
+      group: false,
+      child: GlassIconButton(
+        standalone: true,
+        icon: Icon(icon),
+        tooltip: tooltip,
+        onPressed: onPressed,
       ),
     );
   }

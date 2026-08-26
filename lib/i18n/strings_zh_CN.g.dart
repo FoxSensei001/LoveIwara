@@ -572,6 +572,8 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	@override String get relatedGalleries => '相关图库';
 	@override String get authorNoOtherGalleries => '作者暂无其他图库';
 	@override String get noRelatedGalleries => '暂无相关图库';
+	@override String get scrollLeft => '向左滚动';
+	@override String get scrollRight => '向右滚动';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '点击左右边缘以切换图片';
 }
 
@@ -3883,6 +3885,8 @@ extension on TranslationsZhCn {
 			'galleryDetail.relatedGalleries' => '相关图库',
 			'galleryDetail.authorNoOtherGalleries' => '作者暂无其他图库',
 			'galleryDetail.noRelatedGalleries' => '暂无相关图库',
+			'galleryDetail.scrollLeft' => '向左滚动',
+			'galleryDetail.scrollRight' => '向右滚动',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '点击左右边缘以切换图片',
 			'playList.myPlayList' => '我的播放列表',
 			'playList.friendlyTips' => '友情提示',
@@ -3960,10 +3964,10 @@ extension on TranslationsZhCn {
 			'settings.rememberVolume' => '记住音量',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的音量设置。',
 			'settings.rememberBrightness' => '记住亮度',
-			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
-			'settings.playControlArea' => '播放控制区域',
 			_ => null,
 		} ?? switch (path) {
+			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
+			'settings.playControlArea' => '播放控制区域',
 			'settings.leftAndRightControlAreaWidth' => '左右控制区域宽度',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此配置决定播放器左右两侧的控制区域宽度。',
 			'settings.proxyAddressCannotBeEmpty' => '代理地址不能为空。',
@@ -4474,10 +4478,10 @@ extension on TranslationsZhCn {
 			'oreno3d.errors.resourceNotFound' => '请求的资源不存在',
 			'oreno3d.errors.accessDenied' => '访问被拒绝，可能需要验证或权限',
 			'oreno3d.errors.serverError' => '服务器内部错误',
-			'oreno3d.errors.serviceUnavailable' => '服务暂时不可用',
-			'oreno3d.errors.requestCancelled' => '请求已取消',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.serviceUnavailable' => '服务暂时不可用',
+			'oreno3d.errors.requestCancelled' => '请求已取消',
 			'oreno3d.errors.connectionError' => '网络连接错误，请检查网络设置',
 			'oreno3d.errors.networkRequestFailed' => '网络请求失败',
 			'oreno3d.errors.searchVideoError' => '搜索视频时发生未知错误',
@@ -4988,10 +4992,10 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.banner' => ({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停',
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
-			'download.emptyTaskList' => '暂无下载任务',
-			'download.noMatchingTasks' => '没有匹配的任务',
 			_ => null,
 		} ?? switch (path) {
+			'download.emptyTaskList' => '暂无下载任务',
+			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
 			'download.deleteByDate.dialogTitle' => '按日期删除',
 			'download.deleteByDate.description' => '按创建日期批量删除下载任务。被占用的文件会跳过；文件已不存在的任务会一并清理。',
@@ -5502,10 +5506,10 @@ extension on TranslationsZhCn {
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
-			'emoji.copyEmojiLinkSuccess' => '表情包链接已复制',
-			'emoji.preview' => '表情包预览',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.copyEmojiLinkSuccess' => '表情包链接已复制',
+			'emoji.preview' => '表情包预览',
 			'emoji.library' => '表情包库',
 			'emoji.noEmojis' => '暂无表情包',
 			'emoji.clickToAddEmojis' => '点击右上角按钮添加表情包',

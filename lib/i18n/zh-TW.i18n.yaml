@@ -453,6 +453,8 @@ galleryDetail:
   relatedGalleries: 相關圖庫
   authorNoOtherGalleries: 作者暫無其他圖庫
   noRelatedGalleries: 暫無相關圖庫
+  scrollLeft: 向左捲動
+  scrollRight: 向右捲動
   clickLeftAndRightEdgeToSwitchImage: 點擊左右邊緣以切換圖片
 
 playList:

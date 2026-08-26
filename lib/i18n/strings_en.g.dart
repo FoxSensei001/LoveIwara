@@ -1384,6 +1384,12 @@ class TranslationsGalleryDetailEn {
 	/// en: 'No related galleries'
 	String get noRelatedGalleries => 'No related galleries';
 
+	/// en: 'Scroll left'
+	String get scrollLeft => 'Scroll left';
+
+	/// en: 'Scroll right'
+	String get scrollRight => 'Scroll right';
+
 	/// en: 'Click Left and Right Edge to Switch Image'
 	String get clickLeftAndRightEdgeToSwitchImage => 'Click Left and Right Edge to Switch Image';
 }
@@ -8734,6 +8740,8 @@ extension on Translations {
 			'galleryDetail.relatedGalleries' => 'Related Galleries',
 			'galleryDetail.authorNoOtherGalleries' => 'No other galleries from this author',
 			'galleryDetail.noRelatedGalleries' => 'No related galleries',
+			'galleryDetail.scrollLeft' => 'Scroll left',
+			'galleryDetail.scrollRight' => 'Scroll right',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => 'Click Left and Right Edge to Switch Image',
 			'playList.myPlayList' => 'My Play List',
 			'playList.friendlyTips' => 'Friendly Tips',
@@ -8811,10 +8819,10 @@ extension on Translations {
 			'settings.rememberVolume' => 'Remember Volume',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the volume will be kept when playing videos again.',
 			'settings.rememberBrightness' => 'Remember Brightness',
-			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
-			'settings.playControlArea' => 'Play Control Area',
 			_ => null,
 		} ?? switch (path) {
+			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
+			'settings.playControlArea' => 'Play Control Area',
 			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'This configuration determines the width of the control areas on the left and right sides of the player.',
 			'settings.proxyAddressCannotBeEmpty' => 'Proxy address cannot be empty.',
@@ -9325,10 +9333,10 @@ extension on Translations {
 			'oreno3d.errors.resourceNotFound' => 'Requested resource not found',
 			'oreno3d.errors.accessDenied' => 'Access denied, may require authentication or permission',
 			'oreno3d.errors.serverError' => 'Internal server error',
-			'oreno3d.errors.serviceUnavailable' => 'Service temporarily unavailable',
-			'oreno3d.errors.requestCancelled' => 'Request cancelled',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.serviceUnavailable' => 'Service temporarily unavailable',
+			'oreno3d.errors.requestCancelled' => 'Request cancelled',
 			'oreno3d.errors.connectionError' => 'Network connection error, please check network settings',
 			'oreno3d.errors.networkRequestFailed' => 'Network request failed',
 			'oreno3d.errors.searchVideoError' => 'Unknown error occurred while searching videos',
@@ -9839,10 +9847,10 @@ extension on Translations {
 			'download.errorDetailCopyHint' => 'Long press to copy error details',
 			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
 			'download.restoredPaused.resume' => 'Resume all',
-			'download.restoredPaused.dismiss' => 'Dismiss',
-			'download.emptyTaskList' => 'No download tasks yet',
 			_ => null,
 		} ?? switch (path) {
+			'download.restoredPaused.dismiss' => 'Dismiss',
+			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
 			'download.deleteByDate.dialogTitle' => 'Delete by date',
@@ -10353,10 +10361,10 @@ extension on Translations {
 			'crashRecoveryDialog.lastException' => ({required Object message}) => 'Last exception: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => 'A UI hang was detected last time and recovered automatically',
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => 'A possible UI freeze was detected last time, lasting about ${stalledMs}ms',
-			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
-			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.exportGuide' => 'Go to Settings > Diagnostics & Feedback > Export Logs.',
+			'crashRecoveryDialog.privacyHint' => 'Logs may contain private data. Please review before emailing to:',
 			'crashRecoveryDialog.issueWarning' => 'Do not attach full logs publicly in GitHub issues',
 			'crashRecoveryDialog.acknowledge' => 'Got it',
 			'crashRecoveryDialog.supportEmailCopied' => 'Email copied',

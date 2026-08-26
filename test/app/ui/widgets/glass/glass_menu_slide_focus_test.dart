@@ -294,4 +294,57 @@ void main() {
       expect(await result, 'opt2');
     });
   });
+
+  group('带副标题的条目：焦点底板要跟着长高', () {
+    // 带 description 的行比普通行高一档。底板的高度曾经写死成普通行高，
+    // 于是「色觉辅助」这类两行的条目被盖住上面 44px、副标题露在外面
+    //（2026-08-26 用户在图库图片菜单里报的）。
+    List<GlassMenuEntry> mixed() => const <GlassMenuEntry>[
+      GlassMenuOption<String>(value: 'plain', label: 'Plain'),
+      GlassMenuOption<String>(
+        value: 'described',
+        label: 'Described',
+        description: '副标题让这一条高一档',
+      ),
+    ];
+
+    testWidgets('底板把标题与副标题两行都盖住', (tester) async {
+      await openMenu(tester, entries: mixed());
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Described')),
+      );
+      await tester.pumpAndSettle();
+
+      final Rect pillRect = tester.getRect(pill());
+      final Rect titleRect = tester.getRect(find.text('Described'));
+      final Rect descRect = tester.getRect(find.text('副标题让这一条高一档'));
+      expect(pillRect.top, lessThanOrEqualTo(titleRect.top));
+      expect(
+        pillRect.bottom,
+        greaterThanOrEqualTo(descRect.bottom),
+        reason: '底板没盖到副标题——高度又被写死成普通行高了？',
+      );
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('从普通行滑到副标题行，底板高度跟着换', (tester) async {
+      await openMenu(tester, entries: mixed());
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Plain')),
+      );
+      await tester.pumpAndSettle();
+      final double plainHeight = tester.getRect(pill()).height;
+
+      await gesture.moveTo(tester.getCenter(find.text('Described')));
+      await tester.pumpAndSettle();
+      final double describedHeight = tester.getRect(pill()).height;
+
+      expect(describedHeight, greaterThan(plainHeight));
+
+      await gesture.up();
+      await tester.pumpAndSettle();
+    });
+  });
 }

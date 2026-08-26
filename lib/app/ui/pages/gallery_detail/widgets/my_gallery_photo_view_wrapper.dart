@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -22,7 +23,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'video_player_widget.dart';
 import 'image_widget.dart';
 import 'gallery_controls.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
@@ -41,7 +41,6 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
     List<ImageItem>? standardImageItems,
     @Deprecated('Use originalGalleryItems instead')
     List<ImageItem>? originalImageItems,
-    this.menuBuilder,
     this.menuItemsBuilder,
     this.enableMenu = true,
     this.heroTagBuilder,
@@ -55,8 +54,6 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
   final List<ImageItem>? originalGalleryItems;
   final String initialQuality;
   final ValueChanged<String>? onQualityChanged;
-  final Widget Function(BuildContext, ImageItem, Offset)?
-  menuBuilder; // 自定义菜单构建器
   final List<MenuItem> Function(BuildContext, ImageItem)?
   menuItemsBuilder; // 动态菜单项生成器
   final bool enableMenu; // 是否启用菜单和相关触发
@@ -731,63 +728,66 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         localPosition.dy <= renderObject.size.height;
   }
 
-  void _showImageMenu(BuildContext context, ImageItem item) {
+  /// 「色觉辅助」那一条的哨兵下标：菜单项本身按下标取值，负数不会撞上。
+  static const int _colorVisionMenuValue = -1;
+
+  /// 图片操作菜单：全站统一的玻璃面板（复制 / 另存 / 保存到相册……，末尾始终
+  /// 附带「图库色觉辅助」入口）。
+  ///
+  /// 原来是 `showAppDialog` 里塞一列 `ListTile` + `Divider`——一张居中的不透明
+  /// 卡片，既离手指远、又和全站其它菜单不是一套东西（横向图片列表那边早就换过
+  /// 了，见 `horizontial_image_list.dart` 的同名方法）。
+  ///
+  /// 三个入口共用它：长按图片、右键、右上角 ⋮。前两者传 [globalPosition]，面板
+  /// 贴着落点弹出；⋮ 不传，贴着按钮弹（落点从 [anchorContext] 量）。
+  ///
+  /// ⛔ 必须在长按回调的**同步前缀**里被调到：`showGlassMenu` 就在第一个 await
+  /// 之前，手指接力票才领得到（见 [GlassLongPressMenuArea.onMenu]）。
+  Future<void> _showImageMenu(
+    BuildContext anchorContext,
+    ImageItem item, {
+    Offset? globalPosition,
+  }) async {
     // 如果禁用了菜单，直接返回
     if (!widget.enableMenu) return;
 
-    final t = slang.Translations.of(context);
+    final t = slang.Translations.of(anchorContext);
 
     // 动态生成菜单项
     final menuItems = widget.menuItemsBuilder != null
-        ? widget.menuItemsBuilder!(context, item)
+        ? widget.menuItemsBuilder!(anchorContext, item)
         : <MenuItem>[];
 
-    // 使用 showAppDialog 显示菜单（末尾始终附带「图库色觉辅助」入口）
-    showAppDialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 300),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 菜单项列表（每项后均带分隔线，因末尾还有色觉辅助入口）
-              ...menuItems.map((menuItem) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(menuItem.icon),
-                      title: Text(menuItem.title),
-                      onTap: () {
-                        AppService.tryPop(); // 关闭对话框
-                        menuItem.onTap(); // 执行菜单项动作
-                      },
-                    ),
-                    const Divider(height: 1),
-                  ],
-                );
-              }),
-              // 图库色觉辅助（独立于播放器色觉辅助开关）
-              ListTile(
-                leading: const Icon(Icons.invert_colors),
-                title: Text(t.colorVisionAssist.title),
-                subtitle: Text(t.colorVisionAssist.galleryDescription),
-                onTap: () {
-                  AppService.tryPop(); // 关闭菜单对话框
-                  ColorVisionSettingsWidget.showSelectionDialog(
-                    context,
-                    configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
-                    description: t.colorVisionAssist.galleryDescription,
-                  );
-                },
-              ),
-            ],
+    final picked = await showGlassMenu<int>(
+      anchorContext: anchorContext,
+      globalAnchor: globalPosition == null ? null : globalPosition & Size.zero,
+      entries: [
+        for (final (index, menuItem) in menuItems.indexed)
+          GlassMenuOption<int>(
+            value: index,
+            icon: menuItem.icon,
+            label: menuItem.title,
           ),
+        if (menuItems.isNotEmpty) const GlassMenuSeparator(),
+        // 图库色觉辅助（独立于播放器色觉辅助开关）
+        GlassMenuOption<int>(
+          value: _colorVisionMenuValue,
+          icon: Icons.invert_colors,
+          label: t.colorVisionAssist.title,
+          description: t.colorVisionAssist.galleryDescription,
         ),
-      ),
-      barrierDismissible: true, // 点击外部关闭
+      ],
     );
+    if (picked == null || !mounted) return;
+    if (picked == _colorVisionMenuValue) {
+      ColorVisionSettingsWidget.showSelectionDialog(
+        context,
+        configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
+        description: t.colorVisionAssist.galleryDescription,
+      );
+      return;
+    }
+    menuItems[picked].onTap();
   }
 
   @override
@@ -856,215 +856,234 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                     onPointerUp: _onPointerUp,
                     onPointerCancel: _onPointerCancel,
                     child: GestureDetector(
-                      onTap: _toggleUiVisibility,
-                      onLongPressStart: (details) {
-                        if (!widget.enableMenu) return;
-                        _showImageMenu(
-                          context,
-                          activeGalleryItems[currentIndex],
-                        );
-                      },
                       onSecondaryTapDown: (details) {
                         if (!widget.enableMenu) return;
                         _showImageMenu(
                           context,
                           activeGalleryItems[currentIndex],
+                          globalPosition: details.globalPosition,
                         );
                       },
-                      child: Stack(
-                        alignment: Alignment.topCenter,
-                        children: [
-                          KeyedSubtree(
-                            key: ValueKey(_activeQuality),
-                            child: PhotoViewGallery.builder(
-                              // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
-                              // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
-                              // 黑底统一由外层 Container 提供。
-                              backgroundDecoration: const BoxDecoration(
-                                color: Colors.transparent,
+                      // 长按走 GlassLongPressMenuArea：面板贴着手指弹出，且手指
+                      // 不抬就能直接划到某一条上松手选中（点按与它同层分家，
+                      // 见该组件类文档）。
+                      child: GlassLongPressMenuArea(
+                        onTap: _toggleUiVisibility,
+                        // 关掉菜单时连长按都不注册：onMenu 一旦挂上，长按到点就
+                        // 会先震一下、再去发现「没有菜单可开」。
+                        onMenu: !widget.enableMenu
+                            ? null
+                            : (globalPosition) => _showImageMenu(
+                                context,
+                                activeGalleryItems[currentIndex],
+                                globalPosition: globalPosition,
                               ),
-                              scrollPhysics: const BouncingScrollPhysics(),
-                              allowImplicitScrolling: false,
-                              wantKeepAlive: false,
-                              builder: (BuildContext context, int index) {
-                                final activeItem = activeGalleryItems[index];
-                                String imageUrl =
-                                    _reloadTimestamps.containsKey(index)
-                                    ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
-                                    : activeItem.data.originalUrl;
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          children: [
+                            KeyedSubtree(
+                              key: ValueKey(_activeQuality),
+                              child: PhotoViewGallery.builder(
+                                // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
+                                // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
+                                // 黑底统一由外层 Container 提供。
+                                backgroundDecoration: const BoxDecoration(
+                                  color: Colors.transparent,
+                                ),
+                                scrollPhysics: const BouncingScrollPhysics(),
+                                allowImplicitScrolling: false,
+                                wantKeepAlive: false,
+                                builder: (BuildContext context, int index) {
+                                  final activeItem = activeGalleryItems[index];
+                                  String imageUrl =
+                                      _reloadTimestamps.containsKey(index)
+                                      ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
+                                      : activeItem.data.originalUrl;
 
-                                // 检查是否为视频文件
-                                bool isVideo = _isVideo(imageUrl);
+                                  // 检查是否为视频文件
+                                  bool isVideo = _isVideo(imageUrl);
 
-                                final heroTag = widget.heroTagBuilder?.call(
-                                  activeItem,
-                                );
-
-                                Widget mediaChild = KeyedSubtree(
-                                  key: ValueKey(
-                                    '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
-                                  ),
-                                  child: isVideo
-                                      ? VideoPlayerWidget(
-                                          key: _getVideoPlayerKey(index),
-                                          videoUrl: imageUrl,
-                                          headers: activeItem.headers,
-                                        )
-                                      : imageUrl.startsWith('file://')
-                                      ? Image.file(
-                                          File(
-                                            imageUrl.replaceFirst(
-                                              'file://',
-                                              '',
-                                            ),
-                                          ),
-                                          fit: BoxFit.contain,
-                                        )
-                                      : ImageWidget(
-                                          imageUrl: imageUrl,
-                                          headers: activeItem.headers,
-                                        ),
-                                );
-
-                                // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
-                                // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
-                                if (!isVideo) {
-                                  mediaChild = ColorVisionFilterWrapper(
-                                    configKey: ConfigKey
-                                        .GALLERY_COLOR_VISION_FILTER_ID,
-                                    child: mediaChild,
+                                  final heroTag = widget.heroTagBuilder?.call(
+                                    activeItem,
                                   );
-                                }
 
-                                if (!isVideo && heroTag != null) {
-                                  mediaChild = Hero(
-                                    tag: heroTag,
-                                    child: mediaChild,
-                                  );
-                                }
-
-                                return PhotoViewGalleryPageOptions.customChild(
-                                  child: GestureDetector(
-                                    onDoubleTap: () =>
-                                        _galleryControls.handleDoubleTap(index),
-                                    child: Container(
-                                      color: Colors.transparent,
-                                      child: Center(child: mediaChild),
+                                  Widget mediaChild = KeyedSubtree(
+                                    key: ValueKey(
+                                      '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
                                     ),
-                                  ),
-                                  minScale:
-                                      PhotoViewComputedScale.contained * 0.5,
-                                  maxScale: PhotoViewComputedScale.covered * 3,
-                                  initialScale:
-                                      PhotoViewComputedScale.contained,
-                                  controller: controllers[index],
-                                );
-                              },
-                              itemCount: activeGalleryItems.length,
-                              pageController: pageController,
-                              onPageChanged: _onPageChanged,
-                            ),
-                          ),
-                          SafeArea(
-                            child: AnimatedOpacity(
-                              opacity: chromeOpacity,
-                              duration: const Duration(milliseconds: 180),
-                              child: IgnorePointer(
-                                ignoring: chromeOpacity == 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconButton(
-                                        key: _closeButtonKey,
-                                        icon: const Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                        ),
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(),
-                                      ),
-                                      Row(
-                                        children: [
-                                          if (_canSwitchQuality)
-                                            // 画质面板走全站统一的玻璃菜单
-                                            // （原来是 PopupMenuButton）。
-                                            Builder(
-                                              key: _qualityButtonKey,
-                                              builder: (anchorContext) =>
-                                                  GlassPressable(
-                                                    // 长按也能打开，且长按不
-                                                    // 抬手可以直接划到某一条上
-                                                    // 松手选中（见
-                                                    // GlassTapArea.opensOverlay）。
-                                                    opensOverlay: true,
-                                                    onTap: () =>
-                                                        _openQualityMenu(
-                                                          anchorContext,
-                                                        ),
-                                                    builder: (context, pressed) =>
-                                                        const SizedBox.square(
-                                                          dimension: 48,
-                                                          child: Icon(
-                                                            Icons.hd_outlined,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                  ),
+                                    child: isVideo
+                                        ? VideoPlayerWidget(
+                                            key: _getVideoPlayerKey(index),
+                                            videoUrl: imageUrl,
+                                            headers: activeItem.headers,
+                                          )
+                                        : imageUrl.startsWith('file://')
+                                        ? Image.file(
+                                            File(
+                                              imageUrl.replaceFirst(
+                                                'file://',
+                                                '',
+                                              ),
                                             ),
-                                          // 快捷键设置按钮
-                                          IconButton(
-                                            icon: const Icon(
-                                              Icons.keyboard,
-                                              color: Colors.white,
-                                            ),
-                                            tooltip:
-                                                t.settings.keybinding.title,
-                                            onPressed: () =>
-                                                KeybindingSettingsPage.openSheet(
-                                                  context,
-                                                  scopeFilter:
-                                                      ShortcutScope.gallery,
-                                                ),
+                                            fit: BoxFit.contain,
+                                          )
+                                        : ImageWidget(
+                                            imageUrl: imageUrl,
+                                            headers: activeItem.headers,
                                           ),
-                                          // 三个点菜单按钮
-                                          if (widget.enableMenu)
+                                  );
+
+                                  // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
+                                  // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
+                                  if (!isVideo) {
+                                    mediaChild = ColorVisionFilterWrapper(
+                                      configKey: ConfigKey
+                                          .GALLERY_COLOR_VISION_FILTER_ID,
+                                      child: mediaChild,
+                                    );
+                                  }
+
+                                  if (!isVideo && heroTag != null) {
+                                    mediaChild = Hero(
+                                      tag: heroTag,
+                                      child: mediaChild,
+                                    );
+                                  }
+
+                                  return PhotoViewGalleryPageOptions.customChild(
+                                    child: GestureDetector(
+                                      onDoubleTap: () =>
+                                          _galleryControls.handleDoubleTap(index),
+                                      child: Container(
+                                        color: Colors.transparent,
+                                        child: Center(child: mediaChild),
+                                      ),
+                                    ),
+                                    minScale:
+                                        PhotoViewComputedScale.contained * 0.5,
+                                    maxScale: PhotoViewComputedScale.covered * 3,
+                                    initialScale:
+                                        PhotoViewComputedScale.contained,
+                                    controller: controllers[index],
+                                  );
+                                },
+                                itemCount: activeGalleryItems.length,
+                                pageController: pageController,
+                                onPageChanged: _onPageChanged,
+                              ),
+                            ),
+                            SafeArea(
+                              child: AnimatedOpacity(
+                                opacity: chromeOpacity,
+                                duration: const Duration(milliseconds: 180),
+                                child: IgnorePointer(
+                                  ignoring: chromeOpacity == 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          key: _closeButtonKey,
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(),
+                                        ),
+                                        Row(
+                                          children: [
+                                            if (_canSwitchQuality)
+                                              // 画质面板走全站统一的玻璃菜单
+                                              // （原来是 PopupMenuButton）。
+                                              Builder(
+                                                key: _qualityButtonKey,
+                                                builder: (anchorContext) =>
+                                                    GlassPressable(
+                                                      // 长按也能打开，且长按不
+                                                      // 抬手可以直接划到某一条上
+                                                      // 松手选中（见
+                                                      // GlassTapArea.opensOverlay）。
+                                                      opensOverlay: true,
+                                                      onTap: () =>
+                                                          _openQualityMenu(
+                                                            anchorContext,
+                                                          ),
+                                                      builder: (context, pressed) =>
+                                                          const SizedBox.square(
+                                                            dimension: 48,
+                                                            child: Icon(
+                                                              Icons.hd_outlined,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                    ),
+                                              ),
+                                            // 快捷键设置按钮
                                             IconButton(
-                                              key: _menuButtonKey,
                                               icon: const Icon(
-                                                Icons.more_vert,
+                                                Icons.keyboard,
                                                 color: Colors.white,
                                               ),
-                                              onPressed: () {
-                                                _showImageMenu(
-                                                  context,
-                                                  activeGalleryItems[currentIndex],
-                                                );
-                                                _showUiAndAutoHide();
-                                              },
+                                              tooltip:
+                                                  t.settings.keybinding.title,
+                                              onPressed: () =>
+                                                  KeybindingSettingsPage.openSheet(
+                                                    context,
+                                                    scopeFilter:
+                                                        ShortcutScope.gallery,
+                                                  ),
                                             ),
-                                          // 页码显示
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '${currentIndex + 1}/${activeGalleryItems.length}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
+                                            // 三个点菜单按钮：与旁边的画质键同
+                                            // 一套触发件（长按也能打开、且长按
+                                            // 不抬手可以直接划到某一条上松手
+                                            // 选中，见 GlassTapArea.opensOverlay）。
+                                            if (widget.enableMenu)
+                                              Builder(
+                                                key: _menuButtonKey,
+                                                builder: (anchorContext) =>
+                                                    GlassPressable(
+                                                      opensOverlay: true,
+                                                      onTap: () {
+                                                        _showImageMenu(
+                                                          anchorContext,
+                                                          activeGalleryItems[currentIndex],
+                                                        );
+                                                        _showUiAndAutoHide();
+                                                      },
+                                                      builder: (context, pressed) =>
+                                                          const SizedBox.square(
+                                                            dimension: 48,
+                                                            child: Icon(
+                                                              Icons.more_vert,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                    ),
+                                              ),
+                                            // 页码显示
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              '${currentIndex + 1}/${activeGalleryItems.length}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                        ),
                     ),
                   ),
                 ),

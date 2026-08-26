@@ -453,6 +453,8 @@ galleryDetail:
   relatedGalleries: Related Galleries
   authorNoOtherGalleries: No other galleries from this author
   noRelatedGalleries: No related galleries
+  scrollLeft: Scroll left
+  scrollRight: Scroll right
   clickLeftAndRightEdgeToSwitchImage: Click Left and Right Edge to Switch Image
 
 playList:

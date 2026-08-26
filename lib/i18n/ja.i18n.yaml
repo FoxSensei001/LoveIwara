@@ -454,6 +454,8 @@ galleryDetail:
   relatedGalleries: 関連ギャラリー
   authorNoOtherGalleries: 他のギャラリーはありません
   noRelatedGalleries: 関連するギャラリーはありません
+  scrollLeft: 左へスクロール
+  scrollRight: 右へスクロール
   clickLeftAndRightEdgeToSwitchImage: 左端と右端をクリックして切り替え
 
 playList:

@@ -572,6 +572,8 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	@override String get relatedGalleries => '相關圖庫';
 	@override String get authorNoOtherGalleries => '作者暫無其他圖庫';
 	@override String get noRelatedGalleries => '暫無相關圖庫';
+	@override String get scrollLeft => '向左捲動';
+	@override String get scrollRight => '向右捲動';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '點擊左右邊緣以切換圖片';
 }
 
@@ -3883,6 +3885,8 @@ extension on TranslationsZhTw {
 			'galleryDetail.relatedGalleries' => '相關圖庫',
 			'galleryDetail.authorNoOtherGalleries' => '作者暫無其他圖庫',
 			'galleryDetail.noRelatedGalleries' => '暫無相關圖庫',
+			'galleryDetail.scrollLeft' => '向左捲動',
+			'galleryDetail.scrollRight' => '向右捲動',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '點擊左右邊緣以切換圖片',
 			'playList.myPlayList' => '我的播放清單',
 			'playList.friendlyTips' => '友情提示',
@@ -3960,10 +3964,10 @@ extension on TranslationsZhTw {
 			'settings.rememberVolume' => '記住音量',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的音量設定。',
 			'settings.rememberBrightness' => '記住亮度',
-			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
-			'settings.playControlArea' => '播放控制區域',
 			_ => null,
 		} ?? switch (path) {
+			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
+			'settings.playControlArea' => '播放控制區域',
 			'settings.leftAndRightControlAreaWidth' => '左右控制區域寬度',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => '此設定將決定播放器左右兩側控制區域的寬度。',
 			'settings.proxyAddressCannotBeEmpty' => '代理伺服器地址不能為空。',
@@ -4474,10 +4478,10 @@ extension on TranslationsZhTw {
 			'oreno3d.errors.resourceNotFound' => '請求的資源不存在',
 			'oreno3d.errors.accessDenied' => '訪問被拒絕，可能需要驗證或權限',
 			'oreno3d.errors.serverError' => '伺服器內部錯誤',
-			'oreno3d.errors.serviceUnavailable' => '服務暫時不可用',
-			'oreno3d.errors.requestCancelled' => '請求已取消',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.serviceUnavailable' => '服務暫時不可用',
+			'oreno3d.errors.requestCancelled' => '請求已取消',
 			'oreno3d.errors.connectionError' => '網路連接錯誤，請檢查網路設定',
 			'oreno3d.errors.networkRequestFailed' => '網路請求失敗',
 			'oreno3d.errors.searchVideoError' => '搜尋影片時發生未知錯誤',
@@ -4988,10 +4992,10 @@ extension on TranslationsZhTw {
 			'download.failed' => '失敗',
 			'download.completed' => '已完成',
 			'download.downloadDetail' => '下載詳情',
-			'download.copy' => '複製',
-			'download.copySuccess' => '已複製',
 			_ => null,
 		} ?? switch (path) {
+			'download.copy' => '複製',
+			'download.copySuccess' => '已複製',
 			'download.waiting' => '等待中',
 			'download.paused' => '暫停中',
 			'download.downloadingOnlyDownloaded' => ({required Object downloaded}) => '下載中 ${downloaded}',
@@ -5502,10 +5506,10 @@ extension on TranslationsZhTw {
 			'log.logSizeLimit' => '大小上限:',
 			'log.usageRate' => '使用率:',
 			'log.exceedLimit' => '超出限制',
-			'log.remaining' => '剩餘',
-			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => '日誌空間已超出限制，建議立即清理舊日誌或增加空間限制',
 			_ => null,
 		} ?? switch (path) {
+			'log.remaining' => '剩餘',
+			'log.currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit' => '日誌空間已超出限制，建議立即清理舊日誌或增加空間限制',
 			'log.currentLogSizeAlmostExceededPleaseCleanOldLogs' => '日誌空間即將用盡，建議清理舊日誌',
 			'log.cleaningOldLogs' => '正在自動清理舊日誌...',
 			'log.logCleaningCompleted' => '日誌清理完成',

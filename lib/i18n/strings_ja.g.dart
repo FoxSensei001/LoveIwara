@@ -572,6 +572,8 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	@override String get relatedGalleries => '関連ギャラリー';
 	@override String get authorNoOtherGalleries => '他のギャラリーはありません';
 	@override String get noRelatedGalleries => '関連するギャラリーはありません';
+	@override String get scrollLeft => '左へスクロール';
+	@override String get scrollRight => '右へスクロール';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '左端と右端をクリックして切り替え';
 }
 
@@ -3883,6 +3885,8 @@ extension on TranslationsJa {
 			'galleryDetail.relatedGalleries' => '関連ギャラリー',
 			'galleryDetail.authorNoOtherGalleries' => '他のギャラリーはありません',
 			'galleryDetail.noRelatedGalleries' => '関連するギャラリーはありません',
+			'galleryDetail.scrollLeft' => '左へスクロール',
+			'galleryDetail.scrollRight' => '右へスクロール',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '左端と右端をクリックして切り替え',
 			'playList.myPlayList' => '私のプレイリスト',
 			'playList.friendlyTips' => 'フレンドリーティップス',
@@ -3960,10 +3964,10 @@ extension on TranslationsJa {
 			'settings.rememberVolume' => '音量を記憶',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。',
 			'settings.rememberBrightness' => '明るさを記憶',
-			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
-			'settings.playControlArea' => '再生コントロールエリア',
 			_ => null,
 		} ?? switch (path) {
+			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
+			'settings.playControlArea' => '再生コントロールエリア',
 			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
 			'settings.thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer' => 'この設定は、プレイヤーの左右にあるコントロールエリアの幅を決定します。',
 			'settings.proxyAddressCannotBeEmpty' => 'プロキシアドレスは空にできません。',
@@ -4474,10 +4478,10 @@ extension on TranslationsJa {
 			'oreno3d.errors.resourceNotFound' => '要求されたリソースが見つかりません',
 			'oreno3d.errors.accessDenied' => 'アクセスが拒否されました、認証または権限が必要な可能性があります',
 			'oreno3d.errors.serverError' => 'サーバー内部エラー',
-			'oreno3d.errors.serviceUnavailable' => 'サービスが一時的に利用できません',
-			'oreno3d.errors.requestCancelled' => 'リクエストがキャンセルされました',
 			_ => null,
 		} ?? switch (path) {
+			'oreno3d.errors.serviceUnavailable' => 'サービスが一時的に利用できません',
+			'oreno3d.errors.requestCancelled' => 'リクエストがキャンセルされました',
 			'oreno3d.errors.connectionError' => 'ネットワーク接続エラー、ネットワーク設定を確認してください',
 			'oreno3d.errors.networkRequestFailed' => 'ネットワークリクエストが失敗しました',
 			'oreno3d.errors.searchVideoError' => '動画検索中に不明なエラーが発生しました',
@@ -4988,10 +4992,10 @@ extension on TranslationsJa {
 			'download.errorDetailCopyHint' => '長押しでエラー詳細をコピー',
 			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
 			'download.restoredPaused.resume' => 'すべて再開',
-			'download.restoredPaused.dismiss' => '閉じる',
-			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			_ => null,
 		} ?? switch (path) {
+			'download.restoredPaused.dismiss' => '閉じる',
+			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
 			'download.deleteByDate.dialogTitle' => '日付で削除',
@@ -5502,10 +5506,10 @@ extension on TranslationsJa {
 			'emoji.medium' => '中',
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
-			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
-			'emoji.preview' => '絵文字プレビュー',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.copyEmojiLinkSuccess' => '絵文字リンクをコピーしました',
+			'emoji.preview' => '絵文字プレビュー',
 			'emoji.library' => '絵文字ライブラリ',
 			'emoji.noEmojis' => '絵文字がありません',
 			'emoji.clickToAddEmojis' => '右上のボタンをクリックして絵文字を追加',

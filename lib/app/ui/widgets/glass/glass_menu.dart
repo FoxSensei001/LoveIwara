@@ -197,9 +197,6 @@ const double _screenMargin = 8;
 const double _rowMarginVertical = 1; // AnimatedContainer margin: vertical
 const double _rowMarginHorizontal = 6; // AnimatedContainer margin: horizontal
 const double _rowRadius = 12; // AnimatedContainer 的圆角，焦点底板要对齐它
-const double _rowTotalHeight = _rowHeight + _rowMarginVertical * 2;
-const double _rowTotalHeightWithDescription =
-    _rowHeightWithDescription + _rowMarginVertical * 2;
 
 /// [GlassMenuSectionHeader] 一行占的高度（上下留白 + 一行 12 号字）。
 const double _sectionHeaderHeight = 30;
@@ -287,18 +284,28 @@ Alignment _revealOrigin({
   return Alignment(alignX, flipped ? 1.0 : -1.0);
 }
 
-/// 一条在面板内容里占的纵向高度。
+/// 一条**行本身**的高度（不含上下外边距）。
+///
+/// 带副标题的选项要高一档（[_rowHeightWithDescription]）。行的按压底色、滑动
+/// 取焦的焦点底板、面板量高三处必须读同一份——2026-08-26 用户报的「焦点底板
+/// 比色觉辅助那一条矮一截」正是焦点底板自己写死了 [_rowHeight]。
+double _rowHeightOf(GlassMenuEntry entry) => switch (entry) {
+  GlassMenuOption(:final description) =>
+    description == null ? _rowHeight : _rowHeightWithDescription,
+  _ => _rowHeight,
+};
+
+/// 一条在面板内容里占的纵向高度（行高 + 上下外边距）。
 double _entryHeight(GlassMenuEntry entry) => switch (entry) {
   GlassMenuSeparator() => _separatorHeight,
   GlassMenuSectionHeader() => _sectionHeaderHeight,
-  GlassMenuOption(:final description) =>
-    description == null ? _rowTotalHeight : _rowTotalHeightWithDescription,
+  GlassMenuOption() => _rowHeightOf(entry) + _rowMarginVertical * 2,
 };
 
 /// 每条在**滚动内容坐标系**里的纵向起点：面板自己的上下留白加在滚动容器外面，
 /// 所以第一条从 0 开始。
 ///
-/// 行高全是静态常量（[_rowTotalHeight] / [_separatorHeight]），所以这里不像
+/// 行高全是静态常量（[_entryHeight] / [_separatorHeight]），所以这里不像
 /// [_measureMenuPanelSize] 那样会量不出来，自定义 `leading` 的条目一样适用——
 /// 出入场的逐条点火（[_entryRevealStarts]）和滑动取焦的命中判定
 /// （`_GlassMenuPanelState._entryAt`）都吃这一份几何。
@@ -413,7 +420,7 @@ Size? _measureMenuPanelSize({
   for (final entry in entries) {
     switch (entry) {
       case GlassMenuSeparator():
-        height += _separatorHeight;
+        height += _entryHeight(entry);
       case GlassMenuSectionHeader(:final label):
         final double rowWidth =
             _rowHorizontalChrome +
@@ -425,7 +432,7 @@ Size? _measureMenuPanelSize({
               ),
             );
         if (rowWidth > contentWidth) contentWidth = rowWidth;
-        height += _sectionHeaderHeight;
+        height += _entryHeight(entry);
       case GlassMenuOption(
         :final leading,
         :final label,
@@ -465,9 +472,9 @@ Size? _measureMenuPanelSize({
           if (descWidth > rowWidth) rowWidth = descWidth;
         }
         if (rowWidth > contentWidth) contentWidth = rowWidth;
-        height += description == null
-            ? _rowTotalHeight
-            : _rowTotalHeightWithDescription;
+        // 量高与排版共用 [_entryHeight]：两处各写一遍的话，改了行高总有一处
+        // 忘记跟，面板要么多出一条空白、要么最后一行被裁掉。
+        height += _entryHeight(entry);
     }
   }
 
@@ -1410,8 +1417,13 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     _focusFade.reverse();
   }
 
-  /// 焦点底板：跟行的按压底色同一个圆角、同一族底色，位置按静态行高算
-  /// （[_entryTops]）。
+  /// 焦点底板：跟行的按压底色同一个圆角、同一族底色，位置与高度按静态行高算
+  /// （[_entryTops] / [_rowHeightOf]）。
+  ///
+  /// ⛔ 高度必须跟着**这一条**走，不能写死 [_rowHeight]：带副标题的选项高一档，
+  /// 写死的话底板只盖住上面 44px，副标题露在外面（2026-08-26 用户报的图库图片
+  /// 菜单里「色觉辅助」那一条）。[AnimatedPositioned] 会把高度变化一起补间，
+  /// 于是从普通行滑到副标题行时底板是「长开」的，不是跳一下。
   Widget _buildFocusPill(BuildContext context, List<double> tops) {
     final int? index = _pillIndex;
     final double v = _focusFade.value;
@@ -1425,7 +1437,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       left: _rowMarginHorizontal,
       right: _rowMarginHorizontal,
       top: tops[index] + _rowMarginVertical,
-      height: _rowHeight,
+      height: _rowHeightOf(widget.entries[index]),
       child: DecoratedBox(
         decoration: BoxDecoration(
           // 显隐只压底色的 alpha，不套 Opacity——透明度层会把液态档的折射
@@ -1729,9 +1741,7 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
         builder: (context, pressed) => AnimatedContainer(
           duration: GlassTokens.pressDuration,
           curve: Curves.easeOut,
-          height: option.description == null
-              ? _rowHeight
-              : _rowHeightWithDescription,
+          height: _rowHeightOf(option),
           margin: const EdgeInsets.symmetric(
             horizontal: _rowMarginHorizontal,
             vertical: _rowMarginVertical,

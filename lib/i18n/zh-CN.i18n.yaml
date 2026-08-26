@@ -455,6 +455,8 @@ galleryDetail:
   relatedGalleries: 相关图库
   authorNoOtherGalleries: 作者暂无其他图库
   noRelatedGalleries: 暂无相关图库
+  scrollLeft: 向左滚动
+  scrollRight: 向右滚动
   clickLeftAndRightEdgeToSwitchImage: 点击左右边缘以切换图片
 
 playList:
