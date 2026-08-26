@@ -216,11 +216,18 @@ void _stretchTests() {
     expect(stretchShell(), findsNothing);
   });
 
-  testWidgets('传统/easy 档不走这条路', (tester) async {
-    for (final backend in [GlassBackend.plain, GlassBackend.easyLens]) {
-      await pumpGroup(tester, backend, touchFlex: true);
-      expect(stretchShell(), findsNothing, reason: '$backend');
-    }
+  // 传统档借的是**同一层**形变（2026-08-26 起，见 LiquidWidgetsPlainBox）：
+  // 换材质不换手感，按住那块假玻璃照样会蠕动。
+  testWidgets('传统档也套上同一层形变', (tester) async {
+    await pumpGroup(tester, GlassBackend.plain, touchFlex: true);
+    expect(stretchShell(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  // easy 档有自己的一套（lens 的 `touch`），不借 GlassButton。
+  testWidgets('easy 档不走这条路', (tester) async {
+    await pumpGroup(tester, GlassBackend.easyLens, touchFlex: true);
+    expect(stretchShell(), findsNothing);
   });
 
   testWidgets('整只可按的玻璃开了 liquidTouch，点击照样要发出去', (tester) async {

@@ -503,9 +503,10 @@ Size? _measureMenuPanelSize({
 /// [anchorContext] 必须是**触发件自身**的 context（`Builder` 包一层最省事），
 /// 落点和材质档位都是从它身上量出来的。
 /// [touchFlex]：面板是否接入跟手形变（按住拖动时整块面板顺着手指拉伸、松手
-/// 弹回）。只在液态档下有意义，传统档忽略。**默认开**——跟手是这套材质的基本
-/// 手感，不该由每个调用点各自决定（同 [GlassSurface.liquidTouch]）。实际能否
-/// 生效还取决于 [_measureMenuPanelSize] 能不能静态量出尺寸（见其说明）。
+/// 弹回）。三档都有（传统档见 [LiquidWidgetsPlainBox]）。**默认开**——跟手是
+/// 这套材质的基本手感，不该由每个调用点各自决定（同 [GlassSurface.liquidTouch]）。
+/// 液态档实际能否生效还取决于 [_measureMenuPanelSize] 能不能静态量出尺寸
+/// （见 [_panelTouchFlexFits]）。
 /// [globalAnchor]：用它**顶掉**从 [anchorContext] 量出来的落点（全局坐标）。
 /// 右键上下文菜单专用——那时候没有「触发件」，面板该贴着指针弹出来，传一个
 /// 指针位置的零尺寸 `Rect` 即可（面板会从那一点撑开）。
@@ -577,8 +578,7 @@ Future<T?> showGlassMenu<T>({
       minWidth: minWidth,
       maxWidth: maxWidth,
       backend: backend,
-      touchFlex:
-          touchFlex && precomputedSize != null && backend != GlassBackend.plain,
+      touchFlex: touchFlex && _panelTouchFlexFits(backend, precomputedSize),
       precomputedSize: precomputedSize,
       capturedThemes: InheritedTheme.capture(
         from: anchorContext,
@@ -595,12 +595,7 @@ Future<T?> showGlassMenu<T>({
       anchorRect: anchorRect,
       minWidth: minWidth,
       maxWidth: maxWidth,
-      // 传统档整只不开：那一档本来就没有跟手形变，而开着会把面板从「有几行
-      // 就多高、多宽」改成静态量出来的钉死尺寸（[_measureMenuPanelSize] 是
-      // 用 TextPainter 离线量的，与真实排版有一两像素出入）。既然拿不到好处，
-      // 就别把这点误差引进去。
-      touchFlex:
-          touchFlex && precomputedSize != null && backend != GlassBackend.plain,
+      touchFlex: touchFlex && _panelTouchFlexFits(backend, precomputedSize),
       precomputedSize: precomputedSize,
       backend: backend,
       capturedThemes: InheritedTheme.capture(
@@ -613,6 +608,18 @@ Future<T?> showGlassMenu<T>({
     ),
   );
 }
+
+/// 这块档位下的面板能不能开跟手形变。
+///
+/// 液态档要求**尺寸已经钉死**（lens 的 `touch` / easy 那条约束），面板只有
+/// [_measureMenuPanelSize] 静态量出来的那一份尺寸可用，量不出来就不开。
+///
+/// 传统档（2026-08-26 起也有形变，见 [LiquidWidgetsPlainBox]）借的是 widgets
+/// 那层，**没有钉死尺寸的要求**——所以它不必等尺寸，面板照旧「有几行就多高、
+/// 多宽」，顺带绕开量宽那一两像素的出入（`TextPainter` 离线量的，与真实排版
+/// 对不齐）。
+bool _panelTouchFlexFits(GlassBackend backend, Size? precomputedSize) =>
+    backend == GlassBackend.plain || precomputedSize != null;
 
 /// 把菜单挂到根 `Overlay` 上（而不是 push 成路由），只给手指接力那条路用。
 /// 理由见 [_GlassMenuOverlayHost] 的类注释。
@@ -1496,7 +1503,13 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       );
     }
 
-    final Size? size = widget.touchFlex ? widget.precomputedSize : null;
+    // 传统档的形变不吃钉死尺寸，面板保持「按内容量」；液态档才换成静态量出的
+    // 那一份（见 [_panelTouchFlexFits]）。
+    final Size? size =
+        widget.touchFlex &&
+            LiquidGlassScope.of(context) != GlassBackend.plain
+        ? widget.precomputedSize
+        : null;
     // 内容只建这一次，靠 AnimatedBuilder 的 child 透传下去：每帧重建的只有
     // 外层形变盒和玻璃本身，行的淡入各自在自己的 AnimatedBuilder 里跑。
     final Widget body = Padding(
@@ -1560,7 +1573,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
             width: size?.width,
             borderRadius: BorderRadius.circular(_panelRadius),
             clipContent: true,
-            liquidTouch: size != null,
+            // 尺寸够不够格由 [GlassSurface] 自己判（easy 档没钉死尺寸会自动
+            // 降级成不开），这里只表态「这块面板该不该跟手」。
+            liquidTouch: widget.touchFlex,
             materialize: _material.value,
             child: Transform(
               // 反着缩回去：玻璃在卷开，内容按自然尺寸留在原地，还没卷到的

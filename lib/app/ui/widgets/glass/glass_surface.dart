@@ -172,8 +172,10 @@ class GlassSurface extends StatelessWidget {
   final bool elevated;
   final bool clipContent;
 
-  /// 液态档下是否接入交互形变（按住并拖动时整只玻璃跟着手指走、松手弹回）。
-  /// 传统档忽略此项。
+  /// 是否接入交互形变（按住并拖动时整只玻璃跟着手指走、松手弹回）。
+  ///
+  /// **三档都吃这一项**：传统档 2026-08-26 起也有同一套形变（见
+  /// [LiquidWidgetsPlainBox]），只是不带那圈指尖辉光。换材质不该换手感。
   ///
   /// **默认开**。2026-08-23 从 opt-in 翻成 opt-out：跟手形变是这套材质的基本
   /// 手感之一，「一块玻璃按下去会不会动」不该由每个调用点各自决定——用户在
@@ -642,11 +644,11 @@ class GlassButtonGroup extends StatelessWidget {
   final double height;
   final double spacing;
 
-  /// 液态档下是否给整只胶囊接入交互形变。传统档忽略。**默认开**，
-  /// 理由同 [GlassSurface.liquidTouch]。
+  /// 是否给整只胶囊接入交互形变。**默认开**，理由同 [GlassSurface.liquidTouch]。
   ///
   /// 走哪条路由取决于档位（见 [GlassSurface.liquidTouch]）：
-  ///   - [GlassBackend.liquidWidgets]：直接开，没有尺寸要求。
+  ///   - [GlassBackend.liquidWidgets] / [GlassBackend.plain]：直接开，没有尺寸
+  ///     要求（两档借的是同一层形变）。
   ///   - [GlassBackend.easyLens]：lens 的 `touch` 要求尺寸钉死，而胶囊宽度是
   ///     「抱内容」算出来的、还会随按钮增删动画过渡——只能走
   ///     [LiquidGlassSettledTouch]：过渡中退回不开 touch 的自然布局，

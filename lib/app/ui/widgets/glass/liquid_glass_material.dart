@@ -698,11 +698,6 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         ? height! / 2
         : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
 
-    // 形变层会吃掉父级的尺寸约束，这只信使负责把它递到玻璃身上
-    // （见 `wrapInteractive` 上那段）。每次 build 新建一只，渲染对象在换新
-    // 信使时会把上一份约束接过去，所以重建那一帧不会丢尺寸。
-    final _GlassOuterConstraints outerConstraints = _GlassOuterConstraints();
-
     // 圆用 LiquidOval；胶囊 / 圆角矩形用 superellipse——半径拉满时它就是
     // Apple 那种「肩部平滑过渡」的胶囊，与 easy 档的 continuousRoundedRectangle
     // 是同一个形状语言，换档时轮廓不跳。
@@ -710,60 +705,9 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         ? const lgw.LiquidOval()
         : lgw.LiquidRoundedSuperellipse(borderRadius: radius);
 
-    /// 只借形变，不借玻璃：transparent 档的 GlassButton 整只跳过
-    /// AdaptiveGlass，留下的正好是 LiquidStretch + GlassGlow（见 [interactive]）。
-    ///
-    /// ⛔ 借来的这层会**把父级给的 min / tight 约束吃掉**：`GlassButton` 内部
-    /// 用 `SizedBox(width: null) → Align(widthFactor: 1)` 抱内容，而
-    /// `RenderPositionedBox` 是拿 `constraints.loosen()` 去量孩子的——外面
-    /// `ConstrainedBox(minWidth: 68)` / `Expanded` / `SizedBox(width: x)` 定下
-    /// 的尺寸只落在 Align 自己身上，玻璃缩到「贴着文字」的自然宽度，于是
-    /// **占位是长条、画出来的玻璃却短一截**。传统档（`AnimatedContainer`）没有
-    /// 这一层，一直是老老实实吃 min 的——换档就变形，正好违背
-    /// [GlassSurface] 「三档尺寸语义完全一致」那条约定。
-    ///
-    /// 2026-08-24 真机报的「宽屏分页栏中间的页码长条变成了圆的、加载光环还留
-    /// 在原来那条长条上」就是这一条：光环画在 `GlassSurface` 的外框（68 宽）
-    /// 上，玻璃自己却只有文字那么宽。
-    ///
-    /// 修法是把外层约束**原样递进玻璃那一层**（[_GlassOuterConstraints]），
-    /// 而不是一处处给调用点补 `width:`——凡是「抱内容 + 有形变 + 父级给了
-    /// 尺寸」的玻璃都吃这一条，逐个补漏必然再漏。
-    Widget wrapInteractive(Widget glass) {
-      if (!interactive) return glass;
-      return _GlassOuterConstraintsSource(
-        relay: outerConstraints,
-        child: lgw.GlassButton.custom(
-          style: lgw.GlassButtonStyle.transparent,
-          shape: shape,
-          // 这层**只吃形变，不接点击**，给个空实现即可——他们自己的
-          // GlassButtonGroup 也是这么用的。所有点击（含「整只玻璃可按」的调用点，
-          // 如身份圆钮）都由 `GlassSurface` 塞进 [child] 那一层的 `GlassTapArea`
-          // 接住：内容层在这只识别器**里头**，竞技场清算时先赢，顺带把「手指移出
-          // 多远才算放弃」那条规矩收在一处（见 `glass_touch.dart`）。
-          onTap: () {},
-          canRequestFocus: false,
-          // 语义节点由外层统一发（[GlassPressable] 的 Semantics），这里不重复
-          // 挂一个按钮。
-          excludeFromSemantics: true,
-          // 别再给我们的玻璃叠一层提亮：色调只有 GlassTokens 一个出处。
-          ambientBaseLight: 0,
-          // 下面那块玻璃恒是 premium，这里必须报同一档：GlassButton 只在
-          // 「premium + 有形变」时才**跳过** RepaintBoundary。不报的话它按主题
-          // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住
-          // 拉伸时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态
-          // 下更麻烦：夹在 layer 与 grouped 形状之间多一层合成。
-          quality: lgw.GlassQuality.premium,
-          stretch: GlassTokens.widgetsStretch,
-          interactionScale: GlassTokens.widgetsInteractionScale,
-          resistance: GlassTokens.widgetsStretchResistance,
-          child: _GlassOuterConstraintsTarget(
-            relay: outerConstraints,
-            child: glass,
-          ),
-        ),
-      );
-    }
+    /// 只借形变、不借玻璃：具体怎么借的见 [_LiquidStretchShell]。
+    Widget wrapInteractive(Widget glass) =>
+        _LiquidStretchShell(enabled: interactive, shape: shape, child: glass);
 
     // ---- 融合态：加入祖先 [GlassBlendGroup] 那一层，与邻居互相吞并 ----
     //
@@ -835,8 +779,18 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 /// 传统档（plain）的玻璃体容器，支持长按蠕动与跟手拉伸形变（[interactive]）。
 ///
 /// 材质走半透明底色 + 细描边，**不带外投影**，0 Backdrop Shader 采样成本。
-/// 当 [interactive] 为真时，外层借用 `GlassButton.custom(style: transparent)`
-/// 接入跟手形变（LiquidStretch），长按蠕动手感与液态档一致，同时保持极致流畅。
+///
+/// ## 手感与液态档同一套
+///
+/// [interactive] 为真时外层套 [_LiquidStretchShell]——与 [LiquidWidgetsGlassBox]
+/// 借的是同一层形变（按住膨胀一下、拖着走、松手弹回），系数也共用
+/// `GlassTokens.widgets*`。这一档换掉的只是**材质**，不是**手感**：
+/// 「假玻璃」指的是不做折射，不是按下去像块塑料。
+///
+/// 2026-08-26 之前这段注释就是这么写的，但 [interactive] 在 `build` 里**根本
+/// 没被读过**——传统档下每一块玻璃按住都毫无反应，而 [GlassSurface] 那边早
+/// 已按「形变层自带按压膨胀」把外层的 0.96 缩放关掉了（`tapInsideLiquidBox`
+/// 把 plain 也算了进去），于是这一档连仅剩的那点按压反馈都没有。
 class LiquidWidgetsPlainBox extends StatelessWidget {
   const LiquidWidgetsPlainBox({
     super.key,
@@ -883,7 +837,7 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
             );
     }
 
-    return AnimatedContainer(
+    final Widget box = AnimatedContainer(
       duration: GlassTokens.pressDuration,
       curve: Curves.easeOut,
       height: height,
@@ -903,6 +857,123 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
         // shadow token 的注释）。它仍是构造参数，因为另外两档要用。
       ),
       child: content,
+    );
+
+    return _LiquidStretchShell(
+      enabled: interactive,
+      // ⛔ 形状必须报**正圆角**（`LiquidRoundedRectangle`），不能跟着 widgets 档
+      // 抄 superellipse：形变层会拿这只 shape 去裁自己那层交互高光，而这一档的
+      // 身子是 `BorderRadius.circular` 画的——两种角对不上时描边的肩部会被削掉
+      // 一小块。这一档不追求 Apple 那种连续曲率，形状语言与 `AnimatedContainer`
+      // 保持一致即可。
+      shape: circle
+          ? const lgw.LiquidOval()
+          : lgw.LiquidRoundedRectangle(borderRadius: radius),
+      // 不要指尖辉光：那是液态材质的一部分（光在玻璃里散开），贴在内容上的
+      // 半透明膜没有这个物理意义，读起来只会像凭空糊了一团亮斑；顺带省掉
+      // 一层 glow 绘制——这一档的存在理由就是不额外花钱。
+      glow: false,
+      child: box,
+    );
+  }
+}
+
+/// 只借形变、不借玻璃：给任意一块已经画好的玻璃（液态档的 `AdaptiveGlass`、
+/// 传统档的 `AnimatedContainer`）套上「按住膨胀一下、拖着跟手走、松手弹回」
+/// 的手感，另带指尖处的方向性高光。
+///
+/// 包里真正干活的 `LiquidStretch` **没有导出**，而 `transparent` 这一档的
+/// `GlassButton` 恰好「不画任何玻璃、只留 `LiquidStretch` + `GlassGlow`」
+/// （见包内 `glass_button.dart` 里 `style == transparent` 那条分支），正好当成
+/// 一层纯形变包装用——玻璃仍由 [child] 自己画，**不会多出第二次 backdrop
+/// 采样**。
+///
+/// ⚠️ 别把它当成 `AdaptiveGlass.isInteractive`：那个参数只影响 minimal 档要不
+/// 要省掉 blur，跟手感没有关系（一开始接错过一次）。
+///
+/// 与 easy 档不同，这里**没有钉死尺寸的要求**，抱内容的胶囊也能开
+/// （见 [GlassButtonGroup] 里那条分档说明）。
+///
+/// ## ⛔ 借来的这层会把父级给的 min / tight 约束吃掉
+///
+/// `GlassButton` 内部用 `SizedBox(width: null) → Align(widthFactor: 1)` 抱内容，
+/// 而 `RenderPositionedBox` 是拿 `constraints.loosen()` 去量孩子的——外面
+/// `ConstrainedBox(minWidth: 68)` / `Expanded` / `SizedBox(width: x)` 定下的
+/// 尺寸只落在 Align 自己身上，玻璃缩到「贴着文字」的自然宽度，于是**占位是
+/// 长条、画出来的玻璃却短一截**。
+///
+/// 2026-08-24 真机报的「宽屏分页栏中间的页码长条变成了圆的、加载光环还留在
+/// 原来那条长条上」就是这一条：光环画在 [GlassSurface] 的外框（68 宽）上，
+/// 玻璃自己却只有文字那么宽。
+///
+/// 修法是把外层约束**原样递进玻璃那一层**（[_GlassOuterConstraints]），而不是
+/// 一处处给调用点补 `width:`——凡是「抱内容 + 有形变 + 父级给了尺寸」的玻璃
+/// 都吃这一条，逐个补漏必然再漏。信使做成 [State] 的字段而不是每次 build 新建
+/// ：外层（按下的底色过渡）每帧重建，换新信使会让内层 `markNeedsLayout`，白白
+/// 多一轮布局。
+class _LiquidStretchShell extends StatefulWidget {
+  const _LiquidStretchShell({
+    required this.enabled,
+    required this.shape,
+    required this.child,
+    this.glow = true,
+  });
+
+  /// 关掉时整只不建，树里连 `GlassButton` 都不会出现。
+  final bool enabled;
+
+  /// 形变层用它裁自己那层交互高光，**必须与 [child] 画出来的轮廓是同一种角**。
+  final lgw.LiquidShape shape;
+
+  /// 指尖辉光。液态档开（光在玻璃里散开），传统档关（见
+  /// [LiquidWidgetsPlainBox] 里那条说明）。
+  final bool glow;
+
+  final Widget child;
+
+  @override
+  State<_LiquidStretchShell> createState() => _LiquidStretchShellState();
+}
+
+class _LiquidStretchShellState extends State<_LiquidStretchShell> {
+  final _GlassOuterConstraints _outerConstraints = _GlassOuterConstraints();
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    return _GlassOuterConstraintsSource(
+      relay: _outerConstraints,
+      child: lgw.GlassButton.custom(
+        style: lgw.GlassButtonStyle.transparent,
+        shape: widget.shape,
+        // 这层**只吃形变，不接点击**，给个空实现即可——他们自己的
+        // GlassButtonGroup 也是这么用的。所有点击（含「整只玻璃可按」的调用点，
+        // 如身份圆钮）都由 `GlassSurface` 塞进玻璃**内容**那一层的 `GlassTapArea`
+        // 接住：内容层在这只识别器里头，竞技场清算时先赢，顺带把「手指移出多远
+        // 才算放弃」那条规矩收在一处（见 `glass_touch.dart`）。
+        onTap: () {},
+        canRequestFocus: false,
+        // 语义节点由外层统一发（[GlassPressable] 的 Semantics），这里不重复
+        // 挂一个按钮。
+        excludeFromSemantics: true,
+        // 别再给我们的玻璃叠一层提亮：色调只有 GlassTokens 一个出处。
+        ambientBaseLight: 0,
+        // 透明色 = 整只不画（包里 `_glowColor.a > 0` 那道闸）。
+        glowColor: widget.glow ? null : Colors.transparent,
+        // 液态档下面那块玻璃恒是 premium，这里必须报同一档：GlassButton 只在
+        // 「premium + 有形变」时才**跳过** RepaintBoundary。不报的话它按主题
+        // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住拉伸
+        // 时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态下更
+        // 麻烦：夹在 layer 与 grouped 形状之间多一层合成。
+        quality: lgw.GlassQuality.premium,
+        stretch: GlassTokens.widgetsStretch,
+        interactionScale: GlassTokens.widgetsInteractionScale,
+        resistance: GlassTokens.widgetsStretchResistance,
+        child: _GlassOuterConstraintsTarget(
+          relay: _outerConstraints,
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

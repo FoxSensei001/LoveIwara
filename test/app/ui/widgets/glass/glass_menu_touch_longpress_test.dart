@@ -93,7 +93,10 @@ void main() {
     expect(p.height, isNotNull);
   });
 
-  testWidgets('钉回传统档时才不开跟手形变（测试专用逃生口）', (tester) async {
+  // 钉回传统档（假玻璃开关 / 测试专用逃生口）：跟手形变照样开——那一档借的是
+  // widgets 那层形变，**不要求钉死尺寸**，所以面板保持「有几行就多高、多宽」，
+  // 顺带绕开 _measureMenuPanelSize 那一两像素的量宽出入。
+  testWidgets('钉回传统档：跟手形变照样开，但尺寸不钉死', (tester) async {
     debugPanelGlassBackendOverride = GlassBackend.plain;
     addTearDown(() => debugPanelGlassBackendOverride = null);
     await openMenu(
@@ -104,7 +107,7 @@ void main() {
       ],
     );
     final GlassSurface p = panel(tester);
-    expect(p.liquidTouch, isFalse);
+    expect(p.liquidTouch, isTrue);
     expect(p.width, isNull);
     expect(p.height, isNull);
   });
