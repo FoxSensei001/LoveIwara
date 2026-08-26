@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/add_search_tag_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
@@ -196,14 +197,13 @@ class _FavoriteOreno3dTagsPageState extends State<FavoriteOreno3dTagsPage>
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: GlassSegmentedControl(
-                    selectedIndex: _tabController.index,
-                    progress: _tabController.animation,
-                    onChanged: _tabController.animateTo,
-                    items: tabItems,
-                  ),
+                // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+                // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+                child: GlassAdaptiveSegmentedControl(
+                  selectedIndex: _tabController.index,
+                  progress: _tabController.animation,
+                  onChanged: _tabController.animateTo,
+                  items: tabItems,
                 ),
               ),
               const SizedBox(width: 8),

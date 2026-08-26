@@ -281,6 +281,35 @@ void main() {
     );
   });
 
+  test('分段胶囊一律走 GlassAdaptiveSegmentedControl（已清零，零容忍）', () {
+    final offenders = <String>[];
+    for (final file in _dartFiles()) {
+      if (_segmentedControlSourceOfTruth.contains(_rel(file))) continue;
+      final source = file.readAsStringSync().replaceAll(_lineComment, '');
+      for (final match in _rawSegmentedControl.allMatches(source)) {
+        final line =
+            '\n'.allMatches(source.substring(0, match.start)).length + 1;
+        offenders.add('${_rel(file)}:$line');
+      }
+    }
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          '裸 GlassSegmentedControl 摆不下时不会报错，它只是自己横向滚起来——'
+          '用户看到的是一条被裁掉的半截胶囊（露出「最新」和半个「点赞数」，'
+          '剩下三段得横着拨才知道存在）。约定是露不出 2.5 个完整段就退化成'
+          '下拉钮，但这条判定原先每个页面各抄一份十几行，于是只有三处 header '
+          '抄到了，作者页那行五段排序一直是裸的（2026-08-26 报障）。\n'
+          '改用 GlassAdaptiveSegmentedControl：它自己读实际分到的宽度做判定、'
+          '自带玻璃壳与下拉入口。选择态那类「此刻不表示分段」的内容传 '
+          'replacement（壳还是同一只，进出选择态照样是宽度形变）。\n'
+          '⚠️ 它必须待在能读到实际可用宽度的位置上（Expanded / Flexible / '
+          '定宽容器）——Row 的非 flex 子项拿到的是无限宽约束，永远判定为「够」。\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('选择器弹窗一律走 GlassPickerDialog（已清零，零容忍）', () {
     final offenders = <String>[];
     for (final file in _dartFiles()) {
@@ -307,6 +336,19 @@ void main() {
     );
   });
 }
+
+/// 分段胶囊只该由这两处直接建：控件本体，以及给它套上「摆不下就退化成
+/// 下拉钮」的收口件。
+const _segmentedControlSourceOfTruth = <String>{
+  'lib/app/ui/widgets/glass/glass_segmented_control.dart',
+  'lib/app/ui/widgets/glass/glass_adaptive_segmented_control.dart',
+};
+
+/// `GlassSegmentedControl(` —— 前缀 `GlassAdaptiveSegmentedControl(` 不算
+/// （它就是替代品），靠前一个字符排掉。
+final _rawSegmentedControl = RegExp(
+  r'(?<![A-Za-z0-9_])GlassSegmentedControl\s*\(',
+);
 
 /// 选择器弹窗骨架的定义处——这套配方只该出现在这里。
 const _pickerDialogSourceOfTruth =
@@ -393,6 +435,9 @@ const _sharedMenuTriggers = <String, String>{
   'DownloadMoreButton': 'lib/app/ui/pages/download/widgets/download_scale.dart',
   // 搜索钮：点按进搜索页，长按弹「搜索模式」菜单（longPressOpensOverlay）。
   'SearchActionButton': 'lib/app/ui/widgets/search_mode_menu.dart',
+  // 下拉入口（分段胶囊摆不下时那只 / 下载页的分类筛选）：声明在触发位自己那儿。
+  'GlassDropdownTrigger': 'lib/app/ui/widgets/glass/glass_dropdown_pill.dart',
+  'GlassDropdownPill': 'lib/app/ui/widgets/glass/glass_dropdown_pill.dart',
 };
 
 /// 「这枚钮的长按会开浮层」的两种声明。
@@ -400,7 +445,11 @@ const _sharedMenuTriggers = <String, String>{
 /// ⚠️ 必须按词边界匹配：`longPressOpensOverlay: true` 里**含着**
 /// `opensOverlay: true` 这个子串，用 `contains` 判的话只声明了长按那一种的文件
 /// 会被当成声明了点按那一种，闸门等于漏掉。
-final _declaresTapOverlay = RegExp(r'(?<![A-Za-z0-9_])opensOverlay:\s*true');
+/// `opensOverlay: true`，或者**原样转发**同名参数（`opensOverlay: opensOverlay`）
+/// ——共用触发件把这面旗子透传下去也算声明过了，被删掉照样会红。
+final _declaresTapOverlay = RegExp(
+  r'(?<![A-Za-z0-9_])opensOverlay:\s*(true|opensOverlay)(?![A-Za-z0-9_])',
+);
 final _declaresLongPressOverlay = RegExp(
   r'(?<![A-Za-z0-9_])longPressOpensOverlay:\s*true',
 );

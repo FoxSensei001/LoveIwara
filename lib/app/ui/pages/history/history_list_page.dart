@@ -14,6 +14,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -309,15 +310,14 @@ class _HistoryListPageState extends State<HistoryListPage>
             height: GlassTokens.pillHeight,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GlassSegmentedControl(
-                  selectedIndex: _tabController.index,
-                  progress: _tabController.animation,
-                  onChanged: _tabController.animateTo,
-                  items: tabItems,
-                ),
-              ),
+              child: // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+                  // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+                  GlassAdaptiveSegmentedControl(
+                    selectedIndex: _tabController.index,
+                    progress: _tabController.animation,
+                    onChanged: _tabController.animateTo,
+                    items: tabItems,
+                  ),
             ),
           ),
         ],

@@ -27,6 +27,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 
 class SearchPage extends StatefulWidget {
@@ -501,7 +502,9 @@ class _SearchPageState extends State<SearchPage> {
     final t = slang.Translations.of(context);
 
     return Obx(() {
-      final selectedIndex = kSearchSegmentsByPriority.indexOf(_selectedSegment.value);
+      final selectedIndex = kSearchSegmentsByPriority.indexOf(
+        _selectedSegment.value,
+      );
       final validIndex = selectedIndex >= 0 ? selectedIndex : 0;
 
       final items = kSearchSegmentsByPriority.map((s) {
@@ -513,7 +516,9 @@ class _SearchPageState extends State<SearchPage> {
 
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: GlassSegmentedControl(
+        // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+        // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+        child: GlassAdaptiveSegmentedControl(
           items: items,
           selectedIndex: validIndex,
           onChanged: (index) {
@@ -811,10 +816,7 @@ class _SearchPageState extends State<SearchPage> {
       decoration: BoxDecoration(
         color: colorScheme.surface.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: GlassTokens.stroke(colorScheme),
-          width: 0.8,
-        ),
+        border: Border.all(color: GlassTokens.stroke(colorScheme), width: 0.8),
         // ⛔ 不吐外投影：玻璃件（半透明底 + GlassTokens.stroke）一律靠底色
         // 与描边立起来，见 GlassTokens 里已删的 shadow token 注释。
       ),
@@ -906,7 +908,7 @@ class _SearchPageState extends State<SearchPage> {
               );
             }).toList();
 
-            return GlassSegmentedControl(
+            return GlassAdaptiveSegmentedControl(
               items: items,
               selectedIndex: validIndex,
               onChanged: (index) {
@@ -1509,11 +1511,7 @@ class _ClearHistoryButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.delete_outline,
-                  size: 16,
-                  color: fg,
-                ),
+                Icon(Icons.delete_outline, size: 16, color: fg),
                 const SizedBox(width: 4),
                 Text(
                   t.common.clear,

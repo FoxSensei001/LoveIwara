@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -694,10 +695,10 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   }
 
   /// 相关图库分段胶囊：接 TabController.animation，横滑 TabBarView 时
-  /// 高亮块跟手插值。
+  /// 高亮块跟手插值；空间不够（露不出 2.5 个完整段）时自己退化成下拉钮。
   Widget _buildRelatedSegmentedControl(BuildContext context) {
     final t = slang.Translations.of(context);
-    return GlassSegmentedControl(
+    return GlassAdaptiveSegmentedControl(
       selectedIndex: _relatedTabController.index,
       progress: _relatedTabController.animation,
       onChanged: _relatedTabController.animateTo,
@@ -783,10 +784,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       headerHeight: _relatedTabsRowHeight,
       header: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildRelatedSegmentedControl(context),
-        ),
+        child: _buildRelatedSegmentedControl(context),
       ),
       body: _buildRelatedTabBarView(context, topInset: _relatedTabsRowHeight),
     );
@@ -813,10 +811,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       solidExtent: statusBarHeight,
       header: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: _buildRelatedSegmentedControl(context),
-        ),
+        child: _buildRelatedSegmentedControl(context),
       ),
       body: _buildRelatedTabBarView(context, topInset: headerExtent),
     );

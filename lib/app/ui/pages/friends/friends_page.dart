@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/pages/friends/controllers/friends_controller.dart
 import 'package:i_iwara/app/ui/pages/friends/widgets/friend_list.dart';
 import 'package:i_iwara/app/ui/pages/friends/widgets/friend_request_list.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -185,14 +186,13 @@ class _FriendsPageState extends State<FriendsPage>
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: GlassSegmentedControl(
-                    selectedIndex: _tabController.index,
-                    progress: _tabController.animation,
-                    onChanged: _tabController.animateTo,
-                    items: tabItems,
-                  ),
+                // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+                // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+                child: GlassAdaptiveSegmentedControl(
+                  selectedIndex: _tabController.index,
+                  progress: _tabController.animation,
+                  onChanged: _tabController.animateTo,
+                  items: tabItems,
                 ),
               ),
               const SizedBox(width: 8),

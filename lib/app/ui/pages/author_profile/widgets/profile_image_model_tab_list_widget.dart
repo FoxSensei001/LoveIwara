@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -213,14 +214,13 @@ class _ProfileImageModelTabListWidgetState
         child: Row(
           children: <Widget>[
             Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: GlassSegmentedControl(
-                  selectedIndex: widget.tc.index,
-                  progress: widget.tc.animation,
-                  onChanged: widget.tc.animateTo,
-                  items: sortItems,
-                ),
+              // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+              // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+              child: GlassAdaptiveSegmentedControl(
+                selectedIndex: widget.tc.index,
+                progress: widget.tc.animation,
+                onChanged: widget.tc.animateTo,
+                items: sortItems,
               ),
             ),
             const SizedBox(width: 8),

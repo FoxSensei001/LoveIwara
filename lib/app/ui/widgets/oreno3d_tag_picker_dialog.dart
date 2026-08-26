@@ -5,6 +5,7 @@ import 'package:i_iwara/app/models/oreno3d_favorite.model.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -80,18 +81,18 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
       rows: [
         // 类别切换：玻璃分段胶囊（内容尺寸，段多时自身可横滚）
         GlassPickerRow(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: GlassSegmentedControl(
-              items: [
-                GlassSegmentItem(label: t.oreno3d.origin),
-                GlassSegmentItem(label: t.oreno3d.characters),
-                GlassSegmentItem(label: t.oreno3d.tags),
-              ],
-              selectedIndex: _typeValues.indexOf(_type),
-              onChanged: (index) => setState(() => _type = _typeValues[index]),
-            ),
-          ),
+          child: // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+              // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+              GlassAdaptiveSegmentedControl(
+                items: [
+                  GlassSegmentItem(label: t.oreno3d.origin),
+                  GlassSegmentItem(label: t.oreno3d.characters),
+                  GlassSegmentItem(label: t.oreno3d.tags),
+                ],
+                selectedIndex: _typeValues.indexOf(_type),
+                onChanged: (index) =>
+                    setState(() => _type = _typeValues[index]),
+              ),
         ),
         // 搜索：本地词库检索，输入即过滤
         GlassPickerRow.field(

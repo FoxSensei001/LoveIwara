@@ -21,6 +21,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -141,9 +142,7 @@ class PopularMediaListPageBaseState<
 
   // 打开搜索页面
   void _openSearchDialog() {
-    NaviService.navigateToSearchPage(
-      initialSegment: widget.searchSegment,
-    );
+    NaviService.navigateToSearchPage(initialSegment: widget.searchSegment);
   }
 
   Future<void> _openVideoFromPopularList({
@@ -358,86 +357,6 @@ class PopularMediaListPageBaseState<
       year: config.date,
       rating: config.rating,
     );
-  }
-
-  /// 过窄时的排序入口：下拉菜单（代替分段胶囊）。
-  /// 只渲染「图标 + 文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
-  ///
-  /// 文案接 `_tabController.animation`：横滑 TabBarView 时跟着手指一格一格
-  /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
-  Widget _buildTabDropdown(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    // 触发位只是胶囊里的无壳内容；菜单走 [showGlassMenu]，材质跟着外层胶囊
-    // 的档位走（玻璃胶囊 → 玻璃菜单）。Builder 是为了拿到**触发位自身**的
-    // context 去量落点。
-    return Builder(
-      builder: (anchorContext) => GlassPressable(
-        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
-        // 松手选中（见 GlassTapArea.opensOverlay）。
-        opensOverlay: true,
-        onTap: () => _openSortMenu(anchorContext),
-        // 触发位是胶囊的全部内容，按下缩放会把整只胶囊带得一起抖；
-        // 反馈改成整只胶囊压深一档（换掉 PopupMenuButton 原本的水波）。
-        scale: 1.0,
-        builder: (context, pressed) => AnimatedContainer(
-          duration: GlassTokens.pressDuration,
-          curve: Curves.easeOut,
-          height: GlassTokens.pillHeight,
-          decoration: BoxDecoration(
-            color: pressed
-                ? colorScheme.onSurface.withValues(alpha: 0.06)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14, right: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconTheme.merge(
-                  data: IconThemeData(color: colorScheme.onSurface),
-                  child: GlassFlipLabel(
-                    progress: _tabController.animation!,
-                    labels: [for (final sort in sorts) sort.label],
-                    icons: [for (final sort in sorts) sort.icon],
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  size: 22,
-                  color: colorScheme.onSurface,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openSortMenu(BuildContext anchorContext) async {
-    final index = _currentTabIndex.value;
-    final selected = await showGlassMenu<int>(
-      anchorContext: anchorContext,
-      entries: [
-        for (var i = 0; i < sorts.length; i++)
-          GlassMenuOption<int>(
-            value: i,
-            // Sort.icon 是个现成的 Widget，不是 IconData
-            leading: sorts[i].icon,
-            label: sorts[i].label,
-            selected: i == index,
-          ),
-      ],
-    );
-    if (selected != null && mounted) {
-      _tabController.animateTo(selected);
-    }
   }
 
   static const String _menuActionOpenSearch = 'open_search';
@@ -698,73 +617,42 @@ class PopularMediaListPageBaseState<
                     // 「够不够摆下分段胶囊」读 Expanded 实际分到的宽度，不靠公式
                     // 预测右侧胶囊有几个键——批量模式的退出键会临时挤进来，公式
                     // 恒为错，且按钮收放途中更是差着一整个动画的时长。
+                    // 摆不下时退化成下拉钮，判定与下拉入口都在
+                    // GlassAdaptiveSegmentedControl 里，全站共用一份。
                     Expanded(
-                      child: LayoutBuilder(
-                        builder: (context, centerConstraints) {
-                          final segmentItems = [
+                      child: Obx(() {
+                        // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次
+                        // 页面级的模式切换，header 不该毫无反应
+                        final bool selecting =
+                            _batchSelectController.isMultiSelect.value;
+                        return GlassAdaptiveSegmentedControl(
+                          selectedIndex: _currentTabIndex.value,
+                          progress: _tabController.animation,
+                          onChanged: (i) => _tabController.animateTo(i),
+                          items: [
                             for (final sort in sorts)
                               GlassSegmentItem(
                                 label: sort.label,
                                 icon: sort.icon,
                               ),
-                          ];
-                          // 平铺至少要能完整露出两个排序项，否则让位给下拉钮
-                          final bool useSegmented =
-                              centerConstraints.maxWidth >=
-                              GlassSegmentedControl.minWidthFor(
-                                context,
-                                segmentItems,
-                              );
-                          return Align(
-                            alignment: Alignment.centerLeft,
-                            // 玻璃壳由 GlassCapsuleMorph 常驻提供，两侧只换
-                            // 无壳内容——胶囊平滑伸缩，阴影/圆角全程完整。
-                            child: Obx(() {
-                              // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次
-                              // 页面级的模式切换，header 不该毫无反应
-                              if (_batchSelectController.isMultiSelect.value) {
-                                return GlassCapsuleMorph(
-                                  child: SizedBox(
-                                    key: const ValueKey('selection'),
-                                    width: 168,
-                                    child: GlassSelectionSummary(
-                                      selectedCount:
-                                          _batchSelectController.selectedCount,
-                                      allSelected: false,
-                                      // 全选留空：这是一条懒加载的无限列表，
-                                      // 「全选」够不到还没加载的部分，给了反而
-                                      // 是个误导（见 glass_selection.dart）
-                                      onToggleAll: null,
-                                    ),
+                          ],
+                          replacement: selecting
+                              ? SizedBox(
+                                  key: const ValueKey('selection'),
+                                  width: 168,
+                                  child: GlassSelectionSummary(
+                                    selectedCount:
+                                        _batchSelectController.selectedCount,
+                                    allSelected: false,
+                                    // 全选留空：这是一条懒加载的无限列表，
+                                    // 「全选」够不到还没加载的部分，给了反而
+                                    // 是个误导（见 glass_selection.dart）
+                                    onToggleAll: null,
                                   ),
-                                );
-                              }
-                              return GlassCapsuleMorph(
-                                child: useSegmented
-                                    ? Obx(
-                                        key: const ValueKey('segmented'),
-                                        () => GlassSegmentedControl(
-                                          flat: true,
-                                          selectedIndex: _currentTabIndex.value,
-                                          progress: _tabController.animation,
-                                          onChanged: (i) =>
-                                              _tabController.animateTo(i),
-                                          items: segmentItems,
-                                        ),
-                                      )
-                                    // 不再是 Obx：当前项现在只在打开菜单那一刻读
-                                    // （_openSortMenu），触发位的文案由
-                                    // _tabController.animation 驱动。空 Obx 会
-                                    // 直接抛 ObxError。
-                                    : KeyedSubtree(
-                                        key: const ValueKey('dropdown'),
-                                        child: _buildTabDropdown(context),
-                                      ),
-                              );
-                            }),
-                          );
-                        },
-                      ),
+                                )
+                              : null,
+                        );
+                      }),
                     ),
                     const SizedBox(width: 8),
                     _buildActionGroup(context, isWide: isWide),

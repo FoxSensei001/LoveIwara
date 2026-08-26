@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -419,16 +420,21 @@ class _MyFavoritesState extends State<MyFavorites>
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+              child: Row(
+                children: [
+                  // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
+                  // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
+                  // Flexible：站点徽标先量，胶囊拿剩下的那点宽度去判定。
+                  Flexible(
                     // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
                     // 的模式切换，header 不该毫无反应
-                    Obx(
-                      () => GlassCapsuleMorph(
-                        child: _activeBatch.isMultiSelect.value
+                    child: Obx(
+                      () => GlassAdaptiveSegmentedControl(
+                        selectedIndex: _tabController.index,
+                        progress: _tabController.animation,
+                        onChanged: _tabController.animateTo,
+                        items: tabItems,
+                        replacement: _activeBatch.isMultiSelect.value
                             ? SizedBox(
                                 key: const ValueKey('selection'),
                                 width: 168,
@@ -439,23 +445,16 @@ class _MyFavoritesState extends State<MyFavorites>
                                   onToggleAll: null,
                                 ),
                               )
-                            : GlassSegmentedControl(
-                                key: const ValueKey('segmented'),
-                                flat: true,
-                                selectedIndex: _tabController.index,
-                                progress: _tabController.animation,
-                                onChanged: _tabController.animateTo,
-                                items: tabItems,
-                              ),
+                            : null,
                       ),
                     ),
-                    // AI 站点模式下标明当前看的是哪个站的最爱
-                    if (currentSite.isAi) ...[
-                      const SizedBox(width: 8),
-                      IwaraSiteBadge(site: currentSite),
-                    ],
+                  ),
+                  // AI 站点模式下标明当前看的是哪个站的最爱
+                  if (currentSite.isAi) ...[
+                    const SizedBox(width: 8),
+                    IwaraSiteBadge(site: currentSite),
                   ],
-                ),
+                ],
               ),
             ),
             const SizedBox(width: 8),

@@ -13,6 +13,7 @@ import 'package:i_iwara/app/services/iwara_site_headers.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
@@ -308,19 +309,24 @@ class _HeaderBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GlassSegmentedControl(
-            selectedIndex: _AuthFlow.values.indexOf(flow),
-            onChanged: (index) => onFlowChanged(_AuthFlow.values[index]),
-            items: [
-              GlassSegmentItem(
-                label: t.auth.login,
-                icon: const Icon(Icons.login),
-              ),
-              GlassSegmentItem(
-                label: t.auth.register,
-                icon: const Icon(Icons.person_add),
-              ),
-            ],
+          // Expanded：Row 的非 flex 子项拿到的是无限宽约束，量不出「摆不摆
+          // 得下」——分段胶囊必须待在能读到实际可用宽度的位置上，才有机会
+          // 在窄屏退化成下拉钮（见 GlassAdaptiveSegmentedControl）。
+          Expanded(
+            child: GlassAdaptiveSegmentedControl(
+              selectedIndex: _AuthFlow.values.indexOf(flow),
+              onChanged: (index) => onFlowChanged(_AuthFlow.values[index]),
+              items: [
+                GlassSegmentItem(
+                  label: t.auth.login,
+                  icon: const Icon(Icons.login),
+                ),
+                GlassSegmentItem(
+                  label: t.auth.register,
+                  icon: const Icon(Icons.person_add),
+                ),
+              ],
+            ),
           ),
           GlassIconButton(
             standalone: true,

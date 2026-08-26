@@ -25,7 +25,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -1463,11 +1463,28 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 // 空间够就平铺分段胶囊，不够（露不出 2.5 个完整段）退化成
-                // 下拉钮——阈值与订阅页/热门列表页的子栏目胶囊共用同一约定
-                // （见 GlassSegmentedControl.minWidthFor）。
-                child: LayoutBuilder(
-                  builder: (context, rowConstraints) {
-                    final primaryTabItems = [
+                // 下拉钮——这条判定与它的下拉入口都在
+                // GlassAdaptiveSegmentedControl 里，全站共用一份。
+                child: Obx(() {
+                  // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
+                  // 的模式切换，header 不该毫无反应。
+                  // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
+                  // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
+                  final bool videoSelecting =
+                      _videoBatchController.isMultiSelect.value;
+                  final bool imageSelecting =
+                      _imageBatchController.isMultiSelect.value;
+                  final batch = primaryTC.index == 0
+                      ? _videoBatchController
+                      : (primaryTC.index == 1 ? _imageBatchController : null);
+                  final bool selecting = primaryTC.index == 0
+                      ? videoSelecting
+                      : (primaryTC.index == 1 ? imageSelecting : false);
+                  return GlassAdaptiveSegmentedControl(
+                    selectedIndex: primaryTC.index,
+                    progress: primaryTC.animation,
+                    onChanged: primaryTC.animateTo,
+                    items: [
                       GlassSegmentItem(
                         label: t.common.video,
                         icon: const Icon(Icons.video_collection),
@@ -1484,68 +1501,21 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         label: t.common.post,
                         icon: const Icon(Icons.article),
                       ),
-                    ];
-                    final bool useSegmented =
-                        rowConstraints.maxWidth >=
-                        GlassSegmentedControl.minWidthFor(
-                          context,
-                          primaryTabItems,
-                        );
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: Obx(() {
-                        // 选择态下这只胶囊改报「已选 N 项」：进选择态是一次页面级
-                        // 的模式切换，header 不该毫无反应。
-                        // 两个控制器的 Rx 都要在分支之外读一次：播放列表 / 帖子 tab
-                        // 上 batch 为 null，那一支不碰可观察量会让 Obx 抛 ObxError。
-                        final bool videoSelecting =
-                            _videoBatchController.isMultiSelect.value;
-                        final bool imageSelecting =
-                            _imageBatchController.isMultiSelect.value;
-                        final batch = primaryTC.index == 0
-                            ? _videoBatchController
-                            : (primaryTC.index == 1
-                                  ? _imageBatchController
-                                  : null);
-                        final bool selecting = primaryTC.index == 0
-                            ? videoSelecting
-                            : (primaryTC.index == 1 ? imageSelecting : false);
-                        if (batch != null && selecting) {
-                          return GlassCapsuleMorph(
-                            child: SizedBox(
-                              key: const ValueKey('selection'),
-                              width: 168,
-                              child: GlassSelectionSummary(
-                                selectedCount: batch.selectedCount,
-                                allSelected: false,
-                                // 懒加载列表够不到未加载的部分，不给全选
-                                onToggleAll: null,
-                              ),
+                    ],
+                    replacement: batch != null && selecting
+                        ? SizedBox(
+                            key: const ValueKey('selection'),
+                            width: 168,
+                            child: GlassSelectionSummary(
+                              selectedCount: batch.selectedCount,
+                              allSelected: false,
+                              // 懒加载列表够不到未加载的部分，不给全选
+                              onToggleAll: null,
                             ),
-                          );
-                        }
-                        return GlassCapsuleMorph(
-                          child: useSegmented
-                              ? GlassSegmentedControl(
-                                  key: const ValueKey('segmented'),
-                                  flat: true,
-                                  selectedIndex: primaryTC.index,
-                                  progress: primaryTC.animation,
-                                  onChanged: primaryTC.animateTo,
-                                  items: primaryTabItems,
-                                )
-                              : KeyedSubtree(
-                                  key: const ValueKey('dropdown'),
-                                  child: _buildPrimaryTabDropdown(
-                                    context,
-                                    primaryTabItems,
-                                  ),
-                                ),
-                        );
-                      }),
-                    );
-                  },
-                ),
+                          )
+                        : null,
+                  );
+                }),
               ),
             ),
           ),
@@ -1560,74 +1530,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
         ],
       ),
     );
-  }
-
-  /// 过窄时的主 Tab 入口：下拉菜单（代替分段胶囊）。
-  /// 只渲染「文字 + 箭头」的无壳内容，玻璃壳由外层 GlassCapsuleMorph 提供。
-  ///
-  /// 文案接 `primaryTC.animation`：横滑 TabBarView 时跟着手指一格一格
-  /// 翻页（见 [GlassFlipLabel]），不是等滑完才换字。
-  Widget _buildPrimaryTabDropdown(
-    BuildContext context,
-    List<GlassSegmentItem> items,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    // Builder：落点与材质档位从触发位自身的 context 量出。
-    return Builder(
-      builder: (anchorContext) => GlassPressable(
-        // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
-        // 松手选中（见 GlassTapArea.opensOverlay）。
-        opensOverlay: true,
-        onTap: () => _openPrimaryTabMenu(anchorContext, items),
-        // 内容套在常驻的 GlassCapsuleMorph 里，按下不再自缩，免得和胶囊的
-        // 宽度形变打架；反馈交给菜单弹出本身。
-        scale: 1.0,
-        builder: (context, pressed) => SizedBox(
-          height: GlassTokens.pillHeight,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14, right: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GlassFlipLabel(
-                  progress: primaryTC.animation!,
-                  labels: [for (final item in items) item.label],
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  size: 22,
-                  color: colorScheme.onSurface,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openPrimaryTabMenu(
-    BuildContext anchorContext,
-    List<GlassSegmentItem> items,
-  ) async {
-    final int index = primaryTC.index;
-    final int? picked = await showGlassMenu<int>(
-      anchorContext: anchorContext,
-      entries: [
-        for (var i = 0; i < items.length; i++)
-          GlassMenuOption<int>(
-            value: i,
-            label: items[i].label,
-            selected: i == index,
-          ),
-      ],
-    );
-    if (!mounted || picked == null) return;
-    primaryTC.animateTo(picked);
   }
 
   double _calculatePinnedHeaderHeight() {
