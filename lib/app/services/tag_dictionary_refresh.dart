@@ -64,19 +64,29 @@ DictionarySnapshot? peekSnapshot(
   }
 }
 
+/// 远端这份是不是**确定地更旧**——旧到既不该顶掉内存里那份，也不该落盘。
+///
+/// 判据只有 `builtAt`：`rev` 是内容指纹，只答「一不一样」，答不了先后。
+/// 缺 `builtAt` 的产物必定早于这个字段本身（与 [assetBeatsCache] 同一条推理），
+/// 所以「本地有 `builtAt`、远端没有」也算确定更旧——jsDelivr 的 @master
+/// 缓存会滞后十几个小时到几天，这段窗口里远端就是上一版的产物。
+bool isStaleIncoming(DictionarySnapshot? loaded, DictionarySnapshot incoming) {
+  final loadedAt = loaded?.builtAt;
+  if (loadedAt == null) return false;
+  final incomingAt = incoming.builtAt;
+  if (incomingAt == null) return true;
+  return incomingAt.isBefore(loadedAt);
+}
+
 /// 远端这份要不要顶掉内存里那份。
 ///
-/// 两边都有 `rev` 时按指纹判——这是唯一能发现「只改了译名」的方式。
+/// 先挡确定更旧的那份（见 [isStaleIncoming]），否则「远端有 rev、没 builtAt」
+/// 会直接走到指纹分支，把用户包里更新的词库降级回 CDN 那份旧的。
+/// 剩下的情况：两边都有 `rev` 时按指纹判——这是唯一能发现「只改了译名」的方式；
 /// 任意一边缺 `rev`（旧产物或旧缓存）时退回旧的条目数判据，保持向后兼容。
 bool shouldRebuild(DictionarySnapshot? loaded, DictionarySnapshot incoming) {
   if (loaded == null) return true;
-  // 指纹只答「一不一样」，`builtAt` 才答「谁更新」。远端明显更旧时不要降级——
-  // jsDelivr 的 @master 缓存可以滞后好几天，用户装的包却可能比它新。
-  final loadedAt = loaded.builtAt;
-  final incomingAt = incoming.builtAt;
-  if (loadedAt != null && incomingAt != null && incomingAt.isBefore(loadedAt)) {
-    return false;
-  }
+  if (isStaleIncoming(loaded, incoming)) return false;
   final a = loaded.rev;
   final b = incoming.rev;
   if (a != null && b != null) return a != b;

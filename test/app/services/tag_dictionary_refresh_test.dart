@@ -141,6 +141,60 @@ void main() {
       );
       expect(shouldRebuild(loaded, newer), isTrue);
     });
+
+    test('★ 远端有 rev 但没有 builtAt 时也算更旧，不许降级', () {
+      // 2026-08-26 真机现场：包里是 5155 条角色（builtAt 08-26），
+      // jsDelivr @master 还停在 1600 条的上一版产物——它有 rev、没有 builtAt。
+      // 「两边都有 builtAt 才挡降级」漏掉了这一格：指纹不同 → 重建 →
+      // 启动几秒后新词库被换回旧的（丹花イブキ 又变回日文）。
+      final loaded = DictionarySnapshot(
+        version: 2,
+        rev: 'aaaaaaaaaaaaaaaa',
+        count: 6144,
+        builtAt: DateTime.utc(2026, 8, 26),
+      );
+      const olderWithoutStamp = DictionarySnapshot(
+        version: 2,
+        rev: 'bbbbbbbbbbbbbbbb',
+        count: 2580,
+      );
+      expect(shouldRebuild(loaded, olderWithoutStamp), isFalse);
+    });
+  });
+
+  group('isStaleIncoming', () {
+    test('本地没有 builtAt 时不做判断，交给指纹/条目数', () {
+      const loaded = DictionarySnapshot(version: 2, rev: 'a', count: 100);
+      const incoming = DictionarySnapshot(version: 2, rev: 'b', count: 100);
+      expect(isStaleIncoming(loaded, incoming), isFalse);
+      expect(isStaleIncoming(null, incoming), isFalse);
+    });
+
+    test('本地有 builtAt、远端没有 → 远端确定更旧', () {
+      final loaded = DictionarySnapshot(
+        version: 2,
+        rev: 'a',
+        count: 100,
+        builtAt: DateTime.utc(2026, 8, 26),
+      );
+      const incoming = DictionarySnapshot(version: 2, rev: 'b', count: 100);
+      expect(isStaleIncoming(loaded, incoming), isTrue);
+    });
+
+    test('两边都有 builtAt 时按时间先后', () {
+      final loaded = DictionarySnapshot(
+        version: 2,
+        rev: 'a',
+        count: 100,
+        builtAt: DateTime.utc(2026, 8, 26),
+      );
+      DictionarySnapshot at(DateTime t) =>
+          DictionarySnapshot(version: 2, rev: 'b', count: 100, builtAt: t);
+      expect(isStaleIncoming(loaded, at(DateTime.utc(2026, 8, 25))), isTrue);
+      expect(isStaleIncoming(loaded, at(DateTime.utc(2026, 8, 27))), isFalse);
+      expect(isStaleIncoming(loaded, at(DateTime.utc(2026, 8, 26))), isFalse,
+          reason: '同一份产物不算更旧');
+    });
   });
 
   group('assetBeatsCache', () {

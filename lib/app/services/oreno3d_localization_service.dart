@@ -178,15 +178,18 @@ class Oreno3dLocalizationService extends GetxService {
     final incoming = peekSnapshot(content, _countEntries);
     if (incoming == null) return false;
 
+    // CDN 那份确定更旧时（jsDelivr @master 缓存滞后），既不重建也不落盘。
+    final stale = isStaleIncoming(snapshot.value, incoming);
     final changed = shouldRebuild(snapshot.value, incoming);
     if (changed) {
       _rebuild(content, currentLocaleKey());
       Get.forceAppUpdate();
     }
-    await _fetcher.writeCache(content);
+    if (!stale) await _fetcher.writeCache(content);
     lastRefreshedAt.value = DateTime.now();
     LogUtils.i(
-      'Oreno3d 词库已从 CDN 刷新（$incoming，${changed ? '已应用' : '无变化'}）',
+      'Oreno3d 词库已从 CDN 刷新（$incoming，'
+      '${stale ? '远端更旧，已忽略' : (changed ? '已应用' : '无变化')}）',
       'Oreno3d本地化',
     );
     return changed;
