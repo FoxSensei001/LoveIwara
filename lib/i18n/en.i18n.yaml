@@ -605,11 +605,13 @@ settings:
   showUnprocessedMarkdownTextDesc: Show the original text of the markdown
   markdown: Markdown
   activeBackgroundPrivacyMode: Privacy Mode
-  activeBackgroundPrivacyModeDesc: Prevent screenshots, hide screen when running in the background...
+  activeBackgroundPrivacyModeDesc: Block screenshots and screen recording, and hide the screen in the background
+  activeBackgroundPrivacyModeDescNonAndroid: Hide the screen when the app goes to the background (this platform cannot block screenshots)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Block screenshots and screen recording
   privacy: Privacy
   appLock: App Lock
   appLockEnabled: Enable app lock
-  appLockEnabledDesc: Require a PIN or biometrics to open the app
+  appLockEnabledDesc: Require a PIN or biometrics to open the app; the background preview is hidden automatically
   appLockEnabledSummary: On · PIN protected
   appLockDisabledSummary: Off
   appLockTimeout: Lock after leaving app

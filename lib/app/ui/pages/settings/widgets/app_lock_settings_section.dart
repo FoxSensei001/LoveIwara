@@ -2,11 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+
+/// 这张卡里正在等结果的那一项。
+enum _BusyOp { none, toggle, changePin }
+
+/// 隐私模式在这张卡里的去留。
+///
+/// 隐私模式做两件事：`FLAG_SECURE` 禁截图（只有安卓有原生实现）+ 后台遮罩；
+/// 而后台遮罩由 `隐私模式 || 应用锁` 统一驱动（见 `my_app.dart`）。两者因此
+/// 天然重叠，重叠多少要看平台和应用锁状态。
+enum PrivacyModeVisibility {
+  /// 非安卓 + 应用锁开着：隐私模式一点额外作用都没有，整条藏掉。
+  hidden,
+
+  /// 安卓 + 应用锁关着：禁截图和后台遮罩都归它管。
+  screenshotAndOverlay,
+
+  /// 安卓 + 应用锁开着：遮罩已由应用锁承担，只剩禁截图这一项独有。
+  screenshotOnly,
+
+  /// 非安卓 + 应用锁关着：拦不住截图，只剩后台遮罩。
+  overlayOnly,
+}
+
+/// 纯函数版裁决，方便直接单测（`GetPlatform.isAndroid` 读的是宿主平台，
+/// 在 `flutter test` 里恒为 false，分支没法靠 widget test 覆盖）。
+PrivacyModeVisibility resolvePrivacyModeVisibility({
+  required bool isAndroid,
+  required bool appLockEnabled,
+}) {
+  if (isAndroid) {
+    return appLockEnabled
+        ? PrivacyModeVisibility.screenshotOnly
+        : PrivacyModeVisibility.screenshotAndOverlay;
+  }
+  return appLockEnabled
+      ? PrivacyModeVisibility.hidden
+      : PrivacyModeVisibility.overlayOnly;
+}
 
 class AppLockSettingsSection extends StatefulWidget {
   const AppLockSettingsSection({super.key});
@@ -17,8 +56,27 @@ class AppLockSettingsSection extends StatefulWidget {
 
 class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
   late final AppLockService _service = Get.find<AppLockService>();
+  late final ConfigService _configService = Get.find<ConfigService>();
 
   static const _timeouts = <int>[-1, 0, 30, 60, 300, 600, 900, 1800];
+
+  /// 当前正在跑的慢操作（PBKDF2 派生 12 万轮 + 写/删 Keystore）。
+  ///
+  /// 开锁、关锁各要一次派生，改 PIN 要两次，真机上是肉眼可见的一段等待。
+  /// 之前这段时间里 UI 毫无反应，用户会以为没点上而反复拨开关。记成枚举而
+  /// 不是一个 bool，是为了让转圈**只出现在用户刚点的那一行**。
+  _BusyOp _busy = _BusyOp.none;
+
+  /// 把一段慢操作包起来：期间该行进入等待态，结束后无论成败都复位。
+  Future<void> _runBusy(_BusyOp op, Future<void> Function() action) async {
+    if (_busy != _BusyOp.none) return;
+    setState(() => _busy = op);
+    try {
+      await action();
+    } finally {
+      if (mounted) setState(() => _busy = _BusyOp.none);
+    }
+  }
 
   String _timeoutLabel(int seconds) {
     if (seconds < 0) return slang.t.settings.appLockTimeoutDisabled;
@@ -61,17 +119,21 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
       _showMessage(slang.t.settings.appLockPinsDoNotMatch);
       return;
     }
-    if (!await _service.enableWithPin(values.pin) && mounted) {
-      _showMessage(slang.t.settings.appLockSetupFailed);
-    }
+    await _runBusy(_BusyOp.toggle, () async {
+      if (!await _service.enableWithPin(values.pin) && mounted) {
+        _showMessage(slang.t.settings.appLockSetupFailed);
+      }
+    });
   }
 
   Future<void> _disable() async {
     final pin = await _askForPin(title: slang.t.settings.appLockDisable);
     if (pin == null || !mounted) return;
-    if (!await _service.disable(pin) && mounted) {
-      _showMessage(slang.t.settings.appLockInvalidPin);
-    }
+    await _runBusy(_BusyOp.toggle, () async {
+      if (!await _service.disable(pin) && mounted) {
+        _showMessage(slang.t.settings.appLockInvalidPin);
+      }
+    });
   }
 
   Future<void> _changePin() async {
@@ -85,13 +147,15 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
       _showMessage(slang.t.settings.appLockPinsDoNotMatch);
       return;
     }
-    if (!await _service.verifyPin(values.currentPin)) {
-      if (mounted) _showMessage(slang.t.settings.appLockInvalidPin);
-      return;
-    }
-    if (!await _service.enableWithPin(values.newPin) && mounted) {
-      _showMessage(slang.t.settings.appLockSetupFailed);
-    }
+    await _runBusy(_BusyOp.changePin, () async {
+      if (!await _service.verifyPin(values.currentPin)) {
+        if (mounted) _showMessage(slang.t.settings.appLockInvalidPin);
+        return;
+      }
+      if (!await _service.enableWithPin(values.newPin) && mounted) {
+        _showMessage(slang.t.settings.appLockSetupFailed);
+      }
+    });
   }
 
   Future<void> _toggleBiometrics(bool value) async {
@@ -125,7 +189,7 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              slang.t.settings.appLock,
+              slang.t.settings.privacy,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -133,14 +197,42 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
           ),
           const Divider(height: 1),
           Obx(() {
+            final visibility = resolvePrivacyModeVisibility(
+              isAndroid: GetPlatform.isAndroid,
+              appLockEnabled: _service.enabled,
+            );
+            if (visibility == PrivacyModeVisibility.hidden) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GlassSwitchItem(
+                  icon: Icons.no_photography_outlined,
+                  title: Text(slang.t.settings.activeBackgroundPrivacyMode),
+                  subtitle: Text(_privacyModeDescriptionOf(visibility)),
+                  value:
+                      _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE],
+                  onChanged: (value) {
+                    _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE] =
+                        value;
+                  },
+                ),
+                const Divider(height: 1),
+              ],
+            );
+          }),
+          Obx(() {
             final enabled = _service.enabled;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 GlassSwitchItem(
+                  icon: Icons.lock_outline,
                   title: Text(slang.t.settings.appLockEnabled),
                   subtitle: Text(slang.t.settings.appLockEnabledDesc),
                   value: enabled,
+                  busy: _busy == _BusyOp.toggle,
                   onChanged: (_) => enabled ? _disable() : _enable(),
                 ),
                 if (enabled) ...[
@@ -197,6 +289,10 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
                   ListTile(
                     leading: const Icon(Icons.password),
                     title: Text(slang.t.settings.appLockChangePin),
+                    trailing: _busy == _BusyOp.changePin
+                        ? const GlassTileSpinner()
+                        : null,
+                    enabled: _busy == _BusyOp.none,
                     onTap: _changePin,
                   ),
                   const Divider(height: 1),
@@ -408,6 +504,19 @@ class _PinTextField extends StatelessWidget {
       ),
       onSubmitted: onSubmitted == null ? null : (_) => onSubmitted!(),
     );
+  }
+}
+
+String _privacyModeDescriptionOf(PrivacyModeVisibility visibility) {
+  switch (visibility) {
+    case PrivacyModeVisibility.screenshotAndOverlay:
+      return slang.t.settings.activeBackgroundPrivacyModeDesc;
+    case PrivacyModeVisibility.screenshotOnly:
+      return slang.t.settings.activeBackgroundPrivacyModeDescScreenshotOnly;
+    case PrivacyModeVisibility.overlayOnly:
+      return slang.t.settings.activeBackgroundPrivacyModeDescNonAndroid;
+    case PrivacyModeVisibility.hidden:
+      return '';
   }
 }
 

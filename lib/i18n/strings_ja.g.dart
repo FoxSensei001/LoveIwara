@@ -753,11 +753,13 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownTextDesc => 'Markdownの元のテキストを表示';
 	@override String get markdown => 'Markdown';
 	@override String get activeBackgroundPrivacyMode => 'プライバシーモード';
-	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...';
+	@override String get activeBackgroundPrivacyModeDesc => 'スクリーンショットと画面録画を禁止し、バックグラウンドでは画面を隠します';
+	@override String get activeBackgroundPrivacyModeDescNonAndroid => 'バックグラウンドに移ると画面を隠します（このプラットフォームではスクリーンショットを防げません）';
+	@override String get activeBackgroundPrivacyModeDescScreenshotOnly => 'スクリーンショットと画面録画を禁止します';
 	@override String get privacy => 'プライバシー';
 	@override String get appLock => 'アプリロック';
 	@override String get appLockEnabled => 'アプリロックを有効にする';
-	@override String get appLockEnabledDesc => 'アプリを開くときに PIN または生体認証を要求します';
+	@override String get appLockEnabledDesc => 'アプリを開くときに PIN または生体認証を要求し、バックグラウンドの画面も自動的に隠します';
 	@override String get appLockEnabledSummary => 'オン · PIN で保護';
 	@override String get appLockDisabledSummary => 'オフ';
 	@override String get appLockTimeout => 'アプリを離れた後にロック';
@@ -4076,11 +4078,13 @@ extension on TranslationsJa {
 			'settings.showUnprocessedMarkdownTextDesc' => 'Markdownの元のテキストを表示',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => 'プライバシーモード',
-			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットを禁止し、バックグラウンド実行時に画面を隠す...',
+			'settings.activeBackgroundPrivacyModeDesc' => 'スクリーンショットと画面録画を禁止し、バックグラウンドでは画面を隠します',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => 'バックグラウンドに移ると画面を隠します（このプラットフォームではスクリーンショットを防げません）',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => 'スクリーンショットと画面録画を禁止します',
 			'settings.privacy' => 'プライバシー',
 			'settings.appLock' => 'アプリロック',
 			'settings.appLockEnabled' => 'アプリロックを有効にする',
-			'settings.appLockEnabledDesc' => 'アプリを開くときに PIN または生体認証を要求します',
+			'settings.appLockEnabledDesc' => 'アプリを開くときに PIN または生体認証を要求し、バックグラウンドの画面も自動的に隠します',
 			'settings.appLockEnabledSummary' => 'オン · PIN で保護',
 			'settings.appLockDisabledSummary' => 'オフ',
 			'settings.appLockTimeout' => 'アプリを離れた後にロック',
@@ -4520,10 +4524,10 @@ extension on TranslationsJa {
 			'settings.downloadSettings.downloadPathSetTo' => 'ダウンロードパスが設定されました',
 			'settings.downloadSettings.setPathFailed' => 'パスの設定に失敗しました',
 			'settings.downloadSettings.variableTitle' => 'タイトル',
-			'settings.downloadSettings.variableAuthor' => '作者名',
-			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableAuthor' => '作者名',
+			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
 			'settings.downloadSettings.variableQuality' => '動画品質',
 			'settings.downloadSettings.variableFilename' => '元のファイル名',
 			'settings.downloadSettings.variableId' => 'コンテンツID',
@@ -5034,10 +5038,10 @@ extension on TranslationsJa {
 			'download.resume' => '継続',
 			'download.copyDownloadUrl' => 'ダウンロードリンクをコピー',
 			'download.showInFolder' => 'フォルダーで表示',
-			'download.deleteTask' => 'タスクを削除',
-			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteTask' => 'タスクを削除',
+			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
 			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'ダウンロード中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'ダウンロード中 ${downloaded} • ${speed}MB/s',
@@ -5548,10 +5552,10 @@ extension on TranslationsJa {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
-			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
-			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			_ => null,
 		} ?? switch (path) {
+			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
+			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',
 			'log.clearAllLogsDesc' => 'すべてのログデータをクリア',
 			'log.confirmClearAllLogs' => '確認クリア',

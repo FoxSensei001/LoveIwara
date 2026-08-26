@@ -1855,8 +1855,14 @@ class TranslationsSettingsEn {
 	/// en: 'Privacy Mode'
 	String get activeBackgroundPrivacyMode => 'Privacy Mode';
 
-	/// en: 'Prevent screenshots, hide screen when running in the background...'
-	String get activeBackgroundPrivacyModeDesc => 'Prevent screenshots, hide screen when running in the background...';
+	/// en: 'Block screenshots and screen recording, and hide the screen in the background'
+	String get activeBackgroundPrivacyModeDesc => 'Block screenshots and screen recording, and hide the screen in the background';
+
+	/// en: 'Hide the screen when the app goes to the background (this platform cannot block screenshots)'
+	String get activeBackgroundPrivacyModeDescNonAndroid => 'Hide the screen when the app goes to the background (this platform cannot block screenshots)';
+
+	/// en: 'Block screenshots and screen recording'
+	String get activeBackgroundPrivacyModeDescScreenshotOnly => 'Block screenshots and screen recording';
 
 	/// en: 'Privacy'
 	String get privacy => 'Privacy';
@@ -1867,8 +1873,8 @@ class TranslationsSettingsEn {
 	/// en: 'Enable app lock'
 	String get appLockEnabled => 'Enable app lock';
 
-	/// en: 'Require a PIN or biometrics to open the app'
-	String get appLockEnabledDesc => 'Require a PIN or biometrics to open the app';
+	/// en: 'Require a PIN or biometrics to open the app; the background preview is hidden automatically'
+	String get appLockEnabledDesc => 'Require a PIN or biometrics to open the app; the background preview is hidden automatically';
 
 	/// en: 'On · PIN protected'
 	String get appLockEnabledSummary => 'On · PIN protected';
@@ -9019,11 +9025,13 @@ extension on Translations {
 			'settings.showUnprocessedMarkdownTextDesc' => 'Show the original text of the markdown',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => 'Privacy Mode',
-			'settings.activeBackgroundPrivacyModeDesc' => 'Prevent screenshots, hide screen when running in the background...',
+			'settings.activeBackgroundPrivacyModeDesc' => 'Block screenshots and screen recording, and hide the screen in the background',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => 'Hide the screen when the app goes to the background (this platform cannot block screenshots)',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => 'Block screenshots and screen recording',
 			'settings.privacy' => 'Privacy',
 			'settings.appLock' => 'App Lock',
 			'settings.appLockEnabled' => 'Enable app lock',
-			'settings.appLockEnabledDesc' => 'Require a PIN or biometrics to open the app',
+			'settings.appLockEnabledDesc' => 'Require a PIN or biometrics to open the app; the background preview is hidden automatically',
 			'settings.appLockEnabledSummary' => 'On · PIN protected',
 			'settings.appLockDisabledSummary' => 'Off',
 			'settings.appLockTimeout' => 'Lock after leaving app',
@@ -9463,10 +9471,10 @@ extension on Translations {
 			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
 			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
 			'settings.downloadSettings.variableTitle' => 'Title',
-			'settings.downloadSettings.variableAuthor' => 'Author name',
-			'settings.downloadSettings.variableUsername' => 'Author username',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableAuthor' => 'Author name',
+			'settings.downloadSettings.variableUsername' => 'Author username',
 			'settings.downloadSettings.variableQuality' => 'Video quality',
 			'settings.downloadSettings.variableFilename' => 'Original filename',
 			'settings.downloadSettings.variableId' => 'Content ID',
@@ -9977,10 +9985,10 @@ extension on Translations {
 			'download.copyDownloadUrl' => 'Copy Download URL',
 			'download.showInFolder' => 'Show in Folder',
 			'download.deleteTask' => 'Delete Task',
-			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
-			'download.forceDeleteTask' => 'Force Delete Task',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
+			'download.forceDeleteTask' => 'Force Delete Task',
 			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => 'Downloading ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => 'Downloading ${downloaded} • ${speed}MB/s',
@@ -10491,10 +10499,10 @@ extension on Translations {
 			'diagnostics.maxFileSizeSubtitle' => 'Rotate when threshold is reached',
 			'diagnostics.rotatedFileCountTitle' => 'Main log rotated file count',
 			'diagnostics.rotatedFileCountSubtitle' => 'Number of retained files excluding the current file',
-			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
-			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
+			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
 			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',
 			'diagnostics.hangRotatedFileCountSubtitle' => 'Control retained history for hang_events',
 			'diagnostics.healthSectionTitle' => 'Log Health',

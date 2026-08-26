@@ -753,11 +753,13 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownTextDesc => '显示Markdown的原始文本';
 	@override String get markdown => 'Markdown';
 	@override String get activeBackgroundPrivacyMode => '隐私模式';
-	@override String get activeBackgroundPrivacyModeDesc => '禁止截图、后台运行时隐藏画面...';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截图与录屏，并在切到后台时隐藏画面';
+	@override String get activeBackgroundPrivacyModeDescNonAndroid => '切到后台时隐藏画面（当前平台无法阻止截图）';
+	@override String get activeBackgroundPrivacyModeDescScreenshotOnly => '禁止截图与录屏';
 	@override String get privacy => '隐私';
 	@override String get appLock => '应用锁';
 	@override String get appLockEnabled => '启用应用锁';
-	@override String get appLockEnabledDesc => '打开应用时需要使用 PIN 或生物验证';
+	@override String get appLockEnabledDesc => '打开应用时需要使用 PIN 或生物验证，并自动隐藏后台画面';
 	@override String get appLockEnabledSummary => '已开启 · PIN 保护';
 	@override String get appLockDisabledSummary => '未开启';
 	@override String get appLockTimeout => '离开应用后锁定';
@@ -4076,11 +4078,13 @@ extension on TranslationsZhCn {
 			'settings.showUnprocessedMarkdownTextDesc' => '显示Markdown的原始文本',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => '隐私模式',
-			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图、后台运行时隐藏画面...',
+			'settings.activeBackgroundPrivacyModeDesc' => '禁止截图与录屏，并在切到后台时隐藏画面',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => '切到后台时隐藏画面（当前平台无法阻止截图）',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => '禁止截图与录屏',
 			'settings.privacy' => '隐私',
 			'settings.appLock' => '应用锁',
 			'settings.appLockEnabled' => '启用应用锁',
-			'settings.appLockEnabledDesc' => '打开应用时需要使用 PIN 或生物验证',
+			'settings.appLockEnabledDesc' => '打开应用时需要使用 PIN 或生物验证，并自动隐藏后台画面',
 			'settings.appLockEnabledSummary' => '已开启 · PIN 保护',
 			'settings.appLockDisabledSummary' => '未开启',
 			'settings.appLockTimeout' => '离开应用后锁定',
@@ -4520,10 +4524,10 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadPathSetTo' => '下载路径已设置为',
 			'settings.downloadSettings.setPathFailed' => '设置路径失败',
 			'settings.downloadSettings.variableTitle' => '标题',
-			'settings.downloadSettings.variableAuthor' => '作者名称',
-			'settings.downloadSettings.variableUsername' => '作者用户名',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableAuthor' => '作者名称',
+			'settings.downloadSettings.variableUsername' => '作者用户名',
 			'settings.downloadSettings.variableQuality' => '视频质量',
 			'settings.downloadSettings.variableFilename' => '原始文件名',
 			'settings.downloadSettings.variableId' => '内容ID',
@@ -5034,10 +5038,10 @@ extension on TranslationsZhCn {
 			'download.resume' => '继续',
 			'download.copyDownloadUrl' => '复制下载链接',
 			'download.showInFolder' => '在文件夹中显示',
-			'download.deleteTask' => '删除任务',
-			'download.deleteTaskConfirmation' => '确定要删除这个下载任务吗？\n任务的文件也会被删除。',
 			_ => null,
 		} ?? switch (path) {
+			'download.deleteTask' => '删除任务',
+			'download.deleteTaskConfirmation' => '确定要删除这个下载任务吗？\n任务的文件也会被删除。',
 			'download.forceDeleteTaskConfirmation' => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。',
 			'download.downloadingProgressForVideoTask' => ({required Object downloaded, required Object total, required Object progress, required Object speed}) => '下载中 ${downloaded}/${total} (${progress}%) • ${speed}MB/s',
 			'download.downloadingOnlyDownloadedAndSpeed' => ({required Object downloaded, required Object speed}) => '下载中 ${downloaded} • ${speed}MB/s',
@@ -5548,10 +5552,10 @@ extension on TranslationsZhCn {
 			'log.showLogStats' => '显示日志统计信息',
 			'log.logExportSuccess' => '日志导出成功',
 			'log.logExportFailed' => ({required Object error}) => '日志导出失败: ${error}',
-			'log.showLogStatsDesc' => '查看各种类型日志的统计数据',
-			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			_ => null,
 		} ?? switch (path) {
+			'log.showLogStatsDesc' => '查看各种类型日志的统计数据',
+			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			'log.clearAllLogs' => '清理所有日志',
 			'log.clearAllLogsDesc' => '清理所有日志数据',
 			'log.confirmClearAllLogs' => '确认清理',

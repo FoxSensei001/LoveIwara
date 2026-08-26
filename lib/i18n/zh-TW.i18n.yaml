@@ -606,11 +606,13 @@ settings:
   showUnprocessedMarkdownTextDesc: 顯示Markdown的原始文字
   markdown: Markdown
   activeBackgroundPrivacyMode: 隱私模式
-  activeBackgroundPrivacyModeDesc: 禁止截圖、後台執行時隱藏畫面...
+  activeBackgroundPrivacyModeDesc: 禁止截圖與錄影，並在切到背景時隱藏畫面
+  activeBackgroundPrivacyModeDescNonAndroid: 切到背景時隱藏畫面（目前平台無法阻止截圖）
+  activeBackgroundPrivacyModeDescScreenshotOnly: 禁止截圖與錄影
   privacy: 隱私
   appLock: 應用程式鎖
   appLockEnabled: 啟用應用程式鎖
-  appLockEnabledDesc: 開啟應用程式時需要使用 PIN 或生物辨識
+  appLockEnabledDesc: 開啟應用程式時需要使用 PIN 或生物辨識，並自動隱藏背景畫面
   appLockEnabledSummary: 已開啟 · PIN 保護
   appLockDisabledSummary: 未開啟
   appLockTimeout: 離開應用程式後鎖定

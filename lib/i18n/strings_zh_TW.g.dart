@@ -753,11 +753,13 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get showUnprocessedMarkdownTextDesc => '顯示Markdown的原始文字';
 	@override String get markdown => 'Markdown';
 	@override String get activeBackgroundPrivacyMode => '隱私模式';
-	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖、後台執行時隱藏畫面...';
+	@override String get activeBackgroundPrivacyModeDesc => '禁止截圖與錄影，並在切到背景時隱藏畫面';
+	@override String get activeBackgroundPrivacyModeDescNonAndroid => '切到背景時隱藏畫面（目前平台無法阻止截圖）';
+	@override String get activeBackgroundPrivacyModeDescScreenshotOnly => '禁止截圖與錄影';
 	@override String get privacy => '隱私';
 	@override String get appLock => '應用程式鎖';
 	@override String get appLockEnabled => '啟用應用程式鎖';
-	@override String get appLockEnabledDesc => '開啟應用程式時需要使用 PIN 或生物辨識';
+	@override String get appLockEnabledDesc => '開啟應用程式時需要使用 PIN 或生物辨識，並自動隱藏背景畫面';
 	@override String get appLockEnabledSummary => '已開啟 · PIN 保護';
 	@override String get appLockDisabledSummary => '未開啟';
 	@override String get appLockTimeout => '離開應用程式後鎖定';
@@ -4076,11 +4078,13 @@ extension on TranslationsZhTw {
 			'settings.showUnprocessedMarkdownTextDesc' => '顯示Markdown的原始文字',
 			'settings.markdown' => 'Markdown',
 			'settings.activeBackgroundPrivacyMode' => '隱私模式',
-			'settings.activeBackgroundPrivacyModeDesc' => '禁止截圖、後台執行時隱藏畫面...',
+			'settings.activeBackgroundPrivacyModeDesc' => '禁止截圖與錄影，並在切到背景時隱藏畫面',
+			'settings.activeBackgroundPrivacyModeDescNonAndroid' => '切到背景時隱藏畫面（目前平台無法阻止截圖）',
+			'settings.activeBackgroundPrivacyModeDescScreenshotOnly' => '禁止截圖與錄影',
 			'settings.privacy' => '隱私',
 			'settings.appLock' => '應用程式鎖',
 			'settings.appLockEnabled' => '啟用應用程式鎖',
-			'settings.appLockEnabledDesc' => '開啟應用程式時需要使用 PIN 或生物辨識',
+			'settings.appLockEnabledDesc' => '開啟應用程式時需要使用 PIN 或生物辨識，並自動隱藏背景畫面',
 			'settings.appLockEnabledSummary' => '已開啟 · PIN 保護',
 			'settings.appLockDisabledSummary' => '未開啟',
 			'settings.appLockTimeout' => '離開應用程式後鎖定',
@@ -4520,10 +4524,10 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.downloadPathSetTo' => '下載路徑已設定為',
 			'settings.downloadSettings.setPathFailed' => '設定路徑失敗',
 			'settings.downloadSettings.variableTitle' => '標題',
-			'settings.downloadSettings.variableAuthor' => '作者名稱',
-			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.variableAuthor' => '作者名稱',
+			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
 			'settings.downloadSettings.variableQuality' => '影片品質',
 			'settings.downloadSettings.variableFilename' => '原始檔案名稱',
 			'settings.downloadSettings.variableId' => '內容ID',
@@ -5034,10 +5038,10 @@ extension on TranslationsZhTw {
 			'download.downloadList' => '下載列表',
 			'download.viewDownloadList' => '查看下載列表',
 			'download.download' => '下載',
-			'download.selectDownloadTitle' => '選擇下載',
-			'download.qualitySectionLabel' => '清晰度',
 			_ => null,
 		} ?? switch (path) {
+			'download.selectDownloadTitle' => '選擇下載',
+			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '儲存到',
 			'download.lastUsedBadge' => '上次選擇',
 			'download.pickedBadge' => '已選擇',
@@ -5548,10 +5552,10 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.acknowledge' => '我知道了',
 			'crashRecoveryDialog.supportEmailCopied' => '信箱已複製',
 			'linkInputDialog.title' => '輸入連結',
-			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
-			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
+			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '未檢測到有效的${webName}連結',
 			'linkInputDialog.multipleLinksDetected' => '檢測到多個連結，請選擇一個：',

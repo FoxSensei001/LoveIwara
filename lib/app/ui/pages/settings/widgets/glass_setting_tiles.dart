@@ -247,6 +247,13 @@ class GlassSwitchItem extends StatelessWidget {
   final bool value;
   final ValueChanged<bool>? onChanged;
 
+  /// 正在等异步结果：尾部换成转圈，并把整行的点击闸掉。
+  ///
+  /// 给「拨一下要等一会儿」的开关用（跑 PBKDF2、写 Keystore、发请求）。
+  /// 光把 [onChanged] 置空只是让行点不动，用户看不出是在忙还是坏了；
+  /// 而不闸点击又会让人反复拨，把慢操作重复触发一遍。
+  final bool busy;
+
   const GlassSwitchItem({
     super.key,
     this.icon,
@@ -254,17 +261,41 @@ class GlassSwitchItem extends StatelessWidget {
     this.subtitle,
     required this.value,
     this.onChanged,
+    this.busy = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final enabled = onChanged != null;
+    final enabled = onChanged != null && !busy;
     return GlassSettingTile(
       icon: icon,
       title: title,
       subtitle: subtitle,
-      trailing: GlassToggle(value: value, onChanged: onChanged),
+      trailing: busy
+          ? const GlassTileSpinner()
+          : GlassToggle(value: value, onChanged: onChanged),
       onTap: enabled ? () => onChanged!(!value) : null,
+    );
+  }
+}
+
+/// 设置行尾部的等待指示器，占位宽度与 [GlassToggle] 的轨道一致，
+/// 换上换下时整行不会横向抖一下。
+class GlassTileSpinner extends StatelessWidget {
+  const GlassTileSpinner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 52,
+      height: 32,
+      child: Center(
+        child: SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
     );
   }
 }
