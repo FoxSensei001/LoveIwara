@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 视频画面缩放 / 平移手势层（包裹整个播放器栈）。
 ///
@@ -317,6 +318,15 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
   void _onPointerSignal(PointerSignalEvent event) {
     if (event is! PointerScrollEvent) return;
     final keyboard = HardwareKeyboard.instance;
+    // 诊断：真机（安卓平板 + 外接鼠标/键盘）上报 Ctrl/Shift+滚轮无效。
+    // 这行能分家：日志里没有这条＝滚轮事件压根没送到（命中测试/平台问题）；
+    // 有这条但 ctrl/shift 全 false＝修饰键状态没读到（HardwareKeyboard 在
+    // 该平台没跟上），两者的修法完全不同。
+    LogUtils.d(
+      '[滚轮] dy=${event.scrollDelta.dy.toStringAsFixed(1)} '
+      'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed}',
+      'WheelZoom',
+    );
     final oldScale = _c.videoZoomScale.value;
     final oldRotation = _c.videoZoomRotation.value;
 

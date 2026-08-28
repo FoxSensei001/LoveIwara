@@ -15,6 +15,8 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
@@ -157,6 +159,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     // KeyUpEvent 可能不再回到本 KeyboardListener，需要主动收尾长按倍速，避免卡在倍速态。
     WidgetsBinding.instance.addObserver(this);
     _focusNode.addListener(_handleFocusChange);
+    // 视频域按键不再依赖「焦点恰好落在本子树」——那会让快捷键在绝大多数时候
+    // 静默失效（真机实测：新开视频页 20 秒内注入 5 次按键一条都收不到）。
+    // 改由应用根部统一收键后询问本表，见 ShortcutTargetRegistry 的说明。
+    ShortcutTargetRegistry.instance.register(
+      owner: this,
+      scope: ShortcutScope.video,
+      handle: _handlePlayerKeyEvent,
+      isEligible: _acceptsShortcutsNow,
+    );
     // 如果是全屏状态
     if (widget.isFullScreen) {
       _appService.hideSystemUI();
@@ -274,6 +285,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   @override
   void dispose() {
+    ShortcutTargetRegistry.instance.unregister(this);
     if (widget.isFullScreen) {
       // 路由内全屏接力时，不要在旧的 fullscreen overlay dispose 时闪回系统 UI。
       final suppressCleanup = widget.myVideoStateController
@@ -379,8 +391,35 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _triggerRightRipple();
   }
 
+  /// 本层此刻是否应该接管视频域按键。
+  ///
+  /// 每次派发都实时求值（不能用事件标记：本项目已踩过「RouteObserver 不把
+  /// removeRoute / pushReplacement 转成 didPopNext，事件标记会永久冻结」的坑）。
+  /// 四道闸门缺一不可：
+  /// 1. 本层与当前全屏态一致——内嵌层与全屏叠加层会**同时挂载**，只能有一个接；
+  /// 2. 本页仍是所在 Navigator 的栈顶——视频页可层层叠加（A 在播→push B），
+  ///    被盖住的 A 不能抢 B 的按键；本应用所有页面路由都在 shell navigator 上，
+  ///    因此这一条对「另一个视频页 / 作者页 / 设置页压上来」全部成立；
+  /// 3. 没有弹窗浮层——对话框/底部弹层开着时按键不该被播放器吃掉；
+  /// 4. 应用在前台——PiP / 后台时不响应。
+  bool _acceptsShortcutsNow() {
+    if (!mounted) return false;
+    if (widget.isFullScreen !=
+        widget.myVideoStateController.isFullscreen.value) {
+      return false;
+    }
+    if (ModalRoute.isCurrentOf(context) != true) return false;
+    if (OverlayTracker.instance.hasOverlay) return false;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return false;
+    }
+    return true;
+  }
+
   /// 播放器键盘事件入口：区分按下/松开，以支持进度键长按倍速。
-  KeyEventResult _handlePlayerKeyEvent(FocusNode node, KeyEvent event) {
+  ///
+  /// 由 [ShortcutTargetRegistry] 从应用根部派发进来，不再是 Focus 回调。
+  KeyEventResult _handlePlayerKeyEvent(KeyEvent event) {
     // 松开进度键：决定是点按 seek 还是退出长按倍速。
     if (event is KeyUpEvent) {
       if (_heldSeekKeyId != null && event.logicalKey.keyId == _heldSeekKeyId) {
@@ -393,13 +432,23 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
     final action = _keybindingService.resolve(event, ShortcutScope.video);
+    // 诊断：与设置页「[录入]」那行打同样的字段。自定义键不生效时，对比两行的
+    // keyId / 修饰键即可分家——keyId 不同＝录入与运行时拿到的逻辑键不是一个；
+    // keyId 相同但 matched=false＝修饰键状态对不上（_modifiersMatch 要求完全一致）。
+    final keyboard = HardwareKeyboard.instance;
+    LogUtils.d(
+      '[按下] keyId=${event.logicalKey.keyId} '
+      'debugName=${event.logicalKey.debugName} '
+      'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed} '
+      'alt=${keyboard.isAltPressed} meta=${keyboard.isMetaPressed} '
+      'matched=${action?.id}',
+      'Keybinding',
+    );
     if (action == null) return KeyEventResult.ignored;
 
-    // 初始播放封面阶段只允许「播放/暂停」唤起首次播放。
+    // 初始播放封面阶段只放行不依赖「已打开媒体」的动作。
     if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
-      if (action == ShortcutAction.playPause) {
-        unawaited(widget.myVideoStateController.requestInitialPlayback());
-      }
+      _dispatchOnInitialPlaybackCover(action);
       // 命中视频域绑定即视为已消费，阻止事件冒泡到全局快捷键层造成重复触发。
       return KeyEventResult.handled;
     }
@@ -427,15 +476,35 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
     if (action == null) return;
 
-    // 初始播放封面阶段只允许「播放/暂停」唤起首次播放。
+    // 初始播放封面阶段只放行不依赖「已打开媒体」的动作。
     if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
-      if (action == ShortcutAction.playPause) {
-        unawaited(widget.myVideoStateController.requestInitialPlayback());
-      }
+      _dispatchOnInitialPlaybackCover(action);
       return;
     }
 
     _dispatchKeybindingAction(action);
+  }
+
+  /// 初始播放封面阶段的动作分派：键盘与鼠标两条入口共用这一处。
+  ///
+  /// 放行名单由 [isShortcutAllowedOnInitialPlaybackCover] 单点持有，两条入口不再
+  /// 各自判断，避免出现「一边能用一边被静默吞掉」的不对称。
+  void _dispatchOnInitialPlaybackCover(ShortcutAction action) {
+    if (!isShortcutAllowedOnInitialPlaybackCover(action)) return;
+    switch (action) {
+      case ShortcutAction.playPause:
+        // 唯一会唤起首次播放的动作。
+        unawaited(widget.myVideoStateController.requestInitialPlayback());
+        break;
+      case ShortcutAction.toggleFullscreen:
+        // 只切换呈现方式，不打开媒体、不开始播放：全屏不是播放意图。
+        _toggleFullscreen();
+        break;
+      default:
+        // 名单里新增了动作却没在这里接线时暴露出来，别静默吞掉。
+        assert(false, '初始播放封面放行名单新增了 $action 但未接线');
+        break;
+    }
   }
 
   /// 将解析出的快捷键动作分派到对应的播放器行为。
@@ -598,60 +667,81 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     _seekLongPressActive = false;
   }
 
+  // ---------------------------------------------------------------------------
+  // 快进 / 快退：跳转与波纹动画是两件事，必须分开
+  //
+  // 此前两者揉在一处，且「动画还在放就 return」的闸门写在跳转**之前**——波纹活跃
+  // 窗口约 1 秒（800ms 控制器 + 200ms 错峰），于是这 1 秒内连按会把跳转连同动画
+  // 一起丢掉，表现为「方向键/双击连按不累加，第 2、3 次毫无反应」。
+  //
+  // 现在：跳转永远执行；只有动画受闸门节流（动画正在放就不重起，避免闪烁）。
+  // ---------------------------------------------------------------------------
+
   void _triggerLeftRipple() {
-    if (_isLeftRippleActive1 || _isLeftRippleActive2) return;
-    setState(() {
-      _isLeftRippleActive1 = true;
-      _isLeftRippleActive2 = false;
-    });
-    _leftRippleController1.forward(from: 0);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        setState(() {
-          _isLeftRippleActive2 = true;
-        });
-        _leftRippleController2.forward(from: 0);
-      }
-    });
-
-    // 获取当前的时间
-    Duration currentPosition = widget.myVideoStateController.currentPosition;
-    int seconds = _configService[ConfigKey.REWIND_SECONDS_KEY] as int;
-    if (currentPosition.inSeconds - seconds > 0) {
-      currentPosition = Duration(seconds: currentPosition.inSeconds - seconds);
-    } else {
-      currentPosition = Duration.zero;
-    }
-
-    unawaited(widget.myVideoStateController.handleSeek(currentPosition));
+    _seekByConfiguredStep(forward: false);
+    _playSeekRipple(forward: false);
   }
 
   void _triggerRightRipple() {
-    if (_isRightRippleActive1 || _isRightRippleActive2) return;
+    _seekByConfiguredStep(forward: true);
+    _playSeekRipple(forward: true);
+  }
+
+  /// 按设置里的步长跳一步。
+  ///
+  /// [MyVideoStateController.handleSeek] 会**同步**推进 `currentPosition`，
+  /// 所以连按时后一次是从前一次的新位置继续累加，而不是都从同一个基准算。
+  void _seekByConfiguredStep({required bool forward}) {
+    final controller = widget.myVideoStateController;
+    final Duration current = controller.currentPosition;
+
+    final int seconds = forward
+        ? _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY]
+        : _configService[ConfigKey.REWIND_SECONDS_KEY];
+    final Duration target = MyVideoStateController.resolveSeekStepTarget(
+      current: current,
+      total: controller.totalDuration.value,
+      stepSeconds: seconds,
+      forward: forward,
+    );
+
+    // 不传 startPlayback：暂停态跳转就该保持暂停。
+    unawaited(controller.handleSeek(target));
+  }
+
+  /// 播放快进/快退的双层波纹。纯装饰，正在放就不重起。
+  void _playSeekRipple({required bool forward}) {
+    final bool active = forward
+        ? (_isRightRippleActive1 || _isRightRippleActive2)
+        : (_isLeftRippleActive1 || _isLeftRippleActive2);
+    if (active) return;
+
     setState(() {
-      _isRightRippleActive1 = true;
-      _isRightRippleActive2 = false;
-    });
-    _rightRippleController1.forward(from: 0);
-    Future.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        setState(() {
-          _isRightRippleActive2 = true;
-        });
-        _rightRippleController2.forward(from: 0);
+      if (forward) {
+        _isRightRippleActive1 = true;
+        _isRightRippleActive2 = false;
+      } else {
+        _isLeftRippleActive1 = true;
+        _isLeftRippleActive2 = false;
       }
     });
+    (forward ? _rightRippleController1 : _leftRippleController1).forward(
+      from: 0,
+    );
 
-    // 获取当前的时间
-    Duration currentPosition = widget.myVideoStateController.currentPosition;
-    Duration totalDuration = widget.myVideoStateController.totalDuration.value;
-    int seconds = _configService[ConfigKey.FAST_FORWARD_SECONDS_KEY] as int;
-    if (currentPosition.inSeconds + seconds < totalDuration.inSeconds) {
-      currentPosition = Duration(seconds: currentPosition.inSeconds + seconds);
-    } else {
-      currentPosition = totalDuration;
-    }
-    unawaited(widget.myVideoStateController.handleSeek(currentPosition));
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!mounted) return;
+      setState(() {
+        if (forward) {
+          _isRightRippleActive2 = true;
+        } else {
+          _isLeftRippleActive2 = true;
+        }
+      });
+      (forward ? _rightRippleController2 : _leftRippleController2).forward(
+        from: 0,
+      );
+    });
   }
 
   // 单击事件
@@ -940,9 +1030,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                   },
                   child: Listener(
                     onPointerDown: _handlePlayerPointerDown,
+                    // 这只 Focus 只保留「焦点归属」用途（长按倍速要靠失焦收尾），
+                    // **不再挂 onKeyEvent**：按键统一从应用根部经
+                    // ShortcutTargetRegistry 派发进来，两处都收会双触发。
                     child: Focus(
                       focusNode: _focusNode,
-                      onKeyEvent: _handlePlayerKeyEvent,
                       child: Container(
                         padding: EdgeInsets.only(top: paddingTop),
                         // 画面缩放/平移手势层：作为整个播放器栈的祖先，可靠侦测双指捏合

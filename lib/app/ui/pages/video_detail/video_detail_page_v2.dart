@@ -497,6 +497,16 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     innerPlaylistContext: innerPlaylistContext,
                   );
                 }
+                // 全屏时播放器渲染在全屏叠加层，这里必须让位——否则在
+                // 「尚未 ready + 已进全屏」这个窗口里，内嵌与全屏两只
+                // MyVideoScreen 会同时挂载，各带一套 Listener 与 FocusScope。
+                // 目前靠 Stack 命中测试（叠加层在最上层、命中即停）兜住没出事，
+                // 但那是运气不是设计：任何绕过命中测试的输入方案（如全局指针
+                // 路由）都会立刻变成双派发。此守卫与 _buildPureVideoPlayer /
+                // _buildVideoPlayerContent 两处保持一致。
+                if (controller.isFullscreen.value) {
+                  return const SizedBox.shrink();
+                }
                 // 否则显示播放器（包含加载状态）
                 return MyVideoScreen(
                   myVideoStateController: controller,
@@ -616,8 +626,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           ),
                         );
                       }
-                      // 否则显示骨架屏
-                      else {
+                      // 否则显示骨架屏（全屏时同样让位给全屏叠加层，
+                      // 理由见 _buildWideScreenLayout 里同款守卫的说明）
+                      else if (controller.isFullscreen.value) {
+                        return SizedBox(
+                          width: screenSize.width,
+                          height: videoHeight,
+                        );
+                      } else {
                         return SizedBox(
                           width: screenSize.width,
                           height: videoHeight,

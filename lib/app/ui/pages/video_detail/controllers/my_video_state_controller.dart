@@ -3706,7 +3706,38 @@ class MyVideoStateController extends GetxController
     toShowCurrentPosition.value = position;
   }
 
-  Future<void> handleSeek(Duration newPosition) async {
+  /// 快进 / 快退一步的目标位置。
+  ///
+  /// 纯函数，边界语义与历史实现保持一致：向前越界钉到 [total]（[total] 未知即为
+  /// 零时，结果同样是零）；向后越界钉到零。抽出来是为了让「连按累加」和两端钳制
+  /// 能被单测覆盖——调用方每次都拿**当前**位置来算，而 [handleSeek] 是同步推进
+  /// `currentPosition` 的，因此连按天然累加。
+  static Duration resolveSeekStepTarget({
+    required Duration current,
+    required Duration total,
+    required int stepSeconds,
+    required bool forward,
+  }) {
+    if (forward) {
+      return current.inSeconds + stepSeconds < total.inSeconds
+          ? Duration(seconds: current.inSeconds + stepSeconds)
+          : total;
+    }
+    return current.inSeconds - stepSeconds > 0
+        ? Duration(seconds: current.inSeconds - stepSeconds)
+        : Duration.zero;
+  }
+
+  /// 跳转到 [newPosition]。
+  ///
+  /// [startPlayback] 为 false（默认）时**保持当前播放/暂停状态**：暂停时拖进度条、
+  /// 双击快进、按方向键都只改位置，不会把视频弄成播放态。此前这里无条件
+  /// `videoPlaying = true` + `player.play()`，于是「只想微调进度」总是连带开播。
+  /// 仅「点简介/评论里的时间戳跳转」这类明确表达了播放意图的入口才传 true。
+  Future<void> handleSeek(
+    Duration newPosition, {
+    bool startPlayback = false,
+  }) async {
     final generation = ++_seekGeneration;
     // 标记正在等待seek完成
     isWaitingForSeek.value = true;
@@ -3723,13 +3754,19 @@ class MyVideoStateController extends GetxController
       buffers.value = updatedBuffers;
     }
 
-    // 先更新UI位置，立即同步到显示位置，避免进度条跳回
+    // 先更新UI位置，立即同步到显示位置，避免进度条跳回。
+    // 这一行是同步的，因此连按快进时后一次能从前一次的新位置继续累加。
     currentPosition = newPosition;
     _syncDisplayPosition(newPosition);
-    videoPlaying.value = true;
+
+    final bool shouldPlay = startPlayback || videoPlaying.value;
+    videoPlaying.value = shouldPlay;
 
     try {
-      await player.play();
+      // 暂停态跳转不唤起播放：mpv 在暂停下同样可以 seek。
+      if (shouldPlay) {
+        await player.play();
+      }
       await player.seek(newPosition);
     } catch (e, stackTrace) {
       if (!_isDisposed) {
@@ -3779,7 +3816,8 @@ class MyVideoStateController extends GetxController
       target = total;
     }
 
-    await handleSeek(target);
+    // 点时间戳是明确的播放意图，这里显式要求开播（handleSeek 默认保持暂停态）。
+    await handleSeek(target, startPlayback: true);
 
     // handleSeek 会恢复播放（videoPlaying=true），窄屏下固定头部会从“收缩态的工具栏
     // 高度”重新展开为完整视频高度。但此时滚动偏移仍停留在收缩位置，scrollRatio > 0，
