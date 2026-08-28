@@ -81,19 +81,48 @@ jobs:
         run: flutter build apk --release
 
       - name: Rename APKs with version
+        id: apks
         run: |
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          echo "version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
           mkdir -p result
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk result/i_iwara-${APP_VERSION}-arm64-v8a.apk
           cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk result/i_iwara-${APP_VERSION}-armeabi-v7a.apk
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk result/i_iwara-${APP_VERSION}-x86_64.apk
           cp build/app/outputs/flutter-apk/app-release.apk result/i_iwara-${APP_VERSION}-universal.apk
 
-      - name: Upload Android Builds
+      # 四个 APK 各自成为一项产物，而不是打成一个 android_builds 包。
+      # 产物名即文件名：Actions 的下载列表显示的是产物名，所以这样列表本身
+      # 就是一份「装哪个下哪个」的文件清单，只想要 arm64 的人不必把四个一起拖下来。
+      # if-no-files-found: error —— 拆成多步之后，某一步文件名对不上会产出一个空
+      # 产物且构建照样绿；这里让它直接失败。
+      - name: Upload APK (arm64-v8a)
         uses: actions/upload-artifact@v7
         with:
-          name: android_builds
-          path: result/
+          name: i_iwara-${{ steps.apks.outputs.version }}-arm64-v8a.apk
+          path: result/i_iwara-${{ steps.apks.outputs.version }}-arm64-v8a.apk
+          if-no-files-found: error
+
+      - name: Upload APK (armeabi-v7a)
+        uses: actions/upload-artifact@v7
+        with:
+          name: i_iwara-${{ steps.apks.outputs.version }}-armeabi-v7a.apk
+          path: result/i_iwara-${{ steps.apks.outputs.version }}-armeabi-v7a.apk
+          if-no-files-found: error
+
+      - name: Upload APK (x86_64)
+        uses: actions/upload-artifact@v7
+        with:
+          name: i_iwara-${{ steps.apks.outputs.version }}-x86_64.apk
+          path: result/i_iwara-${{ steps.apks.outputs.version }}-x86_64.apk
+          if-no-files-found: error
+
+      - name: Upload APK (universal)
+        uses: actions/upload-artifact@v7
+        with:
+          name: i_iwara-${{ steps.apks.outputs.version }}-universal.apk
+          path: result/i_iwara-${{ steps.apks.outputs.version }}-universal.apk
+          if-no-files-found: error
 
   build-windows:
     if: ${{ inputs.build_windows }}
@@ -134,16 +163,20 @@ jobs:
         run: python windows/build.py
 
       - name: Prepare Windows Artifacts
+        id: pkg
         run: |
           mkdir -p result
           mv build/windows/i_iwara-*-windows-setup.exe result/
+          # 产物名取真实文件名（含版本号），让下载列表直接显示装机文件是什么。
+          echo "file=$(cd result && ls i_iwara-*-windows-setup.exe)" >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: Upload Windows Builds
+      - name: Upload Windows installer
         uses: actions/upload-artifact@v7
         with:
-          name: windows_builds
-          path: result/
+          name: ${{ steps.pkg.outputs.file }}
+          path: result/${{ steps.pkg.outputs.file }}
+          if-no-files-found: error
 
   build-macos:
     if: ${{ inputs.build_macos }}
@@ -215,15 +248,18 @@ jobs:
         run: bash macos/packaging/build_dmg.sh
 
       - name: Collect macOS artifact
+        id: pkg
         run: |
           mkdir -p result
           mv build/macos/i_iwara-*-macos.dmg result/
+          echo "file=$(cd result && ls i_iwara-*-macos.dmg)" >> "$GITHUB_OUTPUT"
 
-      - name: Upload macOS build
+      - name: Upload macOS DMG
         uses: actions/upload-artifact@v7
         with:
-          name: macos-release
-          path: result/
+          name: ${{ steps.pkg.outputs.file }}
+          path: result/${{ steps.pkg.outputs.file }}
+          if-no-files-found: error
 
   build-ios:
     if: ${{ inputs.build_ios }}
@@ -267,8 +303,10 @@ jobs:
         run: flutter build ios --release --no-codesign
 
       - name: Create IPA with version
+        id: pkg
         run: |
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          echo "file=i_iwara-${APP_VERSION}-ios.ipa" >> "$GITHUB_OUTPUT"
           mkdir -p result
           cd build/ios/iphoneos
 
@@ -291,11 +329,12 @@ jobs:
           cp -r Runner.app Payload
           zip -r ../../../result/i_iwara-${APP_VERSION}-ios.ipa Payload
 
-      - name: Upload iOS build
+      - name: Upload iOS IPA
         uses: actions/upload-artifact@v7
         with:
-          name: ios-release
-          path: result/i_iwara-*-ios.ipa
+          name: ${{ steps.pkg.outputs.file }}
+          path: result/${{ steps.pkg.outputs.file }}
+          if-no-files-found: error
 
   build-linux:
     if: ${{ inputs.build_linux }}
@@ -328,13 +367,16 @@ jobs:
         run: flutter build linux --release
 
       - name: Create TAR archive
+        id: pkg
         run: |
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          echo "file=i_iwara-linux-${APP_VERSION}.tar.gz" >> "$GITHUB_OUTPUT"
           mkdir -p result
           tar -czf result/i_iwara-linux-$APP_VERSION.tar.gz -C build/linux/x64/release bundle
 
-      - name: Upload Linux build
+      - name: Upload Linux tarball
         uses: actions/upload-artifact@v7
         with:
-          name: linux-release
-          path: result/
+          name: ${{ steps.pkg.outputs.file }}
+          path: result/${{ steps.pkg.outputs.file }}
+          if-no-files-found: error
