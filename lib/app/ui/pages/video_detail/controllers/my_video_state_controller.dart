@@ -33,6 +33,7 @@ import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/utils/mpv_tuning.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -85,6 +86,62 @@ enum PlayPauseIntent {
   /// 取消「已请求但尚未开始」的首次播放：除了记下暂停意图，还要把封面从
   /// 加载转圈退回可点播放的状态。
   cancelPendingInitialPlayback,
+}
+
+/// 什么时候自动进入全屏。
+///
+/// **默认 [off]** —— 这是新增能力，不是新默认行为。
+enum AutoFullscreenMode {
+  /// 关：不自动进全屏（默认）
+  off,
+
+  /// 播放真的开始的那一刻才进。关掉了首次自动播放的用户会停在初始封面上，
+  /// 按下播放才全屏。
+  onPlaybackStart,
+
+  /// 一进详情页就进，不等播放。配合关掉的自动播放，会得到一个全屏的初始封面
+  /// 等着用户按播放——这是这一档的正常结果，不是缺陷。
+  onDetailPageEnter,
+}
+
+/// 把配置里存的字符串还原成档位；认不出来一律回到 [AutoFullscreenMode.off]，
+/// 这样脏数据/旧版本遗留值都退到「什么都不做」，绝不会意外把功能打开。
+AutoFullscreenMode autoFullscreenModeFromConfig(dynamic value) {
+  return AutoFullscreenMode.values.firstWhere(
+    (mode) => mode.name == value,
+    orElse: () => AutoFullscreenMode.off,
+  );
+}
+
+/// 自动进入**哪一种**全屏。
+///
+/// 这两种全屏在本应用里是并存且互斥的两件事，不是同一个东西的两种实现：
+/// - [systemFullscreen]：`isFullscreen`，移动端真旋转、桌面端让操作系统把窗口变全屏。
+/// - [appFullscreen]：`isDesktopAppFullScreen`，**仅桌面端**。窗口大小不变，
+///   隐藏侧边导航、保留标题栏，整只应用变成播放器。
+enum AutoFullscreenKind {
+  /// 系统全屏（默认，与手动点全屏钮一致）
+  systemFullscreen,
+
+  /// 应用全屏（仅桌面端；移动端会回落到 [systemFullscreen]）
+  appFullscreen,
+}
+
+/// 把配置里存的字符串还原成类型；认不出来一律回到 [AutoFullscreenKind.systemFullscreen]。
+AutoFullscreenKind autoFullscreenKindFromConfig(dynamic value) {
+  return AutoFullscreenKind.values.firstWhere(
+    (kind) => kind.name == value,
+    orElse: () => AutoFullscreenKind.systemFullscreen,
+  );
+}
+
+/// 触发自动全屏判定的时机。
+enum AutoFullscreenTrigger {
+  /// 详情页已经拿到足够信息（知道这不是私密/外站视频了）
+  detailPageReady,
+
+  /// 播放真的开始了（`player.stream.playing` 翻成 true）
+  playbackStarted,
 }
 
 /// 画面尺寸：视频画面在播放区域内的适配方式。
@@ -178,6 +235,29 @@ class MyVideoStateController extends GetxController
   final RxBool sliderDragLoadFinished = true.obs; // 拖动进度条加载完成
   final RxDouble playerPlaybackSpeed = 1.0.obs; // 播放速度
   final RxBool isDesktopAppFullScreen = false.obs; // 是否是应用全屏
+
+  /// 进入「应用全屏」（仅桌面端）。
+  ///
+  /// **收口成方法，不要再各处直接给 [isDesktopAppFullScreen] 赋值。** 这个标志与
+  /// `hideSystemUI/showSystemUI` 是**成对**的，分开写迟早漏一半——历史上就漏出过
+  /// 「窗口无法拖动、被锁死在视频分区」（见 video_detail_page_v2.dart dispose 处的注释）。
+  void enterDesktopAppFullscreen() {
+    if (_isDisposed) return;
+    // 应用全屏是桌面端独有的概念，移动端没有「窗口」可言
+    if (!GetPlatform.isDesktop) return;
+    if (isDesktopAppFullScreen.value) return;
+    // 仅隐藏侧边导航，保留顶栏，避免顶部 safeArea 留白丢失
+    appS.hideSystemUI(hideTitleBar: false);
+    isDesktopAppFullScreen.value = true;
+  }
+
+  /// 退出「应用全屏」，并把系统 UI 收回来。[enterDesktopAppFullscreen] 的逆操作。
+  void exitDesktopAppFullscreen() {
+    if (_isDisposed) return;
+    if (!isDesktopAppFullScreen.value) return;
+    isDesktopAppFullScreen.value = false;
+    appS.showSystemUI();
+  }
   Size? _desktopWindowSizeBeforeFullscreen;
   Offset? _desktopWindowPositionBeforeFullscreen;
   bool _desktopWindowWasMaximized = false;
@@ -241,6 +321,204 @@ class MyVideoStateController extends GetxController
   final Rxn<String> currentResolutionTag = Rxn<String>();
   final RxBool isDescriptionExpanded = false.obs;
   final RxBool isFullscreen = false.obs;
+
+  /// 本页是否已经自动进过一次全屏。
+  ///
+  /// 自动进全屏只发生在 **Initial Entry**：从作者页退回来、暂停后再播、
+  /// 换清晰度重开媒体，都会让判定被重新触发，但那些都不是首次进入。
+  /// 一个 controller 实例对应一个视频详情页，所以这个闸门以实例为界。
+  bool _autoFullscreenEntered = false;
+
+  Worker? _autoFullscreenWorkerMainError;
+  Worker? _autoFullscreenWorkerSourceError;
+  Worker? _autoFullscreenWorkerVideoInfo;
+
+  /// 这个视频现在**根本播不了**：私密/被删、外站视频、或视频源出错。
+  ///
+  /// 三种情况在自动全屏这件事上的待遇完全一样（不进、已经在里面就退出来），
+  /// 所以收成同一个判据，而不是三处各写一遍。
+  bool get isPlaybackBlocked =>
+      mainErrorWidget.value != null ||
+      videoSourceErrorMessage.value != null ||
+      videoInfo.value?.isExternalVideo == true;
+
+  /// 用户选的自动全屏时机。默认 [AutoFullscreenMode.off]。
+  AutoFullscreenMode get autoFullscreenMode => autoFullscreenModeFromConfig(
+    _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY],
+  );
+
+  /// 用户选的全屏类型。默认 [AutoFullscreenKind.systemFullscreen]。
+  AutoFullscreenKind get autoFullscreenKind => autoFullscreenKindFromConfig(
+    _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY],
+  );
+
+  /// 现在是不是已经在**任何一种**全屏里了。
+  ///
+  /// 自动进全屏不该在用户已经全屏时再插一脚——不管他当初进的是哪一种。
+  bool get isAnyFullscreenActive =>
+      isFullscreen.value || isDesktopAppFullScreen.value;
+
+  /// 这次实际要进哪种全屏。
+  ///
+  /// 应用全屏只有桌面端有；移动端选中了也一律回落到系统全屏，
+  /// 否则在手机上选了这一档会变成「设置开着但什么都不发生」。
+  @visibleForTesting
+  static AutoFullscreenKind resolveAutoFullscreenKind({
+    required AutoFullscreenKind configured,
+    required bool isDesktop,
+  }) => isDesktop ? configured : AutoFullscreenKind.systemFullscreen;
+
+  /// 这一次触发该不该自动进全屏。
+  ///
+  /// 档位与触发时机是**配对**的：选「播放时再进入」就只认 [playbackStarted]，
+  /// 选「进入详情页便进入」就只认 [detailPageReady]。两档共用同一套排除条件，
+  /// 否则加一档就要把私密视频、PiP、全屏接力这些判断再抄一遍。
+  @visibleForTesting
+  static bool shouldAutoEnterFullscreen({
+    required AutoFullscreenMode mode,
+    required AutoFullscreenTrigger trigger,
+    required bool alreadyEntered,
+    required bool isAnyFullscreenActive,
+    required bool isPiPMode,
+    required bool hasFullscreenHandoff,
+    required bool isPlaybackBlocked,
+    required bool hasVideoInfo,
+  }) {
+    if (mode == AutoFullscreenMode.off) return false;
+
+    // 档位决定听哪一声枪响
+    final AutoFullscreenTrigger expected = switch (mode) {
+      AutoFullscreenMode.onPlaybackStart => AutoFullscreenTrigger.playbackStarted,
+      AutoFullscreenMode.onDetailPageEnter =>
+        AutoFullscreenTrigger.detailPageReady,
+      AutoFullscreenMode.off => AutoFullscreenTrigger.playbackStarted,
+    };
+    if (trigger != expected) return false;
+
+    // 「进入详情页便进入」也要先知道这是个什么视频：videoInfo 还没回来时
+    // 无从判断私密/外站，这时进去就得再退出来，白闪一下。
+    if (trigger == AutoFullscreenTrigger.detailPageReady && !hasVideoInfo) {
+      return false;
+    }
+
+    // Initial Entry 之外不再自动进（回到已看过的页面、暂停后再播都不算）
+    if (alreadyEntered) return false;
+    // 已经在全屏里（系统的或应用的都算）就不用再进
+    if (isAnyFullscreenActive) return false;
+    // 边界 5：PiP 期间既不自动进也不自动退
+    if (isPiPMode) return false;
+    // 全屏接力（从全屏播放列表抽屉点进来的那条路）自己会强制全屏，
+    // 两个执行者会互相打架
+    if (hasFullscreenHandoff) return false;
+    // 私密/被删、外站、源错误：全屏里只会看到一张错误页
+    if (isPlaybackBlocked) return false;
+    return true;
+  }
+
+  /// 已经在全屏里，但这个视频其实播不了——该退回详情页把错误摆出来。
+  ///
+  /// 只在这项能力打开时生效：关着的时候本功能不改变任何既有行为。
+  @visibleForTesting
+  static bool shouldAutoExitFullscreenForBlockedPlayback({
+    required AutoFullscreenMode mode,
+    required bool isAnyFullscreenActive,
+    required bool isPiPMode,
+    required bool isPlaybackBlocked,
+  }) {
+    if (mode == AutoFullscreenMode.off) return false;
+    if (!isAnyFullscreenActive) return false;
+    if (isPiPMode) return false;
+    return isPlaybackBlocked;
+  }
+
+  /// **自动全屏的唯一决策入口。** 进与退都在这里，两个时机共用一条路径。
+  ///
+  /// [AutoFullscreenTrigger.playbackStarted] 挂在 `player.stream.playing` 上
+  /// 而不是播放按钮回调上：「开始播放」有三条路走到（用户按播放、首次进入自动
+  /// 播放、延迟初始播放在媒体就绪后自己开播），挂按钮只覆盖得到第一条，而自动
+  /// 播放那条正是这项功能最主要的场景。
+  ///
+  /// [AutoFullscreenTrigger.detailPageReady] 挂在 videoInfo / 错误态的变化上：
+  /// 「进入详情页」这件事对本功能而言的真正含义是「已经知道这视频是什么了」。
+  void _reconcileAutoFullscreen(AutoFullscreenTrigger trigger) {
+    if (_isDisposed) return;
+    final AutoFullscreenMode mode = autoFullscreenMode;
+
+    if (shouldAutoExitFullscreenForBlockedPlayback(
+      mode: mode,
+      isAnyFullscreenActive: isAnyFullscreenActive,
+      isPiPMode: isPiPMode.value,
+      isPlaybackBlocked: isPlaybackBlocked,
+    )) {
+      LogUtils.d('[自动全屏] 视频播不了，退出全屏把错误摆到详情页上', 'MyVideoStateController');
+      // 两种全屏都要退：用户当初进的是哪一种，这里就得把哪一种收回去。
+      exitDesktopAppFullscreen();
+      if (isFullscreen.value) unawaited(exitFullscreen());
+      return;
+    }
+
+    if (!shouldAutoEnterFullscreen(
+      mode: mode,
+      trigger: trigger,
+      alreadyEntered: _autoFullscreenEntered,
+      isAnyFullscreenActive: isAnyFullscreenActive,
+      isPiPMode: isPiPMode.value,
+      hasFullscreenHandoff: fullscreenHandoff != null,
+      isPlaybackBlocked: isPlaybackBlocked,
+      hasVideoInfo: hasVideoInfoForPlaybackUi,
+    )) {
+      return;
+    }
+
+    final AutoFullscreenKind kind = resolveAutoFullscreenKind(
+      configured: autoFullscreenKind,
+      isDesktop: GetPlatform.isDesktop,
+    );
+    _autoFullscreenEntered = true;
+    LogUtils.d(
+      '[自动全屏] ${mode.name} / ${trigger.name} / ${kind.name} -> 进入全屏',
+      'MyVideoStateController',
+    );
+    switch (kind) {
+      case AutoFullscreenKind.systemFullscreen:
+        // 方向不用在这里操心：竖屏视频进竖屏全屏由 _syncNativeFullscreenOrientation
+        // 负责，宽高比晚一步解出来时 _updateAspectRatio 会再同步一次。
+        unawaited(enterFullscreen());
+      case AutoFullscreenKind.appFullscreen:
+        enterDesktopAppFullscreen();
+    }
+  }
+
+  /// 监听「详情页信息就位 / 视频变成播不了」的三个来源。
+  ///
+  /// 用 [rxEver] 而不是 GetX 的 `ever`：后者走 stream，取消一次订阅之后会永久
+  /// 失聪（见 rx_ever.dart 的文档）。
+  void _setupAutoFullscreenWatchers() {
+    _autoFullscreenWorkerMainError = rxEver<Widget?>(
+      mainErrorWidget,
+      (_) => _reconcileAutoFullscreen(AutoFullscreenTrigger.detailPageReady),
+    );
+    _autoFullscreenWorkerSourceError = rxEver<String?>(
+      videoSourceErrorMessage,
+      (_) => _reconcileAutoFullscreen(AutoFullscreenTrigger.detailPageReady),
+    );
+    _autoFullscreenWorkerVideoInfo = rxEver<video_model.Video?>(
+      videoInfo,
+      (_) => _reconcileAutoFullscreen(AutoFullscreenTrigger.detailPageReady),
+    );
+    // 信息可能在挂监听之前就已经就位（本地视频、initialVideoInfo 直接带进来），
+    // 那样监听器永远等不到变化，「进入详情页便进入全屏」这档就会静默失效。
+    _reconcileAutoFullscreen(AutoFullscreenTrigger.detailPageReady);
+  }
+
+  void _disposeAutoFullscreenWatchers() {
+    _autoFullscreenWorkerMainError?.dispose();
+    _autoFullscreenWorkerMainError = null;
+    _autoFullscreenWorkerSourceError?.dispose();
+    _autoFullscreenWorkerSourceError = null;
+    _autoFullscreenWorkerVideoInfo?.dispose();
+    _autoFullscreenWorkerVideoInfo = null;
+  }
   final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
 
   // ---- 视频画面缩放 / 平移 / 旋转（双指捏合 + 旋转、Ctrl+滚轮、拖动移动画面）----
@@ -901,6 +1179,9 @@ class MyVideoStateController extends GetxController
 
       // 添加画中画状态监听
       _setupPiPListener();
+
+      // 自动全屏：监听「详情页信息就位 / 这个视频播不了」的三个来源
+      _setupAutoFullscreenWatchers();
 
       // 启动显示时间更新定时器
       _startDisplayTimer();
@@ -2039,6 +2320,10 @@ class MyVideoStateController extends GetxController
       '取消画中画订阅',
       () async => _pipStatusSubscription?.cancel(),
     );
+    await _runCleanupStep(
+      '取消自动全屏监听',
+      () async => _disposeAutoFullscreenWatchers(),
+    );
     await _runCleanupStep('停止加载速率监听', _unobservePlayerLoadingSpeed);
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);
     await _runCleanupStep('释放主播放器', player.dispose);
@@ -2910,6 +3195,9 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
       if (playing != videoPlaying.value) {
         videoPlaying.value = playing;
+      }
+      if (playing) {
+        _reconcileAutoFullscreen(AutoFullscreenTrigger.playbackStarted);
       }
     });
 

@@ -844,6 +844,20 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get recordAndRestorePlaybackProgress => '記錄和復原播放進度';
 	@override String get autoPlayVideoOnFirstEnter => '首次進入頁面自動播放影片';
 	@override String get autoPlayVideoOnFirstEnterDesc => '此設定決定首次進入影片頁面時是否自動開始播放影片。';
+	@override String get autoEnterFullscreen => '自動進入全螢幕';
+	@override String get autoEnterFullscreenDesc => '播放器在什麼時候自己進入全螢幕。私密／已刪除影片、外站影片以及子母畫面期間始終不會進入';
+	@override String get autoEnterFullscreenOff => '關閉';
+	@override String get autoEnterFullscreenOffDesc => '不自動進入全螢幕';
+	@override String get autoEnterFullscreenOnPlaybackStart => '播放時再進入';
+	@override String get autoEnterFullscreenOnPlaybackStartDesc => '播放真正開始的那一刻進入全螢幕';
+	@override String get autoEnterFullscreenOnDetailPageEnter => '進入詳情頁便進入';
+	@override String get autoEnterFullscreenOnDetailPageEnterDesc => '開啟影片頁面就進入全螢幕，不等播放開始';
+	@override String get autoEnterFullscreenKind => '全螢幕類型';
+	@override String get autoEnterFullscreenKindDesc => '自動進入哪一種全螢幕。僅桌面端';
+	@override String get autoEnterFullscreenKindSystem => '系統全螢幕';
+	@override String get autoEnterFullscreenKindSystemDesc => '讓視窗管理員把視窗變成全螢幕';
+	@override String get autoEnterFullscreenKindApp => '應用全螢幕';
+	@override String get autoEnterFullscreenKindAppDesc => '視窗大小不變，整個應用變成播放器';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴啟用';
 	@override String get enableSignatureDesc => '此配置決定回覆時是否自動添加小尾巴';
@@ -4239,6 +4253,20 @@ extension on TranslationsZhTw {
 			'settings.recordAndRestorePlaybackProgress' => '記錄和復原播放進度',
 			'settings.autoPlayVideoOnFirstEnter' => '首次進入頁面自動播放影片',
 			'settings.autoPlayVideoOnFirstEnterDesc' => '此設定決定首次進入影片頁面時是否自動開始播放影片。',
+			'settings.autoEnterFullscreen' => '自動進入全螢幕',
+			'settings.autoEnterFullscreenDesc' => '播放器在什麼時候自己進入全螢幕。私密／已刪除影片、外站影片以及子母畫面期間始終不會進入',
+			'settings.autoEnterFullscreenOff' => '關閉',
+			'settings.autoEnterFullscreenOffDesc' => '不自動進入全螢幕',
+			'settings.autoEnterFullscreenOnPlaybackStart' => '播放時再進入',
+			'settings.autoEnterFullscreenOnPlaybackStartDesc' => '播放真正開始的那一刻進入全螢幕',
+			'settings.autoEnterFullscreenOnDetailPageEnter' => '進入詳情頁便進入',
+			'settings.autoEnterFullscreenOnDetailPageEnterDesc' => '開啟影片頁面就進入全螢幕，不等播放開始',
+			'settings.autoEnterFullscreenKind' => '全螢幕類型',
+			'settings.autoEnterFullscreenKindDesc' => '自動進入哪一種全螢幕。僅桌面端',
+			'settings.autoEnterFullscreenKindSystem' => '系統全螢幕',
+			'settings.autoEnterFullscreenKindSystemDesc' => '讓視窗管理員把視窗變成全螢幕',
+			'settings.autoEnterFullscreenKindApp' => '應用全螢幕',
+			'settings.autoEnterFullscreenKindAppDesc' => '視窗大小不變，整個應用變成播放器',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴啟用',
 			'settings.enableSignatureDesc' => '此配置決定回覆時是否自動添加小尾巴',
@@ -4581,6 +4609,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.validationFailed' => '驗證失敗',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用預設應用程式目錄',
 			'settings.downloadSettings.appPrivateDirectory' => '應用程式專用目錄',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全可靠，無需額外權限',
 			'settings.downloadSettings.downloadDirectory' => '下載目錄',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系統預設下載位置，便於管理',
@@ -4595,8 +4625,6 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '內部應用程式專用目錄',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => '應用程式內部儲存，無需權限，空間較小',
 			'settings.downloadSettings.appDocumentsDirectory' => '應用程式文件目錄',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => '應用程式專用文件目錄，安全可靠',
 			'settings.downloadSettings.downloadsFolder' => '下載資料夾',
 			'settings.downloadSettings.downloadsFolderDesc' => '系統預設下載目錄',
@@ -5095,6 +5123,8 @@ extension on TranslationsZhTw {
 			'download.errors.copyDownloadUrlFailed' => '複製下載連結失敗',
 			'download.errors.fileNotFound' => '文件不存在',
 			'download.errors.openFolderFailed' => '打開資料夾失敗',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.openFolderFailedWithMessage' => ({required Object message}) => '打開資料夾失敗: ${message}',
 			'download.errors.directoryNotFound' => '目錄不存在',
 			'download.errors.copyFailed' => '複製失敗',
@@ -5109,8 +5139,6 @@ extension on TranslationsZhTw {
 			'download.errors.noCompletedDownloadTask' => '暫無已完成的任務',
 			'download.errors.taskAlreadyCompletedDoNotAdd' => '任務已完成，請勿重複添加',
 			'download.errors.linkExpiredTryAgain' => '連結已過期，正在重新獲取下載連結',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.linkExpiredTryAgainSuccess' => '連結已過期，正在重新獲取下載連結成功',
 			'download.errors.linkExpiredTryAgainFailed' => '連結已過期，正在重新獲取下載連結失敗',
 			'download.errors.taskDeleted' => '任務已刪除',
@@ -5609,6 +5637,8 @@ extension on TranslationsZhTw {
 			'diagnostics.healthAlert.flushFailureTitle' => '寫入失敗',
 			'diagnostics.healthAlert.sinkDegradedTitle' => '日誌寫入已降級',
 			'diagnostics.healthAlert.sinkDegradedDetail' => '檔案 sink 處於 degraded 狀態',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.healthAlert.queueBacklogTitle' => '寫入佇列積壓',
 			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)',
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
@@ -5623,8 +5653,6 @@ extension on TranslationsZhTw {
 			'diagnostics.toast.exportFailed' => ({required Object error}) => '匯出失敗: ${error}',
 			'diagnostics.toast.supportEmailCopied' => '信箱已複製，請貼到郵件客戶端並附上日誌',
 			'diagnostics.shareSubject' => 'LoveIwara 診斷日誌（含隱私資訊，請謹慎分享）',
-			_ => null,
-		} ?? switch (path) {
 			'logViewer.title' => '日誌檢視器',
 			'logViewer.searchHint' => '搜尋日誌...',
 			'logViewer.emptyState' => '暫無日誌',

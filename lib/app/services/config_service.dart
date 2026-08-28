@@ -292,6 +292,8 @@ enum ConfigKey {
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
   SEEK_PREVIEW_SIZE_KEY, // 进度条预览窗口（Seek Preview）的尺寸档位
+  AUTO_ENTER_FULLSCREEN_MODE_KEY, // 自动进入全屏的时机（见 AutoFullscreenMode，默认关）
+  AUTO_ENTER_FULLSCREEN_KIND_KEY, // 自动进入哪种全屏（见 AutoFullscreenKind，仅桌面端有区别）
   FAST_FORWARD_SECONDS_KEY,
   REWIND_SECONDS_KEY,
   DEFAULT_QUALITY_KEY,
@@ -467,6 +469,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'remember_screen_fit_mode';
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
         return 'seek_preview_size';
+      case ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY:
+        return 'auto_enter_fullscreen_mode';
+      case ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY:
+        return 'auto_enter_fullscreen_kind';
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 'fast_forward_seconds';
       case ConfigKey.REWIND_SECONDS_KEY:
@@ -752,6 +758,10 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
         return 'standard';
+      case ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY:
+        return 'off'; // 默认关闭：只是多一项能力，不改变任何现有用户的行为
+      case ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY:
+        return 'systemFullscreen'; // 与手动点全屏钮的默认行为一致
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 10;
       case ConfigKey.REWIND_SECONDS_KEY:

@@ -164,6 +164,7 @@ class PlayerSettingsWidget extends StatelessWidget {
     required VoidCallback onTap,
     String? valueLabel,
     String? description,
+    bool enabled = true,
   }) {
     final theme = Theme.of(context);
     Widget? subtitle;
@@ -182,15 +183,28 @@ class PlayerSettingsWidget extends StatelessWidget {
         ),
       );
     }
-    return ListTile(
-      leading: Icon(iconData, color: theme.colorScheme.onSurfaceVariant),
-      title: Text(label, style: theme.textTheme.bodyLarge),
-      subtitle: subtitle,
-      trailing: Icon(
-        Icons.chevron_right,
-        color: theme.colorScheme.onSurfaceVariant,
+    // 禁用态要看得出来：只是点不动、外观不变的话，用户只会以为这里坏了。
+    // 变化本身也要有过渡——切换上面那个时机下拉时，这一条会在可用/不可用之间
+    // 来回走，硬切一下很跳。
+    return AnimatedOpacity(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      opacity: enabled ? 1.0 : 0.38, // M3 的禁用态不透明度
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: ListTile(
+          leading: Icon(iconData, color: theme.colorScheme.onSurfaceVariant),
+          title: Text(label, style: theme.textTheme.bodyLarge),
+          subtitle: subtitle,
+          trailing: Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          onTap: onTap,
+        ),
       ),
-      onTap: onTap,
     );
   }
 
@@ -205,9 +219,11 @@ class PlayerSettingsWidget extends StatelessWidget {
     String? description,
     Map<String, String>? optionLabels,
     Map<String, String>? optionDescriptions,
+    bool enabled = true,
   }) {
     return _navigationTile(
       context: context,
+      enabled: enabled,
       iconData: iconData,
       label: label,
       valueLabel: optionLabels?[currentValue] ?? currentValue,
@@ -555,6 +571,76 @@ class PlayerSettingsWidget extends StatelessWidget {
               _configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] = value;
             },
           ),
+          // 自动进入全屏的时机（默认关，纯新增能力）
+          Obx(
+            () => _selectionTile(
+              context: context,
+              iconData: Icons.fullscreen,
+              label: t.settings.autoEnterFullscreen,
+              description: t.settings.autoEnterFullscreenDesc,
+              currentValue: autoFullscreenModeFromConfig(
+                _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY],
+              ).name,
+              options: AutoFullscreenMode.values.map((e) => e.name).toList(),
+              optionLabels: {
+                AutoFullscreenMode.off.name: t.settings.autoEnterFullscreenOff,
+                AutoFullscreenMode.onPlaybackStart.name:
+                    t.settings.autoEnterFullscreenOnPlaybackStart,
+                AutoFullscreenMode.onDetailPageEnter.name:
+                    t.settings.autoEnterFullscreenOnDetailPageEnter,
+              },
+              optionDescriptions: {
+                AutoFullscreenMode.off.name:
+                    t.settings.autoEnterFullscreenOffDesc,
+                AutoFullscreenMode.onPlaybackStart.name:
+                    t.settings.autoEnterFullscreenOnPlaybackStartDesc,
+                AutoFullscreenMode.onDetailPageEnter.name:
+                    t.settings.autoEnterFullscreenOnDetailPageEnterDesc,
+              },
+              onChanged: (value) {
+                _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY] =
+                    value;
+              },
+            ),
+          ),
+          // 全屏类型。**仅桌面端**：应用全屏是「窗口不变、整只应用变成播放器」，
+          // 移动端没有窗口这个概念，所以那边连这一条都不显示
+          // （resolveAutoFullscreenKind 也会把它回落成系统全屏）。
+          if (GetPlatform.isDesktop)
+            Obx(() {
+              final bool enabled =
+                  autoFullscreenModeFromConfig(
+                    _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY],
+                  ) !=
+                  AutoFullscreenMode.off;
+              return _selectionTile(
+                context: context,
+                enabled: enabled,
+                iconData: Icons.desktop_windows_outlined,
+                label: t.settings.autoEnterFullscreenKind,
+                description: t.settings.autoEnterFullscreenKindDesc,
+                currentValue: autoFullscreenKindFromConfig(
+                  _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY],
+                ).name,
+                options: AutoFullscreenKind.values.map((e) => e.name).toList(),
+                optionLabels: {
+                  AutoFullscreenKind.systemFullscreen.name:
+                      t.settings.autoEnterFullscreenKindSystem,
+                  AutoFullscreenKind.appFullscreen.name:
+                      t.settings.autoEnterFullscreenKindApp,
+                },
+                optionDescriptions: {
+                  AutoFullscreenKind.systemFullscreen.name:
+                      t.settings.autoEnterFullscreenKindSystemDesc,
+                  AutoFullscreenKind.appFullscreen.name:
+                      t.settings.autoEnterFullscreenKindAppDesc,
+                },
+                onChanged: (value) {
+                  _configService[ConfigKey.AUTO_ENTER_FULLSCREEN_KIND_KEY] =
+                      value;
+                },
+              );
+            }),
           // 工具栏隐藏时显示底部进度条
           _switchTile(
             context: context,

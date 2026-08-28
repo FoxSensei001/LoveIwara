@@ -345,7 +345,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       'MyVideoScreen',
     );
 
-    widget.myVideoStateController.isDesktopAppFullScreen.value = false;
+    widget.myVideoStateController.exitDesktopAppFullscreen();
     widget.myVideoStateController.isFullscreen.value = false;
     _appService.showSystemUI();
     unawaited(
@@ -356,7 +356,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      widget.myVideoStateController.isDesktopAppFullScreen.value = false;
+      widget.myVideoStateController.exitDesktopAppFullscreen();
       widget.myVideoStateController.isFullscreen.value = false;
       _appService.showSystemUI();
     });

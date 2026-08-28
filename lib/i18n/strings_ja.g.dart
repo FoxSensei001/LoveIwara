@@ -844,6 +844,20 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get recordAndRestorePlaybackProgress => '再生進度を記録して復元';
 	@override String get autoPlayVideoOnFirstEnter => '初回入場時に動画を自動再生';
 	@override String get autoPlayVideoOnFirstEnterDesc => 'この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。';
+	@override String get autoEnterFullscreen => '自動で全画面にする';
+	@override String get autoEnterFullscreenDesc => 'プレイヤーが自動で全画面に移行するタイミング。非公開／削除済みの動画、外部サイトの動画、およびピクチャインピクチャ中は常に移行しません';
+	@override String get autoEnterFullscreenOff => 'オフ';
+	@override String get autoEnterFullscreenOffDesc => '自動では全画面にしない';
+	@override String get autoEnterFullscreenOnPlaybackStart => '再生開始時';
+	@override String get autoEnterFullscreenOnPlaybackStartDesc => '再生が実際に始まった瞬間に全画面へ移行する';
+	@override String get autoEnterFullscreenOnDetailPageEnter => '動画を開いた時';
+	@override String get autoEnterFullscreenOnDetailPageEnterDesc => '再生を待たず、動画ページを開いた時点で全画面へ移行する';
+	@override String get autoEnterFullscreenKind => '全画面の種類';
+	@override String get autoEnterFullscreenKindDesc => '自動でどちらの全画面にするか。デスクトップ版のみ';
+	@override String get autoEnterFullscreenKindSystem => 'システム全画面';
+	@override String get autoEnterFullscreenKindSystemDesc => 'ウィンドウマネージャーにウィンドウを全画面にさせる';
+	@override String get autoEnterFullscreenKindApp => 'アプリ全画面';
+	@override String get autoEnterFullscreenKindAppDesc => 'ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴を有効にする';
 	@override String get enableSignatureDesc => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します';
@@ -4239,6 +4253,20 @@ extension on TranslationsJa {
 			'settings.recordAndRestorePlaybackProgress' => '再生進度を記録して復元',
 			'settings.autoPlayVideoOnFirstEnter' => '初回入場時に動画を自動再生',
 			'settings.autoPlayVideoOnFirstEnterDesc' => 'この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。',
+			'settings.autoEnterFullscreen' => '自動で全画面にする',
+			'settings.autoEnterFullscreenDesc' => 'プレイヤーが自動で全画面に移行するタイミング。非公開／削除済みの動画、外部サイトの動画、およびピクチャインピクチャ中は常に移行しません',
+			'settings.autoEnterFullscreenOff' => 'オフ',
+			'settings.autoEnterFullscreenOffDesc' => '自動では全画面にしない',
+			'settings.autoEnterFullscreenOnPlaybackStart' => '再生開始時',
+			'settings.autoEnterFullscreenOnPlaybackStartDesc' => '再生が実際に始まった瞬間に全画面へ移行する',
+			'settings.autoEnterFullscreenOnDetailPageEnter' => '動画を開いた時',
+			'settings.autoEnterFullscreenOnDetailPageEnterDesc' => '再生を待たず、動画ページを開いた時点で全画面へ移行する',
+			'settings.autoEnterFullscreenKind' => '全画面の種類',
+			'settings.autoEnterFullscreenKindDesc' => '自動でどちらの全画面にするか。デスクトップ版のみ',
+			'settings.autoEnterFullscreenKindSystem' => 'システム全画面',
+			'settings.autoEnterFullscreenKindSystemDesc' => 'ウィンドウマネージャーにウィンドウを全画面にさせる',
+			'settings.autoEnterFullscreenKindApp' => 'アプリ全画面',
+			'settings.autoEnterFullscreenKindAppDesc' => 'ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴を有効にする',
 			'settings.enableSignatureDesc' => 'この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します',
@@ -4581,6 +4609,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
 			'settings.downloadSettings.appPrivateDirectory' => 'アプリ専用ディレクトリ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全で信頼性があり、追加の権限は不要',
 			'settings.downloadSettings.downloadDirectory' => 'ダウンロードディレクトリ',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'システムデフォルトのダウンロード場所、管理が簡単',
@@ -4595,8 +4625,6 @@ extension on TranslationsJa {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '内部アプリ専用ディレクトリ',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'アプリ内部ストレージ、権限不要、容量が小さい',
 			'settings.downloadSettings.appDocumentsDirectory' => 'アプリドキュメントディレクトリ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い',
 			'settings.downloadSettings.downloadsFolder' => 'ダウンロードフォルダ',
 			'settings.downloadSettings.downloadsFolderDesc' => 'システムデフォルトのダウンロードディレクトリ',
@@ -5095,6 +5123,8 @@ extension on TranslationsJa {
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
 			'download.download' => 'ダウンロード',
+			_ => null,
+		} ?? switch (path) {
 			'download.selectDownloadTitle' => 'ダウンロードを選択',
 			'download.qualitySectionLabel' => '画質',
 			'download.saveToSectionLabel' => '保存先',
@@ -5109,8 +5139,6 @@ extension on TranslationsJa {
 			'download.downloadStatus' => 'ダウンロード状態',
 			'download.imageList' => '画像リスト',
 			'download.retryDownload' => '再試行ダウンロード',
-			_ => null,
-		} ?? switch (path) {
 			'download.notDownloaded' => '未ダウンロード',
 			'download.downloaded' => 'ダウンロード済み',
 			'download.waitingForDownload' => 'ダウンロード待機中',
@@ -5609,6 +5637,8 @@ extension on TranslationsJa {
 			'crashRecoveryDialog.acknowledge' => '了解',
 			'crashRecoveryDialog.supportEmailCopied' => 'メールアドレスをコピーしました',
 			'linkInputDialog.title' => 'リンクを入力',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
 			'linkInputDialog.validatorEmptyLink' => 'リンクを入力してください',
@@ -5623,8 +5653,6 @@ extension on TranslationsJa {
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '次のリンクを外部ブラウザで開こうとしています：',
 			'linkInputDialog.confirmContinueBrowserOpen' => '続行してもよろしいですか？',
 			'linkInputDialog.browserOpenFailed' => 'リンクを開けませんでした',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLink' => 'サポートされていないリンク',
 			'linkInputDialog.cancel' => 'キャンセル',
 			'linkInputDialog.confirm' => 'ブラウザで開く',

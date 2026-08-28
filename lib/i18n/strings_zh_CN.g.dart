@@ -844,6 +844,20 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get recordAndRestorePlaybackProgress => '记录和恢复播放进度';
 	@override String get autoPlayVideoOnFirstEnter => '首次进入页面自动播放视频';
 	@override String get autoPlayVideoOnFirstEnterDesc => '此设置决定首次进入视频页面时是否自动开始播放视频。';
+	@override String get autoEnterFullscreen => '自动进入全屏';
+	@override String get autoEnterFullscreenDesc => '播放器在什么时候自己进入全屏。私密/已删除视频、外站视频以及画中画期间始终不会进入';
+	@override String get autoEnterFullscreenOff => '关闭';
+	@override String get autoEnterFullscreenOffDesc => '不自动进入全屏';
+	@override String get autoEnterFullscreenOnPlaybackStart => '播放时再进入';
+	@override String get autoEnterFullscreenOnPlaybackStartDesc => '播放真正开始的那一刻进入全屏';
+	@override String get autoEnterFullscreenOnDetailPageEnter => '进入详情页便进入';
+	@override String get autoEnterFullscreenOnDetailPageEnterDesc => '打开视频页面就进入全屏，不等播放开始';
+	@override String get autoEnterFullscreenKind => '全屏类型';
+	@override String get autoEnterFullscreenKindDesc => '自动进入哪一种全屏。仅桌面端';
+	@override String get autoEnterFullscreenKindSystem => '系统全屏';
+	@override String get autoEnterFullscreenKindSystemDesc => '让窗口管理器把窗口变成全屏';
+	@override String get autoEnterFullscreenKindApp => '应用全屏';
+	@override String get autoEnterFullscreenKindAppDesc => '窗口大小不变，整只应用变成播放器';
 	@override String get signature => '小尾巴';
 	@override String get enableSignature => '小尾巴启用';
 	@override String get enableSignatureDesc => '此配置决定回复时是否自动添加小尾巴';
@@ -4239,6 +4253,20 @@ extension on TranslationsZhCn {
 			'settings.recordAndRestorePlaybackProgress' => '记录和恢复播放进度',
 			'settings.autoPlayVideoOnFirstEnter' => '首次进入页面自动播放视频',
 			'settings.autoPlayVideoOnFirstEnterDesc' => '此设置决定首次进入视频页面时是否自动开始播放视频。',
+			'settings.autoEnterFullscreen' => '自动进入全屏',
+			'settings.autoEnterFullscreenDesc' => '播放器在什么时候自己进入全屏。私密/已删除视频、外站视频以及画中画期间始终不会进入',
+			'settings.autoEnterFullscreenOff' => '关闭',
+			'settings.autoEnterFullscreenOffDesc' => '不自动进入全屏',
+			'settings.autoEnterFullscreenOnPlaybackStart' => '播放时再进入',
+			'settings.autoEnterFullscreenOnPlaybackStartDesc' => '播放真正开始的那一刻进入全屏',
+			'settings.autoEnterFullscreenOnDetailPageEnter' => '进入详情页便进入',
+			'settings.autoEnterFullscreenOnDetailPageEnterDesc' => '打开视频页面就进入全屏，不等播放开始',
+			'settings.autoEnterFullscreenKind' => '全屏类型',
+			'settings.autoEnterFullscreenKindDesc' => '自动进入哪一种全屏。仅桌面端',
+			'settings.autoEnterFullscreenKindSystem' => '系统全屏',
+			'settings.autoEnterFullscreenKindSystemDesc' => '让窗口管理器把窗口变成全屏',
+			'settings.autoEnterFullscreenKindApp' => '应用全屏',
+			'settings.autoEnterFullscreenKindAppDesc' => '窗口大小不变，整只应用变成播放器',
 			'settings.signature' => '小尾巴',
 			'settings.enableSignature' => '小尾巴启用',
 			'settings.enableSignatureDesc' => '此配置决定回复时是否自动添加小尾巴',
@@ -4581,6 +4609,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.validationFailed' => '验证失败',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用默认应用目录',
 			'settings.downloadSettings.appPrivateDirectory' => '应用专用目录',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全可靠，无需额外权限',
 			'settings.downloadSettings.downloadDirectory' => '下载目录',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系统默认下载位置，便于管理',
@@ -4595,8 +4625,6 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '内部应用专用目录',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => '应用内部存储，无需权限，空间较小',
 			'settings.downloadSettings.appDocumentsDirectory' => '应用文档目录',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => '应用专用文档目录，安全可靠',
 			'settings.downloadSettings.downloadsFolder' => '下载文件夹',
 			'settings.downloadSettings.downloadsFolderDesc' => '系统默认下载目录',
@@ -5095,6 +5123,8 @@ extension on TranslationsZhCn {
 			'download.downloadList' => '下载列表',
 			'download.viewDownloadList' => '查看下载列表',
 			'download.download' => '下载',
+			_ => null,
+		} ?? switch (path) {
 			'download.selectDownloadTitle' => '选择下载',
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '保存到',
@@ -5109,8 +5139,6 @@ extension on TranslationsZhCn {
 			'download.downloadStatus' => '下载状态',
 			'download.imageList' => '图片列表',
 			'download.retryDownload' => '重试下载',
-			_ => null,
-		} ?? switch (path) {
 			'download.notDownloaded' => '未下载',
 			'download.downloaded' => '已下载',
 			'download.waitingForDownload' => '等待下载...',
@@ -5609,6 +5637,8 @@ extension on TranslationsZhCn {
 			'crashRecoveryDialog.acknowledge' => '我知道了',
 			'crashRecoveryDialog.supportEmailCopied' => '邮箱已复制',
 			'linkInputDialog.title' => '输入链接',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '请输入${webName}链接',
 			'linkInputDialog.validatorEmptyLink' => '请输入链接',
@@ -5623,8 +5653,6 @@ extension on TranslationsZhCn {
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '即将使用外部浏览器打开以下链接：',
 			'linkInputDialog.confirmContinueBrowserOpen' => '确定要继续吗？',
 			'linkInputDialog.browserOpenFailed' => '无法打开链接',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLink' => '不支持的链接',
 			'linkInputDialog.cancel' => '取消',
 			'linkInputDialog.confirm' => '用浏览器打开',

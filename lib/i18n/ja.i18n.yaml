@@ -696,6 +696,20 @@ settings:
   recordAndRestorePlaybackProgress: 再生進度を記録して復元
   autoPlayVideoOnFirstEnter: 初回入場時に動画を自動再生
   autoPlayVideoOnFirstEnterDesc: この設定は、動画ページに初めて入った時に動画を自動再生するかどうかを決定します。
+  autoEnterFullscreen: 自動で全画面にする
+  autoEnterFullscreenDesc: プレイヤーが自動で全画面に移行するタイミング。非公開／削除済みの動画、外部サイトの動画、およびピクチャインピクチャ中は常に移行しません
+  autoEnterFullscreenOff: オフ
+  autoEnterFullscreenOffDesc: 自動では全画面にしない
+  autoEnterFullscreenOnPlaybackStart: 再生開始時
+  autoEnterFullscreenOnPlaybackStartDesc: 再生が実際に始まった瞬間に全画面へ移行する
+  autoEnterFullscreenOnDetailPageEnter: 動画を開いた時
+  autoEnterFullscreenOnDetailPageEnterDesc: 再生を待たず、動画ページを開いた時点で全画面へ移行する
+  autoEnterFullscreenKind: 全画面の種類
+  autoEnterFullscreenKindDesc: 自動でどちらの全画面にするか。デスクトップ版のみ
+  autoEnterFullscreenKindSystem: システム全画面
+  autoEnterFullscreenKindSystemDesc: ウィンドウマネージャーにウィンドウを全画面にさせる
+  autoEnterFullscreenKindApp: アプリ全画面
+  autoEnterFullscreenKindAppDesc: ウィンドウの大きさは変えず、アプリ全体をプレイヤーにする
   signature: 小尾巴
   enableSignature: 小尾巴を有効にする
   enableSignatureDesc: この設定はアプリが回覆時に小尾巴を有効にするかどうかを決定します

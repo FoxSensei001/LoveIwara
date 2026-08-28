@@ -2126,6 +2126,48 @@ class TranslationsSettingsEn {
 	/// en: 'This setting determines whether the video starts playing automatically when first entering the video page.'
 	String get autoPlayVideoOnFirstEnterDesc => 'This setting determines whether the video starts playing automatically when first entering the video page.';
 
+	/// en: 'Enter Fullscreen Automatically'
+	String get autoEnterFullscreen => 'Enter Fullscreen Automatically';
+
+	/// en: 'When the player should go fullscreen on its own. Private, deleted and external videos are always left alone, as is picture-in-picture.'
+	String get autoEnterFullscreenDesc => 'When the player should go fullscreen on its own. Private, deleted and external videos are always left alone, as is picture-in-picture.';
+
+	/// en: 'Off'
+	String get autoEnterFullscreenOff => 'Off';
+
+	/// en: 'Never enter fullscreen on its own'
+	String get autoEnterFullscreenOffDesc => 'Never enter fullscreen on its own';
+
+	/// en: 'When Playback Starts'
+	String get autoEnterFullscreenOnPlaybackStart => 'When Playback Starts';
+
+	/// en: 'Go fullscreen the moment playback actually starts'
+	String get autoEnterFullscreenOnPlaybackStartDesc => 'Go fullscreen the moment playback actually starts';
+
+	/// en: 'On Opening The Video'
+	String get autoEnterFullscreenOnDetailPageEnter => 'On Opening The Video';
+
+	/// en: 'Go fullscreen as soon as the video page opens, without waiting for playback'
+	String get autoEnterFullscreenOnDetailPageEnterDesc => 'Go fullscreen as soon as the video page opens, without waiting for playback';
+
+	/// en: 'Fullscreen Type'
+	String get autoEnterFullscreenKind => 'Fullscreen Type';
+
+	/// en: 'Which kind of fullscreen to enter automatically. Desktop only.'
+	String get autoEnterFullscreenKindDesc => 'Which kind of fullscreen to enter automatically. Desktop only.';
+
+	/// en: 'System Fullscreen'
+	String get autoEnterFullscreenKindSystem => 'System Fullscreen';
+
+	/// en: 'Let the window manager take the window fullscreen'
+	String get autoEnterFullscreenKindSystemDesc => 'Let the window manager take the window fullscreen';
+
+	/// en: 'App Fullscreen'
+	String get autoEnterFullscreenKindApp => 'App Fullscreen';
+
+	/// en: 'Keep the window as it is and turn the whole app into the player'
+	String get autoEnterFullscreenKindAppDesc => 'Keep the window as it is and turn the whole app into the player';
+
 	/// en: 'Signature'
 	String get signature => 'Signature';
 
@@ -9308,6 +9350,20 @@ extension on Translations {
 			'settings.recordAndRestorePlaybackProgress' => 'Record and Restore Playback Progress',
 			'settings.autoPlayVideoOnFirstEnter' => 'Auto Play Video on First Enter',
 			'settings.autoPlayVideoOnFirstEnterDesc' => 'This setting determines whether the video starts playing automatically when first entering the video page.',
+			'settings.autoEnterFullscreen' => 'Enter Fullscreen Automatically',
+			'settings.autoEnterFullscreenDesc' => 'When the player should go fullscreen on its own. Private, deleted and external videos are always left alone, as is picture-in-picture.',
+			'settings.autoEnterFullscreenOff' => 'Off',
+			'settings.autoEnterFullscreenOffDesc' => 'Never enter fullscreen on its own',
+			'settings.autoEnterFullscreenOnPlaybackStart' => 'When Playback Starts',
+			'settings.autoEnterFullscreenOnPlaybackStartDesc' => 'Go fullscreen the moment playback actually starts',
+			'settings.autoEnterFullscreenOnDetailPageEnter' => 'On Opening The Video',
+			'settings.autoEnterFullscreenOnDetailPageEnterDesc' => 'Go fullscreen as soon as the video page opens, without waiting for playback',
+			'settings.autoEnterFullscreenKind' => 'Fullscreen Type',
+			'settings.autoEnterFullscreenKindDesc' => 'Which kind of fullscreen to enter automatically. Desktop only.',
+			'settings.autoEnterFullscreenKindSystem' => 'System Fullscreen',
+			'settings.autoEnterFullscreenKindSystemDesc' => 'Let the window manager take the window fullscreen',
+			'settings.autoEnterFullscreenKindApp' => 'App Fullscreen',
+			'settings.autoEnterFullscreenKindAppDesc' => 'Keep the window as it is and turn the whole app into the player',
 			'settings.signature' => 'Signature',
 			'settings.enableSignature' => 'Enable Signature',
 			'settings.enableSignatureDesc' => 'This configuration determines whether the app will add signature when replying',
@@ -9650,6 +9706,8 @@ extension on Translations {
 			'settings.downloadSettings.validationFailed' => 'Validation failed',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
 			'settings.downloadSettings.appPrivateDirectory' => 'App Private Directory',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectoryDesc' => 'Safe and reliable, no additional permissions required',
 			'settings.downloadSettings.downloadDirectory' => 'Download Directory',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'System default download location, easy to manage',
@@ -9664,8 +9722,6 @@ extension on Translations {
 			'settings.downloadSettings.internalAppPrivateDirectory' => 'Internal App Private Directory',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'App internal storage, no permissions required, smaller space',
 			'settings.downloadSettings.appDocumentsDirectory' => 'App Documents Directory',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'App-specific documents directory, safe and reliable',
 			'settings.downloadSettings.downloadsFolder' => 'Downloads Folder',
 			'settings.downloadSettings.downloadsFolderDesc' => 'System default download directory',
@@ -10164,6 +10220,8 @@ extension on Translations {
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
 			'download.download' => 'Download',
+			_ => null,
+		} ?? switch (path) {
 			'download.selectDownloadTitle' => 'Select Download',
 			'download.qualitySectionLabel' => 'Quality',
 			'download.saveToSectionLabel' => 'Save to',
@@ -10178,8 +10236,6 @@ extension on Translations {
 			'download.imageList' => 'Image List',
 			'download.retryDownload' => 'Retry Download',
 			'download.notDownloaded' => 'Not Downloaded',
-			_ => null,
-		} ?? switch (path) {
 			'download.downloaded' => 'Downloaded',
 			'download.waitingForDownload' => 'Waiting for Download',
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)',
@@ -10678,6 +10734,8 @@ extension on Translations {
 			'mediaPlayer.notice.networkUnstable' => 'Check your network; playback may stutter',
 			'mediaPlayer.notice.audioTrackUnavailable' => 'No sound available; the video keeps playing',
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
@@ -10692,8 +10750,6 @@ extension on Translations {
 			'diagnostics.appVersionLabel' => 'App Version',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'Memory usage: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'Unable to fetch device info',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.secureStorageLabel' => 'Secure storage',
 			'diagnostics.secureStorageHealthy' => 'Available',
 			'diagnostics.secureStorageRecovered' => 'Self-healed by reset (previous data cleared)',

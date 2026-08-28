@@ -934,13 +934,12 @@ class BottomToolbar extends StatelessWidget {
               );
             }),
             onPressed: () {
+              // 进出都走控制器的收口方法：标志与 hide/showSystemUI 必须成对，
+              // 手写两半迟早漏一半（历史上漏出过窗口锁死在视频分区）。
               if (myVideoStateController.isDesktopAppFullScreen.value) {
-                myVideoStateController.isDesktopAppFullScreen.value = false;
-                appService.showSystemUI();
+                myVideoStateController.exitDesktopAppFullscreen();
               } else {
-                // 应用内全屏：仅隐藏侧边导航，保留顶栏，避免顶部 safeArea 留白丢失
-                appService.hideSystemUI(hideTitleBar: false);
-                myVideoStateController.isDesktopAppFullScreen.value = true;
+                myVideoStateController.enterDesktopAppFullscreen();
               }
             },
           ),

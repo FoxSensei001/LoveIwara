@@ -697,6 +697,20 @@ settings:
   recordAndRestorePlaybackProgress: 记录和恢复播放进度
   autoPlayVideoOnFirstEnter: 首次进入页面自动播放视频
   autoPlayVideoOnFirstEnterDesc: 此设置决定首次进入视频页面时是否自动开始播放视频。
+  autoEnterFullscreen: 自动进入全屏
+  autoEnterFullscreenDesc: 播放器在什么时候自己进入全屏。私密/已删除视频、外站视频以及画中画期间始终不会进入
+  autoEnterFullscreenOff: 关闭
+  autoEnterFullscreenOffDesc: 不自动进入全屏
+  autoEnterFullscreenOnPlaybackStart: 播放时再进入
+  autoEnterFullscreenOnPlaybackStartDesc: 播放真正开始的那一刻进入全屏
+  autoEnterFullscreenOnDetailPageEnter: 进入详情页便进入
+  autoEnterFullscreenOnDetailPageEnterDesc: 打开视频页面就进入全屏，不等播放开始
+  autoEnterFullscreenKind: 全屏类型
+  autoEnterFullscreenKindDesc: 自动进入哪一种全屏。仅桌面端
+  autoEnterFullscreenKindSystem: 系统全屏
+  autoEnterFullscreenKindSystemDesc: 让窗口管理器把窗口变成全屏
+  autoEnterFullscreenKindApp: 应用全屏
+  autoEnterFullscreenKindAppDesc: 窗口大小不变，整只应用变成播放器
   signature: 小尾巴
   enableSignature: 小尾巴启用
   enableSignatureDesc: 此配置决定回复时是否自动添加小尾巴
