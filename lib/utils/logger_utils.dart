@@ -12,7 +12,13 @@ import 'package:i_iwara/app/services/logging/log_models.dart';
 
 /// 日志工具类，提供控制台输出 + 文件持久化
 class LogUtils {
-  static late Logger _logger;
+  /// 未初始化时为 null。
+  ///
+  /// 原来是 `late Logger`：任何在 [init] 之前发生的日志（含 catch 块里的兜底
+  /// 告警）都会抛 LateInitializationError，把「只是记一条日志」变成崩溃点，
+  /// 也让纯逻辑单测碰不得任何带日志的分支。改成可空后，控制台输出在初始化前
+  /// 静默跳过，其余（developer.log 镜像、LogService 入库）照常。
+  static Logger? _logger;
   static const String _TAG = "i_iwara";
 
   // 控制是否初始化完成
@@ -97,7 +103,7 @@ class LogUtils {
       // 记录设备和应用信息
       await _logDeviceInfo();
     } catch (e) {
-      _logger.e("初始化日志失败: $e");
+      _logger?.e("初始化日志失败: $e");
     }
   }
 
@@ -172,7 +178,7 @@ class LogUtils {
   /// 早退，生产里 `droppedByMinLevel` / `droppedByDisabled` 本就恒为 0。
   static void d(String message, [String tag = _TAG]) {
     if (_isProduction) return;
-    _logger.d("[${_getTimeString()}][$tag] $message");
+    _logger?.d("[${_getTimeString()}][$tag] $message");
     _mirrorToDeveloperLog(message, tag: tag, level: 500);
     _logService?.log(level: LogLevel.debug, message: message, tag: tag);
   }
@@ -180,7 +186,7 @@ class LogUtils {
   // 记录信息日志
   static void i(String message, [String tag = _TAG]) {
     if (_suppressedByUserSetting) return;
-    _logger.i("[${_getTimeString()}][$tag] $message");
+    _logger?.i("[${_getTimeString()}][$tag] $message");
     _mirrorToDeveloperLog(message, tag: tag, level: 800);
     _logService?.log(level: LogLevel.info, message: message, tag: tag);
   }
@@ -188,7 +194,7 @@ class LogUtils {
   // 记录警告日志
   static void w(String message, [String tag = _TAG]) {
     if (_suppressedByUserSetting) return;
-    _logger.w("[${_getTimeString()}][$tag] $message");
+    _logger?.w("[${_getTimeString()}][$tag] $message");
     _mirrorToDeveloperLog(message, tag: tag, level: 900);
     _logService?.log(level: LogLevel.warning, message: message, tag: tag);
   }
@@ -229,7 +235,7 @@ class LogUtils {
       details = buffer.toString();
     }
 
-    _logger.e(
+    _logger?.e(
       "[${_getTimeString()}][$tag] $message",
       stackTrace: null,
       error: details,
@@ -271,7 +277,7 @@ class LogUtils {
       ..writeln('堆栈跟踪: $stackTrace');
 
     if (_initialized) {
-      _logger.e(
+      _logger?.e(
         "[${_getTimeString()}][$tag] $message",
         stackTrace: null,
         error: details.toString(),
@@ -357,7 +363,7 @@ class LogUtils {
       }
       i("常驻内存(RSS): $rss", "设备信息");
     } catch (e) {
-      _logger.e("记录设备信息失败: ${e.toString()}");
+      _logger?.e("记录设备信息失败: ${e.toString()}");
     }
   }
 }
