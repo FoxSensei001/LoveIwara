@@ -1184,6 +1184,9 @@ subscriptions:
 videoDetail:
   pipMode: PiP Mode
   resumeFromLastPosition: 'Resume from last position: ${position}'
+  resumedFromHistoryTip: 'Resumed from ${position}'
+  restartFromBeginning: Start over
+  dismissResumeTip: Dismiss
   localInfo:
     videoInfo: Video Info
     currentQuality: Current Quality

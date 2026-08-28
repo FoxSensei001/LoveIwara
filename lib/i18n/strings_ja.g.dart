@@ -1043,6 +1043,9 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => 'ピプモード';
 	@override String resumeFromLastPosition({required Object position}) => '${position} から続けて再生';
+	@override String resumedFromHistoryTip({required Object position}) => '${position} から再開しました';
+	@override String get restartFromBeginning => '最初から';
+	@override String get dismissResumeTip => '閉じる';
 	@override late final _TranslationsVideoDetailLocalInfoJa localInfo = _TranslationsVideoDetailLocalInfoJa._(_root);
 	@override String get videoIdIsEmpty => 'ビデオIDが空です';
 	@override String get videoInfoIsEmpty => 'ビデオ情報が空です';
@@ -4682,6 +4685,9 @@ extension on TranslationsJa {
 			'subscriptions.showAllSubscribedUsersContent' => 'すべての購読中のユーザーのコンテンツを表示',
 			'videoDetail.pipMode' => 'ピプモード',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '${position} から続けて再生',
+			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '${position} から再開しました',
+			'videoDetail.restartFromBeginning' => '最初から',
+			'videoDetail.dismissResumeTip' => '閉じる',
 			'videoDetail.localInfo.videoInfo' => 'ビデオ情報',
 			'videoDetail.localInfo.currentQuality' => '現在の品質',
 			'videoDetail.localInfo.duration' => '再生時間',
@@ -5097,11 +5103,11 @@ extension on TranslationsJa {
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)',
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)',
+			_ => null,
+		} ?? switch (path) {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'ダウンロード完了 (合計${total}枚)',
 			'download.viewVideoDetail' => 'ビデオ詳細を表示',
-			_ => null,
-		} ?? switch (path) {
 			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'download.moreOptions' => 'もっと操作',
 			'download.openFile' => 'ファイルを開く',
@@ -5611,11 +5617,11 @@ extension on TranslationsJa {
 			'log.logManagement' => 'ログ管理',
 			'log.enableLogPersistence' => 'ログ保存を有効にする',
 			'log.enableLogPersistenceDesc' => 'ログをデータベースに保存して分析に使用',
+			_ => null,
+		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'ログデータベースサイズ上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '現在: ${size}',
 			'log.exportCurrentLogs' => '現在のログをエクスポート',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート',
 			'log.exportHistoryLogs' => '履歴ログをエクスポート',
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',

@@ -1185,6 +1185,9 @@ subscriptions:
 videoDetail:
   pipMode: ピプモード
   resumeFromLastPosition: '${position} から続けて再生'
+  resumedFromHistoryTip: '${position} から再開しました'
+  restartFromBeginning: 最初から
+  dismissResumeTip: 閉じる
   localInfo:
     videoInfo: ビデオ情報
     currentQuality: 現在の品質

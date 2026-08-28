@@ -2617,6 +2617,15 @@ class TranslationsVideoDetailEn {
 	/// en: 'Resume from last position: ${position}'
 	String resumeFromLastPosition({required Object position}) => 'Resume from last position: ${position}';
 
+	/// en: 'Resumed from ${position}'
+	String resumedFromHistoryTip({required Object position}) => 'Resumed from ${position}';
+
+	/// en: 'Start over'
+	String get restartFromBeginning => 'Start over';
+
+	/// en: 'Dismiss'
+	String get dismissResumeTip => 'Dismiss';
+
 	late final TranslationsVideoDetailLocalInfoEn localInfo = TranslationsVideoDetailLocalInfoEn._(_root);
 
 	/// en: 'Video ID is empty'
@@ -9733,6 +9742,9 @@ extension on Translations {
 			'subscriptions.showAllSubscribedUsersContent' => 'Show all subscribed users content',
 			'videoDetail.pipMode' => 'PiP Mode',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => 'Resume from last position: ${position}',
+			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => 'Resumed from ${position}',
+			'videoDetail.restartFromBeginning' => 'Start over',
+			'videoDetail.dismissResumeTip' => 'Dismiss',
 			'videoDetail.localInfo.videoInfo' => 'Video Info',
 			'videoDetail.localInfo.currentQuality' => 'Current Quality',
 			'videoDetail.localInfo.duration' => 'Duration',
@@ -10148,11 +10160,11 @@ extension on Translations {
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'Downloading (${downloaded} images)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)',
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'Paused (${downloaded} images)',
+			_ => null,
+		} ?? switch (path) {
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'Downloaded (Total ${total} images)',
 			'download.viewVideoDetail' => 'View Video Detail',
 			'download.viewGalleryDetail' => 'View Gallery Detail',
-			_ => null,
-		} ?? switch (path) {
 			'download.moreOptions' => 'More Options',
 			'download.openFile' => 'Open File',
 			'download.playLocally' => 'Play Locally',
@@ -10662,11 +10674,11 @@ extension on Translations {
 			'diagnostics.secureStorageUnavailable' => 'Unavailable (login saved with fallback encryption)',
 			'diagnostics.secureStorageDualWrite' => ' (dual-write protection on)',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
 			'diagnostics.enableLogPersistenceSubtitle' => 'Disable to keep logs in memory only and stop disk writes',
 			'diagnostics.minLogLevelTitle' => 'Minimum log level',

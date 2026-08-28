@@ -1071,6 +1071,9 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => '畫中畫模式';
 	@override String resumeFromLastPosition({required Object position}) => '從上次播放位置繼續播放: ${position}';
+	@override String resumedFromHistoryTip({required Object position}) => '已從 ${position} 繼續播放';
+	@override String get restartFromBeginning => '從頭播放';
+	@override String get dismissResumeTip => '知道了';
 	@override late final _TranslationsVideoDetailLocalInfoZhTw localInfo = _TranslationsVideoDetailLocalInfoZhTw._(_root);
 	@override String get videoIdIsEmpty => '影片ID為空';
 	@override String get videoInfoIsEmpty => '影片資訊為空';
@@ -4713,6 +4716,9 @@ extension on TranslationsZhTw {
 			'subscriptions.showAllSubscribedUsersContent' => '顯示所有已訂閱使用者的內容',
 			'videoDetail.pipMode' => '畫中畫模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '從上次播放位置繼續播放: ${position}',
+			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '已從 ${position} 繼續播放',
+			'videoDetail.restartFromBeginning' => '從頭播放',
+			'videoDetail.dismissResumeTip' => '知道了',
 			'videoDetail.localInfo.videoInfo' => '影片資訊',
 			'videoDetail.localInfo.currentQuality' => '目前清晰度',
 			'videoDetail.localInfo.duration' => '時長',
@@ -5097,11 +5103,11 @@ extension on TranslationsZhTw {
 			'download.errors.unsupportedImageFormat' => ({required Object format}) => '不支援的圖片格式: ${format}',
 			'download.errors.deleteFileError' => '文件刪除失敗，可能是因為文件被占用',
 			'download.errors.deleteTaskError' => '任務刪除失敗',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.taskNotFound' => '任務未找到',
 			'download.errors.canNotRefreshVideoTask' => '無法重新整理影片任務',
 			'download.errors.taskAlreadyProcessing' => '任務已處理中',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.failedToLoadTasks' => '載入任務失敗',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下載失敗: ${message}',
 			'download.errors.pleaseTryOtherViewer' => '請嘗試使用其他查看器打開',
@@ -5611,11 +5617,11 @@ extension on TranslationsZhTw {
 			'logViewer.copiedToClipboard' => '已複製到剪貼簿',
 			'crashRecoveryDialog.title' => '應用異常退出',
 			'crashRecoveryDialog.description' => '我們偵測到應用上次異常退出。請依提示匯出診斷日誌並郵件傳送給開發者，幫助我們修復問題。',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
-			_ => null,
-		} ?? switch (path) {
 			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',

@@ -1043,6 +1043,9 @@ class _TranslationsVideoDetailZhCn implements TranslationsVideoDetailEn {
 	// Translations
 	@override String get pipMode => '画中画模式';
 	@override String resumeFromLastPosition({required Object position}) => '从上次播放位置继续播放: ${position}';
+	@override String resumedFromHistoryTip({required Object position}) => '已从 ${position} 继续播放';
+	@override String get restartFromBeginning => '从头播放';
+	@override String get dismissResumeTip => '知道了';
 	@override late final _TranslationsVideoDetailLocalInfoZhCn localInfo = _TranslationsVideoDetailLocalInfoZhCn._(_root);
 	@override String get videoIdIsEmpty => '视频ID为空';
 	@override String get videoInfoIsEmpty => '视频信息为空';
@@ -4682,6 +4685,9 @@ extension on TranslationsZhCn {
 			'subscriptions.showAllSubscribedUsersContent' => '显示所有已订阅用户的内容',
 			'videoDetail.pipMode' => '画中画模式',
 			'videoDetail.resumeFromLastPosition' => ({required Object position}) => '从上次播放位置继续播放: ${position}',
+			'videoDetail.resumedFromHistoryTip' => ({required Object position}) => '已从 ${position} 继续播放',
+			'videoDetail.restartFromBeginning' => '从头播放',
+			'videoDetail.dismissResumeTip' => '知道了',
 			'videoDetail.localInfo.videoInfo' => '视频信息',
 			'videoDetail.localInfo.currentQuality' => '当前清晰度',
 			'videoDetail.localInfo.duration' => '时长',
@@ -5097,11 +5103,11 @@ extension on TranslationsZhCn {
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => '下载中 (${downloaded}/${total}张 ${progress}%)',
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => '下载中 (${downloaded}张)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => '已暂停 (${downloaded}/${total}张 ${progress}%)',
+			_ => null,
+		} ?? switch (path) {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => '已暂停 (已下载${downloaded}张)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => '下载完成 (共${total}张)',
 			'download.viewVideoDetail' => '查看视频详情',
-			_ => null,
-		} ?? switch (path) {
 			'download.viewGalleryDetail' => '查看图库详情',
 			'download.moreOptions' => '更多操作',
 			'download.openFile' => '打开文件',
@@ -5611,11 +5617,11 @@ extension on TranslationsZhCn {
 			'log.logManagement' => '日志管理',
 			'log.enableLogPersistence' => '启用日志持久化',
 			'log.enableLogPersistenceDesc' => '将日志保存到数据库以便于分析问题',
+			_ => null,
+		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
-			_ => null,
-		} ?? switch (path) {
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',

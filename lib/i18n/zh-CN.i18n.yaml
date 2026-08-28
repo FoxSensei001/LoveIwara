@@ -1186,6 +1186,9 @@ subscriptions:
 videoDetail:
   pipMode: 画中画模式
   resumeFromLastPosition: '从上次播放位置继续播放: ${position}'
+  resumedFromHistoryTip: '已从 ${position} 继续播放'
+  restartFromBeginning: 从头播放
+  dismissResumeTip: 知道了
   localInfo:
     videoInfo: 视频信息
     currentQuality: 当前清晰度

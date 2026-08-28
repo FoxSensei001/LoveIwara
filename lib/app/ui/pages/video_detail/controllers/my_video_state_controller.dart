@@ -1297,6 +1297,22 @@ class MyVideoStateController extends GetxController
         position: _deferredInitialPlaybackPosition,
         playOnOpen: effectivePlayOnOpen,
       );
+
+      // 这里只**登记待办**，不点亮提示。
+      //
+      // 两层理由：
+      // 1. 算出来 ≠ 用过。关掉「首次进入自动播放」时历史进度早就算好了，但用户
+      //    没点播放之前根本没跳转，那会儿提示「已从 xx 继续播放」是在撒谎。
+      //    resetVideoInfo 还被切清晰度复用，那条路不经过这里，也不会误报。
+      // 2. `player.open` 返回 ≠ 画面出来了。后面还有加监听器、缓冲、首帧，网络
+      //    差时能拖好几秒。在这一刻就开始烧 8 秒的停留计时，用户看到提示时它已经
+      //    快没了——真机上正是这个观感。真正点亮放在位置流里，见
+      //    [_maybeRevealPendingResumeTip]。
+      if (videoErrorMessage.value == null &&
+          videoSourceErrorMessage.value == null &&
+          shouldOfferResumeTip(_deferredInitialPlaybackPosition)) {
+        _pendingResumeTipPosition = _deferredInitialPlaybackPosition;
+      }
     } finally {
       _isStartingDeferredInitialPlayback = false;
     }
@@ -3943,7 +3959,93 @@ class MyVideoStateController extends GetxController
   // 添加关闭提示的方法:
   void hideResumePositionTip() {
     showResumePositionTip.value = false;
+    // 用户已经表态（或提示已到期），待办一并作废，免得稍后又冒出来。
+    _pendingResumeTipPosition = null;
     _resumeTipTimer?.cancel();
+  }
+
+  /// 提示在屏幕上停留多久。
+  ///
+  /// 比工具栏的 3 秒自动隐藏长：这条提示带着一个「从头播放」按钮，用户得先读懂
+  /// 再决定要不要点。历史上它跟着工具栏一起淡出，于是观感是「闪一下就没了」；
+  /// 现在它不参与工具栏的显隐，收起工具栏也不影响它活满这段时间。
+  static const Duration kResumeTipDwell = Duration(seconds: 8);
+
+  /// 低于这个进度就不值得打扰用户。
+  ///
+  /// 还原时本来就会往回退 4 秒，所以「看了几秒就退出」的视频还原出来往往是 0~2 秒，
+  /// 这种情况下弹一条「已从 00:01 继续播放」纯属噪音。
+  static const Duration kMinResumeTipPosition = Duration(seconds: 3);
+
+  /// 这次还原出来的位置值不值得提示用户。纯函数，便于直接单测。
+  @visibleForTesting
+  static bool shouldOfferResumeTip(Duration restoredPosition) =>
+      restoredPosition >= kMinResumeTipPosition;
+
+  /// 已经跳到历史进度、但**画面还没真正跑起来**，提示暂存在这里。
+  ///
+  /// 一旦位置流报出「在播、不缓冲、进度确实落在历史位置上」，就把它兑现成提示；
+  /// 若那一刻的进度并不在历史位置附近（说明这次还原压根没生效，或用户已经自己
+  /// 跳到别处），就直接作废——宁可不提示，也不能提示一件没发生的事。
+  Duration? _pendingResumeTipPosition;
+
+  /// 这一帧位置回调是否该把待办的续播提示兑现出来。纯函数，便于直接单测。
+  ///
+  /// [slack] 是容差：mpv 从 `start:` 打开后报的第一个位置可能略早于目标。
+  @visibleForTesting
+  static bool shouldRevealResumeTipNow({
+    required Duration pendingPosition,
+    required Duration currentPosition,
+    required bool videoBuffering,
+    required bool videoPlaying,
+    Duration slack = const Duration(seconds: 2),
+  }) {
+    if (videoBuffering || !videoPlaying) return false;
+    return currentPosition + slack >= pendingPosition;
+  }
+
+  /// 位置流每次真正更新显示进度时问一次：待办的续播提示能不能兑现了。
+  ///
+  /// 判定是**一次性**的：只要画面已经在跑（在播且不缓冲），这一刻的进度就是最终
+  /// 答案——落在历史位置上就提示，落在别处就作废，不留悬念也不需要超时兜底。
+  void _maybeRevealPendingResumeTip(Duration position) {
+    final pending = _pendingResumeTipPosition;
+    if (pending == null) return;
+    // 还在缓冲 / 还没开播：继续等，画面没出来之前不能开始烧停留计时。
+    if (videoBuffering.value || !videoPlaying.value) return;
+    _pendingResumeTipPosition = null;
+    if (shouldRevealResumeTipNow(
+      pendingPosition: pending,
+      currentPosition: position,
+      videoBuffering: videoBuffering.value,
+      videoPlaying: videoPlaying.value,
+    )) {
+      _armResumePositionTip(pending);
+    }
+  }
+
+  /// 播放确实从历史进度接上了——亮出提示，并给用户一个反悔的入口。
+  void _armResumePositionTip(Duration restoredPosition) {
+    if (_isDisposed || !shouldOfferResumeTip(restoredPosition)) return;
+    resumePosition.value = restoredPosition;
+    showResumePositionTip.value = true;
+    // 提示已经不跟着工具栏淡出了（见 `BottomToolbar._buildResumeTip`），
+    // 所以这里**不再**强行叫出工具栏、也不压制它的自动隐藏：工具栏该怎么收就
+    // 怎么收，提示自己活满 [kResumeTipDwell]。
+    _resumeTipTimer?.cancel();
+    _resumeTipTimer = Timer(kResumeTipDwell, () {
+      if (_isDisposed) return;
+      hideResumePositionTip();
+    });
+  }
+
+  /// 「从头播放」：放弃这次历史进度，回到片头。
+  ///
+  /// 只跳位置、不动历史记录本身——用户继续看下去自然会把它覆盖掉；
+  /// 若在这里顺手删了记录，用户误点之后就再也找不回原来的进度了。
+  Future<void> restartFromBeginning() async {
+    hideResumePositionTip();
+    await handleSeek(Duration.zero);
   }
 
   /// 设置 Anime4K Shader
@@ -4171,6 +4273,10 @@ class MyVideoStateController extends GetxController
           _lastPlaybackAdvanceMark = position;
           noticeCenter.onPlaybackAdvanced();
         }
+
+        // 显示进度刚刚更新过了 —— 这才是「用户真的看到画面在这个位置上」的时刻，
+        // 续播提示要等到这里才点亮。
+        _maybeRevealPendingResumeTip(position);
 
         _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
