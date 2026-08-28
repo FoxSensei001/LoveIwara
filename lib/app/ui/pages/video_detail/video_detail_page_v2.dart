@@ -27,6 +27,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/enums/media_enums.dart';
 import '../comment/controllers/comment_controller.dart';
 import 'controllers/related_media_controller.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/playback_queue_navigator.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class MyVideoDetailPage extends StatefulWidget {
@@ -43,6 +47,12 @@ class MyVideoDetailPage extends StatefulWidget {
   final video_model.Video? initialVideoInfo;
   final VideoFullscreenHandoff? fullscreenHandoff;
 
+  /// 从上一条续播/抽屉点播过来时带的池引用（只有两个字符串）。
+  final PlaybackQueueRef? playbackQueueRef;
+
+  /// 续播时跳不跳过已看完的（由点播时所在的筛选 tab 决定）。
+  final bool skipWatchedInQueue;
+
   const MyVideoDetailPage({
     super.key,
     required this.videoId,
@@ -55,6 +65,8 @@ class MyVideoDetailPage extends StatefulWidget {
     this.forceEnterFullscreen = false,
     this.initialVideoInfo,
     this.fullscreenHandoff,
+    this.playbackQueueRef,
+    this.skipWatchedInQueue = false,
   });
 
   @override
@@ -136,6 +148,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         }
       }
 
+      // 视频池：来源 / （续播带过来的）播放列表 / 稍后再看
+      _setupPlaybackQueues();
+
       // RouteAware 订阅在 didChangeDependencies 中完成
     } catch (e) {
       _initializationFailed = true;
@@ -173,6 +188,121 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       (_) => tryEnterFullscreen(),
     );
     tryEnterFullscreen();
+  }
+
+  // ------------------------------------------------------------ 视频池
+
+  /// 本页可用的池。**每层详情页各持一份**——`详情页1 → 作者页 → 详情页2` 时，
+  /// 详情页2 的来源池是作者页那份列表，而返回详情页1 时它的池必须还是原来那份。
+  /// 用"全局唯一的当前池"会让下游页面把上游的上下文静默篡改掉。
+  List<PlaybackQueue> _queues = const <PlaybackQueue>[];
+  PlaybackQueue? _activeQueue;
+
+  bool get _hasPlaybackQueue =>
+      _queues.any((queue) => queue.loaded.isNotEmpty || queue.hasMore);
+
+  /// 组装本页的池清单。
+  ///
+  /// ⛔ 「来源」只在**真的有来源**时出现（深链 / 通知 / 搜索单条进来时整只不出现），
+  /// 而不是出现一个点了什么都没有的空 tab。
+  void _setupPlaybackQueues() {
+    if (isLocalMode) return;
+    final service = PlaybackQueueService.to;
+    final queues = <PlaybackQueue>[];
+
+    // 1. 上一条续播/抽屉点播带过来的池（路由 extra 里只有两个字符串）
+    final ref = widget.playbackQueueRef;
+    PlaybackQueue? handedOver;
+    if (ref != null) {
+      handedOver = service.byId(ref.queueId);
+      if (handedOver != null) queues.add(handedOver);
+    }
+
+    // 2. 来源池：进详情页之前那个列表的快照
+    final sourceContext = widget.innerPlaylistContext;
+    if (sourceContext != null && sourceContext.items.isNotEmpty) {
+      final source = service.openSource(sourceContext, ownerKey: uniqueTag);
+      if (!queues.any((queue) => queue.queueId == source.queueId)) {
+        queues.add(source);
+      }
+    }
+
+    // 3. 稍后再看：只装视频、排除站外，默认「全部」
+    final watchLater = service.openWatchLater(unwatchedOnly: false);
+    if (!queues.any((queue) => queue.queueId == watchLater.queueId)) {
+      queues.add(watchLater);
+    }
+
+    _queues = queues;
+    _activeQueue = handedOver ?? queues.firstOrNull;
+    // ⛔ **本页持有的每个池都要挂上监听**，不能只挂 active 那一个。
+    //
+    // LRU 只保护"还有人在听"的池（`PlaybackQueueService._evictIfNeeded`）。
+    // 只听 active 的话，`_queues` 里另外那两个在别处注册新池时会被淘汰并
+    // `dispose()`，而本页仍拿着它们的引用——用户在抽屉里点到那条 tab，
+    // `addListener` 就撞上一个已 dispose 的 ChangeNotifier 直接崩。
+    //
+    // 顺带：池里内容变了（翻页 / 稍后再看被改）也要重算把手要不要在场。
+    for (final queue in _queues) {
+      queue.addListener(_onActiveQueueChanged);
+    }
+
+    // 播完之后接着播池里的下一条。只有「池内续播」开着时才会被调到（判定在
+    // controller 里），池到底了就什么都不做——停在最后一条，恢复暂停/重播语义。
+    controller.onPlaybackCompleted = _advanceInQueue;
+  }
+
+  void _onActiveQueueChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _advanceInQueue() async {
+    final queue = _activeQueue;
+    if (queue == null || !mounted) return;
+    final inFullscreen = controller.isFullscreen.value;
+    await PlaybackQueueNavigator.advance(
+      queue: queue,
+      currentItemId: videoId,
+      skipWatched: widget.skipWatchedInQueue,
+      forceEnterFullscreen: inFullscreen,
+      fullscreenHandoff: inFullscreen
+          ? controller.buildFullscreenHandoff()
+          : null,
+      onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
+    );
+  }
+
+  Future<void> _openQueueDrawer() async {
+    final queues = _queues;
+    if (queues.isEmpty || !mounted) return;
+    final selection = await showPlaybackQueueDrawer(
+      context: context,
+      queues: queues,
+      initialQueue: _activeQueue ?? queues.first,
+      currentItemId: videoId,
+      playlistOwner: controller.videoInfo.value?.user,
+    );
+    if (selection == null || !mounted) return;
+    // ⛔ 只有**真的点播了一条**才换池。光切 tab 逛一圈不算——用户常常只是想
+    // 瞄一眼别的池里有什么，静默换池会让下一条突然从别处冒出来。
+    // 抽屉里可能换出了新的池实例（切了播放列表 / 切了稍后再看的筛选）——
+    // 那些实例本页还没听过，得补上，否则它们同样会被 LRU 淘汰掉。
+    if (!_queues.any((queue) => identical(queue, selection.queue))) {
+      _queues = [..._queues, selection.queue];
+      selection.queue.addListener(_onActiveQueueChanged);
+    }
+    _activeQueue = selection.queue;
+    final inFullscreen = controller.isFullscreen.value;
+    await PlaybackQueueNavigator.playItem(
+      queue: selection.queue,
+      item: selection.item,
+      skipWatched: selection.skipWatched,
+      forceEnterFullscreen: inFullscreen,
+      fullscreenHandoff: inFullscreen
+          ? controller.buildFullscreenHandoff()
+          : null,
+      onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
+    );
   }
 
   InnerPlaylistContext? _resolveInnerPlaylistContext() {
@@ -258,6 +388,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   @override
   void dispose() {
     LogUtils.w('dispose start: uniqueTag=$uniqueTag', 'MyVideoDetailPage');
+    // _activeQueue 一定在 _queues 里，不用再单独摘一次。
+    for (final queue in _queues) {
+      queue.removeListener(_onActiveQueueChanged);
+    }
 
     // 应用内全屏（isDesktopAppFullScreen）不会被页面 PopScope 拦截，
     // 因此可能在未退出该模式时直接关闭视频页，残留 showTitleBar/showRailNavi
@@ -406,6 +540,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                       myVideoStateController: controller,
                       isFullScreen: false,
                       innerPlaylistContext: effectiveInnerPlaylistContext,
+                      hasPlaybackQueue: _hasPlaybackQueue,
+                      onOpenQueueDrawer: _openQueueDrawer,
                     );
                   }
 
@@ -455,6 +591,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     isFullScreen: true,
                     myVideoStateController: controller,
                     innerPlaylistContext: effectiveInnerPlaylistContext,
+                    hasPlaybackQueue: _hasPlaybackQueue,
+                    onOpenQueueDrawer: _openQueueDrawer,
                   ),
                 ),
               ),

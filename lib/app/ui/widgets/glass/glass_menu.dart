@@ -115,6 +115,8 @@ class GlassMenuOption<T> extends GlassMenuEntry {
     this.selected = false,
     this.destructive = false,
     this.enabled = true,
+    this.accentColor,
+    this.trailing,
   });
 
   /// 选中后由 [showGlassMenu] 返回的值。
@@ -153,6 +155,36 @@ class GlassMenuOption<T> extends GlassMenuEntry {
   final bool destructive;
 
   final bool enabled;
+
+  /// 「这件事已经做过了」的状态色：整行前景转成这个颜色，行底垫一层同色薄底。
+  ///
+  /// 与 [selected] 是**两件不同的事**，别混用：
+  /// - [selected] 是「这张菜单里当前生效的那一项」（清晰度选了 1080p、排序选了
+  ///   最近添加），它是**单选组里的选中**，所以右侧配一枚对勾；
+  /// - [accentColor] 是「这一项对应的东西已经处于某个状态」（这个视频**已经**
+  ///   下载过、**已经**在稍后再看里、**已经**点过赞）。它不是单选，几项可以
+  ///   同时亮着，也没有对勾——打勾读起来像"我选中了这一行"，语义是错的。
+  ///
+  /// 观感对齐详情页那排 `FilledActionButton`（`video_info_tab_widget.dart`）：
+  /// 那里也是整枚按钮换色来表达"已加入"，用户认的就是这个颜色变化。
+  ///
+  /// [destructive] 与「禁用」优先级都在它之上——一条既是破坏性又已激活的项，
+  /// 先得让人看出它是删除。
+  final Color? accentColor;
+
+  /// 行尾的一小段说明文字（「2 个清晰度」「3 个播放列表」）。
+  ///
+  /// ⛔ **刻意是 `String` 而不是 `Widget`**：液态档的面板尺寸是把
+  /// [_measureMenuPanelSize] 用 [TextPainter] 离线量出来的那一份**钉死**喂给
+  /// [GlassSurface] 的（见 [_GlassMenuPanel] 的类注释）。放一个量不出宽度的
+  /// `Widget`，玻璃就会比内容窄一截，行里的文字被约束成省略号——而且传统档
+  /// 是自然布局、看不出问题，只有液态档才露馅。
+  ///
+  /// 加字段时记得同步 [_measureMenuPanelSize]，闸门在
+  /// `glass_menu_accent_trailing_test.dart`（两档宽度必须一致）。
+  ///
+  /// 与 [selected] 的对勾可以同时出现，两者都算进行宽。
+  final String? trailing;
 }
 
 /// 分组之间的细分隔线。
@@ -216,6 +248,11 @@ const double _rowIconWidth = 20 + 12; // icon + gap
 const double _rowLeadingSize = 22;
 const double _rowLeadingWidth = _rowLeadingSize + 12; // leading + gap
 const double _rowCheckWidth = 12 + 18; // gap + check icon
+
+/// [GlassMenuOption.trailing] 的字号与它前面那道间隙。行宽要把它算进去，
+/// 否则加了尾注的行会被截断。
+const double _trailingFontSize = 12.5;
+const double _rowTrailingGap = 12;
 const double _separatorHeight = 5 * 2 + 1; // padding + line
 const double _panelVerticalPadding = 6 * 2;
 
@@ -439,6 +476,7 @@ Size? _measureMenuPanelSize({
         :final description,
         :final icon,
         :final selected,
+        :final trailing,
       ):
         // 行首那一格（图标 / leading 槽位）两行共用，只算一次。
         double lead = 0;
@@ -446,6 +484,16 @@ Size? _measureMenuPanelSize({
           lead = _rowLeadingWidth;
         } else if (icon != null) {
           lead = _rowIconWidth;
+        }
+        // 行尾那一格（尾注 + 对勾）两行也共用，同样只算一次。
+        double tail = selected ? _rowCheckWidth : 0;
+        if (trailing != null) {
+          tail +=
+              _rowTrailingGap +
+              measureText(
+                trailing,
+                const TextStyle(fontSize: _trailingFontSize),
+              );
         }
         double rowWidth =
             _rowHorizontalChrome +
@@ -456,11 +504,11 @@ Size? _measureMenuPanelSize({
                 fontSize: 14.5,
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
               ),
-            );
-        if (selected) rowWidth += _rowCheckWidth;
+            ) +
+            tail;
         if (description != null) {
           // 副标题与标题左对齐（在同一个 Expanded 里），所以它的行宽算法只差
-          // 字号；对勾也压在同一行右侧，一并计入。
+          // 字号；尾注与对勾也压在同一行右侧，一并计入。
           final double descWidth =
               _rowHorizontalChrome +
               lead +
@@ -468,7 +516,7 @@ Size? _measureMenuPanelSize({
                 description,
                 const TextStyle(fontSize: _descriptionFontSize),
               ) +
-              (selected ? _rowCheckWidth : 0);
+              tail;
           if (descWidth > rowWidth) rowWidth = descWidth;
         }
         if (rowWidth > contentWidth) contentWidth = rowWidth;
@@ -1730,13 +1778,17 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
     final option = widget.option;
     final bool enabled = option.enabled && widget.onTap != null;
 
+    // 「已激活」的状态色。破坏性动作与禁用态排在它前面：一条既是删除又已激活
+    // 的项，先得让人看出它是删除。
+    final Color? accent = enabled && !option.destructive
+        ? option.accentColor
+        : null;
+
     final Color fg = !enabled
         ? cs.onSurface.withValues(alpha: 0.38)
         : option.destructive
         ? cs.error
-        : option.selected
-        ? cs.primary
-        : cs.onSurface;
+        : accent ?? (option.selected ? cs.primary : cs.onSurface);
 
     return MouseRegion(
       cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
@@ -1763,13 +1815,19 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
+            // 已激活的行常驻一层同色薄底——只换文字颜色在玻璃面板上太弱，
+            // 详情页那排按钮之所以一眼看得出"已加入"，靠的就是整块底色。
+            // 按下/悬停在薄底之上再加深一档，而不是把薄底换掉，否则一按
+            // 反而看着像"状态没了"。
             color: !enabled || widget.slideActive
                 ? Colors.transparent
                 : pressed
-                ? cs.onSurface.withValues(alpha: 0.10)
+                ? (accent?.withValues(alpha: 0.24) ??
+                      cs.onSurface.withValues(alpha: 0.10))
                 : _hovered
-                ? cs.onSurface.withValues(alpha: 0.05)
-                : Colors.transparent,
+                ? (accent?.withValues(alpha: 0.18) ??
+                      cs.onSurface.withValues(alpha: 0.05))
+                : (accent?.withValues(alpha: 0.12) ?? Colors.transparent),
             borderRadius: BorderRadius.circular(_rowRadius),
           ),
           child: Row(
@@ -1826,9 +1884,24 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
                   ],
                 ),
               ),
+              if (option.trailing != null) ...[
+                const SizedBox(width: _rowTrailingGap),
+                Text(
+                  option.trailing!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: _trailingFontSize,
+                    height: 1.2,
+                    color: enabled
+                        ? (accent ?? cs.onSurfaceVariant)
+                        : cs.onSurface.withValues(alpha: 0.38),
+                  ),
+                ),
+              ],
               if (option.selected) ...[
                 const SizedBox(width: 12),
-                Icon(Icons.check, size: 18, color: cs.primary),
+                Icon(Icons.check, size: 18, color: accent ?? cs.primary),
               ],
             ],
           ),

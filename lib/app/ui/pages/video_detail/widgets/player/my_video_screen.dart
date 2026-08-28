@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
-import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
@@ -18,19 +18,16 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
-import 'fullscreen_inner_playlist_drawer.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
 import 'video_zoom_view.dart';
@@ -81,12 +78,22 @@ class MyVideoScreen extends StatefulWidget {
   final bool enableBottomSafeArea;
   final InnerPlaylistContext? innerPlaylistContext;
 
+  /// 抽屉里有没有东西可看。没有就连贴边把手都不出现——给用户开一扇通往空房间
+  /// 的门比不给更糟。
+  final bool hasPlaybackQueue;
+
+  /// 打开「接着看」抽屉。抽屉本体是一条 root 路由（见 playback_queue_drawer.dart），
+  /// 不再是播放器里那条横向列表，所以这里只负责发起。
+  final VoidCallback? onOpenQueueDrawer;
+
   const MyVideoScreen({
     super.key,
     this.isFullScreen = false,
     this.enableBottomSafeArea = false,
     required this.myVideoStateController,
     this.innerPlaylistContext,
+    this.hasPlaybackQueue = false,
+    this.onOpenQueueDrawer,
   });
 
   @override
@@ -109,9 +116,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   /// 直接把组件摘掉就成了硬切，出现与消失都要有过渡。
   double? _bottomSeekPreviewX;
   Duration? _bottomSeekPreviewTime;
-  bool _innerPlaylistExpanded = false;
-  bool _isSwitchingInnerPlaylistVideo = false;
-  InnerPlaylistItemSnapshot? _loadingInnerPlaylistItem;
 
   Timer? _volumeInfoTimer; // 添加音量提示计时器
   Timer? _playbackSpeedInfoTimer; // 倍速调整的临时提示计时器
@@ -861,143 +865,18 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     });
   }
 
-  InnerPlaylistContext? get _effectiveInnerPlaylistContext {
-    final context = widget.innerPlaylistContext;
-    final currentVideo = widget.myVideoStateController.videoInfo.value;
-    if (context == null || currentVideo == null) {
-      return context;
-    }
-
-    final liked = currentVideo.liked;
-    final numLikes = currentVideo.numLikes;
-    if (liked == null || numLikes == null) {
-      return context;
-    }
-
-    return context.copyWithVideoLikeState(
-      videoId: currentVideo.id,
-      liked: liked,
-      numLikes: numLikes,
-    );
-  }
-
-  List<InnerPlaylistItemSnapshot> get _orderedInnerPlaylistItems {
-    return _effectiveInnerPlaylistContext?.itemsStartingAfterCurrent() ??
-        const <InnerPlaylistItemSnapshot>[];
-  }
-
+  /// 贴边把手要不要在场。
+  ///
+  /// ⛔ 与旧版的两处不同：
+  /// 1. **不再只在全屏时出现**——抽屉改成了整页的侧边抽屉，非全屏一样能开；
+  /// 2. **跟着播放控制栏一起显隐**（`shouldShowOverlayHud` 那条），而不是常驻
+  ///    压着画面右侧——横屏移动端播放器的垂直空间本来就小。
   bool _canShowInnerPlaylistOverlay() {
     final hintEnabled =
         _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool;
-    // 竖屏全屏视频同样需要保留“接着看”入口，不能只在横屏时渲染。
-    return widget.isFullScreen &&
-        _orderedInnerPlaylistItems.isNotEmpty &&
-        (_innerPlaylistExpanded || hintEnabled);
-  }
-
-  void _syncMouseHoverToolbarSuppression() {
-    widget.myVideoStateController.setMouseHoverToolbarRevealSuppressed(
-      _innerPlaylistExpanded,
-    );
-  }
-
-  void _openInnerPlaylistDrawer() {
-    if (_orderedInnerPlaylistItems.isEmpty || _isSwitchingInnerPlaylistVideo) {
-      return;
-    }
-
-    setState(() {
-      _innerPlaylistExpanded = true;
-    });
-    _syncMouseHoverToolbarSuppression();
-    widget.myVideoStateController.hideToolbars();
-  }
-
-  void _closeInnerPlaylistDrawer({bool restoreToolbars = true}) {
-    if (!_innerPlaylistExpanded) {
-      return;
-    }
-
-    setState(() {
-      _innerPlaylistExpanded = false;
-    });
-    _syncMouseHoverToolbarSuppression();
-
-    if (restoreToolbars) {
-      widget.myVideoStateController.showToolbars();
-    }
-  }
-
-  void _showInnerPlaylistErrorToast(String message) {
-    if (message.trim().isEmpty) {
-      return;
-    }
-    showGlassToast(
-      message,
-      type: GlassToastType.error,
-      position: GlassToastPosition.top,
-    );
-  }
-
-  Future<void> _handleInnerPlaylistSelection(
-    InnerPlaylistItemSnapshot item,
-  ) async {
-    if (_isSwitchingInnerPlaylistVideo ||
-        item.id == widget.myVideoStateController.videoId) {
-      return;
-    }
-
-    setState(() {
-      _isSwitchingInnerPlaylistVideo = true;
-      _innerPlaylistExpanded = true;
-      _loadingInnerPlaylistItem = item;
-    });
-
-    // 不再阻塞式预加载视频详情：直接用侧边栏快照携带的原始视频信息立即跳转。
-    // 目标页用 initialVideoInfo 先渲染缩略图/标题等播放器框架，播放源在后台加载；
-    // 站内/站外的判断也直接复用快照里的 isExternalVideo，无需联网。
-    final targetVideo = item.sourceVideo;
-    final nextContext = _effectiveInnerPlaylistContext?.copyForSelection(
-      item.id,
-    );
-
-    try {
-      late final Future<Object?> navigationFuture;
-      if (item.isExternalVideo) {
-        await widget.myVideoStateController.exitFullscreen();
-        navigationFuture = NaviService.navigateToVideoDetailPage(
-          item.id,
-          innerPlaylistContext: nextContext,
-          initialVideoInfo: targetVideo,
-        );
-      } else {
-        final VideoFullscreenHandoff? fullscreenHandoff = widget
-            .myVideoStateController
-            .buildFullscreenHandoff();
-        navigationFuture = NaviService.navigateToVideoDetailPage(
-          item.id,
-          innerPlaylistContext: nextContext,
-          forceAutoPlay: true,
-          forceEnterFullscreen: true,
-          initialVideoInfo: targetVideo,
-          fullscreenHandoff: fullscreenHandoff,
-        );
-        widget.myVideoStateController.relinquishFullscreenForRouteHandoff();
-      }
-
-      await navigationFuture;
-    } catch (e) {
-      if (mounted) {
-        _showInnerPlaylistErrorToast(CommonUtils.parseExceptionMessage(e));
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSwitchingInnerPlaylistVideo = false;
-          _loadingInnerPlaylistItem = null;
-        });
-      }
-    }
+    return widget.hasPlaybackQueue &&
+        widget.onOpenQueueDrawer != null &&
+        hintEnabled;
   }
 
   @override
@@ -1534,49 +1413,41 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     ];
   }
 
+  /// 「接着看」的贴边把手。
+  ///
+  /// 老版本这里是一整条横向列表（还只在全屏时存在）；现在它只是一枚**发起
+  /// 按钮**，抽屉本体是一条 root 路由的竖排侧边抽屉。这么改的直接好处是横屏
+  /// 移动端不必再为一条横向列表让出垂直空间。
+  ///
+  /// 跟着播放控制栏一起显隐：控制栏藏起来的时候画面右侧就该是干净的。
   Widget _buildInnerPlaylistOverlay() {
     return Obx(() {
-      final items = _orderedInnerPlaylistItems;
-      final hintEnabled =
-          _configService[ConfigKey.SHOW_FULLSCREEN_UP_NEXT_HINT] as bool;
-      if (!widget.isFullScreen ||
-          items.isEmpty ||
-          (!_innerPlaylistExpanded && !hintEnabled)) {
+      if (!_canShowInnerPlaylistOverlay()) {
         return const SizedBox.shrink();
       }
-      final showResumePositionTip =
-          widget.myVideoStateController.showResumePositionTip.value;
-
       return AnimatedBuilder(
         animation: widget.myVideoStateController.animationController,
         builder: (context, child) {
-          final toolbarVisibility = widget
+          final visibility = widget
               .myVideoStateController
               .animationController
               .value
               .clamp(0.0, 1.0);
-
-          return FullscreenInnerPlaylistDrawer(
-            items: items,
-            isExpanded: _innerPlaylistExpanded,
-            showHint:
-                hintEnabled &&
-                !_innerPlaylistExpanded &&
-                !_isSwitchingInnerPlaylistVideo,
-            isBusy: _isSwitchingInnerPlaylistVideo,
-            loadingItemId: _isSwitchingInnerPlaylistVideo
-                ? _loadingInnerPlaylistItem?.id
-                : null,
-            onExpand: _openInnerPlaylistDrawer,
-            onCollapse: _closeInnerPlaylistDrawer,
-            onDismiss: () => _closeInnerPlaylistDrawer(restoreToolbars: false),
-            toolbarVisibility: toolbarVisibility,
-            showResumePositionTip: showResumePositionTip,
-            onSelectItem: (item) {
-              unawaited(_handleInnerPlaylistSelection(item));
-            },
+          if (visibility <= 0.01) return const SizedBox.shrink();
+          return Opacity(
+            opacity: visibility,
+            child: IgnorePointer(ignoring: visibility < 0.5, child: child),
           );
         },
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: MediaQuery.paddingOf(context).right + 4,
+            ),
+            child: _QueueEdgeHandle(onTap: widget.onOpenQueueDrawer),
+          ),
+        ),
       );
     });
   }
@@ -2417,3 +2288,44 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
 /// 长按类型 [滑动也属于长按]
 enum LongPressType { brightness, volume, normal }
+
+/// 播放器右缘那枚「接着看」把手。
+///
+/// 刻意做得很窄（一条 28×72 的圆角片）：它常驻在画面上，宽一点就开始碍事。
+/// 点它打开侧边抽屉；不做"按住拖出"——抽屉现在是一条 root 路由，跟手拖出要
+/// 自己重做一整套转场，收益不抵成本。
+class _QueueEdgeHandle extends StatelessWidget {
+  const _QueueEdgeHandle({required this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassTapArea(
+      onTap: onTap,
+      opensOverlay: true,
+      child: Semantics(
+        // 纯图标按钮，读屏只念得出"按钮"。它是抽屉的唯一入口，必须有名字。
+        label: slang.t.playbackQueue.openQueue,
+        button: true,
+        child: Container(
+        width: 28,
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.45),
+          borderRadius: const BorderRadius.horizontal(
+            left: Radius.circular(14),
+          ),
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.chevron_left,
+            size: 20,
+            color: Colors.white,
+          ),
+        ),
+        ),
+      ),
+    );
+  }
+}

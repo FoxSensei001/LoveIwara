@@ -521,8 +521,8 @@ settings:
   seekPreviewSizeStandard: 标准
   seekPreviewSizeLarge: 大
   seekPreviewSizeStandardDesc: 按播放器与视频自动推算出的大小
-  showFullscreenUpNextHint: 显示“接着看”侧边提示
-  showFullscreenUpNextHintDesc: 全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。
+  showFullscreenUpNextHint: 显示「接着看」入口
+  showFullscreenUpNextHintDesc: 在播放器右缘显示一枚把手，用来打开视频池抽屉（来源 / 播放列表 / 稍后再看）。关掉之后就没有别的入口了。
   basicSettings: 基础设置
   personalizedSettings: 个性化设置
   otherSettings: 其他设置
@@ -2748,3 +2748,48 @@ externalPlayer:
   executableMissing: "可执行文件不存在"
   openWithNamed: '用 ${name} 打开'
   managePlayersEntry: "管理外部播放器…"
+watchLater:
+  title: 稍后再看
+  addToWatchLater: 稍后再看
+  removeFromWatchLater: 移出稍后再看
+  addedToWatchLater: 已添加至稍后再看
+  alreadyInWatchLater: 已经在稍后再看里了
+  removedFromWatchLater: 已移出稍后再看
+  viewWatchLaterList: 查看列表
+  addFailed: 加入稍后再看失败
+  invalidItem: 已失效
+  clearWatched: 清除已看完
+  watchedCleared: 已清除 ${count} 条看完的内容
+  noWatchedToClear: 没有已看完的内容
+  emptyVideo: 还没有加入稍后再看的视频
+  emptyGallery: 还没有加入稍后再看的图库
+  filterAll: 全部
+  filterUnwatched: 未看完
+  sortRecentlyAdded: 最近添加
+  sortEarliestAdded: 最早添加
+  watched: 已看完
+  playlistLoadFailed: 播放列表加载失败
+  noPlaylists: 还没有播放列表
+  undo: 撤销
+  clearWatchedConfirm: 要清除这个分类下所有已看完的内容吗？此操作不可撤销。
+  emptyUnwatchedVideo: 没有未看完的视频
+  emptyUnwatchedGallery: 没有未看完的图库
+  queueLoadFailed: 加载失败，点击重试
+mediaMenu:
+  like: 点赞
+  unlike: 取消点赞
+  viewAuthor: 查看作者主页
+  inFolders: ${count} 个收藏夹
+  inPlaylists: ${count} 个播放列表
+  downloaded: 已下载
+playbackQueue:
+  upNext: 接着看
+  sourceTab: 来源
+  emptyQueue: 这个池里没有可播的视频
+  nowPlaying: 正在播放
+  myPlaylists: 我的播放列表
+  authorPlaylists: 作者的播放列表
+  openQueue: 接着看
+  continueInQueue: 在当前视频池内续播
+  continueInQueueSubtitle: 一条播完自动播池里的下一条；开启后「播放结束重播」不再生效
+  repeatDisabledByQueue: 已开启「池内续播」，重播不再生效

@@ -299,6 +299,12 @@ enum ConfigKey {
   DEFAULT_QUALITY_KEY,
   GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY,
   REPEAT_KEY,
+  /// 在当前视频池内续播：一条播完自动播池里的下一条。
+  /// 开启后 [REPEAT_KEY]（播放结束重播）不再生效——两者是互斥的收尾方式。
+  CONTINUE_IN_QUEUE_KEY,
+  /// 稍后再看的排序（'recentlyAdded' | 'earliestAdded'）。
+  /// 列表页与播放器抽屉共享同一份——两处显示同一批内容却排序不同会很怪。
+  WATCH_LATER_SORT_KEY,
   VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
   BRIGHTNESS_KEY,
   KEEP_LAST_BRIGHTNESS_KEY,
@@ -364,7 +370,7 @@ enum ConfigKey {
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
-  SHOW_FULLSCREEN_UP_NEXT_HINT, // 是否在全屏时显示“接着看”侧边提示
+  SHOW_FULLSCREEN_UP_NEXT_HINT, // 是否显示播放器右缘那枚「接着看」把手（**不限全屏**；它是视频池抽屉的唯一入口）
   SHOW_FOLLOW_TIP_COUNT, // 告诉用户关注功能的次数，默认两次
   DEFAULT_KEEP_VIDEO_TOOLBAR_VISABLE, // 默认是否保持刚进入视频页时工具栏常驻
   AUTO_PLAY_VIDEO_ON_FIRST_ENTER, // 首次进入视频详情页时自动播放
@@ -483,6 +489,10 @@ extension ConfigKeyExtension on ConfigKey {
         return 'gallery_viewer_default_image_quality';
       case ConfigKey.REPEAT_KEY:
         return 'repeat';
+      case ConfigKey.CONTINUE_IN_QUEUE_KEY:
+        return 'continue_in_queue';
+      case ConfigKey.WATCH_LATER_SORT_KEY:
+        return 'watch_later_sort';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 'video_left_and_right_control_area_ratio';
       case ConfigKey.BRIGHTNESS_KEY:
@@ -772,6 +782,10 @@ extension ConfigKeyExtension on ConfigKey {
         return galleryImageQualityStandard;
       case ConfigKey.REPEAT_KEY:
         return false;
+      case ConfigKey.CONTINUE_IN_QUEUE_KEY:
+        return false;
+      case ConfigKey.WATCH_LATER_SORT_KEY:
+        return 'recentlyAdded';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 0.2;
       case ConfigKey.BRIGHTNESS_KEY:

@@ -45,6 +45,8 @@ import 'package:i_iwara/app/ui/pages/play_list/play_list.dart';
 import 'package:i_iwara/app/ui/pages/favorites/my_favorites.dart';
 import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/ui/pages/watch_later/watch_later_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
@@ -446,6 +448,8 @@ final GoRouter appRouter = GoRouter(
                 localTask: extra.localTask,
                 localAllQualityTasks: extra.localAllQualityTasks,
                 innerPlaylistContext: extra.innerPlaylistContext,
+                playbackQueueRef: extra.playbackQueueRef,
+                skipWatchedInQueue: extra.skipWatchedInQueue,
                 forceAutoPlay: extra.forceAutoPlay,
                 forceEnterFullscreen: extra.forceEnterFullscreen,
                 initialVideoInfo: extra.initialVideoInfo,
@@ -587,6 +591,13 @@ final GoRouter appRouter = GoRouter(
           path: '/history_list',
           name: 'history_list',
           builder: (context, state) => const HistoryListPage(),
+        ),
+
+        // 稍后再看（纯本地列表）
+        GoRoute(
+          path: '/watch_later',
+          name: 'watch_later',
+          builder: (context, state) => const WatchLaterPage(),
         ),
 
         // 旧路径兼容：外部 deeplink / 历史书签仍可能指向 /settings_page。
@@ -1286,12 +1297,23 @@ class VideoDetailExtra {
   final Video? initialVideoInfo;
   final VideoFullscreenHandoff? fullscreenHandoff;
 
+  /// 视频池的引用：**只有两个字符串**，池的真身与游标在
+  /// `PlaybackQueueService` 里。刻意不传整份条目列表——那样池会随页面生灭，
+  /// 分页翻到第 8 页的游标一销毁就得从头拉。
+  final PlaybackQueueRef? playbackQueueRef;
+
+  /// 续播时跳不跳过已看完的。由用户点播时所在的筛选 tab 决定
+  /// （`全部` 不跳 / `未看完` 跳）。
+  final bool skipWatchedInQueue;
+
   const VideoDetailExtra({
     this.extData,
     this.localPath,
     this.localTask,
     this.localAllQualityTasks,
     this.innerPlaylistContext,
+    this.playbackQueueRef,
+    this.skipWatchedInQueue = false,
     this.forceAutoPlay = false,
     this.forceEnterFullscreen = false,
     this.initialVideoInfo,

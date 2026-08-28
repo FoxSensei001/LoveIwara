@@ -270,6 +270,12 @@ class InnerPlaylistContext {
       return items;
     }
 
+    // ⛔ 超限时**优先丢掉站外视频**是有意的，不是笔误：来源池的用途是"接着看"，
+    // 而站外视频（youtube 一类的 embed）内置播放器根本放不了，留在池里只会让
+    // 自动推进撞上去然后断链。名额有限时当然先给能播的。
+    //
+    // 注意这只影响**来源池**——它本来就是一次随机抽样（下面那行 shuffle 也是
+    // 有意的）。播放列表池不走这里：那是作者排好的顺序，既不截断也不打乱。
     final candidates = items
         .where((item) => !item.isExternalVideo)
         .toList(growable: true);

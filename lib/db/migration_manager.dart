@@ -16,6 +16,7 @@ import 'package:i_iwara/db/migrations/migration_v17_download_task_conflict_trigg
 import 'package:i_iwara/db/migrations/migration_v18_download_category.dart';
 import 'package:i_iwara/db/migrations/migration_v19_download_task_error_type.dart';
 import 'package:i_iwara/db/migrations/migration_v20_oreno3d_match_cache.dart';
+import 'package:i_iwara/db/migrations/migration_v21_watch_later.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -50,6 +51,7 @@ class MigrationManager {
     MigrationV18DownloadCategory(),
     MigrationV19DownloadTaskErrorType(),
     MigrationV20Oreno3dMatchCache(),
+    MigrationV21WatchLater(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

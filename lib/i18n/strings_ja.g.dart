@@ -87,6 +87,9 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsDefaultBlacklistReminderJa defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderJa._(_root);
 	@override late final _TranslationsColorVisionAssistJa colorVisionAssist = _TranslationsColorVisionAssistJa._(_root);
 	@override late final _TranslationsExternalPlayerJa externalPlayer = _TranslationsExternalPlayerJa._(_root);
+	@override late final _TranslationsWatchLaterJa watchLater = _TranslationsWatchLaterJa._(_root);
+	@override late final _TranslationsMediaMenuJa mediaMenu = _TranslationsMediaMenuJa._(_root);
+	@override late final _TranslationsPlaybackQueueJa playbackQueue = _TranslationsPlaybackQueueJa._(_root);
 }
 
 // Path: personalProfile
@@ -668,8 +671,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get seekPreviewSizeStandard => '標準';
 	@override String get seekPreviewSizeLarge => '大';
 	@override String get seekPreviewSizeStandardDesc => 'プレイヤーと動画から自動的に決まるサイズ';
-	@override String get showFullscreenUpNextHint => '「次に見る」エッジヒントを表示';
-	@override String get showFullscreenUpNextHintDesc => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。';
+	@override String get showFullscreenUpNextHint => '「次に見る」の取っ手を表示';
+	@override String get showFullscreenUpNextHintDesc => 'プレイヤー右端に取っ手を表示し、キュー（元のリスト / 再生リスト / あとで見る）を開きます。オフにすると他の入口はありません。';
 	@override String get basicSettings => '基本設定';
 	@override String get personalizedSettings => '個性化設定';
 	@override String get otherSettings => 'その他設定';
@@ -2397,6 +2400,75 @@ class _TranslationsExternalPlayerJa implements TranslationsExternalPlayerEn {
 	@override String get managePlayersEntry => '外部プレイヤーを管理…';
 }
 
+// Path: watchLater
+class _TranslationsWatchLaterJa implements TranslationsWatchLaterEn {
+	_TranslationsWatchLaterJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'あとで見る';
+	@override String get addToWatchLater => 'あとで見る';
+	@override String get removeFromWatchLater => 'あとで見るから削除';
+	@override String get addedToWatchLater => 'あとで見るに追加しました';
+	@override String get alreadyInWatchLater => 'すでにあとで見るに入っています';
+	@override String get removedFromWatchLater => 'あとで見るから削除しました';
+	@override String get viewWatchLaterList => 'リストを見る';
+	@override String get addFailed => 'あとで見るへの追加に失敗しました';
+	@override String get invalidItem => '利用できません';
+	@override String get clearWatched => '視聴済みを削除';
+	@override String watchedCleared({required Object count}) => '視聴済み ${count} 件を削除しました';
+	@override String get noWatchedToClear => '視聴済みの項目はありません';
+	@override String get emptyVideo => 'あとで見るに追加された動画はありません';
+	@override String get emptyGallery => 'あとで見るに追加されたギャラリーはありません';
+	@override String get filterAll => 'すべて';
+	@override String get filterUnwatched => '未視聴';
+	@override String get sortRecentlyAdded => '追加が新しい順';
+	@override String get sortEarliestAdded => '追加が古い順';
+	@override String get watched => '視聴済み';
+	@override String get playlistLoadFailed => '再生リストの読み込みに失敗しました';
+	@override String get noPlaylists => '再生リストがありません';
+	@override String get undo => '元に戻す';
+	@override String get clearWatchedConfirm => 'このタブの視聴済みをすべて削除しますか？元に戻せません。';
+	@override String get emptyUnwatchedVideo => '未視聴の動画はありません';
+	@override String get emptyUnwatchedGallery => '未視聴のギャラリーはありません';
+	@override String get queueLoadFailed => '読み込みに失敗しました。タップで再試行';
+}
+
+// Path: mediaMenu
+class _TranslationsMediaMenuJa implements TranslationsMediaMenuEn {
+	_TranslationsMediaMenuJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get like => 'いいね';
+	@override String get unlike => 'いいねを取り消す';
+	@override String get viewAuthor => '作者ページを見る';
+	@override String inFolders({required Object count}) => '${count} 個のフォルダ';
+	@override String inPlaylists({required Object count}) => '${count} 個の再生リスト';
+	@override String get downloaded => 'ダウンロード済み';
+}
+
+// Path: playbackQueue
+class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
+	_TranslationsPlaybackQueueJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get upNext => '次に見る';
+	@override String get sourceTab => '元のリスト';
+	@override String get emptyQueue => 'このキューに再生できる動画はありません';
+	@override String get nowPlaying => '再生中';
+	@override String get myPlaylists => '自分の再生リスト';
+	@override String get authorPlaylists => '作者の再生リスト';
+	@override String get openQueue => '次に見る';
+	@override String get continueInQueue => '現在のキューで続けて再生';
+	@override String get continueInQueueSubtitle => '1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です';
+	@override String get repeatDisabledByQueue => '「現在のキューで続けて再生」がオンのため無効です';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationJa._(this._root);
@@ -4075,8 +4147,8 @@ extension on TranslationsJa {
 			'settings.seekPreviewSizeStandard' => '標準',
 			'settings.seekPreviewSizeLarge' => '大',
 			'settings.seekPreviewSizeStandardDesc' => 'プレイヤーと動画から自動的に決まるサイズ',
-			'settings.showFullscreenUpNextHint' => '「次に見る」エッジヒントを表示',
-			'settings.showFullscreenUpNextHintDesc' => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。',
+			'settings.showFullscreenUpNextHint' => '「次に見る」の取っ手を表示',
+			'settings.showFullscreenUpNextHintDesc' => 'プレイヤー右端に取っ手を表示し、キュー（元のリスト / 再生リスト / あとで見る）を開きます。オフにすると他の入口はありません。',
 			'settings.basicSettings' => '基本設定',
 			'settings.personalizedSettings' => '個性化設定',
 			'settings.otherSettings' => 'その他設定',
@@ -6127,6 +6199,50 @@ extension on TranslationsJa {
 			'externalPlayer.executableMissing' => '実行ファイルが見つかりません',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '${name} で開く',
 			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
+			'watchLater.title' => 'あとで見る',
+			'watchLater.addToWatchLater' => 'あとで見る',
+			'watchLater.removeFromWatchLater' => 'あとで見るから削除',
+			'watchLater.addedToWatchLater' => 'あとで見るに追加しました',
+			'watchLater.alreadyInWatchLater' => 'すでにあとで見るに入っています',
+			'watchLater.removedFromWatchLater' => 'あとで見るから削除しました',
+			'watchLater.viewWatchLaterList' => 'リストを見る',
+			'watchLater.addFailed' => 'あとで見るへの追加に失敗しました',
+			'watchLater.invalidItem' => '利用できません',
+			'watchLater.clearWatched' => '視聴済みを削除',
+			'watchLater.watchedCleared' => ({required Object count}) => '視聴済み ${count} 件を削除しました',
+			'watchLater.noWatchedToClear' => '視聴済みの項目はありません',
+			'watchLater.emptyVideo' => 'あとで見るに追加された動画はありません',
+			'watchLater.emptyGallery' => 'あとで見るに追加されたギャラリーはありません',
+			'watchLater.filterAll' => 'すべて',
+			'watchLater.filterUnwatched' => '未視聴',
+			'watchLater.sortRecentlyAdded' => '追加が新しい順',
+			'watchLater.sortEarliestAdded' => '追加が古い順',
+			'watchLater.watched' => '視聴済み',
+			'watchLater.playlistLoadFailed' => '再生リストの読み込みに失敗しました',
+			'watchLater.noPlaylists' => '再生リストがありません',
+			'watchLater.undo' => '元に戻す',
+			'watchLater.clearWatchedConfirm' => 'このタブの視聴済みをすべて削除しますか？元に戻せません。',
+			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
+			_ => null,
+		} ?? switch (path) {
+			'watchLater.emptyUnwatchedGallery' => '未視聴のギャラリーはありません',
+			'watchLater.queueLoadFailed' => '読み込みに失敗しました。タップで再試行',
+			'mediaMenu.like' => 'いいね',
+			'mediaMenu.unlike' => 'いいねを取り消す',
+			'mediaMenu.viewAuthor' => '作者ページを見る',
+			'mediaMenu.inFolders' => ({required Object count}) => '${count} 個のフォルダ',
+			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} 個の再生リスト',
+			'mediaMenu.downloaded' => 'ダウンロード済み',
+			'playbackQueue.upNext' => '次に見る',
+			'playbackQueue.sourceTab' => '元のリスト',
+			'playbackQueue.emptyQueue' => 'このキューに再生できる動画はありません',
+			'playbackQueue.nowPlaying' => '再生中',
+			'playbackQueue.myPlaylists' => '自分の再生リスト',
+			'playbackQueue.authorPlaylists' => '作者の再生リスト',
+			'playbackQueue.openQueue' => '次に見る',
+			'playbackQueue.continueInQueue' => '現在のキューで続けて再生',
+			'playbackQueue.continueInQueueSubtitle' => '1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です',
+			'playbackQueue.repeatDisabledByQueue' => '「現在のキューで続けて再生」がオンのため無効です',
 			_ => null,
 		};
 	}

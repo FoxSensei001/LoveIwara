@@ -87,6 +87,9 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsDefaultBlacklistReminderZhCn defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderZhCn._(_root);
 	@override late final _TranslationsColorVisionAssistZhCn colorVisionAssist = _TranslationsColorVisionAssistZhCn._(_root);
 	@override late final _TranslationsExternalPlayerZhCn externalPlayer = _TranslationsExternalPlayerZhCn._(_root);
+	@override late final _TranslationsWatchLaterZhCn watchLater = _TranslationsWatchLaterZhCn._(_root);
+	@override late final _TranslationsMediaMenuZhCn mediaMenu = _TranslationsMediaMenuZhCn._(_root);
+	@override late final _TranslationsPlaybackQueueZhCn playbackQueue = _TranslationsPlaybackQueueZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -668,8 +671,8 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get seekPreviewSizeStandard => '标准';
 	@override String get seekPreviewSizeLarge => '大';
 	@override String get seekPreviewSizeStandardDesc => '按播放器与视频自动推算出的大小';
-	@override String get showFullscreenUpNextHint => '显示“接着看”侧边提示';
-	@override String get showFullscreenUpNextHintDesc => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。';
+	@override String get showFullscreenUpNextHint => '显示「接着看」入口';
+	@override String get showFullscreenUpNextHintDesc => '在播放器右缘显示一枚把手，用来打开视频池抽屉（来源 / 播放列表 / 稍后再看）。关掉之后就没有别的入口了。';
 	@override String get basicSettings => '基础设置';
 	@override String get personalizedSettings => '个性化设置';
 	@override String get otherSettings => '其他设置';
@@ -2397,6 +2400,75 @@ class _TranslationsExternalPlayerZhCn implements TranslationsExternalPlayerEn {
 	@override String get managePlayersEntry => '管理外部播放器…';
 }
 
+// Path: watchLater
+class _TranslationsWatchLaterZhCn implements TranslationsWatchLaterEn {
+	_TranslationsWatchLaterZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '稍后再看';
+	@override String get addToWatchLater => '稍后再看';
+	@override String get removeFromWatchLater => '移出稍后再看';
+	@override String get addedToWatchLater => '已添加至稍后再看';
+	@override String get alreadyInWatchLater => '已经在稍后再看里了';
+	@override String get removedFromWatchLater => '已移出稍后再看';
+	@override String get viewWatchLaterList => '查看列表';
+	@override String get addFailed => '加入稍后再看失败';
+	@override String get invalidItem => '已失效';
+	@override String get clearWatched => '清除已看完';
+	@override String watchedCleared({required Object count}) => '已清除 ${count} 条看完的内容';
+	@override String get noWatchedToClear => '没有已看完的内容';
+	@override String get emptyVideo => '还没有加入稍后再看的视频';
+	@override String get emptyGallery => '还没有加入稍后再看的图库';
+	@override String get filterAll => '全部';
+	@override String get filterUnwatched => '未看完';
+	@override String get sortRecentlyAdded => '最近添加';
+	@override String get sortEarliestAdded => '最早添加';
+	@override String get watched => '已看完';
+	@override String get playlistLoadFailed => '播放列表加载失败';
+	@override String get noPlaylists => '还没有播放列表';
+	@override String get undo => '撤销';
+	@override String get clearWatchedConfirm => '要清除这个分类下所有已看完的内容吗？此操作不可撤销。';
+	@override String get emptyUnwatchedVideo => '没有未看完的视频';
+	@override String get emptyUnwatchedGallery => '没有未看完的图库';
+	@override String get queueLoadFailed => '加载失败，点击重试';
+}
+
+// Path: mediaMenu
+class _TranslationsMediaMenuZhCn implements TranslationsMediaMenuEn {
+	_TranslationsMediaMenuZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get like => '点赞';
+	@override String get unlike => '取消点赞';
+	@override String get viewAuthor => '查看作者主页';
+	@override String inFolders({required Object count}) => '${count} 个收藏夹';
+	@override String inPlaylists({required Object count}) => '${count} 个播放列表';
+	@override String get downloaded => '已下载';
+}
+
+// Path: playbackQueue
+class _TranslationsPlaybackQueueZhCn implements TranslationsPlaybackQueueEn {
+	_TranslationsPlaybackQueueZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get upNext => '接着看';
+	@override String get sourceTab => '来源';
+	@override String get emptyQueue => '这个池里没有可播的视频';
+	@override String get nowPlaying => '正在播放';
+	@override String get myPlaylists => '我的播放列表';
+	@override String get authorPlaylists => '作者的播放列表';
+	@override String get openQueue => '接着看';
+	@override String get continueInQueue => '在当前视频池内续播';
+	@override String get continueInQueueSubtitle => '一条播完自动播池里的下一条；开启后「播放结束重播」不再生效';
+	@override String get repeatDisabledByQueue => '已开启「池内续播」，重播不再生效';
+}
+
 // Path: common.pagination
 class _TranslationsCommonPaginationZhCn implements TranslationsCommonPaginationEn {
 	_TranslationsCommonPaginationZhCn._(this._root);
@@ -4075,8 +4147,8 @@ extension on TranslationsZhCn {
 			'settings.seekPreviewSizeStandard' => '标准',
 			'settings.seekPreviewSizeLarge' => '大',
 			'settings.seekPreviewSizeStandardDesc' => '按播放器与视频自动推算出的大小',
-			'settings.showFullscreenUpNextHint' => '显示“接着看”侧边提示',
-			'settings.showFullscreenUpNextHintDesc' => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。',
+			'settings.showFullscreenUpNextHint' => '显示「接着看」入口',
+			'settings.showFullscreenUpNextHintDesc' => '在播放器右缘显示一枚把手，用来打开视频池抽屉（来源 / 播放列表 / 稍后再看）。关掉之后就没有别的入口了。',
 			'settings.basicSettings' => '基础设置',
 			'settings.personalizedSettings' => '个性化设置',
 			'settings.otherSettings' => '其他设置',
@@ -6127,6 +6199,50 @@ extension on TranslationsZhCn {
 			'externalPlayer.executableMissing' => '可执行文件不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 打开',
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
+			'watchLater.title' => '稍后再看',
+			'watchLater.addToWatchLater' => '稍后再看',
+			'watchLater.removeFromWatchLater' => '移出稍后再看',
+			'watchLater.addedToWatchLater' => '已添加至稍后再看',
+			'watchLater.alreadyInWatchLater' => '已经在稍后再看里了',
+			'watchLater.removedFromWatchLater' => '已移出稍后再看',
+			'watchLater.viewWatchLaterList' => '查看列表',
+			'watchLater.addFailed' => '加入稍后再看失败',
+			'watchLater.invalidItem' => '已失效',
+			'watchLater.clearWatched' => '清除已看完',
+			'watchLater.watchedCleared' => ({required Object count}) => '已清除 ${count} 条看完的内容',
+			'watchLater.noWatchedToClear' => '没有已看完的内容',
+			'watchLater.emptyVideo' => '还没有加入稍后再看的视频',
+			'watchLater.emptyGallery' => '还没有加入稍后再看的图库',
+			'watchLater.filterAll' => '全部',
+			'watchLater.filterUnwatched' => '未看完',
+			'watchLater.sortRecentlyAdded' => '最近添加',
+			'watchLater.sortEarliestAdded' => '最早添加',
+			'watchLater.watched' => '已看完',
+			'watchLater.playlistLoadFailed' => '播放列表加载失败',
+			'watchLater.noPlaylists' => '还没有播放列表',
+			'watchLater.undo' => '撤销',
+			'watchLater.clearWatchedConfirm' => '要清除这个分类下所有已看完的内容吗？此操作不可撤销。',
+			'watchLater.emptyUnwatchedVideo' => '没有未看完的视频',
+			_ => null,
+		} ?? switch (path) {
+			'watchLater.emptyUnwatchedGallery' => '没有未看完的图库',
+			'watchLater.queueLoadFailed' => '加载失败，点击重试',
+			'mediaMenu.like' => '点赞',
+			'mediaMenu.unlike' => '取消点赞',
+			'mediaMenu.viewAuthor' => '查看作者主页',
+			'mediaMenu.inFolders' => ({required Object count}) => '${count} 个收藏夹',
+			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} 个播放列表',
+			'mediaMenu.downloaded' => '已下载',
+			'playbackQueue.upNext' => '接着看',
+			'playbackQueue.sourceTab' => '来源',
+			'playbackQueue.emptyQueue' => '这个池里没有可播的视频',
+			'playbackQueue.nowPlaying' => '正在播放',
+			'playbackQueue.myPlaylists' => '我的播放列表',
+			'playbackQueue.authorPlaylists' => '作者的播放列表',
+			'playbackQueue.openQueue' => '接着看',
+			'playbackQueue.continueInQueue' => '在当前视频池内续播',
+			'playbackQueue.continueInQueueSubtitle' => '一条播完自动播池里的下一条；开启后「播放结束重播」不再生效',
+			'playbackQueue.repeatDisabledByQueue' => '已开启「池内续播」，重播不再生效',
 			_ => null,
 		};
 	}

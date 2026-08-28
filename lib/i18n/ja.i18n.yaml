@@ -520,8 +520,8 @@ settings:
   seekPreviewSizeStandard: 標準
   seekPreviewSizeLarge: 大
   seekPreviewSizeStandardDesc: プレイヤーと動画から自動的に決まるサイズ
-  showFullscreenUpNextHint: 「次に見る」エッジヒントを表示
-  showFullscreenUpNextHintDesc: 全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。
+  showFullscreenUpNextHint: 「次に見る」の取っ手を表示
+  showFullscreenUpNextHintDesc: プレイヤー右端に取っ手を表示し、キュー（元のリスト / 再生リスト / あとで見る）を開きます。オフにすると他の入口はありません。
   basicSettings: 基本設定
   personalizedSettings: 個性化設定
   otherSettings: その他設定
@@ -2750,3 +2750,48 @@ externalPlayer:
   executableMissing: "実行ファイルが見つかりません"
   openWithNamed: '${name} で開く'
   managePlayersEntry: "外部プレイヤーを管理…"
+watchLater:
+  title: あとで見る
+  addToWatchLater: あとで見る
+  removeFromWatchLater: あとで見るから削除
+  addedToWatchLater: あとで見るに追加しました
+  alreadyInWatchLater: すでにあとで見るに入っています
+  removedFromWatchLater: あとで見るから削除しました
+  viewWatchLaterList: リストを見る
+  addFailed: あとで見るへの追加に失敗しました
+  invalidItem: 利用できません
+  clearWatched: 視聴済みを削除
+  watchedCleared: 視聴済み ${count} 件を削除しました
+  noWatchedToClear: 視聴済みの項目はありません
+  emptyVideo: あとで見るに追加された動画はありません
+  emptyGallery: あとで見るに追加されたギャラリーはありません
+  filterAll: すべて
+  filterUnwatched: 未視聴
+  sortRecentlyAdded: 追加が新しい順
+  sortEarliestAdded: 追加が古い順
+  watched: 視聴済み
+  playlistLoadFailed: 再生リストの読み込みに失敗しました
+  noPlaylists: 再生リストがありません
+  undo: 元に戻す
+  clearWatchedConfirm: このタブの視聴済みをすべて削除しますか？元に戻せません。
+  emptyUnwatchedVideo: 未視聴の動画はありません
+  emptyUnwatchedGallery: 未視聴のギャラリーはありません
+  queueLoadFailed: 読み込みに失敗しました。タップで再試行
+mediaMenu:
+  like: いいね
+  unlike: いいねを取り消す
+  viewAuthor: 作者ページを見る
+  inFolders: ${count} 個のフォルダ
+  inPlaylists: ${count} 個の再生リスト
+  downloaded: ダウンロード済み
+playbackQueue:
+  upNext: 次に見る
+  sourceTab: 元のリスト
+  emptyQueue: このキューに再生できる動画はありません
+  nowPlaying: 再生中
+  myPlaylists: 自分の再生リスト
+  authorPlaylists: 作者の再生リスト
+  openQueue: 次に見る
+  continueInQueue: 現在のキューで続けて再生
+  continueInQueueSubtitle: 1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です
+  repeatDisabledByQueue: 「現在のキューで続けて再生」がオンのため無効です

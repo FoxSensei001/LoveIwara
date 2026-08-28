@@ -90,6 +90,9 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDefaultBlacklistReminderEn defaultBlacklistReminder = TranslationsDefaultBlacklistReminderEn._(_root);
 	late final TranslationsColorVisionAssistEn colorVisionAssist = TranslationsColorVisionAssistEn._(_root);
 	late final TranslationsExternalPlayerEn externalPlayer = TranslationsExternalPlayerEn._(_root);
+	late final TranslationsWatchLaterEn watchLater = TranslationsWatchLaterEn._(_root);
+	late final TranslationsMediaMenuEn mediaMenu = TranslationsMediaMenuEn._(_root);
+	late final TranslationsPlaybackQueueEn playbackQueue = TranslationsPlaybackQueueEn._(_root);
 }
 
 // Path: personalProfile
@@ -1598,11 +1601,11 @@ class TranslationsSettingsEn {
 	/// en: 'The size derived from the player and the video'
 	String get seekPreviewSizeStandardDesc => 'The size derived from the player and the video';
 
-	/// en: 'Show Up Next Edge Hint'
-	String get showFullscreenUpNextHint => 'Show Up Next Edge Hint';
+	/// en: 'Show the "Up next" handle'
+	String get showFullscreenUpNextHint => 'Show the "Up next" handle';
 
-	/// en: 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.'
-	String get showFullscreenUpNextHintDesc => 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.';
+	/// en: 'Shows a small handle on the right edge of the player that opens the queue drawer (source / playlist / watch later). There is no other way in once it is off.'
+	String get showFullscreenUpNextHintDesc => 'Shows a small handle on the right edge of the player that opens the queue drawer (source / playlist / watch later). There is no other way in once it is off.';
 
 	/// en: 'Basic Settings'
 	String get basicSettings => 'Basic Settings';
@@ -6040,6 +6043,159 @@ class TranslationsExternalPlayerEn {
 	String get managePlayersEntry => 'Manage external players…';
 }
 
+// Path: watchLater
+class TranslationsWatchLaterEn {
+	TranslationsWatchLaterEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Watch Later'
+	String get title => 'Watch Later';
+
+	/// en: 'Watch later'
+	String get addToWatchLater => 'Watch later';
+
+	/// en: 'Remove from Watch Later'
+	String get removeFromWatchLater => 'Remove from Watch Later';
+
+	/// en: 'Added to Watch Later'
+	String get addedToWatchLater => 'Added to Watch Later';
+
+	/// en: 'Already in Watch Later'
+	String get alreadyInWatchLater => 'Already in Watch Later';
+
+	/// en: 'Removed from Watch Later'
+	String get removedFromWatchLater => 'Removed from Watch Later';
+
+	/// en: 'View list'
+	String get viewWatchLaterList => 'View list';
+
+	/// en: 'Failed to add to Watch Later'
+	String get addFailed => 'Failed to add to Watch Later';
+
+	/// en: 'Unavailable'
+	String get invalidItem => 'Unavailable';
+
+	/// en: 'Clear watched'
+	String get clearWatched => 'Clear watched';
+
+	/// en: 'Cleared ${count} watched items'
+	String watchedCleared({required Object count}) => 'Cleared ${count} watched items';
+
+	/// en: 'Nothing watched to clear'
+	String get noWatchedToClear => 'Nothing watched to clear';
+
+	/// en: 'No videos in Watch Later yet'
+	String get emptyVideo => 'No videos in Watch Later yet';
+
+	/// en: 'No galleries in Watch Later yet'
+	String get emptyGallery => 'No galleries in Watch Later yet';
+
+	/// en: 'All'
+	String get filterAll => 'All';
+
+	/// en: 'Unwatched'
+	String get filterUnwatched => 'Unwatched';
+
+	/// en: 'Recently added'
+	String get sortRecentlyAdded => 'Recently added';
+
+	/// en: 'Earliest added'
+	String get sortEarliestAdded => 'Earliest added';
+
+	/// en: 'Watched'
+	String get watched => 'Watched';
+
+	/// en: 'Failed to load playlists'
+	String get playlistLoadFailed => 'Failed to load playlists';
+
+	/// en: 'No playlists yet'
+	String get noPlaylists => 'No playlists yet';
+
+	/// en: 'Undo'
+	String get undo => 'Undo';
+
+	/// en: 'Clear everything you have already watched in this tab? This cannot be undone.'
+	String get clearWatchedConfirm => 'Clear everything you have already watched in this tab? This cannot be undone.';
+
+	/// en: 'Nothing left to watch here'
+	String get emptyUnwatchedVideo => 'Nothing left to watch here';
+
+	/// en: 'Nothing left to view here'
+	String get emptyUnwatchedGallery => 'Nothing left to view here';
+
+	/// en: 'Failed to load, tap to retry'
+	String get queueLoadFailed => 'Failed to load, tap to retry';
+}
+
+// Path: mediaMenu
+class TranslationsMediaMenuEn {
+	TranslationsMediaMenuEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Like'
+	String get like => 'Like';
+
+	/// en: 'Unlike'
+	String get unlike => 'Unlike';
+
+	/// en: 'View author'
+	String get viewAuthor => 'View author';
+
+	/// en: '${count} folders'
+	String inFolders({required Object count}) => '${count} folders';
+
+	/// en: '${count} playlists'
+	String inPlaylists({required Object count}) => '${count} playlists';
+
+	/// en: 'Downloaded'
+	String get downloaded => 'Downloaded';
+}
+
+// Path: playbackQueue
+class TranslationsPlaybackQueueEn {
+	TranslationsPlaybackQueueEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Up next'
+	String get upNext => 'Up next';
+
+	/// en: 'Source'
+	String get sourceTab => 'Source';
+
+	/// en: 'Nothing playable in this queue'
+	String get emptyQueue => 'Nothing playable in this queue';
+
+	/// en: 'Now playing'
+	String get nowPlaying => 'Now playing';
+
+	/// en: 'My playlists'
+	String get myPlaylists => 'My playlists';
+
+	/// en: 'Author's playlists'
+	String get authorPlaylists => 'Author\'s playlists';
+
+	/// en: 'Up next'
+	String get openQueue => 'Up next';
+
+	/// en: 'Keep playing from the current queue'
+	String get continueInQueue => 'Keep playing from the current queue';
+
+	/// en: 'Plays the next item automatically; disables "repeat when finished"'
+	String get continueInQueueSubtitle => 'Plays the next item automatically; disables "repeat when finished"';
+
+	/// en: 'Disabled while "keep playing from the current queue" is on'
+	String get repeatDisabledByQueue => 'Disabled while "keep playing from the current queue" is on';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -9172,8 +9328,8 @@ extension on Translations {
 			'settings.seekPreviewSizeStandard' => 'Standard',
 			'settings.seekPreviewSizeLarge' => 'Large',
 			'settings.seekPreviewSizeStandardDesc' => 'The size derived from the player and the video',
-			'settings.showFullscreenUpNextHint' => 'Show Up Next Edge Hint',
-			'settings.showFullscreenUpNextHintDesc' => 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.',
+			'settings.showFullscreenUpNextHint' => 'Show the "Up next" handle',
+			'settings.showFullscreenUpNextHintDesc' => 'Shows a small handle on the right edge of the player that opens the queue drawer (source / playlist / watch later). There is no other way in once it is off.',
 			'settings.basicSettings' => 'Basic Settings',
 			'settings.personalizedSettings' => 'Personalized Settings',
 			'settings.otherSettings' => 'Other Settings',
@@ -11224,6 +11380,50 @@ extension on Translations {
 			'externalPlayer.executableMissing' => 'Executable not found',
 			'externalPlayer.openWithNamed' => ({required Object name}) => 'Open in ${name}',
 			'externalPlayer.managePlayersEntry' => 'Manage external players…',
+			'watchLater.title' => 'Watch Later',
+			'watchLater.addToWatchLater' => 'Watch later',
+			'watchLater.removeFromWatchLater' => 'Remove from Watch Later',
+			'watchLater.addedToWatchLater' => 'Added to Watch Later',
+			'watchLater.alreadyInWatchLater' => 'Already in Watch Later',
+			'watchLater.removedFromWatchLater' => 'Removed from Watch Later',
+			'watchLater.viewWatchLaterList' => 'View list',
+			'watchLater.addFailed' => 'Failed to add to Watch Later',
+			'watchLater.invalidItem' => 'Unavailable',
+			'watchLater.clearWatched' => 'Clear watched',
+			'watchLater.watchedCleared' => ({required Object count}) => 'Cleared ${count} watched items',
+			'watchLater.noWatchedToClear' => 'Nothing watched to clear',
+			'watchLater.emptyVideo' => 'No videos in Watch Later yet',
+			'watchLater.emptyGallery' => 'No galleries in Watch Later yet',
+			'watchLater.filterAll' => 'All',
+			'watchLater.filterUnwatched' => 'Unwatched',
+			'watchLater.sortRecentlyAdded' => 'Recently added',
+			'watchLater.sortEarliestAdded' => 'Earliest added',
+			'watchLater.watched' => 'Watched',
+			'watchLater.playlistLoadFailed' => 'Failed to load playlists',
+			'watchLater.noPlaylists' => 'No playlists yet',
+			'watchLater.undo' => 'Undo',
+			'watchLater.clearWatchedConfirm' => 'Clear everything you have already watched in this tab? This cannot be undone.',
+			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
+			_ => null,
+		} ?? switch (path) {
+			'watchLater.emptyUnwatchedGallery' => 'Nothing left to view here',
+			'watchLater.queueLoadFailed' => 'Failed to load, tap to retry',
+			'mediaMenu.like' => 'Like',
+			'mediaMenu.unlike' => 'Unlike',
+			'mediaMenu.viewAuthor' => 'View author',
+			'mediaMenu.inFolders' => ({required Object count}) => '${count} folders',
+			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} playlists',
+			'mediaMenu.downloaded' => 'Downloaded',
+			'playbackQueue.upNext' => 'Up next',
+			'playbackQueue.sourceTab' => 'Source',
+			'playbackQueue.emptyQueue' => 'Nothing playable in this queue',
+			'playbackQueue.nowPlaying' => 'Now playing',
+			'playbackQueue.myPlaylists' => 'My playlists',
+			'playbackQueue.authorPlaylists' => 'Author\'s playlists',
+			'playbackQueue.openQueue' => 'Up next',
+			'playbackQueue.continueInQueue' => 'Keep playing from the current queue',
+			'playbackQueue.continueInQueueSubtitle' => 'Plays the next item automatically; disables "repeat when finished"',
+			'playbackQueue.repeatDisabledByQueue' => 'Disabled while "keep playing from the current queue" is on',
 			_ => null,
 		};
 	}

@@ -21,6 +21,8 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/services/emoji_library_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
@@ -398,6 +400,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     );
     _registerDeferredSingleton<TranslationService>(TranslationService());
     _registerDeferredSingleton<FavoriteService>(FavoriteService());
+    _registerDeferredSingleton<WatchLaterService>(WatchLaterService());
+    // 视频池的登记处：池必须活在页面之外（连播是原地换片、抽屉是 root 路由、
+    // 详情页可层层叠加），所以挂成长寿命单例。
+    _registerDeferredSingleton<PlaybackQueueService>(PlaybackQueueService());
     _registerDeferredSingleton<PlaybackHistoryService>(
       PlaybackHistoryService(),
     );

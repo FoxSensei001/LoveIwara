@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -422,12 +423,19 @@ class NaviService {
     bool forceEnterFullscreen = false,
     Video? initialVideoInfo,
     VideoFullscreenHandoff? fullscreenHandoff,
+    PlaybackQueueRef? playbackQueueRef,
+    bool skipWatchedInQueue = false,
   }) async {
     final normalizedId = id.trim();
     if (normalizedId.isEmpty) return null;
 
     try {
-      final currentPath = appRouter.routeInformationProvider.value.uri.path;
+      // ⛔ 必须读 `appRouter.state`，**不能**读
+      // `routeInformationProvider.value.uri`——后者的 RouteMatchList.uri 只反映
+      // 非 ImperativeRouteMatch 的匹配，而视频详情页全是 push 进来的，于是这道
+      // 守卫此前**从未生效过**（同一个视频连点两次会入栈两层）。
+      // 同源说明见 settings_navigation.dart 与 glass_material_intro.dart。
+      final currentPath = appRouter.state.uri.path;
       final targetPath = '/video_detail/$normalizedId';
       if (currentPath == targetPath) {
         return null;
@@ -444,12 +452,15 @@ class NaviService {
       extra:
           extData != null ||
               innerPlaylistContext != null ||
+              playbackQueueRef != null ||
               forceAutoPlay ||
               forceEnterFullscreen ||
               initialVideoInfo != null
           ? VideoDetailExtra(
               extData: extData,
               innerPlaylistContext: innerPlaylistContext,
+              playbackQueueRef: playbackQueueRef,
+              skipWatchedInQueue: skipWatchedInQueue,
               forceAutoPlay: forceAutoPlay,
               forceEnterFullscreen: forceEnterFullscreen,
               initialVideoInfo: initialVideoInfo,
@@ -558,6 +569,11 @@ class NaviService {
   /// 跳转到历史记录列表页
   static void navigateToHistoryListPage() {
     appRouter.push('/history_list');
+  }
+
+  /// 稍后再看列表页。加入成功的 toast 上那枚动作钮也走这里。
+  static void navigateToWatchLaterPage() {
+    appRouter.push('/watch_later');
   }
 
   static void navigateToFollowingListPage(
