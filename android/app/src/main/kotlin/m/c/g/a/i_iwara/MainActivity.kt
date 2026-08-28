@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
@@ -15,6 +17,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
+import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -32,6 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val DEVICE_FORM_FACTOR_CHANNEL = "i_iwara/device_form_factor"
     private val ORIENTATION_CHANNEL = "i_iwara/orientation"
     private val APP_LOCK_CHANNEL = "i_iwara/app_lock"
+    private val EXTERNAL_PLAYER_CHANNEL = "i_iwara/external_player"
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
@@ -102,6 +106,29 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
 
+        // 「用其他应用打开」：把当前视频（本地文件或在线直链）交给本机其它播放器。
+        // Quest / Horizon OS 上的 VR 播放器（Skybox、Pigasus 等）就是这么接管播放的。
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, EXTERNAL_PLAYER_CHANNEL)
+                .setMethodCallHandler { call, result ->
+                    when (call.method) {
+                        "countHandlers" ->
+                                result.success(
+                                        countExternalVideoHandlers(
+                                                call.argument<String>("filePath"),
+                                                call.argument<String>("url")
+                                        )
+                                )
+                        "openVideo" ->
+                                openExternalVideo(
+                                        call.argument<String>("filePath"),
+                                        call.argument<String>("url"),
+                                        call.argument<String>("chooserTitle"),
+                                        result
+                                )
+                        else -> result.notImplemented()
+                    }
+                }
+
         // 原生强制屏幕方向：setPreferredOrientations 在部分机型 / 关闭系统自动旋转
         // 时不生效（平板竖持点全屏出不来横屏的根因）。LANDSCAPE/REVERSE_LANDSCAPE 由
         // App 主动请求，无视系统自动旋转锁，直接把 Activity 转到指定的固定横屏方向。
@@ -167,14 +194,128 @@ class MainActivity : FlutterFragmentActivity() {
         }
     }
 
+    /**
+     * 组装交给外部播放器的 ACTION_VIEW intent。
+     *
+     * - 本地文件必须过 FileProvider 换成 content:// 并逐次授读权限：API 24+ 直接
+     *   甩 file:// 会抛 FileUriExposedException。
+     * - 调用方已经拿到的 content:// 原样透传（我们持有的读权限可以随 intent 转授）。
+     * - 在线直链要带视频通配 mime（video 加星号），播放器才会出现在候选里；
+     *   只给 http URL 不带 mime 的话命中的是浏览器。
+     */
+    private fun buildExternalVideoIntent(filePath: String?, url: String?): Intent? {
+        val intent = Intent(Intent.ACTION_VIEW)
+        when {
+            !filePath.isNullOrEmpty() -> {
+                if (filePath.startsWith("content://")) {
+                    intent.setDataAndType(Uri.parse(filePath), guessVideoMimeType(filePath))
+                } else {
+                    val file = File(filePath.removePrefix("file://"))
+                    if (!file.exists()) return null
+                    val uri =
+                            FileProvider.getUriForFile(
+                                    this,
+                                    "$packageName.videoprovider",
+                                    file
+                            )
+                    intent.setDataAndType(uri, guessVideoMimeType(file.name))
+                }
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            !url.isNullOrEmpty() -> intent.setDataAndType(Uri.parse(url), "video/*")
+            else -> return null
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        return intent
+    }
+
+    private fun guessVideoMimeType(name: String): String {
+        val extension = name.substringAfterLast('.', "").lowercase()
+        if (extension.isEmpty()) return "video/*"
+        return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "video/*"
+    }
+
+    /**
+     * 本机有几个能接手的播放器（不含我们自己：本 App 也注册了 VIEW 的视频通配
+     * 过滤器，不排掉的话选择器里会出现「Love Iwara」这种自己打开自己的选项）。
+     */
+    private fun countExternalVideoHandlers(filePath: String?, url: String?): Int {
+        val intent = buildExternalVideoIntent(filePath, url) ?: return 0
+        return try {
+            packageManager
+                    .queryIntentActivities(intent, 0)
+                    .count { it.activityInfo?.packageName != packageName }
+        } catch (e: Exception) {
+            Log.w("MainActivity", "查询外部播放器失败: ${e.message}")
+            0
+        }
+    }
+
+    private fun openExternalVideo(
+            filePath: String?,
+            url: String?,
+            chooserTitle: String?,
+            result: MethodChannel.Result
+    ) {
+        val intent = buildExternalVideoIntent(filePath, url)
+        if (intent == null) {
+            result.error("INVALID_TARGET", "没有可用的视频地址或文件不存在", null)
+            return
+        }
+        if (countExternalVideoHandlers(filePath, url) <= 0) {
+            result.success(false)
+            return
+        }
+        return try {
+            val chooser = Intent.createChooser(intent, chooserTitle)
+            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            // 把自己排除掉，避免选择器里出现「用 Love Iwara 打开」。
+            chooser.putExtra(
+                    Intent.EXTRA_EXCLUDE_COMPONENTS,
+                    arrayOf(ComponentName(this, MainActivity::class.java))
+            )
+            startActivity(chooser)
+            result.success(true)
+        } catch (e: ActivityNotFoundException) {
+            result.success(false)
+        } catch (e: Exception) {
+            Log.e("MainActivity", "转交外部播放器失败", e)
+            result.error("OPEN_FAILED", e.message, null)
+        }
+    }
+
     private fun getDeviceFormFactorInfo(): Map<String, Any?> {
         val smallestWidthDp = resources.configuration.smallestScreenWidthDp
+        val isXr = isXrDevice()
         return mapOf(
                 "platformIsTablet" to (smallestWidthDp >= 600),
                 "smallestWidthDp" to smallestWidthDp,
+                "isXr" to isXr,
                 "model" to "${Build.MANUFACTURER} ${Build.MODEL}",
-                "source" to "android_smallest_width_dp"
+                "source" to if (isXr) "android_xr_headset" else "android_smallest_width_dp"
         )
+    }
+
+    /**
+     * 是否运行在 XR 头显（Meta Quest / Horizon OS、Android XR）上。
+     *
+     * 头显里 App 是一块可以被用户随意拖拽宽高的 2D 面板，窗口的 smallestScreenWidthDp
+     * 往往 < 600，会被当成「手机」而锁竖屏；系统随后按固定竖屏方向给窗口加信箱边，
+     * 表现为「面板拖到一定宽度就不再变宽、只有进播放器全屏（那时 App 请求横屏）才是
+     * 真实宽高」。因此 XR 上必须完全不请求方向，交给系统按面板尺寸渲染。
+     */
+    private fun isXrDevice(): Boolean {
+        val pm = packageManager
+        val xrFeatures = arrayOf(
+                "android.hardware.vr.headtracking", // FEATURE_VR_HEADTRACKING
+                "android.software.xr.immersive", // Android XR
+                "oculus.software.handtracking",
+                "com.oculus.feature.PASSTHROUGH"
+        )
+        if (xrFeatures.any { pm.hasSystemFeature(it) }) return true
+
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        return manufacturer == "oculus" || manufacturer == "meta"
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

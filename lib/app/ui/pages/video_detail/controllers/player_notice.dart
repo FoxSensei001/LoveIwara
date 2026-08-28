@@ -21,6 +21,7 @@ enum PlayerNoticeKind {
   noVideoSource,
   castNotSupported,
   castUrlUnavailable,
+  externalPlayerUnavailable,
 }
 
 /// 展示在播放器右上角小胶囊里的一条提示。

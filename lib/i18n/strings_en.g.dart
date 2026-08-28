@@ -89,6 +89,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsSavedSearchEn savedSearch = TranslationsSavedSearchEn._(_root);
 	late final TranslationsDefaultBlacklistReminderEn defaultBlacklistReminder = TranslationsDefaultBlacklistReminderEn._(_root);
 	late final TranslationsColorVisionAssistEn colorVisionAssist = TranslationsColorVisionAssistEn._(_root);
+	late final TranslationsExternalPlayerEn externalPlayer = TranslationsExternalPlayerEn._(_root);
 }
 
 // Path: personalProfile
@@ -5829,6 +5830,147 @@ class TranslationsColorVisionAssistEn {
 	String get disabledToast => 'Color vision assist disabled';
 }
 
+// Path: externalPlayer
+class TranslationsExternalPlayerEn {
+	TranslationsExternalPlayerEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Open with another app'
+	String get title => 'Open with another app';
+
+	/// en: 'Hand the current video to another player on this device, such as Skybox or Pigasus on a VR headset, or MX Player and VLC on a phone'
+	String get description => 'Hand the current video to another player on this device, such as Skybox or Pigasus on a VR headset, or MX Player and VLC on a phone';
+
+	/// en: 'Choose another app'
+	String get openWithOtherApp => 'Choose another app';
+
+	/// en: 'Show the system chooser and pick a player to take over'
+	String get openWithOtherAppDescription => 'Show the system chooser and pick a player to take over';
+
+	/// en: 'Open in default player'
+	String get openWithSystemPlayer => 'Open in default player';
+
+	/// en: 'Hand it to the system's default video app'
+	String get openWithSystemPlayerDescription => 'Hand it to the system\'s default video app';
+
+	/// en: 'Copy video link'
+	String get copyLink => 'Copy video link';
+
+	/// en: 'For players that can only paste a URL, such as Skybox or DeoVR'
+	String get copyLinkDescription => 'For players that can only paste a URL, such as Skybox or DeoVR';
+
+	/// en: 'Video link copied'
+	String get linkCopied => 'Video link copied';
+
+	/// en: 'Local file'
+	String get sourceLocal => 'Local file';
+
+	/// en: 'Direct link'
+	String get sourceOnline => 'Direct link';
+
+	/// en: 'Direct link · ${quality}'
+	String sourceOnlineWithQuality({required Object quality}) => 'Direct link · ${quality}';
+
+	/// en: 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.'
+	String get onlineLinkExpiryHint => 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.';
+
+	/// en: 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.'
+	String get vrPlayerHint => 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.';
+
+	/// en: 'No app on this device can open the video'
+	String get noHandler => 'No app on this device can open the video';
+
+	/// en: 'Handoff failed: ${message}'
+	String handoffFailed({required Object message}) => 'Handoff failed: ${message}';
+
+	/// en: 'Handoff failed'
+	String get handoffFailedUnknown => 'Handoff failed';
+
+	/// en: 'Could not get the current video address, please try again'
+	String get sourceUnavailable => 'Could not get the current video address, please try again';
+
+	/// en: 'The local file no longer exists'
+	String get localFileMissing => 'The local file no longer exists';
+
+	/// en: 'Handed off to the external player'
+	String get handedOff => 'Handed off to the external player';
+
+	/// en: 'External players'
+	String get desktopSectionTitle => 'External players';
+
+	/// en: 'Manage external players'
+	String get managePlayers => 'Manage external players';
+
+	/// en: 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player'
+	String get managePlayersDesc => 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player';
+
+	/// en: '${count} configured'
+	String playerCount({required Object count}) => '${count} configured';
+
+	/// en: 'No external player configured yet'
+	String get noPlayerConfigured => 'No external player configured yet';
+
+	/// en: 'Auto-detect'
+	String get autoDetect => 'Auto-detect';
+
+	/// en: 'Detecting…'
+	String get detecting => 'Detecting…';
+
+	/// en: 'Found ${count} player(s)'
+	String detectFound({required Object count}) => 'Found ${count} player(s)';
+
+	/// en: 'No new players found, add one manually'
+	String get detectNothingFound => 'No new players found, add one manually';
+
+	/// en: 'detected'
+	String get autoDetectedTag => 'detected';
+
+	/// en: 'Add player'
+	String get addPlayer => 'Add player';
+
+	/// en: 'Edit player'
+	String get editPlayer => 'Edit player';
+
+	/// en: 'Name'
+	String get playerName => 'Name';
+
+	/// en: 'Executable'
+	String get executablePath => 'Executable';
+
+	/// en: 'Browse'
+	String get browse => 'Browse';
+
+	/// en: 'Launch arguments'
+	String get argumentTemplate => 'Launch arguments';
+
+	/// en: 'Use {input} for the video path or URL. Leave empty to pass it as the only argument.'
+	String get argumentTemplateHint => 'Use {input} for the video path or URL. Leave empty to pass it as the only argument.';
+
+	/// en: 'Name and executable are both required'
+	String get nameAndPathRequired => 'Name and executable are both required';
+
+	/// en: 'Test launch'
+	String get testLaunch => 'Test launch';
+
+	/// en: 'Player launched'
+	String get testLaunched => 'Player launched';
+
+	/// en: 'Launch failed, check the executable path'
+	String get testFailed => 'Launch failed, check the executable path';
+
+	/// en: 'Executable not found'
+	String get executableMissing => 'Executable not found';
+
+	/// en: 'Open in ${name}'
+	String openWithNamed({required Object name}) => 'Open in ${name}';
+
+	/// en: 'Manage external players…'
+	String get managePlayersEntry => 'Manage external players…';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -10914,6 +11056,50 @@ extension on Translations {
 			'colorVisionAssist.tritanopiaDescription' => 'For tritanopia — difficulty distinguishing blue and yellow',
 			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '${filterName} applied, takes effect immediately',
 			'colorVisionAssist.disabledToast' => 'Color vision assist disabled',
+			'externalPlayer.title' => 'Open with another app',
+			'externalPlayer.description' => 'Hand the current video to another player on this device, such as Skybox or Pigasus on a VR headset, or MX Player and VLC on a phone',
+			'externalPlayer.openWithOtherApp' => 'Choose another app',
+			'externalPlayer.openWithOtherAppDescription' => 'Show the system chooser and pick a player to take over',
+			'externalPlayer.openWithSystemPlayer' => 'Open in default player',
+			'externalPlayer.openWithSystemPlayerDescription' => 'Hand it to the system\'s default video app',
+			'externalPlayer.copyLink' => 'Copy video link',
+			'externalPlayer.copyLinkDescription' => 'For players that can only paste a URL, such as Skybox or DeoVR',
+			'externalPlayer.linkCopied' => 'Video link copied',
+			'externalPlayer.sourceLocal' => 'Local file',
+			'externalPlayer.sourceOnline' => 'Direct link',
+			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => 'Direct link · ${quality}',
+			'externalPlayer.onlineLinkExpiryHint' => 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.',
+			'externalPlayer.vrPlayerHint' => 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.',
+			'externalPlayer.noHandler' => 'No app on this device can open the video',
+			'externalPlayer.handoffFailed' => ({required Object message}) => 'Handoff failed: ${message}',
+			'externalPlayer.handoffFailedUnknown' => 'Handoff failed',
+			'externalPlayer.sourceUnavailable' => 'Could not get the current video address, please try again',
+			'externalPlayer.localFileMissing' => 'The local file no longer exists',
+			'externalPlayer.handedOff' => 'Handed off to the external player',
+			'externalPlayer.desktopSectionTitle' => 'External players',
+			'externalPlayer.managePlayers' => 'Manage external players',
+			'externalPlayer.managePlayersDesc' => 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player',
+			'externalPlayer.playerCount' => ({required Object count}) => '${count} configured',
+			'externalPlayer.noPlayerConfigured' => 'No external player configured yet',
+			'externalPlayer.autoDetect' => 'Auto-detect',
+			'externalPlayer.detecting' => 'Detecting…',
+			'externalPlayer.detectFound' => ({required Object count}) => 'Found ${count} player(s)',
+			'externalPlayer.detectNothingFound' => 'No new players found, add one manually',
+			'externalPlayer.autoDetectedTag' => 'detected',
+			'externalPlayer.addPlayer' => 'Add player',
+			'externalPlayer.editPlayer' => 'Edit player',
+			'externalPlayer.playerName' => 'Name',
+			'externalPlayer.executablePath' => 'Executable',
+			'externalPlayer.browse' => 'Browse',
+			'externalPlayer.argumentTemplate' => 'Launch arguments',
+			'externalPlayer.argumentTemplateHint' => 'Use {input} for the video path or URL. Leave empty to pass it as the only argument.',
+			'externalPlayer.nameAndPathRequired' => 'Name and executable are both required',
+			'externalPlayer.testLaunch' => 'Test launch',
+			'externalPlayer.testLaunched' => 'Player launched',
+			'externalPlayer.testFailed' => 'Launch failed, check the executable path',
+			'externalPlayer.executableMissing' => 'Executable not found',
+			'externalPlayer.openWithNamed' => ({required Object name}) => 'Open in ${name}',
+			'externalPlayer.managePlayersEntry' => 'Manage external players…',
 			_ => null,
 		};
 	}

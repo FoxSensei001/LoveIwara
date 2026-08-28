@@ -82,6 +82,18 @@ class CommonUtils {
   }) async {
     try {
       if (Platform.isAndroid || Platform.isIOS) {
+        // XR 头显（Quest / Horizon OS 等）：App 是一块用户自己拖宽高的 2D 面板，
+        // 任何固定方向请求都会让系统按该方向加信箱边、把面板宽度锁死。全屏在这里
+        // 只需要沉浸模式铺满当前面板，方向一律不碰。
+        if (await DeviceFormFactorUtils.resolveIsXrDevice()) {
+          LogUtils.i('[全屏方向] XR 头显：跳过方向请求，仅进入沉浸模式', 'CommonUtils');
+          await SystemChrome.setEnabledSystemUIMode(
+            SystemUiMode.immersiveSticky,
+            overlays: [],
+          );
+          return;
+        }
+
         List<DeviceOrientation> orientations;
 
         if (toVerticalScreen) {
@@ -235,6 +247,11 @@ class CommonUtils {
 
       final context = rootNavigatorKey.currentContext;
       if (context == null) {
+        return;
+      }
+
+      // XR 头显没有「转屏」这回事，且任何方向请求都会把面板宽度锁死。
+      if (DeviceFormFactorUtils.isXrDevice) {
         return;
       }
 

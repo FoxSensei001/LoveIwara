@@ -23,7 +23,9 @@ import 'package:i_iwara/app/models/oreno3d_video.model.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
+import 'package:i_iwara/app/services/external_player_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/external_player_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/services/message_service.dart';
@@ -4565,6 +4567,51 @@ class MyVideoStateController extends GetxController
       isScrollControlled: true,
       elevation: 0,
     );
+  }
+
+  /// 解析「当前正在放的这一份」交给外部播放器时用的地址。
+  ///
+  /// 离线优先：纯本地视频模式直接用它的路径；在线视频若当前清晰度已经下载完成，
+  /// 也交本地文件——本地文件不受直链时效影响，外部播放器放到一半不会断。
+  /// 两者都没有才退回当前清晰度的在线直链。
+  Future<ExternalPlayerSource?> resolveExternalPlayerSource() async {
+    final String? title = videoInfo.value?.title;
+    final String? tag = currentResolutionTag.value;
+
+    String? downloadedPath;
+    if (!isLocalVideoMode && videoId != null && tag != null) {
+      try {
+        final downloadService = Get.find<DownloadService>();
+        downloadedPath = await downloadService.getCompletedVideoLocalPath(
+          videoId!,
+          tag,
+        );
+      } catch (e) {
+        LogUtils.w('查询本地下载文件失败，回退在线直链: $e', 'MyVideoStateController');
+      }
+    }
+
+    return ExternalPlayerService.chooseSource(
+      localVideoPath: isLocalVideoMode ? localVideoPath : null,
+      downloadedPath: downloadedPath,
+      onlineUrl: isLocalVideoMode ? null : getCurrentVideoUrl(),
+      title: title,
+      qualityTag: tag,
+    );
+  }
+
+  /// 显示「用其他应用打开」面板：把当前视频转交给本机其它播放器。
+  ///
+  /// 起因是 VR 头显（Quest）：本应用是一块 2D 面板，放不了 VR/180/360 片源，
+  /// 而头显上的 Skybox、Pigasus 这类播放器可以。同一个入口在手机上能丢给
+  /// MX Player / VLC，在桌面端则是「用系统默认播放器打开」。
+  Future<void> showExternalPlayerDialog() async {
+    final source = await resolveExternalPlayerSource();
+    if (source == null) {
+      noticeCenter.reportApp(PlayerNoticeKind.externalPlayerUnavailable);
+      return;
+    }
+    await showExternalPlayerSheet(source);
   }
 
   /// 获取 DLNA 投屏服务

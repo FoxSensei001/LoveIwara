@@ -376,6 +376,10 @@ enum ConfigKey {
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
   INSTALL_MARKER_ISSUED, // 本次安装是否已经写过「安装标记」文件（见 RestoredInstallGuard）
   VIDEO_GESTURE_GUIDE_SHOWN, // 视频手势指引页是否已展示（首次进入视频详情前显示一次）
+  // 桌面端「用其他应用打开」的外部播放器列表（JSON 数组字符串）。
+  // PCVR 播放器（HereSphere / DeoVR / Whirligig 等）基本都不是系统默认关联程序，
+  // 所以桌面端不能只靠「系统默认播放器」，得让用户自己指定可执行文件。
+  EXTERNAL_PLAYERS_JSON,
   // Anime4K 预设配置
   ANIME4K_PRESET_ID, // 当前选中的 Anime4K 预设 ID，空字符串表示禁用
   // 色觉辅助滤镜配置
@@ -646,6 +650,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'install_marker_issued';
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return 'video_gesture_guide_shown';
+      case ConfigKey.EXTERNAL_PLAYERS_JSON:
+        return 'external_players_json';
       case ConfigKey.ANIME4K_PRESET_ID:
         return 'anime4k_preset_id';
       case ConfigKey.COLOR_VISION_FILTER_ID:
@@ -939,6 +945,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false; // 出厂未写过标记；写成功后置 true，此后标记消失即判定为还原安装
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return false; // 默认未展示，首次进入视频详情前显示一次
+      case ConfigKey.EXTERNAL_PLAYERS_JSON:
+        return ''; // 默认没有配置任何外部播放器（空字符串 = 空列表）
       case ConfigKey.ANIME4K_PRESET_ID:
         return ''; // 默认禁用 Anime4K（空字符串表示禁用）
       case ConfigKey.COLOR_VISION_FILTER_ID:

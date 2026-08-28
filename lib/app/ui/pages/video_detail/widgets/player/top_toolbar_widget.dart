@@ -588,6 +588,20 @@ class _TopToolbarState extends State<TopToolbar> {
               // 右侧部分
               Row(
                 children: [
+                  // 「用其他应用打开」：把当前视频交给本机其它播放器。
+                  // 摆在投屏旁边是因为语义同类（都是「不在这儿放，换个地方放」），
+                  // 而 VR 头显上它是唯一能放 VR/180/360 片源的路子。
+                  if (!GetPlatform.isWeb)
+                    IconButton(
+                      tooltip: t.externalPlayer.title,
+                      icon: Icon(
+                        Icons.open_in_new,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
+                      onPressed: () => widget.myVideoStateController
+                          .showExternalPlayerDialog(),
+                    ),
                   if (!GetPlatform.isWeb &&
                       !GetPlatform.isLinux &&
                       !widget.myVideoStateController.isLocalVideoMode)

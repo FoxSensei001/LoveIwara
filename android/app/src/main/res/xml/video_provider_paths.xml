@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  把「转交给外部播放器」要用到的本地视频暴露成 content:// URI。
+  下载目录可以被用户改到任意位置（App 持有「所有文件访问」权限，甚至可能落在
+  外置 SD 卡的 /storage/XXXX-XXXX 下），所以这里用 root-path 全量覆盖，
+  再补上常规目录以防个别 ROM 对 root-path 解析异常。
+  注意：仅 grantUriPermissions + FLAG_GRANT_READ_URI_PERMISSION 逐次授权，
+  provider 本身 exported=false，不会把整块存储敞开给其它应用。
+-->
+<paths>
+    <root-path name="root" path="/" />
+    <files-path name="files" path="." />
+    <cache-path name="cache" path="." />
+    <external-path name="external" path="." />
+    <external-files-path name="external_files" path="." />
+    <external-cache-path name="external_cache" path="." />
+</paths>

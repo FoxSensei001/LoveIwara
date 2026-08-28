@@ -86,6 +86,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsSavedSearchZhTw savedSearch = _TranslationsSavedSearchZhTw._(_root);
 	@override late final _TranslationsDefaultBlacklistReminderZhTw defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderZhTw._(_root);
 	@override late final _TranslationsColorVisionAssistZhTw colorVisionAssist = _TranslationsColorVisionAssistZhTw._(_root);
+	@override late final _TranslationsExternalPlayerZhTw externalPlayer = _TranslationsExternalPlayerZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -2318,6 +2319,59 @@ class _TranslationsColorVisionAssistZhTw implements TranslationsColorVisionAssis
 	@override String get tritanopiaDescription => '適用於藍色覺異常（難以分辨藍色與黃色）';
 	@override String appliedToast({required Object filterName}) => '已套用${filterName}，畫面即時生效';
 	@override String get disabledToast => '已關閉色覺輔助濾鏡';
+}
+
+// Path: externalPlayer
+class _TranslationsExternalPlayerZhTw implements TranslationsExternalPlayerEn {
+	_TranslationsExternalPlayerZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '用其他應用程式開啟';
+	@override String get description => '把目前影片交給本機的其它播放器，例如 VR 頭顯上的 Skybox、Pigasus，手機上的 MX Player、VLC';
+	@override String get openWithOtherApp => '選擇其他應用程式開啟';
+	@override String get openWithOtherAppDescription => '彈出系統選擇器，挑一個播放器接手';
+	@override String get openWithSystemPlayer => '用系統預設播放器開啟';
+	@override String get openWithSystemPlayerDescription => '交給系統關聯的預設影片程式';
+	@override String get copyLink => '複製影片連結';
+	@override String get copyLinkDescription => '給只能貼上連結的播放器用，例如 Skybox、DeoVR';
+	@override String get linkCopied => '影片連結已複製';
+	@override String get sourceLocal => '本機檔案';
+	@override String get sourceOnline => '線上直連';
+	@override String sourceOnlineWithQuality({required Object quality}) => '線上直連 · ${quality}';
+	@override String get onlineLinkExpiryHint => '線上直連有時效，外部播放器可能播到一半失效；先下載再轉交最穩';
+	@override String get vrPlayerHint => 'VR 播放器沒出現在選擇器裡的話，用「複製影片連結」再到播放器內貼上開啟';
+	@override String get noHandler => '找不到能開啟影片的應用程式';
+	@override String handoffFailed({required Object message}) => '轉交失敗：${message}';
+	@override String get handoffFailedUnknown => '轉交失敗';
+	@override String get sourceUnavailable => '拿不到目前影片的位址，請稍後重試';
+	@override String get localFileMissing => '本機檔案不存在，可能已被刪除';
+	@override String get handedOff => '已交給外部播放器';
+	@override String get desktopSectionTitle => '外部播放器';
+	@override String get managePlayers => '管理外部播放器';
+	@override String get managePlayersDesc => 'PCVR 播放器（HereSphere、DeoVR、Whirligig 等）不是系統預設關聯程式，指定可執行檔後就能從播放器裡直接轉交';
+	@override String playerCount({required Object count}) => '已設定 ${count} 個';
+	@override String get noPlayerConfigured => '還沒有設定任何外部播放器';
+	@override String get autoDetect => '自動偵測';
+	@override String get detecting => '偵測中…';
+	@override String detectFound({required Object count}) => '偵測到 ${count} 個播放器';
+	@override String get detectNothingFound => '沒有偵測到新的播放器，可以手動新增';
+	@override String get autoDetectedTag => '自動偵測';
+	@override String get addPlayer => '新增播放器';
+	@override String get editPlayer => '編輯播放器';
+	@override String get playerName => '名稱';
+	@override String get executablePath => '可執行檔';
+	@override String get browse => '瀏覽';
+	@override String get argumentTemplate => '啟動參數';
+	@override String get argumentTemplateHint => '用 {input} 代表影片路徑或連結；留空就是把它當唯一參數傳給播放器';
+	@override String get nameAndPathRequired => '名稱和可執行檔都不能為空';
+	@override String get testLaunch => '測試啟動';
+	@override String get testLaunched => '播放器已啟動';
+	@override String get testFailed => '啟動失敗，請檢查可執行檔路徑';
+	@override String get executableMissing => '可執行檔不存在';
+	@override String openWithNamed({required Object name}) => '用 ${name} 開啟';
+	@override String get managePlayersEntry => '管理外部播放器…';
 }
 
 // Path: common.pagination
@@ -5967,6 +6021,50 @@ extension on TranslationsZhTw {
 			'colorVisionAssist.tritanopiaDescription' => '適用於藍色覺異常（難以分辨藍色與黃色）',
 			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '已套用${filterName}，畫面即時生效',
 			'colorVisionAssist.disabledToast' => '已關閉色覺輔助濾鏡',
+			'externalPlayer.title' => '用其他應用程式開啟',
+			'externalPlayer.description' => '把目前影片交給本機的其它播放器，例如 VR 頭顯上的 Skybox、Pigasus，手機上的 MX Player、VLC',
+			'externalPlayer.openWithOtherApp' => '選擇其他應用程式開啟',
+			'externalPlayer.openWithOtherAppDescription' => '彈出系統選擇器，挑一個播放器接手',
+			'externalPlayer.openWithSystemPlayer' => '用系統預設播放器開啟',
+			'externalPlayer.openWithSystemPlayerDescription' => '交給系統關聯的預設影片程式',
+			'externalPlayer.copyLink' => '複製影片連結',
+			'externalPlayer.copyLinkDescription' => '給只能貼上連結的播放器用，例如 Skybox、DeoVR',
+			'externalPlayer.linkCopied' => '影片連結已複製',
+			'externalPlayer.sourceLocal' => '本機檔案',
+			'externalPlayer.sourceOnline' => '線上直連',
+			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '線上直連 · ${quality}',
+			'externalPlayer.onlineLinkExpiryHint' => '線上直連有時效，外部播放器可能播到一半失效；先下載再轉交最穩',
+			'externalPlayer.vrPlayerHint' => 'VR 播放器沒出現在選擇器裡的話，用「複製影片連結」再到播放器內貼上開啟',
+			'externalPlayer.noHandler' => '找不到能開啟影片的應用程式',
+			'externalPlayer.handoffFailed' => ({required Object message}) => '轉交失敗：${message}',
+			'externalPlayer.handoffFailedUnknown' => '轉交失敗',
+			'externalPlayer.sourceUnavailable' => '拿不到目前影片的位址，請稍後重試',
+			'externalPlayer.localFileMissing' => '本機檔案不存在，可能已被刪除',
+			'externalPlayer.handedOff' => '已交給外部播放器',
+			'externalPlayer.desktopSectionTitle' => '外部播放器',
+			'externalPlayer.managePlayers' => '管理外部播放器',
+			'externalPlayer.managePlayersDesc' => 'PCVR 播放器（HereSphere、DeoVR、Whirligig 等）不是系統預設關聯程式，指定可執行檔後就能從播放器裡直接轉交',
+			'externalPlayer.playerCount' => ({required Object count}) => '已設定 ${count} 個',
+			'externalPlayer.noPlayerConfigured' => '還沒有設定任何外部播放器',
+			'externalPlayer.autoDetect' => '自動偵測',
+			'externalPlayer.detecting' => '偵測中…',
+			'externalPlayer.detectFound' => ({required Object count}) => '偵測到 ${count} 個播放器',
+			'externalPlayer.detectNothingFound' => '沒有偵測到新的播放器，可以手動新增',
+			'externalPlayer.autoDetectedTag' => '自動偵測',
+			'externalPlayer.addPlayer' => '新增播放器',
+			'externalPlayer.editPlayer' => '編輯播放器',
+			'externalPlayer.playerName' => '名稱',
+			'externalPlayer.executablePath' => '可執行檔',
+			'externalPlayer.browse' => '瀏覽',
+			'externalPlayer.argumentTemplate' => '啟動參數',
+			'externalPlayer.argumentTemplateHint' => '用 {input} 代表影片路徑或連結；留空就是把它當唯一參數傳給播放器',
+			'externalPlayer.nameAndPathRequired' => '名稱和可執行檔都不能為空',
+			'externalPlayer.testLaunch' => '測試啟動',
+			'externalPlayer.testLaunched' => '播放器已啟動',
+			'externalPlayer.testFailed' => '啟動失敗，請檢查可執行檔路徑',
+			'externalPlayer.executableMissing' => '可執行檔不存在',
+			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 開啟',
+			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			_ => null,
 		};
 	}

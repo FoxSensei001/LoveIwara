@@ -86,6 +86,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsSavedSearchJa savedSearch = _TranslationsSavedSearchJa._(_root);
 	@override late final _TranslationsDefaultBlacklistReminderJa defaultBlacklistReminder = _TranslationsDefaultBlacklistReminderJa._(_root);
 	@override late final _TranslationsColorVisionAssistJa colorVisionAssist = _TranslationsColorVisionAssistJa._(_root);
+	@override late final _TranslationsExternalPlayerJa externalPlayer = _TranslationsExternalPlayerJa._(_root);
 }
 
 // Path: personalProfile
@@ -2318,6 +2319,59 @@ class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistE
 	@override String get tritanopiaDescription => '3型色覚（青と黄の識別が困難）向け';
 	@override String appliedToast({required Object filterName}) => '${filterName}を適用しました（即時反映）';
 	@override String get disabledToast => '色覚アシストをオフにしました';
+}
+
+// Path: externalPlayer
+class _TranslationsExternalPlayerJa implements TranslationsExternalPlayerEn {
+	_TranslationsExternalPlayerJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '他のアプリで開く';
+	@override String get description => '再生中の動画を端末内の別のプレイヤーに渡します（VR ヘッドセットの Skybox や Pigasus、スマホの MX Player や VLC など）';
+	@override String get openWithOtherApp => '他のアプリを選んで開く';
+	@override String get openWithOtherAppDescription => 'システムの選択画面からプレイヤーを選びます';
+	@override String get openWithSystemPlayer => '既定のプレイヤーで開く';
+	@override String get openWithSystemPlayerDescription => 'システムに関連付けられた既定の動画アプリに渡します';
+	@override String get copyLink => '動画リンクをコピー';
+	@override String get copyLinkDescription => 'URL の貼り付けにしか対応しないプレイヤー（Skybox、DeoVR など）向け';
+	@override String get linkCopied => '動画リンクをコピーしました';
+	@override String get sourceLocal => 'ローカルファイル';
+	@override String get sourceOnline => '直リンク';
+	@override String sourceOnlineWithQuality({required Object quality}) => '直リンク · ${quality}';
+	@override String get onlineLinkExpiryHint => '直リンクには有効期限があり、外部プレイヤーで再生途中に切れることがあります。先にダウンロードしてから渡すのが確実です';
+	@override String get vrPlayerHint => 'VR プレイヤーが選択画面に出てこない場合は「動画リンクをコピー」してプレイヤー内で貼り付けてください';
+	@override String get noHandler => '動画を開けるアプリが見つかりません';
+	@override String handoffFailed({required Object message}) => '受け渡しに失敗しました: ${message}';
+	@override String get handoffFailedUnknown => '受け渡しに失敗しました';
+	@override String get sourceUnavailable => '現在の動画のアドレスを取得できません。しばらくしてからお試しください';
+	@override String get localFileMissing => 'ローカルファイルが存在しません。削除された可能性があります';
+	@override String get handedOff => '外部プレイヤーに渡しました';
+	@override String get desktopSectionTitle => '外部プレイヤー';
+	@override String get managePlayers => '外部プレイヤーの管理';
+	@override String get managePlayersDesc => 'PCVR のプレイヤー（HereSphere、DeoVR、Whirligig など）はシステムの既定アプリではないため、実行ファイルを指定すると再生画面から直接渡せるようになります';
+	@override String playerCount({required Object count}) => '${count} 件設定済み';
+	@override String get noPlayerConfigured => '外部プレイヤーはまだ設定されていません';
+	@override String get autoDetect => '自動検出';
+	@override String get detecting => '検出中…';
+	@override String detectFound({required Object count}) => '${count} 件のプレイヤーを検出しました';
+	@override String get detectNothingFound => '新しいプレイヤーは見つかりませんでした。手動で追加できます';
+	@override String get autoDetectedTag => '自動検出';
+	@override String get addPlayer => 'プレイヤーを追加';
+	@override String get editPlayer => 'プレイヤーを編集';
+	@override String get playerName => '名前';
+	@override String get executablePath => '実行ファイル';
+	@override String get browse => '参照';
+	@override String get argumentTemplate => '起動オプション';
+	@override String get argumentTemplateHint => '{input} が動画のパスまたは URL に置き換わります。空欄なら唯一の引数として渡します';
+	@override String get nameAndPathRequired => '名前と実行ファイルは必須です';
+	@override String get testLaunch => 'テスト起動';
+	@override String get testLaunched => 'プレイヤーを起動しました';
+	@override String get testFailed => '起動に失敗しました。実行ファイルのパスを確認してください';
+	@override String get executableMissing => '実行ファイルが見つかりません';
+	@override String openWithNamed({required Object name}) => '${name} で開く';
+	@override String get managePlayersEntry => '外部プレイヤーを管理…';
 }
 
 // Path: common.pagination
@@ -5967,6 +6021,50 @@ extension on TranslationsJa {
 			'colorVisionAssist.tritanopiaDescription' => '3型色覚（青と黄の識別が困難）向け',
 			'colorVisionAssist.appliedToast' => ({required Object filterName}) => '${filterName}を適用しました（即時反映）',
 			'colorVisionAssist.disabledToast' => '色覚アシストをオフにしました',
+			'externalPlayer.title' => '他のアプリで開く',
+			'externalPlayer.description' => '再生中の動画を端末内の別のプレイヤーに渡します（VR ヘッドセットの Skybox や Pigasus、スマホの MX Player や VLC など）',
+			'externalPlayer.openWithOtherApp' => '他のアプリを選んで開く',
+			'externalPlayer.openWithOtherAppDescription' => 'システムの選択画面からプレイヤーを選びます',
+			'externalPlayer.openWithSystemPlayer' => '既定のプレイヤーで開く',
+			'externalPlayer.openWithSystemPlayerDescription' => 'システムに関連付けられた既定の動画アプリに渡します',
+			'externalPlayer.copyLink' => '動画リンクをコピー',
+			'externalPlayer.copyLinkDescription' => 'URL の貼り付けにしか対応しないプレイヤー（Skybox、DeoVR など）向け',
+			'externalPlayer.linkCopied' => '動画リンクをコピーしました',
+			'externalPlayer.sourceLocal' => 'ローカルファイル',
+			'externalPlayer.sourceOnline' => '直リンク',
+			'externalPlayer.sourceOnlineWithQuality' => ({required Object quality}) => '直リンク · ${quality}',
+			'externalPlayer.onlineLinkExpiryHint' => '直リンクには有効期限があり、外部プレイヤーで再生途中に切れることがあります。先にダウンロードしてから渡すのが確実です',
+			'externalPlayer.vrPlayerHint' => 'VR プレイヤーが選択画面に出てこない場合は「動画リンクをコピー」してプレイヤー内で貼り付けてください',
+			'externalPlayer.noHandler' => '動画を開けるアプリが見つかりません',
+			'externalPlayer.handoffFailed' => ({required Object message}) => '受け渡しに失敗しました: ${message}',
+			'externalPlayer.handoffFailedUnknown' => '受け渡しに失敗しました',
+			'externalPlayer.sourceUnavailable' => '現在の動画のアドレスを取得できません。しばらくしてからお試しください',
+			'externalPlayer.localFileMissing' => 'ローカルファイルが存在しません。削除された可能性があります',
+			'externalPlayer.handedOff' => '外部プレイヤーに渡しました',
+			'externalPlayer.desktopSectionTitle' => '外部プレイヤー',
+			'externalPlayer.managePlayers' => '外部プレイヤーの管理',
+			'externalPlayer.managePlayersDesc' => 'PCVR のプレイヤー（HereSphere、DeoVR、Whirligig など）はシステムの既定アプリではないため、実行ファイルを指定すると再生画面から直接渡せるようになります',
+			'externalPlayer.playerCount' => ({required Object count}) => '${count} 件設定済み',
+			'externalPlayer.noPlayerConfigured' => '外部プレイヤーはまだ設定されていません',
+			'externalPlayer.autoDetect' => '自動検出',
+			'externalPlayer.detecting' => '検出中…',
+			'externalPlayer.detectFound' => ({required Object count}) => '${count} 件のプレイヤーを検出しました',
+			'externalPlayer.detectNothingFound' => '新しいプレイヤーは見つかりませんでした。手動で追加できます',
+			'externalPlayer.autoDetectedTag' => '自動検出',
+			'externalPlayer.addPlayer' => 'プレイヤーを追加',
+			'externalPlayer.editPlayer' => 'プレイヤーを編集',
+			'externalPlayer.playerName' => '名前',
+			'externalPlayer.executablePath' => '実行ファイル',
+			'externalPlayer.browse' => '参照',
+			'externalPlayer.argumentTemplate' => '起動オプション',
+			'externalPlayer.argumentTemplateHint' => '{input} が動画のパスまたは URL に置き換わります。空欄なら唯一の引数として渡します',
+			'externalPlayer.nameAndPathRequired' => '名前と実行ファイルは必須です',
+			'externalPlayer.testLaunch' => 'テスト起動',
+			'externalPlayer.testLaunched' => 'プレイヤーを起動しました',
+			'externalPlayer.testFailed' => '起動に失敗しました。実行ファイルのパスを確認してください',
+			'externalPlayer.executableMissing' => '実行ファイルが見つかりません',
+			'externalPlayer.openWithNamed' => ({required Object name}) => '${name} で開く',
+			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
 			_ => null,
 		};
 	}

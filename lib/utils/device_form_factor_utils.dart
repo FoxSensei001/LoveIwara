@@ -11,6 +11,7 @@ class MobileDeviceFormFactorInfo {
     required this.smallestWidthDp,
     required this.source,
     required this.model,
+    this.isXr = false,
   });
 
   factory MobileDeviceFormFactorInfo.fromPlatformMap(
@@ -21,6 +22,7 @@ class MobileDeviceFormFactorInfo {
       smallestWidthDp: _readDouble(map['smallestWidthDp']),
       source: map['source'] as String?,
       model: map['model'] as String?,
+      isXr: map['isXr'] as bool? ?? false,
     );
   }
 
@@ -28,6 +30,9 @@ class MobileDeviceFormFactorInfo {
   final double? smallestWidthDp;
   final String? source;
   final String? model;
+
+  /// 是否运行在 XR 头显（Meta Quest / Horizon OS、Android XR）上。
+  final bool isXr;
 
   static double? _readDouble(dynamic value) {
     if (value is double) return value;
@@ -48,6 +53,22 @@ class DeviceFormFactorUtils {
 
   static MobileDeviceType? _cachedMobileDeviceType;
   static MobileDeviceFormFactorInfo? _cachedFormFactorInfo;
+  static bool _cachedIsXrDevice = false;
+
+  /// 是否运行在 XR 头显上（同步读，需先经过一次 [resolveMobileDeviceType]，
+  /// 启动时 main.dart 的 [applyMobileOrientationPolicy] 已经完成这次解析）。
+  ///
+  /// XR 上 App 是一块用户可任意拖拽宽高的 2D 面板：只要 App 请求了固定方向，
+  /// 系统就按那个方向给面板加信箱边，面板拖宽到一定程度画面不再变宽——只有进
+  /// 播放器全屏（那时请求的是横屏）才是真实宽高。所以 XR 上一律不请求方向。
+  static bool get isXrDevice => _cachedIsXrDevice;
+
+  /// [isXrDevice] 的异步版本：确保平台信息已读取。
+  static Future<bool> resolveIsXrDevice() async {
+    if (!isMobilePlatform) return false;
+    await resolveMobileDeviceType();
+    return _cachedIsXrDevice;
+  }
 
   static bool get isMobilePlatform =>
       GetPlatform.isAndroid || GetPlatform.isIOS;
@@ -72,14 +93,17 @@ class DeviceFormFactorUtils {
     final deviceType = classifyMobileDisplay(
       platformReportsTablet: info?.platformIsTablet,
       fallbackLogicalTablet: _logicalViewportLooksTablet(),
+      isXr: info?.isXr ?? false,
     );
 
     _cachedFormFactorInfo = info;
     _cachedMobileDeviceType = deviceType;
+    _cachedIsXrDevice = info?.isXr ?? false;
 
     final smallestWidthText = info?.smallestWidthDp?.toStringAsFixed(0);
     LogUtils.d(
       '移动端设备类型: ${deviceType.name}, '
+          'isXr=${info?.isXr ?? false}, '
           'smallestWidthDp=${smallestWidthText ?? 'unknown'}, '
           'source=${info?.source ?? 'logical_viewport_fallback'}, '
           'model=${info?.model ?? 'unknown'}',
@@ -133,6 +157,12 @@ class DeviceFormFactorUtils {
   /// 兜底 setPreferredOrientations 在部分安卓机型 / 关闭自动旋转时不转屏的问题。
   static Future<void> forceNativeOrientation(String mode) async {
     if (!GetPlatform.isAndroid) return;
+    // XR 头显唯一允许的方向请求是「不请求」：任何固定方向都会让系统按该方向
+    // 给面板加信箱边，用户把面板拖宽也不会真的变宽。
+    if (_cachedIsXrDevice && mode != 'unlock') {
+      LogUtils.d('XR 头显忽略方向请求: $mode -> unlock', 'DeviceFormFactor');
+      mode = 'unlock';
+    }
     try {
       await _orientationChannel.invokeMethod<void>('setOrientation', mode);
     } on MissingPluginException catch (e) {
@@ -151,7 +181,12 @@ class DeviceFormFactorUtils {
   static MobileDeviceType classifyMobileDisplay({
     required bool? platformReportsTablet,
     required bool fallbackLogicalTablet,
+    bool isXr = false,
   }) {
+    // XR 头显的窗口是可拖拽的 2D 面板，smallestWidthDp 常常 < 600 会被判成手机
+    // 而锁竖屏，进而被系统加信箱边锁死宽度。这里直接按「不锁方向」的那一档处理。
+    if (isXr) return MobileDeviceType.tablet;
+
     if (platformReportsTablet != null) {
       return platformReportsTablet
           ? MobileDeviceType.tablet
@@ -167,6 +202,7 @@ class DeviceFormFactorUtils {
   static void resetCacheForTesting() {
     _cachedMobileDeviceType = null;
     _cachedFormFactorInfo = null;
+    _cachedIsXrDevice = false;
   }
 
   static Future<MobileDeviceFormFactorInfo?>

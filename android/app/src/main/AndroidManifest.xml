@@ -110,6 +110,20 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
+        <!-- 「用其他应用打开」把本地视频交给外部播放器（Quest 上的 VR 播放器、
+             手机上的 MX Player/VLC 等）时需要 content:// URI：API 24+ 直接甩
+             file:// 会抛 FileUriExposedException。exported=false + 逐次
+             FLAG_GRANT_READ_URI_PERMISSION 授权，不会敞开存储。
+             authority 与 open_file 插件的 ${applicationId}.fileProvider 区分开。 -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.videoprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/video_provider_paths" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -138,6 +152,12 @@
         </intent>
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <!-- 「用其他应用打开」要先数一遍本机有几个能放视频的 App（API 30+ 的包
+             可见性限制下，不声明这条 queryIntentActivities 一律返回空）。 -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="video/*" />
         </intent>
     </queries>
 </manifest>

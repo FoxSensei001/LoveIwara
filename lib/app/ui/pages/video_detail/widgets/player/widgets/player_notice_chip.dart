@@ -212,6 +212,8 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
         return t.videoDetail.cast.currentPlatformNotSupported;
       case PlayerNoticeKind.castUrlUnavailable:
         return t.videoDetail.cast.unableToGetVideoUrl;
+      case PlayerNoticeKind.externalPlayerUnavailable:
+        return t.externalPlayer.sourceUnavailable;
     }
   }
 
@@ -234,6 +236,8 @@ class _PlayerNoticeChipState extends State<PlayerNoticeChip>
       case PlayerNoticeKind.castNotSupported:
       case PlayerNoticeKind.castUrlUnavailable:
         return Icons.cast_connected_rounded;
+      case PlayerNoticeKind.externalPlayerUnavailable:
+        return Icons.open_in_new_rounded;
     }
   }
 

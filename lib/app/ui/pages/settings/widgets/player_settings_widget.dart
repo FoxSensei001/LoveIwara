@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/desktop_external_player.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
@@ -937,6 +939,34 @@ class PlayerSettingsWidget extends StatelessWidget {
               },
             ),
         ]),
+        // -------- 外部播放器（仅桌面端） --------
+        // PCVR 播放器（HereSphere / DeoVR / Whirligig 等）都不是系统默认关联
+        // 程序，「用系统默认播放器打开」对头显用户等于没用；指定可执行文件后，
+        // 播放器里的「用其他应用打开」就能直接把本地文件或在线直链甩过去。
+        if (GetPlatform.isDesktop) ...[
+          const SizedBox(height: _kGroupGap),
+          _sectionLabel(context, t.externalPlayer.desktopSectionTitle),
+          _groupCard([
+            Obx(() {
+              final count = DesktopPlayerStore.decode(
+                _configService.settings[ConfigKey.EXTERNAL_PLAYERS_JSON]!.value
+                    as String,
+              ).length;
+              return _navigationTile(
+                context: context,
+                iconData: Icons.smart_display_outlined,
+                label: t.externalPlayer.managePlayers,
+                valueLabel: count > 0
+                    ? t.externalPlayer.playerCount(count: count)
+                    : null,
+                description: count > 0
+                    ? null
+                    : t.externalPlayer.managePlayersDesc,
+                onTap: () => showDesktopPlayerManagerDialog(context),
+              );
+            }),
+          ]),
+        ],
         const SizedBox(height: _kGroupGap),
         SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
       ],
