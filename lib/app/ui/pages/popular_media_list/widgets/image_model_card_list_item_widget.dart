@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -13,8 +15,6 @@ import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-
-import 'media_like_override_utils.dart';
 
 class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
@@ -48,20 +48,24 @@ class ImageModelCardListItemWidget extends StatefulWidget {
 }
 
 class _ImageModelCardListItemWidgetState
-    extends State<ImageModelCardListItemWidget> {
+    extends State<ImageModelCardListItemWidget>
+    with MediaCardActionState<ImageModelCardListItemWidget> {
   static const double _titleFontSize = 14;
   static const double _titleLineHeight = 1.22;
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
 
   bool _isHovering = false;
   bool _revealed = false;
-  bool? _likedOverride;
-  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
-  bool get _effectiveLiked => _likedOverride ?? widget.imageModel.liked;
-  int get _effectiveLikeCount =>
-      _likeCountOverride ?? widget.imageModel.numLikes;
+  @override
+  ImageModel get actionGallery => widget.imageModel;
+  @override
+  String get actionMediaId => widget.imageModel.id;
+  @override
+  bool get baseLiked => widget.imageModel.liked;
+  @override
+  int get baseLikeCount => widget.imageModel.numLikes;
 
   String get _displayTitle {
     final title = widget.imageModel.title.trim();
@@ -69,22 +73,6 @@ class _ImageModelCardListItemWidgetState
       return slang.t.common.noTitle;
     }
     return title;
-  }
-
-  @override
-  void didUpdateWidget(covariant ImageModelCardListItemWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (shouldResetLikeOverride(
-      oldId: oldWidget.imageModel.id,
-      newId: widget.imageModel.id,
-      oldLiked: oldWidget.imageModel.liked,
-      newLiked: widget.imageModel.liked,
-      oldLikeCount: oldWidget.imageModel.numLikes,
-      newLikeCount: widget.imageModel.numLikes,
-    )) {
-      _likedOverride = null;
-      _likeCountOverride = null;
-    }
   }
 
   Map<String, dynamic> _buildGalleryDetailExtData() => <String, dynamic>{};
@@ -105,24 +93,7 @@ class _ImageModelCardListItemWidgetState
       extData: extData,
     );
     if (!mounted) return;
-    _applyLikePatch(extData);
-  }
-
-  void _applyLikePatch(Map<String, dynamic>? extData) {
-    if (extData == null) return;
-    final liked = extData[NaviService.mediaLikePatchLikedKey];
-    final likeCount = extData[NaviService.mediaLikePatchCountKey];
-    if (liked is! bool || likeCount is! num) return;
-
-    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
-    if (_effectiveLiked == liked &&
-        _effectiveLikeCount == normalizedLikeCount) {
-      return;
-    }
-    setState(() {
-      _likedOverride = liked;
-      _likeCountOverride = normalizedLikeCount;
-    });
+    applyLikePatchFromExtData(extData);
   }
 
   @override
@@ -221,6 +192,14 @@ class _ImageModelCardListItemWidgetState
                     onTap: widget.isMultiSelectMode && widget.onSelect != null
                         ? widget.onSelect!
                         : _openGalleryDetail,
+                    // 图库卡片此前长按/右键什么都不做；现在和视频卡片一样，
+                    // 三个入口指向同一只媒体操作菜单。
+                    onSecondaryTap: widget.isMultiSelectMode
+                        ? null
+                        : openActionMenu,
+                    onLongPress: widget.isMultiSelectMode
+                        ? null
+                        : openActionMenu,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -256,8 +235,8 @@ class _ImageModelCardListItemWidgetState
                               const SizedBox(height: 8),
                               ImageModelCardMetaLine(
                                 imageModel: widget.imageModel,
-                                isLiked: _effectiveLiked,
-                                likeCount: _effectiveLikeCount,
+                                isLiked: effectiveLiked,
+                                likeCount: effectiveLikeCount,
                               ),
                               const SizedBox(height: 8),
                               _AuthorLine(
@@ -269,6 +248,15 @@ class _ImageModelCardListItemWidgetState
                         ),
                       ],
                     ),
+                  ),
+                  // 三点钮：压在整张卡片的右下角。
+                  MediaCardActionSlot(
+                    gallery: widget.imageModel,
+                    isMultiSelectMode: widget.isMultiSelectMode,
+                    likedOverride: effectiveLiked,
+                    onLikeChanged: applyLikeToggle,
+                    busy: menuBusy,
+                    duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
                   // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，

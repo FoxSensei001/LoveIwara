@@ -1,20 +1,45 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/image.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-class ImageModelTileListItem extends StatelessWidget {
+/// 图库行（列表模式）。
+///
+/// 改成 StatefulWidget 只为一件事：菜单里点赞之后，这一行的赞数要跟着变。
+/// 三点钮 / 长按 / 右键指向同一只媒体操作菜单，与视频行一致。
+class ImageModelTileListItem extends StatefulWidget {
   final ImageModel imageModel;
 
   const ImageModelTileListItem({super.key, required this.imageModel});
 
   @override
+  State<ImageModelTileListItem> createState() => _ImageModelTileListItemState();
+}
+
+class _ImageModelTileListItemState extends State<ImageModelTileListItem>
+    with MediaCardActionState<ImageModelTileListItem> {
+  ImageModel get imageModel => widget.imageModel;
+
+  @override
+  ImageModel get actionGallery => imageModel;
+  @override
+  String get actionMediaId => imageModel.id;
+  @override
+  bool get baseLiked => imageModel.liked;
+  @override
+  int get baseLikeCount => imageModel.numLikes;
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => _navigateToDetailPage(),
+      onLongPress: openActionMenu,
+      onSecondaryTap: openActionMenu,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -23,6 +48,14 @@ class ImageModelTileListItem extends StatelessWidget {
             _buildThumbnail(context),
             const SizedBox(width: 16),
             _buildImageModelInfo(context),
+            // 行尾三点钮。它在 InkWell 内部，手势竞技场里更深的识别器稳赢，
+            // 点它不会顺带触发整行的"打开详情"。
+            MediaActionMenuButton(
+              gallery: imageModel,
+              busy: menuBusy,
+              likedOverride: effectiveLiked,
+              onLikeChanged: applyLikeToggle,
+            ),
           ],
         ),
       ),
@@ -64,8 +97,8 @@ class ImageModelTileListItem extends StatelessWidget {
         if (imageModel.numViews > 0)
           _buildViewsNums(context, imageModel.numViews),
         // 左上角显示点赞数量
-        if (imageModel.numLikes > 0)
-          _buildLikeNums(context, imageModel.numLikes),
+        if (effectiveLikeCount > 0)
+          _buildLikeNums(context, effectiveLikeCount),
       ],
     );
   }

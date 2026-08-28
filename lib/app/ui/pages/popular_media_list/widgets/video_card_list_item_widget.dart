@@ -2,11 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/blocked_media_card_placeholder.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
     show BaseTag;
@@ -15,7 +16,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
-import 'media_like_override_utils.dart';
 
 class VideoCardListItemWidget extends StatefulWidget {
   final Video video;
@@ -54,20 +54,24 @@ class VideoCardListItemWidget extends StatefulWidget {
       _VideoCardListItemWidgetState();
 }
 
-class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
+class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
+    with MediaCardActionState<VideoCardListItemWidget> {
   static const double _titleFontSize = 14;
   static const double _titleLineHeight = 1.22;
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
 
   bool _isHovering = false;
   bool _revealed = false;
-  bool? _likedOverride;
-  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
-  bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
-  int get _effectiveLikeCount =>
-      _likeCountOverride ?? (widget.video.numLikes ?? 0);
+  @override
+  Video get actionVideo => widget.video;
+  @override
+  String get actionMediaId => widget.video.id;
+  @override
+  bool get baseLiked => widget.video.liked == true;
+  @override
+  int get baseLikeCount => widget.video.numLikes ?? 0;
 
   String get _displayTitle {
     final title = widget.video.title?.trim();
@@ -75,22 +79,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       return slang.t.common.noTitle;
     }
     return title;
-  }
-
-  @override
-  void didUpdateWidget(covariant VideoCardListItemWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (shouldResetLikeOverride(
-      oldId: oldWidget.video.id,
-      newId: widget.video.id,
-      oldLiked: oldWidget.video.liked,
-      newLiked: widget.video.liked,
-      oldLikeCount: oldWidget.video.numLikes,
-      newLikeCount: widget.video.numLikes,
-    )) {
-      _likedOverride = null;
-      _likeCountOverride = null;
-    }
   }
 
   Map<String, dynamic> _buildVideoDetailExtData() {
@@ -117,24 +105,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
     }
     if (!mounted) return;
-    _applyLikePatch(extData);
-  }
-
-  void _applyLikePatch(Map<String, dynamic>? extData) {
-    if (extData == null) return;
-    final liked = extData[NaviService.mediaLikePatchLikedKey];
-    final likeCount = extData[NaviService.mediaLikePatchCountKey];
-    if (liked is! bool || likeCount is! num) return;
-
-    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
-    if (_effectiveLiked == liked &&
-        _effectiveLikeCount == normalizedLikeCount) {
-      return;
-    }
-    setState(() {
-      _likedOverride = liked;
-      _likeCountOverride = normalizedLikeCount;
-    });
+    applyLikePatchFromExtData(extData);
   }
 
   @override
@@ -237,12 +208,14 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                             widget.video.id,
                             extData: _buildVideoDetailExtData(),
                           ),
+                    // 长按 / 右键 / 三点钮 → 同一只媒体操作菜单。
+                    // 原来这两条指向的是只能看不能动手的预览弹窗，已整只移除。
                     onSecondaryTap: widget.isMultiSelectMode
                         ? null
-                        : _showDetailsModal,
+                        : openActionMenu,
                     onLongPress: widget.isMultiSelectMode
                         ? null
-                        : _showDetailsModal,
+                        : openActionMenu,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -278,8 +251,8 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                               const SizedBox(height: 8),
                               VideoCardMetaLine(
                                 video: widget.video,
-                                isLiked: _effectiveLiked,
-                                likeCount: _effectiveLikeCount,
+                                isLiked: effectiveLiked,
+                                likeCount: effectiveLikeCount,
                               ),
                               const SizedBox(height: 8),
                               _AuthorLine(
@@ -291,6 +264,15 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                         ),
                       ],
                     ),
+                  ),
+                  // 三点钮：压在整张卡片的右下角（B站同款位置）。
+                  MediaCardActionSlot(
+                    video: widget.video,
+                    isMultiSelectMode: widget.isMultiSelectMode,
+                    likedOverride: effectiveLiked,
+                    onLikeChanged: applyLikeToggle,
+                    busy: menuBusy,
+                    duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
                   // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
@@ -316,43 +298,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
         (defaultTargetPlatform == TargetPlatform.windows ||
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS);
-  }
-
-  Future<void> _showDetailsModal() async {
-    if (!mounted) return;
-    final result = await showDialog<VideoPreviewModalResult>(
-      context: context,
-      builder: (_) => VideoPreviewDetailModal(
-        video: widget.video,
-        isLiked: _effectiveLiked,
-        likeCount: _effectiveLikeCount,
-      ),
-    );
-
-    if (!mounted || result == null) return;
-
-    switch (result.type) {
-      case VideoPreviewModalActionType.openVideo:
-        if (result.videoId?.isNotEmpty ?? false) {
-          final videoId = result.videoId!;
-          await _openVideoDetail(
-            videoId,
-            extData: videoId == widget.video.id
-                ? _buildVideoDetailExtData()
-                : null,
-          );
-        }
-        break;
-      case VideoPreviewModalActionType.openAuthor:
-        final username = (result.username ?? '').trim();
-        if (username.isNotEmpty) {
-          NaviService.navigateToAuthorProfilePage(
-            username,
-            initialUser: widget.video.user,
-          );
-        }
-        break;
-    }
   }
 }
 
