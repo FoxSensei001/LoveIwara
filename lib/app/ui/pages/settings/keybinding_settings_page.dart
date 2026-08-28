@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/player_keybinding/key_chord.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
@@ -208,10 +209,18 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
+      // 本页其它 Card 都写了 margin: zero，唯独这张没写，于是吃到了 Material
+      // 给 Card 的默认外边距 4dp，整张卡比同页所有内容往右缩了 4dp（真机量得
+      // 卡片左缘 x=978，而搜索框 967、下方动作行 963）。对齐问题出在外边距，
+      // 不是内边距。
+      margin: EdgeInsets.zero,
       color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        // 横向 16 与全站设置页保持一致（glass_setting_tiles / settings_app_bar
+        // 都是 16，本页的动作行也是 16）。原来的 all(14) 让这张卡比同页下方
+        // 所有内容都往里缩了 2px，跨页看更明显。
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Icon(Icons.keyboard, color: theme.colorScheme.primary, size: 22),
@@ -270,9 +279,9 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     ).where(_matchesQuery).toList();
     // 画面缩放为固定手势展示：移动端有双指捏合/触控板缩放，桌面端额外有
     // Ctrl/Shift + 滚轮，因此全平台都展示（不再限定桌面）。
-    final showFixed =
-        _query.isEmpty &&
-        (scope == ShortcutScope.gallery || scope == ShortcutScope.video);
+    // 有没有固定手势可展示，由能力表说了算，不再按作用域硬编码——
+    // 图库过去被连带展示了它根本没有的「旋转画面」。
+    final showFixed = _query.isEmpty && scopeHasFixedGestures(scope);
     if (actions.isEmpty && !showFixed) return const [];
 
     final widgets = <Widget>[];
@@ -304,7 +313,7 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
       widgets.add(const SizedBox(height: 16));
     }
 
-    if (showFixed) widgets.addAll(_buildFixedZoomSection(context));
+    if (showFixed) widgets.addAll(_buildFixedZoomSection(context, scope));
 
     // 每作用域的重置按钮（非全默认时显示）。
     // 包进 Obx：增删快捷键后按钮可即时出现/消失（isScopeDefault 读取响应式 bindings）。
@@ -421,9 +430,48 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
   // 画面缩放（固定快捷键，仅展示，桌面端）
   // ---------------------------------------------------------------------------
 
-  List<Widget> _buildFixedZoomSection(BuildContext context) {
+  List<Widget> _buildFixedZoomSection(BuildContext context, ShortcutScope scope) {
     final theme = Theme.of(context);
-    final bool isDesktop = GetPlatform.isDesktop;
+    // 滚轮提示按**能力表**给，不按平台、也不做鼠标接入探测。
+    //
+    // Ctrl/Shift + 滚轮在代码里没有任何平台门控，安卓平板接上鼠标就能用（真机
+    // 日志实证：滚轮事件到达、修饰键读到、缩放/旋转分支确实执行），而原来按
+    // GetPlatform.isDesktop 硬判，移动端接了鼠标也看不到提示——功能在、提示没有。
+    //
+    // 也试过用 MouseTracker.mouseIsConnected 做运行时探测，真机验证不可靠：
+    // 它要等鼠标 hover/added 事件才翻真，鼠标插着但没动过时提示照样消失，
+    // 等于把「有时有有时没有」换个形式。宁可多显示一行也不要时隐时现。
+    final channels = inputChannelsOf(scope);
+
+    // 每一行、每一枚 chip 都由能力表推导：作用域没有的通道不展示。
+    // 图库没有任何旋转能力，此前却和视频共用同一份写死的两行文案。
+    final rows = <Widget>[];
+    if (scopeSupportsFixedZoom(scope)) {
+      rows.add(
+        _fixedHintRow(context, Icons.zoom_in, _t.zoomScaleLabel, [
+          if (channels.contains(ShortcutInputChannel.pinchZoom))
+            _t.zoomPinchGesture,
+          if (channels.contains(ShortcutInputChannel.wheelZoom))
+            _t.zoomScaleHint,
+        ]),
+      );
+    }
+    if (scopeSupportsFixedRotate(scope)) {
+      if (rows.isNotEmpty) {
+        rows.add(
+          const Divider(height: 1, thickness: 0.5, indent: 16, endIndent: 16),
+        );
+      }
+      rows.add(
+        _fixedHintRow(context, Icons.rotate_right, _t.zoomRotateLabel, [
+          if (channels.contains(ShortcutInputChannel.twoFingerRotate))
+            _t.zoomTwoFingerRotateGesture,
+          if (channels.contains(ShortcutInputChannel.wheelRotate))
+            _t.zoomRotateHint,
+        ]),
+      );
+    }
+
     return [
       _sectionLabel(context, _t.zoomSectionTitle),
       Card(
@@ -431,21 +479,7 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          children: [
-            // 缩放：移动端/触控板双指捏合；桌面端额外 Ctrl + 滚轮。
-            _fixedHintRow(context, Icons.zoom_in, _t.zoomScaleLabel, [
-              _t.zoomPinchGesture,
-              if (isDesktop) _t.zoomScaleHint,
-            ]),
-            const Divider(height: 1, thickness: 0.5, indent: 16, endIndent: 16),
-            // 旋转：移动端/触控板双指旋转；桌面端额外 Shift + 滚轮。
-            _fixedHintRow(context, Icons.rotate_right, _t.zoomRotateLabel, [
-              _t.zoomTwoFingerRotateGesture,
-              if (isDesktop) _t.zoomRotateHint,
-            ]),
-          ],
-        ),
+        child: Column(children: rows),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
@@ -744,6 +778,8 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
   final FocusNode _focusNode = FocusNode();
   String? _errorText;
   String _preview = '';
+  /// 上一次「检测到但没被接受」的输入，用于实时回显。
+  String? _detected;
 
   slang.TranslationsSettingsKeybindingEn get _t => slang.t.settings.keybinding;
 
@@ -766,19 +802,58 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
     super.dispose();
   }
 
+  /// 鼠标按下。
+  ///
+  /// **每一种拒收都必须当场说清楚理由**：这个弹窗以前对不被接受的输入一律
+  /// 静默 `return`，屏幕上什么都不变，于是用户分不清「没检测到」和「检测到但
+  /// 不让绑」，只能反复试，试出一套玄学（真机反馈：「得把鼠标悬浮到某个区域
+  /// 才能记录，有没有效果也不知道」）。
   void _handleGlobalPointer(PointerEvent event) {
     if (event is! PointerDownEvent) return;
     if (event.kind != PointerDeviceKind.mouse) return;
-    // 仅可绑定的鼠标键（中键/后退/前进）返回非 null；左右键返回 null，
-    // 不拦截，从而不影响弹窗内的 Cancel 按钮点击。
-    final chord = KeyChord.fromPointerEvent(event);
-    if (chord == null) return;
     if (!mounted) return;
+
+    final int buttons = event.buttons;
+
+    // 左键 / 右键：静默忽略，**不能**在这里报错。
+    // 用鼠标操作这个弹窗时，点「取消」按钮用的就是左键——在那一刻闪一条红色
+    // 「左键不可绑定」既刺眼又答非所问。它们不可绑定这件事由下方的能力行
+    // 事先说明，不需要事后再骂用户一次。
+    if (buttons == kPrimaryMouseButton || buttons == kSecondaryMouseButton) {
+      return;
+    }
+
+    // 该作用域根本不受理鼠标事件——与「系统保留键」是完全不同的两件事。
+    if (!scopeAcceptsMouseButtons(widget.scope)) {
+      _reject(_t.mouseNotSupportedInScope, detected: KeyChord.describeMouseButton(buttons));
+      return;
+    }
+
+    // 平台自己就把这个键当返回用（安卓的鼠标后退键）。
+    if (!KeyChord.isBindableMouseButton(buttons)) {
+      _reject(_t.rejectPlatformBack, detected: KeyChord.describeMouseButton(buttons));
+      return;
+    }
+
+    final chord = KeyChord.fromPointerEvent(event);
+    if (chord == null) {
+      // 同时按住多个鼠标键：说清楚是这个原因，别套「左右键」那条答非所问。
+      _reject(_t.rejectMultipleButtons, detected: KeyChord.describeMouseButton(buttons));
+      return;
+    }
     if (widget.service.isReserved(chord, widget.scope)) {
-      setState(() => _errorText = _t.reservedKey);
+      _reject(_t.reservedKey, detected: chord.displayLabel);
       return;
     }
     Navigator.of(context).pop(chord);
+  }
+
+  /// 显示「检测到 X —— 但不能绑，因为 Y」，并保持弹窗开着让用户换一个。
+  void _reject(String reason, {required String detected}) {
+    setState(() {
+      _detected = '${_t.detectedLabel}: $detected';
+      _errorText = reason;
+    });
   }
 
   void _onKey(KeyEvent event) {
@@ -797,11 +872,43 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
       setState(() => _preview = _modifierPreview());
       return;
     }
+    // 诊断：真机上出现过「自定义键绑了却不触发，而默认的方向键正常」。
+    // 键位系统本身是通的（方向键走的就是同一条路），所以嫌疑在键位身份：
+    // 录入时的 logicalKey 与播放器里收到的可能不是同一个。两端打同样的字段，
+    // 对着日志一比就能定性。
+    LogUtils.d(
+      '[录入] keyId=${chord.keyId} debugName=${event.logicalKey.debugName} '
+      'label="${chord.displayLabel}" '
+      'ctrl=${chord.control} shift=${chord.shift} alt=${chord.alt} meta=${chord.meta} '
+      'scope=${widget.scope.name}',
+      'Keybinding',
+    );
     if (widget.service.isReserved(chord, widget.scope)) {
-      setState(() => _errorText = _t.reservedKey);
+      // 「被系统占用作返回」和「应用保留键（Esc）」对用户是两回事，分开说。
+      final bool platformBack =
+          KeyChord.isPlatformHandledBackButton &&
+          KeyChord.platformBackKeyIds.contains(chord.keyId);
+      _reject(
+        platformBack ? _t.rejectPlatformBack : _t.reservedKey,
+        detected: chord.displayLabel,
+      );
       return;
     }
     Navigator.of(context).pop(chord);
+  }
+
+  /// 本区域接受什么——直接由能力表推导，并且**提前**把平台差异说清楚。
+  ///
+  /// 移动端要单独说一句「后退键不可绑」：安卓把鼠标后退键当系统返回，用户按下
+  /// 它时系统会直接把这个弹窗关掉，我们的拒收提示根本没机会显示——那看起来就是
+  /// 「弹窗自己莫名其妙关了」。与其事后解释，不如按之前先讲。
+  String get _capabilityLine {
+    if (!scopeAcceptsMouseButtons(widget.scope)) {
+      return _t.capabilityKeyboardOnly;
+    }
+    return KeyChord.isPlatformHandledBackButton
+        ? _t.capabilityKeyboardAndMouseMobile
+        : _t.capabilityKeyboardAndMouse;
   }
 
   String _modifierPreview() {
@@ -841,10 +948,16 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
+              // 回显区：优先显示「刚刚检测到什么」，其次是修饰键预览。
+              // 以前这里只会显示修饰键，按下不被接受的键时整块纹丝不动，
+              // 用户无从判断到底有没有被听见。
               child: Text(
-                _preview.isEmpty ? '…' : _preview,
+                _detected ?? (_preview.isEmpty ? '…' : _preview),
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
+                  color: _detected != null && _errorText != null
+                      ? theme.colorScheme.error
+                      : null,
                 ),
               ),
             ),
@@ -859,13 +972,15 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
               ),
             ),
             const SizedBox(height: 6),
+            // 本区域到底接受什么——直接取自能力表，不再让用户自己猜。
             Text(
-              _t.mouseHint,
+              _capabilityLine,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+
           ],
         ),
       ),

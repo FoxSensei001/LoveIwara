@@ -2443,6 +2443,13 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 	@override String get pressNewShortcut => '新しいショートカットを押してください…';
 	@override String get recordingCancelHint => 'Esc でキャンセル';
 	@override String get mouseHint => 'マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です';
+	@override String get mouseNotSupportedInScope => 'このエリアはマウスボタンを処理しません。キーボードを使用してください';
+	@override String get capabilityKeyboardOnly => 'このエリアはキーボードのみ受け付けます';
+	@override String get capabilityKeyboardAndMouse => 'このエリアはキーボードと、マウスの中ボタン / サイドボタンを受け付けます';
+	@override String get capabilityKeyboardAndMouseMobile => 'このエリアはキーボードと、マウスの中ボタン / 進むボタンを受け付けます（戻るボタンはシステムが使用中）';
+	@override String get rejectMultipleButtons => 'マウスボタンは一度に一つだけ押してください';
+	@override String get rejectPlatformBack => 'このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります';
+	@override String get detectedLabel => '検出';
 	@override String get reservedKey => 'このキーはシステム予約のため割り当てできません';
 	@override String get conflictTitle => 'ショートカットの競合';
 	@override String conflictMessage({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。';
@@ -4278,6 +4285,13 @@ extension on TranslationsJa {
 			'settings.keybinding.pressNewShortcut' => '新しいショートカットを押してください…',
 			'settings.keybinding.recordingCancelHint' => 'Esc でキャンセル',
 			'settings.keybinding.mouseHint' => 'マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です',
+			'settings.keybinding.mouseNotSupportedInScope' => 'このエリアはマウスボタンを処理しません。キーボードを使用してください',
+			'settings.keybinding.capabilityKeyboardOnly' => 'このエリアはキーボードのみ受け付けます',
+			'settings.keybinding.capabilityKeyboardAndMouse' => 'このエリアはキーボードと、マウスの中ボタン / サイドボタンを受け付けます',
+			'settings.keybinding.capabilityKeyboardAndMouseMobile' => 'このエリアはキーボードと、マウスの中ボタン / 進むボタンを受け付けます（戻るボタンはシステムが使用中）',
+			'settings.keybinding.rejectMultipleButtons' => 'マウスボタンは一度に一つだけ押してください',
+			'settings.keybinding.rejectPlatformBack' => 'このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります',
+			'settings.keybinding.detectedLabel' => '検出',
 			'settings.keybinding.reservedKey' => 'このキーはシステム予約のため割り当てできません',
 			'settings.keybinding.conflictTitle' => 'ショートカットの競合',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。',
@@ -4571,6 +4585,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.noRecommendedPaths' => '推奨パスがありません',
 			'settings.downloadSettings.recommended' => '推奨',
 			'settings.downloadSettings.requiresPermission' => '権限が必要',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.authorizeAndSelect' => '認証して選択',
 			'settings.downloadSettings.select' => '選択',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '権限認証に失敗しました、このパスを選択できません',
@@ -4578,8 +4594,6 @@ extension on TranslationsJa {
 			'settings.downloadSettings.downloadPathSetTo' => 'ダウンロードパスが設定されました',
 			'settings.downloadSettings.setPathFailed' => 'パスの設定に失敗しました',
 			'settings.downloadSettings.variableTitle' => 'タイトル',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => '作者名',
 			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
 			'settings.downloadSettings.variableQuality' => '動画品質',
@@ -5085,6 +5099,8 @@ extension on TranslationsJa {
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'ダウンロード完了 (合計${total}枚)',
 			'download.viewVideoDetail' => 'ビデオ詳細を表示',
 			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
+			_ => null,
+		} ?? switch (path) {
 			'download.moreOptions' => 'もっと操作',
 			'download.openFile' => 'ファイルを開く',
 			'download.playLocally' => 'ローカル再生',
@@ -5092,8 +5108,6 @@ extension on TranslationsJa {
 			'download.resume' => '継続',
 			'download.copyDownloadUrl' => 'ダウンロードリンクをコピー',
 			'download.showInFolder' => 'フォルダーで表示',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteTask' => 'タスクを削除',
 			'download.deleteTaskConfirmation' => 'このダウンロードタスクを削除しますか？\nタスクのファイルも削除されます。',
 			'download.forceDeleteTaskConfirmation' => 'このダウンロードタスクを強制削除しますか？\nファイルが使用中でも削除を試行し、タスクのファイルも削除されます。',
@@ -5599,6 +5613,8 @@ extension on TranslationsJa {
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '現在: ${size}',
 			'log.exportCurrentLogs' => '現在のログをエクスポート',
 			'log.exportCurrentLogsDesc' => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportHistoryLogs' => '履歴ログをエクスポート',
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
@@ -5606,8 +5622,6 @@ extension on TranslationsJa {
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
 			'log.logExportFailed' => ({required Object error}) => 'ログエクスポート失敗: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'log.showLogStatsDesc' => '様々なタイプのログの統計情報を表示',
 			'log.logExtractFailed' => ({required Object error}) => 'ログ統計情報の取得に失敗しました: ${error}',
 			'log.clearAllLogs' => 'すべてのログをクリア',

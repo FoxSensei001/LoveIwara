@@ -753,6 +753,13 @@ settings:
     pressNewShortcut: 新しいショートカットを押してください…
     recordingCancelHint: Esc でキャンセル
     mouseHint: マウスのサイドボタン（戻る / 進む）や中ボタンも割り当て可能です
+    mouseNotSupportedInScope: このエリアはマウスボタンを処理しません。キーボードを使用してください
+    capabilityKeyboardOnly: このエリアはキーボードのみ受け付けます
+    capabilityKeyboardAndMouse: このエリアはキーボードと、マウスの中ボタン / サイドボタンを受け付けます
+    capabilityKeyboardAndMouseMobile: このエリアはキーボードと、マウスの中ボタン / 進むボタンを受け付けます（戻るボタンはシステムが使用中）
+    rejectMultipleButtons: マウスボタンは一度に一つだけ押してください
+    rejectPlatformBack: このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります
+    detectedLabel: 検出
     reservedKey: このキーはシステム予約のため割り当てできません
     conflictTitle: ショートカットの競合
     conflictMessage: この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。

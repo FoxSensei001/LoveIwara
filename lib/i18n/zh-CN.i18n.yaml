@@ -754,6 +754,13 @@ settings:
     pressNewShortcut: 请按下新的快捷键…
     recordingCancelHint: 按 Esc 取消
     mouseHint: 也可绑定鼠标侧键（后退 / 前进）或中键
+    mouseNotSupportedInScope: 此区域不处理鼠标按键，请改用键盘
+    capabilityKeyboardOnly: 本区域只接受键盘按键
+    capabilityKeyboardAndMouse: 本区域接受键盘按键，以及鼠标中键 / 侧键
+    capabilityKeyboardAndMouseMobile: 本区域接受键盘按键，以及鼠标中键 / 前进键（后退键已被系统用作返回，无法绑定）
+    rejectMultipleButtons: 请一次只按一个鼠标键
+    rejectPlatformBack: 该按键已被系统用作「返回」，绑定后会返回两次
+    detectedLabel: 检测到
     reservedKey: 该按键为系统保留，无法绑定
     conflictTitle: 快捷键冲突
     conflictMessage: 该组合已绑定到「${action}」，继续将解除其原有绑定。

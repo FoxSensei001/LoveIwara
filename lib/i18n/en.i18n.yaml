@@ -752,6 +752,13 @@ settings:
     pressNewShortcut: Press the new shortcut…
     recordingCancelHint: Press Esc to cancel
     mouseHint: You can also bind mouse side buttons (back / forward) or the middle button
+    mouseNotSupportedInScope: This area does not handle mouse buttons; use the keyboard instead
+    capabilityKeyboardOnly: This area accepts keyboard keys only
+    capabilityKeyboardAndMouse: This area accepts keyboard keys, plus the mouse middle and side buttons
+    capabilityKeyboardAndMouseMobile: This area accepts keyboard keys, plus the mouse middle and forward buttons (the back button is taken by the system)
+    rejectMultipleButtons: Press one mouse button at a time
+    rejectPlatformBack: The system already uses this for Back; binding it would go back twice
+    detectedLabel: Detected
     reservedKey: This key is reserved by the system and cannot be bound
     conflictTitle: Shortcut Conflict
     conflictMessage: This combination is already bound to "${action}". Continuing will remove the existing binding.

@@ -10,6 +10,8 @@ import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/glass_material_intro.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
@@ -546,9 +548,39 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
       canRequestFocus: false,
       skipTraversal: true,
       onKeyEvent: (node, event) {
+        // 正在打字时，所有快捷键一律让位给输入框——这道闸门必须在最前面，
+        // 且要盖住叶子作用域：用户很可能把「.」之类的可打印字符绑成了播放器
+        // 快捷键，在评论框里敲它必须是输入字符，而不是调音量。
+        final typing = isTextInputFocused();
+
+        // 叶子作用域（视频/图库）：不依赖焦点，问注册表里栈顶那个合格目标。
+        // 转发原始事件而非解析后的动作——进度键的长按倍速要靠 KeyUpEvent 收尾。
+        if (!typing) {
+          final leaf = ShortcutTargetRegistry.instance.dispatch(event);
+          if (leaf == KeyEventResult.handled) return leaf;
+        }
+
         if (event is! KeyDownEvent) return KeyEventResult.ignored;
         final service = Get.find<KeybindingService>();
         final action = service.resolve(event, ShortcutScope.global);
+        if (action == null) return KeyEventResult.ignored;
+
+        // 正在打字时，全局快捷键一律让位给输入框。
+        //
+        // 按键会从聚焦节点冒泡到这里，输入框并不消费 Esc/方向键之类，所以不加这道
+        // 闸门的话：Esc（全局返回的默认键）会在用户写评论写到一半时把整页退掉、
+        // 草稿一起丢；将来若有人把全局动作绑到字母键，打字就会满屏乱触发。
+        // 这道闸门放在动作分派之前，对**所有**全局动作生效，而不只是返回。
+        if (typing) {
+          if (action == ShortcutAction.globalBack) {
+            // 与桌面端惯例一致：第一下 Esc 先收起输入焦点，
+            // 失焦之后再按才是真的返回。
+            FocusManager.instance.primaryFocus?.unfocus();
+            return KeyEventResult.handled;
+          }
+          return KeyEventResult.ignored;
+        }
+
         if (action == ShortcutAction.globalBack) {
           if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
             // 首页根路由：二次确认退出（5s 内再次返回才真正退出）

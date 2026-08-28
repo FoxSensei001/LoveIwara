@@ -17,7 +17,6 @@ class GalleryControls {
   final Function(bool fine)? onZoomOut;
   final VoidCallback? onResetZoom;
 
-  bool isCtrlPressed = false;
   int currentIndex = 0;
 
   final double _zoomInterval = 0.2;
@@ -89,62 +88,16 @@ class GalleryControls {
     }
   }
 
-  /// 处理键盘按键事件（旧版保持，兼容）
+  /// 处理鼠标滚轮事件。
   ///
-  /// 新代码直接通过 KeybindingService + dispatch。
-  @Deprecated('Use KeybindingService.resolve + dispatch')
-  bool handleKeyPress(KeyEvent event) {
-    if (event is KeyDownEvent &&
-        (event.logicalKey == LogicalKeyboardKey.controlLeft ||
-            event.logicalKey == LogicalKeyboardKey.controlRight)) {
-      isCtrlPressed = true;
-      return false;
-    }
-    if (event is KeyUpEvent &&
-        (event.logicalKey == LogicalKeyboardKey.controlLeft ||
-            event.logicalKey == LogicalKeyboardKey.controlRight)) {
-      isCtrlPressed = false;
-      return false;
-    }
-
-    if (event is! KeyDownEvent) return false;
-
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowRight:
-      case LogicalKeyboardKey.pageDown:
-        onNext?.call();
-        return true;
-      case LogicalKeyboardKey.arrowLeft:
-      case LogicalKeyboardKey.pageUp:
-        onPrevious?.call();
-        return true;
-      case LogicalKeyboardKey.arrowUp:
-        zoomIn();
-        return true;
-      case LogicalKeyboardKey.arrowDown:
-        zoomOut();
-        return true;
-      case LogicalKeyboardKey.equal:
-      case LogicalKeyboardKey.numpadAdd:
-        zoomIn();
-        return true;
-      case LogicalKeyboardKey.minus:
-      case LogicalKeyboardKey.numpadSubtract:
-        zoomOut();
-        return true;
-      case LogicalKeyboardKey.digit0:
-      case LogicalKeyboardKey.numpad0:
-        resetZoom();
-        return true;
-    }
-
-    return false;
-  }
-
-  /// 处理鼠标滚轮事件
+  /// Ctrl 状态**实时问硬件**，不自己维护。此前这里读的是一个由
+  /// `@Deprecated` 且全项目无人调用的 `handleKeyPress` 负责写入的字段，
+  /// 于是它恒为 false —— 按住 Ctrl 滚滚轮一直在翻页而不是缩放。
+  /// 自己跟踪修饰键状态就是这个 bug 本身，`KeyChord._modifiersMatch()`
+  /// 早就是直接读 [HardwareKeyboard] 的，这里与之保持一致。
   void handlePointerSignal(PointerSignalEvent pointerSignal) {
     if (pointerSignal is PointerScrollEvent) {
-      if (isCtrlPressed) {
+      if (HardwareKeyboard.instance.isControlPressed) {
         if (pointerSignal.scrollDelta.dy > 0) {
           zoomOut(fine: true);
         } else {

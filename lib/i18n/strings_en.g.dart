@@ -6129,6 +6129,27 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'You can also bind mouse side buttons (back / forward) or the middle button'
 	String get mouseHint => 'You can also bind mouse side buttons (back / forward) or the middle button';
 
+	/// en: 'This area does not handle mouse buttons; use the keyboard instead'
+	String get mouseNotSupportedInScope => 'This area does not handle mouse buttons; use the keyboard instead';
+
+	/// en: 'This area accepts keyboard keys only'
+	String get capabilityKeyboardOnly => 'This area accepts keyboard keys only';
+
+	/// en: 'This area accepts keyboard keys, plus the mouse middle and side buttons'
+	String get capabilityKeyboardAndMouse => 'This area accepts keyboard keys, plus the mouse middle and side buttons';
+
+	/// en: 'This area accepts keyboard keys, plus the mouse middle and forward buttons (the back button is taken by the system)'
+	String get capabilityKeyboardAndMouseMobile => 'This area accepts keyboard keys, plus the mouse middle and forward buttons (the back button is taken by the system)';
+
+	/// en: 'Press one mouse button at a time'
+	String get rejectMultipleButtons => 'Press one mouse button at a time';
+
+	/// en: 'The system already uses this for Back; binding it would go back twice'
+	String get rejectPlatformBack => 'The system already uses this for Back; binding it would go back twice';
+
+	/// en: 'Detected'
+	String get detectedLabel => 'Detected';
+
 	/// en: 'This key is reserved by the system and cannot be bound'
 	String get reservedKey => 'This key is reserved by the system and cannot be bound';
 
@@ -9313,6 +9334,13 @@ extension on Translations {
 			'settings.keybinding.pressNewShortcut' => 'Press the new shortcut…',
 			'settings.keybinding.recordingCancelHint' => 'Press Esc to cancel',
 			'settings.keybinding.mouseHint' => 'You can also bind mouse side buttons (back / forward) or the middle button',
+			'settings.keybinding.mouseNotSupportedInScope' => 'This area does not handle mouse buttons; use the keyboard instead',
+			'settings.keybinding.capabilityKeyboardOnly' => 'This area accepts keyboard keys only',
+			'settings.keybinding.capabilityKeyboardAndMouse' => 'This area accepts keyboard keys, plus the mouse middle and side buttons',
+			'settings.keybinding.capabilityKeyboardAndMouseMobile' => 'This area accepts keyboard keys, plus the mouse middle and forward buttons (the back button is taken by the system)',
+			'settings.keybinding.rejectMultipleButtons' => 'Press one mouse button at a time',
+			'settings.keybinding.rejectPlatformBack' => 'The system already uses this for Back; binding it would go back twice',
+			'settings.keybinding.detectedLabel' => 'Detected',
 			'settings.keybinding.reservedKey' => 'This key is reserved by the system and cannot be bound',
 			'settings.keybinding.conflictTitle' => 'Shortcut Conflict',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'This combination is already bound to "${action}". Continuing will remove the existing binding.',
@@ -9606,6 +9634,8 @@ extension on Translations {
 			'settings.downloadSettings.noRecommendedPaths' => 'No recommended paths available',
 			'settings.downloadSettings.recommended' => 'Recommended',
 			'settings.downloadSettings.requiresPermission' => 'Requires Permission',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.authorizeAndSelect' => 'Authorize and Select',
 			'settings.downloadSettings.select' => 'Select',
 			'settings.downloadSettings.permissionAuthorizationFailed' => 'Permission authorization failed, cannot select this path',
@@ -9613,8 +9643,6 @@ extension on Translations {
 			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
 			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
 			'settings.downloadSettings.variableTitle' => 'Title',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => 'Author name',
 			'settings.downloadSettings.variableUsername' => 'Author username',
 			'settings.downloadSettings.variableQuality' => 'Video quality',
@@ -10120,6 +10148,8 @@ extension on Translations {
 			'download.viewVideoDetail' => 'View Video Detail',
 			'download.viewGalleryDetail' => 'View Gallery Detail',
 			'download.moreOptions' => 'More Options',
+			_ => null,
+		} ?? switch (path) {
 			'download.openFile' => 'Open File',
 			'download.playLocally' => 'Play Locally',
 			'download.pause' => 'Pause',
@@ -10127,8 +10157,6 @@ extension on Translations {
 			'download.copyDownloadUrl' => 'Copy Download URL',
 			'download.showInFolder' => 'Show in Folder',
 			'download.deleteTask' => 'Delete Task',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteTaskConfirmation' => 'Are you sure you want to delete this download task?\nThe task file will also be deleted.',
 			'download.forceDeleteTask' => 'Force Delete Task',
 			'download.forceDeleteTaskConfirmation' => 'Are you sure you want to force delete this download task?\nThe task file will also be deleted, even if the file is being used.',
@@ -10634,6 +10662,8 @@ extension on Translations {
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
 			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLogPersistenceSubtitle' => 'Disable to keep logs in memory only and stop disk writes',
 			'diagnostics.minLogLevelTitle' => 'Minimum log level',
 			'diagnostics.minLogLevelSubtitle' => 'Logs below this level will be filtered out',
@@ -10641,8 +10671,6 @@ extension on Translations {
 			'diagnostics.maxFileSizeSubtitle' => 'Rotate when threshold is reached',
 			'diagnostics.rotatedFileCountTitle' => 'Main log rotated file count',
 			'diagnostics.rotatedFileCountSubtitle' => 'Number of retained files excluding the current file',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.hangFileSizeTitle' => 'Hang log size limit',
 			'diagnostics.hangFileSizeSubtitle' => 'Control hang_events file growth',
 			'diagnostics.hangRotatedFileCountTitle' => 'Hang log rotated file count',

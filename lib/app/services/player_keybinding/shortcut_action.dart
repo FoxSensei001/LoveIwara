@@ -42,6 +42,28 @@ enum ShortcutAction {
   toggleFullscreen,
 }
 
+/// 初始播放封面阶段（关闭「首次进入自动播放」时停在封面、媒体尚未打开）仍然放行的动作。
+///
+/// 判定只问一件事：这个动作是否依赖「已打开的媒体」。
+/// - [ShortcutAction.playPause] 是唤起首次播放的入口，必须放行；
+/// - [ShortcutAction.toggleFullscreen] 只切换呈现方式（inline / fullscreen），
+///   与媒体是否打开无关，因此也放行——它不是播放意图，不应顺带开始播放。
+///
+/// 其余动作（进度、音量、倍速等）都要读写播放器状态，媒体没打开时放行只会
+/// 隐式加载媒体或空转，故一律拦下，等播放器就绪后再生效。
+///
+/// 键盘与鼠标两条入口共用这一份名单，避免各自维护而再次出现
+/// 「键盘能用、鼠标被吞」这类只在一边复现的缺陷。
+const Set<ShortcutAction> kShortcutActionsAllowedOnInitialPlaybackCover = {
+  ShortcutAction.playPause,
+  ShortcutAction.toggleFullscreen,
+};
+
+/// 该动作是否允许在初始播放封面阶段执行。
+/// 名单见 [kShortcutActionsAllowedOnInitialPlaybackCover]。
+bool isShortcutAllowedOnInitialPlaybackCover(ShortcutAction action) =>
+    kShortcutActionsAllowedOnInitialPlaybackCover.contains(action);
+
 /// 动作的静态元信息：稳定 id、作用域、分类、图标、默认键位、是否只读固定。
 class ShortcutActionMeta {
   final String id;

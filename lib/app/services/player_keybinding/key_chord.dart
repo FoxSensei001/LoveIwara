@@ -106,12 +106,40 @@ class KeyChord {
   }
 
   /// 可被绑定的鼠标按钮（仅中键 / 后退键 / 前进键，需为唯一按下的按钮）。
-  static int? _capturableButton(int buttons) {
-    if (buttons == kMiddleMouseButton) return kMiddleMouseButton;
-    if (buttons == kBackMouseButton) return kBackMouseButton;
-    if (buttons == kForwardMouseButton) return kForwardMouseButton;
-    return null;
+  ///
+  /// 移动端额外排除**后退键**：Android 把鼠标后退键直接翻译成系统返回，
+  /// 由 `PopCoordinator` 的 `ChildBackButtonDispatcher` 那条通道处理——
+  /// 也就是说不绑它本来就能返回。再把它绑到任何动作上，一次按下会既跑我们的
+  /// 动作、又跑系统返回（绑到「返回」就表现为**连退两页**，真机已复现）。
+  /// 这不是能靠 `handled` 拦住的：两条通道互不知情。
+  static int? _capturableButton(int buttons) =>
+      isBindableMouseButton(buttons) ? buttons : null;
+
+  /// 某个鼠标按钮在**当前平台**是否可绑定。
+  ///
+  /// 捕获入口与加载入口共用这一份判定：只挡捕获的话，用户在旧版本里已经存下的
+  /// 「侧键 → 某动作」绑定会活过升级，继续双触发（动作 + 系统返回）。
+  static bool isBindableMouseButton(int button) {
+    if (button == kMiddleMouseButton) return true;
+    if (button == kForwardMouseButton) return true;
+    if (button == kBackMouseButton) return !isPlatformHandledBackButton;
+    return false;
   }
+
+  /// 当前平台是否自己就会把「后退」输入变成系统返回。
+  ///
+  /// 移动端为真；桌面端没有系统级返回，绑定后退键是合法且有用的。
+  static bool get isPlatformHandledBackButton =>
+      GetPlatform.isAndroid || GetPlatform.isIOS;
+
+  /// 平台自带返回语义的按键：绑上去会与系统返回重复触发。
+  ///
+  /// Android 的物理/鼠标返回键在 Flutter 侧既可能作为这些逻辑键到达，
+  /// 也可能只走系统返回通道；两条通道我们都堵，以免留下一半的洞。
+  static final Set<int> platformBackKeyIds = {
+    LogicalKeyboardKey.goBack.keyId,
+    LogicalKeyboardKey.browserBack.keyId,
+  };
 
   /// 该组合是否匹配某次键盘按下事件（修饰键状态需完全一致）。
   bool matches(KeyEvent event) {
@@ -215,6 +243,14 @@ class KeyChord {
     return debug;
   }
 
+  /// 人类可读地描述一个鼠标按钮位掩码（含不可绑定的左/右键），
+  /// 供录入弹窗回显「检测到了什么」。
+  static String describeMouseButton(int button) {
+    if (button == kPrimaryMouseButton) return 'Mouse L';
+    if (button == kSecondaryMouseButton) return 'Mouse R';
+    return _pointerButtonLabels[button] ?? 'Mouse($button)';
+  }
+
   static const Map<int, String> _pointerButtonLabels = {
     kMiddleMouseButton: 'Mouse ⬤',
     kBackMouseButton: 'Mouse ◀',
@@ -259,6 +295,30 @@ class KeyChord {
     LogicalKeyboardKey.equal.keyId: '=',
     LogicalKeyboardKey.slash.keyId: '/',
     LogicalKeyboardKey.semicolon.keyId: ';',
+    // 小键盘与浏览器导航键：不补这些就会落到 `logicalKey.debugName` 兜底，
+    // 在设置页里显示成 `NUMPAD ADD` / `BROWSER FORWARD` 这种调试名。
+    // 那句「极少触发」的注释是错的——图库的默认键位、以及罗技鼠标侧键
+    // （安卓上以 browserBack / browserForward 的身份到达）都会走到这里。
+    LogicalKeyboardKey.numpad0.keyId: '小键盘 0',
+    LogicalKeyboardKey.numpad1.keyId: '小键盘 1',
+    LogicalKeyboardKey.numpad2.keyId: '小键盘 2',
+    LogicalKeyboardKey.numpad3.keyId: '小键盘 3',
+    LogicalKeyboardKey.numpad4.keyId: '小键盘 4',
+    LogicalKeyboardKey.numpad5.keyId: '小键盘 5',
+    LogicalKeyboardKey.numpad6.keyId: '小键盘 6',
+    LogicalKeyboardKey.numpad7.keyId: '小键盘 7',
+    LogicalKeyboardKey.numpad8.keyId: '小键盘 8',
+    LogicalKeyboardKey.numpad9.keyId: '小键盘 9',
+    LogicalKeyboardKey.numpadAdd.keyId: '小键盘 +',
+    LogicalKeyboardKey.numpadSubtract.keyId: '小键盘 -',
+    LogicalKeyboardKey.numpadMultiply.keyId: '小键盘 *',
+    LogicalKeyboardKey.numpadDivide.keyId: '小键盘 /',
+    LogicalKeyboardKey.numpadDecimal.keyId: '小键盘 .',
+    LogicalKeyboardKey.numpadEnter.keyId: '小键盘 Enter',
+    LogicalKeyboardKey.numpadEqual.keyId: '小键盘 =',
+    LogicalKeyboardKey.browserBack.keyId: '后退键',
+    LogicalKeyboardKey.browserForward.keyId: '前进键',
+    LogicalKeyboardKey.goBack.keyId: '返回键',
   };
 
   @override

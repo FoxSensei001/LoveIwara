@@ -118,21 +118,35 @@ class KeybindingService extends GetxService {
     return result;
   }
 
-  /// 该组合在指定作用域是否为保留键（不允许绑定）。
+  /// 该组合在指定作用域是否**不可绑定**。
+  /// - 鼠标组合：该作用域不受理鼠标按键时不可绑定（见 [kScopeInputChannels]）——
+  ///   否则会绑上却永远不触发；
   /// - global：无保留键（Esc 即全局返回默认键，可改）；
   /// - gallery / video：Esc 保留，使其冒泡到全局返回。
   bool isReserved(KeyChord chord, ShortcutScope scope) {
-    if (chord.isPointer) return false;
+    if (chord.isPointer) {
+      // 作用域根本不受理鼠标 → 绑了也永不触发。
+      if (!scopeAcceptsMouseButtons(scope)) return true;
+      // 该按钮在本平台不可绑（安卓的鼠标后退键已被系统当返回用）→
+      // 连同**历史遗留**的绑定一起挡掉，否则老配置会活过升级继续双触发。
+      return !KeyChord.isBindableMouseButton(chord.pointerButton!);
+    }
     return _reservedKeyIdsFor(scope).contains(chord.keyId);
   }
 
   Set<int> _reservedKeyIdsFor(ShortcutScope scope) {
+    // 平台自带返回语义的按键在**所有**作用域保留：系统那条返回通道照样会跑，
+    // 绑上去只会一次按下返回两次（真机用罗技侧键复现过）。桌面端无此问题，
+    // 故仅在移动端保留。
+    final platformBack = KeyChord.isPlatformHandledBackButton
+        ? KeyChord.platformBackKeyIds
+        : const <int>{};
     switch (scope) {
       case ShortcutScope.global:
-        return const {};
+        return platformBack;
       case ShortcutScope.gallery:
       case ShortcutScope.video:
-        return {LogicalKeyboardKey.escape.keyId};
+        return {LogicalKeyboardKey.escape.keyId, ...platformBack};
     }
   }
 
@@ -161,12 +175,7 @@ class KeybindingService extends GetxService {
 
   /// 覆盖某动作的全部键位。传入空列表表示「该动作无快捷键」。
   Future<void> setBindings(ShortcutAction action, List<KeyChord> chords) async {
-    final cleaned = <KeyChord>[];
-    for (final chord in chords) {
-      if (isReserved(chord, action.scope)) continue;
-      if (!cleaned.contains(chord)) cleaned.add(chord);
-    }
-    bindings[action] = cleaned;
+    bindings[action] = _sanitize(chords, action.scope);
     await _persist();
   }
 
@@ -231,12 +240,26 @@ class KeybindingService extends GetxService {
     for (final action in ShortcutAction.values) {
       final override = overrides[action.id];
       if (override != null) {
-        next[action] = override;
+        // 加载入口必须做与编辑入口同样的清洗。历史配置里可能存着当时允许、
+        // 如今该作用域已不受理的组合（典型：全局/图库的鼠标键——那批绑定
+        // 从来就不会触发），或重复项；不在这里滤掉，它们会一路显示到设置页
+        // 上，让用户以为绑定生效了。
+        next[action] = _sanitize(override, action.scope);
       } else {
         next[action] = List<KeyChord>.from(action.defaultChords);
       }
     }
     bindings.assignAll(next);
+  }
+
+  /// 编辑与加载共用的清洗：剔除该作用域不可绑定的组合，并去重（保序）。
+  List<KeyChord> _sanitize(Iterable<KeyChord> chords, ShortcutScope scope) {
+    final cleaned = <KeyChord>[];
+    for (final chord in chords) {
+      if (isReserved(chord, scope)) continue;
+      if (!cleaned.contains(chord)) cleaned.add(chord);
+    }
+    return cleaned;
   }
 
   Map<String, List<KeyChord>> _readOverrides() {

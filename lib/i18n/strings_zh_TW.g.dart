@@ -2443,6 +2443,13 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 	@override String get pressNewShortcut => '請按下新的快捷鍵…';
 	@override String get recordingCancelHint => '按 Esc 取消';
 	@override String get mouseHint => '也可綁定滑鼠側鍵（後退 / 前進）或中鍵';
+	@override String get mouseNotSupportedInScope => '此區域不處理滑鼠按鍵，請改用鍵盤';
+	@override String get capabilityKeyboardOnly => '本區域只接受鍵盤按鍵';
+	@override String get capabilityKeyboardAndMouse => '本區域接受鍵盤按鍵，以及滑鼠中鍵 / 側鍵';
+	@override String get capabilityKeyboardAndMouseMobile => '本區域接受鍵盤按鍵，以及滑鼠中鍵 / 前進鍵（後退鍵已被系統用作返回，無法綁定）';
+	@override String get rejectMultipleButtons => '請一次只按一個滑鼠鍵';
+	@override String get rejectPlatformBack => '該按鍵已被系統用作「返回」，綁定後會返回兩次';
+	@override String get detectedLabel => '偵測到';
 	@override String get reservedKey => '該按鍵為系統保留，無法綁定';
 	@override String get conflictTitle => '快捷鍵衝突';
 	@override String conflictMessage({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。';
@@ -4278,6 +4285,13 @@ extension on TranslationsZhTw {
 			'settings.keybinding.pressNewShortcut' => '請按下新的快捷鍵…',
 			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
 			'settings.keybinding.mouseHint' => '也可綁定滑鼠側鍵（後退 / 前進）或中鍵',
+			'settings.keybinding.mouseNotSupportedInScope' => '此區域不處理滑鼠按鍵，請改用鍵盤',
+			'settings.keybinding.capabilityKeyboardOnly' => '本區域只接受鍵盤按鍵',
+			'settings.keybinding.capabilityKeyboardAndMouse' => '本區域接受鍵盤按鍵，以及滑鼠中鍵 / 側鍵',
+			'settings.keybinding.capabilityKeyboardAndMouseMobile' => '本區域接受鍵盤按鍵，以及滑鼠中鍵 / 前進鍵（後退鍵已被系統用作返回，無法綁定）',
+			'settings.keybinding.rejectMultipleButtons' => '請一次只按一個滑鼠鍵',
+			'settings.keybinding.rejectPlatformBack' => '該按鍵已被系統用作「返回」，綁定後會返回兩次',
+			'settings.keybinding.detectedLabel' => '偵測到',
 			'settings.keybinding.reservedKey' => '該按鍵為系統保留，無法綁定',
 			'settings.keybinding.conflictTitle' => '快捷鍵衝突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。',
@@ -4571,6 +4585,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.noRecommendedPaths' => '暫無推薦路徑',
 			'settings.downloadSettings.recommended' => '推薦',
 			'settings.downloadSettings.requiresPermission' => '需要權限',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.authorizeAndSelect' => '授權並選擇',
 			'settings.downloadSettings.select' => '選擇',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '權限授權失敗，無法選擇此路徑',
@@ -4578,8 +4594,6 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.downloadPathSetTo' => '下載路徑已設定為',
 			'settings.downloadSettings.setPathFailed' => '設定路徑失敗',
 			'settings.downloadSettings.variableTitle' => '標題',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => '作者名稱',
 			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
 			'settings.downloadSettings.variableQuality' => '影片品質',
@@ -5085,6 +5099,8 @@ extension on TranslationsZhTw {
 			'download.errors.canNotRefreshVideoTask' => '無法重新整理影片任務',
 			'download.errors.taskAlreadyProcessing' => '任務已處理中',
 			'download.errors.failedToLoadTasks' => '載入任務失敗',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下載失敗: ${message}',
 			'download.errors.pleaseTryOtherViewer' => '請嘗試使用其他查看器打開',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看',
@@ -5092,8 +5108,6 @@ extension on TranslationsZhTw {
 			'download.downloadList' => '下載列表',
 			'download.viewDownloadList' => '查看下載列表',
 			'download.download' => '下載',
-			_ => null,
-		} ?? switch (path) {
 			'download.selectDownloadTitle' => '選擇下載',
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '儲存到',
@@ -5599,6 +5613,8 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',
 			'crashRecoveryDialog.privacyHint' => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：',
@@ -5606,8 +5622,6 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.acknowledge' => '我知道了',
 			'crashRecoveryDialog.supportEmailCopied' => '信箱已複製',
 			'linkInputDialog.title' => '輸入連結',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支援智慧識別多個${webName}連結，並快速跳轉到應用內對應頁面(連結與其他文字之間用空格隔開)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '請輸入${webName}連結',
 			'linkInputDialog.validatorEmptyLink' => '請輸入連結',

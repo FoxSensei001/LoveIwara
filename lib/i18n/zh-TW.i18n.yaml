@@ -753,6 +753,13 @@ settings:
     pressNewShortcut: 請按下新的快捷鍵…
     recordingCancelHint: 按 Esc 取消
     mouseHint: 也可綁定滑鼠側鍵（後退 / 前進）或中鍵
+    mouseNotSupportedInScope: 此區域不處理滑鼠按鍵，請改用鍵盤
+    capabilityKeyboardOnly: 本區域只接受鍵盤按鍵
+    capabilityKeyboardAndMouse: 本區域接受鍵盤按鍵，以及滑鼠中鍵 / 側鍵
+    capabilityKeyboardAndMouseMobile: 本區域接受鍵盤按鍵，以及滑鼠中鍵 / 前進鍵（後退鍵已被系統用作返回，無法綁定）
+    rejectMultipleButtons: 請一次只按一個滑鼠鍵
+    rejectPlatformBack: 該按鍵已被系統用作「返回」，綁定後會返回兩次
+    detectedLabel: 偵測到
     reservedKey: 該按鍵為系統保留，無法綁定
     conflictTitle: 快捷鍵衝突
     conflictMessage: 該組合已綁定到「${action}」，繼續將解除其原有綁定。

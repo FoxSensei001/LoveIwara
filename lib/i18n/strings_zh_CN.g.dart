@@ -2443,6 +2443,13 @@ class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybind
 	@override String get pressNewShortcut => '请按下新的快捷键…';
 	@override String get recordingCancelHint => '按 Esc 取消';
 	@override String get mouseHint => '也可绑定鼠标侧键（后退 / 前进）或中键';
+	@override String get mouseNotSupportedInScope => '此区域不处理鼠标按键，请改用键盘';
+	@override String get capabilityKeyboardOnly => '本区域只接受键盘按键';
+	@override String get capabilityKeyboardAndMouse => '本区域接受键盘按键，以及鼠标中键 / 侧键';
+	@override String get capabilityKeyboardAndMouseMobile => '本区域接受键盘按键，以及鼠标中键 / 前进键（后退键已被系统用作返回，无法绑定）';
+	@override String get rejectMultipleButtons => '请一次只按一个鼠标键';
+	@override String get rejectPlatformBack => '该按键已被系统用作「返回」，绑定后会返回两次';
+	@override String get detectedLabel => '检测到';
 	@override String get reservedKey => '该按键为系统保留，无法绑定';
 	@override String get conflictTitle => '快捷键冲突';
 	@override String conflictMessage({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。';
@@ -4278,6 +4285,13 @@ extension on TranslationsZhCn {
 			'settings.keybinding.pressNewShortcut' => '请按下新的快捷键…',
 			'settings.keybinding.recordingCancelHint' => '按 Esc 取消',
 			'settings.keybinding.mouseHint' => '也可绑定鼠标侧键（后退 / 前进）或中键',
+			'settings.keybinding.mouseNotSupportedInScope' => '此区域不处理鼠标按键，请改用键盘',
+			'settings.keybinding.capabilityKeyboardOnly' => '本区域只接受键盘按键',
+			'settings.keybinding.capabilityKeyboardAndMouse' => '本区域接受键盘按键，以及鼠标中键 / 侧键',
+			'settings.keybinding.capabilityKeyboardAndMouseMobile' => '本区域接受键盘按键，以及鼠标中键 / 前进键（后退键已被系统用作返回，无法绑定）',
+			'settings.keybinding.rejectMultipleButtons' => '请一次只按一个鼠标键',
+			'settings.keybinding.rejectPlatformBack' => '该按键已被系统用作「返回」，绑定后会返回两次',
+			'settings.keybinding.detectedLabel' => '检测到',
 			'settings.keybinding.reservedKey' => '该按键为系统保留，无法绑定',
 			'settings.keybinding.conflictTitle' => '快捷键冲突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。',
@@ -4571,6 +4585,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.noRecommendedPaths' => '暂无推荐路径',
 			'settings.downloadSettings.recommended' => '推荐',
 			'settings.downloadSettings.requiresPermission' => '需要权限',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.authorizeAndSelect' => '授权并选择',
 			'settings.downloadSettings.select' => '选择',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '权限授权失败，无法选择此路径',
@@ -4578,8 +4594,6 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadPathSetTo' => '下载路径已设置为',
 			'settings.downloadSettings.setPathFailed' => '设置路径失败',
 			'settings.downloadSettings.variableTitle' => '标题',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.variableAuthor' => '作者名称',
 			'settings.downloadSettings.variableUsername' => '作者用户名',
 			'settings.downloadSettings.variableQuality' => '视频质量',
@@ -5085,6 +5099,8 @@ extension on TranslationsZhCn {
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => '下载完成 (共${total}张)',
 			'download.viewVideoDetail' => '查看视频详情',
 			'download.viewGalleryDetail' => '查看图库详情',
+			_ => null,
+		} ?? switch (path) {
 			'download.moreOptions' => '更多操作',
 			'download.openFile' => '打开文件',
 			'download.playLocally' => '本地播放',
@@ -5092,8 +5108,6 @@ extension on TranslationsZhCn {
 			'download.resume' => '继续',
 			'download.copyDownloadUrl' => '复制下载链接',
 			'download.showInFolder' => '在文件夹中显示',
-			_ => null,
-		} ?? switch (path) {
 			'download.deleteTask' => '删除任务',
 			'download.deleteTaskConfirmation' => '确定要删除这个下载任务吗？\n任务的文件也会被删除。',
 			'download.forceDeleteTaskConfirmation' => '确定要强制删除这个下载任务吗？\n任务的文件也会被删除，即使文件被占用也会尝试删除。',
@@ -5599,6 +5613,8 @@ extension on TranslationsZhCn {
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
 			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
 			'log.exportMergedLogs' => '导出合并日志',
@@ -5606,8 +5622,6 @@ extension on TranslationsZhCn {
 			'log.showLogStats' => '显示日志统计信息',
 			'log.logExportSuccess' => '日志导出成功',
 			'log.logExportFailed' => ({required Object error}) => '日志导出失败: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'log.showLogStatsDesc' => '查看各种类型日志的统计数据',
 			'log.logExtractFailed' => ({required Object error}) => '获取日志统计失败: ${error}',
 			'log.clearAllLogs' => '清理所有日志',
