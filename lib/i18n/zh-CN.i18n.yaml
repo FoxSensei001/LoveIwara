@@ -515,6 +515,12 @@ settings:
   useTraditionalPaginationModeDesc: 开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效
   showVideoProgressBottomBarWhenToolbarHidden: 显示底部进度条
   showVideoProgressBottomBarWhenToolbarHiddenDesc: 此配置决定是否在工具栏隐藏时显示底部进度条
+  seekPreviewSize: 进度预览窗口大小
+  seekPreviewSizeDesc: 进度条上方那扇预览窗口的大小。它本来就会跟着播放器大小和视频比例走，这里只是再调大或调小一点
+  seekPreviewSizeSmall: 小
+  seekPreviewSizeStandard: 标准
+  seekPreviewSizeLarge: 大
+  seekPreviewSizeStandardDesc: 按播放器与视频自动推算出的大小
   showFullscreenUpNextHint: 显示“接着看”侧边提示
   showFullscreenUpNextHintDesc: 全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。
   basicSettings: 基础设置

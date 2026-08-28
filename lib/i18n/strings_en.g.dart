@@ -1580,6 +1580,24 @@ class TranslationsSettingsEn {
 	/// en: 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.'
 	String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.';
 
+	/// en: 'Seek Preview Size'
+	String get seekPreviewSize => 'Seek Preview Size';
+
+	/// en: 'How large the preview window above the progress bar is. It already follows the player size and the video's aspect ratio; this only nudges it.'
+	String get seekPreviewSizeDesc => 'How large the preview window above the progress bar is. It already follows the player size and the video\'s aspect ratio; this only nudges it.';
+
+	/// en: 'Small'
+	String get seekPreviewSizeSmall => 'Small';
+
+	/// en: 'Standard'
+	String get seekPreviewSizeStandard => 'Standard';
+
+	/// en: 'Large'
+	String get seekPreviewSizeLarge => 'Large';
+
+	/// en: 'The size derived from the player and the video'
+	String get seekPreviewSizeStandardDesc => 'The size derived from the player and the video';
+
 	/// en: 'Show Up Next Edge Hint'
 	String get showFullscreenUpNextHint => 'Show Up Next Edge Hint';
 
@@ -9106,6 +9124,12 @@ extension on Translations {
 			'settings.useTraditionalPaginationModeDesc' => 'Enable traditional pagination mode, disable waterfall mode. Takes effect after re-rendering the page or restarting the app',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => 'Show Video Progress Bottom Bar When Toolbar Hidden',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'This configuration determines whether the video progress bottom bar will be shown when the toolbar is hidden.',
+			'settings.seekPreviewSize' => 'Seek Preview Size',
+			'settings.seekPreviewSizeDesc' => 'How large the preview window above the progress bar is. It already follows the player size and the video\'s aspect ratio; this only nudges it.',
+			'settings.seekPreviewSizeSmall' => 'Small',
+			'settings.seekPreviewSizeStandard' => 'Standard',
+			'settings.seekPreviewSizeLarge' => 'Large',
+			'settings.seekPreviewSizeStandardDesc' => 'The size derived from the player and the video',
 			'settings.showFullscreenUpNextHint' => 'Show Up Next Edge Hint',
 			'settings.showFullscreenUpNextHintDesc' => 'Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.',
 			'settings.basicSettings' => 'Basic Settings',
@@ -9126,14 +9150,14 @@ extension on Translations {
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
 			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
 			'settings.rememberVolume' => 'Remember Volume',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the volume will be kept when playing videos again.',
 			'settings.rememberBrightness' => 'Remember Brightness',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
 			'settings.playControlArea' => 'Play Control Area',
 			'settings.leftAndRightControlAreaWidth' => 'Left and Right Control Area Width',
@@ -9640,14 +9664,14 @@ extension on Translations {
 			'settings.downloadSettings.internalAppPrivateDirectory' => 'Internal App Private Directory',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'App internal storage, no permissions required, smaller space',
 			'settings.downloadSettings.appDocumentsDirectory' => 'App Documents Directory',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'App-specific documents directory, safe and reliable',
 			'settings.downloadSettings.downloadsFolder' => 'Downloads Folder',
 			'settings.downloadSettings.downloadsFolderDesc' => 'System default download directory',
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => 'Select a recommended download location',
 			'settings.downloadSettings.noRecommendedPaths' => 'No recommended paths available',
 			'settings.downloadSettings.recommended' => 'Recommended',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.requiresPermission' => 'Requires Permission',
 			'settings.downloadSettings.authorizeAndSelect' => 'Authorize and Select',
 			'settings.downloadSettings.select' => 'Select',
@@ -10154,14 +10178,14 @@ extension on Translations {
 			'download.imageList' => 'Image List',
 			'download.retryDownload' => 'Retry Download',
 			'download.notDownloaded' => 'Not Downloaded',
+			_ => null,
+		} ?? switch (path) {
 			'download.downloaded' => 'Downloaded',
 			'download.waitingForDownload' => 'Waiting for Download',
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Downloading (${downloaded}/${total} images ${progress}%)',
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'Downloading (${downloaded} images)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'Paused (${downloaded}/${total} images ${progress}%)',
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'Paused (${downloaded} images)',
-			_ => null,
-		} ?? switch (path) {
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'Downloaded (Total ${total} images)',
 			'download.viewVideoDetail' => 'View Video Detail',
 			'download.viewGalleryDetail' => 'View Gallery Detail',
@@ -10668,14 +10692,14 @@ extension on Translations {
 			'diagnostics.appVersionLabel' => 'App Version',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => 'Memory usage: ${memMB}MB',
 			'diagnostics.deviceInfoUnavailable' => 'Unable to fetch device info',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.secureStorageLabel' => 'Secure storage',
 			'diagnostics.secureStorageHealthy' => 'Available',
 			'diagnostics.secureStorageRecovered' => 'Self-healed by reset (previous data cleared)',
 			'diagnostics.secureStorageUnavailable' => 'Unavailable (login saved with fallback encryption)',
 			'diagnostics.secureStorageDualWrite' => ' (dual-write protection on)',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',

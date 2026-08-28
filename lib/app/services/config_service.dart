@@ -291,6 +291,7 @@ enum ConfigKey {
   REMEMBER_PLAYBACK_SPEED_KEY, // 是否记住在播放器中调整的倍速作为默认倍速
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
+  SEEK_PREVIEW_SIZE_KEY, // 进度条预览窗口（Seek Preview）的尺寸档位
   FAST_FORWARD_SECONDS_KEY,
   REWIND_SECONDS_KEY,
   DEFAULT_QUALITY_KEY,
@@ -464,6 +465,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'default_screen_fit_mode';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return 'remember_screen_fit_mode';
+      case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
+        return 'seek_preview_size';
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 'fast_forward_seconds';
       case ConfigKey.REWIND_SECONDS_KEY:
@@ -747,6 +750,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'fit';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return false;
+      case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
+        return 'standard';
       case ConfigKey.FAST_FORWARD_SECONDS_KEY:
         return 10;
       case ConfigKey.REWIND_SECONDS_KEY:

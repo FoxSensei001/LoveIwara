@@ -662,6 +662,12 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '顯示底部進度條';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此設定決定是否在工具列隱藏時顯示底部進度條';
+	@override String get seekPreviewSize => '進度預覽視窗大小';
+	@override String get seekPreviewSizeDesc => '進度條上方那扇預覽視窗的大小。它本來就會跟著播放器大小與影片比例走，這裡只是再調大或調小一些';
+	@override String get seekPreviewSizeSmall => '小';
+	@override String get seekPreviewSizeStandard => '標準';
+	@override String get seekPreviewSizeLarge => '大';
+	@override String get seekPreviewSizeStandardDesc => '依播放器與影片自動推算出的大小';
 	@override String get showFullscreenUpNextHint => '顯示「接著看」側邊提示';
 	@override String get showFullscreenUpNextHintDesc => '全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。';
 	@override String get basicSettings => '基礎設定';
@@ -4049,6 +4055,12 @@ extension on TranslationsZhTw {
 			'settings.useTraditionalPaginationModeDesc' => '開啟後列表將使用傳統分頁模式，關閉則使用瀑布流模式。重新渲染頁面或重啟應用後生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '顯示底部進度條',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此設定決定是否在工具列隱藏時顯示底部進度條',
+			'settings.seekPreviewSize' => '進度預覽視窗大小',
+			'settings.seekPreviewSizeDesc' => '進度條上方那扇預覽視窗的大小。它本來就會跟著播放器大小與影片比例走，這裡只是再調大或調小一些',
+			'settings.seekPreviewSizeSmall' => '小',
+			'settings.seekPreviewSizeStandard' => '標準',
+			'settings.seekPreviewSizeLarge' => '大',
+			'settings.seekPreviewSizeStandardDesc' => '依播放器與影片自動推算出的大小',
 			'settings.showFullscreenUpNextHint' => '顯示「接著看」側邊提示',
 			'settings.showFullscreenUpNextHintDesc' => '全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。',
 			'settings.basicSettings' => '基礎設定',
@@ -4069,14 +4081,14 @@ extension on TranslationsZhTw {
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
 			'settings.rememberVolume' => '記住音量',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的音量設定。',
 			'settings.rememberBrightness' => '記住亮度',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
 			'settings.playControlArea' => '播放控制區域',
 			'settings.leftAndRightControlAreaWidth' => '左右控制區域寬度',
@@ -4583,14 +4595,14 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '內部應用程式專用目錄',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => '應用程式內部儲存，無需權限，空間較小',
 			'settings.downloadSettings.appDocumentsDirectory' => '應用程式文件目錄',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => '應用程式專用文件目錄，安全可靠',
 			'settings.downloadSettings.downloadsFolder' => '下載資料夾',
 			'settings.downloadSettings.downloadsFolderDesc' => '系統預設下載目錄',
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '選擇一個推薦的下載位置',
 			'settings.downloadSettings.noRecommendedPaths' => '暫無推薦路徑',
 			'settings.downloadSettings.recommended' => '推薦',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.requiresPermission' => '需要權限',
 			'settings.downloadSettings.authorizeAndSelect' => '授權並選擇',
 			'settings.downloadSettings.select' => '選擇',
@@ -5097,14 +5109,14 @@ extension on TranslationsZhTw {
 			'download.errors.noCompletedDownloadTask' => '暫無已完成的任務',
 			'download.errors.taskAlreadyCompletedDoNotAdd' => '任務已完成，請勿重複添加',
 			'download.errors.linkExpiredTryAgain' => '連結已過期，正在重新獲取下載連結',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.linkExpiredTryAgainSuccess' => '連結已過期，正在重新獲取下載連結成功',
 			'download.errors.linkExpiredTryAgainFailed' => '連結已過期，正在重新獲取下載連結失敗',
 			'download.errors.taskDeleted' => '任務已刪除',
 			'download.errors.unsupportedImageFormat' => ({required Object format}) => '不支援的圖片格式: ${format}',
 			'download.errors.deleteFileError' => '文件刪除失敗，可能是因為文件被占用',
 			'download.errors.deleteTaskError' => '任務刪除失敗',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.taskNotFound' => '任務未找到',
 			'download.errors.canNotRefreshVideoTask' => '無法重新整理影片任務',
 			'download.errors.taskAlreadyProcessing' => '任務已處理中',
@@ -5611,14 +5623,14 @@ extension on TranslationsZhTw {
 			'diagnostics.toast.exportFailed' => ({required Object error}) => '匯出失敗: ${error}',
 			'diagnostics.toast.supportEmailCopied' => '信箱已複製，請貼到郵件客戶端並附上日誌',
 			'diagnostics.shareSubject' => 'LoveIwara 診斷日誌（含隱私資訊，請謹慎分享）',
+			_ => null,
+		} ?? switch (path) {
 			'logViewer.title' => '日誌檢視器',
 			'logViewer.searchHint' => '搜尋日誌...',
 			'logViewer.emptyState' => '暫無日誌',
 			'logViewer.copiedToClipboard' => '已複製到剪貼簿',
 			'crashRecoveryDialog.title' => '應用異常退出',
 			'crashRecoveryDialog.description' => '我們偵測到應用上次異常退出。請依提示匯出診斷日誌並郵件傳送給開發者，幫助我們修復問題。',
-			_ => null,
-		} ?? switch (path) {
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',

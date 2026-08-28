@@ -662,6 +662,12 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '底部プログレスバー';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。';
+	@override String get seekPreviewSize => 'シークプレビューのサイズ';
+	@override String get seekPreviewSizeDesc => 'プログレスバーの上に表示されるプレビュー窓の大きさ。プレイヤーのサイズと動画の縦横比には元から追従します。ここではその上で少しだけ調整します。';
+	@override String get seekPreviewSizeSmall => '小';
+	@override String get seekPreviewSizeStandard => '標準';
+	@override String get seekPreviewSizeLarge => '大';
+	@override String get seekPreviewSizeStandardDesc => 'プレイヤーと動画から自動的に決まるサイズ';
 	@override String get showFullscreenUpNextHint => '「次に見る」エッジヒントを表示';
 	@override String get showFullscreenUpNextHintDesc => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。';
 	@override String get basicSettings => '基本設定';
@@ -4049,6 +4055,12 @@ extension on TranslationsJa {
 			'settings.useTraditionalPaginationModeDesc' => '従来のページネーションモードを使用すると、ページネーションモードが無効になります。ページを再レンダリングまたはアプリを再起動した後に有効になります',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '底部プログレスバー',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => 'この設定は、ツールバーが非表示のときに底部プログレスバーを表示するかどうかを決定します。',
+			'settings.seekPreviewSize' => 'シークプレビューのサイズ',
+			'settings.seekPreviewSizeDesc' => 'プログレスバーの上に表示されるプレビュー窓の大きさ。プレイヤーのサイズと動画の縦横比には元から追従します。ここではその上で少しだけ調整します。',
+			'settings.seekPreviewSizeSmall' => '小',
+			'settings.seekPreviewSizeStandard' => '標準',
+			'settings.seekPreviewSizeLarge' => '大',
+			'settings.seekPreviewSizeStandardDesc' => 'プレイヤーと動画から自動的に決まるサイズ',
 			'settings.showFullscreenUpNextHint' => '「次に見る」エッジヒントを表示',
 			'settings.showFullscreenUpNextHintDesc' => '全画面時に小さなエッジタブを表示し、「次に見る」ドロワーをすばやく開けます。',
 			'settings.basicSettings' => '基本設定',
@@ -4069,14 +4081,14 @@ extension on TranslationsJa {
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
 			'settings.rememberVolume' => '音量を記憶',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。',
 			'settings.rememberBrightness' => '明るさを記憶',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
 			'settings.playControlArea' => '再生コントロールエリア',
 			'settings.leftAndRightControlAreaWidth' => '左右コントロールエリアの幅',
@@ -4583,14 +4595,14 @@ extension on TranslationsJa {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '内部アプリ専用ディレクトリ',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => 'アプリ内部ストレージ、権限不要、容量が小さい',
 			'settings.downloadSettings.appDocumentsDirectory' => 'アプリドキュメントディレクトリ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => 'アプリ専用ドキュメントディレクトリ、安全で信頼性が高い',
 			'settings.downloadSettings.downloadsFolder' => 'ダウンロードフォルダ',
 			'settings.downloadSettings.downloadsFolderDesc' => 'システムデフォルトのダウンロードディレクトリ',
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '推奨されるダウンロード場所を選択',
 			'settings.downloadSettings.noRecommendedPaths' => '推奨パスがありません',
 			'settings.downloadSettings.recommended' => '推奨',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.requiresPermission' => '権限が必要',
 			'settings.downloadSettings.authorizeAndSelect' => '認証して選択',
 			'settings.downloadSettings.select' => '選択',
@@ -5097,14 +5109,14 @@ extension on TranslationsJa {
 			'download.downloadStatus' => 'ダウンロード状態',
 			'download.imageList' => '画像リスト',
 			'download.retryDownload' => '再試行ダウンロード',
+			_ => null,
+		} ?? switch (path) {
 			'download.notDownloaded' => '未ダウンロード',
 			'download.downloaded' => 'ダウンロード済み',
 			'download.waitingForDownload' => 'ダウンロード待機中',
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード中 (${downloaded}/${total}枚 ${progress}%)',
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード中 (${downloaded}枚)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => 'ダウンロード一時停止中 (${downloaded}/${total}枚 ${progress}%)',
-			_ => null,
-		} ?? switch (path) {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'ダウンロード完了 (合計${total}枚)',
 			'download.viewVideoDetail' => 'ビデオ詳細を表示',
@@ -5611,14 +5623,14 @@ extension on TranslationsJa {
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '次のリンクを外部ブラウザで開こうとしています：',
 			'linkInputDialog.confirmContinueBrowserOpen' => '続行してもよろしいですか？',
 			'linkInputDialog.browserOpenFailed' => 'リンクを開けませんでした',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLink' => 'サポートされていないリンク',
 			'linkInputDialog.cancel' => 'キャンセル',
 			'linkInputDialog.confirm' => 'ブラウザで開く',
 			'log.logManagement' => 'ログ管理',
 			'log.enableLogPersistence' => 'ログ保存を有効にする',
 			'log.enableLogPersistenceDesc' => 'ログをデータベースに保存して分析に使用',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'ログデータベースサイズ上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '現在: ${size}',
 			'log.exportCurrentLogs' => '現在のログをエクスポート',

@@ -39,7 +39,9 @@ import 'widgets/loading_state_widget.dart';
 import 'widgets/error_state_widget.dart';
 import 'widgets/playback_issue_sheet.dart';
 import 'widgets/player_notice_chip.dart';
+import 'player_box_scope.dart';
 import 'player_stack_builder.dart';
+import 'seek_preview.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
@@ -102,6 +104,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   // 静音切换前的音量，用于「取消静音」时恢复。
   double? _volumeBeforeMute;
   bool _isSyncingDesktopFullscreenExit = false;
+
+  /// 底部细进度条上那扇预览窗口的最后位置。留着是为了让它**原地淡出**——
+  /// 直接把组件摘掉就成了硬切，出现与消失都要有过渡。
+  double? _bottomSeekPreviewX;
+  Duration? _bottomSeekPreviewTime;
   bool _innerPlaylistExpanded = false;
   bool _isSwitchingInnerPlaylistVideo = false;
   InnerPlaylistItemSnapshot? _loadingInnerPlaylistItem;
@@ -1085,12 +1092,25 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                           return VideoZoomGestureLayer(
                             controller: widget.myVideoStateController,
                             enabled: zoomEnabled,
-                            child: _buildPlayerStack(
-                              screenSize,
-                              paddingTop,
-                              playPauseIconSize,
-                              bufferingSize,
-                              maxRadius,
+                            // 播放器画面区域的真实尺寸只有这里算得到，
+                            // 供给栈内需要按「播放器多大」自适应的浮层
+                            // （Seek Preview 是第一个）。高度要减掉状态栏那一段：
+                            // 外层 Container 带 padding.top = paddingTop。
+                            child: PlayerBoxScope(
+                              size: Size(
+                                screenSize.width,
+                                (screenSize.height - paddingTop).clamp(
+                                  0.0,
+                                  double.infinity,
+                                ),
+                              ),
+                              child: _buildPlayerStack(
+                                screenSize,
+                                paddingTop,
+                                playPauseIconSize,
+                                bufferingSize,
+                                maxRadius,
+                              ),
                             ),
                           );
                         }),
@@ -2225,23 +2245,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                                   totalWidth
                             : 0.0;
 
-                        // 计算 tooltip 的位置（仅在横向拖拽且 toolbar 隐藏时显示）
-                        double? tooltipX;
-                        Duration? tooltipTime;
+                        // 预览窗口（仅在横向拖拽且 toolbar 隐藏时显示）
                         final isPreviewReady = widget
                             .myVideoStateController
                             .isPreviewPlayerReady
                             .value;
-                        // 工具栏完全展开时不渲染底部预览 tooltip
+                        // 预览窗口的高度按视频自身宽高比推，必须在 Obx 里读
+                        final videoAspectRatio =
+                            widget.myVideoStateController.aspectRatio.value;
+                        // 工具栏完全展开时不渲染底部预览窗口
                         final bool isToolbarExpanded = toolbarValue >= 1.0;
-
-                        if (!isToolbarExpanded &&
+                        final bool previewVisible =
+                            !isToolbarExpanded &&
                             isHorizontalDragging &&
-                            opacity > 0.5) {
-                          // toolbar 隐藏时（opacity > 0.5 表示进度条可见）
-                          tooltipX = progressWidth;
-                          tooltipTime = previewPosition;
+                            opacity > 0.5;
+
+                        // 记住最后一次有效位置，让它**原地淡出**而不是直接消失。
+                        if (previewVisible) {
+                          _bottomSeekPreviewX = progressWidth;
+                          _bottomSeekPreviewTime = previewPosition;
                         }
+                        final double? tooltipX = _bottomSeekPreviewX;
+                        final Duration? tooltipTime = _bottomSeekPreviewTime;
 
                         return Stack(
                           clipBehavior: Clip.none, // 允许 tooltip 溢出
@@ -2280,16 +2305,26 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               height: 3,
                               color: colorTheme,
                             ),
-                            // Tooltip（仅在横向拖拽且 toolbar 隐藏时显示，并带有淡入淡出效果）
+                            // 预览窗口：与主进度条上的那扇是同一只组件
                             if (tooltipX != null && tooltipTime != null)
                               Positioned(
                                 left: tooltipX,
                                 bottom: 3 + 12, // 距离底部进度条 12px
-                                child: _buildPreviewTooltip(
-                                  tooltipTime,
-                                  isPreviewReady,
-                                  tooltipX: tooltipX,
-                                  totalWidth: totalWidth,
+                                child: SeekPreview(
+                                  time: tooltipTime,
+                                  videoAspectRatio: videoAspectRatio,
+                                  anchorX: tooltipX,
+                                  trackWidth: totalWidth,
+                                  visible: previewVisible,
+                                  showFrame:
+                                      isPreviewReady &&
+                                      widget
+                                              .myVideoStateController
+                                              .previewVideoController !=
+                                          null,
+                                  previewController: widget
+                                      .myVideoStateController
+                                      .previewVideoController,
                                 ),
                               ),
                           ],
@@ -2304,95 +2339,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         ),
       );
     });
-  }
-
-  // Tooltip 宽度常量
-  static const double _tooltipWidth = 160.0;
-
-  /// 构建预览 tooltip（包含预览视频画面，带淡入淡出效果）
-  Widget _buildPreviewTooltip(
-    Duration time,
-    bool isPreviewReady, {
-    required double tooltipX,
-    required double totalWidth,
-  }) {
-    final controller = widget.myVideoStateController;
-
-    // 计算 tooltip 的水平偏移量，确保不超出屏幕边界
-    // tooltip 宽度的一半
-    const double halfTooltipWidth = _tooltipWidth / 2;
-    // 默认居中偏移 -0.5
-    double horizontalOffset = -0.5;
-
-    // 左边界检查：如果 tooltip 左边会超出屏幕
-    if (tooltipX < halfTooltipWidth) {
-      // 计算需要的偏移量，使 tooltip 左边缘对齐到屏幕左边缘（留 4px 边距）
-      horizontalOffset = -(tooltipX - 4) / _tooltipWidth;
-      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
-    }
-    // 右边界检查：如果 tooltip 右边会超出屏幕
-    else if (tooltipX > totalWidth - halfTooltipWidth) {
-      // 计算需要的偏移量，使 tooltip 右边缘对齐到屏幕右边缘（留 4px 边距）
-      horizontalOffset = -1.0 + (totalWidth - tooltipX - 4) / _tooltipWidth;
-      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
-    }
-
-    return FractionalTranslation(
-      // 根据位置动态调整水平偏移，确保 tooltip 不超出边界
-      translation: Offset(horizontalOffset, 0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(4),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
-            if (isPreviewReady && controller.previewVideoController != null)
-              Container(
-                width: 160,
-                height: 90,
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(4),
-                    topRight: Radius.circular(4),
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: ColorVisionFilterWrapper(
-                  child: Video(
-                    controller: controller.previewVideoController!,
-                    controls: null,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            // 时间文本（无论是否有预览视频都展示）
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Text(
-                CommonUtils.formatDuration(time),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildMaskLayer() {

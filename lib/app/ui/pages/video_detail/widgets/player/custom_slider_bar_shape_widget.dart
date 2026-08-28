@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
-import '../../../../../../utils/common_utils.dart';
 import '../../controllers/my_video_state_controller.dart';
+import 'seek_preview.dart';
 
 /// 自定义的视频进度条组件
 class CustomVideoProgressbar extends StatefulWidget {
@@ -114,6 +112,8 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
         // 必须在 Obx 同步作用域内读取，LayoutBuilder/AnimatedBuilder 的 builder
         // 在 layout 阶段执行，里面的读取不会被 Obx 追踪
         final isPreviewReady = widget.controller.isPreviewPlayerReady.value;
+        // 同理：预览窗口的高度按视频自身宽高比推，这个值也必须在这里读
+        final videoAspectRatio = widget.controller.aspectRatio.value;
         // 访问 animationController.value 以确保响应式系统追踪它（虽然 AnimatedBuilder 应该能独立工作）
         final _ = widget.controller.animationController.value; // 用于触发响应式更新
 
@@ -276,6 +276,7 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                     visible: _tooltipVisible,
                     trackWidth: maxWidth,
                     isPreviewReady: isPreviewReady,
+                    videoAspectRatio: videoAspectRatio,
                   ),
               ],
             );
@@ -459,128 +460,45 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
     return true;
   }
 
-  // Tooltip 宽度常量
-  static const double _tooltipWidth = 160.0;
-
-  // 通用的 Tooltip 构建方法（带淡入淡出效果）
+  /// 把预览窗口摆到进度条上方。
+  ///
+  /// 这里只负责**位置**：几何、边界钳制、出入场过渡都在 [SeekPreview] 里，
+  /// 底部细进度条那条路径用的是同一只组件（改造前是各写一套、两份魔数）。
   Widget _buildTooltip(
     double xPosition,
     double timeValue, {
     bool visible = true,
     required double trackWidth,
     required bool isPreviewReady,
+    required double videoAspectRatio,
   }) {
-    // 基础高度：Thumb半径 + 间距（toolbar 展开时，tooltip 距离进度条的距离）
-    const double baseBottom = _thumbOverlayRadius + 10;
-
-    // 计算 tooltip 的水平偏移量，确保不超出进度条边界
-    // tooltip 宽度的一半
-    const double halfTooltipWidth = _tooltipWidth / 2;
-    // 默认居中偏移 -0.5
-    double horizontalOffset = -0.5;
-
-    // 左边界检查：如果 tooltip 左边会超出
-    if (xPosition < halfTooltipWidth) {
-      // 计算需要的偏移量，使 tooltip 左边缘对齐到左边缘（留 4px 边距）
-      horizontalOffset = -(xPosition - 4) / _tooltipWidth;
-      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
-    }
-    // 右边界检查：如果 tooltip 右边会超出（使用进度条宽度而非屏幕宽度）
-    else if (xPosition > trackWidth - halfTooltipWidth) {
-      // 计算需要的偏移量，使 tooltip 右边缘对齐到右边缘（留 4px 边距）
-      horizontalOffset = -1.0 + (trackWidth - xPosition - 4) / _tooltipWidth;
-      horizontalOffset = horizontalOffset.clamp(-1.0, 0.0);
-    }
+    // 基础高度：Thumb 半径 + 间距（tooltip 距离进度条的距离）
+    const double bottom = _thumbOverlayRadius + 10;
 
     return AnimatedBuilder(
       animation: widget.controller.animationController,
       builder: (context, child) {
-        // 获取 toolbar 的动画值：1.0 表示展开，0.0 表示收缩
+        // 工具栏的动画值：1.0 展开，0.0 收缩
         final double toolbarValue = widget.controller.animationController.value;
-
-        // 当工具栏完全收缩时，不渲染主进度条上的预览 Tooltip
-        if (toolbarValue <= 0.0) {
-          return const SizedBox.shrink();
-        }
-        // 工具栏已改为原位淡入淡出（不再位移滑出），可见期间 tooltip 固定在
-        // 进度条上方即可，无需再按工具栏的滑动距离做位置补偿。
-        const double dynamicBottom = baseBottom;
 
         return Positioned(
           left: xPosition,
-          // 距离底部的位置：根据 toolbar 状态动态调整，避免被遮挡
-          bottom: dynamicBottom,
-          child: FractionalTranslation(
-            // 根据位置动态调整水平偏移，确保 tooltip 不超出边界
-            translation: Offset(horizontalOffset, 0),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 150),
-              opacity: visible ? 1.0 : 0.0,
-              child: IgnorePointer(
-                ignoring: !visible,
-                child: _buildPreviewTooltipContent(timeValue, isPreviewReady),
-              ),
-            ),
+          bottom: bottom,
+          child: SeekPreview(
+            time: Duration(seconds: timeValue.toInt()),
+            videoAspectRatio: videoAspectRatio,
+            anchorX: xPosition,
+            trackWidth: trackWidth,
+            // 工具栏收起时预览也该退场，但交给 visible 去淡出，
+            // 不能直接换成 SizedBox.shrink——那是硬切，出入场都要有过渡。
+            visible: visible && toolbarValue > 0.0,
+            showFrame:
+                isPreviewReady &&
+                widget.controller.previewVideoController != null,
+            previewController: widget.controller.previewVideoController,
           ),
         );
       },
-    );
-  }
-
-  /// 构建预览 tooltip 内容（包含预览视频画面）
-  Widget _buildPreviewTooltipContent(double timeValue, bool isPreviewReady) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 优先使用预览视频画面；如果暂不可用，则仅展示时间信息
-          if (isPreviewReady &&
-              widget.controller.previewVideoController != null)
-            Container(
-              width: 160,
-              height: 90,
-              decoration: const BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: ColorVisionFilterWrapper(
-                child: Video(
-                  controller: widget.controller.previewVideoController!,
-                  controls: null,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          // 时间文本
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Text(
-              CommonUtils.formatDuration(Duration(seconds: timeValue.toInt())),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

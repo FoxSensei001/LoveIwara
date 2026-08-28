@@ -662,6 +662,12 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get useTraditionalPaginationModeDesc => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效';
 	@override String get showVideoProgressBottomBarWhenToolbarHidden => '显示底部进度条';
 	@override String get showVideoProgressBottomBarWhenToolbarHiddenDesc => '此配置决定是否在工具栏隐藏时显示底部进度条';
+	@override String get seekPreviewSize => '进度预览窗口大小';
+	@override String get seekPreviewSizeDesc => '进度条上方那扇预览窗口的大小。它本来就会跟着播放器大小和视频比例走，这里只是再调大或调小一点';
+	@override String get seekPreviewSizeSmall => '小';
+	@override String get seekPreviewSizeStandard => '标准';
+	@override String get seekPreviewSizeLarge => '大';
+	@override String get seekPreviewSizeStandardDesc => '按播放器与视频自动推算出的大小';
 	@override String get showFullscreenUpNextHint => '显示“接着看”侧边提示';
 	@override String get showFullscreenUpNextHintDesc => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。';
 	@override String get basicSettings => '基础设置';
@@ -4049,6 +4055,12 @@ extension on TranslationsZhCn {
 			'settings.useTraditionalPaginationModeDesc' => '开启后列表将使用传统分页模式，关闭则使用瀑布流模式。重新渲染页面或重启应用后生效',
 			'settings.showVideoProgressBottomBarWhenToolbarHidden' => '显示底部进度条',
 			'settings.showVideoProgressBottomBarWhenToolbarHiddenDesc' => '此配置决定是否在工具栏隐藏时显示底部进度条',
+			'settings.seekPreviewSize' => '进度预览窗口大小',
+			'settings.seekPreviewSizeDesc' => '进度条上方那扇预览窗口的大小。它本来就会跟着播放器大小和视频比例走，这里只是再调大或调小一点',
+			'settings.seekPreviewSizeSmall' => '小',
+			'settings.seekPreviewSizeStandard' => '标准',
+			'settings.seekPreviewSizeLarge' => '大',
+			'settings.seekPreviewSizeStandardDesc' => '按播放器与视频自动推算出的大小',
 			'settings.showFullscreenUpNextHint' => '显示“接着看”侧边提示',
 			'settings.showFullscreenUpNextHintDesc' => '全屏播放时在右侧显示一个小提示条，用来快速展开“接着看”列表。',
 			'settings.basicSettings' => '基础设置',
@@ -4069,14 +4081,14 @@ extension on TranslationsZhCn {
 			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			'settings.rememberPlaybackSpeed' => '记住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。',
 			'settings.rememberVolume' => '记住音量',
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的音量设置。',
 			'settings.rememberBrightness' => '记住亮度',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
 			'settings.playControlArea' => '播放控制区域',
 			'settings.leftAndRightControlAreaWidth' => '左右控制区域宽度',
@@ -4583,14 +4595,14 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.internalAppPrivateDirectory' => '内部应用专用目录',
 			'settings.downloadSettings.internalAppPrivateDirectoryDesc' => '应用内部存储，无需权限，空间较小',
 			'settings.downloadSettings.appDocumentsDirectory' => '应用文档目录',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.appDocumentsDirectoryDesc' => '应用专用文档目录，安全可靠',
 			'settings.downloadSettings.downloadsFolder' => '下载文件夹',
 			'settings.downloadSettings.downloadsFolderDesc' => '系统默认下载目录',
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '选择一个推荐的下载位置',
 			'settings.downloadSettings.noRecommendedPaths' => '暂无推荐路径',
 			'settings.downloadSettings.recommended' => '推荐',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.requiresPermission' => '需要权限',
 			'settings.downloadSettings.authorizeAndSelect' => '授权并选择',
 			'settings.downloadSettings.select' => '选择',
@@ -5097,14 +5109,14 @@ extension on TranslationsZhCn {
 			'download.downloadStatus' => '下载状态',
 			'download.imageList' => '图片列表',
 			'download.retryDownload' => '重试下载',
+			_ => null,
+		} ?? switch (path) {
 			'download.notDownloaded' => '未下载',
 			'download.downloaded' => '已下载',
 			'download.waitingForDownload' => '等待下载...',
 			'download.downloadingProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => '下载中 (${downloaded}/${total}张 ${progress}%)',
 			'download.downloadingSingleImageProgress' => ({required Object downloaded}) => '下载中 (${downloaded}张)',
 			'download.pausedProgressForImageProgress' => ({required Object downloaded, required Object total, required Object progress}) => '已暂停 (${downloaded}/${total}张 ${progress}%)',
-			_ => null,
-		} ?? switch (path) {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => '已暂停 (已下载${downloaded}张)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => '下载完成 (共${total}张)',
 			'download.viewVideoDetail' => '查看视频详情',
@@ -5611,14 +5623,14 @@ extension on TranslationsZhCn {
 			'linkInputDialog.confirmOpenBrowserDialogContent' => '即将使用外部浏览器打开以下链接：',
 			'linkInputDialog.confirmContinueBrowserOpen' => '确定要继续吗？',
 			'linkInputDialog.browserOpenFailed' => '无法打开链接',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLink' => '不支持的链接',
 			'linkInputDialog.cancel' => '取消',
 			'linkInputDialog.confirm' => '用浏览器打开',
 			'log.logManagement' => '日志管理',
 			'log.enableLogPersistence' => '启用日志持久化',
 			'log.enableLogPersistenceDesc' => '将日志保存到数据库以便于分析问题',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',

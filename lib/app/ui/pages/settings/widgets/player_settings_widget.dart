@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dia
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/seek_preview.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
@@ -569,6 +570,34 @@ class PlayerSettingsWidget extends StatelessWidget {
                       .SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN] =
                   value;
             },
+          ),
+          // 进度预览窗口（Seek Preview）尺寸档位。
+          // 尺寸本身是自动推的（跟播放器大小与视频比例走），这里只给一个
+          // 偏好倍数——像素值在竖屏手机内嵌播放器与横屏平板全屏之间没有共同意义。
+          Obx(
+            () => _selectionTile(
+              context: context,
+              iconData: Icons.preview_outlined,
+              label: t.settings.seekPreviewSize,
+              description: t.settings.seekPreviewSizeDesc,
+              currentValue: seekPreviewSizeFromConfig(
+                _configService[ConfigKey.SEEK_PREVIEW_SIZE_KEY],
+              ).name,
+              options: SeekPreviewSize.values.map((e) => e.name).toList(),
+              optionLabels: {
+                SeekPreviewSize.small.name: t.settings.seekPreviewSizeSmall,
+                SeekPreviewSize.standard.name:
+                    t.settings.seekPreviewSizeStandard,
+                SeekPreviewSize.large.name: t.settings.seekPreviewSizeLarge,
+              },
+              optionDescriptions: {
+                SeekPreviewSize.standard.name:
+                    t.settings.seekPreviewSizeStandardDesc,
+              },
+              onChanged: (value) {
+                _configService[ConfigKey.SEEK_PREVIEW_SIZE_KEY] = value;
+              },
+            ),
           ),
           // 屏幕中央播放/暂停按钮
           _switchTile(
