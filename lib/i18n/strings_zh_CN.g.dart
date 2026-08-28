@@ -2451,6 +2451,7 @@ class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybind
 	@override String get rejectPlatformBack => '该按键已被系统用作「返回」，绑定后会返回两次';
 	@override String get detectedLabel => '检测到';
 	@override String get reservedKey => '该按键为系统保留，无法绑定';
+	@override String reservedForGlobalBack({required Object action}) => '该按键是「${action}」的快捷键，本区域保留给它，否则在这里就退不出去了';
 	@override String get conflictTitle => '快捷键冲突';
 	@override String conflictMessage({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。';
 	@override String get conflictContinue => '仍然绑定';
@@ -4293,6 +4294,7 @@ extension on TranslationsZhCn {
 			'settings.keybinding.rejectPlatformBack' => '该按键已被系统用作「返回」，绑定后会返回两次',
 			'settings.keybinding.detectedLabel' => '检测到',
 			'settings.keybinding.reservedKey' => '该按键为系统保留，无法绑定',
+			'settings.keybinding.reservedForGlobalBack' => ({required Object action}) => '该按键是「${action}」的快捷键，本区域保留给它，否则在这里就退不出去了',
 			'settings.keybinding.conflictTitle' => '快捷键冲突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '该组合已绑定到「${action}」，继续将解除其原有绑定。',
 			'settings.keybinding.conflictContinue' => '仍然绑定',
@@ -4584,9 +4586,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '选择一个推荐的下载位置',
 			'settings.downloadSettings.noRecommendedPaths' => '暂无推荐路径',
 			'settings.downloadSettings.recommended' => '推荐',
-			'settings.downloadSettings.requiresPermission' => '需要权限',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.requiresPermission' => '需要权限',
 			'settings.downloadSettings.authorizeAndSelect' => '授权并选择',
 			'settings.downloadSettings.select' => '选择',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '权限授权失败，无法选择此路径',
@@ -5098,9 +5100,9 @@ extension on TranslationsZhCn {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => '已暂停 (已下载${downloaded}张)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => '下载完成 (共${total}张)',
 			'download.viewVideoDetail' => '查看视频详情',
-			'download.viewGalleryDetail' => '查看图库详情',
 			_ => null,
 		} ?? switch (path) {
+			'download.viewGalleryDetail' => '查看图库详情',
 			'download.moreOptions' => '更多操作',
 			'download.openFile' => '打开文件',
 			'download.playLocally' => '本地播放',
@@ -5612,9 +5614,9 @@ extension on TranslationsZhCn {
 			'log.logDatabaseSizeLimit' => '日志数据库大小上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '当前: ${size}',
 			'log.exportCurrentLogs' => '导出当前日志',
-			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			_ => null,
 		} ?? switch (path) {
+			'log.exportCurrentLogsDesc' => '导出当天应用日志以帮助开发者诊断问题',
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
 			'log.exportMergedLogs' => '导出合并日志',

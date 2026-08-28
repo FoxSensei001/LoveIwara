@@ -884,12 +884,25 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
       'Keybinding',
     );
     if (widget.service.isReserved(chord, widget.scope)) {
-      // 「被系统占用作返回」和「应用保留键（Esc）」对用户是两回事，分开说。
+      // 三种拒收对用户是三件事，分开说清楚：
+      // 1. 平台自己就把这个键当返回（安卓侧键）→ 绑了会返回两次；
+      // 2. 这个键正是「返回」的快捷键，本区域保留给它 → 说出是哪个动作占着，
+      //    用户才知道「想绑这个键就去把返回改到别处」；
+      // 3. 其余（目前不会走到，留作兜底）。
       final bool platformBack =
           KeyChord.isPlatformHandledBackButton &&
           KeyChord.platformBackKeyIds.contains(chord.keyId);
+      final bool reservedForBack =
+          !platformBack &&
+          widget.service.globalBackKeyIds.contains(chord.keyId);
       _reject(
-        platformBack ? _t.rejectPlatformBack : _t.reservedKey,
+        platformBack
+            ? _t.rejectPlatformBack
+            : reservedForBack
+            ? _t.reservedForGlobalBack(
+                action: _t.actionGlobalBack,
+              )
+            : _t.reservedKey,
         detected: chord.displayLabel,
       );
       return;

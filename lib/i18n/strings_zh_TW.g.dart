@@ -2451,6 +2451,7 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 	@override String get rejectPlatformBack => '該按鍵已被系統用作「返回」，綁定後會返回兩次';
 	@override String get detectedLabel => '偵測到';
 	@override String get reservedKey => '該按鍵為系統保留，無法綁定';
+	@override String reservedForGlobalBack({required Object action}) => '該按鍵是「${action}」的快捷鍵，本區域保留給它，否則在這裡就退不出去了';
 	@override String get conflictTitle => '快捷鍵衝突';
 	@override String conflictMessage({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。';
 	@override String get conflictContinue => '仍然綁定';
@@ -4293,6 +4294,7 @@ extension on TranslationsZhTw {
 			'settings.keybinding.rejectPlatformBack' => '該按鍵已被系統用作「返回」，綁定後會返回兩次',
 			'settings.keybinding.detectedLabel' => '偵測到',
 			'settings.keybinding.reservedKey' => '該按鍵為系統保留，無法綁定',
+			'settings.keybinding.reservedForGlobalBack' => ({required Object action}) => '該按鍵是「${action}」的快捷鍵，本區域保留給它，否則在這裡就退不出去了',
 			'settings.keybinding.conflictTitle' => '快捷鍵衝突',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => '該組合已綁定到「${action}」，繼續將解除其原有綁定。',
 			'settings.keybinding.conflictContinue' => '仍然綁定',
@@ -4584,9 +4586,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '選擇一個推薦的下載位置',
 			'settings.downloadSettings.noRecommendedPaths' => '暫無推薦路徑',
 			'settings.downloadSettings.recommended' => '推薦',
-			'settings.downloadSettings.requiresPermission' => '需要權限',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.requiresPermission' => '需要權限',
 			'settings.downloadSettings.authorizeAndSelect' => '授權並選擇',
 			'settings.downloadSettings.select' => '選擇',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '權限授權失敗，無法選擇此路徑',
@@ -5098,9 +5100,9 @@ extension on TranslationsZhTw {
 			'download.errors.taskNotFound' => '任務未找到',
 			'download.errors.canNotRefreshVideoTask' => '無法重新整理影片任務',
 			'download.errors.taskAlreadyProcessing' => '任務已處理中',
-			'download.errors.failedToLoadTasks' => '載入任務失敗',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.failedToLoadTasks' => '載入任務失敗',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下載失敗: ${message}',
 			'download.errors.pleaseTryOtherViewer' => '請嘗試使用其他查看器打開',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支援的圖片格式: ${extension}, 可以嘗試下載到裝置上查看',
@@ -5612,9 +5614,9 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
-			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',
 			'crashRecoveryDialog.privacyHint' => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：',

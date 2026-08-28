@@ -76,6 +76,17 @@ class ShortcutActionMeta {
   /// 当前所有可绑定动作均为 false；固定项以独立的「固定区」渲染，不进入此表。
   final bool fixed;
 
+  /// 按住不放时是否应当**连续触发**。
+  ///
+  /// 默认 false，因为大多数动作重复触发是错的而不只是多余：播放/暂停、静音、
+  /// 全屏这类开关会在按住期间疯狂来回翻；倍速、重置缩放是离散档位，按一次就该
+  /// 走一档；进度键另有自己的长按倍速定时器（见 `_beginSeekHold`），再让它吃
+  /// 系统重复事件就会两套逻辑打架。
+  ///
+  /// 只有「同一动作重复施加会线性累积、且用户本来就期待按住能一路调过去」的
+  /// 才置 true：音量与图库缩放。
+  final bool repeatable;
+
   const ShortcutActionMeta({
     required this.id,
     required this.scope,
@@ -83,6 +94,7 @@ class ShortcutActionMeta {
     required this.icon,
     required this.defaultChords,
     this.fixed = false,
+    this.repeatable = false,
   });
 }
 
@@ -100,6 +112,9 @@ extension ShortcutActionMetaExt on ShortcutAction {
   List<KeyChord> get defaultChords => meta.defaultChords;
 
   bool get fixed => meta.fixed;
+
+  /// 按住不放时是否连续触发，见 [ShortcutActionMeta.repeatable]。
+  bool get repeatable => meta.repeatable;
 
   static ShortcutAction? fromId(String id) {
     for (final action in ShortcutAction.values) {
@@ -159,6 +174,7 @@ final Map<ShortcutAction, ShortcutActionMeta> _metaTable = {
       KeyChord.fromKey(LogicalKeyboardKey.equal),
       KeyChord.fromKey(LogicalKeyboardKey.numpadAdd),
     ],
+    repeatable: true,
   ),
   ShortcutAction.galleryZoomOut: ShortcutActionMeta(
     id: 'gallery_zoom_out',
@@ -170,6 +186,7 @@ final Map<ShortcutAction, ShortcutActionMeta> _metaTable = {
       KeyChord.fromKey(LogicalKeyboardKey.minus),
       KeyChord.fromKey(LogicalKeyboardKey.numpadSubtract),
     ],
+    repeatable: true,
   ),
   ShortcutAction.galleryResetZoom: ShortcutActionMeta(
     id: 'gallery_reset_zoom',
@@ -226,6 +243,7 @@ final Map<ShortcutAction, ShortcutActionMeta> _metaTable = {
     category: ShortcutActionCategory.volume,
     icon: Icons.volume_up,
     defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.arrowUp)],
+    repeatable: true,
   ),
   ShortcutAction.volumeDown: ShortcutActionMeta(
     id: 'volume_down',
@@ -233,6 +251,7 @@ final Map<ShortcutAction, ShortcutActionMeta> _metaTable = {
     category: ShortcutActionCategory.volume,
     icon: Icons.volume_down,
     defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.arrowDown)],
+    repeatable: true,
   ),
   ShortcutAction.toggleMute: ShortcutActionMeta(
     id: 'toggle_mute',

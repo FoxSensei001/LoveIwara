@@ -761,6 +761,7 @@ settings:
     rejectPlatformBack: 該按鍵已被系統用作「返回」，綁定後會返回兩次
     detectedLabel: 偵測到
     reservedKey: 該按鍵為系統保留，無法綁定
+    reservedForGlobalBack: 該按鍵是「${action}」的快捷鍵，本區域保留給它，否則在這裡就退不出去了
     conflictTitle: 快捷鍵衝突
     conflictMessage: 該組合已綁定到「${action}」，繼續將解除其原有綁定。
     conflictContinue: 仍然綁定

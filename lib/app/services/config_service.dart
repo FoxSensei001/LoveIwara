@@ -1,11 +1,13 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
 
@@ -101,64 +103,96 @@ class ConfigService extends GetxService {
   }
 
   // 从数据库加载配置，若不存在则写入默认值
+  //
+  // **每个键各自隔离**：单条记录解析失败只回退该键的默认值并留下日志，
+  // 既不会静默清空（用户的自定义配置整批消失却毫无线索），也不会连累其它键。
+  // 之前这里有两个不同的坑，成因相同：
+  // - Map 分支 `catch (e) { parsedValue = defaultVal; }` **不打日志**，
+  //   于是「全部自定义快捷键忽然没了」这类故障没有任何可追查的痕迹；
+  // - List 分支的 `jsonDecode` **根本没有 try**，一条脏数据会把异常抛出
+  //   `_loadSettings`，而 `init()` 没有兜底 —— 整份配置就此加载失败。
   Future<void> _loadSettings() async {
     for (final key in ConfigKey.values) {
       final result = _db.select('SELECT value FROM app_config WHERE key = ?', [
         key.key,
       ]);
-      if (result.isNotEmpty) {
-        final storedValue = result.first['value'] as String;
-        dynamic parsedValue;
-        final defaultVal = key.defaultValue;
-        if (defaultVal is bool) {
-          parsedValue = storedValue.toLowerCase() == 'true';
-        } else if (defaultVal is int) {
-          parsedValue = int.tryParse(storedValue) ?? defaultVal;
-        } else if (defaultVal is double) {
-          parsedValue = double.tryParse(storedValue) ?? defaultVal;
-        } else if (defaultVal is List) {
-          parsedValue = jsonDecode(storedValue);
-        } else if (defaultVal is Map) {
-          // 处理 Map 类型的反序列化
-          try {
-            final decoded = jsonDecode(storedValue);
-            if (decoded is Map) {
-              // 根据默认值的类型进行类型转换
-              if (defaultVal is Map<String, int>) {
-                parsedValue = Map<String, int>.from(
-                  decoded.map(
-                    (key, value) => MapEntry(
-                      key.toString(),
-                      value is int
-                          ? value
-                          : int.tryParse(value.toString()) ?? 0,
-                    ),
-                  ),
-                );
-              } else if (defaultVal is Map<String, String>) {
-                parsedValue = Map<String, String>.from(
-                  decoded.map(
-                    (key, value) => MapEntry(key.toString(), value.toString()),
-                  ),
-                );
-              } else {
-                parsedValue = Map<String, dynamic>.from(decoded);
-              }
-            } else {
-              parsedValue = defaultVal;
-            }
-          } catch (e) {
-            parsedValue = defaultVal;
-          }
-        } else {
-          parsedValue = storedValue;
-        }
-        settings[key]!.value = parsedValue;
-      } else {
+      if (result.isEmpty) {
         await saveSetting(key, key.defaultValue);
         settings[key]!.value = key.defaultValue;
+        continue;
       }
+      final storedValue = result.first['value'] as String;
+      settings[key]!.value = _parseStoredSettingOrDefault(key, storedValue);
     }
+  }
+
+  /// 解析一条已存储的配置值；失败时记录日志并回退默认值。
+  dynamic _parseStoredSettingOrDefault(ConfigKey key, String storedValue) {
+    try {
+      return parseStoredSetting(key.defaultValue, storedValue);
+    } catch (e) {
+      // 静默回退是此前最难查的一类故障：配置消失且无迹可寻。宁可日志吵一点。
+      LogUtils.e(
+        '配置项 ${key.key} 解析失败，已回退默认值；原始值: '
+        '${_previewForLog(storedValue)}',
+        tag: 'ConfigService',
+        error: e,
+      );
+      return key.defaultValue;
+    }
+  }
+
+  /// 日志里只留一小段原始值：配置里可能有 token 之类的敏感内容，也可能极长。
+  static String _previewForLog(String raw) =>
+      raw.length <= 120 ? raw : '${raw.substring(0, 120)}…(${raw.length} 字符)';
+
+  /// 把数据库里的字符串按默认值的类型还原为配置值。
+  ///
+  /// 纯函数，不读写任何状态，便于直接对「脏数据怎么办」写测试。
+  /// 解析不出来时**抛异常**而不是自行回退，好让调用方决定如何记录与降级。
+  @visibleForTesting
+  static dynamic parseStoredSetting(dynamic defaultVal, String storedValue) {
+    if (defaultVal is bool) {
+      return storedValue.toLowerCase() == 'true';
+    }
+    if (defaultVal is int) {
+      return int.tryParse(storedValue) ?? defaultVal;
+    }
+    if (defaultVal is double) {
+      return double.tryParse(storedValue) ?? defaultVal;
+    }
+    if (defaultVal is List) {
+      final decoded = jsonDecode(storedValue);
+      // 类型不符也算损坏：让调用方走统一的「记日志 + 回退」通道。
+      if (decoded is! List) {
+        throw FormatException('期望 List，实际是 ${decoded.runtimeType}');
+      }
+      return decoded;
+    }
+    if (defaultVal is Map) {
+      final decoded = jsonDecode(storedValue);
+      if (decoded is! Map) {
+        throw FormatException('期望 Map，实际是 ${decoded.runtimeType}');
+      }
+      // 根据默认值的类型进行类型转换
+      if (defaultVal is Map<String, int>) {
+        return Map<String, int>.from(
+          decoded.map(
+            (key, value) => MapEntry(
+              key.toString(),
+              value is int ? value : int.tryParse(value.toString()) ?? 0,
+            ),
+          ),
+        );
+      }
+      if (defaultVal is Map<String, String>) {
+        return Map<String, String>.from(
+          decoded.map((key, value) => MapEntry(key.toString(), value.toString())),
+        );
+      }
+      return Map<String, dynamic>.from(decoded);
+    }
+    return storedValue;
   }
 
   Future<void> saveSetting(ConfigKey key, dynamic value) async {

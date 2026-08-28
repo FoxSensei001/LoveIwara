@@ -2451,6 +2451,7 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 	@override String get rejectPlatformBack => 'このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります';
 	@override String get detectedLabel => '検出';
 	@override String get reservedKey => 'このキーはシステム予約のため割り当てできません';
+	@override String reservedForGlobalBack({required Object action}) => 'このキーは「${action}」に割り当てられています。ここから戻れなくなるため、この領域では予約されています';
 	@override String get conflictTitle => 'ショートカットの競合';
 	@override String conflictMessage({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。';
 	@override String get conflictContinue => 'それでも割り当てる';
@@ -4293,6 +4294,7 @@ extension on TranslationsJa {
 			'settings.keybinding.rejectPlatformBack' => 'このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります',
 			'settings.keybinding.detectedLabel' => '検出',
 			'settings.keybinding.reservedKey' => 'このキーはシステム予約のため割り当てできません',
+			'settings.keybinding.reservedForGlobalBack' => ({required Object action}) => 'このキーは「${action}」に割り当てられています。ここから戻れなくなるため、この領域では予約されています',
 			'settings.keybinding.conflictTitle' => 'ショートカットの競合',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。',
 			'settings.keybinding.conflictContinue' => 'それでも割り当てる',
@@ -4584,9 +4586,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => '推奨されるダウンロード場所を選択',
 			'settings.downloadSettings.noRecommendedPaths' => '推奨パスがありません',
 			'settings.downloadSettings.recommended' => '推奨',
-			'settings.downloadSettings.requiresPermission' => '権限が必要',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.requiresPermission' => '権限が必要',
 			'settings.downloadSettings.authorizeAndSelect' => '認証して選択',
 			'settings.downloadSettings.select' => '選択',
 			'settings.downloadSettings.permissionAuthorizationFailed' => '権限認証に失敗しました、このパスを選択できません',
@@ -5098,9 +5100,9 @@ extension on TranslationsJa {
 			'download.pausedSingleImageProgress' => ({required Object downloaded}) => 'ダウンロード一時停止中 (${downloaded}枚)',
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'ダウンロード完了 (合計${total}枚)',
 			'download.viewVideoDetail' => 'ビデオ詳細を表示',
-			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			_ => null,
 		} ?? switch (path) {
+			'download.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'download.moreOptions' => 'もっと操作',
 			'download.openFile' => 'ファイルを開く',
 			'download.playLocally' => 'ローカル再生',
@@ -5612,9 +5614,9 @@ extension on TranslationsJa {
 			'log.logDatabaseSizeLimit' => 'ログデータベースサイズ上限',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '現在: ${size}',
 			'log.exportCurrentLogs' => '現在のログをエクスポート',
-			'log.exportCurrentLogsDesc' => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート',
 			_ => null,
 		} ?? switch (path) {
+			'log.exportCurrentLogsDesc' => '現在のアプリケーションログを開発者が診断に使用できるようにエクスポート',
 			'log.exportHistoryLogs' => '履歴ログをエクスポート',
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',

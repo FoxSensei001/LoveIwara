@@ -77,6 +77,16 @@ enum VideoDetailPageLoadingState {
   playerError, // 播放器错误
 }
 
+/// 一次「播放/暂停」操作解析出的方向。
+enum PlayPauseIntent {
+  play,
+  pause,
+
+  /// 取消「已请求但尚未开始」的首次播放：除了记下暂停意图，还要把封面从
+  /// 加载转圈退回可点播放的状态。
+  cancelPendingInitialPlayback,
+}
+
 /// 画面尺寸：视频画面在播放区域内的适配方式。
 enum PlayerScreenFitMode {
   fit, // 适应：保持比例完整显示
@@ -577,9 +587,24 @@ class MyVideoStateController extends GetxController
     final String? scheme = Uri.tryParse(source)?.scheme.toLowerCase();
     _isCurrentMediaNetworkSource = scheme == 'http' || scheme == 'https';
     _isCurrentMediaSourceOpening = true;
+    // 本控制器所有的 player.open 都经过这里，因此这里是记录「媒体已发起打开」
+    // 唯一可靠的收口点。见 [_hasIssuedMediaSourceOpen] 的说明。
+    _hasIssuedMediaSourceOpen = true;
     videoLoadingSpeedBytesPerSecond.value = null;
     return ++_mediaSourceGeneration;
   }
+
+  /// 当前视频是否已经发起过 `player.open`（成功或仍在进行中）。
+  ///
+  /// 存在的理由是一个真实且极易撞上的窗口：`resetVideoInfo` 返回之后
+  /// [videoPlayerReady] **仍然是 false**（它要等 height 流回调才置位），而
+  /// `_isStartingDeferredInitialPlayback` 这时已经释放。在这个窗口里再请求一次
+  /// 首次播放，就会对同一个地址第二次 `player.open`——「正在添加监听器」从头再来，
+  /// 转圈看起来永远不结束。
+  ///
+  /// 真机可稳定复现：关掉「首次进入自动播放」→ 点播放 → 加载转圈时再按一次空格。
+  /// 打开失败时由 [_finishCurrentMediaSourceOpen] 复位，好让用户能重试。
+  bool _hasIssuedMediaSourceOpen = false;
 
   void _finishCurrentMediaSourceOpen(
     int? generation, {
@@ -592,6 +617,8 @@ class MyVideoStateController extends GetxController
     if (succeeded) {
       _activeLoadingSpeedGeneration = generation;
     } else {
+      // 打开失败：把标记收回去，否则用户再也发不起重试。
+      _hasIssuedMediaSourceOpen = false;
       _isCurrentMediaNetworkSource = false;
       _activeLoadingSpeedGeneration = null;
     }
@@ -1007,12 +1034,90 @@ class MyVideoStateController extends GetxController
 
     hasRequestedInitialPlayback.value = true;
 
+    // 媒体已经打开、或正在打开：只能让它播，**绝不能再打开一次**。
+    // 少了这道守卫，加载态下每按一次播放都会重开同一个地址，转圈永远不结束。
+    if (_hasIssuedMediaSourceOpen) {
+      if (_isCurrentMediaSourceOpening) {
+        // 打开还在路上。方法开头已经把 _suppressAutoPlayOnReady 置回 false，
+        // 打开完成后的对账（见 resetVideoInfo）会据此决定最终播放状态。
+        return;
+      }
+      await player.play();
+      animateToTop();
+      return;
+    }
+
     if (currentVideoSourceList.isNotEmpty) {
       await _startDeferredInitialPlayback(playOnOpen: true);
       return;
     }
 
     await fetchVideoSource(openPlayerAfterFetch: true);
+  }
+
+  /// 加载尚未完成，但**播放已经在路上**——只要媒体就绪它就会自己开播。
+  ///
+  /// [videoPlaying] 在这个阶段是 false，所以任何只看它的「播放/暂停」开关都会
+  /// 把这一下误判成「开始播放」。
+  bool get isPlaybackPending =>
+      !isLocalVideoMode &&
+      videoInfo.value?.isExternalVideo != true &&
+      !videoPlayerReady.value &&
+      !_suppressAutoPlayOnReady &&
+      videoSourceErrorMessage.value == null &&
+      (hasRequestedInitialPlayback.value || _shouldAutoPlayOnInitialEntry);
+
+  /// **全应用唯一的「播放/暂停」开关入口。**
+  ///
+  /// 在此之前有六处各自手写 `if (videoPlaying) 暂停 else 播放`：快捷键、中央
+  /// 按钮、底部工具栏、双击手势、宽屏顶栏……每一处都只看 [videoPlaying]，于是在
+  /// 加载阶段全都错得一模一样——那时 videoPlaying 还是 false，但播放已经在路上，
+  /// 用户按下去想的是「停」，代码却理解成「再请求一次播放」。
+  ///
+  /// 方向判定抽成了纯函数 [resolvePlayPauseIntent]，可以直接单测。
+  Future<void> togglePlayback() async {
+    if (_isDisposed) return;
+    switch (resolvePlayPauseIntent(
+      videoPlaying: videoPlaying.value,
+      isPlaybackPending: isPlaybackPending,
+      isWaitingForInitialPlaybackStart: isWaitingForInitialPlaybackStart,
+    )) {
+      case PlayPauseIntent.play:
+        await playFromUserAction();
+      case PlayPauseIntent.pause:
+        pausePlayback();
+      case PlayPauseIntent.cancelPendingInitialPlayback:
+        cancelPendingInitialPlayback();
+    }
+  }
+
+  /// 这一次「播放/暂停」应当往哪个方向走。
+  ///
+  /// 规则只有一条：**已经在播、或马上就要播，都算「停」**。区分 [PlayPauseIntent.pause]
+  /// 与 [PlayPauseIntent.cancelPendingInitialPlayback] 是因为后者还要把封面从
+  /// 「加载转圈」退回「可点播放」，否则用户取消了却还在转圈。
+  @visibleForTesting
+  static PlayPauseIntent resolvePlayPauseIntent({
+    required bool videoPlaying,
+    required bool isPlaybackPending,
+    required bool isWaitingForInitialPlaybackStart,
+  }) {
+    if (!videoPlaying && !isPlaybackPending) return PlayPauseIntent.play;
+    return isWaitingForInitialPlaybackStart
+        ? PlayPauseIntent.cancelPendingInitialPlayback
+        : PlayPauseIntent.pause;
+  }
+
+  /// 取消「已经请求、但还没真正开始」的首次播放。
+  ///
+  /// 与 [pausePlayback] 的差别在于它还要把 [hasRequestedInitialPlayback] 收回去：
+  /// 否则封面会继续显示加载转圈，而用户明明已经取消了。
+  void cancelPendingInitialPlayback() {
+    if (_isDisposed) return;
+    // pausePlayback 会记下暂停意图（_suppressAutoPlayOnReady），
+    // 打开完成后的对账据此不自动开播。
+    pausePlayback();
+    hasRequestedInitialPlayback.value = false;
   }
 
   Future<void> playFromUserAction() async {
@@ -2704,6 +2809,14 @@ class MyVideoStateController extends GetxController
         play: playOnOpen,
       );
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
+      // 打开是异步的，这期间用户完全可能改主意（在加载转圈上按了暂停）。
+      // playOnOpen 是**打开之前**算出来的，而 open(play: true) 又会盖掉期间那次
+      // pause()，所以必须在打开之后按最终意图再对一次账，否则「加载中按暂停」
+      // 看起来完全没生效。
+      if (playOnOpen && _suppressAutoPlayOnReady) {
+        await player.pause();
+        videoPlaying.value = false;
+      }
       pageLoadingState.value = VideoDetailPageLoadingState.addingListeners;
     } catch (e) {
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: false);

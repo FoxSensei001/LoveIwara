@@ -428,40 +428,83 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       }
       return KeyEventResult.ignored;
     }
-    // 仅处理首次按下；KeyRepeatEvent 交给定时器判定长按。
-    if (event is! KeyDownEvent) return KeyEventResult.ignored;
+    // 按下与「按住不放」的重复事件都要看；其余（如 KeyUpEvent 未命中）忽略。
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
 
     final action = _keybindingService.resolve(event, ShortcutScope.video);
-    // 诊断：与设置页「[录入]」那行打同样的字段。自定义键不生效时，对比两行的
-    // keyId / 修饰键即可分家——keyId 不同＝录入与运行时拿到的逻辑键不是一个；
-    // keyId 相同但 matched=false＝修饰键状态对不上（_modifiersMatch 要求完全一致）。
-    final keyboard = HardwareKeyboard.instance;
-    LogUtils.d(
-      '[按下] keyId=${event.logicalKey.keyId} '
-      'debugName=${event.logicalKey.debugName} '
-      'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed} '
-      'alt=${keyboard.isAltPressed} meta=${keyboard.isMetaPressed} '
-      'matched=${action?.id}',
-      'Keybinding',
+    if (event is KeyDownEvent) {
+      // 诊断：与设置页「[录入]」那行打同样的字段。自定义键不生效时，对比两行的
+      // keyId / 修饰键即可分家——keyId 不同＝录入与运行时拿到的逻辑键不是一个；
+      // keyId 相同但 matched=false＝修饰键状态对不上（_modifiersMatch 要求完全一致）。
+      // 只在按下时打：重复事件每秒几十条，跟着打会把日志淹掉。
+      final keyboard = HardwareKeyboard.instance;
+      LogUtils.d(
+        '[按下] keyId=${event.logicalKey.keyId} '
+        'debugName=${event.logicalKey.debugName} '
+        'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed} '
+        'alt=${keyboard.isAltPressed} meta=${keyboard.isMetaPressed} '
+        'matched=${action?.id}',
+        'Keybinding',
+      );
+    }
+    if (action == null) {
+      // 这次不执行，不代表可以放它走：如果这个键**确实**绑在视频域上（典型是
+      // 按住方向键产生的重复事件，而进度/音量另有长按逻辑或不可重复），放过去
+      // 会一路冒泡到 WidgetsApp 的默认快捷键，被翻译成 DirectionalFocusIntent
+      // 把焦点挪走——表现就是「按住方向键之后播放器忽然不听话了」。
+      final matched = _keybindingService.matchIgnoringRepeatPolicy(
+        event,
+        ShortcutScope.video,
+      );
+      return matched != null
+          ? KeyEventResult.handled
+          : KeyEventResult.ignored;
+    }
+
+    // 命中视频域绑定即视为已消费，阻止事件冒泡到全局快捷键层造成重复触发。
+    _dispatchVideoShortcut(
+      action,
+      // 长按倍速只属于键盘的首次按下：重复事件由 _beginSeekHold 自己的定时器
+      // 判定，鼠标侧键则是一次性点按 seek。
+      seekHoldKeyId: event is KeyDownEvent ? event.logicalKey.keyId : null,
     );
-    if (action == null) return KeyEventResult.ignored;
+    return KeyEventResult.handled;
+  }
+
+  /// 解析出视频域动作之后的**唯一**分派出口，键盘与鼠标两条入口共用。
+  ///
+  /// 收成一个出口是有前情的：锁定闸门、封面放行名单、长按倍速这三件事原本各自
+  /// 散在两条入口里，于是同一个缺陷总是「键盘好了鼠标还坏着」（Work Item 1 就是
+  /// 这么来的）。新增任何「要不要执行」的判断都放这里，两条入口自动同步。
+  void _dispatchVideoShortcut(ShortcutAction action, {int? seekHoldKeyId}) {
+    // 锁定闸门：与触摸走同一条规则（见 [_onTap]）——不执行动作，只把锁按钮
+    // 亮出来告诉用户「现在是锁着的」。
+    //
+    // 锁定是**整个播放器的输入闸门**，不是「只挡手指」。之前只有 onTap 检查了
+    // 锁定态、遮罩层也只吃 onTap，于是锁上之后空格照样暂停、鼠标侧键照样跳转，
+    // 用户报的正是这个。
+    if (widget.myVideoStateController.isToolbarsLocked.value) {
+      widget.myVideoStateController.showLockButton();
+      return;
+    }
 
     // 初始播放封面阶段只放行不依赖「已打开媒体」的动作。
     if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
       _dispatchOnInitialPlaybackCover(action);
-      // 命中视频域绑定即视为已消费，阻止事件冒泡到全局快捷键层造成重复触发。
-      return KeyEventResult.handled;
+      return;
     }
 
     // 进度键：按下先挂起，松开时再区分点按/长按。
-    if (action == ShortcutAction.seekForward ||
-        action == ShortcutAction.seekBackward) {
-      _beginSeekHold(action, event.logicalKey.keyId);
-      return KeyEventResult.handled;
+    if (seekHoldKeyId != null &&
+        (action == ShortcutAction.seekForward ||
+            action == ShortcutAction.seekBackward)) {
+      _beginSeekHold(action, seekHoldKeyId);
+      return;
     }
 
     _dispatchKeybindingAction(action);
-    return KeyEventResult.handled;
   }
 
   /// 播放器鼠标按下入口：仅处理鼠标侧键/中键绑定（左右键留给点按/手势系统）。
@@ -475,14 +518,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       ShortcutScope.video,
     );
     if (action == null) return;
-
-    // 初始播放封面阶段只放行不依赖「已打开媒体」的动作。
-    if (widget.myVideoStateController.shouldShowInitialPlaybackCover) {
-      _dispatchOnInitialPlaybackCover(action);
-      return;
-    }
-
-    _dispatchKeybindingAction(action);
+    _dispatchVideoShortcut(action);
   }
 
   /// 初始播放封面阶段的动作分派：键盘与鼠标两条入口共用这一处。
@@ -491,10 +527,17 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   /// 各自判断，避免出现「一边能用一边被静默吞掉」的不对称。
   void _dispatchOnInitialPlaybackCover(ShortcutAction action) {
     if (!isShortcutAllowedOnInitialPlaybackCover(action)) return;
+    final controller = widget.myVideoStateController;
     switch (action) {
       case ShortcutAction.playPause:
-        // 唯一会唤起首次播放的动作。
-        unawaited(widget.myVideoStateController.requestInitialPlayback());
+        // 封面上的「播放/暂停」也必须是**开关**，不能只会往一个方向走。
+        //
+        // 关掉「首次进入自动播放」之后，点了播放就会停在封面上转圈
+        // （正在添加监听器…）。此刻再按一次，用户的意思显然是「别播了」，
+        // 而原来这里无条件再调一次 requestInitialPlayback()——在媒体已经打开、
+        // videoPlayerReady 还没置位的那个窗口里，它会第二次 player.open 同一个
+        // 地址，于是转圈从头再来，怎么按都停不下来。真机复现过。
+        unawaited(controller.togglePlayback());
         break;
       case ShortcutAction.toggleFullscreen:
         // 只切换呈现方式，不打开媒体、不开始播放：全屏不是播放意图。
@@ -515,11 +558,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     final controller = widget.myVideoStateController;
     switch (action) {
       case ShortcutAction.playPause:
-        if (controller.videoPlaying.value) {
-          controller.pausePlayback();
-        } else {
-          unawaited(controller.playFromUserAction());
-        }
+        unawaited(controller.togglePlayback());
         break;
       case ShortcutAction.speedUp:
         _adjustPlaybackSpeed(1);
@@ -1432,13 +1471,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
           child: GestureArea(
             setLongPressing: _setLongPressing,
             onTap: _onTap,
-            onDoubleTap: () {
-              if (widget.myVideoStateController.videoPlaying.value) {
-                widget.myVideoStateController.pausePlayback();
-              } else {
-                unawaited(widget.myVideoStateController.playFromUserAction());
-              }
-            },
+            onDoubleTap: () =>
+                unawaited(widget.myVideoStateController.togglePlayback()),
             region: GestureRegion.center,
             myVideoStateController: widget.myVideoStateController,
             screenSize: screenSize,
@@ -1876,11 +1910,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                 // 添加震动反馈
                 VibrateUtils.vibrate();
 
-                if (myVideoStateController.videoPlaying.value) {
-                  myVideoStateController.pausePlayback();
-                } else {
-                  await myVideoStateController.playFromUserAction();
-                }
+                await myVideoStateController.togglePlayback();
               },
               customBorder: const CircleBorder(),
               child: AnimatedScale(

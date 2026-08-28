@@ -799,11 +799,7 @@ class BottomToolbar extends StatelessWidget {
             ),
             onPressed: () async {
               VibrateUtils.vibrate();
-              if (myVideoStateController.videoPlaying.value) {
-                myVideoStateController.pausePlayback();
-              } else {
-                await myVideoStateController.playFromUserAction();
-              }
+              await myVideoStateController.togglePlayback();
             },
           ),
         ),

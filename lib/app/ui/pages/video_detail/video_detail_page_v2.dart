@@ -972,11 +972,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     // 播放/暂停按钮
                     IconButton(
                       onPressed: () {
-                        if (controller.videoPlaying.value) {
-                          controller.pausePlayback();
-                        } else {
-                          unawaited(controller.playFromUserAction());
-                        }
+                        unawaited(controller.togglePlayback());
                         controller.animateToTop();
                       },
                       icon: Icon(

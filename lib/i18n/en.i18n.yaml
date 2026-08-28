@@ -760,6 +760,7 @@ settings:
     rejectPlatformBack: The system already uses this for Back; binding it would go back twice
     detectedLabel: Detected
     reservedKey: This key is reserved by the system and cannot be bound
+    reservedForGlobalBack: This key is bound to "${action}"; it stays reserved here so you can still leave this screen
     conflictTitle: Shortcut Conflict
     conflictMessage: This combination is already bound to "${action}". Continuing will remove the existing binding.
     conflictContinue: Bind Anyway

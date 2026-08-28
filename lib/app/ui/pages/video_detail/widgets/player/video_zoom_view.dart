@@ -46,12 +46,63 @@ class VideoZoomGestureLayer extends StatefulWidget {
   State<VideoZoomGestureLayer> createState() => _VideoZoomGestureLayerState();
 }
 
+/// 一格鼠标滚轮的缩放倍率（>1 为放大）。
+///
+/// 0.5–3.0 的缩放区间按此步长约 6 格到顶、6 格到底，够用又能停在想要的位置；
+/// 而且倍率对称，往回滚同样格数**精确**回到 1.0，[_applyTransform] 里那条
+/// 「贴回原始大小」的吸附分支才够得着。
+const double kWheelNotchZoomFactor = 1.12;
+
+/// 一格鼠标滚轮的旋转增量（弧度）。9 格转过 90°。
+const double kWheelNotchRotation = 10 * math.pi / 180;
+
+/// 连续滚动（触控板）时缩放的灵敏度（数值越大缩放越慢）。
+const double kContinuousScrollScaleFactor = 200.0;
+
+/// 连续滚动（触控板）时旋转的灵敏度（弧度/滚动单位）。
+const double kContinuousScrollRotateFactor = 500.0;
+
+/// 这次滚动是否为「离散的一格」。
+///
+/// 鼠标滚轮每拨一格发一次事件，delta 是平台自己定的常数（本项目真机实测安卓为
+/// 64，桌面端一般 100~120）；触控板则是高频的小 delta 流。两者的 delta **不是
+/// 同一个量纲**，不能共用一个系数。
+bool isDiscreteScrollNotch(PointerDeviceKind kind) =>
+    kind != PointerDeviceKind.trackpad;
+
+/// 一次滚轮事件应施加的缩放倍率。
+///
+/// 离散一格时**只看方向不看数值**——这正是原来的坑：原式 `exp(-dy/200)` 把
+/// 平台常数当成了连续量，于是安卓一格就放大 1.377 倍、桌面端一格 1.65~1.82 倍，
+/// 整个 0.5~3.0 的区间只有五六格宽，等于「滚一下就到头」；更糟的是倍率永远
+/// 落不回 1.0，用户滚出去就再也滚不回原始大小。
+double wheelScaleFactorFor({
+  required double scrollDeltaY,
+  required bool discrete,
+}) {
+  if (scrollDeltaY == 0) return 1.0;
+  if (discrete) {
+    return scrollDeltaY < 0
+        ? kWheelNotchZoomFactor
+        : 1 / kWheelNotchZoomFactor;
+  }
+  return math.exp(-scrollDeltaY / kContinuousScrollScaleFactor);
+}
+
+/// 一次滚轮事件应施加的旋转增量（弧度）。离散一格同样只看方向。
+double wheelRotationDeltaFor({
+  required double scrollDeltaY,
+  required bool discrete,
+}) {
+  if (scrollDeltaY == 0) return 0.0;
+  if (discrete) {
+    return scrollDeltaY < 0 ? -kWheelNotchRotation : kWheelNotchRotation;
+  }
+  return scrollDeltaY / kContinuousScrollRotateFactor;
+}
+
 class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     with SingleTickerProviderStateMixin {
-  // 桌面端 Ctrl+滚轮缩放的灵敏度（数值越大缩放越慢）
-  static const double _wheelScaleFactor = 200.0;
-  // 桌面端 Shift+滚轮旋转的灵敏度（数值越大旋转越慢，单位：弧度/滚轮单位）
-  static const double _wheelRotateFactor = 500.0;
 
   /// 当前活跃指针：id -> 最新本地坐标
   final Map<int, Offset> _pointers = {};
@@ -329,11 +380,15 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     );
     final oldScale = _c.videoZoomScale.value;
     final oldRotation = _c.videoZoomRotation.value;
+    final discrete = isDiscreteScrollNotch(event.kind);
 
     if (keyboard.isControlPressed) {
       // Ctrl + 滚轮：以光标为中心缩放
       _resetController.stop();
-      final scaleChange = math.exp(-event.scrollDelta.dy / _wheelScaleFactor);
+      final scaleChange = wheelScaleFactorFor(
+        scrollDeltaY: event.scrollDelta.dy,
+        discrete: discrete,
+      );
       _applyTransform(
         focal: event.localPosition,
         oldScale: oldScale,
@@ -344,7 +399,10 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     } else if (keyboard.isShiftPressed) {
       // Shift + 滚轮：以光标为中心旋转
       _resetController.stop();
-      final rotationDelta = event.scrollDelta.dy / _wheelRotateFactor;
+      final rotationDelta = wheelRotationDeltaFor(
+        scrollDeltaY: event.scrollDelta.dy,
+        discrete: discrete,
+      );
       _applyTransform(
         focal: event.localPosition,
         oldScale: oldScale,

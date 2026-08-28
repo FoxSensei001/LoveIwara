@@ -761,6 +761,7 @@ settings:
     rejectPlatformBack: このキーはシステムが「戻る」に使用しており、割り当てると二重に戻ります
     detectedLabel: 検出
     reservedKey: このキーはシステム予約のため割り当てできません
+    reservedForGlobalBack: このキーは「${action}」に割り当てられています。ここから戻れなくなるため、この領域では予約されています
     conflictTitle: ショートカットの競合
     conflictMessage: この組み合わせは既に「${action}」に割り当てられています。続行すると既存の割り当ては解除されます。
     conflictContinue: それでも割り当てる

@@ -10,7 +10,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -214,6 +216,16 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   @override
   void initState() {
     super.initState();
+    // 图库域按键与视频域走同一条路：不依赖「焦点恰好落在本子树」。
+    // 这只 Focus 原本自己 onKeyEvent 收键，于是任何一次焦点外移（顶栏按钮、
+    // 弹层、宽屏里的任意可聚焦控件）都会让图库快捷键静默失效——与播放器当初
+    // 真机实测到的是同一个缺陷，见 ShortcutTargetRegistry 的说明。
+    ShortcutTargetRegistry.instance.register(
+      owner: this,
+      scope: ShortcutScope.gallery,
+      handle: _handlePlayerKeyEventFromRegistry,
+      isEligible: _acceptsShortcutsNow,
+    );
     _activeQuality = normalizeGalleryImageQuality(widget.initialQuality);
     currentIndex = _clampIndex(widget.initialIndex, _activeGalleryItems.length);
     _appService?.hideSystemUI(hideTitleBar: false);
@@ -300,6 +312,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
   @override
   void dispose() {
+    ShortcutTargetRegistry.instance.unregister(this);
     // 释放所有视频播放器资源
     _releaseAllVideoPlayers();
 
@@ -337,6 +350,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     return _videoPlayerKeys[index]!;
   }
 
+  /// 本层此刻是否应该接管图库域按键。判据与播放器一致，逐次实时求值。
+  ///
+  /// 少一条「与全屏态一致」——图库查看器没有内嵌/全屏两份同时挂载的情况。
+  bool _acceptsShortcutsNow() {
+    if (!mounted) return false;
+    if (ModalRoute.isCurrentOf(context) != true) return false;
+    if (OverlayTracker.instance.hasOverlay) return false;
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return false;
+    }
+    return true;
+  }
+
+  /// [ShortcutTargetRegistry] 的派发入口。
+  KeyEventResult _handlePlayerKeyEventFromRegistry(KeyEvent event) {
+    return _handleKeyPress(event)
+        ? KeyEventResult.handled
+        : KeyEventResult.ignored;
+  }
+
   bool _handleKeyPress(KeyEvent event) {
     // 保留 Esc 本地优先关闭评论抽屉（在 gallery_detail_page.dart），
     // 否则这里让它冒泡到全局 Esc。
@@ -349,6 +382,13 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
         setState(() {});
         return true;
       }
+    }
+    // 这次不执行，但如果这个键确实绑在图库域上（按住不放产生的重复事件、或
+    // 当前位置执行不了的动作），仍要消费掉：放过去会被 WidgetsApp 的默认快捷键
+    // 翻译成 DirectionalFocusIntent 把焦点挪走——图库默认键位正是方向键。
+    if (service.matchIgnoringRepeatPolicy(event, ShortcutScope.gallery) !=
+        null) {
+      return true;
     }
     // 未命中（包括 Esc）时返回 ignored，让它冒泡到根 global_back。
     return false;
@@ -844,12 +884,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                 child: Focus(
                   focusNode: _keyboardFocusNode,
                   autofocus: true,
-                  onKeyEvent: (node, event) {
-                    final handled = _handleKeyPress(event);
-                    return handled
-                        ? KeyEventResult.handled
-                        : KeyEventResult.ignored;
-                  },
+                  // 不再在这里 onKeyEvent：按键统一由应用根部经
+                  // ShortcutTargetRegistry 派发进来，两处都收会双触发。
                   child: Listener(
                     onPointerSignal: _galleryControls.handlePointerSignal,
                     onPointerDown: _onPointerDown,

@@ -6153,6 +6153,9 @@ class TranslationsSettingsKeybindingEn {
 	/// en: 'This key is reserved by the system and cannot be bound'
 	String get reservedKey => 'This key is reserved by the system and cannot be bound';
 
+	/// en: 'This key is bound to "${action}"; it stays reserved here so you can still leave this screen'
+	String reservedForGlobalBack({required Object action}) => 'This key is bound to "${action}"; it stays reserved here so you can still leave this screen';
+
 	/// en: 'Shortcut Conflict'
 	String get conflictTitle => 'Shortcut Conflict';
 
@@ -9342,6 +9345,7 @@ extension on Translations {
 			'settings.keybinding.rejectPlatformBack' => 'The system already uses this for Back; binding it would go back twice',
 			'settings.keybinding.detectedLabel' => 'Detected',
 			'settings.keybinding.reservedKey' => 'This key is reserved by the system and cannot be bound',
+			'settings.keybinding.reservedForGlobalBack' => ({required Object action}) => 'This key is bound to "${action}"; it stays reserved here so you can still leave this screen',
 			'settings.keybinding.conflictTitle' => 'Shortcut Conflict',
 			'settings.keybinding.conflictMessage' => ({required Object action}) => 'This combination is already bound to "${action}". Continuing will remove the existing binding.',
 			'settings.keybinding.conflictContinue' => 'Bind Anyway',
@@ -9633,9 +9637,9 @@ extension on Translations {
 			'settings.downloadSettings.selectRecommendedDownloadLocation' => 'Select a recommended download location',
 			'settings.downloadSettings.noRecommendedPaths' => 'No recommended paths available',
 			'settings.downloadSettings.recommended' => 'Recommended',
-			'settings.downloadSettings.requiresPermission' => 'Requires Permission',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.requiresPermission' => 'Requires Permission',
 			'settings.downloadSettings.authorizeAndSelect' => 'Authorize and Select',
 			'settings.downloadSettings.select' => 'Select',
 			'settings.downloadSettings.permissionAuthorizationFailed' => 'Permission authorization failed, cannot select this path',
@@ -10147,9 +10151,9 @@ extension on Translations {
 			'download.downloadedProgressForImageProgress' => ({required Object total}) => 'Downloaded (Total ${total} images)',
 			'download.viewVideoDetail' => 'View Video Detail',
 			'download.viewGalleryDetail' => 'View Gallery Detail',
-			'download.moreOptions' => 'More Options',
 			_ => null,
 		} ?? switch (path) {
+			'download.moreOptions' => 'More Options',
 			'download.openFile' => 'Open File',
 			'download.playLocally' => 'Play Locally',
 			'download.pause' => 'Pause',
@@ -10661,9 +10665,9 @@ extension on Translations {
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
-			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
 			'diagnostics.enableLogPersistenceSubtitle' => 'Disable to keep logs in memory only and stop disk writes',
 			'diagnostics.minLogLevelTitle' => 'Minimum log level',
 			'diagnostics.minLogLevelSubtitle' => 'Logs below this level will be filtered out',
