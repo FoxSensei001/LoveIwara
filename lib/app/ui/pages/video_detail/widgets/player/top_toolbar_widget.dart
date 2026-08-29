@@ -764,6 +764,10 @@ class _TopToolbarState extends State<TopToolbar> {
     await Get.find<XrImmersiveService>().present(
       url: url,
       format: c.vrFormat,
+      // 标题与 id 是空间控制面板要的：前者显示在面板上，后者让「接着看」列表能
+      // 把当前这条高亮出来（否则用户在列表里看不出自己正在放哪条）。
+      title: c.videoInfo.value?.title?.trim() ?? '',
+      videoId: c.videoId,
       width: c.sourceVideoWidth.value,
       height: c.sourceVideoHeight.value,
       positionMs: c.currentPosition.inMilliseconds,
