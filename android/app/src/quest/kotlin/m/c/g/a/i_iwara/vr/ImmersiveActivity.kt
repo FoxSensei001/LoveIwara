@@ -38,6 +38,8 @@ import com.meta.spatial.toolkit.VideoSurfacePanelRegistration
 import com.meta.spatial.toolkit.Visible
 import com.meta.spatial.vr.VRFeature
 import m.c.g.a.i_iwara.MainActivity
+import m.c.g.a.i_iwara.xr.ImmersiveBridge
+import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
 import m.c.g.a.i_iwara.R
 
 /**
@@ -100,8 +102,10 @@ class ImmersiveActivity : AppSystemActivity() {
     private var argMute: Boolean = false
 
     /**
-     * 【spike】`--ez uiPanel true` 时，把 Flutter 的 [MainActivity] 作为一块面板
-     * 挂进本沉浸空间。
+     * 把 Flutter 的 [MainActivity] 作为一块面板挂进本沉浸空间。
+     *
+     * **默认开**：这正是本应用在 Quest 上的形态 —— 应用常驻自己的沉浸空间，
+     * 整个现有 UI 是悬浮其中的一块面板。`--ez uiPanel false` 只用于隔离排查。
      *
      * 这是 `docs/xr-app-layout.md` §2 那个形态的决定性实验：整个应用常驻自有沉浸空间，
      * 现有 Flutter UI 整体当一块悬浮面板，只把播放器空间化。三个必须当场回答的问题：
@@ -109,7 +113,7 @@ class ImmersiveActivity : AppSystemActivity() {
      * 2. 手势（射线/捏合/直触）能不能操作它，滚动与 fling 正不正常；
      * 3. ⭐ 点搜索框能不能弹出系统输入法 —— 这条最可能致命。
      */
-    private var argUiPanel: Boolean = false
+    private var argUiPanel: Boolean = true
 
     private var uiPanelEntity: Entity? = null
 
@@ -156,6 +160,37 @@ class ImmersiveActivity : AppSystemActivity() {
         Log.i(TAG, "IMMERSIVE onSceneReady")
         logMemory("onSceneReady")
         rebuildPanel()
+
+        // 场景就绪后才接 Dart 的请求：面板里的 Flutter 可能比场景更早跑起来，
+        // ImmersiveBridge 会把这段时间里的请求暂存下来，在这里补投。
+        ImmersiveBridge.attachScene(bridgeListener)
+    }
+
+    /** Dart 侧「把这个视频空间化呈现 / 收起来」的落点。 */
+    private val bridgeListener = object : ImmersiveBridge.Listener {
+        override fun onPresent(request: ImmersiveVideoRequest) {
+            runOnUiThread {
+                argUrl = request.url
+                argShape = request.shape
+                argStereo = request.stereo
+                if (request.width > 0) argWidth = request.width
+                if (request.height > 0) argHeight = request.height
+                Log.i(
+                    TAG,
+                    "IMMERSIVE present shape=$argShape stereo=$argStereo " +
+                        "dims=${argWidth}x$argHeight pos=${request.positionMs}",
+                )
+                rebuildPanel()
+            }
+        }
+
+        override fun onDismiss() {
+            runOnUiThread {
+                Log.i(TAG, "IMMERSIVE dismiss")
+                argUrl = null
+                rebuildPanel()
+            }
+        }
     }
 
     private fun rebuildPanel() {
@@ -173,12 +208,33 @@ class ImmersiveActivity : AppSystemActivity() {
         //    `Pose(Vector3(0f, 0f, 3.0f))` —— 正 Z。
         //
         // 球面不受影响：半径 50m 的球本来就该以观看者为中心，原点是对的。
-        val pose = if (argShape == "flat") {
-            Pose(Vector3(0f, SCREEN_CENTER_HEIGHT_M, VIEW_DISTANCE_M))
+        // ⛔ 没有片源就**不要建幕布实体**。此前无论如何都建，于是空手进来时会有一只
+        // 半径 50m 的黑色球幕把整个空间罩住 —— 白白吃掉一块合成层（官方：每层约 0.1ms、
+        // 全屏层 0.6ms，且 0-alpha 也照样付钱），还挡住天幕与 passthrough。
+        // 幕布是「选中视频后才出现」的东西，这与产品形态一致。
+        // 看视频时 UI 面板要让位。
+        //
+        // ⚠️ 官方对「暂时不用的面板」只给了性能告警、没给设计处方，而那条告警说的是
+        // 「用 0-alpha 贴图代替销毁**照样付钱**」。但我们这块面板里跑的是 Flutter，
+        // `panelEntity.destroy()` 会连 Activity 一起销毁 → 引擎冷重启、页面状态全丢，
+        // 代价远大于省下的那一层。
+        // 所以这里先用 `Visible(false)`，**并当场量它到底省不省**（官方未提及，只能实测）。
+        val idle = argUrl.isNullOrBlank()
+        uiPanelEntity?.setComponent(Visible(idle))
+        // ⛔ 光 Visible(false) 什么都不省（实测 Graphics 一动不动、Activity 仍 resumed），
+        // 所以还要显式让 Flutter 停止出帧。见 XrBridge.setPanelRenderingPaused 的注释。
+        ImmersiveBridge.setPanelRenderingPaused(!idle)
+
+        if (argUrl.isNullOrBlank()) {
+            Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
         } else {
-            Pose(Vector3(0f, 0f, 0f))
+            val pose = if (argShape == "flat") {
+                Pose(Vector3(0f, SCREEN_CENTER_HEIGHT_M, VIEW_DISTANCE_M))
+            } else {
+                Pose(Vector3(0f, 0f, 0f))
+            }
+            panelEntity = Entity.create(Panel(R.id.vr_video_panel), Transform(pose), Visible(true))
         }
-        panelEntity = Entity.create(Panel(R.id.vr_video_panel), Transform(pose), Visible(true))
 
         if (argUiPanel && uiPanelEntity == null) {
             // UI 面板摆在正前方、与静息眼高齐平（俯角 0°，官方 ±15° 预算内）。
@@ -354,6 +410,7 @@ class ImmersiveActivity : AppSystemActivity() {
     override fun onSpatialShutdown() {
         Log.i(TAG, "IMMERSIVE onSpatialShutdown")
         logMemory("onSpatialShutdown")
+        ImmersiveBridge.detachScene()
         panelEntity?.destroy()
         panelEntity = null
         uiPanelEntity?.destroy()

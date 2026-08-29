@@ -21,6 +21,7 @@ import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import m.c.g.a.i_iwara.xr.XrBridge
 import java.io.File
 import java.io.FileOutputStream
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +55,11 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // XR（Quest）沉浸空间的接线。`XrBridge` 在 standard / quest 两个源集里各有一份
+        // 同名实现：standard 是空壳，quest 才真正注册 `i_iwara/immersive` 通道。
+        // 这样这里、以及 Dart 侧，都不需要写 `if (isQuest)` 分支。
+        XrBridge.attach(this, flutterEngine)
 
         appLockChannel = MethodChannel(
                 flutterEngine.dartExecutor.binaryMessenger,

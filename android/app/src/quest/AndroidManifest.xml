@@ -110,6 +110,18 @@
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="com.oculus.intent.category.VR" />
+        <!-- ⭐ 从 Quest 主页点应用图标时启动哪个 Activity，由这个 category 决定：
+             「To specify the activity to launch when the user selects your app in the
+             Home environment, add the com.oculus.intent.category.VR_HOME_LAUNCHER flag
+             to that activity's intent filter.」（hybrid-apps-overview）
+
+             ⛔ 刻意**不加** android.intent.category.LAUNCHER：官方样板是把 LAUNCHER
+             从 MainActivity 挪到沉浸 Activity，但那是因为它的 MainActivity 不需要
+             独立入口。我们的 MainActivity 是 standard 包的启动入口、也是 2D 面板兜底
+             形态，不能失去 LAUNCHER；两个 Activity 同时挂 LAUNCHER 又正是官方点名的
+             「conflicts between the LAUNCHER activities」。用 VR_HOME_LAUNCHER 单独
+             指定「VR 主页点图标进哪儿」，两边都不冲突。 -->
+        <category android:name="com.oculus.intent.category.VR_HOME_LAUNCHER" />
         <category android:name="android.intent.category.DEFAULT" />
       </intent-filter>
     </activity>
