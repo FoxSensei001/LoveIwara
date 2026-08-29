@@ -27,11 +27,14 @@ plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
     id "com.android.application" version "8.13.0" apply false
     id "org.jetbrains.kotlin.android" version "2.3.20" apply false
-    // Compose 编译器插件。只有 quest 变体真的写 Compose（空间控制条用官方
-    // Meta Horizon OS UI Set），但 `buildFeatures.compose` 是模块级的、没有 per-flavor 开关。
-    // standard 变体因为没有任何 Compose 依赖与 @Composable 代码，产物不受影响。
+    // Compose 编译器插件。⛔ **只给 :questui 模块用，绝不要加到 :app 上** ——
+    // 它是模块级的、没有 per-flavor 开关，一旦应用到 :app，standard 变体就会因为
+    // 类路径上没有 Compose Runtime 而直接编译失败（真踩过）。
     // 版本必须与 KGP 一致（Kotlin 2.x 起 Compose 编译器随 Kotlin 发版）。
     id "org.jetbrains.kotlin.plugin.compose" version "2.3.20" apply false
 }
 
 include ":app"
+// Quest 专用的 Compose UI（空间控制条）。存在的唯一理由是把 Compose 编译器
+// 关在这个模块里，别污染 :app 的 standard 变体。详见该模块的 build.gradle。
+include ":questui"

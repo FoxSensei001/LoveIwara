@@ -6,10 +6,6 @@ import android.os.Bundle
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.ComposeView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -50,6 +46,9 @@ import com.meta.spatial.toolkit.VideoSurfacePanelRegistration
 import com.meta.spatial.toolkit.Visible
 import com.meta.spatial.vr.VRFeature
 import m.c.g.a.i_iwara.MainActivity
+import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
+import m.c.g.a.i_iwara.questui.VideoControlsState
+import m.c.g.a.i_iwara.questui.createVideoControlsView
 import m.c.g.a.i_iwara.xr.ImmersiveBridge
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
 import m.c.g.a.i_iwara.R
@@ -130,13 +129,26 @@ class ImmersiveActivity : AppSystemActivity() {
     private var uiPanelEntity: Entity? = null
     private var controlsEntity: Entity? = null
 
-    // 控制条的状态。Compose 面板直接读它，ExoPlayer 的回调与每帧 tick 写它。
-    private var ctlPlaying by mutableStateOf(false)
-    private var ctlProgress by mutableStateOf(0f)
-    private var ctlVolume by mutableStateOf(1f)
-    private var ctlPositionText by mutableStateOf("0:00")
-    private var ctlDurationText by mutableStateOf("0:00")
+    /**
+     * 控制条的状态。类型来自 :questui 模块，对外只是普通属性 ——
+     * 所以这里不需要（也刻意不要）Compose 编译器插件。
+     */
+    private val controls = VideoControlsState()
     private var seeking = false
+
+    private val controlsCallbacks = object : VideoControlsCallbacks {
+        override fun onPlayPause() = togglePlayPause()
+        override fun onSeek(value: Float) {
+            seeking = true
+            controls.progress = value
+        }
+        override fun onSeekFinished() = commitSeek()
+        override fun onVolume(value: Float) {
+            controls.volume = value
+            exoPlayer?.volume = value
+        }
+        override fun onBackToApp() = backToApp()
+    }
 
     override fun registerFeatures(): List<SpatialFeature> = listOf(
         VRFeature(this),
@@ -349,13 +361,13 @@ class ImmersiveActivity : AppSystemActivity() {
     private fun togglePlayPause() {
         val p = exoPlayer ?: return
         p.playWhenReady = !p.playWhenReady
-        ctlPlaying = p.playWhenReady
+        controls.isPlaying = p.playWhenReady
     }
 
     private fun commitSeek() {
         val p = exoPlayer ?: return
         val dur = p.duration
-        if (dur > 0) p.seekTo((dur * ctlProgress).toLong())
+        if (dur > 0) p.seekTo((dur * controls.progress).toLong())
         seeking = false
     }
 
@@ -368,7 +380,7 @@ class ImmersiveActivity : AppSystemActivity() {
     /**
      * 每帧刷新控制条的进度/时长。
      *
-     * ⚠️ 拖动中（[seeking]）不覆盖 [ctlProgress]，否则用户的手指会被播放位置拽回去。
+     * ⚠️ 拖动中（[seeking]）不覆盖 [controls.progress]，否则用户的手指会被播放位置拽回去。
      */
     override fun onSceneTick() {
         super.onSceneTick()
@@ -376,11 +388,11 @@ class ImmersiveActivity : AppSystemActivity() {
         if (seeking) return
         val dur = p.duration
         if (dur > 0) {
-            ctlProgress = (p.currentPosition.toFloat() / dur).coerceIn(0f, 1f)
-            ctlPositionText = formatMs(p.currentPosition)
-            ctlDurationText = formatMs(dur)
+            controls.progress = (p.currentPosition.toFloat() / dur).coerceIn(0f, 1f)
+            controls.positionText = formatMs(p.currentPosition)
+            controls.durationText = formatMs(dur)
         }
-        if (ctlPlaying != p.playWhenReady) ctlPlaying = p.playWhenReady
+        if (controls.isPlaying != p.playWhenReady) controls.isPlaying = p.playWhenReady
     }
 
     private fun formatMs(ms: Long): String {
@@ -433,24 +445,7 @@ class ImmersiveActivity : AppSystemActivity() {
         // UI view panel 15/40，而 Activity-based 只有 2/2 —— 控制条这种小面板没理由用后者。
         ComposeViewPanelRegistration(
             R.id.vr_controls_panel,
-            { _, ctx ->
-                ComposeView(ctx).apply {
-                    setContent {
-                        VideoControlsPanel(
-                            isPlaying = ctlPlaying,
-                            progress = ctlProgress,
-                            volume = ctlVolume,
-                            positionText = ctlPositionText,
-                            durationText = ctlDurationText,
-                            onPlayPause = { togglePlayPause() },
-                            onSeek = { v -> seeking = true; ctlProgress = v },
-                            onSeekFinished = { commitSeek() },
-                            onVolume = { v -> ctlVolume = v; exoPlayer?.volume = v },
-                            onBackToApp = { backToApp() },
-                        )
-                    }
-                }
-            },
+            { _, ctx -> createVideoControlsView(ctx, controls, controlsCallbacks) },
             {
                 UIPanelSettings(
                     shape = QuadShapeOptions(
@@ -542,9 +537,9 @@ class ImmersiveActivity : AppSystemActivity() {
 
         player.repeatMode = Player.REPEAT_MODE_ONE
         if (argMute) player.volume = 0f
-        ctlVolume = if (argMute) 0f else 1f
-        ctlPlaying = true
-        ctlProgress = 0f
+        controls.volume = if (argMute) 0f else 1f
+        controls.isPlaying = true
+        controls.progress = 0f
         player.setVideoSurface(surface)
         player.setMediaItem(MediaItem.fromUri(Uri.parse(url)))
         player.prepare()

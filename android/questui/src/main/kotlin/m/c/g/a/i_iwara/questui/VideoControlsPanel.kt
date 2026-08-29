@@ -1,5 +1,6 @@
-package m.c.g.a.i_iwara.vr
+package m.c.g.a.i_iwara.questui
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,9 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.dp
 import com.meta.spatial.uiset.button.SecondaryButton
 import com.meta.spatial.uiset.slider.SpatialSliderLarge
@@ -101,5 +106,55 @@ fun VideoControlsPanel(
             helperText = "应用音量·静音" to "最大",
         )
     }
+    }
+}
+
+
+/**
+ * 控制条的状态。**对外只是普通的 Kotlin 属性**（内部用 Compose 的 mutableStateOf 实现），
+ * 所以 :app 模块可以直接 `state.isPlaying = true` 地写它，
+ * 而不需要在自己那边应用 Compose 编译器插件。
+ */
+class VideoControlsState {
+    var isPlaying by mutableStateOf(false)
+    var progress by mutableStateOf(0f)
+    var volume by mutableStateOf(1f)
+    var positionText by mutableStateOf("0:00")
+    var durationText by mutableStateOf("0:00")
+}
+
+/** 控制条上的动作。由 :app 侧的沉浸 Activity 实现。 */
+interface VideoControlsCallbacks {
+    fun onPlayPause()
+    fun onSeek(value: Float)
+    fun onSeekFinished()
+    fun onVolume(value: Float)
+    fun onBackToApp()
+}
+
+/**
+ * 造出一块可以直接交给 `ComposeViewPanelRegistration` 的 [ComposeView]。
+ *
+ * ⭐ 这个工厂函数是本模块的**唯一出口**：所有 `@Composable` 都留在这里，
+ * :app 只看到「给我一个 Context 和状态，还我一个 View」。
+ */
+fun createVideoControlsView(
+    context: Context,
+    state: VideoControlsState,
+    callbacks: VideoControlsCallbacks,
+): ComposeView = ComposeView(context).apply {
+    setContent {
+        VideoControlsPanel(
+            isPlaying = state.isPlaying,
+            progress = state.progress,
+            volume = state.volume,
+            positionText = state.positionText,
+            durationText = state.durationText,
+            onPlayPause = callbacks::onPlayPause,
+            onSeek = callbacks::onSeek,
+            onSeekFinished = callbacks::onSeekFinished,
+            onVolume = callbacks::onVolume,
+            onBackToApp = callbacks::onBackToApp,
+        )
     }
 }

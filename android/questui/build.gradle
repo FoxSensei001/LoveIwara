@@ -1,0 +1,56 @@
+// ⛔ 这个模块存在的唯一理由：**把 Jetpack Compose 关在 quest 这条线里**。
+//
+// 起因是一次真实的构建失败：把 `org.jetbrains.kotlin.plugin.compose` 加在 :app 上之后，
+// standard 变体直接编不过 ——
+//   "The Compose Compiler requires the Compose Runtime to be on the class path,
+//    but none could be found."
+// Compose 编译器插件是**模块级**的，没有 per-flavor 开关；只要应用了它，
+// 每个变体都必须有 Compose Runtime。而 standard 包不该为了 Quest 的空间控制条
+// 背上 Compose 依赖（硬约束 C1）。
+//
+// 于是把所有 @Composable 代码搬到这个 library 模块，:app 只在
+// `questImplementation` 里依赖它，且**不再应用 Compose 插件**。
+// :app 侧仍能拿到 ComposeView 类型（下面用 api 暴露），因为那只需要类路径，
+// 不需要编译器插件。
+plugins {
+    id "com.android.library"
+    id "kotlin-android"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+android {
+    namespace = "m.c.g.a.i_iwara.questui"
+    compileSdk = 36
+
+    defaultConfig {
+        // 与 :app 的 quest flavor 一致：Meta Spatial SDK 的硬性要求。
+        minSdk = 34
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_21
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    // api 而非 implementation：:app 的 ImmersiveActivity 要拿 ComposeView 这个类型
+    // 交给 ComposeViewPanelRegistration，所以它必须出现在 :app 的编译类路径上。
+    api 'androidx.compose.ui:ui:1.7.8'
+    implementation 'androidx.compose.foundation:foundation:1.7.8'
+    // Meta Horizon OS UI Set：官方组件库，命中尺寸与 hit slop 内建。
+    // SpatialSliderLarge 官方明写用于 "seeking through media"。
+    implementation 'com.meta.spatial:meta-spatial-sdk-uiset:0.13.2'
+}

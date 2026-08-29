@@ -1,7 +1,6 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    id "org.jetbrains.kotlin.plugin.compose"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -119,9 +118,6 @@ android {
     // 构建优化配置
     buildFeatures {
         buildConfig false
-        // 空间控制条用官方 UI Set（Jetpack Compose）绘制。⚠️ 模块级开关，没有
-        // per-flavor 版本；standard 变体不引入任何 Compose 依赖，产物不受影响。
-        compose true
     }
     
     // 减少构建输出
@@ -181,14 +177,9 @@ dependencies {
     // 而 activity-based「More flexible and powerful, comes with a performance cost」
     // —— 预算表 UI view panel 15/40 vs Activity-based 2/2。控制条这种小面板走 view。
     questImplementation 'com.meta.spatial:meta-spatial-sdk-compose:0.13.2'
-    // Meta Horizon OS UI Set：官方组件库，命中尺寸与 hit slop 内建。
-    // ⭐ SpatialSliderLarge 官方明写用于 "seeking through media"，
-    // onChanged 拖动中连续回调、onValueChangedFinished 抬手回调，轨道 40dp。
-    questImplementation 'com.meta.spatial:meta-spatial-sdk-uiset:0.13.2'
-    // UI Set 的 pom 只传递 compose.runtime + material3，布局与 ComposeView 要自己引。
-    // 版本对齐它传递进来的 1.7.8，避免 Compose 各模块版本打架。
-    questImplementation 'androidx.compose.foundation:foundation:1.7.8'
-    questImplementation 'androidx.compose.ui:ui:1.7.8'
+    // 空间控制条的 Compose 实现。⛔ 所有 @Composable 都在这个模块里，
+    // :app 不应用 Compose 编译器插件（它是模块级的，加上会让 standard 变体编不过）。
+    questImplementation project(':questui')
     questImplementation 'androidx.media3:media3-exoplayer:1.4.1'
     questImplementation 'androidx.media3:media3-datasource:1.4.1'
 }
