@@ -214,8 +214,18 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// 由路由 extra 里的 [PlaybackQueueRef.currentItemId] 带过来。
   String _queueItemId = '';
 
-  bool get _hasPlaybackQueue =>
-      _queues.any((queue) => queue.loaded.isNotEmpty || queue.hasMore);
+  /// 「接着看」入口钮要不要在场。
+  ///
+  /// ⛔ 判据是**手上有没有池**，不是"池里这会儿有没有东西"（与图库详情页对齐）。
+  /// 从论坛帖子、通知、深链、搜索单条进来时没有来源池，稍后再看又常常是空的，
+  /// 按"有货才显示"来判，入口就整只不出现——而抽屉里的「最爱 / 作者的视频 /
+  /// 本地收藏 / 已下载 / 订阅」那几支全都是**进了抽屉才现开**的，用户因此永远
+  /// 够不着它们。空池的抽屉本来就说得清楚（"这个池里没有可播的视频"），胶囊还
+  /// 能当场换到别的池去。
+  ///
+  /// 在线模式下稍后再看池一定在场（见 [_setupPlaybackQueues]），所以这条等价于
+  /// 「非本地模式」；本地播放页认不出交接过来的池时仍旧整只不出现。
+  bool get _hasPlaybackQueue => _queues.isNotEmpty;
 
   /// 组装本页的池清单。
   ///
@@ -252,12 +262,25 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       return;
     }
 
-    // 2. 来源池：进详情页之前那个列表的快照
+    // 2. 来源池：进详情页之前那个列表。
+    //
+    // ⭐ 列表页交得出**它自己那份查询**时（热门 / 图库 / 订阅这些接口列表），
+    // 来源池是一条能一直翻下去的分页池（[RemoteListPlaybackQueue]），已加载的
+    // 条目只当种子；交不出来的（相关推荐、深链）仍旧是那份到底就没了的快照。
+    //
+    // ⛔ 判重按 **kind**：交接过来的那个可能就是同一条来源线（连播 / 抽屉点播），
+    // 只是 id 未必对得上（快照池带 ownerKey、接口池带查询签名）。按 id 比会让
+    // 抽屉里排出两条「来源」。
     final sourceContext = widget.innerPlaylistContext;
-    if (sourceContext != null && sourceContext.items.isNotEmpty) {
-      final source = service.openSource(sourceContext, ownerKey: uniqueTag);
-      if (!queues.any((queue) => queue.queueId == source.queueId)) {
-        queues.add(source);
+    if (sourceContext != null &&
+        !queues.any((queue) => queue.kind == PlaybackQueueKind.source)) {
+      final query = sourceContext.query;
+      if (query != null) {
+        queues.add(
+          service.openRemoteList(query, seed: sourceContext.items),
+        );
+      } else if (sourceContext.items.isNotEmpty) {
+        queues.add(service.openSource(sourceContext, ownerKey: uniqueTag));
       }
     }
 

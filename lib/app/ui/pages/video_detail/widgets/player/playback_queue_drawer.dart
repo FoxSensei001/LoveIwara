@@ -186,7 +186,6 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     }
     _current.addListener(_onQueueChanged);
     _scrollController.addListener(_maybeLoadMore);
-    _warmUpChoices();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureLoaded();
       _scrollToCurrent();
@@ -194,7 +193,52 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scheduleWarmUp();
+  }
+
+  /// 预取要等抽屉**滑完**再跑。
+  ///
+  /// ⛔ 「点开接着看会卡一下」的直接成因（2026-08-29 用户报的）：预取里的三份
+  /// 本地清单——`FavoriteService.getAllFolders()`（favorite_items 上的
+  /// JOIN + GROUP BY）、`getCompletedVideoCounts()`、`getAllCategories()`——虽然
+  /// 签名是 `Future`，函数体里却**一个 await 都没有**，sqlite 查询整段跑在调用
+  /// 方这一轮里。`initState` 里发它们，等于把三次同步查库压在抽屉的**第一帧**
+  /// 上，260ms 的滑入动画开头就丢帧。
+  ///
+  /// 挪到路由动画跑完之后：那时用户已经看到抽屉了，查库的几十毫秒落在静止画面
+  /// 上，看不出来。代价只有"刚滑完的那一瞬还不知道某一类是不是空的"——而菜单
+  /// 本来就把「还没查过」和「查过、真没有」分开处理（见 [_openQueuePicker] 的
+  /// 三态），点进去也会补一枪。
+  void _scheduleWarmUp() {
+    if (_warmUpScheduled) return;
+    _warmUpScheduled = true;
+    final Animation<double>? animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.isCompleted) {
+      _warmUpChoices();
+      return;
+    }
+    _warmUpAnimation = animation..addStatusListener(_onRouteAnimationStatus);
+  }
+
+  bool _warmUpScheduled = false;
+  Animation<double>? _warmUpAnimation;
+
+  void _onRouteAnimationStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _detachWarmUpListener();
+    if (mounted) _warmUpChoices();
+  }
+
+  void _detachWarmUpListener() {
+    _warmUpAnimation?.removeStatusListener(_onRouteAnimationStatus);
+    _warmUpAnimation = null;
+  }
+
+  @override
   void dispose() {
+    _detachWarmUpListener();
     _current.removeListener(_onQueueChanged);
     _scrollController.dispose();
     super.dispose();
@@ -488,6 +532,16 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         requirePool: true,
         icon: Icons.subject,
       ),
+      // 订阅动态。要登录——`subscribed=true` 未登录时会被服务端静默忽略、
+      // 返回全站内容（见 `PlaybackQueueService.openSubscriptions`），所以
+      // 没登录时整条不出现，而不是摆一条点进去是"全站热门"的「订阅」。
+      if (self != null)
+        ?directEntry(
+          value: _QueuePick.subscriptions,
+          kind: PlaybackQueueKind.subscriptions,
+          label: t.common.subscriptions,
+          icon: Icons.subscriptions_outlined,
+        ),
       ?playlistEntry(
         pick: _QueuePick.playlists,
         label: t.playbackQueue.myPlaylists,
@@ -576,6 +630,20 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     switch (picked) {
       case _QueuePick.source:
         _useQueue(_queues[indexOfKind(PlaybackQueueKind.source)]);
+      case _QueuePick.subscriptions:
+        final queue = PlaybackQueueService.to.openSubscriptions(
+          mediaType: widget.mediaType,
+        );
+        // 登录态是在开菜单那一刻读的，中途掉登录（401 被登出）时这里会拿到
+        // null——静默什么都不做会被当成"点了没反应"，说一句。
+        if (queue == null) {
+          showGlassToast(
+            t.errors.pleaseLoginFirst,
+            type: GlassToastType.info,
+          );
+        } else {
+          _useQueue(queue);
+        }
       case _QueuePick.favorites:
         _useQueue(
           _isGallery
@@ -1110,6 +1178,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     final t = slang.Translations.of(context);
     final label = switch (_current.kind) {
       PlaybackQueueKind.source => t.playbackQueue.sourceTab,
+      PlaybackQueueKind.subscriptions => t.common.subscriptions,
       PlaybackQueueKind.playlist => _playlistTitle(context, _current),
       PlaybackQueueKind.authorVideos => _queueTitle(
         context,
@@ -1148,6 +1217,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
 
   IconData _pillIcon() => switch (_current.kind) {
     PlaybackQueueKind.source => Icons.subject,
+    PlaybackQueueKind.subscriptions => Icons.subscriptions_outlined,
     PlaybackQueueKind.playlist => Icons.queue_music,
     PlaybackQueueKind.authorVideos => Icons.video_library_outlined,
     PlaybackQueueKind.authorGalleries => Icons.photo_library_outlined,
@@ -1732,6 +1802,9 @@ class _MenuFeed {
 /// 全部还是未看完）全在第二级里选，这里一个都不出现。
 enum _QueuePick {
   source,
+
+  /// 订阅动态（已关注作者的全部作品）。
+  subscriptions,
 
   /// 我的播放列表。
   playlists,

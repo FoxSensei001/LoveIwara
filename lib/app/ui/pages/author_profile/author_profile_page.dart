@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 
@@ -1607,6 +1608,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     required String videoId,
     required List<Video> loadedVideos,
     Map<String, dynamic>? extData,
+    MediaListQuery? query,
   }) async {
     Video? initialVideoInfo;
     for (final video in loadedVideos) {
@@ -1620,6 +1622,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       source: InnerPlaylistSource.authorProfile,
       videos: loadedVideos,
       currentVideoId: videoId,
+      query: query,
     );
 
     await NaviService.navigateToVideoDetailPage(

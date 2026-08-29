@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
+import '../controllers/subscription_query_params.dart';
 import '../controllers/subscription_video_repository.dart';
 import 'base_subscription_list.dart';
 
@@ -68,6 +70,20 @@ class _SubscriptionVideoListState
       source: InnerPlaylistSource.subscriptionVideoList,
       videos: loadedVideos,
       currentVideoId: videoId,
+      // 交出**这一页真正发出去的那份查询**（订阅集合 / 某个作者 + 排序 + 标签
+      // + 年月 + 评级），详情页的「接着看」就能顺着它一直翻下去，而不是只在
+      // 进来那一刻加载出来的那几十条里打转。参数拼装与仓库共用同一条
+      // [buildSubscriptionQueryParams]——那儿记着哪些参数在哪种查询下才生效。
+      query: MediaListQuery.pruned(
+        mediaType: PlaybackMediaType.video,
+        params: buildSubscriptionQueryParams(
+          userId: widget.userId,
+          sortId: widget.sortId,
+          searchTagIds: widget.searchTagIds,
+          searchDate: widget.searchDate,
+          searchRating: widget.searchRating,
+        ),
+      ),
     );
 
     await NaviService.navigateToVideoDetailPage(

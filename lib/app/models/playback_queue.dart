@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
@@ -16,6 +17,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
+import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -72,6 +74,13 @@ enum PlaybackQueueKind {
   /// 已下载到本地的视频，本地库分页。**这个池里的条目用本地文件播**
   /// （见 [PlaybackQueue.localTargetFor]）。
   downloads,
+
+  /// 订阅动态：已关注作者的全部作品，接口分页（要登录）。
+  ///
+  /// 与 [source] 分成两条而不是共用：从订阅页点进来时，[source] 装的是**那一页
+  /// 当时的筛选**（可能只看某个作者、某个月、某个标签），而这一条是不带筛选的
+  /// 整条订阅动态——两者能同时出现在抽屉里，共用一个槽会互相顶掉。
+  subscriptions,
 }
 
 /// 「这一条用本地文件播」的全部材料。
@@ -282,7 +291,13 @@ class SourcePlaybackQueue extends PlaybackQueue {
 /// 和来源池的区别不只是"能翻页"：来源池打乱是有意的（那是一次随机推荐），
 /// 而这些池都是别人排好的顺序，打乱就把它的意义毁了。
 abstract class PagedPlaybackQueue extends PlaybackQueue {
-  PagedPlaybackQueue({required super.queueId, this.pageSize = 32});
+  PagedPlaybackQueue({
+    required super.queueId,
+    this.pageSize = 32,
+    List<InnerPlaylistItemSnapshot> seed = const [],
+  }) {
+    if (seed.isNotEmpty) _seed(seed);
+  }
 
   final int pageSize;
 
@@ -290,6 +305,30 @@ abstract class PagedPlaybackQueue extends PlaybackQueue {
   int _nextPage = 0;
   bool _hasMore = true;
   bool _loading = false;
+
+  /// 拿列表页**已经加载出来的那些条目**当种子，游标跟着往后挪。
+  ///
+  /// # 为什么要种
+  ///
+  /// 用户常常是在一份翻了好几页的列表**中段**点进详情页的。池要是从第 0 页
+  /// 重新翻起，抽屉一打开既找不到"正在播的这一条"（[itemAfter] 恒为 null，推进
+  /// 直接失效），又得靠 [ensureContains] 连发好几个请求才追得上——而那些数据
+  /// 列表页手上明明就有。
+  ///
+  /// ⛔ 种子必须是列表的**自然顺序**（不许打乱、不许截断）：池接着往下翻回来的
+  /// 是接口的原序，前半截乱了整条线就对不上了。所以带查询的来源快照不走
+  /// `InnerPlaylistContext` 那套抽样（见那边的 `_limitItems`）。
+  ///
+  /// 游标按种子条数折算，多出来的重叠交给去重吃掉——列表页的 limit 与池的
+  /// [pageSize] 不一定同一个数，宁可重复请求一页，也不能跳过一页。
+  void _seed(List<InnerPlaylistItemSnapshot> seed) {
+    final seen = <String>{};
+    for (final item in seed) {
+      if (item.id.trim().isEmpty || !seen.add(item.id)) continue;
+      _items.add(item);
+    }
+    _nextPage = _items.length ~/ pageSize;
+  }
 
   /// 取第 [page] 页。
   ///
@@ -338,6 +377,146 @@ abstract class PagedPlaybackQueue extends PlaybackQueue {
       _loading = false;
       if (!isDisposed) notifyListeners();
     }
+  }
+}
+
+/// 接口列表池：拿列表页**自己那份查询**接着往下翻。
+///
+/// # ⭐ 「来源」从快照升级成这个
+///
+/// 老的来源池是 [SourcePlaybackQueue]——进详情页那一刻的一份快照，上限 100、
+/// 超限还要随机抽样，翻到底就没了。用户从一个带筛选的热门列表、图库列表或者
+/// 订阅页点进来，抽屉里只有那几十条，来回看的永远是同一批（2026-08-29 用户报
+/// 的正是这个）。
+///
+/// 现在列表页把**它真正发出去的那份参数**（[MediaListQuery]）一起交出来，池就
+/// 用同一个接口、同一份参数接着翻，抽屉里可以一直滚下去。已经加载出来的条目
+/// 当种子（见 [PagedPlaybackQueue._seed]），所以打开抽屉不必等一次请求。
+///
+/// 参数拿不到的列表（相关推荐、深链、搜索结果这类）仍旧走 [SourcePlaybackQueue]
+/// ——**没有查询就没有下一页**，硬编一份"差不多的"参数只会让接下来的顺序和用户
+/// 刚才看的那份列表对不上。
+class RemoteListPlaybackQueue extends PagedPlaybackQueue {
+  RemoteListPlaybackQueue({
+    required super.queueId,
+    required this.query,
+    required VideoService videoService,
+    required GalleryService galleryService,
+    required SearchService searchService,
+    this.kind = PlaybackQueueKind.source,
+    String? title,
+    super.seed,
+  }) : _videoService = videoService,
+       _galleryService = galleryService,
+       _searchService = searchService,
+       _title = title,
+       // 与各列表页的 limit 对齐：种子的条数多半是它的整数倍，游标折算下来
+       // 正好落在下一页的页首，重叠最少。
+       super(pageSize: 20);
+
+  final MediaListQuery query;
+  final VideoService _videoService;
+  final GalleryService _galleryService;
+  final SearchService _searchService;
+  final String? _title;
+
+  /// 这个池在抽屉里占哪个槽。
+  ///
+  /// 默认是「来源」；订阅动态那一支传 [PlaybackQueueKind.subscriptions]——两者
+  /// 能同时在场（从订阅页带筛选进来时，来源是那份筛选、订阅是整条动态），
+  /// 共用一个槽会互相顶掉。
+  @override
+  final PlaybackQueueKind kind;
+
+  @override
+  PlaybackMediaType get mediaType => query.mediaType;
+
+  @override
+  String? get title => _title;
+
+  @override
+  String get debugLabel => '接口列表 ${query.signature}';
+
+  @override
+  Future<({List<InnerPlaylistItemSnapshot> items, int rawCount})> fetchPage(
+    int page,
+    int limit,
+  ) async {
+    // 搜索结果走 `/search`——那条接口的入参与 `/videos`、`/images` 完全不同
+    // （见 `SearchService`），不能拿 params 硬凑。
+    final String? keyword = query.search;
+    if (keyword != null) {
+      if (query.mediaType.isGallery) {
+        final result = await _searchService.fetchImageByQuery(
+          query: keyword,
+          sort: query.searchSort,
+          page: page,
+          limit: limit,
+        );
+        if (!result.isSuccess || result.data == null) {
+          throw StateError(result.message);
+        }
+        final galleries = result.data!.results;
+        return (
+          items: [
+            for (final ImageModel gallery in galleries)
+              InnerPlaylistItemSnapshot.fromGallery(gallery),
+          ],
+          rawCount: galleries.length,
+        );
+      }
+      final result = await _searchService.fetchVideoByQuery(
+        query: keyword,
+        sort: query.searchSort,
+        page: page,
+        limit: limit,
+      );
+      if (!result.isSuccess || result.data == null) {
+        throw StateError(result.message);
+      }
+      final videos = result.data!.results;
+      return (
+        items: [
+          for (final Video video in videos)
+            InnerPlaylistItemSnapshot.fromVideo(video),
+        ],
+        rawCount: videos.length,
+      );
+    }
+    if (query.mediaType.isGallery) {
+      final result = await _galleryService.fetchImageModelsByParams(
+        params: query.params,
+        page: page,
+        limit: limit,
+      );
+      if (!result.isSuccess || result.data == null) {
+        throw StateError(result.message);
+      }
+      final galleries = result.data!.results;
+      return (
+        items: [
+          for (final ImageModel gallery in galleries)
+            InnerPlaylistItemSnapshot.fromGallery(gallery),
+        ],
+        rawCount: galleries.length,
+      );
+    }
+    final result = await _videoService.fetchVideosByParams(
+      params: query.params,
+      page: page,
+      limit: limit,
+    );
+    if (!result.isSuccess || result.data == null) {
+      throw StateError(result.message);
+    }
+    final videos = result.data!.results;
+    return (
+      items: [
+        for (final Video video in videos)
+          InnerPlaylistItemSnapshot.fromVideo(video),
+      ],
+      rawCount: videos.length,
+    );
   }
 }
 

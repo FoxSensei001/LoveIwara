@@ -4,6 +4,8 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
@@ -36,6 +38,7 @@ class ProfileVideoTabListWidget extends StatefulWidget {
     required String videoId,
     required List<Video> loadedVideos,
     Map<String, dynamic>? extData,
+    MediaListQuery? query,
   })?
   onOpenVideo;
 
@@ -216,6 +219,14 @@ class _ProfileVideoTabListWidgetState extends State<ProfileVideoTabListWidget>
                           videoId: videoId,
                           loadedVideos: List<Video>.of(videoListRepository),
                           extData: extData,
+                          // 这一栏**真正发出去的那份查询**（排序 + 标签 + 年月
+                          // + 那条恒定的 user=）。交给详情页之后，「接着看」的
+                          // 来源池就顺着同一份查询一直翻，而不是只有进来那一刻
+                          // 加载出来的那几十条。
+                          query: MediaListQuery.pruned(
+                            mediaType: PlaybackMediaType.video,
+                            params: videoListRepository.buildQueryParams(0, 20),
+                          ),
                         );
                       },
               ),

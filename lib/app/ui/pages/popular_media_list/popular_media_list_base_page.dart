@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
@@ -33,6 +37,7 @@ import 'package:flutter/rendering.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 
@@ -145,6 +150,45 @@ class PopularMediaListPageBaseState<
     NaviService.navigateToSearchPage(initialSegment: widget.searchSegment);
   }
 
+  /// 这一栏**真正发出去的那份查询**（排序 + 标签 + 年月 + 评级）。
+  ///
+  /// 交给详情页之后，「接着看」的来源池就不再是一份到底就没了的快照，而是顺着
+  /// 同一份查询一直翻下去（见 [MediaListQuery] / `RemoteListPlaybackQueue`）。
+  ///
+  /// ⛔ 参数从仓库的 [BaseMediaRepository.buildQueryParams] 上取，**不在这里
+  /// 重拼一份**：筛选状态住在仓库里（`updateSearchParams`），页面这边的
+  /// `tags/year/rating` 只是抽屉的回填值，两者在"抽屉改了但还没提交"的那一刻
+  /// 是不一样的。重拼出来的池就不是用户正在看的那份列表了。
+  MediaListQuery? _listQueryFor(SortId sortId) {
+    final repository = _repositories[sortId];
+    if (repository is! BaseMediaRepository<T>) return null;
+    return MediaListQuery.pruned(
+      mediaType: T == ImageModel
+          ? PlaybackMediaType.gallery
+          : PlaybackMediaType.video,
+      params: repository.buildQueryParams(0, 20),
+    );
+  }
+
+  /// 图库卡片的池引用：与视频那条走同一份查询，只是图库没有
+  /// `innerPlaylistContext` 这条通道，改由列表页自己把池登记好、只传一个 ref。
+  PlaybackQueueRef? _galleryQueueRef(SortId sortId, String galleryId) {
+    final query = _listQueryFor(sortId);
+    if (query == null) return null;
+    final repository = _repositories[sortId];
+    final seed = <InnerPlaylistItemSnapshot>[
+      if (repository != null)
+        for (final item in repository)
+          if (item is ImageModel) InnerPlaylistItemSnapshot.fromGallery(item),
+    ];
+    return PlaybackQueueRef(
+      queueId: PlaybackQueueService.to
+          .openRemoteList(query, seed: seed)
+          .queueId,
+      currentItemId: galleryId,
+    );
+  }
+
   Future<void> _openVideoFromPopularList({
     required String videoId,
     required List<Video> loadedVideos,
@@ -162,6 +206,7 @@ class PopularMediaListPageBaseState<
       source: InnerPlaylistSource.popularVideoList,
       videos: loadedVideos,
       currentVideoId: videoId,
+      query: _listQueryFor(sorts[_tabController.index].id),
     );
 
     await NaviService.navigateToVideoDetailPage(
@@ -591,6 +636,10 @@ class PopularMediaListPageBaseState<
                           _batchSelectController.toggleSelection(media),
                       onPageChanged: () =>
                           _batchSelectController.onPageChanged(),
+                      playbackQueueRefBuilder: T == ImageModel
+                          ? (galleryId) =>
+                                _galleryQueueRef(sort.id, galleryId)
+                          : null,
                       onOpenVideo:
                           T == Video &&
                               widget.searchSegment == SearchSegment.video
