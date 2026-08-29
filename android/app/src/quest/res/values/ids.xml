@@ -2,4 +2,9 @@
 <resources>
   <!-- 沉浸式视频面板的实体 id。只存在于 quest 源集，standard 变体不合并本文件。 -->
   <item name="vr_video_panel" type="id" />
+
+  <!-- 【spike】把整个 Flutter UI 作为一块面板挂进我们自己的沉浸空间。
+       用来回答三个决定性问题：Flutter 能不能在空间面板里渲染、手势输入能不能操作它、
+       ⭐ 以及点搜索框能不能弹出系统输入法。见 docs/xr-app-layout.md §2。 -->
+  <item name="vr_ui_panel" type="id" />
 </resources>

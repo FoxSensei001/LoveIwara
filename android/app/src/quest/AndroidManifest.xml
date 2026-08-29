@@ -59,7 +59,13 @@
          ⚠️ manifest 合并器没有「往已存在的 intent-filter 里插一个 category」的写法，
          所以这里是**另加一条** filter，合并后 MainActivity 会有两条 MAIN/LAUNCHER。
          同一 component 在启动器里只会出现一个图标，不会变成两个。 -->
-    <activity android:name="m.c.g.a.i_iwara.MainActivity">
+    <!-- ⛔ allowEmbedded 是官方明写的硬要求：「Define the activity in your AndroidManifest.xml
+         and include the tag android:allowEmbedded="true". This allows the activity to be embedded
+         into a panel.」（spatial-sdk-2dpanel-compose）。没有它，Activity 面板挂不上去。
+         只在 quest 源集声明，standard 包不受影响。 -->
+    <activity
+      android:name="m.c.g.a.i_iwara.MainActivity"
+      android:allowEmbedded="true">
       <layout
         android:defaultWidth="1024dp"
         android:defaultHeight="640dp"

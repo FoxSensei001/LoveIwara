@@ -21,6 +21,7 @@ import com.meta.spatial.core.SpatialFeature
 import com.meta.spatial.core.Vector3
 import com.meta.spatial.runtime.ReferenceSpace
 import com.meta.spatial.runtime.StereoMode
+import com.meta.spatial.toolkit.ActivityPanelRegistration
 import com.meta.spatial.toolkit.AppSystemActivity
 import com.meta.spatial.toolkit.Equirect180ShapeOptions
 import com.meta.spatial.toolkit.Equirect360ShapeOptions
@@ -29,11 +30,14 @@ import com.meta.spatial.toolkit.MediaPanelSettings
 import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRegistration
 import com.meta.spatial.toolkit.PixelDisplayOptions
+import com.meta.spatial.toolkit.DpDisplayOptions
 import com.meta.spatial.toolkit.QuadShapeOptions
+import com.meta.spatial.toolkit.UIPanelSettings
 import com.meta.spatial.toolkit.Transform
 import com.meta.spatial.toolkit.VideoSurfacePanelRegistration
 import com.meta.spatial.toolkit.Visible
 import com.meta.spatial.vr.VRFeature
+import m.c.g.a.i_iwara.MainActivity
 import m.c.g.a.i_iwara.R
 
 /**
@@ -95,6 +99,20 @@ class ImmersiveActivity : AppSystemActivity() {
      */
     private var argMute: Boolean = false
 
+    /**
+     * 【spike】`--ez uiPanel true` 时，把 Flutter 的 [MainActivity] 作为一块面板
+     * 挂进本沉浸空间。
+     *
+     * 这是 `docs/xr-app-layout.md` §2 那个形态的决定性实验：整个应用常驻自有沉浸空间，
+     * 现有 Flutter UI 整体当一块悬浮面板，只把播放器空间化。三个必须当场回答的问题：
+     * 1. Flutter 能不能在空间面板里正常渲染；
+     * 2. 手势（射线/捏合/直触）能不能操作它，滚动与 fling 正不正常；
+     * 3. ⭐ 点搜索框能不能弹出系统输入法 —— 这条最可能致命。
+     */
+    private var argUiPanel: Boolean = false
+
+    private var uiPanelEntity: Entity? = null
+
     override fun registerFeatures(): List<SpatialFeature> = listOf(VRFeature(this))
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,9 +136,10 @@ class ImmersiveActivity : AppSystemActivity() {
         argWidth = source.getIntExtra("w", argWidth)
         argHeight = source.getIntExtra("h", argHeight)
         argMute = source.getBooleanExtra("mute", argMute)
+        argUiPanel = source.getBooleanExtra("uiPanel", argUiPanel)
         Log.i(
             TAG,
-            "IMMERSIVE args shape=$argShape stereo=$argStereo mute=$argMute " +
+            "IMMERSIVE args shape=$argShape stereo=$argStereo mute=$argMute uiPanel=$argUiPanel " +
                 "dims=${argWidth}x$argHeight url=${argUrl?.take(120)}",
         )
     }
@@ -154,6 +173,16 @@ class ImmersiveActivity : AppSystemActivity() {
             Pose(Vector3(0f, 0f, 0f))
         }
         panelEntity = Entity.create(Panel(R.id.vr_video_panel), Transform(pose), Visible(true))
+
+        if (argUiPanel && uiPanelEntity == null) {
+            // UI 面板摆在正前方、与静息眼高齐平（俯角 0°，官方 ±15° 预算内）。
+            uiPanelEntity = Entity.create(
+                Panel(R.id.vr_ui_panel),
+                Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, -UI_PANEL_DISTANCE_M))),
+                Visible(true),
+            )
+            Log.i(TAG, "IMMERSIVE ui panel created")
+        }
     }
 
     /** 单眼画面的真实宽高比：立体片取半幅之后才是人眼看到的那个比例。 */
@@ -166,7 +195,27 @@ class ImmersiveActivity : AppSystemActivity() {
         }
     }
 
-    override fun registerPanels(): List<PanelRegistration> = listOf(
+    override fun registerPanels(): List<PanelRegistration> = listOfNotNull(
+        // 【spike】Flutter 的 MainActivity 作为空间面板。
+        // 面板逻辑尺寸取官方默认 1024x640dp，与我们给 2D 面板声明的 <layout> 一致，
+        // 这样面板里跑的就是同一套宽屏排版。
+        if (argUiPanel) {
+            ActivityPanelRegistration(
+                R.id.vr_ui_panel,
+                { MainActivity::class.java },
+                {
+                    UIPanelSettings(
+                        shape = QuadShapeOptions(
+                            width = UI_PANEL_WIDTH_M,
+                            height = UI_PANEL_WIDTH_M * 640f / 1024f,
+                        ),
+                        display = DpDisplayOptions(1024f, 640f, 288),
+                    )
+                },
+            )
+        } else {
+            null
+        },
         VideoSurfacePanelRegistration(
             R.id.vr_video_panel,
             surfaceConsumer = { _, surface -> startPlayback(surface) },
@@ -291,6 +340,8 @@ class ImmersiveActivity : AppSystemActivity() {
         logMemory("onSpatialShutdown")
         panelEntity?.destroy()
         panelEntity = null
+        uiPanelEntity?.destroy()
+        uiPanelEntity = null
         releasePlayer()
         super.onSpatialShutdown()
     }
@@ -323,6 +374,11 @@ class ImmersiveActivity : AppSystemActivity() {
          * 幕心抬到与静息眼高齐平（0° 俯角）后，上下缘正好 ±15.1°，卡在官方上限。
          */
         private const val SCREEN_CENTER_HEIGHT_M = 1.60f
+
+        /** 【spike】UI 面板的几何：1.8m 处 1.6m 宽 ≈ 47° 水平张角，幕心与静息眼高齐平。 */
+        private const val UI_PANEL_DISTANCE_M = 1.8f
+        private const val UI_PANEL_WIDTH_M = 1.6f
+        private const val UI_PANEL_HEIGHT_M = 1.60f
         private const val DEFAULT_UA =
             "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 " +
                 "Chrome/126.0.0.0 Safari/537.36"
