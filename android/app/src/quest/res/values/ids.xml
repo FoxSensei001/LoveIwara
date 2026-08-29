@@ -7,4 +7,9 @@
        用来回答三个决定性问题：Flutter 能不能在空间面板里渲染、手势输入能不能操作它、
        ⭐ 以及点搜索框能不能弹出系统输入法。见 docs/xr-app-layout.md §2。 -->
   <item name="vr_ui_panel" type="id" />
+
+  <!-- 空间化的播放控制条：播放/暂停、进度、音量、返回应用。
+       用官方 Meta Horizon OS UI Set（Compose）绘制，走 view-based 面板
+       （官方预算：UI view panel 15/40，Activity-based 只有 2/2）。 -->
+  <item name="vr_controls_panel" type="id" />
 </resources>

@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -18,12 +22,19 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.meta.spatial.core.Entity
 import com.meta.spatial.core.Pose
 import com.meta.spatial.core.SpatialFeature
+import com.meta.spatial.core.Vector2
 import com.meta.spatial.core.Vector3
+import com.meta.spatial.compose.ComposeFeature
+import com.meta.spatial.compose.ComposeViewPanelRegistration
+import com.meta.spatial.isdk.IsdkFeature
+import com.meta.spatial.isdk.IsdkPanelResize
+import com.meta.spatial.isdk.ResizeMode
 import com.meta.spatial.runtime.ReferenceSpace
 import com.meta.spatial.runtime.StereoMode
 import com.meta.spatial.toolkit.ActivityPanelRegistration
 import com.meta.spatial.toolkit.AppSystemActivity
 import com.meta.spatial.toolkit.Equirect180ShapeOptions
+import com.meta.spatial.toolkit.Grabbable
 import com.meta.spatial.toolkit.Equirect360ShapeOptions
 import com.meta.spatial.toolkit.MediaPanelRenderOptions
 import com.meta.spatial.toolkit.MediaPanelSettings
@@ -31,6 +42,7 @@ import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRegistration
 import com.meta.spatial.toolkit.PixelDisplayOptions
 import com.meta.spatial.toolkit.DpDisplayOptions
+import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.UIPanelSettings
 import com.meta.spatial.toolkit.Transform
@@ -116,8 +128,28 @@ class ImmersiveActivity : AppSystemActivity() {
     private var argUiPanel: Boolean = true
 
     private var uiPanelEntity: Entity? = null
+    private var controlsEntity: Entity? = null
 
-    override fun registerFeatures(): List<SpatialFeature> = listOf(VRFeature(this))
+    // 控制条的状态。Compose 面板直接读它，ExoPlayer 的回调与每帧 tick 写它。
+    private var ctlPlaying by mutableStateOf(false)
+    private var ctlProgress by mutableStateOf(0f)
+    private var ctlVolume by mutableStateOf(1f)
+    private var ctlPositionText by mutableStateOf("0:00")
+    private var ctlDurationText by mutableStateOf("0:00")
+    private var seeking = false
+
+    override fun registerFeatures(): List<SpatialFeature> = listOf(
+        VRFeature(this),
+        // ⭐ 纯手势体验的地基。官方原文：「Direct touch is not a 'mode' and should be
+        // always available」、「Avoid artificial distinction between near-field and
+        // far-field」—— 近场直触与远场捏合射线由 ISDK 按距离自动切换，
+        // **不需要我们定「哪种输入是主路径」这种策略**。
+        IsdkFeature(this, spatial, systemManager),
+        // ⛔ 用 ComposeViewPanelRegistration 就必须注册它，否则面板一创建就抛
+        // 「ComposeFeature is not registered with the Feature」并整个进程崩掉
+        // （它在 PanelDisplayBase.initVirtualDisplay 里去 findFeature，找不到直接抛）。
+        ComposeFeature(),
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -225,6 +257,23 @@ class ImmersiveActivity : AppSystemActivity() {
         // 所以还要显式让 Flutter 停止出帧。见 XrBridge.setPanelRenderingPaused 的注释。
         ImmersiveBridge.setPanelRenderingPaused(!idle)
 
+        if (idle) {
+            controlsEntity?.destroy()
+            controlsEntity = null
+        } else if (controlsEntity == null) {
+            // ⛔ 摆位要和官方 ±15° 俯角上限对账：静息眼高约 1.6m，控制条放在
+            // 离地 1.05m、前方 2.4m 处 → 下压 atan(0.55/2.4) ≈ 12.9°，在预算内。
+            // 官方 sample 的做法也是「控制条贴在视频正下方」；但幕布本身的下缘已经在
+            // −15° 上，所以控制条不能继续往下堆，而是**拉近**到 2.4m 保住角度。
+            controlsEntity = Entity.create(
+                Panel(R.id.vr_controls_panel),
+                Transform(Pose(Vector3(0f, CONTROLS_HEIGHT_ABOVE_FLOOR_M, CONTROLS_DISTANCE_M))),
+                Visible(true),
+                Grabbable(),
+            )
+            Log.i(TAG, "IMMERSIVE controls panel created")
+        }
+
         if (argUrl.isNullOrBlank()) {
             Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
         } else {
@@ -233,7 +282,30 @@ class ImmersiveActivity : AppSystemActivity() {
             } else {
                 Pose(Vector3(0f, 0f, 0f))
             }
-            panelEntity = Entity.create(Panel(R.id.vr_video_panel), Transform(pose), Visible(true))
+            // 幕布同样可抓可缩放。
+            // ⚠️ 官方已知限制：**曲面面板不能被抓取变换**（"Curved panels cannot be
+            // grabbed and transformed."）。所以这里只对平面幕布挂 Grabbable；
+            // 球幕（180/360）人在球心，本来也不该移动，只该「重新居中」。
+            panelEntity = if (argShape == "flat") {
+                Entity.create(
+                    Panel(R.id.vr_video_panel),
+                    Transform(pose),
+                    Visible(true),
+                    Grabbable(),
+                    // 幕布与 UI 面板相反：**必须保持宽高比**（画面不能被拉变形），
+                    // 而且用 `Simple` 就够 —— 视频是一张纹理，缩放它不需要重新排版，
+                    // Relayout 反而会去改 surface 分辨率、打断播放。
+                    // 上限给得大：影院幕布本来就该能拉到几米宽。
+                    IsdkPanelResize(
+                        resizeMode = ResizeMode.Simple,
+                        minDimensions = Vector2(0.6f, 0.34f),
+                        maxDimensions = Vector2(8.0f, 4.5f),
+                        preserveAspectRatio = true,
+                    ),
+                )
+            } else {
+                Entity.create(Panel(R.id.vr_video_panel), Transform(pose), Visible(true))
+            }
         }
 
         if (argUiPanel && uiPanelEntity == null) {
@@ -246,9 +318,78 @@ class ImmersiveActivity : AppSystemActivity() {
                 Panel(R.id.vr_ui_panel),
                 Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, UI_PANEL_DISTANCE_M))),
                 Visible(true),
+                // 抓着边缘挪位置、拖角改大小。
+                // ⛔ 官方陷阱：挂了 Grabbable 的实体**会失去 onClick**，除非同时有
+                // IsdkPanelDimensions —— 面板由 IsdkComponentCreationSystem 自动补上，
+                // 所以只要 ISDK 开着就没事；一旦禁用 ISDK 系统，面板就点不动了。
+                Grabbable(),
+                // ⛔ 三个默认值都不适合承载 Flutter UI 的面板（官方 API reference 的默认是
+                // `resizeMode = Simple, minDimensions = (0.3,0.3), maxDimensions = (1.5,1.5),
+                //  preserveAspectRatio = true`），实测全部撞上了：
+                //
+                // 1. `Simple` 只是把纹理拉伸 —— 字会糊。官方对 Relayout 的说明是
+                //    「Adjusts panel dimensions and **re-renders UI at new resolution**，
+                //     Best for: **Dynamic UI, text, interactive elements**」，正是我们的场景：
+                //    拖大之后 Flutter 按新尺寸重新排版（窄屏↔宽屏布局也会跟着切）。
+                // 2. `maxDimensions` 默认 1.5m，而本面板出生就是 1.6m 宽 —— **一出生就顶格**，
+                //    用户反馈「放到一定大小就再也放不大了」正是这条。
+                // 3. `preserveAspectRatio = true` 让它只能等比缩放；UI 面板应该能自由改形状
+                //    （配合 Relayout，变高变宽都会重新排版）。视频幕布则相反，必须保比例。
+                IsdkPanelResize(
+                    resizeMode = ResizeMode.Relayout,
+                    minDimensions = Vector2(0.8f, 0.5f),
+                    maxDimensions = Vector2(4.0f, 2.6f),
+                    preserveAspectRatio = false,
+                ),
             )
             Log.i(TAG, "IMMERSIVE ui panel created at +Z ${UI_PANEL_DISTANCE_M}")
         }
+    }
+
+    private fun togglePlayPause() {
+        val p = exoPlayer ?: return
+        p.playWhenReady = !p.playWhenReady
+        ctlPlaying = p.playWhenReady
+    }
+
+    private fun commitSeek() {
+        val p = exoPlayer ?: return
+        val dur = p.duration
+        if (dur > 0) p.seekTo((dur * ctlProgress).toLong())
+        seeking = false
+    }
+
+    /** 收起幕布与控制条，把 UI 面板还回来。 */
+    private fun backToApp() {
+        argUrl = null
+        rebuildPanel()
+    }
+
+    /**
+     * 每帧刷新控制条的进度/时长。
+     *
+     * ⚠️ 拖动中（[seeking]）不覆盖 [ctlProgress]，否则用户的手指会被播放位置拽回去。
+     */
+    override fun onSceneTick() {
+        super.onSceneTick()
+        val p = exoPlayer ?: return
+        if (seeking) return
+        val dur = p.duration
+        if (dur > 0) {
+            ctlProgress = (p.currentPosition.toFloat() / dur).coerceIn(0f, 1f)
+            ctlPositionText = formatMs(p.currentPosition)
+            ctlDurationText = formatMs(dur)
+        }
+        if (ctlPlaying != p.playWhenReady) ctlPlaying = p.playWhenReady
+    }
+
+    private fun formatMs(ms: Long): String {
+        if (ms <= 0) return "0:00"
+        val total = ms / 1000
+        val h = total / 3600
+        val m = (total % 3600) / 60
+        val s = total % 60
+        return if (h > 0) String.format("%d:%02d:%02d", h, m, s) else String.format("%d:%02d", m, s)
     }
 
     /** 单眼画面的真实宽高比：立体片取半幅之后才是人眼看到的那个比例。 */
@@ -285,6 +426,39 @@ class ImmersiveActivity : AppSystemActivity() {
                         height = UI_PANEL_WIDTH_M * 640f / 1024f,
                     ),
                     display = DpDisplayOptions(1024f, 640f, 288),
+                )
+            },
+        ),
+        // 空间化的播放控制条。走 view-based 的 Compose 面板：官方预算
+        // UI view panel 15/40，而 Activity-based 只有 2/2 —— 控制条这种小面板没理由用后者。
+        ComposeViewPanelRegistration(
+            R.id.vr_controls_panel,
+            { _, ctx ->
+                ComposeView(ctx).apply {
+                    setContent {
+                        VideoControlsPanel(
+                            isPlaying = ctlPlaying,
+                            progress = ctlProgress,
+                            volume = ctlVolume,
+                            positionText = ctlPositionText,
+                            durationText = ctlDurationText,
+                            onPlayPause = { togglePlayPause() },
+                            onSeek = { v -> seeking = true; ctlProgress = v },
+                            onSeekFinished = { commitSeek() },
+                            onVolume = { v -> ctlVolume = v; exoPlayer?.volume = v },
+                            onBackToApp = { backToApp() },
+                        )
+                    }
+                }
+            },
+            {
+                UIPanelSettings(
+                    shape = QuadShapeOptions(
+                        width = CONTROLS_WIDTH_M,
+                        height = CONTROLS_HEIGHT_M,
+                    ),
+                    // 500dp/m 是官方默认换算，1dp = 2mm，便于直接按官方 dp 尺寸对账命中区。
+                    display = DpPerMeterDisplayOptions(dpPerMeter = 500f),
                 )
             },
         ),
@@ -368,6 +542,9 @@ class ImmersiveActivity : AppSystemActivity() {
 
         player.repeatMode = Player.REPEAT_MODE_ONE
         if (argMute) player.volume = 0f
+        ctlVolume = if (argMute) 0f else 1f
+        ctlPlaying = true
+        ctlProgress = 0f
         player.setVideoSurface(surface)
         player.setMediaItem(MediaItem.fromUri(Uri.parse(url)))
         player.prepare()
@@ -415,6 +592,8 @@ class ImmersiveActivity : AppSystemActivity() {
         panelEntity = null
         uiPanelEntity?.destroy()
         uiPanelEntity = null
+        controlsEntity?.destroy()
+        controlsEntity = null
         releasePlayer()
         super.onSpatialShutdown()
     }
@@ -452,6 +631,12 @@ class ImmersiveActivity : AppSystemActivity() {
         private const val UI_PANEL_DISTANCE_M = 1.8f
         private const val UI_PANEL_WIDTH_M = 1.6f
         private const val UI_PANEL_HEIGHT_M = 1.60f
+
+        /** 控制条几何：2.4m 处、离地 1.05m（相对静息眼高下压约 12.9°，在官方 ±15° 内）。 */
+        private const val CONTROLS_DISTANCE_M = 2.4f
+        private const val CONTROLS_HEIGHT_ABOVE_FLOOR_M = 1.05f
+        private const val CONTROLS_WIDTH_M = 1.6f
+        private const val CONTROLS_HEIGHT_M = 0.44f
         private const val DEFAULT_UA =
             "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 " +
                 "Chrome/126.0.0.0 Safari/537.36"

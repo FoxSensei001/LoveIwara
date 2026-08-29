@@ -1,6 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+    id "org.jetbrains.kotlin.plugin.compose"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -118,6 +119,9 @@ android {
     // 构建优化配置
     buildFeatures {
         buildConfig false
+        // 空间控制条用官方 UI Set（Jetpack Compose）绘制。⚠️ 模块级开关，没有
+        // per-flavor 版本；standard 变体不引入任何 Compose 依赖，产物不受影响。
+        compose true
     }
     
     // 减少构建输出
@@ -167,6 +171,24 @@ dependencies {
     questImplementation 'com.meta.spatial:meta-spatial-sdk:0.13.2'
     questImplementation 'com.meta.spatial:meta-spatial-sdk-toolkit:0.13.2'
     questImplementation 'com.meta.spatial:meta-spatial-sdk-vr:0.13.2'
+    // Interaction SDK：官方那套手势/射线交互。官方立场是「直触不是一种模式、应当始终可用」，
+    // 近场直触与远场捏合射线由 ISDK **按距离自动切换**，射线渲染、reticle、命中消歧、
+    // 按下反馈、抖动稳定化都由它提供 —— ⛔ 不要自绘射线。
+    // 面板的抓取移动与拖角缩放（Grabbable / IsdkPanelResize）也在这个包里。
+    questImplementation 'com.meta.spatial:meta-spatial-sdk-isdk:0.13.2'
+    // 空间面板里跑 Jetpack Compose（ComposeViewPanelRegistration）。
+    // 官方定位：view-based 面板「Lightweight and performant」，
+    // 而 activity-based「More flexible and powerful, comes with a performance cost」
+    // —— 预算表 UI view panel 15/40 vs Activity-based 2/2。控制条这种小面板走 view。
+    questImplementation 'com.meta.spatial:meta-spatial-sdk-compose:0.13.2'
+    // Meta Horizon OS UI Set：官方组件库，命中尺寸与 hit slop 内建。
+    // ⭐ SpatialSliderLarge 官方明写用于 "seeking through media"，
+    // onChanged 拖动中连续回调、onValueChangedFinished 抬手回调，轨道 40dp。
+    questImplementation 'com.meta.spatial:meta-spatial-sdk-uiset:0.13.2'
+    // UI Set 的 pom 只传递 compose.runtime + material3，布局与 ComposeView 要自己引。
+    // 版本对齐它传递进来的 1.7.8，避免 Compose 各模块版本打架。
+    questImplementation 'androidx.compose.foundation:foundation:1.7.8'
+    questImplementation 'androidx.compose.ui:ui:1.7.8'
     questImplementation 'androidx.media3:media3-exoplayer:1.4.1'
     questImplementation 'androidx.media3:media3-datasource:1.4.1'
 }
