@@ -1072,7 +1072,15 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 当前正在播（或正在打开）的媒体地址。
+  ///
+  /// 只在 [_beginCurrentMediaSourceOpen] 里写 —— 那是本控制器**所有** `player.open`
+  /// 的唯一收口点，所以这里不会漏掉任何一条播放路径（清晰度切换、无缝换源、
+  /// 本地文件、稍后再看续播都走它）。
+  String? currentMediaSource;
+
   int _beginCurrentMediaSourceOpen(String source) {
+    currentMediaSource = source;
     final String? scheme = Uri.tryParse(source)?.scheme.toLowerCase();
     _isCurrentMediaNetworkSource = scheme == 'http' || scheme == 'https';
     _isCurrentMediaSourceOpening = true;

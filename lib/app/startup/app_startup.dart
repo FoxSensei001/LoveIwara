@@ -36,6 +36,7 @@ import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
@@ -409,6 +410,9 @@ class AppStartupCoordinator implements AppStartupRunner {
       PlaybackHistoryService(),
     );
     // VR 片源格式的按视频手动覆盖：一张永不清理的小表，读写都在详情页里发生。
+    _registerDeferredSingleton<XrImmersiveService>(
+      XrImmersiveService(),
+    );
     _registerDeferredSingleton<VrFormatOverrideService>(
       VrFormatOverrideService(),
     );
