@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -70,13 +73,21 @@ class VideoSearchListState
         ? (screenWidth - 8) / 2
         : (screenWidth - 24) / 3;
 
-    final innerPlaylistContext = visibleItems.isEmpty
-        ? null
-        : InnerPlaylistContext.fromVideos(
-            source: InnerPlaylistSource.searchResultVideoList,
-            videos: visibleItems,
-            currentVideoId: item.id,
-          );
+    final innerPlaylistContext = InnerPlaylistContext.fromVideos(
+      source: InnerPlaylistSource.searchResultVideoList,
+      videos: visibleItems,
+      currentVideoId: item.id,
+      // 搜索也是一份"接口支持的列表"：把关键词与排序交出去，详情页的「接着看」
+      // 就能顺着同一次搜索一直翻，而不是只在当前可见的这几条里打转。
+      // 关键词是空的（还没搜）时不给——那时压根没有一份列表可接。
+      query: widget.query.trim().isEmpty
+          ? null
+          : MediaListQuery.searchResults(
+              mediaType: PlaybackMediaType.video,
+              keyword: widget.query.trim(),
+              sort: widget.sort,
+            ),
+    );
 
     return Obx(() {
       return Padding(
@@ -141,6 +152,30 @@ class ImageSearchListState
   @override
   IconData get emptyIcon => Icons.image_outlined;
 
+  /// 「接着看」的池引用：拿这一次搜索登记一个分页池，图库详情页只收两个字符串
+  /// （图库那条路没有 `innerPlaylistContext` 这个通道）。
+  PlaybackQueueRef? _queueRef(String galleryId) {
+    final keyword = widget.query.trim();
+    if (keyword.isEmpty) return null;
+    final seed = <InnerPlaylistItemSnapshot>[
+      for (final item in repository)
+        InnerPlaylistItemSnapshot.fromGallery(item),
+    ];
+    return PlaybackQueueRef(
+      queueId: PlaybackQueueService.to
+          .openRemoteList(
+            MediaListQuery.searchResults(
+              mediaType: PlaybackMediaType.gallery,
+              keyword: keyword,
+              sort: widget.sort,
+            ),
+            seed: seed,
+          )
+          .queueId,
+      currentItemId: galleryId,
+    );
+  }
+
   @override
   Widget buildListItem(BuildContext context, ImageModel image, int index) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -160,6 +195,7 @@ class ImageSearchListState
           isMultiSelectMode: widget.isMultiSelectMode,
           isSelected: widget.selectedItemIds.contains(image.id),
           onSelect: () => widget.onItemSelect?.call(image),
+          playbackQueueRefBuilder: _queueRef,
         ),
       );
     });

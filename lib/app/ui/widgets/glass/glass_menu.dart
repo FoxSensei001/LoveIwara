@@ -498,21 +498,35 @@ List<double> _entryTops(List<GlassMenuEntry> entries) {
 /// 每条的入场起点：按它在面板里的纵向位置折算——帘子扫到谁，谁才开始现身
 /// （Telegram `setBackScaleY` 里那套逐条点火）。翻到上方弹时帘子自下而上卷，
 /// 顺序跟着反过来。
+///
+/// ⛔ 帘子扫的是**看得见的那一屏**，不是整份内容。内容摆不下、静止位置又不在
+/// 顶上时（单选菜单会滚到当前选中项，见
+/// [_GlassMenuPanelState._initialScrollOffset]），按整份内容折算会让第一屏的
+/// 条目全挤在动画后半程才现身——读起来是"面板先空着撑开、内容最后才啪一下
+/// 全出来"。所以按 [scrollOffset] 平移、按 [viewportHeight] 归一。
+///
+/// 内容摆得下时 [scrollOffset] 恒为 0、[viewportHeight] 就是内容高度，与老
+/// 行为逐位相同。
 List<double> _entryRevealStarts(
   List<GlassMenuEntry> entries, {
   required bool flipped,
+  double scrollOffset = 0,
+  double? viewportHeight,
 }) {
   if (entries.isEmpty) return const <double>[];
   final List<double> tops = _entryTops(entries);
   final double total =
       tops.last + _entryHeight(entries.last) + _panelVerticalPadding;
   if (total <= 0) return List<double>.filled(entries.length, 0);
+  final double span = (viewportHeight != null && viewportHeight > 0)
+      ? viewportHeight
+      : total;
   final List<double> starts = <double>[];
   for (final double top in tops) {
-    // tops 是内容坐标，折算成整块面板里的位置要补回上留白。
-    final double y = top + _panelVerticalPadding / 2;
+    // tops 是内容坐标，折算成整块面板里的位置要补回上留白、减掉静止滚动量。
+    final double y = top + _panelVerticalPadding / 2 - scrollOffset;
     starts.add(
-      ((flipped ? total - y : y) / total).clamp(0.0, 1.0) * _entryRevealSpan,
+      ((flipped ? span - y : y) / span).clamp(0.0, 1.0) * _entryRevealSpan,
     );
   }
   return starts;
@@ -673,13 +687,23 @@ Size? _measureMenuPanelSize({
     }
   }
 
-  // 与 _GlassMenuLayout.getConstraintsForChild 用同一套公式算可用高度，
-  // 保证这里量出来的尺寸不会比真正落地时的约束更宽松。
+  // ⛔ 与 [_GlassMenuLayout.getConstraintsForChild] / [_opensUpward] 用**同一对
+  // 函数**算可用高度，不是"同一套公式各写一遍"。
+  //
+  // 各写一遍时 `a + (H - a - g - p) <= H - p` 这类等式在浮点下未必成立（差一个
+  // ulp），于是"下方正好装得下"会被判成"装不下"——方向判定与真正的落点当场
+  // 拧反（形变原点、逐条点火、静止滚动位置全反过来，见 [_opensUpward]）。
   final Size screen = MediaQuery.sizeOf(anchorContext);
   final EdgeInsets padding = MediaQuery.paddingOf(anchorContext);
-  final double belowSpace =
-      screen.height - anchorRect.bottom - _anchorGap - padding.bottom;
-  final double aboveSpace = anchorRect.top - _anchorGap - padding.top;
+  final double belowSpace = _spaceBelowAnchor(
+    anchorRect: anchorRect,
+    screenHeight: screen.height,
+    padding: padding,
+  );
+  final double aboveSpace = _spaceAboveAnchor(
+    anchorRect: anchorRect,
+    padding: padding,
+  );
   final double maxAvailableHeight = math.max(
     _rowHeight,
     math.max(belowSpace, aboveSpace),
@@ -712,6 +736,12 @@ Size? _measureMenuPanelSize({
 /// [priorityNearAnchor]：[entries] 是按**优先级从高到低**给的，面板翻到触发件
 /// 上方时整列倒过来排（见 [_orderNearAnchor]）。内容摆不下变成一条可滚的列表
 /// 时，静止的滚动位置也一并翻到底边，第一眼看到的仍旧是优先级最高的那条。
+///
+/// ⛔ 它说的是这张菜单的**意图**，不只是排序开关。不开它的菜单绝大多数是**单选
+/// 菜单**（一份固定顺序的清单 + 一个当前生效项：Anime4K 预设、清晰度、排序…），
+/// 内容摆不下时该做的是把**当前选中项**亮出来，而不是贴着触发件那一头
+/// （见 [_GlassMenuPanelState._initialScrollOffset]）。默认关是对的：带分组标题
+/// 或分隔线的菜单本来就不许开它。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
@@ -785,6 +815,7 @@ Future<T?> showGlassMenu<T>({
         to: navigator.context,
       ),
       handoff: handoff,
+      priorityNearAnchor: priorityNearAnchor,
     );
   }
 
@@ -804,6 +835,7 @@ Future<T?> showGlassMenu<T>({
     barrierLabel: MaterialLocalizations.of(
       anchorContext,
     ).modalBarrierDismissLabel,
+    priorityNearAnchor: priorityNearAnchor,
   );
   navigator.push(route);
   // ⛔ 交出结果的时机是 `completed`（出场动画跑完、路由已销毁），不是
@@ -845,6 +877,7 @@ Future<T?> _showGlassMenuOverlay<T>({
   required Size? precomputedSize,
   required CapturedThemes capturedThemes,
   required GlassPointerHandoffSession handoff,
+  required bool priorityNearAnchor,
 }) {
   final OverlayState? overlay = navigator.overlay;
   if (overlay == null) return Future<T?>.value();
@@ -862,6 +895,7 @@ Future<T?> _showGlassMenuOverlay<T>({
       precomputedSize: precomputedSize,
       capturedThemes: capturedThemes,
       handoff: handoff,
+      priorityNearAnchor: priorityNearAnchor,
       onClosed: (value) {
         entry.remove();
         entry.dispose();
@@ -889,6 +923,7 @@ Widget _buildGlassMenuBody<T>({
   required Size? precomputedSize,
   required CapturedThemes capturedThemes,
   required GlassPointerHandoffSession? handoff,
+  required bool priorityNearAnchor,
   required ValueChanged<T> onSelected,
   required VoidCallback onDismissed,
 }) {
@@ -920,6 +955,7 @@ Widget _buildGlassMenuBody<T>({
       panel: precomputedSize,
     ),
     flipped: flipped,
+    priorityNearAnchor: priorityNearAnchor,
   );
   return capturedThemes.wrap(
     LiquidGlassScope(
@@ -962,6 +998,7 @@ class _GlassMenuOverlayHost<T> extends StatefulWidget {
     required this.precomputedSize,
     required this.capturedThemes,
     required this.handoff,
+    required this.priorityNearAnchor,
     required this.onClosed,
   });
 
@@ -977,6 +1014,7 @@ class _GlassMenuOverlayHost<T> extends StatefulWidget {
   final Size? precomputedSize;
   final CapturedThemes capturedThemes;
   final GlassPointerHandoffSession handoff;
+  final bool priorityNearAnchor;
 
   /// 退场动画跑完之后回调，带上选中的值（没选就是 null）。
   final ValueChanged<T?> onClosed;
@@ -1069,6 +1107,7 @@ class _GlassMenuOverlayHostState<T> extends State<_GlassMenuOverlayHost<T>>
           precomputedSize: widget.precomputedSize,
           capturedThemes: widget.capturedThemes,
           handoff: widget.handoff,
+          priorityNearAnchor: widget.priorityNearAnchor,
           onSelected: _close,
           onDismissed: () => _close(null),
         ),
@@ -1102,6 +1141,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     required this.precomputedSize,
     required this.capturedThemes,
     required this.barrierLabel,
+    required this.priorityNearAnchor,
     this.handoff,
   });
 
@@ -1124,6 +1164,10 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
   /// 量，出入场的起手缩放要用（见 [_revealBeginScale]）。
   final Size? precomputedSize;
   final CapturedThemes capturedThemes;
+
+  /// 这是一张优先级菜单（[showGlassMenu] 的同名参数）。内容摆不下时的静止滚动
+  /// 位置按它分档，见 [_GlassMenuPanelState._initialScrollOffset]。
+  final bool priorityNearAnchor;
 
   @override
   final String barrierLabel;
@@ -1159,6 +1203,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
       precomputedSize: precomputedSize,
       capturedThemes: capturedThemes,
       handoff: handoff,
+      priorityNearAnchor: priorityNearAnchor,
       onSelected: (value) => Navigator.of(context).pop(value),
       onDismissed: () => Navigator.of(context).pop(),
     );
@@ -1215,17 +1260,52 @@ List<GlassMenuEntry> _orderNearAnchor({
   return flipped ? entries.reversed.toList() : entries;
 }
 
+/// 面板下方剩下的高度（[_GlassMenuLayout.getConstraintsForChild] 用的同一条）。
+double _spaceBelowAnchor({
+  required Rect anchorRect,
+  required double screenHeight,
+  required EdgeInsets padding,
+}) => screenHeight - anchorRect.bottom - _anchorGap - padding.bottom;
+
+/// 面板上方剩下的高度。
+double _spaceAboveAnchor({
+  required Rect anchorRect,
+  required EdgeInsets padding,
+}) => anchorRect.top - _anchorGap - padding.top;
+
+/// 朝上弹还是朝下弹。
+///
+/// ⛔ **两边都摆不下时选宽敞的那一侧**，而不是无脑「下方摆不下就翻上去」。
+///
+/// 后者在"触发件贴着屏幕顶、菜单又很长"这个组合下会整个拧反（播放器顶栏那枚
+/// Anime4K 键是典型：几十行预设，横屏时上方只剩几十个像素）。判定说「翻到上方」
+/// ——于是形变原点落在面板**底边**、逐条点火自下而上、可滚内容还停在**底部**；
+/// 而 [_GlassMenuLayout] 拿到的是被约束**夹过**的高度，算出来的却是"下方装得下"，
+/// 面板照旧落在按钮下方。用户看到的就是「从屏幕右下角朝左上角展开、开出来第一眼
+/// 是列表最后一组」（2026-08-29 用户报的）。
+///
+/// 现在两处共用这一条，且判据与约束同源：下方装得下就朝下；装不下但上方装得下
+/// 就朝上；两边都装不下时选剩余高度大的一侧——正是约束
+/// `max(belowSpace, aboveSpace)` 会把面板夹到的那一侧。
 bool _opensUpward({
   required Rect anchorRect,
   required double screenHeight,
   required EdgeInsets padding,
   required double? panelHeight,
 }) {
-  final double belowTop = anchorRect.bottom + _anchorGap;
+  final double belowSpace = _spaceBelowAnchor(
+    anchorRect: anchorRect,
+    screenHeight: screenHeight,
+    padding: padding,
+  );
+  final double aboveSpace = _spaceAboveAnchor(
+    anchorRect: anchorRect,
+    padding: padding,
+  );
   final double effectiveHeight = panelHeight ?? (_rowHeight * 3);
-  final bool fitsBelow =
-      belowTop + effectiveHeight <= screenHeight - padding.bottom;
-  return !fitsBelow;
+  if (effectiveHeight <= belowSpace) return false;
+  if (effectiveHeight <= aboveSpace) return true;
+  return aboveSpace > belowSpace;
 }
 
 /// 面板落点：触发件正下方、左对齐、夹进屏幕；下方摆不下就翻到上方。
@@ -1244,9 +1324,15 @@ class _GlassMenuLayout extends SingleChildLayoutDelegate {
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    final double belowSpace =
-        constraints.maxHeight - anchorRect.bottom - _anchorGap - padding.bottom;
-    final double aboveSpace = anchorRect.top - _anchorGap - padding.top;
+    final double belowSpace = _spaceBelowAnchor(
+      anchorRect: anchorRect,
+      screenHeight: constraints.maxHeight,
+      padding: padding,
+    );
+    final double aboveSpace = _spaceAboveAnchor(
+      anchorRect: anchorRect,
+      padding: padding,
+    );
     // 面板最高只能吃掉它那一侧的可用高度——超了就在面板内部滚，而不是
     // 整块板越到屏幕外面去。
     final double maxHeight = math.max(
@@ -1269,15 +1355,21 @@ class _GlassMenuLayout extends SingleChildLayoutDelegate {
       math.max(_screenMargin, size.width - childSize.width - _screenMargin),
     );
 
-    final double belowTop = anchorRect.bottom + _anchorGap;
-    final bool fitsBelow =
-        belowTop + childSize.height <= size.height - padding.bottom;
-    final double y = fitsBelow
-        ? belowTop
-        : math.max(
+    // ⛔ 与 [_buildGlassMenuBody] 判方向用的是**同一条** [_opensUpward]：
+    // 两处各写一遍的话，形变原点/逐条点火/静止滚动位置会和真正的落点方向拧反
+    // （见 [_opensUpward] 里那段说明）。
+    final bool flipped = _opensUpward(
+      anchorRect: anchorRect,
+      screenHeight: size.height,
+      padding: padding,
+      panelHeight: childSize.height,
+    );
+    final double y = flipped
+        ? math.max(
             padding.top + _screenMargin,
             anchorRect.top - _anchorGap - childSize.height,
-          );
+          )
+        : anchorRect.bottom + _anchorGap;
     return Offset(x, y);
   }
 
@@ -1310,6 +1402,7 @@ class _GlassMenuPanel<T> extends StatefulWidget {
     required this.revealOrigin,
     required this.revealBeginScale,
     required this.flipped,
+    this.priorityNearAnchor = false,
     this.touchFlex = false,
     this.precomputedSize,
     this.handoff,
@@ -1336,9 +1429,12 @@ class _GlassMenuPanel<T> extends StatefulWidget {
   /// 入场起手的横 / 纵向缩放（见 [_revealBeginScale]）。
   final Offset revealBeginScale;
 
-  /// 面板是否翻到了触发件上方：帘子改成自下而上卷，条目也倒着现身，内容滚得
-  /// 动时静止位置也跟着停在底边（见 [build] 里 `reverse` 那段）。
+  /// 面板是否翻到了触发件上方：帘子改成自下而上卷，条目也倒着现身。
   final bool flipped;
+
+  /// 这是一张**优先级菜单**（[showGlassMenu] 的同名参数）。只影响内容摆不下时
+  /// 的静止滚动位置，见 [_GlassMenuPanelState._initialScrollOffset]。
+  final bool priorityNearAnchor;
 
   @override
   State<_GlassMenuPanel<T>> createState() => _GlassMenuPanelState<T>();
@@ -1357,7 +1453,62 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   /// 内容的滚动位置。既用来实测面板滚不滚得动（[_isScrollable]），也是
   /// [_entryAt] 的坐标基准——[Listener] 挂在滚动内容**里面**，拿到的
   /// `localPosition` 天然就是内容坐标，不用再减一次 offset。
-  final ScrollController _scroll = ScrollController();
+  ///
+  /// 静止位置由 [_initialScrollOffset] 静态算好喂给它：内容摆不下时第一眼该看到
+  /// 哪一段，是**按菜单的意图**分的，见那个函数。
+  late final ScrollController _scroll = ScrollController(
+    initialScrollOffset: _restingScrollOffset,
+  );
+
+  /// 静止的滚动位置。出入场的逐条点火也要读它（[_entryRevealStarts]）。
+  late final double _restingScrollOffset = _initialScrollOffset();
+
+  /// 内容摆不下时，静止的滚动位置该停在哪儿。
+  ///
+  /// # ⛔ 这里要分菜单的**意图**，不能一律按「贴着触发件的那一头」
+  ///
+  /// 「贴着触发件那一头」只对**优先级菜单**（[showGlassMenu] 的
+  /// `priorityNearAnchor`：卡片三点菜单、搜索模式）成立——那种菜单的条目是按
+  /// 优先级给的，整列会跟着弹出方向倒过来排，滚动位置当然要跟着翻，否则第一眼
+  /// 撞见的是优先级最低的一条。
+  ///
+  /// 但绝大多数菜单是**单选菜单**：一份固定顺序的清单 + 一个当前生效项
+  /// （Anime4K 预设、清晰度、排序、播放列表…）。把这条规矩套上去，用户点开
+  /// 「Anime4K」看到的是最后一组预设，而他正用着的那一档被卷在看不见的地方
+  /// （2026-08-29 用户报的）。这种菜单该做的是**把当前选中项亮出来**。
+  ///
+  /// 两种意图各自的静止位置：
+  ///   - 优先级菜单朝上弹 → 停在底边（等价于原来的 `reverse: true`）；
+  ///   - 其余 → 有选中项就把它滚进视野（尽量居中，两端夹住）；没有就停在顶上。
+  ///
+  /// 静态算而不是「建完第一帧再 jumpTo」：后者会实打实地画一帧再跳，正好撞在
+  /// 卷开动画的头几帧上，读起来是列表自己抖了一下。
+  double _initialScrollOffset() {
+    final Size? panel = widget.precomputedSize;
+    if (panel == null) return 0;
+    final double viewport = panel.height - _panelVerticalPadding;
+    if (viewport <= 0) return 0;
+
+    final List<double> tops = _entryTops(widget.entries);
+    if (tops.isEmpty) return 0;
+    final double content = tops.last + _entryHeight(widget.entries.last);
+    final double maxOffset = content - viewport;
+    if (maxOffset <= 0) return 0;
+
+    if (widget.priorityNearAnchor) {
+      return widget.flipped ? maxOffset : 0;
+    }
+
+    final int index = widget.entries.indexWhere(
+      (entry) => entry is GlassMenuOption && entry.selected,
+    );
+    if (index < 0) return 0;
+    final double rowTop = tops[index];
+    final double rowHeight = _entryHeight(widget.entries[index]);
+    // 居中，再夹进可滚区间。选中项本来就在视野里时这一夹会把它留在原处附近，
+    // 不会为了"居中"把列表推得离顶很远。
+    return (rowTop + rowHeight / 2 - viewport / 2).clamp(0.0, maxOffset);
+  }
 
   /// 内容层的 key，用来读它的实际宽度（[_contentWidth]）。
   final GlobalKey _contentKey = GlobalKey();
@@ -1727,6 +1878,10 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     final List<double> starts = _entryRevealStarts(
       widget.entries,
       flipped: widget.flipped,
+      scrollOffset: _restingScrollOffset,
+      viewportHeight: widget.precomputedSize == null
+          ? null
+          : widget.precomputedSize!.height - _panelVerticalPadding,
     );
     final double shift = widget.flipped
         ? _entryRevealShift
@@ -1790,23 +1945,16 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       child: IntrinsicWidth(
         child: SingleChildScrollView(
           controller: _scroll,
-          // ⭐ 静止位置永远停在**贴着触发件的那一头**：面板在下方展开时是顶边
-          // （offset 0，原样），翻到上方时是底边。内容摆不下变成一条可滚的列表
-          // 之后，「最近的那条先被看到」这条规矩不能只由排序（
-          // [_orderNearAnchor]）负责——排序把最该先看的一条放到了列头/列尾，
-          // 滚动位置却还停在顶上，朝上弹时第一眼看到的就成了优先级最低的那条
-          // （媒体卡片菜单：手指在下方、眼睛先撞上「分享」，「稍后再看」被卷在
-          // 看不见的下面）。
+          // ⭐ 静止的滚动位置由 [_initialScrollOffset] 静态算好塞进
+          // [ScrollController]（**按菜单的意图**分档，见那个函数）。
           //
-          // 用 `reverse` 而不是「建完第一帧再 jumpTo(maxScrollExtent)」：后者
-          // 会实打实地画一帧顶部内容再跳，正好撞在卷开动画的头几帧上，读起来
-          // 是列表自己抖了一下。reverse 只是把 offset 0 的定义换到另一头，
-          // 第一帧就位；[SingleChildScrollView] 的 child 是整块 [Column]，
-          // 它的排版顺序不受影响（这点与 [ListView] 不同），所以行序仍旧只由
-          // [_orderNearAnchor] 说了算。
+          // ⛔ 这里曾经是 `reverse: widget.flipped`——「静止位置永远停在贴着触
+          // 发件的那一头」。那条规矩只对优先级菜单成立，套在单选菜单上就成了
+          // 「点开 Anime4K 第一眼是最后一组预设」（2026-08-29 用户报的）。
+          // 换成显式 offset 之后两种意图各走各的，而且同样是**第一帧就位**、
+          // 不会像「建完再 jumpTo」那样在卷开动画头几帧上抖一下。
           //
-          // 内容摆得下时两者等价：视口高度就是内容高度，贴哪头都在原地。
-          reverse: widget.flipped,
+          // 内容摆得下时 offset 恒为 0：视口高度就是内容高度，本来也滚不动。
           // 钉死 clamping，不跟平台走。iOS 默认的 BouncingScrollPhysics 把
           // `shouldAcceptUserOffset` 恒真，内容明明摆得下也照样吃掉纵向拖拽
           // ——滑动取焦会一边换焦点、一边把内容拽出橡皮筋。clamping 在内容

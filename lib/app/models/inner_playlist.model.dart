@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 
 /// 一个池（以及池里的条目）装的是什么。
@@ -179,10 +180,20 @@ class InnerPlaylistContext {
   final List<InnerPlaylistItemSnapshot> items;
   final String currentVideoId;
 
+  /// 这份列表**是怎么查出来的**（接口 + 参数）。给得出来的列表页才有。
+  ///
+  /// 有它，详情页的「来源」池就不再是一份到底就没了的快照，而是能顺着同一份
+  /// 查询一直翻下去（见 `RemoteListPlaybackQueue`）；[items] 那时只当种子用。
+  ///
+  /// ⛔ 给了它就**不再抽样**（见 [_limitItems]）：种子必须是列表的自然顺序，
+  /// 打乱之后池接着翻回来的原序和前半截对不上。
+  final MediaListQuery? query;
+
   const InnerPlaylistContext({
     required this.source,
     required this.items,
     required this.currentVideoId,
+    this.query,
   });
 
   factory InnerPlaylistContext.fromVideos({
@@ -190,6 +201,7 @@ class InnerPlaylistContext {
     required Iterable<Video> videos,
     required String currentVideoId,
     int maxItems = maxPlaylistItems,
+    MediaListQuery? query,
   }) {
     final seen = <String>{};
     final items = <InnerPlaylistItemSnapshot>[];
@@ -205,16 +217,22 @@ class InnerPlaylistContext {
       items.add(InnerPlaylistItemSnapshot.fromVideo(video));
     }
 
-    final limitedItems = _limitItems(
-      items,
-      currentVideoId: currentVideoId,
-      maxItems: effectiveMaxItems,
-    );
+    // ⛔ 带查询的列表**不抽样**：那份 items 是分页池的种子，顺序必须是列表的
+    // 自然顺序（见 [query]）。翻不完的问题交给池自己翻，不再靠"随机留 100 条"
+    // 凑一份看着够用的清单。
+    final limitedItems = query != null
+        ? items
+        : _limitItems(
+            items,
+            currentVideoId: currentVideoId,
+            maxItems: effectiveMaxItems,
+          );
 
     return InnerPlaylistContext(
       source: source,
       items: List<InnerPlaylistItemSnapshot>.unmodifiable(limitedItems),
       currentVideoId: currentVideoId,
+      query: query,
     );
   }
 
@@ -222,11 +240,13 @@ class InnerPlaylistContext {
     InnerPlaylistSource? source,
     List<InnerPlaylistItemSnapshot>? items,
     String? currentVideoId,
+    MediaListQuery? query,
   }) {
     return InnerPlaylistContext(
       source: source ?? this.source,
       items: items ?? this.items,
       currentVideoId: currentVideoId ?? this.currentVideoId,
+      query: query ?? this.query,
     );
   }
 
@@ -305,6 +325,7 @@ class InnerPlaylistContext {
       source: source,
       items: List<InnerPlaylistItemSnapshot>.unmodifiable(reordered),
       currentVideoId: normalizedSelectedId,
+      query: query,
     );
   }
 

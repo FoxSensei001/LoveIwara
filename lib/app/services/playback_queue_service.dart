@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
@@ -8,8 +9,10 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
+import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
+import 'package:i_iwara/app/services/search_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
 
 /// 视频池的登记处。
@@ -34,12 +37,12 @@ class PlaybackQueueService extends GetxService {
 
   /// 同时留几个池。
   ///
-  /// 视频抽屉能开出七种（来源 / 播放列表 / 作者作品 / 最爱 / 稍后再看 /
-  /// 本地收藏夹 / 已下载），图库抽屉另有五种（来源 / 最爱 / 本地收藏夹 /
+  /// 视频抽屉能开出八种（来源 / 订阅 / 播放列表 / 作者作品 / 最爱 / 稍后再看 /
+  /// 本地收藏夹 / 已下载），图库抽屉另有六种（来源 / 订阅 / 最爱 / 本地收藏夹 /
   /// 稍后再看 / 作者的图库），再加上 `详情页1 → 作者页 → 详情页2` 回退时要
-  /// 命中的那一个。10 是"在视频与图库之间来回逛也不至于把刚看过的池挤掉"的量。
+  /// 命中的那一个。12 是"在视频与图库之间来回逛也不至于把刚看过的池挤掉"的量。
   /// 真超了也只淘汰**没人听**的（见 [_evictIfNeeded]）。
-  static const int _maxQueues = 10;
+  static const int _maxQueues = 12;
 
   // ---- queueId 的拼法收在这里 ----
   //
@@ -67,6 +70,18 @@ class PlaybackQueueService extends GetxService {
   }) => 'localFavorite:$folderId${_suffix(mediaType)}';
 
   static String playlistQueueId(String playlistId) => 'playlist:$playlistId';
+
+  /// 接口列表池（「来源」的分页版，见 [RemoteListPlaybackQueue]）。
+  ///
+  /// ⛔ 身份**只由查询本身决定**，不带页面实例、不带 ownerKey：同一份查询就是
+  /// 同一个池，从热门页点进去、返回、再点另一条，命中的是同一个池，连带翻到
+  /// 第几页一起复用。这正是快照池做不到而它能做到的事。
+  static String remoteListQueueId(MediaListQuery query) =>
+      'remoteList:${query.signature}';
+
+  static String subscriptionsQueueId([
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+  ]) => 'subscriptions${_suffix(mediaType)}';
 
   static String authorMediaQueueId(
     String userId, {
@@ -101,6 +116,53 @@ class PlaybackQueueService extends GetxService {
     }
     return _register(
       SourcePlaybackQueue(queueId: id, context: context, mediaType: mediaType),
+    );
+  }
+
+  /// 接口列表池：拿列表页那份查询接着往下翻（见 [RemoteListPlaybackQueue]）。
+  ///
+  /// [seed] 是列表页**已经加载出来**的那些条目，按自然顺序传进来；命中缓存时
+  /// 不再重种——池自己翻到的那份比种子新，重种会把游标推回去。
+  RemoteListPlaybackQueue openRemoteList(
+    MediaListQuery query, {
+    List<InnerPlaylistItemSnapshot> seed = const [],
+    String? title,
+    PlaybackQueueKind kind = PlaybackQueueKind.source,
+    String? queueId,
+  }) {
+    final id = queueId ?? remoteListQueueId(query);
+    final existing = _queues[id];
+    if (existing is RemoteListPlaybackQueue) {
+      _touch(id);
+      return existing;
+    }
+    return _register(
+      RemoteListPlaybackQueue(
+        queueId: id,
+        query: query,
+        videoService: Get.find<VideoService>(),
+        galleryService: Get.find<GalleryService>(),
+        searchService: Get.find<SearchService>(),
+        kind: kind,
+        title: title,
+        seed: seed,
+      ),
+    );
+  }
+
+  /// 订阅动态池（已关注作者的全部作品）。
+  ///
+  /// ⛔ **未登录时返回 null**：`subscribed=true` 在未登录时会被服务端**静默忽略**
+  /// （这个仓库踩过，见 `iwara-list-filter-params` 那条），返回的是全站内容——
+  /// 摆一条点进去是"全站热门"的「订阅」比不摆糟得多。
+  RemoteListPlaybackQueue? openSubscriptions({
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+  }) {
+    if (Get.find<UserService>().currentUser.value == null) return null;
+    return openRemoteList(
+      MediaListQuery.subscriptions(mediaType: mediaType),
+      kind: PlaybackQueueKind.subscriptions,
+      queueId: subscriptionsQueueId(mediaType),
     );
   }
 

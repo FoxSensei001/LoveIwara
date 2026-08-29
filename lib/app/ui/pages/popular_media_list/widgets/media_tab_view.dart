@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
@@ -37,6 +38,10 @@ class MediaTabView<T> extends StatefulWidget {
   })?
   onOpenVideo;
 
+  /// 图库卡片的「接着看」池引用。列表页把自己那份查询登记成一个分页池，
+  /// 详情页只拿两个字符串（见 `MediaListQuery` / `PlaybackQueueRef`）。
+  final PlaybackQueueRef? Function(String galleryId)? playbackQueueRefBuilder;
+
   const MediaTabView({
     super.key,
     required this.sortId,
@@ -52,6 +57,7 @@ class MediaTabView<T> extends StatefulWidget {
     this.onItemSelect,
     this.onPageChanged,
     this.onOpenVideo,
+    this.playbackQueueRefBuilder,
   });
 
   @override
@@ -169,6 +175,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         onSelect: widget.onItemSelect != null
             ? () => widget.onItemSelect!(imageModel)
             : null,
+        playbackQueueRefBuilder: widget.playbackQueueRefBuilder,
       );
     }
     throw Exception('Unsupported type: $T');

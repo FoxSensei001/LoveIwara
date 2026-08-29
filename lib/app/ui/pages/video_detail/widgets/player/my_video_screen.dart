@@ -1044,8 +1044,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               _buildPlayerNotice(screenSize, paddingTop),
             // 手势监听区域（抽取后减少整体重绘）
             if (showPlaybackChrome) ..._buildGestureAreas(screenSize),
-            // 工具栏部分
-            if (showPlaybackChrome) ..._buildToolbars(),
             // 双击波纹动画等效果
             if (showPlaybackChrome) _buildRippleEffects(screenSize, maxRadius),
             // 中央控制面板，比如播放/暂停按钮
@@ -1055,6 +1053,21 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               playPauseIconSize,
               bufferingSize,
             ),
+            // ⛔ 工具栏必须排在**中央控制面板之后**。
+            //
+            // 续播提示（`ResumePositionTip`，那条带「从头播放 / 知道了」的胶囊）
+            // 住在底栏的 Column 里（几何唯一真相是
+            // [bottomToolbarEstimatedHeight]，见那边的说明），而中央那枚播放/
+            // 暂停按钮是一层 `Positioned.fill`——播放器一矮（竖屏内联、分屏、
+            // 折叠），两者的矩形就叠上了。工具栏排在前面时，后来的中央按钮既
+            // 画在提示上面、又先被命中测试，于是提示被压掉一角、「知道了」还
+            // 点不动。提示是**有时限**的一次性告知，优先级本来就该压过一枚
+            // 常驻按钮，所以整条 chrome 排到中央面板后面去。
+            //
+            // 顺带把源错误浮层（也在中央面板那一层）挪到工具栏底下——它一直
+            // 靠 `Padding(bottom: reserved)` 给播放条让位，现在层序本身也保证
+            // 它吃不掉播放条的点击（issue #110 那类问题的机制性兜底）。
+            if (showPlaybackChrome) ..._buildToolbars(),
             if (controller.shouldShowLoadingBackButton)
               _buildLoadingBackButton(),
             // InfoMessage 提示区域
