@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  quest 变体独有的 manifest 片段。**只在 quest 变体参与合并**，standard 包的合并
+  结果一个字节都不受影响（这正是把 Spatial SDK 关进 flavor 的意义）。
+
+  这里不重复声明 application 的属性，也不声明 MainActivity —— 那些都在
+  src/main 里，合并时以 main 为底、本文件只做增量。
+-->
+<manifest
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:horizonos="http://schemas.horizonos/sdk">
+
+  <!-- Horizon OS 的 SDK 版本声明。hybrid app（既有 2D 面板又能进沉浸式）要求 v69+，
+       实测机器是 v207，余量很大。 -->
+  <horizonos:uses-horizonos-sdk
+    horizonos:minSdkVersion="69"
+    horizonos:targetSdkVersion="69" />
+
+  <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
+  <uses-feature android:glEsVersion="0x00030001" />
+
+  <application>
+    <meta-data android:name="com.oculus.supportedDevices" android:value="all" />
+    <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
+
+    <!-- 沉浸式播放 Activity。与 Flutter 的 MainActivity **同进程**（没有
+         android:process 属性），这正是本期要验证的那件事：Spatial SDK 的
+         渲染栈和一个活着的 Flutter 引擎共处一个进程会怎样。 -->
+    <activity
+      android:name="m.c.g.a.i_iwara.vr.ImmersiveActivity"
+      android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+      android:launchMode="singleTask"
+      android:excludeFromRecents="false"
+      android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="com.oculus.intent.category.VR" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

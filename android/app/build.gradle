@@ -4,6 +4,16 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+// Meta Spatial SDK 的 gradle 插件：从 SDK 的 aar 里生成 ECS 组件定义。
+// 走 legacy apply 是因为 classpath 上那条 kotlin-compiler-embeddable 的 exclude
+// 只能写在 root 的 buildscript 里（见 android/build.gradle 头部）。
+//
+// ⚠️ 它应用在整个 :app 模块上（gradle 插件没有 per-flavor 的应用方式），
+// 但 SDK 依赖只挂 questImplementation，所以 standard 变体没有任何 aar 可供它
+// 生成组件。**这一点必须用 APK 内容清单实测确认，不能想当然** —— 验收方式见
+// docs/xr-video-presentation.md §6.4。
+apply plugin: "com.meta.spatial.plugin"
+
 android {
     namespace = "m.c.g.a.i_iwara"
     compileSdk = flutter.compileSdkVersion
@@ -53,6 +63,36 @@ android {
         }
     }
 
+    // ── 产物维度：普通安卓包 vs Quest 包 ──────────────────────────────────────
+    //
+    // ⛔ 一旦定义了任何 productFlavor，AGP 就**不再存在「不带 flavor」的变体**。
+    // 所以 `standard` 不是可选的补充，它是原来那个包本身 —— 少了它，普通安卓包
+    // 直接消失，CI 里那条裸的 `flutter build apk --release` 也会当场失败
+    // （已同步改成 --flavor standard，见 .github/workflows/build.yml）。
+    //
+    // 这个维度存在的唯一理由是硬约束 C1：Spatial SDK 单个 .so 就 48.7MB 且要求
+    // minSdk 34，打进主包等于砍掉全部 minSdk 24 的存量用户。所以它只能进 quest
+    // 源集 + questImplementation，standard 包必须字节不变。
+    flavorDimensions "platform"
+
+    productFlavors {
+        standard {
+            dimension "platform"
+            // 刻意**什么都不覆盖**：完整继承 defaultConfig（minSdk 24、全 ABI）。
+            // 这里每加一行，都是在给「standard 包零增重」这条约束开口子。
+        }
+        quest {
+            dimension "platform"
+            // Meta Spatial SDK 的硬性要求。只在本 flavor 内抬升，
+            // defaultConfig 的 24 不受影响。
+            minSdk 34
+            // ⛔ 必须有。下面的 splits.abi 是**全局**的，不写这句会给 quest 也
+            // 生成 v7a / x86_64 包，而那些包里没有 arm64-only 的 Spatial .so，
+            // 装上即崩。abiFilters 与 splits 取交集，于是 quest 只出 arm64。
+            ndk { abiFilters 'arm64-v8a' }
+        }
+    }
+
     splits {
         abi {
             enable true
@@ -80,10 +120,48 @@ android {
     }
 }
 
+// ⛔ 掐掉 quest 变体里那两个**注定装上就崩**的 ABI 产物。
+//
+// 实测（2026-08-29）：光在 productFlavor 里写 `ndk { abiFilters 'arm64-v8a' }`
+// **不够** —— splits.abi 是全局的，它照样会产出
+// `app-armeabi-v7a-quest-*.apk` 与 `app-x86_64-quest-*.apk`。
+// 那两个包里各有 5 个自己那套 ABI 的 .so，却**一个 Spatial 的 .so 都没有**
+// （libMetaSpatialSDK 只发 arm64），装上去一进沉浸式就 UnsatisfiedLinkError。
+// 文档 §6.4 原来只写了 abiFilters，那条修法被本次实测证伪，已同步更正。
+//
+// 这里用新版 Variant API 直接把非 arm64 的产物关掉：quest 只留 arm64-v8a 与
+// universal（universal 含 arm64，在 Quest 上可用）。standard 变体不受影响。
+androidComponents {
+    onVariants(selector().withFlavor("platform", "quest")) { variant ->
+        variant.outputs.each { output ->
+            def abi = output.filters.find { it.filterType.name() == "ABI" }?.identifier
+            if (abi != null && abi != "arm64-v8a") {
+                output.enabled.set(false)
+            }
+        }
+    }
+}
+
 dependencies {
     implementation 'com.google.errorprone:error_prone_annotations:2.10.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+
+    // ── Quest 专属：Meta Spatial SDK + ExoPlayer ──────────────────────────────
+    //
+    // ⛔ 必须是 questImplementation，绝不能是 implementation。
+    // libMetaSpatialSDK.so 单个就 48.7MB（arm64 only）且 SDK 要求 minSdk 34；
+    // 一旦落进 standard 变体，就等于把普通安卓包撑大 48MB 并砍掉全部
+    // minSdk 24 的存量用户（硬约束 C1）。
+    //
+    // 沉浸态必须用 ExoPlayer 而不是 libmpv：mpv 渲不到 Spatial 能绑的 Surface。
+    // 代价是 VR 态拿不到 Anime4K / 色觉滤镜 / 字幕，且 mpv 能放的冷门编码
+    // ExoPlayer 未必能放 —— 那是功能期要处理的兜底，不影响本期闸门。
+    questImplementation 'com.meta.spatial:meta-spatial-sdk:0.13.2'
+    questImplementation 'com.meta.spatial:meta-spatial-sdk-toolkit:0.13.2'
+    questImplementation 'com.meta.spatial:meta-spatial-sdk-vr:0.13.2'
+    questImplementation 'androidx.media3:media3-exoplayer:1.4.1'
+    questImplementation 'androidx.media3:media3-datasource:1.4.1'
 }
 
 flutter {

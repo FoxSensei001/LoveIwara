@@ -1,3 +1,31 @@
+// ⛔ 这个 buildscript 块只为一件事存在：Meta Spatial SDK 的 gradle 插件。
+//
+// 它会把 `kotlin-compiler-embeddable`（2.1.x）拖进**构建类路径**，和本项目的
+// KGP（settings.gradle 里锁的 2.3.20）自带的编译器打架 ——
+// 症状是 K2JVMCompilerArguments 的方法签名对不上，Kotlin 编译整个起不来。
+// 唯一稳妥的修法是在 classpath 上直接排除它（spike 里已验证过这条）。
+//
+// 插件本身走 legacy 的 buildscript + apply plugin，而不是 settings.gradle 的
+// plugins DSL：exclude 只能作用在 buildscript 的 classpath 配置上，
+// 用 plugins DSL 就够不着这个口子。
+buildscript {
+    repositories {
+        if (System.getenv("CI") != "true") {
+            maven { url 'https://maven.aliyun.com/repository/google' }
+            maven { url 'https://maven.aliyun.com/repository/public' }
+        }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "com.meta.spatial.plugin:com.meta.spatial.plugin.gradle.plugin:0.13.2"
+    }
+    configurations.classpath {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-compiler-embeddable"
+    }
+}
+
 allprojects {
     repositories {
         // CI（GitHub Actions 等境外环境）跳过阿里云镜像，直接用官方源。
