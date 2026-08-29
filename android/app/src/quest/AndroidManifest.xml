@@ -19,17 +19,70 @@
   <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
   <uses-feature android:glEsVersion="0x00030001" />
 
+  <!-- ── 纯手势沉浸体验（2026-08-29 用户定的方向）────────────────────────────────
+       目标是不拿手柄也能完整使用沉浸态。
+
+       ⭐ 这几行同时解掉一个实际拦路石：不声明手部追踪时，Horizon OS 的
+       `RequiresControllersLaunchInterceptor` 会**直接拦下沉浸式 Activity**，
+       弹 `common_system_dialog_app_launch_blocked_controller_required`，
+       而 `am start` 照样返回 result code=0（看起来成功，其实进程根本没起）。
+
+       required="false"：手柄与手势都支持，不做二选一。若哪天要做「只支持手势」
+       才改成 true —— 那会让商店按能力过滤设备，是产品决定不是技术决定。 -->
+  <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+  <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+
   <application>
-    <meta-data android:name="com.oculus.supportedDevices" android:value="all" />
+    <!-- ⛔ 只能填官方罐头值（quest / quest2 / questpro / quest3 / quest3s，竖线分隔）。
+         这里原来写的 `all` 是我编的：它不在官方表内，还会让 Android Studio 的 Meta
+         插件兼容性检查失效。初代 quest 不在列 —— 它的 Horizon OS 上不去 v69。 -->
+    <meta-data
+      android:name="com.oculus.supportedDevices"
+      android:value="quest2|questpro|quest3|quest3s" />
     <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
+
+    <!-- 手部追踪的采样率与版本。HIGH 给的是更跟手的手部姿态（代价是功耗），
+         对「捏合拖进度条」这种连续手势是必要的；V2.0 是当前的手部骨架版本。 -->
+    <meta-data android:name="com.oculus.handtracking.frequency" android:value="HIGH" />
+    <meta-data android:name="com.oculus.handtracking.version" android:value="V2.0" />
+
+    <!-- ── 2D 面板形态的 MainActivity（增量声明，不重复 src/main 里的属性）─────────
+         ⭐ `<layout>` 是「Quest 上默认面板只有 ~400dp 宽、按手机窄屏排版、顶栏钮挤不下」
+         的**官方解法**（hybrid-apps-overview「Set a default and minimum panel size」）。
+         数值取官方建议：默认 1024×640dp、最小 384×500dp。
+         sw 从 ~400dp 抬到 640dp 之后应用会被判成平板宽屏，顺带也是记忆里
+         `quest-panel-width-locked-orientation` 那条老 bug 的正解。
+         ⚠️ 官方要求「在最小 / 默认 / 最大三档尺寸下都测一遍布局」。
+
+         `com.oculus.intent.category.2D`：官方措辞是 **must** —— 每个 Activity 都要
+         声明自己是面板还是沉浸式。
+         ⚠️ manifest 合并器没有「往已存在的 intent-filter 里插一个 category」的写法，
+         所以这里是**另加一条** filter，合并后 MainActivity 会有两条 MAIN/LAUNCHER。
+         同一 component 在启动器里只会出现一个图标，不会变成两个。 -->
+    <activity android:name="m.c.g.a.i_iwara.MainActivity">
+      <layout
+        android:defaultWidth="1024dp"
+        android:defaultHeight="640dp"
+        android:minWidth="384dp"
+        android:minHeight="500dp" />
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="com.oculus.intent.category.2D" />
+      </intent-filter>
+    </activity>
 
     <!-- 沉浸式播放 Activity。与 Flutter 的 MainActivity **同进程**（没有
          android:process 属性），这正是本期要验证的那件事：Spatial SDK 的
-         渲染栈和一个活着的 Flutter 引擎共处一个进程会怎样。 -->
+         渲染栈和一个活着的 Flutter 引擎共处一个进程会怎样。
+
+         screenOrientation=landscape：官方两页样本都写了。结合本项目的方向前科
+         （大屏被系统忽略方向请求），这条宁可显式声明。 -->
     <activity
       android:name="m.c.g.a.i_iwara.vr.ImmersiveActivity"
       android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
       android:launchMode="singleTask"
+      android:screenOrientation="landscape"
       android:excludeFromRecents="false"
       android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode"
       android:exported="true">

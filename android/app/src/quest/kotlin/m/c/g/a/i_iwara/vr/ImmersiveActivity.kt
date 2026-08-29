@@ -86,6 +86,15 @@ class ImmersiveActivity : AppSystemActivity() {
     private var argWidth: Int = 4096
     private var argHeight: Int = 2048
 
+    /**
+     * 仅供真机测量用：`--ez mute true` 让 ExoPlayer 静音起播。
+     *
+     * 存在的理由很实际 —— Quest 不接受 adb 改音量（`input keyevent VOLUME_DOWN` 与
+     * `cmd media_session volume --set` 都改不动系统值），而跑内存/性能基线时不该
+     * 把声音外放。正式入口（Dart 网关）永远不下发这个 extra。
+     */
+    private var argMute: Boolean = false
+
     override fun registerFeatures(): List<SpatialFeature> = listOf(VRFeature(this))
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,9 +117,10 @@ class ImmersiveActivity : AppSystemActivity() {
         argStereo = source.getStringExtra("stereo") ?: argStereo
         argWidth = source.getIntExtra("w", argWidth)
         argHeight = source.getIntExtra("h", argHeight)
+        argMute = source.getBooleanExtra("mute", argMute)
         Log.i(
             TAG,
-            "IMMERSIVE args shape=$argShape stereo=$argStereo " +
+            "IMMERSIVE args shape=$argShape stereo=$argStereo mute=$argMute " +
                 "dims=${argWidth}x$argHeight url=${argUrl?.take(120)}",
         )
     }
@@ -236,6 +246,7 @@ class ImmersiveActivity : AppSystemActivity() {
         })
 
         player.repeatMode = Player.REPEAT_MODE_ONE
+        if (argMute) player.volume = 0f
         player.setVideoSurface(surface)
         player.setMediaItem(MediaItem.fromUri(Uri.parse(url)))
         player.prepare()
@@ -265,9 +276,29 @@ class ImmersiveActivity : AppSystemActivity() {
         )
     }
 
+    /**
+     * ⛔ 清理逻辑必须放这里，**不能只放 `onDestroy()`** —— 官方明写
+     * "`onDestroy` is not guaranteed to be called. Consider putting shutdown logic in
+     * `onSpatialShutdown()`"，只有后者被保证调用。
+     *
+     * ⛔ 与之配套的另一条官方铁律：**永远不要用 `finish()` 结束挂着面板的 Activity**。
+     * 原因是面板的 3D mesh / layer / texture / Android surface 的内存引用还活着，
+     * 会在 `libMetaSpatialSDK.so` 里 SIGSEGV。正解是 `panelEntity.destroy()`
+     * 之后走 `launchPanelActivityInHome()` 那套转场。见文档 §19。
+     */
+    override fun onSpatialShutdown() {
+        Log.i(TAG, "IMMERSIVE onSpatialShutdown")
+        logMemory("onSpatialShutdown")
+        panelEntity?.destroy()
+        panelEntity = null
+        releasePlayer()
+        super.onSpatialShutdown()
+    }
+
     override fun onDestroy() {
         Log.i(TAG, "IMMERSIVE onDestroy")
         logMemory("onDestroy")
+        // 兜底：onSpatialShutdown 正常情况下已经清干净了，这两句是幂等的。
         releasePlayer()
         super.onDestroy()
     }
@@ -283,10 +314,15 @@ class ImmersiveActivity : AppSystemActivity() {
         private const val QUAD_WIDTH_M = 2.4f
 
         /**
-         * 幕布中心离地高度（米）。参考空间是 LOCAL_FLOOR，所以这是绝对高度：
-         * 静息眼高约 1.6m，再按设计的 −6° 俯角在 2.5m 处下沉 2.5·tan6° ≈ 0.26m。
+         * 幕布中心离地高度（米）。参考空间是 LOCAL_FLOOR，所以这是绝对高度。
+         *
+         * ⛔ 原值 1.34f 是按「静息视线 −6° 俯角」算的（1.6 − 2.5·tan6°）。**已作废**：
+         * 官方要求 "avoid forcing the user to tilt their head down more than **±15°**"，
+         * 而 2.5m 处 2.4m 宽的 16:9 幕布垂直张角就是 ±15.1° —— 幕心再下压 6°，
+         * 下缘会落到 −21°，越线一大截（见文档 §19-4 / §6.6 模式 A）。
+         * 幕心抬到与静息眼高齐平（0° 俯角）后，上下缘正好 ±15.1°，卡在官方上限。
          */
-        private const val SCREEN_CENTER_HEIGHT_M = 1.34f
+        private const val SCREEN_CENTER_HEIGHT_M = 1.60f
         private const val DEFAULT_UA =
             "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 " +
                 "Chrome/126.0.0.0 Safari/537.36"
