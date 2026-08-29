@@ -51,6 +51,12 @@ class ApiService extends GetxService {
   static const String _anonymousRetryKey = 'anonymous_retry';
   static const String _authRetryKey = 'auth_retry';
   static const String _forceAnonymousKey = 'forceAnonymous';
+
+  /// 这一次请求钉在哪个站（[IwaraSite]），不改全局站点模式。
+  ///
+  /// 绝大多数请求都该跟着 [AppService.currentSiteMode] 走；只有"资源本身属于
+  /// 另一个站"的场合才需要它（见 `PlayListService.getPlaylistVideos` 的跨站回退）。
+  static const String _siteOverrideKey = 'iwaraSiteOverride';
   static const String _authRefreshFailedKey = 'auth_refresh_failed';
   static const String _redirectCountKey = 'redirectCount';
   static const int _maxManualRedirects = 5;
@@ -214,12 +220,14 @@ class ApiService extends GetxService {
     Map<String, dynamic>? headers,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
+    IwaraSite? site,
   }) {
     final requestOptions = options ?? d_dio.Options();
     requestOptions.extra = {
       ...?requestOptions.extra,
       _requestAccessKey: requestAccess.name,
       _maxRetriesKey: ?maxNetworkRetries,
+      _siteOverrideKey: ?site,
     };
     if (headers != null) {
       requestOptions.headers = {...?requestOptions.headers, ...headers};
@@ -234,7 +242,12 @@ class ApiService extends GetxService {
   ) {
     final accessToken = _authService.accessToken;
     final tokenManager = _authService.tokenManager;
-    final site = currentIwaraSiteOrMain();
+    // 钉过站的请求走它自己那一档；其余跟全局站点模式。重试路径复制 extra，
+    // 所以钉的站在重试里也保得住。
+    final siteOverride = options.extra[_siteOverrideKey];
+    final site = siteOverride is IwaraSite
+        ? siteOverride
+        : currentIwaraSiteOrMain();
     final access = _resolveRequestAccess(options);
 
     final requestId = _ensureRequestId(options);
@@ -819,6 +832,7 @@ class ApiService extends GetxService {
     d_dio.Options? options,
     ApiRequestAccess requestAccess = ApiRequestAccess.authRequired,
     int? maxNetworkRetries,
+    IwaraSite? site,
   }) async {
     try {
       final requestOptions = _prepareRequestOptions(
@@ -826,6 +840,7 @@ class ApiService extends GetxService {
         headers: headers,
         requestAccess: requestAccess,
         maxNetworkRetries: maxNetworkRetries,
+        site: site,
       );
 
       final response = await _dio.get<dynamic>(

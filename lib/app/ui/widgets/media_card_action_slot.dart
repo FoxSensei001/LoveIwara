@@ -3,6 +3,12 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
 
+/// 这枚钮的可点面积边长（图标 18 + 四周 11 的内边距，见 MediaActionMenuButton）。
+///
+/// 卡片文字区要照着它给右下角让位，所以这个数字必须能被外面读到，
+/// 见 `kMediaCardActionReserve`。
+const double kMediaCardActionSlotSize = 40;
+
 /// 卡片右下角那枚三点钮的槽位（视频卡片与图库卡片共用）。
 ///
 /// 刻意做成 [Stack] 的**兄弟**而不是塞进卡片那只 InkWell 里——同一棵子树里两个
@@ -21,7 +27,6 @@ class MediaCardActionSlot extends StatelessWidget {
     required this.isMultiSelectMode,
     required this.likedOverride,
     required this.onLikeChanged,
-    required this.busy,
     this.duration = const Duration(milliseconds: 220),
   }) : assert(
          (video == null) != (gallery == null),
@@ -38,9 +43,6 @@ class MediaCardActionSlot extends StatelessWidget {
   final bool likedOverride;
 
   final ValueChanged<bool> onLikeChanged;
-
-  /// 长按 / 右键期间的忙碌态，引到这枚钮上转圈。
-  final bool busy;
 
   /// 进出多选态的过渡时长，跟卡片自己的悬停过渡保持一致。
   final Duration duration;
@@ -65,7 +67,6 @@ class MediaCardActionSlot extends StatelessWidget {
               gallery: gallery,
               likedOverride: likedOverride,
               onLikeChanged: onLikeChanged,
-              busy: busy,
             ),
           ),
         ),

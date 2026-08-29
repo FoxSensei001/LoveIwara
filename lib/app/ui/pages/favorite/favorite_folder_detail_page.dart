@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/favorite/widgets/folder_tag_filter.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
@@ -241,6 +243,33 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
     );
   }
 
+  /// 从夹内点开一条视频：把**这个夹子的池**一起交出去，「接着看」一开就落在
+  /// 本夹上，而不是笼统的「来源」。
+  ///
+  /// ⚠️ 池取的是整个夹子（`getFolderItems`），**不带页面上的关键字/标签/日期
+  /// 筛选**——筛选是这一屏的临时视角，而池要跨页面存活、还要能翻页。想按筛选
+  /// 后的结果连播的话得让池也认识这套条件，那是另一件事。
+  Future<void> _openFolderVideo({
+    required String videoId,
+    Map<String, dynamic>? extData,
+  }) async {
+    final queue = PlaybackQueueService.to.openLocalFavorite(
+      widget.folderId,
+      title: widget.folderTitle,
+    );
+    if (queue.loaded.isEmpty) {
+      unawaited(queue.loadMore());
+    }
+    await NaviService.navigateToVideoDetailPage(
+      videoId,
+      extData: extData,
+      playbackQueueRef: PlaybackQueueRef(
+        queueId: queue.queueId,
+        currentItemId: videoId,
+      ),
+    );
+  }
+
   Widget _buildFavoriteItem(FavoriteItem item) {
     final width = MediaQuery.sizeOf(context).width <= 600
         ? MediaQuery.sizeOf(context).width / 2 - 8
@@ -263,7 +292,11 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  VideoCardListItemWidget(video: video, width: width),
+                  VideoCardListItemWidget(
+                    video: video,
+                    width: width,
+                    onOpenVideo: _openFolderVideo,
+                  ),
                   _buildItemFooter(item),
                 ],
               ),
@@ -287,7 +320,22 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ImageModelCardListItemWidget(imageModel: image, width: width),
+                  ImageModelCardListItemWidget(
+                    imageModel: image,
+                    width: width,
+                    // 把这个夹子的图库池一起交出去：详情页的「接着看」一开就
+                    // 落在这个夹子上，而且定位在刚点的那一条。
+                    playbackQueueRefBuilder: (galleryId) => PlaybackQueueRef(
+                      queueId: PlaybackQueueService.to
+                          .openLocalFavorite(
+                            widget.folderId,
+                            title: widget.folderTitle,
+                            mediaType: PlaybackMediaType.gallery,
+                          )
+                          .queueId,
+                      currentItemId: galleryId,
+                    ),
+                  ),
                   _buildItemFooter(item),
                 ],
               ),
@@ -727,10 +775,7 @@ class _FavoriteFilterDrawerState extends State<_FavoriteFilterDrawer> {
                 padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.date_range,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.date_range, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(

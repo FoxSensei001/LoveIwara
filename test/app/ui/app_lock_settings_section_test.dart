@@ -127,6 +127,10 @@ void main() {
     // 误当成「又弹了一张」。
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
+    // 再补一帧：`showAppDialog` 的结果是等路由**销毁**才交出来的（见
+    // `test/app/ui/widgets/glass/overlay_result_timing_test.dart`），
+    // 退场动画结束那一帧才轮到路由出栈，慢操作要下一帧才起跑。
+    await tester.pump();
 
     // 隐私模式那行也有个开关，所以断言必须钉在应用锁这一行上。
     final lockRow = find.ancestor(

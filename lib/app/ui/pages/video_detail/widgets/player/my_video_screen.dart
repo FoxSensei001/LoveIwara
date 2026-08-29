@@ -86,6 +86,12 @@ class MyVideoScreen extends StatefulWidget {
   /// 不再是播放器里那条横向列表，所以这里只负责发起。
   final VoidCallback? onOpenQueueDrawer;
 
+  /// 池里还有下一条（或者还有下一页没拉）。底栏那枚「下一个」据此在场/退场。
+  final bool canPlayNextInQueue;
+
+  /// 手动播下一条。与自动续播同一条路，但不受「池内续播」开关约束。
+  final Future<void> Function()? onPlayNextInQueue;
+
   const MyVideoScreen({
     super.key,
     this.isFullScreen = false,
@@ -94,6 +100,8 @@ class MyVideoScreen extends StatefulWidget {
     this.innerPlaylistContext,
     this.hasPlaybackQueue = false,
     this.onOpenQueueDrawer,
+    this.canPlayNextInQueue = false,
+    this.onPlayNextInQueue,
   });
 
   @override
@@ -453,10 +461,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       final keyboard = HardwareKeyboard.instance;
       LogUtils.d(
         '[按下] keyId=${event.logicalKey.keyId} '
-        'debugName=${event.logicalKey.debugName} '
-        'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed} '
-        'alt=${keyboard.isAltPressed} meta=${keyboard.isMetaPressed} '
-        'matched=${action?.id}',
+            'debugName=${event.logicalKey.debugName} '
+            'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed} '
+            'alt=${keyboard.isAltPressed} meta=${keyboard.isMetaPressed} '
+            'matched=${action?.id}',
         'Keybinding',
       );
     }
@@ -469,9 +477,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         event,
         ShortcutScope.video,
       );
-      return matched != null
-          ? KeyEventResult.handled
-          : KeyEventResult.ignored;
+      return matched != null ? KeyEventResult.handled : KeyEventResult.ignored;
     }
 
     // 命中视频域绑定即视为已消费，阻止事件冒泡到全局快捷键层造成重复触发。
@@ -1397,6 +1403,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       currentScreenIsFullScreen: widget.isFullScreen,
       applyBottomSafeAreaPadding:
           (!widget.isFullScreen && widget.enableBottomSafeArea),
+      // 「下一个」跟着播放/暂停排在一起。池的事全由详情页算好了下发，底栏不碰池。
+      canPlayNextInQueue: widget.canPlayNextInQueue,
+      onPlayNextInQueue: widget.onPlayNextInQueue,
+      onOpenQueueDrawer: _canShowInnerPlaylistOverlay()
+          ? widget.onOpenQueueDrawer
+          : null,
     );
 
     return [
@@ -2309,21 +2321,17 @@ class _QueueEdgeHandle extends StatelessWidget {
         label: slang.t.playbackQueue.openQueue,
         button: true,
         child: Container(
-        width: 28,
-        height: 72,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.45),
-          borderRadius: const BorderRadius.horizontal(
-            left: Radius.circular(14),
+          width: 28,
+          height: 72,
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.45),
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(14),
+            ),
           ),
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.chevron_left,
-            size: 20,
-            color: Colors.white,
+          child: const Center(
+            child: Icon(Icons.chevron_left, size: 20, color: Colors.white),
           ),
-        ),
         ),
       ),
     );

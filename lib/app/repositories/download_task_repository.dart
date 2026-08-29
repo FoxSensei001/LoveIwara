@@ -462,6 +462,138 @@ class DownloadTaskRepository {
     }
   }
 
+  /// 分页获取**已下载完成的视频**任务，按完成/更新时间降序排列。
+  ///
+  /// 「接着看」的下载池用它取数。和 [getHistoryTasks] 的区别有两条，都是池的
+  /// 需求逼出来的：
+  ///
+  /// 1. **只要视频**：图库在播放器里放不了（与稍后再看池同一条契约）；
+  /// 2. **按 media_id 去重**：同一个视频下过 1080 又下过 720 就是两条任务，
+  ///    照原样喂进池会在「接着看」里排出两条一模一样的片子。这里留**当前分类内
+  ///    每个 media_id 最新完成的那一条**，清晰度的选择交给本地播放页自己（它本来
+  ///    就会把同一视频的所有清晰度一起带上）。
+  ///    「当前分类内」不是可有可无的限定词：去重要是按全局最新算，同一个视频的
+  ///    两档清晰度分属不同分类时，它会从其中一个分类的列表里整个消失，而
+  ///    [getCompletedVideoCounts] 仍按分类把它数进去——两个数就对不上了。
+  ///
+  /// media_id 为空的历史数据直接丢掉——池的游标就是 id，没有 id 的条目
+  /// 既定位不了自己也推进不了。
+  /// [categoryFilter] 与下载列表页同一套字面量：`'all'` 不限 /
+  /// `'uncategorized'` 只要未分类 / 其它值为具体分类 id。
+  Future<List<DownloadTask>> getCompletedVideoTasks({
+    required int offset,
+    required int limit,
+    String categoryFilter = 'all',
+  }) async {
+    try {
+      final params = <Object?>[];
+      final categoryClause = _completedVideoCategoryClause(
+        categoryFilter,
+        params,
+        alias: 't',
+      );
+      // ⛔ 去重子查询必须带上**同一套**分类过滤，否则它取的是「全局最新完成的
+      // 那条」，而计数（[getCompletedVideoCounts]）是按分类分桶数的——同一个
+      // 视频 1080 归 A、720 归 B 时，A 桶计数有它、A 的列表却因为「A 里这条不是
+      // 全局最新」把它整个滤掉，又变成本文件极力想避免的「显示 N 条、点进去缺项」。
+      // 两处必须同一个定义：**在选中的分类内**取该 media_id 最新的那条。
+      // 参数顺序跟着 SQL 文本走：外层 clause → 子查询 clause → limit → offset。
+      final innerCategoryClause = _completedVideoCategoryClause(
+        categoryFilter,
+        params,
+        alias: 's',
+      );
+      params
+        ..add(limit)
+        ..add(offset);
+      final results = _db.select('''
+        SELECT * FROM download_tasks t
+        WHERE t.status = 'completed'
+          AND t.media_type = 'video'
+          AND t.media_id IS NOT NULL AND t.media_id != ''
+          $categoryClause
+          AND t.id = (
+            SELECT s.id FROM download_tasks s
+            WHERE s.status = 'completed'
+              AND s.media_type = 'video'
+              AND s.media_id = t.media_id
+              $innerCategoryClause
+            ORDER BY $_normalizedHistorySortExpression DESC, s.created_at DESC
+            LIMIT 1
+          )
+        ORDER BY $_normalizedHistorySortExpression DESC, t.created_at DESC
+        LIMIT ? OFFSET ?
+      ''', params);
+      return results.map((row) => DownloadTask.fromRow(row)).toList();
+    } catch (e) {
+      LogUtils.e('获取已下载视频任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  static String _completedVideoCategoryClause(
+    String categoryFilter,
+    List<Object?> params, {
+    required String alias,
+  }) {
+    switch (categoryFilter) {
+      case 'all':
+        return '';
+      case 'uncategorized':
+        return 'AND $alias.category_id IS NULL';
+      default:
+        params.add(categoryFilter);
+        return 'AND $alias.category_id = ?';
+    }
+  }
+
+  /// 「接着看」下载池的**分类计数**：每个桶里有多少条可播的已下载视频。
+  ///
+  /// ⛔ 不能拿 [getAllCategories] 那个 `item_count`：那是**所有**任务（含图库、
+  /// 含下载中/失败）的条数，而池里只装「已完成的视频、按 media_id 去重」——
+  /// 两个数对不上，菜单就会出现「显示 5 条、点进去空的」。
+  ///
+  /// 总数单独查一次而不是把各桶相加：同一个视频的两档清晰度可以分属不同分类，
+  /// 相加会把它数两遍。
+  Future<({int total, int uncategorized, Map<String, int> byCategory})>
+  getCompletedVideoCounts() async {
+    const base =
+        "status = 'completed' AND media_type = 'video' "
+        "AND media_id IS NOT NULL AND media_id != ''";
+    try {
+      final total =
+          _db
+                  .select(
+                    'SELECT COUNT(DISTINCT media_id) AS c FROM download_tasks WHERE $base',
+                  )
+                  .first['c']
+              as int;
+      final rows = _db.select(
+        'SELECT category_id, COUNT(DISTINCT media_id) AS c FROM download_tasks '
+        'WHERE $base GROUP BY category_id',
+      );
+      var uncategorized = 0;
+      final byCategory = <String, int>{};
+      for (final row in rows) {
+        final id = row['category_id'] as String?;
+        final count = row['c'] as int;
+        if (id == null) {
+          uncategorized = count;
+        } else {
+          byCategory[id] = count;
+        }
+      }
+      return (
+        total: total,
+        uncategorized: uncategorized,
+        byCategory: byCategory,
+      );
+    } catch (e) {
+      LogUtils.e('统计已下载视频数量失败', tag: 'DownloadTaskRepository', error: e);
+      return (total: 0, uncategorized: 0, byCategory: <String, int>{});
+    }
+  }
+
   /// 分页获取历史任务（仅 completed），按完成/更新时间降序排列。
   ///
   /// 曾经这里还包含 paused：暂停的任务会从上方活跃区「掉进」下方的分页历史区，

@@ -36,6 +36,48 @@ void main() {
     await LogUtils.init(enablePersistence: false);
   });
 
+  group('isKnownEmpty：菜单靠它置灰', () {
+    test('还没加载完（还有下一页）不算空——不能替用户断言还不知道的事', () {
+      final queue = _PagedQueue(items: const [], hasMore: true);
+      expect(queue.isKnownEmpty, isFalse);
+    });
+
+    test('翻到底了一条都没有才算空', () {
+      final queue = _PagedQueue(items: const [], hasMore: false);
+      expect(queue.isKnownEmpty, isTrue);
+    });
+
+    test('有内容当然不算空', () {
+      final queue = _PagedQueue(items: [video('v0')], hasMore: false);
+      expect(queue.isKnownEmpty, isFalse);
+    });
+  });
+
+  group('canAdvance：底栏那枚「下一个」在不在场', () {
+    test('还有下一条就在场', () {
+      final queue = sourceQueue([video('v0'), video('v1')]);
+      expect(queue.canAdvance('v0'), isTrue);
+    });
+
+    test('池到底了就退场——点了没反应的钮比没有更让人困惑', () {
+      final queue = sourceQueue([video('v0'), video('v1')]);
+      expect(queue.canAdvance('v1'), isFalse);
+    });
+
+    test('⛔ 分页池到了已加载部分的末尾仍要在场（后面还有页没拉）', () {
+      final queue = _PagedQueue(
+        items: [video('v0'), video('v1')],
+        hasMore: true,
+      );
+      expect(queue.itemAfter('v1'), isNull, reason: '前提：已加载部分确实没有下一条了');
+      expect(
+        queue.canAdvance('v1'),
+        isTrue,
+        reason: '只看 itemAfter 的话，40 条的播放列表播到第 20 条按钮就凭空没了',
+      );
+    });
+  });
+
   group('itemAfter：推进到下一条', () {
     test('按顺序给出下一条', () {
       final queue = sourceQueue([video('v0'), video('v1'), video('v2')]);
@@ -134,11 +176,11 @@ void main() {
         duration: const Duration(minutes: 10),
       );
 
-      expect(
-        q.loaded.map((e) => e.id),
-        ['v1', 'v2', 'v3'],
-        reason: '刚看完的那条不能从池里消失，否则推进时找不到自己就会跳回顶部',
-      );
+      expect(q.loaded.map((e) => e.id), [
+        'v1',
+        'v2',
+        'v3',
+      ], reason: '刚看完的那条不能从池里消失，否则推进时找不到自己就会跳回顶部');
       expect(
         q.itemAfter('v2', skipWatched: true)?.id,
         'v3',
@@ -153,11 +195,7 @@ void main() {
       expect(q.loaded.length, 2);
 
       service.remove('v1', WatchLaterItemType.video);
-      expect(
-        q.loaded.map((e) => e.id),
-        ['v2'],
-        reason: '删除是明确意图，和"刚看完"不是一回事',
-      );
+      expect(q.loaded.map((e) => e.id), ['v2'], reason: '删除是明确意图，和"刚看完"不是一回事');
     });
 
     test('「全部」池不跳过已看完，「未看完」池跳过', () {
@@ -291,4 +329,26 @@ class _FakePagedQueue extends PlaybackQueue {
     );
     _hasMore = _next < _pages.length;
   }
+}
+
+/// 一个「已加载 N 条、后面还有页」的分页池替身。
+class _PagedQueue extends PlaybackQueue {
+  _PagedQueue({required List<Video> items, required bool hasMore})
+    : _items = [
+        for (final video in items) InnerPlaylistItemSnapshot.fromVideo(video),
+      ],
+      _hasMore = hasMore,
+      super(queueId: 'paged');
+
+  final List<InnerPlaylistItemSnapshot> _items;
+  final bool _hasMore;
+
+  @override
+  PlaybackQueueKind get kind => PlaybackQueueKind.playlist;
+
+  @override
+  List<InnerPlaylistItemSnapshot> get loaded => _items;
+
+  @override
+  bool get hasMore => _hasMore;
 }

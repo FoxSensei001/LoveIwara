@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -83,6 +85,11 @@ class _FavoriteImageListState extends State<FavoriteImageList>
           ImageModelCardListItemWidget(
             imageModel: image,
             width: 220,
+            // 「最爱」的图库池：详情页的「接着看」直接接着这份列表往下走。
+            playbackQueueRefBuilder: (galleryId) => PlaybackQueueRef(
+              queueId: PlaybackQueueService.to.openFavoriteGalleries().queueId,
+              currentItemId: galleryId,
+            ),
             isMultiSelectMode: widget.isMultiSelectMode,
             isSelected: widget.selectedItemIds.contains(image.id),
             onSelect: () => widget.onItemSelect?.call(image),

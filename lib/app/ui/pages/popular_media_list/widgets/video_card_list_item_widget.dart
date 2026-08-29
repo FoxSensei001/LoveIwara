@@ -3,17 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_meta.dart';
 import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/blocked_media_card_placeholder.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
     show BaseTag;
-import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
 
@@ -216,6 +214,10 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
                     onLongPress: widget.isMultiSelectMode
                         ? null
                         : openActionMenu,
+                    // 菜单贴着手指弹，落点从这两条记（见
+                    // [recordActionAnchor]）。
+                    onTapDown: recordActionAnchor,
+                    onSecondaryTapDown: recordActionAnchor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -255,8 +257,8 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
                                 likeCount: effectiveLikeCount,
                               ),
                               const SizedBox(height: 8),
-                              _AuthorLine(
-                                video: widget.video,
+                              MediaCardAuthorLine(
+                                user: widget.video.user,
                                 isMultiSelectMode: widget.isMultiSelectMode,
                               ),
                             ],
@@ -271,7 +273,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
                     isMultiSelectMode: widget.isMultiSelectMode,
                     likedOverride: effectiveLiked,
                     onLikeChanged: applyLikeToggle,
-                    busy: menuBusy,
                     duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
@@ -320,7 +321,10 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    const radius = BorderRadius.vertical(top: Radius.circular(14));
+    // 贴在上沿两角的标签（R18 / 统计组）要照着同一个圆角走，所以这里用共享常量。
+    const radius = BorderRadius.vertical(
+      top: Radius.circular(kMediaCardThumbnailRadius),
+    );
 
     return ClipRRect(
       borderRadius: radius,
@@ -331,6 +335,13 @@ class _Thumbnail extends StatelessWidget {
           children: [
             _buildImage(),
             ...buildTags(context, t),
+            // 播放量 / 评论数聚成一组压在右上角；「重新屏蔽」占同一个槽位，
+            // 它出现时这组先收走。
+            MediaCardStatsOverlay(
+              views: video.numViews ?? 0,
+              comments: video.numComments ?? 0,
+              visible: !reblockVisible,
+            ),
             ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),
@@ -510,190 +521,10 @@ class VideoCardMetaLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedIsLiked = isLiked ?? (video.liked == true);
-    final resolvedLikeCount = likeCount ?? (video.numLikes ?? 0);
-    return _buildMetaLine(
-      context,
-      isLiked: resolvedIsLiked,
-      likeCount: resolvedLikeCount < 0 ? 0 : resolvedLikeCount,
-    );
-  }
-
-  Widget _buildMetaLine(
-    BuildContext context, {
-    required bool isLiked,
-    required int likeCount,
-  }) {
-    final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        final chipTextMaxWidth = ((constraints.maxWidth - 55) / 2).clamp(
-          24.0,
-          56.0,
-        );
-        final IconData likeIcon = isLiked
-            ? Icons.favorite
-            : Icons.favorite_border;
-        final Color likeColor = isLiked
-            ? Colors.pink
-            : theme.colorScheme.onSurfaceVariant;
-
-        return Wrap(
-          spacing: compact ? 5 : 6,
-          runSpacing: 5,
-          children: [
-            _StatChip(
-              icon: Icons.visibility,
-              value: CommonUtils.formatFriendlyNumber(video.numViews ?? 0),
-              color: theme.colorScheme.onSurfaceVariant,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            _StatChip(
-              icon: likeIcon,
-              value: CommonUtils.formatFriendlyNumber(likeCount),
-              color: likeColor,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            if (!compact && (video.numComments ?? 0) > 0)
-              _StatChip(
-                icon: Icons.forum,
-                value: CommonUtils.formatFriendlyNumber(video.numComments ?? 0),
-                color: theme.colorScheme.onSurfaceVariant,
-                maxTextWidth: chipTextMaxWidth,
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final Color color;
-  final double maxTextWidth;
-
-  const _StatChip({
-    required this.icon,
-    required this.value,
-    required this.color,
-    required this.maxTextWidth,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: maxTextWidth + 24),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 2),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxTextWidth),
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AuthorLine extends StatelessWidget {
-  final Video video;
-  final bool isMultiSelectMode;
-
-  const _AuthorLine({required this.video, required this.isMultiSelectMode});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final createdAtText = CommonUtils.formatFriendlyTimestamp(video.createdAt);
-    final timeStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 11,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        if (compact) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAuthorName(context),
-              const SizedBox(height: 4),
-              Text(
-                createdAtText,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: timeStyle,
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(child: _buildAuthorName(context)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  createdAtText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: timeStyle,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildAuthorName(BuildContext context) {
-    final user = video.user;
-    final avatar = AvatarWidget(user: user, size: 22);
-    final name = buildUserName(context, user, bold: true, fontSize: 12.5);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: isMultiSelectMode
-          ? null
-          : () {
-              final username = user?.username;
-              if (username != null && username.isNotEmpty) {
-                NaviService.navigateToAuthorProfilePage(
-                  username,
-                  initialUser: user,
-                );
-              }
-            },
-      child: Row(
-        children: [
-          avatar,
-          const SizedBox(width: 6),
-          Expanded(child: name),
-        ],
-      ),
+    return MediaCardMetaRow(
+      isLiked: isLiked ?? (video.liked == true),
+      likeCount: likeCount ?? (video.numLikes ?? 0),
+      createdAt: video.createdAt,
     );
   }
 }

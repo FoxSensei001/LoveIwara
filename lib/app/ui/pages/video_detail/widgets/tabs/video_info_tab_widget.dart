@@ -12,10 +12,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
-import 'package:i_iwara/app/models/video.model.dart';
-import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -26,6 +23,7 @@ import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/app/ui/widgets/watch_later_action_button.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart'; // 导入共享常量和组件
 import 'package:shimmer/shimmer.dart';
@@ -920,7 +918,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             // ⛔ 详情页必须有「稍后再看」入口：不然一个正在看片、想存起来以后
             // 接着看的用户，得先退回列表页去卡片上操作——对一个叫"稍后再看"的
             // 功能来说这是最说不过去的发现性缺口。
-            _WatchLaterActionButton(video: videoInfo),
+            WatchLaterActionButton(video: videoInfo),
             Obx(
               () => FilledActionButton(
                 icon: widget.controller.isInAnyFavorite.value
@@ -1077,8 +1075,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
                 initialQuality: currentQuality,
                 preselectSource: DownloadPickerPreselectSource.lastUsed,
                 onTaskCreated: widget.controller.markVideoHasDownloadTask,
-                refreshSources: () =>
-                    widget.controller.currentVideoSourceList,
+                refreshSources: () => widget.controller.currentVideoSourceList,
               ),
         menuItems: [
           // 置顶菜单项：查看下载列表
@@ -1119,7 +1116,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
           ),
         ],
         onMenuItemSelected: (value) {
-          if (videoInfo == null) return;
+          // 这两条跟当前这条视频没关系，是纯导航——放在 videoInfo 空守卫**之前**。
+          // 压在守卫后面的话，视频信息还没加载出来时点「查看下载列表」就没反应。
           if (value == '__download_list__') {
             NaviService.navigateToDownloadTaskListPage();
             return;
@@ -1128,6 +1126,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             openDownloadCategoryManagePage(context);
             return;
           }
+          // 往下都要拿 videoInfo 才能下载。
+          if (videoInfo == null) return;
           // 其余菜单项的 value 就是被点的清晰度名称
           launchVideoDownload(
             context,
@@ -1175,86 +1175,6 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         'id': id,
         'name': name, // 传递标签名
       },
-    );
-  }
-}
-
-/// 详情页动作栏里的「稍后再看」。
-///
-/// 自己维护在场状态：稍后再看是纯本地库，加/删都是同步的，没必要为它单独往
-/// controller 里塞一份 Rx。
-class _WatchLaterActionButton extends StatefulWidget {
-  const _WatchLaterActionButton({required this.video});
-
-  final Video video;
-
-  @override
-  State<_WatchLaterActionButton> createState() =>
-      _WatchLaterActionButtonState();
-}
-
-class _WatchLaterActionButtonState extends State<_WatchLaterActionButton> {
-  bool _inList = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _sync();
-    WatchLaterService.to.watchLaterChangedNotifier.addListener(_sync);
-  }
-
-  @override
-  void dispose() {
-    WatchLaterService.to.watchLaterChangedNotifier.removeListener(_sync);
-    super.dispose();
-  }
-
-  void _sync() {
-    if (!mounted) return;
-    final next = WatchLaterService.to.contains(
-      widget.video.id,
-      WatchLaterItemType.video,
-    );
-    if (next != _inList) setState(() => _inList = next);
-  }
-
-  void _toggle() {
-    final t = slang.Translations.of(context);
-    if (_inList) {
-      WatchLaterService.to.remove(widget.video.id, WatchLaterItemType.video);
-      showGlassToast(
-        t.watchLater.removedFromWatchLater,
-        type: GlassToastType.info,
-      );
-      return;
-    }
-    final result = WatchLaterService.to.addVideo(widget.video);
-    switch (result) {
-      case WatchLaterAddResult.added:
-        showGlassToast(
-          t.watchLater.addedToWatchLater,
-          type: GlassToastType.success,
-          actionLabel: t.watchLater.viewWatchLaterList,
-          onAction: NaviService.navigateToWatchLaterPage,
-        );
-      case WatchLaterAddResult.alreadyExists:
-        showGlassToast(
-          t.watchLater.alreadyInWatchLater,
-          type: GlassToastType.info,
-        );
-      case WatchLaterAddResult.failed:
-        showGlassToast(t.watchLater.addFailed, type: GlassToastType.error);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return FilledActionButton(
-      icon: _inList ? Icons.watch_later : Icons.watch_later_outlined,
-      label: t.watchLater.title,
-      onTap: _toggle,
-      accentColor: _inList ? Theme.of(context).colorScheme.primary : null,
     );
   }
 }

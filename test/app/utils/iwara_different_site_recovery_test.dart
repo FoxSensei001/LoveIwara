@@ -23,6 +23,52 @@ void main() {
     await LogUtils.init(isProduction: true, enablePersistence: false);
   });
 
+  group('mayBeWrongSite：值不值得换个站再试一次', () {
+    DioException plainError(int statusCode) {
+      final requestOptions = RequestOptions(path: '/playlist/abc');
+      return DioException.badResponse(
+        statusCode: statusCode,
+        requestOptions: requestOptions,
+        response: Response<dynamic>(
+          requestOptions: requestOptions,
+          statusCode: statusCode,
+          data: {'message': 'errors.notFound'},
+        ),
+      );
+    }
+
+    test('服务端明说跨站 → 算', () {
+      expect(
+        IwaraDifferentSiteRecovery.mayBeWrongSite(_differentSiteError('iwara')),
+        isTrue,
+      );
+    });
+
+    test('⛔ 干巴巴的 404 也算——属于另一个站的播放列表就只回这个', () {
+      expect(
+        IwaraDifferentSiteRecovery.mayBeWrongSite(plainError(404)),
+        isTrue,
+      );
+      expect(
+        IwaraDifferentSiteRecovery.isDifferentSiteError(plainError(404)),
+        isFalse,
+        reason: '它只是"嫌疑"，不能拿去下"这就是跨站"的结论',
+      );
+    });
+
+    test('其它状态码不算：换个站重试解决不了 403 / 500', () {
+      expect(
+        IwaraDifferentSiteRecovery.mayBeWrongSite(plainError(403)),
+        isFalse,
+      );
+      expect(
+        IwaraDifferentSiteRecovery.mayBeWrongSite(plainError(500)),
+        isFalse,
+      );
+      expect(IwaraDifferentSiteRecovery.mayBeWrongSite(null), isFalse);
+    });
+  });
+
   group('IwaraSiteUtils.fromSiteId', () {
     test('maps server site ids', () {
       expect(IwaraSiteUtils.fromSiteId('iwara_ai'), IwaraSite.ai);

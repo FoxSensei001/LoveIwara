@@ -414,6 +414,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     final queue = PlaybackQueueService.to.openPlaylist(
       widget.playlistId,
       title: controller.playlistTitle.value,
+      // 主人一起带上：从**他人的**播放列表进来时，抽屉靠它开出「他人的播放
+      // 列表」那一条，否则那个人的其它列表在播放器里根本够不着。
+      owner: controller.playlistOwner.value,
     );
     if (queue.loaded.isEmpty) {
       unawaited(queue.loadMore());

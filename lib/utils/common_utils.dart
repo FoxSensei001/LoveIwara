@@ -423,7 +423,13 @@ class CommonUtils {
   }
 
   /// 格式化时间为人性化显示
-  static String formatFriendlyTimestamp(DateTime? timestamp) {
+  ///
+  /// [includeTime] 为 false 时，超过一周的旧时间只给到「年-月-日」——窄卡片上
+  /// 摆不下时分，与其让省略号把时间截成半截，不如整段少显示一级。
+  static String formatFriendlyTimestamp(
+    DateTime? timestamp, {
+    bool includeTime = true,
+  }) {
     if (timestamp == null) {
       return '';
     }
@@ -440,8 +446,10 @@ class CommonUtils {
     } else if (difference.inDays < 7) {
       return t.common.daysAgo(num: difference.inDays);
     } else {
-      return "${timestamp.year}-${_twoDigits(timestamp.month)}-${_twoDigits(timestamp.day)} "
-          "${_twoDigits(timestamp.hour)}:${_twoDigits(timestamp.minute)}";
+      final date =
+          "${timestamp.year}-${_twoDigits(timestamp.month)}-${_twoDigits(timestamp.day)}";
+      if (!includeTime) return date;
+      return "$date ${_twoDigits(timestamp.hour)}:${_twoDigits(timestamp.minute)}";
     }
   }
 

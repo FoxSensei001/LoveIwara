@@ -1,10 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/controllers/favorites_controller.dart';
 import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_video_list.dart';
 import 'package:i_iwara/app/ui/pages/favorites/widgets/favorite_image_list.dart';
@@ -156,23 +159,32 @@ class _MyFavoritesState extends State<MyFavorites>
     }
   }
 
+  /// 从「最爱」进视频详情。
+  ///
+  /// ⛔ 这里交出去的是**最爱池本身**，不是一份来源快照（原来那样）。理由和
+  /// 播放列表那条一模一样（见 `play_list_detail.dart`）：快照会被
+  /// `_limitItems` 打乱并截到 100 条，而最爱池能接着翻页、游标活在
+  /// `PlaybackQueueService` 里不随页面生灭。顺带满足用户要的那条——从「最爱」
+  /// 进来，「接着看」一开就落在「最爱」上，而不是一个笼统的「来源」。
   Future<void> _openFavoriteVideo({
     required String videoId,
     required List<Video> loadedVideos,
     required Video initialVideo,
     Map<String, dynamic>? extData,
   }) async {
-    final playlistContext = InnerPlaylistContext.fromVideos(
-      source: InnerPlaylistSource.favoritesVideoList,
-      videos: loadedVideos,
-      currentVideoId: videoId,
-    );
+    final queue = PlaybackQueueService.to.openFavorites();
+    if (queue.loaded.isEmpty) {
+      unawaited(queue.loadMore());
+    }
 
     await NaviService.navigateToVideoDetailPage(
       videoId,
       extData: extData,
-      innerPlaylistContext: playlistContext,
       initialVideoInfo: initialVideo,
+      playbackQueueRef: PlaybackQueueRef(
+        queueId: queue.queueId,
+        currentItemId: videoId,
+      ),
     );
   }
 

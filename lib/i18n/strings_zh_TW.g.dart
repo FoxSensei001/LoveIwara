@@ -174,6 +174,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 
 	// Translations
 	@override String get sort => '排序';
+	@override String get filter => '篩選';
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => '取消';
@@ -2413,6 +2414,7 @@ class _TranslationsWatchLaterZhTw implements TranslationsWatchLaterEn {
 	@override String get addedToWatchLater => '已加入稍後再看';
 	@override String get alreadyInWatchLater => '已經在稍後再看裡了';
 	@override String get removedFromWatchLater => '已移出稍後再看';
+	@override String removedCount({required Object count}) => '已移出 ${count} 筆';
 	@override String get viewWatchLaterList => '檢視清單';
 	@override String get addFailed => '加入稍後再看失敗';
 	@override String get invalidItem => '已失效';
@@ -2460,6 +2462,7 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	@override String get upNext => '接著看';
 	@override String get sourceTab => '來源';
 	@override String get emptyQueue => '這個池裡沒有可播的影片';
+	@override String get emptyGalleryQueue => '這個池裡沒有可看的圖庫';
 	@override String get nowPlaying => '正在播放';
 	@override String get myPlaylists => '我的播放清單';
 	@override String get authorPlaylists => '作者的播放清單';
@@ -2467,6 +2470,15 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	@override String get continueInQueue => '在目前影片池內續播';
 	@override String get continueInQueueSubtitle => '一部播完自動播池裡的下一部；開啟後「播放結束重播」不再生效';
 	@override String get repeatDisabledByQueue => '已開啟「池內續播」，重播不再生效';
+	@override String get playNext => '下一部';
+	@override String get queueEnded => '已經是這個池裡的最後一部了';
+	@override String get playNextHint => '點擊播放下一部，長按開啟「接著看」';
+	@override String get authorVideos => '作者的影片';
+	@override String get authorGalleries => '作者的圖庫';
+	@override String get localFavoriteFolders => '本地收藏';
+	@override String get downloads => '已下載';
+	@override String get otherPlaylists => '他人的播放清單';
+	@override String get nothingHere => '暫無內容';
 }
 
 // Path: common.pagination
@@ -3712,6 +3724,7 @@ extension on TranslationsZhTw {
 			'tutorial.specialFollowManagementTip' => '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理',
 			'tutorial.skip' => '跳過',
 			'common.sort' => '排序',
+			'common.filter' => '篩選',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => '取消',
@@ -4166,9 +4179,9 @@ extension on TranslationsZhTw {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
-			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
@@ -4680,9 +4693,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathValid' => '路徑有效',
 			'settings.downloadSettings.validationFailed' => '驗證失敗',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用預設應用程式目錄',
-			'settings.downloadSettings.appPrivateDirectory' => '應用程式專用目錄',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.appPrivateDirectory' => '應用程式專用目錄',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全可靠，無需額外權限',
 			'settings.downloadSettings.downloadDirectory' => '下載目錄',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系統預設下載位置，便於管理',
@@ -5194,9 +5207,9 @@ extension on TranslationsZhTw {
 			'download.errors.taskNotFoundOrDataError' => '任務不存在或資料錯誤',
 			'download.errors.copyDownloadUrlFailed' => '複製下載連結失敗',
 			'download.errors.fileNotFound' => '文件不存在',
-			'download.errors.openFolderFailed' => '打開資料夾失敗',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.openFolderFailed' => '打開資料夾失敗',
 			'download.errors.openFolderFailedWithMessage' => ({required Object message}) => '打開資料夾失敗: ${message}',
 			'download.errors.directoryNotFound' => '目錄不存在',
 			'download.errors.copyFailed' => '複製失敗',
@@ -5708,9 +5721,9 @@ extension on TranslationsZhTw {
 			'diagnostics.healthNoRiskIndicators' => '目前未發現風險指標',
 			'diagnostics.healthAlert.flushFailureTitle' => '寫入失敗',
 			'diagnostics.healthAlert.sinkDegradedTitle' => '日誌寫入已降級',
-			'diagnostics.healthAlert.sinkDegradedDetail' => '檔案 sink 處於 degraded 狀態',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.healthAlert.sinkDegradedDetail' => '檔案 sink 處於 degraded 狀態',
 			'diagnostics.healthAlert.queueBacklogTitle' => '寫入佇列積壓',
 			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)',
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
@@ -6205,6 +6218,7 @@ extension on TranslationsZhTw {
 			'watchLater.addedToWatchLater' => '已加入稍後再看',
 			'watchLater.alreadyInWatchLater' => '已經在稍後再看裡了',
 			'watchLater.removedFromWatchLater' => '已移出稍後再看',
+			'watchLater.removedCount' => ({required Object count}) => '已移出 ${count} 筆',
 			'watchLater.viewWatchLaterList' => '檢視清單',
 			'watchLater.addFailed' => '加入稍後再看失敗',
 			'watchLater.invalidItem' => '已失效',
@@ -6221,10 +6235,10 @@ extension on TranslationsZhTw {
 			'watchLater.playlistLoadFailed' => '播放清單載入失敗',
 			'watchLater.noPlaylists' => '還沒有播放清單',
 			'watchLater.undo' => '復原',
-			'watchLater.clearWatchedConfirm' => '要清除這個分類下所有已看完的內容嗎？此操作無法復原。',
-			'watchLater.emptyUnwatchedVideo' => '沒有未看完的影片',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.clearWatchedConfirm' => '要清除這個分類下所有已看完的內容嗎？此操作無法復原。',
+			'watchLater.emptyUnwatchedVideo' => '沒有未看完的影片',
 			'watchLater.emptyUnwatchedGallery' => '沒有未看完的圖庫',
 			'watchLater.queueLoadFailed' => '載入失敗，點擊重試',
 			'mediaMenu.like' => '按讚',
@@ -6236,6 +6250,7 @@ extension on TranslationsZhTw {
 			'playbackQueue.upNext' => '接著看',
 			'playbackQueue.sourceTab' => '來源',
 			'playbackQueue.emptyQueue' => '這個池裡沒有可播的影片',
+			'playbackQueue.emptyGalleryQueue' => '這個池裡沒有可看的圖庫',
 			'playbackQueue.nowPlaying' => '正在播放',
 			'playbackQueue.myPlaylists' => '我的播放清單',
 			'playbackQueue.authorPlaylists' => '作者的播放清單',
@@ -6243,6 +6258,15 @@ extension on TranslationsZhTw {
 			'playbackQueue.continueInQueue' => '在目前影片池內續播',
 			'playbackQueue.continueInQueueSubtitle' => '一部播完自動播池裡的下一部；開啟後「播放結束重播」不再生效',
 			'playbackQueue.repeatDisabledByQueue' => '已開啟「池內續播」，重播不再生效',
+			'playbackQueue.playNext' => '下一部',
+			'playbackQueue.queueEnded' => '已經是這個池裡的最後一部了',
+			'playbackQueue.playNextHint' => '點擊播放下一部，長按開啟「接著看」',
+			'playbackQueue.authorVideos' => '作者的影片',
+			'playbackQueue.authorGalleries' => '作者的圖庫',
+			'playbackQueue.localFavoriteFolders' => '本地收藏',
+			'playbackQueue.downloads' => '已下載',
+			'playbackQueue.otherPlaylists' => '他人的播放清單',
+			'playbackQueue.nothingHere' => '暫無內容',
 			_ => null,
 		};
 	}

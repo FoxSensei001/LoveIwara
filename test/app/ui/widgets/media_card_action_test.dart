@@ -156,7 +156,6 @@ void main() {
             isMultiSelectMode: false,
             likedOverride: false,
             onLikeChanged: (_) {},
-            busy: false,
           ),
         ),
       );
@@ -181,7 +180,6 @@ void main() {
             isMultiSelectMode: true,
             likedOverride: false,
             onLikeChanged: (_) {},
-            busy: false,
           ),
         ),
       );
@@ -197,7 +195,9 @@ void main() {
       );
     });
 
-    testWidgets('忙碌态转圈', (tester) async {
+    // 用户明确否掉了「点三个点先转一两秒圈」：这枚钮从头到尾就是三个点，
+    // 需要加载的动作在菜单自己那一行转圈（见 media_action_menu.dart 文件头）。
+    testWidgets('三点钮不转圈', (tester) async {
       await tester.pumpWidget(
         wrap(
           MediaCardActionSlot(
@@ -205,12 +205,12 @@ void main() {
             isMultiSelectMode: false,
             likedOverride: false,
             onLikeChanged: (_) {},
-            busy: true,
           ),
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(find.byIcon(Icons.more_vert), findsOneWidget);
     });
 
     test('video 与 gallery 必须二选一', () {
@@ -219,7 +219,6 @@ void main() {
           isMultiSelectMode: false,
           likedOverride: false,
           onLikeChanged: (_) {},
-          busy: false,
         ),
         throwsAssertionError,
       );

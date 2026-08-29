@@ -207,6 +207,10 @@ class WatchLaterService extends GetxService {
           _nowSeconds,
         ],
       );
+      // 新入池的条目进度从 0 起。上一轮留下的高水位不清掉的话，
+      // [_updateProgressInternal] 会一路 `permil <= lastWritten` 提前返回，
+      // 直到重看超过上次的进度为止——中间这段等于没在记进度。
+      _lastWrittenPermil.remove('${item.itemType.name}:${item.itemId}');
       _enforceCapacity();
       _notifyChanged();
       return WatchLaterAddResult.added;
@@ -266,6 +270,8 @@ class WatchLaterService extends GetxService {
               : item.invalidAt!.millisecondsSinceEpoch ~/ 1000,
         ],
       );
+      // 撤销把进度一起还原了，去重水位得跟着回到那个值（同 [_insert] 的道理）。
+      _lastWrittenPermil.remove('${item.itemType.name}:${item.itemId}');
       _notifyChanged();
       return true;
     } catch (e) {
@@ -383,15 +389,6 @@ class WatchLaterService extends GetxService {
     }
   }
 
-  /// 标记已看完。
-  ///
-  /// ⛔ **只在真的发生了"未看完 → 已看完"这次跃迁时才推通知**。
-  ///
-  /// 这条路径挂在播放器的 position 流上，视频过了 90% 之后**每一次位置回调**
-  /// 都会走到这里。早先版本无条件 `_notifyChanged()`，于是一条 60 分钟的视频
-  /// 在最后 6 分钟里会以每秒数次的频率推 notifier —— 而每一次都会连锁触发
-  /// 「稍后再看池重查 DB + 详情页整页 setState + 列表页重查」。不在表里的视频
-  /// （UPDATE 命中 0 行）同样会推，等于全 App 所有播放都在交这份税。
   /// 这一条又能正常打开了：把失效标记摘掉。
   ///
   /// ⛔ 有这条恢复路径才敢在 404 上打失效标记。CDN / 边缘节点的瞬时 404 并不
@@ -410,6 +407,15 @@ class WatchLaterService extends GetxService {
     }
   }
 
+  /// 标记已看完。
+  ///
+  /// ⛔ **只在真的发生了「未看完 → 已看完」这次跃迁时才推通知**。
+  ///
+  /// 这条路径挂在播放器的 position 流上，视频过了 90% 之后**每一次位置回调**
+  /// 都会走到这里。早先版本无条件 `_notifyChanged()`，于是一条 60 分钟的视频
+  /// 在最后 6 分钟里会以每秒数次的频率推 notifier —— 而每一次都会连锁触发
+  /// 「稍后再看池重查 DB + 详情页整页 setState + 列表页重查」。不在表里的视频
+  /// （UPDATE 命中 0 行）同样会推，等于全 App 所有播放都在交这份税。
   void _markWatchedInternal(
     String itemId,
     WatchLaterItemType itemType, {
@@ -463,6 +469,9 @@ class WatchLaterService extends GetxService {
         ''',
         [permil, itemId, itemType.name],
       );
+      // 命中 0 行 = 这一条已经不在池里了（被移除 / 一键清已看完 / 超容量淘汰）。
+      // 顺手把缓存键摘掉，让这份 map 自己收敛，而不用去四个删除出口各补一刀。
+      if (_db.updatedRows == 0) _lastWrittenPermil.remove(cacheKey);
     } catch (e) {
       LogUtils.e('更新观看进度失败', tag: _tag, error: e);
     }

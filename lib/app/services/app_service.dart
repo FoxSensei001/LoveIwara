@@ -380,6 +380,7 @@ class NaviService {
     String? authorRole,
     bool? authorPremium,
     Map<String, dynamic>? extData,
+    PlaybackQueueRef? playbackQueueRef,
   }) {
     final shouldAttachExtra =
         coverUrl != null ||
@@ -391,7 +392,8 @@ class NaviService {
         authorAvatarUrl != null ||
         authorRole != null ||
         authorPremium != null ||
-        extData != null;
+        extData != null ||
+        playbackQueueRef != null;
 
     final future = appRouter.push(
       '/gallery_detail/$id',
@@ -407,6 +409,7 @@ class NaviService {
               authorRole: authorRole,
               authorPremium: authorPremium,
               extData: extData,
+              playbackQueueRef: playbackQueueRef,
             )
           : null,
     );
@@ -813,23 +816,30 @@ class NaviService {
   }
 
   /// 跳转到本地视频播放页面（从下载任务进入）
+  ///
+  /// [playbackQueueRef] 是下载池的引用（从下载列表进来时带上）：本地播放页
+  /// 的路由 id 只是个 `local_xxx` 占位，池的游标只能靠这个 ref 里的
+  /// `currentItemId` 带过去——见 `PlaybackQueueNavigator`。
   static void navigateToLocalVideoPlayerPage({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    PlaybackQueueRef? playbackQueueRef,
   }) {
-    final uuid = Uuid();
-    final randomVideoId = 'local_${uuid.v4()}';
+    final routeVideoId = playbackQueueRef != null
+        ? localVideoRouteId(playbackQueueRef.currentItemId)
+        : 'local_${Uuid().v4()}';
 
     appRouter.push(
-      '/video_detail/$randomVideoId',
+      '/video_detail/$routeVideoId',
       extra: VideoDetailExtra(
         localPath: localPath,
         localTask: task,
         localAllQualityTasks: allQualityTasks,
+        playbackQueueRef: playbackQueueRef,
       ),
     );
-    _ensureAndroidBackDispatcherPriority('push video_detail/$randomVideoId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$routeVideoId');
   }
 
   /// 跳转到本地视频播放页面（从外部文件路径进入）

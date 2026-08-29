@@ -194,8 +194,17 @@ abstract final class GlassTokens {
 
   // ---- 颜色 ----
   /// 玻璃体底色（半透明，随明暗主题翻转）。
+  ///
+  /// ⛔ 这一档**没有 BackdropFilter**（当初刻意不用，见 [liquidBlur]），身后的
+  /// 内容是原样透出来的、不会被化开。所以这里的 alpha 不能按液态档那种「玻璃
+  /// 越透越好」的直觉给：0.80 摆在浮出面板（玻璃菜单、选择器弹窗）上时，底下
+  /// 列表的缩略图和文字会直接顶穿面板，读起来是「弹窗背景没画」。
+  ///
+  /// 2026-08-29 从 0.80 提到 0.94：用户报「新版弹窗在 plain 模式下背景透明度
+  /// 太高」。留着 6% 的透光是为了保住这一档「贴在内容上的一层膜」的观感——
+  /// 全不透明就成了一张普通卡片，与 [stroke] 那圈细描边的语言对不上。
   static Color fill(ColorScheme cs) =>
-      cs.surfaceContainerLow.withValues(alpha: 0.80);
+      cs.surfaceContainerLow.withValues(alpha: 0.94);
 
   /// 玻璃体按下时的底色。
   static Color pressedFill(ColorScheme cs) =>

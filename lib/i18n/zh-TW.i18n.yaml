@@ -62,6 +62,7 @@ tutorial:
   skip: 跳過
 common:
   sort: 排序
+  filter: 篩選
   appName: Love Iwara
   ok: 確定
   cancel: 取消
@@ -2759,6 +2760,7 @@ watchLater:
   addedToWatchLater: 已加入稍後再看
   alreadyInWatchLater: 已經在稍後再看裡了
   removedFromWatchLater: 已移出稍後再看
+  removedCount: 已移出 ${count} 筆
   viewWatchLaterList: 檢視清單
   addFailed: 加入稍後再看失敗
   invalidItem: 已失效
@@ -2790,6 +2792,7 @@ playbackQueue:
   upNext: 接著看
   sourceTab: 來源
   emptyQueue: 這個池裡沒有可播的影片
+  emptyGalleryQueue: 這個池裡沒有可看的圖庫
   nowPlaying: 正在播放
   myPlaylists: 我的播放清單
   authorPlaylists: 作者的播放清單
@@ -2797,3 +2800,12 @@ playbackQueue:
   continueInQueue: 在目前影片池內續播
   continueInQueueSubtitle: 一部播完自動播池裡的下一部；開啟後「播放結束重播」不再生效
   repeatDisabledByQueue: 已開啟「池內續播」，重播不再生效
+  playNext: 下一部
+  queueEnded: 已經是這個池裡的最後一部了
+  playNextHint: 點擊播放下一部，長按開啟「接著看」
+  authorVideos: 作者的影片
+  authorGalleries: 作者的圖庫
+  localFavoriteFolders: 本地收藏
+  downloads: 已下載
+  otherPlaylists: 他人的播放清單
+  nothingHere: 暫無內容

@@ -711,13 +711,18 @@ class _FakePlayListService extends GetxService implements PlayListService {
   }
 
   @override
-  Future<ApiResult<String>> getPlaylistName({
+  Future<ApiResult<PlaylistInfo>> getPlaylistInfo({
     required String playlistId,
   }) async {
     final playlist = _playlists.firstWhereOrNull(
       (item) => item.id == playlistId,
     );
-    return ApiResult.success(data: playlist?.title ?? 'Unknown Playlist');
+    return ApiResult.success(
+      data: (
+        title: playlist?.title ?? 'Unknown Playlist',
+        user: playlist?.user,
+      ),
+    );
   }
 
   @override

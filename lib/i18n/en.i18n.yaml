@@ -63,6 +63,7 @@ tutorial:
 
 common:
   sort: Sort
+  filter: Filter
   appName: Love Iwara
   ok: OK
   cancel: Cancel
@@ -2754,6 +2755,7 @@ watchLater:
   addedToWatchLater: Added to Watch Later
   alreadyInWatchLater: Already in Watch Later
   removedFromWatchLater: Removed from Watch Later
+  removedCount: Removed ${count} items
   viewWatchLaterList: View list
   addFailed: Failed to add to Watch Later
   invalidItem: Unavailable
@@ -2785,6 +2787,7 @@ playbackQueue:
   upNext: Up next
   sourceTab: Source
   emptyQueue: Nothing playable in this queue
+  emptyGalleryQueue: No galleries in this queue
   nowPlaying: Now playing
   myPlaylists: My playlists
   authorPlaylists: Author's playlists
@@ -2792,3 +2795,12 @@ playbackQueue:
   continueInQueue: Keep playing from the current queue
   continueInQueueSubtitle: Plays the next item automatically; disables "repeat when finished"
   repeatDisabledByQueue: Disabled while "keep playing from the current queue" is on
+  playNext: Play next
+  queueEnded: This is the last item in the queue
+  playNextHint: Tap to play the next item, long-press to open Up next
+  authorVideos: Author's videos
+  authorGalleries: Author's galleries
+  localFavoriteFolders: Local favorites
+  downloads: Downloaded
+  otherPlaylists: Other user's playlists
+  nothingHere: Nothing here

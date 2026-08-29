@@ -63,6 +63,7 @@ tutorial:
 
 common:
   sort: 並び替え
+  filter: フィルター
   appName: Love Iwara
   ok: 確定
   cancel: キャンセル
@@ -2757,6 +2758,7 @@ watchLater:
   addedToWatchLater: あとで見るに追加しました
   alreadyInWatchLater: すでにあとで見るに入っています
   removedFromWatchLater: あとで見るから削除しました
+  removedCount: ${count} 件を削除しました
   viewWatchLaterList: リストを見る
   addFailed: あとで見るへの追加に失敗しました
   invalidItem: 利用できません
@@ -2788,6 +2790,7 @@ playbackQueue:
   upNext: 次に見る
   sourceTab: 元のリスト
   emptyQueue: このキューに再生できる動画はありません
+  emptyGalleryQueue: このキューに画像集はありません
   nowPlaying: 再生中
   myPlaylists: 自分の再生リスト
   authorPlaylists: 作者の再生リスト
@@ -2795,3 +2798,12 @@ playbackQueue:
   continueInQueue: 現在のキューで続けて再生
   continueInQueueSubtitle: 1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です
   repeatDisabledByQueue: 「現在のキューで続けて再生」がオンのため無効です
+  playNext: 次を再生
+  queueEnded: このキューの最後の項目です
+  playNextHint: タップで次を再生、長押しで「次に見る」を開きます
+  authorVideos: 作者の動画
+  authorGalleries: 作者の画像集
+  localFavoriteFolders: ローカルのお気に入り
+  downloads: ダウンロード済み
+  otherPlaylists: 他の人の再生リスト
+  nothingHere: 何もありません

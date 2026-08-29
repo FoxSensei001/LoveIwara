@@ -1,6 +1,28 @@
 import 'dart:math';
 
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+
+/// 一个池（以及池里的条目）装的是什么。
+///
+/// # 为什么是一个维度，而不是另开一套模型
+///
+/// 图库的「接着看」和视频的**结构完全一样**：同样是"从某个列表进来、按顺序往
+/// 下一条走"，同样有稍后再看 / 最爱 / 本地收藏夹 / 作者的作品这几类来源。差别
+/// 只有两处：条目落到哪个详情页（[PlaybackQueueNavigator] 据此选路由），以及
+/// 列表行上那枚角标写时长还是写张数。另开一套模型等于把翻页、去重、游标、
+/// LRU、抽屉那一整套逻辑抄第二遍。
+///
+/// ⛔ **一个池里不许混装两种**：抽屉的契约是"接下来能接着看的东西"，而视频和
+/// 图库落在两个不同的详情页——混在一起的话"下一条"会把用户从播放器扔进图库
+/// （稍后再看池一直排除图库就是这个道理）。所以类型是**池**的属性，条目跟着
+/// 池走。
+enum PlaybackMediaType {
+  video,
+  gallery;
+
+  bool get isGallery => this == PlaybackMediaType.gallery;
+}
 
 enum InnerPlaylistSource {
   authorProfile,
@@ -16,14 +38,34 @@ class InnerPlaylistItemSnapshot {
   final String id;
   final String title;
   final String thumbnailUrl;
-  final int numViews;
-  final int numLikes;
-  final int numComments;
+
+  /// 统计三件套。**null = 这个池不知道**，不是「零」——本地库（稍后再看 /
+  /// 本地收藏夹）只存了标题封面作者，从来没有播放量。两者混成 0 之后，界面上
+  /// 「0 次播放」既可能是真没人看，也可能是我们没这份数据，读的人分不出来，
+  /// 于是只能整段不显示。分开之后有就显示、没有就让位。
+  final int? numViews;
+  final int? numLikes;
+  final int? numComments;
   final bool liked;
   final bool isPrivate;
   final bool isExternalVideo;
   final String externalVideoDomain;
   final DateTime? createdAt;
+
+  /// 作者显示名与 username（username 用来跳作者主页）。本地库那两个池也存着
+  /// 这两样，所以「接着看」列表里每一条都认得出是谁的。
+  final String? authorName;
+  final String? authorUsername;
+
+  /// 时长（秒）。站外视频与本地收藏夹拿不到，为 null。
+  final int? durationSeconds;
+
+  /// 图库的张数。视频恒为 null，图库拿不到时也为 null（同 [numViews] 那条：
+  /// **null 是"不知道"，不是 0**）。
+  final int? numImages;
+
+  /// 看到哪儿了（千分比，0 = 没记录）。目前只有稍后再看这个池带得出来。
+  final int progressPermil;
 
   /// 列表页构建快照时携带的原始视频对象，用于侧边栏点击时立即跳转——
   /// 无需再预加载视频详情即可作为目标页的 initialVideoInfo（缩略图、标题等先行渲染）。
@@ -34,14 +76,19 @@ class InnerPlaylistItemSnapshot {
     required this.id,
     required this.title,
     required this.thumbnailUrl,
-    required this.numViews,
-    required this.numLikes,
-    required this.numComments,
+    this.numViews,
+    this.numLikes,
+    this.numComments,
     required this.liked,
     required this.isPrivate,
     required this.isExternalVideo,
     required this.externalVideoDomain,
     this.createdAt,
+    this.authorName,
+    this.authorUsername,
+    this.durationSeconds,
+    this.numImages,
+    this.progressPermil = 0,
     this.sourceVideo,
   });
 
@@ -50,15 +97,38 @@ class InnerPlaylistItemSnapshot {
       id: video.id,
       title: video.title?.trim().isNotEmpty == true ? video.title!.trim() : '',
       thumbnailUrl: video.thumbnailUrl,
-      numViews: video.numViews ?? 0,
-      numLikes: video.numLikes ?? 0,
-      numComments: video.numComments ?? 0,
+      numViews: video.numViews,
+      numLikes: video.numLikes,
+      numComments: video.numComments,
       liked: video.liked == true,
       isPrivate: video.private == true,
       isExternalVideo: video.isExternalVideo,
       externalVideoDomain: video.externalVideoDomain,
       createdAt: video.createdAt,
+      authorName: video.user?.name,
+      authorUsername: video.user?.username,
+      durationSeconds: video.file?.duration,
       sourceVideo: video,
+    );
+  }
+
+  /// 图库快照。与 [fromVideo] 一一对应，只是"时长"换成了"张数"。
+  factory InnerPlaylistItemSnapshot.fromGallery(ImageModel gallery) {
+    return InnerPlaylistItemSnapshot(
+      id: gallery.id,
+      title: gallery.title.trim(),
+      thumbnailUrl: gallery.thumbnailUrl,
+      numViews: gallery.numViews,
+      numLikes: gallery.numLikes,
+      numComments: gallery.numComments,
+      liked: gallery.liked,
+      isPrivate: false,
+      isExternalVideo: false,
+      externalVideoDomain: '',
+      createdAt: gallery.createdAt,
+      authorName: gallery.user?.name,
+      authorUsername: gallery.user?.username,
+      numImages: gallery.numImages,
     );
   }
 
@@ -74,6 +144,11 @@ class InnerPlaylistItemSnapshot {
     bool? isExternalVideo,
     String? externalVideoDomain,
     DateTime? createdAt,
+    String? authorName,
+    String? authorUsername,
+    int? durationSeconds,
+    int? numImages,
+    int? progressPermil,
     Video? sourceVideo,
   }) {
     return InnerPlaylistItemSnapshot(
@@ -88,6 +163,11 @@ class InnerPlaylistItemSnapshot {
       isExternalVideo: isExternalVideo ?? this.isExternalVideo,
       externalVideoDomain: externalVideoDomain ?? this.externalVideoDomain,
       createdAt: createdAt ?? this.createdAt,
+      authorName: authorName ?? this.authorName,
+      authorUsername: authorUsername ?? this.authorUsername,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      numImages: numImages ?? this.numImages,
+      progressPermil: progressPermil ?? this.progressPermil,
       sourceVideo: sourceVideo ?? this.sourceVideo,
     );
   }

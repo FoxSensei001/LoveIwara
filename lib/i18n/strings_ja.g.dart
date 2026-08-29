@@ -174,6 +174,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 
 	// Translations
 	@override String get sort => '並び替え';
+	@override String get filter => 'フィルター';
 	@override String get appName => 'Love Iwara';
 	@override String get ok => '確定';
 	@override String get cancel => 'キャンセル';
@@ -2413,6 +2414,7 @@ class _TranslationsWatchLaterJa implements TranslationsWatchLaterEn {
 	@override String get addedToWatchLater => 'あとで見るに追加しました';
 	@override String get alreadyInWatchLater => 'すでにあとで見るに入っています';
 	@override String get removedFromWatchLater => 'あとで見るから削除しました';
+	@override String removedCount({required Object count}) => '${count} 件を削除しました';
 	@override String get viewWatchLaterList => 'リストを見る';
 	@override String get addFailed => 'あとで見るへの追加に失敗しました';
 	@override String get invalidItem => '利用できません';
@@ -2460,6 +2462,7 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	@override String get upNext => '次に見る';
 	@override String get sourceTab => '元のリスト';
 	@override String get emptyQueue => 'このキューに再生できる動画はありません';
+	@override String get emptyGalleryQueue => 'このキューに画像集はありません';
 	@override String get nowPlaying => '再生中';
 	@override String get myPlaylists => '自分の再生リスト';
 	@override String get authorPlaylists => '作者の再生リスト';
@@ -2467,6 +2470,15 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	@override String get continueInQueue => '現在のキューで続けて再生';
 	@override String get continueInQueueSubtitle => '1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です';
 	@override String get repeatDisabledByQueue => '「現在のキューで続けて再生」がオンのため無効です';
+	@override String get playNext => '次を再生';
+	@override String get queueEnded => 'このキューの最後の項目です';
+	@override String get playNextHint => 'タップで次を再生、長押しで「次に見る」を開きます';
+	@override String get authorVideos => '作者の動画';
+	@override String get authorGalleries => '作者の画像集';
+	@override String get localFavoriteFolders => 'ローカルのお気に入り';
+	@override String get downloads => 'ダウンロード済み';
+	@override String get otherPlaylists => '他の人の再生リスト';
+	@override String get nothingHere => '何もありません';
 }
 
 // Path: common.pagination
@@ -3712,6 +3724,7 @@ extension on TranslationsJa {
 			'tutorial.specialFollowManagementTip' => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます',
 			'tutorial.skip' => 'スキップ',
 			'common.sort' => '並び替え',
+			'common.filter' => 'フィルター',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => '確定',
 			'common.cancel' => 'キャンセル',
@@ -4166,9 +4179,9 @@ extension on TranslationsJa {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
-			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
@@ -4680,9 +4693,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathValid' => 'パスが有効です',
 			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
-			'settings.downloadSettings.appPrivateDirectory' => 'アプリ専用ディレクトリ',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.appPrivateDirectory' => 'アプリ専用ディレクトリ',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全で信頼性があり、追加の権限は不要',
 			'settings.downloadSettings.downloadDirectory' => 'ダウンロードディレクトリ',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'システムデフォルトのダウンロード場所、管理が簡単',
@@ -5194,9 +5207,9 @@ extension on TranslationsJa {
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
-			'download.download' => 'ダウンロード',
 			_ => null,
 		} ?? switch (path) {
+			'download.download' => 'ダウンロード',
 			'download.selectDownloadTitle' => 'ダウンロードを選択',
 			'download.qualitySectionLabel' => '画質',
 			'download.saveToSectionLabel' => '保存先',
@@ -5708,9 +5721,9 @@ extension on TranslationsJa {
 			'crashRecoveryDialog.issueWarning' => '完全なログを Issue に公開添付しないでください',
 			'crashRecoveryDialog.acknowledge' => '了解',
 			'crashRecoveryDialog.supportEmailCopied' => 'メールアドレスをコピーしました',
-			'linkInputDialog.title' => 'リンクを入力',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.title' => 'リンクを入力',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
 			'linkInputDialog.validatorEmptyLink' => 'リンクを入力してください',
@@ -6205,6 +6218,7 @@ extension on TranslationsJa {
 			'watchLater.addedToWatchLater' => 'あとで見るに追加しました',
 			'watchLater.alreadyInWatchLater' => 'すでにあとで見るに入っています',
 			'watchLater.removedFromWatchLater' => 'あとで見るから削除しました',
+			'watchLater.removedCount' => ({required Object count}) => '${count} 件を削除しました',
 			'watchLater.viewWatchLaterList' => 'リストを見る',
 			'watchLater.addFailed' => 'あとで見るへの追加に失敗しました',
 			'watchLater.invalidItem' => '利用できません',
@@ -6221,10 +6235,10 @@ extension on TranslationsJa {
 			'watchLater.playlistLoadFailed' => '再生リストの読み込みに失敗しました',
 			'watchLater.noPlaylists' => '再生リストがありません',
 			'watchLater.undo' => '元に戻す',
-			'watchLater.clearWatchedConfirm' => 'このタブの視聴済みをすべて削除しますか？元に戻せません。',
-			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.clearWatchedConfirm' => 'このタブの視聴済みをすべて削除しますか？元に戻せません。',
+			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
 			'watchLater.emptyUnwatchedGallery' => '未視聴のギャラリーはありません',
 			'watchLater.queueLoadFailed' => '読み込みに失敗しました。タップで再試行',
 			'mediaMenu.like' => 'いいね',
@@ -6236,6 +6250,7 @@ extension on TranslationsJa {
 			'playbackQueue.upNext' => '次に見る',
 			'playbackQueue.sourceTab' => '元のリスト',
 			'playbackQueue.emptyQueue' => 'このキューに再生できる動画はありません',
+			'playbackQueue.emptyGalleryQueue' => 'このキューに画像集はありません',
 			'playbackQueue.nowPlaying' => '再生中',
 			'playbackQueue.myPlaylists' => '自分の再生リスト',
 			'playbackQueue.authorPlaylists' => '作者の再生リスト',
@@ -6243,6 +6258,15 @@ extension on TranslationsJa {
 			'playbackQueue.continueInQueue' => '現在のキューで続けて再生',
 			'playbackQueue.continueInQueueSubtitle' => '1本終わると自動で次を再生します。オンの間は「再生終了後にリピート」は無効です',
 			'playbackQueue.repeatDisabledByQueue' => '「現在のキューで続けて再生」がオンのため無効です',
+			'playbackQueue.playNext' => '次を再生',
+			'playbackQueue.queueEnded' => 'このキューの最後の項目です',
+			'playbackQueue.playNextHint' => 'タップで次を再生、長押しで「次に見る」を開きます',
+			'playbackQueue.authorVideos' => '作者の動画',
+			'playbackQueue.authorGalleries' => '作者の画像集',
+			'playbackQueue.localFavoriteFolders' => 'ローカルのお気に入り',
+			'playbackQueue.downloads' => 'ダウンロード済み',
+			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
+			'playbackQueue.nothingHere' => '何もありません',
 			_ => null,
 		};
 	}

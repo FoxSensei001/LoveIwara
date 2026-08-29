@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -116,6 +117,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             localPath: widget.localPath!,
             task: widget.localTask,
             allQualityTasks: widget.localAllQualityTasks,
+            // 从「接着看」的下载池换过来的那一条要直接开播、并接手全屏。
+            forceAutoPlay: widget.forceAutoPlay,
+            fullscreenHandoff: widget.fullscreenHandoff,
           ),
           tag: uniqueTag,
         );
@@ -143,9 +147,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           tag: uniqueTag,
         );
 
-        if (widget.forceEnterFullscreen) {
-          _scheduleForcedFullscreenEntry();
-        }
+      }
+
+      // ⛔ 强制进全屏**两种模式都要**：从「接着看」的下载池连播过来时落的是
+      // 本地播放页，只在在线分支里排这一枪的话，全屏连播换到已下载的那一条
+      // 就会掉出全屏。
+      if (widget.forceEnterFullscreen) {
+        _scheduleForcedFullscreenEntry();
       }
 
       // 视频池：来源 / （续播带过来的）播放列表 / 稍后再看
@@ -198,6 +206,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   List<PlaybackQueue> _queues = const <PlaybackQueue>[];
   PlaybackQueue? _activeQueue;
 
+  /// 池里用来定位「当前这一条」的 id。
+  ///
+  /// ⛔ 在线模式它就是 [videoId]，但**本地模式不是**：本地播放页的路由 id 是
+  /// `local_xxx` 那种占位，拿它去池里找自己永远找不到（找不到当前条 =
+  /// [PlaybackQueue.itemAfter] 一律返回 null = 推进彻底失效）。真正的媒体 id
+  /// 由路由 extra 里的 [PlaybackQueueRef.currentItemId] 带过来。
+  String _queueItemId = '';
+
   bool get _hasPlaybackQueue =>
       _queues.any((queue) => queue.loaded.isNotEmpty || queue.hasMore);
 
@@ -206,7 +222,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   /// ⛔ 「来源」只在**真的有来源**时出现（深链 / 通知 / 搜索单条进来时整只不出现），
   /// 而不是出现一个点了什么都没有的空 tab。
   void _setupPlaybackQueues() {
-    if (isLocalMode) return;
     final service = PlaybackQueueService.to;
     final queues = <PlaybackQueue>[];
 
@@ -218,6 +233,25 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       if (handedOver != null) queues.add(handedOver);
     }
 
+    // 本地模式下 videoId 是 `local_xxx` 占位，游标只能用 ref 带来的那个。
+    _queueItemId = isLocalMode ? (ref?.currentItemId.trim() ?? '') : videoId;
+
+    // ⛔ 本地播放页只认**交接过来的那个池**（从下载列表进来的下载池）。
+    // 来源快照与稍后再看都是在线的东西，摆进一个离线播放页里既没上下文
+    // 也点不动。池认不出来（App 重启后 ref 失效）就整只不出现。
+    if (isLocalMode) {
+      if (handedOver == null || _queueItemId.isEmpty) {
+        _queues = const <PlaybackQueue>[];
+        _activeQueue = null;
+        return;
+      }
+      _queues = queues;
+      _activeQueue = handedOver;
+      handedOver.addListener(_onActiveQueueChanged);
+      controller.onPlaybackCompleted = _advanceInQueue;
+      return;
+    }
+
     // 2. 来源池：进详情页之前那个列表的快照
     final sourceContext = widget.innerPlaylistContext;
     if (sourceContext != null && sourceContext.items.isNotEmpty) {
@@ -227,10 +261,14 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       }
     }
 
-    // 3. 稍后再看：只装视频、排除站外，默认「全部」
-    final watchLater = service.openWatchLater(unwatchedOnly: false);
-    if (!queues.any((queue) => queue.queueId == watchLater.queueId)) {
-      queues.add(watchLater);
+    // 3. 稍后再看：只装视频、排除站外，默认「全部」。
+    //
+    // ⛔ 判重要按 **kind** 而不是 queueId：筛选是池身份的一部分
+    // （`watchLater:all` / `watchLater:unwatched` 是两个 id），从稍后再看页的
+    // 「未看完」进来时按 id 比会两个都塞进去，抽屉里就排出两条同名 tab
+    // ——和 2026-08-29 那次报障一模一样。一种池永远只占一个槽。
+    if (!queues.any((queue) => queue.kind == PlaybackQueueKind.watchLater)) {
+      queues.add(service.openWatchLater(unwatchedOnly: false));
     }
 
     _queues = queues;
@@ -256,19 +294,47 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     if (mounted) setState(() {});
   }
 
-  Future<void> _advanceInQueue() async {
+  /// 播放器底栏那枚「下一个」要不要在场。判据见 [PlaybackQueue.canAdvance]。
+  bool get _canPlayNextInQueue =>
+      _activeQueue?.canAdvance(
+        _queueItemId,
+        skipWatched: widget.skipWatchedInQueue,
+      ) ??
+      false;
+
+  /// 手动点「下一个」。
+  ///
+  /// ⛔ 与自动续播共用 [_advanceInQueue] 那条路，但**不看「池内续播」那个开关**
+  /// ——开关管的是"播完要不要自动接上"，用户手动点是一次明确的指令。
+  Future<void> _playNextInQueue() async {
     final queue = _activeQueue;
     if (queue == null || !mounted) return;
+    final advanced = await _advanceInQueue();
+    if (!advanced && mounted) {
+      // 到底了就说一声。默默不动会被当成"按钮坏了"。
+      showGlassToast(
+        slang.Translations.of(context).playbackQueue.queueEnded,
+        type: GlassToastType.info,
+      );
+    }
+  }
+
+  /// 推进到池里的下一条。返回 false = 池到底了（调用方决定要不要提示）。
+  Future<bool> _advanceInQueue() async {
+    final queue = _activeQueue;
+    if (queue == null || !mounted) return false;
     final inFullscreen = controller.isFullscreen.value;
-    await PlaybackQueueNavigator.advance(
+    return PlaybackQueueNavigator.advance(
       queue: queue,
-      currentItemId: videoId,
+      currentItemId: _queueItemId,
       skipWatched: widget.skipWatchedInQueue,
       forceEnterFullscreen: inFullscreen,
       fullscreenHandoff: inFullscreen
           ? controller.buildFullscreenHandoff()
           : null,
       onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
+      // 补页/翻页要联网，这中间用户按了返回就别再往栈上顶新的详情页了。
+      stillWanted: () => mounted,
     );
   }
 
@@ -279,16 +345,32 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       context: context,
       queues: queues,
       initialQueue: _activeQueue ?? queues.first,
-      currentItemId: videoId,
-      playlistOwner: controller.videoInfo.value?.user,
+      currentItemId: _queueItemId,
+      author: controller.videoInfo.value?.user,
     );
     if (selection == null || !mounted) return;
     // ⛔ 只有**真的点播了一条**才换池。光切 tab 逛一圈不算——用户常常只是想
     // 瞄一眼别的池里有什么，静默换池会让下一条突然从别处冒出来。
     // 抽屉里可能换出了新的池实例（切了播放列表 / 切了稍后再看的筛选）——
     // 那些实例本页还没听过，得补上，否则它们同样会被 LRU 淘汰掉。
+    //
+    // ⛔ **按 kind 顶掉同类的那一个，不能直接 append**：稍后再看的筛选换一档
+    // 就是另一个池实例（`watchLater:all` / `watchLater:unwatched`），一路
+    // append 下去，抽屉里就会排出两条一模一样的「稍后再看」——同一个池、同一
+    // 个名字（2026-08-29 用户报障）。一种池永远只占一个槽。
     if (!_queues.any((queue) => identical(queue, selection.queue))) {
-      _queues = [..._queues, selection.queue];
+      final merged = [..._queues];
+      final slot = merged.indexWhere(
+        (queue) => queue.kind == selection.queue.kind,
+      );
+      if (slot >= 0) {
+        // 换下来的那个不再由本页持有：摘掉监听，让 LRU 该淘汰就淘汰。
+        merged[slot].removeListener(_onActiveQueueChanged);
+        merged[slot] = selection.queue;
+      } else {
+        merged.add(selection.queue);
+      }
+      _queues = merged;
       selection.queue.addListener(_onActiveQueueChanged);
     }
     _activeQueue = selection.queue;
@@ -536,12 +618,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                     // 形变层/全屏宿主，无条件独立实例可彻底排除与全屏会话状态
                     // 组合出的同帧 Key 重复风险（纹理经同一 videoController
                     // 共享，重建无黑帧）。
-                    return MyVideoScreen(
-                      myVideoStateController: controller,
+                    return _buildPlayerScreen(
                       isFullScreen: false,
                       innerPlaylistContext: effectiveInnerPlaylistContext,
-                      hasPlaybackQueue: _hasPlaybackQueue,
-                      onOpenQueueDrawer: _openQueueDrawer,
                     );
                   }
 
@@ -587,12 +666,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             if (fullscreenActive)
               Positioned.fill(
                 child: RestoreRawMediaQueryInsets(
-                  child: MyVideoScreen(
+                  child: _buildPlayerScreen(
                     isFullScreen: true,
-                    myVideoStateController: controller,
                     innerPlaylistContext: effectiveInnerPlaylistContext,
-                    hasPlaybackQueue: _hasPlaybackQueue,
-                    onOpenQueueDrawer: _openQueueDrawer,
                   ),
                 ),
               ),
@@ -646,8 +722,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                   return const SizedBox.shrink();
                 }
                 // 否则显示播放器（包含加载状态）
-                return MyVideoScreen(
-                  myVideoStateController: controller,
+                return _buildPlayerScreen(
                   isFullScreen: false,
                   enableBottomSafeArea: true,
                   innerPlaylistContext: innerPlaylistContext,
@@ -776,8 +851,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                           width: screenSize.width,
                           height: videoHeight,
                           child: _buildVideoArea(
-                            player: MyVideoScreen(
-                              myVideoStateController: controller,
+                            player: _buildPlayerScreen(
                               isFullScreen: false,
                               innerPlaylistContext: innerPlaylistContext,
                             ),
@@ -796,6 +870,29 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         body: _buildTabSection(context, 0, t),
       );
     });
+  }
+
+  /// 本页**唯一**的播放器构造点（内嵌、宽屏、全屏叠加层、PiP 都走这里）。
+  ///
+  /// ⛔ 「接着看」把手一度只在全屏出现，根因就是这几处各写各的：全屏与 PiP 那
+  /// 两处传了视频池参数，内嵌的四处漏了。池是**页面**的属性，跟播放器是内嵌
+  /// 还是全屏毫无关系，所以下发口收成一个——新增播放器时不可能再漏。
+  /// 闸门见 `test/playback_queue_entry_guard_test.dart`。
+  Widget _buildPlayerScreen({
+    required bool isFullScreen,
+    bool enableBottomSafeArea = false,
+    InnerPlaylistContext? innerPlaylistContext,
+  }) {
+    return MyVideoScreen(
+      myVideoStateController: controller,
+      isFullScreen: isFullScreen,
+      enableBottomSafeArea: enableBottomSafeArea,
+      innerPlaylistContext: innerPlaylistContext,
+      hasPlaybackQueue: _hasPlaybackQueue,
+      onOpenQueueDrawer: _openQueueDrawer,
+      canPlayNextInQueue: _canPlayNextInQueue,
+      onPlayNextInQueue: _playNextInQueue,
+    );
   }
 
   // 构建纯播放器（宽屏时使用，占满整个容器）
@@ -818,10 +915,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         }
         // 正常显示播放器（全屏时播放器渲染在全屏叠加层，这里渲染黑色占位）
         else if (!controller.isFullscreen.value) {
-          return MyVideoScreen(
+          return _buildPlayerScreen(
             isFullScreen: false,
             enableBottomSafeArea: applyBottomSafeArea,
-            myVideoStateController: controller,
             innerPlaylistContext: innerPlaylistContext,
           );
         } else {
@@ -844,9 +940,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       }
       // 正常显示播放器（全屏时播放器渲染在全屏叠加层，这里渲染黑色占位）
       else if (!controller.isFullscreen.value) {
-        return MyVideoScreen(
+        return _buildPlayerScreen(
           isFullScreen: false,
-          myVideoStateController: controller,
           innerPlaylistContext: innerPlaylistContext,
         );
       } else {

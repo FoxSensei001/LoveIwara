@@ -931,17 +931,22 @@ class MyVideoStateController extends GetxController
   /// [localPath] 本地视频文件路径
   /// [task] 下载任务信息（可选，从下载任务进入时传入）
   /// [allQualityTasks] 同一视频的所有已下载清晰度任务列表（可选）
+  ///
+  /// [forceAutoPlay] 与 [fullscreenHandoff] 是给「接着看」的下载池用的：从池里
+  /// 换到下一条已下载的片子时，和在线那条路一样要直接开播、并且把全屏状态接过
+  /// 来（没有交接就会先以非全屏渲染一帧，桌面端还会把全屏窗口几何错记成"进
+  /// 全屏前的尺寸"）。手动点开一条下载任务时两者都是默认值，行为不变。
   MyVideoStateController.forLocalVideo({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    this.forceAutoPlay = false,
+    this.fullscreenHandoff,
   }) : videoId = task != null
            ? VideoDownloadExtData.fromJson(task.extData!.data).id
            : null,
        extData = null,
-       forceAutoPlay = false,
        initialVideoInfo = null,
-       fullscreenHandoff = null,
        isLocalVideoMode = true,
        localVideoPath = localPath,
        localVideoTask = task,

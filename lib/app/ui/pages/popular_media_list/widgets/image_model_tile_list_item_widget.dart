@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/image.model.dart';
+import '../../../../models/playback_queue.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 图库行（列表模式）。
@@ -15,7 +16,20 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class ImageModelTileListItem extends StatefulWidget {
   final ImageModel imageModel;
 
-  const ImageModelTileListItem({super.key, required this.imageModel});
+  /// 从**哪个池**点进来的（可选）。
+  ///
+  /// 给了它，图库详情页开局就带着这个池——「接着看」第一眼看到的就是你刚才那份
+  /// 列表，而且定位在你点的这一条上（同视频那边的「从哪进来就定位到哪」）。
+  ///
+  /// 是回调而不是直接传 ref，为的是让调用页**点了才去登记池**：开页就登记等于
+  /// 为一次可能不会发生的跳转白建一个池。
+  final PlaybackQueueRef? Function(String galleryId)? playbackQueueRefBuilder;
+
+  const ImageModelTileListItem({
+    super.key,
+    required this.imageModel,
+    this.playbackQueueRefBuilder,
+  });
 
   @override
   State<ImageModelTileListItem> createState() => _ImageModelTileListItemState();
@@ -40,6 +54,9 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
       onTap: () => _navigateToDetailPage(),
       onLongPress: openActionMenu,
       onSecondaryTap: openActionMenu,
+      // 菜单贴着手指弹，落点从这两条记（见 [recordActionAnchor]）。
+      onTapDown: recordActionAnchor,
+      onSecondaryTapDown: recordActionAnchor,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -52,7 +69,6 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
             // 点它不会顺带触发整行的"打开详情"。
             MediaActionMenuButton(
               gallery: imageModel,
-              busy: menuBusy,
               likedOverride: effectiveLiked,
               onLikeChanged: applyLikeToggle,
             ),
@@ -97,8 +113,7 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
         if (imageModel.numViews > 0)
           _buildViewsNums(context, imageModel.numViews),
         // 左上角显示点赞数量
-        if (effectiveLikeCount > 0)
-          _buildLikeNums(context, effectiveLikeCount),
+        if (effectiveLikeCount > 0) _buildLikeNums(context, effectiveLikeCount),
       ],
     );
   }
@@ -238,6 +253,7 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
       authorAvatarUrl: imageModel.user?.avatar?.avatarUrl,
       authorRole: imageModel.user?.role,
       authorPremium: imageModel.user?.premium,
+      playbackQueueRef: widget.playbackQueueRefBuilder?.call(imageModel.id),
     );
   }
 }

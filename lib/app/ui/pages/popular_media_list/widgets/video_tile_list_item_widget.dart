@@ -92,6 +92,9 @@ class _VideoTileListItemState extends State<VideoTileListItem>
       // 不能动手的预览弹窗，已整只移除。
       onLongPress: openActionMenu,
       onSecondaryTap: isDesktopPlatform ? openActionMenu : null,
+      // 菜单贴着手指弹，落点从这两条记（见 [recordActionAnchor]）。
+      onTapDown: recordActionAnchor,
+      onSecondaryTapDown: recordActionAnchor,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -104,7 +107,6 @@ class _VideoTileListItemState extends State<VideoTileListItem>
             // 稳赢，所以点它不会顺带把整行的"打开详情"也触发掉。
             MediaActionMenuButton(
               video: widget.video,
-              busy: menuBusy,
               likedOverride: effectiveLiked,
               onLikeChanged: applyLikeToggle,
             ),

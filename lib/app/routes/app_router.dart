@@ -481,6 +481,7 @@ final GoRouter appRouter = GoRouter(
               initialAuthorRole: galleryExtra?.authorRole,
               initialAuthorPremium: galleryExtra?.authorPremium,
               extData: galleryExtra?.extData,
+              playbackQueueRef: galleryExtra?.playbackQueueRef,
             );
           },
         ),
@@ -1266,6 +1267,12 @@ class GalleryDetailExtra {
   final bool? authorPremium;
   final Map<String, dynamic>? extData;
 
+  /// 图库池的引用（只有两个字符串，池的真身在 `PlaybackQueueService`）。
+  ///
+  /// 从「接着看」抽屉里点到下一个图库、或者从一个**有池可交接**的列表页进来时
+  /// 带过来。为 null 就是"这次进来没有上下文"，详情页照常只提供稍后再看那一支。
+  final PlaybackQueueRef? playbackQueueRef;
+
   const GalleryDetailExtra({
     this.coverUrl,
     this.title,
@@ -1277,6 +1284,7 @@ class GalleryDetailExtra {
     this.authorRole,
     this.authorPremium,
     this.extData,
+    this.playbackQueueRef,
   });
 }
 

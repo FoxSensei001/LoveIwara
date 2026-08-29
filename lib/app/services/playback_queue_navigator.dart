@@ -56,14 +56,37 @@ class PlaybackQueueNavigator {
     // 的方式呈现（这是被删掉的 _handleInnerPlaylistSelection 原本做的事）。
     final isExternal = item.isExternalVideo;
 
+    final ref = PlaybackQueueRef(queueId: queue.queueId, currentItemId: id);
+
+    // ⛔ 图库池落在**图库详情页**，不是播放器。池的类型（不是条目的）说了算：
+    // 一个池里不许混装两种（见 [PlaybackMediaType]），所以这一问就够了。
+    // 全屏 / 自动播 / 本地文件那一整套都与图库无关，整条路各走各的。
+    if (queue.mediaType.isGallery) {
+      _pushGallery(item: item, ref: ref);
+      return;
+    }
+
+    // ⛔ 下载池里的条目**用磁盘上的文件播**，不回头去联网拉流（见
+    // [PlaybackQueue.localTargetFor]）。文件在池建好之后被删掉是可能的，池会
+    // 当场 stat 一遍，答 null 就老实退回在线详情页。
+    final local = isExternal ? null : await queue.localTargetFor(id);
+    if (local != null) {
+      _pushLocal(
+        local: local,
+        ref: ref,
+        skipWatched: skipWatched,
+        forceEnterFullscreen: forceEnterFullscreen,
+        fullscreenHandoff: fullscreenHandoff,
+        onRelinquishFullscreen: onRelinquishFullscreen,
+      );
+      return;
+    }
+
     final extra = VideoDetailExtra(
       initialVideoInfo: item.sourceVideo,
       forceAutoPlay: !isExternal,
       forceEnterFullscreen: forceEnterFullscreen && !isExternal,
-      playbackQueueRef: PlaybackQueueRef(
-        queueId: queue.queueId,
-        currentItemId: id,
-      ),
+      playbackQueueRef: ref,
       skipWatchedInQueue: skipWatched,
       // ⛔ 全屏交接：没有它，换一条就得等新页 videoPlayerReady 之后才进全屏，
       // 中间会先以非全屏渲染一帧（移动端看着闪一下竖屏）。桌面端更糟——
@@ -85,9 +108,78 @@ class PlaybackQueueNavigator {
     }
   }
 
+  /// 图库那条路。
+  ///
+  /// 同样用 `pushReplacement`：从抽屉里连着看十个图库不该在栈里叠十层——返回键
+  /// 要回到最初那个列表，而不是一层层倒着退（与视频那条同一个理由）。
+  ///
+  /// 快照里有的先带过去（封面 / 标题 / 张数 / 作者），新页开局就能渲染出骨架，
+  /// 不必空着等详情请求回来。
+  static void _pushGallery({
+    required InnerPlaylistItemSnapshot item,
+    required PlaybackQueueRef ref,
+  }) {
+    final extra = GalleryDetailExtra(
+      coverUrl: item.thumbnailUrl.isEmpty ? null : item.thumbnailUrl,
+      title: item.title.isEmpty ? null : item.title,
+      imageCount: item.numImages,
+      authorName: item.authorName,
+      authorUsername: item.authorUsername,
+      playbackQueueRef: ref,
+    );
+    try {
+      appRouter.pushReplacement(
+        '/gallery_detail/${ref.currentItemId}',
+        extra: extra,
+      );
+    } catch (e) {
+      LogUtils.e('切换到池内下一个图库失败', tag: 'PlaybackQueueNavigator', error: e);
+      // 兜底：至少别把用户卡在原地
+      NaviService.navigateToGalleryDetailPage(ref.currentItemId);
+    }
+  }
+
+  /// 本地文件那条路：路由 id 只是个占位（本地模式没有 iwara videoId），池的
+  /// 游标靠 [PlaybackQueueRef.currentItemId] 带过去——详情页在本地模式下会用它
+  /// 而不是 `videoId` 去池里定位自己。
+  static void _pushLocal({
+    required LocalPlaybackTarget local,
+    required PlaybackQueueRef ref,
+    required bool skipWatched,
+    required bool forceEnterFullscreen,
+    VideoFullscreenHandoff? fullscreenHandoff,
+    VoidCallback? onRelinquishFullscreen,
+  }) {
+    final extra = VideoDetailExtra(
+      localPath: local.localPath,
+      localTask: local.task,
+      localAllQualityTasks: local.allQualityTasks,
+      playbackQueueRef: ref,
+      skipWatchedInQueue: skipWatched,
+      forceAutoPlay: true,
+      forceEnterFullscreen: forceEnterFullscreen,
+      fullscreenHandoff: fullscreenHandoff,
+    );
+    try {
+      if (fullscreenHandoff != null) onRelinquishFullscreen?.call();
+      appRouter.pushReplacement(
+        '/video_detail/${localVideoRouteId(ref.currentItemId)}',
+        extra: extra,
+      );
+    } catch (e) {
+      LogUtils.e('切换到本地下载的下一条失败', tag: 'PlaybackQueueNavigator', error: e);
+    }
+  }
+
   /// 播完之后推进到下一条。返回 false 表示池到底了——调用方应当停在最后一条，
   /// 恢复「暂停 / 重播」的老语义（**不**自动追加相关视频：无限刷和"临时队列"
   /// 的定位相反）。
+  /// [stillWanted] 在**所有等待都结束、真要跳转之前**再问一次「这次推进还算数吗」。
+  ///
+  /// ⛔ 自动续播下面这两步都是要联网的（补页找到当前条、翻到下一页），加起来能
+  /// 有好几百毫秒。用户在这个窗口里按了返回，页面已经不在栈顶了，而 [playItem]
+  /// 里的 `pushReplacement` 不认这个——它会把详情页顶到用户刚回到的列表页上面。
+  /// 调用方传 `() => mounted` 即可。
   static Future<bool> advance({
     required PlaybackQueue queue,
     required String currentItemId,
@@ -95,7 +187,15 @@ class PlaybackQueueNavigator {
     bool forceEnterFullscreen = false,
     VideoFullscreenHandoff? fullscreenHandoff,
     VoidCallback? onRelinquishFullscreen,
+    bool Function()? stillWanted,
   }) async {
+    // ⛔ 先把池翻到**装得下当前这条**为止。从「最爱」这类深列表的中段进来时，
+    // 池刚建好只有第 0 页，而当前这条可能在第 5 页——找不到自己 itemAfter 就
+    // 恒为 null，推进从第一下起就失效。
+    if (!queue.contains(currentItemId)) {
+      await queue.ensureContains(currentItemId);
+    }
+
     // ⛔ 分页池到了已加载部分的末尾时，itemAfter 返回 null **不代表池到底了**。
     // 不先翻一页的话，一个 40 条的播放列表连播到第 32 条就会停（后 8 条还没拉
     // 进来），而 hasMore 恰恰是区分"到分页边界"和"真到底"的那个信号。
@@ -107,6 +207,14 @@ class PlaybackQueueNavigator {
       await queue.loadMore();
       // 一页都没多出来（到底了 / 请求失败）就别再空转
       if (queue.loaded.length == before) break;
+    }
+
+    // 上面两处 await 期间用户可能已经离开这一页了，跳转前再确认一次。
+    // 返回 true（当作"推进成功"）而不是 false：不然调用方会弹一句"已经是最后
+    // 一条了"的提示，可用户明明只是按了返回。
+    if (stillWanted != null && !stillWanted()) {
+      LogUtils.d('续播目标页已离开，放弃本次推进', 'PlaybackQueueNavigator');
+      return true;
     }
 
     final next = queue.itemAfter(currentItemId, skipWatched: skipWatched);

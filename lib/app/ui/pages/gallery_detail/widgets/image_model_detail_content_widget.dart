@@ -20,6 +20,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
     show FilledActionButton, FilledLikeButton;
+import 'package:i_iwara/app/ui/widgets/watch_later_action_button.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
@@ -419,6 +420,9 @@ class ImageModelDetailContent extends StatelessWidget {
                 } catch (_) {}
               },
             ),
+            // 「稍后再看」摆在本地收藏前面：两者都是"先存起来"，但稍后再看是
+            // 临时队列、收藏是长期归档，前者用得更频（与视频详情页同序）。
+            WatchLaterActionButton(gallery: imageModelInfo),
             Obx(
               () => FilledActionButton(
                 icon: controller.isInAnyFavorite.value

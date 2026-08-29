@@ -292,6 +292,9 @@ class TranslationsCommonEn {
 	/// en: 'Sort'
 	String get sort => 'Sort';
 
+	/// en: 'Filter'
+	String get filter => 'Filter';
+
 	/// en: 'Love Iwara'
 	String get appName => 'Love Iwara';
 
@@ -6069,6 +6072,9 @@ class TranslationsWatchLaterEn {
 	/// en: 'Removed from Watch Later'
 	String get removedFromWatchLater => 'Removed from Watch Later';
 
+	/// en: 'Removed ${count} items'
+	String removedCount({required Object count}) => 'Removed ${count} items';
+
 	/// en: 'View list'
 	String get viewWatchLaterList => 'View list';
 
@@ -6174,6 +6180,9 @@ class TranslationsPlaybackQueueEn {
 	/// en: 'Nothing playable in this queue'
 	String get emptyQueue => 'Nothing playable in this queue';
 
+	/// en: 'No galleries in this queue'
+	String get emptyGalleryQueue => 'No galleries in this queue';
+
 	/// en: 'Now playing'
 	String get nowPlaying => 'Now playing';
 
@@ -6194,6 +6203,33 @@ class TranslationsPlaybackQueueEn {
 
 	/// en: 'Disabled while "keep playing from the current queue" is on'
 	String get repeatDisabledByQueue => 'Disabled while "keep playing from the current queue" is on';
+
+	/// en: 'Play next'
+	String get playNext => 'Play next';
+
+	/// en: 'This is the last item in the queue'
+	String get queueEnded => 'This is the last item in the queue';
+
+	/// en: 'Tap to play the next item, long-press to open Up next'
+	String get playNextHint => 'Tap to play the next item, long-press to open Up next';
+
+	/// en: 'Author's videos'
+	String get authorVideos => 'Author\'s videos';
+
+	/// en: 'Author's galleries'
+	String get authorGalleries => 'Author\'s galleries';
+
+	/// en: 'Local favorites'
+	String get localFavoriteFolders => 'Local favorites';
+
+	/// en: 'Downloaded'
+	String get downloads => 'Downloaded';
+
+	/// en: 'Other user's playlists'
+	String get otherPlaylists => 'Other user\'s playlists';
+
+	/// en: 'Nothing here'
+	String get nothingHere => 'Nothing here';
 }
 
 // Path: common.pagination
@@ -8893,6 +8929,7 @@ extension on Translations {
 			'tutorial.specialFollowManagementTip' => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page',
 			'tutorial.skip' => 'Skip',
 			'common.sort' => 'Sort',
+			'common.filter' => 'Filter',
 			'common.appName' => 'Love Iwara',
 			'common.ok' => 'OK',
 			'common.cancel' => 'Cancel',
@@ -9347,9 +9384,9 @@ extension on Translations {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
-			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
@@ -9861,9 +9898,9 @@ extension on Translations {
 			'settings.downloadSettings.pathValid' => 'Path is valid',
 			'settings.downloadSettings.validationFailed' => 'Validation failed',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
-			'settings.downloadSettings.appPrivateDirectory' => 'App Private Directory',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.appPrivateDirectory' => 'App Private Directory',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => 'Safe and reliable, no additional permissions required',
 			'settings.downloadSettings.downloadDirectory' => 'Download Directory',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'System default download location, easy to manage',
@@ -10375,9 +10412,9 @@ extension on Translations {
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
-			'download.download' => 'Download',
 			_ => null,
 		} ?? switch (path) {
+			'download.download' => 'Download',
 			'download.selectDownloadTitle' => 'Select Download',
 			'download.qualitySectionLabel' => 'Quality',
 			'download.saveToSectionLabel' => 'Save to',
@@ -10889,9 +10926,9 @@ extension on Translations {
 			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => 'Playback notice: ${message}',
 			'mediaPlayer.notice.networkUnstable' => 'Check your network; playback may stutter',
 			'mediaPlayer.notice.audioTrackUnavailable' => 'No sound available; the video keeps playing',
-			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
@@ -11386,6 +11423,7 @@ extension on Translations {
 			'watchLater.addedToWatchLater' => 'Added to Watch Later',
 			'watchLater.alreadyInWatchLater' => 'Already in Watch Later',
 			'watchLater.removedFromWatchLater' => 'Removed from Watch Later',
+			'watchLater.removedCount' => ({required Object count}) => 'Removed ${count} items',
 			'watchLater.viewWatchLaterList' => 'View list',
 			'watchLater.addFailed' => 'Failed to add to Watch Later',
 			'watchLater.invalidItem' => 'Unavailable',
@@ -11402,10 +11440,10 @@ extension on Translations {
 			'watchLater.playlistLoadFailed' => 'Failed to load playlists',
 			'watchLater.noPlaylists' => 'No playlists yet',
 			'watchLater.undo' => 'Undo',
-			'watchLater.clearWatchedConfirm' => 'Clear everything you have already watched in this tab? This cannot be undone.',
-			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.clearWatchedConfirm' => 'Clear everything you have already watched in this tab? This cannot be undone.',
+			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
 			'watchLater.emptyUnwatchedGallery' => 'Nothing left to view here',
 			'watchLater.queueLoadFailed' => 'Failed to load, tap to retry',
 			'mediaMenu.like' => 'Like',
@@ -11417,6 +11455,7 @@ extension on Translations {
 			'playbackQueue.upNext' => 'Up next',
 			'playbackQueue.sourceTab' => 'Source',
 			'playbackQueue.emptyQueue' => 'Nothing playable in this queue',
+			'playbackQueue.emptyGalleryQueue' => 'No galleries in this queue',
 			'playbackQueue.nowPlaying' => 'Now playing',
 			'playbackQueue.myPlaylists' => 'My playlists',
 			'playbackQueue.authorPlaylists' => 'Author\'s playlists',
@@ -11424,6 +11463,15 @@ extension on Translations {
 			'playbackQueue.continueInQueue' => 'Keep playing from the current queue',
 			'playbackQueue.continueInQueueSubtitle' => 'Plays the next item automatically; disables "repeat when finished"',
 			'playbackQueue.repeatDisabledByQueue' => 'Disabled while "keep playing from the current queue" is on',
+			'playbackQueue.playNext' => 'Play next',
+			'playbackQueue.queueEnded' => 'This is the last item in the queue',
+			'playbackQueue.playNextHint' => 'Tap to play the next item, long-press to open Up next',
+			'playbackQueue.authorVideos' => 'Author\'s videos',
+			'playbackQueue.authorGalleries' => 'Author\'s galleries',
+			'playbackQueue.localFavoriteFolders' => 'Local favorites',
+			'playbackQueue.downloads' => 'Downloaded',
+			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
+			'playbackQueue.nothingHere' => 'Nothing here',
 			_ => null,
 		};
 	}

@@ -781,6 +781,17 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     return categories.any((c) => c.id == filter) ? filter : 'all';
   }
 
+  /// 分类筛选对应的显示名（'all' 没有名字，交给「接着看」用默认文案）。
+  String? _categoryTitleOf(String filter) {
+    if (filter == 'all') return null;
+    if (filter == 'uncategorized') {
+      return slang.t.download.category.uncategorized;
+    }
+    return DownloadService.to.categories
+        .firstWhereOrNull((c) => c.id == filter)
+        ?.title;
+  }
+
   /// 批量「移至分类」：用已选任务打开移动弹窗，移动后退出多选。
   Future<void> _moveSelectedToCategory() async {
     if (_selectedTaskIds.isEmpty) return;
@@ -1295,7 +1306,13 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   Widget _buildTaskItem(DownloadTask task) {
     Widget item;
     if (task.extData?.type == DownloadTaskExtDataType.video) {
-      item = VideoDownloadTaskItem(task: task);
+      // 把列表页当前的分类筛选一起交给卡片：点进播放器时「接着看」落在
+      // **同一个分类**上，而不是笼统的「全部已下载」。
+      item = VideoDownloadTaskItem(
+        task: task,
+        queueCategoryFilter: _effectiveCategoryFilter,
+        queueCategoryTitle: _categoryTitleOf(_effectiveCategoryFilter),
+      );
     } else if (task.extData?.type == DownloadTaskExtDataType.gallery) {
       item = GalleryDownloadTaskItem(task: task);
     } else {

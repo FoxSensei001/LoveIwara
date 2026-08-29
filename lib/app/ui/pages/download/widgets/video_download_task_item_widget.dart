@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
@@ -28,7 +30,20 @@ import 'package:i_iwara/utils/common_utils.dart';
 class VideoDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
 
-  const VideoDownloadTaskItem({super.key, required this.task});
+  const VideoDownloadTaskItem({
+    super.key,
+    required this.task,
+    this.queueCategoryFilter = 'all',
+    this.queueCategoryTitle,
+  });
+
+  /// 列表页当前的分类筛选（`'all'` / `'uncategorized'` / 分类 id）。**分类是
+  /// 下载池身份的一部分**，所以点进播放器时要原样带过去——用户在「音乐」分类
+  /// 里点开一条，接下来续播的当然也该是「音乐」那一批。
+  final String queueCategoryFilter;
+
+  /// 上面那个筛选的显示名，用于「接着看」胶囊上写清是哪一批（'all' 为 null）。
+  final String? queueCategoryTitle;
 
   /// 单个任务的操作菜单：右键和右侧的「更多」按钮共用这一份条目。
   ///
@@ -466,8 +481,7 @@ class VideoDownloadTaskItem extends StatelessWidget {
             if (videoData.id != null)
               IconButton(
                 icon: const Icon(Icons.video_library),
-                onPressed: () =>
-                    NaviService.navigateToVideoDetailPage(videoData.id!),
+                onPressed: () => _openVideoDetail(videoData.id!),
                 tooltip: t.download.viewVideoDetail,
               ),
             // 更多操作按钮
@@ -805,11 +819,14 @@ class VideoDownloadTaskItem extends StatelessWidget {
             .toList();
       }
 
-      // 导航到本地视频播放页面
+      // 导航到本地视频播放页面。**把下载池一起交出去**：这样播放器里的
+      // 「接着看」一开就落在「已下载」上，而且下一条同样用本地文件播
+      // （见 DownloadsPlaybackQueue）。
       NaviService.navigateToLocalVideoPlayerPage(
         localPath: filePath,
         task: task,
         allQualityTasks: allQualityTasks,
+        playbackQueueRef: await _openDownloadsQueueRef(videoData.id),
       );
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
@@ -829,9 +846,36 @@ class VideoDownloadTaskItem extends StatelessWidget {
       // 如果是视频类型且有视频ID，可以跳转到视频详情页
       final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
       if (videoData.id != null) {
-        NaviService.navigateToVideoDetailPage(videoData.id!);
+        _openVideoDetail(videoData.id!);
       }
     }
+  }
+
+  /// 从下载列表进在线详情页，顺手把下载池交出去——「接着看」一开就落在
+  /// 「已下载」上（用户要的"从哪进来就定位到哪"）。
+  Future<void> _openVideoDetail(String videoId) async {
+    NaviService.navigateToVideoDetailPage(
+      videoId,
+      playbackQueueRef: await _openDownloadsQueueRef(videoId),
+    );
+  }
+
+  /// 建/取下载池，并给出指向 [mediaId] 的引用。
+  ///
+  /// 第一页先拉起来：池空着交过去的话，详情页那枚「下一个」会因为
+  /// `loaded` 为空而缺席一小会儿。[mediaId] 为空（历史脏数据）就不给池——
+  /// 池的游标就是 id，没有 id 定位不了自己。
+  Future<PlaybackQueueRef?> _openDownloadsQueueRef(String? mediaId) async {
+    final id = mediaId?.trim();
+    if (id == null || id.isEmpty) return null;
+    final queue = PlaybackQueueService.to.openDownloads(
+      categoryFilter: queueCategoryFilter,
+      title: queueCategoryTitle,
+    );
+    if (queue.loaded.isEmpty) {
+      await queue.loadMore();
+    }
+    return PlaybackQueueRef(queueId: queue.queueId, currentItemId: id);
   }
 
   void _showDeleteConfirmDialog(BuildContext context, {bool force = false}) {

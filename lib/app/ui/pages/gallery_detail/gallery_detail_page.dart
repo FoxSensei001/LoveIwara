@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/playback_queue_navigator.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
@@ -61,6 +65,9 @@ class GalleryDetailPage extends StatefulWidget {
   final bool? initialAuthorPremium;
   final Map<String, dynamic>? extData;
 
+  /// 图库池的引用：从「接着看」抽屉点过来、或者从带池的列表页进来时才有。
+  final PlaybackQueueRef? playbackQueueRef;
+
   const GalleryDetailPage({
     super.key,
     required this.imageModelId,
@@ -74,6 +81,7 @@ class GalleryDetailPage extends StatefulWidget {
     this.initialAuthorRole,
     this.initialAuthorPremium,
     this.extData,
+    this.playbackQueueRef,
   });
 
   @override
@@ -115,6 +123,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     _relatedTabController.dispose();
     _wideScrollController.dispose();
     _showBackToTop.dispose();
+    for (final queue in _queues) {
+      queue.removeListener(_onQueueChanged);
+    }
     Get.delete<GalleryDetailController>(tag: uniqueTag);
     Get.delete<CommentController>(tag: uniqueTag);
     Get.delete<RelatedMediasController>(tag: uniqueTag);
@@ -153,6 +164,110 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         mediaType: MediaType.IMAGE,
       ),
       tag: uniqueTag,
+    );
+
+    _setupPlaybackQueues();
+  }
+
+  // ------------------------------------------------------------ 图库池
+
+  /// 本页可用的池。与视频详情页同一套（见那边的 `_setupPlaybackQueues`）：
+  /// **每层详情页各持一份**，池的真身在 `PlaybackQueueService` 里。
+  List<PlaybackQueue> _queues = const <PlaybackQueue>[];
+  PlaybackQueue? _activeQueue;
+
+  /// 入口钮要不要在场。
+  ///
+  /// ⛔ 判据比视频那边**松**：只要手上有池就摆出来，不看池里这会儿有没有东西。
+  /// 图库这一路绝大多数入口交接不出池，稍后再看的图库那一支又常常是空的——
+  /// 按"池里有货才显示"来判，「最爱 / 本地收藏夹 / 作者的图库」这几支就**永远
+  /// 够不着**（它们是进了抽屉才现开的）。空池的抽屉本来就说得清楚（"这个池里
+  /// 没有可看的图库"），胶囊还能换到别的池去。
+  bool get _hasPlaybackQueue => _queues.isNotEmpty;
+
+  /// 组装本页的池清单。
+  ///
+  /// 只放两样：交接过来的那个（从抽屉点进来、或者从带池的列表页进来），以及
+  /// 稍后再看的图库那一支。**其余几类（最爱 / 本地收藏夹 / 作者的图库）由抽屉
+  /// 按需现开**——它们都是"用户主动想换过去"才需要的东西，开页时先建好只会白
+  /// 打请求（视频详情页同理）。
+  void _setupPlaybackQueues() {
+    final service = PlaybackQueueService.to;
+    final queues = <PlaybackQueue>[];
+
+    final ref = widget.playbackQueueRef;
+    PlaybackQueue? handedOver;
+    if (ref != null) {
+      final queue = service.byId(ref.queueId);
+      // ⛔ 交接过来的必须是**图库池**：App 重启后 ref 会失效，而 queueId 也可能
+      // 命中一个同名的视频池——把视频池摆进图库详情页，"下一条"会把用户扔进
+      // 播放器。
+      if (queue != null && queue.mediaType.isGallery) {
+        handedOver = queue;
+        queues.add(queue);
+      }
+    }
+
+    // 稍后再看（图库那一支），默认「全部」。判重按 kind：筛选是池身份的一部分
+    // （`watchLater:all:gallery` / `watchLater:unwatched:gallery` 是两个 id），
+    // 按 id 比会两个都塞进去，抽屉里就排出两条同名 tab。
+    if (!queues.any((queue) => queue.kind == PlaybackQueueKind.watchLater)) {
+      queues.add(
+        service.openWatchLater(
+          unwatchedOnly: false,
+          mediaType: PlaybackMediaType.gallery,
+        ),
+      );
+    }
+
+    _queues = queues;
+    _activeQueue = handedOver ?? queues.firstOrNull;
+    // ⛔ **每个池都要挂监听**，不能只挂 active 那一个：LRU 只保护"还有人在听"的
+    // 池，没挂的那些会在别处注册新池时被 dispose 掉，而本页仍拿着引用。
+    for (final queue in _queues) {
+      queue.addListener(_onQueueChanged);
+    }
+  }
+
+  void _onQueueChanged() {
+    if (mounted) setState(() {});
+  }
+
+  /// 打开「接着看」抽屉。与播放器共用同一只抽屉（[showPlaybackQueueDrawer]）。
+  Future<void> _openQueueDrawer() async {
+    final queues = _queues;
+    if (queues.isEmpty || !mounted) return;
+    final selection = await showPlaybackQueueDrawer(
+      context: context,
+      queues: queues,
+      initialQueue: _activeQueue ?? queues.first,
+      currentItemId: imageModelId,
+      author: detailController.imageModelInfo.value?.user,
+      mediaType: PlaybackMediaType.gallery,
+    );
+    if (selection == null || !mounted) return;
+    // ⛔ 只有**真的点了一条**才换池；光切 tab 逛一圈不算。抽屉里可能换出了新的
+    // 池实例，那些本页还没听过，得**按 kind 顶掉同类的那一个**补上监听——一路
+    // append 下去会排出两条同名 tab（视频那边 2026-08-29 报障过）。
+    if (!_queues.any((queue) => identical(queue, selection.queue))) {
+      final merged = [..._queues];
+      final slot = merged.indexWhere(
+        (queue) => queue.kind == selection.queue.kind,
+      );
+      if (slot >= 0) {
+        merged[slot].removeListener(_onQueueChanged);
+        merged[slot] = selection.queue;
+      } else {
+        merged.add(selection.queue);
+      }
+      _queues = merged;
+      selection.queue.addListener(_onQueueChanged);
+    }
+    _activeQueue = selection.queue;
+    await PlaybackQueueNavigator.playItem(
+      queue: selection.queue,
+      item: selection.item,
+      skipWatched: false,
     );
   }
 
@@ -259,6 +374,18 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           const SizedBox(width: 8),
           GlassButtonGroup(
             children: [
+              // 「接着看」：图库详情页没有播放器底栏那种常驻位置，chrome 上这枚
+              // 圆钮是唯一既随处可达、又不和内容抢地方的落点。池里空无一物时
+              // 整只退场（带宽度过渡，不硬切）——摆一枚点了什么都没有的钮比不
+              // 摆更糟。
+              GlassGroupSlot(
+                visible: _hasPlaybackQueue,
+                child: GlassIconButton(
+                  icon: const Icon(Icons.playlist_play),
+                  tooltip: t.playbackQueue.upNext,
+                  onPressed: _openQueueDrawer,
+                ),
+              ),
               GlassIconButton(
                 icon: const Icon(Icons.home),
                 tooltip: t.videoDetail.home,

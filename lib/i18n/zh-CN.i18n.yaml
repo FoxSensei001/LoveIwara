@@ -64,6 +64,7 @@ tutorial:
   
 common:
   sort: 排序
+  filter: 筛选
   appName: Love Iwara
   ok: 确定
   cancel: 取消
@@ -2755,6 +2756,7 @@ watchLater:
   addedToWatchLater: 已添加至稍后再看
   alreadyInWatchLater: 已经在稍后再看里了
   removedFromWatchLater: 已移出稍后再看
+  removedCount: 已移出 ${count} 条
   viewWatchLaterList: 查看列表
   addFailed: 加入稍后再看失败
   invalidItem: 已失效
@@ -2786,6 +2788,7 @@ playbackQueue:
   upNext: 接着看
   sourceTab: 来源
   emptyQueue: 这个池里没有可播的视频
+  emptyGalleryQueue: 这个池里没有可看的图库
   nowPlaying: 正在播放
   myPlaylists: 我的播放列表
   authorPlaylists: 作者的播放列表
@@ -2793,3 +2796,12 @@ playbackQueue:
   continueInQueue: 在当前视频池内续播
   continueInQueueSubtitle: 一条播完自动播池里的下一条；开启后「播放结束重播」不再生效
   repeatDisabledByQueue: 已开启「池内续播」，重播不再生效
+  playNext: 下一个
+  queueEnded: 已经是这个池里的最后一条了
+  playNextHint: 点击播放下一条，长按打开「接着看」
+  authorVideos: 作者的视频
+  authorGalleries: 作者的图库
+  localFavoriteFolders: 本地收藏
+  downloads: 已下载
+  otherPlaylists: 他人的播放列表
+  nothingHere: 暂无内容

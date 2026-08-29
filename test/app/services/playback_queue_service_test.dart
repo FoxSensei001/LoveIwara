@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -40,33 +41,61 @@ void main() {
   test('不同页面实例的同源列表互不覆盖', () {
     service.openSource(context('a'), ownerKey: 'page1');
     service.openSource(context('b'), ownerKey: 'page2');
-    expect(
-      service.queueCount,
-      2,
-      reason: '两层作者页看的是不同作者，池不能串',
-    );
+    expect(service.queueCount, 2, reason: '两层作者页看的是不同作者，池不能串');
   });
 
   test('超出上限时淘汰最久没用的', () {
-    for (var i = 0; i < 5; i++) {
+    final overflow = PlaybackQueueService.maxQueues + 2;
+    for (var i = 0; i < overflow; i++) {
       service.openSource(context('v$i'), ownerKey: 'page$i');
     }
-    expect(service.queueCount, 3);
+    expect(service.queueCount, PlaybackQueueService.maxQueues);
     expect(service.byId('source:popularVideoList:page0'), isNull);
-    expect(service.byId('source:popularVideoList:page4'), isNotNull);
+    expect(
+      service.byId('source:popularVideoList:page${overflow - 1}'),
+      isNotNull,
+    );
   });
 
   test('byId 会把池挪到 LRU 队尾，避免刚用过的被淘汰', () {
-    service.openSource(context('a'), ownerKey: 'p0');
-    service.openSource(context('b'), ownerKey: 'p1');
-    service.openSource(context('c'), ownerKey: 'p2');
+    final cap = PlaybackQueueService.maxQueues;
+    for (var i = 0; i < cap; i++) {
+      service.openSource(context('v$i'), ownerKey: 'p$i');
+    }
 
     // 摸一下最老的那个，它就不该是下一个被淘汰的
     service.byId('source:popularVideoList:p0');
-    service.openSource(context('d'), ownerKey: 'p3');
+    service.openSource(context('extra'), ownerKey: 'p$cap');
 
     expect(service.byId('source:popularVideoList:p0'), isNotNull);
     expect(service.byId('source:popularVideoList:p1'), isNull);
+  });
+
+  test('⛔ 刚登记的池不许被自己那次登记淘汰掉', () {
+    // 塞满且全都有人听 —— 抽屉开着逛过一圈就是这个局面
+    void listener() {}
+    final busy = <PlaybackQueue>[];
+    for (var i = 0; i < PlaybackQueueService.maxQueues; i++) {
+      final queue = service.openSource(context('v$i'), ownerKey: 'busy$i');
+      queue.addListener(listener);
+      busy.add(queue);
+    }
+
+    // 再来一个：身上一个监听都没有，正是"第一个没人听的"
+    final fresh = service.openSource(context('new'), ownerKey: 'fresh');
+
+    // 炸点在这里：上一版 openPlaylist 会把刚造好的池 dispose 掉再还给调用方
+    expect(
+      () => fresh.addListener(listener),
+      returnsNormally,
+      reason: '刚登记的池被自己那次 _evictIfNeeded 淘汰了',
+    );
+    expect(service.byId('source:popularVideoList:fresh'), isNotNull);
+
+    fresh.removeListener(listener);
+    for (final queue in busy) {
+      queue.removeListener(listener);
+    }
   });
 
   test('⛔ 仍被监听的池不许淘汰——dispose 掉它会让监听方在下一次通知时炸', () {

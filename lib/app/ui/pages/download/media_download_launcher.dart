@@ -55,10 +55,16 @@ Future<void> launchVideoDownload(
   BuildContext context, {
   required Video video,
   List<VideoSource>? sources,
+
+  /// [sources] 是调用方自己已经拉过一遍的结果（卡片菜单在自己那一行转圈拉的，
+  /// 见 [prepareVideoDownloadSources]）。传 true 时这里**不再重拉**：空就直接
+  /// 按「没有下载源」提示，免得失败路径上白打第二次请求。
+  bool sourcesAlreadyResolved = false,
   String? initialQuality,
   DownloadPickerPreselectSource preselectSource =
       DownloadPickerPreselectSource.lastUsed,
   VoidCallback? onTaskCreated,
+
   /// 「现在最新的源列表」。详情页把 controller 那份实时列表接进来，用于在
   /// 清晰度弹窗关闭之后重新匹配一次——弹窗停留期间源可能已经被刷新过。
   List<VideoSource>? Function()? refreshSources,
@@ -75,7 +81,9 @@ Future<void> launchVideoDownload(
     return;
   }
 
-  final resolved = await _resolveVideoSources(context, video, sources);
+  final resolved = sourcesAlreadyResolved
+      ? sources
+      : await _resolveVideoSources(video, sources);
   if (!context.mounted) return;
   if (resolved == null || resolved.isEmpty) {
     showGlassToast(
@@ -102,8 +110,7 @@ Future<void> launchVideoDownload(
   // 这个仓库有过「下载死链」的旧账，源头就是拿着过期地址。
   // [latestSources] 由调用方通过 [refreshSources] 提供；没提供就沿用原来那份。
   final latest = refreshSources?.call();
-  final source =
-      (latest == null || latest.isEmpty)
+  final source = (latest == null || latest.isEmpty)
       ? result.source
       : latest.firstWhereOrNull(
               (s) =>
@@ -210,8 +217,11 @@ bool _ensureAuthenticated(slang.Translations t) {
 }
 
 /// 拿到按清晰度排好序的视频源。列表数据里没有 `videoSources`，此时拉一次详情。
+///
+/// ⛔ **详情接口给的是 `fileUrl`，不是源清单**（`Video.fromJson` 里 `videoSources`
+/// 恒为 null）。所以拉完详情还得照着 `fileUrl` 再要一次源——少了这一步，从卡片
+/// 点下载**必定**立刻弹「暂无下载源，请等待信息加载」，而且再等也不会有。
 Future<List<VideoSource>?> _resolveVideoSources(
-  BuildContext context,
   Video video,
   List<VideoSource>? provided,
 ) async {
@@ -222,12 +232,42 @@ Future<List<VideoSource>?> _resolveVideoSources(
     return CommonUtils.sortVideoSourcesByQuality(video.videoSources!);
   }
 
-  final detail = await Get.find<VideoService>().fetchVideoInfoResult(video.id);
+  final videoService = Get.find<VideoService>();
+
+  // 列表数据里带的 fileUrl 先试一次，省掉一次详情请求。它是带签名、会过期的，
+  // 所以拿不到源时**不能**当成「这视频没有源」——退回去拉一次详情要个新的。
+  final String? listed = video.fileUrl;
+  if (listed != null && listed.isNotEmpty) {
+    final sources = await videoService.getVideoSourcesBy(listed);
+    if (sources.isNotEmpty) {
+      return CommonUtils.sortVideoSourcesByQuality(sources);
+    }
+  }
+
+  final detail = await videoService.fetchVideoInfoResult(video.id);
   if (!detail.isSuccess || detail.data == null) return null;
-  final sources = detail.data!.videoSources;
-  if (sources == null || sources.isEmpty) return null;
+  final String? fresh = detail.data!.fileUrl;
+  if (fresh == null || fresh.isEmpty) return null;
+
+  final sources = await videoService.getVideoSourcesBy(fresh);
+  if (sources.isEmpty) return null;
   return CommonUtils.sortVideoSourcesByQuality(sources);
 }
+
+/// 「拉视频源」这一步单独拎出来，好让调用方在自己的界面上先转圈再进下载流程。
+///
+/// 卡片菜单用它：点了「下载」之后菜单不立刻关，那一行先转圈拉源，拉完再关面板
+/// 进清晰度选择（见 media_action_menu.dart）。拉到的结果原样回传给
+/// [launchVideoDownload] 的 `sources`，配合 `sourcesAlreadyResolved: true`。
+Future<List<VideoSource>?> prepareVideoDownloadSources(Video video) =>
+    _resolveVideoSources(video, null);
+
+/// 「拉图库文件清单」这一步，同 [prepareVideoDownloadSources]。
+///
+/// 回传的 [ImageModel] 直接交给 [launchGalleryDownload] 即可——它自带
+/// 「已经有 files 就不再拉」的短路。
+Future<ImageModel?> prepareGalleryDownloadFiles(ImageModel gallery) =>
+    _resolveGalleryFiles(gallery);
 
 /// 拿到带文件清单的图库。列表数据里 `files` 是空的。
 Future<ImageModel?> _resolveGalleryFiles(ImageModel gallery) async {
@@ -250,7 +290,14 @@ String? _lastUsedQuality(List<VideoSource> sources) {
   );
   if (matching != null) return matching.name;
 
-  for (final quality in const ['source', '1080', '720', '540', '360', 'preview']) {
+  for (final quality in const [
+    'source',
+    '1080',
+    '720',
+    '540',
+    '360',
+    'preview',
+  ]) {
     final hit = sources.firstWhereOrNull(
       (source) => (source.name?.toLowerCase() ?? '') == quality,
     );
@@ -356,7 +403,9 @@ Future<void> _downloadVideoWithSource(
     String message;
     if (e.toString().contains(t.download.errors.downloadTaskAlreadyExists)) {
       message = t.download.errors.downloadTaskAlreadyExists;
-    } else if (e.toString().contains(t.download.errors.videoAlreadyDownloaded)) {
+    } else if (e.toString().contains(
+      t.download.errors.videoAlreadyDownloaded,
+    )) {
       message = t.download.errors.videoAlreadyDownloaded;
     } else {
       message = t.download.errors.downloadFailed;

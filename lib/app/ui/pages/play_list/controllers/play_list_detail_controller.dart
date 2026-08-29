@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_repository.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
@@ -11,6 +12,10 @@ class PlayListDetailController extends GetxController {
   final RxBool isMultiSelect = false.obs;
   final RxSet<String> selectedVideos = <String>{}.obs;
   final RxString playlistTitle = ''.obs;
+
+  /// 这张播放列表是谁的。用来告诉「接着看」抽屉"这是他人的播放列表"
+  /// （见 `PlaylistPlaybackQueue.owner`）。拿不到就保持 null，不影响别的。
+  final Rxn<User> playlistOwner = Rxn<User>();
   final RxBool isDeleting = false.obs;
 
   final String playlistId;
@@ -26,11 +31,12 @@ class PlayListDetailController extends GetxController {
   }
 
   Future<void> loadPlaylistName() async {
-    final result = await _playListService.getPlaylistName(
+    final result = await _playListService.getPlaylistInfo(
       playlistId: playlistId,
     );
     if (result.isSuccess) {
-      playlistTitle.value = result.data!;
+      playlistTitle.value = result.data!.title;
+      playlistOwner.value = result.data!.user;
     }
   }
 

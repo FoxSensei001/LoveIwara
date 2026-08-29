@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
@@ -197,6 +199,13 @@ class _ProfileImageModelTabListWidgetState
               ),
               child: ImageModelCardListItemWidget(
                 imageModel: image,
+                // 作者的图库池：从作者主页点进去，「接着看」就是这个人的作品。
+                playbackQueueRefBuilder: (galleryId) => PlaybackQueueRef(
+                  queueId: PlaybackQueueService.to
+                      .openAuthorGalleries(widget.userId)
+                      .queueId,
+                  currentItemId: galleryId,
+                ),
                 width: MediaQuery.of(context).size.width <= 600
                     ? MediaQuery.of(context).size.width / 2 - 8
                     : 200,
