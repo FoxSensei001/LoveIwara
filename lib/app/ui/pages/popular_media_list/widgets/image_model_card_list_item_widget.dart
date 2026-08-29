@@ -2,19 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_meta.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/blocked_media_card_placeholder.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
     show BaseTag;
-import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
-
-import 'media_like_override_utils.dart';
 
 class ImageModelCardListItemWidget extends StatefulWidget {
   final ImageModel imageModel;
@@ -32,6 +32,15 @@ class ImageModelCardListItemWidget extends StatefulWidget {
   /// 是否禁用内容屏蔽（如作者本人主页内不屏蔽其内容）。
   final bool disableBlock;
 
+  /// 从**哪个池**点进来的（可选）。
+  ///
+  /// 给了它，图库详情页开局就带着这个池——「接着看」第一眼看到的就是你刚才那份
+  /// 列表，而且定位在你点的这一条上（同视频那边的「从哪进来就定位到哪」）。
+  ///
+  /// 是回调而不是直接传 ref，为的是让调用页**点了才去登记池**：开页就登记等于
+  /// 为一次可能不会发生的跳转白建一个池。
+  final PlaybackQueueRef? Function(String galleryId)? playbackQueueRefBuilder;
+
   const ImageModelCardListItemWidget({
     super.key,
     required this.imageModel,
@@ -40,6 +49,7 @@ class ImageModelCardListItemWidget extends StatefulWidget {
     this.isSelected = false,
     this.onSelect,
     this.disableBlock = false,
+    this.playbackQueueRefBuilder,
   });
 
   @override
@@ -48,20 +58,24 @@ class ImageModelCardListItemWidget extends StatefulWidget {
 }
 
 class _ImageModelCardListItemWidgetState
-    extends State<ImageModelCardListItemWidget> {
+    extends State<ImageModelCardListItemWidget>
+    with MediaCardActionState<ImageModelCardListItemWidget> {
   static const double _titleFontSize = 14;
   static const double _titleLineHeight = 1.22;
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
 
   bool _isHovering = false;
   bool _revealed = false;
-  bool? _likedOverride;
-  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
-  bool get _effectiveLiked => _likedOverride ?? widget.imageModel.liked;
-  int get _effectiveLikeCount =>
-      _likeCountOverride ?? widget.imageModel.numLikes;
+  @override
+  ImageModel get actionGallery => widget.imageModel;
+  @override
+  String get actionMediaId => widget.imageModel.id;
+  @override
+  bool get baseLiked => widget.imageModel.liked;
+  @override
+  int get baseLikeCount => widget.imageModel.numLikes;
 
   String get _displayTitle {
     final title = widget.imageModel.title.trim();
@@ -69,22 +83,6 @@ class _ImageModelCardListItemWidgetState
       return slang.t.common.noTitle;
     }
     return title;
-  }
-
-  @override
-  void didUpdateWidget(covariant ImageModelCardListItemWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (shouldResetLikeOverride(
-      oldId: oldWidget.imageModel.id,
-      newId: widget.imageModel.id,
-      oldLiked: oldWidget.imageModel.liked,
-      newLiked: widget.imageModel.liked,
-      oldLikeCount: oldWidget.imageModel.numLikes,
-      newLikeCount: widget.imageModel.numLikes,
-    )) {
-      _likedOverride = null;
-      _likeCountOverride = null;
-    }
   }
 
   Map<String, dynamic> _buildGalleryDetailExtData() => <String, dynamic>{};
@@ -103,26 +101,12 @@ class _ImageModelCardListItemWidgetState
       authorRole: widget.imageModel.user?.role,
       authorPremium: widget.imageModel.user?.premium,
       extData: extData,
+      playbackQueueRef: widget.playbackQueueRefBuilder?.call(
+        widget.imageModel.id,
+      ),
     );
     if (!mounted) return;
-    _applyLikePatch(extData);
-  }
-
-  void _applyLikePatch(Map<String, dynamic>? extData) {
-    if (extData == null) return;
-    final liked = extData[NaviService.mediaLikePatchLikedKey];
-    final likeCount = extData[NaviService.mediaLikePatchCountKey];
-    if (liked is! bool || likeCount is! num) return;
-
-    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
-    if (_effectiveLiked == liked &&
-        _effectiveLikeCount == normalizedLikeCount) {
-      return;
-    }
-    setState(() {
-      _likedOverride = liked;
-      _likeCountOverride = normalizedLikeCount;
-    });
+    applyLikePatchFromExtData(extData);
   }
 
   @override
@@ -221,6 +205,18 @@ class _ImageModelCardListItemWidgetState
                     onTap: widget.isMultiSelectMode && widget.onSelect != null
                         ? widget.onSelect!
                         : _openGalleryDetail,
+                    // 图库卡片此前长按/右键什么都不做；现在和视频卡片一样，
+                    // 三个入口指向同一只媒体操作菜单。
+                    onSecondaryTap: widget.isMultiSelectMode
+                        ? null
+                        : openActionMenu,
+                    onLongPress: widget.isMultiSelectMode
+                        ? null
+                        : openActionMenu,
+                    // 菜单贴着手指弹，落点从这两条记（见
+                    // [recordActionAnchor]）。
+                    onTapDown: recordActionAnchor,
+                    onSecondaryTapDown: recordActionAnchor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -256,12 +252,12 @@ class _ImageModelCardListItemWidgetState
                               const SizedBox(height: 8),
                               ImageModelCardMetaLine(
                                 imageModel: widget.imageModel,
-                                isLiked: _effectiveLiked,
-                                likeCount: _effectiveLikeCount,
+                                isLiked: effectiveLiked,
+                                likeCount: effectiveLikeCount,
                               ),
                               const SizedBox(height: 8),
-                              _AuthorLine(
-                                imageModel: widget.imageModel,
+                              MediaCardAuthorLine(
+                                user: widget.imageModel.user,
                                 isMultiSelectMode: widget.isMultiSelectMode,
                               ),
                             ],
@@ -269,6 +265,14 @@ class _ImageModelCardListItemWidgetState
                         ),
                       ],
                     ),
+                  ),
+                  // 三点钮：压在整张卡片的右下角。
+                  MediaCardActionSlot(
+                    gallery: widget.imageModel,
+                    isMultiSelectMode: widget.isMultiSelectMode,
+                    likedOverride: effectiveLiked,
+                    onLikeChanged: applyLikeToggle,
+                    duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
                   // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
@@ -315,7 +319,10 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const radius = BorderRadius.vertical(top: Radius.circular(14));
+    // 贴在上沿两角的标签（R18 / 统计组）要照着同一个圆角走，所以这里用共享常量。
+    const radius = BorderRadius.vertical(
+      top: Radius.circular(kMediaCardThumbnailRadius),
+    );
     return ClipRRect(
       borderRadius: radius,
       child: AspectRatio(
@@ -336,6 +343,13 @@ class _Thumbnail extends StatelessWidget {
               errorWidget: (context, url, error) => _buildErrorPlaceholder(),
             ),
             ..._buildTags(context),
+            // 播放量 / 评论数聚成一组压在右上角；「重新屏蔽」占同一个槽位，
+            // 它出现时这组先收走。
+            MediaCardStatsOverlay(
+              views: imageModel.numViews,
+              comments: imageModel.numComments,
+              visible: !reblockVisible,
+            ),
             ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),
@@ -418,195 +432,10 @@ class ImageModelCardMetaLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedIsLiked = isLiked ?? imageModel.liked;
-    final resolvedLikeCount = likeCount ?? imageModel.numLikes;
-    return _buildMetaLine(
-      context,
-      isLiked: resolvedIsLiked,
-      likeCount: resolvedLikeCount < 0 ? 0 : resolvedLikeCount,
-    );
-  }
-
-  Widget _buildMetaLine(
-    BuildContext context, {
-    required bool isLiked,
-    required int likeCount,
-  }) {
-    final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        final chipTextMaxWidth = ((constraints.maxWidth - 55) / 2).clamp(
-          24.0,
-          56.0,
-        );
-        final IconData likeIcon = isLiked
-            ? Icons.favorite
-            : Icons.favorite_border;
-        final Color likeColor = isLiked
-            ? Colors.pink
-            : theme.colorScheme.onSurfaceVariant;
-
-        return Wrap(
-          spacing: compact ? 5 : 6,
-          runSpacing: 5,
-          children: [
-            _StatChip(
-              icon: Icons.visibility,
-              value: CommonUtils.formatFriendlyNumber(imageModel.numViews),
-              color: theme.colorScheme.onSurfaceVariant,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            _StatChip(
-              icon: likeIcon,
-              value: CommonUtils.formatFriendlyNumber(likeCount),
-              color: likeColor,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            if (!compact && imageModel.numComments > 0)
-              _StatChip(
-                icon: Icons.forum,
-                value: CommonUtils.formatFriendlyNumber(imageModel.numComments),
-                color: theme.colorScheme.onSurfaceVariant,
-                maxTextWidth: chipTextMaxWidth,
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final Color color;
-  final double maxTextWidth;
-
-  const _StatChip({
-    required this.icon,
-    required this.value,
-    required this.color,
-    required this.maxTextWidth,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: maxTextWidth + 24),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 2),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxTextWidth),
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AuthorLine extends StatelessWidget {
-  final ImageModel imageModel;
-  final bool isMultiSelectMode;
-
-  const _AuthorLine({
-    required this.imageModel,
-    required this.isMultiSelectMode,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final createdAtText = CommonUtils.formatFriendlyTimestamp(
-      imageModel.createdAt,
-    );
-    final timeStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 11,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        if (compact) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAuthorName(context),
-              const SizedBox(height: 4),
-              Text(
-                createdAtText,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: timeStyle,
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(child: _buildAuthorName(context)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  createdAtText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: timeStyle,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildAuthorName(BuildContext context) {
-    final user = imageModel.user;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: isMultiSelectMode
-          ? null
-          : () {
-              final username = user?.username;
-              if (username != null && username.isNotEmpty) {
-                NaviService.navigateToAuthorProfilePage(
-                  username,
-                  initialUser: user,
-                );
-              }
-            },
-      child: Row(
-        children: [
-          AvatarWidget(user: user, size: 22),
-          const SizedBox(width: 6),
-          Expanded(
-            child: buildUserName(context, user, bold: true, fontSize: 12.5),
-          ),
-        ],
-      ),
+    return MediaCardMetaRow(
+      isLiked: isLiked ?? imageModel.liked,
+      likeCount: likeCount ?? imageModel.numLikes,
+      createdAt: imageModel.createdAt,
     );
   }
 }

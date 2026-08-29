@@ -134,6 +134,17 @@ class GlobalDrawerColumns extends StatelessWidget {
                             AppService.switchGlobalDrawer();
                           },
                         ),
+                        // 稍后再看紧挨着本地收藏：两者都是纯本地的"我自己攒的
+                        // 东西"，只是一个长期、一个临时。不需要登录。
+                        _buildMenuItem(
+                          context,
+                          icon: Icons.watch_later_outlined,
+                          title: slang.t.watchLater.title,
+                          onTap: () {
+                            NaviService.navigateToWatchLaterPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
                         _buildMenuItem(
                           context,
                           icon: Icons.playlist_play_outlined,

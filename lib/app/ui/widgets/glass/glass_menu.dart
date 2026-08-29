@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 
 /// # 玻璃下拉弹窗
@@ -113,9 +115,20 @@ class GlassMenuOption<T> extends GlassMenuEntry {
     this.leading,
     this.onLongPress,
     this.selected = false,
+    this.showCheck = true,
+    this.submenuTitle = false,
     this.destructive = false,
     this.enabled = true,
-  });
+    this.accentColor,
+    this.trailing,
+    this.prepare,
+    this.live,
+    this.liveTrailingReserve,
+  }) : assert(
+         live == null || liveTrailingReserve != null,
+         'live 的尾注是后到的：面板宽度只在开菜单那一刻量一次，必须有 '
+         'liveTrailingReserve 顶住最坏情况，否则玻璃会比内容窄一截',
+       );
 
   /// 选中后由 [showGlassMenu] 返回的值。
   final T value;
@@ -149,10 +162,131 @@ class GlassMenuOption<T> extends GlassMenuEntry {
   /// 当前生效项：文字/图标转主色，行尾出现对勾。
   final bool selected;
 
+  /// [selected] 要不要配那枚对勾。
+  ///
+  /// 关掉它就只剩"字变粗变主色"这一档高亮。用在**这一行本身不是被选中的那个
+  /// 东西**的场合：二级菜单的入口行（行尾已经有一枚 `›`）说的是"我这一类里有
+  /// 正在播的东西"，真正被选中的是第二张菜单里的某一支——那儿才该打勾。两枚
+  /// 记号挤在同一个行尾也读不清（2026-08-29 用户提的）。
+  final bool showCheck;
+
+  /// 这一条是**二级菜单最上面那行**：既是这张菜单的标题，也是回上一级的按钮
+  /// （`‹ 稍后再看`）。
+  ///
+  /// # 为什么标题和返回是同一行
+  ///
+  /// 原来是「返回」一条 + 小标题一条 + 选项若干，四行长得几乎一样，用户看不出
+  /// 哪行是返回、哪行是标题、哪行才是能点的（2026-08-29 用户报的）。成熟系统
+  /// （iOS 的下钻菜单、各家设置页的二级页）都是把两者**合成一行**：左边一枚
+  /// 朝左的 `‹`、右边是这一层的名字，点它就回去。行数少一条，歧义也没了。
+  ///
+  /// 约定：调用方在它后面紧跟一条 [GlassMenuSeparator]——分隔线之上是"这是哪
+  /// 一层"，之下才是可选的东西，这条界线是整套读法的关键。
+  ///
+  /// 视觉上它与普通条目的区别只有两处（其余保持一致，它终究是能点的）：标题
+  /// 字重加粗一档、行首那枚 `‹` 压成次要色。图标由调用方传
+  /// （`icon: Icons.chevron_left`），不在这里偷偷塞——量宽要算它。
+  final bool submenuTitle;
+
   /// 破坏性动作（删除一类）：整行转 error 色。
   final bool destructive;
 
   final bool enabled;
+
+  /// 「这件事已经做过了」的状态色：整行前景转成这个颜色，行底垫一层同色薄底。
+  ///
+  /// 与 [selected] 是**两件不同的事**，别混用：
+  /// - [selected] 是「这张菜单里当前生效的那一项」（清晰度选了 1080p、排序选了
+  ///   最近添加），它是**单选组里的选中**，所以右侧配一枚对勾；
+  /// - [accentColor] 是「这一项对应的东西已经处于某个状态」（这个视频**已经**
+  ///   下载过、**已经**在稍后再看里、**已经**点过赞）。它不是单选，几项可以
+  ///   同时亮着，也没有对勾——打勾读起来像"我选中了这一行"，语义是错的。
+  ///
+  /// 观感对齐详情页那排 `FilledActionButton`（`video_info_tab_widget.dart`）：
+  /// 那里也是整枚按钮换色来表达"已加入"，用户认的就是这个颜色变化。
+  ///
+  /// [destructive] 与「禁用」优先级都在它之上——一条既是破坏性又已激活的项，
+  /// 先得让人看出它是删除。
+  final Color? accentColor;
+
+  /// 行尾的一小段说明文字（「2 个清晰度」「3 个播放列表」）。
+  ///
+  /// ⛔ **刻意是 `String` 而不是 `Widget`**：液态档的面板尺寸是把
+  /// [_measureMenuPanelSize] 用 [TextPainter] 离线量出来的那一份**钉死**喂给
+  /// [GlassSurface] 的（见 [_GlassMenuPanel] 的类注释）。放一个量不出宽度的
+  /// `Widget`，玻璃就会比内容窄一截，行里的文字被约束成省略号——而且传统档
+  /// 是自然布局、看不出问题，只有液态档才露馅。
+  ///
+  /// 加字段时记得同步 [_measureMenuPanelSize]，闸门在
+  /// `glass_menu_accent_trailing_test.dart`（两档宽度必须一致）。
+  ///
+  /// 与 [selected] 的对勾可以同时出现，两者都算进行宽。
+  final String? trailing;
+
+  /// 选中之后**先在这一行转圈**，把这件事准备好了再关面板。
+  ///
+  /// 用在「点下去之后还得先加载点什么」的场合：卡片菜单的「下载」要先拉一次
+  /// 视频源（列表数据里没有），加载完才谈得上弹清晰度选择。没有它的话点下去
+  /// 菜单立刻关掉、界面静默一两秒，然后冒出一句「暂无下载源」——用户看到的是
+  /// 「点了没反应还报错」。
+  ///
+  /// 返回 true 才算选中（关面板并返回 [value]）；返回 false 当取消处理（关面板、
+  /// 返回 null）。转圈期间整张面板不再接受任何选中。
+  ///
+  /// ⛔ 只换图标不换尺寸：转圈的圈和图标一样 20 见方，行宽行高全程不变——液态档
+  /// 的面板尺寸在开菜单那一刻就钉死了（见文件头），任何会改尺寸的「加载态」都会
+  /// 让玻璃和内容对不上。
+  final Future<bool> Function()? prepare;
+
+  /// **后到**的那一份状态（见 [GlassMenuLiveState]）。
+  ///
+  /// 给了它这一行就先在行尾转个圈，等这份状态推过来再原地换成状态色 + 尾注。
+  /// 转圈期间**这一行照常可以点**——它只是还不知道自己是什么状态，不是不能用
+  /// （这一点和 [prepare] 正相反：那个是点下去之后才转，转的时候整张面板锁住）。
+  ///
+  /// ⛔ 必须与 [liveTrailingReserve] 成对出现。
+  final ValueListenable<GlassMenuLiveState>? live;
+
+  /// 量宽时替 [live] 的尾注占位的**最坏情况**文案（「88 个播放列表」这种）。
+  ///
+  /// 面板尺寸在开菜单那一刻就钉死了（见文件头），后到的真实尾注改不动它，所以
+  /// 只能先按最长的那种算进去。真实尾注比它短是没问题的（尾注右对齐、行里
+  /// 靠 Expanded 吸收），比它长就会被截成省略号。
+  final String? liveTrailingReserve;
+}
+
+/// [GlassMenuOption.live] 推过来的那一小份「查完了」的状态。
+///
+/// # 为什么要有「后到」这条路
+///
+/// 面板尺寸在开菜单那一刻就钉死（见文件头），所以按老规矩**所有状态都得在开
+/// 菜单之前查完**——本地库查询毫秒级，这条一直成立。唯独有些项要打网络请求
+/// （卡片菜单的「已加入几个播放列表」是唯一一例），为它等就意味着点了触发件
+/// 之后先看一两秒转圈，用户明确否掉了。
+///
+/// 于是这份状态后到：菜单照常立刻开，那一行的行尾先转圈，请求回来了再原地
+/// 换成状态色 + 尾注。**尺寸全程不变**——靠 [GlassMenuOption.liveTrailingReserve]
+/// 在量宽时按最坏情况顶住。
+@immutable
+class GlassMenuLiveState {
+  const GlassMenuLiveState({
+    this.loading = false,
+    this.trailing,
+    this.accentColor,
+    this.icon,
+  });
+
+  /// 还在查（行尾转圈）。
+  final bool loading;
+
+  /// 查回来的行尾说明文字。null = 这一项没什么可说的（一个列表都没加进去）。
+  final String? trailing;
+
+  /// 查回来的状态色，语义同 [GlassMenuOption.accentColor]。
+  final Color? accentColor;
+
+  /// 查回来之后换掉的图标。null = 保持 [GlassMenuOption.icon] 不动。
+  final IconData? icon;
 }
 
 /// 分组之间的细分隔线。
@@ -210,12 +344,54 @@ const double _rowHorizontalChrome =
     _rowMarginHorizontal * 2 /* margin */ + 12 * 2 /* padding */;
 const double _rowIconWidth = 20 + 12; // icon + gap
 
+/// 这一条自己的行首那一格要多宽。没图标、也不会转圈就是 0。
+double _optionLeadWidth(GlassMenuOption option) {
+  if (option.leading != null) return _rowLeadingWidth;
+  // prepare 那一行点下去要在行首转圈，没图标也得先把位子留好，
+  // 否则一转圈行就变宽（见 [GlassMenuOption.prepare]）。
+  if (option.icon != null || option.prepare != null) return _rowIconWidth;
+  return 0;
+}
+
+/// 这张菜单里**条目**的行首该统一留多宽。只要有一条带图标/自定义 leading（或者
+/// 会转圈），其余条目就都留出同宽的槽位，整列文字左缘对齐。
+///
+/// ⛔ 不留位的话混排菜单里带图标的行文字被推进去、不带的贴着左边，同一列文字
+/// 各起各的头。留位取全菜单的最大值：`leading` 槽位比纯图标宽 2，混排时按窄的
+/// 那个留会差这 2 格。
+///
+/// ⛔ **二级菜单的标题行不算数**（[GlassMenuOption.submenuTitle]）：它那枚 `‹`
+/// 是"回上一层"的记号，不是这一列选项的一员。把它算进来的话，整张菜单的选项
+/// 会为一枚它们自己没有的图标集体缩进——分隔线下面明明什么都没有却空出一格
+/// （2026-08-29 用户报的）。它自己那一格由行内自己撑，见 [_GlassMenuRow]。
+///
+/// 量宽（[_measureMenuPanelSize]）与排版（[_GlassMenuRow]）共用它，改一处必须
+/// 两处一起对。
+double _reservedLeadWidth(List<GlassMenuEntry> entries) {
+  double lead = 0;
+  for (final entry in entries) {
+    if (entry is! GlassMenuOption || entry.submenuTitle) continue;
+    final double want = _optionLeadWidth(entry);
+    if (want > lead) lead = want;
+  }
+  return lead;
+}
+
 /// [GlassMenuOption.leading] 的固定槽位边长。比纯图标（20）大一点点，让头像
 /// 一类内容不至于太小，光学中心又与图标行对齐；固定死是为了行宽能被
 /// [_measureMenuPanelSize] 静态量出来。
 const double _rowLeadingSize = 22;
 const double _rowLeadingWidth = _rowLeadingSize + 12; // leading + gap
 const double _rowCheckWidth = 12 + 18; // gap + check icon
+
+/// [GlassMenuOption.trailing] 的字号与它前面那道间隙。行宽要把它算进去，
+/// 否则加了尾注的行会被截断。
+const double _trailingFontSize = 12.5;
+const double _rowTrailingGap = 12;
+
+/// 行尾那个「还在查」的圈（[GlassMenuOption.live]）。比图标小一档：它是一条
+/// 补充说明，不该抢标题的注意力。
+const double _trailingSpinnerSize = 14;
 const double _separatorHeight = 5 * 2 + 1; // padding + line
 const double _panelVerticalPadding = 6 * 2;
 
@@ -415,6 +591,9 @@ Size? _measureMenuPanelSize({
     return width;
   }
 
+  // 行首那一格全菜单同宽（见 [_reservedLeadWidth]），量宽也按这个算。
+  final double reservedLead = _reservedLeadWidth(entries);
+
   double contentWidth = 0;
   double height = _panelVerticalPadding;
   for (final entry in entries) {
@@ -434,19 +613,33 @@ Size? _measureMenuPanelSize({
         if (rowWidth > contentWidth) contentWidth = rowWidth;
         height += _entryHeight(entry);
       case GlassMenuOption(
-        :final leading,
         :final label,
         :final description,
-        :final icon,
         :final selected,
+        :final showCheck,
+        :final submenuTitle,
+        :final trailing,
+        :final liveTrailingReserve,
       ):
-        // 行首那一格（图标 / leading 槽位）两行共用，只算一次。
-        double lead = 0;
-        if (leading != null) {
-          lead = _rowLeadingWidth;
-        } else if (icon != null) {
-          lead = _rowIconWidth;
+        // 行首那一格（图标 / leading 槽位）两行共用，只算一次。条目一律按全菜单
+        // 统一的宽度算；二级菜单的标题行不在那个统一里，它自己撑自己那一格。
+        final double lead = submenuTitle
+            ? math.max(reservedLead, _optionLeadWidth(entry))
+            : reservedLead;
+        // 行尾那一格（尾注 + 对勾）两行也共用，同样只算一次。
+        double tail = selected && showCheck ? _rowCheckWidth : 0;
+        // 现成的尾注与「后到」那份的占位（[GlassMenuOption.liveTrailingReserve]）
+        // 抢同一格，按更宽的那个算。
+        double tailText = 0;
+        for (final String? text in [trailing, liveTrailingReserve]) {
+          if (text == null) continue;
+          final double w = measureText(
+            text,
+            const TextStyle(fontSize: _trailingFontSize),
+          );
+          if (w > tailText) tailText = w;
         }
+        if (tailText > 0) tail += _rowTrailingGap + tailText;
         double rowWidth =
             _rowHorizontalChrome +
             lead +
@@ -454,13 +647,15 @@ Size? _measureMenuPanelSize({
               label,
               TextStyle(
                 fontSize: 14.5,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                fontWeight: selected || submenuTitle
+                    ? FontWeight.w600
+                    : FontWeight.w500,
               ),
-            );
-        if (selected) rowWidth += _rowCheckWidth;
+            ) +
+            tail;
         if (description != null) {
           // 副标题与标题左对齐（在同一个 Expanded 里），所以它的行宽算法只差
-          // 字号；对勾也压在同一行右侧，一并计入。
+          // 字号；尾注与对勾也压在同一行右侧，一并计入。
           final double descWidth =
               _rowHorizontalChrome +
               lead +
@@ -468,7 +663,7 @@ Size? _measureMenuPanelSize({
                 description,
                 const TextStyle(fontSize: _descriptionFontSize),
               ) +
-              (selected ? _rowCheckWidth : 0);
+              tail;
           if (descWidth > rowWidth) rowWidth = descWidth;
         }
         if (rowWidth > contentWidth) contentWidth = rowWidth;
@@ -500,6 +695,10 @@ Size? _measureMenuPanelSize({
 /// 贴着 [anchorContext] 对应的控件弹出一张玻璃菜单，返回被选中项的值
 /// （点空白关闭时返回 null）。
 ///
+/// ⭐ **返回的 future 在菜单彻底消失之后才 resolve**（出场动画跑完），两条路
+/// （路由档 / 浮层档）一致。所以 `await showGlassMenu(...)` 之后随便干重活
+/// ——弹确认框、`setState` 重建整页、写库——都不会和菜单的出场动画抢帧。
+///
 /// [anchorContext] 必须是**触发件自身**的 context（`Builder` 包一层最省事），
 /// 落点和材质档位都是从它身上量出来的。
 /// [touchFlex]：面板是否接入跟手形变（按住拖动时整块面板顺着手指拉伸、松手
@@ -511,7 +710,8 @@ Size? _measureMenuPanelSize({
 /// 右键上下文菜单专用——那时候没有「触发件」，面板该贴着指针弹出来，传一个
 /// 指针位置的零尺寸 `Rect` 即可（面板会从那一点撑开）。
 /// [priorityNearAnchor]：[entries] 是按**优先级从高到低**给的，面板翻到触发件
-/// 上方时整列倒过来排（见 [_orderNearAnchor]）。
+/// 上方时整列倒过来排（见 [_orderNearAnchor]）。内容摆不下变成一条可滚的列表
+/// 时，静止的滚动位置也一并翻到底边，第一眼看到的仍旧是优先级最高的那条。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
@@ -588,25 +788,35 @@ Future<T?> showGlassMenu<T>({
     );
   }
 
-  return navigator.push(
-    _GlassMenuRoute<T>(
-      entries: orderedEntries,
-      handoff: handoff,
-      anchorRect: anchorRect,
-      minWidth: minWidth,
-      maxWidth: maxWidth,
-      touchFlex: touchFlex && _panelTouchFlexFits(backend, precomputedSize),
-      precomputedSize: precomputedSize,
-      backend: backend,
-      capturedThemes: InheritedTheme.capture(
-        from: anchorContext,
-        to: navigator.context,
-      ),
-      barrierLabel: MaterialLocalizations.of(
-        anchorContext,
-      ).modalBarrierDismissLabel,
+  final _GlassMenuRoute<T> route = _GlassMenuRoute<T>(
+    entries: orderedEntries,
+    handoff: handoff,
+    anchorRect: anchorRect,
+    minWidth: minWidth,
+    maxWidth: maxWidth,
+    touchFlex: touchFlex && _panelTouchFlexFits(backend, precomputedSize),
+    precomputedSize: precomputedSize,
+    backend: backend,
+    capturedThemes: InheritedTheme.capture(
+      from: anchorContext,
+      to: navigator.context,
     ),
+    barrierLabel: MaterialLocalizations.of(
+      anchorContext,
+    ).modalBarrierDismissLabel,
   );
+  navigator.push(route);
+  // ⛔ 交出结果的时机是 `completed`（出场动画跑完、路由已销毁），不是
+  // `push()` 返回的那个 future——后者是 `Route.popped`，Flutter 自己的文档写得
+  // 很清楚：「popped typically completes before the animation even starts」。
+  // 拿 popped 的话，调用点紧接着干的活（弹确认框、setState 重建整页、写库）
+  // 全撞在菜单出场那 150ms 里：面板还在做液态折射的逐帧 resolve，身下的像素
+  // 又被新弹窗改着，backdrop 一帧都缓存不住，肉眼就是「点一下卡一下」。
+  //
+  // 浮层档（[_showGlassMenuOverlay]，长按接力那条）本来就是等
+  // `_controller.reverse()` 跑完才 complete 的——同一枚按钮，点按和长按打开
+  // 的菜单收尾时机不一样本身就是个不一致。这里对齐它。
+  return route.completed;
 }
 
 /// 这块档位下的面板能不能开跟手形变。
@@ -991,7 +1201,9 @@ List<GlassMenuEntry> _orderNearAnchor({
   required double? panelHeight,
 }) {
   assert(
-    entries.every((e) => e is! GlassMenuSectionHeader && e is! GlassMenuSeparator),
+    entries.every(
+      (e) => e is! GlassMenuSectionHeader && e is! GlassMenuSeparator,
+    ),
     'priorityNearAnchor 只能用在纯选项菜单上：分组标题 / 分隔线倒过来会错位。',
   );
   final bool flipped = _opensUpward(
@@ -1124,7 +1336,8 @@ class _GlassMenuPanel<T> extends StatefulWidget {
   /// 入场起手的横 / 纵向缩放（见 [_revealBeginScale]）。
   final Offset revealBeginScale;
 
-  /// 面板是否翻到了触发件上方：帘子改成自下而上卷，条目也倒着现身。
+  /// 面板是否翻到了触发件上方：帘子改成自下而上卷，条目也倒着现身，内容滚得
+  /// 动时静止位置也跟着停在底边（见 [build] 里 `reverse` 那段）。
   final bool flipped;
 
   @override
@@ -1172,6 +1385,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   /// 已经选过了。滑动取焦在 `onPointerUp` 里出手，比手势竞技场清算 tap 早一步；
   /// 万一两条路都走通，pop 两次会把底下的页面一起关掉，这道闸拦住。
   bool _selected = false;
+
+  /// 正在跑 [GlassMenuOption.prepare] 的那一行（转圈期间面板不接受选中）。
+  int? _busyIndex;
 
   @override
   void initState() {
@@ -1261,15 +1477,64 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     final GlassMenuEntry entry = widget.entries[target];
     if (entry is GlassMenuOption<T> && entry.enabled) {
       VibrateUtils.vibrate();
-      _select(entry.value);
+      _commit(target, entry);
+    }
+  }
+
+  /// 选中一条：带 [GlassMenuOption.prepare] 的先转圈，其余直接出去。
+  ///
+  /// ⛔ 滑动取焦松手、手指接力松手、行自己的点按**三条路都得走这里**——漏掉哪
+  /// 一条，那条路上的 prepare 就被跳过（下载会退回「点了就说没源」）。
+  void _commit(int index, GlassMenuOption<T> option) {
+    if (option.prepare != null) {
+      _selectAfterPrepare(index, option);
+    } else {
+      _select(option.value);
     }
   }
 
   /// 所有选中都从这里出去：滑动取焦和行自己的点按共用一条出口，只放行一次。
   void _select(T value) {
-    if (_selected) return;
+    if (_selected || _busyIndex != null) return;
     _selected = true;
     widget.onSelected(value);
+  }
+
+  /// 带 [GlassMenuOption.prepare] 的那种选中：先在这一行转圈，等准备好了再关。
+  ///
+  /// 转圈期间 [_busyIndex] 非空，[_select] / [_selectNothingThen] 全部让开，
+  /// 所以滑动取焦、别的行的点按都进不来。准备过程中面板被关掉（点了外面、
+  /// 页面被换走）时 `mounted` 已经是 false，什么都不做。
+  ///
+  /// ⛔ [GlassMenuOption.prepare] **抛异常也得当没准备成**：它干的往往是一次网络
+  /// 请求（今天唯一的用处就是下载前拉源），抛出来比返回 false 更常见。这里不接
+  /// 的话异常会一路冒到 [_commit]——那是个不 await 的 fire-and-forget 调用，于是
+  /// 变成一条没人管的异步错误，而面板停在原地：转圈停了、菜单不关、什么也没发生。
+  Future<void> _selectAfterPrepare(int index, GlassMenuOption<T> option) async {
+    if (_selected || _busyIndex != null) return;
+    setState(() => _busyIndex = index);
+    bool proceed = false;
+    try {
+      proceed = await option.prepare!();
+    } catch (e, s) {
+      LogUtils.e('菜单项准备失败', tag: 'GlassMenu', error: e, stackTrace: s);
+      proceed = false;
+    } finally {
+      if (mounted) setState(() => _busyIndex = null);
+    }
+    if (!mounted) return;
+    if (proceed) {
+      _select(option.value);
+    } else {
+      _dismissWithoutAction();
+    }
+  }
+
+  /// 关面板、返回 null、不做任何动作。
+  void _dismissWithoutAction() {
+    if (_selected || _busyIndex != null) return;
+    _selected = true;
+    widget.onDismissed();
   }
 
   /// 长按走的出口：关面板（返回 null）之后再跑 [action]。
@@ -1277,7 +1542,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
   /// 顺序不能反——[action] 往往是一次跳转（长按用户去作者主页），先跳再关
   /// 会让菜单的退场动画和路由推入叠在一起。
   void _selectNothingThen(VoidCallback action) {
-    if (_selected) return;
+    if (_selected || _busyIndex != null) return;
     _selected = true;
     widget.onDismissed();
     action();
@@ -1406,7 +1671,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     final GlassMenuEntry entry = widget.entries[target];
     if (entry is GlassMenuOption<T> && entry.enabled) {
       VibrateUtils.vibrate();
-      _select(entry.value);
+      _commit(target, entry);
     }
   }
 
@@ -1467,6 +1732,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
         ? _entryRevealShift
         : -_entryRevealShift;
 
+    // 行首槽位全菜单同宽，算一次下发（量宽那边用的是同一个函数）。
+    final double leadExtent = _reservedLeadWidth(widget.entries);
+
     final List<Widget> rows = <Widget>[];
     for (var i = 0; i < widget.entries.length; i++) {
       final GlassMenuEntry entry = widget.entries[i];
@@ -1475,10 +1743,12 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
         GlassMenuSectionHeader(:final label) => _GlassMenuSectionHeaderRow(
           label: label,
         ),
-        GlassMenuOption<T>(:final value, :final onLongPress) => _GlassMenuRow(
+        GlassMenuOption<T>(:final onLongPress) => _GlassMenuRow(
           option: entry,
+          leadExtent: leadExtent,
           slideActive: _sliding,
-          onTap: () => _select(value),
+          busy: _busyIndex == i,
+          onTap: () => _commit(i, entry),
           // 长按是「离开这张菜单去别处」，不是选中：关掉面板并返回 null，
           // 再把动作交出去（见 [GlassMenuOption.onLongPress]）。
           onLongPress: onLongPress == null
@@ -1489,6 +1759,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
         // 行，而不是整张面板炸掉。
         GlassMenuOption() => _GlassMenuRow(
           option: entry,
+          leadExtent: leadExtent,
           slideActive: _sliding,
           onTap: null,
         ),
@@ -1506,8 +1777,7 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
     // 传统档的形变不吃钉死尺寸，面板保持「按内容量」；液态档才换成静态量出的
     // 那一份（见 [_panelTouchFlexFits]）。
     final Size? size =
-        widget.touchFlex &&
-            LiquidGlassScope.of(context) != GlassBackend.plain
+        widget.touchFlex && LiquidGlassScope.of(context) != GlassBackend.plain
         ? widget.precomputedSize
         : null;
     // 内容只建这一次，靠 AnimatedBuilder 的 child 透传下去：每帧重建的只有
@@ -1520,6 +1790,23 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       child: IntrinsicWidth(
         child: SingleChildScrollView(
           controller: _scroll,
+          // ⭐ 静止位置永远停在**贴着触发件的那一头**：面板在下方展开时是顶边
+          // （offset 0，原样），翻到上方时是底边。内容摆不下变成一条可滚的列表
+          // 之后，「最近的那条先被看到」这条规矩不能只由排序（
+          // [_orderNearAnchor]）负责——排序把最该先看的一条放到了列头/列尾，
+          // 滚动位置却还停在顶上，朝上弹时第一眼看到的就成了优先级最低的那条
+          // （媒体卡片菜单：手指在下方、眼睛先撞上「分享」，「稍后再看」被卷在
+          // 看不见的下面）。
+          //
+          // 用 `reverse` 而不是「建完第一帧再 jumpTo(maxScrollExtent)」：后者
+          // 会实打实地画一帧顶部内容再跳，正好撞在卷开动画的头几帧上，读起来
+          // 是列表自己抖了一下。reverse 只是把 offset 0 的定义换到另一头，
+          // 第一帧就位；[SingleChildScrollView] 的 child 是整块 [Column]，
+          // 它的排版顺序不受影响（这点与 [ListView] 不同），所以行序仍旧只由
+          // [_orderNearAnchor] 说了算。
+          //
+          // 内容摆得下时两者等价：视口高度就是内容高度，贴哪头都在原地。
+          reverse: widget.flipped,
           // 钉死 clamping，不跟平台走。iOS 默认的 BouncingScrollPhysics 把
           // `shouldAcceptUserOffset` 恒真，内容明明摆得下也照样吃掉纵向拖拽
           // ——滑动取焦会一边换焦点、一边把内容拽出橡皮筋。clamping 在内容
@@ -1705,13 +1992,22 @@ class _GlassMenuRow extends StatefulWidget {
   const _GlassMenuRow({
     required this.option,
     required this.onTap,
+    required this.leadExtent,
     this.onLongPress,
     this.slideActive = false,
+    this.busy = false,
   });
 
   final GlassMenuOption<dynamic> option;
+
+  /// 行首那一格的固定宽度，**全菜单同一个值**（见 [_reservedLeadWidth]）。
+  /// 0 表示这张菜单一条图标都没有，整格不出现。
+  final double leadExtent;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+
+  /// 这一行正在跑 [GlassMenuOption.prepare]：图标位置换成同尺寸的转圈。
+  final bool busy;
 
   /// 面板正在滑动取焦：底色让位给焦点底板，免得同一条上叠两层
   /// （见文件头「滑动取焦」一节）。
@@ -1721,22 +2017,81 @@ class _GlassMenuRow extends StatefulWidget {
   State<_GlassMenuRow> createState() => _GlassMenuRowState();
 }
 
+/// 行尾那一格。[reserve] 非空时按它现量出一个**固定宽度**，里面的东西怎么换
+/// 都不改行宽——「后到」那条路（[GlassMenuOption.live]）全靠它，见调用点的说明。
+class _TrailingSlot extends StatelessWidget {
+  const _TrailingSlot({required this.reserve, required this.child});
+
+  final String? reserve;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget content = AnimatedSwitcher(
+      duration: GlassTokens.motionDuration,
+      child: child,
+    );
+    final String? text = reserve;
+    if (text == null) return content;
+
+    final painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: DefaultTextStyle.of(
+          context,
+        ).style.merge(const TextStyle(fontSize: _trailingFontSize)),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final double width = painter.width;
+    painter.dispose();
+
+    return SizedBox(
+      width: math.max(width, _trailingSpinnerSize),
+      child: Align(alignment: AlignmentDirectional.centerEnd, child: content),
+    );
+  }
+}
+
 class _GlassMenuRowState extends State<_GlassMenuRow> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
+    final live = widget.option.live;
+    if (live == null) return _buildRow(context, const GlassMenuLiveState());
+    // 后到的那份状态（见 [GlassMenuLiveState]）只重建这一行，面板与其余行不动。
+    return ValueListenableBuilder<GlassMenuLiveState>(
+      valueListenable: live,
+      builder: (context, value, _) => _buildRow(context, value),
+    );
+  }
+
+  Widget _buildRow(BuildContext context, GlassMenuLiveState live) {
     final cs = Theme.of(context).colorScheme;
     final option = widget.option;
+    // 条目共用全菜单那一格；标题行不参与那次统一（见 [_reservedLeadWidth]），
+    // 所以它得自己把 `‹` 那一格撑出来。
+    final double leadExtent = option.submenuTitle
+        ? math.max(widget.leadExtent, _optionLeadWidth(option))
+        : widget.leadExtent;
     final bool enabled = option.enabled && widget.onTap != null;
 
-    final Color fg = !enabled
+    // 「已激活」的状态色。破坏性动作与禁用态排在它前面：一条既是删除又已激活
+    // 的项，先得让人看出它是删除。后到的那份优先——它才是刚查出来的实况。
+    final Color? accent = enabled && !option.destructive
+        ? (live.accentColor ?? option.accentColor)
+        : null;
+    final IconData? icon = live.icon ?? option.icon;
+    final String? trailingText = live.trailing ?? option.trailing;
+
+    final Color fgTarget = !enabled
         ? cs.onSurface.withValues(alpha: 0.38)
         : option.destructive
         ? cs.error
-        : option.selected
-        ? cs.primary
-        : cs.onSurface;
+        : accent ?? (option.selected ? cs.primary : cs.onSurface);
 
     return MouseRegion(
       cursor: enabled ? SystemMouseCursors.click : MouseCursor.defer,
@@ -1763,74 +2118,163 @@ class _GlassMenuRowState extends State<_GlassMenuRow> {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
+            // 已激活的行常驻一层同色薄底——只换文字颜色在玻璃面板上太弱，
+            // 详情页那排按钮之所以一眼看得出"已加入"，靠的就是整块底色。
+            // 按下/悬停在薄底之上再加深一档，而不是把薄底换掉，否则一按
+            // 反而看着像"状态没了"。
             color: !enabled || widget.slideActive
                 ? Colors.transparent
                 : pressed
-                ? cs.onSurface.withValues(alpha: 0.10)
+                ? (accent?.withValues(alpha: 0.24) ??
+                      cs.onSurface.withValues(alpha: 0.10))
                 : _hovered
-                ? cs.onSurface.withValues(alpha: 0.05)
-                : Colors.transparent,
+                ? (accent?.withValues(alpha: 0.18) ??
+                      cs.onSurface.withValues(alpha: 0.05))
+                : (accent?.withValues(alpha: 0.12) ?? Colors.transparent),
             borderRadius: BorderRadius.circular(_rowRadius),
           ),
-          child: Row(
-            children: [
-              if (option.leading != null) ...[
-                SizedBox.square(
-                  dimension: _rowLeadingSize,
-                  child: Center(
-                    child: IconTheme.merge(
-                      data: IconThemeData(size: 20, color: fg),
-                      child: option.leading!,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-              ] else if (option.icon != null) ...[
-                Icon(option.icon, size: 20, color: fg),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      option.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 14.5,
-                        color: fg,
-                        fontWeight: option.selected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
+          // 颜色也是形变：后到的状态色（[GlassMenuOption.live]）一到，底色由
+          // 外面这只 AnimatedContainer 在淡，图标与文字必须跟着同一段走，
+          // 否则是「底色在淡、字瞬切」两层各干各的。
+          child: TweenAnimationBuilder<Color?>(
+            tween: ColorTween(end: fgTarget),
+            duration: GlassTokens.pressDuration,
+            curve: Curves.easeOut,
+            builder: (context, animatedFg, _) {
+              final Color fg = animatedFg ?? fgTarget;
+              return Row(
+                children: [
+                  // 行首那一格：**全菜单同宽**（见 [_reservedLeadWidth]），
+                  // 这一条自己有没有图标都占同样的位子。转圈也在这一格里，
+                  // 所以点下去行宽一点不变（见 [GlassMenuOption.prepare]）。
+                  if (leadExtent > 0)
+                    SizedBox(
+                      width: leadExtent,
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: widget.busy
+                            ? SizedBox.square(
+                                dimension: option.leading != null
+                                    ? _rowLeadingSize
+                                    : 20,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: fg,
+                                  ),
+                                ),
+                              )
+                            : option.leading != null
+                            ? SizedBox.square(
+                                dimension: _rowLeadingSize,
+                                child: Center(
+                                  child: IconTheme.merge(
+                                    data: IconThemeData(size: 20, color: fg),
+                                    child: option.leading!,
+                                  ),
+                                ),
+                              )
+                            : icon != null
+                            // 二级菜单标题行那枚 `‹` 压成次要色：它是"回上一层"
+                            // 的记号，不该和标题一样重（见 [submenuTitle]）。
+                            ? Icon(
+                                icon,
+                                size: 20,
+                                color: option.submenuTitle && enabled
+                                    ? cs.onSurfaceVariant
+                                    : fg,
+                              )
+                            : const SizedBox.shrink(),
                       ),
                     ),
-                    if (option.description != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          option.description!,
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          option.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: _descriptionFontSize,
-                            height: 1.2,
-                            color: enabled
-                                ? cs.onSurfaceVariant
-                                : cs.onSurface.withValues(alpha: 0.38),
+                            fontSize: 14.5,
+                            color: fg,
+                            fontWeight: option.selected || option.submenuTitle
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                           ),
                         ),
-                      ),
+                        if (option.description != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              option.description!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: _descriptionFontSize,
+                                height: 1.2,
+                                color: enabled
+                                    ? cs.onSurfaceVariant
+                                    : cs.onSurface.withValues(alpha: 0.38),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  // 行尾这一格：现成的尾注直接画；后到的那种
+                  // （[GlassMenuOption.live]）先转圈、查回来了再淡入换成尾注。
+                  //
+                  // ⛔ 后到的那种**必须钉死这一格的宽度**（按
+                  // [GlassMenuOption.liveTrailingReserve] 现量），否则尾注一到
+                  // 行就变宽：液态档面板尺寸早钉死了、内容被挤成省略号，传统档
+                  // 则是整只面板当着用户的面长一截。量宽那边
+                  // （[_measureMenuPanelSize]）用的是同一份占位文案，两处必须一致。
+                  if (option.live != null || trailingText != null) ...[
+                    const SizedBox(width: _rowTrailingGap),
+                    _TrailingSlot(
+                      reserve: option.liveTrailingReserve,
+                      child: live.loading
+                          ? SizedBox.square(
+                              key: const ValueKey('live-loading'),
+                              dimension: _trailingSpinnerSize,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: enabled
+                                    ? cs.onSurfaceVariant
+                                    : cs.onSurface.withValues(alpha: 0.38),
+                              ),
+                            )
+                          : trailingText == null
+                          // 「查完了，没什么可说的」也要有出场：硬切一刀是本项目
+                          // 明确不接受的写法。
+                          ? const SizedBox.shrink(key: ValueKey('live-empty'))
+                          : Text(
+                              trailingText,
+                              key: ValueKey(trailingText),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: TextStyle(
+                                fontSize: _trailingFontSize,
+                                height: 1.2,
+                                color: enabled
+                                    ? (accent ?? cs.onSurfaceVariant)
+                                    : cs.onSurface.withValues(alpha: 0.38),
+                              ),
+                            ),
+                    ),
                   ],
-                ),
-              ),
-              if (option.selected) ...[
-                const SizedBox(width: 12),
-                Icon(Icons.check, size: 18, color: cs.primary),
-              ],
-            ],
+                  if (option.selected && option.showCheck) ...[
+                    const SizedBox(width: 12),
+                    Icon(Icons.check, size: 18, color: accent ?? cs.primary),
+                  ],
+                ],
+              );
+            },
           ),
         ),
       ),

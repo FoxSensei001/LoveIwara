@@ -62,6 +62,7 @@ tutorial:
   skip: 跳過
 common:
   sort: 排序
+  filter: 篩選
   appName: Love Iwara
   ok: 確定
   cancel: 取消
@@ -520,8 +521,8 @@ settings:
   seekPreviewSizeStandard: 標準
   seekPreviewSizeLarge: 大
   seekPreviewSizeStandardDesc: 依播放器與影片自動推算出的大小
-  showFullscreenUpNextHint: 顯示「接著看」側邊提示
-  showFullscreenUpNextHintDesc: 全螢幕播放時在右側顯示一個小提示條，用來快速展開「接著看」列表。
+  showFullscreenUpNextHint: 顯示「接著看」入口
+  showFullscreenUpNextHintDesc: 在播放器右緣顯示一枚把手，用來開啟影片池抽屜（來源 / 播放清單 / 稍後再看）。關掉之後就沒有其他入口了。
   basicSettings: 基礎設定
   personalizedSettings: 個性化設定
   otherSettings: 其他設定
@@ -2752,3 +2753,59 @@ externalPlayer:
   executableMissing: "可執行檔不存在"
   openWithNamed: '用 ${name} 開啟'
   managePlayersEntry: "管理外部播放器…"
+watchLater:
+  title: 稍後再看
+  addToWatchLater: 稍後再看
+  removeFromWatchLater: 移出稍後再看
+  addedToWatchLater: 已加入稍後再看
+  alreadyInWatchLater: 已經在稍後再看裡了
+  removedFromWatchLater: 已移出稍後再看
+  removedCount: 已移出 ${count} 筆
+  viewWatchLaterList: 檢視清單
+  addFailed: 加入稍後再看失敗
+  invalidItem: 已失效
+  clearWatched: 清除已看完
+  watchedCleared: 已清除 ${count} 筆看完的內容
+  noWatchedToClear: 沒有已看完的內容
+  emptyVideo: 還沒有加入稍後再看的影片
+  emptyGallery: 還沒有加入稍後再看的圖庫
+  filterAll: 全部
+  filterUnwatched: 未看完
+  sortRecentlyAdded: 最近加入
+  sortEarliestAdded: 最早加入
+  watched: 已看完
+  playlistLoadFailed: 播放清單載入失敗
+  noPlaylists: 還沒有播放清單
+  undo: 復原
+  clearWatchedConfirm: 要清除這個分類下所有已看完的內容嗎？此操作無法復原。
+  emptyUnwatchedVideo: 沒有未看完的影片
+  emptyUnwatchedGallery: 沒有未看完的圖庫
+  queueLoadFailed: 載入失敗，點擊重試
+mediaMenu:
+  like: 按讚
+  unlike: 取消按讚
+  viewAuthor: 檢視作者主頁
+  inFolders: ${count} 個收藏夾
+  inPlaylists: ${count} 個播放清單
+  downloaded: 已下載
+playbackQueue:
+  upNext: 接著看
+  sourceTab: 來源
+  emptyQueue: 這個池裡沒有可播的影片
+  emptyGalleryQueue: 這個池裡沒有可看的圖庫
+  nowPlaying: 正在播放
+  myPlaylists: 我的播放清單
+  authorPlaylists: 作者的播放清單
+  openQueue: 接著看
+  continueInQueue: 在目前影片池內續播
+  continueInQueueSubtitle: 一部播完自動播池裡的下一部；開啟後「播放結束重播」不再生效
+  repeatDisabledByQueue: 已開啟「池內續播」，重播不再生效
+  playNext: 下一部
+  queueEnded: 已經是這個池裡的最後一部了
+  playNextHint: 點擊播放下一部，長按開啟「接著看」
+  authorVideos: 作者的影片
+  authorGalleries: 作者的圖庫
+  localFavoriteFolders: 本地收藏
+  downloads: 已下載
+  otherPlaylists: 他人的播放清單
+  nothingHere: 暫無內容

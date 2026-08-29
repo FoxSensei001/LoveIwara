@@ -48,6 +48,9 @@ import '../../../../../utils/glsl_shader_service.dart';
 import '../../../../../utils/mpv_shader_failure_detector.dart';
 import '../../../../../utils/x_version_calculator_utils.dart';
 import '../../../../models/user.model.dart';
+import 'package:i_iwara/app/models/watch_later_item.model.dart';
+import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/services/watch_later_service.dart';
 import '../../../../models/video_source.model.dart';
 import '../../../../models/video.model.dart' as video_model;
 import '../../../../models/video_fullscreen_handoff.model.dart';
@@ -591,6 +594,16 @@ class MyVideoStateController extends GetxController
   StreamSubscription<Duration>? bufferSubscription;
   StreamSubscription<String>? errorSubscription; // 添加错误监听订阅
   StreamSubscription<dynamic>? repeatSettingSubscription; // 监听循环播放设置变更
+  StreamSubscription<bool>? completedSubscription; // 监听播放结束（池内续播用）
+
+  /// 一条播完之后做什么。由页面注入：controller 不认识路由，也不该认识视频池。
+  /// 只有「池内续播」开着时才会被调用（见 `player.stream.completed` 那条订阅）。
+  Future<void> Function()? onPlaybackCompleted;
+
+  /// 正在换到池里的下一条。换页是异步的，这道一次性闸门挡住"连跳两条"。
+  bool _advancingInQueue = false;
+  StreamSubscription<dynamic>?
+  continueInQueueSettingSubscription; // 监听「池内续播」设置变更
   StreamSubscription<PlayerLog>? mpvLogSubscription; // 监听 mpv 日志，用于捕获着色器渲染失败
 
   /// 当前真正下发给 mpv 的 Anime4K 预设 ID（空串表示未启用）
@@ -918,17 +931,22 @@ class MyVideoStateController extends GetxController
   /// [localPath] 本地视频文件路径
   /// [task] 下载任务信息（可选，从下载任务进入时传入）
   /// [allQualityTasks] 同一视频的所有已下载清晰度任务列表（可选）
+  ///
+  /// [forceAutoPlay] 与 [fullscreenHandoff] 是给「接着看」的下载池用的：从池里
+  /// 换到下一条已下载的片子时，和在线那条路一样要直接开播、并且把全屏状态接过
+  /// 来（没有交接就会先以非全屏渲染一帧，桌面端还会把全屏窗口几何错记成"进
+  /// 全屏前的尺寸"）。手动点开一条下载任务时两者都是默认值，行为不变。
   MyVideoStateController.forLocalVideo({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    this.forceAutoPlay = false,
+    this.fullscreenHandoff,
   }) : videoId = task != null
            ? VideoDownloadExtData.fromJson(task.extData!.data).id
            : null,
        extData = null,
-       forceAutoPlay = false,
        initialVideoInfo = null,
-       fullscreenHandoff = null,
        isLocalVideoMode = true,
        localVideoPath = localPath,
        localVideoTask = task,
@@ -1063,6 +1081,16 @@ class MyVideoStateController extends GetxController
 
       // 播放中切换“循环播放”开关时，立即同步到当前播放器实例
       repeatSettingSubscription = _configService.settings[ConfigKey.REPEAT_KEY]!
+          .listen((_) async {
+            if (_isDisposed) return;
+            await _applyRepeatMode();
+          });
+
+      // 「池内续播」会让循环失效，所以它变了也得重新下发一次播放模式——
+      // 只监听 REPEAT_KEY 的话，用户在播放中打开续播，mpv 里那份 single 循环
+      // 还会留着，一条播完先自己重播一遍再被换掉。
+      continueInQueueSettingSubscription = _configService
+          .settings[ConfigKey.CONTINUE_IN_QUEUE_KEY]!
           .listen((_) async {
             if (_isDisposed) return;
             await _applyRepeatMode();
@@ -1205,12 +1233,60 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 把播放进度报给「稍后再看」。
+  ///
+  /// 判定与前台闸门都在 [WatchLaterService.reportPlaybackProgress] 里，这里只
+  /// 负责喂数据；不在稍后再看里的视频，那边按 item_id 更新 0 行，无副作用。
+  void _reportWatchLaterProgress(Duration position) {
+    final id = videoId;
+    if (id == null || id.isEmpty || isLocalVideoMode) return;
+    final total = totalDuration.value;
+    if (total <= Duration.zero) return;
+    try {
+      WatchLaterService.to.reportPlaybackProgress(
+        videoId: id,
+        position: position,
+        duration: total,
+      );
+    } catch (e) {
+      // 稍后再看是个附属能力，它出问题不该影响播放。
+      LogUtils.w('上报稍后再看进度失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  /// 视频正常打开了：如果之前被标过失效（比如撞上一次瞬时 404），摘掉标记。
+  void _clearWatchLaterInvalid() {
+    final id = videoId;
+    if (id == null || id.isEmpty || isLocalVideoMode) return;
+    try {
+      WatchLaterService.to.clearInvalid(id, WatchLaterItemType.video);
+    } catch (e) {
+      LogUtils.w('清除稍后再看失效标记失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  /// 撞到「私有无权限 / 已删除」时，把稍后再看里的这一条标成失效。
+  void _markWatchLaterInvalid() {
+    final id = videoId;
+    if (id == null || id.isEmpty || isLocalVideoMode) return;
+    try {
+      WatchLaterService.to.markInvalid(id, WatchLaterItemType.video);
+    } catch (e) {
+      LogUtils.w('标记稍后再看失效失败: $e', 'MyVideoStateController');
+    }
+  }
+
   /// 根据配置应用循环模式。
   /// 使用 PlaylistMode.single 实现单视频结束后自动重播。
   Future<void> _applyRepeatMode() async {
     if (_isDisposed) return;
 
-    final bool repeatEnabled = _configService[ConfigKey.REPEAT_KEY] == true;
+    // 「池内续播」与「播放结束重播」是互斥的两种收尾方式：前者开着时后者不生效
+    // （设置页里那一项也会跟着灰掉并说明原因，不做静默失效）。
+    final bool continueInQueue =
+        _configService[ConfigKey.CONTINUE_IN_QUEUE_KEY] == true;
+    final bool repeatEnabled =
+        !continueInQueue && _configService[ConfigKey.REPEAT_KEY] == true;
     final PlaylistMode playlistMode = repeatEnabled
         ? PlaylistMode.single
         : PlaylistMode.none;
@@ -2312,6 +2388,7 @@ class MyVideoStateController extends GetxController
     required Duration duration,
   }) async {
     await _runCleanupStep('取消播放器订阅', _cancelSubscriptions);
+    await _runCleanupStep('取消配置订阅', _cancelConfigSubscriptions);
     await _runCleanupStep(
       '取消系统音量订阅',
       () async => _volumeListenerDisposer?.cancel(),
@@ -2397,7 +2474,21 @@ class MyVideoStateController extends GetxController
       bufferSubscription?.cancel() ?? Future.value(),
       errorSubscription?.cancel() ?? Future.value(), // 取消错误监听订阅
       mpvLogSubscription?.cancel() ?? Future.value(),
+      completedSubscription?.cancel() ?? Future.value(),
+    ]);
+  }
+
+  /// 取消**配置项**的监听。
+  ///
+  /// ⛔ 它们刻意不在 [_cancelSubscriptions] 里：那个方法每次**切清晰度/换源**
+  /// 都会被调（见 `resetVideoInfo` 一带），而它只在 `onInit` 建过一次、
+  /// `_setupListenersAfterOpen` 也不重建 —— 混在一起的结果是「切过一次清晰度
+  /// 之后，播放中再改『循环播放』/『池内续播』就不再下发给 mpv 了」。
+  /// 这两条订阅的寿命应该跟 controller 走，只在 [onClose] 收。
+  Future<void> _cancelConfigSubscriptions() async {
+    await Future.wait([
       repeatSettingSubscription?.cancel() ?? Future.value(),
+      continueInQueueSettingSubscription?.cancel() ?? Future.value(),
     ]);
   }
 
@@ -2444,6 +2535,7 @@ class MyVideoStateController extends GetxController
         parallelTasks.add(_refreshVideoLikeInfo(videoId, cachedVideoInfo));
 
         // 5. 检查收藏和播放列表状态（不阻塞UI渲染）
+        _clearWatchLaterInvalid();
         parallelTasks.add(checkFavoriteAndPlaylistStatus());
 
         // 6. 检查下载任务状态（不阻塞UI渲染）
@@ -2559,6 +2651,7 @@ class MyVideoStateController extends GetxController
         }
 
         // 检查收藏和播放列表状态
+        _clearWatchLaterInvalid();
         checkFavoriteAndPlaylistStatus();
 
         // 检查下载任务状态
@@ -2596,8 +2689,12 @@ class MyVideoStateController extends GetxController
                 author: author,
                 isPrivate: true,
               );
+              // 在稍后再看里的话，把它标成失效——列表页会画成灰卡片 + 「已失效」
+              // 角标。只标记不删除（点一下东西就消失太惊悚）。
+              _markWatchLaterInvalid();
             }
           } else if (e.response?.statusCode == 404) {
+            _markWatchLaterInvalid();
             mainErrorWidget.value = PrivateOrDeletedVideoWidget(
               isPrivate: false,
             );
@@ -3199,6 +3296,39 @@ class MyVideoStateController extends GetxController
       if (playing) {
         _reconcileAutoFullscreen(AutoFullscreenTrigger.playbackStarted);
       }
+    });
+
+    // 播完了。这里**只负责报告事件**，"接下来播谁"由页面注入
+    // （[onPlaybackCompleted]）——controller 不该知道路由和视频池的存在。
+    completedSubscription = player.stream.completed.listen((completed) {
+      if (_isDisposed || !completed) return;
+      final callback = onPlaybackCompleted;
+      if (callback == null) return;
+      // 单曲循环开着时 mpv 自己会重播，不该再触发续播；两者互斥的判定统一在
+      // _applyRepeatMode 里，这里只看最终生效的那一份配置。
+      if (_configService[ConfigKey.CONTINUE_IN_QUEUE_KEY] != true) return;
+
+      // ⛔ 有弹层开着时不续播。didPushNext 里特意让弹层不打断播放，于是视频
+      // 完全可能在菜单/弹窗开着的时候播完；这时换页会把那个弹层留在新页上、
+      // 锚点还指着已销毁的旧页。等用户关掉弹层再说（下一条得他自己点）。
+      if (OverlayTracker.instance.hasOverlay) {
+        LogUtils.d('有弹层开着，跳过这次池内续播', 'MyVideoStateController');
+        return;
+      }
+
+      // ⛔ 一次性闸门：换页是异步的，期间若再收到一次 completed 就会连跳两条
+      // （第二次还可能替换掉已经不是自己的那一页）。
+      if (_advancingInQueue) return;
+      _advancingInQueue = true;
+      // ⛔ 必须复位。正常路径下换页会把这个 controller 整个销毁，看着像"不用管"，
+      // 但两种情况下页面**不会**换：池到底了、或页面已经不 mounted。那时闸门会
+      // 永久卡在 true，这条视频之后再也不会续播（用户拖回去重播到结尾也没用）。
+      // 而且换片机制将来要换成「原地换片」——那时 controller 不再重建，
+      // 不复位就等于"续播只生效一次"。
+      callback().whenComplete(() {
+        if (_isDisposed) return;
+        _advancingInQueue = false;
+      });
     });
 
     // 缓冲区
@@ -4565,6 +4695,13 @@ class MyVideoStateController extends GetxController
         // 显示进度刚刚更新过了 —— 这才是「用户真的看到画面在这个位置上」的时刻，
         // 续播提示要等到这里才点亮。
         _maybeRevealPendingResumeTip(position);
+
+        // 顺带把进度报给「稍后再看」——它自己判"看完没有"（≥90% 或剩余<10s），
+        // 并且只在应用处于前台时才写 watched。
+        //
+        // ⛔ 不能复用 video_playback_history：那张表只留 7 天、而且"看完"是靠
+        // 删行表达的，"没有这一行"同时代表从没看过 / 已看完 / 被清掉，三义。
+        _reportWatchLaterProgress(position);
 
         _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新

@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
+import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import '../../../../../common/enums/media_enums.dart';
@@ -68,6 +69,18 @@ class GalleryDetailController extends GetxController {
   }
 
   /// 获取图片详情
+  /// 在稍后再看里的话，把这条图库标成已看。不在里面就更新 0 行，无副作用。
+  void _markWatchLaterOpened() {
+    final id = imageModelId;
+    if (id.isEmpty) return;
+    try {
+      WatchLaterService.to.markGalleryOpened(id);
+    } catch (e) {
+      // 稍后再看是附属能力，它出问题不该影响图库浏览。
+      LogUtils.w('标记图库已看失败: $e', 'GalleryDetailController');
+    }
+  }
+
   Future<void> fetchGalleryDetail() async {
     try {
       isImageModelInfoLoading.value = true;
@@ -106,6 +119,10 @@ class GalleryDetailController extends GetxController {
       );
       otherAuthorzImageModelsController?.fetchRelatedMedias();
       imageModelInfo.value = res.data;
+
+      // 图库没有连续进度可言，**打开详情页即算已看**——这是它在稍后再看的
+      // 「未看完」筛选里的唯一判据。前台闸门在 WatchLaterService 里。
+      _markWatchLaterOpened();
 
       // 检查收藏状态
       checkFavoriteStatus();

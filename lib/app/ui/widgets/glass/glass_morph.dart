@@ -679,6 +679,7 @@ class GlassFlipLabel extends StatefulWidget {
     this.iconSize = 16,
     this.iconGap = 5,
     this.alignment = Alignment.centerLeft,
+    this.stableWidth = false,
   });
 
   /// 连续的小数下标。整数位＝当前档，小数位＝翻牌进度。
@@ -698,6 +699,16 @@ class GlassFlipLabel extends StatefulWidget {
   /// 翻牌过程中窄于最宽档时，牌面往哪边贴。默认左对齐——左边缘钉住不动，
   /// 只有右边的箭头跟着宽度滑，读起来最稳。
   final Alignment alignment;
+
+  /// 恒占**最宽那一档**的宽度，翻牌途中一格也不伸缩。
+  ///
+  /// 默认关：单独一只胶囊（[GlassCapsuleMorph] 包着的下拉钮）本来就该跟着
+  /// 牌面收放，宽度形变正是那只胶囊的语言。
+  ///
+  /// ⛔ 装进 [GlassButtonGroup] 时必须开：胶囊外壳的 `AnimatedSize` 追不上
+  /// 逐帧变化的宽度（追着追着就慢半拍），而 easy 档的 `touchFlex` 更是把
+  /// 宽度**量一次就锁死**——锁完再变宽，多出来的那截会被外壳直接裁掉。
+  final bool stableWidth;
 
   @override
   State<GlassFlipLabel> createState() => _GlassFlipLabelState();
@@ -819,7 +830,7 @@ class _GlassFlipLabelState extends State<GlassFlipLabel> {
     if (widget.labels.isEmpty) return const SizedBox.shrink();
     if (_widths.length != widget.labels.length) _measure();
 
-    return AnimatedBuilder(
+    final Widget flip = AnimatedBuilder(
       animation: widget.progress,
       builder: (context, _) {
         final int maxIndex = widget.labels.length - 1;
@@ -868,6 +879,17 @@ class _GlassFlipLabelState extends State<GlassFlipLabel> {
           ),
         );
       },
+    );
+
+    if (!widget.stableWidth) return flip;
+    // 恒宽：撑到最宽那一档，牌面按 [alignment] 贴边。
+    double widest = 0;
+    for (final w in _widths) {
+      if (w > widest) widest = w;
+    }
+    return SizedBox(
+      width: widest,
+      child: Align(alignment: widget.alignment, child: flip),
     );
   }
 }

@@ -211,6 +211,8 @@ class GlassSideDrawerShell extends StatefulWidget {
     required this.bodyBuilder,
     this.subtitle,
     this.headerActions = const <Widget>[],
+    this.headerBottom,
+    this.plainCloseButton = false,
     this.footer,
   });
 
@@ -222,10 +224,27 @@ class GlassSideDrawerShell extends StatefulWidget {
   /// header 右侧的动作键，排在关闭钮左边。关闭钮由外壳自己加。
   final List<Widget> headerActions;
 
+  /// 标题行**下面**那条常驻控制行（切池 / 筛选 / 分段）。
+  ///
+  /// ⛔ 这种行要放这里，别当成 [bodyBuilder] 的第一个孩子：只有进了 header 这
+  /// 一块，它才会 ① 一起被量进 header 高度，于是 `contentPadding.top` 自动把
+  /// 它让开——内容的**起始**位置落在它下缘；② 一起被顶部蒙层收边，内容从它
+  /// 背后滚过去时是"溶"进去的。放进 body 的话两件事都得自己重做一遍，而且
+  /// 漏了第一件就是「列表一开局就压在控制行底下」（2026-08-29 用户报障）。
+  final Widget? headerBottom;
+
   /// 内容。回调里的 padding 已经算好了 header 让位与左右留白，直接交给
   /// 内部可滚动组件的 `padding` 即可（这样内容才会从 header 背后滚过去）。
   final Widget Function(BuildContext context, EdgeInsets contentPadding)
   bodyBuilder;
+
+  /// 关闭钮钉死传统档（半透明底 + 细描边），不跟着 chrome 走液态。
+  ///
+  /// ⛔ 默认 **false**，而且**目前一处都没有打开它**：一行 chrome 里两种材质
+  /// 一眼就能看出来（2026-08-29 用户原话：「重置/保存和关闭这两个按钮的样式
+  /// 居然不一样」）。留着这个口子只是为了"整只 header 都不指望折射"那种场合，
+  /// 打开它之前先确认同一行里没有别的液态件。
+  final bool plainCloseButton;
 
   /// 贴底常驻的一条（生成的查询预览 / 排序提示）。
   final Widget? footer;
@@ -247,7 +266,6 @@ class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -331,44 +349,55 @@ class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
                     _kDrawerHPadding,
                     4,
                   ),
-                  child: Row(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            if (subtitle != null)
-                              Text(
-                                subtitle,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
+                                if (subtitle != null)
+                                  Text(
+                                    subtitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          for (final action in headerActions) ...[
+                            const SizedBox(width: 8),
+                            action,
                           ],
-                        ),
+                          const SizedBox(width: 8),
+                          if (widget.plainCloseButton)
+                            const LiquidGlassScope(
+                              backend: GlassBackend.plain,
+                              child: _DrawerCloseButton(),
+                            )
+                          else
+                            const _DrawerCloseButton(),
+                        ],
                       ),
-                      for (final action in headerActions) ...[
-                        const SizedBox(width: 8),
-                        action,
+                      if (widget.headerBottom != null) ...[
+                        const SizedBox(height: 8),
+                        widget.headerBottom!,
                       ],
-                      const SizedBox(width: 8),
-                      GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                        onPressed: () => Navigator.of(context).maybePop(),
-                      ),
                     ],
                   ),
                 ),
@@ -478,6 +507,24 @@ class GlassFilterSection extends StatelessWidget {
           child,
         ],
       ),
+    );
+  }
+}
+
+/// 抽屉右上角那枚关闭钮。单独成一个组件，是为了让它在
+/// [LiquidGlassScope] 底下**重新取一次 context**——档位是沿树下发的，写在
+/// scope 外面的 `GlassIconButton` 读到的还是外层那一档。
+class _DrawerCloseButton extends StatelessWidget {
+  const _DrawerCloseButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return GlassIconButton(
+      standalone: true,
+      icon: const Icon(Icons.close),
+      tooltip: t.common.close,
+      onPressed: () => Navigator.of(context).maybePop(),
     );
   }
 }

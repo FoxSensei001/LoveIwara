@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/services/download_path_service.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
-import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/pages/download/media_download_launcher.dart';
 
 import '../../../../../common/enums/media_enums.dart';
 import '../../../../services/app_service.dart';
@@ -27,6 +20,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
     show FilledActionButton, FilledLikeButton;
+import 'package:i_iwara/app/ui/widgets/watch_later_action_button.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
@@ -377,7 +371,11 @@ class ImageModelDetailContent extends StatelessWidget {
           () => FilledActionButton(
             icon: Icons.download,
             label: t.download.download,
-            onTap: () => _downloadGallery(context),
+            onTap: () => launchGalleryDownload(
+              context,
+              gallery: imageModelInfo,
+              onTaskCreated: controller.markGalleryHasDownloadTask,
+            ),
             // 用 colorScheme.primary，不用 Theme.of(context).primaryColor——
             // primaryColor 是 M2 遗留字段，M3 深色主题下它不跟随 colorScheme
             // 翻转，选中态的图标/文字会退化成近黑色，糊在深色卡片上看不清。
@@ -422,6 +420,9 @@ class ImageModelDetailContent extends StatelessWidget {
                 } catch (_) {}
               },
             ),
+            // 「稍后再看」摆在本地收藏前面：两者都是"先存起来"，但稍后再看是
+            // 临时队列、收藏是长期归档，前者用得更频（与视频详情页同序）。
+            WatchLaterActionButton(gallery: imageModelInfo),
             Obx(
               () => FilledActionButton(
                 icon: controller.isInAnyFavorite.value
@@ -461,100 +462,6 @@ class ImageModelDetailContent extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  // 下载图库
-  void _downloadGallery(BuildContext context) async {
-    final t = slang.Translations.of(context);
-    try {
-      final imageModel = controller.imageModelInfo.value;
-      if (imageModel == null) {
-        showGlassToast(
-          t.download.errors.imageModelNotFound,
-          type: GlassToastType.error,
-        );
-        return;
-      }
-
-      // 下载前选择分类（无分类时不弹框，直接用记住的默认值）
-      final categoryChoice = await showDownloadCategoryDialog(context);
-      if (!categoryChoice.confirmed) {
-        return; // 用户取消
-      }
-
-      // 创建下载任务的扩展数据
-      final extData = GalleryDownloadExtData(
-        id: imageModel.id,
-        title: imageModel.title,
-        previewUrls: imageModel.files
-            .take(3)
-            .map((e) => e.getLargeImageUrl())
-            .toList(),
-        authorName: imageModel.user?.name,
-        authorUsername: imageModel.user?.username,
-        authorAvatar: imageModel.user?.avatar?.avatarUrl,
-        totalImages: imageModel.files.length,
-        imageList: {
-          for (var e in imageModel.files) e.id: e.getOriginalImageUrl(),
-        },
-        localPaths: {},
-      );
-
-      // 创建下载任务
-      final savePath = await _getSavePath(imageModel.title, imageModel.id);
-      if (savePath == null) {
-        showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
-        return;
-      }
-      final task = DownloadTask(
-        url: imageModel.files.first.getOriginalImageUrl(), // 使用第一张图片的URL
-        downloadedBytes: 0, // 已下载图片数量
-        totalBytes: imageModel.files.length, // 总图片数量
-        savePath: savePath, // 保存路径 [下载文件夹/galleries/图库标题_图库id]
-        fileName: '${imageModel.title}_${imageModel.id}', // 文件名
-        extData: DownloadTaskExtData(
-          type: DownloadTaskExtDataType.gallery,
-          data: extData.toJson(),
-        ),
-        mediaType: 'gallery',
-        mediaId: imageModel.id,
-      );
-      // 应用用户在弹窗中选择的分类
-      task.categoryId = categoryChoice.categoryId;
-
-      await DownloadService.to.addTask(task);
-
-      // 标记图库有下载任务
-      controller.markGalleryHasDownloadTask();
-
-      showGlassToast(t.download.startDownloading, type: GlassToastType.success);
-
-      // 打开下载管理页面
-      NaviService.navigateToDownloadTaskListPage();
-    } catch (e) {
-      LogUtils.e('添加下载任务失败', tag: 'ImageModelDetailContent', error: e);
-      showGlassToast(
-        t.download.errors.downloadFailed,
-        type: GlassToastType.error,
-      );
-    }
-  }
-
-  // 获取保存路径
-  Future<String?> _getSavePath(String title, String id) async {
-    // 使用下载路径服务
-    final downloadPathService = Get.find<DownloadPathService>();
-
-    // 创建临时图库对象用于路径生成
-    final imageModel = controller.imageModelInfo.value;
-    final gallery = ImageModel(
-      id: id,
-      title: title,
-      user: imageModel?.user,
-      files: imageModel?.files ?? [],
-    );
-
-    return await downloadPathService.getGalleryDownloadPath(gallery: gallery);
   }
 
   // 添加到收藏夹

@@ -5,12 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
+import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'media_like_override_utils.dart';
 
 class VideoTileListItem extends StatefulWidget {
   final Video video;
@@ -21,31 +21,19 @@ class VideoTileListItem extends StatefulWidget {
   State<VideoTileListItem> createState() => _VideoTileListItemState();
 }
 
-class _VideoTileListItemState extends State<VideoTileListItem> {
+class _VideoTileListItemState extends State<VideoTileListItem>
+    with MediaCardActionState<VideoTileListItem> {
   bool _showAnimatedPreview = false;
   Timer? _hoverTimer;
-  bool? _likedOverride;
-  int? _likeCountOverride;
-
-  bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
-  int get _effectiveLikeCount =>
-      _likeCountOverride ?? (widget.video.numLikes ?? 0);
 
   @override
-  void didUpdateWidget(covariant VideoTileListItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (shouldResetLikeOverride(
-      oldId: oldWidget.video.id,
-      newId: widget.video.id,
-      oldLiked: oldWidget.video.liked,
-      newLiked: widget.video.liked,
-      oldLikeCount: oldWidget.video.numLikes,
-      newLikeCount: widget.video.numLikes,
-    )) {
-      _likedOverride = null;
-      _likeCountOverride = null;
-    }
-  }
+  Video get actionVideo => widget.video;
+  @override
+  String get actionMediaId => widget.video.id;
+  @override
+  bool get baseLiked => widget.video.liked == true;
+  @override
+  int get baseLikeCount => widget.video.numLikes ?? 0;
 
   @override
   void dispose() {
@@ -73,24 +61,7 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   }) async {
     await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
     if (!mounted) return;
-    _applyLikePatch(extData);
-  }
-
-  void _applyLikePatch(Map<String, dynamic>? extData) {
-    if (extData == null) return;
-    final liked = extData[NaviService.mediaLikePatchLikedKey];
-    final likeCount = extData[NaviService.mediaLikePatchCountKey];
-    if (liked is! bool || likeCount is! num) return;
-
-    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
-    if (_effectiveLiked == liked &&
-        _effectiveLikeCount == normalizedLikeCount) {
-      return;
-    }
-    setState(() {
-      _likedOverride = liked;
-      _likeCountOverride = normalizedLikeCount;
-    });
+    applyLikePatchFromExtData(extData);
   }
 
   /// 格式化数字显示（如1.2K、1.5M等）
@@ -117,10 +88,13 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
 
     return InkWell(
       onTap: _navigateToDetailPage,
-      onLongPress: () => _handleLongPress(context),
-      onSecondaryTap: isDesktopPlatform
-          ? () => _handleLongPress(context)
-          : null,
+      // 长按 / 右键 / 三点钮 → 同一只媒体操作菜单。原来这两条指向的是只能看
+      // 不能动手的预览弹窗，已整只移除。
+      onLongPress: openActionMenu,
+      onSecondaryTap: isDesktopPlatform ? openActionMenu : null,
+      // 菜单贴着手指弹，落点从这两条记（见 [recordActionAnchor]）。
+      onTapDown: recordActionAnchor,
+      onSecondaryTapDown: recordActionAnchor,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -129,6 +103,13 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
             _buildThumbnail(context),
             const SizedBox(width: 16),
             _buildVideoInfo(context),
+            // 行尾的三点钮。它在 InkWell 内部，但手势竞技场里更深的识别器
+            // 稳赢，所以点它不会顺带把整行的"打开详情"也触发掉。
+            MediaActionMenuButton(
+              video: widget.video,
+              likedOverride: effectiveLiked,
+              onLikeChanged: applyLikeToggle,
+            ),
           ],
         ),
       ),
@@ -225,8 +206,8 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
   /// 构建统计数据标签组
   Widget _buildStatsTagsGroup(BuildContext context) {
     return _buildStatsTagsGroupWithState(
-      isLiked: _effectiveLiked,
-      likeCount: _effectiveLikeCount,
+      isLiked: effectiveLiked,
+      likeCount: effectiveLikeCount,
     );
   }
 
@@ -504,47 +485,5 @@ class _VideoTileListItemState extends State<VideoTileListItem> {
       widget.video.id,
       extData: _buildVideoDetailExtData(),
     );
-  }
-
-  /// 处理长按和右键事件
-  void _handleLongPress(BuildContext context) async {
-    if (!context.mounted) return;
-
-    // 显示预览模态框
-    final result = await showDialog<VideoPreviewModalResult>(
-      context: context,
-      builder: (BuildContext context) {
-        return VideoPreviewDetailModal(
-          video: widget.video,
-          isLiked: _effectiveLiked,
-          likeCount: _effectiveLikeCount,
-        );
-      },
-    );
-
-    if (!mounted || result == null) return;
-
-    switch (result.type) {
-      case VideoPreviewModalActionType.openVideo:
-        if (result.videoId?.isNotEmpty ?? false) {
-          final videoId = result.videoId!;
-          await _openVideoDetail(
-            videoId,
-            extData: videoId == widget.video.id
-                ? _buildVideoDetailExtData()
-                : null,
-          );
-        }
-        break;
-      case VideoPreviewModalActionType.openAuthor:
-        final username = (result.username ?? '').trim();
-        if (username.isNotEmpty) {
-          NaviService.navigateToAuthorProfilePage(
-            username,
-            initialUser: widget.video.user,
-          );
-        }
-        break;
-    }
   }
 }

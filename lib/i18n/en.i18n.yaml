@@ -63,6 +63,7 @@ tutorial:
 
 common:
   sort: Sort
+  filter: Filter
   appName: Love Iwara
   ok: OK
   cancel: Cancel
@@ -519,8 +520,8 @@ settings:
   seekPreviewSizeStandard: Standard
   seekPreviewSizeLarge: Large
   seekPreviewSizeStandardDesc: The size derived from the player and the video
-  showFullscreenUpNextHint: Show Up Next Edge Hint
-  showFullscreenUpNextHintDesc: Show a small edge tab in fullscreen so you can quickly open the Up Next drawer.
+  showFullscreenUpNextHint: Show the "Up next" handle
+  showFullscreenUpNextHintDesc: Shows a small handle on the right edge of the player that opens the queue drawer (source / playlist / watch later). There is no other way in once it is off.
   basicSettings: Basic Settings
   personalizedSettings: Personalized Settings
   otherSettings: Other Settings
@@ -2747,3 +2748,59 @@ externalPlayer:
   executableMissing: "Executable not found"
   openWithNamed: 'Open in ${name}'
   managePlayersEntry: "Manage external players…"
+watchLater:
+  title: Watch Later
+  addToWatchLater: Watch later
+  removeFromWatchLater: Remove from Watch Later
+  addedToWatchLater: Added to Watch Later
+  alreadyInWatchLater: Already in Watch Later
+  removedFromWatchLater: Removed from Watch Later
+  removedCount: Removed ${count} items
+  viewWatchLaterList: View list
+  addFailed: Failed to add to Watch Later
+  invalidItem: Unavailable
+  clearWatched: Clear watched
+  watchedCleared: Cleared ${count} watched items
+  noWatchedToClear: Nothing watched to clear
+  emptyVideo: No videos in Watch Later yet
+  emptyGallery: No galleries in Watch Later yet
+  filterAll: All
+  filterUnwatched: Unwatched
+  sortRecentlyAdded: Recently added
+  sortEarliestAdded: Earliest added
+  watched: Watched
+  playlistLoadFailed: Failed to load playlists
+  noPlaylists: No playlists yet
+  undo: Undo
+  clearWatchedConfirm: Clear everything you have already watched in this tab? This cannot be undone.
+  emptyUnwatchedVideo: Nothing left to watch here
+  emptyUnwatchedGallery: Nothing left to view here
+  queueLoadFailed: Failed to load, tap to retry
+mediaMenu:
+  like: Like
+  unlike: Unlike
+  viewAuthor: View author
+  inFolders: ${count} folders
+  inPlaylists: ${count} playlists
+  downloaded: Downloaded
+playbackQueue:
+  upNext: Up next
+  sourceTab: Source
+  emptyQueue: Nothing playable in this queue
+  emptyGalleryQueue: No galleries in this queue
+  nowPlaying: Now playing
+  myPlaylists: My playlists
+  authorPlaylists: Author's playlists
+  openQueue: Up next
+  continueInQueue: Keep playing from the current queue
+  continueInQueueSubtitle: Plays the next item automatically; disables "repeat when finished"
+  repeatDisabledByQueue: Disabled while "keep playing from the current queue" is on
+  playNext: Play next
+  queueEnded: This is the last item in the queue
+  playNextHint: Tap to play the next item, long-press to open Up next
+  authorVideos: Author's videos
+  authorGalleries: Author's galleries
+  localFavoriteFolders: Local favorites
+  downloads: Downloaded
+  otherPlaylists: Other user's playlists
+  nothingHere: Nothing here

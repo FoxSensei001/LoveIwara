@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'dart:async';
+
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
@@ -399,17 +402,34 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
       }
     }
 
-    final playlistContext = InnerPlaylistContext.fromVideos(
-      source: InnerPlaylistSource.playlistDetail,
-      videos: loadedVideos,
-      currentVideoId: videoId,
+    // 从播放列表进来时，池就是这张播放列表本身——**不再传来源快照**。
+    // 两个原因：
+    // 1. 快照会被 `_limitItems` 打乱（那是给"随机推荐"用的），播放列表是作者
+    //    排好的顺序，打乱就把它的意义毁了；
+    // 2. 快照只有已加载的那些，而播放列表池能接着翻页（游标活在
+    //    PlaybackQueueService 里，不随页面生灭）。
+    //
+    // 顺带满足"从播放列表进来就只有播放列表 tab、没有『来源』"这条约定：
+    // 详情页组装池清单时，来源池只在真的传了 innerPlaylistContext 时才出现。
+    final queue = PlaybackQueueService.to.openPlaylist(
+      widget.playlistId,
+      title: controller.playlistTitle.value,
+      // 主人一起带上：从**他人的**播放列表进来时，抽屉靠它开出「他人的播放
+      // 列表」那一条，否则那个人的其它列表在播放器里根本够不着。
+      owner: controller.playlistOwner.value,
     );
+    if (queue.loaded.isEmpty) {
+      unawaited(queue.loadMore());
+    }
 
     await NaviService.navigateToVideoDetailPage(
       videoId,
       extData: extData,
-      innerPlaylistContext: playlistContext,
       initialVideoInfo: initialVideoInfo,
+      playbackQueueRef: PlaybackQueueRef(
+        queueId: queue.queueId,
+        currentItemId: videoId,
+      ),
     );
   }
 

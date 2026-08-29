@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:uuid/uuid.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
@@ -379,6 +380,7 @@ class NaviService {
     String? authorRole,
     bool? authorPremium,
     Map<String, dynamic>? extData,
+    PlaybackQueueRef? playbackQueueRef,
   }) {
     final shouldAttachExtra =
         coverUrl != null ||
@@ -390,7 +392,8 @@ class NaviService {
         authorAvatarUrl != null ||
         authorRole != null ||
         authorPremium != null ||
-        extData != null;
+        extData != null ||
+        playbackQueueRef != null;
 
     final future = appRouter.push(
       '/gallery_detail/$id',
@@ -406,6 +409,7 @@ class NaviService {
               authorRole: authorRole,
               authorPremium: authorPremium,
               extData: extData,
+              playbackQueueRef: playbackQueueRef,
             )
           : null,
     );
@@ -422,12 +426,19 @@ class NaviService {
     bool forceEnterFullscreen = false,
     Video? initialVideoInfo,
     VideoFullscreenHandoff? fullscreenHandoff,
+    PlaybackQueueRef? playbackQueueRef,
+    bool skipWatchedInQueue = false,
   }) async {
     final normalizedId = id.trim();
     if (normalizedId.isEmpty) return null;
 
     try {
-      final currentPath = appRouter.routeInformationProvider.value.uri.path;
+      // ⛔ 必须读 `appRouter.state`，**不能**读
+      // `routeInformationProvider.value.uri`——后者的 RouteMatchList.uri 只反映
+      // 非 ImperativeRouteMatch 的匹配，而视频详情页全是 push 进来的，于是这道
+      // 守卫此前**从未生效过**（同一个视频连点两次会入栈两层）。
+      // 同源说明见 settings_navigation.dart 与 glass_material_intro.dart。
+      final currentPath = appRouter.state.uri.path;
       final targetPath = '/video_detail/$normalizedId';
       if (currentPath == targetPath) {
         return null;
@@ -444,12 +455,15 @@ class NaviService {
       extra:
           extData != null ||
               innerPlaylistContext != null ||
+              playbackQueueRef != null ||
               forceAutoPlay ||
               forceEnterFullscreen ||
               initialVideoInfo != null
           ? VideoDetailExtra(
               extData: extData,
               innerPlaylistContext: innerPlaylistContext,
+              playbackQueueRef: playbackQueueRef,
+              skipWatchedInQueue: skipWatchedInQueue,
               forceAutoPlay: forceAutoPlay,
               forceEnterFullscreen: forceEnterFullscreen,
               initialVideoInfo: initialVideoInfo,
@@ -558,6 +572,11 @@ class NaviService {
   /// 跳转到历史记录列表页
   static void navigateToHistoryListPage() {
     appRouter.push('/history_list');
+  }
+
+  /// 稍后再看列表页。加入成功的 toast 上那枚动作钮也走这里。
+  static void navigateToWatchLaterPage() {
+    appRouter.push('/watch_later');
   }
 
   static void navigateToFollowingListPage(
@@ -797,23 +816,30 @@ class NaviService {
   }
 
   /// 跳转到本地视频播放页面（从下载任务进入）
+  ///
+  /// [playbackQueueRef] 是下载池的引用（从下载列表进来时带上）：本地播放页
+  /// 的路由 id 只是个 `local_xxx` 占位，池的游标只能靠这个 ref 里的
+  /// `currentItemId` 带过去——见 `PlaybackQueueNavigator`。
   static void navigateToLocalVideoPlayerPage({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    PlaybackQueueRef? playbackQueueRef,
   }) {
-    final uuid = Uuid();
-    final randomVideoId = 'local_${uuid.v4()}';
+    final routeVideoId = playbackQueueRef != null
+        ? localVideoRouteId(playbackQueueRef.currentItemId)
+        : 'local_${Uuid().v4()}';
 
     appRouter.push(
-      '/video_detail/$randomVideoId',
+      '/video_detail/$routeVideoId',
       extra: VideoDetailExtra(
         localPath: localPath,
         localTask: task,
         localAllQualityTasks: allQualityTasks,
+        playbackQueueRef: playbackQueueRef,
       ),
     );
-    _ensureAndroidBackDispatcherPriority('push video_detail/$randomVideoId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$routeVideoId');
   }
 
   /// 跳转到本地视频播放页面（从外部文件路径进入）

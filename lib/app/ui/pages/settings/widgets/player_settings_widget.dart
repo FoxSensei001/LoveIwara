@@ -508,16 +508,38 @@ class PlayerSettingsWidget extends StatelessWidget {
         // -------- 播放控制：行为相关 --------
         _sectionLabel(context, t.settings.playbackBehaviorSettings),
         _groupCard([
-          // 循环播放
+          // 在当前视频池内续播
           _switchTile(
             context: context,
-            iconData: Icons.loop,
-            label: t.settings.repeat,
-            rxValue: _configService.settings[ConfigKey.REPEAT_KEY]!,
+            iconData: Icons.queue_play_next,
+            label: t.playbackQueue.continueInQueue,
+            description: t.playbackQueue.continueInQueueSubtitle,
+            rxValue: _configService.settings[ConfigKey.CONTINUE_IN_QUEUE_KEY]!,
             onChanged: (value) {
-              _configService[ConfigKey.REPEAT_KEY] = value;
+              _configService[ConfigKey.CONTINUE_IN_QUEUE_KEY] = value;
             },
           ),
+          // 循环播放
+          //
+          // ⛔ 开了「池内续播」之后这一项**灰掉并说明原因**，而不是静默失效——
+          // "我明明开了却没用"正是最难排查的那类问题。
+          Obx(() {
+            final continueInQueue =
+                _configService[ConfigKey.CONTINUE_IN_QUEUE_KEY] == true;
+            return _switchTile(
+              context: context,
+              iconData: Icons.loop,
+              label: t.settings.repeat,
+              description: continueInQueue
+                  ? t.playbackQueue.repeatDisabledByQueue
+                  : null,
+              disabled: continueInQueue,
+              rxValue: _configService.settings[ConfigKey.REPEAT_KEY]!,
+              onChanged: (value) {
+                _configService[ConfigKey.REPEAT_KEY] = value;
+              },
+            );
+          }),
           // 记住音量（仅限 PC）
           if (GetPlatform.isDesktop)
             _switchTile(

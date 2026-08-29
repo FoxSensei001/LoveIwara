@@ -2,20 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_slot.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_meta.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_action_state.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/blocked_media_card_placeholder.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_preview_modal.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
     show BaseTag;
-import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/utils/common_utils.dart';
 
 import '../../../../models/video.model.dart';
-import 'media_like_override_utils.dart';
 
 class VideoCardListItemWidget extends StatefulWidget {
   final Video video;
@@ -54,20 +52,24 @@ class VideoCardListItemWidget extends StatefulWidget {
       _VideoCardListItemWidgetState();
 }
 
-class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
+class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
+    with MediaCardActionState<VideoCardListItemWidget> {
   static const double _titleFontSize = 14;
   static const double _titleLineHeight = 1.22;
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
 
   bool _isHovering = false;
   bool _revealed = false;
-  bool? _likedOverride;
-  int? _likeCountOverride;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
 
-  bool get _effectiveLiked => _likedOverride ?? (widget.video.liked == true);
-  int get _effectiveLikeCount =>
-      _likeCountOverride ?? (widget.video.numLikes ?? 0);
+  @override
+  Video get actionVideo => widget.video;
+  @override
+  String get actionMediaId => widget.video.id;
+  @override
+  bool get baseLiked => widget.video.liked == true;
+  @override
+  int get baseLikeCount => widget.video.numLikes ?? 0;
 
   String get _displayTitle {
     final title = widget.video.title?.trim();
@@ -75,22 +77,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       return slang.t.common.noTitle;
     }
     return title;
-  }
-
-  @override
-  void didUpdateWidget(covariant VideoCardListItemWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (shouldResetLikeOverride(
-      oldId: oldWidget.video.id,
-      newId: widget.video.id,
-      oldLiked: oldWidget.video.liked,
-      newLiked: widget.video.liked,
-      oldLikeCount: oldWidget.video.numLikes,
-      newLikeCount: widget.video.numLikes,
-    )) {
-      _likedOverride = null;
-      _likeCountOverride = null;
-    }
   }
 
   Map<String, dynamic> _buildVideoDetailExtData() {
@@ -117,24 +103,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
       await NaviService.navigateToVideoDetailPage(videoId, extData: extData);
     }
     if (!mounted) return;
-    _applyLikePatch(extData);
-  }
-
-  void _applyLikePatch(Map<String, dynamic>? extData) {
-    if (extData == null) return;
-    final liked = extData[NaviService.mediaLikePatchLikedKey];
-    final likeCount = extData[NaviService.mediaLikePatchCountKey];
-    if (liked is! bool || likeCount is! num) return;
-
-    final normalizedLikeCount = likeCount.toInt() < 0 ? 0 : likeCount.toInt();
-    if (_effectiveLiked == liked &&
-        _effectiveLikeCount == normalizedLikeCount) {
-      return;
-    }
-    setState(() {
-      _likedOverride = liked;
-      _likeCountOverride = normalizedLikeCount;
-    });
+    applyLikePatchFromExtData(extData);
   }
 
   @override
@@ -237,12 +206,18 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                             widget.video.id,
                             extData: _buildVideoDetailExtData(),
                           ),
+                    // 长按 / 右键 / 三点钮 → 同一只媒体操作菜单。
+                    // 原来这两条指向的是只能看不能动手的预览弹窗，已整只移除。
                     onSecondaryTap: widget.isMultiSelectMode
                         ? null
-                        : _showDetailsModal,
+                        : openActionMenu,
                     onLongPress: widget.isMultiSelectMode
                         ? null
-                        : _showDetailsModal,
+                        : openActionMenu,
+                    // 菜单贴着手指弹，落点从这两条记（见
+                    // [recordActionAnchor]）。
+                    onTapDown: recordActionAnchor,
+                    onSecondaryTapDown: recordActionAnchor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -278,12 +253,12 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                               const SizedBox(height: 8),
                               VideoCardMetaLine(
                                 video: widget.video,
-                                isLiked: _effectiveLiked,
-                                likeCount: _effectiveLikeCount,
+                                isLiked: effectiveLiked,
+                                likeCount: effectiveLikeCount,
                               ),
                               const SizedBox(height: 8),
-                              _AuthorLine(
-                                video: widget.video,
+                              MediaCardAuthorLine(
+                                user: widget.video.user,
                                 isMultiSelectMode: widget.isMultiSelectMode,
                               ),
                             ],
@@ -291,6 +266,14 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
                         ),
                       ],
                     ),
+                  ),
+                  // 三点钮：压在整张卡片的右下角（B站同款位置）。
+                  MediaCardActionSlot(
+                    video: widget.video,
+                    isMultiSelectMode: widget.isMultiSelectMode,
+                    likedOverride: effectiveLiked,
+                    onLikeChanged: applyLikeToggle,
+                    duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
                   // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
@@ -317,43 +300,6 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget> {
             defaultTargetPlatform == TargetPlatform.linux ||
             defaultTargetPlatform == TargetPlatform.macOS);
   }
-
-  Future<void> _showDetailsModal() async {
-    if (!mounted) return;
-    final result = await showDialog<VideoPreviewModalResult>(
-      context: context,
-      builder: (_) => VideoPreviewDetailModal(
-        video: widget.video,
-        isLiked: _effectiveLiked,
-        likeCount: _effectiveLikeCount,
-      ),
-    );
-
-    if (!mounted || result == null) return;
-
-    switch (result.type) {
-      case VideoPreviewModalActionType.openVideo:
-        if (result.videoId?.isNotEmpty ?? false) {
-          final videoId = result.videoId!;
-          await _openVideoDetail(
-            videoId,
-            extData: videoId == widget.video.id
-                ? _buildVideoDetailExtData()
-                : null,
-          );
-        }
-        break;
-      case VideoPreviewModalActionType.openAuthor:
-        final username = (result.username ?? '').trim();
-        if (username.isNotEmpty) {
-          NaviService.navigateToAuthorProfilePage(
-            username,
-            initialUser: widget.video.user,
-          );
-        }
-        break;
-    }
-  }
 }
 
 class _Thumbnail extends StatelessWidget {
@@ -375,7 +321,10 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    const radius = BorderRadius.vertical(top: Radius.circular(14));
+    // 贴在上沿两角的标签（R18 / 统计组）要照着同一个圆角走，所以这里用共享常量。
+    const radius = BorderRadius.vertical(
+      top: Radius.circular(kMediaCardThumbnailRadius),
+    );
 
     return ClipRRect(
       borderRadius: radius,
@@ -386,6 +335,13 @@ class _Thumbnail extends StatelessWidget {
           children: [
             _buildImage(),
             ...buildTags(context, t),
+            // 播放量 / 评论数聚成一组压在右上角；「重新屏蔽」占同一个槽位，
+            // 它出现时这组先收走。
+            MediaCardStatsOverlay(
+              views: video.numViews ?? 0,
+              comments: video.numComments ?? 0,
+              visible: !reblockVisible,
+            ),
             ReblockChip(visible: reblockVisible, onTap: onReblock),
           ],
         ),
@@ -565,190 +521,10 @@ class VideoCardMetaLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedIsLiked = isLiked ?? (video.liked == true);
-    final resolvedLikeCount = likeCount ?? (video.numLikes ?? 0);
-    return _buildMetaLine(
-      context,
-      isLiked: resolvedIsLiked,
-      likeCount: resolvedLikeCount < 0 ? 0 : resolvedLikeCount,
-    );
-  }
-
-  Widget _buildMetaLine(
-    BuildContext context, {
-    required bool isLiked,
-    required int likeCount,
-  }) {
-    final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        final chipTextMaxWidth = ((constraints.maxWidth - 55) / 2).clamp(
-          24.0,
-          56.0,
-        );
-        final IconData likeIcon = isLiked
-            ? Icons.favorite
-            : Icons.favorite_border;
-        final Color likeColor = isLiked
-            ? Colors.pink
-            : theme.colorScheme.onSurfaceVariant;
-
-        return Wrap(
-          spacing: compact ? 5 : 6,
-          runSpacing: 5,
-          children: [
-            _StatChip(
-              icon: Icons.visibility,
-              value: CommonUtils.formatFriendlyNumber(video.numViews ?? 0),
-              color: theme.colorScheme.onSurfaceVariant,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            _StatChip(
-              icon: likeIcon,
-              value: CommonUtils.formatFriendlyNumber(likeCount),
-              color: likeColor,
-              maxTextWidth: chipTextMaxWidth,
-            ),
-            if (!compact && (video.numComments ?? 0) > 0)
-              _StatChip(
-                icon: Icons.forum,
-                value: CommonUtils.formatFriendlyNumber(video.numComments ?? 0),
-                color: theme.colorScheme.onSurfaceVariant,
-                maxTextWidth: chipTextMaxWidth,
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final Color color;
-  final double maxTextWidth;
-
-  const _StatChip({
-    required this.icon,
-    required this.value,
-    required this.color,
-    required this.maxTextWidth,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: maxTextWidth + 24),
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: color),
-          const SizedBox(width: 2),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxTextWidth),
-            child: Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: color,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AuthorLine extends StatelessWidget {
-  final Video video;
-  final bool isMultiSelectMode;
-
-  const _AuthorLine({required this.video, required this.isMultiSelectMode});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final createdAtText = CommonUtils.formatFriendlyTimestamp(video.createdAt);
-    final timeStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-      fontSize: 11,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final compact = constraints.maxWidth < 210;
-        if (compact) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAuthorName(context),
-              const SizedBox(height: 4),
-              Text(
-                createdAtText,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: timeStyle,
-              ),
-            ],
-          );
-        }
-
-        return Row(
-          children: [
-            Expanded(child: _buildAuthorName(context)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  createdAtText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: timeStyle,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildAuthorName(BuildContext context) {
-    final user = video.user;
-    final avatar = AvatarWidget(user: user, size: 22);
-    final name = buildUserName(context, user, bold: true, fontSize: 12.5);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: isMultiSelectMode
-          ? null
-          : () {
-              final username = user?.username;
-              if (username != null && username.isNotEmpty) {
-                NaviService.navigateToAuthorProfilePage(
-                  username,
-                  initialUser: user,
-                );
-              }
-            },
-      child: Row(
-        children: [
-          avatar,
-          const SizedBox(width: 6),
-          Expanded(child: name),
-        ],
-      ),
+    return MediaCardMetaRow(
+      isLiked: isLiked ?? (video.liked == true),
+      likeCount: likeCount ?? (video.numLikes ?? 0),
+      createdAt: video.createdAt,
     );
   }
 }

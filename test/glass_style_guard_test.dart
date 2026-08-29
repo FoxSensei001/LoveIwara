@@ -596,16 +596,11 @@ const _rawDialogRouteBaseline = <String, int>{
   'lib/app/ui/pages/favorite/favorite_list_page.dart': 2,
   'lib/app/ui/pages/follows/widgets/special_follows_list.dart': 1,
   'lib/app/ui/pages/forum/forum_page.dart': 1,
-  'lib/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart':
-      1,
-  'lib/app/ui/pages/popular_media_list/widgets/video_tile_list_item_widget.dart':
-      1,
   'lib/app/ui/pages/settings/app_settings_page.dart': 4,
   'lib/app/ui/pages/settings/keybinding_settings_page.dart': 4,
   'lib/app/ui/pages/settings/widgets/download_test_widget.dart': 1,
   'lib/app/ui/pages/settings/widgets/player_settings_widget.dart': 1,
   'lib/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart': 1,
-  'lib/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart': 1,
   'lib/app/ui/widgets/oreno3d_video_card.dart': 1,
   'lib/app/ui/widgets/translation_dialog_widget.dart': 1,
 };

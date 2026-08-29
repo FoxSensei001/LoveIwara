@@ -5,6 +5,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -544,6 +546,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       anchorContext: anchorContext,
       entries: [
         GlassMenuSectionHeader(t.common.selectImageQuality),
+        // 标题与选项之间压一条分隔线：线之上是「这张菜单在问什么」，之下才是
+        // 能点的东西。少了它，小标题和两条选项一样是三行左对齐文字，读起来像
+        // 三个平级条目。
+        const GlassMenuSeparator(),
         GlassMenuOption<String>(
           value: galleryImageQualityStandard,
           label: t.common.imageQualityStandard,
@@ -557,6 +563,87 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       ],
     );
     if (picked != null) _handleQualityChanged(picked);
+  }
+
+  /// 画质触发钮的钮面：**当前处在哪一档必须一眼看出来**。
+  ///
+  /// 原来两档共用一枚白色 `hd_outlined`，钮上没有任何东西随画质变化——切成原画
+  /// 之后顶栏和之前一模一样，只能靠再打开一次菜单看对勾才知道自己在哪档。
+  ///
+  /// 现在三处一起变，并且都在同一段时值里过渡（颜色也是形变，见
+  /// [GlassAnimatedColors]）：
+  ///   - 底色：标清是半透明白的"未点亮"胶囊，原画整枚翻成实白（亮起来）；
+  ///   - 图标：描边 `hd_outlined` ↔ 实心 `hd`，交替走 [GlassAnimatedIcon]；
+  ///   - 文字：直接把档位名写在钮上，不用猜"点亮"是什么意思。
+  Widget _buildQualityIndicator(BuildContext context, slang.Translations t) {
+    final isOriginal = _activeQuality == galleryImageQualityOriginal;
+    final label = isOriginal
+        ? t.common.imageQualityOriginal
+        : t.common.imageQualityStandard;
+    // 胶囊本身只有 34 高，外面仍留满 48 的可点高度：一来手指目标不缩水，二来
+    // _isPointInsideWidget 靠这只 key 的 RenderBox 把「点在按钮上」从左右边缘
+    // 翻页里摘出去，矮下去会让钮上下各露一条会翻页的缝。
+    return SizedBox(
+      height: 48,
+      child: Center(
+        widthFactor: 1,
+        child: GlassAnimatedColors(
+          colors: [
+            // 0 底色 / 1 前景（图标+文字） / 2 描边
+            isOriginal ? Colors.white : Colors.white.withValues(alpha: 0.14),
+            isOriginal ? Colors.black87 : Colors.white,
+            isOriginal ? Colors.white : Colors.white.withValues(alpha: 0.32),
+          ],
+          builder: (context, c) => Container(
+            height: 34,
+            padding: const EdgeInsetsDirectional.only(start: 9, end: 11),
+            decoration: BoxDecoration(
+              color: c[0],
+              borderRadius: BorderRadius.circular(17),
+              border: Border.all(color: c[2]),
+            ),
+            child: AnimatedSize(
+              duration: GlassTokens.motionDuration,
+              curve: GlassTokens.motionCurve,
+              alignment: AlignmentDirectional.centerStart,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GlassAnimatedIcon(
+                    icon: Icon(
+                      isOriginal ? Icons.hd : Icons.hd_outlined,
+                      size: 18,
+                      color: c[1],
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  // 顶栏右侧还挤着快捷键 / ⋮ / 页码，日语的「オリジナル」在窄屏上
+                  // 会顶到边——让它省略而不是把整行撑爆。
+                  Flexible(
+                    child: AnimatedSwitcher(
+                      duration: GlassTokens.motionDuration,
+                      switchInCurve: GlassTokens.motionCurve,
+                      switchOutCurve: GlassTokens.motionCurve.flipped,
+                      child: Text(
+                        label,
+                        key: ValueKey<String>(label),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: c[1],
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _handleQualityChanged(String quality) {
@@ -988,8 +1075,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
 
                                   return PhotoViewGalleryPageOptions.customChild(
                                     child: GestureDetector(
-                                      onDoubleTap: () =>
-                                          _galleryControls.handleDoubleTap(index),
+                                      onDoubleTap: () => _galleryControls
+                                          .handleDoubleTap(index),
                                       child: Container(
                                         color: Colors.transparent,
                                         child: Center(child: mediaChild),
@@ -997,7 +1084,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                     ),
                                     minScale:
                                         PhotoViewComputedScale.contained * 0.5,
-                                    maxScale: PhotoViewComputedScale.covered * 3,
+                                    maxScale:
+                                        PhotoViewComputedScale.covered * 3,
                                     initialScale:
                                         PhotoViewComputedScale.contained,
                                     controller: controllers[index],
@@ -1029,87 +1117,100 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                           onPressed: () =>
                                               Navigator.of(context).pop(),
                                         ),
-                                        Row(
-                                          children: [
-                                            if (_canSwitchQuality)
-                                              // 画质面板走全站统一的玻璃菜单
-                                              // （原来是 PopupMenuButton）。
-                                              Builder(
-                                                key: _qualityButtonKey,
-                                                builder: (anchorContext) =>
-                                                    GlassPressable(
-                                                      // 长按也能打开，且长按不
-                                                      // 抬手可以直接划到某一条上
-                                                      // 松手选中（见
-                                                      // GlassTapArea.opensOverlay）。
-                                                      opensOverlay: true,
-                                                      onTap: () =>
-                                                          _openQualityMenu(
+                                        // 右侧这组会随画质钮的文案变宽（日语最
+                                        // 长），Flexible 让它在窄屏上有处可让，
+                                        // 而不是把整行顶出 OVERFLOWED 条。
+                                        Flexible(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (_canSwitchQuality)
+                                                // 画质面板走全站统一的玻璃菜单
+                                                // （原来是 PopupMenuButton）。
+                                                Builder(
+                                                  key: _qualityButtonKey,
+                                                  builder: (anchorContext) =>
+                                                      GlassPressable(
+                                                        // 长按也能打开，且长按不
+                                                        // 抬手可以直接划到某一条上
+                                                        // 松手选中（见
+                                                        // GlassTapArea.opensOverlay）。
+                                                        opensOverlay: true,
+                                                        onTap: () =>
+                                                            _openQualityMenu(
+                                                              anchorContext,
+                                                            ),
+                                                        builder:
+                                                            (
+                                                              context,
+                                                              pressed,
+                                                            ) =>
+                                                                _buildQualityIndicator(
+                                                                  context,
+                                                                  t,
+                                                                ),
+                                                      ),
+                                                ),
+                                              if (_canSwitchQuality)
+                                                const SizedBox(width: 4),
+                                              // 快捷键设置按钮
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.keyboard,
+                                                  color: Colors.white,
+                                                ),
+                                                tooltip:
+                                                    t.settings.keybinding.title,
+                                                onPressed: () =>
+                                                    KeybindingSettingsPage.openSheet(
+                                                      context,
+                                                      scopeFilter:
+                                                          ShortcutScope.gallery,
+                                                    ),
+                                              ),
+                                              // 三个点菜单按钮：与旁边的画质键同
+                                              // 一套触发件（长按也能打开、且长按
+                                              // 不抬手可以直接划到某一条上松手
+                                              // 选中，见 GlassTapArea.opensOverlay）。
+                                              if (widget.enableMenu)
+                                                Builder(
+                                                  key: _menuButtonKey,
+                                                  builder: (anchorContext) =>
+                                                      GlassPressable(
+                                                        opensOverlay: true,
+                                                        onTap: () {
+                                                          _showImageMenu(
                                                             anchorContext,
-                                                          ),
-                                                      builder: (context, pressed) =>
-                                                          const SizedBox.square(
-                                                            dimension: 48,
-                                                            child: Icon(
-                                                              Icons.hd_outlined,
-                                                              color: Colors.white,
+                                                            activeGalleryItems[currentIndex],
+                                                          );
+                                                          _showUiAndAutoHide();
+                                                        },
+                                                        builder:
+                                                            (
+                                                              context,
+                                                              pressed,
+                                                            ) => const SizedBox.square(
+                                                              dimension: 48,
+                                                              child: Icon(
+                                                                Icons.more_vert,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                             ),
-                                                          ),
-                                                    ),
+                                                      ),
+                                                ),
+                                              // 页码显示
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                '${currentIndex + 1}/${activeGalleryItems.length}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
-                                            // 快捷键设置按钮
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.keyboard,
-                                                color: Colors.white,
-                                              ),
-                                              tooltip:
-                                                  t.settings.keybinding.title,
-                                              onPressed: () =>
-                                                  KeybindingSettingsPage.openSheet(
-                                                    context,
-                                                    scopeFilter:
-                                                        ShortcutScope.gallery,
-                                                  ),
-                                            ),
-                                            // 三个点菜单按钮：与旁边的画质键同
-                                            // 一套触发件（长按也能打开、且长按
-                                            // 不抬手可以直接划到某一条上松手
-                                            // 选中，见 GlassTapArea.opensOverlay）。
-                                            if (widget.enableMenu)
-                                              Builder(
-                                                key: _menuButtonKey,
-                                                builder: (anchorContext) =>
-                                                    GlassPressable(
-                                                      opensOverlay: true,
-                                                      onTap: () {
-                                                        _showImageMenu(
-                                                          anchorContext,
-                                                          activeGalleryItems[currentIndex],
-                                                        );
-                                                        _showUiAndAutoHide();
-                                                      },
-                                                      builder: (context, pressed) =>
-                                                          const SizedBox.square(
-                                                            dimension: 48,
-                                                            child: Icon(
-                                                              Icons.more_vert,
-                                                              color: Colors.white,
-                                                            ),
-                                                          ),
-                                                    ),
-                                              ),
-                                            // 页码显示
-                                            const SizedBox(width: 8),
-                                            Text(
-                                              '${currentIndex + 1}/${activeGalleryItems.length}',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -1119,7 +1220,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                             ),
                           ],
                         ),
-                        ),
+                      ),
                     ),
                   ),
                 ),

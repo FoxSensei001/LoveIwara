@@ -16,7 +16,19 @@ const double _kStatusSlotSize = 20;
 class AddVideoToPlayListDialog extends StatefulWidget {
   final String videoId;
 
-  const AddVideoToPlayListDialog({super.key, required this.videoId});
+  /// 已经拉好的那一份列表。
+  ///
+  /// 卡片操作菜单开着的时候就为「已加入 N 个播放列表」拉过一次同样的
+  /// `/light/playlists`（见 `media_action_menu.dart` 文件头），几秒之内没有再问
+  /// 一遍服务端的理由——给了它这里就直接用，连首次的转圈都省了。重试与后续的
+  /// 增删照常走网络。
+  final List<LightPlaylistModel>? initialPlaylists;
+
+  const AddVideoToPlayListDialog({
+    super.key,
+    required this.videoId,
+    this.initialPlaylists,
+  });
 
   @override
   State<AddVideoToPlayListDialog> createState() =>
@@ -38,6 +50,14 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
   @override
   void initState() {
     super.initState();
+    final seeded = widget.initialPlaylists;
+    if (seeded != null) {
+      // 自己留一份：下面的增删是就地改这张表的。
+      _playlists = List.of(seeded);
+      _filteredPlaylists = _playlists;
+      _isLoading = false;
+      return;
+    }
     _fetchPlaylists();
   }
 

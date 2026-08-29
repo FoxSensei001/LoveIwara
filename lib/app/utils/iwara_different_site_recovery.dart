@@ -56,6 +56,27 @@ class IwaraDifferentSiteRecovery {
   static bool isDifferentSiteError(Object? error) =>
       resolveTargetSite(error) != null;
 
+  /// 「这次失败**可能**是站点选错了」。
+  ///
+  /// 服务端并不总是给那条 `errors.differentSite`：属于另一个站的**播放列表**
+  /// （`/playlist/{id}`）在当前站下只回一个干巴巴的 404（2026-08-29 真机：
+  /// 主站建的播放列表，在 AI 站模式下点开必现）。所以这里比
+  /// [isDifferentSiteError] 宽一档——除了那条明说的，404 也算嫌疑。
+  ///
+  /// ⛔ 只能用来决定"要不要换个站再试一次"这种**可回退**的动作，不能用它下
+  /// 「这就是跨站」的结论：404 同样可能是资源真被删了。谁用它谁负责在重试也
+  /// 失败时把原来的错误照原样交回去。
+  static bool mayBeWrongSite(Object? error) {
+    if (isDifferentSiteError(error)) return true;
+    return _statusCode(error) == 404;
+  }
+
+  static int? _statusCode(Object? error) {
+    if (error is DioException) return error.response?.statusCode;
+    if (error is Response) return error.statusCode;
+    return null;
+  }
+
   /// 尝试接管一次跨站失败。
   ///
   /// [resourceKey] 用于去重的资源标识，形如 `video:xxxx` / `image:xxxx`。

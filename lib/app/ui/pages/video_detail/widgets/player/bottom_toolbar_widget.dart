@@ -126,7 +126,9 @@ double bottomToolbarEstimatedHeight({
   final double tipLine =
       textScaler.scale(resumeTipFontSize(isFullScreen: isFullScreen)) * 1.45;
   final double resumeTip = showResumeTip
-      ? kResumeTipGap + kResumeTipVPad * 2 + math.max(tipLine, kResumeTipActionHeight)
+      ? kResumeTipGap +
+            kResumeTipVPad * 2 +
+            math.max(tipLine, kResumeTipActionHeight)
       : 0.0;
 
   // 全屏顶部互动层：Container(vertical 4 x2) + Row(TextButton.icon / 头像 30 / 28)。
@@ -155,6 +157,15 @@ class BottomToolbar extends StatelessWidget {
   final Logger logger = Logger();
   final bool currentScreenIsFullScreen;
   final bool applyBottomSafeAreaPadding;
+
+  /// 池里还有下一条。由详情页算好下发——底栏不认识池，只负责画那枚钮。
+  final bool canPlayNextInQueue;
+
+  /// 点「下一个」。
+  final Future<void> Function()? onPlayNextInQueue;
+
+  /// 长按「下一个」打开的「接着看」抽屉。为 null 时只有点按那件事。
+  final VoidCallback? onOpenQueueDrawer;
   final ConfigService _configService = Get.find();
   final AppService appService = Get.find();
   final UserService _userService = Get.find<UserService>();
@@ -167,6 +178,9 @@ class BottomToolbar extends StatelessWidget {
     required this.myVideoStateController,
     required this.currentScreenIsFullScreen,
     this.applyBottomSafeAreaPadding = false,
+    this.canPlayNextInQueue = false,
+    this.onPlayNextInQueue,
+    this.onOpenQueueDrawer,
   });
 
   @override
@@ -476,6 +490,7 @@ class BottomToolbar extends StatelessWidget {
     required Widget icon,
     required VoidCallback onPressed,
     String? tooltip, // 可选的tooltip参数
+    VoidCallback? onLongPress,
   }) {
     // 调整点击区域大小，使其更紧凑
     final double touchSize = currentScreenIsFullScreen ? 36.0 : 28.0;
@@ -484,6 +499,7 @@ class BottomToolbar extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onPressed,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(18.0),
         child: Container(
           width: touchSize,
@@ -825,6 +841,65 @@ class BottomToolbar extends StatelessWidget {
     });
   }
 
+  /// 播放/暂停右边那枚「下一个」。
+  ///
+  /// # 交互
+  ///
+  /// **点按播下一条，长按打开「接着看」抽屉**。两件事是同一个心智——"接下来看
+  /// 什么"——由一枚钮承担正好；这条栏已经很挤，再加一枚入口钮只会把时间码挤没。
+  ///
+  /// # 在场
+  ///
+  /// 池里没有下一条就**整只退场**，不是灰着：一个点了没反应的钮比没有更让人
+  /// 困惑（与抽屉里"作者没有播放列表就不出现那枚头像"同一条规矩）。判据由详情页
+  /// 下发，池翻页拿到新内容时它会自己回来——所以出入都要有过渡，不能硬切
+  /// （尺寸 + 淡入两条一起走，否则时间码会瞬移一格）。
+  ///
+  /// # 与「池内续播」开关无关
+  ///
+  /// 那个开关管的是"一条播完要不要自动接上"。手动点是一次明确指令，任何时候
+  /// 都作数。
+  Widget _buildPlayNextButton(double iconSize, slang.Translations t) {
+    final bool canPlayNext = canPlayNextInQueue && onPlayNextInQueue != null;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.centerLeft,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        child: canPlayNext
+            ? Row(
+                key: const ValueKey('queue-next'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 2.0),
+                  _buildIconButton(
+                    tooltip: onOpenQueueDrawer != null
+                        ? t.playbackQueue.playNextHint
+                        : t.playbackQueue.playNext,
+                    icon: Icon(
+                      Icons.skip_next,
+                      color: Colors.white,
+                      size: iconSize,
+                    ),
+                    onPressed: () {
+                      VibrateUtils.vibrate();
+                      onPlayNextInQueue?.call();
+                    },
+                    onLongPress: onOpenQueueDrawer == null
+                        ? null
+                        : () {
+                            VibrateUtils.vibrate();
+                            onOpenQueueDrawer!();
+                          },
+                  ),
+                ],
+              )
+            : const SizedBox.shrink(key: ValueKey('queue-next-absent')),
+      ),
+    );
+  }
+
   Widget _buildLeftControls(
     BuildContext context,
     bool isSmallScreen,
@@ -854,6 +929,7 @@ class BottomToolbar extends StatelessWidget {
             },
           ),
         ),
+        _buildPlayNextButton(iconSize, t),
         if (GetPlatform.isDesktop) ...[
           const SizedBox(width: 2.0),
           VolumeControl(
@@ -1199,7 +1275,6 @@ class _ResumeTipCloseButton extends StatelessWidget {
     );
   }
 }
-
 
 /// 续播提示的出入场。
 ///
