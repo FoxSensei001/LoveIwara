@@ -32,6 +32,21 @@
   <uses-feature android:name="oculus.software.handtracking" android:required="false" />
   <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
 
+  <!-- ── 沉浸态里的软键盘 ────────────────────────────────────────────────────────
+       ⛔ 真机实测（2026-08-29）：Flutter UI 挂进空间面板后，点搜索框时
+       `dumpsys input_method` 显示 `mInputShown=true` 且 `mServedInputConnection`
+       正是 Flutter 的 `InputConnectionAdaptor` —— **输入法逻辑上确实起来了**，
+       但用户什么都看不见。根因是输入法窗口落在**默认显示 0** 上
+       （`Window{InputMethod}: mDisplayId=0`），而面板在虚拟显示 36；
+       独占沉浸态下显示 0 不呈现给用户。
+       这是 Android 对虚拟显示的默认 IME 策略（FALLBACK_DISPLAY），
+       而改它的 `setDisplayImePolicy` 是系统 API，应用够不着。
+
+       这两行来自官方 `add-spatial-sdk-to-app` 的 manifest 模板（我们此前漏抄）。
+       `overlay_keyboard` 意为系统键盘可覆盖在沉浸应用之上，正对这个症状。 -->
+  <uses-feature android:name="com.oculus.feature.VIRTUAL_KEYBOARD" android:required="false" />
+  <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false" />
+
   <application>
     <!-- ⛔ 只能填官方罐头值（quest / quest2 / questpro / quest3 / quest3s，竖线分隔）。
          这里原来写的 `all` 是我编的：它不在官方表内，还会让 Android Studio 的 Meta

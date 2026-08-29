@@ -161,14 +161,20 @@ class ImmersiveActivity : AppSystemActivity() {
     private fun rebuildPanel() {
         panelEntity?.destroy()
         releasePlayer()
-        // ⛔ 平面/弧幕**必须摆到人前方**。原来这里用的是单位变换 `Transform()`，
-        // 等于把幕布摆在原点 —— 参考空间是 LOCAL_FLOOR，原点在脚下，人正好站在
-        // 幕布里面/背面，结果是**一片全黑**（2026-08-29 Quest 3 真机实测踩到；
-        // 昨天的 spike 只测了 180°，这条从来没被覆盖）。
+        // ⛔⛔ 平面/弧幕必须摆到人前方，而**「前方」是 +Z，不是 -Z**。
+        //
+        // 这条踩了两次：
+        // 1. 最早用单位变换 `Transform()`，幕布落在原点；参考空间是 LOCAL_FLOOR，
+        //    原点在脚下 —— 全黑。
+        // 2. 于是改成 `-VIEW_DISTANCE_M`，**并且从未视觉确认过就写进了文档**。
+        //    2026-08-29 真机实测证伪：把 UI 面板放 -Z 时用户什么都看不到，
+        //    改成 +Z 立刻可见。官方旁证：`Followable` 组件（作用是
+        //    "stay in front of another entity"）的默认 offset 就是
+        //    `Pose(Vector3(0f, 0f, 3.0f))` —— 正 Z。
         //
         // 球面不受影响：半径 50m 的球本来就该以观看者为中心，原点是对的。
         val pose = if (argShape == "flat") {
-            Pose(Vector3(0f, SCREEN_CENTER_HEIGHT_M, -VIEW_DISTANCE_M))
+            Pose(Vector3(0f, SCREEN_CENTER_HEIGHT_M, VIEW_DISTANCE_M))
         } else {
             Pose(Vector3(0f, 0f, 0f))
         }
@@ -176,12 +182,16 @@ class ImmersiveActivity : AppSystemActivity() {
 
         if (argUiPanel && uiPanelEntity == null) {
             // UI 面板摆在正前方、与静息眼高齐平（俯角 0°，官方 ±15° 预算内）。
+            // ⛔ 摆在 **+Z**：Spatial SDK 的「身前」是正 Z（2026-08-29 真机实测）。
+            // 放 -1.8 时窗口状态明明是 mDrawState=HAS_DRAWN，用户却什么都看不到；
+            // 改成 +1.8 立刻可见。官方旁证：`Followable`（"stay in front of another
+            // entity"）的默认 offset 就是 Pose(Vector3(0f, 0f, 3.0f))。
             uiPanelEntity = Entity.create(
                 Panel(R.id.vr_ui_panel),
-                Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, -UI_PANEL_DISTANCE_M))),
+                Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, UI_PANEL_DISTANCE_M))),
                 Visible(true),
             )
-            Log.i(TAG, "IMMERSIVE ui panel created")
+            Log.i(TAG, "IMMERSIVE ui panel created at +Z ${UI_PANEL_DISTANCE_M}")
         }
     }
 
@@ -195,27 +205,33 @@ class ImmersiveActivity : AppSystemActivity() {
         }
     }
 
-    override fun registerPanels(): List<PanelRegistration> = listOfNotNull(
+    // ⛔ 这个方法是在 `super.onCreate()` **内部**被调用的，而 `readIntent()` 在
+    // `super.onCreate()` **之后**才跑 —— 所以这里**读不到任何 intent 参数**。
+    // 第一版把 UI 面板注册写成 `if (argUiPanel) {...}`，结果注册时 argUiPanel 恒为 false，
+    // 到 onSceneReady 建实体时炸：
+    //   java.lang.RuntimeException: No panel creator found for key "..."
+    //   at PanelCreationSystem.execute → AppSystemActivity.onSceneTick
+    // 官方对此的措辞正好解释了正确写法：「Registration happens once during activity
+    // initialization… **A registered panel does not appear in the scene**」——
+    // 注册是免费的，是否出现在场景里由 Entity 决定。所以**无条件注册**，
+    // 用 argUiPanel 只控制要不要 `Entity.create`。
+    override fun registerPanels(): List<PanelRegistration> = listOf(
         // 【spike】Flutter 的 MainActivity 作为空间面板。
         // 面板逻辑尺寸取官方默认 1024x640dp，与我们给 2D 面板声明的 <layout> 一致，
         // 这样面板里跑的就是同一套宽屏排版。
-        if (argUiPanel) {
-            ActivityPanelRegistration(
-                R.id.vr_ui_panel,
-                { MainActivity::class.java },
-                {
-                    UIPanelSettings(
-                        shape = QuadShapeOptions(
-                            width = UI_PANEL_WIDTH_M,
-                            height = UI_PANEL_WIDTH_M * 640f / 1024f,
-                        ),
-                        display = DpDisplayOptions(1024f, 640f, 288),
-                    )
-                },
-            )
-        } else {
-            null
-        },
+        ActivityPanelRegistration(
+            R.id.vr_ui_panel,
+            { MainActivity::class.java },
+            {
+                UIPanelSettings(
+                    shape = QuadShapeOptions(
+                        width = UI_PANEL_WIDTH_M,
+                        height = UI_PANEL_WIDTH_M * 640f / 1024f,
+                    ),
+                    display = DpDisplayOptions(1024f, 640f, 288),
+                )
+            },
+        ),
         VideoSurfacePanelRegistration(
             R.id.vr_video_panel,
             surfaceConsumer = { _, surface -> startPlayback(surface) },
