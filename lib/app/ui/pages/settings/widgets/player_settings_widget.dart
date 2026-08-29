@@ -6,7 +6,9 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dia
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/seek_preview.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_format_menu.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide.dart';
 import 'package:i_iwara/app/ui/widgets/anime4k_settings_widget.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_settings_widget.dart';
@@ -353,6 +355,67 @@ class PlayerSettingsWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // -------- 播放模式：VR / 立体（仅从播放器呼出时显示） --------
+        //
+        // 排在画面尺寸前面是刻意的：画面尺寸回答「画面占多大地方」，播放模式回答
+        // 「这段画面到底是什么几何」——后者错了，前者怎么调都是错的。
+        //
+        // 这是窄屏上唯一的入口（顶栏那枚钮只在 ≥600dp 露出），所以它必须常在。
+        if (playerController != null) ...[
+          _sectionLabel(context, t.vrFormat.title),
+          _groupCard([
+            Obx(
+              () => _selectionTile(
+                context: context,
+                iconData: Icons.threesixty,
+                label: t.vrFormat.title,
+                description: t.vrFormat.desc,
+                currentValue: playerController!.vrFormat.toConfigString(),
+                options: kVrFormatOptions
+                    .map((format) => format.toConfigString())
+                    .toList(),
+                optionLabels: {
+                  for (final format in kVrFormatOptions)
+                    format.toConfigString(): vrFormatLabel(format),
+                },
+                optionDescriptions: {
+                  for (final format in kVrFormatOptions)
+                    format.toConfigString(): vrFormatDescription(format),
+                },
+                onChanged: (value) => playerController!.setVrFormat(
+                  VrSourceFormat.fromConfigString(value),
+                ),
+              ),
+            ),
+            // 环视视角是会话级的「我正看着哪儿」，转迷路了要有一键回正。
+            Obx(
+              () => _navigationTile(
+                context: context,
+                enabled: playerController!.isVrPanorama,
+                iconData: Icons.center_focus_strong,
+                label: t.vrFormat.resetView,
+                description: t.vrFormat.panoramaHint,
+                onTap: playerController!.resetVrView,
+              ),
+            ),
+            // 只有真的覆盖过才点得动：没覆盖过时「恢复自动」无事可做，
+            // 让它可点只会让人以为自己做了什么。
+            Obx(
+              () => _navigationTile(
+                context: context,
+                enabled:
+                    playerController!.vrFormatVerdict.value.source ==
+                    VrVerdictSource.userSpecified,
+                iconData: Icons.auto_fix_high,
+                label: t.vrFormat.resetToAuto,
+                description: t.vrFormat.resetToAutoDesc,
+                onTap: playerController!.resetVrFormatToInferred,
+              ),
+            ),
+          ]),
+          const SizedBox(height: _kGroupGap),
+        ],
+
         // -------- 画面尺寸（仅从播放器呼出时显示） --------
         if (playerController != null) ...[
           _sectionLabel(context, t.settings.screenFit),

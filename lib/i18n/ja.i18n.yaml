@@ -2807,3 +2807,33 @@ playbackQueue:
   downloads: ダウンロード済み
   otherPlaylists: 他の人の再生リスト
   nothingHere: 何もありません
+
+vrFormat:
+  title: 再生モード
+  entryTooltip: 再生モード（VR / 立体）
+  desc: この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。
+  sectionFlat: 平面
+  sectionStereo: 平面立体
+  sectionPanorama: VR パノラマ
+  flat: 通常の動画
+  flatDesc: 何も加工せずそのまま再生します
+  flatSideBySide: 左右 3D
+  flatSideBySideDesc: 1 フレームに左右の目が並ぶ形式。左目だけを表示し比率を戻します
+  flatTopBottom: 上下 3D
+  flatTopBottomDesc: 1 フレームに上下の目が並ぶ形式。上半分だけを表示し比率を戻します
+  vr180SideBySide: VR180 左右
+  vr180SideBySideDesc: 半球パノラマ + 左右両眼。最も一般的な VR 素材です
+  vr180Mono: VR180 単眼
+  vr180MonoDesc: 半球パノラマ。1 フレームに片目だけ
+  vr360Mono: VR360 単眼
+  vr360MonoDesc: 全周パノラマ。1 フレームに片目だけ
+  vr360TopBottom: VR360 上下
+  vr360TopBottomDesc: 全周パノラマ + 上下両眼
+  resetView: 視点をリセット
+  resetViewDesc: 見ている向きと視野角を正面に戻します
+  resetToAuto: 自動判定に戻す
+  resetToAutoDesc: この動画の手動設定を忘れ、自動判定に任せます
+  manualBadge: 手動で指定済み
+  panoramaHint: 画面をドラッグで見回し、ピンチで視野角を変更
+  panoramaGestureNotice: 見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください
+  shaderUnsupported: この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました

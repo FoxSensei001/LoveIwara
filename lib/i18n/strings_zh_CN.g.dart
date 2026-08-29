@@ -90,6 +90,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsWatchLaterZhCn watchLater = _TranslationsWatchLaterZhCn._(_root);
 	@override late final _TranslationsMediaMenuZhCn mediaMenu = _TranslationsMediaMenuZhCn._(_root);
 	@override late final _TranslationsPlaybackQueueZhCn playbackQueue = _TranslationsPlaybackQueueZhCn._(_root);
+	@override late final _TranslationsVrFormatZhCn vrFormat = _TranslationsVrFormatZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -2479,6 +2480,43 @@ class _TranslationsPlaybackQueueZhCn implements TranslationsPlaybackQueueEn {
 	@override String get downloads => '已下载';
 	@override String get otherPlaylists => '他人的播放列表';
 	@override String get nothingHere => '暂无内容';
+}
+
+// Path: vrFormat
+class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
+	_TranslationsVrFormatZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '播放模式';
+	@override String get entryTooltip => '播放模式（VR / 立体）';
+	@override String get desc => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。';
+	@override String get sectionFlat => '平面';
+	@override String get sectionStereo => '平面立体';
+	@override String get sectionPanorama => 'VR 全景';
+	@override String get flat => '普通视频';
+	@override String get flatDesc => '不做任何处理，按原样播放';
+	@override String get flatSideBySide => '左右 3D';
+	@override String get flatSideBySideDesc => '一帧里左右各一只眼，只显示左眼并还原比例';
+	@override String get flatTopBottom => '上下 3D';
+	@override String get flatTopBottomDesc => '一帧里上下各一只眼，只显示上半幅并还原比例';
+	@override String get vr180SideBySide => 'VR180 左右';
+	@override String get vr180SideBySideDesc => '半球全景 + 左右双眼，最常见的 VR 片源';
+	@override String get vr180Mono => 'VR180 单目';
+	@override String get vr180MonoDesc => '半球全景，整帧只有一只眼';
+	@override String get vr360Mono => 'VR360 单目';
+	@override String get vr360MonoDesc => '环绕一圈的全景，整帧只有一只眼';
+	@override String get vr360TopBottom => 'VR360 上下';
+	@override String get vr360TopBottomDesc => '环绕一圈的全景 + 上下双眼';
+	@override String get resetView => '重置视角';
+	@override String get resetViewDesc => '把环视方向和视野角复位到正前方';
+	@override String get resetToAuto => '恢复自动识别';
+	@override String get resetToAutoDesc => '忘掉这个视频的手动选择，交回给自动判断';
+	@override String get manualBadge => '已手动指定';
+	@override String get panoramaHint => '拖动画面即可环视，捏合改变视野';
+	@override String get panoramaGestureNotice => '环视时画面区的拖动用于转头，快进请用进度条';
+	@override String get shaderUnsupported => '本机不支持实时环视，已退回单眼显示';
 }
 
 // Path: common.pagination
@@ -6267,6 +6305,34 @@ extension on TranslationsZhCn {
 			'playbackQueue.downloads' => '已下载',
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
+			'vrFormat.title' => '播放模式',
+			'vrFormat.entryTooltip' => '播放模式（VR / 立体）',
+			'vrFormat.desc' => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。',
+			'vrFormat.sectionFlat' => '平面',
+			'vrFormat.sectionStereo' => '平面立体',
+			'vrFormat.sectionPanorama' => 'VR 全景',
+			'vrFormat.flat' => '普通视频',
+			'vrFormat.flatDesc' => '不做任何处理，按原样播放',
+			'vrFormat.flatSideBySide' => '左右 3D',
+			'vrFormat.flatSideBySideDesc' => '一帧里左右各一只眼，只显示左眼并还原比例',
+			'vrFormat.flatTopBottom' => '上下 3D',
+			'vrFormat.flatTopBottomDesc' => '一帧里上下各一只眼，只显示上半幅并还原比例',
+			'vrFormat.vr180SideBySide' => 'VR180 左右',
+			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右双眼，最常见的 VR 片源',
+			'vrFormat.vr180Mono' => 'VR180 单目',
+			'vrFormat.vr180MonoDesc' => '半球全景，整帧只有一只眼',
+			'vrFormat.vr360Mono' => 'VR360 单目',
+			'vrFormat.vr360MonoDesc' => '环绕一圈的全景，整帧只有一只眼',
+			'vrFormat.vr360TopBottom' => 'VR360 上下',
+			'vrFormat.vr360TopBottomDesc' => '环绕一圈的全景 + 上下双眼',
+			'vrFormat.resetView' => '重置视角',
+			'vrFormat.resetViewDesc' => '把环视方向和视野角复位到正前方',
+			'vrFormat.resetToAuto' => '恢复自动识别',
+			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
+			'vrFormat.manualBadge' => '已手动指定',
+			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
+			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
+			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
 			_ => null,
 		};
 	}

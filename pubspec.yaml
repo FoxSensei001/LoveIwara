@@ -137,6 +137,13 @@ flutter:
     - assets/anime4k_shaders/
     - assets/data/
 
+  # 片元着色器。这里的 .frag 由 impellerc 在构建期预编译，与 assets 下
+  # anime4k_shaders 那批**完全是两回事**：那批是 mpv 自己读的 .glsl 文本，走
+  # libmpv 的渲染链；这一份走 Flutter 侧的 ui.ImageFilter.shader，只在 Impeller
+  # 启用时可用（运行时探测见 VrPanoramaShader.isSupported）。
+  shaders:
+    - assets/shaders/vr_equirect.frag
+
 dependency_overrides:
   js: ^0.7.1
 

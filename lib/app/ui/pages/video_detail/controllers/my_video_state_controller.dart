@@ -20,6 +20,10 @@ import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
 import 'package:i_iwara/app/models/oreno3d_video.model.dart';
+import 'package:i_iwara/app/models/vr_format.model.dart';
+import 'package:i_iwara/app/services/vr_format_override_service.dart';
+import 'package:i_iwara/app/utils/vr_format_detector.dart';
+import 'package:i_iwara/app/utils/vr_geometry.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
@@ -318,6 +322,200 @@ class MyVideoStateController extends GetxController
         _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] == true) {
       _configService[ConfigKey.DEFAULT_SCREEN_FIT_MODE_KEY] = mode.name;
     }
+  }
+
+  // ── VR 片源格式（L1）与平面环视视角 ──────────────────────────────────────
+
+  /// 当前视频的片源格式判定：投影 + 立体编排 + 「谁定的」。
+  ///
+  /// ⛔ **这不是判决，是默认档。** Iwara 既不给格式元数据、文件里也不带球面标记
+  /// （实测 st3d/sv3d 零命中），所以「这是不是 VR 片」原理上不可知。推断只负责把
+  /// 播放模式开关的初始位置摆对，最终由用户在播放器里选；一旦用户选过，来源变成
+  /// [VrVerdictSource.userSpecified]，此后任何推断都不再覆盖它。
+  ///
+  /// 兜底方向是刻意的：认不出来一律当普通平面视频放。把普通视频误判成 VR 会
+  /// 得到一幅完全没法看的画面，代价远大于把 VR 当平面放（顶多挤扁，还能看）。
+  final Rx<VrFormatVerdict> vrFormatVerdict = const VrFormatVerdict.inferred(
+    VrSourceFormat.flatMono,
+    confidence: 0.9,
+  ).obs;
+
+  VrSourceFormat get vrFormat => vrFormatVerdict.value.format;
+
+  /// 需不需要走 VR 呈现层：只要不是「平面 + 单目」就要（单眼裁切或平面环视）。
+  bool get needsVrPresentation => vrFormat != VrSourceFormat.flatMono;
+
+  /// 当前是不是球面片源（要走平面环视重映射，而不只是裁一只眼）。
+  bool get isVrPanorama => vrFormat.projection != VrProjection.flat;
+
+  /// 环视视角：偏航（左右转头）、俯仰（抬头低头）、竖直视野角。
+  ///
+  /// 刻意**只活在会话里**，不落盘也不跨视频继承——视角是「我现在正看哪儿」，
+  /// 不是偏好；下次打开还停在上次转到的角度只会让人以为画面坏了。
+  final RxDouble vrYaw = 0.0.obs;
+  final RxDouble vrPitch = 0.0.obs;
+  final RxDouble vrFovY = VrGeometry.defaultFovY.obs;
+
+  /// 阶段A（文本怀疑）的结果，留着给阶段B 复用。
+  VrSuspicion _vrSuspicion = VrSuspicion.none;
+
+  /// 上一次跑推断时的输入指纹。`videoInfo` 会因为点赞数/视频源/作者信息等无关字段
+  /// 反复 copyWith，指纹一样就跳过，免得每次都重算一遍。
+  String? _vrInferenceSignature;
+
+  /// 用户覆盖已经生效：此后推断一律让路。
+  bool _vrOverrideApplied = false;
+
+  /// 覆盖表只查一次（查不到就是没有，不必反复问库）。
+  bool _vrOverrideLookupDone = false;
+
+  Worker? _vrFormatWorker;
+
+  VrFormatOverrideService? get _vrOverrideService =>
+      Get.isRegistered<VrFormatOverrideService>()
+      ? Get.find<VrFormatOverrideService>()
+      : null;
+
+  /// 挂上「详情到手就重跑推断」的监听。
+  ///
+  /// 走 [rxEver] 而不是 GetX 的 `ever()`：后者在「订阅→取消→再订阅」之后会永久
+  /// 失聪，第二次进同一个页面起就静默收不到值（见 rx_ever.dart 的说明）。
+  void _initVrFormatTracking() {
+    _vrFormatWorker = rxEver(
+      videoInfo,
+      (_) => unawaited(_refreshVrFormatFromMetadata()),
+    );
+    unawaited(_refreshVrFormatFromMetadata());
+  }
+
+  /// 阶段A + 阶段A 自带尺寸的阶段B：详情到手时跑。
+  Future<void> _refreshVrFormatFromMetadata() async {
+    if (_isDisposed) return;
+    final video = videoInfo.value;
+    if (video == null) return;
+    // 外链视频的画面不由我们渲染（走站外嵌入），它那条分支还会把 aspectRatio
+    // 写死成 16:9，掺进来只会污染判定。
+    if (video.isExternalVideo) return;
+
+    if (!_vrOverrideLookupDone) {
+      _vrOverrideLookupDone = true;
+      final id = videoId;
+      final stored = (id == null || id.isEmpty)
+          ? null
+          : await _vrOverrideService?.get(id);
+      if (_isDisposed) return;
+      if (stored != null) {
+        _vrOverrideApplied = true;
+        vrFormatVerdict.value = VrFormatVerdict.userSpecified(stored);
+        resetVrView();
+        return;
+      }
+    }
+    if (_vrOverrideApplied) return;
+
+    final tagIds = video.tags?.map((t) => t.id).toList();
+    final signature = [
+      video.title ?? '',
+      video.body ?? '',
+      tagIds?.join(',') ?? '',
+      '${video.file?.width}x${video.file?.height}',
+    ].join('\u0000');
+    if (signature == _vrInferenceSignature) return;
+    _vrInferenceSignature = signature;
+
+    _vrSuspicion = VrFormatDetector.suspectFromMetadata(
+      title: video.title,
+      body: video.body,
+      tags: tagIds,
+      width: video.file?.width,
+      height: video.file?.height,
+    );
+    _applyInferredVerdict(VrFormatDetector.decideWithDimensions(_vrSuspicion));
+  }
+
+  /// 阶段B：拿到播放器上报的真实宽高后复判。
+  ///
+  /// ⚠️ 只从 [_updateAspectRatio] 调。宽高必须是**解码器报上来的真值**——
+  /// 外链视频那条分支会把 `aspectRatio` 直接写成 16:9 并同时置
+  /// `videoPlayerReady = true`，读它会把真 VR 片反判成平面。而
+  /// [_updateAspectRatio] 只在 `player.stream.height` 回调里跑，天然只拿得到真值。
+  void _refreshVrFormatFromPlayback() {
+    if (_isDisposed || _vrOverrideApplied) return;
+    if (videoInfo.value?.isExternalVideo == true) return;
+    _applyInferredVerdict(
+      VrFormatDetector.decideWithDimensions(
+        _vrSuspicion,
+        width: sourceVideoWidth.value,
+        height: sourceVideoHeight.value,
+      ),
+    );
+  }
+
+  void _applyInferredVerdict(VrFormatVerdict? verdict) {
+    // null 的语义是「没有可用宽高，判决推迟」，不是「判成平面」——直接返回，
+    // 等起播后 _refreshVrFormatFromPlayback 再来一次。
+    if (verdict == null || _isDisposed || _vrOverrideApplied) return;
+    if (vrFormatVerdict.value == verdict) return;
+    final bool formatChanged = vrFormatVerdict.value.format != verdict.format;
+    vrFormatVerdict.value = verdict;
+    if (formatChanged) resetVrView();
+  }
+
+  /// 用户手动选定播放模式：立即生效、不需要确认、按视频**永久**记住。
+  ///
+  /// 复位缩放的理由与 [setScreenFitMode] 完全一样：缩放层的平移钳制是按
+  /// [aspectRatio] 推算画面矩形的，换了几何就立刻失准。沿用同一条妥协，不引入
+  /// 新机制。
+  void setVrFormat(VrSourceFormat format) {
+    if (_isDisposed) return;
+    final bool changed = vrFormatVerdict.value.format != format;
+    _vrOverrideApplied = true;
+    _vrOverrideLookupDone = true;
+    vrFormatVerdict.value = VrFormatVerdict.userSpecified(format);
+    if (changed) {
+      resetVideoZoomImmediately();
+      resetVrView();
+    }
+    final id = videoId;
+    // 本地视频没有 videoId，覆盖只在本次会话内生效——没有稳定的键可以记。
+    if (id == null || id.isEmpty) return;
+    unawaited(_vrOverrideService?.put(id, format) ?? Future<void>.value());
+  }
+
+  /// 撤销手动覆盖，把默认档交回给自动推断。
+  void resetVrFormatToInferred() {
+    if (_isDisposed) return;
+    _vrOverrideApplied = false;
+    _vrInferenceSignature = null;
+    final id = videoId;
+    if (id != null && id.isNotEmpty) {
+      unawaited(_vrOverrideService?.remove(id) ?? Future<void>.value());
+    }
+    resetVideoZoomImmediately();
+    resetVrView();
+    unawaited(_refreshVrFormatFromMetadata());
+    _refreshVrFormatFromPlayback();
+  }
+
+  /// 环视视角复位到正前方与默认视野。
+  void resetVrView() {
+    vrYaw.value = 0;
+    vrPitch.value = 0;
+    vrFovY.value = VrGeometry.defaultFovY;
+  }
+
+  /// 拖动改视角。角度增量由手势层按「横拖过整个播放区 = 转过一个水平视野」标定。
+  void nudgeVrView({double deltaYaw = 0, double deltaPitch = 0}) {
+    if (_isDisposed) return;
+    final projection = vrFormat.projection;
+    vrYaw.value = VrGeometry.normalizeYaw(vrYaw.value + deltaYaw, projection);
+    vrPitch.value = VrGeometry.clampPitch(vrPitch.value + deltaPitch);
+  }
+
+  /// 捏合/滚轮改视野角。[factor] > 1 表示放大（视野收窄）。
+  void scaleVrFov(double factor) {
+    if (_isDisposed || !factor.isFinite || factor <= 0) return;
+    vrFovY.value = VrGeometry.clampFovY(vrFovY.value / factor);
   }
 
   final RxList<VideoResolution> videoResolutions = <VideoResolution>[].obs;
@@ -993,6 +1191,7 @@ class MyVideoStateController extends GetxController
       '初始化 MyVideoStateController，videoId: $videoId',
       'MyVideoStateController',
     );
+    _initVrFormatTracking();
     try {
       // 添加生命周期观察者
       WidgetsBinding.instance.addObserver(this);
@@ -2401,6 +2600,10 @@ class MyVideoStateController extends GetxController
       '取消自动全屏监听',
       () async => _disposeAutoFullscreenWatchers(),
     );
+    await _runCleanupStep('取消 VR 格式监听', () async {
+      _vrFormatWorker?.dispose();
+      _vrFormatWorker = null;
+    });
     await _runCleanupStep('停止加载速率监听', _unobservePlayerLoadingSpeed);
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);
     await _runCleanupStep('释放主播放器', player.dispose);
@@ -3632,6 +3835,8 @@ class MyVideoStateController extends GetxController
     aspectRatio.value = sourceVideoWidth.value / sourceVideoHeight.value;
     videoPlayerReady.value = true;
     firstLoaded = true;
+    // 阶段B：真实宽高到手，复判片源格式（≈2:1 才认等距投影）。
+    _refreshVrFormatFromPlayback();
     LogUtils.d(
       '[更新后的宽高比] $aspectRatio, 视频高度: $sourceVideoHeight, 视频宽度: $sourceVideoWidth',
       'MyVideoStateController',

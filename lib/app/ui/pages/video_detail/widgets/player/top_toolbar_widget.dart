@@ -18,6 +18,7 @@ import '../../../../../../common/anime4k_presets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'vr/vr_format_menu.dart';
 
 /// 顶部工具栏高度（窗口态）。设计常量，不是测量值，但必须只存在这一份 ——
 /// 任何要相对工具栏定位的图层都从这里取，否则改一处漏一处。
@@ -663,6 +664,18 @@ class _TopToolbarState extends State<TopToolbar> {
                           }
                         }
                       },
+                    ),
+                  // 播放模式（VR / 立体）。
+                  //
+                  // ⛔ 只在宽屏（全屏、平板、桌面）露出：右侧这排图标是定宽的，
+                  // 左边那排（返回 + 主页）也是，两边加起来在 360dp 竖屏内嵌播放器
+                  // 上已经贴着边，再加一枚就把左排挤出边界（本项目在这条工具栏上
+                  // 出过 OVERFLOWED 条）。窄屏走「⋮ → 播放模式」，与画面尺寸同一个
+                  // 入口，不会因此够不着。
+                  if (MediaQuery.sizeOf(context).width >= 600)
+                    VrFormatButton(
+                      controller: widget.myVideoStateController,
+                      iconSize: iconSize,
                     ),
                   _buildAnime4KButton(context, iconSize),
                   IconButton(

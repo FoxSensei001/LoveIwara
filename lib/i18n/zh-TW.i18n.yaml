@@ -2809,3 +2809,33 @@ playbackQueue:
   downloads: 已下載
   otherPlaylists: 他人的播放清單
   nothingHere: 暫無內容
+
+vrFormat:
+  title: 播放模式
+  entryTooltip: 播放模式（VR / 立體）
+  desc: 選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。
+  sectionFlat: 平面
+  sectionStereo: 平面立體
+  sectionPanorama: VR 全景
+  flat: 一般影片
+  flatDesc: 不做任何處理，按原樣播放
+  flatSideBySide: 左右 3D
+  flatSideBySideDesc: 一幀裡左右各一隻眼，只顯示左眼並還原比例
+  flatTopBottom: 上下 3D
+  flatTopBottomDesc: 一幀裡上下各一隻眼，只顯示上半幅並還原比例
+  vr180SideBySide: VR180 左右
+  vr180SideBySideDesc: 半球全景 + 左右雙眼，最常見的 VR 片源
+  vr180Mono: VR180 單目
+  vr180MonoDesc: 半球全景，整幀只有一隻眼
+  vr360Mono: VR360 單目
+  vr360MonoDesc: 環繞一圈的全景，整幀只有一隻眼
+  vr360TopBottom: VR360 上下
+  vr360TopBottomDesc: 環繞一圈的全景 + 上下雙眼
+  resetView: 重設視角
+  resetViewDesc: 把環視方向與視野角復位到正前方
+  resetToAuto: 恢復自動辨識
+  resetToAutoDesc: 忘掉這部影片的手動選擇，交回給自動判斷
+  manualBadge: 已手動指定
+  panoramaHint: 拖曳畫面即可環視，捏合改變視野
+  panoramaGestureNotice: 環視時畫面區的拖曳用於轉頭，快轉請用進度條
+  shaderUnsupported: 本機不支援即時環視，已退回單眼顯示

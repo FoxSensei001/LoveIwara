@@ -93,6 +93,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsWatchLaterEn watchLater = TranslationsWatchLaterEn._(_root);
 	late final TranslationsMediaMenuEn mediaMenu = TranslationsMediaMenuEn._(_root);
 	late final TranslationsPlaybackQueueEn playbackQueue = TranslationsPlaybackQueueEn._(_root);
+	late final TranslationsVrFormatEn vrFormat = TranslationsVrFormatEn._(_root);
 }
 
 // Path: personalProfile
@@ -6232,6 +6233,99 @@ class TranslationsPlaybackQueueEn {
 	String get nothingHere => 'Nothing here';
 }
 
+// Path: vrFormat
+class TranslationsVrFormatEn {
+	TranslationsVrFormatEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Playback mode'
+	String get title => 'Playback mode';
+
+	/// en: 'Playback mode (VR / 3D)'
+	String get entryTooltip => 'Playback mode (VR / 3D)';
+
+	/// en: 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.'
+	String get desc => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.';
+
+	/// en: 'Flat'
+	String get sectionFlat => 'Flat';
+
+	/// en: 'Flat 3D'
+	String get sectionStereo => 'Flat 3D';
+
+	/// en: 'VR panorama'
+	String get sectionPanorama => 'VR panorama';
+
+	/// en: 'Normal video'
+	String get flat => 'Normal video';
+
+	/// en: 'Play as-is, no remapping'
+	String get flatDesc => 'Play as-is, no remapping';
+
+	/// en: 'Side-by-side 3D'
+	String get flatSideBySide => 'Side-by-side 3D';
+
+	/// en: 'One eye per half, left and right; shows the left eye and restores its aspect ratio'
+	String get flatSideBySideDesc => 'One eye per half, left and right; shows the left eye and restores its aspect ratio';
+
+	/// en: 'Over-under 3D'
+	String get flatTopBottom => 'Over-under 3D';
+
+	/// en: 'One eye per half, top and bottom; shows the top half and restores its aspect ratio'
+	String get flatTopBottomDesc => 'One eye per half, top and bottom; shows the top half and restores its aspect ratio';
+
+	/// en: 'VR180 side-by-side'
+	String get vr180SideBySide => 'VR180 side-by-side';
+
+	/// en: 'Hemispherical panorama with both eyes — the most common VR source'
+	String get vr180SideBySideDesc => 'Hemispherical panorama with both eyes — the most common VR source';
+
+	/// en: 'VR180 mono'
+	String get vr180Mono => 'VR180 mono';
+
+	/// en: 'Hemispherical panorama, a single eye per frame'
+	String get vr180MonoDesc => 'Hemispherical panorama, a single eye per frame';
+
+	/// en: 'VR360 mono'
+	String get vr360Mono => 'VR360 mono';
+
+	/// en: 'Full surround panorama, a single eye per frame'
+	String get vr360MonoDesc => 'Full surround panorama, a single eye per frame';
+
+	/// en: 'VR360 over-under'
+	String get vr360TopBottom => 'VR360 over-under';
+
+	/// en: 'Full surround panorama with both eyes stacked'
+	String get vr360TopBottomDesc => 'Full surround panorama with both eyes stacked';
+
+	/// en: 'Reset view'
+	String get resetView => 'Reset view';
+
+	/// en: 'Return the look direction and field of view to the front'
+	String get resetViewDesc => 'Return the look direction and field of view to the front';
+
+	/// en: 'Back to auto-detect'
+	String get resetToAuto => 'Back to auto-detect';
+
+	/// en: 'Forget the manual choice for this video and let detection decide again'
+	String get resetToAutoDesc => 'Forget the manual choice for this video and let detection decide again';
+
+	/// en: 'Set manually'
+	String get manualBadge => 'Set manually';
+
+	/// en: 'Drag the picture to look around, pinch to change the field of view'
+	String get panoramaHint => 'Drag the picture to look around, pinch to change the field of view';
+
+	/// en: 'While looking around, dragging turns the view — use the progress bar to seek'
+	String get panoramaGestureNotice => 'While looking around, dragging turns the view — use the progress bar to seek';
+
+	/// en: 'This device cannot render live panorama; showing a single eye instead'
+	String get shaderUnsupported => 'This device cannot render live panorama; showing a single eye instead';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -11472,6 +11566,34 @@ extension on Translations {
 			'playbackQueue.downloads' => 'Downloaded',
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
+			'vrFormat.title' => 'Playback mode',
+			'vrFormat.entryTooltip' => 'Playback mode (VR / 3D)',
+			'vrFormat.desc' => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.',
+			'vrFormat.sectionFlat' => 'Flat',
+			'vrFormat.sectionStereo' => 'Flat 3D',
+			'vrFormat.sectionPanorama' => 'VR panorama',
+			'vrFormat.flat' => 'Normal video',
+			'vrFormat.flatDesc' => 'Play as-is, no remapping',
+			'vrFormat.flatSideBySide' => 'Side-by-side 3D',
+			'vrFormat.flatSideBySideDesc' => 'One eye per half, left and right; shows the left eye and restores its aspect ratio',
+			'vrFormat.flatTopBottom' => 'Over-under 3D',
+			'vrFormat.flatTopBottomDesc' => 'One eye per half, top and bottom; shows the top half and restores its aspect ratio',
+			'vrFormat.vr180SideBySide' => 'VR180 side-by-side',
+			'vrFormat.vr180SideBySideDesc' => 'Hemispherical panorama with both eyes — the most common VR source',
+			'vrFormat.vr180Mono' => 'VR180 mono',
+			'vrFormat.vr180MonoDesc' => 'Hemispherical panorama, a single eye per frame',
+			'vrFormat.vr360Mono' => 'VR360 mono',
+			'vrFormat.vr360MonoDesc' => 'Full surround panorama, a single eye per frame',
+			'vrFormat.vr360TopBottom' => 'VR360 over-under',
+			'vrFormat.vr360TopBottomDesc' => 'Full surround panorama with both eyes stacked',
+			'vrFormat.resetView' => 'Reset view',
+			'vrFormat.resetViewDesc' => 'Return the look direction and field of view to the front',
+			'vrFormat.resetToAuto' => 'Back to auto-detect',
+			'vrFormat.resetToAutoDesc' => 'Forget the manual choice for this video and let detection decide again',
+			'vrFormat.manualBadge' => 'Set manually',
+			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
+			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
+			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
 			_ => null,
 		};
 	}

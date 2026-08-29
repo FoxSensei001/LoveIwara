@@ -21,6 +21,8 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_panorama_gesture_area.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_video_view.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -976,7 +978,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               true;
                           return VideoZoomGestureLayer(
                             controller: widget.myVideoStateController,
-                            enabled: zoomEnabled,
+                            // 环视模式下捏合改的是视野角，不是画面缩放；两套缩放
+                            // 同时开着会互相打架，这里整只让位（见
+                            // VrPanoramaGestureArea 的说明）。
+                            enabled:
+                                zoomEnabled &&
+                                !widget.myVideoStateController.isVrPanorama,
                             // 播放器画面区域的真实尺寸只有这里算得到，
                             // 供给栈内需要按「播放器多大」自适应的浮层
                             // （Seek Preview 是第一个）。高度要减掉状态栏那一段：
@@ -1181,6 +1188,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   /// 按「画面尺寸」模式构建视频画面（外层已有 ClipRect + Center 提供裁剪与居中）。
   Widget _buildFittedVideo(MyVideoStateController controller) {
+    // VR / 立体片源交给专门的呈现层：整帧直接放会是「两个挤扁的画面」或者被摊平
+    // 拉烂的等距图，常规的 BoxFit 那套救不了。平面单目片走不到这里，零开销。
+    if (controller.needsVrPresentation) {
+      return VrVideoView(controller: controller);
+    }
     final fitMode = controller.screenFitMode.value;
     final Widget videoWidget = ColorVisionFilterWrapper(
       child: Video(
@@ -1304,6 +1316,28 @@ class _MyVideoScreenState extends State<MyVideoScreen>
   }
 
   List<Widget> _buildGestureAreas(Size screenSize) {
+    // 环视模式下画面区的拖动整只归「转头」。这里刻意自带一只 Obx 而不是靠外层：
+    // 本地视频模式的 PlayerStackBuilder 走的是非响应式分支（observeChanges 为
+    // false），指望它会让本地 VR 文件切了模式却不换手势。
+    return [
+      Positioned.fill(
+        child: Obx(() {
+          if (widget.myVideoStateController.isVrPanorama) {
+            return VrPanoramaGestureArea(
+              controller: widget.myVideoStateController,
+              onTap: _onTap,
+              onDoubleTap: () =>
+                  unawaited(widget.myVideoStateController.togglePlayback()),
+            );
+          }
+          return Stack(children: _buildStandardGestureAreas(screenSize));
+        }),
+      ),
+    ];
+  }
+
+  /// 常规（非环视）画面区手势：左右两条控制区 + 中央区。
+  List<Widget> _buildStandardGestureAreas(Size screenSize) {
     return [
       Obx(
         () => Positioned(

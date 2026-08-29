@@ -90,6 +90,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsWatchLaterJa watchLater = _TranslationsWatchLaterJa._(_root);
 	@override late final _TranslationsMediaMenuJa mediaMenu = _TranslationsMediaMenuJa._(_root);
 	@override late final _TranslationsPlaybackQueueJa playbackQueue = _TranslationsPlaybackQueueJa._(_root);
+	@override late final _TranslationsVrFormatJa vrFormat = _TranslationsVrFormatJa._(_root);
 }
 
 // Path: personalProfile
@@ -2479,6 +2480,43 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	@override String get downloads => 'ダウンロード済み';
 	@override String get otherPlaylists => '他の人の再生リスト';
 	@override String get nothingHere => '何もありません';
+}
+
+// Path: vrFormat
+class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
+	_TranslationsVrFormatJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '再生モード';
+	@override String get entryTooltip => '再生モード（VR / 立体）';
+	@override String get desc => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。';
+	@override String get sectionFlat => '平面';
+	@override String get sectionStereo => '平面立体';
+	@override String get sectionPanorama => 'VR パノラマ';
+	@override String get flat => '通常の動画';
+	@override String get flatDesc => '何も加工せずそのまま再生します';
+	@override String get flatSideBySide => '左右 3D';
+	@override String get flatSideBySideDesc => '1 フレームに左右の目が並ぶ形式。左目だけを表示し比率を戻します';
+	@override String get flatTopBottom => '上下 3D';
+	@override String get flatTopBottomDesc => '1 フレームに上下の目が並ぶ形式。上半分だけを表示し比率を戻します';
+	@override String get vr180SideBySide => 'VR180 左右';
+	@override String get vr180SideBySideDesc => '半球パノラマ + 左右両眼。最も一般的な VR 素材です';
+	@override String get vr180Mono => 'VR180 単眼';
+	@override String get vr180MonoDesc => '半球パノラマ。1 フレームに片目だけ';
+	@override String get vr360Mono => 'VR360 単眼';
+	@override String get vr360MonoDesc => '全周パノラマ。1 フレームに片目だけ';
+	@override String get vr360TopBottom => 'VR360 上下';
+	@override String get vr360TopBottomDesc => '全周パノラマ + 上下両眼';
+	@override String get resetView => '視点をリセット';
+	@override String get resetViewDesc => '見ている向きと視野角を正面に戻します';
+	@override String get resetToAuto => '自動判定に戻す';
+	@override String get resetToAutoDesc => 'この動画の手動設定を忘れ、自動判定に任せます';
+	@override String get manualBadge => '手動で指定済み';
+	@override String get panoramaHint => '画面をドラッグで見回し、ピンチで視野角を変更';
+	@override String get panoramaGestureNotice => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください';
+	@override String get shaderUnsupported => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました';
 }
 
 // Path: common.pagination
@@ -6267,6 +6305,34 @@ extension on TranslationsJa {
 			'playbackQueue.downloads' => 'ダウンロード済み',
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
+			'vrFormat.title' => '再生モード',
+			'vrFormat.entryTooltip' => '再生モード（VR / 立体）',
+			'vrFormat.desc' => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。',
+			'vrFormat.sectionFlat' => '平面',
+			'vrFormat.sectionStereo' => '平面立体',
+			'vrFormat.sectionPanorama' => 'VR パノラマ',
+			'vrFormat.flat' => '通常の動画',
+			'vrFormat.flatDesc' => '何も加工せずそのまま再生します',
+			'vrFormat.flatSideBySide' => '左右 3D',
+			'vrFormat.flatSideBySideDesc' => '1 フレームに左右の目が並ぶ形式。左目だけを表示し比率を戻します',
+			'vrFormat.flatTopBottom' => '上下 3D',
+			'vrFormat.flatTopBottomDesc' => '1 フレームに上下の目が並ぶ形式。上半分だけを表示し比率を戻します',
+			'vrFormat.vr180SideBySide' => 'VR180 左右',
+			'vrFormat.vr180SideBySideDesc' => '半球パノラマ + 左右両眼。最も一般的な VR 素材です',
+			'vrFormat.vr180Mono' => 'VR180 単眼',
+			'vrFormat.vr180MonoDesc' => '半球パノラマ。1 フレームに片目だけ',
+			'vrFormat.vr360Mono' => 'VR360 単眼',
+			'vrFormat.vr360MonoDesc' => '全周パノラマ。1 フレームに片目だけ',
+			'vrFormat.vr360TopBottom' => 'VR360 上下',
+			'vrFormat.vr360TopBottomDesc' => '全周パノラマ + 上下両眼',
+			'vrFormat.resetView' => '視点をリセット',
+			'vrFormat.resetViewDesc' => '見ている向きと視野角を正面に戻します',
+			'vrFormat.resetToAuto' => '自動判定に戻す',
+			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
+			'vrFormat.manualBadge' => '手動で指定済み',
+			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
+			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
+			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
 			_ => null,
 		};
 	}

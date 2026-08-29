@@ -90,6 +90,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsWatchLaterZhTw watchLater = _TranslationsWatchLaterZhTw._(_root);
 	@override late final _TranslationsMediaMenuZhTw mediaMenu = _TranslationsMediaMenuZhTw._(_root);
 	@override late final _TranslationsPlaybackQueueZhTw playbackQueue = _TranslationsPlaybackQueueZhTw._(_root);
+	@override late final _TranslationsVrFormatZhTw vrFormat = _TranslationsVrFormatZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -2479,6 +2480,43 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	@override String get downloads => '已下載';
 	@override String get otherPlaylists => '他人的播放清單';
 	@override String get nothingHere => '暫無內容';
+}
+
+// Path: vrFormat
+class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
+	_TranslationsVrFormatZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '播放模式';
+	@override String get entryTooltip => '播放模式（VR / 立體）';
+	@override String get desc => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。';
+	@override String get sectionFlat => '平面';
+	@override String get sectionStereo => '平面立體';
+	@override String get sectionPanorama => 'VR 全景';
+	@override String get flat => '一般影片';
+	@override String get flatDesc => '不做任何處理，按原樣播放';
+	@override String get flatSideBySide => '左右 3D';
+	@override String get flatSideBySideDesc => '一幀裡左右各一隻眼，只顯示左眼並還原比例';
+	@override String get flatTopBottom => '上下 3D';
+	@override String get flatTopBottomDesc => '一幀裡上下各一隻眼，只顯示上半幅並還原比例';
+	@override String get vr180SideBySide => 'VR180 左右';
+	@override String get vr180SideBySideDesc => '半球全景 + 左右雙眼，最常見的 VR 片源';
+	@override String get vr180Mono => 'VR180 單目';
+	@override String get vr180MonoDesc => '半球全景，整幀只有一隻眼';
+	@override String get vr360Mono => 'VR360 單目';
+	@override String get vr360MonoDesc => '環繞一圈的全景，整幀只有一隻眼';
+	@override String get vr360TopBottom => 'VR360 上下';
+	@override String get vr360TopBottomDesc => '環繞一圈的全景 + 上下雙眼';
+	@override String get resetView => '重設視角';
+	@override String get resetViewDesc => '把環視方向與視野角復位到正前方';
+	@override String get resetToAuto => '恢復自動辨識';
+	@override String get resetToAutoDesc => '忘掉這部影片的手動選擇，交回給自動判斷';
+	@override String get manualBadge => '已手動指定';
+	@override String get panoramaHint => '拖曳畫面即可環視，捏合改變視野';
+	@override String get panoramaGestureNotice => '環視時畫面區的拖曳用於轉頭，快轉請用進度條';
+	@override String get shaderUnsupported => '本機不支援即時環視，已退回單眼顯示';
 }
 
 // Path: common.pagination
@@ -6267,6 +6305,34 @@ extension on TranslationsZhTw {
 			'playbackQueue.downloads' => '已下載',
 			'playbackQueue.otherPlaylists' => '他人的播放清單',
 			'playbackQueue.nothingHere' => '暫無內容',
+			'vrFormat.title' => '播放模式',
+			'vrFormat.entryTooltip' => '播放模式（VR / 立體）',
+			'vrFormat.desc' => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。',
+			'vrFormat.sectionFlat' => '平面',
+			'vrFormat.sectionStereo' => '平面立體',
+			'vrFormat.sectionPanorama' => 'VR 全景',
+			'vrFormat.flat' => '一般影片',
+			'vrFormat.flatDesc' => '不做任何處理，按原樣播放',
+			'vrFormat.flatSideBySide' => '左右 3D',
+			'vrFormat.flatSideBySideDesc' => '一幀裡左右各一隻眼，只顯示左眼並還原比例',
+			'vrFormat.flatTopBottom' => '上下 3D',
+			'vrFormat.flatTopBottomDesc' => '一幀裡上下各一隻眼，只顯示上半幅並還原比例',
+			'vrFormat.vr180SideBySide' => 'VR180 左右',
+			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右雙眼，最常見的 VR 片源',
+			'vrFormat.vr180Mono' => 'VR180 單目',
+			'vrFormat.vr180MonoDesc' => '半球全景，整幀只有一隻眼',
+			'vrFormat.vr360Mono' => 'VR360 單目',
+			'vrFormat.vr360MonoDesc' => '環繞一圈的全景，整幀只有一隻眼',
+			'vrFormat.vr360TopBottom' => 'VR360 上下',
+			'vrFormat.vr360TopBottomDesc' => '環繞一圈的全景 + 上下雙眼',
+			'vrFormat.resetView' => '重設視角',
+			'vrFormat.resetViewDesc' => '把環視方向與視野角復位到正前方',
+			'vrFormat.resetToAuto' => '恢復自動辨識',
+			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
+			'vrFormat.manualBadge' => '已手動指定',
+			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
+			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',
+			'vrFormat.shaderUnsupported' => '本機不支援即時環視，已退回單眼顯示',
 			_ => null,
 		};
 	}

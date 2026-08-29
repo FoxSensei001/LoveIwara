@@ -2804,3 +2804,33 @@ playbackQueue:
   downloads: Downloaded
   otherPlaylists: Other user's playlists
   nothingHere: Nothing here
+
+vrFormat:
+  title: Playback mode
+  entryTooltip: Playback mode (VR / 3D)
+  desc: Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.
+  sectionFlat: Flat
+  sectionStereo: Flat 3D
+  sectionPanorama: VR panorama
+  flat: Normal video
+  flatDesc: Play as-is, no remapping
+  flatSideBySide: Side-by-side 3D
+  flatSideBySideDesc: One eye per half, left and right; shows the left eye and restores its aspect ratio
+  flatTopBottom: Over-under 3D
+  flatTopBottomDesc: One eye per half, top and bottom; shows the top half and restores its aspect ratio
+  vr180SideBySide: VR180 side-by-side
+  vr180SideBySideDesc: Hemispherical panorama with both eyes — the most common VR source
+  vr180Mono: VR180 mono
+  vr180MonoDesc: Hemispherical panorama, a single eye per frame
+  vr360Mono: VR360 mono
+  vr360MonoDesc: Full surround panorama, a single eye per frame
+  vr360TopBottom: VR360 over-under
+  vr360TopBottomDesc: Full surround panorama with both eyes stacked
+  resetView: Reset view
+  resetViewDesc: Return the look direction and field of view to the front
+  resetToAuto: Back to auto-detect
+  resetToAutoDesc: Forget the manual choice for this video and let detection decide again
+  manualBadge: Set manually
+  panoramaHint: Drag the picture to look around, pinch to change the field of view
+  panoramaGestureNotice: While looking around, dragging turns the view — use the progress bar to seek
+  shaderUnsupported: This device cannot render live panorama; showing a single eye instead
