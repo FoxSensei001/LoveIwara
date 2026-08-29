@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,117 +18,175 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Text
 import com.meta.spatial.uiset.button.SecondaryButton
 import com.meta.spatial.uiset.slider.SpatialSliderLarge
+import com.meta.spatial.uiset.slider.SpatialSliderMedium
 import com.meta.spatial.uiset.theme.SpatialTheme
 import com.meta.spatial.uiset.theme.darkSpatialColorScheme
 
 /**
- * 播放器的空间化控制条。
+ * 播放器的空间化控制面板。
  *
- * # 为什么用官方 UI Set 而不是自己画
+ * # 设计依据（都能对上官方原文）
  *
- * `SpatialSliderLarge` 是官方**明写用于媒体 seek** 的组件（"seeking through media"），
- * 轨道 40dp 天然满足命中高度，且**支持点击轨道跳转**而不只是拖 thumb ——
- * 这一条在纯手势下是刚需：官方原话是
- * 「**Most users fail at the pinch-and-drag** scroll bar interaction without explicit teaching」，
- * 而进度条恰恰就是捏合拖拽。
+ * - **进度条用 `SpatialSliderLarge`**：官方明写用于 "seeking through media"，轨道 40dp，
+ *   并且**支持点击轨道跳转**而不只是拖 thumb —— 这在纯手势下是刚需，因为官方原话是
+ *   「**Most users fail at the pinch-and-drag** scroll bar interaction without explicit
+ *   teaching」，而进度条恰恰就是捏合拖拽。
+ * - **另配 ±10 秒离散按钮**：同一条官方结论的第二重保险，让用户完全不必拖拽也能定位。
+ * - **主控件尺寸**：官方命中区下限 22mm/48dp/2.5°–3°，主控件 60×60dp。本面板按
+ *   500dp/m 出图（1dp = 2mm），按钮高度给到 72dp（≈14.4cm @2.2m ≈ 3.7°），高于下限。
+ * - **主控件收敛在一块面板里**，不散成一堆浮窗（官方 `comfort`：
+ *   「try to keep the main controls in a **single UI panel**, as opposed to having
+ *   multiple windows floating around」）。
+ * - **不用纯黑**：官方配色纪律要求避开 #000000，这里用近黑 #1B1B1F。
  *
- * # 尺寸纪律
+ * # 已知欠账
  *
- * 官方命中区下限：22mm × 22mm / 48dp / 角尺寸 2.5°–3°，主控件 60×60dp，间距 ≥12mm。
- * 本面板按 500dp/m 出图，所以 1dp = 2mm；按钮给到 80dp 高（≈16cm @2.4m ≈ 3.8°），
- * 高于官方下限。
- *
- * ⚠️ 没有触觉：官方原话「**Hands have no haptics.** … every successful poke, pinch, or grab
- * needs strong audiovisual feedback to compensate… **This is not optional.**」
- * 目前只有 UI Set 自带的视觉反馈，**音效还没做**，这是已知欠账。
+ * ⚠️ 没有触觉。官方原话：「**Hands have no haptics.** … every successful poke, pinch,
+ * or grab needs strong audiovisual feedback to compensate… **This is not optional.**」
+ * 音效由调用方（沉浸 Activity）在每个回调里播，视觉反馈由 UI Set 组件自带。
  */
 @Composable
-fun VideoControlsPanel(
-    isPlaying: Boolean,
-    progress: Float,
-    volume: Float,
-    positionText: String,
-    durationText: String,
-    onPlayPause: () -> Unit,
-    onSeek: (Float) -> Unit,
-    onSeekFinished: () -> Unit,
-    onVolume: (Float) -> Unit,
-    onBackToApp: () -> Unit,
-) {
-    // ⛔ 必须套官方主题。不套的话组件用的是默认（浅色）配色，实测在暗色底板上
-    // 两条滑块的轨道整条都是白的、看不出填充比例 —— 用户第一眼反馈就是「全白、跑到最大」。
-    // 暗色方案也更符合官方那条「避免纯白 #FFFFFF / 浅色背景不要亮过 #DADADA」的配色纪律。
+fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
     SpatialTheme(colorScheme = darkSpatialColorScheme()) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            // ⛔ 官方配色纪律：避免纯黑 #000000。这里用近黑而非纯黑。
-            .background(Color(0xFF1B1B1F))
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF1B1B1F))
+                .padding(horizontal = 28.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            SecondaryButton(
-                label = if (isPlaying) "暂停" else "播放",
-                onClick = onPlayPause,
-                modifier = Modifier.width(160.dp),
+            // ── 标题 + 时间 ───────────────────────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = state.title.ifBlank { "正在播放" },
+                    color = Color(0xFFE6E6EA),
+                    fontSize = 20.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = "${state.positionText} / ${state.durationText}",
+                    color = Color(0xFFA8A8B0),
+                    fontSize = 18.sp,
+                )
+            }
+
+            // ── 进度 ─────────────────────────────────────────────────────
+            SpatialSliderLarge(
+                onChanged = cb::onSeek,
+                modifier = Modifier.fillMaxWidth(),
+                value = state.progress,
+                onValueChangedFinished = cb::onSeekFinished,
             )
-            SecondaryButton(
-                label = "返回应用",
-                onClick = onBackToApp,
-                modifier = Modifier.width(200.dp),
-            )
+
+            // ── 播放控制簇 ───────────────────────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SecondaryButton(
+                    label = "◀◀ 10秒",
+                    onClick = { cb.onSeekBy(-10) },
+                    modifier = Modifier.width(150.dp),
+                )
+                SecondaryButton(
+                    label = if (state.isPlaying) "❚❚ 暂停" else "▶ 播放",
+                    onClick = cb::onPlayPause,
+                    modifier = Modifier.width(150.dp),
+                )
+                SecondaryButton(
+                    label = "10秒 ▶▶",
+                    onClick = { cb.onSeekBy(10) },
+                    modifier = Modifier.width(150.dp),
+                )
+                // ⛔ 官方的 BorderlessButton 没有 modifier 参数（签名只有
+                // label/onClick/icon/expanded/enabled），定宽的地方一律用 SecondaryButton。
+                SecondaryButton(
+                    label = "倍速 ${state.speedText}",
+                    onClick = cb::onCycleSpeed,
+                    modifier = Modifier.width(160.dp),
+                )
+                Spacer(Modifier.weight(1f))
+                SecondaryButton(
+                    label = "返回应用",
+                    onClick = cb::onBackToApp,
+                    modifier = Modifier.width(170.dp),
+                )
+            }
+
+            // ── 画面与环境 ───────────────────────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SecondaryButton(
+                    label = "投影 ${state.projectionText}",
+                    onClick = cb::onCycleProjection,
+                    modifier = Modifier.width(190.dp),
+                )
+                SecondaryButton(
+                    label = "重新居中",
+                    onClick = cb::onRecenter,
+                    modifier = Modifier.width(150.dp),
+                )
+                SecondaryButton(
+                    label = if (state.passthrough) "直通 开" else "直通 关",
+                    onClick = cb::onTogglePassthrough,
+                    modifier = Modifier.width(150.dp),
+                )
+                // 音量。⛔ **刻意只调播放器自己的音量，不碰系统音量** —— 这是官方对媒体
+                // 应用的明文要求：「adjusts audio **for the app only**；Using system-wide
+                // volume and system-wide mute is **prohibited**」。
+                SpatialSliderMedium(
+                    onChanged = cb::onVolume,
+                    modifier = Modifier.weight(1f),
+                    value = state.volume,
+                    helperText = "应用音量" to "最大",
+                )
+            }
         }
-
-        // 进度：拖动中连续回调，抬手时再真正 seek 一次（避免拖动过程狂 seek）。
-        SpatialSliderLarge(
-            onChanged = onSeek,
-            modifier = Modifier.fillMaxWidth(),
-            value = progress,
-            onValueChangedFinished = onSeekFinished,
-            helperText = positionText to durationText,
-        )
-
-        // 音量。**这条刻意不碰系统音量**，调的是播放器自己的音量 —— 这是官方对媒体应用的
-        // 明文要求：「App must include a mute/unmute button that adjusts audio **for the app
-        // only**. **Using system-wide volume and system-wide mute is prohibited.**」
-        // 所以「拖了它系统音量不动」是正确行为，不是 bug；标签里写清「应用音量」避免误解。
-        SpatialSliderLarge(
-            onChanged = onVolume,
-            modifier = Modifier.fillMaxWidth(),
-            value = volume,
-            helperText = "应用音量·静音" to "最大",
-        )
-    }
     }
 }
 
-
 /**
- * 控制条的状态。**对外只是普通的 Kotlin 属性**（内部用 Compose 的 mutableStateOf 实现），
- * 所以 :app 模块可以直接 `state.isPlaying = true` 地写它，
+ * 控制面板的状态。**对外只是普通的 Kotlin 属性**（内部用 Compose 的 mutableStateOf 实现），
+ * 所以 `:app` 模块可以直接 `state.isPlaying = true` 地写它，
  * 而不需要在自己那边应用 Compose 编译器插件。
  */
 class VideoControlsState {
+    var title by mutableStateOf("")
     var isPlaying by mutableStateOf(false)
     var progress by mutableStateOf(0f)
     var volume by mutableStateOf(1f)
     var positionText by mutableStateOf("0:00")
     var durationText by mutableStateOf("0:00")
+    var speedText by mutableStateOf("1.0×")
+    var projectionText by mutableStateOf("平面")
+    var passthrough by mutableStateOf(false)
 }
 
-/** 控制条上的动作。由 :app 侧的沉浸 Activity 实现。 */
+/** 控制面板上的动作。由 `:app` 侧的沉浸 Activity 实现。 */
 interface VideoControlsCallbacks {
     fun onPlayPause()
     fun onSeek(value: Float)
     fun onSeekFinished()
+    fun onSeekBy(seconds: Int)
+    fun onCycleSpeed()
+    fun onCycleProjection()
+    fun onRecenter()
+    fun onTogglePassthrough()
     fun onVolume(value: Float)
     fun onBackToApp()
 }
@@ -136,25 +195,12 @@ interface VideoControlsCallbacks {
  * 造出一块可以直接交给 `ComposeViewPanelRegistration` 的 [ComposeView]。
  *
  * ⭐ 这个工厂函数是本模块的**唯一出口**：所有 `@Composable` 都留在这里，
- * :app 只看到「给我一个 Context 和状态，还我一个 View」。
+ * `:app` 只看到「给我一个 Context 和状态，还我一个 View」。
  */
 fun createVideoControlsView(
     context: Context,
     state: VideoControlsState,
     callbacks: VideoControlsCallbacks,
 ): ComposeView = ComposeView(context).apply {
-    setContent {
-        VideoControlsPanel(
-            isPlaying = state.isPlaying,
-            progress = state.progress,
-            volume = state.volume,
-            positionText = state.positionText,
-            durationText = state.durationText,
-            onPlayPause = callbacks::onPlayPause,
-            onSeek = callbacks::onSeek,
-            onSeekFinished = callbacks::onSeekFinished,
-            onVolume = callbacks::onVolume,
-            onBackToApp = callbacks::onBackToApp,
-        )
-    }
+    setContent { VideoControlsPanel(state, callbacks) }
 }

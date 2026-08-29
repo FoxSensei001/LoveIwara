@@ -42,6 +42,7 @@ import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.UIPanelSettings
 import com.meta.spatial.toolkit.Transform
+import com.meta.spatial.toolkit.PlayerBodyAttachmentSystem
 import com.meta.spatial.toolkit.VideoSurfacePanelRegistration
 import com.meta.spatial.toolkit.Visible
 import com.meta.spatial.vr.VRFeature
@@ -135,19 +136,67 @@ class ImmersiveActivity : AppSystemActivity() {
      */
     private val controls = VideoControlsState()
     private var seeking = false
+    private var speedIndex = 2
+
+    /** 换投影要重建面板（`settingsCreator` 只在创建时跑），这里记住进度好接回去。 */
+    private var pendingSeekMs = 0L
 
     private val controlsCallbacks = object : VideoControlsCallbacks {
-        override fun onPlayPause() = togglePlayPause()
+        override fun onPlayPause() { click(); togglePlayPause() }
+
         override fun onSeek(value: Float) {
             seeking = true
             controls.progress = value
         }
-        override fun onSeekFinished() = commitSeek()
+
+        override fun onSeekFinished() { click(); commitSeek() }
+
+        override fun onSeekBy(seconds: Int) {
+            click()
+            val p = exoPlayer ?: return
+            val target = (p.currentPosition + seconds * 1000L).coerceAtLeast(0L)
+            p.seekTo(if (p.duration > 0) target.coerceAtMost(p.duration) else target)
+        }
+
+        override fun onCycleSpeed() {
+            click()
+            val p = exoPlayer ?: return
+            speedIndex = (speedIndex + 1) % SPEEDS.size
+            p.setPlaybackSpeed(SPEEDS[speedIndex])
+            controls.speedText = "${SPEEDS[speedIndex]}×"
+        }
+
+        override fun onCycleProjection() { click(); cycleProjection() }
+
+        override fun onRecenter() { click(); recenter() }
+
+        override fun onTogglePassthrough() {
+            click()
+            controls.passthrough = !controls.passthrough
+            scene.enablePassthrough(controls.passthrough)
+        }
+
         override fun onVolume(value: Float) {
             controls.volume = value
             exoPlayer?.volume = value
         }
-        override fun onBackToApp() = backToApp()
+
+        override fun onBackToApp() { click(); backToApp() }
+    }
+
+    /**
+     * 每次成功交互都出一声。
+     *
+     * ⛔ 这不是锦上添花。官方原话：「**Hands have no haptics.** Without controller
+     * vibration to confirm an action, every successful poke, pinch, or grab needs strong
+     * audiovisual feedback to compensate… **This is not optional.**」
+     * 纯手势下没有振动可用，视听就是全部反馈。
+     */
+    private fun click() {
+        runCatching {
+            (getSystemService(AUDIO_SERVICE) as android.media.AudioManager)
+                .playSoundEffect(android.media.AudioManager.FX_KEY_CLICK)
+        }
     }
 
     override fun registerFeatures(): List<SpatialFeature> = listOf(
@@ -371,6 +420,55 @@ class ImmersiveActivity : AppSystemActivity() {
         seeking = false
     }
 
+    /**
+     * 切换投影：平面 → 180° → 360° → 平面。
+     *
+     * ⛔ 面板的 `settingsCreator` **只在实体创建时跑一次**，官方没有「运行时热换形状」
+     * 的 API，所以换投影必须销毁重建 —— 会有一次可见接缝。这里把当前进度记下来，
+     * 重建后 READY 时接回去，至少不会退回片头。
+     */
+    private fun cycleProjection() {
+        val next = when (argShape) {
+            "flat" -> "180"
+            "180" -> "360"
+            else -> "flat"
+        }
+        argShape = next
+        // 180 的行业缺省是左右并排，360 的行业缺省是单目；换投影时把立体档也带到常见值，
+        // 用户仍可在 2D 侧的「播放模式」里改（那边是唯一的权威判定入口）。
+        argStereo = if (next == "180") "lr" else if (next == "360") "none" else argStereo
+        controls.projectionText = projectionLabel(next)
+        pendingSeekMs = exoPlayer?.currentPosition ?: 0L
+        rebuildPanel()
+    }
+
+    private fun projectionLabel(shape: String) = when (shape) {
+        "180" -> "180°"
+        "360" -> "360°"
+        else -> "平面"
+    }
+
+    /**
+     * 重新居中：把视图原点挪到当前头部位置与朝向，于是所有世界锁定的面板都回到面前。
+     *
+     * 球幕模式下这是唯一的「摆正」手段 —— 人在球心，球本身没法抓也不该移动
+     * （官方：曲面面板不能被抓取变换）。
+     */
+    private fun recenter() {
+        val head = systemManager
+            .findSystem<com.meta.spatial.toolkit.PlayerBodyAttachmentSystem>()
+            .tryGetLocalPlayerAvatarBody()
+            ?.head
+            ?.tryGetComponent<Transform>()
+            ?.transform
+        if (head == null) {
+            Log.w(TAG, "IMMERSIVE recenter：拿不到头部位姿，跳过")
+            return
+        }
+        scene.setViewOrigin(head.t.x, 0f, head.t.z, head.q.toEuler().y)
+        Log.i(TAG, "IMMERSIVE recenter 到 (${head.t.x}, ${head.t.z})")
+    }
+
     /** 收起幕布与控制条，把 UI 面板还回来。 */
     private fun backToApp() {
         argUrl = null
@@ -527,7 +625,14 @@ class ImmersiveActivity : AppSystemActivity() {
                     else -> "?"
                 }
                 Log.i(TAG, "IMMERSIVE PLAYBACK_STATE $name")
-                if (state == Player.STATE_READY) logMemory("playing")
+                if (state == Player.STATE_READY) {
+                    logMemory("playing")
+                    // 换投影导致的重建：接回原来的进度，别退回片头。
+                    if (pendingSeekMs > 0) {
+                        player.seekTo(pendingSeekMs)
+                        pendingSeekMs = 0
+                    }
+                }
             }
 
             override fun onVideoSizeChanged(videoSize: VideoSize) {
@@ -540,6 +645,9 @@ class ImmersiveActivity : AppSystemActivity() {
         controls.volume = if (argMute) 0f else 1f
         controls.isPlaying = true
         controls.progress = 0f
+        controls.projectionText = projectionLabel(argShape)
+        speedIndex = 2
+        controls.speedText = "1.0×"
         player.setVideoSurface(surface)
         player.setMediaItem(MediaItem.fromUri(Uri.parse(url)))
         player.prepare()
@@ -628,10 +736,20 @@ class ImmersiveActivity : AppSystemActivity() {
         private const val UI_PANEL_HEIGHT_M = 1.60f
 
         /** 控制条几何：2.4m 处、离地 1.05m（相对静息眼高下压约 12.9°，在官方 ±15° 内）。 */
-        private const val CONTROLS_DISTANCE_M = 2.4f
-        private const val CONTROLS_HEIGHT_ABOVE_FLOOR_M = 1.05f
-        private const val CONTROLS_WIDTH_M = 1.6f
-        private const val CONTROLS_HEIGHT_M = 0.44f
+        /**
+         * 控制面板几何。约束来自官方那条「别让用户低头超过 ±15°」：
+         * 静息眼高约 1.6m，面板放 2.2m 远、中心离地 1.30m、自身高 0.40m，
+         * 于是下缘 1.10m → 下压 atan(0.5/2.2) ≈ **12.8°**，在预算内；
+         * 上缘 1.50m → 仅 −2.6°。
+         * ⛔ 面板再高就会把下缘推出 −15°，加内容要往横里加，不要往下堆。
+         */
+        private const val CONTROLS_DISTANCE_M = 2.2f
+        private const val CONTROLS_HEIGHT_ABOVE_FLOOR_M = 1.30f
+        private const val CONTROLS_WIDTH_M = 2.0f
+        private const val CONTROLS_HEIGHT_M = 0.40f
+
+        /** 倍速档。1.0 在下标 2，起播时复位到它。 */
+        private val SPEEDS = floatArrayOf(0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f)
         private const val DEFAULT_UA =
             "Mozilla/5.0 (Linux; Android 14; Quest 3) AppleWebKit/537.36 " +
                 "Chrome/126.0.0.0 Safari/537.36"
