@@ -32,6 +32,19 @@
   <uses-feature android:name="oculus.software.handtracking" android:required="false" />
   <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
 
+  <!-- ── 透视（passthrough）────────────────────────────────────────────────────────
+       ⛔ **没有这一行，`scene.enablePassthrough(true)` 静默无效** —— 不报错、不抛异常，
+       用户点「场景 → 透视」之后看到的还是纯黑。2026-08-29 真机就是这么中招的。
+       这一行来自官方 `add-spatial-sdk-to-app` 的 quest manifest 模板（此前整段漏抄）。
+
+       required="false"：透视只是一个可选场景，没有它应用照样能用（虚空档），
+       不该因此在商店里按能力过滤设备。
+
+       ⚠️ 另一条官方明写的前提：「**Passthrough won't work if your skybox is visible.**」
+       我们**从不创建 skybox 实体**（背景就是黑的），所以没有要藏的东西 ——
+       将来若加了天幕场景，切透视时必须同时把它 `Visible(false)`。 -->
+  <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
+
   <!-- ── 沉浸态里的软键盘 ────────────────────────────────────────────────────────
        ⛔ 真机实测（2026-08-29）：Flutter UI 挂进空间面板后，点搜索框时
        `dumpsys input_method` 显示 `mInputShown=true` 且 `mServedInputConnection`
@@ -60,6 +73,11 @@
          对「捏合拖进度条」这种连续手势是必要的；V2.0 是当前的手部骨架版本。 -->
     <meta-data android:name="com.oculus.handtracking.frequency" android:value="HIGH" />
     <meta-data android:name="com.oculus.handtracking.version" android:value="V2.0" />
+
+    <!-- 官方 quest manifest 模板里有这一行（此前漏抄）：应用在系统覆盖层（Universal Menu、
+         系统键盘等）弹出时**保持焦点继续渲染**，而不是被整个挂起。对一个正在放视频的
+         沉浸应用来说，被挂起就等于用户一开系统菜单画面就停。 -->
+    <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
 
     <!-- ── 2D 面板形态的 MainActivity（增量声明，不重复 src/main 里的属性）─────────
          ⭐ `<layout>` 是「Quest 上默认面板只有 ~400dp 宽、按手机窄屏排版、顶栏钮挤不下」
