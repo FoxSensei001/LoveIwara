@@ -24,10 +24,43 @@ const double kPlayerTopToolbarHeight = 48.0;
 /// 顶部工具栏高度（全屏态）。
 const double kPlayerTopToolbarHeightFullscreen = 60.0;
 
-/// 工具栏本体是 `Positioned(top: -statusBarHeight)` + `height: 本值 + statusBarHeight`，
-/// 因此不论状态栏内边距多少，它的下边缘在 Stack 坐标系里恰好等于本值。
+/// 工具栏本体从播放器栈的 y=0 起画、高度就是本值，所以它的下边缘在 Stack 坐标
+/// 系里恰好等于本值（状态栏那一条由 [PlayerTopScrimStrip] 在栈**外面**补）。
 double playerTopToolbarHeight(bool isFullScreen) =>
     isFullScreen ? kPlayerTopToolbarHeightFullscreen : kPlayerTopToolbarHeight;
+
+/// 顶部遮罩最深处那档黑。[TopToolbar] 与 [PlayerTopScrimStrip] 是同一层遮罩的
+/// 两半，必须共用这一个值，否则接缝处会出现一道台阶。
+const int kPlayerTopScrimAlpha = 179;
+
+/// 状态栏那一条的遮罩 —— 顶部遮罩的**上半截**。
+///
+/// ⛔ 它不能由 [TopToolbar] 自己画（试过，画不到）。工具栏住在播放器栈那只
+/// `Stack` 里，而栈的坐标原点已经在状态栏**下面**（外层 `Container` 带
+/// `padding.top = 状态栏`）；负坐标那一段会被 `Stack` 默认的 `Clip.hardEdge`
+/// 整只裁掉。
+///
+/// 2026-08-30 真机取证（OnePlus Pad，剧院模式开）：状态栏那条是 (13,10,18)，
+/// 紧挨着的工具栏顶是 (4,3,5)，中间一条清清楚楚的接缝——用户报的「状态栏位置
+/// 看不到阴影」就是它。剧院模式下那一条是**亮的模糊封面**，接缝尤其显眼。
+///
+/// 所以这一半画在播放器栈**外面**、与剧院背景同级，跟着工具栏同一条动画淡入
+/// 淡出。
+class PlayerTopScrimStrip extends StatelessWidget {
+  const PlayerTopScrimStrip({super.key, required this.animation});
+
+  final AnimationController animation;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: ToolbarFadeVisibility(
+        animation: animation,
+        child: ColoredBox(color: Colors.black.withAlpha(kPlayerTopScrimAlpha)),
+      ),
+    );
+  }
+}
 
 class TopToolbar extends StatefulWidget {
   final MyVideoStateController myVideoStateController;
@@ -409,7 +442,6 @@ class _TopToolbarState extends State<TopToolbar> {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
     final bool isFullScreen = widget.currentScreenIsFullScreen;
     final double toolbarHeight = playerTopToolbarHeight(isFullScreen);
     final double iconSize = isFullScreen ? 24.0 : 20.0;
@@ -422,11 +454,14 @@ class _TopToolbarState extends State<TopToolbar> {
         onEnter: (_) => widget.myVideoStateController.setToolbarHovering(true),
         onExit: (_) => widget.myVideoStateController.setToolbarHovering(false),
         child: Container(
-          height: toolbarHeight + statusBarHeight,
-          padding: EdgeInsets.only(top: statusBarHeight),
+          // 只画自己这一段：状态栏那一条在栈外面（[PlayerTopScrimStrip]）。
+          height: toolbarHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.black.withAlpha(179), Colors.transparent],
+              colors: [
+                Colors.black.withAlpha(kPlayerTopScrimAlpha),
+                Colors.transparent,
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),

@@ -1006,6 +1006,29 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               );
             },
           ),
+          // 顶部遮罩的上半截：状态栏那一条。
+          //
+          // ⛔ 必须画在这里——播放器栈的原点已经在状态栏下面，栈里画不到这一段
+          // （详见 [PlayerTopScrimStrip] 的说明）。跟工具栏同一条动画、同一档黑，
+          // 显隐与深浅都对得上。
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: paddingTop,
+            child: PlayerStackBuilder(
+              // 本地模式下这个 getter 是常量，Obx 会因为"没有可跟踪的依赖"而抛，
+              // 与栈里那只同款处理。
+              observeChanges: !widget.myVideoStateController.isLocalVideoMode,
+              builder: () =>
+                  widget.myVideoStateController.shouldShowPlaybackChrome
+                  ? PlayerTopScrimStrip(
+                      animation:
+                          widget.myVideoStateController.animationController,
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
         ],
       ),
     );
@@ -1426,7 +1449,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     return [
       Positioned(
-        top: -MediaQuery.paddingOf(context).top,
+        top: 0,
         left: 0,
         right: 0,
         child: TopToolbar(
@@ -1464,14 +1487,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             child: IgnorePointer(ignoring: visibility < 0.5, child: child),
           );
         },
+        // ⛔ 右侧不留任何缝隙：把手的圆角只开在**左**边（右边是平的），本来就
+        // 是照着「贴死画面右缘」画的。之前这里补了 `padding.right + 4`，于是
+        // 绝大多数设备上它都浮在离边一小段的位置，平的那条边悬空反而更显眼。
         child: Align(
           alignment: Alignment.centerRight,
-          child: Padding(
-            padding: EdgeInsets.only(
-              right: MediaQuery.paddingOf(context).right + 4,
-            ),
-            child: _QueueEdgeHandle(onTap: widget.onOpenQueueDrawer),
-          ),
+          child: _QueueEdgeHandle(onTap: widget.onOpenQueueDrawer),
         ),
       );
     });
