@@ -41,6 +41,7 @@ class GlassAdaptiveSegmentedControl extends StatefulWidget {
     required this.onChanged,
     this.progress,
     this.minVisibleItems = 2.5,
+    this.dropdownOnly = false,
     this.replacement,
     this.alignment = Alignment.centerLeft,
     this.height = GlassTokens.pillHeight,
@@ -60,6 +61,17 @@ class GlassAdaptiveSegmentedControl extends StatefulWidget {
 
   /// 平铺至少要完整露出几个段，低于这个数就退化成下拉钮。约定值 2.5。
   final double minVisibleItems;
+
+  /// **这一页永远只要下拉钮那一支**，宽度够也不平铺。
+  ///
+  /// 给的是「这几段不配占满一整行」的场合：header 上已经有返回键、标题胶囊和
+  /// 动作胶囊，排序只是跟着动作胶囊靠右站的一枚「当前是谁 ▾」，平铺开就成了
+  /// 半行 tab（见 tag_media_list_page）。走这里而不是页面自己抄一份下拉钮，
+  /// 是因为下拉那一支的触发位 / 跟手翻牌 / 菜单打勾三件事只该有一份实现。
+  ///
+  /// 真值时不再量宽（[minVisibleItems] 随之失效），所以本控件也就可以待在
+  /// Row 的非 flex 位置上——那里读到的可用宽度是无限大，量了也是错的。
+  final bool dropdownOnly;
 
   /// 页面级的「这只胶囊此刻不表示分段」替换内容（典型：批量选择态下改报
   /// 「已选 N 项」）。非空时直接顶掉分段 / 下拉两支，但**壳还是同一只**，
@@ -108,6 +120,7 @@ class _GlassAdaptiveSegmentedControlState
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool useSegmented =
+            !widget.dropdownOnly &&
             constraints.maxWidth >=
             GlassSegmentedControl.minWidthFor(
               context,

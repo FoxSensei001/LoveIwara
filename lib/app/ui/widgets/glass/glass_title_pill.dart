@@ -24,6 +24,7 @@ class GlassTitlePill extends StatelessWidget {
     this.subtitle,
     this.placeholderWidth = 140,
     this.flat = false,
+    this.onTap,
   });
 
   /// 标题文本；null 表示仍在加载（显示 shimmer 占位条）。
@@ -38,6 +39,14 @@ class GlassTitlePill extends StatelessWidget {
   /// 不自带玻璃壳：外层已经有一只常驻的壳（[GlassCapsuleMorph]）时用，
   /// 否则会套出壳中壳。与 `GlassSegmentedControl.flat` 同一口径。
   final bool flat;
+
+  /// 点按 / 长按改开别的东西。
+  ///
+  /// 默认（null）是本组件的契约动作——弹完整标题弹窗。只有当这只胶囊写的
+  /// **不是一段可能被截断的正文标题**、而是一个有自己详情页的实体时才该覆盖：
+  /// 标签页那只写的是标签名，用户点它想看的是「原文 / 译文 / 复制 / 纠错」
+  /// （`showTagDetailDialog`），弹一遍同样的几个字没有意义。
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +82,17 @@ class GlassTitlePill extends StatelessWidget {
             ),
           );
 
-    void openFullTitle() {
-      if (resolvedTitle == null) return;
-      showGlassFullTitleDialog(context, resolvedTitle, subtitle: subtitle);
-    }
+    // 标题还没到（shimmer 占位）时不接手势：此刻点开只会是一张空弹窗。
+    // 自定义 [onTap] 不受这条约束——它开的是与标题文本无关的东西。
+    final VoidCallback? handleTap =
+        onTap ??
+        (resolvedTitle == null
+            ? null
+            : () => showGlassFullTitleDialog(
+                context,
+                resolvedTitle,
+                subtitle: subtitle,
+              ));
 
     // 用 Row(min) + Flexible 而不是 Center：既能收缩包住短标题，
     // 又能在长标题时吃满可用宽度并按省略号截断
@@ -98,8 +114,8 @@ class GlassTitlePill extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: GlassPressable(
-          onTap: resolvedTitle == null ? null : openFullTitle,
-          onLongPress: resolvedTitle == null ? null : openFullTitle,
+          onTap: handleTap,
+          onLongPress: handleTap,
           scale: 1,
           builder: (context, _) => content,
         ),
@@ -112,8 +128,8 @@ class GlassTitlePill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         // 悬停快速预览全文；点按 / 长按进完整标题弹窗
         tooltip: resolvedTitle,
-        onTap: resolvedTitle == null ? null : openFullTitle,
-        onLongPress: resolvedTitle == null ? null : openFullTitle,
+        onTap: handleTap,
+        onLongPress: handleTap,
         child: content,
       ),
     );
