@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -1434,28 +1435,16 @@ class _QueueRow extends StatelessWidget {
       // 「正在播放」的角标撤了（视觉上有整行高亮 + 主色标题），但读屏原来正是
       // 靠那枚角标的 semanticLabel 才知道自己在哪一条上，所以语义补在行上。
       selected: isCurrent,
-      child: GlassTapArea(
+      child: _QueueRowSurface(
+        isCurrent: isCurrent,
         onTap: onTap,
-        child: Container(
-          height: _rowHeight(context),
-          margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: _kRowPaddingVertical,
-          ),
-          decoration: BoxDecoration(
-            // 正在播的那一条常驻高亮，进抽屉一眼就能定位自己在哪。
-            color: isCurrent ? cs.primary.withValues(alpha: 0.12) : null,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildThumbnail(context, cs, t),
-              const SizedBox(width: 10),
-              Expanded(child: _buildText(context, cs, t)),
-            ],
-          ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildThumbnail(context, cs, t),
+            const SizedBox(width: 10),
+            Expanded(child: _buildText(context, cs, t)),
+          ],
         ),
       ),
     );
@@ -1710,6 +1699,100 @@ class _QueueRow extends StatelessWidget {
           Row(children: meta),
         ],
       ],
+    );
+  }
+}
+
+/// 一行的**可交互外壳**：光标、悬停、按下三件事都在这儿，行的内容只管画。
+///
+/// # ⛔ 为什么行自己要管悬停
+///
+/// [GlassTapArea] 是纯触摸实现（`Listener` + `RawGestureDetector`），整层
+/// **没有 `MouseRegion`**——它不换光标，也不知道指针悬没悬在上面。所以桌面端
+/// 鼠标划过这张单子时一点动静都没有，连"这一行能点"都读不出来
+/// （2026-08-30 用户报障）。
+///
+/// 补在行这一层，不动 [GlassTapArea]：那是全 App 玻璃件共用的入口，给它加上
+/// 悬停就等于一次性改掉每一枚玻璃钮的观感，不是这次该做的事。
+///
+/// # 三层底色叠上去，不是换掉
+///
+/// 与玻璃菜单的行同一套读法（见 `glass_menu.dart` 的 `_GlassMenuRow`）：正在
+/// 播的那条常驻一层主色薄底，悬停 / 按下在**它之上再加深一档**。换掉薄底的话，
+/// 鼠标一放反而像是"正在播的标记没了"。
+class _QueueRowSurface extends StatefulWidget {
+  const _QueueRowSurface({
+    required this.isCurrent,
+    required this.onTap,
+    required this.child,
+  });
+
+  final bool isCurrent;
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  State<_QueueRowSurface> createState() => _QueueRowSurfaceState();
+}
+
+class _QueueRowSurfaceState extends State<_QueueRowSurface> {
+  bool _hovered = false;
+  bool _pressed = false;
+
+  void _setHovered(bool value) {
+    if (_hovered == value || !mounted) return;
+    setState(() => _hovered = value);
+  }
+
+  void _setPressed(bool value) {
+    if (_pressed == value || !mounted) return;
+    setState(() => _pressed = value);
+  }
+
+  /// 悬停 / 按下的底色。基色跟着"是不是正在播"走，于是高亮那条加深的是主色、
+  /// 其余行加深的是中性色，不会让某一行悬停时看着像"变成正在播的那条了"。
+  Color _surfaceColor(ColorScheme cs) {
+    final Color base = widget.isCurrent ? cs.primary : cs.onSurface;
+    if (_pressed) {
+      return base.withValues(alpha: widget.isCurrent ? 0.24 : 0.10);
+    }
+    if (_hovered) {
+      return base.withValues(alpha: widget.isCurrent ? 0.18 : 0.05);
+    }
+    // 正在播的那一条常驻高亮，进抽屉一眼就能定位自己在哪。
+    return widget.isCurrent
+        ? cs.primary.withValues(alpha: 0.12)
+        : Colors.transparent;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => _setHovered(true),
+      onExit: (_) => _setHovered(false),
+      child: GlassTapArea(
+        onTap: widget.onTap,
+        // 按下态走的是不进竞技场的 Listener，按下那一帧就到；被列表滚动抢走时
+        // 也会回落，不会留下一行"按住没松"的高亮。
+        onPressedChanged: _setPressed,
+        child: AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
+          height: _rowHeight(context),
+          margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: _kRowPaddingVertical,
+          ),
+          decoration: BoxDecoration(
+            color: _surfaceColor(cs),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

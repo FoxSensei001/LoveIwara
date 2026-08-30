@@ -32,6 +32,7 @@ import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
+import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/utils/mpv_tuning.dart';
@@ -3680,11 +3681,12 @@ class MyVideoStateController extends GetxController
     var reuseNativeFullscreen =
         fullscreenHandoff?.nativeFullscreenActive == true;
     if (reuseNativeFullscreen && GetPlatform.isDesktop) {
-      try {
-        reuseNativeFullscreen = await windowManager.isFullScreen();
-      } catch (_) {
-        reuseNativeFullscreen = false;
-      }
+      // ⛔ 这里**不能**问 windowManager.isFullScreen()：桌面全屏是 media_kit 的
+      // Utils.EnterNativeFullscreen 开的，window_manager 在 Windows 上对此一无
+      // 所知，那个查询恒答 false。答 false 就意味着下面会把「当前这个已经满屏的
+      // 窗口几何」缓存成"进全屏前的几何"，把交接过来的原始尺寸整个覆盖掉——
+      // 全屏连播换一条，退出全屏窗口就铺满整块屏幕。见 [DesktopNativeFullscreen]。
+      reuseNativeFullscreen = await DesktopNativeFullscreen.resolve();
     }
 
     if (!reuseNativeFullscreen) {
@@ -3719,7 +3721,7 @@ class MyVideoStateController extends GetxController
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();
     try {
-      await defaultExitNativeFullscreen();
+      await CommonUtils.defaultExitNativeFullscreen();
     } catch (e, s) {
       LogUtils.e(
         '退出系统全屏失败（仍将尝试恢复UI状态）',
@@ -3792,6 +3794,21 @@ class MyVideoStateController extends GetxController
     if (!GetPlatform.isDesktop) return;
     if (_isRestoringDesktopWindowGeometry) return;
 
+    // ⛔ 手上已经有快照了就别再拍一张。它要么是本控制器进全屏时拍的，要么是
+    // 全屏连播从上一页交接过来的——两种都是**真正的**进全屏前几何，而此刻窗口
+    // 大概率已经满屏，重拍等于把它换成满屏尺寸。
+    if (_hasDesktopWindowGeometrySnapshot) {
+      LogUtils.d('已持有进全屏前的窗口几何快照，跳过重复缓存', 'MyVideoStateController');
+      return;
+    }
+
+    // ⛔ 已经在原生全屏里了就更不能拍：拍到的就是满屏。宁可不拍（退出时
+    // media_kit 自己会把窗口还原回 rect_before_fullscreen_），也好过拍错。
+    if (await DesktopNativeFullscreen.resolve()) {
+      LogUtils.d('窗口已处于原生全屏，跳过缓存（避免把满屏几何当成还原目标）', 'MyVideoStateController');
+      return;
+    }
+
     try {
       _desktopWindowWasMaximized = await windowManager.isMaximized();
       if (_desktopWindowWasMaximized) {
@@ -3860,7 +3877,6 @@ class MyVideoStateController extends GetxController
             'position=${_desktopWindowPositionBeforeFullscreen ?? 'n/a'}',
         'MyVideoStateController',
       );
-      _hasDesktopWindowGeometrySnapshot = false;
     } catch (e, s) {
       LogUtils.e(
         '恢复桌面窗口几何失败: reason=$reason',
@@ -3869,6 +3885,9 @@ class MyVideoStateController extends GetxController
         stackTrace: s,
       );
     } finally {
+      // ⛔ 失败也要清掉快照。留着它，下次进全屏会被上面那道「已有快照就跳过」
+      // 的护栏挡住不再重拍，之后退出全屏就会还原到一个早已过期的几何。
+      _hasDesktopWindowGeometrySnapshot = false;
       _isRestoringDesktopWindowGeometry = false;
     }
   }

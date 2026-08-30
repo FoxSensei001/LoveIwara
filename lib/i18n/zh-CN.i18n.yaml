@@ -2727,7 +2727,20 @@ externalPlayer:
   handedOff: "已交给外部播放器"
   desktopSectionTitle: "外部播放器"
   managePlayers: "管理外部播放器"
-  managePlayersDesc: "PCVR 播放器（HereSphere、DeoVR、Whirligig 等）不是系统默认关联程序，指定可执行文件后就能从播放器里直接转交"
+  # 说明按平台分档：三个平台要选的东西根本不是一回事，举的例子也只在各自平台上存在
+  managePlayersDescWindows: "HereSphere、DeoVR、Whirligig 这类 PCVR 播放器不是系统默认关联程序，指定它们的 .exe 之后，就能从播放器里把当前视频直接转交过去"
+  managePlayersDescMac: "指定 IINA、VLC、mpv 这类播放器的应用程序，之后就能从播放器里把当前视频直接转交过去"
+  managePlayersDescLinux: "指定 mpv、VLC、Celluloid 这类播放器的可执行文件，之后就能从播放器里把当前视频直接转交过去"
+  pickExecutableHintWindows: "选播放器安装目录里的 .exe 主程序，例如 HereSphere.exe、vlc.exe。桌面快捷方式（.lnk）不行"
+  pickExecutableHintMac: "在「应用程序」里选播放器的 .app，例如 IINA.app；里面真正的可执行文件会自动定位"
+  pickExecutableHintLinux: "选播放器的可执行文件，例如 /usr/bin/mpv；用 which mpv 就能查到它在哪儿"
+  emptyStateGuide: '配好之后，播放页的「用其他应用打开」里会直接多出对应的条目。常见的有：${examples}'
+  detectNothingFoundGuide: "没探测到已安装的播放器。装在自定义目录、或者是免安装的绿色版都探不到，用「添加播放器」手动指定即可"
+  detectNothingNew: "没有发现新的播放器，装了的都已经在列表里了"
+  detectFailed: "探测失败，可以改用「添加播放器」手动指定"
+  advancedOptions: "高级选项"
+  playerNameHint: "留空就用文件名"
+  executablePathRequired: "请先选择播放器的可执行文件"
   playerCount: '已配置 ${count} 个'
   noPlayerConfigured: "还没有配置任何外部播放器"
   autoDetect: "自动探测"

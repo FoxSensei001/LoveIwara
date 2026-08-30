@@ -16,6 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
+import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
@@ -310,7 +311,20 @@ class DesktopWindowListener extends WindowListener {
     LogUtils.d('窗口退出全屏', '桌面监听器');
   }
 
+  /// 全屏期间这两条不落盘。
+  ///
+  /// ⛔ 播放器进原生全屏是一次真实的 SetWindowPos，resize / move 照常打过来，
+  /// 照单全收就会把「铺满显示器」写进配置。用户此时关掉应用（或应用崩了），
+  /// 下次启动窗口就以满屏尺寸开在 (0,0)。真正该记的是进全屏**之前**那一组，
+  /// 它在退出全屏、窗口还原之后会重新触发一次 resize/move 自然补回来。
+  bool _skipGeometryPersist(String what) {
+    if (!DesktopNativeFullscreen.isActive) return false;
+    LogUtils.d('原生全屏中，跳过保存窗口$what', '桌面监听器');
+    return true;
+  }
+
   Future<void> _saveWindowSize() async {
+    if (_skipGeometryPersist('大小')) return;
     try {
       final size = await windowManager.getSize();
       final configService = Get.find<ConfigService>();
@@ -347,6 +361,7 @@ class DesktopWindowListener extends WindowListener {
   }
 
   Future<void> _saveWindowPosition() async {
+    if (_skipGeometryPersist('位置')) return;
     try {
       final position = await windowManager.getPosition();
       final configService = Get.find<ConfigService>();

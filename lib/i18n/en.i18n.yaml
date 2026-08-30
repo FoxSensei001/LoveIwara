@@ -2726,7 +2726,21 @@ externalPlayer:
   handedOff: "Handed off to the external player"
   desktopSectionTitle: "External players"
   managePlayers: "Manage external players"
-  managePlayersDesc: "PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "PCVR players like HereSphere, DeoVR and Whirligig are not the system default app. Point this at their .exe and you can hand the current video over straight from the player."
+  managePlayersDescMac: "Point this at players such as IINA, VLC or mpv and you can hand the current video over straight from the player."
+  managePlayersDescLinux: "Point this at players such as mpv, VLC or Celluloid and you can hand the current video over straight from the player."
+  pickExecutableHintWindows: "Pick the main .exe inside the player's install folder, e.g. HereSphere.exe or vlc.exe. Desktop shortcuts (.lnk) will not work."
+  pickExecutableHintMac: "Pick the player's .app in Applications, e.g. IINA.app — the real executable inside is located for you."
+  pickExecutableHintLinux: "Pick the player's executable, e.g. /usr/bin/mpv. Running which mpv will tell you where it lives."
+  emptyStateGuide: 'Once configured it shows up as its own entry under Open with another app on the player page. Common ones: ${examples}'
+  detectNothingFoundGuide: "No installed players found. Custom install folders and portable builds cannot be detected — use Add player to point at one yourself."
+  detectNothingNew: "No new players found; everything installed is already in the list"
+  detectFailed: "Detection failed — use Add player to point at one yourself"
+  advancedOptions: "Advanced"
+  playerNameHint: "Leave empty to use the file name"
+  executablePathRequired: "Choose the player's executable first"
   playerCount: '${count} configured'
   noPlayerConfigured: "No external player configured yet"
   autoDetect: "Auto-detect"

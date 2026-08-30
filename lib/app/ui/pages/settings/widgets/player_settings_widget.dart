@@ -1150,7 +1150,7 @@ class PlayerSettingsWidget extends StatelessWidget {
                     : null,
                 description: count > 0
                     ? null
-                    : t.externalPlayer.managePlayersDesc,
+                    : desktopPlayerManagerDescription(t),
                 onTap: () => showDesktopPlayerManagerDialog(context),
               );
             }),

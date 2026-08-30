@@ -2377,7 +2377,19 @@ class _TranslationsExternalPlayerJa implements TranslationsExternalPlayerEn {
 	@override String get handedOff => '外部プレイヤーに渡しました';
 	@override String get desktopSectionTitle => '外部プレイヤー';
 	@override String get managePlayers => '外部プレイヤーの管理';
-	@override String get managePlayersDesc => 'PCVR のプレイヤー（HereSphere、DeoVR、Whirligig など）はシステムの既定アプリではないため、実行ファイルを指定すると再生画面から直接渡せるようになります';
+	@override String get managePlayersDescWindows => 'HereSphere、DeoVR、Whirligig といった PCVR プレイヤーはシステムの既定アプリではありません。その .exe を指定すると、再生画面から現在の動画を直接渡せるようになります';
+	@override String get managePlayersDescMac => 'IINA、VLC、mpv などのアプリケーションを指定すると、再生画面から現在の動画を直接渡せるようになります';
+	@override String get managePlayersDescLinux => 'mpv、VLC、Celluloid などの実行ファイルを指定すると、再生画面から現在の動画を直接渡せるようになります';
+	@override String get pickExecutableHintWindows => 'プレイヤーのインストール先にある .exe 本体を選んでください（例：HereSphere.exe、vlc.exe）。デスクトップのショートカット（.lnk）は使えません';
+	@override String get pickExecutableHintMac => '「アプリケーション」からプレイヤーの .app を選んでください（例：IINA.app）。中の実行ファイルは自動で特定します';
+	@override String get pickExecutableHintLinux => 'プレイヤーの実行ファイルを選んでください（例：/usr/bin/mpv）。which mpv で場所が分かります';
+	@override String emptyStateGuide({required Object examples}) => '設定すると、再生画面の「他のアプリで開く」に項目として直接並びます。よく使われるもの：${examples}';
+	@override String get detectNothingFoundGuide => 'インストール済みのプレイヤーは見つかりませんでした。独自のフォルダーやポータブル版は検出できないので、「プレイヤーを追加」から手動で指定してください';
+	@override String get detectNothingNew => '新しいプレイヤーはありません。インストール済みのものはすべて一覧に入っています';
+	@override String get detectFailed => '検出に失敗しました。「プレイヤーを追加」から手動で指定できます';
+	@override String get advancedOptions => '詳細設定';
+	@override String get playerNameHint => '空欄ならファイル名を使います';
+	@override String get executablePathRequired => '先にプレイヤーの実行ファイルを選んでください';
 	@override String playerCount({required Object count}) => '${count} 件設定済み';
 	@override String get noPlayerConfigured => '外部プレイヤーはまだ設定されていません';
 	@override String get autoDetect => '自動検出';
@@ -6190,7 +6202,19 @@ extension on TranslationsJa {
 			'externalPlayer.handedOff' => '外部プレイヤーに渡しました',
 			'externalPlayer.desktopSectionTitle' => '外部プレイヤー',
 			'externalPlayer.managePlayers' => '外部プレイヤーの管理',
-			'externalPlayer.managePlayersDesc' => 'PCVR のプレイヤー（HereSphere、DeoVR、Whirligig など）はシステムの既定アプリではないため、実行ファイルを指定すると再生画面から直接渡せるようになります',
+			'externalPlayer.managePlayersDescWindows' => 'HereSphere、DeoVR、Whirligig といった PCVR プレイヤーはシステムの既定アプリではありません。その .exe を指定すると、再生画面から現在の動画を直接渡せるようになります',
+			'externalPlayer.managePlayersDescMac' => 'IINA、VLC、mpv などのアプリケーションを指定すると、再生画面から現在の動画を直接渡せるようになります',
+			'externalPlayer.managePlayersDescLinux' => 'mpv、VLC、Celluloid などの実行ファイルを指定すると、再生画面から現在の動画を直接渡せるようになります',
+			'externalPlayer.pickExecutableHintWindows' => 'プレイヤーのインストール先にある .exe 本体を選んでください（例：HereSphere.exe、vlc.exe）。デスクトップのショートカット（.lnk）は使えません',
+			'externalPlayer.pickExecutableHintMac' => '「アプリケーション」からプレイヤーの .app を選んでください（例：IINA.app）。中の実行ファイルは自動で特定します',
+			'externalPlayer.pickExecutableHintLinux' => 'プレイヤーの実行ファイルを選んでください（例：/usr/bin/mpv）。which mpv で場所が分かります',
+			'externalPlayer.emptyStateGuide' => ({required Object examples}) => '設定すると、再生画面の「他のアプリで開く」に項目として直接並びます。よく使われるもの：${examples}',
+			'externalPlayer.detectNothingFoundGuide' => 'インストール済みのプレイヤーは見つかりませんでした。独自のフォルダーやポータブル版は検出できないので、「プレイヤーを追加」から手動で指定してください',
+			'externalPlayer.detectNothingNew' => '新しいプレイヤーはありません。インストール済みのものはすべて一覧に入っています',
+			'externalPlayer.detectFailed' => '検出に失敗しました。「プレイヤーを追加」から手動で指定できます',
+			'externalPlayer.advancedOptions' => '詳細設定',
+			'externalPlayer.playerNameHint' => '空欄ならファイル名を使います',
+			'externalPlayer.executablePathRequired' => '先にプレイヤーの実行ファイルを選んでください',
 			'externalPlayer.playerCount' => ({required Object count}) => '${count} 件設定済み',
 			'externalPlayer.noPlayerConfigured' => '外部プレイヤーはまだ設定されていません',
 			'externalPlayer.autoDetect' => '自動検出',
@@ -6223,6 +6247,8 @@ extension on TranslationsJa {
 			'watchLater.addFailed' => 'あとで見るへの追加に失敗しました',
 			'watchLater.invalidItem' => '利用できません',
 			'watchLater.clearWatched' => '視聴済みを削除',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => '視聴済み ${count} 件を削除しました',
 			'watchLater.noWatchedToClear' => '視聴済みの項目はありません',
 			'watchLater.emptyVideo' => 'あとで見るに追加された動画はありません',
@@ -6235,8 +6261,6 @@ extension on TranslationsJa {
 			'watchLater.playlistLoadFailed' => '再生リストの読み込みに失敗しました',
 			'watchLater.noPlaylists' => '再生リストがありません',
 			'watchLater.undo' => '元に戻す',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.clearWatchedConfirm' => 'このタブの視聴済みをすべて削除しますか？元に戻せません。',
 			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
 			'watchLater.emptyUnwatchedGallery' => '未視聴のギャラリーはありません',

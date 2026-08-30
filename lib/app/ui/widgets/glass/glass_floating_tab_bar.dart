@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 
 /// 浮动底栏里的一项。
@@ -329,7 +330,7 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
             cs,
             tint: GlassTokens.widgetsTint(cs),
           ),
-          quality: lgw.GlassQuality.premium,
+          quality: chromeGlassQuality,
           indicatorColor: GlassTokens.tabIndicatorTint(cs),
         ),
       ),

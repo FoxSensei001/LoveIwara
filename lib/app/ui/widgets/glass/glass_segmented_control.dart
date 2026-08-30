@@ -728,7 +728,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       // 药丸那趟恒 0：见 [_buildJellyStack] 上那段真机实测的说明。
       thickness: glass ? _jelly.value : 0,
       // premium 才有完整的 SDF 折射；非 Impeller 环境由包自己降级。
-      quality: lgw.GlassQuality.premium,
+      quality: chromeGlassQuality,
       indicatorColor: GlassTokens.selectedHighlight(cs),
       isBackgroundIndicator: false,
       borderRadius: innerHeight / 2,
