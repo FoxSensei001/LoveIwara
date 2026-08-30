@@ -13,6 +13,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path_provider/path_provider.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
+import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
+import 'package:media_kit_video/media_kit_video.dart' as media_kit_video;
 import '../app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/config_service.dart';
@@ -138,10 +140,26 @@ class CommonUtils {
         await const MethodChannel(
           'com.alexmercerind/media_kit_video',
         ).invokeMethod('Utils.EnterNativeFullscreen');
+        // ⛔ 必须留痕：window_manager 不认这条路开的全屏，之后谁想知道
+        // 「现在是不是全屏」都只能问 [DesktopNativeFullscreen]。
+        DesktopNativeFullscreen.markEntered();
       }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
       debugPrint(stacktrace.toString());
+    }
+  }
+
+  /// 退出全屏。
+  ///
+  /// 直接转交 media_kit 的实现（移动端恢复系统 UI / 放开方向，桌面端走
+  /// `Utils.ExitNativeFullscreen`），只额外把桌面端的全屏标记落回去——进出
+  /// 成对收在 [CommonUtils] 里，标记才不会漏改。
+  static Future<void> defaultExitNativeFullscreen() async {
+    try {
+      await media_kit_video.defaultExitNativeFullscreen();
+    } finally {
+      DesktopNativeFullscreen.markExited();
     }
   }
 
