@@ -55,6 +55,24 @@ class SubscriptionsPage extends StatefulWidget implements HomeWidgetInterface {
     this.contentResetVersion = 0,
   });
 
+  /// 子页签下标：0=视频 1=图库 2=帖子（与 `SubscriptionsPageState` 里那只
+  /// `TabController(length: 3)` 一一对应）。
+  static const int videoTabIndex = 0;
+  static const int galleryTabIndex = 1;
+  static const int postTabIndex = 2;
+
+  static int tabIndexForMedia(MediaType type) =>
+      type == MediaType.IMAGE ? galleryTabIndex : videoTabIndex;
+
+  /// 详情页「回到主页」时，把订阅栏切到与内容同类的那一半（落点判定见
+  /// `HomeShellNavigation.homeBranchKeyForMedia`）。
+  ///
+  /// 订阅栏没建起来过时静默跳过——真要落到这里，用户必然是从订阅栏点进详情的，
+  /// 页面一定还活着（分支保活）。
+  static void showMediaTab(MediaType type) {
+    globalKey.currentState?.selectMediaTab(type);
+  }
+
   @override
   State<SubscriptionsPage> createState() => SubscriptionsPageState();
 
@@ -488,6 +506,17 @@ class SubscriptionsPageState extends State<SubscriptionsPage>
         TutorialService().showSubscriptionTutorial(context);
       }
     });
+  }
+
+  /// 落到承载 [type] 的子页签。
+  ///
+  /// 直接写 `index` 而不是 `animateTo`：调用时机是详情页还盖在上面、订阅栏正要
+  /// 淡入的那一刻，滑动动画只会在露面的第一帧闪一下。
+  void selectMediaTab(MediaType type) {
+    if (!mounted) return;
+    final index = SubscriptionsPage.tabIndexForMedia(type);
+    if (_tabController.index == index) return;
+    _tabController.index = index;
   }
 
   void _onTabChange() {

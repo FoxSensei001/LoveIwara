@@ -386,10 +386,12 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                   onPressed: _openQueueDrawer,
                 ),
               ),
+              // 回到「图库」那一类的首页页签：从订阅进来的落回订阅的图库半边，
+              // 其余（社区 / 视频 / 图库栏）落回图库栏。
               GlassIconButton(
                 icon: const Icon(Icons.home),
                 tooltip: t.videoDetail.home,
-                onPressed: () => appRouter.go('/'),
+                onPressed: () => goHomeForMedia(MediaType.IMAGE),
               ),
             ],
           ),

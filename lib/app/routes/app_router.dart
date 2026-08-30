@@ -133,6 +133,32 @@ void refreshHomeBranch(int branchIndex) {
   }
 }
 
+/// 详情页顶部「回到主页」：回到与当前内容**同类**的那个首页页签。
+///
+/// 落点判定收口在 [HomeShellNavigation.homeBranchKeyForMedia]（那里写了为什么
+/// 不需要在进详情时记住来路）。这里只负责两件事：
+///
+/// 1. 订阅栏还要再落到「视频 / 图库」中对应的那一半——先切子页签再换路由，
+///    栏目淡入时就已经在正确的那半上；
+/// 2. 用 `go()` 而**不是** `goBranch()`：详情页是压在 Shell 的 Navigator 上的，
+///    `goBranch` 只换栏目、不会把压在上面的详情页弹掉。
+void goHomeForMedia(MediaType type) {
+  final appService = Get.find<AppService>();
+  final int originBranch =
+      appService.navigationShell?.currentIndex ?? appService.currentIndex;
+  final String targetKey = HomeShellNavigation.homeBranchKeyForMedia(
+    HomeShellNavigation.keyForBranchIndex(originBranch),
+    isGallery: type == MediaType.IMAGE,
+  );
+
+  if (targetKey == 'subscription') {
+    SubscriptionsPage.showMediaTab(type);
+  }
+
+  appRouter.go(HomeShellNavigation.pathForKey(targetKey));
+  appService.currentIndex = HomeShellNavigation.branchIndexForKey(targetKey);
+}
+
 /// 构建一个「跟手侧滑返回」的页面。
 ///
 /// 仅在 iOS 上启用整页跟手侧滑：从页面**任意位置**向右滑动即可返回，页面跟手位移、
@@ -347,13 +373,15 @@ final GoRouter appRouter = GoRouter(
                       contentResetVersion: homeContentVersion,
                       initialDestination: CommunityDestination.fromQuery(
                         tab: state.uri.queryParameters['tab'],
-                        newsCategory: IwaraDeepLinkUtils.resolveNewsCategoryType(
-                          state.uri.queryParameters['category'],
-                        ),
+                        newsCategory:
+                            IwaraDeepLinkUtils.resolveNewsCategoryType(
+                              state.uri.queryParameters['category'],
+                            ),
                       ),
-                      initialNewsLanguage: IwaraDeepLinkUtils.resolveNewsLanguage(
-                        state.uri.queryParameters['lang'],
-                      ),
+                      initialNewsLanguage:
+                          IwaraDeepLinkUtils.resolveNewsLanguage(
+                            state.uri.queryParameters['lang'],
+                          ),
                     );
                   }),
                 ),
@@ -887,7 +915,6 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) =>
               buildAdaptiveSwipeablePage(state, const EmojiLibraryPage()),
         ),
-
       ],
     ),
   ],
@@ -963,18 +990,19 @@ Widget _settingsPaneTransition(
       Tween<Offset>(begin: Offset.zero, end: const Offset(-shift, 0)).animate(
         CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInCubic),
       );
-  final Animation<double> outgoingFade = Tween<double>(begin: 1, end: 0).animate(
-    CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: const Interval(0, 0.4, curve: Curves.easeOut),
-    ),
-  );
+  final Animation<double> outgoingFade = Tween<double>(begin: 1, end: 0)
+      .animate(
+        CurvedAnimation(
+          parent: secondaryAnimation,
+          curve: const Interval(0, 0.4, curve: Curves.easeOut),
+        ),
+      );
 
   // 入场：从右侧一小段位移滑入并淡入。
-  final Animation<Offset> incomingSlide =
-      Tween<Offset>(begin: const Offset(shift, 0), end: Offset.zero).animate(
-        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
-      );
+  final Animation<Offset> incomingSlide = Tween<Offset>(
+    begin: const Offset(shift, 0),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
   final Animation<double> incomingFade = CurvedAnimation(
     parent: animation,
     curve: const Interval(0.4, 1, curve: Curves.easeIn),
@@ -999,60 +1027,60 @@ GoRoute _settingsSubRoute(
 ) => GoRoute(
   path: path,
   name: name,
-  pageBuilder: (context, state) =>
-      _buildSettingsPage(context, state, builder),
+  pageBuilder: (context, state) => _buildSettingsPage(context, state, builder),
 );
 
 /// 分区页下面的三级页。路径即层级，宽窄屏走同一条路由
 /// （历史实现是「宽屏塞进右栏内部 Navigator、窄屏 push 到 Shell 顶层」两套实现）。
-List<RouteBase> _settingsSubRoutesOf(SettingsSection section) => switch (section) {
-  SettingsSection.translation => [
-    _settingsSubRoute(
-      'google',
-      'settings_translation_google',
-      (isWide) => GoogleTranslationSettingsPage(isWideScreen: isWide),
-    ),
-    _settingsSubRoute(
-      'ai',
-      'settings_translation_ai',
-      (isWide) => AITranslationSettingsPage(isWideScreen: isWide),
-    ),
-    _settingsSubRoute(
-      'deeplx',
-      'settings_translation_deeplx',
-      (isWide) => DeepLXTranslationSettingsPage(isWideScreen: isWide),
-    ),
-  ],
-  SettingsSection.display => [
-    _settingsSubRoute(
-      'layout',
-      'settings_display_layout',
-      (isWide) => LayoutSettingsPage(isWideScreen: isWide),
-    ),
-    // 两个入口（显示设置直接进 / 布局设置里再进）push 的是同一条路由，
-    // `push` 只压一页，所以两条路径下的返回都停在各自的上一页。
-    _settingsSubRoute(
-      'navigation_order',
-      'settings_display_navigation_order',
-      (isWide) => NavigationOrderSettingsPage(isWideScreen: isWide),
-    ),
-  ],
-  SettingsSection.about => [
-    _settingsSubRoute(
-      'changelog',
-      'settings_about_changelog',
-      (_) => const HistoryUpdateLogsPage(),
-    ),
-  ],
-  SettingsSection.diagnostics => [
-    _settingsSubRoute(
-      'logs',
-      'settings_diagnostics_logs',
-      (isWide) => LogViewerPage(isWideScreen: isWide),
-    ),
-  ],
-  _ => const <RouteBase>[],
-};
+List<RouteBase> _settingsSubRoutesOf(SettingsSection section) =>
+    switch (section) {
+      SettingsSection.translation => [
+        _settingsSubRoute(
+          'google',
+          'settings_translation_google',
+          (isWide) => GoogleTranslationSettingsPage(isWideScreen: isWide),
+        ),
+        _settingsSubRoute(
+          'ai',
+          'settings_translation_ai',
+          (isWide) => AITranslationSettingsPage(isWideScreen: isWide),
+        ),
+        _settingsSubRoute(
+          'deeplx',
+          'settings_translation_deeplx',
+          (isWide) => DeepLXTranslationSettingsPage(isWideScreen: isWide),
+        ),
+      ],
+      SettingsSection.display => [
+        _settingsSubRoute(
+          'layout',
+          'settings_display_layout',
+          (isWide) => LayoutSettingsPage(isWideScreen: isWide),
+        ),
+        // 两个入口（显示设置直接进 / 布局设置里再进）push 的是同一条路由，
+        // `push` 只压一页，所以两条路径下的返回都停在各自的上一页。
+        _settingsSubRoute(
+          'navigation_order',
+          'settings_display_navigation_order',
+          (isWide) => NavigationOrderSettingsPage(isWideScreen: isWide),
+        ),
+      ],
+      SettingsSection.about => [
+        _settingsSubRoute(
+          'changelog',
+          'settings_about_changelog',
+          (_) => const HistoryUpdateLogsPage(),
+        ),
+      ],
+      SettingsSection.diagnostics => [
+        _settingsSubRoute(
+          'logs',
+          'settings_diagnostics_logs',
+          (isWide) => LogViewerPage(isWideScreen: isWide),
+        ),
+      ],
+      _ => const <RouteBase>[],
+    };
 
 class _NavigationLogObserver extends NavigatorObserver {
   _NavigationLogObserver(this.scope);

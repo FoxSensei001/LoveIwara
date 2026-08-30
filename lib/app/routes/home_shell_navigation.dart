@@ -86,13 +86,37 @@ class HomeShellNavigation {
     return pathByKey[resolved] ?? fallback;
   }
 
-  static String pathForBranchIndex(int branchIndex, {String fallback = '/'}) {
+  /// go_router 分支下标 -> 现行导航键；不认识的下标返回 null。
+  static String? keyForBranchIndex(int branchIndex) {
     for (final entry in branchIndexByKey.entries) {
-      if (entry.value == branchIndex) {
-        return pathForKey(entry.key, fallback: fallback);
-      }
+      if (entry.value == branchIndex) return entry.key;
     }
-    return fallback;
+    return null;
+  }
+
+  static String pathForBranchIndex(int branchIndex, {String fallback = '/'}) {
+    final key = keyForBranchIndex(branchIndex);
+    if (key == null) return fallback;
+    return pathForKey(key, fallback: fallback);
+  }
+
+  /// 详情页顶部「回到主页」该落到哪个栏目。
+  ///
+  /// 判据只有一条：**当前所在栏目里有没有承载这类内容的子页签**。
+  /// - 订阅栏自己就分「视频 / 图库 / 帖子」，所以从订阅进的详情，回主页落回
+  ///   订阅栏（再由订阅页切到对应的那一半）；
+  /// - 社区（论坛 / 新闻）里根本没有视频或图库列表，落回该类内容的固有栏目；
+  /// - 视频 / 图库栏本身同理，落回自己。
+  ///
+  /// 不需要在进详情时「记住来路」：详情页是压在同一只 Shell Navigator 上的，
+  /// `StatefulNavigationShell.currentIndex` 一路都还是进来时那个栏目——一层层
+  /// 点进去（作者页 -> 另一个详情页）也不会变。
+  static String homeBranchKeyForMedia(
+    String? originKey, {
+    required bool isGallery,
+  }) {
+    if (resolveKey(originKey) == 'subscription') return 'subscription';
+    return isGallery ? 'gallery' : 'video';
   }
 
   /// Normalize a persisted navigation order.

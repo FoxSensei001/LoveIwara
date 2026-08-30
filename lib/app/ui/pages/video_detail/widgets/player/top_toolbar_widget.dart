@@ -13,6 +13,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/common/enums/media_enums.dart';
 import '../../../../../../common/anime4k_presets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -518,9 +519,9 @@ class _TopToolbarState extends State<TopToolbar> {
                           color: Colors.white,
                           size: iconSize,
                         ),
-                        onPressed: () {
-                          appRouter.go('/');
-                        },
+                        // 回到「视频」那一类的首页页签：从订阅进来的落回订阅的
+                        // 视频半边，其余（社区 / 图库 / 视频栏）落回视频栏。
+                        onPressed: () => goHomeForMedia(MediaType.VIDEO),
                       ),
                     Expanded(
                       child: Obx(
