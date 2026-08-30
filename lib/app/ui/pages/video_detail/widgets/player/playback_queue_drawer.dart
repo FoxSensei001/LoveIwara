@@ -1397,6 +1397,10 @@ const double _kRowPaddingVertical = 6;
 
 /// 缩略图按 16:9 摆，贴边标签（时长 / 外链）与卡片列表是同一套读法。
 const double _kThumbWidth = 112;
+
+/// 「看到哪儿了」那条进度条的高度。底沿那排角标要按它抬高，否则进度条会
+/// 横穿标签的下缘（它画在最上层）。
+const double _kThumbProgressHeight = 3;
 const double _kThumbHeight = _kThumbWidth * 9 / 16;
 
 /// 「接着看」列表里的一条。
@@ -1426,34 +1430,39 @@ class _QueueRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final t = slang.Translations.of(context);
-    return GlassTapArea(
-      onTap: onTap,
-      child: Container(
-        height: _rowHeight(context),
-        margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: _kRowPaddingVertical,
-        ),
-        decoration: BoxDecoration(
-          // 正在播的那一条常驻高亮，进抽屉一眼就能定位自己在哪。
-          color: isCurrent ? cs.primary.withValues(alpha: 0.12) : null,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildThumbnail(context, cs, t),
-            const SizedBox(width: 10),
-            Expanded(child: _buildText(context, cs, t)),
-          ],
+    return Semantics(
+      // 「正在播放」的角标撤了（视觉上有整行高亮 + 主色标题），但读屏原来正是
+      // 靠那枚角标的 semanticLabel 才知道自己在哪一条上，所以语义补在行上。
+      selected: isCurrent,
+      child: GlassTapArea(
+        onTap: onTap,
+        child: Container(
+          height: _rowHeight(context),
+          margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: _kRowPaddingVertical,
+          ),
+          decoration: BoxDecoration(
+            // 正在播的那一条常驻高亮，进抽屉一眼就能定位自己在哪。
+            color: isCurrent ? cs.primary.withValues(alpha: 0.12) : null,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildThumbnail(context, cs, t),
+              const SizedBox(width: 10),
+              Expanded(child: _buildText(context, cs, t)),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// 封面：贴边标签（时长 / 外链）、正在播放的角标、看到哪儿了的进度条都压在
-  /// 它上面——这些都是"关于这条片子本身"的信息，堆在文字区会把标题挤没。
+  /// 封面：贴边标签（时长 / 外链 / 播放量 / 清晰度）、看到哪儿了的进度条都压
+  /// 在它上面——这些都是"关于这条片子本身"的信息，堆在文字区会把标题挤没。
   Widget _buildThumbnail(
     BuildContext context,
     ColorScheme cs,
@@ -1467,9 +1476,11 @@ class _QueueRow extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (item.thumbnailUrl.isEmpty)
-              ColoredBox(color: cs.surfaceContainerHighest)
-            else
+            // 骨架：**永远**垫在最底下，不是「没有图才画」。封面是网络来的，
+            // 没垫底的那段时间封面区就是块透明的洞，一列卡片看上去像缺了一角
+            // （2026-08-30 用户报障）；垫上之后图片只是在原位淡进来。
+            ColoredBox(color: cs.surfaceContainerHighest),
+            if (item.thumbnailUrl.isNotEmpty)
               CachedNetworkImage(
                 imageUrl: item.thumbnailUrl,
                 fit: BoxFit.cover,
@@ -1482,40 +1493,7 @@ class _QueueRow extends StatelessWidget {
                   ),
                 ),
               ),
-            // 「正在播放」只留一枚图标，不带文字：行底色与标题都已经是主色，
-            // 再写四个字既是重复，也会和右上角的播放量抢那 112 的宽度（英文
-            // 的 "Now playing" 直接就把两枚顶出去了）。
-            if (isCurrent)
-              Positioned(
-                left: 0,
-                top: 0,
-                child: _ThumbTag(
-                  icon: Icons.graphic_eq,
-                  background: cs.primary,
-                  foreground: cs.onPrimary,
-                  semanticLabel: t.playbackQueue.nowPlaying,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(6),
-                    bottomRight: Radius.circular(4),
-                  ),
-                ),
-              ),
-            if (item.numViews != null)
-              Positioned(
-                right: 0,
-                top: 0,
-                child: _ThumbTag(
-                  icon: Icons.visibility,
-                  text: CommonUtils.formatFriendlyNumber(item.numViews),
-                  background: Colors.black54,
-                  foreground: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    topRight: Radius.circular(6),
-                    bottomLeft: Radius.circular(4),
-                  ),
-                ),
-              ),
-            ?_buildCornerTag(t),
+            ?_buildBottomTags(t),
             ?_buildQualityTag(t),
             if (item.progressPermil > 0)
               Positioned(
@@ -1533,12 +1511,75 @@ class _QueueRow extends StatelessWidget {
     );
   }
 
-  /// 右下角那一枚：站外视频报域名（它压根不在这个播放器里放），图库报张数，
+  /// 底沿那一排：左边时长，右边贴着播放量。
+  ///
+  /// 这一排在顶沿和底沿之间来回搬过两次（2026-08-30）。最后落在底沿，是因为
+  /// **封面的主体信息在上半部**——人脸、标题字幕都在那儿，一排黑底标签压上去
+  /// 挡的正是能帮人认出这条片子的部分；底沿则本来就是渐暗的边角。原先占着
+  /// 左下角的清晰度角标因此换到顶沿（见 [_buildQualityTag]）。
+  ///
+  /// ⛔ 这里原来还有一枚「正在播放」的图标角标，2026-08-30 按用户要求撤掉：
+  /// 那一条已经有整行高亮底色 + 主色标题，角标是第三遍说同一件事，还要跟时长
+  /// 抢那 112 的宽度。读屏的那份信息挪到了行级 `Semantics(selected:)` 上。
+  ///
+  /// # 圆角只给露在外面的那两个角
+  ///
+  /// 左边这枚**贴着底沿与左沿**：左下角跟着封面走（6），右上角是它唯一悬在
+  /// 画面里的角，收小一档（4）。右边那枚同理，只有右下（6）与左上（4）。
+  ///
+  /// # 两处躲让
+  ///
+  ///   - 有「看到哪儿了」的进度条时整排抬高 [_kThumbProgressHeight]：进度条画
+  ///     在最上层，不让位的话它会横穿标签下缘；
+  ///   - 宽度上时长最坏 50、播放量 56，加起来贴着封面的 112，所以时长那枚是
+  ///     [Expanded]（吃掉播放量剩下的宽度）套 [FittedBox]，真挤到了缩一点，
+  ///     不会撑破布局；播放量按自身宽度占位，永远贴着右下角。
+  Widget? _buildBottomTags(slang.Translations t) {
+    final Widget? duration = _buildDurationTag(t);
+    final String? views = item.numViews == null
+        ? null
+        : CommonUtils.formatFriendlyNumber(item.numViews);
+    if (duration == null && views == null) return null;
+
+    return Positioned(
+      bottom: item.progressPermil > 0 ? _kThumbProgressHeight : 0,
+      left: 0,
+      right: 0,
+      child: Row(
+        children: [
+          // 没有时长的池（本地库来的那两个）也保留这只 Expanded：它是把播放量
+          // 顶到右下角的那段空位。
+          Expanded(
+            child: duration == null
+                ? const SizedBox.shrink()
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: duration,
+                  ),
+          ),
+          if (views != null)
+            _ThumbTag(
+              icon: Icons.visibility,
+              text: views,
+              background: Colors.black54,
+              foreground: Colors.white,
+              borderRadius: const BorderRadius.only(
+                bottomRight: Radius.circular(6),
+                topLeft: Radius.circular(4),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 底沿左侧那一枚：站外视频报域名（它压根不在这个播放器里放），图库报张数，
   /// 视频报时长。都没有就不画。
   ///
   /// 「张数之于图库」＝「时长之于视频」：都是"这一条要花我多少工夫"的那个数，
-  /// 所以占同一个角、同一套样式，不另开一处。
-  Widget? _buildCornerTag(slang.Translations t) {
+  /// 所以占同一个位、同一套样式，不另开一处。
+  Widget? _buildDurationTag(slang.Translations t) {
     final IconData icon;
     final String? text;
     if (item.isExternalVideo) {
@@ -1556,18 +1597,16 @@ class _QueueRow extends StatelessWidget {
             );
     }
     if (text == null) return null;
-    return Positioned(
-      right: 0,
-      bottom: 0,
-      child: _ThumbTag(
-        icon: icon,
-        text: text,
-        background: Colors.black54,
-        foreground: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(6),
-          bottomRight: Radius.circular(4),
-        ),
+    return _ThumbTag(
+      icon: icon,
+      text: text,
+      background: Colors.black54,
+      foreground: Colors.white,
+      // 贴着封面左下角：跟着封面倒 6；右上角是它唯一悬在画面里的角，收小
+      // 一档。另外两个角在边沿上，不倒。
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(6),
+        topRight: Radius.circular(4),
       ),
     );
   }
@@ -1575,22 +1614,22 @@ class _QueueRow extends StatelessWidget {
   /// 左下角那一枚：**本地存的是哪一档清晰度**。只有已下载池答得出来
   /// （见 [InnerPlaylistItemSnapshot.localQuality]），别的池一律不画。
   ///
-  /// 占左下角是排除法排出来的：左上是「正在播放」、右上是播放量、右下是时长，
-  /// 四个角只剩这一个。它和「看到哪儿了」那条进度条同在底沿，但两者从来不会
-  /// 同时出现——进度条只有稍后再看池带得出来，而清晰度只有已下载池有。
+  /// 占左上角：底沿整条让给了「时长 + 播放量」那一排（见 [_buildBottomTags]），
+  /// 封面上只剩这里还空着。
   Widget? _buildQualityTag(slang.Translations t) {
     final quality = item.localQuality?.trim();
     if (quality == null || quality.isEmpty) return null;
     return Positioned(
       left: 0,
-      bottom: 0,
+      top: 0,
       child: _ThumbTag(
         text: CommonUtils.getQualityDisplayLabel(t, quality),
         background: Colors.black54,
         foreground: Colors.white,
+        // 贴着封面左上角：跟着封面倒 6，右下角是唯一悬在画面里的角，收小一档。
         borderRadius: const BorderRadius.only(
-          topRight: Radius.circular(6),
-          bottomLeft: Radius.circular(4),
+          topLeft: Radius.circular(6),
+          bottomRight: Radius.circular(4),
         ),
       ),
     );
@@ -1704,21 +1743,17 @@ class _ThumbTag extends StatelessWidget {
     required this.background,
     required this.foreground,
     required this.borderRadius,
-    this.semanticLabel,
   }) : assert(icon != null || text != null, '空标签不该被画出来');
 
   /// 不给就只画文字（清晰度那一枚：`1080` / `原画` 自己就说清楚了，再配一枚
   /// 图标只会在 112 宽的封面上抢地方）。
   final IconData? icon;
 
-  /// 不给就只画图标（「正在播放」那一枚）。
+  /// 不给就只画图标。
   final String? text;
   final Color background;
   final Color foreground;
   final BorderRadius borderRadius;
-
-  /// 只有图标时读屏靠它说话。
-  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -1731,13 +1766,7 @@ class _ThumbTag extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null)
-                Icon(
-                  icon,
-                  size: 10,
-                  color: foreground,
-                  semanticLabel: semanticLabel,
-                ),
+              if (icon != null) Icon(icon, size: 10, color: foreground),
               if (text != null) ...[
                 if (icon != null) const SizedBox(width: 2),
                 Text(
@@ -1768,7 +1797,7 @@ class _ProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 3,
+      height: _kThumbProgressHeight,
       child: ColoredBox(
         color: Colors.black38,
         child: FractionallySizedBox(
