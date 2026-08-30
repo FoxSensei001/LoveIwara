@@ -95,13 +95,6 @@ class VideoGestureGuideDialog extends StatelessWidget {
           ),
         ),
       ),
-      actions: [
-        GlassDialogAction(
-          label: t.common.close,
-          emphasized: false,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ],
     );
   }
 

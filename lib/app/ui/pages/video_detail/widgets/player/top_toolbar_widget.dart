@@ -4,8 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart'; // 新增
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import '../../../../../routes/app_router.dart';
-import '../../../settings/widgets/player_settings_widget.dart';
-import 'video_gesture_guide.dart';
+import 'player_settings_drawer.dart';
 import 'toolbar_fade_visibility.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -15,7 +14,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import '../../../../../../common/anime4k_presets.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
@@ -672,7 +670,10 @@ class _TopToolbarState extends State<TopToolbar> {
                       color: Colors.white,
                       size: iconSize,
                     ),
-                    onPressed: () => showSettingsModal(context),
+                    onPressed: () => showPlayerSettingsDrawer(
+                      context: context,
+                      controller: widget.myVideoStateController,
+                    ),
                   ),
                 ],
               ),
@@ -680,30 +681,6 @@ class _TopToolbarState extends State<TopToolbar> {
           ),
         ),
       ),
-    );
-  }
-
-  // ... 后面保持原本的 showSettingsModal 和 showInfoModal 代码不变 ...
-  // 为了简洁，这里省略了未修改的 modal 代码，实际使用时请保留原有的代码
-
-  void showSettingsModal(BuildContext context) {
-    showGlassDraggableBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return GlassDraggableBottomSheet(
-          initialChildSize: 0.8,
-          minChildSize: 0.2,
-          maxChildSize: 0.80,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: SettingsContent(
-                myVideoStateController: widget.myVideoStateController,
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
@@ -788,51 +765,5 @@ class _TopToolbarState extends State<TopToolbar> {
     addGroup(slang.t.anime4k.moreLitePresets, Anime4KPresetGroup.moreLite);
     addGroup(slang.t.anime4k.customPresets, Anime4KPresetGroup.custom);
     return entries;
-  }
-}
-
-class SettingsContent extends StatelessWidget {
-  final MyVideoStateController myVideoStateController;
-
-  const SettingsContent({super.key, required this.myVideoStateController});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  t.videoDetail.videoPlayerSettings,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    // 用 colorScheme.primary 而非 primaryColor：后者在 M3 暗色主题下会
-                    // 退化成深色 surface，导致标题在暗色弹窗里几乎不可见。
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: t.videoDetail.gestureGuide.viewGuide,
-                icon: const Icon(Icons.help_outline),
-                // 同上：跟随主题强调色，兼顾亮色/暗色。
-                color: Theme.of(context).colorScheme.primary,
-                onPressed: () => VideoGestureGuideDialog.show(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          PlayerSettingsWidget(
-            openKeybindingAsSheet: true,
-            playerController: myVideoStateController,
-          ),
-        ],
-      ),
-    );
   }
 }

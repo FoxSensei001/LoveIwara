@@ -17,9 +17,35 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 播放器设置的一个分区：一张（或几张）分组卡片 + 它的标题与图标。
+///
+/// 分区之所以是数据而不是 build 里的一段 Column，见
+/// [PlayerSettingsWidget.buildSections]。
+class PlayerSettingsSection {
+  const PlayerSettingsSection({
+    required this.id,
+    required this.title,
+    required this.icon,
+    required this.content,
+  });
+
+  /// 稳定标识。抽屉的分区导航拿它做「当前在哪一区」的键，因此**不能**用标题
+  /// 文本代替（换个语言就是另一个键了）。
+  final String id;
+
+  /// 分区小标题，也是导航条上的字。
+  final String title;
+
+  /// 导航条上的图标。窄抽屉里字被截断时，图标是唯一还认得出来的东西。
+  final IconData icon;
+
+  /// 分区正文（分组卡片）。
+  final Widget content;
+}
+
 /// 视频播放器设置列表。
 ///
-/// 该组件只会出现在较窄的容器中（播放器内的底部弹窗、设置页的限宽列）。
+/// 该组件只会出现在较窄的容器中（播放器的侧边设置抽屉、设置页的限宽列）。
 /// 因此采用 Material 3 的「分组卡片 + 扁平列表项」布局：
 /// - 每个分区由一个小标题 + 一张分组卡片组成；
 /// - 所有卡片统一由 [_card] 产出（同一圆角/阴影/裁剪），不再各处手写 [Card]；
@@ -31,8 +57,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class PlayerSettingsWidget extends StatelessWidget {
   final ConfigService _configService = Get.find();
 
-  /// 在播放器内（底部弹窗）展示时为 true：快捷键配置改用底部抽屉；
-  /// 在设置页中为 false：快捷键配置仍跳转独立页面。
+  /// 在播放器内（侧边设置抽屉）展示时为 true：快捷键配置改用底部弹层，不整页
+  /// 跳走；在设置页中为 false：快捷键配置仍跳转独立页面。
   final bool openKeybindingAsSheet;
 
   /// 从播放器内呼出时传入当前播放器的控制器，用于展示只作用于该播放器的
@@ -341,22 +367,27 @@ class PlayerSettingsWidget extends StatelessWidget {
   }
 
   // ---------------------------------------------------------------------------
-  // build
+  // 分区
   // ---------------------------------------------------------------------------
 
-  @override
-  Widget build(BuildContext context) {
+  /// 播放器设置的全部分区，自上而下。
+  ///
+  /// ⛔ **分区是数据，不是 build 里拼好的一段 Column**：设置页把它们摞成一列，
+  /// 播放器里那只侧边抽屉还要按分区分别定位（顶部导航条一点就跳过去），两边
+  /// 都从这里取。写死在 [build] 里的话抽屉只能照抄一份，从此改一处漏一处。
+  List<PlayerSettingsSection> buildSections(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     final isMobile = GetPlatform.isAndroid || GetPlatform.isIOS;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // -------- 画面尺寸（仅从播放器呼出时显示） --------
-        if (playerController != null) ...[
-          _sectionLabel(context, t.settings.screenFit),
-          _groupCard([
+    return [
+      // -------- 画面尺寸：只在播放器里呈现（会话级，设置页没有当前播放器） --------
+      if (playerController != null)
+        PlayerSettingsSection(
+          id: 'screenFit',
+          icon: Icons.aspect_ratio,
+          title: t.settings.screenFit,
+          content: _groupCard([
             Obx(
               () => _selectionTile(
                 context: context,
@@ -409,12 +440,14 @@ class PlayerSettingsWidget extends StatelessWidget {
               },
             ),
           ]),
-          const SizedBox(height: _kGroupGap),
-        ],
+        ),
 
-        // -------- 播放控制：倍速相关 --------
-        _sectionLabel(context, t.settings.playbackSpeedSettings),
-        _groupCard([
+      // -------- 播放控制：倍速相关 --------
+      PlayerSettingsSection(
+        id: 'speed',
+        icon: Icons.speed,
+        title: t.settings.playbackSpeedSettings,
+        content: _groupCard([
           // 快进时间
           Obx(
             () => _NumberSettingTile(
@@ -503,11 +536,14 @@ class PlayerSettingsWidget extends StatelessWidget {
             },
           ),
         ]),
-        const SizedBox(height: _kGroupGap),
+      ),
 
-        // -------- 播放控制：行为相关 --------
-        _sectionLabel(context, t.settings.playbackBehaviorSettings),
-        _groupCard([
+      // -------- 播放控制：行为相关 --------
+      PlayerSettingsSection(
+        id: 'behavior',
+        icon: Icons.play_circle_outline,
+        title: t.settings.playbackBehaviorSettings,
+        content: _groupCard([
           // 在当前视频池内续播
           _switchTile(
             context: context,
@@ -797,13 +833,16 @@ class PlayerSettingsWidget extends StatelessWidget {
               ),
             ),
         ]),
-        const SizedBox(height: _kGroupGap),
+      ),
 
-        // -------- 控制区域宽度 --------
-        // 滑杆需要整行宽度，因此不放进 ListTile 的 trailing，而是以
-        // 「标题条目 + 下方滑杆」的形式放进同一张分组卡片，保持左右留白一致。
-        _sectionLabel(context, t.settings.playControlArea),
-        _card(
+      // -------- 控制区域宽度 --------
+      // 滑杆需要整行宽度，因此不放进 ListTile 的 trailing，而是以
+      // 「标题条目 + 下方滑杆」的形式放进同一张分组卡片，保持左右留白一致。
+      PlayerSettingsSection(
+        id: 'controlArea',
+        icon: Icons.view_column,
+        title: t.settings.playControlArea,
+        content: _card(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -846,11 +885,14 @@ class PlayerSettingsWidget extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: _kGroupGap),
+      ),
 
-        // -------- 手势控制 --------
-        _sectionLabel(context, t.settings.gestureControl),
-        _groupCard([
+      // -------- 手势控制 --------
+      PlayerSettingsSection(
+        id: 'gesture',
+        icon: Icons.touch_app,
+        title: t.settings.gestureControl,
+        content: _groupCard([
           _switchTile(
             context: context,
             iconData: Icons.fast_rewind,
@@ -956,13 +998,16 @@ class PlayerSettingsWidget extends StatelessWidget {
                 : KeybindingSettingsPage.open(context),
           ),
         ]),
-        const SizedBox(height: _kGroupGap),
+      ),
 
-        // -------- 剧院模式 & 画质增强 --------
-        // Anime4K / 色觉辅助以嵌入模式渲染，去掉各自的独立卡片与提示横幅，
-        // 与剧院模式开关同处一张分组卡片。
-        _sectionLabel(context, t.settings.enhancementSettings),
-        _groupCard([
+      // -------- 剧院模式 & 画质增强 --------
+      // Anime4K / 色觉辅助以嵌入模式渲染，去掉各自的独立卡片与提示横幅，
+      // 与剧院模式开关同处一张分组卡片。
+      PlayerSettingsSection(
+        id: 'enhancement',
+        icon: Icons.auto_awesome,
+        title: t.settings.enhancementSettings,
+        content: _groupCard([
           _switchTile(
             context: context,
             iconData: Icons.theater_comedy,
@@ -977,11 +1022,14 @@ class PlayerSettingsWidget extends StatelessWidget {
           // 色觉辅助滤镜（作用于所有播放器画面，与 Anime4K 可同时开启）
           const ColorVisionSettingsWidget(embedded: true),
         ]),
-        const SizedBox(height: _kGroupGap),
+      ),
 
-        // -------- 音视频配置 --------
-        _sectionLabel(context, t.settings.audioVideoConfig),
-        _groupCard([
+      // -------- 音视频配置 --------
+      PlayerSettingsSection(
+        id: 'audioVideo',
+        icon: Icons.tune,
+        title: t.settings.audioVideoConfig,
+        content: _groupCard([
           // 扩大缓冲区
           _switchTile(
             context: context,
@@ -1076,14 +1124,18 @@ class PlayerSettingsWidget extends StatelessWidget {
               },
             ),
         ]),
-        // -------- 外部播放器（仅桌面端） --------
-        // PCVR 播放器（HereSphere / DeoVR / Whirligig 等）都不是系统默认关联
-        // 程序，「用系统默认播放器打开」对头显用户等于没用；指定可执行文件后，
-        // 播放器里的「用其他应用打开」就能直接把本地文件或在线直链甩过去。
-        if (GetPlatform.isDesktop) ...[
-          const SizedBox(height: _kGroupGap),
-          _sectionLabel(context, t.externalPlayer.desktopSectionTitle),
-          _groupCard([
+      ),
+
+      // -------- 外部播放器（仅桌面端） --------
+      // PCVR 播放器（HereSphere / DeoVR / Whirligig 等）都不是系统默认关联
+      // 程序，「用系统默认播放器打开」对头显用户等于没用；指定可执行文件后，
+      // 播放器里的「用其他应用打开」就能直接把本地文件或在线直链甩过去。
+      if (GetPlatform.isDesktop)
+        PlayerSettingsSection(
+          id: 'externalPlayer',
+          icon: Icons.smart_display_outlined,
+          title: t.externalPlayer.desktopSectionTitle,
+          content: _groupCard([
             Obx(() {
               final count = DesktopPlayerStore.decode(
                 _configService.settings[ConfigKey.EXTERNAL_PLAYERS_JSON]!.value
@@ -1103,8 +1155,29 @@ class PlayerSettingsWidget extends StatelessWidget {
               );
             }),
           ]),
+        ),
+    ];
+  }
+
+  // ---------------------------------------------------------------------------
+  // build
+  // ---------------------------------------------------------------------------
+
+  /// 设置页里的排布：分区自上而下摞成一列。
+  ///
+  /// 播放器里那只抽屉不走这里——它要把分区拆开单独定位，直接吃
+  /// [buildSections]，见 `player_settings_drawer.dart`。
+  @override
+  Widget build(BuildContext context) {
+    final sections = buildSections(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final section in sections) ...[
+          _sectionLabel(context, section.title),
+          section.content,
+          const SizedBox(height: _kGroupGap),
         ],
-        const SizedBox(height: _kGroupGap),
         SizedBox(height: computeBottomSafeInset(MediaQuery.of(context))),
       ],
     );

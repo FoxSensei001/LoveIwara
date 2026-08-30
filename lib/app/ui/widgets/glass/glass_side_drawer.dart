@@ -209,14 +209,28 @@ class GlassSideDrawerShell extends StatefulWidget {
     super.key,
     required this.title,
     required this.bodyBuilder,
+    this.titleWidget,
     this.subtitle,
     this.headerActions = const <Widget>[],
     this.headerBottom,
     this.plainCloseButton = false,
+    this.opaqueHeader = false,
     this.footer,
   });
 
+  /// 标题文字。[titleWidget] 非空时不上屏（那时顶替它的控件自己会说明这是
+  /// 什么抽屉），但仍要传：它是这只抽屉的名字，也是标题行的兜底。
   final String title;
+
+  /// 用一枚控件**顶替**标题文字站在标题行左侧（例如「接着看」那只切池下拉）。
+  ///
+  /// 用处只有一个：控制行本身就说明了这是什么抽屉时，标题那行字纯属重复，
+  /// 两行 chrome 白占一行的高度。这时把控件提到标题行来，header 收成一行，
+  /// 上下留白也跟着换成「围着一枚胶囊」的那套（文字要更多的视觉呼吸，胶囊
+  /// 自带内边距，所以不能沿用文字标题的 16/4）。
+  ///
+  /// 它按内容收缩、左对齐，右边仍是 [headerActions] 与关闭钮。
+  final Widget? titleWidget;
 
   /// header 标题下的一行小字（例如「改动即时生效」）。
   final String? subtitle;
@@ -245,6 +259,17 @@ class GlassSideDrawerShell extends StatefulWidget {
   /// 居然不一样」）。留着这个口子只是为了"整只 header 都不指望折射"那种场合，
   /// 打开它之前先确认同一行里没有别的液态件。
   final bool plainCloseButton;
+
+  /// header 整条铺不透明底，而不是只靠顶部渐变蒙层收边。
+  ///
+  /// 默认 **false**：内容从半透明 header 背后滚过去正是这套抽屉的观感。
+  ///
+  /// 但**内容很密**的抽屉（播放器设置：一屏七八行文字）滚起来就是字压字——
+  /// 蒙层到 header 下缘时已经淡到 0.1 上下，而那里恰恰是 [headerBottom] 那条
+  /// 常驻控制行所在的位置，标题与胶囊底下会一直有字在跑。这类抽屉传 true：
+  /// 底色取蒙层的同一个色（[GlassTokens.scrimBase]）拉满不透明度，所以 header
+  /// 与蒙层仍是同一块颜色，只是下缘从"淡出"变成一条干净的实边。
+  final bool opaqueHeader;
 
   /// 贴底常驻的一条（生成的查询预览 / 排序提示）。
   final Widget? footer;
@@ -341,64 +366,77 @@ class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
             right: 0,
             child: GlassMeasuredBox(
               onSize: _onHeaderMeasured,
-              child: GlassChromeLayer(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    _kDrawerHPadding,
-                    statusBarHeight + 16,
-                    _kDrawerHPadding,
-                    4,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                if (subtitle != null)
-                                  Text(
-                                    subtitle,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
+              child: _HeaderBackdrop(
+                opaque: widget.opaqueHeader,
+                child: GlassChromeLayer(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      _kDrawerHPadding,
+                      statusBarHeight + (widget.titleWidget == null ? 16 : 8),
+                      _kDrawerHPadding,
+                      widget.titleWidget == null ? 4 : 8,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: widget.titleWidget != null
+                                  ? Align(
+                                      alignment:
+                                          AlignmentDirectional.centerStart,
+                                      child: widget.titleWidget!,
+                                    )
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: theme.textTheme.titleLarge
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        if (subtitle != null)
+                                          Text(
+                                            subtitle,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  color: colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          ),
+                                      ],
                                     ),
-                                  ),
-                              ],
                             ),
-                          ),
-                          for (final action in headerActions) ...[
+                            for (final action in headerActions) ...[
+                              const SizedBox(width: 8),
+                              action,
+                            ],
                             const SizedBox(width: 8),
-                            action,
+                            if (widget.plainCloseButton)
+                              const LiquidGlassScope(
+                                backend: GlassBackend.plain,
+                                child: _DrawerCloseButton(),
+                              )
+                            else
+                              const _DrawerCloseButton(),
                           ],
-                          const SizedBox(width: 8),
-                          if (widget.plainCloseButton)
-                            const LiquidGlassScope(
-                              backend: GlassBackend.plain,
-                              child: _DrawerCloseButton(),
-                            )
-                          else
-                            const _DrawerCloseButton(),
+                        ),
+                        if (widget.headerBottom != null) ...[
+                          const SizedBox(height: 8),
+                          widget.headerBottom!,
                         ],
-                      ),
-                      if (widget.headerBottom != null) ...[
-                        const SizedBox(height: 8),
-                        widget.headerBottom!,
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -406,6 +444,24 @@ class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// header 的底：默认透明（蒙层收边），[opaque] 时铺一层蒙层同色的实底。
+/// 见 [GlassSideDrawerShell.opaqueHeader]。
+class _HeaderBackdrop extends StatelessWidget {
+  const _HeaderBackdrop({required this.opaque, required this.child});
+
+  final bool opaque;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!opaque) return child;
+    return ColoredBox(
+      color: GlassTokens.scrimBase(Theme.of(context).colorScheme),
+      child: child,
     );
   }
 }

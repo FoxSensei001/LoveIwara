@@ -31,7 +31,12 @@ class GlassSettingSection extends StatelessWidget {
   /// 子项之间是否自动插发丝分隔线。
   final bool divided;
 
-  const GlassSettingSection({super.key, this.title, required this.children, this.divided = true});
+  const GlassSettingSection({
+    super.key,
+    this.title,
+    required this.children,
+    this.divided = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +105,18 @@ class GlassSettingTile extends StatelessWidget {
   /// 选中态：底色浅高亮，图标与标题染色。
   final bool selected;
 
+  /// 可用态。为 false 时整行**看得出来点不动**：图标 / 标题 / 副标题压到 M3 的
+  /// 禁用不透明度（0.38），点击与长按一并摘掉。
+  ///
+  /// ⛔ 只把回调置空是不够的——外观一点不变，用户只会以为这里坏了
+  /// （2026-08-30 用户报障：开了「池内续播」之后「循环播放」其实已经失效，
+  /// 但那一行看上去和别的行一模一样）。禁用是一种**状态**，必须画出来。
+  ///
+  /// 用降透明度而不是换一套灰色，是因为标题文字的颜色常常由调用点自己写死
+  /// （`style: textTheme.bodyLarge`），换色改不动它，蒙一层才管用；这也与
+  /// 设置页里跳转行的禁用态（同样是 0.38）对得上。
+  final bool enabled;
+
   const GlassSettingTile({
     super.key,
     this.icon,
@@ -110,6 +127,7 @@ class GlassSettingTile extends StatelessWidget {
     this.onTap,
     this.onLongPress,
     this.selected = false,
+    this.enabled = true,
   });
 
   @override
@@ -130,46 +148,66 @@ class GlassSettingTile extends StatelessWidget {
       builder: (context, c) => Material(
         color: c[0],
         child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
+          onTap: enabled ? onTap : null,
+          onLongPress: enabled ? onLongPress : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                if (leading != null) ...[
-                  leading!,
-                  const SizedBox(width: 12),
-                ] else if (icon != null) ...[
-                  Icon(icon, size: 20, color: c[1]),
-                  const SizedBox(width: 12),
-                ],
+                // 图标 + 文字整体压暗，尾部控件不在内：开关 / 单选点各自有自己
+                // 的禁用色（见 [GlassToggle]），再蒙一层会灰上加灰。
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DefaultTextStyle(
-                        style: (theme.textTheme.bodyMedium ?? const TextStyle())
-                            .copyWith(
-                              fontWeight: selected ? FontWeight.w500 : null,
-                              color: c[2],
-                            ),
-                        child: title,
-                      ),
-                      if (subtitle != null) ...[
-                        const SizedBox(height: 2),
-                        DefaultTextStyle(
-                          style: (theme.textTheme.bodySmall ?? const TextStyle())
-                              .copyWith(color: cs.onSurfaceVariant),
-                          child: subtitle!,
+                  child: AnimatedOpacity(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : GlassTokens.motionDuration,
+                    curve: GlassTokens.motionCurve,
+                    // M3 的禁用态不透明度。可用/不可用之间要过渡——这一行常常
+                    // 是被上面某个开关连带切换的，硬切一下很跳。
+                    opacity: enabled ? 1.0 : 0.38,
+                    child: Row(
+                      children: [
+                        if (leading != null) ...[
+                          leading!,
+                          const SizedBox(width: 12),
+                        ] else if (icon != null) ...[
+                          Icon(icon, size: 20, color: c[1]),
+                          const SizedBox(width: 12),
+                        ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DefaultTextStyle(
+                                style:
+                                    (theme.textTheme.bodyMedium ??
+                                            const TextStyle())
+                                        .copyWith(
+                                          fontWeight: selected
+                                              ? FontWeight.w500
+                                              : null,
+                                          color: c[2],
+                                        ),
+                                child: title,
+                              ),
+                              if (subtitle != null) ...[
+                                const SizedBox(height: 2),
+                                DefaultTextStyle(
+                                  style:
+                                      (theme.textTheme.bodySmall ??
+                                              const TextStyle())
+                                          .copyWith(color: cs.onSurfaceVariant),
+                                  child: subtitle!,
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       ],
-                    ],
+                    ),
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: 12),
-                  trailing!,
-                ],
+                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
               ],
             ),
           ),
@@ -196,17 +234,25 @@ class GlassToggle extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     // 闭包里拿不到空提升，先落成局部非空变量。
     final ValueChanged<bool>? cb = onChanged;
+    final bool disabled = cb == null;
     return GlassAnimatedColors(
+      // 禁用态走 M3 的口径：轨道 onSurface 12%、圆点 onSurface 38%。开关是这一
+      // 行里最像"能拨"的那个件，它不变灰的话整行怎么压暗都还像能点。
       colors: [
-        value ? cs.primary : cs.surfaceContainerHighest,
-        value ? cs.onPrimary : cs.outline,
+        disabled
+            ? cs.onSurface.withValues(alpha: 0.12)
+            : (value ? cs.primary : cs.surfaceContainerHighest),
+        disabled
+            ? cs.onSurface.withValues(alpha: 0.38)
+            : (value ? cs.onPrimary : cs.outline),
       ],
       builder: (context, c) {
         const trackWidth = 52.0;
         const trackHeight = 32.0;
         return GestureDetector(
           // 拨钮自身也要能点（不只靠整行 onTap）
-          onTap: cb == null ? null : () => cb(!value),          child: Container(
+          onTap: cb == null ? null : () => cb(!value),
+          child: Container(
             width: trackWidth,
             height: trackHeight,
             decoration: BoxDecoration(
@@ -226,7 +272,10 @@ class GlassToggle extends StatelessWidget {
                 child: Container(
                   width: trackHeight - 8,
                   height: trackHeight - 8,
-                  decoration: BoxDecoration(color: c[1], shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: c[1],
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ),
@@ -239,7 +288,8 @@ class GlassToggle extends StatelessWidget {
 
 /// 开关设置行：替代 `SwitchListTile`。
 ///
-/// 整行可点切换；禁用态整行降透明度（Material 惯例）而不是换一套灰色。
+/// 整行可点切换；禁用态（[onChanged] 为空）整行降透明度（Material 惯例）而不是
+/// 换一套灰色，尾部拨钮同时换成 M3 的禁用色——见 [GlassSettingTile.enabled]。
 class GlassSwitchItem extends StatelessWidget {
   final IconData? icon;
   final Widget title;
@@ -269,6 +319,9 @@ class GlassSwitchItem extends StatelessWidget {
     final enabled = onChanged != null && !busy;
     return GlassSettingTile(
       icon: icon,
+      // busy 不算禁用：那是"正在忙"，尾部已经换成转圈，再把整行压暗会读成
+      // "这项不可用"。
+      enabled: onChanged != null,
       title: title,
       subtitle: subtitle,
       trailing: busy
@@ -340,14 +393,13 @@ class GlassChoiceItem<T> extends StatelessWidget {
     final ValueChanged<T>? cb = onChanged;
     return GlassSettingTile(
       icon: icon,
+      enabled: cb != null,
       title: title,
       subtitle: subtitle,
       selected: selected,
       onTap: cb == null ? null : () => cb(value),
       trailing: GlassAnimatedColors(
-        colors: [
-          selected ? cs.primary : cs.outlineVariant,
-        ],
+        colors: [selected ? cs.primary : cs.outlineVariant],
         builder: (context, c) => Container(
           width: 20,
           height: 20,
