@@ -98,6 +98,19 @@ English · 简体中文 · 繁體中文 · 日本語
 
 > 还有更多隐藏功能等你发现，也有更多功能在路上。有想法？欢迎提交 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群组](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
+## 🗺️ 近期计划
+
+**下一步的重心是 Meta Quest 的空间化适配。** 这件事已经在 [`claude/vr-format-panorama`](https://github.com/FoxSensei001/LoveIwara/tree/claude/vr-format-panorama) 分支上动工了——还很原始，也尚未并入任何发行版，但主链路已经在 Quest 3 真机上跑通：
+
+- **常驻的沉浸空间。** 从 Quest 主页点图标直接进入，现有的 Flutter 界面作为 2D 面板悬浮其上（含沉浸态输入法）——浏览体验和今天完全一样。
+- **被空间化的是播放器。** 在面板里打开视频，点「进入影院」，画面就脱离面板成为空间里的幕布，并带自己的空间控制条；点「返回应用」再回到面板。Equirect 180° 左右格式已真机确认渲染正确。
+- **纯手势操控。** 只有一块控制面板——顶栏一排圆钮加若干子页（场景 / 播放列表 / 设置等）、±10 秒、倍速、投影切换、重新居中、直通——空闲自动隐藏，捏合即唤出。
+- **独立的构建 flavor。** Quest 版自成一个 flavor；标准版不打进 Spatial SDK，`minSdk` 也保持不动。
+
+同一个分支上还有一件不只对头显有用的东西：**片源格式层 + 平面环视**。今天在手机、平板或桌面上打开一条 VR180 / 360° 片，看到的是两个挤扁的半幅；有了它就是一个正常比例的取景窗，拖动即可环视。由于 Iwara 的文件完全不带球面元数据，格式只能靠启发式推断——所以你随时可以在播放器里手动纠正，纠正结果会为这条视频永久记住。
+
+以上都还没有发布，形态也仍可能调整。0.5.1 只是打了地基：修复了 Quest 上应用被锁死宽度上限的问题；在此期间可以把视频转交给 Skybox、Pigasus 等外部 VR 播放器。
+
 ## 🧰 技术栈
 
 | 领域 | 库 |
@@ -321,7 +334,7 @@ Iwara 的原始标签是英文式的 key（如 `mother`、`blue_archive`）。Ap
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=FoxSensei001/LoveIwara" alt="项目贡献者" />
+  <img src="https://contrib.rocks/image?repo=FoxSensei001/LoveIwara&max=100" alt="项目贡献者" />
 </a>
 
 </div>

@@ -98,6 +98,19 @@ English · 简体中文 · 繁體中文 · 日本語
 
 > Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
+## 🗺️ Roadmap
+
+**Up next: spatial support for Meta Quest.** This is already being built on the [`claude/vr-format-panorama`](https://github.com/FoxSensei001/LoveIwara/tree/claude/vr-format-panorama) branch — still rough, not merged into any release yet, but the core loop already runs on a Quest 3:
+
+- **A resident immersive space.** Launching from the Quest home drops you straight into it, with the regular Flutter UI floating above as a 2D panel (soft keyboard included) — browsing stays exactly what it is today.
+- **The player is what becomes spatial.** Open a video in the panel, tap *Enter theater*, and it leaves the panel to become a screen in the space with its own spatial control bar; *Back to app* returns you to the panel. Equirect 180° side-by-side is verified on-device.
+- **Hand-tracked controls.** One control panel — a top row of buttons plus sub-pages (scene / playlist / settings / …), ±10 s, playback speed, projection switching, re-center, passthrough — which hides when idle and is summoned by a pinch.
+- **A separate build flavor.** The Quest build is its own flavor; the standard build does not pull in the Spatial SDK and keeps `minSdk` where it is.
+
+The same branch carries something that helps everyone, not just headsets: a **source-format layer with a flat panorama viewer**. A VR180 / 360° file currently shows up as two squashed halves on a phone, tablet or desktop; with it you get a correctly proportioned viewport you can drag to look around. Iwara's files carry no spherical metadata at all, so the format is guessed heuristically — you can always correct it by hand in the player, and the correction is remembered for that video.
+
+None of this has shipped yet and the shape may still change. 0.5.1 only lays the groundwork: the app panel is no longer stuck at a width limit on Quest, and in the meantime a video can be handed off to an external VR player (Skybox, Pigasus, …).
+
 ## 🧰 Tech Stack
 
 | Area | Library |
@@ -321,7 +334,7 @@ Thanks to everyone who has contributed! 🎉
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=FoxSensei001/LoveIwara" alt="Contributors" />
+  <img src="https://contrib.rocks/image?repo=FoxSensei001/LoveIwara&max=100" alt="Contributors" />
 </a>
 
 </div>
