@@ -1041,7 +1041,14 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
     // 内嵌播放器不参与系统 back 链，避免与页面级返回处理叠加。
     // 全屏返回由视频详情页的 PopScope 统一处理（先退出全屏，再正常返回）。
-    return playerScaffold;
+
+    // ⛔ 播放器一律不许画到自己的盒子外面。
+    //
+    // 底栏那层装饰带着 `BoxShadow(offset: (0, 60), blurRadius: 60)`：全屏时这团
+    // 黑落在屏幕外没人看得见，竖屏内联时却整片糊到播放器下面的 Tab 栏上。
+    // Stack 只在子节点**布局**溢出时才裁剪，装饰画出边界它不管，Scaffold 也不
+    // 裁，所以收口在这里——阴影/辉光这类越界绘制到此为止，不必再一处一处按住。
+    return ClipRect(child: playerScaffold);
   }
 
   Widget _buildPlayerStack(
