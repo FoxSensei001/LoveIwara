@@ -56,6 +56,111 @@ class SwipeBackAbsorber extends StatefulWidget {
   State<SwipeBackAbsorber> createState() => _SwipeBackAbsorberState();
 }
 
+/// 跟手侧滑进行中时，把「第二根手指」挡在这一页的命中路径之外。
+///
+/// ## 为什么需要
+///
+/// 包里的手势识别器（`_DirectionDependentDragGestureRecognizer`）继承
+/// `HorizontalDragGestureRecognizer`，却没有设置 `multitouchDragStrategy`，于是
+/// 用的是 Flutter 的默认值 [MultitouchDragStrategy.latestPointer]——框架文档里
+/// 写明这是 **Android** 的手感，iOS 该用 `averageBoundaryPointers`。它的语义是
+/// 「永远只跟最新落下的那根手指」：拖拽已经开始后再落下一根手指，
+/// `_activePointer` 立刻切给新指针，原来那根手指后续的 move 全被丢弃。
+///
+/// 而这根新指针通常是掌根 / 虎口 / 另一只手扶屏幕蹭上来的，从落下到抬起一动
+/// 不动，于是连锁反应是：
+///   1. 页面**定格在半路**（路由的 AnimationController 停在 0.8 之类的中间值），
+///      原来那根手指怎么滑都没有反馈；
+///   2. 原手指抬起也不是「最后一根被跟踪的指针」，`didStopTrackingLastPointer`
+///      不触发 → `onEnd` 不发 → `dragEnd` 不跑 → 动画永远停在那儿，
+///      `navigator.didStopUserGesture()` 也永远不会调用；
+///   3. 此后**每一次**新的侧滑都被 `_isPopGestureEnabled` 挡掉：路由动画状态不是
+///      `completed`，而且 `popGestureInProgress` 读的是 `NavigatorState`
+///      **整只 navigator** 的 `userGestureInProgress`——一页卡住，全应用的跟手
+///      返回一起哑掉，直到那根滞留指针真的抬起（或某处 push/pop 触发
+///      `Navigator._cancelActivePointers`）。应用其它部分毫发无损，所以看起来
+///      「只有返回手势坏了」。
+///
+/// 系统原生的边缘返回没这个毛病，是因为它的手势层只有屏幕最左边一条 20px，
+/// 蹭在页面中间的手指根本进不了它的命中路径。我们把手势层铺满整页之后，这个
+/// 默认策略就从「几乎撞不上」变成了「概率必现」。
+///
+/// ## 做法
+///
+/// 挂在**手势层之上**（经由 `SwipeablePage.transitionBuilder`，包里的
+/// `_FancyBackGestureDetector` 是在那之后才被 transitionBuilder 收进来的），
+/// 在 `hitTest` 里现读 `navigator.userGestureInProgress`：跟手拖拽进行中、且本页
+/// 已经有手指按着时，新落下的指针直接被这一层吃掉，不再往下派发——识别器压根
+/// 见不到它，`_activePointer` 也就不会被抢走。
+///
+/// 读的是 navigator 的实时状态而不是 `setState` 出来的快照，所以拖拽开始的那一
+/// 帧就已经生效，没有一帧的空窗。弹出动画期间 `userGestureInProgress` 同样为
+/// true，但那时本页没有手指按着（`_pointersDown` 是空的），点按照常放行。
+class SwipeBackSinglePointerGate extends StatelessWidget {
+  const SwipeBackSinglePointerGate({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final NavigatorState? navigator = Navigator.maybeOf(context);
+    if (navigator == null) return child;
+    return _SwipeBackPointerGate(navigator: navigator, child: child);
+  }
+}
+
+class _SwipeBackPointerGate extends SingleChildRenderObjectWidget {
+  const _SwipeBackPointerGate({required this.navigator, required super.child});
+
+  final NavigatorState navigator;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSwipeBackPointerGate(navigator);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderSwipeBackPointerGate renderObject,
+  ) {
+    renderObject.navigator = navigator;
+  }
+}
+
+class _RenderSwipeBackPointerGate extends RenderProxyBoxWithHitTestBehavior {
+  _RenderSwipeBackPointerGate(this.navigator)
+    : super(behavior: HitTestBehavior.translucent);
+
+  NavigatorState navigator;
+
+  /// 本页当前按着的手指。命中路径是按下那一刻定下来的，所以 up / cancel 一定会
+  /// 回到这一层，不会漏账。
+  final Set<int> _pointersDown = <int>{};
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (_pointersDown.isNotEmpty && navigator.userGestureInProgress) {
+      // 吃掉它：既不给上面的手势层，也不漏到下面那一页去。
+      if (size.contains(position)) {
+        result.add(BoxHitTestEntry(this, position));
+        return true;
+      }
+      return false;
+    }
+    return super.hitTest(result, position: position);
+  }
+
+  @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    if (event is PointerDownEvent) {
+      _pointersDown.add(event.pointer);
+    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _pointersDown.remove(event.pointer);
+    }
+    super.handleEvent(event, entry);
+  }
+}
+
 /// 判定「已经滑到头」的像素容差。`precisionErrorTolerance`（1e-10）对滚动像素太紧，
 /// 半个逻辑像素的残留偏移不该让整页侧滑失效。
 const double _boundaryTolerance = 0.5;

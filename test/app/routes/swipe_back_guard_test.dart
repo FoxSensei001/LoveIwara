@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/routes/swipe_back_guard.dart';
@@ -168,6 +169,62 @@ void main() {
     }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
   });
 
+
+  group('SwipeBackSinglePointerGate', () {
+    // 报障原文：iOS 上侧滑返回「有概率滑到一定进度就卡住，然后怎么滑动都没有
+    // 反馈，但应用本身是有反应的」。根因是包里的手势识别器用了 Flutter 默认的
+    // `latestPointer` 多指策略（框架文档注明那是 Android 手感）：拖拽途中蹭上来
+    // 第二根手指就会抢走拖拽，而它自己一动不动——页面定格在半路，原手指抬起也
+    // 不算「最后一根指针」，`dragEnd` 永远不跑，`userGestureInProgress` 一直挂
+    // 着，全应用的跟手返回一起哑掉。
+    testWidgets('拖拽途中蹭上第二根手指，不许抢走跟手也不许卡死', (tester) async {
+      await _pushGuardedPage(
+        tester,
+        const SizedBox.expand(child: ColoredBox(color: Colors.white)),
+      );
+      final ModalRoute<dynamic> route = ModalRoute.of(
+        tester.element(find.byKey(_pageKey)),
+      )!;
+
+      final TestGesture finger = await tester.startGesture(
+        const Offset(100, 300),
+      );
+      await finger.moveBy(const Offset(40, 0));
+      await tester.pump();
+      await finger.moveBy(const Offset(120, 0));
+      await tester.pump();
+      final double draggedTo = route.animation!.value;
+      expect(draggedTo, lessThan(1), reason: '页面已经跟着手指走了');
+
+      // 掌根 / 另一只手蹭上来。
+      final TestGesture stray = await tester.startGesture(
+        const Offset(300, 500),
+      );
+      await tester.pump();
+
+      await finger.moveBy(const Offset(100, 0));
+      await tester.pump();
+      expect(
+        route.animation!.value,
+        lessThan(draggedTo),
+        reason: '原来那根手指必须继续驱动跟手，页面不许定格',
+      );
+
+      // 蹭上来的手指还按着，原手指抬起也要能正常收尾。
+      await finger.up();
+      await tester.pumpAndSettle();
+      expect(route.animation!.status, AnimationStatus.completed);
+      expect(
+        Navigator.of(tester.element(find.byKey(_pageKey))).userGestureInProgress,
+        isFalse,
+        reason: 'didStopUserGesture 泄漏会让全应用的跟手返回一起失效',
+      );
+
+      await stray.up();
+      await tester.pumpAndSettle();
+    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+  });
+
   test('闸门：跟手侧滑页只有一处入口，且必须过 SwipeBackScrollGuard', () {
     final router = File('lib/app/routes/app_router.dart').readAsStringSync();
     expect(
@@ -179,6 +236,11 @@ void main() {
       router.contains('builder: (context) => SwipeBackScrollGuard(child: child)'),
       isTrue,
       reason: 'buildAdaptiveSwipeablePage 必须把页面包进 SwipeBackScrollGuard',
+    );
+    expect(
+      router.contains('SwipeBackSinglePointerGate(child: child)'),
+      isTrue,
+      reason: '手势层之上必须留着单指闸门，否则第二根手指会把跟手返回卡死',
     );
 
     final offenders = <String>[];
@@ -208,6 +270,21 @@ Future<void> _pushGuardedPage(WidgetTester tester, Widget body) async {
             child: ElevatedButton(
               onPressed: () => Navigator.of(context).push(
                 SwipeablePageRoute<void>(
+                  // 与 buildAdaptiveSwipeablePage 保持一致：手势层之上还有一层
+                  // 单指闸门。
+                  transitionBuilder:
+                      (
+                        context,
+                        animation,
+                        secondaryAnimation,
+                        isSwipeGesture,
+                        child,
+                      ) => CupertinoPageTransition(
+                        primaryRouteAnimation: animation,
+                        secondaryRouteAnimation: secondaryAnimation,
+                        linearTransition: isSwipeGesture,
+                        child: SwipeBackSinglePointerGate(child: child),
+                      ),
                   builder: (_) => SwipeBackScrollGuard(
                     child: Scaffold(key: _pageKey, body: body),
                   ),

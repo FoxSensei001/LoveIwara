@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -188,6 +189,19 @@ Page<void> buildAdaptiveSwipeablePage(
       name: state.name ?? state.fullPath,
       arguments: state.extra,
       canOnlySwipeFromEdge: !fullSwipe,
+      // 与包里的默认转场逐字一致（fullscreenDialog 恒为 false），唯一的差别是把
+      // 手势层整只包进 [SwipeBackSinglePointerGate]：包传进来的 child 已经是
+      // 「页面 + 盖在其上的手势层」，只有在这里才够得着手势层的上方。
+      // 见 [SwipeBackSinglePointerGate] 的注释：第二根手指会抢走拖拽、把页面
+      // 定格在半路，并让全应用的跟手返回一起哑掉。
+      transitionBuilder:
+          (context, animation, secondaryAnimation, isSwipeGesture, child) =>
+              CupertinoPageTransition(
+                primaryRouteAnimation: animation,
+                secondaryRouteAnimation: secondaryAnimation,
+                linearTransition: isSwipeGesture,
+                child: SwipeBackSinglePointerGate(child: child),
+              ),
       builder: (context) => SwipeBackScrollGuard(child: child),
     );
   }
