@@ -4,6 +4,8 @@ import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 「换到池里的下一条」这件事的**唯一出口**。
@@ -80,6 +82,21 @@ class PlaybackQueueNavigator {
         onRelinquishFullscreen: onRelinquishFullscreen,
       );
       return;
+    }
+
+    // ⛔ 已下载池里的一条**没能用本地文件打开**，只可能是磁盘上那个文件已经不在
+    // 了（池只按数据库列条目，从不 stat）。下面照常退回在线详情页——这比开一个
+    // 黑屏播放器好——但**不能一声不吭**：用户明明是在「已下载」里点的，页面却以
+    // 在线方式打开并联网拉流，不给个说法就只会被当成"离线播放坏了"。
+    if (!isExternal && queue.kind == PlaybackQueueKind.downloads) {
+      LogUtils.w(
+        '已下载池里的 $id 落不到本地文件，退回在线播放',
+        'PlaybackQueueNavigator',
+      );
+      showGlassToast(
+        slang.t.download.errors.fileNotFound,
+        type: GlassToastType.error,
+      );
     }
 
     final extra = VideoDetailExtra(

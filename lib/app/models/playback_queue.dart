@@ -858,6 +858,10 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
           authorName: data?.authorName,
           authorUsername: data?.authorUsername,
           durationSeconds: data?.duration,
+          // 存的是哪一档清晰度——这个池独有的信息，列表上要看得见（下载列表页
+          // 一直显示，抽屉里没有反而是缺的）。以 `quality` 列为准、ext_data
+          // 兜底：列是 v17 之后才有的，老行只在 ext_data 里带着。
+          localQuality: _qualityOf(task, data),
         ),
       );
     }
@@ -866,31 +870,70 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
     return (items: items, rawCount: tasks.length);
   }
 
+  /// 这条任务存的是哪一档清晰度。`quality` 列优先，老行退回 ext_data。
+  static String? _qualityOf(DownloadTask task, VideoDownloadExtData? data) {
+    final fromColumn = task.quality?.trim();
+    if (fromColumn != null && fromColumn.isNotEmpty) return fromColumn;
+    final fromExt = data?.quality?.trim();
+    return fromExt == null || fromExt.isEmpty ? null : fromExt;
+  }
+
+  /// ⛔ **点的时候现查一次库**，不是回头去问 [_tasksById] 那份快照。
+  ///
+  /// 这个池是缓存的（`PlaybackQueueService` 的 LRU 能让它活很久），而 `_tasksById`
+  /// 里那些 [DownloadTask] 是**建池那一刻**抓在手里的对象。中间只要发生过一次
+  /// 「删了重下」「换清晰度重下」「迁移下载目录」，快照里的 `savePath` 就指向一个
+  /// 已经不在的文件——[localTargetFor] 于是答 null，导航层老实退回在线详情页，
+  /// 而用户看到的是"在已下载列表里点了一条，却以在线方式打开了"。现查库把这一
+  /// 整类失效彻底去掉：磁盘上还有文件，就一定用本地播。
+  ///
+  /// 同一视频下过多档清晰度时，**先试这一行代表的那一档**（列表上写的就是它），
+  /// 它的文件没了再退到其它还在的那一档——只要还有一档在，这条就仍旧是"已下载"。
   @override
   Future<LocalPlaybackTarget?> localTargetFor(String itemId) async {
-    final task = _tasksById[itemId];
-    if (task == null) return null;
-    final filePath = path.normalize(task.savePath);
-    if (!await File(filePath).exists()) return null;
-
-    // 同一视频的其它清晰度：本地播放页要用它做清晰度切换。取不到就只带自己，
-    // 别让一次数据库异常把「能播」变成「播不了」。
-    List<DownloadTask> allQuality = <DownloadTask>[task];
+    List<DownloadTask> completed = const <DownloadTask>[];
     try {
       final rows = await _repository.getVideoTasksByMedia(itemId);
-      final completed = rows
+      completed = rows
           .where((row) => row.status == DownloadStatus.completed)
           .toList();
-      if (completed.isNotEmpty) allQuality = completed;
     } catch (e) {
-      LogUtils.w('取同视频其它清晰度失败：$e', 'DownloadsPlaybackQueue');
+      // 一次数据库异常不该把「能播」变成「播不了」：退回快照里那一条。
+      LogUtils.w('查已下载任务失败，退回池内快照：$e', 'DownloadsPlaybackQueue');
+    }
+    final cached = _tasksById[itemId];
+    if (completed.isEmpty && cached != null) {
+      completed = <DownloadTask>[cached];
+    }
+    if (completed.isEmpty) {
+      LogUtils.w('已下载池里的 $itemId 在库里找不到已完成任务', 'DownloadsPlaybackQueue');
+      return null;
     }
 
-    return LocalPlaybackTarget(
-      localPath: filePath,
-      task: task,
-      allQualityTasks: allQuality,
+    // 列表这一行代表的那条排在最前，其余按原序垫后。
+    final ordered = <DownloadTask>[
+      ...completed.where((row) => row.id == cached?.id),
+      ...completed.where((row) => row.id != cached?.id),
+    ];
+
+    for (final task in ordered) {
+      final savePath = task.savePath.trim();
+      if (savePath.isEmpty) continue;
+      final filePath = path.normalize(savePath);
+      if (!await File(filePath).exists()) continue;
+      return LocalPlaybackTarget(
+        localPath: filePath,
+        task: task,
+        // 本地播放页要用它做清晰度切换。
+        allQualityTasks: completed,
+      );
+    }
+
+    LogUtils.w(
+      '已下载池里的 $itemId 有 ${completed.length} 条完成记录，但磁盘上一个文件都不在了',
+      'DownloadsPlaybackQueue',
     );
+    return null;
   }
 }
 

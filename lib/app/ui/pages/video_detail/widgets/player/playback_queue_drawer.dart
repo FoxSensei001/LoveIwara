@@ -180,6 +180,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     _selectedIndex = _queues
         .indexOf(widget.initialQueue)
         .clamp(0, _queues.length - 1);
+    _activeQueueId = _queues[_selectedIndex].queueId;
     final initial = widget.initialQueue;
     if (initial is WatchLaterPlaybackQueue) {
       _unwatchedOnly = initial.unwatchedOnly;
@@ -245,6 +246,27 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   }
 
   PlaybackQueue get _current => _queues[_selectedIndex];
+
+  /// 眼下正在浏览的这个池，是不是**播放器真正在用的那个**。
+  ///
+  /// ⛔ 「正在播」的标记只能挂在它身上（见 [_QueueRow.isCurrent] 的调用点）。
+  /// 抽屉的规矩是「切池只是浏览，点播才换池」，而上一版按 id 一路标下去：在
+  /// 来源池连播时切到「作者」，作者池里那条同一个视频也是一身高亮 + 「正在
+  /// 播放」角标，看上去就像池已经换过去了——可这时按「下一个」出来的仍是来源
+  /// 池的下一条（2026-08-30 用户报的正是这个错觉）。
+  ///
+  /// 按 **queueId** 比而不是 `identical`：换播放列表 / 换稍后再看的筛选都会
+  /// 换出新实例，但 id 一样就是同一个池；反过来 `watchLater:all` 与
+  /// `watchLater:unwatched` 是两个池，续播跟着的是当初那一个，标记也该跟着走。
+  bool get _isBrowsingActiveQueue => _current.queueId == _activeQueueId;
+
+  /// 打开这只抽屉时播放器正在用的那个池。整段生命周期里不变——抽屉自己**不会**
+  /// 换池（换池是回传给详情页之后的事），所以在 `initState` 里定死。
+  ///
+  /// 取的是**落位之后**那一档而不是直接读 `widget.initialQueue`：万一交进来的
+  /// 池不在清单里（`indexOf` 落空会被 clamp 到 0），至少还能保住「开局这一池
+  /// 就是当前池」，不至于一进来满屏没有标记。
+  late final String _activeQueueId;
 
   void _onQueueChanged() {
     if (mounted) setState(() {});
@@ -637,10 +659,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         // 登录态是在开菜单那一刻读的，中途掉登录（401 被登出）时这里会拿到
         // null——静默什么都不做会被当成"点了没反应"，说一句。
         if (queue == null) {
-          showGlassToast(
-            t.errors.pleaseLoginFirst,
-            type: GlassToastType.info,
-          );
+          showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.info);
         } else {
           _useQueue(queue);
         }
@@ -1232,22 +1251,22 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     final t = slang.Translations.of(context);
     return GlassSideDrawerShell(
       title: t.playbackQueue.upNext,
-      // ⛔ 控制行进 **header**，不进 body。
+      // ⛔ 切池胶囊**顶替标题文字**站在标题行里，不是标题下面再来一行。
       //
-      // 它得跟标题、关闭钮同属那层浮在上面的 chrome：列表从它背后滚过去，而
-      // `contentPadding.top` 把它一起让开——列表的**起始**位置就落在它下缘。
-      // 上一版把它当成 body 的第一行、又只给列表让开标题那一段，于是开局第一
-      // 条就压在胶囊底下（用户报的正是这个：要的是"滚过去"，不是"一开始就在
-      // 下面"）。
-      headerBottom: Align(
-        alignment: Alignment.centerLeft,
-        child: GlassDropdownPill(
-          // 加载态原位换沙漏 + 文案换「加载中」：胶囊自己会做宽度形变，
-          // 不是两只钮硬切。
-          icon: _loadingChoices ? Icons.hourglass_top : _pillIcon(),
-          label: _loadingChoices ? t.common.loading : _pillLabel(context),
-          onTap: _loadingChoices ? (_) {} : _openQueuePicker,
-        ),
+      // 胶囊上写的就是「当前在哪个池里」，标题那行「接着看」纯属重复，两行
+      // chrome 白吃一行的高度（抽屉本来就窄，列表能露几条很值钱）。
+      //
+      // 它仍然是 **header** 的一部分，不是 body 的第一行：只有进了 header，它
+      // 才会 ① 一起被量进 header 高度，于是 `contentPadding.top` 自动把它让
+      // 开——列表的**起始**位置落在它下缘；② 一起被顶部蒙层收边，内容从它背
+      // 后滚过去时是"溶"进去的。放进 body 的话两件事都得自己重做一遍，漏了
+      // 第一件就是「列表一开局就压在控制行底下」（2026-08-29 用户报障）。
+      titleWidget: GlassDropdownPill(
+        // 加载态原位换沙漏 + 文案换「加载中」：胶囊自己会做宽度形变，
+        // 不是两只钮硬切。
+        icon: _loadingChoices ? Icons.hourglass_top : _pillIcon(),
+        label: _loadingChoices ? t.common.loading : _pillLabel(context),
+        onTap: _loadingChoices ? (_) {} : _openQueuePicker,
       ),
       bodyBuilder: (context, contentPadding) =>
           _buildList(context, contentPadding),
@@ -1327,7 +1346,8 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         final item = items[index];
         return _QueueRow(
           item: item,
-          isCurrent: item.id == widget.currentItemId,
+          // 只有正在被播放器使用的那个池才标「正在播」，见 [_isBrowsingActiveQueue]。
+          isCurrent: _isBrowsingActiveQueue && item.id == widget.currentItemId,
           onTap: () => _selectItem(
             PlaybackQueueSelection(
               queue: queue,
@@ -1496,6 +1516,7 @@ class _QueueRow extends StatelessWidget {
                 ),
               ),
             ?_buildCornerTag(t),
+            ?_buildQualityTag(t),
             if (item.progressPermil > 0)
               Positioned(
                 left: 0,
@@ -1546,6 +1567,30 @@ class _QueueRow extends StatelessWidget {
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(6),
           bottomRight: Radius.circular(4),
+        ),
+      ),
+    );
+  }
+
+  /// 左下角那一枚：**本地存的是哪一档清晰度**。只有已下载池答得出来
+  /// （见 [InnerPlaylistItemSnapshot.localQuality]），别的池一律不画。
+  ///
+  /// 占左下角是排除法排出来的：左上是「正在播放」、右上是播放量、右下是时长，
+  /// 四个角只剩这一个。它和「看到哪儿了」那条进度条同在底沿，但两者从来不会
+  /// 同时出现——进度条只有稍后再看池带得出来，而清晰度只有已下载池有。
+  Widget? _buildQualityTag(slang.Translations t) {
+    final quality = item.localQuality?.trim();
+    if (quality == null || quality.isEmpty) return null;
+    return Positioned(
+      left: 0,
+      bottom: 0,
+      child: _ThumbTag(
+        text: CommonUtils.getQualityDisplayLabel(t, quality),
+        background: Colors.black54,
+        foreground: Colors.white,
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(6),
+          bottomLeft: Radius.circular(4),
         ),
       ),
     );
@@ -1654,15 +1699,17 @@ class _MetaStat extends StatelessWidget {
 /// 贴在封面角上的一枚小标签（时长 / 外链 / 正在播放）。
 class _ThumbTag extends StatelessWidget {
   const _ThumbTag({
-    required this.icon,
+    this.icon,
     this.text,
     required this.background,
     required this.foreground,
     required this.borderRadius,
     this.semanticLabel,
-  });
+  }) : assert(icon != null || text != null, '空标签不该被画出来');
 
-  final IconData icon;
+  /// 不给就只画文字（清晰度那一枚：`1080` / `原画` 自己就说清楚了，再配一枚
+  /// 图标只会在 112 宽的封面上抢地方）。
+  final IconData? icon;
 
   /// 不给就只画图标（「正在播放」那一枚）。
   final String? text;
@@ -1684,14 +1731,15 @@ class _ThumbTag extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 10,
-                color: foreground,
-                semanticLabel: semanticLabel,
-              ),
+              if (icon != null)
+                Icon(
+                  icon,
+                  size: 10,
+                  color: foreground,
+                  semanticLabel: semanticLabel,
+                ),
               if (text != null) ...[
-                const SizedBox(width: 2),
+                if (icon != null) const SizedBox(width: 2),
                 Text(
                   text!,
                   style: TextStyle(

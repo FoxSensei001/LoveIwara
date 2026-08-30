@@ -33,6 +33,9 @@ enum InnerPlaylistSource {
   searchResultVideoList,
   relatedVideosTab,
   subscriptionVideoList,
+
+  /// 标签视频列表页（`/tag_videos/:tagId`）。
+  tagMediaList,
 }
 
 class InnerPlaylistItemSnapshot {
@@ -65,6 +68,14 @@ class InnerPlaylistItemSnapshot {
   /// **null 是"不知道"，不是 0**）。
   final int? numImages;
 
+  /// 这一条**在本地存的是哪一档清晰度**（`'1080'` / `'Source'` …）。
+  ///
+  /// 只有下载池答得上来：它装的就是磁盘上那些文件，而"存的是哪一档"是这类条目
+  /// 独有、也是用户最想先看到的那个信息（同一部片子下过 720 还是原画，决定他
+  /// 要不要点）。接口来的池一律为 null——在线视频的清晰度是进播放器之后才挑的，
+  /// 列表上写一个数只会误导。
+  final String? localQuality;
+
   /// 看到哪儿了（千分比，0 = 没记录）。目前只有稍后再看这个池带得出来。
   final int progressPermil;
 
@@ -89,6 +100,7 @@ class InnerPlaylistItemSnapshot {
     this.authorUsername,
     this.durationSeconds,
     this.numImages,
+    this.localQuality,
     this.progressPermil = 0,
     this.sourceVideo,
   });
@@ -149,6 +161,7 @@ class InnerPlaylistItemSnapshot {
     String? authorUsername,
     int? durationSeconds,
     int? numImages,
+    String? localQuality,
     int? progressPermil,
     Video? sourceVideo,
   }) {
@@ -168,6 +181,7 @@ class InnerPlaylistItemSnapshot {
       authorUsername: authorUsername ?? this.authorUsername,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       numImages: numImages ?? this.numImages,
+      localQuality: localQuality ?? this.localQuality,
       progressPermil: progressPermil ?? this.progressPermil,
       sourceVideo: sourceVideo ?? this.sourceVideo,
     );
