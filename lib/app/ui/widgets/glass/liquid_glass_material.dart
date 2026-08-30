@@ -1,6 +1,7 @@
 import 'dart:ui' show clampDouble;
 
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/foundation.dart'
+    show listEquals, defaultTargetPlatform, TargetPlatform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -163,6 +164,37 @@ GlassBackend chromeGlassBackend(BuildContext context) =>
     GlassMaterialScope.isLiquid(context)
     ? GlassBackend.liquidWidgets
     : GlassBackend.plain;
+
+/// 真玻璃档下，一块玻璃该按哪个质量档渲染。
+///
+/// # 为什么不是全平台恒 premium
+///
+/// `liquid_glass_widgets` 的平台矩阵里，premium 那条完整 SDF 折射管线只在
+/// **着色器能提前备好**的平台上才是免费的：iOS/macOS 是 AOT 编译进 `.metallib`，
+/// Android Vulkan 是启动时异步预加载字节码。Windows/Linux 走的是
+/// Impeller(ANGLE)→D3D11，**GLSL 由 GPU 驱动在运行时现编译**，包文档给这两个
+/// 平台定的档就是 standard（「Lightweight 2D shader default; instant Frame 1
+/// launch」），并说明 `GlassAdaptiveScope` 会把桌面端静态封顶到 standard。
+///
+/// 本仓库没有走包的 `LiquidGlassWidgets.wrap()`（那是它 README 的 Step 2），
+/// 所以 `GlassAdaptiveScope` 根本不存在，那道封顶失效——档位只能由这里自己定。
+///
+/// 实测（Windows release 产物，Impeller 开）：桌面端硬吃 premium 时，三条重
+/// 着色器（`liquid_glass_final_render` / `liquid_glass_geometry_blended` /
+/// `interactive_indicator`）要在光栅线程上现编译，**首屏内容 15.1s 才出来，
+/// 中间是纯白窗口**；改回 standard 后是 6.3s。
+///
+/// standard 不是磨砂兜底：包文档称其为「crisp 2D liquid glass with real iOS 26
+/// squircle curves, dual specular highlights, and blur」，且 premium 在
+/// Skia/Web 上本来就自动回退到它。桌面端少的是纹理捕获与色散，不是玻璃本身。
+///
+/// 附带一条：包文档明确说 premium「may not render correctly inside `ListView`
+/// or `CustomScrollView` on Impeller」，而本站的 header 与浮动底栏正是浮在滚动
+/// 内容之上，本来也不该用 premium。
+lgw.GlassQuality get chromeGlassQuality => switch (defaultTargetPlatform) {
+  TargetPlatform.windows || TargetPlatform.linux => lgw.GlassQuality.standard,
+  _ => lgw.GlassQuality.premium,
+};
 
 /// 启动时把配置表里的玻璃开关灌进 [glassMaterialMode]。
 ///
@@ -376,7 +408,7 @@ class GlassBlendGroup extends StatelessWidget {
     if (GlassBlendGroup.isJoinable(context)) return child;
     final cs = Theme.of(context).colorScheme;
     return lgw.AdaptiveLiquidGlassLayer(
-      quality: lgw.GlassQuality.premium,
+      quality: chromeGlassQuality,
       blendAmount: blend,
       clipExpansion: clipExpansion,
       // 层里所有形状共用这一份（见类注释里那条代价）。取值与单块玻璃
@@ -729,7 +761,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
           width: circle ? height : width,
           child: lgw.AdaptiveGlass(
             shape: shape,
-            quality: lgw.GlassQuality.premium,
+            quality: chromeGlassQuality,
             // 占位：grouped 下真正生效的是祖先 layer 的那一份。
             settings: const lgw.LiquidGlassSettings(),
             useOwnLayer: false,
@@ -761,7 +793,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
             shape: shape,
             // premium 才有完整的 SDF 折射与高光——正是这一档的存在理由。
             // 非 Impeller 环境由 AdaptiveGlass 自己降级，不用我们判断。
-            quality: lgw.GlassQuality.premium,
+            quality: chromeGlassQuality,
             settings: GlassTokens.widgetsGlass(
               cs,
               tint: tint ?? GlassTokens.widgetsTint(cs),
@@ -1086,7 +1118,7 @@ class _LiquidStretchShellState extends State<_LiquidStretchShell> {
         // 默认档（standard）走，会在形变层与玻璃之间垫一层缓存纹理——按住拉伸
         // 时缩放的是那张位图（他们自己注释里写的 bilinear 伪影），融合态下更
         // 麻烦：夹在 layer 与 grouped 形状之间多一层合成。
-        quality: lgw.GlassQuality.premium,
+        quality: chromeGlassQuality,
         stretch: GlassTokens.widgetsStretch,
         interactionScale: GlassTokens.widgetsInteractionScale,
         resistance: GlassTokens.widgetsStretchResistance,
