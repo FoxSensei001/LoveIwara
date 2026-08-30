@@ -115,71 +115,73 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         builder: (context) {
           return GlassAlertDialog(
             title: slang.t.settings.language,
-            content: SizedBox(
-              width: double.minPositive,
-              child: Obx(
-                () => RadioGroup<String>(
-                  groupValue: configService[ConfigKey.APPLICATION_LOCALE],
-                  onChanged: (String? value) async {
-                    if (value != null) {
-                      // 更新配置
-                      configService.updateApplicationLocale(value);
+            // ⛔ 这里原来套了一层 `SizedBox(width: double.minPositive)`——
+            // 那是 Material `AlertDialog` 的专用写法（靠它内部的
+            // `IntrinsicWidth` 把 5e-324 解释成「按内容取宽」），
+            // [GlassAlertDialog] 没有那层，正文就真被压成 0 宽，选项文字被迫
+            // 一个字一行。正文宽度由 [GlassAlertDialog] 自己拉满，这里不掺和。
+            content: Obx(
+              () => RadioGroup<String>(
+                groupValue: configService[ConfigKey.APPLICATION_LOCALE],
+                onChanged: (String? value) async {
+                  if (value != null) {
+                    // 更新配置
+                    configService.updateApplicationLocale(value);
 
-                      // 立即切换语言
-                      if (value == 'system') {
-                        slang.LocaleSettings.useDeviceLocale();
-                      } else {
-                        // 根据语言代码找到对应的 AppLocale
-                        slang.AppLocale? targetLocale;
-                        for (final locale in slang.AppLocale.values) {
-                          if (locale.languageTag.toLowerCase() ==
-                              value.toLowerCase()) {
-                            targetLocale = locale;
-                            break;
-                          }
-                        }
-                        if (targetLocale != null) {
-                          slang.LocaleSettings.setLocale(targetLocale);
-                        }
-                      }
-
-                      // 强制刷新整个应用界面
-                      Get.forceAppUpdate();
-
-                      Navigator.of(context).pop();
-
-                      String message;
-                      String localeKey = value;
-                      if (localeKey == 'system') {
-                        // 获取设备语言，但确保是我们支持的语言
-                        String deviceLocale = CommonUtils.getDeviceLocale();
-                        // 检查设备语言是否在我们的支持列表中
-                        if (_languageChangedMessages.containsKey(
-                          deviceLocale,
-                        )) {
-                          localeKey = deviceLocale;
-                        } else {
-                          // 如果不支持，使用英语作为默认
-                          localeKey = 'en';
+                    // 立即切换语言
+                    if (value == 'system') {
+                      slang.LocaleSettings.useDeviceLocale();
+                    } else {
+                      // 根据语言代码找到对应的 AppLocale
+                      slang.AppLocale? targetLocale;
+                      for (final locale in slang.AppLocale.values) {
+                        if (locale.languageTag.toLowerCase() ==
+                            value.toLowerCase()) {
+                          targetLocale = locale;
+                          break;
                         }
                       }
-
-                      message =
-                          _languageChangedMessages[localeKey] ??
-                          _languageChangedMessages['en']!;
-
-                      showGlassToast(message, type: GlassToastType.success);
+                      if (targetLocale != null) {
+                        slang.LocaleSettings.setLocale(targetLocale);
+                      }
                     }
-                  },
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: _languageOptions.entries.map((entry) {
-                      return RadioListTile<String>(
-                        title: Text(entry.value),
-                        value: entry.key,
-                      );
-                    }).toList(),
-                  ),
+
+                    // 强制刷新整个应用界面
+                    Get.forceAppUpdate();
+
+                    Navigator.of(context).pop();
+
+                    String message;
+                    String localeKey = value;
+                    if (localeKey == 'system') {
+                      // 获取设备语言，但确保是我们支持的语言
+                      String deviceLocale = CommonUtils.getDeviceLocale();
+                      // 检查设备语言是否在我们的支持列表中
+                      if (_languageChangedMessages.containsKey(deviceLocale)) {
+                        localeKey = deviceLocale;
+                      } else {
+                        // 如果不支持，使用英语作为默认
+                        localeKey = 'en';
+                      }
+                    }
+
+                    message =
+                        _languageChangedMessages[localeKey] ??
+                        _languageChangedMessages['en']!;
+
+                    showGlassToast(message, type: GlassToastType.success);
+                  }
+                },
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  children: _languageOptions.entries.map((entry) {
+                    return RadioListTile<String>(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(entry.value),
+                      value: entry.key,
+                    );
+                  }).toList(),
                 ),
               ),
             ),

@@ -63,7 +63,26 @@ class GlassAlertDialog extends StatelessWidget {
     this.showCloseButton = true,
     this.scrollable = false,
     this.maxWidth = 400,
+    this.insetPadding = defaultInsetPadding,
   });
+
+  /// 面板与屏幕边缘之间的留白。
+  ///
+  /// ⛔ 收口前这里只有 `Center + ConstrainedBox(maxWidth)`，**一点外边距都没有**：
+  /// 宽屏上看不出来（400 的面板本来就浮在屏幕中间），窄屏上 `maxWidth` 大于
+  /// 屏幕宽度，面板就贴着两条屏幕边整块铺满，读起来不像一层弹出的卡片，而像
+  /// 换了一页。全站其余弹窗壳（[GlassPickerDialog]、`ResponsiveDialogWidget`
+  /// 宽屏档）走的都是 Material `Dialog`，白拿它 40/24 的 `insetPadding`——
+  /// 唯独这只没有，于是「有的弹窗有边距有的没有」。默认值取的就是 Material
+  /// `Dialog` 的那一份，让两类壳在同一块屏幕上对得齐。
+  ///
+  /// 键盘不在这里让：根布局 [MyAppLayout] 是 `resizeToAvoidBottomInset` 的
+  /// Scaffold，整棵 Navigator（含弹窗路由）已被整体抬到键盘之上，`viewInsets`
+  /// 在它之下恒为 0（见 `media_query_insets_fix.dart`），再叠一次只会多让一段。
+  static const EdgeInsets defaultInsetPadding = EdgeInsets.symmetric(
+    horizontal: 40,
+    vertical: 24,
+  );
 
   /// 传 `null` 跳过整个内建标题行（含右上角关闭钮）——用于标题位置需要放
   /// 自定义内容（搜索框、额外的图标动作）的场合，这时 [showCloseButton]
@@ -84,6 +103,9 @@ class GlassAlertDialog extends StatelessWidget {
   /// 面板最大宽度。默认 400 是「提示/确认」这类短内容的舒适宽度；
   /// 标签浏览器、变量说明这类需要摆下一张列表或宽表格的内容可以调大。
   final double maxWidth;
+
+  /// 见 [defaultInsetPadding]。
+  final EdgeInsets insetPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -143,42 +165,56 @@ class GlassAlertDialog extends StatelessWidget {
             ),
           );
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Material(
-          color: cs.surface,
-          borderRadius: BorderRadius.circular(28),
-          clipBehavior: Clip.antiAlias,
-          elevation: 6,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (title != null) ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(title!, style: theme.textTheme.titleLarge),
-                      ),
-                      if (closeButton != null) ...[
-                        const SizedBox(width: 8),
-                        closeButton,
+    return Padding(
+      padding: insetPadding,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: Material(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(28),
+            clipBehavior: Clip.antiAlias,
+            elevation: 6,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
+              // ⛔ `stretch` 不是排版口味，是道闸门：`start` 时正文拿到的是
+              // 松约束（0..maxWidth），正文自己说多宽就多宽——调用点只要塞进
+              // 一个宽度算出来接近 0 的盒子（`SizedBox(width: double.minPositive)`
+              // 这种 Material `AlertDialog` 专用的老写法就是，它靠的是
+              // `AlertDialog` 内部那层 `IntrinsicWidth`，本组件没有），正文就被
+              // 压成一条竖线，选项文字一个字一行。标题行自带 `Expanded`，面板
+              // 本来就恒等于 `maxWidth`，把正文一起拉满不改变既有观感，却让
+              // 「正文塌成 0 宽」这类事故从此不可能发生。
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (title != null) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title!,
+                            style: theme.textTheme.titleLarge,
+                          ),
+                        ),
+                        if (closeButton != null) ...[
+                          const SizedBox(width: 8),
+                          closeButton,
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+                  ],
+                  if (body != null) ...[
+                    const SizedBox(height: 16),
+                    Flexible(child: body),
+                  ],
+                  if (actionGroup != null) ...[
+                    const SizedBox(height: 20),
+                    Align(alignment: Alignment.centerRight, child: actionGroup),
+                  ],
                 ],
-                if (body != null) ...[
-                  const SizedBox(height: 16),
-                  Flexible(child: body),
-                ],
-                if (actionGroup != null) ...[
-                  const SizedBox(height: 20),
-                  Align(alignment: Alignment.centerRight, child: actionGroup),
-                ],
-              ],
+              ),
             ),
           ),
         ),
