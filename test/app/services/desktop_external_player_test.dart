@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/services/desktop_external_player.dart';
+import 'package:i_iwara/app/services/desktop_player_probe.dart';
 
 void main() {
   group('DesktopPlayerLauncher.buildArguments', () {

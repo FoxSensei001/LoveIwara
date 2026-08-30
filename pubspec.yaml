@@ -22,6 +22,9 @@ dependencies:
   crypto: ^3.0.6
   cryptography: ^2.7.0
   win32: ^5.14.0
+  # 桌面端自动探测外部播放器要读注册表（App Paths / 卸载项 / Steam / Oculus 库），
+  # 见 desktop_player_probe.dart。此前一直是传递依赖，现在直接用它，提为直接依赖。
+  win32_registry: ^2.1.0
   logger: ^2.5.0
   flutter_secure_storage: ^10.0.0
   get_storage: ^2.1.1

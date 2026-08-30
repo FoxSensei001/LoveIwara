@@ -2729,7 +2729,20 @@ externalPlayer:
   handedOff: "外部プレイヤーに渡しました"
   desktopSectionTitle: "外部プレイヤー"
   managePlayers: "外部プレイヤーの管理"
-  managePlayersDesc: "PCVR のプレイヤー（HereSphere、DeoVR、Whirligig など）はシステムの既定アプリではないため、実行ファイルを指定すると再生画面から直接渡せるようになります"
+  # 説明はプラットフォームごとに分岐：選ぶ対象そのものが違ううえ、例に挙げるアプリも各プラットフォームにしか存在しない
+  managePlayersDescWindows: "HereSphere、DeoVR、Whirligig といった PCVR プレイヤーはシステムの既定アプリではありません。その .exe を指定すると、再生画面から現在の動画を直接渡せるようになります"
+  managePlayersDescMac: "IINA、VLC、mpv などのアプリケーションを指定すると、再生画面から現在の動画を直接渡せるようになります"
+  managePlayersDescLinux: "mpv、VLC、Celluloid などの実行ファイルを指定すると、再生画面から現在の動画を直接渡せるようになります"
+  pickExecutableHintWindows: "プレイヤーのインストール先にある .exe 本体を選んでください（例：HereSphere.exe、vlc.exe）。デスクトップのショートカット（.lnk）は使えません"
+  pickExecutableHintMac: "「アプリケーション」からプレイヤーの .app を選んでください（例：IINA.app）。中の実行ファイルは自動で特定します"
+  pickExecutableHintLinux: "プレイヤーの実行ファイルを選んでください（例：/usr/bin/mpv）。which mpv で場所が分かります"
+  emptyStateGuide: '設定すると、再生画面の「他のアプリで開く」に項目として直接並びます。よく使われるもの：${examples}'
+  detectNothingFoundGuide: "インストール済みのプレイヤーは見つかりませんでした。独自のフォルダーやポータブル版は検出できないので、「プレイヤーを追加」から手動で指定してください"
+  detectNothingNew: "新しいプレイヤーはありません。インストール済みのものはすべて一覧に入っています"
+  detectFailed: "検出に失敗しました。「プレイヤーを追加」から手動で指定できます"
+  advancedOptions: "詳細設定"
+  playerNameHint: "空欄ならファイル名を使います"
+  executablePathRequired: "先にプレイヤーの実行ファイルを選んでください"
   playerCount: '${count} 件設定済み'
   noPlayerConfigured: "外部プレイヤーはまだ設定されていません"
   autoDetect: "自動検出"

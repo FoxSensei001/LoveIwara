@@ -5979,8 +5979,44 @@ class TranslationsExternalPlayerEn {
 	/// en: 'Manage external players'
 	String get managePlayers => 'Manage external players';
 
-	/// en: 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player'
-	String get managePlayersDesc => 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player';
+	/// en: 'PCVR players like HereSphere, DeoVR and Whirligig are not the system default app. Point this at their .exe and you can hand the current video over straight from the player.'
+	String get managePlayersDescWindows => 'PCVR players like HereSphere, DeoVR and Whirligig are not the system default app. Point this at their .exe and you can hand the current video over straight from the player.';
+
+	/// en: 'Point this at players such as IINA, VLC or mpv and you can hand the current video over straight from the player.'
+	String get managePlayersDescMac => 'Point this at players such as IINA, VLC or mpv and you can hand the current video over straight from the player.';
+
+	/// en: 'Point this at players such as mpv, VLC or Celluloid and you can hand the current video over straight from the player.'
+	String get managePlayersDescLinux => 'Point this at players such as mpv, VLC or Celluloid and you can hand the current video over straight from the player.';
+
+	/// en: 'Pick the main .exe inside the player's install folder, e.g. HereSphere.exe or vlc.exe. Desktop shortcuts (.lnk) will not work.'
+	String get pickExecutableHintWindows => 'Pick the main .exe inside the player\'s install folder, e.g. HereSphere.exe or vlc.exe. Desktop shortcuts (.lnk) will not work.';
+
+	/// en: 'Pick the player's .app in Applications, e.g. IINA.app — the real executable inside is located for you.'
+	String get pickExecutableHintMac => 'Pick the player\'s .app in Applications, e.g. IINA.app — the real executable inside is located for you.';
+
+	/// en: 'Pick the player's executable, e.g. /usr/bin/mpv. Running which mpv will tell you where it lives.'
+	String get pickExecutableHintLinux => 'Pick the player\'s executable, e.g. /usr/bin/mpv. Running which mpv will tell you where it lives.';
+
+	/// en: 'Once configured it shows up as its own entry under Open with another app on the player page. Common ones: ${examples}'
+	String emptyStateGuide({required Object examples}) => 'Once configured it shows up as its own entry under Open with another app on the player page. Common ones: ${examples}';
+
+	/// en: 'No installed players found. Custom install folders and portable builds cannot be detected — use Add player to point at one yourself.'
+	String get detectNothingFoundGuide => 'No installed players found. Custom install folders and portable builds cannot be detected — use Add player to point at one yourself.';
+
+	/// en: 'No new players found; everything installed is already in the list'
+	String get detectNothingNew => 'No new players found; everything installed is already in the list';
+
+	/// en: 'Detection failed — use Add player to point at one yourself'
+	String get detectFailed => 'Detection failed — use Add player to point at one yourself';
+
+	/// en: 'Advanced'
+	String get advancedOptions => 'Advanced';
+
+	/// en: 'Leave empty to use the file name'
+	String get playerNameHint => 'Leave empty to use the file name';
+
+	/// en: 'Choose the player's executable first'
+	String get executablePathRequired => 'Choose the player\'s executable first';
 
 	/// en: '${count} configured'
 	String playerCount({required Object count}) => '${count} configured';
@@ -11395,7 +11431,19 @@ extension on Translations {
 			'externalPlayer.handedOff' => 'Handed off to the external player',
 			'externalPlayer.desktopSectionTitle' => 'External players',
 			'externalPlayer.managePlayers' => 'Manage external players',
-			'externalPlayer.managePlayersDesc' => 'PCVR players (HereSphere, DeoVR, Whirligig and friends) are not the system default app, so point this at their executable to hand videos over from the player',
+			'externalPlayer.managePlayersDescWindows' => 'PCVR players like HereSphere, DeoVR and Whirligig are not the system default app. Point this at their .exe and you can hand the current video over straight from the player.',
+			'externalPlayer.managePlayersDescMac' => 'Point this at players such as IINA, VLC or mpv and you can hand the current video over straight from the player.',
+			'externalPlayer.managePlayersDescLinux' => 'Point this at players such as mpv, VLC or Celluloid and you can hand the current video over straight from the player.',
+			'externalPlayer.pickExecutableHintWindows' => 'Pick the main .exe inside the player\'s install folder, e.g. HereSphere.exe or vlc.exe. Desktop shortcuts (.lnk) will not work.',
+			'externalPlayer.pickExecutableHintMac' => 'Pick the player\'s .app in Applications, e.g. IINA.app — the real executable inside is located for you.',
+			'externalPlayer.pickExecutableHintLinux' => 'Pick the player\'s executable, e.g. /usr/bin/mpv. Running which mpv will tell you where it lives.',
+			'externalPlayer.emptyStateGuide' => ({required Object examples}) => 'Once configured it shows up as its own entry under Open with another app on the player page. Common ones: ${examples}',
+			'externalPlayer.detectNothingFoundGuide' => 'No installed players found. Custom install folders and portable builds cannot be detected — use Add player to point at one yourself.',
+			'externalPlayer.detectNothingNew' => 'No new players found; everything installed is already in the list',
+			'externalPlayer.detectFailed' => 'Detection failed — use Add player to point at one yourself',
+			'externalPlayer.advancedOptions' => 'Advanced',
+			'externalPlayer.playerNameHint' => 'Leave empty to use the file name',
+			'externalPlayer.executablePathRequired' => 'Choose the player\'s executable first',
 			'externalPlayer.playerCount' => ({required Object count}) => '${count} configured',
 			'externalPlayer.noPlayerConfigured' => 'No external player configured yet',
 			'externalPlayer.autoDetect' => 'Auto-detect',
@@ -11428,6 +11476,8 @@ extension on Translations {
 			'watchLater.addFailed' => 'Failed to add to Watch Later',
 			'watchLater.invalidItem' => 'Unavailable',
 			'watchLater.clearWatched' => 'Clear watched',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => 'Cleared ${count} watched items',
 			'watchLater.noWatchedToClear' => 'Nothing watched to clear',
 			'watchLater.emptyVideo' => 'No videos in Watch Later yet',
@@ -11440,8 +11490,6 @@ extension on Translations {
 			'watchLater.playlistLoadFailed' => 'Failed to load playlists',
 			'watchLater.noPlaylists' => 'No playlists yet',
 			'watchLater.undo' => 'Undo',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.clearWatchedConfirm' => 'Clear everything you have already watched in this tab? This cannot be undone.',
 			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
 			'watchLater.emptyUnwatchedGallery' => 'Nothing left to view here',

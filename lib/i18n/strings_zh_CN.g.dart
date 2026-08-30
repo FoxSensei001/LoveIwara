@@ -2377,7 +2377,19 @@ class _TranslationsExternalPlayerZhCn implements TranslationsExternalPlayerEn {
 	@override String get handedOff => '已交给外部播放器';
 	@override String get desktopSectionTitle => '外部播放器';
 	@override String get managePlayers => '管理外部播放器';
-	@override String get managePlayersDesc => 'PCVR 播放器（HereSphere、DeoVR、Whirligig 等）不是系统默认关联程序，指定可执行文件后就能从播放器里直接转交';
+	@override String get managePlayersDescWindows => 'HereSphere、DeoVR、Whirligig 这类 PCVR 播放器不是系统默认关联程序，指定它们的 .exe 之后，就能从播放器里把当前视频直接转交过去';
+	@override String get managePlayersDescMac => '指定 IINA、VLC、mpv 这类播放器的应用程序，之后就能从播放器里把当前视频直接转交过去';
+	@override String get managePlayersDescLinux => '指定 mpv、VLC、Celluloid 这类播放器的可执行文件，之后就能从播放器里把当前视频直接转交过去';
+	@override String get pickExecutableHintWindows => '选播放器安装目录里的 .exe 主程序，例如 HereSphere.exe、vlc.exe。桌面快捷方式（.lnk）不行';
+	@override String get pickExecutableHintMac => '在「应用程序」里选播放器的 .app，例如 IINA.app；里面真正的可执行文件会自动定位';
+	@override String get pickExecutableHintLinux => '选播放器的可执行文件，例如 /usr/bin/mpv；用 which mpv 就能查到它在哪儿';
+	@override String emptyStateGuide({required Object examples}) => '配好之后，播放页的「用其他应用打开」里会直接多出对应的条目。常见的有：${examples}';
+	@override String get detectNothingFoundGuide => '没探测到已安装的播放器。装在自定义目录、或者是免安装的绿色版都探不到，用「添加播放器」手动指定即可';
+	@override String get detectNothingNew => '没有发现新的播放器，装了的都已经在列表里了';
+	@override String get detectFailed => '探测失败，可以改用「添加播放器」手动指定';
+	@override String get advancedOptions => '高级选项';
+	@override String get playerNameHint => '留空就用文件名';
+	@override String get executablePathRequired => '请先选择播放器的可执行文件';
 	@override String playerCount({required Object count}) => '已配置 ${count} 个';
 	@override String get noPlayerConfigured => '还没有配置任何外部播放器';
 	@override String get autoDetect => '自动探测';
@@ -6190,7 +6202,19 @@ extension on TranslationsZhCn {
 			'externalPlayer.handedOff' => '已交给外部播放器',
 			'externalPlayer.desktopSectionTitle' => '外部播放器',
 			'externalPlayer.managePlayers' => '管理外部播放器',
-			'externalPlayer.managePlayersDesc' => 'PCVR 播放器（HereSphere、DeoVR、Whirligig 等）不是系统默认关联程序，指定可执行文件后就能从播放器里直接转交',
+			'externalPlayer.managePlayersDescWindows' => 'HereSphere、DeoVR、Whirligig 这类 PCVR 播放器不是系统默认关联程序，指定它们的 .exe 之后，就能从播放器里把当前视频直接转交过去',
+			'externalPlayer.managePlayersDescMac' => '指定 IINA、VLC、mpv 这类播放器的应用程序，之后就能从播放器里把当前视频直接转交过去',
+			'externalPlayer.managePlayersDescLinux' => '指定 mpv、VLC、Celluloid 这类播放器的可执行文件，之后就能从播放器里把当前视频直接转交过去',
+			'externalPlayer.pickExecutableHintWindows' => '选播放器安装目录里的 .exe 主程序，例如 HereSphere.exe、vlc.exe。桌面快捷方式（.lnk）不行',
+			'externalPlayer.pickExecutableHintMac' => '在「应用程序」里选播放器的 .app，例如 IINA.app；里面真正的可执行文件会自动定位',
+			'externalPlayer.pickExecutableHintLinux' => '选播放器的可执行文件，例如 /usr/bin/mpv；用 which mpv 就能查到它在哪儿',
+			'externalPlayer.emptyStateGuide' => ({required Object examples}) => '配好之后，播放页的「用其他应用打开」里会直接多出对应的条目。常见的有：${examples}',
+			'externalPlayer.detectNothingFoundGuide' => '没探测到已安装的播放器。装在自定义目录、或者是免安装的绿色版都探不到，用「添加播放器」手动指定即可',
+			'externalPlayer.detectNothingNew' => '没有发现新的播放器，装了的都已经在列表里了',
+			'externalPlayer.detectFailed' => '探测失败，可以改用「添加播放器」手动指定',
+			'externalPlayer.advancedOptions' => '高级选项',
+			'externalPlayer.playerNameHint' => '留空就用文件名',
+			'externalPlayer.executablePathRequired' => '请先选择播放器的可执行文件',
 			'externalPlayer.playerCount' => ({required Object count}) => '已配置 ${count} 个',
 			'externalPlayer.noPlayerConfigured' => '还没有配置任何外部播放器',
 			'externalPlayer.autoDetect' => '自动探测',
@@ -6223,6 +6247,8 @@ extension on TranslationsZhCn {
 			'watchLater.addFailed' => '加入稍后再看失败',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => '已清除 ${count} 条看完的内容',
 			'watchLater.noWatchedToClear' => '没有已看完的内容',
 			'watchLater.emptyVideo' => '还没有加入稍后再看的视频',
@@ -6235,8 +6261,6 @@ extension on TranslationsZhCn {
 			'watchLater.playlistLoadFailed' => '播放列表加载失败',
 			'watchLater.noPlaylists' => '还没有播放列表',
 			'watchLater.undo' => '撤销',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.clearWatchedConfirm' => '要清除这个分类下所有已看完的内容吗？此操作不可撤销。',
 			'watchLater.emptyUnwatchedVideo' => '没有未看完的视频',
 			'watchLater.emptyUnwatchedGallery' => '没有未看完的图库',

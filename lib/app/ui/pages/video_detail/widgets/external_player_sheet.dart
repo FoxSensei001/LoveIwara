@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/desktop_external_player.dart';
 import 'package:i_iwara/app/services/external_player_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -69,7 +69,10 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
   ExternalPlayerSource get source => widget.source;
 
   /// 桌面端用户自己配的播放器（PCVR 播放器全靠这条路）。移动端恒为空。
-  late final List<DesktopPlayerEntry> _desktopPlayers = GetPlatform.isDesktop
+  ///
+  /// ⛔ 不能是 `late final`：管理弹窗就地开在本面板上面（见 [_openPlayerManager]），
+  /// 配完要当场重读，面板才会立刻多出那一行。
+  List<DesktopPlayerEntry> _desktopPlayers = GetPlatform.isDesktop
       ? DesktopPlayerStore.load()
       : const [];
 
@@ -115,7 +118,7 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
           icon: Icons.add,
           label: t.externalPlayer.managePlayers,
           note: t.externalPlayer.noPlayerConfigured,
-          onTap: _openPlayerSettings,
+          onTap: _openPlayerManager,
         ),
     ];
 
@@ -147,7 +150,7 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
               detail: t.externalPlayer.playerCount(
                 count: _desktopPlayers.length,
               ),
-              onTap: _openPlayerSettings,
+              onTap: _openPlayerManager,
             ),
           ],
         ],
@@ -155,9 +158,21 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
     );
   }
 
-  void _openPlayerSettings() {
-    Navigator.of(context).pop();
-    appRouter.push(SettingsSection.player.path);
+  /// 就地开管理弹窗，**不离开播放页**。
+  ///
+  /// ⛔ 上一版是 `Navigator.pop()` 关掉本面板 + `appRouter.push(设置页)`：用户
+  /// 正在看视频，点一下「管理外部播放器」就被整页扔进设置里，还得自己在那儿再
+  /// 点一次才弹出这只弹窗——两层跳转换来的是同一个弹窗，而视频那边的上下文全丢了
+  /// （2026-08-30 用户报障：「点击后跳到设置页就不明所谓了」）。
+  ///
+  /// 配完当场重读列表：新配的播放器要立刻出现在上面的动作区，否则用户配完回到
+  /// 面板发现什么也没变，只会以为没配上。无条件重读——配置就在内存里，一次小
+  /// JSON 解码而已，比让弹窗回传一个「改过没」的信号可靠（那个信号会在关闭钮
+  /// 那条路上丢，见 [showDesktopPlayerManagerDialog]）。
+  Future<void> _openPlayerManager() async {
+    await showDesktopPlayerManagerDialog(context);
+    if (!mounted) return;
+    setState(() => _desktopPlayers = DesktopPlayerStore.load());
   }
 
   Future<void> _copyLink(
