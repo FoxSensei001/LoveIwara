@@ -784,12 +784,12 @@ class _SearchResultState extends State<SearchResult> {
   static const String _menuActionToggleMultiSelect = 'toggle_multi_select';
   static const String _menuActionRefresh = 'refresh';
   static const String _menuActionTogglePagination = 'toggle_pagination';
-  static const String _menuActionSavedSearch = 'saved_search';
   static const String _menuActionTagInfo = 'tag_info';
   static const String _menuActionTranslate = 'translate';
 
-  /// 「更多」菜单：多选（视频/图库）、刷新、已保存搜索；
+  /// 「更多」菜单：多选（视频/图库）、刷新、分页切换；
   /// oreno3d 单实体浏览时再加标签详情 / 翻译。
+  /// 「已保存搜索」不在这里：它是常驻入口，见 _buildActionGroup。
   Widget _buildMoreMenuButton(
     slang.Translations t,
     SearchSegment segment,
@@ -840,11 +840,6 @@ class _SearchResultState extends State<SearchResult> {
                     ? t.common.pagination.waterfall
                     : t.common.pagination.pagination,
               ),
-              GlassMenuOption<String>(
-                value: _menuActionSavedSearch,
-                icon: Icons.bookmarks_outlined,
-                label: t.savedSearch.title,
-              ),
               if (isBrowseMode) ...[
                 const GlassMenuSeparator(),
                 GlassMenuOption<String>(
@@ -872,9 +867,6 @@ class _SearchResultState extends State<SearchResult> {
               searchController.isPaginated.toggle();
               searchController.scrollToTop();
               break;
-            case _menuActionSavedSearch:
-              _openSavedSearchDrawer();
-              break;
             case _menuActionTagInfo:
               _showOreno3dTagDetailDialog();
               break;
@@ -887,7 +879,7 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  /// 右侧动作胶囊：分段 · 排序 · 筛选 · 更多。
+  /// 右侧动作胶囊：分段 · 排序 · 筛选 · 已保存搜索 · 更多。
   Widget _buildActionGroup(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
@@ -911,6 +903,12 @@ class _SearchResultState extends State<SearchResult> {
               badgeLabel: filterCount > 0 ? Text('$filterCount') : null,
               onPressed: _showFilterDialog,
             ),
+          // 「已保存搜索」常驻：原先藏在「更多」菜单里，入口太深
+          GlassIconButton(
+            icon: const Icon(Icons.bookmarks_outlined),
+            tooltip: t.savedSearch.title,
+            onPressed: _openSavedSearchDrawer,
+          ),
           _buildMoreMenuButton(t, segment, isBrowseMode),
         ],
       );
