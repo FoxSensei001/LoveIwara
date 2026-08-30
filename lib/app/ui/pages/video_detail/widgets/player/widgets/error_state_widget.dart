@@ -32,11 +32,7 @@ class ErrorStateWidget extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.5),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.error_outline,
-            color: Colors.red,
-            size: 48,
-          ),
+          child: const Icon(Icons.error_outline, color: Colors.red, size: 48),
         ),
         const SizedBox(height: 16),
         Container(
@@ -44,7 +40,9 @@ class ErrorStateWidget extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                _getTruncatedErrorMessage(controller.videoSourceErrorMessage.value!),
+                _getTruncatedErrorMessage(
+                  controller.videoSourceErrorMessage.value!,
+                ),
                 style: const TextStyle(color: Colors.white, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -53,7 +51,9 @@ class ErrorStateWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton.icon(
-                    onPressed: onShowErrorDetail ?? () => _showErrorDetailSheet(context),
+                    onPressed:
+                        onShowErrorDetail ??
+                        () => _showErrorDetailSheet(context),
                     icon: const Icon(Icons.info_outline, size: 16),
                     label: Text(slang.t.common.detail),
                     style: ElevatedButton.styleFrom(
@@ -114,39 +114,42 @@ class ErrorStateWidget extends StatelessWidget {
     for (final match in matches) {
       // 添加链接前的普通文本
       if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: text.substring(lastIndex, match.start),
-          style: TextStyle(color: textColor, fontSize: 14),
-        ));
+        spans.add(
+          TextSpan(
+            text: text.substring(lastIndex, match.start),
+            style: TextStyle(color: textColor, fontSize: 14),
+          ),
+        );
       }
 
       // 添加链接文本
       final url = text.substring(match.start, match.end);
-      spans.add(TextSpan(
-        text: url,
-        style: const TextStyle(
-          color: Colors.blue,
-          fontSize: 14,
-          decoration: TextDecoration.underline,
+      spans.add(
+        TextSpan(
+          text: url,
+          style: const TextStyle(
+            color: Colors.blue,
+            fontSize: 14,
+            decoration: TextDecoration.underline,
+          ),
+          recognizer: TapGestureRecognizer()..onTap = () => _launchUrl(url),
         ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () => _launchUrl(url),
-      ));
+      );
 
       lastIndex = match.end;
     }
 
     // 添加剩余的普通文本
     if (lastIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastIndex),
-        style: TextStyle(color: textColor, fontSize: 14),
-      ));
+      spans.add(
+        TextSpan(
+          text: text.substring(lastIndex),
+          style: TextStyle(color: textColor, fontSize: 14),
+        ),
+      );
     }
 
-    return SelectableText.rich(
-      TextSpan(children: spans),
-    );
+    return SelectableText.rich(TextSpan(children: spans));
   }
 
   // 启动URL

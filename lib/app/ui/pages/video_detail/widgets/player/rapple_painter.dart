@@ -32,7 +32,7 @@ class RipplePainter extends CustomPainter {
   @override
   bool shouldRepaint(RipplePainter oldDelegate) =>
       color != oldDelegate.color ||
-          animationValue != oldDelegate.animationValue ||
-          origin != oldDelegate.origin ||
-          maxRadius != oldDelegate.maxRadius;
+      animationValue != oldDelegate.animationValue ||
+      origin != oldDelegate.origin ||
+      maxRadius != oldDelegate.maxRadius;
 }

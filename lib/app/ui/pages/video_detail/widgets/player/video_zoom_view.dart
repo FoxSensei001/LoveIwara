@@ -82,9 +82,7 @@ double wheelScaleFactorFor({
 }) {
   if (scrollDeltaY == 0) return 1.0;
   if (discrete) {
-    return scrollDeltaY < 0
-        ? kWheelNotchZoomFactor
-        : 1 / kWheelNotchZoomFactor;
+    return scrollDeltaY < 0 ? kWheelNotchZoomFactor : 1 / kWheelNotchZoomFactor;
   }
   return math.exp(-scrollDeltaY / kContinuousScrollScaleFactor);
 }
@@ -103,7 +101,6 @@ double wheelRotationDeltaFor({
 
 class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     with SingleTickerProviderStateMixin {
-
   /// 当前活跃指针：id -> 最新本地坐标
   final Map<int, Offset> _pointers = {};
 
@@ -375,7 +372,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     // 该平台没跟上），两者的修法完全不同。
     LogUtils.d(
       '[滚轮] dy=${event.scrollDelta.dy.toStringAsFixed(1)} '
-      'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed}',
+          'ctrl=${keyboard.isControlPressed} shift=${keyboard.isShiftPressed}',
       'WheelZoom',
     );
     final oldScale = _c.videoZoomScale.value;
@@ -494,10 +491,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
           onPointerPanZoomEnd: _onPointerPanZoomEnd,
           child: Stack(
             fit: StackFit.expand,
-            children: [
-              widget.child,
-              _buildRestoreButton(),
-            ],
+            children: [widget.child, _buildRestoreButton()],
           ),
         );
       },

@@ -104,8 +104,7 @@ Size resolveSeekPreviewFrameSize({
   required double videoAspectRatio,
   required SeekPreviewSize preference,
 }) {
-  final double aspectRatio =
-      (videoAspectRatio.isFinite && videoAspectRatio > 0)
+  final double aspectRatio = (videoAspectRatio.isFinite && videoAspectRatio > 0)
       ? videoAspectRatio.clamp(
           kSeekPreviewMinAspectRatio,
           kSeekPreviewMaxAspectRatio,
