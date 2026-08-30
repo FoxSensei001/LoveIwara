@@ -22,6 +22,7 @@ class GlassTitlePill extends StatelessWidget {
     super.key,
     this.title,
     this.subtitle,
+    this.icon,
     this.placeholderWidth = 140,
     this.flat = false,
     this.onTap,
@@ -29,6 +30,18 @@ class GlassTitlePill extends StatelessWidget {
 
   /// 标题文本；null 表示仍在加载（显示 shimmer 占位条）。
   final String? title;
+
+  /// 标题前的引导图标。
+  ///
+  /// 给「这只胶囊写的是一个实体、点它有详情可看」的场合用（标签页 / oreno3d
+  /// 单实体浏览）：图标说的是**点了会怎样**，所以它和 [onTap] 是一对。
+  ///
+  /// ⛔ 别再往 [title] 里拼前缀字符（这两处原来是 `'# $name'`）：拼进去的字
+  /// 会一路跟着进完整标题弹窗、进 tooltip、进读屏，还没法跟着主题走颜色。
+  ///
+  /// 加载中（[title] 为 null）时**不画**：那会儿画一枚光秃秃的图标和当年画一
+  /// 个光秃秃的「#」一样不诚实，占位就老老实实只是占位。
+  final IconData? icon;
 
   /// 可选副标题（如分类描述）；胶囊里不展示，只出现在完整标题弹窗里。
   final String? subtitle;
@@ -72,13 +85,29 @@ class GlassTitlePill extends StatelessWidget {
           )
         : KeyedSubtree(
             key: const ValueKey('glass-title-text'),
-            child: Text(
-              resolvedTitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  // 跟着标题字号走，不写死：字体缩放调大时图标不能留在原地。
+                  Icon(
+                    icon,
+                    size: (textTheme.titleMedium?.fontSize ?? 16) + 2,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Flexible(
+                  child: Text(
+                    resolvedTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
 

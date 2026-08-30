@@ -7,7 +7,6 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -19,6 +18,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 
@@ -427,56 +427,26 @@ class _SearchResultState extends State<SearchResult> {
     return false;
   }
 
-  // 构建 oreno3d 单实体浏览胶囊：#标签名（点按复制）+ 搜索入口；
-  // 标签详情 / 翻译入口收进右侧「更多」菜单
+  /// oreno3d 单实体浏览时的标题胶囊：`? 标签名`，点它开实体详情
+  /// （原文 / 译文 / 复制 / 纠错）。
+  ///
+  /// ⛔ 它**不能**长得像搜索框。更早一版是「`#标签名` + 一枚放大镜」的组合胶囊：
+  /// 形状与文本搜索那只一模一样、右边还嵌着搜索钮，于是整只被读成「一个搜索
+  /// 框」而不是「我正在看哪个标签」，点下去出来的又是复制——三种身份挤在一只
+  /// 胶囊上。同一件事在 Iwara 标签页（`tag_media_list_page`）是一枚
+  /// [GlassTitlePill]、点按开标签详情，两边现在对齐到同一套读法；复制并没有
+  /// 丢，它在详情弹窗里。搜索入口挪去右边的动作胶囊（见 [_buildActionGroup]），
+  /// 那里本来就是「对这一堆东西怎么看、怎么筛」的一组。
   Widget _buildOreno3dBrowsePill(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return GlassSurface(
-      padding: const EdgeInsets.only(left: 14, right: 2),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _copyTagToClipboard,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(
-                    '#${searchController.currentSingleTagNameBehindSearchInput.value}',
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // 搜索按钮：直接打开搜索弹窗（弹窗内可换原作/角色/标签或改文本搜索）
-          GlassIconButton(
-            icon: const Icon(Icons.search),
-            tooltip: t.common.search,
-            onPressed: _showSearchDialog,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 复制标签到剪贴板
-  void _copyTagToClipboard() {
-    final textToCopy =
-        searchController.currentSingleTagNameBehindSearchInput.value;
-    Clipboard.setData(ClipboardData(text: textToCopy));
-    showGlassToast(
-      slang.t.download.copySuccess,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+    final name = searchController.currentSingleTagNameBehindSearchInput.value
+        .trim();
+    return GlassTitlePill(
+      // 名字还没到时给 null：胶囊自己会显示 shimmer 占位（连引导图标一起不
+      // 画），比画一个光秃秃的图标诚实。
+      title: name.isEmpty ? null : name,
+      // 与 Iwara 标签页同一枚：点它开的是同一种实体详情。
+      icon: Icons.help_outline,
+      onTap: _showOreno3dTagDetailDialog,
     );
   }
 
@@ -879,7 +849,7 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  /// 右侧动作胶囊：分段 · 排序 · 筛选 · 已保存搜索 · 更多。
+  /// 右侧动作胶囊：搜索（仅单实体浏览）· 分段 · 排序 · 筛选 · 已保存搜索 · 更多。
   Widget _buildActionGroup(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
@@ -893,6 +863,14 @@ class _SearchResultState extends State<SearchResult> {
 
       return GlassButtonGroup(
         children: [
+          // 单实体浏览时标题胶囊写的是标签名（不再是搜索框），搜索入口就落在
+          // 这里——弹窗内可换原作 / 角色 / 标签，或改回文本搜索。
+          if (isBrowseMode)
+            GlassIconButton(
+              icon: const Icon(Icons.search),
+              tooltip: t.common.search,
+              onPressed: _showSearchDialog,
+            ),
           _buildSegmentMenuButton(t, segment),
           if (showSort) _buildSortMenuButton(t, segment, sort),
           if (segment != SearchSegment.oreno3d)

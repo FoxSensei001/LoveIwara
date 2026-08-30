@@ -796,7 +796,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
                           onTap: openProfile,
-                          child: AvatarWidget(user: thread.user, size: 40),
+                          child: AvatarWidget(user: thread.user, size: 36),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -851,85 +851,93 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            // 标题：主楼完整展示不截断（header 胶囊里才做省略）
+                            SelectableText(
+                              thread.title,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                height: 1.25,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            // 状态 / 统计 chips
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 6,
+                              children: [
+                                if (thread.sticky)
+                                  _buildThreadStatusChip(
+                                    icon: Icons.push_pin_rounded,
+                                    color: colorScheme.primary,
+                                  ),
+                                if (thread.locked)
+                                  _buildThreadStatusChip(
+                                    icon: Icons.lock_rounded,
+                                    color: colorScheme.error,
+                                  ),
+                                _buildThreadMetaChip(
+                                  icon: Icons.visibility_rounded,
+                                  text: CommonUtils.formatFriendlyNumber(
+                                    thread.numViews,
+                                  ),
+                                ),
+                                _buildThreadMetaChip(
+                                  icon: Icons.chat_bubble_outline_rounded,
+                                  text: CommonUtils.formatFriendlyNumber(
+                                    thread.numPosts,
+                                  ),
+                                ),
+                                _buildThreadMetaChip(
+                                  icon: Icons.update_rounded,
+                                  text: CommonUtils.formatFriendlyTimestamp(
+                                    thread.updatedAt,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            // 动作行：翻译 / 编辑标题
+                            //（幽灵钮，右对齐与楼层动作行呼应）
+                            Row(
+                              children: [
+                                const Spacer(),
+                                _buildGhostAction(
+                                  icon: Icons.translate,
+                                  label: t.common.translate,
+                                  onTap: () {
+                                    showTranslationDialog(
+                                      context,
+                                      text: thread.title,
+                                    );
+                                  },
+                                ),
+                                if (isMe) ...[
+                                  const SizedBox(width: 8),
+                                  _buildGhostAction(
+                                    icon: Icons.edit,
+                                    label: t.forum.editTitle,
+                                    onTap: () {
+                                      showAppDialog(
+                                        ForumEditTitleDialog(
+                                          postId: thread.id,
+                                          initialTitle: thread.title,
+                                          repository: listSourceRepository,
+                                          onSubmit: () {
+                                            _refresh();
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ],
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // 标题：主楼完整展示不截断（header 胶囊里才做省略）
-                  SelectableText(
-                    thread.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      height: 1.25,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // 状态 / 统计 chips
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (thread.sticky)
-                        _buildThreadStatusChip(
-                          icon: Icons.push_pin_rounded,
-                          color: colorScheme.primary,
-                        ),
-                      if (thread.locked)
-                        _buildThreadStatusChip(
-                          icon: Icons.lock_rounded,
-                          color: colorScheme.error,
-                        ),
-                      _buildThreadMetaChip(
-                        icon: Icons.visibility_rounded,
-                        text: CommonUtils.formatFriendlyNumber(thread.numViews),
-                      ),
-                      _buildThreadMetaChip(
-                        icon: Icons.chat_bubble_outline_rounded,
-                        text: CommonUtils.formatFriendlyNumber(thread.numPosts),
-                      ),
-                      _buildThreadMetaChip(
-                        icon: Icons.update_rounded,
-                        text: CommonUtils.formatFriendlyTimestamp(
-                          thread.updatedAt,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // 动作行：翻译 / 编辑标题（幽灵钮，右对齐与楼层动作行呼应）
-                  Row(
-                    children: [
-                      const Spacer(),
-                      _buildGhostAction(
-                        icon: Icons.translate,
-                        label: t.common.translate,
-                        onTap: () {
-                          showTranslationDialog(context, text: thread.title);
-                        },
-                      ),
-                      if (isMe) ...[
-                        const SizedBox(width: 8),
-                        _buildGhostAction(
-                          icon: Icons.edit,
-                          label: t.forum.editTitle,
-                          onTap: () {
-                            showAppDialog(
-                              ForumEditTitleDialog(
-                                postId: thread.id,
-                                initialTitle: thread.title,
-                                repository: listSourceRepository,
-                                onSubmit: () {
-                                  _refresh();
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      ],
                     ],
                   ),
                 ],
@@ -1002,43 +1010,40 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
           child: Shimmer.fromColors(
             baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             highlightColor: Theme.of(context).colorScheme.surface,
-            child: Column(
+            // 与正式主楼一致：标题 / chips 也缩进到头像右侧那一列
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 12,
+              spacing: 10,
               children: [
-                // 作者信息
-                Row(
-                  spacing: 10,
-                  children: [
-                    // 头像
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 4,
-                        children: [
-                          // 用户名
-                          bar(100, 14),
-                          // 元信息行
-                          bar(140, 12),
-                        ],
-                      ),
-                    ),
-                  ],
+                // 头像
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
                 ),
-                // 标题
-                bar(double.infinity, 20),
-                // 状态 / 统计 chips
-                Row(
-                  spacing: 8,
-                  children: [bar(60, 19), bar(60, 19), bar(60, 19)],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 用户名
+                      bar(100, 14),
+                      const SizedBox(height: 4),
+                      // 元信息行
+                      bar(140, 12),
+                      const SizedBox(height: 12),
+                      // 标题
+                      bar(double.infinity, 20),
+                      const SizedBox(height: 10),
+                      // 状态 / 统计 chips
+                      Row(
+                        spacing: 8,
+                        children: [bar(60, 19), bar(60, 19), bar(60, 19)],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

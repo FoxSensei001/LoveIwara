@@ -36,7 +36,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 ///
 /// 版式走 `GlassHeaderOverlay` 悬浮 header，**只有一行**：
 ///
-///     [返回] [# 标签名 ————] [排序 ▾] [ 筛选 │ ⋮ ]
+///     [返回] [? 标签名 ————] [排序 ▾] [ 筛选 │ ⋮ ]
 ///
 /// 列表铺满整页、靠 `paddingTop` 让出 header 从它背后滚过。
 ///
@@ -414,7 +414,10 @@ class _TagMediaListPageState extends State<TagMediaListPage>
           const SizedBox(width: 8),
           Expanded(
             child: GlassTitlePill(
-              title: '# $_tagDisplayName',
+              title: _tagDisplayName,
+              // 图标说的是「点了会怎样」——和右边菜单里那条「标签信息」是同一个
+              // 动作，所以用同一枚图标。
+              icon: Icons.help_outline,
               // 点它开的是标签详情（原文 / 译文 / 复制 / 纠错）而不是通用的
               // 「完整标题」弹窗——这只胶囊写的是一个实体，不是一段正文标题。
               onTap: () => showTagDetailDialog(context, widget.tag),
@@ -485,7 +488,8 @@ class _TagMediaListPageState extends State<TagMediaListPage>
                   key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
                   sortId: sort.id,
                   repository:
-                      _repositories[sort.id]! as BaseMediaRepository<ImageModel>,
+                      _repositories[sort.id]!
+                          as BaseMediaRepository<ImageModel>,
                   emptyIcon: Icons.photo_library_outlined,
                   isPaginated: isPaginated,
                   rebuildKey: rebuildKey,
