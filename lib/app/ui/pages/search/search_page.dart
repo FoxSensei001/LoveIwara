@@ -19,6 +19,7 @@ import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/saved_search_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_search_input_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -396,65 +397,52 @@ class _SearchPageState extends State<SearchPage> {
               // 顶部内嵌搜索输入框（液态玻璃风格）
               Expanded(
                 child: Obx(
-                  () => GlassSurface(
-                    height: 44,
-                    borderRadius: BorderRadius.circular(22),
-                    padding: const EdgeInsets.only(left: 12, right: 6),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.search,
-                          size: 18,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: TextField(
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            autofocus: false,
-                            textInputAction: TextInputAction.search,
-                            textAlignVertical: TextAlignVertical.center,
-                            style: TextStyle(
+                  // 取焦层包在玻璃外面：内边距在 child 外层，当 child 会漏掉它。
+                  () => GlassSearchPillTapArea(
+                    focusNode: _focusNode,
+                    child: GlassSurface(
+                      height: 44,
+                      borderRadius: BorderRadius.circular(22),
+                      padding: const EdgeInsets.only(left: 12, right: 6),
+                      // 输入框不跟手形变：见桌面端那处同样的说明。
+                      liquidTouch: false,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search,
+                            size: 18,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GlassSearchInputField(
+                              controller: _controller,
+                              focusNode: _focusNode,
                               fontSize: 14.5,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSurface,
-                            ),
-                            decoration: InputDecoration(
-                              isDense: true,
                               hintText: _searchPlaceholder.value.isEmpty
                                   ? t.search.pleaseEnterSearchContent
                                   : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                              hintStyle: TextStyle(
-                                fontSize: 13.5,
-                                color: colorScheme.onSurfaceVariant.withValues(
-                                  alpha: 0.8,
-                                ),
-                              ),
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
+                              onChanged: () {
+                                _searchErrorText.value = '';
+                                setState(() {});
+                              },
+                              onSubmitted: _handleSubmit,
                             ),
-                            onChanged: (val) {
-                              _searchErrorText.value = '';
-                              setState(() {});
-                            },
-                            onSubmitted: _handleSubmit,
                           ),
-                        ),
-                        if (_controller.text.isNotEmpty)
-                          IconButton(
-                            icon: const Icon(Icons.close, size: 18),
-                            onPressed: () {
-                              _controller.clear();
-                              _searchErrorText.value = '';
-                              _searchPlaceholder.value = '';
-                              _focusNode.requestFocus();
-                              setState(() {});
-                            },
-                          ),
-                      ],
+                          if (_controller.text.isNotEmpty)
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 18),
+                              onPressed: () {
+                                _controller.clear();
+                                _searchErrorText.value = '';
+                                _searchPlaceholder.value = '';
+                                _focusNode.requestFocus();
+                                setState(() {});
+                              },
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -825,70 +813,62 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           // 搜索输入栏（液态玻璃风格）
           Obx(
-            () => GlassSurface(
-              height: 52,
-              borderRadius: BorderRadius.circular(26),
-              padding: const EdgeInsets.only(left: 16, right: 6),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.search,
-                    size: 20,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      focusNode: _focusNode,
-                      autofocus: false,
-                      textInputAction: TextInputAction.search,
-                      textAlignVertical: TextAlignVertical.center,
-                      style: TextStyle(
+            // 取焦层包在玻璃外面：GlassSurface 的 padding 套在 child 外层，
+            // 当 child 就正好漏掉左内边距那一条（见 GlassSearchPillTapArea）。
+            () => GlassSearchPillTapArea(
+              focusNode: _focusNode,
+              child: GlassSurface(
+                height: 52,
+                borderRadius: BorderRadius.circular(26),
+                padding: const EdgeInsets.only(left: 16, right: 6),
+                // ⛔ 输入框这块玻璃**不跟手形变**。跟手形变是给「按钮」用的手感
+                // （按住膨胀、拖着走、松手弹回），而这里按住的目的是把光标放到
+                // 某个字上——胶囊在指尖底下被拉着变形，读起来就是「按坏了」。
+                // 用户 2026-08-31 报的「长按它会有形变」正是这一条。
+                liquidTouch: false,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.search,
+                      size: 20,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GlassSearchInputField(
+                        controller: _controller,
+                        focusNode: _focusNode,
                         fontSize: 15.5,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface,
-                      ),
-                      decoration: InputDecoration(
-                        isDense: true,
+                        hintAlpha: 0.75,
                         hintText: _searchPlaceholder.value.isEmpty
                             ? t.search.pleaseEnterSearchContent
                             : '${t.search.searchSuggestion}: ${_searchPlaceholder.value}',
-                        hintStyle: TextStyle(
-                          fontSize: 14.5,
-                          color: colorScheme.onSurfaceVariant.withValues(
-                            alpha: 0.75,
-                          ),
-                        ),
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
+                        onChanged: () {
+                          _searchErrorText.value = '';
+                          setState(() {});
+                        },
+                        onSubmitted: _handleSubmit,
                       ),
-                      onChanged: (val) {
-                        _searchErrorText.value = '';
-                        setState(() {});
-                      },
-                      onSubmitted: _handleSubmit,
                     ),
-                  ),
-                  if (_controller.text.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () {
-                        _controller.clear();
-                        _searchErrorText.value = '';
-                        _searchPlaceholder.value = '';
-                        _focusNode.requestFocus();
-                        setState(() {});
-                      },
+                    if (_controller.text.isNotEmpty)
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () {
+                          _controller.clear();
+                          _searchErrorText.value = '';
+                          _searchPlaceholder.value = '';
+                          _focusNode.requestFocus();
+                          setState(() {});
+                        },
+                      ),
+                    const SizedBox(width: 6),
+                    GlassSubmitButton(
+                      label: t.common.search,
+                      icon: Icons.search,
+                      onPressed: () => _handleSubmit(_controller.text),
                     ),
-                  const SizedBox(width: 6),
-                  GlassSubmitButton(
-                    label: t.common.search,
-                    icon: Icons.search,
-                    onPressed: () => _handleSubmit(_controller.text),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
