@@ -350,6 +350,40 @@ class LiquidGlassScope extends InheritedWidget {
 /// 融合是这套 shader 的能力（`LiquidGlassBlendGroup` + 平滑并集），传统档没有
 /// 背景采样、easy 档的 lens 各自为政。另外两档下本类是**纯透传**，一个 widget
 /// 都不多建。非 Impeller 环境（Skia / Web）由包自己降级成各画各的。
+///
+/// # ⛔ 也只在 premium 画质档生效（2026-08-31）
+///
+/// 包里建不建 `LiquidGlassBlendGroup` 的判据是
+/// `useFullRenderer = canUseImpeller && quality == premium`
+/// （`adaptive_liquid_glass_layer.dart`）。而 Windows / Linux 的
+/// [chromeGlassQuality] 被钉在 standard（理由见那里：premium 的三条重着色器要
+/// 在光栅线程现编译，首屏 15.1s→6.3s），于是桌面端**从来没有融合发生过**，
+/// 上面那几条代价却一条不少地付着：
+///
+///   - 按下的底色加深没了、[GlassSurface.materialize] 没了（见上）；
+///   - **影子也没了**——成组的玻璃把投影交给祖先层去画，而层里那趟 SDF 影子
+///     的前提是 `geometryImage != null`（`liquid_glass_layer.dart` 的 Pass 0），
+///     那张几何蒙版只有 premium 的 `LiquidGlass.grouped` 子件才会注册。standard
+///     档的子件走 `LightweightLiquidGlass`，一个几何都不注册，层里
+///     `boundingBox == null` 直接早退，Pass 0 根本不跑。包为 lightweight 档准备
+///     的兜底 CSS 影子（`_wrapWithLightModeShadow`）确实在树里、取值也是我们的
+///     [GlassTokens.widgetsShadow]，但实测画不出来。
+///
+/// 2026-08-31 用真机截图（macOS vs Windows）+ 单测量像素定的位。同一枚
+/// 120×44 胶囊，量下缘往外每像素相对白底暗多少：
+///
+/// | 摆法（windows 档） | +0 | +1 | +2 | +3 | +4 | +5 | +6 | +7 |
+/// |---|---|---|---|---|---|---|---|---|
+/// | 在融合组里 | 25 | 18 | **0** | 0 | 0 | 0 | 0 | 0 |
+/// | 单块玻璃 | 17 | 13 | 9 | 6 | 4 | 3 | 2 | 1 |
+/// | 单块、但仍在融合层底下 | 17 | 13 | 9 | 6 | 4 | 3 | 2 | 1 |
+///
+/// 第三行说明**层本身不裁东西**，丢影子的是「加入了融合组」这个动作本身。
+///
+/// 所以非 premium 档下本类同样**纯透传**：桌面端的每块 chrome 回到单块那条路，
+/// 影子（[GlassOuterShadow]）、按压底色、材质淡入一起回来。省层数那笔收益在这
+/// 一档本来也拿不到——standard 档的每块玻璃自己就带合成层，分组并不会把它们并
+/// 成一次采样。
 class GlassBlendGroup extends StatelessWidget {
   const GlassBlendGroup({
     super.key,
@@ -395,7 +429,10 @@ class GlassBlendGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!enabled ||
         !GlassPerfKnobs.blend ||
-        LiquidGlassScope.of(context) != GlassBackend.liquidWidgets) {
+        LiquidGlassScope.of(context) != GlassBackend.liquidWidgets ||
+        // 非 premium（Windows / Linux）：包里根本不会建 `LiquidGlassBlendGroup`，
+        // 分组只剩代价——尤其是影子会整条消失。见类注释里那张像素表。
+        chromeGlassQuality != lgw.GlassQuality.premium) {
       return child;
     }
     // ⛔ 融合组里再套一个融合组＝凭空多一层玻璃（多一次 backdrop 采样、多一次
@@ -814,6 +851,11 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
         // 切光——2026-08-26 真机实锤：把影子调成红色 blur 12 也只在胶囊下缘
         // 漏出一条发丝。融合态没这个问题（影子由上面那层融合层画，在
         // ClipPath 之上），所以当时看到的是「header 里成组的有影子、单块的没有」。
+        //
+        // ⚠️ 上一段那句「融合态没这个问题」**只对 premium 档成立**：层里那趟
+        // SDF 影子要几何蒙版，standard 档（Windows / Linux）根本不产。所以
+        // 2026-08-31 起非 premium 档的 [GlassBlendGroup] 整只透传，桌面端的
+        // chrome 全部走这条单块路——本函数这份影子于是成了那边**唯一**的影子。
         return GlassOuterShadow(
           shadows: elevated && cs.brightness == Brightness.light
               ? GlassTokens.widgetsShadow(alphaScale: m)
@@ -842,6 +884,11 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
 /// 胶囊也只在下缘漏出一条发丝，而同屏那条**成组**的排序行红得发亮——成组那边
 /// 影子由上面的融合层画，在 ClipPath 之上，所以一直是好的。这就是「header 里
 /// 成组的有影子、单块的没有」的全部原因。
+///
+/// ⚠️ 那条「成组的一直是好的」只在 **premium** 档成立（那次是移动端实锤）。
+/// Windows / Linux 钉在 standard，融合层里那趟 SDF 影子拿不到几何蒙版、根本不
+/// 画——2026-08-31 用户报的「macOS 有影子、Windows 跟没有一样」就是它。现在非
+/// premium 档的 [GlassBlendGroup] 整只透传，桌面端所有 chrome 都落到本类头上。
 ///
 /// 画法与包内那套一致：先在一个离屏层里画模糊的形状，再用同一个形状
 /// `BlendMode.clear` 把内部挖掉——不挖的话半透明的玻璃会压在一块暗斑上，
