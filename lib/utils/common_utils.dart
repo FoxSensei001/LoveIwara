@@ -136,13 +136,10 @@ class CommonUtils {
           nativeOrientationMode,
         );
       } else if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-        // 此处使用media_kit_video的MethodChannel，
-        await const MethodChannel(
-          'com.alexmercerind/media_kit_video',
-        ).invokeMethod('Utils.EnterNativeFullscreen');
-        // ⛔ 必须留痕：window_manager 不认这条路开的全屏，之后谁想知道
-        // 「现在是不是全屏」都只能问 [DesktopNativeFullscreen]。
-        DesktopNativeFullscreen.markEntered();
+        // 桌面全屏的进与出都收在 [DesktopNativeFullscreen] 里：它同时负责留痕
+        // （window_manager 不认这条路开的全屏）、窗口几何快照、以及「这个全屏
+        // 还有没有人在里面演出」的登记。分开写迟早漏一半。
+        await DesktopNativeFullscreen.enterNative();
       }
     } catch (exception, stacktrace) {
       debugPrint(exception.toString());
@@ -152,10 +149,17 @@ class CommonUtils {
 
   /// 退出全屏。
   ///
-  /// 直接转交 media_kit 的实现（移动端恢复系统 UI / 放开方向，桌面端走
-  /// `Utils.ExitNativeFullscreen`），只额外把桌面端的全屏标记落回去——进出
+  /// 桌面端交给 [DesktopNativeFullscreen.exitNative]（同一条 MethodChannel，
+  /// 外加落痕）；移动端转交 media_kit 的实现（恢复系统 UI / 放开方向）。进出
   /// 成对收在 [CommonUtils] 里，标记才不会漏改。
+  ///
+  /// ⛔ 这里**不**还原窗口几何：几何还原有自己的时序（要等系统全屏真的退干净），
+  /// 由调用方调 [DesktopNativeFullscreen.restoreGeometry]。
   static Future<void> defaultExitNativeFullscreen() async {
+    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      await DesktopNativeFullscreen.exitNative();
+      return;
+    }
     try {
       await media_kit_video.defaultExitNativeFullscreen();
     } finally {

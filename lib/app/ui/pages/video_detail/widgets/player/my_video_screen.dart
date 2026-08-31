@@ -22,7 +22,6 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_back
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/rapple_painter.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -359,17 +358,10 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     );
 
     // 全屏是系统侧退出的（绿灯钮 / WM 快捷键），没走我们的 exitFullscreen。
-    // 标记得在这儿补上，否则它会一直停在"仍在全屏"，把后续的窗口几何缓存
-    // 和持久化全部误判。
-    DesktopNativeFullscreen.markExited();
-
-    widget.myVideoStateController.exitDesktopAppFullscreen();
-    widget.myVideoStateController.isFullscreen.value = false;
-    _appService.showSystemUI();
-    unawaited(
-      widget.myVideoStateController.restoreDesktopWindowGeometryAfterFullscreen(
-        reason: 'windowListener.onWindowLeaveFullScreen',
-      ),
+    // 标记、会话登记、Flutter 侧状态、窗口几何一次性收在控制器的这一个方法里
+    // ——分开写迟早漏一半，漏掉会话登记那一笔尤其致命（见其文档）。
+    widget.myVideoStateController.syncFullscreenExitedBySystem(
+      reason: 'windowListener.onWindowLeaveFullScreen',
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

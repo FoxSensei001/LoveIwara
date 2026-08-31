@@ -176,6 +176,21 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         return;
       }
 
+      // ⛔ 已经知道这条片子播不了（私密/被删/站外短链/源错误）就别再强推全屏。
+      //
+      // 推进去只能看到一张错误页，桌面端还会把窗口留在满屏、标题栏和侧边导航
+      // 全藏着（2026-08-31 用户报障）。交接过来的那个全屏会话由控制器的
+      // `_reconcileAutoFullscreen` 负责交还，这里只管别再把人推回去——不然它前脚
+      // 退出、这里后脚又进，两边打架。
+      if (controller.isPlaybackBlocked) {
+        LogUtils.d(
+          'forced fullscreen declined: playback blocked',
+          'MyVideoDetailPage',
+        );
+        _hasTriggeredForcedFullscreen = true;
+        return;
+      }
+
       final reusingNativeFullscreen =
           widget.fullscreenHandoff?.nativeFullscreenActive == true;
       if (!reusingNativeFullscreen && !controller.videoPlayerReady.value) {

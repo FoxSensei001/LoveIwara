@@ -40,7 +40,6 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:volume_controller/volume_controller.dart';
-import 'package:window_manager/window_manager.dart';
 
 import '../../../../../utils/common_utils.dart';
 import '../../../../../utils/device_form_factor_utils.dart';
@@ -262,11 +261,6 @@ class MyVideoStateController extends GetxController
     isDesktopAppFullScreen.value = false;
     appS.showSystemUI();
   }
-  Size? _desktopWindowSizeBeforeFullscreen;
-  Offset? _desktopWindowPositionBeforeFullscreen;
-  bool _desktopWindowWasMaximized = false;
-  bool _hasDesktopWindowGeometrySnapshot = false;
-  bool _isRestoringDesktopWindowGeometry = false;
   bool _suppressFullscreenCleanupOnce = false;
   bool firstLoaded = false;
   bool _initialPlaybackDecisionResolved = false;
@@ -362,6 +356,19 @@ class MyVideoStateController extends GetxController
   bool get isAnyFullscreenActive =>
       isFullscreen.value || isDesktopAppFullScreen.value;
 
+  /// 本 controller 是不是正**占着**桌面原生全屏。
+  ///
+  /// ⛔ 比 [isAnyFullscreenActive] 多一种：**接手了会话但还没来得及进全屏**。
+  /// 全屏连播换片时，新页在 onInit 里就同步接手了会话（见那里的注释），而真正
+  /// 的 `enterFullscreen()` 要等到下一帧。这中间如果视频信息先回来说"这条播不了"
+  /// （命中缓存时就是这个时序），只看 [isAnyFullscreenActive] 会判成"不在全屏里、
+  /// 不用管"——然后下一帧照样把用户推进一个只有错误页的满屏窗口。
+  bool get holdsDesktopFullscreen =>
+      isAnyFullscreenActive ||
+      (GetPlatform.isDesktop &&
+          fullscreenHandoff?.nativeFullscreenActive == true &&
+          DesktopNativeFullscreen.isActive);
+
   /// 这次实际要进哪种全屏。
   ///
   /// 应用全屏只有桌面端有；移动端选中了也一律回落到系统全屏，
@@ -435,6 +442,33 @@ class MyVideoStateController extends GetxController
     return isPlaybackBlocked;
   }
 
+  /// 桌面端：窗口还铺满整块屏幕，可这条片子根本播不了。
+  ///
+  /// 与「自动进入全屏」那项能力**无关**——[shouldAutoExitFullscreenForBlockedPlayback]
+  /// 是那项能力自己的契约（关着就不改变任何既有行为），而这一条要收的是另一件
+  /// 事：**全屏会话和屏幕上演的东西对不上**。
+  ///
+  /// 「接着看」在全屏里换到一条私密/被删/站外的视频时，新页照样会接手全屏
+  /// （交接件就是这么设计的），可它永远等不到画面——用户看到的是一个铺满显示器、
+  /// 藏掉了标题栏和侧边导航、里面却只有一张错误页的窗口，退不出去也拖不动
+  /// （2026-08-31 用户报障）。这跟他有没有打开「自动进入全屏」毫无关系。
+  ///
+  /// 只管桌面端：移动端全屏没有"窗口几何"可言，那边停在全屏里看错误页是既有
+  /// 行为，不在这次的范围内。
+  @visibleForTesting
+  static bool shouldDropDesktopFullscreenForBlockedPlayback({
+    required bool isDesktop,
+    required bool holdsDesktopFullscreen,
+    required bool isPiPMode,
+    required bool isPlaybackBlocked,
+  }) {
+    if (!isDesktop) return false;
+    if (!holdsDesktopFullscreen) return false;
+    // 边界：PiP 期间既不自动进也不自动退（与自动全屏那条同一个理由）
+    if (isPiPMode) return false;
+    return isPlaybackBlocked;
+  }
+
   /// **自动全屏的唯一决策入口。** 进与退都在这里，两个时机共用一条路径。
   ///
   /// [AutoFullscreenTrigger.playbackStarted] 挂在 `player.stream.playing` 上
@@ -449,15 +483,26 @@ class MyVideoStateController extends GetxController
     final AutoFullscreenMode mode = autoFullscreenMode;
 
     if (shouldAutoExitFullscreenForBlockedPlayback(
-      mode: mode,
-      isAnyFullscreenActive: isAnyFullscreenActive,
-      isPiPMode: isPiPMode.value,
-      isPlaybackBlocked: isPlaybackBlocked,
-    )) {
+          mode: mode,
+          isAnyFullscreenActive: isAnyFullscreenActive,
+          isPiPMode: isPiPMode.value,
+          isPlaybackBlocked: isPlaybackBlocked,
+        ) ||
+        shouldDropDesktopFullscreenForBlockedPlayback(
+          isDesktop: GetPlatform.isDesktop,
+          holdsDesktopFullscreen: holdsDesktopFullscreen,
+          isPiPMode: isPiPMode.value,
+          isPlaybackBlocked: isPlaybackBlocked,
+        )) {
       LogUtils.d('[自动全屏] 视频播不了，退出全屏把错误摆到详情页上', 'MyVideoStateController');
       // 两种全屏都要退：用户当初进的是哪一种，这里就得把哪一种收回去。
       exitDesktopAppFullscreen();
       if (isFullscreen.value) unawaited(exitFullscreen());
+      // ⛔ 交还桌面全屏会话。上一行只在**已经进了全屏**时才收得掉；接手了会话
+      // 却还没进全屏的那一种（见 [holdsDesktopFullscreen]）只有这一笔收得掉，
+      // 少了它窗口就会铺满屏幕停在详情页上。放手后没人接，孤儿会话收尾会把
+      // 全屏、窗口几何、标题栏和侧边导航一起还回来。
+      DesktopNativeFullscreen.release(this);
       return;
     }
 
@@ -1028,15 +1073,14 @@ class MyVideoStateController extends GetxController
         isLockButtonVisible.value = false;
       }
 
-      if (fullscreenHandoff != null) {
-        _desktopWindowSizeBeforeFullscreen =
-            fullscreenHandoff!.desktopWindowSizeBeforeFullscreen;
-        _desktopWindowPositionBeforeFullscreen =
-            fullscreenHandoff!.desktopWindowPositionBeforeFullscreen;
-        _desktopWindowWasMaximized =
-            fullscreenHandoff!.desktopWindowWasMaximized;
-        _hasDesktopWindowGeometrySnapshot =
-            fullscreenHandoff!.hasDesktopWindowGeometrySnapshot;
+      // ⛔ 全屏接力必须**在 onInit 里同步接手**会话，不能等 enterFullscreen()。
+      //
+      // 旧页销毁时会 release，release 发现「原生全屏还开着但没人在里面演出」
+      // 就会当作孤儿会话收掉——把用户踢出全屏。而 enterFullscreen() 是异步的
+      // （中间还 await 了一次 resolve），等它跑完再登记，接力就成了空窗。
+      // 窗口几何快照归会话所有，不必再从交接件里往回抄。
+      if (fullscreenHandoff?.nativeFullscreenActive == true) {
+        DesktopNativeFullscreen.acquire(this);
       }
 
       // 初始化 VideoController
@@ -2297,6 +2341,15 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
+
+    // ⛔ 桌面全屏会话在这里放手，**不在** relinquishFullscreenForRouteHandoff 里。
+    //
+    // 这是「桌面端已经不在全屏播放了」唯一靠得住的信号：页面被 pushReplacement
+    // 顶掉、被强退、被换成一条根本播不了的片子（站外短链 / 私密视频），都只会
+    // 走到这里。放手之后如果原生全屏还开着却没人接手，[DesktopNativeFullscreen]
+    // 会当作孤儿会话收掉——退全屏、还原窗口几何、把标题栏和侧边导航放回来。
+    // 少了这一笔，窗口就会铺满屏幕停在详情页上（2026-08-31 用户报障）。
+    DesktopNativeFullscreen.release(this);
 
     // 移动端若在全屏中被直接销毁（如路由强退，未经 PopScope 正常退出）时，
     // 兜底恢复系统 UI 与方向基线，避免停留在横屏/隐藏状态栏。正常退出走
@@ -3692,6 +3745,9 @@ class MyVideoStateController extends GetxController
     if (!reuseNativeFullscreen) {
       await cacheDesktopWindowGeometryBeforeFullscreen();
     }
+    // 登记「我在这个全屏里演出」。没有这一笔，会话就成了没人认领的孤儿——
+    // 详见 [DesktopNativeFullscreen] 里 acquire/release 那一节。
+    DesktopNativeFullscreen.acquire(this);
     isFullscreen.value = true;
     appS.hideSystemUI();
 
@@ -3720,6 +3776,9 @@ class MyVideoStateController extends GetxController
     // 保存退出全屏前的播放状态
     final wasPlaying = videoPlaying.value;
     appS.showSystemUI();
+    // 先注销演出者再退原生全屏：这条路自己就把全屏收干净了，孤儿检查醒来时
+    // 会话早已不 active，不会重复收尾。
+    DesktopNativeFullscreen.release(this);
     try {
       await CommonUtils.defaultExitNativeFullscreen();
     } catch (e, s) {
@@ -3765,14 +3824,7 @@ class MyVideoStateController extends GetxController
       return null;
     }
 
-    return VideoFullscreenHandoff(
-      nativeFullscreenActive: true,
-      desktopWindowSizeBeforeFullscreen: _desktopWindowSizeBeforeFullscreen,
-      desktopWindowPositionBeforeFullscreen:
-          _desktopWindowPositionBeforeFullscreen,
-      desktopWindowWasMaximized: _desktopWindowWasMaximized,
-      hasDesktopWindowGeometrySnapshot: _hasDesktopWindowGeometrySnapshot,
-    );
+    return const VideoFullscreenHandoff(nativeFullscreenActive: true);
   }
 
   void relinquishFullscreenForRouteHandoff() {
@@ -3781,6 +3833,9 @@ class MyVideoStateController extends GetxController
     }
 
     _suppressFullscreenCleanupOnce = true;
+    // ⛔ **不在这里注销演出者。** 这一步跑在 pushReplacement 之前，此刻新页还
+    // 不存在；提前放手，孤儿检查就会把一次正常的接力当成"没人要了"，当场把
+    // 用户踢出全屏。注销留到 onClose——那时新页早已在 onInit 里接手。
     isFullscreen.value = false;
   }
 
@@ -3790,106 +3845,32 @@ class MyVideoStateController extends GetxController
     return suppressed;
   }
 
-  Future<void> cacheDesktopWindowGeometryBeforeFullscreen() async {
-    if (!GetPlatform.isDesktop) return;
-    if (_isRestoringDesktopWindowGeometry) return;
+  /// 拍一张进全屏前的窗口几何。
+  ///
+  /// 真正的实现在 [DesktopNativeFullscreen]——快照是**窗口**的属性，不是某一页
+  /// 的属性。挂在 controller 上的那一版靠 `VideoFullscreenHandoff` 一页页传，
+  /// 换到一条播不了的片子（站外短链 / 私密视频）就断在那里，窗口再也回不去。
+  Future<void> cacheDesktopWindowGeometryBeforeFullscreen() =>
+      DesktopNativeFullscreen.captureGeometry();
 
-    // ⛔ 手上已经有快照了就别再拍一张。它要么是本控制器进全屏时拍的，要么是
-    // 全屏连播从上一页交接过来的——两种都是**真正的**进全屏前几何，而此刻窗口
-    // 大概率已经满屏，重拍等于把它换成满屏尺寸。
-    if (_hasDesktopWindowGeometrySnapshot) {
-      LogUtils.d('已持有进全屏前的窗口几何快照，跳过重复缓存', 'MyVideoStateController');
-      return;
-    }
-
-    // ⛔ 已经在原生全屏里了就更不能拍：拍到的就是满屏。宁可不拍（退出时
-    // media_kit 自己会把窗口还原回 rect_before_fullscreen_），也好过拍错。
-    if (await DesktopNativeFullscreen.resolve()) {
-      LogUtils.d('窗口已处于原生全屏，跳过缓存（避免把满屏几何当成还原目标）', 'MyVideoStateController');
-      return;
-    }
-
-    try {
-      _desktopWindowWasMaximized = await windowManager.isMaximized();
-      if (_desktopWindowWasMaximized) {
-        _desktopWindowSizeBeforeFullscreen = null;
-        _desktopWindowPositionBeforeFullscreen = null;
-      } else {
-        _desktopWindowSizeBeforeFullscreen = await windowManager.getSize();
-        _desktopWindowPositionBeforeFullscreen = await windowManager
-            .getPosition();
-      }
-      _hasDesktopWindowGeometrySnapshot = true;
-      LogUtils.d(
-        '缓存桌面窗口几何: maximized=$_desktopWindowWasMaximized, '
-            'size=${_desktopWindowSizeBeforeFullscreen ?? 'n/a'}, '
-            'position=${_desktopWindowPositionBeforeFullscreen ?? 'n/a'}',
-        'MyVideoStateController',
-      );
-    } catch (e, s) {
-      LogUtils.e(
-        '缓存桌面窗口几何失败',
-        tag: 'MyVideoStateController',
-        error: e,
-        stackTrace: s,
-      );
-    }
-  }
-
+  /// 把窗口还原成进全屏前那一组。没有快照就什么都不做。
   Future<void> restoreDesktopWindowGeometryAfterFullscreen({
     required String reason,
-  }) async {
-    if (!GetPlatform.isDesktop) return;
-    if (!_hasDesktopWindowGeometrySnapshot) return;
-    if (_isRestoringDesktopWindowGeometry) return;
+  }) => DesktopNativeFullscreen.restoreGeometry(reason: reason);
 
-    _isRestoringDesktopWindowGeometry = true;
-    try {
-      // 等待系统全屏状态稳定退出，避免 setSize/setPosition 被系统覆盖。
-      for (int i = 0; i < 10; i++) {
-        final stillFullscreen = await windowManager.isFullScreen();
-        if (!stillFullscreen) break;
-        await Future.delayed(const Duration(milliseconds: 20));
-      }
-
-      if (_desktopWindowWasMaximized) {
-        if (!await windowManager.isMaximized()) {
-          await windowManager.maximize();
-        }
-      } else {
-        if (await windowManager.isMaximized()) {
-          await windowManager.unmaximize();
-        }
-        final size = _desktopWindowSizeBeforeFullscreen;
-        if (size != null) {
-          await windowManager.setSize(size);
-        }
-        final position = _desktopWindowPositionBeforeFullscreen;
-        if (position != null) {
-          await windowManager.setPosition(position);
-        }
-      }
-
-      LogUtils.d(
-        '恢复桌面窗口几何完成: reason=$reason, '
-            'maximized=$_desktopWindowWasMaximized, '
-            'size=${_desktopWindowSizeBeforeFullscreen ?? 'n/a'}, '
-            'position=${_desktopWindowPositionBeforeFullscreen ?? 'n/a'}',
-        'MyVideoStateController',
-      );
-    } catch (e, s) {
-      LogUtils.e(
-        '恢复桌面窗口几何失败: reason=$reason',
-        tag: 'MyVideoStateController',
-        error: e,
-        stackTrace: s,
-      );
-    } finally {
-      // ⛔ 失败也要清掉快照。留着它，下次进全屏会被上面那道「已有快照就跳过」
-      // 的护栏挡住不再重拍，之后退出全屏就会还原到一个早已过期的几何。
-      _hasDesktopWindowGeometrySnapshot = false;
-      _isRestoringDesktopWindowGeometry = false;
-    }
+  /// 全屏是**系统侧**退出的（macOS 绿灯钮 / WM 快捷键 / 桌面环境自己的手势），
+  /// 没走 [exitFullscreen]。把 Flutter 侧的状态与会话登记一次性收回来。
+  ///
+  /// ⛔ 注销演出者这一笔不能漏：漏掉的话本 controller 会以"还在全屏里演出"的
+  /// 身份留在会话登记表里，之后任何一次真正的孤儿会话都会被这条幽灵记录挡住，
+  /// 再也收不掉。
+  void syncFullscreenExitedBySystem({required String reason}) {
+    DesktopNativeFullscreen.markExited();
+    DesktopNativeFullscreen.release(this);
+    exitDesktopAppFullscreen();
+    isFullscreen.value = false;
+    appS.showSystemUI();
+    unawaited(restoreDesktopWindowGeometryAfterFullscreen(reason: reason));
   }
 
   // 重置自动隐藏定时器
