@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -68,10 +68,10 @@ class _PrivateOrDeletedVideoWidgetState
         if (result.isSuccess) {
           setState(() => _isFriendRequestPending = false);
         } else {
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.top,
+            type: AppToastType.error,
+            position: AppToastPosition.top,
           );
         }
       } else {
@@ -79,10 +79,10 @@ class _PrivateOrDeletedVideoWidgetState
         if (result.isSuccess) {
           setState(() => _isFriendRequestPending = true);
         } else {
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.top,
+            type: AppToastType.error,
+            position: AppToastPosition.top,
           );
         }
       }
@@ -198,10 +198,10 @@ class _PrivateOrDeletedVideoWidgetState
         onPressed: () async {
           final result = await _userService.removeFriend(widget.author!.id);
           if (!result.isSuccess) {
-            showGlassToast(
+            showAppToast(
               result.message,
-              type: GlassToastType.error,
-              position: GlassToastPosition.top,
+              type: AppToastType.error,
+              position: AppToastPosition.top,
             );
           }
         },

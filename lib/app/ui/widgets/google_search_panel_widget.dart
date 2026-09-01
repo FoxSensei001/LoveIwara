@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -112,10 +112,10 @@ class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
     final t = slang.Translations.of(context);
 
     if (_googleSearchController.text.isEmpty) {
-      showGlassToast(
+      showAppToast(
         t.search.pleaseEnterSearchKeywords,
-        type: GlassToastType.warning,
-        position: GlassToastPosition.top,
+        type: AppToastType.warning,
+        position: AppToastPosition.top,
       );
       return;
     }
@@ -127,10 +127,10 @@ class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
 
     // 复制到剪贴板
     await Clipboard.setData(ClipboardData(text: searchQuery));
-    showGlassToast(
+    showAppToast(
       t.search.googleSearchQueryCopied,
-      type: GlassToastType.success,
-      position: GlassToastPosition.top,
+      type: AppToastType.success,
+      position: AppToastPosition.top,
     );
 
     // 构建谷歌搜索URL
@@ -141,10 +141,10 @@ class _GoogleSearchBottomSheetState extends State<GoogleSearchBottomSheet> {
     try {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         t.search.googleSearchBrowserOpenFailed(error: e.toString()),
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     }
   }

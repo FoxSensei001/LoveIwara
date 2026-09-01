@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -310,9 +310,9 @@ class ThemeSettingsPage extends StatelessWidget {
                         onPressed: () {
                           if (disabled) {
                             // 按钮仍可点：点击即给出原因提示，而不是静默无反应。
-                            showGlassToast(
+                            showAppToast(
                               t.settings.customColorsDisabledByDynamicColor,
-                              type: GlassToastType.info,
+                              type: AppToastType.info,
                             );
                             return;
                           }

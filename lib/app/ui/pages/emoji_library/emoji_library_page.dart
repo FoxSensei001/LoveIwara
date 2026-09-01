@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -290,7 +290,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 _emojiService.createEmojiGroup(name);
                 AppService.tryPop();
                 _loadData();
-                showGlassToast(t.common.success, type: GlassToastType.success);
+                showAppToast(t.common.success, type: AppToastType.success);
               }
             },
           ),
@@ -324,7 +324,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
                 _emojiService.updateEmojiGroupName(group.groupId, name);
                 AppService.tryPop();
                 _loadData();
-                showGlassToast(t.common.success, type: GlassToastType.success);
+                showAppToast(t.common.success, type: AppToastType.success);
               }
             },
           ),
@@ -353,7 +353,7 @@ class _EmojiLibraryPageState extends State<EmojiLibraryPage> {
               _emojiService.deleteEmojiGroup(group.groupId);
               AppService.tryPop();
               _loadData();
-              showGlassToast(t.common.success, type: GlassToastType.success);
+              showAppToast(t.common.success, type: AppToastType.success);
             },
           ),
         ],

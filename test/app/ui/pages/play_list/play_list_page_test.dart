@@ -20,7 +20,7 @@ import 'package:i_iwara/app/ui/pages/play_list/widgets/playlist_item_widget.dart
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 void main() {
@@ -580,7 +580,7 @@ void main() {
 
 Widget _buildTestApp({required Widget child}) {
   return TranslationProvider(
-    child: OKToast(
+    child: AppToastHost(
       child: MaterialApp(
         navigatorKey: rootNavigatorKey,
         home: Scaffold(body: child),
@@ -591,7 +591,7 @@ Widget _buildTestApp({required Widget child}) {
 
 Widget _buildRouterTestApp(GoRouter router) {
   return TranslationProvider(
-    child: OKToast(child: MaterialApp.router(routerConfig: router)),
+    child: AppToastHost(child: MaterialApp.router(routerConfig: router)),
   );
 }
 

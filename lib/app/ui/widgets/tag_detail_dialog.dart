@@ -6,7 +6,7 @@ import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/oreno3d_localization_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -19,10 +19,10 @@ void copyTagText(String text) {
   final data = DataWriterItem();
   data.add(Formats.plainText(text));
   SystemClipboard.instance?.write([data]);
-  showGlassToast(
+  showAppToast(
     slang.t.common.copiedToClipboard,
-    type: GlassToastType.success,
-    position: GlassToastPosition.bottom,
+    type: AppToastType.success,
+    position: AppToastPosition.bottom,
     duration: const Duration(seconds: 1),
   );
 }

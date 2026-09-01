@@ -22,7 +22,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
@@ -403,10 +403,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showGlassToast(
+    showAppToast(
       slang.t.logViewer.copiedToClipboard,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 
@@ -420,10 +420,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     if (!mounted) {
       return;
     }
-    showGlassToast(
+    showAppToast(
       slang.t.personalProfile.usernameCopied,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 
@@ -494,19 +494,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                   submitText: t.common.send,
                                   onSubmit: (text) async {
                                     if (text.trim().isEmpty) {
-                                      showGlassToast(
+                                      showAppToast(
                                         t.errors.commentCanNotBeEmpty,
-                                        type: GlassToastType.error,
-                                        position: GlassToastPosition.bottom,
+                                        type: AppToastType.error,
+                                        position: AppToastPosition.bottom,
                                       );
                                       return;
                                     }
                                     final UserService userService = Get.find();
                                     if (!userService.isAuthenticated) {
-                                      showGlassToast(
+                                      showAppToast(
                                         t.errors.pleaseLoginFirst,
-                                        type: GlassToastType.error,
-                                        position: GlassToastPosition.bottom,
+                                        type: AppToastType.error,
+                                        position: AppToastPosition.bottom,
                                       );
                                       LoginService.showLogin();
                                       return;
@@ -1557,7 +1557,7 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           if (!mounted) return;
 
           if (result.isSuccess) {
-            showGlassToast(t.common.success, type: GlassToastType.success);
+            showAppToast(t.common.success, type: AppToastType.success);
             AppService.tryPop();
             // 帖子列表是本页的「后代」而非「祖先」，原先用
             // context.findAncestorWidgetOfExactType() 取它恒为 null，
@@ -1592,11 +1592,11 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                   timeStr += t.errors.remainingSeconds(num: seconds);
                 }
 
-                showGlassToast(timeStr.trim(), type: GlassToastType.error);
+                showAppToast(timeStr.trim(), type: AppToastType.error);
               }
             }
           } else {
-            showGlassToast(result.message, type: GlassToastType.error);
+            showAppToast(result.message, type: AppToastType.error);
           }
         },
       ),

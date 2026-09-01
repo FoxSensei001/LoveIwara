@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -198,34 +198,34 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
   void _handleSubmit() async {
     if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
     if (_selectedUser == null) {
-      showGlassToast(
+      showAppToast(
         t.conversation.errors.pleaseSelectAUser,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showGlassToast(
+      showAppToast(
         t.conversation.errors.pleaseEnterATitle,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
 
     // 检查标题长度
     if (_titleController.text.length > maxTitleLength) {
-      showGlassToast(
+      showAppToast(
         t.errors.exceedsMaxLength(max: maxTitleLength.toString()),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
 
     // 检查内容是否为空
     if (_bodyController.text.trim().isEmpty) {
-      showGlassToast(t.errors.contentCanNotBeEmpty, type: GlassToastType.error);
+      showAppToast(t.errors.contentCanNotBeEmpty, type: AppToastType.error);
       return;
     }
 
@@ -253,7 +253,7 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
         widget.onSubmit?.call();
       }
     } else {
-      showGlassToast(result.message, type: GlassToastType.error);
+      showAppToast(result.message, type: AppToastType.error);
     }
   }
 

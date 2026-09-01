@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -183,9 +183,9 @@ class _TranslationDialogState extends State<TranslationDialog> {
                                     ClipboardData(text: translatedText),
                                   );
                                   VibrateUtils.vibrate();
-                                  showGlassToast(
+                                  showAppToast(
                                     t.download.copySuccess,
-                                    type: GlassToastType.success,
+                                    type: AppToastType.success,
                                   );
                                 },
                               ),

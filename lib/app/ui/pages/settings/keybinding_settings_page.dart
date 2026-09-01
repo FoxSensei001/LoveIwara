@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_action.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -692,7 +692,7 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
     );
     if (ok == true) {
       await _service.resetAll();
-      showGlassToast(_t.resetAll, type: GlassToastType.success);
+      showAppToast(_t.resetAll, type: AppToastType.success);
     }
   }
 

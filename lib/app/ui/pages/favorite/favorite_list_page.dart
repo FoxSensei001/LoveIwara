@@ -11,7 +11,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 本地收藏夹列表（玻璃化）。
@@ -96,13 +96,13 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       if (folder == null) throw Exception('Create failed');
       await _fetchFolders();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.favorite.createFolderSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassToast(t.favorite.createFolderFailed, type: GlassToastType.error);
+      showAppToast(t.favorite.createFolderFailed, type: AppToastType.error);
     }
   }
 
@@ -138,15 +138,15 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       if (!success) throw Exception('Delete failed');
       await _fetchFolders();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.favorite.errors.deleteFolderSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.favorite.errors.deleteFolderFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -168,13 +168,13 @@ class _FavoriteListPageState extends State<FavoriteListPage> {
       if (!success) throw Exception('Update failed');
       await _fetchFolders();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.favorite.editFolderSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassToast(t.favorite.editFolderFailed, type: GlassToastType.error);
+      showAppToast(t.favorite.editFolderFailed, type: AppToastType.error);
     }
   }
 
@@ -642,9 +642,9 @@ class _FolderNameDialogState extends State<_FolderNameDialog> {
     final t = slang.Translations.of(context);
     final value = raw.trim();
     if (value.isEmpty) {
-      showGlassToast(
+      showAppToast(
         t.favorite.errors.folderNameCannotBeEmpty,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }

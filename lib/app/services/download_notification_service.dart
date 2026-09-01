@@ -208,7 +208,18 @@ class DownloadNotificationService extends GetxService {
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
       );
-      const darwinDetails = DarwinNotificationDetails();
+      // iOS / macOS：应用在**前台**时不弹系统横幅。
+      //
+      // 这三个开关只作用于前台（见 flutter_local_notifications 的 dartdoc:
+      // "while app is in the foreground"），后台投递不受影响。默认
+      // `defaultPresentAlert = true` 会让下载完成时同时出现「iOS 原生横幅」和
+      // 「应用内 toast」——同一件事说两遍，而且原生横幅的样式我们一点都改不了，
+      // 和 App 自己的提示长得完全不一样（issue #116 里用户看到的就是它）。
+      // 仍然投进通知中心（presentList 保持默认 true），用户回头还能翻到。
+      const darwinDetails = DarwinNotificationDetails(
+        presentAlert: false,
+        presentBanner: false,
+      );
       const linuxDetails = LinuxNotificationDetails();
       final details = NotificationDetails(
         android: androidDetails,

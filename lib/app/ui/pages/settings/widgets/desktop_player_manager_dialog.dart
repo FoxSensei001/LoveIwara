@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/desktop_external_player.dart';
 import 'package:i_iwara/app/services/desktop_player_probe.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -104,25 +104,25 @@ class _DesktopPlayerManagerDialogState
         // ⛔ 不能只丢一句「没探测到」就完事——那是条死路：探测本来就是尽力而为
         // （软件装在自定义目录、绿色版、改过名的都探不到），说完不给出路，用户
         // 就卡在这儿了。直接把手动添加接上。
-        showGlassToast(
+        showAppToast(
           _entries.isEmpty
               ? t.externalPlayer.detectNothingFoundGuide
               : t.externalPlayer.detectNothingNew,
-          type: GlassToastType.warning,
+          type: AppToastType.warning,
         );
         return;
       }
       setState(() => _entries = [..._entries, ...found]);
       await _persist();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.externalPlayer.detectFound(count: found.length),
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e, s) {
       LogUtils.e('自动探测外部播放器失败', tag: 'DesktopPlayer', error: e, stackTrace: s);
       if (!mounted) return;
-      showGlassToast(t.externalPlayer.detectFailed, type: GlassToastType.error);
+      showAppToast(t.externalPlayer.detectFailed, type: AppToastType.error);
     } finally {
       if (mounted) setState(() => _detecting = false);
     }
@@ -166,9 +166,9 @@ class _DesktopPlayerManagerDialogState
     // 空手启动：只验证「这个可执行文件能不能跑起来」，不带任何片源。
     final ok = await DesktopPlayerLauncher.launchBare(entry);
     if (!mounted) return;
-    showGlassToast(
+    showAppToast(
       ok ? t.externalPlayer.testLaunched : t.externalPlayer.testFailed,
-      type: ok ? GlassToastType.success : GlassToastType.error,
+      type: ok ? AppToastType.success : AppToastType.error,
     );
   }
 
@@ -571,9 +571,9 @@ class _PlayerEditDialogState extends State<_PlayerEditDialog> {
             final name = _nameController.text.trim();
             final path = _pathController.text.trim();
             if (path.isEmpty) {
-              showGlassToast(
+              showAppToast(
                 t.externalPlayer.executablePathRequired,
-                type: GlassToastType.warning,
+                type: AppToastType.warning,
               );
               return;
             }

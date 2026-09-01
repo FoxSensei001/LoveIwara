@@ -7,7 +7,7 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/share_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path_provider/path_provider.dart';
@@ -35,17 +35,17 @@ class _ShareThreadBottomSheetState extends State<ShareThreadBottomSheet> {
   Future<void> _copyLink() async {
     try {
       await ShareService.copyToClipboard(_shareUrl);
-      showGlassToast(
+      showAppToast(
         slang.t.galleryDetail.copyLink,
-        type: GlassToastType.success,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.success,
+        position: AppToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareThreadBottomSheet');
-      showGlassToast(
+      showAppToast(
         slang.t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

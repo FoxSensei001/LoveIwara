@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/saved_search_config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/i18n/strings.g.dart' show t;
@@ -60,10 +60,10 @@ class SavedSearchConfigDrawer extends StatelessWidget {
       rating: rating,
     );
     await Get.find<SavedSearchConfigService>().add(segment, config);
-    showGlassToast(
+    showAppToast(
       t.savedSearchConfig.saveSuccess,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 

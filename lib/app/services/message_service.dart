@@ -1,30 +1,22 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class MessageService extends GetxService {
   final List<_QueuedMessage> _messageQueue = [];
   _QueuedMessage? _pendingSiteModeToast;
   bool _isReady = false;
 
-  /// 队列里的消息一条条放，不要一次性全弹。
-  ///
-  /// 同一时刻只保留一条 toast（见 [showGlassToast]），一次性 for 循环发出去
-  /// 的结果是用户只看得到最后一条。
-  static const Duration _queueGap = Duration(milliseconds: 2600);
-
   void markReady() {
     _isReady = true;
     _processQueue();
   }
 
-  void showMessage(String message, GlassToastType type) {
+  void showMessage(String message, AppToastType type) {
     if (!_isReady) {
       _messageQueue.add(_QueuedMessage(message, type));
     } else {
-      showGlassToast(message, type: type);
+      showAppToast(message, type: type);
     }
   }
 
@@ -33,24 +25,24 @@ class MessageService extends GetxService {
   /// （例如已身处目标页面，无需再引导跳转）。
   void showActionableMessage(
     String message,
-    GlassToastType type, {
+    AppToastType type, {
     VoidCallback? onTap,
     IconData? actionIcon,
   }) {
-    showGlassToast(
+    showAppToast(
       message,
       type: type,
-      position: GlassToastPosition.bottom,
+      position: AppToastPosition.bottom,
       actionIcon: actionIcon,
       onAction: onTap,
     );
   }
 
-  void queueMessage(String message, GlassToastType type) {
+  void queueMessage(String message, AppToastType type) {
     _messageQueue.add(_QueuedMessage(message, type));
   }
 
-  void queuePendingSiteModeToast(String message, GlassToastType type) {
+  void queuePendingSiteModeToast(String message, AppToastType type) {
     _pendingSiteModeToast = _QueuedMessage(message, type);
   }
 
@@ -61,30 +53,28 @@ class MessageService extends GetxService {
     }
 
     _pendingSiteModeToast = null;
-    showGlassToast(pendingToast.message, type: pendingToast.type);
+    showAppToast(pendingToast.message, type: pendingToast.type);
   }
 
+  /// 启动前攒下的消息在路由就绪后一次性放出来。
+  ///
+  /// 以前这里要按 2.6 秒间隔一条条错峰——那时同一时刻只能存在一条 toast，一次
+  /// 性发出去的结果是用户只看得到最后一条。现在提示会自己堆叠（见
+  /// [appToastMaxVisible]），不需要再排队等。
   void _processQueue() {
     if (!_isReady || _messageQueue.isEmpty) return;
 
     final pending = List<_QueuedMessage>.from(_messageQueue);
     _messageQueue.clear();
-    for (var i = 0; i < pending.length; i++) {
-      final message = pending[i];
-      if (i == 0) {
-        showGlassToast(message.message, type: message.type);
-        continue;
-      }
-      Timer(_queueGap * i, () {
-        showGlassToast(message.message, type: message.type);
-      });
+    for (final message in pending) {
+      showAppToast(message.message, type: message.type);
     }
   }
 }
 
 class _QueuedMessage {
   final String message;
-  final GlassToastType type;
+  final AppToastType type;
 
   _QueuedMessage(this.message, this.type);
 }

@@ -10,7 +10,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
   final Comment parentComment;
@@ -163,10 +163,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showGlassToast(
+            showAppToast(
               slang.t.errors.commentCanNotBeEmpty,
-              type: GlassToastType.error,
-              position: GlassToastPosition.bottom,
+              type: AppToastType.error,
+              position: AppToastPosition.bottom,
             );
             return;
           }
@@ -201,10 +201,10 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                 type = CommentType.post.name;
                 id = widget.parentComment.postId!;
               } else {
-                showGlassToast(
+                showAppToast(
                   'Unknown comment type',
-                  type: GlassToastType.error,
-                  position: GlassToastPosition.bottom,
+                  type: AppToastType.error,
+                  position: AppToastPosition.bottom,
                 );
                 return;
               }
@@ -224,9 +224,9 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
             }
 
             if (success) {
-              showGlassToast(
+              showAppToast(
                 slang.t.common.commentPostedSuccessfully,
-                type: GlassToastType.success,
+                type: AppToastType.success,
               );
               // context 来自 showModalBottomSheet 的 builder，与 State 的 mounted 无关，
               // 需用该 context 自身的 mounted 判断。
@@ -240,17 +240,17 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
                 _loadReplies(refresh: true); // Refresh replies
               }
             } else {
-              showGlassToast(
+              showAppToast(
                 errorMessage ?? slang.t.common.commentPostedFailed,
-                type: GlassToastType.error,
-                position: GlassToastPosition.bottom,
+                type: AppToastType.error,
+                position: AppToastPosition.bottom,
               );
             }
           } catch (e) {
-            showGlassToast(
+            showAppToast(
               slang.t.common.commentPostedFailed,
-              type: GlassToastType.error,
-              position: GlassToastPosition.bottom,
+              type: AppToastType.error,
+              position: AppToastPosition.bottom,
             );
           }
         },

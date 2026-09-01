@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dlna_dart/dlna.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -110,12 +110,12 @@ class DlnaCastService extends GetxService {
       LogUtils.d('开始搜索 DLNA 设备', 'DlnaCastService');
     } catch (e) {
       LogUtils.e('启动 DLNA 搜索失败: $e', tag: 'DlnaCastService', error: e);
-      showGlassToast(
+      showAppToast(
         slang.t.videoDetail.cast.unableToStartCastingSearch(
           error: e.toString(),
         ),
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
       isSearching.value = false;
       _isInitialized = false;
@@ -162,22 +162,22 @@ class DlnaCastService extends GetxService {
       connectedDeviceName.value = device.info.friendlyName;
       isConnected.value = true;
 
-      showGlassToast(
+      showAppToast(
         slang.t.videoDetail.cast.startCastingTo(
           deviceName: device.info.friendlyName,
         ),
-        type: GlassToastType.success,
-        position: GlassToastPosition.top,
+        type: AppToastType.success,
+        position: AppToastPosition.top,
       );
 
       LogUtils.d('成功投屏到设备: ${device.info.friendlyName}', 'DlnaCastService');
       return true;
     } catch (e) {
       LogUtils.e('投屏失败: $e', tag: 'DlnaCastService', error: e);
-      showGlassToast(
+      showAppToast(
         slang.t.videoDetail.cast.castFailed(error: e.toString()),
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
         duration: const Duration(seconds: 5),
       );
       _currentDevice = null;
@@ -210,10 +210,10 @@ class DlnaCastService extends GetxService {
         }
       }
 
-      showGlassToast(
+      showAppToast(
         slang.t.videoDetail.cast.castStopped,
-        type: GlassToastType.info,
-        position: GlassToastPosition.top,
+        type: AppToastType.info,
+        position: AppToastPosition.top,
       );
 
       LogUtils.d('停止投屏', 'DlnaCastService');

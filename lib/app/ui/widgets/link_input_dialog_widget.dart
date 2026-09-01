@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/deep_link_service.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -315,12 +315,12 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
 
       if (!DeepLinkService.canHandleLink(link) &&
           !IwaraSiteUtils.isIwaraHost(uri.host)) {
-        showGlassToast(
+        showAppToast(
           slang.t.linkInputDialog.notIwaraLink(
             webName: CommonConstants.webName,
           ),
-          type: GlassToastType.error,
-          position: GlassToastPosition.top,
+          type: AppToastType.error,
+          position: AppToastPosition.top,
         );
         return;
       }
@@ -331,10 +331,10 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
         _showUnsupportedLinkDialog(link);
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         slang.t.linkInputDialog.linkParseError(error: e.toString()),
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     }
   }
@@ -432,10 +432,10 @@ class _LinkInputDialogWidgetState extends State<LinkInputDialogWidget> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      showGlassToast(
+      showAppToast(
         slang.t.linkInputDialog.browserOpenFailed,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     }
   }

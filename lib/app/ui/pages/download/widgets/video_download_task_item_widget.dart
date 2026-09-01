@@ -24,7 +24,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
 class VideoDownloadTaskItem extends StatelessWidget {
@@ -694,16 +694,16 @@ class VideoDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.copyDownloadUrlSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.copyDownloadUrlFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -718,9 +718,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.fileNotFound,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
         return;
@@ -737,9 +737,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.openFolderFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -754,9 +754,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.fileNotFound,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
         return;
@@ -767,20 +767,20 @@ class VideoDownloadTaskItem extends StatelessWidget {
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.openFolderFailedWithMessage(
               message: result.message,
             ),
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.openFolderFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -796,9 +796,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.fileNotFound,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
         return;
@@ -831,9 +831,9 @@ class VideoDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('本地播放失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.playLocallyFailedWithMessage(message: e.toString()),
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }

@@ -14,7 +14,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
@@ -142,7 +142,7 @@ class _MessageListWidgetState extends State<MessageListWidget> {
       if (result.isSuccess) {
         _messageListRepository.refresh(true);
       } else {
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     }
 

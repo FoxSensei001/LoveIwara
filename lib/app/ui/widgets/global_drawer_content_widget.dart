@@ -6,7 +6,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/link_input_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/iwara_site_switcher.dart';
@@ -374,9 +374,9 @@ class GlobalDrawerColumns extends StatelessWidget {
     // 先提示稍候而非 NPE（naviCall 内部会解引用 currentUser.value!）。
     if (userService.currentUser.value == null) {
       AppService.switchGlobalDrawer();
-      showGlassToast(
+      showAppToast(
         slang.t.auth.loginSuccessProfilePending,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return;
     }
@@ -386,10 +386,10 @@ class GlobalDrawerColumns extends StatelessWidget {
 
   void _showLoginError(BuildContext context) {
     final t = slang.Translations.of(context);
-    showGlassToast(
+    showAppToast(
       t.errors.pleaseLoginFirst,
-      type: GlassToastType.error,
-      position: GlassToastPosition.top,
+      type: AppToastType.error,
+      position: AppToastPosition.top,
     );
   }
 
@@ -463,9 +463,9 @@ class GlobalDrawerColumns extends StatelessWidget {
               LoginService.showLogin();
             } else if (user == null) {
               // 已认证但资料尚未加载完成：跳转需要 username，先提示稍候而非 NPE。
-              showGlassToast(
+              showAppToast(
                 slang.t.auth.loginSuccessProfilePending,
-                type: GlassToastType.warning,
+                type: AppToastType.warning,
               );
             } else {
               NaviService.navigateToAuthorProfilePage(user.username);
@@ -746,14 +746,14 @@ class LogoutDialog extends StatelessWidget {
             try {
               userService.clearAllNotificationCounts();
               await userService.logout();
-              showGlassToast(
+              showAppToast(
                 slang.t.auth.logoutSuccess,
-                type: GlassToastType.success,
+                type: AppToastType.success,
               );
             } catch (e) {
-              showGlassToast(
+              showAppToast(
                 '${slang.t.auth.logoutFailed}: $e',
-                type: GlassToastType.error,
+                type: AppToastType.error,
               );
             }
           },

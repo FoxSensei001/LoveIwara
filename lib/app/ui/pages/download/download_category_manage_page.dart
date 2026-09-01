@@ -11,7 +11,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -104,15 +104,15 @@ class _DownloadCategoryManagePageState
       if (cat == null) throw Exception('create failed');
       await _fetch();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.download.category.createSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.category.createFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -133,15 +133,15 @@ class _DownloadCategoryManagePageState
     if (ok) {
       await _fetch();
       if (mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.category.renameSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       }
     } else if (mounted) {
-      showGlassToast(
+      showAppToast(
         t.download.category.renameFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -206,15 +206,15 @@ class _DownloadCategoryManagePageState
     if (ok) {
       await _fetch();
       if (mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.category.deleteSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       }
     } else if (mounted) {
-      showGlassToast(
+      showAppToast(
         t.download.category.deleteFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -561,7 +561,7 @@ class _CategoryNameDialogState extends State<_CategoryNameDialog> {
     final t = slang.Translations.of(context);
     final value = raw.trim();
     if (value.isEmpty) {
-      showGlassToast(t.download.category.nameEmpty, type: GlassToastType.error);
+      showAppToast(t.download.category.nameEmpty, type: AppToastType.error);
       return;
     }
     Navigator.of(context).pop(value);

@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
@@ -52,7 +52,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
           _isLoading = false;
         });
       }
-      showGlassToast(t.errors.failedToFetchData, type: GlassToastType.error);
+      showAppToast(t.errors.failedToFetchData, type: AppToastType.error);
       return;
     }
 
@@ -75,7 +75,7 @@ class _ForumEditReplyDialogState extends State<ForumEditReplyDialog> {
         AppService.tryPop();
       }
     } else {
-      showGlassToast(result.message, type: GlassToastType.error);
+      showAppToast(result.message, type: AppToastType.error);
     }
   }
 

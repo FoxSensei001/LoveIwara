@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 失败任务的原因标签。
@@ -49,9 +49,9 @@ class DownloadErrorLabel extends StatelessWidget {
             : () async {
                 await Clipboard.setData(ClipboardData(text: raw));
                 if (!context.mounted) return;
-                showGlassToast(
+                showAppToast(
                   t.download.errorDetailCopied,
-                  type: GlassToastType.success,
+                  type: AppToastType.success,
                 );
               },
         child: Text(

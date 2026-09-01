@@ -7,7 +7,7 @@ import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_til
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -138,9 +138,9 @@ class WelcomeStepWidget extends StatelessWidget {
     }
     Get.forceAppUpdate();
 
-    showGlassToast(
+    showAppToast(
       _resolveLanguageChangedMessage(value),
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
 
     AppService.tryPop();

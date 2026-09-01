@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
@@ -172,9 +173,7 @@ class _AppLockSettingsSectionState extends State<AppLockSettingsSection> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+    showAppToast(message, type: AppToastType.warning);
   }
 
   @override

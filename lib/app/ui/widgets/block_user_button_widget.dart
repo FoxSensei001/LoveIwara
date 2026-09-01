@@ -5,7 +5,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/content_block_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
@@ -43,7 +43,7 @@ class BlockUserButtonWidget extends StatelessWidget {
               AppService.tryPop();
               VibrateUtils.vibrate();
               await _service.blockUser(user);
-              showGlassToast(t.userBlocked, type: GlassToastType.success);
+              showAppToast(t.userBlocked, type: AppToastType.success);
             },
           ),
         ],
@@ -54,9 +54,9 @@ class BlockUserButtonWidget extends StatelessWidget {
   Future<void> _onUnblock() async {
     VibrateUtils.vibrate();
     await _service.unblockUser(user.id);
-    showGlassToast(
+    showAppToast(
       slang.t.settings.blockSettings.userUnblocked,
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
   }
 

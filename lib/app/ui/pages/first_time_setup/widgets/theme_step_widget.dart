@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dar
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -187,9 +187,9 @@ class ThemeStepWidget extends StatelessWidget {
             onTap: () {
               if (disabled) {
                 // 点得动、但会告诉你为什么没用，而不是一枚静默的死按钮。
-                showGlassToast(
+                showAppToast(
                   slang.t.settings.customColorsDisabledByDynamicColor,
-                  type: GlassToastType.info,
+                  type: AppToastType.info,
                 );
                 return;
               }

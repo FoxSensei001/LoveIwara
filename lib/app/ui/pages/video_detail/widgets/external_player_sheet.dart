@@ -7,7 +7,7 @@ import 'package:i_iwara/app/services/desktop_external_player.dart';
 import 'package:i_iwara/app/services/external_player_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 打开「用其他应用打开」面板，把 [source] 转交给本机其它播放器。
@@ -182,7 +182,7 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
     await Clipboard.setData(ClipboardData(text: source.value));
     if (!context.mounted) return;
     Navigator.of(context).pop();
-    showGlassToast(t.externalPlayer.linkCopied);
+    showAppToast(t.externalPlayer.linkCopied);
   }
 
   Future<void> _handOffToDesktopPlayer(
@@ -215,34 +215,34 @@ class _ExternalPlayerSheetState extends State<_ExternalPlayerSheet> {
   ) {
     switch (result.status) {
       case ExternalPlayerHandoffStatus.handedOff:
-        showGlassToast(t.externalPlayer.handedOff);
+        showAppToast(t.externalPlayer.handedOff);
       case ExternalPlayerHandoffStatus.noHandler:
-        showGlassToast(
+        showAppToast(
           t.externalPlayer.noHandler,
-          type: GlassToastType.warning,
+          type: AppToastType.warning,
         );
       case ExternalPlayerHandoffStatus.unsupported:
-        showGlassToast(
+        showAppToast(
           t.externalPlayer.noHandler,
-          type: GlassToastType.warning,
+          type: AppToastType.warning,
         );
       case ExternalPlayerHandoffStatus.fileMissing:
-        showGlassToast(
+        showAppToast(
           t.externalPlayer.localFileMissing,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       case ExternalPlayerHandoffStatus.executableMissing:
-        showGlassToast(
+        showAppToast(
           t.externalPlayer.executableMissing,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       case ExternalPlayerHandoffStatus.failed:
         final message = result.message;
-        showGlassToast(
+        showAppToast(
           message == null || message.isEmpty
               ? t.externalPlayer.handoffFailedUnknown
               : t.externalPlayer.handoffFailed(message: message),
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
     }
   }

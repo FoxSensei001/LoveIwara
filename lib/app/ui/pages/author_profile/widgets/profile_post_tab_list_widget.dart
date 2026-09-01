@@ -9,7 +9,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/controllers/userz_post_list_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_tile_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -103,7 +103,7 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
         onSubmit: (title, body) async {
           final result = await _postService.postPost(title, body);
           if (result.isSuccess) {
-            showGlassToast(t.common.success, type: GlassToastType.success);
+            showAppToast(t.common.success, type: AppToastType.success);
             AppService.tryPop();
             _requestRefresh();
           } else if (result.message == t.errors.tooManyRequests) {
@@ -130,11 +130,11 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
                   timeStr += t.errors.remainingSeconds(num: seconds);
                 }
 
-                showGlassToast(timeStr.trim(), type: GlassToastType.error);
+                showAppToast(timeStr.trim(), type: AppToastType.error);
               }
             }
           } else {
-            showGlassToast(result.message, type: GlassToastType.error);
+            showAppToast(result.message, type: AppToastType.error);
           }
         },
       ),

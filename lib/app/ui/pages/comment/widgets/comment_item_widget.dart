@@ -9,7 +9,7 @@ import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_remove_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_translation_controller.dart';
@@ -235,10 +235,10 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showDeleteConfirmDialog() {
     if (_isTopLevel && widget.controller == null) {
-      showGlassToast(
+      showAppToast(
         slang.t.errors.canNotFindCommentController,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       return;
     }
@@ -255,15 +255,15 @@ class _CommentItemState extends State<CommentItem> {
             if (!mounted) return;
             if (result.isSuccess) {
               widget.onCommentDeleted?.call(widget.comment.id);
-              showGlassToast(
+              showAppToast(
                 slang.t.common.commentDeletedSuccessfully,
-                type: GlassToastType.success,
+                type: AppToastType.success,
               );
             } else {
-              showGlassToast(
+              showAppToast(
                 result.message,
-                type: GlassToastType.error,
-                position: GlassToastPosition.bottom,
+                type: AppToastType.error,
+                position: AppToastPosition.bottom,
               );
             }
           }
@@ -275,10 +275,10 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showEditDialog() {
     if (_isTopLevel && widget.controller == null) {
-      showGlassToast(
+      showAppToast(
         slang.t.errors.canNotFindCommentController,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       return;
     }
@@ -291,10 +291,10 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.save,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showGlassToast(
+            showAppToast(
               slang.t.errors.commentCanNotBeEmpty,
-              type: GlassToastType.error,
-              position: GlassToastPosition.bottom,
+              type: AppToastType.error,
+              position: AppToastPosition.bottom,
             );
             return;
           }
@@ -311,17 +311,17 @@ class _CommentItemState extends State<CommentItem> {
               widget.onCommentEdited?.call(
                 widget.comment.copyWith(body: text, updatedAt: DateTime.now()),
               );
-              showGlassToast(
+              showAppToast(
                 slang.t.common.commentUpdated,
-                type: GlassToastType.success,
+                type: AppToastType.success,
               );
               // ignore: use_build_context_synchronously
               Navigator.of(context).pop();
             } else {
-              showGlassToast(
+              showAppToast(
                 result.message,
-                type: GlassToastType.error,
-                position: GlassToastPosition.bottom,
+                type: AppToastType.error,
+                position: AppToastPosition.bottom,
               );
             }
           }
@@ -332,10 +332,10 @@ class _CommentItemState extends State<CommentItem> {
 
   void _showReplyDialog() {
     if (widget.controller == null) {
-      showGlassToast(
+      showAppToast(
         slang.t.errors.canNotFindCommentController,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       return;
     }
@@ -347,10 +347,10 @@ class _CommentItemState extends State<CommentItem> {
         submitText: slang.t.common.reply,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
-            showGlassToast(
+            showAppToast(
               slang.t.errors.commentCanNotBeEmpty,
-              type: GlassToastType.error,
-              position: GlassToastPosition.bottom,
+              type: AppToastType.error,
+              position: AppToastPosition.bottom,
             );
             return;
           }

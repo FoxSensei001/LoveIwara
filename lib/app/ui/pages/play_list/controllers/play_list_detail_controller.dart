@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class PlayListDetailController extends GetxController {
@@ -48,10 +48,10 @@ class PlayListDetailController extends GetxController {
     if (result.isSuccess) {
       playlistTitle.value = newTitle;
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -97,13 +97,13 @@ class PlayListDetailController extends GetxController {
       // 换掉当前显示的那一页，数据源自刷新是刷不到的。
 
       // 显示成功提示
-      showGlassToast(slang.t.common.success, type: GlassToastType.success);
+      showAppToast(slang.t.common.success, type: AppToastType.success);
     } catch (error) {
       // 如果删除失败，显示错误
-      showGlassToast(
+      showAppToast(
         'Delete failed: $error',
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     } finally {
       isDeleting.value = false;
@@ -121,15 +121,15 @@ class PlayListDetailController extends GetxController {
         playlistId: playlistId,
       );
       if (!result.isSuccess) {
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return false;
       }
 
-      showGlassToast(slang.t.common.success, type: GlassToastType.success);
+      showAppToast(slang.t.common.success, type: AppToastType.success);
       return true;
     } finally {
       isDeleting.value = false;

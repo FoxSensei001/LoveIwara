@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -65,7 +65,7 @@ Future<void> showCommentActionsMenu({
   switch (action) {
     case 'copy':
       await Clipboard.setData(ClipboardData(text: text));
-      showGlassToast(t.common.copiedToClipboard, type: GlassToastType.success);
+      showAppToast(t.common.copiedToClipboard, type: AppToastType.success);
     case 'selectCopy':
       _showSelectCopyDialog(text);
     case 'reply':

@@ -50,7 +50,7 @@ dependencies:
   slang: 4.12.1
   slang_flutter: 4.12.1
   dynamic_color: ^1.7.0
-  oktoast: ^3.4.0
+  toastification: ^3.2.0
   app_links: ^7.0.0
   floating: ^6.0.0
   flutter_file_dialog: ^3.0.2

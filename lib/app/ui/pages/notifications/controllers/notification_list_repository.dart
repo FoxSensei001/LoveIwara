@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
@@ -36,9 +36,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
       });
     } catch (e, stack) {
       LogUtils.e('刷新通知列表失败', error: e, stack: stack);
-      showGlassToast(
+      showAppToast(
         '${slang.t.errors.failedToRefresh}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return false;
     }
@@ -53,9 +53,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
     final int page = _pageIndex;
     try {
       if (!_userService.isAuthenticated) {
-        showGlassToast(
+        showAppToast(
           slang.t.errors.pleaseLoginFirst,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return false;
       }
@@ -101,9 +101,9 @@ class NotificationListRepository extends LoadingMoreBase<Map<String, dynamic>>
       }
       isSuccess = false;
       LogUtils.e('加载通知列表失败', error: e, stack: stack);
-      showGlassToast(
+      showAppToast(
         '${slang.t.errors.failedToFetchData}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
     return isSuccess;

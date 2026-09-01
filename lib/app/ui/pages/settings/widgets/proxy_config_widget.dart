@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/setting_item_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
@@ -170,10 +170,10 @@ class _ProxyConfigWidgetState extends BaseProxyWidgetState<ProxyConfigWidget> {
                           final text = _systemProxyCandidate ?? '';
                           if (text.isEmpty) return;
                           await Clipboard.setData(ClipboardData(text: text));
-                          showGlassToast(
+                          showAppToast(
                             t.proxyHelper.copied,
-                            type: GlassToastType.success,
-                            position: GlassToastPosition.top,
+                            type: AppToastType.success,
+                            position: AppToastPosition.top,
                           );
                         },
                         icon: Icon(

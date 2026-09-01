@@ -13,7 +13,7 @@ import 'package:i_iwara/app/services/logging/log_models.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/storage_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -909,9 +909,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
 
     try {
       if (!Get.isRegistered<LogService>()) {
-        showGlassToast(
+        showAppToast(
           slang.t.diagnostics.toast.logServiceNotInitialized,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return;
       }
@@ -930,9 +930,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
         );
         if (result != null) {
           await File(file.path).copy(result.path);
-          showGlassToast(
+          showAppToast(
             slang.t.diagnostics.toast.exportSuccess,
-            type: GlassToastType.success,
+            type: AppToastType.success,
           );
         }
       } else {
@@ -944,9 +944,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
         );
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         slang.t.diagnostics.toast.exportFailed(error: e.toString()),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     } finally {
       if (mounted) {
@@ -971,9 +971,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
   Future<void> _copySupportEmail() async {
     await Clipboard.setData(const ClipboardData(text: _supportEmail));
     if (mounted) {
-      showGlassToast(
+      showAppToast(
         slang.t.diagnostics.toast.supportEmailCopied,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     }
   }

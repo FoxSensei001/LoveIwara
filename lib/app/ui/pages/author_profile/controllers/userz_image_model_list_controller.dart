@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 
@@ -62,10 +62,10 @@ class UserzImageModelListController extends GetxController {
       );
 
       if (!response.isSuccess) {
-        showGlassToast(
+        showAppToast(
           response.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }

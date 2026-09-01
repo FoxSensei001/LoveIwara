@@ -22,7 +22,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.da
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -217,7 +217,7 @@ class _MyFavoritesState extends State<MyFavorites>
           ? await controller.batchCancelVideoFavorites(ids)
           : await controller.batchCancelImageFavorites(ids);
 
-      showGlassToast(
+      showAppToast(
         result.failed == 0
             ? t.favorites.batchCancelFavoriteSuccess(count: result.success)
             : t.favorites.batchCancelFavoriteResult(
@@ -225,9 +225,9 @@ class _MyFavoritesState extends State<MyFavorites>
                 failed: result.failed,
               ),
         type: result.failed == 0
-            ? GlassToastType.success
-            : GlassToastType.warning,
-        position: GlassToastPosition.bottom,
+            ? AppToastType.success
+            : AppToastType.warning,
+        position: AppToastPosition.bottom,
       );
 
       if (isVideo) {

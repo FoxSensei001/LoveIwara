@@ -2,7 +2,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
@@ -83,9 +83,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               onPressed: () {
                 final parsed = int.tryParse(controller.text.trim());
                 if (parsed == null || parsed < 1) {
-                  showGlassToast(
+                  showAppToast(
                     slang.t.settings.autoDeleteHistoryDaysInvalid,
-                    type: GlassToastType.error,
+                    type: AppToastType.error,
                   );
                   return;
                 }
@@ -169,7 +169,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         _languageChangedMessages[localeKey] ??
                         _languageChangedMessages['en']!;
 
-                    showGlassToast(message, type: GlassToastType.success);
+                    showAppToast(message, type: AppToastType.success);
                   }
                 },
                 child: ListView(
@@ -256,9 +256,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         includeSensitive: includeSensitive,
       );
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${slang.t.settings.exportConfigFailed}: ${e.toString()}',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -292,9 +292,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         await _showImportRestartDialog();
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${slang.t.settings.importConfigFailed}: ${e.toString()}',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }

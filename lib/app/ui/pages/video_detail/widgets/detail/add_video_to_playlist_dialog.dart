@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/light_play_list.model.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -126,10 +126,10 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
           }
         } else {
           // 显示错误提示
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.bottom,
+            type: AppToastType.error,
+            position: AppToastPosition.bottom,
           );
         }
       });
@@ -149,17 +149,17 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
       _newPlaylistController.clear();
       await _fetchPlaylists();
       // 显示成功提示
-      showGlassToast(
+      showAppToast(
         slang.t.common.success,
-        type: GlassToastType.success,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.success,
+        position: AppToastPosition.bottom,
       );
     } else {
       // 显示错误提示
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
 

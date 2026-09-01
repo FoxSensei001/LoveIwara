@@ -23,7 +23,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_search_input_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -205,10 +205,10 @@ class _SearchPageState extends State<SearchPage> {
       filters: _filters.toList(),
     );
     await _savedSearchService.add(search);
-    showGlassToast(
+    showAppToast(
       t.savedSearch.saveSuccess,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 

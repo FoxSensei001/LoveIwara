@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dio/dio.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 import '../../../../../utils/logger_utils.dart';
 import '../../../../../utils/proxy/proxy_util.dart';
@@ -67,10 +67,10 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget>
     final proxyUrl = configService[ConfigKey.PROXY_URL]?.toString() ?? '';
     LogUtils.i('开始检测代理: $proxyUrl', tag);
     if (proxyUrl.isEmpty) {
-      showGlassToast(
+      showAppToast(
         slang.t.settings.proxyAddressCannotBeEmpty,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
       LogUtils.e('检测代理失败: 代理地址为空', tag: tag);
       return;
@@ -78,13 +78,13 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget>
 
     if (!isValidProxyAddress(proxyUrl)) {
       LogUtils.e('检测代理格式失败: $proxyUrl', tag: tag);
-      showGlassToast(
+      showAppToast(
         slang
             .t
             .settings
             .invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
       return;
     }
@@ -98,27 +98,27 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget>
       // 使用 Dio 发送请求到谷歌
       final response = await dioClient.get('https://www.google.com');
       if (response.statusCode == 200 || response.statusCode == 302) {
-        showGlassToast(
+        showAppToast(
           slang.t.settings.proxyNormalWork,
-          type: GlassToastType.success,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.success,
+          position: AppToastPosition.bottom,
         );
         LogUtils.i('代理检测成功，响应状态码: ${response.statusCode}', tag);
       } else {
-        showGlassToast(
+        showAppToast(
           slang.t.settings.testProxyFailedWithStatusCode(
             code: response.statusCode.toString(),
           ),
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         LogUtils.e('代理检测失败，响应状态码: ${response.statusCode}', tag: tag);
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         slang.t.settings.testProxyFailedWithException(exception: e.toString()),
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       LogUtils.e('代理请求出错: $e', tag: tag);
     } finally {
@@ -133,10 +133,10 @@ abstract class BaseProxyWidgetState<T extends BaseProxyWidget>
   void setFlutterEngineProxy(String proxyUrl) {
     if (ProxyUtil.isSupportedPlatform()) {
       // 显示需要重启的提示
-      showGlassToast(
+      showAppToast(
         slang.t.settings.needRestartToApply,
-        type: GlassToastType.info,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.info,
+        position: AppToastPosition.bottom,
       );
     } else {
       LogUtils.e('当前平台不支持设置代理', tag: tag);

@@ -3,7 +3,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/common/color_vision_filters.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -334,14 +334,14 @@ class ColorVisionSettingsWidget extends StatelessWidget {
 
     configService[configKey] = type.id;
     // 滤镜即时作用于目标画面，提示用户已生效
-    showGlassToast(
+    showAppToast(
       type == ColorVisionFilterType.none
           ? t.colorVisionAssist.disabledToast
           : t.colorVisionAssist.appliedToast(
               filterName: optionLabels[type.id] ?? type.id,
             ),
-      type: GlassToastType.success,
-      position: GlassToastPosition.top,
+      type: AppToastType.success,
+      position: AppToastPosition.top,
     );
   }
 }

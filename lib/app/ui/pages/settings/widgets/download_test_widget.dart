@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'dart:io';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 /// 下载功能测试组件
 class DownloadTestWidget extends StatefulWidget {
@@ -236,16 +236,16 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       final passedCount = results.where((r) => r.passed).length;
       final totalCount = results.length;
 
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.testCompleted}: $passedCount/$totalCount ${t.settings.downloadSettings.testPassed}',
         type: passedCount == totalCount
-            ? GlassToastType.success
-            : GlassToastType.warning,
+            ? AppToastType.success
+            : AppToastType.warning,
       );
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.testFailed}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     } finally {
       setState(() {

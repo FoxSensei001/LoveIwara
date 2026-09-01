@@ -7,7 +7,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/grid_speed_dial.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -128,7 +128,7 @@ class CommentsTabWidget extends StatelessWidget {
   ) {
     final t = slang.Translations.of(context);
     if (!Get.find<UserService>().isAuthenticated) {
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -141,9 +141,9 @@ class CommentsTabWidget extends StatelessWidget {
           if (text.trim().isNotEmpty) {
             await commentController.postComment(text);
           } else {
-            showGlassToast(
+            showAppToast(
               t.errors.commentCanNotBeEmpty,
-              type: GlassToastType.error,
+              type: AppToastType.error,
             );
           }
         },

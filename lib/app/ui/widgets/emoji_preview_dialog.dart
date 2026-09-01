@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class EmojiPreviewDialog extends StatelessWidget {
@@ -24,10 +24,10 @@ class EmojiPreviewDialog extends StatelessWidget {
 
   void _copyEmojiLink() {
     Clipboard.setData(ClipboardData(text: emojiUrl));
-    showGlassToast(
+    showAppToast(
       t.emoji.copyEmojiLinkSuccess,
-      type: GlassToastType.success,
-      position: GlassToastPosition.top,
+      type: AppToastType.success,
+      position: AppToastPosition.top,
     );
   }
 

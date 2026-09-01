@@ -20,7 +20,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -780,9 +780,9 @@ class _HistoryListPageState extends State<HistoryListPage>
   ) async {
     final count = await controller.countRecordsInSelectedRange();
     if (count == 0) {
-      showGlassToast(
+      showAppToast(
         slang.t.common.noHistoryRecordsInRange,
-        type: GlassToastType.info,
+        type: AppToastType.info,
       );
       return;
     }
@@ -842,9 +842,9 @@ class _HistoryListPageState extends State<HistoryListPage>
               );
               await controller.repository.refresh(true);
               _notifyFilterChanged();
-              showGlassToast(
+              showAppToast(
                 slang.t.common.success,
-                type: GlassToastType.success,
+                type: AppToastType.success,
               );
             },
           ),

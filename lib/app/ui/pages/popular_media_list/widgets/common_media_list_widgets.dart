@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -558,22 +558,22 @@ class _PaginationBarState extends State<PaginationBar>
       } else {
         // 显示错误提示
         if (!hasValidLowerBound) {
-          showGlassToast(
+          showAppToast(
             slang.t.common.pagination.invalidInput,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         } else {
-          showGlassToast(
+          showAppToast(
             slang.t.common.pagination.invalidPageNumber(max: widget.totalPages),
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
       }
     } catch (e) {
       // 输入非数字时显示错误提示
-      showGlassToast(
+      showAppToast(
         slang.t.common.pagination.invalidInput,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
     _pageController.clear();

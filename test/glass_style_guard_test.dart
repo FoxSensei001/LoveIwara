@@ -506,6 +506,10 @@ const _exemptFiles = <String>{
   // showAppDialog 那条路由做的是居中/整页弹窗的出入场，贴右滑入的抽屉只能自己
   // 起一条 showGeneralDialog。
   'lib/app/ui/widgets/glass/glass_side_drawer.dart',
+  // 轻提示（toast）**刻意**不是玻璃件：它压在所有路由之上、和页面没有层级关系，
+  // 半透明只会和底下的内容糊在一起。整层按 Material 3 的浮起卡片做，右侧那枚
+  // 动作钮自然也该是 TextButton——换成玻璃钮才是不一致。见 app_toast.dart。
+  'lib/app/ui/widgets/app_toast.dart',
 };
 
 /// 当前欠账快照（2026-08-24）。**只许降，不许升。**
@@ -553,6 +557,9 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart': 3,
   'lib/app/ui/pages/settings/widgets/base_proxy_widget.dart': 2,
   'lib/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart': 2,
+  // 2026-09-01 补录：这一处早于本次改动就在，只是当时漏进了基线（播放器设置改
+  // 右侧抽屉那一轮新建的文件）。
+  'lib/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart': 1,
   'lib/app/ui/pages/settings/widgets/download_test_widget.dart': 1,
   'lib/app/ui/pages/settings/widgets/proxy_config_widget.dart': 1,
   'lib/app/ui/pages/settings/widgets/recommended_paths_widget.dart': 1,

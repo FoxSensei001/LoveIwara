@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -241,16 +241,16 @@ class CommentController<T extends CommentType> extends GetxController {
         comments.insert(0, result.data!);
       }
       totalComments.value++;
-      showGlassToast(
+      showAppToast(
         t.common.commentPostedSuccessfully,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       AppService.tryPop();
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
 
@@ -263,15 +263,15 @@ class CommentController<T extends CommentType> extends GetxController {
     if (result.isSuccess) {
       comments.removeWhere((comment) => comment.id == commentId);
       totalComments.value--;
-      showGlassToast(
+      showAppToast(
         t.common.commentDeletedSuccessfully,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -296,17 +296,17 @@ class CommentController<T extends CommentType> extends GetxController {
           body: newBody,
           updatedAt: DateTime.now(),
         );
-        showGlassToast(
+        showAppToast(
           t.common.commentUpdatedSuccessfully,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
         AppService.tryPop();
       }
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

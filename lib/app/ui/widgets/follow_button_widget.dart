@@ -10,7 +10,7 @@ import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -132,7 +132,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     final t = slang.Translations.of(context);
     VibrateUtils.vibrate();
     if (!_userService.isAuthenticated) {
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -151,10 +151,10 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     );
     // 每次特别关注成功都提示一次去哪能快速用上它——不做持久化计数，
     // 不像普通关注的 tip 那样怕打扰：这是用户刚主动点出来的操作。
-    showGlassToast(
+    showAppToast(
       t.common.specialFollowTip,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 
@@ -162,7 +162,7 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
     final t = slang.Translations.of(context);
     VibrateUtils.vibrate();
     if (!_userService.isAuthenticated) {
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -182,17 +182,17 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
         setState(() => _currentUser = updatedUser);
         widget.onUserUpdated?.call(updatedUser);
       } else {
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.top,
+          type: AppToastType.error,
+          position: AppToastPosition.top,
         );
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -222,9 +222,9 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           final shouldShow =
               showFollowTipCount > 0 && random.nextDouble() < 0.5;
           if (shouldShow) {
-            showGlassToast(
+            showAppToast(
               "🔔 ${t.common.followSuccessClickAgainToSpecialFollow}",
-              type: GlassToastType.success,
+              type: AppToastType.success,
             );
 
             final newCount = max(0, showFollowTipCount - 1);
@@ -232,17 +232,17 @@ class _FollowButtonWidgetState extends State<FollowButtonWidget> {
           }
         }
       } else {
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.top,
+          type: AppToastType.error,
+          position: AppToastPosition.top,
         );
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     } finally {
       if (mounted) {

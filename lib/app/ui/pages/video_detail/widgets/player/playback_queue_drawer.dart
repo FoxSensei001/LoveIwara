@@ -15,7 +15,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -660,7 +660,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         // 登录态是在开菜单那一刻读的，中途掉登录（401 被登出）时这里会拿到
         // null——静默什么都不做会被当成"点了没反应"，说一句。
         if (queue == null) {
-          showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.info);
+          showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.info);
         } else {
           _useQueue(queue);
         }
@@ -835,14 +835,14 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     // 照常开菜单——至少让它回得去。
     if (!openHere) {
       if (choices == null) {
-        showGlassToast(
+        showAppToast(
           t.watchLater.playlistLoadFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return;
       }
       if (choices.isEmpty) {
-        showGlassToast(t.playbackQueue.nothingHere, type: GlassToastType.info);
+        showAppToast(t.playbackQueue.nothingHere, type: AppToastType.info);
         return;
       }
     }
@@ -1081,15 +1081,15 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     if (!mounted || !anchorContext.mounted) return null;
 
     if (choices == null) {
-      showGlassToast(
+      showAppToast(
         t.watchLater.playlistLoadFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return null;
     }
     if (choices.isEmpty) {
       // 空的这次会提示，**下次开菜单那一条就是灰的了**——feed 已经知道答案。
-      showGlassToast(t.playbackQueue.nothingHere, type: GlassToastType.info);
+      showAppToast(t.playbackQueue.nothingHere, type: AppToastType.info);
       return null;
     }
     return choices;

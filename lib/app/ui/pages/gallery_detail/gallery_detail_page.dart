@@ -24,7 +24,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -486,19 +486,19 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
                                   submitText: slang.t.common.send,
                                   onSubmit: (text) async {
                                     if (text.trim().isEmpty) {
-                                      showGlassToast(
+                                      showAppToast(
                                         slang.t.errors.commentCanNotBeEmpty,
-                                        type: GlassToastType.error,
-                                        position: GlassToastPosition.bottom,
+                                        type: AppToastType.error,
+                                        position: AppToastPosition.bottom,
                                       );
                                       return;
                                     }
                                     final UserService userService = Get.find();
                                     if (!userService.isAuthenticated) {
-                                      showGlassToast(
+                                      showAppToast(
                                         slang.t.errors.pleaseLoginFirst,
-                                        type: GlassToastType.error,
-                                        position: GlassToastPosition.bottom,
+                                        type: AppToastType.error,
+                                        position: AppToastPosition.bottom,
                                       );
                                       LoginService.showLogin();
                                       return;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'history_list_repository.dart';
 
@@ -35,7 +35,7 @@ class HistoryListController extends GetxController {
       await historyDatabaseRepository.clearHistoryByType(itemType);
     }
     repository.refresh();
-    showGlassToast(t.common.success, type: GlassToastType.success);
+    showAppToast(t.common.success, type: AppToastType.success);
   }
 
   void toggleMultiSelect() {
@@ -76,7 +76,7 @@ class HistoryListController extends GetxController {
       controller.repository.refresh();
     }
     isMultiSelect.value = false;
-    showGlassToast(t.common.success, type: GlassToastType.success);
+    showAppToast(t.common.success, type: AppToastType.success);
   }
 
   void search(String keyword) {
@@ -121,7 +121,7 @@ class HistoryListController extends GetxController {
         Get.find<HistoryListController>(tag: tag).repository.refresh();
       }
     }
-    showGlassToast(t.common.success, type: GlassToastType.success);
+    showAppToast(t.common.success, type: AppToastType.success);
   }
 
   void setDateRange(DateTimeRange? range) {

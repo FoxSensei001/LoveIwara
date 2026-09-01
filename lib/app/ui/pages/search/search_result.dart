@@ -7,7 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glow_notification_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
@@ -591,10 +591,10 @@ class _SearchResultState extends State<SearchResult> {
           searchController.currentSingleTagNameBehindSearchInput.value,
     );
     await _savedSearchService.add(search);
-    showGlassToast(
+    showAppToast(
       t.savedSearch.saveSuccess,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 

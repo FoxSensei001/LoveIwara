@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/widgets/sign_in_heatmap_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 import '../../../services/user_service.dart';
 import '../../../services/login_service.dart';
@@ -52,10 +52,10 @@ class _SignInPageState extends State<SignInPage> {
     if (picked != null) {
       // 确保日期范围不超过1年
       if (picked.end.difference(picked.start).inDays > 365) {
-        showGlassToast(
+        showAppToast(
           slang.t.signIn.dateRangeCantBeMoreThanOneYear,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }

@@ -17,7 +17,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -201,15 +201,16 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     final removed = WatchLaterService.to.removeAll(targets);
     _setSelecting(false);
     if (removed <= 0) return;
-    showGlassToast(
+    showAppToast(
       t.watchLater.removedCount(count: removed),
-      type: GlassToastType.info,
+      type: AppToastType.info,
       actionLabel: t.watchLater.undo,
+      // 点了「撤销」这条提示自己就收了（见 app_toast.dart 的动作钮），不用再
+      // dismissAppToasts()——那会把同时挂着的其它提示一并抹掉。
       onAction: () {
         for (final item in targets) {
           WatchLaterService.to.restore(item);
         }
-        dismissGlassToasts();
       },
     );
   }
@@ -535,11 +536,11 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     if (confirmed != true || !mounted) return;
 
     final removed = WatchLaterService.to.clearWatched(itemType: _currentType);
-    showGlassToast(
+    showAppToast(
       removed > 0
           ? t.watchLater.watchedCleared(count: removed)
           : t.watchLater.noWatchedToClear,
-      type: removed > 0 ? GlassToastType.success : GlassToastType.info,
+      type: removed > 0 ? AppToastType.success : AppToastType.info,
     );
   }
 
@@ -636,9 +637,9 @@ class _WatchLaterTile extends StatelessWidget {
           return;
         }
         if (item.isInvalid) {
-          showGlassToast(
+          showAppToast(
             t.watchLater.invalidItem,
-            type: GlassToastType.warning,
+            type: AppToastType.warning,
           );
           return;
         }

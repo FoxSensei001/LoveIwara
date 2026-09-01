@@ -4,7 +4,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dialog_motion.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
@@ -230,9 +230,9 @@ class _GlassFullTitleDialog extends StatelessWidget {
                           await Clipboard.setData(
                             ClipboardData(text: translateText),
                           );
-                          showGlassToast(
+                          showAppToast(
                             t.common.copiedToClipboard,
-                            type: GlassToastType.success,
+                            type: AppToastType.success,
                           );
                         },
                       ),

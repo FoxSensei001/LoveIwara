@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -121,13 +121,13 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showGlassToast(t.errors.titleCanNotBeEmpty, type: GlassToastType.error);
+      showAppToast(t.errors.titleCanNotBeEmpty, type: AppToastType.error);
       return;
     }
 
     // 检查内容是否为空
     if (_bodyController.text.trim().isEmpty) {
-      showGlassToast(t.errors.contentCanNotBeEmpty, type: GlassToastType.error);
+      showAppToast(t.errors.contentCanNotBeEmpty, type: AppToastType.error);
       return;
     }
 

@@ -17,7 +17,7 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -949,10 +949,10 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
     final UserService userService = Get.find();
 
     if (!userService.isAuthenticated) {
-      showGlassToast(
+      showAppToast(
         t.errors.pleaseLoginFirst,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       LoginService.showLogin();
       return;

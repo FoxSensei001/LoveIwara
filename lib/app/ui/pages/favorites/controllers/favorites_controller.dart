@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_image_repository.dart';
 import 'package:i_iwara/app/ui/pages/favorites/repositories/favorite_video_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class FavoritesController extends GetxController {
   late FavoriteVideoRepository videoRepository;
@@ -35,10 +35,10 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.add(video.id);
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.bottom,
+            type: AppToastType.error,
+            position: AppToastPosition.bottom,
           );
         }
       });
@@ -50,10 +50,10 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteVideoIds.remove(video.id);
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.bottom,
+            type: AppToastType.error,
+            position: AppToastPosition.bottom,
           );
         }
       });
@@ -70,10 +70,10 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.add(image.id);
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.bottom,
+            type: AppToastType.error,
+            position: AppToastPosition.bottom,
           );
         }
       });
@@ -85,10 +85,10 @@ class FavoritesController extends GetxController {
         if (!result.isSuccess) {
           // 如果失败，恢复状态
           canceledFavoriteGalleryIds.remove(image.id);
-          showGlassToast(
+          showAppToast(
             result.message,
-            type: GlassToastType.error,
-            position: GlassToastPosition.bottom,
+            type: AppToastType.error,
+            position: AppToastPosition.bottom,
           );
         }
       });

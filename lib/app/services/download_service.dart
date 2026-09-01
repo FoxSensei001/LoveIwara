@@ -18,7 +18,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
@@ -1845,7 +1845,7 @@ class DownloadService extends GetxService {
               !notificationService.isAlreadyOnDownloadPage();
           messageService.showActionableMessage(
             slang.t.downloadNotifications.completedToast(name: title),
-            GlassToastType.success,
+            AppToastType.success,
             onTap: showJumpAction
                 ? notificationService.openDownloadTaskList
                 : null,
@@ -1854,7 +1854,7 @@ class DownloadService extends GetxService {
         } else {
           messageService.showMessage(
             slang.t.downloadNotifications.failedToast(name: title),
-            GlassToastType.error,
+            AppToastType.error,
           );
         }
       }
@@ -2404,12 +2404,12 @@ class DownloadService extends GetxService {
     super.onClose();
   }
 
-  /// 统一通过 [MessageService]（oktoast）展示提示，替代散落的原生 SnackBar。
+  /// 统一通过 [MessageService] 展示提示，替代散落的原生 SnackBar。
   /// 沿用旧签名（含 [Color]）以免改动十余处调用点：红色映射为 error，其余为 info。
   void _showMessage(String message, Color color) {
     final type = color == Colors.red
-        ? GlassToastType.error
-        : GlassToastType.info;
+        ? AppToastType.error
+        : AppToastType.info;
     if (Get.isRegistered<MessageService>()) {
       Get.find<MessageService>().showMessage(message, type);
     } else {

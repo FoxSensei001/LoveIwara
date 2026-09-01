@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -59,7 +59,7 @@ class ConfigBackupService extends GetxService {
   /// 默认 false。
   Future<void> exportConfig({bool includeSensitive = false}) async {
     if (_isTaskRunning) {
-      showGlassToast(slang.t.common.taskRunning, type: GlassToastType.error);
+      showAppToast(slang.t.common.taskRunning, type: AppToastType.error);
       return;
     }
     _isTaskRunning = true;
@@ -130,14 +130,14 @@ class ConfigBackupService extends GetxService {
           final savedPath = await FlutterFileDialog.saveFile(params: params);
           if (savedPath == null) {
             // 用户取消保存
-            showGlassToast(
+            showAppToast(
               slang.t.common.operationCancelled,
-              type: GlassToastType.info,
+              type: AppToastType.info,
             );
           } else {
-            showGlassToast(
+            showAppToast(
               slang.t.settings.exportConfigSuccess,
-              type: GlassToastType.success,
+              type: AppToastType.success,
             );
           }
         } finally {
@@ -155,17 +155,17 @@ class ConfigBackupService extends GetxService {
           suggestedName: '${CommonConstants.applicationName}_backup.json',
         );
         if (fileSaveLocation == null) {
-          showGlassToast(
+          showAppToast(
             slang.t.common.operationCancelled,
-            type: GlassToastType.info,
+            type: AppToastType.info,
           );
           return;
         }
         final file = File(fileSaveLocation.path);
         await file.writeAsString(jsonString);
-        showGlassToast(
+        showAppToast(
           slang.t.settings.exportConfigSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       }
     } catch (e) {
@@ -189,7 +189,7 @@ class ConfigBackupService extends GetxService {
   /// 导入失败会抛出异常，由调用方处理。
   Future<bool> importConfig() async {
     if (_isTaskRunning) {
-      showGlassToast(slang.t.common.taskRunning, type: GlassToastType.error);
+      showAppToast(slang.t.common.taskRunning, type: AppToastType.error);
       return false;
     }
     _isTaskRunning = true;
@@ -201,9 +201,9 @@ class ConfigBackupService extends GetxService {
         const params = OpenFileDialogParams();
         final filePath = await FlutterFileDialog.pickFile(params: params);
         if (filePath == null) {
-          showGlassToast(
+          showAppToast(
             slang.t.common.operationCancelled,
-            type: GlassToastType.info,
+            type: AppToastType.info,
           );
           return false; // 用户取消选择
         }
@@ -216,9 +216,9 @@ class ConfigBackupService extends GetxService {
           acceptedTypeGroups: [typeGroup],
         );
         if (file == null) {
-          showGlassToast(
+          showAppToast(
             slang.t.common.operationCancelled,
-            type: GlassToastType.info,
+            type: AppToastType.info,
           );
           return false; // 用户取消选择
         }

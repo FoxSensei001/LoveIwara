@@ -14,7 +14,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/services/upload_service.dart';
@@ -58,9 +58,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       await _userService.fetchUserProfile();
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.fetchUserProfileFailed(error: e.toString()),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     } finally {
       if (mounted) {
@@ -276,9 +276,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
                   onTap: () {
                     // 复制用户名
                     Clipboard.setData(ClipboardData(text: user.username));
-                    showGlassToast(
+                    showAppToast(
                       slang.t.personalProfile.usernameCopied,
-                      type: GlassToastType.success,
+                      type: AppToastType.success,
                     );
                   },
                 ),
@@ -484,11 +484,11 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
       _userService.currentUser.value = user.copyWith(
         notifications: originalNotifications,
       );
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.updateNotificationSettingsFailed(
           error: result.message,
         ),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -529,18 +529,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     ];
 
     if (!allowedExtensions.contains(ext)) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.unsupportedFileFormat,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
 
     final fileSize = await file.length();
     if (fileSize > 0.6 * 1024 * 1024) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.fileTooLarge(size: '0.6MB'),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
@@ -552,9 +552,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       final uploadedImage = await uploadService.uploadImageFile(file);
       if (uploadedImage == null) {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.uploadFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return;
       }
@@ -563,18 +563,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         avatar: uploadedImage,
       );
       if (result.isSuccess) {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.avatarUpdatedSuccessfully,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       } else {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.updateAvatarFailed(error: result.message),
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     } catch (e) {
-      showGlassToast('操作失败: $e', type: GlassToastType.error);
+      showAppToast('操作失败: $e', type: AppToastType.error);
     } finally {
       if (mounted) {
         setState(() {
@@ -713,18 +713,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     ];
 
     if (!allowedExtensions.contains(ext)) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.unsupportedFileFormat,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
 
     final fileSize = await file.length();
     if (fileSize > 1.5 * 1024 * 1024) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.fileTooLarge(size: '1.5MB'),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
@@ -736,9 +736,9 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
     try {
       final uploadedImage = await uploadService.uploadImageFile(file);
       if (uploadedImage == null) {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.uploadFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return;
       }
@@ -747,18 +747,18 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         header: uploadedImage,
       );
       if (result.isSuccess) {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.backgroundUpdatedSuccessfully,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       } else {
-        showGlassToast(
+        showAppToast(
           slang.t.personalProfile.updateBackgroundFailed(error: result.message),
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     } catch (e) {
-      showGlassToast('${slang.t.common.error}: $e', type: GlassToastType.error);
+      showAppToast('${slang.t.common.error}: $e', type: AppToastType.error);
     } finally {
       if (mounted) {
         setState(() {
@@ -801,9 +801,9 @@ class _EditNicknameDialogState extends State<_EditNicknameDialog> {
   Future<void> _submit() async {
     final newName = _controller.text.trim();
     if (newName.isEmpty) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.nicknameCannotBeEmpty,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return;
     }
@@ -818,13 +818,13 @@ class _EditNicknameDialogState extends State<_EditNicknameDialog> {
     setState(() => _isSaving = false);
 
     if (result.isSuccess) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.changeSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       AppService.tryPop();
     } else {
-      showGlassToast(result.message, type: GlassToastType.error);
+      showAppToast(result.message, type: AppToastType.error);
     }
   }
 
@@ -899,15 +899,15 @@ class _EditDescriptionDialogState extends State<_EditDescriptionDialog> {
     });
 
     if (result.isSuccess) {
-      showGlassToast(
+      showAppToast(
         slang.t.personalProfile.changeSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       if (mounted) {
         AppService.tryPop();
       }
     } else {
-      showGlassToast(result.message, type: GlassToastType.error);
+      showAppToast(result.message, type: AppToastType.error);
     }
   }
 

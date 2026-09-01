@@ -16,7 +16,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/glass_material_intro.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_lock_screen.dart';
 import 'package:i_iwara/app/ui/widgets/privacy_over_lay_widget.dart';
@@ -24,7 +24,6 @@ import 'package:i_iwara/app/ui/widgets/window_layout_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
-import 'package:oktoast/oktoast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -299,20 +298,12 @@ class _MyAppState extends State<MyApp> {
               if (null == child) {
                 return const SizedBox.shrink();
               }
-              // OKToast 必须挂在 MaterialApp **内部**：它自建的 Overlay 就是
-              // toast 的宿主，放在 MaterialApp 外面时那棵子树上没有 Theme /
-              // Localizations，`Theme.of` 只能拿到 Flutter 的 fallback 主题
-              // （恒为浅色蓝），玻璃 toast 在深色模式下会是一块亮片。
-              // 放在这里同时还能拿到真实的系统安全区（MyAppLayout 之上，
-              // 尚未被 ApplyFixedMediaQueryInsets 改写）。
-              return OKToast(
-                position: ToastPosition.top,
-                dismissOtherOnShow: true,
-                animationBuilder: glassToastRootAnimationBuilder,
-                animationCurve: Curves.linear,
-                animationDuration: glassToastAnimationDuration,
-                child: MyAppLayout(child: child),
-              );
+              // toast 宿主必须挂在 MaterialApp **内部**：它往下找到的第一个
+              // Navigator（也就是根导航器）的 Overlay 才是提示的落点，放到
+              // MaterialApp 外面时那棵子树上没有 Theme / Localizations，
+              // `Theme.of` 只能拿到 Flutter 的 fallback 主题（恒为浅色蓝），
+              // 深色模式下整块提示会是一片亮白。
+              return AppToastHost(child: MyAppLayout(child: child));
             },
           );
         });
@@ -572,7 +563,7 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
     }
 
     // 如果没有找到支持的视频文件，显示提示
-    showGlassToast(t.mediaPlayer.noSupportedVideoFile);
+    showAppToast(t.mediaPlayer.noSupportedVideoFile);
   }
 
   Widget _shortCutsWrapper(BuildContext context, Widget child) {

@@ -8,7 +8,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -102,10 +102,10 @@ class GalleryDetailController extends GetxController {
         }
 
         errorMessage.value = res.message;
-        showGlassToast(
+        showAppToast(
           res.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }

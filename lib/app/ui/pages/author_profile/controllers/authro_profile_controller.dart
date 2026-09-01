@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -180,10 +180,10 @@ class AuthorProfileController extends GetxController {
     try {
       ApiResult res = await _userService.followUser(userId);
       if (!res.isSuccess) {
-        showGlassToast(
+        showAppToast(
           res.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }
@@ -204,10 +204,10 @@ class AuthorProfileController extends GetxController {
     try {
       ApiResult res = await _userService.unfollowUser(userId);
       if (!res.isSuccess) {
-        showGlassToast(
+        showAppToast(
           res.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }

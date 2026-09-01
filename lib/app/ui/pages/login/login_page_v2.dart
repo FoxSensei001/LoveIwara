@@ -16,7 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart' show LogUtils;
 import 'package:url_launcher/url_launcher.dart';
@@ -94,9 +94,9 @@ class _LoginDialogState extends State<LoginDialog> {
       });
     } catch (error) {
       LogUtils.e('加载保存的凭据失败: $error', tag: 'LoginDialogV2');
-      showGlassToast(
+      showAppToast(
         slang.t.errors.failedToLoadSavedCredentials,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
     }
   }
@@ -143,11 +143,11 @@ class _LoginDialogState extends State<LoginDialog> {
         // 登录已成功(token 已就绪)；资料拉取成败决定提示文案，
         // 避免"成功 toast + 资料为空"的割裂(#3)。资料失败时后台会重试。
         final profileLoaded = await _userService.fetchUserProfile();
-        showGlassToast(
+        showAppToast(
           profileLoaded
               ? slang.t.auth.loginSuccess
               : slang.t.auth.loginSuccessProfilePending,
-          type: profileLoaded ? GlassToastType.success : GlassToastType.warning,
+          type: profileLoaded ? AppToastType.success : AppToastType.warning,
         );
         _userService.startNotificationTimer();
         if (_rememberMe) {
@@ -162,10 +162,10 @@ class _LoginDialogState extends State<LoginDialog> {
         unawaited(DefaultTagBlacklistReminder.checkAndRemind());
       } else {
         LogUtils.w('登录失败（业务返回）: ${result.message}', 'LoginDialogV2');
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
       }
     } catch (error, stackTrace) {
@@ -175,10 +175,10 @@ class _LoginDialogState extends State<LoginDialog> {
         error: error,
         stackTrace: stackTrace,
       );
-      showGlassToast(
+      showAppToast(
         slang.t.errors.unknownError,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     } finally {
       if (mounted) {
@@ -202,10 +202,10 @@ class _LoginDialogState extends State<LoginDialog> {
       }
     } catch (error) {
       LogUtils.e('打开官网注册页面失败: $error', tag: 'LoginDialogV2');
-      showGlassToast(
+      showAppToast(
         slang.t.search.googleSearchBrowserOpenFailed(error: url),
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

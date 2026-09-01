@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/split_button_widget.dart'
     show FilledActionButton;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -75,9 +75,9 @@ class _WatchLaterActionButtonState extends State<WatchLaterActionButton> {
     final t = slang.Translations.of(context);
     if (_inList) {
       WatchLaterService.to.remove(_itemId, _itemType);
-      showGlassToast(
+      showAppToast(
         t.watchLater.removedFromWatchLater,
-        type: GlassToastType.info,
+        type: AppToastType.info,
       );
       return;
     }
@@ -87,19 +87,19 @@ class _WatchLaterActionButtonState extends State<WatchLaterActionButton> {
     switch (result) {
       case WatchLaterAddResult.added:
         // toast 上挂一枚「查看列表」——加完之后想去看看是最自然的下一步。
-        showGlassToast(
+        showAppToast(
           t.watchLater.addedToWatchLater,
-          type: GlassToastType.success,
+          type: AppToastType.success,
           actionLabel: t.watchLater.viewWatchLaterList,
           onAction: NaviService.navigateToWatchLaterPage,
         );
       case WatchLaterAddResult.alreadyExists:
-        showGlassToast(
+        showAppToast(
           t.watchLater.alreadyInWatchLater,
-          type: GlassToastType.info,
+          type: AppToastType.info,
         );
       case WatchLaterAddResult.failed:
-        showGlassToast(t.watchLater.addFailed, type: GlassToastType.error);
+        showAppToast(t.watchLater.addFailed, type: AppToastType.error);
     }
   }
 

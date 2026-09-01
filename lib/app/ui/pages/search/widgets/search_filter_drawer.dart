@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -252,10 +252,10 @@ class _SearchFilterDrawerState extends State<SearchFilterDrawer> {
   void _copyToClipboard() {
     Clipboard.setData(ClipboardData(text: _generateQuery()));
     setState(() => _copied = true);
-    showGlassToast(
+    showAppToast(
       slang.t.searchFilter.copied,
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) setState(() => _copied = false);

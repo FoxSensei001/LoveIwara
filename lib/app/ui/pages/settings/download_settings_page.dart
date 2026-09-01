@@ -19,7 +19,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
 import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class DownloadSettingsPage extends StatefulWidget {
   final bool isWideScreen;
@@ -274,20 +274,20 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                           final granted = await permissionService
                               .requestStoragePermission();
                           if (granted) {
-                            showGlassToast(
+                            showAppToast(
                               t
                                   .settings
                                   .downloadSettings
                                   .storagePermissionGrantSuccess,
-                              type: GlassToastType.success,
+                              type: AppToastType.success,
                             );
                           } else {
-                            showGlassToast(
+                            showAppToast(
                               t
                                   .settings
                                   .downloadSettings
                                   .storagePermissionGrantFailedButSomeFeaturesMayBeLimited,
-                              type: GlassToastType.warning,
+                              type: AppToastType.warning,
                             );
                           }
                           await downloadPathService
@@ -560,15 +560,15 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     final success = await downloadPathService.fixPathIssue(reason);
 
     if (success) {
-      showGlassToast(
+      showAppToast(
         t.settings.downloadSettings.issueFixed,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       await downloadPathService.refreshPathStatus();
     } else {
-      showGlassToast(
+      showAppToast(
         t.settings.downloadSettings.fixFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -692,12 +692,12 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     final granted = await DownloadNotificationService.to
                         .requestPermission();
                     if (!granted) {
-                      showGlassToast(
+                      showAppToast(
                         t
                             .settings
                             .downloadSettings
                             .notificationPermissionDenied,
-                        type: GlassToastType.warning,
+                        type: AppToastType.warning,
                       );
                     }
                   }
@@ -943,12 +943,12 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                                                 await permissionService
                                                     .requestStoragePermission();
                                             if (granted) {
-                                              showGlassToast(
+                                              showAppToast(
                                                 t
                                                     .settings
                                                     .downloadSettings
                                                     .storagePermissionGrantSuccess,
-                                                type: GlassToastType.success,
+                                                type: AppToastType.success,
                                               );
                                             }
                                             await downloadPathService
@@ -1313,28 +1313,28 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         await downloadPathService.refreshPathStatus();
         final validation = downloadPathService.pathStatus?.validationResult;
         final isUsable = validation == null || validation.isValid;
-        showGlassToast(
+        showAppToast(
           isUsable
               ? t.settings.downloadSettings.downloadPathUpdated
               : validation.message,
-          type: isUsable ? GlassToastType.success : GlassToastType.warning,
-          position: GlassToastPosition.bottom,
+          type: isUsable ? AppToastType.success : AppToastType.warning,
+          position: AppToastPosition.bottom,
         );
       }
     } on PlatformException catch (e) {
       // 原生选择器返回的错误（消息本身面向用户），不展示异常包装
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      showGlassToast(
+      showAppToast(
         e.message ?? t.settings.downloadSettings.selectPathFailed,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.selectPathFailed}: $e',
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -1350,15 +1350,15 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
       configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = recommendedPath;
       _isUpdatingFromConfig = false;
 
-      showGlassToast(
+      showAppToast(
         t.settings.downloadSettings.recommendedPathSet,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       await downloadPathService.refreshPathStatus();
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.setRecommendedPathFailed}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -1369,18 +1369,18 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     controller.text = defaultValue;
     configService[configKey] = defaultValue;
 
-    showGlassToast(
+    showAppToast(
       t.settings.downloadSettings.templateResetToDefault,
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
   }
 
   void _copyVariableToClipboard(String variable, BuildContext context) {
     final t = slang.Translations.of(context);
     Clipboard.setData(ClipboardData(text: variable));
-    showGlassToast(
+    showAppToast(
       '${t.settings.downloadSettings.variableCopied}: $variable',
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
   }
 }

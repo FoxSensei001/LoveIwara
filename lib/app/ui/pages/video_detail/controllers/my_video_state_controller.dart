@@ -27,7 +27,7 @@ import 'package:i_iwara/app/services/external_player_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/external_player_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -4561,7 +4561,7 @@ class MyVideoStateController extends GetxController
       if (Get.isRegistered<MessageService>()) {
         Get.find<MessageService>().showMessage(
           slang.t.anime4k.autoDisabledOnRenderFailure,
-          GlassToastType.warning,
+          AppToastType.warning,
         );
       }
     } catch (e) {

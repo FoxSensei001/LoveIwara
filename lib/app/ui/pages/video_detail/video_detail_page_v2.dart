@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -350,9 +350,9 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     final advanced = await _advanceInQueue();
     if (!advanced && mounted) {
       // 到底了就说一声。默默不动会被当成"按钮坏了"。
-      showGlassToast(
+      showAppToast(
         slang.Translations.of(context).playbackQueue.queueEnded,
-        type: GlassToastType.info,
+        type: AppToastType.info,
       );
     }
   }

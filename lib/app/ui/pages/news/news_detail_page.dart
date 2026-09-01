@@ -16,7 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -125,16 +125,16 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
         mode: LaunchMode.externalApplication,
       );
       if (!launched && mounted) {
-        showGlassToast(
+        showAppToast(
           slang.t.news.openInBrowser,
-          type: GlassToastType.warning,
+          type: AppToastType.warning,
         );
       }
     } catch (error) {
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         CommonUtils.parseExceptionMessage(error),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }

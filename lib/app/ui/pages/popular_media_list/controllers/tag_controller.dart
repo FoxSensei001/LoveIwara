@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/services/tag_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
 /// 标签控制器
@@ -35,10 +35,10 @@ class TagController extends GetxController {
       );
       if (result.isFail) {
         isLoading.value = false;
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }
@@ -67,10 +67,10 @@ class TagController extends GetxController {
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-      showGlassToast(
+      showAppToast(
         t.errors.errorWhileFetching,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

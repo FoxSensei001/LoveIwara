@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:flutter/foundation.dart';
 
@@ -47,12 +47,12 @@ class TagBlacklistController extends GetxController {
       } else {
         hasError.value = true;
         errorMessage.value = result.message;
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     } catch (e) {
       hasError.value = true;
       errorMessage.value = e.toString();
-      showGlassToast(t.errors.failedToFetchData, type: GlassToastType.error);
+      showAppToast(t.errors.failedToFetchData, type: AppToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -66,14 +66,14 @@ class TagBlacklistController extends GetxController {
         tagBlacklist: blacklistTags.map((tag) => tag.id).toList(),
       );
       if (result.isSuccess) {
-        showGlassToast(t.common.success, type: GlassToastType.success);
+        showAppToast(t.common.success, type: AppToastType.success);
         // 更新初始状态为当前保存成功的状态
         initialTagIds.value = blacklistTags.map((tag) => tag.id).toList();
       } else {
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     } catch (e) {
-      showGlassToast(t.errors.failedToOperate, type: GlassToastType.error);
+      showAppToast(t.errors.failedToOperate, type: AppToastType.error);
     } finally {
       isSaving.value = false;
     }
@@ -88,9 +88,9 @@ class TagBlacklistController extends GetxController {
   bool addTags(List<Tag> tags) {
     // 检查是否超出限制
     if (blacklistTags.length + tags.length > tagLimit) {
-      showGlassToast(
+      showAppToast(
         t.errors.tagLimitExceeded(limit: tagLimit),
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return false;
     }

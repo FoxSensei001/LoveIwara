@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 推荐路径选择组件
@@ -232,9 +232,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       await _selectPath(recommendedPath);
       await _downloadPathService.refreshPermissionAndRelated();
     } else {
-      showGlassToast(
+      showAppToast(
         t.settings.downloadSettings.permissionAuthorizationFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -248,9 +248,9 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       );
 
       if (!validationResult.isValid) {
-        showGlassToast(
+        showAppToast(
           '${t.settings.downloadSettings.pathValidationFailed}: ${validationResult.message}',
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
         return;
       }
@@ -266,16 +266,16 @@ class _RecommendedPathsWidgetState extends State<RecommendedPathsWidget> {
       );
       await _downloadPathService.refreshPathStatus();
 
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.downloadPathSetTo}: ${recommendedPath.name}',
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
 
       widget.onPathSelected?.call();
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${t.settings.downloadSettings.setPathFailed}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }

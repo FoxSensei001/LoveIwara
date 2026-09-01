@@ -12,7 +12,7 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart'
 import 'package:i_iwara/app/ui/widgets/comment_actions_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -277,9 +277,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
 
   void _copyUsername() {
     Clipboard.setData(ClipboardData(text: widget.comment.user.username));
-    showGlassToast(
+    showAppToast(
       slang.t.forum.copySuccessForMessage(str: widget.comment.user.username),
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
   }
 
@@ -287,9 +287,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
     final userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showGlassToast(
+      showAppToast(
         slang.t.errors.pleaseLoginFirst,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return false;
     }

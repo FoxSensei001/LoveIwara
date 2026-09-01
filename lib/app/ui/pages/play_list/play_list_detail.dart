@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_cont
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
@@ -464,20 +465,14 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     final String url = ShareService.buildUrl('/playlist/${widget.playlistId}');
     try {
       await ShareService.copyToClipboard(url);
-      Get.snackbar(
-        slang.t.common.success,
+      showAppToast(
         slang.t.galleryDetail.copyLink,
-        snackPosition: SnackPosition.bottom,
-        duration: const Duration(seconds: 2),
+        type: AppToastType.success,
       );
     } catch (e) {
-      Get.snackbar(
-        slang.t.common.error,
+      showAppToast(
         slang.t.errors.failedToOperate,
-        snackPosition: SnackPosition.bottom,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 2),
+        type: AppToastType.error,
       );
     }
   }

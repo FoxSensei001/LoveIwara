@@ -61,7 +61,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom
 import 'package:i_iwara/app/ui/widgets/add_to_favorite_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -419,9 +419,9 @@ void _toggleWatchLater(
 
   if (currentlyIn) {
     service.remove(id, type);
-    showGlassToast(
+    showAppToast(
       t.watchLater.removedFromWatchLater,
-      type: GlassToastType.info,
+      type: AppToastType.info,
     );
     return;
   }
@@ -434,19 +434,19 @@ void _toggleWatchLater(
     case WatchLaterAddResult.added:
       // toast 上挂一枚「查看列表」——加完之后想去看看是最自然的下一步，
       // 不该逼用户自己去抽屉里翻入口。
-      showGlassToast(
+      showAppToast(
         t.watchLater.addedToWatchLater,
-        type: GlassToastType.success,
+        type: AppToastType.success,
         actionLabel: t.watchLater.viewWatchLaterList,
         onAction: NaviService.navigateToWatchLaterPage,
       );
     case WatchLaterAddResult.alreadyExists:
-      showGlassToast(
+      showAppToast(
         t.watchLater.alreadyInWatchLater,
-        type: GlassToastType.info,
+        type: AppToastType.info,
       );
     case WatchLaterAddResult.failed:
-      showGlassToast(t.watchLater.addFailed, type: GlassToastType.error);
+      showAppToast(t.watchLater.addFailed, type: AppToastType.error);
   }
 }
 
@@ -458,7 +458,7 @@ void _openPlaylistDialog(
   List<LightPlaylistModel>? initialPlaylists,
 }) {
   if (!Get.find<UserService>().isAuthenticated) {
-    showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+    showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
     LoginService.showLogin();
     return;
   }
@@ -513,7 +513,7 @@ Future<void> _toggleLike(
   ValueChanged<bool>? onLikeChanged,
 }) async {
   if (!Get.find<UserService>().isAuthenticated) {
-    showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+    showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
     LoginService.showLogin();
     return;
   }
@@ -535,7 +535,7 @@ Future<void> _toggleLike(
   if (ok) {
     onLikeChanged?.call(!currentlyLiked);
   } else {
-    showGlassToast(t.errors.errorOccurred, type: GlassToastType.error);
+    showAppToast(t.errors.errorOccurred, type: AppToastType.error);
   }
 }
 

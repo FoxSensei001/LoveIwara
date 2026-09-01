@@ -5,7 +5,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/ui/widgets/action_icon_button_scaffold.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
@@ -158,7 +158,7 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
     final t = slang.Translations.of(context);
 
     if (!_userService.isAuthenticated) {
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -182,17 +182,17 @@ class _FriendButtonWidgetState extends State<FriendButtonWidget> {
         );
         widget.onUserUpdated?.call(_currentUser);
       } else {
-        showGlassToast(
+        showAppToast(
           result.message,
-          type: GlassToastType.error,
-          position: GlassToastPosition.top,
+          type: AppToastType.error,
+          position: AppToastPosition.top,
         );
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     } finally {
       if (mounted) {

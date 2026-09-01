@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:i_iwara/app/services/share_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -66,10 +66,10 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
       }
     } catch (e) {
       LogUtils.e('生成分享图片失败', error: e, tag: 'ShareVideoBottomSheet');
-      showGlassToast(
+      showAppToast(
         slang.t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     } finally {
       setState(() {
@@ -89,17 +89,17 @@ class _ShareVideoBottomSheetState extends State<ShareVideoBottomSheet> {
   Future<void> _copyLink() async {
     try {
       await ShareService.copyToClipboard(_shareUrl);
-      showGlassToast(
+      showAppToast(
         slang.t.galleryDetail.copyLink,
-        type: GlassToastType.success,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.success,
+        position: AppToastPosition.bottom,
       );
     } catch (e) {
       LogUtils.e('复制链接失败', error: e, tag: 'ShareVideoBottomSheet');
-      showGlassToast(
+      showAppToast(
         slang.t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

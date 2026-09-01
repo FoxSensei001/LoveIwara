@@ -6,7 +6,7 @@ import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -98,24 +98,24 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
         // 如果已在文件夹中,移除后更新状态
         _itemFolders.removeWhere((f) => f.id == folder.id);
         if (mounted) {
-          showGlassToast(
+          showAppToast(
             slang.t.favorite.removeSuccess,
-            type: GlassToastType.success,
+            type: AppToastType.success,
           );
         }
       } else {
         // 如果不在文件夹中,添加后更新状态
         _itemFolders.add(folder);
         if (mounted) {
-          showGlassToast(
+          showAppToast(
             slang.t.favorite.addSuccess,
-            type: GlassToastType.success,
+            type: AppToastType.success,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        showGlassToast(slang.t.favorite.addFailed, type: GlassToastType.error);
+        showAppToast(slang.t.favorite.addFailed, type: AppToastType.error);
       }
     }
 
@@ -138,9 +138,9 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
         _newFolderController.clear();
         await _fetchData();
         if (mounted) {
-          showGlassToast(
+          showAppToast(
             slang.t.favorite.createFolderSuccess,
-            type: GlassToastType.success,
+            type: AppToastType.success,
           );
         }
       } else {
@@ -148,9 +148,9 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
       }
     } catch (e) {
       if (mounted) {
-        showGlassToast(
+        showAppToast(
           slang.t.favorite.createFolderFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }

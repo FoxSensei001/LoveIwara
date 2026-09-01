@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/translation_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
@@ -143,10 +143,10 @@ class _AITranslationSettingsWidgetState
     final wasEnabled = configService[ConfigKey.USE_AI_TRANSLATION] as bool;
     if (wasEnabled) {
       // 显示提示
-      showGlassToast(
+      showAppToast(
         message ?? slang.t.translation.aiTranslationWillBeDisabled,
-        type: GlassToastType.warning,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.warning,
+        position: AppToastPosition.bottom,
         duration: const Duration(seconds: 5),
       );
     }
@@ -707,10 +707,10 @@ class _AITranslationSettingsWidgetState
     _hasTested.value = false;
     _testResult.value = null;
 
-    showGlassToast(
+    showAppToast(
       slang.t.translation.presetApplied(name: _localizedPresetName(preset)),
-      type: GlassToastType.success,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.success,
+      position: AppToastPosition.bottom,
     );
   }
 
@@ -774,10 +774,10 @@ class _AITranslationSettingsWidgetState
     final baseUrl = _baseUrlController.text.trim();
     final apiKey = _apiKeyController.text.trim();
     if (apiKey.isEmpty) {
-      showGlassToast(
+      showAppToast(
         slang.t.translation.apiKeyCannotBeEmpty,
-        type: GlassToastType.warning,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.warning,
+        position: AppToastPosition.bottom,
       );
       return;
     }
@@ -792,10 +792,10 @@ class _AITranslationSettingsWidgetState
     if (result.isSuccess && result.data != null && result.data!.isNotEmpty) {
       _showModelPickerDialog(result.data!);
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -1196,20 +1196,20 @@ class _AITranslationSettingsWidgetState
   void _handleTestConnection() {
     final form = _formKey.currentState;
     if (form == null || !form.validate()) {
-      showGlassToast(
+      showAppToast(
         slang.t.translation.pleaseCheckInputParametersFormat,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       return;
     }
 
     // baseUrl 现在可选（留空用服务商默认端点），仅要求 model 与 apiKey
     if (_modelController.text.isEmpty || _apiKeyController.text.isEmpty) {
-      showGlassToast(
+      showAppToast(
         slang.t.translation.pleaseFillInAPIAddressModelNameAndKey,
-        type: GlassToastType.warning,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.warning,
+        position: AppToastPosition.bottom,
       );
       return;
     }
@@ -1221,10 +1221,10 @@ class _AITranslationSettingsWidgetState
     final form = _formKey.currentState;
     if (value) {
       if (form == null || !form.validate()) {
-        showGlassToast(
+        showAppToast(
           slang.t.translation.pleaseFillInValidConfigurationParameters,
-          type: GlassToastType.error,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.error,
+          position: AppToastPosition.bottom,
         );
         return;
       }
@@ -1233,10 +1233,10 @@ class _AITranslationSettingsWidgetState
         return;
       }
       if (!_hasTested.value) {
-        showGlassToast(
+        showAppToast(
           slang.t.translation.pleaseCompleteConnectionTest,
-          type: GlassToastType.warning,
-          position: GlassToastPosition.bottom,
+          type: AppToastType.warning,
+          position: AppToastPosition.bottom,
         );
         return;
       }

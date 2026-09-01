@@ -9,7 +9,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/my_loading_more_indicator_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:loading_more_list/loading_more_list.dart';
@@ -73,19 +73,19 @@ class _NotificationListPageState extends State<NotificationListPage> {
       final result = await _userService.markAllNotificationAsRead();
       if (result.isSuccess) {
         _userService.refreshNotificationCount();
-        showGlassToast(
+        showAppToast(
           slang.t.notifications.markAllAsReadSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
         // 刷新列表和计数
         await listSourceRepository.refresh();
       } else {
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         '${slang.t.errors.failedToOperate}: $e',
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     } finally {
       _isMarkingAllAsRead.value = false;

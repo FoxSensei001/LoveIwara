@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
     show openDownloadCategoryManagePage;
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 打开「移至分类」底部弹窗。返回 true 表示发生了移动（调用方据此退出多选等）。
@@ -72,19 +72,19 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
     try {
       await _service.assignTasksToCategory(widget.taskIds, categoryId);
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         categoryId == null
             ? t.download.category.moveToUncategorizedSuccess
             : t.download.category.moveSuccess(title: categoryTitle ?? ''),
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isMoving = false);
-      showGlassToast(
+      showAppToast(
         t.download.category.moveFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -98,9 +98,9 @@ class _MoveToCategorySheetState extends State<_MoveToCategorySheet> {
     if (!mounted) return;
     setState(() => _isCreating = false);
     if (cat == null) {
-      showGlassToast(
+      showAppToast(
         t.download.category.createFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }

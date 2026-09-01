@@ -12,7 +12,7 @@ import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart'
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -470,9 +470,9 @@ class ForumPageState extends State<ForumPage> {
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showGlassToast(
+      showAppToast(
         slang.t.errors.pleaseLoginFirst,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return;
     }

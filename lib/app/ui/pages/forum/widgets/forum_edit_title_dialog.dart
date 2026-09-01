@@ -4,7 +4,7 @@ import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ForumEditTitleDialog extends StatefulWidget {
@@ -57,9 +57,9 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
-      showGlassToast(
+      showAppToast(
         slang.t.errors.titleCanNotBeEmpty,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
@@ -83,7 +83,7 @@ class _ForumEditTitleDialogState extends State<ForumEditTitleDialog> {
         widget.onSubmit?.call();
         AppService.tryPop();
       } else {
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     }
   }

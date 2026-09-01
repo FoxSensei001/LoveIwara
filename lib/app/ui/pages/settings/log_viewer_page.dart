@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -20,7 +20,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// - 级别筛选从 FilterChip 换成玻璃多选胶囊（选中态底/边/字色同一段过渡）。
 /// - 「跳到底部」浮钮从 FAB 挪进 header 动作位，出现/消失走
 ///   [GlassGroupSlot] 平滑挤入挤出。
-/// - 复制反馈从 SnackBar 换 [showGlassToast]。
+/// - 复制反馈从 SnackBar 换 [showAppToast]。
 class LogViewerPage extends StatefulWidget {
   final bool isWideScreen;
 
@@ -342,9 +342,9 @@ class _LogEntryWidget extends StatelessWidget {
           text.writeln('Stack: ${event.stackTrace}');
         }
         Clipboard.setData(ClipboardData(text: text.toString()));
-        showGlassToast(
+        showAppToast(
           slang.t.logViewer.copiedToClipboard,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       },
       child: Padding(

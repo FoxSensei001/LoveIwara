@@ -13,7 +13,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -472,16 +472,16 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       await SystemClipboard.instance?.write([item]);
 
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.copyDownloadUrlSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       }
     } catch (e) {
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.copyFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -496,9 +496,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.fileNotFound,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
         return;
@@ -516,9 +516,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
     } catch (e) {
       LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.openFolderFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }
@@ -533,9 +533,9 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       final file = File(filePath);
       if (!await file.exists()) {
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.fileNotFound,
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
         return;
@@ -549,20 +549,20 @@ class DefaultDownloadTaskItem extends StatelessWidget {
       if (result.type != ResultType.done) {
         LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
         if (context.mounted) {
-          showGlassToast(
+          showAppToast(
             t.download.errors.openFileFailedWithMessage(
               message: result.message,
             ),
-            type: GlassToastType.error,
+            type: AppToastType.error,
           );
         }
       }
     } catch (e) {
       LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
       if (context.mounted) {
-        showGlassToast(
+        showAppToast(
           t.download.errors.openFileFailed,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
     }

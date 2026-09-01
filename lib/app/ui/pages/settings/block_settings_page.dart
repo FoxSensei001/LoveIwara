@@ -18,7 +18,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.da
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -112,11 +112,11 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
     try {
       final ok = await _service.exportRulesToFile();
       if (ok) {
-        showGlassToast(_t.exportSuccess, type: GlassToastType.success);
+        showAppToast(_t.exportSuccess, type: AppToastType.success);
       }
     } catch (e) {
       LogUtils.e('导出屏蔽规则失败', tag: 'BlockSettingsPage', error: e);
-      showGlassToast(_t.exportFailed, type: GlassToastType.error);
+      showAppToast(_t.exportFailed, type: AppToastType.error);
     }
   }
 
@@ -124,13 +124,13 @@ class _BlockSettingsPageState extends State<BlockSettingsPage>
     try {
       final added = await _service.importRulesFromFile();
       if (added == null) return; // 用户取消
-      showGlassToast(
+      showAppToast(
         _t.importSuccess(count: added.toString()),
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       LogUtils.e('导入屏蔽规则失败', tag: 'BlockSettingsPage', error: e);
-      showGlassToast(_t.importFailed, type: GlassToastType.error);
+      showAppToast(_t.importFailed, type: AppToastType.error);
     }
   }
 

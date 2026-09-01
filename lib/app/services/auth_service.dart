@@ -9,7 +9,7 @@ import 'package:dio/io.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/iwara_site_headers.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 
@@ -414,7 +414,7 @@ class AuthService extends GetxService {
     if (hadSession) {
       _messageService.showMessage(
         t.errors.pleaseLoginAgain,
-        GlassToastType.warning,
+        AppToastType.warning,
       );
     }
 

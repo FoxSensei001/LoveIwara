@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/dlna_cast_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/dlna_cast_sheet.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:oktoast/oktoast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ void main() {
     'stops an existing renderer session before replacing its media URI',
     (tester) async {
       await tester.pumpWidget(
-        const OKToast(child: MaterialApp(home: SizedBox.shrink())),
+        const AppToastHost(child: MaterialApp(home: SizedBox.shrink())),
       );
 
       final transport = _RecordingTransport();
@@ -45,7 +45,7 @@ void main() {
       expect(transport.actions, ['Stop', 'SetAVTransportURI', 'Play']);
       expect(service.isConnected.value, isTrue);
       expect(service.connectedDeviceName.value, 'Test renderer');
-      await tester.pump(const Duration(seconds: 5));
+      await _drainToasts(tester);
     },
   );
 
@@ -88,7 +88,7 @@ void main() {
 
   testWidgets('serializes stop and a subsequent cast', (tester) async {
     await tester.pumpWidget(
-      const OKToast(child: MaterialApp(home: SizedBox.shrink())),
+      const AppToastHost(child: MaterialApp(home: SizedBox.shrink())),
     );
 
     final first = _device(
@@ -127,14 +127,14 @@ void main() {
     expect(await secondCastFuture, isTrue);
     expect(service.isConnected.value, isTrue);
     expect(service.connectedDeviceName.value, 'Second renderer');
-    await tester.pump(const Duration(seconds: 5));
+    await _drainToasts(tester);
   });
 
   testWidgets('continues casting when an idle renderer rejects Stop', (
     tester,
   ) async {
     await tester.pumpWidget(
-      const OKToast(child: MaterialApp(home: SizedBox.shrink())),
+      const AppToastHost(child: MaterialApp(home: SizedBox.shrink())),
     );
     final transport = _RecordingTransport(stopError: StateError('idle'));
     final service = DlnaCastService(transport: transport);
@@ -149,7 +149,7 @@ void main() {
     );
     expect(transport.actions, ['Stop', 'SetAVTransportURI', 'Play']);
     expect(service.isConnected.value, isTrue);
-    await tester.pump(const Duration(seconds: 5));
+    await _drainToasts(tester);
   });
 
   testWidgets('shows the stop control after casting succeeds', (tester) async {
@@ -163,7 +163,7 @@ void main() {
     service.devices.add(device);
 
     await tester.pumpWidget(
-      OKToast(
+      AppToastHost(
         child: MaterialApp(
           home: Scaffold(
             body: DlnaCastSheet(
@@ -183,7 +183,7 @@ void main() {
 
     expect(service.isConnected.value, isTrue);
     expect(find.byType(TextButton), findsOneWidget);
-    await tester.pump(const Duration(seconds: 5));
+    await _drainToasts(tester);
   });
 }
 
@@ -266,4 +266,17 @@ class _DelayedStopTransport implements DlnaDeviceTransport {
       }
     }
   }
+}
+
+/// 把 toast 排干净。
+///
+/// 提示会挂一条自动关闭的计时器，关闭之后还要再等一段退场动画才把 Overlay
+/// 摘掉——两者都是 timer，留到测试结束就是「A Timer is still pending」。
+Future<void> _drainToasts(WidgetTester tester) async {
+  // 提示是在 post-frame 回调里才被塞进管理器的，不先走一帧就「关不掉还没登记
+  // 的那条」。
+  await tester.pump();
+  dismissAppToasts();
+  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
 }

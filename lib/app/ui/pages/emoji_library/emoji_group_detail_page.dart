@@ -12,7 +12,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_overflow_menu_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class EmojiGroupDetailSheet extends StatefulWidget {
   final EmojiGroup group;
@@ -577,7 +577,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
     }
     _toggleSelectionMode();
     _loadImages();
-    showGlassToast(t.emoji.deleteSuccess, type: GlassToastType.success);
+    showAppToast(t.emoji.deleteSuccess, type: AppToastType.success);
   }
 
   void _showAddImagesDialog() {
@@ -693,14 +693,14 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                   );
                   Navigator.pop(context);
                   _loadImages();
-                  showGlassToast(
+                  showAppToast(
                     t.emoji.importSuccess(count: urlStrings.length),
-                    type: GlassToastType.success,
+                    type: AppToastType.success,
                   );
                 } catch (e) {
-                  showGlassToast(
+                  showAppToast(
                     t.emoji.jsonFormatError,
-                    type: GlassToastType.error,
+                    type: AppToastType.error,
                   );
                 }
               }

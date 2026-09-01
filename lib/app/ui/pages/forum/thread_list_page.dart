@@ -16,7 +16,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -342,7 +342,7 @@ class _ThreadListPageState extends State<ThreadListPage>
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.warning);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.warning);
       return;
     }
     showAppDialog(

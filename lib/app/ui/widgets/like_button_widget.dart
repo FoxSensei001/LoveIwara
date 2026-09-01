@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -60,7 +60,7 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     // 如果 liked 为 null，说明正在加载状态，不允许操作
     if (_isLiked == null) return;
     if (!_userService.isAuthenticated) {
-      showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+      showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
       LoginService.showLogin();
       return;
     }
@@ -86,10 +86,10 @@ class _LikeButtonWidgetState extends State<LikeButtonWidget> {
     } catch (e) {
       // 使用 CommonUtils.parseExceptionMessage 来获取详细的错误信息
       final errorMessage = CommonUtils.parseExceptionMessage(e);
-      showGlassToast(
+      showAppToast(
         errorMessage,
-        type: GlassToastType.error,
-        position: GlassToastPosition.top,
+        type: AppToastType.error,
+        position: AppToastPosition.top,
       );
     } finally {
       setState(() {

@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/error_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
@@ -90,10 +90,10 @@ class PopularGalleryController extends BaseMediaController<ImageModel> {
       page++;
     } catch (e) {
       LogUtils.e('获取图片列表失败', tag: 'PopularImageModelController', error: e);
-      showGlassToast(
+      showAppToast(
         t.errors.errorWhileFetching,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
       errorWidget.value = CommonErrorWidget(
         text: t.errors.errorWhileFetching,

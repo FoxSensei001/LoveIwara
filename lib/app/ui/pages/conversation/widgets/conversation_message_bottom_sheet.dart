@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/conversation_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 
@@ -50,7 +50,7 @@ class _ConversationMessageBottomSheetState
         Navigator.pop(context);
       }
     } else {
-      showGlassToast(result.message, type: GlassToastType.error);
+      showAppToast(result.message, type: AppToastType.error);
     }
   }
 

@@ -7,7 +7,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/notifications/widgets/notification_content_items.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -127,7 +127,7 @@ class NotificationListItemWidget extends StatelessWidget {
   void _copyNotificationData() {
     final jsonStr = const JsonEncoder.withIndent('  ').convert(notification);
     Clipboard.setData(ClipboardData(text: jsonStr));
-    showGlassToast(t.notifications.copySuccess, type: GlassToastType.success);
+    showAppToast(t.notifications.copySuccess, type: AppToastType.success);
   }
 
   /// 通知卡片
@@ -275,12 +275,12 @@ class NotificationListItemWidget extends StatelessWidget {
       if (result.isSuccess) {
         notification['read'] = true;
         await _userService.refreshNotificationCount();
-        showGlassToast(
+        showAppToast(
           t.notifications.markAsReadSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       } else {
-        showGlassToast(result.message, type: GlassToastType.error);
+        showAppToast(result.message, type: AppToastType.error);
       }
     } finally {
       _isMarkingAsRead.value = false;

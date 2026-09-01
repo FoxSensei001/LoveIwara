@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/share_thread_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -251,16 +251,16 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     final thread = _thread.value;
     if (thread == null) return;
     if (thread.locked) {
-      showGlassToast(
+      showAppToast(
         slang.t.forum.errors.threadLocked,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return;
     }
     if (!_userService.isAuthenticated) {
-      showGlassToast(
+      showAppToast(
         slang.t.errors.pleaseLoginFirst,
-        type: GlassToastType.warning,
+        type: AppToastType.warning,
       );
       return;
     }
@@ -765,9 +765,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
 
     void copyUsername() {
       Clipboard.setData(ClipboardData(text: thread.user.username));
-      showGlassToast(
+      showAppToast(
         slang.t.forum.copySuccessForMessage(str: thread.user.username),
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     }
 

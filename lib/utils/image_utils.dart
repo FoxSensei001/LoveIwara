@@ -10,7 +10,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:path/path.dart' as path;
@@ -24,15 +24,15 @@ class ImageUtils {
         ? item.data.url
         : item.data.originalUrl;
     if (url.isEmpty) {
-      showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
+      showAppToast(slang.t.common.linkIsEmpty, type: AppToastType.error);
       return;
     }
     final data = DataWriterItem();
     data.add(Formats.plainText(url));
     SystemClipboard.instance?.write([data]);
-    showGlassToast(
+    showAppToast(
       slang.t.common.linkCopiedToClipboard,
-      type: GlassToastType.success,
+      type: AppToastType.success,
     );
   }
 
@@ -42,7 +42,7 @@ class ImageUtils {
         ? item.data.url
         : item.data.originalUrl;
     if (url.isEmpty) {
-      showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
+      showAppToast(slang.t.common.linkIsEmpty, type: AppToastType.error);
       return;
     }
 
@@ -57,14 +57,14 @@ class ImageUtils {
       );
       dataWriterItem.add(Formats.png(bytes));
       SystemClipboard.instance?.write([dataWriterItem]);
-      showGlassToast(
+      showAppToast(
         slang.t.common.imageCopiedToClipboard,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
-      showGlassToast(
+      showAppToast(
         slang.t.common.copyImageFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }
@@ -77,7 +77,7 @@ class ImageUtils {
           : item.data.originalUrl;
       // https://i.iwara.tv/image/original/5d80d601-6689-4728-80bd-b585d83eac9e/5d80d601-6689-4728-80bd-b585d83eac9e.webm
       if (url.isEmpty) {
-        showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
+        showAppToast(slang.t.common.linkIsEmpty, type: AppToastType.error);
         return;
       }
 
@@ -103,16 +103,16 @@ class ImageUtils {
 
       await DownloadService.to.addTask(task);
 
-      showGlassToast(
+      showAppToast(
         slang.t.download.downloading,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
 
       // 打开下载管理页面
       NaviService.navigateToDownloadTaskListPage();
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageUtils', error: e);
-      showGlassToast(slang.t.download.failed, type: GlassToastType.error);
+      showAppToast(slang.t.download.failed, type: AppToastType.error);
     }
   }
 
@@ -143,7 +143,7 @@ class ImageUtils {
           ? item.data.url
           : item.data.originalUrl;
       if (url.isEmpty) {
-        showGlassToast(slang.t.common.linkIsEmpty, type: GlassToastType.error);
+        showAppToast(slang.t.common.linkIsEmpty, type: AppToastType.error);
         return;
       }
 
@@ -158,15 +158,15 @@ class ImageUtils {
       )).data;
 
       await File(filePath).writeAsBytes(bytes);
-      showGlassToast(
+      showAppToast(
         '${slang.t.common.imageSavedTo}: $filePath',
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       LogUtils.e('下载图片失败', error: e, tag: 'ImageModelDetailContent');
-      showGlassToast(
+      showAppToast(
         slang.t.common.saveImageFailed,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
   }

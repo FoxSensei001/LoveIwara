@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/user.model.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import '../../../../../utils/logger_utils.dart';
 import '../../../../repositories/sign_in_repository.dart';
 import '../../../../services/user_service.dart';
@@ -53,7 +53,7 @@ class SignInController extends GetxController {
       }
     } catch (e) {
       LogUtils.e('检查签到状态时出错', error: e);
-      showGlassToast(slang.t.errors.errorOccurred, type: GlassToastType.error);
+      showAppToast(slang.t.errors.errorOccurred, type: AppToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -63,17 +63,17 @@ class SignInController extends GetxController {
   Future<void> signIn({required bool isSuccess, String? reason}) async {
     final user = _userService.currentUser.value;
     if (user == null) {
-      showGlassToast(
+      showAppToast(
         slang.t.signIn.pleaseLoginFirst,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
     if (hasSignedInToday.value) {
       LogUtils.i('用户已签到，无需重复签到');
-      showGlassToast(
+      showAppToast(
         slang.t.signIn.alreadySignedInToday,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
       return;
     }
@@ -87,15 +87,15 @@ class SignInController extends GetxController {
       hasSignedInToday.value = true;
       if (isSuccess) {
         totalSignIns.value += 1;
-        showGlassToast(
+        showAppToast(
           slang.t.signIn.signInSuccess,
-          type: GlassToastType.success,
+          type: AppToastType.success,
         );
       } else {
         failureReason.value = reason ?? '';
-        showGlassToast(
+        showAppToast(
           slang.t.signIn.youDidNotStickToTheSignIn,
-          type: GlassToastType.error,
+          type: AppToastType.error,
         );
       }
       // 更新连续签到天数
@@ -106,7 +106,7 @@ class SignInController extends GetxController {
       await _fetchSignInHistory(user.id);
     } catch (e) {
       LogUtils.e('签到失败', error: e);
-      showGlassToast(slang.t.signIn.signInFailed, type: GlassToastType.error);
+      showAppToast(slang.t.signIn.signInFailed, type: AppToastType.error);
     } finally {
       isLoading.value = false;
     }
@@ -137,9 +137,9 @@ class SignInController extends GetxController {
       );
     } catch (e) {
       LogUtils.e('获取签到历史时出错', error: e);
-      showGlassToast(
+      showAppToast(
         slang.t.errors.errorWhileFetchingDatas,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     } finally {
       isLoading.value = false;

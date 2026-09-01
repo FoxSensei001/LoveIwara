@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class ExitConfirmUtil {
@@ -32,9 +32,9 @@ class ExitConfirmUtil {
   }
 
   static void _showExitTip(BuildContext context) {
-    showGlassToast(
+    showAppToast(
       slang.t.common.exitConfirmTip,
-      type: GlassToastType.warning,
+      type: AppToastType.warning,
     );
   }
 }

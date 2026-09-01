@@ -11,7 +11,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 /// 通用标签选择器组件
@@ -213,7 +213,7 @@ class _TagSelectionDialogState extends State<TagSelectionDialog> {
                       color: Colors.blue,
                       tooltip: t.tagSelector.usageInstructionsTooltip,
                       onPressed: () {
-                        showGlassToast(t.tagSelector.usageInstructions);
+                        showAppToast(t.tagSelector.usageInstructions);
                       },
                     ),
                     GlassIconButton(

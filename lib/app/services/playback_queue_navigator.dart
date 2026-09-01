@@ -4,7 +4,7 @@ import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -93,9 +93,9 @@ class PlaybackQueueNavigator {
         '已下载池里的 $id 落不到本地文件，退回在线播放',
         'PlaybackQueueNavigator',
       );
-      showGlassToast(
+      showAppToast(
         slang.t.download.errors.fileNotFound,
-        type: GlassToastType.error,
+        type: AppToastType.error,
       );
     }
 

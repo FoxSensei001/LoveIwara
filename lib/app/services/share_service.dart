@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,10 +33,10 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享播放列表详情失败', error: e, tag: 'ShareService');
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -58,10 +58,10 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享视频详情失败', error: e, tag: 'ShareService');
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -83,10 +83,10 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享图库详情失败', error: e, tag: 'ShareService');
-      showGlassToast(
+      showAppToast(
         t.errors.failedToOperate,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -107,19 +107,19 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showGlassToast(
+      showAppToast(
         t.share.shareFailed,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
 
   static void sharePlayList(String userId) {
-    showGlassToast(
+    showAppToast(
       t.common.comingSoon,
-      type: GlassToastType.error,
-      position: GlassToastPosition.bottom,
+      type: AppToastType.error,
+      position: AppToastPosition.bottom,
     );
   }
 
@@ -141,10 +141,10 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showGlassToast(
+      showAppToast(
         t.share.shareFailed,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -166,10 +166,10 @@ class ShareService {
       );
     } catch (e) {
       LogUtils.e('分享失败', tag: 'ShareService', error: e);
-      showGlassToast(
+      showAppToast(
         t.share.shareFailed,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

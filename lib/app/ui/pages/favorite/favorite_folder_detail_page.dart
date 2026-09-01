@@ -23,7 +23,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -603,13 +603,13 @@ class _FavoriteFolderDetailPageState extends State<FavoriteFolderDetailPage> {
       if (!success) throw Exception('删除失败');
       _refreshList();
       if (!mounted) return;
-      showGlassToast(
+      showAppToast(
         t.favorite.removeItemSuccess,
-        type: GlassToastType.success,
+        type: AppToastType.success,
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassToast(t.favorite.removeItemFailed, type: GlassToastType.error);
+      showAppToast(t.favorite.removeItemFailed, type: AppToastType.error);
     }
   }
 }

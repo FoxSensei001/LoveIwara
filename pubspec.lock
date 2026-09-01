@@ -441,6 +441,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.0"
+  equatable:
+    dependency: transitive
+    description:
+      name: equatable
+      sha256: "3bce007a596ff8b3119c45d68aaef631272537c03d30e5d4534dd24bf4c5eaa2"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.0"
   extended_list:
     dependency: transitive
     description:
@@ -1357,14 +1365,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
-  oktoast:
-    dependency: "direct main"
-    description:
-      name: oktoast
-      sha256: f1366c5c793ddfb8f55bc6fc3e45db43c45debf173b765fb4c5ec096cbdeb84a
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.4.0"
   ollama_dart:
     dependency: transitive
     description:
@@ -1533,6 +1533,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.3.0"
+  pausable_timer:
+    dependency: transitive
+    description:
+      name: pausable_timer
+      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0+3"
   permission_handler:
     dependency: "direct main"
     description:
@@ -2050,6 +2058,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.11.1"
+  toastification:
+    dependency: "direct main"
+    description:
+      name: toastification
+      sha256: "66c96678e3dece8ba24de3ea31634bd65a80aaecb8105f9bafe946e5f0d7590a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.2.0"
   tutorial_coach_mark:
     dependency: "direct main"
     description:

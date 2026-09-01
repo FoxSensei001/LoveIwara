@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_list_repository.dart';
 import 'package:i_iwara/app/ui/pages/friends/repositories/friend_request_repository.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class FriendsController extends GetxController {
   final UserService _userService = Get.find();
@@ -50,10 +50,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       friendRepository.refresh();
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -66,10 +66,10 @@ class FriendsController extends GetxController {
       // 刷新好友列表
       friendRepository.refresh();
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -80,10 +80,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       requestRepository.refresh();
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }
@@ -95,10 +95,10 @@ class FriendsController extends GetxController {
     if (result.isSuccess) {
       requestRepository.refresh();
     } else {
-      showGlassToast(
+      showAppToast(
         result.message,
-        type: GlassToastType.error,
-        position: GlassToastPosition.bottom,
+        type: AppToastType.error,
+        position: AppToastPosition.bottom,
       );
     }
   }

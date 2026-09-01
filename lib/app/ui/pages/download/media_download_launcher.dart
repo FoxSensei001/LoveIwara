@@ -16,7 +16,7 @@ import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_picker_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_toast.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
@@ -74,9 +74,9 @@ Future<void> launchVideoDownload(
   if (!_ensureAuthenticated(t)) return;
 
   if (video.isExternalVideo) {
-    showGlassToast(
+    showAppToast(
       t.download.errors.downloadFailed,
-      type: GlassToastType.error,
+      type: AppToastType.error,
     );
     return;
   }
@@ -86,9 +86,9 @@ Future<void> launchVideoDownload(
       : await _resolveVideoSources(video, sources);
   if (!context.mounted) return;
   if (resolved == null || resolved.isEmpty) {
-    showGlassToast(
+    showAppToast(
       t.download.errors.noDownloadSourceNowPleaseWaitInfoLoaded,
-      type: GlassToastType.error,
+      type: AppToastType.error,
     );
     return;
   }
@@ -142,9 +142,9 @@ Future<void> launchGalleryDownload(
   final resolved = await _resolveGalleryFiles(gallery);
   if (!context.mounted) return;
   if (resolved == null || resolved.files.isEmpty) {
-    showGlassToast(
+    showAppToast(
       t.download.errors.imageModelNotFound,
-      type: GlassToastType.error,
+      type: AppToastType.error,
     );
     return;
   }
@@ -175,7 +175,7 @@ Future<void> launchGalleryDownload(
     final savePath = await Get.find<DownloadPathService>()
         .getGalleryDownloadPath(gallery: resolved);
     if (savePath == null) {
-      showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
+      showAppToast(t.common.operationCancelled, type: AppToastType.info);
       return;
     }
 
@@ -199,9 +199,9 @@ Future<void> launchGalleryDownload(
     _showDownloadStartedToast(t);
   } catch (e) {
     LogUtils.e('添加图库下载任务失败', tag: 'MediaDownloadLauncher', error: e);
-    showGlassToast(
+    showAppToast(
       t.download.errors.downloadFailed,
-      type: GlassToastType.error,
+      type: AppToastType.error,
     );
   }
 }
@@ -211,7 +211,7 @@ Future<void> launchGalleryDownload(
 bool _ensureAuthenticated(slang.Translations t) {
   if (Get.find<UserService>().isAuthenticated) return true;
   LogUtils.w('用户未登录，无法下载', 'MediaDownloadLauncher');
-  showGlassToast(t.errors.pleaseLoginFirst, type: GlassToastType.error);
+  showAppToast(t.errors.pleaseLoginFirst, type: AppToastType.error);
   LoginService.showLogin();
   return false;
 }
@@ -317,7 +317,7 @@ Future<void> _downloadVideoWithSource(
 
   if (source.download == null) {
     LogUtils.w('所选质量没有下载链接', 'MediaDownloadLauncher');
-    showGlassToast(t.videoDetail.noDownloadUrl, type: GlassToastType.error);
+    showAppToast(t.videoDetail.noDownloadUrl, type: AppToastType.error);
     return;
   }
 
@@ -352,7 +352,7 @@ Future<void> _downloadVideoWithSource(
     );
     if (savePath == null) {
       LogUtils.d('用户取消了下载操作', 'MediaDownloadLauncher');
-      showGlassToast(t.common.operationCancelled, type: GlassToastType.info);
+      showAppToast(t.common.operationCancelled, type: AppToastType.info);
       return;
     }
 
@@ -410,7 +410,7 @@ Future<void> _downloadVideoWithSource(
     } else {
       message = t.download.errors.downloadFailed;
     }
-    showGlassToast(message, type: GlassToastType.error);
+    showAppToast(message, type: AppToastType.error);
   }
 }
 
@@ -462,10 +462,10 @@ Future<bool> _confirmDuplicateTask(
 
 /// 统一的「开始下载」提示：一条带「查看下载列表」动作的玻璃 toast。
 void _showDownloadStartedToast(slang.Translations t) {
-  showGlassToast(
+  showAppToast(
     t.videoDetail.startDownloading,
-    type: GlassToastType.success,
-    position: GlassToastPosition.bottom,
+    type: AppToastType.success,
+    position: AppToastPosition.bottom,
     actionLabel: t.download.viewDownloadList,
     onAction: NaviService.navigateToDownloadTaskListPage,
   );

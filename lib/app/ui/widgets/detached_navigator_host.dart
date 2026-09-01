@@ -17,21 +17,16 @@ import 'package:flutter/material.dart';
 ///
 /// 代价是这一层的子树里**没有 Navigator、也没有真正的 Overlay 祖先**。
 ///
-/// ⚠️ 「没有 Overlay」这件事在报错信息里长得很像自相矛盾，别被骗过去：
-/// 断言会一边说 "No Overlay widget found."，一边在祖先列表里赫然列出一层
-/// `Overlay`。原因是 **OKToast 自己 vendored 了一整套 Overlay**——
-/// `oktoast-3.4.0/lib/src/core/toast.dart:7` 写着
-/// `import 'package:flutter/material.dart' hide Overlay, OverlayEntry, OverlayState;`，
-/// 然后在 `lib/src/widget/overlay.dart` 里自建了同名的 `Overlay`(:230) /
-/// `Theatre`(:581) / `RenderTheatre`(:638)。而 `debugCheckHasOverlay` 用的是
-/// `findAncestorWidgetOfExactType<Overlay>`，比的是 **package:flutter 那个
-/// 精确类型**——同名不同库＝不同 Type，命中不了；`describeMissingAncestor`
-/// 打印的又只是简单类名，于是就成了「找不到 Overlay，但祖先里有 Overlay」。
-/// （真机崩溃栈里出现的 `Theatre` / `RenderTheatre` 而不是 Flutter 自己的
-/// `_Theater` / `_RenderTheater`，就是这层是 OKToast 副本的铁证。）
-///
-/// 所以：**不要指望 OKToast 那层顶用**，也不要因为祖先链里看见 `Overlay`
-/// 三个字就以为没问题。
+/// ⚠️ 历史坑（已随 oktoast 一起移除，留档避免重蹈）：当年 toast 宿主是
+/// `OKToast`，而它 vendored 了一整套同名的 `Overlay` / `Theatre` /
+/// `RenderTheatre`（`oktoast-3.4.0/lib/src/core/toast.dart:7` 把 flutter 的
+/// `Overlay` hide 掉再自建）。`debugCheckHasOverlay` 用
+/// `findAncestorWidgetOfExactType<Overlay>` 比的是 **package:flutter 那个精确
+/// 类型**，同名不同库＝不同 Type 命中不了，而 `describeMissingAncestor` 打印的
+/// 只是简单类名——于是断言一边说 "No Overlay widget found."，一边在祖先列表里
+/// 赫然列出一层 `Overlay`，看起来自相矛盾。现在宿主换成了 toastification
+/// （`app_toast.dart`），它直接用根 Navigator 自己的 Overlay，不再有影子类型；
+/// 但**本图层依旧没有 Overlay 祖先**，下面那些后果一条都没少。
 ///
 /// 于是：
 ///
