@@ -45,6 +45,7 @@ class GlassAdaptiveSegmentedControl extends StatefulWidget {
     this.replacement,
     this.alignment = Alignment.centerLeft,
     this.height = GlassTokens.pillHeight,
+    this.materialize = 1.0,
   });
 
   final List<GlassSegmentItem> items;
@@ -82,6 +83,11 @@ class GlassAdaptiveSegmentedControl extends StatefulWidget {
   final Alignment alignment;
 
   final double height;
+
+  /// 材质的「在场程度」，透传给常驻的玻璃壳（见 [GlassSurface.materialize]）。
+  /// 这只胶囊整只做出入场时（窄屏下沉到 `GlassCornerDock` 的排序胶囊）由
+  /// [GlassReveal] 喂进来——⛔ 不要在外面套 `Opacity`，折射会断。
+  final double materialize;
 
   @override
   State<GlassAdaptiveSegmentedControl> createState() =>
@@ -122,11 +128,11 @@ class _GlassAdaptiveSegmentedControlState
         final bool useSegmented =
             !widget.dropdownOnly &&
             constraints.maxWidth >=
-            GlassSegmentedControl.minWidthFor(
-              context,
-              widget.items,
-              minVisibleItems: widget.minVisibleItems,
-            );
+                GlassSegmentedControl.minWidthFor(
+                  context,
+                  widget.items,
+                  minVisibleItems: widget.minVisibleItems,
+                );
         // widthFactor 1 —— 胶囊只占自己那么宽，不去认领整条可用宽度：
         // 这样它能和同一行里紧跟着的东西（最爱页的站点徽标）贴在一起，
         // 而 [alignment] 仍是宽度伸缩的锚点。
@@ -136,6 +142,7 @@ class _GlassAdaptiveSegmentedControlState
           child: GlassCapsuleMorph(
             height: widget.height,
             alignment: widget.alignment,
+            materialize: widget.materialize,
             child:
                 widget.replacement ??
                 (useSegmented

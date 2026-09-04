@@ -547,6 +547,7 @@ class GlassCapsuleMorph extends StatelessWidget {
     this.duration,
     this.curve,
     this.alignment = Alignment.centerLeft,
+    this.materialize = 1.0,
   });
 
   final Widget child;
@@ -556,6 +557,10 @@ class GlassCapsuleMorph extends StatelessWidget {
 
   /// 宽度伸缩的锚点，同时也是新旧内容在胶囊内叠放的对齐。
   final Alignment alignment;
+
+  /// 材质的「在场程度」，透传给胶囊外壳（见 [GlassSurface.materialize]）。
+  /// 整只胶囊做出入场（浮到角落坞里的排序胶囊一类）时由 [GlassReveal] 喂进来。
+  final double materialize;
 
   @override
   Widget build(BuildContext context) {
@@ -572,6 +577,7 @@ class GlassCapsuleMorph extends StatelessWidget {
     final Curve inCurve = Interval(0.45, 1.0, curve: c);
     return GlassSurface(
       height: height,
+      materialize: materialize,
       // 内容按目标宽度整体布局；伸缩途中超出的部分交给胶囊的圆角裁剪
       //（AnimatedSize 自己不裁，避免矩形硬边切掉圆角端）。
       clipContent: true,

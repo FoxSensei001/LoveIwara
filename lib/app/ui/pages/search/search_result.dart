@@ -14,6 +14,8 @@ import 'package:i_iwara/app/ui/pages/search/widgets/search_filter_drawer.dart';
 import 'package:i_iwara/app/ui/pages/search/widgets/filter_config.dart';
 import 'package:i_iwara/common/enums/filter_enums.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_corner_dock.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -849,48 +851,183 @@ class _SearchResultState extends State<SearchResult> {
     );
   }
 
-  /// 右侧动作胶囊：搜索（仅单实体浏览）· 分段 · 排序 · 筛选 · 已保存搜索 · 更多。
-  Widget _buildActionGroup(BuildContext context) {
+  /// 「我在看什么、怎么排」：分段 · 排序。
+  ///
+  /// 与下面那组动作分成两份**不是**为了在 header 上摆成两只胶囊——宽屏下它们
+  /// 仍然共处同一坨玻璃（见 [_buildHeaderActionGroup]）。分开是因为窄屏时这两组
+  /// 各自去了一个下角：这一组读作「我在看什么」，落左下；那一组读作「怎么筛、
+  /// 还能干什么」，落右下。按钮本身只有这一份定义。
+  List<Widget> _browseButtons(
+    slang.Translations t,
+    SearchSegment segment,
+    String sort,
+  ) {
+    final showSort =
+        segment == SearchSegment.oreno3d ||
+        FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
+    return [
+      _buildSegmentMenuButton(t, segment),
+      if (showSort) _buildSortMenuButton(t, segment, sort),
+    ];
+  }
+
+  /// 「怎么筛、还能干什么」：搜索（仅单实体浏览）· 筛选 · 已保存搜索 · 更多。
+  List<Widget> _actionButtons(
+    slang.Translations t,
+    SearchSegment segment, {
+    required bool isBrowseMode,
+    required int filterCount,
+  }) {
+    return [
+      // 单实体浏览时标题胶囊写的是标签名（不再是搜索框），搜索入口就落在
+      // 这里——弹窗内可换原作 / 角色 / 标签，或改回文本搜索。
+      if (isBrowseMode)
+        GlassIconButton(
+          icon: const Icon(Icons.search),
+          tooltip: t.common.search,
+          onPressed: _showSearchDialog,
+        ),
+      if (segment != SearchSegment.oreno3d)
+        GlassIconButton(
+          icon: const Icon(Icons.filter_list),
+          tooltip: t.searchFilter.filterSettings,
+          showBadge: filterCount > 0,
+          badgeLabel: filterCount > 0 ? Text('$filterCount') : null,
+          onPressed: _showFilterDialog,
+        ),
+      // 「已保存搜索」常驻：原先藏在「更多」菜单里，入口太深
+      GlassIconButton(
+        icon: const Icon(Icons.bookmarks_outlined),
+        tooltip: t.savedSearch.title,
+        onPressed: _openSavedSearchDrawer,
+      ),
+      _buildMoreMenuButton(t, segment, isBrowseMode),
+    ];
+  }
+
+  /// header 右缘那只胶囊（**宽屏**）：分段 · 排序 · 筛选 · 已保存搜索 · 更多
+  /// 全在同一坨玻璃里。窄屏时它整只不在场，两组按钮各自去了一个下角。
+  Widget _buildHeaderActionGroup(BuildContext context) {
     final t = slang.Translations.of(context);
     return Obx(() {
       final segment = searchController.selectedSegment.value;
       final sort = searchController.selectedSort.value;
-      final filterCount = searchController.filters.length;
-      final showSort =
-          segment == SearchSegment.oreno3d ||
-          FilterConfig.getSortOptionsForSegment(segment).isNotEmpty;
       final isBrowseMode = _shouldHideSearchInput();
-
       return GlassButtonGroup(
         children: [
-          // 单实体浏览时标题胶囊写的是标签名（不再是搜索框），搜索入口就落在
-          // 这里——弹窗内可换原作 / 角色 / 标签，或改回文本搜索。
-          if (isBrowseMode)
-            GlassIconButton(
-              icon: const Icon(Icons.search),
-              tooltip: t.common.search,
-              onPressed: _showSearchDialog,
-            ),
-          _buildSegmentMenuButton(t, segment),
-          if (showSort) _buildSortMenuButton(t, segment, sort),
-          if (segment != SearchSegment.oreno3d)
-            GlassIconButton(
-              icon: const Icon(Icons.filter_list),
-              tooltip: t.searchFilter.filterSettings,
-              showBadge: filterCount > 0,
-              badgeLabel: filterCount > 0 ? Text('$filterCount') : null,
-              onPressed: _showFilterDialog,
-            ),
-          // 「已保存搜索」常驻：原先藏在「更多」菜单里，入口太深
-          GlassIconButton(
-            icon: const Icon(Icons.bookmarks_outlined),
-            tooltip: t.savedSearch.title,
-            onPressed: _openSavedSearchDrawer,
+          ..._browseButtons(t, segment, sort),
+          ..._actionButtons(
+            t,
+            segment,
+            isBrowseMode: isBrowseMode,
+            filterCount: searchController.filters.length,
           ),
-          _buildMoreMenuButton(t, segment, isBrowseMode),
         ],
       );
     });
+  }
+
+  /// 左下角坞里的「我在看什么」胶囊（窄屏）。
+  Widget _buildBrowseGroup(BuildContext context, {double materialize = 1}) {
+    final t = slang.Translations.of(context);
+    return Obx(
+      () => GlassButtonGroup(
+        materialize: materialize,
+        children: _browseButtons(
+          t,
+          searchController.selectedSegment.value,
+          searchController.selectedSort.value,
+        ),
+      ),
+    );
+  }
+
+  /// 右下角坞里的「怎么筛、还能干什么」胶囊（窄屏）。
+  Widget _buildActionGroup(BuildContext context, {double materialize = 1}) {
+    final t = slang.Translations.of(context);
+    return Obx(
+      () => GlassButtonGroup(
+        materialize: materialize,
+        children: _actionButtons(
+          t,
+          searchController.selectedSegment.value,
+          isBrowseMode: _shouldHideSearchInput(),
+          filterCount: searchController.filters.length,
+        ),
+      ),
+    );
+  }
+
+  /// 滚过一段后出现的「回到顶部」浮钮。它住在右下角坞的最上一格，与（窄屏才
+  /// 在场的）动作胶囊排成一列，而不是各自占一处右下角。
+  ///
+  /// 选择态下退场：那会儿底部让给 [GlassSelectionDock]，两块玻璃不该叠在一起。
+  Widget _buildScrollToTopButton(
+    BuildContext context, {
+    required bool selecting,
+  }) {
+    final t = slang.Translations.of(context);
+    return ValueListenableBuilder<bool>(
+      valueListenable: _showBackToTop,
+      builder: (context, visible, _) => GlassReveal(
+        visible: visible && !selecting,
+        // 这处历来没有位移，只做材质淡入
+        slideFrom: Offset.zero,
+        builder: (context, m) => GlassIconButton(
+          materialize: m,
+          standalone: true,
+          icon: const Icon(Icons.vertical_align_top),
+          tooltip: t.common.scrollToTop,
+          onPressed: searchController.scrollToTop,
+        ),
+      ),
+    );
+  }
+
+  /// 屏幕下角的两坨浮层：左下「我在看什么」，右下「怎么筛 + 回顶」。
+  ///
+  /// 两坨都常驻挂载，窄↔宽、常态↔选择态的切换交给里面的 [GlassReveal]
+  /// （有出有入），而不是把整只 `Positioned` 从树上摘掉。分页模式下整体抬到
+  /// 分页栏之上。
+  List<Widget> _buildCornerDocks(BuildContext context, {required bool sink}) {
+    Widget dock(
+      GlassDockCorner corner,
+      List<Widget> Function(bool selecting) children,
+    ) {
+      return Obx(() {
+        final batch = _activeSearchBatchController();
+        final bool selecting = batch != null && batch.isMultiSelect.value;
+        return GlassCornerDock(
+          corner: corner,
+          extraBottomInset: searchController.isPaginated.value
+              ? PaginationBar.barHeight
+              : 0,
+          children: children(selecting),
+        );
+      });
+    }
+
+    return [
+      dock(
+        GlassDockCorner.bottomLeft,
+        (selecting) => [
+          GlassReveal(
+            visible: sink && !selecting,
+            builder: (context, m) => _buildBrowseGroup(context, materialize: m),
+          ),
+        ],
+      ),
+      dock(
+        GlassDockCorner.bottomRight,
+        (selecting) => [
+          _buildScrollToTopButton(context, selecting: selecting),
+          GlassReveal(
+            visible: sink && !selecting,
+            builder: (context, m) => _buildActionGroup(context, materialize: m),
+          ),
+        ],
+      ),
+    ];
   }
 
   /// 当前 segment 对应的批量选择控制器（视频 / 图库之外的段不支持批量）。
@@ -911,6 +1048,9 @@ class _SearchResultState extends State<SearchResult> {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     const double headerRowHeight = GlassTokens.headerRowHeight;
     final double headerExtent = statusBarHeight + headerRowHeight;
+    // 窄屏摆不下一整行：右侧那一坨动作沉到屏幕下角（见 GlassCornerDock），
+    // header 只留「返回 + 搜索/标签胶囊」，胶囊因此能摊开整行。
+    final bool sink = useCornerDock(context);
 
     // 底部安全区由列表自己通过 computeBottomSafeInset 负责
     // （base_search_list 传 showBottomPadding: true），这里不再包 SafeArea；
@@ -932,15 +1072,22 @@ class _SearchResultState extends State<SearchResult> {
           headerExtent: headerExtent,
           headerTop: statusBarHeight,
           solidExtent: statusBarHeight,
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (notification) {
-              if (notification.metrics.axis == Axis.vertical &&
-                  notification.depth == 0) {
-                _showBackToTop.value = notification.metrics.pixels >= 300;
-              }
-              return false;
-            },
-            child: _buildCurrentSearchList(headerExtent),
+          // 底部要多让出角落坞那一条，否则最后一行永远压在坞底下
+          //（分页模式除外，见 CornerDockBottomInset）。
+          body: Obx(
+            () => CornerDockBottomInset(
+              active: sink && !searchController.isPaginated.value,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.metrics.axis == Axis.vertical &&
+                      notification.depth == 0) {
+                    _showBackToTop.value = notification.metrics.pixels >= 300;
+                  }
+                  return false;
+                },
+                child: _buildCurrentSearchList(headerExtent),
+              ),
+            ),
           ),
           header: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -977,36 +1124,21 @@ class _SearchResultState extends State<SearchResult> {
                         : _buildSearchPill(context);
                   }),
                 ),
-                const SizedBox(width: 8),
-                _buildActionGroup(context),
+                GlassCapsuleReveal(
+                  visible: !sink,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(width: 8),
+                      _buildHeaderActionGroup(context),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
           extra: [
-            Obx(
-              () => Positioned(
-                right: 16,
-                bottom:
-                    MediaQuery.paddingOf(context).bottom +
-                    16 +
-                    (searchController.isPaginated.value ? 46 : 0),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: _showBackToTop,
-                  builder: (context, visible, _) => GlassReveal(
-                    visible: visible,
-                    // 这处历来没有位移，只做材质淡入
-                    slideFrom: Offset.zero,
-                    builder: (context, m) => GlassIconButton(
-                      materialize: m,
-                      standalone: true,
-                      icon: const Icon(Icons.vertical_align_top),
-                      tooltip: t.common.scrollToTop,
-                      onPressed: searchController.scrollToTop,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            ..._buildCornerDocks(context, sink: sink),
             // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
             // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
             Obx(

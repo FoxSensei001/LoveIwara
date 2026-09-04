@@ -706,11 +706,17 @@ class GlassButtonGroup extends StatelessWidget {
     this.spacing = 0,
     this.touchFlex = true,
     this.touchFlexSignature,
+    this.materialize = 1.0,
   });
 
   final List<Widget> children;
   final double height;
   final double spacing;
+
+  /// 材质的「在场程度」，透传给胶囊外壳（见 [GlassSurface.materialize]）。
+  /// 整只胶囊要做出入场时由 [GlassReveal] 喂进来——⛔ 不要在外面套
+  /// `Opacity`/`FadeTransition`，那会把 backdrop 采样隔离掉、折射当场断掉。
+  final double materialize;
 
   /// 是否给整只胶囊接入交互形变。**默认开**，理由同 [GlassSurface.liquidTouch]。
   ///
@@ -744,6 +750,7 @@ class GlassButtonGroup extends StatelessWidget {
         width: width,
         padding: const EdgeInsets.symmetric(horizontal: 2),
         liquidTouch: liquidTouch,
+        materialize: materialize,
         child: AnimatedSize(
           // 外壳收放比槽位（GlassGroupSlot）略慢半拍：壳体「追着」内容走，
           // 入场跟着按钮慢慢撑开、出场等内容收完再从容合拢，读起来是
@@ -846,8 +853,7 @@ class GlassTextActionButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
           decoration:
-              LiquidGlassScope.of(context) == GlassBackend.material &&
-                  pressed
+              LiquidGlassScope.of(context) == GlassBackend.material && pressed
               ? BoxDecoration(
                   color: cs.onSurface.withValues(
                     alpha: GlassTokens.materialPressedStateLayer,

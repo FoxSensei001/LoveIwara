@@ -19,6 +19,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_lis
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_corner_dock.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -26,7 +27,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -343,9 +343,13 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     ];
   }
 
-  /// 右侧动作胶囊：筛选（生效时带红点）· 更多。
-  Widget _buildActionGroup(BuildContext context) {
+  /// 动作胶囊：筛选（生效时带红点）· 更多。
+  ///
+  /// 宽屏站在 header 右缘，窄屏整只沉到右下角坞（见 [GlassCornerDock]）——
+  /// 两处是同一份按钮，只是换了个落脚点。
+  Widget _buildActionGroup(BuildContext context, {double materialize = 1}) {
     return GlassButtonGroup(
+      materialize: materialize,
       children: [
         GlassIconButton(
           icon: const Icon(Icons.filter_list),
@@ -381,10 +385,11 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   /// 顺带解掉了原先「排序必须另起一行」的那条约束：平铺分段的果冻指示器是一只
   /// 嵌套透镜，进 header 的融合层会被照亮（见 `GlassBlendGroup.isInside`），
   /// 下拉钮没有这只透镜，于是可以和动作胶囊同层站着。
-  Widget _buildSortPill(BuildContext context) {
+  Widget _buildSortPill(BuildContext context, {double materialize = 1}) {
     return Obx(
       () => GlassAdaptiveSegmentedControl(
         dropdownOnly: true,
+        materialize: materialize,
         selectedIndex: _currentTabIndex.value,
         progress: _tabController.animation,
         onChanged: _tabController.animateTo,
@@ -396,11 +401,17 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     );
   }
 
-  /// header 行：返回圆钮 / 标签胶囊 / 排序胶囊 / 动作胶囊。
+  /// header 行：返回圆钮 / 标签胶囊 /（宽屏才有的）排序胶囊 / 动作胶囊。
   ///
   /// 标签胶囊吃掉中间所有余量，排序与动作两块贴着右边——右边这一坨是「对这一
   /// 堆东西怎么看、怎么筛」，读起来是一组。
-  Widget _buildHeaderRow(BuildContext context) {
+  ///
+  /// [sink] 为真（窄屏）时右边这一坨整只收走、沉到屏幕下角
+  /// （见 [_buildCornerDocks]）：360dp 上返回钮 + 排序胶囊 + 动作胶囊要吃掉
+  /// 250 多，标签名只剩一个省略号，而标签名正是这一页的身份。收走用
+  /// [GlassCapsuleReveal] 而不是 `if`——转屏 / 改窗口宽度时它是一次形变，
+  /// 不是硬切。
+  Widget _buildHeaderRow(BuildContext context, {required bool sink}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -423,39 +434,80 @@ class _TagMediaListPageState extends State<TagMediaListPage>
               onTap: () => showTagDetailDialog(context, widget.tag),
             ),
           ),
-          const SizedBox(width: 8),
-          _buildSortPill(context),
-          const SizedBox(width: 8),
-          _buildActionGroup(context),
+          GlassCapsuleReveal(
+            visible: !sink,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 8),
+                _buildSortPill(context),
+                const SizedBox(width: 8),
+                _buildActionGroup(context),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
-  Widget _buildScrollToTopFab(BuildContext context) {
+  /// 滚过一段后出现的「回到顶部」浮钮。它住在右下角坞的最上一格，
+  /// 与（窄屏才在场的）动作胶囊排成一列，而不是各自占一处右下角。
+  Widget _buildScrollToTopButton(BuildContext context) {
     return Obx(() {
       final visible = _mediaListController.currentScrollOffset.value > 800;
-      return Positioned(
-        right: 16,
-        bottom:
-            computeBottomSafeInset(MediaQuery.of(context)) +
-            16 +
-            (_mediaListController.isPaginated.value
-                ? PaginationBar.barHeight
-                : 0),
-        child: GlassReveal(
-          visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _mediaListController.scrollToTop,
-          ),
+      return GlassReveal(
+        visible: visible,
+        builder: (context, m) => GlassIconButton(
+          materialize: m,
+          standalone: true,
+          icon: const Icon(Icons.vertical_align_top),
+          tooltip: t.common.scrollToTop,
+          onPressed: _mediaListController.scrollToTop,
         ),
       );
     });
+  }
+
+  /// 屏幕下角的两坨浮层：左下「怎么排」，右下「怎么筛 + 回顶」。
+  ///
+  /// 分页模式下整体抬到分页栏之上；两坨都常驻挂载，窄↔宽的切换交给里面的
+  /// [GlassReveal]（有出有入），而不是把整只 `Positioned` 从树上摘掉。
+  List<Widget> _buildCornerDocks(BuildContext context, {required bool sink}) {
+    return [
+      Obx(() {
+        final double extraBottom = _mediaListController.isPaginated.value
+            ? PaginationBar.barHeight
+            : 0;
+        return GlassCornerDock(
+          corner: GlassDockCorner.bottomLeft,
+          extraBottomInset: extraBottom,
+          children: [
+            GlassReveal(
+              visible: sink,
+              builder: (context, m) => _buildSortPill(context, materialize: m),
+            ),
+          ],
+        );
+      }),
+      Obx(() {
+        final double extraBottom = _mediaListController.isPaginated.value
+            ? PaginationBar.barHeight
+            : 0;
+        return GlassCornerDock(
+          corner: GlassDockCorner.bottomRight,
+          extraBottomInset: extraBottom,
+          children: [
+            _buildScrollToTopButton(context),
+            GlassReveal(
+              visible: sink,
+              builder: (context, m) =>
+                  _buildActionGroup(context, materialize: m),
+            ),
+          ],
+        );
+      }),
+    ];
   }
 
   @override
@@ -463,6 +515,8 @@ class _TagMediaListPageState extends State<TagMediaListPage>
     final double statusBarHeight = MediaQuery.paddingOf(context).top;
     // 单行 chrome：排序已经并进 header 行，蒙层与列表让位都只算这一行。
     final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
+    // 窄屏摆不下一整行，排序与动作沉到下角坞（见 GlassCornerDock）。
+    final bool sink = useCornerDock(context);
 
     return Scaffold(
       body: GlassHeaderOverlay(
@@ -472,58 +526,63 @@ class _TagMediaListPageState extends State<TagMediaListPage>
         headerExtent: headerExtent,
         headerTop: statusBarHeight,
         solidExtent: statusBarHeight,
-        header: _buildHeaderRow(context),
-        extra: [_buildScrollToTopFab(context)],
+        header: _buildHeaderRow(context, sink: sink),
+        extra: _buildCornerDocks(context, sink: sink),
         // 视口必须铺满整页（不能在外面套 Padding，否则内容会在 header 下边缘被
         // 裁掉、永远滚不到 header 背后）；留白交给列表自身的 paddingTop。
+        // 底部则要多让出角落坞那一条，否则最后一行永远压在坞底下
+        //（分页模式除外，见 CornerDockBottomInset）。
         body: Obx(() {
           final isPaginated = _mediaListController.isPaginated.value;
           final rebuildKey = _mediaListController.rebuildKey.value.toString();
 
-          return TabBarView(
-            controller: _tabController,
-            children: sorts.map((sort) {
-              if (_isGallery) {
-                return MediaTabView<ImageModel>(
+          return CornerDockBottomInset(
+            active: sink && !isPaginated,
+            child: TabBarView(
+              controller: _tabController,
+              children: sorts.map((sort) {
+                if (_isGallery) {
+                  return MediaTabView<ImageModel>(
+                    key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
+                    sortId: sort.id,
+                    repository:
+                        _repositories[sort.id]!
+                            as BaseMediaRepository<ImageModel>,
+                    emptyIcon: Icons.photo_library_outlined,
+                    isPaginated: isPaginated,
+                    rebuildKey: rebuildKey,
+                    paddingTop: headerExtent,
+                    mediaListController: _mediaListController,
+                    showBottomPadding: true,
+                    playbackQueueRefBuilder: (galleryId) =>
+                        _galleryQueueRef(sort.id, galleryId),
+                  );
+                }
+                return MediaTabView<Video>(
                   key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
                   sortId: sort.id,
                   repository:
-                      _repositories[sort.id]!
-                          as BaseMediaRepository<ImageModel>,
-                  emptyIcon: Icons.photo_library_outlined,
+                      _repositories[sort.id]! as BaseMediaRepository<Video>,
+                  emptyIcon: Icons.video_library_outlined,
                   isPaginated: isPaginated,
                   rebuildKey: rebuildKey,
                   paddingTop: headerExtent,
                   mediaListController: _mediaListController,
                   showBottomPadding: true,
-                  playbackQueueRefBuilder: (galleryId) =>
-                      _galleryQueueRef(sort.id, galleryId),
+                  onOpenVideo:
+                      ({
+                        required videoId,
+                        required loadedVideos,
+                        Map<String, dynamic>? extData,
+                      }) => _openVideoFromTagList(
+                        sortId: sort.id,
+                        videoId: videoId,
+                        loadedVideos: loadedVideos,
+                        extData: extData,
+                      ),
                 );
-              }
-              return MediaTabView<Video>(
-                key: ValueKey('${sort.id}_$isPaginated$rebuildKey'),
-                sortId: sort.id,
-                repository:
-                    _repositories[sort.id]! as BaseMediaRepository<Video>,
-                emptyIcon: Icons.video_library_outlined,
-                isPaginated: isPaginated,
-                rebuildKey: rebuildKey,
-                paddingTop: headerExtent,
-                mediaListController: _mediaListController,
-                showBottomPadding: true,
-                onOpenVideo:
-                    ({
-                      required videoId,
-                      required loadedVideos,
-                      Map<String, dynamic>? extData,
-                    }) => _openVideoFromTagList(
-                      sortId: sort.id,
-                      videoId: videoId,
-                      loadedVideos: loadedVideos,
-                      extData: extData,
-                    ),
-              );
-            }).toList(),
+              }).toList(),
+            ),
           );
         }),
       ),
