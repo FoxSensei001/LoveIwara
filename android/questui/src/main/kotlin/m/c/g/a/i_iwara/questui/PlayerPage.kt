@@ -31,16 +31,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.SecondaryButton
-import com.meta.spatial.uiset.button.SecondaryCircleButton
-import com.meta.spatial.uiset.slider.SpatialSliderLarge
 import com.meta.spatial.uiset.slider.SpatialSliderSmall
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
+import com.meta.spatial.uiset.theme.icons.regular.Close
+import com.meta.spatial.uiset.theme.icons.regular.Environment
+import com.meta.spatial.uiset.theme.icons.regular.Home
+import com.meta.spatial.uiset.theme.icons.regular.ListView
 import com.meta.spatial.uiset.theme.icons.regular.Media2d
 import com.meta.spatial.uiset.theme.icons.regular.Pause
 import com.meta.spatial.uiset.theme.icons.regular.Play
 import com.meta.spatial.uiset.theme.icons.regular.PlayNext
 import com.meta.spatial.uiset.theme.icons.regular.PlayPrev
 import com.meta.spatial.uiset.theme.icons.regular.Power
+import com.meta.spatial.uiset.theme.icons.regular.Settings
 import com.meta.spatial.uiset.theme.icons.regular.TenSecondsBackward
 import com.meta.spatial.uiset.theme.icons.regular.TenSecondsForward
 import com.meta.spatial.uiset.theme.icons.regular.Television
@@ -49,77 +52,52 @@ import com.meta.spatial.uiset.theme.icons.regular.VolumeOff
 import com.meta.spatial.uiset.theme.icons.regular.VolumeOn
 
 /**
- * 播放页 —— 面板的主页。
- *
- * 布局照参考软件（4XVR，2026-09-04 用户实机截图）：
+ * 播放页 —— 面板的主页（1100×360dp 一张卡片）。
  *
  * ```
- * 标题                             🕒 时间   🔋 电量   [缓冲中…]
- * [notice]
- * [🔊] ⏮ ⏪10 ▶/⏸ ⏩10 ⏭       [速度][视频类型][屏幕类型]
- * ═══════●─────────────────      00:01:41 / 00:04:27
+ * [✕]  标题…                  [缓冲中] 🕒05:36 🔋36%   [场景][列表][设置][返回]
+ *
+ * [🔊]   ⏮  ⏪10  ▶  ⏩10  ⏭                      [1.0×] [平面 · 2D] [直面屏]
+ *
+ * 00:18  ═══════●─────────────────────────────────────────────────  04:27
  * ```
  *
- * # 为什么进度条之外还要 ±10 秒
- *
- * 官方 `hands-ui-best-practices` 原话：「**Most users fail at the pinch-and-drag**
- * scroll bar interaction without explicit teaching」，而进度条恰恰就是捏合拖拽。
- * `SpatialSliderLarge` 官方明写用于 "seeking through media" 且**支持点击轨道跳转**，
- * ±10 秒是同一条结论的第二重保险 —— 让用户完全不必拖拽也能定位。
- *
- * # 音量竖向弹层：`SpatialSliderMedium` 旋转 -90°
- *
- * UI Set 的 slider 只有横向。要出参考软件那种「🔊 正上方竖起来一根」的效果只有两条路：
- * 自绘一整只（要重画 track/thumb/hit slop）或者拿现成的横 slider 硬旋转。
- * 后者代价小得多：外层 Box 定死 60×220dp 的**竖向逻辑尺寸**，内层 Box 用
- * `graphicsLayer { rotationZ = -90f }` 逆时针旋转，`size(200×40)` 是**旋转前**的
- * 逻辑尺寸。这样布局按外层的竖向 60×220 走，绘制按内层的横向 200×40 旋转后填进去，
- * 手感与横向 slider 完全一致（hit slop 都是官方给的）。
- *
- * 弹层的关闭手势：任何一次面板级的**面板其它地方**触碰或**再点 🔊** 都关。
- * 这里靠 [Box] 的兄弟节点绘制顺序 —— 关闭底板画在弹层内容之下，命中测试是**后画的
- * 先拿事件**，所以弹层内部的滑动/静音钮不会被吞。
- *
- * # 速度菜单：走带行**下面**长出一条 chip 行
- *
- * 官方 `SpatialDropdown` 是给表单场景用的，`label + helperText + placeholder` 一整套
- * 对这里过重。改成本地态 `speedMenuOpen`，开时在走带行与进度行之间插入一条水平
- * chip 行 —— 与参考软件表现一致，且不用 `Popup`（Popup 在 Spatial ComposeView
- * 里能否创建新窗口是未知的，把 runtime 未知项挡在外面）。
+ * - 走带行居中，播放/暂停是反色的 72dp 主钮；其余圆钮 64dp。
+ * - 进度条自绘细条 + 小圆拖块，两侧时间等宽（[TimeLabel]），拖动时左侧显示预览时间。
+ *   缓冲态**不写进时间**（那会让轨道长度跟着抖），改成轨道变色 + 头部「缓冲中」chip。
+ * - 🔊 点击弹竖向音量滑杆；倍速钮点击在走带行下方长出一排 chip。
  */
 @Composable
 fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
     var speedMenuOpen by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            HeaderRow(state, cb)
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
-        ) {
-            // ── 标题 + 系统信息 ─────────────────────────────
-            TitleStatusRow(state)
-
-            // 一行短提示。有才占位；没有就不占。
             val notice = state.notice
             if (notice != null) {
-                Text(text = notice, color = PanelTokens.WARN, fontSize = 15.sp, maxLines = 1)
+                Text(
+                    text = notice,
+                    color = PanelTokens.WARN,
+                    fontSize = 15.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
             }
 
-            // 走带行居中：标题在顶、进度在底、走带在中，三段把面板高度用满
-            // （用户 2026-09-05：「上两行是名称，中间空着，最下面是进度条」）。
             Spacer(Modifier.weight(1f))
 
-            // ── 走带行 ────────────────────────────────────
             TransportRow(
                 state = state,
                 cb = cb,
-                onToggleSpeedMenu = { speedMenuOpen = !speedMenuOpen },
                 speedMenuOpen = speedMenuOpen,
+                onToggleSpeedMenu = { speedMenuOpen = !speedMenuOpen },
             )
 
-            // 速度菜单 chip 行（开时才占位）
             if (speedMenuOpen) {
+                Spacer(Modifier.height(10.dp))
                 SpeedChipRow(
                     current = state.speed,
                     onPick = { s ->
@@ -129,69 +107,81 @@ fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 )
             }
 
-            // 把进度行挤到底部
             Spacer(Modifier.weight(1f))
 
-            // ── 进度 + 时间 ────────────────────────────────
             ProgressRow(state, cb)
         }
 
-        // ── 音量竖向弹层（画在最上层） ──────────────────
         if (state.volumePopupOpen) {
-            // 关闭底板：⛔ 必须画在弹层之前（更靠底），事件先分派给后画的弹层，
-            // 弹层没消费的（弹层之外的空白）才会掉到关闭底板上。
+            // 关闭底板画在弹层之下：弹层没消费的触碰才会掉到它上面。
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pointerInput(cb) {
-                        detectTapGestures { cb.onVolumePopup(false) }
-                    }
+                    .pointerInput(cb) { detectTapGestures { cb.onVolumePopup(false) } },
             )
             VolumeVerticalPopup(
                 state = state,
                 cb = cb,
-                // 摆在左下角，恰好落在 🔊 上方（🔊 在走带行最左）。
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(bottom = 96.dp),
+                    .padding(bottom = 60.dp),
             )
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────── 标题行
+// ─────────────────────────────────────────────────────────── 头部行
 
 @Composable
-private fun TitleStatusRow(state: VideoControlsState) {
+private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        CircleActionButton(SpatialIcons.Regular.Close, "收起控制面板", onClick = cb::onHidePanel)
+
         Text(
             text = state.title.ifBlank { "正在播放" },
             color = PanelTokens.ON_SURFACE,
-            fontSize = 22.sp,
+            fontSize = 20.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).padding(start = 4.dp),
         )
+
+        // 状态区：缓冲 chip 在时间**左侧**（用户 2026-09-05 反馈）。
+        if (state.buffering) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(PanelTokens.WARN.copy(alpha = 0.18f))
+                    .padding(horizontal = 12.dp, vertical = 5.dp),
+            ) {
+                Text("缓冲中…", color = PanelTokens.WARN, fontSize = 14.sp)
+            }
+        }
         if (state.clockText.isNotBlank()) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Icon(SpatialIcons.Regular.Time, null, tint = PanelTokens.ON_SURFACE_DIM)
-                Text(state.clockText, color = PanelTokens.ON_SURFACE_DIM, fontSize = 16.sp)
+                Icon(SpatialIcons.Regular.Time, null, tint = PanelTokens.ON_SURFACE_DIM, modifier = Modifier.size(18.dp))
+                Text(state.clockText, color = PanelTokens.ON_SURFACE_DIM, fontSize = 15.sp)
             }
         }
         if (state.batteryPercent >= 0) {
             val batColor = if (state.batteryCharging) PanelTokens.CHARGE else PanelTokens.ON_SURFACE_DIM
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Icon(SpatialIcons.Regular.Power, null, tint = batColor)
-                Text("${state.batteryPercent}%", color = batColor, fontSize = 16.sp)
+                Icon(SpatialIcons.Regular.Power, null, tint = batColor, modifier = Modifier.size(18.dp))
+                Text("${state.batteryPercent}%", color = batColor, fontSize = 15.sp)
             }
         }
-        if (state.buffering) {
-            Text("缓冲中…", color = PanelTokens.WARN, fontSize = 16.sp)
-        }
+
+        Spacer(Modifier.width(8.dp))
+
+        CircleActionButton(SpatialIcons.Regular.Environment, "场景") { cb.onRoute(ControlsRoute.SCENE) }
+        CircleActionButton(SpatialIcons.Regular.ListView, "播放列表") { cb.onRoute(ControlsRoute.PLAYLIST) }
+        CircleActionButton(SpatialIcons.Regular.Settings, "设置") { cb.onRoute(ControlsRoute.SETTINGS) }
+        // ⛔ 官方 Requirement：应用内自带返回。沉浸空间没有系统返回可用。
+        CircleActionButton(SpatialIcons.Regular.Home, "返回应用", onClick = cb::onBackToApp)
     }
 }
 
@@ -206,68 +196,45 @@ private fun TransportRow(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().height(PanelTokens.CIRCLE_SIZE),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // 🔊 音量弹层触发钮（⛔ 静音钮不是装饰：官方对媒体应用是 Requirement 级明文
-        // 「App must include a **mute/unmute button** that adjusts audio **for the
-        //  app only**. Using system-wide volume and system-wide mute is **prohibited**.」）
-        // 单击不静音、只开关竖向弹层；静音钮在弹层里。
-        SecondaryCircleButton(
-            icon = {
-                if (state.muted || state.volume <= 0f) {
-                    Icon(SpatialIcons.Regular.VolumeOff, "音量")
-                } else {
-                    Icon(SpatialIcons.Regular.VolumeOn, "音量")
-                }
-            },
+        // 🔊：单击开关竖向弹层；静音钮在弹层里（官方 Requirement 级：只调应用音量）。
+        CircleActionButton(
+            icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
+            contentDescription = "音量",
             onClick = { cb.onVolumePopup(!state.volumePopupOpen) },
+            selected = state.volumePopupOpen,
         )
 
-        // ⏮ ⏪10 ▶/⏸ ⏩10 ⏭
-        SecondaryCircleButton(
-            icon = { Icon(SpatialIcons.Regular.PlayPrev, "上一条") },
-            onClick = { cb.onPlayAdjacent(false) },
-        )
-        SecondaryCircleButton(
-            icon = { Icon(SpatialIcons.Regular.TenSecondsBackward, "后退 10 秒") },
-            onClick = { cb.onSeekBy(-10) },
-        )
-        SecondaryCircleButton(
-            icon = {
-                if (state.isPlaying) Icon(SpatialIcons.Regular.Pause, "暂停")
-                else Icon(SpatialIcons.Regular.Play, "播放")
-            },
+        Spacer(Modifier.width(8.dp))
+
+        CircleActionButton(SpatialIcons.Regular.PlayPrev, "上一条") { cb.onPlayAdjacent(false) }
+        CircleActionButton(SpatialIcons.Regular.TenSecondsBackward, "后退 10 秒") { cb.onSeekBy(-10) }
+        CircleActionButton(
+            icon = if (state.isPlaying) SpatialIcons.Regular.Pause else SpatialIcons.Regular.Play,
+            contentDescription = if (state.isPlaying) "暂停" else "播放",
             onClick = cb::onPlayPause,
+            size = PanelTokens.CIRCLE_SIZE,
+            emphasized = true,
         )
-        SecondaryCircleButton(
-            icon = { Icon(SpatialIcons.Regular.TenSecondsForward, "前进 10 秒") },
-            onClick = { cb.onSeekBy(10) },
-        )
-        SecondaryCircleButton(
-            icon = { Icon(SpatialIcons.Regular.PlayNext, "下一条") },
-            onClick = { cb.onPlayAdjacent(true) },
-        )
+        CircleActionButton(SpatialIcons.Regular.TenSecondsForward, "前进 10 秒") { cb.onSeekBy(10) }
+        CircleActionButton(SpatialIcons.Regular.PlayNext, "下一条") { cb.onPlayAdjacent(true) }
 
         Spacer(Modifier.weight(1f))
 
-        // 倍速
         SecondaryButton(
             label = speedLabel(state.speed),
             leading = { Icon(SpatialIcons.Regular.Time, null) },
             onClick = onToggleSpeedMenu,
-            modifier = Modifier.width(140.dp),
+            modifier = Modifier.width(130.dp),
         )
-
-        // 视频类型入口
         SecondaryButton(
             label = state.format.shortLabel,
             leading = { Icon(SpatialIcons.Regular.Media2d, null) },
             onClick = { cb.onRoute(ControlsRoute.VIDEO_TYPE) },
-            modifier = Modifier.widthIn(min = 200.dp),
+            modifier = Modifier.widthIn(min = 180.dp),
         )
-
-        // 屏幕类型入口。⛔ 球幕（非 flat）时禁用。
         SecondaryButton(
             label = state.curve.label,
             leading = { Icon(SpatialIcons.Regular.Television, null) },
@@ -285,29 +252,27 @@ private fun ProgressRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        SpatialSliderLarge(
-            onChanged = cb::onSeek,
+        val preview = state.seekPreviewText
+        TimeLabel(
+            text = preview ?: state.positionText,
+            color = if (preview != null) PanelTokens.ON_SURFACE else PanelTokens.ON_SURFACE_DIM,
+            modifier = Modifier.width(TIME_LABEL_WIDTH),
+        )
+        SeekBar(
+            progress = state.progress,
+            onSeek = cb::onSeek,
+            onSeekFinished = cb::onSeekFinished,
+            buffering = state.buffering,
             modifier = Modifier.weight(1f),
-            value = state.progress,
-            onValueChangedFinished = cb::onSeekFinished,
         )
-        Text(
-            text = when {
-                state.seekPreviewText != null -> "${state.seekPreviewText} / ${state.durationText}"
-                state.buffering -> "缓冲中…"
-                else -> "${state.positionText} / ${state.durationText}"
-            },
-            color = when {
-                state.seekPreviewText != null -> PanelTokens.ON_SURFACE
-                state.buffering -> PanelTokens.WARN
-                else -> PanelTokens.ON_SURFACE_DIM
-            },
-            fontSize = 16.sp,
-        )
+        TimeLabel(text = state.durationText, modifier = Modifier.width(TIME_LABEL_WIDTH))
     }
 }
+
+/** 装得下 「1:23:45」 的等宽标签。 */
+private val TIME_LABEL_WIDTH = 84.dp
 
 // ─────────────────────────────────────────────────────────── 速度菜单
 
@@ -330,10 +295,8 @@ private fun androidx.compose.foundation.layout.RowScope.SpeedChip(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    // 一枚小 chip：用 Text + clickable，避免走 SecondaryButton 的 64dp 最小高度
-    // 把整条 chip 行撑成第二个走带行那么高。
     val bg = if (selected) PanelTokens.ON_SURFACE else PanelTokens.POPUP
-    val fg = if (selected) PanelTokens.POPUP else PanelTokens.ON_SURFACE
+    val fg = if (selected) PanelTokens.SURFACE else PanelTokens.ON_SURFACE
     Box(
         modifier = Modifier
             .weight(1f)
@@ -349,6 +312,10 @@ private fun androidx.compose.foundation.layout.RowScope.SpeedChip(
 
 // ─────────────────────────────────────────────────────────── 音量弹层
 
+/**
+ * 竖向音量滑杆：UI Set 的 slider 只有横向，拿横向的旋转 -90°。
+ * 外层 Box 定死竖向逻辑尺寸，内层 `graphicsLayer { rotationZ = -90f }`，`size(170×40)` 是旋转前的尺寸。
+ */
 @Composable
 private fun VolumeVerticalPopup(
     state: VideoControlsState,
@@ -358,7 +325,7 @@ private fun VolumeVerticalPopup(
     val current = if (state.muted) 0f else state.volume
     Box(
         modifier = modifier
-            .size(width = 96.dp, height = 300.dp)
+            .size(width = 96.dp, height = 280.dp)
             .clip(RoundedCornerShape(28.dp))
             .background(PanelTokens.POPUP)
             .padding(12.dp),
@@ -368,17 +335,12 @@ private fun VolumeVerticalPopup(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = "${(current * 100).toInt()}%",
-                color = PanelTokens.ON_SURFACE,
-                fontSize = 15.sp,
-            )
-            // 竖向 slider：内层按旋转前的横向尺寸给，外层按旋转后的竖向尺寸给。
-            Box(modifier = Modifier.size(width = 60.dp, height = 170.dp)) {
+            Text(text = "${(current * 100).toInt()}%", color = PanelTokens.ON_SURFACE, fontSize = 15.sp)
+            Box(modifier = Modifier.size(width = 60.dp, height = 160.dp)) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(width = 170.dp, height = 40.dp)
+                        .size(width = 160.dp, height = 40.dp)
                         .graphicsLayer { rotationZ = -90f },
                 ) {
                     SpatialSliderSmall(
@@ -388,15 +350,12 @@ private fun VolumeVerticalPopup(
                     )
                 }
             }
-            SecondaryCircleButton(
-                icon = {
-                    if (state.muted || state.volume <= 0f) {
-                        Icon(SpatialIcons.Regular.VolumeOff, "取消静音")
-                    } else {
-                        Icon(SpatialIcons.Regular.VolumeOn, "静音")
-                    }
-                },
+            CircleActionButton(
+                icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
+                contentDescription = if (state.muted) "取消静音" else "静音",
                 onClick = cb::onToggleMute,
+                size = 56.dp,
+                selected = state.muted,
             )
         }
     }

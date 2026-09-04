@@ -452,7 +452,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** 拿不到头部位姿时的兜底锚点：原点上方站姿眼高、朝 +Z。 */
     private fun fallbackFrame(): Pose = Pose(Vector3(0f, FALLBACK_EYE_HEIGHT_M, 0f), Quaternion(0f, 0f, 0f))
 
-    private fun currentAnchor(): Pose = anchor ?: (gazeFrame() ?: fallbackFrame()).also { anchor = it }
+    private fun currentAnchor(): Pose = anchor ?: captureAnchor()
+
+    private fun captureAnchor(): Pose {
+        val g = gazeFrame()
+        anchorIsFallback = g == null
+        return (g ?: fallbackFrame()).also { anchor = it }
+    }
 
     /** 平面/弧幕：沿锚点视线摆在「距离」处，按「偏移」沿锚点的上方向挪，弧幕再把轴心退一个半径。 */
     private fun geometricScreenPose(): Pose {
@@ -475,11 +481,45 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         else -> screenPoseOverride ?: geometricScreenPose()
     }
 
-    /** 距离/偏移改了：只挪 Transform，不重建（无接缝）。 */
+    /**
+     * 距离/偏移/半径改了：只挪位置，不重建（无接缝）。
+     *
+     * ⛔ 位置要**同时**直接写到场景对象上：ECS 的 Transform 组件要到下一帧才由系统应用，
+     * 而 `reshape()` 是立即生效的 —— 差这一帧就是「切曲面时画面猛进猛退、抖动」的根因
+     * （每帧都先按新半径 + 旧位置画一次）。
+     */
     private fun applyScreenTransform() {
-        screenEntity?.setComponent(Transform(screenPose()))
+        val pose = screenPose()
+        screenEntity?.setComponent(Transform(pose))
+        screenPanel?.let {
+            it.setPosition(pose.t)
+            it.setRotationQuat(pose.q)
+        }
         syncBufferingPose()
     }
+
+    /** 2D 应用面板沿视线 1.8m 处、正对头部。 */
+    private fun uiPanelPose(): Pose {
+        val g = gazeFrame() ?: fallbackFrame()
+        return Pose(g.t + g.forward() * UI_PANEL_DISTANCE_M, g.q)
+    }
+
+    /**
+     * 藏起来的 UI 面板要**挪走**而不只是隐身：`Visible(false)` 不影响 ISDK 命中，一块看不见的
+     * 1.6m 面板会继续挡住射线 —— 用户 2026-09-05：「屏幕某些区域光标不显示，无法调整后方显示器」。
+     */
+    private fun placeUiPanel(visible: Boolean) {
+        val entity = uiPanelEntity ?: return
+        entity.setComponent(Visible(visible))
+        entity.setComponent(Transform(if (visible) uiPanelPose() else PARKED_POSE))
+        uiPanelPlacedByHead = visible && headPose() != null
+    }
+
+    /** UI 面板是否已经按真实头部位姿摆过（首次进入时头部可能还没就绪）。 */
+    private var uiPanelPlacedByHead = false
+
+    /** 锚点是否是用兜底值捕获的（头部还没就绪），是的话头部一就绪就重新捕获。 */
+    private var anchorIsFallback = false
 
     /** 缓冲指示放在幕布正中、比幕布近一点点。球幕时放在视线前 2m。 */
     private fun bufferingPose(): Pose {
@@ -510,9 +550,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** 重新捕获锚点并把幕布、面板都按新视线重摆。 */
     private fun recenterEverything() {
-        anchor = gazeFrame() ?: fallbackFrame()
+        captureAnchor()
         screenPoseOverride = null
         applyScreenTransform()
+        // 浏览态：把 2D 应用面板也摆回视线正前方（用户反馈「重置后 2D 画面位置过于靠上」）。
+        if (argUrl.isNullOrBlank()) placeUiPanel(visible = true)
         if (controlsEntity != null) {
             val pose = controlsPoseInFront()
             controlsEntity?.setComponent(Transform(pose))
@@ -541,9 +583,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (idle) playback.release()
 
         // 看视频时 UI 面板让位：藏起 + 让 Flutter 停止出帧（destroy 会连 Activity 一起杀掉，代价太大）。
-        uiPanelEntity?.setComponent(Visible(idle))
         ImmersiveBridge.setPanelRenderingPaused(!idle)
-        if (argUiPanel && uiPanelEntity == null) createUiPanel(visible = idle)
+        if (argUiPanel && uiPanelEntity == null) createUiPanel()
+        placeUiPanel(visible = idle)
 
         if (idle) {
             hideControls()
@@ -557,7 +599,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             return
         }
 
-        if (anchor == null) anchor = gazeFrame() ?: fallbackFrame()
+        if (anchor == null) captureAnchor()
         // 形状参数直接落到目标值（首次进入没有过渡可言）。
         curArc = controls.curve.arcDegrees
         curWidth = controls.screenWidth
@@ -661,12 +703,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    private fun createUiPanel(visible: Boolean) {
-        val g = gazeFrame() ?: fallbackFrame()
+    private fun createUiPanel() {
         uiPanelEntity = Entity.create(
             Panel(R.id.vr_ui_panel),
-            Transform(Pose(g.t + g.forward() * UI_PANEL_DISTANCE_M, g.q)),
-            Visible(visible),
+            Transform(uiPanelPose()),
+            Visible(true),
             Grabbable(),
             IsdkPanelResize(
                 resizeMode = ResizeMode.Relayout,
@@ -777,6 +818,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         updateTransport()
         status.clockTextIfChanged(System.currentTimeMillis())?.let { controls.clockText = it }
         input.poll()
+        settleHeadPlacement()
         if (!argUrl.isNullOrBlank()) handleInput(now)
         reapDoomedControls()
         updateAutoHide(now)
@@ -784,6 +826,21 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (prefsDirty && now >= prefsFlushAt) {
             prefsDirty = false
             prefs.save(controls)
+        }
+    }
+
+    /**
+     * 首次进入时头部位姿往往还没就绪，摆位只能落到兜底值（站姿眼高、朝 +Z）——
+     * 用户看到的就是「2D 画面位置过于靠上」。头部一就绪就按真实视线重摆一次。
+     */
+    private fun settleHeadPlacement() {
+        if (headPose() == null) return
+        if (argUrl.isNullOrBlank()) {
+            if (!uiPanelPlacedByHead) placeUiPanel(visible = true)
+        } else if (anchorIsFallback) {
+            captureAnchor()
+            screenPoseOverride = null
+            applyScreenTransform()
         }
     }
 
@@ -1291,7 +1348,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             {
                 UIPanelSettings(
                     shape = QuadShapeOptions(width = CONTROLS_WIDTH_M, height = CONTROLS_HEIGHT_M),
-                    // 面板逻辑尺寸固定 1100×500dp（与 `:questui` 的 PanelTokens 成对），密度由物理宽度反推。
+                    // 面板逻辑尺寸固定 1100×360dp（与 `:questui` 的 PanelTokens 成对），密度由物理宽度反推。
                     display = DpPerMeterDisplayOptions(dpPerMeter = 1100f / CONTROLS_WIDTH_M),
                     rendering = UIPanelRenderOptions(
                         renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
@@ -1360,13 +1417,16 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val UI_PANEL_WIDTH_M = 1.6f
 
         /**
-         * 控制面板几何：逻辑尺寸固定 1100 × 500dp，物理 1.5m 宽，沿视线 1.5m 处、比视线中心低 0.25m。
+         * 控制面板几何：逻辑尺寸固定 1100 × 360dp，物理 1.5m 宽，沿视线 1.5m 处、比视线中心低 0.25m。
          * 72dp 圆钮 = 0.098m @1.5m ≈ 3.7°，高于官方 2.5–3° 下限。
          */
         private const val CONTROLS_DISTANCE_M = 1.5f
         private const val CONTROLS_DROP_M = -0.25f
         private const val CONTROLS_WIDTH_M = 1.5f
-        private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 500f / 1100f
+        private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 360f / 1100f
+
+        /** 藏起来的 UI 面板停在这儿：脚下 100m，射线够不着。 */
+        private val PARKED_POSE = Pose(Vector3(0f, -100f, 0f), Quaternion(0f, 0f, 0f))
 
         private const val BUFFERING_SIZE_M = 0.6f
 

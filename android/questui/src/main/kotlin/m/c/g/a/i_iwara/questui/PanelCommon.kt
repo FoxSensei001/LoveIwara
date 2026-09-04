@@ -1,6 +1,22 @@
 package m.c.g.a.i_iwara.questui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,7 +66,7 @@ object PanelTokens {
 
     /** 面板逻辑尺寸：2.2m × 1.0m @ 500dp/m。与 `ImmersiveActivity` 的常量成对，改要一起改。 */
     const val WIDTH_DP = 1100
-    const val HEIGHT_DP = 500
+    const val HEIGHT_DP = 360
 
     val CIRCLE_SIZE = 72.dp
     val ROW_BUTTON_HEIGHT = 64.dp
@@ -58,7 +74,7 @@ object PanelTokens {
     /** 面板主体的圆角。 */
     val CORNER = 28.dp
 
-    val PAGE_PADDING = 26.dp
+    val PAGE_PADDING = 20.dp
     val GAP = 14.dp
 
     // ---- 配色 ----
@@ -73,6 +89,8 @@ object PanelTokens {
     val ON_SURFACE = Color(0xFFE6E6EA)
     val ON_SURFACE_DIM = Color(0xFFA8A8B0)
     val WARN = Color(0xFFFFB77C)
+    val HOVER = Color(0xFF3A3A44)
+    val PRESSED = Color(0xFF4A4A56)
 
     /** 充电时电池文字的强调色（Meta 官方深色主题里的绿）。 */
     val CHARGE = Color(0xFF7CE6A0)
@@ -207,3 +225,137 @@ fun Modifier.reportPanelTouches(cb: VideoControlsCallbacks): Modifier =
             }
         }
     }
+
+
+// ─────────────────────────────────────────────────────────── 自绘控件
+
+/**
+ * 圆形动作钮：整个圆盘都是命中区。
+ *
+ * 不再用 UI Set 的 `SecondaryCircleButton`：它的命中区是自己那 56dp，套一圈底盘之后外圈点不到
+ * （用户 2026-09-05 反馈「背景扩大了一圈，但多出来的部分无法点击」）。自绘之后顶栏钮与走带钮
+ * 同一套样式、同一个命中区。
+ *
+ * @param emphasized 主按钮（播放/暂停）：反色实心。
+ * @param selected 当前页对应的入口钮：描一圈亮边。
+ */
+@Composable
+fun CircleActionButton(
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    size: Dp = PanelTokens.ROW_BUTTON_HEIGHT,
+    emphasized: Boolean = false,
+    selected: Boolean = false,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val hovered by interaction.collectIsHoveredAsState()
+    val bg = when {
+        !enabled -> PanelTokens.POPUP.copy(alpha = 0.4f)
+        emphasized -> if (pressed) PanelTokens.ON_SURFACE_DIM else PanelTokens.ON_SURFACE
+        pressed -> PanelTokens.PRESSED
+        hovered -> PanelTokens.HOVER
+        else -> PanelTokens.POPUP
+    }
+    val fg = when {
+        !enabled -> PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.5f)
+        emphasized -> PanelTokens.SURFACE
+        else -> PanelTokens.ON_SURFACE
+    }
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(bg)
+            .then(if (selected) Modifier.border(2.dp, PanelTokens.ON_SURFACE, CircleShape) else Modifier)
+            .hoverable(interaction, enabled)
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(icon, contentDescription, tint = fg, modifier = Modifier.size(size * 0.42f))
+    }
+}
+
+/**
+ * 自绘进度条：细轨道 + 小圆拖块，命中区整行 48dp。
+ *
+ * 不用 `SpatialSliderLarge`：它的拖块是一枚 60dp 宽的药丸，走到 98% 时看起来就是满的
+ * （用户反馈「4:22 / 4:27 进度条视觉上已拉满」）。
+ *
+ * @param progress 0..1
+ * @param onSeek 拖动 / 点按中连续回调
+ * @param onSeekFinished 抬手
+ */
+@Composable
+fun SeekBar(
+    progress: Float,
+    onSeek: (Float) -> Unit,
+    onSeekFinished: () -> Unit,
+    modifier: Modifier = Modifier,
+    buffering: Boolean = false,
+) {
+    val trackColor = PanelTokens.POPUP
+    val fillColor = if (buffering) PanelTokens.WARN else PanelTokens.ON_SURFACE
+    val thumbColor = PanelTokens.ON_SURFACE
+    Box(
+        modifier = modifier
+            .height(48.dp)
+            .pointerInput(onSeek, onSeekFinished) {
+                val w = size.width.toFloat()
+                detectTapGestures(
+                    onPress = { offset ->
+                        onSeek((offset.x / w).coerceIn(0f, 1f))
+                        tryAwaitRelease()
+                        onSeekFinished()
+                    },
+                )
+            }
+            .pointerInput(onSeek, onSeekFinished) {
+                val w = size.width.toFloat()
+                detectHorizontalDragGestures(
+                    onDragStart = { offset -> onSeek((offset.x / w).coerceIn(0f, 1f)) },
+                    onDragEnd = { onSeekFinished() },
+                    onDragCancel = { onSeekFinished() },
+                ) { change, _ ->
+                    change.consume()
+                    onSeek((change.position.x / w).coerceIn(0f, 1f))
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val trackH = 6.dp.toPx()
+            val thumbR = 9.dp.toPx()
+            val cy = size.height / 2f
+            val x = (size.width * progress.coerceIn(0f, 1f))
+            drawRoundRect(
+                color = trackColor,
+                topLeft = Offset(0f, cy - trackH / 2f),
+                size = Size(size.width, trackH),
+                cornerRadius = CornerRadius(trackH / 2f),
+            )
+            drawRoundRect(
+                color = fillColor,
+                topLeft = Offset(0f, cy - trackH / 2f),
+                size = Size(x, trackH),
+                cornerRadius = CornerRadius(trackH / 2f),
+            )
+            drawCircle(color = thumbColor, radius = thumbR, center = Offset(x, cy))
+        }
+    }
+}
+
+/** 等宽的时间标签：进度条两侧的时间不能随内容变宽，否则轨道长度会跟着抖。 */
+@Composable
+fun TimeLabel(text: String, modifier: Modifier = Modifier, color: Color = PanelTokens.ON_SURFACE_DIM) {
+    Text(
+        text = text,
+        color = color,
+        fontSize = 16.sp,
+        maxLines = 1,
+        modifier = modifier,
+        textAlign = TextAlign.Center,
+    )
+}

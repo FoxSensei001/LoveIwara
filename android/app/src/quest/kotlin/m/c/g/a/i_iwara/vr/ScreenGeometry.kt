@@ -107,8 +107,14 @@ object ScreenGeometry {
         return max(0.5f, screenWidth / arc)
     }
 
-    /** 低于这个弧度就按平面 Quad 处理。 */
-    const val MIN_ARC_DEGREES = 2f
+    /**
+     * 低于这个弧度就按平面 Quad 处理。
+     *
+     * 不能太小：弧度趋近 0 时半径趋近无穷（2° + 3.2m ⇒ 92m），合成器上大半径圆柱的位置精度
+     * 会掉，直面屏 ↔ 微曲面的过渡两端闪烁、猛进猛退（真机反馈）。8° + 3.2m ⇒ 23m，
+     * 矢高只有 6cm，肉眼看不出与平面的差别。
+     */
+    const val MIN_ARC_DEGREES = 8f
 
     /**
      * 弧幕的半径（米）；平幕 / 球幕返回 0。
