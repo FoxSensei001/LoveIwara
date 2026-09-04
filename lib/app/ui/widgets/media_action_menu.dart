@@ -1,11 +1,16 @@
-// 卡片上那枚三点钮（以及右键、长按）弹出的**媒体操作菜单**。
+// 卡片上那枚三点钮弹出的**媒体操作菜单**。
 //
-// # 为什么三个入口共用一只菜单
+// # 它和预览弹窗的分工
 //
-// 在这之前，卡片的长按与右键指向的是 `VideoPreviewDetailModal`（一张只能看、
-// 不能动手的预览弹窗）。现在长按 / 右键 / 三点钮**都指向这里**——"我想对这个
-// 东西做点什么"只该有一个答案。预览弹窗已整只移除，它唯一被真正用到的动作
-// （跳作者主页）作为一项进了本菜单。
+// 2026-08-29 那次收口把长按 / 右键 / 三点钮**全部**指向了本菜单，同时删掉了
+// 只能看不能动手的 `VideoPreviewDetailModal`。现在重新分家，但分法变了：
+//
+//   - **长按 / 右键 → 预览弹窗**（`media_preview_dialog.dart`）："我想凑近
+//     看一眼"。
+//   - **三点钮 → 本菜单**："我想对它做点什么"。
+//
+// 两边不是并列的两套能力：菜单第一条就是「预览」（[_MediaAction.preview]），
+// 预览弹窗的动作行里也挂着「更多」直接吐出本菜单——任一入口都够得到另一边。
 //
 // # ⛔ 开菜单之前一次网络请求都不等
 //
@@ -160,6 +165,7 @@ class _LiveStatusHandle {
 }
 
 enum _MediaAction {
+  preview,
   download,
   watchLater,
   playlist,
@@ -193,6 +199,10 @@ Future<void> showMediaActionMenu({
   bool? likedOverride,
   ValueChanged<bool>? onLikeChanged,
   VoidCallback? onChanged,
+
+  /// 打开预览弹窗。给了它菜单里才有「预览」那一条——预览弹窗自己吐出本菜单时
+  /// 不传，免得在自己身上打转。
+  VoidCallback? onPreview,
 }) async {
   assert(
     (video == null) != (gallery == null),
@@ -216,6 +226,9 @@ Future<void> showMediaActionMenu({
   // 整列会倒过来，让最常用的那条永远贴着三点钮（`priorityNearAnchor`）。
   // 顺序由用户拍板：稍后再看 → 下载 → 播放列表 → 本地收藏 → 点赞 → 作者主页
   // → 分享。也因此这里**不能有分隔线**（倒过来会归属错位，那边有 assert）。
+  //
+  // 「预览」排在最前：它是这一列里唯一「只是看看、什么都不改」的一条，代价最
+  // 低、最常被随手点，贴着手指最合适。
   //
   // 「下载」拉到的源存在这里，菜单关掉之后直接交给 launcher，失败路径上也不会
   // 白打第二次请求（见 [prepareVideoDownloadSources]）。
@@ -258,6 +271,12 @@ Future<void> showMediaActionMenu({
   }
 
   final entries = <GlassMenuEntry>[
+    if (onPreview != null)
+      GlassMenuOption<_MediaAction>(
+        value: _MediaAction.preview,
+        label: t.mediaPreview.preview,
+        icon: Icons.zoom_out_map,
+      ),
     GlassMenuOption<_MediaAction>(
       value: _MediaAction.watchLater,
       label: resolved.inWatchLater
@@ -343,6 +362,8 @@ Future<void> showMediaActionMenu({
   if (action == null || !anchorContext.mounted) return;
 
   switch (action) {
+    case _MediaAction.preview:
+      onPreview!();
     case _MediaAction.download:
       if (video != null) {
         await launchVideoDownload(
@@ -361,7 +382,7 @@ Future<void> showMediaActionMenu({
         );
       }
     case _MediaAction.watchLater:
-      _toggleWatchLater(
+      toggleMediaWatchLater(
         t,
         video: video,
         gallery: gallery,
@@ -387,7 +408,7 @@ Future<void> showMediaActionMenu({
     case _MediaAction.share:
       _share(anchorContext, video: video, gallery: gallery);
     case _MediaAction.toggleLike:
-      await _toggleLike(
+      await toggleMediaLike(
         t,
         video: video,
         gallery: gallery,
@@ -405,7 +426,8 @@ Future<void> showMediaActionMenu({
   }
 }
 
-void _toggleWatchLater(
+/// 加入 / 移出「稍后再看」（操作菜单与预览弹窗共用同一份提示与容错）。
+void toggleMediaWatchLater(
   slang.Translations t, {
   Video? video,
   ImageModel? gallery,
@@ -505,7 +527,8 @@ void _share(BuildContext context, {Video? video, ImageModel? gallery}) {
   );
 }
 
-Future<void> _toggleLike(
+/// 点赞 / 取消点赞（操作菜单与预览弹窗共用同一份未登录与失败处理）。
+Future<void> toggleMediaLike(
   slang.Translations t, {
   Video? video,
   ImageModel? gallery,
@@ -561,6 +584,7 @@ class MediaActionMenuButton extends StatefulWidget {
     this.likedOverride,
     this.onLikeChanged,
     this.onChanged,
+    this.onPreview,
     this.size = 18,
     this.color,
   });
@@ -573,6 +597,10 @@ class MediaActionMenuButton extends StatefulWidget {
 
   final ValueChanged<bool>? onLikeChanged;
   final VoidCallback? onChanged;
+
+  /// 打开预览弹窗。给了它菜单里才有「预览」那一条，见 [showMediaActionMenu]。
+  final VoidCallback? onPreview;
+
   final double size;
   final Color? color;
 
@@ -601,6 +629,7 @@ class _MediaActionMenuButtonState extends State<MediaActionMenuButton> {
         status: status,
         onLikeChanged: widget.onLikeChanged,
         onChanged: widget.onChanged,
+        onPreview: widget.onPreview,
       );
     } finally {
       if (mounted) _opening = false;

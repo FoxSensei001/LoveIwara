@@ -89,6 +89,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsExternalPlayerZhCn externalPlayer = _TranslationsExternalPlayerZhCn._(_root);
 	@override late final _TranslationsWatchLaterZhCn watchLater = _TranslationsWatchLaterZhCn._(_root);
 	@override late final _TranslationsMediaMenuZhCn mediaMenu = _TranslationsMediaMenuZhCn._(_root);
+	@override late final _TranslationsMediaPreviewZhCn mediaPreview = _TranslationsMediaPreviewZhCn._(_root);
 	@override late final _TranslationsPlaybackQueueZhCn playbackQueue = _TranslationsPlaybackQueueZhCn._(_root);
 }
 
@@ -2462,6 +2463,18 @@ class _TranslationsMediaMenuZhCn implements TranslationsMediaMenuEn {
 	@override String inFolders({required Object count}) => '${count} 个收藏夹';
 	@override String inPlaylists({required Object count}) => '${count} 个播放列表';
 	@override String get downloaded => '已下载';
+}
+
+// Path: mediaPreview
+class _TranslationsMediaPreviewZhCn implements TranslationsMediaPreviewEn {
+	_TranslationsMediaPreviewZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get preview => '预览';
+	@override String get openDetail => '打开';
+	@override String get moreActions => '更多操作';
 }
 
 // Path: playbackQueue
@@ -6271,6 +6284,9 @@ extension on TranslationsZhCn {
 			'mediaMenu.inFolders' => ({required Object count}) => '${count} 个收藏夹',
 			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} 个播放列表',
 			'mediaMenu.downloaded' => '已下载',
+			'mediaPreview.preview' => '预览',
+			'mediaPreview.openDetail' => '打开',
+			'mediaPreview.moreActions' => '更多操作',
 			'playbackQueue.upNext' => '接着看',
 			'playbackQueue.sourceTab' => '来源',
 			'playbackQueue.emptyQueue' => '这个池里没有可播的视频',

@@ -110,6 +110,9 @@ class _ImageModelCardListItemWidgetState
   }
 
   @override
+  Future<void> openMediaDetail() => _openGalleryDetail();
+
+  @override
   Widget build(BuildContext context) {
     if (widget.disableBlock ||
         widget.isMultiSelectMode ||
@@ -205,27 +208,29 @@ class _ImageModelCardListItemWidgetState
                     onTap: widget.isMultiSelectMode && widget.onSelect != null
                         ? widget.onSelect!
                         : _openGalleryDetail,
-                    // 图库卡片此前长按/右键什么都不做；现在和视频卡片一样，
-                    // 三个入口指向同一只媒体操作菜单。
+                    // 长按 / 右键 → 预览弹窗；三点钮 → 操作菜单（菜单第一条又
+                    // 能回到预览）。与视频卡片一致，见
+                    // media_preview_dialog.dart 文件头。
                     onSecondaryTap: widget.isMultiSelectMode
                         ? null
-                        : openActionMenu,
-                    onLongPress: widget.isMultiSelectMode
-                        ? null
-                        : openActionMenu,
-                    // 菜单贴着手指弹，落点从这两条记（见
-                    // [recordActionAnchor]）。
-                    onTapDown: recordActionAnchor,
-                    onSecondaryTapDown: recordActionAnchor,
+                        : openPreview,
+                    onLongPress: widget.isMultiSelectMode ? null : openPreview,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _Thumbnail(
-                          imageModel: widget.imageModel,
-                          width: widget.width,
-                          isHovering: showHoverState,
-                          reblockVisible: showReblock,
-                          onReblock: () => setState(() => _revealed = false),
+                        // 缩略图是「卡片 → 预览弹窗」那段 Hero 的起点。
+                        HeroMode(
+                          enabled: previewHeroEnabled,
+                          child: Hero(
+                            tag: previewHeroTag,
+                            child: _Thumbnail(
+                              imageModel: widget.imageModel,
+                              width: widget.width,
+                              isHovering: showHoverState,
+                              reblockVisible: showReblock,
+                              onReblock: () => setState(() => _revealed = false),
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
@@ -272,6 +277,7 @@ class _ImageModelCardListItemWidgetState
                     isMultiSelectMode: widget.isMultiSelectMode,
                     likedOverride: effectiveLiked,
                     onLikeChanged: applyLikeToggle,
+                    onPreview: openPreview,
                     duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），

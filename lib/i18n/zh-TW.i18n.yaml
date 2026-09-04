@@ -2801,6 +2801,10 @@ mediaMenu:
   inFolders: ${count} 個收藏夾
   inPlaylists: ${count} 個播放清單
   downloaded: 已下載
+mediaPreview:
+  preview: 預覽
+  openDetail: 開啟
+  moreActions: 更多操作
 playbackQueue:
   upNext: 接著看
   sourceTab: 來源

@@ -2799,6 +2799,10 @@ mediaMenu:
   inFolders: ${count} 個のフォルダ
   inPlaylists: ${count} 個の再生リスト
   downloaded: ダウンロード済み
+mediaPreview:
+  preview: プレビュー
+  openDetail: 開く
+  moreActions: その他の操作
 playbackQueue:
   upNext: 次に見る
   sourceTab: 元のリスト

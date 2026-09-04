@@ -33,6 +33,9 @@ class _OverrideHostState extends State<_OverrideHost>
   int get baseLikeCount => widget.likeCount;
 
   @override
+  Future<void> openMediaDetail() async {}
+
+  @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.ltr,

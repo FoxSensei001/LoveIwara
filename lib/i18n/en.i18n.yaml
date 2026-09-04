@@ -2797,6 +2797,10 @@ mediaMenu:
   inFolders: ${count} folders
   inPlaylists: ${count} playlists
   downloaded: Downloaded
+mediaPreview:
+  preview: Preview
+  openDetail: Open
+  moreActions: More actions
 playbackQueue:
   upNext: Up next
   sourceTab: Source

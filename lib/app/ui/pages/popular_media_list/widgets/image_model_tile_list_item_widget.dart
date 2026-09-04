@@ -52,11 +52,10 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => _navigateToDetailPage(),
-      onLongPress: openActionMenu,
-      onSecondaryTap: openActionMenu,
-      // 菜单贴着手指弹，落点从这两条记（见 [recordActionAnchor]）。
-      onTapDown: recordActionAnchor,
-      onSecondaryTapDown: recordActionAnchor,
+      // 长按 / 右键 → 预览弹窗；行尾三点钮 → 操作菜单（菜单第一条又能回到
+      // 预览）。分工见 media_preview_dialog.dart 文件头。
+      onLongPress: openPreview,
+      onSecondaryTap: openPreview,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -71,6 +70,7 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
               gallery: imageModel,
               likedOverride: effectiveLiked,
               onLikeChanged: applyLikeToggle,
+              onPreview: openPreview,
             ),
           ],
         ),
@@ -78,8 +78,16 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
     );
   }
 
-  /// 构建带有标签的缩略图，不包裹 Hero
+  /// 构建带有标签的缩略图。整只是「行 → 预览弹窗」那段 Hero 的起点，
+  /// 开关见 [previewHeroEnabled]。
   Widget _buildThumbnail(BuildContext context) {
+    return HeroMode(
+      enabled: previewHeroEnabled,
+      child: Hero(tag: previewHeroTag, child: _buildThumbnailContent(context)),
+    );
+  }
+
+  Widget _buildThumbnailContent(BuildContext context) {
     return Stack(
       children: [
         GestureDetector(
@@ -239,6 +247,9 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
       ),
     );
   }
+
+  @override
+  Future<void> openMediaDetail() async => _navigateToDetailPage();
 
   /// 导航到详情页
   void _navigateToDetailPage() {

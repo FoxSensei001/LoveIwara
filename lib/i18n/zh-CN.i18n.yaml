@@ -2797,6 +2797,10 @@ mediaMenu:
   inFolders: ${count} 个收藏夹
   inPlaylists: ${count} 个播放列表
   downloaded: 已下载
+mediaPreview:
+  preview: 预览
+  openDetail: 打开
+  moreActions: 更多操作
 playbackQueue:
   upNext: 接着看
   sourceTab: 来源

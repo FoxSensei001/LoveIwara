@@ -92,6 +92,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsExternalPlayerEn externalPlayer = TranslationsExternalPlayerEn._(_root);
 	late final TranslationsWatchLaterEn watchLater = TranslationsWatchLaterEn._(_root);
 	late final TranslationsMediaMenuEn mediaMenu = TranslationsMediaMenuEn._(_root);
+	late final TranslationsMediaPreviewEn mediaPreview = TranslationsMediaPreviewEn._(_root);
 	late final TranslationsPlaybackQueueEn playbackQueue = TranslationsPlaybackQueueEn._(_root);
 }
 
@@ -6199,6 +6200,24 @@ class TranslationsMediaMenuEn {
 	String get downloaded => 'Downloaded';
 }
 
+// Path: mediaPreview
+class TranslationsMediaPreviewEn {
+	TranslationsMediaPreviewEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Preview'
+	String get preview => 'Preview';
+
+	/// en: 'Open'
+	String get openDetail => 'Open';
+
+	/// en: 'More actions'
+	String get moreActions => 'More actions';
+}
+
 // Path: playbackQueue
 class TranslationsPlaybackQueueEn {
 	TranslationsPlaybackQueueEn._(this._root);
@@ -11500,6 +11519,9 @@ extension on Translations {
 			'mediaMenu.inFolders' => ({required Object count}) => '${count} folders',
 			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} playlists',
 			'mediaMenu.downloaded' => 'Downloaded',
+			'mediaPreview.preview' => 'Preview',
+			'mediaPreview.openDetail' => 'Open',
+			'mediaPreview.moreActions' => 'More actions',
 			'playbackQueue.upNext' => 'Up next',
 			'playbackQueue.sourceTab' => 'Source',
 			'playbackQueue.emptyQueue' => 'Nothing playable in this queue',

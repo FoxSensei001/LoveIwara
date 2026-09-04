@@ -88,13 +88,10 @@ class _VideoTileListItemState extends State<VideoTileListItem>
 
     return InkWell(
       onTap: _navigateToDetailPage,
-      // 长按 / 右键 / 三点钮 → 同一只媒体操作菜单。原来这两条指向的是只能看
-      // 不能动手的预览弹窗，已整只移除。
-      onLongPress: openActionMenu,
-      onSecondaryTap: isDesktopPlatform ? openActionMenu : null,
-      // 菜单贴着手指弹，落点从这两条记（见 [recordActionAnchor]）。
-      onTapDown: recordActionAnchor,
-      onSecondaryTapDown: recordActionAnchor,
+      // 长按 / 右键 → 预览弹窗；行尾三点钮 → 操作菜单（菜单第一条又能回到
+      // 预览）。分工见 media_preview_dialog.dart 文件头。
+      onLongPress: openPreview,
+      onSecondaryTap: isDesktopPlatform ? openPreview : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
@@ -109,6 +106,7 @@ class _VideoTileListItemState extends State<VideoTileListItem>
               video: widget.video,
               likedOverride: effectiveLiked,
               onLikeChanged: applyLikeToggle,
+              onPreview: openPreview,
             ),
           ],
         ),
@@ -122,8 +120,16 @@ class _VideoTileListItemState extends State<VideoTileListItem>
         (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
   }
 
-  /// 构建带有标签的缩略图，不包裹 Hero
+  /// 构建带有标签的缩略图。整只是「行 → 预览弹窗」那段 Hero 的起点，
+  /// 开关见 [previewHeroEnabled]。
   Widget _buildThumbnail(BuildContext context) {
+    return HeroMode(
+      enabled: previewHeroEnabled,
+      child: Hero(tag: previewHeroTag, child: _buildThumbnailContent(context)),
+    );
+  }
+
+  Widget _buildThumbnailContent(BuildContext context) {
     return Stack(
       children: [
         GestureDetector(
@@ -486,4 +492,7 @@ class _VideoTileListItemState extends State<VideoTileListItem>
       extData: _buildVideoDetailExtData(),
     );
   }
+
+  @override
+  Future<void> openMediaDetail() => _navigateToDetailPage();
 }

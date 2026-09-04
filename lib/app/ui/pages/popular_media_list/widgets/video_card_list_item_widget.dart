@@ -107,6 +107,10 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
   }
 
   @override
+  Future<void> openMediaDetail() =>
+      _openVideoDetail(widget.video.id, extData: _buildVideoDetailExtData());
+
+  @override
   Widget build(BuildContext context) {
     if (widget.disableBlock ||
         widget.isMultiSelectMode ||
@@ -206,27 +210,30 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
                             widget.video.id,
                             extData: _buildVideoDetailExtData(),
                           ),
-                    // 长按 / 右键 / 三点钮 → 同一只媒体操作菜单。
-                    // 原来这两条指向的是只能看不能动手的预览弹窗，已整只移除。
+                    // 长按 / 右键 → 预览弹窗（「凑近看一眼」）；三点钮 → 操作
+                    // 菜单（「对它做点什么」），菜单第一条又能回到预览。分工与
+                    // 理由见 media_preview_dialog.dart 文件头。
                     onSecondaryTap: widget.isMultiSelectMode
                         ? null
-                        : openActionMenu,
-                    onLongPress: widget.isMultiSelectMode
-                        ? null
-                        : openActionMenu,
-                    // 菜单贴着手指弹，落点从这两条记（见
-                    // [recordActionAnchor]）。
-                    onTapDown: recordActionAnchor,
-                    onSecondaryTapDown: recordActionAnchor,
+                        : openPreview,
+                    onLongPress: widget.isMultiSelectMode ? null : openPreview,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _Thumbnail(
-                          video: widget.video,
-                          width: widget.width,
-                          isHovering: showHoverState,
-                          reblockVisible: showReblock,
-                          onReblock: () => setState(() => _revealed = false),
+                        // 缩略图是「卡片 → 预览弹窗」那段 Hero 的起点。
+                        // HeroMode 的开关见 [previewHeroEnabled]。
+                        HeroMode(
+                          enabled: previewHeroEnabled,
+                          child: Hero(
+                            tag: previewHeroTag,
+                            child: _Thumbnail(
+                              video: widget.video,
+                              width: widget.width,
+                              isHovering: showHoverState,
+                              reblockVisible: showReblock,
+                              onReblock: () => setState(() => _revealed = false),
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
@@ -273,6 +280,7 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
                     isMultiSelectMode: widget.isMultiSelectMode,
                     likedOverride: effectiveLiked,
                     onLikeChanged: applyLikeToggle,
+                    onPreview: openPreview,
                     duration: _hoverAnimationDuration,
                   ),
                   // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），

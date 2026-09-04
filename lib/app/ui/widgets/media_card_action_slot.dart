@@ -27,6 +27,7 @@ class MediaCardActionSlot extends StatelessWidget {
     required this.isMultiSelectMode,
     required this.likedOverride,
     required this.onLikeChanged,
+    this.onPreview,
     this.duration = const Duration(milliseconds: 220),
   }) : assert(
          (video == null) != (gallery == null),
@@ -43,6 +44,9 @@ class MediaCardActionSlot extends StatelessWidget {
   final bool likedOverride;
 
   final ValueChanged<bool> onLikeChanged;
+
+  /// 打开预览弹窗（菜单里「预览」那一条）。见 [MediaActionMenuButton.onPreview]。
+  final VoidCallback? onPreview;
 
   /// 进出多选态的过渡时长，跟卡片自己的悬停过渡保持一致。
   final Duration duration;
@@ -67,6 +71,7 @@ class MediaCardActionSlot extends StatelessWidget {
               gallery: gallery,
               likedOverride: likedOverride,
               onLikeChanged: onLikeChanged,
+              onPreview: onPreview,
             ),
           ),
         ),

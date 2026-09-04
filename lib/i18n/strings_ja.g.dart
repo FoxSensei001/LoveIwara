@@ -89,6 +89,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsExternalPlayerJa externalPlayer = _TranslationsExternalPlayerJa._(_root);
 	@override late final _TranslationsWatchLaterJa watchLater = _TranslationsWatchLaterJa._(_root);
 	@override late final _TranslationsMediaMenuJa mediaMenu = _TranslationsMediaMenuJa._(_root);
+	@override late final _TranslationsMediaPreviewJa mediaPreview = _TranslationsMediaPreviewJa._(_root);
 	@override late final _TranslationsPlaybackQueueJa playbackQueue = _TranslationsPlaybackQueueJa._(_root);
 }
 
@@ -2462,6 +2463,18 @@ class _TranslationsMediaMenuJa implements TranslationsMediaMenuEn {
 	@override String inFolders({required Object count}) => '${count} 個のフォルダ';
 	@override String inPlaylists({required Object count}) => '${count} 個の再生リスト';
 	@override String get downloaded => 'ダウンロード済み';
+}
+
+// Path: mediaPreview
+class _TranslationsMediaPreviewJa implements TranslationsMediaPreviewEn {
+	_TranslationsMediaPreviewJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get preview => 'プレビュー';
+	@override String get openDetail => '開く';
+	@override String get moreActions => 'その他の操作';
 }
 
 // Path: playbackQueue
@@ -6271,6 +6284,9 @@ extension on TranslationsJa {
 			'mediaMenu.inFolders' => ({required Object count}) => '${count} 個のフォルダ',
 			'mediaMenu.inPlaylists' => ({required Object count}) => '${count} 個の再生リスト',
 			'mediaMenu.downloaded' => 'ダウンロード済み',
+			'mediaPreview.preview' => 'プレビュー',
+			'mediaPreview.openDetail' => '開く',
+			'mediaPreview.moreActions' => 'その他の操作',
 			'playbackQueue.upNext' => '次に見る',
 			'playbackQueue.sourceTab' => '元のリスト',
 			'playbackQueue.emptyQueue' => 'このキューに再生できる動画はありません',

@@ -3,12 +3,12 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_like_override_utils.dart';
-import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
+import 'package:i_iwara/app/ui/widgets/media_preview_dialog.dart';
 
-/// 媒体卡片 / 列表行共用的那套「本地点赞覆盖 + 操作菜单」状态。
+/// 媒体卡片 / 列表行共用的那套「本地点赞覆盖 + 预览弹窗」状态。
 ///
 /// 视频卡片、视频行、图库卡片、图库行原先各抄了一份一模一样的样板：三个字段、
-/// 两个 getter、一个 `didUpdateWidget` 清覆盖、一个带忙碌态的 `_openActionMenu`。
+/// 两个 getter、一个 `didUpdateWidget` 清覆盖、一个带忙碌态的开菜单方法。
 /// 全部收到这里，卡片只需要用几个 getter 说清楚「我承载的是哪一条」。
 ///
 /// # 为什么要有本地覆盖
@@ -18,12 +18,11 @@ import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
 /// 等上游真的换了数据（换了另一条，或者同一条的点赞态/赞数变了），再把覆盖清掉
 /// 让位给新数据。
 ///
-/// # ⛔ 开菜单前不转圈
+/// # 长按 / 右键 → 预览弹窗
 ///
-/// [resolveMediaActionStatus] 现在只查本地库（毫秒级），所以长按 / 右键 / 三点钮
-/// 都是点下去就出菜单，中间没有任何加载态——这里只留一个重入闸门，免得连点两下
-/// 开出两张菜单。真正要加载的动作（下载要先拉源）在菜单自己那一行转圈，
-/// 见 media_action_menu.dart 文件头。
+/// 三点钮那只操作菜单由 `MediaActionMenuButton` 自己管（它贴着自己弹），卡片这
+/// 一侧只负责预览：[openPreview] 出弹窗，[previewHeroEnabled] / [previewHeroTag]
+/// 供卡片把缩略图挂进 Hero。分工与理由见 `media_preview_dialog.dart` 文件头。
 mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 这张卡片承载的视频。与 [actionGallery] 二选一。
   Video? get actionVideo => null;
@@ -40,14 +39,20 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 数据源里的赞数（不含本地覆盖）。
   int get baseLikeCount;
 
+  /// 打开这条媒体的详情页。
+  ///
+  /// 预览弹窗里那枚「打开」走它。做成抽象成员而不是可选回调：四张卡片本来就
+  /// 各有一份（参数完全不同——图库要带封面/张数，视频要带回灌点赞的 extData），
+  /// 声明在这儿之后，新加的卡片漏接会直接编译不过。
+  Future<void> openMediaDetail();
+
   bool? _likedOverride;
   int? _likeCountOverride;
 
-  /// 纯重入闸门（见类文档）：不驱动任何视觉，所以改它不需要 setState。
-  bool _openingMenu = false;
-
-  /// 最近一次按下的落点（全局坐标），见 [recordActionAnchor]。
-  Offset? _actionAnchor;
+  /// 预览弹窗正开着（含出入场与 Hero 回飞）。
+  ///
+  /// 兼作重入闸门。它**驱动视觉**（Hero 挂不挂），所以改它要 setState。
+  bool _previewOpen = false;
 
   // 上一次见到的数据源取值。didUpdateWidget 里拿它跟当前值比，判断上游是不是
   // 真的换了数据——比对着 oldWidget 读字段等价，但不用每个卡片各写一遍。
@@ -90,45 +95,38 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
     _lastBaseLikeCount = baseLikeCount;
   }
 
-  /// 记下这一下按在哪儿（全局坐标），给 [openActionMenu] 当落点用。
+  /// 这张卡片的缩略图此刻要不要参与 Hero 飞行。
   ///
-  /// ⛔ **卡片这一路必须挂上它**：卡片是一整块大面积热区，菜单要是照着控件边缘
-  /// 弹（[showGlassMenu] 的默认行为），手指按在卡片中间、菜单从卡片顶边冒出来，
-  /// 隔着大半张卡片——「离手指最近的一条优先」那套排序也就跟着量歪了。三点钮
-  /// 不需要，那枚钮只有 40px，贴着它弹本来就贴着手指。
-  ///
-  /// 挂在 `onTapDown` / `onSecondaryTapDown` 上而不是长按回调里：`InkWell` 的
-  /// `onLongPress` 不给位置。tap 识别器在按下 100ms（`kPressTimeout`）就会派
-  /// `onTapDown`，比长按的 500ms 早得多，所以长按最终成立时这个落点一定已经记
-  /// 上了——按住时 InkWell 的水波纹立刻亮起来走的就是这同一条路。
-  void recordActionAnchor(TapDownDetails details) {
-    _actionAnchor = details.globalPosition;
-  }
+  /// ⛔ **必须靠它把 Hero 关掉**，不能常驻：同一条媒体在一个路由里出现两次并
+  /// 非不可能（详情页的相关推荐 + 侧边「接着看」抽屉），而重复的 Hero tag 在
+  /// debug 下直接炸断言。同一时刻只可能有一张卡片开着预览，只让它挂 Hero，
+  /// 重复从此不可能发生；顺带也省掉列表里几十个常驻 Hero 的开销。
+  bool get previewHeroEnabled => _previewOpen;
 
-  /// 打开媒体操作菜单（长按 / 右键 / 三点钮共用）。
-  Future<void> openActionMenu() async {
-    if (!mounted || _openingMenu) return;
-    _openingMenu = true;
+  /// 卡片缩略图 ↔ 弹窗封面的 Hero 标签。
+  String get previewHeroTag =>
+      mediaPreviewHeroTag(video: actionVideo, gallery: actionGallery);
+
+  /// 打开预览弹窗（长按 / 右键 / 操作菜单里的「预览」共用）。
+  Future<void> openPreview() async {
+    if (!mounted || _previewOpen) return;
+    // 先让卡片带着 Hero 重建一帧：Hero 飞行是在 push 之后的 post-frame 里才去
+    // 收集两侧 Hero 的，那时这一帧已经建完，正好收得到。
+    setState(() => _previewOpen = true);
     try {
-      // 本地状态查完再开菜单（都是本地库查询，见类文档）。
-      final status = await resolveMediaActionStatus(
+      await showMediaPreviewDialog(
+        context: context,
         video: actionVideo,
         gallery: actionGallery,
         likedOverride: effectiveLiked,
-      );
-      if (!mounted) return;
-      await showMediaActionMenu(
-        anchorContext: context,
-        // 贴着手指弹，不贴卡片边缘（见 [recordActionAnchor]）。
-        globalPosition: _actionAnchor,
-        status: status,
-        video: actionVideo,
-        gallery: actionGallery,
-        likedOverride: effectiveLiked,
+        likeCountOverride: effectiveLikeCount,
         onLikeChanged: applyLikeToggle,
+        onOpenDetail: openMediaDetail,
       );
     } finally {
-      if (mounted) _openingMenu = false;
+      // 等的是路由**销毁**（见 showMediaPreviewDialog），所以回飞已经落地，
+      // 这时候摘 Hero 不会把飞到一半的封面掐掉。
+      if (mounted) setState(() => _previewOpen = false);
     }
   }
 
