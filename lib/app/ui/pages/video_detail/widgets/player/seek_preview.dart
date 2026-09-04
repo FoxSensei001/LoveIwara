@@ -267,8 +267,12 @@ class SeekPreview extends StatelessWidget {
     final double labelWidth =
         measureSeekPreviewLabelWidth(text: label, textScaler: textScaler) +
         kSeekPreviewLabelHPad * 2;
-    // 时间戳比画面还宽时由它撑开窗口：宁可窗口宽一点，也不要把时间截掉。
-    final double boxWidth = math.max(frame.width, labelWidth);
+    // 没有画面时窗口只装一个时间戳，宽度就该只有时间戳那么宽——跟着画面宽度走
+    // 会得到一条又长又空的黑条。有画面时才由两者取大：时间戳比画面还宽时由它
+    // 撑开窗口，宁可窗口宽一点，也不要把时间截掉。
+    final double boxWidth = showFrame
+        ? math.max(frame.width, labelWidth)
+        : labelWidth;
 
     final bool reduced = MediaQuery.disableAnimationsOf(context);
 
