@@ -7,10 +7,11 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 ///
 ///   1. **命中区是整只胶囊**，不是文字那一行——点左内边距、点放大镜、点文字上下
 ///      的空白，都要给输入框取焦（[GlassSearchPillTapArea]）。
-///   2. **文字落在胶囊的光学中心**，输入文字与提示文字都是——第一版靠「把 TextField
+///   2. **文字落在胶囊的几何正中**，输入文字与提示文字都是——第一版靠「把 TextField
 ///      拉满高度 + textAlignVertical」，那只把外框撑大了，里头的行盒仍旧贴着顶
-///      （见 [GlassSearchInputField] 类注释里的实测）。摆正之后再往上抬
-///      `fontSize × 0.22`：几何正中读着偏沉，那一档是对着 5 倍渲染图挑出来的。
+///      （见 [GlassSearchInputField] 类注释里的实测）。中间一版又在正中之上加过
+///      `fontSize × 0.22` 的「光学抬升」，真机上它把文字抬得比同一只胶囊里的放大镜
+///      还高一档，2026-09-04 已经去掉：这里就是正中，跟图标同一条线。
 void main() {
   Widget pill({
     required FocusNode focusNode,
@@ -80,7 +81,7 @@ void main() {
   // ── 垂直居中 ────────────────────────────────────────────────────────────
   for (final form in const [('桌面 52', 52.0, 15.5), ('移动 44', 44.0, 14.5)]) {
     for (final filled in const [false, true]) {
-      testWidgets('${form.$1}${filled ? '（有字）' : '（空）'}：文字落在胶囊的光学中心', (
+      testWidgets('${form.$1}${filled ? '（有字）' : '（空）'}：文字落在胶囊的几何正中', (
         tester,
       ) async {
         await pump(
@@ -90,14 +91,13 @@ void main() {
           text: filled ? '已经打了几个字' : '',
         );
         final pillRect = tester.getRect(find.byType(GlassSurface));
-        // 几何正中再往上 fontSize×0.22 —— 光学抬升，见 GlassSearchInputField
-        // 里 _opticalRise 的说明（几何居中读着偏沉，是取向不是 bug）。
-        final target = pillRect.center.dy - form.$3 * 0.22;
+        // 就是几何正中：胶囊里的放大镜图标走的也是这一条线，两者不许错开。
+        final target = pillRect.center.dy;
         final line = tester.getRect(find.byType(EditableText));
         expect(
           line.center.dy,
           moreOrLessEquals(target, epsilon: 0.1),
-          reason: '输入行盒没落在光学中心：行盒 ${line.top}..${line.bottom}，胶囊 $pillRect',
+          reason: '输入行盒没落在正中：行盒 ${line.top}..${line.bottom}，胶囊 $pillRect',
         );
 
         // 提示文字是 InputDecorator 自己摆的一只 Text，行盒规则得跟输入文字一致。

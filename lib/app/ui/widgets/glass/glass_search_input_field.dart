@@ -4,22 +4,6 @@ import 'package:flutter/material.dart';
 /// 撑满」的一档；改它会同时动输入文字与提示文字，两者必须一致。
 const double _lineHeight = 1.25;
 
-/// 光学抬升：字整体往上挪 `fontSize × 0.22`。
-///
-/// 这一条**不是几何**，是取向。前面几把锁把墨迹摆到了胶囊的精确正中（实测真机
-/// 字体下残差 0.25~1px），但摆正之后读着仍旧偏低——眼睛判断一行字的重心是按
-/// x-height 那一带的墨量，而不是按「最高一笔到最低一笔」的外接盒；下伸部（j、y、
-/// 逗号）留出来的那点空白算不进视觉重量里，于是几何居中总是显得沉。
-///
-/// 取值 2026-08-31 定：拿真实 Segoe UI + 微软雅黑按 5 倍渲染、对着中心线一档档
-/// 比出来的——先在 0 / 1.5 / 3px 里挑中 1.5px（≈ 0.1em），再按「继续抬高」连调
-/// 两轮到 0.22em（15.5 字号下 ≈ 3.4px）。
-///
-/// 写成**字号的比例**而不是写死像素：44 与 52 两种胶囊、以后再加别的字号都按同
-/// 一取向走，不会出现「桌面调好了、移动端又偏了」。要再动就改这一个数，四个回归
-/// 断言会跟着一起校。
-const double _opticalRise = 0.22;
-
 /// 玻璃胶囊里那条搜索输入框。
 ///
 /// # ⛔ 不要靠「把 TextField 拉满高度」来对齐（2026-08-31 报障）
@@ -63,6 +47,19 @@ const double _opticalRise = 0.22;
 ///
 /// 提示文字走的是 `InputDecorator` 自己的那只 `Text`，吃不到 strut，所以 `hintStyle`
 /// 里得把同一套 `height` + `leadingDistribution` 再写一遍。
+///
+/// # ⛔ 这里**没有**「光学抬升」——字就落在胶囊的几何正中。
+///
+/// 2026-08-31 曾经加过一档 `fontSize × 0.22` 的上抬，理由是「几何居中读着偏沉」
+/// （眼睛按 x-height 那一带的墨量判重心，下伸部留的空白算不进视觉重量）。真机
+/// 上它是反效果：14.5 字号下那是 3.2px，同一只胶囊里的放大镜图标走的仍是几何
+/// 正中，于是文字与图标肉眼可见地错开一档——用户 2026-09-04 报的「输入那一行
+/// 没垂直居中，而 icon 是居中的」就是这条。
+///
+/// 全站的参照是搜索结果页那只胶囊（`search_result.dart` 的 `_buildSearchPill`）：
+/// 一条普通 `Text` 由 `Row` 按几何正中摆放。上面那两把锁（forceStrutHeight +
+/// [TextLeadingDistribution.even]）已经让这里的行盒与那条 `Text` 的墨迹落点一致，
+/// 两处因此严丝合缝。要再动这个取向，请连图标一起动，否则只会重新拉开这道缝。
 ///
 /// # ⛔ 提示文字**不能**比输入文字小一号
 ///
@@ -127,51 +124,45 @@ class GlassSearchInputField extends StatelessWidget {
       height: double.infinity,
       // 撑满的是**槽位**（免得胶囊里的其他孩子跟着变矮），居中的是里头那条行盒。
       child: Align(
-        // 光标跟着一起挪：抬的是整条行盒，不是只把字画高一点。
-        child: Transform.translate(
-          offset: Offset(0, -fontSize * _opticalRise),
-          child: TextField(
-            controller: controller,
-            focusNode: focusNode,
-            textInputAction: TextInputAction.search,
-            textAlignVertical: TextAlignVertical.center,
-            // 行盒高度写死成 fontSize × [_lineHeight]，多出来的行距**上下平分**。
-            // 见类注释「字在行盒里还得再居中一次」。
-            strutStyle: StrutStyle(
-              fontSize: fontSize,
-              height: _lineHeight,
-              leading: 0,
-              forceStrutHeight: true,
-              leadingDistribution: TextLeadingDistribution.even,
-            ),
-            style: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface,
-              height: _lineHeight,
-              leadingDistribution: TextLeadingDistribution.even,
-            ),
-            decoration: InputDecoration(
-              isCollapsed: true,
-              hintText: hintText,
-              hintStyle: TextStyle(
-                fontSize: fontSize,
-                color: colorScheme.onSurfaceVariant.withValues(
-                  alpha: hintAlpha,
-                ),
-                // 提示文字是 `InputDecorator` 自己摆的一只 `Text`，吃不到上面那条
-                // strut，必须自带同一套行高规则，否则它在行盒里的偏移与输入文字
-                // 不一样——「有字时是正的、空着时提示偏上」就是这么来的。
-                height: _lineHeight,
-                leadingDistribution: TextLeadingDistribution.even,
-              ),
-              border: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-            ),
-            onChanged: onChanged == null ? null : (_) => onChanged!(),
-            onSubmitted: onSubmitted,
+        child: TextField(
+          controller: controller,
+          focusNode: focusNode,
+          textInputAction: TextInputAction.search,
+          textAlignVertical: TextAlignVertical.center,
+          // 行盒高度写死成 fontSize × [_lineHeight]，多出来的行距**上下平分**。
+          // 见类注释「字在行盒里还得再居中一次」。
+          strutStyle: StrutStyle(
+            fontSize: fontSize,
+            height: _lineHeight,
+            leading: 0,
+            forceStrutHeight: true,
+            leadingDistribution: TextLeadingDistribution.even,
           ),
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
+            height: _lineHeight,
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          decoration: InputDecoration(
+            isCollapsed: true,
+            hintText: hintText,
+            hintStyle: TextStyle(
+              fontSize: fontSize,
+              color: colorScheme.onSurfaceVariant.withValues(alpha: hintAlpha),
+              // 提示文字是 `InputDecorator` 自己摆的一只 `Text`，吃不到上面那条
+              // strut，必须自带同一套行高规则，否则它在行盒里的偏移与输入文字
+              // 不一样——「有字时是正的、空着时提示偏上」就是这么来的。
+              height: _lineHeight,
+              leadingDistribution: TextLeadingDistribution.even,
+            ),
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
+          ),
+          onChanged: onChanged == null ? null : (_) => onChanged!(),
+          onSubmitted: onSubmitted,
         ),
       ),
     );
