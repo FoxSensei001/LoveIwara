@@ -13,7 +13,9 @@ class AuthorProfileSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isWideScreen = MediaQuery.of(context).size.width >= 800;
-    return isWideScreen ? _buildWideLayout(context) : _buildNormalLayout(context);
+    return isWideScreen
+        ? _buildWideLayout(context)
+        : _buildNormalLayout(context);
   }
 
   Widget _buildWideLayout(BuildContext context) {
@@ -23,17 +25,10 @@ class AuthorProfileSkeleton extends StatelessWidget {
         children: [
           SizedBox(
             width: 400,
-            child: CustomScrollView(
-              slivers: _buildHeaderSliver(context),
-            ),
+            child: CustomScrollView(slivers: _buildHeaderSliver(context)),
           ),
-          Container(
-            width: 1,
-            color: Colors.grey[200],
-          ),
-          Expanded(
-            child: _buildContentSkeleton(),
-          ),
+          Container(width: 1, color: Colors.grey[200]),
+          Expanded(child: _buildContentSkeleton()),
         ],
       ),
     );
@@ -65,9 +60,7 @@ class AuthorProfileSkeleton extends StatelessWidget {
           baseColor: _baseColor,
           highlightColor: _highlightColor,
           child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-            ),
+            decoration: const BoxDecoration(color: Colors.white),
           ),
         ),
       ),
@@ -123,7 +116,9 @@ class AuthorProfileSkeleton extends StatelessWidget {
                             height: isNarrowScreen ? 16 : 20,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(_cardRadius / 2),
+                              borderRadius: BorderRadius.circular(
+                                _cardRadius / 2,
+                              ),
                             ),
                           ),
                         ),
@@ -145,7 +140,10 @@ class AuthorProfileSkeleton extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(_cardRadius),
-                              border: Border.all(color: Colors.grey[100]!, width: 1),
+                              border: Border.all(
+                                color: Colors.grey[100]!,
+                                width: 1,
+                              ),
                             ),
                           ),
                         ),
