@@ -1,6 +1,8 @@
 package m.c.g.a.i_iwara.questui
 
 import android.content.Context
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -42,13 +44,16 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
     SpatialTheme(colorScheme = darkSpatialColorScheme()) {
         Box(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
             PanelSurface {
-                when (state.route) {
-                    ControlsRoute.PLAYER -> PlayerPage(state, cb)
-                    ControlsRoute.SCENE -> ScenePage(state, cb)
-                    ControlsRoute.VIDEO_TYPE -> VideoTypePage(state, cb)
-                    ControlsRoute.SCREEN_TYPE -> ScreenTypePage(state, cb)
-                    ControlsRoute.PLAYLIST -> PlaylistPage(state, cb)
-                    ControlsRoute.SETTINGS -> SettingsPage(state, cb)
+                // 换页淡入淡出，不硬切（本项目「有出有入」的纪律在空间面板上同样适用）。
+                Crossfade(targetState = state.route, animationSpec = tween(180), label = "route") { route ->
+                    when (route) {
+                        ControlsRoute.PLAYER -> PlayerPage(state, cb)
+                        ControlsRoute.SCENE -> ScenePage(state, cb)
+                        ControlsRoute.VIDEO_TYPE -> VideoTypePage(state, cb)
+                        ControlsRoute.SCREEN_TYPE -> ScreenTypePage(state, cb)
+                        ControlsRoute.PLAYLIST -> PlaylistPage(state, cb)
+                        ControlsRoute.SETTINGS -> SettingsPage(state, cb)
+                    }
                 }
             }
         }

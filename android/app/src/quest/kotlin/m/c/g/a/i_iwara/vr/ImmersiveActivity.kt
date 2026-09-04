@@ -15,7 +15,9 @@ import com.meta.spatial.core.Quaternion
 import com.meta.spatial.core.SpatialFeature
 import com.meta.spatial.core.Vector2
 import com.meta.spatial.core.Vector3
+import com.meta.spatial.isdk.IsdkCurvedPanel
 import com.meta.spatial.isdk.IsdkFeature
+import com.meta.spatial.isdk.IsdkPanelDimensions
 import com.meta.spatial.isdk.IsdkPanelResize
 import com.meta.spatial.isdk.ResizeMode
 import com.meta.spatial.runtime.HitInfo
@@ -643,6 +645,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         screenEntity = entity
         screenEntityIsFlat = flat
+        syncIsdkScreenShape()
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             val panel = so as? PanelSceneObject
             screenPanel = panel
@@ -718,6 +721,26 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (curArc >= ScreenGeometry.MIN_ARC_DEGREES || screenPoseOverride == null) {
             screenPoseOverride = null
             applyScreenTransform()
+        }
+        syncIsdkScreenShape()
+    }
+
+    /**
+     * 把幕布的碰撞面告诉 ISDK。
+     *
+     * ISDK 默认把面板当平面 quad 做射线命中，尺寸取创建时那一份。弧幕的可见曲面与这块平面
+     * 对不上：微曲面边缘光标消失、中/重曲面整个射线都不见了（真机反馈）—— 后者是碰撞面
+     * 与用户交叠，射线一出手就被吃掉。`IsdkCurvedPanel(fieldOfView)` 让 ISDK 按同一段弧建碰撞面，
+     * `IsdkPanelDimensions` 在每次 reshape 之后同步尺寸。
+     */
+    private fun syncIsdkScreenShape() {
+        val entity = screenEntity ?: return
+        if (!controls.format.isFlat) return
+        entity.setComponent(IsdkPanelDimensions(Vector2(curWidth, curWidth / curAspect)))
+        if (curArc >= ScreenGeometry.MIN_ARC_DEGREES) {
+            entity.setComponent(IsdkCurvedPanel(curArc))
+        } else {
+            runCatching { entity.removeComponent<IsdkCurvedPanel>() }
         }
     }
 

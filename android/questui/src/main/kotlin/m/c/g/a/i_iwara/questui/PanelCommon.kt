@@ -2,6 +2,7 @@ package m.c.g.a.i_iwara.questui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -422,7 +423,7 @@ fun VerticalLevelBar(
  * 竖向滚动指示条：内容放不下时才画；刚进页面先亮 2s 提醒「下面还有」，滚动时常亮，停手 1.2s 后淡出。
  *
  * 官方 `hands-ui-best-practices` 明说别做传统滚动条（拖它的人多半失败），所以它**只指示、不可拖**，
- * 滚动仍靠在内容上划。用法：`Modifier.verticalScroll(state).panelScrollbar(state)` —— 挂在同一个节点上。
+ * 滚动仍靠在内容上划。用法：`Modifier.panelScrollbar(state).verticalScroll(state)` —— ⛔ 顺序不能反，见实现内注释。
  */
 @Composable
 fun Modifier.panelScrollbar(state: ScrollState): Modifier {
@@ -440,10 +441,12 @@ fun Modifier.panelScrollbar(state: ScrollState): Modifier {
         drawContent()
         val max = state.maxValue
         if (max <= 0 || alpha <= 0.01f) return@drawWithContent
+        // ⛔ 本修饰符必须挂在 verticalScroll **之前**（外层节点）：这样 size 是视口、坐标不随滚动平移。
+        // 挂在之后会拿到整段内容的高度，指示条又长又跟着内容一起滚出画面（真机反馈）。
         val viewport = size.height
         val content = viewport + max
         val thumbH = (viewport * viewport / content).coerceAtLeast(28.dp.toPx())
-        val thumbY = (viewport - thumbH) * (state.value.toFloat() / max) + state.value
+        val thumbY = (viewport - thumbH) * (state.value.toFloat() / max)
         val w = 6.dp.toPx()
         drawRoundRect(
             color = PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.55f * alpha),
@@ -451,5 +454,56 @@ fun Modifier.panelScrollbar(state: ScrollState): Modifier {
             size = Size(w, thumbH),
             cornerRadius = CornerRadius(w / 2f),
         )
+    }
+}
+
+
+/**
+ * 药丸按钮：图标 + 文字，带 hover / 按下态，与 [CircleActionButton] 同一套材质。
+ *
+ * 走带行右侧「倍速 / 视频类型 / 屏幕类型」与倍速 chip 用它，不再混用 UI Set 的 SecondaryButton
+ * （没有 hover 反馈、样式与圆钮不成套 —— 真机反馈）。
+ */
+@Composable
+fun PillButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    selected: Boolean = false,
+    enabled: Boolean = true,
+    height: Dp = 56.dp,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val hovered by interaction.collectIsHoveredAsState()
+    val bg by animateColorAsState(
+        when {
+            !enabled -> PanelTokens.POPUP.copy(alpha = 0.4f)
+            selected -> PanelTokens.ON_SURFACE
+            pressed -> PanelTokens.PRESSED
+            hovered -> PanelTokens.HOVER
+            else -> PanelTokens.POPUP
+        },
+        label = "pillBg",
+    )
+    val fg = when {
+        !enabled -> PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.5f)
+        selected -> PanelTokens.SURFACE
+        else -> PanelTokens.ON_SURFACE
+    }
+    Row(
+        modifier = modifier
+            .height(height)
+            .clip(RoundedCornerShape(height / 2))
+            .background(bg)
+            .hoverable(interaction, enabled)
+            .clickable(interactionSource = interaction, indication = null, enabled = enabled, onClick = onClick)
+            .padding(horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (icon != null) Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp))
+        Text(text = label, color = fg, fontSize = 16.sp, maxLines = 1)
     }
 }

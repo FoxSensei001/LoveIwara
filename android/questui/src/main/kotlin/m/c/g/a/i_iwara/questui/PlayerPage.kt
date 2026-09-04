@@ -1,6 +1,11 @@
 package m.c.g.a.i_iwara.questui
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +34,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.meta.spatial.uiset.button.SecondaryButton
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
 import com.meta.spatial.uiset.theme.icons.regular.Close
 import com.meta.spatial.uiset.theme.icons.regular.Environment
@@ -94,15 +98,22 @@ fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 onToggleSpeedMenu = { speedMenuOpen = !speedMenuOpen },
             )
 
-            if (speedMenuOpen) {
-                Spacer(Modifier.height(10.dp))
-                SpeedChipRow(
-                    current = state.speed,
-                    onPick = { s ->
-                        cb.onPickSpeed(s)
-                        speedMenuOpen = false
-                    },
-                )
+            // 倍速 chip 行：展开 / 收起带高度与透明度过渡，不再瞬间改版式（真机反馈）。
+            AnimatedVisibility(
+                visible = speedMenuOpen,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                Column {
+                    Spacer(Modifier.height(10.dp))
+                    SpeedChipRow(
+                        current = state.speed,
+                        onPick = { s ->
+                            cb.onPickSpeed(s)
+                            speedMenuOpen = false
+                        },
+                    )
+                }
             }
 
             Spacer(Modifier.weight(1f))
@@ -221,24 +232,22 @@ private fun TransportRow(
 
         Spacer(Modifier.weight(1f))
 
-        SecondaryButton(
+        PillButton(
             label = speedLabel(state.speed),
-            leading = { Icon(SpatialIcons.Regular.Time, null) },
+            icon = SpatialIcons.Regular.Time,
             onClick = onToggleSpeedMenu,
-            modifier = Modifier.width(130.dp),
+            selected = speedMenuOpen,
         )
-        SecondaryButton(
+        PillButton(
             label = state.format.shortLabel,
-            leading = { Icon(SpatialIcons.Regular.Media2d, null) },
+            icon = SpatialIcons.Regular.Media2d,
             onClick = { cb.onRoute(ControlsRoute.VIDEO_TYPE) },
-            modifier = Modifier.widthIn(min = 180.dp),
         )
-        SecondaryButton(
+        PillButton(
             label = state.curve.label,
-            leading = { Icon(SpatialIcons.Regular.Television, null) },
+            icon = SpatialIcons.Regular.Television,
             onClick = { cb.onRoute(ControlsRoute.SCREEN_TYPE) },
-            modifier = Modifier.widthIn(min = 140.dp),
-            isEnabled = state.format.isFlat,
+            enabled = state.format.isFlat,
         )
     }
 }
@@ -293,19 +302,13 @@ private fun androidx.compose.foundation.layout.RowScope.SpeedChip(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val bg = if (selected) PanelTokens.ON_SURFACE else PanelTokens.POPUP
-    val fg = if (selected) PanelTokens.SURFACE else PanelTokens.ON_SURFACE
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .height(40.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(bg)
-            .pointerInput(onClick) { detectTapGestures { onClick() } },
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(text = label, color = fg, fontSize = 15.sp, maxLines = 1)
-    }
+    PillButton(
+        label = label,
+        onClick = onClick,
+        selected = selected,
+        height = 40.dp,
+        modifier = Modifier.weight(1f),
+    )
 }
 
 // ─────────────────────────────────────────────────────────── 音量弹层

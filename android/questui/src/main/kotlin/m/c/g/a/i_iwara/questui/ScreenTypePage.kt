@@ -55,7 +55,7 @@ fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         modifier = Modifier
             .fillMaxSize()
             .reportPanelTouches(cb)
-            .verticalScroll(scroll).panelScrollbar(scroll),
+            .panelScrollbar(scroll).verticalScroll(scroll),
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
