@@ -48,20 +48,15 @@ personalProfile:
 
 # Tutorial Service
 tutorial:
-  specialFollowFeature: "特别关注功能"
-  specialFollowDescription: "这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择\"添加为特别关注\"即可。"
-  exampleAuthorInfoRow: "示例：作者信息行"
-  authorName: "作者名称"
-  followed: "已关注"
-  specialFollowInstruction: "点击\"已关注\"按钮 → 选择\"添加为特别关注\""
-  followButtonLocations: "关注按钮位置："
-  videoDetailPage: "视频详情页"
-  galleryDetailPage: "图库详情页"
-  authorDetailPage: "作者详情页"
-  afterSpecialFollow: "特别关注后，可在此快速查看作者最新内容！"
-  specialFollowManagementTip: "特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理"
-  skip: 跳过
-  
+  specialFollowFeature: "特别关注"
+  specialFollowDescription: "把常看的作者设为特别关注，就能从这里一键切过去，只看他的最新内容。"
+  stepsTitle: "三步添加"
+  stepFollowAuthor: "在作者的视频、图库或主页点「关注」。"
+  stepPickSpecial: "再点一下「已关注」，在弹出的菜单里选「特别关注」。"
+  stepSwitchHere: "回到订阅页，用上方的头像选择器切到这位作者。"
+  specialFollowManagementTip: "特别关注列表可在侧边抽屉 - 关注列表 - 特别关注中管理。"
+  gotIt: "知道了"
+
 common:
   sort: 排序
   filter: 筛选

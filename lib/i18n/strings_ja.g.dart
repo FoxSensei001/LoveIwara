@@ -152,19 +152,14 @@ class _TranslationsTutorialJa implements TranslationsTutorialEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get specialFollowFeature => '特別フォロー機能';
-	@override String get specialFollowDescription => 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。';
-	@override String get exampleAuthorInfoRow => '例：著者情報行';
-	@override String get authorName => '著者名';
-	@override String get followed => 'フォロー済み';
-	@override String get specialFollowInstruction => '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択';
-	@override String get followButtonLocations => 'フォローボタンの場所：';
-	@override String get videoDetailPage => '動画詳細ページ';
-	@override String get galleryDetailPage => 'ギャラリー詳細ページ';
-	@override String get authorDetailPage => '著者詳細ページ';
-	@override String get afterSpecialFollow => '特別フォロー後、著者の最新コンテンツをすばやく確認できます！';
-	@override String get specialFollowManagementTip => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます';
-	@override String get skip => 'スキップ';
+	@override String get specialFollowFeature => '特別フォロー';
+	@override String get specialFollowDescription => 'よく見る著者を特別フォローにしておくと、ここからワンタップで切り替えて最新の投稿だけを追えます。';
+	@override String get stepsTitle => '3ステップで追加';
+	@override String get stepFollowAuthor => '著者の動画・ギャラリー・プロフィールページで「フォロー」をタップ。';
+	@override String get stepPickSpecial => 'もう一度「フォロー済み」をタップし、メニューから「特別フォロー」を選択。';
+	@override String get stepSwitchHere => '購読ページに戻り、上のアイコン選択でその著者に切り替え。';
+	@override String get specialFollowManagementTip => '特別フォローリストはサイドドロワー - フォローリスト - 特別フォローで管理できます。';
+	@override String get gotIt => 'OK';
 }
 
 // Path: common
@@ -3737,19 +3732,14 @@ extension on TranslationsJa {
 			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '背景の更新に失敗しました: ${error}',
 			'personalProfile.editPersonalIntroduction' => '自己紹介の編集',
 			'personalProfile.enterPersonalIntroduction' => '自己紹介を入力してください',
-			'tutorial.specialFollowFeature' => '特別フォロー機能',
-			'tutorial.specialFollowDescription' => 'ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。',
-			'tutorial.exampleAuthorInfoRow' => '例：著者情報行',
-			'tutorial.authorName' => '著者名',
-			'tutorial.followed' => 'フォロー済み',
-			'tutorial.specialFollowInstruction' => '"フォロー済み"ボタンをクリック → "特別フォローとして追加"を選択',
-			'tutorial.followButtonLocations' => 'フォローボタンの場所：',
-			'tutorial.videoDetailPage' => '動画詳細ページ',
-			'tutorial.galleryDetailPage' => 'ギャラリー詳細ページ',
-			'tutorial.authorDetailPage' => '著者詳細ページ',
-			'tutorial.afterSpecialFollow' => '特別フォロー後、著者の最新コンテンツをすばやく確認できます！',
-			'tutorial.specialFollowManagementTip' => '特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます',
-			'tutorial.skip' => 'スキップ',
+			'tutorial.specialFollowFeature' => '特別フォロー',
+			'tutorial.specialFollowDescription' => 'よく見る著者を特別フォローにしておくと、ここからワンタップで切り替えて最新の投稿だけを追えます。',
+			'tutorial.stepsTitle' => '3ステップで追加',
+			'tutorial.stepFollowAuthor' => '著者の動画・ギャラリー・プロフィールページで「フォロー」をタップ。',
+			'tutorial.stepPickSpecial' => 'もう一度「フォロー済み」をタップし、メニューから「特別フォロー」を選択。',
+			'tutorial.stepSwitchHere' => '購読ページに戻り、上のアイコン選択でその著者に切り替え。',
+			'tutorial.specialFollowManagementTip' => '特別フォローリストはサイドドロワー - フォローリスト - 特別フォローで管理できます。',
+			'tutorial.gotIt' => 'OK',
 			'common.sort' => '並び替え',
 			'common.filter' => 'フィルター',
 			'common.appName' => 'Love Iwara',
@@ -4206,13 +4196,13 @@ extension on TranslationsJa {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
 			'settings.rememberVolume' => '音量を記憶',
+			_ => null,
+		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。',
 			'settings.rememberBrightness' => '明るさを記憶',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
@@ -4720,13 +4710,13 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathValid' => 'パスが有効です',
 			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectory' => 'アプリ専用ディレクトリ',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全で信頼性があり、追加の権限は不要',
 			'settings.downloadSettings.downloadDirectory' => 'ダウンロードディレクトリ',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'システムデフォルトのダウンロード場所、管理が簡単',
 			'settings.downloadSettings.moviesDirectory' => '動画ディレクトリ',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => 'システム動画ディレクトリ、メディアアプリで認識可能',
 			'settings.downloadSettings.documentsDirectory' => 'ドキュメントディレクトリ',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOSアプリドキュメントディレクトリ',
@@ -5234,13 +5224,13 @@ extension on TranslationsJa {
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
-			_ => null,
-		} ?? switch (path) {
 			'download.download' => 'ダウンロード',
 			'download.selectDownloadTitle' => 'ダウンロードを選択',
 			'download.qualitySectionLabel' => '画質',
 			'download.saveToSectionLabel' => '保存先',
 			'download.lastUsedBadge' => '前回選択',
+			_ => null,
+		} ?? switch (path) {
 			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
 			'download.startDownloading' => 'ダウンロードを開始',
@@ -5748,13 +5738,13 @@ extension on TranslationsJa {
 			'crashRecoveryDialog.issueWarning' => '完全なログを Issue に公開添付しないでください',
 			'crashRecoveryDialog.acknowledge' => '了解',
 			'crashRecoveryDialog.supportEmailCopied' => 'メールアドレスをコピーしました',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.title' => 'リンクを入力',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '複数の${webName}リンクをインテリジェントに識別し、アプリ内の対応するページにすばやくジャンプすることをサポートします（リンクと他のテキストはスペースで区切ります）',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
 			'linkInputDialog.validatorEmptyLink' => 'リンクを入力してください',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '有効な${webName}リンクが検出されませんでした',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.multipleLinksDetected' => '複数のリンクが検出されました。1つ選択してください：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '有効な${webName}リンクではありません',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'リンク解析エラー: ${error}',
@@ -6262,13 +6252,13 @@ extension on TranslationsJa {
 			'watchLater.addFailed' => 'あとで見るへの追加に失敗しました',
 			'watchLater.invalidItem' => '利用できません',
 			'watchLater.clearWatched' => '視聴済みを削除',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => '視聴済み ${count} 件を削除しました',
 			'watchLater.noWatchedToClear' => '視聴済みの項目はありません',
 			'watchLater.emptyVideo' => 'あとで見るに追加された動画はありません',
 			'watchLater.emptyGallery' => 'あとで見るに追加されたギャラリーはありません',
 			'watchLater.filterAll' => 'すべて',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未視聴',
 			'watchLater.sortRecentlyAdded' => '追加が新しい順',
 			'watchLater.sortEarliestAdded' => '追加が古い順',

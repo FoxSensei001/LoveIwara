@@ -152,19 +152,14 @@ class _TranslationsTutorialZhTw implements TranslationsTutorialEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get specialFollowFeature => '特別關注功能';
-	@override String get specialFollowDescription => '這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇"添加為特別關注"即可。';
-	@override String get exampleAuthorInfoRow => '範例：作者資訊行';
-	@override String get authorName => '作者名稱';
-	@override String get followed => '已關注';
-	@override String get specialFollowInstruction => '點擊"已關注"按鈕 → 選擇"添加為特別關注"';
-	@override String get followButtonLocations => '關注按鈕位置：';
-	@override String get videoDetailPage => '影片詳情頁';
-	@override String get galleryDetailPage => '圖庫詳情頁';
-	@override String get authorDetailPage => '作者詳情頁';
-	@override String get afterSpecialFollow => '特別關注後，可在此快速查看作者最新內容！';
-	@override String get specialFollowManagementTip => '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理';
-	@override String get skip => '跳過';
+	@override String get specialFollowFeature => '特別關注';
+	@override String get specialFollowDescription => '把常看的作者設為特別關注，就能從這裡一鍵切過去，只看他的最新內容。';
+	@override String get stepsTitle => '三步加入';
+	@override String get stepFollowAuthor => '在作者的影片、圖庫或主頁點「關注」。';
+	@override String get stepPickSpecial => '再點一下「已關注」，在彈出的選單裡選「特別關注」。';
+	@override String get stepSwitchHere => '回到訂閱頁，用上方的頭像選擇器切到這位作者。';
+	@override String get specialFollowManagementTip => '特別關注列表可在側邊抽屜 - 關注列表 - 特別關注中管理。';
+	@override String get gotIt => '知道了';
 }
 
 // Path: common
@@ -3737,19 +3732,14 @@ extension on TranslationsZhTw {
 			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '更新背景失敗: ${error}',
 			'personalProfile.editPersonalIntroduction' => '編輯個人簡介',
 			'personalProfile.enterPersonalIntroduction' => '請輸入個人簡介',
-			'tutorial.specialFollowFeature' => '特別關注功能',
-			'tutorial.specialFollowDescription' => '這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇"添加為特別關注"即可。',
-			'tutorial.exampleAuthorInfoRow' => '範例：作者資訊行',
-			'tutorial.authorName' => '作者名稱',
-			'tutorial.followed' => '已關注',
-			'tutorial.specialFollowInstruction' => '點擊"已關注"按鈕 → 選擇"添加為特別關注"',
-			'tutorial.followButtonLocations' => '關注按鈕位置：',
-			'tutorial.videoDetailPage' => '影片詳情頁',
-			'tutorial.galleryDetailPage' => '圖庫詳情頁',
-			'tutorial.authorDetailPage' => '作者詳情頁',
-			'tutorial.afterSpecialFollow' => '特別關注後，可在此快速查看作者最新內容！',
-			'tutorial.specialFollowManagementTip' => '特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理',
-			'tutorial.skip' => '跳過',
+			'tutorial.specialFollowFeature' => '特別關注',
+			'tutorial.specialFollowDescription' => '把常看的作者設為特別關注，就能從這裡一鍵切過去，只看他的最新內容。',
+			'tutorial.stepsTitle' => '三步加入',
+			'tutorial.stepFollowAuthor' => '在作者的影片、圖庫或主頁點「關注」。',
+			'tutorial.stepPickSpecial' => '再點一下「已關注」，在彈出的選單裡選「特別關注」。',
+			'tutorial.stepSwitchHere' => '回到訂閱頁，用上方的頭像選擇器切到這位作者。',
+			'tutorial.specialFollowManagementTip' => '特別關注列表可在側邊抽屜 - 關注列表 - 特別關注中管理。',
+			'tutorial.gotIt' => '知道了',
 			'common.sort' => '排序',
 			'common.filter' => '篩選',
 			'common.appName' => 'Love Iwara',
@@ -4206,13 +4196,13 @@ extension on TranslationsZhTw {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
 			'settings.rememberVolume' => '記住音量',
+			_ => null,
+		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的音量設定。',
 			'settings.rememberBrightness' => '記住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
@@ -4720,13 +4710,13 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathValid' => '路徑有效',
 			'settings.downloadSettings.validationFailed' => '驗證失敗',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用預設應用程式目錄',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectory' => '應用程式專用目錄',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全可靠，無需額外權限',
 			'settings.downloadSettings.downloadDirectory' => '下載目錄',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系統預設下載位置，便於管理',
 			'settings.downloadSettings.moviesDirectory' => '影片目錄',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => '系統影片目錄，媒體應用程式可識別',
 			'settings.downloadSettings.documentsDirectory' => '文件目錄',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS應用程式文件目錄',
@@ -5234,13 +5224,13 @@ extension on TranslationsZhTw {
 			'download.errors.taskNotFoundOrDataError' => '任務不存在或資料錯誤',
 			'download.errors.copyDownloadUrlFailed' => '複製下載連結失敗',
 			'download.errors.fileNotFound' => '文件不存在',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.openFolderFailed' => '打開資料夾失敗',
 			'download.errors.openFolderFailedWithMessage' => ({required Object message}) => '打開資料夾失敗: ${message}',
 			'download.errors.directoryNotFound' => '目錄不存在',
 			'download.errors.copyFailed' => '複製失敗',
 			'download.errors.openFileFailed' => '打開文件失敗',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => '打開文件失敗: ${message}',
 			'download.errors.playLocallyFailed' => '本地播放失敗',
 			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => '本地播放失敗: ${message}',
@@ -5748,13 +5738,13 @@ extension on TranslationsZhTw {
 			'diagnostics.healthNoRiskIndicators' => '目前未發現風險指標',
 			'diagnostics.healthAlert.flushFailureTitle' => '寫入失敗',
 			'diagnostics.healthAlert.sinkDegradedTitle' => '日誌寫入已降級',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.healthAlert.sinkDegradedDetail' => '檔案 sink 處於 degraded 狀態',
 			'diagnostics.healthAlert.queueBacklogTitle' => '寫入佇列積壓',
 			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)',
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
 			'diagnostics.healthAlert.droppedTooManyTitle' => '日誌丟棄較多',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})',
 			'diagnostics.healthAlert.rateLimitedTitle' => '觸發限流',
 			'diagnostics.healthAlert.exportFailedTitle' => '日誌匯出失敗',
@@ -6262,13 +6252,13 @@ extension on TranslationsZhTw {
 			'watchLater.addFailed' => '加入稍後再看失敗',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => '已清除 ${count} 筆看完的內容',
 			'watchLater.noWatchedToClear' => '沒有已看完的內容',
 			'watchLater.emptyVideo' => '還沒有加入稍後再看的影片',
 			'watchLater.emptyGallery' => '還沒有加入稍後再看的圖庫',
 			'watchLater.filterAll' => '全部',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未看完',
 			'watchLater.sortRecentlyAdded' => '最近加入',
 			'watchLater.sortEarliestAdded' => '最早加入',

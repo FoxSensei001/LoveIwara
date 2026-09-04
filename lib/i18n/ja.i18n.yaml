@@ -47,19 +47,14 @@ personalProfile:
 
 # Tutorial Service
 tutorial:
-  specialFollowFeature: "特別フォロー機能"
-  specialFollowDescription: "ここには特別にフォローしている著者が表示されます。動画、ギャラリー、著者詳細ページでフォローボタンをクリックし、「特別フォローとして追加」を選択してください。"
-  exampleAuthorInfoRow: "例：著者情報行"
-  authorName: "著者名"
-  followed: "フォロー済み"
-  specialFollowInstruction: "\"フォロー済み\"ボタンをクリック → \"特別フォローとして追加\"を選択"
-  followButtonLocations: "フォローボタンの場所："
-  videoDetailPage: "動画詳細ページ"
-  galleryDetailPage: "ギャラリー詳細ページ"
-  authorDetailPage: "著者詳細ページ"
-  afterSpecialFollow: "特別フォロー後、著者の最新コンテンツをすばやく確認できます！"
-  specialFollowManagementTip: "特別フォローリストはサイドバードロワー - フォローリスト - 特別フォローリストページで管理できます"
-  skip: スキップ
+  specialFollowFeature: "特別フォロー"
+  specialFollowDescription: "よく見る著者を特別フォローにしておくと、ここからワンタップで切り替えて最新の投稿だけを追えます。"
+  stepsTitle: "3ステップで追加"
+  stepFollowAuthor: "著者の動画・ギャラリー・プロフィールページで「フォロー」をタップ。"
+  stepPickSpecial: "もう一度「フォロー済み」をタップし、メニューから「特別フォロー」を選択。"
+  stepSwitchHere: "購読ページに戻り、上のアイコン選択でその著者に切り替え。"
+  specialFollowManagementTip: "特別フォローリストはサイドドロワー - フォローリスト - 特別フォローで管理できます。"
+  gotIt: "OK"
 
 common:
   sort: 並び替え

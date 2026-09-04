@@ -152,19 +152,14 @@ class _TranslationsTutorialZhCn implements TranslationsTutorialEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
-	@override String get specialFollowFeature => '特别关注功能';
-	@override String get specialFollowDescription => '这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择"添加为特别关注"即可。';
-	@override String get exampleAuthorInfoRow => '示例：作者信息行';
-	@override String get authorName => '作者名称';
-	@override String get followed => '已关注';
-	@override String get specialFollowInstruction => '点击"已关注"按钮 → 选择"添加为特别关注"';
-	@override String get followButtonLocations => '关注按钮位置：';
-	@override String get videoDetailPage => '视频详情页';
-	@override String get galleryDetailPage => '图库详情页';
-	@override String get authorDetailPage => '作者详情页';
-	@override String get afterSpecialFollow => '特别关注后，可在此快速查看作者最新内容！';
-	@override String get specialFollowManagementTip => '特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理';
-	@override String get skip => '跳过';
+	@override String get specialFollowFeature => '特别关注';
+	@override String get specialFollowDescription => '把常看的作者设为特别关注，就能从这里一键切过去，只看他的最新内容。';
+	@override String get stepsTitle => '三步添加';
+	@override String get stepFollowAuthor => '在作者的视频、图库或主页点「关注」。';
+	@override String get stepPickSpecial => '再点一下「已关注」，在弹出的菜单里选「特别关注」。';
+	@override String get stepSwitchHere => '回到订阅页，用上方的头像选择器切到这位作者。';
+	@override String get specialFollowManagementTip => '特别关注列表可在侧边抽屉 - 关注列表 - 特别关注中管理。';
+	@override String get gotIt => '知道了';
 }
 
 // Path: common
@@ -3737,19 +3732,14 @@ extension on TranslationsZhCn {
 			'personalProfile.updateBackgroundFailed' => ({required Object error}) => '更新背景失败: ${error}',
 			'personalProfile.editPersonalIntroduction' => '修改个人简介',
 			'personalProfile.enterPersonalIntroduction' => '请输入个人简介',
-			'tutorial.specialFollowFeature' => '特别关注功能',
-			'tutorial.specialFollowDescription' => '这里显示你特别关注的作者。在视频、图库、作者详情页点击关注按钮，然后选择"添加为特别关注"即可。',
-			'tutorial.exampleAuthorInfoRow' => '示例：作者信息行',
-			'tutorial.authorName' => '作者名称',
-			'tutorial.followed' => '已关注',
-			'tutorial.specialFollowInstruction' => '点击"已关注"按钮 → 选择"添加为特别关注"',
-			'tutorial.followButtonLocations' => '关注按钮位置：',
-			'tutorial.videoDetailPage' => '视频详情页',
-			'tutorial.galleryDetailPage' => '图库详情页',
-			'tutorial.authorDetailPage' => '作者详情页',
-			'tutorial.afterSpecialFollow' => '特别关注后，可在此快速查看作者最新内容！',
-			'tutorial.specialFollowManagementTip' => '特别关注列表可在侧边抽屉栏-关注列表-特别关注列表页面里管理',
-			'tutorial.skip' => '跳过',
+			'tutorial.specialFollowFeature' => '特别关注',
+			'tutorial.specialFollowDescription' => '把常看的作者设为特别关注，就能从这里一键切过去，只看他的最新内容。',
+			'tutorial.stepsTitle' => '三步添加',
+			'tutorial.stepFollowAuthor' => '在作者的视频、图库或主页点「关注」。',
+			'tutorial.stepPickSpecial' => '再点一下「已关注」，在弹出的菜单里选「特别关注」。',
+			'tutorial.stepSwitchHere' => '回到订阅页，用上方的头像选择器切到这位作者。',
+			'tutorial.specialFollowManagementTip' => '特别关注列表可在侧边抽屉 - 关注列表 - 特别关注中管理。',
+			'tutorial.gotIt' => '知道了',
 			'common.sort' => '排序',
 			'common.filter' => '筛选',
 			'common.appName' => 'Love Iwara',
@@ -4206,13 +4196,13 @@ extension on TranslationsZhCn {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
 			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			'settings.rememberPlaybackSpeed' => '记住播放倍速',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。',
 			'settings.rememberVolume' => '记住音量',
+			_ => null,
+		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的音量设置。',
 			'settings.rememberBrightness' => '记住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
@@ -4720,13 +4710,13 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.pathValid' => '路径有效',
 			'settings.downloadSettings.validationFailed' => '验证失败',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用默认应用目录',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectory' => '应用专用目录',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => '安全可靠，无需额外权限',
 			'settings.downloadSettings.downloadDirectory' => '下载目录',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系统默认下载位置，便于管理',
 			'settings.downloadSettings.moviesDirectory' => '影片目录',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => '系统影片目录，媒体应用可识别',
 			'settings.downloadSettings.documentsDirectory' => '文档目录',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS应用文档目录',
@@ -5234,13 +5224,13 @@ extension on TranslationsZhCn {
 			'download.errors.pleaseTryOtherViewer' => '请尝试使用其他查看器打开',
 			'download.downloadList' => '下载列表',
 			'download.viewDownloadList' => '查看下载列表',
-			_ => null,
-		} ?? switch (path) {
 			'download.download' => '下载',
 			'download.selectDownloadTitle' => '选择下载',
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '保存到',
 			'download.lastUsedBadge' => '上次选择',
+			_ => null,
+		} ?? switch (path) {
 			'download.pickedBadge' => '已选中',
 			'download.forceDeleteTask' => '强制删除任务',
 			'download.startDownloading' => '开始下载...',
@@ -5748,13 +5738,13 @@ extension on TranslationsZhCn {
 			'crashRecoveryDialog.issueWarning' => '请勿将完整日志直接公开附加在 Issue 中',
 			'crashRecoveryDialog.acknowledge' => '我知道了',
 			'crashRecoveryDialog.supportEmailCopied' => '邮箱已复制',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.title' => '输入链接',
 			'linkInputDialog.supportedLinksHint' => ({required Object webName}) => '支持智能识别多个${webName}链接，并快速跳转到应用内对应页面(链接与其他文本之间用空格隔开)',
 			'linkInputDialog.inputHint' => ({required Object webName}) => '请输入${webName}链接',
 			'linkInputDialog.validatorEmptyLink' => '请输入链接',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '未检测到有效的${webName}链接',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.multipleLinksDetected' => '检测到多个链接，请选择一个：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '不是有效的${webName}链接',
 			'linkInputDialog.linkParseError' => ({required Object error}) => '链接解析出错: ${error}',
@@ -6262,13 +6252,13 @@ extension on TranslationsZhCn {
 			'watchLater.addFailed' => '加入稍后再看失败',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => '已清除 ${count} 条看完的内容',
 			'watchLater.noWatchedToClear' => '没有已看完的内容',
 			'watchLater.emptyVideo' => '还没有加入稍后再看的视频',
 			'watchLater.emptyGallery' => '还没有加入稍后再看的图库',
 			'watchLater.filterAll' => '全部',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未看完',
 			'watchLater.sortRecentlyAdded' => '最近添加',
 			'watchLater.sortEarliestAdded' => '最早添加',

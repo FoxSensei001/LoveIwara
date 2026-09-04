@@ -47,19 +47,14 @@ personalProfile:
 
 # Tutorial Service
 tutorial:
-  specialFollowFeature: "特別關注功能"
-  specialFollowDescription: "這裡顯示你特別關注的作者。在影片、圖庫、作者詳情頁點擊關注按鈕，然後選擇\"添加為特別關注\"即可。"
-  exampleAuthorInfoRow: "範例：作者資訊行"
-  authorName: "作者名稱"
-  followed: "已關注"
-  specialFollowInstruction: "點擊\"已關注\"按鈕 → 選擇\"添加為特別關注\""
-  followButtonLocations: "關注按鈕位置："
-  videoDetailPage: "影片詳情頁"
-  galleryDetailPage: "圖庫詳情頁"
-  authorDetailPage: "作者詳情頁"
-  afterSpecialFollow: "特別關注後，可在此快速查看作者最新內容！"
-  specialFollowManagementTip: "特別關注列表可在側邊抽屜欄-關注列表-特別關注列表頁面裡管理"
-  skip: 跳過
+  specialFollowFeature: "特別關注"
+  specialFollowDescription: "把常看的作者設為特別關注，就能從這裡一鍵切過去，只看他的最新內容。"
+  stepsTitle: "三步加入"
+  stepFollowAuthor: "在作者的影片、圖庫或主頁點「關注」。"
+  stepPickSpecial: "再點一下「已關注」，在彈出的選單裡選「特別關注」。"
+  stepSwitchHere: "回到訂閱頁，用上方的頭像選擇器切到這位作者。"
+  specialFollowManagementTip: "特別關注列表可在側邊抽屜 - 關注列表 - 特別關注中管理。"
+  gotIt: "知道了"
 common:
   sort: 排序
   filter: 篩選

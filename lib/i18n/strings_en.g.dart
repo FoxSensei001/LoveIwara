@@ -242,44 +242,29 @@ class TranslationsTutorialEn {
 
 	// Translations
 
-	/// en: 'Special Follow Feature'
-	String get specialFollowFeature => 'Special Follow Feature';
+	/// en: 'Special Follow'
+	String get specialFollowFeature => 'Special Follow';
 
-	/// en: 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".'
-	String get specialFollowDescription => 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".';
+	/// en: 'Mark the authors you watch most as special follows, then jump straight to their latest uploads from here.'
+	String get specialFollowDescription => 'Mark the authors you watch most as special follows, then jump straight to their latest uploads from here.';
 
-	/// en: 'Example: Author Info Row'
-	String get exampleAuthorInfoRow => 'Example: Author Info Row';
+	/// en: 'Three steps'
+	String get stepsTitle => 'Three steps';
 
-	/// en: 'Author Name'
-	String get authorName => 'Author Name';
+	/// en: 'Tap Follow on the author's video, gallery, or profile page.'
+	String get stepFollowAuthor => 'Tap Follow on the author\'s video, gallery, or profile page.';
 
-	/// en: 'Followed'
-	String get followed => 'Followed';
+	/// en: 'Tap Followed again, then pick Special Follow from the menu.'
+	String get stepPickSpecial => 'Tap Followed again, then pick Special Follow from the menu.';
 
-	/// en: 'Click "Followed" button → Select "Add as Special Follow"'
-	String get specialFollowInstruction => 'Click "Followed" button → Select "Add as Special Follow"';
+	/// en: 'Come back here and switch to that author with the avatar picker above.'
+	String get stepSwitchHere => 'Come back here and switch to that author with the avatar picker above.';
 
-	/// en: 'Follow Button Locations:'
-	String get followButtonLocations => 'Follow Button Locations:';
+	/// en: 'Manage the special follow list under Sidebar - Following List - Special Follows.'
+	String get specialFollowManagementTip => 'Manage the special follow list under Sidebar - Following List - Special Follows.';
 
-	/// en: 'Video Detail Page'
-	String get videoDetailPage => 'Video Detail Page';
-
-	/// en: 'Gallery Detail Page'
-	String get galleryDetailPage => 'Gallery Detail Page';
-
-	/// en: 'Author Detail Page'
-	String get authorDetailPage => 'Author Detail Page';
-
-	/// en: 'After Special Follow, you can quickly view the latest content of the author!'
-	String get afterSpecialFollow => 'After Special Follow, you can quickly view the latest content of the author!';
-
-	/// en: 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page'
-	String get specialFollowManagementTip => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page';
-
-	/// en: 'Skip'
-	String get skip => 'Skip';
+	/// en: 'Got it'
+	String get gotIt => 'Got it';
 }
 
 // Path: common
@@ -8976,19 +8961,14 @@ extension on Translations {
 			'personalProfile.updateBackgroundFailed' => ({required Object error}) => 'Failed to update background: ${error}',
 			'personalProfile.editPersonalIntroduction' => 'Edit Personal Introduction',
 			'personalProfile.enterPersonalIntroduction' => 'Please enter personal introduction',
-			'tutorial.specialFollowFeature' => 'Special Follow Feature',
-			'tutorial.specialFollowDescription' => 'This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select "Add as Special Follow".',
-			'tutorial.exampleAuthorInfoRow' => 'Example: Author Info Row',
-			'tutorial.authorName' => 'Author Name',
-			'tutorial.followed' => 'Followed',
-			'tutorial.specialFollowInstruction' => 'Click "Followed" button → Select "Add as Special Follow"',
-			'tutorial.followButtonLocations' => 'Follow Button Locations:',
-			'tutorial.videoDetailPage' => 'Video Detail Page',
-			'tutorial.galleryDetailPage' => 'Gallery Detail Page',
-			'tutorial.authorDetailPage' => 'Author Detail Page',
-			'tutorial.afterSpecialFollow' => 'After Special Follow, you can quickly view the latest content of the author!',
-			'tutorial.specialFollowManagementTip' => 'Special Follow list can be managed in Sidebar - Following List - Special Follow List page',
-			'tutorial.skip' => 'Skip',
+			'tutorial.specialFollowFeature' => 'Special Follow',
+			'tutorial.specialFollowDescription' => 'Mark the authors you watch most as special follows, then jump straight to their latest uploads from here.',
+			'tutorial.stepsTitle' => 'Three steps',
+			'tutorial.stepFollowAuthor' => 'Tap Follow on the author\'s video, gallery, or profile page.',
+			'tutorial.stepPickSpecial' => 'Tap Followed again, then pick Special Follow from the menu.',
+			'tutorial.stepSwitchHere' => 'Come back here and switch to that author with the avatar picker above.',
+			'tutorial.specialFollowManagementTip' => 'Manage the special follow list under Sidebar - Following List - Special Follows.',
+			'tutorial.gotIt' => 'Got it',
 			'common.sort' => 'Sort',
 			'common.filter' => 'Filter',
 			'common.appName' => 'Love Iwara',
@@ -9445,13 +9425,13 @@ extension on Translations {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
-			_ => null,
-		} ?? switch (path) {
 			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
 			'settings.rememberVolume' => 'Remember Volume',
+			_ => null,
+		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the volume will be kept when playing videos again.',
 			'settings.rememberBrightness' => 'Remember Brightness',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
@@ -9959,13 +9939,13 @@ extension on Translations {
 			'settings.downloadSettings.pathValid' => 'Path is valid',
 			'settings.downloadSettings.validationFailed' => 'Validation failed',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.appPrivateDirectory' => 'App Private Directory',
 			'settings.downloadSettings.appPrivateDirectoryDesc' => 'Safe and reliable, no additional permissions required',
 			'settings.downloadSettings.downloadDirectory' => 'Download Directory',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'System default download location, easy to manage',
 			'settings.downloadSettings.moviesDirectory' => 'Movies Directory',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => 'System movies directory, recognizable by media apps',
 			'settings.downloadSettings.documentsDirectory' => 'Documents Directory',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS app documents directory',
@@ -10473,13 +10453,13 @@ extension on Translations {
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
-			_ => null,
-		} ?? switch (path) {
 			'download.download' => 'Download',
 			'download.selectDownloadTitle' => 'Select Download',
 			'download.qualitySectionLabel' => 'Quality',
 			'download.saveToSectionLabel' => 'Save to',
 			'download.lastUsedBadge' => 'Last used',
+			_ => null,
+		} ?? switch (path) {
 			'download.pickedBadge' => 'Selected',
 			'download.startDownloading' => 'Start Downloading',
 			'download.clearAllFailedTasks' => 'Clear All Failed Tasks',
@@ -10987,13 +10967,13 @@ extension on Translations {
 			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => 'Playback notice: ${message}',
 			'mediaPlayer.notice.networkUnstable' => 'Check your network; playback may stutter',
 			'mediaPlayer.notice.audioTrackUnavailable' => 'No sound available; the video keeps playing',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.notice.hardwareDecodeFellBack' => 'Switched to software decoding; may use more power',
 			'mediaPlayer.notice.videoDecodeProblem' => 'Try another quality; the picture may glitch',
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Occurred ${count} times',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'No issues recorded',
 			'mediaPlayer.notice.exportLogsAction' => 'Export logs',
@@ -11501,13 +11481,13 @@ extension on Translations {
 			'watchLater.addFailed' => 'Failed to add to Watch Later',
 			'watchLater.invalidItem' => 'Unavailable',
 			'watchLater.clearWatched' => 'Clear watched',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.watchedCleared' => ({required Object count}) => 'Cleared ${count} watched items',
 			'watchLater.noWatchedToClear' => 'Nothing watched to clear',
 			'watchLater.emptyVideo' => 'No videos in Watch Later yet',
 			'watchLater.emptyGallery' => 'No galleries in Watch Later yet',
 			'watchLater.filterAll' => 'All',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.filterUnwatched' => 'Unwatched',
 			'watchLater.sortRecentlyAdded' => 'Recently added',
 			'watchLater.sortEarliestAdded' => 'Earliest added',

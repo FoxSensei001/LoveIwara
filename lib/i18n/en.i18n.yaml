@@ -47,19 +47,14 @@ personalProfile:
 
 # Tutorial Service
 tutorial:
-  specialFollowFeature: "Special Follow Feature"
-  specialFollowDescription: "This shows authors you follow specially. Go to video, gallery, or author detail pages, click the follow button, then select \"Add as Special Follow\"."
-  exampleAuthorInfoRow: "Example: Author Info Row"
-  authorName: "Author Name"
-  followed: "Followed"
-  specialFollowInstruction: "Click \"Followed\" button → Select \"Add as Special Follow\""
-  followButtonLocations: "Follow Button Locations:"
-  videoDetailPage: "Video Detail Page"
-  galleryDetailPage: "Gallery Detail Page"
-  authorDetailPage: "Author Detail Page"
-  afterSpecialFollow: "After Special Follow, you can quickly view the latest content of the author!"
-  specialFollowManagementTip: "Special Follow list can be managed in Sidebar - Following List - Special Follow List page"
-  skip: Skip
+  specialFollowFeature: "Special Follow"
+  specialFollowDescription: "Mark the authors you watch most as special follows, then jump straight to their latest uploads from here."
+  stepsTitle: "Three steps"
+  stepFollowAuthor: "Tap Follow on the author's video, gallery, or profile page."
+  stepPickSpecial: "Tap Followed again, then pick Special Follow from the menu."
+  stepSwitchHere: "Come back here and switch to that author with the avatar picker above."
+  specialFollowManagementTip: "Manage the special follow list under Sidebar - Following List - Special Follows."
+  gotIt: "Got it"
 
 common:
   sort: Sort
