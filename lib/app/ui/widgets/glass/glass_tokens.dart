@@ -144,6 +144,14 @@ abstract final class GlassTokens {
   static const Duration motionDuration = Duration(milliseconds: 200);
   static const Curve motionCurve = Curves.easeOutCubic;
 
+  /// 底部整条栏出现 / 消失，以及**别的浮层为它让位**的时长。
+  ///
+  /// 比 [motionDuration] 长一档：位移距离是整条栏的高度（46 + 安全区），200ms
+  /// 走完读起来是「弹」上来的。分页栏自己的入场（`PaginationBar`）与角落坞
+  /// （`GlassCornerDock`）抬高避让必须共用这一个数——两者一快一慢的话，坞会
+  /// 先跳到位再等栏追上来，读成两件事而不是一件。
+  static const Duration bottomBarDuration = Duration(milliseconds: 320);
+
   /// 按钮组槽位入场：比 [motionDuration] 慢，宽度走缓入缓出，
   /// 「冒出来」的过程要能被看见，而不是头几帧就把大半宽度甩出来。
   static const Duration groupSlotEnterDuration = Duration(milliseconds: 300);

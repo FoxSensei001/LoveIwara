@@ -162,6 +162,10 @@ class DisplaySettingsPage extends StatelessWidget {
             onPageChanged: (_) {},
             useBlurEffect: true,
             showBottomPadding: false,
+            // 预览卡不是「分页栏出现了」：外面那层 AnimatedSwitcher 已经在做
+            // 出入场，里头再滑一次会打架，而且卡片不裁剪、滑出去的那截会画到
+            // 卡片外面（见 PaginationBar.animateEntrance）。
+            animateEntrance: false,
           ),
         ],
       ),
@@ -321,7 +325,9 @@ class DisplaySettingsPage extends StatelessWidget {
             subtitle: Text(slang.t.displaySettings.customNavigationOrderDesc),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              SettingsNavigation.openSubPage(SettingsSubRoutes.displayNavigationOrder);
+              SettingsNavigation.openSubPage(
+                SettingsSubRoutes.displayNavigationOrder,
+              );
             },
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.only(

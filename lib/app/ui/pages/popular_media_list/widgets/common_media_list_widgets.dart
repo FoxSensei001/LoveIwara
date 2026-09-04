@@ -440,6 +440,23 @@ class PaginationBar extends StatefulWidget {
   final bool isTotalCountUnknown;
   final bool canGoNext;
 
+  /// 挂上树时从屏幕下缘滑进来（[_PaginationBarState._entranceDuration]）。
+  ///
+  /// **默认开**，因为这条栏的出现几乎总是一次模式切换的结果：用户在「更多」
+  /// 菜单里点了「传统分页」，底部就凭空多出一条 46+安全区 的实心栏——不给过渡
+  /// 就是硬生生怼上来的一刀（2026-09-04 用户报的正是这个）。整条栏（含上方那
+  /// 层渐隐蒙层）一起位移，全程不动透明度：这是块玻璃，`Opacity` 会把它的
+  /// backdrop 采样隔离掉、折射当场断掉（见 `GlassReveal` 那条原语）。
+  ///
+  /// 只有**本来就不是「出现」**的调用点才关掉：显示设置里那张分页样式预览卡，
+  /// 它外面已经有一层 `AnimatedSwitcher` 在做出入场，里头再滑一次就成了两段
+  /// 动画打架，而且预览卡不裁剪，滑出去的那一截会直接画到卡片外面。
+  ///
+  /// ⛔ 这只管**入场**。切回瀑布流时整棵列表子树是连 key 一起被换掉的
+  ///（`MediaTabView` 的 key 里带着 isPaginated），分页栏活不到播退场那一刻；
+  /// 要补退场得先把栏挪到页面级 Stack 里（像 `GlassSelectionDock` 那样）。
+  final bool animateEntrance;
+
   const PaginationBar({
     super.key,
     required this.currentPage,
@@ -453,6 +470,7 @@ class PaginationBar extends StatefulWidget {
     this.showBottomPadding = true,
     this.isTotalCountUnknown = false,
     this.canGoNext = true,
+    this.animateEntrance = true,
   });
 
   @override
@@ -476,9 +494,35 @@ class _PaginationBarState extends State<PaginationBar>
   static const Duration _showDelay = Duration(milliseconds: 150);
   static const Duration _fadeDuration = Duration(milliseconds: 260);
 
+  /// 整条栏从屏幕下缘滑上来的时长。与角落坞为它让位那段共用同一个数，
+  /// 见 [GlassTokens.bottomBarDuration]。
+  static const Duration _entranceDuration = GlassTokens.bottomBarDuration;
+
+  late final AnimationController _entranceController;
+  late final Animation<Offset> _entranceOffset;
+
   @override
   void initState() {
     super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: _entranceDuration,
+      // 关掉入场的调用点直接以「已就位」挂载，不建 ticker。
+      value: widget.animateEntrance ? 0.0 : 1.0,
+    );
+    _entranceOffset =
+        Tween<Offset>(
+          // 位移单位是自身高度：1.0 正好整条栏（含安全区占位）落到屏幕外，
+          // 挂它的 Stack 会把露出去的那一截裁掉。
+          begin: const Offset(0, 1),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(
+            parent: _entranceController,
+            curve: GlassTokens.motionCurve,
+          ),
+        );
+    if (widget.animateEntrance) _entranceController.forward();
     _rotationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1100),
@@ -540,6 +584,7 @@ class _PaginationBarState extends State<PaginationBar>
   void dispose() {
     _showDelayTimer?.cancel();
     _pageController.dispose();
+    _entranceController.dispose();
     _rotationController.dispose();
     _visibilityController.dispose();
     super.dispose();
@@ -754,7 +799,12 @@ class _PaginationBarState extends State<PaginationBar>
     // 收进同一层是性能项，不是观感项：这条栏最多时有 5 块独立玻璃（首页/
     // 上一页/页码/下一页/末页），拆开画就是 5 次 backdrop 采样、5 次整屏
     // resolve。实测每多一层要 ~1ms 光栅（见 [GlassChromeLayer] 的归因表）。
-    return GlassChromeLayer(child: result);
+    // 入场：整条栏（连同上方那层渐隐蒙层）一起从屏幕下缘推上来，见
+    // [PaginationBar.animateEntrance]。
+    return SlideTransition(
+      position: _entranceOffset,
+      child: GlassChromeLayer(child: result),
+    );
   }
 
   /// 选择态下的分页栏内容：`‹ 页码 ›` + 动作行。
