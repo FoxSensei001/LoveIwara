@@ -14,6 +14,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
   List<ImageItem>? originalImageItems,
   String initialQuality = galleryImageQualityStandard,
   ValueChanged<String>? onQualityChanged,
+  ValueChanged<int>? onIndexChanged,
   bool enableMenu = true,
   bool instant = false,
 }) {
@@ -31,6 +32,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
     originalImageItems: originalImageItems,
     initialQuality: initialQuality,
     onQualityChanged: onQualityChanged,
+    onIndexChanged: onIndexChanged,
     instant: instant,
   );
 
@@ -74,6 +76,7 @@ Widget _buildPhotoViewWrapperOverlayChild(PhotoViewExtra extra) {
           #originalImageItems: extra.originalImageItems,
           #initialQuality: normalizedInitialQuality,
           #onQualityChanged: extra.onQualityChanged,
+          #onIndexChanged: extra.onIndexChanged,
         })
         as Widget;
   } on NoSuchMethodError {

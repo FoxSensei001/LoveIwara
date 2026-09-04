@@ -140,6 +140,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
                 loadedAspectRatio ?? defaultAspectRatio,
             menuItemsBuilder: (context, item) =>
                 _buildImageMenuItems(context, item),
+            listController: controller.imageListController,
           ),
         ),
       );
@@ -166,6 +167,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       index: index,
       imageModelId: controller.imageModelId,
       coverHeroTag: coverHeroTag,
+      onIndexChanged: controller.imageListController.revealIndex,
     );
   }
 
@@ -230,6 +232,7 @@ void openGalleryImageViewer(
   required String imageModelId,
   required String coverHeroTag,
   bool instant = false,
+  ValueChanged<int>? onIndexChanged,
 }) {
   final configService = Get.find<ConfigService>();
   final initialQuality = normalizeGalleryImageQuality(
@@ -269,6 +272,9 @@ void openGalleryImageViewer(
     initialIndex: index < 0 ? 0 : index,
     menuItemsBuilder: buildGalleryImageMenuItems,
     instant: instant,
+    // 大图页里翻到第几张，底下这条清单就跟到第几张：退出来落在的是刚才看的
+    // 那张，不是当初点进去的那张。
+    onIndexChanged: onIndexChanged,
     // ⛔ [instant] 那一路**不挂 Hero**：那条路上屏幕已经被一帧「和大图页长得
     // 一模一样」的画面钉住了，底下再飞一段「缩略图长成大图」只会在撤帧那一刻
     // 露出来——用户看到的就是「详情页闪一下、图又展开一次」。
@@ -295,10 +301,14 @@ bool openGalleryImageViewerByFileId(
   required String coverHeroTag,
   required String fileId,
   bool instant = false,
+  ValueChanged<int>? onIndexChanged,
 }) {
   final List<ImageItem> imageItems = buildGalleryImageItems(imageModel);
   final int index = imageItems.indexWhere((item) => item.data.id == fileId);
   if (index < 0) return false;
+  // 这条路（预览弹窗直接开大图）落地时清单还停在第 0 张，大图页却已经在第
+  // [index] 张上——先播一次种，之后翻页由大图页自己回报。
+  onIndexChanged?.call(index);
   openGalleryImageViewer(
     context,
     imageItems: imageItems,
@@ -306,6 +316,7 @@ bool openGalleryImageViewerByFileId(
     imageModelId: imageModelId,
     coverHeroTag: coverHeroTag,
     instant: instant,
+    onIndexChanged: onIndexChanged,
   );
   return true;
 }

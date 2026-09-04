@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontal_image_list_controller.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -116,6 +117,10 @@ class HorizontalImageList extends StatefulWidget {
   final List<MenuItem> Function(BuildContext, ImageItem)?
   menuItemsBuilder; // 动态菜单项生成器
 
+  /// 「滚到第几张」的外部把手：大图页翻页时靠它把这条清单同步过去
+  /// （见 [HorizontalImageListController]）。
+  final HorizontalImageListController? listController;
+
   const HorizontalImageList({
     super.key,
     required this.images,
@@ -139,6 +144,7 @@ class HorizontalImageList extends StatefulWidget {
     this.backgroundColor,
     this.wheelScrollFactor = 5.0, // 修改默认滚动系数为更小的值
     this.menuItemsBuilder, // 使用动态菜单项生成器
+    this.listController,
   });
 
   @override
@@ -173,15 +179,117 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     // });
     _showRightButton = widget.images.length > 1;
     _scrollController.addListener(_updateButtonVisibility);
+    widget.listController?.attach(_revealIndex);
+  }
+
+  @override
+  void didUpdateWidget(covariant HorizontalImageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.listController, widget.listController)) {
+      oldWidget.listController?.detach(_revealIndex);
+      widget.listController?.attach(_revealIndex);
+    }
   }
 
   @override
   void dispose() {
+    widget.listController?.detach(_revealIndex);
     _focusNode.dispose(); // Dispose FocusNode
     _ticker?.dispose(); // Dispose ticker
     _scrollController.removeListener(_updateButtonVisibility);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  // ---- 「滚到第几张」----------------------------------------------------
+  //
+  // 这条清单每条的宽度都不一样（高度固定、宽高比逐条算），没有现成的
+  // `scrollToIndex` 可用；`Scrollable.ensureVisible` 也不行——目标多半远在视野
+  // 之外、压根没被建出来，拿不到 context。所以按 build 里那套同样的算法把前面
+  // 每条的宽度加起来，直接落到偏移上。
+  //
+  // 宽高比是图片加载完才知道的（[_loadedAspectRatios]），所以目标下标要**粘住**：
+  // 每次有新的宽高比进来就照着重算一次，直到用户自己动了这条清单为止。
+  int? _revealTarget;
+  double? _viewportHeight;
+
+  void _revealIndex(int index) {
+    if (index < 0 || index >= widget.images.length) return;
+    _revealTarget = index;
+    _applyRevealTarget();
+  }
+
+  void _applyRevealTarget() {
+    final target = _revealTarget;
+    if (target == null) return;
+    if (!mounted) return;
+    // 还没量出高度（首帧之前）或滚动位置还没挂上：等这一帧画完再来。
+    if (_viewportHeight == null || !_scrollController.hasClients) {
+      _scheduleApplyRevealTarget(onlyWhenReady: true);
+      return;
+    }
+    final offset = _offsetForIndex(target, _viewportHeight!);
+    if (offset == null) return;
+    if ((_scrollController.offset - offset).abs() < 0.5) return;
+    _scrollController.jumpTo(offset);
+  }
+
+  bool _revealScheduled = false;
+
+  void _scheduleApplyRevealTarget({bool onlyWhenReady = false}) {
+    if (_revealTarget == null || _revealScheduled) return;
+    _revealScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _revealScheduled = false;
+      if (!mounted) return;
+      // 排完这一帧还是没就绪就作罢：再排下去就是每帧空转一次。
+      if (onlyWhenReady &&
+          (_viewportHeight == null || !_scrollController.hasClients)) {
+        return;
+      }
+      _applyRevealTarget();
+    });
+  }
+
+  /// 把第 [index] 条尽量摆到视野正中要用的偏移；算不出来返回 null。
+  double? _offsetForIndex(int index, double height) {
+    final position = _scrollController.position;
+    if (!position.hasViewportDimension || !position.hasContentDimensions) {
+      return null;
+    }
+    double leading = 0;
+    for (var i = 0; i < index && i < widget.images.length; i++) {
+      leading += _itemWidth(widget.images[i], height);
+    }
+    final itemWidth = _itemWidth(widget.images[index], height);
+    final target = leading - (position.viewportDimension - itemWidth) / 2;
+    return target.clamp(position.minScrollExtent, position.maxScrollExtent);
+  }
+
+  /// 与 [_buildImageItem] 完全同一套算法：左右各一份 padding + 高度 × 宽高比。
+  double _itemWidth(ImageItem item, double height) {
+    final spacing = widget.itemSpacing ?? 8.0;
+    final aspectRatio = _resolveAspectRatio(item);
+    return spacing * 2 + height * aspectRatio;
+  }
+
+  double _resolveAspectRatio(ImageItem item) {
+    final loadedAspectRatio = _loadedAspectRatios[item.url];
+    return widget.aspectRatioBuilder?.call(
+          item,
+          widget.defaultAspectRatio,
+          loadedAspectRatio,
+        ) ??
+        (loadedAspectRatio ?? widget.defaultAspectRatio);
+  }
+
+  /// 用户自己动了这条清单，就别再把他拽回去了。
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      _revealTarget = null;
+    }
+    return false;
   }
 
   void _updateButtonVisibility() {
@@ -194,6 +302,8 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
   void _handleMouseScroll(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
+      // 用户自己滚了，粘住的目标作废（滚轮走 animateTo，不产生拖拽通知）。
+      _revealTarget = null;
       // 优化滚动计算逻辑
       final scrollAmount = event.scrollDelta.dy * widget.wheelScrollFactor;
       final targetOffset = _scrollController.offset + scrollAmount;
@@ -247,6 +357,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        _viewportHeight = constraints.maxHeight;
         // Wrap with Focus to handle keyboard events
         return Focus(
           focusNode: _focusNode,
@@ -291,19 +402,22 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                 // Use Listener for mouse wheel scroll
                 Listener(
                   onPointerSignal: _handleMouseScroll,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: widget.images.length,
-                    itemBuilder: (context, index) {
-                      final imageItem = widget.images[index];
-                      return _buildImageItem(
-                        context,
-                        imageItem,
-                        index,
-                        Size(constraints.maxWidth, constraints.maxHeight),
-                      );
-                    },
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: _handleScrollNotification,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: widget.images.length,
+                      itemBuilder: (context, index) {
+                        final imageItem = widget.images[index];
+                        return _buildImageItem(
+                          context,
+                          imageItem,
+                          index,
+                          Size(constraints.maxWidth, constraints.maxHeight),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 // Scroll buttons (visibility handled by listener)
@@ -334,6 +448,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   }
 
   void _scrollBy(double delta) {
+    _revealTarget = null;
     _scrollController.animateTo(
       (_scrollController.offset + delta).clamp(
         0.0,
@@ -381,14 +496,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     final backgroundColor = widget.backgroundColor;
     final bool hasBackground = backgroundColor != null;
 
-    final loadedAspectRatio = _loadedAspectRatios[imageItem.url];
-    final aspectRatio =
-        widget.aspectRatioBuilder?.call(
-          imageItem,
-          widget.defaultAspectRatio,
-          loadedAspectRatio,
-        ) ??
-        (loadedAspectRatio ?? widget.defaultAspectRatio);
+    final aspectRatio = _resolveAspectRatio(imageItem);
 
     final heroTag = widget.heroTagBuilder?.call(imageItem);
     final BorderRadius itemBorderRadius =
@@ -470,6 +578,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
               setState(() {
                 _loadedAspectRatios[url] = width / height;
               });
+              // 宽度刚刚变了，粘住的目标要照新宽度重新落一次位——要等这一帧
+              // 排完版，不然 maxScrollExtent 还是旧的。
+              _scheduleApplyRevealTarget();
             }
           }),
         );
@@ -511,6 +622,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   }
 
   void _startScrolling() {
+    _revealTarget = null;
     if (!_ticker!.isTicking) {
       _ticker?.start();
     }

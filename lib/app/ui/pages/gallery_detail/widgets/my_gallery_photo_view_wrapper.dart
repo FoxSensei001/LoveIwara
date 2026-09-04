@@ -48,6 +48,7 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
     this.menuItemsBuilder,
     this.enableMenu = true,
     this.heroTagBuilder,
+    this.onIndexChanged,
   }) : standardGalleryItems = standardGalleryItems ?? standardImageItems,
        originalGalleryItems = originalGalleryItems ?? originalImageItems,
        initialQuality = initialQuality ?? galleryImageQualityStandard;
@@ -62,6 +63,18 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
   menuItemsBuilder; // 动态菜单项生成器
   final bool enableMenu; // 是否启用菜单和相关触发
   final Object? Function(ImageItem item)? heroTagBuilder;
+
+  /// 翻到第几张就回报一次。
+  ///
+  /// 图库详情页拿它把底下那条横向清单同步滚过去：这一页是**盖在**详情页上的一层，
+  /// 不同步的话退出来清单还停在当初点进去的那张，位置对不上
+  /// （见 `HorizontalImageListController`）。
+  ///
+  /// ⛔ **进来那一下不报**：那一刻底下的清单正停在用户刚点的那张上，再挪一次
+  /// 就是在入场（淡入 + Hero 起飞）当口把画面里的东西搬走。开局就不在同一张的
+  /// 那条路（预览弹窗直开大图）由调用方自己先播一次种，见
+  /// `openGalleryImageViewerByFileId`。
+  final ValueChanged<int>? onIndexChanged;
 
   @override
   State<MyGalleryPhotoViewWrapper> createState() =>
@@ -82,6 +95,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   ModalRoute<dynamic>? _observedRoute;
   Animation<double>? _routeAnimation;
   bool _suppressNextTapToggle = false;
+  bool _isExiting = false;
   final FocusNode _keyboardFocusNode = FocusNode(debugLabel: 'GalleryViewer');
 
   // Telegram-like drag-to-dismiss state
@@ -306,10 +320,31 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       case AnimationStatus.reverse:
       case AnimationStatus.dismissed:
         _appService?.showSystemUI();
+        _setExiting(true);
       case AnimationStatus.forward:
       case AnimationStatus.completed:
         _appService?.hideSystemUI(hideTitleBar: false);
+        // iOS 侧滑取消（reverse -> forward）会走到这里，退场那套要收回去。
+        _setExiting(false);
     }
+  }
+
+  /// 退场（下拉甩出 / 系统返回 / 关闭钮）时这一页只做一件事：**淡出**。
+  ///
+  /// 两处跟着变：
+  ///   - Hero 关掉（[HeroMode]）。进来那一下的「缩略图长成大图」要留，退出去那一
+  ///     下不要——大图要飞回的是当初点进去的那张缩略图，而用户手上多半已经翻到
+  ///     另一张了，飞回去既对不上、又把黑底压在页面上多演 300ms；
+  ///   - 黑底跟着路由动画一起退（见 [_ExitFadeBackdrop]），不再是「整屏黑着淡」。
+  ///
+  /// 时序：Hero 是在**帧末**（post-frame）才去两条路由的子树里点名的，而这只状态
+  /// 回调在 pop 当场就同步跑完。所以这一次 setState 建出来的树（HeroMode 已关）
+  /// 正好赶在点名之前，退场那一段就不会有 Hero 起飞。
+  void _setExiting(bool value) {
+    if (_isExiting == value) return;
+    setState(() {
+      _isExiting = value;
+    });
   }
 
   @override
@@ -424,6 +459,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       currentIndex = index;
     });
     _galleryControls.updateCurrentIndex(index);
+    widget.onIndexChanged?.call(index);
 
     // 根据当前页面是否是视频来决定是否启用音量键监听
     _updateVolumeKeyListener();
@@ -667,6 +703,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     });
 
     _galleryControls.updateCurrentIndex(currentIndex);
+    widget.onIndexChanged?.call(currentIndex);
     _galleryControls.resetZoom();
     _preloadedImages.clear();
     _pauseAllVideosExcept(currentIndex);
@@ -961,8 +998,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                   },
                 ),
           },
-          child: Container(
-            color: Colors.black.withValues(alpha: backgroundAlpha),
+          child: _ExitFadeBackdrop(
+            alpha: backgroundAlpha,
+            exitFade: _isExiting ? _routeAnimation : null,
             child: Transform.translate(
               offset: Offset(0, _dismissOffset.dy),
               child: Transform.scale(
@@ -1004,96 +1042,102 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                         child: Stack(
                           alignment: Alignment.topCenter,
                           children: [
-                            KeyedSubtree(
-                              key: ValueKey(_activeQuality),
-                              child: PhotoViewGallery.builder(
-                                // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
-                                // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
-                                // 黑底统一由外层 Container 提供。
-                                backgroundDecoration: const BoxDecoration(
-                                  color: Colors.transparent,
-                                ),
-                                scrollPhysics: const BouncingScrollPhysics(),
-                                allowImplicitScrolling: false,
-                                wantKeepAlive: false,
-                                builder: (BuildContext context, int index) {
-                                  final activeItem = activeGalleryItems[index];
-                                  String imageUrl =
-                                      _reloadTimestamps.containsKey(index)
-                                      ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
-                                      : activeItem.data.originalUrl;
+                            HeroMode(
+                              // 入场飞 Hero，退场只淡出（见 [_setExiting]）。
+                              enabled: !_isExiting,
+                              child: KeyedSubtree(
+                                key: ValueKey(_activeQuality),
+                                child: PhotoViewGallery.builder(
+                                  // PhotoView 默认会给每页铺一层不透明黑底，压在外层那层
+                                  // 会随拖拽淡出的黑背景之上 —— 不置空的话拖拽消隐完全看不见。
+                                  // 黑底统一由外层 [_ExitFadeBackdrop] 提供。
+                                  backgroundDecoration: const BoxDecoration(
+                                    color: Colors.transparent,
+                                  ),
+                                  scrollPhysics: const BouncingScrollPhysics(),
+                                  allowImplicitScrolling: false,
+                                  wantKeepAlive: false,
+                                  builder: (BuildContext context, int index) {
+                                    final activeItem =
+                                        activeGalleryItems[index];
+                                    String imageUrl =
+                                        _reloadTimestamps.containsKey(index)
+                                        ? '${activeItem.data.originalUrl}?reload=${_reloadTimestamps[index]}'
+                                        : activeItem.data.originalUrl;
 
-                                  // 检查是否为视频文件
-                                  bool isVideo = _isVideo(imageUrl);
+                                    // 检查是否为视频文件
+                                    bool isVideo = _isVideo(imageUrl);
 
-                                  final heroTag = widget.heroTagBuilder?.call(
-                                    activeItem,
-                                  );
-
-                                  Widget mediaChild = KeyedSubtree(
-                                    key: ValueKey(
-                                      '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
-                                    ),
-                                    child: isVideo
-                                        ? VideoPlayerWidget(
-                                            key: _getVideoPlayerKey(index),
-                                            videoUrl: imageUrl,
-                                            headers: activeItem.headers,
-                                          )
-                                        : imageUrl.startsWith('file://')
-                                        ? Image.file(
-                                            File(
-                                              imageUrl.replaceFirst(
-                                                'file://',
-                                                '',
-                                              ),
-                                            ),
-                                            fit: BoxFit.contain,
-                                          )
-                                        : ImageWidget(
-                                            imageUrl: imageUrl,
-                                            headers: activeItem.headers,
-                                          ),
-                                  );
-
-                                  // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
-                                  // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
-                                  if (!isVideo) {
-                                    mediaChild = ColorVisionFilterWrapper(
-                                      configKey: ConfigKey
-                                          .GALLERY_COLOR_VISION_FILTER_ID,
-                                      child: mediaChild,
+                                    final heroTag = widget.heroTagBuilder?.call(
+                                      activeItem,
                                     );
-                                  }
 
-                                  if (!isVideo && heroTag != null) {
-                                    mediaChild = Hero(
-                                      tag: heroTag,
-                                      child: mediaChild,
-                                    );
-                                  }
-
-                                  return PhotoViewGalleryPageOptions.customChild(
-                                    child: GestureDetector(
-                                      onDoubleTap: () => _galleryControls
-                                          .handleDoubleTap(index),
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: Center(child: mediaChild),
+                                    Widget mediaChild = KeyedSubtree(
+                                      key: ValueKey(
+                                        '${activeItem.data.id}_${_activeQuality}_${_reloadTimestamps[index] ?? 0}',
                                       ),
-                                    ),
-                                    minScale:
-                                        PhotoViewComputedScale.contained * 0.5,
-                                    maxScale:
-                                        PhotoViewComputedScale.covered * 3,
-                                    initialScale:
-                                        PhotoViewComputedScale.contained,
-                                    controller: controllers[index],
-                                  );
-                                },
-                                itemCount: activeGalleryItems.length,
-                                pageController: pageController,
-                                onPageChanged: _onPageChanged,
+                                      child: isVideo
+                                          ? VideoPlayerWidget(
+                                              key: _getVideoPlayerKey(index),
+                                              videoUrl: imageUrl,
+                                              headers: activeItem.headers,
+                                            )
+                                          : imageUrl.startsWith('file://')
+                                          ? Image.file(
+                                              File(
+                                                imageUrl.replaceFirst(
+                                                  'file://',
+                                                  '',
+                                                ),
+                                              ),
+                                              fit: BoxFit.contain,
+                                            )
+                                          : ImageWidget(
+                                              imageUrl: imageUrl,
+                                              headers: activeItem.headers,
+                                            ),
+                                    );
+
+                                    // 图片跟随「图库色觉辅助」独立开关（webm 由播放器
+                                    // 组件内部同键包装，此处仅处理静态图片，避免叠加）。
+                                    if (!isVideo) {
+                                      mediaChild = ColorVisionFilterWrapper(
+                                        configKey: ConfigKey
+                                            .GALLERY_COLOR_VISION_FILTER_ID,
+                                        child: mediaChild,
+                                      );
+                                    }
+
+                                    if (!isVideo && heroTag != null) {
+                                      mediaChild = Hero(
+                                        tag: heroTag,
+                                        child: mediaChild,
+                                      );
+                                    }
+
+                                    return PhotoViewGalleryPageOptions.customChild(
+                                      child: GestureDetector(
+                                        onDoubleTap: () => _galleryControls
+                                            .handleDoubleTap(index),
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          child: Center(child: mediaChild),
+                                        ),
+                                      ),
+                                      minScale:
+                                          PhotoViewComputedScale.contained *
+                                          0.5,
+                                      maxScale:
+                                          PhotoViewComputedScale.covered * 3,
+                                      initialScale:
+                                          PhotoViewComputedScale.contained,
+                                      controller: controllers[index],
+                                    );
+                                  },
+                                  itemCount: activeGalleryItems.length,
+                                  pageController: pageController,
+                                  onPageChanged: _onPageChanged,
+                                ),
                               ),
                             ),
                             SafeArea(
@@ -1228,6 +1272,42 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 这一页的黑底。
+///
+/// 退场时黑底跟着路由动画一起收（[exitFade] 非空即为退场中），而不是整屏黑着
+/// 让外层慢慢淡——后者看上去就是「先黑屏一下再露出下面那页」。只重画这一层，
+/// 不惊动上面那整只 [PhotoViewGallery]。
+class _ExitFadeBackdrop extends StatelessWidget {
+  const _ExitFadeBackdrop({
+    required this.alpha,
+    required this.exitFade,
+    required this.child,
+  });
+
+  final double alpha;
+  final Animation<double>? exitFade;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final fade = exitFade;
+    if (fade == null) {
+      return ColoredBox(
+        color: Colors.black.withValues(alpha: alpha),
+        child: child,
+      );
+    }
+    return AnimatedBuilder(
+      animation: fade,
+      child: child,
+      builder: (context, child) => ColoredBox(
+        color: Colors.black.withValues(alpha: alpha * fade.value),
+        child: child,
       ),
     );
   }

@@ -161,6 +161,9 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         imageModelId: imageModelId,
         coverHeroTag: _galleryCoverHeroTag(imageModelId),
         fileId: fileId,
+        // 大图页里翻页时把底下这条横向清单一起带过去（见
+        // `HorizontalImageListController`）。
+        onIndexChanged: detailController.imageListController.revealIndex,
         // ⛔ 不转场、不飞 Hero：来的那条路上屏幕已经被一帧「和大图页长得一模
         // 一样」的画面钉着（见 media_preview_dialog.dart），大图页要做的是
         // **直接就位**。淡入一次、再飞一段 Hero，都会在撤帧那一刻露出来。

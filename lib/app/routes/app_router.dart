@@ -1289,6 +1289,7 @@ Widget _buildPhotoViewWrapperChild(PhotoViewExtra extra) {
           #originalImageItems: extra.originalImageItems,
           #initialQuality: normalizedInitialQuality,
           #onQualityChanged: extra.onQualityChanged,
+          #onIndexChanged: extra.onIndexChanged,
         })
         as Widget;
   } on NoSuchMethodError {
@@ -1512,6 +1513,13 @@ class PhotoViewExtra {
   final String initialQuality;
   final ValueChanged<String>? onQualityChanged;
 
+  /// 大图页翻到第几张就回报一次。
+  ///
+  /// 图库详情页拿它把底下那条横向清单同步滚过去——大图页是**盖在**详情页上的
+  /// 一层，不同步的话退出来清单还停在当初点进去的那张
+  /// （见 `HorizontalImageListController`）。
+  final ValueChanged<int>? onIndexChanged;
+
   /// **不要转场，直接就位**。
   ///
   /// 从预览弹窗「点开 / 拖出」一张图进来时用：那条路上屏幕已经被一帧「和大图页
@@ -1529,6 +1537,7 @@ class PhotoViewExtra {
     this.originalImageItems,
     this.initialQuality = galleryImageQualityStandard,
     this.onQualityChanged,
+    this.onIndexChanged,
     this.instant = false,
   });
 }

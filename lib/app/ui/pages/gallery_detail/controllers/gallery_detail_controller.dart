@@ -8,6 +8,7 @@ import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontal_image_list_controller.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
@@ -42,6 +43,14 @@ class GalleryDetailController extends GetxController {
   final RxBool isCommentSheetVisible = false.obs;
   final RxBool isDescriptionExpanded = false.obs;
   final RxBool isHoveringHorizontalList = false.obs;
+
+  /// 横向清单的「跟到第几张」把手。
+  ///
+  /// 大图页盖在这一页之上，用户在里面翻到第几张，就经这只把手把底下的清单滚到
+  /// 第几张——退出来落在的正是刚才看的那张，而不是当初点进去的第一张。
+  /// 见 [HorizontalImageListController]。
+  final HorizontalImageListController imageListController =
+      HorizontalImageListController();
 
   // 收藏状态
   final RxBool isInAnyFavorite = false.obs; // 图库是否在任何收藏夹中
