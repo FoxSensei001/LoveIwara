@@ -24,12 +24,13 @@ import java.lang.ref.WeakReference
  * - `present` → `{url, title, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
  *                w, h, positionMs, unsupportedProjection}`
  * - `dismiss` → 收起幕布，只留 UI 面板
- * - `setPlaylist` → `{items: [{id,title,author,durationText,progress,watched,playable}],
- *                    nowPlayingId}`
+ * - `setPlaylist` → `{sections: [{queueId, title, hasMore,
+ *                    items: [{id,title,author,durationText,thumbnailUrl,progress,watched,playable}]}],
+ *                    activeQueueId, nowPlayingId}`
  *
  * Kotlin → Dart（同一条通道）：
  * - `requestPlaylist` → 让 Dart 重新推一次「接着看」
- * - `playItem` `{id}` → 让 Dart 把这条解析成地址再 `present` 回来
+ * - `playItem` `{queueId, id}` → 让 Dart 把详情页换成那条视频，新页再 `present` 回来
  * - `immersiveEnded` `{videoId, positionMs}` → 沉浸播放结束（返回应用 / 退出场景），
  *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
  *
@@ -76,19 +77,32 @@ object XrBridge {
                 "dismiss" -> result.success(ImmersiveBridge.dismiss())
 
                 "setPlaylist" -> {
-                    val raw = call.argument<List<Map<String, Any?>>>("items").orEmpty()
-                    val items = raw.map { row ->
-                        ImmersivePlaylistItem(
-                            id = row["id"] as? String ?: "",
-                            title = row["title"] as? String ?: "",
-                            author = row["author"] as? String ?: "",
-                            durationText = row["durationText"] as? String ?: "",
-                            progress = (row["progress"] as? Number)?.toFloat() ?: 0f,
-                            watched = row["watched"] as? Boolean ?: false,
-                            playable = row["playable"] as? Boolean ?: true,
+                    val rawSections = call.argument<List<Map<String, Any?>>>("sections").orEmpty()
+                    val sections = rawSections.map { sec ->
+                        val raw = sec["items"] as? List<*> ?: emptyList<Any?>()
+                        ImmersivePlaylistSection(
+                            queueId = sec["queueId"] as? String ?: "",
+                            title = sec["title"] as? String ?: "",
+                            hasMore = sec["hasMore"] as? Boolean ?: false,
+                            items = raw.mapNotNull { it as? Map<*, *> }.map { row ->
+                                ImmersivePlaylistItem(
+                                    id = row["id"] as? String ?: "",
+                                    title = row["title"] as? String ?: "",
+                                    author = row["author"] as? String ?: "",
+                                    durationText = row["durationText"] as? String ?: "",
+                                    thumbnailUrl = row["thumbnailUrl"] as? String ?: "",
+                                    progress = (row["progress"] as? Number)?.toFloat() ?: 0f,
+                                    watched = row["watched"] as? Boolean ?: false,
+                                    playable = row["playable"] as? Boolean ?: true,
+                                )
+                            }.filter { it.id.isNotEmpty() },
                         )
-                    }.filter { it.id.isNotEmpty() }
-                    ImmersiveBridge.setPlaylist(items, call.argument<String>("nowPlayingId"))
+                    }.filter { it.queueId.isNotEmpty() }
+                    ImmersiveBridge.setPlaylist(
+                        sections,
+                        activeQueueId = call.argument<String>("activeQueueId"),
+                        nowPlayingId = call.argument<String>("nowPlayingId"),
+                    )
                     result.success(true)
                 }
 
@@ -121,9 +135,18 @@ data class ImmersivePlaylistItem(
     val title: String,
     val author: String,
     val durationText: String,
+    val thumbnailUrl: String,
     val progress: Float,
     val watched: Boolean,
     val playable: Boolean,
+)
+
+/** 「接着看」的一个分区 = 详情页的一个视频池。 */
+data class ImmersivePlaylistSection(
+    val queueId: String,
+    val title: String,
+    val hasMore: Boolean,
+    val items: List<ImmersivePlaylistItem>,
 )
 
 /**
@@ -193,12 +216,18 @@ object ImmersiveBridge {
     private var pending: ImmersiveVideoRequest? = null
 
     /** 场景还没就绪时先攒着的播放列表。 */
-    private var pendingPlaylist: Pair<List<ImmersivePlaylistItem>, String?>? = null
+    private var pendingPlaylist: PendingPlaylist? = null
+
+    private class PendingPlaylist(
+        val sections: List<ImmersivePlaylistSection>,
+        val activeQueueId: String?,
+        val nowPlayingId: String?,
+    )
 
     interface Listener {
         fun onPresent(request: ImmersiveVideoRequest)
         fun onDismiss()
-        fun onPlaylist(items: List<ImmersivePlaylistItem>, nowPlayingId: String?)
+        fun onPlaylist(sections: List<ImmersivePlaylistSection>, activeQueueId: String?, nowPlayingId: String?)
     }
 
     /** 场景就绪。返回时会把等待中的请求补投一次。 */
@@ -207,7 +236,7 @@ object ImmersiveBridge {
         isSceneAlive = true
         pendingPlaylist?.let {
             pendingPlaylist = null
-            listener.onPlaylist(it.first, it.second)
+            listener.onPlaylist(it.sections, it.activeQueueId, it.nowPlayingId)
         }
         pending?.let {
             pending = null
@@ -241,12 +270,12 @@ object ImmersiveBridge {
         return true
     }
 
-    fun setPlaylist(items: List<ImmersivePlaylistItem>, nowPlayingId: String?) {
+    fun setPlaylist(sections: List<ImmersivePlaylistSection>, activeQueueId: String?, nowPlayingId: String?) {
         val target = listener
         if (target == null) {
-            pendingPlaylist = items to nowPlayingId
+            pendingPlaylist = PendingPlaylist(sections, activeQueueId, nowPlayingId)
         } else {
-            target.onPlaylist(items, nowPlayingId)
+            target.onPlaylist(sections, activeQueueId, nowPlayingId)
         }
     }
 
@@ -280,13 +309,19 @@ object ImmersiveBridge {
         }
     }
 
-    /** 请 Dart 把这条解析成可播地址，然后它会自己 `present` 回来。 */
-    fun requestPlayItem(id: String) {
+    /**
+     * 请 Dart 播放 [queueId] 池里的 [id]：Dart 会把详情页换成那条视频，新页把片源 present 回来。
+     *
+     * ⛔ 换页要 Flutter 出帧（build 新页面、起播放器），所以这里**先把面板的出帧恢复**；
+     * 新页 present 到场景后，沉浸 Activity 会在 rebuildScreen 里再把它停掉。
+     */
+    fun requestPlayItem(queueId: String, id: String) {
         val channel = channelRef?.get()
         if (channel == null) {
             Log.w(TAG, "XR requestPlayItem 但通道已不在 id=$id")
             return
         }
-        mainHandler.post { channel.invokeMethod("playItem", mapOf("id" to id)) }
+        setPanelRenderingPaused(false)
+        mainHandler.post { channel.invokeMethod("playItem", mapOf("queueId" to queueId, "id" to id)) }
     }
 }

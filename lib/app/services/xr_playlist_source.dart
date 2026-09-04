@@ -1,6 +1,9 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
@@ -49,6 +52,59 @@ class XrPlaylistSource {
       limit: limit,
     );
     return items.map(XrPlaylistEntry.fromWatchLater).toList(growable: false);
+  }
+
+  /// 兜底：没有详情页在场时，「接着看」就是稍后再看这一个分区。
+  ///
+  /// 分区 id 是自定的哨兵，原生侧点选时 Dart 认不出这个池，会走「直接解析地址」那条路。
+  static List<XrPlaylistSection> fallbackSections() => [
+    XrPlaylistSection(
+      queueId: fallbackQueueId,
+      title: slang.t.watchLater.title,
+      hasMore: false,
+      items: watchLaterEntries(),
+    ),
+  ];
+
+  static const String fallbackQueueId = 'xr:watchLater';
+
+  /// 详情页交来的视频池 → 沉浸面板的分区。图库池不进（沉浸空间没有承载形式）。
+  static List<XrPlaylistSection> sectionsFromQueues(List<PlaybackQueue> queues) {
+    return queues
+        .where((q) => !q.mediaType.isGallery)
+        .map(
+          (q) => XrPlaylistSection(
+            queueId: q.queueId,
+            title: _queueTitle(q),
+            hasMore: q.hasMore,
+            items: q.loaded
+                .map(XrPlaylistEntry.fromSnapshot)
+                .toList(growable: false),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  /// 分区标题：与详情页抽屉里的池名同一套文案。
+  static String _queueTitle(PlaybackQueue queue) {
+    final t = slang.t;
+    final custom = queue.title?.trim();
+    return switch (queue.kind) {
+      PlaybackQueueKind.source => t.playbackQueue.sourceTab,
+      PlaybackQueueKind.subscriptions => t.common.subscriptions,
+      PlaybackQueueKind.playlist =>
+        custom == null || custom.isEmpty ? t.common.playList : custom,
+      PlaybackQueueKind.authorVideos => t.playbackQueue.authorVideos,
+      PlaybackQueueKind.authorGalleries => t.playbackQueue.authorGalleries,
+      PlaybackQueueKind.favorites => t.common.favorites,
+      PlaybackQueueKind.localFavorite =>
+        custom == null || custom.isEmpty ? t.favorite.localizeFavorite : custom,
+      PlaybackQueueKind.downloads =>
+        custom == null || custom.isEmpty
+            ? t.playbackQueue.downloads
+            : '${t.playbackQueue.downloads} · $custom',
+      PlaybackQueueKind.watchLater => t.watchLater.title,
+    };
   }
 
   /// 把一条视频解析成沉浸场景能直接吃的东西。解析不出来返回 null。
@@ -123,6 +179,7 @@ class XrPlaylistEntry {
     required this.title,
     required this.author,
     required this.durationText,
+    required this.thumbnailUrl,
     required this.progressRatio,
     required this.watched,
     required this.playable,
@@ -132,6 +189,7 @@ class XrPlaylistEntry {
   final String title;
   final String author;
   final String durationText;
+  final String thumbnailUrl;
   final double progressRatio;
   final bool watched;
   final bool playable;
@@ -142,16 +200,35 @@ class XrPlaylistEntry {
         title: item.title,
         author: item.author ?? '',
         durationText: _formatDuration(item.durationMs),
+        thumbnailUrl: item.thumbnailUrl ?? '',
         progressRatio: item.progressRatio,
         watched: item.isWatched,
         playable: !item.isExternal,
       );
+
+  /// 视频池里的一条快照。「看完」按进度 ≥ 95% 判，与稍后再看的口径一致。
+  factory XrPlaylistEntry.fromSnapshot(InnerPlaylistItemSnapshot item) {
+    final progress = (item.progressPermil / 1000).clamp(0.0, 1.0).toDouble();
+    return XrPlaylistEntry(
+      id: item.id,
+      title: item.title,
+      author: item.authorName ?? '',
+      durationText: _formatDuration(
+        item.durationSeconds == null ? null : item.durationSeconds! * 1000,
+      ),
+      thumbnailUrl: item.thumbnailUrl,
+      progressRatio: progress,
+      watched: progress >= 0.95,
+      playable: !item.isExternalVideo,
+    );
+  }
 
   Map<String, dynamic> toChannelMap() => {
     'id': id,
     'title': title,
     'author': author,
     'durationText': durationText,
+    'thumbnailUrl': thumbnailUrl,
     'progress': progressRatio,
     'watched': watched,
     'playable': playable,
@@ -186,4 +263,26 @@ class XrPlayableVideo {
   final VrSourceFormat format;
   final int width;
   final int height;
+}
+
+/// 沉浸面板「接着看」的一个分区 = 详情页的一个视频池。
+class XrPlaylistSection {
+  const XrPlaylistSection({
+    required this.queueId,
+    required this.title,
+    required this.hasMore,
+    required this.items,
+  });
+
+  final String queueId;
+  final String title;
+  final bool hasMore;
+  final List<XrPlaylistEntry> items;
+
+  Map<String, dynamic> toChannelMap() => {
+    'queueId': queueId,
+    'title': title,
+    'hasMore': hasMore,
+    'items': items.map((e) => e.toChannelMap()).toList(),
+  };
 }

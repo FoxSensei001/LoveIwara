@@ -2521,6 +2521,7 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get playInSpace => '在空间播放器中播放';
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
@@ -6369,6 +6370,7 @@ extension on TranslationsZhCn {
 			'playbackQueue.downloads' => '已下载',
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
+			'vrFormat.playInSpace' => '在空间播放器中播放',
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',

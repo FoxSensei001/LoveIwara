@@ -2521,6 +2521,7 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get playInSpace => '空間プレイヤーで再生';
 	@override String get title => '再生モード';
 	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
 	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
@@ -6369,6 +6370,7 @@ extension on TranslationsJa {
 			'playbackQueue.downloads' => 'ダウンロード済み',
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
+			'vrFormat.playInSpace' => '空間プレイヤーで再生',
 			'vrFormat.title' => '再生モード',
 			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',
 			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',

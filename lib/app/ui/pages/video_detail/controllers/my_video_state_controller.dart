@@ -1172,6 +1172,30 @@ class MyVideoStateController extends GetxController
     videoLoadingSpeedBytesPerSecond.value = null;
   }
 
+  /// 用户在详情页封面上点了「播放」——片源一就绪就交给空间播放器。
+  bool _immersiveRequested = false;
+
+  /// 沉浸场景此刻可用（Quest 且场景活着）。standard 变体恒为 false。
+  bool get _xrImmersiveAvailable =>
+      Get.isRegistered<XrImmersiveService>() &&
+      Get.find<XrImmersiveService>().available.value;
+
+  /// 详情页封面上的「播放」：把当前视频交给空间播放器。
+  ///
+  /// 片源已经打开就直接交；还没打开（Quest 上首次进入不自动起播）就先走
+  /// [requestInitialPlayback]，打开完成的收口点会把它交出去。
+  Future<void> presentInImmersive() async {
+    if (_isDisposed) return;
+    _immersiveRequested = true;
+    final url = currentMediaSource;
+    if (url != null && url.isNotEmpty && Get.isRegistered<XrImmersiveService>()) {
+      _immersiveHandOffGeneration = _mediaSourceGeneration;
+      await _handOffToImmersive(Get.find<XrImmersiveService>(), url);
+      return;
+    }
+    await requestInitialPlayback();
+  }
+
   /// 已经交给空间播放器的那一代媒体源。同一条片子只交一次；换清晰度 / 换源会生成
   /// 新的一代，届时再交一次（沉浸侧按 url 判断是否同一条片，不会重载）。
   int? _immersiveHandOffGeneration;
@@ -1186,6 +1210,9 @@ class MyVideoStateController extends GetxController
     if (!Get.isRegistered<XrImmersiveService>()) return;
     final xr = Get.find<XrImmersiveService>();
     if (!xr.available.value || !xr.autoEnterEnabled) return;
+    // Quest 上详情页的播放器区域是一张封面 + 播放钮：用户没点播放、也不是从「接着看」
+    // 换片进来（forceAutoPlay）的，片源开了也不交出去。
+    if (!forceAutoPlay && !_immersiveRequested) return;
     final url = currentMediaSource;
     if (url == null || url.isEmpty) return;
     _immersiveHandOffGeneration = generation;
@@ -1629,7 +1656,9 @@ class MyVideoStateController extends GetxController
 
   bool get _shouldAutoPlayOnInitialEntry =>
       forceAutoPlay ||
-      (_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool);
+      // Quest 上播放器区域只是封面，进页面不起播（起了也只是白占带宽），等用户点播放。
+      (!_xrImmersiveAvailable &&
+          (_configService[ConfigKey.AUTO_PLAY_VIDEO_ON_FIRST_ENTER] as bool));
 
   bool get _shouldKeepInitialPlaybackDeferred =>
       !isLocalVideoMode &&

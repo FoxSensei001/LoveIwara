@@ -2835,6 +2835,7 @@ playbackQueue:
   nothingHere: Nothing here
 
 vrFormat:
+  playInSpace: Play in the spatial player
   title: Playback mode
   autoEnterImmersive: Open videos in the spatial player
   autoEnterImmersiveDesc: On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.

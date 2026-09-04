@@ -6317,6 +6317,9 @@ class TranslationsVrFormatEn {
 
 	// Translations
 
+	/// en: 'Play in the spatial player'
+	String get playInSpace => 'Play in the spatial player';
+
 	/// en: 'Playback mode'
 	String get title => 'Playback mode';
 
@@ -11686,6 +11689,7 @@ extension on Translations {
 			'playbackQueue.downloads' => 'Downloaded',
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
+			'vrFormat.playInSpace' => 'Play in the spatial player',
 			'vrFormat.title' => 'Playback mode',
 			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
 			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',

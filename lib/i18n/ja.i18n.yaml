@@ -2837,6 +2837,7 @@ playbackQueue:
   nothingHere: 何もありません
 
 vrFormat:
+  playInSpace: 空間プレイヤーで再生
   title: 再生モード
   autoEnterImmersive: 動画を空間プレイヤーで開く
   autoEnterImmersiveDesc: Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。

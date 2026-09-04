@@ -2835,6 +2835,7 @@ playbackQueue:
   nothingHere: 暂无内容
 
 vrFormat:
+  playInSpace: 在空间播放器中播放
   title: 播放模式
   autoEnterImmersive: 打开视频自动进入空间播放器
   autoEnterImmersiveDesc: 在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。

@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/playback_queue_navigator.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/xr_playlist_source.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -43,12 +46,19 @@ class XrImmersiveService extends GetxService {
   bool get autoEnterEnabled =>
       Get.find<ConfigService>()[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] == true;
 
+  /// 当前活着的视频详情页把它的「接着看」视频池交在这里；沉浸面板的播放列表就是这份。
+  ///
+  /// 没有页面挂着时退回「稍后再看」（[XrPlaylistSource.fallbackSections]）。
+  XrQueueSnapshot Function()? queueProvider;
+
   @override
   void onInit() {
     super.onInit();
     // ⛔ 无条件挂：standard 变体没注册这条通道，原生侧永远不会回调过来，
     // 挂一个处理器不会有任何副作用。调用点因此不需要 `if (isQuest)`。
     _channel.setMethodCallHandler(_onNativeCall);
+    // 启动时就问一次：第一张详情页在 onInit 里要靠这个缓存值决定「进页面起不起播」。
+    unawaited(refreshAvailability());
   }
 
   Future<void> refreshAvailability() async {
@@ -65,11 +75,14 @@ class XrImmersiveService extends GetxService {
   Future<dynamic> _onNativeCall(MethodCall call) async {
     switch (call.method) {
       case 'requestPlaylist':
-        await pushWatchLaterQueue();
+        await pushQueues();
         return true;
       case 'playItem':
-        final id = (call.arguments as Map?)?['id'] as String?;
-        return await playFromPlaylist(id ?? '');
+        final args = call.arguments as Map?;
+        return await playQueueItem(
+          queueId: (args?['queueId'] as String?) ?? '',
+          videoId: (args?['id'] as String?) ?? '',
+        );
       case 'immersiveEnded':
         final args = call.arguments as Map?;
         final id = (args?['videoId'] as String?)?.trim() ?? '';
@@ -97,15 +110,21 @@ class XrImmersiveService extends GetxService {
 
   // ────────────────────────────────────────────── 播放列表
 
-  /// 把「接着看」推给沉浸面板。
-  ///
-  /// 读库是同步的（sqlite3 本地库），所以这里没有真正的异步等待 ——
-  /// `async` 只是为了那次 `invokeMethod`。
-  Future<void> pushWatchLaterQueue() async {
+  /// 把「接着看」推给沉浸面板：详情页交来的视频池按池分区，没有页面时退回稍后再看。
+  Future<void> pushQueues() async {
     try {
-      final entries = XrPlaylistSource.watchLaterEntries();
+      final snapshot = queueProvider?.call();
+      final List<XrPlaylistSection> sections;
+      String? activeQueueId;
+      if (snapshot != null && snapshot.queues.isNotEmpty) {
+        sections = XrPlaylistSource.sectionsFromQueues(snapshot.queues);
+        activeQueueId = snapshot.active?.queueId;
+      } else {
+        sections = XrPlaylistSource.fallbackSections();
+      }
       await _channel.invokeMethod<void>('setPlaylist', {
-        'items': entries.map((e) => e.toChannelMap()).toList(),
+        'sections': sections.map((e) => e.toChannelMap()).toList(),
+        'activeQueueId': activeQueueId ?? sections.firstOrNull?.queueId,
         'nowPlayingId': nowPlayingId,
       });
     } on MissingPluginException {
@@ -113,6 +132,31 @@ class XrImmersiveService extends GetxService {
     } catch (e) {
       LogUtils.d('推送沉浸播放列表失败: $e', 'XrImmersive');
     }
+  }
+
+  /// 沉浸面板里点了某个池的某一条。
+  ///
+  /// 走 [PlaybackQueueNavigator]：把详情页换成那条视频（用户要求「切换了接着看的视频，
+  /// 也要把详情页替换掉」），新页带 `forceAutoPlay` 进来，片源一开就会自己 present 回沉浸空间。
+  /// 原生侧在发这条请求前已经把面板的出帧恢复了，所以换页能正常 build。
+  /// 池认不出来（稍后再看兜底列表、或池已被淘汰）时退回「直接解析地址」那条老路。
+  Future<bool> playQueueItem({
+    required String queueId,
+    required String videoId,
+  }) async {
+    if (videoId.isEmpty) return false;
+    final queue = queueId.isEmpty ? null : PlaybackQueueService.to.byId(queueId);
+    final item = queue?.loaded.firstWhereOrNull((e) => e.id == videoId);
+    if (queue != null && item != null) {
+      await PlaybackQueueNavigator.playItem(
+        queue: queue,
+        item: item,
+        skipWatched: false,
+      );
+      return true;
+    }
+    LogUtils.d('沉浸态换片：池 $queueId 里找不到 $videoId，退回直接解析', 'XrImmersive');
+    return playFromPlaylist(videoId);
   }
 
   /// 沉浸面板里点了列表中的某一条。
@@ -184,7 +228,7 @@ class XrImmersiveService extends GetxService {
       nowPlayingId = videoId;
       // 幕布一亮就把「接着看」推过去：面板里的播放列表页要能立刻用，
       // 而不是等用户点开那一页时才现拉（那时 Flutter 已经停止出帧了）。
-      unawaited(pushWatchLaterQueue());
+      unawaited(pushQueues());
       return ok ?? false;
     } on MissingPluginException {
       return false;
@@ -224,3 +268,10 @@ class XrImmersiveService extends GetxService {
     VrStereoLayout.mono => 'none',
   };
 }
+
+/// 详情页交给沉浸面板的「接着看」快照。
+typedef XrQueueSnapshot = ({
+  List<PlaybackQueue> queues,
+  PlaybackQueue? active,
+  String currentItemId,
+});

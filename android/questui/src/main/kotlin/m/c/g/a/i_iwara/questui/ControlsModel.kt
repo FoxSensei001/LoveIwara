@@ -197,19 +197,36 @@ fun speedLabel(speed: Float): String =
 // ─────────────────────────────────────────────────────────── 播放列表
 
 /**
- * 播放列表里的一条。数据来自应用已有的「稍后再看」，由 Dart 侧一次性推过来。
- * 只有文字没有缩略图（缩略图要往 `:questui` 引图片加载库，另一条线）。
+ * 「接着看」里的一条。数据来自详情页正在用的视频池，由 Dart 侧一次性推过来。
  */
 data class PlaylistEntry(
     val id: String,
     val title: String,
     val author: String,
     val durationText: String,
+    /** 封面地址；空串表示没有。 */
+    val thumbnailUrl: String,
     /** 0..1。已看完的按满格。 */
     val progressRatio: Float,
     val watched: Boolean,
     /** 站外视频（youtube 一类的嵌入）放不了，列出来但点不动。 */
     val playable: Boolean,
+)
+
+/**
+ * 「接着看」的一个分区 = 详情页里的一个视频池（来源 / 播放列表 / 稍后再看 / 作者作品 …）。
+ *
+ * 详情页里的「接着看」抽屉就是按池分 tab 的，沉浸面板照搬同一套，用户在两边看到的是同一份东西
+ * （用户 2026-09-05：「把详情页里接着看的那些信息带进去」）。
+ *
+ * @property queueId 池的稳定标识，选片时原样带回 Dart。
+ * @property hasMore 池还有下一页（本期只展示已加载部分）。
+ */
+data class PlaylistSection(
+    val queueId: String,
+    val title: String,
+    val entries: List<PlaylistEntry>,
+    val hasMore: Boolean,
 )
 
 // ─────────────────────────────────────────────────────────── 状态
@@ -291,9 +308,15 @@ class VideoControlsState {
     var heightRatio by mutableStateOf(1f)
 
     // ---- 播放列表 ----
-    val playlist = mutableStateListOf<PlaylistEntry>()
+    val playlistSections = mutableStateListOf<PlaylistSection>()
+
+    /** 当前选中的分区（= 详情页的当前池）。null 时取第一个。 */
+    var activeQueueId by mutableStateOf<String?>(null)
     var nowPlayingId by mutableStateOf<String?>(null)
     var playlistLoading by mutableStateOf(false)
+
+    val activeSection: PlaylistSection?
+        get() = playlistSections.firstOrNull { it.queueId == activeQueueId } ?: playlistSections.firstOrNull()
 
     // ---- 设置 ----
     var repeatMode by mutableStateOf(RepeatMode.ONE)
@@ -366,7 +389,10 @@ interface VideoControlsCallbacks {
     fun onResetAspect()
 
     // ---- 播放列表 ----
-    fun onPlayEntry(id: String)
+
+    /** 点了 [queueId] 这个池里的 [id]。Dart 会把详情页换成那条视频，并重新 present。 */
+    fun onPlayEntry(queueId: String, id: String)
+    fun onPickPlaylistSection(queueId: String)
     fun onPlayAdjacent(forward: Boolean)
     fun onRefreshPlaylist()
 

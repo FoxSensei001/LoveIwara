@@ -55,4 +55,6 @@ dependencies {
     // Meta Horizon OS UI Set：官方组件库，命中尺寸与 hit slop 内建。
     // SpatialSliderLarge 官方明写用于 "seeking through media"。
     implementation 'com.meta.spatial:meta-spatial-sdk-uiset:0.13.2'
+    // 「接着看」的封面。只进 quest 变体（本模块只被 questImplementation 依赖），standard 包不受影响。
+    implementation 'io.coil-kt:coil-compose:2.7.0'
 }

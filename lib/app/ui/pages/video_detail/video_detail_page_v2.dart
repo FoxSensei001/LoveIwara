@@ -33,6 +33,9 @@ import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
@@ -274,6 +277,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       _activeQueue = handedOver;
       handedOver.addListener(_onActiveQueueChanged);
       controller.onPlaybackCompleted = _advanceInQueue;
+    _syncImmersiveQueues();
       return;
     }
 
@@ -326,6 +330,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     // 播完之后接着播池里的下一条。只有「池内续播」开着时才会被调到（判定在
     // controller 里），池到底了就什么都不做——停在最后一条，恢复暂停/重播语义。
     controller.onPlaybackCompleted = _advanceInQueue;
+    _syncImmersiveQueues();
   }
 
   void _onActiveQueueChanged() {
@@ -412,6 +417,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       selection.queue.addListener(_onActiveQueueChanged);
     }
     _activeQueue = selection.queue;
+    _syncImmersiveQueues();
     final inFullscreen = controller.isFullscreen.value;
     await PlaybackQueueNavigator.playItem(
       queue: selection.queue,
@@ -504,6 +510,10 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
   @override
   void dispose() {
+    if (Get.isRegistered<XrImmersiveService>()) {
+      final xr = Get.find<XrImmersiveService>();
+      if (xr.queueProvider == _immersiveQueueSnapshot) xr.queueProvider = null;
+    }
     LogUtils.w('dispose start: uniqueTag=$uniqueTag', 'MyVideoDetailPage');
     // _activeQueue 一定在 _queues 里，不用再单独摘一次。
     for (final queue in _queues) {
@@ -907,6 +917,73 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     });
   }
 
+  bool get _immersiveAvailable =>
+      Get.isRegistered<XrImmersiveService>() &&
+      Get.find<XrImmersiveService>().available.value;
+
+  /// Quest 上代替播放器的那块：封面 + 播放钮 + 「接着看」。
+  Widget _buildImmersiveCover() {
+    final t = slang.Translations.of(context);
+    return Obx(() {
+      final info = controller.videoInfo.value;
+      final thumb = info?.thumbnailUrl ?? '';
+      return Container(
+        color: Colors.black,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (thumb.isNotEmpty)
+              CachedNetworkImage(imageUrl: thumb, fit: BoxFit.cover),
+            Container(color: Colors.black.withValues(alpha: 0.35)),
+            Center(
+              child: GlassIconButton(
+                icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
+                tooltip: t.vrFormat.playInSpace,
+                standalone: true,
+                size: 96,
+                iconSize: 52,
+                onPressed: controller.presentInImmersive,
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 16,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.vrFormat.playInSpace,
+                      style: const TextStyle(color: Colors.white70, fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (_hasPlaybackQueue)
+                    GlassTextActionButton(
+                      label: t.playbackQueue.openQueue,
+                      onPressed: _openQueueDrawer,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  /// 把本页的视频池交给沉浸面板（那边的「接着看」就是这份）。
+  void _syncImmersiveQueues() {
+    if (!Get.isRegistered<XrImmersiveService>()) return;
+    final xr = Get.find<XrImmersiveService>();
+    xr.queueProvider = _immersiveQueueSnapshot;
+    if (xr.available.value) unawaited(xr.pushQueues());
+  }
+
+  XrQueueSnapshot _immersiveQueueSnapshot() =>
+      (queues: _queues, active: _activeQueue, currentItemId: _queueItemId);
+
   /// 本页**唯一**的播放器构造点（内嵌、宽屏、全屏叠加层、PiP 都走这里）。
   ///
   /// ⛔ 「接着看」把手一度只在全屏出现，根因就是这几处各写各的：全屏与 PiP 那
@@ -918,6 +995,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     bool enableBottomSafeArea = false,
     InnerPlaylistContext? innerPlaylistContext,
   }) {
+    // Quest：播放器区域不装播放器。视频在沉浸空间的幕布上放，这里只是封面 + 播放钮 +
+    // 「接着看」入口（用户 2026-09-05 定的）。露出条件只问「沉浸场景在不在」。
+    if (!isFullScreen && _immersiveAvailable) {
+      return _buildImmersiveCover();
+    }
     return MyVideoScreen(
       myVideoStateController: controller,
       isFullScreen: isFullScreen,

@@ -53,6 +53,7 @@ import m.c.g.a.i_iwara.questui.ControlsRoute
 import m.c.g.a.i_iwara.questui.FormatTab
 import m.c.g.a.i_iwara.questui.PLAYBACK_SPEEDS
 import m.c.g.a.i_iwara.questui.PlaylistEntry
+import m.c.g.a.i_iwara.questui.PlaylistSection
 import m.c.g.a.i_iwara.questui.RepeatMode
 import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
@@ -63,6 +64,7 @@ import m.c.g.a.i_iwara.questui.createBufferingView
 import m.c.g.a.i_iwara.questui.createVideoControlsView
 import m.c.g.a.i_iwara.xr.ImmersiveBridge
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
+import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
 import kotlin.math.abs
 
@@ -203,8 +205,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** 被系统事件（系统菜单 / 摘下头显）暂停的，回来要续播。 */
     private var pausedBySystem = false
 
-    private var playlist: List<ImmersivePlaylistItem> = emptyList()
+    private var playlistSections: List<ImmersivePlaylistSection> = emptyList()
     private var nowPlayingId: String? = null
+
+    private val activeSection: ImmersivePlaylistSection?
+        get() = playlistSections.firstOrNull { it.queueId == controls.activeQueueId } ?: playlistSections.firstOrNull()
 
     // ================================================================ 生命周期
 
@@ -411,18 +416,27 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             }
         }
 
-        override fun onPlaylist(items: List<ImmersivePlaylistItem>, playingId: String?) {
+        override fun onPlaylist(sections: List<ImmersivePlaylistSection>, activeQueueId: String?, playingId: String?) {
             runOnUiThread {
-                playlist = items
+                playlistSections = sections
                 if (playingId != null) nowPlayingId = playingId
                 controls.playlistLoading = false
                 controls.nowPlayingId = nowPlayingId
-                controls.playlist.clear()
-                controls.playlist.addAll(
-                    items.map {
-                        PlaylistEntry(
-                            id = it.id, title = it.title, author = it.author, durationText = it.durationText,
-                            progressRatio = it.progress, watched = it.watched, playable = it.playable,
+                if (activeQueueId != null || controls.activeQueueId == null) controls.activeQueueId = activeQueueId
+                controls.playlistSections.clear()
+                controls.playlistSections.addAll(
+                    sections.map { sec ->
+                        PlaylistSection(
+                            queueId = sec.queueId,
+                            title = sec.title,
+                            hasMore = sec.hasMore,
+                            entries = sec.items.map {
+                                PlaylistEntry(
+                                    id = it.id, title = it.title, author = it.author, durationText = it.durationText,
+                                    thumbnailUrl = it.thumbnailUrl, progressRatio = it.progress,
+                                    watched = it.watched, playable = it.playable,
+                                )
+                            },
                         )
                     },
                 )
@@ -985,10 +999,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onEnded() {
         runOnUiThread {
             if (controls.repeatMode == RepeatMode.NEXT) {
-                adjacentPlayable(forward = true)?.let {
-                    controls.playlistLoading = true
-                    ImmersiveBridge.requestPlayItem(it.id)
-                }
+                adjacentPlayable(forward = true)?.let { (queueId, item) -> playFromQueue(queueId, item.id) }
             }
         }
     }
@@ -1075,16 +1086,26 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    private fun adjacentPlayable(forward: Boolean): ImmersivePlaylistItem? {
-        if (playlist.isEmpty()) return null
-        val current = playlist.indexOfFirst { it.id == nowPlayingId }
+    /** 当前分区里、正在放的那条前后最近的一条可播项。 */
+    private fun adjacentPlayable(forward: Boolean): Pair<String, ImmersivePlaylistItem>? {
+        val section = activeSection ?: return null
+        val items = section.items
+        if (items.isEmpty()) return null
+        val current = items.indexOfFirst { it.id == nowPlayingId }
         val step = if (forward) 1 else -1
-        var i = if (current < 0) (if (forward) -1 else playlist.size) else current
+        var i = if (current < 0) (if (forward) -1 else items.size) else current
         while (true) {
             i += step
-            if (i < 0 || i >= playlist.size) return null
-            if (playlist[i].playable) return playlist[i]
+            if (i < 0 || i >= items.size) return null
+            if (items[i].playable) return section.queueId to items[i]
         }
+    }
+
+    private fun playFromQueue(queueId: String, id: String) {
+        controls.playlistLoading = true
+        controls.buffering = true
+        syncBufferingIndicator()
+        ImmersiveBridge.requestPlayItem(queueId, id)
     }
 
     // ================================================================ 面板动作
@@ -1279,18 +1300,22 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             requestShape(CURVE_ANIM_MS)
         }
 
-        override fun onPlayEntry(id: String) {
+        override fun onPlayEntry(queueId: String, id: String) {
             touched()
             if (id == nowPlayingId) return
-            controls.playlistLoading = true
-            ImmersiveBridge.requestPlayItem(id)
+            controls.activeQueueId = queueId
+            playFromQueue(queueId, id)
+        }
+
+        override fun onPickPlaylistSection(queueId: String) {
+            touched()
+            controls.activeQueueId = queueId
         }
 
         override fun onPlayAdjacent(forward: Boolean) {
             touched()
-            val target = adjacentPlayable(forward) ?: return
-            controls.playlistLoading = true
-            ImmersiveBridge.requestPlayItem(target.id)
+            val (queueId, item) = adjacentPlayable(forward) ?: return
+            playFromQueue(queueId, item.id)
         }
 
         override fun onRefreshPlaylist() {
@@ -1347,7 +1372,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.route = route
             controls.volumePopupOpen = false
             if (route == ControlsRoute.PLAYLIST) {
-                controls.playlistLoading = playlist.isEmpty()
+                controls.playlistLoading = playlistSections.isEmpty()
                 ImmersiveBridge.requestPlaylist()
             }
         }
