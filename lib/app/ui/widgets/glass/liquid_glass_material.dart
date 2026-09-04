@@ -83,7 +83,20 @@ import 'package:i_iwara/utils/glass_perf_knobs.dart';
 enum GlassBackend {
   /// 传统档：半透明底色 + 细描边（无外投影），不采样背景，零 shader 成本。
   /// 全 App 的默认值。
+  ///
+  /// ⚠️ 它是**液态档内部的「便宜档」**，不是用户在设置里选的那个 Material 档：
+  /// 弹窗正文、底部弹层、抽屉动作栏、带 header 的列表本体这些进不了 lens 的
+  /// 地方走它，取值（半透明 + 细描边）是照着「和身边的真玻璃对得上话」调的。
+  /// 用户选 Material 时全站走 [material]，那一档不继承玻璃的语言。
+  /// 「这里要便宜档」请一律走 [flatGlassBackend]，别写死本值。
   plain,
+
+  /// Material 档：不透明 `surfaceContainerHigh` 面、**无描边、无投影、无形变**，
+  /// 层级差别交给 M3 的 surface container 色阶（tonal elevation）。
+  ///
+  /// 用户在主题设置里选「Material」时，全站（chrome / 面板 / 弹窗内的键）
+  /// 都是这一档，见 [GlassMaterialMode.material]。取值见 [GlassTokens.materialFill]。
+  material,
 
   /// `liquid_glass_easy` 的折射透镜（[LiquidGlassBox]）。
   ///
@@ -101,14 +114,19 @@ enum GlassBackend {
   liquidWidgets,
 }
 
-/// 全局玻璃材质开关：整个 App 的玻璃是「假玻璃」还是「真玻璃」。
+/// 全局材质开关：整个 App 走「真液态玻璃」还是「Material」。
 ///
 /// 用户在**主题设置**里选（见 `theme_settings_page.dart`），存
 /// `ConfigKey.ENABLE_LIQUID_GLASS_KEY`，运行时改立刻生效、不用重启。
 enum GlassMaterialMode {
-  /// 假玻璃：全站钉死 [GlassBackend.plain]——半透明底色 + 细描边（无外投影），
-  /// 不采样背景、不加载任何 shader。低端机 / 省电 / 不喜欢模糊的人选这个。
-  plain,
+  /// Material：全站钉死 [GlassBackend.material]——不透明面、无描边、无投影、
+  /// 无跟手形变，不采样背景、不加载任何 shader，浮动底栏也换成 M3 的
+  /// `NavigationBar`。低端机 / 省电 / 不喜欢模糊的人选这个。
+  ///
+  /// 2026-09-04 之前这一档叫「轻量半透明」，是液态玻璃的**仿造版**（半透明底色
+  /// + 细描边 + 长按蠕动 + 底栏仍是真玻璃）。用户拍板整只改成规规矩矩的
+  /// Material：仿造品比不上真品，不如干脆给一套自洽的 M3。
+  material,
 
   /// 真玻璃：chrome 走 [GlassBackend.liquidWidgets]，浮出面板走
   /// [GlassBackend.easyLens]（各自为什么是这一档，见 [chromeGlassBackend]
@@ -155,7 +173,7 @@ class GlassMaterialScope
 /// 手感在 widgets 这一档明显更好**；菜单面板则相反，钉死在 easy
 /// （见 `glass_menu.dart` 的 `_menuBackend`）。
 ///
-/// 假玻璃档下恒为 [GlassBackend.plain]。
+/// Material 档下恒为 [GlassBackend.material]。
 ///
 /// ⛔ 这里收的是**全站唯一的 chrome 供档点**：页面别再写
 /// `LiquidGlassScope(backend: GlassBackend.liquidWidgets)` 之类的字面量，
@@ -163,7 +181,20 @@ class GlassMaterialScope
 GlassBackend chromeGlassBackend(BuildContext context) =>
     GlassMaterialScope.isLiquid(context)
     ? GlassBackend.liquidWidgets
-    : GlassBackend.plain;
+    : GlassBackend.material;
+
+/// **不上玻璃的那些地方**该用哪一档：弹窗正文、底部弹层、抽屉动作栏、带
+/// header 的列表本体——它们要么是滚动容器（lens 进不去），要么本来就是一张
+/// 不透明的面，只需要一档「便宜的」材质。
+///
+/// ⛔ 别再写死 `backend: GlassBackend.plain`：那个值在 Material 档下是错的
+/// ——用户在设置里选了 Material，弹窗里的键却还是半透明仿玻璃 + 长按蠕动。
+/// 液态档下它照旧是 [GlassBackend.plain]（和身边的真玻璃同一套语言），
+/// Material 档下是 [GlassBackend.material]。
+GlassBackend flatGlassBackend(BuildContext context) =>
+    GlassMaterialScope.isLiquid(context)
+    ? GlassBackend.plain
+    : GlassBackend.material;
 
 /// 真玻璃档下，一块玻璃该按哪个质量档渲染。
 ///
@@ -203,7 +234,7 @@ lgw.GlassQuality get chromeGlassQuality => switch (defaultTargetPlatform) {
 void applyGlassMaterialFromConfig(bool enableLiquidGlass) {
   glassMaterialMode.value = enableLiquidGlass
       ? GlassMaterialMode.liquid
-      : GlassMaterialMode.plain;
+      : GlassMaterialMode.material;
 }
 
 /// **浮出面板**（菜单、下拉板）该用的档位：真玻璃档下恒为 [GlassBackend.easyLens]。
@@ -230,13 +261,13 @@ void applyGlassMaterialFromConfig(bool enableLiquidGlass) {
 /// 的硬约束对它根本不适用——触发件上不了 lens 不构成面板也上不了的理由。
 /// 所以现在无条件给液态档：全站的下拉是同一种面板，与触发件长什么样无关。
 ///
-/// 唯一能把它按回传统档的是**全局材质开关**（[GlassMaterialMode.plain]）——
-/// 那是用户自己选的「假玻璃」，不是某个触发件的局部状态。
+/// 唯一能把它按回非玻璃档的是**全局材质开关**（[GlassMaterialMode.material]）——
+/// 那是用户自己选的，不是某个触发件的局部状态。
 GlassBackend panelGlassBackend(BuildContext anchorContext) =>
     debugPanelGlassBackendOverride ??
     (GlassMaterialScope.isLiquid(anchorContext)
         ? GlassBackend.easyLens
-        : GlassBackend.plain);
+        : GlassBackend.material);
 
 /// 测试专用：把 [panelGlassBackend] 的返回值钉在某一档，用完记得置回 null。
 ///
@@ -265,11 +296,17 @@ class LiquidGlassScope extends InheritedWidget {
   /// **局部关掉**（例如某处确实要塞进滚动容器）。
   final GlassBackend backend;
 
-  /// 当前位置的玻璃该用哪套后端。没有祖先 scope 时是传统档。
+  /// 当前位置的玻璃该用哪套后端。
+  ///
+  /// 没有祖先 scope 时走 [flatGlassBackend]——**不是**写死的
+  /// [GlassBackend.plain]。全站绝大多数玻璃件（列表行里的钮、设置页的控件、
+  /// 播放器浮层……）本来就不在任何 scope 里，兜底写死 plain 等于「用户选了
+  /// Material，这些地方还是半透明仿玻璃 + 长按蠕动」。兜底跟着全局档走，
+  /// 顺带把读到它的 Element 登记为 [GlassMaterialScope] 的依赖，切档立刻重建。
   static GlassBackend of(BuildContext context) {
     final scope = context
         .dependOnInheritedWidgetOfExactType<LiquidGlassScope>();
-    return scope?.backend ?? GlassBackend.plain;
+    return scope?.backend ?? flatGlassBackend(context);
   }
 
   @override
@@ -1074,6 +1111,76 @@ class LiquidWidgetsPlainBox extends StatelessWidget {
       // 一层 glow 绘制——这一档的存在理由就是不额外花钱。
       glow: false,
       child: box,
+    );
+  }
+}
+
+/// Material 档的「玻璃体」：一块规规矩矩的 M3 面。
+///
+/// [GlassSurface] 在 [GlassBackend.material] 下画的就是它。尺寸语义与另外三档
+/// 完全一致（[height] 紧约束、[width] 为 null 时按内容收缩、[circle] 取正方），
+/// 所以换档不会动布局——**换掉的只是材质**。
+///
+/// ## 这一档刻意没有的东西（2026-09-04 用户拍板）
+///
+///   - **透明度**：面是不透明的 [GlassTokens.materialFill]。仿玻璃时期那 6%
+///     透光是为了「贴在内容上的一层膜」，Material 里没有这个概念。
+///   - **描边**：M3 靠 surface container 色阶分层，不靠描边（只有 Outlined
+///     变体才有边，而这里画的是 filled 面）。
+///   - **投影**：不画 `BoxShadow`，也不套 `PhysicalModel`。要更「浮」请往上
+///     挑一档色阶，见 [GlassTokens.materialFill] 的说明。
+///   - **跟手形变**：不套 [_LiquidStretchShell]。按住拉长是液态玻璃的物理，
+///     一张纸不会被手指拽变形；按下反馈只剩状态层
+///     （[GlassTokens.materialPressedFill]，M3 的 pressed = 10%）。
+class MaterialSurfaceBox extends StatelessWidget {
+  const MaterialSurfaceBox({
+    super.key,
+    required this.child,
+    this.height = GlassTokens.pillHeight,
+    this.width,
+    this.circle = false,
+    this.cornerRadius,
+    this.pressed = false,
+    this.materialize = 1.0,
+    this.clipContent = false,
+  });
+
+  final Widget child;
+  final double? height;
+  final double? width;
+  final bool circle;
+  final double? cornerRadius;
+  final bool pressed;
+
+  /// 材质的「在场程度」，见 [GlassSurface.materialize]。这一档压的是面色的
+  /// alpha（不建 `Opacity` 层，规矩与另外三档一致）。
+  final double materialize;
+
+  final bool clipContent;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final double m = materialize.clamp(0.0, 1.0);
+    final double radius = circle
+        ? height! / 2
+        : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
+    final Color base = pressed
+        ? GlassTokens.materialPressedFill(cs)
+        : GlassTokens.materialFill(cs);
+
+    return AnimatedContainer(
+      duration: GlassTokens.pressDuration,
+      curve: Curves.easeOut,
+      height: height,
+      width: circle ? height : width,
+      clipBehavior: clipContent ? Clip.antiAlias : Clip.none,
+      decoration: BoxDecoration(
+        color: m >= 1 ? base : base.withValues(alpha: base.a * m),
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: circle ? null : BorderRadius.circular(radius),
+      ),
+      child: child,
     );
   }
 }

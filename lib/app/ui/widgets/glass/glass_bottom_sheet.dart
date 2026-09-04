@@ -245,7 +245,7 @@ Future<T?> showGlassBottomSheet<T>({
     useRootNavigator: useRootNavigator,
     builder: (context) => RepaintBoundary(
       child: LiquidGlassScope(
-        backend: GlassBackend.plain,
+        backend: flatGlassBackend(context),
         child: builder(context),
       ),
     ),
@@ -355,7 +355,7 @@ Future<T?> showGlassDraggableBottomSheet<T>({
     useRootNavigator: useRootNavigator,
     builder: (context) => RepaintBoundary(
       child: LiquidGlassScope(
-        backend: GlassBackend.plain,
+        backend: flatGlassBackend(context),
         child: builder(context),
       ),
     ),

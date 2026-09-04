@@ -423,9 +423,9 @@ class _GlassSideDrawerShellState extends State<GlassSideDrawerShell> {
                             ],
                             const SizedBox(width: 8),
                             if (widget.plainCloseButton)
-                              const LiquidGlassScope(
-                                backend: GlassBackend.plain,
-                                child: _DrawerCloseButton(),
+                              LiquidGlassScope(
+                                backend: flatGlassBackend(context),
+                                child: const _DrawerCloseButton(),
                               )
                             else
                               const _DrawerCloseButton(),

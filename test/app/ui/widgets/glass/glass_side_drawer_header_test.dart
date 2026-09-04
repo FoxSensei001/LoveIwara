@@ -16,7 +16,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 void main() {
   setUp(() {
     // 液态档的玻璃挂着一条按帧抓背景的 ticker，pumpAndSettle 不会停。
-    glassMaterialMode.value = GlassMaterialMode.plain;
+    glassMaterialMode.value = GlassMaterialMode.material;
   });
   tearDown(() {
     glassMaterialMode.value = GlassMaterialMode.liquid;

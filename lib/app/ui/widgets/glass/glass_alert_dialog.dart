@@ -125,7 +125,10 @@ class GlassAlertDialog extends StatelessWidget {
       // 给的任意内容——标签浏览器、变量说明这类还会往里塞
       // `ListView`/`SingleChildScrollView`，正是 lens 最不该进的地方。
       // 路由层供档是为了让「弹窗里的按钮」不再漏，不是为了把正文一起卷进来。
-      body = LiquidGlassScope(backend: GlassBackend.plain, child: body);
+      body = LiquidGlassScope(
+        backend: flatGlassBackend(context),
+        child: body,
+      );
     }
 
     // 液态档不在这里供了——[GlassDialogRoute] 已经在路由层给整张弹窗供上

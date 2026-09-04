@@ -97,10 +97,14 @@ void main() {
       // 成磨砂、加载完再切成折射，肉眼能看见这一下材质跳变。不 await——加载失败
       // 只是退回磨砂，不该拖住启动。
       //
-      // ⛔ **两档都要预热**，别再按 [glassMaterialMode] 跳过：浮动底栏不跟全局
-      // 材质开关，假玻璃档下它仍是真液态玻璃（见 `GlassFloatingTabBar` 类文档
-      // 「唯一的例外」）。跳过的话首页第一帧那条底栏会先磨砂再跳成折射。
-      unawaited(warmUpLiquidGlassShaders());
+      // ⭐ Material 档整只跳过：2026-09-04 起浮动底栏也跟着全局档走（M3 的
+      // `NavigationBar`，见 `GlassFloatingTabBar` 类文档），那一档下全 App 再没有
+      // 一块玻璃要采样背景，热了纯属白花。档位在 `initializeCore` 里就已经从
+      // 配置表灌好（`applyGlassMaterialFromConfig`），这里读到的是最终值；
+      // 用户中途切回液态时由 `ThemeService.setLiquidGlassEnabled` 补热。
+      if (glassMaterialMode.value == GlassMaterialMode.liquid) {
+        unawaited(warmUpLiquidGlassShaders());
+      }
 
       FramePerfProbe.start();
 

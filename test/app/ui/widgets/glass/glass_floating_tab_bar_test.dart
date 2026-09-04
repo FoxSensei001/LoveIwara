@@ -28,11 +28,21 @@ void main() {
 
   const double barWidth = 360;
 
+  /// 长标签（英文实况）：日文 / 英文下这些名字装不进一格。
+  const longLabelItems = [
+    GlassTabItem(icon: Icons.video_library, label: 'Video'),
+    GlassTabItem(icon: Icons.photo_library, label: 'Gallery'),
+    GlassTabItem(icon: Icons.subscriptions, label: 'Subscriptions'),
+    GlassTabItem(icon: Icons.forum, label: 'Community'),
+  ];
+
   Future<List<int>> pumpBar(
     WidgetTester tester, {
     int currentIndex = 0,
     VoidCallback? onAction,
+    List<GlassTabItem>? tabItems,
   }) async {
+    final List<GlassTabItem> barItems = tabItems ?? items;
     final taps = <int>[];
     await tester.pumpWidget(
       MaterialApp(
@@ -43,7 +53,7 @@ void main() {
               child: GlassFloatingTabBar(
                 currentIndex: currentIndex,
                 onTap: taps.add,
-                items: items,
+                items: barItems,
                 action: GlassFloatingBarAction(
                   icon: Icons.search,
                   label: '搜索',
@@ -230,36 +240,37 @@ void main() {
   });
 
   // ---------------------------------------------------------------------------
-  // 假玻璃档（`GlassMaterialMode.plain`）：底栏**不跟全局材质开关**，仍是包里那条
-  // 真液态玻璃——全站唯一的例外，见 `GlassFloatingTabBar` 类文档。这里盯死它，
-  // 免得日后有人「顺手」把它收进材质开关（曾经有过一版自绘的假玻璃底栏）。
+  // Material 档（`GlassMaterialMode.material`）：底栏**跟着**全局材质开关走，
+  // 整只换成 M3 的 `NavigationBar`（2026-09-04 用户拍板，旧的「唯一的例外」
+  // 已作废）。这里盯的是换实现时最容易丢的三件事：同项也回调、右侧圆钮仍是
+  // 独立动作、以及它一块玻璃都不建。
   // ---------------------------------------------------------------------------
-  group('假玻璃档', () {
-    setUp(() => glassMaterialMode.value = GlassMaterialMode.plain);
+  group('Material 档', () {
+    setUp(() => glassMaterialMode.value = GlassMaterialMode.material);
     tearDown(() => glassMaterialMode.value = GlassMaterialMode.liquid);
 
-    testWidgets('底栏仍是真液态玻璃（唯一的例外）', (tester) async {
+    testWidgets('底栏换成 M3 导航栏，且不再采样背景', (tester) async {
       await pumpBar(tester);
+      // 一格一只 M3 选中药丸（框架公开的 [NavigationIndicator]）。
+      expect(find.byType(NavigationIndicator), findsNWidgets(items.length));
       expect(
         find.byType(lgw.GlassTabBar),
-        findsOneWidget,
-        reason: '底栏被收进全局材质开关了：果冻指示器与按住即滑会一起消失',
+        findsNothing,
+        reason: 'Material 档下底栏还在建真玻璃：这一档本该零 backdrop 采样',
       );
     });
 
-    testWidgets('手感契约与真玻璃档同一份：按住跟焦点，抬手才换页', (tester) async {
-      final taps = await pumpBar(tester);
-      final TestGesture gesture = await tester.startGesture(
-        tabCenter(tester, 2),
-      );
+    // ⚠️ 按坐标点，不要 `find.text`：标签只在选中项在场，未选中那格的
+    // `Text` 被 `SizeTransition` 收成 0 高，点不着。
+    testWidgets('点按换项，同项也回调（再点一次 = 回顶）', (tester) async {
+      final taps = await pumpBar(tester, currentIndex: 0);
+      await tester.tapAt(tabCenter(tester, 2));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(visualIndex(tester), 2, reason: '按住第 2 项，焦点却没跟过去');
-      expect(taps, isEmpty, reason: '按住期间就换页 = 把留给拖动的那段时间吃掉了');
-      await gesture.moveTo(tabCenter(tester, 3));
-      await tester.pump(const Duration(milliseconds: 16));
-      await gesture.up();
+      expect(taps, [2]);
+
+      await tester.tapAt(tabCenter(tester, 0));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(taps, [3]);
+      expect(taps, [2, 0], reason: '当前项被点第二次却不回调，首页就回不了顶');
     });
 
     testWidgets('右侧圆钮是独立动作，不算换项', (tester) async {
@@ -273,5 +284,44 @@ void main() {
       expect(actions, 1);
       expect(taps, isEmpty);
     });
+
+    testWidgets('整条仍只占一行高度，不自带安全区', (tester) async {
+      await pumpBar(tester);
+      expect(
+        tester.getSize(find.byType(GlassFloatingTabBar)).height,
+        GlassTokens.floatingTabBarHeight,
+      );
+    });
   });
+
+  // ⛔ 盯的是 2026-09-04 报的「按钮变得很小、看起来不整齐」：标签必须钉在一格
+  // 宽度内省略，不许把图标挤小。**两档都要盯**——液态档那条栏把整格内容包在
+  // 包里的 `FittedBox(scaleDown)` 中，标签超宽会连图标一起等比缩小，而且各格
+  // 缩放比还不一样，正是当初那个症状的来源。
+  for (final mode in GlassMaterialMode.values) {
+    testWidgets('${mode.name}：长标签钉在一格内省略，四格图标一样大', (tester) async {
+      glassMaterialMode.value = mode;
+      addTearDown(() => glassMaterialMode.value = GlassMaterialMode.liquid);
+      await pumpBar(tester, tabItems: longLabelItems);
+
+      final double slot =
+          (barWidth - GlassTokens.floatingActionSize - 12) /
+          longLabelItems.length;
+      // `.first`：液态档下包会为磁透镜的蒙版层再画一份同样的内容，同一条文字
+      // 在树里有两份。
+      for (final item in longLabelItems) {
+        expect(
+          tester.getSize(find.text(item.label).first).width,
+          lessThanOrEqualTo(slot),
+          reason: '「${item.label}」把自己那一格撑破了',
+        );
+      }
+      final Set<Size> iconSizes = {
+        for (final item in longLabelItems)
+          tester.getSize(find.byIcon(item.icon).first),
+      };
+      expect(iconSizes.length, 1, reason: '各格图标大小不一致 = 被标签挤小了');
+    });
+  }
+
 }

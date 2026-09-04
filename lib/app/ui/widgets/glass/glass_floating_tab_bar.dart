@@ -58,6 +58,61 @@ class GlassFloatingBarAction {
   final void Function(BuildContext anchorContext)? onLongPress;
 }
 
+/// 一格标签最多能占多宽。
+///
+/// 两档共用同一套几何：整条宽度扣掉右侧圆钮（直径 = 栏高）与它的 12px 间距，
+/// 剩下的按栏目数均分，再留 8px 让标签不贴着格子边。
+///
+/// 量它是为了**把标签钉在一行里省略**，而不是让它把图标挤小：液态档那条栏
+/// 整格内容包在 `FittedBox(scaleDown)` 里，标签超宽会连图标一起缩。
+/// 宽度未知（无界约束）时返回 `double.infinity`，退回包自己的兜底。
+double _labelMaxWidth({
+  required double barWidth,
+  required int tabCount,
+  required bool hasAction,
+  required double height,
+}) {
+  if (!barWidth.isFinite || tabCount <= 0) return double.infinity;
+  final double capsule = barWidth - (hasAction ? height + 12 : 0);
+  final double slot = capsule / tabCount;
+  return slot <= 24 ? 24 : slot - 8;
+}
+
+/// 底栏一格里的标签：**每一格都有**，单行、超出上限就省略。
+///
+/// ⭐ [maxWidth] 不是审美参数，是这条栏的**结构约束**：液态档那条栏把整格
+/// 内容包在 `FittedBox(scaleDown)` 里，标签一超宽就**连图标一起等比缩小**，
+/// 而且各格缩放比还不一样——这正是 2026-09-04 用户报的「按钮变得很小、所有
+/// 按钮看起来不整齐」（日文 / 英文尤其明显）。把标签钉在一格宽度内省略掉，
+/// 图标就永远是 26。
+///
+/// 上限怎么算见 [_labelMaxWidth]。
+class _TabLabel extends StatelessWidget {
+  const _TabLabel({
+    required this.label,
+    required this.maxWidth,
+    required this.style,
+  });
+
+  final String label;
+  final double maxWidth;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Text(
+        label,
+        maxLines: 1,
+        textAlign: TextAlign.center,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      ),
+    );
+  }
+}
+
 /// 浮动在内容之上的玻璃 Tab 胶囊，可选在右侧并排一枚独立圆钮（[action]）。
 ///
 /// # 它现在是 `liquid_glass_widgets` 的 `GlassTabBar.bottom`
@@ -72,19 +127,21 @@ class GlassFloatingBarAction {
 ///   3. **直接拖动**：不再需要「长按拾起」这一步——按住就能滑（自绘那版必须
 ///      先长按，否则会和页面的横向手势打架；包里的手势是在自己这条 Row 上收的）。
 ///
-/// # ⭐ 唯一的例外：这一条**不跟全局材质开关**
+/// # 两档两份实现（2026-09-04）
 ///
-/// 2026-08-26 用户拍板：主题设置选「轻量半透明」时，全站玻璃都退成半透明底色 +
-/// 描边，**只有这条底栏照旧用真液态玻璃**。理由是它就那么一条、永远在屏幕上，
-/// 果冻指示器与磁透镜是它整个交互的骨架（按住即滑、拖着换焦点全靠包内部那套
-/// 手势），换成自绘版等于把这块的手感整个抽掉。
+/// 液态档就是上面那只 `GlassTabBar.bottom`；**Material 档整只换成 M3 的
+/// [NavigationBar]**（[_MaterialFloatingTabBar]）——胶囊几何、右侧圆钮、
+/// 外边距全都不变，换掉的只有材质与那套手势。
 ///
-/// 曾经有过一版自绘的假玻璃底栏（`_PlainFloatingTabBar`，`AnimatedPositioned`
-/// 高亮块 + 自己收 pointer 的滑动取焦），本次一并删除——两套实现意味着每加一条
-/// 手感都要写两遍，而这一条永远只会有一份。
+/// 这与 2026-08-26 的旧结论（「底栏是唯一不跟全局开关走的 chrome，假玻璃档下
+/// 它照旧是真玻璃」）相反，是用户 2026-09-04 重新拍的板：那一档不再是液态玻璃
+/// 的仿造品，而是一套自洽的 Material，底栏跟着走才说得通。当年反对第二份实现
+/// 的理由（果冻指示器 / 磁透镜 / 按住即滑要写两遍）在这里不成立——M3 的
+/// `NavigationBar` 本来就有自己的一整套指示器动画与涟漪，不需要我们复刻液态
+/// 那套手感，**按住即滑是液态档专有的**。
 ///
-/// 代价记在这儿，别当成漏网之鱼：假玻璃档下整个 App 只有这一块还在采样背景，
-/// 所以 shader 预热在**两档都要做**（见 `main.dart` 那段）。
+/// 顺带的收益：Material 档下整个 App 再没有一块玻璃在采样背景，shader 预热
+/// 可以整只跳过（见 `main.dart` 那段）。
 ///
 /// # 放哪儿
 ///
@@ -240,27 +297,43 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
     _scheduleCommit();
   }
 
-  /// 图标 + 角标。角标是 `Positioned`，靠 [Icon] 撑出 Stack 的尺寸。
-  Widget _icon(GlassTabItem item, IconData data) {
-    final Widget icon = Icon(data);
-    if (item.badge == null) return icon;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        icon,
-        Positioned(top: -4, right: -6, child: item.badge!),
-      ],
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          _build(context, barWidth: constraints.maxWidth),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _build(BuildContext context, {required double barWidth}) {
     final cs = Theme.of(context).colorScheme;
     final GlassFloatingBarAction? action = widget.action;
     final List<GlassTabItem> items = widget.items;
     final double height = widget.height;
+    final double labelMaxWidth = _labelMaxWidth(
+      barWidth: barWidth,
+      tabCount: items.length,
+      hasAction: action != null,
+      height: height,
+    );
 
-    // ⛔ 这里**不看全局材质开关**：底栏两档都是真液态玻璃，见类文档「唯一的例外」。
+    // Material 档整只换成 M3 的导航栏（见类文档「两档两份实现」）。
+    // 右侧圆钮的几何契约（最右边的 height × height 方块）两档一致，所以
+    // [_withActionLongPress] 那层长按手势区照旧盖在外面、只写一遍。
+    if (!GlassMaterialScope.isLiquid(context)) {
+      return _withActionLongPress(
+        action: action,
+        height: height,
+        bar: _MaterialFloatingTabBar(
+          items: items,
+          currentIndex: widget.currentIndex,
+          onTap: widget.onTap,
+          action: action,
+          height: height,
+          labelMaxWidth: labelMaxWidth,
+        ),
+      );
+    }
 
     // raw `Listener` 只是旁听手指的起落（不进竞技场、不改命中测试），用来判断
     // 包报上来的下标该立刻落地还是先压着——见类文档「落地时机」。
@@ -273,14 +346,28 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
         onPointerUp: _handlePointerRelease,
         onPointerCancel: _handlePointerRelease,
         child: lgw.GlassTabBar.bottom(
+          // ⛔ **不把 [GlassTabItem.label] 交给包**：它的标签是无条件渲染的
+          // （每一格都带字），而整格内容包在 `FittedBox(scaleDown)` 里——字一长
+          // 就把**图标一起缩小**，每格缩放比还各不相同，读起来就是「按钮大小
+          // 参差不齐」（2026-09-04 用户报的正是这条，日文 / 英文尤其明显）。
+          //
+          // 改成自己画：只有选中项显示标签，且**带收放过渡**（见
+          // [_LiquidTabContent]）。包只认 icon 槽位，所以整块「图标 + 标签」
+          // 塞进去；无障碍名字走 `semanticLabel`，不会因为没有 label 而丢。
           tabs: [
-            for (final item in items)
+            for (int i = 0; i < items.length; i++)
               lgw.GlassTab(
-                icon: _icon(item, item.icon),
-                activeIcon: item.activeIcon == null
-                    ? null
-                    : _icon(item, item.activeIcon!),
-                label: item.label,
+                semanticLabel: items[i].label,
+                icon: _LiquidTabContent(
+                  item: items[i],
+                  selected: false,
+                  labelMaxWidth: labelMaxWidth,
+                ),
+                activeIcon: _LiquidTabContent(
+                  item: items[i],
+                  selected: true,
+                  labelMaxWidth: labelMaxWidth,
+                ),
               ),
           ],
           // 按住期间这里跟的是手指（[_visualIndex]），不是路由——换页还在等抬手。
@@ -310,20 +397,12 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
           // 与自绘那版的 `SizedBox(width: 12)` 同一口径。
           spacing: 12,
 
-          // ---- 排版：沿用自绘那版标定过的字号 / 图标尺寸 ----
+          // ---- 排版：沿用自绘那版标定过的图标尺寸 ----
+          // 标签的字号 / 字重在 [_LiquidTabContent] 里（包这边已经没有标签了），
+          // 颜色由包的 `IconTheme` + `DefaultTextStyle` 一并下发。
           iconSize: 26,
-          labelFontSize: 11.5,
-          iconLabelSpacing: 2,
           selectedIconColor: cs.primary,
           unselectedIconColor: cs.onSurfaceVariant,
-          selectedLabelStyle: const TextStyle(
-            height: 1.1,
-            fontWeight: FontWeight.w600,
-          ),
-          unselectedLabelStyle: const TextStyle(
-            height: 1.1,
-            fontWeight: FontWeight.w500,
-          ),
 
           // ---- 材质：与全站 chrome 同一份玻璃（见 GlassTokens.widgetsGlass）----
           settings: GlassTokens.widgetsGlass(
@@ -341,11 +420,11 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
   ///
   /// 液态档下这枚钮整只由 `liquid_glass_widgets` 画，而包里的
   /// `GlassTabBarExtraButton` 只有 `onTap`——够不着。所以长按统一由这层**盖在
-  /// 它上面**的透明手势区来收，两档共用一条实现（假玻璃档那枚 `GlassIconButton`
-  /// 也不单独接），免得日后改了一边忘了另一边。
+  /// 它上面**的透明手势区来收，两档共用一条实现（Material 档那枚圆钮也不单独
+  /// 接），免得日后改了一边忘了另一边。
   ///
   /// 落点靠几何约定：两档的圆钮都恰好占这一行**最右边的 `height × height`
-  /// 方块**——液态档是包里的 `Positioned(right: 0, width: size)`，假玻璃档是
+  /// 方块**——液态档是包里的 `Positioned(right: 0, width: size)`，Material 档是
   /// Row 末尾那枚直径等于栏高的圆钮。这个前提由 [GlassTokens.floatingActionSize]
   /// 锁着（直径必须等于栏高，否则圆钮会被拉成椭圆）。
   ///
@@ -380,6 +459,313 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
               onLongPress: () => onLongPress(anchorContext),
               child: const SizedBox.expand(),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Material 档的浮动底栏：M3 的导航栏装进同一只浮动胶囊里。
+///
+/// **几何与液态档完全一致**（这是硬契约，不是巧合）：
+///   - 整条只有「一行」，高度 [height]，不含安全区、不含左右边距；
+///   - 右侧那枚圆钮占最右边的 `height × height` 方块，直径等于栏高
+///     （见 [GlassTokens.floatingActionSize]）——[GlassFloatingTabBar] 那层
+///     长按手势区就是照这个方块定位的，两档共用一份实现。
+///
+/// 材质走 [GlassTokens.materialFill]：不透明、无描边、**无投影**
+/// （Material 档一概不画投影，见 [MaterialSurfaceBox]），层级差别由 M3 的
+/// surface container 色阶表达。选中项那颗药丸是框架公开的
+/// [NavigationIndicator]（M3 那套 `easeInOutCubicEmphasized` 横向缩放 +
+/// 100ms 淡入淡出），涟漪由 [InkWell] 出。
+///
+/// # ⛔ 为什么不直接用框架的 `NavigationBar`
+///
+/// 试过，退回来了：它的标签是一只**没有 `maxLines` 的 `Text`**，可用宽度不够
+/// 时会**折行**，第二行直接掉出这条 64px 的胶囊被裁掉（golden 里实拍到）。
+/// 而这条栏最窄的情形正好踩中——360dp 屏、四个栏目、右边还扣掉 64+12 的圆钮，
+/// 每格只剩约 63px，英文的 "Subscriptions" / "Community" 铁定放不下。
+/// 标签的换行属性来自 `NavigationBar` **内部那只 `Material`** 自带的
+/// `AnimatedDefaultTextStyle`（`maxLines: null`），在外面包 `DefaultTextStyle`
+/// 盖不住，`labelTextStyle` 里也塞不进 `maxLines`——`TextStyle` 根本没有这个
+/// 字段。液态档那条（包里的 `GlassTabBar.bottom`）是 `maxLines: 1` +
+/// `ellipsis`，两档的排版必须对齐，所以这一格自己画。
+///
+/// 自己画的只有「一行 icon + label + 指示器」，M3 的观感件（指示器动画、
+/// 涟漪、色角色）全部用框架现成的，不是另起一套语言。
+class _MaterialFloatingTabBar extends StatelessWidget {
+  const _MaterialFloatingTabBar({
+    required this.items,
+    required this.currentIndex,
+    required this.onTap,
+    required this.action,
+    required this.height,
+    required this.labelMaxWidth,
+  });
+
+  final List<GlassTabItem> items;
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+  final GlassFloatingBarAction? action;
+  final double height;
+
+  /// 一格标签的宽度上限，见 [_labelMaxWidth]。
+  final double labelMaxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final MediaQueryData mq = MediaQuery.of(context);
+    final int selected = items.isEmpty
+        ? 0
+        : currentIndex.clamp(0, items.length - 1);
+
+    final Widget bar = Material(
+      color: GlassTokens.materialFill(cs),
+      // ⛔ 不给 elevation：这一档不画投影。
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(height / 2),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: SizedBox(
+        height: height,
+        // 栏高是钉死的，系统字号拉满会把标签顶出去：夹到 1.2。
+        child: MediaQuery(
+          data: mq.copyWith(
+            textScaler: mq.textScaler.clamp(maxScaleFactor: 1.2),
+          ),
+          child: Row(
+            children: [
+              for (int i = 0; i < items.length; i++)
+                Expanded(
+                  child: _MaterialTab(
+                    item: items[i],
+                    selected: i == selected,
+                    // 同项也回调（首页「再点一次当前栏目 = 回顶 + 重载」靠它）。
+                    onTap: () => onTap(i),
+                    labelMaxWidth: labelMaxWidth,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final GlassFloatingBarAction? action = this.action;
+    if (action == null) return bar;
+    return Row(
+      children: [
+        Expanded(child: bar),
+        // 与液态档同一口径（包里给的 `spacing: 12`）。
+        const SizedBox(width: 12),
+        _MaterialFloatingBarActionButton(action: action, size: height),
+      ],
+    );
+  }
+}
+
+/// Material 档底栏里的一格：指示器 + 图标 + 单行标签。
+///
+/// 排版沿用液态档那条标定过的值（图标 26、标签 11.5、间距 2），换档只换材质
+/// 不换字号；标签 `maxLines: 1` + `ellipsis`，与包里那条一致。
+class _MaterialTab extends StatefulWidget {
+  const _MaterialTab({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+    required this.labelMaxWidth,
+  });
+
+  final GlassTabItem item;
+  final bool selected;
+  final VoidCallback onTap;
+  final double labelMaxWidth;
+
+  @override
+  State<_MaterialTab> createState() => _MaterialTabState();
+}
+
+class _MaterialTabState extends State<_MaterialTab>
+    with SingleTickerProviderStateMixin {
+  /// 500ms 是 M3 `NavigationBar` 自己的 `animationDuration` 默认值。
+  late final AnimationController _selection = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+    value: widget.selected ? 1 : 0,
+  );
+
+  @override
+  void didUpdateWidget(covariant _MaterialTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selected == oldWidget.selected) return;
+    widget.selected ? _selection.forward() : _selection.reverse();
+  }
+
+  @override
+  void dispose() {
+    _selection.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final GlassTabItem item = widget.item;
+    final IconData iconData = widget.selected
+        ? (item.activeIcon ?? item.icon)
+        : item.icon;
+
+    Widget icon = Icon(
+      iconData,
+      size: 26,
+      color: widget.selected ? cs.onSecondaryContainer : cs.onSurfaceVariant,
+    );
+    if (item.badge != null) {
+      icon = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          icon,
+          Positioned(top: -4, right: -6, child: item.badge!),
+        ],
+      );
+    }
+
+    return Semantics(
+      selected: widget.selected,
+      button: true,
+      label: item.label,
+      child: InkWell(
+        onTap: widget.onTap,
+        customBorder: const StadiumBorder(),
+        excludeFromSemantics: true,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                NavigationIndicator(
+                  animation: _selection,
+                  color: GlassTokens.materialSelected(cs),
+                ),
+                icon,
+              ],
+            ),
+            const SizedBox(height: 2),
+            // 每格都有标签，装不下就在一格宽度内省略（见 [_TabLabel]）。
+            _TabLabel(
+              label: item.label,
+              maxWidth: widget.labelMaxWidth,
+              style: TextStyle(
+                fontSize: 11.5,
+                height: 1.1,
+                fontWeight: widget.selected
+                    ? FontWeight.w600
+                    : FontWeight.w500,
+                color: widget.selected ? cs.onSurface : cs.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Material 档底栏右侧那枚独立圆钮。
+///
+/// 点按走 [InkWell]（M3 的涟漪就是这一档的按下反馈）；**长按不在这里接**
+/// ——它由 [GlassFloatingTabBar] 盖在整条栏之上的那层透明手势区统一收，两档
+/// 共用一份（见 `_withActionLongPress`）。
+class _MaterialFloatingBarActionButton extends StatelessWidget {
+  const _MaterialFloatingBarActionButton({
+    required this.action,
+    required this.size,
+  });
+
+  final GlassFloatingBarAction action;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: action.label,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Material(
+          color: GlassTokens.materialFill(cs),
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: action.onPressed,
+            child: Semantics(
+              button: true,
+              label: action.label,
+              child: Center(
+                child: Icon(action.icon, size: 26, color: cs.onSurface),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 液态档底栏一格的内容：图标（含角标）+ 标签。
+///
+/// 塞进包的 `GlassTab.icon` / `activeIcon` 槽位——包会按选中态在这两只之间切。
+///
+/// ⛔ 标签**不能交给包自己画**（`GlassTab.label`）：它把整格「图标 + 标签」包在
+/// `FittedBox(scaleDown)` 里，标签一长就连图标一起缩，各格缩放比还不一样。
+/// 自己画就能把标签钉在 [labelMaxWidth] 内省略，图标恒定 26。
+///
+/// 颜色不用自己给：包在 icon 槽外面套了 `IconTheme` + `DefaultTextStyle`
+/// （都用当前状态的图标色），标签的字号 / 字重才是这里要定的。
+class _LiquidTabContent extends StatelessWidget {
+  const _LiquidTabContent({
+    required this.item,
+    required this.selected,
+    required this.labelMaxWidth,
+  });
+
+  final GlassTabItem item;
+  final bool selected;
+  final double labelMaxWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget icon = Icon(selected ? (item.activeIcon ?? item.icon) : item.icon);
+    if (item.badge != null) {
+      icon = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          icon,
+          Positioned(top: -4, right: -6, child: item.badge!),
+        ],
+      );
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        icon,
+        // 与自绘那版同一口径（图标到标签 2、字号 11.5）。
+        const SizedBox(height: 2),
+        _TabLabel(
+          label: item.label,
+          maxWidth: labelMaxWidth,
+          style: TextStyle(
+            fontSize: 11.5,
+            height: 1.1,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
           ),
         ),
       ],

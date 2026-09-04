@@ -2061,11 +2061,11 @@ class TranslationsSettingsEn {
 	/// en: 'This configuration determines the theme mode of the app'
 	String get themeModeDesc => 'This configuration determines the theme mode of the app';
 
-	/// en: 'Glass Effect'
-	String get glassEffect => 'Glass Effect';
+	/// en: 'Interface Material'
+	String get glassEffect => 'Interface Material';
 
-	/// en: 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid'
-	String get glassEffectDesc => 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid';
+	/// en: 'Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar'
+	String get glassEffectDesc => 'Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar';
 
 	/// en: 'Liquid Glass'
 	String get liquidGlassEffect => 'Liquid Glass';
@@ -2073,20 +2073,20 @@ class TranslationsSettingsEn {
 	/// en: 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices'
 	String get liquidGlassEffectDesc => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices';
 
-	/// en: 'Lightweight Translucency'
-	String get plainGlassEffect => 'Lightweight Translucency';
+	/// en: 'Material'
+	String get plainGlassEffect => 'Material';
 
-	/// en: 'Translucent fills and outlines only, no blur. Best performance and battery life'
-	String get plainGlassEffectDesc => 'Translucent fills and outlines only, no blur. Best performance and battery life';
+	/// en: 'Standard Material 3 surfaces — opaque, no blur, no shadows. Best performance and battery life'
+	String get plainGlassEffectDesc => 'Standard Material 3 surfaces — opaque, no blur, no shadows. Best performance and battery life';
 
-	/// en: 'Try the new glass effect'
-	String get glassEffectIntroTitle => 'Try the new glass effect';
+	/// en: 'Pick your interface material'
+	String get glassEffectIntroTitle => 'Pick your interface material';
 
-	/// en: 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).'
-	String get glassEffectIntroContent => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).';
+	/// en: 'Headers, the tab bar and menus use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to Material now (opaque surfaces, no blur, no shadows).'
+	String get glassEffectIntroContent => 'Headers, the tab bar and menus use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to Material now (opaque surfaces, no blur, no shadows).';
 
-	/// en: 'You can change this any time in Settings → Theme → Glass Effect.'
-	String get glassEffectIntroHint => 'You can change this any time in Settings → Theme → Glass Effect.';
+	/// en: 'You can change this any time in Settings → Theme → Interface Material.'
+	String get glassEffectIntroHint => 'You can change this any time in Settings → Theme → Interface Material.';
 
 	/// en: 'Keep it'
 	String get glassEffectIntroDone => 'Keep it';
@@ -9580,15 +9580,15 @@ extension on Translations {
 			'settings.defaultBrowserDesc' => 'Please open the default link configuration item in the system settings and add the iwara.tv website link',
 			'settings.themeMode' => 'Theme Mode',
 			'settings.themeModeDesc' => 'This configuration determines the theme mode of the app',
-			'settings.glassEffect' => 'Glass Effect',
-			'settings.glassEffectDesc' => 'Chooses the material used by glass controls (header capsules, menus, dialog buttons); the floating tab bar always stays liquid',
+			'settings.glassEffect' => 'Interface Material',
+			'settings.glassEffectDesc' => 'Chooses the material used across the app — header capsules, menus, dialog buttons and the bottom navigation bar',
 			'settings.liquidGlassEffect' => 'Liquid Glass',
 			'settings.liquidGlassEffectDesc' => 'Real blur and refraction. Looks best, but may drop frames and use a bit more power on low-end devices',
-			'settings.plainGlassEffect' => 'Lightweight Translucency',
-			'settings.plainGlassEffectDesc' => 'Translucent fills and outlines only, no blur. Best performance and battery life',
-			'settings.glassEffectIntroTitle' => 'Try the new glass effect',
-			'settings.glassEffectIntroContent' => 'Headers, the tab bar and menus now use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to lightweight translucency now (the tab bar stays liquid either way).',
-			'settings.glassEffectIntroHint' => 'You can change this any time in Settings → Theme → Glass Effect.',
+			'settings.plainGlassEffect' => 'Material',
+			'settings.plainGlassEffectDesc' => 'Standard Material 3 surfaces — opaque, no blur, no shadows. Best performance and battery life',
+			'settings.glassEffectIntroTitle' => 'Pick your interface material',
+			'settings.glassEffectIntroContent' => 'Headers, the tab bar and menus use liquid glass — real blur and refraction. If it feels slow on your device, or you prefer something plainer, switch to Material now (opaque surfaces, no blur, no shadows).',
+			'settings.glassEffectIntroHint' => 'You can change this any time in Settings → Theme → Interface Material.',
 			'settings.glassEffectIntroDone' => 'Keep it',
 			'settings.dynamicColor' => 'Dynamic Color',
 			'settings.dynamicColorDesc' => 'This configuration determines whether the app uses dynamic color',

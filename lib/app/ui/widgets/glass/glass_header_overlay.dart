@@ -107,7 +107,10 @@ class GlassHeaderOverlay extends StatelessWidget {
         // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
         Positioned.fill(
           child: liquid
-              ? LiquidGlassScope(backend: GlassBackend.plain, child: body)
+              ? LiquidGlassScope(
+                  backend: flatGlassBackend(context),
+                  child: body,
+                )
               : body,
         ),
         Positioned(

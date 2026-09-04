@@ -63,10 +63,10 @@ void main() {
     expect(panel, GlassBackend.easyLens);
   });
 
-  testWidgets('假玻璃档：chrome 与面板一起落回 plain', (tester) async {
+  testWidgets('Material 档：chrome 与面板一起落到 material', (tester) async {
     expect(
-      await sampleChrome(tester, GlassMaterialMode.plain),
-      GlassBackend.plain,
+      await sampleChrome(tester, GlassMaterialMode.material),
+      GlassBackend.material,
     );
 
     late GlassBackend panel;
@@ -82,7 +82,7 @@ void main() {
         ),
       ),
     );
-    expect(panel, GlassBackend.plain);
+    expect(panel, GlassBackend.material);
   });
 
   testWidgets('切档立刻重建：同一棵树不重新 pumpWidget 也会拿到新档位', (tester) async {
@@ -102,10 +102,10 @@ void main() {
     );
     expect(sampled, [GlassBackend.liquidWidgets]);
 
-    // 用户在设置页点了「轻量半透明」：只改 notifier，树一动没动。
-    glassMaterialMode.value = GlassMaterialMode.plain;
+    // 用户在设置页点了「Material」：只改 notifier，树一动没动。
+    glassMaterialMode.value = GlassMaterialMode.material;
     await tester.pump();
-    expect(sampled, [GlassBackend.liquidWidgets, GlassBackend.plain]);
+    expect(sampled, [GlassBackend.liquidWidgets, GlassBackend.material]);
 
     // 再点回来。
     glassMaterialMode.value = GlassMaterialMode.liquid;
@@ -113,7 +113,7 @@ void main() {
     expect(sampled.last, GlassBackend.liquidWidgets);
   });
 
-  testWidgets('假玻璃档下 GlassSurface 不建液态玻璃体', (tester) async {
+  testWidgets('Material 档下 GlassSurface 不建液态玻璃体', (tester) async {
     Future<void> pumpChromeSurface(GlassMaterialMode mode) async {
       glassMaterialMode.value = mode;
       await tester.pumpWidget(
@@ -143,16 +143,20 @@ void main() {
     await pumpChromeSurface(GlassMaterialMode.liquid);
     expect(find.byType(lgw.AdaptiveGlass), findsOneWidget);
 
-    await pumpChromeSurface(GlassMaterialMode.plain);
+    await pumpChromeSurface(GlassMaterialMode.material);
     expect(find.byType(lgw.AdaptiveGlass), findsNothing);
-    // 传统档的玻璃体是一只 AnimatedContainer（半透明底色 + 描边 + 投影）。
-    expect(find.byType(AnimatedContainer), findsWidgets);
+    // Material 档的「玻璃体」是一只不透明的 AnimatedContainer（见
+    // [MaterialSurfaceBox]），跟手形变那层 `GlassButton` 也不该在场。
+    expect(find.byType(MaterialSurfaceBox), findsOneWidget);
+    expect(find.byType(lgw.GlassButton), findsNothing);
   });
 
-  // ⭐ 2026-08-26 用户拍板：底栏是**唯一**不跟这个开关走的 chrome——假玻璃档下
-  // 它照旧是真液态玻璃（果冻指示器 / 磁透镜 / 按住即滑全靠包内部那套手势，换成
-  // 自绘版等于把这块的手感整个抽掉）。曾经的自绘版 `_PlainFloatingTabBar` 已删。
-  testWidgets('浮动底栏是唯一的例外：两档都用真液态玻璃', (tester) async {
+  // ⭐ 2026-09-04 用户拍板：底栏**跟着**全局材质开关走了（旧结论「底栏是唯一
+  // 的例外、两档都是真液态玻璃」已作废）。Material 档下它整只换成 M3 的
+  // `NavigationBar`，果冻指示器 / 磁透镜 / 按住即滑是液态档专有的。
+  testWidgets('浮动底栏跟着开关走：液态档是玻璃栏，Material 档是 M3 导航栏', (
+    tester,
+  ) async {
     final taps = <int>[];
     Future<void> pumpBar(GlassMaterialMode mode) async {
       glassMaterialMode.value = mode;
@@ -189,22 +193,26 @@ void main() {
 
     await pumpBar(GlassMaterialMode.liquid);
     expect(find.byType(lgw.GlassTabBar), findsOneWidget);
+    expect(find.byType(NavigationIndicator), findsNothing);
 
-    await pumpBar(GlassMaterialMode.plain);
+    await pumpBar(GlassMaterialMode.material);
     expect(
       find.byType(lgw.GlassTabBar),
-      findsOneWidget,
-      reason: '底栏被收进材质开关了：果冻指示器与按住即滑会一起消失',
+      findsNothing,
+      reason: 'Material 档下底栏还在采样背景：这一档本该一块玻璃都不建',
     );
+    // M3 那颗选中药丸（框架公开的 [NavigationIndicator]）一格一只。
+    expect(find.byType(NavigationIndicator), findsNWidgets(3));
     // 换项照常（同项也回调，首页的「再点一次 = 回顶」靠它）。
-    await tester.tap(find.text('订阅').first);
+    // 点图标而不是文字：标签只在选中项在场，未选中那格的 `Text` 高度是 0。
+    await tester.tap(find.byIcon(Icons.subscriptions).first);
     await tester.pump(const Duration(milliseconds: 400));
     expect(taps, [2]);
   });
 
   test('applyGlassMaterialFromConfig 把配置表那个 bool 翻成档位', () {
     applyGlassMaterialFromConfig(false);
-    expect(glassMaterialMode.value, GlassMaterialMode.plain);
+    expect(glassMaterialMode.value, GlassMaterialMode.material);
     applyGlassMaterialFromConfig(true);
     expect(glassMaterialMode.value, GlassMaterialMode.liquid);
   });

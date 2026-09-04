@@ -115,16 +115,18 @@ class _GlassPressableState extends State<GlassPressable> {
 
 /// 玻璃体容器：胶囊或圆形，是全 App **唯一**的玻璃材质定义处。
 ///
-/// 材质有**三套后端**，由所处子树里的 `LiquidGlassScope` 决定（见
+/// 材质有**四套后端**，由所处子树里的 `LiquidGlassScope` 决定（见
 /// `liquid_glass_material.dart` 的 [GlassBackend]）：
-///   - [GlassBackend.plain]（默认）：半透明底色 + 细描边 + 柔和投影，
-///     无 BackdropFilter，零 shader 成本。
+///   - [GlassBackend.plain]（默认）：半透明底色 + 细描边（无外投影），
+///     无 BackdropFilter，零 shader 成本。液态档内部的「便宜档」。
+///   - [GlassBackend.material]：不透明 M3 面（[MaterialSurfaceBox]），
+///     无描边 / 无投影 / 无形变。用户选「Material」时全站走它。
 ///   - [GlassBackend.easyLens]：`liquid_glass_easy` 的真折射透镜
 ///     （[LiquidGlassBox]）。玻璃菜单钉死在这一档。
 ///   - [GlassBackend.liquidWidgets]：`liquid_glass_widgets` 的 `AdaptiveGlass`
 ///     （[LiquidWidgetsGlassBox]）。页面 chrome 现在走这一档。
 ///
-/// 三档**尺寸语义完全一致**，只换材质——换档不会动布局。
+/// 四档**尺寸语义完全一致**，只换材质——换档不会动布局。
 ///
 /// 传 [onTap] 时整体可按（带缩放与底色加深）；不传时只做容器，
 /// 由子组件各自处理点击（例如 [GlassButtonGroup]）。
@@ -174,8 +176,11 @@ class GlassSurface extends StatelessWidget {
 
   /// 是否接入交互形变（按住并拖动时整只玻璃跟着手指走、松手弹回）。
   ///
-  /// **三档都吃这一项**：传统档 2026-08-26 起也有同一套形变（见
+  /// **三个玻璃档都吃这一项**：传统档 2026-08-26 起也有同一套形变（见
   /// [LiquidWidgetsPlainBox]），只是不带那圈指尖辉光。换材质不该换手感。
+  ///
+  /// ⛔ **[GlassBackend.material] 是例外，恒不开**：那一档不是玻璃，纸不会被
+  /// 手指拽长（2026-09-04 用户拍板去掉）。判断收在本组件里，调用点不用管。
   ///
   /// **默认开**。2026-08-23 从 opt-in 翻成 opt-out：跟手形变是这套材质的基本
   /// 手感之一，「一块玻璃按下去会不会动」不该由每个调用点各自决定——用户在
@@ -226,8 +231,13 @@ class GlassSurface extends StatelessWidget {
     // 的玻璃开了它要么被撑满可用空间、要么在无界约束里静默失效。[liquidTouch]
     // 默认开之后不能再指望每个调用点自己守这条，所以这里自己判——钉不死就降级
     // 成不开。widgets 档没有这条约束。
+    //
+    // Material 档一律不开：跟手形变是液态玻璃的物理，不是「手感」的通用底座
+    // （2026-09-04 用户拍板一并去掉）。按在这个收口点上而不是指望 100+ 个
+    // 调用点各自守一条。
     final bool effectiveLiquidTouch =
         liquidTouch &&
+        backend != GlassBackend.material &&
         (backend != GlassBackend.easyLens ||
             (height != null && (circle || width != null)));
 
@@ -328,6 +338,17 @@ class GlassSurface extends StatelessWidget {
             elevated: elevated,
             interactive: effectiveLiquidTouch,
             materialize: m,
+            child: content,
+          );
+        case GlassBackend.material:
+          return MaterialSurfaceBox(
+            height: height,
+            width: width,
+            circle: circle,
+            cornerRadius: radius.topLeft.x,
+            pressed: pressed,
+            materialize: m,
+            clipContent: clipContent,
             child: content,
           );
         case GlassBackend.plain:
@@ -509,18 +530,39 @@ class GlassIconButton extends StatelessWidget {
     }
 
     // 组内变体（standalone == false）：外壳由 [GlassButtonGroup] 提供。
-    // ⛔ 按下时不自绘暗底，理由同 [GlassTextActionButton]——胶囊里再叠一个
-    // 深色圆斑就是「玻璃上的脏印子」。反馈留 0.9 缩放 + 长按时整只胶囊的蠕动。
+    //
+    // ⛔ 玻璃档下按下时**不自绘暗底**，理由同 [GlassTextActionButton]——半透明
+    // 胶囊里再叠一个深色圆斑就是「玻璃上的脏印子」。反馈留 0.9 缩放 + 长按时
+    // 整只胶囊的蠕动。
+    //
+    // ⭐ Material 档反过来：它既没有蠕动、面又是不透明的（压根不存在「脏印
+    // 子」），只剩 0.9 缩放太薄——而 M3 规定的按下反馈正是身下那个圆形状态层。
+    final bool materialTier =
+        LiquidGlassScope.of(context) == GlassBackend.material;
     Widget result = GlassPressable(
       onTap: effectiveOnPressed,
       onLongPress: effectiveOnLongPressed,
       opensOverlay: opensOverlay,
       longPressOpensOverlay: longPressOpensOverlay,
       scale: 0.9,
-      builder: (context, _) => SizedBox(
+      builder: (context, pressed) => SizedBox(
         width: resolvedSize,
         height: resolvedSize,
-        child: Center(child: iconWidget),
+        child: materialTier
+            ? AnimatedContainer(
+                duration: GlassTokens.pressDuration,
+                curve: Curves.easeOut,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: pressed
+                      ? cs.onSurface.withValues(
+                          alpha: GlassTokens.materialPressedStateLayer,
+                        )
+                      : Colors.transparent,
+                ),
+                child: Center(child: iconWidget),
+              )
+            : Center(child: iconWidget),
       ),
     );
     if (tooltip != null && tooltip!.isNotEmpty) {
@@ -767,10 +809,28 @@ class GlassTextActionButton extends StatelessWidget {
         // 反馈并没有丢：点按是 [GlassPressable] 的 0.94 缩放，长按是整只胶囊
         // 的跟手蠕动（[GlassButtonGroup.touchFlex] 默认开）——而「长按」正是
         // 暗底最碍眼的那一档，它本来就该让位给蠕动。
-        builder: (context, _) => Container(
+        //
+        // ⭐ Material 档反过来要画：那一档没有蠕动、身下也是不透明的面（不存在
+        // 「脏印子」），M3 规定的按下反馈正是这层状态层。理由同 [GlassIconButton]
+        // 的组内变体。
+        builder: (context, pressed) => AnimatedContainer(
+          duration: GlassTokens.pressDuration,
+          curve: Curves.easeOut,
           height: GlassTokens.pillHeight,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           alignment: Alignment.center,
+          decoration:
+              LiquidGlassScope.of(context) == GlassBackend.material &&
+                  pressed
+              ? BoxDecoration(
+                  color: cs.onSurface.withValues(
+                    alpha: GlassTokens.materialPressedStateLayer,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                    GlassTokens.pillHeight / 2,
+                  ),
+                )
+              : const BoxDecoration(color: Colors.transparent),
           // 文字 ↔ 转圈原位交叉过渡，胶囊宽度跟着平滑伸缩
           child: AnimatedSize(
             duration: GlassTokens.motionDuration,

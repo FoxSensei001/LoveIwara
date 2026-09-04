@@ -107,7 +107,7 @@ class ThemeSettingsPage extends StatelessWidget {
     );
   }
 
-  /// 玻璃质感：真液态玻璃（模糊 + 折射） ↔ 轻量半透明。
+  /// 界面材质：真液态玻璃（模糊 + 折射） ↔ Material（不透明 M3 面）。
   ///
   /// 换的是全局材质档（`glassMaterialMode`），全站 chrome、菜单、弹窗按钮一起
   /// 变，立刻生效不用重启。

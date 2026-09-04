@@ -426,8 +426,8 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     // 这里不套 [LiquidGlassScope]：液态档下底栏整只（胶囊 + 果冻指示器 + 右侧
     // 圆钮）都由 `liquid_glass_widgets` 自己画，内部没有 `GlassSurface`，套了
     // 也没用——材质取值与全站 chrome 同源（`GlassTokens.widgetsGlass`）。
-    // 全局材质开关（真玻璃 / 假玻璃）由 [GlassFloatingTabBar] 自己认：假玻璃档
-    // 下它整只换成自绘的传统胶囊，不再有任何背景采样。
+    // 全局材质开关由 [GlassFloatingTabBar] 自己认：Material 档下它整只换成
+    // M3 的 `NavigationBar`（同样的浮动胶囊几何），不再有任何背景采样。
     return GlassFloatingTabBar(
       currentIndex: currentDisplayIndex,
       onTap: (index) => _handleNavigationTap(index, displayOrder),

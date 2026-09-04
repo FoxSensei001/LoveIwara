@@ -229,6 +229,10 @@ class _HeaderCapsuleLift extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⛔ 只有传统档（液态档内部的仿玻璃便宜档）才补这一下抬升。Material 档
+    // 一概不画投影——它的面是不透明 `surfaceContainerHigh`，与身下的
+    // `surface` 本来就差着一档色阶，不需要影子来分辨（2026-09-04 用户拍板：
+    // 「按钮和控件的阴影」是仿玻璃时期的非 Material 装饰）。
     final isPlain = LiquidGlassScope.of(context) == GlassBackend.plain;
     return PhysicalModel(
       // 透明遮挡体：drawShadow 只画形状外圈的影，不会把半透明胶囊的内部压暗。

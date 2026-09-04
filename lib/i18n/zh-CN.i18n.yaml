@@ -674,15 +674,15 @@ settings:
   defaultBrowserDesc: 请在系统设置中打开默认链接配置项，并添加网站链接
   themeMode: 主题模式
   themeModeDesc: 此配置决定应用的主题模式
-  glassEffect: 玻璃质感
-  glassEffectDesc: 决定全局玻璃控件（顶栏胶囊、菜单、弹窗按钮）用哪种材质；浮动底栏始终是液态玻璃
+  glassEffect: 界面材质
+  glassEffectDesc: 决定全局界面材质（顶栏胶囊、菜单、弹窗按钮、底部导航栏）
   liquidGlassEffect: 液态玻璃
   liquidGlassEffectDesc: 真实的模糊与折射材质，观感最好；低端设备可能掉帧、略微费电
-  plainGlassEffect: 轻量半透明
-  plainGlassEffectDesc: 只用半透明底色与描边、不做模糊，性能与续航最好
-  glassEffectIntroTitle: 试试新的玻璃质感
-  glassEffectIntroContent: 这一版的顶栏、底栏和菜单换成了液态玻璃（真实的模糊与折射）。如果设备上觉得卡或更喜欢简洁，可以现在换成轻量半透明（底栏会保持液态）。
-  glassEffectIntroHint: 以后随时可以在「设置 → 主题设置 → 玻璃质感」里改。
+  plainGlassEffect: Material
+  plainGlassEffectDesc: 标准 Material 3 界面：不透明、无模糊、无阴影，性能与续航最好
+  glassEffectIntroTitle: 挑一套界面材质
+  glassEffectIntroContent: 现在顶栏、底栏和菜单用的是液态玻璃（真实的模糊与折射）。如果设备上觉得卡或更喜欢简洁，可以现在换成 Material（不透明、无模糊、无阴影）。
+  glassEffectIntroHint: 以后随时可以在「设置 → 主题设置 → 界面材质」里改。
   glassEffectIntroDone: 就这样
   dynamicColor: 动态颜色
   dynamicColorDesc: 此配置决定应用是否使用动态颜色

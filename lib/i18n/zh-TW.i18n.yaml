@@ -673,15 +673,15 @@ settings:
   defaultBrowserDesc: 請在系統設定中打開預設連結配置項，並添加iwara.tv網站連結
   themeMode: 主題模式
   themeModeDesc: 此配置決定應用的主題模式
-  glassEffect: 玻璃質感
-  glassEffectDesc: 決定全域玻璃控件（頂欄膠囊、選單、彈窗按鈕）使用哪種材質；浮動底欄始終是液態玻璃
+  glassEffect: 介面材質
+  glassEffectDesc: 決定全域介面材質（頂欄膠囊、選單、彈窗按鈕、底部導覽列）
   liquidGlassEffect: 液態玻璃
   liquidGlassEffectDesc: 真實的模糊與折射材質，觀感最好；低階裝置可能掉幀、略微耗電
-  plainGlassEffect: 輕量半透明
-  plainGlassEffectDesc: 只用半透明底色與描邊、不做模糊，效能與續航最好
-  glassEffectIntroTitle: 試試新的玻璃質感
-  glassEffectIntroContent: 這一版的頂欄、底欄與選單換成了液態玻璃（真實的模糊與折射）。若在裝置上覺得卡頓或偏好簡潔，可以現在換成輕量半透明（底欄會保持液態）。
-  glassEffectIntroHint: 之後隨時可以在「設定 → 主題設定 → 玻璃質感」裡修改。
+  plainGlassEffect: Material
+  plainGlassEffectDesc: 標準 Material 3 介面：不透明、無模糊、無陰影，效能與續航最好
+  glassEffectIntroTitle: 挑一套介面材質
+  glassEffectIntroContent: 現在頂欄、底欄與選單用的是液態玻璃（真實的模糊與折射）。若在裝置上覺得卡頓或偏好簡潔，可以現在換成 Material（不透明、無模糊、無陰影）。
+  glassEffectIntroHint: 之後隨時可以在「設定 → 主題設定 → 介面材質」裡修改。
   glassEffectIntroDone: 就這樣
   dynamicColor: 動態顏色
   dynamicColorDesc: 此配置決定應用是否使用動態顏色

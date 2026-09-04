@@ -315,10 +315,10 @@ class GlobalDrawerColumns extends StatelessWidget {
   }
 
   Widget _buildFloatingActions(BuildContext context) {
-    // 抽屉底部动作栏位于不透明渐变承托之上，使用 GlassBackend.plain（0 Shader 成本）
+    // 抽屉底部动作栏位于不透明渐变承托之上，走「便宜档」（0 Shader 成本）
     // 避免在抽屉滑出时对整个滑动子树和主页面进行高开销的 Backdrop 采样。
     return LiquidGlassScope(
-      backend: GlassBackend.plain,
+      backend: flatGlassBackend(context),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

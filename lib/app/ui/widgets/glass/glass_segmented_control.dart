@@ -743,13 +743,20 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
   }
 
   Widget _buildHighlight(ColorScheme cs, double innerHeight) {
+    // Material 档：高亮块换成不透明的 `secondaryContainer`（M3 分段按钮的选中
+    // 容器），并且**不做拖拽时的 1.07 胀大**——那是液态那套「被拽一下会鼓起来」
+    // 的语言，压在一块不透明的药丸上只读成「跳了一下」。
+    final bool material =
+        LiquidGlassScope.of(context) == GlassBackend.material;
     final decoration = BoxDecoration(
-      color: GlassTokens.selectedHighlight(cs),
+      color: material
+          ? GlassTokens.materialSelected(cs)
+          : GlassTokens.selectedHighlight(cs),
       borderRadius: BorderRadius.circular(innerHeight / 2),
     );
     // 拖拽中微放大，松手还原
     final Widget thumb = AnimatedScale(
-      scale: _dragging ? 1.07 : 1.0,
+      scale: _dragging && !material ? 1.07 : 1.0,
       duration: const Duration(milliseconds: 160),
       curve: Curves.easeOut,
       child: DecoratedBox(decoration: decoration),

@@ -860,8 +860,14 @@ Future<T?> showGlassMenu<T>({
 /// 那层，**没有钉死尺寸的要求**——所以它不必等尺寸，面板照旧「有几行就多高、
 /// 多宽」，顺带绕开量宽那一两像素的出入（`TextPainter` 离线量的，与真实排版
 /// 对不齐）。
+///
+/// Material 档压根没有形变（见 [MaterialSurfaceBox]），恒 false。
 bool _panelTouchFlexFits(GlassBackend backend, Size? precomputedSize) =>
-    backend == GlassBackend.plain || precomputedSize != null;
+    switch (backend) {
+      GlassBackend.material => false,
+      GlassBackend.plain => true,
+      _ => precomputedSize != null,
+    };
 
 /// 把菜单挂到根 `Overlay` 上（而不是 push 成路由），只给手指接力那条路用。
 /// 理由见 [_GlassMenuOverlayHost] 的类注释。

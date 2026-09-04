@@ -343,7 +343,7 @@ enum ConfigKey {
   CURRENT_PRESET_INDEX_KEY,
   CURRENT_CUSTOM_HEX_KEY,
   CUSTOM_THEME_COLORS_KEY,
-  ENABLE_LIQUID_GLASS_KEY, // 玻璃质感：true=真液态玻璃（模糊/折射），false=轻量半透明
+  ENABLE_LIQUID_GLASS_KEY, // 界面材质：true=真液态玻璃（模糊/折射），false=Material
   GLASS_MATERIAL_INTRO_SHOWN, // 玻璃质感的一次性提醒是否已经露过面（引导页问过也算）
   RECORD_AND_RESTORE_VIDEO_PROGRESS,
   USE_AI_TRANSLATION,

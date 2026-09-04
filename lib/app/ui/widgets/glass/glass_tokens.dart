@@ -3,15 +3,19 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
+import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart'
+    show GlassMaterialMode, glassMaterialMode;
 
 /// 「液态玻璃」风格的尺寸 / 颜色 token。
 ///
 /// 设计来源：docs/mockups/telegram_chat_list_design.md（本地设计稿，已 gitignore）。
 ///
-/// 材质有**三套后端**，由 `LiquidGlassScope` 决定用哪一套（见
+/// 材质有**四套后端**，由 `LiquidGlassScope` 决定用哪一套（见
 /// `liquid_glass_material.dart` 的 `GlassBackend`）：
 ///   - 传统档：半透明纯色 + 描边，无 BackdropFilter、**无外投影**。全平台
-///     一致、最省。取值见 [fill] / [stroke]。
+///     一致、最省。取值见 [fill] / [stroke]。液态档内部的「便宜档」。
+///   - Material 档：不透明 M3 面，无描边 / 无投影 / 无形变。用户在设置里选
+///     「Material」时全站走它，取值见「Material 档」那一段。
 ///   - easy 档：`liquid_glass_easy` 的真折射透镜。取值见下方「真·液态玻璃
 ///     （liquid_glass_easy 后端）」段。浮出来的面板（菜单、下拉板）走这一档。
 ///   - widgets 档：`liquid_glass_widgets` 的 `AdaptiveGlass`。取值见下方
@@ -203,12 +207,25 @@ abstract final class GlassTokens {
   /// 2026-08-29 从 0.80 提到 0.94：用户报「新版弹窗在 plain 模式下背景透明度
   /// 太高」。留着 6% 的透光是为了保住这一档「贴在内容上的一层膜」的观感——
   /// 全不透明就成了一张普通卡片，与 [stroke] 那圈细描边的语言对不上。
-  static Color fill(ColorScheme cs) =>
-      cs.surfaceContainerLow.withValues(alpha: 0.94);
+  ///
+  /// ⭐ **Material 档下整只换成不透明的 [materialFill]**（2026-09-04：用户要求
+  /// 移除仿玻璃那套透明度）。这里读的是全局 notifier 而不是 `BuildContext`
+  /// ——本函数有 40 处调用点，其中不少是手搓容器的静态取色，改签名等于把
+  /// 「一处收口」摊回四十处。代价是切档那一刻**没读过 [GlassMaterialScope] 的
+  /// 那几个手搓容器不会立刻重建**（差别只有 6% 透光，下次重建就对了）；
+  /// 走 [GlassSurface] 的玻璃件都是 scope 的依赖，照旧立刻跟着变。
+  static Color fill(ColorScheme cs) => _isMaterialTier
+      ? materialFill(cs)
+      : cs.surfaceContainerLow.withValues(alpha: 0.94);
 
   /// 玻璃体按下时的底色。
-  static Color pressedFill(ColorScheme cs) =>
-      Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), fill(cs));
+  static Color pressedFill(ColorScheme cs) => _isMaterialTier
+      ? materialPressedFill(cs)
+      : Color.alphaBlend(cs.onSurface.withValues(alpha: 0.08), fill(cs));
+
+  /// 当前全局材质档是不是 Material（见 [fill] 里那段「为什么读全局 notifier」）。
+  static bool get _isMaterialTier =>
+      glassMaterialMode.value == GlassMaterialMode.material;
 
   /// 玻璃体内侧细描边。
   static Color stroke(ColorScheme cs) => cs.outlineVariant.withValues(
@@ -236,6 +253,40 @@ abstract final class GlassTokens {
   /// 选中态高亮底色（Tab / 分段）。
   static Color selectedHighlight(ColorScheme cs) =>
       cs.secondaryContainer.withValues(alpha: 0.9);
+
+  // ---- Material 档（[GlassBackend.material]）----
+  //
+  // 这一段是**用户在主题设置里选「Material」时全站用的那套色**：不透明、
+  // 不描边、不投影，层级差别全部交给 M3 的 surface container 色阶去表达
+  // （tonal elevation）。它与上面那套传统档取值刻意分开：传统档是液态档
+  // 内部用的「便宜档」（弹窗正文、抽屉动作栏这些进不了 lens 的地方），
+  // 那里的半透明与细描边是为了和身边的真玻璃对得上话；Material 档不是玻璃，
+  // 不该继承玻璃的语言。
+  //
+  // ⛔ 这一档**不画任何 BoxShadow / PhysicalModel 抬升**（2026-09-04 用户拍板：
+  // 「按钮和控件的阴影」是仿玻璃时期加的非 Material 装饰）。要让一块面立起来，
+  // 请往上挑一档 surface container，不要加投影。
+
+  /// M3 状态层不透明度（按下）。见 M3 states 规范：pressed = 10%。
+  static const double materialPressedStateLayer = 0.10;
+
+  /// Material 档的面色：`surfaceContainerHigh`。
+  ///
+  /// 为什么是 High 而不是 [fill] 那档的 Low：这套材质画的都是**浮在内容之上**
+  /// 的东西（header 胶囊、浮动底栏、菜单面板、弹窗里的键），而页面底色是
+  /// `surface`。去掉投影之后，唯一能说明「它浮着」的就是色阶差——差得太少就
+  /// 读成「陷进背景里的一块」。
+  static Color materialFill(ColorScheme cs) => cs.surfaceContainerHigh;
+
+  /// Material 档按下时的面色：面色上叠一层 10% 的 `onSurface` 状态层。
+  static Color materialPressedFill(ColorScheme cs) => Color.alphaBlend(
+    cs.onSurface.withValues(alpha: materialPressedStateLayer),
+    materialFill(cs),
+  );
+
+  /// Material 档的选中块（分段控件的高亮、底栏指示器）：M3 的
+  /// `secondaryContainer`，不透明。
+  static Color materialSelected(ColorScheme cs) => cs.secondaryContainer;
 
   /// 浮动底栏那颗果冻指示器的色调。
   ///

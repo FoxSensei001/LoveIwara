@@ -81,7 +81,10 @@ class GlassDialogTransition extends StatelessWidget {
         animation: curved,
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
-          child: LiquidGlassScope(backend: GlassBackend.plain, child: child),
+          child: LiquidGlassScope(
+            backend: flatGlassBackend(context),
+            child: child,
+          ),
         ),
       ),
     );

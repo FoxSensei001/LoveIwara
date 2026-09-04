@@ -178,7 +178,7 @@ class FramePerfProbe {
       if (value == 'plain' || value == 'liquid') {
         glassMaterialMode.value = value == 'liquid'
             ? GlassMaterialMode.liquid
-            : GlassMaterialMode.plain;
+            : GlassMaterialMode.material;
         // 换档要重建整棵树，等两帧再让基准继续，免得把重建那一下算进读数。
         await Future<void>.delayed(const Duration(milliseconds: 300));
         mark('mode=$value');
@@ -194,7 +194,7 @@ class FramePerfProbe {
   static Future<void> _forceGlassRebuild() async {
     final GlassMaterialMode current = glassMaterialMode.value;
     final GlassMaterialMode other = current == GlassMaterialMode.liquid
-        ? GlassMaterialMode.plain
+        ? GlassMaterialMode.material
         : GlassMaterialMode.liquid;
     glassMaterialMode.value = other;
     await Future<void>.delayed(const Duration(milliseconds: 200));

@@ -17,7 +17,7 @@ class ThemeService extends GetxService {
   final _currentCustomHex = ''.obs; // 当前自定义颜色
   final _customThemeColors = <String>[].obs;
 
-  /// 玻璃质感：true = 真液态玻璃（模糊 + 折射），false = 轻量半透明。
+  /// 玻璃质感：true = 真液态玻璃（模糊 + 折射），false = Material。
   final _enableLiquidGlass = true.obs;
 
   // 预设的主题色
@@ -69,9 +69,10 @@ class ThemeService extends GetxService {
     Get.find<ConfigService>()[ConfigKey.ENABLE_LIQUID_GLASS_KEY] = enabled;
     applyGlassMaterialFromConfig(enabled);
 
-    // 启动时已经预热过一次（两档都热，见 `main.dart`），这里只是兜底重试：
-    // 那一次万一失败了（构建损坏 / 环境不支持），现开真玻璃时再试一次，
-    // 免得整屏 lens 都停在磨砂档。`ensureLoaded` 幂等，热过就是空转。
+    // 启动时**只有液态档**预热（Material 档一块玻璃都不建，见 `main.dart`）。
+    // 所以这里不只是兜底重试，也是「从 Material 切到液态」这条路上唯一的预热
+    // 时机：不热的话接下来那几帧 lens 会先渲染成磨砂再跳成折射。
+    // `ensureLoaded` 幂等，热过就是空转。
     if (enabled) {
       unawaited(warmUpLiquidGlassShaders());
     }
