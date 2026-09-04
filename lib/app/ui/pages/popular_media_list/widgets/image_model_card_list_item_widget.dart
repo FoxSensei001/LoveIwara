@@ -87,10 +87,15 @@ class _ImageModelCardListItemWidgetState
 
   Map<String, dynamic> _buildGalleryDetailExtData() => <String, dynamic>{};
 
-  Future<void> _openGalleryDetail() async {
+  Future<void> _openGalleryDetail({
+    ImageModel? preloadedDetail,
+    String? initialImageId,
+  }) async {
     final extData = _buildGalleryDetailExtData();
     await NaviService.navigateToGalleryDetailPage(
       widget.imageModel.id,
+      preloadedDetail: preloadedDetail,
+      initialImageId: initialImageId,
       coverUrl: widget.imageModel.thumbnailUrl,
       title: widget.imageModel.title,
       imageCount: widget.imageModel.numImages,
@@ -111,6 +116,20 @@ class _ImageModelCardListItemWidgetState
 
   @override
   Future<void> openMediaDetail() => _openGalleryDetail();
+
+  /// 预览弹窗里点开 / 拖出某一张图：详情页直接开到那张大图，顺手把预览已经拉到
+  /// 手的那份详情一起交过去。见 [MediaCardActionState.openGalleryImage]。
+  @override
+  Future<void> openGalleryImage(ImageModel gallery, String fileId) =>
+      _openGalleryDetail(preloadedDetail: gallery, initialImageId: fileId);
+
+  /// 卡片整只起飞，所以 Hero 盒子里不是「整只都是封面」，圆角也是卡片自己的。
+  /// 见 [MediaCardActionState.previewHeroBoxIsAllCover]。
+  @override
+  bool get previewHeroBoxIsAllCover => false;
+
+  @override
+  double get previewHeroRadius => 14;
 
   @override
   Widget build(BuildContext context) {
@@ -166,131 +185,142 @@ class _ImageModelCardListItemWidgetState
           onExit: enableHover
               ? (_) => setState(() => _isHovering = false)
               : null,
-          child: AnimatedContainer(
-            duration: _hoverAnimationDuration,
-            curve: Curves.easeOutCubic,
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(
-                    alpha: showHoverState ? 0.2 : 0.08,
-                  ),
-                  blurRadius: showHoverState ? 18 : 8,
-                  offset: Offset(0, showHoverState ? 8 : 3),
+          // ⭐ 「卡片 → 预览弹窗」那段 Hero 的起点是**整张卡片**，不是缩略图。
+          //
+          // 只飞缩略图的话，卡片的轮廓（这张带圆角和投影的白底）原地消失、弹窗
+          // 面板凭空出现，读起来是两件事；整只包住之后飞的是「这张卡片变成了
+          // 这张面板」。包在投影这一层而不是里面那只 Material 上：不然飞行期间
+          // 列表里会留下一圈无主的投影。
+          // HeroMode 的开关见 [previewHeroEnabled]。
+          child: HeroMode(
+            enabled: previewHeroEnabled,
+            child: Hero(
+              tag: previewHeroTag,
+              child: AnimatedContainer(
+                duration: _hoverAnimationDuration,
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.shadow.withValues(
+                        alpha: showHoverState ? 0.2 : 0.08,
+                      ),
+                      blurRadius: showHoverState ? 18 : 8,
+                      offset: Offset(0, showHoverState ? 8 : 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              borderRadius: radius,
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: radius,
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
+                child: Material(
+                  color: Colors.transparent,
+                  borderRadius: radius,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
                           borderRadius: radius,
-                          border: Border.all(
-                            color: theme.colorScheme.outlineVariant.withValues(
-                              alpha: showHoverState ? 0.6 : 0.3,
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface,
+                              borderRadius: radius,
+                              border: Border.all(
+                                color: theme.colorScheme.outlineVariant
+                                    .withValues(
+                                      alpha: showHoverState ? 0.6 : 0.3,
+                                    ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  InkWell(
-                    borderRadius: radius,
-                    onTap: widget.isMultiSelectMode && widget.onSelect != null
-                        ? widget.onSelect!
-                        : _openGalleryDetail,
-                    // 长按 / 右键 → 预览弹窗；三点钮 → 操作菜单（菜单第一条又
-                    // 能回到预览）。与视频卡片一致，见
-                    // media_preview_dialog.dart 文件头。
-                    onSecondaryTap: widget.isMultiSelectMode
-                        ? null
-                        : openPreview,
-                    onLongPress: widget.isMultiSelectMode ? null : openPreview,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 缩略图是「卡片 → 预览弹窗」那段 Hero 的起点。
-                        HeroMode(
-                          enabled: previewHeroEnabled,
-                          child: Hero(
-                            tag: previewHeroTag,
-                            child: _Thumbnail(
+                      InkWell(
+                        borderRadius: radius,
+                        onTap:
+                            widget.isMultiSelectMode && widget.onSelect != null
+                            ? widget.onSelect!
+                            : _openGalleryDetail,
+                        // 长按 / 右键 → 预览弹窗；三点钮 → 操作菜单（菜单第一条又
+                        // 能回到预览）。与视频卡片一致，见
+                        // media_preview_dialog.dart 文件头。
+                        onSecondaryTap: widget.isMultiSelectMode
+                            ? null
+                            : openPreview,
+                        onLongPress: widget.isMultiSelectMode
+                            ? null
+                            : openPreview,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _Thumbnail(
                               imageModel: widget.imageModel,
                               width: widget.width,
                               isHovering: showHoverState,
                               reblockVisible: showReblock,
-                              onReblock: () => setState(() => _revealed = false),
+                              onReblock: () =>
+                                  setState(() => _revealed = false),
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: _titleHeight,
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    _displayTitle,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    strutStyle: const StrutStyle(
-                                      fontSize: _titleFontSize,
-                                      height: _titleLineHeight,
-                                      forceStrutHeight: true,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: _titleHeight,
+                                    child: Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Text(
+                                        _displayTitle,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        strutStyle: const StrutStyle(
+                                          fontSize: _titleFontSize,
+                                          height: _titleLineHeight,
+                                          forceStrutHeight: true,
+                                        ),
+                                        style: titleStyle,
+                                      ),
                                     ),
-                                    style: titleStyle,
                                   ),
-                                ),
+                                  const SizedBox(height: 8),
+                                  ImageModelCardMetaLine(
+                                    imageModel: widget.imageModel,
+                                    isLiked: effectiveLiked,
+                                    likeCount: effectiveLikeCount,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  MediaCardAuthorLine(
+                                    user: widget.imageModel.user,
+                                    isMultiSelectMode: widget.isMultiSelectMode,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              ImageModelCardMetaLine(
-                                imageModel: widget.imageModel,
-                                isLiked: effectiveLiked,
-                                likeCount: effectiveLikeCount,
-                              ),
-                              const SizedBox(height: 8),
-                              MediaCardAuthorLine(
-                                user: widget.imageModel.user,
-                                isMultiSelectMode: widget.isMultiSelectMode,
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      // 三点钮：压在整张卡片的右下角。
+                      MediaCardActionSlot(
+                        gallery: widget.imageModel,
+                        isMultiSelectMode: widget.isMultiSelectMode,
+                        likedOverride: effectiveLiked,
+                        onLikeChanged: applyLikeToggle,
+                        onPreview: openPreview,
+                        duration: _hoverAnimationDuration,
+                      ),
+                      // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
+                      // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
+                      // 进出选择态两个方向都有淡入淡出。
+                      Positioned.fill(
+                        child: GlassSelectableOverlay(
+                          selectionMode: widget.isMultiSelectMode,
+                          selected: widget.isSelected,
+                          borderRadius: radius,
+                        ),
+                      ),
+                    ],
                   ),
-                  // 三点钮：压在整张卡片的右下角。
-                  MediaCardActionSlot(
-                    gallery: widget.imageModel,
-                    isMultiSelectMode: widget.isMultiSelectMode,
-                    likedOverride: effectiveLiked,
-                    onLikeChanged: applyLikeToggle,
-                    onPreview: openPreview,
-                    duration: _hoverAnimationDuration,
-                  ),
-                  // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
-                  // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
-                  // 进出选择态两个方向都有淡入淡出。
-                  Positioned.fill(
-                    child: GlassSelectableOverlay(
-                      selectionMode: widget.isMultiSelectMode,
-                      selected: widget.isSelected,
-                      borderRadius: radius,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

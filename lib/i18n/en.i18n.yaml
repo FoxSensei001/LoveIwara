@@ -2801,6 +2801,8 @@ mediaPreview:
   preview: Preview
   openDetail: Open
   moreActions: More actions
+  previousImage: Previous image
+  nextImage: Next image
 playbackQueue:
   upNext: Up next
   sourceTab: Source

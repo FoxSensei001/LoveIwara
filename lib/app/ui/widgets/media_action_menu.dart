@@ -203,6 +203,13 @@ Future<void> showMediaActionMenu({
   /// 打开预览弹窗。给了它菜单里才有「预览」那一条——预览弹窗自己吐出本菜单时
   /// 不传，免得在自己身上打转。
   VoidCallback? onPreview,
+
+  /// 菜单里那些**会把用户带去别的页面**的动作（目前只有「作者主页」）在跳转
+  /// 之前先跑它。
+  ///
+  /// 从预览弹窗吐出本菜单时由弹窗给：弹窗和承载它的「接着看」抽屉都得先让开，
+  /// 否则它们会浮在刚推进来的作者页上面。卡片那一路不用传。
+  Future<void> Function()? onWillLeavePage,
 }) async {
   assert(
     (video == null) != (gallery == null),
@@ -419,6 +426,7 @@ Future<void> showMediaActionMenu({
       final username = (video?.user?.username ?? gallery?.user?.username ?? '')
           .trim();
       if (username.isEmpty) return;
+      await onWillLeavePage?.call();
       NaviService.navigateToAuthorProfilePage(
         username,
         initialUser: video?.user ?? gallery?.user,

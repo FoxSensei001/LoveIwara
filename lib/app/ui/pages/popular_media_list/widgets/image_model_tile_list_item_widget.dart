@@ -251,10 +251,21 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
   @override
   Future<void> openMediaDetail() async => _navigateToDetailPage();
 
+  /// 预览弹窗里点开 / 拖出某一张图：详情页直接开到那张大图，顺手把预览已经拉到
+  /// 手的那份详情一起交过去。见 [MediaCardActionState.openGalleryImage]。
+  @override
+  Future<void> openGalleryImage(ImageModel gallery, String fileId) async =>
+      _navigateToDetailPage(preloadedDetail: gallery, initialImageId: fileId);
+
   /// 导航到详情页
-  void _navigateToDetailPage() {
+  void _navigateToDetailPage({
+    ImageModel? preloadedDetail,
+    String? initialImageId,
+  }) {
     NaviService.navigateToGalleryDetailPage(
       imageModel.id,
+      preloadedDetail: preloadedDetail,
+      initialImageId: initialImageId,
       coverUrl: imageModel.thumbnailUrl,
       title: imageModel.title,
       imageCount: imageModel.numImages,

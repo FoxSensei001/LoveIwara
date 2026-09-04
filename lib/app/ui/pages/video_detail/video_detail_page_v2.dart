@@ -471,6 +471,11 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     if (!_hasUsableController) return;
     LogUtils.d('didPushNext', 'MyVideoDetailPage');
     // 弹窗/菜单（PopupRoute）覆盖时不自动暂停，避免工具栏弹层打断播放。
+    //
+    // ⛔ 这道闸门数的是**全局**弹层数，分不清「浮在我上面的抽屉」和「盖住我的
+    // 新页面」：「接着看」抽屉开着时，从预览弹窗里跳去别的页面会被它一并挡掉。
+    // 那一份收尾由 [PageDepartureGuard] 补（它知道刚 push 的是不是真页面，也正是
+    // 它把那些临时层收掉的），两边落到同一个 [onCoveredByAnotherPage]。
     if (OverlayTracker.instance.hasOverlay) {
       LogUtils.d(
         'didPushNext ignored because popup overlay is active',
@@ -478,15 +483,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       );
       return;
     }
-    // 暂停播放（即便视频源尚未加载完成也能正确抑制后续自动播放）
-    controller.suspendForCoveredRoute();
-    controller.pausePlayback();
-    // 重置屏幕亮度
-    controller.setDefaultBrightness();
-    // 如果当前为应用全屏状态，则恢复UI
-    if (controller.isDesktopAppFullScreen.value) {
-      appService.showSystemUI();
-    }
+    controller.onCoveredByAnotherPage();
   }
 
   /// 从上层页面返回到当前页面时调用（等同于原来的"进入"）

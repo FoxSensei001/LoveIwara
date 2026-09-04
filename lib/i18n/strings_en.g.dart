@@ -6216,6 +6216,12 @@ class TranslationsMediaPreviewEn {
 
 	/// en: 'More actions'
 	String get moreActions => 'More actions';
+
+	/// en: 'Previous image'
+	String get previousImage => 'Previous image';
+
+	/// en: 'Next image'
+	String get nextImage => 'Next image';
 }
 
 // Path: playbackQueue
@@ -11522,6 +11528,8 @@ extension on Translations {
 			'mediaPreview.preview' => 'Preview',
 			'mediaPreview.openDetail' => 'Open',
 			'mediaPreview.moreActions' => 'More actions',
+			'mediaPreview.previousImage' => 'Previous image',
+			'mediaPreview.nextImage' => 'Next image',
 			'playbackQueue.upNext' => 'Up next',
 			'playbackQueue.sourceTab' => 'Source',
 			'playbackQueue.emptyQueue' => 'Nothing playable in this queue',

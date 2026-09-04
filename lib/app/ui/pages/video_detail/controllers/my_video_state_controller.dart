@@ -33,6 +33,7 @@ import 'package:i_iwara/common/anime4k_presets.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
+import 'package:i_iwara/app/services/page_departure_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/utils/mpv_tuning.dart';
@@ -183,7 +184,8 @@ enum VideoCenterOverlayState {
 }
 
 class MyVideoStateController extends GetxController
-    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with GetSingleTickerProviderStateMixin, WidgetsBindingObserver
+    implements PageDepartureAware {
   final String? videoId;
   final Map<String, dynamic>? extData;
   final bool forceAutoPlay;
@@ -1002,6 +1004,8 @@ class MyVideoStateController extends GetxController
   void onInit() async {
     super.onInit();
     _isDisposed = false; // 初始化时确保标志位为 false
+    // 「被别的页面盖住就收尾」那道监控要认得本页，见 [PageDepartureGuard]。
+    PageDepartureGuard.attach(this);
     final rememberScreenFitMode =
         _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] == true;
     if (rememberScreenFitMode) {
@@ -2341,6 +2345,7 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
+    PageDepartureGuard.detach(this);
 
     // ⛔ 桌面全屏会话在这里放手，**不在** relinquishFullscreenForRouteHandoff 里。
     //
@@ -3817,6 +3822,39 @@ class MyVideoStateController extends GetxController
     } else {
       await player.pause();
     }
+  }
+
+  /// [PageDepartureAware]：本页此刻是不是真的占着全屏。
+  ///
+  /// 只报系统 / 原生窗口全屏。桌面「应用全屏」不算——它保留标题栏，跳到别的页面
+  /// 不会把人锁住（见 [PageDepartureGuard] 的说明）。
+  @override
+  bool get isPresentingFullscreen => isFullscreen.value;
+
+  /// [PageDepartureAware]：交还全屏。[exitFullscreen] 本身就是幂等的。
+  @override
+  Future<void> releaseFullscreen() => exitFullscreen();
+
+  /// 有别的页面盖到本页上面了，该收的尾。
+  ///
+  /// # 两个调用点，一份实现
+  ///
+  ///   - 详情页的 `didPushNext`——常规覆盖；
+  ///   - [PageDepartureGuard]——push 那一刻还有临时层（「接着看」抽屉、预览弹窗）
+  ///     浮着，`didPushNext` 开头那道 `OverlayTracker.hasOverlay` 闸门把整份收尾
+  ///     挡掉了（它数的是全局弹层数，分不清"浮在我上面的抽屉"和"盖住我的新页面"）。
+  ///
+  /// 两边都调得到，所以**必须幂等**：[suspendForCoveredRoute] 自带 `_isRouteCovered`
+  /// 闸门，[pausePlayback] 与 [setDefaultBrightness] 重复执行也无副作用。
+  @override
+  void onCoveredByAnotherPage() {
+    if (_isDisposed) return;
+    LogUtils.d('被别的页面盖住，暂停并复位', 'MyVideoStateController');
+    suspendForCoveredRoute();
+    pausePlayback();
+    setDefaultBrightness();
+    // 应用全屏藏掉的是侧边导航——新页面顶着它出现就跳不出视频分区了。
+    if (isDesktopAppFullScreen.value) appS.showSystemUI();
   }
 
   VideoFullscreenHandoff? buildFullscreenHandoff() {

@@ -22,7 +22,8 @@ import 'package:i_iwara/app/ui/widgets/media_preview_dialog.dart';
 ///
 /// 三点钮那只操作菜单由 `MediaActionMenuButton` 自己管（它贴着自己弹），卡片这
 /// 一侧只负责预览：[openPreview] 出弹窗，[previewHeroEnabled] / [previewHeroTag]
-/// 供卡片把缩略图挂进 Hero。分工与理由见 `media_preview_dialog.dart` 文件头。
+/// / [previewHeroRadius] / [previewHeroBoxIsAllCover] 供卡片把**整只自己**挂进
+/// Hero。分工与理由见 `media_preview_dialog.dart` 文件头。
 mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 这张卡片承载的视频。与 [actionGallery] 二选一。
   Video? get actionVideo => null;
@@ -45,6 +46,15 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 各有一份（参数完全不同——图库要带封面/张数，视频要带回灌点赞的 extData），
   /// 声明在这儿之后，新加的卡片漏接会直接编译不过。
   Future<void> openMediaDetail();
+
+  /// 打开这条媒体的详情页，并**直接开到 [fileId] 那张大图**（图库专用）。
+  ///
+  /// [gallery] 是预览弹窗为了摆出整本图已经拉到手的那份**完整详情**——交过去，
+  /// 详情页就不用再走一次网络（见 `NaviService.navigateToGalleryDetailPage`）。
+  ///
+  /// 默认退回 [openMediaDetail]：视频那两张卡片压根不会被调到，图库那两张覆盖它。
+  Future<void> openGalleryImage(ImageModel gallery, String fileId) =>
+      openMediaDetail();
 
   bool? _likedOverride;
   int? _likeCountOverride;
@@ -103,9 +113,22 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 重复从此不可能发生；顺带也省掉列表里几十个常驻 Hero 的开销。
   bool get previewHeroEnabled => _previewOpen;
 
-  /// 卡片缩略图 ↔ 弹窗封面的 Hero 标签。
+  /// 卡片 ↔ 弹窗面板的 Hero 标签。
   String get previewHeroTag =>
       mediaPreviewHeroTag(video: actionVideo, gallery: actionGallery);
+
+  /// Hero 起点那只盒子的圆角。飞行途中从它过渡到面板的圆角。
+  ///
+  /// 默认是列表行缩略图那一档；卡片整只起飞，要盖成卡片自己的圆角。
+  double get previewHeroRadius => 8;
+
+  /// Hero 起点那只盒子里**整只都是封面**吗。
+  ///
+  /// - **列表行**：真。行本身是页面背景上透明的一条，没有轮廓可以形变，所以
+  ///   起飞的只有缩略图本身。
+  /// - **卡片**：假。整张卡（封面 + 标题 + 作者行）一起飞，封面只占顶上那条
+  ///   16:9——飞行途中画的那份要照着这个摆，否则起飞第一帧就和卡片对不上。
+  bool get previewHeroBoxIsAllCover => true;
 
   /// 打开预览弹窗（长按 / 右键 / 操作菜单里的「预览」共用）。
   Future<void> openPreview() async {
@@ -122,6 +145,9 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
         likeCountOverride: effectiveLikeCount,
         onLikeChanged: applyLikeToggle,
         onOpenDetail: openMediaDetail,
+        onOpenGalleryImage: actionGallery == null ? null : openGalleryImage,
+        heroSourceRadius: previewHeroRadius,
+        heroSourceIsAllCover: previewHeroBoxIsAllCover,
       );
     } finally {
       // 等的是路由**销毁**（见 showMediaPreviewDialog），所以回飞已经落地，

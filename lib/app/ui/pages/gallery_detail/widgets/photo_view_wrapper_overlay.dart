@@ -15,6 +15,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
   String initialQuality = galleryImageQualityStandard,
   ValueChanged<String>? onQualityChanged,
   bool enableMenu = true,
+  bool instant = false,
 }) {
   if (!context.mounted) {
     return Future<T?>.value(null);
@@ -30,6 +31,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
     originalImageItems: originalImageItems,
     initialQuality: initialQuality,
     onQualityChanged: onQualityChanged,
+    instant: instant,
   );
 
   // If triggered from a dialog/bottom sheet (PopupRoute), pushing via GoRouter
@@ -41,7 +43,9 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
       PageRouteBuilder<T>(
         opaque: false,
         barrierColor: Colors.transparent,
-        transitionDuration: const Duration(milliseconds: 300),
+        transitionDuration: instant
+            ? Duration.zero
+            : const Duration(milliseconds: 300),
         reverseTransitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (context, animation, secondaryAnimation) =>
             _buildPhotoViewWrapperOverlayChild(extra),

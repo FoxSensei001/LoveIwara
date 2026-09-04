@@ -68,6 +68,12 @@ class GalleryDetailPage extends StatefulWidget {
   /// 图库池的引用：从「接着看」抽屉点过来、或者从带池的列表页进来时才有。
   final PlaybackQueueRef? playbackQueueRef;
 
+  /// 预览弹窗已经拉到手的那份完整详情。见 `NaviService.navigateToGalleryDetailPage`。
+  final ImageModel? preloadedDetail;
+
+  /// 进来就直接开到这张大图的文件 id。同上。
+  final String? initialImageId;
+
   const GalleryDetailPage({
     super.key,
     required this.imageModelId,
@@ -82,6 +88,8 @@ class GalleryDetailPage extends StatefulWidget {
     this.initialAuthorPremium,
     this.extData,
     this.playbackQueueRef,
+    this.preloadedDetail,
+    this.initialImageId,
   });
 
   @override
@@ -134,6 +142,33 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     super.dispose();
   }
 
+  /// 从预览弹窗**点着某一张图**（或把它往下拖出来）进来的：这一页刚落地就把
+  /// 那张开成大图页。
+  ///
+  /// 只在带着 [GalleryDetailPage.preloadedDetail] 进来时成立——名单那时候是现成
+  /// 的，不用等网络回来，也就不必去监听 `imageModelInfo`。文件 id 而不是下标的
+  /// 理由见 [buildGalleryImageItems]。
+  void _scheduleInitialImageViewer() {
+    final String? fileId = widget.initialImageId;
+    final ImageModel? preloaded = widget.preloadedDetail;
+    if (fileId == null || preloaded == null) return;
+    // 等这一页画完第一帧再开：路由要先落地，push 才有地方落。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      openGalleryImageViewerByFileId(
+        context,
+        imageModel: preloaded,
+        imageModelId: imageModelId,
+        coverHeroTag: _galleryCoverHeroTag(imageModelId),
+        fileId: fileId,
+        // ⛔ 不转场、不飞 Hero：来的那条路上屏幕已经被一帧「和大图页长得一模
+        // 一样」的画面钉着（见 media_preview_dialog.dart），大图页要做的是
+        // **直接就位**。淡入一次、再飞一段 Hero，都会在撤帧那一刻露出来。
+        instant: true,
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -149,9 +184,14 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
     // 初始化控制器
     detailController = Get.put(
-      GalleryDetailController(imageModelId, extData: widget.extData),
+      GalleryDetailController(
+        imageModelId,
+        extData: widget.extData,
+        preloadedDetail: widget.preloadedDetail,
+      ),
       tag: uniqueTag,
     );
+    _scheduleInitialImageViewer();
 
     commentController = Get.put(
       CommentController(id: imageModelId, type: CommentType.image),

@@ -2475,6 +2475,8 @@ class _TranslationsMediaPreviewZhCn implements TranslationsMediaPreviewEn {
 	@override String get preview => '预览';
 	@override String get openDetail => '打开';
 	@override String get moreActions => '更多操作';
+	@override String get previousImage => '上一张';
+	@override String get nextImage => '下一张';
 }
 
 // Path: playbackQueue
@@ -6287,6 +6289,8 @@ extension on TranslationsZhCn {
 			'mediaPreview.preview' => '预览',
 			'mediaPreview.openDetail' => '打开',
 			'mediaPreview.moreActions' => '更多操作',
+			'mediaPreview.previousImage' => '上一张',
+			'mediaPreview.nextImage' => '下一张',
 			'playbackQueue.upNext' => '接着看',
 			'playbackQueue.sourceTab' => '来源',
 			'playbackQueue.emptyQueue' => '这个池里没有可播的视频',

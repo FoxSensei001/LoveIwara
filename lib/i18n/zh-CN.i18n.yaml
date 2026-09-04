@@ -2801,6 +2801,8 @@ mediaPreview:
   preview: 预览
   openDetail: 打开
   moreActions: 更多操作
+  previousImage: 上一张
+  nextImage: 下一张
 playbackQueue:
   upNext: 接着看
   sourceTab: 来源

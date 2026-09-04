@@ -3,14 +3,18 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
+import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
+import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dropdown_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -18,6 +22,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/widgets/media_preview_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -62,6 +67,14 @@ class PlaybackQueueSelection {
 /// 但**池里不许混装**：视频和图库落在两个不同的详情页，一个池里混着两种的话
 /// "下一条"会把用户从播放器扔进图库（稍后再看池一直排除图库正是这个道理）。
 /// 所以类型是池的属性（[PlaybackQueue.mediaType]），抽屉只是照着它列菜单。
+///
+/// # ⛔ 抽屉在全屏里也开得出来，所以「跳页」这件事要格外小心
+///
+/// 行上长按能弹出预览弹窗，弹窗里又能去作者主页 / 标签列表。那两页推进的是
+/// **shell**，而本抽屉是一条 **root** 弹层路由——不主动收掉的话它会原样浮在
+/// 新页上面；全屏也一样，不交还就变成一个铺满显示器、拖不动的窗口。两件事都在
+/// `_leaveForPreviewNavigation` 那条路上收口（兜底另见
+/// `PlayerFullscreenGuard`）。
 Future<PlaybackQueueSelection?> showPlaybackQueueDrawer({
   required BuildContext context,
   required List<PlaybackQueue> queues,
@@ -314,12 +327,119 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   /// 「pop 两次连页面一起关」）。抽屉退场动画期间那一行仍然命中得到。
   bool _selected = false;
 
-  void _selectItem(PlaybackQueueSelection selection) {
-    if (_selected) return;
+  void _selectItem(PlaybackQueueSelection selection) => _closeDrawer(selection);
+
+  /// 关抽屉。带 [selection] 就是「点播了这一条」，不带就是单纯让开
+  /// （预览弹窗要把用户带去作者页/标签页时会走这一条）。
+  void _closeDrawer([PlaybackQueueSelection? selection]) {
+    if (_selected || !mounted) return;
     final route = ModalRoute.of(context);
     if (route == null || !route.isCurrent) return;
     _selected = true;
     Navigator.of(context).pop(selection);
+  }
+
+  /// 长按 / 右键一行 → 那条媒体的**预览弹窗**（与卡片列表同一只）。
+  ///
+  /// # ⛔ 这里的条目常常只是一份种子
+  ///
+  /// 接口来的池（来源 / 播放列表 / 作者的作品 / 最爱）在建快照时把整个 `Video`
+  /// 一起带上了（[InnerPlaylistItemSnapshot.sourceVideo]），直接给弹窗即可。
+  /// 但本地库来的那几个池（稍后再看 / 本地收藏夹 / 已下载）只存了标题封面作者
+  /// ——统计、标签、作者头像一概没有，图库那一路更是**从来没有** sourceVideo。
+  ///
+  /// 这些条目的 id 仍然是 iwara 的 id（下载池就是靠它去磁盘上找文件的），所以
+  /// 拿种子先把弹窗开出来，同时按 id 去拉详情：封面标题当场在场，统计那一排先
+  /// 摆骨架，拉到就地换成真的（见 [showMediaPreviewDialog]）。
+  Future<void> _openPreview(
+    PlaybackQueue queue,
+    InnerPlaylistItemSnapshot item,
+  ) {
+    final selection = PlaybackQueueSelection(
+      queue: queue,
+      item: item,
+      skipWatched:
+          queue.kind == PlaybackQueueKind.watchLater && _unwatchedOnly,
+    );
+
+    if (queue.mediaType.isGallery) {
+      return showMediaPreviewDialog(
+        context: context,
+        gallery: _seedGallery(item),
+        coverUrl: item.thumbnailUrl,
+        loadGalleryDetail: () async =>
+            (await Get.find<GalleryService>().fetchGalleryDetail(item.id)).data,
+        onOpenDetail: () async => _selectItem(selection),
+        onWillLeavePage: _leaveForPreviewNavigation,
+      );
+    }
+
+    // 快照带着完整的那份就别再联网拉一遍——它正是列表页刚拿到的那个对象。
+    final Video? known = item.sourceVideo;
+    return showMediaPreviewDialog(
+      context: context,
+      video: known ?? _seedVideo(item),
+      coverUrl: item.thumbnailUrl,
+      loadVideoDetail: known != null
+          ? null
+          : () async =>
+                (await VideoService.to.fetchVideoInfoResult(item.id)).data,
+      onOpenDetail: () async => _selectItem(selection),
+      onWillLeavePage: _leaveForPreviewNavigation,
+    );
+  }
+
+  /// 预览弹窗要把用户带去别的页面了（作者主页 / 标签列表 / 菜单里的作者）。
+  ///
+  /// ⛔ 抽屉自己也得收掉：它是一条 **root** 弹层路由，而那些页面推进的是 shell
+  /// ——不收的话抽屉会原样浮在刚推进来的新页上面，还挡着它。
+  Future<void> _leaveForPreviewNavigation() async => _closeDrawer();
+
+  /// 用列表行手上那点信息拼一份「够先摆出来」的视频。见 [_openPreview]。
+  ///
+  /// ⛔ **只填拿得准的**：`file` / `embedUrl` / `tags` 一律不编——封面地址另走
+  /// `coverUrl`，时长和外链角标等详情回来再显示。编一份假的出来，弹窗会在拉到
+  /// 详情的那一刻当着用户的面改口。
+  Video _seedVideo(InnerPlaylistItemSnapshot item) => Video(
+    id: item.id,
+    title: item.title,
+    private: item.isPrivate,
+    liked: item.liked,
+    numLikes: item.numLikes,
+    numViews: item.numViews,
+    numComments: item.numComments,
+    createdAt: item.createdAt,
+    user: _seedUser(item),
+  );
+
+  /// [_seedVideo] 的图库版。
+  ///
+  /// ⛔ `rating` 必须显式给 `general`：模型默认是 `ecchi`，照默认走会让每一张
+  /// 预览在拉到详情之前都先扣一枚 R18 角标。
+  ImageModel _seedGallery(InnerPlaylistItemSnapshot item) => ImageModel(
+    id: item.id,
+    title: item.title,
+    rating: 'general',
+    liked: item.liked,
+    numImages: item.numImages ?? 0,
+    numLikes: item.numLikes ?? 0,
+    numViews: item.numViews ?? 0,
+    numComments: item.numComments ?? 0,
+    createdAt: item.createdAt,
+    user: _seedUser(item),
+  );
+
+  /// 种子里的作者：本地库那几个池也存着显示名与 username，够画出名字这一行，
+  /// 头像要等详情回来。两样都没有就不编一个空作者出来。
+  User? _seedUser(InnerPlaylistItemSnapshot item) {
+    final String name = item.authorName?.trim() ?? '';
+    final String username = item.authorUsername?.trim() ?? '';
+    if (name.isEmpty && username.isEmpty) return null;
+    return User(
+      id: '',
+      name: name.isEmpty ? username : name,
+      username: username,
+    );
   }
 
   void _scrollToCurrent() {
@@ -1349,6 +1469,9 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           item: item,
           // 只有正在被播放器使用的那个池才标「正在播」，见 [_isBrowsingActiveQueue]。
           isCurrent: _isBrowsingActiveQueue && item.id == widget.currentItemId,
+          // 长按 / 右键 → 预览弹窗，与卡片列表同一套读法（点按 = 播这一条，
+          // 长按 = 凑近看一眼）。见 [_openPreview]。
+          onPreview: () => _openPreview(queue, item),
           onTap: () => _selectItem(
             PlaybackQueueSelection(
               queue: queue,
@@ -1416,16 +1539,27 @@ const double _kThumbHeight = _kThumbWidth * 9 / 16;
 /// 所以这里每一段都是**有才画**：统计是 null 就整段不占地方，而不是显示
 /// "0 次播放"——那会把「我们没这份数据」说成「没人看过」（见
 /// [InnerPlaylistItemSnapshot.numViews]）。
+///
+/// # 点按播这一条，长按 / 右键看一眼
+///
+/// 与卡片列表同一套读法：长按（触摸）/ 右键（鼠标）弹出这一条的预览弹窗——
+/// 大封面、完整标题、作者、统计、标签，还带着点赞 / 稍后再看 / 更多。行上装不下
+/// 的东西全在那儿，而这张单子恰恰是全 App 最挤的一处。见
+/// `_PlaybackQueueDrawerState._openPreview`。
 class _QueueRow extends StatelessWidget {
   const _QueueRow({
     required this.item,
     required this.isCurrent,
     required this.onTap,
+    required this.onPreview,
   });
 
   final InnerPlaylistItemSnapshot item;
   final bool isCurrent;
   final VoidCallback onTap;
+
+  /// 长按 / 右键：弹出这一条的预览弹窗。
+  final VoidCallback onPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -1438,6 +1572,7 @@ class _QueueRow extends StatelessWidget {
       child: _QueueRowSurface(
         isCurrent: isCurrent,
         onTap: onTap,
+        onPreview: onPreview,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -1724,11 +1859,16 @@ class _QueueRowSurface extends StatefulWidget {
   const _QueueRowSurface({
     required this.isCurrent,
     required this.onTap,
+    required this.onPreview,
     required this.child,
   });
 
   final bool isCurrent;
   final VoidCallback onTap;
+
+  /// 长按（触摸）/ 右键（鼠标）都指向它，见 [_QueueRow.onPreview]。
+  final VoidCallback onPreview;
+
   final Widget child;
 
   @override
@@ -1772,25 +1912,35 @@ class _QueueRowSurfaceState extends State<_QueueRowSurface> {
       cursor: SystemMouseCursors.click,
       onEnter: (_) => _setHovered(true),
       onExit: (_) => _setHovered(false),
-      child: GlassTapArea(
-        onTap: widget.onTap,
-        // 按下态走的是不进竞技场的 Listener，按下那一帧就到；被列表滚动抢走时
-        // 也会回落，不会留下一行"按住没松"的高亮。
-        onPressedChanged: _setPressed,
-        child: AnimatedContainer(
-          duration: GlassTokens.pressDuration,
-          curve: Curves.easeOut,
-          height: _rowHeight(context),
-          margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: _kRowPaddingVertical,
+      // 右键：[GlassTapArea] 是纯主键实现（`Listener` + 只认主键的识别器），
+      // 副键得自己接。摆在外层不影响主键那套——两者跟的不是同一个按钮。
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onSecondaryTap: widget.onPreview,
+        child: GlassTapArea(
+          onTap: widget.onTap,
+          // 长按开的是一条 `PageRoute`（预览弹窗），不是玻璃菜单，所以不声明
+          // longPressOpensOverlay：那一套（震动 + 手指接力滑动取焦）是给菜单
+          // 面板用的，弹窗接不住这根手指。
+          onLongPress: widget.onPreview,
+          // 按下态走的是不进竞技场的 Listener，按下那一帧就到；被列表滚动抢走时
+          // 也会回落，不会留下一行"按住没松"的高亮。
+          onPressedChanged: _setPressed,
+          child: AnimatedContainer(
+            duration: GlassTokens.pressDuration,
+            curve: Curves.easeOut,
+            height: _rowHeight(context),
+            margin: const EdgeInsets.symmetric(vertical: _kRowMarginVertical),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: _kRowPaddingVertical,
+            ),
+            decoration: BoxDecoration(
+              color: _surfaceColor(cs),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: widget.child,
           ),
-          decoration: BoxDecoration(
-            color: _surfaceColor(cs),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: widget.child,
         ),
       ),
     );

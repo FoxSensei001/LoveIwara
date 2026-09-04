@@ -2475,6 +2475,8 @@ class _TranslationsMediaPreviewZhTw implements TranslationsMediaPreviewEn {
 	@override String get preview => '預覽';
 	@override String get openDetail => '開啟';
 	@override String get moreActions => '更多操作';
+	@override String get previousImage => '上一張';
+	@override String get nextImage => '下一張';
 }
 
 // Path: playbackQueue
@@ -6287,6 +6289,8 @@ extension on TranslationsZhTw {
 			'mediaPreview.preview' => '預覽',
 			'mediaPreview.openDetail' => '開啟',
 			'mediaPreview.moreActions' => '更多操作',
+			'mediaPreview.previousImage' => '上一張',
+			'mediaPreview.nextImage' => '下一張',
 			'playbackQueue.upNext' => '接著看',
 			'playbackQueue.sourceTab' => '來源',
 			'playbackQueue.emptyQueue' => '這個池裡沒有可播的影片',

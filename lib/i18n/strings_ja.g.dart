@@ -2475,6 +2475,8 @@ class _TranslationsMediaPreviewJa implements TranslationsMediaPreviewEn {
 	@override String get preview => 'プレビュー';
 	@override String get openDetail => '開く';
 	@override String get moreActions => 'その他の操作';
+	@override String get previousImage => '前の画像';
+	@override String get nextImage => '次の画像';
 }
 
 // Path: playbackQueue
@@ -6287,6 +6289,8 @@ extension on TranslationsJa {
 			'mediaPreview.preview' => 'プレビュー',
 			'mediaPreview.openDetail' => '開く',
 			'mediaPreview.moreActions' => 'その他の操作',
+			'mediaPreview.previousImage' => '前の画像',
+			'mediaPreview.nextImage' => '次の画像',
 			'playbackQueue.upNext' => '次に見る',
 			'playbackQueue.sourceTab' => '元のリスト',
 			'playbackQueue.emptyQueue' => 'このキューに再生できる動画はありません',

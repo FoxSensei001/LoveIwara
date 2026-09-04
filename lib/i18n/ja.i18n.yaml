@@ -2803,6 +2803,8 @@ mediaPreview:
   preview: プレビュー
   openDetail: 開く
   moreActions: その他の操作
+  previousImage: 前の画像
+  nextImage: 次の画像
 playbackQueue:
   upNext: 次に見る
   sourceTab: 元のリスト

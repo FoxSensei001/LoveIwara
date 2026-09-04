@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:uuid/uuid.dart';
@@ -367,7 +368,15 @@ class NaviService {
     _ensureAndroidBackDispatcherPriority('push author_profile/$username');
   }
 
-  /// 跳转到图库详情页
+  /// 跳转到图库详情页。
+  ///
+  /// [preloadedDetail] 是**已经拉到手的那份完整详情**（预览弹窗为了摆出整本图，
+  /// 本来就走过一趟 `fetchGalleryDetail`）。给了它，详情页开局直接用，不再重复
+  /// 发一次请求——⛔ 只有确实来自详情接口的那份才准往这里传：列表接口返回的
+  /// `files` 恒为空、`body` 恒为 null，拿它开局会让描述和图整片缺着。
+  ///
+  /// [initialImageId] 是「进去就直接开到这张大图」——用**文件 id** 而不是下标：
+  /// 图库里混着视频文件时，详情页那份清单会把首图提到最前，下标对不上。
   static Future<Object?> navigateToGalleryDetailPage(
     String id, {
     String? coverUrl,
@@ -381,6 +390,8 @@ class NaviService {
     bool? authorPremium,
     Map<String, dynamic>? extData,
     PlaybackQueueRef? playbackQueueRef,
+    ImageModel? preloadedDetail,
+    String? initialImageId,
   }) {
     final shouldAttachExtra =
         coverUrl != null ||
@@ -393,7 +404,9 @@ class NaviService {
         authorRole != null ||
         authorPremium != null ||
         extData != null ||
-        playbackQueueRef != null;
+        playbackQueueRef != null ||
+        preloadedDetail != null ||
+        initialImageId != null;
 
     final future = appRouter.push(
       '/gallery_detail/$id',
@@ -410,6 +423,8 @@ class NaviService {
               authorPremium: authorPremium,
               extData: extData,
               playbackQueueRef: playbackQueueRef,
+              preloadedDetail: preloadedDetail,
+              initialImageId: initialImageId,
             )
           : null,
     );

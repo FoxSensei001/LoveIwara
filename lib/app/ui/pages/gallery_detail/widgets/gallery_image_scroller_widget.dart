@@ -106,37 +106,10 @@ class GalleryImageScrollerWidget extends StatelessWidget {
         );
       }
 
-      // Prepare Image Items
-      ImageItem? coverItem;
-      final List<ImageItem> restItems = [];
-
-      for (final file in im.files) {
-        final largeUrl = file.getLargeImageUrl();
-        final item = ImageItem(
-          url: largeUrl,
-          data: ImageItemData(
-            id: file.id,
-            title: file.name,
-            url: largeUrl,
-            originalUrl: file.getOriginalImageUrl(),
-          ),
-          headers: {},
-        );
-
-        if (coverItem == null && !item.isVideo) {
-          coverItem = item;
-        } else {
-          restItems.add(item);
-        }
-      }
-
-      final List<ImageItem> imageItems = [
-        ?coverItem,
-        ...restItems,
-      ];
+      final List<ImageItem> imageItems = buildGalleryImageItems(im);
 
       // Build Constrained Horizontal Image List
-      final String? coverFileId = coverItem?.data.id;
+      final String? coverFileId = _resolveCoverFileId(imageItems);
       final BorderRadius radius8 = BorderRadius.circular(8);
       final BorderRadius coverRadius = BorderRadius.circular(14);
       bool isCoverItem(ImageItem item) =>
@@ -151,8 +124,12 @@ class GalleryImageScrollerWidget extends StatelessWidget {
             images: imageItems,
             defaultAspectRatio: 16 / 9,
             onItemTap: (item) => _onImageTap(context, item, imageItems),
-            heroTagBuilder: (item) =>
-                _buildHeroTag(item, coverFileId: coverFileId),
+            heroTagBuilder: (item) => galleryImageHeroTag(
+              item,
+              coverFileId: coverFileId,
+              imageModelId: controller.imageModelId,
+              coverHeroTag: coverHeroTag,
+            ),
             heroCreateRectTween: _createGalleryCoverRectTween,
             heroFlightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
             heroTransitionOnUserGestures: true,
@@ -176,88 +153,192 @@ class GalleryImageScrollerWidget extends StatelessWidget {
     ImageItem item,
     List<ImageItem> imageItems,
   ) {
-    final configService = Get.find<ConfigService>();
-    final initialQuality = normalizeGalleryImageQuality(
-      configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
-    );
-    final standardImageItems = imageItems
-        .map(
-          (imageItem) => ImageItem(
-            url: imageItem.url,
-            width: imageItem.width,
-            height: imageItem.height,
-            data: ImageItemData(
-              id: imageItem.data.id,
-              title: imageItem.data.title,
-              url: imageItem.data.url,
-              originalUrl: imageItem.data.url,
-            ),
-            headers: imageItem.headers == null
-                ? null
-                : Map<String, String>.from(imageItem.headers!),
-            mediaType: imageItem.mediaType,
-          ),
-        )
-        .toList();
-    ImageItemData iid = item.data;
-    LogUtils.d('点击了图片：${iid.id}', 'GalleryImageScrollerWidget');
+    LogUtils.d('点击了图片：${item.data.id}', 'GalleryImageScrollerWidget');
     int index = imageItems.indexWhere((element) => element.url == item.url);
     if (index == -1) {
-      index = imageItems.indexWhere((element) => element.data.id == iid.id);
+      index = imageItems.indexWhere(
+        (element) => element.data.id == item.data.id,
+      );
     }
-    pushPhotoViewWrapperOverlay(
-      context: context,
+    openGalleryImageViewer(
+      context,
       imageItems: imageItems,
-      standardImageItems: standardImageItems,
-      originalImageItems: imageItems,
-      initialQuality: initialQuality,
-      onQualityChanged: (quality) {
-        final normalizedQuality = normalizeGalleryImageQuality(quality);
-        configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY] =
-            normalizedQuality;
-      },
-      initialIndex: index,
-      menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
-      heroTagBuilder: (item) =>
-          _buildHeroTag(item, coverFileId: _resolveCoverFileId(imageItems)),
+      index: index,
+      imageModelId: controller.imageModelId,
+      coverHeroTag: coverHeroTag,
     );
   }
 
-  Object? _buildHeroTag(ImageItem item, {required String? coverFileId}) {
-    if (item.isVideo) return null;
-    if (coverFileId != null && item.data.id == coverFileId) {
-      return coverHeroTag;
+  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) =>
+      buildGalleryImageMenuItems(context, item);
+}
+
+/// 这条图库摆出来的那份清单。
+///
+/// ⛔ **首图会被提到最前**：图库里偶尔混着视频文件，`files` 的第 0 条可能就是
+/// 一条视频，而封面（以及 Hero）说的恒是第一张**图**。所以这份清单的顺序不等于
+/// `files` 的顺序 —— 跨页说「开到第几张」时必须传文件 id，别传下标
+/// （见 [openGalleryImageViewerByFileId]）。
+List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
+  ImageItem? coverItem;
+  final List<ImageItem> restItems = [];
+
+  for (final file in imageModel.files) {
+    final largeUrl = file.getLargeImageUrl();
+    final item = ImageItem(
+      url: largeUrl,
+      data: ImageItemData(
+        id: file.id,
+        title: file.name,
+        url: largeUrl,
+        originalUrl: file.getOriginalImageUrl(),
+      ),
+      headers: {},
+    );
+
+    if (coverItem == null && !item.isVideo) {
+      coverItem = item;
+    } else {
+      restItems.add(item);
     }
-    return 'gallery:${controller.imageModelId}:${item.data.id}';
   }
 
-  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) {
-    final t = slang.Translations.of(context);
-    // Assuming ImageUtils and GetPlatform are accessible
-    return [
-      MenuItem(
-        title: t.galleryDetail.copyLink,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyLink(item),
-      ),
-      MenuItem(
-        title: t.galleryDetail.copyImage,
-        icon: Icons.copy,
-        onTap: () => ImageUtils.copyImage(item),
-      ),
-      if (GetPlatform.isDesktop)
-        MenuItem(
-          title: t.galleryDetail.saveAs,
-          icon: Icons.download,
-          onTap: () => ImageUtils.downloadImageForDesktop(item),
+  return <ImageItem>[?coverItem, ...restItems];
+}
+
+/// 这一张在大图页里的 Hero 标签。封面那张用页面给的 [coverHeroTag]，其余的按
+/// 「图库 id + 文件 id」拼——横向清单与大图页两边必须算出同一个值。
+Object? galleryImageHeroTag(
+  ImageItem item, {
+  required String? coverFileId,
+  required String imageModelId,
+  required String coverHeroTag,
+}) {
+  if (item.isVideo) return null;
+  if (coverFileId != null && item.data.id == coverFileId) return coverHeroTag;
+  return 'gallery:$imageModelId:${item.data.id}';
+}
+
+/// 把 [imageItems] 的第 [index] 张开成大图页。
+///
+/// 画质三档（标准 / 原图）在这里成型：`standardImageItems` 把每一条的
+/// `originalUrl` 换成 large 地址，大图页据此在两份清单之间切。
+void openGalleryImageViewer(
+  BuildContext context, {
+  required List<ImageItem> imageItems,
+  required int index,
+  required String imageModelId,
+  required String coverHeroTag,
+  bool instant = false,
+}) {
+  final configService = Get.find<ConfigService>();
+  final initialQuality = normalizeGalleryImageQuality(
+    configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
+  );
+  final standardImageItems = imageItems
+      .map(
+        (imageItem) => ImageItem(
+          url: imageItem.url,
+          width: imageItem.width,
+          height: imageItem.height,
+          data: ImageItemData(
+            id: imageItem.data.id,
+            title: imageItem.data.title,
+            url: imageItem.data.url,
+            originalUrl: imageItem.data.url,
+          ),
+          headers: imageItem.headers == null
+              ? null
+              : Map<String, String>.from(imageItem.headers!),
+          mediaType: imageItem.mediaType,
         ),
+      )
+      .toList();
+  final String? coverFileId = _resolveCoverFileId(imageItems);
+  pushPhotoViewWrapperOverlay(
+    context: context,
+    imageItems: imageItems,
+    standardImageItems: standardImageItems,
+    originalImageItems: imageItems,
+    initialQuality: initialQuality,
+    onQualityChanged: (quality) {
+      final normalizedQuality = normalizeGalleryImageQuality(quality);
+      configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY] =
+          normalizedQuality;
+    },
+    initialIndex: index < 0 ? 0 : index,
+    menuItemsBuilder: buildGalleryImageMenuItems,
+    instant: instant,
+    // ⛔ [instant] 那一路**不挂 Hero**：那条路上屏幕已经被一帧「和大图页长得
+    // 一模一样」的画面钉住了，底下再飞一段「缩略图长成大图」只会在撤帧那一刻
+    // 露出来——用户看到的就是「详情页闪一下、图又展开一次」。
+    heroTagBuilder: instant
+        ? null
+        : (item) => galleryImageHeroTag(
+            item,
+            coverFileId: coverFileId,
+            imageModelId: imageModelId,
+            coverHeroTag: coverHeroTag,
+          ),
+  );
+}
+
+/// 直接把 [imageModel] 里 id 为 [fileId] 的那一张开成大图页。
+///
+/// 给「预览弹窗点了某一张图 / 把它往下拖出来」用：那边手上是文件 id，而详情页
+/// 这份清单的下标另有讲究（见 [buildGalleryImageItems]）。找不到就返回 false，
+/// 调用方照常只开详情页。
+bool openGalleryImageViewerByFileId(
+  BuildContext context, {
+  required ImageModel imageModel,
+  required String imageModelId,
+  required String coverHeroTag,
+  required String fileId,
+  bool instant = false,
+}) {
+  final List<ImageItem> imageItems = buildGalleryImageItems(imageModel);
+  final int index = imageItems.indexWhere((item) => item.data.id == fileId);
+  if (index < 0) return false;
+  openGalleryImageViewer(
+    context,
+    imageItems: imageItems,
+    index: index,
+    imageModelId: imageModelId,
+    coverHeroTag: coverHeroTag,
+    instant: instant,
+  );
+  return true;
+}
+
+List<MenuItem> buildGalleryImageMenuItems(
+  BuildContext context,
+  ImageItem item,
+) {
+  final t = slang.Translations.of(context);
+  // Assuming ImageUtils and GetPlatform are accessible
+  return [
+    MenuItem(
+      title: t.galleryDetail.copyLink,
+      icon: Icons.copy,
+      onTap: () => ImageUtils.copyLink(item),
+    ),
+    MenuItem(
+      title: t.galleryDetail.copyImage,
+      icon: Icons.copy,
+      onTap: () => ImageUtils.copyImage(item),
+    ),
+    if (GetPlatform.isDesktop)
       MenuItem(
-        title: t.galleryDetail.saveToAlbum,
-        icon: Icons.save,
-        onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+        title: t.galleryDetail.saveAs,
+        icon: Icons.download,
+        onTap: () => ImageUtils.downloadImageForDesktop(item),
       ),
-    ];
-  }
+    MenuItem(
+      title: t.galleryDetail.saveToAlbum,
+      icon: Icons.save,
+      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+    ),
+  ];
 }
 
 int _resolveSkeletonItemCount({required int? initialImageCount}) {

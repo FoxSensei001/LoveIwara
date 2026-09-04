@@ -23,7 +23,18 @@ class GalleryDetailController extends GetxController {
   final HistoryRepository _historyRepository = HistoryRepository();
   bool isInfoInitialized = false;
 
-  GalleryDetailController(this.imageModelId, {this.extData});
+  /// 别人已经拉好、交到手上的那份详情（预览弹窗为了摆出整本图本来就走过一趟）。
+  ///
+  /// 只认一次：用掉就置空，之后的刷新 / 重试照常走网络。⛔ 只能是**详情接口**
+  /// 那份 —— 列表接口的 `files` 恒为空、`body` 恒为 null，拿它开局等于把图和描述
+  /// 整片抹掉。
+  ImageModel? _preloadedDetail;
+
+  GalleryDetailController(
+    this.imageModelId, {
+    this.extData,
+    ImageModel? preloadedDetail,
+  }) : _preloadedDetail = preloadedDetail;
 
   final Rxn<String> errorMessage = Rxn<String>(); // 错误信息
   final Rxn<ImageModel> imageModelInfo = Rxn<ImageModel>(); // 图片模型
@@ -86,6 +97,15 @@ class GalleryDetailController extends GetxController {
       isImageModelInfoLoading.value = true;
       errorMessage.value = null;
 
+      // 手上已经有一份现成的详情就直接用：从预览弹窗点进来时那份刚拉过，
+      // 再发一次请求只会让这一页先白一下再显示同样的东西。
+      final ImageModel? preloaded = _preloadedDetail;
+      if (preloaded != null) {
+        _preloadedDetail = null;
+        _applyLoadedDetail(preloaded);
+        return;
+      }
+
       // 获取视频基本信息
       ApiResult<ImageModel> res = await _galleryService.fetchGalleryDetail(
         imageModelId,
@@ -112,28 +132,36 @@ class GalleryDetailController extends GetxController {
 
       IwaraDifferentSiteRecovery.markResolved('image:$imageModelId');
 
-      otherAuthorzImageModelsController ??= OtherAuthorzMediasController(
-        mediaId: imageModelId,
-        userId: res.data!.user!.id,
-        mediaType: MediaType.IMAGE,
-      );
-      otherAuthorzImageModelsController?.fetchRelatedMedias();
-      imageModelInfo.value = res.data;
-
-      // 图库没有连续进度可言，**打开详情页即算已看**——这是它在稍后再看的
-      // 「未看完」筛选里的唯一判据。前台闸门在 WatchLaterService 里。
-      _markWatchLaterOpened();
-
-      // 检查收藏状态
-      checkFavoriteStatus();
-
-      // 检查下载状态
-      checkDownloadTaskStatus();
+      _applyLoadedDetail(res.data!);
     } finally {
       LogUtils.d('图片详情信息加载完成', 'GalleryDetailController');
       isImageModelInfoLoading.value = false;
       isInfoInitialized = true;
     }
+  }
+
+  /// 详情到手之后的那一串收尾。网络拉回来的与预载交过来的走同一条。
+  void _applyLoadedDetail(ImageModel imageModel) {
+    final String? userId = imageModel.user?.id;
+    if (userId != null) {
+      otherAuthorzImageModelsController ??= OtherAuthorzMediasController(
+        mediaId: imageModelId,
+        userId: userId,
+        mediaType: MediaType.IMAGE,
+      );
+      otherAuthorzImageModelsController?.fetchRelatedMedias();
+    }
+    imageModelInfo.value = imageModel;
+
+    // 图库没有连续进度可言，**打开详情页即算已看**——这是它在稍后再看的
+    // 「未看完」筛选里的唯一判据。前台闸门在 WatchLaterService 里。
+    _markWatchLaterOpened();
+
+    // 检查收藏状态
+    checkFavoriteStatus();
+
+    // 检查下载状态
+    checkDownloadTaskStatus();
   }
 
   /// 检查图库的收藏状态

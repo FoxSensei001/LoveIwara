@@ -9,12 +9,14 @@ import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/services/page_departure_guard.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
@@ -217,7 +219,11 @@ Page<void> buildAdaptiveSwipeablePage(
 final GoRouter appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
-  observers: [OverlayTracker.root, navigationRootObserver],
+  observers: [
+    OverlayTracker.root,
+    PageDepartureGuard.root,
+    navigationRootObserver,
+  ],
   onException: (context, state, router) {
     final normalizedLocation = IwaraDeepLinkUtils.normalizeToAppLocation(
       state.uri,
@@ -284,7 +290,12 @@ final GoRouter appRouter = GoRouter(
     // ====================================================================
     ShellRoute(
       navigatorKey: shellNavigatorKey,
-      observers: [OverlayTracker.shell, routeObserver, navigationShellObserver],
+      observers: [
+        OverlayTracker.shell,
+        PageDepartureGuard.shell,
+        routeObserver,
+        navigationShellObserver,
+      ],
       // go_router 17 起该值默认 true：会把 GoRouter 的根观察者（OverlayTracker.root、
       // navigationRootObserver）额外挂到本 Shell 的 Navigator 上。而 OverlayTracker
       // 的 root/shell 两个实例共享同一个静态计数器，shell 内弹层会被重复计数。
@@ -436,7 +447,9 @@ final GoRouter appRouter = GoRouter(
               opaque: false,
               barrierColor: Colors.transparent,
               child: _buildPhotoViewWrapperChild(extra),
-              transitionDuration: const Duration(milliseconds: 300),
+              transitionDuration: extra.instant
+                  ? Duration.zero
+                  : const Duration(milliseconds: 300),
               reverseTransitionDuration: const Duration(milliseconds: 300),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) =>
@@ -524,6 +537,8 @@ final GoRouter appRouter = GoRouter(
               initialAuthorPremium: galleryExtra?.authorPremium,
               extData: galleryExtra?.extData,
               playbackQueueRef: galleryExtra?.playbackQueueRef,
+              preloadedDetail: galleryExtra?.preloadedDetail,
+              initialImageId: galleryExtra?.initialImageId,
             );
           },
         ),
@@ -1315,6 +1330,12 @@ class GalleryDetailExtra {
   /// 带过来。为 null 就是"这次进来没有上下文"，详情页照常只提供稍后再看那一支。
   final PlaybackQueueRef? playbackQueueRef;
 
+  /// 已经拉到手的那份完整详情。见 `NaviService.navigateToGalleryDetailPage`。
+  final ImageModel? preloadedDetail;
+
+  /// 进去就直接开到这张大图的**文件 id**。同上。
+  final String? initialImageId;
+
   const GalleryDetailExtra({
     this.coverUrl,
     this.title,
@@ -1327,6 +1348,8 @@ class GalleryDetailExtra {
     this.authorPremium,
     this.extData,
     this.playbackQueueRef,
+    this.preloadedDetail,
+    this.initialImageId,
   });
 }
 
@@ -1489,6 +1512,13 @@ class PhotoViewExtra {
   final String initialQuality;
   final ValueChanged<String>? onQualityChanged;
 
+  /// **不要转场，直接就位**。
+  ///
+  /// 从预览弹窗「点开 / 拖出」一张图进来时用：那条路上屏幕已经被一帧「和大图页
+  /// 长得一模一样」的画面钉住了（见 `media_preview_dialog.dart`），大图页再自己
+  /// 淡入一次、再飞一段 Hero，就是在那帧底下多演一遍——撤帧那一刻必然闪。
+  final bool instant;
+
   const PhotoViewExtra({
     required this.imageItems,
     required this.initialIndex,
@@ -1499,5 +1529,6 @@ class PhotoViewExtra {
     this.originalImageItems,
     this.initialQuality = galleryImageQualityStandard,
     this.onQualityChanged,
+    this.instant = false,
   });
 }
