@@ -619,7 +619,10 @@ class _NavigationOrderSettingsPageState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             NavigationRail(
+              // 与 HomeShellScaffold 同一口径：每项都带标题、但宽度钉死 80
+              // （见那边 `_railWidth` 的说明）。预览要和真货长一样。
               labelType: NavigationRailLabelType.all,
+              minWidth: 80,
               selectedIndex: _previewRailIndex,
               onDestinationSelected: (index) =>
                   setState(() => _previewRailIndex = index),

@@ -319,7 +319,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                 // Compute width from the actual (localized) label content so
                 // the rail stays compact in short locales and can grow when
                 // labels are longer.
-                final railWidth = _computeRailWidth(context, displayOrder);
+                const double railWidth = _railWidth;
                 return AnimatedNavigationRailSlot(
                   visible: shouldShowWideNavigationRail(
                     constraints.maxWidth,
@@ -592,39 +592,17 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     );
   }
 
-  double _computeRailWidth(BuildContext context, List<String> displayOrder) {
-    // NavigationRail destination tiles include fixed paddings/indicator space.
-    // We measure label text width and add a small constant to keep things
-    // visually balanced.
-    final railTheme = NavigationRailTheme.of(context);
-    final textStyle =
-        railTheme.unselectedLabelTextStyle ??
-        Theme.of(context).textTheme.labelMedium ??
-        const TextStyle(fontSize: 12);
-    final textScaler = MediaQuery.textScalerOf(context);
-    final direction = Directionality.of(context);
-
-    double maxLabelWidth = 0;
-    for (final key in displayOrder) {
-      final title = AppService.navigationItems[key]?.title;
-      if (title == null || title.isEmpty) continue;
-
-      final painter = TextPainter(
-        text: TextSpan(text: title, style: textStyle),
-        textDirection: direction,
-        textScaler: textScaler,
-        maxLines: 1,
-      )..layout();
-
-      if (painter.width > maxLabelWidth) {
-        maxLabelWidth = painter.width;
-      }
-    }
-
-    // Default NavigationRail minWidth is ~72. Clamp to avoid very wide rails
-    // with unexpectedly long labels.
-    return (maxLabelWidth + 32).clamp(72.0, 200.0).toDouble();
-  }
+  /// 侧边栏宽度：**钉死 M3 `NavigationRail` 的规格宽度 80**。
+  ///
+  /// ⛔ 这里原本是「量最长的那个标签，加 32，夹在 72..200」——宽度跟着语言走。
+  /// 中文（两个字）看不出问题，日文 / 英文就把整条侧栏拉到一百多、接近两百像素
+  /// （"Subscriptions" / 「サブスクリプション」），白白吃掉内容区的宽度，而且
+  /// 换个语言侧栏就换个宽度（2026-09-04 用户报的）。
+  ///
+  /// 现在每项都照旧显示标题（[NavigationRailLabelType.all]），只是**宽度不再
+  /// 跟着标题走**：装不下就单行省略（见 [_buildNavigationRailDestinations]），
+  /// 换语言侧栏宽度不变。
+  static const double _railWidth = 80;
 
   List<NavigationRailDestination> _buildNavigationRailDestinations(
     List<String> displayOrder,
