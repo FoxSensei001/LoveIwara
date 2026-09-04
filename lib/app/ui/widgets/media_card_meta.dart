@@ -85,7 +85,9 @@ class MediaCardStatsOverlay extends StatelessWidget {
                     ),
                   ),
                   if (comments > 0) ...[
-                    const _OverlayStatDivider(),
+                    // 不画分隔线：每条自带图标，图标就是这一组的起点，
+                    // 留一段比组内（2）宽得多的空档就够把两组读开。
+                    const SizedBox(width: 8),
                     _OverlayStat(
                       icon: Icons.forum,
                       value: CommonUtils.formatFriendlyNumber(comments),
@@ -126,21 +128,6 @@ class _OverlayStat extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// 组内两条之间那道发丝线：靠它把「一组」读成两项，而不是把数字挤成一串。
-class _OverlayStatDivider extends StatelessWidget {
-  const _OverlayStatDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 9,
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      color: Colors.white38,
     );
   }
 }
