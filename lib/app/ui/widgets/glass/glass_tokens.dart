@@ -176,6 +176,27 @@ abstract final class GlassTokens {
   /// 弹窗出场曲线：起步慢一拍再加速离场，避免「啪」地消失。
   static const Curve dialogExitCurve = Curves.easeInCubic;
 
+  /// 弹窗入场的**淡入**曲线（与形变分开走，见 `glass_dialog_motion.dart`）。
+  ///
+  /// 比形变早一档收工：内容在 70% 处就已经完全实体化、读得清，剩下那段留给
+  /// 缩放/位移慢慢落位。两条时值若同长，尾巴上那点亚像素形变会被误读成
+  /// 「动画停在半路」。
+  static const Curve dialogFadeInCurve = Interval(
+    0,
+    0.7,
+    curve: Curves.easeOut,
+  );
+
+  /// 弹窗出场的**淡出**曲线。
+  ///
+  /// 线性退掉，并且在整段出场还剩 20% 时就已经透明——卡片不能撑到最后一帧
+  /// 再消失，那正是「动画走着走着卡片瞬间不见」的观感来源。末尾那 20% 交给
+  /// 遮罩自己收干净。
+  ///
+  /// ⚠️ 这是 `reverseCurve`：驱动值从 1 掉到 0，`Interval` 的下界 0.2 对应的是
+  /// **出场进度的 80%**，不是 20%。
+  static const Curve dialogFadeOutCurve = Interval(0.2, 1);
+
   /// 弹窗「宽屏居中卡片 / 窄屏整页」的分界宽度。
   /// 与 `ResponsiveDialogWidget` 内部的判断保持同一口径。
   static const double dialogWideBreakpoint = 600;

@@ -32,15 +32,19 @@ void main() {
     );
   }
 
-  // ⛔ 2026-08-24：这层不再是 FadeTransition——Opacity 会把液态 lens 的
-  // backdrop 采样隔断（见 glass_dialog_motion.dart 文件头）。入场是否渐进
-  // 改读 GlassDialogMotionScope 递下来的驱动动画：内容（典型是
-  // GlassAlertDialog）拿它驱动 GlassSurface.materialize，材质本身淡入，
-  // 不建 saveLayer。这里验证的是同一件事「入场不是瞬间的」，只是换了
-  // 不打断折射的实现方式。
+  /// 形变通道（缩放/位移）的当前进度。
   double motionValue(WidgetTester tester) {
     final content = tester.element(find.byKey(dialogKey));
     return GlassDialogMotionScope.maybeOf(content)!.value;
+  }
+
+  /// 淡入淡出通道的当前不透明度。
+  ///
+  /// ⛔ 这条断言是 2026-09-04 补的，盯着一次真实回归：在那之前整段过渡
+  /// **一点透明度变化都没有**（只有 8% 缩放），用户读到的是「动画走着走着
+  /// 卡片瞬间出现/消失」。谁要是又把这层 FadeTransition 拿掉，这里会红。
+  double fadeValue(WidgetTester tester) {
+    return transitionAbove<FadeTransition>(tester).opacity.value;
   }
 
   testWidgets('弹窗入场是渐进的，不是瞬间出现', (tester) async {
@@ -54,14 +58,18 @@ void main() {
 
     await tester.pump(); // 推入路由，动画从 0 起步
     expect(motionValue(tester), 0);
+    expect(fadeValue(tester), 0, reason: '首帧必须是完全透明的，不能已经是一张实心卡片');
 
     await tester.pump(GlassTokens.dialogEnterDuration ~/ 2);
     final midway = motionValue(tester);
     expect(midway, greaterThan(0));
     expect(midway, lessThan(1));
+    expect(fadeValue(tester), greaterThan(0));
+    expect(fadeValue(tester), lessThan(1));
 
     await tester.pumpAndSettle();
     expect(motionValue(tester), 1);
+    expect(fadeValue(tester), 1);
   });
 
   testWidgets('弹窗出场同样有过渡，而不是直接消失', (tester) async {
@@ -81,6 +89,9 @@ void main() {
     final midway = motionValue(tester);
     expect(midway, greaterThan(0));
     expect(midway, lessThan(1));
+    // 出场过半时卡片已经淡掉一大截，不该还是一张实心卡片撑到最后一帧。
+    expect(fadeValue(tester), lessThan(0.7));
+    expect(fadeValue(tester), greaterThan(0));
 
     await tester.pumpAndSettle();
     expect(find.byKey(dialogKey), findsNothing);
