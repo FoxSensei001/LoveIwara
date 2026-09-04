@@ -89,6 +89,17 @@
 // `HeroMode` 控制，**只有正在打开预览的那张卡片**才把它打开（见
 // `MediaCardActionState.openPreview`）——同时只可能有一张，重复从此不可能发生，
 // 顺带也省掉了列表里几十个常驻 Hero 的开销。
+//
+// # ⛔ 「要去别的地方」的那种关闭不飞 Hero
+//
+// 回飞是「弹窗收回成那张卡片」，读得通的前提是那张卡片还在原地等着。点「打开」
+// 进详情页（作者主页 / 标签列表 / 大图页同理）时它并不在：新页正推进来，而这只
+// 弹窗挂在 root 上、比 shell 里那一页高，回飞的面板就成了一只横穿新页的幽灵。
+// 所以凡是走 [_MediaPreviewDialogState._closeForNavigation] 的关闭都当场摘掉本侧
+// 的 `HeroMode`，只剩弹窗自己那段淡出；只有纯粹的关掉（关闭钮 / 点遮罩 / 返回）
+// 才飞回去。摘的是**弹窗**这一侧：`_allHeroesFor` 要首尾都找得到同一个 tag 才起
+// 飞，少一边就没有飞行——而它在 pop 那一帧的 post-frame 回调里才去数，所以先
+// `setState` 再 `pop` 来得及。
 
 import 'dart:async';
 import 'dart:math' as math;
@@ -385,6 +396,9 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   /// 兼作重入闸门（交接期间再点再拖都不作数）。
   bool _photoHandingOff = false;
 
+  /// 弹窗这一侧的 Hero 还挂不挂。见文件头「要去别的地方的那种关闭不飞 Hero」。
+  bool _heroEnabled = true;
+
   late final AnimationController _photoMorphController = AnimationController(
     vsync: this,
   )..addListener(_onPhotoMorphTick);
@@ -546,6 +560,15 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     Navigator.of(context).maybePop();
   }
 
+  /// 因为「要去别的地方」而关闭：摘掉本侧的 Hero，不回飞。
+  ///
+  /// 见文件头「⛔ 「要去别的地方」的那种关闭不飞 Hero」。
+  void _closeForNavigation() {
+    if (!mounted) return;
+    if (_heroEnabled) setState(() => _heroEnabled = false);
+    _close();
+  }
+
   /// 关掉弹窗，再去干那件「离开这一页」的事。
   ///
   /// ⛔ 有承载层（[MediaPreviewDialog.onWillLeavePage]）时**必须等自己先退干净**
@@ -564,7 +587,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   }) async {
     final Future<void> Function()? host = widget.onWillLeavePage;
     final ModalRoute<Object?>? route = ModalRoute.of(context);
-    _close();
+    _closeForNavigation();
     if (host != null && route != null) await route.completed;
     if (toAnotherPage) {
       await host?.call();
@@ -909,7 +932,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   Future<void> _leaveForMenuNavigation() async {
     if (!mounted) return;
     final ModalRoute<Object?>? route = ModalRoute.of(context);
-    _close();
+    _closeForNavigation();
     if (route != null) await route.completed;
     await widget.onWillLeavePage?.call();
     await _departForNavigation();
@@ -1002,22 +1025,30 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
           // 不是一件。整只包住之后飞的是「这张卡片变成了这张面板」。
           //
           // 中途画什么见 [_buildFlightShuttle]：两端的内容谁都不能直接拿来用。
-          child: Hero(
-            tag: mediaPreviewHeroTag(video: _video, gallery: _gallery),
-            flightShuttleBuilder:
-                (flightContext, animation, direction, fromContext, toContext) =>
-                    _buildFlightShuttle(
-                      animation: animation,
-                      colorScheme: theme.colorScheme,
-                      coverFractionAtPanel: coverFraction,
-                      coverFillsHeightAtPanel: wide,
-                    ),
-            child: Material(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(_panelRadius),
-              clipBehavior: Clip.antiAlias,
-              elevation: 6,
-              child: wide ? _buildWide(context) : _buildNarrow(context),
+          child: HeroMode(
+            enabled: _heroEnabled,
+            child: Hero(
+              tag: mediaPreviewHeroTag(video: _video, gallery: _gallery),
+              flightShuttleBuilder:
+                  (
+                    flightContext,
+                    animation,
+                    direction,
+                    fromContext,
+                    toContext,
+                  ) => _buildFlightShuttle(
+                    animation: animation,
+                    colorScheme: theme.colorScheme,
+                    coverFractionAtPanel: coverFraction,
+                    coverFillsHeightAtPanel: wide,
+                  ),
+              child: Material(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(_panelRadius),
+                clipBehavior: Clip.antiAlias,
+                elevation: 6,
+                child: wide ? _buildWide(context) : _buildNarrow(context),
+              ),
             ),
           ),
         ),
@@ -2214,7 +2245,6 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
       ),
     );
   }
-
 }
 
 /// 这份文件的宽高比（宽 / 高）。接口没给尺寸就是 null。
