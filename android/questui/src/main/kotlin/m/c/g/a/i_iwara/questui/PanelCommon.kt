@@ -2,6 +2,15 @@ package m.c.g.a.i_iwara.questui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.drawWithContent
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -117,10 +126,7 @@ fun PageHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
-        BorderlessCircleButton(
-            icon = { Icon(SpatialIcons.Regular.ChevronLeft, null) },
-            onClick = onBack,
-        )
+        CircleActionButton(SpatialIcons.Regular.ChevronLeft, "返回", onClick = onBack)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
@@ -280,7 +286,7 @@ fun CircleActionButton(
 }
 
 /**
- * 自绘进度条：细轨道 + 小圆拖块，命中区整行 48dp。
+ * 自绘进度条：12dp 轨道 + 28dp 圆拖块，命中区整行 64dp（用户反馈太细太矮难点）。
  *
  * 不用 `SpatialSliderLarge`：它的拖块是一枚 60dp 宽的药丸，走到 98% 时看起来就是满的
  * （用户反馈「4:22 / 4:27 进度条视觉上已拉满」）。
@@ -302,7 +308,7 @@ fun SeekBar(
     val thumbColor = PanelTokens.ON_SURFACE
     Box(
         modifier = modifier
-            .height(48.dp)
+            .height(64.dp)
             .pointerInput(onSeek, onSeekFinished) {
                 val w = size.width.toFloat()
                 detectTapGestures(
@@ -326,8 +332,8 @@ fun SeekBar(
             },
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val trackH = 6.dp.toPx()
-            val thumbR = 9.dp.toPx()
+            val trackH = 12.dp.toPx()
+            val thumbR = 14.dp.toPx()
             val cy = size.height / 2f
             val x = (size.width * progress.coerceIn(0f, 1f))
             drawRoundRect(
@@ -358,4 +364,92 @@ fun TimeLabel(text: String, modifier: Modifier = Modifier, color: Color = PanelT
         modifier = modifier,
         textAlign = TextAlign.Center,
     )
+}
+
+
+/**
+ * 自绘竖向音量条：宽轨道 + 圆拖块，命中区整列。
+ *
+ * 不再用旋转过的 UI Set 横向 slider：太细、太矮（用户 2026-09-05 反馈）。
+ * @param level 0..1，上满下空。
+ */
+@Composable
+fun VerticalLevelBar(
+    level: Float,
+    onLevel: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val trackColor = PanelTokens.SURFACE
+    val fillColor = PanelTokens.ON_SURFACE
+    Box(
+        modifier = modifier
+            .width(56.dp)
+            .pointerInput(onLevel) {
+                val h = size.height.toFloat()
+                detectTapGestures(onPress = { o -> onLevel((1f - o.y / h).coerceIn(0f, 1f)) })
+            }
+            .pointerInput(onLevel) {
+                val h = size.height.toFloat()
+                detectVerticalDragGestures { change, _ ->
+                    change.consume()
+                    onLevel((1f - change.position.y / h).coerceIn(0f, 1f))
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val trackW = 14.dp.toPx()
+            val thumbR = 14.dp.toPx()
+            val cx = size.width / 2f
+            val y = size.height * (1f - level.coerceIn(0f, 1f))
+            drawRoundRect(
+                color = trackColor,
+                topLeft = Offset(cx - trackW / 2f, 0f),
+                size = Size(trackW, size.height),
+                cornerRadius = CornerRadius(trackW / 2f),
+            )
+            drawRoundRect(
+                color = fillColor,
+                topLeft = Offset(cx - trackW / 2f, y),
+                size = Size(trackW, size.height - y),
+                cornerRadius = CornerRadius(trackW / 2f),
+            )
+            drawCircle(color = fillColor, radius = thumbR, center = Offset(cx, y))
+        }
+    }
+}
+
+/**
+ * 竖向滚动指示条：内容放不下时才画；刚进页面先亮 2s 提醒「下面还有」，滚动时常亮，停手 1.2s 后淡出。
+ *
+ * 官方 `hands-ui-best-practices` 明说别做传统滚动条（拖它的人多半失败），所以它**只指示、不可拖**，
+ * 滚动仍靠在内容上划。用法：`Modifier.verticalScroll(state).panelScrollbar(state)` —— 挂在同一个节点上。
+ */
+@Composable
+fun Modifier.panelScrollbar(state: ScrollState): Modifier {
+    val scrolling = state.isScrollInProgress
+    var visible by remember { mutableStateOf(true) }
+    LaunchedEffect(scrolling, state.value) {
+        visible = true
+        if (!scrolling) {
+            delay(if (state.value == 0) 2000L else 1200L)
+            visible = false
+        }
+    }
+    val alpha by animateFloatAsState(if (visible) 1f else 0f, label = "scrollbar")
+    return this.drawWithContent {
+        drawContent()
+        val max = state.maxValue
+        if (max <= 0 || alpha <= 0.01f) return@drawWithContent
+        val viewport = size.height
+        val content = viewport + max
+        val thumbH = (viewport * viewport / content).coerceAtLeast(28.dp.toPx())
+        val thumbY = (viewport - thumbH) * (state.value.toFloat() / max) + state.value
+        val w = 6.dp.toPx()
+        drawRoundRect(
+            color = PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.55f * alpha),
+            topLeft = Offset(size.width - w, thumbY),
+            size = Size(w, thumbH),
+            cornerRadius = CornerRadius(w / 2f),
+        )
+    }
 }

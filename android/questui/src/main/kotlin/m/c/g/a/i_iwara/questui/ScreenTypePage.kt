@@ -50,11 +50,12 @@ import com.meta.spatial.uiset.theme.icons.regular.WidthWide
  */
 @Composable
 fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
+    val scroll = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .reportPanelTouches(cb)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scroll).panelScrollbar(scroll),
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(

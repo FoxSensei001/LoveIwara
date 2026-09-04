@@ -25,13 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.SecondaryButton
-import com.meta.spatial.uiset.slider.SpatialSliderSmall
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
 import com.meta.spatial.uiset.theme.icons.regular.Close
 import com.meta.spatial.uiset.theme.icons.regular.Environment
@@ -312,10 +310,7 @@ private fun androidx.compose.foundation.layout.RowScope.SpeedChip(
 
 // ─────────────────────────────────────────────────────────── 音量弹层
 
-/**
- * 竖向音量滑杆：UI Set 的 slider 只有横向，拿横向的旋转 -90°。
- * 外层 Box 定死竖向逻辑尺寸，内层 `graphicsLayer { rotationZ = -90f }`，`size(170×40)` 是旋转前的尺寸。
- */
+/** 竖向音量弹层：百分比 · 自绘竖条 · 静音钮。 */
 @Composable
 private fun VolumeVerticalPopup(
     state: VideoControlsState,
@@ -325,7 +320,7 @@ private fun VolumeVerticalPopup(
     val current = if (state.muted) 0f else state.volume
     Box(
         modifier = modifier
-            .size(width = 96.dp, height = 280.dp)
+            .size(width = 104.dp, height = 300.dp)
             .clip(RoundedCornerShape(28.dp))
             .background(PanelTokens.POPUP)
             .padding(12.dp),
@@ -336,20 +331,11 @@ private fun VolumeVerticalPopup(
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(text = "${(current * 100).toInt()}%", color = PanelTokens.ON_SURFACE, fontSize = 15.sp)
-            Box(modifier = Modifier.size(width = 60.dp, height = 160.dp)) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(width = 160.dp, height = 40.dp)
-                        .graphicsLayer { rotationZ = -90f },
-                ) {
-                    SpatialSliderSmall(
-                        onChanged = cb::onVolume,
-                        modifier = Modifier.fillMaxSize(),
-                        value = current,
-                    )
-                }
-            }
+            VerticalLevelBar(
+                level = current,
+                onLevel = cb::onVolume,
+                modifier = Modifier.height(170.dp),
+            )
             CircleActionButton(
                 icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
                 contentDescription = if (state.muted) "取消静音" else "静音",

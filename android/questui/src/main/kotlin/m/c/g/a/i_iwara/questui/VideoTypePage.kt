@@ -63,11 +63,12 @@ import com.meta.spatial.uiset.theme.icons.regular.Warning
  */
 @Composable
 fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
+    val scroll = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .reportPanelTouches(cb)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scroll).panelScrollbar(scroll),
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(

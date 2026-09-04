@@ -127,6 +127,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private var screenEntity: Entity? = null
     private var screenPanel: PanelSceneObject? = null
+
+    /** 当前幕布实体是平幕（quad / cylinder）还是球幕。 */
+    private var screenEntityIsFlat = true
     private var uiPanelEntity: Entity? = null
     private var controlsEntity: Entity? = null
     private var bufferingEntity: Entity? = null
@@ -442,11 +445,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         ?.tryGetComponent<Transform>()
         ?.transform
 
-    /** 当下的「视线坐标系」：头部位置 + 去掉 roll 的头部朝向（保留俯仰与偏航）。 */
+    /**
+     * 当下的「视线坐标系」：头部位置 + 去掉 roll 的头部朝向（保留俯仰与偏航），再整体**压低
+     * [GAZE_DROP_DEG]**。人自然注视比头部轴线低十来度，按轴线摆的东西一律偏上（真机反馈两轮）。
+     *
+     * 俯仰角的正负号不假设 SDK 的欧拉约定：两个方向各算一次，取前向量更朝下的那个。
+     */
     private fun gazeFrame(): Pose? {
         val head = headPose() ?: return null
         val e = head.q.toEuler()
-        return Pose(head.t, Quaternion(e.x, e.y, 0f))
+        val a = Quaternion(e.x + GAZE_DROP_DEG, e.y, 0f)
+        val b = Quaternion(e.x - GAZE_DROP_DEG, e.y, 0f)
+        val forward = Vector3(0f, 0f, 1f)
+        val q = if ((a * forward).y < (b * forward).y) a else b
+        return Pose(head.t, q)
     }
 
     /** 拿不到头部位姿时的兜底锚点：原点上方站姿眼高、朝 +Z。 */
@@ -570,8 +582,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * @param keepPlayback 片子没变，只是几何变了：播放器留着，只换 Surface。
      */
     private fun rebuildScreen(keepPlayback: Boolean = false) {
-        if (controls.format.isFlat) {
+        // 只有「上一块也是平幕」时才把它的位置带过来。⛔ 球幕实体的位置就是你的头部位置 ——
+        // 从全景切回平面时若把它当成「抓着挪过的平幕位置」，平幕会被摆进眼睛里（真机反馈：
+        // 「切回后画面不显示，要点重新居中才出来」）。
+        if (controls.format.isFlat && screenEntityIsFlat) {
             screenEntity?.tryGetComponent<Transform>()?.transform?.let { screenPoseOverride = it }
+        } else {
+            screenPoseOverride = null
         }
         // ⛔ 顺序：先摘 Surface 再销毁实体，否则播放器往已释放的缓冲上画。
         if (keepPlayback) playback.detachSurface() else playback.release()
@@ -625,6 +642,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             Entity.create(Panel(R.id.vr_video_panel), Transform(screenPose()), Visible(true))
         }
         screenEntity = entity
+        screenEntityIsFlat = flat
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             val panel = so as? PanelSceneObject
             screenPanel = panel
@@ -1421,7 +1439,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
          * 72dp 圆钮 = 0.098m @1.5m ≈ 3.7°，高于官方 2.5–3° 下限。
          */
         private const val CONTROLS_DISTANCE_M = 1.5f
-        private const val CONTROLS_DROP_M = -0.25f
+        private const val CONTROLS_DROP_M = -0.12f
+
+        /** 摆位视线比头部轴线低这么多度。 */
+        private const val GAZE_DROP_DEG = 12f
         private const val CONTROLS_WIDTH_M = 1.5f
         private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 360f / 1100f
 
