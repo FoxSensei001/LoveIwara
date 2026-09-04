@@ -7,11 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.SecondaryButton
 import com.meta.spatial.uiset.button.TextTileButton
 import com.meta.spatial.uiset.slider.SpatialSliderMedium
@@ -26,7 +30,7 @@ import com.meta.spatial.uiset.theme.icons.regular.World
  *
  * # ⛔ 只做两种场景
  *
- * 参考软件有 MAX影院 / 太空 / 热气球 等一排 3D 场景。**我们只做透视与虚空**
+ * 参考软件有 MAX 影院 / 太空 / 热气球 等一排 3D 场景。**我们只做透视与虚空**
  * （用户 2026-08-29 拍板）—— 每个 3D 场景都是一份要打进包的 glTF 资产，收益纯装饰。
  *
  * # ⛔ passthrough 切换必须是渐变，不能硬切
@@ -37,46 +41,53 @@ import com.meta.spatial.uiset.theme.icons.regular.World
  *
  * # 幕布几何
  *
- * 参考软件的「场景调节」给的是**屏幕距离 / 屏幕偏移**两条滑块，我们照做，
- * 再加一条**幕宽**（参考软件靠抓着幕布拖，我们两条路都留着）。
+ * 参考软件的「场景调节」给的是**屏幕距离 / 屏幕偏移 / 幕宽**三条滑块，我们照做。
+ * 球幕片（180/360）人在球心，弯的是整个世界，这三条滑块没有意义 —— 那时整片
+ * 藏起来只留「重新居中」与一段说明，别让人调了发现毫无反应。
  *
- * ⛔ 距离下限 **1.5m** 不是随手定的，见文件末尾 `MIN_DISTANCE_M` 的注释：
- * 官方对 UI 的下限是 1m（`hands-3d-best-practices`：「Avoid placing UI in the middle
- * distance (roughly 0.5m to 0.8m)… push it well into raycast range (**1m or more**)」），
+ * ⛔ 距离下限 **1.5m** 不是随手定的：官方对 UI 的下限是 1m
+ * （`hands-3d-best-practices`：「Avoid placing UI in the middle distance
+ * (roughly 0.5m to 0.8m)… push it well into raycast range (**1m or more**)」），
  * 而控制面板必须落在幕布**前面**一截，两条一起反算出 1.5m。
  */
 @Composable
 fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .reportPanelTouches(cb)
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
-            title = "场景",
-            subtitle = "环境与幕布位置",
+            title = "场景选择",
+            subtitle = if (state.format.isFlat) "环境与幕布位置" else "球幕片源，画面本来就包在你四周",
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
             trailing = {
-                SecondaryButton(
-                    label = "重新居中",
-                    leading = { Icon(SpatialIcons.Regular.Reorient, null) },
-                    onClick = cb::onRecenter,
-                    modifier = Modifier.width(200.dp),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (state.format.isFlat) {
+                        SecondaryButton(
+                            label = "重置",
+                            leading = { Icon(SpatialIcons.Regular.Refresh, null) },
+                            onClick = cb::onResetScreenGeometry,
+                            modifier = Modifier.width(140.dp),
+                        )
+                    }
+                    SecondaryButton(
+                        label = "重新居中",
+                        leading = { Icon(SpatialIcons.Regular.Reorient, null) },
+                        onClick = cb::onRecenter,
+                        modifier = Modifier.width(180.dp),
+                    )
+                }
             },
         )
 
+        // ── 环境 ──────────────────────────────────
         Row(
             modifier = Modifier.fillMaxWidth().height(104.dp),
             horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
         ) {
-            TextTileButton(
-                label = "虚空",
-                secondaryLabel = "纯黑环境，只剩画面",
-                icon = { Icon(SpatialIcons.Regular.NightMode, null) },
-                selected = state.scene == SceneKind.VOID,
-                onSelectionChange = { cb.onPickScene(SceneKind.VOID) },
-                modifier = Modifier.weight(1f),
-            )
             TextTileButton(
                 label = "透视",
                 secondaryLabel = "看得见真实房间",
@@ -85,45 +96,51 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 onSelectionChange = { cb.onPickScene(SceneKind.PASSTHROUGH) },
                 modifier = Modifier.weight(1f),
             )
-        }
-
-        SectionLabel("幕布")
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SpatialSliderMedium(
-                onChanged = { cb.onScreenDistance(lerp(MIN_DISTANCE_M, MAX_DISTANCE_M, it)) },
+            TextTileButton(
+                label = "虚空",
+                secondaryLabel = "纯黑环境，只剩画面",
+                icon = { Icon(SpatialIcons.Regular.NightMode, null) },
+                selected = state.scene == SceneKind.VOID,
+                onSelectionChange = { cb.onPickScene(SceneKind.VOID) },
                 modifier = Modifier.weight(1f),
-                value = unlerp(MIN_DISTANCE_M, MAX_DISTANCE_M, state.screenDistance),
-                helperText = "距离" to "%.1f m".format(state.screenDistance),
-            )
-            SpatialSliderMedium(
-                onChanged = { cb.onScreenWidth(lerp(MIN_WIDTH_M, MAX_WIDTH_M, it)) },
-                modifier = Modifier.weight(1f),
-                value = unlerp(MIN_WIDTH_M, MAX_WIDTH_M, state.screenWidth),
-                helperText = "幕宽" to "%.1f m".format(state.screenWidth),
             )
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        // ── 场景调节（平面片才有意义） ──────────────
+        if (state.format.isFlat) {
+            SectionLabel("场景调节")
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SpatialSliderMedium(
+                    onChanged = { cb.onScreenDistance(lerp(MIN_DISTANCE_M, MAX_DISTANCE_M, it)) },
+                    modifier = Modifier.weight(1f),
+                    value = unlerp(MIN_DISTANCE_M, MAX_DISTANCE_M, state.screenDistance),
+                    helperText = "屏幕距离" to "%.1f m".format(state.screenDistance),
+                )
+                SpatialSliderMedium(
+                    onChanged = { cb.onScreenWidth(lerp(MIN_WIDTH_M, MAX_WIDTH_M, it)) },
+                    modifier = Modifier.weight(1f),
+                    value = unlerp(MIN_WIDTH_M, MAX_WIDTH_M, state.screenWidth),
+                    helperText = "幕宽" to "%.1f m".format(state.screenWidth),
+                )
+            }
+
             SpatialSliderMedium(
                 onChanged = { cb.onScreenOffset(lerp(MIN_OFFSET_M, MAX_OFFSET_M, it)) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 value = unlerp(MIN_OFFSET_M, MAX_OFFSET_M, state.screenOffset),
-                helperText = "高度" to "%+.2f m".format(state.screenOffset),
+                helperText = "屏幕偏移" to "%+.2f m".format(state.screenOffset),
             )
-            SecondaryButton(
-                label = "恢复默认几何",
-                leading = { Icon(SpatialIcons.Regular.Refresh, null) },
-                onClick = cb::onResetScreenGeometry,
-                modifier = Modifier.width(260.dp),
+        } else {
+            Text(
+                text = "180°/360° 片源没有「屏幕位置」可调 —— 画面就是你四周的球面。" +
+                    "想换朝向就用右上角「重新居中」。",
+                color = PanelTokens.ON_SURFACE_DIM,
+                fontSize = 16.sp,
             )
         }
     }
@@ -137,9 +154,9 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 private const val MIN_DISTANCE_M = 1.5f
 private const val MAX_DISTANCE_M = 8.0f
 private const val MIN_WIDTH_M = 1.0f
-private const val MAX_WIDTH_M = 9.0f
-private const val MIN_OFFSET_M = -0.6f
-private const val MAX_OFFSET_M = 0.6f
+private const val MAX_WIDTH_M = 8.0f
+private const val MIN_OFFSET_M = -1.0f
+private const val MAX_OFFSET_M = 1.0f
 
 private fun lerp(from: Float, to: Float, t: Float): Float = from + (to - from) * t.coerceIn(0f, 1f)
 

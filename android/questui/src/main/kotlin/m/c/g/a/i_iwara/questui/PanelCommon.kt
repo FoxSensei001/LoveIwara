@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,6 +72,12 @@ object PanelTokens {
     val ON_SURFACE = Color(0xFFE6E6EA)
     val ON_SURFACE_DIM = Color(0xFFA8A8B0)
     val WARN = Color(0xFFFFB77C)
+
+    /** 充电时电池文字的强调色（Meta 官方深色主题里的绿）。 */
+    val CHARGE = Color(0xFF7CE6A0)
+
+    /** 弹层（音量/倍速）的底板色，比主 SURFACE 更实一点，避免上下叠加时糊在一起。 */
+    val POPUP = Color(0xFF25252B)
 }
 
 /**
@@ -167,3 +175,26 @@ fun PanelSurface(content: @Composable () -> Unit) {
 fun VGap(dp: Int = 14) {
     Spacer(Modifier.height(dp.dp))
 }
+
+/**
+ * 面板级触碰上报。
+ *
+ * ⛔ 挂在页面根节点上：拦 [PointerEventPass.Initial]（在子节点之前拿到事件）**且不消费**。
+ * `:app` 侧的 `PanelInputBridge` 用这个信号做两件事：
+ *   1. 续「空闲自动收起」的倒计时；
+ *   2. 把「捏合唤出面板」的手势分家 —— 如果这次捏合发生在面板上，那就是普通交互，
+ *      不当作召唤/收起手势看待。
+ *
+ * 覆盖面必须包含整块面板（含透明的顶栏那一带），所以调用点是 [VideoControlsPanel] 的
+ * 最外层 Column，不是每个子页各挂一次。子页只在自己的根节点上重挂一次做兜底 ——
+ * 万一某天顶层结构改了这里也不会漏。
+ */
+fun Modifier.reportPanelTouches(cb: VideoControlsCallbacks): Modifier =
+    this.pointerInput(cb) {
+        awaitPointerEventScope {
+            while (true) {
+                awaitPointerEvent(PointerEventPass.Initial)
+                cb.onPanelTouched()
+            }
+        }
+    }

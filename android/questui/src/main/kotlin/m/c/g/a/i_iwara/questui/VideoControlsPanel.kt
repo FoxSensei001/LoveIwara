@@ -30,17 +30,18 @@ import com.meta.spatial.uiset.theme.icons.regular.Settings
  * 用户在 Quest 上找了一款成熟 VR 播放器作参照并要求「直接模仿它」。它的结构是：
  *
  * ```
- * ○ 关闭   ○ 场景  ○ 调色  ○ 播放列表  ○ 设置     ← 悬浮圆钮排
- * ┌───────────────────────────────────────────┐
- * │ 标题                              时间/时长 │
- * │ ══════════●──────────────────────────────  │
- * │ [音量][－10][▶][＋10][倍速] … [视频类型][屏幕类型] │
- * └───────────────────────────────────────────┘
+ * ✕                    ○ 场景  ○ 播放列表  ○ 设置  ○ 返回应用    ← 悬浮圆钮排
+ * ┌────────────────────────────────────────────────────────────┐
+ * │ 标题                              🕒 时间  🔋 电量  [缓冲中…] │
+ * │ [notice]                                                    │
+ * │ [🔊] ⏮ ⏪10 ▶/⏸ ⏩10 ⏭       [速度][视频类型][屏幕类型]      │
+ * │ ═════════●─────────────────────    00:01:41 / 00:04:27      │
+ * └────────────────────────────────────────────────────────────┘
  * ```
  *
  * 我们的取舍（`docs/xr-app-layout.md` §15 已定）：
- * - ⛔ **不做调色**；⛔ **不做音量左边那两个按钮**。
- * - 顶栏第五枚换成「返回应用」——⛔ 这是官方 **Requirement** 级要求：
+ * - ⛔ **不做调色**（参考软件里的第三枚顶栏圆钮）；
+ * - 顶栏最右一枚是「返回应用」——⛔ 这是官方 **Requirement** 级要求：
  *   「a system back button is **not universally available** across input modalities.
  *    If needed, **add a back button to your app's interface**.」
  *   沉浸空间里既没有手势返回也没有系统返回，必须自己画。
@@ -51,27 +52,18 @@ import com.meta.spatial.uiset.theme.icons.regular.Settings
  * 点「场景 / 播放列表 / 设置 / 视频类型 / 屏幕类型」都是把这块窗的**内容**换掉，
  * 不再飘第二个窗出来。官方 `comfort` 原文：「try to keep the main controls in a
  * **single UI panel**, as opposed to having multiple windows floating around」。
- * 参考软件也是这么做的。
  *
- * # ⛔ 交互反馈是必做项，不是加分项
+ * # ⛔ 触碰上报挂在最外层，覆盖含顶栏透明区
  *
- * 官方 `hands-ui-best-practices`：「**Hands have no haptics.** Without controller
- * vibration to confirm an action, every successful poke, pinch, or grab needs strong
- * audiovisual feedback to compensate… **This is not optional.**」
- * 视觉反馈由 UI Set 组件自带（hover / pressed 都有），**音效由调用方在每个回调里播**。
- *
- * # 已知欠账
- *
- * - 播放列表只有文字没有缩略图（要贴网络图得引图片加载库，见 [PlaylistEntry] 注释）。
- * - 参考软件的圆环光标捏合形变**做不了同款**：官方 `IsdkDefaultCursorSystem` 只暴露
- *   一个 `active` 开关，**没有任何外观定制 API**。要同款只能整个关掉默认 cursor 自己
- *   画一只 3D reticle —— 这一期不做，把「捏合有反馈」落在面板级（音效 + 按下态）。
+ * [Modifier.reportPanelTouches] 挂在最外的 Column 上而不是各页各挂：`:app` 侧的
+ * `PanelInputBridge` 靠这个信号做两件事 —— 续「空闲收起」计时 + 把「捏合唤出」
+ * 和「面板内交互」分家。少覆盖一格都会造成召唤手势被误触发。
  */
 @Composable
 fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
     SpatialTheme(colorScheme = darkSpatialColorScheme()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopBar(state, cb)
+        Column(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
+            TopBar(cb)
             Spacer(Modifier.height(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 PanelSurface {
@@ -96,9 +88,12 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
  * 的缝透出后面的画面 —— 这就是参考软件那种「圆钮浮在窗上方」的观感。
  * ⚠️ alpha 面板未真机验证过，若出现黑底/描边，退路是把这排钮收进底板里
  * （只影响观感，不影响功能）。
+ *
+ * ⛔ 顶栏在**每个子页里都显示**（含 SCENE / SETTINGS 等）：参考软件的子面板也保留
+ * 顶栏，用户从任何一页都能一键回到应用或换到另一个子页。
  */
 @Composable
-private fun TopBar(state: VideoControlsState, cb: VideoControlsCallbacks) {
+private fun TopBar(cb: VideoControlsCallbacks) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

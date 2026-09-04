@@ -21,8 +21,8 @@ import java.lang.ref.WeakReference
  *
  * Dart → Kotlin（通道 `i_iwara/immersive`）：
  * - `isAvailable` → Boolean，沉浸场景当前是否活着（Dart 用它决定要不要显示入口）
- * - `present` → `{url, title, shape: flat|180|360, stereo: none|lr|tb, w, h,
- *                positionMs, unsupportedProjection}`
+ * - `present` → `{url, title, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
+ *                w, h, positionMs, unsupportedProjection}`
  * - `dismiss` → 收起幕布，只留 UI 面板
  * - `setPlaylist` → `{items: [{id,title,author,durationText,progress,watched,playable}],
  *                    nowPlayingId}`
@@ -30,8 +30,10 @@ import java.lang.ref.WeakReference
  * Kotlin → Dart（同一条通道）：
  * - `requestPlaylist` → 让 Dart 重新推一次「接着看」
  * - `playItem` `{id}` → 让 Dart 把这条解析成地址再 `present` 回来
+ * - `immersiveEnded` `{videoId, positionMs}` → 沉浸播放结束（返回应用 / 退出场景），
+ *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
  *
- * ⛔ **反向调用只有这两条，刻意保持得很窄**。设计文档 §6.6 已经否掉了「沉浸端持续
+ * ⛔ **反向调用只有这三条，刻意保持得很窄**。设计文档 §6.6 已经否掉了「沉浸端持续
  * 回打 Dart 的瘦客户端架构」（跨端持续同步最脆，LMK 一杀会话中途崩），
  * 这里是「原生自足 + 偶尔向 Dart 要一次数据」。
  */
@@ -56,8 +58,10 @@ object XrBridge {
                         val request = ImmersiveVideoRequest(
                             url = url,
                             title = call.argument<String>("title") ?: "",
+                            videoId = call.argument<String>("videoId") ?: "",
                             shape = call.argument<String>("shape") ?: "flat",
                             stereo = call.argument<String>("stereo") ?: "none",
+                            fullFrame = call.argument<Boolean>("fullFrame") ?: false,
                             width = call.argument<Int>("w") ?: 0,
                             height = call.argument<Int>("h") ?: 0,
                             positionMs = (call.argument<Number>("positionMs") ?: 0).toLong(),
@@ -98,8 +102,12 @@ object XrBridge {
 data class ImmersiveVideoRequest(
     val url: String,
     val title: String,
+    /** 应用内的视频 id；本地文件/外部地址可为空串。回写进度时靠它。 */
+    val videoId: String,
     val shape: String,
     val stereo: String,
+    /** 立体片每只眼占一整幅（FSBS / FOU）。默认半幅（HSBS / HOU）。 */
+    val fullFrame: Boolean,
     val width: Int,
     val height: Int,
     val positionMs: Long,
@@ -254,6 +262,22 @@ object ImmersiveBridge {
     fun requestPlaylist() {
         val channel = channelRef?.get() ?: return
         mainHandler.post { channel.invokeMethod("requestPlaylist", null) }
+    }
+
+    /**
+     * 沉浸播放结束：把最后位置交还给 Dart。
+     *
+     * 幕布上的进度从不经过 `MyVideoStateController`，所以观看历史 / 稍后再看的进度
+     * 只能在这一刻一次性回写（设计文档 §6.6-4 的决定）。
+     */
+    fun notifyImmersiveEnded(videoId: String, positionMs: Long) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post {
+            channel.invokeMethod(
+                "immersiveEnded",
+                mapOf("videoId" to videoId, "positionMs" to positionMs),
+            )
+        }
     }
 
     /** 请 Dart 把这条解析成可播地址，然后它会自己 `present` 回来。 */

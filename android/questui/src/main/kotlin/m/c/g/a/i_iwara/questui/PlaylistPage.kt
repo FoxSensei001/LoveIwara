@@ -56,7 +56,7 @@ import com.meta.spatial.uiset.theme.icons.regular.Refresh
 @Composable
 fun PlaylistPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().reportPanelTouches(cb),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         PageHeader(
