@@ -17,6 +17,16 @@ class GalleryControls {
   final Function(bool fine)? onZoomOut;
   final VoidCallback? onResetZoom;
 
+  /// 下面三条只在**当前这一页是视频**时才有事可做，所以返回值是「这一下有没有
+  /// 真的做成」：翻到一张静态图上按空格，键仍然被作用域吃掉（否则方向键那套会
+  /// 被 `WidgetsApp` 翻译成焦点移动），但不该假装播放了什么。
+  final bool Function()? onTogglePlayPause;
+
+  /// `forward` 为真是快进，否则快退。
+  final bool Function(bool forward)? onSeek;
+
+  final bool Function()? onToggleMute;
+
   int currentIndex = 0;
 
   final double _zoomInterval = 0.2;
@@ -29,6 +39,9 @@ class GalleryControls {
     this.onZoomIn,
     this.onZoomOut,
     this.onResetZoom,
+    this.onTogglePlayPause,
+    this.onSeek,
+    this.onToggleMute,
   });
 
   /// 统一快捷键派发
@@ -49,6 +62,14 @@ class GalleryControls {
       case ShortcutAction.galleryResetZoom:
         resetZoom();
         return true;
+      case ShortcutAction.galleryPlayPause:
+        return onTogglePlayPause?.call() ?? false;
+      case ShortcutAction.gallerySeekForward:
+        return onSeek?.call(true) ?? false;
+      case ShortcutAction.gallerySeekBackward:
+        return onSeek?.call(false) ?? false;
+      case ShortcutAction.galleryToggleMute:
+        return onToggleMute?.call() ?? false;
       default:
         return false;
     }

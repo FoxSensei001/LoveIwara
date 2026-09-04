@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -7,6 +8,12 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -27,10 +34,20 @@ class _GalleryDownloadTaskDetailPageState
     extends State<GalleryDownloadTaskDetailPage> {
   GalleryDownloadExtData? galleryData;
 
+  final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     super.initState();
     _loadGalleryData();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _showBackToTop.dispose();
+    super.dispose();
   }
 
   Future<void> _loadGalleryData() async {
@@ -128,25 +145,134 @@ class _GalleryDownloadTaskDetailPageState
       initialIndex: index,
       menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
       enableMenu: false, // 下载详情进入的查看页不需要菜单/弹窗
-      heroTagBuilder: (imageItem) => imageItem.isVideo
-          ? null
-          : 'download_gallery:${galleryData?.id ?? widget.taskId}:${imageItem.data.id}',
+    );
+  }
+
+  /// 顶栏：返回圆钮 / 标题胶囊 / 「看原图库」。
+  ///
+  /// 走全站详情页那份配方（见 [GlassHeaderOverlay] 的类文档）：这一页此前还停在
+  /// 裸 `AppBar` 上，是最后几块没跟上的地方之一。标题不再在正文里另占一行——
+  /// [GlassTitlePill] 自己管截断与「点一下弹全文」，还顺带把「数据还没读出来」
+  /// 表达成 shimmer 占位（此前是整页一个转圈）。
+  Widget _buildHeader(BuildContext context, GalleryDownloadExtData? extData) {
+    final t = slang.Translations.of(context);
+    return SizedBox(
+      height: GlassTokens.headerRowHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GlassTitlePill(
+                // 还没读出来时传 null：那是占位条该出现的信号。
+                title: extData == null
+                    ? null
+                    : (extData.title ?? t.galleryDetail.galleryDetail),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // 原图库还在线上才给这枚键，长出来的那一下走 [GlassGroupSlot]
+            // （数据是异步读的，不然就是凭空多一枚钮）。
+            GlassGroupSlot(
+              visible: extData?.id != null,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.photo_library),
+                tooltip: t.galleryDetail.viewGalleryDetail,
+                onPressed: () {
+                  final id = galleryData?.id;
+                  if (id == null) return;
+                  NaviService.navigateToGalleryDetailPage(id);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScrollToTopFab(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return Positioned(
+      right: 16,
+      bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: _showBackToTop,
+        builder: (context, visible, _) => GlassReveal(
+          visible: visible,
+          builder: (context, m) => GlassIconButton(
+            materialize: m,
+            standalone: true,
+            icon: const Icon(Icons.vertical_align_top),
+            tooltip: t.common.scrollToTop,
+            onPressed: () {
+              if (!_scrollController.hasClients) return;
+              _scrollController.animateTo(
+                0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final t = slang.Translations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final double statusBarHeight = MediaQuery.paddingOf(context).top;
+    final double headerExtent = statusBarHeight + GlassTokens.headerRowHeight;
     final extData = galleryData;
-    final currentTask = task;
 
-    // 如果数据还没加载完成，显示加载中
-    if (extData == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(t.galleryDetail.galleryDetail)),
-        body: const Center(child: CircularProgressIndicator()),
-      );
-    }
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // 没有 AppBar 就没人管状态栏图标明暗，不显式声明会沿用上一页的。
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      ),
+      child: Scaffold(
+        body: GlassHeaderOverlay(
+          liquid: true,
+          headerExtent: headerExtent,
+          headerTop: statusBarHeight,
+          solidExtent: statusBarHeight,
+          header: _buildHeader(context, extData),
+          extra: [_buildScrollToTopFab(context)],
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification.depth == 0 &&
+                  notification.metrics.axis == Axis.vertical) {
+                _showBackToTop.value = notification.metrics.pixels >= 300;
+              }
+              return false;
+            },
+            child: extData == null
+                ? const Center(child: CircularProgressIndicator())
+                : _buildBody(context, extData, headerExtent),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    GalleryDownloadExtData extData,
+    double headerExtent,
+  ) {
+    final t = slang.Translations.of(context);
+    final currentTask = task;
 
     // 构建图片列表
     List<ImageItem> buildImageItems(
@@ -181,305 +307,262 @@ class _GalleryDownloadTaskDetailPageState
 
     final imageItems = buildImageItems(extData, currentTask);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t.galleryDetail.galleryDetail),
-        actions: [
-          if (extData.id != null)
-            IconButton(
-              icon: const Icon(Icons.photo_library),
-              onPressed: () =>
-                  NaviService.navigateToGalleryDetailPage(extData.id!),
-              tooltip: t.galleryDetail.viewGalleryDetail,
-            ),
-        ],
+    return SingleChildScrollView(
+      controller: _scrollController,
+      // ⛔ 让位只能靠**视口自己的** padding：在外面套一层 Padding 的话内容就
+      // 滚不到 header 背后去了（见 [GlassHeaderOverlay] 的类文档）。
+      padding: EdgeInsets.only(
+        // +12：正文第一行（作者）不要贴着 header 的下沿开始。
+        top: headerExtent + 12,
+        bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 标题
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                extData.title ?? t.download.errors.unknown,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            // 作者信息
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: MouseRegion(
-                cursor: extData.authorUsername != null
-                    ? SystemMouseCursors.click
-                    : SystemMouseCursors.basic,
-                child: GestureDetector(
-                  onTap: extData.authorUsername != null
-                      ? () => NaviService.navigateToAuthorProfilePage(
-                          extData.authorUsername!,
-                        )
-                      : null,
-                  child: Row(
-                    children: [
-                      AvatarWidget(avatarUrl: extData.authorAvatar, size: 40),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            extData.authorName ?? t.download.errors.unknown,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          if (extData.authorUsername != null)
-                            Text(
-                              '@${extData.authorUsername}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // 下载状态
-            Obx(() {
-              // 活跃任务（含暂停 / 失败）取内存真源，已完成任务没有动态状态可显示
-              final currentTask = _observeTask();
-              if (currentTask == null) {
-                return const SizedBox.shrink();
-              }
-
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题不在这儿了：它现在是 header 那只 GlassTitlePill。
+          // 作者信息
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: MouseRegion(
+              cursor: extData.authorUsername != null
+                  ? SystemMouseCursors.click
+                  : SystemMouseCursors.basic,
+              child: GestureDetector(
+                onTap: extData.authorUsername != null
+                    ? () => NaviService.navigateToAuthorProfilePage(
+                        extData.authorUsername!,
+                      )
+                    : null,
+                child: Row(
                   children: [
-                    Text(
-                      t.download.downloadStatus,
-                      style: Theme.of(context).textTheme.titleMedium,
+                    AvatarWidget(avatarUrl: extData.authorAvatar, size: 40),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          extData.authorName ?? t.download.errors.unknown,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        if (extData.authorUsername != null)
+                          Text(
+                            '@${extData.authorUsername}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(_getStatusText(context, currentTask)),
-                    if (currentTask.error != null)
-                      Text(
-                        currentTask.error!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    // 添加图片下载进度指示器
-                    if (currentTask.status == DownloadStatus.downloading)
-                      _buildGalleryProgressIndicator(context, currentTask),
                   ],
                 ),
-              );
-            }),
-            const SizedBox(height: 16),
-            // 图片网格
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                t.download.imageList,
-                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            const SizedBox(height: 8),
-            Obx(() {
-              // 优先从内存真源获取，如果不存在则使用已加载的数据
-              DownloadTask? currentTask = _observeTask();
+          ),
+          const SizedBox(height: 16),
+          // 下载状态
+          Obx(() {
+            // 活跃任务（含暂停 / 失败）取内存真源，已完成任务没有动态状态可显示
+            final currentTask = _observeTask();
+            if (currentTask == null) {
+              return const SizedBox.shrink();
+            }
 
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  // 计算列数，最少两列
-                  final columnCount = (constraints.maxWidth / 200)
-                      .floor()
-                      .clamp(2, 4); // 200 是每列的最小宽度
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.download.downloadStatus,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_getStatusText(context, currentTask)),
+                  if (currentTask.error != null)
+                    Text(
+                      currentTask.error!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  // 添加图片下载进度指示器
+                  if (currentTask.status == DownloadStatus.downloading)
+                    _buildGalleryProgressIndicator(context, currentTask),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: 16),
+          // 图片网格
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              t.download.imageList,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Obx(() {
+            // 优先从内存真源获取，如果不存在则使用已加载的数据
+            DownloadTask? currentTask = _observeTask();
 
-                  return WaterfallFlow.builder(
-                    padding: const EdgeInsets.all(16),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: columnCount,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                // 计算列数，最少两列
+                final columnCount = (constraints.maxWidth / 200).floor().clamp(
+                  2,
+                  4,
+                ); // 200 是每列的最小宽度
+
+                return WaterfallFlow.builder(
+                  padding: const EdgeInsets.all(16),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate:
+                      SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columnCount,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                  itemCount: imageItems.length,
+                  itemBuilder: (context, index) {
+                    final item = imageItems[index];
+                    final isDownloaded = item.url.startsWith('file://');
+                    final imageId = item.data.id;
+                    final extension = path_lib
+                        .extension(item.url)
+                        .toLowerCase();
+                    // ⛔ 这里曾经把 `.webm` 一律判成「不支持的图片格式」——图库里
+                    // 混着的视频**现在能在大图页里放**（见 `GalleryVideoPlayer`），
+                    // 那句话早就不是实情了。判定也不再自己数后缀，交给
+                    // [ImageItem.isVideo] 一处（本地文件那条路它按
+                    // `kGalleryVideoFileExtensions` 兜底）。
+                    final bool isVideo = item.isVideo;
+
+                    return Stack(
+                      children: [
+                        // 图片容器
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () =>
+                                    _onImageTap(context, item, imageItems),
+                                child: isDownloaded
+                                    ? isVideo
+                                          // 视频格没有现成的缩略图地址，也不值得
+                                          // 为一格几百像素再起一份 libmpv 去解首帧
+                                          // ——摆一格认得出来的片头就够了，和大图页
+                                          // 底下那条胶片同一套（[GalleryFilmstrip]）。
+                                          ? const _VideoTile()
+                                          : Image.file(
+                                              File(
+                                                item.url.replaceFirst(
+                                                  'file://',
+                                                  '',
+                                                ),
+                                              ),
+                                              fit: BoxFit.cover,
+                                              // 「不支持的格式」这句话留在这儿才诚实：
+                                              // 走到这里说明这确实是一张**解不开的图**。
+                                              errorBuilder:
+                                                  (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) => _UnsupportedTile(
+                                                    extension: extension,
+                                                  ),
+                                            )
+                                    : Image.network(
+                                        item.url,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                const SizedBox(
+                                                  height: 200,
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons.error_outline,
+                                                    ),
+                                                  ),
+                                                ),
+                                      ),
+                              ),
+                            ),
+                          ),
                         ),
-                    itemCount: imageItems.length,
-                    itemBuilder: (context, index) {
-                      final item = imageItems[index];
-                      final isDownloaded = item.url.startsWith('file://');
-                      final imageId = item.data.id;
-                      final extension = path_lib
-                          .extension(item.url)
-                          .toLowerCase();
-                      final isUnsupportedFormat = ['.webm'].contains(extension);
-                      final heroTag =
-                          'download_gallery:${extData.id ?? widget.taskId}:$imageId';
-
-                      return Stack(
-                        children: [
-                          // 图片容器
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () =>
-                                      _onImageTap(context, item, imageItems),
-                                  child: isDownloaded
-                                      ? isUnsupportedFormat
-                                            ? SizedBox(
-                                                height: 200,
-                                                child: Center(
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      const Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                      ),
-                                                      const SizedBox(height: 8),
-                                                      Text(
-                                                        t.download.errors
-                                                            .unsupportedImageFormat(
-                                                              format: extension,
-                                                            ),
-                                                        textAlign:
-                                                            TextAlign.center,
-                                                        style: Theme.of(
-                                                          context,
-                                                        ).textTheme.bodySmall,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            : Hero(
-                                                tag: heroTag,
-                                                child: Image.file(
-                                                  File(
-                                                    item.url.replaceFirst(
-                                                      'file://',
-                                                      '',
-                                                    ),
-                                                  ),
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => const SizedBox(
-                                                        height: 200,
-                                                        child: Center(
-                                                          child: Icon(
-                                                            Icons.error_outline,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                ),
-                                              )
-                                      : Hero(
-                                          tag: heroTag,
-                                          child: Image.network(
-                                            item.url,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    const SizedBox(
-                                                      height: 200,
-                                                      child: Center(
-                                                        child: Icon(
-                                                          Icons.error_outline,
-                                                        ),
-                                                      ),
-                                                    ),
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // 下载进度指示器
-                          if (!isDownloaded &&
-                              currentTask?.status == DownloadStatus.downloading)
-                            Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.5),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Obx(() {
-                                        if (currentTask == null) {
-                                          return const SizedBox.shrink();
-                                        }
-                                        final progress =
-                                            DownloadService.to
-                                                .getGalleryImageProgress(
-                                                  currentTask.id,
-                                                )?[imageId] ??
-                                            0;
-                                        return Text(
-                                          '${(progress * 100).toStringAsFixed(1)}%',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        );
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          // 下载状态指示器
-                          Positioned(
-                            right: 8,
-                            bottom: 8,
+                        // 下载进度指示器
+                        if (!isDownloaded &&
+                            currentTask?.status == DownloadStatus.downloading)
+                          Positioned.fill(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
                               decoration: BoxDecoration(
-                                color: isDownloaded
-                                    ? Colors.green
-                                    : Colors.grey,
-                                borderRadius: BorderRadius.circular(4),
+                                color: Colors.black.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Text(
-                                isDownloaded
-                                    ? t.download.downloaded
-                                    : t.download.notDownloaded,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Obx(() {
+                                      if (currentTask == null) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      final progress =
+                                          DownloadService.to
+                                              .getGalleryImageProgress(
+                                                currentTask.id,
+                                              )?[imageId] ??
+                                          0;
+                                      return Text(
+                                        '${(progress * 100).toStringAsFixed(1)}%',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              );
-            }),
-          ],
-        ),
+                        // 下载状态指示器
+                        Positioned(
+                          right: 8,
+                          bottom: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDownloaded ? Colors.green : Colors.grey,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              isDownloaded
+                                  ? t.download.downloaded
+                                  : t.download.notDownloaded,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          }),
+        ],
       ),
     );
   }
@@ -569,5 +652,70 @@ class _GalleryDownloadTaskDetailPageState
         // return '下载失败';
         return t.download.errors.downloadFailed;
     }
+  }
+}
+
+/// 网格里那一格视频。
+///
+/// 点它照样进大图页，在那儿真的会播（[GalleryVideoPlayer]）——所以这一格要读起来
+/// 像「一段可以放的视频」，而不是像以前那样像一条报错。
+class _VideoTile extends StatelessWidget {
+  const _VideoTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: ColoredBox(
+        color: const Color(0xFF2A2A2A),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.play_circle_outline,
+                color: Colors.white,
+                size: 40,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                slang.Translations.of(context).common.video,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 真的解不开的那一格。
+class _UnsupportedTile extends StatelessWidget {
+  const _UnsupportedTile({required this.extension});
+
+  /// 带点的后缀（`.psd`）。文案里原样报给用户。
+  final String extension;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return SizedBox(
+      height: 200,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.image_not_supported),
+            const SizedBox(height: 8),
+            Text(
+              t.download.errors.unsupportedImageFormat(format: extension),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

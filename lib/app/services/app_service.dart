@@ -190,10 +190,7 @@ class AppService extends GetxService {
       return;
     }
 
-    LogUtils.i(
-      '启动链接属于 ${site.name} 站，直接以该站点起步',
-      'AppService',
-    );
+    LogUtils.i('启动链接属于 ${site.name} 站，直接以该站点起步', 'AppService');
     _currentSiteMode.value = site;
     await configService.setSetting(ConfigKey.APP_SITE_MODE, site.name);
   }
@@ -654,7 +651,6 @@ class NaviService {
     required int initialIndex,
     required List<MenuItem> Function(BuildContext context, ImageItem item)
     menuItemsBuilder,
-    Object? Function(ImageItem item)? heroTagBuilder,
     bool enableMenu = true,
   }) {
     appRouter.push(
@@ -664,7 +660,6 @@ class NaviService {
         initialIndex: initialIndex,
         menuItemsBuilder: menuItemsBuilder,
         enableMenu: enableMenu,
-        heroTagBuilder: heroTagBuilder,
       ),
     );
   }

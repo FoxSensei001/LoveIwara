@@ -391,6 +391,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get tagLocalizationGuideTitle => 'タグの翻訳について';
 	@override String get tagLocalizationGuideContent => 'アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。';
 	@override String get likeThisVideo => 'この動画が好きな人';
+	@override String get likeThisGallery => 'このギャラリーが好きな人';
 	@override String get operation => '操作';
 	@override String get replies => '返信';
 	@override String get externalLinkWarning => '外部リンク警告';
@@ -555,6 +556,7 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	// Translations
 	@override String get galleryDetail => 'ギャラリー詳細';
 	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
+	@override String get zoomReset => 'ズームをリセット';
 	@override String get copyLink => 'リンクをコピー';
 	@override String get copyImage => '画像をコピー';
 	@override String get saveAs => '名前を付けて保存';
@@ -576,6 +578,8 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	@override String get scrollLeft => '左へスクロール';
 	@override String get scrollRight => '右へスクロール';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '左端と右端をクリックして切り替え';
+	@override String get rotateToLandscape => '横画面で全画面';
+	@override String get backToPortrait => '縦画面に戻す';
 }
 
 // Path: playList
@@ -1687,6 +1691,12 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 	@override String get checkNetworkConnection => 'ネットワーク接続を確認して再試行してください';
 	@override String get appMayLackMediaPermission => 'アプリに必要なメディア再生権限が不足している可能性があります';
 	@override String get tryOtherVideoPlayer => '他のビデオプレイヤーをお試しください';
+	@override String get unrecognizedVideoFormat => '認識できない動画ファイル';
+	@override String get unrecognizedVideoFormatSuggestion => 'リンクが失効したか、返ってきたものが動画ではない可能性があります。再試行するか、他のアプリで開いてください。';
+	@override String get accessDenied => 'サーバーがこのアクセスを拒否しました（403）';
+	@override String get accessDeniedSuggestion => '再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。';
+	@override String get mute => 'ミュート';
+	@override String get unmute => 'ミュート解除';
 	@override String get video => 'ビデオ';
 	@override String get serverSelector => 'CDNサーバー選択';
 	@override String get serverSelectorDescription => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください';
@@ -2603,6 +2613,10 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 	@override String get actionGalleryZoomIn => 'ズームイン';
 	@override String get actionGalleryZoomOut => 'ズームアウト';
 	@override String get actionGalleryResetZoom => 'ズームリセット';
+	@override String get actionGalleryPlayPause => '再生 / 一時停止';
+	@override String get actionGallerySeekBackward => '巻き戻し';
+	@override String get actionGallerySeekForward => '早送り';
+	@override String get actionGalleryToggleMute => 'ミュート切替';
 	@override String get actionPlayPause => '再生 / 一時停止';
 	@override String get actionSpeedUp => '再生速度を上げる';
 	@override String get actionSpeedDown => '再生速度を下げる';
@@ -3970,6 +3984,7 @@ extension on TranslationsJa {
 			'common.tagLocalizationGuideTitle' => 'タグの翻訳について',
 			'common.tagLocalizationGuideContent' => 'アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。',
 			'common.likeThisVideo' => 'この動画が好きな人',
+			'common.likeThisGallery' => 'このギャラリーが好きな人',
 			'common.operation' => '操作',
 			'common.replies' => '返信',
 			'common.externalLinkWarning' => '外部リンク警告',
@@ -4100,6 +4115,7 @@ extension on TranslationsJa {
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました',
 			'galleryDetail.galleryDetail' => 'ギャラリー詳細',
 			'galleryDetail.viewGalleryDetail' => 'ギャラリー詳細を表示',
+			'galleryDetail.zoomReset' => 'ズームをリセット',
 			'galleryDetail.copyLink' => 'リンクをコピー',
 			'galleryDetail.copyImage' => '画像をコピー',
 			'galleryDetail.saveAs' => '名前を付けて保存',
@@ -4121,6 +4137,8 @@ extension on TranslationsJa {
 			'galleryDetail.scrollLeft' => '左へスクロール',
 			'galleryDetail.scrollRight' => '右へスクロール',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '左端と右端をクリックして切り替え',
+			'galleryDetail.rotateToLandscape' => '横画面で全画面',
+			'galleryDetail.backToPortrait' => '縦画面に戻す',
 			'playList.myPlayList' => '私のプレイリスト',
 			'playList.friendlyTips' => 'フレンドリーティップス',
 			'playList.dearUser' => '親愛なるユーザー',
@@ -4197,12 +4215,12 @@ extension on TranslationsJa {
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
 			'settings.rememberVolume' => '音量を記憶',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の音量設定を使用するかどうかを決定します。',
 			'settings.rememberBrightness' => '明るさを記憶',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'この設定は、今後動画を再生する際に以前の明るさ設定を使用するかどうかを決定します。',
@@ -4462,6 +4480,10 @@ extension on TranslationsJa {
 			'settings.keybinding.actionGalleryZoomIn' => 'ズームイン',
 			'settings.keybinding.actionGalleryZoomOut' => 'ズームアウト',
 			'settings.keybinding.actionGalleryResetZoom' => 'ズームリセット',
+			'settings.keybinding.actionGalleryPlayPause' => '再生 / 一時停止',
+			'settings.keybinding.actionGallerySeekBackward' => '巻き戻し',
+			'settings.keybinding.actionGallerySeekForward' => '早送り',
+			'settings.keybinding.actionGalleryToggleMute' => 'ミュート切替',
 			'settings.keybinding.actionPlayPause' => '再生 / 一時停止',
 			'settings.keybinding.actionSpeedUp' => '再生速度を上げる',
 			'settings.keybinding.actionSpeedDown' => '再生速度を下げる',
@@ -4707,6 +4729,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
 			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.pathValid' => 'パスが有効です',
 			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
@@ -4715,8 +4739,6 @@ extension on TranslationsJa {
 			'settings.downloadSettings.downloadDirectory' => 'ダウンロードディレクトリ',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'システムデフォルトのダウンロード場所、管理が簡単',
 			'settings.downloadSettings.moviesDirectory' => '動画ディレクトリ',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => 'システム動画ディレクトリ、メディアアプリで認識可能',
 			'settings.downloadSettings.documentsDirectory' => 'ドキュメントディレクトリ',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOSアプリドキュメントディレクトリ',
@@ -5221,6 +5243,8 @@ extension on TranslationsJa {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
 			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
@@ -5229,8 +5253,6 @@ extension on TranslationsJa {
 			'download.qualitySectionLabel' => '画質',
 			'download.saveToSectionLabel' => '保存先',
 			'download.lastUsedBadge' => '前回選択',
-			_ => null,
-		} ?? switch (path) {
 			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
 			'download.startDownloading' => 'ダウンロードを開始',
@@ -5620,6 +5642,12 @@ extension on TranslationsJa {
 			'mediaPlayer.checkNetworkConnection' => 'ネットワーク接続を確認して再試行してください',
 			'mediaPlayer.appMayLackMediaPermission' => 'アプリに必要なメディア再生権限が不足している可能性があります',
 			'mediaPlayer.tryOtherVideoPlayer' => '他のビデオプレイヤーをお試しください',
+			'mediaPlayer.unrecognizedVideoFormat' => '認識できない動画ファイル',
+			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'リンクが失効したか、返ってきたものが動画ではない可能性があります。再試行するか、他のアプリで開いてください。',
+			'mediaPlayer.accessDenied' => 'サーバーがこのアクセスを拒否しました（403）',
+			'mediaPlayer.accessDeniedSuggestion' => '再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。',
+			'mediaPlayer.mute' => 'ミュート',
+			'mediaPlayer.unmute' => 'ミュート解除',
 			'mediaPlayer.video' => 'ビデオ',
 			'mediaPlayer.serverSelector' => 'CDNサーバー選択',
 			'mediaPlayer.serverSelectorDescription' => '最適な再生体験のために、遅延の最も少ないサーバーを選択してください',
@@ -5729,6 +5757,8 @@ extension on TranslationsJa {
 			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
 			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '前回起動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後の例外: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '前回は画面フリーズを検出しましたが自動回復しました',
@@ -5743,8 +5773,6 @@ extension on TranslationsJa {
 			'linkInputDialog.inputHint' => ({required Object webName}) => '${webName}リンクを入力してください',
 			'linkInputDialog.validatorEmptyLink' => 'リンクを入力してください',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '有効な${webName}リンクが検出されませんでした',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.multipleLinksDetected' => '複数のリンクが検出されました。1つ選択してください：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '有効な${webName}リンクではありません',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'リンク解析エラー: ${error}',
@@ -6243,6 +6271,8 @@ extension on TranslationsJa {
 			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
 			'watchLater.title' => 'あとで見る',
 			'watchLater.addToWatchLater' => 'あとで見る',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.removeFromWatchLater' => 'あとで見るから削除',
 			'watchLater.addedToWatchLater' => 'あとで見るに追加しました',
 			'watchLater.alreadyInWatchLater' => 'すでにあとで見るに入っています',
@@ -6257,8 +6287,6 @@ extension on TranslationsJa {
 			'watchLater.emptyVideo' => 'あとで見るに追加された動画はありません',
 			'watchLater.emptyGallery' => 'あとで見るに追加されたギャラリーはありません',
 			'watchLater.filterAll' => 'すべて',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未視聴',
 			'watchLater.sortRecentlyAdded' => '追加が新しい順',
 			'watchLater.sortEarliestAdded' => '追加が古い順',

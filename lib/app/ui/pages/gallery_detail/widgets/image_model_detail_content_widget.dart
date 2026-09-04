@@ -303,7 +303,7 @@ class ImageModelDetailContent extends StatelessWidget {
                 Icon(Icons.favorite, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: UIConstants.iconTextSpacing),
                 Text(
-                  t.common.likeThisVideo,
+                  t.common.likeThisGallery,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

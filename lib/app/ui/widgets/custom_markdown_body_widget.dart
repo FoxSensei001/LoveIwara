@@ -909,7 +909,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     BuildContext context,
     String normalizedUrl,
     EmojiSize? emojiSize,
-    Object? heroTag,
+    Object? identity,
   ) {
     if (emojiSize != null) {
       EmojiPreviewDialog.show(context: context, emojiUrl: normalizedUrl);
@@ -923,8 +923,9 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
     int initialIndex = 0;
     if (hasRecords) {
-      // Use Hero tag identity first (handles duplicated URLs correctly).
-      initialIndex = records.indexWhere((r) => identical(r.heroTag, heroTag));
+      // 先按身份令牌对（同一个 URL 在一篇里出现多次时，只有它分得清点的是哪一张）；
+      // 对不上再退回按 URL 找。
+      initialIndex = records.indexWhere((r) => identical(r.identity, identity));
       if (initialIndex < 0) {
         initialIndex = records.indexWhere((r) => r.url == normalizedUrl);
       }
@@ -944,17 +945,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               .toList(growable: false)
         : [_buildImageItem(normalizedUrl, id: 'markdown:0')];
 
-    final tappedId = 'markdown:$initialIndex';
     pushPhotoViewWrapperOverlay(
       context: context,
       imageItems: imageItems,
       initialIndex: initialIndex,
       menuItemsBuilder: (_, imageItem) => _buildImageMenuItems(imageItem),
-      // Only provide a hero tag for the initially tapped image to avoid
-      // duplicate-hero-tag crashes when the markdown contains repeated URLs.
-      heroTagBuilder: heroTag == null
-          ? null
-          : (item) => item.data.id == tappedId ? heroTag : null,
     );
   }
 
@@ -1085,25 +1080,26 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
               normalImagePlaceholderHeight,
             );
 
-      final Object? heroTag = emojiSize == null ? Object() : null;
-      final imageWithOptionalHero = heroTag == null
-          ? image
-          : Hero(tag: heroTag, child: image);
+      // 每张非表情图配一枚**身份令牌**。它曾经兼任 Hero 标签（图片飞进大图页），
+      // Hero 已于 2026-09-05 整只移除，令牌留着还有用：一篇正文里同一个 URL 可能
+      // 出现好几次，只有引用相等分得清用户点的是哪一张（见 [_handleMarkdownImageTap]）。
+      final Object? identity = emojiSize == null ? Object() : null;
 
       // Keep a list of rendered non-emoji images so we can open a paged viewer.
-      if (emojiSize == null && heroTag != null) {
+      if (identity != null) {
         normalImageRecords.add(
-          _MarkdownNormalImageRecord(url: normalizedUrl, heroTag: heroTag),
+          _MarkdownNormalImageRecord(url: normalizedUrl, identity: identity),
         );
       }
 
       return GestureDetector(
-        onTap: () =>
-            _handleMarkdownImageTap(context, normalizedUrl, emojiSize, heroTag),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: imageWithOptionalHero,
+        onTap: () => _handleMarkdownImageTap(
+          context,
+          normalizedUrl,
+          emojiSize,
+          identity,
         ),
+        child: MouseRegion(cursor: SystemMouseCursors.click, child: image),
       );
     } catch (e) {
       LogUtils.e('图片加载失败', tag: 'CustomMarkdownBody', error: e);
@@ -1329,9 +1325,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
 
 class _MarkdownNormalImageRecord {
   final String url;
-  final Object heroTag;
 
-  const _MarkdownNormalImageRecord({required this.url, required this.heroTag});
+  /// 这一张在本次渲染里的身份令牌，见 [_MarkdownRenderer] 里造它的地方。
+  final Object identity;
+
+  const _MarkdownNormalImageRecord({required this.url, required this.identity});
 }
 
 class _DelayedMarkdownImagePlaceholder extends StatefulWidget {

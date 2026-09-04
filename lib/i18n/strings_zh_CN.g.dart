@@ -391,6 +391,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get tagLocalizationGuideTitle => '关于标签本地化';
 	@override String get tagLocalizationGuideContent => '应用会把 Iwara 的原始标签（如 mother）显示为你当前语言的译名。\n\n• 搜索标签时，输入译名或原始标签都能匹配。\n• 长按 / 右键标签可查看并复制原始标签与译文。\n• 译名由社区维护，属尽力翻译，可能存在错误。';
 	@override String get likeThisVideo => '喜欢这个视频的人';
+	@override String get likeThisGallery => '喜欢这个图库的人';
 	@override String get operation => '操作';
 	@override String get replies => '回复';
 	@override String get externalLinkWarning => '外部链接警告';
@@ -555,6 +556,7 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	// Translations
 	@override String get galleryDetail => '图库详情';
 	@override String get viewGalleryDetail => '查看图库详情';
+	@override String get zoomReset => '重置缩放';
 	@override String get copyLink => '复制链接地址';
 	@override String get copyImage => '复制图片';
 	@override String get saveAs => '另存为';
@@ -576,6 +578,8 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	@override String get scrollLeft => '向左滚动';
 	@override String get scrollRight => '向右滚动';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '点击左右边缘以切换图片';
+	@override String get rotateToLandscape => '横屏全屏';
+	@override String get backToPortrait => '回到竖屏';
 }
 
 // Path: playList
@@ -1687,6 +1691,12 @@ class _TranslationsMediaPlayerZhCn implements TranslationsMediaPlayerEn {
 	@override String get checkNetworkConnection => '请检查网络连接后重试';
 	@override String get appMayLackMediaPermission => '应用可能缺少必要的媒体播放权限';
 	@override String get tryOtherVideoPlayer => '请尝试使用其他视频播放器';
+	@override String get unrecognizedVideoFormat => '无法识别的视频文件';
+	@override String get unrecognizedVideoFormatSuggestion => '可能是链接已失效，或返回的根本不是视频。请重试，或用其他应用打开。';
+	@override String get accessDenied => '服务器拒绝了这次访问（403）';
+	@override String get accessDeniedSuggestion => '播放链接多半已经过期。点「重试」重新取一次，或用其他应用打开。';
+	@override String get mute => '静音';
+	@override String get unmute => '取消静音';
 	@override String get video => '视频';
 	@override String get serverSelector => 'CDN 服务器选择';
 	@override String get serverSelectorDescription => '选择延迟最低的服务器以获得最佳播放体验';
@@ -2603,6 +2613,10 @@ class _TranslationsSettingsKeybindingZhCn implements TranslationsSettingsKeybind
 	@override String get actionGalleryZoomIn => '放大';
 	@override String get actionGalleryZoomOut => '缩小';
 	@override String get actionGalleryResetZoom => '重置缩放';
+	@override String get actionGalleryPlayPause => '播放 / 暂停';
+	@override String get actionGallerySeekBackward => '快退';
+	@override String get actionGallerySeekForward => '快进';
+	@override String get actionGalleryToggleMute => '静音切换';
 	@override String get actionPlayPause => '播放 / 暂停';
 	@override String get actionSpeedUp => '加快倍速';
 	@override String get actionSpeedDown => '减慢倍速';
@@ -3970,6 +3984,7 @@ extension on TranslationsZhCn {
 			'common.tagLocalizationGuideTitle' => '关于标签本地化',
 			'common.tagLocalizationGuideContent' => '应用会把 Iwara 的原始标签（如 mother）显示为你当前语言的译名。\n\n• 搜索标签时，输入译名或原始标签都能匹配。\n• 长按 / 右键标签可查看并复制原始标签与译文。\n• 译名由社区维护，属尽力翻译，可能存在错误。',
 			'common.likeThisVideo' => '喜欢这个视频的人',
+			'common.likeThisGallery' => '喜欢这个图库的人',
 			'common.operation' => '操作',
 			'common.replies' => '回复',
 			'common.externalLinkWarning' => '外部链接警告',
@@ -4100,6 +4115,7 @@ extension on TranslationsZhCn {
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 项，${failed} 项失败',
 			'galleryDetail.galleryDetail' => '图库详情',
 			'galleryDetail.viewGalleryDetail' => '查看图库详情',
+			'galleryDetail.zoomReset' => '重置缩放',
 			'galleryDetail.copyLink' => '复制链接地址',
 			'galleryDetail.copyImage' => '复制图片',
 			'galleryDetail.saveAs' => '另存为',
@@ -4121,6 +4137,8 @@ extension on TranslationsZhCn {
 			'galleryDetail.scrollLeft' => '向左滚动',
 			'galleryDetail.scrollRight' => '向右滚动',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '点击左右边缘以切换图片',
+			'galleryDetail.rotateToLandscape' => '横屏全屏',
+			'galleryDetail.backToPortrait' => '回到竖屏',
 			'playList.myPlayList' => '我的播放列表',
 			'playList.friendlyTips' => '友情提示',
 			'playList.dearUser' => '亲爱的用户',
@@ -4197,12 +4215,12 @@ extension on TranslationsZhCn {
 			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			'settings.rememberPlaybackSpeed' => '记住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。',
 			'settings.rememberVolume' => '记住音量',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的音量设置。',
 			'settings.rememberBrightness' => '记住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此配置决定当你之后播放视频时是否会沿用之前的亮度设置。',
@@ -4462,6 +4480,10 @@ extension on TranslationsZhCn {
 			'settings.keybinding.actionGalleryZoomIn' => '放大',
 			'settings.keybinding.actionGalleryZoomOut' => '缩小',
 			'settings.keybinding.actionGalleryResetZoom' => '重置缩放',
+			'settings.keybinding.actionGalleryPlayPause' => '播放 / 暂停',
+			'settings.keybinding.actionGallerySeekBackward' => '快退',
+			'settings.keybinding.actionGallerySeekForward' => '快进',
+			'settings.keybinding.actionGalleryToggleMute' => '静音切换',
 			'settings.keybinding.actionPlayPause' => '播放 / 暂停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '减慢倍速',
@@ -4707,6 +4729,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
 			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
 			'settings.downloadSettings.insufficientSpace' => '可用空间不足',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.pathValid' => '路径有效',
 			'settings.downloadSettings.validationFailed' => '验证失败',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用默认应用目录',
@@ -4715,8 +4739,6 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadDirectory' => '下载目录',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系统默认下载位置，便于管理',
 			'settings.downloadSettings.moviesDirectory' => '影片目录',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => '系统影片目录，媒体应用可识别',
 			'settings.downloadSettings.documentsDirectory' => '文档目录',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS应用文档目录',
@@ -5221,6 +5243,8 @@ extension on TranslationsZhCn {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下载失败: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看',
 			'download.errors.imageLoadFailed' => '图片加载失败',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.pleaseTryOtherViewer' => '请尝试使用其他查看器打开',
 			'download.downloadList' => '下载列表',
 			'download.viewDownloadList' => '查看下载列表',
@@ -5229,8 +5253,6 @@ extension on TranslationsZhCn {
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '保存到',
 			'download.lastUsedBadge' => '上次选择',
-			_ => null,
-		} ?? switch (path) {
 			'download.pickedBadge' => '已选中',
 			'download.forceDeleteTask' => '强制删除任务',
 			'download.startDownloading' => '开始下载...',
@@ -5620,6 +5642,12 @@ extension on TranslationsZhCn {
 			'mediaPlayer.checkNetworkConnection' => '请检查网络连接后重试',
 			'mediaPlayer.appMayLackMediaPermission' => '应用可能缺少必要的媒体播放权限',
 			'mediaPlayer.tryOtherVideoPlayer' => '请尝试使用其他视频播放器',
+			'mediaPlayer.unrecognizedVideoFormat' => '无法识别的视频文件',
+			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '可能是链接已失效，或返回的根本不是视频。请重试，或用其他应用打开。',
+			'mediaPlayer.accessDenied' => '服务器拒绝了这次访问（403）',
+			'mediaPlayer.accessDeniedSuggestion' => '播放链接多半已经过期。点「重试」重新取一次，或用其他应用打开。',
+			'mediaPlayer.mute' => '静音',
+			'mediaPlayer.unmute' => '取消静音',
 			'mediaPlayer.video' => '视频',
 			'mediaPlayer.serverSelector' => 'CDN 服务器选择',
 			'mediaPlayer.serverSelectorDescription' => '选择延迟最低的服务器以获得最佳播放体验',
@@ -5729,6 +5757,8 @@ extension on TranslationsZhCn {
 			'crashRecoveryDialog.title' => '应用异常退出',
 			'crashRecoveryDialog.description' => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。',
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次启动: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最后异常: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '上次检测到界面卡顿，已自动恢复',
@@ -5743,8 +5773,6 @@ extension on TranslationsZhCn {
 			'linkInputDialog.inputHint' => ({required Object webName}) => '请输入${webName}链接',
 			'linkInputDialog.validatorEmptyLink' => '请输入链接',
 			'linkInputDialog.validatorNoIwaraLink' => ({required Object webName}) => '未检测到有效的${webName}链接',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.multipleLinksDetected' => '检测到多个链接，请选择一个：',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '不是有效的${webName}链接',
 			'linkInputDialog.linkParseError' => ({required Object error}) => '链接解析出错: ${error}',
@@ -6243,6 +6271,8 @@ extension on TranslationsZhCn {
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			'watchLater.title' => '稍后再看',
 			'watchLater.addToWatchLater' => '稍后再看',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.removeFromWatchLater' => '移出稍后再看',
 			'watchLater.addedToWatchLater' => '已添加至稍后再看',
 			'watchLater.alreadyInWatchLater' => '已经在稍后再看里了',
@@ -6257,8 +6287,6 @@ extension on TranslationsZhCn {
 			'watchLater.emptyVideo' => '还没有加入稍后再看的视频',
 			'watchLater.emptyGallery' => '还没有加入稍后再看的图库',
 			'watchLater.filterAll' => '全部',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未看完',
 			'watchLater.sortRecentlyAdded' => '最近添加',
 			'watchLater.sortEarliestAdded' => '最早添加',

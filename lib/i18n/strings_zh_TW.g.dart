@@ -391,6 +391,7 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get tagLocalizationGuideTitle => '關於標籤本地化';
 	@override String get tagLocalizationGuideContent => '應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。';
 	@override String get likeThisVideo => '喜歡這個影片的人';
+	@override String get likeThisGallery => '喜歡這個圖庫的人';
 	@override String get operation => '操作';
 	@override String get replies => '回覆';
 	@override String get externalLinkWarning => '外部連結警告';
@@ -555,6 +556,7 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	// Translations
 	@override String get galleryDetail => '圖庫詳情';
 	@override String get viewGalleryDetail => '查看圖庫詳情';
+	@override String get zoomReset => '重置縮放';
 	@override String get copyLink => '複製連結地址';
 	@override String get copyImage => '複製圖片';
 	@override String get saveAs => '另存為';
@@ -576,6 +578,8 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	@override String get scrollLeft => '向左捲動';
 	@override String get scrollRight => '向右捲動';
 	@override String get clickLeftAndRightEdgeToSwitchImage => '點擊左右邊緣以切換圖片';
+	@override String get rotateToLandscape => '橫螢幕全螢幕';
+	@override String get backToPortrait => '回到直螢幕';
 }
 
 // Path: playList
@@ -1715,6 +1719,12 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 	@override String get checkNetworkConnection => '請檢查網路連線後重試';
 	@override String get appMayLackMediaPermission => '應用可能缺少必要的媒體播放權限';
 	@override String get tryOtherVideoPlayer => '請嘗試使用其他影片播放器';
+	@override String get unrecognizedVideoFormat => '無法識別的影片檔案';
+	@override String get unrecognizedVideoFormatSuggestion => '可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。';
+	@override String get accessDenied => '伺服器拒絕了這次存取（403）';
+	@override String get accessDeniedSuggestion => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。';
+	@override String get mute => '靜音';
+	@override String get unmute => '取消靜音';
 	@override String get video => '影片';
 	@override String get serverSelector => 'CDN 伺服器選擇';
 	@override String get serverSelectorDescription => '選擇延遲最低的伺服器以獲得最佳播放體驗';
@@ -2603,6 +2613,10 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 	@override String get actionGalleryZoomIn => '放大';
 	@override String get actionGalleryZoomOut => '縮小';
 	@override String get actionGalleryResetZoom => '重置縮放';
+	@override String get actionGalleryPlayPause => '播放 / 暫停';
+	@override String get actionGallerySeekBackward => '快退';
+	@override String get actionGallerySeekForward => '快進';
+	@override String get actionGalleryToggleMute => '靜音切換';
 	@override String get actionPlayPause => '播放 / 暫停';
 	@override String get actionSpeedUp => '加快倍速';
 	@override String get actionSpeedDown => '減慢倍速';
@@ -3970,6 +3984,7 @@ extension on TranslationsZhTw {
 			'common.tagLocalizationGuideTitle' => '關於標籤本地化',
 			'common.tagLocalizationGuideContent' => '應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。',
 			'common.likeThisVideo' => '喜歡這個影片的人',
+			'common.likeThisGallery' => '喜歡這個圖庫的人',
 			'common.operation' => '操作',
 			'common.replies' => '回覆',
 			'common.externalLinkWarning' => '外部連結警告',
@@ -4100,6 +4115,7 @@ extension on TranslationsZhTw {
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 項，${failed} 項失敗',
 			'galleryDetail.galleryDetail' => '圖庫詳情',
 			'galleryDetail.viewGalleryDetail' => '查看圖庫詳情',
+			'galleryDetail.zoomReset' => '重置縮放',
 			'galleryDetail.copyLink' => '複製連結地址',
 			'galleryDetail.copyImage' => '複製圖片',
 			'galleryDetail.saveAs' => '另存為',
@@ -4121,6 +4137,8 @@ extension on TranslationsZhTw {
 			'galleryDetail.scrollLeft' => '向左捲動',
 			'galleryDetail.scrollRight' => '向右捲動',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => '點擊左右邊緣以切換圖片',
+			'galleryDetail.rotateToLandscape' => '橫螢幕全螢幕',
+			'galleryDetail.backToPortrait' => '回到直螢幕',
 			'playList.myPlayList' => '我的播放清單',
 			'playList.friendlyTips' => '友情提示',
 			'playList.dearUser' => '親愛的使用者',
@@ -4197,12 +4215,12 @@ extension on TranslationsZhTw {
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
 			'settings.rememberVolume' => '記住音量',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的音量設定。',
 			'settings.rememberBrightness' => '記住亮度',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => '此設定將決定當您之後播放影片時，是否會保留先前的亮度設定。',
@@ -4462,6 +4480,10 @@ extension on TranslationsZhTw {
 			'settings.keybinding.actionGalleryZoomIn' => '放大',
 			'settings.keybinding.actionGalleryZoomOut' => '縮小',
 			'settings.keybinding.actionGalleryResetZoom' => '重置縮放',
+			'settings.keybinding.actionGalleryPlayPause' => '播放 / 暫停',
+			'settings.keybinding.actionGallerySeekBackward' => '快退',
+			'settings.keybinding.actionGallerySeekForward' => '快進',
+			'settings.keybinding.actionGalleryToggleMute' => '靜音切換',
 			'settings.keybinding.actionPlayPause' => '播放 / 暫停',
 			'settings.keybinding.actionSpeedUp' => '加快倍速',
 			'settings.keybinding.actionSpeedDown' => '減慢倍速',
@@ -4707,6 +4729,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
 			'settings.downloadSettings.insufficientSpace' => '可用空間不足',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.pathValid' => '路徑有效',
 			'settings.downloadSettings.validationFailed' => '驗證失敗',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用預設應用程式目錄',
@@ -4715,8 +4739,6 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.downloadDirectory' => '下載目錄',
 			'settings.downloadSettings.downloadDirectoryDesc' => '系統預設下載位置，便於管理',
 			'settings.downloadSettings.moviesDirectory' => '影片目錄',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => '系統影片目錄，媒體應用程式可識別',
 			'settings.downloadSettings.documentsDirectory' => '文件目錄',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS應用程式文件目錄',
@@ -5221,6 +5243,8 @@ extension on TranslationsZhTw {
 			'download.errors.serviceIsClosing' => '下載服務正在關閉',
 			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
 			'download.errors.noDownloadTask' => '暫無下載任務',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.taskNotFoundOrDataError' => '任務不存在或資料錯誤',
 			'download.errors.copyDownloadUrlFailed' => '複製下載連結失敗',
 			'download.errors.fileNotFound' => '文件不存在',
@@ -5229,8 +5253,6 @@ extension on TranslationsZhTw {
 			'download.errors.directoryNotFound' => '目錄不存在',
 			'download.errors.copyFailed' => '複製失敗',
 			'download.errors.openFileFailed' => '打開文件失敗',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.openFileFailedWithMessage' => ({required Object message}) => '打開文件失敗: ${message}',
 			'download.errors.playLocallyFailed' => '本地播放失敗',
 			'download.errors.playLocallyFailedWithMessage' => ({required Object message}) => '本地播放失敗: ${message}',
@@ -5651,6 +5673,12 @@ extension on TranslationsZhTw {
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
+			'mediaPlayer.unrecognizedVideoFormat' => '無法識別的影片檔案',
+			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。',
+			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
+			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
+			'mediaPlayer.mute' => '靜音',
+			'mediaPlayer.unmute' => '取消靜音',
 			'mediaPlayer.video' => '影片',
 			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
@@ -5729,6 +5757,8 @@ extension on TranslationsZhTw {
 			'diagnostics.exportLogsTitle' => '匯出日誌',
 			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
 			'diagnostics.viewLogsTitle' => '查看日誌',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.viewLogsSubtitle' => '即時查看應用執行日誌',
 			'diagnostics.copySupportEmailTitle' => '複製日誌信箱',
 			'diagnostics.reportIssueTitle' => '回報問題',
@@ -5743,8 +5773,6 @@ extension on TranslationsZhTw {
 			'diagnostics.healthAlert.queueBacklogDetail' => ({required Object queueDepth, required Object threshold}) => 'queueDepth=${queueDepth} (門檻=${threshold}, 可能增加記憶體占用)',
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
 			'diagnostics.healthAlert.droppedTooManyTitle' => '日誌丟棄較多',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})',
 			'diagnostics.healthAlert.rateLimitedTitle' => '觸發限流',
 			'diagnostics.healthAlert.exportFailedTitle' => '日誌匯出失敗',
@@ -6243,6 +6271,8 @@ extension on TranslationsZhTw {
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			'watchLater.title' => '稍後再看',
 			'watchLater.addToWatchLater' => '稍後再看',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.removeFromWatchLater' => '移出稍後再看',
 			'watchLater.addedToWatchLater' => '已加入稍後再看',
 			'watchLater.alreadyInWatchLater' => '已經在稍後再看裡了',
@@ -6257,8 +6287,6 @@ extension on TranslationsZhTw {
 			'watchLater.emptyVideo' => '還沒有加入稍後再看的影片',
 			'watchLater.emptyGallery' => '還沒有加入稍後再看的圖庫',
 			'watchLater.filterAll' => '全部',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.filterUnwatched' => '未看完',
 			'watchLater.sortRecentlyAdded' => '最近加入',
 			'watchLater.sortEarliestAdded' => '最早加入',

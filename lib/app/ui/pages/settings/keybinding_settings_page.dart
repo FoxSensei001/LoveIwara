@@ -297,7 +297,13 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
       widgets.add(_sectionLabel(context, _categoryLabel(category)));
       widgets.add(_actionsCard(context, inCategory));
       // 进度分类下补充长按倍速说明。
-      if (category == ShortcutActionCategory.seek) {
+      //
+      // ⛔ 只有播放器域有长按倍速（`_beginSeekHold` 那套定时器）。图库域的进度
+      // 键**连按住重复都不接**（`shortcut_action.dart` 里那两条 `repeatable:
+      // false`：每次重复都是一次真的 seek，网络流会被按在重新起缓冲上），照抄
+      // 这条说明就是在页面上写一句与实现不符的话。
+      if (category == ShortcutActionCategory.seek &&
+          scope == ShortcutScope.video) {
         widgets.add(
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
@@ -430,7 +436,10 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
   // 画面缩放（固定快捷键，仅展示，桌面端）
   // ---------------------------------------------------------------------------
 
-  List<Widget> _buildFixedZoomSection(BuildContext context, ShortcutScope scope) {
+  List<Widget> _buildFixedZoomSection(
+    BuildContext context,
+    ShortcutScope scope,
+  ) {
     final theme = Theme.of(context);
     // 滚轮提示按**能力表**给，不按平台、也不做鼠标接入探测。
     //
@@ -738,6 +747,14 @@ class _KeybindingSettingsViewState extends State<KeybindingSettingsView> {
         return _t.actionGalleryZoomOut;
       case ShortcutAction.galleryResetZoom:
         return _t.actionGalleryResetZoom;
+      case ShortcutAction.galleryPlayPause:
+        return _t.actionGalleryPlayPause;
+      case ShortcutAction.gallerySeekBackward:
+        return _t.actionGallerySeekBackward;
+      case ShortcutAction.gallerySeekForward:
+        return _t.actionGallerySeekForward;
+      case ShortcutAction.galleryToggleMute:
+        return _t.actionGalleryToggleMute;
       case ShortcutAction.playPause:
         return _t.actionPlayPause;
       case ShortcutAction.speedUp:
@@ -778,6 +795,7 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
   final FocusNode _focusNode = FocusNode();
   String? _errorText;
   String _preview = '';
+
   /// 上一次「检测到但没被接受」的输入，用于实时回显。
   String? _detected;
 
@@ -825,20 +843,29 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
 
     // 该作用域根本不受理鼠标事件——与「系统保留键」是完全不同的两件事。
     if (!scopeAcceptsMouseButtons(widget.scope)) {
-      _reject(_t.mouseNotSupportedInScope, detected: KeyChord.describeMouseButton(buttons));
+      _reject(
+        _t.mouseNotSupportedInScope,
+        detected: KeyChord.describeMouseButton(buttons),
+      );
       return;
     }
 
     // 平台自己就把这个键当返回用（安卓的鼠标后退键）。
     if (!KeyChord.isBindableMouseButton(buttons)) {
-      _reject(_t.rejectPlatformBack, detected: KeyChord.describeMouseButton(buttons));
+      _reject(
+        _t.rejectPlatformBack,
+        detected: KeyChord.describeMouseButton(buttons),
+      );
       return;
     }
 
     final chord = KeyChord.fromPointerEvent(event);
     if (chord == null) {
       // 同时按住多个鼠标键：说清楚是这个原因，别套「左右键」那条答非所问。
-      _reject(_t.rejectMultipleButtons, detected: KeyChord.describeMouseButton(buttons));
+      _reject(
+        _t.rejectMultipleButtons,
+        detected: KeyChord.describeMouseButton(buttons),
+      );
       return;
     }
     if (widget.service.isReserved(chord, widget.scope)) {
@@ -878,9 +905,9 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
     // 对着日志一比就能定性。
     LogUtils.d(
       '[录入] keyId=${chord.keyId} debugName=${event.logicalKey.debugName} '
-      'label="${chord.displayLabel}" '
-      'ctrl=${chord.control} shift=${chord.shift} alt=${chord.alt} meta=${chord.meta} '
-      'scope=${widget.scope.name}',
+          'label="${chord.displayLabel}" '
+          'ctrl=${chord.control} shift=${chord.shift} alt=${chord.alt} meta=${chord.meta} '
+          'scope=${widget.scope.name}',
       'Keybinding',
     );
     if (widget.service.isReserved(chord, widget.scope)) {
@@ -899,9 +926,7 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
         platformBack
             ? _t.rejectPlatformBack
             : reservedForBack
-            ? _t.reservedForGlobalBack(
-                action: _t.actionGlobalBack,
-              )
+            ? _t.reservedForGlobalBack(action: _t.actionGlobalBack)
             : _t.reservedKey,
         detected: chord.displayLabel,
       );
@@ -993,7 +1018,6 @@ class _KeybindingCaptureDialogState extends State<_KeybindingCaptureDialog> {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-
           ],
         ),
       ),

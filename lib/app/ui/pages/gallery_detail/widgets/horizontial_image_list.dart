@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart'; // Import TickerProvider
 import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -38,26 +39,16 @@ class ImageItem {
     MediaItemType? mediaType,
   }) : mediaType = mediaType ?? _detectMediaType(url);
 
-  // 自动检测媒体类型
+  /// 兜底的媒体类型判定：**只在调用方没传 [mediaType] 时**才按后缀猜。
+  ///
+  /// 来自 Iwara 的图库条目一律由 `buildGalleryImageItems` 拿服务端的
+  /// `type` / `mime` 明确传进来（见 [MediaFile.isVideo]）；这条路留给本地文件
+  /// （下载回来的 `file://…`）与 markdown 里的裸链接，那里确实只有一个后缀可看。
   static MediaItemType _detectMediaType(String url) {
     final extension = CommonUtils.getFileExtension(url).toLowerCase();
-
-    // 视频格式
-    if ([
-      'mp4',
-      'webm',
-      'mov',
-      'avi',
-      'mkv',
-      'flv',
-      'wmv',
-      'm4v',
-    ].contains(extension)) {
-      return MediaItemType.video;
-    }
-
-    // 默认为图片
-    return MediaItemType.image;
+    return kGalleryVideoFileExtensions.contains(extension)
+        ? MediaItemType.video
+        : MediaItemType.image;
   }
 
   bool get isVideo => mediaType == MediaItemType.video;
@@ -92,10 +83,6 @@ class HorizontalImageList extends StatefulWidget {
   final double? itemSpacing;
   final BoxDecoration? itemDecoration;
   final Function(ImageItem item)? onItemTap;
-  final Object? Function(ImageItem item)? heroTagBuilder;
-  final CreateRectTween? heroCreateRectTween;
-  final HeroFlightShuttleBuilder? heroFlightShuttleBuilder;
-  final bool heroTransitionOnUserGestures;
   final Widget Function(BuildContext, String)? placeholderBuilder;
   final Widget Function(BuildContext, String, dynamic)? errorBuilder;
   final BoxFit imageFit;
@@ -128,10 +115,6 @@ class HorizontalImageList extends StatefulWidget {
     this.itemSpacing = 8.0, // 减小默认间距
     this.itemDecoration,
     this.onItemTap,
-    this.heroTagBuilder,
-    this.heroCreateRectTween,
-    this.heroFlightShuttleBuilder,
-    this.heroTransitionOnUserGestures = false,
     this.placeholderBuilder,
     this.errorBuilder,
     this.imageFit = BoxFit.contain,
@@ -498,25 +481,16 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 
     final aspectRatio = _resolveAspectRatio(imageItem);
 
-    final heroTag = widget.heroTagBuilder?.call(imageItem);
     final BorderRadius itemBorderRadius =
         widget.itemBorderRadiusBuilder?.call(imageItem) ??
         BorderRadius.circular(8);
 
     final baseContent = _buildMediaContent(context, imageItem);
-    final content =
+    // ⛔ 这里曾经按 `heroTagBuilder` 包一层 Hero（缩略图飞成大图）。整套 Hero
+    // 已于 2026-09-05 移除，进大图页只走路由自己那段淡入淡出。
+    final mediaContent =
         widget.mediaContentBuilder?.call(context, imageItem, baseContent) ??
         baseContent;
-
-    final mediaContent = heroTag != null
-        ? Hero(
-            tag: heroTag,
-            createRectTween: widget.heroCreateRectTween,
-            flightShuttleBuilder: widget.heroFlightShuttleBuilder,
-            transitionOnUserGestures: widget.heroTransitionOnUserGestures,
-            child: content,
-          )
-        : content;
 
     return GestureDetector(
       onSecondaryTapDown: (details) {
@@ -731,111 +705,24 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     );
   }
 
-  // 构建视频内容
+  /// 视频条目的缩略图：和其它视频格式一样出真实首帧。
+  ///
+  /// 这里原来对 webm 单独画一个「play 图标 + WEBM 字样」的死板占位块，从不尝试
+  /// 加载。那是在给一个**上游**的毛病打补丁：图库里的视频地址此前被拼成了图片
+  /// 缩放端点 `/image/large/…/x.webm`，喂给 libmpv 当然打不开，于是干脆不试。
+  /// 地址在 [MediaFile.getLargeImageUrl] 修好之后，webm 与 mp4 已经没有区别了。
   Widget _buildVideoContent(BuildContext context, ImageItem imageItem) {
     final BoxFit fit =
         widget.imageFitBuilder?.call(imageItem) ?? widget.imageFit;
 
-    final fileExtension = CommonUtils.getFileExtension(
-      imageItem.url,
-    ).toLowerCase();
-
-    // 对于webm格式，直接显示静态预览而不是实际加载视频
-    if (fileExtension == 'webm') {
-      return _buildWebmPlaceholder(context, imageItem);
-    }
-
-    // 对于其他视频格式，使用原来的视频缩略图组件
     return _VideoThumbnailWidget(
       videoUrl: imageItem.url,
       imageItem: imageItem,
+      headers: imageItem.headers,
       fit: fit,
       onError: (error) {
         LogUtils.e('加载视频失败: ${imageItem.url}', tag: 'ImageList', error: error);
       },
-    );
-  }
-
-  // 构建webm占位符
-  Widget _buildWebmPlaceholder(BuildContext context, ImageItem imageItem) {
-    final BorderRadius itemBorderRadius =
-        widget.itemBorderRadiusBuilder?.call(imageItem) ??
-        BorderRadius.circular(8);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        borderRadius: itemBorderRadius,
-      ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 视频图标和文字
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.play_circle_outline,
-                  color: colorScheme.primary,
-                  size: 48,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'WEBM',
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 视频标识
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.85,
-                ),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(
-                  color: colorScheme.outline.withValues(alpha: 0.2),
-                  width: 0.5,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.videocam,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 12,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    'WEBM',
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -844,6 +731,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
 class _VideoThumbnailWidget extends StatefulWidget {
   final String videoUrl;
   final ImageItem imageItem;
+  final Map<String, String>? headers;
   final BoxFit fit;
   final Function(dynamic)? onError;
 
@@ -851,6 +739,7 @@ class _VideoThumbnailWidget extends StatefulWidget {
     required this.videoUrl,
     required this.imageItem,
     required this.fit,
+    this.headers,
     this.onError,
   });
 
@@ -899,7 +788,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       await _player.setAudioTrack(AudioTrack.no()); // 禁用音频避免权限问题
 
       // 打开视频但不自动播放
-      final media = Media(widget.videoUrl);
+      final media = Media(widget.videoUrl, httpHeaders: widget.headers);
       await _player.open(media);
       await _player.pause(); // 确保暂停状态
     } catch (e) {
@@ -953,16 +842,18 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         fit: StackFit.expand,
         children: [
           // 视频播放器
+          //
+          // ⛔ 这里曾经包着 `Hero(tag: imageItem.data.id)`，可**从来没飞过**：
+          // 大图页那侧的 heroTagBuilder 对视频恒返回 null（视频没有 Hero 对家），
+          // 于是它只是一个裸文件 id 的孤儿标签——同一张图在两处同时出现就会撞
+          // 「duplicate hero tag」。整套 Hero 已于 2026-09-05 移除，它跟着一起走。
           if (_isInitialized)
-            Hero(
-              tag: widget.imageItem.data.id,
-              child: ColorVisionFilterWrapper(
-                configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
-                child: Video(
-                  controller: _videoController,
-                  controls: null,
-                  fit: widget.fit,
-                ),
+            ColorVisionFilterWrapper(
+              configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
+              child: Video(
+                controller: _videoController,
+                controls: null,
+                fit: widget.fit,
               ),
             )
           else
@@ -1050,7 +941,8 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
             Icon(Icons.video_library, color: colorScheme.error, size: 48),
             const SizedBox(height: 8),
             Text(
-              'WEBM',
+              // 这里原来写死 'WEBM'，mp4 播不出来时也一样报 WEBM。
+              CommonUtils.getFileExtension(widget.videoUrl).toUpperCase(),
               style: TextStyle(
                 color: colorScheme.error,
                 fontSize: 14,

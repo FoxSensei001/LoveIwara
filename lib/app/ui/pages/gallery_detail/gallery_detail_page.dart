@@ -47,9 +47,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/gallery_image_scroller_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 
-String _galleryCoverHeroTag(String imageModelId) =>
-    'gallery_cover:$imageModelId';
-
 const int _galleryDetailSideListCrossAxisCount = 2;
 
 class GalleryDetailPage extends StatefulWidget {
@@ -158,15 +155,13 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       openGalleryImageViewerByFileId(
         context,
         imageModel: preloaded,
-        imageModelId: imageModelId,
-        coverHeroTag: _galleryCoverHeroTag(imageModelId),
         fileId: fileId,
         // 大图页里翻页时把底下这条横向清单一起带过去（见
         // `HorizontalImageListController`）。
         onIndexChanged: detailController.imageListController.revealIndex,
-        // ⛔ 不转场、不飞 Hero：来的那条路上屏幕已经被一帧「和大图页长得一模
-        // 一样」的画面钉着（见 media_preview_dialog.dart），大图页要做的是
-        // **直接就位**。淡入一次、再飞一段 Hero，都会在撤帧那一刻露出来。
+        // ⛔ 不转场：来的那条路上屏幕已经被一帧「和大图页长得一模一样」的画面
+        // 钉着（见 media_preview_dialog.dart），大图页要做的是**直接就位**，
+        // 再淡入一次会在撤帧那一刻露出来。
         instant: true,
       );
     });
@@ -593,7 +588,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
   Widget _buildHeroScrollerSection(
     BuildContext context, {
-    required String coverHeroTag,
     required int? imageCount,
     required double height,
   }) {
@@ -605,7 +599,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         child: GalleryImageScrollerWidget(
           controller: detailController,
           maxHeight: height,
-          coverHeroTag: coverHeroTag,
           initialImageCount: imageCount,
         ),
       ),
@@ -614,7 +607,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
   Widget _buildHeroOverviewCard(
     BuildContext context, {
-    required String coverHeroTag,
     required int? imageCount,
     required double height,
     required ImageModel? imageModelInfo,
@@ -650,7 +642,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
             children: [
               _buildHeroScrollerSection(
                 context,
-                coverHeroTag: coverHeroTag,
                 imageCount: imageCount,
                 height: height,
               ),
@@ -1019,8 +1010,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       paddingTop,
     );
 
-    final String coverHeroTag = _galleryCoverHeroTag(imageModelId);
-
     return Focus(
       autofocus: true,
       onKeyEvent: (node, event) {
@@ -1042,7 +1031,6 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
 
           final overviewCard = _buildHeroOverviewCard(
             context,
-            coverHeroTag: coverHeroTag,
             imageCount: imageCount,
             height: imageScrollerMaxHeight,
             imageModelInfo: imageModelInfo,

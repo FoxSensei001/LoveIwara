@@ -291,6 +291,7 @@ common:
   tagLocalizationGuideTitle: タグの翻訳について
   tagLocalizationGuideContent: "アプリは Iwara の元のタグ（例：mother）を、現在の言語の訳名で表示します。\n\n• タグ検索では、訳名でも元のタグでも一致します。\n• タグを長押し / 右クリックすると、元のタグと訳名を確認・コピーできます。\n• 訳名はコミュニティによる有志翻訳であり、誤りが含まれる場合があります。"
   likeThisVideo: この動画が好きな人
+  likeThisGallery: このギャラリーが好きな人
   operation: 操作
   replies: 返信
   externalLinkWarning: 外部リンク警告
@@ -432,6 +433,7 @@ favorites:
 galleryDetail:
   galleryDetail: ギャラリー詳細
   viewGalleryDetail: ギャラリー詳細を表示
+  zoomReset: ズームをリセット
   copyLink: リンクをコピー
   copyImage: 画像をコピー
   saveAs: 名前を付けて保存
@@ -453,6 +455,8 @@ galleryDetail:
   scrollLeft: 左へスクロール
   scrollRight: 右へスクロール
   clickLeftAndRightEdgeToSwitchImage: 左端と右端をクリックして切り替え
+  rotateToLandscape: 横画面で全画面
+  backToPortrait: 縦画面に戻す
 
 playList:
   myPlayList: 私のプレイリスト
@@ -800,6 +804,10 @@ settings:
     actionGalleryZoomIn: ズームイン
     actionGalleryZoomOut: ズームアウト
     actionGalleryResetZoom: ズームリセット
+    actionGalleryPlayPause: 再生 / 一時停止
+    actionGallerySeekBackward: 巻き戻し
+    actionGallerySeekForward: 早送り
+    actionGalleryToggleMute: ミュート切替
     actionPlayPause: 再生 / 一時停止
     actionSpeedUp: 再生速度を上げる
     actionSpeedDown: 再生速度を下げる
@@ -2051,6 +2059,12 @@ mediaPlayer:
   checkNetworkConnection: "ネットワーク接続を確認して再試行してください"
   appMayLackMediaPermission: "アプリに必要なメディア再生権限が不足している可能性があります"
   tryOtherVideoPlayer: "他のビデオプレイヤーをお試しください"
+  unrecognizedVideoFormat: "認識できない動画ファイル"
+  unrecognizedVideoFormatSuggestion: "リンクが失効したか、返ってきたものが動画ではない可能性があります。再試行するか、他のアプリで開いてください。"
+  accessDenied: "サーバーがこのアクセスを拒否しました（403）"
+  accessDeniedSuggestion: "再生リンクの有効期限が切れている可能性が高いです。「再試行」で取り直すか、他のアプリで開いてください。"
+  mute: "ミュート"
+  unmute: "ミュート解除"
   video: "ビデオ"
   # CDNサーバー選択
   serverSelector: CDNサーバー選択

@@ -735,8 +735,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                           final headerUrl =
                               profileController.headerBackgroundUrl.value ??
                               CommonConstants.defaultProfileHeaderUrl;
-                          final headerHeroTag =
-                              'author_header:${profileController.author.value?.id ?? headerUrl}';
                           ImageItem item = ImageItem(
                             url: headerUrl,
                             data: ImageItemData(
@@ -776,22 +774,19 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             imageItems: [item],
                             initialIndex: 0,
                             menuItemsBuilder: (context, item) => menuItems,
-                            heroTagBuilder: (_) => headerHeroTag,
                           );
                         },
+                        // ⛔ 这里曾经包着 Hero，与大图页那张对飞。整套 Hero
+                        // 已于 2026-09-05 移除，进大图页只走路由自己的淡入。
                         child: MouseRegion(
                           cursor: SystemMouseCursors.click,
-                          child: Hero(
-                            tag:
-                                'author_header:${profileController.author.value?.id ?? (profileController.headerBackgroundUrl.value ?? CommonConstants.defaultProfileHeaderUrl)}',
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  profileController.headerBackgroundUrl.value ??
-                                  CommonConstants.defaultProfileHeaderUrl,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                            ),
+                          child: CachedNetworkImage(
+                            imageUrl:
+                                profileController.headerBackgroundUrl.value ??
+                                CommonConstants.defaultProfileHeaderUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
                           ),
                         ),
                       ),
@@ -924,9 +919,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                         child: (() {
                           final avatarUrl =
                               profileController.author.value?.avatar?.avatarUrl;
-                          final avatarHeroTag = avatarUrl == null
-                              ? null
-                              : 'author_avatar:${profileController.author.value?.id ?? avatarUrl}';
 
                           void openAvatar() {
                             if (avatarUrl == null) return;
@@ -974,21 +966,15 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                               imageItems: [item],
                               initialIndex: 0,
                               menuItemsBuilder: (context, item) => menuItems,
-                              heroTagBuilder: avatarHeroTag == null
-                                  ? null
-                                  : (_) => avatarHeroTag,
                             );
                           }
 
-                          final avatar = AvatarWidget(
+                          // Hero 同上：整套已移除。
+                          return AvatarWidget(
                             user: profileController.author.value,
                             size: 70,
                             onTap: openAvatar,
                           );
-
-                          return avatarHeroTag == null
-                              ? avatar
-                              : Hero(tag: avatarHeroTag, child: avatar);
                         })(),
                       ),
                       const SizedBox(width: 16),

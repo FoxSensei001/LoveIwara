@@ -30,6 +30,19 @@ enum ShortcutAction {
   galleryZoomIn,
   galleryZoomOut,
   galleryResetZoom,
+  // 图库里混着的视频条目：翻到它那一页时才可用。
+  //
+  // ⛔ 这几条**必须**是 gallery 域自己的动作，不能指望复用 video 域那套
+  // （`play_pause` / `seek_*` / `toggle_mute`）：[KeybindingService.resolve]
+  // 按 scope 精确匹配、明确不做跨域回退，而图库查看器注册的是
+  // [ShortcutScope.gallery]，于是 video 域的键位在图库里一条也收不到。
+  //
+  // 默认键位刻意**避开方向键**：图库里 ←/→ 恒是翻页、↑/↓ 恒是缩放，翻到视频
+  // 那一页时不改变含义。用户不该需要记住「我现在在哪个模式」。
+  galleryPlayPause,
+  gallerySeekBackward,
+  gallerySeekForward,
+  galleryToggleMute,
   // ---- 视频 ----
   playPause,
   speedUp,
@@ -197,6 +210,41 @@ final Map<ShortcutAction, ShortcutActionMeta> _metaTable = {
       KeyChord.fromKey(LogicalKeyboardKey.digit0),
       KeyChord.fromKey(LogicalKeyboardKey.numpad0),
     ],
+  ),
+  ShortcutAction.galleryPlayPause: ShortcutActionMeta(
+    id: 'gallery_play_pause',
+    scope: ShortcutScope.gallery,
+    category: ShortcutActionCategory.playback,
+    icon: Icons.play_arrow,
+    defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.space)],
+  ),
+  // J / L 是播放器里通用的「后退 / 前进」（YouTube、mpv、Plex 都是这一对），
+  // 而且与图库既有的方向键、0、= / - 全不冲突。
+  ShortcutAction.gallerySeekBackward: ShortcutActionMeta(
+    id: 'gallery_seek_backward',
+    scope: ShortcutScope.gallery,
+    category: ShortcutActionCategory.seek,
+    icon: Icons.fast_rewind,
+    defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.keyJ)],
+    // ⛔ 不 repeatable。位移确实是累加的，但每一次重复都是一次**真的 seek**，
+    // 而图库里这条视频是网络流——按住不放会连着发几十次跳转，每次都要重新起
+    // 缓冲，读起来是卡死而不是"一路拉过去"。视频域那两条同样是 false。
+    repeatable: false,
+  ),
+  ShortcutAction.gallerySeekForward: ShortcutActionMeta(
+    id: 'gallery_seek_forward',
+    scope: ShortcutScope.gallery,
+    category: ShortcutActionCategory.seek,
+    icon: Icons.fast_forward,
+    defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.keyL)],
+    repeatable: false,
+  ),
+  ShortcutAction.galleryToggleMute: ShortcutActionMeta(
+    id: 'gallery_toggle_mute',
+    scope: ShortcutScope.gallery,
+    category: ShortcutActionCategory.volume,
+    icon: Icons.volume_off,
+    defaultChords: [KeyChord.fromKey(LogicalKeyboardKey.keyM)],
   ),
 
   // ---------------------------------------------------------------------------

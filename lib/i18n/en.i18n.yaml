@@ -290,6 +290,7 @@ common:
   tagLocalizationGuideTitle: About Tag Localization
   tagLocalizationGuideContent: "The app shows Iwara's raw tags (e.g. mother) using the name in your current language.\n\n• When searching tags, both the translation and the original tag match.\n• Long-press / right-click a tag to view and copy its original key and translation.\n• Translations are community-maintained and best-effort — they may contain mistakes."
   likeThisVideo: Like This Video
+  likeThisGallery: Like This Gallery
   operation: Operation
   replies: Replies
   externalLinkWarning: External Link Warning
@@ -431,6 +432,7 @@ favorites:
 galleryDetail:
   galleryDetail: Gallery Detail
   viewGalleryDetail: View Gallery Detail
+  zoomReset: Reset zoom
   copyLink: Copy Link
   copyImage: Copy Image
   saveAs: Save As
@@ -452,6 +454,8 @@ galleryDetail:
   scrollLeft: Scroll left
   scrollRight: Scroll right
   clickLeftAndRightEdgeToSwitchImage: Click Left and Right Edge to Switch Image
+  rotateToLandscape: Landscape Fullscreen
+  backToPortrait: Back to Portrait
 
 playList:
   myPlayList: My Play List
@@ -799,6 +803,10 @@ settings:
     actionGalleryZoomIn: Zoom In
     actionGalleryZoomOut: Zoom Out
     actionGalleryResetZoom: Reset Zoom
+    actionGalleryPlayPause: Play / Pause
+    actionGallerySeekBackward: Rewind
+    actionGallerySeekForward: Fast Forward
+    actionGalleryToggleMute: Toggle Mute
     actionPlayPause: Play / Pause
     actionSpeedUp: Increase Speed
     actionSpeedDown: Decrease Speed
@@ -2143,6 +2151,12 @@ mediaPlayer:
   checkNetworkConnection: "Please check your network connection and try again"
   appMayLackMediaPermission: "The app may lack necessary media playback permissions"
   tryOtherVideoPlayer: "Please try using other video players"
+  unrecognizedVideoFormat: "Unrecognized video file"
+  unrecognizedVideoFormatSuggestion: "The link may have expired, or the response was not a video. Try again, or open it with another app."
+  accessDenied: "The server refused this request (403)"
+  accessDeniedSuggestion: "The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app."
+  mute: "Mute"
+  unmute: "Unmute"
   video: "VIDEO"
   # CDN Server Selection
   serverSelector: CDN Server Selection

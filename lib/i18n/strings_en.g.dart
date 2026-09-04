@@ -940,6 +940,9 @@ class TranslationsCommonEn {
 	/// en: 'Like This Video'
 	String get likeThisVideo => 'Like This Video';
 
+	/// en: 'Like This Gallery'
+	String get likeThisGallery => 'Like This Gallery';
+
 	/// en: 'Operation'
 	String get operation => 'Operation';
 
@@ -1323,6 +1326,9 @@ class TranslationsGalleryDetailEn {
 	/// en: 'View Gallery Detail'
 	String get viewGalleryDetail => 'View Gallery Detail';
 
+	/// en: 'Reset zoom'
+	String get zoomReset => 'Reset zoom';
+
 	/// en: 'Copy Link'
 	String get copyLink => 'Copy Link';
 
@@ -1385,6 +1391,12 @@ class TranslationsGalleryDetailEn {
 
 	/// en: 'Click Left and Right Edge to Switch Image'
 	String get clickLeftAndRightEdgeToSwitchImage => 'Click Left and Right Edge to Switch Image';
+
+	/// en: 'Landscape Fullscreen'
+	String get rotateToLandscape => 'Landscape Fullscreen';
+
+	/// en: 'Back to Portrait'
+	String get backToPortrait => 'Back to Portrait';
 }
 
 // Path: playList
@@ -4594,6 +4606,24 @@ class TranslationsMediaPlayerEn {
 	/// en: 'Please try using other video players'
 	String get tryOtherVideoPlayer => 'Please try using other video players';
 
+	/// en: 'Unrecognized video file'
+	String get unrecognizedVideoFormat => 'Unrecognized video file';
+
+	/// en: 'The link may have expired, or the response was not a video. Try again, or open it with another app.'
+	String get unrecognizedVideoFormatSuggestion => 'The link may have expired, or the response was not a video. Try again, or open it with another app.';
+
+	/// en: 'The server refused this request (403)'
+	String get accessDenied => 'The server refused this request (403)';
+
+	/// en: 'The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app.'
+	String get accessDeniedSuggestion => 'The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app.';
+
+	/// en: 'Mute'
+	String get mute => 'Mute';
+
+	/// en: 'Unmute'
+	String get unmute => 'Unmute';
+
 	/// en: 'VIDEO'
 	String get video => 'VIDEO';
 
@@ -6528,6 +6558,18 @@ class TranslationsSettingsKeybindingEn {
 
 	/// en: 'Reset Zoom'
 	String get actionGalleryResetZoom => 'Reset Zoom';
+
+	/// en: 'Play / Pause'
+	String get actionGalleryPlayPause => 'Play / Pause';
+
+	/// en: 'Rewind'
+	String get actionGallerySeekBackward => 'Rewind';
+
+	/// en: 'Fast Forward'
+	String get actionGallerySeekForward => 'Fast Forward';
+
+	/// en: 'Toggle Mute'
+	String get actionGalleryToggleMute => 'Toggle Mute';
 
 	/// en: 'Play / Pause'
 	String get actionPlayPause => 'Play / Pause';
@@ -9199,6 +9241,7 @@ extension on Translations {
 			'common.tagLocalizationGuideTitle' => 'About Tag Localization',
 			'common.tagLocalizationGuideContent' => 'The app shows Iwara\'s raw tags (e.g. mother) using the name in your current language.\n\n• When searching tags, both the translation and the original tag match.\n• Long-press / right-click a tag to view and copy its original key and translation.\n• Translations are community-maintained and best-effort — they may contain mistakes.',
 			'common.likeThisVideo' => 'Like This Video',
+			'common.likeThisGallery' => 'Like This Gallery',
 			'common.operation' => 'Operation',
 			'common.replies' => 'Replies',
 			'common.externalLinkWarning' => 'External Link Warning',
@@ -9329,6 +9372,7 @@ extension on Translations {
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed',
 			'galleryDetail.galleryDetail' => 'Gallery Detail',
 			'galleryDetail.viewGalleryDetail' => 'View Gallery Detail',
+			'galleryDetail.zoomReset' => 'Reset zoom',
 			'galleryDetail.copyLink' => 'Copy Link',
 			'galleryDetail.copyImage' => 'Copy Image',
 			'galleryDetail.saveAs' => 'Save As',
@@ -9350,6 +9394,8 @@ extension on Translations {
 			'galleryDetail.scrollLeft' => 'Scroll left',
 			'galleryDetail.scrollRight' => 'Scroll right',
 			'galleryDetail.clickLeftAndRightEdgeToSwitchImage' => 'Click Left and Right Edge to Switch Image',
+			'galleryDetail.rotateToLandscape' => 'Landscape Fullscreen',
+			'galleryDetail.backToPortrait' => 'Back to Portrait',
 			'playList.myPlayList' => 'My Play List',
 			'playList.friendlyTips' => 'Friendly Tips',
 			'playList.dearUser' => 'Dear User',
@@ -9426,12 +9472,12 @@ extension on Translations {
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
 			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
 			'settings.rememberVolume' => 'Remember Volume',
-			_ => null,
-		} ?? switch (path) {
 			'settings.thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the volume will be kept when playing videos again.',
 			'settings.rememberBrightness' => 'Remember Brightness',
 			'settings.thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain' => 'This configuration determines whether the brightness will be kept when playing videos again.',
@@ -9691,6 +9737,10 @@ extension on Translations {
 			'settings.keybinding.actionGalleryZoomIn' => 'Zoom In',
 			'settings.keybinding.actionGalleryZoomOut' => 'Zoom Out',
 			'settings.keybinding.actionGalleryResetZoom' => 'Reset Zoom',
+			'settings.keybinding.actionGalleryPlayPause' => 'Play / Pause',
+			'settings.keybinding.actionGallerySeekBackward' => 'Rewind',
+			'settings.keybinding.actionGallerySeekForward' => 'Fast Forward',
+			'settings.keybinding.actionGalleryToggleMute' => 'Toggle Mute',
 			'settings.keybinding.actionPlayPause' => 'Play / Pause',
 			'settings.keybinding.actionSpeedUp' => 'Increase Speed',
 			'settings.keybinding.actionSpeedDown' => 'Decrease Speed',
@@ -9936,6 +9986,8 @@ extension on Translations {
 			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
 			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
 			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.pathValid' => 'Path is valid',
 			'settings.downloadSettings.validationFailed' => 'Validation failed',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
@@ -9944,8 +9996,6 @@ extension on Translations {
 			'settings.downloadSettings.downloadDirectory' => 'Download Directory',
 			'settings.downloadSettings.downloadDirectoryDesc' => 'System default download location, easy to manage',
 			'settings.downloadSettings.moviesDirectory' => 'Movies Directory',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.moviesDirectoryDesc' => 'System movies directory, recognizable by media apps',
 			'settings.downloadSettings.documentsDirectory' => 'Documents Directory',
 			'settings.downloadSettings.documentsDirectoryDesc' => 'iOS app documents directory',
@@ -10450,6 +10500,8 @@ extension on Translations {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
 			'download.errors.imageLoadFailed' => 'Image load failed',
+			_ => null,
+		} ?? switch (path) {
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
@@ -10458,8 +10510,6 @@ extension on Translations {
 			'download.qualitySectionLabel' => 'Quality',
 			'download.saveToSectionLabel' => 'Save to',
 			'download.lastUsedBadge' => 'Last used',
-			_ => null,
-		} ?? switch (path) {
 			'download.pickedBadge' => 'Selected',
 			'download.startDownloading' => 'Start Downloading',
 			'download.clearAllFailedTasks' => 'Clear All Failed Tasks',
@@ -10932,6 +10982,12 @@ extension on Translations {
 			'mediaPlayer.checkNetworkConnection' => 'Please check your network connection and try again',
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
+			'mediaPlayer.unrecognizedVideoFormat' => 'Unrecognized video file',
+			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'The link may have expired, or the response was not a video. Try again, or open it with another app.',
+			'mediaPlayer.accessDenied' => 'The server refused this request (403)',
+			'mediaPlayer.accessDeniedSuggestion' => 'The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app.',
+			'mediaPlayer.mute' => 'Mute',
+			'mediaPlayer.unmute' => 'Unmute',
 			'mediaPlayer.video' => 'VIDEO',
 			'mediaPlayer.serverSelector' => 'CDN Server Selection',
 			'mediaPlayer.serverSelectorDescription' => 'Select the server with the lowest latency for the best playback experience',
@@ -10958,6 +11014,8 @@ extension on Translations {
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
 			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
 			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
@@ -10972,8 +11030,6 @@ extension on Translations {
 			'mediaPlayer.notice.repeatedPlaybackProblems' => 'Export logs to report repeated playback issues',
 			'mediaPlayer.notice.issuesSheetTitle' => 'Playback issues',
 			'mediaPlayer.notice.issueOccurrences' => ({required Object count}) => 'Occurred ${count} times',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'No issues recorded',
 			'mediaPlayer.notice.exportLogsAction' => 'Export logs',
@@ -11472,6 +11528,8 @@ extension on Translations {
 			'externalPlayer.managePlayersEntry' => 'Manage external players…',
 			'watchLater.title' => 'Watch Later',
 			'watchLater.addToWatchLater' => 'Watch later',
+			_ => null,
+		} ?? switch (path) {
 			'watchLater.removeFromWatchLater' => 'Remove from Watch Later',
 			'watchLater.addedToWatchLater' => 'Added to Watch Later',
 			'watchLater.alreadyInWatchLater' => 'Already in Watch Later',
@@ -11486,8 +11544,6 @@ extension on Translations {
 			'watchLater.emptyVideo' => 'No videos in Watch Later yet',
 			'watchLater.emptyGallery' => 'No galleries in Watch Later yet',
 			'watchLater.filterAll' => 'All',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.filterUnwatched' => 'Unwatched',
 			'watchLater.sortRecentlyAdded' => 'Recently added',
 			'watchLater.sortEarliestAdded' => 'Earliest added',

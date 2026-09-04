@@ -446,7 +446,7 @@ final GoRouter appRouter = GoRouter(
               key: state.pageKey,
               opaque: false,
               barrierColor: Colors.transparent,
-              child: _buildPhotoViewWrapperChild(extra),
+              child: buildPhotoViewWrapperChild(extra),
               transitionDuration: extra.instant
                   ? Duration.zero
                   : const Duration(milliseconds: 300),
@@ -1273,42 +1273,27 @@ ConversationModel _resolveConversationForMessageDetail(
   );
 }
 
-Widget _buildPhotoViewWrapperChild(PhotoViewExtra extra) {
-  final normalizedInitialQuality = normalizeGalleryImageQuality(
-    extra.initialQuality,
+/// 按 [PhotoViewExtra] 建出大图页。
+///
+/// ⛔ 这里原来是 `Function.apply(MyGalleryPhotoViewWrapper.new, …)` 加两条
+/// `catch (NoSuchMethodError / ArgumentError)` 兜底，而且**在两个文件里逐字节
+/// 重复了两遍**（另一份在 `photo_view_wrapper_overlay.dart`）。构造函数就在同一
+/// 个包里、编译期已知，反射调用唯一的作用是把「参数名对不上」从**编译期错误**
+/// 降级成**运行期静默降级**——兜底那两支只传了五个参数，画质切换、清单同步、
+/// Hero（当时还在）全都悄悄失效，一行日志都没有。直接构造即可：真出现签名漂移，编译就过
+/// 不去。
+Widget buildPhotoViewWrapperChild(PhotoViewExtra extra) {
+  return MyGalleryPhotoViewWrapper(
+    galleryItems: extra.imageItems,
+    initialIndex: extra.initialIndex,
+    menuItemsBuilder: extra.menuItemsBuilder,
+    enableMenu: extra.enableMenu,
+    standardGalleryItems: extra.standardImageItems,
+    originalGalleryItems: extra.originalImageItems,
+    initialQuality: normalizeGalleryImageQuality(extra.initialQuality),
+    onQualityChanged: extra.onQualityChanged,
+    onIndexChanged: extra.onIndexChanged,
   );
-
-  try {
-    return Function.apply(MyGalleryPhotoViewWrapper.new, const [], {
-          #galleryItems: extra.imageItems,
-          #initialIndex: extra.initialIndex,
-          #menuItemsBuilder: extra.menuItemsBuilder,
-          #enableMenu: extra.enableMenu,
-          #heroTagBuilder: extra.heroTagBuilder,
-          #standardImageItems: extra.standardImageItems,
-          #originalImageItems: extra.originalImageItems,
-          #initialQuality: normalizedInitialQuality,
-          #onQualityChanged: extra.onQualityChanged,
-          #onIndexChanged: extra.onIndexChanged,
-        })
-        as Widget;
-  } on NoSuchMethodError {
-    return MyGalleryPhotoViewWrapper(
-      galleryItems: extra.imageItems,
-      initialIndex: extra.initialIndex,
-      menuItemsBuilder: extra.menuItemsBuilder,
-      enableMenu: extra.enableMenu,
-      heroTagBuilder: extra.heroTagBuilder,
-    );
-  } on ArgumentError {
-    return MyGalleryPhotoViewWrapper(
-      galleryItems: extra.imageItems,
-      initialIndex: extra.initialIndex,
-      menuItemsBuilder: extra.menuItemsBuilder,
-      enableMenu: extra.enableMenu,
-      heroTagBuilder: extra.heroTagBuilder,
-    );
-  }
 }
 
 // ========== 供复杂参数路由使用的额外数据类 ==========
@@ -1507,7 +1492,6 @@ class PhotoViewExtra {
   final List<MenuItem> Function(BuildContext context, ImageItem item)
   menuItemsBuilder;
   final bool enableMenu;
-  final Object? Function(ImageItem item)? heroTagBuilder;
   final List<ImageItem>? standardImageItems;
   final List<ImageItem>? originalImageItems;
   final String initialQuality;
@@ -1524,7 +1508,7 @@ class PhotoViewExtra {
   ///
   /// 从预览弹窗「点开 / 拖出」一张图进来时用：那条路上屏幕已经被一帧「和大图页
   /// 长得一模一样」的画面钉住了（见 `media_preview_dialog.dart`），大图页再自己
-  /// 淡入一次、再飞一段 Hero，就是在那帧底下多演一遍——撤帧那一刻必然闪。
+  /// 淡入一次就是在那帧底下多演一遍——撤帧那一刻必然闪。
   final bool instant;
 
   const PhotoViewExtra({
@@ -1532,7 +1516,6 @@ class PhotoViewExtra {
     required this.initialIndex,
     required this.menuItemsBuilder,
     this.enableMenu = true,
-    this.heroTagBuilder,
     this.standardImageItems,
     this.originalImageItems,
     this.initialQuality = galleryImageQualityStandard,

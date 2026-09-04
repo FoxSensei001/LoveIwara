@@ -290,6 +290,7 @@ common:
   tagLocalizationGuideTitle: 關於標籤本地化
   tagLocalizationGuideContent: "應用會把 Iwara 的原始標籤（如 mother）顯示為你目前語言的譯名。\n\n• 搜尋標籤時，輸入譯名或原始標籤都能匹配。\n• 長按 / 右鍵標籤可檢視並複製原始標籤與譯文。\n• 譯名由社群維護，屬盡力翻譯，可能存在錯誤。"
   likeThisVideo: 喜歡這個影片的人
+  likeThisGallery: 喜歡這個圖庫的人
   operation: 操作
   replies: 回覆
   externalLinkWarning: 外部連結警告
@@ -431,6 +432,7 @@ favorites:
 galleryDetail:
   galleryDetail: 圖庫詳情
   viewGalleryDetail: 查看圖庫詳情
+  zoomReset: 重置縮放
   copyLink: 複製連結地址
   copyImage: 複製圖片
   saveAs: 另存為
@@ -452,6 +454,8 @@ galleryDetail:
   scrollLeft: 向左捲動
   scrollRight: 向右捲動
   clickLeftAndRightEdgeToSwitchImage: 點擊左右邊緣以切換圖片
+  rotateToLandscape: 橫螢幕全螢幕
+  backToPortrait: 回到直螢幕
 
 playList:
   myPlayList: 我的播放清單
@@ -800,6 +804,10 @@ settings:
     actionGalleryZoomIn: 放大
     actionGalleryZoomOut: 縮小
     actionGalleryResetZoom: 重置縮放
+    actionGalleryPlayPause: 播放 / 暫停
+    actionGallerySeekBackward: 快退
+    actionGallerySeekForward: 快進
+    actionGalleryToggleMute: 靜音切換
     actionPlayPause: 播放 / 暫停
     actionSpeedUp: 加快倍速
     actionSpeedDown: 減慢倍速
@@ -2093,6 +2101,12 @@ mediaPlayer:
   checkNetworkConnection: "請檢查網路連線後重試"
   appMayLackMediaPermission: "應用可能缺少必要的媒體播放權限"
   tryOtherVideoPlayer: "請嘗試使用其他影片播放器"
+  unrecognizedVideoFormat: "無法識別的影片檔案"
+  unrecognizedVideoFormatSuggestion: "可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。"
+  accessDenied: "伺服器拒絕了這次存取（403）"
+  accessDeniedSuggestion: "播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。"
+  mute: "靜音"
+  unmute: "取消靜音"
   video: "影片"
   # CDN 伺服器選擇
   serverSelector: CDN 伺服器選擇

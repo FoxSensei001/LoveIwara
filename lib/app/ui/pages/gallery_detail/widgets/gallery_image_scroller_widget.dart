@@ -12,43 +12,21 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
 
-RectTween _createGalleryCoverRectTween(Rect? begin, Rect? end) {
-  return MaterialRectArcTween(begin: begin, end: end);
-}
-
-Widget _galleryCoverFlightShuttleBuilder(
-  BuildContext flightContext,
-  Animation<double> animation,
-  HeroFlightDirection flightDirection,
-  BuildContext fromHeroContext,
-  BuildContext toHeroContext,
-) {
-  final fromHero = fromHeroContext.widget as Hero;
-  final toHero = toHeroContext.widget as Hero;
-  final fadeIn = CurvedAnimation(
-    parent: animation,
-    curve: const Interval(0.75, 1.0, curve: Curves.easeOut),
-  );
-  return Stack(
-    fit: StackFit.expand,
-    children: [
-      FadeTransition(opacity: ReverseAnimation(fadeIn), child: fromHero.child),
-      FadeTransition(opacity: fadeIn, child: toHero.child),
-    ],
-  );
-}
-
+/// ⛔ 这一族曾经还挂着一整套 Hero：横向清单的缩略图 →（飞）→ 大图页那张图，
+/// 封面那张另有 [MaterialRectArcTween] 的弧线与自定义 flightShuttle。整套已于
+/// 2026-09-05 按用户要求移除——**不管从哪个入口进大图页都不再飞**，大图页只走
+/// 路由自己那段淡入淡出。所以这里没有 `coverHeroTag`、没有 `heroTagBuilder`，
+/// 封面文件 id（[_resolveCoverFileId]）留着只为一件事：给封面那格换个大一档的
+/// 圆角。
 class GalleryImageScrollerWidget extends StatelessWidget {
   final GalleryDetailController controller;
   final double maxHeight; // Max height constraint for the image area
-  final String coverHeroTag;
   final int? initialImageCount;
 
   const GalleryImageScrollerWidget({
     super.key,
     required this.controller,
     required this.maxHeight,
-    required this.coverHeroTag,
     this.initialImageCount,
   });
 
@@ -91,7 +69,6 @@ class GalleryImageScrollerWidget extends StatelessWidget {
                       controller.isHoveringHorizontalList.value = false,
                   child: _GalleryHorizontalListSkeleton(
                     height: maxHeight,
-                    coverHeroTag: coverHeroTag,
                     itemCount: _resolveSkeletonItemCount(
                       initialImageCount: initialImageCount,
                     ),
@@ -124,15 +101,6 @@ class GalleryImageScrollerWidget extends StatelessWidget {
             images: imageItems,
             defaultAspectRatio: 16 / 9,
             onItemTap: (item) => _onImageTap(context, item, imageItems),
-            heroTagBuilder: (item) => galleryImageHeroTag(
-              item,
-              coverFileId: coverFileId,
-              imageModelId: controller.imageModelId,
-              coverHeroTag: coverHeroTag,
-            ),
-            heroCreateRectTween: _createGalleryCoverRectTween,
-            heroFlightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
-            heroTransitionOnUserGestures: true,
             clipBorderRadius: BorderRadius.zero,
             itemBorderRadiusBuilder: (item) =>
                 isCoverItem(item) ? coverRadius : radius8,
@@ -165,8 +133,6 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       context,
       imageItems: imageItems,
       index: index,
-      imageModelId: controller.imageModelId,
-      coverHeroTag: coverHeroTag,
       onIndexChanged: controller.imageListController.revealIndex,
     );
   }
@@ -178,7 +144,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
 /// 这条图库摆出来的那份清单。
 ///
 /// ⛔ **首图会被提到最前**：图库里偶尔混着视频文件，`files` 的第 0 条可能就是
-/// 一条视频，而封面（以及 Hero）说的恒是第一张**图**。所以这份清单的顺序不等于
+/// 一条视频，而封面说的恒是第一张**图**。所以这份清单的顺序不等于
 /// `files` 的顺序 —— 跨页说「开到第几张」时必须传文件 id，别传下标
 /// （见 [openGalleryImageViewerByFileId]）。
 List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
@@ -189,6 +155,10 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
     final largeUrl = file.getLargeImageUrl();
     final item = ImageItem(
       url: largeUrl,
+      // 服务端在文件信息里就给了宽高，带上它，底下那条胶片一开始就能按真实比例
+      // 排格子，而不是先摆一排等宽长条、等图加载完再跳一次。
+      width: file.width?.toDouble(),
+      height: file.height?.toDouble(),
       data: ImageItemData(
         id: file.id,
         title: file.name,
@@ -196,6 +166,9 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
         originalUrl: file.getOriginalImageUrl(),
       ),
       headers: {},
+      // 媒体类型由服务端的 type/mime 说了算，不再让下游按 URL 后缀猜
+      // （见 [MediaFile.isVideo]）。
+      mediaType: file.isVideo ? MediaItemType.video : MediaItemType.image,
     );
 
     if (coverItem == null && !item.isVideo) {
@@ -208,29 +181,21 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
   return <ImageItem>[?coverItem, ...restItems];
 }
 
-/// 这一张在大图页里的 Hero 标签。封面那张用页面给的 [coverHeroTag]，其余的按
-/// 「图库 id + 文件 id」拼——横向清单与大图页两边必须算出同一个值。
-Object? galleryImageHeroTag(
-  ImageItem item, {
-  required String? coverFileId,
-  required String imageModelId,
-  required String coverHeroTag,
-}) {
-  if (item.isVideo) return null;
-  if (coverFileId != null && item.data.id == coverFileId) return coverHeroTag;
-  return 'gallery:$imageModelId:${item.data.id}';
-}
-
 /// 把 [imageItems] 的第 [index] 张开成大图页。
 ///
-/// 画质三档（标准 / 原图）在这里成型：`standardImageItems` 把每一条的
+/// 画质两档（标准 / 原图）在这里成型：`standardImageItems` 把每一条的
 /// `originalUrl` 换成 large 地址，大图页据此在两份清单之间切。
+///
+/// ⛔ **视频条目在两份清单里是同一个地址**，这不是巧合也不需要在这里特判：
+/// [MediaFile.getLargeImageUrl] 对没有缩放版的文件（视频、gif）本来就回落到
+/// original，所以「标清档」不会再把 `/image/large/…/x.webm` 这种图片端点塞给
+/// 播放器。规则只写在那一处，别在这里再抄一份。
+/// 副作用是好的：整本都是视频的图库，`_hasSwitchableQualityDifference` 算出
+/// 两档没差别，画质钮自己就不出现了。
 void openGalleryImageViewer(
   BuildContext context, {
   required List<ImageItem> imageItems,
   required int index,
-  required String imageModelId,
-  required String coverHeroTag,
   bool instant = false,
   ValueChanged<int>? onIndexChanged,
 }) {
@@ -257,7 +222,6 @@ void openGalleryImageViewer(
         ),
       )
       .toList();
-  final String? coverFileId = _resolveCoverFileId(imageItems);
   pushPhotoViewWrapperOverlay(
     context: context,
     imageItems: imageItems,
@@ -275,17 +239,6 @@ void openGalleryImageViewer(
     // 大图页里翻到第几张，底下这条清单就跟到第几张：退出来落在的是刚才看的
     // 那张，不是当初点进去的那张。
     onIndexChanged: onIndexChanged,
-    // ⛔ [instant] 那一路**不挂 Hero**：那条路上屏幕已经被一帧「和大图页长得
-    // 一模一样」的画面钉住了，底下再飞一段「缩略图长成大图」只会在撤帧那一刻
-    // 露出来——用户看到的就是「详情页闪一下、图又展开一次」。
-    heroTagBuilder: instant
-        ? null
-        : (item) => galleryImageHeroTag(
-            item,
-            coverFileId: coverFileId,
-            imageModelId: imageModelId,
-            coverHeroTag: coverHeroTag,
-          ),
   );
 }
 
@@ -297,8 +250,6 @@ void openGalleryImageViewer(
 bool openGalleryImageViewerByFileId(
   BuildContext context, {
   required ImageModel imageModel,
-  required String imageModelId,
-  required String coverHeroTag,
   required String fileId,
   bool instant = false,
   ValueChanged<int>? onIndexChanged,
@@ -313,8 +264,6 @@ bool openGalleryImageViewerByFileId(
     context,
     imageItems: imageItems,
     index: index,
-    imageModelId: imageModelId,
-    coverHeroTag: coverHeroTag,
     instant: instant,
     onIndexChanged: onIndexChanged,
   );
@@ -368,13 +317,11 @@ String? _resolveCoverFileId(List<ImageItem> imageItems) {
 
 class _GalleryHorizontalListSkeleton extends StatelessWidget {
   final double height;
-  final String coverHeroTag;
   final int itemCount;
   final bool reduceMotion;
 
   const _GalleryHorizontalListSkeleton({
     required this.height,
-    required this.coverHeroTag,
     required this.itemCount,
     required this.reduceMotion,
   });
@@ -406,18 +353,12 @@ class _GalleryHorizontalListSkeleton extends StatelessWidget {
       );
     }
 
+    // 封面那格圆角大一档，与真正的清单对齐（[GalleryImageScrollerWidget] 里
+    // 的 `coverRadius`）——骨架换成真列表时不会有一次圆角跳变。
     Widget coverItem() {
-      final placeholder = skeletonBox();
-
-      return Hero(
-        tag: coverHeroTag,
-        createRectTween: _createGalleryCoverRectTween,
-        flightShuttleBuilder: _galleryCoverFlightShuttleBuilder,
-        transitionOnUserGestures: true,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: placeholder,
-        ),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: skeletonBox(),
       );
     }
 
