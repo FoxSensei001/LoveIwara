@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import '../../../../../../utils/device_form_factor_utils.dart';
 import '../../controllers/my_video_state_controller.dart';
 import 'seek_preview.dart';
 
@@ -64,6 +65,10 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
   // 用于判断当前是否为移动端
   bool get isMobile =>
       GetPlatform.isAndroid || GetPlatform.isIOS || GetPlatform.isFuchsia;
+
+  /// 这台设备的 hover 语义可不可信。XR 头显上射线只进不出（收不到 exit），
+  /// 悬停预览会被永久钉在屏幕上——那里干脆不认 hover，只留拖动预览。
+  bool get _hoverSupported => DeviceFormFactorUtils.supportsPointerHover;
 
   // 缓存上一次的缓冲区列表，用于比较是否需要更新
   List<BufferRange> _lastBufferRanges = [];
@@ -230,10 +235,12 @@ class _CustomVideoProgressbarState extends State<CustomVideoProgressbar> {
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click, // 鼠标悬浮时显示手型指针
                     onEnter: (_) {
+                      if (!_hoverSupported) return;
                       // 悬停即预热预览播放器（带去抖），否则 tooltip 只能显示时间
                       widget.controller.ensurePreviewPlayerReadyDebounced();
                     },
                     onHover: (event) {
+                      if (!_hoverSupported) return;
                       // 鼠标悬停处理
                       _handleMouseHover(event, maxValue);
                     },

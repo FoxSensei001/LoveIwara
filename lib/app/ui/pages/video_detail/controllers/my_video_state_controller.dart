@@ -3948,6 +3948,11 @@ class MyVideoStateController extends GetxController
 
   // 设置工具栏悬浮状态
   void setToolbarHovering(bool value) {
+    // hover 不可信的设备（XR 射线）上收不到 exit：一旦记成「悬停中」，
+    // 自动隐藏定时器就再也不会启动，工具栏与其上的 Seek Preview 会永久常驻。
+    if (value && !DeviceFormFactorUtils.supportsPointerHover) {
+      return;
+    }
     _isHoveringToolbar.value = value;
     if (value) {
       // 悬浮时取消定时器
@@ -3963,8 +3968,12 @@ class MyVideoStateController extends GetxController
     required bool hoverFeatureEnabled,
     required bool isToolbarsLocked,
     required bool isSuppressed,
+    bool pointerHoverSupported = true,
   }) {
-    return hoverFeatureEnabled && !isToolbarsLocked && !isSuppressed;
+    return hoverFeatureEnabled &&
+        pointerHoverSupported &&
+        !isToolbarsLocked &&
+        !isSuppressed;
   }
 
   bool get _canRevealToolbarsOnMouseHover {
@@ -3973,6 +3982,7 @@ class MyVideoStateController extends GetxController
           _configService[ConfigKey.ENABLE_MOUSE_HOVER_SHOW_TOOLBAR] == true,
       isToolbarsLocked: isToolbarsLocked.value,
       isSuppressed: _isMouseHoverToolbarRevealSuppressed,
+      pointerHoverSupported: DeviceFormFactorUtils.supportsPointerHover,
     );
   }
 

@@ -63,6 +63,17 @@ class DeviceFormFactorUtils {
   /// 播放器全屏（那时请求的是横屏）才是真实宽高。所以 XR 上一律不请求方向。
   static bool get isXrDevice => _cachedIsXrDevice;
 
+  /// 指针的 hover（进入/离开）语义是否可信。
+  ///
+  /// XR 头显上 App 是一块 2D 面板，指针来自手柄射线：射线扫过面板会派发
+  /// hover，但射线移开面板、或应用失去焦点时**收不到对应的 exit**——
+  /// `MouseRegion` 于是永远停在「还在里面」。所有「悬停期间常驻」的 UI
+  /// （Seek Preview、悬停时不自动收起工具栏）因此会一直挂在屏幕上不消失。
+  ///
+  /// 所以这些地方一律按「这台设备没有 hover」处理：XR 上射线本来就是点按
+  /// 设备而不是停驻的鼠标，悬停态对它没有意义。
+  static bool get supportsPointerHover => !isXrDevice;
+
   /// [isXrDevice] 的异步版本：确保平台信息已读取。
   static Future<bool> resolveIsXrDevice() async {
     if (!isMobilePlatform) return false;
