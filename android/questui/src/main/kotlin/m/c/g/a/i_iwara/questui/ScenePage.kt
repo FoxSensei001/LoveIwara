@@ -151,12 +151,12 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 // 官方的 1m 舒适下限（「Avoid placing UI in the middle distance (roughly 0.5m to 0.8m)…
 // push it well into raycast range (1m or more)」）。1.5 − 0.45 = 1.05m，刚好站得住。
 // 幕布拉得比这还近，面板就只能和它挤在一起，真机上表现为「浮窗被幕布挡住」。
-private const val MIN_DISTANCE_M = 1.5f
+private const val MIN_DISTANCE_M = 1.2f
 private const val MAX_DISTANCE_M = 8.0f
 private const val MIN_WIDTH_M = 1.0f
-private const val MAX_WIDTH_M = 8.0f
-private const val MIN_OFFSET_M = -1.0f
-private const val MAX_OFFSET_M = 1.0f
+private const val MAX_WIDTH_M = 10.0f
+private const val MIN_OFFSET_M = -1.5f
+private const val MAX_OFFSET_M = 1.5f
 
 private fun lerp(from: Float, to: Float, t: Float): Float = from + (to - from) * t.coerceIn(0f, 1f)
 

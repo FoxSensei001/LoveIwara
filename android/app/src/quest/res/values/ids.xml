@@ -12,4 +12,7 @@
        用官方 Meta Horizon OS UI Set（Compose）绘制，走 view-based 面板
        （官方预算：UI view panel 15/40，Activity-based 只有 2/2）。 -->
   <item name="vr_controls_panel" type="id" />
+
+  <!-- 缓冲指示：一块很小的透明面板，浮在幕布正中，只在缓冲期间存在。 -->
+  <item name="vr_buffering_panel" type="id" />
 </resources>

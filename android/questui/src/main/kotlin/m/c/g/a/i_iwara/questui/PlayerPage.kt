@@ -106,6 +106,10 @@ fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 Text(text = notice, color = PanelTokens.WARN, fontSize = 15.sp, maxLines = 1)
             }
 
+            // 走带行居中：标题在顶、进度在底、走带在中，三段把面板高度用满
+            // （用户 2026-09-05：「上两行是名称，中间空着，最下面是进度条」）。
+            Spacer(Modifier.weight(1f))
+
             // ── 走带行 ────────────────────────────────────
             TransportRow(
                 state = state,

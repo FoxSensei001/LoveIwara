@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -143,7 +144,15 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
  */
 @Composable
 fun TopBarButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit) {
-    Box(modifier = Modifier.size(PanelTokens.CIRCLE_SIZE), contentAlignment = Alignment.Center) {
+    // 顶栏钮浮在透明区，UI Set 的半透明底色在这里没有深色底板衬着，看起来比卡片里的按钮淡一截
+    // （用户 2026-09-05 反馈）。垫一层与卡片同色的实心圆，观感就与卡片里的按钮一致。
+    Box(
+        modifier = Modifier
+            .size(PanelTokens.CIRCLE_SIZE)
+            .clip(CircleShape)
+            .background(PanelTokens.SURFACE),
+        contentAlignment = Alignment.Center,
+    ) {
         SecondaryCircleButton(
             icon = { Icon(icon, contentDescription) },
             onClick = onClick,

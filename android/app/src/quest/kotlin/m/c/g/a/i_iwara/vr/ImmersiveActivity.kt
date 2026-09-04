@@ -57,12 +57,12 @@ import m.c.g.a.i_iwara.questui.ScreenCurve
 import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
 import m.c.g.a.i_iwara.questui.VideoFormat
+import m.c.g.a.i_iwara.questui.createBufferingView
 import m.c.g.a.i_iwara.questui.createVideoControlsView
 import m.c.g.a.i_iwara.xr.ImmersiveBridge
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
-import kotlin.math.min
-import kotlin.math.sqrt
+import kotlin.math.abs
 
 /**
  * Quest 沉浸式 Activity。**只存在于 quest 变体**，standard 包既不编译它、
@@ -76,23 +76,35 @@ import kotlin.math.sqrt
  * |---|---|---|
  * | UI 面板 | 整个 Flutter 应用（`ActivityPanelRegistration` 挂 [MainActivity]） | 常在；看视频时藏起并停止出帧 |
  * | 幕布 | `VideoSurfacePanelRegistration` + ExoPlayer；平面走 Quad/Cylinder，VR 片走 Equirect | 有片源才建 |
- * | 控制面板 | 原生 Compose（`:questui` 模块），照 4XVR 重做 | **空闲即销毁，面板外捏合/扳机 toggle** |
+ * | 控制面板 | 原生 Compose（`:questui` 模块），照 4XVR 重做 | 空闲即销毁，面板外「点一下」toggle |
+ * | 缓冲指示 | 一块透明小面板，浮在幕布正中 | 只在缓冲期间存在 |
  *
- * # 职责拆分
+ * # 摆位全部跟随头部（2026-09-05 真机反馈之后）
  *
- * - [ScreenGeometry]：设置 → 面板形状，纯函数。
- * - [PlaybackEngine]：ExoPlayer 薄壳，换形状时只换 Surface 不重载。
- * - [SpatialInputPoller]：每帧读手/手柄按键，抽成事件。
- * - [SystemStatus]：时钟与电量。
- * - [PlayerPrefs]：偏好落盘。
- * - 本类：实体拆建、几何摆位、面板显隐、系统事件、Dart 通道。
+ * 此前按地面绝对高度摆（眼高 1.6m 的站姿假设），坐着/躺着都不对：面板偏上、竖得笔直。
+ * 现在的规则：
+ * - **锚点** [anchor]：一帧头部位姿（去掉 roll，保留俯仰与偏航），在首次进入、系统 recenter、
+ *   「重新居中」/「重置」时重新捕获。幕布沿锚点视线方向摆在「距离」处，朝向 = 锚点朝向。
+ * - 控制面板唤出时沿**当下**视线方向摆在 1.5m 处、略偏下，朝向面对头部。
+ * - 官方要求「pitch 与 yaw 自动跟随、roll 固定」，这里正是。
  *
- * # ⛔ 三条铁律（都有真机 / 官方依据）
+ * # 层序不靠深度
  *
- * 1. 控制面板**隐藏 = 真销毁**：官方明写 0-alpha 的合成层照样付全额成本。
- * 2. 换形状**播放器不死**：只换 Surface；能 `reshape()` 的连实体都不重建。
- * 3. 清理放 `onSpatialShutdown()`，**永远不 `finish()`** 挂着面板的 Activity（会在
- *    `libMetaSpatialSDK.so` 里 SIGSEGV）。
+ * 合成层的前后不是按曲面位置排的（中曲面把面板整个盖住、拉近幕布也会盖住 —— 真机反馈），
+ * 所以三块层显式给 zIndex：球幕 −1 / 幕布 0 / 控制面板 20 / 缓冲指示 30。
+ * 由此**不再**把面板往前拉去躲幕布（那正是「面板上移、变大」的原因）。
+ *
+ * # 「点一下」与「抓着拖」分家
+ *
+ * 捏合按下不再立即裁决：按下时记下手的位置，**松开**时若时间短、位移小、且不在面板上，
+ * 才算「点一下」= 面板显隐 toggle；捏住移动就是 ISDK 的拖拽 / 缩放，不会误触发。
+ *
+ * # ⛔ 三条铁律
+ *
+ * 1. 控制面板**隐藏 = 真销毁**（0-alpha 照样付钱）；但先隐身、隔两帧再销毁，让 ISDK 清掉悬停态
+ *    （否则光标会被一块不存在的面板挡住 —— 真机反馈）。
+ * 2. 换形状**播放器不死**：能 `reshape()` 的连实体都不重建；过渡逐帧插值。
+ * 3. 清理放 `onSpatialShutdown()`，**永远不 `finish()`** 挂着面板的 Activity。
  *
  * # adb 验证入口
  *
@@ -101,8 +113,7 @@ import kotlin.math.sqrt
  *   --es url "https://..." --es shape 180 --es stereo lr --ei w 4096 --ei h 2048
  * ```
  * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--es scene passthrough|void`
- * `--es curve flat|slight|medium|deep`
- * 不带 url 的任何 intent（含主页点图标）一律回浏览态。
+ * `--es curve flat|slight|medium|deep`。不带 url 的任何 intent（含主页点图标）一律回浏览态。
  */
 class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
@@ -118,6 +129,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var screenPanel: PanelSceneObject? = null
     private var uiPanelEntity: Entity? = null
     private var controlsEntity: Entity? = null
+    private var bufferingEntity: Entity? = null
+
+    /** 已隐身、等着销毁的控制面板实体（见 [hideControls]）。 */
+    private var controlsDoomed: Entity? = null
+    private var controlsDoomedTicks = 0
 
     // ---------------------------------------------------------------- 片源
 
@@ -125,6 +141,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var videoId: String = ""
     private var videoWidth: Int = 1920
     private var videoHeight: Int = 1080
+    private var pendingStartMs = 0L
 
     /** 仅供真机测量用：`--ez mute true` 静音起播（Quest 不接受 adb 改音量）。 */
     private var argMute: Boolean = false
@@ -132,36 +149,50 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** 把 Flutter 的 [MainActivity] 作为一块面板挂进本沉浸空间。默认开；`--ez uiPanel false` 只用于隔离排查。 */
     private var argUiPanel: Boolean = true
 
-    // ---------------------------------------------------------------- 运行态
+    // ---------------------------------------------------------------- 摆位
 
-    private var seeking = false
+    /** 幕布的锚点：一帧去掉 roll 的头部位姿。null = 还没捕获过。 */
+    private var anchor: Pose? = null
 
-    /** 幕布现在实际在哪（用户可能抓着挪过）。换形状重建后原位放回；距离/偏移滑块会清掉它。 */
+    /** 幕布现在实际在哪（用户可能抓着挪过）。重建后原位放回；距离/偏移滑块与重置会清掉它。 */
     private var screenPoseOverride: Pose? = null
 
     /** 控制面板收起前在哪。唤出时优先放回原处。 */
     private var lastControlsPose: Pose? = null
 
+    // ---------------------------------------------------------------- 形状过渡
+
+    /** 当前实际生效的形状参数（过渡中是插值值）。 */
+    private var curArc = 0f
+    private var curWidth = 0f
+    private var curAspect = 16f / 9f
+    private var animFromArc = 0f
+    private var animFromWidth = 0f
+    private var animFromAspect = 0f
+    private var animStartAt = 0L
+    private var animDurationMs = 0L
+    private var animating = false
+
+    // ---------------------------------------------------------------- 交互态
+
+    private var seeking = false
     private var lastInteractionAt = 0L
 
     /** 射线 / 手指此刻是否悬在控制面板上（由面板 SceneObject 的 InputListener 维护）。 */
     @Volatile
     private var controlsHovered = false
 
-    /** 面板上最近一次触碰的时刻（Compose 侧上报）。 */
+    /** 面板上最近一次触碰的时刻（Compose 侧上报 + SceneObject onClickDown）。 */
     @Volatile
     private var lastPanelTouchAt = 0L
 
-    /** 一次「面板外捏合」的裁决时刻：到点时若期间没有面板触碰就收起。0 = 无待办。 */
-    private var pendingToggleAt = 0L
-    private var pendingToggleSelectAt = 0L
-
-    /** 幕宽 / 比例是滑块调的，逐帧 reshape 会疯掉 —— 攒到这个时刻再做（0 = 没有待办）。 */
-    private var geometryReshapeAt = 0L
+    /** 正在进行中的「选择」：按下时刻与那只手的位置，松开时裁决是点还是拖。 */
+    private val tapDownAt = LongArray(2)
+    private val tapDownPos = arrayOfNulls<Vector3>(2)
+    private val tapCandidate = BooleanArray(2)
 
     private var prefsDirty = false
     private var prefsFlushAt = 0L
-
     private var lastVolumeStepAt = 0L
 
     /** 被系统事件（系统菜单 / 摘下头显）暂停的，回来要续播。 */
@@ -174,9 +205,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun registerFeatures(): List<SpatialFeature> = listOf(
         VRFeature(this),
-        // 近场直触与远场捏合射线由 ISDK 按距离自动切换，射线渲染 / 光标 / 命中 / 按下反馈全包。
         IsdkFeature(this, spatial, systemManager),
-        // 用 ComposeViewPanelRegistration 就必须注册它，否则面板一创建整个进程崩掉。
         ComposeFeature(),
     )
 
@@ -206,15 +235,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private fun readIntent(source: Intent?) {
         source ?: return
-        // 从 Quest 主页点应用图标进来（ACTION_MAIN、不带 extra）**必须回到浏览态**：
-        // 本 Activity 是 singleTask，进程活着时再点图标走的是 onNewIntent，
-        // 不这么做上一次看的片子会原样留在场景里（真机反馈）。
-        // ⛔ 片源只来自两处：adb 的 `--es url`（验证用）与 Dart 的 present（正式路径，不走 intent）。
-        // 所以**任何不带 url 的 intent 一律回浏览态** —— 主页点图标、系统拉起、别的 adb 调参都不该
-        // 把上一次的片子留在场景里（2026-09-05 用户：「刚打开应用，为什么后面会有视频在播放？」）。
+        // 片源只来自两处：adb 的 `--es url`（验证用）与 Dart 的 present（正式路径，不走 intent）。
+        // 任何不带 url 的 intent 一律回浏览态 —— 主页点图标、系统拉起都不该把上一次的片子留在场景里。
         val urlExtra = source.getStringExtra("url")
         val nextUrl = urlExtra?.takeIf { it.isNotBlank() }
-        // 片子要换 / 要收：先把旧片的位置交还 Dart，再覆盖。
         if (argUrl != null && nextUrl != argUrl) notifyEnded()
         argUrl = nextUrl
         if (urlExtra != null) {
@@ -234,14 +258,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.scene = if (it == "passthrough") SceneKind.PASSTHROUGH else SceneKind.VOID
             applyScene()
         }
-        argUiPanel = source.getBooleanExtra("uiPanel", argUiPanel)
-        // `--es curve flat|slight|medium|deep`：屏幕类型的 adb 验证入口（正式入口是面板上的「屏幕类型」页）。
         source.getStringExtra("curve")?.let { name ->
             ScreenCurve.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }?.let { controls.curve = it }
         }
+        argUiPanel = source.getBooleanExtra("uiPanel", argUiPanel)
         Log.i(
             TAG,
-            "IMMERSIVE args format=${controls.format} mute=$argMute uiPanel=$argUiPanel " +
+            "IMMERSIVE args format=${controls.format} curve=${controls.curve} mute=$argMute uiPanel=$argUiPanel " +
                 "dims=${videoWidth}x$videoHeight url=${argUrl?.take(120)}",
         )
     }
@@ -249,7 +272,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onSceneReady() {
         super.onSceneReady()
         scene.setReferenceSpace(ReferenceSpace.LOCAL_FLOOR)
-        // 放球面片时不要让场景光照污染画面：环境光拉满、太阳关掉。
         scene.setLightingEnvironment(
             ambientColor = Vector3(1.0f, 1.0f, 1.0f),
             sunColor = Vector3(0f, 0f, 0f),
@@ -259,7 +281,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.i(TAG, "IMMERSIVE onSceneReady")
         logMemory("onSceneReady")
         rebuildScreen()
-        // 场景就绪后才接 Dart 的请求：面板里的 Flutter 可能比场景更早跑起来。
         ImmersiveBridge.attachScene(bridgeListener)
     }
 
@@ -289,13 +310,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         resumeAfterSystem()
     }
 
+    /**
+     * 系统重定向（长按 Meta 键 / 手掌朝向自己捏合）。视图原点变了，所有世界锚定的东西按新视线重摆：
+     * 幕布沿新的视线方向、控制面板到面前。躺着重定向时视线朝上，面板就会出现在脸上方并朝下对着你。
+     */
     override fun onRecenter(isUserInitiated: Boolean) {
         super.onRecenter(isUserInitiated)
         Log.i(TAG, "IMMERSIVE onRecenter user=$isUserInitiated")
-        // 视图原点变了：世界锚定的幕布与面板按新的「正前方」重摆。
-        screenPoseOverride = null
-        applyScreenTransform()
-        controlsEntity?.setComponent(Transform(clampControlsPose(controlsPoseInFront())))
+        recenterEverything()
     }
 
     private fun pauseForSystem() {
@@ -317,10 +339,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    /**
-     * 清理放这里，**不能只放 `onDestroy()`**：官方明写 `onDestroy` 不保证被调，
-     * 只有 `onSpatialShutdown()` 保证。⛔ 永远不要用 `finish()` 结束挂着面板的 Activity。
-     */
     override fun onSpatialShutdown() {
         Log.i(TAG, "IMMERSIVE onSpatialShutdown")
         logMemory("onSpatialShutdown")
@@ -336,6 +354,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         uiPanelEntity = null
         controlsEntity?.destroy()
         controlsEntity = null
+        controlsDoomed?.destroy()
+        controlsDoomed = null
+        bufferingEntity?.destroy()
+        bufferingEntity = null
         playback.release()
         super.onSpatialShutdown()
     }
@@ -355,6 +377,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             runOnUiThread {
                 val switchingVideo = request.url != argUrl
                 if (switchingVideo && argUrl != null) notifyEnded()
+                val before = controls.format
                 argUrl = request.url
                 videoId = request.videoId
                 if (request.width > 0) videoWidth = request.width
@@ -362,20 +385,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 controls.format = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame)
                 controls.formatTab = controls.format.tab
                 controls.title = request.title
-                controls.notice = if (!controls.format.supported || request.unsupportedProjection) {
-                    UNSUPPORTED_NOTICE
-                } else {
-                    null
-                }
+                controls.notice = if (!controls.format.supported || request.unsupportedProjection) UNSUPPORTED_NOTICE else null
                 controls.playlistLoading = false
                 if (switchingVideo) pendingStartMs = request.positionMs
                 nowPlayingId = request.videoId.ifBlank { null }
                 controls.nowPlayingId = nowPlayingId
-                Log.i(
-                    TAG,
-                    "IMMERSIVE present format=${controls.format} dims=${videoWidth}x$videoHeight pos=${request.positionMs}",
-                )
-                rebuildScreen(keepPlayback = !switchingVideo)
+                Log.i(TAG, "IMMERSIVE present format=${controls.format} dims=${videoWidth}x$videoHeight pos=${request.positionMs}")
+                if (!switchingVideo && screenEntity != null && ScreenGeometry.sameFamily(before, controls.format)) {
+                    requestShape(0L)
+                } else {
+                    rebuildScreen(keepPlayback = !switchingVideo)
+                }
             }
         }
 
@@ -396,13 +416,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 controls.playlist.addAll(
                     items.map {
                         PlaylistEntry(
-                            id = it.id,
-                            title = it.title,
-                            author = it.author,
-                            durationText = it.durationText,
-                            progressRatio = it.progress,
-                            watched = it.watched,
-                            playable = it.playable,
+                            id = it.id, title = it.title, author = it.author, durationText = it.durationText,
+                            progressRatio = it.progress, watched = it.watched, playable = it.playable,
                         )
                     },
                 )
@@ -410,14 +425,99 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    private var pendingStartMs = 0L
-
     /** 把最后的播放位置交还 Dart（回写观看历史）。只在真有片子时发一次。 */
     private fun notifyEnded() {
         if (argUrl.isNullOrBlank()) return
         val id = videoId
         if (id.isBlank()) return
         ImmersiveBridge.notifyImmersiveEnded(id, playback.positionMs)
+    }
+
+    // ================================================================ 头部 / 摆位
+
+    private fun headPose(): Pose? = systemManager
+        .findSystem<PlayerBodyAttachmentSystem>()
+        .tryGetLocalPlayerAvatarBody()
+        ?.head
+        ?.tryGetComponent<Transform>()
+        ?.transform
+
+    /** 当下的「视线坐标系」：头部位置 + 去掉 roll 的头部朝向（保留俯仰与偏航）。 */
+    private fun gazeFrame(): Pose? {
+        val head = headPose() ?: return null
+        val e = head.q.toEuler()
+        return Pose(head.t, Quaternion(e.x, e.y, 0f))
+    }
+
+    /** 拿不到头部位姿时的兜底锚点：原点上方站姿眼高、朝 +Z。 */
+    private fun fallbackFrame(): Pose = Pose(Vector3(0f, FALLBACK_EYE_HEIGHT_M, 0f), Quaternion(0f, 0f, 0f))
+
+    private fun currentAnchor(): Pose = anchor ?: (gazeFrame() ?: fallbackFrame()).also { anchor = it }
+
+    /** 平面/弧幕：沿锚点视线摆在「距离」处，按「偏移」沿锚点的上方向挪，弧幕再把轴心退一个半径。 */
+    private fun geometricScreenPose(): Pose {
+        val a = currentAnchor()
+        val f = a.forward()
+        val u = a.up()
+        val radius = ScreenGeometry.radiusFor(curArc, curWidth)
+        val pos = a.t + f * (controls.screenDistance - radius) + u * controls.screenOffset
+        return Pose(pos, a.q)
+    }
+
+    /** 球幕：人在球心，只按锚点的偏航转向。 */
+    private fun spherePose(): Pose {
+        val a = currentAnchor()
+        return Pose(a.t, a.q.removePitchAndRoll())
+    }
+
+    private fun screenPose(): Pose = when {
+        !controls.format.isFlat -> spherePose()
+        else -> screenPoseOverride ?: geometricScreenPose()
+    }
+
+    /** 距离/偏移改了：只挪 Transform，不重建（无接缝）。 */
+    private fun applyScreenTransform() {
+        screenEntity?.setComponent(Transform(screenPose()))
+        syncBufferingPose()
+    }
+
+    /** 缓冲指示放在幕布正中、比幕布近一点点。球幕时放在视线前 2m。 */
+    private fun bufferingPose(): Pose {
+        if (controls.format.isFlat) {
+            val a = currentAnchor()
+            val f = a.forward()
+            val u = a.up()
+            return Pose(a.t + f * (controls.screenDistance - 0.15f) + u * controls.screenOffset, a.q)
+        }
+        val g = gazeFrame() ?: fallbackFrame()
+        return Pose(g.t + g.forward() * 2f, g.q)
+    }
+
+    /** 控制面板「摆到面前」的落点：当下视线方向 1.5m 处、略偏下，面对头部。 */
+    private fun controlsPoseInFront(): Pose {
+        val g = gazeFrame() ?: fallbackFrame()
+        return Pose(g.t + g.forward() * CONTROLS_DISTANCE_M + g.up() * CONTROLS_DROP_M, g.q)
+    }
+
+    /** 这个落点还在视线前方吗（转过身之后要不要重新摆到面前）。 */
+    private fun isRoughlyInFront(pose: Pose): Boolean {
+        val g = gazeFrame() ?: return true
+        val d = pose.t - g.t
+        val len = d.length()
+        if (len < 0.05f) return true
+        return g.forward().dot(d) / len >= SUMMON_FOV_COS
+    }
+
+    /** 重新捕获锚点并把幕布、面板都按新视线重摆。 */
+    private fun recenterEverything() {
+        anchor = gazeFrame() ?: fallbackFrame()
+        screenPoseOverride = null
+        applyScreenTransform()
+        if (controlsEntity != null) {
+            val pose = controlsPoseInFront()
+            controlsEntity?.setComponent(Transform(pose))
+            lastControlsPose = pose
+        }
     }
 
     // ================================================================ 幕布
@@ -428,7 +528,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * @param keepPlayback 片子没变，只是几何变了：播放器留着，只换 Surface。
      */
     private fun rebuildScreen(keepPlayback: Boolean = false) {
-        screenEntity?.tryGetComponent<Transform>()?.transform?.let { screenPoseOverride = it }
+        if (controls.format.isFlat) {
+            screenEntity?.tryGetComponent<Transform>()?.transform?.let { screenPoseOverride = it }
+        }
         // ⛔ 顺序：先摘 Surface 再销毁实体，否则播放器往已释放的缓冲上画。
         if (keepPlayback) playback.detachSurface() else playback.release()
         screenEntity?.destroy()
@@ -441,6 +543,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 看视频时 UI 面板让位：藏起 + 让 Flutter 停止出帧（destroy 会连 Activity 一起杀掉，代价太大）。
         uiPanelEntity?.setComponent(Visible(idle))
         ImmersiveBridge.setPanelRenderingPaused(!idle)
+        if (argUiPanel && uiPanelEntity == null) createUiPanel(visible = idle)
 
         if (idle) {
             hideControls()
@@ -448,33 +551,31 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.notice = null
             controls.buffering = false
             screenPoseOverride = null
-        } else {
-            showControls()
-        }
-
-        // ⛔ 首次进入时 UI 面板还没建，上面那句 Visible(idle) 落空 —— 建的时候就要按当前态给可见性，
-        // 否则「主页直接点视频进来」会看到 Flutter 面板和幕布叠在一起（2026-09-05 真机截图）。
-        if (argUiPanel && uiPanelEntity == null) createUiPanel(visible = idle)
-
-        if (idle) {
+            anchor = null
+            syncBufferingIndicator()
             Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
             return
         }
 
-        // 平面/弧幕摆到人前方（**「前方」是 +Z**，真机实测）；球幕以观看者为中心放原点。
-        // 官方已知限制：曲面面板不能被抓取变换 —— 只有平幕才让 Grabbable 生效。
+        if (anchor == null) anchor = gazeFrame() ?: fallbackFrame()
+        // 形状参数直接落到目标值（首次进入没有过渡可言）。
+        curArc = controls.curve.arcDegrees
+        curWidth = controls.screenWidth
+        curAspect = ScreenGeometry.screenAspect(controls, videoWidth, videoHeight)
+        animating = false
+
         val flat = controls.format.isFlat
         val entity = if (flat) {
             Entity.create(
                 Panel(R.id.vr_video_panel),
                 Transform(screenPose()),
                 Visible(true),
-                Grabbable(enabled = controls.curve == ScreenCurve.FLAT),
-                // 幕布必须保持宽高比；Simple 就够 —— 视频是一张纹理，缩放不需要重新排版。
+                // 官方说曲面面板不能被抓取；用户要求平幕/弧幕都能拖，这里一律开着让真机说话。
+                Grabbable(),
                 IsdkPanelResize(
                     resizeMode = ResizeMode.Simple,
                     minDimensions = Vector2(0.6f, 0.34f),
-                    maxDimensions = Vector2(9.0f, 5.0f),
+                    maxDimensions = Vector2(10.0f, 6.0f),
                     preserveAspectRatio = true,
                 ),
             )
@@ -483,80 +584,90 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         screenEntity = entity
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
-            screenPanel = so as? PanelSceneObject
+            val panel = so as? PanelSceneObject
+            screenPanel = panel
+            runCatching { panel?.layer?.setZIndex(if (flat) Z_SCREEN else Z_SPHERE) }
         }
-    }
-
-    /**
-     * 几何变了但投影家族没变：原地 `reshape()`，实体、Surface、播放器全都不动。
-     * reshape 失败（SDK 版本差异）就退回重建。
-     */
-    private fun applyScreenShape() {
-        if (argUrl.isNullOrBlank()) return
-        val panel = screenPanel
-        if (panel == null || screenEntity == null) {
-            rebuildScreen(keepPlayback = true)
-            return
-        }
-        val result = runCatching {
-            panel.reshape(mediaSettings().toPanelConfigOptions())
-            // reshape 可能换了 Surface：重新指一次是幂等的。
-            playback.attachSurface(panel.surface)
-        }
-        result.onFailure {
-            Log.w(TAG, "IMMERSIVE reshape 失败，退回重建", it)
-            rebuildScreen(keepPlayback = true)
-        }
-        screenEntity?.setComponent(Grabbable(enabled = controls.curve == ScreenCurve.FLAT))
-        // 半径变了轴心就得跟着挪；平幕才有「抓着挪过」的记忆可保。
-        if (controls.curve != ScreenCurve.FLAT || screenPoseOverride == null) {
-            screenPoseOverride = null
-            applyScreenTransform()
-        }
-        Log.i(TAG, "IMMERSIVE reshape curve=${controls.curve} width=${controls.screenWidth} aspect=${controls.aspectPreset}")
+        showControls()
+        syncBufferingIndicator()
     }
 
     private fun mediaSettings(): MediaPanelSettings = MediaPanelSettings(
-        shape = ScreenGeometry.shape(controls, videoWidth, videoHeight),
+        shape = ScreenGeometry.shapeFor(controls.format, curArc, curWidth, curAspect),
         display = PixelDisplayOptions(width = videoWidth, height = videoHeight),
         rendering = MediaPanelRenderOptions(
             stereoMode = ScreenGeometry.stereoMode(controls.format, controls.forceMono),
-            // 球幕永远画在最里层，否则会挡住控件。
-            zIndex = if (controls.format.isFlat) 0 else -1,
+            zIndex = if (controls.format.isFlat) Z_SCREEN else Z_SPHERE,
         ),
     )
-
-    private fun screenPose(): Pose = when {
-        !controls.format.isFlat -> Pose(Vector3(0f, 0f, 0f))
-        else -> screenPoseOverride ?: geometricScreenPose()
-    }
 
     /**
-     * 按「距离 + 偏移」两条滑块算出来的标准落点。
+     * 发起一次形状过渡：从当前实际值插值到 state 里的目标值。
      *
-     * ⛔ 弧幕实体锚点在圆柱轴心（真机实锤），曲面要落在目标距离上，轴心就得往回退一个半径。
+     * @param durationMs 0 = 立刻到位（换立体模式这类没有中间态的）。滑块连续拖动给个很短的时长，
+     *   逐帧跟手；换屏幕类型给 [CURVE_ANIM_MS]，有动画。
      */
-    private fun geometricScreenPose(): Pose = Pose(
-        Vector3(
-            0f,
-            ScreenGeometry.EYE_HEIGHT_M + controls.screenOffset,
-            controls.screenDistance - ScreenGeometry.cylinderRadius(controls),
-        ),
-    )
+    private fun requestShape(durationMs: Long) {
+        if (argUrl.isNullOrBlank()) return
+        if (!controls.format.isFlat) {
+            reshapeNow()
+            return
+        }
+        animFromArc = curArc
+        animFromWidth = curWidth
+        animFromAspect = curAspect
+        animStartAt = SystemClock.uptimeMillis()
+        animDurationMs = durationMs
+        animating = true
+        stepShapeAnimation(animStartAt)
+    }
 
-    /** 距离/偏移改了：只挪 Transform，不重建（无接缝）。 */
-    private fun applyScreenTransform() {
-        if (!controls.format.isFlat) return
-        screenEntity?.setComponent(Transform(geometricScreenPose()))
+    private fun stepShapeAnimation(now: Long) {
+        if (!animating) return
+        val targetArc = controls.curve.arcDegrees
+        val targetWidth = controls.screenWidth
+        val targetAspect = ScreenGeometry.screenAspect(controls, videoWidth, videoHeight)
+        val t = if (animDurationMs <= 0L) 1f else ((now - animStartAt).toFloat() / animDurationMs).coerceIn(0f, 1f)
+        val k = t * t * (3f - 2f * t) // smoothstep
+        curArc = animFromArc + (targetArc - animFromArc) * k
+        curWidth = animFromWidth + (targetWidth - animFromWidth) * k
+        curAspect = animFromAspect + (targetAspect - animFromAspect) * k
+        if (t >= 1f) animating = false
+        reshapeNow()
+    }
+
+    /** 用当前 cur* 参数原地重塑幕布；reshape 失败退回重建。 */
+    private fun reshapeNow() {
+        val panel = screenPanel
+        if (panel == null || screenEntity == null) {
+            animating = false
+            rebuildScreen(keepPlayback = true)
+            return
+        }
+        val ok = runCatching {
+            panel.reshape(mediaSettings().toPanelConfigOptions())
+            playback.attachSurface(panel.surface)
+        }.isSuccess
+        if (!ok) {
+            Log.w(TAG, "IMMERSIVE reshape 失败，退回重建")
+            animating = false
+            rebuildScreen(keepPlayback = true)
+            return
+        }
+        // 半径变了轴心就得跟着挪。平幕上用户抓着挪过的位置照旧保留。
+        if (curArc >= ScreenGeometry.MIN_ARC_DEGREES || screenPoseOverride == null) {
+            screenPoseOverride = null
+            applyScreenTransform()
+        }
     }
 
     private fun createUiPanel(visible: Boolean) {
+        val g = gazeFrame() ?: fallbackFrame()
         uiPanelEntity = Entity.create(
             Panel(R.id.vr_ui_panel),
-            Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, UI_PANEL_DISTANCE_M))),
+            Transform(Pose(g.t + g.forward() * UI_PANEL_DISTANCE_M, g.q)),
             Visible(visible),
             Grabbable(),
-            // Relayout：按新尺寸重新排版（字不糊）；上限要放开（默认 1.5m，本面板出生就 1.6m）。
             IsdkPanelResize(
                 resizeMode = ResizeMode.Relayout,
                 minDimensions = Vector2(0.8f, 0.5f),
@@ -564,51 +675,84 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 preserveAspectRatio = false,
             ),
         )
-        Log.i(TAG, "IMMERSIVE ui panel created at +Z $UI_PANEL_DISTANCE_M")
+        Log.i(TAG, "IMMERSIVE ui panel created")
+    }
+
+    // ================================================================ 缓冲指示
+
+    private fun syncBufferingIndicator() {
+        val want = controls.buffering && !argUrl.isNullOrBlank() && screenEntity != null
+        val existing = bufferingEntity
+        if (want && existing == null) {
+            val e = Entity.create(Panel(R.id.vr_buffering_panel), Transform(bufferingPose()), Visible(true))
+            bufferingEntity = e
+            systemManager.findSystem<SceneObjectSystem>().getSceneObject(e)?.thenAccept { so ->
+                runCatching { (so as? PanelSceneObject)?.layer?.setZIndex(Z_BUFFERING) }
+            }
+        } else if (!want && existing != null) {
+            existing.destroy()
+            bufferingEntity = null
+        }
+    }
+
+    private fun syncBufferingPose() {
+        bufferingEntity?.setComponent(Transform(bufferingPose()))
     }
 
     // ================================================================ 控制面板
 
-    /**
-     * 让控制面板出现。收起再唤出要回到**原来那个地方**（真机反馈）；只有当它转到身后
-     * （偏离视线 >60°）才重新摆到面前；最后一律过 [clampControlsPose] 保证不被幕布挡住。
-     */
     private fun showControls(summoned: Boolean = false) {
         lastInteractionAt = SystemClock.uptimeMillis()
-        val existing = controlsEntity
-        if (existing != null) {
-            existing.tryGetComponent<Transform>()?.transform?.let {
-                existing.setComponent(Transform(clampControlsPose(it)))
-            }
-            return
-        }
+        if (controlsEntity != null) return
         val saved = lastControlsPose
         val restore = saved != null && (!summoned || !controls.summonInFront || isRoughlyInFront(saved))
-        val pose = clampControlsPose(if (restore) saved!! else controlsPoseInFront())
+        val pose = if (restore) saved!! else controlsPoseInFront()
         val entity = Entity.create(
             Panel(R.id.vr_controls_panel),
             Transform(pose),
             Visible(true),
             Grabbable(),
+            // 四角缩放：整块等比缩放（Simple），用户按自己的距离把面板调到顺眼的大小。
+            IsdkPanelResize(
+                resizeMode = ResizeMode.Simple,
+                minDimensions = Vector2(CONTROLS_WIDTH_M * 0.6f, CONTROLS_HEIGHT_M * 0.6f),
+                maxDimensions = Vector2(CONTROLS_WIDTH_M * 2.0f, CONTROLS_HEIGHT_M * 2.0f),
+                preserveAspectRatio = true,
+            ),
         )
         controlsEntity = entity
         controlsHovered = false
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             so.addInputListener(hoverListener)
+            runCatching { (so as? PanelSceneObject)?.layer?.setZIndex(Z_CONTROLS) }
         }
         Log.i(TAG, "IMMERSIVE controls panel created summoned=$summoned restored=$restore")
     }
 
-    /** 收起控制面板。**真销毁**，不是 `Visible(false)`。 */
+    /**
+     * 收起控制面板：先隐身、隔 [DOOMED_TICKS] 帧再真销毁。
+     *
+     * 直接销毁时 ISDK 来不及清掉这块面板的悬停/命中态，光标会继续被一块已不存在的面板挡住
+     * （真机反馈：自动收起后光标仍被面板遮挡）。隐身一两帧让它先从命中里退出。
+     */
     private fun hideControls() {
-        controlsEntity?.tryGetComponent<Transform>()?.transform?.let { lastControlsPose = it }
-        controlsEntity?.destroy()
+        val entity = controlsEntity ?: return
+        entity.tryGetComponent<Transform>()?.transform?.let { lastControlsPose = it }
+        entity.setComponent(Visible(false))
+        controlsDoomed?.destroy()
+        controlsDoomed = entity
+        controlsDoomedTicks = DOOMED_TICKS
         controlsEntity = null
         controlsHovered = false
-        pendingToggleAt = 0L
         controls.volumePopupOpen = false
-        // 回到播放页：下次唤出时不该停在「设置」这种深处。
         controls.route = ControlsRoute.PLAYER
+    }
+
+    private fun reapDoomedControls() {
+        val doomed = controlsDoomed ?: return
+        if (--controlsDoomedTicks > 0) return
+        doomed.destroy()
+        controlsDoomed = null
     }
 
     private val hoverListener = object : InputListener {
@@ -625,66 +769,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    /**
-     * 「摆到当前头部朝向正前方」的落点。面板中心离地 1.55m、自身高 1.0m、距离 2.2m ⇒
-     * 下缘下压 ≈14°，在官方 ±15° 内。`removePitchAndRoll()` 只留 yaw，面板永远竖直。
-     */
-    private fun controlsPoseInFront(): Pose {
-        val head = headPose()
-            ?: return Pose(Vector3(0f, CONTROLS_CENTER_HEIGHT_M, CONTROLS_DISTANCE_M), Quaternion(0f, 0f, 0f))
-        val yaw = head.q.removePitchAndRoll()
-        val forward = yaw * Vector3(0f, 0f, 1f)
-        return Pose(
-            Vector3(
-                head.t.x + forward.x * CONTROLS_DISTANCE_M,
-                CONTROLS_CENTER_HEIGHT_M,
-                head.t.z + forward.z * CONTROLS_DISTANCE_M,
-            ),
-            yaw,
-        )
-    }
-
-    private fun isRoughlyInFront(pose: Pose): Boolean {
-        val head = headPose() ?: return true
-        val forward = head.q.removePitchAndRoll() * Vector3(0f, 0f, 1f)
-        val dx = pose.t.x - head.t.x
-        val dz = pose.t.z - head.t.z
-        val len = sqrt(dx * dx + dz * dz)
-        if (len < 0.05f) return true
-        return (forward.x * dx + forward.z * dz) / len >= SUMMON_FOV_COS
-    }
-
-    /**
-     * 合成层完全按深度排前后，幕布拉近就会盖住面板 —— 只能从几何上保证面板更近：
-     * 保留方向、把距离压到 `幕布距离 − 余量`，且不低于官方 1m 舒适下限。
-     */
-    private fun clampControlsPose(pose: Pose): Pose {
-        val head = headPose() ?: return pose
-        val dx = pose.t.x - head.t.x
-        val dz = pose.t.z - head.t.z
-        val distance = sqrt(dx * dx + dz * dz)
-        val want = controlsDistance()
-        if (distance <= want + 0.02f || distance < 0.05f) return pose
-        val k = want / distance
-        return Pose(Vector3(head.t.x + dx * k, pose.t.y, head.t.z + dz * k), pose.q)
-    }
-
-    private fun controlsDistance(): Float {
-        if (!controls.format.isFlat) return CONTROLS_DISTANCE_M
-        return min(CONTROLS_DISTANCE_M, controls.screenDistance - CONTROLS_SCREEN_CLEARANCE_M)
-            .coerceAtLeast(CONTROLS_MIN_DISTANCE_M)
-    }
-
-    private fun headPose(): Pose? = systemManager
-        .findSystem<PlayerBodyAttachmentSystem>()
-        .tryGetLocalPlayerAvatarBody()
-        ?.head
-        ?.tryGetComponent<Transform>()
-        ?.transform
-
     // ================================================================ 每帧
 
-    /** ⚠️ 与面板里 Flutter 的 platform thread 是同一条主线程，必须保持廉价。 */
     override fun onSceneTick() {
         super.onSceneTick()
         val now = SystemClock.uptimeMillis()
@@ -692,12 +778,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         status.clockTextIfChanged(System.currentTimeMillis())?.let { controls.clockText = it }
         input.poll()
         if (!argUrl.isNullOrBlank()) handleInput(now)
-        resolvePendingToggle(now)
+        reapDoomedControls()
         updateAutoHide(now)
-        if (geometryReshapeAt != 0L && now >= geometryReshapeAt) {
-            geometryReshapeAt = 0L
-            applyScreenShape()
-        }
+        if (animating) stepShapeAnimation(now)
         if (prefsDirty && now >= prefsFlushAt) {
             prefsDirty = false
             prefs.save(controls)
@@ -716,14 +799,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    /**
-     * 把手/手柄事件映射到播放器动作。
-     *
-     * ⛔ 只在影院态（有片源）：浏览态里捏合是操作 Flutter 面板用的，抢不得。
-     */
+    /** ⛔ 只在影院态（有片源）：浏览态里捏合是操作 Flutter 面板的，抢不得。 */
     private fun handleInput(now: Long) {
         val e = input.events
-        if (e.select) onSelectGesture(now)
+        for (i in 0..1) {
+            val bit = 1 shl i
+            if ((e.selectDown and bit) != 0) onSelectDown(i, now)
+            if ((e.selectUp and bit) != 0) onSelectUp(i, now)
+        }
         if (e.primaryTap && controls.controllerTapPlayPause) controlsCallbacks.onPlayPause()
         if (e.back && controlsEntity != null) hideControls()
         if (e.seekBack) controlsCallbacks.onSeekBy(-SEEK_STEP_S)
@@ -740,40 +823,43 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     /**
-     * 面板外捏合 / 扳机 = 显隐 toggle（4XVR 实机行为）。
-     *
-     * 「在面板外」的判定分两层：射线此刻悬在面板上（ISDK hover）立刻算面板内；
-     * 否则等 [TOGGLE_GRACE_MS] 看面板有没有报触碰 —— 直触 / 点击的事件走 Android
-     * 视图那条路，比这里晚到一两帧。
+     * 「选择」按下：在面板上就是操作面板，否则记为「点一下」候选，等松开裁决。
+     * 捏住移动（拖面板 / 拖幕布 / 拉角缩放）走 ISDK，不会到达 toggle。
      */
-    private fun onSelectGesture(now: Long) {
-        if (controlsEntity == null) {
-            showControls(summoned = true)
-            return
-        }
-        if (controlsHovered || now - lastPanelTouchAt < TOGGLE_GRACE_MS) {
+    private fun onSelectDown(hand: Int, now: Long) {
+        if (controlsHovered) {
             lastInteractionAt = now
+            tapCandidate[hand] = false
             return
         }
-        pendingToggleAt = now + TOGGLE_GRACE_MS
-        pendingToggleSelectAt = now
+        tapCandidate[hand] = true
+        tapDownAt[hand] = now
+        tapDownPos[hand] = input.handPositions[hand]
     }
 
-    private fun resolvePendingToggle(now: Long) {
-        if (pendingToggleAt == 0L || now < pendingToggleAt) return
-        pendingToggleAt = 0L
-        if (controlsEntity == null) return
-        if (controlsHovered || lastPanelTouchAt >= pendingToggleSelectAt - 60L) {
+    private fun onSelectUp(hand: Int, now: Long) {
+        if (!tapCandidate[hand]) return
+        tapCandidate[hand] = false
+        val held = now - tapDownAt[hand]
+        val from = tapDownPos[hand]
+        val to = input.handPositions[hand]
+        val moved = if (from != null && to != null) from.distanceTo(to) else 0f
+        if (held > TAP_MAX_MS || moved > TAP_MAX_MOVE_M) return
+        // 松开时面板那条路的触碰事件早就到了：期间碰过面板就不是「面板外」。
+        if (controlsHovered || lastPanelTouchAt >= tapDownAt[hand] - 60L) {
             lastInteractionAt = now
             return
         }
-        Log.i(TAG, "IMMERSIVE controls hidden by outside select")
-        hideControls()
+        if (controlsEntity == null) {
+            showControls(summoned = true)
+        } else {
+            Log.i(TAG, "IMMERSIVE controls hidden by outside tap")
+            hideControls()
+        }
     }
 
     private fun updateAutoHide(now: Long) {
         if (!controls.autoHide || controlsEntity == null) return
-        // 暂停 / 缓冲 / 停在子页 / 音量弹层开着：都是正在用面板，不收。
         if (!controls.isPlaying || controls.buffering ||
             controls.route != ControlsRoute.PLAYER || controls.volumePopupOpen || controlsHovered
         ) {
@@ -788,7 +874,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     // ================================================================ 播放回调（PlaybackEngine.Listener）
 
     override fun onBuffering(buffering: Boolean) {
-        runOnUiThread { controls.buffering = buffering }
+        runOnUiThread {
+            controls.buffering = buffering
+            syncBufferingIndicator()
+        }
     }
 
     override fun onReady() {
@@ -809,7 +898,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onError(message: String) {
         runOnUiThread {
             controls.notice = "这个片源放不出来（$message），可以换外部播放器试试"
-            // 出错时必须把面板召回来，否则用户对着黑屏没有任何可操作的东西。
             showControls(summoned = true)
         }
     }
@@ -820,7 +908,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             videoWidth = width
             videoHeight = height
             // 真实尺寸到了才知道单眼比例，幕布按它重塑。
-            scheduleReshape()
+            requestShape(0L)
         }
     }
 
@@ -832,17 +920,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         if (argMute) controls.muted = true
         val started = playback.play(
-            url = url,
-            surface = surface,
-            startPositionMs = pendingStartMs,
-            muted = controls.muted,
-            volume = controls.volume,
+            url = url, surface = surface, startPositionMs = pendingStartMs,
+            muted = controls.muted, volume = controls.volume,
         )
         if (started) {
             pendingStartMs = 0L
             controls.isPlaying = true
             controls.progress = 0f
             controls.buffering = true
+            syncBufferingIndicator()
             playback.setSpeed(controls.speed)
             applyRepeatMode()
         }
@@ -857,30 +943,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun applyScene() {
-        // 官方要求 passthrough 切换 smooth blending，但 SDK 只有布尔开关，平滑与否由运行时决定。
         val passthrough = controls.scene == SceneKind.PASSTHROUGH
         runCatching { scene.enablePassthrough(passthrough) }
             .onFailure { Log.w(TAG, "IMMERSIVE enablePassthrough 失败", it) }
     }
 
-    private fun scheduleReshape() {
-        geometryReshapeAt = SystemClock.uptimeMillis() + GEOMETRY_DEBOUNCE_MS
-    }
-
     private fun markPrefsDirty() {
         prefsDirty = true
         prefsFlushAt = SystemClock.uptimeMillis() + PREFS_FLUSH_MS
-    }
-
-    /** 重新居中：把视图原点挪到当前头部位置与朝向，所有世界锁定的面板回到面前。 */
-    private fun recenter() {
-        val head = headPose()
-        if (head == null) {
-            Log.w(TAG, "IMMERSIVE recenter：拿不到头部位姿，跳过")
-            return
-        }
-        scene.setViewOrigin(head.t.x, 0f, head.t.z, head.q.toEuler().y)
-        Log.i(TAG, "IMMERSIVE recenter 到 (${head.t.x}, ${head.t.z})")
     }
 
     /** 收起幕布与控制面板，把 UI 面板还回来。 */
@@ -892,7 +962,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         rebuildScreen()
     }
 
-    /** 把当前片源交给本机其它播放器（EAC / 鱼眼这类本机渲染不了的投影的出路）。 */
     private fun handOffToExternalPlayer() {
         val url = argUrl
         if (url.isNullOrBlank()) return
@@ -934,8 +1003,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private val controlsCallbacks = object : VideoControlsCallbacks {
 
-        // ---- 播放 ----
-
         override fun onPlayPause() {
             touched()
             if (!playback.isAlive) return
@@ -944,7 +1011,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
 
         override fun onSeek(value: Float) {
-            // 拖动中每帧都来：不出声，但续空闲计时。
             lastInteractionAt = SystemClock.uptimeMillis()
             seeking = true
             controls.progress = value
@@ -967,13 +1033,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPickSpeed(speed: Float) {
             touched()
-            val s = PLAYBACK_SPEEDS.minByOrNull { kotlin.math.abs(it - speed) } ?: 1f
+            val s = PLAYBACK_SPEEDS.minByOrNull { abs(it - speed) } ?: 1f
             controls.speed = s
             playback.setSpeed(s)
             markPrefsDirty()
         }
-
-        // ---- 音量（⛔ 只影响本应用） ----
 
         override fun onVolume(value: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
@@ -994,8 +1058,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.volumePopupOpen = open
         }
 
-        // ---- 视频类型 ----
-
         override fun onPickFormat(format: VideoFormat) {
             touched()
             val before = controls.format
@@ -1003,7 +1065,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.formatTab = format.tab
             controls.notice = if (format.supported) null else UNSUPPORTED_NOTICE
             if (before == format) return
-            if (ScreenGeometry.sameFamily(before, format)) applyScreenShape() else rebuildScreen(keepPlayback = true)
+            if (ScreenGeometry.sameFamily(before, format)) requestShape(0L) else rebuildScreen(keepPlayback = true)
         }
 
         override fun onPickFormatTab(tab: FormatTab) {
@@ -1027,24 +1089,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             handOffToExternalPlayer()
         }
 
-        // ---- 屏幕类型 ----
-
         override fun onPickCurve(curve: ScreenCurve) {
             touched()
             if (curve == controls.curve) return
             controls.curve = curve
             markPrefsDirty()
-            applyScreenShape()
+            requestShape(CURVE_ANIM_MS)
         }
 
         override fun onToggleForceMono() {
             touched()
             controls.forceMono = !controls.forceMono
             markPrefsDirty()
-            if (controls.format.isStereo) applyScreenShape()
+            if (controls.format.isStereo) requestShape(0L)
         }
-
-        // ---- 场景 ----
 
         override fun onPickScene(scene: SceneKind) {
             touched()
@@ -1056,19 +1114,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override fun onScreenDistance(meters: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
             controls.screenDistance = meters.coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
-            // 距离/偏移滑块的语义是「按几何重新摆」，要清掉抓取记忆。
             screenPoseOverride = null
             applyScreenTransform()
-            // 幕布可能已经压到面板前面去了，把面板拉回来。
-            controlsEntity?.tryGetComponent<Transform>()?.transform?.let {
-                controlsEntity?.setComponent(Transform(clampControlsPose(it)))
-            }
             markPrefsDirty()
         }
 
         override fun onScreenOffset(meters: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
-            controls.screenOffset = meters.coerceIn(-1f, 1f)
+            controls.screenOffset = meters.coerceIn(-1.5f, 1.5f)
             screenPoseOverride = null
             applyScreenTransform()
             markPrefsDirty()
@@ -1076,9 +1129,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onScreenWidth(meters: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
-            controls.screenWidth = meters.coerceIn(1f, 8f)
+            controls.screenWidth = meters.coerceIn(1f, 10f)
             markPrefsDirty()
-            scheduleReshape()
+            // 滑块连续来：给个很短的过渡，逐帧跟手而不是松手才变。
+            requestShape(SLIDER_ANIM_MS)
         }
 
         override fun onResetScreenGeometry() {
@@ -1086,39 +1140,36 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.screenDistance = DEFAULT_VIEW_DISTANCE_M
             controls.screenOffset = 0f
             controls.screenWidth = DEFAULT_SCREEN_WIDTH_M
-            screenPoseOverride = null
-            applyScreenTransform()
-            applyScreenShape()
             markPrefsDirty()
+            recenterEverything()
+            requestShape(CURVE_ANIM_MS)
         }
 
         override fun onRecenter() {
             touched()
-            recenter()
+            recenterEverything()
         }
-
-        // ---- 屏幕尺寸 ----
 
         override fun onPickAspect(preset: AspectPreset) {
             touched()
             if (preset == controls.aspectPreset) return
             controls.aspectPreset = preset
             markPrefsDirty()
-            applyScreenShape()
+            requestShape(CURVE_ANIM_MS)
         }
 
         override fun onWidthRatio(ratio: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
             controls.widthRatio = ratio.coerceIn(0.5f, 2f)
             markPrefsDirty()
-            scheduleReshape()
+            requestShape(SLIDER_ANIM_MS)
         }
 
         override fun onHeightRatio(ratio: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
             controls.heightRatio = ratio.coerceIn(0.5f, 2f)
             markPrefsDirty()
-            scheduleReshape()
+            requestShape(SLIDER_ANIM_MS)
         }
 
         override fun onResetAspect() {
@@ -1127,10 +1178,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.widthRatio = 1f
             controls.heightRatio = 1f
             markPrefsDirty()
-            applyScreenShape()
+            requestShape(CURVE_ANIM_MS)
         }
-
-        // ---- 播放列表 ----
 
         override fun onPlayEntry(id: String) {
             touched()
@@ -1151,8 +1200,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.playlistLoading = true
             ImmersiveBridge.requestPlaylist()
         }
-
-        // ---- 设置 ----
 
         override fun onPickRepeatMode(mode: RepeatMode) {
             touched()
@@ -1197,8 +1244,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             markPrefsDirty()
         }
 
-        // ---- 面板自身 ----
-
         override fun onRoute(route: ControlsRoute) {
             touched()
             controls.route = route
@@ -1228,24 +1273,18 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     // ================================================================ 面板注册
 
-    // 这个方法在 `super.onCreate()` **内部**被调用，读不到 intent —— 所以**无条件注册**，
-    // 是否出现在场景里由 Entity 决定（官方：「A registered panel does not appear in the scene」）。
+    // 这个方法在 `super.onCreate()` 内部被调用，读不到 intent —— 无条件注册，是否出现在场景里由 Entity 决定。
     override fun registerPanels(): List<PanelRegistration> = listOf(
-        // Flutter 的 MainActivity 作为空间面板（Activity-based，官方预算 2/2；迁到 ViewPanel 要先 FlutterEngineCache 化）。
         ActivityPanelRegistration(
             R.id.vr_ui_panel,
             { MainActivity::class.java },
             {
                 UIPanelSettings(
-                    shape = QuadShapeOptions(
-                        width = UI_PANEL_WIDTH_M,
-                        height = UI_PANEL_WIDTH_M * 640f / 1024f,
-                    ),
+                    shape = QuadShapeOptions(width = UI_PANEL_WIDTH_M, height = UI_PANEL_WIDTH_M * 640f / 1024f),
                     display = DpDisplayOptions(1024f, 640f, 288),
                 )
             },
         ),
-        // 空间化的控制面板：view-based Compose 面板（预算 15/40）。
         ComposeViewPanelRegistration(
             R.id.vr_controls_panel,
             { _, ctx -> createVideoControlsView(ctx, controls, controlsCallbacks) },
@@ -1254,7 +1293,19 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                     shape = QuadShapeOptions(width = CONTROLS_WIDTH_M, height = CONTROLS_HEIGHT_M),
                     // 面板逻辑尺寸固定 1100×500dp（与 `:questui` 的 PanelTokens 成对），密度由物理宽度反推。
                     display = DpPerMeterDisplayOptions(dpPerMeter = 1100f / CONTROLS_WIDTH_M),
-                    // 透明底：顶栏那排圆钮悬浮在窗外，钮与钮之间透出后面的画面。
+                    rendering = UIPanelRenderOptions(
+                        renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
+                    ),
+                )
+            },
+        ),
+        ComposeViewPanelRegistration(
+            R.id.vr_buffering_panel,
+            { _, ctx -> createBufferingView(ctx) },
+            {
+                UIPanelSettings(
+                    shape = QuadShapeOptions(width = BUFFERING_SIZE_M, height = BUFFERING_SIZE_M),
+                    display = DpPerMeterDisplayOptions(dpPerMeter = 500f),
                     rendering = UIPanelRenderOptions(
                         renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
                     ),
@@ -1277,7 +1328,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         return if (h > 0) String.format("%d:%02d:%02d", h, m, s) else String.format("%02d:%02d", m, s)
     }
 
-    /** 一行内存采样。⛔ 已知欠账：显存目前并不随实体销毁归还（见 docs/xr-app-layout.md §14）。 */
     private fun logMemory(stage: String) {
         val mi = Debug.MemoryInfo()
         Debug.getMemoryInfo(mi)
@@ -1296,40 +1346,49 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         private const val UNSUPPORTED_NOTICE = "这种投影本机渲染不了，已按平面显示；可用「用其他应用打开」"
 
-        /** 默认观看距离 / 幕宽（米）：2.4m 处约 67° 水平弧。用户 2026-09-05 反馈 2.5m/2.4m 「特别远」。 */
+        /** 拿不到头部位姿时的兜底眼高（LOCAL_FLOOR）。 */
+        private const val FALLBACK_EYE_HEIGHT_M = 1.6f
+
+        /** 默认观看距离 / 幕宽（米）。 */
         private const val DEFAULT_VIEW_DISTANCE_M = 2.4f
         private const val DEFAULT_SCREEN_WIDTH_M = 3.2f
-
-        /** 幕布距离范围。下限 1.5m：面板要比它近 0.45m 且不低于官方 1m 舒适下限。 */
-        private const val SCREEN_MIN_DISTANCE_M = 1.4f
+        private const val SCREEN_MIN_DISTANCE_M = 1.2f
         private const val SCREEN_MAX_DISTANCE_M = 8.0f
 
-        /** UI 面板的几何：1.8m 处 1.6m 宽 ≈ 47° 水平张角，与静息眼高齐平。 */
+        /** UI 面板的几何：1.8m 处 1.6m 宽 ≈ 47° 水平张角，沿视线摆。 */
         private const val UI_PANEL_DISTANCE_M = 1.8f
         private const val UI_PANEL_WIDTH_M = 1.6f
-        private const val UI_PANEL_HEIGHT_M = 1.60f
 
         /**
-         * 控制面板几何：逻辑尺寸固定 1100 × 500dp（与 `:questui` 的 PanelTokens 成对），物理尺寸 1.5m 宽，
-         * 摆在 1.6m 处、中心离地 1.3m（胸口高度，4XVR 的「约桌面高度」）。
-         * 72dp 圆钮 = 0.098m @1.6m ≈ 3.5°，仍高于官方 2.5–3° 下限。
-         * ⚠️ 用户 2026-09-05 反馈原先 2.2m 宽 @2.2m 「非常大」且几乎盖住整块幕布。
+         * 控制面板几何：逻辑尺寸固定 1100 × 500dp，物理 1.5m 宽，沿视线 1.5m 处、比视线中心低 0.25m。
+         * 72dp 圆钮 = 0.098m @1.5m ≈ 3.7°，高于官方 2.5–3° 下限。
          */
-        private const val CONTROLS_DISTANCE_M = 1.6f
+        private const val CONTROLS_DISTANCE_M = 1.5f
+        private const val CONTROLS_DROP_M = -0.25f
         private const val CONTROLS_WIDTH_M = 1.5f
         private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 500f / 1100f
-        private const val CONTROLS_CENTER_HEIGHT_M = 1.30f
-        private const val CONTROLS_SCREEN_CLEARANCE_M = 0.40f
-        private const val CONTROLS_MIN_DISTANCE_M = 1.0f
+
+        private const val BUFFERING_SIZE_M = 0.6f
+
+        /** 合成层次序：不靠深度排。 */
+        private const val Z_SPHERE = -1
+        private const val Z_SCREEN = 0
+        private const val Z_CONTROLS = 20
+        private const val Z_BUFFERING = 30
 
         /** 「还算在视线前方」的判据：cos 60°。 */
         private const val SUMMON_FOV_COS = 0.5f
 
-        private const val GEOMETRY_DEBOUNCE_MS = 350L
-        private const val PREFS_FLUSH_MS = 1000L
+        /** 面板隐身后再等这么多帧才销毁。 */
+        private const val DOOMED_TICKS = 3
 
-        /** 面板外捏合的裁决宽限：等面板那条路的触碰事件到齐。 */
-        private const val TOGGLE_GRACE_MS = 150L
+        /** 「点一下」的判据：捏合不超过这么久、手不超过这么远。 */
+        private const val TAP_MAX_MS = 400L
+        private const val TAP_MAX_MOVE_M = 0.04f
+
+        private const val CURVE_ANIM_MS = 320L
+        private const val SLIDER_ANIM_MS = 60L
+        private const val PREFS_FLUSH_MS = 1000L
 
         private const val SEEK_STEP_S = 10
         private const val VOLUME_STEP = 0.04f

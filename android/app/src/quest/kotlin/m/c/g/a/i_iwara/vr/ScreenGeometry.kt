@@ -74,22 +74,41 @@ object ScreenGeometry {
      *
      * 鱼眼 / EAC 本机渲染不了，按平面放（至少能看），面板上另有提示。
      */
-    fun shape(state: VideoControlsState, width: Int, height: Int): MediaPanelShapeOptions {
-        val format = state.format
-        return when (format.projection) {
+    fun shape(state: VideoControlsState, width: Int, height: Int): MediaPanelShapeOptions =
+        shapeFor(
+            format = state.format,
+            arcDegrees = state.curve.arcDegrees,
+            screenWidth = state.screenWidth,
+            aspect = screenAspect(state, width, height),
+        )
+
+    /**
+     * 显式参数版：过渡动画每帧用插值后的弧度 / 幕宽 / 比例来算，不读 state。
+     * 弧度小于 [MIN_ARC_DEGREES] 一律当平面（半径会大到没意义）。
+     */
+    fun shapeFor(format: VideoFormat, arcDegrees: Float, screenWidth: Float, aspect: Float): MediaPanelShapeOptions =
+        when (format.projection) {
             Projection.PANORAMA_360 -> Equirect360ShapeOptions(radius = SPHERE_RADIUS)
             Projection.PANORAMA_180 -> Equirect180ShapeOptions(radius = SPHERE_RADIUS)
             Projection.FLAT, Projection.EAC, Projection.FISHEYE -> {
-                val w = state.screenWidth
-                val h = w / screenAspect(state, width, height)
-                if (state.curve == ScreenCurve.FLAT) {
-                    QuadShapeOptions(width = w, height = h)
+                val h = screenWidth / aspect
+                if (arcDegrees < MIN_ARC_DEGREES) {
+                    QuadShapeOptions(width = screenWidth, height = h)
                 } else {
-                    CylinderShapeOptions(radius = cylinderRadius(state), width = w, height = h)
+                    CylinderShapeOptions(radius = radiusFor(arcDegrees, screenWidth), width = screenWidth, height = h)
                 }
             }
         }
+
+    /** 弧长 [screenWidth] 与弧度 [arcDegrees] 对应的半径；平面返回 0。 */
+    fun radiusFor(arcDegrees: Float, screenWidth: Float): Float {
+        if (arcDegrees < MIN_ARC_DEGREES) return 0f
+        val arc = (arcDegrees * PI / 180.0).toFloat()
+        return max(0.5f, screenWidth / arc)
     }
+
+    /** 低于这个弧度就按平面 Quad 处理。 */
+    const val MIN_ARC_DEGREES = 2f
 
     /**
      * 弧幕的半径（米）；平幕 / 球幕返回 0。
@@ -99,9 +118,8 @@ object ScreenGeometry {
      * 怎么调都没用」。所以摆位时实体 z = 目标距离 − 半径（可以是负数，即轴心在身后）。
      */
     fun cylinderRadius(state: VideoControlsState): Float {
-        if (!state.format.isFlat || state.curve == ScreenCurve.FLAT) return 0f
-        val arc = (state.curve.arcDegrees * PI / 180.0).toFloat()
-        return max(0.5f, state.screenWidth / arc)
+        if (!state.format.isFlat) return 0f
+        return radiusFor(state.curve.arcDegrees, state.screenWidth)
     }
 
     /** 两个形状是不是同一「家族」（平面 quad/cylinder 之间可以 reshape；球幕另算）。 */
