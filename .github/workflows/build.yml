@@ -11,6 +11,11 @@ on:
         required: true
         type: boolean
         default: true
+      build_quest:
+        description: 'Build Quest (Meta Horizon OS)'
+        required: true
+        type: boolean
+        default: true
       build_windows:
         description: 'Build Windows'
         required: true
@@ -128,6 +133,74 @@ jobs:
         with:
           name: i_iwara-${{ steps.apks.outputs.version }}-universal.apk
           path: result/i_iwara-${{ steps.apks.outputs.version }}-universal.apk
+          if-no-files-found: error
+
+  # Quest 包与普通安卓包分开出：它多了 48MB 的 Meta Spatial SDK、minSdk 抬到 34、
+  # 只有 arm64，任何一条都不能混进 standard 产线（见 android/app/build.gradle 的
+  # productFlavors 注释）。产物名带 quest 字样，下载列表里一眼能分开。
+  build-quest:
+    if: ${{ inputs.build_quest }}
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+    steps:
+      - name: Free Disk Space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          swap-storage: true
+
+      - uses: actions/checkout@v6
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Setup Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore.jks
+        shell: bash
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      # 只出 arm64：quest flavor 的 abiFilters + androidComponents 已经把 v7a / x86_64
+      # 关掉了（那些包里没有 Spatial 的 .so，装上即崩），这里再显式限定一次。
+      - name: Build Quest APK
+        run: flutter build apk --release --flavor quest --target-platform android-arm64
+
+      - name: Rename Quest APK with version
+        id: quest
+        run: |
+          APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
+          mkdir -p result
+          FILE=i_iwara-${APP_VERSION}-quest-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-quest-release.apk result/$FILE
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Quest APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.quest.outputs.file }}
+          path: result/${{ steps.quest.outputs.file }}
           if-no-files-found: error
 
   build-windows:
