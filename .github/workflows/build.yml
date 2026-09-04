@@ -77,8 +77,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      # ⛔ 必须带 --flavor standard：android/app/build.gradle 定义了 platform 维度
+      # （standard / quest）之后，AGP 就不再有「不带 flavor」的变体，裸的
+      # `flutter build apk --release` 会直接失败。quest 产物不进常规产线。
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --flavor standard
 
       - name: Rename APKs with version
         id: apks
@@ -86,10 +89,13 @@ jobs:
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ' | cut -d'+' -f1)
           echo "version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
           mkdir -p result
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk result/i_iwara-${APP_VERSION}-arm64-v8a.apk
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk result/i_iwara-${APP_VERSION}-armeabi-v7a.apk
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk result/i_iwara-${APP_VERSION}-x86_64.apk
-          cp build/app/outputs/flutter-apk/app-release.apk result/i_iwara-${APP_VERSION}-universal.apk
+          # ⚠️ 命名顺序是 app-<abi>-<flavor>-<buildType>.apk（abi 在 flavor **前面**），
+          # 只有 universal 包是 app-<flavor>-<buildType>.apk。本地实测确认，
+          # 写反了这四条 cp 会全部找不到文件、产线直接红。
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-standard-release.apk result/i_iwara-${APP_VERSION}-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-standard-release.apk result/i_iwara-${APP_VERSION}-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-standard-release.apk result/i_iwara-${APP_VERSION}-x86_64.apk
+          cp build/app/outputs/flutter-apk/app-standard-release.apk result/i_iwara-${APP_VERSION}-universal.apk
 
       # 四个 APK 各自成为一项产物，而不是打成一个 android_builds 包。
       # 产物名即文件名：Actions 的下载列表显示的是产物名，所以这样列表本身

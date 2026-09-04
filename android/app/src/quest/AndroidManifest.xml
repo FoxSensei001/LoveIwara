@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  quest 变体独有的 manifest 片段。**只在 quest 变体参与合并**，standard 包的合并
+  结果一个字节都不受影响（这正是把 Spatial SDK 关进 flavor 的意义）。
+
+  这里不重复声明 application 的属性，也不声明 MainActivity —— 那些都在
+  src/main 里，合并时以 main 为底、本文件只做增量。
+-->
+<manifest
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:horizonos="http://schemas.horizonos/sdk">
+
+  <!-- Horizon OS 的 SDK 版本声明。hybrid app（既有 2D 面板又能进沉浸式）要求 v69+，
+       实测机器是 v207，余量很大。 -->
+  <horizonos:uses-horizonos-sdk
+    horizonos:minSdkVersion="69"
+    horizonos:targetSdkVersion="69" />
+
+  <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
+  <uses-feature android:glEsVersion="0x00030001" />
+
+  <!-- ── 纯手势沉浸体验（2026-08-29 用户定的方向）────────────────────────────────
+       目标是不拿手柄也能完整使用沉浸态。
+
+       ⭐ 这几行同时解掉一个实际拦路石：不声明手部追踪时，Horizon OS 的
+       `RequiresControllersLaunchInterceptor` 会**直接拦下沉浸式 Activity**，
+       弹 `common_system_dialog_app_launch_blocked_controller_required`，
+       而 `am start` 照样返回 result code=0（看起来成功，其实进程根本没起）。
+
+       required="false"：手柄与手势都支持，不做二选一。若哪天要做「只支持手势」
+       才改成 true —— 那会让商店按能力过滤设备，是产品决定不是技术决定。 -->
+  <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+  <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+
+  <!-- ── 透视（passthrough）────────────────────────────────────────────────────────
+       ⛔ **没有这一行，`scene.enablePassthrough(true)` 静默无效** —— 不报错、不抛异常，
+       用户点「场景 → 透视」之后看到的还是纯黑。2026-08-29 真机就是这么中招的。
+       这一行来自官方 `add-spatial-sdk-to-app` 的 quest manifest 模板（此前整段漏抄）。
+
+       required="false"：透视只是一个可选场景，没有它应用照样能用（虚空档），
+       不该因此在商店里按能力过滤设备。
+
+       ⚠️ 另一条官方明写的前提：「**Passthrough won't work if your skybox is visible.**」
+       我们**从不创建 skybox 实体**（背景就是黑的），所以没有要藏的东西 ——
+       将来若加了天幕场景，切透视时必须同时把它 `Visible(false)`。 -->
+  <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
+
+  <!-- ── 沉浸态里的软键盘 ────────────────────────────────────────────────────────
+       ⛔ 真机实测（2026-08-29）：Flutter UI 挂进空间面板后，点搜索框时
+       `dumpsys input_method` 显示 `mInputShown=true` 且 `mServedInputConnection`
+       正是 Flutter 的 `InputConnectionAdaptor` —— **输入法逻辑上确实起来了**，
+       但用户什么都看不见。根因是输入法窗口落在**默认显示 0** 上
+       （`Window{InputMethod}: mDisplayId=0`），而面板在虚拟显示 36；
+       独占沉浸态下显示 0 不呈现给用户。
+       这是 Android 对虚拟显示的默认 IME 策略（FALLBACK_DISPLAY），
+       而改它的 `setDisplayImePolicy` 是系统 API，应用够不着。
+
+       这两行来自官方 `add-spatial-sdk-to-app` 的 manifest 模板（我们此前漏抄）。
+       `overlay_keyboard` 意为系统键盘可覆盖在沉浸应用之上，正对这个症状。 -->
+  <uses-feature android:name="com.oculus.feature.VIRTUAL_KEYBOARD" android:required="false" />
+  <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false" />
+
+  <application>
+    <!-- ⛔ 只能填官方罐头值（quest / quest2 / questpro / quest3 / quest3s，竖线分隔）。
+         这里原来写的 `all` 是我编的：它不在官方表内，还会让 Android Studio 的 Meta
+         插件兼容性检查失效。初代 quest 不在列 —— 它的 Horizon OS 上不去 v69。 -->
+    <meta-data
+      android:name="com.oculus.supportedDevices"
+      android:value="quest2|questpro|quest3|quest3s" />
+    <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
+
+    <!-- 手部追踪的采样率与版本。HIGH 给的是更跟手的手部姿态（代价是功耗），
+         对「捏合拖进度条」这种连续手势是必要的；V2.0 是当前的手部骨架版本。 -->
+    <meta-data android:name="com.oculus.handtracking.frequency" android:value="HIGH" />
+    <meta-data android:name="com.oculus.handtracking.version" android:value="V2.0" />
+
+    <!-- 官方 quest manifest 模板里有这一行（此前漏抄）：应用在系统覆盖层（Universal Menu、
+         系统键盘等）弹出时**保持焦点继续渲染**，而不是被整个挂起。对一个正在放视频的
+         沉浸应用来说，被挂起就等于用户一开系统菜单画面就停。 -->
+    <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+
+    <!-- ── 2D 面板形态的 MainActivity（增量声明，不重复 src/main 里的属性）─────────
+         ⭐ `<layout>` 是「Quest 上默认面板只有 ~400dp 宽、按手机窄屏排版、顶栏钮挤不下」
+         的**官方解法**（hybrid-apps-overview「Set a default and minimum panel size」）。
+         数值取官方建议：默认 1024×640dp、最小 384×500dp。
+         sw 从 ~400dp 抬到 640dp 之后应用会被判成平板宽屏，顺带也是记忆里
+         `quest-panel-width-locked-orientation` 那条老 bug 的正解。
+         ⚠️ 官方要求「在最小 / 默认 / 最大三档尺寸下都测一遍布局」。
+
+         `com.oculus.intent.category.2D`：官方措辞是 **must** —— 每个 Activity 都要
+         声明自己是面板还是沉浸式。
+         ⚠️ manifest 合并器没有「往已存在的 intent-filter 里插一个 category」的写法，
+         所以这里是**另加一条** filter，合并后 MainActivity 会有两条 MAIN/LAUNCHER。
+         同一 component 在启动器里只会出现一个图标，不会变成两个。 -->
+    <!-- ⛔ allowEmbedded 是官方明写的硬要求：「Define the activity in your AndroidManifest.xml
+         and include the tag android:allowEmbedded="true". This allows the activity to be embedded
+         into a panel.」（spatial-sdk-2dpanel-compose）。没有它，Activity 面板挂不上去。
+         只在 quest 源集声明，standard 包不受影响。 -->
+    <activity
+      android:name="m.c.g.a.i_iwara.MainActivity"
+      android:allowEmbedded="true">
+      <layout
+        android:defaultWidth="1024dp"
+        android:defaultHeight="640dp"
+        android:minWidth="384dp"
+        android:minHeight="500dp" />
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="com.oculus.intent.category.2D" />
+      </intent-filter>
+    </activity>
+
+    <!-- 沉浸式播放 Activity。与 Flutter 的 MainActivity **同进程**（没有
+         android:process 属性），这正是本期要验证的那件事：Spatial SDK 的
+         渲染栈和一个活着的 Flutter 引擎共处一个进程会怎样。
+
+         screenOrientation=landscape：官方两页样本都写了。结合本项目的方向前科
+         （大屏被系统忽略方向请求），这条宁可显式声明。 -->
+    <activity
+      android:name="m.c.g.a.i_iwara.vr.ImmersiveActivity"
+      android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+      android:launchMode="singleTask"
+      android:screenOrientation="landscape"
+      android:excludeFromRecents="false"
+      android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="com.oculus.intent.category.VR" />
+        <!-- ⭐ 从 Quest 主页点应用图标时启动哪个 Activity，由这个 category 决定：
+             「To specify the activity to launch when the user selects your app in the
+             Home environment, add the com.oculus.intent.category.VR_HOME_LAUNCHER flag
+             to that activity's intent filter.」（hybrid-apps-overview）
+
+             ⛔ 刻意**不加** android.intent.category.LAUNCHER：官方样板是把 LAUNCHER
+             从 MainActivity 挪到沉浸 Activity，但那是因为它的 MainActivity 不需要
+             独立入口。我们的 MainActivity 是 standard 包的启动入口、也是 2D 面板兜底
+             形态，不能失去 LAUNCHER；两个 Activity 同时挂 LAUNCHER 又正是官方点名的
+             「conflicts between the LAUNCHER activities」。用 VR_HOME_LAUNCHER 单独
+             指定「VR 主页点图标进哪儿」，两边都不冲突。 -->
+        <category android:name="com.oculus.intent.category.VR_HOME_LAUNCHER" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart'; // 新增
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import '../../../../../routes/app_router.dart';
 import 'player_settings_drawer.dart';
 import 'toolbar_fade_visibility.dart';
@@ -17,6 +18,7 @@ import 'package:i_iwara/common/enums/media_enums.dart';
 import '../../../../../../common/anime4k_presets.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'vr/vr_format_menu.dart';
 
 /// 顶部工具栏高度（窗口态）。设计常量，不是测量值，但必须只存在这一份 ——
 /// 任何要相对工具栏定位的图层都从这里取，否则改一处漏一处。
@@ -105,6 +107,9 @@ class _TopToolbarState extends State<TopToolbar> {
     _initializeTime();
     _initializeBattery();
     _initializeConnectivity();
+    // 沉浸空间的可用性只随「进/出沉浸空间」变化，进播放器时刷一次就够。
+    // 非 XR 设备上这条会因为通道未注册而直接返回 false，不会有额外开销。
+    Get.find<XrImmersiveService>().refreshAvailability();
   }
 
   @override
@@ -622,6 +627,28 @@ class _TopToolbarState extends State<TopToolbar> {
               // 右侧部分
               Row(
                 children: [
+                  // 「进入影院」：把当前视频交给 XR 沉浸空间，作为独立的空间对象呈现
+                  // （平面片走幕布，180/360 走球幕，配空间化控制条），而不是继续画在
+                  // 这块 2D 面板里。
+                  //
+                  // ⛔ 露出条件只问「沉浸场景在不在」，**不问设备是不是 Quest**：
+                  // standard 变体根本不注册这条通道，可用性天然为 false；
+                  // 而 Quest 上应用也可能处在普通 2D 面板形态（场景没起来），
+                  // 那时同样不该露出。
+                  Obx(() {
+                    if (!Get.find<XrImmersiveService>().available.value) {
+                      return const SizedBox.shrink();
+                    }
+                    return IconButton(
+                      tooltip: '进入影院',
+                      icon: Icon(
+                        Icons.theaters_outlined,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
+                      onPressed: _presentInImmersiveSpace,
+                    );
+                  }),
                   // 「用其他应用打开」：把当前视频交给本机其它播放器。
                   // 摆在投屏旁边是因为语义同类（都是「不在这儿放，换个地方放」），
                   // 而 VR 头显上它是唯一能放 VR/180/360 片源的路子。
@@ -698,6 +725,18 @@ class _TopToolbarState extends State<TopToolbar> {
                         }
                       },
                     ),
+                  // 播放模式（VR / 立体）。
+                  //
+                  // ⛔ 只在宽屏（全屏、平板、桌面）露出：右侧这排图标是定宽的，
+                  // 左边那排（返回 + 主页）也是，两边加起来在 360dp 竖屏内嵌播放器
+                  // 上已经贴着边，再加一枚就把左排挤出边界（本项目在这条工具栏上
+                  // 出过 OVERFLOWED 条）。窄屏走「⋮ → 播放模式」，与画面尺寸同一个
+                  // 入口，不会因此够不着。
+                  if (MediaQuery.sizeOf(context).width >= 600)
+                    VrFormatButton(
+                      controller: widget.myVideoStateController,
+                      iconSize: iconSize,
+                    ),
                   _buildAnime4KButton(context, iconSize),
                   IconButton(
                     tooltip: t.videoDetail.moreSettings,
@@ -727,6 +766,29 @@ class _TopToolbarState extends State<TopToolbar> {
   /// 「名字 + 说明」，吐出来还是块不透明的 Material 卡片。现在分组标题用
   /// [GlassMenuSectionHeader]、说明用 [GlassMenuOption.description]，选中态
   /// 交给 `selected`（对勾 + 主色），不再自己画 check_circle。
+  /// 把当前视频交给沉浸空间呈现。
+  ///
+  /// 格式直接用播放器已有的 L1 判定（`vrFormat`）——⛔ 那是**默认档不是判决**，
+  /// 用户在「播放模式」里选过就以用户的为准，这里原样透传即可。
+  Future<void> _presentInImmersiveSpace() async {
+    final c = widget.myVideoStateController;
+    final url = c.currentMediaSource;
+    if (url == null || url.isEmpty) return;
+    await Get.find<XrImmersiveService>().present(
+      url: url,
+      format: c.vrFormat,
+      // 标题与 id 是空间控制面板要的：前者显示在面板上，后者让「接着看」列表能
+      // 把当前这条高亮出来（否则用户在列表里看不出自己正在放哪条）。
+      title: c.videoInfo.value?.title?.trim() ?? '',
+      videoId: c.videoId,
+      width: c.sourceVideoWidth.value,
+      height: c.sourceVideoHeight.value,
+      positionMs: c.currentPosition.inMilliseconds,
+    );
+    // ok == false 表示沉浸场景还没就绪；原生侧已把请求暂存，场景 ready 时会补投，
+    // 所以这里不需要报错，也不该给用户弹提示。
+  }
+
   Widget _buildAnime4KButton(BuildContext context, double iconSize) {
     return Tooltip(
       message: slang.t.anime4k.settings,
