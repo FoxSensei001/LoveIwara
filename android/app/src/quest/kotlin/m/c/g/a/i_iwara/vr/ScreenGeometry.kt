@@ -85,11 +85,23 @@ object ScreenGeometry {
                 if (state.curve == ScreenCurve.FLAT) {
                     QuadShapeOptions(width = w, height = h)
                 } else {
-                    val arc = (state.curve.arcDegrees * PI / 180.0).toFloat()
-                    CylinderShapeOptions(radius = max(0.5f, w / arc), width = w, height = h)
+                    CylinderShapeOptions(radius = cylinderRadius(state), width = w, height = h)
                 }
             }
         }
+    }
+
+    /**
+     * 弧幕的半径（米）；平幕 / 球幕返回 0。
+     *
+     * ⛔ 真机实锤（2026-09-05）：`CylinderShapeOptions` 的实体锚点在**圆柱轴心**，不在曲面中心 ——
+     * 微曲面 40° + 2.4m 宽 ⇒ 半径 3.4m，实体摆在 2.5m 处时曲面被推到近 6m 外，用户报「幕布特别远、
+     * 怎么调都没用」。所以摆位时实体 z = 目标距离 − 半径（可以是负数，即轴心在身后）。
+     */
+    fun cylinderRadius(state: VideoControlsState): Float {
+        if (!state.format.isFlat || state.curve == ScreenCurve.FLAT) return 0f
+        val arc = (state.curve.arcDegrees * PI / 180.0).toFloat()
+        return max(0.5f, state.screenWidth / arc)
     }
 
     /** 两个形状是不是同一「家族」（平面 quad/cylinder 之间可以 reshape；球幕另算）。 */

@@ -15,14 +15,14 @@ import m.c.g.a.i_iwara.questui.VideoControlsState
  */
 class PlayerPrefs(context: Context) {
 
-    private val sp = context.getSharedPreferences("xr_player", Context.MODE_PRIVATE)
+    private val sp = context.getSharedPreferences("xr_player_v2", Context.MODE_PRIVATE)
 
     fun load(state: VideoControlsState) {
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
         state.scene = enum(KEY_SCENE, SceneKind.VOID)
-        state.screenDistance = sp.getFloat(KEY_DISTANCE, 2.5f)
+        state.screenDistance = sp.getFloat(KEY_DISTANCE, 2.4f)
         state.screenOffset = sp.getFloat(KEY_OFFSET, 0f)
-        state.screenWidth = sp.getFloat(KEY_WIDTH, 2.4f)
+        state.screenWidth = sp.getFloat(KEY_WIDTH, 3.2f)
         state.aspectPreset = enum(KEY_ASPECT, AspectPreset.DEFAULT)
         state.widthRatio = sp.getFloat(KEY_WIDTH_RATIO, 1f)
         state.heightRatio = sp.getFloat(KEY_HEIGHT_RATIO, 1f)

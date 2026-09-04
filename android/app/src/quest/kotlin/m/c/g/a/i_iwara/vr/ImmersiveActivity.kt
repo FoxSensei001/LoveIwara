@@ -101,7 +101,8 @@ import kotlin.math.sqrt
  *   --es url "https://..." --es shape 180 --es stereo lr --ei w 4096 --ei h 2048
  * ```
  * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--es scene passthrough|void`
- * ⛔ 收起要传空白 url（`--es url " "`）：不传会沿用上一次的值；主页图标（ACTION_MAIN）进来一律回浏览态。
+ * `--es curve flat|slight|medium|deep`
+ * 不带 url 的任何 intent（含主页点图标）一律回浏览态。
  */
 class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
@@ -208,13 +209,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 从 Quest 主页点应用图标进来（ACTION_MAIN、不带 extra）**必须回到浏览态**：
         // 本 Activity 是 singleTask，进程活着时再点图标走的是 onNewIntent，
         // 不这么做上一次看的片子会原样留在场景里（真机反馈）。
-        val fromLauncher = source.action == Intent.ACTION_MAIN
+        // ⛔ 片源只来自两处：adb 的 `--es url`（验证用）与 Dart 的 present（正式路径，不走 intent）。
+        // 所以**任何不带 url 的 intent 一律回浏览态** —— 主页点图标、系统拉起、别的 adb 调参都不该
+        // 把上一次的片子留在场景里（2026-09-05 用户：「刚打开应用，为什么后面会有视频在播放？」）。
         val urlExtra = source.getStringExtra("url")
-        val nextUrl = when {
-            urlExtra != null -> urlExtra.takeIf { it.isNotBlank() }
-            fromLauncher -> null
-            else -> argUrl
-        }
+        val nextUrl = urlExtra?.takeIf { it.isNotBlank() }
         // 片子要换 / 要收：先把旧片的位置交还 Dart，再覆盖。
         if (argUrl != null && nextUrl != argUrl) notifyEnded()
         argUrl = nextUrl
@@ -236,6 +235,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             applyScene()
         }
         argUiPanel = source.getBooleanExtra("uiPanel", argUiPanel)
+        // `--es curve flat|slight|medium|deep`：屏幕类型的 adb 验证入口（正式入口是面板上的「屏幕类型」页）。
+        source.getStringExtra("curve")?.let { name ->
+            ScreenCurve.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }?.let { controls.curve = it }
+        }
         Log.i(
             TAG,
             "IMMERSIVE args format=${controls.format} mute=$argMute uiPanel=$argUiPanel " +
@@ -449,9 +452,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             showControls()
         }
 
+        // ⛔ 首次进入时 UI 面板还没建，上面那句 Visible(idle) 落空 —— 建的时候就要按当前态给可见性，
+        // 否则「主页直接点视频进来」会看到 Flutter 面板和幕布叠在一起（2026-09-05 真机截图）。
+        if (argUiPanel && uiPanelEntity == null) createUiPanel(visible = idle)
+
         if (idle) {
             Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
-            if (argUiPanel && uiPanelEntity == null) createUiPanel()
             return
         }
 
@@ -479,8 +485,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             screenPanel = so as? PanelSceneObject
         }
-
-        if (argUiPanel && uiPanelEntity == null) createUiPanel()
     }
 
     /**
@@ -504,6 +508,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             rebuildScreen(keepPlayback = true)
         }
         screenEntity?.setComponent(Grabbable(enabled = controls.curve == ScreenCurve.FLAT))
+        // 半径变了轴心就得跟着挪；平幕才有「抓着挪过」的记忆可保。
+        if (controls.curve != ScreenCurve.FLAT || screenPoseOverride == null) {
+            screenPoseOverride = null
+            applyScreenTransform()
+        }
         Log.i(TAG, "IMMERSIVE reshape curve=${controls.curve} width=${controls.screenWidth} aspect=${controls.aspectPreset}")
     }
 
@@ -522,9 +531,18 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         else -> screenPoseOverride ?: geometricScreenPose()
     }
 
-    /** 按「距离 + 偏移」两条滑块算出来的标准落点。 */
-    private fun geometricScreenPose(): Pose =
-        Pose(Vector3(0f, ScreenGeometry.EYE_HEIGHT_M + controls.screenOffset, controls.screenDistance))
+    /**
+     * 按「距离 + 偏移」两条滑块算出来的标准落点。
+     *
+     * ⛔ 弧幕实体锚点在圆柱轴心（真机实锤），曲面要落在目标距离上，轴心就得往回退一个半径。
+     */
+    private fun geometricScreenPose(): Pose = Pose(
+        Vector3(
+            0f,
+            ScreenGeometry.EYE_HEIGHT_M + controls.screenOffset,
+            controls.screenDistance - ScreenGeometry.cylinderRadius(controls),
+        ),
+    )
 
     /** 距离/偏移改了：只挪 Transform，不重建（无接缝）。 */
     private fun applyScreenTransform() {
@@ -532,11 +550,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         screenEntity?.setComponent(Transform(geometricScreenPose()))
     }
 
-    private fun createUiPanel() {
+    private fun createUiPanel(visible: Boolean) {
         uiPanelEntity = Entity.create(
             Panel(R.id.vr_ui_panel),
             Transform(Pose(Vector3(0f, UI_PANEL_HEIGHT_M, UI_PANEL_DISTANCE_M))),
-            Visible(true),
+            Visible(visible),
             Grabbable(),
             // Relayout：按新尺寸重新排版（字不糊）；上限要放开（默认 1.5m，本面板出生就 1.6m）。
             IsdkPanelResize(
@@ -1234,8 +1252,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             {
                 UIPanelSettings(
                     shape = QuadShapeOptions(width = CONTROLS_WIDTH_M, height = CONTROLS_HEIGHT_M),
-                    // 500dp/m：1dp = 2mm，面板逻辑尺寸 1100×500dp，与 `:questui` 的 PanelTokens 成对。
-                    display = DpPerMeterDisplayOptions(dpPerMeter = 500f),
+                    // 面板逻辑尺寸固定 1100×500dp（与 `:questui` 的 PanelTokens 成对），密度由物理宽度反推。
+                    display = DpPerMeterDisplayOptions(dpPerMeter = 1100f / CONTROLS_WIDTH_M),
                     // 透明底：顶栏那排圆钮悬浮在窗外，钮与钮之间透出后面的画面。
                     rendering = UIPanelRenderOptions(
                         renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
@@ -1278,12 +1296,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         private const val UNSUPPORTED_NOTICE = "这种投影本机渲染不了，已按平面显示；可用「用其他应用打开」"
 
-        /** 默认观看距离 / 幕宽（米）：2.5m 处 55° 水平弧 ≈ 2.4m。 */
-        private const val DEFAULT_VIEW_DISTANCE_M = 2.5f
-        private const val DEFAULT_SCREEN_WIDTH_M = 2.4f
+        /** 默认观看距离 / 幕宽（米）：2.4m 处约 67° 水平弧。用户 2026-09-05 反馈 2.5m/2.4m 「特别远」。 */
+        private const val DEFAULT_VIEW_DISTANCE_M = 2.4f
+        private const val DEFAULT_SCREEN_WIDTH_M = 3.2f
 
         /** 幕布距离范围。下限 1.5m：面板要比它近 0.45m 且不低于官方 1m 舒适下限。 */
-        private const val SCREEN_MIN_DISTANCE_M = 1.5f
+        private const val SCREEN_MIN_DISTANCE_M = 1.4f
         private const val SCREEN_MAX_DISTANCE_M = 8.0f
 
         /** UI 面板的几何：1.8m 处 1.6m 宽 ≈ 47° 水平张角，与静息眼高齐平。 */
@@ -1291,12 +1309,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val UI_PANEL_WIDTH_M = 1.6f
         private const val UI_PANEL_HEIGHT_M = 1.60f
 
-        /** 控制面板几何：2.2m × 1.0m @ 500dp/m = 1100 × 500dp，与 `:questui` 的 PanelTokens 成对。 */
-        private const val CONTROLS_DISTANCE_M = 2.2f
-        private const val CONTROLS_WIDTH_M = 2.2f
-        private const val CONTROLS_HEIGHT_M = 1.0f
-        private const val CONTROLS_CENTER_HEIGHT_M = 1.55f
-        private const val CONTROLS_SCREEN_CLEARANCE_M = 0.45f
+        /**
+         * 控制面板几何：逻辑尺寸固定 1100 × 500dp（与 `:questui` 的 PanelTokens 成对），物理尺寸 1.5m 宽，
+         * 摆在 1.6m 处、中心离地 1.3m（胸口高度，4XVR 的「约桌面高度」）。
+         * 72dp 圆钮 = 0.098m @1.6m ≈ 3.5°，仍高于官方 2.5–3° 下限。
+         * ⚠️ 用户 2026-09-05 反馈原先 2.2m 宽 @2.2m 「非常大」且几乎盖住整块幕布。
+         */
+        private const val CONTROLS_DISTANCE_M = 1.6f
+        private const val CONTROLS_WIDTH_M = 1.5f
+        private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 500f / 1100f
+        private const val CONTROLS_CENTER_HEIGHT_M = 1.30f
+        private const val CONTROLS_SCREEN_CLEARANCE_M = 0.40f
         private const val CONTROLS_MIN_DISTANCE_M = 1.0f
 
         /** 「还算在视线前方」的判据：cos 60°。 */
