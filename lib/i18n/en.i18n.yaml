@@ -73,7 +73,7 @@ common:
   visit: Visit
   loading: Loading...
   scrollToTop: Scroll to Top
-  privacyHint: Privacy content, not displayed
+  privacyHint: Privacy mode is on, content is hidden
   latest: Latest
   likesCount: Likes
   viewsCount: Views

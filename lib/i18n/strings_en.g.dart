@@ -323,8 +323,8 @@ class TranslationsCommonEn {
 	/// en: 'Scroll to Top'
 	String get scrollToTop => 'Scroll to Top';
 
-	/// en: 'Privacy content, not displayed'
-	String get privacyHint => 'Privacy content, not displayed';
+	/// en: 'Privacy mode is on, content is hidden'
+	String get privacyHint => 'Privacy mode is on, content is hidden';
 
 	/// en: 'Latest'
 	String get latest => 'Latest';
@@ -9000,7 +9000,7 @@ extension on Translations {
 			'common.visit' => 'Visit',
 			'common.loading' => 'Loading...',
 			'common.scrollToTop' => 'Scroll to Top',
-			'common.privacyHint' => 'Privacy content, not displayed',
+			'common.privacyHint' => 'Privacy mode is on, content is hidden',
 			'common.latest' => 'Latest',
 			'common.likesCount' => 'Likes',
 			'common.viewsCount' => 'Views',

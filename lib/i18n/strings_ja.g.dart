@@ -185,7 +185,7 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get visit => 'アクセス';
 	@override String get loading => '読み込み中...';
 	@override String get scrollToTop => 'トップに戻る';
-	@override String get privacyHint => 'プライバシー内容、表示しません';
+	@override String get privacyHint => 'プライバシーモード中：内容は非表示です';
 	@override String get latest => '最新';
 	@override String get likesCount => 'いいね数';
 	@override String get viewsCount => '視聴回数';
@@ -3761,7 +3761,7 @@ extension on TranslationsJa {
 			'common.visit' => 'アクセス',
 			'common.loading' => '読み込み中...',
 			'common.scrollToTop' => 'トップに戻る',
-			'common.privacyHint' => 'プライバシー内容、表示しません',
+			'common.privacyHint' => 'プライバシーモード中：内容は非表示です',
 			'common.latest' => '最新',
 			'common.likesCount' => 'いいね数',
 			'common.viewsCount' => '視聴回数',

@@ -72,8 +72,8 @@ common:
   visit: 訪問
   loading: 載入中...
   scrollToTop: 滾動到頂部
-  # 隱私內容，不與展示
-  privacyHint: 隱私內容，不與展示
+  # 背景隱私遮罩上的提示語
+  privacyHint: 隱私模式已開啟，內容不予展示
   latest: 最新
   likesCount: 按讚數
   viewsCount: 觀看次數

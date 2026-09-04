@@ -73,8 +73,8 @@ common:
   visit: アクセス
   loading: 読み込み中...
   scrollToTop: トップに戻る
-  # プライバシー内容、表示しない
-  privacyHint: プライバシー内容、表示しません
+  # バックグラウンドのプライバシーマスクに表示する文言
+  privacyHint: プライバシーモード中：内容は非表示です
   latest: 最新
   likesCount: いいね数
   viewsCount: 視聴回数

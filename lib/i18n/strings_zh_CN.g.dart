@@ -185,7 +185,7 @@ class _TranslationsCommonZhCn implements TranslationsCommonEn {
 	@override String get visit => '访问';
 	@override String get loading => '加载中...';
 	@override String get scrollToTop => '滚动到顶部';
-	@override String get privacyHint => '隐私内容，不与展示';
+	@override String get privacyHint => '隐私模式已开启，内容不予展示';
 	@override String get latest => '最新';
 	@override String get likesCount => '点赞数';
 	@override String get viewsCount => '观看次数';
@@ -3761,7 +3761,7 @@ extension on TranslationsZhCn {
 			'common.visit' => '访问',
 			'common.loading' => '加载中...',
 			'common.scrollToTop' => '滚动到顶部',
-			'common.privacyHint' => '隐私内容，不与展示',
+			'common.privacyHint' => '隐私模式已开启，内容不予展示',
 			'common.latest' => '最新',
 			'common.likesCount' => '点赞数',
 			'common.viewsCount' => '观看次数',

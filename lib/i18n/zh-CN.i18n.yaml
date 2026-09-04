@@ -74,8 +74,8 @@ common:
   visit: 访问
   loading: 加载中...
   scrollToTop: 滚动到顶部
-  # 隐私内容，不与展示
-  privacyHint: 隐私内容，不与展示
+  # 后台隐私遮罩上的提示语
+  privacyHint: 隐私模式已开启，内容不予展示
   latest: 最新
   likesCount: 点赞数
   viewsCount: 观看次数
