@@ -593,6 +593,10 @@ class PopularMediaListPageBaseState<
               // 热门视频 / 图库：header 与浮层 chrome 走真折射透镜，列表本体
               // 留在传统档（见 GlassHeaderOverlay.liquid）。
               liquid: true,
+              // 这一页是全站最需要内容感知字色的地方：满屏封面图，深浅完全
+              // 由内容决定，header 底下压着什么谁也说不准
+              // （见 GlassHeaderOverlay.contentAware）。
+              contentAware: true,
               headerExtent: headerExtent,
               headerTop: statusBarHeight,
               solidExtent: statusBarHeight,

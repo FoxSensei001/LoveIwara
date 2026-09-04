@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -462,6 +463,31 @@ class GlassIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⭐ [standalone] 的圆钮就是「独自浮在内容之上的一块玻璃」——全站 26 个
+    // 「回到顶部」浮钮、角落坞里的钮都长这样，身后没有任何蒙层兜底，是最容易
+    // 出现「底下是黑的、图标也是黑的」的一类。字色跟着身后内容走的判决因此挂
+    // 在这里，而不是让每个页面各自去包一遍（见 [GlassAdaptiveChrome]）。
+    //
+    // 三种情况下它整只透传、零成本：非液态档、页面没开内容感知（找不到
+    // 采样器）、或外面已经有一块 chrome 在管这片子树（header 那一行）。
+    //
+    // 圆钮是方的，投票格子用 2×2 而不是横栏那种 6×1。
+    //
+    // ⛔ 必须用 Builder 把整个 build 挪到判决**之下**：图标色是在这里就地从
+    // `ColorScheme` 取的（一个 Color 值，不是一层 InheritedWidget），在外面
+    // 包一层换了主题的 Theme 对它毫无作用。
+    if (standalone) {
+      return GlassAdaptiveChrome(
+        gridColumns: 2,
+        gridRows: 2,
+        debugLabel: '独立圆钮',
+        child: Builder(builder: _build),
+      );
+    }
+    return _build(context);
+  }
+
+  Widget _build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final double resolvedSize =
         size ??

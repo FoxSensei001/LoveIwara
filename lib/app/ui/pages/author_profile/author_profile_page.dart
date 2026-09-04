@@ -32,6 +32,7 @@ import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -263,33 +264,44 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   /// 布局按详情页的标准配方来：横向 16、行高 [GlassTokens.headerRowHeight]，
   /// 两侧之间隔着 `Spacer`，整行收进一个融合层（同 `GlassHeaderOverlay`）。
   Widget _buildHeaderChrome(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       top: MediaQuery.paddingOf(context).top,
       left: 0,
       right: 0,
       height: GlassTokens.headerRowHeight,
-      child: GlassChromeLayer(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_back),
-                tooltip: t.common.back,
-                onPressed: AppService.tryPop,
-              ),
-              const Spacer(),
-              // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
-              // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
-              // 或作者信息延迟加载时都会命中这次形变）。
-              Obx(
-                () =>
-                    GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
-              ),
-            ],
-          ),
+      // 这一行浮在作者横幅之上，**身后没有蒙层兜底**——深色封面的作者页正是
+      // 「底是黑的、返回箭头也是黑的」的重灾区。整行一起翻（不是每枚钮各投
+      // 各的）：GlassChromeLayer 把它们收进同一层玻璃，同一层只有一份材质。
+      //
+      // ⛔ Builder 不能省：下面的颜色是就地从 ColorScheme 取的 Color 值。
+      child: GlassAdaptiveChrome(
+        debugLabel: '作者页顶栏',
+        child: Builder(builder: _buildHeaderChromeRow),
+      ),
+    );
+  }
+
+  Widget _buildHeaderChromeRow(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return GlassChromeLayer(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: t.common.back,
+              onPressed: AppService.tryPop,
+            ),
+            const Spacer(),
+            // 有可选项时显示胶囊，没有时收成 0 宽——用 GlassShapeSwitcher
+            // 让整块 action group 淡入淡出+宽度过渡（未登录访客切换到已登录、
+            // 或作者信息延迟加载时都会命中这次形变）。
+            Obx(
+              () => GlassShapeSwitcher(child: _buildHeaderActionGroup(context)),
+            ),
+          ],
         ),
       ),
     );
@@ -591,26 +603,30 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
     }
 
     if (!isWideScreen) {
-      return Stack(
-        children: [
-          Scaffold(
-            body: NotificationListener<ScrollNotification>(
-              onNotification: _handleNestedScrollNotification,
-              child: ExtendedNestedScrollView(
-                key: _key,
-                headerSliverBuilder:
-                    (BuildContext context, bool innerBoxIsScrolled) =>
-                        _buildHeaderSliver(context, innerBoxIsScrolled),
-                onlyOneScrollInBody: true,
-                pinnedHeaderSliverHeightBuilder: () =>
-                    _calculatePinnedHeaderHeight(),
-                body: _buildTabBarView(context, isWideScreen: false),
+      return GlassContentAwareHost(
+        child: Stack(
+          children: [
+            GlassSampledContent(
+              child: Scaffold(
+                body: NotificationListener<ScrollNotification>(
+                  onNotification: _handleNestedScrollNotification,
+                  child: ExtendedNestedScrollView(
+                    key: _key,
+                    headerSliverBuilder:
+                        (BuildContext context, bool innerBoxIsScrolled) =>
+                            _buildHeaderSliver(context, innerBoxIsScrolled),
+                    onlyOneScrollInBody: true,
+                    pinnedHeaderSliverHeightBuilder: () =>
+                        _calculatePinnedHeaderHeight(),
+                    body: _buildTabBarView(context, isWideScreen: false),
+                  ),
+                ),
               ),
             ),
-          ),
-          _buildHeaderChrome(context),
-          _buildScrollToTopFab(context),
-        ],
+            _buildHeaderChrome(context),
+            _buildScrollToTopFab(context),
+          ],
+        ),
       );
     }
 
@@ -626,13 +642,17 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                 width: 400, // 固定宽度
                 // chrome 浮在左栏之上而不是整页之上：它原本就画在这 400 宽里，
                 // 挪到页面级会让「更多」键跳到屏幕最右边。
-                child: Stack(
-                  children: [
-                    CustomScrollView(
-                      slivers: _buildHeaderSliver(context, false),
-                    ),
-                    _buildHeaderChrome(context),
-                  ],
+                child: GlassContentAwareHost(
+                  child: Stack(
+                    children: [
+                      GlassSampledContent(
+                        child: CustomScrollView(
+                          slivers: _buildHeaderSliver(context, false),
+                        ),
+                      ),
+                      _buildHeaderChrome(context),
+                    ],
+                  ),
                 ),
               ),
               // 分隔线

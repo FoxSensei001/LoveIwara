@@ -4,6 +4,7 @@ import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
@@ -635,6 +636,19 @@ class _PaginationBarState extends State<PaginationBar>
 
   @override
   Widget build(BuildContext context) {
+    // 字色跟着身后滚过去的内容走（见 [GlassAdaptiveChrome]）：这条栏和浮动
+    // 底栏一样常驻在列表之上，页面没开内容感知时整只透传、零成本。
+    //
+    // ⛔ 必须用 Builder 把整条栏建到判决**之下**：下面这些颜色都是就地从
+    // `ColorScheme` 取出来的 Color 值，在外面套一层换了主题的 Theme 对它们
+    // 毫无作用。
+    return GlassAdaptiveChrome(
+      debugLabel: '分页栏',
+      child: Builder(builder: _build),
+    );
+  }
+
+  Widget _build(BuildContext context) {
     // 页面的批量选择态（没有页面广播时为 null，例如论坛 / 帖子详情，
     // 那里的分页栏行为完全不变）。
     final selection = BatchSelectionScope.maybeOf(context);

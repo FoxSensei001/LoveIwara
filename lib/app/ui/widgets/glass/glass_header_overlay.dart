@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
@@ -57,7 +58,27 @@ class GlassHeaderOverlay extends StatelessWidget {
     this.extra = const [],
     this.liquid = false,
     this.blendHeader = true,
+    this.contentAware = false,
   });
+
+  /// header 行的字色 / 图标色跟着**身后真正滚过去的内容**走，而不是一律跟主题
+  /// 的明暗（见 [GlassAdaptiveChrome]）。浅色主题下滚过一张深色大图时，header
+  /// 会整行换成浅色一档，反之亦然。
+  ///
+  /// 只在 [liquid] 为真、且全局是真玻璃档时有意义——Material 档下 header 是不
+  /// 透明的面，身后什么都透不过来，本开关整条链自动归零。
+  ///
+  /// # 代价
+  ///
+  /// 开着的页面在**滚动期间**每 180ms 会对 [body] + 蒙层做一次降采样
+  /// `toImage` 回读（静止时零开销）。列表越重这一下越贵，所以默认关，逐页开。
+  ///
+  /// # ⛔ 采样区是「[body] + 蒙层」，不含 header 自己
+  ///
+  /// 见 [GlassSampledContent] 的说明：蒙层必须算进去（它是一层实色面纱，已经
+  /// 改变了 header 底下的观感），header 必须排除（否则判决改底色、底色又改下
+  /// 次读数，来回自激）。
+  final bool contentAware;
 
   /// header 行里并排的几块玻璃是否收进**同一层**、靠近时互相吞并
   /// （见 [GlassBlendGroup]）。只在 [liquid] 为真时有意义。
@@ -100,43 +121,66 @@ class GlassHeaderOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
+    final Widget content = liquid
+        ? LiquidGlassScope(backend: flatGlassBackend(context), child: body)
+        : body;
+    final Widget scrim = EdgeFadeScrim.headerOverlay(
+      headerExtent: headerExtent,
+      plateauExtent: solidExtent,
+    );
+
+    Widget? headerRow = header;
+    if (headerRow != null) {
+      // 融合层只能包**这一行**：它是一层玻璃 + 一次背景采样，包大了会
+      // 把整页都拖进同一次采样里。非液态档下它是纯透传。
+      if (blendHeader) headerRow = GlassBlendGroup(child: headerRow);
+      // 内容感知必须在融合层**外面**：翻面换的是整行的配色，融合层里那份材质
+      // 也得跟着一起走。
+      if (contentAware) {
+        headerRow = GlassAdaptiveChrome(debugLabel: 'header', child: headerRow);
+      }
+    }
+
     final Widget stack = Stack(
       // 所有子项都是 Positioned；松约束下也要撑满，别被某个非 Positioned 的占位压成 0 高
       fit: StackFit.expand,
       children: [
-        // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
-        Positioned.fill(
-          child: liquid
-              ? LiquidGlassScope(
-                  backend: flatGlassBackend(context),
-                  child: body,
-                )
-              : body,
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: EdgeFadeScrim.headerOverlay(
-            headerExtent: headerExtent,
-            plateauExtent: solidExtent,
-          ),
-        ),
-        if (header != null)
+        if (contentAware)
+          // 被采样区 = 列表 + 蒙层，一个 Stack 收成一块（见 [contentAware]）。
+          // 布局与不开时完全一致：还是这两个 Positioned，只是外面多一层
+          // 撑满的 Stack。
+          Positioned.fill(
+            child: GlassSampledContent(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(child: content),
+                  Positioned(top: 0, left: 0, right: 0, child: scrim),
+                ],
+              ),
+            ),
+          )
+        else ...[
+          Positioned.fill(child: content),
+          Positioned(top: 0, left: 0, right: 0, child: scrim),
+        ],
+        if (headerRow != null)
           Positioned(
             top: headerTop,
             left: 0,
             right: 0,
             height: headerHeight ?? GlassTokens.headerRowHeight,
-            // 融合层只能包**这一行**：它是一层玻璃 + 一次背景采样，包大了会
-            // 把整页都拖进同一次采样里。非液态档下它是纯透传。
-            child: blendHeader ? GlassBlendGroup(child: header!) : header!,
+            child: headerRow,
           ),
         ...extra,
       ],
     );
-    return liquid
+    final Widget scoped = liquid
         ? LiquidGlassScope(backend: chromeGlassBackend(context), child: stack)
         : stack;
+    // 采样器套在最外层：它只是一个 InheritedWidget + 一个 ScrollNotification
+    // 监听，不参与布局。
+    return contentAware ? GlassContentAwareHost(child: scoped) : scoped;
   }
 }

@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/pop_coordinator.dart';
 import 'package:i_iwara/app/ui/widgets/animated_navigation_rail_slot.dart';
 import 'package:i_iwara/app/ui/pages/community/community_page.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -373,38 +374,56 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
                     // 被抬高的 MediaQuery，只能靠这个全局值避开底栏。
                     glassBottomBarObstruction = safeBottom + reserved;
 
-                    return Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        MediaQuery(
-                          data: mq.copyWith(
-                            padding: mq.padding.copyWith(
-                              bottom: safeBottom + reserved,
+                    // 浮动底栏的字色跟着**身后滚过去的内容**走。被采样区是
+                    // 「页面内容 + 底部蒙层」——蒙层必须算进去（它是一层实色
+                    // 面纱，底栏底下的观感已经被它改过了），底栏自己必须排除
+                    // （否则判决改底色、底色又改下次读数，来回自激）。详见
+                    // `glass_content_brightness.dart`。非液态档下整条链是透传，
+                    // 一分钱不花。
+                    return GlassContentAwareHost(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          GlassSampledContent(
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                MediaQuery(
+                                  data: mq.copyWith(
+                                    padding: mq.padding.copyWith(
+                                      bottom: safeBottom + reserved,
+                                    ),
+                                  ),
+                                  child: content,
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: EdgeFadeScrim.bottom(
+                                    height:
+                                        safeBottom +
+                                        reserved +
+                                        GlassTokens.bottomFadeExtent,
+                                    solidExtent: safeBottom,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          child: content,
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: EdgeFadeScrim.bottom(
-                            height:
+                          Positioned(
+                            left: GlassTokens.floatingTabBarSideMargin,
+                            right: GlassTokens.floatingTabBarSideMargin,
+                            bottom:
                                 safeBottom +
-                                reserved +
-                                GlassTokens.bottomFadeExtent,
-                            solidExtent: safeBottom,
+                                GlassTokens.floatingTabBarBottomMargin,
+                            child: GlassAdaptiveChrome(
+                              debugLabel: '浮动底栏',
+                              child: _buildFloatingTabBar(context),
+                            ),
                           ),
-                        ),
-                        Positioned(
-                          left: GlassTokens.floatingTabBarSideMargin,
-                          right: GlassTokens.floatingTabBarSideMargin,
-                          bottom:
-                              safeBottom +
-                              GlassTokens.floatingTabBarBottomMargin,
-                          child: _buildFloatingTabBar(context),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   }),
                 ),
