@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/xr_playlist_source.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -33,6 +35,14 @@ class XrImmersiveService extends GetxService {
   /// 幕布上正在放的那条视频的 id（沉浸态自己换过片之后也会更新）。
   String? nowPlayingId;
 
+  /// 沉浸播放结束时的落点：当前活着的视频页控制器挂在这里，收到最后位置后
+  /// 回写自己的播放器（观看历史随之保存）。没人挂着时由本服务导航到对应视频页。
+  void Function(String videoId, int positionMs)? onImmersiveEnded;
+
+  /// Quest 上打开视频是否自动交给空间播放器（设置项，默认开）。
+  bool get autoEnterEnabled =>
+      Get.find<ConfigService>()[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] == true;
+
   @override
   void onInit() {
     super.onInit();
@@ -60,9 +70,29 @@ class XrImmersiveService extends GetxService {
       case 'playItem':
         final id = (call.arguments as Map?)?['id'] as String?;
         return await playFromPlaylist(id ?? '');
+      case 'immersiveEnded':
+        final args = call.arguments as Map?;
+        final id = (args?['videoId'] as String?)?.trim() ?? '';
+        final positionMs = (args?['positionMs'] as num?)?.toInt() ?? 0;
+        _handleImmersiveEnded(id, positionMs);
+        return true;
       default:
         return null;
     }
+  }
+
+  /// 沉浸播放结束：把最后位置交给活着的视频页；页面已经不是那条视频（沉浸态里
+  /// 换过片）就导航过去，让 2D 面板与刚才看的东西对得上。
+  void _handleImmersiveEnded(String videoId, int positionMs) {
+    nowPlayingId = null;
+    if (videoId.isEmpty) return;
+    final handler = onImmersiveEnded;
+    if (handler != null) {
+      handler(videoId, positionMs);
+      return;
+    }
+    LogUtils.d('沉浸播放结束但没有视频页在监听，导航到 $videoId', 'XrImmersive');
+    NaviService.navigateToVideoDetailPage(videoId);
   }
 
   // ────────────────────────────────────────────── 播放列表
@@ -134,13 +164,16 @@ class XrImmersiveService extends GetxService {
     int width = 0,
     int height = 0,
     int positionMs = 0,
+    bool fullFrame = false,
   }) async {
     try {
       final ok = await _channel.invokeMethod<bool>('present', {
         'url': url,
         'title': title,
+        'videoId': videoId ?? '',
         'shape': _shapeOf(format.projection),
         'stereo': _stereoOf(format.stereoLayout),
+        'fullFrame': fullFrame,
         'w': width,
         'h': height,
         'positionMs': positionMs,
@@ -181,7 +214,8 @@ class XrImmersiveService extends GetxService {
   static String _shapeOf(VrProjection projection) => switch (projection) {
     VrProjection.equirect180 => '180',
     VrProjection.equirect360 => '360',
-    VrProjection.flat || VrProjection.fisheye => 'flat',
+    VrProjection.flat => 'flat',
+    VrProjection.fisheye => 'fisheye',
   };
 
   static String _stereoOf(VrStereoLayout layout) => switch (layout) {

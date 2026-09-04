@@ -15,6 +15,7 @@ import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -1161,6 +1162,7 @@ class MyVideoStateController extends GetxController
     _isCurrentMediaSourceOpening = false;
     if (succeeded) {
       _activeLoadingSpeedGeneration = generation;
+      _maybeHandOffToImmersive(generation);
     } else {
       // 打开失败：把标记收回去，否则用户再也发不起重试。
       _hasIssuedMediaSourceOpen = false;
@@ -1168,6 +1170,56 @@ class MyVideoStateController extends GetxController
       _activeLoadingSpeedGeneration = null;
     }
     videoLoadingSpeedBytesPerSecond.value = null;
+  }
+
+  /// 已经交给空间播放器的那一代媒体源。同一条片子只交一次；换清晰度 / 换源会生成
+  /// 新的一代，届时再交一次（沉浸侧按 url 判断是否同一条片，不会重载）。
+  int? _immersiveHandOffGeneration;
+
+  /// Quest 上：片源一打开就交给空间播放器，面板里的播放器暂停让位。
+  ///
+  /// 收口在 [_finishCurrentMediaSourceOpen]（所有 `player.open` 的唯一出口），所以
+  /// 清晰度切换、无缝换源、本地文件、续播全都会经过这里。
+  /// 露出条件只问「沉浸场景在不在」（standard 变体永远 false），不问设备。
+  void _maybeHandOffToImmersive(int generation) {
+    if (_immersiveHandOffGeneration == generation) return;
+    if (!Get.isRegistered<XrImmersiveService>()) return;
+    final xr = Get.find<XrImmersiveService>();
+    if (!xr.available.value || !xr.autoEnterEnabled) return;
+    final url = currentMediaSource;
+    if (url == null || url.isEmpty) return;
+    _immersiveHandOffGeneration = generation;
+    unawaited(_handOffToImmersive(xr, url));
+  }
+
+  Future<void> _handOffToImmersive(XrImmersiveService xr, String url) async {
+    final ok = await xr.present(
+      url: url,
+      format: vrFormat,
+      title: videoInfo.value?.title?.trim() ?? '',
+      videoId: videoId,
+      width: sourceVideoWidth.value,
+      height: sourceVideoHeight.value,
+      positionMs: currentPosition.inMilliseconds,
+    );
+    LogUtils.i('片源已交给空间播放器 delivered=$ok url=$url', 'MyVideoStateController');
+    if (_isDisposed) return;
+    // 幕布在放，面板里这只不该同时出声；留着它是为了返回时能接着上次位置。
+    videoPlaying.value = false;
+    await player.pause();
+  }
+
+  /// 空间播放器结束（返回应用 / 换片 / 退出场景）：把最后位置接回面板里的播放器，
+  /// 观看历史随页面关闭时的常规路径一起保存。换过片就跳到那条视频的页面。
+  void _onImmersiveEnded(String endedVideoId, int positionMs) {
+    if (_isDisposed) return;
+    if (endedVideoId != videoId) {
+      NaviService.navigateToVideoDetailPage(endedVideoId);
+      return;
+    }
+    final target = Duration(milliseconds: positionMs);
+    currentPosition = target;
+    unawaited(player.seek(target));
   }
 
   MyVideoStateController(
@@ -1212,6 +1264,12 @@ class MyVideoStateController extends GetxController
     _isDisposed = false; // 初始化时确保标志位为 false
     // 「被别的页面盖住就收尾」那道监控要认得本页，见 [PageDepartureGuard]。
     PageDepartureGuard.attach(this);
+    if (Get.isRegistered<XrImmersiveService>()) {
+      final xr = Get.find<XrImmersiveService>();
+      xr.onImmersiveEnded = _onImmersiveEnded;
+      // 可用性是缓存值，进页面刷一次，好让第一条片源打开时就能判断要不要交出去。
+      unawaited(xr.refreshAvailability());
+    }
     final rememberScreenFitMode =
         _configService[ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY] == true;
     if (rememberScreenFitMode) {
@@ -2553,6 +2611,10 @@ class MyVideoStateController extends GetxController
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
     PageDepartureGuard.detach(this);
+    if (Get.isRegistered<XrImmersiveService>()) {
+      final xr = Get.find<XrImmersiveService>();
+      if (xr.onImmersiveEnded == _onImmersiveEnded) xr.onImmersiveEnded = null;
+    }
 
     // ⛔ 桌面全屏会话在这里放手，**不在** relinquishFullscreenForRouteHandoff 里。
     //

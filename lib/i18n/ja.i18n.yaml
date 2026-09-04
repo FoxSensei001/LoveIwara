@@ -2838,6 +2838,8 @@ playbackQueue:
 
 vrFormat:
   title: 再生モード
+  autoEnterImmersive: 動画を空間プレイヤーで開く
+  autoEnterImmersiveDesc: Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。
   entryTooltip: 再生モード（VR / 立体）
   desc: この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。
   sectionFlat: 平面

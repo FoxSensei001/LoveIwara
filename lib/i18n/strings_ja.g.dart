@@ -2522,6 +2522,8 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 
 	// Translations
 	@override String get title => '再生モード';
+	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
+	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
 	@override String get entryTooltip => '再生モード（VR / 立体）';
 	@override String get desc => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。';
 	@override String get sectionFlat => '平面';
@@ -6368,6 +6370,8 @@ extension on TranslationsJa {
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
 			'vrFormat.title' => '再生モード',
+			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',
+			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',
 			'vrFormat.entryTooltip' => '再生モード（VR / 立体）',
 			'vrFormat.desc' => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。',
 			'vrFormat.sectionFlat' => '平面',

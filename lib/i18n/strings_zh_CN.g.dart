@@ -2522,6 +2522,8 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 
 	// Translations
 	@override String get title => '播放模式';
+	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
+	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
 	@override String get entryTooltip => '播放模式（VR / 立体）';
 	@override String get desc => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。';
 	@override String get sectionFlat => '平面';
@@ -6368,6 +6370,8 @@ extension on TranslationsZhCn {
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
 			'vrFormat.title' => '播放模式',
+			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',
+			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',
 			'vrFormat.entryTooltip' => '播放模式（VR / 立体）',
 			'vrFormat.desc' => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。',
 			'vrFormat.sectionFlat' => '平面',

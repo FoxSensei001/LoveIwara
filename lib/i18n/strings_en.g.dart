@@ -6320,6 +6320,12 @@ class TranslationsVrFormatEn {
 	/// en: 'Playback mode'
 	String get title => 'Playback mode';
 
+	/// en: 'Open videos in the spatial player'
+	String get autoEnterImmersive => 'Open videos in the spatial player';
+
+	/// en: 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.'
+	String get autoEnterImmersiveDesc => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.';
+
 	/// en: 'Playback mode (VR / 3D)'
 	String get entryTooltip => 'Playback mode (VR / 3D)';
 
@@ -11681,6 +11687,8 @@ extension on Translations {
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
 			'vrFormat.title' => 'Playback mode',
+			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
+			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',
 			'vrFormat.entryTooltip' => 'Playback mode (VR / 3D)',
 			'vrFormat.desc' => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.',
 			'vrFormat.sectionFlat' => 'Flat',

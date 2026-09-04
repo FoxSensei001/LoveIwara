@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/desktop_external_player.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/three_section_slider.dart';
@@ -443,6 +444,24 @@ class PlayerSettingsWidget extends StatelessWidget {
                 onTap: playerController!.resetVrFormatToInferred,
               ),
             ),
+            // Quest 专属：只在沉浸场景活着时露出（standard 变体永远不露）。
+            Obx(() {
+              if (!Get.isRegistered<XrImmersiveService>() ||
+                  !Get.find<XrImmersiveService>().available.value) {
+                return const SizedBox.shrink();
+              }
+              return _switchTile(
+                context: context,
+                iconData: Icons.view_in_ar,
+                label: t.vrFormat.autoEnterImmersive,
+                description: t.vrFormat.autoEnterImmersiveDesc,
+                rxValue: _configService
+                    .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
+                onChanged: (value) {
+                  _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] = value;
+                },
+              );
+            }),
           ]),
         ),
 
