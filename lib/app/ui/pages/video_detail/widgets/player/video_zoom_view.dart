@@ -498,19 +498,36 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     );
   }
 
+  /// 还原钮跟着工具栏走：工具栏收起时画面上只该剩视频本身，
+  /// 一枚常驻的胶囊会一直压在右下角。跟工具栏同一条动画，显隐同步淡入淡出。
   Widget _buildRestoreButton() {
     return Positioned(
       right: 12,
       bottom: 96,
-      child: Obx(() {
-        if (!_c.isVideoZoomed) return const SizedBox.shrink();
-        final t = slang.Translations.of(context);
-        return _RestorePill(
-          label: t.videoDetail.restoreDefaultZoom,
-          scale: _c.videoZoomScale.value,
-          onTap: _c.requestResetVideoZoom,
-        );
-      }),
+      child: AnimatedBuilder(
+        animation: _c.animationController,
+        builder: (context, child) {
+          final double toolbarValue = _c.animationController.value;
+          return IgnorePointer(
+            // 完全收起时不该再吃点击；淡出途中仍可点，与工具栏自身一致。
+            ignoring: toolbarValue <= 0.0,
+            child: Opacity(opacity: toolbarValue, child: child),
+          );
+        },
+        child: Obx(() {
+          final t = slang.Translations.of(context);
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: !_c.isVideoZoomed
+                ? const SizedBox.shrink()
+                : _RestorePill(
+                    label: t.videoDetail.restoreDefaultZoom,
+                    scale: _c.videoZoomScale.value,
+                    onTap: _c.requestResetVideoZoom,
+                  ),
+          );
+        }),
+      ),
     );
   }
 }
