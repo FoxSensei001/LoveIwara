@@ -1180,7 +1180,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
               children: [
                 SingleChildScrollView(
                   padding: EdgeInsets.fromLTRB(20, 20, 20, _actionBarHeight),
-                  child: _buildDetails(context, showCoverCornerTags: false),
+                  child: _buildDetails(context),
                 ),
                 _buildFloatingActionBar(context),
               ],
@@ -1192,13 +1192,10 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
           top: 0,
           bottom: 0,
           width: _wideCoverWidth,
-          // 封面贴满整条，所以按 BoxFit.cover 裁（[stretch]）；贴边的时长 / 张数 /
-          // R18 那几枚角标一并让位——它们在右栏的统计行里有更好的位置，压在一张
-          // 被裁过的竖长图上只会挤在角落里。
+          // 封面贴满整条，所以按 BoxFit.cover 裁（[stretch]）。
           child: _buildCoverSlot(
             const BorderRadius.horizontal(left: Radius.circular(_panelRadius)),
             stretch: true,
-            showCornerTags: false,
           ),
         ),
       ],
@@ -1253,7 +1250,6 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   Widget _buildCoverSlot(
     BorderRadius borderRadius, {
     bool stretch = false,
-    bool showCornerTags = true,
   }) {
     final t = slang.Translations.of(context);
     final List<MediaFile> images = _galleryImages;
@@ -1269,7 +1265,6 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
             fallbackThumbnailUrl: widget.coverUrl,
             borderRadius: borderRadius,
             stretch: stretch,
-            showCornerTags: showCornerTags,
             onImageTap: _onGalleryImageTap,
             onImageDragStart: _onGalleryImageDragStart,
             onImageDragUpdate: _onGalleryImageDragUpdate,
@@ -1282,7 +1277,6 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
             fallbackThumbnailUrl: widget.coverUrl,
             borderRadius: borderRadius,
             stretch: stretch,
-            showCornerTags: showCornerTags,
           ),
         // 点封面 = 进详情页。
         //
@@ -1330,12 +1324,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     );
   }
 
-  /// [showCoverCornerTags] 为假说明封面那侧不画角标了（宽屏），R18 / 私密 /
-  /// 外链这三项得在统计行里补出来——否则它们整只消失。
-  Widget _buildDetails(
-    BuildContext context, {
-    bool showCoverCornerTags = true,
-  }) {
+  Widget _buildDetails(BuildContext context) {
     final theme = Theme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -1366,7 +1355,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
         // 详情没到手之前统计一律不显示真数字：本地库来的池根本没有这几项，
         // 拿 0 顶上等于把「我们不知道」说成「没人看过」。
         if (_detailReady)
-          _buildStats(context, showStatusBadges: !showCoverCornerTags)
+          _buildStats(context)
         else
           _buildStatsPlaceholder(),
         if (_detailFailed) ...[
@@ -1471,7 +1460,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     );
   }
 
-  Widget _buildStats(BuildContext context, {bool showStatusBadges = false}) {
+  Widget _buildStats(BuildContext context) {
     final t = slang.Translations.of(context);
     final cs = Theme.of(context).colorScheme;
     final Color neutral = cs.onSurfaceVariant;
@@ -1489,19 +1478,19 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
       runSpacing: 6,
       children: [
         // 状态那几枚排在最前：它们是「这条是什么」，比数字更该先看到。
-        if (showStatusBadges && isR18)
+        if (isR18)
           MediaCardStatChip(
             icon: Icons.explicit,
             value: 'R18',
             color: Colors.red,
           ),
-        if (showStatusBadges && isPrivate)
+        if (isPrivate)
           MediaCardStatChip(
             icon: Icons.lock,
             value: t.common.private,
             color: neutral,
           ),
-        if (showStatusBadges && isExternal)
+        if (isExternal)
           MediaCardStatChip(
             icon: Icons.link,
             value: t.common.externalVideo,
@@ -1616,7 +1605,11 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
 }
 
 /// 预览弹窗的封面。**飞行途中那份里也有它**，所以它必须自给自足：不读弹窗里的
-/// 任何状态，贴边标签也只用自带完整 `TextStyle` 的 [BaseTag]。
+/// 任何状态。
+///
+/// ⛔ 这块图上**不压角标**（R18 / 私密 / 外链 / 时长 / 张数）：用户明确要求预览图
+/// 的角落保持干净。那几项在右侧详情的统计行里一项不少（见
+/// `_MediaPreviewDialogState._buildStats`）。
 ///
 /// 视频还会在静态缩略图之上叠一层动图预览（`preview.webp`）——「预览」这两个
 /// 字的价值有一半在这儿；站外视频没有这份资源，就只有缩略图。
@@ -1627,7 +1620,6 @@ class MediaPreviewCover extends StatelessWidget {
     this.gallery,
     this.fallbackThumbnailUrl,
     this.stretch = false,
-    this.showCornerTags = true,
     required this.borderRadius,
   });
 
@@ -1643,12 +1635,6 @@ class MediaPreviewCover extends StatelessWidget {
   /// Hero 飞行途中那份用它：中途的盒子既不是 16:9、每一帧还都在变，套死比例只会
   /// 让封面缩在盒子中间飘着（见 `_MediaPreviewDialogState._buildFlightShuttle`）。
   final bool stretch;
-
-  /// 贴边的那几枚角标（时长 / 张数 / R18 / 私密 / 外链）画不画。
-  ///
-  /// 宽屏版式关掉：封面在那儿被裁成一条竖长图，角标挤在角落里既难认又和右栏的
-  /// 统计行重复，那几项改由 `_MediaPreviewDialogState._buildStats` 一并列出。
-  final bool showCornerTags;
 
   final BorderRadius borderRadius;
 
@@ -1698,12 +1684,6 @@ class MediaPreviewCover extends StatelessWidget {
             placeholder: (context, url) => const SizedBox.shrink(),
             errorWidget: (context, url, error) => const SizedBox.shrink(),
           ),
-        if (showCornerTags)
-          ...buildMediaPreviewCornerTags(
-            context,
-            video: video,
-            gallery: gallery,
-          ),
       ],
     );
 
@@ -1716,96 +1696,11 @@ class MediaPreviewCover extends StatelessWidget {
   }
 }
 
-/// 角标贴在右下角时的那副圆角：贴边那两个角是直角，朝里的那个大一档。
+/// 「第几张 / 共几张」那枚角标的圆角：贴边那两个角是直角，朝里的那个大一档。
 const BorderRadius _cornerTagRightTail = BorderRadius.only(
   topLeft: Radius.circular(6),
   bottomRight: Radius.circular(4),
 );
-
-/// 贴边的那几枚角标（时长 / 张数 / R18 / 私密 / 外链）。
-///
-/// [MediaPreviewCover] 与 [MediaPreviewGalleryPager] 共用：翻页器右下角摆的是
-/// 「第几张 / 共几张」，所以「共几张」那一枚由 [showImageCount] 关掉——同一个角上
-/// 两枚数字叠着看谁都读不懂。
-List<Widget> buildMediaPreviewCornerTags(
-  BuildContext context, {
-  Video? video,
-  ImageModel? gallery,
-  bool showImageCount = true,
-}) {
-  final t = slang.Translations.of(context);
-  final ColorScheme cs = Theme.of(context).colorScheme;
-  const BorderRadius leftTail = BorderRadius.only(
-    topRight: Radius.circular(6),
-    bottomLeft: Radius.circular(4),
-  );
-
-  final bool isR18 = (video?.rating ?? gallery?.rating) == 'ecchi';
-  final bool isPrivate = video?.private == true;
-  final String? duration = video?.minutesDuration;
-  final bool isExternal = video?.isExternalVideo == true;
-  final int? imageCount = showImageCount ? gallery?.numImages : null;
-
-  return <Widget>[
-    if (isR18 || isPrivate)
-      Positioned(
-        left: 0,
-        bottom: 0,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isR18)
-              BaseTag(
-                text: 'R18',
-                backgroundColor: Colors.red,
-                textColor: cs.onSecondary,
-                borderRadius: leftTail,
-              ),
-            if (isPrivate)
-              BaseTag(
-                text: t.common.private,
-                icon: Icons.lock,
-                backgroundColor: Colors.black54,
-                borderRadius: leftTail,
-              ),
-          ],
-        ),
-      ),
-    if (isExternal)
-      Positioned(
-        right: 0,
-        bottom: 0,
-        child: BaseTag(
-          text: t.common.externalVideo,
-          icon: Icons.link,
-          backgroundColor: Colors.black54,
-          borderRadius: _cornerTagRightTail,
-        ),
-      )
-    else if (duration != null)
-      Positioned(
-        right: 0,
-        bottom: 0,
-        child: BaseTag(
-          text: duration,
-          icon: Icons.access_time,
-          backgroundColor: Colors.black54,
-          borderRadius: _cornerTagRightTail,
-        ),
-      )
-    else if (imageCount != null && imageCount > 0)
-      Positioned(
-        right: 0,
-        bottom: 0,
-        child: BaseTag(
-          text: CommonUtils.formatFriendlyNumber(imageCount),
-          icon: Icons.image,
-          backgroundColor: Colors.black54,
-          borderRadius: _cornerTagRightTail,
-        ),
-      ),
-  ];
-}
 
 /// 这份文件进不进翻页器。
 ///
@@ -1858,7 +1753,6 @@ class MediaPreviewGalleryPager extends StatefulWidget {
     this.onImageDragEnd,
     this.fallbackThumbnailUrl,
     this.stretch = false,
-    this.showCornerTags = true,
   });
 
   final ImageModel gallery;
@@ -1890,10 +1784,6 @@ class MediaPreviewGalleryPager extends StatefulWidget {
 
   /// 见 [MediaPreviewCover.stretch]。
   final bool stretch;
-
-  /// 见 [MediaPreviewCover.showCornerTags]。「第几张 / 共几张」那一枚不受它管——
-  /// 它说的是「你翻到哪儿了」，宽屏那份统计行里没有对应项。
-  final bool showCornerTags;
 
   @override
   State<MediaPreviewGalleryPager> createState() =>
@@ -2065,15 +1955,8 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
             itemBuilder: _buildPage,
           ),
         ),
-        if (widget.showCornerTags)
-          ...buildMediaPreviewCornerTags(
-            context,
-            gallery: widget.gallery,
-            // 只有一张时右下角还是照常摆「共几张」，多张才换成下面那枚计数。
-            showImageCount: widget.images.length <= 1,
-          ),
-        // 右下角那一枚从「共几张」换成「第几张 / 共几张」：位置与读法都和卡片
-        // 一致，只是现在它还告诉你自己翻到哪儿了。
+        // 右下角唯一留着的一枚：「第几张 / 共几张」。它说的是「你翻到哪儿了」，
+        // 是翻页器自己的状态，别的地方没有——不属于被清掉的那批媒体角标。
         if (widget.images.length > 1)
           Positioned(
             right: 0,
