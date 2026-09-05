@@ -2525,7 +2525,6 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '開啟影片自動進入空間播放器';
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。';
-	@override String get entryTooltip => '播放模式（VR / 立體）';
 	@override String get desc => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立體';
@@ -2552,6 +2551,13 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 	@override String get panoramaHint => '拖曳畫面即可環視，捏合改變視野';
 	@override String get panoramaGestureNotice => '環視時畫面區的拖曳用於轉頭，快轉請用進度條';
 	@override String get shaderUnsupported => '本機不支援即時環視，已退回單眼顯示';
+	@override String get handoffTooltip => '換個方式播放';
+	@override String get suggestedBadge => '建議';
+	@override String suggestedEntryDesc({required Object format}) => '可能是 ${format}，點這裡切過去';
+	@override String suggestionTitle({required Object format}) => '這可能是 VR 影片（${format}）';
+	@override String get suggestionTitleShort => '這可能是 VR 影片';
+	@override String get suggestionAction => '以 VR 播放';
+	@override String get suggestionDismiss => '不再提示';
 }
 
 // Path: common.pagination
@@ -6378,7 +6384,6 @@ extension on TranslationsZhTw {
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '開啟影片自動進入空間播放器',
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。',
-			'vrFormat.entryTooltip' => '播放模式（VR / 立體）',
 			'vrFormat.desc' => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立體',
@@ -6405,6 +6410,13 @@ extension on TranslationsZhTw {
 			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
 			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',
 			'vrFormat.shaderUnsupported' => '本機不支援即時環視，已退回單眼顯示',
+			'vrFormat.handoffTooltip' => '換個方式播放',
+			'vrFormat.suggestedBadge' => '建議',
+			'vrFormat.suggestedEntryDesc' => ({required Object format}) => '可能是 ${format}，點這裡切過去',
+			'vrFormat.suggestionTitle' => ({required Object format}) => '這可能是 VR 影片（${format}）',
+			'vrFormat.suggestionTitleShort' => '這可能是 VR 影片',
+			'vrFormat.suggestionAction' => '以 VR 播放',
+			'vrFormat.suggestionDismiss' => '不再提示',
 			_ => null,
 		};
 	}

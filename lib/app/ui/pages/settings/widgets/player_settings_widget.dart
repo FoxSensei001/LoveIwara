@@ -389,26 +389,38 @@ class PlayerSettingsWidget extends StatelessWidget {
       // 排在画面尺寸前面是刻意的：画面尺寸回答「画面占多大地方」，播放模式回答
       // 「这段画面到底是什么几何」——后者错了，前者怎么调都是错的。
       //
-      // 这是窄屏上唯一的入口（顶栏那枚钮只在 ≥600dp 露出），所以它必须常在。
+      // 顶栏那枚「换个方式放」聚合钮现在所有尺寸都露出（见 PlaybackHandoffButton），
+      // 这里不再是窄屏的唯一入口；留着是因为「几何」与「画面尺寸」本来就该并排，
+      // 用户在设置里调完尺寸发现还是不对时，答案得在他手边。
       if (playerController != null)
         PlayerSettingsSection(
           id: 'vrFormat',
           icon: Icons.threesixty,
           title: t.vrFormat.title,
           content: _groupCard([
-            Obx(
-              () => _selectionTile(
+            Obx(() {
+              // 机器猜的那一档在选单里打上「建议」：画面从来不会自动换几何，
+              // 这个标是用户唯一看得到「该选哪一档」的线索（顶栏那枚钮吐出来
+              // 的菜单同理，见 showVrFormatMenu）。
+              final suggested = playerController!.vrSuggestion.value?.format;
+              return _selectionTile(
                 context: context,
                 iconData: Icons.threesixty,
                 label: t.vrFormat.title,
-                description: t.vrFormat.desc,
+                description: suggested == null
+                    ? t.vrFormat.desc
+                    : t.vrFormat.suggestedEntryDesc(
+                        format: vrFormatLabel(suggested),
+                      ),
                 currentValue: playerController!.vrFormat.toConfigString(),
                 options: kVrFormatOptions
                     .map((format) => format.toConfigString())
                     .toList(),
                 optionLabels: {
                   for (final format in kVrFormatOptions)
-                    format.toConfigString(): vrFormatLabel(format),
+                    format.toConfigString(): format == suggested
+                        ? '${vrFormatLabel(format)} · ${t.vrFormat.suggestedBadge}'
+                        : vrFormatLabel(format),
                 },
                 optionDescriptions: {
                   for (final format in kVrFormatOptions)
@@ -417,8 +429,8 @@ class PlayerSettingsWidget extends StatelessWidget {
                 onChanged: (value) => playerController!.setVrFormat(
                   VrSourceFormat.fromConfigString(value),
                 ),
-              ),
-            ),
+              );
+            }),
             // 环视视角是会话级的「我正看着哪儿」，转迷路了要有一键回正。
             Obx(
               () => _navigationTile(

@@ -6329,9 +6329,6 @@ class TranslationsVrFormatEn {
 	/// en: 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.'
 	String get autoEnterImmersiveDesc => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.';
 
-	/// en: 'Playback mode (VR / 3D)'
-	String get entryTooltip => 'Playback mode (VR / 3D)';
-
 	/// en: 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.'
 	String get desc => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.';
 
@@ -6409,6 +6406,27 @@ class TranslationsVrFormatEn {
 
 	/// en: 'This device cannot render live panorama; showing a single eye instead'
 	String get shaderUnsupported => 'This device cannot render live panorama; showing a single eye instead';
+
+	/// en: 'Play another way'
+	String get handoffTooltip => 'Play another way';
+
+	/// en: 'Suggested'
+	String get suggestedBadge => 'Suggested';
+
+	/// en: 'Looks like ${format} — tap to switch'
+	String suggestedEntryDesc({required Object format}) => 'Looks like ${format} — tap to switch';
+
+	/// en: 'This may be a VR video (${format})'
+	String suggestionTitle({required Object format}) => 'This may be a VR video (${format})';
+
+	/// en: 'This may be a VR video'
+	String get suggestionTitleShort => 'This may be a VR video';
+
+	/// en: 'Play as VR'
+	String get suggestionAction => 'Play as VR';
+
+	/// en: 'Dismiss'
+	String get suggestionDismiss => 'Dismiss';
 }
 
 // Path: common.pagination
@@ -11701,7 +11719,6 @@ extension on Translations {
 			'vrFormat.title' => 'Playback mode',
 			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
 			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',
-			'vrFormat.entryTooltip' => 'Playback mode (VR / 3D)',
 			'vrFormat.desc' => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.',
 			'vrFormat.sectionFlat' => 'Flat',
 			'vrFormat.sectionStereo' => 'Flat 3D',
@@ -11728,6 +11745,13 @@ extension on Translations {
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
 			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
+			'vrFormat.handoffTooltip' => 'Play another way',
+			'vrFormat.suggestedBadge' => 'Suggested',
+			'vrFormat.suggestedEntryDesc' => ({required Object format}) => 'Looks like ${format} — tap to switch',
+			'vrFormat.suggestionTitle' => ({required Object format}) => 'This may be a VR video (${format})',
+			'vrFormat.suggestionTitleShort' => 'This may be a VR video',
+			'vrFormat.suggestionAction' => 'Play as VR',
+			'vrFormat.suggestionDismiss' => 'Dismiss',
 			_ => null,
 		};
 	}

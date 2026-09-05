@@ -273,6 +273,7 @@ class MyVideoStateController extends GetxController
     isDesktopAppFullScreen.value = false;
     appS.showSystemUI();
   }
+
   bool _suppressFullscreenCleanupOnce = false;
   bool firstLoaded = false;
   bool _initialPlaybackDecisionResolved = false;
@@ -329,12 +330,13 @@ class MyVideoStateController extends GetxController
 
   // ── VR 片源格式（L1）与平面环视视角 ──────────────────────────────────────
 
-  /// 当前视频的片源格式判定：投影 + 立体编排 + 「谁定的」。
+  /// 当前**生效**的片源格式：投影 + 立体编排 + 「谁定的」。
   ///
-  /// ⛔ **这不是判决，是默认档。** Iwara 既不给格式元数据、文件里也不带球面标记
-  /// （实测 st3d/sv3d 零命中），所以「这是不是 VR 片」原理上不可知。推断只负责把
-  /// 播放模式开关的初始位置摆对，最终由用户在播放器里选；一旦用户选过，来源变成
-  /// [VrVerdictSource.userSpecified]，此后任何推断都不再覆盖它。
+  /// ⛔ **推断永远走不进这里。** Iwara 既不给格式元数据、文件里也不带球面标记
+  /// （实测 st3d/sv3d 零命中），所以「这是不是 VR 片」原理上不可知。机器认为
+  /// 是 VR 时只挂一条建议（[vrSuggestion] + 画面上那条提示），画面**照旧按平面
+  /// 播**，等用户点头才换几何。真正会写进这里的只有两种来源：用户当场选的，
+  /// 以及用户从前对这条视频选过、被 [VrFormatOverrideService] 记住的。
   ///
   /// 兜底方向是刻意的：认不出来一律当普通平面视频放。把普通视频误判成 VR 会
   /// 得到一幅完全没法看的画面，代价远大于把 VR 当平面放（顶多挤扁，还能看）。
@@ -343,7 +345,44 @@ class MyVideoStateController extends GetxController
     confidence: 0.9,
   ).obs;
 
+  /// 机器认为这条视频「可能是 VR」时挂在这里的建议档，null 表示看着是普通视频。
+  ///
+  /// 它**不影响画面**，只喂两处 UI：画面上那条「这可能是 VR 视频」提示，以及
+  /// 播放模式菜单里给建议档打的那枚标（让用户一眼看出该选哪一档）。
+  final Rxn<VrFormatVerdict> vrSuggestion = Rxn<VrFormatVerdict>();
+
+  /// 画面上那条 VR 建议提示要不要显示。
+  final RxBool showVrSuggestionTip = false.obs;
+
+  /// 提示在屏幕上停留多久。比续播提示（8 秒）长一档：那条只要「知道了」，
+  /// 这条要用户先接受「我在看的可能是 VR 片」这件事，再决定点不点。
+  static const Duration kVrSuggestionDwell = Duration(seconds: 12);
+
+  Timer? _vrSuggestionTimer;
+
+  /// 本条视频已经主动提过一次。提示是**一次性告知**，被用户关掉或自动到期之后
+  /// 不再冒出来——建议本身还留在 [vrSuggestion] 里，顶栏那个入口随时够得着。
+  bool _vrSuggestionOffered = false;
+
   VrSourceFormat get vrFormat => vrFormatVerdict.value.format;
+
+  /// 交给 XR 沉浸空间时用的格式：用户选过就用他的，没选过就**采纳机器的建议**。
+  ///
+  /// ⚠️ 这里和平面播放器**刻意不一样**（那边推断一律不自动生效，见
+  /// [vrFormatVerdict]），因为两边猜错的代价不对称：
+  ///
+  ///   - 平面播放器里换几何是把一幅画面拆开重铺，猜错就是「视频坏了」，而画面
+  ///     就在眼前、提示也在，问一句的成本极低；
+  ///   - 头显里没有「不选」这个选项——片子总得贴在某个形状上。等距片贴上平面
+  ///     幕布同样没法看，此时「不猜」并不比「猜错」安全，反倒把 Quest 上原本
+  ///     一进去就正确的观感（真机验过：Equirect180 + LeftRight 全对）弄丢了。
+  ///     用户在空间控制面板里随时能改。
+  VrSourceFormat get vrFormatForImmersive {
+    if (vrFormatVerdict.value.source == VrVerdictSource.userSpecified) {
+      return vrFormat;
+    }
+    return vrSuggestion.value?.format ?? vrFormat;
+  }
 
   /// 需不需要走 VR 呈现层：只要不是「平面 + 单目」就要（单眼裁切或平面环视）。
   bool get needsVrPresentation => vrFormat != VrSourceFormat.flatMono;
@@ -458,10 +497,50 @@ class MyVideoStateController extends GetxController
     // null 的语义是「没有可用宽高，判决推迟」，不是「判成平面」——直接返回，
     // 等起播后 _refreshVrFormatFromPlayback 再来一次。
     if (verdict == null || _isDisposed || _vrOverrideApplied) return;
+
+    // ⛔ 推断出 VR **不自动换几何**，只挂建议。
+    //
+    // 换几何是把整幅画面拆开重铺，判错的观感是「视频坏了」，而这条判断的最后
+    // 一道裁判只是宽高比 ≈2:1——2.0:1 也是一种真实存在的电影画幅，撞上就会把
+    // 一部普通片当场拆成两半。反过来漏判的代价只是「没自动切」，而提示就摆在
+    // 画面上、顶栏入口也一直在，用户点两下就到位。两边不对称，所以宁可漏。
+    if (verdict.isVr) {
+      _armVrSuggestionTip(verdict);
+      return;
+    }
+
+    // 判成平面：连带把之前挂过的建议撤掉（宽高比改口了，之前那条不再成立）。
+    vrSuggestion.value = null;
+    hideVrSuggestionTip();
     if (vrFormatVerdict.value == verdict) return;
     final bool formatChanged = vrFormatVerdict.value.format != verdict.format;
     vrFormatVerdict.value = verdict;
     if (formatChanged) resetVrView();
+  }
+
+  /// 挂上 VR 建议，并在画面已经跑起来时亮出那条提示。
+  ///
+  /// 提示刻意等 [videoPlayerReady]：38% 的视频在详情期就拿得到 file 宽高，那时
+  /// 画面还是一块加载中的黑底，提示浮在上面像是加载失败的报错。剩下 62% 本来就
+  /// 要等起播后复判，两条路径因此统一到「画面出来了才提示」。
+  /// 起播后的复判由 [_updateAspectRatio] 保证一定会再来一次，不会漏。
+  void _armVrSuggestionTip(VrFormatVerdict verdict) {
+    if (_isDisposed || _vrOverrideApplied) return;
+    vrSuggestion.value = verdict;
+    if (_vrSuggestionOffered || !videoPlayerReady.value) return;
+    _vrSuggestionOffered = true;
+    showVrSuggestionTip.value = true;
+    _vrSuggestionTimer?.cancel();
+    _vrSuggestionTimer = Timer(kVrSuggestionDwell, () {
+      if (_isDisposed) return;
+      showVrSuggestionTip.value = false;
+    });
+  }
+
+  /// 收起 VR 建议提示（用户点了 ×、选过格式、或判决改口了）。
+  void hideVrSuggestionTip() {
+    showVrSuggestionTip.value = false;
+    _vrSuggestionTimer?.cancel();
   }
 
   /// 用户手动选定播放模式：立即生效、不需要确认、按视频**永久**记住。
@@ -474,6 +553,9 @@ class MyVideoStateController extends GetxController
     final bool changed = vrFormatVerdict.value.format != format;
     _vrOverrideApplied = true;
     _vrOverrideLookupDone = true;
+    // 用户已经表态，建议提示就该收起来——不管他选的是不是建议的那一档。
+    _vrSuggestionOffered = true;
+    hideVrSuggestionTip();
     vrFormatVerdict.value = VrFormatVerdict.userSpecified(format);
     if (changed) {
       resetVideoZoomImmediately();
@@ -486,10 +568,24 @@ class MyVideoStateController extends GetxController
   }
 
   /// 撤销手动覆盖，把默认档交回给自动推断。
+  ///
+  /// ⛔ 必须**当场**把生效档打回平面，不能指望随后的复判来覆盖：推断出 VR 时只
+  /// 挂建议、不写 [vrFormatVerdict]（见 [_applyInferredVerdict]），复判一句话都
+  /// 不会往里写。少了这一步，「恢复自动识别」点完画面还是 VR、来源还是「已手动
+  /// 指定」，整个动作看着像没生效。
   void resetVrFormatToInferred() {
     if (_isDisposed) return;
     _vrOverrideApplied = false;
     _vrInferenceSignature = null;
+    vrFormatVerdict.value = const VrFormatVerdict.inferred(
+      VrSourceFormat.flatMono,
+      confidence: 0.9,
+    );
+    // 交回自动 = 回到「没人表过态」的状态，所以那条建议提示的一次性额度也退回去：
+    // 复判如果仍然认为是 VR，用户应当重新看到它。
+    _vrSuggestionOffered = false;
+    vrSuggestion.value = null;
+    hideVrSuggestionTip();
     final id = videoId;
     if (id != null && id.isNotEmpty) {
       unawaited(_vrOverrideService?.remove(id) ?? Future<void>.value());
@@ -774,6 +870,7 @@ class MyVideoStateController extends GetxController
     _autoFullscreenWorkerVideoInfo?.dispose();
     _autoFullscreenWorkerVideoInfo = null;
   }
+
   final RxList<VideoSource> currentVideoSourceList = <VideoSource>[].obs;
 
   // ---- 视频画面缩放 / 平移 / 旋转（双指捏合 + 旋转、Ctrl+滚轮、拖动移动画面）----
@@ -1247,7 +1344,7 @@ class MyVideoStateController extends GetxController
         : _deferredInitialPlaybackPosition;
     final ok = await xr.present(
       url: chosen?.url ?? url,
-      format: vrFormat,
+      format: vrFormatForImmersive,
       title: videoInfo.value?.title?.trim() ?? '',
       videoId: videoId,
       width: sourceVideoWidth.value,
@@ -2793,6 +2890,7 @@ class MyVideoStateController extends GetxController
     _autoHideTimer?.cancel();
     _mouseMovementTimer?.cancel();
     _resumeTipTimer?.cancel();
+    _vrSuggestionTimer?.cancel();
     _speedChangeDebouncer?.cancel();
     _bufferUpdateThrottleTimer?.cancel();
     _previewSeekThrottleTimer?.cancel();

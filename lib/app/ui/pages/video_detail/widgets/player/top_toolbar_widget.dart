@@ -649,20 +649,14 @@ class _TopToolbarState extends State<TopToolbar> {
                       onPressed: _presentInImmersiveSpace,
                     );
                   }),
-                  // 「用其他应用打开」：把当前视频交给本机其它播放器。
-                  // 摆在投屏旁边是因为语义同类（都是「不在这儿放，换个地方放」），
-                  // 而 VR 头显上它是唯一能放 VR/180/360 片源的路子。
-                  if (!GetPlatform.isWeb)
-                    IconButton(
-                      tooltip: t.externalPlayer.title,
-                      icon: Icon(
-                        Icons.open_in_new,
-                        color: Colors.white,
-                        size: iconSize,
-                      ),
-                      onPressed: () => widget.myVideoStateController
-                          .showExternalPlayerDialog(),
-                    ),
+                  // 「换个方式放」：一枚钮吐出两条路——交给本机其它播放器，或者
+                  // 换一套几何（VR 180/360、左右 3D）在这儿放。合成一枚的理由
+                  // （语义同类 + 顶栏宽度）见 [PlaybackHandoffButton] 的类文档。
+                  // 摆在投屏旁边是因为语义再同类不过：都是「不这么放」。
+                  PlaybackHandoffButton(
+                    controller: widget.myVideoStateController,
+                    iconSize: iconSize,
+                  ),
                   if (!GetPlatform.isWeb &&
                       !GetPlatform.isLinux &&
                       !widget.myVideoStateController.isLocalVideoMode)
@@ -725,18 +719,6 @@ class _TopToolbarState extends State<TopToolbar> {
                         }
                       },
                     ),
-                  // 播放模式（VR / 立体）。
-                  //
-                  // ⛔ 只在宽屏（全屏、平板、桌面）露出：右侧这排图标是定宽的，
-                  // 左边那排（返回 + 主页）也是，两边加起来在 360dp 竖屏内嵌播放器
-                  // 上已经贴着边，再加一枚就把左排挤出边界（本项目在这条工具栏上
-                  // 出过 OVERFLOWED 条）。窄屏走「⋮ → 播放模式」，与画面尺寸同一个
-                  // 入口，不会因此够不着。
-                  if (MediaQuery.sizeOf(context).width >= 600)
-                    VrFormatButton(
-                      controller: widget.myVideoStateController,
-                      iconSize: iconSize,
-                    ),
                   _buildAnime4KButton(context, iconSize),
                   IconButton(
                     tooltip: t.videoDetail.moreSettings,
@@ -768,15 +750,16 @@ class _TopToolbarState extends State<TopToolbar> {
   /// 交给 `selected`（对勾 + 主色），不再自己画 check_circle。
   /// 把当前视频交给沉浸空间呈现。
   ///
-  /// 格式直接用播放器已有的 L1 判定（`vrFormat`）——⛔ 那是**默认档不是判决**，
-  /// 用户在「播放模式」里选过就以用户的为准，这里原样透传即可。
+  /// 格式走 `vrFormatForImmersive`：用户在「播放模式」里选过就以用户的为准，
+  /// 没选过则采纳机器的建议——⛔ 与平面播放器**刻意不同**（那边推断从不自动
+  /// 生效），理由见那个 getter 的注释。
   Future<void> _presentInImmersiveSpace() async {
     final c = widget.myVideoStateController;
     final url = c.currentMediaSource;
     if (url == null || url.isEmpty) return;
     await Get.find<XrImmersiveService>().present(
       url: url,
-      format: c.vrFormat,
+      format: c.vrFormatForImmersive,
       // 标题与 id 是空间控制面板要的：前者显示在面板上，后者让「接着看」列表能
       // 把当前这条高亮出来（否则用户在列表里看不出自己正在放哪条）。
       title: c.videoInfo.value?.title?.trim() ?? '',

@@ -2525,7 +2525,6 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	@override String get title => '再生モード';
 	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
 	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
-	@override String get entryTooltip => '再生モード（VR / 立体）';
 	@override String get desc => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -2552,6 +2551,13 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	@override String get panoramaHint => '画面をドラッグで見回し、ピンチで視野角を変更';
 	@override String get panoramaGestureNotice => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください';
 	@override String get shaderUnsupported => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました';
+	@override String get handoffTooltip => '別の方法で再生';
+	@override String get suggestedBadge => 'おすすめ';
+	@override String suggestedEntryDesc({required Object format}) => '${format} の可能性があります。タップで切り替え';
+	@override String suggestionTitle({required Object format}) => 'これは VR 動画かもしれません（${format}）';
+	@override String get suggestionTitleShort => 'これは VR 動画かもしれません';
+	@override String get suggestionAction => 'VR で再生';
+	@override String get suggestionDismiss => '表示しない';
 }
 
 // Path: common.pagination
@@ -6378,7 +6384,6 @@ extension on TranslationsJa {
 			'vrFormat.title' => '再生モード',
 			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',
 			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',
-			'vrFormat.entryTooltip' => '再生モード（VR / 立体）',
 			'vrFormat.desc' => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',
@@ -6405,6 +6410,13 @@ extension on TranslationsJa {
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
 			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
+			'vrFormat.handoffTooltip' => '別の方法で再生',
+			'vrFormat.suggestedBadge' => 'おすすめ',
+			'vrFormat.suggestedEntryDesc' => ({required Object format}) => '${format} の可能性があります。タップで切り替え',
+			'vrFormat.suggestionTitle' => ({required Object format}) => 'これは VR 動画かもしれません（${format}）',
+			'vrFormat.suggestionTitleShort' => 'これは VR 動画かもしれません',
+			'vrFormat.suggestionAction' => 'VR で再生',
+			'vrFormat.suggestionDismiss' => '表示しない',
 			_ => null,
 		};
 	}

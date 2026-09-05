@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform, visibleForTesting;
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -25,73 +25,19 @@ import '../../../../../../utils/common_utils.dart';
 import '../../../../../services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import '../../controllers/my_video_state_controller.dart';
+import 'package:i_iwara/app/models/vr_format.model.dart';
+
 import 'custom_slider_bar_shape_widget.dart';
 import 'toolbar_fade_visibility.dart';
+import 'vr/vr_format_menu.dart';
+import 'vr/vr_suggestion_tip.dart';
+import 'widgets/player_tip_metrics.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
 
-/// 续播提示的几何常量。**组件与 [bottomToolbarEstimatedHeight] 共用同一份**，
-/// 否则改了布局却忘了改估算，就会变成「预留对不上真实高度」——这个文件顶部那段
-/// 注释记的 64/108 两个魔数就是这么来的。
-const double kResumeTipGap = 8.0; // 提示与下方进度条之间
-const double kResumeTipVPad = 4.0; // 提示胶囊上下内边距
-const double kResumeTipHPad = 10.0;
-
-/// 「从头播放」按钮的高度。触摸端给大一些——它是这条提示上唯一的操作，
-/// 按不中比看不见更让人恼火；桌面端指针精确，收紧以免这条提示占掉太多画面。
-final double kResumeTipActionHeight = switch (defaultTargetPlatform) {
-  TargetPlatform.android ||
-  TargetPlatform.iOS ||
-  TargetPlatform.fuchsia => 32.0,
-  _ => 26.0,
-};
-
-double resumeTipFontSize({required bool isFullScreen}) =>
-    isFullScreen ? 13.0 : 11.5;
-
-const double kResumeTipGapInner = 6.0;
-const double kResumeTipGapTight = 2.0;
-const double kResumeTipActionHPad = 10.0;
-
-/// 文字至少要留出这么宽，否则省略号之后什么都读不到。
-const double kResumeTipMinTextWidth = 40.0;
-
-/// 提示条的显示密度。窄屏不是靠换行解决的（换行会让高度估算变成两套），
-/// 而是**按优先级逐层脱衣服**：先丢装饰，最后才让动作按钮的文字也省略。
-enum ResumeTipDensity {
-  /// 图标 + 文字 + 动作 + 关闭
-  full,
-
-  /// 文字 + 动作（丢掉图标与关闭钮——它们是装饰，提示 8 秒后本来就自动消失）
-  compact,
-
-  /// 极窄：动作按钮的文字也允许省略，只求绝不溢出
-  minimal,
-}
-
-/// 按可用宽度决定显示密度。
-///
-/// 传进来的宽度都是**实测值**（TextPainter 量的），不是拍脑袋的阈值：
-/// 中日英三种语言、不同字号、系统字体放大，同一个阈值不可能都合适。
-@visibleForTesting
-ResumeTipDensity resolveResumeTipDensity({
-  required double maxWidth,
-  required double actionWidth,
-  required double iconWidth,
-  required double closeWidth,
-}) {
-  final double content = maxWidth - kResumeTipHPad * 2;
-  final double compactNeed =
-      kResumeTipMinTextWidth + kResumeTipGapInner + actionWidth;
-  final double fullNeed =
-      iconWidth +
-      kResumeTipGapInner +
-      compactNeed +
-      kResumeTipGapTight +
-      closeWidth;
-  if (content >= fullNeed) return ResumeTipDensity.full;
-  if (content >= compactNeed) return ResumeTipDensity.compact;
-  return ResumeTipDensity.minimal;
-}
+// 提示胶囊那一槽的几何与密度规则住在 player_tip_metrics.dart（续播提示与 VR 建议
+// 提示共用）。这里转出去，是因为 bottomToolbarEstimatedHeight 与它们本来就是一本
+// 账，调用方（含测试）从工具栏这个入口拿到全套才不会有人各拿一半。
+export 'widgets/player_tip_metrics.dart';
 
 /// 底部工具栏的预估高度。放在这里而不是调用方，是为了让它跟着本文件的布局一起改，
 /// 两边不会各自漂移 —— 之前 64/108 两个魔数就是这么和真实高度对不上的。
@@ -103,6 +49,7 @@ double bottomToolbarEstimatedHeight({
   required bool isFullScreen,
   required bool isSmallScreen, // MediaQuery.size.width < 600，看的是窗口不是播放器
   required bool showResumeTip, // controller.showResumePositionTip.value
+  required bool showVrTip, // controller.showVrSuggestionTip.value
   required bool
   showQuickActions, // isFullScreen && userService.hasLoadedProfile
   required double
@@ -115,21 +62,18 @@ double bottomToolbarEstimatedHeight({
       ? (isSmallScreen ? 36.0 : 40.0)
       : (isSmallScreen ? 32.0 : 36.0);
 
-  // 续播提示：Padding(bottom kResumeTipGap) + Container(vertical kResumeTipVPad x2)
-  // + Row 高度 = max(文字行盒, 动作按钮)。
-  // 1.45 是中日韩字体的行高比（Noto Sans CJK / PingFang）；主题没设 textTheme
-  // 的 height，行高由字体决定，这里按最坏情况预留。
+  // 提示胶囊那一槽：续播提示与 VR 建议提示各占一条，**可以同时在**（刚打开一条
+  // 看过一半的 VR 视频就是两条一起）。两条都强制单行、共用同一份几何，所以这里
+  // 就是「有几条 × 一条多高」。
   //
-  // 提示**强制单行**（文字用 Flexible + ellipsis 收缩，不换行），所以这里只有一种
-  // 高度。允许换行的话这本账就要分两套，而它同时被源错误浮层与全屏播放列表抽屉
-  // 依赖 —— 算错的代价是子组件溢出到播放条上、按钮把点击吃掉。
-  final double tipLine =
-      textScaler.scale(resumeTipFontSize(isFullScreen: isFullScreen)) * 1.45;
-  final double resumeTip = showResumeTip
-      ? kResumeTipGap +
-            kResumeTipVPad * 2 +
-            math.max(tipLine, kResumeTipActionHeight)
-      : 0.0;
+  // 允许换行的话这本账就要分两套，而它同时被源错误浮层与全屏播放列表抽屉依赖
+  // —— 算错的代价是子组件溢出到播放条上、按钮把点击吃掉。
+  final double capsule = playerTipCapsuleHeight(
+    isFullScreen: isFullScreen,
+    textScaler: textScaler,
+  );
+  final double tipCapsules =
+      (showResumeTip ? capsule : 0.0) + (showVrTip ? capsule : 0.0);
 
   // 全屏顶部互动层：Container(vertical 4 x2) + Row(TextButton.icon / 头像 30 / 28)。
   // TextButton 的 M3 最小高度是 40，但移动端 materialTapTargetSize 仍是 padded，
@@ -148,7 +92,7 @@ double bottomToolbarEstimatedHeight({
       vPad +
       progressBar +
       controlRow +
-      resumeTip +
+      tipCapsules +
       bottomInset;
 }
 
@@ -202,6 +146,9 @@ class BottomToolbar extends StatelessWidget {
         children: [
           if (currentScreenIsFullScreen)
             _buildTopInteractionLayer(context, isSmallScreen),
+          // VR 建议在续播之上：前者说的是「你可能正用错的几何在看」——画面本身
+          // 就不对，比「从哪儿接着看」更急。
+          _buildVrSuggestionTip(),
           _buildResumeTip(),
           _buildBottomToolbar(context, isSmallScreen, iconSize, t, bottomInset),
         ],
@@ -235,6 +182,41 @@ class BottomToolbar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// VR 建议提示。与续播提示同一槽、同一套几何，理由见 [ResumePositionTip] 的
+  /// 类文档（住在工具栏的 Column 里而不是自己起一层浮层）。
+  ///
+  /// 「以 VR 播放」不直接套用建议档，而是打开播放模式菜单：机器只是**猜**这是
+  /// VR，猜的是 180 还是 360、左右还是上下更是靠行业缺省填的，一步到位等于替
+  /// 用户拍板。菜单里那一档已经预先高亮（见 `showVrFormatMenu`），所以用户看到
+  /// 的仍然是「点提示 → 点那一档」两下。
+  Widget _buildVrSuggestionTip() {
+    return Padding(
+      // 与下方工具栏内容左右对齐（那个 Container 的水平内边距也是 12）。
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Obx(() {
+        final suggestion = myVideoStateController.vrSuggestion.value;
+        return ResumeTipReveal(
+          visible:
+              myVideoStateController.showVrSuggestionTip.value &&
+              suggestion != null,
+          child: VrSuggestionTip(
+            // 退场动画期间 suggestion 可能已经被清空，胶囊却还要有内容可画
+            // （AnimatedSwitcher 保留旧 child，但那只 child 会被重建一次）。
+            format: suggestion?.format ?? VrSourceFormat.flatMono,
+            isFullScreen: currentScreenIsFullScreen,
+            onOpenPicker: (anchorContext) => unawaited(
+              showVrFormatMenu(
+                anchorContext: anchorContext,
+                controller: myVideoStateController,
+              ),
+            ),
+            onDismiss: myVideoStateController.hideVrSuggestionTip,
+          ),
+        );
+      }),
     );
   }
 
@@ -1107,7 +1089,7 @@ class ResumePositionTip extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final double actionWidth =
-                    _measureText(actionLabel, actionStyle, scaler) +
+                    measurePlayerTipText(actionLabel, actionStyle, scaler) +
                     kResumeTipActionHPad * 2;
                 final ResumeTipDensity density = resolveResumeTipDensity(
                   maxWidth: constraints.maxWidth,
@@ -1173,20 +1155,6 @@ class ResumePositionTip extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  /// 量一段文字实际多宽。阈值必须来自实测：中日英三种语言、不同字号、
-  /// 系统字体放大，同一个写死的阈值不可能都合适。
-  static double _measureText(String text, TextStyle style, TextScaler scaler) {
-    final painter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-      textScaler: scaler,
-      maxLines: 1,
-    )..layout();
-    final width = painter.width;
-    painter.dispose();
-    return width;
   }
 }
 

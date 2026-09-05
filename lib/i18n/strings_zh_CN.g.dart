@@ -2525,7 +2525,6 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
-	@override String get entryTooltip => '播放模式（VR / 立体）';
 	@override String get desc => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -2552,6 +2551,13 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	@override String get panoramaHint => '拖动画面即可环视，捏合改变视野';
 	@override String get panoramaGestureNotice => '环视时画面区的拖动用于转头，快进请用进度条';
 	@override String get shaderUnsupported => '本机不支持实时环视，已退回单眼显示';
+	@override String get handoffTooltip => '换个方式播放';
+	@override String get suggestedBadge => '建议';
+	@override String suggestedEntryDesc({required Object format}) => '可能是 ${format}，点这里切过去';
+	@override String suggestionTitle({required Object format}) => '这可能是 VR 视频（${format}）';
+	@override String get suggestionTitleShort => '这可能是 VR 视频';
+	@override String get suggestionAction => '以 VR 播放';
+	@override String get suggestionDismiss => '不再提示';
 }
 
 // Path: common.pagination
@@ -6378,7 +6384,6 @@ extension on TranslationsZhCn {
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',
-			'vrFormat.entryTooltip' => '播放模式（VR / 立体）',
 			'vrFormat.desc' => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',
@@ -6405,6 +6410,13 @@ extension on TranslationsZhCn {
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
 			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
+			'vrFormat.handoffTooltip' => '换个方式播放',
+			'vrFormat.suggestedBadge' => '建议',
+			'vrFormat.suggestedEntryDesc' => ({required Object format}) => '可能是 ${format}，点这里切过去',
+			'vrFormat.suggestionTitle' => ({required Object format}) => '这可能是 VR 视频（${format}）',
+			'vrFormat.suggestionTitleShort' => '这可能是 VR 视频',
+			'vrFormat.suggestionAction' => '以 VR 播放',
+			'vrFormat.suggestionDismiss' => '不再提示',
 			_ => null,
 		};
 	}

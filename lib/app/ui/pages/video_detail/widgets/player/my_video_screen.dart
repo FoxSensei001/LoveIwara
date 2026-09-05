@@ -1669,6 +1669,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       isFullScreen: widget.isFullScreen,
       isSmallScreen: screenSize.width < 600,
       showResumeTip: widget.myVideoStateController.showResumePositionTip.value,
+      showVrTip: widget.myVideoStateController.showVrSuggestionTip.value,
       showQuickActions:
           widget.isFullScreen && Get.find<UserService>().hasLoadedProfile,
       bottomInset: (!widget.isFullScreen && widget.enableBottomSafeArea)

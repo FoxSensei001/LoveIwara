@@ -293,6 +293,7 @@ void main() {
               isFullScreen: fullScreen,
               isSmallScreen: false,
               showResumeTip: showResumeTip,
+              showVrTip: false,
               showQuickActions: false,
               bottomInset: 0,
               textScaler: TextScaler.noScaling,
