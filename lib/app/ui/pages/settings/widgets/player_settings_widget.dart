@@ -445,23 +445,26 @@ class PlayerSettingsWidget extends StatelessWidget {
               ),
             ),
             // Quest 专属：只在沉浸场景活着时露出（standard 变体永远不露）。
-            Obx(() {
-              if (!Get.isRegistered<XrImmersiveService>() ||
-                  !Get.find<XrImmersiveService>().available.value) {
-                return const SizedBox.shrink();
-              }
-              return _switchTile(
-                context: context,
-                iconData: Icons.view_in_ar,
-                label: t.vrFormat.autoEnterImmersive,
-                description: t.vrFormat.autoEnterImmersiveDesc,
-                rxValue: _configService
-                    .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
-                onChanged: (value) {
-                  _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] = value;
-                },
-              );
-            }),
+            // ⛔ 「有没有注册」的判断放在 Obx 外面：放在里面用 `||` 短路，standard 变体下
+            // 这只 Obx 首次 build 读不到任何 Rx，GetX 会抛「improper use」。
+            if (Get.isRegistered<XrImmersiveService>())
+              Obx(() {
+                if (!Get.find<XrImmersiveService>().available.value) {
+                  return const SizedBox.shrink();
+                }
+                return _switchTile(
+                  context: context,
+                  iconData: Icons.view_in_ar,
+                  label: t.vrFormat.autoEnterImmersive,
+                  description: t.vrFormat.autoEnterImmersiveDesc,
+                  rxValue: _configService
+                      .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
+                  onChanged: (value) {
+                    _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] =
+                        value;
+                  },
+                );
+              }),
           ]),
         ),
 

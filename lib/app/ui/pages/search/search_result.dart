@@ -1074,9 +1074,13 @@ class _SearchResultState extends State<SearchResult> {
           solidExtent: statusBarHeight,
           // 底部要多让出角落坞那一条，否则最后一行永远压在坞底下
           //（分页模式除外，见 CornerDockBottomInset）。
-          body: Obx(
-            () => CornerDockBottomInset(
-              active: sink && !searchController.isPaginated.value,
+          body: Obx(() {
+            // ⛔ 先无条件读一次 Rx 再参与短路：写成 `sink && !isPaginated.value` 时宽屏
+            // （sink=false）下 `&&` 短路、这只 Obx 首次 build 一个观察者都没登记 →
+            // GetX 抛「improper use」，整张结果列表变成红屏（Quest 1024dp 面板首报）。
+            final bool paginated = searchController.isPaginated.value;
+            return CornerDockBottomInset(
+              active: sink && !paginated,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
                   if (notification.metrics.axis == Axis.vertical &&
@@ -1087,8 +1091,8 @@ class _SearchResultState extends State<SearchResult> {
                 },
                 child: _buildCurrentSearchList(headerExtent),
               ),
-            ),
-          ),
+            );
+          }),
           header: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
