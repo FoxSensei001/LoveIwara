@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,12 +73,12 @@ fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
-            title = "视频类型",
-            subtitle = "认错了就在这儿改，立即生效",
+            title = stringResource(R.string.xr_video_type_title),
+            subtitle = stringResource(R.string.xr_video_type_subtitle),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
             trailing = {
                 SecondaryButton(
-                    label = "自动识别",
+                    label = stringResource(R.string.xr_auto_detect),
                     leading = { Icon(SpatialIcons.Regular.Refresh, null) },
                     onClick = cb::onAutoDetectFormat,
                     modifier = Modifier.width(180.dp),
@@ -90,9 +91,11 @@ fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             modifier = Modifier.fillMaxWidth().height(72.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            FormatTab.entries.forEach { tab ->
+            // 本机渲染不了的大类（EAC / 鱼眼）不摆出来（用户 2026-09-05：「既然不支持就直接移除」）。
+            // 枚举保留：Dart 判成鱼眼的片源仍按 FISHEYE 格式进来、面板照旧提示 + 给外部播放器出口。
+            FormatTab.entries.filter { tab -> VideoFormat.inTab(tab).any { it.supported } }.forEach { tab ->
                 TextTileButton(
-                    label = tab.label,
+                    label = stringResource(tab.labelRes),
                     selected = state.formatTab == tab,
                     onSelectionChange = { cb.onPickFormatTab(tab) },
                     modifier = Modifier.weight(1f),
@@ -113,7 +116,10 @@ fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             ) {
                 Icon(SpatialIcons.Regular.Warning, null, tint = PanelTokens.WARN)
                 Text(
-                    text = "${state.format.label} 本机渲染不了，可以用其他应用打开",
+                    text = stringResource(
+                        R.string.xr_format_unsupported_inline,
+                        stringResource(state.format.labelRes),
+                    ),
                     color = PanelTokens.WARN,
                     fontSize = 15.sp,
                     modifier = Modifier.weight(1f),
@@ -121,7 +127,7 @@ fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                     overflow = TextOverflow.Ellipsis,
                 )
                 SecondaryButton(
-                    label = "用其他应用打开",
+                    label = stringResource(R.string.xr_open_with),
                     leading = { Icon(SpatialIcons.Regular.OpenTab, null) },
                     onClick = cb::onHandOffToExternalPlayer,
                     modifier = Modifier.width(240.dp),
@@ -139,12 +145,12 @@ fun VideoTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "自动识别时，180° 全景当作 180° 鱼眼",
+                    text = stringResource(R.string.xr_treat_180_as_fisheye),
                     color = PanelTokens.ON_SURFACE,
                     fontSize = 16.sp,
                 )
                 Text(
-                    text = "本机放不了鱼眼；打开后遇到 180 会弹「用其他应用打开」",
+                    text = stringResource(R.string.xr_treat_180_as_fisheye_hint),
                     color = PanelTokens.ON_SURFACE_DIM,
                     fontSize = 13.sp,
                 )
@@ -180,8 +186,12 @@ private fun FormatTiles(
             ) {
                 rowFormats.forEach { fmt ->
                     TextTileButton(
-                        label = fmt.label,
-                        secondaryLabel = if (fmt.supported) null else "本机放不了",
+                        label = stringResource(fmt.labelRes),
+                        secondaryLabel = if (fmt.supported) {
+                            null
+                        } else {
+                            stringResource(R.string.xr_not_supported_here)
+                        },
                         icon = { Icon(iconFor(fmt), null) },
                         selected = current == fmt,
                         onSelectionChange = { onPick(fmt) },

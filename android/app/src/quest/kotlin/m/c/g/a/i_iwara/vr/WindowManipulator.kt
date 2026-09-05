@@ -1,0 +1,675 @@
+package m.c.g.a.i_iwara.vr
+
+import android.util.Log
+import com.meta.spatial.core.Entity
+import com.meta.spatial.core.Hand
+import com.meta.spatial.core.Pose
+import com.meta.spatial.core.Quaternion
+import com.meta.spatial.core.SystemManager
+import com.meta.spatial.core.Vector2
+import com.meta.spatial.core.Vector3
+import com.meta.spatial.isdk.IsdkCurvedPanel
+import com.meta.spatial.isdk.IsdkPanelDimensions
+import com.meta.spatial.isdk.IsdkSystem
+import com.meta.spatial.runtime.PanelSceneObject
+import com.meta.spatial.runtime.PanelShapeLayerBlendType
+import com.meta.spatial.runtime.PointerEvent
+import com.meta.spatial.runtime.PointerEventType
+import com.meta.spatial.toolkit.CylinderShapeOptions
+import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
+import com.meta.spatial.toolkit.Panel
+import com.meta.spatial.toolkit.PanelRenderMode
+import com.meta.spatial.toolkit.QuadShapeOptions
+import com.meta.spatial.toolkit.SceneObjectSystem
+import com.meta.spatial.toolkit.Transform
+import com.meta.spatial.toolkit.UIPanelRenderOptions
+import com.meta.spatial.toolkit.UIPanelSettings
+import com.meta.spatial.toolkit.UIPanelShapeOptions
+import com.meta.spatial.toolkit.Visible
+import com.meta.spatial.toolkit.getAbsoluteTransform
+import m.c.g.a.i_iwara.questui.WindowFrameState
+import m.c.g.a.i_iwara.questui.WindowFrameZone
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
+
+/** 空间里的三块窗。 */
+enum class WindowKind { UI, CONTROLS, SCREEN }
+
+/** 拉角时怎么变：锁比例（沿对角线等比）还是自由（宽高各自拉）。 */
+enum class ResizePolicy { ASPECT_LOCKED, FREE }
+
+/**
+ * 一块能被抓、挪、缩放的窗。几何上的「窗」= 内容面板的**可见面**（quad 就是自己，圆柱幕是弧面），
+ * 位置用弧面中心表达；换算到实体锚点（圆柱轴心）是宿主自己的事。
+ */
+interface WindowHost {
+    val kind: WindowKind
+    val resizePolicy: ResizePolicy
+
+    /** 内容面板的尺寸上下限（米）。 */
+    val minSize: Vector2
+    val maxSize: Vector2
+
+    /** 内容面板自己的圆角（米）；窗框的内沿跟着它走。 */
+    val cornerRadiusM: Float get() = 0f
+
+    /** 内容面板的合成层次序；窗框排在它后面一层。 */
+    val zIndex: Int
+
+    /** 可见面的中心位姿（朝向 = 面板朝向）；不在场 / 藏起来时为 null，窗框也跟着停走。 */
+    fun surfacePose(): Pose?
+
+    /** 内容面板当前的宽高（米）。 */
+    fun size(): Vector2
+
+    /** 弧幕的弧度；0 = 平面。 */
+    fun arcDegrees(): Float = 0f
+
+    fun moveTo(surface: Pose)
+
+    /** 拉角：新的尺寸 + 新的面中心。拖动中每帧一次（commit=false），松手再来一次 commit=true。 */
+    fun resizeTo(size: Vector2, surface: Pose, commit: Boolean)
+
+    /** 用户碰了这块窗（悬停在窗框 / 抓着）：宿主拿去续空闲计时之类。 */
+    fun onInteraction() {}
+
+    /** 一次抓着挪结束了（松开抓握扳机 / 扳机）。[byGrip] = 是抓握扳机抓的。缩放结束不走这里。 */
+    fun onMoveReleased(byGrip: Boolean) {}
+}
+
+/**
+ * 三块窗共用的抓取 / 挪动 / 缩放系统，取代 ISDK 自带的 `Grabbable` + `IsdkPanelResize`。
+ *
+ * # 为什么不用 ISDK 的
+ *
+ * ISDK 的面板抓取只认**边缘抓条**：光标在窗体上时抓握扳机没反应，得先把光标挪到边上才能拖
+ * （用户 2026-09-05：「不符合直觉，光标在面板上时就要能拖」）。四角缩放与四边拉伸的外观也改不了。
+ * 所以三块窗都摘掉 `Grabbable` / `IsdkPanelResize`，改成：
+ *
+ * - **手柄抓握扳机**按在窗体（内容面板）上 = 抓着挪；影院态里按下抓握扳机**不用瞄准**就抓幕布
+ *   （[startGrab]，用户 2026-09-05：「点击该按钮后可对播放器拖拽，松开时隐藏操作栏」）；
+ * - 每块窗后方 1cm 贴一块自绘窗框（`questui/WindowFrameView.kt`）：抓握扳机 / 扳机 / 捏合按在
+ *   **四条边**上 = 挪，按在**四个角**上 = 缩放（以窗中心为原点；锁比例的沿对角线等比，2D 应用面板自由拉）；
+ * - 挪的时候窗始终面朝头部（Horizon 系统窗的做法），摇杆上下推远拉近。
+ *
+ * # 几何怎么算
+ *
+ * 射线来源用 ISDK 报过的指针实体（`PointerEvent.source`，与光标同一条射线），没报过时退回手 / 手柄实体。
+ * 命中全由这里自己算（平面：射线 × 平面；弧幕：射线 × 圆柱），不依赖 ISDK 的悬停 —— 拉角时光标常常
+ * 已经跑出窗框外，靠悬停就断了。窗框**显示**用的高亮区来自窗框面板自己的指针事件（像素坐标系，
+ * 不会左右镜像），抓取**逻辑**用射线算出的本地坐标（符号来自坐标本身，与镜像无关）。
+ *
+ * # 尺寸怎么落地
+ *
+ * 与 ISDK 的做法一致：等比缩放的窗只改 `Scale`；能重排的 2D 应用面板拖动中先 `Scale`，松手时
+ * `PanelSceneObject.resize(px)` 让 Activity 按新像素重排（`Scale` 留着，dp/m 不变）。幕布走宿主自己的
+ * `reshape` 流水线。具体在各 [WindowHost] 里。
+ *
+ * # ⛔ 两条继承来的铁律
+ *
+ * 1. `Visible(false)` 不影响 ISDK 命中（§19 事实 6）：窗框藏 = 停到脚下 100m；摘窗框 = 先停走、隔 3 帧再销毁。
+ * 2. ECS `Transform` 晚一帧生效（事实 3）：跟着窗体走的位姿同时直接写到场景对象上。
+ */
+class WindowManipulator(
+    private val systemManager: SystemManager,
+    private val frameIds: Map<WindowKind, Int>,
+    /** 以 forward 为前向搭一个去 roll 的坐标系（拿宿主的四元数约定自检来算）。 */
+    private val basisPose: (origin: Vector3, forward: Vector3) -> Pose,
+    /** 摆在 position 的窗应当朝哪：面向头部；头部没跟踪到返回 null（保持原朝向）。 */
+    private val faceViewer: (position: Vector3) -> Quaternion?,
+) {
+
+    /** 一条射线：起点 + 单位方向。 */
+    class PointerRay(val origin: Vector3, val direction: Vector3)
+
+    private class Slot(val host: WindowHost, val state: WindowFrameState) {
+        var frameEntity: Entity? = null
+        var framePanel: PanelSceneObject? = null
+
+        /** 窗框现在是按这个内容尺寸 / 弧度建的；变了就 reshape。 */
+        var frameSize = Vector2(0f, 0f)
+        var frameArc = 0f
+        var parked = true
+    }
+
+    private class Hit(
+        val slot: Slot,
+        val zone: WindowFrameZone,
+        /** 面内本地坐标（米）：x 向右、y 向上，原点在面中心；弧幕的 x 是弧长。 */
+        val local: Vector2,
+        val distance: Float,
+    )
+
+    private class Session(val hand: Int, val slot: Slot, val zone: WindowFrameZone, val byGrip: Boolean) {
+        // 挪：面中心在射线坐标系里的偏移，松手前保持不变
+        var localOffset = Vector3(0f, 0f, 0f)
+        var startQ = Quaternion(0f, 0f, 0f)
+
+        // 缩放：起始面位姿 / 尺寸 / 抓住的角在本地坐标里的符号
+        var startSurface = Pose()
+        var startSize = Vector2(1f, 1f)
+        var signX = 1f
+        var signY = 1f
+        var arc = 0f
+        var radius = 0f
+        var lastSize: Vector2? = null
+        var lastSurface: Pose? = null
+    }
+
+    private val states: Map<WindowKind, WindowFrameState> = WindowKind.entries.associateWith { WindowFrameState() }
+    private val slots = LinkedHashMap<WindowKind, Slot>()
+    private val doomed = ArrayList<Pair<Entity, IntArray>>()
+    private val hits = arrayOfNulls<Hit>(2)
+    private val sessions = arrayOfNulls<Session>(2)
+
+    /** ISDK 最近一次报过的每只手的指针实体（与光标同一条射线）。 */
+    private val raySource = arrayOfNulls<Entity>(2)
+    private var isdk: IsdkSystem? = null
+    private var rayChecksLogged = 0
+    private val observer: (PointerEvent) -> Unit = { ev -> onPointerEvent(ev) }
+
+    /** 窗框面板注册时拿这个（`createWindowFrameView(ctx, frameState(kind))`）。 */
+    fun frameState(kind: WindowKind): WindowFrameState = states.getValue(kind)
+
+    /** 有没有哪只手正抓着窗挪（摇杆此时归推远拉近）。 */
+    val isMoving: Boolean
+        get() = sessions.any { it != null && it.zone.movesWindow }
+
+    /** 这只手此刻是否在抓着某块窗（挪或缩放）。 */
+    fun isBusy(hand: Int): Boolean = sessions[hand] != null
+
+    /** 这只手的射线此刻落在哪块窗的哪个区（含窗体 BODY）；什么都没碰到 = NONE。 */
+    fun zoneUnder(hand: Int): WindowFrameZone {
+        hits[hand]?.let { if (it.zone != WindowFrameZone.NONE) return it.zone }
+        return slots.values.firstOrNull { it.state.pointerZone != WindowFrameZone.NONE }?.state?.pointerZone
+            ?: WindowFrameZone.NONE
+    }
+
+    // ================================================================ 生命周期
+
+    fun onSceneReady() {
+        isdk = runCatching { systemManager.findSystem<IsdkSystem>() }.getOrNull()
+        isdk?.registerObserver(observer)
+    }
+
+    fun shutdown() {
+        runCatching { isdk?.unregisterObserver(observer) }
+        isdk = null
+        for (i in 0..1) sessions[i] = null
+        for (kind in slots.keys.toList()) detachNow(kind)
+        for ((entity, _) in doomed) runCatching { entity.destroy() }
+        doomed.clear()
+    }
+
+    /** 窗体建好了：给它配一块窗框。同一种窗重复 attach 会先摘掉旧的。 */
+    fun attach(host: WindowHost) {
+        detachNow(host.kind)
+        val slot = Slot(host, states.getValue(host.kind))
+        slots[host.kind] = slot
+        createFrame(slot)
+    }
+
+    /** 窗体没了：窗框先停走，隔几帧再销毁（让 ISDK 清掉悬停态）。 */
+    fun detach(kind: WindowKind) {
+        val slot = slots.remove(kind) ?: return
+        endSessionsOn(slot)
+        val entity = slot.frameEntity ?: return
+        entity.setComponent(Visible(false))
+        entity.setComponent(Transform(PARKED_POSE))
+        doomed.add(entity to intArrayOf(DOOMED_TICKS))
+        slot.frameEntity = null
+        slot.framePanel = null
+        slot.state.pointerZone = WindowFrameZone.NONE
+        slot.state.nearEdge = false
+        slot.state.activeZone = WindowFrameZone.NONE
+    }
+
+    private fun detachNow(kind: WindowKind) {
+        val slot = slots.remove(kind) ?: return
+        endSessionsOn(slot)
+        slot.frameEntity?.destroy()
+        slot.frameEntity = null
+        slot.framePanel = null
+        slot.state.pointerZone = WindowFrameZone.NONE
+        slot.state.nearEdge = false
+        slot.state.activeZone = WindowFrameZone.NONE
+    }
+
+    private fun endSessionsOn(slot: Slot) {
+        for (i in 0..1) if (sessions[i]?.slot === slot) sessions[i] = null
+    }
+
+    /** 窗框面板的注册用：形状取内容面板此刻的尺寸 + 一圈边。 */
+    fun frameSettings(kind: WindowKind): UIPanelSettings {
+        val slot = slots[kind]
+        val size = slot?.host?.size() ?: Vector2(1f, 1f)
+        val arc = slot?.host?.arcDegrees() ?: 0f
+        return UIPanelSettings(
+            shape = frameShape(size, arc),
+            display = DpPerMeterDisplayOptions(dpPerMeter = FRAME_DP_PER_METER),
+            rendering = UIPanelRenderOptions(
+                renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
+            ),
+        )
+    }
+
+    private fun frameShape(size: Vector2, arc: Float): UIPanelShapeOptions {
+        val w = size.x + 2f * RING_M
+        val h = size.y + 2f * RING_M
+        if (arc >= ScreenGeometry.MIN_ARC_DEGREES) {
+            val r = ScreenGeometry.radiusFor(arc, size.x)
+            val rf = r + BEHIND_M
+            return CylinderShapeOptions(radius = rf, width = w * rf / r, height = h)
+        }
+        return QuadShapeOptions(width = w, height = h)
+    }
+
+    private fun createFrame(slot: Slot) {
+        val host = slot.host
+        val id = frameIds[host.kind] ?: return
+        val surface = host.surfacePose()
+        val size = host.size()
+        val arc = host.arcDegrees()
+        slot.frameSize = size
+        slot.frameArc = arc
+        val pose = surface?.let { framePose(it, size, arc) } ?: PARKED_POSE
+        val entity = Entity.create(Panel(id), Transform(pose), Visible(surface != null))
+        slot.frameEntity = entity
+        slot.parked = surface == null
+        syncIsdkShape(entity, size, arc)
+        updateFractions(slot, size)
+        slot.state.activeZone = WindowFrameZone.NONE
+        systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
+            val panel = so as? PanelSceneObject
+            slot.framePanel = panel
+            runCatching { panel?.layer?.setZIndex(host.zIndex - 1) }
+        }
+    }
+
+    /** 窗框实体的位姿：平面贴在面后 [BEHIND_M]；弧幕与幕布同轴心（半径大 [BEHIND_M]）。 */
+    private fun framePose(surface: Pose, size: Vector2, arc: Float): Pose {
+        val f = surface.forward()
+        if (arc >= ScreenGeometry.MIN_ARC_DEGREES) {
+            val r = ScreenGeometry.radiusFor(arc, size.x)
+            return Pose(surface.t - f * r, surface.q)
+        }
+        return Pose(surface.t + f * BEHIND_M, surface.q)
+    }
+
+    private fun syncIsdkShape(entity: Entity, size: Vector2, arc: Float) {
+        val w = size.x + 2f * RING_M
+        val h = size.y + 2f * RING_M
+        if (arc >= ScreenGeometry.MIN_ARC_DEGREES) {
+            val r = ScreenGeometry.radiusFor(arc, size.x)
+            entity.setComponent(IsdkPanelDimensions(Vector2(w * (r + BEHIND_M) / r, h)))
+            entity.setComponent(IsdkCurvedPanel(arc))
+        } else {
+            entity.setComponent(IsdkPanelDimensions(Vector2(w, h)))
+            runCatching { entity.removeComponent<IsdkCurvedPanel>() }
+        }
+    }
+
+    private fun updateFractions(slot: Slot, size: Vector2) {
+        val totalW = size.x + 2f * RING_M
+        val totalH = size.y + 2f * RING_M
+        val s = slot.state
+        s.ringFracX = RING_M / totalW
+        s.ringFracY = RING_M / totalH
+        s.cornerFracX = min(0.45f, CORNER_M / totalW)
+        s.cornerFracY = min(0.45f, CORNER_M / totalH)
+        s.innerRadiusFrac = slot.host.cornerRadiusM / totalH
+        s.freeResize = slot.host.resizePolicy == ResizePolicy.FREE
+    }
+
+    // ================================================================ 每帧
+
+    fun tick(input: SpatialInputPoller) {
+        reapDoomed()
+        for (slot in slots.values) syncFrame(slot)
+        for (hand in 0..1) hits[hand] = computeHit(hand, input)
+        for (slot in slots.values) {
+            // 光标在窗体里操作应用时窗框不露面；只有贴近窗沿（离边 < NEAR_EDGE_M）才提前亮起来。
+            slot.state.nearEdge = hits.any { hit ->
+                hit != null && hit.slot === slot && hit.zone == WindowFrameZone.BODY && run {
+                    val half = slot.host.size() / 2f
+                    abs(hit.local.x) > half.x - NEAR_EDGE_M || abs(hit.local.y) > half.y - NEAR_EDGE_M
+                }
+            }
+            if (slot.state.pointerZone != WindowFrameZone.NONE) slot.host.onInteraction()
+        }
+        val e = input.events
+        for (hand in 0..1) {
+            val session = sessions[hand]
+            if (session != null) {
+                val held = if (session.byGrip) input.gripHeld[hand] else input.selectHeld[hand]
+                if (held) updateSession(session, input) else endSession(hand)
+                continue
+            }
+            val bit = 1 shl hand
+            when {
+                (e.gripDown and bit) != 0 -> tryStart(hand, byGrip = true, input)
+                (e.selectDown and bit) != 0 -> tryStart(hand, byGrip = false, input)
+            }
+        }
+    }
+
+    /**
+     * 不用瞄准、直接抓住 [kind] 那块窗挪（影院态抓握扳机按下就拖幕布）。
+     * 窗跟着手柄射线刚性走（面中心在射线坐标系里的偏移固定），与瞄准抓到窗体时完全同一套。
+     * @return false = 这只手已经在抓别的窗（tick 里瞄准命中的先裁决）/ 窗不在场 / 读不到射线。
+     */
+    fun startGrab(hand: Int, kind: WindowKind, input: SpatialInputPoller): Boolean {
+        if (sessions[hand] != null) return false
+        val slot = slots[kind] ?: return false
+        val ray = rayFor(hand, input) ?: return false
+        val surface = slot.host.surfacePose() ?: return false
+        val session = Session(hand, slot, WindowFrameZone.BODY, byGrip = true)
+        val rp = basisPose(ray.origin, ray.direction)
+        session.localOffset = rp.q.inverse() * (surface.t - rp.t)
+        session.startQ = surface.q
+        sessions[hand] = session
+        slot.state.activeZone = WindowFrameZone.BODY
+        slot.host.onInteraction()
+        Log.i(TAG, "IMMERSIVE window grab (blind) kind=$kind hand=$hand")
+        return true
+    }
+
+    /** 挪动中：摇杆上下把窗沿射线推远 / 拉近。 */
+    fun nudgeDistance(delta: Float) {
+        for (session in sessions) {
+            if (session == null || !session.zone.movesWindow) continue
+            val len = session.localOffset.length()
+            if (len < 1e-3f) continue
+            val next = (len * (1f + delta)).coerceIn(MIN_DISTANCE_M, MAX_DISTANCE_M)
+            session.localOffset = session.localOffset * (next / len)
+        }
+    }
+
+    private fun reapDoomed() {
+        val it = doomed.iterator()
+        while (it.hasNext()) {
+            val (entity, ticks) = it.next()
+            if (--ticks[0] > 0) continue
+            runCatching { entity.destroy() }
+            it.remove()
+        }
+    }
+
+    private fun syncFrame(slot: Slot) {
+        val host = slot.host
+        val entity = slot.frameEntity ?: return
+        val surface = host.surfacePose()
+        if (surface == null) {
+            if (!slot.parked) {
+                entity.setComponent(Visible(false))
+                entity.setComponent(Transform(PARKED_POSE))
+                slot.framePanel?.setPosition(PARKED_POSE.t)
+                slot.parked = true
+                slot.state.pointerZone = WindowFrameZone.NONE
+            }
+            return
+        }
+        val size = host.size()
+        val arc = host.arcDegrees()
+        if (abs(size.x - slot.frameSize.x) > SIZE_EPS_M || abs(size.y - slot.frameSize.y) > SIZE_EPS_M ||
+            abs(arc - slot.frameArc) > 0.5f
+        ) {
+            slot.frameSize = size
+            slot.frameArc = arc
+            slot.framePanel?.let { panel ->
+                runCatching { panel.reshape(frameSettings(host.kind).toPanelConfigOptions()) }
+                    .onFailure { Log.w(TAG, "IMMERSIVE frame reshape 失败 kind=${host.kind}", it) }
+            }
+            syncIsdkShape(entity, size, arc)
+            updateFractions(slot, size)
+        }
+        val pose = framePose(surface, size, arc)
+        entity.setComponent(Transform(pose))
+        slot.framePanel?.let {
+            it.setPosition(pose.t)
+            it.setRotationQuat(pose.q)
+        }
+        if (slot.parked) {
+            entity.setComponent(Visible(true))
+            slot.parked = false
+        }
+    }
+
+    // ================================================================ 射线与命中
+
+    /** 这只手此刻的射线（ISDK 光标那条；没报过就退回手 / 手柄位姿）。球幕拖视角也用它。 */
+    fun ray(hand: Int, input: SpatialInputPoller): PointerRay? = rayFor(hand, input)
+
+    private fun rayFor(hand: Int, input: SpatialInputPoller): PointerRay? {
+        val source = raySource[hand]
+        val pose = source?.let { runCatching { getAbsoluteTransform(it) }.getOrNull() }
+            ?: input.handPoses[hand]
+            ?: return null
+        val dir = pose.forward()
+        if (dir.length() < 1e-4f) return null
+        return PointerRay(pose.t, dir.normalize())
+    }
+
+    private fun computeHit(hand: Int, input: SpatialInputPoller): Hit? {
+        val ray = rayFor(hand, input) ?: return null
+        var best: Hit? = null
+        for (slot in slots.values) {
+            if (slot.parked) continue
+            val surface = slot.host.surfacePose() ?: continue
+            val size = slot.host.size()
+            val arc = slot.host.arcDegrees()
+            val local = intersect(ray, surface, size, arc) ?: continue
+            val totalW = size.x + 2f * RING_M
+            val totalH = size.y + 2f * RING_M
+            val fx = (local.x + totalW / 2f) / totalW
+            val fy = (totalH / 2f - local.y) / totalH
+            val zone = slot.state.classify(fx, fy)
+            if (zone == WindowFrameZone.NONE) continue
+            if (best == null || local.z < best.distance) {
+                best = Hit(slot, zone, Vector2(local.x, local.y), local.z)
+            }
+        }
+        return best
+    }
+
+    /** 射线 × 窗面。返回 (本地 x, 本地 y, 射线参数 t)；没打到为 null。 */
+    private fun intersect(ray: PointerRay, surface: Pose, size: Vector2, arc: Float): Vector3? {
+        if (arc >= ScreenGeometry.MIN_ARC_DEGREES) {
+            val r = ScreenGeometry.radiusFor(arc, size.x)
+            return intersectCylinder(ray, surface, r, arc, size.y / 2f + RING_M)
+        }
+        return intersectPlane(ray, surface)
+    }
+
+    private fun intersectPlane(ray: PointerRay, surface: Pose): Vector3? {
+        val n = surface.forward()
+        val denom = ray.direction.dot(n)
+        if (abs(denom) < 1e-4f) return null
+        val t = (surface.t - ray.origin).dot(n) / denom
+        if (t <= 0f) return null
+        val d = ray.origin + ray.direction * t - surface.t
+        return Vector3(d.dot(surface.right()), d.dot(surface.up()), t)
+    }
+
+    /**
+     * 射线 × 圆柱弧面（轴沿面的「上」，穿过 surface − forward·radius）。
+     * 本地 x = 弧长（从面中心沿弧），y = 沿轴。人通常在圆柱里面，只有一个正根。
+     */
+    private fun intersectCylinder(ray: PointerRay, surface: Pose, radius: Float, arc: Float, halfH: Float): Vector3? {
+        val f = surface.forward()
+        val r = surface.right()
+        val u = surface.up()
+        val axis = surface.t - f * radius
+        val o = ray.origin - axis
+        val ox = o.dot(r)
+        val oz = o.dot(f)
+        val dx = ray.direction.dot(r)
+        val dz = ray.direction.dot(f)
+        val a = dx * dx + dz * dz
+        if (a < 1e-6f) return null
+        val b = 2f * (ox * dx + oz * dz)
+        val c = ox * ox + oz * oz - radius * radius
+        val disc = b * b - 4f * a * c
+        if (disc < 0f) return null
+        val sq = sqrt(disc)
+        val halfArc = Math.toRadians(arc / 2.0).toFloat() + RING_M / radius
+        for (t in floatArrayOf((-b - sq) / (2f * a), (-b + sq) / (2f * a))) {
+            if (t <= 0f) continue
+            val d = ray.origin + ray.direction * t - axis
+            val theta = atan2(d.dot(r), d.dot(f))
+            val y = d.dot(u)
+            if (abs(theta) <= halfArc && abs(y) <= halfH) return Vector3(radius * theta, y, t)
+        }
+        return null
+    }
+
+    // ================================================================ 抓 / 挪 / 缩放
+
+    private fun tryStart(hand: Int, byGrip: Boolean, input: SpatialInputPoller) {
+        val hit = hits[hand]
+        val frameSlot = slots.values.firstOrNull { it.state.pointerZone != WindowFrameZone.NONE }
+        val slot: Slot
+        val zone: WindowFrameZone
+        // 射线自己算出的命中优先（每帧新鲜）；窗框面板报的悬停区只在射线什么都没打到时兜底
+        // （两套几何在边沿差一点点时不至于抓空；它若因为没收到 Exit 而过期，也不会盖过射线）。
+        when {
+            hit != null && hit.zone != WindowFrameZone.BODY && hit.zone != WindowFrameZone.NONE -> {
+                slot = hit.slot; zone = hit.zone
+            }
+            hit != null && hit.zone == WindowFrameZone.BODY -> {
+                // 窗体上：扳机 / 捏合是给内容的，只有抓握扳机才抓窗
+                if (!byGrip) return
+                slot = hit.slot; zone = WindowFrameZone.BODY
+            }
+            hit == null && frameSlot != null -> {
+                slot = frameSlot; zone = frameSlot.state.pointerZone
+            }
+            else -> return
+        }
+        val ray = rayFor(hand, input) ?: return
+        val surface = slot.host.surfacePose() ?: return
+        val size = slot.host.size()
+        val session = Session(hand, slot, zone, byGrip)
+        if (zone.movesWindow) {
+            val rp = basisPose(ray.origin, ray.direction)
+            session.localOffset = rp.q.inverse() * (surface.t - rp.t)
+            session.startQ = surface.q
+        } else {
+            session.startSurface = surface
+            session.startSize = size
+            session.arc = slot.host.arcDegrees()
+            session.radius = if (session.arc >= ScreenGeometry.MIN_ARC_DEGREES) ScreenGeometry.radiusFor(session.arc, size.x) else 0f
+            val local = hit?.local ?: (intersect(ray, surface, size, session.arc)?.let { Vector2(it.x, it.y) })
+            session.signX = when {
+                local != null && abs(local.x) > 0.01f -> if (local.x > 0f) 1f else -1f
+                zone == WindowFrameZone.CORNER_TR || zone == WindowFrameZone.CORNER_BR -> 1f
+                else -> -1f
+            }
+            session.signY = when {
+                local != null && abs(local.y) > 0.01f -> if (local.y > 0f) 1f else -1f
+                zone == WindowFrameZone.CORNER_TL || zone == WindowFrameZone.CORNER_TR -> 1f
+                else -> -1f
+            }
+        }
+        sessions[hand] = session
+        slot.state.activeZone = zone
+        slot.host.onInteraction()
+        Log.i(TAG, "IMMERSIVE window grab kind=${slot.host.kind} zone=$zone grip=$byGrip hand=$hand")
+    }
+
+    private fun updateSession(session: Session, input: SpatialInputPoller) {
+        val ray = rayFor(session.hand, input) ?: return
+        val host = session.slot.host
+        if (session.zone.movesWindow) {
+            val rp = basisPose(ray.origin, ray.direction)
+            val t = rp.t + rp.q * session.localOffset
+            val q = faceViewer(t) ?: session.startQ
+            host.moveTo(Pose(t, q))
+        } else {
+            val hit = intersect(ray, session.startSurface, session.startSize, session.arc) ?: return
+            val w0 = session.startSize.x
+            val h0 = session.startSize.y
+            // 以窗中心为缩放原点（用户 2026-09-05）：射线落点到中心的距离 ×2 就是新宽高
+            val dx = hit.x * session.signX * 2f
+            val dy = hit.y * session.signY * 2f
+            val w: Float
+            val h: Float
+            if (host.resizePolicy == ResizePolicy.FREE) {
+                w = dx.coerceIn(host.minSize.x, host.maxSize.x)
+                h = dy.coerceIn(host.minSize.y, host.maxSize.y)
+            } else {
+                val sMin = max(host.minSize.x / w0, host.minSize.y / h0)
+                val sMax = min(host.maxSize.x / w0, host.maxSize.y / h0)
+                val s = ((dx * w0 + dy * h0) / (w0 * w0 + h0 * h0)).coerceIn(sMin, sMax)
+                w = w0 * s
+                h = h0 * s
+            }
+            val start = session.startSurface
+            val size = Vector2(w, h)
+            val surface = Pose(start.t, start.q)
+            session.lastSize = size
+            session.lastSurface = surface
+            host.resizeTo(size, surface, commit = false)
+        }
+        host.onInteraction()
+    }
+
+    private fun endSession(hand: Int) {
+        val session = sessions[hand] ?: return
+        sessions[hand] = null
+        session.slot.state.activeZone = WindowFrameZone.NONE
+        if (!session.zone.movesWindow) {
+            val size = session.lastSize
+            val surface = session.lastSurface
+            if (size != null && surface != null) session.slot.host.resizeTo(size, surface, commit = true)
+        } else {
+            session.slot.host.onMoveReleased(session.byGrip)
+        }
+        Log.i(TAG, "IMMERSIVE window release kind=${session.slot.host.kind} zone=${session.zone}")
+    }
+
+    // ================================================================ ISDK 指针事件（只用来认射线来源 + 自检）
+
+    private fun onPointerEvent(ev: PointerEvent) {
+        val system = isdk ?: return
+        val hand = runCatching { system.getHandForPointerEvent(ev) }.getOrNull() ?: return
+        val index = if (hand == Hand.LEFT) 0 else 1
+        raySource[index] = ev.source
+        if (rayChecksLogged >= RAY_CHECKS || ev.type != PointerEventType.Hover.id) return
+        // 自检：ISDK 报的命中点与我们按同一实体位姿算出的射线差多远（真机日志对账用）
+        val hitPoint = ev.hitInfo.point
+        val pose = runCatching { getAbsoluteTransform(ev.source) }.getOrNull() ?: return
+        val toHit = hitPoint - pose.t
+        val len = toHit.length()
+        if (len < 0.05f) return
+        val cosine = toHit.normalize().dot(pose.forward().normalize())
+        rayChecksLogged++
+        Log.i(TAG, "IMMERSIVE ray check hand=$index cos(forward,toHit)=${"%.4f".format(cosine)} dist=${"%.2f".format(len)}")
+    }
+
+    private companion object {
+        const val TAG = "IwaraVR"
+
+        /** 窗框边圈的厚度（米）：1.5–2.4m 外看是 1.2–1.9°，够光标停住。 */
+        const val RING_M = 0.05f
+
+        /** 角把手的边长（米）。 */
+        const val CORNER_M = 0.14f
+
+        /** 窗框贴在窗体后方这么远。 */
+        const val BEHIND_M = 0.012f
+        const val FRAME_DP_PER_METER = 400f
+        const val SIZE_EPS_M = 0.002f
+        const val DOOMED_TICKS = 3
+        /** 光标离窗沿不到这么远就把窗框提前亮出来。 */
+        const val NEAR_EDGE_M = 0.06f
+        const val MIN_DISTANCE_M = 0.4f
+        const val MAX_DISTANCE_M = 12f
+        const val RAY_CHECKS = 3
+
+        val PARKED_POSE = Pose(Vector3(0f, -100f, 0f), Quaternion(0f, 0f, 0f))
+    }
+}

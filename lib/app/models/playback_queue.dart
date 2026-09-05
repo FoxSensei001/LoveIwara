@@ -110,17 +110,30 @@ class LocalPlaybackTarget {
 /// 两条片子。
 String localVideoRouteId(String mediaId) => 'local_$mediaId';
 
-/// 路由 extra 里传的东西：只有两个字符串。池的真身在 `PlaybackQueueService`。
+/// 路由 extra 里传的东西：只有几个字符串。池的真身在 `PlaybackQueueService`。
 @immutable
 class PlaybackQueueRef {
-  const PlaybackQueueRef({required this.queueId, required this.currentItemId});
+  const PlaybackQueueRef({
+    required this.queueId,
+    required this.currentItemId,
+    this.companionQueueIds = const <String>[],
+  });
 
   final String queueId;
   final String currentItemId;
 
+  /// 上一页手上**其它**的池（来源 / 稍后再看 / 作者作品……），按原顺序。
+  ///
+  /// ⛔ 少了它，换片就会把「来源」弄丢：`pushReplacement` 只带得过 [queueId] 那
+  /// 一个池，新页重建池清单时来源上下文（`innerPlaylistContext`）已经不在路由
+  /// extra 里了——从「稍后再看」tab 点一条，新页的抽屉 / 沉浸面板里就只剩稍后再看
+  /// （2026-09-05 Quest 用户报障）。新页按 id 从服务里把还活着的池重新接上。
+  final List<String> companionQueueIds;
+
   PlaybackQueueRef copyWith({String? currentItemId}) => PlaybackQueueRef(
     queueId: queueId,
     currentItemId: currentItemId ?? this.currentItemId,
+    companionQueueIds: companionQueueIds,
   );
 }
 

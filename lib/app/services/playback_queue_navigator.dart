@@ -41,6 +41,9 @@ class PlaybackQueueNavigator {
   ///
   /// [queue] 是这一条**所在的池**——它同时成为新的当前池（"你点播哪一条，池就是
   /// 那一条所在的 tab"）。
+  ///
+  /// [companionQueues] 是当前页手上的**整套**池（含 [queue] 自己也无妨）：新页
+  /// 会按 id 把它们重新接上，抽屉 / 沉浸面板里的分区才不会换一次片少一个。
   static Future<void> playItem({
     required PlaybackQueue queue,
     required InnerPlaylistItemSnapshot item,
@@ -48,6 +51,7 @@ class PlaybackQueueNavigator {
     bool forceEnterFullscreen = false,
     VideoFullscreenHandoff? fullscreenHandoff,
     VoidCallback? onRelinquishFullscreen,
+    List<PlaybackQueue> companionQueues = const [],
   }) async {
     final id = item.id.trim();
     if (id.isEmpty) return;
@@ -58,7 +62,14 @@ class PlaybackQueueNavigator {
     // 的方式呈现（这是被删掉的 _handleInnerPlaylistSelection 原本做的事）。
     final isExternal = item.isExternalVideo;
 
-    final ref = PlaybackQueueRef(queueId: queue.queueId, currentItemId: id);
+    final ref = PlaybackQueueRef(
+      queueId: queue.queueId,
+      currentItemId: id,
+      companionQueueIds: [
+        for (final q in companionQueues)
+          if (!identical(q, queue)) q.queueId,
+      ],
+    );
 
     // ⛔ 图库池落在**图库详情页**，不是播放器。池的类型（不是条目的）说了算：
     // 一个池里不许混装两种（见 [PlaybackMediaType]），所以这一问就够了。
@@ -205,6 +216,7 @@ class PlaybackQueueNavigator {
     VideoFullscreenHandoff? fullscreenHandoff,
     VoidCallback? onRelinquishFullscreen,
     bool Function()? stillWanted,
+    List<PlaybackQueue> companionQueues = const [],
   }) async {
     // ⛔ 先把池翻到**装得下当前这条**为止。从「最爱」这类深列表的中段进来时，
     // 池刚建好只有第 0 页，而当前这条可能在第 5 页——找不到自己 itemAfter 就
@@ -246,6 +258,7 @@ class PlaybackQueueNavigator {
       forceEnterFullscreen: forceEnterFullscreen,
       fullscreenHandoff: fullscreenHandoff,
       onRelinquishFullscreen: onRelinquishFullscreen,
+      companionQueues: companionQueues,
     );
     return true;
   }

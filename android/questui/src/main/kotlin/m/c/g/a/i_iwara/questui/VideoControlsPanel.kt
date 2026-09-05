@@ -65,11 +65,14 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
  *
  * ⭐ 这个工厂函数是本模块的**唯一出口**：所有 `@Composable` 都留在这里，
  * `:app` 只看到「给我一个 Context 和状态，还我一个 View」。
+ *
+ * ⛔ 内容包在 [PanelLocalization] 里：面板文案跟**应用内选的语言**走，不跟系统语言走。
+ * 包在工厂里而不是让 `:app` 自己包，是为了「新加一块面板也不会漏掉语言」。
  */
 fun createVideoControlsView(
     context: Context,
     state: VideoControlsState,
     callbacks: VideoControlsCallbacks,
 ): ComposeView = ComposeView(context).apply {
-    setContent { VideoControlsPanel(state, callbacks) }
+    setContent { PanelLocalization { VideoControlsPanel(state, callbacks) } }
 }

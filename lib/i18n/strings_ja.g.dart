@@ -2843,6 +2843,8 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get warningPublicDirectory => '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。';
 	@override String get downloadPathUpdated => 'ダウンロードパスが更新されました';
 	@override String get selectPathFailed => 'パスの選択に失敗しました';
+	@override String get pickerAlreadyActive => 'フォルダ選択画面はすでに開いています';
+	@override String get unsupportedStorageVolume => 'この保存先には対応していません。本体ストレージまたは SD カード内のフォルダを選んでください。';
 	@override String get recommendedPathSet => '推奨パスに設定されました';
 	@override String get setRecommendedPathFailed => '推奨パスの設定に失敗しました';
 	@override String get templateResetToDefault => 'デフォルトテンプレートにリセットされました';
@@ -4721,6 +4723,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.warningPublicDirectory' => '警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。',
 			'settings.downloadSettings.downloadPathUpdated' => 'ダウンロードパスが更新されました',
 			'settings.downloadSettings.selectPathFailed' => 'パスの選択に失敗しました',
+			'settings.downloadSettings.pickerAlreadyActive' => 'フォルダ選択画面はすでに開いています',
+			'settings.downloadSettings.unsupportedStorageVolume' => 'この保存先には対応していません。本体ストレージまたは SD カード内のフォルダを選んでください。',
 			'settings.downloadSettings.recommendedPathSet' => '推奨パスに設定されました',
 			'settings.downloadSettings.setRecommendedPathFailed' => '推奨パスの設定に失敗しました',
 			'settings.downloadSettings.templateResetToDefault' => 'デフォルトテンプレートにリセットされました',
@@ -4768,10 +4772,10 @@ extension on TranslationsJa {
 			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
 			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
-			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
-			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
+			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
 			'settings.downloadSettings.pathValid' => 'パスが有効です',
 			'settings.downloadSettings.validationFailed' => '検証に失敗しました',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'デフォルトアプリディレクトリを使用',
@@ -5282,10 +5286,10 @@ extension on TranslationsJa {
 			'download.errors.taskAlreadyProcessing' => 'タスクはすでに処理中です',
 			'download.errors.failedToLoadTasks' => 'タスクの読み込みに失敗しました',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
-			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
-			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
+			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
 			'download.downloadList' => 'ダウンロードリスト',
 			'download.viewDownloadList' => 'ダウンロードリストを表示',
@@ -5796,10 +5800,10 @@ extension on TranslationsJa {
 			'logViewer.emptyState' => 'ログはありません',
 			'logViewer.copiedToClipboard' => 'クリップボードにコピーしました',
 			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
-			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
-			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '前回起動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後の例外: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '前回は画面フリーズを検出しましたが自動回復しました',
@@ -6310,10 +6314,10 @@ extension on TranslationsJa {
 			'externalPlayer.executableMissing' => '実行ファイルが見つかりません',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '${name} で開く',
 			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
-			'watchLater.title' => 'あとで見る',
-			'watchLater.addToWatchLater' => 'あとで見る',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.title' => 'あとで見る',
+			'watchLater.addToWatchLater' => 'あとで見る',
 			'watchLater.removeFromWatchLater' => 'あとで見るから削除',
 			'watchLater.addedToWatchLater' => 'あとで見るに追加しました',
 			'watchLater.alreadyInWatchLater' => 'すでにあとで見るに入っています',

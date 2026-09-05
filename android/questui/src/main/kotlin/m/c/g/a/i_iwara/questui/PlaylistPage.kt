@@ -33,19 +33,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
+import com.meta.spatial.uiset.theme.icons.regular.ChevronLeft
+import com.meta.spatial.uiset.theme.icons.regular.Download
 import com.meta.spatial.uiset.theme.icons.regular.Refresh
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
  * 「接着看」页：横向卡片流，按分区（= 详情页的视频池）切 tab。
@@ -62,11 +67,26 @@ import com.meta.spatial.uiset.theme.icons.regular.Refresh
  * （用户 2026-09-05）。点分区 tab 触发 [VideoControlsCallbacks.onPickPlaylistSection]，
  * 换池由 Dart 完成后再把 [VideoControlsState.activeQueueId] 推回来。
  *
+ * # 两级来源（与 2D 抽屉同一套）
+ *
+ * 分区行画的是 [VideoControlsState.playlistGroups]（来源 / 订阅 / 我的播放列表 / 最爱 / 本地收藏 /
+ * 已下载 / 稍后再看 / 作者的视频 / 作者的播放列表 / 他人的播放列表）。单选项分组点了直接选池；
+ * 多选项分组（播放列表 / 收藏夹 / 下载分类 / 稍后再看筛选）点了把这一行**换成**选项行
+ * （「‹ 分组名」+ 各选项），不另占一行——面板只有 360dp 高。选项对应的池还没开就
+ * [VideoControlsCallbacks.onOpenQueue] 让 Dart 开出来。目录为空时（没有详情页在场）退回按分区画。
+ *
  * # 自动把正在播的卡滚到可见
  *
  * 进入页面 / 换分区 / 换正在播的视频时，把正在播的卡 [animateScrollToItem] 到列表可见范围。
  * 用 [animateScrollToItem]（而不是 `scrollToItem`）是因为 Quest 上突然跳一大段容易让人晕，
  * 且用户可能正在滑动卡片流，动画滚动被打断的观感更友好。
+ *
+ * # 无限滚动
+ *
+ * 分区的 [PlaylistSection.hasMore] 为真时，卡片流末尾挂一张「加载更多」卡：滚到它附近
+ * （[LOAD_MORE_PREFETCH] 张以内）自动请 Dart 翻一页，也能点。Dart 翻完把整套分区重推回来，
+ * 卡片按 id 做 key，滚动位置不丢。这就是应用里列表的无限滚动，只是触发点在面板
+ * （用户 2026-09-05：「原版支持无限滚动，面板里却只提示回应用翻」）。
  *
  * # ⛔ 滚动在 Quest 上有一条官方已知伤
  *
@@ -80,8 +100,9 @@ fun PlaylistPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
     val entries = active?.entries.orEmpty()
     val listState = rememberLazyListState()
 
-    // 进页面 / 换分区 / 换正在播的视频 → 把正在播的卡滚到可见
-    LaunchedEffect(active?.queueId, state.nowPlayingId, entries.size) {
+    // 进页面 / 换分区 / 换正在播的视频 → 把正在播的卡滚到可见。
+    // ⛔ key 里**不能**放 entries.size：翻页追加之后会把用户刚滚到末尾的列表拽回正在播的那张。
+    LaunchedEffect(active?.queueId, state.nowPlayingId, entries.isEmpty()) {
         if (entries.isEmpty()) return@LaunchedEffect
         val idx = entries.indexOfFirst { it.id == state.nowPlayingId }
         if (idx >= 0) {
@@ -92,34 +113,51 @@ fun PlaylistPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         }
     }
 
+    // 滚到末尾自动翻页。entries.size 进 key：一页太短没填满视口时接着翻，直到填满或到底。
+    val hasMore = active?.hasMore == true
+    val loadingMore = active != null && state.playlistLoadingMoreQueueId == active.queueId
+    LaunchedEffect(active?.queueId, hasMore, entries.size) {
+        val queueId = active?.queueId ?: return@LaunchedEffect
+        if (!hasMore) return@LaunchedEffect
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1 }
+            .distinctUntilChanged()
+            .collect { last ->
+                if (last >= entries.size - LOAD_MORE_PREFETCH) cb.onLoadMorePlaylist(queueId)
+            }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().reportPanelTouches(cb),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         PageHeader(
-            title = "接着看",
+            title = stringResource(R.string.xr_playlist_title),
             subtitle = buildSubtitle(state, active, entries.size),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
             trailing = {
                 CircleActionButton(
                     icon = SpatialIcons.Regular.Refresh,
-                    contentDescription = "刷新",
+                    contentDescription = stringResource(R.string.xr_refresh),
                     onClick = cb::onRefreshPlaylist,
                 )
             },
         )
 
-        // ── 分区 tab 行 ─────────────────────────────
-        // 只有一个分区也照样画（作为标题的一部分），保持一致的视觉锚点。
-        if (state.playlistSections.isNotEmpty()) {
+        // ── 来源行：目录（两级）；没有目录时退回按分区画 ─────────────────────
+        if (state.playlistGroups.isNotEmpty()) {
+            GroupRow(state = state, cb = cb)
+        } else if (state.playlistSections.isNotEmpty()) {
             SectionTabRow(state = state, cb = cb)
         }
 
         // ── 卡片流 / 空态 / 加载态 ───────────────
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             when {
-                state.playlistLoading && entries.isEmpty() -> LoadingCenter()
-                state.playlistSections.isEmpty() -> EmptyCenter(cb)
+                // 池刚开、第一页还没到：Dart 会先把空池推过来（adopt 那一刻），再等第一页到了重推——
+                // 中间这段按 section.loading 画转圈，别露出「这个池里还没有条目」（用户 2026-09-05：切页签先空白）。
+                (state.playlistLoading || active?.loading == true) && entries.isEmpty() -> LoadingCenter()
+                state.playlistSections.isEmpty() && state.playlistGroups.isEmpty() -> EmptyCenter(cb)
+                active == null -> EmptySectionCenter()
                 entries.isEmpty() -> EmptySectionCenter()
                 else -> LazyRow(
                     state = listState,
@@ -130,11 +168,56 @@ fun PlaylistPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                         PlaylistCard(
                             entry = entry,
                             isNowPlaying = entry.id == state.nowPlayingId,
-                            onPlay = { cb.onPlayEntry(active!!.queueId, entry.id) },
+                            isSwitching = entry.id == state.switchingToId,
+                            // 换片 / 开池在途时不再接点击：Dart 那边要几百毫秒到几秒，连点会排队换片。
+                            onPlay = {
+                                if (!state.playlistLoading && state.switchingToId == null) {
+                                    cb.onPlayEntry(active.queueId, entry.id)
+                                }
+                            },
                         )
                     }
-                    if (active?.hasMore == true) {
-                        item(key = "__more") { MorePlaceholderCard() }
+                    if (hasMore) {
+                        item(key = "__more") {
+                            LoadMoreCard(
+                                loading = loadingMore,
+                                onClick = { cb.onLoadMorePlaylist(active.queueId) },
+                            )
+                        }
+                    }
+                }
+            }
+            // 在途态：卡片流之上压一层 + 转圈，把「点了、正在等」说清楚（用户 2026-09-05：延迟期间要有 loading）。
+            androidx.compose.animation.AnimatedVisibility(
+                visible = state.playlistLoading && entries.isNotEmpty(),
+                enter = androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.fadeOut(),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(PanelTokens.SURFACE.copy(alpha = 0.72f))
+                        // 吃掉所有触碰（含滚动），在途期间列表不可操作。
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {},
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        CircularProgressIndicator(color = PanelTokens.ON_SURFACE, strokeWidth = 3.dp, modifier = Modifier.size(28.dp))
+                        Text(
+                            text = stringResource(
+                            if (state.playlistPendingQueueId != null) {
+                                R.string.xr_opening
+                            } else {
+                                R.string.xr_switching
+                            },
+                        ),
+                            color = PanelTokens.ON_SURFACE,
+                            fontSize = 16.sp,
+                        )
                     }
                 }
             }
@@ -143,6 +226,94 @@ fun PlaylistPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 }
 
 // ─────────────────────────────────────────────────────────── 子件
+
+/** 来源目录行：分组行 / 展开的选项行二选一。 */
+@Composable
+private fun GroupRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
+    val scroll = rememberScrollState()
+    val activeId = state.activeSection?.queueId
+    val expanded = state.playlistGroups.firstOrNull { it.id == state.expandedGroupId }
+
+    fun pick(queueId: String) {
+        if (state.playlistSections.any { it.queueId == queueId }) {
+            cb.onPickPlaylistSection(queueId)
+            cb.onExpandPlaylistGroup(null)
+        } else {
+            cb.onOpenQueue(queueId)
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scroll),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (expanded != null) {
+            PillButton(
+                label = expanded.title,
+                icon = SpatialIcons.Regular.ChevronLeft,
+                onClick = { cb.onExpandPlaylistGroup(null) },
+                height = 44.dp,
+            )
+            expanded.choices.forEach { choice ->
+                val pending = state.playlistPendingQueueId == choice.queueId
+                PillButton(
+                    label = when {
+                        pending -> stringResource(R.string.xr_pill_pending, choice.title)
+                        choice.count >= 0 ->
+                            stringResource(R.string.xr_pill_count, choice.title, choice.count)
+                        else -> choice.title
+                    },
+                    onClick = { if (!state.playlistLoading) pick(choice.queueId) },
+                    selected = choice.queueId == activeId || pending,
+                    enabled = choice.count != 0 && (!state.playlistLoading || pending),
+                    height = 44.dp,
+                )
+            }
+            if (expanded.choices.isEmpty()) {
+                Text(
+                    text = stringResource(
+                        if (expanded.loading) R.string.xr_loading else R.string.xr_empty_choices,
+                    ),
+                    color = PanelTokens.ON_SURFACE_DIM,
+                    fontSize = 14.sp,
+                )
+            }
+        } else {
+            state.playlistGroups.forEach { group ->
+                val containsActive = group.choices.any { it.queueId == activeId }
+                val pending = group.choices.any { it.queueId == state.playlistPendingQueueId }
+                val single = group.choices.singleOrNull()
+                val section = single?.let { s -> state.playlistSections.firstOrNull { it.queueId == s.queueId } }
+                val label = when {
+                    pending -> stringResource(R.string.xr_pill_pending, group.title)
+                    section != null && section.entries.isNotEmpty() ->
+                        stringResource(R.string.xr_pill_count, group.title, section.entries.size)
+                    group.loading -> stringResource(R.string.xr_pill_pending, group.title)
+                    group.subtitle.isNotBlank() ->
+                        stringResource(R.string.xr_pill_subtitle, group.title, group.subtitle)
+                    else -> group.title
+                }
+                PillButton(
+                    label = label,
+                    onClick = {
+                        if (state.playlistLoading) return@PillButton
+                        when {
+                            single != null -> pick(single.queueId)
+                            group.choices.isNotEmpty() -> cb.onExpandPlaylistGroup(group.id)
+                            group.loading -> cb.onExpandPlaylistGroup(group.id)
+                        }
+                    },
+                    selected = containsActive || pending,
+                    enabled = (group.loading || group.choices.isNotEmpty()) && (!state.playlistLoading || pending),
+                    height = 44.dp,
+                )
+            }
+        }
+    }
+}
 
 /** 分区 tab 行；宽度超过视口时横向滚。 */
 @Composable
@@ -161,7 +332,7 @@ private fun SectionTabRow(state: VideoControlsState, cb: VideoControlsCallbacks)
                 label = if (section.entries.isEmpty()) {
                     section.title
                 } else {
-                    "${section.title} · ${section.entries.size}"
+                    stringResource(R.string.xr_pill_count, section.title, section.entries.size)
                 },
                 onClick = { cb.onPickPlaylistSection(section.queueId) },
                 selected = section.queueId == activeId,
@@ -183,6 +354,7 @@ private fun SectionTabRow(state: VideoControlsState, cb: VideoControlsCallbacks)
 private fun PlaylistCard(
     entry: PlaylistEntry,
     isNowPlaying: Boolean,
+    isSwitching: Boolean = false,
     onPlay: () -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -235,20 +407,63 @@ private fun PlaylistCard(
                         .alpha(if (entry.watched || !entry.playable) 0.42f else 1f),
                 )
             }
+            // 已下载：右上角小角标，与左上角那枚互不冲突。
+            if (entry.downloaded) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(PanelTokens.CHARGE.copy(alpha = 0.9f))
+                        .padding(horizontal = 6.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
+                ) {
+                    androidx.compose.material3.Icon(
+                        SpatialIcons.Regular.Download,
+                        null,
+                        tint = PanelTokens.SURFACE,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Text(
+                        text = stringResource(R.string.xr_badge_downloaded),
+                        color = PanelTokens.SURFACE,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+            }
+            // 换片在途：封面上压一层转圈（用户 2026-09-05：卡片先 loading，好了再换播放器）。
+            if (isSwitching) {
+                Box(
+                    modifier = Modifier.fillMaxSize().background(Color(0x99000000)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        CircularProgressIndicator(color = PanelTokens.ON_SURFACE, strokeWidth = 3.dp, modifier = Modifier.size(30.dp))
+                        Text(
+                            text = stringResource(R.string.xr_card_loading),
+                            color = PanelTokens.ON_SURFACE,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
+            }
             // 角标（同一时刻只画一枚，优先级：正在播 > 站外 > 已看完）
             when {
+                isSwitching -> {}
                 isNowPlaying -> CornerBadge(
-                    text = "正在播放",
+                    text = stringResource(R.string.xr_badge_now_playing),
                     bg = PanelTokens.ON_SURFACE,
                     fg = PanelTokens.SURFACE,
                 )
                 !entry.playable -> CornerBadge(
-                    text = "站外",
+                    text = stringResource(R.string.xr_badge_offsite),
                     bg = PanelTokens.WARN,
                     fg = PanelTokens.SURFACE,
                 )
                 entry.watched -> CornerBadge(
-                    text = "已看完 ✓",
+                    text = stringResource(R.string.xr_badge_watched),
                     bg = PanelTokens.POPUP.copy(alpha = 0.85f),
                     fg = PanelTokens.ON_SURFACE_DIM,
                 )
@@ -285,7 +500,7 @@ private fun PlaylistCard(
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = entry.title.ifBlank { "（无标题）" },
+                text = entry.title.ifBlank { stringResource(R.string.xr_untitled) },
                 color = if (enabled) PanelTokens.ON_SURFACE else PanelTokens.ON_SURFACE_DIM,
                 fontSize = 15.sp,
                 lineHeight = 19.sp,
@@ -330,37 +545,72 @@ private fun BoxScope.CornerBadge(text: String, bg: Color, fg: Color) {
 }
 
 /**
- * 「还有更多…」占位卡：只是提示这个池还有下一页没拉，本身不可点。
- * 用虚线感的边框（低透明度）与真卡片区分。
+ * 卡片流末尾的「加载更多」卡：滚到附近自动触发，也能点；翻页中显示转圈。
+ * 低透明度描边与真卡片区分。
  */
 @Composable
-private fun MorePlaceholderCard() {
+private fun LoadMoreCard(loading: Boolean, onClick: () -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val hovered by interaction.collectIsHoveredAsState()
+    val bg = when {
+        loading -> Color.Transparent
+        pressed -> PanelTokens.PRESSED
+        hovered -> PanelTokens.HOVER
+        else -> Color.Transparent
+    }
     Column(
         modifier = Modifier
             .width(220.dp)
             .fillMaxHeight()
             .clip(RoundedCornerShape(18.dp))
+            .background(bg)
             .border(
                 width = 1.dp,
                 color = PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.45f),
                 shape = RoundedCornerShape(18.dp),
+            )
+            .hoverable(interaction, enabled = !loading)
+            .clickable(
+                interactionSource = interaction,
+                indication = null,
+                enabled = !loading,
+                onClick = onClick,
             ),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = "还有更多…",
-            color = PanelTokens.ON_SURFACE_DIM,
-            fontSize = 15.sp,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = "回应用里翻更多",
-            color = PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.6f),
-            fontSize = 12.sp,
-        )
+        if (loading) {
+            CircularProgressIndicator(
+                color = PanelTokens.ON_SURFACE,
+                strokeWidth = 3.dp,
+                modifier = Modifier.size(28.dp),
+            )
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.xr_loading_next_page),
+                color = PanelTokens.ON_SURFACE_DIM,
+                fontSize = 14.sp,
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.xr_load_more),
+                color = PanelTokens.ON_SURFACE,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.xr_load_more_hint),
+                color = PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.7f),
+                fontSize = 12.sp,
+            )
+        }
     }
 }
+
+/** 离末尾还有这么多张卡时就开始翻下一页。 */
+private const val LOAD_MORE_PREFETCH = 3
 
 @Composable
 private fun LoadingCenter() {
@@ -375,7 +625,7 @@ private fun LoadingCenter() {
                 modifier = Modifier.size(36.dp),
             )
             Text(
-                text = "正在读取…",
+                text = stringResource(R.string.xr_loading),
                 color = PanelTokens.ON_SURFACE_DIM,
                 fontSize = 15.sp,
             )
@@ -392,17 +642,17 @@ private fun EmptyCenter(cb: VideoControlsCallbacks) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                text = "没有可接着看的内容",
+                text = stringResource(R.string.xr_playlist_empty_title),
                 color = PanelTokens.ON_SURFACE,
                 fontSize = 17.sp,
             )
             Text(
-                text = "回应用里把想看的加进队列，这里就能直接接着放",
+                text = stringResource(R.string.xr_playlist_empty_hint),
                 color = PanelTokens.ON_SURFACE_DIM,
                 fontSize = 13.sp,
             )
             PillButton(
-                label = "刷新",
+                label = stringResource(R.string.xr_refresh),
                 icon = SpatialIcons.Regular.Refresh,
                 onClick = cb::onRefreshPlaylist,
                 height = 44.dp,
@@ -416,7 +666,7 @@ private fun EmptyCenter(cb: VideoControlsCallbacks) {
 private fun EmptySectionCenter() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
-            text = "这个池里还没有条目 —— 换上面的 tab 试试其它分区",
+            text = stringResource(R.string.xr_section_empty),
             color = PanelTokens.ON_SURFACE_DIM,
             fontSize = 15.sp,
         )
@@ -425,14 +675,17 @@ private fun EmptySectionCenter() {
 
 // ─────────────────────────────────────────────────────────── 文案
 
+@Composable
 private fun buildSubtitle(
     state: VideoControlsState,
     active: PlaylistSection?,
     count: Int,
 ): String? {
-    if (state.playlistLoading && state.playlistSections.isEmpty()) return "正在读取…"
+    if (state.playlistLoading && state.playlistSections.isEmpty()) {
+        return stringResource(R.string.xr_loading)
+    }
     if (state.playlistSections.isEmpty()) return null
     val pool = active?.title ?: return null
-    val base = "$pool · 共 $count 条"
-    return if (active.hasMore) "$base（还有更多）" else base
+    val base = stringResource(R.string.xr_playlist_subtitle, pool, count)
+    return if (active.hasMore) stringResource(R.string.xr_playlist_subtitle_more, base) else base
 }

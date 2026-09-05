@@ -7139,6 +7139,12 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Failed to select path'
 	String get selectPathFailed => 'Failed to select path';
 
+	/// en: 'The folder picker is already open'
+	String get pickerAlreadyActive => 'The folder picker is already open';
+
+	/// en: 'Unsupported storage location. Pick a folder on device storage or the SD card.'
+	String get unsupportedStorageVolume => 'Unsupported storage location. Pick a folder on device storage or the SD card.';
+
 	/// en: 'Set to recommended path'
 	String get recommendedPathSet => 'Set to recommended path';
 
@@ -10040,6 +10046,8 @@ extension on Translations {
 			'settings.downloadSettings.warningPublicDirectory' => 'Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory.',
 			'settings.downloadSettings.downloadPathUpdated' => 'Download path updated',
 			'settings.downloadSettings.selectPathFailed' => 'Failed to select path',
+			'settings.downloadSettings.pickerAlreadyActive' => 'The folder picker is already open',
+			'settings.downloadSettings.unsupportedStorageVolume' => 'Unsupported storage location. Pick a folder on device storage or the SD card.',
 			'settings.downloadSettings.recommendedPathSet' => 'Set to recommended path',
 			'settings.downloadSettings.setRecommendedPathFailed' => 'Failed to set recommended path',
 			'settings.downloadSettings.templateResetToDefault' => 'Reset to default template',
@@ -10087,10 +10095,10 @@ extension on Translations {
 			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
 			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
-			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
-			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
+			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
 			'settings.downloadSettings.pathValid' => 'Path is valid',
 			'settings.downloadSettings.validationFailed' => 'Validation failed',
 			'settings.downloadSettings.usingDefaultAppDirectory' => 'Using default app directory',
@@ -10601,10 +10609,10 @@ extension on Translations {
 			'download.errors.taskNotFound' => 'Task not found',
 			'download.errors.failedToLoadTasks' => 'Failed to load tasks',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
-			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
-			'download.errors.imageLoadFailed' => 'Image load failed',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
+			'download.errors.imageLoadFailed' => 'Image load failed',
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
 			'download.downloadList' => 'Download List',
 			'download.viewDownloadList' => 'View Download List',
@@ -11115,10 +11123,10 @@ extension on Translations {
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
-			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
-			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
+			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
 			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
 			'mediaPlayer.retryingOpenVideoLink' => 'Video link open failed, retrying',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'Unable to load decoder: ${event}. Try switching to software decoding in player settings and re-enter the page',
@@ -11629,10 +11637,10 @@ extension on Translations {
 			'externalPlayer.executableMissing' => 'Executable not found',
 			'externalPlayer.openWithNamed' => ({required Object name}) => 'Open in ${name}',
 			'externalPlayer.managePlayersEntry' => 'Manage external players…',
-			'watchLater.title' => 'Watch Later',
-			'watchLater.addToWatchLater' => 'Watch later',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.title' => 'Watch Later',
+			'watchLater.addToWatchLater' => 'Watch later',
 			'watchLater.removeFromWatchLater' => 'Remove from Watch Later',
 			'watchLater.addedToWatchLater' => 'Added to Watch Later',
 			'watchLater.alreadyInWatchLater' => 'Already in Watch Later',

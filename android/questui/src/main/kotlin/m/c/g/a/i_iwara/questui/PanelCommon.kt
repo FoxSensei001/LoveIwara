@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -127,7 +128,11 @@ fun PageHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
-        CircleActionButton(SpatialIcons.Regular.ChevronLeft, "返回", onClick = onBack)
+        CircleActionButton(
+            SpatialIcons.Regular.ChevronLeft,
+            stringResource(R.string.xr_back),
+            onClick = onBack,
+        )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
@@ -295,6 +300,7 @@ fun CircleActionButton(
  * @param progress 0..1
  * @param onSeek 拖动 / 点按中连续回调
  * @param onSeekFinished 抬手
+ * @param enabled false = 换片中：不接点按 / 拖动，整条压暗（拖块也不再是亮白）。
  */
 @Composable
 fun SeekBar(
@@ -303,14 +309,20 @@ fun SeekBar(
     onSeekFinished: () -> Unit,
     modifier: Modifier = Modifier,
     buffering: Boolean = false,
+    enabled: Boolean = true,
 ) {
     val trackColor = PanelTokens.POPUP
-    val fillColor = if (buffering) PanelTokens.WARN else PanelTokens.ON_SURFACE
-    val thumbColor = PanelTokens.ON_SURFACE
+    val fillColor = when {
+        !enabled -> PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.5f)
+        buffering -> PanelTokens.WARN
+        else -> PanelTokens.ON_SURFACE
+    }
+    val thumbColor = if (enabled) PanelTokens.ON_SURFACE else PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.5f)
     Box(
         modifier = modifier
             .height(64.dp)
-            .pointerInput(onSeek, onSeekFinished) {
+            .pointerInput(onSeek, onSeekFinished, enabled) {
+                if (!enabled) return@pointerInput
                 val w = size.width.toFloat()
                 detectTapGestures(
                     onPress = { offset ->
@@ -320,7 +332,8 @@ fun SeekBar(
                     },
                 )
             }
-            .pointerInput(onSeek, onSeekFinished) {
+            .pointerInput(onSeek, onSeekFinished, enabled) {
+                if (!enabled) return@pointerInput
                 val w = size.width.toFloat()
                 detectHorizontalDragGestures(
                     onDragStart = { offset -> onSeek((offset.x / w).coerceIn(0f, 1f)) },
@@ -382,36 +395,47 @@ fun VerticalLevelBar(
 ) {
     val trackColor = PanelTokens.SURFACE
     val fillColor = PanelTokens.ON_SURFACE
+    // ⛔ 拖块的行程要**缩进一个半径**：以前 0% / 100% 时拖块圆心落在条的两端，半个圆凸出去
+    // 盖住上面的百分比数字、又被下面的静音钮压住（用户 2026-09-05）。行程 = [thumbR, h − thumbR]。
+    val thumbRadius = 14.dp
+    fun levelAt(y: Float, h: Float, r: Float): Float {
+        val span = (h - 2f * r).coerceAtLeast(1f)
+        return (1f - (y - r) / span).coerceIn(0f, 1f)
+    }
     Box(
         modifier = modifier
             .width(56.dp)
             .pointerInput(onLevel) {
                 val h = size.height.toFloat()
-                detectTapGestures(onPress = { o -> onLevel((1f - o.y / h).coerceIn(0f, 1f)) })
+                val r = thumbRadius.toPx()
+                detectTapGestures(onPress = { o -> onLevel(levelAt(o.y, h, r)) })
             }
             .pointerInput(onLevel) {
                 val h = size.height.toFloat()
+                val r = thumbRadius.toPx()
                 detectVerticalDragGestures { change, _ ->
                     change.consume()
-                    onLevel((1f - change.position.y / h).coerceIn(0f, 1f))
+                    onLevel(levelAt(change.position.y, h, r))
                 }
             },
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val trackW = 14.dp.toPx()
-            val thumbR = 14.dp.toPx()
+            val thumbR = thumbRadius.toPx()
             val cx = size.width / 2f
-            val y = size.height * (1f - level.coerceIn(0f, 1f))
+            val top = thumbR
+            val bottom = size.height - thumbR
+            val y = bottom - (bottom - top) * level.coerceIn(0f, 1f)
             drawRoundRect(
                 color = trackColor,
-                topLeft = Offset(cx - trackW / 2f, 0f),
-                size = Size(trackW, size.height),
+                topLeft = Offset(cx - trackW / 2f, top),
+                size = Size(trackW, bottom - top),
                 cornerRadius = CornerRadius(trackW / 2f),
             )
             drawRoundRect(
                 color = fillColor,
                 topLeft = Offset(cx - trackW / 2f, y),
-                size = Size(trackW, size.height - y),
+                size = Size(trackW, bottom - y),
                 cornerRadius = CornerRadius(trackW / 2f),
             )
             drawCircle(color = fillColor, radius = thumbR, center = Offset(cx, y))

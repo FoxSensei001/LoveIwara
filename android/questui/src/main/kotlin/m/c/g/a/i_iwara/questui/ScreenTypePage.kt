@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,8 +60,8 @@ fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
-            title = "屏幕类型",
-            subtitle = "画面到眼等距，转脖子的幅度小一些",
+            title = stringResource(R.string.xr_screen_type_title),
+            subtitle = stringResource(R.string.xr_screen_type_subtitle),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
         )
 
@@ -69,23 +70,23 @@ fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             modifier = Modifier.fillMaxWidth().height(112.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            CurveTile(ScreenCurve.FLAT, "一块平幕", SpatialIcons.Regular.Television, state, cb)
-            CurveTile(ScreenCurve.SLIGHT, "40° 弧", SpatialIcons.Regular.WidthMedium, state, cb)
-            CurveTile(ScreenCurve.MEDIUM, "60° 弧", SpatialIcons.Regular.WidthWide, state, cb)
-            CurveTile(ScreenCurve.DEEP, "85° 弧", SpatialIcons.Regular.WidthExtrawide, state, cb)
+            CurveTile(ScreenCurve.FLAT, R.string.xr_curve_flat_hint, SpatialIcons.Regular.Television, state, cb)
+            CurveTile(ScreenCurve.SLIGHT, R.string.xr_curve_slight_hint, SpatialIcons.Regular.WidthMedium, state, cb)
+            CurveTile(ScreenCurve.MEDIUM, R.string.xr_curve_medium_hint, SpatialIcons.Regular.WidthWide, state, cb)
+            CurveTile(ScreenCurve.DEEP, R.string.xr_curve_deep_hint, SpatialIcons.Regular.WidthExtrawide, state, cb)
         }
 
         // ⚠️ 换形状 = 重建幕布，是官方限制不是我们偷懒：`settingsCreator` **只在实体
         // 创建时跑一次**，SDK 没有「运行时热换形状」的 API。用户会看到一次约 0.3–0.8s
         // 的接缝，进度会接回原处。如实写在界面上，别让人以为是卡了。
         Text(
-            text = "换屏幕类型会重建幕布，画面有一次短暂的接缝，进度会接回原处。",
+            text = stringResource(R.string.xr_curve_rebuild_note),
             color = PanelTokens.ON_SURFACE_DIM,
             fontSize = 14.sp,
         )
 
         // ── 3D 视频显示 ─────────────────────────
-        SectionLabel("3D 视频显示")
+        SectionLabel(stringResource(R.string.xr_section_3d_display))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -94,16 +95,18 @@ fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "强制以 2D 方式显示 3D 视频",
+                    text = stringResource(R.string.xr_force_mono),
                     color = if (state.format.isStereo) PanelTokens.ON_SURFACE else PanelTokens.ON_SURFACE_DIM,
                     fontSize = 16.sp,
                 )
                 Text(
-                    text = if (state.format.isStereo) {
-                        "打开后只取一半画面，头晕/串影时用"
-                    } else {
-                        "当前是单目片源，这一项没有意义"
-                    },
+                    text = stringResource(
+                        if (state.format.isStereo) {
+                            R.string.xr_force_mono_hint_stereo
+                        } else {
+                            R.string.xr_force_mono_hint_mono
+                        },
+                    ),
                     color = PanelTokens.ON_SURFACE_DIM,
                     fontSize = 13.sp,
                 )
@@ -120,14 +123,14 @@ fun ScreenTypePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 @Composable
 private fun androidx.compose.foundation.layout.RowScope.CurveTile(
     curve: ScreenCurve,
-    hint: String,
+    @androidx.annotation.StringRes hintRes: Int,
     icon: ImageVector,
     state: VideoControlsState,
     cb: VideoControlsCallbacks,
 ) {
     TextTileButton(
-        label = curve.label,
-        secondaryLabel = hint,
+        label = stringResource(curve.labelRes),
+        secondaryLabel = stringResource(hintRes),
         icon = { Icon(icon, null) },
         selected = state.curve == curve,
         onSelectionChange = { cb.onPickCurve(curve) },

@@ -1015,6 +1015,8 @@ settings:
     warningPublicDirectory: "Warning: Selected public directory may not be accessible. Recommend selecting app-specific directory."
     downloadPathUpdated: Download path updated
     selectPathFailed: Failed to select path
+    pickerAlreadyActive: The folder picker is already open
+    unsupportedStorageVolume: Unsupported storage location. Pick a folder on device storage or the SD card.
     recommendedPathSet: Set to recommended path
     setRecommendedPathFailed: Failed to set recommended path
     templateResetToDefault: Reset to default template

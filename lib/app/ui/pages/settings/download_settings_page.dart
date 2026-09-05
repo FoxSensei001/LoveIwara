@@ -1322,10 +1322,16 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         );
       }
     } on PlatformException catch (e) {
-      // 原生选择器返回的错误（消息本身面向用户），不展示异常包装
+      // ⛔ 不能把 `e.message` 吐给用户：那是原生里写死的中文，英文/日文界面下会露馅。
+      // 原生只负责给**错误码**，文案在这里按码取（认不出的码退回通用那句，原文只进日志）。
       LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
+      final downloadSettings = t.settings.downloadSettings;
       showAppToast(
-        e.message ?? t.settings.downloadSettings.selectPathFailed,
+        switch (e.code) {
+          'ALREADY_ACTIVE' => downloadSettings.pickerAlreadyActive,
+          'UNSUPPORTED_VOLUME' => downloadSettings.unsupportedStorageVolume,
+          _ => downloadSettings.selectPathFailed,
+        },
         type: AppToastType.error,
         position: AppToastPosition.bottom,
       );

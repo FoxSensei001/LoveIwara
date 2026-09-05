@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 简体中文。键与 values/strings.xml 一一对应，新增文案两边都要补。 -->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">返回</string>
+    <string name="xr_refresh">刷新</string>
+    <string name="xr_reset">重置</string>
+    <string name="xr_loading">正在读取…</string>
+    <string name="xr_buffering">缓冲中…</string>
+    <string name="xr_open_with">用其他应用打开</string>
+    <string name="xr_not_supported_here">本机放不了</string>
+
+    <!-- ─────────────────────────────── 场景 -->
+    <string name="xr_scene_void">虚空</string>
+    <string name="xr_scene_void_desc">纯黑环境，只剩画面</string>
+    <string name="xr_scene_passthrough">透视</string>
+    <string name="xr_scene_passthrough_desc">看得见真实房间</string>
+
+    <!-- ─────────────────────────────── 屏幕类型 -->
+    <string name="xr_curve_flat">直面屏</string>
+    <string name="xr_curve_slight">微曲面</string>
+    <string name="xr_curve_medium">中曲面</string>
+    <string name="xr_curve_deep">重曲面</string>
+    <string name="xr_curve_flat_hint">一块平幕</string>
+    <string name="xr_curve_slight_hint">40° 弧</string>
+    <string name="xr_curve_medium_hint">60° 弧</string>
+    <string name="xr_curve_deep_hint">85° 弧</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab -->
+    <string name="xr_tab_flat">平面视频</string>
+    <string name="xr_tab_panorama">普通全景</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">鱼眼格式</string>
+
+    <!-- ─────────────────────────────── 具体格式 -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D 左右</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D 上下</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D 左右</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D 上下</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <string name="xr_format_short_flat">平面 · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">鱼眼 · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸 -->
+    <string name="xr_aspect_default">默认</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后 -->
+    <string name="xr_repeat_one">单集循环</string>
+    <string name="xr_repeat_next">自动下一条</string>
+    <string name="xr_repeat_stop">播完停止</string>
+    <string name="xr_repeat_one_hint">一直重放这一条</string>
+    <string name="xr_repeat_next_hint">接着放列表下一条</string>
+    <string name="xr_repeat_stop_hint">停在最后一帧</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">收起控制面板</string>
+    <string name="xr_player_title_fallback">正在播放</string>
+    <string name="xr_switching_chip">正在加载下一条…</string>
+    <string name="xr_nav_scene">场景</string>
+    <string name="xr_nav_playlist">播放列表</string>
+    <string name="xr_nav_settings">设置</string>
+    <string name="xr_nav_back_to_app">返回应用</string>
+    <string name="xr_volume">音量</string>
+    <string name="xr_mute">静音</string>
+    <string name="xr_unmute">取消静音</string>
+    <string name="xr_previous">上一条</string>
+    <string name="xr_next">下一条</string>
+    <string name="xr_seek_back_10">后退 10 秒</string>
+    <string name="xr_seek_forward_10">前进 10 秒</string>
+    <string name="xr_play">播放</string>
+    <string name="xr_pause">暂停</string>
+    <string name="xr_quality">清晰度</string>
+    <string name="xr_source_local">%1$s · 本地</string>
+    <string name="xr_restart_from_beginning">从头开始</string>
+    <string name="xr_dismiss_tip">关闭提示</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_playlist_title">接着看</string>
+    <string name="xr_opening">正在打开…</string>
+    <string name="xr_switching">正在切换…</string>
+    <string name="xr_empty_choices">暂无内容</string>
+    <string name="xr_card_loading">正在加载…</string>
+    <string name="xr_badge_now_playing">正在播放</string>
+    <string name="xr_badge_offsite">站外</string>
+    <string name="xr_badge_watched">已看完 ✓</string>
+    <string name="xr_badge_downloaded">已下载</string>
+    <string name="xr_untitled">（无标题）</string>
+    <string name="xr_loading_next_page">正在读取下一页…</string>
+    <string name="xr_load_more">加载更多</string>
+    <string name="xr_load_more_hint">滚到这里会自动翻页</string>
+    <string name="xr_playlist_empty_title">没有可接着看的内容</string>
+    <string name="xr_playlist_empty_hint">回应用里把想看的加进队列，这里就能直接接着放</string>
+    <string name="xr_section_empty">这个池里还没有条目 —— 换上面的 tab 试试其它分区</string>
+    <string name="xr_pill_pending">%1$s …</string>
+    <string name="xr_pill_count">%1$s · %2$d</string>
+    <string name="xr_pill_subtitle">%1$s · %2$s</string>
+    <string name="xr_playlist_subtitle">%1$s · 共 %2$d 条</string>
+    <string name="xr_playlist_subtitle_more">%1$s（还有更多）</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">场景选择</string>
+    <string name="xr_scene_subtitle_flat">环境与幕布位置</string>
+    <string name="xr_scene_subtitle_sphere">球幕片源，画面本来就包在你四周</string>
+    <string name="xr_recenter">重新居中</string>
+    <string name="xr_scene_section_adjust">场景调节</string>
+    <string name="xr_screen_distance">屏幕距离</string>
+    <string name="xr_screen_width">幕宽</string>
+    <string name="xr_screen_offset">屏幕偏移</string>
+    <string name="xr_scene_sphere_note">180°/360° 片源没有「屏幕位置」可调 —— 画面就是你四周的球面。想换朝向就用右上角「重新居中」。</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">屏幕类型</string>
+    <string name="xr_screen_type_subtitle">画面到眼等距，转脖子的幅度小一些</string>
+    <string name="xr_curve_rebuild_note">换屏幕类型会重建幕布，画面有一次短暂的接缝，进度会接回原处。</string>
+    <string name="xr_section_3d_display">3D 视频显示</string>
+    <string name="xr_force_mono">强制以 2D 方式显示 3D 视频</string>
+    <string name="xr_force_mono_hint_stereo">打开后只取一半画面，头晕/串影时用</string>
+    <string name="xr_force_mono_hint_mono">当前是单目片源，这一项没有意义</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">视频类型</string>
+    <string name="xr_video_type_subtitle">认错了就在这儿改，立即生效</string>
+    <string name="xr_auto_detect">自动识别</string>
+    <string name="xr_format_unsupported_inline">%1$s 本机渲染不了，可以用其他应用打开</string>
+    <string name="xr_treat_180_as_fisheye">自动识别时，180° 全景当作 180° 鱼眼</string>
+    <string name="xr_treat_180_as_fisheye_hint">本机放不了鱼眼；打开后遇到 180 会弹「用其他应用打开」</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">设置</string>
+    <string name="xr_settings_subtitle">只放沉浸态才有意义的项；其余设置回应用里改</string>
+    <string name="xr_section_screen_size">屏幕尺寸</string>
+    <string name="xr_width_ratio">视频宽比</string>
+    <string name="xr_height_ratio">视频长比</string>
+    <string name="xr_reset_screen_size">重置屏幕尺寸</string>
+    <string name="xr_section_speed">倍速播放</string>
+    <string name="xr_carry_over">沿用到下一条视频</string>
+    <string name="xr_carry_over_hint">开：换片时保留屏幕尺寸与倍速；关：每条都从默认值开始</string>
+    <string name="xr_section_after_playback">播完之后</string>
+    <string name="xr_section_panel">面板</string>
+    <string name="xr_auto_hide">空闲自动收起</string>
+    <string name="xr_auto_hide_hint">收起是真的销毁面板；捏一下重新唤出</string>
+    <string name="xr_auto_hide_seconds_label">多久算空闲</string>
+    <string name="xr_summon_in_front">唤出时摆到面前</string>
+    <string name="xr_summon_in_front_hint">捏合唤出时把面板挪到当前朝向前方</string>
+    <string name="xr_click_sound">点按音效</string>
+    <string name="xr_click_sound_hint">官方：手没有振动反馈，音效是必需品</string>
+    <string name="xr_section_controller">手柄与系统</string>
+    <string name="xr_controller_tap">手柄 A/X 单击播放/暂停</string>
+    <string name="xr_controller_tap_hint">不用瞄面板，坐远处也能停</string>
+    <string name="xr_pause_on_focus_loss">系统菜单弹出 / 摘下头显时暂停</string>
+    <string name="xr_pause_on_focus_loss_hint">焦点丢了继续放没人看，浪费电</string>
+    <string name="xr_section_bindings">手柄键位</string>
+    <string name="xr_controller_bindings">扳机 / 捏合：选择 · 唤出面板\nB / Y：收起面板\n摇杆左右：按住拖动进度（越久越快），松开跳转\n摇杆上下：画面推远 / 拉近（全景片：球幕推远 / 拉近）\n握持键：按住拖动画面位置（全景片：拖视角），松开收起面板</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示 -->
+    <string name="xr_notice_unsupported_projection">这种投影本机渲染不了，已按平面显示；可用「用其他应用打开」</string>
+    <string name="xr_notice_next_failed_reason">下一条放不出来（%1$s），还在放当前这条</string>
+    <string name="xr_notice_next_unavailable">下一条打不开，还在放当前这条</string>
+    <string name="xr_notice_next_unavailable_reason">下一条打不开（%1$s），还在放当前这条</string>
+    <string name="xr_notice_next_timeout">下一条加载超时，还在放当前这条</string>
+    <string name="xr_notice_url_expired_refreshing">播放地址已过期，正在重新获取…</string>
+    <string name="xr_notice_url_expired_no_refresh">播放地址失效且没拿到新地址，可以回应用重新打开或换外部播放器</string>
+    <string name="xr_notice_refresh_timeout">播放地址失效且重新获取超时，可以回应用重新打开或换外部播放器</string>
+    <string name="xr_notice_playback_failed">这个片源放不出来（%1$s），可以换外部播放器试试</string>
+    <string name="xr_notice_no_external_player">这台设备上没有能接住这个视频的播放器</string>
+    <string name="xr_notice_resumed_at">已从 %1$s 继续播放</string>
+
+</resources>

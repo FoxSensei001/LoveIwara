@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 日本語。用語は lib/i18n/ja.i18n.yaml に合わせる（動画 / 再生リスト / 次に見る）。 -->
+<resources>
+
+    <!-- ─────────────────────────────── 共通 -->
+    <string name="xr_back">戻る</string>
+    <string name="xr_refresh">更新</string>
+    <string name="xr_reset">リセット</string>
+    <string name="xr_loading">読み込み中…</string>
+    <string name="xr_buffering">バッファ中…</string>
+    <string name="xr_open_with">他のアプリで開く</string>
+    <string name="xr_not_supported_here">この端末では再生不可</string>
+
+    <!-- ─────────────────────────────── 環境 -->
+    <string name="xr_scene_void">暗転</string>
+    <string name="xr_scene_void_desc">真っ黒な空間に映像だけ</string>
+    <string name="xr_scene_passthrough">パススルー</string>
+    <string name="xr_scene_passthrough_desc">実際の部屋が見えます</string>
+
+    <!-- ─────────────────────────────── スクリーン形状 -->
+    <string name="xr_curve_flat">フラット</string>
+    <string name="xr_curve_slight">ゆるやかな曲面</string>
+    <string name="xr_curve_medium">中程度の曲面</string>
+    <string name="xr_curve_deep">深い曲面</string>
+    <string name="xr_curve_flat_hint">平らな一枚のスクリーン</string>
+    <string name="xr_curve_slight_hint">40° の弧</string>
+    <string name="xr_curve_medium_hint">60° の弧</string>
+    <string name="xr_curve_deep_hint">85° の弧</string>
+
+    <!-- ─────────────────────────────── 動画タイプのタブ -->
+    <string name="xr_tab_flat">平面動画</string>
+    <string name="xr_tab_panorama">パノラマ</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">魚眼</string>
+
+    <!-- ─────────────────────────────── 各フォーマット -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D 左右</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D 上下</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D 左右</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D 上下</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <string name="xr_format_short_flat">平面 · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">魚眼 · %1$s</string>
+
+    <!-- ─────────────────────────────── 画面サイズ -->
+    <string name="xr_aspect_default">既定</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 再生終了後 -->
+    <string name="xr_repeat_one">1 本リピート</string>
+    <string name="xr_repeat_next">自動で次へ</string>
+    <string name="xr_repeat_stop">終わったら停止</string>
+    <string name="xr_repeat_one_hint">この 1 本を繰り返します</string>
+    <string name="xr_repeat_next_hint">リストの次を続けて再生します</string>
+    <string name="xr_repeat_stop_hint">最後のフレームで止まります</string>
+
+    <!-- ─────────────────────────────── 再生ページ -->
+    <string name="xr_hide_panel">コントロールを隠す</string>
+    <string name="xr_player_title_fallback">再生中</string>
+    <string name="xr_switching_chip">次の動画を読み込み中…</string>
+    <string name="xr_nav_scene">環境</string>
+    <string name="xr_nav_playlist">再生リスト</string>
+    <string name="xr_nav_settings">設定</string>
+    <string name="xr_nav_back_to_app">アプリに戻る</string>
+    <string name="xr_volume">音量</string>
+    <string name="xr_mute">ミュート</string>
+    <string name="xr_unmute">ミュート解除</string>
+    <string name="xr_previous">前へ</string>
+    <string name="xr_next">次へ</string>
+    <string name="xr_seek_back_10">10 秒戻す</string>
+    <string name="xr_seek_forward_10">10 秒進める</string>
+    <string name="xr_play">再生</string>
+    <string name="xr_pause">一時停止</string>
+    <string name="xr_quality">画質</string>
+    <string name="xr_source_local">%1$s · ダウンロード済み</string>
+    <string name="xr_restart_from_beginning">最初から</string>
+    <string name="xr_dismiss_tip">閉じる</string>
+
+    <!-- ─────────────────────────────── 「次に見る」ページ -->
+    <string name="xr_playlist_title">次に見る</string>
+    <string name="xr_opening">開いています…</string>
+    <string name="xr_switching">切り替え中…</string>
+    <string name="xr_empty_choices">項目がありません</string>
+    <string name="xr_card_loading">読み込み中…</string>
+    <string name="xr_badge_now_playing">再生中</string>
+    <string name="xr_badge_offsite">外部サイト</string>
+    <string name="xr_badge_watched">視聴済み ✓</string>
+    <string name="xr_badge_downloaded">ダウンロード済み</string>
+    <string name="xr_untitled">（タイトルなし）</string>
+    <string name="xr_loading_next_page">次のページを読み込み中…</string>
+    <string name="xr_load_more">もっと読み込む</string>
+    <string name="xr_load_more_hint">ここまでスクロールすると自動で読み込みます</string>
+    <string name="xr_playlist_empty_title">続けて見られる動画がありません</string>
+    <string name="xr_playlist_empty_hint">アプリで見たい動画をキューに入れると、ここからそのまま再生できます</string>
+    <string name="xr_section_empty">このキューにはまだ項目がありません。上のタブで別のリストを試してください</string>
+    <string name="xr_pill_pending">%1$s …</string>
+    <string name="xr_pill_count">%1$s · %2$d</string>
+    <string name="xr_pill_subtitle">%1$s · %2$s</string>
+    <string name="xr_playlist_subtitle">%1$s · 全 %2$d 本</string>
+    <string name="xr_playlist_subtitle_more">%1$s（まだあります）</string>
+
+    <!-- ─────────────────────────────── 環境ページ -->
+    <string name="xr_scene_title">環境</string>
+    <string name="xr_scene_subtitle_flat">環境とスクリーンの位置</string>
+    <string name="xr_scene_subtitle_sphere">全天球素材です。映像はもともとあなたを包んでいます</string>
+    <string name="xr_recenter">中央に戻す</string>
+    <string name="xr_scene_section_adjust">配置の調整</string>
+    <string name="xr_screen_distance">スクリーンまでの距離</string>
+    <string name="xr_screen_width">スクリーン幅</string>
+    <string name="xr_screen_offset">上下のオフセット</string>
+    <string name="xr_scene_sphere_note">180°/360° の素材に「スクリーンの位置」はありません。映像はあなたを囲む球面そのものです。向きを変えるには右上の「中央に戻す」を使ってください。</string>
+
+    <!-- ─────────────────────────────── スクリーン形状ページ -->
+    <string name="xr_screen_type_title">スクリーン形状</string>
+    <string name="xr_screen_type_subtitle">画面と目の距離が均等になり、首を振る量が減ります</string>
+    <string name="xr_curve_rebuild_note">スクリーン形状を変えるとスクリーンを作り直すため、一瞬つなぎ目が入り、再生位置は元に戻ります。</string>
+    <string name="xr_section_3d_display">3D 動画の表示</string>
+    <string name="xr_force_mono">3D 動画を強制的に 2D で表示</string>
+    <string name="xr_force_mono_hint_stereo">片側の映像だけを使います。酔う・二重に見えるときに</string>
+    <string name="xr_force_mono_hint_mono">現在は単眼素材のため、この項目は影響しません</string>
+
+    <!-- ─────────────────────────────── 動画タイプページ -->
+    <string name="xr_video_type_title">動画タイプ</string>
+    <string name="xr_video_type_subtitle">判定が違っていればここで変更、すぐ反映されます</string>
+    <string name="xr_auto_detect">自動判定</string>
+    <string name="xr_format_unsupported_inline">%1$s はこの端末では描画できません。他のアプリで開けます</string>
+    <string name="xr_treat_180_as_fisheye">自動判定時、180° パノラマを 180° 魚眼として扱う</string>
+    <string name="xr_treat_180_as_fisheye_hint">魚眼はこの端末では再生できません。オンにすると 180° 素材で「他のアプリで開く」が出ます</string>
+
+    <!-- ─────────────────────────────── 設定ページ -->
+    <string name="xr_settings_title">設定</string>
+    <string name="xr_settings_subtitle">空間再生で意味のある項目だけです。ほかの設定はアプリ側で変更してください</string>
+    <string name="xr_section_screen_size">画面サイズ</string>
+    <string name="xr_width_ratio">横の倍率</string>
+    <string name="xr_height_ratio">縦の倍率</string>
+    <string name="xr_reset_screen_size">画面サイズをリセット</string>
+    <string name="xr_section_speed">再生速度</string>
+    <string name="xr_carry_over">次の動画にも引き継ぐ</string>
+    <string name="xr_carry_over_hint">オン：切り替え時に画面サイズと再生速度を保持。オフ：毎回既定値から始めます</string>
+    <string name="xr_section_after_playback">再生終了後</string>
+    <string name="xr_section_panel">パネル</string>
+    <string name="xr_auto_hide">操作しないと自動で隠す</string>
+    <string name="xr_auto_hide_hint">隠すときはパネルを本当に破棄します。ピンチで呼び戻せます</string>
+    <string name="xr_auto_hide_seconds_label">何秒で「操作なし」とみなすか</string>
+    <string name="xr_summon_in_front">呼び出したら目の前に置く</string>
+    <string name="xr_summon_in_front_hint">ピンチで呼び出したとき、今向いている方向にパネルを移動します</string>
+    <string name="xr_click_sound">操作音</string>
+    <string name="xr_click_sound_hint">公式ガイド：手には触覚がないため、音は必須です</string>
+    <string name="xr_section_controller">コントローラーとシステム</string>
+    <string name="xr_controller_tap">コントローラーの A/X で再生／一時停止</string>
+    <string name="xr_controller_tap_hint">パネルを狙わなくても、離れた場所から止められます</string>
+    <string name="xr_pause_on_focus_loss">システムメニュー表示中／ヘッドセットを外したら一時停止</string>
+    <string name="xr_pause_on_focus_loss_hint">誰も見ていない間の再生はバッテリーの無駄です</string>
+    <string name="xr_section_bindings">コントローラーの操作</string>
+    <string name="xr_controller_bindings">トリガー／ピンチ：選択 · パネルの呼び出し\nB／Y：パネルを隠す\nスティック左右：長押しでシーク（長いほど速く）、離すと移動\nスティック上下：映像を遠ざける／近づける（パノラマ：全天球の距離）\nグリップ：長押しで映像を移動（パノラマ：視点をドラッグ）、離すとパネルを隠す</string>
+
+    <!-- ─────────────────────────────── 空間再生の通知 -->
+    <string name="xr_notice_unsupported_projection">この投影方式はこの端末では描画できないため平面で表示しています。「他のアプリで開く」をお試しください</string>
+    <string name="xr_notice_next_failed_reason">次の動画を再生できません（%1$s）。現在の動画を続けます</string>
+    <string name="xr_notice_next_unavailable">次の動画を開けません。現在の動画を続けます</string>
+    <string name="xr_notice_next_unavailable_reason">次の動画を開けません（%1$s）。現在の動画を続けます</string>
+    <string name="xr_notice_next_timeout">次の動画の読み込みがタイムアウトしました。現在の動画を続けます</string>
+    <string name="xr_notice_url_expired_refreshing">再生 URL の有効期限が切れました。取得し直しています…</string>
+    <string name="xr_notice_url_expired_no_refresh">再生 URL が失効し、新しい URL を取得できませんでした。アプリで開き直すか、外部プレイヤーをお使いください</string>
+    <string name="xr_notice_refresh_timeout">再生 URL が失効し、取得もタイムアウトしました。アプリで開き直すか、外部プレイヤーをお使いください</string>
+    <string name="xr_notice_playback_failed">この素材は再生できません（%1$s）。外部プレイヤーをお試しください</string>
+    <string name="xr_notice_no_external_player">この端末にはこの動画を開けるアプリがありません</string>
+    <string name="xr_notice_resumed_at">%1$s から再生を再開しました</string>
+
+</resources>

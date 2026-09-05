@@ -18,6 +18,7 @@ import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
+import io.flutter.embedding.android.FlutterActivityLaunchConfigs
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -52,6 +53,14 @@ class MainActivity : FlutterFragmentActivity() {
 
     private val REQUEST_CODE_PICK_DIRECTORY = 51423
     private var pendingDirectoryResult: MethodChannel.Result? = null
+
+    /**
+     * XR 头显上整个应用是空间里的一块面板：窗口透明，Flutter 侧把根部裁成圆角（`my_app.dart`），
+     * 面板四角就露出后面的场景（quest 源集的 `NormalTheme` 配合把窗口背景设成透明）。
+     * 手机 / 平板保持不透明——透明窗口在普通 Android 上有各种合成代价与方向锁副作用。
+     */
+    override fun getBackgroundMode(): FlutterActivityLaunchConfigs.BackgroundMode =
+        if (isXrDevice()) FlutterActivityLaunchConfigs.BackgroundMode.transparent else super.getBackgroundMode()
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -342,7 +351,10 @@ class MainActivity : FlutterFragmentActivity() {
                 result.success(resolveTreeUriToPath(uri))
             } catch (e: Exception) {
                 Log.e("MainActivity", "解析目录路径失败: $uri", e)
-                result.error("RESOLVE_FAILED", e.message, null)
+                // ⛔ 错误码是给 Dart 翻译用的，message 只进日志：这条会被吐成 toast，
+                // 直接把原生写的中文丢给用户，英文/日文界面就露馅了。
+                val code = if (e is UnsupportedOperationException) "UNSUPPORTED_VOLUME" else "RESOLVE_FAILED"
+                result.error(code, e.message, null)
             }
             return
         }
@@ -356,7 +368,8 @@ class MainActivity : FlutterFragmentActivity() {
      */
     private fun resolveTreeUriToPath(uri: Uri): String {
         if (uri.authority != "com.android.externalstorage.documents") {
-            throw UnsupportedOperationException("不支持的存储位置，请选择设备存储或 SD 卡中的目录")
+            // 文案由 Dart 侧按错误码 UNSUPPORTED_VOLUME 取（见 onActivityResult）。
+            throw UnsupportedOperationException("unsupported storage volume: ${uri.authority}")
         }
         val docId = DocumentsContract.getTreeDocumentId(uri)
         val split = docId.split(":", limit = 2)

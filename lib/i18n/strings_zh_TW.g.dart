@@ -2843,6 +2843,8 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get warningPublicDirectory => '警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。';
 	@override String get downloadPathUpdated => '下載路徑已更新';
 	@override String get selectPathFailed => '選擇路徑失敗';
+	@override String get pickerAlreadyActive => '目錄選擇器已在執行';
+	@override String get unsupportedStorageVolume => '不支援的儲存位置，請選擇裝置儲存空間或 SD 卡中的目錄';
 	@override String get recommendedPathSet => '已設定為推薦路徑';
 	@override String get setRecommendedPathFailed => '設定推薦路徑失敗';
 	@override String get templateResetToDefault => '已重設為預設範本';
@@ -4721,6 +4723,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.warningPublicDirectory' => '警告：選擇的是公共目錄，可能無法存取。建議選擇應用程式專用目錄。',
 			'settings.downloadSettings.downloadPathUpdated' => '下載路徑已更新',
 			'settings.downloadSettings.selectPathFailed' => '選擇路徑失敗',
+			'settings.downloadSettings.pickerAlreadyActive' => '目錄選擇器已在執行',
+			'settings.downloadSettings.unsupportedStorageVolume' => '不支援的儲存位置，請選擇裝置儲存空間或 SD 卡中的目錄',
 			'settings.downloadSettings.recommendedPathSet' => '已設定為推薦路徑',
 			'settings.downloadSettings.setRecommendedPathFailed' => '設定推薦路徑失敗',
 			'settings.downloadSettings.templateResetToDefault' => '已重設為預設範本',
@@ -4768,10 +4772,10 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
 			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
-			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
-			'settings.downloadSettings.insufficientSpace' => '可用空間不足',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
+			'settings.downloadSettings.insufficientSpace' => '可用空間不足',
 			'settings.downloadSettings.pathValid' => '路徑有效',
 			'settings.downloadSettings.validationFailed' => '驗證失敗',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用預設應用程式目錄',
@@ -5282,10 +5286,10 @@ extension on TranslationsZhTw {
 			'download.errors.sslHandshakeFailed' => 'SSL握手失敗，請檢查網路環境',
 			'download.errors.connectionFailed' => '連接失敗，請檢查網路',
 			'download.errors.serviceIsClosing' => '下載服務正在關閉',
-			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
-			'download.errors.noDownloadTask' => '暫無下載任務',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
+			'download.errors.noDownloadTask' => '暫無下載任務',
 			'download.errors.taskNotFoundOrDataError' => '任務不存在或資料錯誤',
 			'download.errors.copyDownloadUrlFailed' => '複製下載連結失敗',
 			'download.errors.fileNotFound' => '文件不存在',
@@ -5796,10 +5800,10 @@ extension on TranslationsZhTw {
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日誌可能包含帳號、請求參數等敏感資訊。請勿直接公開附加到 Issue，建議檢查後透過郵件傳送。',
 			'diagnostics.exportLogsTitle' => '匯出日誌',
-			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
-			'diagnostics.viewLogsTitle' => '查看日誌',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
+			'diagnostics.viewLogsTitle' => '查看日誌',
 			'diagnostics.viewLogsSubtitle' => '即時查看應用執行日誌',
 			'diagnostics.copySupportEmailTitle' => '複製日誌信箱',
 			'diagnostics.reportIssueTitle' => '回報問題',
@@ -6310,10 +6314,10 @@ extension on TranslationsZhTw {
 			'externalPlayer.executableMissing' => '可執行檔不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 開啟',
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
-			'watchLater.title' => '稍後再看',
-			'watchLater.addToWatchLater' => '稍後再看',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.title' => '稍後再看',
+			'watchLater.addToWatchLater' => '稍後再看',
 			'watchLater.removeFromWatchLater' => '移出稍後再看',
 			'watchLater.addedToWatchLater' => '已加入稍後再看',
 			'watchLater.alreadyInWatchLater' => '已經在稍後再看裡了',

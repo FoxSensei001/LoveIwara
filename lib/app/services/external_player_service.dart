@@ -226,6 +226,13 @@ class ExternalPlayerService {
         ExternalPlayerHandoffStatus.unsupported,
       );
     } on PlatformException catch (e) {
+      // ⛔ `e.message` 是原生写死的中文（给开发看的），不能直接吐进 toast：
+      // 认得的错误码翻成有本地化文案的状态，剩下的才退回原文。
+      if (e.code == 'INVALID_TARGET') {
+        return const ExternalPlayerHandoffResult(
+          ExternalPlayerHandoffStatus.fileMissing,
+        );
+      }
       return ExternalPlayerHandoffResult(
         ExternalPlayerHandoffStatus.failed,
         message: e.message,

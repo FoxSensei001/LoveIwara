@@ -1016,6 +1016,8 @@ settings:
     warningPublicDirectory: 警告：選択されたパブリックディレクトリにアクセスできない可能性があります。アプリ専用ディレクトリの選択をお勧めします。
     downloadPathUpdated: ダウンロードパスが更新されました
     selectPathFailed: パスの選択に失敗しました
+    pickerAlreadyActive: フォルダ選択画面はすでに開いています
+    unsupportedStorageVolume: この保存先には対応していません。本体ストレージまたは SD カード内のフォルダを選んでください。
     recommendedPathSet: 推奨パスに設定されました
     setRecommendedPathFailed: 推奨パスの設定に失敗しました
     templateResetToDefault: デフォルトテンプレートにリセットされました

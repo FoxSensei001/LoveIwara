@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
@@ -148,6 +151,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
                     // 强制刷新整个应用界面
                     Get.forceAppUpdate();
+
+                    // Quest：空间面板是原生画的，`forceAppUpdate` 管不到它，
+                    // 得把新语言推给原生（见 XrImmersiveService.syncLocale）。
+                    if (Get.isRegistered<XrImmersiveService>()) {
+                      unawaited(Get.find<XrImmersiveService>().syncLocale());
+                    }
 
                     Navigator.of(context).pop();
 

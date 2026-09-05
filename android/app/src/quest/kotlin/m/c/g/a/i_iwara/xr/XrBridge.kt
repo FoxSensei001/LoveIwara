@@ -7,6 +7,7 @@ import android.util.Log
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.lang.ref.WeakReference
+import m.c.g.a.i_iwara.questui.PanelLocale
 
 /**
  * `quest` 变体的真实现：把 Dart 侧的「把这个视频空间化呈现」接到沉浸场景上。
@@ -22,21 +23,36 @@ import java.lang.ref.WeakReference
  * Dart → Kotlin（通道 `i_iwara/immersive`）：
  * - `isAvailable` → Boolean，沉浸场景当前是否活着（Dart 用它决定要不要显示入口）
  * - `present` → `{url, title, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
- *                w, h, positionMs, unsupportedProjection}`
+ *                w, h, positionMs, unsupportedProjection,
+ *                sources: [{label, url, local}], sourceLabel}`
  * - `dismiss` → 收起幕布，只留 UI 面板
- * - `setPlaylist` → `{sections: [{queueId, title, hasMore,
- *                    items: [{id,title,author,durationText,thumbnailUrl,progress,watched,playable}]}],
+ * - `updateSources` → `{videoId, sources: [{label, url, local}]}`：同一条片子的清晰度清单换了一份新地址
+ *   （Iwara 直链带 `expires`，Dart 侧到期前 5 分钟刷一次 / 原生报过期时刷一次）；正在放的那一档地址变了
+ *   就接着当前位置无缝换过去
+ * - `abortSwitch` → `{videoId, reason}`：面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 删除）：
+ *   让原生收掉换片在途态、把老片放回去并提示
+ * - `setPlaylist` → `{sections: [{queueId, title, hasMore, loading,
+ *                    items: [{id,title,author,durationText,thumbnailUrl,progress,watched,playable,downloaded}]}],
+ *                    groups: [{id, title, subtitle, loading, choices: [{queueId, title, count}]}],
  *                    activeQueueId, nowPlayingId}`
  *
  * Kotlin → Dart（同一条通道）：
- * - `requestPlaylist` → 让 Dart 重新推一次「接着看」
+ * - `requestPlaylist` `{force}` → 让 Dart 重新推一次「接着看」（force = 清单也重拉）
+ * - `openQueue` `{queueId}` → 目录里还没开的池：让 Dart 开出来、装第一页、整套推回来
+ * - `loadMore` `{queueId}` → 让那个池翻一页，再整套推回来（面板里的无限滚动）
+ * - `sourcePicked` `{label}` → 面板上换了清晰度，记成全局偏好（与 2D 底栏同一落点）
  * - `playItem` `{queueId, id}` → 让 Dart 把详情页换成那条视频，新页再 `present` 回来
- * - `immersiveEnded` `{videoId, positionMs}` → 沉浸播放结束（返回应用 / 退出场景），
+ * - `immersiveEnded` `{videoId, positionMs, durationMs}` → 沉浸播放结束（返回应用 / 换片 / 退出场景），
  *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
+ * - `sourceExpired` `{videoId}` → 播放地址被服务端拒了（非 2xx）：请 Dart 立刻重取一份清单再 `updateSources` 回来
  *
- * ⛔ **反向调用只有这三条，刻意保持得很窄**。设计文档 §6.6 已经否掉了「沉浸端持续
+ * ⛔ **反向调用就这几条，刻意保持得很窄**。设计文档 §6.6 已经否掉了「沉浸端持续
  * 回打 Dart 的瘦客户端架构」（跨端持续同步最脆，LMK 一杀会话中途崩），
  * 这里是「原生自足 + 偶尔向 Dart 要一次数据」。
+ *
+ * 另有两条**不走通道**的：手柄 B/Y 在浏览态 = 系统返回键，直接派给 [MainActivity] 的
+ * `OnBackPressedDispatcher`（见 [ImmersiveBridge.requestBack]）；MainActivity 自己 finish 时
+ * （根级退出）沉浸 Activity 跟着 finish（见 [ImmersiveBridge.notifyHostFinished]）。
  */
 object XrBridge {
 
@@ -45,13 +61,33 @@ object XrBridge {
 
     fun attach(activity: Activity, engine: FlutterEngine) {
         ImmersiveBridge.attachEngine(engine)
+        ImmersiveBridge.attachActivity(activity)
         val channel = MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL)
         ImmersiveBridge.attachChannel(channel)
+        // 面板里的 MainActivity 自己 finish（根级「再按一次退出」→ SystemNavigator.pop）时，沉浸 Activity 要跟着退：
+        // 否则场景还活着、面板却空了，用户「一直按 B 也退不出应用」。只认 isFinishing，配置变化重建不算。
+        (activity as? androidx.activity.ComponentActivity)?.lifecycle?.addObserver(
+            androidx.lifecycle.LifecycleEventObserver { _, event ->
+                if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY && activity.isFinishing) {
+                    Log.i(TAG, "XR host MainActivity finishing")
+                    ImmersiveBridge.notifyHostFinished()
+                }
+            },
+        )
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "isAvailable" -> result.success(ImmersiveBridge.isSceneAlive)
 
+                // 应用内选定的界面语言。⛔ 空间面板不跟系统语言走，见 PanelLocale。
+                "setLocale" -> {
+                    PanelLocale.tag = call.argument<String>("locale").orEmpty()
+                    Log.i(TAG, "XR locale -> ${PanelLocale.tag}")
+                    result.success(true)
+                }
+
                 "present" -> {
+                    // 面板可能在语言切换之后才第一次被唤出，每次 present 都带上是最省事的兜底。
+                    call.argument<String>("locale")?.let { PanelLocale.tag = it }
                     val url = call.argument<String>("url")
                     if (url.isNullOrBlank()) {
                         result.error("bad_args", "url 不能为空", null)
@@ -68,6 +104,16 @@ object XrBridge {
                             positionMs = (call.argument<Number>("positionMs") ?: 0).toLong(),
                             unsupportedProjection =
                                 call.argument<Boolean>("unsupportedProjection") ?: false,
+                            sources = call.argument<List<Map<String, Any?>>>("sources").orEmpty().map { row ->
+                                ImmersiveSourceOption(
+                                    label = row["label"] as? String ?: "",
+                                    url = row["url"] as? String ?: "",
+                                    local = row["local"] as? Boolean ?: false,
+                                    display = row["displayLabel"] as? String
+                                        ?: row["label"] as? String ?: "",
+                                )
+                            }.filter { it.label.isNotEmpty() && it.url.isNotEmpty() },
+                            sourceLabel = call.argument<String>("sourceLabel") ?: "",
                         )
                         Log.i(TAG, "XR present shape=${request.shape} stereo=${request.stereo}")
                         result.success(ImmersiveBridge.present(request))
@@ -75,6 +121,29 @@ object XrBridge {
                 }
 
                 "dismiss" -> result.success(ImmersiveBridge.dismiss())
+
+                "abortSwitch" -> {
+                    result.success(
+                        ImmersiveBridge.abortSwitch(
+                            videoId = call.argument<String>("videoId") ?: "",
+                            reason = call.argument<String>("reason") ?: "",
+                        ),
+                    )
+                }
+
+                "updateSources" -> {
+                    val videoId = call.argument<String>("videoId") ?: ""
+                    val sources = call.argument<List<Map<String, Any?>>>("sources").orEmpty().map { row ->
+                        ImmersiveSourceOption(
+                            label = row["label"] as? String ?: "",
+                            url = row["url"] as? String ?: "",
+                            local = row["local"] as? Boolean ?: false,
+                            display = row["displayLabel"] as? String
+                                ?: row["label"] as? String ?: "",
+                        )
+                    }.filter { it.label.isNotEmpty() && it.url.isNotEmpty() }
+                    result.success(ImmersiveBridge.updateSources(videoId, sources))
+                }
 
                 "setPlaylist" -> {
                     val rawSections = call.argument<List<Map<String, Any?>>>("sections").orEmpty()
@@ -84,6 +153,7 @@ object XrBridge {
                             queueId = sec["queueId"] as? String ?: "",
                             title = sec["title"] as? String ?: "",
                             hasMore = sec["hasMore"] as? Boolean ?: false,
+                            loading = sec["loading"] as? Boolean ?: false,
                             items = raw.mapNotNull { it as? Map<*, *> }.map { row ->
                                 ImmersivePlaylistItem(
                                     id = row["id"] as? String ?: "",
@@ -94,12 +164,31 @@ object XrBridge {
                                     progress = (row["progress"] as? Number)?.toFloat() ?: 0f,
                                     watched = row["watched"] as? Boolean ?: false,
                                     playable = row["playable"] as? Boolean ?: true,
+                                    downloaded = row["downloaded"] as? Boolean ?: false,
                                 )
                             }.filter { it.id.isNotEmpty() },
                         )
                     }.filter { it.queueId.isNotEmpty() }
+                    val rawGroups = call.argument<List<Map<String, Any?>>>("groups").orEmpty()
+                    val groups = rawGroups.map { g ->
+                        val raw = g["choices"] as? List<*> ?: emptyList<Any?>()
+                        ImmersivePlaylistGroup(
+                            id = g["id"] as? String ?: "",
+                            title = g["title"] as? String ?: "",
+                            subtitle = g["subtitle"] as? String ?: "",
+                            loading = g["loading"] as? Boolean ?: false,
+                            choices = raw.mapNotNull { it as? Map<*, *> }.map { c ->
+                                ImmersivePlaylistChoice(
+                                    queueId = c["queueId"] as? String ?: "",
+                                    title = c["title"] as? String ?: "",
+                                    count = (c["count"] as? Number)?.toInt() ?: -1,
+                                )
+                            }.filter { it.queueId.isNotEmpty() },
+                        )
+                    }.filter { it.id.isNotEmpty() }
                     ImmersiveBridge.setPlaylist(
                         sections,
+                        groups,
                         activeQueueId = call.argument<String>("activeQueueId"),
                         nowPlayingId = call.argument<String>("nowPlayingId"),
                     )
@@ -127,6 +216,24 @@ data class ImmersiveVideoRequest(
     val positionMs: Long,
     /** 片源投影 SDK 渲染不了（目前只有鱼眼）。面板据此如实提示并给外部播放器出口。 */
     val unsupportedProjection: Boolean,
+    /** 可选清晰度（在线 / 本地文件）。空 = 只有 [url] 这一档。 */
+    val sources: List<ImmersiveSourceOption> = emptyList(),
+    /** [url] 对应的那一档的标签。 */
+    val sourceLabel: String = "",
+)
+
+/**
+ * 一档清晰度。
+ *
+ * ⛔ [label] 是**身份**（`Source` / `1080`……）：原样回传 Dart 存偏好、面板也靠它匹配当前档，
+ * 不能本地化。要显示的是 [display] —— Dart 按应用内语言算好推过来的（与 2D 播放器底栏
+ * 同一套 `getQualityDisplayLabel`）。
+ */
+data class ImmersiveSourceOption(
+    val label: String,
+    val url: String,
+    val local: Boolean,
+    val display: String = label,
 )
 
 /** 「接着看」里的一条，字段与 Dart 的 `XrPlaylistEntry` 一一对应。 */
@@ -139,7 +246,20 @@ data class ImmersivePlaylistItem(
     val progress: Float,
     val watched: Boolean,
     val playable: Boolean,
+    val downloaded: Boolean,
 )
+
+/** 「接着看」来源目录的一个分组（= 2D 抽屉第一级）。 */
+data class ImmersivePlaylistGroup(
+    val id: String,
+    val title: String,
+    val subtitle: String,
+    val loading: Boolean,
+    val choices: List<ImmersivePlaylistChoice>,
+)
+
+/** 分组里的一个选项（= 抽屉第二级），对应一个池；count < 0 表示没有计数。 */
+data class ImmersivePlaylistChoice(val queueId: String, val title: String, val count: Int)
 
 /** 「接着看」的一个分区 = 详情页的一个视频池。 */
 data class ImmersivePlaylistSection(
@@ -147,6 +267,8 @@ data class ImmersivePlaylistSection(
     val title: String,
     val hasMore: Boolean,
     val items: List<ImmersivePlaylistItem>,
+    /** 池正在拉第一页 / 翻页（或还没装过任何一页）。 */
+    val loading: Boolean = false,
 )
 
 /**
@@ -173,10 +295,17 @@ object ImmersiveBridge {
     /** 反向调用用的通道。与 [engineRef] 同生共死。 */
     private var channelRef: WeakReference<MethodChannel>? = null
 
+    /** 面板里那个承载 Flutter 的 Activity；手柄「返回」要派给它。弱引用，理由同 [engineRef]。 */
+    private var activityRef: WeakReference<Activity>? = null
+
     private val mainHandler = Handler(Looper.getMainLooper())
 
     fun attachEngine(engine: FlutterEngine) {
         engineRef = WeakReference(engine)
+    }
+
+    fun attachActivity(activity: Activity) {
+        activityRef = WeakReference(activity)
     }
 
     fun attachChannel(channel: MethodChannel) {
@@ -220,6 +349,7 @@ object ImmersiveBridge {
 
     private class PendingPlaylist(
         val sections: List<ImmersivePlaylistSection>,
+        val groups: List<ImmersivePlaylistGroup>,
         val activeQueueId: String?,
         val nowPlayingId: String?,
     )
@@ -227,7 +357,21 @@ object ImmersiveBridge {
     interface Listener {
         fun onPresent(request: ImmersiveVideoRequest)
         fun onDismiss()
-        fun onPlaylist(sections: List<ImmersivePlaylistSection>, activeQueueId: String?, nowPlayingId: String?)
+
+        /** 同一条片子（[videoId]）的清晰度清单换了新地址。不是正在放的那条就忽略。 */
+        fun onSources(videoId: String, sources: List<ImmersiveSourceOption>)
+
+        /** 面板里的 MainActivity 正在 finish（应用级退出）：沉浸场景也该退。 */
+        fun onHostFinished()
+
+        /** Dart 打不开面板点的那条视频：收掉换片在途态。[videoId] 为空 = 收掉任何在途换片。 */
+        fun onAbortSwitch(videoId: String, reason: String)
+        fun onPlaylist(
+            sections: List<ImmersivePlaylistSection>,
+            groups: List<ImmersivePlaylistGroup>,
+            activeQueueId: String?,
+            nowPlayingId: String?,
+        )
     }
 
     /** 场景就绪。返回时会把等待中的请求补投一次。 */
@@ -236,7 +380,7 @@ object ImmersiveBridge {
         isSceneAlive = true
         pendingPlaylist?.let {
             pendingPlaylist = null
-            listener.onPlaylist(it.sections, it.activeQueueId, it.nowPlayingId)
+            listener.onPlaylist(it.sections, it.groups, it.activeQueueId, it.nowPlayingId)
         }
         pending?.let {
             pending = null
@@ -270,12 +414,36 @@ object ImmersiveBridge {
         return true
     }
 
-    fun setPlaylist(sections: List<ImmersivePlaylistSection>, activeQueueId: String?, nowPlayingId: String?) {
+    /** Dart 打不开面板点的那条：让场景把换片在途态收掉。@return false = 场景没活着。 */
+    fun abortSwitch(videoId: String, reason: String): Boolean {
+        val target = listener ?: return false
+        target.onAbortSwitch(videoId, reason)
+        return true
+    }
+
+    /** 面板里的 MainActivity 正在 finish：让场景一起退。场景没活着就没事可做。 */
+    fun notifyHostFinished() {
+        listener?.onHostFinished()
+    }
+
+    /** @return false = 场景没活着（没有可更新的播放器）。不暂存：新地址只对正在放的那条有意义。 */
+    fun updateSources(videoId: String, sources: List<ImmersiveSourceOption>): Boolean {
+        val target = listener ?: return false
+        target.onSources(videoId, sources)
+        return true
+    }
+
+    fun setPlaylist(
+        sections: List<ImmersivePlaylistSection>,
+        groups: List<ImmersivePlaylistGroup>,
+        activeQueueId: String?,
+        nowPlayingId: String?,
+    ) {
         val target = listener
         if (target == null) {
-            pendingPlaylist = PendingPlaylist(sections, activeQueueId, nowPlayingId)
+            pendingPlaylist = PendingPlaylist(sections, groups, activeQueueId, nowPlayingId)
         } else {
-            target.onPlaylist(sections, activeQueueId, nowPlayingId)
+            target.onPlaylist(sections, groups, activeQueueId, nowPlayingId)
         }
     }
 
@@ -288,9 +456,69 @@ object ImmersiveBridge {
      * 那**恰好也是主线程**（`onSceneTick` 与 Flutter 的 platform thread 同一条，
      * 见文档 §14），但为了不把这个巧合写死成前提，统一 post 一次。
      */
-    fun requestPlaylist() {
+    fun requestPlaylist(force: Boolean = false) {
         val channel = channelRef?.get() ?: return
-        mainHandler.post { channel.invokeMethod("requestPlaylist", null) }
+        mainHandler.post { channel.invokeMethod("requestPlaylist", mapOf("force" to force)) }
+    }
+
+    /** 面板上换了清晰度：记成全局偏好，下一条按它匹配 / 向下降级。 */
+    fun notifySourcePicked(label: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("sourcePicked", mapOf("label" to label)) }
+    }
+
+    /** 目录里还没开的池：请 Dart 开出来、装第一页、整套推回来。 */
+    fun requestOpenQueue(queueId: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("openQueue", mapOf("queueId" to queueId)) }
+    }
+
+    /**
+     * 请 Dart 给 [queueId] 这个池翻一页，翻完它会整套 `setPlaylist` 推回来。
+     */
+    fun requestLoadMore(queueId: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("loadMore", mapOf("queueId" to queueId)) }
+    }
+
+    /**
+     * 手柄 B/Y 在浏览态 = **系统返回键**。
+     *
+     * # 为什么要我们自己派
+     *
+     * Flutter 面板是挂在本沉浸 Activity 里的 `ActivityPanel`，手柄按键由 Spatial SDK 收走，
+     * **不会**像普通 2D 应用那样变成 `KEYCODE_BACK` 落到面板里的 Activity —— 用户 2026-09-05：
+     * 「在应用内按 B 键没有回到上一页，非常反直觉」。
+     *
+     * 派给 `OnBackPressedDispatcher` 而不是直接调 Dart 的 pop：这正是硬件返回键走的那条路
+     * （FlutterActivity 的返回回调 → `navigationChannel.popRoute` → go_router），应用里的
+     * 「再按一次退出」等根级处理原样生效，不用在 Dart 侧再造一条。
+     */
+    fun requestBack() {
+        val activity = activityRef?.get()
+        if (activity == null || activity.isFinishing || activity.isDestroyed) {
+            Log.w(TAG, "XR requestBack 但 MainActivity 已不在")
+            return
+        }
+        mainHandler.post {
+            // FlutterFragmentActivity 一定是 ComponentActivity；派给它的分发器 = 硬件返回键那条路。
+            val dispatcher = (activity as? androidx.activity.ComponentActivity)?.onBackPressedDispatcher
+            if (dispatcher == null) {
+                Log.w(TAG, "XR requestBack：MainActivity 不是 ComponentActivity")
+                return@post
+            }
+            runCatching { dispatcher.onBackPressed() }
+                .onFailure { Log.w(TAG, "XR requestBack 失败", it) }
+        }
+    }
+
+    /**
+     * 播放地址被服务端拒了（多半是 `expires` 到期）：请 Dart 立刻重取清单、`updateSources` 回来。
+     * Dart 侧同一条片子在途只会有一次刷新，这里不做去抖。
+     */
+    fun requestSourceRefresh(videoId: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("sourceExpired", mapOf("videoId" to videoId)) }
     }
 
     /**
@@ -299,12 +527,12 @@ object ImmersiveBridge {
      * 幕布上的进度从不经过 `MyVideoStateController`，所以观看历史 / 稍后再看的进度
      * 只能在这一刻一次性回写（设计文档 §6.6-4 的决定）。
      */
-    fun notifyImmersiveEnded(videoId: String, positionMs: Long) {
+    fun notifyImmersiveEnded(videoId: String, positionMs: Long, durationMs: Long) {
         val channel = channelRef?.get() ?: return
         mainHandler.post {
             channel.invokeMethod(
                 "immersiveEnded",
-                mapOf("videoId" to videoId, "positionMs" to positionMs),
+                mapOf("videoId" to videoId, "positionMs" to positionMs, "durationMs" to durationMs),
             )
         }
     }

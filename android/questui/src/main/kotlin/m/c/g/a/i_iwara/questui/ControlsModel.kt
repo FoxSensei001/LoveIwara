@@ -1,5 +1,6 @@
 package m.c.g.a.i_iwara.questui
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,13 +42,18 @@ enum class ControlsRoute {
 
 // ─────────────────────────────────────────────────────────── 场景
 
-/** 环境场景。只做两种：虚空（默认）与透视。 */
-enum class SceneKind(val label: String) {
+/**
+ * 环境场景。只做两种：虚空（默认）与透视。
+ *
+ * ⛔ 枚举带的是**资源 id 而不是字面量**：面板要按应用内选定的语言取词
+ * （见 [PanelLocale]），取词一律在 Compose 里 `stringResource(labelRes)`。
+ */
+enum class SceneKind(@StringRes val labelRes: Int) {
     /** 虚空：什么都不画的纯黑空间。**默认档**。 */
-    VOID("虚空"),
+    VOID(R.string.xr_scene_void),
 
     /** 透视：开 passthrough，看得见真实房间。 */
-    PASSTHROUGH("透视"),
+    PASSTHROUGH(R.string.xr_scene_passthrough),
 }
 
 // ─────────────────────────────────────────────────────────── 屏幕类型
@@ -60,21 +66,21 @@ enum class SceneKind(val label: String) {
  *
  * @property arcDegrees 水平弧度；0 表示平面 Quad。
  */
-enum class ScreenCurve(val label: String, val arcDegrees: Float) {
-    FLAT("直面屏", 0f),
-    SLIGHT("微曲面", 40f),
-    MEDIUM("中曲面", 60f),
-    DEEP("重曲面", 85f),
+enum class ScreenCurve(@StringRes val labelRes: Int, val arcDegrees: Float) {
+    FLAT(R.string.xr_curve_flat, 0f),
+    SLIGHT(R.string.xr_curve_slight, 40f),
+    MEDIUM(R.string.xr_curve_medium, 60f),
+    DEEP(R.string.xr_curve_deep, 85f),
 }
 
 // ─────────────────────────────────────────────────────────── 视频类型
 
 /** 视频类型面板顶部的四个 tab。 */
-enum class FormatTab(val label: String) {
-    FLAT("平面视频"),
-    PANORAMA("普通全景"),
-    EAC("EAC"),
-    FISHEYE("鱼眼格式"),
+enum class FormatTab(@StringRes val labelRes: Int) {
+    FLAT(R.string.xr_tab_flat),
+    PANORAMA(R.string.xr_tab_panorama),
+    EAC(R.string.xr_tab_eac),
+    FISHEYE(R.string.xr_tab_fisheye),
 }
 
 /** 片源投影几何。 */
@@ -97,7 +103,7 @@ enum class StereoPacking { MONO, LEFT_RIGHT, TOP_BOTTOM }
  */
 enum class VideoFormat(
     val tab: FormatTab,
-    val label: String,
+    @StringRes val labelRes: Int,
     val projection: Projection,
     val packing: StereoPacking,
     /** 立体片每只眼占一整幅（FSBS / FOU）。单目片无意义。 */
@@ -106,30 +112,30 @@ enum class VideoFormat(
     val fisheyeFov: Int = 0,
 ) {
     // ---- 平面视频 ----
-    FLAT_2D(FormatTab.FLAT, "2D", Projection.FLAT, StereoPacking.MONO, false),
-    FLAT_3D_HSBS(FormatTab.FLAT, "3D HSBS", Projection.FLAT, StereoPacking.LEFT_RIGHT, false),
-    FLAT_3D_FSBS(FormatTab.FLAT, "3D FSBS", Projection.FLAT, StereoPacking.LEFT_RIGHT, true),
-    FLAT_3D_HOU(FormatTab.FLAT, "3D HOU", Projection.FLAT, StereoPacking.TOP_BOTTOM, false),
-    FLAT_3D_FOU(FormatTab.FLAT, "3D FOU", Projection.FLAT, StereoPacking.TOP_BOTTOM, true),
+    FLAT_2D(FormatTab.FLAT, R.string.xr_format_flat_2d, Projection.FLAT, StereoPacking.MONO, false),
+    FLAT_3D_HSBS(FormatTab.FLAT, R.string.xr_format_flat_3d_hsbs, Projection.FLAT, StereoPacking.LEFT_RIGHT, false),
+    FLAT_3D_FSBS(FormatTab.FLAT, R.string.xr_format_flat_3d_fsbs, Projection.FLAT, StereoPacking.LEFT_RIGHT, true),
+    FLAT_3D_HOU(FormatTab.FLAT, R.string.xr_format_flat_3d_hou, Projection.FLAT, StereoPacking.TOP_BOTTOM, false),
+    FLAT_3D_FOU(FormatTab.FLAT, R.string.xr_format_flat_3d_fou, Projection.FLAT, StereoPacking.TOP_BOTTOM, true),
 
     // ---- 普通全景 ----
-    PANO_180_2D(FormatTab.PANORAMA, "180 2D", Projection.PANORAMA_180, StereoPacking.MONO, false),
-    PANO_180_3D_LR(FormatTab.PANORAMA, "180 3D 左右", Projection.PANORAMA_180, StereoPacking.LEFT_RIGHT, false),
-    PANO_180_3D_TB(FormatTab.PANORAMA, "180 3D 上下", Projection.PANORAMA_180, StereoPacking.TOP_BOTTOM, false),
-    PANO_360_2D(FormatTab.PANORAMA, "360 2D", Projection.PANORAMA_360, StereoPacking.MONO, false),
-    PANO_360_3D_LR(FormatTab.PANORAMA, "360 3D 左右", Projection.PANORAMA_360, StereoPacking.LEFT_RIGHT, false),
-    PANO_360_3D_TB(FormatTab.PANORAMA, "360 3D 上下", Projection.PANORAMA_360, StereoPacking.TOP_BOTTOM, false),
+    PANO_180_2D(FormatTab.PANORAMA, R.string.xr_format_pano_180_2d, Projection.PANORAMA_180, StereoPacking.MONO, false),
+    PANO_180_3D_LR(FormatTab.PANORAMA, R.string.xr_format_pano_180_3d_lr, Projection.PANORAMA_180, StereoPacking.LEFT_RIGHT, false),
+    PANO_180_3D_TB(FormatTab.PANORAMA, R.string.xr_format_pano_180_3d_tb, Projection.PANORAMA_180, StereoPacking.TOP_BOTTOM, false),
+    PANO_360_2D(FormatTab.PANORAMA, R.string.xr_format_pano_360_2d, Projection.PANORAMA_360, StereoPacking.MONO, false),
+    PANO_360_3D_LR(FormatTab.PANORAMA, R.string.xr_format_pano_360_3d_lr, Projection.PANORAMA_360, StereoPacking.LEFT_RIGHT, false),
+    PANO_360_3D_TB(FormatTab.PANORAMA, R.string.xr_format_pano_360_3d_tb, Projection.PANORAMA_360, StereoPacking.TOP_BOTTOM, false),
 
     // ---- EAC（不支持） ----
-    EAC_360_2D(FormatTab.EAC, "360 2D", Projection.EAC, StereoPacking.MONO, false),
-    EAC_360_3D(FormatTab.EAC, "360 3D", Projection.EAC, StereoPacking.TOP_BOTTOM, false),
+    EAC_360_2D(FormatTab.EAC, R.string.xr_format_eac_360_2d, Projection.EAC, StereoPacking.MONO, false),
+    EAC_360_3D(FormatTab.EAC, R.string.xr_format_eac_360_3d, Projection.EAC, StereoPacking.TOP_BOTTOM, false),
 
     // ---- 鱼眼（不支持） ----
-    FISHEYE_2D(FormatTab.FISHEYE, "2D", Projection.FISHEYE, StereoPacking.MONO, false, 180),
-    FISHEYE_180_3D(FormatTab.FISHEYE, "180 3D", Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 180),
-    FISHEYE_190_3D(FormatTab.FISHEYE, "190 3D", Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 190),
-    FISHEYE_200_3D(FormatTab.FISHEYE, "200 3D", Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 200),
-    FISHEYE_220_3D(FormatTab.FISHEYE, "220 3D", Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 220),
+    FISHEYE_2D(FormatTab.FISHEYE, R.string.xr_format_fisheye_2d, Projection.FISHEYE, StereoPacking.MONO, false, 180),
+    FISHEYE_180_3D(FormatTab.FISHEYE, R.string.xr_format_fisheye_180_3d, Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 180),
+    FISHEYE_190_3D(FormatTab.FISHEYE, R.string.xr_format_fisheye_190_3d, Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 190),
+    FISHEYE_200_3D(FormatTab.FISHEYE, R.string.xr_format_fisheye_200_3d, Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 200),
+    FISHEYE_220_3D(FormatTab.FISHEYE, R.string.xr_format_fisheye_220_3d, Projection.FISHEYE, StereoPacking.LEFT_RIGHT, false, 220),
     ;
 
     /** 本机能不能正确渲染。 */
@@ -143,14 +149,8 @@ enum class VideoFormat(
     /** 平面片（有「屏幕类型 / 屏幕尺寸」可言）；球幕片人在球心，弯的是整个世界。 */
     val isFlat: Boolean get() = projection == Projection.FLAT
 
-    /** 音量行右侧那枚钮上的短标签，例如「平面 · 3D HSBS」。 */
-    val shortLabel: String
-        get() = when (tab) {
-            FormatTab.FLAT -> "平面 · $label"
-            FormatTab.PANORAMA -> label
-            FormatTab.EAC -> "EAC · $label"
-            FormatTab.FISHEYE -> "鱼眼 · $label"
-        }
+    // 走带行那枚钮上的短标签（「平面 · 3D HSBS」）要取词，所以它是
+    // [shortLabel] 这个 @Composable 扩展，不在这里 —— 本文件不放 Compose 代码。
 
     companion object {
         fun inTab(tab: FormatTab): List<VideoFormat> = entries.filter { it.tab == tab }
@@ -164,28 +164,28 @@ enum class VideoFormat(
  *
  * @property ratio 宽/高；0 表示按片源自身比例。
  */
-enum class AspectPreset(val label: String, val ratio: Float) {
-    DEFAULT("默认", 0f),
-    R_2_1("2:1", 2f),
-    R_16_9("16:9", 16f / 9f),
-    R_4_3("4:3", 4f / 3f),
-    R_9_16("9:16", 9f / 16f),
-    R_1_1("1:1", 1f),
-    R_12_5("12:5", 12f / 5f),
+enum class AspectPreset(@StringRes val labelRes: Int, val ratio: Float) {
+    DEFAULT(R.string.xr_aspect_default, 0f),
+    R_2_1(R.string.xr_aspect_2_1, 2f),
+    R_16_9(R.string.xr_aspect_16_9, 16f / 9f),
+    R_4_3(R.string.xr_aspect_4_3, 4f / 3f),
+    R_9_16(R.string.xr_aspect_9_16, 9f / 16f),
+    R_1_1(R.string.xr_aspect_1_1, 1f),
+    R_12_5(R.string.xr_aspect_12_5, 12f / 5f),
 }
 
 // ─────────────────────────────────────────────────────────── 设置
 
 /** 一集播完之后干什么。 */
-enum class RepeatMode(val label: String) {
+enum class RepeatMode(@StringRes val labelRes: Int) {
     /** 单集循环。**默认**。 */
-    ONE("单集循环"),
+    ONE(R.string.xr_repeat_one),
 
     /** 播完自动放播放列表里的下一条。 */
-    NEXT("自动下一条"),
+    NEXT(R.string.xr_repeat_next),
 
     /** 播完就停。 */
-    STOP("播完停止"),
+    STOP(R.string.xr_repeat_stop),
 }
 
 /** 倍速档：0.5 / 0.75 / 1.0，然后以 0.25 为步进到 3.0（4XVR 实机同款）。 */
@@ -211,6 +211,42 @@ data class PlaylistEntry(
     val watched: Boolean,
     /** 站外视频（youtube 一类的嵌入）放不了，列出来但点不动。 */
     val playable: Boolean,
+    /** 本机有下载完成的文件。 */
+    val downloaded: Boolean = false,
+)
+
+/**
+ * 「接着看」来源目录的一个分组（= 2D 抽屉第一级：来源 / 订阅 / 我的播放列表 / 最爱 / 本地收藏 /
+ * 已下载 / 稍后再看 / 作者的视频 / 作者的播放列表 / 他人的播放列表）。
+ *
+ * 只有一个 [choices] 的分组点了直接选那个池；多个的（播放列表 / 收藏夹 / 下载分类 / 稍后再看筛选）
+ * 点了展开第二行让用户挑。选项对应的池还没开（没有同 id 的 [PlaylistSection]）时
+ * 走 [VideoControlsCallbacks.onOpenQueue]。
+ */
+data class PlaylistGroup(
+    val id: String,
+    val title: String,
+    /** 作者名一类的副标题；空串没有。 */
+    val subtitle: String,
+    /** 清单还在拉。 */
+    val loading: Boolean,
+    val choices: List<PlaylistChoice>,
+)
+
+/** 分组里的一个选项，对应一个池；[count] < 0 表示没有计数。 */
+data class PlaylistChoice(val queueId: String, val title: String, val count: Int)
+
+/**
+ * 一档清晰度；[local] = 本机下载完成的文件。
+ *
+ * ⛔ [label] 是身份（`Source` / `1080`……，回传 Dart 存偏好用），**面板上要画的是 [display]** ——
+ * 那是 Dart 按应用内语言算好的显示名（`Source` → 原画 / Source / …），与 2D 播放器底栏同一套。
+ */
+data class SourceOption(
+    val label: String,
+    val url: String,
+    val local: Boolean,
+    val display: String = label,
 )
 
 /**
@@ -220,13 +256,16 @@ data class PlaylistEntry(
  * （用户 2026-09-05：「把详情页里接着看的那些信息带进去」）。
  *
  * @property queueId 池的稳定标识，选片时原样带回 Dart。
- * @property hasMore 池还有下一页（本期只展示已加载部分）。
+ * @property hasMore 池还有下一页。卡片流滚到末尾会请 Dart 翻一页
+ *   （[VideoControlsCallbacks.onLoadMorePlaylist]），与应用里列表的无限滚动同一份数据。
  */
 data class PlaylistSection(
     val queueId: String,
     val title: String,
     val entries: List<PlaylistEntry>,
     val hasMore: Boolean,
+    /** 池正在拉第一页 / 翻页（Dart 的 `isLoading`，或还没装过任何一页）。空列表 + loading 画转圈而不是空态。 */
+    val loading: Boolean = false,
 )
 
 // ─────────────────────────────────────────────────────────── 状态
@@ -265,6 +304,12 @@ class VideoControlsState {
 
     /** 正在缓冲 / 正在换片。缓冲期间面板不自动收起，进度条上显示缓冲态。 */
     var buffering by mutableStateOf(false)
+
+    /**
+     * 正在换片（[switchingToId] 非空）：老片已暂停，播放 / 暂停、±10 秒、进度条三样**禁用**，
+     * 面板整体进 Loading 态 —— 用户 2026-09-05：「避免用户看到视频仍在播放或误操作进度」。
+     */
+    val switching: Boolean get() = switchingToId != null
 
     // ---- 音量（⛔ 只调应用音量，官方 Requirement） ----
     var volume by mutableStateOf(1f)
@@ -307,16 +352,71 @@ class VideoControlsState {
     var widthRatio by mutableStateOf(1f)
     var heightRatio by mutableStateOf(1f)
 
+    /**
+     * 换片时把**屏幕尺寸（宽高比 / 宽比 / 长比）与倍速**沿用给下一条。
+     *
+     * **默认关**（用户 2026-09-05 的临时措施）：关着时每换一条片子这四项都回默认值
+     * （[AspectPreset.DEFAULT] / 1× / 1× / 1.0×），跨会话也不从偏好里恢复它们。
+     * 幕布的距离 / 偏移 / 幕宽与屏幕类型是「房间摆设」，不在此列，始终沿用。
+     */
+    var carryOverToNextVideo by mutableStateOf(false)
+
+    /** 把受 [carryOverToNextVideo] 管的四项回默认。 */
+    fun resetPerVideoSettings() {
+        aspectPreset = AspectPreset.DEFAULT
+        widthRatio = 1f
+        heightRatio = 1f
+        speed = 1f
+    }
+
+    // ---- 清晰度 ----
+    val sources = mutableStateListOf<SourceOption>()
+
+    /** 正在放的那一档的**身份**标签；空串 = 没有清单。⛔ 显示请用 [sourceDisplayLabel]。 */
+    var sourceLabel by mutableStateOf("")
+
+    /** 走带行那枚清晰度钮上要写的字：清单里找得到就用它的显示名，找不到退回身份标签。 */
+    val sourceDisplayLabel: String
+        get() = sources.firstOrNull { it.label == sourceLabel }?.display ?: sourceLabel
+
+    /** 已从历史进度续播的提示文案（例如「已从 12:34 继续播放」）；null = 不显示。 */
+    var resumeTipText by mutableStateOf<String?>(null)
+
     // ---- 播放列表 ----
     val playlistSections = mutableStateListOf<PlaylistSection>()
+
+    /** 来源目录（分组 → 选项）。 */
+    val playlistGroups = mutableStateListOf<PlaylistGroup>()
+
+    /** 用户展开了哪个多选项分组；null = 看分组行。 */
+    var expandedGroupId by mutableStateOf<String?>(null)
 
     /** 当前选中的分区（= 详情页的当前池）。null 时取第一个。 */
     var activeQueueId by mutableStateOf<String?>(null)
     var nowPlayingId by mutableStateOf<String?>(null)
     var playlistLoading by mutableStateOf(false)
 
+    /** 正在向 Dart 要下一页的那个池（同一时刻只会有一个）。null = 没在翻页。 */
+    var playlistLoadingMoreQueueId by mutableStateOf<String?>(null)
+
+    /** 正在等 Dart 开出来的那个池（分组行上那枚药丸画转圈）。null = 没在开。 */
+    var playlistPendingQueueId by mutableStateOf<String?>(null)
+
+    /**
+     * 点了卡片、正在后台加载的那条视频 id。老片照常放，那张卡转圈，新片就绪后整个换上来
+     * （用户 2026-09-05：「卡片先 loading，准备好了再替换播放器」）。null = 没在换。
+     */
+    var switchingToId by mutableStateOf<String?>(null)
+
+    /**
+     * 当前分区。⛔ 选中的池还没推过来时返回 **null**，而不是退回第一个分区——
+     * 否则「点了我的播放列表，卡片流却还画着稍后再看」这种状态错位就会出现（用户 2026-09-05）。
+     */
     val activeSection: PlaylistSection?
-        get() = playlistSections.firstOrNull { it.queueId == activeQueueId } ?: playlistSections.firstOrNull()
+        get() = when {
+            activeQueueId == null -> playlistSections.firstOrNull()
+            else -> playlistSections.firstOrNull { it.queueId == activeQueueId }
+        }
 
     // ---- 设置 ----
     var repeatMode by mutableStateOf(RepeatMode.ONE)
@@ -388,6 +488,9 @@ interface VideoControlsCallbacks {
     fun onHeightRatio(ratio: Float)
     fun onResetAspect()
 
+    /** 「沿用到下一条视频」开关（屏幕尺寸 + 倍速）。 */
+    fun onToggleCarryOver()
+
     // ---- 播放列表 ----
 
     /** 点了 [queueId] 这个池里的 [id]。Dart 会把详情页换成那条视频，并重新 present。 */
@@ -395,6 +498,23 @@ interface VideoControlsCallbacks {
     fun onPickPlaylistSection(queueId: String)
     fun onPlayAdjacent(forward: Boolean)
     fun onRefreshPlaylist()
+
+    /** 卡片流滚到了 [queueId] 这个池的末尾且它还有下一页：请 Dart 翻一页再整套推回来。 */
+    fun onLoadMorePlaylist(queueId: String)
+
+    /** 目录里选了一个还没开的池。 */
+    fun onOpenQueue(queueId: String)
+
+    /** 展开 / 收起一个多选项分组（null = 回到分组行）。 */
+    fun onExpandPlaylistGroup(groupId: String?)
+
+    // ---- 清晰度 / 续播 ----
+    fun onPickSource(label: String)
+
+    /** 「从头开始」：放弃这次历史进度。 */
+    fun onRestartFromBeginning()
+
+    fun onDismissResumeTip()
 
     // ---- 设置 ----
     fun onPickRepeatMode(mode: RepeatMode)

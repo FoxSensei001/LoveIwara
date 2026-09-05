@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/models/api_request_access.model.dart';
 import 'package:i_iwara/app/models/page_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -249,7 +250,11 @@ class VideoService extends GetxService {
     }
   }
 
-  Future<ApiResult<Video>> fetchVideoInfoResult(String? videoId) async {
+  /// [site] 非空时这一次请求钉在那个站上（不改全局站点模式），给跨站资源的就地重试用。
+  Future<ApiResult<Video>> fetchVideoInfoResult(
+    String? videoId, {
+    IwaraSite? site,
+  }) async {
     if (videoId == null || videoId.trim().isEmpty) {
       return ApiResult.fail('videoId is empty');
     }
@@ -258,6 +263,7 @@ class VideoService extends GetxService {
       final response = await _apiService.get(
         ApiConstants.video(videoId.trim()),
         requestAccess: ApiRequestAccess.optionalAuthShortWait,
+        site: site,
       );
       return ApiResult.success(data: Video.fromJson(response.data));
     } catch (e) {
@@ -267,7 +273,10 @@ class VideoService extends GetxService {
   }
 
   /// 获取视频源
-  Future<List<VideoSource>> getVideoSourcesBy(String? fileUrl) async {
+  Future<List<VideoSource>> getVideoSourcesBy(
+    String? fileUrl, {
+    IwaraSite? site,
+  }) async {
     if (fileUrl == null) {
       return [];
     }
@@ -279,6 +288,7 @@ class VideoService extends GetxService {
         },
         // 视频源清单：公开资源，避免登录刷新窗口阻塞播放(#6)。
         requestAccess: ApiRequestAccess.optionalAuthShortWait,
+        site: site,
       );
       return (response.data as List)
           .map((item) => VideoSource.fromJson(item))

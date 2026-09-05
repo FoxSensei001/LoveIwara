@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
@@ -303,7 +304,15 @@ class _MyAppState extends State<MyApp> {
               // MaterialApp 外面时那棵子树上没有 Theme / Localizations，
               // `Theme.of` 只能拿到 Flutter 的 fallback 主题（恒为浅色蓝），
               // 深色模式下整块提示会是一片亮白。
-              return AppToastHost(child: MyAppLayout(child: child));
+              final Widget app = AppToastHost(child: MyAppLayout(child: child));
+              // XR 头显：整个应用是空间里的一块面板，窗口透明（MainActivity.getBackgroundMode），
+              // 这里把根部裁成圆角，面板四角透出后面的场景。半径与原生窗框的
+              // `UI_PANEL_CORNER_M` 成对（20dp @ 640dp/m）。
+              if (!DeviceFormFactorUtils.isXrDevice) return app;
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(kXrPanelCornerRadiusDp),
+                child: app,
+              );
             },
           );
         });
@@ -311,6 +320,9 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+/// XR 头显上 2D 面板的圆角（dp）。与原生 `ImmersiveActivity.UI_PANEL_CORNER_M` 成对，改要一起改。
+const double kXrPanelCornerRadiusDp = 20;
 
 class _ThemeModeObserver extends WidgetsBindingObserver {
   final Function(Brightness) onThemeModeChange;

@@ -15,4 +15,10 @@
 
   <!-- 缓冲指示：一块很小的透明面板，浮在幕布正中，只在缓冲期间存在。 -->
   <item name="vr_buffering_panel" type="id" />
+
+  <!-- 三块窗各自的自绘窗框：一圈半透明边 + 四角把手，贴在窗体后方 1cm。
+       取代 ISDK 自带的边缘抓条 / 四角缩放（见 vr/WindowManipulator.kt）。 -->
+  <item name="vr_frame_ui_panel" type="id" />
+  <item name="vr_frame_controls_panel" type="id" />
+  <item name="vr_frame_screen_panel" type="id" />
 </resources>

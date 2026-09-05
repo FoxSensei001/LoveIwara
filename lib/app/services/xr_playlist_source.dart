@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -9,6 +10,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
+import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/vr_format_detector.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -69,7 +71,12 @@ class XrPlaylistSource {
   static const String fallbackQueueId = 'xr:watchLater';
 
   /// 详情页交来的视频池 → 沉浸面板的分区。图库池不进（沉浸空间没有承载形式）。
-  static List<XrPlaylistSection> sectionsFromQueues(List<PlaybackQueue> queues) {
+  ///
+  /// [downloadedIds] 是已下载完成的视频 id，用来给卡片打「已下载」角标。
+  static List<XrPlaylistSection> sectionsFromQueues(
+    List<PlaybackQueue> queues, {
+    Set<String> downloadedIds = const <String>{},
+  }) {
     return queues
         .where((q) => !q.mediaType.isGallery)
         .map(
@@ -77,8 +84,17 @@ class XrPlaylistSource {
             queueId: q.queueId,
             title: _queueTitle(q),
             hasMore: q.hasMore,
+            // 刚开的池在 adopt 那一刻就会被推一次（第一页还没到）：也算 loading，面板画转圈不画空态。
+            loading: q.isLoading || (q.loaded.isEmpty && q.hasMore),
             items: q.loaded
-                .map(XrPlaylistEntry.fromSnapshot)
+                .map(
+                  (item) => XrPlaylistEntry.fromSnapshot(
+                    item,
+                    downloaded:
+                        item.localQuality != null ||
+                        downloadedIds.contains(item.id),
+                  ),
+                )
                 .toList(growable: false),
           ),
         )
@@ -112,7 +128,17 @@ class XrPlaylistSource {
     if (videoId.isEmpty) return null;
     try {
       final videoService = Get.find<VideoService>();
-      final detail = await videoService.fetchVideoInfoResult(videoId);
+      var detail = await videoService.fetchVideoInfoResult(videoId);
+      // 跨站（主站模式点到 AI 站的片，或反之）：服务端回 errors.differentSite 并告知它属于哪个站。
+      // 这条路不切全局站点（没有详情页可重开），把这一次请求钉到那个站上再要一遍。
+      IwaraSite? site;
+      if (!detail.isSuccess) {
+        site = IwaraDifferentSiteRecovery.resolveTargetSite(detail.exception);
+        if (site != null) {
+          LogUtils.i('沉浸态换片：$videoId 属于 ${site.name} 站，按该站重拉', _tag);
+          detail = await videoService.fetchVideoInfoResult(videoId, site: site);
+        }
+      }
       final video = detail.data;
       if (!detail.isSuccess || video == null) {
         LogUtils.w('沉浸态换片：拉不到详情 videoId=$videoId', _tag);
@@ -126,7 +152,7 @@ class XrPlaylistSource {
       // ——与下载模块踩过的是同一个坑，见 media_download_launcher 的注释。
       final fileUrl = video.fileUrl;
       if (fileUrl == null || fileUrl.isEmpty) return null;
-      final sources = await videoService.getVideoSourcesBy(fileUrl);
+      final sources = await videoService.getVideoSourcesBy(fileUrl, site: site);
       if (sources.isEmpty) return null;
 
       final resolutions = CommonUtils.convertVideoSourcesToResolutions(sources);
@@ -183,6 +209,7 @@ class XrPlaylistEntry {
     required this.progressRatio,
     required this.watched,
     required this.playable,
+    this.downloaded = false,
   });
 
   final String id;
@@ -193,6 +220,9 @@ class XrPlaylistEntry {
   final double progressRatio;
   final bool watched;
   final bool playable;
+
+  /// 本机有下载完成的文件（面板打「已下载」角标；沉浸态选中它会用本地文件播）。
+  final bool downloaded;
 
   factory XrPlaylistEntry.fromWatchLater(WatchLaterItem item) =>
       XrPlaylistEntry(
@@ -207,7 +237,10 @@ class XrPlaylistEntry {
       );
 
   /// 视频池里的一条快照。「看完」按进度 ≥ 95% 判，与稍后再看的口径一致。
-  factory XrPlaylistEntry.fromSnapshot(InnerPlaylistItemSnapshot item) {
+  factory XrPlaylistEntry.fromSnapshot(
+    InnerPlaylistItemSnapshot item, {
+    bool downloaded = false,
+  }) {
     final progress = (item.progressPermil / 1000).clamp(0.0, 1.0).toDouble();
     return XrPlaylistEntry(
       id: item.id,
@@ -220,6 +253,7 @@ class XrPlaylistEntry {
       progressRatio: progress,
       watched: progress >= 0.95,
       playable: !item.isExternalVideo,
+      downloaded: downloaded,
     );
   }
 
@@ -232,6 +266,7 @@ class XrPlaylistEntry {
     'progress': progressRatio,
     'watched': watched,
     'playable': playable,
+    'downloaded': downloaded,
   };
 
   static String _formatDuration(int? ms) {
@@ -272,6 +307,7 @@ class XrPlaylistSection {
     required this.title,
     required this.hasMore,
     required this.items,
+    this.loading = false,
   });
 
   final String queueId;
@@ -279,10 +315,14 @@ class XrPlaylistSection {
   final bool hasMore;
   final List<XrPlaylistEntry> items;
 
+  /// 池正在拉第一页 / 翻页，或还没装过任何一页。面板据此在空列表上画转圈。
+  final bool loading;
+
   Map<String, dynamic> toChannelMap() => {
     'queueId': queueId,
     'title': title,
     'hasMore': hasMore,
+    'loading': loading,
     'items': items.map((e) => e.toChannelMap()).toList(),
   };
 }

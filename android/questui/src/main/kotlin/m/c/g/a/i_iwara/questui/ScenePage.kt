@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.SecondaryButton
@@ -61,21 +62,27 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
-            title = "场景选择",
-            subtitle = if (state.format.isFlat) "环境与幕布位置" else "球幕片源，画面本来就包在你四周",
+            title = stringResource(R.string.xr_scene_title),
+            subtitle = stringResource(
+                if (state.format.isFlat) {
+                    R.string.xr_scene_subtitle_flat
+                } else {
+                    R.string.xr_scene_subtitle_sphere
+                },
+            ),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
             trailing = {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (state.format.isFlat) {
                         SecondaryButton(
-                            label = "重置",
+                            label = stringResource(R.string.xr_reset),
                             leading = { Icon(SpatialIcons.Regular.Refresh, null) },
                             onClick = cb::onResetScreenGeometry,
                             modifier = Modifier.width(140.dp),
                         )
                     }
                     SecondaryButton(
-                        label = "重新居中",
+                        label = stringResource(R.string.xr_recenter),
                         leading = { Icon(SpatialIcons.Regular.Reorient, null) },
                         onClick = cb::onRecenter,
                         modifier = Modifier.width(180.dp),
@@ -90,16 +97,16 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
         ) {
             TextTileButton(
-                label = "透视",
-                secondaryLabel = "看得见真实房间",
+                label = stringResource(SceneKind.PASSTHROUGH.labelRes),
+                secondaryLabel = stringResource(R.string.xr_scene_passthrough_desc),
                 icon = { Icon(SpatialIcons.Regular.World, null) },
                 selected = state.scene == SceneKind.PASSTHROUGH,
                 onSelectionChange = { cb.onPickScene(SceneKind.PASSTHROUGH) },
                 modifier = Modifier.weight(1f),
             )
             TextTileButton(
-                label = "虚空",
-                secondaryLabel = "纯黑环境，只剩画面",
+                label = stringResource(SceneKind.VOID.labelRes),
+                secondaryLabel = stringResource(R.string.xr_scene_void_desc),
                 icon = { Icon(SpatialIcons.Regular.NightMode, null) },
                 selected = state.scene == SceneKind.VOID,
                 onSelectionChange = { cb.onPickScene(SceneKind.VOID) },
@@ -109,7 +116,7 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 
         // ── 场景调节（平面片才有意义） ──────────────
         if (state.format.isFlat) {
-            SectionLabel("场景调节")
+            SectionLabel(stringResource(R.string.xr_scene_section_adjust))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -120,13 +127,15 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                     onChanged = { cb.onScreenDistance(lerp(MIN_DISTANCE_M, MAX_DISTANCE_M, it)) },
                     modifier = Modifier.weight(1f),
                     value = unlerp(MIN_DISTANCE_M, MAX_DISTANCE_M, state.screenDistance),
-                    helperText = "屏幕距离" to "%.1f m".format(state.screenDistance),
+                    helperText = stringResource(R.string.xr_screen_distance) to
+                        "%.1f m".format(state.screenDistance),
                 )
                 SpatialSliderMedium(
                     onChanged = { cb.onScreenWidth(lerp(MIN_WIDTH_M, MAX_WIDTH_M, it)) },
                     modifier = Modifier.weight(1f),
                     value = unlerp(MIN_WIDTH_M, MAX_WIDTH_M, state.screenWidth),
-                    helperText = "幕宽" to "%.1f m".format(state.screenWidth),
+                    helperText = stringResource(R.string.xr_screen_width) to
+                        "%.1f m".format(state.screenWidth),
                 )
             }
 
@@ -134,12 +143,12 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 onChanged = { cb.onScreenOffset(lerp(MIN_OFFSET_M, MAX_OFFSET_M, it)) },
                 modifier = Modifier.fillMaxWidth(),
                 value = unlerp(MIN_OFFSET_M, MAX_OFFSET_M, state.screenOffset),
-                helperText = "屏幕偏移" to "%+.2f m".format(state.screenOffset),
+                helperText = stringResource(R.string.xr_screen_offset) to
+                    "%+.2f m".format(state.screenOffset),
             )
         } else {
             Text(
-                text = "180°/360° 片源没有「屏幕位置」可调 —— 画面就是你四周的球面。" +
-                    "想换朝向就用右上角「重新居中」。",
+                text = stringResource(R.string.xr_scene_sphere_note),
                 color = PanelTokens.ON_SURFACE_DIM,
                 fontSize = 16.sp,
             )

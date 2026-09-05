@@ -13,6 +13,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/pages/local_video_detail/widgets/local_video_info_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/blurred_thumbnail_background.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/immersive_cover_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/my_video_screen.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/video_info_tab_widget.dart';
@@ -33,9 +34,7 @@ import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 
 class MyVideoDetailPage extends StatefulWidget {
   final String videoId;
@@ -135,6 +134,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             forceAutoPlay: widget.forceAutoPlay,
             initialVideoInfo: widget.initialVideoInfo,
             fullscreenHandoff: widget.fullscreenHandoff,
+            playbackQueueRef: widget.playbackQueueRef,
           ),
           tag: uniqueTag,
         );
@@ -281,6 +281,21 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       return;
     }
 
+    // 1b. 上一页手上其它的池（换片时随 [PlaybackQueueRef.companionQueueIds] 带过来）。
+    //
+    // ⛔ 少了这一步「来源」会在换片时丢掉：来源上下文不在路由 extra 里，新页只靠
+    // 点播的那一个池 + 稍后再看重建清单。按 kind 判重（同一种池只占一个槽），
+    // 服务里已经被淘汰的（App 重启 / LRU）就静默略过。
+    if (ref != null) {
+      for (final id in ref.companionQueueIds) {
+        final companion = service.byId(id);
+        if (companion == null) continue;
+        if (companion.mediaType.isGallery) continue;
+        if (queues.any((queue) => queue.kind == companion.kind)) continue;
+        queues.add(companion);
+      }
+    }
+
     // 2. 来源池：进详情页之前那个列表。
     //
     // ⭐ 列表页交得出**它自己那份查询**时（热门 / 图库 / 订阅这些接口列表），
@@ -315,6 +330,12 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
 
     _queues = queues;
     _activeQueue = handedOver ?? queues.firstOrNull;
+    LogUtils.i(
+      '视频池就绪 ref=${ref?.queueId} companions=${ref?.companionQueueIds} '
+      'handedOver=${handedOver?.queueId} queues=${queues.map((q) => q.queueId).toList()} '
+      'active=${_activeQueue?.queueId} tag=$uniqueTag',
+      'MyVideoDetailPage',
+    );
     // ⛔ **本页持有的每个池都要挂上监听**，不能只挂 active 那一个。
     //
     // LRU 只保护"还有人在听"的池（`PlaybackQueueService._evictIfNeeded`）。
@@ -378,6 +399,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
       // 补页/翻页要联网，这中间用户按了返回就别再往栈上顶新的详情页了。
       stillWanted: () => mounted,
+      companionQueues: _queues,
     );
   }
 
@@ -394,30 +416,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     if (selection == null || !mounted) return;
     // ⛔ 只有**真的点播了一条**才换池。光切 tab 逛一圈不算——用户常常只是想
     // 瞄一眼别的池里有什么，静默换池会让下一条突然从别处冒出来。
-    // 抽屉里可能换出了新的池实例（切了播放列表 / 切了稍后再看的筛选）——
-    // 那些实例本页还没听过，得补上，否则它们同样会被 LRU 淘汰掉。
-    //
-    // ⛔ **按 kind 顶掉同类的那一个，不能直接 append**：稍后再看的筛选换一档
-    // 就是另一个池实例（`watchLater:all` / `watchLater:unwatched`），一路
-    // append 下去，抽屉里就会排出两条一模一样的「稍后再看」——同一个池、同一
-    // 个名字（2026-08-29 用户报障）。一种池永远只占一个槽。
-    if (!_queues.any((queue) => identical(queue, selection.queue))) {
-      final merged = [..._queues];
-      final slot = merged.indexWhere(
-        (queue) => queue.kind == selection.queue.kind,
-      );
-      if (slot >= 0) {
-        // 换下来的那个不再由本页持有：摘掉监听，让 LRU 该淘汰就淘汰。
-        merged[slot].removeListener(_onActiveQueueChanged);
-        merged[slot] = selection.queue;
-      } else {
-        merged.add(selection.queue);
-      }
-      _queues = merged;
-      selection.queue.addListener(_onActiveQueueChanged);
-    }
-    _activeQueue = selection.queue;
-    _syncImmersiveQueues();
+    _adoptQueue(selection.queue);
     final inFullscreen = controller.isFullscreen.value;
     await PlaybackQueueNavigator.playItem(
       queue: selection.queue,
@@ -428,7 +427,36 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           ? controller.buildFullscreenHandoff()
           : null,
       onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
+      companionQueues: _queues,
     );
+  }
+
+  /// 把一个新开的池收进本页并设为当前池（抽屉点播换池、沉浸面板从目录开池都走这里）。
+  ///
+  /// 抽屉里可能换出了新的池实例（切了播放列表 / 切了稍后再看的筛选）——
+  /// 那些实例本页还没听过，得补上，否则它们同样会被 LRU 淘汰掉。
+  ///
+  /// ⛔ **按 kind 顶掉同类的那一个，不能直接 append**：稍后再看的筛选换一档
+  /// 就是另一个池实例（`watchLater:all` / `watchLater:unwatched`），一路
+  /// append 下去，抽屉里就会排出两条一模一样的「稍后再看」——同一个池、同一
+  /// 个名字（2026-08-29 用户报障）。一种池永远只占一个槽。
+  void _adoptQueue(PlaybackQueue queue) {
+    if (!_queues.any((q) => identical(q, queue))) {
+      final merged = [..._queues];
+      final slot = merged.indexWhere((q) => q.kind == queue.kind);
+      if (slot >= 0) {
+        // 换下来的那个不再由本页持有：摘掉监听，让 LRU 该淘汰就淘汰。
+        merged[slot].removeListener(_onActiveQueueChanged);
+        merged[slot] = queue;
+      } else {
+        merged.add(queue);
+      }
+      _queues = merged;
+      queue.addListener(_onActiveQueueChanged);
+    }
+    _activeQueue = queue;
+    if (mounted) setState(() {});
+    _syncImmersiveQueues();
   }
 
   InnerPlaylistContext? _resolveInnerPlaylistContext() {
@@ -921,54 +949,27 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       Get.isRegistered<XrImmersiveService>() &&
       Get.find<XrImmersiveService>().available.value;
 
-  /// Quest 上代替播放器的那块：封面 + 播放钮 + 「接着看」。
+  /// Quest 上代替播放器的那块。视觉与交互全在 [ImmersiveCover]，这里只喂数据、接动作。
+  ///
+  /// ⛔ 顶栏不能省：这块把 [MyVideoScreen] 整只换掉了，播放器顶栏里的返回钮随之
+  /// 消失，而页面级的顶栏只在向下滚动后才浮出来 —— 用户在 Quest 上进了详情页
+  /// 「居然没有返回按钮」（2026-09-05 报障）。返回走与播放器顶栏同一条 [AppService.tryPop]。
   Widget _buildImmersiveCover() {
-    final t = slang.Translations.of(context);
     return Obx(() {
       final info = controller.videoInfo.value;
-      final thumb = info?.thumbnailUrl ?? '';
-      return Container(
-        color: Colors.black,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (thumb.isNotEmpty)
-              CachedNetworkImage(imageUrl: thumb, fit: BoxFit.cover),
-            Container(color: Colors.black.withValues(alpha: 0.35)),
-            Center(
-              child: GlassIconButton(
-                icon: const Icon(Icons.play_arrow_rounded, color: Colors.white),
-                tooltip: t.vrFormat.playInSpace,
-                standalone: true,
-                size: 96,
-                iconSize: 52,
-                onPressed: controller.presentInImmersive,
-              ),
-            ),
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.vrFormat.playInSpace,
-                      style: const TextStyle(color: Colors.white70, fontSize: 13),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (_hasPlaybackQueue)
-                    GlassTextActionButton(
-                      label: t.playbackQueue.openQueue,
-                      onPressed: _openQueueDrawer,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      final author = info?.user?.name.trim() ?? '';
+      final duration = info?.minutesDuration;
+      final meta = [
+        if (author.isNotEmpty) author,
+        if (duration != null && duration.isNotEmpty) duration,
+      ].join(' · ');
+      return ImmersiveCover(
+        thumbnailUrl: info?.thumbnailUrl ?? '',
+        title: info?.title?.trim() ?? '',
+        meta: meta,
+        onBack: () => AppService.tryPop(context: context),
+        onPlay: controller.presentInImmersive,
+        onOpenQueue: _hasPlaybackQueue ? _openQueueDrawer : null,
       );
     });
   }
@@ -981,8 +982,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     if (xr.available.value) unawaited(xr.pushQueues());
   }
 
-  XrQueueSnapshot _immersiveQueueSnapshot() =>
-      (queues: _queues, active: _activeQueue, currentItemId: _queueItemId);
+  XrQueueSnapshot _immersiveQueueSnapshot() => (
+    queues: _queues,
+    active: _activeQueue,
+    currentItemId: _queueItemId,
+    author: _hasUsableController ? controller.videoInfo.value?.user : null,
+    adopt: _adoptQueue,
+  );
 
   /// 本页**唯一**的播放器构造点（内嵌、宽屏、全屏叠加层、PiP 都走这里）。
   ///

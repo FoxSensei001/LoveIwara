@@ -2843,6 +2843,8 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get warningPublicDirectory => '警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。';
 	@override String get downloadPathUpdated => '下载路径已更新';
 	@override String get selectPathFailed => '选择路径失败';
+	@override String get pickerAlreadyActive => '目录选择器已在运行';
+	@override String get unsupportedStorageVolume => '不支持的存储位置，请选择设备存储或 SD 卡中的目录';
 	@override String get recommendedPathSet => '已设置为推荐路径';
 	@override String get setRecommendedPathFailed => '设置推荐路径失败';
 	@override String get templateResetToDefault => '已重置为默认模板';
@@ -4721,6 +4723,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.warningPublicDirectory' => '警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。',
 			'settings.downloadSettings.downloadPathUpdated' => '下载路径已更新',
 			'settings.downloadSettings.selectPathFailed' => '选择路径失败',
+			'settings.downloadSettings.pickerAlreadyActive' => '目录选择器已在运行',
+			'settings.downloadSettings.unsupportedStorageVolume' => '不支持的存储位置，请选择设备存储或 SD 卡中的目录',
 			'settings.downloadSettings.recommendedPathSet' => '已设置为推荐路径',
 			'settings.downloadSettings.setRecommendedPathFailed' => '设置推荐路径失败',
 			'settings.downloadSettings.templateResetToDefault' => '已重置为默认模板',
@@ -4768,10 +4772,10 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '无法访问公共目录，需要"所有文件访问权限"',
 			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
-			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
-			'settings.downloadSettings.insufficientSpace' => '可用空间不足',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
+			'settings.downloadSettings.insufficientSpace' => '可用空间不足',
 			'settings.downloadSettings.pathValid' => '路径有效',
 			'settings.downloadSettings.validationFailed' => '验证失败',
 			'settings.downloadSettings.usingDefaultAppDirectory' => '使用默认应用目录',
@@ -5282,10 +5286,10 @@ extension on TranslationsZhCn {
 			'download.errors.taskAlreadyProcessing' => '任务已处理中',
 			'download.errors.failedToLoadTasks' => '加载任务失败',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下载失败: ${message}',
-			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看',
-			'download.errors.imageLoadFailed' => '图片加载失败',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看',
+			'download.errors.imageLoadFailed' => '图片加载失败',
 			'download.errors.pleaseTryOtherViewer' => '请尝试使用其他查看器打开',
 			'download.downloadList' => '下载列表',
 			'download.viewDownloadList' => '查看下载列表',
@@ -5796,10 +5800,10 @@ extension on TranslationsZhCn {
 			'logViewer.emptyState' => '暂无日志',
 			'logViewer.copiedToClipboard' => '已复制到剪贴板',
 			'crashRecoveryDialog.title' => '应用异常退出',
-			'crashRecoveryDialog.description' => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。',
-			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.description' => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。',
+			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次启动: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最后异常: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '上次检测到界面卡顿，已自动恢复',
@@ -6310,10 +6314,10 @@ extension on TranslationsZhCn {
 			'externalPlayer.executableMissing' => '可执行文件不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 打开',
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
-			'watchLater.title' => '稍后再看',
-			'watchLater.addToWatchLater' => '稍后再看',
 			_ => null,
 		} ?? switch (path) {
+			'watchLater.title' => '稍后再看',
+			'watchLater.addToWatchLater' => '稍后再看',
 			'watchLater.removeFromWatchLater' => '移出稍后再看',
 			'watchLater.addedToWatchLater' => '已添加至稍后再看',
 			'watchLater.alreadyInWatchLater' => '已经在稍后再看里了',

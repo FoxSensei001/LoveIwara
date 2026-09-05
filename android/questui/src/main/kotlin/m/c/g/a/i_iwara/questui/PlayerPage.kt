@@ -31,11 +31,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
 import com.meta.spatial.uiset.theme.icons.regular.Close
+import com.meta.spatial.uiset.theme.icons.regular.Download
+import com.meta.spatial.uiset.theme.icons.regular.MediaImmersiveVideo
+import com.meta.spatial.uiset.theme.icons.regular.Replay
+import com.meta.spatial.uiset.theme.icons.regular.History
 import com.meta.spatial.uiset.theme.icons.regular.Environment
 import com.meta.spatial.uiset.theme.icons.regular.Home
 import com.meta.spatial.uiset.theme.icons.regular.ListView
@@ -72,6 +77,7 @@ import com.meta.spatial.uiset.theme.icons.regular.VolumeOn
 @Composable
 fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
     var speedMenuOpen by remember { mutableStateOf(false) }
+    var qualityMenuOpen by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -89,14 +95,50 @@ fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 )
             }
 
+            // 续播提示：「已从 12:34 继续播放」+ 从头开始 + ✕（与 2D 播放器同一套）。
+            AnimatedVisibility(
+                visible = state.resumeTipText != null,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                ResumeTipRow(text = state.resumeTipText ?: "", cb = cb)
+            }
+
             Spacer(Modifier.weight(1f))
 
             TransportRow(
                 state = state,
                 cb = cb,
                 speedMenuOpen = speedMenuOpen,
-                onToggleSpeedMenu = { speedMenuOpen = !speedMenuOpen },
+                onToggleSpeedMenu = {
+                    speedMenuOpen = !speedMenuOpen
+                    if (speedMenuOpen) qualityMenuOpen = false
+                },
+                qualityMenuOpen = qualityMenuOpen,
+                onToggleQualityMenu = {
+                    qualityMenuOpen = !qualityMenuOpen
+                    if (qualityMenuOpen) speedMenuOpen = false
+                },
             )
+
+            // 清晰度 chip 行：与倍速同款的展开 / 收起。
+            AnimatedVisibility(
+                visible = qualityMenuOpen,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                Column {
+                    Spacer(Modifier.height(10.dp))
+                    SourceChipRow(
+                        sources = state.sources,
+                        current = state.sourceLabel,
+                        onPick = { label ->
+                            cb.onPickSource(label)
+                            qualityMenuOpen = false
+                        },
+                    )
+                }
+            }
 
             // 倍速 chip 行：展开 / 收起带高度与透明度过渡，不再瞬间改版式（真机反馈）。
             AnimatedVisibility(
@@ -148,10 +190,14 @@ private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CircleActionButton(SpatialIcons.Regular.Close, "收起控制面板", onClick = cb::onHidePanel)
+        CircleActionButton(
+            SpatialIcons.Regular.Close,
+            stringResource(R.string.xr_hide_panel),
+            onClick = cb::onHidePanel,
+        )
 
         Text(
-            text = state.title.ifBlank { "正在播放" },
+            text = state.title.ifBlank { stringResource(R.string.xr_player_title_fallback) },
             color = PanelTokens.ON_SURFACE,
             fontSize = 20.sp,
             maxLines = 1,
@@ -159,15 +205,21 @@ private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
             modifier = Modifier.weight(1f).padding(start = 4.dp),
         )
 
-        // 状态区：缓冲 chip 在时间**左侧**（用户 2026-09-05 反馈）。
-        if (state.buffering) {
+        // 状态区：缓冲 / 换片 chip 在时间**左侧**（用户 2026-09-05 反馈）。换片优先：老片已暂停，不是它在缓冲。
+        if (state.switching || state.buffering) {
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(14.dp))
                     .background(PanelTokens.WARN.copy(alpha = 0.18f))
                     .padding(horizontal = 12.dp, vertical = 5.dp),
             ) {
-                Text("缓冲中…", color = PanelTokens.WARN, fontSize = 14.sp)
+                Text(
+                    text = stringResource(
+                        if (state.switching) R.string.xr_switching_chip else R.string.xr_buffering,
+                    ),
+                    color = PanelTokens.WARN,
+                    fontSize = 14.sp,
+                )
             }
         }
         if (state.clockText.isNotBlank()) {
@@ -186,11 +238,15 @@ private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
 
         Spacer(Modifier.width(8.dp))
 
-        CircleActionButton(SpatialIcons.Regular.Environment, "场景") { cb.onRoute(ControlsRoute.SCENE) }
-        CircleActionButton(SpatialIcons.Regular.ListView, "播放列表") { cb.onRoute(ControlsRoute.PLAYLIST) }
-        CircleActionButton(SpatialIcons.Regular.Settings, "设置") { cb.onRoute(ControlsRoute.SETTINGS) }
+        CircleActionButton(SpatialIcons.Regular.Environment, stringResource(R.string.xr_nav_scene)) { cb.onRoute(ControlsRoute.SCENE) }
+        CircleActionButton(SpatialIcons.Regular.ListView, stringResource(R.string.xr_nav_playlist)) { cb.onRoute(ControlsRoute.PLAYLIST) }
+        CircleActionButton(SpatialIcons.Regular.Settings, stringResource(R.string.xr_nav_settings)) { cb.onRoute(ControlsRoute.SETTINGS) }
         // ⛔ 官方 Requirement：应用内自带返回。沉浸空间没有系统返回可用。
-        CircleActionButton(SpatialIcons.Regular.Home, "返回应用", onClick = cb::onBackToApp)
+        CircleActionButton(
+            SpatialIcons.Regular.Home,
+            stringResource(R.string.xr_nav_back_to_app),
+            onClick = cb::onBackToApp,
+        )
     }
 }
 
@@ -202,6 +258,8 @@ private fun TransportRow(
     cb: VideoControlsCallbacks,
     speedMenuOpen: Boolean,
     onToggleSpeedMenu: () -> Unit,
+    qualityMenuOpen: Boolean,
+    onToggleQualityMenu: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().height(PanelTokens.CIRCLE_SIZE),
@@ -211,24 +269,35 @@ private fun TransportRow(
         // 🔊：单击开关竖向弹层；静音钮在弹层里（官方 Requirement 级：只调应用音量）。
         CircleActionButton(
             icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
-            contentDescription = "音量",
+            contentDescription = stringResource(R.string.xr_volume),
             onClick = { cb.onVolumePopup(!state.volumePopupOpen) },
             selected = state.volumePopupOpen,
         )
 
         Spacer(Modifier.width(8.dp))
 
-        CircleActionButton(SpatialIcons.Regular.PlayPrev, "上一条") { cb.onPlayAdjacent(false) }
-        CircleActionButton(SpatialIcons.Regular.TenSecondsBackward, "后退 10 秒") { cb.onSeekBy(-10) }
+        // 换片中三样禁用：老片已暂停，播放 / 暂停、±10 秒、进度条都不接（用户 2026-09-05）。
+        val transportEnabled = !state.switching
+        CircleActionButton(SpatialIcons.Regular.PlayPrev, stringResource(R.string.xr_previous)) { cb.onPlayAdjacent(false) }
+        CircleActionButton(
+            SpatialIcons.Regular.TenSecondsBackward,
+            stringResource(R.string.xr_seek_back_10),
+            enabled = transportEnabled,
+        ) { cb.onSeekBy(-10) }
         CircleActionButton(
             icon = if (state.isPlaying) SpatialIcons.Regular.Pause else SpatialIcons.Regular.Play,
-            contentDescription = if (state.isPlaying) "暂停" else "播放",
+            contentDescription = stringResource(if (state.isPlaying) R.string.xr_pause else R.string.xr_play),
             onClick = cb::onPlayPause,
             size = PanelTokens.CIRCLE_SIZE,
             emphasized = true,
+            enabled = transportEnabled,
         )
-        CircleActionButton(SpatialIcons.Regular.TenSecondsForward, "前进 10 秒") { cb.onSeekBy(10) }
-        CircleActionButton(SpatialIcons.Regular.PlayNext, "下一条") { cb.onPlayAdjacent(true) }
+        CircleActionButton(
+            SpatialIcons.Regular.TenSecondsForward,
+            stringResource(R.string.xr_seek_forward_10),
+            enabled = transportEnabled,
+        ) { cb.onSeekBy(10) }
+        CircleActionButton(SpatialIcons.Regular.PlayNext, stringResource(R.string.xr_next)) { cb.onPlayAdjacent(true) }
 
         Spacer(Modifier.weight(1f))
 
@@ -238,13 +307,23 @@ private fun TransportRow(
             onClick = onToggleSpeedMenu,
             selected = speedMenuOpen,
         )
+        // 清晰度：有清单才出现（adb 起播的验证片没有）。本地文件那档带下载图标。
+        if (state.sources.isNotEmpty()) {
+            val current = state.sources.firstOrNull { it.label == state.sourceLabel }
+            PillButton(
+                label = state.sourceDisplayLabel.ifBlank { stringResource(R.string.xr_quality) },
+                icon = if (current?.local == true) SpatialIcons.Regular.Download else SpatialIcons.Regular.MediaImmersiveVideo,
+                onClick = onToggleQualityMenu,
+                selected = qualityMenuOpen,
+            )
+        }
         PillButton(
-            label = state.format.shortLabel,
+            label = state.format.shortLabel(),
             icon = SpatialIcons.Regular.Media2d,
             onClick = { cb.onRoute(ControlsRoute.VIDEO_TYPE) },
         )
         PillButton(
-            label = state.curve.label,
+            label = stringResource(state.curve.labelRes),
             icon = SpatialIcons.Regular.Television,
             onClick = { cb.onRoute(ControlsRoute.SCREEN_TYPE) },
             enabled = state.format.isFlat,
@@ -272,6 +351,7 @@ private fun ProgressRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
             onSeek = cb::onSeek,
             onSeekFinished = cb::onSeekFinished,
             buffering = state.buffering,
+            enabled = !state.switching,
             modifier = Modifier.weight(1f),
         )
         TimeLabel(text = state.durationText, modifier = Modifier.width(TIME_LABEL_WIDTH))
@@ -311,6 +391,61 @@ private fun androidx.compose.foundation.layout.RowScope.SpeedChip(
     )
 }
 
+@Composable
+private fun SourceChipRow(sources: List<SourceOption>, current: String, onPick: (String) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        sources.forEach { s ->
+            PillButton(
+                label = if (s.local) {
+                    stringResource(R.string.xr_source_local, s.display)
+                } else {
+                    s.display
+                },
+                icon = if (s.local) SpatialIcons.Regular.Download else null,
+                onClick = { onPick(s.label) },
+                selected = s.label == current,
+                height = 40.dp,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────── 续播提示
+
+/** 「已从 12:34 继续播放  [从头开始]  ✕」。 */
+@Composable
+private fun ResumeTipRow(text: String, cb: VideoControlsCallbacks) {
+    Row(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .clip(RoundedCornerShape(22.dp))
+            .background(PanelTokens.POPUP)
+            .padding(start = 16.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Icon(SpatialIcons.Regular.History, null, tint = PanelTokens.ON_SURFACE_DIM, modifier = Modifier.size(18.dp))
+        Text(text = text, color = PanelTokens.ON_SURFACE, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        PillButton(
+            label = stringResource(R.string.xr_restart_from_beginning),
+            icon = SpatialIcons.Regular.Replay,
+            onClick = cb::onRestartFromBeginning,
+            height = 36.dp,
+        )
+        CircleActionButton(
+            SpatialIcons.Regular.Close,
+            stringResource(R.string.xr_dismiss_tip),
+            size = 36.dp,
+            onClick = cb::onDismissResumeTip,
+        )
+    }
+}
+
 // ─────────────────────────────────────────────────────────── 音量弹层
 
 /** 竖向音量弹层：百分比 · 自绘竖条 · 静音钮。 */
@@ -321,27 +456,29 @@ private fun VolumeVerticalPopup(
     modifier: Modifier = Modifier,
 ) {
     val current = if (state.muted) 0f else state.volume
+    // 三段之间留固定空隙（不用 SpaceBetween）：拖块行程已缩进半径，数字与静音钮再各留 8dp。
     Box(
         modifier = modifier
-            .size(width = 104.dp, height = 300.dp)
+            .size(width = 104.dp, height = 316.dp)
             .clip(RoundedCornerShape(28.dp))
             .background(PanelTokens.POPUP)
-            .padding(12.dp),
+            .padding(horizontal = 12.dp, vertical = 14.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(text = "${(current * 100).toInt()}%", color = PanelTokens.ON_SURFACE, fontSize = 15.sp)
+            Spacer(Modifier.height(8.dp))
             VerticalLevelBar(
                 level = current,
                 onLevel = cb::onVolume,
-                modifier = Modifier.height(170.dp),
+                modifier = Modifier.weight(1f),
             )
+            Spacer(Modifier.height(8.dp))
             CircleActionButton(
                 icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
-                contentDescription = if (state.muted) "取消静音" else "静音",
+                contentDescription = stringResource(if (state.muted) R.string.xr_unmute else R.string.xr_mute),
                 onClick = cb::onToggleMute,
                 size = 56.dp,
                 selected = state.muted,

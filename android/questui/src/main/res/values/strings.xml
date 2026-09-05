@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest 空间面板的全部界面文案（默认语言 = 英文，与 lib/i18n 的 base_locale 一致）。
+
+  ⛔ 这些词**不跟系统语言走**，跟应用内的「语言」设置走：Dart 侧把
+  `LocaleSettings.currentLocale.languageTag` 通过 XrBridge 的 `setLocale` / `present`
+  推给原生，面板与提示都用 `Context.withPanelLocale(tag)` 造出来的 Context 取词
+  （见 PanelLocale.kt）。所以这里的 values-xx 目录必须与 lib/i18n 的语种保持一致：
+  en（本文件）/ zh-rCN / zh-rTW / ja。
+
+  ⛔ 新增文案一律进这里，别在 Kotlin 里写字面量 —— 面板是产品界面，不是日志。
+-->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">Back</string>
+    <string name="xr_refresh">Refresh</string>
+    <string name="xr_reset">Reset</string>
+    <string name="xr_loading">Loading…</string>
+    <string name="xr_buffering">Buffering…</string>
+    <string name="xr_open_with">Open with another app</string>
+    <string name="xr_not_supported_here">Not supported here</string>
+
+    <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
+    <string name="xr_scene_void">Void</string>
+    <string name="xr_scene_void_desc">Pure black — nothing but the picture</string>
+    <string name="xr_scene_passthrough">Passthrough</string>
+    <string name="xr_scene_passthrough_desc">See your real room</string>
+
+    <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
+    <string name="xr_curve_flat">Flat screen</string>
+    <string name="xr_curve_slight">Slight curve</string>
+    <string name="xr_curve_medium">Medium curve</string>
+    <string name="xr_curve_deep">Deep curve</string>
+    <string name="xr_curve_flat_hint">One flat screen</string>
+    <string name="xr_curve_slight_hint">40° arc</string>
+    <string name="xr_curve_medium_hint">60° arc</string>
+    <string name="xr_curve_deep_hint">85° arc</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab（枚举 FormatTab） -->
+    <string name="xr_tab_flat">Flat video</string>
+    <string name="xr_tab_panorama">Panorama</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">Fisheye</string>
+
+    <!-- ─────────────────────────────── 具体格式（枚举 VideoFormat） -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D side-by-side</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D over-under</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D side-by-side</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D over-under</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <!-- 走带行那枚钮上的短标签：「大类 · 具体格式」。 -->
+    <string name="xr_format_short_flat">Flat · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">Fisheye · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸（枚举 AspectPreset） -->
+    <string name="xr_aspect_default">Default</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后（枚举 RepeatMode） -->
+    <string name="xr_repeat_one">Repeat one</string>
+    <string name="xr_repeat_next">Play next</string>
+    <string name="xr_repeat_stop">Stop when done</string>
+    <string name="xr_repeat_one_hint">Keep replaying this one</string>
+    <string name="xr_repeat_next_hint">Continue with the next in the list</string>
+    <string name="xr_repeat_stop_hint">Hold on the last frame</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">Hide the controls</string>
+    <string name="xr_player_title_fallback">Now playing</string>
+    <string name="xr_switching_chip">Loading the next one…</string>
+    <string name="xr_nav_scene">Environment</string>
+    <string name="xr_nav_playlist">Playlist</string>
+    <string name="xr_nav_settings">Settings</string>
+    <string name="xr_nav_back_to_app">Back to the app</string>
+    <string name="xr_volume">Volume</string>
+    <string name="xr_mute">Mute</string>
+    <string name="xr_unmute">Unmute</string>
+    <string name="xr_previous">Previous</string>
+    <string name="xr_next">Next</string>
+    <string name="xr_seek_back_10">Back 10 seconds</string>
+    <string name="xr_seek_forward_10">Forward 10 seconds</string>
+    <string name="xr_play">Play</string>
+    <string name="xr_pause">Pause</string>
+    <string name="xr_quality">Quality</string>
+    <!-- 本机已下载的那一档清晰度。 -->
+    <string name="xr_source_local">%1$s · downloaded</string>
+    <string name="xr_restart_from_beginning">Start over</string>
+    <string name="xr_dismiss_tip">Dismiss</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_playlist_title">Up next</string>
+    <string name="xr_opening">Opening…</string>
+    <string name="xr_switching">Switching…</string>
+    <string name="xr_empty_choices">Nothing here</string>
+    <string name="xr_card_loading">Loading…</string>
+    <string name="xr_badge_now_playing">Now playing</string>
+    <string name="xr_badge_offsite">Off-site</string>
+    <string name="xr_badge_watched">Watched ✓</string>
+    <string name="xr_badge_downloaded">Downloaded</string>
+    <string name="xr_untitled">(untitled)</string>
+    <string name="xr_loading_next_page">Loading the next page…</string>
+    <string name="xr_load_more">Load more</string>
+    <string name="xr_load_more_hint">Scrolling here loads the next page</string>
+    <string name="xr_playlist_empty_title">Nothing to continue with</string>
+    <string name="xr_playlist_empty_hint">Queue up what you want to watch in the app and it will play straight from here</string>
+    <string name="xr_section_empty">This pool has no items yet — try another tab above</string>
+    <!-- 来源药丸：分组名 + 状态 / 计数 / 副标题。 -->
+    <string name="xr_pill_pending">%1$s …</string>
+    <string name="xr_pill_count">%1$s · %2$d</string>
+    <string name="xr_pill_subtitle">%1$s · %2$s</string>
+    <!-- 页头副标题：「池名 · 共 N 条」，还有下一页时加后缀。 -->
+    <string name="xr_playlist_subtitle">%1$s · %2$d items</string>
+    <string name="xr_playlist_subtitle_more">%1$s (more available)</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">Environment</string>
+    <string name="xr_scene_subtitle_flat">Environment and screen placement</string>
+    <string name="xr_scene_subtitle_sphere">Spherical source — the picture already wraps around you</string>
+    <string name="xr_recenter">Recenter</string>
+    <string name="xr_scene_section_adjust">Placement</string>
+    <string name="xr_screen_distance">Distance</string>
+    <string name="xr_screen_width">Screen width</string>
+    <string name="xr_screen_offset">Vertical offset</string>
+    <string name="xr_scene_sphere_note">180°/360° sources have no screen position to adjust — the picture is the sphere around you. Use “Recenter” at the top right to change which way it faces.</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">Screen shape</string>
+    <string name="xr_screen_type_subtitle">Every pixel the same distance from your eyes, so you turn your head less</string>
+    <string name="xr_curve_rebuild_note">Changing the screen shape rebuilds the screen: expect one short seam, then playback resumes where it was.</string>
+    <string name="xr_section_3d_display">3D playback</string>
+    <string name="xr_force_mono">Force 3D video to play as 2D</string>
+    <string name="xr_force_mono_hint_stereo">Uses half the frame only — for when it makes you dizzy or ghosts</string>
+    <string name="xr_force_mono_hint_mono">This source is mono, so this has no effect</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">Video type</string>
+    <string name="xr_video_type_subtitle">Got it wrong? Change it here — it applies immediately</string>
+    <string name="xr_auto_detect">Auto-detect</string>
+    <string name="xr_format_unsupported_inline">%1$s cannot be rendered here; try opening it with another app</string>
+    <string name="xr_treat_180_as_fisheye">Treat 180° panorama as 180° fisheye when auto-detecting</string>
+    <string name="xr_treat_180_as_fisheye_hint">Fisheye cannot be played here; with this on, 180° sources offer “Open with another app”</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">Settings</string>
+    <string name="xr_settings_subtitle">Only what matters in the spatial player; everything else lives in the app</string>
+    <string name="xr_section_screen_size">Screen size</string>
+    <string name="xr_width_ratio">Width factor</string>
+    <string name="xr_height_ratio">Height factor</string>
+    <string name="xr_reset_screen_size">Reset screen size</string>
+    <string name="xr_section_speed">Playback speed</string>
+    <string name="xr_carry_over">Carry over to the next video</string>
+    <string name="xr_carry_over_hint">On: keep screen size and speed when switching. Off: every video starts from the defaults</string>
+    <string name="xr_section_after_playback">When it ends</string>
+    <string name="xr_section_panel">Control panel</string>
+    <string name="xr_auto_hide">Hide when idle</string>
+    <string name="xr_auto_hide_hint">Hiding really destroys the panel; pinch once to summon it back</string>
+    <string name="xr_auto_hide_seconds_label">How long counts as idle</string>
+    <string name="xr_summon_in_front">Summon in front of you</string>
+    <string name="xr_summon_in_front_hint">Move the panel to wherever you are facing when you pinch</string>
+    <string name="xr_click_sound">Click sound</string>
+    <string name="xr_click_sound_hint">Meta: hands have no haptics, so sound is not optional</string>
+    <string name="xr_section_controller">Controllers and system</string>
+    <string name="xr_controller_tap">Controller A/X taps play/pause</string>
+    <string name="xr_controller_tap_hint">No need to aim at the panel — works from across the room</string>
+    <string name="xr_pause_on_focus_loss">Pause on system menu / headset off</string>
+    <string name="xr_pause_on_focus_loss_hint">Nobody is watching once focus is gone, and it burns battery</string>
+    <string name="xr_section_bindings">Controller bindings</string>
+    <string name="xr_controller_bindings">Trigger / pinch: select · summon the panel\nB / Y: hide the panel\nThumbstick left/right: hold to scrub (faster the longer you hold), release to seek\nThumbstick up/down: push the picture away / pull it closer (panoramas: the sphere)\nGrip: hold to move the picture (panoramas: drag the view), release to hide the panel</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示（ImmersiveActivity） -->
+    <string name="xr_notice_unsupported_projection">This projection cannot be rendered here and is shown flat; try “Open with another app”</string>
+    <string name="xr_notice_next_failed_reason">The next one will not play (%1$s); staying on the current video</string>
+    <string name="xr_notice_next_unavailable">The next one will not open; staying on the current video</string>
+    <string name="xr_notice_next_unavailable_reason">The next one will not open (%1$s); staying on the current video</string>
+    <string name="xr_notice_next_timeout">Loading the next one timed out; staying on the current video</string>
+    <string name="xr_notice_url_expired_refreshing">The playback link expired; fetching a new one…</string>
+    <string name="xr_notice_url_expired_no_refresh">The playback link expired and no new one arrived — reopen the video in the app or use an external player</string>
+    <string name="xr_notice_refresh_timeout">The playback link expired and fetching a new one timed out — reopen the video in the app or use an external player</string>
+    <string name="xr_notice_playback_failed">This source will not play (%1$s); try an external player</string>
+    <string name="xr_notice_no_external_player">No app on this device can open this video</string>
+    <string name="xr_notice_resumed_at">Resumed from %1$s</string>
+
+</resources>

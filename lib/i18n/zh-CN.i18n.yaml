@@ -1017,6 +1017,8 @@ settings:
     warningPublicDirectory: 警告：选择的是公共目录，可能无法访问。建议选择应用专用目录。
     downloadPathUpdated: 下载路径已更新
     selectPathFailed: 选择路径失败
+    pickerAlreadyActive: 目录选择器已在运行
+    unsupportedStorageVolume: 不支持的存储位置，请选择设备存储或 SD 卡中的目录
     recommendedPathSet: 已设置为推荐路径
     setRecommendedPathFailed: 设置推荐路径失败
     templateResetToDefault: 已重置为默认模板

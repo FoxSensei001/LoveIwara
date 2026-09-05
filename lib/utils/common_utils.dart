@@ -320,6 +320,10 @@ class CommonUtils {
     return index == -1 ? _qualityOrder.length : index;
   }
 
+  /// 清晰度的高低序：越小越高（原画 0 … 预览最大）；认不出的标签排最后。
+  /// 与 [sortVideoResolutionsByQuality] 同一张表，供「向下降级」逻辑按位置比较。
+  static int qualityRank(String? name) => _qualitySortWeight(name);
+
   /// 按统一的清晰度优先级对 [VideoSource] 列表排序，用于下载清晰度选择等场景。
   /// 使用稳定排序（保留原始相对顺序），避免同权重项之间顺序抖动。
   static List<VideoSource> sortVideoSourcesByQuality(

@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -44,6 +45,8 @@ import com.meta.spatial.uiset.theme.icons.regular.Stop
  * - **屏幕尺寸**（只在平面片显示）：4XVR 有这一节，允许强制一个宽高比或者各自加个系数，
  *   对付「片源打标 16:9 但其实是竖屏」之类的坑。球幕片人在球心，没有「屏幕」。
  * - **倍速播放**：`PLAYBACK_SPEEDS` 与走带行的倍速菜单同一份数据。
+ * - **沿用到下一条视频**：屏幕尺寸（宽高比 / 宽比 / 长比）与倍速换片时要不要带过去。
+ *   默认关（用户 2026-09-05 的临时措施）—— 关着时每换一条片子这四项回默认。
  * - **播完之后**：`REPEAT_MODE_ONE` 是默认，选 `NEXT` 时接播放列表。
  * - **空闲自动收起**：⛔ 官方成本推出来的必需品，不是偏好。原文：
  *   「It is common for app developers to create compositor layers, and supply them with
@@ -70,14 +73,14 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
     ) {
         PageHeader(
-            title = "设置",
-            subtitle = "只放沉浸态才有意义的项；其余设置回应用里改",
+            title = stringResource(R.string.xr_settings_title),
+            subtitle = stringResource(R.string.xr_settings_subtitle),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
         )
 
         // ── 屏幕尺寸 ─────────────────────────────
         if (state.format.isFlat) {
-            SectionLabel("屏幕尺寸")
+            SectionLabel(stringResource(R.string.xr_section_screen_size))
 
             AspectRow(state, cb)
 
@@ -90,19 +93,21 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                     onChanged = { cb.onWidthRatio(lerp(MIN_RATIO, MAX_RATIO, it)) },
                     modifier = Modifier.weight(1f),
                     value = unlerp(MIN_RATIO, MAX_RATIO, state.widthRatio),
-                    helperText = "视频宽比" to "%.2f×".format(state.widthRatio),
+                    helperText = stringResource(R.string.xr_width_ratio) to
+                        "%.2f×".format(state.widthRatio),
                 )
                 SpatialSliderMedium(
                     onChanged = { cb.onHeightRatio(lerp(MIN_RATIO, MAX_RATIO, it)) },
                     modifier = Modifier.weight(1f),
                     value = unlerp(MIN_RATIO, MAX_RATIO, state.heightRatio),
-                    helperText = "视频长比" to "%.2f×".format(state.heightRatio),
+                    helperText = stringResource(R.string.xr_height_ratio) to
+                        "%.2f×".format(state.heightRatio),
                 )
             }
 
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 SecondaryButton(
-                    label = "重置屏幕尺寸",
+                    label = stringResource(R.string.xr_reset_screen_size),
                     leading = { Icon(SpatialIcons.Regular.Refresh, null) },
                     onClick = cb::onResetAspect,
                     modifier = Modifier.width(220.dp),
@@ -111,26 +116,34 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         }
 
         // ── 倍速播放 ─────────────────────────────
-        SectionLabel("倍速播放")
+        SectionLabel(stringResource(R.string.xr_section_speed))
         SpeedChipsSetting(current = state.speed, onPick = cb::onPickSpeed)
 
+        // 屏幕尺寸 + 倍速要不要带给下一条。默认关（临时措施）：关着时每换一条都回默认值。
+        SwitchRow(
+            title = stringResource(R.string.xr_carry_over),
+            hint = stringResource(R.string.xr_carry_over_hint),
+            checked = state.carryOverToNextVideo,
+            onToggle = { cb.onToggleCarryOver() },
+        )
+
         // ── 播完之后 ─────────────────────────────
-        SectionLabel("播完之后")
+        SectionLabel(stringResource(R.string.xr_section_after_playback))
         Row(
             modifier = Modifier.fillMaxWidth().height(110.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            RepeatTile(RepeatMode.ONE, "一直重放这一条", SpatialIcons.Regular.Replay, state, cb)
-            RepeatTile(RepeatMode.NEXT, "接着放列表下一条", SpatialIcons.Regular.PlayNext, state, cb)
-            RepeatTile(RepeatMode.STOP, "停在最后一帧", SpatialIcons.Regular.Stop, state, cb)
+            RepeatTile(RepeatMode.ONE, R.string.xr_repeat_one_hint, SpatialIcons.Regular.Replay, state, cb)
+            RepeatTile(RepeatMode.NEXT, R.string.xr_repeat_next_hint, SpatialIcons.Regular.PlayNext, state, cb)
+            RepeatTile(RepeatMode.STOP, R.string.xr_repeat_stop_hint, SpatialIcons.Regular.Stop, state, cb)
         }
 
         // ── 面板 ────────────────────────────────
-        SectionLabel("面板")
+        SectionLabel(stringResource(R.string.xr_section_panel))
 
         SwitchRow(
-            title = "空闲自动收起",
-            hint = "收起是真的销毁面板；捏一下重新唤出",
+            title = stringResource(R.string.xr_auto_hide),
+            hint = stringResource(R.string.xr_auto_hide_hint),
             checked = state.autoHide,
             onToggle = { cb.onToggleAutoHide() },
         )
@@ -138,7 +151,7 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         // 自动收起秒数 —— 只有 autoHide=true 才让用
         if (state.autoHide) {
             Text(
-                text = "多久算空闲",
+                text = stringResource(R.string.xr_auto_hide_seconds_label),
                 color = PanelTokens.ON_SURFACE_DIM,
                 fontSize = 13.sp,
             )
@@ -146,47 +159,41 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         }
 
         SwitchRow(
-            title = "唤出时摆到面前",
-            hint = "捏合唤出时把面板挪到当前朝向前方",
+            title = stringResource(R.string.xr_summon_in_front),
+            hint = stringResource(R.string.xr_summon_in_front_hint),
             checked = state.summonInFront,
             onToggle = { cb.onToggleSummonInFront() },
         )
 
         SwitchRow(
-            title = "点按音效",
-            hint = "官方：手没有振动反馈，音效是必需品",
+            title = stringResource(R.string.xr_click_sound),
+            hint = stringResource(R.string.xr_click_sound_hint),
             checked = state.clickSound,
             onToggle = { cb.onToggleClickSound() },
         )
 
         // ── 手柄与系统 ───────────────────────────
-        SectionLabel("手柄与系统")
+        SectionLabel(stringResource(R.string.xr_section_controller))
 
         SwitchRow(
-            title = "手柄 A/X 单击播放/暂停",
-            hint = "不用瞄面板，坐远处也能停",
+            title = stringResource(R.string.xr_controller_tap),
+            hint = stringResource(R.string.xr_controller_tap_hint),
             checked = state.controllerTapPlayPause,
             onToggle = { cb.onToggleControllerTapPlayPause() },
         )
 
         SwitchRow(
-            title = "系统菜单弹出 / 摘下头显时暂停",
-            hint = "焦点丢了继续放没人看，浪费电",
+            title = stringResource(R.string.xr_pause_on_focus_loss),
+            hint = stringResource(R.string.xr_pause_on_focus_loss_hint),
             checked = state.pauseOnFocusLoss,
             onToggle = { cb.onTogglePauseOnFocusLoss() },
         )
 
         // ── 手柄键位说明（只读） ─────────────────
         Spacer(Modifier.height(6.dp))
-        SectionLabel("手柄键位")
+        SectionLabel(stringResource(R.string.xr_section_bindings))
         Text(
-            text = buildString {
-                append("扳机 / 捏合：选择 · 唤出面板\n")
-                append("B / Y：收起面板\n")
-                append("摇杆左右：±10 秒\n")
-                append("摇杆上下：音量\n")
-                append("握持键拖动：抓住画面挪位置")
-            },
+            text = stringResource(R.string.xr_controller_bindings),
             color = PanelTokens.ON_SURFACE_DIM,
             fontSize = 14.sp,
         )
@@ -228,7 +235,7 @@ private fun AspectRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
     ) {
         AspectPreset.entries.forEach { preset ->
             TextTileButton(
-                label = preset.label,
+                label = stringResource(preset.labelRes),
                 selected = state.aspectPreset == preset,
                 onSelectionChange = { cb.onPickAspect(preset) },
                 modifier = Modifier.weight(1f),
@@ -310,14 +317,14 @@ private fun SmallChip(
 @Composable
 private fun androidx.compose.foundation.layout.RowScope.RepeatTile(
     mode: RepeatMode,
-    hint: String,
+    @androidx.annotation.StringRes hintRes: Int,
     icon: ImageVector,
     state: VideoControlsState,
     cb: VideoControlsCallbacks,
 ) {
     TextTileButton(
-        label = mode.label,
-        secondaryLabel = hint,
+        label = stringResource(mode.labelRes),
+        secondaryLabel = stringResource(hintRes),
         icon = { Icon(icon, null) },
         selected = state.repeatMode == mode,
         onSelectionChange = { cb.onPickRepeatMode(mode) },

@@ -17,6 +17,7 @@ import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/utils/iwara_different_site_recovery.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/utils/oreno3d_match_util.dart';
@@ -195,6 +196,10 @@ class MyVideoStateController extends GetxController
   final Map<String, dynamic>? extData;
   final bool forceAutoPlay;
   final video_model.Video? initialVideoInfo;
+
+  /// 路由带进来的视频池引用。只用于**跨站切换后重开本页**时把「接着看」上下文带过去
+  /// （池的真身在 `PlaybackQueueService`，切站重建整棵树也活着）。
+  final PlaybackQueueRef? playbackQueueRef;
   final VideoFullscreenHandoff? fullscreenHandoff;
   final AppService appS = Get.find();
   late Player player;
@@ -1220,14 +1225,36 @@ class MyVideoStateController extends GetxController
   }
 
   Future<void> _handOffToImmersive(XrImmersiveService xr, String url) async {
+    // 清晰度清单：在线各档 + 本机已下载完成、文件真在的各档。当前档有本地文件就用本地
+    // 文件播（省下等网络的时间，用户 2026-09-05 要求），面板上也能在各档之间切。
+    final sources = await _immersiveSources();
+    // 清晰度按用户偏好（2D 底栏 / 沉浸面板上一次选的那档，都落在 DEFAULT_QUALITY_KEY）
+    // 匹配：精确 → 向下最接近 → 都没有就最低档。本地文件优先在 [_immersiveSources] 里已经
+    // 按档顶掉了在线地址。
+    final preferred =
+        (_configService[ConfigKey.DEFAULT_QUALITY_KEY] as String?)?.trim();
+    final chosen = pickPreferredSource(
+      sources,
+      preferred == null || preferred.isEmpty
+          ? currentResolutionTag.value
+          : preferred,
+    );
+    final currentLabel = chosen?.label ?? currentResolutionTag.value ?? '';
+    // ⛔ 位置：面板里的播放器在 Quest 上不起播，`currentPosition` 多半还是 0；
+    // 历史进度躺在 `_deferredInitialPlaybackPosition` 里，要把它交出去沉浸端才能续播。
+    final position = currentPosition > Duration.zero
+        ? currentPosition
+        : _deferredInitialPlaybackPosition;
     final ok = await xr.present(
-      url: url,
+      url: chosen?.url ?? url,
       format: vrFormat,
       title: videoInfo.value?.title?.trim() ?? '',
       videoId: videoId,
       width: sourceVideoWidth.value,
       height: sourceVideoHeight.value,
-      positionMs: currentPosition.inMilliseconds,
+      positionMs: position.inMilliseconds,
+      sources: sources,
+      sourceLabel: currentLabel,
     );
     LogUtils.i('片源已交给空间播放器 delivered=$ok url=$url', 'MyVideoStateController');
     if (_isDisposed) return;
@@ -1236,14 +1263,91 @@ class MyVideoStateController extends GetxController
     await player.pause();
   }
 
+  /// 交给空间播放器的清晰度清单。
+  ///
+  /// 在线各档来自 [videoResolutions]；本地那份查下载库里**这条视频**完成了的任务，
+  /// 逐个 stat 文件（下载页删过、系统清过缓存都可能让记录还在文件没了）。同一档有本地
+  /// 文件就用本地地址顶掉在线地址；只有本地没有在线的档（本地模式）也列进去。
+  Future<List<XrMediaSource>> _immersiveSources() async {
+    final byLabel = <String, XrMediaSource>{};
+    for (final r in videoResolutions) {
+      if (r.url.isEmpty) continue;
+      byLabel[r.label] = XrMediaSource(
+        label: r.label,
+        url: isLocalVideoMode ? Uri.file(r.url).toString() : r.url,
+        local: isLocalVideoMode,
+      );
+    }
+    final id = videoId;
+    if (id != null && id.isNotEmpty && Get.isRegistered<DownloadService>()) {
+      try {
+        final tasks = await DownloadService.to.repository.getVideoTasksByMedia(
+          id,
+        );
+        for (final task in tasks) {
+          if (task.status != DownloadStatus.completed) continue;
+          if (task.extData?.type != DownloadTaskExtDataType.video) continue;
+          final ext = VideoDownloadExtData.fromJson(task.extData!.data);
+          final quality = ext.quality?.trim();
+          if (quality == null || quality.isEmpty) continue;
+          final path = task.savePath;
+          if (path.isEmpty || !File(path).existsSync()) continue;
+          byLabel[quality] = XrMediaSource(
+            label: quality,
+            url: Uri.file(path).toString(),
+            local: true,
+          );
+        }
+      } catch (e) {
+        LogUtils.d('查本地清晰度失败: $e', 'MyVideoStateController');
+      }
+    }
+    // 从高到低排，「向下降级」按位置找。
+    final sorted = CommonUtils.sortVideoResolutionsByQuality([
+      for (final s in byLabel.values) VideoResolution(label: s.label, url: s.url),
+    ]);
+    return [for (final r in sorted) byLabel[r.label]!];
+  }
+
+  /// 本页是沉浸面板点「下一条」换进来的（forceAutoPlay）却打不开：让幕布收掉「正在加载下一条」、
+  /// 把老片放回去。不然要等原生那只 45s 看门狗。
+  void _abortImmersiveSwitchIfPending(String reason) {
+    if (!forceAutoPlay || !Get.isRegistered<XrImmersiveService>()) return;
+    final xr = Get.find<XrImmersiveService>();
+    if (!xr.available.value) return;
+    final id = videoId;
+    if (id == null || id.isEmpty) return;
+    unawaited(xr.abortSwitch(videoId: id, reason: reason));
+  }
+
+  /// 空间播放器被服务端拒了（直链 `expires` 到期）：与定时刷新同一条路，立刻重取清单再推回去。
+  /// 只接本页这条；同一时刻只跑一次刷新（[_isRefreshingVideoSource]），原生侧也只会为一条片子问一次。
+  void _onImmersiveSourceExpired(String expiredVideoId) {
+    if (_isDisposed || expiredVideoId != videoId) return;
+    LogUtils.w('空间播放器报播放地址过期，立即刷新片源', 'MyVideoStateController');
+    unawaited(_refreshVideoSourceBeforeExpiration());
+  }
+
+  /// 刷新后的清晰度清单推给空间播放器（幕布上正放的是本页这条时）。
+  ///
+  /// 2D 那条路是 `_switchToRefreshedUrl` 重开面板里的播放器；Quest 上面板播放器不起播
+  /// （`videoPlayerReady` 恒为 false），于是过期处理在这里补上：原生按当前那一档换到新地址、接着当前位置放。
+  Future<void> _pushRefreshedSourcesToImmersive() async {
+    if (_isDisposed || !Get.isRegistered<XrImmersiveService>()) return;
+    final xr = Get.find<XrImmersiveService>();
+    final id = videoId;
+    if (id == null || id.isEmpty || xr.nowPlayingId != id) return;
+    final sources = await _immersiveSources();
+    if (_isDisposed) return;
+    await xr.updateSources(videoId: id, sources: sources);
+  }
+
   /// 空间播放器结束（返回应用 / 换片 / 退出场景）：把最后位置接回面板里的播放器，
   /// 观看历史随页面关闭时的常规路径一起保存。换过片就跳到那条视频的页面。
   void _onImmersiveEnded(String endedVideoId, int positionMs) {
     if (_isDisposed) return;
-    if (endedVideoId != videoId) {
-      NaviService.navigateToVideoDetailPage(endedVideoId);
-      return;
-    }
+    // 不是本页这条的 ended 由 XrImmersiveService 自己处置（回写历史 / 必要时导航），这里不管。
+    if (endedVideoId != videoId) return;
     final target = Duration(milliseconds: positionMs);
     currentPosition = target;
     unawaited(player.seek(target));
@@ -1255,6 +1359,7 @@ class MyVideoStateController extends GetxController
     this.forceAutoPlay = false,
     this.initialVideoInfo,
     this.fullscreenHandoff,
+    this.playbackQueueRef,
   }) : isLocalVideoMode = false,
        localVideoPath = null,
        localVideoTask = null,
@@ -1280,6 +1385,7 @@ class MyVideoStateController extends GetxController
            : null,
        extData = null,
        initialVideoInfo = null,
+       playbackQueueRef = null,
        isLocalVideoMode = true,
        localVideoPath = localPath,
        localVideoTask = task,
@@ -1294,6 +1400,8 @@ class MyVideoStateController extends GetxController
     if (Get.isRegistered<XrImmersiveService>()) {
       final xr = Get.find<XrImmersiveService>();
       xr.onImmersiveEnded = _onImmersiveEnded;
+      xr.onImmersiveEndedVideoId = videoId;
+      xr.onSourceRefreshRequested = _onImmersiveSourceExpired;
       // 可用性是缓存值，进页面刷一次，好让第一条片源打开时就能判断要不要交出去。
       unawaited(xr.refreshAvailability());
     }
@@ -2642,7 +2750,13 @@ class MyVideoStateController extends GetxController
     PageDepartureGuard.detach(this);
     if (Get.isRegistered<XrImmersiveService>()) {
       final xr = Get.find<XrImmersiveService>();
-      if (xr.onImmersiveEnded == _onImmersiveEnded) xr.onImmersiveEnded = null;
+      if (xr.onImmersiveEnded == _onImmersiveEnded) {
+        xr.onImmersiveEnded = null;
+        xr.onImmersiveEndedVideoId = null;
+      }
+      if (xr.onSourceRefreshRequested == _onImmersiveSourceExpired) {
+        xr.onSourceRefreshRequested = null;
+      }
     }
 
     // ⛔ 桌面全屏会话在这里放手，**不在** relinquishFullscreenForRouteHandoff 里。
@@ -3031,13 +3145,24 @@ class MyVideoStateController extends GetxController
         // 跨站资源（主站模式打开 AI 站视频，或反之）：不是加载失败，而是站点选错了。
         // 切站会退回首页并重建整棵树，本页连同评论/相关一起作废，由 reopen 在新
         // 站点重新开一张干净的详情页，所以这里什么都不用做，直接 return。
+        //
+        // ⛔ reopen 要把**进来时的意图**一并带过去：Quest 上从沉浸面板「接着看」点到另一个站的片，
+        // 本页是 forceAutoPlay 进来的（片源一开就 present 回幕布）；重开的那张若是裸的详情页，
+        // 幕布就会停在「正在加载下一条」等到超时，用户回应用看到的也不是那条片的详情页。
+        // 视频池引用同理（否则重开后「接着看」只剩稍后再看）。
         if (await IwaraDifferentSiteRecovery.recover(
           e,
           resourceKey: 'video:$videoId',
-          reopen: () => NaviService.navigateToVideoDetailPage(videoId),
+          reopen: () => NaviService.navigateToVideoDetailPage(
+            videoId,
+            forceAutoPlay: forceAutoPlay || _immersiveRequested,
+            playbackQueueRef: playbackQueueRef,
+          ),
         )) {
           return;
         }
+        // 走到这里 = 这张页面打不开了（跨站也救不回 / 私密 / 删除 / 其它）。幕布若正等着这条，放它一马。
+        _abortImmersiveSwitchIfPending(CommonUtils.parseExceptionMessage(e));
 
         if (!_isDisposed) {
           if (e.response?.statusCode == 403) {
@@ -3080,6 +3205,7 @@ class MyVideoStateController extends GetxController
             error: e,
           );
           String errorMessage = CommonUtils.parseExceptionMessage(e);
+          _abortImmersiveSwitchIfPending(errorMessage);
           mainErrorWidget.value = CommonErrorWidget(
             text: errorMessage,
             children: [
@@ -3879,11 +4005,16 @@ class MyVideoStateController extends GetxController
     }
   }
 
+  /// 一次片源刷新正在路上（定时到点与原生报过期可能撞在一起，只跑一份）。
+  bool _isRefreshingVideoSource = false;
+
   /// 刷新视频源（过期时间管理）
   Future<void> _refreshVideoSourceBeforeExpiration() async {
     if (_isDisposed || _isRouteCovered || videoInfo.value?.fileUrl == null) {
       return;
     }
+    if (_isRefreshingVideoSource) return;
+    _isRefreshingVideoSource = true;
 
     LogUtils.i('开始刷新视频源（过期时间管理）', 'MyVideoStateController');
 
@@ -3924,8 +4055,16 @@ class MyVideoStateController extends GetxController
         }
       }
 
-      // 如果当前正在播放，需要更新播放器的URL
-      if (currentResolutionTag.value != null && videoPlayerReady.value) {
+      // 如果当前正在播放，需要更新播放器的URL。
+      // ⛔ 幕布上正放的是本页这条时**跳过**：面板里的播放器在 Quest 上只是暂停着占位，重开它会经
+      // `_finishCurrentMediaSourceOpen` 再 present 一次（把用户在面板上改过的视频类型冲掉）；
+      // 新地址由下面的 [_pushRefreshedSourcesToImmersive] 直接推给原生换源。
+      final immersivePlayingThis = videoId != null &&
+          Get.isRegistered<XrImmersiveService>() &&
+          Get.find<XrImmersiveService>().nowPlayingId == videoId;
+      if (!immersivePlayingThis &&
+          currentResolutionTag.value != null &&
+          videoPlayerReady.value) {
         String? newUrl = CommonUtils.findUrlByResolutionTag(
           CommonUtils.convertVideoSourcesToResolutions(
             sources,
@@ -3946,6 +4085,9 @@ class MyVideoStateController extends GetxController
         filterPreview: true,
       );
 
+      // Quest：幕布上正放的是本页这条 → 新地址推给空间播放器（2D 那条路上面已经重开过了）。
+      await _pushRefreshedSourcesToImmersive();
+
       // 重新设置定时器
       _setupVideoSourceExpirationTimer();
 
@@ -3957,6 +4099,8 @@ class MyVideoStateController extends GetxController
       _videoSourceExpirationTimer = Timer(const Duration(minutes: 5), () {
         _refreshVideoSourceBeforeExpiration();
       });
+    } finally {
+      _isRefreshingVideoSource = false;
     }
   }
 
