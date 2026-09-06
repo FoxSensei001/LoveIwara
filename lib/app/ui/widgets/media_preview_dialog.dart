@@ -106,8 +106,15 @@ import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart' show PointerDeviceKind;
+import 'package:flutter/gestures.dart'
+    show
+        PointerDeviceKind,
+        PointerScrollEvent,
+        PointerSignalEvent,
+        VerticalDragGestureRecognizer;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'
+    show KeyDownEvent, KeyEvent, KeyRepeatEvent, LogicalKeyboardKey;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/media_file.model.dart';
@@ -118,6 +125,8 @@ import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/page_departure_guard.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
+import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/tags_display_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
@@ -1613,7 +1622,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
 ///
 /// 视频还会在静态缩略图之上叠一层动图预览（`preview.webp`）——「预览」这两个
 /// 字的价值有一半在这儿；站外视频没有这份资源，就只有缩略图。
-class MediaPreviewCover extends StatelessWidget {
+class MediaPreviewCover extends StatefulWidget {
   const MediaPreviewCover({
     super.key,
     this.video,
@@ -1638,16 +1647,102 @@ class MediaPreviewCover extends StatelessWidget {
 
   final BorderRadius borderRadius;
 
+  @override
+  State<MediaPreviewCover> createState() => _MediaPreviewCoverState();
+}
+
+class _MediaPreviewCoverState extends State<MediaPreviewCover> {
+  /// 动图那一层此刻的状态。封面那张静图不参与——它几乎总是缓存里就有。
+  ///
+  /// ⛔ 普通字段、**不是** setState 驱动的状态：它在 build 途中被写（placeholder /
+  /// imageBuilder / errorWidget 都在 build 里），真正决定画面的是 [_spinnerVisible]。
+  _AnimatedPreviewPhase _phase = _AnimatedPreviewPhase.idle;
+
+  /// 转圈延迟这么久才露面：缓存里已经有的那种一帧就到，闪一下反而更吵。
+  static const Duration _spinnerDelay = Duration(milliseconds: 260);
+
+  /// 这条动图**已经出现过一次**（或确定出不来）：从此不再转圈。
+  ///
+  /// ⛔ 这不只是「少转一圈」。`CachedNetworkImage` 每次重建都会先回一趟 placeholder，
+  /// 而 placeholder 又把状态报回来触发下一次重建 —— 那正是用户 2026-09-06 看到的
+  /// 「转圈疯狂地出现又消失」。落了这把锁，回路就断了：加载态一辈子只认第一次。
+  bool _settled = false;
+
+  bool _spinnerVisible = false;
+
   String get _thumbnailUrl {
-    final String url = video?.thumbnailUrl ?? gallery!.thumbnailUrl;
-    return url.isNotEmpty ? url : (fallbackThumbnailUrl ?? '');
+    final String url =
+        widget.video?.thumbnailUrl ?? widget.gallery!.thumbnailUrl;
+    return url.isNotEmpty ? url : (widget.fallbackThumbnailUrl ?? '');
   }
 
-  /// 动图预览地址；没有（图库 / 站外视频）时为 null。
-  String? get _animatedUrl {
-    final Video? v = video;
+  /// 动图预览地址；没有（图库 / 站外视频 / 缺 file 的种子模型）时为 null。
+  ///
+  /// ⛔ `Video.previewUrl` 在 `file == null` 时拼出来的是 `.../original/null/preview.webp`
+  /// —— 一条必然 404 的地址。列表接口回来的精简模型经常没有 `file`，于是「有的视频
+  /// 预览永远出不来动图」（用户 2026-09-06）。这一层在源头挡掉：没有 file 就当这条
+  /// 压根没有动图，连转圈都不该转。
+  String? get _animatedUrl => _animatedUrlOf(widget);
+
+  String? _animatedUrlOf(MediaPreviewCover w) {
+    final Video? v = w.video;
     if (v == null || v.isExternalVideo) return null;
+    final String? fileId = v.file?.id;
+    if (fileId == null || fileId.isEmpty) return null;
     return v.previewUrl;
+  }
+
+  @override
+  void didUpdateWidget(covariant MediaPreviewCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 换了另一条视频（种子模型拉到详情后 file 才有，地址会从 null 变成真地址）：
+    // 那是另一张动图，锁重开。
+    if (_animatedUrlOf(oldWidget) == _animatedUrl) return;
+    _phase = _AnimatedPreviewPhase.idle;
+    _settled = false;
+    _setSpinner(false);
+  }
+
+  void _note(_AnimatedPreviewPhase phase) {
+    if (_phase == phase) return;
+    // 已经出过一次的，不再回到加载态（见 [_settled]）。
+    if (phase == _AnimatedPreviewPhase.loading && _settled) return;
+    _phase = phase;
+    switch (phase) {
+      case _AnimatedPreviewPhase.loading:
+        Future<void>.delayed(_spinnerDelay, () {
+          if (!mounted ||
+              _settled ||
+              _phase != _AnimatedPreviewPhase.loading) {
+            return;
+          }
+          _setSpinner(true);
+        });
+      case _AnimatedPreviewPhase.loaded:
+      case _AnimatedPreviewPhase.failed:
+        _settled = true;
+        if (phase == _AnimatedPreviewPhase.failed) {
+          // 留一条：动图取不到的原因只有两类——服务端压根没生成 preview.webp（404），
+          // 或者这条是私密 / 受限内容。两者都只能靠日志分辨。
+          LogUtils.d(
+            '视频动图预览加载失败: ${_animatedUrl ?? ''}',
+            'MediaPreviewDialog',
+          );
+        }
+        _setSpinner(false);
+      case _AnimatedPreviewPhase.idle:
+        break;
+    }
+  }
+
+  /// ⛔ [_note] 的调用点全在 build 途中（placeholder / imageBuilder / errorWidget），
+  /// 所以真正的 setState 一律推到下一帧。
+  void _setSpinner(bool visible) {
+    if (_spinnerVisible == visible) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _spinnerVisible == visible) return;
+      setState(() => _spinnerVisible = visible);
+    });
   }
 
   @override
@@ -1681,17 +1776,71 @@ class MediaPreviewCover extends StatelessWidget {
             fadeInDuration: const Duration(milliseconds: 300),
             // 还没到就让下面那张缩略图顶着，不要占位灰块——那会在
             // Hero 落地的瞬间闪一下白。
-            placeholder: (context, url) => const SizedBox.shrink(),
-            errorWidget: (context, url, error) => const SizedBox.shrink(),
+            placeholder: (context, url) {
+              _note(_AnimatedPreviewPhase.loading);
+              return const SizedBox.shrink();
+            },
+            imageBuilder: (context, provider) {
+              _note(_AnimatedPreviewPhase.loaded);
+              return Image(image: provider, fit: BoxFit.cover);
+            },
+            errorWidget: (context, url, error) {
+              _note(_AnimatedPreviewPhase.failed);
+              return const SizedBox.shrink();
+            },
           ),
+        if (animated != null) _AnimatedPreviewBadge(visible: _spinnerVisible),
       ],
     );
 
     return ClipRRect(
-      borderRadius: borderRadius,
-      child: stretch
+      borderRadius: widget.borderRadius,
+      child: widget.stretch
           ? content
           : AspectRatio(aspectRatio: 16 / 9, child: content),
+    );
+  }
+}
+
+enum _AnimatedPreviewPhase { idle, loading, loaded, failed }
+
+/// 动图还在路上时压在封面左下角的一枚小转圈。
+///
+/// 只说「还在加载」这一件事，不盖住画面：静态封面已经能看了，这枚只是告诉用户
+/// 「再等等就动起来」。出入场都有过渡（本项目不接受硬切，见 `motion-enter-exit-always`）。
+class _AnimatedPreviewBadge extends StatelessWidget {
+  const _AnimatedPreviewBadge({required this.visible});
+
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 8,
+      bottom: 8,
+      child: AnimatedSlide(
+        offset: visible ? Offset.zero : const Offset(0, 0.35),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOutCubic,
+        child: AnimatedOpacity(
+          opacity: visible ? 1 : 0,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: const BoxDecoration(
+              color: Colors.black54,
+              shape: BoxShape.circle,
+            ),
+            padding: const EdgeInsets.all(6),
+            child: const CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1818,12 +1967,67 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
   /// 弹窗自己的入场糊成一团。
   static const Duration _expandDuration = Duration(milliseconds: 320);
 
+  /// 滚轮攒到这么多像素翻一页，翻完清零。
+  static const double _wheelStep = 40;
+
+  /// 翻完压这么久的冷却：滚轮一格常常连发好几个事件，不压就一路飞过去。
+  static const Duration _wheelCooldown = Duration(milliseconds: 180);
+
+  double _wheelAcc = 0;
+  int _wheelFlipAtMs = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() => _firstFrame = false);
     });
+    // 方向键 / 手柄摇杆左右翻图。
+    //
+    // ⛔ 走 [ShortcutTargetRegistry] 而不是自己挂 Focus：按键从**当前焦点**往上冒泡，
+    // 而弹窗里的焦点未必落在翻页器子树里 —— 这个仓库为此栽过一次（播放器快捷键真机
+    // 一条都收不到，见该文件的说明）。注册进来由应用根部统一派发，与焦点无关。
+    ShortcutTargetRegistry.instance.register(
+      owner: this,
+      // 借用 gallery 作用域：这块位置翻的就是图库里的图，且本处理器只认左右两个键，
+      // 其余一律放行（回落到全局动作）。
+      scope: ShortcutScope.gallery,
+      handle: _handleKey,
+      isEligible: () =>
+          mounted && widget.images.length > 1 && (_route?.isCurrent ?? true),
+    );
+  }
+
+  KeyEventResult _handleKey(KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final LogicalKeyboardKey key = event.logicalKey;
+    // 安卓把手柄摇杆 / 十字键的左右送成 DPAD_LEFT/RIGHT，Flutter 映射成方向键。
+    if (key == LogicalKeyboardKey.arrowRight) {
+      _goTo(_page + 1);
+      return KeyEventResult.handled;
+    }
+    if (key == LogicalKeyboardKey.arrowLeft) {
+      _goTo(_page - 1);
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent || widget.images.length <= 1) return;
+    final Offset delta = event.scrollDelta;
+    // 横向滚轮 / 触控板横扫留给 PageView 自己（它只认 dx）。
+    if (delta.dy.abs() <= delta.dx.abs()) return;
+    final int now = DateTime.now().millisecondsSinceEpoch;
+    if (now - _wheelFlipAtMs < _wheelCooldown.inMilliseconds) return;
+    _wheelAcc += delta.dy;
+    if (_wheelAcc.abs() < _wheelStep) return;
+    final bool forward = _wheelAcc > 0;
+    _wheelAcc = 0;
+    _wheelFlipAtMs = now;
+    _goTo(forward ? _page + 1 : _page - 1);
   }
 
   int _resolveCoverIndex() {
@@ -1833,9 +2037,15 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
     return index < 0 ? 0 : index;
   }
 
+  /// 承载这只翻页器的路由：[ShortcutTargetRegistry] 问「还轮不轮得到我」时用它。
+  /// ⛔ 在 `didChangeDependencies` 里取好存着，别在回调里现查（那是 build 期以外的
+  /// InheritedWidget 依赖注册）。
+  ModalRoute<dynamic>? _route;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _route = ModalRoute.of(context);
     final Animation<double>? animation = ModalRoute.of(context)?.animation;
     if (animation == null) {
       // 没有路由（单测 / 直接塞进别处）就当已经落地：那儿根本没有 Hero 要接。
@@ -1862,6 +2072,7 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
 
   @override
   void dispose() {
+    ShortcutTargetRegistry.instance.unregister(this);
     _routeAnimation?.removeStatusListener(_onRouteStatus);
     _controller.dispose();
     super.dispose();
@@ -1978,17 +2189,33 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
       child: MouseRegion(
         onEnter: (_) => _setHovering(true),
         onExit: (_) => _setHovering(false),
-        // 纵向拖拽 = 把这一张拖成大图页（弹窗那边接着这三个回调画形变）。
-        // 和 PageView 的横滑同处一个竞技场：谁先够到自己方向的滑动阈值谁赢，
-        // 所以横着翻页与竖着拖出去互不干扰。
-        child: GestureDetector(
-          onVerticalDragStart: _handleDragStart,
-          onVerticalDragUpdate: _handleDragUpdate,
-          onVerticalDragEnd: _handleDragEnd,
-          onVerticalDragCancel: _handleDragCancel,
-          child: widget.stretch
-              ? content
-              : AspectRatio(aspectRatio: 16 / 9, child: content),
+        // 滚轮：一格一页。⛔ 横向 PageView 只吃 `scrollDelta.dx`（Flutter 的
+        // `_pointerSignalEventDelta`），普通鼠标滚轮的 dy 在这儿本来什么都不会发生 ——
+        // 所以这里自己接，且只接**纵向压过横向**的那种，横向滚轮仍旧留给 PageView。
+        child: Listener(
+          onPointerSignal: _handlePointerSignal,
+          // 纵向拖拽 = 把这一张拖成大图页（弹窗那边接着这三个回调画形变）。
+          // 和 PageView 的横滑同处一个竞技场：这只识别器要求「明显是纵向」才接
+          //（见 [_PullOutDragRecognizer]），所以横着翻页与竖着拖出去互不干扰。
+          child: RawGestureDetector(
+            gestures: <Type, GestureRecognizerFactory>{
+              _PullOutDragRecognizer:
+                  GestureRecognizerFactoryWithHandlers<_PullOutDragRecognizer>(
+                    () => _PullOutDragRecognizer(debugOwner: this),
+                    (instance) => instance
+                      ..onStart = _handleDragStart
+                      ..onUpdate = _handleDragUpdate
+                      ..onEnd = _handleDragEnd
+                      ..onCancel = _handleDragCancel
+                      ..gestureSettings = MediaQuery.maybeGestureSettingsOf(
+                        context,
+                      ),
+                  ),
+            },
+            child: widget.stretch
+                ? content
+                : AspectRatio(aspectRatio: 16 / 9, child: content),
+          ),
         ),
       ),
     );
@@ -2099,8 +2326,14 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
       maxWidthDiskCache: 4096,
       maxHeightDiskCache: 4096,
       fadeInDuration: const Duration(milliseconds: 220),
-      placeholderFadeInDuration: Duration.zero,
-      fadeOutDuration: Duration.zero,
+      // 封面那一页两头都不许过渡：Hero 正落在它身上，淡一下就是落地那一刻闪一格白。
+      // 其余页的转圈要有始有终（本项目不接受硬切，见 `motion-enter-exit-always`）。
+      placeholderFadeInDuration: isCover
+          ? Duration.zero
+          : const Duration(milliseconds: 120),
+      fadeOutDuration: isCover
+          ? Duration.zero
+          : const Duration(milliseconds: 180),
       placeholder: (context, _) => isCover
           // 封面那张缩略图列表里刚看过、还在内存里，拿它顶着大图那段空窗：
           // Hero 落地才不会先闪一格灰。
@@ -2146,19 +2379,58 @@ Size _containedSize(Size box, double aspect) {
       : Size(box.width, box.width / aspect);
 }
 
-/// 桌面端也要能用鼠标拖着翻。
+/// 这块位置上**任何**指针都要能拖着翻页。
 ///
-/// Flutter 默认只认触摸与触控笔的拖动（怕和文本选择打架），鼠标就只剩滚轮；而
-/// 这块位置上滚轮是纵向的手势、翻的却是横向的页，读起来并不直觉。
+/// Flutter 默认只认触摸与触控笔的拖动（怕和文本选择打架），所以这里原本逐个把鼠标、
+/// 触控板列进来。⛔ 漏了 [PointerDeviceKind.unknown]：Quest 的空间面板把手柄射线 /
+/// 手势送进来时不是触摸也不是鼠标，落在 unknown 上 —— 于是**横滑整只失灵**，而纵向
+/// 那条「拽出去变大图页」挂的是普通 GestureDetector（不受本表管），照样接得住。
+/// 用户 2026-09-06 报的「横向滑不动、一滑就被拽出去全屏」就是这一对差别。
+///
+/// 现在整套 kind 全放行：这块位置上没有文本选择要保护，谁能拖谁就该能翻页。
 class _GalleryPagerScrollBehavior extends MaterialScrollBehavior {
   const _GalleryPagerScrollBehavior();
 
   @override
-  Set<PointerDeviceKind> get dragDevices => const <PointerDeviceKind>{
-    PointerDeviceKind.touch,
-    PointerDeviceKind.stylus,
-    PointerDeviceKind.invertedStylus,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.mouse,
-  };
+  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
+}
+
+/// 「往下拽出去变大图页」用的纵向拖：必须**明显是纵向**才认。
+///
+/// ⛔ 默认的 [VerticalDragGestureRecognizer] 与 PageView 的横滑同处一个竞技场，谁先够到
+/// 自己那点位移谁赢。头显里射线 / 手势抖得厉害，一次横划里的纵向噪声常常先到，于是
+/// 「想翻页却被拽成大图页」。这里加一条：认下来的那一刻纵向位移要压过横向 [_dominance] 倍。
+class _PullOutDragRecognizer extends VerticalDragGestureRecognizer {
+  _PullOutDragRecognizer({super.debugOwner});
+
+  static const double _dominance = 1.6;
+
+  Offset _moved = Offset.zero;
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    _moved = Offset.zero;
+    super.addAllowedPointer(event);
+  }
+
+  @override
+  void handleEvent(PointerEvent event) {
+    // ⛔ 先攒再交给父类：父类正是在 handleEvent 里问「够不够格接受」的。
+    if (event is PointerMoveEvent) _moved += event.delta;
+    super.handleEvent(event);
+  }
+
+  @override
+  bool hasSufficientGlobalDistanceToAccept(
+    PointerDeviceKind pointerDeviceKind,
+    double? deviceTouchSlop,
+  ) {
+    if (!super.hasSufficientGlobalDistanceToAccept(
+      pointerDeviceKind,
+      deviceTouchSlop,
+    )) {
+      return false;
+    }
+    return _moved.dy.abs() >= _moved.dx.abs() * _dominance;
+  }
 }
