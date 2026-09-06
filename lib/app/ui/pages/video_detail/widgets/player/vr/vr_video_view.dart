@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -199,9 +200,20 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
       // UnsupportedError）、着色器加载失败、以及加载还没回来的头几帧。
       // 全部退回单眼裁切——等距图被摊平、边缘会畸变，但画面完整、一定能看，
       // 比留一块黑或者干脆崩掉强得多。
-      return _VrCroppedVideo(
-        controller: widget.controller,
-        layout: widget.format.stereoLayout,
+      return ClipRect(
+        child: Obx(() {
+          // The fallback still responds to the distance control, even without shader support.
+          final scale =
+              math.tan(VrGeometry.defaultFovY / 2) /
+              math.tan(widget.controller.vrFovY.value / 2);
+          return Transform.scale(
+            scale: scale,
+            child: _VrCroppedVideo(
+              controller: widget.controller,
+              layout: widget.format.stereoLayout,
+            ),
+          );
+        }),
       );
     }
 

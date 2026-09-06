@@ -2839,6 +2839,11 @@ playbackQueue:
   nothingHere: Nothing here
 
 vrFormat:
+  viewDistance: Distance
+  viewDistanceHint: Hold to adjust. Release to stop.
+  viewNearer: Closer
+  viewFarther: Farther
+  resetDistance: Reset
   playInSpace: Play in the spatial player
   title: Playback mode
   autoEnterImmersive: Open videos in the spatial player

@@ -2523,6 +2523,11 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get viewDistance => '距離';
+	@override String get viewDistanceHint => '長押しで調整、離すと止まります';
+	@override String get viewNearer => '近づける';
+	@override String get viewFarther => '遠ざける';
+	@override String get resetDistance => 'リセット';
 	@override String get playInSpace => '空間プレイヤーで再生';
 	@override String get title => '再生モード';
 	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
@@ -6386,6 +6391,11 @@ extension on TranslationsJa {
 			'playbackQueue.downloads' => 'ダウンロード済み',
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
+			'vrFormat.viewDistance' => '距離',
+			'vrFormat.viewDistanceHint' => '長押しで調整、離すと止まります',
+			'vrFormat.viewNearer' => '近づける',
+			'vrFormat.viewFarther' => '遠ざける',
+			'vrFormat.resetDistance' => 'リセット',
 			'vrFormat.playInSpace' => '空間プレイヤーで再生',
 			'vrFormat.title' => '再生モード',
 			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',

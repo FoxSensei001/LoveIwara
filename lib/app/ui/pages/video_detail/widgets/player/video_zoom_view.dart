@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/utils/video_zoom_geometry.dart';
 
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -18,7 +19,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// [MyVideoStateController.isPinchingVideo] / [MyVideoStateController.isVideoZoomed]
 /// 主动让位来解决。
 ///
-/// - 移动端：双指捏合缩放（可放大也可缩小到原始大小以下）；缩放后单指拖动平移。
+/// - 移动端：双指捏合缩放（可放大也可缩小到原始大小以下），双指拖动平移。
 /// - 桌面端：Ctrl + 鼠标滚轮以光标为中心缩放；缩放后鼠标拖动平移。
 class VideoZoomGestureLayer extends StatefulWidget {
   final MyVideoStateController controller;
@@ -26,6 +27,7 @@ class VideoZoomGestureLayer extends StatefulWidget {
 
   /// 是否启用（关闭时直接透传 child）
   final bool enabled;
+  final bool showRestoreButton;
 
   /// 缩放上限
   final double maxScale;
@@ -38,6 +40,7 @@ class VideoZoomGestureLayer extends StatefulWidget {
     required this.controller,
     required this.child,
     this.enabled = true,
+    this.showRestoreButton = true,
     this.maxScale = 3.0,
     this.minScale = 0.5,
   });
@@ -120,6 +123,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
   Animation<Offset>? _resetOffsetAnim;
   Animation<double>? _resetRotationAnim;
   Worker? _resetWorker;
+  Worker? _interruptWorker;
 
   // 当前布局尺寸（由 LayoutBuilder 写入），用于焦点换算与边界钳制
   Size _size = Size.zero;
@@ -134,6 +138,10 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
       duration: const Duration(milliseconds: 250),
     )..addListener(_onResetTick);
     _resetWorker = ever<int>(_c.videoZoomResetSignal, (_) => _animateReset());
+    _interruptWorker = ever<int>(
+      _c.videoZoomInterruptSignal,
+      (_) => _resetController.stop(),
+    );
   }
 
   @override
@@ -153,6 +161,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
   @override
   void dispose() {
     _resetWorker?.dispose();
+    _interruptWorker?.dispose();
     _resetController.dispose();
     super.dispose();
   }
@@ -191,40 +200,8 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
 
   // ---- 边界钳制 ----
 
-  /// 计算 BoxFit.contain 下视频在该区域内的实际显示尺寸（scale=1 时）
-  Size _fittedVideoSize() {
-    final w = _size.width;
-    final h = _size.height;
-    if (w <= 0 || h <= 0) return Size.zero;
-    final aspect = _c.aspectRatio.value;
-    if (aspect <= 0) return Size(w, h);
-    if (w / h > aspect) {
-      // 受高度限制
-      return Size(h * aspect, h);
-    } else {
-      // 受宽度限制
-      return Size(w, w / aspect);
-    }
-  }
-
-  /// 将偏移钳制在缩放后视频可平移的范围内，保证显示矩形始终被填满。
-  /// 缩小（scale<1）时上限为 0，画面强制居中。
-  Offset _clampOffset(Offset offset, double scale) {
-    final fitted = _fittedVideoSize();
-    final maxDx = math.max(0.0, fitted.width * (scale - 1) / 2);
-    final maxDy = math.max(0.0, fitted.height * (scale - 1) / 2);
-    return Offset(
-      offset.dx.clamp(-maxDx, maxDx),
-      offset.dy.clamp(-maxDy, maxDy),
-    );
-  }
-
-  /// 将向量 [v] 旋转 [angle] 弧度
-  static Offset _rotateVec(Offset v, double angle) {
-    final c = math.cos(angle);
-    final s = math.sin(angle);
-    return Offset(v.dx * c - v.dy * s, v.dx * s + v.dy * c);
-  }
+  Offset _clampOffset(Offset offset, double scale) =>
+      VideoZoomGeometry.clampOffset(offset, scale, _size, _c.aspectRatio.value);
 
   /// 把角度增量归一化到 [-pi, pi]，避免 atan2 跨越 ±pi 时跳变
   static double _normalizeAngle(double a) {
@@ -250,32 +227,31 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
     Offset panDelta = Offset.zero,
   }) {
     if (_size == Size.zero) return;
-    final center = Offset(_size.width / 2, _size.height / 2);
-    final oldOffset = _c.videoZoomOffset.value;
-
-    final clampedScale = newScale.clamp(widget.minScale, widget.maxScale);
-
-    // newOffset = (focal-center) + panDelta
-    //           - (newScale/oldScale)·R(newRot-oldRot)·(focal-center-oldOffset)
-    final focalVec = focal - center - oldOffset;
-    final rotated =
-        _rotateVec(focalVec, newRotation - oldRotation) *
-        (clampedScale / oldScale);
-    Offset newOffset = (focal - center) + panDelta - rotated;
-    newOffset = _clampOffset(newOffset, clampedScale);
-
-    // 接近原始大小且未旋转时吸附到初始状态，干净退出
-    if ((clampedScale - 1.0).abs() < 0.01 && newRotation.abs() < 0.01) {
-      _c.applyVideoZoom(1.0, Offset.zero, 0.0);
-    } else {
-      _c.applyVideoZoom(clampedScale, newOffset, newRotation);
-    }
+    final next = VideoZoomGeometry.transform(
+      viewport: _size,
+      aspect: _c.aspectRatio.value,
+      focal: focal,
+      oldScale: oldScale,
+      oldOffset: _c.videoZoomOffset.value,
+      newScale: newScale,
+      oldRotation: oldRotation,
+      newRotation: newRotation,
+      panDelta: panDelta,
+      minimum: widget.minScale,
+      maximum: widget.maxScale,
+    );
+    _c.applyVideoZoom(next.scale, next.offset, next.rotation);
   }
 
   // ---- 指针事件 ----
 
   void _onPointerDown(PointerDownEvent event) {
     _resetController.stop();
+    if (_c.isAdjustingView) {
+      _pointers.clear();
+      _c.isPinchingVideo = false;
+      return;
+    }
     _pointers[event.pointer] = event.localPosition;
     if (_pointers.length >= 2) {
       _beginPinch();
@@ -294,6 +270,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    if (_c.isAdjustingView) return;
     if (!_pointers.containsKey(event.pointer)) return;
     _pointers[event.pointer] = event.localPosition;
 
@@ -491,7 +468,10 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
           onPointerPanZoomEnd: _onPointerPanZoomEnd,
           child: Stack(
             fit: StackFit.expand,
-            children: [widget.child, _buildRestoreButton()],
+            children: [
+              widget.child,
+              if (widget.showRestoreButton) _buildRestoreButton(),
+            ],
           ),
         );
       },

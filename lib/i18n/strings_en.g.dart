@@ -6323,6 +6323,21 @@ class TranslationsVrFormatEn {
 
 	// Translations
 
+	/// en: 'Distance'
+	String get viewDistance => 'Distance';
+
+	/// en: 'Hold to adjust. Release to stop.'
+	String get viewDistanceHint => 'Hold to adjust. Release to stop.';
+
+	/// en: 'Closer'
+	String get viewNearer => 'Closer';
+
+	/// en: 'Farther'
+	String get viewFarther => 'Farther';
+
+	/// en: 'Reset'
+	String get resetDistance => 'Reset';
+
 	/// en: 'Play in the spatial player'
 	String get playInSpace => 'Play in the spatial player';
 
@@ -11729,6 +11744,11 @@ extension on Translations {
 			'playbackQueue.downloads' => 'Downloaded',
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
+			'vrFormat.viewDistance' => 'Distance',
+			'vrFormat.viewDistanceHint' => 'Hold to adjust. Release to stop.',
+			'vrFormat.viewNearer' => 'Closer',
+			'vrFormat.viewFarther' => 'Farther',
+			'vrFormat.resetDistance' => 'Reset',
 			'vrFormat.playInSpace' => 'Play in the spatial player',
 			'vrFormat.title' => 'Playback mode',
 			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
