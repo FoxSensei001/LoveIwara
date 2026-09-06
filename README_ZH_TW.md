@@ -46,11 +46,12 @@
 ## ✨ 功能特色
 
 ### 🖥️ 支援平台
-| Android | Windows | macOS | Linux | iOS |
-|:---:|:---:|:---:|:---:|:---:|
-| ✅ | ✅ | ✅ | ⚠️ *未測試¹* | ✅ |
+| Android | Meta Quest | Windows | macOS | Linux | iOS |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ✅ | ✅ *獨立安裝檔¹* | ✅ | ✅ | ⚠️ *未測試²* | ✅ |
 
-<sub>¹ Linux 版本可以建置，但因為缺少測試裝置，目前尚未經過測試。</sub>
+<sub>¹ Quest 版是面向 Horizon OS（Android 14+）的獨立 arm64 安裝檔，內含 Meta Spatial SDK ——詳見 [Meta Quest / VR](#-meta-quest--vr)。一般 Android 安裝檔不受影響，仍然支援 Android 7.0+。</sub>
+<sub>² Linux 版本可以建置，但因為缺少測試裝置，目前尚未經過測試。</sub>
 
 ### 🎥 影片
 - 以 **media_kit**（libmpv）驅動的流暢播放
@@ -59,7 +60,32 @@
 - **可點擊的時間戳**——點選簡介與評論中被標示的時間戳，直接跳到該片段
 - **「繼續觀看」**抽屜選單 + 可選的進入影片後自動播放
 - 即時載入速度顯示
+- **平面螢幕上的環視取景**——VR180 / 360° 的片子在其他地方只會顯示成兩個擠扁的半幅；在這裡是一個比例正常、可以拖曳環顧的取景窗。由於 Iwara 的檔案完全不帶球面中繼資料，格式只能靠啟發式推斷，隨時可以手動修正，修正結果會為這支影片永久記住
+- **「遠近」**——按住即可把畫面推遠或拉近（平面片調畫面縮放，環視片調視野角）
+- **用其他應用程式開啟**——把目前的影片交給 MX Player / VLC，交給 Skybox、Pigasus 這類 VR 播放器，桌面版還可自訂外部播放器；優先使用本機或已下載的檔案，並提供「複製連結」作為後備
 - 桌面版：把本機影片檔**拖曳**到視窗即可立即播放
+
+### 🥽 Meta Quest / VR
+*以獨立的 `quest` 安裝檔發佈，基於 Meta Spatial SDK 建置。一般 Android 版不連結其中任何內容，`minSdk` 也保持不變。*
+
+**整個應用程式住在一個空間環境裡。** 從 Quest 主畫面點開就直接進入常駐的沉浸空間。應用程式的全部——瀏覽、搜尋、留言、軟鍵盤——作為一塊 2D 面板懸浮在你面前，沒有任何功能被裁減。
+
+**三塊視窗，一套手勢。** 應用程式面板、幕布與控制面板各自帶一圈窗框：握把扳機按在視窗本體上就能拖曳，四條邊拖曳、四個角以視窗中心為原點縮放，視窗始終面朝著你。尺寸與位置都會記住。頭部追蹤沒穩之前一律不現身——不會出現「先在錯的位置閃一下再跳過去」。
+
+**播放器會變成空間裡的一塊幕布。** 開啟影片即自動交出（可關閉）。
+- **螢幕形狀**——平面，或三段曲率。距離、幕寬與畫面比例都可調，並**依畫面比例分別記憶**：回到一支 4:3 的片子，就恢復你為 4:3 設過的那套擺位。
+- **影片格式**——2D / 3D、左右半幅與全幅、上下半幅與全幅、180° 與 360° 環視；從檔案自動辨識，也可以手動修正。EAC 與魚眼會被辨識出來、標註為不支援，並轉交外部播放器。
+- **播放控制**——0.5×–3.0× 倍速、循環、音量、顯示目標時間與增量的拖曳預覽、畫在幕布正中的緩衝指示，面板上還有時鐘與電量。
+- **空間裡的「繼續觀看」**——和 2D 應用程式同一套分區影片池（來源清單、訂閱、播放清單、最愛、已下載、稍後觀看），帶封面。換片不必離開空間；面板會進入載入狀態，下一支載入失敗就把上一支放回去。
+- **直連網址過期會自行處理**——網址會在到期前主動更新；播到一半回傳 404 也會觸發更新並從原位置續播。
+- **場景**——透視，或純黑虛空。
+
+**空間畫廊。** 圖庫開啟後是一塊大幕布加一條膠片，幾十張圖——以及混在其中的影片——始終是一個物件，而不是幾十塊合成圖層。幻燈片可選 3 / 5 / 10 / 20 秒，畫質分標準與原圖，在幕布上橫向拖曳即可翻頁。直式圖片會被裝進 16:9 的盒子裡，9:16 的插畫不會在你面前豎起一堵牆。
+
+**手勢或控制器都行。**
+- *手勢*——官方那套射線與捏合。在面板以外的任何地方捏一下，就是控制面板的顯隱開關。
+- *控制器*——A/X 播放暫停，B/Y 收起面板或返回應用程式，Menu 開啟設定。握把扳機不用瞄準就能抓住幕布。搖桿左右拖曳進度並帶加速（輕推一下是 10 秒，按住能一路加到每秒半小時），上下把幕布推遠或拉近。
+- 摘下頭戴裝置自動暫停、戴回來繼續；系統重新定位會把所有東西重新擺到你面前。
 
 ### 🌐 瀏覽與探索
 - 多分類**搜尋**：影片 · 圖庫 · 貼文 · 使用者 · 論壇
@@ -94,22 +120,24 @@
 - 「記住上次音量」選項（PC）
 
 ### 🌍 多國語言
-English · 简体中文 · 繁體中文 · 日本語
+English · 简体中文 · 繁體中文 · 日本語——包括 Quest 上的空間面板，它跟隨應用程式內的語言設定而不是系統語言
 
 > 還有更多隱藏功能等你挖掘，也有更多功能正在路上。有想法嗎？歡迎開 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群組](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
 ## 🗺️ 近期規劃
 
-**下一步的重心是 Meta Quest 的空間化適配。** 這件事已經在 [`claude/vr-format-panorama`](https://github.com/FoxSensei001/LoveIwara/tree/claude/vr-format-panorama) 分支上動工了——還很原始，也尚未併入任何發行版，但主要流程已經在 Quest 3 實機上跑通：
+**Quest 適配已經落地**——詳見上面的 [Meta Quest / VR](#-meta-quest--vr)。它以獨立安裝檔發佈，由獨立的 CI 工作產出，一般 Android 版不受任何影響。
 
-- **常駐的沉浸空間。** 從 Quest 主頁點圖示直接進入，現有的 Flutter 介面作為 2D 面板懸浮其上（含沉浸狀態下的輸入法）——瀏覽體驗和今天完全一樣。
-- **被空間化的是播放器。** 在面板裡打開影片，點「進入影院」，畫面就脫離面板成為空間裡的螢幕，並帶自己的空間控制列；點「返回應用」再回到面板。Equirect 180° 左右格式已實機確認算繪正確。
-- **純手勢操控。** 只有一塊控制面板——頂列一排圓鈕加若干子頁（場景 / 播放清單 / 設定等）、±10 秒、倍速、投影切換、重新置中、透視——閒置自動隱藏，捏合即喚出。
-- **獨立的建置 flavor。** Quest 版自成一個 flavor；標準版不會打進 Spatial SDK，`minSdk` 也保持不動。
+頭戴裝置這邊仍然開著的帳：
 
-同一個分支上還有一件不只對頭顯有用的東西：**片源格式層 + 平面環視**。今天在手機、平板或桌面上打開一條 VR180 / 360° 影片，看到的是兩個擠扁的半幅；有了它就是一個正常比例的取景窗，拖動即可環視。由於 Iwara 的檔案完全不帶球面中繼資料，格式只能靠啟發式推斷——所以你隨時可以在播放器裡手動修正，修正結果會為這支影片永久記住。
+- 空間面板的顯示記憶體釋放路徑目前是失效的。
+- 空間場景與 Flutter 共用同一條主執行緒，這件事的影格開銷從未量過。
+- 應用程式面板目前是 Activity 承載的，應當遷移到 View 承載的面板——官方明寫後者是兩者中更輕的那個。
+- EAC 與魚眼投影能辨識出來，但只能轉交外部播放器，尚未自己算繪。
 
-以上都還沒有發布，型態也仍可能調整。0.5.1 只是打了地基：修復了 Quest 上應用被鎖死寬度上限的問題；在此期間可以把影片轉交給 Skybox、Pigasus 等外部 VR 播放器。
+其他方面：下載仍標著測試版；Linux 能建置，但缺測試裝置、始終未經測試。
+
+有需求？歡迎提交 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群組](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
 ## 🧰 技術架構
 
@@ -153,10 +181,16 @@ flutter doctor
 flutter pub get
 
 # 4. 執行（自動選擇已連接的裝置）
-flutter run
-# …或指定平台：
-flutter run -d windows   # macos / linux / android / ios
+flutter run --flavor standard   # Android 必須帶 flavor，見下方說明
+# …或指定平台（桌面端 / iOS 不需要 flavor）：
+flutter run -d windows   # macos / linux / ios
 ```
+
+> [!IMPORTANT]
+> **Android 有兩個產物維度（product flavor）。** `standard` 是一般手機 / 平板套件（`minSdk 24`、全 ABI）；
+> `quest` 是 Meta Quest / Horizon OS 套件（`minSdk 34`、僅 arm64，內含約 50 MB 的 Meta Spatial SDK）。
+> 一旦定義了 flavor，AGP 就不再存在「不帶 flavor」的變體，因此 **Android 的每一條 `flutter run` /
+> `flutter build` 都必須帶 `--flavor`**，裸命令會直接失敗。
 
 > [!TIP]
 > 修改任何 `lib/i18n/*.i18n.yaml` 之後，請執行 `dart run slang` 重新產生多語系字串。
@@ -196,8 +230,9 @@ sudo dnf install clang cmake ninja-build gtk3-devel
 
 ### 建置發行版本
 ```bash
-flutter build apk --release          # Android APK
-flutter build appbundle --release    # Android AAB
+flutter build apk --release --flavor standard         # Android APK（手機 / 平板）
+flutter build appbundle --release --flavor standard   # Android AAB
+flutter build apk --release --flavor quest --target-platform android-arm64   # Meta Quest APK
 flutter build ios --release          # iOS
 flutter build windows --release      # Windows
 flutter build macos --release        # macOS
@@ -266,7 +301,7 @@ steps:
     shell: bash
 ```
 
-**4. 建置** —— 執行 `flutter build apk --release`，產物位於 `build/app/outputs/flutter-apk/app-release.apk`。
+**4. 建置** —— 執行 `flutter build apk --release --flavor standard`，產物位於 `build/app/outputs/flutter-apk/app-standard-release.apk`；Quest 套件請用 `flutter build apk --release --flavor quest --target-platform android-arm64`，產物是 `app-arm64-v8a-quest-release.apk`。
 
 </details>
 

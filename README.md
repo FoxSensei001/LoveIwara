@@ -46,11 +46,12 @@ One codebase → Android · Windows · macOS · Linux · iOS
 ## ✨ Features
 
 ### 🖥️ Platforms
-| Android | Windows | macOS | Linux | iOS |
-|:---:|:---:|:---:|:---:|:---:|
-| ✅ | ✅ | ✅ | ⚠️ *untested¹* | ✅ |
+| Android | Meta Quest | Windows | macOS | Linux | iOS |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| ✅ | ✅ *separate APK¹* | ✅ | ✅ | ⚠️ *untested²* | ✅ |
 
-<sub>¹ Linux builds are produced but currently untested due to a lack of test devices.</sub>
+<sub>¹ The Quest build is its own arm64 APK for Horizon OS (Android 14+) carrying the Meta Spatial SDK — see [Meta Quest / VR](#-meta-quest--vr). The regular Android APK is unaffected and still supports Android 7.0+.</sub>
+<sub>² Linux builds are produced but currently untested due to a lack of test devices.</sub>
 
 ### 🎥 Video
 - Smooth playback powered by **media_kit** (libmpv)
@@ -59,7 +60,32 @@ One codebase → Android · Windows · macOS · Linux · iOS
 - **Clickable timestamps** — jump straight to a moment from highlighted timestamps in descriptions & comments
 - **"Continue watching"** drawer + optional auto-play on entering a video
 - Live loading-speed indicator
+- **Panorama viewer on flat screens** — a VR180 / 360° file otherwise shows up as two squashed halves; here you get a correctly proportioned viewport you can drag to look around. Iwara's files carry no spherical metadata at all, so the format is guessed heuristically — correct it by hand and the correction is remembered for that video
+- **"View distance"** — press and hold to push the picture away or pull it closer (image zoom for flat video, field of view for panoramic)
+- **Open in another app** — hand the current video to MX Player / VLC, to a VR player such as Skybox or Pigasus, or to a custom external player on desktop; prefers a local or already-downloaded file, with "copy link" as a fallback
 - Desktop: **drag & drop** local video files onto the window to play instantly
+
+### 🥽 Meta Quest / VR
+*Shipped as a separate `quest` APK built on the Meta Spatial SDK. The regular Android build links none of it and keeps its `minSdk` where it is.*
+
+**The app lives in a spatial environment.** Launching from the Quest home drops you straight into a resident immersive space. The entire app — browsing, search, comments, the soft keyboard — floats in front of you as a 2D panel; nothing about it is cut down.
+
+**Three windows, one set of gestures.** The app panel, the screen and the control panel each carry their own frame: the grip trigger drags a window by its body, the edges drag and the corners resize it around its centre, and windows keep facing you. Sizes and positions are remembered. Nothing appears until head tracking has settled — no window flashing up in the wrong place and then jumping.
+
+**The player becomes a screen in the space.** Open a video and it hands off automatically (optional).
+- **Screen shape** — flat, or three degrees of curvature. Distance, width and aspect are adjustable and are remembered *per aspect ratio*, so returning to a 4:3 clip restores the layout you set for 4:3.
+- **Video formats** — 2D / 3D, half & full side-by-side, half & full over-under, 180° and 360° equirect; auto-detected from the file and correctable by hand. EAC and fisheye are recognised, labelled unsupported, and offered to an external player instead.
+- **Playback** — 0.5×–3.0× speed, loop, volume, a scrub preview showing target time and delta, a buffering indicator on the screen itself, plus clock and battery on the panel.
+- **"Continue watching", inside the space** — the same sectioned video pools as the 2D app (source list, subscriptions, playlists, favourites, downloads, watch later), with covers. Switch videos without leaving the space; the panel shows a loading state and puts the old video back if the next one fails to load.
+- **Expiring links are handled** — sources are refreshed before they expire, and a mid-playback 404 triggers a refresh and resumes from where you were.
+- **Scenes** — passthrough, or a void.
+
+**Spatial gallery.** A gallery opens as one large stage plus a film strip, so a set of dozens of images — and the videos mixed in among them — stays a single object rather than dozens of layers. Slideshow at 3 / 5 / 10 / 20 s, standard or original quality, and a sideways drag on the stage to flip. Portrait images are fitted into a 16:9 box so a 9:16 illustration doesn't tower over you.
+
+**Hands or controllers.**
+- *Hands* — the official ray and pinch. A pinch anywhere off the panels toggles the control panel.
+- *Controllers* — A/X play-pause, B/Y dismisses the panel or returns to the app, Menu opens settings. The grip trigger grabs the screen without having to aim at it. The stick scrubs left/right with acceleration (a nudge is 10 s; hold and it builds up to half an hour per second) and pushes the screen nearer or further up/down.
+- Taking the headset off pauses playback and putting it back on resumes it; a system recenter re-places everything in front of you.
 
 ### 🌐 Browse & Discover
 - Multi-category **search**: videos · galleries · posts · users · forums
@@ -94,22 +120,24 @@ One codebase → Android · Windows · macOS · Linux · iOS
 - "Remember last volume" option (PC)
 
 ### 🌍 Multi-language
-English · 简体中文 · 繁體中文 · 日本語
+English · 简体中文 · 繁體中文 · 日本語 — including the spatial panels on Quest, which follow the app's language rather than the system's
 
 > Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
 ## 🗺️ Roadmap
 
-**Up next: spatial support for Meta Quest.** This is already being built on the [`claude/vr-format-panorama`](https://github.com/FoxSensei001/LoveIwara/tree/claude/vr-format-panorama) branch — still rough, not merged into any release yet, but the core loop already runs on a Quest 3:
+**Quest support has landed** — see [Meta Quest / VR](#-meta-quest--vr) above. It ships as its own APK, produced by its own CI job, and the regular Android build is untouched.
 
-- **A resident immersive space.** Launching from the Quest home drops you straight into it, with the regular Flutter UI floating above as a 2D panel (soft keyboard included) — browsing stays exactly what it is today.
-- **The player is what becomes spatial.** Open a video in the panel, tap *Enter theater*, and it leaves the panel to become a screen in the space with its own spatial control bar; *Back to app* returns you to the panel. Equirect 180° side-by-side is verified on-device.
-- **Hand-tracked controls.** One control panel — a top row of buttons plus sub-pages (scene / playlist / settings / …), ±10 s, playback speed, projection switching, re-center, passthrough — which hides when idle and is summoned by a pinch.
-- **A separate build flavor.** The Quest build is its own flavor; the standard build does not pull in the Spatial SDK and keeps `minSdk` where it is.
+Still open on the headset side:
 
-The same branch carries something that helps everyone, not just headsets: a **source-format layer with a flat panorama viewer**. A VR180 / 360° file currently shows up as two squashed halves on a phone, tablet or desktop; with it you get a correctly proportioned viewport you can drag to look around. Iwara's files carry no spherical metadata at all, so the format is guessed heuristically — you can always correct it by hand in the player, and the correction is remembered for that video.
+- The GPU-memory release path for spatial panels is not yet effective.
+- The spatial scene shares the main thread with Flutter; the frame cost of that has never been measured.
+- The app panel is Activity-based and should migrate to a View-based panel, which the official guidance calls the lighter of the two.
+- EAC and fisheye projections are detected but handed off to an external player rather than rendered.
 
-None of this has shipped yet and the shape may still change. 0.5.1 only lays the groundwork: the app panel is no longer stuck at a width limit on Quest, and in the meantime a video can be handed off to an external VR player (Skybox, Pigasus, …).
+Elsewhere: downloads are still marked beta, and Linux is built but untested for want of a test machine.
+
+Got a request? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
 ## 🧰 Tech Stack
 
@@ -153,10 +181,16 @@ flutter doctor
 flutter pub get
 
 # 4. Run (auto-selects a connected device)
-flutter run
-# …or target a platform:
-flutter run -d windows   # macos / linux / android / ios
+flutter run --flavor standard   # Android requires a flavor — see the note below
+# …or target a platform (desktop/iOS need no flavor):
+flutter run -d windows   # macos / linux / ios
 ```
+
+> [!IMPORTANT]
+> **Android ships two product flavors.** `standard` is the regular phone/tablet build (`minSdk 24`,
+> all ABIs); `quest` is the Meta Quest / Horizon OS build (`minSdk 34`, arm64 only, bundles the
+> ~50 MB Meta Spatial SDK). Once flavors exist, AGP no longer has a "no flavor" variant, so **every
+> Android `flutter run` / `flutter build` must pass `--flavor`** — a bare command fails outright.
 
 > [!TIP]
 > After editing any `lib/i18n/*.i18n.yaml`, regenerate the localization strings with `dart run slang`.
@@ -196,8 +230,9 @@ sudo dnf install clang cmake ninja-build gtk3-devel
 
 ### Build release binaries
 ```bash
-flutter build apk --release          # Android APK
-flutter build appbundle --release    # Android AAB
+flutter build apk --release --flavor standard         # Android APK (phones / tablets)
+flutter build appbundle --release --flavor standard   # Android AAB
+flutter build apk --release --flavor quest --target-platform android-arm64   # Meta Quest APK
 flutter build ios --release          # iOS
 flutter build windows --release      # Windows
 flutter build macos --release        # macOS
@@ -266,7 +301,7 @@ steps:
     shell: bash
 ```
 
-**4. Build** — `flutter build apk --release` → output at `build/app/outputs/flutter-apk/app-release.apk`.
+**4. Build** — `flutter build apk --release --flavor standard` → output at `build/app/outputs/flutter-apk/app-standard-release.apk`. For the Quest build, `flutter build apk --release --flavor quest --target-platform android-arm64` → `app-arm64-v8a-quest-release.apk`.
 
 </details>
 
