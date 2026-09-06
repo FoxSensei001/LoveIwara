@@ -1,6 +1,8 @@
 // material.dart 不导出这一个（它住在 cupertino 那边），而 pageTransitionsTheme
 // 的 iOS / macOS 两档要照抄框架默认值，只能显式借过来。
 import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+import 'package:flutter/gestures.dart'
+    show DeviceGestureSettings, PointerDeviceKind, kTouchSlop;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -294,6 +296,9 @@ class _MyAppState extends State<MyApp> {
               Locale('zh', 'TW'), // Chinese (Traditional)
             ],
             locale: LocaleSettings.currentLocale.flutterLocale,
+            scrollBehavior: DeviceFormFactorUtils.isXrDevice
+                ? const XrPanelScrollBehavior()
+                : null,
             routerConfig: appRouter,
             builder: (context, child) {
               if (null == child) {
@@ -304,7 +309,12 @@ class _MyAppState extends State<MyApp> {
               // MaterialApp 外面时那棵子树上没有 Theme / Localizations，
               // `Theme.of` 只能拿到 Flutter 的 fallback 主题（恒为浅色蓝），
               // 深色模式下整块提示会是一片亮白。
-              final Widget app = AppToastHost(child: MyAppLayout(child: child));
+              // ⛔ touchSlop 的夹取要包在**最外层**：弹窗路由挂在根导航器上，
+              // 而 builder 是套在 Router 外面的，包在这里它们才吃得到。
+              final Widget app = withClampedTouchSlop(
+                context,
+                AppToastHost(child: MyAppLayout(child: child)),
+              );
               // XR 头显：整个应用是空间里的一块面板，窗口透明（MainActivity.getBackgroundMode），
               // 这里把根部裁成圆角，面板四角透出后面的场景。半径与原生窗框的
               // `UI_PANEL_CORNER_M` 成对（20dp @ 640dp/m）。
@@ -323,6 +333,68 @@ class _MyAppState extends State<MyApp> {
 
 /// XR 头显上 2D 面板的圆角（dp）。与原生 `ImmersiveActivity.UI_PANEL_CORNER_M` 成对，改要一起改。
 const double kXrPanelCornerRadiusDp = 20;
+
+/// ⭐ 把**平台报的 touchSlop 夹到框架硬编码的 [kTouchSlop] 以内**，全应用一处。
+///
+/// # 「头显上子评论弹窗里的列表拖不动」的真因（2026-09-06 真机竞技场日志实锤）
+///
+/// 拖动的胜负只有一条规则：**谁先跨过自己的 slop，谁就当场认领手势**
+/// （`DragGestureRecognizer.handleEvent` → `hasSufficientGlobalDistanceToAccept`
+/// → `resolve(accepted)`）。而同一个弹窗里并排站着两只竖向拖动识别器，它们的 slop **来路不同**：
+///
+/// | 识别器 | slop 来自 | 头显上的值 |
+/// |---|---|---|
+/// | 列表的（`Scrollable` 自建） | `MediaQuery.gestureSettings`（平台上报） | **平台值** |
+/// | 弹窗下拽关闭（`_BottomSheetGestureDetector`，裸 `RawGestureDetector`） | 没设 → 框架默认 | `kTouchSlop` = 18 |
+///
+/// Quest 3 把 touchSlop 报成 **32.2**（dpr 1.8），比 18 大，于是**弹窗那只永远先到线**，每次都自认冠军、把列表判负 ——
+/// 真机日志里就是这一幕（`Accepting: VerticalDragGestureRecognizer#e6ed1(_BottomSheetGestureDetector)`）。
+/// 手机上平台值远小于 18，列表先到线，所以同一份代码在手机上一直是好的。
+///
+/// 夹平之后两边同为 18：同一枚 move 事件里，**更深的**列表先被派发、先认领（指针路由按命中顺序，
+/// 由里向外），弹窗那只退回它该待的位置 —— 列表滚到顶了才轮到它下拽。这正是手机上的行为。
+///
+/// ⛔ 别在弹窗里一个个补 `gestureSettings`：这是「凡是与框架内置识别器同场竞技的可配置识别器」
+/// 的通病，收口在这里才是一处管全站（见记忆 `prefer-mechanism-fix-over-per-callsite`）。
+/// 夹取只在平台值 > 18 时发生，手机 / 桌面上是彻底的空操作。
+Widget withClampedTouchSlop(BuildContext context, Widget child) {
+  final MediaQueryData data = MediaQuery.of(context);
+  final double? slop = data.gestureSettings.touchSlop;
+  if (slop == null || slop <= kTouchSlop) return child;
+  if (!_touchSlopLogged) {
+    _touchSlopLogged = true;
+    // 只有真夹到了才记一条：手机 / 桌面上这行永远不出现。
+    LogUtils.w(
+      'touchSlop 平台报 ${slop.toStringAsFixed(1)} > 框架默认 $kTouchSlop，已夹平'
+      '（不夹的话，弹窗下拽一类内置识别器会恒赢，列表滚不动）',
+      'GestureSlop',
+    );
+  }
+  return MediaQuery(
+    data: data.copyWith(
+      gestureSettings: const DeviceGestureSettings(touchSlop: kTouchSlop),
+    ),
+    child: child,
+  );
+}
+
+bool _touchSlopLogged = false;
+
+/// XR 头显上整应用的滚动行为：`dragDevices` 放全。
+///
+/// ⚠️ 这**不是**「列表拖不动」的原因（那条是 [withClampedTouchSlop]）。真机实测头显射线报的是
+/// [PointerDeviceKind.unknown]，而它本来就在 Flutter 的默认放行名单里。
+///
+/// 留着它是**兜底**：Flutter 默认的 `dragDevices` 刻意不含 `mouse`（桌面上按住列表拖本来就不该滚，
+/// 桌面用滚轮），万一哪天头显换了输入路径、把射线报成 mouse，全站列表会一夜之间全部拖不动。
+/// 头显上射线就是主输入，没有「用滚轮」这个退路，所以这里全放行。
+/// 手机 / 桌面不套这套：桌面上让鼠标拖动列表会和文本选择打架。
+class XrPanelScrollBehavior extends MaterialScrollBehavior {
+  const XrPanelScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => PointerDeviceKind.values.toSet();
+}
 
 class _ThemeModeObserver extends WidgetsBindingObserver {
   final Function(Brightness) onThemeModeChange;
