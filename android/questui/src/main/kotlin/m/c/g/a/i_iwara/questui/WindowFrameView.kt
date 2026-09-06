@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import kotlin.math.abs
 import kotlin.math.cos
@@ -62,7 +60,7 @@ enum class WindowFrameZone {
  */
 class WindowFrameState {
 
-    /** 射线此刻悬在窗框的哪一段（由本面板自己的指针事件判定，与像素坐标系严格一致）。 */
+    /** 本帧射线悬在窗框的哪一段；由原生命中循环统一写入，不依赖可能缺失的 Exit。 */
     var pointerZone by mutableStateOf(WindowFrameZone.NONE)
 
     /** 射线悬在窗体上但已**贴近边缘**（离边不到几厘米）：把手提前露面，光标一出窗就接得上。 */
@@ -132,7 +130,7 @@ const val WINDOW_FRAME_ANIM_MS = 160
  * 三块窗（2D 应用 / 控制面板 / 幕布）共用的自绘窗框。
  *
  * 取代 ISDK 自带的「边缘抓条 + 四角缩放」：那套只在光标贴到边缘时才能拖、外观也改不了
- * （用户 2026-09-05：「不符合直觉，希望自己设置一套边缘」）。这里只负责**画**与**报告悬停区**，
+ * （用户 2026-09-05：「不符合直觉，希望自己设置一套边缘」）。这里只负责**画**，
  * 抓 / 挪 / 缩放的几何全在 `:app` 的 `WindowManipulator`。
  *
  * # 视觉：静止时什么都没有
@@ -170,24 +168,7 @@ fun WindowFrame(state: WindowFrameState) {
         }
 
     Canvas(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(state) {
-                awaitPointerEventScope {
-                    while (true) {
-                        val event = awaitPointerEvent()
-                        val pos = event.changes.firstOrNull()?.position
-                        state.pointerZone = when (event.type) {
-                            PointerEventType.Exit -> WindowFrameZone.NONE
-                            else -> if (pos == null || size.width == 0 || size.height == 0) {
-                                WindowFrameZone.NONE
-                            } else {
-                                state.classify(pos.x / size.width, pos.y / size.height)
-                            }
-                        }
-                    }
-                }
-            },
+        modifier = Modifier.fillMaxSize(),
     ) {
         drawFrame(state, reveal, active, zoneLevels)
     }

@@ -192,6 +192,7 @@ private fun GalleryHeaderRow(state: VideoControlsState, g: GalleryState, cb: Vid
 
         Spacer(Modifier.width(8.dp))
 
+        ViewDistanceButton(cb)
         CircleActionButton(SpatialIcons.Regular.Environment, stringResource(R.string.xr_nav_scene)) { cb.onRoute(ControlsRoute.SCENE) }
         CircleActionButton(SpatialIcons.Regular.Television, stringResource(R.string.xr_nav_screen_type)) { cb.onRoute(ControlsRoute.SCREEN_TYPE) }
         // 「接着看」：图库详情页的池（来源 / 最爱 / 稍后再看 / 作者的图库），点了换成那本图库。

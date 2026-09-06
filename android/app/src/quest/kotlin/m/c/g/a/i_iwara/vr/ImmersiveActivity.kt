@@ -87,10 +87,8 @@ import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
 import m.c.g.a.i_iwara.xr.ImmersiveSourceOption
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
 import kotlin.math.abs
-import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.roundToInt
-import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.math.tan
 
@@ -110,14 +108,14 @@ import kotlin.math.tan
  * | 缓冲指示 | 一块透明小面板，浮在幕布正中 | 只在缓冲期间存在 |
  * | 空间画廊 | 整本图库：幕布这块「窗」换成 Compose + Coil 的图片面板（`vr_image_panel`），视频项仍走 ExoPlayer 幕布，图 ↔ 视频切换时两块互换；面板主页换成图集页 | Dart `presentGallery` 起、回应用止；见「空间画廊」一节 |
  *
- * # 摆位全部跟随头部（2026-09-05 真机反馈之后）
+ * # 摆位相对进入时的视线，随后固定在空间中
  *
  * 此前按地面绝对高度摆（眼高 1.6m 的站姿假设），坐着/躺着都不对：面板偏上、竖得笔直。
  * 现在的规则：
- * - **锚点** [anchor]：一帧头部位姿（去掉 roll，保留俯仰与偏航），在首次进入、系统 recenter、
- *   「重新居中」/「重置」时重新捕获。幕布沿锚点视线方向摆在「距离」处，朝向 = 锚点朝向。
- * - 控制面板唤出时沿**当下**视线方向摆在 1.5m 处、略偏下，朝向面对头部。
- * - 官方要求「pitch 与 yaw 自动跟随、roll 固定」，这里正是。
+ * - **锚点** [anchor]：等待有效头部追踪后捕获，保留俯仰与偏航、消除侧倾；接近垂直时平滑沿用头部 up。
+ *   首次进入、系统 recenter 和「重新居中」重新捕获，浏览面板的旧位置不参与计算。
+ * - 平幕中心在锚点视线下方 8°；操作栏放在更近、更低的位置，两者都朝向观看者。
+ * - 抓住的第一帧不跳角，实际挪动时逐渐朝向人；重定位取消旧会话。几何规则见 [SpatialPlacement]。
  *
  * # 层序不靠深度
  *
@@ -181,7 +179,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var controlsEntity: Entity? = null
     private var controlsPanel: PanelSceneObject? = null
 
-    /** 控制面板相对基准尺寸（1.5m 宽）的等比缩放；进偏好。 */
+    /** 控制面板相对基准尺寸（1.2m 宽）的等比缩放；进偏好。 */
     private var controlsScale = 1f
     private var bufferingEntity: Entity? = null
     private var bufferingPanel: PanelSceneObject? = null
@@ -250,6 +248,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** 幕布的锚点：一帧去掉 roll 的头部位姿。null = 还没捕获过。 */
     private var anchor: Pose? = null
+    private val headReadiness = HeadPoseReadiness()
+    private var screenShown = false
+    private var pendingShowControls = false
+    private var inputSuspended = false
+    private var viewDistanceDirection = 0
+    private var lastMotionAt = 0L
 
     /**
      * 幕布**可见面中心**现在实际在哪（用户抓着挪过 / 拉过角）。重建后原位放回；距离/偏移滑块与重置会清掉它。
@@ -537,13 +541,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onRecenter(isUserInitiated: Boolean) {
         super.onRecenter(isUserInitiated)
         Log.i(TAG, "IMMERSIVE onRecenter user=$isUserInitiated")
-        recenterEverything()
+        recenterEverything(waitForTracking = true)
     }
 
     private fun pauseForSystem() {
-        input.reset()
-        endScrub()
-        endSphereGrab(hideControls = false)
+        inputSuspended = true
+        cancelSpatialInteractions()
         if (!controls.pauseOnFocusLoss) return
         if (playback.isAlive && playback.isPlaying) {
             playback.setPlaying(false)
@@ -553,6 +556,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun resumeAfterSystem() {
+        inputSuspended = false
+        headReadiness.reset()
+        lastMotionAt = 0L
         if (!pausedBySystem) return
         pausedBySystem = false
         if (playback.isAlive) {
@@ -601,6 +607,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPresent(request: ImmersiveVideoRequest) {
             runOnUiThread {
+                val freshPlacement = !stageActive || inGallery
+                if (freshPlacement) resetStagePlacement()
                 // 幕布上正放着图库：先收掉它（图片面板销毁、Dart 收 galleryEnded），下面按「没有片源」的路建视频幕布。
                 if (inGallery) exitGallery()
                 // 同一条片子（videoId 相同）再 present 不算换片：面板上换过清晰度之后 argUrl 已不是 Dart
@@ -828,6 +836,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      */
     private fun commitSwitch(request: ImmersiveVideoRequest) {
         if (!playback.isPreloading) return
+        cancelSpatialInteractions()
         notifyEnded()
         val before = controls.format
         val nextFormat = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame)
@@ -869,8 +878,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 老片**暂停**等着 —— 不能让用户看着它还在放、还能拖进度（用户 2026-09-05）。
      */
     private fun beginSwitch(id: String?) {
-        endScrub()
-        endSphereGrab(hideControls = false)
+        cancelSpatialInteractions()
         controls.switchingToId = id
         switchWaitUntil = SystemClock.uptimeMillis() + SWITCH_WAIT_MS
         if (!pausedForSwitch && playback.isAlive && playback.isPlaying) {
@@ -919,20 +927,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 之前只判 `!= null`，于是首帧就拿「地板高度」摆了面板并标成「已按头部摆过」——躺着进应用
      * 时「2D 面板非常靠下」就是这么来的（用户 2026-09-05）。原点附近一律当没跟踪到。
      */
-    private fun trackedHeadPose(): Pose? {
-        val p = headPose() ?: return null
-        if (p.t.length() < HEAD_ORIGIN_EPS_M) return null
-        return p
-    }
+    private fun trackedHeadPose(): Pose? = headPose()?.takeIf(SpatialPlacement::isTracked)
 
-    /** 连续多少帧拿到了跟踪位姿。摆位要等它稳定几帧，别拿刚写进来的第一帧。 */
-    private var headReadyFrames = 0
-    private var sceneTicks = 0
-
-    private fun headTrackingReady(): Boolean = headReadyFrames >= HEAD_SETTLE_FRAMES
-
-    /** 等了太久还没跟踪到（3DoF 一类）：不再等，按兜底摆。 */
-    private fun headSettleTimedOut(): Boolean = sceneTicks >= HEAD_SETTLE_TIMEOUT_TICKS
+    private fun headTrackingReady(): Boolean = headReadiness.ready
+    private fun headSettleTimedOut(): Boolean = headReadiness.timedOut
 
     /**
      * 当下的「视线坐标系」：头部位置 + 沿头部前向、去掉 roll 的朝向，再整体**压低
@@ -947,85 +945,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         return frameAlong(head.t, head.forward(), head.up(), dropDeg = dropDeg)
     }
 
-    /**
-     * 头部大致水平（坐着 / 站着，俯仰在 ±35° 内）。这个姿态下幕布与控制面板走「直立」那套摆法：
-     * 幕布竖直像一面墙、控制面板放低并仰着朝人；躺着 / 仰头时才让它们整个跟着视线倾斜。
-     */
-    private fun headIsLevel(): Boolean {
-        val f = trackedHeadPose()?.forward() ?: return true
-        return abs(f.normalize().y) < LEVEL_GAZE_SIN
-    }
-
-    private fun horizontal(v: Vector3): Vector3? {
-        val h = Vector3(v.x, 0f, v.z)
-        return if (h.length() < 1e-3f) null else h.normalize()
-    }
-
-    /**
-     * 以 [forward] 为前向搭一个去 roll 的坐标系。
-     *
-     * 参考「上」平时取世界上（面板与地面垂直）；前向接近竖直（躺着 / 仰头）时世界上退化，
-     * 改用 [headUp]（头自己的上），面板就以头顶方向为上，正对着躺着的人。
-     */
-    private fun frameAlong(origin: Vector3, forward: Vector3, headUp: Vector3, dropDeg: Float): Pose {
-        val f0 = forward.normalize()
-        val worldUp = Vector3(0f, 1f, 0f)
-        val refUp = if (abs(f0.dot(worldUp)) < VERTICAL_GAZE_COS) worldUp else headUp.normalize()
-        val right = refUp.cross(f0).normalize()
-        val up0 = f0.cross(right).normalize()
-        val d = dropDeg * (Math.PI / 180.0).toFloat()
-        val f = (f0 * cos(d) - up0 * sin(d)).normalize()
-        val up = (up0 * cos(d) + f0 * sin(d)).normalize()
-        return Pose(origin, quaternionFromBasis(right, up, f))
-    }
-
-    /**
-     * 由正交基（右 / 上 / 前）造四元数，并**用 SDK 自己的 `Pose.forward()/up()` 验证**四元数的
-     * 分量顺序与旋转约定：四种候选（w 在前 / 在后 × 原/共轭）里取前、上都对得上的那个。
-     * 只在第一次自检时打一行日志。
-     */
-    private fun quaternionFromBasis(right: Vector3, up: Vector3, forward: Vector3): Quaternion {
-        val m00 = right.x; val m01 = up.x; val m02 = forward.x
-        val m10 = right.y; val m11 = up.y; val m12 = forward.y
-        val m20 = right.z; val m21 = up.z; val m22 = forward.z
-        val w: Float; val x: Float; val y: Float; val z: Float
-        val trace = m00 + m11 + m22
-        if (trace > 0f) {
-            val s = sqrt(trace + 1f) * 2f
-            w = 0.25f * s; x = (m21 - m12) / s; y = (m02 - m20) / s; z = (m10 - m01) / s
-        } else if (m00 > m11 && m00 > m22) {
-            val s = sqrt(1f + m00 - m11 - m22) * 2f
-            w = (m21 - m12) / s; x = 0.25f * s; y = (m01 + m10) / s; z = (m02 + m20) / s
-        } else if (m11 > m22) {
-            val s = sqrt(1f + m11 - m00 - m22) * 2f
-            w = (m02 - m20) / s; x = (m01 + m10) / s; y = 0.25f * s; z = (m12 + m21) / s
-        } else {
-            val s = sqrt(1f + m22 - m00 - m11) * 2f
-            w = (m10 - m01) / s; x = (m02 + m20) / s; y = (m12 + m21) / s; z = 0.25f * s
-        }
-        val candidates = listOf(
-            "wxyz" to Quaternion(w, x, y, z),
-            "xyzw" to Quaternion(x, y, z, w),
-            "wxyz*" to Quaternion(w, -x, -y, -z),
-            "xyzw*" to Quaternion(-x, -y, -z, w),
-        )
-        val order = quatOrder
-        if (order != null) return candidates.first { it.first == order }.second
-        for ((name, q) in candidates) {
-            val probe = Pose(Vector3(0f, 0f, 0f), q)
-            if (probe.forward().dot(forward) > 0.99f && probe.up().dot(up) > 0.99f) {
-                quatOrder = name
-                Log.i(TAG, "IMMERSIVE quaternion convention = $name")
-                return q
-            }
-        }
-        Log.w(TAG, "IMMERSIVE quaternion convention 自检全部失败，退回 wxyz")
-        quatOrder = "wxyz"
-        return candidates[0].second
-    }
-
-    /** 自检出的四元数分量约定，见 [quaternionFromBasis]。 */
-    private var quatOrder: String? = null
+    private fun frameAlong(origin: Vector3, forward: Vector3, headUp: Vector3, dropDeg: Float): Pose =
+        SpatialPlacement.frame(origin, forward, headUp, dropDeg)
 
     /** 拿不到头部位姿时的兜底锚点：原点上方站姿眼高、朝 +Z。 */
     private fun fallbackFrame(): Pose = Pose(Vector3(0f, FALLBACK_EYE_HEIGHT_M, 0f), Quaternion(0f, 0f, 0f))
@@ -1033,51 +954,18 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun currentAnchor(): Pose = anchor ?: captureAnchor()
 
     private fun captureAnchor(): Pose {
-        // 坐着 / 站着：幕布中心只比视线低一点（SCREEN_GAZE_DROP_DEG），且幕布竖直（见 geometricScreenPose）。
-        // 12° 那一档是给躺着看时「整块跟着视线倾斜」的摆法用的（真机两轮反馈「偏上」都来自那种姿态）。
-        val g = anchorFromUiPanel() ?: gazeFrame(if (headIsLevel()) SCREEN_GAZE_DROP_DEG else GAZE_DROP_DEG)
-        anchorIsFallback = g == null
-        // 锚点重来（首次 / 重定向 / 跨家族换片）：球幕拖过的视角与推过的远近一并归零。
+        // Entry and recenter share the same tracking gate. Never inherit a moved/parked browsing panel.
+        val head = trackedHeadPose()?.takeIf { headTrackingReady() }
+        anchorIsFallback = head == null
         sphereForwardOverride = null
         sphereOffsetM = 0f
-        return (g ?: fallbackFrame()).also { anchor = it }
+        return (head?.let(SpatialPlacement::viewFrame) ?: fallbackFrame()).also { anchor = it }
     }
 
-    /**
-     * 从 2D 面板上点「播放」进影院：面板此刻在哪、用户就正看着哪 —— 幕布落在**面板的方向**上。
-     *
-     * ⛔ 不能再按视线压一次 12°：面板本来就是按「视线 − 12°」摆的，用户看着它按播放，此刻视线就在
-     * 那个方向，再压一次幕布就比面板还低一截（「首次打开沉浸视频，播放器位置校准不佳」）。
-     * 用户拖过面板的话，落点也跟着它 —— 那正是用户自己挑的舒服位置。面板没露面（刚起动、刚重置）
-     * 时返回 null，退回视线。
-     */
-    private fun anchorFromUiPanel(): Pose? {
-        if (!uiPanelPlacedByHead) return null
-        val head = trackedHeadPose() ?: return null
-        val panel = uiPanelEntity?.tryGetComponent<Transform>()?.transform ?: return null
-        if (panel.t.y < -10f) return null // 停在脚下 100m 的是藏起来的
-        val dir = panel.t - head.t
-        if (dir.length() < 0.3f) return null
-        return frameAlong(head.t, dir, head.up(), dropDeg = 0f)
-    }
-
-    /** 平面/弧幕：沿锚点视线摆在「距离」处，按「偏移」沿锚点的上方向挪，弧幕再把轴心退一个半径。 */
-    private fun geometricScreenPose(): Pose {
-        val a = currentAnchor()
-        val f = a.forward()
-        val u = a.up()
-        val radius = ScreenGeometry.radiusFor(curArc, curWidth)
-        // 坐着 / 站着：幕布**竖直**（只取锚点的偏航），中心仍落在锚点视线打到「距离」处的那一点。
-        // 之前幕布与视线垂直、随视线一起低头 12°，看起来像块斜靠着的板（用户 2026-09-05：「画面未垂直」）。
-        val fh = horizontal(f)
-        if (fh != null && abs(f.normalize().y) < LEVEL_GAZE_SIN) {
-            val center = a.t + f * controls.screenDistance + u * controls.screenOffset
-            val q = frameAlong(center, fh, Vector3(0f, 1f, 0f), dropDeg = 0f).q
-            return Pose(center - fh * radius, q)
-        }
-        val pos = a.t + f * (controls.screenDistance - radius) + u * controls.screenOffset
-        return Pose(pos, a.q)
-    }
+    /** Keep the viewing center below gaze; cylinder-axis compensation stays separate. */
+    private fun geometricScreenPose(): Pose = surfaceToEntityPose(
+        SpatialPlacement.screenSurface(currentAnchor(), controls.screenDistance, controls.screenOffset),
+    )
 
     /**
      * 球幕：人在球心。朝向按锚点的视线：
@@ -1135,7 +1023,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * （每帧都先按新半径 + 旧位置画一次）。
      */
     private fun applyScreenTransform() {
-        val pose = screenPose()
+        val pose = if (screenShown) screenPose() else PARKED_POSE
         screenEntity?.setComponent(Transform(pose))
         screenPanel?.let {
             it.setPosition(pose.t)
@@ -1204,20 +1092,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         ),
     )
 
-    /** 控制面板「摆到面前」的落点：当下视线方向 1.5m 处、略偏下，面对头部。 */
+    /** Controls stay below the viewing frame, tilted like a desk, with room for their full height. */
     private fun controlsPoseInFront(): Pose {
-        val head = trackedHeadPose()
-        val fh = head?.let { horizontal(it.forward()) }
-        if (head != null && fh != null && headIsLevel()) {
-            // 坐着 / 站着：面板放到视线下方 CONTROLS_DROP_DEG 处、仰着正对头部（像一块斜放的操作台），
-            // 不再与幕布平行竖着挡在画面前（用户 2026-09-05：「操作栏未适当下移并带有倾斜弧度」）。
-            val drop = CONTROLS_DISTANCE_M * kotlin.math.tan(CONTROLS_DROP_DEG * (Math.PI / 180.0).toFloat())
-            val center = head.t + fh * CONTROLS_DISTANCE_M - Vector3(0f, 1f, 0f) * drop
-            val q = frameAlong(center, center - head.t, head.up(), dropDeg = 0f).q
-            return Pose(center, q)
-        }
-        val g = gazeFrame() ?: fallbackFrame()
-        return Pose(g.t + g.forward() * CONTROLS_DISTANCE_M + g.up() * CONTROLS_DROP_M, g.q)
+        val frame = trackedHeadPose()?.let(SpatialPlacement::viewFrame) ?: currentAnchor()
+        return SpatialPlacement.controlsSurface(frame, CONTROLS_DISTANCE_M, CONTROLS_HEIGHT_M * controlsScale)
     }
 
     /** 平幕可见面中心到头部的距离；球幕 / 没幕布为 null。 */
@@ -1261,28 +1139,58 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         return g.forward().dot(d) / len >= SUMMON_FOV_COS
     }
 
-    /** 重新捕获锚点并把幕布、面板都按新视线重摆。 */
-    private fun recenterEverything() {
-        captureAnchor()
+    /** Cancel in-flight gestures before changing their coordinate system. */
+    private fun cancelSpatialInteractions() {
+        manipulator.cancelAll()
+        input.reset(awaitRelease = true)
+        endScrub()
+        endSphereGrab(hideControls = false)
+        twoHandScaling = false
+        cancelStageSwipe()
+        stage.swipe.blocked = false
+        bufferingState.swipe.blocked = false
+        viewDistanceDirection = 0
+        for (i in 0..1) tapCandidate[i] = false
+    }
+
+    /** A fresh media entry must not inherit a browsing recenter or another projection's anchor. */
+    private fun resetStagePlacement(hidePanel: Boolean = true) {
+        cancelSpatialInteractions()
+        if (hidePanel) hideControls()
+        anchor = null
         screenSurfaceOverride = null
-        applyScreenTransform()
-        // 浏览态：把 2D 应用面板也摆回视线正前方（用户反馈「重置后 2D 画面位置过于靠上」）。
-        // ⛔ 判「浏览态」用 stageActive：空间画廊的图片项没有 argUrl，只看 argUrl 会把 2D 面板重新摆出来
-        // （用户 2026-09-05：「系统重置视角后 2D 应用出现在空间中，迷失在空间里」）。
-        if (!stageActive) placeUiPanel(visible = true)
-        if (controlsEntity != null) {
-            val pose = controlsPoseInFront()
-            controlsEntity?.setComponent(Transform(pose))
-            controlsPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
-            lastControlsPose = pose
-            controlsBasePose = pose
-        } else {
-            // 面板收着时也要「重置」：忘掉它收起前的位置，下次唤出按新视线摆到面前。
-            // 否则系统级重定向（看着捏合中的手指）之后幕布挪了、面板却还从旧世界坐标冒出来（用户 2026-09-05）。
-            lastControlsPose = null
-        }
-        // 球幕的缓冲指示位置是创建那刻定死的，重定向后也按新视线重放。
+        lastControlsPose = null
         bufferingFrozenPose = null
+    }
+
+    private fun recenterEverything(waitForTracking: Boolean = false) {
+        resetStagePlacement(hidePanel = false)
+        if (waitForTracking) headReadiness.reset()
+        // Recenter restores a comfortable height as well as heading; distance and size stay personal.
+        controls.screenOffset = 0f
+        markPrefsDirty()
+        if (!stageActive) {
+            uiPanelPlacedByHead = false
+            placeUiPanel(visible = true)
+            return
+        }
+        captureAnchor()
+        screenShown = !anchorIsFallback || headSettleTimedOut()
+        screenEntity?.setComponent(Visible(screenShown))
+        applyScreenTransform()
+        if (controlsEntity != null) {
+            if (screenShown) {
+                val pose = controlsPoseInFront()
+                controlsEntity?.setComponent(Transform(pose))
+                controlsPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
+                lastControlsPose = pose
+                controlsBasePose = pose
+            } else {
+                hideControls()
+                lastControlsPose = null
+                pendingShowControls = true
+            }
+        }
     }
 
     // ================================================================ 幕布
@@ -1293,14 +1201,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * @param keepPlayback 片子没变，只是几何变了：播放器留着，只换 Surface。
      */
     private fun rebuildScreen(keepPlayback: Boolean = false) {
-        // 只有「上一块也是平幕」时才把它的位置带过来。⛔ 球幕实体的位置就是你的头部位置 ——
-        // 从全景切回平面时若把它当成「抓着挪过的平幕位置」，平幕会被摆进眼睛里（真机反馈：
-        // 「切回后画面不显示，要点重新居中才出来」）。
-        if (controls.format.isFlat && screenEntityIsFlat) {
-            screenEntity?.tryGetComponent<Transform>()?.transform?.let { screenSurfaceOverride = entityToSurfacePose(it) }
-        } else {
-            screenSurfaceOverride = null
-        }
+        // Only explicit user placement survives a rebuild. Capturing every computed center here
+        // would preserve a previous default pose across changes to viewing geometry.
+        if (!controls.format.isFlat || !screenEntityIsFlat) screenSurfaceOverride = null
         manipulator.detach(WindowKind.SCREEN)
         // 缓冲指示与幕布同形同位，幕布换了它也得重建（旧的形状 / 位置留着就会「跳」）。
         destroyBufferingEntity()
@@ -1313,7 +1216,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val idle = !stageActive
         if (idle) playback.release()
 
-        // ⛔ 锚点要在 UI 面板停走之前捕获：从面板点播放进影院，幕布落在面板的方向上（见 anchorFromUiPanel）。
         if (!idle && anchor == null) captureAnchor()
 
         // 看视频时 UI 面板让位：藏起 + 让 Flutter 停止出帧（destroy 会连 Activity 一起杀掉，代价太大）。
@@ -1329,6 +1231,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.buffering = false
             screenSurfaceOverride = null
             anchor = null
+            screenShown = false
+            pendingShowControls = false
             stage.model = null
             screenIsImage = false
             syncBufferingIndicator()
@@ -1351,17 +1255,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val wantImage = inGallery && gallery?.current?.isVideo != true
         screenIsImage = wantImage
         // 抓 / 挪 / 缩放不再挂 ISDK 的 Grabbable / IsdkPanelResize：平幕与弧幕都由 WindowManipulator 接管。
+        screenShown = !anchorIsFallback || headSettleTimedOut()
         val entity = Entity.create(
             Panel(if (wantImage) R.id.vr_image_panel else R.id.vr_video_panel),
-            Transform(screenPose()),
-            Visible(true),
+            Transform(if (screenShown) screenPose() else PARKED_POSE),
+            Visible(screenShown),
         )
         screenEntity = entity
         screenEntityIsFlat = flat
         syncIsdkScreenShape()
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
+            if (screenEntity != entity) return@thenAccept
             val panel = so as? PanelSceneObject
             screenPanel = panel
+            applyScreenTransform()
             runCatching { panel?.layer?.setZIndex(if (flat) Z_SCREEN else Z_SPHERE) }
         }
         if (flat) manipulator.attach(screenHost)
@@ -1503,7 +1410,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun createUiPanel() {
         uiBaseSize = Vector2(prefs.uiPanelWidth, prefs.uiPanelHeight)
         uiScale = Vector2(1f, 1f)
-        val entity = Entity.create(Panel(R.id.vr_ui_panel), Transform(uiPanelPose()), Visible(true))
+        val entity = Entity.create(Panel(R.id.vr_ui_panel), Transform(PARKED_POSE), Visible(false))
         uiPanelEntity = entity
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             val panel = so as? PanelSceneObject
@@ -1525,7 +1432,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      */
     private fun syncBufferingIndicator() {
         val now = SystemClock.uptimeMillis()
-        val onScreen = stageActive && screenEntity != null
+        val onScreen = stageActive && screenEntity != null && screenShown
         val buffering = controls.buffering && onScreen
         if (buffering) {
             if (bufferingSince == 0L) bufferingSince = now
@@ -1589,6 +1496,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     // ================================================================ 控制面板
 
     private fun showControls(summoned: Boolean = false) {
+        if (stageActive && !screenShown) {
+            pendingShowControls = true
+            return
+        }
         lastInteractionAt = SystemClock.uptimeMillis()
         if (controlsEntity != null) return
         val saved = lastControlsPose
@@ -1605,10 +1516,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         controlsBasePose = pose
         controlsHovered = false
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
+            if (controlsEntity != entity) return@thenAccept
             so.addInputListener(hoverListener)
             val panel = so as? PanelSceneObject
             controlsPanel = panel
             runCatching { panel?.layer?.setZIndex(Z_CONTROLS) }
+            entity.tryGetComponent<Transform>()?.transform?.let { current ->
+                panel?.setPosition(current.t)
+                panel?.setRotationQuat(current.q)
+            }
         }
         manipulator.attach(controlsHost)
         Log.i(TAG, "IMMERSIVE controls panel created summoned=$summoned restored=$restore")
@@ -1621,6 +1537,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * （真机反馈：自动收起后光标仍被面板遮挡）。隐身一两帧让它先从命中里退出。
      */
     private fun hideControls() {
+        viewDistanceDirection = 0
+        pendingShowControls = false
         val entity = controlsEntity ?: return
         (controlsBasePose ?: entity.tryGetComponent<Transform>()?.transform)?.let { lastControlsPose = it }
         controlsBasePose = null
@@ -1654,7 +1572,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override val zIndex = Z_SCREEN
 
         override fun surfacePose(): Pose? {
-            if (!controls.format.isFlat || !screenEntityIsFlat) return null
+            if (!screenShown || !controls.format.isFlat || !screenEntityIsFlat) return null
             val entity = screenEntity?.tryGetComponent<Transform>()?.transform ?: return null
             return entityToSurfacePose(entity)
         }
@@ -1795,11 +1713,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val now = SystemClock.uptimeMillis()
         updateTransport()
         status.clockTextIfChanged(System.currentTimeMillis())?.let { controls.clockText = it }
-        input.poll()
-        settleHeadPlacement()
-        // 抓 / 挪 / 缩放先裁决：按在窗框上的「选择」不会再落到下面的「点一下 toggle」。
-        manipulator.tick(input)
-        if (stageActive) handleInput(now) else handleBrowseInput()
+        if (!inputSuspended) {
+            input.poll()
+            settleHeadPlacement()
+            manipulator.tick(input)
+            if (stageActive && screenShown) handleInput(now) else if (!stageActive) handleBrowseInput()
+        }
         tickGallery(now)
         syncControlsDepth()
         reapDoomedControls()
@@ -1837,20 +1756,28 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 用户看到的就是「2D 画面位置过于靠上」。头部一就绪就按真实视线重摆一次。
      */
     private fun settleHeadPlacement() {
-        sceneTicks++
-        if (trackedHeadPose() == null) {
-            headReadyFrames = 0
-        } else if (headReadyFrames < HEAD_SETTLE_FRAMES) {
-            headReadyFrames++
-        }
+        headReadiness.update(headPose())
         val ready = headTrackingReady()
         if (!ready && !headSettleTimedOut()) return
         if (!stageActive) {
             if (!uiPanelPlacedByHead) placeUiPanel(visible = true)
-        } else if (anchorIsFallback && ready) {
+        } else if (anchorIsFallback && (ready || !screenShown)) {
+            cancelSpatialInteractions()
             captureAnchor()
             screenSurfaceOverride = null
+            screenShown = true
+            screenEntity?.setComponent(Visible(true))
             applyScreenTransform()
+            if (controlsEntity != null) {
+                val pose = controlsPoseInFront()
+                controlsBasePose = pose
+                controlsEntity?.setComponent(Transform(pose))
+                controlsPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
+            }
+            if (pendingShowControls) {
+                pendingShowControls = false
+                showControls()
+            }
         }
     }
 
@@ -1886,6 +1813,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** ⛔ 只在影院态（有片源）：浏览态里捏合是操作 Flutter 面板的，抢不得。 */
     private fun handleInput(now: Long) {
+        val seconds = if (lastMotionAt == 0L) 0f else ((now - lastMotionAt) / 1000f).coerceIn(0f, 0.05f)
+        lastMotionAt = now
         val e = input.events
         for (i in 0..1) {
             val bit = 1 shl i
@@ -1945,7 +1874,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             showControls(summoned = true)
             controls.route = ControlsRoute.SETTINGS
         }
-        if (twoHandScaling) {
+        if (!stageActive || !screenShown) return
+        if (viewDistanceDirection != 0 && (!input.anyActive || controlsEntity == null || controls.route != ControlsRoute.DISTANCE)) {
+            viewDistanceDirection = 0
+        }
+        if (viewDistanceDirection != 0) {
+            adjustViewDistance(viewDistanceDirection, seconds)
+        } else if (twoHandScaling) {
             // 两手缩放中摇杆不管别的。
         } else if (inGallery && stagePressed && screenIsImage && (e.volumeUp || e.volumeDown)) {
             // 指着图片按住扳机 / 捏合，再推摇杆上下 = 以指着的那一点为原点缩放内容（放大镜）。
@@ -1959,11 +1894,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         } else if ((e.volumeUp || e.volumeDown) && screenEntity != null) {
             // 不抓也能推远 / 拉近（用户 2026-09-05：「往前推往后推控制播放器离我的远近」，全景片也要）。
             // 摇杆不再管音量：音量在面板的 🔊 弹层里。
-            if (controls.format.isFlat) {
-                nudgeScreenDistance(if (e.volumeUp) SCREEN_NUDGE_STEP else -SCREEN_NUDGE_STEP)
-            } else {
-                nudgeSphereDistance(if (e.volumeUp) SPHERE_NUDGE_STEP_M else -SPHERE_NUDGE_STEP_M)
-            }
+            if (e.volumeUp != e.volumeDown) adjustViewDistance(if (e.volumeUp) 1 else -1, seconds)
         }
     }
 
@@ -2132,6 +2063,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             if (len < 0.05f) return
             val next = (len * (1f + delta)).coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
             screenSurfaceOverride = Pose(head + d * (next / len), override.q)
+            controls.screenDistance = next
+            markPrefsDirty()
         } else {
             controls.screenDistance = (controls.screenDistance * (1f + delta)).coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
             markPrefsDirty()
@@ -2139,6 +2072,28 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         applyScreenTransform()
         rememberLayoutForAspect()
         lastInteractionAt = SystemClock.uptimeMillis()
+    }
+
+    private fun adjustViewDistance(direction: Int, seconds: Float) {
+        if (controls.format.isFlat) {
+            nudgeScreenDistance(ViewDistanceMotion.flatFactor(direction, seconds) - 1f)
+        } else {
+            nudgeSphereDistance(ViewDistanceMotion.sphereDelta(direction, seconds))
+        }
+    }
+
+    /** Slider and reset preserve a manually moved screen's bearing and tilt. */
+    private fun setScreenDistance(meters: Float) {
+        val next = meters.coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
+        screenSurfaceOverride?.let { surface ->
+            val head = trackedHeadPose()?.t ?: currentAnchor().t
+            val delta = surface.t - head
+            if (delta.length() > 0.05f) screenSurfaceOverride = Pose(head + delta.normalize() * next, surface.q)
+        }
+        controls.screenDistance = next
+        applyScreenTransform()
+        markPrefsDirty()
+        rememberLayoutForAspect()
     }
 
     // ================================================================ 距离 / 幕宽按画面比例记忆
@@ -2201,7 +2156,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val ray = manipulator.ray(hand, input) ?: return
         sphereGrabHand = hand
         sphereGrabRay0 = ray.direction
-        sphereGrabForward0 = sphereForwardOverride ?: currentAnchor().forward()
+        sphereGrabForward0 = spherePose().forward()
         lastInteractionAt = now
         Log.i(TAG, "IMMERSIVE sphere grab hand=$hand")
     }
@@ -2534,7 +2489,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 text(UiR.string.xr_notice_unsupported_projection)
             }
             if (before == format) return
-            if (ScreenGeometry.sameFamily(before, format)) requestShape(0L) else rebuildScreen(keepPlayback = true)
+            if (ScreenGeometry.sameFamily(before, format)) requestShape(0L) else {
+                resetStagePlacement()
+                rebuildScreen(keepPlayback = true)
+            }
         }
 
         override fun onPickFormatTab(tab: FormatTab) {
@@ -2582,11 +2540,35 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onScreenDistance(meters: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
-            controls.screenDistance = meters.coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
-            screenSurfaceOverride = null
-            applyScreenTransform()
-            markPrefsDirty()
-            rememberLayoutForAspect()
+            setScreenDistance(meters)
+        }
+
+        override fun onViewDistanceHold(direction: Int, pressed: Boolean) {
+            if (!pressed) {
+                if (viewDistanceDirection == direction) viewDistanceDirection = 0
+                return
+            }
+            if (inputSuspended || controls.switching || !stageActive || !screenShown || controls.route != ControlsRoute.DISTANCE) return
+            touched()
+            cancelStageSwipe()
+            for (i in 0..1) tapCandidate[i] = false
+            viewDistanceDirection = direction.coerceIn(-1, 1)
+            lastMotionAt = SystemClock.uptimeMillis()
+        }
+
+        override fun onViewDistanceStep(direction: Int) {
+            if (inputSuspended || controls.switching || !stageActive || !screenShown) return
+            touched()
+            adjustViewDistance(direction, 0.05f)
+        }
+
+        override fun onResetViewDistance() {
+            touched()
+            viewDistanceDirection = 0
+            if (controls.format.isFlat) setScreenDistance(DEFAULT_VIEW_DISTANCE_M) else {
+                sphereOffsetM = 0f
+                applyScreenTransform()
+            }
         }
 
         override fun onScreenOffset(meters: Float) {
@@ -2786,6 +2768,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
 
         override fun onRoute(route: ControlsRoute) {
+            viewDistanceDirection = 0
             touched()
             controls.route = route
             controls.volumePopupOpen = false
@@ -2878,6 +2861,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 这里只解码 —— Dart 那条 HTTP 走应用内代理，原生没有。
      */
     private fun presentGallery(request: ImmersiveGalleryRequest) {
+        if (!inGallery || gallery?.galleryId != request.galleryId) resetStagePlacement()
         // 幕布上若正放着视频：把它结束掉（回写位置）；正放着别的图库：告诉 Dart 它结束了。
         if (!argUrl.isNullOrBlank() && !inGallery) {
             endScrub()
@@ -3097,7 +3081,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 单手那只正在拖窗的会话被接管；松开一只之后若那只抓握还按着，重新接回单手拖。
      */
     private fun updateTwoHandScale(now: Long) {
-        if (!controls.format.isFlat || screenEntity == null) {
+        if (!controls.format.isFlat || screenEntity == null || viewDistanceDirection != 0 || pointerOnControls()) {
             endTwoHandScale()
             return
         }
@@ -3162,6 +3146,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun showGalleryItem(index: Int) {
         val g = gallery ?: return
         if (g.items.isEmpty()) return
+        viewDistanceDirection = 0
         val i = index.coerceIn(0, g.items.size - 1)
         val item = galleryItems[i]
         g.index = i
@@ -3474,8 +3459,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val FALLBACK_EYE_HEIGHT_M = 1.6f
 
         /** 默认观看距离 / 幕宽（米）。 */
-        private const val DEFAULT_VIEW_DISTANCE_M = 2.4f
-        private const val DEFAULT_SCREEN_WIDTH_M = 3.2f
+        private const val DEFAULT_VIEW_DISTANCE_M = PlayerPrefs.DEFAULT_VIEW_DISTANCE_M
+        private const val DEFAULT_SCREEN_WIDTH_M = PlayerPrefs.DEFAULT_SCREEN_WIDTH_M
         private const val SCREEN_MIN_DISTANCE_M = 1.2f
         private const val SCREEN_MAX_DISTANCE_M = 8.0f
 
@@ -3530,22 +3515,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         /** 抓着窗时摇杆每帧推远 / 拉近的比例。 */
         private const val NUDGE_STEP = 0.02f
 
-        /** 不抓时摇杆上下推幕布的每帧比例（72Hz 下按住 1s ≈ ×1.4）。 */
-        private const val SCREEN_NUDGE_STEP = 0.005f
-
         /** 拖视角时俯仰上限的正弦（sin 80°）。 */
         private const val SPHERE_MAX_PITCH_SIN = 0.985f
 
-        /** 球幕每帧推远 / 拉近的米数（72Hz 下 ≈ 8.6m/s）与偏移上限（半径的一半）。 */
-        private const val SPHERE_NUDGE_STEP_M = 0.12f
+        /** 球幕偏移上限（半径的一半）；调整速度由 [ViewDistanceMotion] 按秒计算。 */
         private const val SPHERE_OFFSET_MAX_M = ScreenGeometry.SPHERE_RADIUS * 0.5f
 
         /**
-         * 控制面板几何：逻辑尺寸固定 1100 × 360dp，物理 1.5m 宽，沿视线 1.5m 处、比视线中心低 0.25m。
-         * 72dp 圆钮 = 0.098m @1.5m ≈ 3.7°，高于官方 2.5–3° 下限。
+         * 控制面板逻辑尺寸固定 1100 × 360dp，基准宽 1.2m，中心离眼睛 1m。
+         * 下移与朝向由 [SpatialPlacement.controlsSurface] 计算；即使缩到 0.6，72dp 按钮仍约 2.7°。
          */
-        private const val CONTROLS_DISTANCE_M = 1.5f
-        private const val CONTROLS_DROP_M = -0.12f
+        private const val CONTROLS_DISTANCE_M = 1f
 
         /** 面板至少压在幕布前面这么多、且离头不近于这么多（幕布拉到脸前时面板跟着到脸前）。 */
         private const val CONTROLS_SCREEN_GAP_M = 0.15f
@@ -3554,15 +3534,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         /** 摆位视线比头部轴线低这么多度（2D 面板、躺姿下的幕布 / 面板）。 */
         private const val GAZE_DROP_DEG = 12f
 
-        /** 坐着 / 站着时幕布中心比头部轴线低这么多度（幕布本身竖直）。 */
-        private const val SCREEN_GAZE_DROP_DEG = 6f
-
-        /** 坐着 / 站着时控制面板中心在头部轴线下方这么多度，面板仰着朝头。 */
-        private const val CONTROLS_DROP_DEG = 22f
-
-        /** 头部前向的 |y| 小于它（约 35°）= 头大致水平，走直立摆法。 */
-        private const val LEVEL_GAZE_SIN = 0.574f
-        private const val CONTROLS_WIDTH_M = 1.5f
+        private const val CONTROLS_WIDTH_M = 1.2f
         private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 360f / 1100f
 
         /** 藏起来的 UI 面板停在这儿：脚下 100m，射线够不着。 */
@@ -3586,16 +3558,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         /** 直链过期后等 Dart 送新地址的上限。 */
         private const val SOURCE_REFRESH_WAIT_MS = 15_000L
-
-        /** 头部位姿离原点近于这个数 = 还没跟踪到（组件默认的单位位姿）。 */
-        private const val HEAD_ORIGIN_EPS_M = 0.05f
-
-        /** 跟踪位姿连续这么多帧才拿来摆位；等不到这么多 tick 就按兜底摆。 */
-        private const val HEAD_SETTLE_FRAMES = 8
-        private const val HEAD_SETTLE_TIMEOUT_TICKS = 120
-
-        /** 前向与世界上的夹角余弦超过它 = 视线接近竖直（躺着 / 仰头），去 roll 改用头自己的上。 */
-        private const val VERTICAL_GAZE_COS = 0.85f
 
         /** 合成层次序：不靠深度排。 */
         private const val Z_SPHERE = -1

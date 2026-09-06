@@ -38,6 +38,11 @@ android {
         versionName = flutter.versionName
     }
 
+    testOptions {
+        // Input-state tests use real SDK geometry with no renderer; Android logging is a no-op.
+        unitTests.returnDefaultValues = true
+    }
+
     // 配置正式签名（正式构建时使用）
     signingConfigs {
         release {
@@ -150,6 +155,7 @@ androidComponents {
 }
 
 dependencies {
+    testQuestImplementation 'junit:junit:4.13.2'
     implementation 'com.google.errorprone:error_prone_annotations:2.10.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'

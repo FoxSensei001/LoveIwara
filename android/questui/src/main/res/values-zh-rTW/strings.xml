@@ -127,7 +127,7 @@
     <string name="xr_screen_distance">螢幕距離</string>
     <string name="xr_screen_width">幕寬</string>
     <string name="xr_screen_offset">螢幕偏移</string>
-    <string name="xr_scene_sphere_note">180°/360° 片源沒有「螢幕位置」可調 —— 畫面就是你四周的球面。想換朝向就用右上角的「重新置中」。</string>
+    <string name="xr_scene_sphere_note">使用「遠近」拉近或推遠畫面；「重新置中」可恢復觀看方向。</string>
 
     <!-- ─────────────────────────────── 螢幕類型頁 -->
     <string name="xr_screen_type_title">螢幕類型</string>
@@ -204,4 +204,9 @@
 
     <string name="xr_swipe_no_previous_image">已經是第一張</string>
     <string name="xr_swipe_no_next_image">已經是最後一張</string>
+    <string name="xr_view_distance">遠近</string>
+    <string name="xr_view_distance_hint">按住拉近或推遠，鬆開即停。</string>
+    <string name="xr_view_nearer">拉近</string>
+    <string name="xr_view_farther">推遠</string>
+    <string name="xr_view_distance_reset">重設距離</string>
 </resources>

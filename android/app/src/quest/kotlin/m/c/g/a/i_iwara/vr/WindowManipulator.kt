@@ -107,9 +107,8 @@ interface WindowHost {
  * # 几何怎么算
  *
  * 射线来源用 ISDK 报过的指针实体（`PointerEvent.source`，与光标同一条射线），没报过时退回手 / 手柄实体。
- * 命中全由这里自己算（平面：射线 × 平面；弧幕：射线 × 圆柱），不依赖 ISDK 的悬停 —— 拉角时光标常常
- * 已经跑出窗框外，靠悬停就断了。窗框**显示**用的高亮区来自窗框面板自己的指针事件（像素坐标系，
- * 不会左右镜像），抓取**逻辑**用射线算出的本地坐标（符号来自坐标本身，与镜像无关）。
+ * 命中与高亮都来自本帧、对应手的射线。Compose / ISDK 的 Exit 可能不送达，缓存的高亮绝不能作为抓取兜底。
+ * 一旦真正抓住，才允许射线离开窗框继续拖；松手后下次捏合必须重新命中。
  *
  * # 尺寸怎么落地
  *
@@ -155,7 +154,8 @@ class WindowManipulator(
     private class Session(val hand: Int, val slot: Slot, val zone: WindowFrameZone, val byGrip: Boolean) {
         // 挪：面中心在射线坐标系里的偏移，松手前保持不变
         var localOffset = Vector3(0f, 0f, 0f)
-        var startQ = Quaternion(0f, 0f, 0f)
+        var startPosition = Vector3(0f, 0f, 0f)
+        var orientation = GrabOrientation(Quaternion(0f, 0f, 0f), null)
 
         // 缩放：起始面位姿 / 尺寸 / 抓住的角在本地坐标里的符号
         var startSurface = Pose()
@@ -191,11 +191,7 @@ class WindowManipulator(
     fun isBusy(hand: Int): Boolean = sessions[hand] != null
 
     /** 这只手的射线此刻落在哪块窗的哪个区（含窗体 BODY）；什么都没碰到 = NONE。 */
-    fun zoneUnder(hand: Int): WindowFrameZone {
-        hits[hand]?.let { if (it.zone != WindowFrameZone.NONE) return it.zone }
-        return slots.values.firstOrNull { it.state.pointerZone != WindowFrameZone.NONE }?.state?.pointerZone
-            ?: WindowFrameZone.NONE
-    }
+    fun zoneUnder(hand: Int): WindowFrameZone = hits[hand]?.zone ?: WindowFrameZone.NONE
 
     // ================================================================ 生命周期
 
@@ -211,6 +207,21 @@ class WindowManipulator(
         for (kind in slots.keys.toList()) detachNow(kind)
         for ((entity, _) in doomed) runCatching { entity.destroy() }
         doomed.clear()
+    }
+
+    /** Recenter/focus loss cancels, rather than committing an old resize or hiding the controls. */
+    fun cancelAll() {
+        for (i in 0..1) {
+            sessions[i]?.slot?.state?.activeZone = WindowFrameZone.NONE
+            sessions[i] = null
+            hits[i] = null
+            raySource[i] = null
+        }
+        for (slot in slots.values) {
+            slot.state.activeZone = WindowFrameZone.NONE
+            slot.state.pointerZone = WindowFrameZone.NONE
+            slot.state.nearEdge = false
+        }
     }
 
     /** 窗体建好了：给它配一块窗框。同一种窗重复 attach 会先摘掉旧的。 */
@@ -346,6 +357,9 @@ class WindowManipulator(
         for (slot in slots.values) syncFrame(slot)
         for (hand in 0..1) hits[hand] = computeHit(hand, input)
         for (slot in slots.values) {
+            slot.state.pointerZone = hits.firstOrNull { hit ->
+                hit != null && hit.slot === slot && (hit.zone.isEdge || hit.zone.isCorner)
+            }?.zone ?: WindowFrameZone.NONE
             // 光标在窗体里操作应用时窗框不露面；只有贴近窗沿（离边 < NEAR_EDGE_M）才提前亮起来。
             slot.state.nearEdge = hits.any { hit ->
                 hit != null && hit.slot === slot && hit.zone == WindowFrameZone.BODY && run {
@@ -369,6 +383,9 @@ class WindowManipulator(
                 (e.selectDown and bit) != 0 -> tryStart(hand, byGrip = false, input)
             }
         }
+        for (slot in slots.values) {
+            slot.state.activeZone = sessions.firstOrNull { it?.slot === slot }?.zone ?: WindowFrameZone.NONE
+        }
     }
 
     /**
@@ -384,7 +401,8 @@ class WindowManipulator(
         val session = Session(hand, slot, WindowFrameZone.BODY, byGrip = true)
         val rp = basisPose(ray.origin, ray.direction)
         session.localOffset = rp.q.inverse() * (surface.t - rp.t)
-        session.startQ = surface.q
+        session.startPosition = surface.t
+        session.orientation = GrabOrientation(surface.q, faceViewer(surface.t))
         sessions[hand] = session
         slot.state.activeZone = WindowFrameZone.BODY
         slot.host.onInteraction()
@@ -462,6 +480,10 @@ class WindowManipulator(
     fun ray(hand: Int, input: SpatialInputPoller): PointerRay? = rayFor(hand, input)
 
     private fun rayFor(hand: Int, input: SpatialInputPoller): PointerRay? {
+        if (!input.handActive[hand]) {
+            raySource[hand] = null
+            return null
+        }
         val source = raySource[hand]
         val pose = source?.let { runCatching { getAbsoluteTransform(it) }.getOrNull() }
             ?: input.handPoses[hand]
@@ -561,26 +583,11 @@ class WindowManipulator(
     // ================================================================ 抓 / 挪 / 缩放
 
     private fun tryStart(hand: Int, byGrip: Boolean, input: SpatialInputPoller) {
-        val hit = hits[hand]
-        val frameSlot = slots.values.firstOrNull { it.state.pointerZone != WindowFrameZone.NONE }
-        val slot: Slot
-        val zone: WindowFrameZone
-        // 射线自己算出的命中优先（每帧新鲜）；窗框面板报的悬停区只在射线什么都没打到时兜底
-        // （两套几何在边沿差一点点时不至于抓空；它若因为没收到 Exit 而过期，也不会盖过射线）。
-        when {
-            hit != null && hit.zone != WindowFrameZone.BODY && hit.zone != WindowFrameZone.NONE -> {
-                slot = hit.slot; zone = hit.zone
-            }
-            hit != null && hit.zone == WindowFrameZone.BODY -> {
-                // 窗体上：扳机 / 捏合是给内容的，只有抓握扳机才抓窗
-                if (!byGrip) return
-                slot = hit.slot; zone = WindowFrameZone.BODY
-            }
-            hit == null && frameSlot != null -> {
-                slot = frameSlot; zone = frameSlot.state.pointerZone
-            }
-            else -> return
-        }
+        val hit = hits[hand] ?: return
+        val slot = hit.slot
+        val zone = hit.zone
+        // A new pinch requires this hand's current hit. Content keeps select; only grip can grab BODY.
+        if (zone == WindowFrameZone.NONE || (zone == WindowFrameZone.BODY && !byGrip)) return
         val ray = rayFor(hand, input) ?: return
         val surface = slot.host.surfacePose() ?: return
         val size = slot.host.size()
@@ -588,20 +595,21 @@ class WindowManipulator(
         if (zone.movesWindow) {
             val rp = basisPose(ray.origin, ray.direction)
             session.localOffset = rp.q.inverse() * (surface.t - rp.t)
-            session.startQ = surface.q
+            session.startPosition = surface.t
+            session.orientation = GrabOrientation(surface.q, faceViewer(surface.t))
         } else {
             session.startSurface = surface
             session.startSize = size
             session.arc = slot.host.arcDegrees()
             session.radius = if (session.arc >= ScreenGeometry.MIN_ARC_DEGREES) ScreenGeometry.radiusFor(session.arc, size.x) else 0f
-            val local = hit?.local ?: (intersect(ray, surface, size, session.arc)?.let { Vector2(it.x, it.y) })
+            val local = hit.local
             session.signX = when {
-                local != null && abs(local.x) > 0.01f -> if (local.x > 0f) 1f else -1f
+                abs(local.x) > 0.01f -> if (local.x > 0f) 1f else -1f
                 zone == WindowFrameZone.CORNER_TR || zone == WindowFrameZone.CORNER_BR -> 1f
                 else -> -1f
             }
             session.signY = when {
-                local != null && abs(local.y) > 0.01f -> if (local.y > 0f) 1f else -1f
+                abs(local.y) > 0.01f -> if (local.y > 0f) 1f else -1f
                 zone == WindowFrameZone.CORNER_TL || zone == WindowFrameZone.CORNER_TR -> 1f
                 else -> -1f
             }
@@ -618,7 +626,7 @@ class WindowManipulator(
         if (session.zone.movesWindow) {
             val rp = basisPose(ray.origin, ray.direction)
             val t = rp.t + rp.q * session.localOffset
-            val q = faceViewer(t) ?: session.startQ
+            val q = session.orientation.at(faceViewer(t), (t - session.startPosition).length())
             host.moveTo(Pose(t, q))
         } else {
             val hit = intersect(ray, session.startSurface, session.startSize, session.arc) ?: return

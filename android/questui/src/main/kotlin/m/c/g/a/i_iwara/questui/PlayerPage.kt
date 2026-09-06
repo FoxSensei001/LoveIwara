@@ -250,6 +250,7 @@ private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
 
         Spacer(Modifier.width(8.dp))
 
+        ViewDistanceButton(cb)
         CircleActionButton(SpatialIcons.Regular.Environment, stringResource(R.string.xr_nav_scene)) { cb.onRoute(ControlsRoute.SCENE) }
         CircleActionButton(SpatialIcons.Regular.ListView, stringResource(R.string.xr_nav_playlist)) { cb.onRoute(ControlsRoute.PLAYLIST) }
         CircleActionButton(SpatialIcons.Regular.Settings, stringResource(R.string.xr_nav_settings)) { cb.onRoute(ControlsRoute.SETTINGS) }

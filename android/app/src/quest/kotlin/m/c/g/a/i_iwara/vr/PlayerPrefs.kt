@@ -65,9 +65,18 @@ class PlayerPrefs(context: Context) {
         galleryLoopVideo = sp.getBoolean(KEY_GALLERY_LOOP, true)
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
         state.scene = enum(KEY_SCENE, SceneKind.VOID)
-        state.screenDistance = sp.getFloat(KEY_DISTANCE, 2.4f)
-        state.screenOffset = sp.getFloat(KEY_OFFSET, 0f)
-        state.screenWidth = sp.getFloat(KEY_WIDTH, 3.2f)
+        state.screenDistance = sp.getFloat(KEY_DISTANCE, DEFAULT_VIEW_DISTANCE_M).coerceIn(1.2f, 8f)
+        state.screenOffset = sp.getFloat(KEY_OFFSET, 0f).coerceIn(-1.5f, 1.5f)
+        state.screenWidth = sp.getFloat(KEY_WIDTH, DEFAULT_SCREEN_WIDTH_M).coerceIn(1f, 10f)
+        val migrateLayout = !sp.getBoolean(KEY_COMFORTABLE_LAYOUT, false)
+        if (migrateLayout) {
+            // Bring old distant layouts closer once, retaining their apparent size. Later edits stay personal.
+            val closer = nearerLayout(state.screenDistance, state.screenWidth)
+            state.screenDistance = closer[0]
+            state.screenWidth = closer[1]
+            state.screenOffset = 0f
+            for ((key, saved) in aspectLayouts.toMap()) aspectLayouts[key] = nearerLayout(saved[0], saved[1])
+        }
         // 「沿用到下一条视频」关着时，屏幕尺寸与倍速跨会话也不恢复：每条片子都从默认值开始。
         state.carryOverToNextVideo = sp.getBoolean(KEY_CARRY_OVER, false)
         if (state.carryOverToNextVideo) {
@@ -88,6 +97,10 @@ class PlayerPrefs(context: Context) {
         state.summonInFront = sp.getBoolean(KEY_SUMMON_IN_FRONT, true)
         state.controllerTapPlayPause = sp.getBoolean(KEY_CONTROLLER_TAP, true)
         state.pauseOnFocusLoss = sp.getBoolean(KEY_PAUSE_ON_FOCUS_LOSS, true)
+        if (migrateLayout) {
+            save(state)
+            sp.edit().putBoolean(KEY_COMFORTABLE_LAYOUT, true).apply()
+        }
     }
 
     fun save(state: VideoControlsState) {
@@ -145,6 +158,15 @@ class PlayerPrefs(context: Context) {
     }
 
     companion object {
+        const val DEFAULT_VIEW_DISTANCE_M = 1.6f
+        const val DEFAULT_SCREEN_WIDTH_M = 2.2f
+
+        internal fun nearerLayout(distance: Float, width: Float): FloatArray {
+            val oldDistance = distance.takeIf { it.isFinite() }?.coerceIn(1.2f, 8f) ?: DEFAULT_VIEW_DISTANCE_M
+            val oldWidth = width.takeIf { it.isFinite() }?.coerceIn(1f, 10f) ?: DEFAULT_SCREEN_WIDTH_M
+            val closer = oldDistance.coerceAtMost(DEFAULT_VIEW_DISTANCE_M)
+            return floatArrayOf(closer, (oldWidth * closer / oldDistance).coerceIn(1f, 10f))
+        }
         /** 2D 应用面板默认 1.6m 宽、1024×640dp（与 `ImmersiveActivity.registerPanels` 成对）。 */
         const val DEFAULT_UI_PANEL_WIDTH_M = 1.6f
         const val UI_PANEL_ASPECT_H_OVER_W = 640f / 1024f
@@ -158,6 +180,7 @@ class PlayerPrefs(context: Context) {
         const val KEY_SCENE = "scene"
         const val KEY_DISTANCE = "distance"
         const val KEY_OFFSET = "offset"
+        private const val KEY_COMFORTABLE_LAYOUT = "comfortableViewingLayoutV2"
         const val KEY_WIDTH = "width"
         const val KEY_ASPECT = "aspect"
         const val KEY_WIDTH_RATIO = "widthRatio"

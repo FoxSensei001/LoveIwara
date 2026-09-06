@@ -127,7 +127,7 @@
     <string name="xr_screen_distance">スクリーンまでの距離</string>
     <string name="xr_screen_width">スクリーン幅</string>
     <string name="xr_screen_offset">上下のオフセット</string>
-    <string name="xr_scene_sphere_note">180°/360° の素材に「スクリーンの位置」はありません。映像はあなたを囲む球面そのものです。向きを変えるには右上の「中央に戻す」を使ってください。</string>
+    <string name="xr_scene_sphere_note">「距離」で映像を近づけたり遠ざけたりできます。「中央に戻す」で向きを戻せます。</string>
 
     <!-- ─────────────────────────────── スクリーン形状ページ -->
     <string name="xr_screen_type_title">スクリーン形状</string>
@@ -204,4 +204,9 @@
 
     <string name="xr_swipe_no_previous_image">最初の画像です</string>
     <string name="xr_swipe_no_next_image">最後の画像です</string>
+    <string name="xr_view_distance">距離</string>
+    <string name="xr_view_distance_hint">長押しで近づけたり遠ざけたりできます。離すと止まります。</string>
+    <string name="xr_view_nearer">近づける</string>
+    <string name="xr_view_farther">遠ざける</string>
+    <string name="xr_view_distance_reset">距離をリセット</string>
 </resources>

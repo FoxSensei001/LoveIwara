@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 enum class ControlsRoute {
     PLAYER,
     SCENE,
+    DISTANCE,
     VIDEO_TYPE,
     SCREEN_TYPE,
     PLAYLIST,
@@ -352,13 +353,13 @@ class VideoControlsState {
     var scene by mutableStateOf(SceneKind.VOID)
 
     /** 观看距离（米）。 */
-    var screenDistance by mutableStateOf(2.5f)
+    var screenDistance by mutableStateOf(1.6f)
 
     /** 幕心相对静息眼高的偏移（米），正数往上。 */
     var screenOffset by mutableStateOf(0f)
 
     /** 幕宽（米）。平面片为弧长 / 边长；球幕片无意义。 */
-    var screenWidth by mutableStateOf(2.4f)
+    var screenWidth by mutableStateOf(2.2f)
 
     // ---- 屏幕尺寸（设置页） ----
     var aspectPreset by mutableStateOf(AspectPreset.DEFAULT)
@@ -499,6 +500,10 @@ interface VideoControlsCallbacks {
     // ---- 场景 ----
     fun onPickScene(scene: SceneKind)
     fun onScreenDistance(meters: Float)
+    /** -1 = nearer, +1 = farther. Releasing or cancelling must stop immediately. */
+    fun onViewDistanceHold(direction: Int, pressed: Boolean)
+    fun onViewDistanceStep(direction: Int)
+    fun onResetViewDistance()
     fun onScreenOffset(meters: Float)
     fun onScreenWidth(meters: Float)
     fun onResetScreenGeometry()

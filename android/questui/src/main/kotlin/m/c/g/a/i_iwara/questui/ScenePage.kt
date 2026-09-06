@@ -43,8 +43,7 @@ import com.meta.spatial.uiset.theme.icons.regular.World
  * # 幕布几何
  *
  * 参考软件的「场景调节」给的是**屏幕距离 / 屏幕偏移 / 幕宽**三条滑块，我们照做。
- * 球幕片（180/360）人在球心，弯的是整个世界，这三条滑块没有意义 —— 那时整片
- * 藏起来只留「重新居中」与一段说明，别让人调了发现毫无反应。
+ * 平面片保留精确的距离 / 幕宽 / 高度滑块；所有投影共用「远近」的单手按住操控。
  *
  * ⛔ 距离下限 **1.5m** 不是随手定的：官方对 UI 的下限是 1m
  * （`hands-3d-best-practices`：「Avoid placing UI in the middle distance
@@ -72,7 +71,8 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             ),
             onBack = { cb.onRoute(ControlsRoute.PLAYER) },
             trailing = {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    ViewDistanceButton(cb)
                     if (state.format.isFlat) {
                         SecondaryButton(
                             label = stringResource(R.string.xr_reset),
@@ -114,7 +114,7 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             )
         }
 
-        // ── 场景调节（平面片才有意义） ──────────────
+        // ── 幕宽 / 高度（平面片） ──────────────
         if (state.format.isFlat) {
             SectionLabel(stringResource(R.string.xr_scene_section_adjust))
 

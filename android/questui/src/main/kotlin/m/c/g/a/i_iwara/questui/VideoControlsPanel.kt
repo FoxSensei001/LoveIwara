@@ -53,6 +53,7 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
                             if (gallery != null) GalleryPage(state, gallery, cb) else PlayerPage(state, cb)
                         }
                         ControlsRoute.SCENE -> ScenePage(state, cb)
+                        ControlsRoute.DISTANCE -> ViewDistancePage(cb)
                         ControlsRoute.VIDEO_TYPE -> VideoTypePage(state, cb)
                         ControlsRoute.SCREEN_TYPE -> ScreenTypePage(state, cb)
                         ControlsRoute.PLAYLIST -> PlaylistPage(state, cb)

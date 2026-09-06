@@ -141,7 +141,7 @@
     <string name="xr_screen_distance">Distance</string>
     <string name="xr_screen_width">Screen width</string>
     <string name="xr_screen_offset">Vertical offset</string>
-    <string name="xr_scene_sphere_note">180°/360° sources have no screen position to adjust — the picture is the sphere around you. Use “Recenter” at the top right to change which way it faces.</string>
+    <string name="xr_scene_sphere_note">Use “Distance” to move the picture closer or farther. “Recenter” restores the viewing direction.</string>
 
     <!-- ─────────────────────────────── 屏幕类型页 -->
     <string name="xr_screen_type_title">Screen shape</string>
@@ -221,4 +221,9 @@
 
     <string name="xr_swipe_no_previous_image">This is the first image</string>
     <string name="xr_swipe_no_next_image">This is the last image</string>
+    <string name="xr_view_distance">Distance</string>
+    <string name="xr_view_distance_hint">Hold to move closer or farther. Release to stop.</string>
+    <string name="xr_view_nearer">Closer</string>
+    <string name="xr_view_farther">Farther</string>
+    <string name="xr_view_distance_reset">Reset distance</string>
 </resources>
