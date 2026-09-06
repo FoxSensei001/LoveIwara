@@ -67,6 +67,12 @@ class PlaybackEngine(private val context: Context) {
     val durationMs: Long get() = (player?.duration ?: 0L).coerceAtLeast(0L)
 
     /**
+     * 已缓冲到的位置（ms）。ExoPlayer 的 `bufferedPosition` 是**从当前播放点起连续可播**的终点，
+     * 不是「一共下了多少」——进度条上要画的正是这一段：越过它就得重新等。本地文件直接是全长。
+     */
+    val bufferedMs: Long get() = (player?.bufferedPosition ?: 0L).coerceAtLeast(0L)
+
+    /**
      * 把 [url] 放到 [surface] 上。
      *
      * @return true 表示新开了一条片子；false 表示同一条片子只是换了 Surface。
@@ -257,6 +263,21 @@ class PlaybackEngine(private val context: Context) {
             player?.repeatMode = repeat
         }
         return started
+    }
+
+    /**
+     * 空间画廊里从一条短片换到另一条：从头起播、沿用 Surface（同一个幕布实体），倍速不沿用。
+     * @return false = 还没有 Surface（幕布还没建出来，走正常的 startPlayback 路径）。
+     */
+    fun restart(url: String, muted: Boolean, volume: Float, repeatOne: Boolean): Boolean {
+        val s = surface ?: return false
+        val started = play(url, s, 0L, muted, volume)
+        if (!started) {
+            player?.seekTo(0L)
+            player?.playWhenReady = true
+        }
+        setRepeatOne(repeatOne)
+        return true
     }
 
     fun setPlaying(playing: Boolean) {

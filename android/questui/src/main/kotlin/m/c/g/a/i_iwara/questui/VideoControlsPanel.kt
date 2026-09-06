@@ -47,7 +47,11 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 // 换页淡入淡出，不硬切（本项目「有出有入」的纪律在空间面板上同样适用）。
                 Crossfade(targetState = state.route, animationSpec = tween(180), label = "route") { route ->
                     when (route) {
-                        ControlsRoute.PLAYER -> PlayerPage(state, cb)
+                        // 幕布上放的是一本图库时，主页是图集页；子页（场景 / 屏幕类型 / 设置）两者共用。
+                        ControlsRoute.PLAYER -> {
+                            val gallery = state.gallery
+                            if (gallery != null) GalleryPage(state, gallery, cb) else PlayerPage(state, cb)
+                        }
                         ControlsRoute.SCENE -> ScenePage(state, cb)
                         ControlsRoute.VIDEO_TYPE -> VideoTypePage(state, cb)
                         ControlsRoute.SCREEN_TYPE -> ScreenTypePage(state, cb)

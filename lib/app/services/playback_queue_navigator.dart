@@ -52,6 +52,7 @@ class PlaybackQueueNavigator {
     VideoFullscreenHandoff? fullscreenHandoff,
     VoidCallback? onRelinquishFullscreen,
     List<PlaybackQueue> companionQueues = const [],
+    bool presentInSpace = false,
   }) async {
     final id = item.id.trim();
     if (id.isEmpty) return;
@@ -75,7 +76,7 @@ class PlaybackQueueNavigator {
     // 一个池里不许混装两种（见 [PlaybackMediaType]），所以这一问就够了。
     // 全屏 / 自动播 / 本地文件那一整套都与图库无关，整条路各走各的。
     if (queue.mediaType.isGallery) {
-      _pushGallery(item: item, ref: ref);
+      _pushGallery(item: item, ref: ref, presentInSpace: presentInSpace);
       return;
     }
 
@@ -146,6 +147,7 @@ class PlaybackQueueNavigator {
   static void _pushGallery({
     required InnerPlaylistItemSnapshot item,
     required PlaybackQueueRef ref,
+    bool presentInSpace = false,
   }) {
     final extra = GalleryDetailExtra(
       coverUrl: item.thumbnailUrl.isEmpty ? null : item.thumbnailUrl,
@@ -154,6 +156,7 @@ class PlaybackQueueNavigator {
       authorName: item.authorName,
       authorUsername: item.authorUsername,
       playbackQueueRef: ref,
+      presentInSpace: presentInSpace,
     );
     try {
       appRouter.pushReplacement(

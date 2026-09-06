@@ -53,6 +53,7 @@ class XrQueueCatalog {
     required List<PlaybackQueue> queues,
     required String currentItemId,
     required User? author,
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
   }) {
     final t = slang.t;
     final service = PlaybackQueueService.to;
@@ -70,6 +71,12 @@ class XrQueueCatalog {
     }) {
       _openers[queueId] = open;
       return XrQueueChoice(queueId: queueId, title: title, count: count);
+    }
+
+    // 图库池的目录另走一套：图库没有播放列表 / 订阅 / 已下载，作者那一支是「作者的图库」。
+    if (mediaType.isGallery) {
+      _buildGalleryGroups(groups, choice, queues: queues, author: author, self: self);
+      return groups;
     }
 
     // 1. 来源：只有真有来源池时才出现。
@@ -310,6 +317,134 @@ class XrQueueCatalog {
   }
 
   // ────────────────────────────────────────────── 清单
+
+  /// 图库详情页的来源目录（= 图库抽屉那几个 tab）：来源 / 最爱的图库 / 本地收藏夹 / 稍后再看 / 作者的图库。
+  void _buildGalleryGroups(
+    List<XrQueueGroup> groups,
+    XrQueueChoice Function({
+      required String queueId,
+      required String title,
+      int? count,
+      required PlaybackQueue Function() open,
+    }) choice, {
+    required List<PlaybackQueue> queues,
+    required User? author,
+    required User? self,
+  }) {
+    final t = slang.t;
+    final service = PlaybackQueueService.to;
+    const gallery = PlaybackMediaType.gallery;
+
+    final source = queues.firstWhereOrNull(
+      (q) => q.kind == PlaybackQueueKind.source,
+    );
+    if (source != null) {
+      groups.add(
+        XrQueueGroup(
+          id: 'source',
+          title: t.playbackQueue.sourceTab,
+          choices: [
+            choice(
+              queueId: source.queueId,
+              title: t.playbackQueue.sourceTab,
+              open: () => source,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (self != null) {
+      groups.add(
+        XrQueueGroup(
+          id: 'favorites',
+          title: t.common.favorites,
+          choices: [
+            choice(
+              queueId: PlaybackQueueService.favoritesQueueId(gallery),
+              title: t.common.favorites,
+              open: service.openFavoriteGalleries,
+            ),
+          ],
+        ),
+      );
+    }
+
+    {
+      final feed = _feed('localFolders', _fetchLocalFolders);
+      groups.add(
+        XrQueueGroup(
+          id: 'localFolders',
+          title: t.playbackQueue.localFavoriteFolders,
+          loading: !feed.ready,
+          choices: [
+            for (final row in feed.value ?? const <_Row>[])
+              choice(
+                queueId: PlaybackQueueService.localFavoriteQueueId(
+                  row.id,
+                  mediaType: gallery,
+                ),
+                title: row.title,
+                count: row.count,
+                open: () => service.openLocalFavorite(
+                  row.id,
+                  title: row.title,
+                  mediaType: gallery,
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
+    groups.add(
+      XrQueueGroup(
+        id: 'watchLater',
+        title: t.watchLater.title,
+        choices: [
+          choice(
+            queueId: PlaybackQueueService.watchLaterQueueId(
+              unwatchedOnly: false,
+              mediaType: gallery,
+            ),
+            title: t.watchLater.filterAll,
+            open: () =>
+                service.openWatchLater(unwatchedOnly: false, mediaType: gallery),
+          ),
+          choice(
+            queueId: PlaybackQueueService.watchLaterQueueId(
+              unwatchedOnly: true,
+              mediaType: gallery,
+            ),
+            title: t.watchLater.filterUnwatched,
+            open: () =>
+                service.openWatchLater(unwatchedOnly: true, mediaType: gallery),
+          ),
+        ],
+      ),
+    );
+
+    if (author != null) {
+      groups.add(
+        XrQueueGroup(
+          id: 'authorGalleries',
+          title: t.playbackQueue.authorGalleries,
+          subtitle: author.name,
+          choices: [
+            choice(
+              queueId: PlaybackQueueService.authorMediaQueueId(
+                author.id,
+                mediaType: gallery,
+              ),
+              title: author.name,
+              open: () =>
+                  service.openAuthorGalleries(author.id, title: author.name),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   _Feed _feed(String key, Future<List<_Row>?> Function() load) {
     final existing = _feeds[key];

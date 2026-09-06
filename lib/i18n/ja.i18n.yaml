@@ -431,6 +431,7 @@ favorites:
   batchCancelFavoriteResult(success, failed): '${success} 件を解除しました。${failed} 件は失敗しました'
 
 galleryDetail:
+  browseInSpace: 空間で閲覧
   galleryDetail: ギャラリー詳細
   viewGalleryDetail: ギャラリー詳細を表示
   zoomReset: ズームをリセット
@@ -2817,6 +2818,7 @@ mediaPreview:
   previousImage: 前の画像
   nextImage: 次の画像
 playbackQueue:
+  galleryImageCount: '${count} 枚'
   upNext: 次に見る
   sourceTab: 元のリスト
   emptyQueue: このキューに再生できる動画はありません
@@ -2843,6 +2845,8 @@ vrFormat:
   title: 再生モード
   autoEnterImmersive: 動画を空間プレイヤーで開く
   autoEnterImmersiveDesc: Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。
+  autoEnterGallery: ギャラリー画像を空間ギャラリーで開く
+  autoEnterGalleryDesc: Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。
   desc: この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。
   sectionFlat: 平面
   sectionStereo: 平面立体

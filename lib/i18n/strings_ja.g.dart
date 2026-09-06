@@ -555,6 +555,7 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get browseInSpace => '空間で閲覧';
 	@override String get galleryDetail => 'ギャラリー詳細';
 	@override String get viewGalleryDetail => 'ギャラリー詳細を表示';
 	@override String get zoomReset => 'ズームをリセット';
@@ -2492,6 +2493,7 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String galleryImageCount({required Object count}) => '${count} 枚';
 	@override String get upNext => '次に見る';
 	@override String get sourceTab => '元のリスト';
 	@override String get emptyQueue => 'このキューに再生できる動画はありません';
@@ -2525,6 +2527,8 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	@override String get title => '再生モード';
 	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
 	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
+	@override String get autoEnterGallery => 'ギャラリー画像を空間ギャラリーで開く';
+	@override String get autoEnterGalleryDesc => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。';
 	@override String get desc => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -4162,6 +4166,7 @@ extension on TranslationsJa {
 			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '選択した ${count} 件のお気に入りを解除しますか？解除後もカードをタップすれば復元できます。',
 			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '${count} 件のお気に入りを解除しました',
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '${success} 件を解除しました。${failed} 件は失敗しました',
+			'galleryDetail.browseInSpace' => '空間で閲覧',
 			'galleryDetail.galleryDetail' => 'ギャラリー詳細',
 			'galleryDetail.viewGalleryDetail' => 'ギャラリー詳細を表示',
 			'galleryDetail.zoomReset' => 'ズームをリセット',
@@ -4263,9 +4268,9 @@ extension on TranslationsJa {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
-			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'この設定は、全画面再生時に縦向きビデオを縦画面モードでレンダリングするかどうかを決定します。',
@@ -4777,9 +4782,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
 			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
-			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
 			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
 			'settings.downloadSettings.pathValid' => 'パスが有効です',
@@ -5291,9 +5296,9 @@ extension on TranslationsJa {
 			'download.errors.canNotRefreshVideoTask' => 'ビデオタスクの更新に失敗しました',
 			'download.errors.taskAlreadyProcessing' => 'タスクはすでに処理中です',
 			'download.errors.failedToLoadTasks' => 'タスクの読み込みに失敗しました',
-			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
 			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
 			'download.errors.pleaseTryOtherViewer' => '他のビューアーを使用してみてください',
@@ -5805,9 +5810,9 @@ extension on TranslationsJa {
 			'logViewer.searchHint' => 'ログを検索...',
 			'logViewer.emptyState' => 'ログはありません',
 			'logViewer.copiedToClipboard' => 'クリップボードにコピーしました',
-			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
 			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '前回起動: ${time}',
@@ -6319,9 +6324,9 @@ extension on TranslationsJa {
 			'externalPlayer.testFailed' => '起動に失敗しました。実行ファイルのパスを確認してください',
 			'externalPlayer.executableMissing' => '実行ファイルが見つかりません',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '${name} で開く',
-			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
 			_ => null,
 		} ?? switch (path) {
+			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
 			'watchLater.title' => 'あとで見る',
 			'watchLater.addToWatchLater' => 'あとで見る',
 			'watchLater.removeFromWatchLater' => 'あとで見るから削除',
@@ -6360,6 +6365,7 @@ extension on TranslationsJa {
 			'mediaPreview.moreActions' => 'その他の操作',
 			'mediaPreview.previousImage' => '前の画像',
 			'mediaPreview.nextImage' => '次の画像',
+			'playbackQueue.galleryImageCount' => ({required Object count}) => '${count} 枚',
 			'playbackQueue.upNext' => '次に見る',
 			'playbackQueue.sourceTab' => '元のリスト',
 			'playbackQueue.emptyQueue' => 'このキューに再生できる動画はありません',
@@ -6384,6 +6390,8 @@ extension on TranslationsJa {
 			'vrFormat.title' => '再生モード',
 			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',
 			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',
+			'vrFormat.autoEnterGallery' => 'ギャラリー画像を空間ギャラリーで開く',
+			'vrFormat.autoEnterGalleryDesc' => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。',
 			'vrFormat.desc' => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',

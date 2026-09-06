@@ -1321,6 +1321,9 @@ class TranslationsGalleryDetailEn {
 
 	// Translations
 
+	/// en: 'Browse in space'
+	String get browseInSpace => 'Browse in space';
+
 	/// en: 'Gallery Detail'
 	String get galleryDetail => 'Gallery Detail';
 
@@ -6248,6 +6251,9 @@ class TranslationsPlaybackQueueEn {
 
 	// Translations
 
+	/// en: '${count} images'
+	String galleryImageCount({required Object count}) => '${count} images';
+
 	/// en: 'Up next'
 	String get upNext => 'Up next';
 
@@ -6328,6 +6334,12 @@ class TranslationsVrFormatEn {
 
 	/// en: 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.'
 	String get autoEnterImmersiveDesc => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.';
+
+	/// en: 'Open gallery images in the spatial gallery'
+	String get autoEnterGallery => 'Open gallery images in the spatial gallery';
+
+	/// en: 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.'
+	String get autoEnterGalleryDesc => 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.';
 
 	/// en: 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.'
 	String get desc => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.';
@@ -9497,6 +9509,7 @@ extension on Translations {
 			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => 'Remove the ${count} selected item(s) from favorites? You can restore them by tapping the cards afterwards.',
 			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => 'Removed ${count} item(s) from favorites',
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => 'Removed ${success} item(s), ${failed} failed',
+			'galleryDetail.browseInSpace' => 'Browse in space',
 			'galleryDetail.galleryDetail' => 'Gallery Detail',
 			'galleryDetail.viewGalleryDetail' => 'View Gallery Detail',
 			'galleryDetail.zoomReset' => 'Reset zoom',
@@ -9598,9 +9611,9 @@ extension on Translations {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
 			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
-			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => 'This configuration determines whether the video will be rendered in vertical screen when playing in full screen.',
@@ -10112,9 +10125,9 @@ extension on Translations {
 			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
 			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
-			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
 			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
 			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
 			'settings.downloadSettings.pathValid' => 'Path is valid',
@@ -10626,9 +10639,9 @@ extension on Translations {
 			'download.errors.taskAlreadyProcessing' => 'Task already processing',
 			'download.errors.taskNotFound' => 'Task not found',
 			'download.errors.failedToLoadTasks' => 'Failed to load tasks',
-			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
 			'download.errors.imageLoadFailed' => 'Image load failed',
 			'download.errors.pleaseTryOtherViewer' => 'Please try using other viewers to open',
@@ -11140,9 +11153,9 @@ extension on Translations {
 			'mediaPlayer.unknown' => 'Unknown',
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
-			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
 			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
 			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
@@ -11654,9 +11667,9 @@ extension on Translations {
 			'externalPlayer.testFailed' => 'Launch failed, check the executable path',
 			'externalPlayer.executableMissing' => 'Executable not found',
 			'externalPlayer.openWithNamed' => ({required Object name}) => 'Open in ${name}',
-			'externalPlayer.managePlayersEntry' => 'Manage external players…',
 			_ => null,
 		} ?? switch (path) {
+			'externalPlayer.managePlayersEntry' => 'Manage external players…',
 			'watchLater.title' => 'Watch Later',
 			'watchLater.addToWatchLater' => 'Watch later',
 			'watchLater.removeFromWatchLater' => 'Remove from Watch Later',
@@ -11695,6 +11708,7 @@ extension on Translations {
 			'mediaPreview.moreActions' => 'More actions',
 			'mediaPreview.previousImage' => 'Previous image',
 			'mediaPreview.nextImage' => 'Next image',
+			'playbackQueue.galleryImageCount' => ({required Object count}) => '${count} images',
 			'playbackQueue.upNext' => 'Up next',
 			'playbackQueue.sourceTab' => 'Source',
 			'playbackQueue.emptyQueue' => 'Nothing playable in this queue',
@@ -11719,6 +11733,8 @@ extension on Translations {
 			'vrFormat.title' => 'Playback mode',
 			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
 			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',
+			'vrFormat.autoEnterGallery' => 'Open gallery images in the spatial gallery',
+			'vrFormat.autoEnterGalleryDesc' => 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.',
 			'vrFormat.desc' => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.',
 			'vrFormat.sectionFlat' => 'Flat',
 			'vrFormat.sectionStereo' => 'Flat 3D',

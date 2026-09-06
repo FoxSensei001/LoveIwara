@@ -292,6 +292,7 @@ enum ConfigKey {
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
   XR_AUTO_ENTER_IMMERSIVE_KEY, // Quest 上打开视频自动交给空间播放器（默认开）
+  XR_GALLERY_AUTO_ENTER_KEY, // Quest 上点开图库里的图片自动进空间画廊（默认开）
   SEEK_PREVIEW_SIZE_KEY, // 进度条预览窗口（Seek Preview）的尺寸档位
   AUTO_ENTER_FULLSCREEN_MODE_KEY, // 自动进入全屏的时机（见 AutoFullscreenMode，默认关）
   AUTO_ENTER_FULLSCREEN_KIND_KEY, // 自动进入哪种全屏（见 AutoFullscreenKind，仅桌面端有区别）
@@ -476,6 +477,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'remember_screen_fit_mode';
       case ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY:
         return 'xr_auto_enter_immersive';
+      case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
+        return 'xr_gallery_auto_enter';
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
         return 'seek_preview_size';
       case ConfigKey.AUTO_ENTER_FULLSCREEN_MODE_KEY:
@@ -770,6 +773,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return false;
       case ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY:
+        return true;
+      case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return true;
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
         return 'standard';

@@ -186,4 +186,22 @@
     <string name="xr_notice_no_external_player">这台设备上没有能接住这个视频的播放器</string>
     <string name="xr_notice_resumed_at">已从 %1$s 继续播放</string>
 
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">屏幕</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">图库</string>
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">这本图库里没有文件</string>
+    <string name="xr_gallery_video_badge">视频</string>
+    <string name="xr_gallery_slideshow">幻灯片</string>
+    <string name="xr_gallery_slideshow_stop">停止幻灯片</string>
+    <string name="xr_gallery_interval">%1$d 秒</string>
+    <string name="xr_gallery_quality_standard">标准</string>
+    <string name="xr_gallery_quality_original">原图</string>
+    <string name="xr_gallery_loop">循环</string>
+    <string name="xr_gallery_load_failed">这个文件读取失败（%1$s）</string>
+
+    <string name="xr_swipe_no_previous_image">已经是第一张</string>
+    <string name="xr_swipe_no_next_image">已经是最后一张</string>
 </resources>

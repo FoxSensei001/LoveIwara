@@ -3,6 +3,7 @@ package m.c.g.a.i_iwara.questui
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
@@ -284,6 +285,14 @@ class VideoControlsState {
     // ---- 顶行：视频信息 + 系统信息 ----
     var title by mutableStateOf("")
 
+    /**
+     * 作者名；空串 = 不知道（本地文件 / 外部地址）。标题下面那一行小字。
+     *
+     * 图集页早就有「标题 + 作者」两行了，播放页却只有标题 —— 两块幕布同一个位置显示的东西
+     * 不该不一样（用户 2026-09-06）。
+     */
+    var author by mutableStateOf("")
+
     /** 系统时间，例如「18:24」。由 `:app` 每分钟刷一次。 */
     var clockText by mutableStateOf("")
 
@@ -294,6 +303,12 @@ class VideoControlsState {
     // ---- 播放 ----
     var isPlaying by mutableStateOf(false)
     var progress by mutableStateOf(0f)
+
+    /**
+     * 已缓冲到哪（0..1，与 [progress] 同一条轨道）。网络片子在进度条上画出「往前还能放到多少」，
+     * 换片 / 卡顿时看得见缓冲区在爬（用户 2026-09-06）。本地文件恒为 1。
+     */
+    var buffered by mutableStateOf(0f)
     var positionText by mutableStateOf("00:00")
     var durationText by mutableStateOf("00:00")
 
@@ -440,6 +455,13 @@ class VideoControlsState {
     // ---- 提示 ----
     /** 一行短提示（例如「EAC 片源本机放不了」），null 表示没有。 */
     var notice by mutableStateOf<String?>(null)
+
+    // ---- 空间画廊 ----
+    /**
+     * 非空 = 幕布上放的是一本**图库**而不是一条视频（见 [GalleryState]）。
+     * 播放页那一路由此换成图集页；场景 / 屏幕类型 / 设置三页原样共用（它们调的是幕布几何）。
+     */
+    var gallery by mutableStateOf<GalleryState?>(null)
 }
 
 // ─────────────────────────────────────────────────────────── 动作
@@ -528,12 +550,107 @@ interface VideoControlsCallbacks {
     // ---- 面板自身 ----
     fun onRoute(route: ControlsRoute)
 
-    /** 任何一次面板上的触碰（含拖动）都要报一次，用来续空闲计时与判定「捏合发生在面板上」。 */
+    /**
+     * 任何一次面板上的指针事件（**含悬停移动**）都会报，只用来续「空闲自动收起」的倒计时。
+     * ⛔ 别拿它判「这次操作落在面板上」—— 射线扫过就一直在报，见 [onPanelPressed]。
+     */
     fun onPanelTouched()
+
+    /**
+     * 面板上**按下**了（一次按压只报一次，按住期间不重复）。
+     * 这才是「这一次点击落在面板上」的证据，`:app` 的「面板外点一下显隐 toggle」只认它。
+     */
+    fun onPanelPressed()
 
     /** 收起控制面板。实现方**必须真的销毁面板实体**（0-alpha 照样付钱）。 */
     fun onHidePanel()
 
     /** 退出播放，把幕布收起、UI 面板还回来。⛔ 官方 Requirement：应用内必须自带返回。 */
     fun onBackToApp()
+
+    // ---- 空间画廊（只在 [VideoControlsState.gallery] 非空时会被调到） ----
+
+    /** 胶片上点了第 [index] 项。 */
+    fun onGalleryShow(index: Int)
+
+    /** 幻灯片开 / 关。 */
+    fun onGalleryToggleSlideshow()
+
+    /** 幻灯片间隔（秒）。 */
+    fun onGallerySlideshowSeconds(seconds: Int)
+
+    /** 图片画质：`standard` / `original`（与 2D 大图页同一份偏好）。 */
+    fun onGalleryPickQuality(quality: String)
+
+    /** 视频项：单条循环开关。 */
+    fun onGalleryToggleLoop()
+}
+
+// ─────────────────────────────────────────────────────────── 空间画廊
+
+/**
+ * 图库里的一项。数据由 Dart 在 `presentGallery` 时一次性推来；文件本体不在这里 ——
+ * 原生按需向 Dart 要**本地缓存路径**（[GalleryState.resolvedPath]），Dart 走自己的图片缓存
+ * （带应用内代理）下载，原生只解码。
+ *
+ * @property thumbPath Dart 手里已有缓存的缩略图文件路径；空串 = 没有，胶片退回 [thumbUrl] 走网络。
+ */
+data class GalleryItem(
+    val id: String,
+    val isVideo: Boolean,
+    // ⛔ 这里原先有个 `name`（文件名）给头部副标题用，已删：Iwara 的图片文件名是 UUID，
+    // 摆在面板上就是「一堆 ID」（用户 2026-09-06）。
+    val thumbUrl: String,
+    val thumbPath: String,
+    val width: Int,
+    val height: Int,
+)
+
+/** 幻灯片间隔可选档（秒）。 */
+val SLIDESHOW_SECONDS: List<Int> = listOf(3, 5, 10, 20)
+
+/** 图片画质两档的身份字符串（与 Dart 的 `galleryImageQualityStandard/Original` 同字面）。 */
+const val GALLERY_QUALITY_STANDARD = "standard"
+const val GALLERY_QUALITY_ORIGINAL = "original"
+
+/**
+ * 空间画廊的面板状态：一本图库、当前停在哪一项、幻灯片、画质。
+ *
+ * 与 [VideoControlsState] 同一套约定：对外普通属性、内部 `mutableStateOf`。
+ * 视频项的播放 / 进度 / 音量沿用 [VideoControlsState] 原有字段（幕布上放的仍是那台播放器）。
+ */
+class GalleryState {
+    var galleryId by mutableStateOf("")
+    var title by mutableStateOf("")
+
+    /** 作者名；空串没有。 */
+    var author by mutableStateOf("")
+
+    val items = mutableStateListOf<GalleryItem>()
+    var index by mutableStateOf(0)
+
+    /** 当前项的文件还在等 Dart 下载 / 还在解码。幕布上压转圈，胶片那格也压转圈。 */
+    var loading by mutableStateOf(false)
+
+    /** 当前项解码失败的一行说明；null = 正常。 */
+    var error by mutableStateOf<String?>(null)
+
+    var slideshow by mutableStateOf(false)
+    var slideshowSeconds by mutableStateOf(5)
+
+    /** [GALLERY_QUALITY_STANDARD] / [GALLERY_QUALITY_ORIGINAL]。 */
+    var quality by mutableStateOf(GALLERY_QUALITY_STANDARD)
+
+    /** 视频项单条循环（幻灯片开着时无效：播完就翻）。 */
+    var loopVideo by mutableStateOf(true)
+
+    /**
+     * id → 本地文件路径：Dart 已经交来的那些。胶片优先用它（比缩略图清晰、也不走网络）。
+     * ⛔ 这是 Compose 状态 map：`:app` 往里放一条，正显示那格就会自己刷新。
+     */
+    val resolvedPath = mutableStateMapOf<String, String>()
+
+    val current: GalleryItem? get() = items.getOrNull(index)
+    val hasPrevious: Boolean get() = index > 0
+    val hasNext: Boolean get() = index < items.size - 1
 }

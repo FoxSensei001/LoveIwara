@@ -56,6 +56,10 @@ import m.c.g.a.i_iwara.questui.BUFFERING_ANIM_MS
 import m.c.g.a.i_iwara.questui.BufferingState
 import m.c.g.a.i_iwara.questui.ControlsRoute
 import m.c.g.a.i_iwara.questui.FormatTab
+import m.c.g.a.i_iwara.questui.GALLERY_QUALITY_STANDARD
+import m.c.g.a.i_iwara.questui.GalleryItem
+import m.c.g.a.i_iwara.questui.GalleryStageState
+import m.c.g.a.i_iwara.questui.GalleryState
 import m.c.g.a.i_iwara.questui.PLAYBACK_SPEEDS
 import m.c.g.a.i_iwara.questui.PanelLocale
 import m.c.g.a.i_iwara.questui.PlaylistChoice
@@ -70,10 +74,13 @@ import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
 import m.c.g.a.i_iwara.questui.VideoFormat
 import m.c.g.a.i_iwara.questui.createBufferingView
+import m.c.g.a.i_iwara.questui.createGalleryStageView
 import m.c.g.a.i_iwara.questui.createVideoControlsView
 import m.c.g.a.i_iwara.questui.createWindowFrameView
 import m.c.g.a.i_iwara.questui.R as UiR
 import m.c.g.a.i_iwara.xr.ImmersiveBridge
+import m.c.g.a.i_iwara.xr.ImmersiveGalleryItem
+import m.c.g.a.i_iwara.xr.ImmersiveGalleryRequest
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistGroup
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
@@ -81,9 +88,11 @@ import m.c.g.a.i_iwara.xr.ImmersiveSourceOption
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.math.tan
 
 /**
  * Quest 沉浸式 Activity。**只存在于 quest 变体**，standard 包既不编译它、
@@ -99,6 +108,7 @@ import kotlin.math.sqrt
  * | 幕布 | `VideoSurfacePanelRegistration` + ExoPlayer；平面走 Quad/Cylinder，VR 片走 Equirect | 有片源才建 |
  * | 控制面板 | 原生 Compose（`:questui` 模块），照 4XVR 重做 | 空闲即销毁，面板外「点一下」toggle |
  * | 缓冲指示 | 一块透明小面板，浮在幕布正中 | 只在缓冲期间存在 |
+ * | 空间画廊 | 整本图库：幕布这块「窗」换成 Compose + Coil 的图片面板（`vr_image_panel`），视频项仍走 ExoPlayer 幕布，图 ↔ 视频切换时两块互换；面板主页换成图集页 | Dart `presentGallery` 起、回应用止；见「空间画廊」一节 |
  *
  * # 摆位全部跟随头部（2026-09-05 真机反馈之后）
  *
@@ -311,6 +321,63 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var playlistSections: List<ImmersivePlaylistSection> = emptyList()
     private var nowPlayingId: String? = null
 
+    // ---- 空间画廊 ----
+
+    /** 非空 = 幕布上放的是一本图库（面板主页随之换成图集页）。 */
+    private var gallery: GalleryState? = null
+    private var galleryItems: List<ImmersiveGalleryItem> = emptyList()
+
+    /** 图片面板的内容状态（`vr_image_panel` 读它）。 */
+    private val stage = GalleryStageState()
+
+    /** 当前幕布实体是图片面板（`vr_image_panel`）还是视频幕布（`vr_video_panel`）。 */
+    private var screenIsImage = false
+
+    /**
+     * 正在向 Dart 要本地文件的项 id（单飞）→ 起算时刻。
+     *
+     * ⛔ 带时刻而不是纯集合：`MethodChannel` 的回调**有可能不回来**（面板里的 Flutter 引擎重建、
+     * 通道换了实例），而这个集合只在回调里摘除 —— 丢一次回调那一项就被**永久毒住**，
+     * 之后再也发不出请求，用户看到的是「中间一直转圈，怎么点都没反应」，且没有任何出路。
+     * 过了 [GALLERY_FILE_TIMEOUT_MS] 允许重发一次。
+     */
+    private val galleryResolving = HashMap<String, Long>()
+
+    /** 幻灯片下一次翻页的时刻；0 = 还没起算（当前项还在读取 / 刚翻过）。 */
+    private var slideshowNextAt = 0L
+
+    /** 摇杆左右当前压着的方向（-1 / 0 / 1）与下一次连翻的时刻。 */
+    private var galleryStepHeld = 0
+    private var galleryStepNextAt = 0L
+
+    /** 两手抓取缩放（双抓握扳机 / 双捏合按住）：起点手距与起点幕宽。 */
+    private var twoHandScaling = false
+    private var twoHandDist0 = 0f
+    private var twoHandWidth0 = 0f
+    private var twoHandBySelect = false
+
+    /** 指针正按在图片幕布上：摇杆上下 = 缩放内容（不是推远拉近）。 */
+    private var stagePressed = false
+
+    /**
+     * **视频**幕布上的横拖翻片：正在拖的那只手（-1 = 没有）、起点与上一帧的面内横坐标（米）、速度。
+     *
+     * ⛔ 只在视频幕布上跑。图片幕布是 Compose 面板、自己收得到指针事件（`GalleryStageView`），
+     * 两条路一起跑就是一次拖动翻两张。判定与浮窗两边共用 `StageSwipeState`，这里只负责
+     * 「把射线的位移换算成幕宽比例」。
+     */
+    private var stageSwipeHand = -1
+    private var stageSwipeStartX = 0f
+    private var stageSwipeLastX = 0f
+    private var stageSwipeLastAt = 0L
+    private var stageSwipeVelocity = 0f
+    private var stageSwipeDragging = false
+
+    private val inGallery: Boolean get() = gallery != null
+
+    /** 幕布上有东西（视频或图库）。⛔ 判「有没有片源」一律用它，别再只看 argUrl：图片项没有 url。 */
+    private val stageActive: Boolean get() = !argUrl.isNullOrBlank() || inGallery
+
     /** 续播提示什么时候自动收掉（uptime ms）；0 = 没在显示。 */
     private var resumeTipUntil = 0L
 
@@ -340,6 +407,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         input = SpatialInputPoller(systemManager)
         controlsScale = prefs.controlsScale
+        stage.onLoaded = { id, w, h -> runOnUiThread { onGalleryImageLoaded(id, w, h) } }
+        stage.onFailed = { id, msg -> runOnUiThread { onGalleryImageFailed(id, msg) } }
+        // 幕布上 1× 横拖 = 攒翻页幅度（画面不动，只在幕布上浮预示），松手过阈值才真翻页。
+        stage.onSwipe = { forward -> runOnUiThread { touched(); galleryStep(forward) } }
+        // 图片幕布上到头那句话说「张」（视频幕布用默认的「条」，见 StageSwipeState）。
+        stage.swipe.noPreviousRes = UiR.string.xr_swipe_no_previous_image
+        stage.swipe.noNextRes = UiR.string.xr_swipe_no_next_image
+        stage.onPressChanged = { pressed, _, _ -> runOnUiThread { stagePressed = pressed } }
+        // 幕布上捏合 / 双击缩放算一次交互（面板的空闲倒计时要续上）。
+        // ⛔ 缩放倍数**不再镜像进面板**：面板上那组 −/%/+ 已按用户要求整组移除（2026-09-06）。
+        stage.onZoomChanged = { _ -> runOnUiThread { lastInteractionAt = SystemClock.uptimeMillis() } }
         manipulator = WindowManipulator(
             systemManager,
             frameIds = mapOf(
@@ -385,6 +463,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             videoWidth = source.getIntExtra("w", videoWidth)
             videoHeight = source.getIntExtra("h", videoHeight)
             controls.title = source.getStringExtra("title") ?: ""
+            controls.author = source.getStringExtra("author") ?: ""
             videoId = source.getStringExtra("videoId") ?: ""
         }
         argMute = source.getBooleanExtra("mute", argMute)
@@ -486,6 +565,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.i(TAG, "IMMERSIVE onSpatialShutdown")
         logMemory("onSpatialShutdown")
         notifyEnded()
+        gallery?.let { ImmersiveBridge.notifyGalleryEnded(it.galleryId, it.index) }
         ImmersiveBridge.detachScene()
         status.stop()
         if (prefsDirty) prefs.save(controls)
@@ -521,6 +601,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPresent(request: ImmersiveVideoRequest) {
             runOnUiThread {
+                // 幕布上正放着图库：先收掉它（图片面板销毁、Dart 收 galleryEnded），下面按「没有片源」的路建视频幕布。
+                if (inGallery) exitGallery()
                 // 同一条片子（videoId 相同）再 present 不算换片：面板上换过清晰度之后 argUrl 已不是 Dart
                 // 手里那个地址，按地址判会把它当成换片、从 Dart 的旧位置重新起播。同片不同地址 = 换源。
                 val sameVideo = argUrl != null && request.videoId.isNotBlank() && request.videoId == videoId
@@ -558,6 +640,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                     rebuildScreen(keepPlayback = !switchingVideo)
                 }
             }
+        }
+
+        override fun onPresentGallery(request: ImmersiveGalleryRequest) {
+            runOnUiThread { presentGallery(request) }
         }
 
         override fun onDismiss() {
@@ -710,6 +796,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         controls.format = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame)
         controls.formatTab = controls.format.tab
         controls.title = request.title
+        controls.author = request.author
         controls.notice = if (!controls.format.supported || request.unsupportedProjection) {
             text(UiR.string.xr_notice_unsupported_projection)
         } else {
@@ -766,7 +853,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         pendingStartMs = 0L
         controls.isPlaying = true
-        controls.progress = 0f
+        resetTrackUi()
         clearSwitchWait()
         if (screenEntity != null && ScreenGeometry.sameFamily(before, controls.format)) {
             requestShape(0L)
@@ -855,9 +942,23 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 摆出来的面板方向不可预期。改成直接用前向量搭正交基（[frameAlong]），
      * 「压低」= 前向量绕右轴朝这个基的 −上 转 12°——躺着时就是朝下巴方向，正是自然注视。
      */
-    private fun gazeFrame(): Pose? {
+    private fun gazeFrame(dropDeg: Float = GAZE_DROP_DEG): Pose? {
         val head = trackedHeadPose() ?: return null
-        return frameAlong(head.t, head.forward(), head.up(), dropDeg = GAZE_DROP_DEG)
+        return frameAlong(head.t, head.forward(), head.up(), dropDeg = dropDeg)
+    }
+
+    /**
+     * 头部大致水平（坐着 / 站着，俯仰在 ±35° 内）。这个姿态下幕布与控制面板走「直立」那套摆法：
+     * 幕布竖直像一面墙、控制面板放低并仰着朝人；躺着 / 仰头时才让它们整个跟着视线倾斜。
+     */
+    private fun headIsLevel(): Boolean {
+        val f = trackedHeadPose()?.forward() ?: return true
+        return abs(f.normalize().y) < LEVEL_GAZE_SIN
+    }
+
+    private fun horizontal(v: Vector3): Vector3? {
+        val h = Vector3(v.x, 0f, v.z)
+        return if (h.length() < 1e-3f) null else h.normalize()
     }
 
     /**
@@ -932,7 +1033,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun currentAnchor(): Pose = anchor ?: captureAnchor()
 
     private fun captureAnchor(): Pose {
-        val g = anchorFromUiPanel() ?: gazeFrame()
+        // 坐着 / 站着：幕布中心只比视线低一点（SCREEN_GAZE_DROP_DEG），且幕布竖直（见 geometricScreenPose）。
+        // 12° 那一档是给躺着看时「整块跟着视线倾斜」的摆法用的（真机两轮反馈「偏上」都来自那种姿态）。
+        val g = anchorFromUiPanel() ?: gazeFrame(if (headIsLevel()) SCREEN_GAZE_DROP_DEG else GAZE_DROP_DEG)
         anchorIsFallback = g == null
         // 锚点重来（首次 / 重定向 / 跨家族换片）：球幕拖过的视角与推过的远近一并归零。
         sphereForwardOverride = null
@@ -964,6 +1067,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val f = a.forward()
         val u = a.up()
         val radius = ScreenGeometry.radiusFor(curArc, curWidth)
+        // 坐着 / 站着：幕布**竖直**（只取锚点的偏航），中心仍落在锚点视线打到「距离」处的那一点。
+        // 之前幕布与视线垂直、随视线一起低头 12°，看起来像块斜靠着的板（用户 2026-09-05：「画面未垂直」）。
+        val fh = horizontal(f)
+        if (fh != null && abs(f.normalize().y) < LEVEL_GAZE_SIN) {
+            val center = a.t + f * controls.screenDistance + u * controls.screenOffset
+            val q = frameAlong(center, fh, Vector3(0f, 1f, 0f), dropDeg = 0f).q
+            return Pose(center - fh * radius, q)
+        }
         val pos = a.t + f * (controls.screenDistance - radius) + u * controls.screenOffset
         return Pose(pos, a.q)
     }
@@ -1095,6 +1206,16 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** 控制面板「摆到面前」的落点：当下视线方向 1.5m 处、略偏下，面对头部。 */
     private fun controlsPoseInFront(): Pose {
+        val head = trackedHeadPose()
+        val fh = head?.let { horizontal(it.forward()) }
+        if (head != null && fh != null && headIsLevel()) {
+            // 坐着 / 站着：面板放到视线下方 CONTROLS_DROP_DEG 处、仰着正对头部（像一块斜放的操作台），
+            // 不再与幕布平行竖着挡在画面前（用户 2026-09-05：「操作栏未适当下移并带有倾斜弧度」）。
+            val drop = CONTROLS_DISTANCE_M * kotlin.math.tan(CONTROLS_DROP_DEG * (Math.PI / 180.0).toFloat())
+            val center = head.t + fh * CONTROLS_DISTANCE_M - Vector3(0f, 1f, 0f) * drop
+            val q = frameAlong(center, center - head.t, head.up(), dropDeg = 0f).q
+            return Pose(center, q)
+        }
         val g = gazeFrame() ?: fallbackFrame()
         return Pose(g.t + g.forward() * CONTROLS_DISTANCE_M + g.up() * CONTROLS_DROP_M, g.q)
     }
@@ -1146,7 +1267,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         screenSurfaceOverride = null
         applyScreenTransform()
         // 浏览态：把 2D 应用面板也摆回视线正前方（用户反馈「重置后 2D 画面位置过于靠上」）。
-        if (argUrl.isNullOrBlank()) placeUiPanel(visible = true)
+        // ⛔ 判「浏览态」用 stageActive：空间画廊的图片项没有 argUrl，只看 argUrl 会把 2D 面板重新摆出来
+        // （用户 2026-09-05：「系统重置视角后 2D 应用出现在空间中，迷失在空间里」）。
+        if (!stageActive) placeUiPanel(visible = true)
         if (controlsEntity != null) {
             val pose = controlsPoseInFront()
             controlsEntity?.setComponent(Transform(pose))
@@ -1187,7 +1310,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         screenEntity = null
         screenPanel = null
 
-        val idle = argUrl.isNullOrBlank()
+        val idle = !stageActive
         if (idle) playback.release()
 
         // ⛔ 锚点要在 UI 面板停走之前捕获：从面板点播放进影院，幕布落在面板的方向上（见 anchorFromUiPanel）。
@@ -1201,27 +1324,38 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (idle) {
             hideControls()
             controls.title = ""
+            controls.author = ""
             controls.notice = null
             controls.buffering = false
             screenSurfaceOverride = null
             anchor = null
+            stage.model = null
+            screenIsImage = false
             syncBufferingIndicator()
             Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
             return
         }
 
-        // 这个画面比例上次调过的距离 / 幕宽先恢复回来，再按它建幕布。
+        // 这个画面比例上次调过的距离 / 幕宽先恢复回来，再按它建幕布（空间画廊里每张比例都不同，不记也不恢复）。
         applyLayoutForAspect()
 
         // 形状参数直接落到目标值（首次进入没有过渡可言）。
         curArc = controls.curve.arcDegrees
-        curWidth = controls.screenWidth
         curAspect = ScreenGeometry.screenAspect(controls, videoWidth, videoHeight)
+        curWidth = targetScreenWidth(curAspect)
+        stage.quadAspect = curAspect
         animating = false
 
         val flat = controls.format.isFlat
+        // 空间画廊的图片项：幕布换成 Compose 图片面板；视频项与普通视频都是 ExoPlayer 幕布。
+        val wantImage = inGallery && gallery?.current?.isVideo != true
+        screenIsImage = wantImage
         // 抓 / 挪 / 缩放不再挂 ISDK 的 Grabbable / IsdkPanelResize：平幕与弧幕都由 WindowManipulator 接管。
-        val entity = Entity.create(Panel(R.id.vr_video_panel), Transform(screenPose()), Visible(true))
+        val entity = Entity.create(
+            Panel(if (wantImage) R.id.vr_image_panel else R.id.vr_video_panel),
+            Transform(screenPose()),
+            Visible(true),
+        )
         screenEntity = entity
         screenEntityIsFlat = flat
         syncIsdkScreenShape()
@@ -1245,13 +1379,52 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     )
 
     /**
+     * 空间画廊图片面板的配置：形状与视频幕布同一套（曲率 / 幕宽 / 比例），像素画布是**固定的方块**。
+     *
+     * ⛔ 画布**不能**按当前图片的比例给：真机实测 `reshape()` 只换幕布形状、换不掉已经建好的画布
+     * （用户 2026-09-06：竖图进去切宽图「宽度对、高度很窄」，反过来「高度满、宽度很窄」——
+     * 那就是画布留着上一张比例的样子）。方画布 → 任意比例幕布的那次非等比拉伸由 Compose 侧补偿
+     * （`GalleryStageState.imageAspect` / `quadAspect`），换图不必重建面板、不闪。
+     */
+    private fun imageSettings(): UIPanelSettings = UIPanelSettings(
+        shape = ScreenGeometry.shapeFor(controls.format, curArc, curWidth, curAspect) as UIPanelShapeOptions,
+        // UI 面板只有 dp 一族的尺寸选项：dpi 钉 160 时 1dp = 1px，正好按像素给。
+        display = DpDisplayOptions(IMAGE_PANEL_PX.toFloat(), IMAGE_PANEL_PX.toFloat(), 160),
+        rendering = UIPanelRenderOptions(
+            renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
+        ),
+    )
+
+    /** 幕布这块「窗」当前该用的配置：图片面板 / 视频幕布。 */
+    private fun stageConfigOptions() =
+        if (screenIsImage) imageSettings().toPanelConfigOptions() else mediaSettings().toPanelConfigOptions()
+
+    /**
+     * 幕布的目标宽度。视频 = 设置里的幕宽；空间画廊 = 把图片**装进「幕宽 × 16:9」的盒子**：
+     * 竖图与横图同高，不会一张 9:16 的插画顶天立地（幕宽 3.2m 的话竖图会有 5.7m 高）。
+     */
+    private fun targetScreenWidth(aspect: Float): Float {
+        val box = controls.screenWidth
+        if (!inGallery) return box
+        val boxHeight = box * 9f / 16f
+        return min(box, boxHeight * aspect).coerceAtLeast(GALLERY_MIN_WIDTH_M)
+    }
+
+    /** 当前比例下「实际幕宽 / 盒子宽」；拉角缩放把实际宽换回盒子宽时用。 */
+    private fun galleryFitFactor(): Float {
+        val box = controls.screenWidth
+        if (!inGallery || box <= 0f) return 1f
+        return targetScreenWidth(curAspect) / box
+    }
+
+    /**
      * 发起一次形状过渡：从当前实际值插值到 state 里的目标值。
      *
      * @param durationMs 0 = 立刻到位（换立体模式这类没有中间态的）。滑块连续拖动给个很短的时长，
      *   逐帧跟手；换屏幕类型给 [CURVE_ANIM_MS]，有动画。
      */
     private fun requestShape(durationMs: Long) {
-        if (argUrl.isNullOrBlank()) return
+        if (!stageActive) return
         if (!controls.format.isFlat) {
             reshapeNow()
             return
@@ -1268,13 +1441,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun stepShapeAnimation(now: Long) {
         if (!animating) return
         val targetArc = controls.curve.arcDegrees
-        val targetWidth = controls.screenWidth
         val targetAspect = ScreenGeometry.screenAspect(controls, videoWidth, videoHeight)
+        val targetWidth = targetScreenWidth(targetAspect)
         val t = if (animDurationMs <= 0L) 1f else ((now - animStartAt).toFloat() / animDurationMs).coerceIn(0f, 1f)
         val k = t * t * (3f - 2f * t) // smoothstep
         curArc = animFromArc + (targetArc - animFromArc) * k
         curWidth = animFromWidth + (targetWidth - animFromWidth) * k
         curAspect = animFromAspect + (targetAspect - animFromAspect) * k
+        // 图片幕布的画布是方的：形状每变一点，Compose 那边的拉伸补偿就要跟着变（见 imageSettings）。
+        if (screenIsImage) stage.quadAspect = curAspect
         if (t >= 1f) animating = false
         reshapeNow()
     }
@@ -1287,9 +1462,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             rebuildScreen(keepPlayback = true)
             return
         }
+        // 幕布形状每一次落地都在这里：方画布的拉伸补偿必须同一时刻更新，晚一帧就是闪一下变形。
+        if (screenIsImage) stage.quadAspect = curAspect
         val ok = runCatching {
-            panel.reshape(mediaSettings().toPanelConfigOptions())
-            playback.attachSurface(panel.surface)
+            panel.reshape(stageConfigOptions())
+            if (!screenIsImage) playback.attachSurface(panel.surface)
         }.isSuccess
         if (!ok) {
             Log.w(TAG, "IMMERSIVE reshape 失败，退回重建")
@@ -1348,7 +1525,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      */
     private fun syncBufferingIndicator() {
         val now = SystemClock.uptimeMillis()
-        val onScreen = !argUrl.isNullOrBlank() && screenEntity != null
+        val onScreen = stageActive && screenEntity != null
         val buffering = controls.buffering && onScreen
         if (buffering) {
             if (bufferingSince == 0L) bufferingSince = now
@@ -1357,16 +1534,21 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         // 同一块叠层也给摇杆拖动进度的预览用：拖动一开始就露面，不等缓冲那 350ms。
         val want = (scrubbing && onScreen) || (buffering && now - bufferingSince >= BUFFERING_SHOW_DELAY_MS)
-        if (want) {
+        // 横拖翻片的预示浮窗也画在这块叠层上，但它**不点亮** [BufferingState.visible]
+        //（那是转圈 / 进度预览那一层的闸门）—— 只是把实体留住，别在拖到一半时被销毁。
+        val keepAlive = want || (stageSwipeDragging && onScreen)
+        if (keepAlive) {
             bufferingDestroyAt = 0L
             if (bufferingEntity == null) createBufferingEntity()
-            bufferingState.visible = true
+            bufferingState.visible = want
         } else if (bufferingEntity != null) {
             if (bufferingState.visible) {
                 bufferingState.visible = false
                 bufferingDestroyAt = now + BUFFERING_ANIM_MS + 40L
-            } else if (bufferingDestroyAt != 0L && now >= bufferingDestroyAt) {
-                destroyBufferingEntity()
+            } else {
+                // 只为浮窗留着的那种：这里才起算销毁倒计时（等浮窗自己的退场播完）。
+                if (bufferingDestroyAt == 0L) bufferingDestroyAt = now + BUFFERING_ANIM_MS + 40L
+                if (now >= bufferingDestroyAt) destroyBufferingEntity()
             }
         }
     }
@@ -1487,9 +1669,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun resizeTo(size: Vector2, surface: Pose, commit: Boolean) {
             screenSurfaceOverride = surface
-            controls.screenWidth = size.x.coerceIn(SCREEN_MIN_WIDTH_M, SCREEN_MAX_WIDTH_M)
+            // 空间画廊里拉的是图片的实际宽，设置里记的是「盒子」宽（见 targetScreenWidth）。
+            controls.screenWidth = (size.x / galleryFitFactor()).coerceIn(SCREEN_MIN_WIDTH_M, SCREEN_MAX_WIDTH_M)
             animating = false
-            curWidth = controls.screenWidth
+            curWidth = targetScreenWidth(curAspect)
             reshapeNow()
             if (commit) {
                 markPrefsDirty()
@@ -1516,7 +1699,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override val resizePolicy = ResizePolicy.ASPECT_LOCKED
         override val minSize = Vector2(CONTROLS_WIDTH_M * CONTROLS_MIN_SCALE, CONTROLS_HEIGHT_M * CONTROLS_MIN_SCALE)
         override val maxSize = Vector2(CONTROLS_WIDTH_M * CONTROLS_MAX_SCALE, CONTROLS_HEIGHT_M * CONTROLS_MAX_SCALE)
-        override val cornerRadiusM = CONTROLS_CORNER_M
+        // 面板整只是等比 `Scale` 放大的，圆角在世界里也跟着放大 —— 不乘这一下，放大之后窗框的角会明显小一圈。
+        override fun cornerRadiusM() = Vector2(CONTROLS_CORNER_M * controlsScale, CONTROLS_CORNER_M * controlsScale)
         override val zIndex = Z_CONTROLS
 
         override fun surfacePose(): Pose? = controlsEntity?.tryGetComponent<Transform>()?.transform
@@ -1555,7 +1739,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override val resizePolicy = ResizePolicy.FREE
         override val minSize = Vector2(UI_PANEL_MIN_WIDTH_M, UI_PANEL_MIN_HEIGHT_M)
         override val maxSize = Vector2(UI_PANEL_MAX_WIDTH_M, UI_PANEL_MAX_HEIGHT_M)
-        override val cornerRadiusM = UI_PANEL_CORNER_M
+        // ⛔ 分轴乘 uiScale：拖角的过程中面板是被非等比 `Scale` 抻着的（松手才按新像素重排），
+        // 那期间 Flutter 裁出来的 20dp 圆角本来就是椭圆 —— 窗框照这个椭圆画才贴得住。
+        override fun cornerRadiusM() = Vector2(UI_PANEL_CORNER_M * uiScale.x, UI_PANEL_CORNER_M * uiScale.y)
         override val zIndex = Z_UI
 
         override fun surfacePose(): Pose? =
@@ -1613,7 +1799,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         settleHeadPlacement()
         // 抓 / 挪 / 缩放先裁决：按在窗框上的「选择」不会再落到下面的「点一下 toggle」。
         manipulator.tick(input)
-        if (!argUrl.isNullOrBlank()) handleInput(now) else handleBrowseInput()
+        if (stageActive) handleInput(now) else handleBrowseInput()
+        tickGallery(now)
         syncControlsDepth()
         reapDoomedControls()
         updateAutoHide(now)
@@ -1658,7 +1845,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         val ready = headTrackingReady()
         if (!ready && !headSettleTimedOut()) return
-        if (argUrl.isNullOrBlank()) {
+        if (!stageActive) {
             if (!uiPanelPlacedByHead) placeUiPanel(visible = true)
         } else if (anchorIsFallback && ready) {
             captureAnchor()
@@ -1667,9 +1854,27 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
+    /**
+     * 起播 / 换片时把轨道清零。⛔ 进度与**缓冲段**必须一起清：只清进度的话，新片起播那一瞬
+     * 轨道上还挂着老片缓冲了多长，看起来像是「新片瞬间就缓冲了一半」。
+     */
+    private fun resetTrackUi() {
+        controls.progress = 0f
+        controls.buffered = 0f
+        bufferingState.scrubBuffered = 0f
+    }
+
     private fun updateTransport() {
         if (!playback.isAlive) return
         if (controls.isPlaying != playback.isPlaying) controls.isPlaying = playback.isPlaying
+        // ⛔ 缓冲段在 seeking 之前写：拖进度时最该看见的就是「拖过去要不要重等」，
+        // 那一段与用户按住不放无关（下面那个 return 只是为了别把拖到一半的位置写回去）。
+        val total = playback.durationMs
+        if (total > 0) {
+            val b = (playback.bufferedMs.toFloat() / total).coerceIn(0f, 1f)
+            if (controls.buffered != b) controls.buffered = b
+            if (bufferingState.scrubBuffered != b) bufferingState.scrubBuffered = b
+        }
         if (seeking) return
         val dur = playback.durationMs
         if (dur > 0) {
@@ -1690,36 +1895,67 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 抓握扳机按下就抓幕布拖，不用瞄准（用户 2026-09-05）。manipulator.tick 已先跑过：瞄在控制面板 / 窗框上的
         // 那只手已经开了会话（isBusy），这里不抢；球幕没有幕布可抓。
         updateSphereGrab(now)
+        // 两手一起抓（双抓握扳机 / 双捏合按住）= 拉开缩放幕布，不用瞄角（用户 2026-09-05：只能靠拖窗角放大缩小）。
+        updateTwoHandScale(now)
+        // ⛔ 两手缩放期间否决横拖：图片幕布那块 Compose **只看得见其中一枚指针**（Quest 上两只手柄
+        // 不是两枚 Compose 指针，§19 续十二·第三轮实测），它自己判不出「这是在缩放不是在横拖」——
+        // 不写这一条，两手放大时下面就一直长着翻页进度条（用户 2026-09-06）。
+        stage.swipe.blocked = twoHandScaling
+        bufferingState.swipe.blocked = twoHandScaling
+        // 按在**视频**画面上横拖 = 攒「上一条 / 下一条」的幅度（画面不动，只浮预示）。
+        updateStageSwipe(now)
         for (i in 0..1) {
             val bit = 1 shl i
-            if ((e.gripDown and bit) != 0 && !manipulator.isBusy(i) && screenEntity != null && sphereGrabHand < 0) {
+            if ((e.gripDown and bit) != 0 && !twoHandScaling && !manipulator.isBusy(i) && screenEntity != null && sphereGrabHand < 0) {
                 if (controls.format.isFlat) manipulator.startGrab(i, WindowKind.SCREEN, input) else startSphereGrab(i, now)
             }
         }
         // ⛔ 射线悬在面板上时 A 键是给面板的（ISDK 把它当点击送进去），这里再切一次播放/暂停就穿透了
         // （用户 2026-09-05：「用 A 键点操作栏，画面跟着暂停」）。扳机那条路早就这么判了（onSelectDown）。
         if (e.primaryTap && controls.controllerTapPlayPause && !controlsHovered) controlsCallbacks.onPlayPause()
-        // B/Y = 「返回」：面板开着就收面板，面板收着就退出影院回应用 —— 与浏览态里 B = 上一页同一条语义。
+        // B/Y = 「返回」：面板上还有层次就**先退一层**，退无可退才收面板，面板收着才退出影院回应用。
+        // ⛔ 别一按就把整只面板关掉（用户 2026-09-06：「在二级页按 B 直接把面板关了」）——
+        // 退的层次与面板自己那枚返回钮一一对应（各子页的 PageHeader.onBack 都是回 PLAYER）。
         if (e.back) {
             if (controlsEntity != null) {
-                hideControls()
+                popPanelOrHide()
             } else {
                 Log.i(TAG, "IMMERSIVE back button -> back to app")
                 backToApp()
             }
         }
-        // 摇杆左右：按住拖动进度、越久越快，松开那一刻才 seek（预览在幕布叠层 + 面板进度条上）。
-        when {
-            e.seekLeft != e.seekRight -> updateScrub(now, forward = e.seekRight)
-            scrubbing -> commitScrub()
+        // ⛔ 射线停在操作栏上时**整根摇杆都归面板**（列表要靠它滚）：上下（推远拉近 / 缩放）与
+        // 左右（拖进度 / 翻页）都不许穿透到幕布（用户 2026-09-06：「用摇杆滚面板，前面画面跟着前后动」；
+        // 这条对视频与空间画廊同一套代码，一起管住）。
+        val stickOnPanel = pointerOnControls()
+        // 摇杆左右：空间画廊里 = 上一张 / 下一张（按住连翻）；视频 = 按住拖动进度、越久越快，松开那一刻才 seek。
+        if (stickOnPanel) {
+            // 归面板。手上正压着的连翻 / 拖动要收尾，否则射线一挪到面板上就永远卡在「压着」。
+            galleryStepHeld = 0
+            if (scrubbing) commitScrub()
+        } else if (inGallery) {
+            handleGalleryStick(now, e)
+        } else {
+            when {
+                e.seekLeft != e.seekRight -> updateScrub(now, forward = e.seekRight)
+                scrubbing -> commitScrub()
+            }
         }
         if (e.menu) {
             showControls(summoned = true)
             controls.route = ControlsRoute.SETTINGS
         }
-        if (manipulator.isMoving) {
-            // 抓着窗的时候摇杆上下归它：推远 / 拉近。
+        if (twoHandScaling) {
+            // 两手缩放中摇杆不管别的。
+        } else if (inGallery && stagePressed && screenIsImage && (e.volumeUp || e.volumeDown)) {
+            // 指着图片按住扳机 / 捏合，再推摇杆上下 = 以指着的那一点为原点缩放内容（放大镜）。
+            stage.zoomAtPress(if (e.volumeUp) STICK_ZOOM_STEP else 1f / STICK_ZOOM_STEP)
+            lastInteractionAt = now
+        } else if (manipulator.isMoving) {
+            // 抓着窗的时候摇杆上下归它：推远 / 拉近（正抓着窗，射线扫到面板上也算它的）。
             if (e.volumeUp) manipulator.nudgeDistance(NUDGE_STEP) else if (e.volumeDown) manipulator.nudgeDistance(-NUDGE_STEP)
+        } else if (stickOnPanel) {
+            // 面板在吃这根摇杆（滚列表），不许穿透成推远拉近。
         } else if ((e.volumeUp || e.volumeDown) && screenEntity != null) {
             // 不抓也能推远 / 拉近（用户 2026-09-05：「往前推往后推控制播放器离我的远近」，全景片也要）。
             // 摇杆不再管音量：音量在面板的 🔊 弹层里。
@@ -1750,10 +1986,18 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /**
      * 「选择」按下：在面板上就是操作面板，否则记为「点一下」候选，等松开裁决。
      * 捏住移动（拖面板 / 拖幕布 / 拉角缩放）走 ISDK，不会到达 toggle。
+     *
+     * # ⛔ 判据只能是「本次手势的、这只手的」证据
+     *
+     * 这里原先还看 [controlsHovered]，而那是一个**不分手、只进不出**的全局标志
+     * （另一只手的射线歇在面板上就恒为真；ISDK 的 onHoverStop 也未必可靠，见记忆
+     * `xr-hover-never-exits`）。真机症状：面板**只能召唤、无法隐藏**（用户 2026-09-05）。
+     * 现在按下只挡「这只手正被 WindowManipulator 占着」，落没落在面板上一律留到松开时
+     * 用 [lastPanelTouchAt]（已收窄成**仅按下**）裁决。
      */
     private fun onSelectDown(hand: Int, now: Long) {
-        // 按在面板上是操作面板；按在窗框上已经被 WindowManipulator 接走（抓窗），都不是「点一下」。
-        if (controlsHovered || manipulator.isBusy(hand)) {
+        // 按在窗框上已经被 WindowManipulator 接走（抓窗），那不是「点一下」。
+        if (manipulator.isBusy(hand)) {
             lastInteractionAt = now
             tapCandidate[hand] = false
             return
@@ -1761,9 +2005,61 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         tapCandidate[hand] = true
         tapDownAt[hand] = now
         tapDownPos[hand] = input.handPositions[hand]
+        beginStageSwipe(hand, now)
+    }
+
+    /**
+     * 「这一次按压落在某块面板上」。⛔ 唯一的写入口 —— 显隐 toggle 的判据就是它，
+     * 别再从悬停之类的持续信号往里写（那正是「只能召唤不能隐藏」的老根因）。
+     */
+    /**
+     * 射线此刻停在**控制面板**上（任一只手，逐帧现算）。摇杆归不归面板全看它。
+     *
+     * ⛔ 摇杆事件**不分手**（[SpatialInputPoller.Events] 只有合并后的四个方向位），判不出「谁在推杆」，
+     * 只能按「有没有手指着面板」来挡 —— 宁可多挡一点，也不能让面板上的滚动穿透到幕布。
+     * ⛔ 不用 [controlsHovered]：那是 ISDK 报的、**只进不出**的全局标志（记忆 `xr-hover-never-exits`），
+     * 拿它当闸门会时灵时不灵。这里与幕布横拖同一条路：射线 × 窗面自己算，每帧新鲜。
+     */
+    private fun pointerOnControls(): Boolean {
+        if (controlsEntity == null) return false
+        val surface = controlsHost.surfacePose() ?: return false
+        val size = controlsHost.size()
+        val arc = controlsHost.arcDegrees()
+        return (0..1).any { manipulator.surfaceHit(it, input, surface, size, arc) != null }
+    }
+
+    /**
+     * 面板上的「返回一层」。手柄 B/Y 与面板自己那枚返回钮走同一套层次：
+     *
+     * 1. 音量 / 倍速那类浮层开着 → 先关浮层；
+     * 2. 播放列表里展开着分组 → 先收回分组行（与页内那枚「‹ 全部」同义）；
+     * 3. 停在子页（场景 / 屏幕类型 / 视频类型 / 列表 / 设置）→ 回主页（各页 `PageHeader.onBack`）；
+     * 4. 已经在主页 → 才收面板。
+     */
+    private fun popPanelOrHide() {
+        when {
+            controls.volumePopupOpen -> controls.volumePopupOpen = false
+            controls.route == ControlsRoute.PLAYLIST && controls.expandedGroupId != null ->
+                controls.expandedGroupId = null
+            controls.route != ControlsRoute.PLAYER -> controls.route = ControlsRoute.PLAYER
+            else -> {
+                hideControls()
+                return
+            }
+        }
+        touched()
+        Log.i(TAG, "IMMERSIVE back button -> panel back route=${controls.route}")
+    }
+
+    private fun notePanelPress() {
+        val now = SystemClock.uptimeMillis()
+        lastPanelTouchAt = now
+        lastInteractionAt = now
     }
 
     private fun onSelectUp(hand: Int, now: Long) {
+        // ⛔ 在 tapCandidate 那道早退**之前**：真拖过的那一次已经把 tapCandidate 清了。
+        endStageSwipe(hand)
         if (!tapCandidate[hand]) return
         tapCandidate[hand] = false
         val held = now - tapDownAt[hand]
@@ -1771,8 +2067,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val to = input.handPositions[hand]
         val moved = if (from != null && to != null) from.distanceTo(to) else 0f
         if (held > TAP_MAX_MS || moved > TAP_MAX_MOVE_M) return
-        // 松开时面板那条路的触碰事件早就到了：期间碰过面板就不是「面板外」。
-        if (controlsHovered || lastPanelTouchAt >= tapDownAt[hand] - 60L) {
+        // 这一次按下有没有落进面板：面板 Compose 的**按压**上报（onPanelPressed）在按下那一刻就到了。
+        if (lastPanelTouchAt >= tapDownAt[hand] - 60L) {
             lastInteractionAt = now
             return
         }
@@ -1858,7 +2154,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 「切换其他尺寸视频再切回来，能自动恢复之前调好的距离和大小」）。没记过就沿用当前值。
      */
     private fun applyLayoutForAspect() {
-        if (!controls.format.isFlat) return
+        if (!controls.format.isFlat || inGallery) return
         val key = aspectKey()
         if (key == layoutAppliedForKey) return
         layoutAppliedForKey = key
@@ -1872,7 +2168,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** 用户刚调过距离 / 幕宽（摇杆 / 滑块 / 抓着拖 / 拉角）：按当前画面比例记一份。 */
     private fun rememberLayoutForAspect() {
-        if (!controls.format.isFlat || screenEntity == null) return
+        if (!controls.format.isFlat || screenEntity == null || inGallery) return
         val key = aspectKey()
         val override = screenSurfaceOverride
         val distance = if (override != null) {
@@ -1974,7 +2270,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private fun updateAutoHide(now: Long) {
         if (!controls.autoHide || controlsEntity == null) return
-        if (!controls.isPlaying || controls.buffering ||
+        // 空间画廊：幻灯片在放才算「在放」；停着看一张图时面板留着（翻页钮就在上面）。
+        val playing = controls.isPlaying || gallery?.slideshow == true
+        if (!playing || controls.buffering ||
             controls.route != ControlsRoute.PLAYER || controls.volumePopupOpen || controlsHovered
         ) {
             lastInteractionAt = now
@@ -1997,6 +2295,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onEnded() {
         runOnUiThread {
+            val g = gallery
+            if (g != null) {
+                // 图库里的短片播完：幻灯片开着就翻下一项；否则停在最后一帧（单条循环由 ExoPlayer 自己转，不会到这）。
+                if (g.slideshow) galleryAdvanceForSlideshow()
+                return@runOnUiThread
+            }
             if (controls.repeatMode == RepeatMode.NEXT) {
                 adjacentPlayable(forward = true)?.let { (queueId, item) -> playFromQueue(queueId, item.id) }
             }
@@ -2055,10 +2359,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             }
             pendingStartMs = 0L
             controls.isPlaying = true
-            controls.progress = 0f
+            resetTrackUi()
             controls.buffering = true
             playback.setSpeed(controls.speed)
-            applyRepeatMode()
+            if (inGallery) playback.setRepeatOne(galleryRepeatOne()) else applyRepeatMode()
         }
     }
 
@@ -2088,6 +2392,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         playback.cancelPreload()
         clearSwitchWait()
         notifyEnded()
+        exitGallery()
         argUrl = null
         nowPlayingId = null
         controls.nowPlayingId = null
@@ -2153,6 +2458,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private val controlsCallbacks = object : VideoControlsCallbacks {
 
         override fun onPlayPause() {
+            // 空间画廊停在一张图上：播放 / 暂停 = 幻灯片开关（手柄 A 键走同一口）。视频项照常控制播放器。
+            val g = gallery
+            if (g != null && g.current?.isVideo != true) {
+                onGalleryToggleSlideshow()
+                return
+            }
             // 换片在途：老片是我们暂停的，用户这一下不该把它放回去（面板上这枚钮也已禁用；手柄 A 键走同一口）。
             if (controls.switching) return
             touched()
@@ -2370,8 +2681,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPlayAdjacent(forward: Boolean) {
             touched()
-            val (queueId, item) = adjacentPlayable(forward) ?: return
-            playFromQueue(queueId, item.id)
+            playAdjacent(forward)
         }
 
         override fun onRefreshPlaylist() {
@@ -2485,11 +2795,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             }
         }
 
+        /** 含悬停：只续空闲计时。⛔ 别在这里写 [lastPanelTouchAt]，见 [onPanelPressed]。 */
         override fun onPanelTouched() {
-            val now = SystemClock.uptimeMillis()
-            lastPanelTouchAt = now
-            lastInteractionAt = now
+            lastInteractionAt = SystemClock.uptimeMillis()
         }
+
+        override fun onPanelPressed() = notePanelPress()
 
         override fun onHidePanel() {
             touched()
@@ -2500,6 +2811,557 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             touched()
             backToApp()
         }
+
+        // ---- 空间画廊 ----
+
+        override fun onGalleryShow(index: Int) {
+            touched()
+            if (gallery?.index == index) return
+            showGalleryItem(index)
+        }
+
+        override fun onGalleryToggleSlideshow() {
+            val g = gallery ?: return
+            touched()
+            g.slideshow = !g.slideshow
+            slideshowNextAt = 0L
+            // 视频项：幻灯片开着就不再单条循环（播完要翻页）。
+            if (g.current?.isVideo == true && playback.isAlive) playback.setRepeatOne(galleryRepeatOne())
+            Log.i(TAG, "IMMERSIVE gallery slideshow=${g.slideshow}")
+        }
+
+        override fun onGallerySlideshowSeconds(seconds: Int) {
+            val g = gallery ?: return
+            touched()
+            g.slideshowSeconds = seconds.coerceIn(1, 120)
+            prefs.slideshowSeconds = g.slideshowSeconds
+            slideshowNextAt = 0L
+            markPrefsDirty()
+        }
+
+        override fun onGalleryPickQuality(quality: String) {
+            val g = gallery ?: return
+            touched()
+            if (quality == g.quality) return
+            g.quality = quality
+            // 换了档：手里的文件都是旧档的，全部作废重取；当前那张先留着看，新档到了再换。
+            g.resolvedPath.clear()
+            galleryResolving.clear()
+            ImmersiveBridge.notifyGalleryQuality(quality)
+            val current = g.current
+            if (current != null && !current.isVideo) {
+                g.loading = true
+                requestGalleryFile(current.id)
+            }
+            prefetchGalleryNeighbours(g.index)
+            Log.i(TAG, "IMMERSIVE gallery quality -> $quality")
+        }
+
+        override fun onGalleryToggleLoop() {
+            val g = gallery ?: return
+            touched()
+            g.loopVideo = !g.loopVideo
+            prefs.galleryLoopVideo = g.loopVideo
+            markPrefsDirty()
+            if (playback.isAlive) playback.setRepeatOne(galleryRepeatOne())
+        }
+    }
+
+    // ================================================================ 空间画廊
+
+    /**
+     * 整本图库交给幕布。
+     *
+     * 幕布这块「窗」不换：曲率 / 距离 / 幕宽 / 抓挪缩放 / 窗框全部沿用；换的只是里面画的东西
+     * （图片 = `vr_image_panel` 的 Compose + Coil，视频项 = 原来的 ExoPlayer 幕布）。
+     * 文件本体由 Dart 按需下载到它自己的图片缓存里再把路径交来（[requestGalleryFile]），
+     * 这里只解码 —— Dart 那条 HTTP 走应用内代理，原生没有。
+     */
+    private fun presentGallery(request: ImmersiveGalleryRequest) {
+        // 幕布上若正放着视频：把它结束掉（回写位置）；正放着别的图库：告诉 Dart 它结束了。
+        if (!argUrl.isNullOrBlank() && !inGallery) {
+            endScrub()
+            endSphereGrab(hideControls = false)
+            playback.cancelPreload()
+            clearSwitchWait()
+            notifyEnded()
+        }
+        gallery?.let { old ->
+            if (old.galleryId != request.galleryId) ImmersiveBridge.notifyGalleryEnded(old.galleryId, old.index)
+        }
+        galleryResolving.clear()
+        argUrl = null
+        videoId = ""
+        nowPlayingId = null
+        controls.nowPlayingId = null
+        controls.sources.clear()
+        controls.sourceLabel = ""
+        hideResumeTip()
+        controls.notice = null
+        controls.buffering = false
+        controls.format = VideoFormat.FLAT_2D
+        controls.formatTab = FormatTab.FLAT
+        controls.title = request.title
+        // 图集页有自己的两行头部（标题 + 作者），播放页那份不要留着串味。
+        controls.author = ""
+        // 屏幕尺寸（宽高比预设 / 宽比 / 长比）与倍速回默认：图片要按自己的比例摆，不能带着上一条视频的 16:9 预设。
+        if (!controls.carryOverToNextVideo) controls.resetPerVideoSettings()
+        layoutAppliedForKey = null
+        val g = GalleryState().apply {
+            galleryId = request.galleryId
+            title = request.title
+            author = request.author
+            items.addAll(
+                request.items.map {
+                    GalleryItem(
+                        id = it.id, isVideo = it.isVideo,
+                        thumbUrl = it.thumbUrl, thumbPath = it.thumbPath, width = it.width, height = it.height,
+                    )
+                },
+            )
+            index = request.index.coerceIn(0, request.items.size - 1)
+            quality = request.quality.ifBlank { GALLERY_QUALITY_STANDARD }
+            slideshowSeconds = prefs.slideshowSeconds
+            loopVideo = prefs.galleryLoopVideo
+        }
+        galleryItems = request.items
+        gallery = g
+        controls.gallery = g
+        // 「接着看」卡片按它高亮；面板里点的那张卡转圈到此收掉（Dart 换页成功、新图库到了）。
+        nowPlayingId = request.galleryId.ifBlank { null }
+        controls.nowPlayingId = nowPlayingId
+        clearSwitchWait()
+        stage.resetZoom()
+        bufferingState.loadingLabelRes = UiR.string.xr_loading
+        Log.i(TAG, "IMMERSIVE gallery present id=${g.galleryId} n=${g.items.size} index=${g.index} quality=${g.quality}")
+        showGalleryItem(g.index)
+    }
+
+    /** 退出空间画廊（回应用 / 被视频顶掉）：状态清空、图片面板销毁、Dart 收 `galleryEnded`。不重建幕布，由调用方决定。 */
+    private fun exitGallery() {
+        val g = gallery ?: return
+        ImmersiveBridge.notifyGalleryEnded(g.galleryId, g.index)
+        Log.i(TAG, "IMMERSIVE gallery exit id=${g.galleryId} index=${g.index}")
+        gallery = null
+        controls.gallery = null
+        galleryItems = emptyList()
+        galleryResolving.clear()
+        stage.model = null
+        stage.itemId = ""
+        stage.imageAspect = 0f
+        stage.resetZoom()
+        stage.swipe.canPrevious = false
+        stage.swipe.canNext = false
+        nowPlayingId = null
+        controls.nowPlayingId = null
+        slideshowNextAt = 0L
+        galleryStepHeld = 0
+        stagePressed = false
+        endTwoHandScale()
+        bufferingState.loadingLabelRes = UiR.string.xr_buffering
+        controls.buffering = false
+        controls.title = ""
+        controls.author = ""
+        controls.notice = null
+        // 图片面板不能留给下一条视频复用（它没有 Surface）：直接销毁，调用方重建幕布时按需要的种类重建。
+        if (screenIsImage) {
+            manipulator.detach(WindowKind.SCREEN)
+            destroyBufferingEntity()
+            screenEntity?.destroy()
+            screenEntity = null
+            screenPanel = null
+            screenIsImage = false
+        } else {
+            playback.release()
+        }
+        argUrl = null
+        videoId = ""
+    }
+
+    // ================================================================ 幕布横拖翻片（视频）
+
+    /**
+     * 按在**图库里那段视频**的画面上横拖 = 上一项 / 下一项。
+     *
+     * ⛔ **只在空间画廊里成立**（[inGallery]）：横拖翻片是「翻一本图库」这件事自带的手势，
+     * 视频详情页进来的那块幕布上**没有**（用户 2026-09-06：那是图库特有的功能，被带进视频空间是错的）。
+     * 图库里混着的短片走的是同一块 Surface 幕布，所以判据必须是「在不在图库里」，
+     * 不能用「幕布装的是不是图片」——后者会把图库里的视频项一起关掉。
+     *
+     * 为什么在原生算而不是像图片幕布那样交给 Compose：视频幕布是 ExoPlayer 的 Surface 面板，
+     * 根本没有 Compose 层收指针。这里用**射线 × 窗面**（`WindowManipulator.surfaceHit`，与抓窗、
+     * 拉角同一套求交）拿到面内横坐标，位移 ÷ 幕宽就是喂给 `StageSwipeState` 的比例 —— 阈值、
+     * 橡皮筋、甩动判定、浮窗全部与图片幕布共用那一份，别在这里另立标准。
+     *
+     * 浮窗画在**幕布叠层面板**上（缓冲转圈那块，同形同位、按需创建），见 `syncBufferingIndicator`。
+     */
+    private fun stageSwipeAvailable(): Boolean =
+        inGallery && controls.format.isFlat && screenEntity != null && !screenIsImage && screenEntityIsFlat
+
+    /** 这只手的射线此刻打在幕布上的横坐标（米，面心为 0、向右为正）；没打到为 null。 */
+    private fun stageSwipeHitX(hand: Int): Float? {
+        val surface = screenHost.surfacePose() ?: return null
+        return manipulator.surfaceHit(hand, input, surface, screenHost.size(), screenHost.arcDegrees())?.x
+    }
+
+    /** 那个方向还有没有下一项。⛔ 只有画廊会走到这（见 [stageSwipeAvailable]）。 */
+    private fun stageSwipeHasTarget(forward: Boolean): Boolean {
+        val g = gallery ?: return false
+        return if (forward) g.hasNext else g.hasPrevious
+    }
+
+    private fun beginStageSwipe(hand: Int, now: Long) {
+        if (stageSwipeHand >= 0 || twoHandScaling || !stageSwipeAvailable()) return
+        // 按在操作栏上：面板浮在幕布前面，射线打穿它照样与幕布平面有交点（拖进度条会顺手翻片）。
+        if (pointerOnControls()) return
+        val x = stageSwipeHitX(hand) ?: return
+        stageSwipeHand = hand
+        stageSwipeStartX = x
+        stageSwipeLastX = x
+        stageSwipeLastAt = now
+        stageSwipeVelocity = 0f
+        stageSwipeDragging = false
+        bufferingState.swipe.canPrevious = stageSwipeHasTarget(forward = false)
+        bufferingState.swipe.canNext = stageSwipeHasTarget(forward = true)
+    }
+
+    private fun updateStageSwipe(now: Long) {
+        val hand = stageSwipeHand
+        if (hand < 0) return
+        if (!input.selectHeld[hand] || twoHandScaling || manipulator.isBusy(hand) || !stageSwipeAvailable()) {
+            cancelStageSwipe()
+            return
+        }
+        // ⛔ 这一次按下落在**面板**上（操作栏、弹层、窗框）：面板浮在幕布前面，射线打穿它照样
+        // 与幕布平面有交点 —— 不挡的话「拖进度条」会顺手翻片。判据用按压证据（[notePanelPress]），
+        // 不用 controlsHovered 那个只进不出的悬停标志（记忆 `xr-hover-never-exits`）。
+        if (lastPanelTouchAt >= tapDownAt[hand] - 60L) {
+            cancelStageSwipe()
+            return
+        }
+        // 射线滑出幕布：保持上一帧的进度不动（比跳回 0 好看，也不至于误判成松手弹回）。
+        val x = stageSwipeHitX(hand) ?: return
+        val fraction = (stageSwipeStartX - x) / curWidth.coerceAtLeast(0.01f)
+        if (!stageSwipeDragging) {
+            if (abs(fraction) < STAGE_SWIPE_SLOP) return
+            stageSwipeDragging = true
+            bufferingState.swipe.begin()
+            // 拖起来了就不是「点一下」。⛔ 必须显式清掉：射线拖动几乎不挪手，
+            // onSelectUp 那条按**手的位移**判的路根本够不着，不清就会顺手 toggle 控制面板。
+            tapCandidate[hand] = false
+        }
+        val dt = (now - stageSwipeLastAt).coerceAtLeast(1L) / 1000f
+        val v = -((x - stageSwipeLastX) / curWidth) / dt
+        stageSwipeVelocity = if (stageSwipeVelocity == 0f) v else stageSwipeVelocity * 0.6f + v * 0.4f
+        stageSwipeLastX = x
+        stageSwipeLastAt = now
+        bufferingState.swipe.update(fraction)
+        lastInteractionAt = now
+    }
+
+    private fun endStageSwipe(hand: Int) {
+        if (stageSwipeHand != hand) return
+        val dragging = stageSwipeDragging
+        stageSwipeHand = -1
+        stageSwipeDragging = false
+        val dir = bufferingState.swipe.end(stageSwipeVelocity)
+        stageSwipeVelocity = 0f
+        if (!dragging || dir == 0) return
+        Log.i(TAG, "IMMERSIVE stage swipe -> ${if (dir > 0) "next" else "prev"}")
+        playAdjacent(forward = dir > 0)
+    }
+
+    private fun cancelStageSwipe() {
+        if (stageSwipeHand < 0) return
+        stageSwipeHand = -1
+        stageSwipeDragging = false
+        stageSwipeVelocity = 0f
+        bufferingState.swipe.cancel()
+    }
+
+    /** 上一条 / 下一条：画廊里翻项，视频里换「接着看」当前分区的相邻一条。 */
+    private fun playAdjacent(forward: Boolean) {
+        if (inGallery) {
+            galleryStep(forward)
+            return
+        }
+        val (queueId, item) = adjacentPlayable(forward) ?: return
+        playFromQueue(queueId, item.id)
+    }
+
+    // ================================================================ 两手抓取缩放
+
+    /**
+     * 双抓握扳机（手柄）或双捏合按住（手势）同时成立 = 抓住幕布两端：手距变化多少倍，幕宽就变多少倍，
+     * 以幕心为原点（用户 2026-09-05：放大缩小只能拖窗角，要空间化的办法）。
+     * 单手那只正在拖窗的会话被接管；松开一只之后若那只抓握还按着，重新接回单手拖。
+     */
+    private fun updateTwoHandScale(now: Long) {
+        if (!controls.format.isFlat || screenEntity == null) {
+            endTwoHandScale()
+            return
+        }
+        val grips = input.gripHeld[0] && input.gripHeld[1]
+        val selects = input.selectHeld[0] && input.selectHeld[1] && !controlsHovered && !manipulator.isBusy(0) && !manipulator.isBusy(1)
+        val p0 = input.handPositions[0]
+        val p1 = input.handPositions[1]
+        if (!twoHandScaling) {
+            if (!(grips || selects) || p0 == null || p1 == null) return
+            val d0 = p0.distanceTo(p1)
+            if (d0 < 0.05f) return
+            twoHandScaling = true
+            twoHandBySelect = !grips
+            twoHandDist0 = d0
+            twoHandWidth0 = controls.screenWidth
+            manipulator.release(0)
+            manipulator.release(1)
+            endSphereGrab(hideControls = false)
+            for (i in 0..1) tapCandidate[i] = false
+            Log.i(TAG, "IMMERSIVE two-hand scale start d0=$d0 width=$twoHandWidth0 bySelect=$twoHandBySelect")
+            return
+        }
+        val stillHeld = if (twoHandBySelect) input.selectHeld[0] && input.selectHeld[1] else grips
+        if (!stillHeld || p0 == null || p1 == null) {
+            endTwoHandScale()
+            // 一只抓握还按着：接回单手拖。
+            if (!twoHandBySelect) {
+                for (i in 0..1) if (input.gripHeld[i] && !manipulator.isBusy(i)) manipulator.startGrab(i, WindowKind.SCREEN, input)
+            }
+            return
+        }
+        val ratio = p0.distanceTo(p1) / twoHandDist0
+        controls.screenWidth = (twoHandWidth0 * ratio).coerceIn(SCREEN_MIN_WIDTH_M, SCREEN_MAX_WIDTH_M)
+        animating = false
+        curWidth = targetScreenWidth(curAspect)
+        reshapeNow()
+        lastInteractionAt = now
+    }
+
+    private fun endTwoHandScale() {
+        if (!twoHandScaling) return
+        twoHandScaling = false
+        markPrefsDirty()
+        rememberLayoutForAspect()
+        Log.i(TAG, "IMMERSIVE two-hand scale end width=${controls.screenWidth}")
+    }
+
+    /** 视频项单条循环：用户开着「循环」且幻灯片没开。 */
+    private fun galleryRepeatOne(): Boolean {
+        val g = gallery ?: return false
+        return g.loopVideo && !g.slideshow
+    }
+
+    /**
+     * 把幕布翻到第 [index] 项。
+     *
+     * - 图 → 图：面板实体不动，换 [stage] 的内容 + 形状按新比例过渡（[CURVE_ANIM_MS]）；
+     * - 图 ↔ 视频：种类变了，销毁重建幕布（一次黑屏，可接受）；
+     * - 视频 → 视频：沿用 Surface 从头起播（[PlaybackEngine.restart]）。
+     * 文件还没到手的图片：先保留上一张在幕布上、压「正在读取…」，到了再换（不闪一次空白）。
+     */
+    private fun showGalleryItem(index: Int) {
+        val g = gallery ?: return
+        if (g.items.isEmpty()) return
+        val i = index.coerceIn(0, g.items.size - 1)
+        val item = galleryItems[i]
+        g.index = i
+        g.error = null
+        controls.notice = null
+        slideshowNextAt = 0L
+        stage.resetZoom()
+        // 幕布上的横拖预示要知道还有没有下一张（到头的方向只出「到头」样式，不翻页）。
+        stage.swipe.canPrevious = i > 0
+        stage.swipe.canNext = i < g.items.size - 1
+        val shapeMs = CURVE_ANIM_MS
+        endScrub()
+        if (item.width > 0 && item.height > 0) {
+            videoWidth = item.width
+            videoHeight = item.height
+        }
+        val wantImage = !item.isVideo
+        val kindChanged = screenEntity == null || wantImage != screenIsImage
+        if (wantImage) {
+            argUrl = null
+            videoId = ""
+            controls.isPlaying = false
+            val path = g.resolvedPath[item.id]
+            g.loading = true
+            if (path != null) {
+                stage.itemId = item.id
+                stage.model = path
+                // ⛔ 与 model 成对写：文件还没到手时幕布上还是**上一张**，这时改比例会把它拉变形。
+                stage.imageAspect = ScreenGeometry.screenAspect(controls, item.width, item.height)
+            } else {
+                requestGalleryFile(item.id)
+            }
+            if (kindChanged) {
+                playback.release()
+                rebuildScreen()
+            } else {
+                requestShape(shapeMs)
+            }
+        } else {
+            argUrl = item.url
+            videoId = ""
+            pendingStartMs = 0L
+            g.loading = false
+            resetTrackUi()
+            controls.positionText = "00:00"
+            controls.durationText = "00:00"
+            controls.seekPreviewText = null
+            if (kindChanged) {
+                playback.release()
+                rebuildScreen()
+            } else if (playback.restart(item.url, muted = controls.muted, volume = controls.volume, repeatOne = galleryRepeatOne())) {
+                controls.isPlaying = true
+                controls.buffering = true
+                playback.setSpeed(controls.speed)
+                requestShape(shapeMs)
+            } else {
+                rebuildScreen()
+            }
+        }
+        prefetchGalleryNeighbours(i)
+        lastInteractionAt = SystemClock.uptimeMillis()
+        ImmersiveBridge.notifyGalleryIndex(g.galleryId, i)
+        Log.i(TAG, "IMMERSIVE gallery show index=$i video=${item.isVideo} kindChanged=$kindChanged")
+    }
+
+    /**
+     * 上一张 / 下一张（幕布横拖松手过阈值 / 摇杆左右都到这）。
+     *
+     * 换的是幕布上画的**内容**（[GalleryStage] 自己 220ms 淡过去），面板实体一动不动 ——
+     * 老那套「三块窗沿弧滑」已经整只拆掉（用户 2026-09-06）。
+     */
+    private fun galleryStep(forward: Boolean) {
+        val g = gallery ?: return
+        if (forward && !g.hasNext) return
+        if (!forward && !g.hasPrevious) return
+        showGalleryItem(g.index + if (forward) 1 else -1)
+    }
+
+    /** 幻灯片翻页：到末尾绕回第一项。 */
+    private fun galleryAdvanceForSlideshow() {
+        val g = gallery ?: return
+        if (g.items.size <= 1) return
+        showGalleryItem(if (g.index + 1 < g.items.size) g.index + 1 else 0)
+    }
+
+    /** 摇杆左右：刚推上去翻一张，按住 [GALLERY_STEP_FIRST_MS] 后每 [GALLERY_STEP_REPEAT_MS] 连翻。 */
+    private fun handleGalleryStick(now: Long, e: SpatialInputPoller.Events) {
+        val dir = when {
+            e.seekRight && !e.seekLeft -> 1
+            e.seekLeft && !e.seekRight -> -1
+            else -> 0
+        }
+        if (dir == 0) {
+            galleryStepHeld = 0
+            return
+        }
+        if (dir != galleryStepHeld) {
+            galleryStepHeld = dir
+            galleryStepNextAt = now + GALLERY_STEP_FIRST_MS
+            galleryStep(forward = dir > 0)
+        } else if (now >= galleryStepNextAt) {
+            galleryStepNextAt = now + GALLERY_STEP_REPEAT_MS
+            galleryStep(forward = dir > 0)
+        }
+    }
+
+    /** 每帧：图片项的读取态压到幕布叠层（转圈）；幻灯片计时。 */
+    private fun tickGallery(now: Long) {
+        val g = gallery ?: return
+        val item = g.current ?: return
+        if (item.isVideo) return
+        if (controls.buffering != g.loading) controls.buffering = g.loading
+        if (!g.slideshow || pausedBySystem) {
+            slideshowNextAt = 0L
+            return
+        }
+        when {
+            g.loading -> slideshowNextAt = 0L
+            slideshowNextAt == 0L -> slideshowNextAt = now + g.slideshowSeconds * 1000L
+            now >= slideshowNextAt -> {
+                slideshowNextAt = 0L
+                galleryAdvanceForSlideshow()
+            }
+        }
+    }
+
+    /** 当前项前后各两项的图片先向 Dart 要过来（翻到时零等待）。视频项不用。 */
+    private fun prefetchGalleryNeighbours(index: Int) {
+        val g = gallery ?: return
+        for (d in intArrayOf(1, -1, 2, -2)) {
+            val item = galleryItems.getOrNull(index + d) ?: continue
+            if (!item.isVideo && !g.resolvedPath.containsKey(item.id)) requestGalleryFile(item.id)
+        }
+    }
+
+    /**
+     * 向 Dart 要 [id] 这个文件在当前画质档下的本地路径（单飞）。回来时图库 / 画质档已经换了就丢弃。
+     * 到手的路径进 [GalleryState.resolvedPath]（胶片那格随之换成清晰图）；正好是当前项就立刻上幕布。
+     */
+    private fun requestGalleryFile(id: String) {
+        val g = gallery ?: return
+        if (g.resolvedPath.containsKey(id)) return
+        val now = SystemClock.uptimeMillis()
+        val startedAt = galleryResolving[id]
+        // 在途且还没超时：单飞，不重发。超时了就当上一次丢了，重来一次。
+        if (startedAt != null && now - startedAt < GALLERY_FILE_TIMEOUT_MS) return
+        if (startedAt != null) Log.w(TAG, "IMMERSIVE gallery file retry id=$id (上一次 ${now - startedAt}ms 没回来)")
+        galleryResolving[id] = now
+        val galleryId = g.galleryId
+        val quality = g.quality
+        ImmersiveBridge.requestGalleryFile(id, quality) { path ->
+            runOnUiThread {
+                galleryResolving.remove(id)
+                val cur = gallery ?: return@runOnUiThread
+                if (cur.galleryId != galleryId || cur.quality != quality) return@runOnUiThread
+                val isCurrent = cur.current?.id == id
+                if (path.isBlank()) {
+                    Log.w(TAG, "IMMERSIVE gallery file unavailable id=$id")
+                    if (isCurrent) {
+                        cur.loading = false
+                        cur.error = text(UiR.string.xr_gallery_load_failed, "download")
+                        showControls(summoned = true)
+                    }
+                    return@runOnUiThread
+                }
+                cur.resolvedPath[id] = path
+                if (isCurrent && cur.current?.isVideo != true) {
+                    val item = cur.current
+                    stage.itemId = id
+                    stage.model = path
+                    if (item != null) stage.imageAspect = ScreenGeometry.screenAspect(controls, item.width, item.height)
+                }
+            }
+        }
+    }
+
+    /** 图片解码完成：读取态收掉；真实比例与手里的不一致就按它重塑幕布（服务端偶尔不给宽高）。 */
+    private fun onGalleryImageLoaded(id: String, width: Int, height: Int) {
+        val g = gallery ?: return
+        if (g.current?.id != id) return
+        g.loading = false
+        g.error = null
+        if (width > 0 && height > 0) {
+            val have = videoWidth.toFloat() / videoHeight.coerceAtLeast(1)
+            val real = width.toFloat() / height
+            if (abs(have - real) > 0.01f) {
+                videoWidth = width
+                videoHeight = height
+                requestShape(0L)
+            }
+        }
+    }
+
+    private fun onGalleryImageFailed(id: String, message: String) {
+        val g = gallery ?: return
+        if (g.current?.id != id) return
+        Log.w(TAG, "IMMERSIVE gallery decode failed id=$id: $message")
+        g.loading = false
+        g.error = text(UiR.string.xr_gallery_load_failed, message)
+        showControls(summoned = true)
     }
 
     // ================================================================ 面板注册
@@ -2564,6 +3426,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             R.id.vr_video_panel,
             surfaceConsumer = { _, surface -> startPlayback(surface) },
             settingsCreator = { mediaSettings() },
+        ),
+        // 空间画廊的图片面板：与视频幕布同一块「窗」的另一种内容（见 rebuildScreen）。
+        ComposeViewPanelRegistration(
+            R.id.vr_image_panel,
+            { _, ctx -> createGalleryStageView(ctx, stage) },
+            { imageSettings() },
         ),
     )
 
@@ -2634,6 +3502,31 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val SCREEN_MIN_WIDTH_M = 1f
         private const val SCREEN_MAX_WIDTH_M = 10f
 
+        /**
+         * 空间画廊：图片面板的**方形**画布边长（像素）。
+         *
+         * 方的是因为画布建好就改不了（见 [imageSettings]），必须一块画布同时装得下横图与竖图。
+         * 2048：Quest 3 单眼 2064px，3.2m 幕布在 2.4m 处约占 67° 视野 ≈ 1400px，2048 仍是过采样；
+         * 显存 2048²×4B ≈ 16.8MB，与原先「长边 2560」的横图（2560×1440 ≈ 14.7MB）同量级。
+         */
+        private const val IMAGE_PANEL_PX = 2048
+
+        /** 空间画廊里竖图装进 16:9 盒子之后的宽度下限。 */
+        private const val GALLERY_MIN_WIDTH_M = 0.4f
+
+        /** 摇杆翻页：首翻之后按住这么久开始连翻、连翻间隔。 */
+        private const val GALLERY_STEP_FIRST_MS = 550L
+        private const val GALLERY_STEP_REPEAT_MS = 320L
+
+        /** 向 Dart 要一个图库文件多久没回来就允许重发（原图可能几十 MB，给得宽一些）。 */
+        private const val GALLERY_FILE_TIMEOUT_MS = 20_000L
+
+        /** 幕布上横拖起算的阈值（幕宽比例）：射线抖一下不算拖。 */
+        private const val STAGE_SWIPE_SLOP = 0.02f
+
+        /** 指着图片按住 + 摇杆上下：每帧的缩放倍率（72Hz 下按住 1s ≈ ×2.3）。 */
+        private const val STICK_ZOOM_STEP = 1.012f
+
         /** 抓着窗时摇杆每帧推远 / 拉近的比例。 */
         private const val NUDGE_STEP = 0.02f
 
@@ -2658,8 +3551,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val CONTROLS_SCREEN_GAP_M = 0.15f
         private const val CONTROLS_MIN_DISTANCE_M = 0.45f
 
-        /** 摆位视线比头部轴线低这么多度。 */
+        /** 摆位视线比头部轴线低这么多度（2D 面板、躺姿下的幕布 / 面板）。 */
         private const val GAZE_DROP_DEG = 12f
+
+        /** 坐着 / 站着时幕布中心比头部轴线低这么多度（幕布本身竖直）。 */
+        private const val SCREEN_GAZE_DROP_DEG = 6f
+
+        /** 坐着 / 站着时控制面板中心在头部轴线下方这么多度，面板仰着朝头。 */
+        private const val CONTROLS_DROP_DEG = 22f
+
+        /** 头部前向的 |y| 小于它（约 35°）= 头大致水平，走直立摆法。 */
+        private const val LEVEL_GAZE_SIN = 0.574f
         private const val CONTROLS_WIDTH_M = 1.5f
         private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 360f / 1100f
 

@@ -53,8 +53,17 @@ interface WindowHost {
     val minSize: Vector2
     val maxSize: Vector2
 
-    /** 内容面板自己的圆角（米）；窗框的内沿跟着它走。 */
-    val cornerRadiusM: Float get() = 0f
+    /**
+     * 内容面板**此刻**自己的圆角（米），x / y 分开给；窗框的角把手就顺着它画。
+     *
+     * ⛔ 两条都是「此刻」：
+     * - 跟着缩放走 —— 面板放大两倍，它的圆角在世界里也是两倍，窗框不跟就对不上；
+     * - 分轴 —— 2D 应用面板拖动中先被非等比 `Scale` 拉伸（松手才按新像素重排），
+     *   那期间内容自己的圆角本来就是椭圆的。
+     *
+     * 零 = 内容是直角（视频幕布 / 图库图片都走合成层，圆不了角），窗框会把角画成利落的直角。
+     */
+    fun cornerRadiusM(): Vector2 = Vector2(0f, 0f)
 
     /** 内容面板的合成层次序；窗框排在它后面一层。 */
     val zIndex: Int
@@ -280,7 +289,7 @@ class WindowManipulator(
         slot.frameEntity = entity
         slot.parked = surface == null
         syncIsdkShape(entity, size, arc)
-        updateFractions(slot, size)
+        updateFrameMetrics(slot, size)
         slot.state.activeZone = WindowFrameZone.NONE
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             val panel = so as? PanelSceneObject
@@ -312,15 +321,21 @@ class WindowManipulator(
         }
     }
 
-    private fun updateFractions(slot: Slot, size: Vector2) {
-        val totalW = size.x + 2f * RING_M
-        val totalH = size.y + 2f * RING_M
+    /**
+     * 把窗框要画 / 要判定的几何**按米**交给面板。
+     *
+     * ⛔ 别再换算成「占整幅的比例」：窗框面板的画布 `reshape()` 换不掉（§19 续十二），窗被拉长时
+     * 画布是被非等比抻开的，只有米数能让面板把粗细与圆角还原成人眼里的同一档（见 `WindowFrameState`）。
+     */
+    private fun updateFrameMetrics(slot: Slot, size: Vector2) {
         val s = slot.state
-        s.ringFracX = RING_M / totalW
-        s.ringFracY = RING_M / totalH
-        s.cornerFracX = min(0.45f, CORNER_M / totalW)
-        s.cornerFracY = min(0.45f, CORNER_M / totalH)
-        s.innerRadiusFrac = slot.host.cornerRadiusM / totalH
+        s.widthM = size.x + 2f * RING_M
+        s.heightM = size.y + 2f * RING_M
+        s.ringM = RING_M
+        s.cornerZoneM = CORNER_M
+        val r = slot.host.cornerRadiusM()
+        s.cornerRadiusXM = r.x
+        s.cornerRadiusYM = r.y
         s.freeResize = slot.host.resizePolicy == ResizePolicy.FREE
     }
 
@@ -377,6 +392,9 @@ class WindowManipulator(
         return true
     }
 
+    /** 强制结束这只手的会话（两手抓取缩放接管时）。挪动中的按松手处理、缩放中的按当前尺寸落地。 */
+    fun release(hand: Int) = endSession(hand)
+
     /** 挪动中：摇杆上下把窗沿射线推远 / 拉近。 */
     fun nudgeDistance(delta: Float) {
         for (session in sessions) {
@@ -424,7 +442,7 @@ class WindowManipulator(
                     .onFailure { Log.w(TAG, "IMMERSIVE frame reshape 失败 kind=${host.kind}", it) }
             }
             syncIsdkShape(entity, size, arc)
-            updateFractions(slot, size)
+            updateFrameMetrics(slot, size)
         }
         val pose = framePose(surface, size, arc)
         entity.setComponent(Transform(pose))
@@ -451,6 +469,20 @@ class WindowManipulator(
         val dir = pose.forward()
         if (dir.length() < 1e-4f) return null
         return PointerRay(pose.t, dir.normalize())
+    }
+
+    /**
+     * 射线 × 任意一块窗面：命中点的**面内本地坐标**（米，原点在面心、x 向右、y 向上），
+     * 打不到或打在面外为 null。
+     *
+     * 给 `:app` 的「幕布上横拖翻片」用（视频幕布没有 Compose 手势层，只能这么算）。
+     * ⛔ 别再另写一份求交：平面 / 弧面两种形状的公式就在 [intersect]，抓窗与拉角一直用的是它。
+     */
+    fun surfaceHit(hand: Int, input: SpatialInputPoller, surface: Pose, size: Vector2, arc: Float): Vector2? {
+        val ray = rayFor(hand, input) ?: return null
+        val local = intersect(ray, surface, size, arc) ?: return null
+        if (abs(local.x) > size.x / 2f || abs(local.y) > size.y / 2f) return null
+        return Vector2(local.x, local.y)
     }
 
     private fun computeHit(hand: Int, input: SpatialInputPoller): Hit? {

@@ -1346,6 +1346,7 @@ class MyVideoStateController extends GetxController
       url: chosen?.url ?? url,
       format: vrFormatForImmersive,
       title: videoInfo.value?.title?.trim() ?? '',
+      author: videoInfo.value?.user?.name ?? '',
       videoId: videoId,
       width: sourceVideoWidth.value,
       height: sourceVideoHeight.value,

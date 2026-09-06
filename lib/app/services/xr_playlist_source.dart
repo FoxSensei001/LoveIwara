@@ -75,10 +75,11 @@ class XrPlaylistSource {
   /// [downloadedIds] 是已下载完成的视频 id，用来给卡片打「已下载」角标。
   static List<XrPlaylistSection> sectionsFromQueues(
     List<PlaybackQueue> queues, {
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
     Set<String> downloadedIds = const <String>{},
   }) {
     return queues
-        .where((q) => !q.mediaType.isGallery)
+        .where((q) => q.mediaType == mediaType)
         .map(
           (q) => XrPlaylistSection(
             queueId: q.queueId,
@@ -166,6 +167,7 @@ class XrPlaylistSource {
       return XrPlayableVideo(
         id: video.id,
         title: video.title?.trim() ?? '',
+        author: video.user?.name ?? '',
         url: url,
         format: await _formatOf(video.id, video),
         width: video.file?.width ?? 0,
@@ -242,13 +244,18 @@ class XrPlaylistEntry {
     bool downloaded = false,
   }) {
     final progress = (item.progressPermil / 1000).clamp(0.0, 1.0).toDouble();
+    // 图库条目没有时长，角标写张数（与列表页卡片同一句话）。
+    final numImages = item.numImages;
+    final durationText = item.durationSeconds == null && numImages != null
+        ? slang.t.playbackQueue.galleryImageCount(count: numImages)
+        : _formatDuration(
+            item.durationSeconds == null ? null : item.durationSeconds! * 1000,
+          );
     return XrPlaylistEntry(
       id: item.id,
       title: item.title,
       author: item.authorName ?? '',
-      durationText: _formatDuration(
-        item.durationSeconds == null ? null : item.durationSeconds! * 1000,
-      ),
+      durationText: durationText,
       thumbnailUrl: item.thumbnailUrl,
       progressRatio: progress,
       watched: progress >= 0.95,
@@ -286,6 +293,7 @@ class XrPlayableVideo {
   const XrPlayableVideo({
     required this.id,
     required this.title,
+    required this.author,
     required this.url,
     required this.format,
     required this.width,
@@ -294,6 +302,9 @@ class XrPlayableVideo {
 
   final String id;
   final String title;
+
+  /// 作者名；面板标题下面那行小字。取不到就是空串。
+  final String author;
   final String url;
   final VrSourceFormat format;
   final int width;

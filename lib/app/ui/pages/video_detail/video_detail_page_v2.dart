@@ -988,6 +988,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     currentItemId: _queueItemId,
     author: _hasUsableController ? controller.videoInfo.value?.user : null,
     adopt: _adoptQueue,
+    mediaType: PlaybackMediaType.video,
   );
 
   /// 本页**唯一**的播放器构造点（内嵌、宽屏、全屏叠加层、PiP 都走这里）。

@@ -29,6 +29,8 @@ dependencies:
   flutter_secure_storage: ^10.0.0
   get_storage: ^2.1.1
   cached_network_image: ^3.4.1
+  # 空间画廊：Dart 替原生下载图库文件到本机缓存（与 cached_network_image 同一只缓存），要直接用 DefaultCacheManager。
+  flutter_cache_manager: ^3.4.2
   shimmer: ^3.0.0
   extended_nested_scroll_view: ^6.2.1
   markdown_widget: ^2.3.2+8

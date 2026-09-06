@@ -555,6 +555,7 @@ class _TranslationsGalleryDetailZhCn implements TranslationsGalleryDetailEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get browseInSpace => '在空间中浏览';
 	@override String get galleryDetail => '图库详情';
 	@override String get viewGalleryDetail => '查看图库详情';
 	@override String get zoomReset => '重置缩放';
@@ -2492,6 +2493,7 @@ class _TranslationsPlaybackQueueZhCn implements TranslationsPlaybackQueueEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String galleryImageCount({required Object count}) => '${count} 张';
 	@override String get upNext => '接着看';
 	@override String get sourceTab => '来源';
 	@override String get emptyQueue => '这个池里没有可播的视频';
@@ -2525,6 +2527,8 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
+	@override String get autoEnterGallery => '点开图库图片自动进入空间画廊';
+	@override String get autoEnterGalleryDesc => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。';
 	@override String get desc => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -4162,6 +4166,7 @@ extension on TranslationsZhCn {
 			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '确定要取消选中的 ${count} 项最爱吗？取消后可以在列表中点击卡片恢复。',
 			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '已取消 ${count} 项最爱',
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 项，${failed} 项失败',
+			'galleryDetail.browseInSpace' => '在空间中浏览',
 			'galleryDetail.galleryDetail' => '图库详情',
 			'galleryDetail.viewGalleryDetail' => '查看图库详情',
 			'galleryDetail.zoomReset' => '重置缩放',
@@ -4263,9 +4268,9 @@ extension on TranslationsZhCn {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
 			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			'settings.rememberPlaybackSpeed' => '记住播放倍速',
-			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此配置决定当你在全屏播放时是否以竖屏模式渲染竖屏视频。',
@@ -4777,9 +4782,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.fixFailed' => '修复失败，请手动处理',
 			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '无法访问公共目录，需要"所有文件访问权限"',
-			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
 			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
 			'settings.downloadSettings.insufficientSpace' => '可用空间不足',
 			'settings.downloadSettings.pathValid' => '路径有效',
@@ -5291,9 +5296,9 @@ extension on TranslationsZhCn {
 			'download.errors.canNotRefreshVideoTask' => '无法刷新视频任务',
 			'download.errors.taskAlreadyProcessing' => '任务已处理中',
 			'download.errors.failedToLoadTasks' => '加载任务失败',
-			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下载失败: ${message}',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下载失败: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => '不支持的图片格式: ${extension}, 可以尝试下载到设备上查看',
 			'download.errors.imageLoadFailed' => '图片加载失败',
 			'download.errors.pleaseTryOtherViewer' => '请尝试使用其他查看器打开',
@@ -5805,9 +5810,9 @@ extension on TranslationsZhCn {
 			'logViewer.searchHint' => '搜索日志...',
 			'logViewer.emptyState' => '暂无日志',
 			'logViewer.copiedToClipboard' => '已复制到剪贴板',
-			'crashRecoveryDialog.title' => '应用异常退出',
 			_ => null,
 		} ?? switch (path) {
+			'crashRecoveryDialog.title' => '应用异常退出',
 			'crashRecoveryDialog.description' => '我们检测到应用上次异常退出。请按提示导出诊断日志并邮件发送给开发者，帮助我们修复问题。',
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '上次版本: ${version}',
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次启动: ${time}',
@@ -6319,9 +6324,9 @@ extension on TranslationsZhCn {
 			'externalPlayer.testFailed' => '启动失败，请检查可执行文件路径',
 			'externalPlayer.executableMissing' => '可执行文件不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 打开',
-			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			_ => null,
 		} ?? switch (path) {
+			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			'watchLater.title' => '稍后再看',
 			'watchLater.addToWatchLater' => '稍后再看',
 			'watchLater.removeFromWatchLater' => '移出稍后再看',
@@ -6360,6 +6365,7 @@ extension on TranslationsZhCn {
 			'mediaPreview.moreActions' => '更多操作',
 			'mediaPreview.previousImage' => '上一张',
 			'mediaPreview.nextImage' => '下一张',
+			'playbackQueue.galleryImageCount' => ({required Object count}) => '${count} 张',
 			'playbackQueue.upNext' => '接着看',
 			'playbackQueue.sourceTab' => '来源',
 			'playbackQueue.emptyQueue' => '这个池里没有可播的视频',
@@ -6384,6 +6390,8 @@ extension on TranslationsZhCn {
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',
+			'vrFormat.autoEnterGallery' => '点开图库图片自动进入空间画廊',
+			'vrFormat.autoEnterGalleryDesc' => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。',
 			'vrFormat.desc' => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',

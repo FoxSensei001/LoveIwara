@@ -57,4 +57,6 @@ dependencies {
     implementation 'com.meta.spatial:meta-spatial-sdk-uiset:0.13.2'
     // 「接着看」的封面。只进 quest 变体（本模块只被 questImplementation 依赖），standard 包不受影响。
     implementation 'io.coil-kt:coil-compose:2.7.0'
+    // 空间画廊里的 gif：coil-compose 自己不解动图，要这个解码器（minSdk 34，走 ImageDecoder）。
+    implementation 'io.coil-kt:coil-gif:2.7.0'
 }

@@ -555,6 +555,7 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get browseInSpace => '在空間中瀏覽';
 	@override String get galleryDetail => '圖庫詳情';
 	@override String get viewGalleryDetail => '查看圖庫詳情';
 	@override String get zoomReset => '重置縮放';
@@ -2492,6 +2493,7 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String galleryImageCount({required Object count}) => '${count} 張';
 	@override String get upNext => '接著看';
 	@override String get sourceTab => '來源';
 	@override String get emptyQueue => '這個池裡沒有可播的影片';
@@ -2525,6 +2527,8 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '開啟影片自動進入空間播放器';
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。';
+	@override String get autoEnterGallery => '點開圖庫圖片自動進入空間畫廊';
+	@override String get autoEnterGalleryDesc => '在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。';
 	@override String get desc => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立體';
@@ -4162,6 +4166,7 @@ extension on TranslationsZhTw {
 			'favorites.batchCancelFavoriteConfirm' => ({required Object count}) => '確定要取消選取的 ${count} 項最愛嗎？取消後可以在列表中點擊卡片復原。',
 			'favorites.batchCancelFavoriteSuccess' => ({required Object count}) => '已取消 ${count} 項最愛',
 			'favorites.batchCancelFavoriteResult' => ({required Object success, required Object failed}) => '已取消 ${success} 項，${failed} 項失敗',
+			'galleryDetail.browseInSpace' => '在空間中瀏覽',
 			'galleryDetail.galleryDetail' => '圖庫詳情',
 			'galleryDetail.viewGalleryDetail' => '查看圖庫詳情',
 			'galleryDetail.zoomReset' => '重置縮放',
@@ -4263,9 +4268,9 @@ extension on TranslationsZhTw {
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
-			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
 			'settings.thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen' => '此設定將決定當您在全螢幕播放時，是否以直向模式呈現直向影片。',
@@ -4777,9 +4782,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
 			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
-			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
 			'settings.downloadSettings.insufficientSpace' => '可用空間不足',
 			'settings.downloadSettings.pathValid' => '路徑有效',
@@ -5291,9 +5296,9 @@ extension on TranslationsZhTw {
 			'download.errors.unknownNetworkError' => '未知網路錯誤',
 			'download.errors.sslHandshakeFailed' => 'SSL握手失敗，請檢查網路環境',
 			'download.errors.connectionFailed' => '連接失敗，請檢查網路',
-			'download.errors.serviceIsClosing' => '下載服務正在關閉',
 			_ => null,
 		} ?? switch (path) {
+			'download.errors.serviceIsClosing' => '下載服務正在關閉',
 			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
 			'download.errors.noDownloadTask' => '暫無下載任務',
 			'download.errors.taskNotFoundOrDataError' => '任務不存在或資料錯誤',
@@ -5805,9 +5810,9 @@ extension on TranslationsZhTw {
 			'diagnostics.refreshMetrics' => '重新整理指標',
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日誌可能包含帳號、請求參數等敏感資訊。請勿直接公開附加到 Issue，建議檢查後透過郵件傳送。',
-			'diagnostics.exportLogsTitle' => '匯出日誌',
 			_ => null,
 		} ?? switch (path) {
+			'diagnostics.exportLogsTitle' => '匯出日誌',
 			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
 			'diagnostics.viewLogsTitle' => '查看日誌',
 			'diagnostics.viewLogsSubtitle' => '即時查看應用執行日誌',
@@ -6319,9 +6324,9 @@ extension on TranslationsZhTw {
 			'externalPlayer.testFailed' => '啟動失敗，請檢查可執行檔路徑',
 			'externalPlayer.executableMissing' => '可執行檔不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 開啟',
-			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			_ => null,
 		} ?? switch (path) {
+			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			'watchLater.title' => '稍後再看',
 			'watchLater.addToWatchLater' => '稍後再看',
 			'watchLater.removeFromWatchLater' => '移出稍後再看',
@@ -6360,6 +6365,7 @@ extension on TranslationsZhTw {
 			'mediaPreview.moreActions' => '更多操作',
 			'mediaPreview.previousImage' => '上一張',
 			'mediaPreview.nextImage' => '下一張',
+			'playbackQueue.galleryImageCount' => ({required Object count}) => '${count} 張',
 			'playbackQueue.upNext' => '接著看',
 			'playbackQueue.sourceTab' => '來源',
 			'playbackQueue.emptyQueue' => '這個池裡沒有可播的影片',
@@ -6384,6 +6390,8 @@ extension on TranslationsZhTw {
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '開啟影片自動進入空間播放器',
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。',
+			'vrFormat.autoEnterGallery' => '點開圖庫圖片自動進入空間畫廊',
+			'vrFormat.autoEnterGalleryDesc' => '在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。',
 			'vrFormat.desc' => '選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立體',

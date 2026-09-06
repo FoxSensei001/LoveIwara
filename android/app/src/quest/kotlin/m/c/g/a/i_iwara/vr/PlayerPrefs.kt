@@ -26,6 +26,10 @@ class PlayerPrefs(context: Context) {
     /** 控制面板相对基准尺寸的等比缩放。 */
     var controlsScale = 1f
 
+    /** 空间画廊：幻灯片间隔（秒）与视频项单条循环。 */
+    var slideshowSeconds = 5
+    var galleryLoopVideo = true
+
     /**
      * 按**画面宽高比**记住的观看距离与幕宽：`"1.78" -> [distance, width]`。
      *
@@ -57,6 +61,8 @@ class PlayerPrefs(context: Context) {
         uiPanelWidth = sp.getFloat(KEY_UI_WIDTH, DEFAULT_UI_PANEL_WIDTH_M).coerceIn(0.8f, 4f)
         uiPanelHeight = sp.getFloat(KEY_UI_HEIGHT, DEFAULT_UI_PANEL_WIDTH_M * UI_PANEL_ASPECT_H_OVER_W).coerceIn(0.5f, 2.6f)
         controlsScale = sp.getFloat(KEY_CONTROLS_SCALE, 1f).coerceIn(0.6f, 2f)
+        slideshowSeconds = sp.getInt(KEY_SLIDESHOW_SECONDS, 5).coerceIn(1, 120)
+        galleryLoopVideo = sp.getBoolean(KEY_GALLERY_LOOP, true)
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
         state.scene = enum(KEY_SCENE, SceneKind.VOID)
         state.screenDistance = sp.getFloat(KEY_DISTANCE, 2.4f)
@@ -75,7 +81,7 @@ class PlayerPrefs(context: Context) {
         state.volume = sp.getFloat(KEY_VOLUME, 1f)
         state.forceMono = sp.getBoolean(KEY_FORCE_MONO, false)
         state.treat180AsFisheye = sp.getBoolean(KEY_TREAT_180_FISHEYE, false)
-        state.repeatMode = enum(KEY_REPEAT, RepeatMode.ONE)
+        state.repeatMode = migratedRepeatMode()
         state.autoHide = sp.getBoolean(KEY_AUTO_HIDE, true)
         state.autoHideSeconds = sp.getInt(KEY_AUTO_HIDE_SECONDS, 12)
         state.clickSound = sp.getBoolean(KEY_CLICK_SOUND, true)
@@ -89,6 +95,8 @@ class PlayerPrefs(context: Context) {
             .putFloat(KEY_UI_WIDTH, uiPanelWidth)
             .putFloat(KEY_UI_HEIGHT, uiPanelHeight)
             .putFloat(KEY_CONTROLS_SCALE, controlsScale)
+            .putInt(KEY_SLIDESHOW_SECONDS, slideshowSeconds)
+            .putBoolean(KEY_GALLERY_LOOP, galleryLoopVideo)
             .putString(KEY_CURVE, state.curve.name)
             .putString(KEY_SCENE, state.scene.name)
             .putFloat(KEY_DISTANCE, state.screenDistance)
@@ -116,6 +124,21 @@ class PlayerPrefs(context: Context) {
             .apply()
     }
 
+    /**
+     * 「播完之后」：默认**单集循环**，并对老档案做一次性归位。
+     *
+     * 代码里的默认值一直是 [RepeatMode.ONE]，但 [save] 每次都会把当时的值写进
+     * SharedPreferences —— 早期版本里点过「自动下一条 / 播完停止」的设备，那条记录就一直躺着，
+     * 用户看到的「默认」于是不是循环（用户 2026-09-06）。这里只**刷一次**：刷完立刻落标记，
+     * 之后用户自己再选什么都原样留着。
+     */
+    private fun migratedRepeatMode(): RepeatMode {
+        val stored = enum(KEY_REPEAT, RepeatMode.ONE)
+        if (sp.getBoolean(KEY_REPEAT_DEFAULT_MIGRATED, false)) return stored
+        sp.edit().putBoolean(KEY_REPEAT_DEFAULT_MIGRATED, true).apply()
+        return RepeatMode.ONE
+    }
+
     private inline fun <reified E : Enum<E>> enum(key: String, default: E): E {
         val name = sp.getString(key, null) ?: return default
         return runCatching { enumValueOf<E>(name) }.getOrDefault(default)
@@ -129,6 +152,8 @@ class PlayerPrefs(context: Context) {
         private const val KEY_UI_WIDTH = "uiPanelWidth"
         private const val KEY_UI_HEIGHT = "uiPanelHeight"
         private const val KEY_CONTROLS_SCALE = "controlsScale"
+        private const val KEY_SLIDESHOW_SECONDS = "slideshowSeconds"
+        private const val KEY_GALLERY_LOOP = "galleryLoopVideo"
         const val KEY_CURVE = "curve"
         const val KEY_SCENE = "scene"
         const val KEY_DISTANCE = "distance"
@@ -143,6 +168,9 @@ class PlayerPrefs(context: Context) {
         const val KEY_FORCE_MONO = "forceMono"
         const val KEY_TREAT_180_FISHEYE = "treat180Fisheye"
         const val KEY_REPEAT = "repeat"
+
+        /** 「播完之后」归位到单集循环这件事做过了。见 [migratedRepeatMode]。 */
+        private const val KEY_REPEAT_DEFAULT_MIGRATED = "repeatDefaultMigratedV1"
         const val KEY_AUTO_HIDE = "autoHide"
         const val KEY_AUTO_HIDE_SECONDS = "autoHideSeconds"
         const val KEY_CLICK_SOUND = "clickSound"

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart'; // Assuming ImageModel path, adjust if necessary
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/immersive_cover_widget.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
@@ -92,24 +96,54 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       bool isCoverItem(ImageItem item) =>
           coverFileId != null && item.data.id == coverFileId;
 
+      final list = MouseRegion(
+        onEnter: (_) => controller.isHoveringHorizontalList.value = true,
+        onExit: (_) => controller.isHoveringHorizontalList.value = false,
+        child: HorizontalImageList(
+          images: imageItems,
+          defaultAspectRatio: 16 / 9,
+          onItemTap: (item) => _onImageTap(context, item, imageItems, im),
+          clipBorderRadius: BorderRadius.zero,
+          itemBorderRadiusBuilder: (item) =>
+              isCoverItem(item) ? coverRadius : radius8,
+          aspectRatioBuilder: (item, defaultAspectRatio, loadedAspectRatio) =>
+              loadedAspectRatio ?? defaultAspectRatio,
+          menuItemsBuilder: (context, item) =>
+              _buildImageMenuItems(context, item),
+          listController: controller.imageListController,
+        ),
+      );
+
+      // Quest：沉浸场景活着就给一枚「在空间中浏览」入口（自动进入关着时这是唯一入口；
+      // 开着时点任一张也一样进去，这枚钮只是把能力露出来）。样式照封面钮那一套。
+      final immersiveAvailable =
+          Get.isRegistered<XrImmersiveService>() &&
+          Get.find<XrImmersiveService>().available.value;
+      if (!immersiveAvailable) {
+        return SizedBox(height: maxHeight, child: list);
+      }
       return SizedBox(
         height: maxHeight,
-        child: MouseRegion(
-          onEnter: (_) => controller.isHoveringHorizontalList.value = true,
-          onExit: (_) => controller.isHoveringHorizontalList.value = false,
-          child: HorizontalImageList(
-            images: imageItems,
-            defaultAspectRatio: 16 / 9,
-            onItemTap: (item) => _onImageTap(context, item, imageItems),
-            clipBorderRadius: BorderRadius.zero,
-            itemBorderRadiusBuilder: (item) =>
-                isCoverItem(item) ? coverRadius : radius8,
-            aspectRatioBuilder: (item, defaultAspectRatio, loadedAspectRatio) =>
-                loadedAspectRatio ?? defaultAspectRatio,
-            menuItemsBuilder: (context, item) =>
-                _buildImageMenuItems(context, item),
-            listController: controller.imageListController,
-          ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            list,
+            Positioned(
+              top: 10,
+              right: 10,
+              child: ImmersiveCoverButton.pill(
+                icon: Icons.view_in_ar,
+                label: t.galleryDetail.browseInSpace,
+                tooltip: t.galleryDetail.browseInSpace,
+                onTap: () => presentGalleryInSpace(
+                  gallery: im,
+                  imageItems: imageItems,
+                  index: 0,
+                  onIndexChanged: controller.imageListController.revealIndex,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     });
@@ -121,6 +155,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
     BuildContext context,
     ImageItem item,
     List<ImageItem> imageItems,
+    ImageModel gallery,
   ) {
     LogUtils.d('点击了图片：${item.data.id}', 'GalleryImageScrollerWidget');
     int index = imageItems.indexWhere((element) => element.url == item.url);
@@ -133,6 +168,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
       context,
       imageItems: imageItems,
       index: index,
+      gallery: gallery,
       onIndexChanged: controller.imageListController.revealIndex,
     );
   }
@@ -192,17 +228,35 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
 /// 播放器。规则只写在那一处，别在这里再抄一份。
 /// 副作用是好的：整本都是视频的图库，`_hasSwitchableQualityDifference` 算出
 /// 两档没差别，画质钮自己就不出现了。
+///
+/// **Quest**：沉浸场景活着且「点开图片自动进空间画廊」开着时，整本图库交给空间画廊
+/// （[presentGalleryInSpace]），这块面板里不开大图页。[gallery] 就是为这条路带的
+/// （标题 / 作者 / id）；没带就永远走 2D。
 void openGalleryImageViewer(
   BuildContext context, {
   required List<ImageItem> imageItems,
   required int index,
   bool instant = false,
   ValueChanged<int>? onIndexChanged,
+  ImageModel? gallery,
 }) {
   final configService = Get.find<ConfigService>();
   final initialQuality = normalizeGalleryImageQuality(
     configService[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
   );
+  if (gallery != null && Get.isRegistered<XrImmersiveService>()) {
+    final xr = Get.find<XrImmersiveService>();
+    if (xr.available.value && xr.galleryAutoEnterEnabled) {
+      presentGalleryInSpace(
+        gallery: gallery,
+        imageItems: imageItems,
+        index: index,
+        onIndexChanged: onIndexChanged,
+        quality: initialQuality,
+      );
+      return;
+    }
+  }
   final standardImageItems = imageItems
       .map(
         (imageItem) => ImageItem(
@@ -266,8 +320,67 @@ bool openGalleryImageViewerByFileId(
     index: index,
     instant: instant,
     onIndexChanged: onIndexChanged,
+    gallery: imageModel,
   );
   return true;
+}
+
+/// Quest：把整本图库交给空间画廊，从第 [index] 项开始看。
+///
+/// 清单顺序与 [imageItems] 一致（封面提前那条规则已经在 [buildGalleryImageItems] 里做过），
+/// 所以原生回报的下标可以直接喂给 [onIndexChanged]，2D 面板里的横向清单跟着幕布翻。
+/// [quality] 不传就取大图页的默认画质偏好；面板上换档会写回同一份偏好。
+void presentGalleryInSpace({
+  required ImageModel gallery,
+  required List<ImageItem> imageItems,
+  required int index,
+  ValueChanged<int>? onIndexChanged,
+  String? quality,
+}) {
+  if (imageItems.isEmpty || !Get.isRegistered<XrImmersiveService>()) return;
+  final xr = Get.find<XrImmersiveService>();
+  final resolvedQuality =
+      quality ??
+      normalizeGalleryImageQuality(
+        Get.find<ConfigService>()[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
+      );
+  final items = imageItems
+      .map(
+        (item) => XrGalleryItem(
+          id: item.data.id,
+          isVideo: item.isVideo,
+          largeUrl: item.url,
+          originalUrl: item.data.originalUrl,
+          width: item.width?.round() ?? 0,
+          height: item.height?.round() ?? 0,
+        ),
+      )
+      .toList();
+  final galleryId = gallery.id;
+  xr.onGalleryIndexChanged = (id, i) {
+    if (id == galleryId) onIndexChanged?.call(i);
+  };
+  xr.onGalleryEnded = (id, i) {
+    if (id != galleryId) return;
+    onIndexChanged?.call(i);
+    xr.onGalleryIndexChanged = null;
+    xr.onGalleryEnded = null;
+  };
+  onIndexChanged?.call(index < 0 ? 0 : index);
+  LogUtils.i(
+    '图库交给空间画廊 id=$galleryId n=${items.length} index=$index quality=$resolvedQuality',
+    'GalleryImageScrollerWidget',
+  );
+  unawaited(
+    xr.presentGallery(
+      galleryId: galleryId,
+      title: gallery.title,
+      author: gallery.user?.name.trim() ?? '',
+      items: items,
+      index: index < 0 ? 0 : index,
+      quality: resolvedQuality,
+    ),
+  );
 }
 
 List<MenuItem> buildGalleryImageMenuItems(

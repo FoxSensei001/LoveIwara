@@ -539,6 +539,7 @@ final GoRouter appRouter = GoRouter(
               playbackQueueRef: galleryExtra?.playbackQueueRef,
               preloadedDetail: galleryExtra?.preloadedDetail,
               initialImageId: galleryExtra?.initialImageId,
+              presentInSpace: galleryExtra?.presentInSpace ?? false,
             );
           },
         ),
@@ -1322,6 +1323,9 @@ class GalleryDetailExtra {
   /// 进去就直接开到这张大图的**文件 id**。同上。
   final String? initialImageId;
 
+  /// Quest：页面落地、详情到手就整本交给空间画廊（沉浸面板「接着看」里点的图库）。
+  final bool presentInSpace;
+
   const GalleryDetailExtra({
     this.coverUrl,
     this.title,
@@ -1336,6 +1340,7 @@ class GalleryDetailExtra {
     this.playbackQueueRef,
     this.preloadedDetail,
     this.initialImageId,
+    this.presentInSpace = false,
   });
 }
 

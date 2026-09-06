@@ -186,4 +186,22 @@
     <string name="xr_notice_no_external_player">この端末にはこの動画を開けるアプリがありません</string>
     <string name="xr_notice_resumed_at">%1$s から再生を再開しました</string>
 
+    <!-- ─────────────────────────────── 空間ギャラリー -->
+    <string name="xr_nav_screen_type">スクリーン</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">ギャラリー</string>
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">このギャラリーにはファイルがありません</string>
+    <string name="xr_gallery_video_badge">動画</string>
+    <string name="xr_gallery_slideshow">スライドショー</string>
+    <string name="xr_gallery_slideshow_stop">スライドショーを停止</string>
+    <string name="xr_gallery_interval">%1$d 秒</string>
+    <string name="xr_gallery_quality_standard">標準</string>
+    <string name="xr_gallery_quality_original">オリジナル</string>
+    <string name="xr_gallery_loop">ループ</string>
+    <string name="xr_gallery_load_failed">このファイルを読み込めませんでした（%1$s）</string>
+
+    <string name="xr_swipe_no_previous_image">最初の画像です</string>
+    <string name="xr_swipe_no_next_image">最後の画像です</string>
 </resources>

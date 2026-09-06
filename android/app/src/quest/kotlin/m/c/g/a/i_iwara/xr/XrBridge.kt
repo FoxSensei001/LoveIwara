@@ -22,10 +22,12 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  *
  * Dart → Kotlin（通道 `i_iwara/immersive`）：
  * - `isAvailable` → Boolean，沉浸场景当前是否活着（Dart 用它决定要不要显示入口）
- * - `present` → `{url, title, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
+ * - `present` → `{url, title, author, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
  *                w, h, positionMs, unsupportedProjection,
  *                sources: [{label, url, local}], sourceLabel}`
- * - `dismiss` → 收起幕布，只留 UI 面板
+ * - `dismiss` → 收起幕布，只留 UI 面板（视频与空间画廊都归它）
+ * - `presentGallery` → `{galleryId, title, author, index, quality,
+ *                        items: [{id, video, url, thumbUrl, thumbPath, w, h}]}`：整本图库空间化呈现
  * - `updateSources` → `{videoId, sources: [{label, url, local}]}`：同一条片子的清晰度清单换了一份新地址
  *   （Iwara 直链带 `expires`，Dart 侧到期前 5 分钟刷一次 / 原生报过期时刷一次）；正在放的那一档地址变了
  *   就接着当前位置无缝换过去
@@ -45,6 +47,8 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  * - `immersiveEnded` `{videoId, positionMs, durationMs}` → 沉浸播放结束（返回应用 / 换片 / 退出场景），
  *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
  * - `sourceExpired` `{videoId}` → 播放地址被服务端拒了（非 2xx）：请 Dart 立刻重取一份清单再 `updateSources` 回来
+ * - 空间画廊四条：`galleryFile` `{id, quality}` → **有返回值**（本地文件路径，空串 = 失败）；
+ *   `galleryIndexChanged` `{galleryId, index}`；`galleryQualityPicked` `{quality}`；`galleryEnded` `{galleryId, index}`
  *
  * ⛔ **反向调用就这几条，刻意保持得很窄**。设计文档 §6.6 已经否掉了「沉浸端持续
  * 回打 Dart 的瘦客户端架构」（跨端持续同步最脆，LMK 一杀会话中途崩），
@@ -95,6 +99,7 @@ object XrBridge {
                         val request = ImmersiveVideoRequest(
                             url = url,
                             title = call.argument<String>("title") ?: "",
+                            author = call.argument<String>("author") ?: "",
                             videoId = call.argument<String>("videoId") ?: "",
                             shape = call.argument<String>("shape") ?: "flat",
                             stereo = call.argument<String>("stereo") ?: "none",
@@ -121,6 +126,37 @@ object XrBridge {
                 }
 
                 "dismiss" -> result.success(ImmersiveBridge.dismiss())
+
+                // 整本图库交给沉浸空间（空间画廊）。文件本体不在这包里：原生按需 `galleryFile` 回来要本地路径。
+                "presentGallery" -> {
+                    call.argument<String>("locale")?.let { PanelLocale.tag = it }
+                    val rawItems = call.argument<List<Map<String, Any?>>>("items").orEmpty()
+                    val items = rawItems.map { row ->
+                        ImmersiveGalleryItem(
+                            id = row["id"] as? String ?: "",
+                            isVideo = row["video"] as? Boolean ?: false,
+                            url = row["url"] as? String ?: "",
+                            thumbUrl = row["thumbUrl"] as? String ?: "",
+                            thumbPath = row["thumbPath"] as? String ?: "",
+                            width = (row["w"] as? Number)?.toInt() ?: 0,
+                            height = (row["h"] as? Number)?.toInt() ?: 0,
+                        )
+                    }.filter { it.id.isNotEmpty() }
+                    if (items.isEmpty()) {
+                        result.error("bad_args", "items 不能为空", null)
+                    } else {
+                        val request = ImmersiveGalleryRequest(
+                            galleryId = call.argument<String>("galleryId") ?: "",
+                            title = call.argument<String>("title") ?: "",
+                            author = call.argument<String>("author") ?: "",
+                            index = (call.argument<Number>("index") ?: 0).toInt().coerceIn(0, items.size - 1),
+                            quality = call.argument<String>("quality") ?: "standard",
+                            items = items,
+                        )
+                        Log.i(TAG, "XR presentGallery id=${request.galleryId} n=${items.size} index=${request.index}")
+                        result.success(ImmersiveBridge.presentGallery(request))
+                    }
+                }
 
                 "abortSwitch" -> {
                     result.success(
@@ -205,6 +241,8 @@ object XrBridge {
 data class ImmersiveVideoRequest(
     val url: String,
     val title: String,
+    /** 作者名；本地文件 / 外部地址可为空串。面板标题下面那行小字。 */
+    val author: String,
     /** 应用内的视频 id；本地文件/外部地址可为空串。回写进度时靠它。 */
     val videoId: String,
     val shape: String,
@@ -269,6 +307,29 @@ data class ImmersivePlaylistSection(
     val items: List<ImmersivePlaylistItem>,
     /** 池正在拉第一页 / 翻页（或还没装过任何一页）。 */
     val loading: Boolean = false,
+)
+
+/** 空间画廊里的一项（与 Dart 的 `XrGalleryItem` 一一对应）。[url] 是当前画质档的地址，只作日志 / 兜底。 */
+data class ImmersiveGalleryItem(
+    val id: String,
+    val isVideo: Boolean,
+    val url: String,
+    val thumbUrl: String,
+    /** Dart 手里已有缓存的缩略图文件；空串 = 没有。 */
+    val thumbPath: String,
+    val width: Int,
+    val height: Int,
+)
+
+/** 一次「把整本图库空间化呈现」的请求。 */
+data class ImmersiveGalleryRequest(
+    val galleryId: String,
+    val title: String,
+    val author: String,
+    val index: Int,
+    /** `standard` / `original`（Dart 的大图页画质偏好）。 */
+    val quality: String,
+    val items: List<ImmersiveGalleryItem>,
 )
 
 /**
@@ -354,8 +415,14 @@ object ImmersiveBridge {
         val nowPlayingId: String?,
     )
 
+    /** 场景还没就绪时先攒着的图库。 */
+    private var pendingGallery: ImmersiveGalleryRequest? = null
+
     interface Listener {
         fun onPresent(request: ImmersiveVideoRequest)
+
+        /** 整本图库交给沉浸空间（空间画廊）。 */
+        fun onPresentGallery(request: ImmersiveGalleryRequest)
         fun onDismiss()
 
         /** 同一条片子（[videoId]）的清晰度清单换了新地址。不是正在放的那条就忽略。 */
@@ -386,13 +453,31 @@ object ImmersiveBridge {
             pending = null
             listener.onPresent(it)
         }
+        pendingGallery?.let {
+            pendingGallery = null
+            listener.onPresentGallery(it)
+        }
     }
 
     fun detachScene() {
         listener = null
         isSceneAlive = false
         pending = null
+        pendingGallery = null
         pendingPlaylist = null
+    }
+
+    /** @return true 表示已直接投递给场景；false 表示场景未就绪、已暂存。 */
+    fun presentGallery(request: ImmersiveGalleryRequest): Boolean {
+        pending = null
+        val target = listener
+        return if (target == null) {
+            pendingGallery = request
+            false
+        } else {
+            target.onPresentGallery(request)
+            true
+        }
     }
 
     /** @return true 表示已直接投递给场景；false 表示场景未就绪、已暂存。 */
@@ -409,6 +494,7 @@ object ImmersiveBridge {
 
     fun dismiss(): Boolean {
         pending = null
+        pendingGallery = null
         val target = listener ?: return false
         target.onDismiss()
         return true
@@ -535,6 +621,54 @@ object ImmersiveBridge {
                 mapOf("videoId" to videoId, "positionMs" to positionMs, "durationMs" to durationMs),
             )
         }
+    }
+
+    // ---------------------------------------------------------------- 空间画廊的反向调用
+
+    /**
+     * 请 Dart 把图库里 [id] 这个文件按 [quality] 档下载到本机缓存，把**本地路径**交回来（空串 = 失败）。
+     *
+     * 为什么不让原生自己下：Dart 那条 HTTP 走应用内代理（`HttpOverrides.global`）、也带着自己的
+     * 图片缓存；原生 Coil / OkHttp 两样都没有。文件到手之后原生只负责解码。
+     */
+    fun requestGalleryFile(id: String, quality: String, onResult: (String) -> Unit) {
+        val channel = channelRef?.get()
+        if (channel == null) {
+            onResult("")
+            return
+        }
+        mainHandler.post {
+            channel.invokeMethod(
+                "galleryFile",
+                mapOf("id" to id, "quality" to quality),
+                object : MethodChannel.Result {
+                    override fun success(result: Any?) = onResult((result as? String).orEmpty())
+                    override fun error(code: String, message: String?, details: Any?) {
+                        Log.w(TAG, "XR galleryFile failed id=$id code=$code msg=$message")
+                        onResult("")
+                    }
+                    override fun notImplemented() = onResult("")
+                },
+            )
+        }
+    }
+
+    /** 幕布翻到了第 [index] 项：让 2D 面板里的横向清单跟过去（回应用时落在刚看的那张）。 */
+    fun notifyGalleryIndex(galleryId: String, index: Int) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("galleryIndexChanged", mapOf("galleryId" to galleryId, "index" to index)) }
+    }
+
+    /** 面板上换了图片画质：记成全局偏好（与 2D 大图页同一落点）。 */
+    fun notifyGalleryQuality(quality: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("galleryQualityPicked", mapOf("quality" to quality)) }
+    }
+
+    /** 空间画廊结束（回应用 / 被视频顶掉 / 退出场景）。 */
+    fun notifyGalleryEnded(galleryId: String, index: Int) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("galleryEnded", mapOf("galleryId" to galleryId, "index" to index)) }
     }
 
     /**

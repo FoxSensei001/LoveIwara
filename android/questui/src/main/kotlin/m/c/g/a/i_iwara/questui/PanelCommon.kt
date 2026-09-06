@@ -219,10 +219,19 @@ fun VGap(dp: Int = 14) {
  * 面板级触碰上报。
  *
  * ⛔ 挂在页面根节点上：拦 [PointerEventPass.Initial]（在子节点之前拿到事件）**且不消费**。
- * `:app` 侧的 `PanelInputBridge` 用这个信号做两件事：
- *   1. 续「空闲自动收起」的倒计时；
- *   2. 把「捏合唤出面板」的手势分家 —— 如果这次捏合发生在面板上，那就是普通交互，
- *      不当作召唤/收起手势看待。
+ *
+ * # ⛔ 「悬停」与「按下」必须分成两条信号
+ *
+ * 这里收到的事件里，**绝大多数是悬停移动**：Quest 的射线只要扫过面板就一直发 move。
+ * 早先两件事共用一条 [VideoControlsCallbacks.onPanelTouched]，于是「这一次按下落在面板上吗」
+ * 被一条「任何一只手的射线扫过面板」的信号污染 —— 真机症状是**面板只能召唤、无法隐藏**
+ * （用户 2026-09-05 报障）：另一只手的射线歇在面板上，`lastPanelTouchAt` 每帧刷新，
+ * 「面板外点一下」的判定于是恒不成立。面板不存在时没有这条噪音，所以召唤一直是好的。
+ *
+ * 分家之后：
+ *   - [VideoControlsCallbacks.onPanelTouched]（含悬停）→ 只用来续「空闲自动收起」的倒计时；
+ *   - [VideoControlsCallbacks.onPanelPressed]（**仅按下**）→ 才是「这一次操作落在面板上」的证据，
+ *     显隐 toggle 只认它。
  *
  * 覆盖面必须包含整块面板（含透明的顶栏那一带），所以调用点是 [VideoControlsPanel] 的
  * 最外层 Column，不是每个子页各挂一次。子页只在自己的根节点上重挂一次做兜底 ——
@@ -231,9 +240,15 @@ fun VGap(dp: Int = 14) {
 fun Modifier.reportPanelTouches(cb: VideoControlsCallbacks): Modifier =
     this.pointerInput(cb) {
         awaitPointerEventScope {
+            var wasPressed = false
             while (true) {
-                awaitPointerEvent(PointerEventPass.Initial)
+                val event = awaitPointerEvent(PointerEventPass.Initial)
                 cb.onPanelTouched()
+                // 只在「从没按下变成按下」那一下报按压：按住不放期间的 move 不再重复上报，
+                // 免得又变成一条会被当成「一直在面板上」的粘滞信号。
+                val pressed = event.changes.any { it.pressed }
+                if (pressed && !wasPressed) cb.onPanelPressed()
+                wasPressed = pressed
             }
         }
     }
@@ -297,7 +312,12 @@ fun CircleActionButton(
  * 不用 `SpatialSliderLarge`：它的拖块是一枚 60dp 宽的药丸，走到 98% 时看起来就是满的
  * （用户反馈「4:22 / 4:27 进度条视觉上已拉满」）。
  *
+ * 轨道分**三层**：空轨道 → 已缓冲 → 已播放 + 拖块。中间那层是网络片子「往前还能放到哪」，
+ * 用户 2026-09-06 要的就是它 —— 换片 / 卡顿时能看见缓冲区在往前推，而不是干等一枚转圈。
+ *
  * @param progress 0..1
+ * @param buffered 0..1，已缓冲到的位置（[PlaybackEngine] 的 `bufferedPosition`）。
+ *   0 或不大于 [progress] 时那一层不画（本地文件会直接满格，也就与轨道等长看不出来）。
  * @param onSeek 拖动 / 点按中连续回调
  * @param onSeekFinished 抬手
  * @param enabled false = 换片中：不接点按 / 拖动，整条压暗（拖块也不再是亮白）。
@@ -308,6 +328,7 @@ fun SeekBar(
     onSeek: (Float) -> Unit,
     onSeekFinished: () -> Unit,
     modifier: Modifier = Modifier,
+    buffered: Float = 0f,
     buffering: Boolean = false,
     enabled: Boolean = true,
 ) {
@@ -318,6 +339,8 @@ fun SeekBar(
         else -> PanelTokens.ON_SURFACE
     }
     val thumbColor = if (enabled) PanelTokens.ON_SURFACE else PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.5f)
+    // 缓冲段夹在空轨道（近黑）与已播放（近白）之间：够看得见「还能往前放多少」，又不会被误读成已播放。
+    val bufferedColor = PanelTokens.ON_SURFACE_DIM.copy(alpha = if (enabled) 0.38f else 0.2f)
     Box(
         modifier = modifier
             .height(64.dp)
@@ -350,12 +373,22 @@ fun SeekBar(
             val thumbR = 14.dp.toPx()
             val cy = size.height / 2f
             val x = (size.width * progress.coerceIn(0f, 1f))
+            val bx = (size.width * buffered.coerceIn(0f, 1f))
             drawRoundRect(
                 color = trackColor,
                 topLeft = Offset(0f, cy - trackH / 2f),
                 size = Size(size.width, trackH),
                 cornerRadius = CornerRadius(trackH / 2f),
             )
+            // 已缓冲：压在已播放之下、从 0 画起（一段就够，ExoPlayer 给的本来就是「从当前点起连续可播」的终点）。
+            if (bx > x) {
+                drawRoundRect(
+                    color = bufferedColor,
+                    topLeft = Offset(0f, cy - trackH / 2f),
+                    size = Size(bx, trackH),
+                    cornerRadius = CornerRadius(trackH / 2f),
+                )
+            }
             drawRoundRect(
                 color = fillColor,
                 topLeft = Offset(0f, cy - trackH / 2f),

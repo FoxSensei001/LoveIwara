@@ -63,6 +63,7 @@ import com.meta.spatial.uiset.theme.icons.regular.VolumeOn
  *
  * ```
  * [✕]  标题…                  [缓冲中] 🕒05:36 🔋36%   [场景][列表][设置][返回]
+ *      作者
  *
  * [🔊]   ⏮  ⏪10  ▶  ⏩10  ⏭                      [1.0×] [平面 · 2D] [直面屏]
  *
@@ -196,14 +197,25 @@ private fun HeaderRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
             onClick = cb::onHidePanel,
         )
 
-        Text(
-            text = state.title.ifBlank { stringResource(R.string.xr_player_title_fallback) },
-            color = PanelTokens.ON_SURFACE,
-            fontSize = 20.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f).padding(start = 4.dp),
-        )
+        // 标题 + 作者两行，与图集页头部同一套版式（用户 2026-09-06）。
+        Column(modifier = Modifier.weight(1f).padding(start = 4.dp)) {
+            Text(
+                text = state.title.ifBlank { stringResource(R.string.xr_player_title_fallback) },
+                color = PanelTokens.ON_SURFACE,
+                fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (state.author.isNotBlank()) {
+                Text(
+                    text = state.author,
+                    color = PanelTokens.ON_SURFACE_DIM,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
 
         // 状态区：缓冲 / 换片 chip 在时间**左侧**（用户 2026-09-05 反馈）。换片优先：老片已暂停，不是它在缓冲。
         if (state.switching || state.buffering) {
@@ -350,6 +362,7 @@ private fun ProgressRow(state: VideoControlsState, cb: VideoControlsCallbacks) {
             progress = state.progress,
             onSeek = cb::onSeek,
             onSeekFinished = cb::onSeekFinished,
+            buffered = state.buffered,
             buffering = state.buffering,
             enabled = !state.switching,
             modifier = Modifier.weight(1f),

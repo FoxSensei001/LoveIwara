@@ -430,6 +430,7 @@ favorites:
   batchCancelFavoriteResult(success, failed): '已取消 ${success} 項，${failed} 項失敗'
 
 galleryDetail:
+  browseInSpace: 在空間中瀏覽
   galleryDetail: 圖庫詳情
   viewGalleryDetail: 查看圖庫詳情
   zoomReset: 重置縮放
@@ -2819,6 +2820,7 @@ mediaPreview:
   previousImage: 上一張
   nextImage: 下一張
 playbackQueue:
+  galleryImageCount: '${count} 張'
   upNext: 接著看
   sourceTab: 來源
   emptyQueue: 這個池裡沒有可播的影片
@@ -2845,6 +2847,8 @@ vrFormat:
   title: 播放模式
   autoEnterImmersive: 開啟影片自動進入空間播放器
   autoEnterImmersiveDesc: 在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。
+  autoEnterGallery: 點開圖庫圖片自動進入空間畫廊
+  autoEnterGalleryDesc: 在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。
   desc: 選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。
   sectionFlat: 平面
   sectionStereo: 平面立體

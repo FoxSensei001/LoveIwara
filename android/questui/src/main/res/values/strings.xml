@@ -200,4 +200,25 @@
     <string name="xr_notice_no_external_player">No app on this device can open this video</string>
     <string name="xr_notice_resumed_at">Resumed from %1$s</string>
 
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">Screen</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">Gallery</string>
+    <!-- 计数 chip：「3 / 12」。 -->
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <!-- 头部副标题里的像素尺寸。 -->
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">This gallery has no files</string>
+    <string name="xr_gallery_video_badge">Video</string>
+    <string name="xr_gallery_slideshow">Slideshow</string>
+    <string name="xr_gallery_slideshow_stop">Stop slideshow</string>
+    <!-- 幻灯片间隔 chip：「5s」。 -->
+    <string name="xr_gallery_interval">%1$ds</string>
+    <string name="xr_gallery_quality_standard">Standard</string>
+    <string name="xr_gallery_quality_original">Original</string>
+    <string name="xr_gallery_loop">Loop</string>
+    <string name="xr_gallery_load_failed">Couldn\'t load this file (%1$s)</string>
+
+    <string name="xr_swipe_no_previous_image">This is the first image</string>
+    <string name="xr_swipe_no_next_image">This is the last image</string>
 </resources>

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
@@ -15,6 +16,7 @@ import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/xr_playlist_source.dart';
 import 'package:i_iwara/app/services/xr_queue_catalog.dart';
+import 'package:i_iwara/common/gallery_image_quality.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -69,6 +71,24 @@ class XrImmersiveService extends GetxService {
   /// Quest 上打开视频是否自动交给空间播放器（设置项，默认开）。
   bool get autoEnterEnabled =>
       Get.find<ConfigService>()[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] == true;
+
+  /// Quest 上点开图库里的图片是否自动进空间画廊（设置项，默认开）。
+  bool get galleryAutoEnterEnabled =>
+      Get.find<ConfigService>()[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY] == true;
+
+  // ────────────────────────────────────────────── 空间画廊
+
+  /// 幕布上正在浏览的那本图库的 id；不在画廊里为 null。
+  String? nowShowingGalleryId;
+
+  /// 当前活着的图库详情页挂在这里：幕布翻到第几项就把 2D 面板里的横向清单带到第几项。
+  void Function(String galleryId, int index)? onGalleryIndexChanged;
+
+  /// 空间画廊结束（回应用 / 被视频顶掉 / 场景退出）。
+  void Function(String galleryId, int index)? onGalleryEnded;
+
+  /// 幕布上那本图库的清单（按 id 找文件用），与 [nowShowingGalleryId] 成对。
+  List<XrGalleryItem> _galleryItems = const <XrGalleryItem>[];
 
   /// 当前活着的视频详情页把它的「接着看」视频池交在这里；沉浸面板的播放列表就是这份。
   ///
@@ -185,6 +205,38 @@ class XrImmersiveService extends GetxService {
         }
         handler(id);
         return true;
+      case 'galleryFile':
+        final args = call.arguments as Map?;
+        return await _resolveGalleryFile(
+          id: (args?['id'] as String?) ?? '',
+          quality: normalizeGalleryImageQuality(args?['quality']),
+        );
+      case 'galleryIndexChanged':
+        final args = call.arguments as Map?;
+        final galleryId = (args?['galleryId'] as String?) ?? '';
+        final index = (args?['index'] as num?)?.toInt() ?? 0;
+        onGalleryIndexChanged?.call(galleryId, index);
+        return true;
+      case 'galleryQualityPicked':
+        final args = call.arguments as Map?;
+        final quality = normalizeGalleryImageQuality(args?['quality']);
+        if (Get.isRegistered<ConfigService>()) {
+          Get.find<ConfigService>().setSetting(
+            ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY,
+            quality,
+          );
+        }
+        return true;
+      case 'galleryEnded':
+        final args = call.arguments as Map?;
+        final galleryId = (args?['galleryId'] as String?) ?? '';
+        final index = (args?['index'] as num?)?.toInt() ?? 0;
+        if (nowShowingGalleryId == galleryId) {
+          nowShowingGalleryId = null;
+          _galleryItems = const <XrGalleryItem>[];
+        }
+        onGalleryEnded?.call(galleryId, index);
+        return true;
       default:
         return null;
     }
@@ -258,6 +310,7 @@ class XrImmersiveService extends GetxService {
       if (snapshot != null && snapshot.queues.isNotEmpty) {
         sections = XrPlaylistSource.sectionsFromQueues(
           snapshot.queues,
+          mediaType: snapshot.mediaType,
           downloadedIds: _downloadedIds,
         );
         activeQueueId = snapshot.active?.queueId;
@@ -265,6 +318,7 @@ class XrImmersiveService extends GetxService {
           queues: snapshot.queues,
           currentItemId: snapshot.currentItemId,
           author: snapshot.author,
+          mediaType: snapshot.mediaType,
         );
       } else {
         sections = XrPlaylistSource.fallbackSections();
@@ -278,7 +332,8 @@ class XrImmersiveService extends GetxService {
         'sections': sections.map((e) => e.toChannelMap()).toList(),
         'groups': groups.map((e) => e.toChannelMap()).toList(),
         'activeQueueId': activeQueueId ?? sections.firstOrNull?.queueId,
-        'nowPlayingId': nowPlayingId,
+        // 空间画廊里「正在看的那条」是图库 id：卡片高亮同一个字段。
+        'nowPlayingId': nowPlayingId ?? nowShowingGalleryId,
       });
     } on MissingPluginException {
       // standard 变体没这条通道，正常。
@@ -377,6 +432,8 @@ class XrImmersiveService extends GetxService {
         item: item,
         skipWatched: false,
         companionQueues: queueProvider?.call().queues ?? const [],
+        // 图库池里点的：新的图库详情页落地就整本交给空间画廊（视频那条路靠 forceAutoPlay）。
+        presentInSpace: queue.mediaType.isGallery,
       );
       return true;
     }
@@ -398,6 +455,7 @@ class XrImmersiveService extends GetxService {
       url: playable.url,
       format: playable.format,
       title: playable.title,
+      author: playable.author,
       videoId: playable.id,
       width: playable.width,
       height: playable.height,
@@ -432,6 +490,7 @@ class XrImmersiveService extends GetxService {
     required String url,
     required VrSourceFormat format,
     String title = '',
+    String author = '',
     String? videoId,
     int width = 0,
     int height = 0,
@@ -451,6 +510,8 @@ class XrImmersiveService extends GetxService {
         'locale': localeTag,
         'url': url,
         'title': title,
+        // 面板标题下面那行小字。图集页早就有作者了，播放页也得有（用户 2026-09-06）。
+        'author': author,
         'videoId': videoId ?? '',
         'sources': sources.map((e) => e.toChannelMap()).toList(),
         'sourceLabel': sourceLabel,
@@ -474,6 +535,96 @@ class XrImmersiveService extends GetxService {
     } catch (e) {
       LogUtils.e('交给沉浸空间失败', tag: 'XrImmersive', error: e);
       return false;
+    }
+  }
+
+  /// 把整本图库交给沉浸空间（空间画廊）。
+  ///
+  /// 原生只拿到清单（id / 类型 / 尺寸 / 缩略图），**文件本体按需回来要**（`galleryFile`）：
+  /// 由 [_resolveGalleryFile] 走 `cached_network_image` 同一只缓存下载 —— 那条 HTTP 带应用内代理、
+  /// 与 2D 大图页共用磁盘缓存；原生 Coil 两样都没有，只负责解码。
+  ///
+  /// [thumbPath] 在这里就先查一遍缓存：详情页横向清单刚刚画过这些图，多半已在盘上，
+  /// 面板里的胶片就不必再走网络。
+  Future<bool> presentGallery({
+    required String galleryId,
+    required String title,
+    String author = '',
+    required List<XrGalleryItem> items,
+    int index = 0,
+    String quality = galleryImageQualityStandard,
+  }) async {
+    if (items.isEmpty) return false;
+    try {
+      // ⛔ 幕布上若正放着视频：它的 ended 会随 presentGallery 补发回来，nowPlayingId 由那条路清。
+      nowShowingGalleryId = galleryId;
+      _galleryItems = items;
+      final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+      _pushedLocaleTag = localeTag;
+      final cache = DefaultCacheManager();
+      final rows = <Map<String, dynamic>>[];
+      for (final item in items) {
+        String thumbPath = '';
+        if (!item.isVideo) {
+          try {
+            final cached = await cache.getFileFromCache(item.thumbUrl);
+            thumbPath = cached?.file.path ?? '';
+          } catch (_) {}
+        }
+        rows.add({
+          'id': item.id,
+          'video': item.isVideo,
+          'url': item.isVideo ? item.originalUrl : item.urlFor(quality),
+          'thumbUrl': item.thumbUrl,
+          'thumbPath': thumbPath,
+          'w': item.width,
+          'h': item.height,
+        });
+      }
+      final ok = await _channel.invokeMethod<bool>('presentGallery', {
+        'locale': localeTag,
+        'galleryId': galleryId,
+        'title': title,
+        'author': author,
+        'index': index,
+        'quality': quality,
+        'items': rows,
+      });
+      LogUtils.i(
+        '图库已交给空间画廊 id=$galleryId n=${items.length} index=$index delivered=$ok',
+        'XrImmersive',
+      );
+      // 「接着看」立刻推过去：图库详情页的池（来源 / 稍后再看的图库）就是面板里的列表。
+      unawaited(pushQueues());
+      return ok ?? false;
+    } on MissingPluginException {
+      nowShowingGalleryId = null;
+      return false;
+    } catch (e) {
+      nowShowingGalleryId = null;
+      LogUtils.e('交给空间画廊失败', tag: 'XrImmersive', error: e);
+      return false;
+    }
+  }
+
+  /// 原生要图库里 [id] 这个文件在 [quality] 档下的本地路径：没缓存就下载（带应用内代理）。
+  /// 返回空串 = 失败 / 找不到这一项。
+  Future<String> _resolveGalleryFile({
+    required String id,
+    required String quality,
+  }) async {
+    final item = _galleryItems.firstWhereOrNull((e) => e.id == id);
+    if (item == null || id.isEmpty) {
+      LogUtils.w('空间画廊要的文件不在清单里 id=$id', 'XrImmersive');
+      return '';
+    }
+    final url = item.urlFor(quality);
+    try {
+      final file = await DefaultCacheManager().getSingleFile(url);
+      return file.path;
+    } catch (e) {
+      LogUtils.w('空间画廊下载文件失败 id=$id url=$url: $e', 'XrImmersive');
+      return '';
     }
   }
 
@@ -524,10 +675,11 @@ class XrImmersiveService extends GetxService {
     }
   }
 
-  /// 收起幕布与控制条，把 UI 面板还回来。
+  /// 收起幕布与控制条，把 UI 面板还回来（视频与空间画廊都归它）。
   Future<bool> dismiss() async {
     try {
       nowPlayingId = null;
+      nowShowingGalleryId = null;
       return await _channel.invokeMethod<bool>('dismiss') ?? false;
     } on MissingPluginException {
       return false;
@@ -565,6 +717,8 @@ typedef XrQueueSnapshot = ({
   String currentItemId,
   User? author,
   void Function(PlaybackQueue queue) adopt,
+  /// 这张页面的池是视频池还是图库池：分区与来源目录都只列同类的（一个池不许混装两种）。
+  PlaybackMediaType mediaType,
 });
 
 /// 按用户偏好挑一档：**精确命中 → 向下最接近的一档 → 都没有就取最低的那档**。
@@ -614,4 +768,33 @@ class XrMediaSource {
     'url': url,
     'local': local,
   };
+}
+
+/// 空间画廊里的一项：图库的一个文件。
+///
+/// [largeUrl] 是服务端缩放过的「标准」档、[originalUrl] 是原文件；视频与 gif 没有缩放版，
+/// 两个地址相同（见 `MediaFile.getLargeImageUrl` 的回落规则）。[thumbUrl] 给面板里的胶片用，
+/// 就取标准档 —— 详情页横向清单画的正是它，多半已在缓存里。
+class XrGalleryItem {
+  const XrGalleryItem({
+    required this.id,
+    required this.isVideo,
+    required this.largeUrl,
+    required this.originalUrl,
+    this.width = 0,
+    this.height = 0,
+  });
+
+  final String id;
+  final bool isVideo;
+  final String largeUrl;
+  final String originalUrl;
+  final int width;
+  final int height;
+
+  String get thumbUrl => largeUrl;
+
+  /// [quality] 是 `galleryImageQualityStandard` / `galleryImageQualityOriginal`。
+  String urlFor(String quality) =>
+      quality == galleryImageQualityOriginal ? originalUrl : largeUrl;
 }

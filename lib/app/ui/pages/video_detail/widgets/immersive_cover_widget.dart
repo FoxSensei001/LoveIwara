@@ -12,7 +12,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// （用户 2026-09-05：「按钮背景发白，没有按照 2D UI 的设计规范」）：
 ///
 /// - **按钮**：黑 55% 底 + 白图标 + 18% 白细描边，与播放器里的中央播放钮、封面右下角
-///   的起播钮、抽屉把手同一套（[_CoverButton]）。⛔ 不用玻璃圆钮 —— Quest 上落到的
+///   的起播钮、抽屉把手同一套（[ImmersiveCoverButton]）。⛔ 不用玻璃圆钮 —— Quest 上落到的
 ///   材质档是浅色的，压在封面上一片发白。
 /// - **封面**：`BoxFit.contain`。宽图铺满宽、高图铺满高，不裁。
 /// - **底**：剧院模式的模糊封面（[BlurredThumbnailBackground]），contain 留出的黑边
@@ -90,7 +90,7 @@ class ImmersiveCover extends StatelessWidget {
             right: 12,
             child: Row(
               children: [
-                _CoverButton.circle(
+                ImmersiveCoverButton.circle(
                   icon: Icons.arrow_back_rounded,
                   tooltip: t.common.back,
                   size: 44,
@@ -120,7 +120,7 @@ class ImmersiveCover extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _CoverButton.circle(
+                ImmersiveCoverButton.circle(
                   icon: Icons.play_arrow_rounded,
                   tooltip: t.vrFormat.playInSpace,
                   size: 88,
@@ -163,7 +163,7 @@ class ImmersiveCover extends StatelessWidget {
                 ),
                 if (onOpenQueue != null) ...[
                   const SizedBox(width: 12),
-                  _CoverButton.pill(
+                  ImmersiveCoverButton.pill(
                     icon: Icons.playlist_play_rounded,
                     label: t.playbackQueue.openQueue,
                     tooltip: t.playbackQueue.openQueue,
@@ -179,12 +179,14 @@ class ImmersiveCover extends StatelessWidget {
   }
 }
 
-/// 封面上的按钮：黑 55% 底、白图标、18% 白细描边，hover 提亮、按下加深。
+/// 封面 / 媒体区域上的按钮：黑 55% 底、白图标、18% 白细描边，hover 提亮、按下加深。
 ///
 /// 与播放器里 `_buildPlayPauseIcon` / 起播钮 / 抽屉把手同一套观感。手势走 [GlassTapArea]
 /// （48px 容忍圈、Quest 射线 hover 不会钉死），按压态自己画。
-class _CoverButton extends StatefulWidget {
-  const _CoverButton.circle({
+/// 公开给图库详情页复用（Quest 上横向清单角上的「在空间中浏览」入口）。
+class ImmersiveCoverButton extends StatefulWidget {
+  const ImmersiveCoverButton.circle({
+    super.key,
     required this.icon,
     required this.tooltip,
     required this.onTap,
@@ -192,7 +194,8 @@ class _CoverButton extends StatefulWidget {
     required this.iconSize,
   }) : label = null;
 
-  const _CoverButton.pill({
+  const ImmersiveCoverButton.pill({
+    super.key,
     required this.icon,
     required String this.label,
     required this.tooltip,
@@ -210,10 +213,10 @@ class _CoverButton extends StatefulWidget {
   final double iconSize;
 
   @override
-  State<_CoverButton> createState() => _CoverButtonState();
+  State<ImmersiveCoverButton> createState() => ImmersiveCoverButtonState();
 }
 
-class _CoverButtonState extends State<_CoverButton> {
+class ImmersiveCoverButtonState extends State<ImmersiveCoverButton> {
   bool _pressed = false;
   bool _hovered = false;
 

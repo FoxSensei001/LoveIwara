@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -71,6 +75,10 @@ class GalleryDetailPage extends StatefulWidget {
   /// 进来就直接开到这张大图的文件 id。同上。
   final String? initialImageId;
 
+  /// Quest：详情到手就整本交给空间画廊。沉浸面板「接着看」里点了一本图库时走这条
+  /// （与视频的 `forceAutoPlay` 同一个角色）。
+  final bool presentInSpace;
+
   const GalleryDetailPage({
     super.key,
     required this.imageModelId,
@@ -87,6 +95,7 @@ class GalleryDetailPage extends StatefulWidget {
     this.playbackQueueRef,
     this.preloadedDetail,
     this.initialImageId,
+    this.presentInSpace = false,
   });
 
   @override
@@ -130,6 +139,11 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     _showBackToTop.dispose();
     for (final queue in _queues) {
       queue.removeListener(_onQueueChanged);
+    }
+    _presentInSpaceWorker?.dispose();
+    if (Get.isRegistered<XrImmersiveService>()) {
+      final xr = Get.find<XrImmersiveService>();
+      if (xr.queueProvider == _immersiveQueueSnapshot) xr.queueProvider = null;
     }
     Get.delete<GalleryDetailController>(tag: uniqueTag);
     Get.delete<CommentController>(tag: uniqueTag);
@@ -205,6 +219,75 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     );
 
     _setupPlaybackQueues();
+    _syncImmersiveQueues();
+    _scheduleImmersivePresent();
+  }
+
+  // ------------------------------------------------------------ 空间画廊
+
+  Worker? _presentInSpaceWorker;
+
+  /// 从沉浸面板的「接着看」点进来的：详情一到手就整本交给空间画廊（幕布那边正转着圈等）。
+  void _scheduleImmersivePresent() {
+    if (!widget.presentInSpace) return;
+    void present(ImageModel? im) {
+      if (im == null || !mounted) return;
+      _presentInSpaceWorker?.dispose();
+      _presentInSpaceWorker = null;
+      final items = buildGalleryImageItems(im);
+      if (items.isEmpty) return;
+      detailController.imageListController.revealIndex(0);
+      presentGalleryInSpace(
+        gallery: im,
+        imageItems: items,
+        index: 0,
+        onIndexChanged: detailController.imageListController.revealIndex,
+      );
+    }
+    final current = detailController.imageModelInfo.value;
+    if (current != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => present(current));
+      return;
+    }
+    // ⛔ 用 rxEver 不用 ever：ever 走 stream，同一个 Rx 被别的页面订阅 / 取消过之后会永久失聪。
+    _presentInSpaceWorker = rxEver(detailController.imageModelInfo, present);
+  }
+
+  /// 把本页的图库池交给沉浸面板（那边空间画廊的「接着看」就是这份）。
+  void _syncImmersiveQueues() {
+    if (!Get.isRegistered<XrImmersiveService>()) return;
+    final xr = Get.find<XrImmersiveService>();
+    xr.queueProvider = _immersiveQueueSnapshot;
+    if (xr.available.value) unawaited(xr.pushQueues());
+  }
+
+  XrQueueSnapshot _immersiveQueueSnapshot() => (
+    queues: _queues,
+    active: _activeQueue,
+    currentItemId: imageModelId,
+    author: detailController.imageModelInfo.value?.user,
+    adopt: _adoptQueue,
+    mediaType: PlaybackMediaType.gallery,
+  );
+
+  /// 沉浸面板从目录里开了一个新池：按 kind 顶掉同类的那一个补上监听、设为当前池
+  /// （与 [_openQueueDrawer] 里换池那段同一条规则）。
+  void _adoptQueue(PlaybackQueue queue) {
+    if (!queue.mediaType.isGallery) return;
+    if (!_queues.any((q) => identical(q, queue))) {
+      final merged = [..._queues];
+      final slot = merged.indexWhere((q) => q.kind == queue.kind);
+      if (slot >= 0) {
+        merged[slot].removeListener(_onQueueChanged);
+        merged[slot] = queue;
+      } else {
+        merged.add(queue);
+      }
+      _queues = merged;
+      queue.addListener(_onQueueChanged);
+    }
+    _activeQueue = queue;
+    if (mounted) setState(() {});
   }
 
   // ------------------------------------------------------------ 图库池
@@ -302,10 +385,12 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       selection.queue.addListener(_onQueueChanged);
     }
     _activeQueue = selection.queue;
+    _syncImmersiveQueues();
     await PlaybackQueueNavigator.playItem(
       queue: selection.queue,
       item: selection.item,
       skipWatched: false,
+      companionQueues: _queues,
     );
   }
 

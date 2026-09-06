@@ -3,6 +3,13 @@
   <!-- 沉浸式视频面板的实体 id。只存在于 quest 源集，standard 变体不合并本文件。 -->
   <item name="vr_video_panel" type="id" />
 
+  <!-- 空间画廊的幕布：与 vr_video_panel 同一块「窗」（同一套几何 / 抓挪缩放），只是画的是图片
+       （Compose + Coil，见 questui/GalleryStageView.kt）。图 ↔ 视频切换时两块面板互换。 -->
+  <item name="vr_image_panel" type="id" />
+
+  <!-- 空间画廊的轮播侧位：上一张 / 下一张各一块小面板，沿着以头为心的弧排在主幕布两侧，
+       拖动主幕布时三块一起沿弧滑（见 ImmersiveActivity「空间轮播」）。整本图库期间常驻、reshape 换内容。 -->
+
   <!-- 【spike】把整个 Flutter UI 作为一块面板挂进我们自己的沉浸空间。
        用来回答三个决定性问题：Flutter 能不能在空间面板里渲染、手势输入能不能操作它、
        ⭐ 以及点搜索框能不能弹出系统输入法。见 docs/xr-app-layout.md §2。 -->

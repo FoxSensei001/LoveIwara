@@ -464,17 +464,34 @@ class PlayerSettingsWidget extends StatelessWidget {
                 if (!Get.find<XrImmersiveService>().available.value) {
                   return const SizedBox.shrink();
                 }
-                return _switchTile(
-                  context: context,
-                  iconData: Icons.view_in_ar,
-                  label: t.vrFormat.autoEnterImmersive,
-                  description: t.vrFormat.autoEnterImmersiveDesc,
-                  rxValue: _configService
-                      .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
-                  onChanged: (value) {
-                    _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] =
-                        value;
-                  },
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _switchTile(
+                      context: context,
+                      iconData: Icons.view_in_ar,
+                      label: t.vrFormat.autoEnterImmersive,
+                      description: t.vrFormat.autoEnterImmersiveDesc,
+                      rxValue: _configService
+                          .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] =
+                            value;
+                      },
+                    ),
+                    _switchTile(
+                      context: context,
+                      iconData: Icons.photo_library_outlined,
+                      label: t.vrFormat.autoEnterGallery,
+                      description: t.vrFormat.autoEnterGalleryDesc,
+                      rxValue: _configService
+                          .settings[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY]!,
+                      onChanged: (value) {
+                        _configService[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY] =
+                            value;
+                      },
+                    ),
+                  ],
                 );
               }),
           ]),
