@@ -57,43 +57,68 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('PIN 输入框拿得到 Overlay 祖先（否则选择浮层会抛断言）', (tester) async {
+  /// 已输入的圆点个数。
+  int dotCount(WidgetTester tester) => tester
+      .widgetList(
+        find.byWidgetPredicate((w) {
+          final key = w.key;
+          return key is ValueKey<String> &&
+              key.value.startsWith('app-lock-pin-dot-');
+        }),
+      )
+      .length;
+
+  Future<void> tapKey(WidgetTester tester, String digit) async {
+    await tester.tap(find.text(digit));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('锁屏里没有任何文本输入框（否则 iOS 的系统键盘收不起来）', (tester) async {
     await pumpLocked(tester);
 
-    final editable = tester.element(find.byType(EditableText));
-    Element? overlay;
-    editable.visitAncestorElements((ancestor) {
-      if (ancestor.widget.runtimeType == Overlay) {
-        overlay = ancestor;
-        return false;
-      }
-      return true;
-    });
-
-    expect(overlay, isNotNull, reason: '锁屏必须自带 Overlay，不能指望路由树或 toast 宿主');
+    // 2026-09-06 真机报障：iPhone 上点进输入框弹出系统数字键盘，而 iOS 没有
+    // 主动收起它的办法——键盘盖住了解锁 / 生物验证两枚钮，页面又滚不动，人被
+    // 卡死在这一屏。PIN 一律走自带的九宫格，一个字符都不经过系统输入法。
+    expect(find.byType(EditableText), findsNothing);
+    expect(find.byType(TextField), findsNothing);
+    for (final digit in const ['0', '1', '5', '9']) {
+      expect(find.text(digit), findsOneWidget, reason: '自带键盘上该有这枚键');
+    }
   });
 
-  testWidgets('输错后清空再输入，输入框里就只有刚敲的那一个字符', (tester) async {
+  testWidgets('输错后圆点清空，再敲就只剩刚按的那一个', (tester) async {
     await pumpLocked(tester);
 
-    final field = find.byType(TextField);
-    await tester.enterText(field, '12345678');
-    await tester.pumpAndSettle();
-    // 输错 → 解锁失败 → 代码会 clear()
-    await tester.tap(find.text(slang.t.settings.appLockUnlock));
-    await tester.pumpAndSettle();
+    for (final digit in const ['1', '2', '3', '4']) {
+      await tapKey(tester, digit);
+    }
+    expect(dotCount(tester), 4);
 
-    await tester.enterText(field, '');
+    // 凭据是 4321，输错 → 解锁失败 → 圆点整串清掉
+    await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
     await tester.pumpAndSettle();
-    await tester.enterText(field, '1');
-    await tester.pumpAndSettle();
+    expect(dotCount(tester), 0);
+    expect(find.text(slang.t.settings.appLockInvalidPin), findsOneWidget);
 
+    await tapKey(tester, '1');
+    expect(dotCount(tester), 1);
     expect(tester.takeException(), isNull);
-    expect(
-      tester.widget<TextField>(field).controller!.text,
-      '1',
-      reason: '断言中途抛出会让 widget 与输入法错位，重输时冒出上一串的全部圆点',
-    );
+  });
+
+  testWidgets('位数不够时解锁键按不动，够了才亮', (tester) async {
+    await pumpLocked(tester);
+
+    for (final digit in const ['4', '3', '2']) {
+      await tapKey(tester, digit);
+    }
+    await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+    await tester.pumpAndSettle();
+    expect(service.isLocked.value, isTrue, reason: '3 位就该按不动，连试都不该试');
+
+    await tapKey(tester, '1');
+    await tester.tap(find.byIcon(Icons.arrow_forward_rounded));
+    await tester.pumpAndSettle();
+    expect(service.isLocked.value, isFalse);
   });
 
   testWidgets('凭据读不出来的那屏在 360dp 窄屏上不溢出', (tester) async {
