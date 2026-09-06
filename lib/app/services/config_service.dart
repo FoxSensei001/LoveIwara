@@ -786,7 +786,10 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY:
         return galleryImageQualityStandard;
       case ConfigKey.REPEAT_KEY:
-        return false;
+        // 播完自动重播（用户 2026-09-06 定的默认档）。
+        // ⚠️ 只对**全新安装**生效：`_loadSettings` 第一次跑就把每个键的默认值写进库了，
+        // 老用户库里那条 false 会原样留着，改这里动不了他们。
+        return true;
       case ConfigKey.CONTINUE_IN_QUEUE_KEY:
         return false;
       case ConfigKey.WATCH_LATER_SORT_KEY:
