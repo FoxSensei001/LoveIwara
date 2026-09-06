@@ -26,7 +26,6 @@ import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/app/utils/vr_format_detector.dart';
 import 'package:i_iwara/app/utils/vr_geometry.dart';
-import 'package:i_iwara/app/utils/video_zoom_geometry.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/player_notice.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/related_media_controller.dart';
@@ -888,60 +887,12 @@ class MyVideoStateController extends GetxController
   /// 还原信号：自增以通知缩放层执行带动画的复位
   final RxInt videoZoomResetSignal = 0.obs;
 
-  /// New input interrupts a reset animation even when the pinch Listener is disabled.
+  /// 打断信号：换坐标系（切视频 / 进出全屏）时让缩放层 stop() 掉进行中的复位动画，
+  /// 否则那条动画还会在新画面上继续写缩放值。
   final RxInt videoZoomInterruptSignal = 0.obs;
-
-  /// Stops held controls synchronously before a media/fullscreen coordinate change.
-  final ValueNotifier<int> viewDistanceCancellation = ValueNotifier(0);
 
   /// 是否正在进行双指捏合
   bool isPinchingVideo = false;
-
-  /// Held view controls own their pointer independently from seek/volume gestures.
-  bool isAdjustingView = false;
-
-  void setAdjustingView(bool active) {
-    if (_isDisposed) return;
-    isAdjustingView = active;
-    if (active) {
-      _autoHideTimer?.cancel();
-    } else {
-      _resetAutoHideTimer();
-    }
-  }
-
-  void adjustViewDistance(double factor, Size viewport) {
-    if (_isDisposed || !factor.isFinite || factor <= 0 || viewport.isEmpty) {
-      return;
-    }
-    videoZoomInterruptSignal.value++;
-    if (isVrPanorama) {
-      scaleVrFov(factor);
-      return;
-    }
-    final next = VideoZoomGeometry.transform(
-      viewport: viewport,
-      aspect: aspectRatio.value,
-      focal: viewport.center(Offset.zero),
-      oldScale: videoZoomScale.value,
-      oldOffset: videoZoomOffset.value,
-      newScale: videoZoomScale.value * factor,
-      oldRotation: videoZoomRotation.value,
-      newRotation: videoZoomRotation.value,
-      // Small continuous steps must be able to leave 1x, rather than snapping back every frame.
-      snapToDefault: false,
-    );
-    applyVideoZoom(next.scale, next.offset, next.rotation);
-  }
-
-  void resetViewDistance() {
-    if (_isDisposed) return;
-    if (isVrPanorama) {
-      vrFovY.value = VrGeometry.defaultFovY;
-    } else {
-      requestResetVideoZoom();
-    }
-  }
 
   /// 画面是否已被缩放/平移/旋转
   bool get isVideoZoomed =>
@@ -954,9 +905,7 @@ class MyVideoStateController extends GetxController
   /// - 桌面端缩放后，鼠标拖动用于平移画面，因此让位进度/音量，避免与平移冲突；
   /// - 移动端缩放后单指手势保持原有行为（平移改由双指拖动），不让位。
   bool get shouldBlockSingleFingerGesture =>
-      isAdjustingView ||
-      isPinchingVideo ||
-      (GetPlatform.isDesktop && isVideoZoomed);
+      isPinchingVideo || (GetPlatform.isDesktop && isVideoZoomed);
 
   /// 由缩放层写入当前的缩放 / 平移 / 旋转
   void applyVideoZoom(double scale, Offset offset, double rotation) {
@@ -974,7 +923,6 @@ class MyVideoStateController extends GetxController
   /// 立即还原画面（无动画），用于切换视频/全屏等场景
   void resetVideoZoomImmediately() {
     if (_isDisposed) return;
-    viewDistanceCancellation.value++;
     videoZoomInterruptSignal.value++;
     isPinchingVideo = false;
     if (videoZoomScale.value != 1.0) {
@@ -2908,9 +2856,6 @@ class MyVideoStateController extends GetxController
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
     _isDisposed = true;
-    isAdjustingView = false;
-    viewDistanceCancellation.value++;
-    viewDistanceCancellation.dispose();
     videoZoomInterruptSignal.value++;
     PageDepartureGuard.detach(this);
     if (Get.isRegistered<XrImmersiveService>()) {
@@ -4531,18 +4476,14 @@ class MyVideoStateController extends GetxController
     _autoHideTimer?.cancel();
 
     // 如果正在交互或悬浮在工具栏上，不启动定时器
-    if (isAdjustingView ||
-        _isInteracting.value ||
-        _isHoveringToolbar.value ||
-        _isDisposed) {
+    if (_isInteracting.value || _isHoveringToolbar.value || _isDisposed) {
       return;
     }
 
     _autoHideTimer = Timer(_autoHideDelay, () {
       // 如果控制器已被dispose或者正在交互或悬浮在工具栏上，不执行隐藏
       if (_isDisposed ||
-          !isAdjustingView &&
-              !_isInteracting.value &&
+          !_isInteracting.value &&
               !_isHoveringToolbar.value &&
               animationController.value == 1.0) {
         // 再次检查dispose状态，避免dispose后调用

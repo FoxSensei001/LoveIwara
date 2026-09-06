@@ -33,7 +33,6 @@ import 'bottom_toolbar_widget.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
 import 'video_zoom_view.dart';
-import 'view_distance_control.dart';
 import 'widgets/playback_speed_animation_widget.dart';
 import 'widgets/loading_state_widget.dart';
 import 'widgets/error_state_widget.dart';
@@ -977,7 +976,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                               true;
                           return VideoZoomGestureLayer(
                             controller: widget.myVideoStateController,
-                            showRestoreButton: false,
                             // 环视模式下捏合改的是视野角，不是画面缩放；两套缩放
                             // 同时开着会互相打架，这里整只让位（见
                             // VrPanoramaGestureArea 的说明）。
@@ -1105,7 +1103,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             // 靠 `Padding(bottom: reserved)` 给播放条让位，现在层序本身也保证
             // 它吃不掉播放条的点击（issue #110 那类问题的机制性兜底）。
             if (showPlaybackChrome) ..._buildToolbars(),
-            if (showPlaybackChrome) _buildViewDistanceControl(),
             if (controller.shouldShowLoadingBackButton)
               _buildLoadingBackButton(),
             // InfoMessage 提示区域
@@ -1473,78 +1470,6 @@ class _MyVideoScreenState extends State<MyVideoScreen>
         );
       }),
     ];
-  }
-
-  Widget _buildViewDistanceControl() {
-    return Builder(
-      builder: (context) {
-        final controller = widget.myVideoStateController;
-        final size = PlayerBoxScope.sizeOf(context);
-        final media = MediaQuery.of(context);
-        return Obx(() {
-          final bottom =
-              bottomToolbarEstimatedHeight(
-                isFullScreen: widget.isFullScreen,
-                isSmallScreen: media.size.width < 600,
-                showResumeTip: controller.showResumePositionTip.value,
-                showVrTip: controller.showVrSuggestionTip.value,
-                showQuickActions:
-                    widget.isFullScreen &&
-                    Get.find<UserService>().hasLoadedProfile,
-                bottomInset:
-                    (!widget.isFullScreen && widget.enableBottomSafeArea)
-                    ? math.max(
-                        media.padding.bottom,
-                        math.max(
-                          media.viewPadding.bottom,
-                          media.systemGestureInsets.bottom,
-                        ),
-                      )
-                    : 0,
-                textScaler: media.textScaler,
-              ) +
-              8;
-          final room =
-              size.height -
-              bottom -
-              playerTopToolbarHeight(widget.isFullScreen) -
-              8;
-          final locked = controller.isToolbarsLocked.value;
-          final identity = Object.hash(
-            controller,
-            controller.vrFormat,
-            widget.isFullScreen,
-          );
-          // A collapsed inline player has no space for additional controls.
-          if (room < 64 || size.width < 240) return const SizedBox.shrink();
-          return Positioned(
-            right: 12,
-            bottom: bottom,
-            child: AnimatedBuilder(
-              animation: controller.animationController,
-              builder: (context, _) {
-                final animation = controller.animationController;
-                return ViewDistanceControl(
-                  key: ValueKey(identity),
-                  visible:
-                      !locked &&
-                      animation.value > 0 &&
-                      animation.status != AnimationStatus.reverse,
-                  materialize: locked ? 0 : animation.value,
-                  compact: room < 110,
-                  maxWidth: size.width - 24,
-                  onScale: (factor) =>
-                      controller.adjustViewDistance(factor, size),
-                  onReset: controller.resetViewDistance,
-                  onInteraction: controller.setAdjustingView,
-                  cancelSignal: controller.viewDistanceCancellation,
-                );
-              },
-            ),
-          );
-        });
-      },
-    );
   }
 
   List<Widget> _buildToolbars() {

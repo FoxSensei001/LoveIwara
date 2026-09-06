@@ -2841,11 +2841,6 @@ playbackQueue:
   nothingHere: 何もありません
 
 vrFormat:
-  viewDistance: 距離
-  viewDistanceHint: 長押しで調整、離すと止まります
-  viewNearer: 近づける
-  viewFarther: 遠ざける
-  resetDistance: リセット
   playInSpace: 空間プレイヤーで再生
   title: 再生モード
   autoEnterImmersive: 動画を空間プレイヤーで開く

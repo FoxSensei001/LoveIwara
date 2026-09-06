@@ -202,7 +202,7 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
       // 比留一块黑或者干脆崩掉强得多。
       return ClipRect(
         child: Obx(() {
-          // The fallback still responds to the distance control, even without shader support.
+          // 退路也要跟着捏合的视野角走，否则这台机器上缩放看起来是坏的。
           final scale =
               math.tan(VrGeometry.defaultFovY / 2) /
               math.tan(widget.controller.vrFovY.value / 2);

@@ -7,13 +7,13 @@ import 'package:i_iwara/app/utils/video_zoom_geometry.dart';
 void main() {
   const viewport = Size(360, 240);
 
-  test('continuous sub-one-percent steps can leave default magnification', () {
+  test('a nearly unscaled, unrotated picture snaps back to its default state', () {
     final next = VideoZoomGeometry.transform(
       viewport: viewport, aspect: 16 / 9, focal: viewport.center(Offset.zero),
-      oldScale: 1, oldOffset: Offset.zero, newScale: 1.004,
-      oldRotation: 0, newRotation: 0, snapToDefault: false,
+      oldScale: 1.4, oldOffset: const Offset(20, 10), newScale: 1.004,
+      oldRotation: 0, newRotation: 0,
     );
-    expect(next.scale, greaterThan(1));
+    expect(next.scale, 1);
     expect(next.offset, Offset.zero);
   });
 
@@ -21,7 +21,7 @@ void main() {
     final next = VideoZoomGeometry.transform(
       viewport: viewport, aspect: 16 / 9, focal: viewport.center(Offset.zero),
       oldScale: 3, oldOffset: const Offset(320, 180), newScale: 0.01,
-      oldRotation: 0, newRotation: 0, snapToDefault: false,
+      oldRotation: 0, newRotation: 0,
     );
     expect(next.scale, 0.5);
     expect(next.offset, Offset.zero);

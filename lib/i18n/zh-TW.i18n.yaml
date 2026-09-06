@@ -2843,11 +2843,6 @@ playbackQueue:
   nothingHere: 暫無內容
 
 vrFormat:
-  viewDistance: 遠近
-  viewDistanceHint: 按住調節，鬆開即停
-  viewNearer: 拉近
-  viewFarther: 推遠
-  resetDistance: 復位
   playInSpace: 在空間播放器中播放
   title: 播放模式
   autoEnterImmersive: 開啟影片自動進入空間播放器

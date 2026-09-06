@@ -2523,11 +2523,6 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
-	@override String get viewDistance => '远近';
-	@override String get viewDistanceHint => '按住调节，松开即停';
-	@override String get viewNearer => '拉近';
-	@override String get viewFarther => '推远';
-	@override String get resetDistance => '复位';
 	@override String get playInSpace => '在空间播放器中播放';
 	@override String get title => '播放模式';
 	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
@@ -6391,11 +6386,6 @@ extension on TranslationsZhCn {
 			'playbackQueue.downloads' => '已下载',
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
-			'vrFormat.viewDistance' => '远近',
-			'vrFormat.viewDistanceHint' => '按住调节，松开即停',
-			'vrFormat.viewNearer' => '拉近',
-			'vrFormat.viewFarther' => '推远',
-			'vrFormat.resetDistance' => '复位',
 			'vrFormat.playInSpace' => '在空间播放器中播放',
 			'vrFormat.title' => '播放模式',
 			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',

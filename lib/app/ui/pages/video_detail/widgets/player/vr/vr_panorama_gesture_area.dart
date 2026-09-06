@@ -47,11 +47,6 @@ class _VrPanoramaGestureAreaState extends State<VrPanoramaGestureArea> {
 
   void _handleScaleUpdate(ScaleUpdateDetails details, Size size) {
     final controller = widget.controller;
-    if (controller.isAdjustingView) {
-      _lastScale = details.scale;
-      return;
-    }
-
     if (details.pointerCount >= 2 && details.scale > 0) {
       controller.scaleVrFov(details.scale / _lastScale);
       _lastScale = details.scale;

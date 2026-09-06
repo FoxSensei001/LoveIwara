@@ -27,7 +27,6 @@ class VideoZoomGestureLayer extends StatefulWidget {
 
   /// 是否启用（关闭时直接透传 child）
   final bool enabled;
-  final bool showRestoreButton;
 
   /// 缩放上限
   final double maxScale;
@@ -40,7 +39,6 @@ class VideoZoomGestureLayer extends StatefulWidget {
     required this.controller,
     required this.child,
     this.enabled = true,
-    this.showRestoreButton = true,
     this.maxScale = 3.0,
     this.minScale = 0.5,
   });
@@ -247,11 +245,6 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
 
   void _onPointerDown(PointerDownEvent event) {
     _resetController.stop();
-    if (_c.isAdjustingView) {
-      _pointers.clear();
-      _c.isPinchingVideo = false;
-      return;
-    }
     _pointers[event.pointer] = event.localPosition;
     if (_pointers.length >= 2) {
       _beginPinch();
@@ -270,7 +263,6 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
   }
 
   void _onPointerMove(PointerMoveEvent event) {
-    if (_c.isAdjustingView) return;
     if (!_pointers.containsKey(event.pointer)) return;
     _pointers[event.pointer] = event.localPosition;
 
@@ -468,10 +460,7 @@ class _VideoZoomGestureLayerState extends State<VideoZoomGestureLayer>
           onPointerPanZoomEnd: _onPointerPanZoomEnd,
           child: Stack(
             fit: StackFit.expand,
-            children: [
-              widget.child,
-              if (widget.showRestoreButton) _buildRestoreButton(),
-            ],
+            children: [widget.child, _buildRestoreButton()],
           ),
         );
       },

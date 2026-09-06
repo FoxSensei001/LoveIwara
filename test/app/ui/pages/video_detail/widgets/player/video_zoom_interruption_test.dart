@@ -29,7 +29,7 @@ class _ZoomState implements MyVideoStateController {
 }
 
 void main() {
-  testWidgets('new distance input interrupts reset with pinch disabled', (
+  testWidgets('new zoom input interrupts reset with pinch disabled', (
     tester,
   ) async {
     final state = _ZoomState();
@@ -38,7 +38,6 @@ void main() {
         home: VideoZoomGestureLayer(
           controller: state,
           enabled: false,
-          showRestoreButton: false,
           child: const SizedBox.expand(),
         ),
       ),
@@ -48,7 +47,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 80));
     expect(state.videoZoomScale.value, inExclusiveRange(1.0, 2.0));
 
-    // adjustViewDistance and immediate media/fullscreen reset emit this same interruption.
+    // Immediate media/fullscreen reset emits this interruption.
     state.videoZoomInterruptSignal.value++;
     final next = state.videoZoomScale.value * 1.1;
     state.applyVideoZoom(next, Offset.zero, 0);

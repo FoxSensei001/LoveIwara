@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-/// The same bounded transform is used by pinch, wheel and held distance controls.
+/// The same bounded transform is used by pinch and wheel zooming.
 abstract final class VideoZoomGeometry {
   static const minScale = 0.5;
   static const maxScale = 3.0;
@@ -35,7 +35,6 @@ abstract final class VideoZoomGeometry {
     Offset panDelta = Offset.zero,
     double minimum = minScale,
     double maximum = maxScale,
-    bool snapToDefault = true,
   }) {
     final scale = newScale.clamp(minimum, maximum);
     final center = viewport.center(Offset.zero);
@@ -51,7 +50,8 @@ abstract final class VideoZoomGeometry {
       viewport,
       aspect,
     );
-    if (snapToDefault && (scale - 1).abs() < 0.01 && newRotation.abs() < 0.01) {
+    // 接近原始大小且未旋转时吸附到初始状态，干净退出
+    if ((scale - 1).abs() < 0.01 && newRotation.abs() < 0.01) {
       return (scale: 1, offset: Offset.zero, rotation: 0);
     }
     return (scale: scale, offset: offset, rotation: newRotation);
