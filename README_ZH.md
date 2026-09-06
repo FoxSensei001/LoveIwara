@@ -154,6 +154,14 @@ English · 简体中文 · 繁體中文 · 日本語——包括 Quest 上的空
 
 ## 📸 截图展示
 
+### 🥽 Meta Quest
+
+| 幕布与它的控制面板 | 图库：一块幕布 + 一条胶片 |
+|:-------------------------:|:-------------------------:|
+|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+
+### 📱 手机与桌面
+
 | | |
 |:-------------------------:|:-------------------------:|
 |<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
