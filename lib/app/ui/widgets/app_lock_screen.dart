@@ -16,6 +16,17 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 const int _kMinPinLength = 4;
 const int _kMaxPinLength = 8;
 
+/// 宽屏支里「信息 + 键盘」这一组的总宽上限。超宽的桌面窗口 / XR 面板上，
+/// 两列收在这个宽度里居中，而不是各自贴到屏幕两端。
+const double _kWideContentWidth = 900;
+
+/// 竖屏支里内容柱的宽度上限。平板竖屏（800dp 宽）上不让一柱内容散开。
+const double _kTallContentWidth = 480;
+
+/// 竖屏支里整块内容的高度上限。手机（h ≈ 800）够不到它，行为与原来一致；
+/// 平板竖屏（h ≈ 1280）靠它把内容收成居中的一块，键盘不会一路钉到屏底。
+const double _kTallBlockHeight = 820;
+
 /// 应用锁的锁屏。
 ///
 /// ⚠️ 它是 `MaterialApp.router` builder 里 Navigator **旁边**的一层
@@ -367,82 +378,160 @@ class _AppLockScreenState extends State<AppLockScreen>
   // ---------------------------------------------------------------- 正常锁屏
 
   /// 三种摆法，按可用空间挑：
-  ///   - 宽而矮（桌面窗口 / 横屏平板）：左信息右键盘，两边各自居中可滚；
-  ///   - 正常竖屏：信息占上方剩余空间，键盘钉在下方拇指够得着的地方；
+  ///   - 宽而矮（桌面窗口 / 横屏平板 / XR 面板）：左信息右键盘；
+  ///   - 正常竖屏：信息在上，键盘钉在下方拇指够得着的地方；
   ///   - 又窄又矮（被拖小的桌面窗口）：整屏一条滚动，宁可滚也不挤到溢出。
+  ///
+  /// 手机是锁竖屏的（`DeviceFormFactorUtils.applyMobileOrientationPolicy`），
+  /// 所以宽屏那支只在平板 / 桌面 / XR 面板 / 折叠屏展开时才走得到。
   Widget _buildPinLayout(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double w = constraints.maxWidth;
         final double h = constraints.maxHeight;
-        if (w >= 560 && w > h) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Center(
-                    child: SingleChildScrollView(child: _buildHeader(context)),
-                  ),
-                ),
-                const SizedBox(width: 32),
-                Expanded(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      child: _buildKeypadColumn(
-                        context,
-                        maxHeight: h - 48,
-                        maxWidth: w / 2 - 64,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        if (h < 460) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeader(context, compact: true),
-                const SizedBox(height: 4),
-                _buildKeypadColumn(
-                  context,
-                  // 已经在滚动容器里了，键位只按宽度算。
-                  maxHeight: double.infinity,
-                  maxWidth: w - 48,
-                ),
-              ],
-            ),
-          );
-        }
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-          child: Column(
+        if (w >= 560 && w > h) return _buildWideLayout(context, w: w, h: h);
+        if (h < 460) return _buildShortLayout(context, w: w);
+        return _buildTallLayout(context, w: w, h: h);
+      },
+    );
+  }
+
+  /// 宽而矮：左信息、右键盘。
+  Widget _buildWideLayout(
+    BuildContext context, {
+    required double w,
+    required double h,
+  }) {
+    // ⛔ 两列**不**各占屏幕一半：1600dp 宽的桌面上那会把信息和键盘甩到左右两端，
+    // 中间空出几百 dp，看着像两个互不相干的孤岛。整体收进 [_kWideContentWidth]
+    // 再居中，两列始终读作「一组」。
+    final double contentWidth = math.min(w - 64, _kWideContentWidth);
+    final double columnWidth = (contentWidth - 32) / 2;
+    return Center(
+      child: SizedBox(
+        width: contentWidth,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Row(
             children: [
               Expanded(
                 child: Center(
-                  child: SingleChildScrollView(child: _buildHeader(context)),
+                  child: SingleChildScrollView(
+                    child: _buildHeader(
+                      context,
+                      // 矮窗里徽标和那行说明先让位，免得左列自己也要滚。
+                      compact: h < 420,
+                      // ⛔ 生物验证钮挪到**左列**，不跟在键盘下面：这一支把可用
+                      // 高度全给了键盘，键盘下再挂一枚 44 高的胶囊，300dp 高的
+                      // 桌面窗口上它就会被挤到滚动折线以下。而它是键盘之外唯一
+                      // 的另一条出路，够不着等于没有。
+                      trailing: _buildBiometricButton(context),
+                    ),
+                  ),
                 ),
               ),
-              _buildKeypadColumn(
-                context,
-                maxHeight: math.min(h * 0.56, 420),
-                maxWidth: w - 48,
+              const SizedBox(width: 32),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: _buildKeypadColumn(
+                      context,
+                      // 钮已经挪走了，整段高度都归键盘——同样一个 700×300 的
+                      // 窗口，键位从 40（下限）回到 52。
+                      maxHeight: h - 48,
+                      maxWidth: columnWidth,
+                      includeBiometrics: false,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  /// 又窄又矮：整屏一条滚动。
+  Widget _buildShortLayout(BuildContext context, {required double w}) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _kTallContentWidth),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(context, compact: true),
+              const SizedBox(height: 4),
+              _buildKeypadColumn(
+                context,
+                // 已经在滚动容器里了，键位只按宽度算。
+                maxHeight: double.infinity,
+                maxWidth: math.min(w, _kTallContentWidth) - 48,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 正常竖屏：信息在上，键盘钉在下方。
+  Widget _buildTallLayout(
+    BuildContext context, {
+    required double w,
+    required double h,
+  }) {
+    // ⛔ 超高屏（平板竖屏 800×1280 这类）不能让键盘一路钉到屏底：那样信息和
+    // 键盘之间会空出近 300dp。整块内容限高居中，键盘仍在这块的底部。
+    //
+    // ⛔ 判据用**宽度**而不是高度：大屏手机（412×915dp）高度也过 820，但它仍然
+    // 是单手拇指的场景，键盘必须留在屏底。只有宽度真的到了平板档才收。
+    final double blockHeight = w >= 600 ? math.min(h, _kTallBlockHeight) : h;
+    final double keypadBudget = math.min(blockHeight * 0.56, 420);
+    // header 全量（徽标 76 + 标题 + 说明 + 圆点 + 状态行）约要 280dp。剩不下
+    // 就收成 compact —— ⛔ 宁可丢徽标，也不能让圆点滚出可视区：整屏只有它一处
+    // 告诉用户「敲进去了几位」。320×568 这类窄屏正是卡在这条线上。
+    final bool compact = blockHeight - keypadBudget < 300;
+    return Center(
+      child: SizedBox(
+        height: blockHeight,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _kTallContentWidth),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      child: _buildHeader(context, compact: compact),
+                    ),
+                  ),
+                ),
+                _buildKeypadColumn(
+                  context,
+                  maxHeight: keypadBudget,
+                  maxWidth: math.min(w, _kTallContentWidth) - 48,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   /// [compact]：矮窗里把徽标和那行说明收掉——它们是「好看」，而圆点和键盘是
   /// 「能用」，空间不够时先保后者。
-  Widget _buildHeader(BuildContext context, {bool compact = false}) {
+  ///
+  /// [trailing]：跟在状态行下面的额外一块（宽屏支拿它安置生物验证钮）。
+  Widget _buildHeader(
+    BuildContext context, {
+    bool compact = false,
+    Widget? trailing,
+  }) {
     final theme = Theme.of(context);
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 360),
@@ -486,6 +575,10 @@ class _AppLockScreenState extends State<AppLockScreen>
           ),
           const SizedBox(height: 12),
           _buildStatusLine(context),
+          if (trailing != null) ...[
+            SizedBox(height: compact ? 12 : 20),
+            trailing,
+          ],
         ],
       ),
     );
@@ -522,16 +615,34 @@ class _AppLockScreenState extends State<AppLockScreen>
     );
   }
 
-  /// 键盘 + 底下那枚生物验证钮。
+  /// 「使用生物验证」胶囊——键盘之外唯一的另一条出路。没开 / 不可用时返回 null。
+  Widget? _buildBiometricButton(BuildContext context) {
+    if (!_service.biometricsEnabled || !_service.biometricAvailable.value) {
+      return null;
+    }
+    return Obx(
+      () => _BiometricButton(
+        enabled: !_service.isAuthenticating.value && !_submitting,
+        onPressed: () => _authenticateBiometrically(),
+      ),
+    );
+  }
+
+  /// 键盘，以及（竖屏时）底下那枚生物验证钮。
+  ///
+  /// [includeBiometrics] 为 false 时钮由调用方另行安置——宽屏支把它挪到了左列，
+  /// 好让整段高度都归键盘。
   Widget _buildKeypadColumn(
     BuildContext context, {
     required double maxHeight,
     required double maxWidth,
+    bool includeBiometrics = true,
   }) {
-    final bool biometrics =
-        _service.biometricsEnabled && _service.biometricAvailable.value;
+    final Widget? biometrics = includeBiometrics
+        ? _buildBiometricButton(context)
+        : null;
     // 生物验证钮自己也要占一格高度，从键盘的额度里先扣掉。
-    final double keypadHeight = biometrics ? maxHeight - 64 : maxHeight;
+    final double keypadHeight = biometrics != null ? maxHeight - 64 : maxHeight;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -544,15 +655,7 @@ class _AppLockScreenState extends State<AppLockScreen>
           onSubmit: _canSubmit ? _submit : null,
           submitting: _submitting,
         ),
-        if (biometrics) ...[
-          const SizedBox(height: 16),
-          Obx(
-            () => _BiometricButton(
-              enabled: !_service.isAuthenticating.value && !_submitting,
-              onPressed: () => _authenticateBiometrically(),
-            ),
-          ),
-        ],
+        if (biometrics != null) ...[const SizedBox(height: 16), biometrics],
       ],
     );
   }
