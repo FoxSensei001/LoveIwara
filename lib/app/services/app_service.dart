@@ -16,6 +16,7 @@ import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/utils/iwara_deep_link_utils.dart';
+import 'package:i_iwara/app/utils/app_exit.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -264,11 +265,8 @@ class AppService extends GetxService {
   static void tryPop({BuildContext? context, bool closeAll = false}) {
     final ctx = context ?? rootNavigatorKey.currentContext;
     if (ctx == null) {
-      LogUtils.w(
-        'tryPop: context is null, fallback SystemNavigator.pop',
-        'AppService',
-      );
-      SystemNavigator.pop();
+      LogUtils.w('tryPop: context is null, exit application', 'AppService');
+      AppExit.exit();
       return;
     }
 

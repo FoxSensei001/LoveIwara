@@ -82,6 +82,10 @@ object XrBridge {
             when (call.method) {
                 "isAvailable" -> result.success(ImmersiveBridge.isSceneAlive)
 
+                // A confirmed app exit must end the scene. SystemNavigator.pop can merely
+                // background the embedded Activity, so ON_DESTROY is not an exit signal.
+                "exitApp" -> result.success(ImmersiveBridge.requestAppExit())
+
                 // 应用内选定的界面语言。⛔ 空间面板不跟系统语言走，见 PanelLocale。
                 "setLocale" -> {
                     PanelLocale.tag = call.argument<String>("locale").orEmpty()
@@ -510,6 +514,15 @@ object ImmersiveBridge {
     /** 面板里的 MainActivity 正在 finish：让场景一起退。场景没活着就没事可做。 */
     fun notifyHostFinished() {
         listener?.onHostFinished()
+    }
+
+    /** Acknowledge the request before tearing down the scene and its ActivityPanel. */
+    fun requestAppExit(): Boolean {
+        val target = listener ?: return false
+        mainHandler.post {
+            if (listener === target) target.onHostFinished()
+        }
+        return true
     }
 
     /** @return false = 场景没活着（没有可更新的播放器）。不暂存：新地址只对正在放的那条有意义。 */

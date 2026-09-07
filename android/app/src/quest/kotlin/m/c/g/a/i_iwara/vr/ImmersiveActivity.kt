@@ -667,6 +667,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
          */
         override fun onHostFinished() {
             runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
                 Log.i(TAG, "IMMERSIVE host activity finished -> finish immersive")
                 finishAndRemoveTask()
             }

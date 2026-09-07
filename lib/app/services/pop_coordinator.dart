@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
+import 'package:i_iwara/app/utils/app_exit.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 统一的返回键协调器。
@@ -96,15 +96,13 @@ class PopCoordinator {
 
   /// 系统返回键的回调，在 GoRouter 处理之前触发。
   static Future<bool> _handleSystemBack() async {
+    // This is a new platform event. The marker only protects callbacks caused by
+    // this dispatch; a second physical press must not inherit the previous one.
+    _lastSystemBackConsumedAt = null;
     if (_isAppLocked()) {
       // 消费掉：锁屏期间返回键什么都不做，底层路由栈保持原样。
       _markSystemBackConsumed('appLocked');
       LogUtils.d('系统返回键：应用锁锁定中，直接消费', 'PopCoordinator');
-      return true;
-    }
-
-    if (wasSystemBackConsumedRecently()) {
-      LogUtils.d('系统返回键：忽略短时间重复触发', 'PopCoordinator');
       return true;
     }
 
@@ -233,8 +231,8 @@ class PopCoordinator {
       }
 
       // 5. 已经没有可弹出的页面 → 退出应用
-      LogUtils.d('handleBack -> 触发 SystemNavigator.pop 退出应用', 'PopCoordinator');
-      SystemNavigator.pop();
+      LogUtils.d('handleBack -> 退出应用', 'PopCoordinator');
+      unawaited(AppExit.exit());
     } finally {
       _handlingBack = false;
     }
