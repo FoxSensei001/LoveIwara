@@ -171,7 +171,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var uiPanel: PanelSceneObject? = null
 
     /** UI 面板此刻是露着的（不是停在脚下）；窗框只在它露面时跟着出现。 */
-    private var uiPanelShown = false
+    private val uiPlacement = UiPanelPlacement()
+    private var uiSurfacePose = PARKED_POSE
 
     /** UI 面板创建那一刻的基准尺寸（米），拉角只改相对它的 [uiScale]。 */
     private var uiBaseSize = Vector2(PlayerPrefs.DEFAULT_UI_PANEL_WIDTH_M, PlayerPrefs.DEFAULT_UI_PANEL_WIDTH_M * PlayerPrefs.UI_PANEL_ASPECT_H_OVER_W)
@@ -1051,15 +1052,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val show = visible && (ready || headSettleTimedOut())
         entity.setComponent(Visible(show))
         val pose = if (show) uiPanelPose() else PARKED_POSE
-        entity.setComponent(Transform(pose))
-        uiPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
-        uiPanelShown = show
-        uiPanelPlacedByHead = show && ready
+        applyUiPanelPose(pose)
+        uiPlacement.placed(show, headReady = ready)
         if (show) Log.i(TAG, "IMMERSIVE ui panel placed byHead=$ready head=${trackedHeadPose()?.t}")
     }
 
-    /** UI 面板是否已经按真实头部位姿摆过（首次进入时头部可能还没就绪）。 */
-    private var uiPanelPlacedByHead = false
+    /** Keep one authoritative pose for both the content and frame, ahead of ECS propagation. */
+    private fun applyUiPanelPose(pose: Pose) {
+        uiSurfacePose = pose
+        uiPanelEntity?.setComponent(Transform(pose))
+        uiPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
+    }
 
     /** 锚点是否是用兜底值捕获的（头部还没就绪），是的话头部一就绪就重新捕获。 */
     private var anchorIsFallback = false
@@ -1171,7 +1174,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         controls.screenOffset = 0f
         markPrefsDirty()
         if (!stageActive) {
-            uiPanelPlacedByHead = false
+            uiPlacement.reset()
             placeUiPanel(visible = true)
             return
         }
@@ -1412,10 +1415,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         uiBaseSize = Vector2(prefs.uiPanelWidth, prefs.uiPanelHeight)
         uiScale = Vector2(1f, 1f)
         val entity = Entity.create(Panel(R.id.vr_ui_panel), Transform(PARKED_POSE), Visible(false))
+        uiPlacement.reset()
+        uiSurfacePose = PARKED_POSE
         uiPanelEntity = entity
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
+            if (uiPanelEntity != entity) return@thenAccept
             val panel = so as? PanelSceneObject
             uiPanel = panel
+            applyUiPanelPose(uiSurfacePose)
             runCatching { panel?.layer?.setZIndex(Z_UI) }
         }
         manipulator.attach(uiHost)
@@ -1664,13 +1671,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override val zIndex = Z_UI
 
         override fun surfacePose(): Pose? =
-            if (!uiPanelShown) null else uiPanelEntity?.tryGetComponent<Transform>()?.transform
+            if (!uiPlacement.shown || uiPanelEntity == null) null else uiSurfacePose
 
         override fun size() = Vector2(uiBaseSize.x * uiScale.x, uiBaseSize.y * uiScale.y)
 
         override fun moveTo(surface: Pose) {
-            uiPanelEntity?.setComponent(Transform(surface))
-            uiPanel?.let { it.setPosition(surface.t); it.setRotationQuat(surface.q) }
+            uiPlacement.moved()
+            applyUiPanelPose(surface)
         }
 
         // `PanelSceneObject.resize` 在 0.13.2 里标着 experimental；ISDK 自己的 Relayout 走的就是它。
@@ -1718,7 +1725,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             input.poll()
             settleHeadPlacement()
             manipulator.tick(input)
-            if (stageActive && screenShown) handleInput(now) else if (!stageActive) handleBrowseInput()
+            // Back is navigation: it must still work while media is awaiting head placement.
+            if (input.events.back) handleBackInput()
+            else if (stageActive && screenShown) handleInput(now)
+            else if (!stageActive) handleBrowseInput()
         }
         tickGallery(now)
         syncControlsDepth()
@@ -1761,7 +1771,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val ready = headTrackingReady()
         if (!ready && !headSettleTimedOut()) return
         if (!stageActive) {
-            if (!uiPanelPlacedByHead) placeUiPanel(visible = true)
+            if (uiPlacement.shouldSettle(ready, headSettleTimedOut())) placeUiPanel(visible = true)
         } else if (anchorIsFallback && (ready || !screenShown)) {
             cancelSpatialInteractions()
             captureAnchor()
@@ -1843,31 +1853,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // ⛔ 射线悬在面板上时 A 键是给面板的（ISDK 把它当点击送进去），这里再切一次播放/暂停就穿透了
         // （用户 2026-09-05：「用 A 键点操作栏，画面跟着暂停」）。扳机那条路早就这么判了（onSelectDown）。
         if (e.primaryTap && controls.controllerTapPlayPause && !controlsHovered) controlsCallbacks.onPlayPause()
-        // B/Y = 「返回」：面板上还有层次就**先退一层**，退无可退才收面板，面板收着才退出影院回应用。
-        // ⛔ 别一按就把整只面板关掉（用户 2026-09-06：「在二级页按 B 直接把面板关了」）——
-        // 退的层次与面板自己那枚返回钮一一对应（各子页的 PageHeader.onBack 都是回 PLAYER）。
-        if (e.back) {
-            if (controlsEntity != null) {
-                popPanelOrHide()
-            } else {
-                Log.i(TAG, "IMMERSIVE back button -> back to app")
-                backToApp()
-            }
-        }
-        // ⛔ 射线停在操作栏上时**整根摇杆都归面板**（列表要靠它滚）：上下（推远拉近 / 缩放）与
-        // 左右（拖进度 / 翻页）都不许穿透到幕布（用户 2026-09-06：「用摇杆滚面板，前面画面跟着前后动」；
-        // 这条对视频与空间画廊同一套代码，一起管住）。
-        val stickOnPanel = pointerOnControls()
+        // Only the stick belonging to the hand pointing at the panel scrolls that panel.
+        // A resting second pointer must not swallow the active controller's seek/distance input.
+        val stick = e.stickForHands(controlsPointerHands().inv())
         // 摇杆左右：空间画廊里 = 上一张 / 下一张（按住连翻）；视频 = 按住拖动进度、越久越快，松开那一刻才 seek。
-        if (stickOnPanel) {
-            // 归面板。手上正压着的连翻 / 拖动要收尾，否则射线一挪到面板上就永远卡在「压着」。
-            galleryStepHeld = 0
-            if (scrubbing) commitScrub()
-        } else if (inGallery) {
-            handleGalleryStick(now, e)
+        if (inGallery) {
+            handleGalleryStick(now, stick)
         } else {
             when {
-                e.seekLeft != e.seekRight -> updateScrub(now, forward = e.seekRight)
+                stick.left != stick.right -> updateScrub(now, forward = stick.right)
                 scrubbing -> commitScrub()
             }
         }
@@ -1883,35 +1877,44 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             adjustViewDistance(viewDistanceDirection, seconds)
         } else if (twoHandScaling) {
             // 两手缩放中摇杆不管别的。
-        } else if (inGallery && stagePressed && screenIsImage && (e.volumeUp || e.volumeDown)) {
+        } else if (inGallery && stagePressed && screenIsImage && (stick.up != stick.down)) {
             // 指着图片按住扳机 / 捏合，再推摇杆上下 = 以指着的那一点为原点缩放内容（放大镜）。
-            stage.zoomAtPress(if (e.volumeUp) STICK_ZOOM_STEP else 1f / STICK_ZOOM_STEP)
+            stage.zoomAtPress(if (stick.up) STICK_ZOOM_STEP else 1f / STICK_ZOOM_STEP)
             lastInteractionAt = now
         } else if (manipulator.isMoving) {
             // 抓着窗的时候摇杆上下归它：推远 / 拉近（正抓着窗，射线扫到面板上也算它的）。
-            if (e.volumeUp) manipulator.nudgeDistance(NUDGE_STEP) else if (e.volumeDown) manipulator.nudgeDistance(-NUDGE_STEP)
-        } else if (stickOnPanel) {
-            // 面板在吃这根摇杆（滚列表），不许穿透成推远拉近。
-        } else if ((e.volumeUp || e.volumeDown) && screenEntity != null) {
+            nudgeGrabbedWindows()
+        } else if (stick.up != stick.down && screenEntity != null) {
             // 不抓也能推远 / 拉近（用户 2026-09-05：「往前推往后推控制播放器离我的远近」，全景片也要）。
             // 摇杆不再管音量：音量在面板的 🔊 弹层里。
-            if (e.volumeUp != e.volumeDown) adjustViewDistance(if (e.volumeUp) 1 else -1, seconds)
+            adjustViewDistance(if (stick.up) 1 else -1, seconds)
         }
     }
 
-    /**
-     * 浏览态（没有片源、只有 Flutter 面板）：手柄 B/Y = 系统返回键，派给面板里的 MainActivity。
-     *
-     * 只接这一个键。捏合 / 扳机 / 摇杆在浏览态都是 ISDK 交给面板的正常输入，这里抢不得。
-     */
-    private fun handleBrowseInput() {
-        val e = input.events
-        if (e.back) {
+    /** B/Y returns exactly one level, independently of whether a screen is visible yet. */
+    private fun handleBackInput() {
+        if (!stageActive) {
             Log.i(TAG, "IMMERSIVE back button -> MainActivity back")
             ImmersiveBridge.requestBack()
+        } else if (controlsEntity != null) {
+            popPanelOrHide()
+        } else {
+            Log.i(TAG, "IMMERSIVE back button -> back to app")
+            backToApp()
         }
-        if (manipulator.isMoving) {
-            if (e.volumeUp) manipulator.nudgeDistance(NUDGE_STEP) else if (e.volumeDown) manipulator.nudgeDistance(-NUDGE_STEP)
+    }
+
+    /** Browsing input stays with ISDK except for moving an explicitly grabbed window. */
+    private fun handleBrowseInput() = nudgeGrabbedWindows()
+
+    private fun nudgeGrabbedWindows() {
+        for (hand in 0..1) {
+            if (!manipulator.isMoving(hand)) continue
+            val mask = 1 shl hand
+            val stick = input.events.stickForHands(mask)
+            if (stick.up != stick.down) {
+                manipulator.nudgeDistance(if (stick.up) NUDGE_STEP else -NUDGE_STEP, hands = mask)
+            }
         }
     }
 
@@ -1941,24 +1944,24 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     /**
-     * 「这一次按压落在某块面板上」。⛔ 唯一的写入口 —— 显隐 toggle 的判据就是它，
-     * 别再从悬停之类的持续信号往里写（那正是「只能召唤不能隐藏」的老根因）。
-     */
-    /**
-     * 射线此刻停在**控制面板**上（任一只手，逐帧现算）。摇杆归不归面板全看它。
-     *
-     * ⛔ 摇杆事件**不分手**（[SpatialInputPoller.Events] 只有合并后的四个方向位），判不出「谁在推杆」，
-     * 只能按「有没有手指着面板」来挡 —— 宁可多挡一点，也不能让面板上的滚动穿透到幕布。
+     * Hands whose current rays hit the controls. Keep ownership through stick routing.
      * ⛔ 不用 [controlsHovered]：那是 ISDK 报的、**只进不出**的全局标志（记忆 `xr-hover-never-exits`），
      * 拿它当闸门会时灵时不灵。这里与幕布横拖同一条路：射线 × 窗面自己算，每帧新鲜。
      */
-    private fun pointerOnControls(): Boolean {
-        if (controlsEntity == null) return false
-        val surface = controlsHost.surfacePose() ?: return false
+    private fun controlsPointerHands(): Int {
+        if (controlsEntity == null) return 0
+        val surface = controlsHost.surfacePose() ?: return 0
         val size = controlsHost.size()
         val arc = controlsHost.arcDegrees()
-        return (0..1).any { manipulator.surfaceHit(it, input, surface, size, arc) != null }
+        var hands = 0
+        for (hand in 0..1) {
+            if (manipulator.surfaceHit(hand, input, surface, size, arc) != null) hands = hands or (1 shl hand)
+        }
+        return hands
     }
+
+    private fun pointerOnControls(hand: Int? = null): Boolean =
+        controlsPointerHands() and (hand?.let { 1 shl it } ?: 0b11) != 0
 
     /**
      * 面板上的「返回一层」。手柄 B/Y 与面板自己那枚返回钮走同一套层次：
@@ -2998,7 +3001,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun beginStageSwipe(hand: Int, now: Long) {
         if (stageSwipeHand >= 0 || twoHandScaling || !stageSwipeAvailable()) return
         // 按在操作栏上：面板浮在幕布前面，射线打穿它照样与幕布平面有交点（拖进度条会顺手翻片）。
-        if (pointerOnControls()) return
+        if (pointerOnControls(hand)) return
         val x = stageSwipeHitX(hand) ?: return
         stageSwipeHand = hand
         stageSwipeStartX = x
@@ -3234,10 +3237,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     /** 摇杆左右：刚推上去翻一张，按住 [GALLERY_STEP_FIRST_MS] 后每 [GALLERY_STEP_REPEAT_MS] 连翻。 */
-    private fun handleGalleryStick(now: Long, e: SpatialInputPoller.Events) {
+    private fun handleGalleryStick(now: Long, stick: SpatialInputPoller.StickDirections) {
         val dir = when {
-            e.seekRight && !e.seekLeft -> 1
-            e.seekLeft && !e.seekRight -> -1
+            stick.right && !stick.left -> 1
+            stick.left && !stick.right -> -1
             else -> 0
         }
         if (dir == 0) {

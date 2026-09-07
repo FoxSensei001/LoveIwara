@@ -11,7 +11,7 @@ import org.junit.Test
 
 /** Exercise the real hit test and capture loop. Only native panel creation is omitted. */
 class WindowManipulatorTest {
-    private class Fixture {
+    private class Fixture(private val kind: WindowKind = WindowKind.SCREEN) {
         val eye = Vector3(0f, 1.6f, 0f)
         val manager = SystemManager()
         val input = SpatialInputPoller(manager)
@@ -19,13 +19,13 @@ class WindowManipulatorTest {
             basisPose = { origin, direction -> Pose(origin, Quaternion.fromDirection(direction)) },
             faceViewer = { position -> Quaternion.fromDirection(position - eye) },
         )
-        val state = window.frameState(WindowKind.SCREEN)
+        val state = window.frameState(kind)
         var moves = 0
         var resizes = 0
         var pose = Pose(Vector3(0f, 1.6f, 2f), Quaternion())
         val host = object : WindowHost {
-            override val kind = WindowKind.SCREEN
-            override val resizePolicy = ResizePolicy.ASPECT_LOCKED
+            override val kind = this@Fixture.kind
+            override val resizePolicy = if (kind == WindowKind.UI) ResizePolicy.FREE else ResizePolicy.ASPECT_LOCKED
             override val minSize = Vector2(0.5f, 0.25f)
             override val maxSize = Vector2(4f, 2f)
             override val zIndex = 0
@@ -39,7 +39,7 @@ class WindowManipulatorTest {
             window.attach(host)
             // A visible host without an Android PanelSceneObject, using the same frame metrics.
             val field = WindowManipulator::class.java.getDeclaredField("slots").apply { isAccessible = true }
-            val slot = (field.get(window) as Map<*, *>)[WindowKind.SCREEN]!!
+            val slot = (field.get(window) as Map<*, *>)[kind]!!
             slot.javaClass.getDeclaredField("parked").apply { isAccessible = true }.setBoolean(slot, false)
             state.widthM = 2.1f
             state.heightM = 1.1f
@@ -110,5 +110,35 @@ class WindowManipulatorTest {
         f.window.tick(f.input)
         assertFalse(f.window.isBusy(0))
         assertEquals(resized, f.resizes)
+    }
+
+    @Test fun draggingTheInitialUiWindowSurvivesReleaseAfterTrackingTimesOut() {
+        val f = Fixture(WindowKind.UI)
+        val readiness = HeadPoseReadiness()
+        val placement = UiPanelPlacement()
+        val initial = f.pose
+        repeat(120) { readiness.update(null) }
+        fun settle() {
+            if (placement.shouldSettle(readiness.ready, readiness.timedOut)) {
+                f.pose = initial
+                placement.placed(show = true, headReady = readiness.ready)
+            }
+        }
+
+        settle()
+        f.aimAt(Vector3(1.025f, 1.6f, 2f))
+        f.pinch()
+        f.aimAt(Vector3(1.5f, 1.6f, 2f))
+        f.window.tick(f.input)
+        val moved = f.pose
+        assertTrue((moved.t - initial.t).length() > 0.1f)
+
+        // Same order as onSceneTick: settle placement, then update/release the grab.
+        f.input.selectHeld[0] = false
+        repeat(3) {
+            settle()
+            f.window.tick(f.input)
+            assertEquals("A released edge drag must not snap the content back into its old frame", 0f, (f.pose.t - moved.t).length(), 0.0001f)
+        }
     }
 }

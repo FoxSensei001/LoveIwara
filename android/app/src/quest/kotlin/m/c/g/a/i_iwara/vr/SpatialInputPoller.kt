@@ -45,6 +45,8 @@ import com.meta.spatial.toolkit.Transform
  */
 class SpatialInputPoller(private val systemManager: SystemManager) {
 
+    data class StickDirections(val left: Boolean, val right: Boolean, val up: Boolean, val down: Boolean)
+
     class Events {
         /** 本帧开始「选择」的手：位 0 = 左，位 1 = 右。 */
         var selectDown = 0
@@ -57,17 +59,27 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
         var gripUp = 0
         var primaryTap = false
         var back = false
-        /** 摇杆此刻推着左 / 右（持续态，不是上升沿）：按住拖动进度用。 */
-        var seekLeft = false
-        var seekRight = false
-        var volumeUp = false
-        var volumeDown = false
+        /** Each direction retains its originating hand, so another hand's panel hover cannot consume it. */
+        var stickLeftHands = 0
+        var stickRightHands = 0
+        var stickUpHands = 0
+        var stickDownHands = 0
+        val seekLeft: Boolean get() = stickLeftHands != 0
+        val seekRight: Boolean get() = stickRightHands != 0
+        val volumeUp: Boolean get() = stickUpHands != 0
+        val volumeDown: Boolean get() = stickDownHands != 0
         var menu = false
+
+        fun stickForHands(hands: Int) = StickDirections(
+            left = stickLeftHands and hands != 0,
+            right = stickRightHands and hands != 0,
+            up = stickUpHands and hands != 0,
+            down = stickDownHands and hands != 0,
+        )
 
         fun clear() {
             selectDown = 0; selectUp = 0; gripDown = 0; gripUp = 0; primaryTap = false; back = false
-            seekLeft = false; seekRight = false
-            volumeUp = false; volumeDown = false; menu = false
+            stickLeftHands = 0; stickRightHands = 0; stickUpHands = 0; stickDownHands = 0; menu = false
         }
     }
 
@@ -98,11 +110,12 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
     private val lastGrip = BooleanArray(2)
     private val selectGate = Array(2) { InputReleaseGate() }
     private val gripGate = Array(2) { InputReleaseGate() }
-    private val controllerGate = Array(2) { InputReleaseGate() }
-    private var lastControllerButtons = 0
+    private val controllerGate = Array(2) { ButtonReleaseGate() }
+    private val stickGate = Array(2) { InputReleaseGate() }
+    private val lastControllerButtons = IntArray(2)
 
-    /** 本次推杆锁在哪根轴：0 = 中位，1 = 横（左右），2 = 纵（上下）。 */
-    private var stickAxis = 0
+    /** 每只手的本次推杆锁轴：0 = 中位，1 = 横，2 = 纵。另一只手回中不解锁这一只。 */
+    private val stickAxis = IntArray(2)
 
     /** 手 / 手柄现在有没有一个是活着的。摘下头显、放下手柄时会变 false。 */
     var anyActive = false
@@ -111,7 +124,6 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
     fun poll() {
         events.clear()
         val body = systemManager.findSystem<PlayerBodyAttachmentSystem>().tryGetLocalPlayerAvatarBody()
-        var controllerButtons = 0
         var active = false
         val inputActive = handActive
         inputActive.fill(false)
@@ -157,13 +169,14 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
             }
         }
         anyActive = active
+        updateButtonState(rawControllerButtons, select, grip)
+    }
 
+    /** Reduce one sampled frame; kept separate from the SDK's entity lookup for input replay. */
+    internal fun updateButtonState(rawControllerButtons: IntArray, select: BooleanArray, grip: BooleanArray) {
         for (i in 0..1) {
-            select[i] = selectGate[i].read(inputActive[i], select[i])
-            grip[i] = gripGate[i].read(inputActive[i], grip[i])
-            if (controllerGate[i].read(isController[i], rawControllerButtons[i] != 0)) {
-                controllerButtons = controllerButtons or rawControllerButtons[i]
-            }
+            select[i] = selectGate[i].read(handActive[i], select[i])
+            grip[i] = gripGate[i].read(handActive[i], grip[i])
             if (select[i] && !lastSelect[i]) events.selectDown = events.selectDown or (1 shl i)
             if (!select[i] && lastSelect[i]) events.selectUp = events.selectUp or (1 shl i)
             lastSelect[i] = select[i]
@@ -172,27 +185,37 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
             if (!grip[i] && lastGrip[i]) events.gripUp = events.gripUp or (1 shl i)
             lastGrip[i] = grip[i]
             gripHeld[i] = grip[i]
-        }
 
-        val ctrlRising = controllerButtons and lastControllerButtons.inv()
-        lastControllerButtons = controllerButtons
-        events.primaryTap = (ctrlRising and (ButtonBits.ButtonA or ButtonBits.ButtonX)) != 0
-        events.back = (ctrlRising and (ButtonBits.ButtonB or ButtonBits.ButtonY)) != 0
-        val left = (controllerButtons and (ButtonBits.ButtonThumbLL or ButtonBits.ButtonThumbRL)) != 0
-        val right = (controllerButtons and (ButtonBits.ButtonThumbLR or ButtonBits.ButtonThumbRR)) != 0
-        val up = (controllerButtons and (ButtonBits.ButtonThumbLU or ButtonBits.ButtonThumbRU)) != 0
-        val down = (controllerButtons and (ButtonBits.ButtonThumbLD or ButtonBits.ButtonThumbRD)) != 0
-        stickAxis = when {
-            !left && !right && !up && !down -> 0
-            stickAxis != 0 -> stickAxis
-            up || down -> 2
-            else -> 1
+            // Touch/rest bits are not presses. Release each button independently: a held grip,
+            // or a thumb resting on the stick, must not keep B/Y disabled after a scene transition.
+            val buttons = controllerGate[i].read(isController[i], rawControllerButtons[i])
+            val ctrlRising = buttons and lastControllerButtons[i].inv()
+            lastControllerButtons[i] = buttons
+            events.primaryTap = events.primaryTap || (ctrlRising and (ButtonBits.ButtonA or ButtonBits.ButtonX)) != 0
+            events.back = events.back || (ctrlRising and (ButtonBits.ButtonB or ButtonBits.ButtonY)) != 0
+            events.menu = events.menu || (ctrlRising and ButtonBits.ButtonMenu) != 0
+
+            // A stick held across tracking loss/recenter must physically return to center.
+            // Gate the four directions together, without touch/click/grip or the other stick.
+            val rawStick = rawControllerButtons[i] and
+                (if (i == 0) ButtonBits.LeftThumbMotionMask else ButtonBits.RightThumbMotionMask)
+            val stick = if (stickGate[i].read(isController[i], rawStick != 0)) rawStick else 0
+            val left = (stick and (ButtonBits.ButtonThumbLL or ButtonBits.ButtonThumbRL)) != 0
+            val right = (stick and (ButtonBits.ButtonThumbLR or ButtonBits.ButtonThumbRR)) != 0
+            val up = (stick and (ButtonBits.ButtonThumbLU or ButtonBits.ButtonThumbRU)) != 0
+            val down = (stick and (ButtonBits.ButtonThumbLD or ButtonBits.ButtonThumbRD)) != 0
+            stickAxis[i] = when {
+                !left && !right && !up && !down -> 0
+                stickAxis[i] != 0 -> stickAxis[i]
+                up || down -> 2
+                else -> 1
+            }
+            val hand = 1 shl i
+            if (stickAxis[i] == 1 && left) events.stickLeftHands = events.stickLeftHands or hand
+            if (stickAxis[i] == 1 && right) events.stickRightHands = events.stickRightHands or hand
+            if (stickAxis[i] == 2 && up) events.stickUpHands = events.stickUpHands or hand
+            if (stickAxis[i] == 2 && down) events.stickDownHands = events.stickDownHands or hand
         }
-        events.seekLeft = stickAxis == 1 && left
-        events.seekRight = stickAxis == 1 && right
-        events.volumeUp = stickAxis == 2 && up
-        events.volumeDown = stickAxis == 2 && down
-        events.menu = (ctrlRising and ButtonBits.ButtonMenu) != 0
     }
 
     fun reset(awaitRelease: Boolean = false) {
@@ -206,10 +229,29 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
             selectGate[i].reset(awaitRelease)
             gripGate[i].reset(awaitRelease)
             controllerGate[i].reset(awaitRelease)
+            stickGate[i].reset(awaitRelease)
+            lastControllerButtons[i] = 0
+            stickAxis[i] = 0
         }
-        lastControllerButtons = 0
-        stickAxis = 0
         events.clear()
+    }
+}
+
+/** Missing tracking cannot release a button; an unrelated held bit cannot block a fresh press. */
+internal class ButtonReleaseGate {
+    private var blocked = 0
+
+    fun read(active: Boolean, buttons: Int): Int {
+        if (!active) {
+            blocked = -1
+            return 0
+        }
+        blocked = blocked and buttons
+        return buttons and blocked.inv()
+    }
+
+    fun reset(awaitRelease: Boolean) {
+        blocked = if (awaitRelease) -1 else 0
     }
 }
 

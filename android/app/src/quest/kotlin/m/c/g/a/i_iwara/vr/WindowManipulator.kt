@@ -187,6 +187,8 @@ class WindowManipulator(
     val isMoving: Boolean
         get() = sessions.any { it != null && it.zone.movesWindow }
 
+    fun isMoving(hand: Int): Boolean = sessions[hand]?.zone?.movesWindow == true
+
     /** 这只手此刻是否在抓着某块窗（挪或缩放）。 */
     fun isBusy(hand: Int): Boolean = sessions[hand] != null
 
@@ -414,8 +416,10 @@ class WindowManipulator(
     fun release(hand: Int) = endSession(hand)
 
     /** 挪动中：摇杆上下把窗沿射线推远 / 拉近。 */
-    fun nudgeDistance(delta: Float) {
-        for (session in sessions) {
+    fun nudgeDistance(delta: Float, hands: Int = 0b11) {
+        for (hand in 0..1) {
+            if (hands and (1 shl hand) == 0) continue
+            val session = sessions[hand]
             if (session == null || !session.zone.movesWindow) continue
             val len = session.localOffset.length()
             if (len < 1e-3f) continue
@@ -655,6 +659,8 @@ class WindowManipulator(
             host.resizeTo(size, surface, commit = false)
         }
         host.onInteraction()
+        // The frame must follow this frame's content pose, not the pose before the grab update.
+        syncFrame(session.slot)
     }
 
     private fun endSession(hand: Int) {
