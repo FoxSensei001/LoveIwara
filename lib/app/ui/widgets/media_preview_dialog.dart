@@ -146,6 +146,28 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
+/// 「这张图此刻在屏幕上占哪儿、以及它现在被裁成什么形状」。
+///
+/// 拖 / 点某一张要变成大图页时，弹窗那边照着它起手画形变（见
+/// `_MediaPreviewDialogState._buildPhotoMorphLayer`）。**形状和位置得一起报**：
+/// 形变层是浮在面板之上、盖住原图的一层，起手那一帧它必须和身下那张长得一模
+/// 一样，而身下那张是被翻页器的 [MediaPreviewGalleryPager.borderRadius] 裁过
+/// 圆角的——只对齐矩形、不对齐圆角，手指刚一动，面板顶上那两个圆角就会被形变
+/// 层的直角当场填平，读起来是「图跳了一下」而不是「图开始长大」。
+class MediaPreviewPhotoOrigin {
+  const MediaPreviewPhotoOrigin({
+    required this.rect,
+    required this.borderRadius,
+  });
+
+  /// 全局坐标。
+  final Rect rect;
+
+  /// 此刻裁在这张图上的圆角。图在盒子里留了边（竖图摆进 16:9）时它是
+  /// [BorderRadius.zero]：那种时候图的四角落在黑边里面，压根碰不到盒子的圆角。
+  final BorderRadius borderRadius;
+}
+
 /// 整张卡片 ↔ 整张弹窗面板之间的 Hero 标签。
 ///
 /// 两侧必须算出同一个值，所以由这里统一给，别在调用点各拼各的。
@@ -395,8 +417,10 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   /// 的样子（整屏纯黑 + 完整的那一张）。见 [_buildPhotoMorphLayer]。
   double _photoMorph = 0;
 
-  /// 起手那一刻这张图在屏幕上的位置（全局坐标）。非 null 就说明形变层在场。
-  Rect? _photoStartRect;
+  /// 起手那一刻这张图的位置与形状。非 null 就说明形变层在场。
+  MediaPreviewPhotoOrigin? _photoStartOrigin;
+
+  Rect? get _photoStartRect => _photoStartOrigin?.rect;
 
   /// 正在形变 / 交接的是第几张。
   int? _photoIndex;
@@ -676,13 +700,13 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     );
   }
 
-  /// 手指按在某一张图上开始往下带。[rect] 是它此刻在屏幕上的位置。
-  void _onGalleryImageDragStart(int index, Rect rect) {
+  /// 手指按在某一张图上开始往下带。[origin] 是它此刻的位置与形状。
+  void _onGalleryImageDragStart(int index, MediaPreviewPhotoOrigin origin) {
     if (_photoHandingOff) return;
     _photoMorphController.stop();
     setState(() {
       _photoIndex = index;
-      _photoStartRect = rect;
+      _photoStartOrigin = origin;
       _photoMorph = 0;
     });
   }
@@ -714,17 +738,20 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     if (!mounted) return;
     // 形变层整只不建：留着一层 alpha 0 的黑和一张原位的图，等于在面板上白盖一层。
     setState(() {
-      _photoStartRect = null;
+      _photoStartOrigin = null;
       _photoIndex = null;
     });
   }
 
   /// 点一下某一张图 —— 和拖到底是同一段形变，只是这一下由动画自己跑完。
-  Future<void> _onGalleryImageTap(int index, Rect rect) async {
+  Future<void> _onGalleryImageTap(
+    int index,
+    MediaPreviewPhotoOrigin origin,
+  ) async {
     if (_photoHandingOff) return;
     setState(() {
       _photoIndex = index;
-      _photoStartRect = rect;
+      _photoStartOrigin = origin;
       _photoMorph = 0;
     });
     await _handoffToPhotoViewer(
@@ -825,8 +852,25 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     );
   }
 
+  /// 形变途中这一帧该带多大的圆角。
+  ///
+  /// 起手那一端是**身下那张图此刻真被裁成的样子**（翻页器的圆角，见
+  /// [MediaPreviewPhotoOrigin.borderRadius]），跑到头那一端是直角——大图页是铺满
+  /// 整块屏幕的，四角不可能是圆的。中间线性推过去，圆角就和位置、尺寸在同一段
+  /// 形变里一起走。
+  BorderRadius _morphRadius(double progress) {
+    final BorderRadius? start = _photoStartOrigin?.borderRadius;
+    if (start == null || start == BorderRadius.zero) return BorderRadius.zero;
+    return BorderRadius.lerp(start, BorderRadius.zero, progress)!;
+  }
+
   /// 形变 / 交接途中画的那张图。和翻页器里那张同一个地址、同一份缓存。
-  Widget _buildMorphImage(String url) => CachedNetworkImage(
+  Widget _buildMorphImage(String url, {BorderRadius? borderRadius}) =>
+      borderRadius == null || borderRadius == BorderRadius.zero
+      ? _morphImage(url)
+      : ClipRRect(borderRadius: borderRadius, child: _morphImage(url));
+
+  Widget _morphImage(String url) => CachedNetworkImage(
     imageUrl: url,
     fit: BoxFit.cover,
     maxWidthDiskCache: 4096,
@@ -869,7 +913,10 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
             ),
             Positioned.fromRect(
               rect: rect,
-              child: _buildMorphImage(file.getLargeImageUrl()),
+              child: _buildMorphImage(
+                file.getLargeImageUrl(),
+                borderRadius: _morphRadius(progress),
+              ),
             ),
           ],
         ),
@@ -1363,10 +1410,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
         const SizedBox(height: 14),
         // 详情没到手之前统计一律不显示真数字：本地库来的池根本没有这几项，
         // 拿 0 顶上等于把「我们不知道」说成「没人看过」。
-        if (_detailReady)
-          _buildStats(context)
-        else
-          _buildStatsPlaceholder(),
+        if (_detailReady) _buildStats(context) else _buildStatsPlaceholder(),
         if (_detailFailed) ...[
           const SizedBox(height: 10),
           _buildDetailRetry(context),
@@ -1711,9 +1755,7 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
     switch (phase) {
       case _AnimatedPreviewPhase.loading:
         Future<void>.delayed(_spinnerDelay, () {
-          if (!mounted ||
-              _settled ||
-              _phase != _AnimatedPreviewPhase.loading) {
+          if (!mounted || _settled || _phase != _AnimatedPreviewPhase.loading) {
             return;
           }
           _setSpinner(true);
@@ -1724,10 +1766,7 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
         if (phase == _AnimatedPreviewPhase.failed) {
           // 留一条：动图取不到的原因只有两类——服务端压根没生成 preview.webp（404），
           // 或者这条是私密 / 受限内容。两者都只能靠日志分辨。
-          LogUtils.d(
-            '视频动图预览加载失败: ${_animatedUrl ?? ''}',
-            'MediaPreviewDialog',
-          );
+          LogUtils.d('视频动图预览加载失败: ${_animatedUrl ?? ''}', 'MediaPreviewDialog');
         }
         _setSpinner(false);
       case _AnimatedPreviewPhase.idle:
@@ -1882,8 +1921,9 @@ bool _isPreviewableImage(MediaFile file) =>
 /// # 点开 / 往下拖 = 大图页
 ///
 /// 点某一张、或者把它往下拖，去处都是「详情页 + 正停在这张的大图页」。翻页器
-/// 这一侧只负责把「哪一张、它此刻在屏幕上的哪儿」报上去（[onImageTap] /
-/// [onImageDragStart]），形变与交接由弹窗那边画——它才够得着整块屏幕。
+/// 这一侧只负责把「哪一张、它此刻在屏幕上的哪儿、被裁成什么样」报上去
+/// （[onImageTap] / [onImageDragStart]），形变与交接由弹窗那边画——它才够得着
+/// 整块屏幕。
 ///
 /// # 让出来的边一律纯黑
 ///
@@ -1912,15 +1952,16 @@ class MediaPreviewGalleryPager extends StatefulWidget {
 
   final BorderRadius borderRadius;
 
-  /// 点了第 [index] 张。[imageRect] 是它此刻在屏幕上的位置（全局坐标）——弹窗
-  /// 拿它当「长成大图页」那段形变的起点。
+  /// 点了第 [index] 张。[origin] 是它此刻在屏幕上的位置与圆角——弹窗拿它当
+  /// 「长成大图页」那段形变的起点，见 [MediaPreviewPhotoOrigin]。
   ///
   /// ⛔ 点按由翻页器**自己**在每一页里接：盖一层 `Positioned.fill` 上去会把横滑
   /// 整只吃掉（`Stack` 命中即停）。点按与横滑在手势竞技场里本来就分得开。
-  final void Function(int index, Rect imageRect) onImageTap;
+  final void Function(int index, MediaPreviewPhotoOrigin origin) onImageTap;
 
   /// 手指把第 [index] 张往下带。参数同 [onImageTap]。
-  final void Function(int index, Rect imageRect)? onImageDragStart;
+  final void Function(int index, MediaPreviewPhotoOrigin origin)?
+  onImageDragStart;
 
   /// 从起手点算起的累计纵向位移（向下为正）。
   final ValueChanged<double>? onImageDragUpdate;
@@ -2083,12 +2124,18 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
     setState(() => _hovering = hovering);
   }
 
-  /// 当前这一页那张图此刻在屏幕上占的位置（全局坐标）。
+  /// 当前这一页那张图此刻在屏幕上占的位置与形状（全局坐标）。
   ///
   /// 图在盒子里居中、按自己的比例摆（[_buildPageContent]），所以从翻页器自己的
   /// 盒子加上「装得下的尺寸」就能算出来——展开动画还没跑完时那张图仍是铺满的，
   /// 这时候量的就是整只盒子。
-  Rect? _currentImageRect() {
+  ///
+  /// 圆角只在**图正好铺满整只盒子**时才算数：整只翻页器是被
+  /// [MediaPreviewGalleryPager.borderRadius] 裁过的，铺满时图的四角就落在那圈
+  /// 圆角上（面板顶上那两个角尤其显眼）；一旦让出了黑边（竖图摆进 16:9），图
+  /// 是居中缩在里面的一块矩形，四角碰不到盒子的边，再带圆角反而凭空多出四个
+  /// 缺口。
+  MediaPreviewPhotoOrigin? _currentImageOrigin() {
     final RenderObject? object = context.findRenderObject();
     if (object is! RenderBox || !object.hasSize) return null;
     if (_page < 0 || _page >= widget.images.length) return null;
@@ -2098,10 +2145,17 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
     final double? aspect = _mediaFileAspect(widget.images[_page]);
     final bool expanded = aspect != null && _landed && !_firstFrame;
     final Size fitted = expanded ? _containedSize(slot, aspect) : slot;
-    return Rect.fromCenter(
-      center: topLeft + Offset(slot.width / 2, slot.height / 2),
-      width: fitted.width,
-      height: fitted.height,
+    // 半像素的容差：`_containedSize` 里那一路除法在比例正好等于盒子时也未必
+    // 回到分毫不差的整数。
+    final bool fillsSlot =
+        fitted.width >= slot.width - 0.5 && fitted.height >= slot.height - 0.5;
+    return MediaPreviewPhotoOrigin(
+      rect: Rect.fromCenter(
+        center: topLeft + Offset(slot.width / 2, slot.height / 2),
+        width: fitted.width,
+        height: fitted.height,
+      ),
+      borderRadius: fillsSlot ? widget.borderRadius : BorderRadius.zero,
     );
   }
 
@@ -2109,10 +2163,10 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
   double _dragDy = 0;
 
   void _handleDragStart(DragStartDetails details) {
-    final Rect? rect = _currentImageRect();
-    if (rect == null) return;
+    final MediaPreviewPhotoOrigin? origin = _currentImageOrigin();
+    if (origin == null) return;
     _dragDy = 0;
-    widget.onImageDragStart?.call(_page, rect);
+    widget.onImageDragStart?.call(_page, origin);
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -2127,9 +2181,9 @@ class _MediaPreviewGalleryPagerState extends State<MediaPreviewGalleryPager> {
   void _handleDragCancel() => widget.onImageDragEnd?.call(0);
 
   void _handleTap() {
-    final Rect? rect = _currentImageRect();
-    if (rect == null) return;
-    widget.onImageTap(_page, rect);
+    final MediaPreviewPhotoOrigin? origin = _currentImageOrigin();
+    if (origin == null) return;
+    widget.onImageTap(_page, origin);
   }
 
   void _goTo(int page) {
