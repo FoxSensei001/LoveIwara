@@ -123,11 +123,23 @@ class _TagMediaListPageState extends State<TagMediaListPage>
       _controllers[sort.id] = controller;
       _repositories[sort.id] = controller.repository;
 
-      // 为每个控制器设置标签参数
+      // 为每个控制器设置标签参数。
+      //
+      // ⛔ `refreshImmediately: false`：这里**只是把查询条件装进仓库**，不能顺手
+      // 发一轮请求。仓库刚建出来还没人订阅，首轮加载本来就有人负责——瀑布流由
+      // loading_more_list 自己在首帧补发（autoRefresh），分页由 MediaListView
+      // 的 initState 直接取第 0 页。
+      //
+      // 在这儿多发这一轮的代价不是「多一个请求」而已：refresh() 会经
+      // LoadingMoreRefreshGuard 在一个微任务里把代际 +1，而分页那一侧的取页请求
+      // 是在本帧 build 里发出的（代际还是旧的），回来时正好被判成过期作废——
+      // 第一栏（趋势）于是转完圈一片空白，切到别的栏反而正常（那些栏是后来才建的，
+      // 早过了这个窗口）。见 [MediaListView] 里 StalePageLoadException 的补发兜底。
       controller.updateSearchParams(
         searchTagIds: [widget.tag.id],
         searchDate: year,
         searchRating: rating,
+        refreshImmediately: false,
       );
     }
 

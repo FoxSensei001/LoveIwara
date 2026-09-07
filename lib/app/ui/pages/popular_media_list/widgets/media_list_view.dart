@@ -385,6 +385,12 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   // 添加一个标志来跟踪模式是否已切换
   bool _modeSwitched = false;
 
+  /// 本轮分页请求已经因「代际作废」补发过几次（见 [_loadPaginatedData] 的
+  /// [StalePageLoadException] 分支）。成功落地即清零，所以这是一次性的补发预算，
+  /// 不是全局计数。
+  int _staleRetryCount = 0;
+  static const int _maxStaleRetries = 3;
+
   // 当接口不返回 total(count) 时，用于记录“已知最后一页”
   // null 表示未知最后一页；非 null 表示最后一页（含）索引
   int? _unknownTotalMaxPageIndex;
@@ -643,6 +649,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
           // indicatorBuilder 会把一个合法的 empty 提升成 fullScreenError，
           // 显示一条早已过期的错误消息。
           _errorMessage = null;
+          _staleRetryCount = 0;
           final source = widget.sourceList;
           if (source is ExtendedLoadingMoreBase<T>) {
             source.lastErrorMessage = null;
@@ -692,9 +699,34 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       }
     } on StalePageLoadException {
       if (!mounted) return;
+      // 代际作废：本次请求在途时有人把数据源打回了初始态
+      //（updateSearchParams / resetState / 另一次 refresh，见
+      // LoadingMoreRefreshGuard）。
+      //
+      // ⛔ 这里**不能就这么收手**。瀑布流那侧作废之后由 refresh() 自己把新一轮
+      // 请求发出去，分页这侧没有任何人补发——收手就是「转完圈一片空白」，而且
+      // 之后不会再动，只能靠用户切走再切回来。所以按新代际补发一次当前页；
+      // 连环作废时用 [_maxStaleRetries] 兜底，避免无限重试。
+      if (_staleRetryCount < _maxStaleRetries) {
+        _staleRetryCount++;
+        // 只放行重入闸门，指示器仍停在上面设好的 busying 上——用户看到的是
+        // 一次没有断过的加载。
+        setState(() {
+          isLoading = false;
+        });
+        await _loadPaginatedData(page);
+        return;
+      }
+      // 补发预算烧完（有人在不停地重置这个数据源）。这时候留一个能点的错误页，
+      // 而不是把用户扔在一片什么都没有、也没法自救的空白上。
       setState(() {
         isLoading = false;
-        _indicatorStatus = IndicatorStatus.none;
+        _isFirstLoad = false;
+        _modeSwitched = false;
+        _errorMessage = slang.t.errors.errorWhileFetching;
+        _indicatorStatus = page == 0
+            ? IndicatorStatus.fullScreenError
+            : IndicatorStatus.error;
       });
     } catch (e) {
       if (!mounted) return;
@@ -713,6 +745,8 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
 
   Future<void> refresh() async {
     if (widget.isPaginated) {
+      // 用户/上游主动发起的新一轮加载，补发预算重新给满。
+      _staleRetryCount = 0;
       await _loadPaginatedData(0);
     } else {
       await widget.sourceList.refresh(true);
@@ -722,6 +756,7 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
   // 添加错误刷新方法
   Future<void> errorRefresh() async {
     if (widget.isPaginated) {
+      _staleRetryCount = 0;
       await _loadPaginatedData(currentPage);
     } else {
       await widget.sourceList.errorRefresh();
