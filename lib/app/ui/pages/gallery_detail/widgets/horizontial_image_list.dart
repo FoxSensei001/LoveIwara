@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
@@ -379,50 +380,65 @@ class _HorizontalImageListState extends State<HorizontalImageList>
           },
           child: ClipRRect(
             borderRadius: widget.clipBorderRadius,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Use Listener for mouse wheel scroll
-                Listener(
-                  onPointerSignal: _handleMouseScroll,
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: _handleScrollNotification,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      itemCount: widget.images.length,
-                      itemBuilder: (context, index) {
-                        final imageItem = widget.images[index];
-                        return _buildImageItem(
-                          context,
-                          imageItem,
-                          index,
-                          Size(constraints.maxWidth, constraints.maxHeight),
-                        );
-                      },
+            // 左右两枚滚动钮压的是**这条列表里的图**，身后没有任何蒙层兜底：
+            // 一张白底图上深色的箭头、一张黑底图上……跟着主题明暗走必然有一半
+            // 场景糊在里面。所以这条列表按内容感知的三件套接线——host 在这里、
+            // 被采样的是列表本身、两枚钮浮在采样区**外面**
+            // （[GlassIconButton.standalone] 自带 `GlassAdaptiveChrome`）。
+            //
+            // 这一条真的会滚，所以判决由包的滚动驱动自动跟着走；[settleWindow]
+            // 只用来接住开局那一段——注册那一帧上缩略图还在解码，采到的是骨架
+            // 屏的底色。
+            child: GlassContentAwareHost(
+              settleWindow: const Duration(milliseconds: 1200),
+              settleKey: widget.images.length,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Use Listener for mouse wheel scroll
+                  GlassSampledContent(
+                    child: Listener(
+                      onPointerSignal: _handleMouseScroll,
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: _handleScrollNotification,
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: widget.images.length,
+                          itemBuilder: (context, index) {
+                            final imageItem = widget.images[index];
+                            return _buildImageItem(
+                              context,
+                              imageItem,
+                              index,
+                              Size(constraints.maxWidth, constraints.maxHeight),
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                // Scroll buttons (visibility handled by listener)
-                if (_showLeftButton)
-                  Positioned(
-                    left: 8,
-                    child: _buildScrollButton(
-                      icon: Icons.arrow_back_ios_rounded,
-                      tooltip: t.galleryDetail.scrollLeft,
-                      onPressed: () => _scrollBy(-widget.scrollOffset),
+                  // Scroll buttons (visibility handled by listener)
+                  if (_showLeftButton)
+                    Positioned(
+                      left: 8,
+                      child: _buildScrollButton(
+                        icon: Icons.arrow_back_ios_rounded,
+                        tooltip: t.galleryDetail.scrollLeft,
+                        onPressed: () => _scrollBy(-widget.scrollOffset),
+                      ),
                     ),
-                  ),
-                if (_showRightButton)
-                  Positioned(
-                    right: 8,
-                    child: _buildScrollButton(
-                      icon: Icons.arrow_forward_ios_rounded,
-                      tooltip: t.galleryDetail.scrollRight,
-                      onPressed: () => _scrollBy(widget.scrollOffset),
+                  if (_showRightButton)
+                    Positioned(
+                      right: 8,
+                      child: _buildScrollButton(
+                        icon: Icons.arrow_forward_ios_rounded,
+                        tooltip: t.galleryDetail.scrollRight,
+                        onPressed: () => _scrollBy(widget.scrollOffset),
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -454,6 +470,10 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   /// 那个坑同源。它们浮在内容**之上**、自己不在滚动里，正是透镜的适用场景。
   ///
   /// `group: false`：左右各在一边，隔着整条列表，不成簇（见 GlassChromeLayer）。
+  ///
+  /// 图标 / 玻璃底色的深浅不跟主题走、跟**身后这一格图**走：[GlassIconButton]
+  /// 的 `standalone` 自带 `GlassAdaptiveChrome`，判决由外面那只
+  /// [GlassContentAwareHost] 喂（见 [build] 里那段说明）。
   Widget _buildScrollButton({
     required IconData icon,
     required String tooltip,

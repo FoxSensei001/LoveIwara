@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
@@ -64,11 +67,13 @@ import 'package:i_iwara/utils/logger_utils.dart';
 ///   是空的。那种地方要么别开，要么走包的 `brightnessOverride` 自己喂判决。
 /// - **采样是整块被采样区的 `toImage` 回读**，滚动期间每 [defaultSampleInterval]
 ///   一次。被采样区越大越贵——所以 host 应该尽量贴着「真正在滚的那块」放。
-class GlassContentAwareHost extends StatelessWidget {
+class GlassContentAwareHost extends StatefulWidget {
   const GlassContentAwareHost({
     super.key,
     required this.child,
     this.sampleInterval = defaultSampleInterval,
+    this.settleWindow = Duration.zero,
+    this.settleKey,
   });
 
   /// 滚动期间两次采样的最小间隔。滚动停下即停采，静止不花钱。
@@ -77,15 +82,99 @@ class GlassContentAwareHost extends StatelessWidget {
   final Widget child;
   final Duration sampleInterval;
 
+  /// ⭐「内容会变，但不会有人滚」的那种被采样区，开局补采一小段时间。
+  ///
+  /// 包里的自动触发**全是滚动驱动**的（`ScrollNotification` /
+  /// `ScrollMetricsNotification`），静止的一屏只在控件注册的那一刻采一次。这对
+  /// 列表页够用，对「一张封面」不够——注册那一帧上它多半还什么都不是：
+  ///
+  ///   - 路由/Hero 还在飞：飞行途中目的地那一侧被 `Visibility` 关掉不画，
+  ///     `toImage` 读回来是一片空，判决落在「页面背景色」上；
+  ///   - 图还在解码 / 还在淡入：读到的是占位的那层底色；
+  ///   - 落地之后还有自己的展开动画（图从铺满长成完整的那一张）。
+  ///
+  /// 给了这个窗口之后，挂载（以及每次 [settleKey] 变化）起的这段时间内按
+  /// [sampleInterval] 反复采样，最后一次落在内容真正定下来之后。为 0 时行为与
+  /// 以前完全一致（页面级 chrome 那几处由滚动驱动，不需要）。
+  final Duration settleWindow;
+
+  /// 换个值就重开一轮 [settleWindow]：内容整批换过了（异步拉回来的那本图到了、
+  /// 换了一条媒体）。
+  final Object? settleKey;
+
+  @override
+  State<GlassContentAwareHost> createState() => _GlassContentAwareHostState();
+}
+
+class _GlassContentAwareHostState extends State<GlassContentAwareHost> {
+  final GlobalKey<lgw.GlassContentAwareScopeState> _scopeKey =
+      GlobalKey<lgw.GlassContentAwareScopeState>();
+
+  Timer? _settleTimer;
+  int _settleTicksLeft = 0;
+
+  /// 非液态档整只透传，连 scope 都不建，补采自然也不用跑。
+  bool _liquid = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final bool liquid = GlassMaterialScope.isLiquid(context);
+    if (liquid == _liquid) return;
+    _liquid = liquid;
+    if (liquid) {
+      _startSettle();
+    } else {
+      _stopSettle();
+    }
+  }
+
+  @override
+  void didUpdateWidget(GlassContentAwareHost oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.settleKey != oldWidget.settleKey) _startSettle();
+  }
+
+  @override
+  void dispose() {
+    _stopSettle();
+    super.dispose();
+  }
+
+  void _startSettle() {
+    if (!_liquid || widget.settleWindow <= Duration.zero) return;
+    final int interval = widget.sampleInterval.inMicroseconds;
+    if (interval <= 0) return;
+    // 至少补一次：窗口比一个采样间隔还短时也不能什么都不做。
+    _settleTicksLeft = math.max(
+      1,
+      (widget.settleWindow.inMicroseconds / interval).ceil(),
+    );
+    if (_settleTimer != null) return;
+    _settleTimer = Timer.periodic(widget.sampleInterval, (timer) {
+      // scope 还没挂上（第一帧）时 currentState 为 null，这一格白跳过——
+      // 计数照扣，窗口是「一段时间」而不是「一定要采到几次」。
+      _scopeKey.currentState?.requestSample();
+      if (--_settleTicksLeft <= 0) _stopSettle();
+    });
+  }
+
+  void _stopSettle() {
+    _settleTimer?.cancel();
+    _settleTimer = null;
+    _settleTicksLeft = 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     // 非液态档：chrome 是不透明的面，没有「身后透出来的颜色」可言。整只透传，
     // 连 scope 都不建——[GlassAdaptiveChrome] 找不到 host 时也会原样透传，
     // 于是整条链自动归零。
-    if (!GlassMaterialScope.isLiquid(context)) return child;
+    if (!_liquid) return widget.child;
     return lgw.GlassContentAwareScope(
-      sampleInterval: sampleInterval,
-      child: child,
+      key: _scopeKey,
+      sampleInterval: widget.sampleInterval,
+      child: widget.child,
     );
   }
 }

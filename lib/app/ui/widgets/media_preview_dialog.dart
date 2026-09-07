@@ -133,6 +133,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/base_card_list_item_widget.dart'
     show BaseTag;
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dialog_motion.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_measured_box.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -1024,6 +1025,12 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   /// 面板的圆角。Hero 飞行的终点圆角也是它。
   static const double _panelRadius = 28;
 
+  /// 封面开局的补采窗口，见 [_buildCoverSlot]。
+  ///
+  /// 要盖住的是「路由飞行（约 0.3s）→ Hero 落地 → 翻页器展开（0.32s）→ 图淡入」
+  /// 这一串，所以给到 1.4s；之后这块封面再不会自己变色，采样归零。
+  static const Duration _coverSettleWindow = Duration(milliseconds: 1400);
+
   /// 弹窗那侧「封面占面板宽度的几成」。窄屏是通栏（1），宽屏是左边那 420。
   ///
   /// 飞行途中要拿它当终点几何（见 [_buildFlightShuttle]），所以按面板**实际**
@@ -1303,80 +1310,102 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   ///
   /// Hero 不在这一层——飞的是**整张面板**（见 [build]），封面只是飞行途中那份
   /// 画出来的一块，见 [_buildFlightShuttle]。
-  Widget _buildCoverSlot(
-    BorderRadius borderRadius, {
-    bool stretch = false,
-  }) {
+  ///
+  /// # 关闭钮的深浅跟着封面走
+  ///
+  /// 这枚圆钮**身后没有任何蒙层兜底**，压着的是一张任意颜色的封面——白底图上
+  /// 它得用深色的叉，黑底图上得用浅色的，跟着主题的明暗走必然有一半场景糊在
+  /// 里面。所以这块封面按内容感知的三件套接线：host 在这里、被采样的是封面
+  /// 本身、钮浮在采样区**外面**（[GlassIconButton.standalone] 自带
+  /// `GlassAdaptiveChrome`，见 `glass_content_brightness.dart`）。
+  ///
+  /// ⭐ [GlassContentAwareHost.settleWindow] 不能省：包里的采样是滚动驱动的，
+  /// 而这块封面从头到尾不滚。注册那一帧上 Hero 还在飞（目的地那一侧不画，读回
+  /// 来是一片空）、图还在解码、落地之后还有翻页器自己的展开动画——只采那一次
+  /// 等于按「一片空白」定终身。
+  Widget _buildCoverSlot(BorderRadius borderRadius, {bool stretch = false}) {
     final t = slang.Translations.of(context);
     final List<MediaFile> images = _galleryImages;
     final bool paged = images.isNotEmpty;
-    return Stack(
-      children: [
-        // 非定位子节点：窄屏靠它（16:9）把这只 Stack 撑出高度；宽屏外面那层
-        // Positioned 已经给了紧高度，[stretch] 让它照单填满。
-        if (paged)
-          MediaPreviewGalleryPager(
-            gallery: _gallery!,
-            images: images,
-            fallbackThumbnailUrl: widget.coverUrl,
-            borderRadius: borderRadius,
-            stretch: stretch,
-            onImageTap: _onGalleryImageTap,
-            onImageDragStart: _onGalleryImageDragStart,
-            onImageDragUpdate: _onGalleryImageDragUpdate,
-            onImageDragEnd: _onGalleryImageDragEnd,
-          )
-        else
-          MediaPreviewCover(
-            video: _video,
-            gallery: _gallery,
-            fallbackThumbnailUrl: widget.coverUrl,
-            borderRadius: borderRadius,
-            stretch: stretch,
-          ),
-        // 点封面 = 进详情页。
-        //
-        // ⛔ 翻页器不许盖这一层：`Stack` 的命中测试自上而下、命中即停，盖上去
-        // 等于把横滑整只吃掉。那一路的点按由翻页器在**每一页里面**接（手势竞技场
-        // 里点按与横滑本来就分得开），所以这里让开。
-        //
-        // ⛔ 这里**不用 InkWell**：压在一张图上的水波纹既看不清又和「按下去要
-        // 发生一件大事（整张图长成大图页）」的读法冲突，用户明确要求去掉。
-        if (!paged)
-          Positioned.fill(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _openDetail,
+    return GlassContentAwareHost(
+      settleWindow: _coverSettleWindow,
+      // 那本图是异步拉回来的：封面换成翻页器是整块内容换了一遍，重开一轮补采。
+      settleKey: Object.hash(paged, images.length),
+      child: Stack(
+        children: [
+          // 非定位子节点：窄屏靠它（16:9）把这只 Stack 撑出高度；宽屏外面那层
+          // Positioned 已经给了紧高度，[stretch] 让它照单填满。
+          //
+          // 被采样的就是这一块：关闭钮必须留在它**外面**，否则采样会拍到钮自己
+          // ——判决改了钮的底色、底色又改了下一次的读数，来回自激。
+          if (paged)
+            GlassSampledContent(
+              child: MediaPreviewGalleryPager(
+                gallery: _gallery!,
+                images: images,
+                fallbackThumbnailUrl: widget.coverUrl,
+                borderRadius: borderRadius,
+                stretch: stretch,
+                onImageTap: _onGalleryImageTap,
+                onImageDragStart: _onGalleryImageDragStart,
+                onImageDragUpdate: _onGalleryImageDragUpdate,
+                onImageDragEnd: _onGalleryImageDragEnd,
+              ),
+            )
+          else
+            GlassSampledContent(
+              child: MediaPreviewCover(
+                video: _video,
+                gallery: _gallery,
+                fallbackThumbnailUrl: widget.coverUrl,
+                borderRadius: borderRadius,
+                stretch: stretch,
+              ),
+            ),
+          // 点封面 = 进详情页。
+          //
+          // ⛔ 翻页器不许盖这一层：`Stack` 的命中测试自上而下、命中即停，盖上去
+          // 等于把横滑整只吃掉。那一路的点按由翻页器在**每一页里面**接（手势竞技场
+          // 里点按与横滑本来就分得开），所以这里让开。
+          //
+          // ⛔ 这里**不用 InkWell**：压在一张图上的水波纹既看不清又和「按下去要
+          // 发生一件大事（整张图长成大图页）」的读法冲突，用户明确要求去掉。
+          if (!paged)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _openDetail,
+              ),
+            ),
+          // 详情 / 图库那本图还在路上：贴着封面下沿走一条细进度条。
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: AnimatedSwitcher(
+              duration: GlassTokens.pressDuration,
+              child: _detailLoading || _imagesLoading
+                  ? const LinearProgressIndicator(minHeight: 3)
+                  : const SizedBox(height: 3, width: double.infinity),
             ),
           ),
-        // 详情 / 图库那本图还在路上：贴着封面下沿走一条细进度条。
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: AnimatedSwitcher(
-            duration: GlassTokens.pressDuration,
-            child: _detailLoading || _imagesLoading
-                ? const LinearProgressIndicator(minHeight: 3)
-                : const SizedBox(height: 3, width: double.infinity),
-          ),
-        ),
-        Positioned(
-          top: 8,
-          right: 8,
-          // group: false —— 单独一枚圆钮，收进融合层省不出采样，却会吃掉它
-          // 按下时的底色加深（同一层玻璃只有一份材质）。
-          child: GlassChromeLayer(
-            group: false,
-            child: GlassIconButton(
-              standalone: true,
-              icon: const Icon(Icons.close),
-              tooltip: t.common.close,
-              onPressed: _close,
+          Positioned(
+            top: 8,
+            right: 8,
+            // group: false —— 单独一枚圆钮，收进融合层省不出采样，却会吃掉它
+            // 按下时的底色加深（同一层玻璃只有一份材质）。
+            child: GlassChromeLayer(
+              group: false,
+              child: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.close),
+                tooltip: t.common.close,
+                onPressed: _close,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
