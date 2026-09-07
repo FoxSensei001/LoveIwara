@@ -4,10 +4,8 @@ import com.meta.spatial.core.Pose
 import com.meta.spatial.core.Quaternion
 import com.meta.spatial.core.Vector3
 import kotlin.math.abs
-import kotlin.math.atan
 import kotlin.math.cos
 import kotlin.math.exp
-import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.tan
 
@@ -15,7 +13,6 @@ import kotlin.math.tan
 internal object SpatialPlacement {
     const val SCREEN_CENTER_DROP_DEG = 8f
     private const val CONTROLS_DROP_DEG = 32f
-    private const val CONTROLS_TOP_DROP_DEG = 30f
     private const val DEG_TO_RAD = (Math.PI / 180.0).toFloat()
     private val WORLD_UP = Vector3(0f, 1f, 0f)
 
@@ -40,22 +37,46 @@ internal object SpatialPlacement {
         return Pose(origin, Quaternion.fromDirection(f, up).normalize())
     }
 
-    /** Keep the main viewing area below neutral gaze; tall content must not push its center overhead. */
+    /** Lower the center, then face the actual viewing position without adding a separate tilt. */
     fun screenSurface(frame: Pose, distance: Float, offset: Float = 0f): Pose {
         val center = frame.t + frame.forward() * distance +
             frame.up() * (-distance * tan(SCREEN_CENTER_DROP_DEG * DEG_TO_RAD) + offset)
-        return Pose(center, Quaternion.fromDirection(center - frame.t, frame.up()).normalize())
+        return facingSurface(Pose(center, frame.q), frame)
     }
 
-    /** A gently tilted desk below the screen, including clearance for a user-resized control panel. */
-    fun controlsSurface(frame: Pose, distance: Float, height: Float): Pose {
-        val drop = max(
-            CONTROLS_DROP_DEG * DEG_TO_RAD,
-            CONTROLS_TOP_DROP_DEG * DEG_TO_RAD + atan(height / (2f * distance)),
-        )
+    /** Summoned controls use the requested downward bearing, independent of panel size. */
+    fun controlsSurface(frame: Pose, distance: Float): Pose {
+        val drop = CONTROLS_DROP_DEG * DEG_TO_RAD
         val direction = frame.forward() * cos(drop) - frame.up() * sin(drop)
         val center = frame.t + direction * distance
         return Pose(center, Quaternion.fromDirection(direction, frame.up()).normalize())
+    }
+
+    /** Move along the bearing seen by the current viewer, independent of the entry anchor. */
+    fun atDistance(surface: Pose, viewer: Pose, distance: Float): Pose {
+        val delta = surface.t - viewer.t
+        val length = delta.length()
+        if (!length.isFinite() || length < 0.05f) return surface
+        return facingSurface(Pose(viewer.t + delta * (distance / length), surface.q), viewer)
+    }
+
+    /** The SDK FACE contract: both pitch and yaw point at the current eyes; there is no stored tilt. */
+    fun facingSurface(surface: Pose, viewer: Pose): Pose {
+        val direction = surface.t - viewer.t
+        if (direction.length() < 0.05f) return surface
+        return frame(surface.t, direction, viewer.up())
+    }
+
+    /** Restore saved controls near the preferred downward bearing. */
+    fun controlsInView(surface: Pose, frame: Pose): Boolean {
+        val delta = surface.t - frame.t
+        val forward = delta.dot(frame.forward())
+        if (forward < 0.05f) return false
+        val down = -delta.dot(frame.up()) / forward
+        val minimumDown = tan((CONTROLS_DROP_DEG - 12f) * DEG_TO_RAD)
+        val maximumDown = tan((CONTROLS_DROP_DEG + 6f) * DEG_TO_RAD)
+        return down in minimumDown..maximumDown &&
+            abs(delta.dot(frame.right())) <= forward * tan(50f * DEG_TO_RAD)
     }
 
     fun isTracked(head: Pose?): Boolean = head != null &&
@@ -65,23 +86,6 @@ internal object SpatialPlacement {
     private fun unit(v: Vector3, fallback: Vector3): Vector3 {
         val length = v.length()
         return if (length.isFinite() && length > 1e-5f) v / length else fallback
-    }
-}
-
-/** No jump at touch-down; real movement progressively aligns the surface with the viewer. */
-internal class GrabOrientation(private val initial: Quaternion, facingAtGrab: Quaternion?) {
-    private val offset = facingAtGrab?.let { it.inverse() * initial }
-    private var distanceMoved = 0f
-    private var last = initial
-
-    fun at(facingNow: Quaternion?, displacement: Float = 0f): Quaternion {
-        if (facingNow == null) return last
-        distanceMoved = max(distanceMoved, displacement)
-        val t = ((distanceMoved - 0.005f) / 0.15f).coerceIn(0f, 1f)
-        val blend = t * t * (3f - 2f * t)
-        val preserved = offset?.let { facingNow * it } ?: initial
-        last = preserved.slerp(facingNow, blend).normalize()
-        return last
     }
 }
 

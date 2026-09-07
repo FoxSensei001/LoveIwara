@@ -9,6 +9,7 @@ import com.meta.spatial.core.SystemManager
 import com.meta.spatial.core.Vector2
 import com.meta.spatial.core.Vector3
 import com.meta.spatial.isdk.IsdkCurvedPanel
+import com.meta.spatial.isdk.IsdkDefaultCursorSystem
 import com.meta.spatial.isdk.IsdkPanelDimensions
 import com.meta.spatial.isdk.IsdkSystem
 import com.meta.spatial.runtime.PanelSceneObject
@@ -31,8 +32,10 @@ import m.c.g.a.i_iwara.questui.WindowFrameState
 import m.c.g.a.i_iwara.questui.WindowFrameZone
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /** 空间里的三块窗。 */
@@ -102,7 +105,7 @@ interface WindowHost {
  *   （[startGrab]，用户 2026-09-05：「点击该按钮后可对播放器拖拽，松开时隐藏操作栏」）；
  * - 每块窗后方 1cm 贴一块自绘窗框（`questui/WindowFrameView.kt`）：抓握扳机 / 扳机 / 捏合按在
  *   **四条边**上 = 挪，按在**四个角**上 = 缩放（以窗中心为原点；锁比例的沿对角线等比，2D 应用面板自由拉）；
- * - 挪的时候窗始终面朝头部（Horizon 系统窗的做法），摇杆上下推远拉近。
+ * - 挪的时候三块窗都按当前观察位置更新俯仰与偏航（SDK FACE 行为）；摇杆上下推远拉近。
  *
  * # 几何怎么算
  *
@@ -154,16 +157,16 @@ class WindowManipulator(
     private class Session(val hand: Int, val slot: Slot, val zone: WindowFrameZone, val byGrip: Boolean) {
         // 挪：面中心在射线坐标系里的偏移，松手前保持不变
         var localOffset = Vector3(0f, 0f, 0f)
-        var startPosition = Vector3(0f, 0f, 0f)
-        var orientation = GrabOrientation(Quaternion(0f, 0f, 0f), null)
+        var rotation = Quaternion(0f, 0f, 0f)
 
-        // 缩放：起始面位姿 / 尺寸 / 抓住的角在本地坐标里的符号
+        // 缩放：固定的拖动平面，不受可见曲面的边界或圆柱切线限制。
         var startSurface = Pose()
         var startSize = Vector2(1f, 1f)
+        var resizePlane = Pose()
+        var resizeStart = Vector2(0f, 0f)
+        var resizeWidthProjection = 1f
         var signX = 1f
         var signY = 1f
-        var arc = 0f
-        var radius = 0f
         var lastSize: Vector2? = null
         var lastSurface: Pose? = null
     }
@@ -195,11 +198,22 @@ class WindowManipulator(
     /** 这只手的射线此刻落在哪块窗的哪个区（含窗体 BODY）；什么都没碰到 = NONE。 */
     fun zoneUnder(hand: Int): WindowFrameZone = hits[hand]?.zone ?: WindowFrameZone.NONE
 
+    /** Placement outside a grab update must move the frame in the same scene tick. */
+    fun syncFrame(kind: WindowKind) {
+        slots[kind]?.let { syncFrame(it) }
+    }
+
     // ================================================================ 生命周期
 
     fun onSceneReady() {
         isdk = runCatching { systemManager.findSystem<IsdkSystem>() }.getOrNull()
         isdk?.registerObserver(observer)
+        // ISDK draws its cursor in the scene, offset 1cm from the hit surface by default.
+        // Our frame sits 1.2cm behind the picture: a frame hit can leave that cursor under
+        // the picture near a curved edge. Keep the native cursor ahead of both surfaces.
+        runCatching {
+            systemManager.findSystem<IsdkDefaultCursorSystem>().cursorConfigZOffset = BEHIND_M + 0.01f
+        }.onFailure { Log.w(TAG, "IMMERSIVE cursor depth configuration failed", it) }
     }
 
     fun shutdown() {
@@ -327,7 +341,8 @@ class WindowManipulator(
         if (arc >= ScreenGeometry.MIN_ARC_DEGREES) {
             val r = ScreenGeometry.radiusFor(arc, size.x)
             entity.setComponent(IsdkPanelDimensions(Vector2(w * (r + BEHIND_M) / r, h)))
-            entity.setComponent(IsdkCurvedPanel(arc))
+            // The frame includes the outer ring, so its angular span is wider than the content's.
+            entity.setComponent(IsdkCurvedPanel(Math.toDegrees((w / r).toDouble()).toFloat()))
         } else {
             entity.setComponent(IsdkPanelDimensions(Vector2(w, h)))
             runCatching { entity.removeComponent<IsdkCurvedPanel>() }
@@ -403,8 +418,7 @@ class WindowManipulator(
         val session = Session(hand, slot, WindowFrameZone.BODY, byGrip = true)
         val rp = basisPose(ray.origin, ray.direction)
         session.localOffset = rp.q.inverse() * (surface.t - rp.t)
-        session.startPosition = surface.t
-        session.orientation = GrabOrientation(surface.q, faceViewer(surface.t))
+        session.rotation = surface.q
         sessions[hand] = session
         slot.state.activeZone = WindowFrameZone.BODY
         slot.host.onInteraction()
@@ -460,7 +474,11 @@ class WindowManipulator(
             slot.frameSize = size
             slot.frameArc = arc
             slot.framePanel?.let { panel ->
-                runCatching { panel.reshape(frameSettings(host.kind).toPanelConfigOptions()) }
+                runCatching {
+                    panel.reshape(frameSettings(host.kind).toPanelConfigOptions())
+                    // reshape replaces the compositor layer; its runtime ordering is not retained.
+                    panel.layer?.setZIndex(host.zIndex - 1)
+                }
                     .onFailure { Log.w(TAG, "IMMERSIVE frame reshape 失败 kind=${host.kind}", it) }
             }
             syncIsdkShape(entity, size, arc)
@@ -599,13 +617,10 @@ class WindowManipulator(
         if (zone.movesWindow) {
             val rp = basisPose(ray.origin, ray.direction)
             session.localOffset = rp.q.inverse() * (surface.t - rp.t)
-            session.startPosition = surface.t
-            session.orientation = GrabOrientation(surface.q, faceViewer(surface.t))
+            session.rotation = surface.q
         } else {
             session.startSurface = surface
             session.startSize = size
-            session.arc = slot.host.arcDegrees()
-            session.radius = if (session.arc >= ScreenGeometry.MIN_ARC_DEGREES) ScreenGeometry.radiusFor(session.arc, size.x) else 0f
             val local = hit.local
             session.signX = when {
                 abs(local.x) > 0.01f -> if (local.x > 0f) 1f else -1f
@@ -617,6 +632,17 @@ class WindowManipulator(
                 zone == WindowFrameZone.CORNER_TL || zone == WindowFrameZone.CORNER_TR -> 1f
                 else -> -1f
             }
+            // A cylinder corner moves along the line from the face center to that edge as the
+            // radius changes. Put that line and the vertical axis in one unbounded drag plane.
+            // Continuing against the original finite cylinder stops at its old bounds (or tangent).
+            val radius = ScreenGeometry.radiusFor(slot.host.arcDegrees(), size.x)
+            val angle = if (radius > 0f) size.x / (4f * radius) else 0f
+            val yaw = angle * session.signX
+            val normal = surface.forward() * cos(yaw) + surface.right() * sin(yaw)
+            session.resizePlane = Pose(surface.t, Quaternion.fromDirection(normal, surface.up()).normalize())
+            session.resizeWidthProjection = if (angle > 0f) sin(angle) / angle else 1f
+            val start = intersectPlane(ray, session.resizePlane) ?: return
+            session.resizeStart = Vector2(start.x, start.y)
         }
         sessions[hand] = session
         slot.state.activeZone = zone
@@ -630,15 +656,16 @@ class WindowManipulator(
         if (session.zone.movesWindow) {
             val rp = basisPose(ray.origin, ray.direction)
             val t = rp.t + rp.q * session.localOffset
-            val q = session.orientation.at(faceViewer(t), (t - session.startPosition).length())
-            host.moveTo(Pose(t, q))
+            session.rotation = faceViewer(t) ?: session.rotation
+            host.moveTo(Pose(t, session.rotation))
         } else {
-            val hit = intersect(ray, session.startSurface, session.startSize, session.arc) ?: return
+            val hit = intersectPlane(ray, session.resizePlane) ?: return
             val w0 = session.startSize.x
             val h0 = session.startSize.y
-            // 以窗中心为缩放原点（用户 2026-09-05）：射线落点到中心的距离 ×2 就是新宽高
-            val dx = hit.x * session.signX * 2f
-            val dy = hit.y * session.signY * 2f
+            // Keep the center fixed and preserve the exact grab offset: holding still must not
+            // enlarge the window by the width of its outer handle.
+            val dx = w0 + (hit.x - session.resizeStart.x) * session.signX * 2f / session.resizeWidthProjection
+            val dy = h0 + (hit.y - session.resizeStart.y) * session.signY * 2f
             val w: Float
             val h: Float
             if (host.resizePolicy == ResizePolicy.FREE) {

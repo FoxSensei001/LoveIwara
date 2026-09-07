@@ -37,7 +37,6 @@ import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRegistration
 import com.meta.spatial.toolkit.PanelRenderMode
 import com.meta.spatial.toolkit.PixelDisplayOptions
-import com.meta.spatial.toolkit.PlayerBodyAttachmentSystem
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.Scale
 import com.meta.spatial.toolkit.SceneObjectSystem
@@ -437,7 +436,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 val head = trackedHeadPose()
                 val dir = head?.let { position - it.t }
                 if (head == null || dir == null || dir.length() < 0.2f) null
-                else frameAlong(position, dir, head.up(), dropDeg = 0f).q
+                else SpatialPlacement.facingSurface(Pose(position), head).q
             },
         )
         readIntent(intent)
@@ -915,37 +914,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     // ================================================================ 头部 / 摆位
 
-    private fun headPose(): Pose? = systemManager
-        .findSystem<PlayerBodyAttachmentSystem>()
-        .tryGetLocalPlayerAvatarBody()
-        ?.head
-        ?.tryGetComponent<Transform>()
-        ?.transform
+    /** Use the same world-space eyes as the SDK's FACE grab and default cursor. */
+    private fun headPose(): Pose? = runCatching { scene.getViewerPose() }.getOrNull()
 
     /**
-     * **真的跟踪到了**的头部位姿。
-     *
-     * ⛔ 头部实体一建出来 `Transform` 就在，但值是单位位姿（原点、朝 +Z），要过几帧追踪才写进来。
-     * 之前只判 `!= null`，于是首帧就拿「地板高度」摆了面板并标成「已按头部摆过」——躺着进应用
-     * 时「2D 面板非常靠下」就是这么来的（用户 2026-09-05）。原点附近一律当没跟踪到。
+     * A non-null pose alone is not proof of tracking: the initial identity pose is at floor level.
+     * Keep the readiness gate when reading the runtime viewer, just as for the former avatar pose.
      */
     private fun trackedHeadPose(): Pose? = headPose()?.takeIf(SpatialPlacement::isTracked)
 
     private fun headTrackingReady(): Boolean = headReadiness.ready
     private fun headSettleTimedOut(): Boolean = headReadiness.timedOut
-
-    /**
-     * 当下的「视线坐标系」：头部位置 + 沿头部前向、去掉 roll 的朝向，再整体**压低
-     * [GAZE_DROP_DEG]**。人自然注视比头部轴线低十来度，按轴线摆的东西一律偏上（真机反馈两轮）。
-     *
-     * ⛔ 不再走欧拉角：躺着看时视线接近竖直，欧拉分解到万向锁附近，yaw 随机、「去 roll」也失义，
-     * 摆出来的面板方向不可预期。改成直接用前向量搭正交基（[frameAlong]），
-     * 「压低」= 前向量绕右轴朝这个基的 −上 转 12°——躺着时就是朝下巴方向，正是自然注视。
-     */
-    private fun gazeFrame(dropDeg: Float = GAZE_DROP_DEG): Pose? {
-        val head = trackedHeadPose() ?: return null
-        return frameAlong(head.t, head.forward(), head.up(), dropDeg = dropDeg)
-    }
 
     private fun frameAlong(origin: Vector3, forward: Vector3, headUp: Vector3, dropDeg: Float): Pose =
         SpatialPlacement.frame(origin, forward, headUp, dropDeg)
@@ -964,10 +943,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         return (head?.let(SpatialPlacement::viewFrame) ?: fallbackFrame()).also { anchor = it }
     }
 
-    /** Keep the viewing center below gaze; cylinder-axis compensation stays separate. */
-    private fun geometricScreenPose(): Pose = surfaceToEntityPose(
-        SpatialPlacement.screenSurface(currentAnchor(), controls.screenDistance, controls.screenOffset),
-    )
+    /** Authoritative visible-face pose, shared by rendering, hit testing, and distance changes. */
+    private fun screenSurfacePose(): Pose = screenSurfaceOverride ?:
+        SpatialPlacement.screenSurface(currentAnchor(), controls.screenDistance, controls.screenOffset)
 
     /**
      * 球幕：人在球心。朝向按锚点的视线：
@@ -1002,19 +980,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private fun screenPose(): Pose = when {
         !controls.format.isFlat -> spherePose()
-        else -> screenSurfaceOverride?.let { surfaceToEntityPose(it) } ?: geometricScreenPose()
+        else -> surfaceToEntityPose(screenSurfacePose())
     }
 
     /** 弧面中心 → 实体锚点（圆柱轴心在面后一个半径处；平面半径为 0 就是自己）。 */
     private fun surfaceToEntityPose(surface: Pose): Pose {
         val radius = ScreenGeometry.radiusFor(curArc, curWidth)
         return Pose(surface.t - surface.forward() * radius, surface.q)
-    }
-
-    /** 实体锚点 → 弧面中心。 */
-    private fun entityToSurfacePose(entity: Pose): Pose {
-        val radius = ScreenGeometry.radiusFor(curArc, curWidth)
-        return Pose(entity.t + entity.forward() * radius, entity.q)
     }
 
     /**
@@ -1034,10 +1006,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         syncBufferingPose()
     }
 
-    /** 2D 应用面板沿视线 1.8m 处、正对头部。 */
+    /** Main windows share the same lowered center and face the runtime viewer. */
     private fun uiPanelPose(): Pose {
-        val g = gazeFrame() ?: fallbackFrame()
-        return Pose(g.t + g.forward() * UI_PANEL_DISTANCE_M, g.q)
+        val frame = trackedHeadPose()?.let(SpatialPlacement::viewFrame) ?: fallbackFrame()
+        return SpatialPlacement.screenSurface(frame, UI_PANEL_DISTANCE_M)
     }
 
     /**
@@ -1096,51 +1068,40 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         ),
     )
 
-    /** Controls stay below the viewing frame, tilted like a desk, with room for their full height. */
+    /** Keep summoned controls in a comfortable downward glance, independent of their size. */
     private fun controlsPoseInFront(): Pose {
         val frame = trackedHeadPose()?.let(SpatialPlacement::viewFrame) ?: currentAnchor()
-        return SpatialPlacement.controlsSurface(frame, CONTROLS_DISTANCE_M, CONTROLS_HEIGHT_M * controlsScale)
-    }
-
-    /** 平幕可见面中心到头部的距离；球幕 / 没幕布为 null。 */
-    private fun screenSurfaceDistance(): Float? {
-        if (!controls.format.isFlat) return null
-        val entity = screenEntity?.tryGetComponent<Transform>()?.transform ?: return null
-        val head = trackedHeadPose()?.t ?: currentAnchor().t
-        return (entityToSurfacePose(entity).t - head).length()
+        return SpatialPlacement.controlsSurface(frame, CONTROLS_DISTANCE_M)
     }
 
     /**
-     * 控制面板必须**物理上**在幕布前面。
-     *
-     * 合成层次序（zIndex）只管画：幕布被拉到比面板还近时面板照样画在上面，但 ISDK 的射线按几何命中，
-     * 打到的是更近的幕布 —— 用户 2026-09-05：「播放器确实优先展示了，但射线选择的实际上是视频」。
-     * 所以每帧看一眼：面板本来的位置（[controlsBasePose]）比幕布远，就沿「头 → 面板」把它拉到幕布前
-     * [CONTROLS_SCREEN_GAP_M]；幕布再推远了就放回原位。只挪位置、不改朝向。
+     * zIndex only orders compositor layers; ISDK hits and cursors still use scene depth.
+     * Keep the whole controls panel ahead of overlapping screen geometry, including the
+     * curved sides and tilt. Restore its saved base when the screen is moved away again.
      */
     private fun syncControlsDepth() {
         val entity = controlsEntity ?: return
         val base = controlsBasePose ?: return
-        val head = trackedHeadPose()?.t ?: currentAnchor().t
-        val dir = base.t - head
-        val len = dir.length()
-        if (len < 0.05f) return
-        val limit = screenSurfaceDistance()?.let { it - CONTROLS_SCREEN_GAP_M }?.coerceAtLeast(CONTROLS_MIN_DISTANCE_M)
-        val target = if (limit != null && len > limit) head + dir * (limit / len) else base.t
-        val current = entity.tryGetComponent<Transform>()?.transform?.t ?: return
-        if ((current - target).length() < 0.002f) return
-        val pose = Pose(target, base.q)
+        val viewer = trackedHeadPose() ?: currentAnchor()
+        val target = if (controls.format.isFlat && screenEntity != null && screenShown) {
+            PanelDepth.inFrontOfScreen(
+                panel = base, panelSize = controlsHost.size(), viewer = viewer,
+                screen = screenSurfacePose(), screenSize = Vector2(curWidth, curWidth / curAspect),
+                radius = ScreenGeometry.radiusFor(curArc, curWidth), gap = CONTROLS_SCREEN_GAP_M,
+            )
+        } else base
+        val current = entity.tryGetComponent<Transform>()?.transform ?: return
+        if ((current.t - target.t).length() < 0.002f && abs(current.q.dot(target.q)) > 0.99999f) return
+        val pose = if ((current.t - target.t).length() >= 0.002f) SpatialPlacement.facingSurface(target, viewer) else target
         entity.setComponent(Transform(pose))
         controlsPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
+        manipulator.syncFrame(WindowKind.CONTROLS)
     }
 
-    /** 这个落点还在视线前方吗（转过身之后要不要重新摆到面前）。 */
+    /** Restore a saved position only when it is still within an easy glance. */
     private fun isRoughlyInFront(pose: Pose): Boolean {
-        val g = gazeFrame() ?: return true
-        val d = pose.t - g.t
-        val len = d.length()
-        if (len < 0.05f) return true
-        return g.forward().dot(d) / len >= SUMMON_FOV_COS
+        val frame = trackedHeadPose()?.let(SpatialPlacement::viewFrame) ?: return true
+        return SpatialPlacement.controlsInView(pose, frame)
     }
 
     /** Cancel in-flight gestures before changing their coordinate system. */
@@ -1276,7 +1237,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             runCatching { panel?.layer?.setZIndex(if (flat) Z_SCREEN else Z_SPHERE) }
         }
         if (flat) manipulator.attach(screenHost)
-        showControls()
+        // Gallery item changes may rebuild the surface; keep the existing controls visibility.
+        // Entry into a gallery reveals them explicitly in presentGallery().
+        if (!inGallery) showControls()
         syncBufferingIndicator()
     }
 
@@ -1377,6 +1340,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (screenIsImage) stage.quadAspect = curAspect
         val ok = runCatching {
             panel.reshape(stageConfigOptions())
+            panel.layer?.setZIndex(if (controls.format.isFlat) Z_SCREEN else Z_SPHERE)
             if (!screenIsImage) playback.attachSurface(panel.surface)
         }.isSuccess
         if (!ok) {
@@ -1389,7 +1353,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         applyScreenTransform()
         syncIsdkScreenShape()
         // 缓冲指示与幕布同形，跟着一起重塑（缓冲期间换曲面 / 拖尺寸时才会走到）。
-        bufferingPanel?.let { runCatching { it.reshape(bufferingSettings().toPanelConfigOptions()) } }
+        bufferingPanel?.let { panel ->
+            runCatching {
+                panel.reshape(bufferingSettings().toPanelConfigOptions())
+                panel.layer?.setZIndex(Z_BUFFERING)
+            }
+        }
     }
 
     /**
@@ -1405,7 +1374,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (!controls.format.isFlat) return
         entity.setComponent(IsdkPanelDimensions(Vector2(curWidth, curWidth / curAspect)))
         if (curArc >= ScreenGeometry.MIN_ARC_DEGREES) {
-            entity.setComponent(IsdkCurvedPanel(curArc))
+            val radius = ScreenGeometry.radiusFor(curArc, curWidth)
+            entity.setComponent(IsdkCurvedPanel(Math.toDegrees((curWidth / radius).toDouble()).toFloat()))
         } else {
             runCatching { entity.removeComponent<IsdkCurvedPanel>() }
         }
@@ -1512,7 +1482,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (controlsEntity != null) return
         val saved = lastControlsPose
         val restore = saved != null && (!summoned || !controls.summonInFront || isRoughlyInFront(saved))
-        val pose = if (restore) saved!! else controlsPoseInFront()
+        val pose = if (restore) {
+            trackedHeadPose()?.let { SpatialPlacement.facingSurface(saved!!, it) } ?: saved!!
+        } else controlsPoseInFront()
         val entity = Entity.create(
             Panel(R.id.vr_controls_panel),
             Transform(pose),
@@ -1580,9 +1552,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override val zIndex = Z_SCREEN
 
         override fun surfacePose(): Pose? {
-            if (!screenShown || !controls.format.isFlat || !screenEntityIsFlat) return null
-            val entity = screenEntity?.tryGetComponent<Transform>()?.transform ?: return null
-            return entityToSurfacePose(entity)
+            if (!screenShown || screenEntity == null || !controls.format.isFlat || !screenEntityIsFlat) return null
+            return screenSurfacePose()
         }
 
         override fun size() = Vector2(curWidth, curWidth / curAspect)
@@ -2054,27 +2025,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         lastInteractionAt = now
     }
 
-    /**
-     * 摇杆上下把幕布沿「头 → 幕心」的方向推远 / 拉近（每帧按比例，按住约 1 秒推 1.4 倍）。
-     * 用户抓着挪过（有 [screenSurfaceOverride]）就动那份位置；否则动设置里的观看距离并落偏好。
-     */
+    /** Use the current eyes and visible center even when the screen has never been grabbed. */
     private fun nudgeScreenDistance(delta: Float) {
-        val override = screenSurfaceOverride
-        if (override != null) {
-            val head = trackedHeadPose()?.t ?: currentAnchor().t
-            val d = override.t - head
-            val len = d.length()
-            if (len < 0.05f) return
-            val next = (len * (1f + delta)).coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
-            screenSurfaceOverride = Pose(head + d * (next / len), override.q)
-            controls.screenDistance = next
-            markPrefsDirty()
-        } else {
-            controls.screenDistance = (controls.screenDistance * (1f + delta)).coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
-            markPrefsDirty()
-        }
-        applyScreenTransform()
-        rememberLayoutForAspect()
+        val viewer = trackedHeadPose() ?: currentAnchor()
+        val distance = (screenSurfacePose().t - viewer.t).length()
+        if (distance < 0.05f) return
+        setScreenDistance(distance * (1f + delta))
         lastInteractionAt = SystemClock.uptimeMillis()
     }
 
@@ -2086,14 +2042,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    /** Slider and reset preserve a manually moved screen's bearing and tilt. */
+    /** Slider, stick, and distance reset preserve the current bearing and face the current eyes. */
     private fun setScreenDistance(meters: Float) {
         val next = meters.coerceIn(SCREEN_MIN_DISTANCE_M, SCREEN_MAX_DISTANCE_M)
-        screenSurfaceOverride?.let { surface ->
-            val head = trackedHeadPose()?.t ?: currentAnchor().t
-            val delta = surface.t - head
-            if (delta.length() > 0.05f) screenSurfaceOverride = Pose(head + delta.normalize() * next, surface.q)
-        }
+        val viewer = trackedHeadPose() ?: currentAnchor()
+        screenSurfaceOverride = SpatialPlacement.atDistance(screenSurfacePose(), viewer, next)
         controls.screenDistance = next
         applyScreenTransform()
         markPrefsDirty()
@@ -2923,6 +2876,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         bufferingState.loadingLabelRes = UiR.string.xr_loading
         Log.i(TAG, "IMMERSIVE gallery present id=${g.galleryId} n=${g.items.size} index=${g.index} quality=${g.quality}")
         showGalleryItem(g.index)
+        showControls()
     }
 
     /** 退出空间画廊（回应用 / 被视频顶掉）：状态清空、图片面板销毁、Dart 收 `galleryEnded`。不重建幕布，由调用方决定。 */
@@ -3531,12 +3485,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
          */
         private const val CONTROLS_DISTANCE_M = 1f
 
-        /** 面板至少压在幕布前面这么多、且离头不近于这么多（幕布拉到脸前时面板跟着到脸前）。 */
+        /** Physical clearance for the controls and their native scene cursors. */
         private const val CONTROLS_SCREEN_GAP_M = 0.15f
-        private const val CONTROLS_MIN_DISTANCE_M = 0.45f
-
-        /** 摆位视线比头部轴线低这么多度（2D 面板、躺姿下的幕布 / 面板）。 */
-        private const val GAZE_DROP_DEG = 12f
 
         private const val CONTROLS_WIDTH_M = 1.2f
         private const val CONTROLS_HEIGHT_M = CONTROLS_WIDTH_M * 360f / 1100f
@@ -3569,9 +3519,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val Z_UI = 10
         private const val Z_CONTROLS = 20
         private const val Z_BUFFERING = 30
-
-        /** 「还算在视线前方」的判据：cos 60°。 */
-        private const val SUMMON_FOV_COS = 0.5f
 
         /** 面板隐身后再等这么多帧才销毁。 */
         private const val DOOMED_TICKS = 3

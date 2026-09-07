@@ -31,49 +31,76 @@ class SpatialPlacementTest {
         }
     }
 
-    @Test fun controlsAreBelowScreenAndTiltedTowardTheViewer() {
+    @Test fun summonedControlsStayAtTheRequestedDropAtEverySize() {
         for (pitch in listOf(0f, 45f, 90f)) {
             val frame = SpatialPlacement.viewFrame(head(pitch, 35f))
-            val height = 1.2f * 360f / 1100f
-            val controls = SpatialPlacement.controlsSurface(frame, 1f, height)
+            val controls = SpatialPlacement.controlsSurface(frame, 1f)
             assertEquals(1f, (controls.t - eye).length(), 0.001f)
-            assertTrue(elevationIn(frame, controls.t - eye) <= -32f)
-            val top = controls.t + controls.up() * (height / 2f) - eye
-            assertTrue(elevationIn(frame, top) <= -29.9f)
+            assertEquals(-32f, elevationIn(frame, controls.t - eye), 0.001f)
             assertEquals(1f, controls.forward().dot((controls.t - eye).normalize()), 0.001f)
-            val enlarged = SpatialPlacement.controlsSurface(frame, 1f, height * 2f)
-            assertTrue(elevationIn(frame, enlarged.t + enlarged.up() * height - eye) <= -29.9f)
+            assertTrue(SpatialPlacement.controlsInView(controls, frame))
+            for (scale in listOf(0.6f, 1f, 2f)) {
+                val height = 1.2f * 360f / 1100f * scale
+                val top = controls.t + controls.up() * (height / 2f) - eye
+                val bottom = controls.t - controls.up() * (height / 2f) - eye
+                assertTrue(elevationIn(frame, top) > -26f)
+                assertTrue(elevationIn(frame, bottom) > -54f)
+            }
         }
     }
 
-    @Test fun stationaryGrabKeepsTheActualTiltIncludingADeskPanel() {
+    @Test fun bringingAScreenCloserAfterChangingPostureKeepsItsBearingAndFacesTheEyes() {
+        val originalViewer = head(0f, 0f)
+        val screen = SpatialPlacement.screenSurface(SpatialPlacement.viewFrame(originalViewer), 1.6f)
+        val currentViewer = Pose(eye + Vector3(0.25f, -0.3f, 0.1f), head(20f, 10f).q)
+        val bearing = (screen.t - currentViewer.t).normalize()
+        for (distance in listOf(1.2f, 1.8f, 4f)) {
+            val moved = SpatialPlacement.atDistance(screen, currentViewer, distance)
+            assertEquals(distance, (moved.t - currentViewer.t).length(), 0.0001f)
+            assertEquals(1f, bearing.dot((moved.t - currentViewer.t).normalize()), 0.0001f)
+            assertEquals("Both pitch and yaw must face the current eyes", 1f,
+                moved.forward().dot(bearing), 0.0001f)
+        }
+    }
+
+    @Test fun savedControlsBelowTheComfortableViewMustBeSummonedBackIntoView() {
+        for (pitch in listOf(0f, 60f, 90f)) {
+            val frame = SpatialPlacement.viewFrame(head(pitch, 35f))
+            val low = SpatialPlacement.frame(frame.t, frame.forward(), frame.up(), 41f)
+            assertFalse(SpatialPlacement.controlsInView(Pose(low.t + low.forward(), low.q), frame))
+            assertFalse(SpatialPlacement.controlsInView(Pose(frame.t - frame.forward(), frame.q), frame))
+            assertFalse("Summoning must not restore controls at the visual center",
+                SpatialPlacement.controlsInView(Pose(frame.t + frame.forward(), frame.q), frame))
+            assertTrue(SpatialPlacement.controlsInView(SpatialPlacement.controlsSurface(frame, 1f), frame))
+        }
+    }
+
+    @Test fun aMovedPanelFacesTheCurrentEyesForSeatedAndReclinedViewers() {
+        for (pitch in listOf(0f, 60f, 90f)) {
+            val frame = SpatialPlacement.viewFrame(head(pitch, 30f))
+            val surface = SpatialPlacement.screenSurface(frame, 1.6f)
+            val position = surface.t + frame.right() * 0.4f - frame.up() * 0.7f
+            val moved = SpatialPlacement.facingSurface(Pose(position, surface.q), frame)
+            assertEquals(1f, moved.forward().dot((position - eye).normalize()), 0.0001f)
+            assertEquals(1f, moved.q.norm(), 0.0001f)
+        }
+    }
+
+    @Test fun alreadyFacingPanelsDoNotChangeOrientationWhenAlignedAgain() {
         val frame = SpatialPlacement.viewFrame(head(0f, 20f))
         val panels = listOf(
             SpatialPlacement.screenSurface(frame, 1.6f),
-            SpatialPlacement.controlsSurface(frame, 1f, 0.39f),
+            SpatialPlacement.controlsSurface(frame, 1f),
         )
         for (surface in panels) {
-            val facing = SpatialPlacement.frame(surface.t, surface.t - eye, frame.up()).q
-            val grab = GrabOrientation(surface.q, facing)
-            assertRotation(surface.q, grab.at(facing))
-            val movedFacing = SpatialPlacement.frame(surface.t, surface.t - eye + frame.right() * 0.5f, frame.up()).q
-            // Returning the hand to its start must return to the original tilt, without drift.
-            grab.at(movedFacing)
-            assertRotation(surface.q, grab.at(facing))
+            assertRotation(surface.q, SpatialPlacement.facingSurface(surface, frame).q)
         }
     }
 
-    @Test fun anOldTiltGraduallyFacesTheViewerAsTheScreenMoves() {
-        val initial = head(25f, 20f).q
-        val facing = head(0f, 20f).q
-        val grab = GrabOrientation(initial, facing)
-        assertRotation(initial, grab.at(facing))
-        assertRotation(initial, grab.at(facing, 0.002f)) // Tracking jitter is not an intentional drag.
-        val movedFacing = head(-30f, 25f).q
-        assertRotation(movedFacing, grab.at(movedFacing, 0.2f))
-        // Once corrected, returning to the grab position must not reapply the old awkward tilt.
-        assertRotation(facing, grab.at(facing, 0f))
-        assertRotation(facing, grab.at(null))
+    @Test fun anOldTiltDoesNotSurviveAViewerRelativePlacement() {
+        val viewer = head(0f, 20f)
+        val surface = Pose(eye + viewer.forward() * 1.6f, head(25f, 20f).q)
+        assertRotation(viewer.q, SpatialPlacement.facingSurface(surface, viewer).q)
     }
 
     @Test fun defaultScreenDoesNotRequireLookingUpToSeeItsCenter() {
@@ -92,13 +119,6 @@ class SpatialPlacementTest {
         val alreadyClose = PlayerPrefs.nearerLayout(1.2f, 1.4f)
         assertEquals(1.2f, alreadyClose[0], 0f)
         assertEquals(1.4f, alreadyClose[1], 0.001f)
-    }
-
-    @Test fun trackingUnavailableAtGrabDoesNotIntroduceALaterSnap() {
-        val initial = head(30f, 50f).q
-        val grab = GrabOrientation(initial, null)
-        assertRotation(initial, grab.at(head(0f, 0f).q))
-        assertRotation(initial, grab.at(null))
     }
 
     @Test fun upDirectionIsContinuousAcrossTheFormerVerticalThreshold() {
