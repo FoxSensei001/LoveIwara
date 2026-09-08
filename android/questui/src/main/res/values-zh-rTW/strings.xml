@@ -86,8 +86,8 @@
     <string name="xr_unmute">取消靜音</string>
     <string name="xr_previous">上一部</string>
     <string name="xr_next">下一部</string>
-    <string name="xr_seek_back_10">後退 10 秒</string>
-    <string name="xr_seek_forward_10">前進 10 秒</string>
+    <string name="xr_seek_back_5">後退 5 秒</string>
+    <string name="xr_seek_forward_5">前進 5 秒</string>
     <string name="xr_play">播放</string>
     <string name="xr_pause">暫停</string>
     <string name="xr_quality">畫質</string>

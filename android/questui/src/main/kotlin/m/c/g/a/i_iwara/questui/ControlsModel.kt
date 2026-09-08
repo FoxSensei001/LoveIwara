@@ -193,6 +193,14 @@ enum class RepeatMode(@StringRes val labelRes: Int) {
 /** 倍速档：0.5 / 0.75 / 1.0，然后以 0.25 为步进到 3.0（4XVR 实机同款）。 */
 val PLAYBACK_SPEEDS: List<Float> = listOf(0.5f, 0.75f) + (4..12).map { it * 0.25f }
 
+/**
+ * 面板上那两枚「跳一小段」钮的步长（秒）。
+ *
+ * 与 `:app` 侧摇杆刚推上去那一格（`ImmersiveActivity.SCRUB_TAP_MS`）同口径 ——
+ * 两处都是「点一下走一小步」，用户 2026-09-08 把它从 10s 收到 5s。
+ */
+const val SEEK_STEP_SECONDS = 5
+
 fun speedLabel(speed: Float): String =
     if (speed == speed.toInt().toFloat()) "${speed.toInt()}.0×" else "${speed}×"
 

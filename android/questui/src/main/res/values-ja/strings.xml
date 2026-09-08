@@ -86,8 +86,8 @@
     <string name="xr_unmute">ミュート解除</string>
     <string name="xr_previous">前へ</string>
     <string name="xr_next">次へ</string>
-    <string name="xr_seek_back_10">10 秒戻す</string>
-    <string name="xr_seek_forward_10">10 秒進める</string>
+    <string name="xr_seek_back_5">5 秒戻す</string>
+    <string name="xr_seek_forward_5">5 秒進める</string>
     <string name="xr_play">再生</string>
     <string name="xr_pause">一時停止</string>
     <string name="xr_quality">画質</string>

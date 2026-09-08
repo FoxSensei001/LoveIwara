@@ -97,8 +97,8 @@
     <string name="xr_unmute">Unmute</string>
     <string name="xr_previous">Previous</string>
     <string name="xr_next">Next</string>
-    <string name="xr_seek_back_10">Back 10 seconds</string>
-    <string name="xr_seek_forward_10">Forward 10 seconds</string>
+    <string name="xr_seek_back_5">Back 5 seconds</string>
+    <string name="xr_seek_forward_5">Forward 5 seconds</string>
     <string name="xr_play">Play</string>
     <string name="xr_pause">Pause</string>
     <string name="xr_quality">Quality</string>

@@ -2027,7 +2027,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /**
      * 摇杆按住拖动进度：每帧按「这个方向已按了多久」取一个速率累加目标点，松开才真 seek（[commitScrub]）。
-     * 刚推上去先走一格 [SCRUB_TAP_MS]（一下 = 老的 ±10 秒），再按 [scrubRateMsPerSec] 加速到分 / 小时量级。
+     * 刚推上去先走一格 [SCRUB_TAP_MS]（一下 = ±5 秒），再按 [scrubRateMsPerSec] 加速到分 / 小时量级。
      * 预览三处同步：幕布叠层（目标时间 + 增量 + 细进度）、面板进度条 / 预览时间、[seeking] 挡住 transport 回写。
      */
     private fun updateScrub(now: Long, forward: Boolean) {
@@ -2192,12 +2192,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (hideControls && controlsEntity != null) hideControls()
     }
 
-    /** 按住越久越快：1s 内 30s/s，3s 内 2min/s，6s 内 10min/s，之后 30min/s（长片按小时量级跳）。 */
+    /**
+     * 按住越久越快：1s 内 15s/s，3s 内 1min/s，6s 内 5min/s，之后 15min/s（长片仍够按小时量级跳）。
+     *
+     * 每一档都是老值的一半（用户 2026-09-08：「各种效果都太快了」）：原来推住不到一秒就掠过半分钟，
+     * 想停在某一句话上根本收不住手。
+     */
     private fun scrubRateMsPerSec(heldMs: Long): Long = when {
-        heldMs < 1_000L -> 30_000L
-        heldMs < 3_000L -> 120_000L
-        heldMs < 6_000L -> 600_000L
-        else -> 1_800_000L
+        heldMs < 1_000L -> 15_000L
+        heldMs < 3_000L -> 60_000L
+        heldMs < 6_000L -> 300_000L
+        else -> 900_000L
     }
 
     /** 松开摇杆：跳到目标点、收预览。 */
@@ -3580,8 +3585,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val SLIDER_ANIM_MS = 60L
         private const val PREFS_FLUSH_MS = 1000L
 
-        /** 摇杆刚推上去先走的一格（一下 = ±10 秒，与老键位同口径）。 */
-        private const val SCRUB_TAP_MS = 10_000L
+        /** 摇杆刚推上去先走的一格（一下 = ±5 秒，与面板上那两枚 ±5 秒钮同口径）。 */
+        private const val SCRUB_TAP_MS = 5_000L
 
         /** 续播位置至少这么多才提示（与 2D 的 kMinResumeTipPosition 同口径）；提示停留时长。 */
         private const val RESUME_TIP_MIN_MS = 3_000L

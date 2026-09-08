@@ -51,8 +51,8 @@ import com.meta.spatial.uiset.theme.icons.regular.PlayNext
 import com.meta.spatial.uiset.theme.icons.regular.PlayPrev
 import com.meta.spatial.uiset.theme.icons.regular.Power
 import com.meta.spatial.uiset.theme.icons.regular.Settings
-import com.meta.spatial.uiset.theme.icons.regular.TenSecondsBackward
-import com.meta.spatial.uiset.theme.icons.regular.TenSecondsForward
+import com.meta.spatial.uiset.theme.icons.regular.RotateLeft
+import com.meta.spatial.uiset.theme.icons.regular.RotateRight
 import com.meta.spatial.uiset.theme.icons.regular.Television
 import com.meta.spatial.uiset.theme.icons.regular.Time
 import com.meta.spatial.uiset.theme.icons.regular.VolumeOff
@@ -289,14 +289,17 @@ private fun TransportRow(
 
         Spacer(Modifier.width(8.dp))
 
-        // 换片中三样禁用：老片已暂停，播放 / 暂停、±10 秒、进度条都不接（用户 2026-09-05）。
+        // 换片中三样禁用：老片已暂停，播放 / 暂停、±5 秒、进度条都不接（用户 2026-09-05）。
         val transportEnabled = !state.switching
         CircleActionButton(SpatialIcons.Regular.PlayPrev, stringResource(R.string.xr_previous)) { cb.onPlayAdjacent(false) }
+        // ⛔ 不能用 `TenSecondsBackward/Forward`：那两枚图标里画着「10」，而这里跳的是 5 秒
+        // （用户 2026-09-08 把步长改成 5s）。SDK 的 259 枚图标里没有 5 秒变体，只有这一对
+        // 不带数字的圆弧箭头能表达「原地往回 / 往前跳一小段」，秒数交给 contentDescription。
         CircleActionButton(
-            SpatialIcons.Regular.TenSecondsBackward,
-            stringResource(R.string.xr_seek_back_10),
+            SpatialIcons.Regular.RotateLeft,
+            stringResource(R.string.xr_seek_back_5),
             enabled = transportEnabled,
-        ) { cb.onSeekBy(-10) }
+        ) { cb.onSeekBy(-SEEK_STEP_SECONDS) }
         CircleActionButton(
             icon = if (state.isPlaying) SpatialIcons.Regular.Pause else SpatialIcons.Regular.Play,
             contentDescription = stringResource(if (state.isPlaying) R.string.xr_pause else R.string.xr_play),
@@ -306,10 +309,10 @@ private fun TransportRow(
             enabled = transportEnabled,
         )
         CircleActionButton(
-            SpatialIcons.Regular.TenSecondsForward,
-            stringResource(R.string.xr_seek_forward_10),
+            SpatialIcons.Regular.RotateRight,
+            stringResource(R.string.xr_seek_forward_5),
             enabled = transportEnabled,
-        ) { cb.onSeekBy(10) }
+        ) { cb.onSeekBy(SEEK_STEP_SECONDS) }
         CircleActionButton(SpatialIcons.Regular.PlayNext, stringResource(R.string.xr_next)) { cb.onPlayAdjacent(true) }
 
         Spacer(Modifier.weight(1f))
