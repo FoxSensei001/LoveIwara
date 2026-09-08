@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:i_iwara/app/ui/widgets/aspect_corrected_video.dart';
 
 /// 图库大图页里那一页的**画面**。
 ///
@@ -42,7 +43,7 @@ class GalleryVideoPlayer extends StatelessWidget {
         return ColorVisionFilterWrapper(
           // 图库内容跟随「图库色觉辅助」开关，与播放器那个开关独立。
           configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
-          child: Video(
+          child: AspectCorrectedVideo(
             controller: controller.videoController,
             controls: NoVideoControls,
             fit: BoxFit.contain,

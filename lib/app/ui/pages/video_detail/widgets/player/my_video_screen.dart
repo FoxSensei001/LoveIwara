@@ -26,7 +26,6 @@ import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_video_vie
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
@@ -43,6 +42,7 @@ import 'player_stack_builder.dart';
 import 'seek_preview.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/aspect_corrected_video.dart';
 
 class VideoDetailHorizontalDragSeekLogic {
   const VideoDetailHorizontalDragSeekLogic._();
@@ -899,9 +899,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     return Scaffold(
       backgroundColor: Colors.black,
       body: ColorVisionFilterWrapper(
-        child: Video(
+        child: AspectCorrectedVideo(
           controller: widget.myVideoStateController.videoController,
-          controls: null,
         ),
       ),
     );
@@ -1236,9 +1235,11 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     }
     final fitMode = controller.screenFitMode.value;
     final Widget videoWidget = ColorVisionFilterWrapper(
-      child: Video(
+      // ⛔ 用 [AspectCorrectedVideo] 而不是裸 [Video]：Windows/Linux 软件渲染
+      // 会把纹理钳成 1080p 且不保比例，竖屏片的黑边是烤进纹理的，裸 contain
+      // 会把黑边当画面一起缩（见该组件的文档）。
+      child: AspectCorrectedVideo(
         controller: controller.videoController,
-        controls: null,
         fit: switch (fitMode) {
           // 适应：帧比例即视频比例，contain 恰好铺满且不裁剪
           PlayerScreenFitMode.fit => BoxFit.contain,

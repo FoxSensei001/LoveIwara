@@ -8,6 +8,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '../../../../../../utils/common_utils.dart';
 import 'player_box_scope.dart';
+import 'package:i_iwara/app/ui/widgets/aspect_corrected_video.dart';
 
 /// # Seek Preview —— 进度条上方那扇预览窗口
 ///
@@ -362,9 +363,8 @@ class SeekPreview extends StatelessWidget {
                   child: previewController == null
                       ? const SizedBox.expand()
                       : ColorVisionFilterWrapper(
-                          child: Video(
+                          child: AspectCorrectedVideo(
                             controller: previewController!,
-                            controls: null,
                             fit: BoxFit.cover,
                           ),
                         ),

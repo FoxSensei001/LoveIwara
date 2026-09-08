@@ -19,6 +19,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:i_iwara/app/ui/widgets/aspect_corrected_video.dart';
 
 enum MediaItemType { image, video }
 
@@ -870,9 +871,8 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
           if (_isInitialized)
             ColorVisionFilterWrapper(
               configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
-              child: Video(
+              child: AspectCorrectedVideo(
                 controller: _videoController,
-                controls: null,
                 fit: widget.fit,
               ),
             )

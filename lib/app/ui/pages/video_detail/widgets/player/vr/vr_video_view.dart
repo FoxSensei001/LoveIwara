@@ -8,7 +8,7 @@ import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_con
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/vr/vr_panorama_shader.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/utils/vr_geometry.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'package:i_iwara/app/ui/widgets/aspect_corrected_video.dart';
 
 /// VR / 立体片源的画面呈现层（后端①，全平台零包体）。
 ///
@@ -106,9 +106,8 @@ Widget buildEyeContent(
 ) {
   final rect = VrGeometry.eyeRect(layout);
   final frame = ColorVisionFilterWrapper(
-    child: Video(
+    child: AspectCorrectedVideo(
       controller: controller.videoController,
-      controls: null,
       fit: BoxFit.fill,
     ),
   );
@@ -244,9 +243,8 @@ class _VrPanoramaVideoState extends State<_VrPanoramaVideo> {
             // [0,1]²，着色器可以直接按归一化坐标寻址。拉伸带来的形变无所谓——
             // 重映射本来就是按角度取样，不看贴图本身的比例。
             child: ColorVisionFilterWrapper(
-              child: Video(
+              child: AspectCorrectedVideo(
                 controller: controller.videoController,
-                controls: null,
                 fit: BoxFit.fill,
               ),
             ),
