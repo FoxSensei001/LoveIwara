@@ -167,22 +167,40 @@ double seekPreviewFractionalOffset({
   return (left - anchorX) / previewWidth;
 }
 
+/// 时间戳最终会被画成的那份样式。
+///
+/// ⛔ 测量与渲染必须共用它，不能一边写 `const TextStyle(...)` 量、另一边交给
+/// `Text` 去和祖先的 `DefaultTextStyle` 合并——那样量出来的和画出来的不是同一件东西。
+/// Material 的 `bodyMedium` 带 `letterSpacing: 0.25`，`Text` 会把它并进来而
+/// `TextPainter` 不会：`00:03` 五个字符就凭空多出 1.25px（实测 60.0 vs 61.25）。
+/// 窗口按 60 收窄之后 `maxLines: 1` 的那一行装不下，末位数字被折到第二行裁掉，
+/// 读起来就是「00:03 显示成 00:0」。字体族同理会漂。
+///
+/// 合并后钉死 `inherit: false`：`Text` 只在 `style == null || style.inherit`
+/// 时才会再合并一次，钉死之后它拿到的就是这里量过的这一份，两边由构造保证一致。
+TextStyle resolveSeekPreviewLabelStyle(BuildContext context) {
+  const TextStyle own = TextStyle(
+    color: Colors.white,
+    fontSize: kSeekPreviewLabelFontSize,
+    fontWeight: FontWeight.bold,
+    decoration: TextDecoration.none,
+  );
+  return DefaultTextStyle.of(context).style.merge(own).copyWith(inherit: false);
+}
+
 /// 量时间戳实际要占的宽度。
 ///
 /// 用实测值而不是拍脑袋的常数：系统字体放大之后 `1:23:45` 可以比画面还宽，
 /// 那时窗口必须跟着变宽，否则要么溢出、要么把时间截掉。续播提示条用的是同一招。
+///
+/// [style] 必须是 [resolveSeekPreviewLabelStyle] 的产物，理由见那里。
 double measureSeekPreviewLabelWidth({
   required String text,
   required TextScaler textScaler,
+  required TextStyle style,
 }) {
   final painter = TextPainter(
-    text: TextSpan(
-      text: text,
-      style: const TextStyle(
-        fontSize: kSeekPreviewLabelFontSize,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
+    text: TextSpan(text: text, style: style),
     textDirection: TextDirection.ltr,
     textScaler: textScaler,
     maxLines: 1,
@@ -264,8 +282,13 @@ class SeekPreview extends StatelessWidget {
 
     final String label = CommonUtils.formatDuration(time);
     final TextScaler textScaler = MediaQuery.textScalerOf(context);
+    final TextStyle labelStyle = resolveSeekPreviewLabelStyle(context);
     final double labelWidth =
-        measureSeekPreviewLabelWidth(text: label, textScaler: textScaler) +
+        measureSeekPreviewLabelWidth(
+          text: label,
+          textScaler: textScaler,
+          style: labelStyle,
+        ) +
         kSeekPreviewLabelHPad * 2;
     // 没有画面时窗口只装一个时间戳，宽度就该只有时间戳那么宽——跟着画面宽度走
     // 会得到一条又长又空的黑条。有画面时才由两者取大：时间戳比画面还宽时由它
@@ -296,14 +319,19 @@ class SeekPreview extends StatelessWidget {
             // 只缩 4%：出现时像是「浮上来」，而不是弹出来。
             scale: visible ? 1.0 : 0.96,
             alignment: Alignment.bottomCenter,
-            child: _buildBox(boxWidth, frame),
+            child: _buildBox(boxWidth, frame, label, labelStyle),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildBox(double boxWidth, Size frame) {
+  Widget _buildBox(
+    double boxWidth,
+    Size frame,
+    String label,
+    TextStyle labelStyle,
+  ) {
     return Container(
       width: boxWidth,
       decoration: BoxDecoration(
@@ -349,14 +377,12 @@ class SeekPreview extends StatelessWidget {
               vertical: kSeekPreviewLabelVPad,
             ),
             child: Text(
-              CommonUtils.formatDuration(time),
+              label,
               maxLines: 1,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: kSeekPreviewLabelFontSize,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
+              // 不换行：万一还是差了一丝（字体回退、未来某个 DefaultTextStyle 里
+              // 塞了别的），宁可最后一笔缺一角，也不要整个字符被折到第二行裁没。
+              softWrap: false,
+              style: labelStyle,
             ),
           ),
         ],
