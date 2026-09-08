@@ -68,7 +68,7 @@ One codebase → Android · Windows · macOS · Linux · iOS
 ### 🥽 Meta Quest / VR
 *Shipped as a separate `quest` APK built on the Meta Spatial SDK. The regular Android build links none of it and keeps its `minSdk` where it is.*
 
-**The app lives in a spatial environment.** Launching from the Quest home drops you straight into a resident immersive space. The entire app — browsing, search, comments, the soft keyboard — floats in front of you as a 2D panel; nothing about it is cut down.
+**The app lives in a spatial environment.** Launching from the Quest home drops you straight into a resident immersive space. The entire app — browsing, search, comments, the soft keyboard — floats in front of you as a 2D panel; nothing about it is cut down. The panel is **gently curved** (a 30° arc — about a "3000R" monitor at its default 1.6 m width). It's the arc that's fixed, not the radius, so the curve looks the same however wide or narrow you drag the window.
 
 **Three windows, one set of gestures.** The app panel, the screen and the control panel each carry their own frame: the grip trigger drags a window by its body, the edges drag and the corners resize it around its centre, and windows keep facing you. Sizes and positions are remembered. Nothing appears until head tracking has settled — no window flashing up in the wrong place and then jumping.
 
@@ -84,8 +84,10 @@ One codebase → Android · Windows · macOS · Linux · iOS
 
 **Hands or controllers.**
 - *Hands* — the official ray and pinch. A pinch anywhere off the panels toggles the control panel.
-- *Controllers* — A/X play-pause, B/Y dismisses the panel or returns to the app, Menu opens settings. The grip trigger grabs the screen without having to aim at it. The stick scrubs left/right with acceleration (a nudge is 10 s; hold and it builds up to half an hour per second) and pushes the screen nearer or further up/down.
+- *Controllers* — A/X play-pause, B/Y dismisses the panel or returns to the app, Menu opens settings. The grip trigger grabs the screen without having to aim at it. The stick scrubs left/right with acceleration (a nudge is 5 s; hold and it builds up to 15 minutes per second) and pushes the screen nearer or further up/down.
 - Taking the headset off pauses playback and putting it back on resumes it; a system recenter re-places everything in front of you.
+
+**A first run starts with a lesson.** The headset's first-time guide isn't the touchscreen one ("pinch to zoom, hold for speed") carried over — there's no touchable picture in the space. Instead there are two courses, **spatial video** and **spatial gallery**: a controller illustration animates frame by frame along with its buttons and stick, the screen, panels and rays sit at their real geometry, and every move is shown for controllers *and* for bare hands. With the system's "reduce motion" on it draws a single informative still frame instead. Replayable any time from settings.
 
 ### 🌐 Browse & Discover
 - Multi-category **search**: videos · galleries · posts · users · forums
