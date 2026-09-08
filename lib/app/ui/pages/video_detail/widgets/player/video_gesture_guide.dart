@@ -3,6 +3,8 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
+import 'quest_gesture_guide_content.dart';
+import 'video_gesture_guide_page.dart';
 
 /// 视频播放器手势 / 交互指引弹窗，按当前平台展示对应的操作说明。
 class VideoGestureGuideDialog extends StatelessWidget {
@@ -17,6 +19,11 @@ class VideoGestureGuideDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // All three settings entry points use the exact same Quest lessons and
+    // animations as onboarding; reopening the guide does not touch its flag.
+    if (usesQuestGestureGuide) {
+      return const Dialog.fullscreen(child: VideoGestureGuidePage());
+    }
     final t = slang.Translations.of(context);
     final g = t.videoDetail.gestureGuide;
     final theme = Theme.of(context);

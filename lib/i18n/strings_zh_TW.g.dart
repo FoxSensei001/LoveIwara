@@ -3154,6 +3154,7 @@ class _TranslationsVideoDetailGestureGuideZhTw implements TranslationsVideoDetai
 	@override String get dTrackpadRotate => '觸控板旋轉：旋轉畫面';
 	@override String get dCtrlWheel => 'Ctrl + 滾輪：以游標為中心縮放';
 	@override String get dShiftWheel => 'Shift + 滾輪：以游標為中心旋轉';
+	@override late final _TranslationsVideoDetailGestureGuideQuestZhTw quest = _TranslationsVideoDetailGestureGuideQuestZhTw._(_root);
 }
 
 // Path: videoDetail.player
@@ -3705,6 +3706,88 @@ class _TranslationsAnime4kPresetNamesZhTw implements TranslationsAnime4kPresetNa
 	@override String get upscale_non_cnn => '非CNN放大 (極快)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + 線條加深';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + 線條細化';
+}
+
+// Path: videoDetail.gestureGuide.quest
+class _TranslationsVideoDetailGestureGuideQuestZhTw implements TranslationsVideoDetailGestureGuideQuestEn {
+	_TranslationsVideoDetailGestureGuideQuestZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '熟悉你的 Quest 操作';
+	@override String get intro => '看看控制器上的哪個鍵會做什麼，再回到你的空間裡試一試。';
+	@override String get videoTab => '空間影片';
+	@override String get galleryTab => '空間圖庫';
+	@override String get scopeNote => '適用於 Quest 空間中的幕布與視窗。可隨時從播放器設定重新開啟。';
+	@override String get catalog => '選擇一個操作';
+	@override String lessonCount({required Object current, required Object total}) => '${current} / ${total}';
+	@override String get previous => '上一個';
+	@override String get next => '下一個操作';
+	@override String get replay => '重播示範';
+	@override String get pauseDemo => '暫停示範';
+	@override String get resumeDemo => '繼續示範';
+	@override String get looping => '操作示範';
+	@override String get still => '靜態示意';
+	@override String get done => '知道了，繼續';
+	@override String get leftController => '左手';
+	@override String get rightController => '右手';
+	@override String get trigger => '食指扳機';
+	@override String get grip => '側握鍵';
+	@override String get bothGrips => '雙手側握鍵';
+	@override String get stick => '搖桿';
+	@override String get handTracking => '手勢追蹤';
+	@override String get ready => '準備';
+	@override String get press => '按下';
+	@override String get hold => '保持';
+	@override String get release => '放開';
+	@override String get result => '查看效果';
+	@override String get pinch => '捏合';
+	@override String get selectTitle => '用射線點選';
+	@override String get selectBody => '將射線對準按鈕，輕扣並放開食指扳機即可選擇。控制面板上的播放、設定和滑桿都可以這樣操作。';
+	@override String get selectHint => '食指扳機在圓盤背面；控制器內側的側握鍵用於抓取視窗。';
+	@override String get panelTitle => '喚出或收起面板';
+	@override String get panelBody => '將射線移到控制面板外，輕扣並放開食指扳機，切換面板的顯示狀態。用手時，在面板外輕捏一下也可以。';
+	@override String get panelHint => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。';
+	@override String get playTitle => '播放與暫停';
+	@override String get playBody => '射線離開控制面板後，按右手 A 或左手 X，切換影片播放與暫停。也可以直接點控制面板上的播放按鈕。';
+	@override String get playHint => '這是預設快捷鍵，可在空間播放器設定中關閉。射線停在面板上時，按鍵優先操作面板。';
+	@override String get seekTitle => '用搖桿調整進度';
+	@override String get seekBody => '任一搖桿向左或向右輕撥一次，後退或快進 5 秒。持續推住會逐漸加速，預覽目標時間，放開搖桿後才跳轉。';
+	@override String get seekHint => '操作這隻搖桿時，讓它的射線離開控制面板；指向面板時搖桿會捲動面板。';
+	@override String get browseTitle => '用搖桿翻閱圖庫';
+	@override String get browseBody => '任一搖桿向左或向右撥動，查看上一項或下一項，按住可連續翻閱。也可以用射線點選膠片列中的縮圖。';
+	@override String get browseHint => '圖庫中的影片也按「項」翻閱。射線指向控制面板時，搖桿用於捲動面板。';
+	@override String get swipeTitle => '按住畫面，橫拖翻頁';
+	@override String get swipeBody => '對準大圖，按住食指扳機向左拖動，出現翻頁提示後放開，進入下一項；向右拖則返回上一項。捏合拖動也可以。';
+	@override String get swipeHint => '圖片在 1× 時才能橫拖翻頁，圖庫裡的影片也支援。拖動時舞台保持原位，放開才換圖。';
+	@override String get zoomTitle => '放大圖片細節';
+	@override String get zoomBody => '對準圖片中想看的位置，按住食指扳機，再向上推搖桿放大，向下推縮小。縮放以射線按下的位置為中心。';
+	@override String get zoomHint => '只放大圖片內容，視窗大小不變。未按住圖片時，搖桿上下調整的是觀看距離。';
+	@override String get panTitle => '移動細節與還原';
+	@override String get panBody => '圖片放大後，按住食指扳機拖動可查看其他部分。連按兩下圖片可在 2.5× 放大和還原之間切換，手勢追蹤下也可快速捏合兩次。';
+	@override String get panHint => '放大狀態下，拖動用於平移；還原到 1× 後，橫拖才會翻頁。';
+	@override String get slideshowTitle => '自動播放圖庫';
+	@override String get slideshowBody => '看圖片時，按 A / X 開始或暫停幻燈片；在控制面板中選擇 3、5、10 或 20 秒的間隔，也可切換標準畫質或原圖。';
+	@override String get slideshowHint => '遇到圖庫中的影片時，A / X 控制這段影片的播放與暫停。快捷鍵需在設定中保持開啟。';
+	@override String get moveTitle => '抓起並移動幕布';
+	@override String get moveBody => '按住控制器內側的側握鍵，移動控制器，把幕布放到舒服的位置，再放開。觀看時不必瞄準幕布即可抓起它。';
+	@override String get moveHint => '瞄準應用視窗或控制面板時，會優先抓取那塊視窗。全景影片用抓握調整朝向。';
+	@override String get scaleTitle => '雙手改變幕布大小';
+	@override String get scaleBody => '同時按住兩隻控制器的側握鍵，雙手拉開放大，靠攏縮小。手勢追蹤時，也可雙手同時捏住後拉開或靠攏。';
+	@override String get scaleHint => '適用於平面或弧形幕布，圖庫舞台也支援。讓射線離開控制面板；這會改變整塊幕布的大小。';
+	@override String get distanceTitle => '調整觀看距離';
+	@override String get distanceBody => '搖桿向上推遠，向下拉近。抓著某塊視窗時，搖桿上下會調整那塊視窗的距離。音量請在控制面板中調整。';
+	@override String get distanceHint => '射線要離開控制面板。圖庫中按住圖片再推搖桿會改為縮放細節；全景影片調整的是觀看視野。';
+	@override String get resizeTitle => '拖動窗邊與窗角';
+	@override String get resizeBody => '射線靠近窗邊時會亮起邊框。對準邊緣，按住扳機或捏合可移動視窗；對準角落，按住拖動可改變大小。';
+	@override String get resizeHint => '應用視窗、控制面板和幕布使用同一套操作。應用視窗可調整寬高，幕布保持畫面比例。';
+	@override String get navigationTitle => '返回與空間設定';
+	@override String get navigationBody => 'B / Y 每次返回一層：先關閉浮層或返回面板首頁，再收起面板，最後回到應用。左手 Menu 鍵可直接喚出空間設定。';
+	@override String get navigationHint => '右手 Meta 鍵由系統處理。使用系統重新置中可把視線前方設為中心，保留幕布大小和距離。';
+	@override String get handsTitle => '放下控制器，用手操作';
+	@override String get handsBody => '開啟手勢追蹤後，用系統射線瞄準按鈕，食指與拇指捏合並放開即可選擇。播放、進度和圖庫翻頁都可透過控制面板操作。';
+	@override String get handsHint => '輕捏面板外可切換面板顯隱；捏住窗邊可移動，捏住窗角可縮放，雙手捏住拉開可放大幕布。';
 }
 
 // Path: videoDetail.cast.deviceTypes
@@ -4996,6 +5079,79 @@ extension on TranslationsZhTw {
 			'videoDetail.gestureGuide.dTrackpadRotate' => '觸控板旋轉：旋轉畫面',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + 滾輪：以游標為中心縮放',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + 滾輪：以游標為中心旋轉',
+			'videoDetail.gestureGuide.quest.title' => '熟悉你的 Quest 操作',
+			'videoDetail.gestureGuide.quest.intro' => '看看控制器上的哪個鍵會做什麼，再回到你的空間裡試一試。',
+			'videoDetail.gestureGuide.quest.videoTab' => '空間影片',
+			'videoDetail.gestureGuide.quest.galleryTab' => '空間圖庫',
+			'videoDetail.gestureGuide.quest.scopeNote' => '適用於 Quest 空間中的幕布與視窗。可隨時從播放器設定重新開啟。',
+			'videoDetail.gestureGuide.quest.catalog' => '選擇一個操作',
+			'videoDetail.gestureGuide.quest.lessonCount' => ({required Object current, required Object total}) => '${current} / ${total}',
+			'videoDetail.gestureGuide.quest.previous' => '上一個',
+			'videoDetail.gestureGuide.quest.next' => '下一個操作',
+			'videoDetail.gestureGuide.quest.replay' => '重播示範',
+			'videoDetail.gestureGuide.quest.pauseDemo' => '暫停示範',
+			'videoDetail.gestureGuide.quest.resumeDemo' => '繼續示範',
+			'videoDetail.gestureGuide.quest.looping' => '操作示範',
+			'videoDetail.gestureGuide.quest.still' => '靜態示意',
+			'videoDetail.gestureGuide.quest.done' => '知道了，繼續',
+			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			'videoDetail.gestureGuide.quest.rightController' => '右手',
+			'videoDetail.gestureGuide.quest.trigger' => '食指扳機',
+			'videoDetail.gestureGuide.quest.grip' => '側握鍵',
+			'videoDetail.gestureGuide.quest.bothGrips' => '雙手側握鍵',
+			'videoDetail.gestureGuide.quest.stick' => '搖桿',
+			'videoDetail.gestureGuide.quest.handTracking' => '手勢追蹤',
+			'videoDetail.gestureGuide.quest.ready' => '準備',
+			'videoDetail.gestureGuide.quest.press' => '按下',
+			'videoDetail.gestureGuide.quest.hold' => '保持',
+			'videoDetail.gestureGuide.quest.release' => '放開',
+			'videoDetail.gestureGuide.quest.result' => '查看效果',
+			'videoDetail.gestureGuide.quest.pinch' => '捏合',
+			'videoDetail.gestureGuide.quest.selectTitle' => '用射線點選',
+			'videoDetail.gestureGuide.quest.selectBody' => '將射線對準按鈕，輕扣並放開食指扳機即可選擇。控制面板上的播放、設定和滑桿都可以這樣操作。',
+			'videoDetail.gestureGuide.quest.selectHint' => '食指扳機在圓盤背面；控制器內側的側握鍵用於抓取視窗。',
+			'videoDetail.gestureGuide.quest.panelTitle' => '喚出或收起面板',
+			'videoDetail.gestureGuide.quest.panelBody' => '將射線移到控制面板外，輕扣並放開食指扳機，切換面板的顯示狀態。用手時，在面板外輕捏一下也可以。',
+			'videoDetail.gestureGuide.quest.panelHint' => '短按後放開即可。按住拖動是在操作畫面或視窗，不會切換面板。',
+			'videoDetail.gestureGuide.quest.playTitle' => '播放與暫停',
+			'videoDetail.gestureGuide.quest.playBody' => '射線離開控制面板後，按右手 A 或左手 X，切換影片播放與暫停。也可以直接點控制面板上的播放按鈕。',
+			'videoDetail.gestureGuide.quest.playHint' => '這是預設快捷鍵，可在空間播放器設定中關閉。射線停在面板上時，按鍵優先操作面板。',
+			'videoDetail.gestureGuide.quest.seekTitle' => '用搖桿調整進度',
+			'videoDetail.gestureGuide.quest.seekBody' => '任一搖桿向左或向右輕撥一次，後退或快進 5 秒。持續推住會逐漸加速，預覽目標時間，放開搖桿後才跳轉。',
+			'videoDetail.gestureGuide.quest.seekHint' => '操作這隻搖桿時，讓它的射線離開控制面板；指向面板時搖桿會捲動面板。',
+			'videoDetail.gestureGuide.quest.browseTitle' => '用搖桿翻閱圖庫',
+			'videoDetail.gestureGuide.quest.browseBody' => '任一搖桿向左或向右撥動，查看上一項或下一項，按住可連續翻閱。也可以用射線點選膠片列中的縮圖。',
+			'videoDetail.gestureGuide.quest.browseHint' => '圖庫中的影片也按「項」翻閱。射線指向控制面板時，搖桿用於捲動面板。',
+			'videoDetail.gestureGuide.quest.swipeTitle' => '按住畫面，橫拖翻頁',
+			'videoDetail.gestureGuide.quest.swipeBody' => '對準大圖，按住食指扳機向左拖動，出現翻頁提示後放開，進入下一項；向右拖則返回上一項。捏合拖動也可以。',
+			'videoDetail.gestureGuide.quest.swipeHint' => '圖片在 1× 時才能橫拖翻頁，圖庫裡的影片也支援。拖動時舞台保持原位，放開才換圖。',
+			'videoDetail.gestureGuide.quest.zoomTitle' => '放大圖片細節',
+			'videoDetail.gestureGuide.quest.zoomBody' => '對準圖片中想看的位置，按住食指扳機，再向上推搖桿放大，向下推縮小。縮放以射線按下的位置為中心。',
+			'videoDetail.gestureGuide.quest.zoomHint' => '只放大圖片內容，視窗大小不變。未按住圖片時，搖桿上下調整的是觀看距離。',
+			'videoDetail.gestureGuide.quest.panTitle' => '移動細節與還原',
+			'videoDetail.gestureGuide.quest.panBody' => '圖片放大後，按住食指扳機拖動可查看其他部分。連按兩下圖片可在 2.5× 放大和還原之間切換，手勢追蹤下也可快速捏合兩次。',
+			'videoDetail.gestureGuide.quest.panHint' => '放大狀態下，拖動用於平移；還原到 1× 後，橫拖才會翻頁。',
+			'videoDetail.gestureGuide.quest.slideshowTitle' => '自動播放圖庫',
+			'videoDetail.gestureGuide.quest.slideshowBody' => '看圖片時，按 A / X 開始或暫停幻燈片；在控制面板中選擇 3、5、10 或 20 秒的間隔，也可切換標準畫質或原圖。',
+			'videoDetail.gestureGuide.quest.slideshowHint' => '遇到圖庫中的影片時，A / X 控制這段影片的播放與暫停。快捷鍵需在設定中保持開啟。',
+			'videoDetail.gestureGuide.quest.moveTitle' => '抓起並移動幕布',
+			'videoDetail.gestureGuide.quest.moveBody' => '按住控制器內側的側握鍵，移動控制器，把幕布放到舒服的位置，再放開。觀看時不必瞄準幕布即可抓起它。',
+			'videoDetail.gestureGuide.quest.moveHint' => '瞄準應用視窗或控制面板時，會優先抓取那塊視窗。全景影片用抓握調整朝向。',
+			'videoDetail.gestureGuide.quest.scaleTitle' => '雙手改變幕布大小',
+			'videoDetail.gestureGuide.quest.scaleBody' => '同時按住兩隻控制器的側握鍵，雙手拉開放大，靠攏縮小。手勢追蹤時，也可雙手同時捏住後拉開或靠攏。',
+			'videoDetail.gestureGuide.quest.scaleHint' => '適用於平面或弧形幕布，圖庫舞台也支援。讓射線離開控制面板；這會改變整塊幕布的大小。',
+			'videoDetail.gestureGuide.quest.distanceTitle' => '調整觀看距離',
+			'videoDetail.gestureGuide.quest.distanceBody' => '搖桿向上推遠，向下拉近。抓著某塊視窗時，搖桿上下會調整那塊視窗的距離。音量請在控制面板中調整。',
+			'videoDetail.gestureGuide.quest.distanceHint' => '射線要離開控制面板。圖庫中按住圖片再推搖桿會改為縮放細節；全景影片調整的是觀看視野。',
+			'videoDetail.gestureGuide.quest.resizeTitle' => '拖動窗邊與窗角',
+			'videoDetail.gestureGuide.quest.resizeBody' => '射線靠近窗邊時會亮起邊框。對準邊緣，按住扳機或捏合可移動視窗；對準角落，按住拖動可改變大小。',
+			'videoDetail.gestureGuide.quest.resizeHint' => '應用視窗、控制面板和幕布使用同一套操作。應用視窗可調整寬高，幕布保持畫面比例。',
+			'videoDetail.gestureGuide.quest.navigationTitle' => '返回與空間設定',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y 每次返回一層：先關閉浮層或返回面板首頁，再收起面板，最後回到應用。左手 Menu 鍵可直接喚出空間設定。',
+			'videoDetail.gestureGuide.quest.navigationHint' => '右手 Meta 鍵由系統處理。使用系統重新置中可把視線前方設為中心，保留幕布大小和距離。',
+			'videoDetail.gestureGuide.quest.handsTitle' => '放下控制器，用手操作',
+			'videoDetail.gestureGuide.quest.handsBody' => '開啟手勢追蹤後，用系統射線瞄準按鈕，食指與拇指捏合並放開即可選擇。播放、進度和圖庫翻頁都可透過控制面板操作。',
+			'videoDetail.gestureGuide.quest.handsHint' => '輕捏面板外可切換面板顯隱；捏住窗邊可移動，捏住窗角可縮放，雙手捏住拉開可放大幕布。',
 			'videoDetail.home' => '首頁',
 			'videoDetail.videoPlayer' => '影片播放器',
 			'videoDetail.videoPlayerInfo' => '播放器資訊',
@@ -5223,6 +5379,8 @@ extension on TranslationsZhTw {
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
 			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
 			'notifications.markAsReadFailed' => '標記已讀失敗',
@@ -5296,8 +5454,6 @@ extension on TranslationsZhTw {
 			'download.errors.unknownNetworkError' => '未知網路錯誤',
 			'download.errors.sslHandshakeFailed' => 'SSL握手失敗，請檢查網路環境',
 			'download.errors.connectionFailed' => '連接失敗，請檢查網路',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.serviceIsClosing' => '下載服務正在關閉',
 			'download.errors.partialDownloadFailed' => '部分內容下載失敗',
 			'download.errors.noDownloadTask' => '暫無下載任務',
@@ -5737,6 +5893,8 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unmute' => '取消靜音',
 			'mediaPlayer.video' => '影片',
 			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
 			'mediaPlayer.retestSpeed' => '重新測速',
 			'mediaPlayer.waitingForSpeedTest' => '等待測速',
@@ -5810,8 +5968,6 @@ extension on TranslationsZhTw {
 			'diagnostics.refreshMetrics' => '重新整理指標',
 			'diagnostics.toolsSectionTitle' => '工具',
 			'diagnostics.privacyNotice' => '日誌可能包含帳號、請求參數等敏感資訊。請勿直接公開附加到 Issue，建議檢查後透過郵件傳送。',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.exportLogsTitle' => '匯出日誌',
 			'diagnostics.exportLogsSubtitle' => '匯出後請先檢查隱私，再傳送給開發者',
 			'diagnostics.viewLogsTitle' => '查看日誌',
@@ -6251,6 +6407,8 @@ extension on TranslationsZhTw {
 			'savedSearch.reorderHint' => '長按拖曳可調整順序',
 			'savedSearch.rename' => '重新命名',
 			'savedSearch.noKeyword' => '（無關鍵字）',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個篩選',
 			'defaultBlacklistReminder.title' => '偵測到網站預設標籤黑名單',
 			'defaultBlacklistReminder.content' => '你的帳號目前仍在使用網站為每個新使用者自動設定的預設標籤黑名單。是否前往黑名單管理頁查看並調整？',
@@ -6324,8 +6482,6 @@ extension on TranslationsZhTw {
 			'externalPlayer.testFailed' => '啟動失敗，請檢查可執行檔路徑',
 			'externalPlayer.executableMissing' => '可執行檔不存在',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '用 ${name} 開啟',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.managePlayersEntry' => '管理外部播放器…',
 			'watchLater.title' => '稍後再看',
 			'watchLater.addToWatchLater' => '稍後再看',

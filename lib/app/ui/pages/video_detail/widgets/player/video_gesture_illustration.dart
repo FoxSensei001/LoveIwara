@@ -6,6 +6,10 @@ import 'package:get/get.dart';
 import '../../../../../services/player_keybinding/keybinding_service.dart';
 import '../../../../../services/player_keybinding/shortcut_action.dart';
 
+// Quest has a spatial stage and physical controllers, rather than touch points
+// on the video itself. Keep that renderer separate from the flat-player scenes.
+export 'quest_gesture_illustration.dart' show AnimatedQuestGestureIllustration;
+
 /// 手势演示插画的类型。与首次指引页（video_gesture_guide_page.dart）配套使用，
 /// 逐帧还原对应的播放器手势动效：带固定顶/底控制栏的迷你播放器，缩放/旋转只
 /// 作用于视频画面层，叠加动画手指与信息浮层。

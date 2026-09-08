@@ -421,6 +421,7 @@ enum ConfigKey {
   FIRST_TIME_SETUP_COMPLETED, // 首次设置是否已完成
   INSTALL_MARKER_ISSUED, // 本次安装是否已经写过「安装标记」文件（见 RestoredInstallGuard）
   VIDEO_GESTURE_GUIDE_SHOWN, // 视频手势指引页是否已展示（首次进入视频详情前显示一次）
+  QUEST_GESTURE_GUIDE_SHOWN_V1, // Quest 视频 / 图库共用的新指引，不继承旧触屏指引记录
   // 桌面端「用其他应用打开」的外部播放器列表（JSON 数组字符串）。
   // PCVR 播放器（HereSphere / DeoVR / Whirligig 等）基本都不是系统默认关联程序，
   // 所以桌面端不能只靠「系统默认播放器」，得让用户自己指定可执行文件。
@@ -709,6 +710,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'install_marker_issued';
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return 'video_gesture_guide_shown';
+      case ConfigKey.QUEST_GESTURE_GUIDE_SHOWN_V1:
+        return 'quest_gesture_guide_shown_v1';
       case ConfigKey.EXTERNAL_PLAYERS_JSON:
         return 'external_players_json';
       case ConfigKey.ANIME4K_PRESET_ID:
@@ -1021,6 +1024,8 @@ extension ConfigKeyExtension on ConfigKey {
         return false; // 出厂未写过标记；写成功后置 true，此后标记消失即判定为还原安装
       case ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN:
         return false; // 默认未展示，首次进入视频详情前显示一次
+      case ConfigKey.QUEST_GESTURE_GUIDE_SHOWN_V1:
+        return false; // 老 Quest 用户也能看到空间操作；视频与图库只展示一次
       case ConfigKey.EXTERNAL_PLAYERS_JSON:
         return ''; // 默认没有配置任何外部播放器（空字符串 = 空列表）
       case ConfigKey.ANIME4K_PRESET_ID:

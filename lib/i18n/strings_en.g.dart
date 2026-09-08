@@ -7690,6 +7690,8 @@ class TranslationsVideoDetailGestureGuideEn {
 
 	/// en: 'Shift + wheel: rotate around the cursor'
 	String get dShiftWheel => 'Shift + wheel: rotate around the cursor';
+
+	late final TranslationsVideoDetailGestureGuideQuestEn quest = TranslationsVideoDetailGestureGuideQuestEn._(_root);
 }
 
 // Path: videoDetail.player
@@ -9004,6 +9006,234 @@ class TranslationsAnime4kPresetNamesEn {
 	String get mode_a_hq_thin => 'Mode A (HQ) + Line Thinning';
 }
 
+// Path: videoDetail.gestureGuide.quest
+class TranslationsVideoDetailGestureGuideQuestEn {
+	TranslationsVideoDetailGestureGuideQuestEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Get comfortable in Quest'
+	String get title => 'Get comfortable in Quest';
+
+	/// en: 'See which control does what, then try it in your space.'
+	String get intro => 'See which control does what, then try it in your space.';
+
+	/// en: 'Spatial video'
+	String get videoTab => 'Spatial video';
+
+	/// en: 'Spatial gallery'
+	String get galleryTab => 'Spatial gallery';
+
+	/// en: 'For screens and windows in your Quest space. Reopen anytime from player settings.'
+	String get scopeNote => 'For screens and windows in your Quest space. Reopen anytime from player settings.';
+
+	/// en: 'Explore the controls'
+	String get catalog => 'Explore the controls';
+
+	/// en: '${current} of ${total}'
+	String lessonCount({required Object current, required Object total}) => '${current} of ${total}';
+
+	/// en: 'Previous'
+	String get previous => 'Previous';
+
+	/// en: 'Next control'
+	String get next => 'Next control';
+
+	/// en: 'Replay demo'
+	String get replay => 'Replay demo';
+
+	/// en: 'Pause demo'
+	String get pauseDemo => 'Pause demo';
+
+	/// en: 'Resume demo'
+	String get resumeDemo => 'Resume demo';
+
+	/// en: 'Control demo'
+	String get looping => 'Control demo';
+
+	/// en: 'Still illustration'
+	String get still => 'Still illustration';
+
+	/// en: 'Got it, continue'
+	String get done => 'Got it, continue';
+
+	/// en: 'Left hand'
+	String get leftController => 'Left hand';
+
+	/// en: 'Right hand'
+	String get rightController => 'Right hand';
+
+	/// en: 'Index trigger'
+	String get trigger => 'Index trigger';
+
+	/// en: 'Grip button'
+	String get grip => 'Grip button';
+
+	/// en: 'Both grip buttons'
+	String get bothGrips => 'Both grip buttons';
+
+	/// en: 'Thumbstick'
+	String get stick => 'Thumbstick';
+
+	/// en: 'Hand tracking'
+	String get handTracking => 'Hand tracking';
+
+	/// en: 'Ready'
+	String get ready => 'Ready';
+
+	/// en: 'Press'
+	String get press => 'Press';
+
+	/// en: 'Hold'
+	String get hold => 'Hold';
+
+	/// en: 'Release'
+	String get release => 'Release';
+
+	/// en: 'See the result'
+	String get result => 'See the result';
+
+	/// en: 'Pinch'
+	String get pinch => 'Pinch';
+
+	/// en: 'Point and select'
+	String get selectTitle => 'Point and select';
+
+	/// en: 'Aim the ray at a button, then press and release the index trigger. Use it for play, settings and sliders on the control panel.'
+	String get selectBody => 'Aim the ray at a button, then press and release the index trigger. Use it for play, settings and sliders on the control panel.';
+
+	/// en: 'The index trigger is behind the button face. The grip button on the inner handle grabs windows.'
+	String get selectHint => 'The index trigger is behind the button face. The grip button on the inner handle grabs windows.';
+
+	/// en: 'Show or hide the panel'
+	String get panelTitle => 'Show or hide the panel';
+
+	/// en: 'Point outside the control panel, then tap the index trigger to show or hide it. With hand tracking, a quick pinch outside the panel does the same.'
+	String get panelBody => 'Point outside the control panel, then tap the index trigger to show or hide it. With hand tracking, a quick pinch outside the panel does the same.';
+
+	/// en: 'Use a short tap without dragging. Holding and moving is a drag, not a panel toggle.'
+	String get panelHint => 'Use a short tap without dragging. Holding and moving is a drag, not a panel toggle.';
+
+	/// en: 'Play and pause'
+	String get playTitle => 'Play and pause';
+
+	/// en: 'Point away from the control panel and press A on the right or X on the left to play or pause. You can also select the panel’s play button.'
+	String get playBody => 'Point away from the control panel and press A on the right or X on the left to play or pause. You can also select the panel’s play button.';
+
+	/// en: 'This default shortcut can be disabled in spatial player settings. When pointing at the panel, input goes to the panel.'
+	String get playHint => 'This default shortcut can be disabled in spatial player settings. When pointing at the panel, input goes to the panel.';
+
+	/// en: 'Scrub with the stick'
+	String get seekTitle => 'Scrub with the stick';
+
+	/// en: 'Nudge either stick left or right for a 5-second step. Hold it to scrub faster while previewing the target time. Release to commit the seek.'
+	String get seekBody => 'Nudge either stick left or right for a 5-second step. Hold it to scrub faster while previewing the target time. Release to commit the seek.';
+
+	/// en: 'Keep that controller’s ray off the control panel. A stick pointing at the panel scrolls the panel instead.'
+	String get seekHint => 'Keep that controller’s ray off the control panel. A stick pointing at the panel scrolls the panel instead.';
+
+	/// en: 'Browse with the stick'
+	String get browseTitle => 'Browse with the stick';
+
+	/// en: 'Move either stick left or right for the previous or next item; hold to keep browsing. You can also select a thumbnail in the filmstrip.'
+	String get browseBody => 'Move either stick left or right for the previous or next item; hold to keep browsing. You can also select a thumbnail in the filmstrip.';
+
+	/// en: 'Videos in a gallery are items too. Pointing at the control panel makes the stick scroll the panel.'
+	String get browseHint => 'Videos in a gallery are items too. Pointing at the control panel makes the stick scroll the panel.';
+
+	/// en: 'Drag across to turn a page'
+	String get swipeTitle => 'Drag across to turn a page';
+
+	/// en: 'Aim at the image, hold the index trigger and drag left. Release after the page-turn cue to advance; drag right to go back. A pinch-and-drag works too.'
+	String get swipeBody => 'Aim at the image, hold the index trigger and drag left. Release after the page-turn cue to advance; drag right to go back. A pinch-and-drag works too.';
+
+	/// en: 'Images must be at 1× to turn pages by dragging. Gallery videos support it too. The stage stays still until you release.'
+	String get swipeHint => 'Images must be at 1× to turn pages by dragging. Gallery videos support it too. The stage stays still until you release.';
+
+	/// en: 'Zoom into the image'
+	String get zoomTitle => 'Zoom into the image';
+
+	/// en: 'Aim at a detail in the image, hold the index trigger, then push the stick up to zoom in or down to zoom out. Zoom is anchored where you pressed.'
+	String get zoomBody => 'Aim at a detail in the image, hold the index trigger, then push the stick up to zoom in or down to zoom out. Zoom is anchored where you pressed.';
+
+	/// en: 'This enlarges the image inside its window. Without holding the image, up/down adjusts viewing distance.'
+	String get zoomHint => 'This enlarges the image inside its window. Without holding the image, up/down adjusts viewing distance.';
+
+	/// en: 'Pan and restore the image'
+	String get panTitle => 'Pan and restore the image';
+
+	/// en: 'Once zoomed in, hold the index trigger and drag to look around. Double-tap the image to zoom to 2.5× or restore it. With hands, pinch twice quickly.'
+	String get panBody => 'Once zoomed in, hold the index trigger and drag to look around. Double-tap the image to zoom to 2.5× or restore it. With hands, pinch twice quickly.';
+
+	/// en: 'Dragging pans a zoomed image. Restore to 1× before dragging to turn pages.'
+	String get panHint => 'Dragging pans a zoomed image. Restore to 1× before dragging to turn pages.';
+
+	/// en: 'Start a slideshow'
+	String get slideshowTitle => 'Start a slideshow';
+
+	/// en: 'On an image, A / X starts or pauses the slideshow. The panel offers 3, 5, 10 or 20-second intervals and standard or original image quality.'
+	String get slideshowBody => 'On an image, A / X starts or pauses the slideshow. The panel offers 3, 5, 10 or 20-second intervals and standard or original image quality.';
+
+	/// en: 'On a gallery video, A / X controls that video’s playback. The controller shortcut must be enabled in settings.'
+	String get slideshowHint => 'On a gallery video, A / X controls that video’s playback. The controller shortcut must be enabled in settings.';
+
+	/// en: 'Grab and move the screen'
+	String get moveTitle => 'Grab and move the screen';
+
+	/// en: 'Hold the grip button on the inner handle, move the controller to position the screen, then release. While watching, you can grab the screen without aiming at it.'
+	String get moveBody => 'Hold the grip button on the inner handle, move the controller to position the screen, then release. While watching, you can grab the screen without aiming at it.';
+
+	/// en: 'Aiming at the app window or control panel grabs that window first. In panoramic video, gripping adjusts orientation.'
+	String get moveHint => 'Aiming at the app window or control panel grabs that window first. In panoramic video, gripping adjusts orientation.';
+
+	/// en: 'Resize with both hands'
+	String get scaleTitle => 'Resize with both hands';
+
+	/// en: 'Hold both grip buttons. Spread your hands to enlarge the screen, or bring them together to shrink it. With hand tracking, hold a pinch in both hands.'
+	String get scaleBody => 'Hold both grip buttons. Spread your hands to enlarge the screen, or bring them together to shrink it. With hand tracking, hold a pinch in both hands.';
+
+	/// en: 'For flat or curved screens, including the gallery stage. Keep rays off the control panel. This resizes the whole screen.'
+	String get scaleHint => 'For flat or curved screens, including the gallery stage. Keep rays off the control panel. This resizes the whole screen.';
+
+	/// en: 'Adjust viewing distance'
+	String get distanceTitle => 'Adjust viewing distance';
+
+	/// en: 'Push the stick up to move the screen away, or down to bring it closer. While grabbing a window, up/down moves that window. Adjust volume on the panel.'
+	String get distanceBody => 'Push the stick up to move the screen away, or down to bring it closer. While grabbing a window, up/down moves that window. Adjust volume on the panel.';
+
+	/// en: 'Point away from the control panel. Holding an image changes up/down to image zoom; panoramic videos adjust the view instead.'
+	String get distanceHint => 'Point away from the control panel. Holding an image changes up/down to image zoom; panoramic videos adjust the view instead.';
+
+	/// en: 'Use the edges and corners'
+	String get resizeTitle => 'Use the edges and corners';
+
+	/// en: 'The frame lights up as your ray approaches an edge. Hold the trigger or pinch on an edge to move the window; drag a corner to resize it.'
+	String get resizeBody => 'The frame lights up as your ray approaches an edge. Hold the trigger or pinch on an edge to move the window; drag a corner to resize it.';
+
+	/// en: 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.'
+	String get resizeHint => 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.';
+
+	/// en: 'Go back and open settings'
+	String get navigationTitle => 'Go back and open settings';
+
+	/// en: 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.'
+	String get navigationBody => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.';
+
+	/// en: 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.'
+	String get navigationHint => 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.';
+
+	/// en: 'Use your hands'
+	String get handsTitle => 'Use your hands';
+
+	/// en: 'With hand tracking enabled, aim the system ray at a button, pinch your thumb and index finger, then release. Use the panel for playback, seeking and gallery navigation.'
+	String get handsBody => 'With hand tracking enabled, aim the system ray at a button, pinch your thumb and index finger, then release. Use the panel for playback, seeking and gallery navigation.';
+
+	/// en: 'Pinch outside to toggle the panel. Pinch an edge to move, a corner to resize, or pinch with both hands and spread to enlarge the screen.'
+	String get handsHint => 'Pinch outside to toggle the panel. Pinch an edge to move, a corner to resize, or pinch with both hands and spread to enlarge the screen.';
+}
+
 // Path: videoDetail.cast.deviceTypes
 class TranslationsVideoDetailCastDeviceTypesEn {
 	TranslationsVideoDetailCastDeviceTypesEn._(this._root);
@@ -10308,6 +10538,79 @@ extension on Translations {
 			'videoDetail.gestureGuide.dTrackpadRotate' => 'Trackpad rotate: rotate the picture',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + wheel: zoom around the cursor',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + wheel: rotate around the cursor',
+			'videoDetail.gestureGuide.quest.title' => 'Get comfortable in Quest',
+			'videoDetail.gestureGuide.quest.intro' => 'See which control does what, then try it in your space.',
+			'videoDetail.gestureGuide.quest.videoTab' => 'Spatial video',
+			'videoDetail.gestureGuide.quest.galleryTab' => 'Spatial gallery',
+			'videoDetail.gestureGuide.quest.scopeNote' => 'For screens and windows in your Quest space. Reopen anytime from player settings.',
+			'videoDetail.gestureGuide.quest.catalog' => 'Explore the controls',
+			'videoDetail.gestureGuide.quest.lessonCount' => ({required Object current, required Object total}) => '${current} of ${total}',
+			'videoDetail.gestureGuide.quest.previous' => 'Previous',
+			'videoDetail.gestureGuide.quest.next' => 'Next control',
+			'videoDetail.gestureGuide.quest.replay' => 'Replay demo',
+			'videoDetail.gestureGuide.quest.pauseDemo' => 'Pause demo',
+			'videoDetail.gestureGuide.quest.resumeDemo' => 'Resume demo',
+			'videoDetail.gestureGuide.quest.looping' => 'Control demo',
+			'videoDetail.gestureGuide.quest.still' => 'Still illustration',
+			'videoDetail.gestureGuide.quest.done' => 'Got it, continue',
+			'videoDetail.gestureGuide.quest.leftController' => 'Left hand',
+			'videoDetail.gestureGuide.quest.rightController' => 'Right hand',
+			'videoDetail.gestureGuide.quest.trigger' => 'Index trigger',
+			'videoDetail.gestureGuide.quest.grip' => 'Grip button',
+			'videoDetail.gestureGuide.quest.bothGrips' => 'Both grip buttons',
+			'videoDetail.gestureGuide.quest.stick' => 'Thumbstick',
+			'videoDetail.gestureGuide.quest.handTracking' => 'Hand tracking',
+			'videoDetail.gestureGuide.quest.ready' => 'Ready',
+			'videoDetail.gestureGuide.quest.press' => 'Press',
+			'videoDetail.gestureGuide.quest.hold' => 'Hold',
+			'videoDetail.gestureGuide.quest.release' => 'Release',
+			'videoDetail.gestureGuide.quest.result' => 'See the result',
+			'videoDetail.gestureGuide.quest.pinch' => 'Pinch',
+			'videoDetail.gestureGuide.quest.selectTitle' => 'Point and select',
+			'videoDetail.gestureGuide.quest.selectBody' => 'Aim the ray at a button, then press and release the index trigger. Use it for play, settings and sliders on the control panel.',
+			'videoDetail.gestureGuide.quest.selectHint' => 'The index trigger is behind the button face. The grip button on the inner handle grabs windows.',
+			'videoDetail.gestureGuide.quest.panelTitle' => 'Show or hide the panel',
+			'videoDetail.gestureGuide.quest.panelBody' => 'Point outside the control panel, then tap the index trigger to show or hide it. With hand tracking, a quick pinch outside the panel does the same.',
+			'videoDetail.gestureGuide.quest.panelHint' => 'Use a short tap without dragging. Holding and moving is a drag, not a panel toggle.',
+			'videoDetail.gestureGuide.quest.playTitle' => 'Play and pause',
+			'videoDetail.gestureGuide.quest.playBody' => 'Point away from the control panel and press A on the right or X on the left to play or pause. You can also select the panel’s play button.',
+			'videoDetail.gestureGuide.quest.playHint' => 'This default shortcut can be disabled in spatial player settings. When pointing at the panel, input goes to the panel.',
+			'videoDetail.gestureGuide.quest.seekTitle' => 'Scrub with the stick',
+			'videoDetail.gestureGuide.quest.seekBody' => 'Nudge either stick left or right for a 5-second step. Hold it to scrub faster while previewing the target time. Release to commit the seek.',
+			'videoDetail.gestureGuide.quest.seekHint' => 'Keep that controller’s ray off the control panel. A stick pointing at the panel scrolls the panel instead.',
+			'videoDetail.gestureGuide.quest.browseTitle' => 'Browse with the stick',
+			'videoDetail.gestureGuide.quest.browseBody' => 'Move either stick left or right for the previous or next item; hold to keep browsing. You can also select a thumbnail in the filmstrip.',
+			'videoDetail.gestureGuide.quest.browseHint' => 'Videos in a gallery are items too. Pointing at the control panel makes the stick scroll the panel.',
+			'videoDetail.gestureGuide.quest.swipeTitle' => 'Drag across to turn a page',
+			'videoDetail.gestureGuide.quest.swipeBody' => 'Aim at the image, hold the index trigger and drag left. Release after the page-turn cue to advance; drag right to go back. A pinch-and-drag works too.',
+			'videoDetail.gestureGuide.quest.swipeHint' => 'Images must be at 1× to turn pages by dragging. Gallery videos support it too. The stage stays still until you release.',
+			'videoDetail.gestureGuide.quest.zoomTitle' => 'Zoom into the image',
+			'videoDetail.gestureGuide.quest.zoomBody' => 'Aim at a detail in the image, hold the index trigger, then push the stick up to zoom in or down to zoom out. Zoom is anchored where you pressed.',
+			'videoDetail.gestureGuide.quest.zoomHint' => 'This enlarges the image inside its window. Without holding the image, up/down adjusts viewing distance.',
+			'videoDetail.gestureGuide.quest.panTitle' => 'Pan and restore the image',
+			'videoDetail.gestureGuide.quest.panBody' => 'Once zoomed in, hold the index trigger and drag to look around. Double-tap the image to zoom to 2.5× or restore it. With hands, pinch twice quickly.',
+			'videoDetail.gestureGuide.quest.panHint' => 'Dragging pans a zoomed image. Restore to 1× before dragging to turn pages.',
+			'videoDetail.gestureGuide.quest.slideshowTitle' => 'Start a slideshow',
+			'videoDetail.gestureGuide.quest.slideshowBody' => 'On an image, A / X starts or pauses the slideshow. The panel offers 3, 5, 10 or 20-second intervals and standard or original image quality.',
+			'videoDetail.gestureGuide.quest.slideshowHint' => 'On a gallery video, A / X controls that video’s playback. The controller shortcut must be enabled in settings.',
+			'videoDetail.gestureGuide.quest.moveTitle' => 'Grab and move the screen',
+			'videoDetail.gestureGuide.quest.moveBody' => 'Hold the grip button on the inner handle, move the controller to position the screen, then release. While watching, you can grab the screen without aiming at it.',
+			'videoDetail.gestureGuide.quest.moveHint' => 'Aiming at the app window or control panel grabs that window first. In panoramic video, gripping adjusts orientation.',
+			'videoDetail.gestureGuide.quest.scaleTitle' => 'Resize with both hands',
+			'videoDetail.gestureGuide.quest.scaleBody' => 'Hold both grip buttons. Spread your hands to enlarge the screen, or bring them together to shrink it. With hand tracking, hold a pinch in both hands.',
+			'videoDetail.gestureGuide.quest.scaleHint' => 'For flat or curved screens, including the gallery stage. Keep rays off the control panel. This resizes the whole screen.',
+			'videoDetail.gestureGuide.quest.distanceTitle' => 'Adjust viewing distance',
+			'videoDetail.gestureGuide.quest.distanceBody' => 'Push the stick up to move the screen away, or down to bring it closer. While grabbing a window, up/down moves that window. Adjust volume on the panel.',
+			'videoDetail.gestureGuide.quest.distanceHint' => 'Point away from the control panel. Holding an image changes up/down to image zoom; panoramic videos adjust the view instead.',
+			'videoDetail.gestureGuide.quest.resizeTitle' => 'Use the edges and corners',
+			'videoDetail.gestureGuide.quest.resizeBody' => 'The frame lights up as your ray approaches an edge. Hold the trigger or pinch on an edge to move the window; drag a corner to resize it.',
+			'videoDetail.gestureGuide.quest.resizeHint' => 'Works on the app window, control panel and screen. The app window changes width and height; screens keep their aspect ratio.',
+			'videoDetail.gestureGuide.quest.navigationTitle' => 'Go back and open settings',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y goes back one level: close a popup or return to the panel home, hide the panel, then return to the app. The left Menu button opens spatial settings.',
+			'videoDetail.gestureGuide.quest.navigationHint' => 'The right Meta button belongs to the system. System recenter brings the view back in front while preserving screen size and distance.',
+			'videoDetail.gestureGuide.quest.handsTitle' => 'Use your hands',
+			'videoDetail.gestureGuide.quest.handsBody' => 'With hand tracking enabled, aim the system ray at a button, pinch your thumb and index finger, then release. Use the panel for playback, seeking and gallery navigation.',
+			'videoDetail.gestureGuide.quest.handsHint' => 'Pinch outside to toggle the panel. Pinch an edge to move, a corner to resize, or pinch with both hands and spread to enlarge the screen.',
 			'videoDetail.home' => 'Home',
 			'videoDetail.videoPlayer' => 'Video Player',
 			'videoDetail.videoPlayerInfo' => 'Video Player Info',
@@ -10566,6 +10869,8 @@ extension on Translations {
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
 			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
+			_ => null,
+		} ?? switch (path) {
 			'conversation.errors.loadFailed' => 'Load failed',
 			'conversation.errors.clickToRetry' => 'Click to retry',
 			'conversation.errors.noMoreConversations' => 'No more conversations',
@@ -10639,8 +10944,6 @@ extension on Translations {
 			'download.errors.taskAlreadyProcessing' => 'Task already processing',
 			'download.errors.taskNotFound' => 'Task not found',
 			'download.errors.failedToLoadTasks' => 'Failed to load tasks',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => 'Partial download failed: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'Unsupported image format: ${extension}, you can try to download it to your device to view it',
 			'download.errors.imageLoadFailed' => 'Image load failed',
@@ -11080,6 +11383,8 @@ extension on Translations {
 			'layoutSettings.previewEffect' => 'Preview Effect',
 			'layoutSettings.screenWidth' => 'Screen Width',
 			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
 			'layoutSettings.deleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.screenWidthLabel' => 'Screen Width',
@@ -11153,8 +11458,6 @@ extension on Translations {
 			'mediaPlayer.unknown' => 'Unknown',
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
 			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
@@ -11594,6 +11897,8 @@ extension on Translations {
 			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
 			'savedSearch.rename' => 'Rename',
 			'savedSearch.noKeyword' => '(No keyword)',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} filters',
 			'defaultBlacklistReminder.title' => 'Default Tag Blacklist Detected',
 			'defaultBlacklistReminder.content' => 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?',
@@ -11667,8 +11972,6 @@ extension on Translations {
 			'externalPlayer.testFailed' => 'Launch failed, check the executable path',
 			'externalPlayer.executableMissing' => 'Executable not found',
 			'externalPlayer.openWithNamed' => ({required Object name}) => 'Open in ${name}',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.managePlayersEntry' => 'Manage external players…',
 			'watchLater.title' => 'Watch Later',
 			'watchLater.addToWatchLater' => 'Watch later',

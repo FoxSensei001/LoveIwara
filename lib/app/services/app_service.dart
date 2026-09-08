@@ -28,6 +28,8 @@ import '../routes/app_router.dart';
 import '../routes/home_shell_navigation.dart';
 import '../ui/pages/settings/settings_section.dart';
 import 'config_service.dart';
+import 'gesture_guide_presenter.dart';
+import '../ui/pages/video_detail/widgets/player/quest_gesture_guide_content.dart';
 import '../ui/widgets/restart_app_widget.dart';
 import 'message_service.dart';
 import 'pop_coordinator.dart';
@@ -387,7 +389,10 @@ class NaviService {
     PlaybackQueueRef? playbackQueueRef,
     ImageModel? preloadedDetail,
     String? initialImageId,
-  }) {
+  }) async {
+    if (usesQuestGestureGuide) {
+      await _maybeShowFirstTimeGestureGuide(isGallery: true);
+    }
     final shouldAttachExtra =
         coverUrl != null ||
         title != null ||
@@ -485,24 +490,29 @@ class NaviService {
     return future;
   }
 
-  /// 首次进入视频详情前展示一次手势指引页。
+  static final _gestureGuidePresenter = GestureGuidePresenter(
+    present: (location) async {
+      await appRouter.push(location);
+    },
+  );
+
+  /// 首次进入视频详情前展示指引；Quest 的图库入口也共用这道闸门。
   ///
   /// 先置位「已展示」再推入指引页：既保证只出现一次，也避免指引展示期间
   /// 用户再次触发跳转导致指引页重复入栈。指引流程出现任何异常都不应阻断
   /// 正常的视频详情跳转。
-  static Future<void> _maybeShowFirstTimeGestureGuide() async {
+  static Future<void> _maybeShowFirstTimeGestureGuide({
+    bool isGallery = false,
+  }) async {
     try {
       if (!Get.isRegistered<ConfigService>()) return;
-      final config = Get.find<ConfigService>();
-      if (config[ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN] == true) return;
-      await config.setSetting(
-        ConfigKey.VIDEO_GESTURE_GUIDE_SHOWN,
-        true,
-        save: true,
+      await _gestureGuidePresenter.showIfNeeded(
+        Get.find<ConfigService>(),
+        isQuest: usesQuestGestureGuide,
+        isGallery: isGallery,
       );
-      await appRouter.push('/video_gesture_guide');
     } catch (e) {
-      LogUtils.e('展示视频手势指引页失败', tag: 'AppService', error: e);
+      LogUtils.e('展示手势指引页失败', tag: 'AppService', error: e);
     }
   }
 

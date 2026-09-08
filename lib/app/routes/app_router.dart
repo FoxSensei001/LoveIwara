@@ -38,6 +38,7 @@ import 'package:i_iwara/app/ui/pages/login/login_page_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/sign_in/sing_in_page.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/video_detail_page_v2.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/video_gesture_guide_page.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/quest_gesture_guide_content.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/gallery_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/author_profile_page.dart';
 import 'package:i_iwara/app/ui/pages/search/search_page.dart';
@@ -270,14 +271,18 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const SignInPage(),
     ),
 
-    // 首次进入视频详情前的手势指引页 —— 顶层全屏路由，不在 Shell 中
+    // 手势指引 —— 顶层全屏路由，不在 Shell 中；Quest 图库入口预选图库页签
     GoRoute(
       path: '/video_gesture_guide',
       name: 'video_gesture_guide',
       pageBuilder: (context, state) => CustomTransitionPage(
         key: state.pageKey,
         fullscreenDialog: true,
-        child: const VideoGestureGuidePage(),
+        child: VideoGestureGuidePage(
+          initialQuestMedia: state.uri.queryParameters['media'] == 'gallery'
+              ? QuestGuideMedia.gallery
+              : QuestGuideMedia.video,
+        ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) =>
             FadeTransition(opacity: animation, child: child),
       ),

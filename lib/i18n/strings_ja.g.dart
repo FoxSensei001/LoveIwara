@@ -3063,6 +3063,7 @@ class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailG
 	@override String get dTrackpadRotate => 'トラックパッドの回転：映像を回転';
 	@override String get dCtrlWheel => 'Ctrl + ホイール：カーソル中心に拡大';
 	@override String get dShiftWheel => 'Shift + ホイール：カーソル中心に回転';
+	@override late final _TranslationsVideoDetailGestureGuideQuestJa quest = _TranslationsVideoDetailGestureGuideQuestJa._(_root);
 }
 
 // Path: videoDetail.player
@@ -3705,6 +3706,88 @@ class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetName
 	@override String get upscale_non_cnn => '非CNNアップスケーリング (超高速)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + ライン暗化';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + ライン細化';
+}
+
+// Path: videoDetail.gestureGuide.quest
+class _TranslationsVideoDetailGestureGuideQuestJa implements TranslationsVideoDetailGestureGuideQuestEn {
+	_TranslationsVideoDetailGestureGuideQuestJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Quest の操作を覚えよう';
+	@override String get intro => 'どのボタンで何ができるか確認して、空間で試してみましょう。';
+	@override String get videoTab => '空間動画';
+	@override String get galleryTab => '空間ギャラリー';
+	@override String get scopeNote => 'Quest 空間のスクリーンとウィンドウのガイドです。プレーヤー設定からいつでも開けます。';
+	@override String get catalog => '操作を選ぶ';
+	@override String lessonCount({required Object current, required Object total}) => '${current} / ${total}';
+	@override String get previous => '前へ';
+	@override String get next => '次の操作';
+	@override String get replay => 'もう一度見る';
+	@override String get pauseDemo => 'デモを一時停止';
+	@override String get resumeDemo => 'デモを再開';
+	@override String get looping => '操作デモ';
+	@override String get still => '静止図';
+	@override String get done => '確認して続ける';
+	@override String get leftController => '左手';
+	@override String get rightController => '右手';
+	@override String get trigger => '人差し指トリガー';
+	@override String get grip => 'グリップボタン';
+	@override String get bothGrips => '両手のグリップ';
+	@override String get stick => 'スティック';
+	@override String get handTracking => 'ハンドトラッキング';
+	@override String get ready => '準備';
+	@override String get press => '押す';
+	@override String get hold => '押し続ける';
+	@override String get release => '離す';
+	@override String get result => '結果を見る';
+	@override String get pinch => 'ピンチ';
+	@override String get selectTitle => 'レイで選択する';
+	@override String get selectBody => 'ボタンにレイを合わせ、人差し指トリガーを押して離すと選択できます。再生、設定、スライダーも同じ操作です。';
+	@override String get selectHint => '人差し指トリガーはボタン面の裏側、グリップボタンは持ち手の内側にあります。';
+	@override String get panelTitle => 'パネルを表示・非表示';
+	@override String get panelBody => '操作パネルの外にレイを向けてトリガーを軽く押すと、表示を切り替えられます。手の場合はパネルの外で軽くピンチします。';
+	@override String get panelHint => '動かさず短く押して離してください。押したまま動かすとドラッグになります。';
+	@override String get playTitle => '再生・一時停止';
+	@override String get playBody => '操作パネルからレイを外し、右手の A または左手の X で再生・一時停止します。パネルの再生ボタンも使えます。';
+	@override String get playHint => 'このショートカットは空間プレーヤー設定で無効にできます。レイがパネル上にあるときは、パネルの操作が優先されます。';
+	@override String get seekTitle => 'スティックでシーク';
+	@override String get seekBody => '左右どちらのスティックでも、左・右に短く倒すと 5 秒移動します。倒し続けると加速し、離したときに表示中の時間へジャンプします。';
+	@override String get seekHint => '操作するコントローラーのレイをパネルから外してください。パネル上ではスティックがスクロール操作になります。';
+	@override String get browseTitle => 'スティックで画像を送る';
+	@override String get browseBody => '左右どちらのスティックでも、左・右で前後の項目へ移動し、倒し続けると連続で送れます。フィルムストリップのサムネイルも選べます。';
+	@override String get browseHint => 'ギャラリー内の動画も同じように送れます。レイが操作パネル上にあると、スティックはスクロールになります。';
+	@override String get swipeTitle => '横ドラッグでページを送る';
+	@override String get swipeBody => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。';
+	@override String get swipeHint => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。';
+	@override String get zoomTitle => '画像の細部を拡大';
+	@override String get zoomBody => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。';
+	@override String get zoomHint => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。';
+	@override String get panTitle => '拡大画像の移動とリセット';
+	@override String get panBody => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。';
+	@override String get panHint => '拡大中のドラッグは画像の移動です。ページ送りは 1× に戻してから行ってください。';
+	@override String get slideshowTitle => 'スライドショーを開始';
+	@override String get slideshowBody => '画像を表示中は A / X でスライドショーを開始・停止できます。パネルで 3・5・10・20 秒の間隔や標準・元画像の画質を選べます。';
+	@override String get slideshowHint => 'ギャラリー内の動画では A / X がその動画の再生・一時停止になります。設定でショートカットを有効にしてください。';
+	@override String get moveTitle => 'スクリーンをつかんで移動';
+	@override String get moveBody => '持ち手の内側のグリップを押したままコントローラーを動かし、見やすい位置で離します。視聴中はスクリーンを狙わなくてもつかめます。';
+	@override String get moveHint => 'アプリや操作パネルにレイを合わせると、そのウィンドウを優先してつかみます。パノラマ動画では向きを調整します。';
+	@override String get scaleTitle => '両手でスクリーンの大きさを変更';
+	@override String get scaleBody => '両方のグリップを押し続け、手を離すと拡大、近づけると縮小します。ハンドトラッキングでは両手でピンチを保って操作します。';
+	@override String get scaleHint => '平面・曲面スクリーンとギャラリーの舞台に対応します。レイを操作パネルから外してください。画面全体の大きさが変わります。';
+	@override String get distanceTitle => '視聴距離を調整';
+	@override String get distanceBody => 'スティックを上に倒すと遠く、下に倒すと近くなります。ウィンドウをつかんでいる間はそのウィンドウの距離を調整します。音量はパネルで調整します。';
+	@override String get distanceHint => 'レイを操作パネルから外してください。画像を押したままの上下操作は細部の拡大、パノラマ動画では見え方の調整になります。';
+	@override String get resizeTitle => '枠や角をドラッグ';
+	@override String get resizeBody => 'レイを端に近づけると枠が光ります。端をトリガーやピンチでつかむと移動、角をつかんでドラッグするとサイズ変更ができます。';
+	@override String get resizeHint => 'アプリ、操作パネル、スクリーンで共通の操作です。アプリの幅と高さは自由に変えられ、スクリーンは縦横比を保ちます。';
+	@override String get navigationTitle => '戻る・空間設定を開く';
+	@override String get navigationBody => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。';
+	@override String get navigationHint => '右手の Meta ボタンはシステム用です。システムの視点リセットで正面に戻せます。スクリーンの大きさと距離は保たれます。';
+	@override String get handsTitle => 'コントローラーなしで操作';
+	@override String get handsBody => 'ハンドトラッキングを有効にし、システムのレイをボタンに合わせ、親指と人差し指をピンチして離します。再生、シーク、画像送りはパネルで操作できます。';
+	@override String get handsHint => 'パネル外で軽くピンチすると表示を切り替えます。端をつかんで移動、角でサイズ変更、両手でピンチして広げるとスクリーンを拡大できます。';
 }
 
 // Path: videoDetail.cast.deviceTypes
@@ -4965,6 +5048,79 @@ extension on TranslationsJa {
 			'videoDetail.gestureGuide.dTrackpadRotate' => 'トラックパッドの回転：映像を回転',
 			'videoDetail.gestureGuide.dCtrlWheel' => 'Ctrl + ホイール：カーソル中心に拡大',
 			'videoDetail.gestureGuide.dShiftWheel' => 'Shift + ホイール：カーソル中心に回転',
+			'videoDetail.gestureGuide.quest.title' => 'Quest の操作を覚えよう',
+			'videoDetail.gestureGuide.quest.intro' => 'どのボタンで何ができるか確認して、空間で試してみましょう。',
+			'videoDetail.gestureGuide.quest.videoTab' => '空間動画',
+			'videoDetail.gestureGuide.quest.galleryTab' => '空間ギャラリー',
+			'videoDetail.gestureGuide.quest.scopeNote' => 'Quest 空間のスクリーンとウィンドウのガイドです。プレーヤー設定からいつでも開けます。',
+			'videoDetail.gestureGuide.quest.catalog' => '操作を選ぶ',
+			'videoDetail.gestureGuide.quest.lessonCount' => ({required Object current, required Object total}) => '${current} / ${total}',
+			'videoDetail.gestureGuide.quest.previous' => '前へ',
+			'videoDetail.gestureGuide.quest.next' => '次の操作',
+			'videoDetail.gestureGuide.quest.replay' => 'もう一度見る',
+			'videoDetail.gestureGuide.quest.pauseDemo' => 'デモを一時停止',
+			'videoDetail.gestureGuide.quest.resumeDemo' => 'デモを再開',
+			'videoDetail.gestureGuide.quest.looping' => '操作デモ',
+			'videoDetail.gestureGuide.quest.still' => '静止図',
+			'videoDetail.gestureGuide.quest.done' => '確認して続ける',
+			'videoDetail.gestureGuide.quest.leftController' => '左手',
+			'videoDetail.gestureGuide.quest.rightController' => '右手',
+			'videoDetail.gestureGuide.quest.trigger' => '人差し指トリガー',
+			'videoDetail.gestureGuide.quest.grip' => 'グリップボタン',
+			'videoDetail.gestureGuide.quest.bothGrips' => '両手のグリップ',
+			'videoDetail.gestureGuide.quest.stick' => 'スティック',
+			'videoDetail.gestureGuide.quest.handTracking' => 'ハンドトラッキング',
+			'videoDetail.gestureGuide.quest.ready' => '準備',
+			'videoDetail.gestureGuide.quest.press' => '押す',
+			'videoDetail.gestureGuide.quest.hold' => '押し続ける',
+			'videoDetail.gestureGuide.quest.release' => '離す',
+			'videoDetail.gestureGuide.quest.result' => '結果を見る',
+			'videoDetail.gestureGuide.quest.pinch' => 'ピンチ',
+			'videoDetail.gestureGuide.quest.selectTitle' => 'レイで選択する',
+			'videoDetail.gestureGuide.quest.selectBody' => 'ボタンにレイを合わせ、人差し指トリガーを押して離すと選択できます。再生、設定、スライダーも同じ操作です。',
+			'videoDetail.gestureGuide.quest.selectHint' => '人差し指トリガーはボタン面の裏側、グリップボタンは持ち手の内側にあります。',
+			'videoDetail.gestureGuide.quest.panelTitle' => 'パネルを表示・非表示',
+			'videoDetail.gestureGuide.quest.panelBody' => '操作パネルの外にレイを向けてトリガーを軽く押すと、表示を切り替えられます。手の場合はパネルの外で軽くピンチします。',
+			'videoDetail.gestureGuide.quest.panelHint' => '動かさず短く押して離してください。押したまま動かすとドラッグになります。',
+			'videoDetail.gestureGuide.quest.playTitle' => '再生・一時停止',
+			'videoDetail.gestureGuide.quest.playBody' => '操作パネルからレイを外し、右手の A または左手の X で再生・一時停止します。パネルの再生ボタンも使えます。',
+			'videoDetail.gestureGuide.quest.playHint' => 'このショートカットは空間プレーヤー設定で無効にできます。レイがパネル上にあるときは、パネルの操作が優先されます。',
+			'videoDetail.gestureGuide.quest.seekTitle' => 'スティックでシーク',
+			'videoDetail.gestureGuide.quest.seekBody' => '左右どちらのスティックでも、左・右に短く倒すと 5 秒移動します。倒し続けると加速し、離したときに表示中の時間へジャンプします。',
+			'videoDetail.gestureGuide.quest.seekHint' => '操作するコントローラーのレイをパネルから外してください。パネル上ではスティックがスクロール操作になります。',
+			'videoDetail.gestureGuide.quest.browseTitle' => 'スティックで画像を送る',
+			'videoDetail.gestureGuide.quest.browseBody' => '左右どちらのスティックでも、左・右で前後の項目へ移動し、倒し続けると連続で送れます。フィルムストリップのサムネイルも選べます。',
+			'videoDetail.gestureGuide.quest.browseHint' => 'ギャラリー内の動画も同じように送れます。レイが操作パネル上にあると、スティックはスクロールになります。',
+			'videoDetail.gestureGuide.quest.swipeTitle' => '横ドラッグでページを送る',
+			'videoDetail.gestureGuide.quest.swipeBody' => '画像にレイを合わせ、トリガーを押したまま左へドラッグします。ページ送りの表示が出たら離すと次へ、右へドラッグすると前へ戻ります。ピンチでも操作できます。',
+			'videoDetail.gestureGuide.quest.swipeHint' => '画像は 1× のときにページ送りできます。ギャラリー内の動画にも対応しています。ドラッグ中は画面が動かず、離してから切り替わります。',
+			'videoDetail.gestureGuide.quest.zoomTitle' => '画像の細部を拡大',
+			'videoDetail.gestureGuide.quest.zoomBody' => '見たい部分にレイを合わせてトリガーを押し続け、スティックを上に倒すと拡大、下に倒すと縮小します。押した位置が拡大の中心になります。',
+			'videoDetail.gestureGuide.quest.zoomHint' => 'ウィンドウの大きさは変わらず、中の画像だけが拡大します。画像を押していないときの上下操作は視聴距離を変えます。',
+			'videoDetail.gestureGuide.quest.panTitle' => '拡大画像の移動とリセット',
+			'videoDetail.gestureGuide.quest.panBody' => '拡大後はトリガーを押したままドラッグして、別の部分を見られます。画像をダブルクリックすると 2.5× 拡大とリセットを切り替えます。手の場合は素早く 2 回ピンチします。',
+			'videoDetail.gestureGuide.quest.panHint' => '拡大中のドラッグは画像の移動です。ページ送りは 1× に戻してから行ってください。',
+			'videoDetail.gestureGuide.quest.slideshowTitle' => 'スライドショーを開始',
+			'videoDetail.gestureGuide.quest.slideshowBody' => '画像を表示中は A / X でスライドショーを開始・停止できます。パネルで 3・5・10・20 秒の間隔や標準・元画像の画質を選べます。',
+			'videoDetail.gestureGuide.quest.slideshowHint' => 'ギャラリー内の動画では A / X がその動画の再生・一時停止になります。設定でショートカットを有効にしてください。',
+			'videoDetail.gestureGuide.quest.moveTitle' => 'スクリーンをつかんで移動',
+			'videoDetail.gestureGuide.quest.moveBody' => '持ち手の内側のグリップを押したままコントローラーを動かし、見やすい位置で離します。視聴中はスクリーンを狙わなくてもつかめます。',
+			'videoDetail.gestureGuide.quest.moveHint' => 'アプリや操作パネルにレイを合わせると、そのウィンドウを優先してつかみます。パノラマ動画では向きを調整します。',
+			'videoDetail.gestureGuide.quest.scaleTitle' => '両手でスクリーンの大きさを変更',
+			'videoDetail.gestureGuide.quest.scaleBody' => '両方のグリップを押し続け、手を離すと拡大、近づけると縮小します。ハンドトラッキングでは両手でピンチを保って操作します。',
+			'videoDetail.gestureGuide.quest.scaleHint' => '平面・曲面スクリーンとギャラリーの舞台に対応します。レイを操作パネルから外してください。画面全体の大きさが変わります。',
+			'videoDetail.gestureGuide.quest.distanceTitle' => '視聴距離を調整',
+			'videoDetail.gestureGuide.quest.distanceBody' => 'スティックを上に倒すと遠く、下に倒すと近くなります。ウィンドウをつかんでいる間はそのウィンドウの距離を調整します。音量はパネルで調整します。',
+			'videoDetail.gestureGuide.quest.distanceHint' => 'レイを操作パネルから外してください。画像を押したままの上下操作は細部の拡大、パノラマ動画では見え方の調整になります。',
+			'videoDetail.gestureGuide.quest.resizeTitle' => '枠や角をドラッグ',
+			'videoDetail.gestureGuide.quest.resizeBody' => 'レイを端に近づけると枠が光ります。端をトリガーやピンチでつかむと移動、角をつかんでドラッグするとサイズ変更ができます。',
+			'videoDetail.gestureGuide.quest.resizeHint' => 'アプリ、操作パネル、スクリーンで共通の操作です。アプリの幅と高さは自由に変えられ、スクリーンは縦横比を保ちます。',
+			'videoDetail.gestureGuide.quest.navigationTitle' => '戻る・空間設定を開く',
+			'videoDetail.gestureGuide.quest.navigationBody' => 'B / Y はポップアップを閉じる、パネルのホームへ戻る、パネルを隠す、アプリへ戻る、の順で一段ずつ戻ります。左手の Menu で空間設定を開けます。',
+			'videoDetail.gestureGuide.quest.navigationHint' => '右手の Meta ボタンはシステム用です。システムの視点リセットで正面に戻せます。スクリーンの大きさと距離は保たれます。',
+			'videoDetail.gestureGuide.quest.handsTitle' => 'コントローラーなしで操作',
+			'videoDetail.gestureGuide.quest.handsBody' => 'ハンドトラッキングを有効にし、システムのレイをボタンに合わせ、親指と人差し指をピンチして離します。再生、シーク、画像送りはパネルで操作できます。',
+			'videoDetail.gestureGuide.quest.handsHint' => 'パネル外で軽くピンチすると表示を切り替えます。端をつかんで移動、角でサイズ変更、両手でピンチして広げるとスクリーンを拡大できます。',
 			'videoDetail.home' => 'ホーム',
 			'videoDetail.videoPlayer' => 'ビデオプレーヤー',
 			'videoDetail.videoPlayerInfo' => 'プレーヤー情報',
@@ -5223,6 +5379,8 @@ extension on TranslationsJa {
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
 			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
+			_ => null,
+		} ?? switch (path) {
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
 			'conversation.errors.clickToRetry' => 'クリックして再試行',
 			'conversation.errors.noMoreConversations' => 'もう会話がありません',
@@ -5296,8 +5454,6 @@ extension on TranslationsJa {
 			'download.errors.canNotRefreshVideoTask' => 'ビデオタスクの更新に失敗しました',
 			'download.errors.taskAlreadyProcessing' => 'タスクはすでに処理中です',
 			'download.errors.failedToLoadTasks' => 'タスクの読み込みに失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
 			'download.errors.unsupportedImageFormatWithMessage' => ({required Object extension}) => 'サポートされていない画像形式: ${extension}, デバイスにダウンロードして表示することができます',
 			'download.errors.imageLoadFailed' => '画像の読み込みに失敗しました',
@@ -5737,6 +5893,8 @@ extension on TranslationsJa {
 			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
 			'mediaPlayer.openSettingsAction' => '表示',
 			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '再生の通知: ${message}',
@@ -5810,8 +5968,6 @@ extension on TranslationsJa {
 			'logViewer.searchHint' => 'ログを検索...',
 			'logViewer.emptyState' => 'ログはありません',
 			'logViewer.copiedToClipboard' => 'クリップボードにコピーしました',
-			_ => null,
-		} ?? switch (path) {
 			'crashRecoveryDialog.title' => 'アプリが異常終了しました',
 			'crashRecoveryDialog.description' => '前回セッションで異常終了を検出しました。診断ログをエクスポートして開発者にメール送信すると、問題修正に役立ちます。',
 			'crashRecoveryDialog.previousVersion' => ({required Object version}) => '前回バージョン: ${version}',
@@ -6251,6 +6407,8 @@ extension on TranslationsJa {
 			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
 			'savedSearch.rename' => '名前を変更',
 			'savedSearch.noKeyword' => '（キーワードなし）',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個の絞り込み',
 			'defaultBlacklistReminder.title' => 'デフォルトのタグブラックリストを検出しました',
 			'defaultBlacklistReminder.content' => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？',
@@ -6324,8 +6482,6 @@ extension on TranslationsJa {
 			'externalPlayer.testFailed' => '起動に失敗しました。実行ファイルのパスを確認してください',
 			'externalPlayer.executableMissing' => '実行ファイルが見つかりません',
 			'externalPlayer.openWithNamed' => ({required Object name}) => '${name} で開く',
-			_ => null,
-		} ?? switch (path) {
 			'externalPlayer.managePlayersEntry' => '外部プレイヤーを管理…',
 			'watchLater.title' => 'あとで見る',
 			'watchLater.addToWatchLater' => 'あとで見る',

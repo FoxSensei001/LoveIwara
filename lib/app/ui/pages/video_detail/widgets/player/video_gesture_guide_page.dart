@@ -4,17 +4,24 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
+import 'quest_gesture_guide.dart';
+import 'quest_gesture_guide_content.dart';
 import 'video_gesture_illustration.dart';
 
 /// 首次进入视频详情前展示的「手势与交互指引」全屏页。
 ///
-/// - 内容按平台区分：桌面端展示键鼠/触控板操作，移动端展示触摸手势；
+/// - Quest 展示空间视频 / 图库与手柄 / 手势操作，其余平台展示原有指引；
 /// - 布局按可用宽度自适应：窄屏（手机）单列，宽屏（云 PC）两到三列，
 ///   兼顾云 PC 与窄屏手机两类用户；
 /// - 每张卡片以带固定顶/底控制栏的迷你播放器循环演示对应手势动效
 ///   （见 [AnimatedGestureIllustration]）。
 class VideoGestureGuidePage extends StatefulWidget {
-  const VideoGestureGuidePage({super.key});
+  const VideoGestureGuidePage({
+    super.key,
+    this.initialQuestMedia = QuestGuideMedia.video,
+  });
+
+  final QuestGuideMedia initialQuestMedia;
 
   @override
   State<VideoGestureGuidePage> createState() => _VideoGestureGuidePageState();
@@ -29,6 +36,7 @@ class _VideoGestureGuidePageState extends State<VideoGestureGuidePage>
   // 所有插画共享的动画时钟（累计秒数）。
   late final Ticker _clockTicker;
   final ValueNotifier<double> _clock = ValueNotifier<double>(0);
+  double _clockBase = 0;
 
   @override
   void initState() {
@@ -44,8 +52,8 @@ class _VideoGestureGuidePageState extends State<VideoGestureGuidePage>
     ).animate(CurvedAnimation(parent: _entrance, curve: Curves.easeOutCubic));
 
     _clockTicker = createTicker((elapsed) {
-      _clock.value = elapsed.inMicroseconds / 1e6;
-    })..start();
+      _clock.value = _clockBase + elapsed.inMicroseconds / 1e6;
+    });
   }
 
   @override
@@ -54,8 +62,15 @@ class _VideoGestureGuidePageState extends State<VideoGestureGuidePage>
     // 尊重系统「减弱动态效果」设置。
     if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
       _entrance.value = 1.0;
-    } else if (!_entrance.isCompleted && !_entrance.isAnimating) {
-      _entrance.forward();
+      _clockTicker.stop();
+    } else {
+      if (!_entrance.isCompleted && !_entrance.isAnimating) {
+        _entrance.forward();
+      }
+      if (!_clockTicker.isActive) {
+        _clockBase = _clock.value;
+        _clockTicker.start();
+      }
     }
   }
 
@@ -75,6 +90,13 @@ class _VideoGestureGuidePageState extends State<VideoGestureGuidePage>
 
   @override
   Widget build(BuildContext context) {
+    if (usesQuestGestureGuide) {
+      return QuestGestureGuide(
+        clock: _clock,
+        initialMedia: widget.initialQuestMedia,
+        onClose: _dismiss,
+      );
+    }
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final t = slang.Translations.of(context);

@@ -137,6 +137,9 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - path: assets/images/quest/
+      flavors:
+        - quest
     - assets/svg/
     - assets/icon/launcher_icon_v2.png
     - assets/anime4k_shaders/
