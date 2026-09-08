@@ -17,7 +17,6 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -28,6 +27,7 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import 'package:i_iwara/app/ui/widgets/iwara_site_badge.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class MyFavorites extends StatefulWidget {
   const MyFavorites({super.key});
@@ -290,7 +290,6 @@ class _MyFavoritesState extends State<MyFavorites>
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom:
@@ -299,15 +298,9 @@ class _MyFavoritesState extends State<MyFavorites>
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

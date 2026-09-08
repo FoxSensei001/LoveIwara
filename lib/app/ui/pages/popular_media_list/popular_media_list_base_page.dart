@@ -40,6 +40,7 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_c
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 // 定义抽象基类，包含泛型 T (媒体模型), C (特定媒体控制器), R (特定媒体仓库)
 abstract class PopularMediaListPageBase<
@@ -562,15 +563,9 @@ class PopularMediaListPageBaseState<
             (_mediaListController.isPaginated.value
                 ? PaginationBar.barHeight
                 : 0),
-        child: GlassReveal(
+        child: ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _mediaListController.scrollToTop,
-          ),
+          onPressed: _mediaListController.scrollToTop,
         ),
       );
     });

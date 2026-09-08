@@ -31,6 +31,7 @@ import 'package:i_iwara/app/ui/widgets/tag_detail_dialog.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 /// 标签媒体列表页面（`/tag_videos/:tagId`、`/tag_galleries/:tagId`）。
 ///
@@ -468,15 +469,9 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   Widget _buildScrollToTopButton(BuildContext context) {
     return Obx(() {
       final visible = _mediaListController.currentScrollOffset.value > 800;
-      return GlassReveal(
+      return ScrollToTopFab(
         visible: visible,
-        builder: (context, m) => GlassIconButton(
-          materialize: m,
-          standalone: true,
-          icon: const Icon(Icons.vertical_align_top),
-          tooltip: t.common.scrollToTop,
-          onPressed: _mediaListController.scrollToTop,
-        ),
+        onPressed: _mediaListController.scrollToTop,
       );
     });
   }

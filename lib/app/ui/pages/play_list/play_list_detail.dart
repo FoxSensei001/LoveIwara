@@ -26,6 +26,7 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 enum _PlaylistDetailMenuAction { editTitle, deletePlaylist, share, copyLink }
 
@@ -310,7 +311,6 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom:
@@ -319,15 +319,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

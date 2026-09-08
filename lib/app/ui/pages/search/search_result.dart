@@ -32,6 +32,7 @@ import 'package:i_iwara/app/models/saved_search.model.dart';
 import 'package:i_iwara/app/services/saved_search_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'widgets/saved_search_drawer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class SearchResultController extends GetxController {
   // 搜索状态管理
@@ -966,20 +967,13 @@ class _SearchResultState extends State<SearchResult> {
     BuildContext context, {
     required bool selecting,
   }) {
-    final t = slang.Translations.of(context);
     return ValueListenableBuilder<bool>(
       valueListenable: _showBackToTop,
-      builder: (context, visible, _) => GlassReveal(
+      builder: (context, visible, _) => ScrollToTopFab(
         visible: visible && !selecting,
         // 这处历来没有位移，只做材质淡入
         slideFrom: Offset.zero,
-        builder: (context, m) => GlassIconButton(
-          materialize: m,
-          standalone: true,
-          icon: const Icon(Icons.vertical_align_top),
-          tooltip: t.common.scrollToTop,
-          onPressed: searchController.scrollToTop,
-        ),
+        onPressed: searchController.scrollToTop,
       ),
     );
   }

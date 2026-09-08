@@ -17,7 +17,7 @@ import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class ConversationListWidget extends StatefulWidget {
   final Function(ConversationModel) onConversationSelected;
@@ -107,15 +107,9 @@ class _ConversationListWidgetState extends State<ConversationListWidget> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

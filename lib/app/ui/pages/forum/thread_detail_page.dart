@@ -29,6 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_title_dialog.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class ThreadDetailPage extends StatefulWidget {
   final String threadId;
@@ -356,7 +357,6 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Obx(
       () => Positioned(
         right: 16,
@@ -366,15 +366,9 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
             (isPaginated.value ? PaginationBar.barHeight : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => GlassReveal(
+          builder: (context, visible, _) => ScrollToTopFab(
             visible: visible,
-            builder: (context, m) => GlassIconButton(
-              materialize: m,
-              standalone: true,
-              icon: const Icon(Icons.vertical_align_top),
-              tooltip: t.common.scrollToTop,
-              onPressed: _scrollToTop,
-            ),
+            onPressed: _scrollToTop,
           ),
         ),
       ),

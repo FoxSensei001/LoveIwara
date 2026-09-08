@@ -11,7 +11,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -116,21 +116,14 @@ class _FriendsPageState extends State<FriendsPage>
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

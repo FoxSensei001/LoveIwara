@@ -23,6 +23,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class NewsDetailPage extends StatefulWidget {
   const NewsDetailPage({super.key, this.postId, this.postUrl, this.previewData})
@@ -256,21 +257,14 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏；宽屏双列各自滚动不提供）。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

@@ -15,7 +15,7 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 /// 下载分类管理页（玻璃化）：新建 / 重命名 / 删除 / 拖拽排序。
 ///
@@ -305,21 +305,14 @@ class _DownloadCategoryManagePageState
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: _scrollToTop,
-          ),
+          onPressed: _scrollToTop,
         ),
       ),
     );

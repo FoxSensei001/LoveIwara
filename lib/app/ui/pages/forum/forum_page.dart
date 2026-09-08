@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/iwara_page.model.dart';
@@ -27,8 +28,8 @@ import 'package:i_iwara/app/ui/pages/forum/forum_skeleton_page.dart';
 import 'package:i_iwara/app/ui/pages/community/community_header_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 /// 论坛页——社区栏目的「论坛」半边。
 ///
@@ -493,7 +494,6 @@ class ForumPageState extends State<ForumPage> {
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮；「最近」分页模式下抬到分页栏之上。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Obx(
       () => Positioned(
         // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
@@ -512,15 +512,9 @@ class ForumPageState extends State<ForumPage> {
           group: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
-            builder: (context, visible, _) => GlassReveal(
-              visible: visible,
-              builder: (context, m) => GlassIconButton(
-                materialize: m,
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollCurrentListToTop,
-              ),
+            builder: (context, visible, _) => ScrollToTopFab(
+              visible: visible && GlassPerfKnobs.fab,
+              onPressed: _scrollCurrentListToTop,
             ),
           ),
         ),

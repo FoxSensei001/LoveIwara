@@ -60,6 +60,7 @@ import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/batch_download_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class AuthorProfilePage extends StatefulWidget {
   final String username;
@@ -376,7 +377,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
 
   /// 滚过一段后出现在右下角的「回到顶部」浮钮（窄屏）。
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Obx(
       () => Positioned(
         right: 16,
@@ -389,15 +389,9 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           group: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
-            builder: (context, visible, _) => GlassReveal(
+            builder: (context, visible, _) => ScrollToTopFab(
               visible: visible,
-              builder: (context, m) => GlassIconButton(
-                materialize: m,
-                standalone: true,
-                icon: const Icon(Icons.vertical_align_top),
-                tooltip: t.common.scrollToTop,
-                onPressed: _scrollToTop,
-              ),
+              onPressed: _scrollToTop,
             ),
           ),
         ),

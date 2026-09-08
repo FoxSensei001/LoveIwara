@@ -20,6 +20,7 @@ import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class ThreadListPage extends StatefulWidget {
   final String categoryId;
@@ -182,15 +183,9 @@ class _ThreadListPageState extends State<ThreadListPage>
                 : 0),
         child: ValueListenableBuilder<bool>(
           valueListenable: _showBackToTop,
-          builder: (context, visible, _) => GlassReveal(
+          builder: (context, visible, _) => ScrollToTopFab(
             visible: visible,
-            builder: (context, m) => GlassIconButton(
-              materialize: m,
-              standalone: true,
-              icon: const Icon(Icons.vertical_align_top),
-              tooltip: t.common.scrollToTop,
-              onPressed: _scrollToTop,
-            ),
+            onPressed: _scrollToTop,
           ),
         ),
       ),

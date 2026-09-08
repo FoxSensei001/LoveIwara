@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:i_iwara/utils/frame_perf_probe.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 import 'dart:io';
 import 'dart:ui' show Canvas, PaintingStyle, Picture, PictureRecorder, Rect;
 
@@ -113,7 +114,11 @@ void main() {
           // 玻璃材质开关挂在最外层：Navigator / 根 Overlay 都在它下面，
           // 页面、弹窗、菜单、toast 才会在切档时一起重建。
           child: GlassMaterialScope(
-            child: TranslationProvider(child: const AppStartupShell()),
+            // 全 App 的「正在滚动」信号（见 ScrollActivityMonitor）：只旁听不拦截。
+            child: NotificationListener<ScrollNotification>(
+              onNotification: ScrollActivityMonitor.instance.handle,
+              child: TranslationProvider(child: const AppStartupShell()),
+            ),
           ),
         ),
       );

@@ -20,6 +20,7 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path_lib;
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class GalleryDownloadTaskDetailPage extends StatefulWidget {
   final String taskId;
@@ -200,28 +201,21 @@ class _GalleryDownloadTaskDetailPageState
   }
 
   Widget _buildScrollToTopFab(BuildContext context) {
-    final t = slang.Translations.of(context);
     return Positioned(
       right: 16,
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => GlassReveal(
+        builder: (context, visible, _) => ScrollToTopFab(
           visible: visible,
-          builder: (context, m) => GlassIconButton(
-            materialize: m,
-            standalone: true,
-            icon: const Icon(Icons.vertical_align_top),
-            tooltip: t.common.scrollToTop,
-            onPressed: () {
-              if (!_scrollController.hasClients) return;
-              _scrollController.animateTo(
-                0,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            },
-          ),
+          onPressed: () {
+            if (!_scrollController.hasClients) return;
+            _scrollController.animateTo(
+              0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          },
         ),
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:get/get.dart';
@@ -16,6 +15,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/post_input_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
 class ProfilePostTabListWidget extends StatefulWidget {
   final String userId;
@@ -248,22 +248,16 @@ class _ProfilePostTabListWidgetState extends State<ProfilePostTabListWidget>
               // 不能用 Obx 直接 `?: SizedBox()` 瞬间切换——那样玻璃是
               // 硬切出现的，没有其余三个 tab 共有的那段淡入。
               Obx(
-                () => GlassReveal(
+                () => ScrollToTopFab(
                   visible: _showBackToTop.value,
-                  builder: (context, m) => GlassIconButton(
-                    materialize: m,
-                    standalone: true,
-                    icon: const Icon(Icons.vertical_align_top),
-                    tooltip: t.common.scrollToTop,
-                    onPressed: () {
-                      if (!scrollTarget.hasClients) return;
-                      scrollTarget.animateTo(
-                        0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOutCubic,
-                      );
-                    },
-                  ),
+                  onPressed: () {
+                    if (!scrollTarget.hasClients) return;
+                    scrollTarget.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOutCubic,
+                    );
+                  },
                 ),
               ),
             ],
