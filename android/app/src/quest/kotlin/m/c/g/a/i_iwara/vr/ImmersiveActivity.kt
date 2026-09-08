@@ -27,6 +27,7 @@ import com.meta.spatial.runtime.ReferenceSpace
 import com.meta.spatial.runtime.SceneObject
 import com.meta.spatial.toolkit.ActivityPanelRegistration
 import com.meta.spatial.toolkit.AppSystemActivity
+import com.meta.spatial.toolkit.CylinderShapeOptions
 import com.meta.spatial.toolkit.DpDisplayOptions
 import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
 import com.meta.spatial.toolkit.Hittable
@@ -1032,8 +1033,39 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** Keep one authoritative pose for both the content and frame, ahead of ECS propagation. */
     private fun applyUiPanelPose(pose: Pose) {
         uiSurfacePose = pose
-        uiPanelEntity?.setComponent(Transform(pose))
-        uiPanel?.let { it.setPosition(pose.t); it.setRotationQuat(pose.q) }
+        val anchor = uiSurfaceToEntityPose(pose)
+        uiPanelEntity?.setComponent(Transform(anchor))
+        uiPanel?.let { it.setPosition(anchor.t); it.setRotationQuat(anchor.q) }
+    }
+
+    /**
+     * 2D 应用面板的网格半径（米）：**弧度**定死 [UI_PANEL_ARC_DEGREES]，半径由宽度反推。
+     *
+     * 与幕布同一套几何（[ScreenGeometry.radiusFor]）：面宽是弧长，`radius = 弧长 / 弧度`。
+     * 于是把窗拉宽拉窄，包过来的角度不变、弯的程度看起来是一致的。
+     */
+    private fun uiPanelMeshRadius(width: Float): Float = ScreenGeometry.radiusFor(UI_PANEL_ARC_DEGREES, width)
+
+    /**
+     * 曲面中心 → 实体锚点（同 [surfaceToEntityPose]）：圆柱的锚点在**轴心**，曲面在它前方一个半径处。
+     *
+     * ⛔ 半径要乘 [uiScale].x：拉角时面板整只是被 `Scale` 抻着的（松手才按新像素重排），
+     * 而 `Scale` 的 z 分量与 x 同值（见 [uiHost] 的 `resizeTo`）—— 圆柱等比缩放后仍是正圆柱，
+     * 半径与弧长同倍变大，弧度不变。不乘这一下，拖宽窗时曲面会离开轴心、整块往前跑。
+     */
+    private fun uiSurfaceToEntityPose(surface: Pose): Pose {
+        val radius = uiPanelMeshRadius(uiBaseSize.x) * uiScale.x
+        return Pose(surface.t - surface.forward() * radius, surface.q)
+    }
+
+    /**
+     * 把 2D 应用面板的碰撞面告诉 ISDK —— 与 [syncIsdkScreenShape] 同一件事、同一个坑：
+     * ISDK 默认按平面 quad 命中，弧面不同步就是「边缘光标消失」。
+     */
+    private fun syncIsdkUiShape() {
+        val entity = uiPanelEntity ?: return
+        entity.setComponent(IsdkPanelDimensions(Vector2(uiBaseSize.x * uiScale.x, uiBaseSize.y * uiScale.y)))
+        entity.setComponent(IsdkCurvedPanel(UI_PANEL_ARC_DEGREES))
     }
 
     /** 锚点是否是用兜底值捕获的（头部还没就绪），是的话头部一就绪就重新捕获。 */
@@ -1388,6 +1420,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         uiPlacement.reset()
         uiSurfacePose = PARKED_POSE
         uiPanelEntity = entity
+        syncIsdkUiShape()
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
             if (uiPanelEntity != entity) return@thenAccept
             val panel = so as? PanelSceneObject
@@ -1646,6 +1679,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun size() = Vector2(uiBaseSize.x * uiScale.x, uiBaseSize.y * uiScale.y)
 
+        // 微曲面：弧度定死，半径随宽度走（见 [uiPanelMeshRadius]）。窗框、射线命中、拉角平面全读这一份。
+        override fun arcDegrees() = UI_PANEL_ARC_DEGREES
+
         override fun moveTo(surface: Pose) {
             uiPlacement.moved()
             applyUiPanelPose(surface)
@@ -1655,10 +1691,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         @OptIn(com.meta.spatial.core.SpatialSDKExperimentalAPI::class)
         override fun resizeTo(size: Vector2, surface: Pose, commit: Boolean) {
             uiScale = Vector2(size.x / uiBaseSize.x, size.y / uiBaseSize.y)
-            val scale = Vector3(uiScale.x, uiScale.y, 1f)
+            // ⛔ z 必须跟着 x 一起缩，不能留 1：圆柱只有在 x/z 等比时才还是**正**圆柱。
+            // 只缩 x 会把它压成椭圆柱 —— 矢高恒等于建面板那一刻的那一档，于是窗越拉窄越像个瓢。
+            val scale = Vector3(uiScale.x, uiScale.y, uiScale.x)
             uiPanelEntity?.setComponent(Scale(scale))
             uiPanel?.setScale(scale)
             moveTo(surface)
+            syncIsdkUiShape()
             if (!commit) return
             val px = (size.x * UI_DP_PER_METER * UI_PANEL_DPI / 160f).roundToInt()
             val py = (size.y * UI_DP_PER_METER * UI_PANEL_DPI / 160f).roundToInt()
@@ -3319,7 +3358,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 val w = prefs.uiPanelWidth
                 val h = prefs.uiPanelHeight
                 UIPanelSettings(
-                    shape = QuadShapeOptions(width = w, height = h),
+                    // 微曲面：弧度定死 [UI_PANEL_ARC_DEGREES]，半径由建面板那一刻的宽度反推（见 [uiPanelMeshRadius]）。
+                    shape = CylinderShapeOptions(radius = uiPanelMeshRadius(w), width = w, height = h),
                     display = DpDisplayOptions(w * UI_DP_PER_METER, h * UI_DP_PER_METER, UI_PANEL_DPI),
                     // 窗口透明 + Flutter 根部裁圆角（MainActivity.getBackgroundMode / my_app.dart）：
                     // 面板要按 alpha 合成，四角才透得出后面的场景。
@@ -3431,6 +3471,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         /** 2D 面板的圆角：Flutter 侧裁 20dp（`kXrPanelCornerRadiusDp`），换算成米给窗框用。 */
         private const val UI_PANEL_CORNER_M = 20f / UI_DP_PER_METER
+
+        /**
+         * 2D 应用面板的微曲面弧度（度）。
+         *
+         * 默认 1.6m 宽 ⇒ 半径 3.06m、中心比两边远 10.6cm ——「3000R」那一档曲面显示器的手感：
+         * 一眼看得出是包着的，但边缘文字几乎不变形。比幕布最浅的 [ScreenCurve.SLIGHT]（40°）再收一点，
+         * 因为这块面板离人更近（[UI_PANEL_DISTANCE_M]），同样弧度看上去更弯。
+         */
+        private const val UI_PANEL_ARC_DEGREES = 30f
         private const val UI_PANEL_MIN_WIDTH_M = 0.8f
         private const val UI_PANEL_MIN_HEIGHT_M = 0.5f
         private const val UI_PANEL_MAX_WIDTH_M = 4.0f
