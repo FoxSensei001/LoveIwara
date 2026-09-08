@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show TextInput;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
@@ -140,6 +141,12 @@ class _LoginDialogState extends State<LoginDialog> {
         password,
       );
       if (result.isSuccess) {
+        // ⛔ 只有"结束填写上下文"这一下，系统才会弹「是否保存密码」。
+        // 光挂 autofillHints 只解决"填得进来"，存不进去——用户反馈的
+        // "没触发自动填充"里，回填不了下一次正是因为从来没存过。
+        // 刻意只在成功分支调用：密码错了还提示保存，存下来的就是错的。
+        // 也刻意早于 pop——弹窗一关字段就销毁了，那时再调用没有意义。
+        TextInput.finishAutofillContext();
         // 登录已成功(token 已就绪)；资料拉取成败决定提示文案，
         // 避免"成功 toast + 资料为空"的割裂(#3)。资料失败时后台会重试。
         final profileLoaded = await _userService.fetchUserProfile();
@@ -373,101 +380,113 @@ class _LoginFormSection extends StatelessWidget {
       child: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _kFormMaxWidth),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  Icons.lock_outline,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-                TextFormField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: t.auth.usernameOrEmail,
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+          // 系统密码管理器要认出这是一张登录表单，靠的是字段上的
+          // autofillHints；[AutofillGroup] 则负责把这两个字段圈成一组，
+          // 登录成功后一起提交给系统去问"要不要保存"。
+          child: AutofillGroup(
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(
+                    Icons.lock_outline,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.next,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return t.auth.pleaseEnterUsernameOrEmail;
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(passwordFocusNode);
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: passwordController,
-                  focusNode: passwordFocusNode,
-                  decoration: InputDecoration(
-                    labelText: t.auth.password,
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isPasswordVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                  const SizedBox(height: 24),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: t.auth.usernameOrEmail,
+                      prefixIcon: const Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: onTogglePasswordVisibility,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    keyboardType: TextInputType.text,
+                    // 用户名和邮箱都收，所以两条 hint 都给。⛔ 顺序有意义：
+                    // iOS 只取列表里的第一条，Android 才会拿整串去匹配。
+                    autofillHints: const [
+                      AutofillHints.username,
+                      AutofillHints.email,
+                    ],
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return t.auth.pleaseEnterUsernameOrEmail;
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(passwordFocusNode);
+                    },
                   ),
-                  obscureText: !isPasswordVisible,
-                  textInputAction: TextInputAction.done,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return t.auth.pleaseEnterPassword;
-                    }
-                    if (value.length < 6) {
-                      return t.auth.passwordMustBeAtLeast6Characters;
-                    }
-                    return null;
-                  },
-                  onFieldSubmitted: (_) => onSubmit(),
-                ),
-                const SizedBox(height: 12),
-                CheckboxListTile(
-                  value: rememberMe,
-                  onChanged: onRememberMeChanged,
-                  dense: true,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(t.auth.rememberMe),
-                ),
-                const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: isLoading ? null : onSubmit,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(
-                          t.auth.login,
-                          style: const TextStyle(fontSize: 16),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: passwordController,
+                    focusNode: passwordFocusNode,
+                    decoration: InputDecoration(
+                      labelText: t.auth.password,
+                      prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
-                ),
-              ],
+                        onPressed: onTogglePasswordVisibility,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    obscureText: !isPasswordVisible,
+                    autofillHints: const [AutofillHints.password],
+                    textInputAction: TextInputAction.done,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return t.auth.pleaseEnterPassword;
+                      }
+                      if (value.length < 6) {
+                        return t.auth.passwordMustBeAtLeast6Characters;
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (_) => onSubmit(),
+                  ),
+                  const SizedBox(height: 12),
+                  CheckboxListTile(
+                    value: rememberMe,
+                    onChanged: onRememberMeChanged,
+                    dense: true,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(t.auth.rememberMe),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: isLoading ? null : onSubmit,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            t.auth.login,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
