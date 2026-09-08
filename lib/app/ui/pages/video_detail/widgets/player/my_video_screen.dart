@@ -29,6 +29,7 @@ import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'bottom_toolbar_widget.dart';
+import 'player_icon.dart';
 import 'gesture_area_widget.dart';
 import 'top_toolbar_widget.dart';
 import 'video_zoom_view.dart';
@@ -1289,7 +1290,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
             type: MaterialType.transparency,
             child: IconButton(
               tooltip: t.common.back,
-              icon: Icon(Icons.arrow_back, color: Colors.white, size: iconSize),
+              icon: PlayerIcon(PlayerSymbol.back, color: Colors.white, size: iconSize),
               onPressed: () {
                 if (widget.isFullScreen) {
                   unawaited(widget.myVideoStateController.exitFullscreen());
@@ -1756,7 +1757,7 @@ class _MyVideoScreenState extends State<MyVideoScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 16),
+          const PlayerIcon(PlayerSymbol.error, color: Colors.red, size: 16),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -1849,8 +1850,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       color: Colors.white.withValues(alpha: 0.18),
                     ),
                   ),
-                  child: const Icon(
-                    Icons.play_arrow_rounded,
+                  child: const PlayerIcon(
+                    PlayerSymbol.play,
                     color: Colors.white,
                     size: 32,
                   ),
@@ -1894,19 +1895,12 @@ class _MyVideoScreenState extends State<MyVideoScreen>
               child: AnimatedScale(
                 scale: myVideoStateController.videoPlaying.value ? 1.0 : 0.9,
                 duration: const Duration(milliseconds: 150),
-                child: Icon(
+                child: PlayerIcon(
                   myVideoStateController.videoPlaying.value
-                      ? Icons.pause
-                      : Icons.play_arrow,
+                      ? PlayerSymbol.pause
+                      : PlayerSymbol.play,
                   color: Colors.white,
                   size: size * 0.6, // 图标大小为容器的60%
-                  shadows: [
-                    Shadow(
-                      blurRadius: 8.0,
-                      color: Colors.black.withValues(alpha: 0.5),
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -2029,46 +2023,15 @@ class _MyVideoScreenState extends State<MyVideoScreen>
 
   Widget _buildBrightnessInfoMessage() {
     return Obx(() {
-      var curBrightness = _configService[ConfigKey.BRIGHTNESS_KEY] as double;
-      IconData brightnessIcon;
-      String brightnessText;
-
-      if (curBrightness <= 0.0) {
-        brightnessIcon = Icons.brightness_3_rounded;
-        brightnessText = slang.t.videoDetail.brightnessLowest;
-      } else if (curBrightness > 0.0 && curBrightness <= 0.2) {
-        brightnessIcon = Icons.brightness_2_rounded;
-        brightnessText =
-            '${slang.t.videoDetail.brightness}: ${(curBrightness * 100).toInt()}%';
-      } else if (curBrightness > 0.2 && curBrightness <= 0.5) {
-        brightnessIcon = Icons.brightness_5_rounded;
-        brightnessText =
-            '${slang.t.videoDetail.brightness}: ${(curBrightness * 100).toInt()}%';
-      } else if (curBrightness > 0.5 && curBrightness <= 0.8) {
-        brightnessIcon = Icons.brightness_4_rounded;
-        brightnessText =
-            '${slang.t.videoDetail.brightness}: ${(curBrightness * 100).toInt()}%';
-      } else if (curBrightness > 0.8 && curBrightness <= 1.0) {
-        brightnessIcon = Icons.brightness_7_rounded;
-        brightnessText =
-            '${slang.t.videoDetail.brightness}: ${(curBrightness * 100).toInt()}%';
-      } else {
-        // 处理意外情况，例如亮度超过范围
-        brightnessIcon = Icons.brightness_3_rounded;
-        brightnessText =
-            '${slang.t.videoDetail.brightness}: ${(curBrightness * 100).toInt()}%';
-      }
-
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(brightnessIcon, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            brightnessText,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ],
+      final curBrightness = _configService[ConfigKey.BRIGHTNESS_KEY] as double;
+      // 只有"最低"值得一句专属文案，其余一律报百分比——包括越界值，
+      // 夹回 0..1 后照常显示，免得意外值静默变成"最低"。
+      final clamped = curBrightness.clamp(0.0, 1.0);
+      return PlayerHudMessage(
+        symbol: brightnessSymbolFor(clamped),
+        text: curBrightness <= 0.0
+            ? slang.t.videoDetail.brightnessLowest
+            : '${slang.t.videoDetail.brightness}: ${(clamped * 100).toInt()}%',
       );
     });
   }
@@ -2084,54 +2047,22 @@ class _MyVideoScreenState extends State<MyVideoScreen>
     return Obx(() {
       final double speed =
           widget.myVideoStateController.playerPlaybackSpeed.value;
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.speed, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            '${_formatPlaybackSpeed(speed)}x',
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ],
+      return PlayerHudMessage(
+        symbol: PlayerSymbol.speed,
+        text: '${_formatPlaybackSpeed(speed)}x',
       );
     });
   }
 
   Widget _buildVolumeInfoMessage() {
     return Obx(() {
-      var curVolume = _configService[ConfigKey.VOLUME_KEY] as double;
-      IconData volumeIcon;
-      String volumeText;
-
-      if (curVolume == 0.0) {
-        volumeIcon = Icons.volume_off;
-        volumeText = slang.t.videoDetail.volumeMuted;
-      } else if (curVolume > 0.0 && curVolume <= 0.3) {
-        volumeIcon = Icons.volume_down;
-        volumeText =
-            '${slang.t.videoDetail.volume}: ${(curVolume * 100).toInt()}%';
-      } else if (curVolume > 0.3 && curVolume <= 1.0) {
-        volumeIcon = Icons.volume_up;
-        volumeText =
-            '${slang.t.videoDetail.volume}: ${(curVolume * 100).toInt()}%';
-      } else {
-        // 处理意外情况，例如音量超过范围
-        volumeIcon = Icons.volume_off;
-        volumeText =
-            '${slang.t.videoDetail.volume}: ${(curVolume * 100).toInt()}%';
-      }
-
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(volumeIcon, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            volumeText,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ],
+      final curVolume = _configService[ConfigKey.VOLUME_KEY] as double;
+      final clamped = curVolume.clamp(0.0, 1.0);
+      return PlayerHudMessage(
+        symbol: volumeSymbolFor(clamped),
+        text: curVolume <= 0.0
+            ? slang.t.videoDetail.volumeMuted
+            : '${slang.t.videoDetail.volume}: ${(clamped * 100).toInt()}%',
       );
     });
   }
@@ -2357,8 +2288,8 @@ class _MyVideoScreenState extends State<MyVideoScreen>
                       }
                     },
                     borderRadius: BorderRadius.circular(8),
-                    child: Icon(
-                      isLocked ? Icons.lock_rounded : Icons.lock_open_rounded,
+                    child: PlayerIcon(
+                      isLocked ? PlayerSymbol.lock : PlayerSymbol.lockOpen,
                       color: Colors.white,
                       size: 24,
                     ),
@@ -2405,7 +2336,7 @@ class _QueueEdgeHandle extends StatelessWidget {
             ),
           ),
           child: const Center(
-            child: Icon(Icons.chevron_left, size: 20, color: Colors.white),
+            child: PlayerIcon(PlayerSymbol.chevronLeft, size: 20, color: Colors.white),
           ),
         ),
       ),

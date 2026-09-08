@@ -8,7 +8,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/volume_control_widget.dart';
@@ -28,6 +27,7 @@ import '../../controllers/my_video_state_controller.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 
 import 'custom_slider_bar_shape_widget.dart';
+import 'player_icon.dart';
 import 'toolbar_fade_visibility.dart';
 import 'vr/vr_format_menu.dart';
 import 'vr/vr_suggestion_tip.dart';
@@ -542,10 +542,6 @@ class BottomToolbar extends StatelessWidget {
     );
   }
 
-  /// 获取分辨率对应的 SVG 资源路径（与下载清晰度选择共用同一套映射）
-  String _getResolutionIconAsset(String? label) =>
-      CommonUtils.getQualityIconAsset(label);
-
   /// 分辨率切换器
   Widget _buildResolutionSwitcher(BuildContext context, double iconSize) {
     final t = slang.Translations.of(context);
@@ -599,16 +595,9 @@ class BottomToolbar extends StatelessWidget {
                         t,
                         resolution.label,
                       ),
-                      leading: SvgPicture.asset(
-                        _getResolutionIconAsset(resolution.label),
-                        colorFilter: ColorFilter.mode(
-                          // leading 槽位外面套了一层跟着行语义色走的 IconTheme，
-                          // SVG 不吃 IconTheme，得自己取一次当前色。
-                          IconTheme.of(anchorContext).color ?? Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                        width: 20,
-                        height: 20,
+                      leading: PlayerQualityIcon(
+                        quality: resolution.label,
+                        size: 20,
                       ),
                       selected: resolution.label == currentResolution,
                     ),
@@ -620,14 +609,10 @@ class BottomToolbar extends StatelessWidget {
               width: touchSize,
               height: touchSize,
               alignment: Alignment.center,
-              child: SvgPicture.asset(
-                _getResolutionIconAsset(currentResolution),
-                colorFilter: const ColorFilter.mode(
-                  Colors.white,
-                  BlendMode.srcIn,
-                ),
-                width: iconSize,
-                height: iconSize,
+              child: PlayerQualityIcon(
+                quality: currentResolution,
+                color: Colors.white,
+                size: iconSize,
               ),
             ),
           ),
@@ -683,14 +668,10 @@ class BottomToolbar extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SvgPicture.asset(
-              'assets/svg/playback_speed.svg',
-              colorFilter: const ColorFilter.mode(
-                Colors.white,
-                BlendMode.srcIn,
-              ),
-              width: iconSize,
-              height: iconSize,
+            PlayerIcon(
+              PlayerSymbol.speed,
+              color: Colors.white,
+              size: iconSize,
             ),
             const SizedBox(width: 4),
             // 显示当前视频的实时倍速，便于通过快捷键调整后一眼确认。
@@ -859,8 +840,8 @@ class BottomToolbar extends StatelessWidget {
                     tooltip: onOpenQueueDrawer != null
                         ? t.playbackQueue.playNextHint
                         : t.playbackQueue.playNext,
-                    icon: Icon(
-                      Icons.skip_next,
+                    icon: PlayerIcon(
+                      PlayerSymbol.next,
                       color: Colors.white,
                       size: iconSize,
                     ),
@@ -895,10 +876,10 @@ class BottomToolbar extends StatelessWidget {
             tooltip: myVideoStateController.videoPlaying.value
                 ? t.videoDetail.pause
                 : t.videoDetail.play,
-            icon: Icon(
+            icon: PlayerIcon(
               myVideoStateController.videoPlaying.value
-                  ? Icons.pause
-                  : Icons.play_arrow,
+                  ? PlayerSymbol.pause
+                  : PlayerSymbol.play,
               key: ValueKey(
                 myVideoStateController.videoPlaying.value ? 'pause' : 'play',
               ),
@@ -965,30 +946,17 @@ class BottomToolbar extends StatelessWidget {
                 ? t.videoDetail.exitAppFullscreen
                 : t.videoDetail.enterAppFullscreen,
             icon: Obx(() {
-              return SizedBox(
-                width: iconSize,
-                height: iconSize,
-                child: (myVideoStateController.isDesktopAppFullScreen.value)
-                    ? SvgPicture.asset(
-                        'assets/svg/app_exit_fullscreen.svg',
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                        width: iconSize,
-                        height: iconSize,
-                        semanticsLabel: t.videoDetail.exitAppFullscreen,
-                      )
-                    : SvgPicture.asset(
-                        'assets/svg/app_enter_fullscreen.svg',
-                        colorFilter: const ColorFilter.mode(
-                          Colors.white,
-                          BlendMode.srcIn,
-                        ),
-                        width: iconSize,
-                        height: iconSize,
-                        semanticsLabel: t.videoDetail.enterAppFullscreen,
-                      ),
+              final expanded =
+                  myVideoStateController.isDesktopAppFullScreen.value;
+              return PlayerIcon(
+                expanded
+                    ? PlayerSymbol.exitWindowFullscreen
+                    : PlayerSymbol.windowFullscreen,
+                color: Colors.white,
+                size: iconSize,
+                semanticLabel: expanded
+                    ? t.videoDetail.exitAppFullscreen
+                    : t.videoDetail.enterAppFullscreen,
               );
             }),
             onPressed: () {
@@ -1006,16 +974,12 @@ class BottomToolbar extends StatelessWidget {
             tooltip: currentScreenIsFullScreen
                 ? t.videoDetail.exitSystemFullscreen
                 : t.videoDetail.enterSystemFullscreen,
-            icon: SvgPicture.asset(
+            icon: PlayerIcon(
               currentScreenIsFullScreen
-                  ? 'assets/svg/fullscreen_exit.svg'
-                  : 'assets/svg/fullscreen_enter.svg',
-              colorFilter: const ColorFilter.mode(
-                Colors.white,
-                BlendMode.srcIn,
-              ),
-              width: iconSize,
-              height: iconSize,
+                  ? PlayerSymbol.exitFullscreen
+                  : PlayerSymbol.fullscreen,
+              color: Colors.white,
+              size: iconSize,
             ),
             onPressed: () {
               if (currentScreenIsFullScreen) {
@@ -1111,8 +1075,8 @@ class ResumePositionTip extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (density == ResumeTipDensity.full) ...[
-                        Icon(
-                          Icons.history_rounded,
+                        PlayerIcon(
+                          PlayerSymbol.history,
                           size: iconSize,
                           color: Colors.white70,
                         ),
@@ -1236,7 +1200,7 @@ class _ResumeTipCloseButton extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: const Icon(Icons.close, color: Colors.white70, size: 15),
+            child: const PlayerIcon(PlayerSymbol.close, color: Colors.white70, size: 15),
           ),
         ),
       ),

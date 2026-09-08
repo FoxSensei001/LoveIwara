@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/player_icon.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
@@ -258,14 +258,12 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
           label: CommonUtils.getQualityDisplayLabel(t, source.name),
           selected: isSelected,
           onTap: () => _selectQuality(source),
-          leading: SvgPicture.asset(
-            CommonUtils.getQualityIconAsset(source.name),
-            width: 15,
-            height: 15,
-            colorFilter: ColorFilter.mode(
-              isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
-              BlendMode.srcIn,
-            ),
+          leading: PlayerQualityIcon(
+            quality: source.name,
+            size: 15,
+            color: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onSurfaceVariant,
           ),
           trailing: badgeText == null
               ? null

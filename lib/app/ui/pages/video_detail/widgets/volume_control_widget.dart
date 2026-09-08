@@ -6,6 +6,7 @@ import '../../../../../../i18n/strings.g.dart' as slang;
 
 import '../../../../services/config_service.dart';
 import '../controllers/my_video_state_controller.dart';
+import 'player/player_icon.dart';
 
 class VolumeControl extends StatefulWidget {
   final ConfigService configService;
@@ -61,18 +62,11 @@ class _VolumeControlState extends State<VolumeControl>
     });
   }
 
-  Widget _getVolumeIcon(double volume) {
-    IconData iconData;
-    if (volume == 0) {
-      iconData = Icons.volume_off;
-    } else if (volume < 0.5) {
-      iconData = Icons.volume_down;
-    } else {
-      iconData = Icons.volume_up;
-    }
-
-    return Icon(iconData, size: widget.iconSize, color: Colors.white);
-  }
+  Widget _getVolumeIcon(double volume) => PlayerIcon(
+    volumeSymbolFor(volume),
+    size: widget.iconSize,
+    color: Colors.white,
+  );
 
   @override
   void dispose() {

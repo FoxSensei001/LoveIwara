@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // 新增
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import '../../../../../routes/app_router.dart';
 import 'player_settings_drawer.dart';
+import 'player_icon.dart';
 import 'toolbar_fade_visibility.dart';
 import '../../controllers/my_video_state_controller.dart';
 import '../../../../../../i18n/strings.g.dart' as slang;
@@ -260,83 +260,37 @@ class _TopToolbarState extends State<TopToolbar> {
     return '$hour:$minute';
   }
 
-  // --- SVG 构建逻辑开始 ---
-
   /// 根据时间段获取时间图标
   Widget _buildTimeIcon(DateTime time) {
     final hour = time.hour;
 
-    IconData iconData;
+    PlayerSymbol iconData;
     if (hour >= 6 && hour < 11) {
       // Morning
-      iconData = Icons.wb_twilight;
+      iconData = PlayerSymbol.sunrise;
     } else if (hour >= 11 && hour < 17) {
       // Day
-      iconData = Icons.wb_sunny_outlined;
+      iconData = PlayerSymbol.sun;
     } else if (hour >= 17 && hour < 19) {
       // Evening
-      iconData = Icons.wb_twilight;
+      iconData = PlayerSymbol.sunrise;
     } else {
       // Night
-      iconData = Icons.nights_stay_outlined;
+      iconData = PlayerSymbol.moon;
     }
 
-    return Icon(iconData, color: Colors.white, size: 16);
+    return PlayerIcon(iconData, color: Colors.white, size: 16);
   }
 
-  /// 动态构建电池 SVG
-  Widget _buildBatterySvg(int level, BatteryState state) {
-    // 确定颜色
-    Color batteryColor = Colors.white;
-    bool isCharging =
+  Widget _buildBatteryIcon(int level, BatteryState state) {
+    final isCharging =
         state == BatteryState.charging || state == BatteryState.full;
-
-    if (isCharging) {
-      batteryColor = const Color(0xFF4CAF50); // 充电中显示绿色
-    } else if (level <= 20) {
-      batteryColor = const Color(0xFFF44336); // 低电量显示红色
-    }
-
-    // 将 Color 转换为 Hex String for SVG
-    final int argb =
-        (batteryColor.a * 255).toInt() << 24 |
-        (batteryColor.r * 255).toInt() << 16 |
-        (batteryColor.g * 255).toInt() << 8 |
-        (batteryColor.b * 255).toInt();
-    String colorHex = '#${argb.toRadixString(16).padLeft(8, '0').substring(2)}';
-
-    // 计算内部矩形的宽度
-    // 电池外框从 x=5 到 x=19，宽度为 14
-    // 考虑到 stroke-width=1.5，实际内部可用区域从 x=6.5 到 x=17.5，宽度为 11
-    // 填充矩形从 x=6.5 开始，最大宽度为 11
-    const double maxFillWidth = 11.0;
-    double fillWidth = (level / 100.0) * maxFillWidth;
-    if (fillWidth < 0) fillWidth = 0;
-    if (fillWidth > maxFillWidth) fillWidth = maxFillWidth;
-
-    // SVG 字符串
-    String svgString =
-        '''
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 电池外框 -->
-        <path d="M17 6H7C5.89543 6 5 6.89543 5 8V16C5 17.1046 5.89543 18 7 18H17C18.1046 18 19 17.1046 19 16V8C19 6.89543 18.1046 6 17 6Z" stroke="$colorHex" stroke-width="1.5"/>
-        <!-- 电池正极头 -->
-        <path d="M20 10V14" stroke="$colorHex" stroke-width="1.5" stroke-linecap="round"/>
-        
-        <!-- 电量填充 -->
-        <rect x="6.5" y="7.5" width="$fillWidth" height="9" rx="0.5" fill="$colorHex"/>
-        
-        ${isCharging ?
-              // 充电闪电图标 (居中覆盖)
-              '''<path d="M11 15L13.5 10H10.5L13 7" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="white"/>''' : ''}
-      </svg>
-    ''';
-
-    return SvgPicture.string(
-      svgString,
-      width: 24,
-      height: 14, // 稍微压扁一点适应工具栏，或者保持比例
-    );
+    final color = isCharging
+        ? const Color(0xFF4CAF50)
+        : level <= 20
+        ? const Color(0xFFF44336)
+        : Colors.white;
+    return PlayerBatteryIcon(level: level, charging: isCharging, color: color);
   }
 
   /// 判断是否应该显示网络状态
@@ -348,102 +302,28 @@ class _TopToolbarState extends State<TopToolbar> {
         _connectivityResult == ConnectivityResult.none;
   }
 
-  /// 网络状态图标（不显示文本）
+  /// 与播放控制共用圆角符号，状态槽位仍保持 20 × 16。
   Widget _buildNetworkStatus() {
-    // 根据网络类型返回对应的 SVG 图标
-    switch (_connectivityResult) {
-      case ConnectivityResult.wifi:
-        return _buildWifiIcon();
-      case ConnectivityResult.mobile:
-        return _buildMobileNetworkIcon();
-      case ConnectivityResult.ethernet:
-        return _buildEthernetIcon();
-      case ConnectivityResult.none:
-        // 无网络显示红色的断网图标
-        return _buildNoNetworkIcon();
-      // 其他类型（vpn, bluetooth, other）不显示
-      default:
-        return const SizedBox.shrink();
-    }
+    final symbol = switch (_connectivityResult) {
+      ConnectivityResult.wifi => PlayerSymbol.wifi,
+      ConnectivityResult.mobile => PlayerSymbol.cellular,
+      ConnectivityResult.ethernet => PlayerSymbol.ethernet,
+      ConnectivityResult.none => PlayerSymbol.wifiOff,
+      _ => null,
+    };
+    if (symbol == null) return const SizedBox.shrink();
+    return SizedBox(
+      width: 20,
+      height: 16,
+      child: PlayerIcon(
+        symbol,
+        size: 16,
+        color: _connectivityResult == ConnectivityResult.none
+            ? const Color(0xFFF44336)
+            : Colors.white,
+      ),
+    );
   }
-
-  /// WiFi 图标（带信号强度）
-  Widget _buildWifiIcon() {
-    // WiFi 图标 - 简洁的扇形信号设计
-    // 由于 network_info_plus 不提供信号强度，我们显示满信号的 WiFi 图标
-    const String svgString = '''
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- WiFi 信号波纹 - 3层 -->
-        <path d="M12 18C12.5523 18 13 17.5523 13 17C13 16.4477 12.5523 16 12 16C11.4477 16 11 16.4477 11 17C11 17.5523 11.4477 18 12 18Z" fill="white"/>
-        <path d="M9.17 14.83C9.95639 14.0436 11.0217 13.5977 12.135 13.5977C13.2483 13.5977 14.3136 14.0436 15.1 14.83" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M6.34 12C7.90609 10.4339 10.0261 9.55664 12.235 9.55664C14.4439 9.55664 16.5639 10.4339 18.13 12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M3.51 9.17C5.85609 6.82391 9.08174 5.50391 12.455 5.50391C15.8283 5.50391 19.0539 6.82391 21.4 9.17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    ''';
-
-    return SvgPicture.string(svgString, width: 20, height: 16);
-  }
-
-  /// 移动网络图标（统一样式）
-  Widget _buildMobileNetworkIcon() {
-    // 移动网络信号塔图标
-    const String svgString = '''
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 信号塔主体 -->
-        <path d="M12 4L9 9H15L12 4Z" fill="white"/>
-        <rect x="11" y="9" width="2" height="11" fill="white"/>
-        <!-- 左侧信号波 -->
-        <path d="M7 11C8.5 11 9 12 9 13" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M5 9C7.5 9 8.5 11 8.5 13" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-        <!-- 右侧信号波 -->
-        <path d="M17 11C15.5 11 15 12 15 13" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-        <path d="M19 9C16.5 9 15.5 11 15.5 13" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
-        <!-- 底座 -->
-        <rect x="9" y="20" width="6" height="1.5" rx="0.5" fill="white"/>
-      </svg>
-    ''';
-
-    return SvgPicture.string(svgString, width: 20, height: 16);
-  }
-
-  /// 宽带（以太网）图标
-  Widget _buildEthernetIcon() {
-    // 以太网接口图标
-    const String svgString = '''
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- 网线接口外框 -->
-        <rect x="4" y="8" width="16" height="10" rx="1.5" stroke="white" stroke-width="1.5"/>
-        <!-- 接口卡槽 -->
-        <rect x="7" y="11" width="2" height="4" rx="0.5" fill="white"/>
-        <rect x="11" y="11" width="2" height="4" rx="0.5" fill="white"/>
-        <rect x="15" y="11" width="2" height="4" rx="0.5" fill="white"/>
-        <!-- 网线 -->
-        <path d="M10 8V5H14V8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M10 5H14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-    ''';
-
-    return SvgPicture.string(svgString, width: 20, height: 16);
-  }
-
-  /// 无网络图标
-  Widget _buildNoNetworkIcon() {
-    // 断网图标 - WiFi + 斜线
-    const String svgString = '''
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- WiFi 信号（半透明） -->
-        <path d="M12 18C12.5523 18 13 17.5523 13 17C13 16.4477 12.5523 16 12 16C11.4477 16 11 16.4477 11 17C11 17.5523 11.4477 18 12 18Z" fill="#F44336" opacity="0.5"/>
-        <path d="M9.17 14.83C9.95639 14.0436 11.0217 13.5977 12.135 13.5977C13.2483 13.5977 14.3136 14.0436 15.1 14.83" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <path d="M6.34 12C7.90609 10.4339 10.0261 9.55664 12.235 9.55664C14.4439 9.55664 16.5639 10.4339 18.13 12" stroke="#F44336" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
-        <!-- 斜线表示断网 -->
-        <line x1="4" y1="20" x2="20" y2="4" stroke="#F44336" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    ''';
-
-    return SvgPicture.string(svgString, width: 20, height: 16);
-  }
-
-  // --- SVG 构建逻辑结束 ---
 
   @override
   Widget build(BuildContext context) {
@@ -479,262 +359,300 @@ class _TopToolbarState extends State<TopToolbar> {
               ),
             ],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 左侧部分
-              Expanded(
+          // ⛔ 竖屏手机（360dp 宽）上这排钮原本摆不下：默认 IconButton 是
+          // 48dp 的方框套 20dp 图标，一边空着 14dp，左二右五共七枚就吃掉
+          // 336dp，标题只剩 24dp——真机上被压成「R⋯」。所以窄屏换成贴合
+          // 图标的紧凑框：命中区仍是整枚方框，只是不再摊那圈空白。
+          //
+          // 收在 IconButtonTheme 里而不是逐枚传参，是因为这排钮里有
+          // [PlaybackHandoffButton]、Anime4K 这些自带 IconButton 的独立
+          // 组件——逐枚改必然漏，主题一挂就全跟着走。
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 480;
+              final double box = compact ? 36 : 48;
+              return IconButtonTheme(
+                data: IconButtonThemeData(
+                  style: IconButton.styleFrom(
+                    minimumSize: Size.square(box),
+                    // 图标之外只留下必要的呼吸位；48dp 那档仍走 Material 默认。
+                    padding: EdgeInsets.all((box - iconSize) / 2),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      tooltip: t.common.back,
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: iconSize,
-                      ),
-                      onPressed: () {
-                        if (isFullScreen) {
-                          widget.myVideoStateController.exitFullscreen();
-                        } else if (widget
-                            .myVideoStateController
-                            .isDesktopAppFullScreen
-                            .value) {
-                          // 应用内全屏下，返回键先退出应用内全屏，而不是关闭页面
-                          widget
+                    // 左侧部分
+                    Expanded(
+                      child: Row(
+                        children: [
+                          IconButton(
+                            tooltip: t.common.back,
+                            icon: PlayerIcon(
+                              PlayerSymbol.back,
+                              color: Colors.white,
+                              size: iconSize,
+                            ),
+                            onPressed: () {
+                              if (isFullScreen) {
+                                widget.myVideoStateController.exitFullscreen();
+                              } else if (widget
                                   .myVideoStateController
                                   .isDesktopAppFullScreen
-                                  .value =
-                              false;
-                          Get.find<AppService>().showSystemUI();
-                        } else {
-                          AppService.tryPop();
-                        }
-                      },
-                    ),
-                    if (!isFullScreen &&
-                        !widget
-                            .myVideoStateController
-                            .isDesktopAppFullScreen
-                            .value)
-                      IconButton(
-                        tooltip: t.videoDetail.home,
-                        icon: Icon(
-                          Icons.home,
-                          color: Colors.white,
-                          size: iconSize,
-                        ),
-                        // 回到「视频」那一类的首页页签：从订阅进来的落回订阅的
-                        // 视频半边，其余（社区 / 图库 / 视频栏）落回视频栏。
-                        onPressed: () => goHomeForMedia(MediaType.VIDEO),
-                      ),
-                    Expanded(
-                      child: Obx(
-                        () => Text(
-                          widget
-                                  .myVideoStateController
-                                  .videoInfo
-                                  .value
-                                  ?.title ??
-                              t.videoDetail.videoPlayer,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSize,
+                                  .value) {
+                                // 应用内全屏下，返回键先退出应用内全屏，而不是关闭页面
+                                widget
+                                        .myVideoStateController
+                                        .isDesktopAppFullScreen
+                                        .value =
+                                    false;
+                                Get.find<AppService>().showSystemUI();
+                              } else {
+                                AppService.tryPop();
+                              }
+                            },
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 中间:[状态信息]全屏模式下显示时间、电量、网络状态
-              if (isFullScreen &&
-                  !((GetPlatform.isAndroid || GetPlatform.isIOS) &&
-                      MediaQuery.of(context).orientation ==
-                          Orientation.portrait))
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black12,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // 系统时间 (带动态 Icon)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildTimeIcon(_currentTime),
-                          const SizedBox(width: 6),
-                          Text(
-                            _formatTime(_currentTime),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'RobotoMono',
+                          if (!isFullScreen &&
+                              !widget
+                                  .myVideoStateController
+                                  .isDesktopAppFullScreen
+                                  .value)
+                            IconButton(
+                              tooltip: t.videoDetail.home,
+                              icon: PlayerIcon(
+                                PlayerSymbol.home,
+                                color: Colors.white,
+                                size: iconSize,
+                              ),
+                              // 回到「视频」那一类的首页页签：从订阅进来的落回订阅的
+                              // 视频半边，其余（社区 / 图库 / 视频栏）落回视频栏。
+                              onPressed: () => goHomeForMedia(MediaType.VIDEO),
+                            ),
+                          Expanded(
+                            child: Obx(
+                              () => Text(
+                                widget
+                                        .myVideoStateController
+                                        .videoInfo
+                                        .value
+                                        ?.title ??
+                                    t.videoDetail.videoPlayer,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: fontSize,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      // 分隔符
-                      if (_batterySupported) ...[
-                        const SizedBox(width: 8),
-                        Container(width: 1, height: 12, color: Colors.white24),
-                        const SizedBox(width: 8),
-                      ],
-                      // 电量显示 (SVG 动态构建)
-                      if (_batterySupported) ...[
-                        Row(
+                    ),
+
+                    // 中间:[状态信息]全屏模式下显示时间、电量、网络状态
+                    if (isFullScreen &&
+                        !((GetPlatform.isAndroid || GetPlatform.isIOS) &&
+                            MediaQuery.of(context).orientation ==
+                                Orientation.portrait))
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black12,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildBatterySvg(_batteryLevel, _batteryState),
-                            const SizedBox(width: 6),
-                            Text(
-                              '$_batteryLevel%',
-                              style: TextStyle(
-                                color: (_batteryState == BatteryState.charging)
-                                    ? const Color(0xFF4CAF50)
-                                    : (_batteryLevel <= 20
-                                          ? const Color(0xFFF44336)
-                                          : Colors.white),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            // 系统时间 (带动态 Icon)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildTimeIcon(_currentTime),
+                                const SizedBox(width: 6),
+                                Text(
+                                  _formatTime(_currentTime),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'RobotoMono',
+                                  ),
+                                ),
+                              ],
                             ),
+                            // 分隔符
+                            if (_batterySupported) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 1,
+                                height: 12,
+                                color: Colors.white24,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            // 电量显示
+                            if (_batterySupported) ...[
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _buildBatteryIcon(
+                                    _batteryLevel,
+                                    _batteryState,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '$_batteryLevel%',
+                                    style: TextStyle(
+                                      color:
+                                          (_batteryState ==
+                                              BatteryState.charging)
+                                          ? const Color(0xFF4CAF50)
+                                          : (_batteryLevel <= 20
+                                                ? const Color(0xFFF44336)
+                                                : Colors.white),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            // 电量与网络之间的分隔
+                            if (_shouldShowNetworkStatus()) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 1,
+                                height: 12,
+                                color: Colors.white24,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            // 网络状态
+                            if (_shouldShowNetworkStatus())
+                              _buildNetworkStatus(),
                           ],
                         ),
-                      ],
-                      // 电量与网络之间的分隔
-                      if (_shouldShowNetworkStatus()) ...[
-                        const SizedBox(width: 8),
-                        Container(width: 1, height: 12, color: Colors.white24),
-                        const SizedBox(width: 8),
-                      ],
-                      // 网络状态
-                      if (_shouldShowNetworkStatus()) _buildNetworkStatus(),
-                    ],
-                  ),
-                ),
+                      ),
 
-              // 右侧部分
-              Row(
-                children: [
-                  // 「进入影院」：把当前视频交给 XR 沉浸空间，作为独立的空间对象呈现
-                  // （平面片走幕布，180/360 走球幕，配空间化控制条），而不是继续画在
-                  // 这块 2D 面板里。
-                  //
-                  // ⛔ 露出条件只问「沉浸场景在不在」，**不问设备是不是 Quest**：
-                  // standard 变体根本不注册这条通道，可用性天然为 false；
-                  // 而 Quest 上应用也可能处在普通 2D 面板形态（场景没起来），
-                  // 那时同样不该露出。
-                  Obx(() {
-                    if (!Get.find<XrImmersiveService>().available.value) {
-                      return const SizedBox.shrink();
-                    }
-                    return IconButton(
-                      tooltip: '进入影院',
-                      icon: Icon(
-                        Icons.theaters_outlined,
-                        color: Colors.white,
-                        size: iconSize,
-                      ),
-                      onPressed: _presentInImmersiveSpace,
-                    );
-                  }),
-                  // 「换个方式放」：一枚钮吐出两条路——交给本机其它播放器，或者
-                  // 换一套几何（VR 180/360、左右 3D）在这儿放。合成一枚的理由
-                  // （语义同类 + 顶栏宽度）见 [PlaybackHandoffButton] 的类文档。
-                  // 摆在投屏旁边是因为语义再同类不过：都是「不这么放」。
-                  PlaybackHandoffButton(
-                    controller: widget.myVideoStateController,
-                    iconSize: iconSize,
-                  ),
-                  if (!GetPlatform.isWeb &&
-                      !GetPlatform.isLinux &&
-                      !widget.myVideoStateController.isLocalVideoMode)
-                    Obx(
-                      () => IconButton(
-                        tooltip: t.videoDetail.cast.dlnaCast,
-                        icon: Icon(
-                          widget
-                                  .myVideoStateController
-                                  .dlnaCastService
-                                  .isConnected
-                                  .value
-                              ? Icons.cast_connected
-                              : Icons.cast,
-                          color: Colors.white,
-                          size: iconSize,
+                    // 右侧部分
+                    Row(
+                      children: [
+                        // 「进入影院」：把当前视频交给 XR 沉浸空间，作为独立的空间对象呈现
+                        // （平面片走幕布，180/360 走球幕，配空间化控制条），而不是继续画在
+                        // 这块 2D 面板里。
+                        //
+                        // ⛔ 露出条件只问「沉浸场景在不在」，**不问设备是不是 Quest**：
+                        // standard 变体根本不注册这条通道，可用性天然为 false；
+                        // 而 Quest 上应用也可能处在普通 2D 面板形态（场景没起来），
+                        // 那时同样不该露出。
+                        Obx(() {
+                          if (!Get.find<XrImmersiveService>().available.value) {
+                            return const SizedBox.shrink();
+                          }
+                          return IconButton(
+                            tooltip: '进入影院',
+                            icon: PlayerIcon(
+                              PlayerSymbol.theater,
+                              color: Colors.white,
+                              size: iconSize,
+                            ),
+                            onPressed: _presentInImmersiveSpace,
+                          );
+                        }),
+                        // 「换个方式放」：一枚钮吐出两条路——交给本机其它播放器，或者
+                        // 换一套几何（VR 180/360、左右 3D）在这儿放。合成一枚的理由
+                        // （语义同类 + 顶栏宽度）见 [PlaybackHandoffButton] 的类文档。
+                        // 摆在投屏旁边是因为语义再同类不过：都是「不这么放」。
+                        PlaybackHandoffButton(
+                          controller: widget.myVideoStateController,
+                          iconSize: iconSize,
                         ),
-                        onPressed:
-                            widget
-                                .myVideoStateController
-                                .dlnaCastService
-                                .isCasting
-                                .value
-                            ? null
-                            : () => widget.myVideoStateController
-                                  .showDlnaCastDialog(),
-                      ),
-                    ),
-                  if (GetPlatform.isAndroid)
-                    IconButton(
-                      tooltip: t.videoDetail.pipMode,
-                      icon: Icon(
-                        Icons.picture_in_picture_alt,
-                        color: Colors.white,
-                        size: iconSize,
-                      ),
-                      onPressed: () async {
-                        final floating = Floating();
-                        if (await floating.isPipAvailable) {
-                          final status = await floating.pipStatus;
-                          if (status == PiPStatus.disabled ||
-                              status == PiPStatus.automatic) {
-                            if (isFullScreen) {
-                              AppService.tryPop();
-                            }
-                            if (widget
-                                .myVideoStateController
-                                .isDesktopAppFullScreen
-                                .value) {
-                              widget
+                        if (!GetPlatform.isWeb &&
+                            !GetPlatform.isLinux &&
+                            !widget.myVideoStateController.isLocalVideoMode)
+                          Obx(
+                            () => IconButton(
+                              tooltip: t.videoDetail.cast.dlnaCast,
+                              icon: PlayerIcon(
+                                widget
+                                        .myVideoStateController
+                                        .dlnaCastService
+                                        .isConnected
+                                        .value
+                                    ? PlayerSymbol.castConnected
+                                    : PlayerSymbol.cast,
+                                color: Colors.white,
+                                size: iconSize,
+                              ),
+                              onPressed:
+                                  widget
+                                      .myVideoStateController
+                                      .dlnaCastService
+                                      .isCasting
+                                      .value
+                                  ? null
+                                  : () => widget.myVideoStateController
+                                        .showDlnaCastDialog(),
+                            ),
+                          ),
+                        if (GetPlatform.isAndroid)
+                          IconButton(
+                            tooltip: t.videoDetail.pipMode,
+                            icon: PlayerIcon(
+                              PlayerSymbol.pictureInPicture,
+                              color: Colors.white,
+                              size: iconSize,
+                            ),
+                            onPressed: () async {
+                              final floating = Floating();
+                              if (await floating.isPipAvailable) {
+                                final status = await floating.pipStatus;
+                                if (status == PiPStatus.disabled ||
+                                    status == PiPStatus.automatic) {
+                                  if (isFullScreen) {
+                                    AppService.tryPop();
+                                  }
+                                  if (widget
                                       .myVideoStateController
                                       .isDesktopAppFullScreen
-                                      .value =
-                                  false;
-                            }
-                            widget.myVideoStateController.enterPiPMode();
-                          } else if (status == PiPStatus.enabled) {
-                            widget.myVideoStateController.exitPiPMode();
-                          }
-                        }
-                      },
+                                      .value) {
+                                    widget
+                                            .myVideoStateController
+                                            .isDesktopAppFullScreen
+                                            .value =
+                                        false;
+                                  }
+                                  widget.myVideoStateController.enterPiPMode();
+                                } else if (status == PiPStatus.enabled) {
+                                  widget.myVideoStateController.exitPiPMode();
+                                }
+                              }
+                            },
+                          ),
+                        _buildAnime4KButton(context, iconSize),
+                        IconButton(
+                          tooltip: t.videoDetail.moreSettings,
+                          icon: PlayerIcon(
+                            PlayerSymbol.more,
+                            color: Colors.white,
+                            size: iconSize,
+                          ),
+                          onPressed: () => showPlayerSettingsDrawer(
+                            context: context,
+                            controller: widget.myVideoStateController,
+                          ),
+                        ),
+                      ],
                     ),
-                  _buildAnime4KButton(context, iconSize),
-                  IconButton(
-                    tooltip: t.videoDetail.moreSettings,
-                    icon: Icon(
-                      Icons.more_vert,
-                      color: Colors.white,
-                      size: iconSize,
-                    ),
-                    onPressed: () => showPlayerSettingsDrawer(
-                      context: context,
-                      controller: widget.myVideoStateController,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -785,7 +703,11 @@ class _TopToolbarState extends State<TopToolbar> {
           builder: (context, pressed) => SizedBox(
             width: 48,
             height: 48,
-            child: Icon(Icons.adjust, color: Colors.white, size: iconSize),
+            child: PlayerIcon(
+              PlayerSymbol.enhance,
+              color: Colors.white,
+              size: iconSize,
+            ),
           ),
         ),
       ),

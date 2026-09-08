@@ -31,7 +31,7 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/player_icon.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
     show openDownloadCategoryManagePage;
 import 'package:i_iwara/app/ui/pages/download/media_download_launcher.dart';
@@ -1101,17 +1101,7 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
             (source) => GlassMenuOption<String>(
               value: source.name ?? '',
               label: CommonUtils.getQualityDisplayLabel(t, source.name),
-              leading: SvgPicture.asset(
-                CommonUtils.getQualityIconAsset(source.name),
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(
-                  // leading 槽位外面套了一层跟着行语义色走的 IconTheme，
-                  // SVG 不吃 IconTheme，得自己取一次当前色。
-                  Theme.of(context).colorScheme.onSurfaceVariant,
-                  BlendMode.srcIn,
-                ),
-              ),
+              leading: PlayerQualityIcon(quality: source.name, size: 18),
             ),
           ),
         ],
