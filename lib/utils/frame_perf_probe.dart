@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:ui' show FramePhase;
 
 import 'package:flutter/scheduler.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
@@ -40,6 +41,15 @@ class FramePerfProbe {
   static final List<int> _rasterUs = <int>[];
   static double _budgetMs = 1000 / 60;
 
+  /// 已结算的分段报告，按顺序累积；由 `ext.glassperf.report` 取走并清空。
+  /// vivo 这类屏蔽第三方 logcat 的机器上，这是唯一能把读数拿出来的通道。
+  static final List<String> _reports = <String>[];
+
+  /// 当前分段的逐帧原始样本（build / raster / 帧总跨度，微秒），
+  /// 由 `ext.glassperf.frames` 取走；用来看卡顿是不是「周期性」的。
+  static final List<List<int>> _rawFrames = <List<int>>[];
+  static const int _rawFramesCap = 4000;
+
   /// 挂上回调。重复调用无副作用。
   static void start() {
     if (!enabled || _started) return;
@@ -75,6 +85,15 @@ class FramePerfProbe {
     for (final FrameTiming t in timings) {
       _buildUs.add(t.buildDuration.inMicroseconds);
       _rasterUs.add(t.rasterDuration.inMicroseconds);
+      if (_rawFrames.length < _rawFramesCap) {
+        _rawFrames.add(<int>[
+          t.timestampInMicroseconds(FramePhase.vsyncStart),
+          t.buildDuration.inMicroseconds,
+          t.rasterDuration.inMicroseconds,
+          t.totalSpan.inMicroseconds,
+          t.frameNumber,
+        ]);
+      }
     }
     if (_buildUs.length >= _reportEveryFrames) _flush();
   }
@@ -86,10 +105,11 @@ class FramePerfProbe {
     final int budgetUs = (_budgetMs * 1000).round();
     final int janky = _rasterUs.where((int us) => us > budgetUs).length;
     final int n = _rasterUs.length;
-    _log(
-      '[$_label] n=$n jank=$janky(${(janky * 100 / n).toStringAsFixed(1)}%) '
-      'build{$build} raster{$raster}',
-    );
+    final String line =
+        '[$_label] n=$n jank=$janky(${(janky * 100 / n).toStringAsFixed(1)}%) '
+        'build{$build} raster{$raster}';
+    _reports.add(line);
+    _log(line);
     _buildUs.clear();
     _rasterUs.clear();
   }
@@ -127,6 +147,42 @@ class FramePerfProbe {
     // 后面的按键就会落在别的地方——实测过一次「全屏没进去 → 返回键把详情页整个
     // 弹掉 → 剩下几段全在首页上跑」，而读数看起来完全正常（假玻璃那一轮整轮都在
     // 测首页）。所以脚本必须能问「我现在在哪」，也必须能不靠点击回到起点。
+    developer.registerExtension('ext.glassperf.report', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      _flush();
+      final String body = _reports.map(_json).join(',');
+      _reports.clear();
+      return developer.ServiceExtensionResponse.result('{"reports":[$body]}');
+    });
+    developer.registerExtension('ext.glassperf.frames', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      final String body = _rawFrames
+          .map((List<int> f) => '[${f.join(',')}]')
+          .join(',');
+      _rawFrames.clear();
+      return developer.ServiceExtensionResponse.result(
+        '{"budgetUs":${(_budgetMs * 1000).round()},"frames":[$body]}',
+      );
+    });
+    developer.registerExtension('ext.glassperf.go', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      final String? route = params['route'];
+      if (route != null && route.isNotEmpty) {
+        if (params['push'] == '1') {
+          appRouter.push(route);
+        } else {
+          appRouter.go(route);
+        }
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+      return developer.ServiceExtensionResponse.result('{"ok":true}');
+    });
     developer.registerExtension('ext.glassperf.state', (
       String method,
       Map<String, String> params,

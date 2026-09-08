@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -121,6 +122,8 @@ class GlassHeaderOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 基准旋钮：生产值恒 true，常规包里这一行是死分支。
+    final bool contentAware = this.contentAware && GlassPerfKnobs.contentAware;
     // 列表本体永远留在传统档：它是滚动容器，装不得 lens。
     final Widget content = liquid
         ? LiquidGlassScope(backend: flatGlassBackend(context), child: body)

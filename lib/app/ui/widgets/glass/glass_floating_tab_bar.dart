@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/material.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 // 带前缀：两个玻璃包的公开面与本仓库自己的组件大面积重名（见
 // `liquid_glass_material.dart` 顶部那段说明），不加前缀会一片 ambiguous_import。
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
@@ -320,7 +321,7 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
     // Material 档整只换成 M3 的导航栏（见类文档「两档两份实现」）。
     // 右侧圆钮的几何契约（最右边的 height × height 方块）两档一致，所以
     // [_withActionLongPress] 那层长按手势区照旧盖在外面、只写一遍。
-    if (!GlassMaterialScope.isLiquid(context)) {
+    if (!GlassMaterialScope.isLiquid(context) || !GlassPerfKnobs.liquidBar) {
       return _withActionLongPress(
         action: action,
         height: height,
@@ -408,9 +409,26 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
           settings: GlassTokens.widgetsGlass(
             cs,
             tint: GlassTokens.widgetsTint(cs),
+            blur: GlassPerfKnobs.barBlur ? null : 0,
           ),
           quality: chromeGlassQuality,
           indicatorColor: GlassTokens.tabIndicatorTint(cs),
+          indicatorSettings: switch (GlassPerfKnobs.indicator) {
+            'noblur' => GlassTokens.widgetsGlass(
+              cs,
+              tint: GlassTokens.widgetsTint(cs),
+              blur: 0,
+            ),
+            'flat' => lgw.LiquidGlassSettings(
+              thickness: 0,
+              blur: 0,
+              glassColor: GlassTokens.widgetsTint(cs),
+            ),
+            _ => null,
+          },
+          maskingQuality: GlassPerfKnobs.mask == 'off'
+              ? lgw.MaskingQuality.off
+              : lgw.MaskingQuality.high,
         ),
       ),
     );

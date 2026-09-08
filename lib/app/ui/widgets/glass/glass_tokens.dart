@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:i_iwara/utils/glass_perf_knobs.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart'
@@ -348,9 +349,10 @@ abstract final class GlassTokens {
     // 包自己的 `backerColor`（Apple 的 dimming layer）看着更对口，但它在
     // **融合层那条路上被整只跳过**（会破坏 metaball 形变），而 header 一整行
     // 恰好都在融合层里——两条路会长得不一样，所以不用它。
+    final double? override = GlassPerfKnobs.tintAlpha;
     return isDark
-        ? Colors.black.withValues(alpha: 0.24)
-        : Colors.white.withValues(alpha: 0.10);
+        ? Colors.black.withValues(alpha: override ?? 0.24)
+        : Colors.white.withValues(alpha: override ?? 0.10);
   }
 
   /// chrome 按下时的玻璃色调：与 [pressedFill] 同一口径（压深 8%）。
@@ -443,12 +445,17 @@ abstract final class GlassTokens {
     /// 包自己画不画投影。融合层那条路上它是对的；单块玻璃那条路上要关掉，
     /// 改由 `GlassOuterShadow` 画在形变层外面（见那个类）。
     bool shadow = true,
+
+    /// 独立模糊层的 sigma；为 null 时用包默认（经基准旋钮）。
+    double? blur,
   }) => lgw.LiquidGlassSettings(
     glassColor: tint,
     visibility: materialize,
     // 显式给影子（而不是用他们的 shadowElevation 去缩放默认值）：
     // 见 [widgetsShadow] 里那段「为什么要自己给」。空表＝这块不吐影子。
     shadow: shadow ? widgetsShadow(alphaScale: materialize) : const [],
+    // 包默认 sigma 5；基准旋钮关掉时归零（生产值恒等于包默认，见 GlassPerfKnobs）。
+    blur: blur ?? (GlassPerfKnobs.blur ? GlassPerfKnobs.blurSigma : 0),
   );
 
   /// 真玻璃档的投影（iOS 26 口径：一层弥散 + 一层贴地接触）。
@@ -476,7 +483,7 @@ abstract final class GlassTokens {
       blurRadius: 2,
       offset: const Offset(0, 1),
     ),
-  ];
+  ].take(GlassPerfKnobs.shadows).toList();
 
   /// **单块**玻璃（不在融合层里）那层 RepaintBoundary 的裁剪外扩。
   ///

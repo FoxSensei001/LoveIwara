@@ -222,10 +222,14 @@ GlassBackend flatGlassBackend(BuildContext context) =>
 /// 附带一条：包文档明确说 premium「may not render correctly inside `ListView`
 /// or `CustomScrollView` on Impeller」，而本站的 header 与浮动底栏正是浮在滚动
 /// 内容之上，本来也不该用 premium。
-lgw.GlassQuality get chromeGlassQuality => switch (defaultTargetPlatform) {
-  TargetPlatform.windows || TargetPlatform.linux => lgw.GlassQuality.standard,
-  _ => lgw.GlassQuality.premium,
-};
+lgw.GlassQuality get chromeGlassQuality {
+  // 基准旋钮：生产值恒 true，这一行在常规包里是死分支。
+  if (!GlassPerfKnobs.premium) return lgw.GlassQuality.standard;
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.windows || TargetPlatform.linux => lgw.GlassQuality.standard,
+    _ => lgw.GlassQuality.premium,
+  };
+}
 
 /// 启动时把配置表里的玻璃开关灌进 [glassMaterialMode]。
 ///
@@ -487,7 +491,11 @@ class GlassBlendGroup extends StatelessWidget {
       clipExpansion: clipExpansion,
       // 层里所有形状共用这一份（见类注释里那条代价）。取值与单块玻璃
       // 完全一致，融合前后材质不该有肉眼差别。
-      settings: GlassTokens.widgetsGlass(cs, tint: GlassTokens.widgetsTint(cs)),
+      settings: GlassTokens.widgetsGlass(
+        cs,
+        tint: GlassTokens.widgetsTint(cs),
+        blur: GlassPerfKnobs.headerBlur ? null : 0,
+      ),
       child: _GlassBlendScope(joinable: true, child: child),
     );
   }
@@ -875,6 +883,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
               // 包自己那份影子在这条路上画了也看不见（见下面 [GlassOuterShadow]
               // 那段），关掉免得白花一次 GPU cutout。
               shadow: false,
+              blur: GlassPerfKnobs.soloBlur ? null : 0,
             ),
             allowElevation: elevated,
             // 跟手形变会把玻璃推出布局边界，纹理不外扩就在层边缘硬切。
