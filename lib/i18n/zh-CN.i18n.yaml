@@ -2983,3 +2983,10 @@ localMedia:
   removeSourceBody: 磁盘上的文件一个不动，只是把它从本地库里移出去。
   remove: 移除
   longPressToRemove: 长按可移除这个文件夹
+  clearProgress: 清除本机观看记录
+  clearProgressCount: "共 ${count} 条"
+  clearProgressEmpty: 还没有任何本机观看记录
+  clearProgressTitle: 清除本机观看记录？
+  clearProgressBody: 只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。
+  clearProgressDone: "已清除 ${count} 条本机观看记录"
+  clearAction: 清除

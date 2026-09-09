@@ -6533,6 +6533,27 @@ class TranslationsLocalMediaEn {
 
 	/// en: 'Long-press to remove this folder'
 	String get longPressToRemove => 'Long-press to remove this folder';
+
+	/// en: 'Clear local watch history'
+	String get clearProgress => 'Clear local watch history';
+
+	/// en: '${count} entries'
+	String clearProgressCount({required Object count}) => '${count} entries';
+
+	/// en: 'No local watch history yet'
+	String get clearProgressEmpty => 'No local watch history yet';
+
+	/// en: 'Clear local watch history?'
+	String get clearProgressTitle => 'Clear local watch history?';
+
+	/// en: 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.'
+	String get clearProgressBody => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.';
+
+	/// en: 'Cleared ${count} local watch history entries'
+	String clearProgressDone({required Object count}) => 'Cleared ${count} local watch history entries';
+
+	/// en: 'Clear'
+	String get clearAction => 'Clear';
 }
 
 // Path: common.pagination
@@ -12201,6 +12222,13 @@ extension on Translations {
 			'localMedia.removeSourceBody' => 'The files stay on disk. Only this library entry is removed.',
 			'localMedia.remove' => 'Remove',
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
+			'localMedia.clearProgress' => 'Clear local watch history',
+			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',
+			'localMedia.clearProgressEmpty' => 'No local watch history yet',
+			'localMedia.clearProgressTitle' => 'Clear local watch history?',
+			'localMedia.clearProgressBody' => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.',
+			'localMedia.clearProgressDone' => ({required Object count}) => 'Cleared ${count} local watch history entries',
+			'localMedia.clearAction' => 'Clear',
 			_ => null,
 		};
 	}

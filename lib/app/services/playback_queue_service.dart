@@ -406,6 +406,30 @@ class PlaybackQueueService extends GetxService {
     );
   }
 
+  /// 丢掉缓存着的「本机文件」池，让下一次开抽屉重新读库。
+  ///
+  /// 清空本机观看记录之后必须调一次：池里的 `progressPermil` 与「已看过」是
+  /// **翻页那一刻的快照**（那是为了不让 `canAdvance` 每帧回表，见
+  /// [LocalLibraryPlaybackQueue]）。不丢的话用户清完记录、再开「接着看」，
+  /// 进度条原样还在——看上去就是清除没生效。
+  ///
+  /// ⛔ 仍有人听的池不动，理由与 [_evictIfNeeded] 一模一样：dispose 掉一个还
+  /// 挂着监听的池，下一次通知就炸「used after being disposed」。那种池属于
+  /// 「后台还开着一个本地播放页」，它自己关掉时这份快照也就跟着没了。
+  int dropIdleLocalLibraryQueues() {
+    final victims = <String>[
+      for (final entry in _queues.entries)
+        if (entry.value.kind == PlaybackQueueKind.localLibrary &&
+            entry.value.isInUse != true)
+          entry.key,
+    ];
+    for (final id in victims) {
+      _lru.remove(id);
+      _queues.remove(id)?.dispose();
+    }
+    return victims.length;
+  }
+
   T _register<T extends PlaybackQueue>(T queue) {
     _queues[queue.queueId] = queue;
     _touch(queue.queueId);

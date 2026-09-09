@@ -2985,3 +2985,10 @@ localMedia:
   removeSourceBody: ディスク上のファイルはそのままです。ライブラリーから外すだけです。
   remove: 削除
   longPressToRemove: 長押しでこのフォルダーを削除
+  clearProgress: ローカル視聴履歴を消去
+  clearProgressCount: "${count} 件"
+  clearProgressEmpty: ローカル視聴履歴はまだありません
+  clearProgressTitle: ローカル視聴履歴を消去しますか？
+  clearProgressBody: 再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。
+  clearProgressDone: "ローカル視聴履歴を ${count} 件消去しました"
+  clearAction: 消去

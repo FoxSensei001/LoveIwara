@@ -2983,3 +2983,10 @@ localMedia:
   removeSourceBody: The files stay on disk. Only this library entry is removed.
   remove: Remove
   longPressToRemove: Long-press to remove this folder
+  clearProgress: Clear local watch history
+  clearProgressCount: "${count} entries"
+  clearProgressEmpty: No local watch history yet
+  clearProgressTitle: Clear local watch history?
+  clearProgressBody: Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.
+  clearProgressDone: "Cleared ${count} local watch history entries"
+  clearAction: Clear

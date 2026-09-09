@@ -15,6 +15,7 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -235,6 +236,63 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     _reloadSources();
   }
 
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
+    final t = slang.t.localMedia;
+    // 条数在开菜单这一刻现读一次：一条主键 COUNT，而且是事件里读不是 build 里读。
+    final count = _repository.progressCount();
+    final picked = await showGlassMenu<_LocalMediaMenuAction>(
+      anchorContext: anchorContext,
+      entries: <GlassMenuEntry>[
+        GlassMenuOption<_LocalMediaMenuAction>(
+          value: _LocalMediaMenuAction.clearProgress,
+          label: t.clearProgress,
+          // 一条都没有时不藏起来而是置灰 + 说明白——藏起来会让人以为没这个功能。
+          description: count > 0
+              ? t.clearProgressCount(count: count)
+              : t.clearProgressEmpty,
+          icon: Icons.history_toggle_off,
+          destructive: true,
+          enabled: count > 0,
+        ),
+      ],
+    );
+    if (picked == _LocalMediaMenuAction.clearProgress) {
+      await _confirmClearProgress();
+    }
+  }
+
+  /// 清除本机观看记录。**只删记录**——这是隐私入口，不是删片入口，
+  /// 所以确认框里把"文件一个不动"说在明处（同 [_confirmRemoveSource] 的口径）。
+  Future<void> _confirmClearProgress() async {
+    final t = slang.t.localMedia;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(t.clearProgressTitle),
+        content: Text(t.clearProgressBody),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(slang.t.common.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.clearAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final removed = _repository.clearAllProgress();
+    // ⛔ 缓存着的本机文件池必须一起丢：它们手里的进度是翻页那一刻的快照，
+    // 不丢的话清完再开「接着看」，进度条原样还在（看上去就是没清掉）。
+    if (Get.isRegistered<PlaybackQueueService>()) {
+      PlaybackQueueService.to.dropIdleLocalLibraryQueues();
+    }
+    if (!mounted) return;
+    showAppToast(t.clearProgressDone(count: removed));
+  }
+
   Future<void> _play(LocalMediaItem item) async {
     // ⛔ 先 stat 一次再跳：库里那一行可能已经指向一个被删掉/被移走的文件，
     // 直接跳过去只会得到一个播放器里的黑屏加一句看不懂的错误。
@@ -299,6 +357,15 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
             tooltip: t.addFolder,
             onPressed: _addingSource ? null : _addSource,
             icon: const Icon(Icons.create_new_folder_outlined),
+          ),
+          // anchorContext 必须是这枚钮自己的 context——玻璃菜单的落点和材质档
+          // 都是从触发件身上量的，包一层 Builder 最省事（见 showGlassMenu）。
+          Builder(
+            builder: (anchorContext) => IconButton(
+              tooltip: slang.t.common.more,
+              onPressed: () => _openMoreMenu(anchorContext),
+              icon: const Icon(Icons.more_vert),
+            ),
           ),
         ],
       ),
@@ -522,3 +589,6 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     );
   }
 }
+
+/// 本地媒体页右上角溢出菜单里的动作。
+enum _LocalMediaMenuAction { clearProgress }

@@ -2600,6 +2600,13 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String get removeSourceBody => '磁盘上的文件一个不动，只是把它从本地库里移出去。';
 	@override String get remove => '移除';
 	@override String get longPressToRemove => '长按可移除这个文件夹';
+	@override String get clearProgress => '清除本机观看记录';
+	@override String clearProgressCount({required Object count}) => '共 ${count} 条';
+	@override String get clearProgressEmpty => '还没有任何本机观看记录';
+	@override String get clearProgressTitle => '清除本机观看记录？';
+	@override String get clearProgressBody => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。';
+	@override String clearProgressDone({required Object count}) => '已清除 ${count} 条本机观看记录';
+	@override String get clearAction => '清除';
 }
 
 // Path: common.pagination
@@ -6651,6 +6658,13 @@ extension on TranslationsZhCn {
 			'localMedia.removeSourceBody' => '磁盘上的文件一个不动，只是把它从本地库里移出去。',
 			'localMedia.remove' => '移除',
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
+			'localMedia.clearProgress' => '清除本机观看记录',
+			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 条',
+			'localMedia.clearProgressEmpty' => '还没有任何本机观看记录',
+			'localMedia.clearProgressTitle' => '清除本机观看记录？',
+			'localMedia.clearProgressBody' => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。',
+			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 条本机观看记录',
+			'localMedia.clearAction' => '清除',
 			_ => null,
 		};
 	}

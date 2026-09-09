@@ -2600,6 +2600,13 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String get removeSourceBody => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。';
 	@override String get remove => '削除';
 	@override String get longPressToRemove => '長押しでこのフォルダーを削除';
+	@override String get clearProgress => 'ローカル視聴履歴を消去';
+	@override String clearProgressCount({required Object count}) => '${count} 件';
+	@override String get clearProgressEmpty => 'ローカル視聴履歴はまだありません';
+	@override String get clearProgressTitle => 'ローカル視聴履歴を消去しますか？';
+	@override String get clearProgressBody => '再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。';
+	@override String clearProgressDone({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました';
+	@override String get clearAction => '消去';
 }
 
 // Path: common.pagination
@@ -6651,6 +6658,13 @@ extension on TranslationsJa {
 			'localMedia.removeSourceBody' => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。',
 			'localMedia.remove' => '削除',
 			'localMedia.longPressToRemove' => '長押しでこのフォルダーを削除',
+			'localMedia.clearProgress' => 'ローカル視聴履歴を消去',
+			'localMedia.clearProgressCount' => ({required Object count}) => '${count} 件',
+			'localMedia.clearProgressEmpty' => 'ローカル視聴履歴はまだありません',
+			'localMedia.clearProgressTitle' => 'ローカル視聴履歴を消去しますか？',
+			'localMedia.clearProgressBody' => '再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。',
+			'localMedia.clearProgressDone' => ({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました',
+			'localMedia.clearAction' => '消去',
 			_ => null,
 		};
 	}

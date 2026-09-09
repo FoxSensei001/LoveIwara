@@ -2600,6 +2600,13 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String get removeSourceBody => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。';
 	@override String get remove => '移除';
 	@override String get longPressToRemove => '長按可移除這個資料夾';
+	@override String get clearProgress => '清除本機觀看記錄';
+	@override String clearProgressCount({required Object count}) => '共 ${count} 筆';
+	@override String get clearProgressEmpty => '還沒有任何本機觀看記錄';
+	@override String get clearProgressTitle => '清除本機觀看記錄？';
+	@override String get clearProgressBody => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。';
+	@override String clearProgressDone({required Object count}) => '已清除 ${count} 筆本機觀看記錄';
+	@override String get clearAction => '清除';
 }
 
 // Path: common.pagination
@@ -6651,6 +6658,13 @@ extension on TranslationsZhTw {
 			'localMedia.removeSourceBody' => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。',
 			'localMedia.remove' => '移除',
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
+			'localMedia.clearProgress' => '清除本機觀看記錄',
+			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 筆',
+			'localMedia.clearProgressEmpty' => '還沒有任何本機觀看記錄',
+			'localMedia.clearProgressTitle' => '清除本機觀看記錄？',
+			'localMedia.clearProgressBody' => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。',
+			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 筆本機觀看記錄',
+			'localMedia.clearAction' => '清除',
 			_ => null,
 		};
 	}
