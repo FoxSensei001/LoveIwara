@@ -10,6 +10,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -406,28 +407,42 @@ class PlaybackQueueService extends GetxService {
     );
   }
 
-  /// 丢掉缓存着的「本机文件」池，让下一次开抽屉重新读库。
+  /// 本机观看记录被清空了：让缓存着的「本机文件」池不要再显示旧进度。
   ///
-  /// 清空本机观看记录之后必须调一次：池里的 `progressPermil` 与「已看过」是
-  /// **翻页那一刻的快照**（那是为了不让 `canAdvance` 每帧回表，见
-  /// [LocalLibraryPlaybackQueue]）。不丢的话用户清完记录、再开「接着看」，
-  /// 进度条原样还在——看上去就是清除没生效。
+  /// 池里的 `progressPermil` 与「已看过」是**翻页那一刻的快照**（那是为了不让
+  /// `canAdvance` 每帧回表，见 [LocalLibraryPlaybackQueue]）。不管的话用户清完
+  /// 记录、再开「接着看」，进度条原样还在——看上去就是清除没生效。
   ///
-  /// ⛔ 仍有人听的池不动，理由与 [_evictIfNeeded] 一模一样：dispose 掉一个还
-  /// 挂着监听的池，下一次通知就炸「used after being disposed」。那种池属于
-  /// 「后台还开着一个本地播放页」，它自己关掉时这份快照也就跟着没了。
-  int dropIdleLocalLibraryQueues() {
-    final victims = <String>[
-      for (final entry in _queues.entries)
-        if (entry.value.kind == PlaybackQueueKind.localLibrary &&
-            entry.value.isInUse != true)
-          entry.key,
-    ];
-    for (final id in victims) {
+  /// 两种池两种处置：
+  /// - **没人听的**直接丢掉，下次开抽屉重新读库；
+  /// - **还有人听的**不能 dispose（下一次通知就炸「used after being disposed」，
+  ///   与 [_evictIfNeeded] 同一条纪律），改成让它自己把进度快照抹掉。
+  ///
+  /// ⛔ 队尾（MRU）也豁免，理由同 [_evictIfNeeded]：刚造好还没被 addListener
+  /// 的那个池身上没有监听，正是"没人听"的样子——把调用方马上要用的池 dispose
+  /// 掉，它拿到的就是一具尸体。[LocalMediaPage] 里「开池 → await 第一页 →
+  /// 跳转」中间正好有这么一个窗口。
+  int invalidateLocalLibraryProgress() {
+    final mru = _lru.isEmpty ? null : _lru.last;
+    final dropped = <String>[];
+    for (final entry in _queues.entries.toList()) {
+      final queue = entry.value;
+      if (queue is! LocalLibraryPlaybackQueue) continue;
+      if (queue.isInUse == true || entry.key == mru) {
+        queue.forgetProgressSnapshot();
+        continue;
+      }
+      dropped.add(entry.key);
+    }
+    for (final id in dropped) {
       _lru.remove(id);
       _queues.remove(id)?.dispose();
     }
-    return victims.length;
+    LogUtils.d(
+      '本机观看记录已清空：丢掉 ${dropped.length} 个空闲池，就地抹掉其余在用的',
+      'PlaybackQueueService',
+    );
+    return dropped.length;
   }
 
   T _register<T extends PlaybackQueue>(T queue) {

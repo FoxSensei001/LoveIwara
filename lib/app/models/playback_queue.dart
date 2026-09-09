@@ -1105,6 +1105,26 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   }
 
   /// 跳过看完的：`skipWatched` 那一路要用（见 [PlaybackQueue.itemAfter]）。
+  /// 观看记录被清空了：把这一池的进度快照一起抹掉。
+  ///
+  /// 快照是**翻页那一刻**读的（为的是不让 `canAdvance` 每帧回表，见
+  /// [_watchedIds]）。用户清完记录之后，还挂在页面上的池要是不抹，抽屉里的进度
+  /// 条原样还在——看上去就是清除没生效。
+  ///
+  /// ⛔ 这里不回库重读：清空之后每一条的答案都确定是零，再发一轮 `progressFor`
+  /// 是白花一次同步查询。
+  void forgetProgressSnapshot() {
+    if (isDisposed) return;
+    _watchedIds.clear();
+    var changed = false;
+    for (var i = 0; i < _items.length; i++) {
+      if (_items[i].progressPermil == 0) continue;
+      _items[i] = _items[i].copyWith(progressPermil: 0);
+      changed = true;
+    }
+    if (changed) notifyListeners();
+  }
+
   /// 读的是 [_watchedIds] 那份快照——**不能现查库**，理由见那边。
   @override
   bool _isWatched(String id) => _watchedIds.contains(id);

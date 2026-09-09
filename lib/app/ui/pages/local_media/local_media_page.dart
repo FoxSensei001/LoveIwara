@@ -231,7 +231,7 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
         ],
       ),
     );
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
     _repository.deleteSource(source.id);
     _reloadSources();
   }
@@ -256,6 +256,10 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
         ),
       ],
     );
+    // ⛔ 菜单是个路由/浮层，await 期间这一页可能已经被弹掉了（深链、XR 面板
+    //    拆装）。下一步要用 State.context 弹确认框，跨方法的 context 使用
+    //    analyzer 查不出来。
+    if (!mounted) return;
     if (picked == _LocalMediaMenuAction.clearProgress) {
       await _confirmClearProgress();
     }
@@ -287,7 +291,7 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     // ⛔ 缓存着的本机文件池必须一起丢：它们手里的进度是翻页那一刻的快照，
     // 不丢的话清完再开「接着看」，进度条原样还在（看上去就是没清掉）。
     if (Get.isRegistered<PlaybackQueueService>()) {
-      PlaybackQueueService.to.dropIdleLocalLibraryQueues();
+      PlaybackQueueService.to.invalidateLocalLibraryProgress();
     }
     if (!mounted) return;
     showAppToast(t.clearProgressDone(count: removed));
