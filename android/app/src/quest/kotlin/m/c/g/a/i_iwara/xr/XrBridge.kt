@@ -72,6 +72,7 @@ object XrBridge {
         // 否则场景还活着、面板却空了，用户「一直按 B 也退不出应用」。只认 isFinishing，配置变化重建不算。
         (activity as? androidx.activity.ComponentActivity)?.lifecycle?.addObserver(
             androidx.lifecycle.LifecycleEventObserver { _, event ->
+                if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) ImmersiveBridge.onPanelActivityResumed()
                 if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY && activity.isFinishing) {
                     Log.i(TAG, "XR host MainActivity finishing")
                     ImmersiveBridge.notifyHostFinished()
@@ -400,8 +401,34 @@ object ImmersiveBridge {
      * 这条必须真机确认。
      */
     fun setPanelRenderingPaused(paused: Boolean) {
+        panelRenderingPaused = paused
+        applyPanelRenderingState()
+    }
+
+    /**
+     * The requested state outlives the engine. ⛔ Traced on Quest 3 (2026-09-09): a
+     * cold launch straight into a video called this BEFORE the panel's engine
+     * existed, the call was dropped, and Flutter kept producing frames for the
+     * hidden panel at 90 Hz behind the video: `JNISurfaceTexture` + Impeller
+     * threads burning a third of a core, GPU utilisation 62% instead of 44%,
+     * preemptions doubled, 4-9 stale frames a second. Only a later
+     * rebuildScreen() (engine present by then) made it go away.
+     */
+    @Volatile
+    private var panelRenderingPaused = false
+
+    /**
+     * FlutterFragmentActivity.onPostResume() reports "resumed" to the engine on its
+     * own; re-apply the requested pause after that message, or the panel wakes up
+     * every time its Activity resumes (first creation included).
+     */
+    fun onPanelActivityResumed() {
+        if (panelRenderingPaused) mainHandler.post { applyPanelRenderingState() }
+    }
+
+    private fun applyPanelRenderingState() {
         val engine = engineRef?.get() ?: return
-        if (paused) engine.lifecycleChannel.appIsPaused() else engine.lifecycleChannel.appIsResumed()
+        if (panelRenderingPaused) engine.lifecycleChannel.appIsPaused() else engine.lifecycleChannel.appIsResumed()
     }
 
     // ---------------------------------------------------------------- 场景侧

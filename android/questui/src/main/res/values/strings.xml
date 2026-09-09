@@ -226,4 +226,15 @@
     <string name="xr_view_nearer">Closer</string>
     <string name="xr_view_farther">Farther</string>
     <string name="xr_view_distance_reset">Reset distance</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">Media ambience</string>
+    <string name="xr_media_effects_hint">Soft edges and light that follows the picture</string>
+    <string name="xr_media_effects_reset">Reset effects</string>
+    <string name="xr_edge_feather">Edge softness</string>
+    <string name="xr_ambient_glow">Glow range &amp; intensity</string>
+    <string name="xr_background_transparency">Background transparency</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%: black surroundings · 100%: ambient-lit room</string>
+    <string name="xr_media_effects_360_hint">360° video surrounds you without a border; edge softness and glow apply to flat and 180° media.</string>
+    <string name="xr_media_effects_fallback">Media effects are unavailable. Standard playback has been restored.</string>
 </resources>

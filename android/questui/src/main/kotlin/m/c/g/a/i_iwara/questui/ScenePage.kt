@@ -114,6 +114,8 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             )
         }
 
+        MediaEffectsSection(state, cb)
+
         // ── 幕宽 / 高度（平面片） ──────────────
         if (state.format.isFlat) {
             SectionLabel(stringResource(R.string.xr_scene_section_adjust))

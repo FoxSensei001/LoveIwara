@@ -22,6 +22,7 @@ import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRenderMode
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.SceneObjectSystem
+import com.meta.spatial.toolkit.Scale
 import com.meta.spatial.toolkit.Transform
 import com.meta.spatial.toolkit.UIPanelRenderOptions
 import com.meta.spatial.toolkit.UIPanelSettings
@@ -144,6 +145,12 @@ class WindowManipulator(
         var frameSize = Vector2(0f, 0f)
         var frameArc = 0f
         var parked = true
+        /** Stretched with Scale during a resize; cleared when the entity is rebuilt. */
+        var scaled = false
+        /** Ticks to wait before [createFrame] after the previous entity was destroyed; 0 = none pending. */
+        var rebuildInTicks = 0
+        /** The compositor order was applied to a live layer (see [orderLayer]). */
+        var layerOrdered = false
     }
 
     private class Hit(
@@ -318,11 +325,52 @@ class WindowManipulator(
         syncIsdkShape(entity, size, arc)
         updateFrameMetrics(slot, size)
         slot.state.activeZone = WindowFrameZone.NONE
+        slot.layerOrdered = false
         systemManager.findSystem<SceneObjectSystem>().getSceneObject(entity)?.thenAccept { so ->
-            val panel = so as? PanelSceneObject
-            slot.framePanel = panel
-            runCatching { panel?.layer?.setZIndex(host.zIndex - 1) }
+            slot.framePanel = so as? PanelSceneObject
+            orderLayer(slot)
         }
+    }
+
+    /**
+     * ⛔ `panel.layer` is still null when the scene object future completes, so ordering
+     * the layer there silently did nothing; the frame only got its z-index after the
+     * first reshape(). With the ambience halo in the eye buffer, an unordered frame is
+     * composited behind the scene and never seen. Retry every tick until the layer exists.
+     */
+    private fun orderLayer(slot: Slot) {
+        if (slot.layerOrdered) return
+        val layer = slot.framePanel?.layer ?: return
+        runCatching { layer.setZIndex(frameZIndex(slot.host)) }
+            .onSuccess { slot.layerOrdered = true }
+            .onFailure { Log.w(TAG, "IMMERSIVE frame layer order failed kind=${slot.host.kind}", it) }
+    }
+
+    /**
+     * Compositor order of the frame. It used to sit one below its host, which put the
+     * screen's frame at −1: layers below 0 are composited BEHIND the eye buffer, and the
+     * media ambience halo lives in the eye buffer with near-opaque alpha right around the
+     * picture, so the lit handles vanished under the glow (Quest 3, 2026-09-09). One above
+     * the host keeps the frame under the next window's layer (UI 10 / controls 20 / buffering 30);
+     * its picture area is transparent, so covering the host changes nothing visible.
+     */
+    private fun frameZIndex(host: WindowHost): Int = host.zIndex + 1
+
+    /**
+     * Replace the frame entity for the host's current size and arc. The old entity is
+     * destroyed synchronously: a doomed old entity overlapping the new one of the same
+     * panel id for three ticks left the new frame blank on Quest 3. Nobody hovers a frame
+     * at the moment its owner lets go of a corner, so the ISDK hover-clearing grace period
+     * that [detach] needs does not apply here.
+     */
+    private fun rebuildFrame(slot: Slot) {
+        slot.frameEntity?.let { old -> runCatching { old.destroy() } }
+        slot.frameEntity = null
+        slot.framePanel = null
+        slot.scaled = false
+        // Creating the replacement in the same tick as the destroy left it blank as well:
+        // give the scene object system a few ticks to retire the old panel of this id first.
+        slot.rebuildInTicks = REBUILD_GAP_TICKS
     }
 
     /** 窗框实体的位姿：平面贴在面后 [BEHIND_M]；弧幕与幕布同轴心（半径大 [BEHIND_M]）。 */
@@ -371,7 +419,10 @@ class WindowManipulator(
 
     fun tick(input: SpatialInputPoller) {
         reapDoomed()
-        for (slot in slots.values) syncFrame(slot)
+        for (slot in slots.values) {
+            if (slot.rebuildInTicks > 0 && --slot.rebuildInTicks == 0) createFrame(slot)
+            syncFrame(slot)
+        }
         for (hand in 0..1) hits[hand] = computeHit(hand, input)
         for (slot in slots.values) {
             slot.state.pointerZone = hits.firstOrNull { hit ->
@@ -455,6 +506,7 @@ class WindowManipulator(
     private fun syncFrame(slot: Slot) {
         val host = slot.host
         val entity = slot.frameEntity ?: return
+        orderLayer(slot)
         val surface = host.surfacePose()
         if (surface == null) {
             if (!slot.parked) {
@@ -468,18 +520,26 @@ class WindowManipulator(
         }
         val size = host.size()
         val arc = host.arcDegrees()
-        if (abs(size.x - slot.frameSize.x) > SIZE_EPS_M || abs(size.y - slot.frameSize.y) > SIZE_EPS_M ||
-            abs(arc - slot.frameArc) > 0.5f
-        ) {
-            slot.frameSize = size
-            slot.frameArc = arc
-            slot.framePanel?.let { panel ->
-                runCatching {
-                    panel.reshape(frameSettings(host.kind).toPanelConfigOptions())
-                    // reshape replaces the compositor layer; its runtime ordering is not retained.
-                    panel.layer?.setZIndex(host.zIndex - 1)
-                }
-                    .onFailure { Log.w(TAG, "IMMERSIVE frame reshape 失败 kind=${host.kind}", it) }
+        val sizeChanged = abs(size.x - slot.frameSize.x) > SIZE_EPS_M || abs(size.y - slot.frameSize.y) > SIZE_EPS_M
+        val arcChanged = abs(arc - slot.frameArc) > 0.5f
+        if (sizeChanged || arcChanged) {
+            // ⛔ Never reshape() the frame's compositor layer (Quest 3, SDK 0.13.2, 2026-09-09):
+            // reshape destroys and recreates the layer, and a burst of those during a corner
+            // drag left the runtime either drawing a stale layer at the pre-drag size next to
+            // the live one ("two sets of handles") or drawing no frame at all. While a hand is
+            // resizing this window, stretch the existing layer with Scale like the 2D panel;
+            // once it lets go (or the size changes for any other reason), rebuild the entity —
+            // creation always takes effect and the doomed old entity is destroyed whole.
+            val resizing = !arcChanged && sessions.any { it?.slot === slot && !it.zone.movesWindow }
+            if (resizing) {
+                val scale = Vector3((size.x + 2f * RING_M) / (slot.frameSize.x + 2f * RING_M),
+                    (size.y + 2f * RING_M) / (slot.frameSize.y + 2f * RING_M), 1f)
+                entity.setComponent(Scale(scale))
+                slot.framePanel?.setScale(scale)
+                slot.scaled = true
+            } else {
+                rebuildFrame(slot)
+                return
             }
             syncIsdkShape(entity, size, arc)
             updateFrameMetrics(slot, size)
@@ -737,6 +797,7 @@ class WindowManipulator(
         const val FRAME_DP_PER_METER = 400f
         const val SIZE_EPS_M = 0.002f
         const val DOOMED_TICKS = 3
+        const val REBUILD_GAP_TICKS = 4
         /** 光标离窗沿不到这么远就把窗框提前亮出来。 */
         const val NEAR_EDGE_M = 0.06f
         const val MIN_DISTANCE_M = 0.4f

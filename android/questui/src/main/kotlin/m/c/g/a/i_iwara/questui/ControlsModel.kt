@@ -359,6 +359,7 @@ class VideoControlsState {
 
     // ---- 场景 ----
     var scene by mutableStateOf(SceneKind.VOID)
+    var mediaEffects by mutableStateOf(MediaEffectsSettings())
 
     /** 观看距离（米）。 */
     var screenDistance by mutableStateOf(1.6f)
@@ -507,6 +508,7 @@ interface VideoControlsCallbacks {
 
     // ---- 场景 ----
     fun onPickScene(scene: SceneKind)
+    fun onMediaEffects(settings: MediaEffectsSettings)
     fun onScreenDistance(meters: Float)
     /** -1 = nearer, +1 = farther. Releasing or cancelling must stop immediately. */
     fun onViewDistanceHold(direction: Int, pressed: Boolean)

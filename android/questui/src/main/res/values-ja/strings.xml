@@ -209,4 +209,15 @@
     <string name="xr_view_nearer">近づける</string>
     <string name="xr_view_farther">遠ざける</string>
     <string name="xr_view_distance_reset">距離をリセット</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">映像の雰囲気</string>
+    <string name="xr_media_effects_hint">縁を柔らかくし、映像の光を周囲に広げます</string>
+    <string name="xr_media_effects_reset">初期値に戻す</string>
+    <string name="xr_edge_feather">縁のぼかし</string>
+    <string name="xr_ambient_glow">光の広がりと強さ</string>
+    <string name="xr_background_transparency">背景の透明度</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%：暗い空間 · 100%：環境光を反映した部屋</string>
+    <string name="xr_media_effects_360_hint">360° 映像には境界がありません。縁のぼかしと光は平面・180° 映像に適用されます。</string>
+    <string name="xr_media_effects_fallback">映像効果を利用できないため、通常の表示に戻しました。</string>
 </resources>

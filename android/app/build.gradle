@@ -87,6 +87,12 @@ android {
     // 源集 + questImplementation，standard 包必须字节不变。
     flavorDimensions "platform"
 
+    // The device test APK carries a reference formulation of the same equations
+    // to compare against; those assets never enter either release flavor.
+    sourceSets.maybeCreate("androidTestQuest").assets.srcDir("src/quest/mediaShaders")
+    // One profile is shared by GLES preprocessing and the Vulkan scene shader.
+    sourceSets.maybeCreate("quest").assets.srcDir("src/quest/mediaShaders")
+
     productFlavors {
         standard {
             dimension "platform"
@@ -95,6 +101,8 @@ android {
         }
         quest {
             dimension "platform"
+            // Device regression probe for the native media surface; test APK only.
+            testInstrumentationRunner 'm.c.g.a.i_iwara.vr.MediaEffectsProbe'
             // Meta Spatial SDK 的硬性要求。只在本 flavor 内抬升，
             // defaultConfig 的 24 不受影响。
             minSdk 34
@@ -151,6 +159,36 @@ androidComponents {
                 output.enabled.set(false)
             }
         }
+
+        // The SDK's global spatial.shaders block would attach assets to standard too.
+        // Reuse its compiler, but register the generated assets only for Quest variants.
+        // The plugin's global findLibraryTask assumes debugCompileClasspath, which
+        // does not exist with product flavors. Resolve the SDK from THIS variant.
+        def sdkAars = variant.compileConfiguration.incoming.artifactView {
+            componentFilter { id ->
+                id instanceof org.gradle.api.artifacts.component.ModuleComponentIdentifier &&
+                    id.group == "com.meta.spatial" && id.module == "meta-spatial-sdk"
+            }
+            attributes.attribute(org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, "aar")
+        }.files
+        def sdkShaders = tasks.register("extract${variant.name.capitalize()}MediaShaderIncludes", com.meta.spatial.plugin.shaders.ShadersExtractTask) {
+            spatialAar.set(layout.file(provider { sdkAars.singleFile }))
+            shadersDir.set(layout.buildDirectory.dir("spatial/mediaIncludes/${variant.name}"))
+            shadersAdditionalIncludeDir.set(layout.buildDirectory.dir("spatial/mediaIncludes/${variant.name}/data/shaders"))
+            sdkShaderManifestFile.set(layout.buildDirectory.file("spatial/mediaIncludes/${variant.name}/sdk_shader_manifest.bin"))
+        }
+        def tooling = gradle.sharedServices.registrations.getByName("spatialTooling_${project.path}").service
+        def mediaShaders = tasks.register("compile${variant.name.capitalize()}MediaEffects", com.meta.spatial.plugin.shaders.ShaderCompilationTask) {
+            dependsOn(sdkShaders)
+            ndkDirectory.set(androidComponents.sdkComponents.ndkDirectory)
+            aetherIncludesDirectories.add(sdkShaders.flatMap { it.shadersDir })
+            aetherIncludesDirectories.add(sdkShaders.flatMap { it.shadersAdditionalIncludeDir })
+            shaderSourceDirectories.set([layout.projectDirectory.dir("src/quest/mediaShaders")])
+            sdkManifestFile.set(sdkShaders.flatMap { it.sdkShaderManifestFile })
+            spatialTooling.set(tooling)
+            usesService(tooling)
+        }
+        variant.sources.assets.addGeneratedSourceDirectory(mediaShaders) { it.outputDirectory }
     }
 }
 

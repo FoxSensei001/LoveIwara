@@ -2,6 +2,7 @@ package m.c.g.a.i_iwara.vr
 
 import android.content.Context
 import m.c.g.a.i_iwara.questui.AspectPreset
+import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.RepeatMode
 import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
@@ -65,6 +66,14 @@ class PlayerPrefs(context: Context) {
         galleryLoopVideo = sp.getBoolean(KEY_GALLERY_LOOP, true)
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
         state.scene = enum(KEY_SCENE, SceneKind.VOID)
+        state.mediaEffects = MediaEffectsSettings(
+            enabled = sp.getBoolean(KEY_EFFECTS_ENABLED, true),
+            // The first prototype used unrelated Gaussian parameters. Its saved
+            // 35/55 defaults cannot describe the reference's coupled response.
+            edgeFeather = if (sp.getInt(KEY_AMBIENCE_VERSION, 0) >= 2) sp.getFloat(KEY_EDGE_FEATHER, 1f) else 1f,
+            glowStrength = if (sp.getInt(KEY_AMBIENCE_VERSION, 0) >= 2) sp.getFloat(KEY_GLOW_STRENGTH, 0.4f) else 0.4f,
+            backgroundTransparency = sp.getFloat(KEY_BACKGROUND_TRANSPARENCY, 1f),
+        ).normalized()
         state.screenDistance = sp.getFloat(KEY_DISTANCE, DEFAULT_VIEW_DISTANCE_M).coerceIn(1.2f, 8f)
         state.screenOffset = sp.getFloat(KEY_OFFSET, 0f).coerceIn(-1.5f, 1.5f)
         state.screenWidth = sp.getFloat(KEY_WIDTH, DEFAULT_SCREEN_WIDTH_M).coerceIn(1f, 10f)
@@ -112,6 +121,11 @@ class PlayerPrefs(context: Context) {
             .putBoolean(KEY_GALLERY_LOOP, galleryLoopVideo)
             .putString(KEY_CURVE, state.curve.name)
             .putString(KEY_SCENE, state.scene.name)
+            .putBoolean(KEY_EFFECTS_ENABLED, state.mediaEffects.enabled)
+            .putInt(KEY_AMBIENCE_VERSION, 2)
+            .putFloat(KEY_EDGE_FEATHER, state.mediaEffects.edgeFeather)
+            .putFloat(KEY_GLOW_STRENGTH, state.mediaEffects.glowStrength)
+            .putFloat(KEY_BACKGROUND_TRANSPARENCY, state.mediaEffects.backgroundTransparency)
             .putFloat(KEY_DISTANCE, state.screenDistance)
             .putFloat(KEY_OFFSET, state.screenOffset)
             .putFloat(KEY_WIDTH, state.screenWidth)
@@ -178,6 +192,11 @@ class PlayerPrefs(context: Context) {
         private const val KEY_GALLERY_LOOP = "galleryLoopVideo"
         const val KEY_CURVE = "curve"
         const val KEY_SCENE = "scene"
+        private const val KEY_EFFECTS_ENABLED = "mediaEffectsEnabled"
+        private const val KEY_AMBIENCE_VERSION = "mediaAmbienceVersion"
+        private const val KEY_EDGE_FEATHER = "mediaEdgeFeather"
+        private const val KEY_GLOW_STRENGTH = "mediaGlowStrength"
+        private const val KEY_BACKGROUND_TRANSPARENCY = "mediaBackgroundTransparency"
         const val KEY_DISTANCE = "distance"
         const val KEY_OFFSET = "offset"
         private const val KEY_COMFORTABLE_LAYOUT = "comfortableViewingLayoutV2"

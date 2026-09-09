@@ -2,6 +2,7 @@
 <resources>
   <!-- 沉浸式视频面板的实体 id。只存在于 quest 源集，standard 变体不合并本文件。 -->
   <item name="vr_video_panel" type="id" />
+  <item name="vr_video_effects_panel" type="id" />
 
   <!-- 空间画廊的幕布：与 vr_video_panel 同一块「窗」（同一套几何 / 抓挪缩放），只是画的是图片
        （Compose + Coil，见 questui/GalleryStageView.kt）。图 ↔ 视频切换时两块面板互换。 -->

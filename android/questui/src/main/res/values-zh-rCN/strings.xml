@@ -209,4 +209,15 @@
     <string name="xr_view_nearer">拉近</string>
     <string name="xr_view_farther">推远</string>
     <string name="xr_view_distance_reset">重置距离</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">画面氛围</string>
+    <string name="xr_media_effects_hint">柔化边缘，让画面的光线延伸到周围</string>
+    <string name="xr_media_effects_reset">恢复默认</string>
+    <string name="xr_edge_feather">边缘柔化</string>
+    <string name="xr_ambient_glow">光晕范围与强度</string>
+    <string name="xr_background_transparency">背景透明度</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%：黑色环境 · 100%：环境光下的房间</string>
+    <string name="xr_media_effects_360_hint">360° 视频自然环绕整个视野；边缘柔化与光晕用于平面和 180° 画面。</string>
+    <string name="xr_media_effects_fallback">画面效果暂不可用，已切回标准画面。</string>
 </resources>

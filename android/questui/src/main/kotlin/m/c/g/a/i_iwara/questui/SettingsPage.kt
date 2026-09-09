@@ -205,7 +205,7 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 // ─────────────────────────────────────────────────────────── 复用件
 
 @Composable
-private fun SwitchRow(
+internal fun SwitchRow(
     title: String,
     hint: String,
     checked: Boolean,

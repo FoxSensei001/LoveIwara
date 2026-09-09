@@ -38,6 +38,7 @@ import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRegistration
 import com.meta.spatial.toolkit.PanelRenderMode
 import com.meta.spatial.toolkit.PixelDisplayOptions
+import com.meta.spatial.toolkit.PanelStyleOptions
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.Scale
 import com.meta.spatial.toolkit.SceneObjectSystem
@@ -60,6 +61,7 @@ import m.c.g.a.i_iwara.questui.GALLERY_QUALITY_STANDARD
 import m.c.g.a.i_iwara.questui.GalleryItem
 import m.c.g.a.i_iwara.questui.GalleryStageState
 import m.c.g.a.i_iwara.questui.GalleryState
+import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.PLAYBACK_SPEEDS
 import m.c.g.a.i_iwara.questui.PanelLocale
 import m.c.g.a.i_iwara.questui.PlaylistChoice
@@ -164,6 +166,18 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private var screenEntity: Entity? = null
     private var screenPanel: PanelSceneObject? = null
+    private val mediaEffects by lazy { MediaEffectsRenderer(scene, assets) }
+    private var mediaEffectsFailed = false
+    private var screenUsesEffectMesh = false
+    private var screenUsesProcessedVideo = false
+    private var processedVideoWidth = 1920
+    private var processedVideoHeight = 1080
+
+    private fun targetVideoWidth() = videoWidth.takeIf { it > 0 } ?: 1920
+    private fun targetVideoHeight() = videoHeight.takeIf { it > 0 } ?: 1080
+
+    private fun wantsEffectMesh(): Boolean = !mediaEffectsFailed &&
+        MediaEffectsRenderer.usesTextureEffects(controls.mediaEffects, controls.format)
 
     /** 当前幕布实体是平幕（quad / cylinder）还是球幕。 */
     private var screenEntityIsFlat = true
@@ -495,7 +509,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             sunColor = Vector3(0f, 0f, 0f),
             sunDirection = -Vector3(1.0f, 3.0f, 2.0f),
         )
-        applyScene()
+        applyScene(immediate = true)
         // ⛔ 关掉 VRFeature 自带的 LocomotionSystem：它把摇杆前后当传送（射出抛物线）、左右当转向，
         // 只有光标悬在面板上时才让路 —— 用户 2026-09-05：「摇杆推完松手视角变了 / 手柄射出一道抛物线」。
         // 摇杆在本应用里全归自己（拖进度 / 推远拉近），视角由头部与球幕拖视角管，不需要任何移动交互。
@@ -578,6 +592,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (prefsDirty) prefs.save(controls)
         manipulator.shutdown()
         playback.detachSurface()
+        mediaEffects.detach()
         screenEntity?.destroy()
         screenEntity = null
         screenPanel = null
@@ -599,6 +614,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.i(TAG, "IMMERSIVE onDestroy")
         logMemory("onDestroy")
         playback.release()
+        mediaEffects.detach()
+        // The pause request is sticky now (see ImmersiveBridge); never leave the
+        // panel's Flutter frozen after the scene that froze it is gone.
+        ImmersiveBridge.setPanelRenderingPaused(false)
         super.onDestroy()
     }
 
@@ -1004,6 +1023,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             it.setPosition(pose.t)
             it.setRotationQuat(pose.q)
         }
+        syncMediaEffects()
         syncBufferingPose()
     }
 
@@ -1206,6 +1226,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         destroyBufferingEntity()
         // ⛔ 顺序：先摘 Surface 再销毁实体，否则播放器往已释放的缓冲上画。
         if (keepPlayback) playback.detachSurface() else playback.release()
+        mediaEffects.detach()
         screenEntity?.destroy()
         screenEntity = null
         screenPanel = null
@@ -1232,6 +1253,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             pendingShowControls = false
             stage.model = null
             screenIsImage = false
+            screenUsesEffectMesh = false
+            screenUsesProcessedVideo = false
             syncBufferingIndicator()
             Log.i(TAG, "IMMERSIVE 无片源，只留 UI 面板，不建幕布")
             return
@@ -1251,10 +1274,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 空间画廊的图片项：幕布换成 Compose 图片面板；视频项与普通视频都是 ExoPlayer 幕布。
         val wantImage = inGallery && gallery?.current?.isVideo != true
         screenIsImage = wantImage
+        screenUsesEffectMesh = wantsEffectMesh()
+        screenUsesProcessedVideo = !wantImage && screenUsesEffectMesh
+        if (screenUsesProcessedVideo) {
+            processedVideoWidth = targetVideoWidth()
+            processedVideoHeight = targetVideoHeight()
+        }
         // 抓 / 挪 / 缩放不再挂 ISDK 的 Grabbable / IsdkPanelResize：平幕与弧幕都由 WindowManipulator 接管。
         screenShown = !anchorIsFallback || headSettleTimedOut()
         val entity = Entity.create(
-            Panel(if (wantImage) R.id.vr_image_panel else R.id.vr_video_panel),
+            Panel(when {
+                wantImage -> R.id.vr_image_panel
+                screenUsesProcessedVideo -> R.id.vr_video_effects_panel
+                else -> R.id.vr_video_panel
+            }),
             Transform(if (screenShown) screenPose() else PARKED_POSE),
             Visible(screenShown),
         )
@@ -1282,7 +1315,42 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             stereoMode = ScreenGeometry.stereoMode(controls.format, controls.forceMono),
             zIndex = if (controls.format.isFlat) Z_SCREEN else Z_SPHERE,
         ),
+        style = mediaEffectStyle(image = false),
     )
+
+    private fun processedMediaSettings(): MediaPanelSettings = MediaPanelSettings(
+        shape = ScreenGeometry.shapeFor(controls.format, curArc, curWidth, curAspect),
+        display = PixelDisplayOptions(width = processedVideoWidth, height = processedVideoHeight),
+        rendering = MediaPanelRenderOptions(
+            stereoMode = ScreenGeometry.stereoMode(controls.format, controls.forceMono),
+            zIndex = if (controls.format.isFlat) Z_SCREEN else Z_SPHERE,
+        ),
+        style = mediaEffectStyle(image = false),
+    )
+
+    private fun mediaEffectStyle(image: Boolean): PanelStyleOptions =
+        if (!wantsEffectMesh()) PanelStyleOptions()
+        else mediaEffects.style(image)
+
+    private fun syncMediaEffects() {
+        if (mediaEffectsFailed || !stageActive) return
+        if (!screenUsesEffectMesh) {
+            mediaEffects.detach()
+            return
+        }
+        runCatching {
+            mediaEffects.sync(
+                screenPanel, controls.mediaEffects, controls.format, screenIsImage, controls.forceMono,
+                curWidth, curAspect, curArc, if (screenShown) screenPose() else PARKED_POSE, screenShown,
+            )
+        }.onFailure {
+            Log.e(TAG, "IMMERSIVE media effects unavailable; restoring the direct surface", it)
+            mediaEffectsFailed = true
+            mediaEffects.detach()
+            controls.notice = text(UiR.string.xr_media_effects_fallback)
+            rebuildScreen(keepPlayback = true)
+        }
+    }
 
     /**
      * 空间画廊图片面板的配置：形状与视频幕布同一套（曲率 / 幕宽 / 比例），像素画布是**固定的方块**。
@@ -1299,11 +1367,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         rendering = UIPanelRenderOptions(
             renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
         ),
+        style = mediaEffectStyle(image = true),
     )
 
     /** 幕布这块「窗」当前该用的配置：图片面板 / 视频幕布。 */
-    private fun stageConfigOptions() =
-        if (screenIsImage) imageSettings().toPanelConfigOptions() else mediaSettings().toPanelConfigOptions()
+    private fun stageConfigOptions() = when {
+        screenIsImage -> imageSettings().toPanelConfigOptions()
+        screenUsesProcessedVideo -> processedMediaSettings().toPanelConfigOptions()
+        else -> mediaSettings().toPanelConfigOptions()
+    }
 
     /**
      * 幕布的目标宽度。视频 = 设置里的幕宽；空间画廊 = 把图片**装进「幕宽 × 16:9」的盒子**：
@@ -1362,6 +1434,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** 用当前 cur* 参数原地重塑幕布；reshape 失败退回重建。 */
     private fun reshapeNow() {
+        val canvasChanged = screenUsesProcessedVideo &&
+            (processedVideoWidth != targetVideoWidth() || processedVideoHeight != targetVideoHeight())
+        if (screenUsesEffectMesh != wantsEffectMesh() || canvasChanged) {
+            rebuildScreen(keepPlayback = true)
+            return
+        }
         val panel = screenPanel
         if (panel == null || screenEntity == null) {
             animating = false
@@ -1373,7 +1451,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val ok = runCatching {
             panel.reshape(stageConfigOptions())
             panel.layer?.setZIndex(if (controls.format.isFlat) Z_SCREEN else Z_SPHERE)
-            if (!screenIsImage) playback.attachSurface(panel.surface)
+            // Processed video decodes into the GPU pipeline's input surface.
+            // panel.surface is its OUTPUT. Rebinding the decoder to that output
+            // steals the GL producer and stalls the image while its frame resizes.
+            if (!screenIsImage && !screenUsesProcessedVideo) playback.attachSurface(panel.surface)
         }.isSuccess
         if (!ok) {
             Log.w(TAG, "IMMERSIVE reshape 失败，退回重建")
@@ -1729,6 +1810,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onSceneTick() {
         super.onSceneTick()
         val now = SystemClock.uptimeMillis()
+        mediaEffects.tickBackground(now)
+        syncMediaEffects()
         updateTransport()
         status.clockTextIfChanged(System.currentTimeMillis())?.let { controls.clockText = it }
         if (!inputSuspended) {
@@ -2288,6 +2371,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             if (width == videoWidth && height == videoHeight) return@runOnUiThread
             videoWidth = width
             videoHeight = height
+            // The processor output has fixed pixel dimensions. Recreate it for
+            // unknown/adaptive sources while keeping the decoder and timeline.
+            if (screenUsesProcessedVideo) {
+                rebuildScreen(keepPlayback = true)
+                return@runOnUiThread
+            }
             // 真实尺寸到了才知道单眼比例：先恢复这个比例记住的距离 / 幕宽，再按它重塑幕布。
             applyLayoutForAspect()
             requestShape(0L)
@@ -2330,10 +2419,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         playback.setRepeatOne(controls.repeatMode == RepeatMode.ONE)
     }
 
-    private fun applyScene() {
-        val passthrough = controls.scene == SceneKind.PASSTHROUGH
-        runCatching { scene.enablePassthrough(passthrough) }
-            .onFailure { Log.w(TAG, "IMMERSIVE enablePassthrough 失败", it) }
+    private fun applyScene(immediate: Boolean = false) {
+        runCatching { mediaEffects.setBackground(controls.scene, controls.mediaEffects, SystemClock.uptimeMillis(), immediate) }
+            .onFailure { Log.w(TAG, "IMMERSIVE apply background failed", it) }
     }
 
     private fun markPrefsDirty() {
@@ -2537,6 +2625,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.scene = scene
             markPrefsDirty()
             applyScene()
+        }
+
+        override fun onMediaEffects(settings: MediaEffectsSettings) {
+            lastInteractionAt = SystemClock.uptimeMillis()
+            val next = settings.normalized()
+            if (next == controls.mediaEffects) return
+            controls.mediaEffects = next
+            markPrefsDirty()
+            applyScene()
+            if (screenUsesEffectMesh != wantsEffectMesh()) {
+                rebuildScreen(keepPlayback = true)
+            } else {
+                syncMediaEffects()
+            }
         }
 
         override fun onScreenDistance(meters: Float) {
@@ -2953,6 +3055,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (screenIsImage) {
             manipulator.detach(WindowKind.SCREEN)
             destroyBufferingEntity()
+            mediaEffects.detach()
             screenEntity?.destroy()
             screenEntity = null
             screenPanel = null
@@ -3412,8 +3515,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         ),
         VideoSurfacePanelRegistration(
             R.id.vr_video_panel,
-            surfaceConsumer = { _, surface -> startPlayback(surface) },
+            surfaceConsumer = { entity, surface -> if (screenEntity == entity) startPlayback(surface) },
             settingsCreator = { mediaSettings() },
+        ),
+        VideoSurfacePanelRegistration(
+            R.id.vr_video_effects_panel,
+            surfaceConsumer = { entity, surface ->
+                if (screenEntity == entity) {
+                    playback.detachSurface()
+                    mediaEffects.prepareVideoSurface(surface, processedVideoWidth, processedVideoHeight) { input ->
+                        if (screenEntity == entity) startPlayback(input)
+                    }
+                }
+            },
+            settingsCreator = { processedMediaSettings() },
         ),
         // 空间画廊的图片面板：与视频幕布同一块「窗」的另一种内容（见 rebuildScreen）。
         ComposeViewPanelRegistration(
