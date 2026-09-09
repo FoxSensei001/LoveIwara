@@ -2971,6 +2971,18 @@ vrFormat:
   suggestionDismiss: 不再提示
 localMedia:
   title: 本機檔案
+  sourceOnline: Iwara 線上
+  manageSources: 管理來源
+  moveToCategory: 移到分類
+  manageCategories: 管理分類
+  suggestedFolders: 偵測到含有影片的資料夾
+  sortRecentlyAdded: 最近加入
+  sortRecentlyPlayed: 最近播放
+  sortName: 名稱
+  sortDuration: 時長
+  sortSize: 大小
+  sortFolder: 資料夾
+  sortRecentlyModified: 最近修改
   downloadsSource: 已下載
   builtInSourceHint: 「已下載」由下載模組自動維護
   filterByCategory: 依分類篩選

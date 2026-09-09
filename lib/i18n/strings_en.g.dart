@@ -6486,6 +6486,42 @@ class TranslationsLocalMediaEn {
 	/// en: 'On this device'
 	String get title => 'On this device';
 
+	/// en: 'Iwara online'
+	String get sourceOnline => 'Iwara online';
+
+	/// en: 'Manage sources'
+	String get manageSources => 'Manage sources';
+
+	/// en: 'Move to category'
+	String get moveToCategory => 'Move to category';
+
+	/// en: 'Manage categories'
+	String get manageCategories => 'Manage categories';
+
+	/// en: 'Folders with videos'
+	String get suggestedFolders => 'Folders with videos';
+
+	/// en: 'Recently added'
+	String get sortRecentlyAdded => 'Recently added';
+
+	/// en: 'Recently played'
+	String get sortRecentlyPlayed => 'Recently played';
+
+	/// en: 'Name'
+	String get sortName => 'Name';
+
+	/// en: 'Duration'
+	String get sortDuration => 'Duration';
+
+	/// en: 'Size'
+	String get sortSize => 'Size';
+
+	/// en: 'Folder'
+	String get sortFolder => 'Folder';
+
+	/// en: 'Recently modified'
+	String get sortRecentlyModified => 'Recently modified';
+
 	/// en: 'Downloaded'
 	String get downloadsSource => 'Downloaded';
 
@@ -12227,6 +12263,18 @@ extension on Translations {
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
 			'localMedia.title' => 'On this device',
+			'localMedia.sourceOnline' => 'Iwara online',
+			'localMedia.manageSources' => 'Manage sources',
+			'localMedia.moveToCategory' => 'Move to category',
+			'localMedia.manageCategories' => 'Manage categories',
+			'localMedia.suggestedFolders' => 'Folders with videos',
+			'localMedia.sortRecentlyAdded' => 'Recently added',
+			'localMedia.sortRecentlyPlayed' => 'Recently played',
+			'localMedia.sortName' => 'Name',
+			'localMedia.sortDuration' => 'Duration',
+			'localMedia.sortSize' => 'Size',
+			'localMedia.sortFolder' => 'Folder',
+			'localMedia.sortRecentlyModified' => 'Recently modified',
 			'localMedia.downloadsSource' => 'Downloaded',
 			'localMedia.builtInSourceHint' => 'Downloaded is managed automatically',
 			'localMedia.filterByCategory' => 'Filter by category',

@@ -750,11 +750,10 @@ class NaviService {
     appRouter.push('/download_task_list');
   }
 
-  /// 跳转到本地媒体页（P0 临时入口，见 app_router 里那条路由上的注释）。
-  static void navigateToLocalMediaPage() {
-    appRouter.push('/local_media');
+  /// 跳转到本地来源管理页。媒体列表本身由视频页 header 的来源切换承载。
+  static Future<void> navigateToLocalMediaSourcesPage() async {
+    await appRouter.push('/local_media_sources');
   }
-
 
   // 跳转到图库下载任务详情页
   static void navigateToGalleryDownloadTaskDetailPage(String taskId) {

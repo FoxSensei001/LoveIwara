@@ -2584,6 +2584,18 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => '本机文件';
+	@override String get sourceOnline => 'Iwara 线上';
+	@override String get manageSources => '管理来源';
+	@override String get moveToCategory => '移到分类';
+	@override String get manageCategories => '管理分类';
+	@override String get suggestedFolders => '检测到含视频的文件夹';
+	@override String get sortRecentlyAdded => '最近添加';
+	@override String get sortRecentlyPlayed => '最近播放';
+	@override String get sortName => '名称';
+	@override String get sortDuration => '时长';
+	@override String get sortSize => '大小';
+	@override String get sortFolder => '文件夹';
+	@override String get sortRecentlyModified => '最近修改';
 	@override String get downloadsSource => '已下载';
 	@override String get builtInSourceHint => '「已下载」由下载模块自动维护';
 	@override String get filterByCategory => '按分类筛选';
@@ -6649,6 +6661,18 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.title' => '本机文件',
+			'localMedia.sourceOnline' => 'Iwara 线上',
+			'localMedia.manageSources' => '管理来源',
+			'localMedia.moveToCategory' => '移到分类',
+			'localMedia.manageCategories' => '管理分类',
+			'localMedia.suggestedFolders' => '检测到含视频的文件夹',
+			'localMedia.sortRecentlyAdded' => '最近添加',
+			'localMedia.sortRecentlyPlayed' => '最近播放',
+			'localMedia.sortName' => '名称',
+			'localMedia.sortDuration' => '时长',
+			'localMedia.sortSize' => '大小',
+			'localMedia.sortFolder' => '文件夹',
+			'localMedia.sortRecentlyModified' => '最近修改',
 			'localMedia.downloadsSource' => '已下载',
 			'localMedia.builtInSourceHint' => '「已下载」由下载模块自动维护',
 			'localMedia.filterByCategory' => '按分类筛选',

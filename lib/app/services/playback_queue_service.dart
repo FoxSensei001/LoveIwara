@@ -60,7 +60,8 @@ class PlaybackQueueService extends GetxService {
   static String watchLaterQueueId({
     required bool unwatchedOnly,
     PlaybackMediaType mediaType = PlaybackMediaType.video,
-  }) => 'watchLater:${unwatchedOnly ? 'unwatched' : 'all'}${_suffix(mediaType)}';
+  }) =>
+      'watchLater:${unwatchedOnly ? 'unwatched' : 'all'}${_suffix(mediaType)}';
 
   static String favoritesQueueId([
     PlaybackMediaType mediaType = PlaybackMediaType.video,
@@ -80,15 +81,18 @@ class PlaybackQueueService extends GetxService {
 
   /// 本机文件池。
   ///
-  /// 三样东西都是**池身份的一部分**：哪个源、哪个文件夹、按什么排。前两个决定
-  /// 池里装哪些条目，第三个决定"下一条是谁"——列表按名称排、池按添加时间排的话，
-  /// 用户点第 3 集，续播会给出一个毫不相干的东西。
+  /// 四样东西都是**池身份的一部分**：哪个源、哪个文件夹、哪个分类、按什么排。
+  /// 前三者决定池里装哪些条目，最后一个决定"下一条是谁"——列表按名称排、池按
+  /// 添加时间排的话，用户点第 3 集，续播会给出一个毫不相干的东西。
   static String localLibraryQueueId({
     String? sourceId,
     String? folderPath,
+    String? categoryId,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
   }) {
-    final buffer = StringBuffer('localLibrary:${sourceId ?? 'all'}:${sort.name}');
+    final buffer = StringBuffer(
+      'localLibrary:${sourceId ?? 'all'}:${categoryId ?? 'all'}:${sort.name}',
+    );
     // 文件夹是绝对路径，直接拼进去会带一堆 `/` 和空格。这个串只在进程内当 map
     // 的键用（不进路由、不进磁盘），但仍旧压成定长哈希，免得日志里刷屏、也免得
     // 将来有人顺手把它拼进路由。
@@ -113,9 +117,8 @@ class PlaybackQueueService extends GetxService {
   static String authorMediaQueueId(
     String userId, {
     PlaybackMediaType mediaType = PlaybackMediaType.video,
-  }) => mediaType.isGallery
-      ? 'authorGalleries:$userId'
-      : 'authorVideos:$userId';
+  }) =>
+      mediaType.isGallery ? 'authorGalleries:$userId' : 'authorVideos:$userId';
 
   final Map<String, PlaybackQueue> _queues = <String, PlaybackQueue>{};
 
@@ -253,12 +256,14 @@ class PlaybackQueueService extends GetxService {
   LocalLibraryPlaybackQueue openLocalLibrary({
     String? sourceId,
     String? folderPath,
+    String? categoryId,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
     String? title,
   }) {
     final id = localLibraryQueueId(
       sourceId: sourceId,
       folderPath: folderPath,
+      categoryId: categoryId,
       sort: sort,
     );
     final existing = _queues[id];
@@ -272,6 +277,7 @@ class PlaybackQueueService extends GetxService {
         repository: LocalMediaRepository(),
         sourceId: sourceId,
         folderPath: folderPath,
+        categoryId: categoryId,
         sort: sort,
         title: title,
       ),
@@ -420,7 +426,7 @@ class PlaybackQueueService extends GetxService {
   ///
   /// ⛔ 队尾（MRU）也豁免，理由同 [_evictIfNeeded]：刚造好还没被 addListener
   /// 的那个池身上没有监听，正是"没人听"的样子——把调用方马上要用的池 dispose
-  /// 掉，它拿到的就是一具尸体。[LocalMediaPage] 里「开池 → await 第一页 →
+  /// 掉，它拿到的就是一具尸体。来源管理与视频页之间「开池 → await 第一页 →
   /// 跳转」中间正好有这么一个窗口。
   int invalidateLocalLibraryProgress() {
     final mru = _lru.isEmpty ? null : _lru.last;

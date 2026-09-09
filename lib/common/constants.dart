@@ -19,7 +19,8 @@ class CommonConstants {
   static String packageName = 'm.c.g.a.i_iwara';
 
   // 原生文件处理 MethodChannel 名（须与 MainActivity.kt 的 FILE_HANDLER_CHANNEL 一致）
-  static const String fileHandlerChannelName = 'com.example.i_iwara/file_handler';
+  static const String fileHandlerChannelName =
+      'com.example.i_iwara/file_handler';
 
   static String webName = 'iwara';
 
@@ -469,4 +470,11 @@ enum SortId {
   it,
   pt,
   ru,
+  // 本机文件列表专用 tab 身份，不会发送给线上接口。
+  localAdded,
+  localPlayed,
+  localName,
+  localDuration,
+  localSize,
+  localFolder,
 }

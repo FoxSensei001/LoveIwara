@@ -2967,6 +2967,18 @@ vrFormat:
   suggestionDismiss: 不再提示
 localMedia:
   title: 本机文件
+  sourceOnline: Iwara 线上
+  manageSources: 管理来源
+  moveToCategory: 移到分类
+  manageCategories: 管理分类
+  suggestedFolders: 检测到含视频的文件夹
+  sortRecentlyAdded: 最近添加
+  sortRecentlyPlayed: 最近播放
+  sortName: 名称
+  sortDuration: 时长
+  sortSize: 大小
+  sortFolder: 文件夹
+  sortRecentlyModified: 最近修改
   downloadsSource: 已下载
   builtInSourceHint: 「已下载」由下载模块自动维护
   filterByCategory: 按分类筛选

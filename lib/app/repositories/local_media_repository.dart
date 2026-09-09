@@ -5,7 +5,17 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
 /// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
-enum LocalMediaSort { addedDesc, modifiedDesc, nameAsc, durationDesc, sizeDesc }
+enum LocalMediaSort {
+  nameAsc,
+  durationDesc,
+  sizeDesc,
+  folderAsc,
+  addedDesc,
+  playedDesc,
+
+  /// 旧池身份仍可能在进程内引用这一档，保留它作为兼容项；新 UI 不展示。
+  modifiedDesc,
+}
 
 /// 「只看未分类」的筛选值。分类 id 是 uuid，撞不上这个字面量——与
 /// `DownloadTaskRepository` 里那套筛选串同一个约定，两边读起来是一回事。
@@ -36,10 +46,9 @@ class LocalMediaRepository {
   }
 
   LocalMediaSource? getSource(String id) {
-    final rows = _db.select(
-      'SELECT * FROM local_media_sources WHERE id = ?',
-      [id],
-    );
+    final rows = _db.select('SELECT * FROM local_media_sources WHERE id = ?', [
+      id,
+    ]);
     if (rows.isEmpty) return null;
     return LocalMediaSource.fromRow(rows.first);
   }
@@ -267,7 +276,10 @@ class LocalMediaRepository {
   /// 配置备份（见 `ConfigBackupService._excludedTables`），删错了没有任何找回
   /// 的路，所以宁可留着一条陈旧进度，也不能凭一个假指纹把真记录删掉。
   static bool _fingerprintTrustworthy(int? sizeBytes, int? modifiedAt) =>
-      sizeBytes != null && sizeBytes >= 0 && modifiedAt != null && modifiedAt > 0;
+      sizeBytes != null &&
+      sizeBytes >= 0 &&
+      modifiedAt != null &&
+      modifiedAt > 0;
 
   void _dropProgressOfReplacedItems(List<LocalMediaItem> items) {
     const chunkSize = 400;
@@ -383,10 +395,10 @@ class LocalMediaRepository {
     // 用 hashes.length 是答非所问。
     affected =
         (_db.select(
-                  'SELECT COUNT(*) AS c FROM local_media_items WHERE source_id = ? AND missing = 1',
-                  [sourceId],
-                ).first['c']
-                as int?) ??
+              'SELECT COUNT(*) AS c FROM local_media_items WHERE source_id = ? AND missing = 1',
+              [sourceId],
+            ).first['c']
+            as int?) ??
         0;
     return affected;
   }
@@ -703,10 +715,16 @@ class LocalMediaRepository {
   static String _orderBy(LocalMediaSort sort) => switch (sort) {
     // 名称档再加一层 `name`：`sort_name` 会吃掉前导零，`ep01` 与 `ep1` 折出同一个 key。
     LocalMediaSort.nameAsc => 'sort_name ASC, name ASC, id ASC',
-    LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
-    LocalMediaSort.durationDesc => 'duration_ms DESC, id ASC',
-    LocalMediaSort.sizeDesc => 'size_bytes DESC, id ASC',
+    LocalMediaSort.durationDesc => 'duration_ms DESC, sort_name ASC, id ASC',
+    LocalMediaSort.sizeDesc => 'size_bytes DESC, sort_name ASC, id ASC',
+    LocalMediaSort.folderAsc =>
+      'folder_path ASC, sort_name ASC, name ASC, id ASC',
     LocalMediaSort.addedDesc => 'added_at DESC, id ASC',
+    LocalMediaSort.playedDesc =>
+      'COALESCE((SELECT p.updated_at FROM local_media_progress p '
+          'WHERE p.item_id = local_media_items.id), 0) DESC, '
+          'sort_name ASC, name ASC, id ASC',
+    LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
   };
 
   // ── 进度（永不清理，见 migration v23 的类注释） ──────────────────────────
@@ -734,7 +752,8 @@ class LocalMediaRepository {
   Map<String, ({int positionMs, int? durationMs, bool completed})> progressFor(
     List<String> itemIds,
   ) {
-    final result = <String, ({int positionMs, int? durationMs, bool completed})>{};
+    final result =
+        <String, ({int positionMs, int? durationMs, bool completed})>{};
     if (itemIds.isEmpty) return result;
     const chunkSize = 400;
     for (var i = 0; i < itemIds.length; i += chunkSize) {
@@ -784,10 +803,8 @@ class LocalMediaRepository {
   /// 库里一共记着多少条本机观看记录。清除入口拿它决定「要不要露出来」
   /// 以及在确认框里说清楚这一下会删掉多少东西。
   int progressCount() =>
-      (_db.select(
-                'SELECT COUNT(*) AS c FROM local_media_progress',
-              ).first['c']
-              as int?) ??
+      (_db.select('SELECT COUNT(*) AS c FROM local_media_progress').first['c']
+          as int?) ??
       0;
 
   /// 清空本机观看记录（进度 + 「已看完」标记），返回删掉的条数。

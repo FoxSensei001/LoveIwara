@@ -2967,6 +2967,18 @@ vrFormat:
   suggestionDismiss: Dismiss
 localMedia:
   title: On this device
+  sourceOnline: Iwara online
+  manageSources: Manage sources
+  moveToCategory: Move to category
+  manageCategories: Manage categories
+  suggestedFolders: Folders with videos
+  sortRecentlyAdded: Recently added
+  sortRecentlyPlayed: Recently played
+  sortName: Name
+  sortDuration: Duration
+  sortSize: Size
+  sortFolder: Folder
+  sortRecentlyModified: Recently modified
   downloadsSource: Downloaded
   builtInSourceHint: Downloaded is managed automatically
   filterByCategory: Filter by category

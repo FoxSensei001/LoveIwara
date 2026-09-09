@@ -2969,6 +2969,18 @@ vrFormat:
   suggestionDismiss: 表示しない
 localMedia:
   title: この端末のファイル
+  sourceOnline: Iwara オンライン
+  manageSources: ソースを管理
+  moveToCategory: カテゴリへ移動
+  manageCategories: カテゴリを管理
+  suggestedFolders: 動画が見つかったフォルダー
+  sortRecentlyAdded: 追加が新しい順
+  sortRecentlyPlayed: 最近再生した順
+  sortName: 名前
+  sortDuration: 長さ
+  sortSize: サイズ
+  sortFolder: フォルダー
+  sortRecentlyModified: 更新が新しい順
   downloadsSource: ダウンロード済み
   builtInSourceHint: 「ダウンロード済み」は自動で管理されます
   filterByCategory: カテゴリで絞り込む

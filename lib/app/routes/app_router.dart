@@ -59,7 +59,7 @@ import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
-import 'package:i_iwara/app/ui/pages/local_media/local_media_page.dart';
+import 'package:i_iwara/app/ui/pages/local_media/local_media_sources_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
@@ -717,13 +717,11 @@ final GoRouter appRouter = GoRouter(
           builder: (context, state) => const DownloadTaskListPage(),
         ),
 
-        // 本地媒体（P0）。⛔ 这是**临时入口**：正式承载是「视频」「图库」板块
-        // header 上的来源切换（见 docs/local-library-workstream.md §3.1），
-        // 到 P1a 这条路由连同页面一起收掉。
+        // 本地来源管理：媒体列表本身由视频页 header 的来源切换承载。
         GoRoute(
-          path: '/local_media',
-          name: 'local_media',
-          builder: (context, state) => const LocalMediaPage(),
+          path: '/local_media_sources',
+          name: 'local_media_sources',
+          builder: (context, state) => const LocalMediaSourcesPage(),
         ),
 
         // 图集下载任务详情

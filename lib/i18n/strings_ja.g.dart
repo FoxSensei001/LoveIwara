@@ -2584,6 +2584,18 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => 'この端末のファイル';
+	@override String get sourceOnline => 'Iwara オンライン';
+	@override String get manageSources => 'ソースを管理';
+	@override String get moveToCategory => 'カテゴリへ移動';
+	@override String get manageCategories => 'カテゴリを管理';
+	@override String get suggestedFolders => '動画が見つかったフォルダー';
+	@override String get sortRecentlyAdded => '追加が新しい順';
+	@override String get sortRecentlyPlayed => '最近再生した順';
+	@override String get sortName => '名前';
+	@override String get sortDuration => '長さ';
+	@override String get sortSize => 'サイズ';
+	@override String get sortFolder => 'フォルダー';
+	@override String get sortRecentlyModified => '更新が新しい順';
 	@override String get downloadsSource => 'ダウンロード済み';
 	@override String get builtInSourceHint => '「ダウンロード済み」は自動で管理されます';
 	@override String get filterByCategory => 'カテゴリで絞り込む';
@@ -6649,6 +6661,18 @@ extension on TranslationsJa {
 			'vrFormat.suggestionAction' => 'VR で再生',
 			'vrFormat.suggestionDismiss' => '表示しない',
 			'localMedia.title' => 'この端末のファイル',
+			'localMedia.sourceOnline' => 'Iwara オンライン',
+			'localMedia.manageSources' => 'ソースを管理',
+			'localMedia.moveToCategory' => 'カテゴリへ移動',
+			'localMedia.manageCategories' => 'カテゴリを管理',
+			'localMedia.suggestedFolders' => '動画が見つかったフォルダー',
+			'localMedia.sortRecentlyAdded' => '追加が新しい順',
+			'localMedia.sortRecentlyPlayed' => '最近再生した順',
+			'localMedia.sortName' => '名前',
+			'localMedia.sortDuration' => '長さ',
+			'localMedia.sortSize' => 'サイズ',
+			'localMedia.sortFolder' => 'フォルダー',
+			'localMedia.sortRecentlyModified' => '更新が新しい順',
 			'localMedia.downloadsSource' => 'ダウンロード済み',
 			'localMedia.builtInSourceHint' => '「ダウンロード済み」は自動で管理されます',
 			'localMedia.filterByCategory' => 'カテゴリで絞り込む',

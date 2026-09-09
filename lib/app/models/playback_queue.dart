@@ -999,6 +999,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
     required LocalMediaRepository repository,
     this.sourceId,
     this.folderPath,
+    this.categoryId,
     this.sort = LocalMediaSort.addedDesc,
     String? title,
   }) : _repository = repository,
@@ -1010,6 +1011,9 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
 
   /// 再限定到某个文件夹。null = 整个源。
   final String? folderPath;
+
+  /// 再限定到一个本地分类。null = 不筛分类。
+  final String? categoryId;
 
   /// 与卡片墙同一档排序，见类注释。
   final LocalMediaSort sort;
@@ -1050,6 +1054,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
     final rows = _repository.queryItems(
       sourceId: sourceId,
       folderPath: folderPath,
+      categoryId: categoryId,
       sort: sort,
       offset: page * limit,
       limit: limit,

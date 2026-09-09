@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
+import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/local_media_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/common/constants.dart';
@@ -38,6 +40,9 @@ class MediaTabView<T> extends StatefulWidget {
   })?
   onOpenVideo;
 
+  final Future<void> Function(LocalMediaItem item)? onOpenLocalItem;
+  final VoidCallback? onLocalItemChanged;
+
   /// 图库卡片的「接着看」池引用。列表页把自己那份查询登记成一个分页池，
   /// 详情页只拿两个字符串（见 `MediaListQuery` / `PlaybackQueueRef`）。
   final PlaybackQueueRef? Function(String galleryId)? playbackQueueRefBuilder;
@@ -57,6 +62,8 @@ class MediaTabView<T> extends StatefulWidget {
     this.onItemSelect,
     this.onPageChanged,
     this.onOpenVideo,
+    this.onOpenLocalItem,
+    this.onLocalItemChanged,
     this.playbackQueueRefBuilder,
   });
 
@@ -176,6 +183,16 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
             ? () => widget.onItemSelect!(imageModel)
             : null,
         playbackQueueRefBuilder: widget.playbackQueueRefBuilder,
+      );
+    } else if (T == LocalMediaItem) {
+      final localItem = item as LocalMediaItem;
+      return LocalMediaCardListItemWidget(
+        item: localItem,
+        width: width,
+        onOpen: widget.onOpenLocalItem == null
+            ? () async {}
+            : () => widget.onOpenLocalItem!(localItem),
+        onChanged: widget.onLocalItemChanged,
       );
     }
     throw Exception('Unsupported type: $T');

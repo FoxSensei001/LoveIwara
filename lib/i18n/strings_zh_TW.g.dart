@@ -2584,6 +2584,18 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => '本機檔案';
+	@override String get sourceOnline => 'Iwara 線上';
+	@override String get manageSources => '管理來源';
+	@override String get moveToCategory => '移到分類';
+	@override String get manageCategories => '管理分類';
+	@override String get suggestedFolders => '偵測到含有影片的資料夾';
+	@override String get sortRecentlyAdded => '最近加入';
+	@override String get sortRecentlyPlayed => '最近播放';
+	@override String get sortName => '名稱';
+	@override String get sortDuration => '時長';
+	@override String get sortSize => '大小';
+	@override String get sortFolder => '資料夾';
+	@override String get sortRecentlyModified => '最近修改';
 	@override String get downloadsSource => '已下載';
 	@override String get builtInSourceHint => '「已下載」由下載模組自動維護';
 	@override String get filterByCategory => '依分類篩選';
@@ -6649,6 +6661,18 @@ extension on TranslationsZhTw {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.title' => '本機檔案',
+			'localMedia.sourceOnline' => 'Iwara 線上',
+			'localMedia.manageSources' => '管理來源',
+			'localMedia.moveToCategory' => '移到分類',
+			'localMedia.manageCategories' => '管理分類',
+			'localMedia.suggestedFolders' => '偵測到含有影片的資料夾',
+			'localMedia.sortRecentlyAdded' => '最近加入',
+			'localMedia.sortRecentlyPlayed' => '最近播放',
+			'localMedia.sortName' => '名稱',
+			'localMedia.sortDuration' => '時長',
+			'localMedia.sortSize' => '大小',
+			'localMedia.sortFolder' => '資料夾',
+			'localMedia.sortRecentlyModified' => '最近修改',
 			'localMedia.downloadsSource' => '已下載',
 			'localMedia.builtInSourceHint' => '「已下載」由下載模組自動維護',
 			'localMedia.filterByCategory' => '依分類篩選',
