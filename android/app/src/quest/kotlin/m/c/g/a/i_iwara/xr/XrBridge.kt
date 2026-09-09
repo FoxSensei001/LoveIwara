@@ -26,6 +26,7 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  *                w, h, positionMs, unsupportedProjection,
  *                sources: [{label, url, local}], sourceLabel}`
  * - `dismiss` → 收起幕布，只留 UI 面板（视频与空间画廊都归它）
+ * - `panelControls` → Boolean，唤出 / 收起浏览态的空间控制面板（2D 面板远近 + 背景不透明度）
  * - `presentGallery` → `{galleryId, title, author, index, quality,
  *                        items: [{id, video, url, thumbUrl, thumbPath, w, h}]}`：整本图库空间化呈现
  * - `updateSources` → `{videoId, sources: [{label, url, local}]}`：同一条片子的清晰度清单换了一份新地址
@@ -131,6 +132,10 @@ object XrBridge {
                 }
 
                 "dismiss" -> result.success(ImmersiveBridge.dismiss())
+
+                // 侧栏那枚「面板设置」钮：把空间控制面板唤到「面板与背景」那一页（再按一下收起）。
+                // false = 幕布正占着场地 / 场景没活着，什么也没发生。
+                "panelControls" -> result.success(ImmersiveBridge.togglePanelControls())
 
                 // 整本图库交给沉浸空间（空间画廊）。文件本体不在这包里：原生按需 `galleryFile` 回来要本地路径。
                 "presentGallery" -> {
@@ -462,6 +467,13 @@ object ImmersiveBridge {
         /** 面板里的 MainActivity 正在 finish（应用级退出）：沉浸场景也该退。 */
         fun onHostFinished()
 
+        /**
+         * 唤出 / 收起浏览态的空间控制面板（面板远近 + 背景不透明度）。
+         *
+         * @return 是否受理；幕布正占着场地时为 false。
+         */
+        fun onTogglePanelControls(): Boolean
+
         /** Dart 打不开面板点的那条视频：收掉换片在途态。[videoId] 为空 = 收掉任何在途换片。 */
         fun onAbortSwitch(videoId: String, reason: String)
         fun onPlaylist(
@@ -537,6 +549,17 @@ object ImmersiveBridge {
         target.onAbortSwitch(videoId, reason)
         return true
     }
+
+    /**
+     * 侧栏那枚「面板设置」钮：唤出 / 收起浏览态的空间控制面板。
+     *
+     * ⛔ 同步返回值，所以**必须在主线程上调**：调用点是 `MethodChannel` 的处理器，
+     * 那条线程正是 platform thread，也是场景 tick 所在的线程（见文档 §14），
+     * 与面板位姿的其它写入点同线程，不需要再 post 一次。
+     *
+     * @return 是否受理；场景没活着或幕布占着场地时 false。
+     */
+    fun togglePanelControls(): Boolean = listener?.onTogglePanelControls() ?: false
 
     /** 面板里的 MainActivity 正在 finish：让场景一起退。场景没活着就没事可做。 */
     fun notifyHostFinished() {

@@ -6341,6 +6341,33 @@ class TranslationsVrFormatEn {
 	/// en: 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.'
 	String get autoEnterGalleryDesc => 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.';
 
+	/// en: 'Panel & background'
+	String get panelSettings => 'Panel & background';
+
+	/// en: 'How far this app panel sits, and how much of your room shows behind it'
+	String get panelSettingsDesc => 'How far this app panel sits, and how much of your room shows behind it';
+
+	/// en: 'Panel distance'
+	String get panelDistance => 'Panel distance';
+
+	/// en: '${meters} m'
+	String panelDistanceValue({required Object meters}) => '${meters} m';
+
+	/// en: 'Reset placement'
+	String get panelResetPlacement => 'Reset placement';
+
+	/// en: 'Reset to default'
+	String get panelResetBackground => 'Reset to default';
+
+	/// en: 'Background transparency'
+	String get panelBackground => 'Background transparency';
+
+	/// en: '0%: black surroundings · 100%: your real room, ambient-lit'
+	String get panelBackgroundHint => '0%: black surroundings · 100%: your real room, ambient-lit';
+
+	/// en: 'The panel is not in place right now — try again in a moment'
+	String get panelUnavailable => 'The panel is not in place right now — try again in a moment';
+
 	/// en: 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.'
 	String get desc => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.';
 
@@ -12038,6 +12065,15 @@ extension on Translations {
 			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',
 			'vrFormat.autoEnterGallery' => 'Open gallery images in the spatial gallery',
 			'vrFormat.autoEnterGalleryDesc' => 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.',
+			'vrFormat.panelSettings' => 'Panel & background',
+			'vrFormat.panelSettingsDesc' => 'How far this app panel sits, and how much of your room shows behind it',
+			'vrFormat.panelDistance' => 'Panel distance',
+			'vrFormat.panelDistanceValue' => ({required Object meters}) => '${meters} m',
+			'vrFormat.panelResetPlacement' => 'Reset placement',
+			'vrFormat.panelResetBackground' => 'Reset to default',
+			'vrFormat.panelBackground' => 'Background transparency',
+			'vrFormat.panelBackgroundHint' => '0%: black surroundings · 100%: your real room, ambient-lit',
+			'vrFormat.panelUnavailable' => 'The panel is not in place right now — try again in a moment',
 			'vrFormat.desc' => 'Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.',
 			'vrFormat.sectionFlat' => 'Flat',
 			'vrFormat.sectionStereo' => 'Flat 3D',

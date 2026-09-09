@@ -2921,6 +2921,15 @@ vrFormat:
   autoEnterImmersiveDesc: Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。
   autoEnterGallery: ギャラリー画像を空間ギャラリーで開く
   autoEnterGalleryDesc: Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。
+  panelSettings: パネルと背景
+  panelSettingsDesc: このアプリパネルの距離と、背後に透ける部屋の量
+  panelDistance: パネルの距離
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: 位置をリセット
+  panelResetBackground: 既定に戻す
+  panelBackground: 背景の不透明度
+  panelBackgroundHint: '0%：真っ黒な環境 · 100%：環境光に照らされた実際の部屋'
+  panelUnavailable: パネルが今は表示されていません。少し待ってからお試しください
   desc: この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。
   sectionFlat: 平面
   sectionStereo: 平面立体

@@ -2529,6 +2529,15 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
 	@override String get autoEnterGallery => '点开图库图片自动进入空间画廊';
 	@override String get autoEnterGalleryDesc => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。';
+	@override String get panelSettings => '面板与背景';
+	@override String get panelSettingsDesc => '这块应用面板放多远，背后透出多少真实房间';
+	@override String get panelDistance => '面板距离';
+	@override String panelDistanceValue({required Object meters}) => '${meters} 米';
+	@override String get panelResetPlacement => '重置位置';
+	@override String get panelResetBackground => '恢复默认';
+	@override String get panelBackground => '背景不透明度';
+	@override String get panelBackgroundHint => '0%：纯黑环境，只剩画面 · 100%：环境光下的真实房间';
+	@override String get panelUnavailable => '面板此刻不在场，稍后再试';
 	@override String get desc => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -6548,6 +6557,15 @@ extension on TranslationsZhCn {
 			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',
 			'vrFormat.autoEnterGallery' => '点开图库图片自动进入空间画廊',
 			'vrFormat.autoEnterGalleryDesc' => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。',
+			'vrFormat.panelSettings' => '面板与背景',
+			'vrFormat.panelSettingsDesc' => '这块应用面板放多远，背后透出多少真实房间',
+			'vrFormat.panelDistance' => '面板距离',
+			'vrFormat.panelDistanceValue' => ({required Object meters}) => '${meters} 米',
+			'vrFormat.panelResetPlacement' => '重置位置',
+			'vrFormat.panelResetBackground' => '恢复默认',
+			'vrFormat.panelBackground' => '背景不透明度',
+			'vrFormat.panelBackgroundHint' => '0%：纯黑环境，只剩画面 · 100%：环境光下的真实房间',
+			'vrFormat.panelUnavailable' => '面板此刻不在场，稍后再试',
 			'vrFormat.desc' => '选择这个视频的画面按什么几何来放。网站不提供这个信息，自动识别只给一个默认档，最终以你的选择为准。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',

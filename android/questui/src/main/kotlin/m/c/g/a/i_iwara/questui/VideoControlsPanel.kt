@@ -52,6 +52,8 @@ fun VideoControlsPanel(state: VideoControlsState, cb: VideoControlsCallbacks) {
                             val gallery = state.gallery
                             if (gallery != null) GalleryPage(state, gallery, cb) else PlayerPage(state, cb)
                         }
+                        // 浏览态（没有片子）唯一的一页，与播放页互斥，见 [BrowsePanelPage]。
+                        ControlsRoute.BROWSE -> BrowsePanelPage(state, cb)
                         ControlsRoute.SCENE -> ScenePage(state, cb)
                         ControlsRoute.DISTANCE -> ViewDistancePage(cb)
                         ControlsRoute.VIDEO_TYPE -> VideoTypePage(state, cb)

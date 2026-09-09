@@ -30,7 +30,6 @@ import com.meta.spatial.runtime.StereoMode
 import com.meta.spatial.toolkit.PanelStyleOptions
 import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.Projection
-import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.StereoPacking
 import m.c.g.a.i_iwara.questui.VideoFormat
 import kotlin.math.PI
@@ -359,9 +358,19 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
         roomTarget = floatArrayOf(1f, 1f, 1f)
     }
 
-    fun setBackground(kind: SceneKind, settings: MediaEffectsSettings, now: Long, immediate: Boolean = false) {
-        immersiveTarget = if (kind == SceneKind.PASSTHROUGH) 0f else 1f
-        val target = if (kind == SceneKind.PASSTHROUGH) settings.backgroundTransparency else 0f
+    /**
+     * 背景只有一条旋钮：[MediaEffectsSettings.backgroundTransparency]。
+     *
+     * ⛔ 这里曾经先看 `SceneKind`（虚空 → 恒 0、透视 → 读滑块），2026-09-09 删掉了那个
+     * 枚举 —— 虚空就是滑块拖到 0 的那一端，两套并存只是让用户多选一次。
+     *
+     * `immersive` 是着色器那份「人在多黑的房间里」的连续量（光晕的铺开程度按它走，
+     * 见 `media_profile.glsl` 的 `ambienceProfile`），此前是虚空/透视的 1/0 二值，
+     * 现在直接取背景的补数：房间越暗，光晕铺得越开。
+     */
+    fun setBackground(settings: MediaEffectsSettings, now: Long, immediate: Boolean = false) {
+        val target = settings.backgroundTransparency
+        immersiveTarget = 1f - target
         if (!immediate && target == backgroundTarget) return
         backgroundFrom = background
         backgroundTarget = target

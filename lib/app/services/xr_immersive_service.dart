@@ -477,6 +477,28 @@ class XrImmersiveService extends GetxService {
     }
   }
 
+  /// 唤出 / 收起浏览态的**空间控制面板**（面板远近 + 背景不透明度）。
+  ///
+  /// Quest 上整个 Flutter UI 就是悬在空间里的那一块面板，它离人多远、背后透出多少
+  /// 真实房间，是每个人身高、坐姿、房间大小各不相同的一件事，所以它们是**用户可调 +
+  /// 跨会话记住**的（原生落 `PlayerPrefs`，下次进来还在上次那一档上）。
+  ///
+  /// ⛔ 调节界面本身不在 Flutter 里：它是与空间视频同一块的**原生空间面板**
+  /// （`questui` 的 `BrowsePanelPage`）。这边只负责把它唤出来 —— 一块悬在空间里的
+  /// 2D 面板没法把自己推远，那三枚钮必须活在空间里、看得见结果。
+  ///
+  /// @return 是否受理；false = 幕布正占着场地，或场景没活着。
+  Future<bool> togglePanelControls() async {
+    try {
+      return await _channel.invokeMethod<bool>('panelControls') ?? false;
+    } on MissingPluginException {
+      return false;
+    } catch (e) {
+      LogUtils.d('XR 打开面板设置失败: $e', 'XrImmersive');
+      return false;
+    }
+  }
+
   /// 把这个视频交给沉浸空间呈现。
   ///
   /// [format] 直接用播放器已有的 L1 判定结果（`MyVideoStateController.vrFormat`）——

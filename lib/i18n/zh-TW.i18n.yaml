@@ -2923,6 +2923,15 @@ vrFormat:
   autoEnterImmersiveDesc: 在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。
   autoEnterGallery: 點開圖庫圖片自動進入空間畫廊
   autoEnterGalleryDesc: 在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。
+  panelSettings: 面板與背景
+  panelSettingsDesc: 這塊應用面板放多遠，背後透出多少真實房間
+  panelDistance: 面板距離
+  panelDistanceValue: '${meters} 公尺'
+  panelResetPlacement: 重設位置
+  panelResetBackground: 恢復預設
+  panelBackground: 背景不透明度
+  panelBackgroundHint: '0%：純黑環境，只剩畫面 · 100%：環境光下的真實房間'
+  panelUnavailable: 面板此刻不在場，稍後再試
   desc: 選擇這部影片的畫面要按什麼幾何來放。網站不提供這項資訊，自動辨識只給一個預設檔，最終以你的選擇為準。
   sectionFlat: 平面
   sectionStereo: 平面立體

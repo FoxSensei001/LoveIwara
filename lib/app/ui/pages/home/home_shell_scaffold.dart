@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_floating_tab_bar.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
+import 'package:i_iwara/app/ui/widgets/xr_panel_settings_button.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -524,6 +525,11 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildRailIdentityButton(context),
+                // Quest 上才在场：把空间控制面板唤到「面板与背景」那一页
+                // （见 [XrPanelSettingsButton]）。站在头像钮**下面**、上下各留一档
+                // 空隙，与身份入口分成两件事（用户 2026-09-09）。⛔ 那道空隙是它
+                // 自带的，不在这里加 —— 不在场的时候不该留下一段凭空的留白。
+                const XrPanelSettingsButton(),
                 IconButton(
                   icon: const Icon(Icons.exit_to_app),
                   tooltip: slang.t.common.back,

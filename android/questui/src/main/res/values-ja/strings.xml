@@ -12,10 +12,6 @@
     <string name="xr_not_supported_here">この端末では再生不可</string>
 
     <!-- ─────────────────────────────── 環境 -->
-    <string name="xr_scene_void">暗転</string>
-    <string name="xr_scene_void_desc">真っ黒な空間に映像だけ</string>
-    <string name="xr_scene_passthrough">パススルー</string>
-    <string name="xr_scene_passthrough_desc">実際の部屋が見えます</string>
 
     <!-- ─────────────────────────────── スクリーン形状 -->
     <string name="xr_curve_flat">フラット</string>
@@ -123,6 +119,7 @@
     <string name="xr_scene_subtitle_flat">環境とスクリーンの位置</string>
     <string name="xr_scene_subtitle_sphere">全天球素材です。映像はもともとあなたを包んでいます</string>
     <string name="xr_recenter">中央に戻す</string>
+    <string name="xr_scene_section_environment">環境</string>
     <string name="xr_scene_section_adjust">配置の調整</string>
     <string name="xr_screen_distance">スクリーンまでの距離</string>
     <string name="xr_screen_width">スクリーン幅</string>
@@ -210,6 +207,12 @@
     <string name="xr_view_farther">遠ざける</string>
     <string name="xr_view_distance_reset">距離をリセット</string>
 
+    <!-- ブラウズ時のページ：2D アプリパネル自体の距離と、背景に透ける部屋の量。 -->
+    <string name="xr_panel_settings_title">パネルと背景</string>
+    <string name="xr_panel_settings_subtitle">このアプリパネルの距離と、背後に透ける部屋の量</string>
+    <string name="xr_panel_distance">パネルの距離</string>
+    <string name="xr_panel_background">背景</string>
+
     <!-- Shared video/gallery ambience controls. -->
     <string name="xr_media_effects">映像の雰囲気</string>
     <string name="xr_media_effects_hint">縁を柔らかくし、映像の光を周囲に広げます</string>
@@ -217,7 +220,7 @@
     <string name="xr_edge_feather">縁のぼかし</string>
     <string name="xr_ambient_glow">光の広がりと強さ</string>
     <string name="xr_background_transparency">背景の透明度</string>
-    <string name="xr_background_transparency_hint" formatted="false">0%：暗い空間 · 100%：環境光を反映した部屋</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%：真っ黒な空間 · 100%：環境光を反映した実際の部屋</string>
     <string name="xr_media_effects_360_hint">360° 映像には境界がありません。縁のぼかしと光は平面・180° 映像に適用されます。</string>
     <string name="xr_media_effects_fallback">映像効果を利用できないため、通常の表示に戻しました。</string>
 </resources>

@@ -2919,6 +2919,15 @@ vrFormat:
   autoEnterImmersiveDesc: On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.
   autoEnterGallery: Open gallery images in the spatial gallery
   autoEnterGalleryDesc: On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.
+  panelSettings: Panel & background
+  panelSettingsDesc: How far this app panel sits, and how much of your room shows behind it
+  panelDistance: Panel distance
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: Reset placement
+  panelResetBackground: Reset to default
+  panelBackground: Background transparency
+  panelBackgroundHint: '0%: black surroundings · 100%: your real room, ambient-lit'
+  panelUnavailable: The panel is not in place right now — try again in a moment
   desc: Choose the geometry this video should be played with. The site does not provide this information, so auto-detection only picks a starting point — your choice wins.
   sectionFlat: Flat
   sectionStereo: Flat 3D

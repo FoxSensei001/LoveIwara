@@ -2529,6 +2529,15 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
 	@override String get autoEnterGallery => 'ギャラリー画像を空間ギャラリーで開く';
 	@override String get autoEnterGalleryDesc => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。';
+	@override String get panelSettings => 'パネルと背景';
+	@override String get panelSettingsDesc => 'このアプリパネルの距離と、背後に透ける部屋の量';
+	@override String get panelDistance => 'パネルの距離';
+	@override String panelDistanceValue({required Object meters}) => '${meters} m';
+	@override String get panelResetPlacement => '位置をリセット';
+	@override String get panelResetBackground => '既定に戻す';
+	@override String get panelBackground => '背景の不透明度';
+	@override String get panelBackgroundHint => '0%：真っ黒な環境 · 100%：環境光に照らされた実際の部屋';
+	@override String get panelUnavailable => 'パネルが今は表示されていません。少し待ってからお試しください';
 	@override String get desc => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。';
 	@override String get sectionFlat => '平面';
 	@override String get sectionStereo => '平面立体';
@@ -6548,6 +6557,15 @@ extension on TranslationsJa {
 			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',
 			'vrFormat.autoEnterGallery' => 'ギャラリー画像を空間ギャラリーで開く',
 			'vrFormat.autoEnterGalleryDesc' => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。',
+			'vrFormat.panelSettings' => 'パネルと背景',
+			'vrFormat.panelSettingsDesc' => 'このアプリパネルの距離と、背後に透ける部屋の量',
+			'vrFormat.panelDistance' => 'パネルの距離',
+			'vrFormat.panelDistanceValue' => ({required Object meters}) => '${meters} m',
+			'vrFormat.panelResetPlacement' => '位置をリセット',
+			'vrFormat.panelResetBackground' => '既定に戻す',
+			'vrFormat.panelBackground' => '背景の不透明度',
+			'vrFormat.panelBackgroundHint' => '0%：真っ黒な環境 · 100%：環境光に照らされた実際の部屋',
+			'vrFormat.panelUnavailable' => 'パネルが今は表示されていません。少し待ってからお試しください',
 			'vrFormat.desc' => 'この動画をどの形状で再生するかを選びます。サイト側に情報がないため、自動判定は初期値を示すだけで、最終的にはあなたの選択が優先されます。',
 			'vrFormat.sectionFlat' => '平面',
 			'vrFormat.sectionStereo' => '平面立体',

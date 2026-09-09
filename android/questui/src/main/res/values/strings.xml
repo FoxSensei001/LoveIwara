@@ -22,10 +22,6 @@
     <string name="xr_not_supported_here">Not supported here</string>
 
     <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
-    <string name="xr_scene_void">Void</string>
-    <string name="xr_scene_void_desc">Pure black — nothing but the picture</string>
-    <string name="xr_scene_passthrough">Passthrough</string>
-    <string name="xr_scene_passthrough_desc">See your real room</string>
 
     <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
     <string name="xr_curve_flat">Flat screen</string>
@@ -137,6 +133,7 @@
     <string name="xr_scene_subtitle_flat">Environment and screen placement</string>
     <string name="xr_scene_subtitle_sphere">Spherical source — the picture already wraps around you</string>
     <string name="xr_recenter">Recenter</string>
+    <string name="xr_scene_section_environment">Environment</string>
     <string name="xr_scene_section_adjust">Placement</string>
     <string name="xr_screen_distance">Distance</string>
     <string name="xr_screen_width">Screen width</string>
@@ -227,6 +224,12 @@
     <string name="xr_view_farther">Farther</string>
     <string name="xr_view_distance_reset">Reset distance</string>
 
+    <!-- Browsing panel: the app panel's own distance and how much room shows through. -->
+    <string name="xr_panel_settings_title">Panel &amp; background</string>
+    <string name="xr_panel_settings_subtitle">Where this app panel sits, and how much of your room shows behind it</string>
+    <string name="xr_panel_distance">Panel distance</string>
+    <string name="xr_panel_background">Background</string>
+
     <!-- Shared video/gallery ambience controls. -->
     <string name="xr_media_effects">Media ambience</string>
     <string name="xr_media_effects_hint">Soft edges and light that follows the picture</string>
@@ -234,7 +237,7 @@
     <string name="xr_edge_feather">Edge softness</string>
     <string name="xr_ambient_glow">Glow range &amp; intensity</string>
     <string name="xr_background_transparency">Background transparency</string>
-    <string name="xr_background_transparency_hint" formatted="false">0%: black surroundings · 100%: ambient-lit room</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%: black surroundings · 100%: your real room, ambient-lit</string>
     <string name="xr_media_effects_360_hint">360° video surrounds you without a border; edge softness and glow apply to flat and 180° media.</string>
     <string name="xr_media_effects_fallback">Media effects are unavailable. Standard playback has been restored.</string>
 </resources>

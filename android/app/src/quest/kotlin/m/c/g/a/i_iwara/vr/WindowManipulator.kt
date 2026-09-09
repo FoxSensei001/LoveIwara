@@ -145,8 +145,8 @@ class WindowManipulator(
         var frameSize = Vector2(0f, 0f)
         var frameArc = 0f
         var parked = true
-        /** Stretched with Scale during a resize; cleared when the entity is rebuilt. */
-        var scaled = false
+        /** Content size the current Scale / ISDK shape / metrics were applied for. */
+        var appliedSize = Vector2(0f, 0f)
         /** Ticks to wait before [createFrame] after the previous entity was destroyed; 0 = none pending. */
         var rebuildInTicks = 0
         /** The compositor order was applied to a live layer (see [orderLayer]). */
@@ -318,6 +318,7 @@ class WindowManipulator(
         val arc = host.arcDegrees()
         slot.frameSize = size
         slot.frameArc = arc
+        slot.appliedSize = size
         val pose = surface?.let { framePose(it, size, arc) } ?: PARKED_POSE
         val entity = Entity.create(Panel(id), Transform(pose), Visible(surface != null))
         slot.frameEntity = entity
@@ -347,14 +348,15 @@ class WindowManipulator(
     }
 
     /**
-     * Compositor order of the frame. It used to sit one below its host, which put the
-     * screen's frame at −1: layers below 0 are composited BEHIND the eye buffer, and the
-     * media ambience halo lives in the eye buffer with near-opaque alpha right around the
-     * picture, so the lit handles vanished under the glow (Quest 3, 2026-09-09). One above
-     * the host keeps the frame under the next window's layer (UI 10 / controls 20 / buffering 30);
-     * its picture area is transparent, so covering the host changes nothing visible.
+     * Compositor order of the frame: one below its host, as it always was for the 2D panel
+     * and the controls, but never below 0. The screen's frame used to land at −1, and layers
+     * below 0 are composited BEHIND the eye buffer, where the media ambience halo now lives
+     * with near-opaque alpha right around the picture, hiding the lit handles. At 0 it shares
+     * the screen's z-index and depth sorting keeps it behind the picture (BEHIND_M). Putting
+     * frames ABOVE their host was tried and reverted: the 2D panel's cursor stopped landing
+     * on the panel after a resize.
      */
-    private fun frameZIndex(host: WindowHost): Int = host.zIndex + 1
+    private fun frameZIndex(host: WindowHost): Int = maxOf(0, host.zIndex - 1)
 
     /**
      * Replace the frame entity for the host's current size and arc. The old entity is
@@ -367,7 +369,6 @@ class WindowManipulator(
         slot.frameEntity?.let { old -> runCatching { old.destroy() } }
         slot.frameEntity = null
         slot.framePanel = null
-        slot.scaled = false
         // Creating the replacement in the same tick as the destroy left it blank as well:
         // give the scene object system a few ticks to retire the old panel of this id first.
         slot.rebuildInTicks = REBUILD_GAP_TICKS
@@ -520,27 +521,52 @@ class WindowManipulator(
         }
         val size = host.size()
         val arc = host.arcDegrees()
-        val sizeChanged = abs(size.x - slot.frameSize.x) > SIZE_EPS_M || abs(size.y - slot.frameSize.y) > SIZE_EPS_M
+        val sizeChanged = abs(size.x - slot.appliedSize.x) > SIZE_EPS_M || abs(size.y - slot.appliedSize.y) > SIZE_EPS_M
         val arcChanged = abs(arc - slot.frameArc) > 0.5f
         if (sizeChanged || arcChanged) {
             // ⛔ Never reshape() the frame's compositor layer (Quest 3, SDK 0.13.2, 2026-09-09):
             // reshape destroys and recreates the layer, and a burst of those during a corner
             // drag left the runtime either drawing a stale layer at the pre-drag size next to
-            // the live one ("two sets of handles") or drawing no frame at all. While a hand is
-            // resizing this window, stretch the existing layer with Scale like the 2D panel;
-            // once it lets go (or the size changes for any other reason), rebuild the entity —
-            // creation always takes effect and the doomed old entity is destroyed whole.
-            val resizing = !arcChanged && sessions.any { it?.slot === slot && !it.zone.movesWindow }
-            if (resizing) {
-                val scale = Vector3((size.x + 2f * RING_M) / (slot.frameSize.x + 2f * RING_M),
-                    (size.y + 2f * RING_M) / (slot.frameSize.y + 2f * RING_M), 1f)
+            // the live one ("two sets of handles") or drawing no frame at all. Destroying and
+            // recreating the entity on release was not safe either: a released layer could
+            // linger with its last image until the next layer change, which showed up as the
+            // same stale frame during the following drag. So a size change never touches a
+            // layer: the entity is stretched with Scale (the frame view draws in metres, so its
+            // ring stays RING_M wide), and the entity is rebuilt only when the arc changes or
+            // the stretch leaves [1/REBUILD_SCALE_LIMIT, REBUILD_SCALE_LIMIT], where the canvas
+            // would get too coarse. Those rebuilds happen at rest, never mid-gesture.
+            //
+            // Only the screen's frame takes this path. The 2D panel's and the controls' frames
+            // keep the original reshape(): their behaviour was right, and the 2D panel's cursor
+            // misbehaved after a resize once its frame carried a Scale (reverted 2026-09-09).
+            if (host.kind == WindowKind.SCREEN) {
+                val sx = (size.x + 2f * RING_M) / (slot.frameSize.x + 2f * RING_M)
+                val sy = (size.y + 2f * RING_M) / (slot.frameSize.y + 2f * RING_M)
+                // z follows x like the 2D panel's own Scale: a cylinder frame stays a true
+                // cylinder only when x and z scale together, otherwise it leaves the panel's edge.
+                val scale = Vector3(sx, sy, sx)
+                val resizing = sessions.any { it?.slot === slot && !it.zone.movesWindow }
+                val tooCoarse = maxOf(scale.x, scale.y) > REBUILD_SCALE_LIMIT ||
+                    minOf(scale.x, scale.y) < 1f / REBUILD_SCALE_LIMIT
+                if (arcChanged || (tooCoarse && !resizing)) {
+                    rebuildFrame(slot)
+                    return
+                }
                 entity.setComponent(Scale(scale))
                 slot.framePanel?.setScale(scale)
-                slot.scaled = true
             } else {
-                rebuildFrame(slot)
-                return
+                slot.frameSize = size
+                slot.frameArc = arc
+                slot.framePanel?.let { panel ->
+                    runCatching {
+                        panel.reshape(frameSettings(host.kind).toPanelConfigOptions())
+                        // reshape replaces the compositor layer; its runtime ordering is not retained.
+                        panel.layer?.setZIndex(frameZIndex(host))
+                    }
+                        .onFailure { Log.w(TAG, "IMMERSIVE frame reshape 失败 kind=${host.kind}", it) }
+                }
             }
+            slot.appliedSize = size
             syncIsdkShape(entity, size, arc)
             updateFrameMetrics(slot, size)
         }
@@ -798,6 +824,7 @@ class WindowManipulator(
         const val SIZE_EPS_M = 0.002f
         const val DOOMED_TICKS = 3
         const val REBUILD_GAP_TICKS = 4
+        const val REBUILD_SCALE_LIMIT = 2f
         /** 光标离窗沿不到这么远就把窗框提前亮出来。 */
         const val NEAR_EDGE_M = 0.06f
         const val MIN_DISTANCE_M = 0.4f

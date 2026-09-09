@@ -70,7 +70,6 @@ import m.c.g.a.i_iwara.questui.PlaylistGroup
 import m.c.g.a.i_iwara.questui.PlaylistSection
 import m.c.g.a.i_iwara.questui.SourceOption
 import m.c.g.a.i_iwara.questui.RepeatMode
-import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
 import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
@@ -150,7 +149,7 @@ import kotlin.math.tan
  * adb shell am start -n <pkg>/m.c.g.a.i_iwara.vr.ImmersiveActivity \
  *   --es url "https://..." --es shape 180 --es stereo lr --ei w 4096 --ei h 2048
  * ```
- * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--es scene passthrough|void`
+ * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--ef background 0..1`
  * `--es curve flat|slight|medium|deep`。不带 url 的任何 intent（含主页点图标）一律回浏览态。
  */
 class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
@@ -268,6 +267,13 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var pendingShowControls = false
     private var inputSuspended = false
     private var viewDistanceDirection = 0
+
+    /** 「面板远近」按住不放的方向（-1 拉近 / +1 拉远 / 0 没按着），只在浏览态那一页有效。 */
+    private var uiPanelHoldDirection = 0
+
+    /** 上一帧的时刻（算这一帧走多久）与这一按开始时的距离（松手记一笔用）。 */
+    private var uiPanelHoldLastAt = 0L
+    private var uiPanelHoldFrom = 0f
     private var lastMotionAt = 0L
 
     /**
@@ -486,8 +492,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             videoId = source.getStringExtra("videoId") ?: ""
         }
         argMute = source.getBooleanExtra("mute", argMute)
-        source.getStringExtra("scene")?.let {
-            controls.scene = if (it == "passthrough") SceneKind.PASSTHROUGH else SceneKind.VOID
+        // 背景不透明度（0 = 纯黑虚空、1 = 真实房间）。排查用的直投口子，正常入口是场景页那条滑块。
+        if (source.hasExtra("background")) {
+            controls.mediaEffects = controls.mediaEffects
+                .copy(backgroundTransparency = source.getFloatExtra("background", 1f))
+                .normalized()
             applyScene()
         }
         source.getStringExtra("curve")?.let { name ->
@@ -673,6 +682,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override fun onPresentGallery(request: ImmersiveGalleryRequest) {
             runOnUiThread { presentGallery(request) }
         }
+
+        /** 通道已经在主线程上（见 [ImmersiveBridge.togglePanelControls]），直接办完回值。 */
+        override fun onTogglePanelControls(): Boolean = togglePanelControls()
 
         override fun onDismiss() {
             runOnUiThread {
@@ -1030,7 +1042,122 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** Main windows share the same lowered center and face the runtime viewer. */
     private fun uiPanelPose(): Pose {
         val frame = trackedHeadPose()?.let(SpatialPlacement::viewFrame) ?: fallbackFrame()
-        return SpatialPlacement.screenSurface(frame, UI_PANEL_DISTANCE_M)
+        return SpatialPlacement.screenSurface(frame, prefs.uiPanelDistance)
+    }
+
+    /** 面板此刻离眼睛多远（米）；头部还没跟踪到就用记着的那一份。 */
+    private fun uiPanelDistanceNow(): Float {
+        val viewer = trackedHeadPose() ?: return prefs.uiPanelDistance
+        return (uiSurfacePose.t - viewer.t).length()
+            .takeIf { it.isFinite() && it > 0.05f } ?: prefs.uiPanelDistance
+    }
+
+    /** 把面板当前的远近记成偏好（夹在允许范围内）。 */
+    private fun rememberUiPanelDistance() {
+        if (uiPanelEntity == null || !uiPlacement.shown) return
+        prefs.uiPanelDistance = uiPanelDistanceNow()
+            .coerceIn(PlayerPrefs.MIN_UI_PANEL_DISTANCE_M, PlayerPrefs.MAX_UI_PANEL_DISTANCE_M)
+        markPrefsDirty()
+    }
+
+    /**
+     * 把 2D 面板推到某个绝对距离（米）。
+     *
+     * 沿着**当前视线看过去的那条方位**推拉（[SpatialPlacement.atDistance]），而不是回到出生时的
+     * 正前方 —— 挪到侧边的面板不会被这两条命令拽回中间。
+     *
+     * @return 夹取后的实际距离；面板此刻不在场（幕布占着场地 / 头部还没跟踪到）时 null。
+     */
+    private fun setUiPanelDistance(meters: Float): Float? {
+        if (uiPanelEntity == null || !uiPlacement.shown) return null
+        val viewer = trackedHeadPose() ?: return null
+        val next = meters.coerceIn(PlayerPrefs.MIN_UI_PANEL_DISTANCE_M, PlayerPrefs.MAX_UI_PANEL_DISTANCE_M)
+        prefs.uiPanelDistance = next
+        markPrefsDirty()
+        uiPlacement.moved()
+        applyUiPanelPose(SpatialPlacement.atDistance(uiSurfacePose, viewer, next))
+        manipulator.syncFrame(WindowKind.UI)
+        controls.uiPanelDistance = next
+        lastInteractionAt = SystemClock.uptimeMillis()
+        return next
+    }
+
+    /**
+     * 相对当前距离乘一个小系数（`+0.01` = 远 1%）。
+     *
+     * ⭐ **与幕布那条 [nudgeScreenDistance] 是同一个式子**：乘性、越远走得越快。用户 2026-09-09
+     * 在真机上一按就发现了不对 ——「2D 主应用的长按变化幅度跟空间视频里的那种不一样」。当时
+     * 面板走的是「0.25m 一格、按住每 130ms 跳一格」，幕布走的是逐帧连续的 [ViewDistanceMotion]，
+     * 同一副长相的三枚钮、两种手感。现在两处共用 [ViewDistanceMotion.flatFactor]，
+     * 点一下与按住的幅度都对得上。
+     */
+    private fun nudgeUiPanelDistance(relative: Float) {
+        val distance = uiPanelDistanceNow()
+        if (distance < 0.05f) return
+        setUiPanelDistance(distance * (1f + relative))
+    }
+
+    /** 「重置位置」：距离回默认档，并按当前视线把面板摆回正前方。 */
+    fun resetUiPanelPlacement(): Float? {
+        if (uiPanelEntity == null || !uiPlacement.shown) return null
+        prefs.uiPanelDistance = PlayerPrefs.DEFAULT_UI_PANEL_DISTANCE_M
+        markPrefsDirty()
+        uiPlacement.reset()
+        placeUiPanel(visible = true)
+        manipulator.syncFrame(WindowKind.UI)
+        controls.uiPanelDistance = prefs.uiPanelDistance
+        Log.i(TAG, "IMMERSIVE ui panel placement reset -> ${"%.2f".format(prefs.uiPanelDistance)}m")
+        return prefs.uiPanelDistance
+    }
+
+    /**
+     * 侧栏那枚「面板设置」钮（Dart → [ImmersiveBridge.togglePanelControls]）：把控制面板唤到
+     * [ControlsRoute.BROWSE] 那一页，再按一下收起。
+     *
+     * ⛔ 只在浏览态：影院态里 2D 面板本来就让位藏起来了，那枚钮根本不在眼前，
+     * 这时候唤出来的只会是一块与播放面板抢位置的空页。
+     *
+     * @return 是否受理（false = 幕布正占着场地）。
+     */
+    fun togglePanelControls(): Boolean {
+        if (stageActive) return false
+        if (controlsEntity != null && controls.route == ControlsRoute.BROWSE) {
+            hideControls()
+            return true
+        }
+        controls.uiPanelDistance = uiPanelDistanceNow()
+        // ⛔ 先换页再唤面板：反过来会先闪一眼播放页再淡入本页（Crossfade 会当成一次换页）。
+        controls.route = ControlsRoute.BROWSE
+        if (controlsEntity == null) showControls(summoned = true) else touched()
+        return true
+    }
+
+    /**
+     * 「面板远近」按住连走：**逐帧**按 [ViewDistanceMotion.flatFactor] 走，与幕布那条
+     * （`handleInput` 里的 [adjustViewDistance]）同一套速率、同一个 0.05s 的每帧上限。
+     */
+    private fun tickUiPanelHold(now: Long) {
+        if (uiPanelHoldDirection == 0) return
+        // 面板收了 / 换了页 / 幕布上来了：手指还按着也停（Compose 那边的松手回调可能永远不来）。
+        if (stageActive || controlsEntity == null || controls.route != ControlsRoute.BROWSE) {
+            endUiPanelHold()
+            return
+        }
+        val seconds = if (uiPanelHoldLastAt == 0L) 0f else ((now - uiPanelHoldLastAt) / 1000f).coerceIn(0f, 0.05f)
+        uiPanelHoldLastAt = now
+        nudgeUiPanelDistance(ViewDistanceMotion.flatFactor(uiPanelHoldDirection, seconds) - 1f)
+    }
+
+    /** 松手 / 被打断：停下，并把这一按走了多远记一笔（逐帧不打日志，那会把 logcat 刷爆）。 */
+    private fun endUiPanelHold() {
+        if (uiPanelHoldDirection == 0) return
+        uiPanelHoldDirection = 0
+        uiPanelHoldLastAt = 0L
+        Log.i(
+            TAG,
+            "IMMERSIVE ui panel distance ${"%.2f".format(uiPanelHoldFrom)} -> " +
+                "${"%.2f".format(uiPanelDistanceNow())}m",
+        )
     }
 
     /**
@@ -1069,9 +1196,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /**
      * 曲面中心 → 实体锚点（同 [surfaceToEntityPose]）：圆柱的锚点在**轴心**，曲面在它前方一个半径处。
      *
-     * ⛔ 半径要乘 [uiScale].x：拉角时面板整只是被 `Scale` 抻着的（松手才按新像素重排），
-     * 而 `Scale` 的 z 分量与 x 同值（见 [uiHost] 的 `resizeTo`）—— 圆柱等比缩放后仍是正圆柱，
-     * 半径与弧长同倍变大，弧度不变。不乘这一下，拖宽窗时曲面会离开轴心、整块往前跑。
+     * ⛔ 半径要乘 [uiScale].x：拖角时面板按当前宽度 reshape（见 [uiHost] 的 `resizeTo`），弧度不变、
+     * 半径与宽度同倍变大，`radiusFor` 对宽度是线性的，所以基准半径 × 宽度比就是此刻的半径。
+     * 不乘这一下，拖宽窗时曲面会离开轴心、整块往前跑。
      */
     private fun uiSurfaceToEntityPose(surface: Pose): Pose {
         val radius = uiPanelMeshRadius(uiBaseSize.x) * uiScale.x
@@ -1632,6 +1759,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      */
     private fun hideControls() {
         viewDistanceDirection = 0
+        endUiPanelHold()
         pendingShowControls = false
         val entity = controlsEntity ?: return
         (controlsBasePose ?: entity.tryGetComponent<Transform>()?.transform)?.let { lastControlsPose = it }
@@ -1768,15 +1896,32 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             applyUiPanelPose(surface)
         }
 
+        /**
+         * 用手抓着把窗挪完松手，也要记住新的远近 —— 否则「下次打开恢复上次的位置」只对
+         * 菜单里那三条成立，抓着挪的人下次进来面板又回到默认档。
+         *
+         * 只记**距离**：方位与朝向每次都按当时的视线重新算（见 [uiPanelPose]），
+         * 存一份世界坐标会让人换个方向坐下之后面板出现在身后。
+         */
+        override fun onMoveReleased(byGrip: Boolean) {
+            rememberUiPanelDistance()
+        }
+
         // `PanelSceneObject.resize` 在 0.13.2 里标着 experimental；ISDK 自己的 Relayout 走的就是它。
         @OptIn(com.meta.spatial.core.SpatialSDKExperimentalAPI::class)
         override fun resizeTo(size: Vector2, surface: Pose, commit: Boolean) {
             uiScale = Vector2(size.x / uiBaseSize.x, size.y / uiBaseSize.y)
-            // ⛔ z 必须跟着 x 一起缩，不能留 1：圆柱只有在 x/z 等比时才还是**正**圆柱。
-            // 只缩 x 会把它压成椭圆柱 —— 矢高恒等于建面板那一刻的那一档，于是窗越拉窄越像个瓢。
-            val scale = Vector3(uiScale.x, uiScale.y, uiScale.x)
-            uiPanelEntity?.setComponent(Scale(scale))
-            uiPanel?.setScale(scale)
+            // ⛔ 微曲面的面板不能用 `Scale` 拉：SDK 的圆柱层不把它当几何缩放 —— 只把宽度从
+            // 1.49 拉到 2.4 米（高不变），面板就等比放大了三四倍并冲到眼前（真机 2026-09-09）。
+            // 改成和幕布一样 reshape 圆柱形状：半径随宽度、弧度不变；像素画布拖动中被拉伸，
+            // 松手后由下面的 resize(px) 让 Flutter 按新像素重排（resize 保留 reshape 过的几何）。
+            uiPanel?.let { panel ->
+                runCatching {
+                    panel.reshape(uiPanelSettings(size).toPanelConfigOptions())
+                    // reshape 重建合成层，层序不保留（与幕布 / 窗框同一件事）。
+                    panel.layer?.setZIndex(Z_UI)
+                }.onFailure { Log.w(TAG, "IMMERSIVE ui panel reshape 失败", it) }
+            }
             moveTo(surface)
             syncIsdkUiShape()
             if (!commit) return
@@ -1821,7 +1966,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             // Back is navigation: it must still work while media is awaiting head placement.
             if (input.events.back) handleBackInput()
             else if (stageActive && screenShown) handleInput(now)
-            else if (!stageActive) handleBrowseInput()
+            else if (!stageActive) handleBrowseInput(now)
         }
         tickGallery(now)
         syncControlsDepth()
@@ -1987,6 +2132,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** B/Y returns exactly one level, independently of whether a screen is visible yet. */
     private fun handleBackInput() {
         if (!stageActive) {
+            // 浏览态也可能有面板（[ControlsRoute.BROWSE]）：先收它，再让 B/Y 回到应用的返回键。
+            if (controlsEntity != null) {
+                popPanelOrHide()
+                return
+            }
             Log.i(TAG, "IMMERSIVE back button -> MainActivity back")
             ImmersiveBridge.requestBack()
         } else if (controlsEntity != null) {
@@ -1998,7 +2148,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     /** Browsing input stays with ISDK except for moving an explicitly grabbed window. */
-    private fun handleBrowseInput() = nudgeGrabbedWindows()
+    private fun handleBrowseInput(now: Long) {
+        nudgeGrabbedWindows()
+        tickUiPanelHold(now)
+    }
 
     private fun nudgeGrabbedWindows() {
         for (hand in 0..1) {
@@ -2069,6 +2222,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.volumePopupOpen -> controls.volumePopupOpen = false
             controls.route == ControlsRoute.PLAYLIST && controls.expandedGroupId != null ->
                 controls.expandedGroupId = null
+            // 浏览态那一页身下没有播放页可回，「返回一层」就是收面板。
+            controls.route == ControlsRoute.BROWSE -> {
+                hideControls()
+                return
+            }
             controls.route != ControlsRoute.PLAYER -> controls.route = ControlsRoute.PLAYER
             else -> {
                 hideControls()
@@ -2420,7 +2578,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun applyScene(immediate: Boolean = false) {
-        runCatching { mediaEffects.setBackground(controls.scene, controls.mediaEffects, SystemClock.uptimeMillis(), immediate) }
+        runCatching { mediaEffects.setBackground(controls.mediaEffects, SystemClock.uptimeMillis(), immediate) }
             .onFailure { Log.w(TAG, "IMMERSIVE apply background failed", it) }
     }
 
@@ -2620,13 +2778,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             if (controls.format.isStereo) requestShape(0L)
         }
 
-        override fun onPickScene(scene: SceneKind) {
-            touched()
-            controls.scene = scene
-            markPrefsDirty()
-            applyScene()
-        }
-
         override fun onMediaEffects(settings: MediaEffectsSettings) {
             lastInteractionAt = SystemClock.uptimeMillis()
             val next = settings.normalized()
@@ -2634,6 +2785,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.mediaEffects = next
             markPrefsDirty()
             applyScene()
+            // ⛔ 没有片源时到此为止：下面那条路会走 `rebuildScreen`，而它在没有片源时的分支是
+            // 「收面板 + 把 2D 面板按默认位摆回去」。这一页此刻本来也没有幕布可重建。
+            if (!stageActive) return
             if (screenUsesEffectMesh != wantsEffectMesh()) {
                 rebuildScreen(keepPlayback = true)
             } else {
@@ -2672,6 +2826,33 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 sphereOffsetM = 0f
                 applyScreenTransform()
             }
+        }
+
+        /** 点一下走一格：与幕布那枚钮同一格（[onViewDistanceStep] 的 0.05s 当量）。 */
+        override fun onUiPanelDistanceStep(direction: Int) {
+            if (inputSuspended || stageActive) return
+            touched()
+            nudgeUiPanelDistance(ViewDistanceMotion.flatFactor(direction, 0.05f) - 1f)
+        }
+
+        override fun onUiPanelDistanceHold(direction: Int, pressed: Boolean) {
+            if (!pressed) {
+                if (uiPanelHoldDirection == direction) endUiPanelHold()
+                return
+            }
+            if (inputSuspended || stageActive || controls.route != ControlsRoute.BROWSE) return
+            touched()
+            uiPanelHoldDirection = direction.coerceIn(-1, 1)
+            // 从下一帧开始连走（≤14ms，与幕布那条 [handleInput] 里的路径完全一致）。
+            uiPanelHoldLastAt = SystemClock.uptimeMillis()
+            uiPanelHoldFrom = uiPanelDistanceNow()
+        }
+
+        override fun onResetUiPanelDistance() {
+            if (inputSuspended || stageActive) return
+            touched()
+            endUiPanelHold()
+            resetUiPanelPlacement()
         }
 
         override fun onScreenOffset(meters: Float) {
@@ -3457,25 +3638,25 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     // ================================================================ 面板注册
 
     // 这个方法在 `super.onCreate()` 内部被调用，读不到 intent —— 无条件注册，是否出现在场景里由 Entity 决定。
+    /**
+     * 2D 应用面板的设置：微曲面，弧度定死 [UI_PANEL_ARC_DEGREES]、半径由宽度反推（见 [uiPanelMeshRadius]）；
+     * dp 按 640dp/m 同比，字号不随窗大小变。创建时取偏好里的尺寸，拖角时按当前尺寸 reshape。
+     */
+    private fun uiPanelSettings(size: Vector2): UIPanelSettings = UIPanelSettings(
+        shape = CylinderShapeOptions(radius = uiPanelMeshRadius(size.x), width = size.x, height = size.y),
+        display = DpDisplayOptions(size.x * UI_DP_PER_METER, size.y * UI_DP_PER_METER, UI_PANEL_DPI),
+        // 窗口透明 + Flutter 根部裁圆角（MainActivity.getBackgroundMode / my_app.dart）：
+        // 面板要按 alpha 合成，四角才透得出后面的场景。
+        rendering = UIPanelRenderOptions(
+            renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
+        ),
+    )
+
     override fun registerPanels(): List<PanelRegistration> = listOf(
         ActivityPanelRegistration(
             R.id.vr_ui_panel,
             { MainActivity::class.java },
-            {
-                // 尺寸取用户上次拉到的（偏好）；dp 按 640dp/m 同比，字号不随窗大小变。
-                val w = prefs.uiPanelWidth
-                val h = prefs.uiPanelHeight
-                UIPanelSettings(
-                    // 微曲面：弧度定死 [UI_PANEL_ARC_DEGREES]，半径由建面板那一刻的宽度反推（见 [uiPanelMeshRadius]）。
-                    shape = CylinderShapeOptions(radius = uiPanelMeshRadius(w), width = w, height = h),
-                    display = DpDisplayOptions(w * UI_DP_PER_METER, h * UI_DP_PER_METER, UI_PANEL_DPI),
-                    // 窗口透明 + Flutter 根部裁圆角（MainActivity.getBackgroundMode / my_app.dart）：
-                    // 面板要按 alpha 合成，四角才透得出后面的场景。
-                    rendering = UIPanelRenderOptions(
-                        renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
-                    ),
-                )
-            },
+            { uiPanelSettings(Vector2(prefs.uiPanelWidth, prefs.uiPanelHeight)) },
         ),
         // 三块窗各自的窗框（见 WindowManipulator）：形状在创建那一刻取窗体尺寸 + 一圈边。
         ComposeViewPanelRegistration(
@@ -3583,7 +3764,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         private const val SCREEN_MAX_DISTANCE_M = 8.0f
 
         /** UI 面板的几何：1.8m 处 1.6m 宽 ≈ 47° 水平张角，沿视线摆。 */
-        private const val UI_PANEL_DISTANCE_M = 1.8f
 
         /** 2D 应用面板：1024dp / 1.6m = 640dp/m，288dpi；拉角只改米数与像素，不改这两个。 */
         private const val UI_DP_PER_METER = 1024f / PlayerPrefs.DEFAULT_UI_PANEL_WIDTH_M
@@ -3597,7 +3777,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
          *
          * 默认 1.6m 宽 ⇒ 半径 3.06m、中心比两边远 10.6cm ——「3000R」那一档曲面显示器的手感：
          * 一眼看得出是包着的，但边缘文字几乎不变形。比幕布最浅的 [ScreenCurve.SLIGHT]（40°）再收一点，
-         * 因为这块面板离人更近（[UI_PANEL_DISTANCE_M]），同样弧度看上去更弯。
+         * 因为这块面板离人更近（[PlayerPrefs.DEFAULT_UI_PANEL_DISTANCE_M]），同样弧度看上去更弯。
          */
         private const val UI_PANEL_ARC_DEGREES = 30f
         private const val UI_PANEL_MIN_WIDTH_M = 0.8f

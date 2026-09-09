@@ -13,7 +13,6 @@ import m.c.g.a.i_iwara.questui.GalleryStageState
 import m.c.g.a.i_iwara.questui.GalleryState
 import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.Projection
-import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
 import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
@@ -185,13 +184,7 @@ class MediaEffectsProbe : Instrumentation() {
             SystemClock.sleep(400L)
             checkLive("background $transparency")
         }
-        for (scene in SceneKind.entries) {
-            runOnMainSync { callbacks.onPickScene(scene) }
-            SystemClock.sleep(500L)
-            checkLive("scene $scene")
-        }
         runOnMainSync {
-            callbacks.onPickScene(SceneKind.PASSTHROUGH)
             callbacks.onMediaEffects(state.mediaEffects.copy(enabled = false))
         }
         SystemClock.sleep(500L)

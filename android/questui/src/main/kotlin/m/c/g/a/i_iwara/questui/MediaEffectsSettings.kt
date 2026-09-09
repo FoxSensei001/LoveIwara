@@ -6,7 +6,10 @@ data class MediaEffectsSettings(
     val edgeFeather: Float = 1f,
     /** Reference brightness control: spread, intensity and room colour move together. */
     val glowStrength: Float = 0.4f,
-    /** 0 = black surroundings, 1 = the room with the selected ambient lighting, in passthrough mode. */
+    /**
+     * 0 = black surroundings (the old "void" scene), 1 = the room with the selected ambient
+     * lighting. There is no separate scene switch any more: this slider *is* the background.
+     */
     val backgroundTransparency: Float = 1f,
 ) {
     fun normalized() = copy(

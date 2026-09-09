@@ -40,22 +40,14 @@ enum class ControlsRoute {
     SCREEN_TYPE,
     PLAYLIST,
     SETTINGS,
-}
 
-// ─────────────────────────────────────────────────────────── 场景
-
-/**
- * 环境场景。只做两种：虚空（默认）与透视。
- *
- * ⛔ 枚举带的是**资源 id 而不是字面量**：面板要按应用内选定的语言取词
- * （见 [PanelLocale]），取词一律在 Compose 里 `stringResource(labelRes)`。
- */
-enum class SceneKind(@StringRes val labelRes: Int) {
-    /** 虚空：什么都不画的纯黑空间。**默认档**。 */
-    VOID(R.string.xr_scene_void),
-
-    /** 透视：开 passthrough，看得见真实房间。 */
-    PASSTHROUGH(R.string.xr_scene_passthrough),
+    /**
+     * 浏览态（幕布上没有片子，眼前只有那块 2D 应用面板）唯一的一页：面板远近 + 背景不透明度。
+     *
+     * ⛔ 它与其它页不是兄弟关系 —— 别的页都从播放页进、按返回回播放页，而浏览态根本没有播放页
+     * （见 `ImmersiveActivity.popPanelOrHide`：这一页的「返回」就是收面板）。
+     */
+    BROWSE,
 }
 
 // ─────────────────────────────────────────────────────────── 屏幕类型
@@ -358,11 +350,16 @@ class VideoControlsState {
     var forceMono by mutableStateOf(false)
 
     // ---- 场景 ----
-    var scene by mutableStateOf(SceneKind.VOID)
     var mediaEffects by mutableStateOf(MediaEffectsSettings())
 
     /** 观看距离（米）。 */
     var screenDistance by mutableStateOf(1.6f)
+
+    /**
+     * 那块 2D 应用面板此刻离眼睛多远（米）。只在 [ControlsRoute.BROWSE] 那一页显示，
+     * 由 `:app` 在开面板与每次调距之后写回 —— 用户按一下就看得见数字在动。
+     */
+    var uiPanelDistance by mutableStateOf(1.8f)
 
     /** 幕心相对静息眼高的偏移（米），正数往上。 */
     var screenOffset by mutableStateOf(0f)
@@ -507,13 +504,22 @@ interface VideoControlsCallbacks {
     fun onToggleForceMono()
 
     // ---- 场景 ----
-    fun onPickScene(scene: SceneKind)
     fun onMediaEffects(settings: MediaEffectsSettings)
     fun onScreenDistance(meters: Float)
     /** -1 = nearer, +1 = farther. Releasing or cancelling must stop immediately. */
     fun onViewDistanceHold(direction: Int, pressed: Boolean)
     fun onViewDistanceStep(direction: Int)
     fun onResetViewDistance()
+
+    // ---- 2D 应用面板的远近（只有 [ControlsRoute.BROWSE] 那一页会调） ----
+
+    /** -1 = 拉近，+1 = 拉远。按住连走，松开 / 取消必须立刻停。 */
+    fun onUiPanelDistanceHold(direction: Int, pressed: Boolean)
+    fun onUiPanelDistanceStep(direction: Int)
+
+    /** 回默认档并摆回当前视线的正前方。 */
+    fun onResetUiPanelDistance()
+
     fun onScreenOffset(meters: Float)
     fun onScreenWidth(meters: Float)
     fun onResetScreenGeometry()

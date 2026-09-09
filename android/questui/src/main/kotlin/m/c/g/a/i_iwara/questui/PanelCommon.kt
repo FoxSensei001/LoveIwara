@@ -3,6 +3,12 @@ package m.c.g.a.i_iwara.questui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Canvas
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -562,5 +568,107 @@ fun PillButton(
     ) {
         if (icon != null) Icon(icon, null, tint = fg, modifier = Modifier.size(22.dp))
         Text(text = label, color = fg, fontSize = 16.sp, maxLines = 1)
+    }
+}
+
+/**
+ * 「拉近 / 重置 / 拉远」那一组大方块钮里的一枚：一枚图标压一行字，整块都是命中区。
+ *
+ * # ⛔ 为什么它在公共积木里，而不是留在某一页里
+ *
+ * 这一组钮有两个主人：幕布的远近（[ViewDistancePage]）与 2D 应用面板的远近
+ * （[BrowsePanelPage]）。两处调的是完全不同的东西，但**手势契约必须一模一样** ——
+ * 点一下走一格、按住连走、松手即停。抄第二份的那一刻，两边就会开始各自漂移
+ * （本项目已经吃过「同类问题一处一处修」的亏）。
+ *
+ * @param onStep 点一下走一格。也是无障碍那条路的动作（射线用户可能只发得出 click）。
+ * @param onHold 按住 / 松开；给 null 表示这枚是「重置」那种一下就完事的钮 ——
+ *   它同时也画得淡一档（复位动作不该和方向钮抢注意力）。
+ */
+@Composable
+fun DistanceActionButton(
+    icon: ImageVector,
+    label: String,
+    modifier: Modifier = Modifier,
+    onStep: () -> Unit,
+    onHold: ((pressed: Boolean) -> Unit)? = null,
+) {
+    val interaction = remember { MutableInteractionSource() }
+    val hovered by interaction.collectIsHoveredAsState()
+    val clickPressed by interaction.collectIsPressedAsState()
+    var held by remember { mutableStateOf(false) }
+    val pressed = held || clickPressed
+    val background by animateColorAsState(
+        targetValue = when {
+            pressed -> PanelTokens.PRESSED
+            hovered -> PanelTokens.HOVER
+            else -> PanelTokens.POPUP
+        },
+        animationSpec = tween(100),
+        label = "distanceButtonBackground",
+    )
+    val outline by animateColorAsState(
+        targetValue = when {
+            pressed -> PanelTokens.ON_SURFACE.copy(alpha = 0.32f)
+            hovered -> PanelTokens.ON_SURFACE.copy(alpha = 0.16f)
+            else -> Color.Transparent
+        },
+        animationSpec = tween(100),
+        label = "distanceButtonOutline",
+    )
+    val action = if (onHold == null) {
+        Modifier.clickable(
+            interactionSource = interaction,
+            indication = null,
+            role = Role.Button,
+            onClick = onStep,
+        )
+    } else {
+        Modifier
+            .semantics(mergeDescendants = true) {
+                role = Role.Button
+                onClick(label) { onStep(); true }
+            }
+            // Stable keys: changing pressed/hover visuals must not restart a held gesture.
+            .pointerInput(onHold) {
+                detectTapGestures(onPress = {
+                    held = true
+                    try {
+                        onHold(true)
+                        tryAwaitRelease()
+                    } finally {
+                        held = false
+                        onHold(false)
+                    }
+                })
+            }
+    }
+    val shape = RoundedCornerShape(20.dp)
+    val foreground = if (onHold == null && !pressed && !hovered) PanelTokens.ON_SURFACE_DIM else PanelTokens.ON_SURFACE
+    Column(
+        modifier = modifier
+            .height(144.dp)
+            .clip(shape)
+            .background(background)
+            .border(1.dp, outline, shape)
+            .hoverable(interaction)
+            .then(action)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(icon, contentDescription = null, tint = foreground, modifier = Modifier.size(36.dp))
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = label,
+            modifier = Modifier.fillMaxWidth(),
+            color = foreground,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium,
+            lineHeight = 26.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }

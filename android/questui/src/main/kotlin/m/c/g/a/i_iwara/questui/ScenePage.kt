@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,27 +17,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.SecondaryButton
-import com.meta.spatial.uiset.button.TextTileButton
 import com.meta.spatial.uiset.slider.SpatialSliderMedium
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
-import com.meta.spatial.uiset.theme.icons.regular.NightMode
 import com.meta.spatial.uiset.theme.icons.regular.Refresh
 import com.meta.spatial.uiset.theme.icons.regular.Reorient
-import com.meta.spatial.uiset.theme.icons.regular.World
 
 /**
  * 场景页：环境二选一 + 幕布几何微调。
  *
- * # ⛔ 只做两种场景
+ * # ⛔ 没有「场景」这个选择题了，只剩一条背景不透明度
  *
- * 参考软件有 MAX 影院 / 太空 / 热气球 等一排 3D 场景。**我们只做透视与虚空**
- * （用户 2026-08-29 拍板）—— 每个 3D 场景都是一份要打进包的 glTF 资产，收益纯装饰。
+ * 参考软件有 MAX 影院 / 太空 / 热气球 等一排 3D 场景，我们一开始只做「透视 / 虚空」
+ * 两块磁贴。**2026-09-09 用户拍板把这道选择题整只删掉**：有了空间光晕之后，虚空
+ * （纯黑）只是「背景不透明度拖到 0」的那一端，两个档位彼此重叠、还多一次点击。
+ * 现在默认是**纯透明**（看得见真实房间），亮暗全交给 [MediaEffectsSection] 里那条
+ * 滑块 —— 拖到 0 就是原来的虚空。
  *
  * # ⛔ passthrough 切换必须是渐变，不能硬切
  *
  * 官方 `mr-design-passthrough`：切换必须 **smooth blending**。且
  * `spatial-sdk-design-tips` 有一条更硬的：「用户本来在 passthrough 时不要擅自把他
- * 拉进独占沉浸」。渐变由调用方实现（见 `ImmersiveActivity.applyScene`）。
+ * 拉进独占沉浸」。滑块到 0 / 离开 0 那两下同样算切换，渐变由调用方实现
+ * （见 `ImmersiveActivity.applyScene` 与 `MediaEffectsRenderer.setBackground`）。
  *
  * # 幕布几何
  *
@@ -92,27 +92,7 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
         )
 
         // ── 环境 ──────────────────────────────────
-        Row(
-            modifier = Modifier.fillMaxWidth().height(104.dp),
-            horizontalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
-        ) {
-            TextTileButton(
-                label = stringResource(SceneKind.PASSTHROUGH.labelRes),
-                secondaryLabel = stringResource(R.string.xr_scene_passthrough_desc),
-                icon = { Icon(SpatialIcons.Regular.World, null) },
-                selected = state.scene == SceneKind.PASSTHROUGH,
-                onSelectionChange = { cb.onPickScene(SceneKind.PASSTHROUGH) },
-                modifier = Modifier.weight(1f),
-            )
-            TextTileButton(
-                label = stringResource(SceneKind.VOID.labelRes),
-                secondaryLabel = stringResource(R.string.xr_scene_void_desc),
-                icon = { Icon(SpatialIcons.Regular.NightMode, null) },
-                selected = state.scene == SceneKind.VOID,
-                onSelectionChange = { cb.onPickScene(SceneKind.VOID) },
-                modifier = Modifier.weight(1f),
-            )
-        }
+        SectionLabel(stringResource(R.string.xr_scene_section_environment))
 
         MediaEffectsSection(state, cb)
 

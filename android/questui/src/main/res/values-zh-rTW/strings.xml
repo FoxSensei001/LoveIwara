@@ -12,10 +12,6 @@
     <string name="xr_not_supported_here">本機播不了</string>
 
     <!-- ─────────────────────────────── 場景 -->
-    <string name="xr_scene_void">虛空</string>
-    <string name="xr_scene_void_desc">純黑環境，只剩畫面</string>
-    <string name="xr_scene_passthrough">透視</string>
-    <string name="xr_scene_passthrough_desc">看得見真實房間</string>
 
     <!-- ─────────────────────────────── 螢幕類型 -->
     <string name="xr_curve_flat">直面螢幕</string>
@@ -119,10 +115,11 @@
     <string name="xr_playlist_subtitle_more">%1$s（還有更多）</string>
 
     <!-- ─────────────────────────────── 場景頁 -->
-    <string name="xr_scene_title">場景選擇</string>
+    <string name="xr_scene_title">環境與位置</string>
     <string name="xr_scene_subtitle_flat">環境與幕布位置</string>
     <string name="xr_scene_subtitle_sphere">球幕片源，畫面本來就包在你四周</string>
     <string name="xr_recenter">重新置中</string>
+    <string name="xr_scene_section_environment">環境</string>
     <string name="xr_scene_section_adjust">場景調整</string>
     <string name="xr_screen_distance">螢幕距離</string>
     <string name="xr_screen_width">幕寬</string>
@@ -210,6 +207,12 @@
     <string name="xr_view_farther">推遠</string>
     <string name="xr_view_distance_reset">重設距離</string>
 
+    <!-- 瀏覽態那一頁：2D 應用面板自己的遠近 + 背景透出多少房間。 -->
+    <string name="xr_panel_settings_title">面板與背景</string>
+    <string name="xr_panel_settings_subtitle">這塊應用面板放多遠，背後透出多少真實房間</string>
+    <string name="xr_panel_distance">面板遠近</string>
+    <string name="xr_panel_background">背景</string>
+
     <!-- Shared video/gallery ambience controls. -->
     <string name="xr_media_effects">畫面氛圍</string>
     <string name="xr_media_effects_hint">柔化邊緣，讓畫面的光線延伸到周圍</string>
@@ -217,7 +220,7 @@
     <string name="xr_edge_feather">邊緣柔化</string>
     <string name="xr_ambient_glow">光暈範圍與強度</string>
     <string name="xr_background_transparency">背景透明度</string>
-    <string name="xr_background_transparency_hint" formatted="false">0%：黑色環境 · 100%：環境光下的房間</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%：純黑環境，只剩畫面 · 100%：環境光下的真實房間</string>
     <string name="xr_media_effects_360_hint">360° 影片自然環繞整個視野；邊緣柔化與光暈用於平面和 180° 畫面。</string>
     <string name="xr_media_effects_fallback">畫面效果暫時無法使用，已切回標準畫面。</string>
 </resources>

@@ -8,7 +8,6 @@ import com.meta.spatial.core.Pose
 import com.meta.spatial.core.Vector2
 import com.meta.spatial.runtime.PanelSceneObject
 import com.meta.spatial.runtime.SceneObject
-import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
 import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
@@ -16,7 +15,7 @@ import m.c.g.a.i_iwara.questui.VideoControlsState
 /**
  * Interactive device driver for eyeballing the media ambience while the
  * headset sits unattended. Started through the generated runner with
- * `am instrument -e mode visual [-e video x.mp4] [-e curve flat] [-e scene void]`.
+ * `am instrument -e mode visual [-e video x.mp4] [-e curve flat] [-e background 0]`.
  * It launches the player, then polls `cache/media-probe-cmd` for one command
  * per line and applies it on the main thread, so screenshots can be taken
  * between steps from the host:
@@ -28,8 +27,11 @@ import m.c.g.a.i_iwara.questui.VideoControlsState
  *   frame <lit|off>    light the screen frame's handles
  *   dragseq <w0> <w1> <n>  frame-by-frame drag from w0 to w1 in n steps, committed at the end
  *   frames             log the manipulator's frame bookkeeping for the screen
+ *   framescale <s>     scale the frame PanelSceneObject directly (mesh + layer)
+ *   frameecs <s>       scale the frame through the ECS Scale component only
+ *   framemesh <on|off> colour writes of the frame's eye-buffer mesh
  *   curve <FLAT|SLIGHT|MEDIUM|DEEP>
- *   scene <VOID|PASSTHROUGH>
+ *   background <0..1>  0 = black surroundings, 1 = the passthrough room
  *   glow <0..1>        brightness slider
  *   feather <0..1>
  *   effects <true|false>
@@ -43,26 +45,28 @@ import m.c.g.a.i_iwara.questui.VideoControlsState
 internal class MediaEffectsVisualProbe(private val instrumentation: Instrumentation, arguments: Bundle?) {
     private val videoName = arguments?.getString("video") ?: "probe2.mp4"
     private val curve = arguments?.getString("curve") ?: "flat"
-    private val scene = arguments?.getString("scene") ?: "void"
+    private val background = arguments?.getString("background")?.toFloatOrNull() ?: 0f
 
     fun run(report: (String) -> Unit) {
         val targetContext = instrumentation.targetContext
+        // `-e video none`: idle scene with only the 2D app panel (UI window tests).
+        val idle = videoName == "none"
         val video = targetContext.cacheDir.resolve(videoName)
-        check(video.exists()) { "Missing ${video.path}" }
+        check(idle || video.exists()) { "Missing ${video.path}" }
         val intent = Intent(targetContext, ImmersiveActivity::class.java)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .putExtra("url", "file://$video")
             .putExtra("shape", "flat").putExtra("stereo", "none")
-            .putExtra("curve", curve).putExtra("scene", scene)
+            .putExtra("curve", curve).putExtra("background", background)
             .putExtra("mute", true).putExtra("title", "Visual probe")
+        if (!idle) intent.putExtra("url", "file://$video")
         val activity = instrumentation.startActivitySync(intent) as ImmersiveActivity
         var panel: PanelSceneObject? = null
         val deadline = SystemClock.uptimeMillis() + 20_000L
         while (panel == null && SystemClock.uptimeMillis() < deadline) {
-            instrumentation.runOnMainSync { panel = field(activity, "screenPanel") as? PanelSceneObject }
+            instrumentation.runOnMainSync { panel = field(activity, if (idle) "uiPanel" else "screenPanel") as? PanelSceneObject }
             SystemClock.sleep(100L)
         }
-        check(panel != null) { "Media panel did not become ready" }
+        check(panel != null) { "Panel did not become ready" }
         report("READY")
         val commandFile = targetContext.cacheDir.resolve("media-probe-cmd")
         val callbacks = field(activity, "controlsCallbacks") as VideoControlsCallbacks
@@ -117,6 +121,41 @@ internal class MediaEffectsVisualProbe(private val instrumentation: Instrumentat
                                 }
                                 step(0)
                             }
+                            "framescale" -> {
+                                // Scale only the PanelSceneObject (mesh + layer through PanelShape), no ECS component.
+                                val manipulator = field(activity, "manipulator") as WindowManipulator
+                                @Suppress("UNCHECKED_CAST")
+                                val slot = (field(manipulator, "slots") as Map<*, *>)[WindowKind.SCREEN]
+                                val panel = slot?.let { field(it, "framePanel") as? PanelSceneObject }
+                                val sc = parts[1].toFloat()
+                                panel?.setScale(com.meta.spatial.core.Vector3(sc, sc, 1f))
+                            }
+                            "frameecs" -> {
+                                // Scale only through the ECS Scale component.
+                                val manipulator = field(activity, "manipulator") as WindowManipulator
+                                @Suppress("UNCHECKED_CAST")
+                                val slot = (field(manipulator, "slots") as Map<*, *>)[WindowKind.SCREEN]
+                                val entity = slot?.let { field(it, "frameEntity") as? com.meta.spatial.core.Entity }
+                                val sc = parts[1].toFloat()
+                                entity?.setComponent(com.meta.spatial.toolkit.Scale(com.meta.spatial.core.Vector3(sc, sc, 1f)))
+                            }
+                            "framemesh" -> {
+                                // Toggle colour writes of the frame panel's scene mesh (eye-buffer copy).
+                                val manipulator = field(activity, "manipulator") as WindowManipulator
+                                @Suppress("UNCHECKED_CAST")
+                                val slot = (field(manipulator, "slots") as Map<*, *>)[WindowKind.SCREEN]
+                                val panel = slot?.let { field(it, "framePanel") as? PanelSceneObject }
+                                val on = parts[1] == "on"
+                                panel?.mesh?.getMaterial(0)?.setColorWrite(if (on) 0xF else 0)
+                                android.util.Log.i("MediaProbe", "framemesh material=${panel?.mesh?.getMaterial(0)} shader=${panel?.mesh?.getMaterial(0)?.let { m -> runCatching { m.javaClass.getMethod("getShader").invoke(m) }.getOrNull() }}")
+                            }
+                            "uiresize" -> {
+                                // Free resize of the 2D app panel through its host: uiresize <w> <h> [commit]
+                                val host = field(activity, "uiHost") as WindowHost
+                                val pose = checkNotNull(host.surfacePose()) { "UI panel not shown" }
+                                host.resizeTo(Vector2(parts[1].toFloat(), parts[2].toFloat()), pose, parts.getOrNull(3) == "commit")
+                                (field(activity, "manipulator") as WindowManipulator).syncFrame(WindowKind.UI)
+                            }
                             "frames" -> {
                                 val manipulator = field(activity, "manipulator") as WindowManipulator
                                 @Suppress("UNCHECKED_CAST")
@@ -140,7 +179,7 @@ internal class MediaEffectsVisualProbe(private val instrumentation: Instrumentat
                                     if (lit) m.c.g.a.i_iwara.questui.WindowFrameZone.CORNER_BR else m.c.g.a.i_iwara.questui.WindowFrameZone.NONE
                             }
                             "curve" -> callbacks.onPickCurve(ScreenCurve.valueOf(parts[1]))
-                            "scene" -> callbacks.onPickScene(SceneKind.valueOf(parts[1]))
+                            "background" -> callbacks.onMediaEffects(state.mediaEffects.copy(backgroundTransparency = parts[1].toFloat()))
                             "glow" -> callbacks.onMediaEffects(state.mediaEffects.copy(glowStrength = parts[1].toFloat()))
                             "feather" -> callbacks.onMediaEffects(state.mediaEffects.copy(edgeFeather = parts[1].toFloat()))
                             "effects" -> callbacks.onMediaEffects(state.mediaEffects.copy(enabled = parts[1].toBoolean()))
@@ -165,8 +204,8 @@ internal class MediaEffectsVisualProbe(private val instrumentation: Instrumentat
                 SystemClock.sleep(600L)
                 var status = ""
                 instrumentation.runOnMainSync {
-                    val host = field(activity, "screenHost") as WindowHost
-                    val current = field(activity, "screenPanel") as? PanelSceneObject
+                    val host = field(activity, if (idle) "uiHost" else "screenHost") as WindowHost
+                    val current = field(activity, if (idle) "uiPanel" else "screenPanel") as? PanelSceneObject
                     val mesh = current?.mesh?.computeCombinedBounds()?.size()
                     val renderer = activity.javaClass.getDeclaredMethod("getMediaEffects").apply { isAccessible = true }.invoke(activity)
                     val glow = (field(renderer, "glowObject") as? SceneObject)?.mesh?.computeCombinedBounds()?.size()

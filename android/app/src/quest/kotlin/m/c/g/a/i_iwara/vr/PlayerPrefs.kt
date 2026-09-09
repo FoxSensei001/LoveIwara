@@ -4,12 +4,11 @@ import android.content.Context
 import m.c.g.a.i_iwara.questui.AspectPreset
 import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.RepeatMode
-import m.c.g.a.i_iwara.questui.SceneKind
 import m.c.g.a.i_iwara.questui.ScreenCurve
 import m.c.g.a.i_iwara.questui.VideoControlsState
 
 /**
- * 沉浸播放器的用户偏好：屏幕类型、场景、几何、倍速、面板行为……
+ * 沉浸播放器的用户偏好：屏幕类型、背景、几何、倍速、面板行为……
  *
  * 全部落 SharedPreferences，跨会话记住。**视频类型（格式）刻意不记**：那是每条片子
  * 自己的属性，由 Dart 侧的判定 + 用户覆盖决定，跨片记忆只会放错。
@@ -23,6 +22,16 @@ class PlayerPrefs(context: Context) {
     /** 2D 应用面板的物理宽高（米）。用户拉过角之后记住，下次进来就是那个大小。 */
     var uiPanelWidth = DEFAULT_UI_PANEL_WIDTH_M
     var uiPanelHeight = DEFAULT_UI_PANEL_WIDTH_M * UI_PANEL_ASPECT_H_OVER_W
+
+    /**
+     * 2D 应用面板离人多远（米）。侧栏头像上的「拉远 / 拉近 / 重置」改的就是它，
+     * 与宽高同样**跨会话记住** —— 下次进来面板还在上次那个远近上。
+     *
+     * ⛔ 只记距离、不记朝向：面板的落点每次都按**当时**的视线重新算
+     * （见 `ImmersiveActivity.uiPanelPose`），把一份世界坐标存下来会让人换个方向
+     * 坐下之后面板出现在身后。
+     */
+    var uiPanelDistance = DEFAULT_UI_PANEL_DISTANCE_M
 
     /** 控制面板相对基准尺寸的等比缩放。 */
     var controlsScale = 1f
@@ -61,11 +70,15 @@ class PlayerPrefs(context: Context) {
         }
         uiPanelWidth = sp.getFloat(KEY_UI_WIDTH, DEFAULT_UI_PANEL_WIDTH_M).coerceIn(0.8f, 4f)
         uiPanelHeight = sp.getFloat(KEY_UI_HEIGHT, DEFAULT_UI_PANEL_WIDTH_M * UI_PANEL_ASPECT_H_OVER_W).coerceIn(0.5f, 2.6f)
+        uiPanelDistance = sp.getFloat(KEY_UI_DISTANCE, DEFAULT_UI_PANEL_DISTANCE_M)
+            .coerceIn(MIN_UI_PANEL_DISTANCE_M, MAX_UI_PANEL_DISTANCE_M)
         controlsScale = sp.getFloat(KEY_CONTROLS_SCALE, 1f).coerceIn(0.6f, 2f)
         slideshowSeconds = sp.getInt(KEY_SLIDESHOW_SECONDS, 5).coerceIn(1, 120)
         galleryLoopVideo = sp.getBoolean(KEY_GALLERY_LOOP, true)
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
-        state.scene = enum(KEY_SCENE, SceneKind.VOID)
+        // ⛔ 老版本这里还读过一个 "scene"（虚空 / 透视）。2026-09-09 那个枚举删了，
+        // 背景只剩下面这条 backgroundTransparency：旧键留在盘上不再有人读，
+        // 于是所有人都落到新默认「纯透明」上——这正是删掉纯黑档的目的。
         state.mediaEffects = MediaEffectsSettings(
             enabled = sp.getBoolean(KEY_EFFECTS_ENABLED, true),
             // The first prototype used unrelated Gaussian parameters. Its saved
@@ -116,11 +129,11 @@ class PlayerPrefs(context: Context) {
         sp.edit()
             .putFloat(KEY_UI_WIDTH, uiPanelWidth)
             .putFloat(KEY_UI_HEIGHT, uiPanelHeight)
+            .putFloat(KEY_UI_DISTANCE, uiPanelDistance)
             .putFloat(KEY_CONTROLS_SCALE, controlsScale)
             .putInt(KEY_SLIDESHOW_SECONDS, slideshowSeconds)
             .putBoolean(KEY_GALLERY_LOOP, galleryLoopVideo)
             .putString(KEY_CURVE, state.curve.name)
-            .putString(KEY_SCENE, state.scene.name)
             .putBoolean(KEY_EFFECTS_ENABLED, state.mediaEffects.enabled)
             .putInt(KEY_AMBIENCE_VERSION, 2)
             .putFloat(KEY_EDGE_FEATHER, state.mediaEffects.edgeFeather)
@@ -185,13 +198,29 @@ class PlayerPrefs(context: Context) {
         const val DEFAULT_UI_PANEL_WIDTH_M = 1.6f
         const val UI_PANEL_ASPECT_H_OVER_W = 640f / 1024f
 
+        /** 2D 面板的默认距离，以及「重置位置」回到的那一档。 */
+        const val DEFAULT_UI_PANEL_DISTANCE_M = 1.8f
+
+        // ⛔ 下限不是 0.5m：官方 `hands-3d-best-practices` 说 UI 不要落在 0.5~0.8m 的中距，
+        // 要「push it well into raycast range (1m or more)」。
+        //
+        // ⛔ 这一对同时是**菜单的步进范围**和**记住位置时的夹取范围**，故意是同一份：
+        // 两份不同的上下限意味着「手动拖到 6m → 记住 6m → 一按拉近却先跳回 4m」。
+        // 上限取 6m（大房间里把窗推到墙边还能读得动，面板本身也能一起拉大）。
+        const val MIN_UI_PANEL_DISTANCE_M = 1.0f
+        const val MAX_UI_PANEL_DISTANCE_M = 6.0f
+
+        // ⛔ 这里原先还有一个 `UI_PANEL_DISTANCE_STEP_M = 0.25f`（「一档走多少米」）。已删：
+        // 面板的远近改成与幕布同一套**乘性连续量**（`ViewDistanceMotion.flatFactor`），
+        // 没有「档」这回事了 —— 留着一个没人读的常量只会让下一个人以为还在按格走。
+
         private const val KEY_UI_WIDTH = "uiPanelWidth"
         private const val KEY_UI_HEIGHT = "uiPanelHeight"
+        private const val KEY_UI_DISTANCE = "uiPanelDistance"
         private const val KEY_CONTROLS_SCALE = "controlsScale"
         private const val KEY_SLIDESHOW_SECONDS = "slideshowSeconds"
         private const val KEY_GALLERY_LOOP = "galleryLoopVideo"
         const val KEY_CURVE = "curve"
-        const val KEY_SCENE = "scene"
         private const val KEY_EFFECTS_ENABLED = "mediaEffectsEnabled"
         private const val KEY_AMBIENCE_VERSION = "mediaAmbienceVersion"
         private const val KEY_EDGE_FEATHER = "mediaEdgeFeather"
