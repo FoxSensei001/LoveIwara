@@ -436,9 +436,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         stage.onFailed = { id, msg -> runOnUiThread { onGalleryImageFailed(id, msg) } }
         // 幕布上 1× 横拖 = 攒翻页幅度（画面不动，只在幕布上浮预示），松手过阈值才真翻页。
         stage.onSwipe = { forward -> runOnUiThread { touched(); galleryStep(forward) } }
+        // ⭐ 图片幕布与视频幕布**共用同一个横拖状态机实例**：预示光轮从此只画在幕布叠层面板上
+        // （`vr_buffering_panel`，DpPerMeter ⇒ 固定物理尺寸）。图片面板是 2048 方画布贴非方幕布，
+        // 在它上面画浮标会被非等比拉伸、还跟着幕布一起缩放 —— 那是老样子「又丑又跟着变大」的根因。
+        stage.swipe = bufferingState.swipe
         // 图片幕布上到头那句话说「张」（视频幕布用默认的「条」，见 StageSwipeState）。
         stage.swipe.noPreviousRes = UiR.string.xr_swipe_no_previous_image
         stage.swipe.noNextRes = UiR.string.xr_swipe_no_next_image
+        // 跨过「松手就翻」那条线出一声（手没有触觉，画面又全程不动，只剩这一条通道）。
+        stage.swipe.onArmedChanged = { armed -> if (armed) runOnUiThread { touched() } }
         stage.onPressChanged = { pressed, _, _ -> runOnUiThread { stagePressed = pressed } }
         // 幕布上捏合 / 双击缩放算一次交互（面板的空闲倒计时要续上）。
         // ⛔ 缩放倍数**不再镜像进面板**：面板上那组 −/%/+ 已按用户要求整组移除（2026-09-06）。
@@ -1291,7 +1297,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         endSphereGrab(hideControls = false)
         twoHandScaling = false
         cancelStageSwipe()
-        stage.swipe.blocked = false
+        // 两块幕布共用同一个实例（见 onCreate 那句 `stage.swipe = bufferingState.swipe`），写一次即可。
         bufferingState.swipe.blocked = false
         viewDistanceDirection = 0
         for (i in 0..1) tapCandidate[i] = false
@@ -1660,9 +1666,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         // 同一块叠层也给摇杆拖动进度的预览用：拖动一开始就露面，不等缓冲那 350ms。
         val want = (scrubbing && onScreen) || (buffering && now - bufferingSince >= BUFFERING_SHOW_DELAY_MS)
-        // 横拖翻片的预示浮窗也画在这块叠层上，但它**不点亮** [BufferingState.visible]
+        // 横拖翻片的预示光轮也画在这块叠层上，但它**不点亮** [BufferingState.visible]
         //（那是转圈 / 进度预览那一层的闸门）—— 只是把实体留住，别在拖到一半时被销毁。
-        val keepAlive = want || (stageSwipeDragging && onScreen)
+        // ⛔ 判据用状态机自己的 `active` 而不是 [stageSwipeDragging]：后者只是**视频幕布**那条
+        // 原生射线路的标志，图片幕布走的是 Compose 手势，用它判会让画廊里的光轮根本建不出实体。
+        // ⛔ 画廊里还要**提前**把实体建起来：光轮现在住在这块叠层上，而建面板 + 首帧 Compose
+        // 要好几帧 —— 等 `swipe.active` 才建，第一次横拖会看见它迟到一下。按下就建（横拖必然
+        // 以按下开头），松手即回到上面那条倒计时。
+        val keepAlive = want || ((bufferingState.swipe.active || (inGallery && stagePressed)) && onScreen)
         if (keepAlive) {
             bufferingDestroyAt = 0L
             if (bufferingEntity == null) createBufferingEntity()
@@ -2078,7 +2089,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // ⛔ 两手缩放期间否决横拖：图片幕布那块 Compose **只看得见其中一枚指针**（Quest 上两只手柄
         // 不是两枚 Compose 指针，§19 续十二·第三轮实测），它自己判不出「这是在缩放不是在横拖」——
         // 不写这一条，两手放大时下面就一直长着翻页进度条（用户 2026-09-06）。
-        stage.swipe.blocked = twoHandScaling
         bufferingState.swipe.blocked = twoHandScaling
         // 按在**视频**画面上横拖 = 攒「上一条 / 下一条」的幅度（画面不动，只浮预示）。
         updateStageSwipe(now)

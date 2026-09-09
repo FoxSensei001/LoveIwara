@@ -79,8 +79,10 @@ const val BUFFERING_ANIM_MS = 220
 @Composable
 fun BufferingIndicator(state: BufferingState) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        // 翻页光轮也压在正中：拖起来的那一刻把转圈 / 拖动预览让出去，别两团东西叠在一起
+        //（有出有入：这里是淡出，不是硬切）。
         AnimatedVisibility(
-            visible = state.visible,
+            visible = state.visible && !state.swipe.active,
             enter = fadeIn(tween(BUFFERING_ANIM_MS)) + scaleIn(tween(BUFFERING_ANIM_MS), initialScale = 0.85f),
             exit = fadeOut(tween(BUFFERING_ANIM_MS)) + scaleOut(tween(BUFFERING_ANIM_MS), targetScale = 0.85f),
         ) {
@@ -107,7 +109,7 @@ fun BufferingIndicator(state: BufferingState) {
                 }
             }
         }
-        // 横拖翻片的预示：与转圈无关，各自出没（缓冲中照样能拖着翻下一条）。
+        // 横拖翻片的预示光轮：拖动期间它独占正中（转圈已经让位）。
         StageSwipeHint(state.swipe)
     }
 }

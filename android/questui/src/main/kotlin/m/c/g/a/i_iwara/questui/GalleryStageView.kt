@@ -127,8 +127,14 @@ class GalleryStageState {
      */
     var onSwipe: ((forward: Boolean) -> Unit)? = null
 
-    /** 横拖状态机（`:app` 每次换项写它的 `canPrevious/canNext`）。 */
-    val swipe = StageSwipeState()
+    /**
+     * 横拖状态机（`:app` 每次换项写它的 `canPrevious/canNext`）。
+     *
+     * ⛔ 可写：`:app` 会把**幕布叠层那一份**（`BufferingState.swipe`）塞进来，让图片幕布与视频幕布
+     * 共用同一个实例 —— 预示浮标从此只画在叠层面板上（见 [StageSwipeHint] 的「为什么换载体」）。
+     * 这块图片面板是方画布贴非方幕布，在这里画浮标会被拉变形、还跟着幕布一起缩放。
+     */
+    var swipe: StageSwipeState = StageSwipeState()
 
     /**
      * 指针按下 / 抬起。[x] [y] = 按压点相对幕布中心的像素坐标。
@@ -205,12 +211,13 @@ fun GalleryStage(state: GalleryStageState) {
             .onSizeChanged { state.noteViewport(it.width.toFloat(), it.height.toFloat()) }
             .stageGestures(state),
     ) {
+        // ⛔ 翻页预示浮标**不画在这里**：它在幕布叠层面板上（`vr_buffering_panel`），
+        // 理由见 [StageSwipeHint]。这块画布是 2048 见方、贴到非方幕布上会被非等比拉伸。
         StageImage(state, model, itemId, context, loader)
-        StageSwipeHint(state.swipe)
     }
 }
 
-/** 画面本体：缩放 / 平移都作用在这一层，翻页预示浮窗不跟着缩。 */
+/** 画面本体：缩放 / 平移都作用在这一层。 */
 @Composable
 private fun BoxScope.StageImage(
     state: GalleryStageState,
