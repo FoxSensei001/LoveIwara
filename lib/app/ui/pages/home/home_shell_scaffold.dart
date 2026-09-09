@@ -19,8 +19,6 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/vibrate_utils.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/app/utils/exit_confirm_util.dart';
-import 'package:i_iwara/app/utils/app_exit.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
@@ -240,7 +238,7 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
     // - Intercept all back events inside Shell.
     // - Delegate to PopCoordinator for unified order:
     //   overlay/drawer -> internal page -> route pop.
-    // - At home root: exit immediately.
+    // - At home root: PopCoordinator 弹二次确认，5s 内再来一次才真退。
     Widget body = Builder(
       builder: (context) {
         final bool isAtRoot = _isAtHomeRoot;
@@ -286,12 +284,9 @@ class _HomeShellScaffoldState extends State<HomeShellScaffold>
               return;
             }
 
-            // At home root → 二次确认退出（5s 内再次返回才真正退出）
-            if (isAtRoot) {
-              ExitConfirmUtil.handleExit(context, AppExit.exit);
-              return;
-            }
-
+            // 首页根路由的二次确认退出长在 [PopCoordinator.handleBack] 的最后一档里
+            //（退到无处可退时才弹），这里不再单独判一次 isAtRoot —— 每个调用点各判各的，
+            // 就是宽屏侧边栏那枚返回钮直接退出的来路。
             PopCoordinator.handleBack(context);
           },
           child: widget.child,

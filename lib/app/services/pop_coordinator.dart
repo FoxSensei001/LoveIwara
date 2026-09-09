@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/utils/app_exit.dart';
+import 'package:i_iwara/app/utils/exit_confirm_util.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 统一的返回键协调器。
@@ -17,7 +18,7 @@ import 'package:i_iwara/utils/logger_utils.dart';
 ///   4a. 根 GoRouter 路由可返回 → 优先弹出（全屏页等顶层包装）
 ///   4b. Shell Navigator 可返回 → 弹出 Shell 内部详情页
 ///   4c. GoRouter 还能返回 → 弹出其他根级路由
-///   5. 都不能返回 → 退出应用
+///   5. 都不能返回 → 二次确认后退出应用（5s 内再来一次才真退）
 class PopCoordinator {
   PopCoordinator._();
 
@@ -230,9 +231,15 @@ class PopCoordinator {
         return;
       }
 
-      // 5. 已经没有可弹出的页面 → 退出应用
-      LogUtils.d('handleBack -> 退出应用', 'PopCoordinator');
-      unawaited(AppExit.exit());
+      // 5. 已经没有可弹出的页面 → 退出应用（先二次确认）
+      //
+      // ⛔ 二次确认必须收在**这里**，不能只挂在系统返回键 / ESC 的调用点上：
+      // 宽屏侧边栏那枚返回钮走的是 `AppService.tryPop() -> handleBack()`，
+      // 绕开了那两处的 `shouldConfirmExitAtHomeRoot()` 预判，一路点到底就是
+      // 「首页再点一下，应用没了，一句提示都没有」（用户 2026-09-09，PC/Quest 实测，
+      // 安卓平板同一条路）。返回链的终点只有这一处，确认就该长在终点上。
+      LogUtils.d('handleBack -> 无处可退，走退出二次确认', 'PopCoordinator');
+      ExitConfirmUtil.handleExit(context, () => unawaited(AppExit.exit()));
     } finally {
       _handlingBack = false;
     }

@@ -28,8 +28,6 @@ import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/app/utils/exit_confirm_util.dart';
-import 'package:i_iwara/app/utils/app_exit.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 
 import 'services/theme_service.dart';
@@ -691,12 +689,9 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         }
 
         if (action == ShortcutAction.globalBack) {
-          if (PopCoordinator.shouldConfirmExitAtHomeRoot()) {
-            // 首页根路由：二次确认退出（5s 内再次返回才真正退出）
-            ExitConfirmUtil.handleExit(context, AppExit.exit);
-          } else {
-            PopCoordinator.handleBack(context);
-          }
+          // 首页根路由的二次确认退出长在 [PopCoordinator.handleBack] 的最后一档里，
+          // 这里不再预判一遍 —— 每个调用点各判各的，就是侧边栏返回钮直接退出的来路。
+          PopCoordinator.handleBack(context);
           return KeyEventResult.handled;
         }
         return KeyEventResult.ignored;
