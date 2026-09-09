@@ -2963,3 +2963,21 @@ vrFormat:
   suggestionTitleShort: This may be a VR video
   suggestionAction: Play as VR
   suggestionDismiss: Dismiss
+localMedia:
+  title: Local media
+  addFolder: Add folder
+  rescan: Rescan
+  scanning: "Scanning… ${count} found"
+  scanFailed: "Scan failed: ${reason}"
+  scanTruncated: "That folder is very large — only the first ${count} files were added."
+  sourceOverlaps: "Already covered by the folder \"${name}\""
+  addSourceFailed: Could not add that folder
+  fileMissing: That file is no longer on disk
+  permissionDenied: File access not granted · tap to grant
+  noVideosFound: No videos in this folder
+  emptyTitle: Add a folder to watch the videos already on this device
+  emptyPrivacyNote: Files are read on this device only. Nothing is uploaded.
+  removeSourceTitle: "Remove \"${name}\"?"
+  removeSourceBody: The files stay on disk. Only this library entry is removed.
+  remove: Remove
+  longPressToRemove: Long-press to remove this folder

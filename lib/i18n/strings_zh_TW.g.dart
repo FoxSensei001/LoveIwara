@@ -92,6 +92,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsMediaPreviewZhTw mediaPreview = _TranslationsMediaPreviewZhTw._(_root);
 	@override late final _TranslationsPlaybackQueueZhTw playbackQueue = _TranslationsPlaybackQueueZhTw._(_root);
 	@override late final _TranslationsVrFormatZhTw vrFormat = _TranslationsVrFormatZhTw._(_root);
+	@override late final _TranslationsLocalMediaZhTw localMedia = _TranslationsLocalMediaZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -2571,6 +2572,32 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 	@override String get suggestionTitleShort => '這可能是 VR 影片';
 	@override String get suggestionAction => '以 VR 播放';
 	@override String get suggestionDismiss => '不再提示';
+}
+
+// Path: localMedia
+class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
+	_TranslationsLocalMediaZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '本機媒體';
+	@override String get addFolder => '新增資料夾';
+	@override String get rescan => '重新掃描';
+	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
+	@override String scanFailed({required Object reason}) => '掃描失敗：${reason}';
+	@override String scanTruncated({required Object count}) => '這個資料夾太大了，只收了前 ${count} 個檔案。';
+	@override String sourceOverlaps({required Object name}) => '已被資料夾「${name}」涵蓋';
+	@override String get addSourceFailed => '新增資料夾失敗';
+	@override String get fileMissing => '這個檔案已經不在磁碟上了';
+	@override String get permissionDenied => '未授予檔案存取權限 · 點這裡開啟';
+	@override String get noVideosFound => '這個資料夾裡沒有影片';
+	@override String get emptyTitle => '新增一個資料夾，看這台裝置上已有的影片';
+	@override String get emptyPrivacyNote => '只在本機讀取，不上傳任何東西。';
+	@override String removeSourceTitle({required Object name}) => '移除「${name}」？';
+	@override String get removeSourceBody => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。';
+	@override String get remove => '移除';
+	@override String get longPressToRemove => '長按可移除這個資料夾';
 }
 
 // Path: common.pagination
@@ -6603,6 +6630,23 @@ extension on TranslationsZhTw {
 			'vrFormat.suggestionTitleShort' => '這可能是 VR 影片',
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
+			'localMedia.title' => '本機媒體',
+			'localMedia.addFolder' => '新增資料夾',
+			'localMedia.rescan' => '重新掃描',
+			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',
+			'localMedia.scanFailed' => ({required Object reason}) => '掃描失敗：${reason}',
+			'localMedia.scanTruncated' => ({required Object count}) => '這個資料夾太大了，只收了前 ${count} 個檔案。',
+			'localMedia.sourceOverlaps' => ({required Object name}) => '已被資料夾「${name}」涵蓋',
+			'localMedia.addSourceFailed' => '新增資料夾失敗',
+			'localMedia.fileMissing' => '這個檔案已經不在磁碟上了',
+			'localMedia.permissionDenied' => '未授予檔案存取權限 · 點這裡開啟',
+			'localMedia.noVideosFound' => '這個資料夾裡沒有影片',
+			'localMedia.emptyTitle' => '新增一個資料夾，看這台裝置上已有的影片',
+			'localMedia.emptyPrivacyNote' => '只在本機讀取，不上傳任何東西。',
+			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
+			'localMedia.removeSourceBody' => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。',
+			'localMedia.remove' => '移除',
+			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
 			_ => null,
 		};
 	}

@@ -92,6 +92,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsMediaPreviewJa mediaPreview = _TranslationsMediaPreviewJa._(_root);
 	@override late final _TranslationsPlaybackQueueJa playbackQueue = _TranslationsPlaybackQueueJa._(_root);
 	@override late final _TranslationsVrFormatJa vrFormat = _TranslationsVrFormatJa._(_root);
+	@override late final _TranslationsLocalMediaJa localMedia = _TranslationsLocalMediaJa._(_root);
 }
 
 // Path: personalProfile
@@ -2571,6 +2572,32 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	@override String get suggestionTitleShort => 'これは VR 動画かもしれません';
 	@override String get suggestionAction => 'VR で再生';
 	@override String get suggestionDismiss => '表示しない';
+}
+
+// Path: localMedia
+class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
+	_TranslationsLocalMediaJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'ローカルメディア';
+	@override String get addFolder => 'フォルダーを追加';
+	@override String get rescan => '再スキャン';
+	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
+	@override String scanFailed({required Object reason}) => 'スキャンに失敗しました：${reason}';
+	@override String scanTruncated({required Object count}) => 'このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。';
+	@override String sourceOverlaps({required Object name}) => 'フォルダー「${name}」に既に含まれています';
+	@override String get addSourceFailed => 'フォルダーを追加できませんでした';
+	@override String get fileMissing => 'このファイルはディスク上にありません';
+	@override String get permissionDenied => 'ファイルアクセスが許可されていません · タップして許可';
+	@override String get noVideosFound => 'このフォルダーに動画はありません';
+	@override String get emptyTitle => 'フォルダーを追加して、この端末にある動画を見る';
+	@override String get emptyPrivacyNote => '端末内でのみ読み取ります。アップロードは一切ありません。';
+	@override String removeSourceTitle({required Object name}) => '「${name}」を削除しますか？';
+	@override String get removeSourceBody => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。';
+	@override String get remove => '削除';
+	@override String get longPressToRemove => '長押しでこのフォルダーを削除';
 }
 
 // Path: common.pagination
@@ -6603,6 +6630,23 @@ extension on TranslationsJa {
 			'vrFormat.suggestionTitleShort' => 'これは VR 動画かもしれません',
 			'vrFormat.suggestionAction' => 'VR で再生',
 			'vrFormat.suggestionDismiss' => '表示しない',
+			'localMedia.title' => 'ローカルメディア',
+			'localMedia.addFolder' => 'フォルダーを追加',
+			'localMedia.rescan' => '再スキャン',
+			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',
+			'localMedia.scanFailed' => ({required Object reason}) => 'スキャンに失敗しました：${reason}',
+			'localMedia.scanTruncated' => ({required Object count}) => 'このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。',
+			'localMedia.sourceOverlaps' => ({required Object name}) => 'フォルダー「${name}」に既に含まれています',
+			'localMedia.addSourceFailed' => 'フォルダーを追加できませんでした',
+			'localMedia.fileMissing' => 'このファイルはディスク上にありません',
+			'localMedia.permissionDenied' => 'ファイルアクセスが許可されていません · タップして許可',
+			'localMedia.noVideosFound' => 'このフォルダーに動画はありません',
+			'localMedia.emptyTitle' => 'フォルダーを追加して、この端末にある動画を見る',
+			'localMedia.emptyPrivacyNote' => '端末内でのみ読み取ります。アップロードは一切ありません。',
+			'localMedia.removeSourceTitle' => ({required Object name}) => '「${name}」を削除しますか？',
+			'localMedia.removeSourceBody' => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。',
+			'localMedia.remove' => '削除',
+			'localMedia.longPressToRemove' => '長押しでこのフォルダーを削除',
 			_ => null,
 		};
 	}

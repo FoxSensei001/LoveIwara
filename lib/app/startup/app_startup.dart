@@ -32,6 +32,7 @@ import 'package:i_iwara/app/services/iwara_network_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
+import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
 import 'package:i_iwara/app/services/playback_history_service.dart';
@@ -415,6 +416,13 @@ class AppStartupCoordinator implements AppStartupRunner {
     );
     _registerDeferredSingleton<VrFormatOverrideService>(
       VrFormatOverrideService(),
+    );
+    // ⛔ permanent：本服务持有扫描 isolate。启动重试时被 `Get.delete` 换掉的话，
+    // 正在跑的扫描会被连根拔掉，而页面上挂在旧实例 Rx 上的进度监听会静默失聪
+    // ——和下载服务当年那个「点了不生效必须重进页面」是同一种病。
+    _registerDeferredSingleton<LocalMediaScanService>(
+      LocalMediaScanService(),
+      permanent: true,
     );
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());

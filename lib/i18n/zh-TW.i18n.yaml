@@ -2967,3 +2967,21 @@ vrFormat:
   suggestionTitleShort: 這可能是 VR 影片
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
+localMedia:
+  title: 本機媒體
+  addFolder: 新增資料夾
+  rescan: 重新掃描
+  scanning: "掃描中… 已找到 ${count} 個"
+  scanFailed: "掃描失敗：${reason}"
+  scanTruncated: "這個資料夾太大了，只收了前 ${count} 個檔案。"
+  sourceOverlaps: "已被資料夾「${name}」涵蓋"
+  addSourceFailed: 新增資料夾失敗
+  fileMissing: 這個檔案已經不在磁碟上了
+  permissionDenied: 未授予檔案存取權限 · 點這裡開啟
+  noVideosFound: 這個資料夾裡沒有影片
+  emptyTitle: 新增一個資料夾，看這台裝置上已有的影片
+  emptyPrivacyNote: 只在本機讀取，不上傳任何東西。
+  removeSourceTitle: "移除「${name}」？"
+  removeSourceBody: 磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。
+  remove: 移除
+  longPressToRemove: 長按可移除這個資料夾

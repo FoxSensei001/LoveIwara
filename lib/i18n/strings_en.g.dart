@@ -95,6 +95,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsMediaPreviewEn mediaPreview = TranslationsMediaPreviewEn._(_root);
 	late final TranslationsPlaybackQueueEn playbackQueue = TranslationsPlaybackQueueEn._(_root);
 	late final TranslationsVrFormatEn vrFormat = TranslationsVrFormatEn._(_root);
+	late final TranslationsLocalMediaEn localMedia = TranslationsLocalMediaEn._(_root);
 }
 
 // Path: personalProfile
@@ -6468,6 +6469,66 @@ class TranslationsVrFormatEn {
 	String get suggestionDismiss => 'Dismiss';
 }
 
+// Path: localMedia
+class TranslationsLocalMediaEn {
+	TranslationsLocalMediaEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Local media'
+	String get title => 'Local media';
+
+	/// en: 'Add folder'
+	String get addFolder => 'Add folder';
+
+	/// en: 'Rescan'
+	String get rescan => 'Rescan';
+
+	/// en: 'Scanning… ${count} found'
+	String scanning({required Object count}) => 'Scanning… ${count} found';
+
+	/// en: 'Scan failed: ${reason}'
+	String scanFailed({required Object reason}) => 'Scan failed: ${reason}';
+
+	/// en: 'That folder is very large — only the first ${count} files were added.'
+	String scanTruncated({required Object count}) => 'That folder is very large — only the first ${count} files were added.';
+
+	/// en: 'Already covered by the folder "${name}"'
+	String sourceOverlaps({required Object name}) => 'Already covered by the folder "${name}"';
+
+	/// en: 'Could not add that folder'
+	String get addSourceFailed => 'Could not add that folder';
+
+	/// en: 'That file is no longer on disk'
+	String get fileMissing => 'That file is no longer on disk';
+
+	/// en: 'File access not granted · tap to grant'
+	String get permissionDenied => 'File access not granted · tap to grant';
+
+	/// en: 'No videos in this folder'
+	String get noVideosFound => 'No videos in this folder';
+
+	/// en: 'Add a folder to watch the videos already on this device'
+	String get emptyTitle => 'Add a folder to watch the videos already on this device';
+
+	/// en: 'Files are read on this device only. Nothing is uploaded.'
+	String get emptyPrivacyNote => 'Files are read on this device only. Nothing is uploaded.';
+
+	/// en: 'Remove "${name}"?'
+	String removeSourceTitle({required Object name}) => 'Remove "${name}"?';
+
+	/// en: 'The files stay on disk. Only this library entry is removed.'
+	String get removeSourceBody => 'The files stay on disk. Only this library entry is removed.';
+
+	/// en: 'Remove'
+	String get remove => 'Remove';
+
+	/// en: 'Long-press to remove this folder'
+	String get longPressToRemove => 'Long-press to remove this folder';
+}
+
 // Path: common.pagination
 class TranslationsCommonPaginationEn {
 	TranslationsCommonPaginationEn._(this._root);
@@ -12115,6 +12176,23 @@ extension on Translations {
 			'vrFormat.suggestionTitleShort' => 'This may be a VR video',
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
+			'localMedia.title' => 'Local media',
+			'localMedia.addFolder' => 'Add folder',
+			'localMedia.rescan' => 'Rescan',
+			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',
+			'localMedia.scanFailed' => ({required Object reason}) => 'Scan failed: ${reason}',
+			'localMedia.scanTruncated' => ({required Object count}) => 'That folder is very large — only the first ${count} files were added.',
+			'localMedia.sourceOverlaps' => ({required Object name}) => 'Already covered by the folder "${name}"',
+			'localMedia.addSourceFailed' => 'Could not add that folder',
+			'localMedia.fileMissing' => 'That file is no longer on disk',
+			'localMedia.permissionDenied' => 'File access not granted · tap to grant',
+			'localMedia.noVideosFound' => 'No videos in this folder',
+			'localMedia.emptyTitle' => 'Add a folder to watch the videos already on this device',
+			'localMedia.emptyPrivacyNote' => 'Files are read on this device only. Nothing is uploaded.',
+			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
+			'localMedia.removeSourceBody' => 'The files stay on disk. Only this library entry is removed.',
+			'localMedia.remove' => 'Remove',
+			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			_ => null,
 		};
 	}

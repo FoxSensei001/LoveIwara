@@ -118,6 +118,15 @@ class GlobalDrawerColumns extends StatelessWidget {
                         ),
                         _buildMenuItem(
                           context,
+                          icon: Icons.folder_open_outlined,
+                          title: slang.t.localMedia.title,
+                          onTap: () {
+                            NaviService.navigateToLocalMediaPage();
+                            AppService.switchGlobalDrawer();
+                          },
+                        ),
+                        _buildMenuItem(
+                          context,
                           icon: Icons.favorite_outline,
                           title: slang.t.common.favorites,
                           onTap: () => _handleLoginRequiredNavi(

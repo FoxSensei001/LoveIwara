@@ -2963,3 +2963,21 @@ vrFormat:
   suggestionTitleShort: 这可能是 VR 视频
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
+localMedia:
+  title: 本地媒体
+  addFolder: 添加文件夹
+  rescan: 重新扫描
+  scanning: "扫描中… 已发现 ${count} 个"
+  scanFailed: "扫描失败：${reason}"
+  scanTruncated: "这个文件夹太大了，只收了前 ${count} 个文件。"
+  sourceOverlaps: "已被文件夹「${name}」覆盖"
+  addSourceFailed: 添加文件夹失败
+  fileMissing: 这个文件已经不在磁盘上了
+  permissionDenied: 未授予文件访问权限 · 点这里开启
+  noVideosFound: 这个文件夹里没有视频
+  emptyTitle: 添加一个文件夹，看这台设备上已有的视频
+  emptyPrivacyNote: 只在本机读取，不上传任何东西。
+  removeSourceTitle: "移除「${name}」？"
+  removeSourceBody: 磁盘上的文件一个不动，只是把它从本地库里移出去。
+  remove: 移除
+  longPressToRemove: 长按可移除这个文件夹

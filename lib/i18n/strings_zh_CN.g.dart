@@ -92,6 +92,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsMediaPreviewZhCn mediaPreview = _TranslationsMediaPreviewZhCn._(_root);
 	@override late final _TranslationsPlaybackQueueZhCn playbackQueue = _TranslationsPlaybackQueueZhCn._(_root);
 	@override late final _TranslationsVrFormatZhCn vrFormat = _TranslationsVrFormatZhCn._(_root);
+	@override late final _TranslationsLocalMediaZhCn localMedia = _TranslationsLocalMediaZhCn._(_root);
 }
 
 // Path: personalProfile
@@ -2571,6 +2572,32 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	@override String get suggestionTitleShort => '这可能是 VR 视频';
 	@override String get suggestionAction => '以 VR 播放';
 	@override String get suggestionDismiss => '不再提示';
+}
+
+// Path: localMedia
+class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
+	_TranslationsLocalMediaZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '本地媒体';
+	@override String get addFolder => '添加文件夹';
+	@override String get rescan => '重新扫描';
+	@override String scanning({required Object count}) => '扫描中… 已发现 ${count} 个';
+	@override String scanFailed({required Object reason}) => '扫描失败：${reason}';
+	@override String scanTruncated({required Object count}) => '这个文件夹太大了，只收了前 ${count} 个文件。';
+	@override String sourceOverlaps({required Object name}) => '已被文件夹「${name}」覆盖';
+	@override String get addSourceFailed => '添加文件夹失败';
+	@override String get fileMissing => '这个文件已经不在磁盘上了';
+	@override String get permissionDenied => '未授予文件访问权限 · 点这里开启';
+	@override String get noVideosFound => '这个文件夹里没有视频';
+	@override String get emptyTitle => '添加一个文件夹，看这台设备上已有的视频';
+	@override String get emptyPrivacyNote => '只在本机读取，不上传任何东西。';
+	@override String removeSourceTitle({required Object name}) => '移除「${name}」？';
+	@override String get removeSourceBody => '磁盘上的文件一个不动，只是把它从本地库里移出去。';
+	@override String get remove => '移除';
+	@override String get longPressToRemove => '长按可移除这个文件夹';
 }
 
 // Path: common.pagination
@@ -6603,6 +6630,23 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionTitleShort' => '这可能是 VR 视频',
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
+			'localMedia.title' => '本地媒体',
+			'localMedia.addFolder' => '添加文件夹',
+			'localMedia.rescan' => '重新扫描',
+			'localMedia.scanning' => ({required Object count}) => '扫描中… 已发现 ${count} 个',
+			'localMedia.scanFailed' => ({required Object reason}) => '扫描失败：${reason}',
+			'localMedia.scanTruncated' => ({required Object count}) => '这个文件夹太大了，只收了前 ${count} 个文件。',
+			'localMedia.sourceOverlaps' => ({required Object name}) => '已被文件夹「${name}」覆盖',
+			'localMedia.addSourceFailed' => '添加文件夹失败',
+			'localMedia.fileMissing' => '这个文件已经不在磁盘上了',
+			'localMedia.permissionDenied' => '未授予文件访问权限 · 点这里开启',
+			'localMedia.noVideosFound' => '这个文件夹里没有视频',
+			'localMedia.emptyTitle' => '添加一个文件夹，看这台设备上已有的视频',
+			'localMedia.emptyPrivacyNote' => '只在本机读取，不上传任何东西。',
+			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
+			'localMedia.removeSourceBody' => '磁盘上的文件一个不动，只是把它从本地库里移出去。',
+			'localMedia.remove' => '移除',
+			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
 			_ => null,
 		};
 	}

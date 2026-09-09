@@ -2965,3 +2965,21 @@ vrFormat:
   suggestionTitleShort: これは VR 動画かもしれません
   suggestionAction: VR で再生
   suggestionDismiss: 表示しない
+localMedia:
+  title: ローカルメディア
+  addFolder: フォルダーを追加
+  rescan: 再スキャン
+  scanning: "スキャン中… ${count} 件見つかりました"
+  scanFailed: "スキャンに失敗しました：${reason}"
+  scanTruncated: "このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。"
+  sourceOverlaps: "フォルダー「${name}」に既に含まれています"
+  addSourceFailed: フォルダーを追加できませんでした
+  fileMissing: このファイルはディスク上にありません
+  permissionDenied: ファイルアクセスが許可されていません · タップして許可
+  noVideosFound: このフォルダーに動画はありません
+  emptyTitle: フォルダーを追加して、この端末にある動画を見る
+  emptyPrivacyNote: 端末内でのみ読み取ります。アップロードは一切ありません。
+  removeSourceTitle: "「${name}」を削除しますか？"
+  removeSourceBody: ディスク上のファイルはそのままです。ライブラリーから外すだけです。
+  remove: 削除
+  longPressToRemove: 長押しでこのフォルダーを削除
