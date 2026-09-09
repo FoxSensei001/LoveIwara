@@ -47,6 +47,11 @@ class LocalMediaRepository {
   LocalMediaSource? findOverlappingSource(String path) {
     final normalized = _withTrailingSeparator(path);
     for (final source in getSources()) {
+      // ⛔ 内建源（「已下载」）不参与：它的 `path` 是当前下载目录，只是一条
+      // 参考信息。拿它拦人的话，用户会被一个**他既删不掉、也改不了路径**的源
+      // 挡在自己的下载目录（以及它的任何上级目录）之外。真正防重复的是
+      // [pathsOfSource] 那条逐路径让位规则，不是这里。
+      if (source.isBuiltIn) continue;
       final existing = source.path;
       if (existing == null || existing.isEmpty) continue;
       final other = _withTrailingSeparator(existing);
@@ -149,6 +154,7 @@ class LocalMediaRepository {
       'ext',
       'folder_path',
       'sidecar_image_path',
+      'download_task_id',
     ];
     // ⛔ 指纹两列**只在量得到的时候才写**。
     //
@@ -361,6 +367,99 @@ class LocalMediaRepository {
                 as int?) ??
         0;
     return affected;
+  }
+
+  /// 同一个文件换了主人时，把挂在**旧 id** 上的记忆搬到新 id 上。
+  ///
+  /// # ⛔ 为什么非搬不可
+  ///
+  /// 条目 id 是 `<源 id>-<路径 sha1>`（见 [LocalMediaItem.buildId]），所以
+  /// **同一个文件在两个源下是两个不同的 id**。而观看进度（`local_media_progress`）
+  /// 与 VR 格式覆盖（`video_vr_override`）都只认 id。
+  ///
+  /// 「已下载」升格成真实源那一刻，这件事就会真实发生：用户从前把下载目录也当成
+  /// 一个普通文件夹加过，在里面看了三集；升级之后同样这三个文件被 `downloads`
+  /// 源重新认领，旧行随即让位（见 [pathsOfSource]）。不搬的话，那三条进度会变成
+  /// **谁也查不到的孤儿**——点开同一集从 0:00 开始，而 `local_media_progress`
+  /// 不进配置备份，用户没有任何找回的办法。
+  ///
+  /// # 规则
+  ///
+  /// - 按**路径**认亲（走 v23 的 `idx_local_items_path`），不按 id；
+  /// - 新 id 上**已经有**记忆时不覆盖：那是用户在新主人下真看过的，比旧的新；
+  /// - 搬完把旧行删掉，免得下一次又搬一遍（以及避免"清除记录"数出幽灵条数）。
+  ///
+  /// 返回搬走了几条进度。调用方必须在 [upsertItems] **之前**调它。
+  int adoptIdentityByPath({
+    required String newSourceId,
+    required Map<String, String> pathToNewId,
+  }) {
+    if (pathToNewId.isEmpty) return 0;
+    var moved = 0;
+    const chunkSize = 200;
+    final paths = pathToNewId.keys.toList();
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < paths.length; i += chunkSize) {
+        final chunk = paths.sublist(
+          i,
+          i + chunkSize > paths.length ? paths.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        final rows = _db.select(
+          'SELECT id, path FROM local_media_items '
+          'WHERE path IN ($marks) AND source_id != ?',
+          <Object?>[...chunk, newSourceId],
+        );
+        for (final row in rows) {
+          final oldId = row['id'] as String;
+          final newId = pathToNewId[row['path'] as String];
+          if (newId == null || newId == oldId) continue;
+          // `OR IGNORE`：新 id 已经有一行就保留新的那份，旧的直接丢。
+          _db.execute(
+            'UPDATE OR IGNORE local_media_progress SET item_id = ? WHERE item_id = ?',
+            [newId, oldId],
+          );
+          moved += _db.updatedRows;
+          _db.execute('DELETE FROM local_media_progress WHERE item_id = ?', [
+            oldId,
+          ]);
+          _db.execute(
+            'UPDATE OR IGNORE video_vr_override SET video_id = ? WHERE video_id = ?',
+            [newId, oldId],
+          );
+          _db.execute('DELETE FROM video_vr_override WHERE video_id = ?', [
+            oldId,
+          ]);
+        }
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('迁移本地条目记忆失败', tag: _tag, error: e);
+      return 0;
+    }
+    if (moved > 0) {
+      LogUtils.i('同一文件换了来源，搬走 $moved 条观看进度', _tag);
+    }
+    return moved;
+  }
+
+  /// 某个源名下所有条目的绝对路径。
+  ///
+  /// 目录扫描拿它避开**已经归「已下载」管的文件**：用户把下载目录也手动加成
+  /// 一个文件夹源时，同一个文件会在两个源里各存一份（id 不同，进度也各记一份），
+  /// 而"按来源筛选"从此开始飘。同一条内容只允许有一个主人，且优先是「已下载」
+  /// ——它那份带标题/作者/封面，还能退回在线播。
+  Set<String> pathsOfSource(String sourceId) {
+    // ⛔ `missing = 0` 不能省：所有权是一份**活的**主张，不是墓碑。带上已经
+    // missing 的行的话，「已下载」里那条早就没了的记录会永远把这个路径挡在
+    // 目录扫描外面——文件明明躺在一个被扫的目录里，却再也没有任何源认领它。
+    final rows = _db.select(
+      'SELECT path FROM local_media_items WHERE source_id = ? AND missing = 0',
+      [sourceId],
+    );
+    return <String>{for (final row in rows) row['path'] as String};
   }
 
   /// 按 id 取一条。播放前的"文件还在不在"与「接着看」的 [LocalPlaybackTarget]

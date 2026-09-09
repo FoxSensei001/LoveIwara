@@ -2584,6 +2584,8 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => 'この端末のファイル';
+	@override String get downloadsSource => 'ダウンロード済み';
+	@override String get builtInSourceHint => '「ダウンロード済み」は自動で管理されます';
 	@override String get addFolder => 'フォルダーを追加';
 	@override String get rescan => '再スキャン';
 	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
@@ -6642,6 +6644,8 @@ extension on TranslationsJa {
 			'vrFormat.suggestionAction' => 'VR で再生',
 			'vrFormat.suggestionDismiss' => '表示しない',
 			'localMedia.title' => 'この端末のファイル',
+			'localMedia.downloadsSource' => 'ダウンロード済み',
+			'localMedia.builtInSourceHint' => '「ダウンロード済み」は自動で管理されます',
 			'localMedia.addFolder' => 'フォルダーを追加',
 			'localMedia.rescan' => '再スキャン',
 			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',

@@ -1,0 +1,317 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
+import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
+
+import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/local_media_scan_service.dart';
+import 'package:i_iwara/app/utils/natural_sort_key.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/logger_utils.dart';
+
+/// 把「已下载」同步成本地库里的一个**真实源**。
+///
+/// # ⛔ 它不扫目录，它是从 `download_tasks` 同步过来的
+///
+/// 别的源靠 [LocalMediaScanService] 走一遍目录树；这个源不走。理由是四条，
+/// 每一条单独都够：
+///
+/// 1. **没有"那个目录"**。`save_path` 是每个任务各自的绝对路径，而下载目录是
+///    用户可以随时改的设置——改之前下的片子还留在老地方。盯着"当前下载目录"
+///    扫，等于用户一改设置，从前下的东西就整批从库里消失。
+/// 2. **关联是精确的**。同步天然拿得到 `task.id`，不必事后拿路径去回猜；而
+///    `download_task_id` 正是标题/作者/封面/「退回在线播」这些装饰的来源。
+/// 3. **图集是目录不是文件**。图库任务的 `save_path` 指向一个文件夹，扫描器
+///    没有办法把它和"一个视频文件"区分开，这里一句 `mediaType` 就分掉了。
+/// 4. **即时**。刚下完的片子应该立刻出现在「已下载」里，而不是等下一次重扫。
+///
+/// 文件系统只用来做一件事：**stat**（大小/修改时间），而这正是"这还是不是同一
+/// 个文件"的唯一判据。
+///
+/// # ⛔ 绝不反向写 `download_tasks`
+///
+/// 关联是单向的：本地条目挂一个 `download_task_id` 当装饰。往任务表里塞假任务
+/// 会撞 v17 的冲突触发器，还会让下载页的暂停/重试/删除作用在一个没有下载的
+/// 东西上（工作线文档 §2.3）。
+class DownloadsLibrarySyncService extends GetxService {
+  DownloadsLibrarySyncService({
+    LocalMediaRepository? repository,
+    DownloadTaskRepository? downloads,
+  }) : _repository = repository ?? LocalMediaRepository(),
+       _downloads = downloads ?? DownloadTaskRepository();
+
+  static DownloadsLibrarySyncService get to => Get.find();
+
+  static const String _tag = 'DownloadsLibrarySync';
+
+  /// 一批处理多少条。同 [kScanBatchSize] 的理由：批太小则事务开销占比高，
+  /// 太大则一次事务卡住的时间可感（sqlite3 是同步 API，全在 UI 线程上）。
+  static const int _batchSize = 200;
+
+  final LocalMediaRepository _repository;
+  final DownloadTaskRepository _downloads;
+
+  Future<void>? _running;
+
+  /// 同步一次。并发调用会**合流到同一次**——页面进来、下载完成、用户点刷新
+  /// 三处都会叫它，各跑一遍纯属白费。
+  Future<void> sync() {
+    final running = _running;
+    if (running != null) return running;
+    final future = _sync().whenComplete(() => _running = null);
+    _running = future;
+    return future;
+  }
+
+  Future<void> _sync() async {
+    try {
+      final tasks = _downloads.completedVideoTasks();
+
+      // 同一个路径可能挂着不止一个任务（同名重下、任务表里留了旧行）。
+      // 条目 id 由路径决定，所以这里必须先去重，否则同一条会在一个批次里被
+      // 写两遍——留**最后完成的那一个**，它的元数据是最新的。
+      final byPath = <String, DownloadTask>{};
+      for (final task in tasks) {
+        final path = task.savePath.trim();
+        if (path.isEmpty) continue;
+        // 认不出扩展名的一律不收：`save_path` 也可能指向 `.part` 之类的中间
+        // 产物，或者一个我们根本播不了的容器。
+        final ext = p.extension(path).replaceFirst('.', '').toLowerCase();
+        if (!kLocalVideoExtensions.contains(ext)) continue;
+        final existing = byPath[path];
+        if (existing != null && _completedAtOf(existing) >= _completedAtOf(task)) {
+          continue;
+        }
+        byPath[path] = task;
+      }
+
+      // ⛔ 一条都没有时**不要把源建出来**。建了的话，从没下载过任何东西的用户
+      // 打开本地库会看到一枚空的「已下载」胶囊，而"添加文件夹"那张引导空态
+      // （它是这一页唯一的上手入口）从此再也不出现。
+      final source = _ensureSource(create: byPath.isNotEmpty);
+      if (source == null) return;
+
+      // 这个源现在长什么样，用来跳过没变过的那些。同 [LocalMediaScanService]
+      // 的理由，而且这里更要紧：本页每次打开都会同步一次，不跳过就等于每次把
+      // 整张表重写一遍，连带 `_dropProgressOfReplacedItems` 也要对全量 id 做
+      // JOIN——而 sqlite3 是同步 API，全落在 UI 线程上。
+      final known = _repository.fingerprints(kDownloadsSourceId);
+
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final seen = <String>{};
+      final pending = <LocalMediaItem>[];
+      // 新出现的条目：要在写库之前把同一路径下别的源留下的观看进度搬过来。
+      final adopting = <String, String>{};
+      var written = 0;
+      var unreadable = 0;
+
+      for (final entry in byPath.entries) {
+        final path = entry.key;
+        final task = entry.value;
+        final hash = _hashPath(path);
+
+        int? size;
+        int? modified;
+        // ⛔ `statSync()` 不抛异常：stat 不动时返回 `type = notFound`、
+        // `size = -1`、`modified` 是纪元零点。量不出来就一个都不写——null 是
+        // 「不知道」，`-1` 是一句谎话，而这两列是"文件被换过没有"的唯一判据，
+        // 一个假指纹会连带删掉用户的观看进度（见 `LocalMediaScanService`）。
+        final stat = File(path).statSync();
+        final readable = stat.type != FileSystemEntityType.notFound;
+        if (readable) {
+          size = stat.size;
+          modified = stat.modified.millisecondsSinceEpoch;
+        } else {
+          unreadable++;
+        }
+        // ⛔ 只有**真的摸到了文件**才算"见过"。任务行还在但文件被用户在文件
+        // 管理器里删掉了，是这个源最常见的一种漂移；不这么分的话
+        // [LocalMediaRepository.markMissingExcept] 永远收敛不到它，卡片墙上会
+        // 一直摆着一张点开只弹「文件已不在」的卡。
+        if (readable) seen.add(hash);
+
+        final id = LocalMediaItem.buildId(source.id, hash);
+        final fingerprint = known[hash];
+        if (fingerprint == null) {
+          adopting[path] = id;
+        } else if (!readable) {
+          // ⛔ 摸不到文件、而库里已经有这一行：**一个字都别写**。
+          //
+          // 这一趟能写进去的东西一样都没有——指纹量不出来（写了也会被那段
+          // `CASE WHEN excluded IS NULL` 挡回去），其余列全来自没变过的任务行。
+          // 唯一会真的落下去的是 `missing = 0`，而那恰恰是错的：整卷不可达时
+          // 本轮不收敛（见下面 [volumeOffline]），这一下就会把上一轮认定的
+          // "文件没了"悄悄擦回"文件还在"。
+          continue;
+        } else if (fingerprint.sizeBytes == size &&
+            fingerprint.modifiedAt == modified) {
+          // 库里那份和磁盘上这份一模一样，连 upsert 都不用发。
+          continue;
+        }
+
+        final name = p.basename(path);
+        pending.add(
+          LocalMediaItem(
+            id: id,
+            sourceId: source.id,
+            pathHash: hash,
+            path: path,
+            kind: LocalMediaItemKind.video,
+            // ⛔ 名字用**文件名**而不是任务里的标题：这一列同时喂 `sort_name`，
+            // 而排序必须和别的源一致（自然序、同一套折叠规则）。官方标题走
+            // `download_task_id` 那条装饰线，卡片上照样显示得出来。
+            name: name,
+            sortName: naturalSortKey(name),
+            ext: p.extension(path).replaceFirst('.', '').toLowerCase(),
+            sizeBytes: size,
+            modifiedAt: modified,
+            durationMs: _durationMsOf(task),
+            folderPath: p.dirname(path),
+            // 分类只在**新建那一行**上生效：[LocalMediaRepository.upsertItems]
+            // 冲突时不动 `category_id`（那是用户设的，同步无权覆盖）。所以这里
+            // 是一次性的"接管"——把分类从下载模块搬到本地库（§10.7）。
+            categoryId: task.categoryId,
+            downloadTaskId: task.id,
+            addedAt: task.completedAt?.millisecondsSinceEpoch ?? now,
+          ),
+        );
+
+        if (pending.length >= _batchSize) {
+          written += _flushWithAdoption(pending, adopting, source.id);
+          // 让一帧出去，别把整批写库堆在一个 tick 里。
+          await Future<void>.delayed(Duration.zero);
+        }
+      }
+      written += _flushWithAdoption(pending, adopting, source.id);
+
+      // ⛔ 一条都读不到 = **整卷不可达**（外置存储没挂上、权限被回收），不是
+      // "文件都没了"。这时候收敛 missing 会把整个「已下载」一次抹平，用户看到
+      // 的是列表凭空空掉。同 [LocalMediaScanService._finish] 里"出错就不收敛"
+      // 的那条纪律，只是这里的信号是 stat 全军覆没。
+      final volumeOffline = byPath.isNotEmpty && unreadable == byPath.length;
+      if (!volumeOffline) {
+        // 任务被删掉 / 文件被删掉的那些收敛成 missing，而不是删行——删行会把
+        // 观看进度一起带走。
+        _repository.markMissingExcept(source.id, seen);
+      }
+      _repository.upsertSource(
+        source.copyWith(
+          lastScanAt: now,
+          itemCount: _repository.countItems(sourceId: source.id),
+          offline: volumeOffline,
+        ),
+      );
+      LogUtils.i(
+        '「已下载」同步完成：${byPath.length} 个任务，写了 $written 条'
+        '${unreadable > 0 ? '，$unreadable 条读不到文件' : ''}'
+        '${volumeOffline ? '（整卷不可达，本次不收敛 missing）' : ''}',
+        _tag,
+      );
+    } catch (e, s) {
+      LogUtils.e('「已下载」同步失败', tag: _tag, error: e, stackTrace: s);
+    }
+  }
+
+  /// 先把同一路径下别的源留着的观看进度/VR 覆盖搬到新 id 上，再写这一批。
+  ///
+  /// ⛔ 顺序不能颠倒：[LocalMediaRepository.upsertItems] 里的
+  /// `_dropProgressOfReplacedItems` 是拿库里那份旧指纹判断"文件还是不是同一个"
+  /// 的，写完就再也分不出来了。
+  int _flushWithAdoption(
+    List<LocalMediaItem> pending,
+    Map<String, String> adopting,
+    String sourceId,
+  ) {
+    if (pending.isEmpty) return 0;
+    if (adopting.isNotEmpty) {
+      final batch = <String, String>{
+        for (final item in pending)
+          if (adopting.containsKey(item.path)) item.path: item.id,
+      };
+      if (batch.isNotEmpty) {
+        _repository.adoptIdentityByPath(
+          newSourceId: sourceId,
+          pathToNewId: batch,
+        );
+        for (final path in batch.keys) {
+          adopting.remove(path);
+        }
+      }
+    }
+    return _flush(pending);
+  }
+
+  int _flush(List<LocalMediaItem> pending) {
+    if (pending.isEmpty) return 0;
+    final count = pending.length;
+    try {
+      _repository.upsertItems(pending);
+    } catch (e) {
+      LogUtils.e('写入「已下载」批次失败（$count 条）', tag: _tag, error: e);
+      return 0;
+    } finally {
+      pending.clear();
+    }
+    return count;
+  }
+
+  /// 内建源那一行：没有就建，有就把显示名跟上当前语言。
+  ///
+  /// ⛔ `path` **刻意留空**。这个源没有"一个目录"——`save_path` 是每个任务各自
+  /// 的绝对路径，下载目录还是用户随时能改的设置（见类文档）。填一个"当前下载
+  /// 目录"进去只会得到一个随时过期、而且没有任何人读的值。
+  ///
+  /// [create] 为 false 时只认已经存在的那一行，绝不新建（见调用点的说明）。
+  LocalMediaSource? _ensureSource({required bool create}) {
+    final name = slang.t.localMedia.downloadsSource;
+    final existing = _repository.getSource(kDownloadsSourceId);
+    if (existing != null) {
+      if (existing.displayName == name) return existing;
+      final updated = existing.copyWith(displayName: name);
+      _repository.upsertSource(updated);
+      return updated;
+    }
+    if (!create) return null;
+    final created = LocalMediaSource(
+      id: kDownloadsSourceId,
+      kind: LocalMediaSourceKind.downloads,
+      displayName: name,
+      // 负数：内建源永远排在用户自己加的文件夹前面（来源下拉里「已下载」
+      // 就在「Iwara 线上」下面那一条，见 §3.1）。
+      sortOrder: -1,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
+    _repository.upsertSource(created);
+    LogUtils.i('已建立内建源「$name」', _tag);
+    return created;
+  }
+
+  static int _completedAtOf(DownloadTask task) =>
+      task.completedAt?.millisecondsSinceEpoch ??
+      task.updatedAt?.millisecondsSinceEpoch ??
+      0;
+
+  /// 下载任务自带的时长（秒），能省掉一次抽帧。拿不到就留 null 等 P1b。
+  static int? _durationMsOf(DownloadTask task) {
+    final ext = task.extData;
+    if (ext == null || ext.type != DownloadTaskExtDataType.video) return null;
+    try {
+      final seconds = VideoDownloadExtData.fromJson(ext.data).duration;
+      if (seconds == null || seconds <= 0) return null;
+      return seconds * 1000;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static String _hashPath(String path) =>
+      sha1.convert(utf8.encode(path)).toString();
+}

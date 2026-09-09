@@ -573,7 +573,12 @@ class XrQueueCatalog {
     try {
       final repository = LocalMediaRepository();
       return [
+      // ⛔ 内建的「已下载」不进这张清单：沉浸态目录里**已经有**一条同名的「已下载」
+      // （走 `PlaybackQueueKind.downloads`，按 media_id 去重、带下载分类）。
+      // 两条同名不同数的条目并排站着，用户没有任何办法分辨该点哪一个。
+      // 等 §10.6 把下载页拆完、两条并成一条时再放开。
         for (final source in repository.getSources())
+          if (!source.isBuiltIn)
           (
             id: source.id,
             title: source.displayName,

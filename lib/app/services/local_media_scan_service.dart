@@ -112,6 +112,13 @@ class LocalMediaScanService extends GetxService {
       LogUtils.w('源 ${source.id} 没有路径，跳过扫描', _tag);
       return;
     }
+    if (source.kind == LocalMediaSourceKind.downloads) {
+      // ⛔ 「已下载」不是靠走目录树建起来的：它从 `download_tasks` 同步过来
+      // （下载目录是可改的设置，改之前下的片子还留在老地方，盯着当前目录扫会
+      // 让它们整批消失）。见 `DownloadsLibrarySyncService` 的类文档。
+      LogUtils.w('「已下载」源不走目录扫描，请改叫 DownloadsLibrarySyncService', _tag);
+      return;
+    }
     if (isScanning) {
       LogUtils.i('已有扫描在跑，忽略本次请求', _tag);
       return;
@@ -133,6 +140,10 @@ class LocalMediaScanService extends GetxService {
 
     // 增量比对用的指纹：只有大小或修改时间变了的才需要重算内容派生字段。
     final known = _repository.fingerprints(source.id);
+    // 已经归「已下载」管的文件，这一轮一条都不收——同一条内容只能有一个主人，
+    // 见 [LocalMediaRepository.pathsOfSource]。**也不进 `seen`**：以前误收进
+    // 这个源的那些行会因此在收敛时被标成 missing，等于让出所有权。
+    final ownedByDownloads = _repository.pathsOfSource(kDownloadsSourceId);
     final seen = <String>{};
     var discovered = 0;
     var truncated = false;
@@ -167,6 +178,7 @@ class LocalMediaScanService extends GetxService {
           final now = DateTime.now().millisecondsSinceEpoch;
           for (final record in records) {
             final path = record['path'] as String;
+            if (ownedByDownloads.contains(path)) continue;
             final hash = _hashPath(path);
             seen.add(hash);
             final size = record['size'] as int?;

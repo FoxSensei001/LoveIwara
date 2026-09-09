@@ -2584,6 +2584,8 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => '本机文件';
+	@override String get downloadsSource => '已下载';
+	@override String get builtInSourceHint => '「已下载」由下载模块自动维护';
 	@override String get addFolder => '添加文件夹';
 	@override String get rescan => '重新扫描';
 	@override String scanning({required Object count}) => '扫描中… 已发现 ${count} 个';
@@ -6642,6 +6644,8 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.title' => '本机文件',
+			'localMedia.downloadsSource' => '已下载',
+			'localMedia.builtInSourceHint' => '「已下载」由下载模块自动维护',
 			'localMedia.addFolder' => '添加文件夹',
 			'localMedia.rescan' => '重新扫描',
 			'localMedia.scanning' => ({required Object count}) => '扫描中… 已发现 ${count} 个',

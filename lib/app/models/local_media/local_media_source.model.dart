@@ -10,6 +10,14 @@
 ///   ——下载来的文件和拷进来的文件在同一张表里排序分页，卡片才可能同构。
 enum LocalMediaSourceKind { directory, mediastore, bookmark, downloads }
 
+/// 「已下载」那个源的固定 id。
+///
+/// ⛔ 写死而不是 uuid：它是**内建**的，由 `DownloadsLibrarySyncService` 按需
+/// 建出来，条目 id（`<sourceId>-<路径 sha1>`）也因此必须跨重装、跨设备保持
+/// 稳定——进度行、VR 覆盖都挂在那把钥匙上。给它发一个随机 uuid 的话，任何一次
+/// "源没了重新建"都会把这些记忆整批变成孤儿。
+const String kDownloadsSourceId = 'downloads';
+
 /// 这个源要扫什么。
 enum LocalMediaKinds { video, image, both }
 
@@ -61,6 +69,10 @@ class LocalMediaSource {
   final int? lastScanAt;
   final int itemCount;
   final int createdAt;
+
+  /// 内建源：用户不能删、也不能改路径（「已下载」跟着下载设置走，不是他加的
+  /// 一个目录）。UI 拿它决定要不要给移除入口。
+  bool get isBuiltIn => kind == LocalMediaSourceKind.downloads;
 
   LocalMediaSource copyWith({
     String? displayName,

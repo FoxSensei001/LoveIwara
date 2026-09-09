@@ -1236,7 +1236,14 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   Future<List<_MenuChoice>?> _fetchLocalSources() async {
     try {
       final repository = LocalMediaRepository();
-      final sources = repository.getSources();
+      // ⛔ 内建的「已下载」不进这张清单：抽屉里**已经有**一条同名的「已下载」
+      // （走 `PlaybackQueueKind.downloads`，按 media_id 去重、带下载分类）。
+      // 两条同名不同数的条目并排站着，用户没有任何办法分辨该点哪一个。
+      // 等 §10.6 把下载页拆完、两条并成一条时再放开。
+      final sources = repository
+          .getSources()
+          .where((s) => !s.isBuiltIn)
+          .toList();
       if (sources.isEmpty) return const <_MenuChoice>[];
       return <_MenuChoice>[
         // 「全部」只在真有多个源时才有意义——一个源时它和那一行一字不差。

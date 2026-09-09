@@ -2971,6 +2971,8 @@ vrFormat:
   suggestionDismiss: 不再提示
 localMedia:
   title: 本機檔案
+  downloadsSource: 已下載
+  builtInSourceHint: 「已下載」由下載模組自動維護
   addFolder: 新增資料夾
   rescan: 重新掃描
   scanning: "掃描中… 已找到 ${count} 個"

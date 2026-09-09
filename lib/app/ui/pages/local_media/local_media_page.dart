@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -63,6 +65,10 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     super.initState();
     _scrollController.addListener(_onScroll);
     _reloadSources();
+    // 「已下载」是内建源，用户没有"添加"它的动作，所以每次进来同步一次：
+    // 它读的是 `download_tasks`（几十到几百行）+ 每条一次 stat，比走目录树
+    // 便宜得多，而且不同步的话刚下完的片子要等到下次才出现。
+    unawaited(_syncDownloads());
     // 扫描每推进一批就把新条目接上，用户看得到列表在长。
     ever<LocalMediaScanProgress?>(
       LocalMediaScanService.to.progress,
@@ -177,7 +183,8 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
         kind: LocalMediaSourceKind.directory,
         displayName: p.basename(picked).isEmpty ? picked : p.basename(picked),
         path: picked,
-        sortOrder: _sources.length,
+        // 内建源占着 -1，别把它数进来（否则两个文件夹会拿到同一个次序）。
+        sortOrder: _sources.where((s) => !s.isBuiltIn).length,
         createdAt: DateTime.now().millisecondsSinceEpoch,
       );
       _repository.upsertSource(source);
@@ -201,11 +208,25 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     });
   }
 
+  Future<void> _syncDownloads() async {
+    if (!Get.isRegistered<DownloadsLibrarySyncService>()) return;
+    // sync() 自己把异常吞在里面并落日志（同步失败不该让这一页打不开），
+    // 所以这里没有 catch——加一个也永远进不去。
+    await DownloadsLibrarySyncService.to.sync();
+    if (!mounted) return;
+    _reloadSources();
+  }
+
   Future<void> _rescan() async {
     final sourceId = _activeSourceId;
     if (sourceId == null) return;
     final source = _repository.getSource(sourceId);
     if (source == null) return;
+    // 「已下载」不走目录扫描，见 [DownloadsLibrarySyncService] 的类文档。
+    if (source.kind == LocalMediaSourceKind.downloads) {
+      await _syncDownloads();
+      return;
+    }
     await LocalMediaScanService.to.scanSource(source);
     _reloadSources();
   }
@@ -458,12 +479,18 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
         separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final source = _sources[index];
+          // ⛔ 内建源（「已下载」）没有移除入口：它不是用户加进来的一个目录，
+          // 而是下载模块的产物在本地库里的那一面。删掉它只会在下一次同步时
+          // 原样长回来，中间还白丢一次观看进度。
+          final removable = !source.isBuiltIn;
           return GestureDetector(
             // 长按移除这个源。P0 只给这一个管理动作——正式的源管理页在 P1a。
             // 长按本身不好发现，所以挂一条 tooltip 把它说出来。
-            onLongPress: () => _confirmRemoveSource(source),
+            onLongPress: removable ? () => _confirmRemoveSource(source) : null,
             child: Tooltip(
-              message: slang.t.localMedia.longPressToRemove,
+              message: removable
+                  ? slang.t.localMedia.longPressToRemove
+                  : slang.t.localMedia.builtInSourceHint,
               child: ChoiceChip(
               selected: source.id == _activeSourceId,
               label: Text(source.displayName),
@@ -489,6 +516,11 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
       return _emptyState(context);
     }
     if (_items.isEmpty && !_loading) {
+      // ⛔ 只有内建的「已下载」、而且它也是空的时候，这一页对用户来说**仍然是
+      // 空的**：该出的是上手引导（含那句"只在本机读取，不上传任何东西"），不是
+      // 一句「这个文件夹里没有视频」——他还一个文件夹都没加过。
+      final hasUserSources = _sources.any((s) => !s.isBuiltIn);
+      if (!hasUserSources) return _emptyState(context);
       return Center(child: Text(t.noVideosFound));
     }
     final width = MediaQuery.sizeOf(context).width;

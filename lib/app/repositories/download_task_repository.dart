@@ -305,6 +305,22 @@ class DownloadTaskRepository {
     }
   }
 
+  /// 已完成的**视频**任务，一次全取，**同步**返回。
+  ///
+  /// 给「已下载」那个本地源的同步用（见 `DownloadsLibrarySyncService`）：它要
+  /// 的是"现在磁盘上有哪些下载来的片子"这份全集，不是一页。数量级是几十到几百
+  /// （用户手动下的东西），整取一次比分页往返便宜。
+  ///
+  /// ⛔ 只要 `media_type = 'video'`：图库任务的 `save_path` 指向一个**文件夹**，
+  /// 当成文件收进本地库会得到一条永远 stat 不到的死行。
+  List<DownloadTask> completedVideoTasks() {
+    final results = _db.select('''
+      SELECT * FROM download_tasks
+      WHERE status = 'completed' AND media_type = 'video'
+    ''');
+    return results.map((row) => DownloadTask.fromRow(row)).toList();
+  }
+
   // 分页获取已完成的任务
   Future<List<DownloadTask>> getCompletedTasks({
     int offset = 0,

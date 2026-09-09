@@ -2967,6 +2967,8 @@ vrFormat:
   suggestionDismiss: 不再提示
 localMedia:
   title: 本机文件
+  downloadsSource: 已下载
+  builtInSourceHint: 「已下载」由下载模块自动维护
   addFolder: 添加文件夹
   rescan: 重新扫描
   scanning: "扫描中… 已发现 ${count} 个"

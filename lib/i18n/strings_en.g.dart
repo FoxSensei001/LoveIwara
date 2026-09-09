@@ -6486,6 +6486,12 @@ class TranslationsLocalMediaEn {
 	/// en: 'On this device'
 	String get title => 'On this device';
 
+	/// en: 'Downloaded'
+	String get downloadsSource => 'Downloaded';
+
+	/// en: 'Downloaded is managed automatically'
+	String get builtInSourceHint => 'Downloaded is managed automatically';
+
 	/// en: 'Add folder'
 	String get addFolder => 'Add folder';
 
@@ -12206,6 +12212,8 @@ extension on Translations {
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
 			'localMedia.title' => 'On this device',
+			'localMedia.downloadsSource' => 'Downloaded',
+			'localMedia.builtInSourceHint' => 'Downloaded is managed automatically',
 			'localMedia.addFolder' => 'Add folder',
 			'localMedia.rescan' => 'Rescan',
 			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',

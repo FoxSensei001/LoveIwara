@@ -2967,6 +2967,8 @@ vrFormat:
   suggestionDismiss: Dismiss
 localMedia:
   title: On this device
+  downloadsSource: Downloaded
+  builtInSourceHint: Downloaded is managed automatically
   addFolder: Add folder
   rescan: Rescan
   scanning: "Scanning… ${count} found"

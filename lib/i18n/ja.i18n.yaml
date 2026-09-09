@@ -2969,6 +2969,8 @@ vrFormat:
   suggestionDismiss: 表示しない
 localMedia:
   title: この端末のファイル
+  downloadsSource: ダウンロード済み
+  builtInSourceHint: 「ダウンロード済み」は自動で管理されます
   addFolder: フォルダーを追加
   rescan: 再スキャン
   scanning: "スキャン中… ${count} 件見つかりました"

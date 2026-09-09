@@ -32,6 +32,7 @@ import 'package:i_iwara/app/services/iwara_network_service.dart';
 import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
+import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -423,6 +424,12 @@ class AppStartupCoordinator implements AppStartupRunner {
     _registerDeferredSingleton<LocalMediaScanService>(
       LocalMediaScanService(),
       permanent: true,
+    );
+    // 「已下载」那个内建源的同步。**不在启动时跑**：它要 stat 每一个已下载
+    // 文件，而启动那几百毫秒是全应用最挤的时候。改由用到的地方（本地库页面、
+    // 将来的来源下拉）自己叫一次，见 `DownloadsLibrarySyncService.sync`。
+    _registerDeferredSingleton<DownloadsLibrarySyncService>(
+      DownloadsLibrarySyncService(),
     );
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());

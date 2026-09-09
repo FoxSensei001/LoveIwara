@@ -2584,6 +2584,8 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 
 	// Translations
 	@override String get title => '本機檔案';
+	@override String get downloadsSource => '已下載';
+	@override String get builtInSourceHint => '「已下載」由下載模組自動維護';
 	@override String get addFolder => '新增資料夾';
 	@override String get rescan => '重新掃描';
 	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
@@ -6642,6 +6644,8 @@ extension on TranslationsZhTw {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.title' => '本機檔案',
+			'localMedia.downloadsSource' => '已下載',
+			'localMedia.builtInSourceHint' => '「已下載」由下載模組自動維護',
 			'localMedia.addFolder' => '新增資料夾',
 			'localMedia.rescan' => '重新掃描',
 			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',
