@@ -32,6 +32,7 @@ class LocalMediaItem {
     this.folderPath,
     this.categoryId,
     this.downloadTaskId,
+    this.lastPlayedAt,
     required this.addedAt,
     this.missing = false,
   });
@@ -72,6 +73,12 @@ class LocalMediaItem {
   /// ⛔ 反过来不成立——绝不往 `download_tasks` 塞假任务。
   final String? downloadTaskId;
 
+  /// 最近一次保存观看进度的时间，供本地库「最近播放」排序使用。
+  ///
+  /// 与 [local_media_progress.updated_at] 同步维护，但放在条目表上才能让
+  /// 分页查询直接走复合索引，而不是对每条结果执行相关子查询。
+  final int? lastPlayedAt;
+
   final int addedAt;
   final bool missing;
 
@@ -99,6 +106,7 @@ class LocalMediaItem {
     'folder_path': folderPath,
     'category_id': categoryId,
     'download_task_id': downloadTaskId,
+    'last_played_at': lastPlayedAt,
     'added_at': addedAt,
     'missing': missing ? 1 : 0,
   };
@@ -126,6 +134,7 @@ class LocalMediaItem {
       folderPath: row['folder_path'] as String?,
       categoryId: row['category_id'] as String?,
       downloadTaskId: row['download_task_id'] as String?,
+      lastPlayedAt: row['last_played_at'] as int?,
       addedAt: row['added_at'] as int? ?? 0,
       missing: (row['missing'] as int? ?? 0) != 0,
     );

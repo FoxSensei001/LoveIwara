@@ -55,6 +55,10 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
 
   @override
   void dispose() {
+    final sourceId = _scanningSourceId;
+    if (sourceId != null && Get.isRegistered<LocalMediaScanService>()) {
+      LocalMediaScanService.to.cancel(sourceId);
+    }
     _scanWorker?.dispose();
     super.dispose();
   }
@@ -177,6 +181,9 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
       ],
     );
     if (confirmed != true || !mounted) return;
+    if (Get.isRegistered<LocalMediaScanService>()) {
+      LocalMediaScanService.to.cancel(source.id);
+    }
     _repository.deleteSource(source.id);
     _reloadSources();
   }

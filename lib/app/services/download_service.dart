@@ -10,6 +10,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
@@ -249,6 +250,7 @@ class DownloadService extends GetxService {
       }
       store.invalidateCompleted();
       await refreshCategories();
+      LocalMediaRepository.notifyChanged();
     }
     return ok;
   }
@@ -264,6 +266,7 @@ class DownloadService extends GetxService {
   Future<void> notifyLocalCategoryChanged() async {
     store.invalidateCompleted();
     await refreshCategories();
+    LocalMediaRepository.notifyChanged();
   }
 
   /// 批量更新分类顺序。
@@ -1014,6 +1017,7 @@ class DownloadService extends GetxService {
         // 库里已经没有它了，内存真源也必须跟着清掉，否则这一行会一直挂在列表上
         // 直到下次启动（这条路径此前直接 return，是「删了还在」的残留来源之一）。
         _publishRemovedTask(taskId, 'removedMissing');
+        await _syncLocalLibraryAfterTaskChange();
         return true;
       }
 
@@ -1132,6 +1136,8 @@ class DownloadService extends GetxService {
 
       _clearMemoryTask(taskId, '任务已删除');
 
+      if (notify) await _syncLocalLibraryAfterTaskChange();
+
       // 从内存真源里移除：活跃区那一行立刻消失；若删的是已完成任务，
       // Store 会让历史区精确失效重拉。批量删除时由调用方统一收口（notify=false）。
       if (notify) {
@@ -1166,6 +1172,7 @@ class DownloadService extends GetxService {
         detail: '${removed.length} 条',
       );
     }
+    if (taskIds.isNotEmpty) await _syncLocalLibraryAfterTaskChange();
   }
 
   /// 带进度的批量删除（用于“按日期删除”等耗时批量操作）。
@@ -1227,7 +1234,14 @@ class DownloadService extends GetxService {
       );
     }
 
+    if (total > 0) await _syncLocalLibraryAfterTaskChange();
+
     return DeleteTasksResult(total: total, deleted: deleted, skipped: skipped);
+  }
+
+  Future<void> _syncLocalLibraryAfterTaskChange() async {
+    if (!Get.isRegistered<DownloadsLibrarySyncService>()) return;
+    await DownloadsLibrarySyncService.to.syncAfterPending();
   }
 
   /// 外部（如设置页调高并发数后）主动触发队列检查，立即启动更多等待中任务。
@@ -2079,10 +2093,7 @@ class DownloadService extends GetxService {
       final partial = File(task.savePath);
       if (await partial.exists()) {
         await partial.delete();
-        LogUtils.w(
-          '远端已换文件，删除续传不上的半截文件: ${task.fileName}',
-          'DownloadService',
-        );
+        LogUtils.w('远端已换文件，删除续传不上的半截文件: ${task.fileName}', 'DownloadService');
       }
     } catch (e) {
       LogUtils.w('删除失效的半截文件失败: $e', 'DownloadService');
@@ -2432,9 +2443,7 @@ class DownloadService extends GetxService {
   /// 统一通过 [MessageService] 展示提示，替代散落的原生 SnackBar。
   /// 沿用旧签名（含 [Color]）以免改动十余处调用点：红色映射为 error，其余为 info。
   void _showMessage(String message, Color color) {
-    final type = color == Colors.red
-        ? AppToastType.error
-        : AppToastType.info;
+    final type = color == Colors.red ? AppToastType.error : AppToastType.info;
     if (Get.isRegistered<MessageService>()) {
       Get.find<MessageService>().showMessage(message, type);
     } else {

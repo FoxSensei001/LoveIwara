@@ -382,8 +382,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     final selection = PlaybackQueueSelection(
       queue: queue,
       item: item,
-      skipWatched:
-          queue.kind == PlaybackQueueKind.watchLater && _unwatchedOnly,
+      skipWatched: queue.kind == PlaybackQueueKind.watchLater && _unwatchedOnly,
     );
 
     if (queue.mediaType.isGallery) {
@@ -1038,10 +1037,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     // 照常开菜单——至少让它回得去。
     if (!openHere) {
       if (choices == null) {
-        showAppToast(
-          t.watchLater.playlistLoadFailed,
-          type: AppToastType.error,
-        );
+        showAppToast(t.watchLater.playlistLoadFailed, type: AppToastType.error);
         return;
       }
       if (choices.isEmpty) {
@@ -1251,7 +1247,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           (
             id: _kAllLocalSources,
             title: slang.t.common.all,
-            count: repository.countItems(),
+            count: repository.countItems(excludeBuiltInSource: true),
           ),
         for (final source in sources)
           (
@@ -1435,10 +1431,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     if (!mounted || !anchorContext.mounted) return null;
 
     if (choices == null) {
-      showAppToast(
-        t.watchLater.playlistLoadFailed,
-        type: AppToastType.error,
-      );
+      showAppToast(t.watchLater.playlistLoadFailed, type: AppToastType.error);
       return null;
     }
     if (choices.isEmpty) {

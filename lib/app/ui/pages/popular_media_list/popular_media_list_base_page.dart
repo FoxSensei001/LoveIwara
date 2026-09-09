@@ -141,6 +141,7 @@ class PopularMediaListPageBaseState<
   String? _localCategoryId;
   bool _isLocalSource = false;
   Worker? _localScanWorker;
+  Worker? _localMediaChangeWorker;
 
   List<Tag> tags = [];
   String year = '';
@@ -306,6 +307,26 @@ class PopularMediaListPageBaseState<
     if (_isLocalSource && progress.sourceId == _localSourceId) {
       _refreshActiveLocalRepository();
     }
+  }
+
+  void _onLocalMediaChanged() {
+    if (!mounted || !_supportsLocalSource) return;
+    _refreshLocalSources();
+    if (!_isLocalSource) return;
+
+    final categoryId = _localCategoryId;
+    final categoryWasDeleted =
+        categoryId != null &&
+        categoryId != kLocalMediaUncategorized &&
+        Get.isRegistered<DownloadService>() &&
+        !DownloadService.to.categories.any(
+          (category) => category.id == categoryId,
+        );
+    if (categoryWasDeleted) {
+      setState(() => _localCategoryId = null);
+      _replaceLocalRepositories();
+    }
+    _refreshActiveLocalRepository();
   }
 
   void _disposeLocalRepositories() {
@@ -562,6 +583,10 @@ class PopularMediaListPageBaseState<
 
     if (_supportsLocalSource) {
       _refreshLocalSources();
+      _localMediaChangeWorker = ever<int>(
+        LocalMediaRepository.changeRevision,
+        (_) => _onLocalMediaChanged(),
+      );
       if (Get.isRegistered<LocalMediaScanService>()) {
         _localScanWorker = ever<LocalMediaScanProgress?>(
           LocalMediaScanService.to.progress,
@@ -574,6 +599,7 @@ class PopularMediaListPageBaseState<
 
   @override
   void dispose() {
+    _localMediaChangeWorker?.dispose();
     _localScanWorker?.dispose();
     _disposeLocalRepositories();
     _tabController.removeListener(_onTabChange);

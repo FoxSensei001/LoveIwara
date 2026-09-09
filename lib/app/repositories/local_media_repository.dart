@@ -2,6 +2,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:get/get.dart';
 import 'package:sqlite3/common.dart';
 
 /// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
@@ -23,9 +24,14 @@ const String kLocalMediaUncategorized = 'uncategorized';
 
 /// 增量扫描要用的「库里现在长什么样」的轻量快照。
 class LocalMediaFingerprint {
-  const LocalMediaFingerprint({this.sizeBytes, this.modifiedAt});
+  const LocalMediaFingerprint({
+    this.sizeBytes,
+    this.modifiedAt,
+    this.missing = false,
+  });
   final int? sizeBytes;
   final int? modifiedAt;
+  final bool missing;
 }
 
 class LocalMediaRepository {
@@ -33,6 +39,15 @@ class LocalMediaRepository {
     : _db = database ?? DatabaseService().database;
 
   final CommonDatabase _db;
+
+  /// 所有本地库实例共享的变更信号。
+  ///
+  /// 页面、队列和来源管理页各自持有仓库实例；只在某个实例上挂监听会漏掉
+  /// 另一个实例的写入，所以信号必须归到类级别。值只表示「重新读取」，不承诺
+  /// 具体写入了哪一行。
+  static final RxInt changeRevision = 0.obs;
+
+  static void notifyChanged() => changeRevision.value++;
 
   static const String _tag = 'LocalMediaRepository';
 
@@ -94,6 +109,7 @@ class LocalMediaRepository {
       'ON CONFLICT(id) DO UPDATE SET $assignments',
       columns.map((c) => row[c]).toList(),
     );
+    notifyChanged();
   }
 
   /// 删源：条目与进度一并清掉。
@@ -111,6 +127,7 @@ class LocalMediaRepository {
       _db.execute('DELETE FROM local_media_items WHERE source_id = ?', [id]);
       _db.execute('DELETE FROM local_media_sources WHERE id = ?', [id]);
       _db.execute('COMMIT');
+      notifyChanged();
     } catch (e) {
       _db.execute('ROLLBACK');
       LogUtils.e('删除本地源失败', tag: _tag, error: e);
@@ -125,7 +142,8 @@ class LocalMediaRepository {
   /// 只取三列，千级条目也就几百 KB——比"每条去问一次库"便宜得多。
   Map<String, LocalMediaFingerprint> fingerprints(String sourceId) {
     final rows = _db.select(
-      'SELECT path_hash, size_bytes, modified_at FROM local_media_items WHERE source_id = ?',
+      'SELECT path_hash, size_bytes, modified_at, missing '
+      'FROM local_media_items WHERE source_id = ?',
       [sourceId],
     );
     return <String, LocalMediaFingerprint>{
@@ -133,6 +151,7 @@ class LocalMediaRepository {
         row['path_hash'] as String: LocalMediaFingerprint(
           sizeBytes: row['size_bytes'] as int?,
           modifiedAt: row['modified_at'] as int?,
+          missing: (row['missing'] as int? ?? 0) != 0,
         ),
     };
   }
@@ -237,7 +256,26 @@ class LocalMediaRepository {
         final row = item.toRow();
         statement.execute(columns.map((c) => row[c]).toList());
       }
+      // 认亲发生在写条目之前；新 id 此时才刚插入，所以在同一事务里把迁移后
+      // 的进度时间反映到条目表。没有进度的条目也要写回 null，避免旧 id 的
+      // last_played_at 残留在同一条路径的重建行上。
+      const chunkSize = 400;
+      final ids = [for (final item in items) item.id];
+      for (var i = 0; i < ids.length; i += chunkSize) {
+        final chunk = ids.sublist(
+          i,
+          i + chunkSize > ids.length ? ids.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET last_played_at = '
+          '(SELECT updated_at FROM local_media_progress WHERE item_id = local_media_items.id) '
+          'WHERE id IN ($marks)',
+          chunk,
+        );
+      }
       _db.execute('COMMIT');
+      notifyChanged();
     } catch (e) {
       _db.execute('ROLLBACK');
       LogUtils.e('批量写入本地条目失败（${items.length} 条）', tag: _tag, error: e);
@@ -360,6 +398,7 @@ class LocalMediaRepository {
         'UPDATE local_media_items SET missing = 1 WHERE source_id = ?',
         [sourceId],
       );
+      notifyChanged();
       return _db.updatedRows;
     }
 
@@ -386,6 +425,7 @@ class LocalMediaRepository {
         );
       }
       _db.execute('COMMIT');
+      notifyChanged();
     } catch (e) {
       _db.execute('ROLLBACK');
       LogUtils.e('收敛 missing 标记失败', tag: _tag, error: e);
@@ -427,6 +467,7 @@ class LocalMediaRepository {
   int adoptIdentityByPath({
     required String newSourceId,
     required Map<String, String> pathToNewId,
+    required Map<String, LocalMediaFingerprint> fingerprints,
   }) {
     if (pathToNewId.isEmpty) return 0;
     var moved = 0;
@@ -441,14 +482,32 @@ class LocalMediaRepository {
         );
         final marks = List.filled(chunk.length, '?').join(', ');
         final rows = _db.select(
-          'SELECT id, path FROM local_media_items '
+          'SELECT id, path, missing, size_bytes, modified_at '
+          'FROM local_media_items '
           'WHERE path IN ($marks) AND source_id != ?',
           <Object?>[...chunk, newSourceId],
         );
         for (final row in rows) {
           final oldId = row['id'] as String;
-          final newId = pathToNewId[row['path'] as String];
+          final path = row['path'] as String;
+          final newId = pathToNewId[path];
           if (newId == null || newId == oldId) continue;
+          final incoming = fingerprints[path];
+          final oldSize = row['size_bytes'] as int?;
+          final oldModified = row['modified_at'] as int?;
+          // 认亲只适用于仍然活着、且两边指纹完全一致的条目。仅凭路径会把
+          // 同名重下或已被替换的文件的观看记录错误地转移给新来源。
+          if ((row['missing'] as int? ?? 0) != 0 ||
+              incoming == null ||
+              !_fingerprintTrustworthy(oldSize, oldModified) ||
+              !_fingerprintTrustworthy(
+                incoming.sizeBytes,
+                incoming.modifiedAt,
+              ) ||
+              oldSize != incoming.sizeBytes ||
+              oldModified != incoming.modifiedAt) {
+            continue;
+          }
           // `OR IGNORE`：新 id 已经有一行就保留新的那份，旧的直接丢。
           _db.execute(
             'UPDATE OR IGNORE local_media_progress SET item_id = ? WHERE item_id = ?',
@@ -465,6 +524,16 @@ class LocalMediaRepository {
           _db.execute('DELETE FROM video_vr_override WHERE video_id = ?', [
             oldId,
           ]);
+          _db.execute(
+            'UPDATE local_media_items SET last_played_at = '
+            '(SELECT updated_at FROM local_media_progress WHERE item_id = ?) '
+            'WHERE id = ?',
+            [newId, newId],
+          );
+          _db.execute(
+            'UPDATE local_media_items SET last_played_at = NULL WHERE id = ?',
+            [oldId],
+          );
         }
       }
       _db.execute('COMMIT');
@@ -474,6 +543,7 @@ class LocalMediaRepository {
       return 0;
     }
     if (moved > 0) {
+      notifyChanged();
       LogUtils.i('同一文件换了来源，搬走 $moved 条观看进度', _tag);
     }
     return moved;
@@ -659,6 +729,7 @@ class LocalMediaRepository {
     LocalMediaSort sort = LocalMediaSort.addedDesc,
     String? folderPath,
     String? categoryId,
+    bool excludeBuiltInSource = false,
     bool includeMissing = false,
     required int offset,
     required int limit,
@@ -668,6 +739,9 @@ class LocalMediaRepository {
     if (sourceId != null) {
       where.add('source_id = ?');
       params.add(sourceId);
+    } else if (excludeBuiltInSource) {
+      where.add('source_id != ?');
+      params.add(kDownloadsSourceId);
     }
     if (folderPath != null) {
       where.add('folder_path = ?');
@@ -690,6 +764,7 @@ class LocalMediaRepository {
     String? sourceId,
     LocalMediaItemKind kind = LocalMediaItemKind.video,
     String? categoryId,
+    bool excludeBuiltInSource = false,
     bool includeMissing = false,
   }) {
     final where = <String>['kind = ?'];
@@ -697,6 +772,9 @@ class LocalMediaRepository {
     if (sourceId != null) {
       where.add('source_id = ?');
       params.add(sourceId);
+    } else if (excludeBuiltInSource) {
+      where.add('source_id != ?');
+      params.add(kDownloadsSourceId);
     }
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
@@ -721,9 +799,7 @@ class LocalMediaRepository {
       'folder_path ASC, sort_name ASC, name ASC, id ASC',
     LocalMediaSort.addedDesc => 'added_at DESC, id ASC',
     LocalMediaSort.playedDesc =>
-      'COALESCE((SELECT p.updated_at FROM local_media_progress p '
-          'WHERE p.item_id = local_media_items.id), 0) DESC, '
-          'sort_name ASC, name ASC, id ASC',
+      'last_played_at DESC, sort_name ASC, name ASC, id ASC',
     LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
   };
 
@@ -784,20 +860,27 @@ class LocalMediaRepository {
     int? durationMs,
     bool completed = false,
   }) {
-    _db.execute(
-      'INSERT INTO local_media_progress (item_id, position_ms, duration_ms, completed, updated_at) '
-      'VALUES (?, ?, ?, ?, ?) '
-      'ON CONFLICT(item_id) DO UPDATE SET '
-      'position_ms = excluded.position_ms, duration_ms = excluded.duration_ms, '
-      'completed = excluded.completed, updated_at = excluded.updated_at',
-      [
-        itemId,
-        positionMs,
-        durationMs,
-        completed ? 1 : 0,
-        DateTime.now().millisecondsSinceEpoch,
-      ],
-    );
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _db.execute('BEGIN');
+    try {
+      _db.execute(
+        'INSERT INTO local_media_progress (item_id, position_ms, duration_ms, completed, updated_at) '
+        'VALUES (?, ?, ?, ?, ?) '
+        'ON CONFLICT(item_id) DO UPDATE SET '
+        'position_ms = excluded.position_ms, duration_ms = excluded.duration_ms, '
+        'completed = excluded.completed, updated_at = excluded.updated_at',
+        [itemId, positionMs, durationMs, completed ? 1 : 0, now],
+      );
+      _db.execute(
+        'UPDATE local_media_items SET last_played_at = ? WHERE id = ?',
+        [now, itemId],
+      );
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      rethrow;
+    }
   }
 
   /// 库里一共记着多少条本机观看记录。清除入口拿它决定「要不要露出来」
@@ -816,8 +899,20 @@ class LocalMediaRepository {
   /// 会以进度条的形式显示在列表上——那就必须有一个用户自己动手的清除口子，
   /// 否则唯一的清法是把整个源移除。
   int clearAllProgress() {
-    _db.execute('DELETE FROM local_media_progress');
-    final removed = _db.updatedRows;
+    _db.execute('BEGIN');
+    late final int removed;
+    late final int clearedTimestamps;
+    try {
+      _db.execute('DELETE FROM local_media_progress');
+      removed = _db.updatedRows;
+      _db.execute('UPDATE local_media_items SET last_played_at = NULL');
+      clearedTimestamps = _db.updatedRows;
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      rethrow;
+    }
+    if (removed > 0 || clearedTimestamps > 0) notifyChanged();
     LogUtils.i('已清空本机观看记录：$removed 条', _tag);
     return removed;
   }

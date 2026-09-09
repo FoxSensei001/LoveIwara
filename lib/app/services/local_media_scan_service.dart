@@ -16,13 +16,30 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// 认得的视频扩展名。`Download/` 是**混装**的（apk / exe / zip 与视频躺在一起），
 /// 所以扩展名过滤不是优化，是必需。
 const Set<String> kLocalVideoExtensions = <String>{
-  'mp4', 'mkv', 'webm', 'avi', 'mov', 'm4v', 'wmv', 'flv', 'ts', '3gp', 'mpg',
-  'mpeg', 'm2ts', 'rmvb', 'ogv',
+  'mp4',
+  'mkv',
+  'webm',
+  'avi',
+  'mov',
+  'm4v',
+  'wmv',
+  'flv',
+  'ts',
+  '3gp',
+  'mpg',
+  'mpeg',
+  'm2ts',
+  'rmvb',
+  'ogv',
 };
 
 /// 同目录同名封面认得的扩展名（⭐ sidecar，见 [_ScanWorker]）。
 const Set<String> kSidecarImageExtensions = <String>{
-  'jpg', 'jpeg', 'png', 'webp', 'avif',
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'avif',
 };
 
 /// 默认跳过的目录名。
@@ -101,6 +118,8 @@ class LocalMediaScanService extends GetxService {
   Isolate? _isolate;
   ReceivePort? _port;
   Completer<void>? _running;
+  String? _runningSourceId;
+  int _scanGeneration = 0;
 
   bool get isScanning => _running != null && !_running!.isCompleted;
 
@@ -125,7 +144,9 @@ class LocalMediaScanService extends GetxService {
     }
 
     final running = Completer<void>();
+    final generation = ++_scanGeneration;
     _running = running;
+    _runningSourceId = source.id;
     progress.value = LocalMediaScanProgress(
       sourceId: source.id,
       discovered: 0,
@@ -156,17 +177,39 @@ class LocalMediaScanService extends GetxService {
     // UI 仍然一顿一顿。暂停订阅才是真的把速度交还给消费端（SendPort 自己会缓冲）。
     late final StreamSubscription<dynamic> subscription;
     subscription = port.listen((dynamic message) async {
+      if (!_isCurrent(generation, running)) return;
       // ⛔ isolate 意外死亡的两种形状必须接住，否则 `_running` 永远不完成、
       // 页面就一直卡在"扫描中"：
       //   - `onError` 送回来的是 [error, stackTrace] 这样一个 List；
       //   - `onExit` 送回来的是 null。
       if (message is List) {
-        _finish(source, seen, discovered, truncated, '${message.first}', running);
+        final error = message.isEmpty ? '扫描 isolate 意外退出' : '${message.first}';
+        _finish(
+          source,
+          seen,
+          discovered,
+          truncated,
+          error,
+          running,
+          offline: false,
+          generation: generation,
+        );
         return;
       }
       if (message == null) {
         // 正常走完时 'done' 已经先到并完成了 running，这里就是个 no-op。
-        _finish(source, seen, discovered, truncated, null, running);
+        // 如果没有 done 就退出，不能把半次扫描当成成功，否则会错误收敛
+        // missing。
+        _finish(
+          source,
+          seen,
+          discovered,
+          truncated,
+          '扫描 isolate 意外退出',
+          running,
+          offline: false,
+          generation: generation,
+        );
         return;
       }
       if (message is! Map) return;
@@ -186,6 +229,7 @@ class LocalMediaScanService extends GetxService {
             final fingerprint = known[hash];
             // 没变过的老条目连 upsert 都不用发——省掉的是整批事务里最不值钱的那部分写。
             if (fingerprint != null &&
+                !fingerprint.missing &&
                 fingerprint.sizeBytes == size &&
                 fingerprint.modifiedAt == modified) {
               continue;
@@ -226,18 +270,38 @@ class LocalMediaScanService extends GetxService {
           await Future<void>.delayed(Duration.zero);
           // ⛔ 只有 batch 这一支才 resume：'done'/'error' 走 [_finish]，
           // 那里已经把 port 关掉了，再去 resume 一个已结束的订阅没有意义。
-          if (subscription.isPaused) subscription.resume();
+          if (_isCurrent(generation, running) && subscription.isPaused) {
+            subscription.resume();
+          }
         case 'done':
           truncated = message['truncated'] as bool? ?? false;
-          _finish(source, seen, discovered, truncated, null, running);
+          _finish(
+            source,
+            seen,
+            discovered,
+            truncated,
+            message['error'] as String?,
+            running,
+            offline: message['offline'] as bool? ?? false,
+            generation: generation,
+          );
         case 'error':
-          failure = message['message'] as String?;
-          _finish(source, seen, discovered, truncated, failure, running);
+          failure = message['message'] as String? ?? '扫描失败';
+          _finish(
+            source,
+            seen,
+            discovered,
+            truncated,
+            failure,
+            running,
+            offline: message['offline'] as bool? ?? false,
+            generation: generation,
+          );
       }
     });
 
     try {
-      _isolate = await Isolate.spawn(
+      final isolate = await Isolate.spawn(
         _scanWorkerEntry,
         <String, Object?>{
           'send': port.sendPort,
@@ -254,9 +318,23 @@ class LocalMediaScanService extends GetxService {
         onError: port.sendPort,
         onExit: port.sendPort,
       );
+      if (_isCurrent(generation, running)) {
+        _isolate = isolate;
+      } else {
+        isolate.kill(priority: Isolate.immediate);
+      }
     } catch (e) {
       LogUtils.e('启动扫描 isolate 失败', tag: _tag, error: e);
-      _finish(source, seen, discovered, truncated, '$e', running);
+      _finish(
+        source,
+        seen,
+        discovered,
+        truncated,
+        '$e',
+        running,
+        offline: !_directoryExists(root),
+        generation: generation,
+      );
     }
 
     return running.future;
@@ -268,9 +346,13 @@ class LocalMediaScanService extends GetxService {
     int discovered,
     bool truncated,
     String? error,
-    Completer<void> running,
-  ) {
-    if (running.isCompleted) return;
+    Completer<void> running, {
+    required bool offline,
+    required int generation,
+  }) {
+    if (!_isCurrent(generation, running)) return;
+
+    var effectiveError = error;
 
     // ⛔ 只有**扫完了**才收敛 missing。中途出错/被截断时不能收敛：没走到的那一半
     // 会被冤枉成"文件没了"，用户看到的是列表凭空少了一半。
@@ -279,18 +361,19 @@ class LocalMediaScanService extends GetxService {
         _repository.markMissingExcept(source.id, seen);
       } catch (e) {
         LogUtils.e('收敛 missing 失败', tag: _tag, error: e);
+        effectiveError = '$e';
       }
     }
 
     try {
       _repository.upsertSource(
         source.copyWith(
-          scanState: error == null
+          scanState: effectiveError == null && !truncated
               ? LocalMediaScanState.idle
               : LocalMediaScanState.interrupted,
           lastScanAt: DateTime.now().millisecondsSinceEpoch,
           itemCount: _repository.countItems(sourceId: source.id),
-          offline: false,
+          offline: offline,
         ),
       );
     } catch (e) {
@@ -302,18 +385,33 @@ class LocalMediaScanService extends GetxService {
       discovered: discovered,
       finished: true,
       truncated: truncated,
-      error: error,
+      error: effectiveError,
     );
     _teardown();
     running.complete();
   }
 
   /// 用户离开页面 / 换源：把 isolate 收掉，别让它在后台接着刨盘。
-  void cancel() {
+  void cancel([String? sourceId]) {
     if (!isScanning) return;
+    if (sourceId != null && sourceId != _runningSourceId) return;
     LogUtils.i('用户取消扫描', _tag);
+    final runningSourceId = _runningSourceId;
     final running = _running;
+    _scanGeneration++;
     _teardown();
+    if (runningSourceId != null) {
+      try {
+        final source = _repository.getSource(runningSourceId);
+        if (source != null) {
+          _repository.upsertSource(
+            source.copyWith(scanState: LocalMediaScanState.interrupted),
+          );
+        }
+      } catch (e) {
+        LogUtils.w('回写取消后的扫描状态失败: $e', _tag);
+      }
+    }
     if (running != null && !running.isCompleted) running.complete();
   }
 
@@ -323,10 +421,25 @@ class LocalMediaScanService extends GetxService {
     _port?.close();
     _port = null;
     _running = null;
+    _runningSourceId = null;
+  }
+
+  bool _isCurrent(int generation, Completer<void> running) =>
+      generation == _scanGeneration &&
+      identical(_running, running) &&
+      !running.isCompleted;
+
+  static bool _directoryExists(String path) {
+    try {
+      return Directory(path).existsSync();
+    } catch (_) {
+      return false;
+    }
   }
 
   @override
   void onClose() {
+    _scanGeneration++;
     _teardown();
     super.onClose();
   }
@@ -364,6 +477,8 @@ void _scanWorkerEntry(Map<String, Object?> args) {
   final batch = <Map<String, Object?>>[];
   var total = 0;
   var truncated = false;
+  String? failure;
+  var offline = false;
 
   void flush() {
     if (batch.isEmpty) return;
@@ -387,9 +502,11 @@ void _scanWorkerEntry(Map<String, Object?> args) {
       final List<FileSystemEntity> entries;
       try {
         entries = current.dir.listSync(followLinks: false);
-      } catch (_) {
-        // ⛔ 单个目录读不动**不能**中断整次扫描：权限、坏扇区、Windows 超长路径
-        // 都会让某一个目录抛，而用户要的是"其余的都扫到"。
+      } catch (e) {
+        // 单个目录读不动时继续扫其它目录，但整次扫描必须标为失败：否则
+        // [LocalMediaScanService] 会把没走到的条目错误收敛成 missing。
+        failure ??= '无法读取目录 ${current.dir.path}: $e';
+        if (current.depth == 0) offline = true;
         continue;
       }
 
@@ -437,11 +554,20 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         // 换过，连带**删掉用户的观看进度**——而那张表不进配置备份，删了就没了。
         //
         // 量不出来就一个都不写：null 是"不知道"，`-1` 是一句谎话。
-        final stat = file.statSync();
-        if (stat.type != FileSystemEntityType.notFound) {
-          size = stat.size;
-          modified = stat.modified.millisecondsSinceEpoch;
+        FileStat stat;
+        try {
+          stat = file.statSync();
+        } catch (e) {
+          failure ??= '无法读取文件 ${file.path}: $e';
+          continue;
         }
+        if (stat.type != FileSystemEntityType.file) {
+          // 文件可能在 listSync 后被删除，或者路径已经不再是普通文件。
+          // 这类记录既不能入库，也不能算 seen。
+          continue;
+        }
+        size = stat.size;
+        modified = stat.modified.millisecondsSinceEpoch;
         batch.add(<String, Object?>{
           'path': file.path,
           'ext': ext,
@@ -469,10 +595,27 @@ void _scanWorkerEntry(Map<String, Object?> args) {
     }
 
     flush();
-    send.send(<String, Object?>{'type': 'done', 'truncated': truncated});
+    send.send(<String, Object?>{
+      'type': 'done',
+      'truncated': truncated,
+      'error': failure,
+      'offline': offline,
+    });
   } catch (e) {
     flush();
-    send.send(<String, Object?>{'type': 'error', 'message': '$e'});
+    send.send(<String, Object?>{
+      'type': 'error',
+      'message': '$e',
+      'offline': !_directoryExistsInWorker(root),
+    });
+  }
+}
+
+bool _directoryExistsInWorker(String path) {
+  try {
+    return Directory(path).existsSync();
+  } catch (_) {
+    return false;
   }
 }
 

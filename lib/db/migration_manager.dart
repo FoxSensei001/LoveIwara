@@ -23,6 +23,8 @@ import 'package:i_iwara/db/migrations/migration_v24_local_media_paging_index.dar
 import 'package:i_iwara/db/migrations/migration_v25_local_media_category.dart';
 import 'package:i_iwara/db/migrations/migration_v26_local_media_sort.dart';
 import 'package:i_iwara/db/migrations/migration_v27_local_media_category_sort.dart';
+import 'package:i_iwara/db/migrations/migration_v28_download_task_legacy_media.dart';
+import 'package:i_iwara/db/migrations/migration_v29_local_media_last_played.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -64,6 +66,8 @@ class MigrationManager {
     MigrationV25LocalMediaCategory(),
     MigrationV26LocalMediaSort(),
     MigrationV27LocalMediaCategorySort(),
+    MigrationV28DownloadTaskLegacyMedia(),
+    MigrationV29LocalMediaLastPlayed(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

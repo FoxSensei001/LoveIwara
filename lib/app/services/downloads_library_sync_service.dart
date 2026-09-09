@@ -80,6 +80,23 @@ class DownloadsLibrarySyncService extends GetxService {
     return future;
   }
 
+  /// 等当前同步结束后，再基于最新的任务表跑一轮。
+  ///
+  /// 删除下载任务时不能直接复用一个已经在运行的旧快照：那一轮可能在删
+  /// 除发生前就拿完了任务清单，完成后仍会把刚删的文件当成有效条目。调用方
+  /// 用这个入口可保证删除动作最终被反映到本地源。
+  Future<void> syncAfterPending() async {
+    while (true) {
+      final running = _running;
+      if (running != null) {
+        await running;
+        continue;
+      }
+      await sync();
+      return;
+    }
+  }
+
   Future<void> _sync() async {
     try {
       final tasks = _downloads.completedVideoTasks();
@@ -96,7 +113,8 @@ class DownloadsLibrarySyncService extends GetxService {
         final ext = p.extension(path).replaceFirst('.', '').toLowerCase();
         if (!kLocalVideoExtensions.contains(ext)) continue;
         final existing = byPath[path];
-        if (existing != null && _completedAtOf(existing) >= _completedAtOf(task)) {
+        if (existing != null &&
+            _completedAtOf(existing) >= _completedAtOf(task)) {
           continue;
         }
         byPath[path] = task;
@@ -107,6 +125,23 @@ class DownloadsLibrarySyncService extends GetxService {
       // （它是这一页唯一的上手入口）从此再也不出现。
       final source = _ensureSource(create: byPath.isNotEmpty);
       if (source == null) return;
+
+      if (byPath.isEmpty) {
+        // 源已经存在但所有完成任务都被删除时，仍要收敛旧条目；否则最后一个
+        // 下载删除后，本地墙会永远保留一张旧卡片。全量同步期间刚完成的任务
+        // 通过 [_lateHashes] 保留下来，不能被这次空清单覆盖成 missing。
+        final late = Set<String>.from(_lateHashes);
+        _lateHashes.clear();
+        _repository.markMissingExcept(source.id, late);
+        _repository.upsertSource(
+          source.copyWith(
+            lastScanAt: DateTime.now().millisecondsSinceEpoch,
+            itemCount: _repository.countItems(sourceId: source.id),
+            offline: false,
+          ),
+        );
+        return;
+      }
 
       // 这个源现在长什么样，用来跳过没变过的那些。同 [LocalMediaScanService]
       // 的理由，而且这里更要紧：本页每次打开都会同步一次，不跳过就等于每次把
@@ -133,11 +168,18 @@ class DownloadsLibrarySyncService extends GetxService {
         // `size = -1`、`modified` 是纪元零点。量不出来就一个都不写——null 是
         // 「不知道」，`-1` 是一句谎话，而这两列是"文件被换过没有"的唯一判据，
         // 一个假指纹会连带删掉用户的观看进度（见 `LocalMediaScanService`）。
-        final stat = File(path).statSync();
-        final readable = stat.type != FileSystemEntityType.notFound;
+        FileStat? stat;
+        try {
+          stat = File(path).statSync();
+        } catch (_) {
+          // 统一在下面按 readable 计数，避免同一条任务被记两次。
+        }
+        final readableStat = stat;
+        final readable = readableStat?.type == FileSystemEntityType.file;
         if (readable) {
-          size = stat.size;
-          modified = stat.modified.millisecondsSinceEpoch;
+          final fileStat = readableStat!;
+          size = fileStat.size;
+          modified = fileStat.modified.millisecondsSinceEpoch;
         } else {
           unreadable++;
         }
@@ -149,7 +191,7 @@ class DownloadsLibrarySyncService extends GetxService {
 
         final id = LocalMediaItem.buildId(source.id, hash);
         final fingerprint = known[hash];
-        if (fingerprint == null) {
+        if (fingerprint == null && readable) {
           adopting[path] = id;
         } else if (!readable) {
           // ⛔ 摸不到文件、而库里已经有这一行：**一个字都别写**。
@@ -160,15 +202,23 @@ class DownloadsLibrarySyncService extends GetxService {
           // 本轮不收敛（见下面 [volumeOffline]），这一下就会把上一轮认定的
           // "文件没了"悄悄擦回"文件还在"。
           continue;
-        } else if (fingerprint.sizeBytes == size &&
+        } else if (fingerprint != null &&
+            !fingerprint.missing &&
+            fingerprint.sizeBytes == size &&
             fingerprint.modifiedAt == modified) {
           // 库里那份和磁盘上这份一模一样，连 upsert 都不用发。
           continue;
         }
 
         pending.add(
-          _itemOf(task, path: path, hash: hash, size: size, modified: modified,
-              fallbackAddedAt: now),
+          _itemOf(
+            task,
+            path: path,
+            hash: hash,
+            size: size,
+            modified: modified,
+            fallbackAddedAt: now,
+          ),
         );
 
         if (pending.length >= _batchSize) {
@@ -271,7 +321,7 @@ class DownloadsLibrarySyncService extends GetxService {
       final stat = File(path).statSync();
       // 刚下完却 stat 不到，说明这一刻并不适合入库（外置存储掉了、路径不对）。
       // 不写半条，交给下一次全量同步。
-      if (stat.type == FileSystemEntityType.notFound) {
+      if (stat.type != FileSystemEntityType.file) {
         LogUtils.w('下载刚完成却读不到文件，暂不入库：$path', _tag);
         return;
       }
@@ -293,14 +343,18 @@ class DownloadsLibrarySyncService extends GetxService {
       _repository.adoptIdentityByPath(
         newSourceId: source.id,
         pathToNewId: <String, String>{path: item.id},
+        fingerprints: <String, LocalMediaFingerprint>{
+          path: LocalMediaFingerprint(
+            sizeBytes: stat.size,
+            modifiedAt: stat.modified.millisecondsSinceEpoch,
+          ),
+        },
       );
       _repository.upsertItems(<LocalMediaItem>[item]);
       // 正在跑的那次全量同步不认识这条（它的清单是开头定死的），给它留个条。
       if (_running != null) _lateHashes.add(hash);
       _repository.upsertSource(
-        source.copyWith(
-          itemCount: _repository.countItems(sourceId: source.id),
-        ),
+        source.copyWith(itemCount: _repository.countItems(sourceId: source.id)),
       );
       LogUtils.d('下载完成即入库：${item.name}', _tag);
     } catch (e) {
@@ -329,6 +383,14 @@ class DownloadsLibrarySyncService extends GetxService {
         _repository.adoptIdentityByPath(
           newSourceId: sourceId,
           pathToNewId: batch,
+          fingerprints: <String, LocalMediaFingerprint>{
+            for (final item in pending)
+              if (batch.containsKey(item.path))
+                item.path: LocalMediaFingerprint(
+                  sizeBytes: item.sizeBytes,
+                  modifiedAt: item.modifiedAt,
+                ),
+          },
         );
         for (final path in batch.keys) {
           adopting.remove(path);

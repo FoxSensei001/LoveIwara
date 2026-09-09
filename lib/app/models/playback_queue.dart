@@ -1055,6 +1055,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
       sourceId: sourceId,
       folderPath: folderPath,
       categoryId: categoryId,
+      excludeBuiltInSource: sourceId == null,
       sort: sort,
       offset: page * limit,
       limit: limit,
@@ -1145,11 +1146,16 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   Future<LocalPlaybackTarget?> localTargetFor(String itemId) async {
     String? path;
     try {
-      path = _repository.getItem(itemId)?.path;
+      final item = _repository.getItem(itemId);
+      if (item == null || item.missing) {
+        LogUtils.w('本机文件池里的 $itemId 在库里找不到可播放条目', 'LocalLibraryPlaybackQueue');
+        return null;
+      }
+      path = item.path;
     } catch (e) {
       LogUtils.w('查本机文件失败，退回池内快照：$e', 'LocalLibraryPlaybackQueue');
+      path = _pathsById[itemId];
     }
-    path ??= _pathsById[itemId];
     if (path == null || path.trim().isEmpty) {
       LogUtils.w('本机文件池里的 $itemId 在库里找不到', 'LocalLibraryPlaybackQueue');
       return null;
