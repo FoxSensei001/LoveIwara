@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
@@ -230,20 +232,29 @@ class FilenameTemplateService extends GetxService {
     int maxLength = _maxPathSegmentLength,
   }) {
     String sanitizeOnce(String value) {
-      return value
-          .trim()
-          .replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '_')
-          .replaceAll(RegExp(r'\.{2,}'), '_')
-          .replaceAll(RegExp(r'\s+'), '_')
-          .replaceAll(RegExp(r'_{2,}'), '_')
-          .replaceAll(RegExp(r'^[._]+|[._]+$'), '');
+      var result = value
+          // 先归一空白：换行/制表等异形空白折成普通空格，连续空白压成一个。
+          // 必须排在控制字符替换之前，否则 \n \t 会先被当成控制字符变成下划线。
+          .replaceAll(RegExp(r'\s+'), ' ')
+          // 再处理各平台文件系统真正拒绝的那一批字符 + 剩余控制字符。
+          // ⛔ 空格不在其中：Windows / APFS / ext4 / SAF 都允许名字中间有空格，
+          // 把它换成下划线会把用户模板 "Iwara - %title [%id] [%quality]" 拧成
+          // "Iwara_-_..."（issue #93）。同理不再压缩连续下划线和连续点号，
+          // 那会把 "Ep.1 ... The End" 这种标题吃掉一段。
+          .replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F\x7F]'), '_');
+      // 开头的点会变成 Unix 隐藏文件，也是 "." / ".." 逃逸的入口；
+      // 结尾的点和空格会被 Windows 静默吃掉，导致「记录的路径」和
+      // 「磁盘上的文件名」对不上。两头都清掉，中间一律保留。
+      result = result.replaceAll(RegExp(r'^[.\s]+'), '');
+      result = result.replaceAll(RegExp(r'[.\s]+$'), '');
+      return result;
     }
 
     var sanitized = sanitizeOnce(input);
-    if (sanitized.isEmpty || sanitized == '.' || sanitized == '..') {
+    if (sanitized.isEmpty) {
       sanitized = sanitizeOnce(fallback);
     }
-    if (sanitized.isEmpty || sanitized == '.' || sanitized == '..') {
+    if (sanitized.isEmpty) {
       sanitized = 'download';
     }
 
@@ -280,17 +291,57 @@ class FilenameTemplateService extends GetxService {
       sanitized = '${baseName}_file$extension';
     }
 
-    if (sanitized.length > maxLength) {
-      final extension = path.extension(sanitized);
-      if (extension.isNotEmpty && extension.length < maxLength ~/ 2) {
-        final baseLength = maxLength - extension.length;
-        sanitized = '${sanitized.substring(0, baseLength)}$extension';
-      } else {
-        sanitized = sanitized.substring(0, maxLength);
-      }
+    return _truncatePathSegment(sanitized, maxLength);
+  }
+
+  /// 单个路径片段的字节上限。
+  ///
+  /// ext4 / APFS / exFAT 限的是 **255 字节**，不是 255 个字符：150 个日文假名
+  /// 按 UTF-8 就是 450 字节，落盘直接 ENAMETOOLONG（下载失败，而不是名字变丑）。
+  /// 留 55 字节余量给去重后缀 " (12)" 之类。
+  static const int _maxPathSegmentBytes = 200;
+
+  /// 按「字符数」和「UTF-8 字节数」两个上限截断，尽量保住扩展名，
+  /// 且不把一对代理项（emoji）从中间切开。
+  static String _truncatePathSegment(String value, int maxLength) {
+    if (value.length <= maxLength &&
+        utf8.encode(value).length <= _maxPathSegmentBytes) {
+      return value;
     }
 
-    return sanitized;
+    final extension = path.extension(value);
+    final keepExtension =
+        extension.isNotEmpty &&
+        extension.length < maxLength ~/ 2 &&
+        utf8.encode(extension).length < _maxPathSegmentBytes ~/ 2;
+    final base = keepExtension
+        ? value.substring(0, value.length - extension.length)
+        : value;
+    final charBudget = keepExtension ? maxLength - extension.length : maxLength;
+    final byteBudget = keepExtension
+        ? _maxPathSegmentBytes - utf8.encode(extension).length
+        : _maxPathSegmentBytes;
+
+    var end = base.length < charBudget ? base.length : charBudget;
+    while (end > 0) {
+      // 不要停在代理项对中间：切一半会产出非法 UTF-16，落盘时同样会失败。
+      final unit = base.codeUnitAt(end - 1);
+      final isHighSurrogate = unit >= 0xD800 && unit <= 0xDBFF;
+      if (isHighSurrogate || utf8.encode(base.substring(0, end)).length > byteBudget) {
+        end--;
+        continue;
+      }
+      break;
+    }
+
+    // 截断后可能又露出结尾的空格或点（Windows 会静默吃掉），再修一次。
+    final truncated = base
+        .substring(0, end)
+        .replaceAll(RegExp(r'[.\s]+$'), '');
+    if (truncated.isEmpty) {
+      return keepExtension ? 'download$extension' : 'download';
+    }
+    return keepExtension ? '$truncated$extension' : truncated;
   }
 
   /// 获取支持的变量列表
@@ -340,7 +391,10 @@ class FilenameTemplateService extends GetxService {
       return false;
     }
 
-    if (withoutVariables.contains('..')) {
+    // 只拦真正的目录逃逸形状。分隔符上面已经拦掉了，剩下唯一危险的是整条
+    // 模板只由点和空白组成（清洗后会退化成 "." / ".."）——中间的省略号
+    // （"Ep.1 ... The End"）是合法标题的一部分，不能一并否掉。
+    if (template.replaceAll(RegExp(r'[.\s]'), '').isEmpty) {
       return false;
     }
 
