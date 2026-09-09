@@ -251,8 +251,8 @@ class MyVideoStateController extends GetxController
   /// `_updateCachedVideoAuthor` 三处对 Iwara 的请求。灌一个本地 id 进去
   /// 会把这三处解锁，拿着一个服务端根本不认识的串去打接口。
   ///
-  /// 所以本地身份走**独立字段**：要本地记忆的地方读它（进度、将来的 VR 覆盖），
-  /// 要 Iwara 身份的地方继续被 `videoId == null` 挡住。
+  /// 所以本地身份走**独立字段**：要本地记忆的地方读它（进度、VR 格式覆盖，见
+  /// [_vrOverrideKey]），要 Iwara 身份的地方继续被 `videoId == null` 挡住。
   final String? localLibraryItemId;
 
   // 状态
@@ -432,11 +432,47 @@ class MyVideoStateController extends GetxController
       ? Get.find<VrFormatOverrideService>()
       : null;
 
+  /// 覆盖表用哪把钥匙：在线视频用 [videoId]，本机文件用 [localLibraryItemId]。
+  ///
+  /// 两个命名空间天生不撞——Iwara 的 id 是不带短横线的一串 hex，本机条目 id 是
+  /// `<源 uuid>-<路径 sha1>`，长度和形状都不一样——所以合用 `video_vr_override`
+  /// 一张表是安全的。这也不是新发明：沉浸态那一侧**早就在这么读**（见
+  /// `XrPlaylistSource._resolveLocalLibrary`，它拿本机条目 id 直接查这张表）；
+  /// 写入侧从前只认 [videoId]，于是那条读永远读到 null。
+  String? get _vrOverrideKey {
+    final online = videoId?.trim();
+    if (online != null && online.isNotEmpty) return online;
+    final local = localLibraryItemId?.trim();
+    if (local != null && local.isNotEmpty) return local;
+    return null;
+  }
+
+  /// 把库里记着的手动覆盖读回来，压过一切推断。只跑一次。
+  ///
+  /// ⛔ 挂在 [_initVrFormatTracking]（也就是 onInit）而不是"详情到手时"：本机
+  /// 文件根本没有 `videoInfo`，挂在那条线上等于本地永远读不到自己的覆盖。放在
+  /// 起播之前还顺带解决了在线那条路的时序——覆盖赶在第一帧之前生效，不再有
+  /// "先按推断铺一帧再换几何"的闪跳。
+  Future<void> _loadStoredVrOverride() async {
+    if (_vrOverrideLookupDone) return;
+    _vrOverrideLookupDone = true;
+    final id = _vrOverrideKey;
+    if (id == null) return;
+    final stored = await _vrOverrideService?.get(id);
+    if (_isDisposed || stored == null) return;
+    // 查表还没回来用户就自己选过了：他刚表的态比库里那份新，别盖回去。
+    if (vrFormatVerdict.value.source == VrVerdictSource.userSpecified) return;
+    _vrOverrideApplied = true;
+    vrFormatVerdict.value = VrFormatVerdict.userSpecified(stored);
+    resetVrView();
+  }
+
   /// 挂上「详情到手就重跑推断」的监听。
   ///
   /// 走 [rxEver] 而不是 GetX 的 `ever()`：后者在「订阅→取消→再订阅」之后会永久
   /// 失聪，第二次进同一个页面起就静默收不到值（见 rx_ever.dart 的说明）。
   void _initVrFormatTracking() {
+    unawaited(_loadStoredVrOverride());
     _vrFormatWorker = rxEver(
       videoInfo,
       (_) => unawaited(_refreshVrFormatFromMetadata()),
@@ -453,20 +489,6 @@ class MyVideoStateController extends GetxController
     // 写死成 16:9，掺进来只会污染判定。
     if (video.isExternalVideo) return;
 
-    if (!_vrOverrideLookupDone) {
-      _vrOverrideLookupDone = true;
-      final id = videoId;
-      final stored = (id == null || id.isEmpty)
-          ? null
-          : await _vrOverrideService?.get(id);
-      if (_isDisposed) return;
-      if (stored != null) {
-        _vrOverrideApplied = true;
-        vrFormatVerdict.value = VrFormatVerdict.userSpecified(stored);
-        resetVrView();
-        return;
-      }
-    }
     if (_vrOverrideApplied) return;
 
     final tagIds = video.tags?.map((t) => t.id).toList();
@@ -575,9 +597,8 @@ class MyVideoStateController extends GetxController
       resetVideoZoomImmediately();
       resetVrView();
     }
-    final id = videoId;
-    // 本地视频没有 videoId，覆盖只在本次会话内生效——没有稳定的键可以记。
-    if (id == null || id.isEmpty) return;
+    final id = _vrOverrideKey;
+    if (id == null) return;
     unawaited(_vrOverrideService?.put(id, format) ?? Future<void>.value());
   }
 
@@ -600,8 +621,8 @@ class MyVideoStateController extends GetxController
     _vrSuggestionOffered = false;
     vrSuggestion.value = null;
     hideVrSuggestionTip();
-    final id = videoId;
-    if (id != null && id.isNotEmpty) {
+    final id = _vrOverrideKey;
+    if (id != null) {
       unawaited(_vrOverrideService?.remove(id) ?? Future<void>.value());
     }
     resetVideoZoomImmediately();
