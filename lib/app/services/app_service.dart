@@ -839,19 +839,28 @@ class NaviService {
     appRouter.push(SettingsSubRoutes.displayNavigationOrder);
   }
 
-  /// 跳转到本地视频播放页面（从下载任务进入）
+  /// 跳转到本地视频播放页面（从下载任务 / 本地库进入）
   ///
-  /// [playbackQueueRef] 是下载池的引用（从下载列表进来时带上）：本地播放页
-  /// 的路由 id 只是个 `local_xxx` 占位，池的游标只能靠这个 ref 里的
+  /// [playbackQueueRef] 是那个池的引用（从下载列表、本机文件墙进来时带上）：
+  /// 本地播放页的路由 id 只是个 `local_xxx` 占位，池的游标只能靠这个 ref 里的
   /// `currentItemId` 带过去——见 `PlaybackQueueNavigator`。
+  ///
+  /// [localLibraryItemId] 只有本机文件那一路会给，详情页据此记进度。
   static void navigateToLocalVideoPlayerPage({
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    String? localLibraryItemId,
     PlaybackQueueRef? playbackQueueRef,
   }) {
-    final routeVideoId = playbackQueueRef != null
-        ? localVideoRouteId(playbackQueueRef.currentItemId)
+    // ⛔ 池引用没建起来时（本机文件那一路可能因为读库出错拿不到池）也要用稳定 id：
+    // 退回随机 uuid 的话，详情页那道"同一视频不重复入栈"的守卫认不出自己，
+    // 同一个文件连点两下会叠两层播放器——而两层都在往**同一条**
+    // `local_media_progress` 里写进度，后关的那层把先关的那层覆盖掉。
+    final stableId =
+        playbackQueueRef?.currentItemId ?? localLibraryItemId?.trim();
+    final routeVideoId = stableId != null && stableId.isNotEmpty
+        ? localVideoRouteId(stableId)
         : 'local_${Uuid().v4()}';
 
     appRouter.push(
@@ -860,21 +869,25 @@ class NaviService {
         localPath: localPath,
         localTask: task,
         localAllQualityTasks: allQualityTasks,
+        localLibraryItemId: localLibraryItemId,
         playbackQueueRef: playbackQueueRef,
       ),
     );
     _ensureAndroidBackDispatcherPriority('push video_detail/$routeVideoId');
   }
 
-  /// 跳转到本地视频播放页面（从外部文件路径进入）
+  /// 跳转到本地视频播放页面（从系统「用其他应用打开」/ 深链进来的**任意文件**）。
+  ///
+  /// ⛔ 这条路发的是**随机**路由 id，而且这是对的：这种文件不在本地库里，没有
+  /// 任何可记的身份，也就没有进度可续、没有"同一条"可认。库里的文件走
+  /// [navigateToLocalVideoPlayerPage]，那边发的是 `local_<稳定 id>`。
   static void navigateToLocalVideoPlayerPageFromPath(String filePath) {
-    final uuid = Uuid();
-    final randomVideoId = 'local_${uuid.v4()}';
+    final routeVideoId = 'local_${Uuid().v4()}';
 
     appRouter.push(
-      '/video_detail/$randomVideoId',
+      '/video_detail/$routeVideoId',
       extra: VideoDetailExtra(localPath: filePath),
     );
-    _ensureAndroidBackDispatcherPriority('push video_detail/$randomVideoId');
+    _ensureAndroidBackDispatcherPriority('push video_detail/$routeVideoId');
   }
 }

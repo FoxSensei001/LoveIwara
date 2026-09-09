@@ -508,6 +508,7 @@ final GoRouter appRouter = GoRouter(
                 localPath: extra.localPath,
                 localTask: extra.localTask,
                 localAllQualityTasks: extra.localAllQualityTasks,
+                localLibraryItemId: extra.localLibraryItemId,
                 innerPlaylistContext: extra.innerPlaylistContext,
                 playbackQueueRef: extra.playbackQueueRef,
                 skipWatchedInQueue: extra.skipWatchedInQueue,
@@ -1370,6 +1371,12 @@ class VideoDetailExtra {
   final String? localPath;
   final DownloadTask? localTask;
   final List<DownloadTask>? localAllQualityTasks;
+
+  /// 本地库里这条文件的稳定 id（`local_media_items.id`）。
+  ///
+  /// ⛔ 与路由段上那个 `local_xxx` 是两回事：路由 id 只是"这是本地视频"的记号，
+  /// 而进度、身份要认的是这个。只有从本地库进来时才有值。
+  final String? localLibraryItemId;
   final InnerPlaylistContext? innerPlaylistContext;
   final bool forceAutoPlay;
   final bool forceEnterFullscreen;
@@ -1390,6 +1397,7 @@ class VideoDetailExtra {
     this.localPath,
     this.localTask,
     this.localAllQualityTasks,
+    this.localLibraryItemId,
     this.innerPlaylistContext,
     this.playbackQueueRef,
     this.skipWatchedInQueue = false,

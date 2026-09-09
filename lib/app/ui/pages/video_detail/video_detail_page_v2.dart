@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/video.model.dart' as video_model;
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -44,6 +45,9 @@ class MyVideoDetailPage extends StatefulWidget {
   final String? localPath;
   final DownloadTask? localTask;
   final List<DownloadTask>? localAllQualityTasks;
+
+  /// 本地库里这条文件的稳定 id（`local_media_items.id`），只有从本地库进来才有。
+  final String? localLibraryItemId;
   final InnerPlaylistContext? innerPlaylistContext;
   final bool forceAutoPlay;
   final bool forceEnterFullscreen;
@@ -63,6 +67,7 @@ class MyVideoDetailPage extends StatefulWidget {
     this.localPath,
     this.localTask,
     this.localAllQualityTasks,
+    this.localLibraryItemId,
     this.innerPlaylistContext,
     this.forceAutoPlay = false,
     this.forceEnterFullscreen = false,
@@ -119,6 +124,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
             localPath: widget.localPath!,
             task: widget.localTask,
             allQualityTasks: widget.localAllQualityTasks,
+            // 本地库那条路的身份钥匙：记进度靠它，Iwara 那边的 videoId 仍是 null。
+            localLibraryItemId: widget.localLibraryItemId,
             // 从「接着看」的下载池换过来的那一条要直接开播、并接手全屏。
             forceAutoPlay: widget.forceAutoPlay,
             fullscreenHandoff: widget.fullscreenHandoff,
@@ -383,6 +390,21 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     }
   }
 
+  /// 交给「接着看」抽屉的作者。**没有真作者时必须是 null**。
+  ///
+  /// ⛔ 本地播放模式下 `videoInfo.user` 是一个 `User(id:'', username:'', name:'')`
+  /// 的占位（见 `_initLocalVideoPlayback`：纯本地文件只有文件名，编不出作者）。
+  /// 它**不是 null**，于是抽屉会照常摆出「作者的视频」「作者的播放列表」两条，
+  /// 头像是空的、名字是空的，点下去还会拿空 id 去打 Iwara 接口。
+  ///
+  /// 这与 `MyVideoStateController` 那道 `videoId == null` 闸门是同一条纪律：
+  /// **没有身份就不要装作有**。
+  User? get _queueDrawerAuthor {
+    final user = controller.videoInfo.value?.user;
+    if (user == null || user.id.trim().isEmpty) return null;
+    return user;
+  }
+
   /// 推进到池里的下一条。返回 false = 池到底了（调用方决定要不要提示）。
   Future<bool> _advanceInQueue() async {
     final queue = _activeQueue;
@@ -411,7 +433,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
       queues: queues,
       initialQueue: _activeQueue ?? queues.first,
       currentItemId: _queueItemId,
-      author: controller.videoInfo.value?.user,
+      author: _queueDrawerAuthor,
     );
     if (selection == null || !mounted) return;
     // ⛔ 只有**真的点播了一条**才换池。光切 tab 逛一圈不算——用户常常只是想

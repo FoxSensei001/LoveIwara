@@ -240,6 +240,37 @@ class LocalMediaRepository {
     return affected;
   }
 
+  /// 按 id 取一条。播放前的"文件还在不在"与「接着看」的 [LocalPlaybackTarget]
+  /// 都靠它**现查一次库**——池里那份快照可能是几分钟前的（同 `DownloadsPlaybackQueue`
+  /// 那条注释：中间发生过一次重扫，快照里的 path 就指向一个已经不在的文件）。
+  LocalMediaItem? getItem(String id) {
+    final rows = _db.select('SELECT * FROM local_media_items WHERE id = ?', [
+      id,
+    ]);
+    if (rows.isEmpty) return null;
+    return LocalMediaItem.fromRow(rows.first);
+  }
+
+  /// 这个源下有哪些文件夹，各有多少条可播的。
+  ///
+  /// 「接着看」里「当前文件所在文件夹」那一支要用它判断值不值得出现
+  /// （条目数 ≥2 且 ≠ 整个源，否则那一条就是纯噪音）。
+  List<({String folderPath, int count})> folderCounts(
+    String sourceId, {
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+  }) {
+    final rows = _db.select(
+      'SELECT folder_path AS f, COUNT(*) AS c FROM local_media_items '
+      'WHERE source_id = ? AND kind = ? AND missing = 0 AND folder_path IS NOT NULL '
+      'GROUP BY folder_path ORDER BY c DESC',
+      [sourceId, kind.name],
+    );
+    return [
+      for (final row in rows)
+        (folderPath: row['f'] as String, count: (row['c'] as int?) ?? 0),
+    ];
+  }
+
   /// 分页查条目。列表永远走这里，**不整表进内存**。
   List<LocalMediaItem> queryItems({
     String? sourceId,
@@ -321,6 +352,38 @@ class LocalMediaRepository {
       durationMs: row['duration_ms'] as int?,
       completed: (row['completed'] as int? ?? 0) != 0,
     );
+  }
+
+  /// 一次取一批的进度。
+  ///
+  /// ⛔ 「接着看」列表一页几十条，逐条 [getProgress] 就是几十次 select——
+  /// sqlite3 是**同步**的，那几十次全落在 UI 线程上。分片进 IN(...)（变量上限 999）。
+  Map<String, ({int positionMs, int? durationMs, bool completed})> progressFor(
+    List<String> itemIds,
+  ) {
+    final result = <String, ({int positionMs, int? durationMs, bool completed})>{};
+    if (itemIds.isEmpty) return result;
+    const chunkSize = 400;
+    for (var i = 0; i < itemIds.length; i += chunkSize) {
+      final chunk = itemIds.sublist(
+        i,
+        i + chunkSize > itemIds.length ? itemIds.length : i + chunkSize,
+      );
+      final marks = List.filled(chunk.length, '?').join(', ');
+      final rows = _db.select(
+        'SELECT item_id, position_ms, duration_ms, completed '
+        'FROM local_media_progress WHERE item_id IN ($marks)',
+        chunk,
+      );
+      for (final row in rows) {
+        result[row['item_id'] as String] = (
+          positionMs: row['position_ms'] as int? ?? 0,
+          durationMs: row['duration_ms'] as int?,
+          completed: (row['completed'] as int? ?? 0) != 0,
+        );
+      }
+    }
+    return result;
   }
 
   void saveProgress({

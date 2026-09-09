@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
@@ -240,6 +241,19 @@ class MyVideoStateController extends GetxController
 
   /// 同一视频的所有已下载清晰度任务列表（用于清晰度切换）
   final List<DownloadTask> localVideoAllQualityTasks;
+
+  /// 本地库里这条文件的稳定 id（`local_media_items.id`）。非本地库来源为 null。
+  ///
+  /// # ⛔ 为什么不是把它灌进 [videoId]
+  ///
+  /// `videoId == null` 在本类里是一道**闸门**，不是缺口：它挡住了
+  /// [checkFavoriteAndPlaylistStatus] / [checkDownloadTaskStatus] /
+  /// `_updateCachedVideoAuthor` 三处对 Iwara 的请求。灌一个本地 id 进去
+  /// 会把这三处解锁，拿着一个服务端根本不认识的串去打接口。
+  ///
+  /// 所以本地身份走**独立字段**：要本地记忆的地方读它（进度、将来的 VR 覆盖），
+  /// 要 Iwara 身份的地方继续被 `videoId == null` 挡住。
+  final String? localLibraryItemId;
 
   // 状态
   // 播放器状态
@@ -1471,12 +1485,16 @@ class MyVideoStateController extends GetxController
   }) : isLocalVideoMode = false,
        localVideoPath = null,
        localVideoTask = null,
-       localVideoAllQualityTasks = const [];
+       localVideoAllQualityTasks = const [],
+       localLibraryItemId = null;
 
   /// 本地视频播放模式构造函数
   /// [localPath] 本地视频文件路径
   /// [task] 下载任务信息（可选，从下载任务进入时传入）
   /// [allQualityTasks] 同一视频的所有已下载清晰度任务列表（可选）
+  ///
+  /// [localLibraryItemId] 只有**本地库**那条路会给（扫描建库出来的文件）：它是
+  /// 记进度、认身份的那把钥匙，见字段说明。下载任务与外部文件打开的本地播放不传。
   ///
   /// [forceAutoPlay] 与 [fullscreenHandoff] 是给「接着看」的下载池用的：从池里
   /// 换到下一条已下载的片子时，和在线那条路一样要直接开播、并且把全屏状态接过
@@ -1486,6 +1504,7 @@ class MyVideoStateController extends GetxController
     required String localPath,
     DownloadTask? task,
     List<DownloadTask>? allQualityTasks,
+    this.localLibraryItemId,
     this.forceAutoPlay = false,
     this.fullscreenHandoff,
   }) : videoId = task != null
@@ -1808,6 +1827,111 @@ class MyVideoStateController extends GetxController
     } catch (e) {
       // 稍后再看是个附属能力，它出问题不该影响播放。
       LogUtils.w('上报稍后再看进度失败: $e', 'MyVideoStateController');
+    }
+  }
+
+  // ==================== 本地库进度（local_media_progress） ====================
+  //
+  // ⛔ 这一整块**不能**复用 `video_playback_history`：那张表 `init()` 里有一句
+  // `DELETE ... WHERE created_at < 7天前`，而"看完"是靠删行表达的——"没有这一行"
+  // 同时代表从没看过 / 已看完 / 被清掉，三义。而本地文件最该记住的恰恰是
+  // 「两周后回来接着看第 3 集」（本地文件不会消失，线上视频会）。
+  // 所以走 v23 的 `local_media_progress`：显式 `completed` 列，**永不清理**。
+
+  LocalMediaRepository? _localLibraryRepositoryCache;
+
+  /// 只有本地库来源才有仓储；下载任务 / 外部文件打开的本地播放不落这张表。
+  LocalMediaRepository? get _localLibraryRepository {
+    final id = localLibraryItemId;
+    if (id == null || id.isEmpty) return null;
+    try {
+      return _localLibraryRepositoryCache ??= LocalMediaRepository();
+    } catch (e) {
+      LogUtils.w('本地库仓储不可用: $e', 'MyVideoStateController');
+      return null;
+    }
+  }
+
+  /// 上一次落库的时间戳，节流用。
+  DateTime? _lastLocalProgressWriteAt;
+
+  /// 这条本地文件上次看到哪儿了。已看完的从头开始（否则一进来就跳到最后几秒）。
+  Duration _resolveLocalLibraryResumePosition() {
+    if (_configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] != true) {
+      return Duration.zero;
+    }
+    final repository = _localLibraryRepository;
+    if (repository == null) return Duration.zero;
+    try {
+      final row = repository.getProgress(localLibraryItemId!);
+      if (row == null || row.completed) return Duration.zero;
+      // 与在线那条路同一个手法：往回退 4 秒，接得上话头。
+      final total = row.durationMs;
+      final target = row.positionMs - 4000;
+      if (target <= 0) return Duration.zero;
+      return Duration(
+        milliseconds: total != null && total > 0
+            ? target.clamp(0, total)
+            : target,
+      );
+    } catch (e) {
+      LogUtils.w('读取本地库进度失败: $e', 'MyVideoStateController');
+      return Duration.zero;
+    }
+  }
+
+  /// 把进度写回本地库。
+  ///
+  /// [flush] 为真时无视节流（页面收尾那一次必须落）。播放中每 5 秒落一次：
+  /// 这是本地 sqlite 的一次 upsert，没有网络，而**进程被杀是常态**
+  /// （Android 后台回收 / Quest 摘下头显），只在 dispose 里写等于把绝大多数
+  /// 观看进度交给运气。
+  void _saveLocalLibraryProgress(
+    Duration position,
+    Duration duration, {
+    bool flush = false,
+  }) {
+    // ⛔ 写和读走**同一道开关**。只在读那头判的话，用户关掉「记录并恢复播放进度」
+    // 之后行为是"不再续播了"（对），但 `local_media_progress` 仍在一条条累积——
+    // 而这张表按设计是**永不清理**的，且它会以进度条的形式显示在「接着看」的每一行上。
+    // 用户既没法解释那些进度条是哪来的，也没有任何入口能清掉它们。
+    if (_configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] != true) {
+      return;
+    }
+    final repository = _localLibraryRepository;
+    if (repository == null) return;
+    if (duration <= Duration.zero) return;
+
+    final now = DateTime.now();
+    if (!flush) {
+      final last = _lastLocalProgressWriteAt;
+      if (last != null && now.difference(last) < const Duration(seconds: 5)) {
+        return;
+      }
+    }
+    _lastLocalProgressWriteAt = now;
+
+    final positionMs = position.inMilliseconds;
+    final durationMs = duration.inMilliseconds;
+    // 「看完」：≥90%，或者只剩不到 10 秒（片尾字幕、结尾静帧都会让用户在到达
+    // 100% 之前就离开）。
+    //
+    // ⛔ 后半条**只对长于一分钟的片子成立**：一段 9 秒的短片，位置 0 的时候
+    // "剩余不到 10 秒"就已经为真了——一打开就被记成看完，下次点开还从头放，
+    // 而列表上却画着满格进度。短片只认 90% 那一条。
+    final nearEnd = durationMs > 60000 && durationMs - positionMs < 10000;
+    final completed = positionMs >= durationMs * 0.9 || nearEnd;
+    try {
+      repository.saveProgress(
+        itemId: localLibraryItemId!,
+        // 看完的那一条位置归零：下次点开是从头放，而"看过"由 completed 列说。
+        positionMs: completed ? 0 : positionMs,
+        durationMs: durationMs,
+        completed: completed,
+      );
+    } catch (e) {
+      // 记进度是附属能力，它出问题不该影响播放。
+      LogUtils.w('保存本地库进度失败: $e', 'MyVideoStateController');
     }
   }
 
@@ -2362,10 +2486,26 @@ class MyVideoStateController extends GetxController
       LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
       final shouldAutoPlay = _resolvePlayStateForInitialEntry();
       videoPlaying.value = shouldAutoPlay;
+      // 本地库的续播位置（非本地库来源恒为 zero，行为一字不变）。
+      final resumePosition = _resolveLocalLibraryResumePosition();
+      if (resumePosition > Duration.zero) {
+        currentPosition = resumePosition;
+        toShowCurrentPosition.value = resumePosition;
+      }
       mediaSourceGeneration = _beginCurrentMediaSourceOpen(mediaPath);
-      await player.open(Media(mediaPath), play: shouldAutoPlay);
+      await player.open(
+        Media(mediaPath, start: resumePosition),
+        play: shouldAutoPlay,
+      );
       _finishCurrentMediaSourceOpen(mediaSourceGeneration, succeeded: true);
       LogUtils.i('视频文件已打开', 'MyVideoStateController');
+
+      // 「已从 xx 继续播放」只**登记待办**，真正点亮等画面出来（同在线那条路的
+      // [_maybeRevealPendingResumeTip]）：这一刻 player.open 才刚返回，首帧还没
+      // 到，此时开始烧停留计时会让用户看见提示时它已经快没了。
+      if (shouldOfferResumeTip(resumePosition)) {
+        _pendingResumeTipPosition = resumePosition;
+      }
 
       // 设置监听器（必须在 player.open 之后调用）
       _setupListenersAfterOpen();
@@ -2947,6 +3087,10 @@ class MyVideoStateController extends GetxController
     final historyVideoId = videoId;
     final historyPosition = currentPosition;
     final historyDuration = totalDuration.value;
+    // ⛔ 本地库的进度**同步落**，不能跟着下面那串异步收尾走：写库本身是同步的
+    // （sqlite3 同步 API），而异步收尾要先 await 掉播放器 dispose 那一串，
+    // 进程在这中间被杀（后台回收 / 摘下头显）这一次就白记了。
+    _saveLocalLibraryProgress(historyPosition, historyDuration, flush: true);
     unawaited(
       _disposeAsyncResources(
         videoId: historyVideoId,
@@ -5312,6 +5456,9 @@ class MyVideoStateController extends GetxController
         // ⛔ 不能复用 video_playback_history：那张表只留 7 天、而且"看完"是靠
         // 删行表达的，"没有这一行"同时代表从没看过 / 已看完 / 被清掉，三义。
         _reportWatchLaterProgress(position);
+
+        // 本地库那条路的进度（自己节流，见 [_saveLocalLibraryProgress]）。
+        _saveLocalLibraryProgress(position, totalDuration.value);
 
         _positionUpdateThrottleTimer = Timer(throttleInterval, () {
           // 定时器触发时，如果最新位置与当前显示位置不同，则更新
