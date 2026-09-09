@@ -14,6 +14,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
+import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
@@ -250,6 +251,19 @@ class DownloadService extends GetxService {
       await refreshCategories();
     }
     return ok;
+  }
+
+  /// 分类是在**本地库那一侧**被改掉的（用户在卡片墙上长按移动了一条），
+  /// 把下载模块这边的界面状态跟上。
+  ///
+  /// ⛔ `refreshCategories()` 一个人不够：它只重算 [categories] 与
+  /// [uncategorizedCount]（喂顶部那排胶囊），而下载列表的历史区只在
+  /// `store.completedRevision` 变化时才重新取数。少了 `invalidateCompleted()`，
+  /// 就会出现「胶囊说这个分类 0 条、下面的列表里那一条还在」——同一屏两个答案。
+  /// [assignTasksToCategory] 那条路早就两件都做了，这里是它的镜像。
+  Future<void> notifyLocalCategoryChanged() async {
+    store.invalidateCompleted();
+    await refreshCategories();
   }
 
   /// 批量更新分类顺序。
@@ -1768,6 +1782,17 @@ class DownloadService extends GetxService {
     }
     // 使用完整更新，确保 error、downloadedBytes 等字段也能持久化
     await _repository.updateTask(task);
+
+    // ⛔ 下载完成 = 本地库里多了一条内容，当场入库，别等下次全量同步。
+    //
+    // 挂在这里而不是 [_dispatchTerminalNotification]：那个入口在"通知总开关关掉"
+    // 时会提前 return，把入库挂过去等于关了通知的用户永远不入库。
+    // 视频完成的每一条都经过本方法；唯一绕开它的那条路径（续传刷不出链接）是
+    // **失败**态，与这里无关。
+    if (task.status == DownloadStatus.completed &&
+        Get.isRegistered<DownloadsLibrarySyncService>()) {
+      unawaited(DownloadsLibrarySyncService.to.syncTask(task));
+    }
 
     // 通知任务状态变更
     _publishTask(task, 'statusChanged');

@@ -7,6 +7,10 @@ import 'package:sqlite3/common.dart';
 /// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
 enum LocalMediaSort { addedDesc, modifiedDesc, nameAsc, durationDesc, sizeDesc }
 
+/// 「只看未分类」的筛选值。分类 id 是 uuid，撞不上这个字面量——与
+/// `DownloadTaskRepository` 里那套筛选串同一个约定，两边读起来是一回事。
+const String kLocalMediaUncategorized = 'uncategorized';
+
 /// 增量扫描要用的「库里现在长什么样」的轻量快照。
 class LocalMediaFingerprint {
   const LocalMediaFingerprint({this.sizeBytes, this.modifiedAt});
@@ -131,7 +135,8 @@ class LocalMediaRepository {
   /// 调这里，批与批之间让一帧出去。
   ///
   /// 冲突时**不是整行覆盖**：
-  /// - `category_id` 是用户设的，扫描无权动它；
+  /// - `category_id` 是用户设的，扫描无权动它——唯一例外是这条路径换了个不同的
+  ///   下载任务（删了重下），见下面 [adoptCategory] 那段；
   /// - `thumb_path` 是我们生成并落盘的，重扫不该把它抹成 null 让缩略图白生成一遍；
   /// - `duration_ms/width/height/vr_format_json` 是从**文件内容**推出来的，只有在
   ///   大小或修改时间真的变了的时候才作废重算——否则每次重扫都要把整库重新解一遍。
@@ -170,6 +175,22 @@ class LocalMediaRepository {
     // 所以：拿到真值就更新，拿不到就保留原样。**对没有备份的用户数据，
     // 「不知道」只能等于「保留」。**
     const fingerprint = <String>['size_bytes', 'modified_at'];
+    // ⛔ `category_id` 平时不动（那是用户设的，扫描/同步无权覆盖），**只有一种
+    // 例外**：这条路径换了一个**不同的下载任务**。
+    //
+    // 场景是真实的：用户删掉一条下载（文件跟着删，行留在库里 missing=1，分类还
+    // 挂着），再重新下同一个视频、同一个清晰度——文件名模板一样 ⇒ 路径一样 ⇒
+    // **条目 id 一样**，于是走到这条 UPDATE 上。新任务带着用户刚在下载弹窗里选
+    // 的分类，而库里那一行还留着上一条命的分类。不认这次接管的话，
+    // `local_media_items` 和 `download_tasks` 会各说各的，而且**没有任何一条路
+    // 能把它们再拉回来**——两个镜像入口都不经过这里（`insertTask` 是整行写）。
+    //
+    // 扫描来的条目 `download_task_id` 恒为 null，条件不成立，一如既往不受影响。
+    const adoptCategory =
+        'category_id = CASE '
+        'WHEN excluded.download_task_id IS NOT NULL '
+        'AND local_media_items.download_task_id IS NOT excluded.download_task_id '
+        'THEN excluded.category_id ELSE local_media_items.category_id END';
     // `IS NOT` 在 SQLite 里是 null 安全的比较，正是这里要的。
     // ⛔ 口径必须和上面那段 CASE 一致：这一轮没量到（excluded 为 null）时不能
     // 算"变了"，否则 duration/width/height/缩略图会被一次失败的 stat 全部作废。
@@ -186,6 +207,7 @@ class LocalMediaRepository {
             'THEN local_media_items.$c ELSE excluded.$c END',
       ),
       'missing = 0',
+      adoptCategory,
       ...contentDerived.map(
         (c) =>
             '$c = CASE WHEN $changed THEN NULL ELSE local_media_items.$c END',
@@ -493,12 +515,138 @@ class LocalMediaRepository {
     ];
   }
 
+  /// 分类筛选：null 不筛，[kLocalMediaUncategorized] 只看未分类，其余按 id。
+  static void _addCategoryFilter(
+    String? categoryId,
+    List<String> where,
+    List<Object?> params,
+  ) {
+    if (categoryId == null) return;
+    if (categoryId == kLocalMediaUncategorized) {
+      where.add('category_id IS NULL');
+      return;
+    }
+    where.add('category_id = ?');
+    params.add(categoryId);
+  }
+
+  /// 每个分类底下有多少条可播的，外加「未分类」那一堆。
+  ///
+  /// ⛔ 不能拿 `DownloadTaskRepository.getAllCategories()` 那个 `item_count`：
+  /// 那是**下载任务**的条数（含图库、含下载中/失败、同一视频两档清晰度算两条），
+  /// 而这里数的是本地库里的**文件**。两个数不一样是应该的，混用会让菜单出现
+  /// 「显示 5 条、点进去 3 条」。
+  /// ⛔ [sourceId] 不是可选的装饰：菜单上的数字必须和用户**点进去之后看到的那张
+  /// 墙**同口径。墙是按来源筛过的，数字却数全库的话，就会出现「显示 5 条、点进去
+  /// 2 条」——和上面那条不能拿下载任务数是同一个毛病。
+  ({int uncategorized, Map<String, int> byCategory}) categoryCounts({
+    String? sourceId,
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+  }) {
+    final where = <String>['kind = ?', 'missing = 0'];
+    final params = <Object?>[kind.name];
+    if (sourceId != null) {
+      where.add('source_id = ?');
+      params.add(sourceId);
+    }
+    final rows = _db.select(
+      'SELECT category_id AS c, COUNT(*) AS n FROM local_media_items '
+      'WHERE ${where.join(' AND ')} GROUP BY category_id',
+      params,
+    );
+    var uncategorized = 0;
+    final byCategory = <String, int>{};
+    for (final row in rows) {
+      final id = row['c'] as String?;
+      final n = (row['n'] as int?) ?? 0;
+      if (id == null) {
+        uncategorized = n;
+      } else {
+        byCategory[id] = n;
+      }
+    }
+    return (uncategorized: uncategorized, byCategory: byCategory);
+  }
+
+  /// 删掉一个分类会波及多少**内容**（用于删除确认框）。
+  ///
+  /// ⛔ 不能只数 `download_tasks`：分类升格之后，同一个桶里还装着用户手动归类的
+  /// 扫描文件（它们根本没有下载任务）。只报下载数的话，确认框会说「1 个下载」
+  /// 而实际上两个文件丢了分类——用户是照着那个数字做决定的。
+  ///
+  /// 两边有重叠（下载来的文件在两张表里各有一行），所以任务那一半要**扣掉已经
+  /// 在本地库里露过面的**，否则又变成数两遍。
+  int categoryMemberCount(String categoryId) {
+    final rows = _db.select(
+      'SELECT '
+      '(SELECT COUNT(*) FROM local_media_items WHERE category_id = ?) AS files, '
+      '(SELECT COUNT(*) FROM download_tasks t WHERE t.category_id = ? '
+      ' AND NOT EXISTS (SELECT 1 FROM local_media_items i '
+      '                 WHERE i.download_task_id = t.id)) AS orphanTasks',
+      [categoryId, categoryId],
+    );
+    if (rows.isEmpty) return 0;
+    final row = rows.first;
+    return ((row['files'] as int?) ?? 0) + ((row['orphanTasks'] as int?) ?? 0);
+  }
+
+  /// 把一批本地条目归入某个分类（null = 退回未分类）。
+  ///
+  /// # ⭐ 分类跟着**文件**走，不跟着下载任务走（§10.7）
+  ///
+  /// 分类原本是下载模块的概念（v18 挂在 `download_tasks` 上）。那样的话本地库里
+  /// 会并排站着两种条目：**下载来的能分类、拷进来的不能**——而这个"为什么"没有
+  /// 任何用户能理解的答案，它只反映了我们的实现顺序。所以权威挪到这一列。
+  ///
+  /// ⛔ 下载来的那些要**镜像回 `download_tasks`**：下载中心那张列表的分类筛选、
+  /// 分类计数今天还全跑在它自己那一列上（它会随 §10.6 的拆分一起退休）。不镜像
+  /// 的话，同一个文件在两个界面里显示两个分类，而用户没有任何办法知道哪个算数。
+  /// 反方向的镜像在 [DownloadTaskRepository.assignTasksToCategory] 里。
+  int setItemsCategory(List<String> itemIds, String? categoryId) {
+    if (itemIds.isEmpty) return 0;
+    const chunkSize = 400;
+    var affected = 0;
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < itemIds.length; i += chunkSize) {
+        final chunk = itemIds.sublist(
+          i,
+          i + chunkSize > itemIds.length ? itemIds.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET category_id = ? WHERE id IN ($marks)',
+          <Object?>[categoryId, ...chunk],
+        );
+        affected += _db.updatedRows;
+        // 镜像：只动这一批里真的挂着下载任务的那些。
+        _db.execute(
+          'UPDATE download_tasks SET category_id = ?, updated_at = ? '
+          'WHERE id IN (SELECT download_task_id FROM local_media_items '
+          'WHERE id IN ($marks) AND download_task_id IS NOT NULL)',
+          <Object?>[
+            categoryId,
+            DateTime.now().millisecondsSinceEpoch,
+            ...chunk,
+          ],
+        );
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('设置本地条目分类失败', tag: _tag, error: e);
+      rethrow;
+    }
+    return affected;
+  }
+
   /// 分页查条目。列表永远走这里，**不整表进内存**。
   List<LocalMediaItem> queryItems({
     String? sourceId,
     LocalMediaItemKind kind = LocalMediaItemKind.video,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
     String? folderPath,
+    String? categoryId,
     bool includeMissing = false,
     required int offset,
     required int limit,
@@ -513,6 +661,7 @@ class LocalMediaRepository {
       where.add('folder_path = ?');
       params.add(folderPath);
     }
+    _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
     params
       ..add(limit)
@@ -528,6 +677,7 @@ class LocalMediaRepository {
   int countItems({
     String? sourceId,
     LocalMediaItemKind kind = LocalMediaItemKind.video,
+    String? categoryId,
     bool includeMissing = false,
   }) {
     final where = <String>['kind = ?'];
@@ -536,6 +686,7 @@ class LocalMediaRepository {
       where.add('source_id = ?');
       params.add(sourceId);
     }
+    _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
     final rows = _db.select(
       'SELECT COUNT(*) AS c FROM local_media_items WHERE ${where.join(' AND ')}',

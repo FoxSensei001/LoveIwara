@@ -1841,7 +1841,7 @@ download:
     renameSuccess: 已重命名
     renameFailed: 重命名失败
     deleteTitle: 删除分类
-    deleteConfirm: '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。'
+    deleteConfirm: '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。'
     deleteSuccess: 分类已删除
     deleteFailed: 删除分类失败
   maxConcurrentDownloads: 最大同时下载数
@@ -2969,6 +2969,11 @@ localMedia:
   title: 本机文件
   downloadsSource: 已下载
   builtInSourceHint: 「已下载」由下载模块自动维护
+  filterByCategory: 按分类筛选
+  longPressToCategorize: 长按可移到分类
+  uncategorized: 未分类
+  setCategoryFailed: 设置分类失败
+  categoryUpdated: 已更新分类
   addFolder: 添加文件夹
   rescan: 重新扫描
   scanning: "扫描中… 已发现 ${count} 个"

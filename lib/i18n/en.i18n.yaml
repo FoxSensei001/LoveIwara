@@ -1839,7 +1839,7 @@ download:
     renameSuccess: Category renamed
     renameFailed: Failed to rename category
     deleteTitle: Delete category
-    deleteConfirm: 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.'
+    deleteConfirm: 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.'
     deleteSuccess: Category deleted
     deleteFailed: Failed to delete category
   maxConcurrentDownloads: Max concurrent downloads
@@ -2969,6 +2969,11 @@ localMedia:
   title: On this device
   downloadsSource: Downloaded
   builtInSourceHint: Downloaded is managed automatically
+  filterByCategory: Filter by category
+  longPressToCategorize: Long-press to move to a category
+  uncategorized: Uncategorized
+  setCategoryFailed: Could not set category
+  categoryUpdated: Category updated
   addFolder: Add folder
   rescan: Rescan
   scanning: "Scanning… ${count} found"

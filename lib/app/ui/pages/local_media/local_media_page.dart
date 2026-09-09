@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
+import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -13,6 +14,8 @@ import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
@@ -50,6 +53,11 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
 
   List<LocalMediaSource> _sources = const <LocalMediaSource>[];
   String? _activeSourceId;
+
+  /// 分类筛选：null = 全部，[kLocalMediaUncategorized] = 只看未分类，其余是分类
+  /// id。⭐ 它和「来源」是**两个独立维度**（§10.7）——分类跟着文件走，下载来的
+  /// 和拷进来的一视同仁。
+  String? _categoryFilter;
   final List<LocalMediaItem> _items = <LocalMediaItem>[];
 
   bool _loading = false;
@@ -111,6 +119,15 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
   void _reloadSources() {
     if (!mounted) return;
     final sources = _repository.getSources();
+    // 分类可能在别处被删了（长按菜单里就有一条「管理分类」直通那一页）。
+    // 留着一个死 id，墙上一条都筛不出来，而 [_categoryFilterLabel] 会在
+    // 找不到它时退回「全部」——菜单说全部、墙上空的，两句话互相打脸。
+    final filter = _categoryFilter;
+    if (filter != null &&
+        filter != kLocalMediaUncategorized &&
+        !_categories().any((c) => c.id == filter)) {
+      _categoryFilter = null;
+    }
     setState(() {
       _sources = sources;
       if (_activeSourceId != null &&
@@ -132,6 +149,7 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     try {
       final page = _repository.queryItems(
         sourceId: sourceId,
+        categoryId: _categoryFilter,
         sort: LocalMediaSort.nameAsc,
         offset: _items.length,
         limit: _pageSize,
@@ -265,6 +283,12 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
       anchorContext: anchorContext,
       entries: <GlassMenuEntry>[
         GlassMenuOption<_LocalMediaMenuAction>(
+          value: _LocalMediaMenuAction.filterByCategory,
+          label: t.filterByCategory,
+          description: _categoryFilterLabel(),
+          icon: Icons.folder_special_outlined,
+        ),
+        GlassMenuOption<_LocalMediaMenuAction>(
           value: _LocalMediaMenuAction.clearProgress,
           label: t.clearProgress,
           // 一条都没有时不藏起来而是置灰 + 说明白——藏起来会让人以为没这个功能。
@@ -277,13 +301,139 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
         ),
       ],
     );
-    // ⛔ 菜单是个路由/浮层，await 期间这一页可能已经被弹掉了（深链、XR 面板
-    //    拆装）。下一步要用 State.context 弹确认框，跨方法的 context 使用
-    //    analyzer 查不出来。
-    if (!mounted) return;
-    if (picked == _LocalMediaMenuAction.clearProgress) {
-      await _confirmClearProgress();
+    // ⛔ 菜单是个路由/浮层，await 期间这一页、以及那枚 ⋮ 钮本身都可能已经没了。
+    //    State 和 anchorContext 两个都得问一遍：下一步既要用 State.context 弹
+    //    确认框，也要拿 anchorContext 当第二张菜单的落点。
+    if (!mounted || !anchorContext.mounted) return;
+    switch (picked) {
+      case _LocalMediaMenuAction.clearProgress:
+        await _confirmClearProgress();
+      case _LocalMediaMenuAction.filterByCategory:
+        await _pickCategoryFilter(anchorContext);
+      case null:
+        break;
     }
+  }
+
+  /// 分类清单。⛔ 三处都得走它：漏一处 `Get.isRegistered` 守卫，服务还没注册
+  /// 时就是一次 `Get.find` 抛异常。
+  List<DownloadCategory> _categories() => Get.isRegistered<DownloadService>()
+      ? DownloadService.to.categories
+      : const <DownloadCategory>[];
+
+  String _categoryFilterLabel() {
+    final t = slang.t.localMedia;
+    final filter = _categoryFilter;
+    if (filter == null) return slang.t.common.all;
+    if (filter == kLocalMediaUncategorized) return t.uncategorized;
+    return _categories().firstWhereOrNull((c) => c.id == filter)?.title ??
+        slang.t.common.all;
+  }
+
+  /// 分类清单从 [DownloadService.categories] 拿（桶本身仍共用
+  /// `download_categories` 表——那只是一张"名字 + 顺序"的表），条数从**本地库**
+  /// 现算。⛔ 不能拿分类行自带的 `item_count`：那数的是下载任务（含图库、含
+  /// 下载中/失败、同一视频两档清晰度算两条），和这张墙上的文件数对不上，
+  /// 菜单就会出现「显示 5 条、点进去 3 条」。
+  Future<void> _pickCategoryFilter(BuildContext anchorContext) async {
+    final t = slang.t.localMedia;
+    // 数字与点进去看到的那张墙同口径：墙按来源筛过，数字也得按来源数。
+    final sourceId = _activeSourceId;
+    final counts = _repository.categoryCounts(sourceId: sourceId);
+    final categories = _categories();
+    final total = _repository.countItems(sourceId: sourceId);
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: <GlassMenuEntry>[
+        GlassMenuOption<String>(
+          value: _kCategoryAll,
+          label: slang.t.common.all,
+          description: '$total',
+          icon: Icons.apps,
+        ),
+        GlassMenuOption<String>(
+          value: kLocalMediaUncategorized,
+          label: t.uncategorized,
+          description: '${counts.uncategorized}',
+          icon: Icons.folder_outlined,
+          enabled: counts.uncategorized > 0,
+        ),
+        for (final category in categories)
+          GlassMenuOption<String>(
+            value: category.id,
+            label: category.title,
+            description: '${counts.byCategory[category.id] ?? 0}',
+            icon: Icons.folder,
+            enabled: (counts.byCategory[category.id] ?? 0) > 0,
+          ),
+      ],
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _categoryFilter = picked == _kCategoryAll ? null : picked;
+      _items.clear();
+      _hasMore = true;
+    });
+    _loadPage();
+  }
+
+  /// 把一条本地条目移到某个分类。
+  ///
+  /// ⭐ 这就是 §10.7 要的那件事：**拷进来的文件也能分类**。写的是
+  /// `local_media_items.category_id`；如果这条恰好是下载来的，
+  /// [LocalMediaRepository.setItemsCategory] 会把它镜像回 `download_tasks`，
+  /// 于是下载页和这里永远是同一个答案。
+  Future<void> _pickItemCategory(
+    BuildContext anchorContext,
+    LocalMediaItem item,
+  ) async {
+    final t = slang.t.localMedia;
+    final categories = _categories();
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: <GlassMenuEntry>[
+        GlassMenuOption<String>(
+          value: kLocalMediaUncategorized,
+          label: t.uncategorized,
+          icon: Icons.folder_off_outlined,
+          enabled: item.categoryId != null,
+        ),
+        for (final category in categories)
+          GlassMenuOption<String>(
+            value: category.id,
+            label: category.title,
+            icon: Icons.folder,
+            enabled: category.id != item.categoryId,
+          ),
+        // ⛔ 一个分类都没建过时，上面那些条目一条都不存在，「未分类」也是灰的
+        // ——长按弹出一张点不动的菜单等于告诉用户"这个功能坏了"。给条出路。
+        GlassMenuOption<String>(
+          value: _kManageCategories,
+          label: slang.t.download.category.manageTitle,
+          icon: Icons.settings_outlined,
+        ),
+      ],
+    );
+    if (picked == null || !mounted) return;
+    if (picked == _kManageCategories) {
+      openDownloadCategoryManagePage(context);
+      return;
+    }
+    final categoryId = picked == kLocalMediaUncategorized ? null : picked;
+    try {
+      _repository.setItemsCategory(<String>[item.id], categoryId);
+    } catch (e) {
+      LogUtils.e('设置分类失败', tag: _tag, error: e);
+      showAppToast(t.setCategoryFailed, type: AppToastType.error);
+      return;
+    }
+    if (!mounted) return;
+    // 下载页那边的胶囊与历史区都得跟上，见 notifyLocalCategoryChanged 的说明。
+    if (Get.isRegistered<DownloadService>()) {
+      unawaited(DownloadService.to.notifyLocalCategoryChanged());
+    }
+    showAppToast(t.categoryUpdated);
+    _reloadSources();
   }
 
   /// 清除本机观看记录。**只删记录**——这是隐私入口，不是删片入口，
@@ -497,6 +647,11 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
               onSelected: (_) {
                 setState(() {
                   _activeSourceId = source.id;
+                  // ⛔ 换来源必须把分类筛选一起清掉。留着的话，一个只存在于
+                  // 「已下载」里的分类会把刚切过去的文件夹筛成空的，而页面会
+                  // 一本正经地说「这个文件夹里没有视频」——那是句假话，而且
+                  // 唯一能看见筛选还开着的地方是 ⋮ 菜单里的一行副标题。
+                  _categoryFilter = null;
                   _items.clear();
                   _hasMore = true;
                 });
@@ -550,8 +705,16 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     return Card(
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.zero,
-      child: InkWell(
+      // anchorContext 必须是卡片自己的 context（玻璃菜单的落点与材质档都从触发件
+      // 身上量），所以包一层 Builder。
+      child: Builder(
+        builder: (anchorContext) => Tooltip(
+          message: slang.t.localMedia.longPressToCategorize,
+          child: InkWell(
         onTap: () => _play(item),
+        // 长按本身不好发现，所以挂一条 tooltip 把它说出来——同本页来源胶囊的
+        // 做法（正式形态里这会是卡片上的三点钮，见 media_action_menu）。
+        onLongPress: () => unawaited(_pickItemCategory(anchorContext, item)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -576,6 +739,8 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
               ),
             ),
           ],
+        ),
+        ),
         ),
       ),
     );
@@ -627,4 +792,11 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
 }
 
 /// 本地媒体页右上角溢出菜单里的动作。
-enum _LocalMediaMenuAction { clearProgress }
+enum _LocalMediaMenuAction { filterByCategory, clearProgress }
+
+/// 分类筛选菜单里「全部」那一项的值。用哨兵而不是 null，是因为 showGlassMenu
+/// 用 null 表示"用户什么都没选就关掉了"，两者必须分得开。
+const String _kCategoryAll = '\u0000all';
+
+/// 同上：「管理分类」那一项，选中后跳页而不是设分类。
+const String _kManageCategories = '\u0000manage';

@@ -1842,7 +1842,7 @@ download:
     renameSuccess: 名前を変更しました
     renameFailed: 名前の変更に失敗しました
     deleteTitle: カテゴリーの削除
-    deleteConfirm: 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。'
+    deleteConfirm: 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。'
     deleteSuccess: カテゴリーを削除しました
     deleteFailed: カテゴリーの削除に失敗しました
   maxConcurrentDownloads: 最大同時ダウンロード数
@@ -2971,6 +2971,11 @@ localMedia:
   title: この端末のファイル
   downloadsSource: ダウンロード済み
   builtInSourceHint: 「ダウンロード済み」は自動で管理されます
+  filterByCategory: カテゴリで絞り込む
+  longPressToCategorize: 長押しでカテゴリへ移動
+  uncategorized: 未分類
+  setCategoryFailed: カテゴリの設定に失敗しました
+  categoryUpdated: カテゴリを更新しました
   addFolder: フォルダーを追加
   rescan: 再スキャン
   scanning: "スキャン中… ${count} 件見つかりました"

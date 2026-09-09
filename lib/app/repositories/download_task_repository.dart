@@ -914,12 +914,21 @@ class DownloadTaskRepository {
   }
 
   /// 删除分类（不删文件）：先把该分类下的任务退回「未分类」，再删分类行。
+  ///
+  /// ⛔ 本地库里的条目也要一起退回：分类已经升格成**本地库**的维度（§10.7），
+  /// `local_media_items.category_id` 里同样挂着这个 id（下载来的、以及用户自己
+  /// 归类的扫描文件）。只清任务表的话，分类行没了、本地条目却还指着它，
+  /// 「按分类筛选」会得到一个选不出来也删不掉的幽灵桶。
   Future<bool> deleteCategory(String id) async {
     try {
       _db.execute('BEGIN TRANSACTION');
       try {
         _db.execute(
           'UPDATE download_tasks SET category_id = NULL WHERE category_id = ?',
+          [id],
+        );
+        _db.execute(
+          'UPDATE local_media_items SET category_id = NULL WHERE category_id = ?',
           [id],
         );
         _db.execute('DELETE FROM download_categories WHERE id = ?', [id]);
@@ -977,6 +986,13 @@ class DownloadTaskRepository {
   ///
   /// 只更新 category_id 与 updated_at，刻意不触碰 media/save_path 列，
   /// 从而不会触发 v17 的唯一性触发器。
+  ///
+  /// ⛔ 同一动作要**镜像到本地库**：分类已经升格成本地库的维度（§10.7），下载来
+  /// 的文件在 `local_media_items` 里也有一行，来源切换那张卡片墙读的是那一列。
+  /// 不镜像的话，同一个文件在下载页和本地库里显示两个分类，而用户没有任何办法
+  /// 知道哪个算数。反方向的镜像在 [LocalMediaRepository.setItemsCategory] 里。
+  ///
+  /// 两个方向都各只有这一处，是刻意的：镜像一旦散到调用点上就必然漏。
   Future<void> assignTasksToCategory(
     List<String> taskIds,
     String? categoryId,
@@ -984,10 +1000,22 @@ class DownloadTaskRepository {
     if (taskIds.isEmpty) return;
     try {
       final placeholders = List.filled(taskIds.length, '?').join(', ');
-      _db.execute(
-        'UPDATE download_tasks SET category_id = ?, updated_at = ? WHERE id IN ($placeholders)',
-        [categoryId, DateTime.now().millisecondsSinceEpoch, ...taskIds],
-      );
+      _db.execute('BEGIN TRANSACTION');
+      try {
+        _db.execute(
+          'UPDATE download_tasks SET category_id = ?, updated_at = ? WHERE id IN ($placeholders)',
+          [categoryId, DateTime.now().millisecondsSinceEpoch, ...taskIds],
+        );
+        _db.execute(
+          'UPDATE local_media_items SET category_id = ? '
+          'WHERE download_task_id IN ($placeholders)',
+          [categoryId, ...taskIds],
+        );
+        _db.execute('COMMIT');
+      } catch (e) {
+        _db.execute('ROLLBACK');
+        rethrow;
+      }
     } catch (e) {
       LogUtils.e('归类下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;

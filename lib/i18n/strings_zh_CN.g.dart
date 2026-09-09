@@ -2586,6 +2586,11 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String get title => '本机文件';
 	@override String get downloadsSource => '已下载';
 	@override String get builtInSourceHint => '「已下载」由下载模块自动维护';
+	@override String get filterByCategory => '按分类筛选';
+	@override String get longPressToCategorize => '长按可移到分类';
+	@override String get uncategorized => '未分类';
+	@override String get setCategoryFailed => '设置分类失败';
+	@override String get categoryUpdated => '已更新分类';
 	@override String get addFolder => '添加文件夹';
 	@override String get rescan => '重新扫描';
 	@override String scanning({required Object count}) => '扫描中… 已发现 ${count} 个';
@@ -3455,7 +3460,7 @@ class _TranslationsDownloadCategoryZhCn implements TranslationsDownloadCategoryE
 	@override String get renameSuccess => '已重命名';
 	@override String get renameFailed => '重命名失败';
 	@override String get deleteTitle => '删除分类';
-	@override String deleteConfirm({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。';
+	@override String deleteConfirm({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。';
 	@override String get deleteSuccess => '分类已删除';
 	@override String get deleteFailed => '删除分类失败';
 }
@@ -5628,7 +5633,7 @@ extension on TranslationsZhCn {
 			'download.category.renameSuccess' => '已重命名',
 			'download.category.renameFailed' => '重命名失败',
 			'download.category.deleteTitle' => '删除分类',
-			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 个下载将移到「未分类」，文件不会被删除。',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。',
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
@@ -6646,6 +6651,11 @@ extension on TranslationsZhCn {
 			'localMedia.title' => '本机文件',
 			'localMedia.downloadsSource' => '已下载',
 			'localMedia.builtInSourceHint' => '「已下载」由下载模块自动维护',
+			'localMedia.filterByCategory' => '按分类筛选',
+			'localMedia.longPressToCategorize' => '长按可移到分类',
+			'localMedia.uncategorized' => '未分类',
+			'localMedia.setCategoryFailed' => '设置分类失败',
+			'localMedia.categoryUpdated' => '已更新分类',
 			'localMedia.addFolder' => '添加文件夹',
 			'localMedia.rescan' => '重新扫描',
 			'localMedia.scanning' => ({required Object count}) => '扫描中… 已发现 ${count} 个',

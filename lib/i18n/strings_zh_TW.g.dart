@@ -2586,6 +2586,11 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String get title => '本機檔案';
 	@override String get downloadsSource => '已下載';
 	@override String get builtInSourceHint => '「已下載」由下載模組自動維護';
+	@override String get filterByCategory => '依分類篩選';
+	@override String get longPressToCategorize => '長按可移到分類';
+	@override String get uncategorized => '未分類';
+	@override String get setCategoryFailed => '設定分類失敗';
+	@override String get categoryUpdated => '已更新分類';
 	@override String get addFolder => '新增資料夾';
 	@override String get rescan => '重新掃描';
 	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
@@ -3546,7 +3551,7 @@ class _TranslationsDownloadCategoryZhTw implements TranslationsDownloadCategoryE
 	@override String get renameSuccess => '已重新命名';
 	@override String get renameFailed => '重新命名失敗';
 	@override String get deleteTitle => '刪除分類';
-	@override String deleteConfirm({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 個下載將移到「未分類」，檔案不會被刪除。';
+	@override String deleteConfirm({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 項內容將移到「未分類」，檔案不會被刪除。';
 	@override String get deleteSuccess => '分類已刪除';
 	@override String get deleteFailed => '刪除分類失敗';
 }
@@ -5660,7 +5665,7 @@ extension on TranslationsZhTw {
 			'download.category.renameSuccess' => '已重新命名',
 			'download.category.renameFailed' => '重新命名失敗',
 			'download.category.deleteTitle' => '刪除分類',
-			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 個下載將移到「未分類」，檔案不會被刪除。',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 項內容將移到「未分類」，檔案不會被刪除。',
 			'download.category.deleteSuccess' => '分類已刪除',
 			'download.category.deleteFailed' => '刪除分類失敗',
 			'download.maxConcurrentDownloads' => '最大同時下載數',
@@ -6646,6 +6651,11 @@ extension on TranslationsZhTw {
 			'localMedia.title' => '本機檔案',
 			'localMedia.downloadsSource' => '已下載',
 			'localMedia.builtInSourceHint' => '「已下載」由下載模組自動維護',
+			'localMedia.filterByCategory' => '依分類篩選',
+			'localMedia.longPressToCategorize' => '長按可移到分類',
+			'localMedia.uncategorized' => '未分類',
+			'localMedia.setCategoryFailed' => '設定分類失敗',
+			'localMedia.categoryUpdated' => '已更新分類',
 			'localMedia.addFolder' => '新增資料夾',
 			'localMedia.rescan' => '重新掃描',
 			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',

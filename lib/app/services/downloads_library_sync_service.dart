@@ -61,6 +61,15 @@ class DownloadsLibrarySyncService extends GetxService {
 
   Future<void>? _running;
 
+  /// 全量同步**跑到一半**时才入库的那些条目的 path_hash。
+  ///
+  /// ⛔ 少了它会出这么一档事：`_sync` 在开头就把任务清单和 `seen` 定死了，中间
+  /// 让帧的那一下（[_batchSize] 满一批时）刚好有一条下载完成 → [syncTask] 同步
+  /// 插进一行 → `_sync` 回来收敛 missing，而这个 hash 不在 `seen` 里 → **刚下完
+  /// 的片子当场被标成"文件没了"**，列表里根本看不见。下一次全量同步会把它救
+  /// 回来，但"刚下完的东西不见了"正是这条线反复要治的那个毛病。
+  final Set<String> _lateHashes = <String>{};
+
   /// 同步一次。并发调用会**合流到同一次**——页面进来、下载完成、用户点刷新
   /// 三处都会叫它，各跑一遍纯属白费。
   Future<void> sync() {
@@ -157,31 +166,9 @@ class DownloadsLibrarySyncService extends GetxService {
           continue;
         }
 
-        final name = p.basename(path);
         pending.add(
-          LocalMediaItem(
-            id: id,
-            sourceId: source.id,
-            pathHash: hash,
-            path: path,
-            kind: LocalMediaItemKind.video,
-            // ⛔ 名字用**文件名**而不是任务里的标题：这一列同时喂 `sort_name`，
-            // 而排序必须和别的源一致（自然序、同一套折叠规则）。官方标题走
-            // `download_task_id` 那条装饰线，卡片上照样显示得出来。
-            name: name,
-            sortName: naturalSortKey(name),
-            ext: p.extension(path).replaceFirst('.', '').toLowerCase(),
-            sizeBytes: size,
-            modifiedAt: modified,
-            durationMs: _durationMsOf(task),
-            folderPath: p.dirname(path),
-            // 分类只在**新建那一行**上生效：[LocalMediaRepository.upsertItems]
-            // 冲突时不动 `category_id`（那是用户设的，同步无权覆盖）。所以这里
-            // 是一次性的"接管"——把分类从下载模块搬到本地库（§10.7）。
-            categoryId: task.categoryId,
-            downloadTaskId: task.id,
-            addedAt: task.completedAt?.millisecondsSinceEpoch ?? now,
-          ),
+          _itemOf(task, path: path, hash: hash, size: size, modified: modified,
+              fallbackAddedAt: now),
         );
 
         if (pending.length >= _batchSize) {
@@ -197,6 +184,9 @@ class DownloadsLibrarySyncService extends GetxService {
       // 的是列表凭空空掉。同 [LocalMediaScanService._finish] 里"出错就不收敛"
       // 的那条纪律，只是这里的信号是 stat 全军覆没。
       final volumeOffline = byPath.isNotEmpty && unreadable == byPath.length;
+      // 本轮进行中才入库的那些，一并算作"见过"，见 [_lateHashes]。
+      seen.addAll(_lateHashes);
+      _lateHashes.clear();
       if (!volumeOffline) {
         // 任务被删掉 / 文件被删掉的那些收敛成 missing，而不是删行——删行会把
         // 观看进度一起带走。
@@ -217,6 +207,105 @@ class DownloadsLibrarySyncService extends GetxService {
       );
     } catch (e, s) {
       LogUtils.e('「已下载」同步失败', tag: _tag, error: e, stackTrace: s);
+    }
+  }
+
+  /// 一个已完成的下载任务 → 一条本地条目。全量同步与单条即时入库共用。
+  static LocalMediaItem _itemOf(
+    DownloadTask task, {
+    required String path,
+    required String hash,
+    required int? size,
+    required int? modified,
+    required int fallbackAddedAt,
+  }) {
+    final name = p.basename(path);
+    return LocalMediaItem(
+      id: LocalMediaItem.buildId(kDownloadsSourceId, hash),
+      sourceId: kDownloadsSourceId,
+      pathHash: hash,
+      path: path,
+      kind: LocalMediaItemKind.video,
+      // ⛔ 名字用**文件名**而不是任务里的标题：这一列同时喂 `sort_name`，而
+      // 排序必须和别的源一致（自然序、同一套折叠规则）。官方标题走
+      // `download_task_id` 那条装饰线，卡片上照样显示得出来。
+      name: name,
+      sortName: naturalSortKey(name),
+      ext: p.extension(path).replaceFirst('.', '').toLowerCase(),
+      sizeBytes: size,
+      modifiedAt: modified,
+      durationMs: _durationMsOf(task),
+      folderPath: p.dirname(path),
+      // 分类只在**新建那一行**上生效：[LocalMediaRepository.upsertItems] 冲突时
+      // 不动 `category_id`。那一列从此是本地库说了算（§10.7），下载模块改分类
+      // 时由 [DownloadTaskRepository.assignTasksToCategory] 镜像过来。
+      categoryId: task.categoryId,
+      downloadTaskId: task.id,
+      addedAt: task.completedAt?.millisecondsSinceEpoch ?? fallbackAddedAt,
+    );
+  }
+
+  /// 一条下载**刚刚完成**：当场把它放进库里，不等下一次全量同步。
+  ///
+  /// # ⛔ 为什么这一步是分类升格的前置，而不是"顺手优化"
+  ///
+  /// 分类从此挂在 `local_media_items.category_id` 上（§10.7）。要让"刚下完的
+  /// 片子"也能被归类、被按分类查到，它就必须**在完成那一刻**已经有一行——
+  /// 否则从下载完成到用户下次打开本地库之间，这条内容在分类这个维度上根本
+  /// 不存在。
+  ///
+  /// 全量 [sync] 仍然保留：它是修复通道（漏掉的、被绕过的、手动删过文件的），
+  /// 两者都幂等，重复跑无害。
+  ///
+  /// ⚠️ 本方法**全程没有 await**：调用点那个 `unawaited(...)` 只是为了满足 lint，
+  /// 它一个字都不会推迟。这是有意的——同步执行才使得"下载完成"与"库里有这一行"
+  /// 之间没有窗口，代价是几次写库落在 UI 线程上（都是主键命中，很便宜）。
+  Future<void> syncTask(DownloadTask task) async {
+    try {
+      if (task.mediaType != 'video') return;
+      final path = task.savePath.trim();
+      if (path.isEmpty) return;
+      final ext = p.extension(path).replaceFirst('.', '').toLowerCase();
+      if (!kLocalVideoExtensions.contains(ext)) return;
+
+      final stat = File(path).statSync();
+      // 刚下完却 stat 不到，说明这一刻并不适合入库（外置存储掉了、路径不对）。
+      // 不写半条，交给下一次全量同步。
+      if (stat.type == FileSystemEntityType.notFound) {
+        LogUtils.w('下载刚完成却读不到文件，暂不入库：$path', _tag);
+        return;
+      }
+
+      // 建源那一条判据在这里天然成立：手上就有一个已完成的任务。
+      final source = _ensureSource(create: true);
+      if (source == null) return;
+
+      final hash = _hashPath(path);
+      final item = _itemOf(
+        task,
+        path: path,
+        hash: hash,
+        size: stat.size,
+        modified: stat.modified.millisecondsSinceEpoch,
+        fallbackAddedAt: DateTime.now().millisecondsSinceEpoch,
+      );
+      // 同全量同步：写库之前先认亲，别让换主人把观看进度变成孤儿。
+      _repository.adoptIdentityByPath(
+        newSourceId: source.id,
+        pathToNewId: <String, String>{path: item.id},
+      );
+      _repository.upsertItems(<LocalMediaItem>[item]);
+      // 正在跑的那次全量同步不认识这条（它的清单是开头定死的），给它留个条。
+      if (_running != null) _lateHashes.add(hash);
+      _repository.upsertSource(
+        source.copyWith(
+          itemCount: _repository.countItems(sourceId: source.id),
+        ),
+      );
+      LogUtils.d('下载完成即入库：${item.name}', _tag);
+    } catch (e) {
+      // 入库失败绝不能反过来影响下载本身——它已经成功了。
+      LogUtils.e('下载完成入库失败', tag: _tag, error: e);
     }
   }
 

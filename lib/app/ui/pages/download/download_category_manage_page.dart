@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
@@ -180,7 +181,11 @@ class _DownloadCategoryManagePageState
           content: Text(
             t.download.category.deleteConfirm(
               title: category.title,
-              count: category.itemCount ?? 0,
+              // ⛔ 不能用 `category.itemCount`：那只数下载任务，而分类升格之后
+              // 同一个桶里还装着用户手动归类的**扫描文件**，删分类时它们同样会
+              // 被退回未分类（见 [DownloadTaskRepository.deleteCategory]）。
+              // 用户是照着这个数字做决定的，少报等于骗他。
+              count: LocalMediaRepository().categoryMemberCount(category.id),
             ),
           ),
           actions: [

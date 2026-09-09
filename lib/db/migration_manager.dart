@@ -20,6 +20,7 @@ import 'package:i_iwara/db/migrations/migration_v21_watch_later.dart';
 import 'package:i_iwara/db/migrations/migration_v22_vr_format_override.dart';
 import 'package:i_iwara/db/migrations/migration_v23_local_media.dart';
 import 'package:i_iwara/db/migrations/migration_v24_local_media_paging_index.dart';
+import 'package:i_iwara/db/migrations/migration_v25_local_media_category.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -58,6 +59,7 @@ class MigrationManager {
     MigrationV22VrFormatOverride(),
     MigrationV23LocalMedia(),
     MigrationV24LocalMediaPagingIndex(),
+    MigrationV25LocalMediaCategory(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

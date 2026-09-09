@@ -2586,6 +2586,11 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String get title => 'この端末のファイル';
 	@override String get downloadsSource => 'ダウンロード済み';
 	@override String get builtInSourceHint => '「ダウンロード済み」は自動で管理されます';
+	@override String get filterByCategory => 'カテゴリで絞り込む';
+	@override String get longPressToCategorize => '長押しでカテゴリへ移動';
+	@override String get uncategorized => '未分類';
+	@override String get setCategoryFailed => 'カテゴリの設定に失敗しました';
+	@override String get categoryUpdated => 'カテゴリを更新しました';
 	@override String get addFolder => 'フォルダーを追加';
 	@override String get rescan => '再スキャン';
 	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
@@ -3455,7 +3460,7 @@ class _TranslationsDownloadCategoryJa implements TranslationsDownloadCategoryEn 
 	@override String get renameSuccess => '名前を変更しました';
 	@override String get renameFailed => '名前の変更に失敗しました';
 	@override String get deleteTitle => 'カテゴリーの削除';
-	@override String deleteConfirm({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。';
+	@override String deleteConfirm({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。';
 	@override String get deleteSuccess => 'カテゴリーを削除しました';
 	@override String get deleteFailed => 'カテゴリーの削除に失敗しました';
 }
@@ -5629,7 +5634,7 @@ extension on TranslationsJa {
 			'download.category.renameSuccess' => '名前を変更しました',
 			'download.category.renameFailed' => '名前の変更に失敗しました',
 			'download.category.deleteTitle' => 'カテゴリーの削除',
-			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリー「${title}」を削除しますか？このカテゴリーの${count}件のダウンロードは「未分類」へ移動され、ファイルは削除されません。',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
 			'download.category.deleteFailed' => 'カテゴリーの削除に失敗しました',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
@@ -6646,6 +6651,11 @@ extension on TranslationsJa {
 			'localMedia.title' => 'この端末のファイル',
 			'localMedia.downloadsSource' => 'ダウンロード済み',
 			'localMedia.builtInSourceHint' => '「ダウンロード済み」は自動で管理されます',
+			'localMedia.filterByCategory' => 'カテゴリで絞り込む',
+			'localMedia.longPressToCategorize' => '長押しでカテゴリへ移動',
+			'localMedia.uncategorized' => '未分類',
+			'localMedia.setCategoryFailed' => 'カテゴリの設定に失敗しました',
+			'localMedia.categoryUpdated' => 'カテゴリを更新しました',
 			'localMedia.addFolder' => 'フォルダーを追加',
 			'localMedia.rescan' => '再スキャン',
 			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',

@@ -6492,6 +6492,21 @@ class TranslationsLocalMediaEn {
 	/// en: 'Downloaded is managed automatically'
 	String get builtInSourceHint => 'Downloaded is managed automatically';
 
+	/// en: 'Filter by category'
+	String get filterByCategory => 'Filter by category';
+
+	/// en: 'Long-press to move to a category'
+	String get longPressToCategorize => 'Long-press to move to a category';
+
+	/// en: 'Uncategorized'
+	String get uncategorized => 'Uncategorized';
+
+	/// en: 'Could not set category'
+	String get setCategoryFailed => 'Could not set category';
+
+	/// en: 'Category updated'
+	String get categoryUpdated => 'Category updated';
+
 	/// en: 'Add folder'
 	String get addFolder => 'Add folder';
 
@@ -8538,8 +8553,8 @@ class TranslationsDownloadCategoryEn {
 	/// en: 'Delete category'
 	String get deleteTitle => 'Delete category';
 
-	/// en: 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.'
-	String deleteConfirm({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.';
+	/// en: 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.'
+	String deleteConfirm({required Object title, required Object count}) => 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.';
 
 	/// en: 'Category deleted'
 	String get deleteSuccess => 'Category deleted';
@@ -11197,7 +11212,7 @@ extension on Translations {
 			'download.category.renameSuccess' => 'Category renamed',
 			'download.category.renameFailed' => 'Failed to rename category',
 			'download.category.deleteTitle' => 'Delete category',
-			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete category "${title}"? Its ${count} download(s) will be moved to Uncategorized; the files will not be deleted.',
+			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
 			'download.category.deleteFailed' => 'Failed to delete category',
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
@@ -12214,6 +12229,11 @@ extension on Translations {
 			'localMedia.title' => 'On this device',
 			'localMedia.downloadsSource' => 'Downloaded',
 			'localMedia.builtInSourceHint' => 'Downloaded is managed automatically',
+			'localMedia.filterByCategory' => 'Filter by category',
+			'localMedia.longPressToCategorize' => 'Long-press to move to a category',
+			'localMedia.uncategorized' => 'Uncategorized',
+			'localMedia.setCategoryFailed' => 'Could not set category',
+			'localMedia.categoryUpdated' => 'Category updated',
 			'localMedia.addFolder' => 'Add folder',
 			'localMedia.rescan' => 'Rescan',
 			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',
