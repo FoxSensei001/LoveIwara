@@ -1,0 +1,347 @@
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/db/database_service.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:sqlite3/common.dart';
+
+/// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
+enum LocalMediaSort { addedDesc, modifiedDesc, nameAsc, durationDesc, sizeDesc }
+
+/// 增量扫描要用的「库里现在长什么样」的轻量快照。
+class LocalMediaFingerprint {
+  const LocalMediaFingerprint({this.sizeBytes, this.modifiedAt});
+  final int? sizeBytes;
+  final int? modifiedAt;
+}
+
+class LocalMediaRepository {
+  LocalMediaRepository([CommonDatabase? database])
+    : _db = database ?? DatabaseService().database;
+
+  final CommonDatabase _db;
+
+  static const String _tag = 'LocalMediaRepository';
+
+  // ── 源 ──────────────────────────────────────────────────────────────────
+
+  List<LocalMediaSource> getSources() {
+    final rows = _db.select(
+      'SELECT * FROM local_media_sources ORDER BY sort_order ASC, created_at ASC',
+    );
+    return rows.map(LocalMediaSource.fromRow).toList();
+  }
+
+  LocalMediaSource? getSource(String id) {
+    final rows = _db.select(
+      'SELECT * FROM local_media_sources WHERE id = ?',
+      [id],
+    );
+    if (rows.isEmpty) return null;
+    return LocalMediaSource.fromRow(rows.first);
+  }
+
+  /// 这条路径是不是已经被某个源覆盖了（含父目录）。
+  ///
+  /// ⛔ 加源前必须问一次。源 A 是源 B 的父目录时，同一个文件会在两个源里各存一份，
+  /// "按来源筛选"的结果就开始飘，而用户完全看不出为什么。宁可在加的时候拦一下。
+  LocalMediaSource? findOverlappingSource(String path) {
+    final normalized = _withTrailingSeparator(path);
+    for (final source in getSources()) {
+      final existing = source.path;
+      if (existing == null || existing.isEmpty) continue;
+      final other = _withTrailingSeparator(existing);
+      if (normalized == other ||
+          normalized.startsWith(other) ||
+          other.startsWith(normalized)) {
+        return source;
+      }
+    }
+    return null;
+  }
+
+  static String _withTrailingSeparator(String path) =>
+      path.endsWith('/') ? path : '$path/';
+
+  void upsertSource(LocalMediaSource source) {
+    final row = source.toRow();
+    final columns = row.keys.toList();
+    final placeholders = List.filled(columns.length, '?').join(', ');
+    final assignments = columns
+        .where((c) => c != 'id')
+        .map((c) => '$c = excluded.$c')
+        .join(', ');
+    _db.execute(
+      'INSERT INTO local_media_sources (${columns.join(', ')}) '
+      'VALUES ($placeholders) '
+      'ON CONFLICT(id) DO UPDATE SET $assignments',
+      columns.map((c) => row[c]).toList(),
+    );
+  }
+
+  /// 删源：条目与进度一并清掉。
+  ///
+  /// ⛔ 进度必须跟着删（§8.3 P4）。留着的话下次重新加同一个目录，会拿到一份
+  /// 用户以为已经删掉的观看记录——那是隐私问题，不是"贴心"。
+  void deleteSource(String id) {
+    _db.execute('BEGIN');
+    try {
+      _db.execute(
+        'DELETE FROM local_media_progress WHERE item_id IN '
+        '(SELECT id FROM local_media_items WHERE source_id = ?)',
+        [id],
+      );
+      _db.execute('DELETE FROM local_media_items WHERE source_id = ?', [id]);
+      _db.execute('DELETE FROM local_media_sources WHERE id = ?', [id]);
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('删除本地源失败', tag: _tag, error: e);
+      rethrow;
+    }
+  }
+
+  // ── 条目 ────────────────────────────────────────────────────────────────
+
+  /// 库里这个源现有条目的指纹，供增量扫描比对。
+  ///
+  /// 只取三列，千级条目也就几百 KB——比"每条去问一次库"便宜得多。
+  Map<String, LocalMediaFingerprint> fingerprints(String sourceId) {
+    final rows = _db.select(
+      'SELECT path_hash, size_bytes, modified_at FROM local_media_items WHERE source_id = ?',
+      [sourceId],
+    );
+    return <String, LocalMediaFingerprint>{
+      for (final row in rows)
+        row['path_hash'] as String: LocalMediaFingerprint(
+          sizeBytes: row['size_bytes'] as int?,
+          modifiedAt: row['modified_at'] as int?,
+        ),
+    };
+  }
+
+  /// 批量写入一批扫描结果。**一批一个显式事务**。
+  ///
+  /// ⛔ 真正的卡顿在写库这一侧，不在遍历：sqlite3 的 API 是同步的，逐条 INSERT
+  /// 会让每条都各自提交一次事务，千级条目直接把帧吃光。调用方按 200~500 条一批
+  /// 调这里，批与批之间让一帧出去。
+  ///
+  /// 冲突时**不是整行覆盖**：
+  /// - `category_id` 是用户设的，扫描无权动它；
+  /// - `thumb_path` 是我们生成并落盘的，重扫不该把它抹成 null 让缩略图白生成一遍；
+  /// - `duration_ms/width/height/vr_format_json` 是从**文件内容**推出来的，只有在
+  ///   大小或修改时间真的变了的时候才作废重算——否则每次重扫都要把整库重新解一遍。
+  void upsertItems(List<LocalMediaItem> items) {
+    if (items.isEmpty) return;
+    final columns = items.first.toRow().keys.toList();
+    final placeholders = List.filled(columns.length, '?').join(', ');
+    const contentDerived = <String>[
+      'duration_ms',
+      'width',
+      'height',
+      'thumb_path',
+      'vr_format_json',
+    ];
+    // 扫描能看到的、且每次都该刷新的列。
+    const rescanned = <String>[
+      'path',
+      'name',
+      'sort_name',
+      'ext',
+      'size_bytes',
+      'modified_at',
+      'folder_path',
+      'sidecar_image_path',
+    ];
+    // `IS NOT` 在 SQLite 里是 null 安全的比较，正是这里要的。
+    const changed =
+        '(local_media_items.modified_at IS NOT excluded.modified_at '
+        'OR local_media_items.size_bytes IS NOT excluded.size_bytes)';
+    final assignments = <String>[
+      ...rescanned.map((c) => '$c = excluded.$c'),
+      'missing = 0',
+      ...contentDerived.map(
+        (c) =>
+            '$c = CASE WHEN $changed THEN NULL ELSE local_media_items.$c END',
+      ),
+    ].join(', ');
+
+    final statement = _db.prepare(
+      'INSERT INTO local_media_items (${columns.join(', ')}) '
+      'VALUES ($placeholders) '
+      'ON CONFLICT(id) DO UPDATE SET $assignments',
+    );
+    _db.execute('BEGIN');
+    try {
+      for (final item in items) {
+        final row = item.toRow();
+        statement.execute(columns.map((c) => row[c]).toList());
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('批量写入本地条目失败（${items.length} 条）', tag: _tag, error: e);
+      rethrow;
+    } finally {
+      statement.close();
+    }
+  }
+
+  /// 一轮完整扫描结束后，把**这轮没再见到**的条目标记为 missing。
+  ///
+  /// ⛔ 标记而不是删除：外置存储没挂上、目录临时不可读时，删掉等于让用户的
+  /// 观看记录连带蒸发。而且只在**扫描确实跑完**时才调（中途被杀不能调，否则
+  /// 没扫到的那一半会被冤枉成"文件没了"）。
+  int markMissingExcept(String sourceId, Set<String> seenHashes) {
+    if (seenHashes.isEmpty) {
+      _db.execute(
+        'UPDATE local_media_items SET missing = 1 WHERE source_id = ?',
+        [sourceId],
+      );
+      return _db.updatedRows;
+    }
+
+    // 分片进 IN(...)：SQLite 默认变量上限 999，整库一把梭会直接报错。
+    const chunkSize = 400;
+    final hashes = seenHashes.toList();
+    var affected = 0;
+    _db.execute('BEGIN');
+    try {
+      _db.execute(
+        'UPDATE local_media_items SET missing = 1 WHERE source_id = ? AND missing = 0',
+        [sourceId],
+      );
+      for (var i = 0; i < hashes.length; i += chunkSize) {
+        final chunk = hashes.sublist(
+          i,
+          i + chunkSize > hashes.length ? hashes.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET missing = 0 '
+          'WHERE source_id = ? AND path_hash IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('收敛 missing 标记失败', tag: _tag, error: e);
+      rethrow;
+    }
+    // 返回「现在有多少条是 missing」——调用方拿它决定要不要提示用户，
+    // 用 hashes.length 是答非所问。
+    affected =
+        (_db.select(
+                  'SELECT COUNT(*) AS c FROM local_media_items WHERE source_id = ? AND missing = 1',
+                  [sourceId],
+                ).first['c']
+                as int?) ??
+        0;
+    return affected;
+  }
+
+  /// 分页查条目。列表永远走这里，**不整表进内存**。
+  List<LocalMediaItem> queryItems({
+    String? sourceId,
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+    LocalMediaSort sort = LocalMediaSort.addedDesc,
+    String? folderPath,
+    bool includeMissing = false,
+    required int offset,
+    required int limit,
+  }) {
+    final where = <String>['kind = ?'];
+    final params = <Object?>[kind.name];
+    if (sourceId != null) {
+      where.add('source_id = ?');
+      params.add(sourceId);
+    }
+    if (folderPath != null) {
+      where.add('folder_path = ?');
+      params.add(folderPath);
+    }
+    if (!includeMissing) where.add('missing = 0');
+    params
+      ..add(limit)
+      ..add(offset);
+    final rows = _db.select(
+      'SELECT * FROM local_media_items WHERE ${where.join(' AND ')} '
+      'ORDER BY ${_orderBy(sort)} LIMIT ? OFFSET ?',
+      params,
+    );
+    return rows.map(LocalMediaItem.fromRow).toList();
+  }
+
+  int countItems({
+    String? sourceId,
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+    bool includeMissing = false,
+  }) {
+    final where = <String>['kind = ?'];
+    final params = <Object?>[kind.name];
+    if (sourceId != null) {
+      where.add('source_id = ?');
+      params.add(sourceId);
+    }
+    if (!includeMissing) where.add('missing = 0');
+    final rows = _db.select(
+      'SELECT COUNT(*) AS c FROM local_media_items WHERE ${where.join(' AND ')}',
+      params,
+    );
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  /// 排序表达式。
+  ///
+  /// ⛔ 每一档都要带一个**唯一的兜底列**（这里是 `id`）：分页靠 OFFSET，排序不稳定
+  /// 时同一条会在两页里各出现一次、另一条则一次都不出现——表现是"往下翻着翻着
+  /// 少了几个、又重复了几个"，很难查。
+  static String _orderBy(LocalMediaSort sort) => switch (sort) {
+    // 名称档再加一层 `name`：`sort_name` 会吃掉前导零，`ep01` 与 `ep1` 折出同一个 key。
+    LocalMediaSort.nameAsc => 'sort_name ASC, name ASC, id ASC',
+    LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
+    LocalMediaSort.durationDesc => 'duration_ms DESC, id ASC',
+    LocalMediaSort.sizeDesc => 'size_bytes DESC, id ASC',
+    LocalMediaSort.addedDesc => 'added_at DESC, id ASC',
+  };
+
+  // ── 进度（永不清理，见 migration v23 的类注释） ──────────────────────────
+
+  ({int positionMs, int? durationMs, bool completed})? getProgress(
+    String itemId,
+  ) {
+    final rows = _db.select(
+      'SELECT position_ms, duration_ms, completed FROM local_media_progress WHERE item_id = ?',
+      [itemId],
+    );
+    if (rows.isEmpty) return null;
+    final row = rows.first;
+    return (
+      positionMs: row['position_ms'] as int? ?? 0,
+      durationMs: row['duration_ms'] as int?,
+      completed: (row['completed'] as int? ?? 0) != 0,
+    );
+  }
+
+  void saveProgress({
+    required String itemId,
+    required int positionMs,
+    int? durationMs,
+    bool completed = false,
+  }) {
+    _db.execute(
+      'INSERT INTO local_media_progress (item_id, position_ms, duration_ms, completed, updated_at) '
+      'VALUES (?, ?, ?, ?, ?) '
+      'ON CONFLICT(item_id) DO UPDATE SET '
+      'position_ms = excluded.position_ms, duration_ms = excluded.duration_ms, '
+      'completed = excluded.completed, updated_at = excluded.updated_at',
+      [
+        itemId,
+        positionMs,
+        durationMs,
+        completed ? 1 : 0,
+        DateTime.now().millisecondsSinceEpoch,
+      ],
+    );
+  }
+}
