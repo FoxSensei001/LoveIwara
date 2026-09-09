@@ -89,6 +89,23 @@ void main() {
       );
     });
 
+    test('does not invent a volume out of /storage/emulated or /storage/self', () {
+      // catch-all `/storage/[^/]+` 曾经把这两个中间层也当成卷根。
+      expect(
+        DownloadPathService.storageVolumeRootOf('/storage/emulated/etc'),
+        isNull,
+      );
+      expect(DownloadPathService.storageVolumeRootOf('/storage/self/x'), isNull);
+      expect(
+        DownloadPathService.storageVolumeRootOf('/storage/emulated/0/x'),
+        '/storage/emulated/0',
+      );
+      expect(
+        DownloadPathService.storageVolumeRootOf('/storage/1234-5678/x'),
+        '/storage/1234-5678',
+      );
+    });
+
     test('paths outside any storage volume are neither private nor shared', () {
       for (final p in ['/tmp/foo', '/data/local/tmp', '']) {
         expect(DownloadPathService.isAndroidSharedStoragePath(p, pkg), isFalse);

@@ -84,9 +84,23 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   ///
   /// 只在敲回车 / 失去焦点时调用：逐字符写配置会让打字中途的半截路径真的被
   /// 当成下载目录用（还会被建出来）。
+  bool _isCommittingCustomPath = false;
+
   Future<void> _commitCustomPath() async {
     if (_isUpdatingFromConfig) return;
+    // EditableText 在 onSubmitted 之前会先 unfocus，于是焦点监听器和 onSubmitted
+    // 各提交一次；第二次会白跑一趟 refreshPathStatus（它内部有 I/O，还会
+    // create(recursive: true)）。
+    if (_isCommittingCustomPath) return;
+    _isCommittingCustomPath = true;
+    try {
+      await _commitCustomPathInner();
+    } finally {
+      _isCommittingCustomPath = false;
+    }
+  }
 
+  Future<void> _commitCustomPathInner() async {
     final typed = _customPathController.text.trim();
     final current =
         (configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String?) ?? '';
@@ -121,6 +135,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
   @override
   void dispose() {
+    // 改成失焦/回车才提交之后，如果页面在输入框仍有焦点时被卸载，那次输入就没了
+    // （旧实现逐字符写配置，丢不掉）。这里同步补写一次配置，异步的路径校验略过。
+    if (!_isUpdatingFromConfig) {
+      final typed = _customPathController.text.trim();
+      if (typed != ((configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String?) ?? '')) {
+        configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = typed;
+      }
+    }
     _customPathFocusNode.removeListener(_onCustomPathFocusChanged);
     _customPathFocusNode.dispose();
     _customPathController.dispose();

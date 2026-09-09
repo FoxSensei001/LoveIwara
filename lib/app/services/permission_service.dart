@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,6 +21,14 @@ class PermissionService extends GetxService {
   Future<Permission> _storagePermission() async {
     final sdkInt = await _getAndroidVersion();
     return sdkInt >= 30 ? Permission.manageExternalStorage : Permission.storage;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    // 暖一下 sdkInt 缓存：getPermissionDescription 是同步的，缓存没暖上时
+    // 只能退回 Android 11+ 的措辞，在 Android 10 机器上就说错了。
+    unawaited(_getAndroidVersion());
   }
 
   /// 检查是否有存储权限
@@ -46,9 +56,7 @@ class PermissionService extends GetxService {
   /// ⛔ 返回值必须是「用户到底授权了没有」。历史实现在被拒后 `return await
   /// openAppSettings()`，而 openAppSettings 报的是「设置页打开成功」——于是用户
   /// 点了拒绝，调用方照样弹「授权成功」、路径修复照样报修好了。
-  Future<bool> requestStoragePermission({
-    bool openSettingsWhenBlocked = true,
-  }) async {
+  Future<bool> requestStoragePermission() async {
     try {
       if (!GetPlatform.isAndroid) {
         // 其他平台默认有权限
@@ -58,15 +66,14 @@ class PermissionService extends GetxService {
       final permission = await _storagePermission();
       if (await permission.isGranted) return true;
 
+      // MANAGE_EXTERNAL_STORAGE 走的是 startActivityForResult + onActivityResult
+      // （permission_handler 的 PermissionManager），所以 request() 是等用户从
+      // 「所有文件访问」系统页回来之后才完成的，结果就是最终状态，不用再复查。
       final status = await permission.request();
       LogUtils.d('存储权限请求结果: $status ($permission)', 'PermissionService');
       if (status.isGranted) return true;
 
-      // MANAGE_EXTERNAL_STORAGE 是跳「所有文件访问」系统页再返回的异步流程，
-      // 部分 ROM 上 request() 拿到的是跳转前的旧状态，回来后再复查一次才准。
-      if (await permission.isGranted) return true;
-
-      if (openSettingsWhenBlocked && status.isPermanentlyDenied) {
+      if (status.isPermanentlyDenied) {
         // 只是把用户送到设置页，不能据此认为已授权。
         LogUtils.d('权限被永久拒绝，打开应用设置页', 'PermissionService');
         await openAppSettings();

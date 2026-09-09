@@ -235,7 +235,10 @@ class FilenameTemplateService extends GetxService {
       var result = value
           // 先归一空白：换行/制表等异形空白折成普通空格，连续空白压成一个。
           // 必须排在控制字符替换之前，否则 \n \t 会先被当成控制字符变成下划线。
-          .replaceAll(RegExp(r'\s+'), ' ')
+          // \s 不含零宽字符，而 i 站标题里 ZWSP/ZWJ 很常见：漏掉它们的话
+          // "\u200B.." 会被清成只剩一个零宽字符的文件名——非空，兜底不触发，
+          // 用户看不见也打不出来。
+          .replaceAll(RegExp(r'[\s\u200B-\u200D\uFEFF]+'), ' ')
           // 再处理各平台文件系统真正拒绝的那一批字符 + 剩余控制字符。
           // ⛔ 空格不在其中：Windows / APFS / ext4 / SAF 都允许名字中间有空格，
           // 把它换成下划线会把用户模板 "Iwara - %title [%id] [%quality]" 拧成
@@ -245,8 +248,8 @@ class FilenameTemplateService extends GetxService {
       // 开头的点会变成 Unix 隐藏文件，也是 "." / ".." 逃逸的入口；
       // 结尾的点和空格会被 Windows 静默吃掉，导致「记录的路径」和
       // 「磁盘上的文件名」对不上。两头都清掉，中间一律保留。
-      result = result.replaceAll(RegExp(r'^[.\s]+'), '');
-      result = result.replaceAll(RegExp(r'[.\s]+$'), '');
+      result = result.replaceAll(RegExp(r'^[.\s\u200B-\u200D\uFEFF]+'), '');
+      result = result.replaceAll(RegExp(r'[.\s\u200B-\u200D\uFEFF]+$'), '');
       return result;
     }
 
@@ -394,7 +397,7 @@ class FilenameTemplateService extends GetxService {
     // 只拦真正的目录逃逸形状。分隔符上面已经拦掉了，剩下唯一危险的是整条
     // 模板只由点和空白组成（清洗后会退化成 "." / ".."）——中间的省略号
     // （"Ep.1 ... The End"）是合法标题的一部分，不能一并否掉。
-    if (template.replaceAll(RegExp(r'[.\s]'), '').isEmpty) {
+    if (template.replaceAll(RegExp(r'[.\s\u200B-\u200D\uFEFF]'), '').isEmpty) {
       return false;
     }
 

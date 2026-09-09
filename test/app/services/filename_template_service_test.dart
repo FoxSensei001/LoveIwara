@@ -67,6 +67,22 @@ void main() {
       );
     });
 
+    test('strips zero-width characters that \\s does not cover', () {
+      // i 站标题里 ZWSP/ZWJ 很常见；漏掉它们会留下一个「看不见也打不出来」的文件名。
+      expect(
+        FilenameTemplateService.sanitizePathSegment(
+          '\u200B..',
+          fallback: 'video.mp4',
+        ),
+        'video.mp4',
+      );
+      expect(
+        FilenameTemplateService.sanitizePathSegment('a\u200Bb.mp4'),
+        'a b.mp4',
+      );
+      expect(service.validateTemplate('\u200B \u200C'), isFalse);
+    });
+
     test('truncates on UTF-8 bytes, not characters, and keeps the extension', () {
       // 150 个日文假名 = 450 字节，ext4/APFS 的上限是 255 字节。
       final longJapanese = '${'ミク' * 100}.mp4';

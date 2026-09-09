@@ -102,6 +102,7 @@ class DownloadPathService extends GetxService {
 
     // 初始化异步状态
     Future.microtask(() async {
+      await _refreshResolvedPackageName();
       await _refreshPermissionStatus();
       _defaultDownloadPath.value = await getDefaultDownloadPath();
       await refreshPathStatus();
@@ -340,6 +341,10 @@ class DownloadPathService extends GetxService {
   Future<String> _currentCustomPath() async {
     final raw = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
     if (raw.isEmpty) return raw;
+    // 没启用自定义路径就别去 stat 它，更别因此回写配置。
+    final enabled =
+        _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
+    if (!enabled) return raw;
     return _repairStaleSandboxPath(raw);
   }
 
@@ -459,7 +464,10 @@ class DownloadPathService extends GetxService {
   /// 这些判定全部用 [path.posix]，不跟着宿主平台的分隔符走——它们描述的是
   /// Android 设备上的路径，在 Windows 上跑单测时也必须是同一个结果。
   static final RegExp _storageVolumeRootPattern = RegExp(
-    r'^(/storage/emulated/\d+|/storage/self/primary|/sdcard|/storage/[^/]+)$',
+    // 末项的 catch-all 要排掉 /storage/emulated 和 /storage/self 本身：它们只是
+    // 中间层，不是卷。否则 /storage/emulated/etc 这类畸形路径会认出一个假卷根。
+    r'^(/storage/emulated/\d+|/storage/self/primary|/sdcard'
+    r'|/storage/(?!emulated$|self$)[^/]+)$',
   );
 
   /// 内部应用专用目录：`/data/data/<包名>` 与 `/data/user/<n>/<包名>`
@@ -522,7 +530,36 @@ class DownloadPathService extends GetxService {
   /// 检查是否为需要「所有文件访问」权限的共享存储目录（Android 专用）。
   bool isPublicDirectory(String dirPath) {
     if (!GetPlatform.isAndroid) return false;
-    return isAndroidSharedStoragePath(dirPath, CommonConstants.packageName);
+    return isAndroidSharedStoragePath(dirPath, _resolvedPackageName);
+  }
+
+  /// 运行时真实的 applicationId。
+  ///
+  /// ⛔ 不能直接用 [CommonConstants.packageName]：那是写死的常量，而 debug /
+  /// profile 构建带 `applicationIdSuffix`（见 android/app/build.gradle），本机
+  /// 跑出来的包实际是 `m.c.g.a.i_iwara.debug`。拿常量去比对，**App 自己的**
+  /// 外部私有目录会被判成共享存储——也就是这轮刚修掉的「推荐路径报缺权限」，
+  /// 会在真机验证时原样复现，让人以为修复没生效。
+  String _resolvedPackageName = CommonConstants.packageName;
+
+  /// 从 path_provider 给的容器目录里反解出真实包名。
+  static final RegExp _packageFromAppDirPattern = RegExp(
+    r'/Android/(?:data|obb|media)/([^/]+)/'
+    r'|^/data/(?:data|user/\d+)/([^/]+)/',
+  );
+
+  Future<void> _refreshResolvedPackageName() async {
+    if (!GetPlatform.isAndroid) return;
+    try {
+      final dir = '${(await CommonUtils.getAppDirectory()).path}/';
+      final match = _packageFromAppDirPattern.firstMatch(dir);
+      final resolved = match?.group(1) ?? match?.group(2);
+      if (resolved != null && resolved.isNotEmpty) {
+        _resolvedPackageName = resolved;
+      }
+    } catch (e) {
+      LogUtils.w('反解运行时包名失败，沿用常量: $e', 'DownloadPathService');
+    }
   }
 
   /// 检查是否为应用专用目录（内部或外部）。
@@ -534,7 +571,7 @@ class DownloadPathService extends GetxService {
   /// `C:\Users\LoveIwara\...` 会把整台机器判成应用私有目录。）
   bool _isAppPrivateDirectory(String dirPath) {
     if (!GetPlatform.isAndroid) return true;
-    return isAndroidAppPrivatePath(dirPath, CommonConstants.packageName);
+    return isAndroidAppPrivatePath(dirPath, _resolvedPackageName);
   }
 
   /// 检查目录是否可写
@@ -716,7 +753,12 @@ class DownloadPathService extends GetxService {
   /// 其余平台沿用 file_selector
   Future<String?> pickDirectoryPath() async {
     if (!supportsDirectoryPicker) {
-      throw UnsupportedError('当前平台不支持目录选择器');
+      // ⛔ 不能抛带中文 message 的异常：设置页的通用 catch 会把 `$e` 原样吐成
+      // toast。给错误码，文案由 Dart 侧按码取（认不出的码退回通用那句）。
+      throw PlatformException(
+        code: 'UNSUPPORTED_PLATFORM',
+        message: 'directory picker is unavailable on this platform',
+      );
     }
     if (GetPlatform.isAndroid) {
       return await _fileHandlerChannel.invokeMethod<String>('pickDirectory');
@@ -751,11 +793,14 @@ class DownloadPathService extends GetxService {
   }
 
   /// 自定义路径指向旧沙盒容器时，就地搬到当前容器并写回配置。
+  ///
+  /// 只管 iOS：macOS 的沙盒容器是 `~/Library/Containers/<bundle-id>/Data/…`，
+  /// 形状对不上 [_sandboxContainerPattern]，写上 isMacOS 只是让人以为它管了。
   Future<String> _repairStaleSandboxPath(String customPath) async {
-    if (!GetPlatform.isIOS && !GetPlatform.isMacOS) return customPath;
-    if (await Directory(customPath).exists()) return customPath;
+    if (!GetPlatform.isIOS) return customPath;
 
     try {
+      if (await Directory(customPath).exists()) return customPath;
       final anchor = (await CommonUtils.getAppDirectory()).path;
       final rebased = rebaseSandboxPath(customPath, anchor);
       if (rebased == null) return customPath;
