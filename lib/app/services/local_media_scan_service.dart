@@ -414,12 +414,21 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         if (!videoExts.contains(ext)) continue;
         int? size;
         int? modified;
-        try {
-          final stat = file.statSync();
+        // ⛔ `statSync()` **不抛异常**：stat 不动时它返回一个
+        // `type = notFound` 的 `FileStat`，`size = -1`、`modified` 是纪元零点。
+        // 所以这里必须**看 type**，光包个 try/catch 是自欺——那个 catch 从来
+        // 没有执行过，而 `(-1, 0)` 会被当成真元数据写进库。
+        //
+        // 后果不止是一行脏数据：`size_bytes/modified_at` 是"这还是不是同一个
+        // 文件"的唯一判据（见 [LocalMediaRepository.upsertItems] 与
+        // `_dropProgressOfReplacedItems`），一个假指纹会让下一次扫描认定文件被
+        // 换过，连带**删掉用户的观看进度**——而那张表不进配置备份，删了就没了。
+        //
+        // 量不出来就一个都不写：null 是"不知道"，`-1` 是一句谎话。
+        final stat = file.statSync();
+        if (stat.type != FileSystemEntityType.notFound) {
           size = stat.size;
           modified = stat.modified.millisecondsSinceEpoch;
-        } catch (_) {
-          // stat 不动就只记路径——文件在那儿是确定的，元数据可以以后补。
         }
         batch.add(<String, Object?>{
           'path': file.path,

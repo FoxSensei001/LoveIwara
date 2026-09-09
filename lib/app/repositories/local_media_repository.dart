@@ -210,8 +210,24 @@ class LocalMediaRepository {
   ///
   /// 大小与修改时间都没变则视为同一个文件，进度保留：这正是"外置盘重新挂上、
   /// 重扫一遍、接着看"该有的样子。
+  /// 指纹可信吗。
+  ///
+  /// ⛔ `-1` / `0` 不是"小一点的数值"，是 `statSync()` 量不出来时的哨兵
+  /// （它**不抛异常**，返回 `type = notFound` 的 `FileStat`）。历史上写进库的
+  /// 脏数据也长这样。判"换没换文件"时，**不知道必须当成不知道**：这张表不进
+  /// 配置备份（见 `ConfigBackupService._excludedTables`），删错了没有任何找回
+  /// 的路，所以宁可留着一条陈旧进度，也不能凭一个假指纹把真记录删掉。
+  static bool _fingerprintTrustworthy(int? sizeBytes, int? modifiedAt) =>
+      sizeBytes != null && sizeBytes >= 0 && modifiedAt != null && modifiedAt > 0;
+
   void _dropProgressOfReplacedItems(List<LocalMediaItem> items) {
     const chunkSize = 400;
+    // 整张表都空（新装 / 刚清过 / 从没播过本机文件）就不必回表了——首扫一个
+    // 五万条的源会走到这里一百多次，而那正是最不该加活儿的时候。
+    final anyProgress = _db.select(
+      'SELECT 1 FROM local_media_progress LIMIT 1',
+    );
+    if (anyProgress.isEmpty) return;
     final incoming = <String, LocalMediaFingerprint>{
       for (final item in items)
         item.id: LocalMediaFingerprint(
@@ -239,8 +255,14 @@ class LocalMediaRepository {
         final id = row['id'] as String;
         final now = incoming[id];
         if (now == null) continue;
-        if ((row['size_bytes'] as int?) != now.sizeBytes ||
-            (row['modified_at'] as int?) != now.modifiedAt) {
+        final oldSize = row['size_bytes'] as int?;
+        final oldModified = row['modified_at'] as int?;
+        // 两边都得量得准才敢下这个判断，见 [_fingerprintTrustworthy]。
+        if (!_fingerprintTrustworthy(oldSize, oldModified) ||
+            !_fingerprintTrustworthy(now.sizeBytes, now.modifiedAt)) {
+          continue;
+        }
+        if (oldSize != now.sizeBytes || oldModified != now.modifiedAt) {
           replaced.add(id);
         }
       }
@@ -257,7 +279,13 @@ class LocalMediaRepository {
         chunk,
       );
     }
-    LogUtils.i('本地条目内容已变，清掉 ${replaced.length} 条陈旧进度', _tag);
+    // ⛔ 带上前几个 id：用户报「进度全没了」时，光有个数字分不出这是一次正当的
+    // 「文件被换掉」还是一次误删，日志得能自证。
+    LogUtils.i(
+      '本地条目内容已变，清掉 ${replaced.length} 条陈旧进度'
+      '（${replaced.take(3).join(', ')}${replaced.length > 3 ? ' …' : ''}）',
+      _tag,
+    );
   }
 
   /// 一轮完整扫描结束后，把**这轮没再见到**的条目标记为 missing。
