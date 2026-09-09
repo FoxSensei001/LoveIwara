@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -163,7 +164,7 @@ class XrQueueCatalog {
       groups.add(
         XrQueueGroup(
           id: 'localFolders',
-          title: t.playbackQueue.localFavoriteFolders,
+          title: t.playbackQueue.favoriteFolders,
           loading: !feed.ready,
           choices: [
             for (final row in feed.value ?? const <_Row>[])
@@ -189,7 +190,10 @@ class XrQueueCatalog {
           choices: [
             for (final row in feed.value ?? const <_Row>[])
               choice(
-                queueId: 'downloads:${row.id}',
+                // ⛔ 走服务里的拼法，别在这儿手写字面量：面板注册的 id 和抽屉
+                // 判"正开着的是不是这一支"用的 id 一旦分头写，改一处就静默丢
+                // 高亮（不报错，只是永远不亮）。
+                queueId: PlaybackQueueService.downloadsQueueId(row.id),
                 title: row.title,
                 count: row.count,
                 open: () => service.openDownloads(
@@ -200,6 +204,58 @@ class XrQueueCatalog {
           ],
         ),
       );
+    }
+
+    // 6b. 本机文件（按源）。⛔ 一个源都没加过时整组不出现——本地库是可选功能，
+    // 绝大多数用户一个源都没有，给他们在面板里留一个空分组只是噪音。
+    {
+      final feed = _feed('localSources', _fetchLocalSources);
+      final rows = feed.value ?? const <_Row>[];
+      if (!feed.ready || rows.isNotEmpty) {
+        groups.add(
+          XrQueueGroup(
+            id: 'localLibrary',
+            title: t.playbackQueue.localFiles,
+            loading: !feed.ready,
+            choices: [
+              // ⛔ 「全部」必须和 2D 抽屉那边一起有：抽屉在源多于一个时给出这一
+              // 支（`localLibrary:all:nameAsc`），面板这边不列的话，用户从抽屉切
+              // 到「全部」之后，沉浸面板里**没有任何一行会高亮**——面板认的是
+              // queueId，目录里没登记的 id 就是一支它不认识的池。
+              if (rows.length > 1)
+                choice(
+                  queueId: PlaybackQueueService.localLibraryQueueId(
+                    sort: LocalMediaSort.nameAsc,
+                  ),
+                  title: t.common.all,
+                  count: rows.fold<int>(0, (sum, r) => sum + (r.count ?? 0)),
+                  open: () => service.openLocalLibrary(
+                    sort: LocalMediaSort.nameAsc,
+                  ),
+                ),
+              // 一条都没有的源不列：点进去是个空池，而面板上没有地方解释为什么
+              //（2D 抽屉那边是靠 `enabled: count > 0` 置灰的）。
+              for (final row in rows.where((r) => (r.count ?? 0) > 0))
+                choice(
+                  queueId: PlaybackQueueService.localLibraryQueueId(
+                    sourceId: row.id,
+                    sort: LocalMediaSort.nameAsc,
+                  ),
+                  title: row.title,
+                  count: row.count,
+                  // ⛔ 排序必须和 2D 抽屉那边一致（都是 `nameAsc`）：排序是池
+                  // 身份的一部分，两边不一致就是两个池，面板里点了不会命中抽屉
+                  // 已经开着的那一支。
+                  open: () => service.openLocalLibrary(
+                    sourceId: row.id,
+                    sort: LocalMediaSort.nameAsc,
+                    title: row.title,
+                  ),
+                ),
+            ],
+          ),
+        );
+      }
     }
 
     // 7. 稍后再看：全部 / 未看完
@@ -375,7 +431,7 @@ class XrQueueCatalog {
       groups.add(
         XrQueueGroup(
           id: 'localFolders',
-          title: t.playbackQueue.localFavoriteFolders,
+          title: t.playbackQueue.favoriteFolders,
           loading: !feed.ready,
           choices: [
             for (final row in feed.value ?? const <_Row>[])
@@ -507,6 +563,34 @@ class XrQueueCatalog {
     return [
       for (final f in folders) (id: f.id, title: f.title, count: f.itemCount),
     ];
+  }
+
+  /// 本机文件的源清单。
+  ///
+  /// ⛔ 条数另查一次真数，不能用 `local_media_sources.item_count`：那一列是上次
+  /// 扫描结束时的快照（含图片、不排除 missing），而池里只装可播的视频。
+  Future<List<_Row>?> _fetchLocalSources() async {
+    try {
+      final repository = LocalMediaRepository();
+      return [
+        for (final source in repository.getSources())
+          (
+            id: source.id,
+            title: source.displayName,
+            count: repository.countItems(sourceId: source.id),
+          ),
+      ];
+    } catch (e) {
+      // ⛔ 这里返回 `const []` 而**不是** null（与那些网络清单相反）。
+      //
+      // `_feed` 对失败的处理是"不缓存、下次重来"，而 [onChanged] 会让服务重推
+      // 整套目录 → 又 build 一次 → 又发一次这个 feed。网络失败是**偶发**的，
+      // 重来一次通常就好了；而这是一次纯本地读库，失败的原因（库还没开、路径不
+      // 可用）是**持续**的——重来一次还是失败，于是转成一个紧循环。
+      // 读不到就当"这台机器上没有本机来源"，那也正是用户看到的事实。
+      LogUtils.w('读取本机来源失败，本轮按「没有本机来源」处理: $e', _tag);
+      return const <_Row>[];
+    }
   }
 
   Future<List<_Row>?> _fetchDownloadCategories() async {

@@ -2909,7 +2909,9 @@ playbackQueue:
   playNextHint: Tap to play the next item, long-press to open Up next
   authorVideos: Author's videos
   authorGalleries: Author's galleries
-  localFavoriteFolders: Local favorites
+  favoriteFolders: Favorite folders
+  localFiles: On this device
+  currentFolder: This file's folder
   downloads: Downloaded
   otherPlaylists: Other user's playlists
   nothingHere: Nothing here
@@ -2964,7 +2966,7 @@ vrFormat:
   suggestionAction: Play as VR
   suggestionDismiss: Dismiss
 localMedia:
-  title: Local media
+  title: On this device
   addFolder: Add folder
   rescan: Rescan
   scanning: "Scanning… ${count} found"

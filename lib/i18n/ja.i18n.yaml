@@ -2911,7 +2911,9 @@ playbackQueue:
   playNextHint: タップで次を再生、長押しで「次に見る」を開きます
   authorVideos: 作者の動画
   authorGalleries: 作者の画像集
-  localFavoriteFolders: ローカルのお気に入り
+  favoriteFolders: お気に入りフォルダ
+  localFiles: この端末のファイル
+  currentFolder: このファイルのフォルダ
   downloads: ダウンロード済み
   otherPlaylists: 他の人の再生リスト
   nothingHere: 何もありません
@@ -2966,7 +2968,7 @@ vrFormat:
   suggestionAction: VR で再生
   suggestionDismiss: 表示しない
 localMedia:
-  title: ローカルメディア
+  title: この端末のファイル
   addFolder: フォルダーを追加
   rescan: 再スキャン
   scanning: "スキャン中… ${count} 件見つかりました"

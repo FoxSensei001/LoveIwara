@@ -2511,7 +2511,9 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	@override String get playNextHint => 'タップで次を再生、長押しで「次に見る」を開きます';
 	@override String get authorVideos => '作者の動画';
 	@override String get authorGalleries => '作者の画像集';
-	@override String get localFavoriteFolders => 'ローカルのお気に入り';
+	@override String get favoriteFolders => 'お気に入りフォルダ';
+	@override String get localFiles => 'この端末のファイル';
+	@override String get currentFolder => 'このファイルのフォルダ';
 	@override String get downloads => 'ダウンロード済み';
 	@override String get otherPlaylists => '他の人の再生リスト';
 	@override String get nothingHere => '何もありません';
@@ -2581,7 +2583,7 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'ローカルメディア';
+	@override String get title => 'この端末のファイル';
 	@override String get addFolder => 'フォルダーを追加';
 	@override String get rescan => '再スキャン';
 	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
@@ -6578,7 +6580,9 @@ extension on TranslationsJa {
 			'playbackQueue.playNextHint' => 'タップで次を再生、長押しで「次に見る」を開きます',
 			'playbackQueue.authorVideos' => '作者の動画',
 			'playbackQueue.authorGalleries' => '作者の画像集',
-			'playbackQueue.localFavoriteFolders' => 'ローカルのお気に入り',
+			'playbackQueue.favoriteFolders' => 'お気に入りフォルダ',
+			'playbackQueue.localFiles' => 'この端末のファイル',
+			'playbackQueue.currentFolder' => 'このファイルのフォルダ',
 			'playbackQueue.downloads' => 'ダウンロード済み',
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
@@ -6630,7 +6634,7 @@ extension on TranslationsJa {
 			'vrFormat.suggestionTitleShort' => 'これは VR 動画かもしれません',
 			'vrFormat.suggestionAction' => 'VR で再生',
 			'vrFormat.suggestionDismiss' => '表示しない',
-			'localMedia.title' => 'ローカルメディア',
+			'localMedia.title' => 'この端末のファイル',
 			'localMedia.addFolder' => 'フォルダーを追加',
 			'localMedia.rescan' => '再スキャン',
 			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',

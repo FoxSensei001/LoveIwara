@@ -2909,7 +2909,9 @@ playbackQueue:
   playNextHint: 点击播放下一条，长按打开「接着看」
   authorVideos: 作者的视频
   authorGalleries: 作者的图库
-  localFavoriteFolders: 本地收藏
+  favoriteFolders: 收藏夹
+  localFiles: 本机文件
+  currentFolder: 当前文件所在文件夹
   downloads: 已下载
   otherPlaylists: 他人的播放列表
   nothingHere: 暂无内容
@@ -2964,7 +2966,7 @@ vrFormat:
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
 localMedia:
-  title: 本地媒体
+  title: 本机文件
   addFolder: 添加文件夹
   rescan: 重新扫描
   scanning: "扫描中… 已发现 ${count} 个"

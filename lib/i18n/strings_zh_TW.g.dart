@@ -2511,7 +2511,9 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	@override String get playNextHint => '點擊播放下一部，長按開啟「接著看」';
 	@override String get authorVideos => '作者的影片';
 	@override String get authorGalleries => '作者的圖庫';
-	@override String get localFavoriteFolders => '本地收藏';
+	@override String get favoriteFolders => '收藏夾';
+	@override String get localFiles => '本機檔案';
+	@override String get currentFolder => '目前檔案所在資料夾';
 	@override String get downloads => '已下載';
 	@override String get otherPlaylists => '他人的播放清單';
 	@override String get nothingHere => '暫無內容';
@@ -2581,7 +2583,7 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '本機媒體';
+	@override String get title => '本機檔案';
 	@override String get addFolder => '新增資料夾';
 	@override String get rescan => '重新掃描';
 	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
@@ -6578,7 +6580,9 @@ extension on TranslationsZhTw {
 			'playbackQueue.playNextHint' => '點擊播放下一部，長按開啟「接著看」',
 			'playbackQueue.authorVideos' => '作者的影片',
 			'playbackQueue.authorGalleries' => '作者的圖庫',
-			'playbackQueue.localFavoriteFolders' => '本地收藏',
+			'playbackQueue.favoriteFolders' => '收藏夾',
+			'playbackQueue.localFiles' => '本機檔案',
+			'playbackQueue.currentFolder' => '目前檔案所在資料夾',
 			'playbackQueue.downloads' => '已下載',
 			'playbackQueue.otherPlaylists' => '他人的播放清單',
 			'playbackQueue.nothingHere' => '暫無內容',
@@ -6630,7 +6634,7 @@ extension on TranslationsZhTw {
 			'vrFormat.suggestionTitleShort' => '這可能是 VR 影片',
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
-			'localMedia.title' => '本機媒體',
+			'localMedia.title' => '本機檔案',
 			'localMedia.addFolder' => '新增資料夾',
 			'localMedia.rescan' => '重新掃描',
 			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',

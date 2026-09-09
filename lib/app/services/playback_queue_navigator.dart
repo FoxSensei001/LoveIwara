@@ -111,6 +111,21 @@ class PlaybackQueueNavigator {
       );
     }
 
+    // ⛔ 本机文件池**没有"退回在线播"这条退路**：那条 id 是 `local_media_items.id`，
+    // Iwara 根本不认识它，硬推下去会打开一个 404 的在线详情页——比什么都不做更
+    // 让人困惑。文件不在了就如实说一句、停在原地。
+    if (queue.kind == PlaybackQueueKind.localLibrary) {
+      LogUtils.w(
+        '本机文件池里的 $id 落不到磁盘文件，放弃本次跳转',
+        'PlaybackQueueNavigator',
+      );
+      showAppToast(
+        slang.t.localMedia.fileMissing,
+        type: AppToastType.error,
+      );
+      return;
+    }
+
     final extra = VideoDetailExtra(
       initialVideoInfo: item.sourceVideo,
       forceAutoPlay: !isExternal,
@@ -185,6 +200,8 @@ class PlaybackQueueNavigator {
       localPath: local.localPath,
       localTask: local.task,
       localAllQualityTasks: local.allQualityTasks,
+      // 本机文件那一路带得出稳定 id，详情页拿它记进度。
+      localLibraryItemId: local.localLibraryItemId,
       playbackQueueRef: ref,
       skipWatchedInQueue: skipWatched,
       forceAutoPlay: true,

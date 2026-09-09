@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -120,6 +123,10 @@ class XrPlaylistSource {
         custom == null || custom.isEmpty
             ? t.playbackQueue.downloads
             : '${t.playbackQueue.downloads} · $custom',
+      PlaybackQueueKind.localLibrary =>
+        custom == null || custom.isEmpty
+            ? t.playbackQueue.localFiles
+            : '${t.playbackQueue.localFiles} · $custom',
       PlaybackQueueKind.watchLater => t.watchLater.title,
     };
   }
@@ -127,6 +134,13 @@ class XrPlaylistSource {
   /// 把一条视频解析成沉浸场景能直接吃的东西。解析不出来返回 null。
   static Future<XrPlayableVideo?> resolve(String videoId) async {
     if (videoId.isEmpty) return null;
+
+    // ⛔ 本机文件先问一句，不能直接往下走 Iwara 那条路：本机文件池里的 id 是
+    // `local_media_items.id`，服务端根本不认识它——硬拉一遍详情只会得到一个
+    // 404，而面板上的表现是「点了这一条什么都没发生」。
+    final local = await _resolveLocalLibrary(videoId);
+    if (local != null) return local;
+
     try {
       final videoService = Get.find<VideoService>();
       var detail = await videoService.fetchVideoInfoResult(videoId);
@@ -175,6 +189,43 @@ class XrPlaylistSource {
       );
     } catch (e) {
       LogUtils.e('沉浸态换片解析失败 videoId=$videoId', tag: _tag, error: e);
+      return null;
+    }
+  }
+
+  /// 本机文件那一条：库里查得到就直接给磁盘地址，查不到返回 null 让调用方走
+  /// Iwara 那条路（在线 id 长得完全不一样，不会误命中）。
+  ///
+  /// ⛔ 片源格式一律 [VrSourceFormat.flatMono]，除非用户自己指定过。本地文件的
+  /// 自动识别是 P2 的事，而**沉浸态里猜错的代价是不对称的**：平面片当 SBS 是
+  /// 双眼各看半边的重影加头晕，而且沉浸面板没有改格式的通道方法，切错了要退出
+  /// 整个沉浸空间才能救。真 VR 被当平面则只是"不沉浸"，一眼就知道该点一下。
+  static Future<XrPlayableVideo?> _resolveLocalLibrary(String itemId) async {
+    try {
+      final item = LocalMediaRepository().getItem(itemId);
+      if (item == null) return null;
+      final path = item.path.trim();
+      if (path.isEmpty || !await File(path).exists()) {
+        LogUtils.w('沉浸态换片：本机文件 $itemId 在磁盘上已不存在', _tag);
+        return null;
+      }
+      VrSourceFormat format = VrSourceFormat.flatMono;
+      if (Get.isRegistered<VrFormatOverrideService>()) {
+        format =
+            await Get.find<VrFormatOverrideService>().get(itemId) ?? format;
+      }
+      return XrPlayableVideo(
+        id: itemId,
+        title: item.name,
+        // 本机文件没有作者——这是它和"已下载"最大的区别，别编一个。
+        author: '',
+        url: Uri.file(path).toString(),
+        format: format,
+        width: item.width ?? 0,
+        height: item.height ?? 0,
+      );
+    } catch (e) {
+      LogUtils.w('沉浸态换片：解析本机文件失败 $itemId: $e', _tag);
       return null;
     }
   }

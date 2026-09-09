@@ -7,8 +7,10 @@ import 'package:uuid/uuid.dart';
 
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
@@ -233,7 +235,7 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
     _reloadSources();
   }
 
-  void _play(LocalMediaItem item) {
+  Future<void> _play(LocalMediaItem item) async {
     // ⛔ 先 stat 一次再跳：库里那一行可能已经指向一个被删掉/被移走的文件，
     // 直接跳过去只会得到一个播放器里的黑屏加一句看不懂的错误。
     if (!File(item.path).existsSync()) {
@@ -243,7 +245,40 @@ class _LocalMediaPageState extends State<LocalMediaPage> {
       );
       return;
     }
-    NaviService.navigateToLocalVideoPlayerPageFromPath(item.path);
+    NaviService.navigateToLocalVideoPlayerPage(
+      localPath: item.path,
+      localLibraryItemId: item.id,
+      // **把本机文件池一起交出去**：播放器里的「接着看」一开就落在这个源上，
+      // 下一条同样用磁盘文件播（见 [LocalLibraryPlaybackQueue]）。
+      //
+      // ⛔ 排序必须与本页这张墙一致（都用 `nameAsc`），否则用户点第 3 集、
+      // 续播给出的是个毫不相干的东西——排序是池身份的一部分。
+      playbackQueueRef: await _openQueueRef(item),
+    );
+  }
+
+  /// 建/取本机文件池，并给出指向 [item] 的引用。
+  ///
+  /// 第一页先拉起来：池空着交过去的话，详情页那枚「下一个」会因为 `loaded`
+  /// 为空而缺席一小会儿（同下载列表那条路）。
+  Future<PlaybackQueueRef?> _openQueueRef(LocalMediaItem item) async {
+    final sourceId = _activeSourceId;
+    if (sourceId == null) return null;
+    try {
+      final queue = PlaybackQueueService.to.openLocalLibrary(
+        sourceId: sourceId,
+        sort: LocalMediaSort.nameAsc,
+        title: _sources
+            .firstWhereOrNull((s) => s.id == sourceId)
+            ?.displayName,
+      );
+      if (queue.loaded.isEmpty) await queue.loadMore();
+      return PlaybackQueueRef(queueId: queue.queueId, currentItemId: item.id);
+    } catch (e) {
+      // 池开不出来不该把"能播"变成"播不了"：没有池就是没有「接着看」而已。
+      LogUtils.w('本机文件池创建失败: $e', _tag);
+      return null;
+    }
   }
 
   @override

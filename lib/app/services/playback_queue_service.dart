@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -37,12 +38,12 @@ class PlaybackQueueService extends GetxService {
 
   /// 同时留几个池。
   ///
-  /// 视频抽屉能开出八种（来源 / 订阅 / 播放列表 / 作者作品 / 最爱 / 稍后再看 /
-  /// 本地收藏夹 / 已下载），图库抽屉另有六种（来源 / 订阅 / 最爱 / 本地收藏夹 /
-  /// 稍后再看 / 作者的图库），再加上 `详情页1 → 作者页 → 详情页2` 回退时要
-  /// 命中的那一个。12 是"在视频与图库之间来回逛也不至于把刚看过的池挤掉"的量。
-  /// 真超了也只淘汰**没人听**的（见 [_evictIfNeeded]）。
-  static const int _maxQueues = 12;
+  /// 视频抽屉能开出九种（来源 / 订阅 / 播放列表 / 作者作品 / 最爱 / 稍后再看 /
+  /// 收藏夹 / 已下载 / 本机文件），图库抽屉另有六种（来源 / 订阅 / 最爱 /
+  /// 收藏夹 / 稍后再看 / 作者的图库），再加上 `详情页1 → 作者页 → 详情页2`
+  /// 回退时要命中的那一个。14 是"在视频与图库之间来回逛也不至于把刚看过的池
+  /// 挤掉"的量。真超了也只淘汰**没人听**的（见 [_evictIfNeeded]）。
+  static const int _maxQueues = 14;
 
   // ---- queueId 的拼法收在这里 ----
   //
@@ -70,6 +71,31 @@ class PlaybackQueueService extends GetxService {
   }) => 'localFavorite:$folderId${_suffix(mediaType)}';
 
   static String playlistQueueId(String playlistId) => 'playlist:$playlistId';
+
+  /// 下载池。⛔ 原来这一串在 `XrQueueCatalog` 里是手写的字面量——沉浸面板注册的
+  /// id 和抽屉判"正开着的是不是这一支"用的 id 分头写，改一处就静默丢高亮。
+  static String downloadsQueueId([String categoryFilter = 'all']) =>
+      'downloads:$categoryFilter';
+
+  /// 本机文件池。
+  ///
+  /// 三样东西都是**池身份的一部分**：哪个源、哪个文件夹、按什么排。前两个决定
+  /// 池里装哪些条目，第三个决定"下一条是谁"——列表按名称排、池按添加时间排的话，
+  /// 用户点第 3 集，续播会给出一个毫不相干的东西。
+  static String localLibraryQueueId({
+    String? sourceId,
+    String? folderPath,
+    LocalMediaSort sort = LocalMediaSort.addedDesc,
+  }) {
+    final buffer = StringBuffer('localLibrary:${sourceId ?? 'all'}:${sort.name}');
+    // 文件夹是绝对路径，直接拼进去会带一堆 `/` 和空格。这个串只在进程内当 map
+    // 的键用（不进路由、不进磁盘），但仍旧压成定长哈希，免得日志里刷屏、也免得
+    // 将来有人顺手把它拼进路由。
+    if (folderPath != null && folderPath.isNotEmpty) {
+      buffer.write(':${folderPath.hashCode.toRadixString(16)}');
+    }
+    return buffer.toString();
+  }
 
   /// 接口列表池（「来源」的分页版，见 [RemoteListPlaybackQueue]）。
   ///
@@ -203,7 +229,7 @@ class PlaybackQueueService extends GetxService {
     String categoryFilter = 'all',
     String? title,
   }) {
-    final id = 'downloads:$categoryFilter';
+    final id = downloadsQueueId(categoryFilter);
     final existing = _queues[id];
     if (existing is DownloadsPlaybackQueue) {
       _touch(id);
@@ -214,6 +240,38 @@ class PlaybackQueueService extends GetxService {
         queueId: id,
         repository: DownloadService.to.repository,
         categoryFilter: categoryFilter,
+        title: title,
+      ),
+    );
+  }
+
+  /// 本机文件池（扫描建库出来的那些文件）。见 [LocalLibraryPlaybackQueue]。
+  ///
+  /// ⛔ 与 [openLocalFavorite] 是两回事：那一条是收藏夹，名字里的"本地"说的是
+  /// "存在本机的收藏关系"，不是磁盘目录。
+  LocalLibraryPlaybackQueue openLocalLibrary({
+    String? sourceId,
+    String? folderPath,
+    LocalMediaSort sort = LocalMediaSort.addedDesc,
+    String? title,
+  }) {
+    final id = localLibraryQueueId(
+      sourceId: sourceId,
+      folderPath: folderPath,
+      sort: sort,
+    );
+    final existing = _queues[id];
+    if (existing is LocalLibraryPlaybackQueue) {
+      _touch(id);
+      return existing;
+    }
+    return _register(
+      LocalLibraryPlaybackQueue(
+        queueId: id,
+        repository: LocalMediaRepository(),
+        sourceId: sourceId,
+        folderPath: folderPath,
+        sort: sort,
         title: title,
       ),
     );

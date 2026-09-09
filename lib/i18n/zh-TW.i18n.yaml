@@ -2913,7 +2913,9 @@ playbackQueue:
   playNextHint: 點擊播放下一部，長按開啟「接著看」
   authorVideos: 作者的影片
   authorGalleries: 作者的圖庫
-  localFavoriteFolders: 本地收藏
+  favoriteFolders: 收藏夾
+  localFiles: 本機檔案
+  currentFolder: 目前檔案所在資料夾
   downloads: 已下載
   otherPlaylists: 他人的播放清單
   nothingHere: 暫無內容
@@ -2968,7 +2970,7 @@ vrFormat:
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
 localMedia:
-  title: 本機媒體
+  title: 本機檔案
   addFolder: 新增資料夾
   rescan: 重新掃描
   scanning: "掃描中… 已找到 ${count} 個"

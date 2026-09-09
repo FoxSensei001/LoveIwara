@@ -13,7 +13,9 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -75,6 +77,17 @@ enum PlaybackQueueKind {
   /// （见 [PlaybackQueue.localTargetFor]）。
   downloads,
 
+  /// 本机文件：用户加进来的源文件夹扫出来的那些（`local_media_items`）。
+  ///
+  /// 与 [downloads] 分成两条而不是共用：两者都是"磁盘上的文件"，但一个是
+  /// **我们下的**（有作者、封面、官方标题、能退回在线播），另一个是**用户自己
+  /// 拷进来的**（只有文件名）。共用一个槽会让两者在抽屉里互相顶掉，而用户完全
+  /// 可能一边看本机片一边想切回已下载。
+  ///
+  /// ⛔ 与 [localFavorite] 更是两回事：那一条是**收藏夹**（`FavoriteService`），
+  /// 名字里的"本地"说的是"存在本机的收藏关系"，不是磁盘目录。
+  localLibrary,
+
   /// 订阅动态：已关注作者的全部作品，接口分页（要登录）。
   ///
   /// 与 [source] 分成两条而不是共用：从订阅页点进来时，[source] 装的是**那一页
@@ -85,20 +98,31 @@ enum PlaybackQueueKind {
 
 /// 「这一条用本地文件播」的全部材料。
 ///
-/// 下载池是唯一会给出它的池：池的身份就是"磁盘上这些文件"，从它里面接着看
-/// 却回头去联网拉流，等于把这个池的意义抹掉（离线时更是直接播不了）。
+/// 给得出它的是那两个"磁盘上的文件"池：[DownloadsPlaybackQueue] 与
+/// [LocalLibraryPlaybackQueue]。从它们里面接着看却回头去联网拉流，等于把这个池
+/// 的意义抹掉（离线时更是直接播不了）。
 @immutable
 class LocalPlaybackTarget {
   const LocalPlaybackTarget({
     required this.localPath,
-    required this.task,
-    required this.allQualityTasks,
+    this.task,
+    this.localLibraryItemId,
+    this.allQualityTasks = const <DownloadTask>[],
   });
 
   final String localPath;
-  final DownloadTask task;
+
+  /// ⛔ **可空**：本机文件池里的条目压根没有下载任务（用户自己拷进来的），
+  /// 它们的标题就是文件名、也没有别的清晰度。原来这里是非空的，因为当时只有
+  /// 下载池会给出 [LocalPlaybackTarget]。
+  final DownloadTask? task;
+
+  /// 本地库里这条的稳定 id（`local_media_items.id`）。只有本机文件池会给。
+  /// 详情页拿它记进度，见 `MyVideoStateController.localLibraryItemId`。
+  final String? localLibraryItemId;
 
   /// 同一个视频的其它清晰度，本地播放页要用它做清晰度切换。
+  /// 本机文件只有一份，恒为空表。
   final List<DownloadTask> allQualityTasks;
 }
 
@@ -947,6 +971,169 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
       'DownloadsPlaybackQueue',
     );
     return null;
+  }
+}
+
+/// 本机文件池：用户加进来的源文件夹扫出来的那些视频（`local_media_items`）。
+///
+/// # 为什么是一个带筛选参数的池，而不是好几种 kind
+///
+/// 「整个源」与「某个文件夹」是同一件事的两个粒度，和
+/// [DownloadsPlaybackQueue.categoryFilter] 完全同构。多开一个 kind 要在抽屉、
+/// XR 目录、导航层、服务里各接一遍（五处），而这里只是 [queueId] 上多一段。
+///
+/// # ⛔ 排序必须和用户看的那张卡片墙一致
+///
+/// 池的顺序就是"接下来播什么"。列表按名称自然序排着、池却按添加时间排，
+/// 用户点第 3 集，下一条会是个毫不相干的东西。所以 [sort] 是**池身份的一部分**，
+/// 一起编进 [queueId]。
+///
+/// # ⛔ 取数是同步的（sqlite3 同步 API）
+///
+/// `fetchPage` 声明成 Future 只是为了对上基类；里面那两句 `queryItems` /
+/// `progressFor` 是**同步落在 UI 线程上**的。所以 [pageSize] 压到 32、
+/// 进度一次批量取（见 `LocalMediaRepository.progressFor`），不能逐条查。
+class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
+  LocalLibraryPlaybackQueue({
+    required super.queueId,
+    required LocalMediaRepository repository,
+    this.sourceId,
+    this.folderPath,
+    this.sort = LocalMediaSort.addedDesc,
+    String? title,
+  }) : _repository = repository,
+       _title = title,
+       super(pageSize: 32);
+
+  /// 限定在哪个源里。null = 全部源（"本机文件 · 全部"）。
+  final String? sourceId;
+
+  /// 再限定到某个文件夹。null = 整个源。
+  final String? folderPath;
+
+  /// 与卡片墙同一档排序，见类注释。
+  final LocalMediaSort sort;
+
+  final LocalMediaRepository _repository;
+  final String? _title;
+
+  /// item id → 磁盘路径。[localTargetFor] 的快照，**只作兜底**（见那边注释）。
+  final Map<String, String> _pathsById = <String, String>{};
+
+  /// 建池时就已经看完的那些。
+  ///
+  /// ⚠️ **今天这份数据用不上**：`skipWatched` 只有从「稍后再看 · 未看完」那个
+  /// tab 点播时才为真，本机文件池走不到那条路。留着是因为 [_isWatched] 是基类的
+  /// 契约，答一个恒 false 比答一个错的强。
+  ///
+  /// ⛔ 真要用起来时，它也**必须是快照**，不能在 [_isWatched] 里现查库：
+  /// `itemAfter` 会在 `canAdvance` 里被调到，而 `canAdvance` 每帧 build 都要问
+  /// 一次——现查等于每帧对着整页条目发几十次同步 select（sqlite3 是同步 API，
+  /// 全落在 UI 线程上）。快照语义本身也更对：要跳过的是「**打开这个池之前**就
+  /// 看完的那些」，而不是刚刚播完的这一条。
+  final Set<String> _watchedIds = <String>{};
+
+  @override
+  PlaybackQueueKind get kind => PlaybackQueueKind.localLibrary;
+
+  @override
+  String? get title => _title;
+
+  @override
+  String get debugLabel => '本机文件';
+
+  @override
+  Future<({List<InnerPlaylistItemSnapshot> items, int rawCount})> fetchPage(
+    int page,
+    int limit,
+  ) async {
+    final rows = _repository.queryItems(
+      sourceId: sourceId,
+      folderPath: folderPath,
+      sort: sort,
+      offset: page * limit,
+      limit: limit,
+    );
+    final progress = _repository.progressFor([for (final r in rows) r.id]);
+    final items = <InnerPlaylistItemSnapshot>[];
+    for (final row in rows) {
+      _pathsById[row.id] = row.path;
+      final seen = progress[row.id];
+      if (seen?.completed == true) _watchedIds.add(row.id);
+      items.add(
+        InnerPlaylistItemSnapshot(
+          id: row.id,
+          title: row.name,
+          // ⭐ 同目录的现成封面（下载器普遍会写一张）。
+          //
+          // ⛔ 必须发成 `file://` **URI**，不能把裸路径塞进来：这个字段的消费方
+          // 默认它是网址（抽屉里是 `CachedNetworkImage`，沉浸面板交给原生的
+          // 图片加载器），喂一条 `/storage/emulated/0/...` 进去不是"加载不出来"
+          // 而是**画一枚碎图图标**——比没有封面更糟。`file://` 则是本仓库既有的
+          // 约定（大图页、胶片条都认），消费方一眼分得出这是本地文件。
+          thumbnailUrl: _coverUriOf(row),
+          // 统计三件套本地库一样没有，留 null 让列表整段让位（同下载池）。
+          liked: false,
+          isPrivate: false,
+          isExternalVideo: false,
+          externalVideoDomain: '',
+          durationSeconds: row.durationMs == null
+              ? null
+              : (row.durationMs! / 1000).round(),
+          progressPermil: _permilOf(seen),
+        ),
+      );
+    }
+    // rawCount 用**过滤前**的条数，与下载池同一条理由。
+    return (items: items, rawCount: rows.length);
+  }
+
+  /// 封面地址。sidecar 优先、我们自己生成的缩略图垫后，都没有就空串。
+  static String _coverUriOf(LocalMediaItem row) {
+    final cover = row.sidecarImagePath ?? row.thumbPath;
+    if (cover == null || cover.trim().isEmpty) return '';
+    return Uri.file(cover).toString();
+  }
+
+  /// 看到哪儿了，千分比。看完的记满格——列表上"看完"和"没看过"不能长得一样。
+  static int _permilOf(({int positionMs, int? durationMs, bool completed})? p) {
+    if (p == null) return 0;
+    if (p.completed) return 1000;
+    final total = p.durationMs;
+    if (total == null || total <= 0) return 0;
+    return ((p.positionMs / total) * 1000).round().clamp(0, 1000);
+  }
+
+  /// 跳过看完的：`skipWatched` 那一路要用（见 [PlaybackQueue.itemAfter]）。
+  /// 读的是 [_watchedIds] 那份快照——**不能现查库**，理由见那边。
+  @override
+  bool _isWatched(String id) => _watchedIds.contains(id);
+
+  /// ⛔ **点的时候现查一次库**，理由与 [DownloadsPlaybackQueue.localTargetFor]
+  /// 一字不差：池是缓存的（LRU 能让它活很久），而 `_pathsById` 是建池那一刻的
+  /// 快照。中间只要重扫过一次（文件被改名 / 移动 / 删掉），快照里的路径就指向
+  /// 一个已经不在的文件。
+  ///
+  /// 查不到、或者磁盘上确实没有这个文件，就返回 null——调用方会如实说一句，
+  /// 而不是开一个黑屏播放器。
+  @override
+  Future<LocalPlaybackTarget?> localTargetFor(String itemId) async {
+    String? path;
+    try {
+      path = _repository.getItem(itemId)?.path;
+    } catch (e) {
+      LogUtils.w('查本机文件失败，退回池内快照：$e', 'LocalLibraryPlaybackQueue');
+    }
+    path ??= _pathsById[itemId];
+    if (path == null || path.trim().isEmpty) {
+      LogUtils.w('本机文件池里的 $itemId 在库里找不到', 'LocalLibraryPlaybackQueue');
+      return null;
+    }
+    if (!await File(path).exists()) {
+      LogUtils.w('本机文件池里的 $itemId 在磁盘上已不存在', 'LocalLibraryPlaybackQueue');
+      return null;
+    }
+    return LocalPlaybackTarget(localPath: path, localLibraryItemId: itemId);
   }
 }
 

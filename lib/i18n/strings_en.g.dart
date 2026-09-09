@@ -6303,8 +6303,14 @@ class TranslationsPlaybackQueueEn {
 	/// en: 'Author's galleries'
 	String get authorGalleries => 'Author\'s galleries';
 
-	/// en: 'Local favorites'
-	String get localFavoriteFolders => 'Local favorites';
+	/// en: 'Favorite folders'
+	String get favoriteFolders => 'Favorite folders';
+
+	/// en: 'On this device'
+	String get localFiles => 'On this device';
+
+	/// en: 'This file's folder'
+	String get currentFolder => 'This file\'s folder';
 
 	/// en: 'Downloaded'
 	String get downloads => 'Downloaded';
@@ -6477,8 +6483,8 @@ class TranslationsLocalMediaEn {
 
 	// Translations
 
-	/// en: 'Local media'
-	String get title => 'Local media';
+	/// en: 'On this device'
+	String get title => 'On this device';
 
 	/// en: 'Add folder'
 	String get addFolder => 'Add folder';
@@ -12124,7 +12130,9 @@ extension on Translations {
 			'playbackQueue.playNextHint' => 'Tap to play the next item, long-press to open Up next',
 			'playbackQueue.authorVideos' => 'Author\'s videos',
 			'playbackQueue.authorGalleries' => 'Author\'s galleries',
-			'playbackQueue.localFavoriteFolders' => 'Local favorites',
+			'playbackQueue.favoriteFolders' => 'Favorite folders',
+			'playbackQueue.localFiles' => 'On this device',
+			'playbackQueue.currentFolder' => 'This file\'s folder',
 			'playbackQueue.downloads' => 'Downloaded',
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
@@ -12176,7 +12184,7 @@ extension on Translations {
 			'vrFormat.suggestionTitleShort' => 'This may be a VR video',
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
-			'localMedia.title' => 'Local media',
+			'localMedia.title' => 'On this device',
 			'localMedia.addFolder' => 'Add folder',
 			'localMedia.rescan' => 'Rescan',
 			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',
