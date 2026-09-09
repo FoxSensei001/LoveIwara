@@ -198,6 +198,19 @@ class DefaultDownloadTaskItem extends StatelessWidget {
                                 child: Image.file(
                                   File(task.savePath),
                                   fit: BoxFit.cover,
+                                  // ⛔ 必须限制解码尺寸：这格只有 48dp，但
+                                  // Image.file 默认按**原图分辨率**解码。i 站图库
+                                  // 里 4000×6000 的 PNG 一张就是 ~96MB 位图，
+                                  // 列表里几条下载完的图片任务就能把原生堆撑爆，
+                                  // 表现为「下载完之后应用直接没了」——Dart 侧
+                                  // 什么都抓不到，因为是被系统杀的。
+                                  cacheWidth:
+                                      (48 *
+                                              scale *
+                                              MediaQuery.devicePixelRatioOf(
+                                                context,
+                                              ))
+                                          .round(),
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(
                                         _getFileIcon(),

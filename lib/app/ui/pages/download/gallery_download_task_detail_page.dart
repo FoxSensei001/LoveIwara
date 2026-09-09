@@ -404,6 +404,14 @@ class _GalleryDownloadTaskDetailPageState
                   4,
                 ); // 200 是每列的最小宽度
 
+                // 一格的物理像素宽度，用来限制本地图片的解码尺寸。
+                final cellCacheWidth =
+                    (constraints.maxWidth /
+                            columnCount *
+                            MediaQuery.devicePixelRatioOf(context))
+                        .round()
+                        .clamp(1, 4096);
+
                 return WaterfallFlow.builder(
                   padding: const EdgeInsets.all(16),
                   shrinkWrap: true,
@@ -461,6 +469,13 @@ class _GalleryDownloadTaskDetailPageState
                                                 ),
                                               ),
                                               fit: BoxFit.cover,
+                                              // ⛔ 按格子宽度解码，别按原图。
+                                              // 一格最多两百来 dp，而图库里
+                                              // 4000×6000 的 PNG 全尺寸解出来是
+                                              // ~96MB 位图；一屏几格就能让系统
+                                              // 直接杀进程（表现为「点开下载好的
+                                              // 图库就闪退」，Dart 侧无任何栈）。
+                                              cacheWidth: cellCacheWidth,
                                               // 「不支持的格式」这句话留在这儿才诚实：
                                               // 走到这里说明这确实是一张**解不开的图**。
                                               errorBuilder:
