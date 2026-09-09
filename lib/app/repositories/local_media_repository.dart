@@ -147,17 +147,38 @@ class LocalMediaRepository {
       'name',
       'sort_name',
       'ext',
-      'size_bytes',
-      'modified_at',
       'folder_path',
       'sidecar_image_path',
     ];
+    // ⛔ 指纹两列**只在量得到的时候才写**。
+    //
+    // 上游已经守住了"别把 statSync 的 (-1, 0) 当真值"（见
+    // `LocalMediaScanService`），量不出来时给的是 null。但 `x = excluded.x` 会
+    // 把这个 null **写到库里那个真值头上**——「不知道」覆盖掉「知道」。
+    //
+    // 后果和 §13.10 那次是同一个：`size_bytes/modified_at` 是"这还是不是同一个
+    // 文件"的唯一判据，指纹一旦被抹成 null，下一轮 [_dropProgressOfReplacedItems]
+    // 的 [_fingerprintTrustworthy] 就不成立，文件被换掉也认不出来，旧进度会安在
+    // 一个新文件上。SD 卡扫到一半被拔、权限被回收都会走到这里。
+    //
+    // 所以：拿到真值就更新，拿不到就保留原样。**对没有备份的用户数据，
+    // 「不知道」只能等于「保留」。**
+    const fingerprint = <String>['size_bytes', 'modified_at'];
     // `IS NOT` 在 SQLite 里是 null 安全的比较，正是这里要的。
+    // ⛔ 口径必须和上面那段 CASE 一致：这一轮没量到（excluded 为 null）时不能
+    // 算"变了"，否则 duration/width/height/缩略图会被一次失败的 stat 全部作废。
     const changed =
-        '(local_media_items.modified_at IS NOT excluded.modified_at '
-        'OR local_media_items.size_bytes IS NOT excluded.size_bytes)';
+        '((excluded.modified_at IS NOT NULL '
+        'AND local_media_items.modified_at IS NOT excluded.modified_at) '
+        'OR (excluded.size_bytes IS NOT NULL '
+        'AND local_media_items.size_bytes IS NOT excluded.size_bytes))';
     final assignments = <String>[
       ...rescanned.map((c) => '$c = excluded.$c'),
+      ...fingerprint.map(
+        (c) =>
+            '$c = CASE WHEN excluded.$c IS NULL '
+            'THEN local_media_items.$c ELSE excluded.$c END',
+      ),
       'missing = 0',
       ...contentDerived.map(
         (c) =>
