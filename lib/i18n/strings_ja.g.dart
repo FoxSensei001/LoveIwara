@@ -2831,6 +2831,8 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 	@override String get storagePermissionNotGranted => 'ストレージ権限が付与されていません';
 	@override String get storagePermissionGrantSuccess => 'ストレージ権限が付与されました';
 	@override String get storagePermissionGrantFailedButSomeFeaturesMayBeLimited => 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります';
+	@override String get storagePermissionRationale => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\nAndroid 11 以降では公開ディレクトリへの書き込みに「すべてのファイルへのアクセス」権限が必要です。許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。';
+	@override String get storagePermissionRationaleLegacy => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\n許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。';
 	@override String get grantStoragePermission => 'ストレージ権限を付与';
 	@override String get customDownloadPath => 'カスタムダウンロードパス';
 	@override String get customDownloadPathDescription => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます';
@@ -4795,6 +4797,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.storagePermissionNotGranted' => 'ストレージ権限が付与されていません',
 			'settings.downloadSettings.storagePermissionGrantSuccess' => 'ストレージ権限が付与されました',
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります',
+			'settings.downloadSettings.storagePermissionRationale' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\nAndroid 11 以降では公開ディレクトリへの書き込みに「すべてのファイルへのアクセス」権限が必要です。許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
+			'settings.downloadSettings.storagePermissionRationaleLegacy' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\n許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
 			'settings.downloadSettings.grantStoragePermission' => 'ストレージ権限を付与',
 			'settings.downloadSettings.customDownloadPath' => 'カスタムダウンロードパス',
 			'settings.downloadSettings.customDownloadPathDescription' => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます',
@@ -4872,10 +4876,10 @@ extension on TranslationsJa {
 			'settings.downloadSettings.fixIssue' => '問題を修正',
 			'settings.downloadSettings.issueFixed' => '問題が修正されました',
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
-			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
-			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
+			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
 			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
 			'settings.downloadSettings.insufficientSpace' => '利用可能な容量が不足しています',
@@ -5386,10 +5390,10 @@ extension on TranslationsJa {
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
-			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
-			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			_ => null,
 		} ?? switch (path) {
+			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
+			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
 			'conversation.errors.clickToRetry' => 'クリックして再試行',
 			'conversation.errors.noMoreConversations' => 'もう会話がありません',
@@ -5900,10 +5904,10 @@ extension on TranslationsJa {
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
 			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
-			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
-			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
+			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
 			'mediaPlayer.openSettingsAction' => '表示',
 			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '再生の通知: ${message}',
@@ -6414,10 +6418,10 @@ extension on TranslationsJa {
 			'savedSearch.deleteSuccess' => '検索を削除しました',
 			'savedSearch.addCurrent' => '現在の検索を保存',
 			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
-			'savedSearch.rename' => '名前を変更',
-			'savedSearch.noKeyword' => '（キーワードなし）',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.rename' => '名前を変更',
+			'savedSearch.noKeyword' => '（キーワードなし）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個の絞り込み',
 			'defaultBlacklistReminder.title' => 'デフォルトのタグブラックリストを検出しました',
 			'defaultBlacklistReminder.content' => 'お使いのアカウントは、サイトが新規ユーザーごとに自動設定するデフォルトのタグブラックリストをそのまま使用しています。管理ページで確認・変更しますか？',

@@ -74,12 +74,36 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
   /// 处理自定义路径输入框焦点变化
   void _onCustomPathFocusChanged() {
-    // 当输入框失去焦点时，检查是否需要同步配置
+    // 失去焦点即提交一次（同时也是唯一的写配置时机）。
     if (!_customPathFocusNode.hasFocus && !_isUpdatingFromConfig) {
-      _syncCustomPathFromConfig();
-      // 失去焦点后进行路径验证刷新
-      downloadPathService.refreshPathStatus();
+      _commitCustomPath();
     }
+  }
+
+  /// 把输入框里手打的路径提交到配置，并刷新路径状态。
+  ///
+  /// 只在敲回车 / 失去焦点时调用：逐字符写配置会让打字中途的半截路径真的被
+  /// 当成下载目录用（还会被建出来）。
+  Future<void> _commitCustomPath() async {
+    if (_isUpdatingFromConfig) return;
+
+    final typed = _customPathController.text.trim();
+    final current =
+        (configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String?) ?? '';
+
+    if (typed != current) {
+      configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = typed;
+    }
+    if (typed != _customPathController.text) {
+      // 回写归一化后的值（去掉两端空格），不触发再次提交
+      _isUpdatingFromConfig = true;
+      _customPathController.text = typed;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _isUpdatingFromConfig = false;
+      });
+    }
+
+    await downloadPathService.refreshPathStatus();
   }
 
   /// 从配置同步自定义路径到控制器
@@ -885,13 +909,12 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                               .downloadSettings
                               .customDownloadPathLabel,
                         ).copyWith(alignLabelWithHint: true),
-                        onChanged: (value) {
-                          // 只有在不是从配置更新时才更新配置
-                          if (!_isUpdatingFromConfig) {
-                            configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] =
-                                value;
-                          }
-                        },
+                        // ⛔ 不要在 onChanged 里写配置：那等于把打字过程中的每一段
+                        // 半截路径都当成真的下载目录（_getBasePath 还会
+                        // create(recursive: true) 把它们一个个建出来）。
+                        // 改成敲回车或失去焦点时提交一次。
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _commitCustomPath(),
                       ),
                     ),
 
@@ -1005,31 +1028,45 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     ],
 
                     const SizedBox(height: 8),
-                    // 推荐路径和选择文件夹按钮放在一行
-                    Row(
-                      children: [
-                        if (GetPlatform.isAndroid && isEnabled)
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _useRecommendedPath,
-                              icon: const Icon(Icons.recommend, size: 18),
-                              label: Text(
-                                t.settings.downloadSettings.recommendedPath,
+                    // 推荐路径和选择文件夹按钮放在一行。
+                    // iOS 没有目录选择器（file_selector_ios 未实现
+                    // getDirectoryPath），只能靠「推荐路径」在沙盒内选，
+                    // 所以那边只显示推荐路径这一颗。
+                    Builder(
+                      builder: (context) {
+                        final showRecommended =
+                            GetPlatform.isAndroid || GetPlatform.isIOS;
+                        final showPicker =
+                            downloadPathService.supportsDirectoryPicker;
+                        return Row(
+                          children: [
+                            if (showRecommended && isEnabled) ...[
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: _useRecommendedPath,
+                                  icon: const Icon(Icons.recommend, size: 18),
+                                  label: Text(
+                                    t.settings.downloadSettings.recommendedPath,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        if (GetPlatform.isAndroid && isEnabled)
-                          const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: isEnabled ? _selectDownloadPath : null,
-                            icon: const Icon(Icons.folder_open, size: 18),
-                            label: Text(
-                              t.settings.downloadSettings.selectFolder,
-                            ),
-                          ),
-                        ),
-                      ],
+                              if (showPicker) const SizedBox(width: 8),
+                            ],
+                            if (showPicker)
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: isEnabled
+                                      ? _selectDownloadPath
+                                      : null,
+                                  icon: const Icon(Icons.folder_open, size: 18),
+                                  label: Text(
+                                    t.settings.downloadSettings.selectFolder,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
                     ),
                     // 运行测试按钮单独一行
                     const SizedBox(height: 8),

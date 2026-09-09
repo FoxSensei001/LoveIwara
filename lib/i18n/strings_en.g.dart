@@ -7103,6 +7103,12 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Storage Permission Grant Failed But Some Features May Be Limited'
 	String get storagePermissionGrantFailedButSomeFeaturesMayBeLimited => 'Storage Permission Grant Failed But Some Features May Be Limited';
 
+	/// en: 'To save downloads to the folder you pick, the app needs storage access. On Android 11 and later this means the "All files access" permission; without it, files are saved to the app-private folder instead.'
+	String get storagePermissionRationale => 'To save downloads to the folder you pick, the app needs storage access.\n\nOn Android 11 and later this means the "All files access" permission; without it, files are saved to the app-private folder instead.';
+
+	/// en: 'To save downloads to the folder you pick, the app needs storage access. Without it, files are saved to the app-private folder instead.'
+	String get storagePermissionRationaleLegacy => 'To save downloads to the folder you pick, the app needs storage access.\n\nWithout it, files are saved to the app-private folder instead.';
+
 	/// en: 'Grant Storage Permission'
 	String get grantStoragePermission => 'Grant Storage Permission';
 
@@ -10303,6 +10309,8 @@ extension on Translations {
 			'settings.downloadSettings.storagePermissionNotGranted' => 'Storage Permission Not Granted',
 			'settings.downloadSettings.storagePermissionGrantSuccess' => 'Storage Permission Grant Success',
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Storage Permission Grant Failed But Some Features May Be Limited',
+			'settings.downloadSettings.storagePermissionRationale' => 'To save downloads to the folder you pick, the app needs storage access.\n\nOn Android 11 and later this means the "All files access" permission; without it, files are saved to the app-private folder instead.',
+			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'To save downloads to the folder you pick, the app needs storage access.\n\nWithout it, files are saved to the app-private folder instead.',
 			'settings.downloadSettings.grantStoragePermission' => 'Grant Storage Permission',
 			'settings.downloadSettings.customDownloadPath' => 'Custom Download Path',
 			'settings.downloadSettings.customDownloadPathDescription' => 'When enabled, you can choose a custom save location for downloaded files',
@@ -10380,10 +10388,10 @@ extension on Translations {
 			'settings.downloadSettings.fixIssue' => 'Fix Issue',
 			'settings.downloadSettings.issueFixed' => 'Issue fixed',
 			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
-			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
-			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
+			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
 			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
 			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
 			'settings.downloadSettings.insufficientSpace' => 'Insufficient available space',
@@ -10894,10 +10902,10 @@ extension on Translations {
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
-			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
-			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
 			_ => null,
 		} ?? switch (path) {
+			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
+			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
 			'conversation.errors.loadFailed' => 'Load failed',
 			'conversation.errors.clickToRetry' => 'Click to retry',
 			'conversation.errors.noMoreConversations' => 'No more conversations',
@@ -11408,10 +11416,10 @@ extension on Translations {
 			'layoutSettings.defaultColumns' => 'Default Columns',
 			'layoutSettings.defaultColumnsDesc' => 'Default display for large screens',
 			'layoutSettings.previewEffect' => 'Preview Effect',
-			'layoutSettings.screenWidth' => 'Screen Width',
-			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.screenWidth' => 'Screen Width',
+			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
 			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
 			'layoutSettings.deleteBreakpoint' => 'Delete Breakpoint',
 			'layoutSettings.screenWidthLabel' => 'Screen Width',
@@ -11922,10 +11930,10 @@ extension on Translations {
 			'savedSearch.deleteSuccess' => 'Search removed',
 			'savedSearch.addCurrent' => 'Save current search',
 			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
-			'savedSearch.rename' => 'Rename',
-			'savedSearch.noKeyword' => '(No keyword)',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.rename' => 'Rename',
+			'savedSearch.noKeyword' => '(No keyword)',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} filters',
 			'defaultBlacklistReminder.title' => 'Default Tag Blacklist Detected',
 			'defaultBlacklistReminder.content' => 'Your account is still using the tag blacklist that the website automatically applies to every new account. Would you like to review and manage it?',

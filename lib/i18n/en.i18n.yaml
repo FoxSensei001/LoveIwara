@@ -985,6 +985,8 @@ settings:
     storagePermissionNotGranted: Storage Permission Not Granted
     storagePermissionGrantSuccess: Storage Permission Grant Success
     storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Storage Permission Grant Failed But Some Features May Be Limited
+    storagePermissionRationale: "To save downloads to the folder you pick, the app needs storage access.\n\nOn Android 11 and later this means the \"All files access\" permission; without it, files are saved to the app-private folder instead."
+    storagePermissionRationaleLegacy: "To save downloads to the folder you pick, the app needs storage access.\n\nWithout it, files are saved to the app-private folder instead."
     grantStoragePermission: Grant Storage Permission
     customDownloadPath: Custom Download Path
     customDownloadPathDescription: When enabled, you can choose a custom save location for downloaded files

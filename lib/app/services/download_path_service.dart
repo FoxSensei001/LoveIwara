@@ -336,11 +336,18 @@ class DownloadPathService extends GetxService {
     }
   }
 
+  /// 读取当前生效的自定义路径，顺带修掉 iOS/macOS 换容器后失效的老路径。
+  Future<String> _currentCustomPath() async {
+    final raw = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+    if (raw.isEmpty) return raw;
+    return _repairStaleSandboxPath(raw);
+  }
+
   /// 获取基础下载路径
   Future<String> _getBasePath(String subPath) async {
     final isCustomPathEnabled =
         _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-    final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+    final customPath = await _currentCustomPath();
 
     LogUtils.d(
       '_getBasePath - 子路径: $subPath, 启用自定义: $isCustomPathEnabled, 自定义路径: $customPath',
@@ -447,49 +454,87 @@ class DownloadPathService extends GetxService {
     }
   }
 
-  /// 检查是否为Android公共目录
-  bool isPublicDirectory(String dirPath) {
-    final publicPaths = [
-      '/storage/emulated/0/Download',
-      '/storage/emulated/0/下载',
-      '/storage/emulated/0/Pictures',
-      '/storage/emulated/0/Movies',
-      '/storage/emulated/0/Music',
-      '/storage/emulated/0/Documents',
-      '/sdcard/Download',
-      '/sdcard/下载',
-      '/sdcard/Pictures',
-      '/sdcard/Movies',
-      '/sdcard/Music',
-      '/sdcard/Documents',
-    ];
+  /// 存储卷根目录的形状：主存储的三种别名 + 任意外置卷（SD/TF 卡、U 盘）。
+  ///
+  /// 这些判定全部用 [path.posix]，不跟着宿主平台的分隔符走——它们描述的是
+  /// Android 设备上的路径，在 Windows 上跑单测时也必须是同一个结果。
+  static final RegExp _storageVolumeRootPattern = RegExp(
+    r'^(/storage/emulated/\d+|/storage/self/primary|/sdcard|/storage/[^/]+)$',
+  );
 
-    return publicPaths.any((publicPath) => dirPath.startsWith(publicPath));
+  /// 内部应用专用目录：`/data/data/<包名>` 与 `/data/user/<n>/<包名>`
+  /// （`<n>` 是用户/工作资料 id，不止 0）。
+  static RegExp _internalAppDirPattern(String packageName) => RegExp(
+    '^/data/(data|user/\\d+)/${RegExp.escape(packageName)}(/|\$)',
+  );
+
+  /// 找出路径所属的存储卷根；不在任何卷上返回 null。
+  ///
+  /// 逐级向上比对**完整片段**，绝不用 startsWith 拼字符串——那样
+  /// `/storage/emulated/0/Downloads_old` 会被当成 `.../Download` 的子目录。
+  static String? storageVolumeRootOf(String dirPath) {
+    if (dirPath.isEmpty) return null;
+    var current = path.posix.normalize(dirPath);
+    while (true) {
+      if (_storageVolumeRootPattern.hasMatch(current)) return current;
+      final parent = path.posix.dirname(current);
+      if (parent == current) return null;
+      current = parent;
+    }
   }
 
-  /// 检查是否为应用专用目录（内部或外部）
-  bool _isAppPrivateDirectory(String dirPath) {
-    if (GetPlatform.isAndroid) {
-      final packageName = CommonConstants.packageName;
+  /// Android 应用专用目录（内部 + 任意存储卷上的外部）。
+  ///
+  /// ⛔ 旧的外部目录正则写成 `^(/storage/[^/]+|/sdcard)/Android/...`，
+  /// 匹配不到主存储的 `/storage/emulated/0/Android/data/<包名>`：
+  /// `/storage/[^/]+` 只吃到 `/storage/emulated`，下一段是 `/0` 不是 `/Android`。
+  /// 于是**推荐路径本身**会被判成「非应用私有」，设置页据此报缺权限。
+  static bool isAndroidAppPrivatePath(String dirPath, String packageName) {
+    if (dirPath.isEmpty) return false;
+    final normalized = path.posix.normalize(dirPath);
+    if (_internalAppDirPattern(packageName).hasMatch(normalized)) return true;
 
-      // 内部应用专用目录：/data/data/包名 或 /data/user/0/包名
-      if (dirPath.startsWith('/data/data/$packageName') ||
-          dirPath.startsWith('/data/user/0/$packageName')) {
-        return true;
-      }
-
-      // 外部应用专用目录（任意存储卷，含外置 SD/TF 卡）：
-      // /storage/<卷>/Android/data|obb/包名 及 /sdcard 别名
-      final externalAppDir = RegExp(
-        '^(/storage/[^/]+|/sdcard)/Android/(data|obb)/${RegExp.escape(packageName)}(/|\$)',
-      );
-      return externalAppDir.hasMatch(dirPath);
-    } else {
-      // 非Android平台：所有通过getApplicationDocumentsDirectory或getExternalStorageDirectory获取的路径都是应用专用的
-      // 这里我们通过检查路径是否包含应用名称来判断
-      final appName = CommonConstants.applicationName;
-      return appName != null && dirPath.contains(appName);
+    final volume = storageVolumeRootOf(normalized);
+    if (volume == null) return false;
+    for (final kind in const ['data', 'obb', 'media']) {
+      final base = path.posix.join(volume, 'Android', kind, packageName);
+      if (normalized == base || normalized.startsWith('$base/')) return true;
     }
+    return false;
+  }
+
+  /// 路径是否落在 Android 的**共享存储**上（写它需要「所有文件访问」权限）。
+  ///
+  /// ⛔ 旧实现是 12 条硬编码公共目录前缀的 startsWith，两头都错：
+  ///   - 漏判：外置 SD 卡的 `/storage/XXXX-XXXX/Download`、以及用户自建的
+  ///     `/storage/emulated/0/Iwara` 一律不算「公共」，于是设置页不提示缺权限、
+  ///     下载静默回落应用私有目录，用户只看到「文件不见了」；
+  ///   - 误判：`/storage/emulated/0/Downloads_old` 被当成 Download。
+  /// 现在按「在某个存储卷上，且不是我们自己的应用私有目录」判定——这正好就是
+  /// 需要授权的那一类，不再依赖目录叫什么名字。
+  static bool isAndroidSharedStoragePath(String dirPath, String packageName) {
+    if (dirPath.isEmpty) return false;
+    final normalized = path.posix.normalize(dirPath);
+    if (isAndroidAppPrivatePath(normalized, packageName)) return false;
+    return storageVolumeRootOf(normalized) != null;
+  }
+
+  /// 检查是否为需要「所有文件访问」权限的共享存储目录（Android 专用）。
+  bool isPublicDirectory(String dirPath) {
+    if (!GetPlatform.isAndroid) return false;
+    return isAndroidSharedStoragePath(dirPath, CommonConstants.packageName);
+  }
+
+  /// 检查是否为应用专用目录（内部或外部）。
+  ///
+  /// 只有 Android 需要这个判断——它唯一的用途是决定「这个路径要不要先要权限」，
+  /// 而只有 Android 才有共享存储这回事。所有调用点都已经用
+  /// `GetPlatform.isAndroid` 守过；非 Android 一律按「不需要权限」处理。
+  /// （旧实现在非 Android 分支用 `dirPath.contains(应用名)` 猜，
+  /// `C:\Users\LoveIwara\...` 会把整台机器判成应用私有目录。）
+  bool _isAppPrivateDirectory(String dirPath) {
+    if (!GetPlatform.isAndroid) return true;
+    return isAndroidAppPrivatePath(dirPath, CommonConstants.packageName);
   }
 
   /// 检查目录是否可写
@@ -656,15 +701,75 @@ class DownloadPathService extends GetxService {
     }
   }
 
+  /// 本平台有没有目录选择器。
+  ///
+  /// ⛔ iOS 没有：`file_selector_ios` 根本没实现 `getDirectoryPath`，
+  /// platform interface 的默认实现直接 `throw UnimplementedError`。以前设置页
+  /// 无条件显示「选择文件夹」，iOS 上点下去必然是一句 UnimplementedError 的
+  /// 报错 toast。iOS 沙盒外的路径本来也写不进去，只能在容器内挑目录，
+  /// 所以这里直接不提供选择器，由「推荐路径」承担。
+  bool get supportsDirectoryPicker => !GetPlatform.isIOS;
+
   /// 弹出目录选择器并返回所选目录的绝对路径，取消时返回 null
   /// Android 走原生 SAF 选择器并自行解析路径（file_selector 的
   /// getDirectoryPath 不支持外置 SD/TF 卡卷，会抛 UnsupportedOperationException），
   /// 其余平台沿用 file_selector
   Future<String?> pickDirectoryPath() async {
+    if (!supportsDirectoryPicker) {
+      throw UnsupportedError('当前平台不支持目录选择器');
+    }
     if (GetPlatform.isAndroid) {
       return await _fileHandlerChannel.invokeMethod<String>('pickDirectory');
     }
     return await getDirectoryPath();
+  }
+
+  /// iOS / macOS 沙盒容器路径里带一段随机 UUID，**每次 App 更新都会换新的**。
+  /// 把绝对路径存进配置，下次更新后那条路径就指向一个不存在的旧容器：下载静默
+  /// 回落到默认目录，设置页却还理直气壮地显示着那条老路径。
+  ///
+  /// 匹配 `.../Containers/Data/Application/<UUID>` 这一段，返回把容器换成当前
+  /// 容器之后的路径；不是容器路径、或本来就在当前容器里，返回 null。
+  static final RegExp _sandboxContainerPattern = RegExp(
+    r'^(.*/Containers/Data/Application/[^/]+)(/.*)?$',
+  );
+
+  static String? rebaseSandboxPath(
+    String storedPath,
+    String anchorPathInCurrentContainer,
+  ) {
+    if (storedPath.isEmpty || anchorPathInCurrentContainer.isEmpty) return null;
+    final stored = _sandboxContainerPattern.firstMatch(
+      path.posix.normalize(storedPath),
+    );
+    final current = _sandboxContainerPattern.firstMatch(
+      path.posix.normalize(anchorPathInCurrentContainer),
+    );
+    if (stored == null || current == null) return null;
+    if (stored.group(1) == current.group(1)) return null;
+    return '${current.group(1)}${stored.group(2) ?? ''}';
+  }
+
+  /// 自定义路径指向旧沙盒容器时，就地搬到当前容器并写回配置。
+  Future<String> _repairStaleSandboxPath(String customPath) async {
+    if (!GetPlatform.isIOS && !GetPlatform.isMacOS) return customPath;
+    if (await Directory(customPath).exists()) return customPath;
+
+    try {
+      final anchor = (await CommonUtils.getAppDirectory()).path;
+      final rebased = rebaseSandboxPath(customPath, anchor);
+      if (rebased == null) return customPath;
+
+      LogUtils.i(
+        '自定义下载路径指向旧沙盒容器，已重定位: $customPath -> $rebased',
+        'DownloadPathService',
+      );
+      await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, rebased);
+      return rebased;
+    } catch (e) {
+      LogUtils.w('重定位沙盒下载路径失败: $e', 'DownloadPathService');
+      return customPath;
+    }
   }
 
   /// 获取当前配置的下载路径信息
@@ -744,7 +849,7 @@ class DownloadPathService extends GetxService {
   Future<PathStatusInfo> getPathStatusInfoAsync() async {
     final isCustomPathEnabled =
         _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-    final customPath = _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+    final customPath = await _currentCustomPath();
 
     if (!isCustomPathEnabled || customPath.isEmpty) {
       final defaultPath = await getDefaultDownloadPath();
@@ -977,8 +1082,7 @@ class DownloadPathService extends GetxService {
 
       final isCustomPathEnabled =
           _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-      final customPath =
-          _configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
+      final customPath = await _currentCustomPath();
 
       if (!isCustomPathEnabled || customPath.isEmpty) {
         final defaultPath = await getDefaultDownloadPath();

@@ -2831,6 +2831,8 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 	@override String get storagePermissionNotGranted => '需要儲存權限';
 	@override String get storagePermissionGrantSuccess => '儲存權限授權成功';
 	@override String get storagePermissionGrantFailedButSomeFeaturesMayBeLimited => '儲存權限授權失敗，部分功能可能受限';
+	@override String get storagePermissionRationale => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\nAndroid 11 以上需要授予「所有檔案存取權」才能寫入公共目錄；未授予時，檔案會儲存到應用程式專用目錄。';
+	@override String get storagePermissionRationaleLegacy => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\n未授予時，檔案會儲存到應用程式專用目錄。';
 	@override String get grantStoragePermission => '授權儲存權限';
 	@override String get customDownloadPath => '自訂下載位置';
 	@override String get customDownloadPathDescription => '啟用後可以為下載的檔案選擇自訂儲存位置';
@@ -4795,6 +4797,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.storagePermissionNotGranted' => '需要儲存權限',
 			'settings.downloadSettings.storagePermissionGrantSuccess' => '儲存權限授權成功',
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '儲存權限授權失敗，部分功能可能受限',
+			'settings.downloadSettings.storagePermissionRationale' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\nAndroid 11 以上需要授予「所有檔案存取權」才能寫入公共目錄；未授予時，檔案會儲存到應用程式專用目錄。',
+			'settings.downloadSettings.storagePermissionRationaleLegacy' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\n未授予時，檔案會儲存到應用程式專用目錄。',
 			'settings.downloadSettings.grantStoragePermission' => '授權儲存權限',
 			'settings.downloadSettings.customDownloadPath' => '自訂下載位置',
 			'settings.downloadSettings.customDownloadPathDescription' => '啟用後可以為下載的檔案選擇自訂儲存位置',
@@ -4872,10 +4876,10 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.fixIssue' => '修復問題',
 			'settings.downloadSettings.issueFixed' => '問題已修復',
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
-			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
-			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
+			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
 			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
 			'settings.downloadSettings.insufficientSpace' => '可用空間不足',
@@ -5386,10 +5390,10 @@ extension on TranslationsZhTw {
 			'notifications.markAllAsReadSuccess' => '所有通知已標記為已讀',
 			'notifications.markAllAsReadFailed' => '全部標記已讀失敗',
 			'notifications.markSelectedAsRead' => '標記已讀',
-			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
-			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
+			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
 			'notifications.markAsReadFailed' => '標記已讀失敗',
@@ -5900,10 +5904,10 @@ extension on TranslationsZhTw {
 			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
 			'mediaPlayer.mute' => '靜音',
 			'mediaPlayer.unmute' => '取消靜音',
-			'mediaPlayer.video' => '影片',
-			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.video' => '影片',
+			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
 			'mediaPlayer.retestSpeed' => '重新測速',
 			'mediaPlayer.waitingForSpeedTest' => '等待測速',
@@ -6414,10 +6418,10 @@ extension on TranslationsZhTw {
 			'savedSearch.deleteSuccess' => '已刪除搜尋',
 			'savedSearch.addCurrent' => '儲存目前搜尋',
 			'savedSearch.reorderHint' => '長按拖曳可調整順序',
-			'savedSearch.rename' => '重新命名',
-			'savedSearch.noKeyword' => '（無關鍵字）',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.rename' => '重新命名',
+			'savedSearch.noKeyword' => '（無關鍵字）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個篩選',
 			'defaultBlacklistReminder.title' => '偵測到網站預設標籤黑名單',
 			'defaultBlacklistReminder.content' => '你的帳號目前仍在使用網站為每個新使用者自動設定的預設標籤黑名單。是否前往黑名單管理頁查看並調整？',

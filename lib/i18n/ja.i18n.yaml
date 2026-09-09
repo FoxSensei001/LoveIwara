@@ -986,6 +986,8 @@ settings:
     storagePermissionNotGranted: ストレージ権限が付与されていません
     storagePermissionGrantSuccess: ストレージ権限が付与されました
     storagePermissionGrantFailedButSomeFeaturesMayBeLimited: ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります
+    storagePermissionRationale: "選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\nAndroid 11 以降では公開ディレクトリへの書き込みに「すべてのファイルへのアクセス」権限が必要です。許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。"
+    storagePermissionRationaleLegacy: "選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\n許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。"
     grantStoragePermission: ストレージ権限を付与
     customDownloadPath: カスタムダウンロードパス
     customDownloadPathDescription: 有効にすると、ダウンロードファイルのカスタム保存場所を選択できます

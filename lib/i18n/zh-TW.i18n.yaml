@@ -986,6 +986,8 @@ settings:
     storagePermissionNotGranted: 需要儲存權限
     storagePermissionGrantSuccess: 儲存權限授權成功
     storagePermissionGrantFailedButSomeFeaturesMayBeLimited: 儲存權限授權失敗，部分功能可能受限
+    storagePermissionRationale: "為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\nAndroid 11 以上需要授予「所有檔案存取權」才能寫入公共目錄；未授予時，檔案會儲存到應用程式專用目錄。"
+    storagePermissionRationaleLegacy: "為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\n未授予時，檔案會儲存到應用程式專用目錄。"
     grantStoragePermission: 授權儲存權限
     customDownloadPath: 自訂下載位置
     customDownloadPathDescription: 啟用後可以為下載的檔案選擇自訂儲存位置

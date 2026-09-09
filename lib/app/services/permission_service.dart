@@ -1,5 +1,7 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 权限管理服务
@@ -7,78 +9,69 @@ import 'package:i_iwara/utils/logger_utils.dart';
 class PermissionService extends GetxService {
   static PermissionService get to => Get.find();
 
+  /// 本进程内缓存的 Android API level（0 表示尚未探测 / 非 Android）。
+  static int? _cachedAndroidSdkInt;
+
+  /// 当前平台该用哪个存储权限。
+  ///
+  /// Android 11+ 走 MANAGE_EXTERNAL_STORAGE（本 App 直接用绝对路径写共享存储，
+  /// 不走 SAF，所以要的是「所有文件访问」）；Android 10 及以下走传统存储权限。
+  Future<Permission> _storagePermission() async {
+    final sdkInt = await _getAndroidVersion();
+    return sdkInt >= 30 ? Permission.manageExternalStorage : Permission.storage;
+  }
+
   /// 检查是否有存储权限
   Future<bool> hasStoragePermission() async {
     try {
-      if (GetPlatform.isAndroid) {
-        // 获取Android版本
-        final androidVersion = await _getAndroidVersion();
-        LogUtils.d('Android版本: $androidVersion', 'PermissionService');
-        
-        if (androidVersion >= 30) {
-          // Android 11+ (API 30+): 检查所有文件管理权限
-          final hasManagePermission = await Permission.manageExternalStorage.isGranted;
-          LogUtils.d('MANAGE_EXTERNAL_STORAGE权限状态: $hasManagePermission', 'PermissionService');
-          return hasManagePermission;
-        } else {
-          // Android 10及以下: 检查传统存储权限
-          final hasStoragePermission = await Permission.storage.isGranted;
-          LogUtils.d('传统存储权限状态: $hasStoragePermission', 'PermissionService');
-          return hasStoragePermission;
-        }
-      } else {
+      if (!GetPlatform.isAndroid) {
         // 其他平台默认有权限
         return true;
       }
+      final permission = await _storagePermission();
+      final granted = await permission.isGranted;
+      LogUtils.d(
+        '存储权限状态: $granted (API ${await _getAndroidVersion()}, $permission)',
+        'PermissionService',
+      );
+      return granted;
     } catch (e) {
       LogUtils.e('检查存储权限失败', tag: 'PermissionService', error: e);
       return false;
     }
   }
 
-  /// 请求存储权限
-  Future<bool> requestStoragePermission() async {
+  /// 请求存储权限。
+  ///
+  /// ⛔ 返回值必须是「用户到底授权了没有」。历史实现在被拒后 `return await
+  /// openAppSettings()`，而 openAppSettings 报的是「设置页打开成功」——于是用户
+  /// 点了拒绝，调用方照样弹「授权成功」、路径修复照样报修好了。
+  Future<bool> requestStoragePermission({
+    bool openSettingsWhenBlocked = true,
+  }) async {
     try {
-      if (GetPlatform.isAndroid) {
-        final androidVersion = await _getAndroidVersion();
-        
-        if (androidVersion >= 30) {
-          // Android 11+: 请求所有文件管理权限
-          LogUtils.d('请求MANAGE_EXTERNAL_STORAGE权限', 'PermissionService');
-          
-          // 检查是否已经有权限
-          if (await Permission.manageExternalStorage.isGranted) {
-            return true;
-          }
-          
-          // 请求权限
-          final status = await Permission.manageExternalStorage.request();
-          LogUtils.d('MANAGE_EXTERNAL_STORAGE权限请求结果: $status', 'PermissionService');
-          
-          if (status.isDenied || status.isPermanentlyDenied) {
-            // 如果被拒绝，引导用户到设置页面
-            LogUtils.d('权限被拒绝，尝试打开设置页面', 'PermissionService');
-            return await openAppSettings();
-          }
-          
-          return status.isGranted;
-        } else {
-          // Android 10及以下: 请求传统存储权限
-          LogUtils.d('请求传统存储权限', 'PermissionService');
-          
-          final status = await Permission.storage.request();
-          LogUtils.d('传统存储权限请求结果: $status', 'PermissionService');
-          
-          if (status.isDenied || status.isPermanentlyDenied) {
-            return await openAppSettings();
-          }
-          
-          return status.isGranted;
-        }
-      } else {
+      if (!GetPlatform.isAndroid) {
         // 其他平台默认有权限
         return true;
       }
+
+      final permission = await _storagePermission();
+      if (await permission.isGranted) return true;
+
+      final status = await permission.request();
+      LogUtils.d('存储权限请求结果: $status ($permission)', 'PermissionService');
+      if (status.isGranted) return true;
+
+      // MANAGE_EXTERNAL_STORAGE 是跳「所有文件访问」系统页再返回的异步流程，
+      // 部分 ROM 上 request() 拿到的是跳转前的旧状态，回来后再复查一次才准。
+      if (await permission.isGranted) return true;
+
+      if (openSettingsWhenBlocked && status.isPermanentlyDenied) {
+        // 只是把用户送到设置页，不能据此认为已授权。
+        LogUtils.d('权限被永久拒绝，打开应用设置页', 'PermissionService');
+        await openAppSettings();
+      }
+      return false;
     } catch (e) {
       LogUtils.e('请求存储权限失败', tag: 'PermissionService', error: e);
       return false;
@@ -125,17 +118,10 @@ class PermissionService extends GetxService {
   /// 获取权限状态详情
   Future<PermissionStatus> getStoragePermissionStatus() async {
     try {
-      if (GetPlatform.isAndroid) {
-        final androidVersion = await _getAndroidVersion();
-        
-        if (androidVersion >= 30) {
-          return await Permission.manageExternalStorage.status;
-        } else {
-          return await Permission.storage.status;
-        }
-      } else {
+      if (!GetPlatform.isAndroid) {
         return PermissionStatus.granted;
       }
+      return await (await _storagePermission()).status;
     } catch (e) {
       LogUtils.e('获取权限状态失败', tag: 'PermissionService', error: e);
       return PermissionStatus.denied;
@@ -153,69 +139,49 @@ class PermissionService extends GetxService {
     }
   }
 
-  /// 获取权限说明文本
+  /// 获取权限说明文本。
+  ///
+  /// ⛔ 这段文案会直接显示在下载设置页，不能写死中文（英/日界面会露馅）。
+  /// 走 slang；Android 11+ 与 10- 的措辞不同，按缓存到的 sdkInt 选，
+  /// 拿不到就用 11+ 的说法（多说一句「所有文件访问」不会错）。
   String getPermissionDescription() {
-    if (GetPlatform.isAndroid) {
-      return '为了能够将文件下载到您选择的位置，应用需要存储权限。'
-          '\n\n在Android 11及以上版本中，需要授予"所有文件访问权限"才能访问公共目录（如下载文件夹）。'
-          '\n\n如果不授予此权限，文件将保存到应用专用目录中。';
-    } else {
-      return '应用需要访问文件系统来保存下载的文件。';
+    final t = slang.t.settings.downloadSettings;
+    final sdkInt = _cachedAndroidSdkInt;
+    if (sdkInt != null && sdkInt < 30) {
+      return t.storagePermissionRationaleLegacy;
     }
+    return t.storagePermissionRationale;
   }
 
-  /// 获取权限类型说明
-  Future<String> getPermissionTypeDescription() async {
-    if (GetPlatform.isAndroid) {
-      final androidVersion = await _getAndroidVersion();
-      
-      if (androidVersion >= 30) {
-        return '所有文件访问权限 (Android 11+)';
-      } else {
-        return '存储权限 (Android 10及以下)';
-      }
-    } else {
-      return '文件系统访问权限';
-    }
-  }
-
-  /// 获取Android版本号
+  /// 获取 Android API level。
+  ///
+  /// ⛔ 别再用「调某个权限的 status 会不会抛异常」来反推版本：
+  /// `Permission.manageExternalStorage.status` 在 Android 10 上也不抛，
+  /// 于是所有设备都被判成 API 30，Android 10 及以下会去查一个系统里根本不存在的
+  /// MANAGE_EXTERNAL_STORAGE，恒为未授权 → 用户设的公共目录永远静默回落到应用
+  /// 私有目录。device_info_plus 本来就是依赖，直接读真的 sdkInt。
   Future<int> _getAndroidVersion() async {
+    if (!GetPlatform.isAndroid) return 0;
+    final cached = _cachedAndroidSdkInt;
+    if (cached != null) return cached;
     try {
-      if (GetPlatform.isAndroid) {
-        // 通过Platform.version获取Android版本
-        // Platform.version格式类似: "2.8.6 (stable) (Tue Dec 10 15:26:15 2019 +0100) on android-arm64"
-        // 我们需要通过其他方式获取Android API级别
-        
-        // 这里我们使用一个简化的方法，基于permission_handler的行为来判断
-        // 如果MANAGE_EXTERNAL_STORAGE权限存在，说明是Android 11+
-        try {
-          await Permission.manageExternalStorage.status;
-          return 30; // Android 11+
-        } catch (e) {
-          return 29; // Android 10及以下
-        }
-      }
-      return 0;
+      final info = await DeviceInfoPlugin().androidInfo;
+      final sdkInt = info.version.sdkInt;
+      _cachedAndroidSdkInt = sdkInt;
+      return sdkInt;
     } catch (e) {
       LogUtils.e('获取Android版本失败', tag: 'PermissionService', error: e);
-      return 29; // 默认返回Android 10
+      // 拿不到就按最新行为处理：宁可多要一次「所有文件访问」，也不要在
+      // Android 11+ 上误用传统权限，那在 11+ 上是永远不够用的。
+      return 30;
     }
   }
 
   /// 检查是否需要显示权限说明
   Future<bool> shouldShowPermissionRationale() async {
     try {
-      if (GetPlatform.isAndroid) {
-        final androidVersion = await _getAndroidVersion();
-        
-        if (androidVersion >= 30) {
-          return await Permission.manageExternalStorage.shouldShowRequestRationale;
-        } else {
-          return await Permission.storage.shouldShowRequestRationale;
-        }
-      }
-      return false;
+      if (!GetPlatform.isAndroid) return false;
+      return await (await _storagePermission()).shouldShowRequestRationale;
     } catch (e) {
       LogUtils.e('检查权限说明显示状态失败', tag: 'PermissionService', error: e);
       return false;
@@ -251,19 +217,9 @@ class PermissionService extends GetxService {
     }
   }
 
-  /// 检查是否可以访问公共目录
-  Future<bool> canAccessPublicDirectories() async {
-    if (!GetPlatform.isAndroid) {
-      return true; // 非Android平台默认可以访问
-    }
-    
-    final androidVersion = await _getAndroidVersion();
-    if (androidVersion >= 30) {
-      // Android 11+需要MANAGE_EXTERNAL_STORAGE权限
-      return await Permission.manageExternalStorage.isGranted;
-    } else {
-      // Android 10及以下需要传统存储权限
-      return await Permission.storage.isGranted;
-    }
-  }
+  /// 检查是否可以访问共享存储（公共目录、外置 SD 卡上的用户目录等）。
+  ///
+  /// 本 App 用绝对路径直接写共享存储（不走 SAF），所以这跟
+  /// [hasStoragePermission] 是同一件事，保留独立入口只是为了调用点读起来清楚。
+  Future<bool> canAccessPublicDirectories() => hasStoragePermission();
 }

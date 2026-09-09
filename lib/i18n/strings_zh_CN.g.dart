@@ -2831,6 +2831,8 @@ class _TranslationsSettingsDownloadSettingsZhCn implements TranslationsSettingsD
 	@override String get storagePermissionNotGranted => '需要存储权限';
 	@override String get storagePermissionGrantSuccess => '存储权限授权成功';
 	@override String get storagePermissionGrantFailedButSomeFeaturesMayBeLimited => '存储权限授权失败，部分功能可能受限';
+	@override String get storagePermissionRationale => '为了把文件下载到你选择的位置，应用需要存储权限。\n\nAndroid 11 及以上需要授予「所有文件访问权限」才能写入公共目录；不授予的话，文件会保存到应用专用目录。';
+	@override String get storagePermissionRationaleLegacy => '为了把文件下载到你选择的位置，应用需要存储权限。\n\n不授予的话，文件会保存到应用专用目录。';
 	@override String get grantStoragePermission => '授权存储权限';
 	@override String get customDownloadPath => '自定义下载位置';
 	@override String get customDownloadPathDescription => '启用后可以为下载的文件选择自定义保存位置';
@@ -4795,6 +4797,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.storagePermissionNotGranted' => '需要存储权限',
 			'settings.downloadSettings.storagePermissionGrantSuccess' => '存储权限授权成功',
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '存储权限授权失败，部分功能可能受限',
+			'settings.downloadSettings.storagePermissionRationale' => '为了把文件下载到你选择的位置，应用需要存储权限。\n\nAndroid 11 及以上需要授予「所有文件访问权限」才能写入公共目录；不授予的话，文件会保存到应用专用目录。',
+			'settings.downloadSettings.storagePermissionRationaleLegacy' => '为了把文件下载到你选择的位置，应用需要存储权限。\n\n不授予的话，文件会保存到应用专用目录。',
 			'settings.downloadSettings.grantStoragePermission' => '授权存储权限',
 			'settings.downloadSettings.customDownloadPath' => '自定义下载位置',
 			'settings.downloadSettings.customDownloadPathDescription' => '启用后可以为下载的文件选择自定义保存位置',
@@ -4872,10 +4876,10 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.fixIssue' => '修复问题',
 			'settings.downloadSettings.issueFixed' => '问题已修复',
 			'settings.downloadSettings.fixFailed' => '修复失败，请手动处理',
-			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
-			'settings.downloadSettings.cannotAccessPublicDirectory' => '无法访问公共目录，需要"所有文件访问权限"',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
+			'settings.downloadSettings.cannotAccessPublicDirectory' => '无法访问公共目录，需要"所有文件访问权限"',
 			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
 			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
 			'settings.downloadSettings.insufficientSpace' => '可用空间不足',
@@ -5386,10 +5390,10 @@ extension on TranslationsZhCn {
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
 			'conversation.errors.pleaseEnterATitle' => '请输入标题',
-			'conversation.errors.clickToSelectAUser' => '点击选择用户',
-			'conversation.errors.loadFailedClickToRetry' => '加载失败,点击重试',
 			_ => null,
 		} ?? switch (path) {
+			'conversation.errors.clickToSelectAUser' => '点击选择用户',
+			'conversation.errors.loadFailedClickToRetry' => '加载失败,点击重试',
 			'conversation.errors.loadFailed' => '加载失败',
 			'conversation.errors.clickToRetry' => '点击重试',
 			'conversation.errors.noMoreConversations' => '没有更多消息了',
@@ -5900,10 +5904,10 @@ extension on TranslationsZhCn {
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
 			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
-			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
-			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
+			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
 			'mediaPlayer.openSettingsAction' => '查看',
 			'mediaPlayer.notice.semanticsPrefix' => ({required Object message}) => '播放提示：${message}',
@@ -6414,10 +6418,10 @@ extension on TranslationsZhCn {
 			'savedSearch.deleteSuccess' => '已删除搜索',
 			'savedSearch.addCurrent' => '保存当前搜索',
 			'savedSearch.reorderHint' => '长按拖动可调整顺序',
-			'savedSearch.rename' => '重命名',
-			'savedSearch.noKeyword' => '（无关键词）',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.rename' => '重命名',
+			'savedSearch.noKeyword' => '（无关键词）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 个筛选',
 			'defaultBlacklistReminder.title' => '检测到网站默认标签黑名单',
 			'defaultBlacklistReminder.content' => '你的账号当前仍在使用网站为每个新用户自动设置的默认标签黑名单。是否前往黑名单管理页查看并调整？',
