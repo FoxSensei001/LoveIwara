@@ -27,8 +27,19 @@ class ConfigBackupService extends GetxService {
 
   bool _isTaskRunning = false;
 
-  /// 导出时不参与的表（下载任务与本机强相关，迁移到其他设备无意义）。
-  static const Set<String> _excludedTables = {'download_tasks'};
+  /// 导出时不参与的表（与本机强相关，迁移到其他设备无意义）。
+  ///
+  /// ⛔ 本地媒体库三表**必须**在这里：`local_media_sources.path` 与
+  /// `local_media_items.path/name` 装的是用户磁盘上的目录结构与文件名，而备份文件
+  /// 是会被用户分享、上传网盘的。在本 App 的内容域下**文件名本身就是敏感信息**，
+  /// 把它带进一个可分享的文件是隐私事故。理由与 `download_tasks` 同源，只是更重。
+  /// 顺带一层：还原到新机器上这些行也只会变成一库 `missing`，本来就没有意义。
+  static const Set<String> _excludedTables = {
+    'download_tasks',
+    'local_media_sources',
+    'local_media_items',
+    'local_media_progress',
+  };
 
   /// app_config 中属于敏感信息的配置键（API 密钥、会话令牌、可能含账号密码的代理地址、
   /// 可能内嵌路径 token 的自建/中转网关地址）。

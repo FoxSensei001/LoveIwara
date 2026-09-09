@@ -18,6 +18,7 @@ import 'package:i_iwara/db/migrations/migration_v19_download_task_error_type.dar
 import 'package:i_iwara/db/migrations/migration_v20_oreno3d_match_cache.dart';
 import 'package:i_iwara/db/migrations/migration_v21_watch_later.dart';
 import 'package:i_iwara/db/migrations/migration_v22_vr_format_override.dart';
+import 'package:i_iwara/db/migrations/migration_v23_local_media.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -54,6 +55,7 @@ class MigrationManager {
     MigrationV20Oreno3dMatchCache(),
     MigrationV21WatchLater(),
     MigrationV22VrFormatOverride(),
+    MigrationV23LocalMedia(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 
