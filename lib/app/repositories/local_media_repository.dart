@@ -172,6 +172,9 @@ class LocalMediaRepository {
     );
     _db.execute('BEGIN');
     try {
+      // ⛔ 必须在 upsert **之前**：这一步靠比对库里那份旧的 size/mtime 判断
+      //    「还是不是同一个文件」，写完就再也分不出来了。
+      _dropProgressOfReplacedItems(items);
       for (final item in items) {
         final row = item.toRow();
         statement.execute(columns.map((c) => row[c]).toList());
@@ -184,6 +187,77 @@ class LocalMediaRepository {
     } finally {
       statement.close();
     }
+  }
+
+  /// 同一个 id 底下换了一个**不同的文件**：把它的进度行清掉。
+  ///
+  /// # ⛔ 为什么不能挂在 `missing` 上
+  ///
+  /// 直觉的做法是「[markMissingExcept] 标记 missing 时顺手删进度」，那是错的，
+  /// 而且是这个文件里已经写明的一条纪律：外置存储没挂上、目录临时不可读时，
+  /// missing 是**假警报**，删进度等于让用户的观看记录凭空蒸发。
+  ///
+  /// 更要紧的是它**根本盖不住主要场景**：用户直接把文件覆盖掉（同名重下、
+  /// 剪辑后另存、rsync 同步）时，那一行从头到尾没有 missing 过。
+  ///
+  /// # 判据：与 [upsertItems] 的 `changed` 同一条
+  ///
+  /// 条目 id 是 `<源 uuid>-<路径 sha1>`——**同源同路径就是同一个 id**。所以
+  /// 「删掉再放一个同名文件」拿到的是同一把钥匙，旧进度会悄悄复活，用户点开
+  /// 一个全新的文件却从中间开始放。真正能分辨"换没换文件"的只有内容指纹，
+  /// 也就是 `size_bytes` / `modified_at`——`duration_ms/width/height/thumb_path`
+  /// 那几列早就是按这条判据作废重算的，进度只是漏了。
+  ///
+  /// 大小与修改时间都没变则视为同一个文件，进度保留：这正是"外置盘重新挂上、
+  /// 重扫一遍、接着看"该有的样子。
+  void _dropProgressOfReplacedItems(List<LocalMediaItem> items) {
+    const chunkSize = 400;
+    final incoming = <String, LocalMediaFingerprint>{
+      for (final item in items)
+        item.id: LocalMediaFingerprint(
+          sizeBytes: item.sizeBytes,
+          modifiedAt: item.modifiedAt,
+        ),
+    };
+    final ids = incoming.keys.toList();
+    final replaced = <String>[];
+    for (var i = 0; i < ids.length; i += chunkSize) {
+      final chunk = ids.sublist(
+        i,
+        i + chunkSize > ids.length ? ids.length : i + chunkSize,
+      );
+      final marks = List.filled(chunk.length, '?').join(', ');
+      // 只问有进度行的那些：绝大多数条目从没被播过，没必要为它们回表。
+      final rows = _db.select(
+        'SELECT i.id AS id, i.size_bytes AS size_bytes, i.modified_at AS modified_at '
+        'FROM local_media_items i '
+        'JOIN local_media_progress p ON p.item_id = i.id '
+        'WHERE i.id IN ($marks)',
+        chunk,
+      );
+      for (final row in rows) {
+        final id = row['id'] as String;
+        final now = incoming[id];
+        if (now == null) continue;
+        if ((row['size_bytes'] as int?) != now.sizeBytes ||
+            (row['modified_at'] as int?) != now.modifiedAt) {
+          replaced.add(id);
+        }
+      }
+    }
+    if (replaced.isEmpty) return;
+    for (var i = 0; i < replaced.length; i += chunkSize) {
+      final chunk = replaced.sublist(
+        i,
+        i + chunkSize > replaced.length ? replaced.length : i + chunkSize,
+      );
+      final marks = List.filled(chunk.length, '?').join(', ');
+      _db.execute(
+        'DELETE FROM local_media_progress WHERE item_id IN ($marks)',
+        chunk,
+      );
+    }
+    LogUtils.i('本地条目内容已变，清掉 ${replaced.length} 条陈旧进度', _tag);
   }
 
   /// 一轮完整扫描结束后，把**这轮没再见到**的条目标记为 missing。
@@ -406,5 +480,29 @@ class LocalMediaRepository {
         DateTime.now().millisecondsSinceEpoch,
       ],
     );
+  }
+
+  /// 库里一共记着多少条本机观看记录。清除入口拿它决定「要不要露出来」
+  /// 以及在确认框里说清楚这一下会删掉多少东西。
+  int progressCount() =>
+      (_db.select(
+                'SELECT COUNT(*) AS c FROM local_media_progress',
+              ).first['c']
+              as int?) ??
+      0;
+
+  /// 清空本机观看记录（进度 + 「已看完」标记），返回删掉的条数。
+  ///
+  /// ⛔ **只删记录，条目和磁盘文件一个不动**——这是隐私入口，不是删片入口。
+  ///
+  /// 这张表按设计**永不自动清理**（见 migration v23 的类注释：本地文件不会消失，
+  /// 「两周后回来接着看第 3 集」正是它存在的理由）。代价是它只增不减，而且现在
+  /// 会以进度条的形式显示在列表上——那就必须有一个用户自己动手的清除口子，
+  /// 否则唯一的清法是把整个源移除。
+  int clearAllProgress() {
+    _db.execute('DELETE FROM local_media_progress');
+    final removed = _db.updatedRows;
+    LogUtils.i('已清空本机观看记录：$removed 条', _tag);
+    return removed;
   }
 }
