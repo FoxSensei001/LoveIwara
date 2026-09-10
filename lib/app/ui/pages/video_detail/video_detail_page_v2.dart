@@ -1244,6 +1244,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
               task: widget.localTask,
               allQualityTasks: widget.localAllQualityTasks ?? [],
               localPath: widget.localPath!,
+              localLibraryItemId: widget.localLibraryItemId,
             ),
           )
         else ...[
@@ -1300,6 +1301,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
                 task: widget.localTask,
                 allQualityTasks: widget.localAllQualityTasks ?? [],
                 localPath: widget.localPath!,
+                localLibraryItemId: widget.localLibraryItemId,
               ),
             ]
           : [

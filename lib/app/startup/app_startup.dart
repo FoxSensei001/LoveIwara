@@ -33,6 +33,7 @@ import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -417,6 +418,12 @@ class AppStartupCoordinator implements AppStartupRunner {
     );
     _registerDeferredSingleton<VrFormatOverrideService>(
       VrFormatOverrideService(),
+    );
+    // 派生服务独占串行的 media-kit Player 队列；扫描和「已下载」同步只负责
+    // 把文件送进来。它必须先注册，避免服务构造期间解析不到依赖。
+    _registerDeferredSingleton<LocalMediaDerivationService>(
+      LocalMediaDerivationService(),
+      permanent: true,
     );
     // ⛔ permanent：本服务持有扫描 isolate。启动重试时被 `Get.delete` 换掉的话，
     // 正在跑的扫描会被连根拔掉，而页面上挂在旧实例 Rx 上的进度监听会静默失聪

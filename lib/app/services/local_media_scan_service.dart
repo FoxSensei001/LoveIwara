@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -123,6 +124,11 @@ class LocalMediaScanService extends GetxService {
 
   bool get isScanning => _running != null && !_running!.isCompleted;
 
+  LocalMediaDerivationService? get _derivationService =>
+      Get.isRegistered<LocalMediaDerivationService>()
+      ? Get.find<LocalMediaDerivationService>()
+      : null;
+
   /// 扫一个源。同一时刻只跑一个——并发扫两个目录只会让两边都变慢，
   /// 而且写库那一侧本来就是串行的。
   Future<void> scanSource(LocalMediaSource source) async {
@@ -218,6 +224,7 @@ class LocalMediaScanService extends GetxService {
         case 'batch':
           final records = (message['files'] as List).cast<Map>();
           final items = <LocalMediaItem>[];
+          final derivationCandidates = <LocalMediaItem>[];
           final now = DateTime.now().millisecondsSinceEpoch;
           for (final record in records) {
             final path = record['path'] as String;
@@ -227,39 +234,46 @@ class LocalMediaScanService extends GetxService {
             final size = record['size'] as int?;
             final modified = record['modified'] as int?;
             final fingerprint = known[hash];
-            // 没变过的老条目连 upsert 都不用发——省掉的是整批事务里最不值钱的那部分写。
-            if (fingerprint != null &&
+            final name = p.basename(path);
+            final item = LocalMediaItem(
+              id: LocalMediaItem.buildId(source.id, hash),
+              sourceId: source.id,
+              pathHash: hash,
+              path: path,
+              kind: LocalMediaItemKind.video,
+              name: name,
+              sortName: naturalSortKey(name),
+              ext: (record['ext'] as String?)?.toLowerCase(),
+              sizeBytes: size,
+              modifiedAt: modified,
+              sidecarImagePath: record['sidecar'] as String?,
+              folderPath: p.dirname(path),
+              addedAt: now,
+            );
+            final unchanged =
+                fingerprint != null &&
                 !fingerprint.missing &&
                 fingerprint.sizeBytes == size &&
-                fingerprint.modifiedAt == modified) {
-              continue;
+                fingerprint.modifiedAt == modified &&
+                fingerprint.sidecarImagePath == item.sidecarImagePath;
+            // 没变过的老条目连 upsert 都不用发，但仍要补跑尚未完成的
+            // 内容派生（例如升级前已经扫过的旧条目）。
+            if (!unchanged) items.add(item);
+            final hasMetadata = fingerprint?.hasMetadata ?? false;
+            if (!unchanged || !hasMetadata) {
+              derivationCandidates.add(item);
             }
-            final name = p.basename(path);
-            items.add(
-              LocalMediaItem(
-                id: LocalMediaItem.buildId(source.id, hash),
-                sourceId: source.id,
-                pathHash: hash,
-                path: path,
-                kind: LocalMediaItemKind.video,
-                name: name,
-                sortName: naturalSortKey(name),
-                ext: (record['ext'] as String?)?.toLowerCase(),
-                sizeBytes: size,
-                modifiedAt: modified,
-                sidecarImagePath: record['sidecar'] as String?,
-                folderPath: p.dirname(path),
-                addedAt: now,
-              ),
-            );
           }
           discovered += records.length;
           if (items.isNotEmpty) {
             try {
               _repository.upsertItems(items);
+              _enqueueDerivation(derivationCandidates);
             } catch (e) {
               LogUtils.e('写入扫描批次失败', tag: _tag, error: e);
             }
+          } else {
+            _enqueueDerivation(derivationCandidates);
           }
           progress.value = LocalMediaScanProgress(
             sourceId: source.id,
@@ -446,6 +460,12 @@ class LocalMediaScanService extends GetxService {
 
   static String _hashPath(String path) =>
       sha1.convert(utf8.encode(path)).toString();
+
+  void _enqueueDerivation(Iterable<LocalMediaItem> items) {
+    final service = _derivationService;
+    if (service == null) return;
+    unawaited(service.enqueueAll(items));
+  }
 }
 
 // ── isolate 侧 ────────────────────────────────────────────────────────────

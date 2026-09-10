@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,9 +8,11 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_action_menu.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 /// 视频来源切到设备文件时使用的卡片。
 ///
@@ -38,6 +41,10 @@ class LocalMediaCardListItemWidget extends StatefulWidget {
 class _LocalMediaCardListItemWidgetState
     extends State<LocalMediaCardListItemWidget> {
   DownloadTask? _task;
+  LocalMediaItem? _derivedItem;
+  bool _thumbnailRequested = false;
+
+  LocalMediaItem get _item => _derivedItem ?? widget.item;
 
   VideoDownloadExtData? get _downloadData {
     final ext = _task?.extData;
@@ -76,7 +83,33 @@ class _LocalMediaCardListItemWidgetState
     if (oldWidget.item.id != widget.item.id ||
         oldWidget.item.downloadTaskId != widget.item.downloadTaskId) {
       _task = null;
+      _derivedItem = null;
+      _thumbnailRequested = false;
       _loadDownloadTask();
+    }
+  }
+
+  Future<void> _ensureThumbnail() async {
+    final item = widget.item;
+    if (item.missing || !Get.isRegistered<LocalMediaDerivationService>()) {
+      return;
+    }
+    if (await _fileExists(item.sidecarImagePath) ||
+        await _fileExists(item.thumbPath)) {
+      return;
+    }
+    final updated = await LocalMediaDerivationService.to.ensureThumbnail(item);
+    if (!mounted || updated == null || updated.id != widget.item.id) return;
+    setState(() => _derivedItem = updated);
+    widget.onChanged?.call();
+  }
+
+  static Future<bool> _fileExists(String? filePath) async {
+    if (filePath == null || filePath.isEmpty) return false;
+    try {
+      return await File(filePath).exists();
+    } catch (_) {
+      return false;
     }
   }
 
@@ -90,7 +123,7 @@ class _LocalMediaCardListItemWidgetState
   }
 
   Future<void> _openPreview() async {
-    final item = widget.item;
+    final item = _item;
     await showGlassAlertDialog<void>(
       title: _title,
       content: Column(
@@ -117,6 +150,11 @@ class _LocalMediaCardListItemWidgetState
                   icon: Icons.storage_outlined,
                   label: _formatBytes(item.sizeBytes!),
                 ),
+              if (item.width != null && item.height != null)
+                _MetaChip(
+                  icon: Icons.aspect_ratio_outlined,
+                  label: '${item.width}x${item.height}',
+                ),
               if (_author != null)
                 _MetaChip(icon: Icons.person_outline, label: _author!),
             ],
@@ -140,6 +178,7 @@ class _LocalMediaCardListItemWidgetState
     final theme = Theme.of(context);
     final radius = BorderRadius.circular(14);
     final author = _author;
+    final item = _item;
 
     return SizedBox(
       width: widget.width,
@@ -157,7 +196,17 @@ class _LocalMediaCardListItemWidgetState
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _Cover(item: widget.item, remoteCover: _remoteCover),
+                  VisibilityDetector(
+                    key: ValueKey<String>('local-media-cover-${item.id}'),
+                    onVisibilityChanged: (info) {
+                      if (info.visibleFraction <= 0 || _thumbnailRequested) {
+                        return;
+                      }
+                      _thumbnailRequested = true;
+                      unawaited(_ensureThumbnail());
+                    },
+                    child: _Cover(item: item, remoteCover: _remoteCover),
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
                     child: Column(
@@ -180,15 +229,20 @@ class _LocalMediaCardListItemWidgetState
                           spacing: 8,
                           runSpacing: 4,
                           children: <Widget>[
-                            if (widget.item.durationMs != null)
+                            if (item.durationMs != null)
                               _MetaChip(
                                 icon: Icons.schedule_outlined,
-                                label: _formatDuration(widget.item.durationMs!),
+                                label: _formatDuration(item.durationMs!),
                               ),
-                            if (widget.item.sizeBytes != null)
+                            if (item.sizeBytes != null)
                               _MetaChip(
                                 icon: Icons.storage_outlined,
-                                label: _formatBytes(widget.item.sizeBytes!),
+                                label: _formatBytes(item.sizeBytes!),
+                              ),
+                            if (item.width != null && item.height != null)
+                              _MetaChip(
+                                icon: Icons.aspect_ratio_outlined,
+                                label: '${item.width}x${item.height}',
                               ),
                           ],
                         ),
@@ -212,7 +266,7 @@ class _LocalMediaCardListItemWidgetState
                 right: 0,
                 bottom: 0,
                 child: LocalMediaActionMenuButton(
-                  item: widget.item,
+                  item: item,
                   onPreview: _openPreview,
                   onChanged: widget.onChanged,
                 ),
@@ -263,13 +317,28 @@ class _Cover extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final sidecar = item.sidecarImagePath;
+    final thumbnail = item.thumbPath;
     Widget child;
     if (sidecar != null && sidecar.isNotEmpty) {
       child = Image.file(
         File(sidecar),
         fit: BoxFit.cover,
         cacheWidth: 640,
-        errorBuilder: (_, _, _) => _placeholder(scheme),
+        errorBuilder: (_, _, _) => thumbnail != null && thumbnail.isNotEmpty
+            ? Image.file(
+                File(thumbnail),
+                fit: BoxFit.cover,
+                cacheWidth: 640,
+                errorBuilder: (_, _, _) => _remoteOrPlaceholder(scheme),
+              )
+            : _remoteOrPlaceholder(scheme),
+      );
+    } else if (thumbnail != null && thumbnail.isNotEmpty) {
+      child = Image.file(
+        File(thumbnail),
+        fit: BoxFit.cover,
+        cacheWidth: 640,
+        errorBuilder: (_, _, _) => _remoteOrPlaceholder(scheme),
       );
     } else if (remoteCover != null) {
       child = CachedNetworkImage(
@@ -286,6 +355,18 @@ class _Cover extends StatelessWidget {
       borderRadius: borderRadius,
       child: AspectRatio(aspectRatio: 16 / 9, child: child),
     );
+  }
+
+  Widget _remoteOrPlaceholder(ColorScheme scheme) {
+    if (remoteCover != null) {
+      return CachedNetworkImage(
+        imageUrl: remoteCover!,
+        fit: BoxFit.cover,
+        memCacheWidth: 640,
+        errorWidget: (_, _, _) => _placeholder(scheme),
+      );
+    }
+    return _placeholder(scheme);
   }
 
   Widget _placeholder(ColorScheme scheme) => ColoredBox(

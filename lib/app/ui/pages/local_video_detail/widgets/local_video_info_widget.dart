@@ -1,9 +1,15 @@
 import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/controllers/my_video_state_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:open_file/open_file.dart';
@@ -12,11 +18,12 @@ import 'package:i_iwara/utils/common_utils.dart';
 
 /// 本地视频信息展示组件
 /// 显示视频元数据（来自下载任务）或文件信息（纯本地文件）
-class LocalVideoInfoWidget extends StatelessWidget {
+class LocalVideoInfoWidget extends StatefulWidget {
   final MyVideoStateController controller;
   final DownloadTask? task;
   final List<DownloadTask> allQualityTasks;
   final String localPath;
+  final String? localLibraryItemId;
 
   const LocalVideoInfoWidget({
     super.key,
@@ -24,7 +31,71 @@ class LocalVideoInfoWidget extends StatelessWidget {
     required this.task,
     required this.allQualityTasks,
     required this.localPath,
+    this.localLibraryItemId,
   });
+
+  @override
+  State<LocalVideoInfoWidget> createState() => _LocalVideoInfoWidgetState();
+}
+
+class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
+  LocalMediaItem? _localItem;
+
+  MyVideoStateController get controller => widget.controller;
+  DownloadTask? get task => widget.task;
+  List<DownloadTask> get allQualityTasks => widget.allQualityTasks;
+  String get localPath => widget.localPath;
+
+  String? get _remoteCover {
+    final ext = task?.extData;
+    if (ext == null || ext.type != DownloadTaskExtDataType.video) return null;
+    try {
+      final cover = VideoDownloadExtData.fromJson(ext.data).thumbnail?.trim();
+      return cover == null || cover.isEmpty ? null : cover;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocalItem();
+  }
+
+  @override
+  void didUpdateWidget(covariant LocalVideoInfoWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.localLibraryItemId != widget.localLibraryItemId ||
+        oldWidget.localPath != widget.localPath) {
+      _localItem = null;
+      _loadLocalItem();
+    }
+  }
+
+  void _loadLocalItem() {
+    final itemId = widget.localLibraryItemId;
+    if (itemId == null || itemId.isEmpty) return;
+    try {
+      final item = LocalMediaRepository().getItem(itemId);
+      if (!mounted) return;
+      setState(() => _localItem = item);
+      if (item != null) _ensureThumbnail(item);
+    } catch (_) {
+      // The player remains usable even if a stale route points at a removed row.
+    }
+  }
+
+  Future<void> _ensureThumbnail(LocalMediaItem item) async {
+    if (!Get.isRegistered<LocalMediaDerivationService>()) return;
+    final updated = await LocalMediaDerivationService.to.ensureThumbnail(item);
+    if (!mounted ||
+        updated == null ||
+        updated.id != widget.localLibraryItemId) {
+      return;
+    }
+    setState(() => _localItem = updated);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +146,18 @@ class LocalVideoInfoWidget extends StatelessWidget {
             const Divider(height: 1),
             const SizedBox(height: 12),
 
+            if (_localItem != null || _remoteCover != null) ...[
+              _buildCover(context),
+              const SizedBox(height: 16),
+            ],
+
             // 标题
             Obx(() {
               final videoInfo = controller.videoInfo.value;
-              final title = videoInfo?.title ?? _getFileNameFromPath(localPath);
+              final title =
+                  videoInfo?.title ??
+                  _localItem?.name ??
+                  _getFileNameFromPath(localPath);
               return Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -127,7 +206,10 @@ class LocalVideoInfoWidget extends StatelessWidget {
 
             // 时长
             Obx(() {
-              final duration = controller.totalDuration.value;
+              final storedDuration = _localItem?.durationMs;
+              final duration = storedDuration != null
+                  ? Duration(milliseconds: storedDuration)
+                  : controller.totalDuration.value;
               if (duration.inSeconds > 0) {
                 return _buildInfoRow(
                   context,
@@ -141,8 +223,10 @@ class LocalVideoInfoWidget extends StatelessWidget {
 
             // 分辨率
             Obx(() {
-              final width = controller.sourceVideoWidth.value;
-              final height = controller.sourceVideoHeight.value;
+              final width =
+                  _localItem?.width ?? controller.sourceVideoWidth.value;
+              final height =
+                  _localItem?.height ?? controller.sourceVideoHeight.value;
               if (width > 0 && height > 0) {
                 return _buildInfoRow(
                   context,
@@ -156,6 +240,55 @@ class LocalVideoInfoWidget extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildCover(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final item = _localItem;
+    final sidecar = item?.sidecarImagePath;
+    final thumbnail = item?.thumbPath;
+
+    Widget placeholder() => ColoredBox(
+      color: scheme.surfaceContainerHighest,
+      child: Center(
+        child: Icon(Icons.movie_outlined, color: scheme.onSurfaceVariant),
+      ),
+    );
+
+    Widget remoteOrPlaceholder() {
+      final cover = _remoteCover;
+      if (cover == null) return placeholder();
+      return CachedNetworkImage(
+        imageUrl: cover,
+        fit: BoxFit.cover,
+        memCacheWidth: 960,
+        errorWidget: (_, _, _) => placeholder(),
+      );
+    }
+
+    Widget fromFile(String filePath, {Widget? fallback}) => Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      cacheWidth: 960,
+      errorBuilder: (_, _, _) => fallback ?? remoteOrPlaceholder(),
+    );
+
+    final thumbnailFallback = thumbnail != null && thumbnail.isNotEmpty
+        ? fromFile(thumbnail)
+        : null;
+    final child = sidecar != null && sidecar.isNotEmpty
+        ? fromFile(
+            sidecar,
+            fallback: thumbnailFallback ?? remoteOrPlaceholder(),
+          )
+        : thumbnail != null && thumbnail.isNotEmpty
+        ? thumbnailFallback!
+        : remoteOrPlaceholder();
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: AspectRatio(aspectRatio: 16 / 9, child: child),
     );
   }
 
@@ -221,20 +354,28 @@ class LocalVideoInfoWidget extends StatelessWidget {
             const SizedBox(height: 12),
 
             // 文件大小
-            FutureBuilder<int>(
-              future: _getFileSize(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return _buildInfoRow(
-                    context,
-                    t.videoDetail.localInfo.fileSize,
-                    _formatFileSize(snapshot.data!),
-                    Icons.storage_outlined,
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+            if (_localItem?.sizeBytes != null)
+              _buildInfoRow(
+                context,
+                t.videoDetail.localInfo.fileSize,
+                _formatFileSize(_localItem!.sizeBytes!),
+                Icons.storage_outlined,
+              )
+            else
+              FutureBuilder<int>(
+                future: _getFileSize(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return _buildInfoRow(
+                      context,
+                      t.videoDetail.localInfo.fileSize,
+                      _formatFileSize(snapshot.data!),
+                      Icons.storage_outlined,
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             const SizedBox(height: 12),
 
             // 文件路径（直接显示，支持换行）

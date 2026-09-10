@@ -27,11 +27,21 @@ class LocalMediaFingerprint {
   const LocalMediaFingerprint({
     this.sizeBytes,
     this.modifiedAt,
+    this.durationMs,
+    this.width,
+    this.height,
+    this.sidecarImagePath,
     this.missing = false,
   });
   final int? sizeBytes;
   final int? modifiedAt;
+  final int? durationMs;
+  final int? width;
+  final int? height;
+  final String? sidecarImagePath;
   final bool missing;
+
+  bool get hasMetadata => durationMs != null && width != null && height != null;
 }
 
 class LocalMediaRepository {
@@ -142,7 +152,8 @@ class LocalMediaRepository {
   /// 只取三列，千级条目也就几百 KB——比"每条去问一次库"便宜得多。
   Map<String, LocalMediaFingerprint> fingerprints(String sourceId) {
     final rows = _db.select(
-      'SELECT path_hash, size_bytes, modified_at, missing '
+      'SELECT path_hash, size_bytes, modified_at, duration_ms, width, height, '
+      'sidecar_image_path, missing '
       'FROM local_media_items WHERE source_id = ?',
       [sourceId],
     );
@@ -151,6 +162,10 @@ class LocalMediaRepository {
         row['path_hash'] as String: LocalMediaFingerprint(
           sizeBytes: row['size_bytes'] as int?,
           modifiedAt: row['modified_at'] as int?,
+          durationMs: row['duration_ms'] as int?,
+          width: row['width'] as int?,
+          height: row['height'] as int?,
+          sidecarImagePath: row['sidecar_image_path'] as String?,
           missing: (row['missing'] as int? ?? 0) != 0,
         ),
     };
@@ -575,6 +590,45 @@ class LocalMediaRepository {
     ]);
     if (rows.isEmpty) return null;
     return LocalMediaItem.fromRow(rows.first);
+  }
+
+  /// Writes only successful content derivations for the exact file version
+  /// that was inspected. A late result for a replaced or missing file is
+  /// discarded by the fingerprint predicates.
+  bool updateDerivedFields({
+    required String itemId,
+    required int? expectedSizeBytes,
+    required int? expectedModifiedAt,
+    int? durationMs,
+    int? width,
+    int? height,
+    String? thumbPath,
+  }) {
+    if (expectedSizeBytes == null || expectedModifiedAt == null) return false;
+
+    final assignments = <String>[];
+    final values = <Object?>[];
+    void add(String column, Object? value) {
+      if (value == null) return;
+      assignments.add('$column = ?');
+      values.add(value);
+    }
+
+    add('duration_ms', durationMs);
+    add('width', width);
+    add('height', height);
+    add('thumb_path', thumbPath);
+    if (assignments.isEmpty) return false;
+
+    values.addAll(<Object?>[itemId, expectedSizeBytes, expectedModifiedAt]);
+    _db.execute(
+      'UPDATE local_media_items SET ${assignments.join(', ')} '
+      'WHERE id = ? AND missing = 0 AND size_bytes IS ? AND modified_at IS ?',
+      values,
+    );
+    final updated = _db.updatedRows > 0;
+    if (updated) notifyChanged();
+    return updated;
   }
 
   /// 这个源下有哪些文件夹，各有多少条可播的。

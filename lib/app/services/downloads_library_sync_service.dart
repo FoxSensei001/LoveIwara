@@ -12,6 +12,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -60,6 +61,11 @@ class DownloadsLibrarySyncService extends GetxService {
   final DownloadTaskRepository _downloads;
 
   Future<void>? _running;
+
+  LocalMediaDerivationService? get _derivationService =>
+      Get.isRegistered<LocalMediaDerivationService>()
+      ? Get.find<LocalMediaDerivationService>()
+      : null;
 
   /// 全量同步**跑到一半**时才入库的那些条目的 path_hash。
   ///
@@ -152,6 +158,7 @@ class DownloadsLibrarySyncService extends GetxService {
       final now = DateTime.now().millisecondsSinceEpoch;
       final seen = <String>{};
       final pending = <LocalMediaItem>[];
+      final derivationCandidates = <LocalMediaItem>[];
       // 新出现的条目：要在写库之前把同一路径下别的源留下的观看进度搬过来。
       final adopting = <String, String>{};
       var written = 0;
@@ -207,19 +214,30 @@ class DownloadsLibrarySyncService extends GetxService {
             fingerprint.sizeBytes == size &&
             fingerprint.modifiedAt == modified) {
           // 库里那份和磁盘上这份一模一样，连 upsert 都不用发。
+          if (!fingerprint.hasMetadata) {
+            derivationCandidates.add(
+              _itemOf(
+                task,
+                path: path,
+                hash: hash,
+                size: size,
+                modified: modified,
+                fallbackAddedAt: now,
+              ),
+            );
+          }
           continue;
         }
 
-        pending.add(
-          _itemOf(
-            task,
-            path: path,
-            hash: hash,
-            size: size,
-            modified: modified,
-            fallbackAddedAt: now,
-          ),
+        final item = _itemOf(
+          task,
+          path: path,
+          hash: hash,
+          size: size,
+          modified: modified,
+          fallbackAddedAt: now,
         );
+        pending.add(item);
 
         if (pending.length >= _batchSize) {
           written += _flushWithAdoption(pending, adopting, source.id);
@@ -228,6 +246,7 @@ class DownloadsLibrarySyncService extends GetxService {
         }
       }
       written += _flushWithAdoption(pending, adopting, source.id);
+      _enqueueDerivation(derivationCandidates);
 
       // ⛔ 一条都读不到 = **整卷不可达**（外置存储没挂上、权限被回收），不是
       // "文件都没了"。这时候收敛 missing 会把整个「已下载」一次抹平，用户看到
@@ -351,6 +370,7 @@ class DownloadsLibrarySyncService extends GetxService {
         },
       );
       _repository.upsertItems(<LocalMediaItem>[item]);
+      _enqueueDerivation(<LocalMediaItem>[item]);
       // 正在跑的那次全量同步不认识这条（它的清单是开头定死的），给它留个条。
       if (_running != null) _lateHashes.add(hash);
       _repository.upsertSource(
@@ -403,8 +423,10 @@ class DownloadsLibrarySyncService extends GetxService {
   int _flush(List<LocalMediaItem> pending) {
     if (pending.isEmpty) return 0;
     final count = pending.length;
+    final writtenItems = List<LocalMediaItem>.from(pending);
     try {
-      _repository.upsertItems(pending);
+      _repository.upsertItems(writtenItems);
+      _enqueueDerivation(writtenItems);
     } catch (e) {
       LogUtils.e('写入「已下载」批次失败（$count 条）', tag: _tag, error: e);
       return 0;
@@ -412,6 +434,12 @@ class DownloadsLibrarySyncService extends GetxService {
       pending.clear();
     }
     return count;
+  }
+
+  void _enqueueDerivation(Iterable<LocalMediaItem> items) {
+    final service = _derivationService;
+    if (service == null) return;
+    unawaited(service.enqueueAll(items));
   }
 
   /// 内建源那一行：没有就建，有就把显示名跟上当前语言。
