@@ -3,6 +3,10 @@ import 'package:i_iwara/app/services/config_service.dart';
 
 /// 媒体布局工具类，提供共享的布局计算逻辑
 class MediaLayoutUtils {
+  /// Prevent automatic grids from producing unreadably narrow cards inside a
+  /// narrow shell or a desktop split view.
+  static const double minAutomaticCardWidth = 144.0;
+
   /// 获取配置服务实例
   static ConfigService? get _configServiceOrNull =>
       Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
@@ -61,10 +65,22 @@ class MediaLayoutUtils {
               .toList()
             ..sort((a, b) => a.key.compareTo(b.key));
 
+      int fitAutomaticCount(int configuredCount) {
+        final safeConfiguredCount = configuredCount < 1 ? 1 : configuredCount;
+        final maximumCount =
+            ((availableWidth + crossAxisSpacing) /
+                    (minAutomaticCardWidth + crossAxisSpacing))
+                .floor()
+                .clamp(1, safeConfiguredCount);
+        return maximumCount < safeConfiguredCount
+            ? maximumCount
+            : safeConfiguredCount;
+      }
+
       // 根据可用宽度找到对应的列数
       for (final entry in sortedBreakpoints) {
         if (availableWidth <= entry.key) {
-          return entry.value < 1 ? 1 : entry.value;
+          return fitAutomaticCount(entry.value);
         }
       }
 
@@ -72,7 +88,7 @@ class MediaLayoutUtils {
       final lastValue = sortedBreakpoints.isNotEmpty
           ? sortedBreakpoints.last.value
           : 2;
-      return lastValue < 1 ? 1 : lastValue;
+      return fitAutomaticCount(lastValue);
     }
   }
 

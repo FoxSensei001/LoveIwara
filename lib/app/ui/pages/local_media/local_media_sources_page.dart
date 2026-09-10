@@ -320,27 +320,44 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
           ),
         ],
       ),
-      body: _sources.isEmpty
-          ? _buildEmpty(context, candidates)
-          : RefreshIndicator(
-              onRefresh: () async {
-                await _syncDownloads();
-                _reloadSources();
-              },
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-                children: <Widget>[
-                  if (_permissionDenied) _permissionBanner(context),
-                  for (final source in _sources) _sourceTile(context, source),
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: _addingSource ? null : _addSource,
-                    icon: const Icon(Icons.add),
-                    label: Text(t.addFolder),
+      body: _buildResponsiveBody(context, candidates),
+    );
+  }
+
+  Widget _buildResponsiveBody(BuildContext context, List<String> candidates) {
+    final t = slang.t.localMedia;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth >= 720 ? 820.0 : double.infinity;
+        return Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: _sources.isEmpty
+                ? _buildEmpty(context, candidates)
+                : RefreshIndicator(
+                    onRefresh: () async {
+                      await _syncDownloads();
+                      _reloadSources();
+                    },
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+                      children: <Widget>[
+                        if (_permissionDenied) _permissionBanner(context),
+                        for (final source in _sources)
+                          _sourceTile(context, source),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: _addingSource ? null : _addSource,
+                          icon: const Icon(Icons.add),
+                          label: Text(t.addFolder),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
+          ),
+        );
+      },
     );
   }
 

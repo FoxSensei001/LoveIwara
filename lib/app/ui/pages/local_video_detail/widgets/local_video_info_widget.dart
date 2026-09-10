@@ -414,15 +414,16 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
             const SizedBox(height: 12),
 
             // 操作按钮
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 4,
               children: [
                 TextButton.icon(
                   onPressed: () => _copyPath(context),
                   icon: const Icon(Icons.copy, size: 18),
                   label: Text(t.videoDetail.localInfo.copyPath),
                 ),
-                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () => _openFolder(context),
                   icon: const Icon(Icons.folder_open, size: 18),
@@ -454,11 +455,16 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
             label,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
