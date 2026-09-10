@@ -80,15 +80,19 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
       final item = LocalMediaRepository().getItem(itemId);
       if (!mounted) return;
       setState(() => _localItem = item);
-      if (item != null) _ensureThumbnail(item);
+      if (item != null) _ensureDerived(item);
     } catch (_) {
       // The player remains usable even if a stale route points at a removed row.
     }
   }
 
-  Future<void> _ensureThumbnail(LocalMediaItem item) async {
+  /// 详情页要封面、时长和分辨率，缺什么补什么。抓不抓帧由服务按最新的库状态判。
+  Future<void> _ensureDerived(LocalMediaItem item) async {
     if (!Get.isRegistered<LocalMediaDerivationService>()) return;
-    final updated = await LocalMediaDerivationService.to.ensureThumbnail(item);
+    final updated = await LocalMediaDerivationService.to.ensureDerived(
+      item,
+      generateThumbnail: true,
+    );
     if (!mounted ||
         updated == null ||
         updated.id != widget.localLibraryItemId) {
@@ -206,10 +210,20 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
 
             // 时长
             Obx(() {
+              // ⛔ 这一读必须**无条件排在最前**，不能放在 `??` 后面。
+              // GetX 的 Obx 是靠"本次 build 读过哪些 Rx"来订阅的：一旦
+              // `_localItem?.durationMs` 有值，右边就被短路掉，这个 Obx 一个
+              // observable 都没读到，GetX 当场抛「improper use of a GetX」，
+              // 整块面板变成红色报错。
+              // ⚠️ 这条以前**碰巧**不成立：派生服务当时一件事都做不成
+              // （media_kit 默认 `vid=no`，见 LocalMediaDerivationService），
+              // 库里 duration 恒为 null，永远走的是右边那一支。把派生修好之后
+              // 它立刻炸了——真机实证 2026-09-10。
+              final playbackDuration = controller.totalDuration.value;
               final storedDuration = _localItem?.durationMs;
               final duration = storedDuration != null
                   ? Duration(milliseconds: storedDuration)
-                  : controller.totalDuration.value;
+                  : playbackDuration;
               if (duration.inSeconds > 0) {
                 return _buildInfoRow(
                   context,
@@ -223,10 +237,11 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
 
             // 分辨率
             Obx(() {
-              final width =
-                  _localItem?.width ?? controller.sourceVideoWidth.value;
-              final height =
-                  _localItem?.height ?? controller.sourceVideoHeight.value;
+              // ⛔ 同上：两个 Rx 都要先无条件读出来，再决定用哪一份。
+              final playbackWidth = controller.sourceVideoWidth.value;
+              final playbackHeight = controller.sourceVideoHeight.value;
+              final width = _localItem?.width ?? playbackWidth;
+              final height = _localItem?.height ?? playbackHeight;
               if (width > 0 && height > 0) {
                 return _buildInfoRow(
                   context,

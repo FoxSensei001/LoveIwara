@@ -12,9 +12,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
+import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
+import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
@@ -415,6 +417,9 @@ class MyVideoStateController extends GetxController
   /// 阶段A（文本怀疑）的结果，留着给阶段B 复用。
   VrSuspicion _vrSuspicion = VrSuspicion.none;
 
+  /// 本地库条目是否已成功注入 VR 线索。用于防止被后续本地播放生成的占位 Video 元数据覆盖。
+  bool _vrSuspicionSeededFromLocal = false;
+
   /// 上一次跑推断时的输入指纹。`videoInfo` 会因为点赞数/视频源/作者信息等无关字段
   /// 反复 copyWith，指纹一样就跳过，免得每次都重算一遍。
   String? _vrInferenceSignature;
@@ -467,12 +472,54 @@ class MyVideoStateController extends GetxController
     resetVrView();
   }
 
+  /// 本地库条目 VR 线索植入：从 SQLite 读取派生阶段已写好的 vr_format_json 作为阶段 A 的输入。
+  ///
+  /// 若条目带有派生阶段预存的宽高，还会立即触发一次阶段 B 终判，使本地 VR 视频在起播前即可挂上格式建议。
+  void _seedVrSuspicionFromLocalLibrary() {
+    try {
+      final id = localLibraryItemId;
+      if (id == null || id.isEmpty) return;
+
+      final item = _localLibraryRepository?.getItem(id);
+      if (item == null) return;
+
+      final hints = LocalVrHints.fromJson(item.vrFormatJson);
+      if (hints == null || hints.strength == LocalVrSignalStrength.none) return;
+
+      _vrSuspicion = VrSuspicion(
+        suspected: true,
+        negated: false,
+        projectionHint: hints.projection,
+        stereoHint: hints.stereo,
+        width: item.width,
+        height: item.height,
+      );
+      _vrSuspicionSeededFromLocal = true;
+
+      _applyInferredVerdict(
+        VrFormatDetector.decideWithDimensions(_vrSuspicion),
+      );
+    } catch (e) {
+      LogUtils.w('从本地库初始化 VR 线索失败: $e', 'MyVideoStateController');
+    }
+  }
+
   /// 挂上「详情到手就重跑推断」的监听。
   ///
   /// 走 [rxEver] 而不是 GetX 的 `ever()`：后者在「订阅→取消→再订阅」之后会永久
   /// 失聪，第二次进同一个页面起就静默收不到值（见 rx_ever.dart 的说明）。
   void _initVrFormatTracking() {
-    unawaited(_loadStoredVrOverride());
+    // ⛔ 次序不能反：`_loadStoredVrOverride` 是**异步**的（要查库），而 seed 是同步的。
+    // 先 seed 的话，`_vrOverrideApplied` 那一刻还是 false，`_applyInferredVerdict`
+    // 拦不住——于是一个用户已经手动钉成「平面」的片子，会照样被挂上一条
+    // 「建议按 180 SBS 播放」的提示（`_loadStoredVrOverride` 只改 verdict，
+    // 不会回头把已经挂上的 `vrSuggestion` 撤掉）。等它落地再 seed。
+    unawaited(
+      _loadStoredVrOverride().then((_) {
+        if (_isDisposed) return;
+        _seedVrSuspicionFromLocalLibrary();
+      }),
+    );
     _vrFormatWorker = rxEver(
       videoInfo,
       (_) => unawaited(_refreshVrFormatFromMetadata()),
@@ -483,6 +530,11 @@ class MyVideoStateController extends GetxController
   /// 阶段A + 阶段A 自带尺寸的阶段B：详情到手时跑。
   Future<void> _refreshVrFormatFromMetadata() async {
     if (_isDisposed) return;
+    // 本地库条目已在初始化阶段从 local_media_items.vr_format_json 植入线索（seed），
+    // 且本地播放模式后续会创建仅含标题占位字段的 Video 对象触发本方法；
+    // 此时若继续计算，会用缺失标签和宽高的空线索把已就绪的本地 VR 线索覆盖回 VrSuspicion.none，
+    // 因此本地库条目一旦 seed 过即直接早退，不重复计算。
+    if (_vrSuspicionSeededFromLocal) return;
     final video = videoInfo.value;
     if (video == null) return;
     // 外链视频的画面不由我们渲染（走站外嵌入），它那条分支还会把 aspectRatio

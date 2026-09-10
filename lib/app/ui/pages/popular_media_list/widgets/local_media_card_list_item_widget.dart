@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
@@ -33,6 +34,23 @@ class LocalMediaCardListItemWidget extends StatefulWidget {
   final Future<void> Function() onOpen;
   final VoidCallback? onChanged;
 
+  static String formatBytes(int bytes) {
+    if (bytes <= 0) return '0 B';
+    const units = <String>['B', 'KB', 'MB', 'GB', 'TB'];
+    var index = 0;
+    var value = bytes.toDouble();
+    while (value >= 1024 && index < units.length - 1) {
+      value /= 1024;
+      index++;
+    }
+    final precision = index == 0
+        ? 0
+        : value >= 10
+        ? 1
+        : 2;
+    return '${value.toStringAsFixed(precision)} ${units[index]}';
+  }
+
   @override
   State<LocalMediaCardListItemWidget> createState() =>
       _LocalMediaCardListItemWidgetState();
@@ -42,7 +60,7 @@ class _LocalMediaCardListItemWidgetState
     extends State<LocalMediaCardListItemWidget> {
   DownloadTask? _task;
   LocalMediaItem? _derivedItem;
-  bool _thumbnailRequested = false;
+  bool _derivationRequested = false;
 
   LocalMediaItem get _item => _derivedItem ?? widget.item;
 
@@ -71,6 +89,21 @@ class _LocalMediaCardListItemWidgetState
     return cover == null || cover.isEmpty ? null : cover;
   }
 
+  String? _getCategoryName(String? categoryId) {
+    if (categoryId == null || categoryId == kLocalMediaUncategorized) {
+      return null;
+    }
+    if (!Get.isRegistered<DownloadService>()) {
+      return null;
+    }
+    for (final cat in DownloadService.to.categories) {
+      if (cat.id == categoryId) {
+        return cat.title;
+      }
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -84,24 +117,42 @@ class _LocalMediaCardListItemWidgetState
         oldWidget.item.downloadTaskId != widget.item.downloadTaskId) {
       _task = null;
       _derivedItem = null;
-      _thumbnailRequested = false;
+      _derivationRequested = false;
       _loadDownloadTask();
     }
   }
 
-  Future<void> _ensureThumbnail() async {
+  /// 卡片进入视野时把这一条缺的派生数据补上：封面（sidecar 与缓存缩略图都没有时
+  /// 抓一帧）以及时长 / 宽高。
+  ///
+  /// ⛔ **不能只在"没有封面"时才问**：有 sidecar 的条目照样可能缺时长和分辨率
+  /// （扫描器只写文件名、大小、mtime），只看封面的话那两枚角标永远要等下一次
+  /// 自然刷新才出得来。
+  Future<void> _ensureDerived() async {
     final item = widget.item;
     if (item.missing || !Get.isRegistered<LocalMediaDerivationService>()) {
       return;
     }
-    if (await _fileExists(item.sidecarImagePath) ||
-        await _fileExists(item.thumbPath)) {
-      return;
-    }
-    final updated = await LocalMediaDerivationService.to.ensureThumbnail(item);
+    final hasCover =
+        await _fileExists(item.sidecarImagePath) ||
+        await _fileExists(item.thumbPath);
+    final needsMetadata =
+        item.durationMs == null || item.width == null || item.height == null;
+    // 封面有了、元数据也齐了，这张卡没有要补的——省掉一次派生队列的往返。
+    if (hasCover && !needsMetadata) return;
+
+    final updated = await LocalMediaDerivationService.to.ensureDerived(
+      item,
+      // 到底抓不抓帧由服务按**最新的库状态**判（它会重查 sidecar / 缩略图还在不在），
+      // 这里只表达"允许抓"，不在调用点复制一份同样的判断。
+      generateThumbnail: true,
+    );
     if (!mounted || updated == null || updated.id != widget.item.id) return;
+    // 派生结果是行内变化，就地 setState 重绘即可。
+    // ⛔ 绝不能顺手喊 widget.onChanged：它会走 _refreshActiveLocalRepository()
+    // → refresh(true)，在用户滚动时清空整面墙并把人弹回顶部。onChanged 只留给
+    // 操作菜单那种**真的改了列表结构**的场合（改分类、删除）。
     setState(() => _derivedItem = updated);
-    widget.onChanged?.call();
   }
 
   static Future<bool> _fileExists(String? filePath) async {
@@ -124,6 +175,7 @@ class _LocalMediaCardListItemWidgetState
 
   Future<void> _openPreview() async {
     final item = _item;
+    final categoryName = _getCategoryName(item.categoryId);
     await showGlassAlertDialog<void>(
       title: _title,
       content: Column(
@@ -155,6 +207,8 @@ class _LocalMediaCardListItemWidgetState
                   icon: Icons.aspect_ratio_outlined,
                   label: '${item.width}x${item.height}',
                 ),
+              if (categoryName != null)
+                _MetaChip(icon: Icons.folder_outlined, label: categoryName),
               if (_author != null)
                 _MetaChip(icon: Icons.person_outline, label: _author!),
             ],
@@ -179,6 +233,7 @@ class _LocalMediaCardListItemWidgetState
     final radius = BorderRadius.circular(14);
     final author = _author;
     final item = _item;
+    final categoryName = _getCategoryName(item.categoryId);
 
     return SizedBox(
       width: widget.width,
@@ -199,11 +254,11 @@ class _LocalMediaCardListItemWidgetState
                   VisibilityDetector(
                     key: ValueKey<String>('local-media-cover-${item.id}'),
                     onVisibilityChanged: (info) {
-                      if (info.visibleFraction <= 0 || _thumbnailRequested) {
+                      if (info.visibleFraction <= 0 || _derivationRequested) {
                         return;
                       }
-                      _thumbnailRequested = true;
-                      unawaited(_ensureThumbnail());
+                      _derivationRequested = true;
+                      unawaited(_ensureDerived());
                     },
                     child: _Cover(item: item, remoteCover: _remoteCover),
                   ),
@@ -243,6 +298,11 @@ class _LocalMediaCardListItemWidgetState
                               _MetaChip(
                                 icon: Icons.aspect_ratio_outlined,
                                 label: '${item.width}x${item.height}',
+                              ),
+                            if (categoryName != null)
+                              _MetaChip(
+                                icon: Icons.folder_outlined,
+                                label: categoryName,
                               ),
                           ],
                         ),
@@ -284,22 +344,8 @@ class _LocalMediaCardListItemWidgetState
     );
   }
 
-  static String _formatBytes(int bytes) {
-    if (bytes <= 0) return '0 B';
-    const units = <String>['B', 'KB', 'MB', 'GB', 'TB'];
-    var index = 0;
-    var value = bytes.toDouble();
-    while (value >= 1024 && index < units.length - 1) {
-      value /= 1024;
-      index++;
-    }
-    final precision = index == 0
-        ? 0
-        : value >= 10
-        ? 1
-        : 2;
-    return '${value.toStringAsFixed(precision)} ${units[index]}';
-  }
+  static String _formatBytes(int bytes) =>
+      LocalMediaCardListItemWidget.formatBytes(bytes);
 }
 
 class _Cover extends StatelessWidget {
