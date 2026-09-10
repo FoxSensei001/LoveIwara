@@ -1,9 +1,44 @@
+import 'package:path/path.dart' as p;
+
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:get/get.dart';
 import 'package:sqlite3/common.dart';
+
+/// 图库文件夹排序。
+enum LocalImageFolderSort { addedDesc, nameAsc, countDesc }
+
+/// 按文件夹聚合的图库实体。
+class LocalImageFolder {
+  const LocalImageFolder({
+    required this.folderPath,
+    required this.name,
+    required this.count,
+    required this.coverPath,
+    required this.addedAt,
+    required this.totalBytes,
+  });
+
+  /// 绝对路径
+  final String folderPath;
+
+  /// p.basename(folderPath)，空则回退整条路径
+  final String name;
+
+  /// 这个文件夹里的图片数
+  final int count;
+
+  /// 封面：按 sort_name 最小的那一张
+  final String coverPath;
+
+  /// 该文件夹里最新的 added_at
+  final int addedAt;
+
+  /// 该文件夹图片体积合计
+  final int totalBytes;
+}
 
 /// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
 enum LocalMediaSort {
@@ -31,6 +66,7 @@ class LocalMediaFingerprint {
     this.width,
     this.height,
     this.sidecarImagePath,
+    this.mediaStoreUri,
     this.missing = false,
   });
   final int? sizeBytes;
@@ -39,6 +75,7 @@ class LocalMediaFingerprint {
   final int? width;
   final int? height;
   final String? sidecarImagePath;
+  final String? mediaStoreUri;
   final bool missing;
 
   bool get hasMetadata => durationMs != null && width != null && height != null;
@@ -153,7 +190,7 @@ class LocalMediaRepository {
   Map<String, LocalMediaFingerprint> fingerprints(String sourceId) {
     final rows = _db.select(
       'SELECT path_hash, size_bytes, modified_at, duration_ms, width, height, '
-      'sidecar_image_path, missing '
+      'sidecar_image_path, media_store_uri, missing '
       'FROM local_media_items WHERE source_id = ?',
       [sourceId],
     );
@@ -166,6 +203,7 @@ class LocalMediaRepository {
           width: row['width'] as int?,
           height: row['height'] as int?,
           sidecarImagePath: row['sidecar_image_path'] as String?,
+          mediaStoreUri: row['media_store_uri'] as String?,
           missing: (row['missing'] as int? ?? 0) != 0,
         ),
     };
@@ -407,8 +445,46 @@ class LocalMediaRepository {
   /// ⛔ 标记而不是删除：外置存储没挂上、目录临时不可读时，删掉等于让用户的
   /// 观看记录连带蒸发。而且只在**扫描确实跑完**时才调（中途被杀不能调，否则
   /// 没扫到的那一半会被冤枉成"文件没了"）。
-  int markMissingExcept(String sourceId, Set<String> seenHashes) {
-    if (seenHashes.isEmpty) {
+  ///
+  /// ⛔ [excludeFolderTrees] 是这一轮**确实没能走进去**的目录（权限、坏道、Windows
+  /// 超长路径）。这几棵子树连同底下的一切都被排除在收敛之外——没看到不等于不存在。
+  /// 有了它，一个读不动的子目录就不会再一票否决整个源的收敛。
+  ///
+  /// ⛔ 反过来写成「只收敛走到过的目录」是**错的**，虽然直觉上更自然：用户把某个
+  /// 文件夹整个删掉时，它既不在失败清单里、也不会出现在走到过的清单里（父目录已经
+  /// 列不出它了），于是那一整个目录的条目永远收敛不掉，在墙上留下一堆点不开的幽灵
+  /// 卡片。「排除没看到的」才覆盖得住这一种。
+  int markMissingExcept(
+    String sourceId,
+    Set<String> seenHashes, {
+    Iterable<String>? excludeFolderTrees,
+  }) {
+    final excluded = <String>[
+      for (final folder in excludeFolderTrees ?? const <String>[])
+        if (folder.trim().isNotEmpty) folder,
+    ];
+    // 每棵被排除的子树 = 它自己 + 它底下的一切。
+    //
+    // 前缀比较用 `substr` 而不是 `LIKE`：目录名里的 `%` 和 `_` 在 LIKE 里是通配符，
+    // 得转义——而转义正是这类代码最容易漏的地方，漏了就是静默地少排除或多排除。
+    final exclusionSql = <String>[];
+    final exclusionParams = <Object?>[];
+    for (final folder in excluded) {
+      final prefix = folder.endsWith('/') ? folder : '$folder/';
+      exclusionSql.add(
+        '(folder_path IS NULL OR '
+        '(folder_path <> ? AND substr(folder_path, 1, ?) <> ?))',
+      );
+      exclusionParams
+        ..add(folder)
+        ..add(prefix.length)
+        ..add(prefix);
+    }
+    final exclusion = exclusionSql.isEmpty
+        ? ''
+        : ' AND ${exclusionSql.join(' AND ')}';
+
+    if (seenHashes.isEmpty && excluded.isEmpty) {
       _db.execute(
         'UPDATE local_media_items SET missing = 1 WHERE source_id = ?',
         [sourceId],
@@ -424,9 +500,11 @@ class LocalMediaRepository {
     _db.execute('BEGIN');
     try {
       _db.execute(
-        'UPDATE local_media_items SET missing = 1 WHERE source_id = ? AND missing = 0',
-        [sourceId],
+        'UPDATE local_media_items SET missing = 1 '
+        'WHERE source_id = ? AND missing = 0$exclusion',
+        <Object?>[sourceId, ...exclusionParams],
       );
+
       for (var i = 0; i < hashes.length; i += chunkSize) {
         final chunk = hashes.sublist(
           i,
@@ -581,6 +659,19 @@ class LocalMediaRepository {
     return <String>{for (final row in rows) row['path'] as String};
   }
 
+  /// 这些路径已经有别的源认领了。
+  ///
+  /// ⛔ 必须带 `missing = 0`，理由同 [pathsOfSource]：所有权是一份**活的**主张，
+  /// 不是墓碑。带上已经 missing 的行，会让一条早就没了的记录永远把这个路径挡在
+  /// 兜底来源之外——文件明明还躺在机器上，却再也没有任何源认领它。
+  Set<String> pathsOwnedElsewhere(String sourceId) {
+    final rows = _db.select(
+      'SELECT path FROM local_media_items WHERE source_id != ? AND missing = 0',
+      [sourceId],
+    );
+    return <String>{for (final row in rows) row['path'] as String};
+  }
+
   /// 按 id 取一条。播放前的"文件还在不在"与「接着看」的 [LocalPlaybackTarget]
   /// 都靠它**现查一次库**——池里那份快照可能是几分钟前的（同 `DownloadsPlaybackQueue`
   /// 那条注释：中间发生过一次重扫，快照里的 path 就指向一个已经不在的文件）。
@@ -603,6 +694,7 @@ class LocalMediaRepository {
     int? width,
     int? height,
     String? thumbPath,
+    String? vrFormatJson,
   }) {
     if (expectedSizeBytes == null || expectedModifiedAt == null) return false;
 
@@ -618,6 +710,7 @@ class LocalMediaRepository {
     add('width', width);
     add('height', height);
     add('thumb_path', thumbPath);
+    add('vr_format_json', vrFormatJson);
     if (assignments.isEmpty) return false;
 
     values.addAll(<Object?>[itemId, expectedSizeBytes, expectedModifiedAt]);
@@ -627,7 +720,9 @@ class LocalMediaRepository {
       values,
     );
     final updated = _db.updatedRows > 0;
-    if (updated) notifyChanged();
+    // ⛔ 派生字段是行内变化，绝不能发全局 notifyChanged()！
+    // 发全局 changeRevision 会让卡片墙走 refresh(true)，在用户滚动时清空列表并弹回顶部；
+    // 需要重绘的调用方自己就地 setState。
     return updated;
   }
 
@@ -857,6 +952,106 @@ class LocalMediaRepository {
     LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
   };
 
+  /// 图库按文件夹聚合分页。
+  List<LocalImageFolder> pageImageFolders({
+    required String sourceId,
+    required LocalImageFolderSort sort,
+    required int offset,
+    required int limit,
+  }) {
+    final orderBy = switch (sort) {
+      LocalImageFolderSort.addedDesc => 'added DESC, folder_path ASC',
+      LocalImageFolderSort.nameAsc => 'folder_path ASC',
+      LocalImageFolderSort.countDesc => 'n DESC, folder_path ASC',
+    };
+
+    // 扫描器一定会写 folder_path，为 NULL 的是历史脏行，直接过滤跳过。
+    final rows = _db.select(
+      'SELECT folder_path, '
+      'COUNT(*) AS n, '
+      'MAX(added_at) AS added, '
+      'SUM(size_bytes) AS bytes, '
+      'MIN(sort_name) AS cover_key '
+      'FROM local_media_items '
+      'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path IS NOT NULL '
+      'GROUP BY folder_path '
+      'ORDER BY $orderBy '
+      'LIMIT ? OFFSET ?',
+      [sourceId, limit, offset],
+    );
+
+    final result = <LocalImageFolder>[];
+    for (final row in rows) {
+      final folderPath = row['folder_path'] as String;
+      final baseName = p.basename(folderPath);
+      final name = baseName.isEmpty ? folderPath : baseName;
+      final count = (row['n'] as int?) ?? 0;
+      final addedAt = (row['added'] as int?) ?? 0;
+      final totalBytes = (row['bytes'] as int?) ?? 0;
+      final coverKey = row['cover_key'] as String?;
+
+      String coverPath = '';
+      if (coverKey != null) {
+        // ⛔ 别用 MIN(path) 冒充封面——那是字符串序（10.jpg 会排在 2.jpg 前面）。
+        // 按 (source_id, folder_path, sort_name) 单独查一行拿真实 path。
+        final coverRows = _db.select(
+          'SELECT path FROM local_media_items '
+          'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path = ? AND sort_name = ? '
+          'LIMIT 1',
+          [sourceId, folderPath, coverKey],
+        );
+        if (coverRows.isNotEmpty) {
+          coverPath = (coverRows.first['path'] as String?) ?? '';
+        }
+      }
+
+      result.add(
+        LocalImageFolder(
+          folderPath: folderPath,
+          name: name,
+          count: count,
+          coverPath: coverPath,
+          addedAt: addedAt,
+          totalBytes: totalBytes,
+        ),
+      );
+    }
+    return result;
+  }
+
+  /// 该源包含多少个有效的图片文件夹。
+  int countImageFolders({required String sourceId}) {
+    // 扫描器一定会写 folder_path，为 NULL 的是历史脏行，直接过滤跳过。
+    final rows = _db.select(
+      'SELECT COUNT(DISTINCT folder_path) AS c '
+      'FROM local_media_items '
+      'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path IS NOT NULL',
+      [sourceId],
+    );
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  /// 查询指定文件夹里的所有图片路径，按 sort_name 升序排列。
+  List<String> imagePathsInFolder({
+    String? sourceId,
+    required String folderPath,
+  }) {
+    final rows = sourceId != null
+        ? _db.select(
+            'SELECT path FROM local_media_items '
+            'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path = ? '
+            'ORDER BY sort_name ASC, path ASC',
+            [sourceId, folderPath],
+          )
+        : _db.select(
+            'SELECT path FROM local_media_items '
+            'WHERE kind = \'image\' AND missing = 0 AND folder_path = ? '
+            'ORDER BY sort_name ASC, path ASC',
+            [folderPath],
+          );
+    return rows.map((row) => row['path'] as String).toList();
+  }
+
   // ── 进度（永不清理，见 migration v23 的类注释） ──────────────────────────
 
   ({int positionMs, int? durationMs, bool completed})? getProgress(
@@ -908,6 +1103,16 @@ class LocalMediaRepository {
     return result;
   }
 
+  /// 落一次播放进度，顺带把 `last_played_at` 记到条目上（「最近播放」那一档
+  /// 靠它走索引排序，见 migration v29）。
+  ///
+  /// ⛔ **这里不发 [notifyChanged]**。播放期间这个方法每 5 秒被调一次，而
+  /// `changeRevision` 会让卡片墙走 `refresh(true)`——清空列表、重拉第 0 页、
+  /// 滚动位置归零。用户从播放器退回墙上时会发现自己被弹回了顶部。
+  ///
+  /// 代价是「最近播放」的排序不会在你眼皮底下自己重排：刚看完的那一条要等下一次
+  /// 自然刷新（下拉刷新 / 重新进页面）才跳到最前面。这是**故意的**——在用户
+  /// 手指底下重排列表比排序慢一拍更糟。
   void saveProgress({
     required String itemId,
     required int positionMs,
@@ -930,7 +1135,6 @@ class LocalMediaRepository {
         [now, itemId],
       );
       _db.execute('COMMIT');
-      notifyChanged();
     } catch (e) {
       _db.execute('ROLLBACK');
       rethrow;

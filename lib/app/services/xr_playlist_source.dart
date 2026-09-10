@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
@@ -50,7 +51,9 @@ class XrPlaylistSource {
   ///   （`PlaybackQueue` 那边选择直接排除，因为自动连播撞上站外会断链；
   ///   这里是手动选片，不存在断链问题。）
   static List<XrPlaylistEntry> watchLaterEntries({int limit = 200}) {
-    if (!Get.isRegistered<WatchLaterService>()) return const <XrPlaylistEntry>[];
+    if (!Get.isRegistered<WatchLaterService>()) {
+      return const <XrPlaylistEntry>[];
+    }
     final items = WatchLaterService.to.query(
       itemType: WatchLaterItemType.video,
       excludeInvalid: true,
@@ -204,8 +207,9 @@ class XrPlaylistSource {
     try {
       final item = LocalMediaRepository().getItem(itemId);
       if (item == null) return null;
-      final path = item.path.trim();
-      if (path.isEmpty || !await File(path).exists()) {
+      final path = item.resolvePlaybackTarget().trim();
+      final isContentUri = path.startsWith('content://');
+      if (path.isEmpty || (!isContentUri && !await File(path).exists())) {
         LogUtils.w('沉浸态换片：本机文件 $itemId 在磁盘上已不存在', _tag);
         return null;
       }
@@ -219,7 +223,7 @@ class XrPlaylistSource {
         title: item.name,
         // 本机文件没有作者——这是它和"已下载"最大的区别，别编一个。
         author: '',
-        url: Uri.file(path).toString(),
+        url: isContentUri ? path : Uri.file(path).toString(),
         format: format,
         width: item.width ?? 0,
         height: item.height ?? 0,

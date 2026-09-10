@@ -1151,7 +1151,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
         LogUtils.w('本机文件池里的 $itemId 在库里找不到可播放条目', 'LocalLibraryPlaybackQueue');
         return null;
       }
-      path = item.path;
+      path = item.resolvePlaybackTarget();
     } catch (e) {
       LogUtils.w('查本机文件失败，退回池内快照：$e', 'LocalLibraryPlaybackQueue');
       path = _pathsById[itemId];
@@ -1160,7 +1160,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
       LogUtils.w('本机文件池里的 $itemId 在库里找不到', 'LocalLibraryPlaybackQueue');
       return null;
     }
-    if (!await File(path).exists()) {
+    if (!path.startsWith('content://') && !await File(path).exists()) {
       LogUtils.w('本机文件池里的 $itemId 在磁盘上已不存在', 'LocalLibraryPlaybackQueue');
       return null;
     }

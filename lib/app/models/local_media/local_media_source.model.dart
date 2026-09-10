@@ -18,6 +18,9 @@ enum LocalMediaSourceKind { directory, mediastore, bookmark, downloads }
 /// "源没了重新建"都会把这些记忆整批变成孤儿。
 const String kDownloadsSourceId = 'downloads';
 
+/// Android 系统视频索引的稳定源 id。再次添加时复用这把钥匙，避免重复源。
+const String kAndroidMediaStoreSourceId = 'android-mediastore-videos';
+
 /// 这个源要扫什么。
 enum LocalMediaKinds { video, image, both }
 
@@ -76,6 +79,8 @@ class LocalMediaSource {
 
   LocalMediaSource copyWith({
     String? displayName,
+    String? path,
+    String? uri,
     LocalMediaScanState? scanState,
     Object? scanCursor = _unset,
     bool? offline,
@@ -88,14 +93,16 @@ class LocalMediaSource {
       id: id,
       kind: kind,
       displayName: displayName ?? this.displayName,
-      path: path,
-      uri: uri,
+      path: path ?? this.path,
+      uri: uri ?? this.uri,
       mediaKinds: mediaKinds,
       recursive: recursive,
       autoRescan: autoRescan ?? this.autoRescan,
       sortOrder: sortOrder ?? this.sortOrder,
       scanState: scanState ?? this.scanState,
-      scanCursor: scanCursor == _unset ? this.scanCursor : scanCursor as String?,
+      scanCursor: scanCursor == _unset
+          ? this.scanCursor
+          : scanCursor as String?,
       offline: offline ?? this.offline,
       lastScanAt: lastScanAt ?? this.lastScanAt,
       itemCount: itemCount ?? this.itemCount,

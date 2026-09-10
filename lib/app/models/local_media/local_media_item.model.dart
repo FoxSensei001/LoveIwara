@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 
 /// 本地库里的一条。
@@ -32,6 +34,7 @@ class LocalMediaItem {
     this.folderPath,
     this.categoryId,
     this.downloadTaskId,
+    this.mediaStoreUri,
     this.lastPlayedAt,
     required this.addedAt,
     this.missing = false,
@@ -73,6 +76,13 @@ class LocalMediaItem {
   /// ⛔ 反过来不成立——绝不往 `download_tasks` 塞假任务。
   final String? downloadTaskId;
 
+  /// MediaStore 的原始 content:// URI 句柄。
+  ///
+  /// 当条目身份按真实路径重建后，原本的 content:// 句柄保留在这一列，作为路径
+  /// 直读不可用（如仅有 READ_MEDIA_VIDEO 权限而受 scoped storage 限制）时的
+  /// 播放兜底。
+  final String? mediaStoreUri;
+
   /// 最近一次保存观看进度的时间，供本地库「最近播放」排序使用。
   ///
   /// 与 [local_media_progress.updated_at] 同步维护，但放在条目表上才能让
@@ -106,6 +116,7 @@ class LocalMediaItem {
     'folder_path': folderPath,
     'category_id': categoryId,
     'download_task_id': downloadTaskId,
+    'media_store_uri': mediaStoreUri,
     'last_played_at': lastPlayedAt,
     'added_at': addedAt,
     'missing': missing ? 1 : 0,
@@ -134,6 +145,7 @@ class LocalMediaItem {
       folderPath: row['folder_path'] as String?,
       categoryId: row['category_id'] as String?,
       downloadTaskId: row['download_task_id'] as String?,
+      mediaStoreUri: row['media_store_uri'] as String?,
       lastPlayedAt: row['last_played_at'] as int?,
       addedAt: row['added_at'] as int? ?? 0,
       missing: (row['missing'] as int? ?? 0) != 0,
@@ -142,3 +154,25 @@ class LocalMediaItem {
 }
 
 enum LocalMediaItemKind { video, image }
+
+extension LocalMediaPlaybackTarget on LocalMediaItem {
+  /// 播放 / 解码时该喂给底层的那个串。
+  ///
+  /// ⛔ 优先真实路径：拿到真实路径，mpv 能直接放，`content://` 那条"先把整个文件
+  /// 拷进缓存"的路就整个不需要了。只有在路径读不到时才回退到 MediaStore 句柄
+  /// ——只授予 `READ_MEDIA_VIDEO`（没给「所有文件访问」）时，按路径直读会被
+  /// scoped storage 挡住，那时只有 URI 能用。
+  String resolvePlaybackTarget() {
+    if (!path.startsWith('content://') && File(path).existsSync()) return path;
+    final uri = mediaStoreUri;
+    return uri != null && uri.isNotEmpty ? uri : path;
+  }
+
+  /// 这一条现在还放得出来吗（真实路径在，或者有 MediaStore 句柄）。
+  bool get isPlayableNow {
+    if (path.startsWith('content://')) return true;
+    if (File(path).existsSync()) return true;
+    final uri = mediaStoreUri;
+    return uri != null && uri.isNotEmpty;
+  }
+}
