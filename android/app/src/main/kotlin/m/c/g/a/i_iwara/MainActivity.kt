@@ -1,18 +1,25 @@
 package m.c.g.a.i_iwara
 
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.database.ContentObserver
+import android.database.Cursor
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.os.storage.StorageManager
 import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.util.Log
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -21,6 +28,7 @@ import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterActivityLaunchConfigs
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import m.c.g.a.i_iwara.xr.XrBridge
 import java.io.File
@@ -34,6 +42,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "i_iwara/volume_key"
     private val SCREENSHOT_CHANNEL = "i_iwara/screenshot"
     private val FILE_HANDLER_CHANNEL = "com.example.i_iwara/file_handler"
+    private val MEDIA_STORE_CHANNEL = "com.example.i_iwara/media_store"
     private val DEVICE_FORM_FACTOR_CHANNEL = "i_iwara/device_form_factor"
     private val ORIENTATION_CHANNEL = "i_iwara/orientation"
     private val APP_LOCK_CHANNEL = "i_iwara/app_lock"
@@ -41,6 +50,8 @@ class MainActivity : FlutterFragmentActivity() {
 
     private var volumeKeyEnabled = false
     private var fileHandlerChannel: MethodChannel? = null
+    private var mediaStoreChannel: MethodChannel? = null
+    private var mediaStoreObserver: ContentObserver? = null
     private var appLockChannel: MethodChannel? = null
     private val screenLockReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -207,7 +218,191 @@ class MainActivity : FlutterFragmentActivity() {
                 }
             }
         }
+
+        // MediaStore is a separate source of truth from the file-handler channel:
+        // queries are paged and provider changes are pushed through this channel.
+        mediaStoreChannel = MethodChannel(
+                flutterEngine.dartExecutor.binaryMessenger,
+                MEDIA_STORE_CHANNEL
+        )
+        mediaStoreChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "queryVideos" -> queryMediaStoreVideos(call, result)
+                "startObserver" -> {
+                    registerMediaStoreObserver()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
+
+    private fun queryMediaStoreVideos(
+            call: MethodCall,
+            result: MethodChannel.Result
+    ) {
+        val afterModifiedAtSeconds = call.argument<Number>("afterModifiedAtSeconds")?.toLong()
+        val afterMediaStoreId = call.argument<Number>("afterMediaStoreId")?.toLong()
+        val limit = (call.argument<Int>("limit") ?: 400).coerceIn(1, 400)
+        mainScope.launch {
+            try {
+                val items = withContext(Dispatchers.IO) {
+                    readMediaStoreVideos(
+                            afterModifiedAtSeconds,
+                            afterMediaStoreId,
+                            limit
+                    )
+                }
+                result.success(mapOf("items" to items))
+            } catch (e: SecurityException) {
+                Log.e("MainActivity", "MediaStore 权限不足", e)
+                result.error("PERMISSION_DENIED", e.message, null)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "查询 MediaStore 失败", e)
+                result.error("QUERY_FAILED", e.message, null)
+            }
+        }
+    }
+
+    private fun readMediaStoreVideos(
+            afterModifiedAtSeconds: Long?,
+            afterMediaStoreId: Long?,
+            limit: Int
+    ): List<Map<String, Any?>> {
+        val collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        val projection = mutableListOf(
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DISPLAY_NAME,
+                MediaStore.Video.Media.MIME_TYPE,
+                MediaStore.Video.Media.SIZE,
+                MediaStore.Video.Media.DATE_MODIFIED,
+                MediaStore.Video.Media.DATE_ADDED,
+                MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media.WIDTH,
+                MediaStore.Video.Media.HEIGHT,
+                MediaStore.Video.Media.BUCKET_DISPLAY_NAME
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            projection += MediaStore.MediaColumns.RELATIVE_PATH
+            projection += MediaStore.MediaColumns.VOLUME_NAME
+            projection += MediaStore.MediaColumns.IS_PENDING
+        }
+
+        var selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            "${MediaStore.MediaColumns.IS_PENDING} = 0"
+        } else {
+            null
+        }
+        val selectionArgs = mutableListOf<String>()
+        if (afterModifiedAtSeconds != null && afterMediaStoreId != null) {
+            val keyset = "(${MediaStore.Video.Media.DATE_MODIFIED} < ? OR " +
+                    "(${MediaStore.Video.Media.DATE_MODIFIED} = ? AND " +
+                    "${MediaStore.Video.Media._ID} < ?))"
+            selection = if (selection == null) keyset else "$selection AND $keyset"
+            selectionArgs += afterModifiedAtSeconds.toString()
+            selectionArgs += afterModifiedAtSeconds.toString()
+            selectionArgs += afterMediaStoreId.toString()
+        }
+        val sortOrder = "${MediaStore.Video.Media.DATE_MODIFIED} DESC, " +
+                "${MediaStore.Video.Media._ID} DESC LIMIT $limit"
+        val cursor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val args = Bundle().apply {
+                putInt(ContentResolver.QUERY_ARG_LIMIT, limit)
+                putStringArray(
+                        ContentResolver.QUERY_ARG_SORT_COLUMNS,
+                        arrayOf(MediaStore.Video.Media.DATE_MODIFIED, MediaStore.Video.Media._ID)
+                )
+                putInt(
+                        ContentResolver.QUERY_ARG_SORT_DIRECTION,
+                        ContentResolver.QUERY_SORT_DIRECTION_DESCENDING
+                )
+                if (selection != null) putString(ContentResolver.QUERY_ARG_SQL_SELECTION, selection)
+                if (selectionArgs.isNotEmpty()) {
+                    putStringArray(
+                            ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS,
+                            selectionArgs.toTypedArray()
+                    )
+                }
+            }
+            contentResolver.query(collection, projection.toTypedArray(), args, null)
+        } else {
+            contentResolver.query(
+                    collection,
+                    projection.toTypedArray(),
+                    selection,
+                    selectionArgs.takeIf { it.isNotEmpty() }?.toTypedArray(),
+                    sortOrder
+            )
+        } ?: throw IllegalStateException("MediaStore query returned no cursor")
+
+        cursor.use {
+            val items = ArrayList<Map<String, Any?>>(limit)
+            while (it.moveToNext() && items.size < limit) {
+                val id = it.longValue(MediaStore.Video.Media._ID) ?: continue
+                val contentUri = ContentUris.withAppendedId(collection, id).toString()
+                items += mapOf(
+                        "contentUri" to contentUri,
+                        "displayName" to it.stringValue(MediaStore.Video.Media.DISPLAY_NAME),
+                        "mediaStoreId" to id,
+                        "mimeType" to it.stringValue(MediaStore.Video.Media.MIME_TYPE),
+                        "sizeBytes" to it.nonNegativeLong(MediaStore.Video.Media.SIZE),
+                        "modifiedAtSeconds" to it.nonNegativeLong(MediaStore.Video.Media.DATE_MODIFIED),
+                        "addedAtSeconds" to it.positiveLong(MediaStore.Video.Media.DATE_ADDED),
+                        "durationMs" to it.positiveLong(MediaStore.Video.Media.DURATION),
+                        "width" to it.positiveInt(MediaStore.Video.Media.WIDTH),
+                        "height" to it.positiveInt(MediaStore.Video.Media.HEIGHT),
+                        "relativePath" to it.stringValue(MediaStore.MediaColumns.RELATIVE_PATH),
+                        "bucketName" to it.stringValue(MediaStore.Video.Media.BUCKET_DISPLAY_NAME),
+                        "volumeName" to it.stringValue(MediaStore.MediaColumns.VOLUME_NAME)
+                )
+            }
+            return items
+        }
+    }
+
+    private fun registerMediaStoreObserver() {
+        if (mediaStoreObserver != null) return
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean, uri: Uri?) {
+                mediaStoreChannel?.invokeMethod(
+                        "onMediaStoreChanged",
+                        mapOf("uri" to uri?.toString())
+                )
+            }
+        }
+        mediaStoreObserver = observer
+        contentResolver.registerContentObserver(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                true,
+                observer
+        )
+    }
+
+    private fun unregisterMediaStoreObserver() {
+        mediaStoreObserver?.let { observer ->
+            contentResolver.unregisterContentObserver(observer)
+            mediaStoreObserver = null
+        }
+    }
+
+    private fun Cursor.stringValue(column: String): String? {
+        val index = getColumnIndex(column)
+        return if (index >= 0 && !isNull(index)) getString(index) else null
+    }
+
+    private fun Cursor.longValue(column: String): Long? {
+        val index = getColumnIndex(column)
+        return if (index >= 0 && !isNull(index)) getLong(index) else null
+    }
+
+    private fun Cursor.positiveLong(column: String): Long? =
+            longValue(column)?.takeIf { it > 0L }
+
+    private fun Cursor.nonNegativeLong(column: String): Long? =
+            longValue(column)?.takeIf { it >= 0L }
+
+    private fun Cursor.positiveInt(column: String): Int? =
+            positiveLong(column)?.coerceAtMost(Int.MAX_VALUE.toLong())?.toInt()
 
     /**
      * 组装交给外部播放器的 ACTION_VIEW intent。
@@ -537,6 +732,9 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     override fun onDestroy() {
+        unregisterMediaStoreObserver()
+        mediaStoreChannel?.setMethodCallHandler(null)
+        mediaStoreChannel = null
         unregisterReceiver(screenLockReceiver)
         appLockChannel = null
         super.onDestroy()

@@ -22,6 +22,10 @@ class CommonConstants {
   static const String fileHandlerChannelName =
       'com.example.i_iwara/file_handler';
 
+  // Android MediaStore 查询与变更通知 MethodChannel。
+  static const String androidMediaStoreChannelName =
+      'com.example.i_iwara/media_store';
+
   static String webName = 'iwara';
 
   // 应用图标路径
@@ -477,4 +481,5 @@ enum SortId {
   localDuration,
   localSize,
   localFolder,
+  localCount,
 }

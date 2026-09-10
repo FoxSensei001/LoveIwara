@@ -34,6 +34,8 @@ import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
+import 'package:i_iwara/app/services/android_media_store_service.dart';
+import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
@@ -413,9 +415,7 @@ class AppStartupCoordinator implements AppStartupRunner {
       PlaybackHistoryService(),
     );
     // VR 片源格式的按视频手动覆盖：一张永不清理的小表，读写都在详情页里发生。
-    _registerDeferredSingleton<XrImmersiveService>(
-      XrImmersiveService(),
-    );
+    _registerDeferredSingleton<XrImmersiveService>(XrImmersiveService());
     _registerDeferredSingleton<VrFormatOverrideService>(
       VrFormatOverrideService(),
     );
@@ -423,6 +423,14 @@ class AppStartupCoordinator implements AppStartupRunner {
     // 把文件送进来。它必须先注册，避免服务构造期间解析不到依赖。
     _registerDeferredSingleton<LocalMediaDerivationService>(
       LocalMediaDerivationService(),
+      permanent: true,
+    );
+    _registerDeferredSingleton<AndroidMediaStoreService>(
+      AndroidMediaStoreService(),
+      permanent: true,
+    );
+    _registerDeferredSingleton<IosFolderPickerService>(
+      IosFolderPickerService(),
       permanent: true,
     );
     // ⛔ permanent：本服务持有扫描 isolate。启动重试时被 `Get.delete` 换掉的话，

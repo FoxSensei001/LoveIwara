@@ -53,6 +53,8 @@ import MediaPlayer
       binaryMessenger: messenger
     )
 
+    LocalFolderPickerPlugin.register(with: messenger)
+
     channel?.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       switch call.method {
       case "enableVolumeKeyListener":

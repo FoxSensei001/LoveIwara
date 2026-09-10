@@ -23,6 +23,14 @@ class PermissionService extends GetxService {
     return sdkInt >= 30 ? Permission.manageExternalStorage : Permission.storage;
   }
 
+  /// MediaStore 只需要媒体读取权限，不需要「所有文件访问」。
+  /// Android 14 的部分授权用 [PermissionStatus.limited] 也可以查询到一部分媒体，
+  /// 因此调用方应把 granted 和 limited 都当作可用。
+  Future<Permission> _mediaStorePermission() async {
+    final sdkInt = await _getAndroidVersion();
+    return sdkInt >= 33 ? Permission.videos : Permission.storage;
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -81,6 +89,39 @@ class PermissionService extends GetxService {
       return false;
     } catch (e) {
       LogUtils.e('请求存储权限失败', tag: 'PermissionService', error: e);
+      return false;
+    }
+  }
+
+  Future<bool> hasMediaStorePermission() async {
+    try {
+      if (!GetPlatform.isAndroid) return false;
+      final permission = await _mediaStorePermission();
+      final status = await permission.status;
+      final available = status.isGranted || status.isLimited;
+      LogUtils.d(
+        'MediaStore 视频权限状态: $status (API ${await _getAndroidVersion()})',
+        'PermissionService',
+      );
+      return available;
+    } catch (e) {
+      LogUtils.e('检查 MediaStore 权限失败', tag: 'PermissionService', error: e);
+      return false;
+    }
+  }
+
+  Future<bool> requestMediaStorePermission() async {
+    try {
+      if (!GetPlatform.isAndroid) return false;
+      final permission = await _mediaStorePermission();
+      final current = await permission.status;
+      if (current.isGranted || current.isLimited) return true;
+      final status = await permission.request();
+      LogUtils.d('MediaStore 视频权限请求结果: $status', 'PermissionService');
+      if (status.isPermanentlyDenied) await openAppSettings();
+      return status.isGranted || status.isLimited;
+    } catch (e) {
+      LogUtils.e('请求 MediaStore 权限失败', tag: 'PermissionService', error: e);
       return false;
     }
   }
