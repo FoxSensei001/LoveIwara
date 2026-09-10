@@ -18,13 +18,7 @@ import 'package:i_iwara/db/migrations/migration_v19_download_task_error_type.dar
 import 'package:i_iwara/db/migrations/migration_v20_oreno3d_match_cache.dart';
 import 'package:i_iwara/db/migrations/migration_v21_watch_later.dart';
 import 'package:i_iwara/db/migrations/migration_v22_vr_format_override.dart';
-import 'package:i_iwara/db/migrations/migration_v23_local_media.dart';
-import 'package:i_iwara/db/migrations/migration_v24_local_media_paging_index.dart';
-import 'package:i_iwara/db/migrations/migration_v25_local_media_category.dart';
-import 'package:i_iwara/db/migrations/migration_v26_local_media_sort.dart';
-import 'package:i_iwara/db/migrations/migration_v27_local_media_category_sort.dart';
-import 'package:i_iwara/db/migrations/migration_v28_download_task_legacy_media.dart';
-import 'package:i_iwara/db/migrations/migration_v29_local_media_last_played.dart';
+import 'package:i_iwara/db/migrations/migration_v30_local_media.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -61,13 +55,10 @@ class MigrationManager {
     MigrationV20Oreno3dMatchCache(),
     MigrationV21WatchLater(),
     MigrationV22VrFormatOverride(),
-    MigrationV23LocalMedia(),
-    MigrationV24LocalMediaPagingIndex(),
-    MigrationV25LocalMediaCategory(),
-    MigrationV26LocalMediaSort(),
-    MigrationV27LocalMediaCategorySort(),
-    MigrationV28DownloadTaskLegacyMedia(),
-    MigrationV29LocalMediaLastPlayed(),
+    // 本地媒体库整条线合成了一版（原 v23~v29）。App 还没正式发版，库外只有开发机，
+    // 没必要把"边做边加"的七步当成七次线上升级留在这里；v30 自己是幂等的，停在
+    // 23~29 任何一档的开发机都能被它带上来。见该文件的类注释。
+    MigrationV30LocalMedia(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 
