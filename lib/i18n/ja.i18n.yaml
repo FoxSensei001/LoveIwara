@@ -1802,6 +1802,7 @@ download:
     resume: すべて再開
     dismiss: 閉じる
   emptyTaskList: ダウンロードタスクがありません
+  downloadedContentGuide: ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります
   noMatchingTasks: 一致するタスクがありません
   deleteByDate:
     menuTitle: 日付で削除
@@ -2981,6 +2982,8 @@ localMedia:
   sortSize: サイズ
   sortFolder: フォルダー
   sortRecentlyModified: 更新が新しい順
+  sortCount: 枚数
+  folderCardItemCount: "${count} 枚"
   downloadsSource: ダウンロード済み
   builtInSourceHint: 「ダウンロード済み」は自動で管理されます
   filterByCategory: カテゴリで絞り込む
@@ -2989,6 +2992,10 @@ localMedia:
   setCategoryFailed: カテゴリの設定に失敗しました
   categoryUpdated: カテゴリを更新しました
   addFolder: フォルダーを追加
+  addDeviceVideos: 端末の動画をスキャン
+  mediaStoreSourceName: 端末の動画
+  mediaStoreUnavailable: 端末のメディアインデックスは Android でのみ利用できます
+  mediaStorePermissionDenied: 動画へのアクセスが許可されていません
   rescan: 再スキャン
   scanning: "スキャン中… ${count} 件見つかりました"
   scanFailed: "スキャンに失敗しました：${reason}"
@@ -3011,3 +3018,4 @@ localMedia:
   clearProgressBody: 再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。
   clearProgressDone: "ローカル視聴履歴を ${count} 件消去しました"
   clearAction: 消去
+  iosManualRescanNotice: iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。

@@ -1420,6 +1420,7 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '长按复制错误详情';
 	@override late final _TranslationsDownloadRestoredPausedZhCn restoredPaused = _TranslationsDownloadRestoredPausedZhCn._(_root);
 	@override String get emptyTaskList => '暂无下载任务';
+	@override String get downloadedContentGuide => '已经下好的内容在「视频 → 来源 → 已下载」';
 	@override String get noMatchingTasks => '没有匹配的任务';
 	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
 	@override late final _TranslationsDownloadCategoryZhCn category = _TranslationsDownloadCategoryZhCn._(_root);
@@ -2596,6 +2597,8 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String get sortSize => '大小';
 	@override String get sortFolder => '文件夹';
 	@override String get sortRecentlyModified => '最近修改';
+	@override String get sortCount => '数量';
+	@override String folderCardItemCount({required Object count}) => '${count} 张';
 	@override String get downloadsSource => '已下载';
 	@override String get builtInSourceHint => '「已下载」由下载模块自动维护';
 	@override String get filterByCategory => '按分类筛选';
@@ -2604,6 +2607,10 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String get setCategoryFailed => '设置分类失败';
 	@override String get categoryUpdated => '已更新分类';
 	@override String get addFolder => '添加文件夹';
+	@override String get addDeviceVideos => '扫描设备视频';
+	@override String get mediaStoreSourceName => '设备视频';
+	@override String get mediaStoreUnavailable => '设备媒体索引仅在 Android 上可用';
+	@override String get mediaStorePermissionDenied => '未授予视频访问权限';
 	@override String get rescan => '重新扫描';
 	@override String scanning({required Object count}) => '扫描中… 已发现 ${count} 个';
 	@override String scanFailed({required Object reason}) => '扫描失败：${reason}';
@@ -2626,6 +2633,7 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String get clearProgressBody => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。';
 	@override String clearProgressDone({required Object count}) => '已清除 ${count} 条本机观看记录';
 	@override String get clearAction => '清除';
+	@override String get iosManualRescanNotice => 'iOS 不会自动发现新文件，添加或删除文件后需要手动重新扫描。';
 }
 
 // Path: common.pagination
@@ -5607,6 +5615,7 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
+			'download.downloadedContentGuide' => '已经下好的内容在「视频 → 来源 → 已下载」',
 			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
 			'download.deleteByDate.dialogTitle' => '按日期删除',
@@ -5958,9 +5967,9 @@ extension on TranslationsZhCn {
 			'mediaPlayer.imageLoadFailed' => '图片加载失败',
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
-			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
@@ -6472,9 +6481,9 @@ extension on TranslationsZhCn {
 			'savedSearch.saveSuccess' => '已保存搜索',
 			'savedSearch.deleteSuccess' => '已删除搜索',
 			'savedSearch.addCurrent' => '保存当前搜索',
-			'savedSearch.reorderHint' => '长按拖动可调整顺序',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.reorderHint' => '长按拖动可调整顺序',
 			'savedSearch.rename' => '重命名',
 			'savedSearch.noKeyword' => '（无关键词）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 个筛选',
@@ -6673,6 +6682,8 @@ extension on TranslationsZhCn {
 			'localMedia.sortSize' => '大小',
 			'localMedia.sortFolder' => '文件夹',
 			'localMedia.sortRecentlyModified' => '最近修改',
+			'localMedia.sortCount' => '数量',
+			'localMedia.folderCardItemCount' => ({required Object count}) => '${count} 张',
 			'localMedia.downloadsSource' => '已下载',
 			'localMedia.builtInSourceHint' => '「已下载」由下载模块自动维护',
 			'localMedia.filterByCategory' => '按分类筛选',
@@ -6681,6 +6692,10 @@ extension on TranslationsZhCn {
 			'localMedia.setCategoryFailed' => '设置分类失败',
 			'localMedia.categoryUpdated' => '已更新分类',
 			'localMedia.addFolder' => '添加文件夹',
+			'localMedia.addDeviceVideos' => '扫描设备视频',
+			'localMedia.mediaStoreSourceName' => '设备视频',
+			'localMedia.mediaStoreUnavailable' => '设备媒体索引仅在 Android 上可用',
+			'localMedia.mediaStorePermissionDenied' => '未授予视频访问权限',
 			'localMedia.rescan' => '重新扫描',
 			'localMedia.scanning' => ({required Object count}) => '扫描中… 已发现 ${count} 个',
 			'localMedia.scanFailed' => ({required Object reason}) => '扫描失败：${reason}',
@@ -6703,6 +6718,7 @@ extension on TranslationsZhCn {
 			'localMedia.clearProgressBody' => '只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 条本机观看记录',
 			'localMedia.clearAction' => '清除',
+			'localMedia.iosManualRescanNotice' => 'iOS 不会自动发现新文件，添加或删除文件后需要手动重新扫描。',
 			_ => null,
 		};
 	}

@@ -10,6 +10,7 @@ import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
+import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
@@ -39,6 +40,7 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
   bool _permissionDenied = false;
   String? _scanningSourceId;
   Worker? _scanWorker;
+  List<String>? _cachedCandidates;
 
   @override
   void initState() {
@@ -55,17 +57,16 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
 
   @override
   void dispose() {
-    final sourceId = _scanningSourceId;
-    if (sourceId != null && Get.isRegistered<LocalMediaScanService>()) {
-      LocalMediaScanService.to.cancel(sourceId);
-    }
     _scanWorker?.dispose();
     super.dispose();
   }
 
   void _reloadSources() {
     if (!mounted) return;
-    setState(() => _sources = _repository.getSources());
+    setState(() {
+      _sources = _repository.getSources();
+      if (_sources.isNotEmpty) _cachedCandidates = null;
+    });
   }
 
   void _onScanProgress(LocalMediaScanProgress? progress) {
@@ -99,6 +100,37 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
     if (_addingSource) return;
     setState(() => _addingSource = true);
     try {
+      if (GetPlatform.isIOS) {
+        final pickedResult = await IosFolderPickerService.to.pickFolder();
+        if (pickedResult == null) return;
+        final picked = pickedResult.path;
+        final overlapping = _repository.findOverlappingSource(picked);
+        if (overlapping != null) {
+          showAppToast(
+            slang.t.localMedia.sourceOverlaps(name: overlapping.displayName),
+            type: AppToastType.error,
+          );
+          return;
+        }
+
+        final source = LocalMediaSource(
+          id: const Uuid().v4(),
+          kind: LocalMediaSourceKind.bookmark,
+          displayName: pickedResult.displayName.isNotEmpty
+              ? pickedResult.displayName
+              : (p.basename(picked).isEmpty ? picked : p.basename(picked)),
+          path: picked,
+          uri: pickedResult.bookmark,
+          mediaKinds: LocalMediaKinds.both,
+          sortOrder: _sources.where((source) => !source.isBuiltIn).length,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+        );
+        _repository.upsertSource(source);
+        _reloadSources();
+        unawaited(_scan(source));
+        return;
+      }
+
       final permission = Get.find<PermissionService>();
       if (!await permission.hasStoragePermission()) {
         final granted = await permission.requestStoragePermission();
@@ -127,6 +159,7 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
         kind: LocalMediaSourceKind.directory,
         displayName: p.basename(picked).isEmpty ? picked : p.basename(picked),
         path: picked,
+        mediaKinds: LocalMediaKinds.both,
         sortOrder: _sources.where((source) => !source.isBuiltIn).length,
         createdAt: DateTime.now().millisecondsSinceEpoch,
       );
@@ -151,6 +184,45 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
       await LocalMediaScanService.to.scanSource(source);
     } catch (e, s) {
       LogUtils.e('扫描本地源失败', tag: _tag, error: e, stackTrace: s);
+    }
+  }
+
+  Future<void> _addMediaStoreSource() async {
+    if (_addingSource) return;
+    final t = slang.t.localMedia;
+    if (!GetPlatform.isAndroid) {
+      showAppToast(t.mediaStoreUnavailable, type: AppToastType.info);
+      return;
+    }
+
+    setState(() => _addingSource = true);
+    try {
+      final permission = Get.find<PermissionService>();
+      if (!await permission.hasMediaStorePermission() &&
+          !await permission.requestMediaStorePermission()) {
+        showAppToast(t.mediaStorePermissionDenied, type: AppToastType.error);
+        return;
+      }
+
+      final existing = _repository.getSource(kAndroidMediaStoreSourceId);
+      final source =
+          existing ??
+          LocalMediaSource(
+            id: kAndroidMediaStoreSourceId,
+            kind: LocalMediaSourceKind.mediastore,
+            displayName: t.mediaStoreSourceName,
+            uri: 'content://media/external/video/media',
+            sortOrder: _sources.where((source) => !source.isBuiltIn).length,
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+          );
+      _repository.upsertSource(source);
+      _reloadSources();
+      unawaited(_scan(source));
+    } catch (e, s) {
+      LogUtils.e('添加 MediaStore 源失败', tag: _tag, error: e, stackTrace: s);
+      showAppToast(t.addSourceFailed, type: AppToastType.error);
+    } finally {
+      if (mounted) setState(() => _addingSource = false);
     }
   }
 
@@ -248,15 +320,17 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
   }
 
   List<String> _candidatePaths() {
-    if (!GetPlatform.isAndroid) return const <String>[];
+    if (!GetPlatform.isAndroid || _sources.isNotEmpty) return const <String>[];
+    if (_cachedCandidates != null) return _cachedCandidates!;
     const roots = <String>[
       '/storage/emulated/0/Download',
       '/storage/emulated/0/Movies',
     ];
-    return [
+    _cachedCandidates = [
       for (final path in roots)
         if (_hasVideoWithinDepth(path)) path,
     ];
+    return _cachedCandidates!;
   }
 
   static const int _candidateDirectoryDepth = 2;
@@ -299,6 +373,11 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
             onPressed: _addingSource ? null : _addSource,
             icon: const Icon(Icons.create_new_folder_outlined),
           ),
+          IconButton(
+            tooltip: t.addDeviceVideos,
+            onPressed: _addingSource ? null : _addMediaStoreSource,
+            icon: const Icon(Icons.video_library_outlined),
+          ),
           Builder(
             builder: (anchorContext) => IconButton(
               tooltip: slang.t.common.more,
@@ -324,6 +403,42 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
     );
   }
 
+  Widget _iosManualScanNoticeWidget(BuildContext context) {
+    final t = slang.t.localMedia;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        margin: EdgeInsets.zero,
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  t.iosManualRescanNotice,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildResponsiveBody(BuildContext context, List<String> candidates) {
     final t = slang.t.localMedia;
     return LayoutBuilder(
@@ -344,6 +459,8 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
                       children: <Widget>[
                         if (_permissionDenied) _permissionBanner(context),
+                        if (GetPlatform.isIOS)
+                          _iosManualScanNoticeWidget(context),
                         for (final source in _sources)
                           _sourceTile(context, source),
                         const SizedBox(height: 12),
@@ -351,6 +468,13 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
                           onPressed: _addingSource ? null : _addSource,
                           icon: const Icon(Icons.add),
                           label: Text(t.addFolder),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: _addingSource
+                              ? null
+                              : _addMediaStoreSource,
+                          icon: const Icon(Icons.video_library_outlined),
+                          label: Text(t.addDeviceVideos),
                         ),
                       ],
                     ),
@@ -383,6 +507,16 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
+        if (GetPlatform.isIOS) ...[
+          const SizedBox(height: 8),
+          Text(
+            t.iosManualRescanNotice,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+        ],
         if (_permissionDenied) ...[
           const SizedBox(height: 18),
           _permissionBanner(context),
@@ -417,6 +551,12 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
           icon: const Icon(Icons.create_new_folder_outlined),
           label: Text(t.addFolder),
         ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _addingSource ? null : _addMediaStoreSource,
+          icon: const Icon(Icons.video_library_outlined),
+          label: Text(t.addDeviceVideos),
+        ),
       ],
     );
   }
@@ -441,11 +581,17 @@ class _LocalMediaSourcesPageState extends State<LocalMediaSourcesPage> {
         leading: Icon(
           source.isBuiltIn
               ? Icons.download_outlined
+              : source.kind == LocalMediaSourceKind.mediastore
+              ? Icons.video_library_outlined
               : Icons.folder_open_outlined,
         ),
         title: Text(source.displayName),
         subtitle: Text(
-          source.isBuiltIn ? t.builtInSourceHint : source.path ?? '',
+          source.isBuiltIn
+              ? t.builtInSourceHint
+              : source.kind == LocalMediaSourceKind.mediastore
+              ? t.mediaStoreSourceName
+              : source.path ?? '',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

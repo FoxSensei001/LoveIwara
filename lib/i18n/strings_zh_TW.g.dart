@@ -1449,6 +1449,7 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
 	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
+	@override String get downloadedContentGuide => '已經下載的內容在「影片 → 來源 → 已下載」';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
 	@override late final _TranslationsDownloadCategoryZhTw category = _TranslationsDownloadCategoryZhTw._(_root);
@@ -2596,6 +2597,8 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String get sortSize => '大小';
 	@override String get sortFolder => '資料夾';
 	@override String get sortRecentlyModified => '最近修改';
+	@override String get sortCount => '數量';
+	@override String folderCardItemCount({required Object count}) => '${count} 張';
 	@override String get downloadsSource => '已下載';
 	@override String get builtInSourceHint => '「已下載」由下載模組自動維護';
 	@override String get filterByCategory => '依分類篩選';
@@ -2604,6 +2607,10 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String get setCategoryFailed => '設定分類失敗';
 	@override String get categoryUpdated => '已更新分類';
 	@override String get addFolder => '新增資料夾';
+	@override String get addDeviceVideos => '掃描裝置影片';
+	@override String get mediaStoreSourceName => '裝置影片';
+	@override String get mediaStoreUnavailable => '裝置媒體索引僅在 Android 上可用';
+	@override String get mediaStorePermissionDenied => '未授予影片存取權限';
 	@override String get rescan => '重新掃描';
 	@override String scanning({required Object count}) => '掃描中… 已找到 ${count} 個';
 	@override String scanFailed({required Object reason}) => '掃描失敗：${reason}';
@@ -2626,6 +2633,7 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String get clearProgressBody => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。';
 	@override String clearProgressDone({required Object count}) => '已清除 ${count} 筆本機觀看記錄';
 	@override String get clearAction => '清除';
+	@override String get iosManualRescanNotice => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。';
 }
 
 // Path: common.pagination
@@ -5639,6 +5647,7 @@ extension on TranslationsZhTw {
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
+			'download.downloadedContentGuide' => '已經下載的內容在「影片 → 來源 → 已下載」',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
 			'download.deleteByDate.dialogTitle' => '依日期刪除',
@@ -5958,9 +5967,9 @@ extension on TranslationsZhTw {
 			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
 			'mediaPlayer.mute' => '靜音',
-			'mediaPlayer.unmute' => '取消靜音',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.unmute' => '取消靜音',
 			'mediaPlayer.video' => '影片',
 			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
@@ -6472,9 +6481,9 @@ extension on TranslationsZhTw {
 			'savedSearch.saveSuccess' => '已儲存搜尋',
 			'savedSearch.deleteSuccess' => '已刪除搜尋',
 			'savedSearch.addCurrent' => '儲存目前搜尋',
-			'savedSearch.reorderHint' => '長按拖曳可調整順序',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.reorderHint' => '長按拖曳可調整順序',
 			'savedSearch.rename' => '重新命名',
 			'savedSearch.noKeyword' => '（無關鍵字）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個篩選',
@@ -6673,6 +6682,8 @@ extension on TranslationsZhTw {
 			'localMedia.sortSize' => '大小',
 			'localMedia.sortFolder' => '資料夾',
 			'localMedia.sortRecentlyModified' => '最近修改',
+			'localMedia.sortCount' => '數量',
+			'localMedia.folderCardItemCount' => ({required Object count}) => '${count} 張',
 			'localMedia.downloadsSource' => '已下載',
 			'localMedia.builtInSourceHint' => '「已下載」由下載模組自動維護',
 			'localMedia.filterByCategory' => '依分類篩選',
@@ -6681,6 +6692,10 @@ extension on TranslationsZhTw {
 			'localMedia.setCategoryFailed' => '設定分類失敗',
 			'localMedia.categoryUpdated' => '已更新分類',
 			'localMedia.addFolder' => '新增資料夾',
+			'localMedia.addDeviceVideos' => '掃描裝置影片',
+			'localMedia.mediaStoreSourceName' => '裝置影片',
+			'localMedia.mediaStoreUnavailable' => '裝置媒體索引僅在 Android 上可用',
+			'localMedia.mediaStorePermissionDenied' => '未授予影片存取權限',
 			'localMedia.rescan' => '重新掃描',
 			'localMedia.scanning' => ({required Object count}) => '掃描中… 已找到 ${count} 個',
 			'localMedia.scanFailed' => ({required Object reason}) => '掃描失敗：${reason}',
@@ -6703,6 +6718,7 @@ extension on TranslationsZhTw {
 			'localMedia.clearProgressBody' => '只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。',
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 筆本機觀看記錄',
 			'localMedia.clearAction' => '清除',
+			'localMedia.iosManualRescanNotice' => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。',
 			_ => null,
 		};
 	}

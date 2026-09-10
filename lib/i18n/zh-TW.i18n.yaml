@@ -1845,6 +1845,7 @@ download:
     resume: 全部繼續
     dismiss: 忽略
   emptyTaskList: 暫無下載任務
+  downloadedContentGuide: 已經下載的內容在「影片 → 來源 → 已下載」
   noMatchingTasks: 沒有符合的任務
   deleteByDate:
     menuTitle: 依日期刪除
@@ -2983,6 +2984,8 @@ localMedia:
   sortSize: 大小
   sortFolder: 資料夾
   sortRecentlyModified: 最近修改
+  sortCount: 數量
+  folderCardItemCount: "${count} 張"
   downloadsSource: 已下載
   builtInSourceHint: 「已下載」由下載模組自動維護
   filterByCategory: 依分類篩選
@@ -2991,6 +2994,10 @@ localMedia:
   setCategoryFailed: 設定分類失敗
   categoryUpdated: 已更新分類
   addFolder: 新增資料夾
+  addDeviceVideos: 掃描裝置影片
+  mediaStoreSourceName: 裝置影片
+  mediaStoreUnavailable: 裝置媒體索引僅在 Android 上可用
+  mediaStorePermissionDenied: 未授予影片存取權限
   rescan: 重新掃描
   scanning: "掃描中… 已找到 ${count} 個"
   scanFailed: "掃描失敗：${reason}"
@@ -3013,3 +3020,4 @@ localMedia:
   clearProgressBody: 只刪觀看進度和「已看完」標記，磁碟上的檔案和已加入的資料夾一個不動。
   clearProgressDone: "已清除 ${count} 筆本機觀看記錄"
   clearAction: 清除
+  iosManualRescanNotice: iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。

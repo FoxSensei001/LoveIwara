@@ -3586,6 +3586,9 @@ class TranslationsDownloadEn {
 	/// en: 'No download tasks yet'
 	String get emptyTaskList => 'No download tasks yet';
 
+	/// en: 'Downloaded content can be found in "Videos → Source → Downloaded"'
+	String get downloadedContentGuide => 'Downloaded content can be found in "Videos → Source → Downloaded"';
+
 	/// en: 'No matching tasks'
 	String get noMatchingTasks => 'No matching tasks';
 
@@ -6522,6 +6525,12 @@ class TranslationsLocalMediaEn {
 	/// en: 'Recently modified'
 	String get sortRecentlyModified => 'Recently modified';
 
+	/// en: 'Count'
+	String get sortCount => 'Count';
+
+	/// en: '${count} images'
+	String folderCardItemCount({required Object count}) => '${count} images';
+
 	/// en: 'Downloaded'
 	String get downloadsSource => 'Downloaded';
 
@@ -6545,6 +6554,18 @@ class TranslationsLocalMediaEn {
 
 	/// en: 'Add folder'
 	String get addFolder => 'Add folder';
+
+	/// en: 'Scan device videos'
+	String get addDeviceVideos => 'Scan device videos';
+
+	/// en: 'Device videos'
+	String get mediaStoreSourceName => 'Device videos';
+
+	/// en: 'The device media index is only available on Android'
+	String get mediaStoreUnavailable => 'The device media index is only available on Android';
+
+	/// en: 'Video access was not granted'
+	String get mediaStorePermissionDenied => 'Video access was not granted';
 
 	/// en: 'Rescan'
 	String get rescan => 'Rescan';
@@ -6611,6 +6632,9 @@ class TranslationsLocalMediaEn {
 
 	/// en: 'Clear'
 	String get clearAction => 'Clear';
+
+	/// en: 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.'
+	String get iosManualRescanNotice => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.';
 }
 
 // Path: common.pagination
@@ -11210,6 +11234,7 @@ extension on Translations {
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
+			'download.downloadedContentGuide' => 'Downloaded content can be found in "Videos → Source → Downloaded"',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
 			'download.deleteByDate.dialogTitle' => 'Delete by date',
@@ -11560,9 +11585,9 @@ extension on Translations {
 			'layoutSettings.add' => 'Add',
 			'layoutSettings.defaultColumns' => 'Default Columns',
 			'layoutSettings.defaultColumnsDesc' => 'Default display for large screens',
-			'layoutSettings.previewEffect' => 'Preview Effect',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.previewEffect' => 'Preview Effect',
 			'layoutSettings.screenWidth' => 'Screen Width',
 			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
 			'layoutSettings.editBreakpoint' => 'Edit Breakpoint',
@@ -12074,9 +12099,9 @@ extension on Translations {
 			'savedSearch.saveSuccess' => 'Search saved',
 			'savedSearch.deleteSuccess' => 'Search removed',
 			'savedSearch.addCurrent' => 'Save current search',
-			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
 			'savedSearch.rename' => 'Rename',
 			'savedSearch.noKeyword' => '(No keyword)',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} filters',
@@ -12275,6 +12300,8 @@ extension on Translations {
 			'localMedia.sortSize' => 'Size',
 			'localMedia.sortFolder' => 'Folder',
 			'localMedia.sortRecentlyModified' => 'Recently modified',
+			'localMedia.sortCount' => 'Count',
+			'localMedia.folderCardItemCount' => ({required Object count}) => '${count} images',
 			'localMedia.downloadsSource' => 'Downloaded',
 			'localMedia.builtInSourceHint' => 'Downloaded is managed automatically',
 			'localMedia.filterByCategory' => 'Filter by category',
@@ -12283,6 +12310,10 @@ extension on Translations {
 			'localMedia.setCategoryFailed' => 'Could not set category',
 			'localMedia.categoryUpdated' => 'Category updated',
 			'localMedia.addFolder' => 'Add folder',
+			'localMedia.addDeviceVideos' => 'Scan device videos',
+			'localMedia.mediaStoreSourceName' => 'Device videos',
+			'localMedia.mediaStoreUnavailable' => 'The device media index is only available on Android',
+			'localMedia.mediaStorePermissionDenied' => 'Video access was not granted',
 			'localMedia.rescan' => 'Rescan',
 			'localMedia.scanning' => ({required Object count}) => 'Scanning… ${count} found',
 			'localMedia.scanFailed' => ({required Object reason}) => 'Scan failed: ${reason}',
@@ -12305,6 +12336,7 @@ extension on Translations {
 			'localMedia.clearProgressBody' => 'Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.',
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Cleared ${count} local watch history entries',
 			'localMedia.clearAction' => 'Clear',
+			'localMedia.iosManualRescanNotice' => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.',
 			_ => null,
 		};
 	}

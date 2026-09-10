@@ -1801,6 +1801,7 @@ download:
     resume: 全部继续
     dismiss: 忽略
   emptyTaskList: 暂无下载任务
+  downloadedContentGuide: 已经下好的内容在「视频 → 来源 → 已下载」
   noMatchingTasks: 没有匹配的任务
   deleteByDate:
     menuTitle: 按日期删除
@@ -2979,6 +2980,8 @@ localMedia:
   sortSize: 大小
   sortFolder: 文件夹
   sortRecentlyModified: 最近修改
+  sortCount: 数量
+  folderCardItemCount: "${count} 张"
   downloadsSource: 已下载
   builtInSourceHint: 「已下载」由下载模块自动维护
   filterByCategory: 按分类筛选
@@ -2987,6 +2990,10 @@ localMedia:
   setCategoryFailed: 设置分类失败
   categoryUpdated: 已更新分类
   addFolder: 添加文件夹
+  addDeviceVideos: 扫描设备视频
+  mediaStoreSourceName: 设备视频
+  mediaStoreUnavailable: 设备媒体索引仅在 Android 上可用
+  mediaStorePermissionDenied: 未授予视频访问权限
   rescan: 重新扫描
   scanning: "扫描中… 已发现 ${count} 个"
   scanFailed: "扫描失败：${reason}"
@@ -3009,3 +3016,4 @@ localMedia:
   clearProgressBody: 只删观看进度和「已看完」标记，磁盘上的文件和已添加的文件夹一个不动。
   clearProgressDone: "已清除 ${count} 条本机观看记录"
   clearAction: 清除
+  iosManualRescanNotice: iOS 不会自动发现新文件，添加或删除文件后需要手动重新扫描。

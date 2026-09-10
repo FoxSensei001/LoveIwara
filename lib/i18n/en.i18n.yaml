@@ -1799,6 +1799,7 @@ download:
     resume: Resume all
     dismiss: Dismiss
   emptyTaskList: No download tasks yet
+  downloadedContentGuide: Downloaded content can be found in "Videos → Source → Downloaded"
   noMatchingTasks: No matching tasks
   deleteByDate:
     menuTitle: Delete by date
@@ -2979,6 +2980,8 @@ localMedia:
   sortSize: Size
   sortFolder: Folder
   sortRecentlyModified: Recently modified
+  sortCount: Count
+  folderCardItemCount: "${count} images"
   downloadsSource: Downloaded
   builtInSourceHint: Downloaded is managed automatically
   filterByCategory: Filter by category
@@ -2987,6 +2990,10 @@ localMedia:
   setCategoryFailed: Could not set category
   categoryUpdated: Category updated
   addFolder: Add folder
+  addDeviceVideos: Scan device videos
+  mediaStoreSourceName: Device videos
+  mediaStoreUnavailable: The device media index is only available on Android
+  mediaStorePermissionDenied: Video access was not granted
   rescan: Rescan
   scanning: "Scanning… ${count} found"
   scanFailed: "Scan failed: ${reason}"
@@ -3009,3 +3016,4 @@ localMedia:
   clearProgressBody: Only playback positions and watched marks are deleted. Your files and folders stay exactly as they are.
   clearProgressDone: "Cleared ${count} local watch history entries"
   clearAction: Clear
+  iosManualRescanNotice: iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.

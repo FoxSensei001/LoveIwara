@@ -1421,6 +1421,7 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
 	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
+	@override String get downloadedContentGuide => 'ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
 	@override late final _TranslationsDownloadCategoryJa category = _TranslationsDownloadCategoryJa._(_root);
@@ -2596,6 +2597,8 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String get sortSize => 'サイズ';
 	@override String get sortFolder => 'フォルダー';
 	@override String get sortRecentlyModified => '更新が新しい順';
+	@override String get sortCount => '枚数';
+	@override String folderCardItemCount({required Object count}) => '${count} 枚';
 	@override String get downloadsSource => 'ダウンロード済み';
 	@override String get builtInSourceHint => '「ダウンロード済み」は自動で管理されます';
 	@override String get filterByCategory => 'カテゴリで絞り込む';
@@ -2604,6 +2607,10 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String get setCategoryFailed => 'カテゴリの設定に失敗しました';
 	@override String get categoryUpdated => 'カテゴリを更新しました';
 	@override String get addFolder => 'フォルダーを追加';
+	@override String get addDeviceVideos => '端末の動画をスキャン';
+	@override String get mediaStoreSourceName => '端末の動画';
+	@override String get mediaStoreUnavailable => '端末のメディアインデックスは Android でのみ利用できます';
+	@override String get mediaStorePermissionDenied => '動画へのアクセスが許可されていません';
 	@override String get rescan => '再スキャン';
 	@override String scanning({required Object count}) => 'スキャン中… ${count} 件見つかりました';
 	@override String scanFailed({required Object reason}) => 'スキャンに失敗しました：${reason}';
@@ -2626,6 +2633,7 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String get clearProgressBody => '再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。';
 	@override String clearProgressDone({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました';
 	@override String get clearAction => '消去';
+	@override String get iosManualRescanNotice => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。';
 }
 
 // Path: common.pagination
@@ -5608,6 +5616,7 @@ extension on TranslationsJa {
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
+			'download.downloadedContentGuide' => 'ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
 			'download.deleteByDate.dialogTitle' => '日付で削除',
@@ -5958,9 +5967,9 @@ extension on TranslationsJa {
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
-			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			_ => null,
 		} ?? switch (path) {
+			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
@@ -6472,9 +6481,9 @@ extension on TranslationsJa {
 			'savedSearch.saveSuccess' => '検索を保存しました',
 			'savedSearch.deleteSuccess' => '検索を削除しました',
 			'savedSearch.addCurrent' => '現在の検索を保存',
-			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
 			'savedSearch.rename' => '名前を変更',
 			'savedSearch.noKeyword' => '（キーワードなし）',
 			'savedSearch.filtersCount' => ({required Object count}) => '${count} 個の絞り込み',
@@ -6673,6 +6682,8 @@ extension on TranslationsJa {
 			'localMedia.sortSize' => 'サイズ',
 			'localMedia.sortFolder' => 'フォルダー',
 			'localMedia.sortRecentlyModified' => '更新が新しい順',
+			'localMedia.sortCount' => '枚数',
+			'localMedia.folderCardItemCount' => ({required Object count}) => '${count} 枚',
 			'localMedia.downloadsSource' => 'ダウンロード済み',
 			'localMedia.builtInSourceHint' => '「ダウンロード済み」は自動で管理されます',
 			'localMedia.filterByCategory' => 'カテゴリで絞り込む',
@@ -6681,6 +6692,10 @@ extension on TranslationsJa {
 			'localMedia.setCategoryFailed' => 'カテゴリの設定に失敗しました',
 			'localMedia.categoryUpdated' => 'カテゴリを更新しました',
 			'localMedia.addFolder' => 'フォルダーを追加',
+			'localMedia.addDeviceVideos' => '端末の動画をスキャン',
+			'localMedia.mediaStoreSourceName' => '端末の動画',
+			'localMedia.mediaStoreUnavailable' => '端末のメディアインデックスは Android でのみ利用できます',
+			'localMedia.mediaStorePermissionDenied' => '動画へのアクセスが許可されていません',
 			'localMedia.rescan' => '再スキャン',
 			'localMedia.scanning' => ({required Object count}) => 'スキャン中… ${count} 件見つかりました',
 			'localMedia.scanFailed' => ({required Object reason}) => 'スキャンに失敗しました：${reason}',
@@ -6703,6 +6718,7 @@ extension on TranslationsJa {
 			'localMedia.clearProgressBody' => '再生位置と「視聴済み」の印だけを削除します。ファイルとフォルダーはそのままです。',
 			'localMedia.clearProgressDone' => ({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました',
 			'localMedia.clearAction' => '消去',
+			'localMedia.iosManualRescanNotice' => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。',
 			_ => null,
 		};
 	}

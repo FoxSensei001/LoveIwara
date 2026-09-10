@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
@@ -111,6 +112,7 @@ class GlobalDrawerColumns extends StatelessWidget {
                             context,
                             icon: Icons.download_outlined,
                             title: slang.t.download.downloadList,
+                            iconBadge: _buildDownloadBadge(),
                             onTap: () {
                               NaviService.navigateToDownloadTaskListPage();
                               AppService.switchGlobalDrawer();
@@ -415,7 +417,26 @@ class GlobalDrawerColumns extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
     Widget? trailing,
+    Widget? iconBadge,
   }) {
+    Widget iconWidget = Icon(
+      icon,
+      size: 22,
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.white70
+          : Colors.black87,
+    );
+
+    if (iconBadge != null) {
+      iconWidget = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          iconWidget,
+          Positioned(top: -4, right: -6, child: iconBadge),
+        ],
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: InkWell(
@@ -425,13 +446,7 @@ class GlobalDrawerColumns extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           child: Row(
             children: [
-              Icon(
-                icon,
-                size: 22,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white70
-                    : Colors.black87,
-              ),
+              iconWidget,
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -592,8 +607,32 @@ class GlobalDrawerColumns extends StatelessWidget {
     });
   }
 
-  Widget _buildCountBadge(int count) {
+  Widget _buildDownloadBadge() {
+    if (!Get.isRegistered<DownloadService>()) {
+      return const SizedBox.shrink();
+    }
+    final store = DownloadService.to.store;
+    return Obx(() {
+      final count =
+          store.downloadingIds.length +
+          store.pendingIds.length +
+          store.failedIds.length;
+
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return ScaleTransition(scale: animation, child: child);
+        },
+        child: count > 0
+            ? _buildCountBadge(count, key: const ValueKey('download_badge'))
+            : const SizedBox.shrink(key: ValueKey('empty')),
+      );
+    });
+  }
+
+  Widget _buildCountBadge(int count, {Key? key}) {
     return Badge(
+      key: key,
       backgroundColor: Colors.redAccent,
       label: Text(
         count > 99 ? '99+' : count.toString(),

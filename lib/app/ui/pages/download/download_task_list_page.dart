@@ -221,10 +221,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     if (!mounted) return;
 
     if (tasks.isEmpty) {
-      showAppToast(
-        t.download.deleteByDate.noMatch,
-        type: AppToastType.warning,
-      );
+      showAppToast(t.download.deleteByDate.noMatch, type: AppToastType.warning);
       return;
     }
 
@@ -667,10 +664,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
       bottom: computeBottomSafeInset(MediaQuery.of(context)) + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -1048,6 +1043,16 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               ),
               textAlign: TextAlign.center,
             ),
+            if (!hasActiveFilter) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.download.downloadedContentGuide,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
             if (hasActiveFilter) ...[
               const SizedBox(height: 16),
               GlassButtonGroup(
