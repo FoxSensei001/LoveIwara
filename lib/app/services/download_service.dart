@@ -739,22 +739,19 @@ class DownloadService extends GetxService {
         _publishTask(task, 'resuming');
         // 如果是视频任务，需要验证链接有效性
         if (task.extData?.type == DownloadTaskExtDataType.video) {
-          DownloadTask? newTask = await refreshVideoTask(task);
-          if (newTask != null) {
+          final refreshResult = await refreshVideoTaskDetailed(task);
+          if (refreshResult.isSuccess) {
             LogUtils.d('刷新视频任务成功: $taskId', 'DownloadService');
+            final newTask = refreshResult.task!;
             newTask.status = DownloadStatus.pending;
             task = newTask;
             await _repository.updateTask(newTask); // [更新持久化信息]
           } else {
-            _showMessage(
-              slang.t.download.errors.canNotRefreshVideoTask,
-              Colors.red,
-            );
-            // 让任务变为失败状态，并记录错误信息
+            _showMessage(refreshResult.message, Colors.red);
+            // 让任务变为失败状态，并记录真实死因（视频被删 / 拿不到 / 网络问题），
+            // 而不是一律按「资源已失效」记一笔。
             task.status = DownloadStatus.failed;
-            task.error = slang.t.download.errors.canNotRefreshVideoTask;
-            // 链接刷新不出来，基本等于资源已被删除 / 权限变更。
-            task.errorType = DownloadErrorType.notFound.name;
+            _recordRefreshFailure(task, refreshResult);
             await _repository.updateTask(task); // [更新持久化信息]
             // 此路径不经过 _updateTaskStatus，需显式派发终态通知。
             await _dispatchTerminalNotification(task);
@@ -1677,23 +1674,38 @@ class DownloadService extends GetxService {
             retryCount < maxRetries - 1 &&
             (isDeadLinkError || isConnectionClosedError)) {
           try {
-            final refreshed = await refreshVideoTask(
+            final refreshResult = await refreshVideoTaskDetailed(
               task,
               // 链接已死时不能只看 expires：Iwara 的地址会在没到期之前就 404，
               // 「还没过期」的判断会把任务永远钉死在同一个死链上。
               force: isDeadLinkError,
             );
-            if (refreshed != null) {
+            if (refreshResult.isSuccess) {
               LogUtils.w(
                 isDeadLinkError
                     ? '检测到链接失效(${classifyError(e).name})，已强制刷新视频下载链接，准备重试: ${task.id}'
                     : '检测到连接中断，已刷新视频下载链接，准备重试: ${task.id}',
                 'DownloadService',
               );
-              task = refreshed;
+              task = refreshResult.task!;
               retryCount++;
               await Future.delayed(retryDelay);
               continue;
+            }
+            if (refreshResult.isPermanent) {
+              // 视频本身没了：再重试也只会拿回同一个 404。就此收尾并写下真实死
+              // 因，否则卡片会一直显示上一次的网络错误（连接中断之类）。
+              LogUtils.w(
+                '刷新视频下载链接失败(${refreshResult.failure?.name})，不再重试: ${task.id}',
+                'DownloadService',
+              );
+              _showMessage(refreshResult.message, Colors.red);
+              await _cleanupDownload(task, raf, subscription);
+              task.status = DownloadStatus.failed;
+              _recordRefreshFailure(task, refreshResult);
+              await _updateTaskStatus(task);
+              _processQueue();
+              return;
             }
           } catch (refreshError) {
             LogUtils.w(
@@ -2145,19 +2157,21 @@ class DownloadService extends GetxService {
         final wasDeadLink = isDeadLinkErrorType(
           DownloadErrorType.parse(task.errorType),
         );
-        final refreshed = await refreshVideoTask(task, force: wasDeadLink);
-        if (refreshed == null) {
-          // 刷新失败，退回失败状态并提示
-          _showMessage(
-            slang.t.download.errors.canNotRefreshVideoTask,
-            Colors.red,
-          );
+        final refreshResult = await refreshVideoTaskDetailed(
+          task,
+          force: wasDeadLink,
+        );
+        if (!refreshResult.isSuccess) {
+          // 刷新失败，退回失败状态并提示。失败文案要换成这一次的真实死因，否则
+          // 卡片会继续挂着上一次的网络错误，用户看不出视频其实已经被删了。
+          _showMessage(refreshResult.message, Colors.red);
           optimisticTask.status = DownloadStatus.failed;
+          _recordRefreshFailure(optimisticTask, refreshResult);
           await _repository.updateTask(optimisticTask);
           _publishTask(optimisticTask, 'retryRolledBack');
           return;
         }
-        task = refreshed;
+        task = refreshResult.task!;
       }
 
       // 4) 清理错误信息，入队并持久化
@@ -2722,10 +2736,20 @@ class DownloadService extends GetxService {
   Future<DownloadTask?> refreshVideoTask(
     DownloadTask task, {
     bool force = false,
+  }) async => (await refreshVideoTaskDetailed(task, force: force)).task;
+
+  /// 重新向 API 索取一份下载地址，失败时带回真实原因。
+  ///
+  /// 旧实现把「视频被删了」和「网断了」一起压成 null，失败卡片只能继续挂着上一
+  /// 次的网络错误（典型如 Connection closed while receiving data），用户点多少次
+  /// 重试都看不到真正的死因。这里把原因分开：视频没了 / 拿不到 / 这档清晰度没
+  /// 了都属于永久失败（[VideoLinkRefreshResult.isPermanent]），不该再重试，且要
+  /// 把死因写回任务。
+  Future<VideoLinkRefreshResult> refreshVideoTaskDetailed(
+    DownloadTask task, {
+    bool force = false,
   }) async {
-    VideoDownloadExtData videoExtData = VideoDownloadExtData.fromJson(
-      task.extData!.data,
-    );
+    final videoExtData = VideoDownloadExtData.fromJson(task.extData!.data);
     final videoLink = task.url;
     final expireTime = CommonUtils.getVideoLinkExpireTime(videoLink);
     final shouldForceRefresh = force || expireTime == null;
@@ -2734,34 +2758,176 @@ class DownloadService extends GetxService {
         expireTime != null &&
         DateTime.now().isAfter(expireTime.subtract(const Duration(minutes: 1)));
 
-    if (shouldForceRefresh || isNearlyExpired) {
-      // 需要刷新链接
-      String? newVideoDownloadUrl = await VideoService.to
-          .getVideoDownloadUrlByIdAndQuality(
-            videoExtData.id ?? '',
-            videoExtData.quality!,
-          );
-
-      // 如果获取到新的链接，则更新任务信息
-      if (newVideoDownloadUrl != null) {
-        if (!isSameRemoteFile(videoLink, newVideoDownloadUrl)) {
-          // 换签名只会动 query，动了 path 说明远端换成了另一份文件（重新转码等）：
-          // 已下的半截字节续不上，续传会拼出损坏文件，删档从头下。
-          await _discardPartialFile(task);
-        }
-        task.url = newVideoDownloadUrl;
-        return task;
-      } else {
-        _showMessage(
-          slang.t.download.errors.linkExpiredTryAgainFailed,
-          Colors.red,
-        );
-        return null;
-      }
+    // 链接尚未过期，且无需强制刷新
+    if (!shouldForceRefresh && !isNearlyExpired) {
+      return VideoLinkRefreshResult.success(task);
     }
 
-    // 链接尚未过期，且无需强制刷新
-    return task;
+    final videoId = videoExtData.id ?? '';
+    final quality = videoExtData.quality;
+    if (videoId.isEmpty || quality == null || quality.isEmpty) {
+      return VideoLinkRefreshResult.failure(
+        VideoLinkRefreshFailure.unknown,
+        slang.t.download.errors.canNotRefreshVideoTask,
+      );
+    }
+
+    // 视频详情：404/410 就是「这个视频没了」，这一层的失败最能说明问题。
+    final videoResult = await VideoService.to.fetchVideoInfoResult(videoId);
+    if (videoResult.isFail || videoResult.data == null) {
+      return _refreshFailureFromError(
+        videoResult.exception,
+        videoResult.message,
+      );
+    }
+
+    final sourcesResult = await VideoService.to.fetchVideoSourcesResult(
+      videoResult.data!.fileUrl,
+    );
+    if (sourcesResult.isFail) {
+      return _refreshFailureFromError(
+        sourcesResult.exception,
+        sourcesResult.message,
+      );
+    }
+
+    final matched = (sourcesResult.data ?? []).where((s) => s.name == quality);
+    final newVideoDownloadUrl = matched.isEmpty ? null : matched.first.download;
+    if (newVideoDownloadUrl == null || newVideoDownloadUrl.isEmpty) {
+      // 视频还在，只是这一档清晰度没了：重试同一个任务永远配不出地址。
+      return VideoLinkRefreshResult.failure(
+        VideoLinkRefreshFailure.qualityGone,
+        slang.t.download.errors.videoQualityGone,
+      );
+    }
+
+    if (!isSameRemoteFile(videoLink, newVideoDownloadUrl)) {
+      // 换签名只会动 query，动了 path 说明远端换成了另一份文件（重新转码等）：
+      // 已下的半截字节续不上，续传会拼出损坏文件，删档从头下。
+      await _discardPartialFile(task);
+    }
+    task.url = newVideoDownloadUrl;
+    return VideoLinkRefreshResult.success(task);
+  }
+
+  /// 把刷新链接过程中的异常翻成失败原因。分类复用 [classifyError]，不要在这里
+  /// 另起一套状态码判断。
+  VideoLinkRefreshResult _refreshFailureFromError(
+    Object? error,
+    String fallbackMessage,
+  ) {
+    switch (classifyError(error)) {
+      case DownloadErrorType.notFound:
+        return VideoLinkRefreshResult.failure(
+          VideoLinkRefreshFailure.videoRemoved,
+          slang.t.download.errors.videoRemovedCanNotRefresh,
+          error: error,
+        );
+      case DownloadErrorType.serverRejected:
+        return VideoLinkRefreshResult.failure(
+          VideoLinkRefreshFailure.videoInaccessible,
+          slang.t.download.errors.videoInaccessibleCanNotRefresh,
+          error: error,
+        );
+      case DownloadErrorType.network:
+        return VideoLinkRefreshResult.failure(
+          VideoLinkRefreshFailure.network,
+          slang.t.download.errors.refreshLinkNetworkFailed,
+          error: error,
+        );
+      default:
+        return VideoLinkRefreshResult.failure(
+          VideoLinkRefreshFailure.unknown,
+          fallbackMessage.isEmpty
+              ? slang.t.download.errors.canNotRefreshVideoTask
+              : fallbackMessage,
+          error: error,
+        );
+    }
+  }
+
+  /// 把一次刷新失败写回任务：显示的文案与落库的分类都取自真实死因。
+  void _recordRefreshFailure(DownloadTask task, VideoLinkRefreshResult result) {
+    task.error = result.message;
+    task.errorType = result.downloadErrorType.name;
+  }
+}
+
+/// 视频下载地址刷新失败的原因。
+enum VideoLinkRefreshFailure {
+  /// 视频已被删除 / 不存在（404、410）。
+  videoRemoved,
+
+  /// 视频还在但拿不到：私密、需要重新登录（401、403）。
+  videoInaccessible,
+
+  /// 视频还在，但任务要的那一档清晰度已经不提供了。
+  qualityGone,
+
+  /// 网络问题，过一会儿可能就好了。
+  network,
+
+  /// 没能归类。
+  unknown,
+}
+
+/// [DownloadService.refreshVideoTaskDetailed] 的结果。
+class VideoLinkRefreshResult {
+  /// 刷新成功时的任务（就是传进去那一个，url 已更新）。
+  final DownloadTask? task;
+
+  /// 失败原因；成功时为 null。
+  final VideoLinkRefreshFailure? failure;
+
+  /// 给人看的失败原因；成功时为空串。
+  final String message;
+
+  /// 原始异常，供日志与分类使用。
+  final Object? error;
+
+  const VideoLinkRefreshResult._({
+    this.task,
+    this.failure,
+    this.message = '',
+    this.error,
+  });
+
+  factory VideoLinkRefreshResult.success(DownloadTask task) =>
+      VideoLinkRefreshResult._(task: task);
+
+  factory VideoLinkRefreshResult.failure(
+    VideoLinkRefreshFailure failure,
+    String message, {
+    Object? error,
+  }) => VideoLinkRefreshResult._(
+    failure: failure,
+    message: message,
+    error: error,
+  );
+
+  bool get isSuccess => task != null;
+
+  /// 重试同一个任务不会有别的结果：资源本身没了 / 拿不到。网络类不算，等会儿
+  /// 再试仍有意义。
+  bool get isPermanent =>
+      failure == VideoLinkRefreshFailure.videoRemoved ||
+      failure == VideoLinkRefreshFailure.videoInaccessible ||
+      failure == VideoLinkRefreshFailure.qualityGone;
+
+  /// 落库用的失败分类。
+  DownloadErrorType get downloadErrorType {
+    switch (failure) {
+      case VideoLinkRefreshFailure.videoRemoved:
+      case VideoLinkRefreshFailure.qualityGone:
+        return DownloadErrorType.notFound;
+      case VideoLinkRefreshFailure.videoInaccessible:
+        return DownloadErrorType.serverRejected;
+      case VideoLinkRefreshFailure.network:
+        return DownloadErrorType.network;
+      case VideoLinkRefreshFailure.unknown:
+      case null:
+        return DownloadErrorType.unknown;
+    }
   }
 }
 

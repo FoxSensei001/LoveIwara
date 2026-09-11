@@ -17,14 +17,6 @@ class MigrationV6Config extends Migration {
         value TEXT NOT NULL
       );
     ''');
-    db.execute('PRAGMA user_version = 6;');
     LogUtils.i('已应用迁移v6：创建/更新配置表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TABLE IF EXISTS app_config;');
-    db.execute('PRAGMA user_version = 5;');
-    LogUtils.i('已回滚迁移v6：删除配置表');
   }
 }

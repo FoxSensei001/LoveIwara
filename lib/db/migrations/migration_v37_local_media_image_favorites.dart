@@ -26,12 +26,10 @@ class MigrationV37LocalMediaImageFavorites extends Migration {
 
   @override
   void up(CommonDatabase db) {
-    final tableExists = db
-        .select(
-          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-          <Object?>['local_media_items'],
-        )
-        .isNotEmpty;
+    final tableExists = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      <Object?>['local_media_items'],
+    ).isNotEmpty;
     if (!tableExists) {
       LogUtils.i('local_media_items 尚不存在，跳过 v37', 'MigrationV37');
       return;
@@ -51,12 +49,5 @@ class MigrationV37LocalMediaImageFavorites extends Migration {
       "WHERE kind = 'image' AND favorited_at IS NOT NULL",
     );
     LogUtils.i('已清除 ${db.updatedRows} 张图片的精选标记', 'MigrationV37');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    // ⛔ 回不去。清掉的是「哪几张图片被标过」，那份信息已经没了；就算留着也没有
-    // 任何界面读得到它。同 v31~v36 的做法。
-    LogUtils.i('v37 无需回滚', 'MigrationV37');
   }
 }

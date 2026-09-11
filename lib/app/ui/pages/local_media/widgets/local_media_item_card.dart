@@ -9,7 +9,7 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -293,22 +293,16 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
                         ),
                       ),
                     Positioned(
-                      top: 6,
-                      left: 6,
+                      top: LocalContainerCard.badgeInset,
+                      left: LocalContainerCard.badgeInset,
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         // 图片没有精选（见 [LocalMediaItem.supportsFavorite]）：
                         // 库里若还留着旧的标记，这里也不画——判据只有那一份。
                         child:
                             _item.supportsFavorite && _item.favoritedAt != null
-                            ? DecoratedBox(
+                            ? LocalCardBadge(
                                 key: const ValueKey('favorited_badge'),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surface.withValues(
-                                    alpha: 0.82,
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
                                 child: Padding(
                                   padding: const EdgeInsets.all(4),
                                   child: Icon(
@@ -325,32 +319,9 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
                     ),
                     if (widget.onMenu != null)
                       Positioned(
-                        top: 2,
-                        right: 2,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withValues(
-                              alpha: 0.82,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Builder(
-                            builder: (anchorContext) => GlassTapArea(
-                              onTap: () => widget.onMenu!(anchorContext),
-                              onLongPress: () => widget.onMenu!(anchorContext),
-                              opensOverlay: true,
-                              longPressOpensOverlay: true,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Icon(
-                                  Icons.more_vert,
-                                  size: 18,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        top: LocalContainerCard.badgeInset,
+                        right: LocalContainerCard.badgeInset,
+                        child: LocalCardMenuBadge(onMenu: widget.onMenu!),
                       ),
                   ],
                 ),

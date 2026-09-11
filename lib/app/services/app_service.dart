@@ -782,6 +782,11 @@ class NaviService {
     appRouter.push('/gallery_download_task_detail/$taskId');
   }
 
+  /// 跳转到本机已下载图库浏览页（以文件夹形式浏览）
+  static void navigateToDownloadedGalleryBrowsePage(String taskId) {
+    appRouter.push('/local/gallery_browse/$taskId');
+  }
+
   /// 跳转到消息详情页
   static void navigateToMessagePage(ConversationModel conversation) {
     appRouter.push('/message_detail/${conversation.id}', extra: conversation);

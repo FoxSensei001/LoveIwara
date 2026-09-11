@@ -1830,9 +1830,6 @@ class TranslationsSettingsEn {
 	/// en: 'Ignore This Version'
 	String get ignoreThisVersion => 'Ignore This Version';
 
-	/// en: 'Current version is too low, please update as soon as possible'
-	String get minVersionUpdateRequired => 'Current version is too low, please update as soon as possible';
-
 	/// en: 'This is a mandatory update. Please update to the latest version as soon as possible'
 	String get forceUpdateTip => 'This is a mandatory update. Please update to the latest version as soon as possible';
 
@@ -4797,8 +4794,23 @@ class TranslationsDiagnosticsEn {
 	/// en: 'Unavailable (login saved with fallback encryption)'
 	String get secureStorageUnavailable => 'Unavailable (login saved with fallback encryption)';
 
+	/// en: 'Local encryption by platform policy (system keychain not used on macOS)'
+	String get secureStoragePlatformOptOut => 'Local encryption by platform policy (system keychain not used on macOS)';
+
 	/// en: ' (dual-write protection on)'
 	String get secureStorageDualWrite => ' (dual-write protection on)';
+
+	/// en: 'Database schema'
+	String get schemaHealthLabel => 'Database schema';
+
+	/// en: 'OK'
+	String get schemaHealthOk => 'OK';
+
+	/// en: 'Repaired by the safety net on this launch (migration did not take effect)'
+	String get schemaHealthRepairedNow => 'Repaired by the safety net on this launch (migration did not take effect)';
+
+	/// en: 'Was repaired by the safety net before'
+	String get schemaHealthRepairedBefore => 'Was repaired by the safety net before';
 
 	/// en: 'Log Policy'
 	String get logPolicySectionTitle => 'Log Policy';
@@ -8462,6 +8474,18 @@ class TranslationsDownloadErrorsEn {
 	/// en: 'Failed to refresh video task'
 	String get canNotRefreshVideoTask => 'Failed to refresh video task';
 
+	/// en: 'This video was deleted or no longer exists, so the download link cannot be refreshed'
+	String get videoRemovedCanNotRefresh => 'This video was deleted or no longer exists, so the download link cannot be refreshed';
+
+	/// en: 'This video is not accessible, it may be private or you may need to sign in again'
+	String get videoInaccessibleCanNotRefresh => 'This video is not accessible, it may be private or you may need to sign in again';
+
+	/// en: 'This quality is no longer offered, please add the download again'
+	String get videoQualityGone => 'This quality is no longer offered, please add the download again';
+
+	/// en: 'Network error, the download link cannot be refreshed right now, please try again later'
+	String get refreshLinkNetworkFailed => 'Network error, the download link cannot be refreshed right now, please try again later';
+
 	/// en: 'Task already processing'
 	String get taskAlreadyProcessing => 'Task already processing';
 
@@ -9302,6 +9326,9 @@ class TranslationsLocalMediaBrowseEn {
 	/// en: 'Images'
 	String get imagesSection => 'Images';
 
+	/// en: 'Galleries'
+	String get galleriesSection => 'Galleries';
+
 	/// en: 'Location'
 	String get location => 'Location';
 
@@ -9320,6 +9347,21 @@ class TranslationsLocalMediaBrowseEn {
 	/// en: '"${name}" will be permanently removed from this device. This cannot be undone.'
 	String deleteFileBody({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.';
 
+	/// en: 'Delete this gallery?'
+	String get deleteGalleryTitle => 'Delete this gallery?';
+
+	/// en: 'The download record and local image files of "${name}" will be deleted. This cannot be undone.'
+	String deleteGalleryBody({required Object name}) => 'The download record and local image files of "${name}" will be deleted. This cannot be undone.';
+
+	/// en: 'Local files no longer exist. Record cleaned up.'
+	String get galleryResourceMissing => 'Local files no longer exist. Record cleaned up.';
+
+	/// en: 'View download details'
+	String get viewDownloadDetail => 'View download details';
+
+	/// en: 'View on website'
+	String get viewOnlineGallery => 'View on website';
+
 	/// en: 'Choose a folder'
 	String get pickFolderTitle => 'Choose a folder';
 
@@ -9331,6 +9373,12 @@ class TranslationsLocalMediaBrowseEn {
 
 	/// en: 'Device storage'
 	String get storageRoot => 'Device storage';
+
+	/// en: 'Home'
+	String get homeFolder => 'Home';
+
+	/// en: 'Filesystem root'
+	String get filesystemRoot => 'Filesystem root';
 
 	/// en: 'This folder cannot be read'
 	String get folderUnreadable => 'This folder cannot be read';
@@ -10372,7 +10420,6 @@ extension on Translations {
 			'settings.updateContent' => 'Update Content',
 			'settings.releaseDate' => 'Release Date',
 			'settings.ignoreThisVersion' => 'Ignore This Version',
-			'settings.minVersionUpdateRequired' => 'Current version is too low, please update as soon as possible',
 			'settings.forceUpdateTip' => 'This is a mandatory update. Please update to the latest version as soon as possible',
 			'settings.viewChangelog' => 'View Changelog',
 			'settings.alreadyLatestVersion' => 'Already the latest version',
@@ -10829,9 +10876,9 @@ extension on Translations {
 			'settings.downloadSettings.fixIssue' => 'Fix Issue',
 			'settings.downloadSettings.issueFixed' => 'Issue fixed',
 			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
+			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
 			_ => null,
 		} ?? switch (path) {
-			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'Cannot access public directory, need "All files access permission"',
 			'settings.downloadSettings.cannotCreateDirectory' => 'Cannot create directory',
 			'settings.downloadSettings.directoryNotWritable' => 'Directory not writable',
@@ -11343,9 +11390,9 @@ extension on Translations {
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
+			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			_ => null,
 		} ?? switch (path) {
-			'conversation.errors.clickToSelectAUser' => 'Click to select a user',
 			'conversation.errors.loadFailedClickToRetry' => 'Load failed, click to retry',
 			'conversation.errors.loadFailed' => 'Load failed',
 			'conversation.errors.clickToRetry' => 'Click to retry',
@@ -11417,6 +11464,10 @@ extension on Translations {
 			'download.errors.deleteFileError' => 'Failed to delete file, possibly because the file is being used by another process',
 			'download.errors.deleteTaskError' => 'Failed to delete task',
 			'download.errors.canNotRefreshVideoTask' => 'Failed to refresh video task',
+			'download.errors.videoRemovedCanNotRefresh' => 'This video was deleted or no longer exists, so the download link cannot be refreshed',
+			'download.errors.videoInaccessibleCanNotRefresh' => 'This video is not accessible, it may be private or you may need to sign in again',
+			'download.errors.videoQualityGone' => 'This quality is no longer offered, please add the download again',
+			'download.errors.refreshLinkNetworkFailed' => 'Network error, the download link cannot be refreshed right now, please try again later',
 			'download.errors.taskAlreadyProcessing' => 'Task already processing',
 			'download.errors.taskNotFound' => 'Task not found',
 			'download.errors.failedToLoadTasks' => 'Failed to load tasks',
@@ -11854,11 +11905,11 @@ extension on Translations {
 			'layoutSettings.autoMode' => 'Auto Mode',
 			'layoutSettings.autoModeDesc' => 'Automatically adjust based on screen width',
 			'layoutSettings.manualMode' => 'Manual Mode',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.manualModeDesc' => 'Use fixed column count',
 			'layoutSettings.manualSettings' => 'Manual Settings',
 			'layoutSettings.fixedColumns' => 'Fixed Columns',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.columns' => 'columns',
 			'layoutSettings.breakpointConfig' => 'Breakpoint Configuration',
 			'layoutSettings.add' => 'Add',
@@ -11971,7 +12022,12 @@ extension on Translations {
 			'diagnostics.secureStorageHealthy' => 'Available',
 			'diagnostics.secureStorageRecovered' => 'Self-healed by reset (previous data cleared)',
 			'diagnostics.secureStorageUnavailable' => 'Unavailable (login saved with fallback encryption)',
+			'diagnostics.secureStoragePlatformOptOut' => 'Local encryption by platform policy (system keychain not used on macOS)',
 			'diagnostics.secureStorageDualWrite' => ' (dual-write protection on)',
+			'diagnostics.schemaHealthLabel' => 'Database schema',
+			'diagnostics.schemaHealthOk' => 'OK',
+			'diagnostics.schemaHealthRepairedNow' => 'Repaired by the safety net on this launch (migration did not take effect)',
+			'diagnostics.schemaHealthRepairedBefore' => 'Was repaired by the safety net before',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
@@ -12363,6 +12419,8 @@ extension on Translations {
 			'savedSearchConfig.deleteSuccess' => 'Filter removed',
 			'savedSearchConfig.addCurrent' => 'Save current filter',
 			'savedSearchConfig.reorderHint' => 'Long-press and drag to reorder',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.rename' => 'Rename',
 			'savedSearchConfig.unnamed' => 'Unnamed',
 			'savedSearchConfig.noConditions' => 'All content (no filter)',
@@ -12371,8 +12429,6 @@ extension on Translations {
 			'savedSearch.empty' => 'No saved searches yet',
 			'savedSearch.saveTooltip' => 'Save current search',
 			'savedSearch.namePromptTitle' => 'Save Search',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.nameLabel' => 'Name',
 			'savedSearch.nameHint' => 'Enter a name',
 			'savedSearch.saveSuccess' => 'Search saved',
@@ -12578,16 +12634,24 @@ extension on Translations {
 			'localMedia.browse.emptyFolder' => 'This folder is empty',
 			'localMedia.browse.videosSection' => 'Videos',
 			'localMedia.browse.imagesSection' => 'Images',
+			'localMedia.browse.galleriesSection' => 'Galleries',
 			'localMedia.browse.location' => 'Location',
 			'localMedia.browse.sourceMissing' => 'This source is gone',
 			'localMedia.browse.notScannedYet' => 'This folder has not been scanned yet',
 			'localMedia.browse.scanning' => 'Reading this folder…',
 			'localMedia.browse.deleteFileTitle' => 'Delete this file?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.',
+			'localMedia.browse.deleteGalleryTitle' => 'Delete this gallery?',
+			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'The download record and local image files of "${name}" will be deleted. This cannot be undone.',
+			'localMedia.browse.galleryResourceMissing' => 'Local files no longer exist. Record cleaned up.',
+			'localMedia.browse.viewDownloadDetail' => 'View download details',
+			'localMedia.browse.viewOnlineGallery' => 'View on website',
 			'localMedia.browse.pickFolderTitle' => 'Choose a folder',
 			'localMedia.browse.useThisFolder' => 'Use this folder',
 			'localMedia.browse.noSubfolders' => 'No subfolders here',
 			'localMedia.browse.storageRoot' => 'Device storage',
+			'localMedia.browse.homeFolder' => 'Home',
+			'localMedia.browse.filesystemRoot' => 'Filesystem root',
 			'localMedia.browse.folderUnreadable' => 'This folder cannot be read',
 			'localMedia.browse.setCover' => 'Set cover',
 			'localMedia.browse.setAsFolderCover' => 'Use as folder cover',

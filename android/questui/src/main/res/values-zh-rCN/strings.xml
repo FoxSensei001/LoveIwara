@@ -77,7 +77,8 @@
     <string name="xr_nav_playlist">播放列表</string>
     <string name="xr_nav_settings">设置</string>
     <string name="xr_nav_back_to_app">返回应用</string>
-    <string name="xr_volume">音量</string>
+    <string name="xr_volume">系统音量</string>
+    <string name="xr_muted_badge">已静音</string>
     <string name="xr_mute">静音</string>
     <string name="xr_unmute">取消静音</string>
     <string name="xr_previous">上一条</string>
@@ -182,6 +183,7 @@
     <string name="xr_notice_playback_failed">这个片源放不出来（%1$s），可以换外部播放器试试</string>
     <string name="xr_notice_no_external_player">这台设备上没有能接住这个视频的播放器</string>
     <string name="xr_notice_resumed_at">已从 %1$s 继续播放</string>
+    <string name="xr_notice_volume_blocked">系统此刻不让改音量（勿扰模式），请用头显上的音量键调</string>
 
     <!-- ─────────────────────────────── 空间画廊（图集页） -->
     <string name="xr_nav_screen_type">屏幕</string>

@@ -54,6 +54,13 @@ class LocalContainerCard extends StatelessWidget {
   /// 卡片本体的圆角。
   static const double bodyRadius = 15;
 
+  /// 封面上那几枚角标（⋮ / 星 / 转圈）离封面边的距离。
+  ///
+  /// ⛔ 这是**两族卡片共用**的一个数：容器卡和媒体卡常常并排出现，角标的大小和
+  /// 离边距离一分家，一眼就能看出两边不是一套东西。之前容器卡是 1（⋮ 的圆底正
+  /// 好贴死在封面圆角上）、媒体卡是 2、星标又是 6，三处各写各的。
+  static const double badgeInset = 6;
+
   /// 文字区上下的固定内边距，[textExtentOf] 的常数项就是它。
   static const EdgeInsets textPadding = EdgeInsets.fromLTRB(10, 8, 10, 10);
 
@@ -166,7 +173,7 @@ class LocalContainerCard extends StatelessWidget {
                       children: <Widget>[
                         cover,
                         ?_leadingBadge(theme),
-                        ?_menuBadge(theme),
+                        ?_menuBadge(),
                       ],
                     ),
                   ),
@@ -206,35 +213,16 @@ class LocalContainerCard extends StatelessWidget {
               )
             : null);
     if (content == null) return null;
-    return Positioned(top: 5, left: 5, child: content);
+    return Positioned(top: badgeInset, left: badgeInset, child: content);
   }
 
   /// 右上角那枚角标：[trailing] 优先，没传就按 [onMenu] 画标准的 ⋮。
-  Widget? _menuBadge(ThemeData theme) {
+  Widget? _menuBadge() {
     final Widget? content =
         trailing ??
-        (onMenu == null
-            ? null
-            : LocalCardBadge(
-                child: Builder(
-                  builder: (anchorContext) => GlassTapArea(
-                    onTap: () => onMenu!(anchorContext),
-                    onLongPress: () => onMenu!(anchorContext),
-                    opensOverlay: true,
-                    longPressOpensOverlay: true,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Icon(
-                        Icons.more_vert,
-                        size: 18,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ),
-              ));
+        (onMenu == null ? null : LocalCardMenuBadge(onMenu: onMenu!));
     if (content == null) return null;
-    return Positioned(top: 1, right: 1, child: content);
+    return Positioned(top: badgeInset, right: badgeInset, child: content);
   }
 }
 
@@ -340,6 +328,44 @@ class LocalFolderShape extends OutlinedBorder {
 
   @override
   int get hashCode => Object.hash(side, tabHeight, bodyRadius);
+}
+
+/// 卡片封面右上角那枚 ⋮。
+///
+/// ⛔ 容器卡、媒体卡、图片格子共用这一份，别再各自拼一遍：三处原本是三段一模一样
+/// 的 `DecoratedBox + GlassTapArea + Icon`，尺寸却各写各的，改一处只能改到三分之
+/// 一。点按与长按都开同一份菜单，锚点取这枚按钮自己的 context。
+class LocalCardMenuBadge extends StatelessWidget {
+  const LocalCardMenuBadge({super.key, required this.onMenu});
+
+  /// 图标本体的大小。
+  static const double iconSize = 18;
+
+  /// 图标四周的内边距。加上 [iconSize] 就是这枚圆底的直径（34）——两族卡片并排
+  /// 时靠它保证 ⋮ 一样大。
+  static const double iconPadding = 8;
+
+  final void Function(BuildContext anchorContext) onMenu;
+
+  @override
+  Widget build(BuildContext context) => LocalCardBadge(
+    child: Builder(
+      builder: (anchorContext) => GlassTapArea(
+        onTap: () => onMenu(anchorContext),
+        onLongPress: () => onMenu(anchorContext),
+        opensOverlay: true,
+        longPressOpensOverlay: true,
+        child: Padding(
+          padding: const EdgeInsets.all(iconPadding),
+          child: Icon(
+            Icons.more_vert,
+            size: iconSize,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 /// 容器卡封面上那枚圆形角标的底（星标 / ⋮ / 转圈都套它）。

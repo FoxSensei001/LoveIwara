@@ -35,12 +35,10 @@ class MigrationV33LocalFolderProbedAt extends Migration {
 
   @override
   void up(CommonDatabase db) {
-    final tableExists = db
-        .select(
-          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-          <Object?>['local_media_folders'],
-        )
-        .isNotEmpty;
+    final tableExists = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      <Object?>['local_media_folders'],
+    ).isNotEmpty;
     if (!tableExists) {
       // v31 会按新 DDL（已含 probed_at）把表建出来，这里没有要补的。
       LogUtils.i('local_media_folders 尚不存在，跳过 v33', 'MigrationV33');
@@ -61,10 +59,4 @@ class MigrationV33LocalFolderProbedAt extends Migration {
 
   /// ⛔ 回滚**不删列**。
   ///
-  /// SQLite 的 `DROP COLUMN` 要 3.35+，而这个列丢了唯一的后果是"忘记哪些目录
-  /// 探过"——重新探一遍就补回来了，不值得为它冒重建表的风险。
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('迁移v33 不删列（probed_at 丢失只需重新探测）', 'MigrationV33');
-  }
 }

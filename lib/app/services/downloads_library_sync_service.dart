@@ -268,6 +268,7 @@ class DownloadsLibrarySyncService extends GetxService {
           offline: volumeOffline,
         ),
       );
+      _refreshRootFolder(source);
       LogUtils.i(
         '「已下载」同步完成：${byPath.length} 个任务，写了 $written 条'
         '${unreadable > 0 ? '，$unreadable 条读不到文件' : ''}'
@@ -376,6 +377,7 @@ class DownloadsLibrarySyncService extends GetxService {
       _repository.upsertSource(
         source.copyWith(itemCount: _repository.countItems(sourceId: source.id)),
       );
+      _refreshRootFolder(source);
       LogUtils.d('下载完成即入库：${item.name}', _tag);
     } catch (e) {
       // 入库失败绝不能反过来影响下载本身——它已经成功了。
@@ -434,6 +436,38 @@ class DownloadsLibrarySyncService extends GetxService {
       pending.clear();
     }
     return count;
+  }
+
+  /// 把「已下载」那一行源根目录记录跟上当前内容（计数 + 自动封面）。
+  ///
+  /// # ⛔ 为什么这个源也要有目录行
+  ///
+  /// 封面、置顶、「设为封面 / 恢复自动封面」全挂在 `local_media_folders` 上。这个
+  /// 源以前一行都不写，于是卡片上永远是一张空夹子，右键菜单里连「设为封面」都没
+  /// 有——用户报的原话是「里面明明有视频，点进去再出来还是没封面，也没法自己设」。
+  ///
+  /// 这一行的 `folder_path` 是 NULL，「这个源是平的」这件事由它表达（见
+  /// [LocalMediaRepository.ensureSourceRootFolder]），所以目录浏览页、播放队列
+  /// 抽屉那边的平铺退化照旧成立。
+  void _refreshRootFolder(LocalMediaSource source) {
+    try {
+      _repository.ensureSourceRootFolder(
+        sourceId: source.id,
+        displayName: source.displayName,
+        videoCount: _repository.countItems(
+          sourceId: source.id,
+          kind: LocalMediaItemKind.video,
+        ),
+        imageCount: _repository.countItems(
+          sourceId: source.id,
+          kind: LocalMediaItemKind.image,
+        ),
+      );
+      _repository.backfillSourceRootCoverFromItems(source.id);
+    } catch (e) {
+      // 封面不是主线：写不进去也不能影响这次同步的结果。
+      LogUtils.w('刷新「已下载」源根目录行失败: $e', _tag);
+    }
   }
 
   void _enqueueDerivation(Iterable<LocalMediaItem> items) {

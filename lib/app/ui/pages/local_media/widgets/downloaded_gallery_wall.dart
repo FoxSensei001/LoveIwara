@@ -1,24 +1,20 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 「下载完成图库」那一栏：应用下载过的图库，一格一个。
 ///
-/// # ⛔ 这一栏读的是**下载任务表**，不是本地库
+/// # ⛔ 图库读的是**下载任务表**，不是本地库
 ///
 /// 2026-09-11 拍板（用户选的 B 案）。本机文件的其它几栏都走 `local_media_items`，
-/// 唯独这一栏不走，理由是图库根本没在里面：[DownloadsLibrarySyncService] 只收
+/// 图库不走，理由是它根本没在里面：[DownloadsLibrarySyncService] 只收
 /// `completedVideoTasks`，图库任务的 `save_path` 指向一个**文件夹**而不是文件。
 ///
 /// 让同步服务把图库也摊进本地库是评估过的另一条路（A 案），被否掉的理由有两条，
@@ -29,8 +25,22 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// 2. **同步成本从"每个任务 1 次 stat"涨到"1 次 listdir + M 次 stat"**，而这套
 ///    全量同步是每次打开本页都跑一次的，sqlite3 和文件 IO 全落在主 isolate 上。
 ///
-/// 代价是这一栏拿不到本地库那套能力（单张图收藏、观看进度、按分辨率排序）——
+/// 代价是图库拿不到本地库那套能力（单张图收藏、观看进度、按分辨率排序）——
 /// 那些能力作用在"一个下载好的图库"上本来也没什么意义。
+///
+/// # 这份数据现在有**两个**去处
+///
+/// 2026-09-11 晚：用户报「割裂」——「文件目录 › 已下载」里只有视频没有图库，
+/// 明明两者是同一批下载来的东西。所以 `local_folder_browse_page` 在「已下载」
+/// 这个源的根层也画同一批图库（`_loadDownloadedGalleries`），一格一个，点开去
+/// 同一个详情页。⛔ 它同样**只读任务表**，上面那两条否决理由一字未变。
+///
+/// 两处共用 [DownloadedGalleryRow] / [DownloadedGalleryCard]（在
+/// `downloaded_gallery_card.dart`）。⛔ 卡片长什么样、封面怎么取、脏 ext_data
+/// 怎么丢——只能在那一处改，别在这儿再抄一份。
+///
+/// 这一栏与那一处的分工：这一栏**分页**、装得下全部；那一处是顺带展示，硬上限
+/// 500 条。
 ///
 /// # ⛔ 卡片必须是**容器卡**
 ///
@@ -51,7 +61,7 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
   static const int _pageSize = 60;
 
   final ScrollController _scrollController = ScrollController();
-  final List<_GalleryRow> _rows = <_GalleryRow>[];
+  final List<DownloadedGalleryRow> _rows = <DownloadedGalleryRow>[];
 
   int _offset = 0;
   bool _loading = false;
@@ -128,7 +138,7 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
       // 反复重取，翻页原地打转。
       _offset += tasks.length;
       if (tasks.length < _pageSize) _exhausted = true;
-      _rows.addAll(tasks.map(_GalleryRow.of).nonNulls);
+      _rows.addAll(tasks.map(DownloadedGalleryRow.of).nonNulls);
       setState(() => _firstLoadPending = false);
     } catch (e, s) {
       LogUtils.e('读取已下载图库失败', tag: _tag, error: e, stackTrace: s);
@@ -169,14 +179,25 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverGrid(
                     gridDelegate: metrics.delegate(
-                      _DownloadedGalleryCard.extentFor(
+                      DownloadedGalleryCard.extentFor(
                         context,
                         metrics.cellWidth,
                       ),
                     ),
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) =>
-                          _DownloadedGalleryCard(row: _rows[index]),
+                      (context, index) {
+                        final row = _rows[index];
+                        return DownloadedGalleryCard(
+                          row: row,
+                          onDeleted: () {
+                            if (mounted) {
+                              setState(() {
+                                _rows.removeWhere((e) => e.taskId == row.taskId);
+                              });
+                            }
+                          },
+                        );
+                      },
                       childCount: _rows.length,
                     ),
                   ),
@@ -216,152 +237,6 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// 一格所需要的全部东西，从下载任务里榨一次就不再回头看任务对象。
-class _GalleryRow {
-  const _GalleryRow({
-    required this.taskId,
-    required this.title,
-    required this.coverPath,
-    required this.imageCount,
-  });
-
-  final String taskId;
-  final String title;
-
-  /// 封面：**已经躺在磁盘上的第一张图**。
-  ///
-  /// ⛔ 不用 `preview_urls` 那几条在线预览图：这一栏说的就是"东西已经在机器上
-  /// 了"，封面却要联网才画得出来，离线时整面墙就是一排占位图。拿不到本地路径
-  /// 时宁可留 null，占位图至少不撒谎。
-  final String? coverPath;
-
-  final int imageCount;
-
-  /// ⛔ 单条脏 `ext_data` 只能丢这一条，不能把整页掀了。
-  ///
-  /// 没有这个 try 的话，[GalleryDownloadExtData.fromJson] 抛出来会被上面
-  /// `_loadMore` 的 catch 接住并把 `_exhausted` 置成 true——一行坏数据让整栏
-  /// **永久**停止加载，用户看到的是「下载过的图库少了一半」。
-  static _GalleryRow? of(DownloadTask task) {
-    try {
-      return _parse(task);
-    } catch (e) {
-      LogUtils.w('跳过解析失败的图库下载任务 ${task.id}: $e', _DownloadedGalleryWallState._tag);
-      return null;
-    }
-  }
-
-  static _GalleryRow? _parse(DownloadTask task) {
-    final ext = task.extData;
-    if (ext == null || ext.type != DownloadTaskExtDataType.gallery) return null;
-    final data = GalleryDownloadExtData.fromJson(ext.data);
-    // `image_list` 的键序就是图库里的原始顺序（JSON 对象保序）。
-    String? cover;
-    for (final id in data.imageList.keys) {
-      final local = data.localPaths[id]?.trim();
-      if (local != null && local.isNotEmpty) {
-        cover = local;
-        break;
-      }
-    }
-    final title = data.title?.trim();
-    return _GalleryRow(
-      taskId: task.id,
-      title: title == null || title.isEmpty ? task.fileName : title,
-      coverPath: cover,
-      imageCount: data.totalImages > 0
-          ? data.totalImages
-          : data.imageList.length,
-    );
-  }
-}
-
-class _DownloadedGalleryCard extends StatelessWidget {
-  const _DownloadedGalleryCard({required this.row});
-
-  static const double coverAspectRatio = 16 / 10;
-
-  static double extentFor(BuildContext context, double cellWidth) =>
-      LocalContainerCard.extentFor(
-        cellWidth: cellWidth,
-        coverAspectRatio: coverAspectRatio,
-        textExtent: LocalContainerCard.textExtentOf(context, lines: 2),
-      );
-
-  final _GalleryRow row;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return LocalContainerCard(
-      coverAspectRatio: coverAspectRatio,
-      onTap: () =>
-          NaviService.navigateToGalleryDownloadTaskDetailPage(row.taskId),
-      cover: _buildCover(context),
-      // 一枚下载完成的角标：这一族卡片（目录/来源/图库）长得一样，得有个记号说
-      // 清"这一格是应用下载来的"。
-      leading: LocalCardBadge(
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Icon(
-            Icons.download_done_rounded,
-            size: 15,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-      lines: <Widget>[
-        Text(
-          row.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          slang.t.localMedia.browse.imageCount(count: row.imageCount),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCover(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final placeholder = ColoredBox(
-      color: colorScheme.surfaceContainerHighest,
-      child: Center(
-        child: Icon(
-          Icons.photo_library_rounded,
-          size: 30,
-          color: colorScheme.outline,
-        ),
-      ),
-    );
-    final path = row.coverPath;
-    if (path == null) return placeholder;
-    return LayoutBuilder(
-      builder: (context, constraints) => Image.file(
-        File(path),
-        fit: BoxFit.cover,
-        // ⛔ 同目录卡：下载下来的原图可能有几千像素宽，不给 cacheWidth 就是按
-        // 原尺寸解进内存，一屏几十格能吃掉几百 MB。
-        cacheWidth:
-            ((constraints.maxWidth.isFinite ? constraints.maxWidth : 320) *
-                    MediaQuery.devicePixelRatioOf(context))
-                .round()
-                .clamp(1, 1280),
-        errorBuilder: (context, error, stackTrace) => placeholder,
       ),
     );
   }

@@ -109,10 +109,15 @@ class _FolderInfo {
         : (folder?.name ?? source?.displayName ?? '');
 
     // ⛔ 计数优先用目录行里那份（扫描时算好的，与卡片上写的是同一个数）。
-    // 没有目录行的源（同上）才回表现查——那种源是平的，按 sourceId 数就对。
+    // 平的源（没有目录行，或源根那一行没有真实路径）才回表现查——那种源整个
+    // 就是一层，按 sourceId 数就对。
+    final flatSource =
+        folder == null ||
+        (relPath.isEmpty &&
+            (folder.folderPath == null || folder.folderPath!.isEmpty));
     final int videoCount;
     final int imageCount;
-    if (folder != null) {
+    if (!flatSource) {
       videoCount = folder.videoCount;
       imageCount = folder.imageCount;
     } else {

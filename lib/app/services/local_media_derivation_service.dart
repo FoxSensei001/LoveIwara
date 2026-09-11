@@ -610,7 +610,13 @@ class LocalMediaDerivationService extends GetxService {
               sourceId: current.sourceId,
               folderPath: folderPath,
             );
-            if (folder != null) {
+            if (folder == null) {
+              // 这个源没有目录树（「已下载」按任务同步，文件散在各个下载目录；
+              // 「设备视频」是系统媒体索引），按绝对路径找不到目录行是常态而不是
+              // 错误。⛔ 以前这里就此打住，于是这两个源的卡片永远是一张空夹子：
+              // 缩略图明明生成出来了，却没有任何一行记得住它。源根那一行接手。
+              _repository.backfillSourceRootCoverFromItems(current.sourceId);
+            } else {
               _repository.backfillFolderCoverFromItems(
                 sourceId: folder.sourceId,
                 relPath: folder.relPath,
@@ -644,6 +650,9 @@ class LocalMediaDerivationService extends GetxService {
                 }
               }
             }
+          } else {
+            // 连绝对目录都没有（系统媒体索引那一类）：同样交给源根那一行。
+            _repository.backfillSourceRootCoverFromItems(current.sourceId);
           }
         } catch (e) {
           LogUtils.w('缩略图落库后回填目录封面失败：${current.name}: $e', _tag);

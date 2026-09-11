@@ -1,6 +1,7 @@
 import 'package:sqlite3/common.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'migration.dart';
+import 'migration_sql.dart';
 
 /// v15: 为 download_tasks 增加 completed_at 字段，记录任务完成时间。
 /// 历史已完成任务用 updated_at 近似回填完成时间。
@@ -15,8 +16,8 @@ class MigrationV15DownloadTaskCompletedAt extends Migration {
   void up(CommonDatabase db) {
     LogUtils.i('开始执行迁移v15：为 download_tasks 增加 completed_at 字段');
 
-    // 增加可空字段，兼容旧数据
-    db.execute('ALTER TABLE download_tasks ADD COLUMN completed_at INTEGER;');
+    // 增加可空字段，兼容旧数据（缺列才加）。
+    addColumnIfMissing(db, 'download_tasks', 'completed_at', 'INTEGER');
 
     // 历史已完成任务没有精确完成时间，用 updated_at 近似回填（最近一次更新通常即完成时刻）
     try {
@@ -32,15 +33,6 @@ class MigrationV15DownloadTaskCompletedAt extends Migration {
       );
     }
 
-    db.execute('PRAGMA user_version = 15;');
     LogUtils.i('已应用迁移v15：download_tasks.completed_at 字段创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v15');
-    // SQLite 不支持 DROP COLUMN，保留字段即可
-    db.execute('PRAGMA user_version = 14;');
-    LogUtils.i('已回滚迁移v15：数据库版本已回退到 v14');
   }
 }

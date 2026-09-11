@@ -164,21 +164,7 @@ fun PlayerPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
             ProgressRow(state, cb)
         }
 
-        if (state.volumePopupOpen) {
-            // 关闭底板画在弹层之下：弹层没消费的触碰才会掉到它上面。
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(cb) { detectTapGestures { cb.onVolumePopup(false) } },
-            )
-            VolumeVerticalPopup(
-                state = state,
-                cb = cb,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(bottom = 60.dp),
-            )
-        }
+        VolumePopupOverlay(state, cb)
     }
 }
 
@@ -281,7 +267,7 @@ private fun TransportRow(
     ) {
         // 🔊：单击开关竖向弹层；静音钮在弹层里（官方 Requirement 级：只调应用音量）。
         CircleActionButton(
-            icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
+            icon = volumeIcon(state.muted, state.volume),
             contentDescription = stringResource(R.string.xr_volume),
             onClick = { cb.onVolumePopup(!state.volumePopupOpen) },
             selected = state.volumePopupOpen,
@@ -460,46 +446,5 @@ private fun ResumeTipRow(text: String, cb: VideoControlsCallbacks) {
             size = 36.dp,
             onClick = cb::onDismissResumeTip,
         )
-    }
-}
-
-// ─────────────────────────────────────────────────────────── 音量弹层
-
-/** 竖向音量弹层：百分比 · 自绘竖条 · 静音钮。 */
-@Composable
-private fun VolumeVerticalPopup(
-    state: VideoControlsState,
-    cb: VideoControlsCallbacks,
-    modifier: Modifier = Modifier,
-) {
-    val current = if (state.muted) 0f else state.volume
-    // 三段之间留固定空隙（不用 SpaceBetween）：拖块行程已缩进半径，数字与静音钮再各留 8dp。
-    Box(
-        modifier = modifier
-            .size(width = 104.dp, height = 316.dp)
-            .clip(RoundedCornerShape(28.dp))
-            .background(PanelTokens.POPUP)
-            .padding(horizontal = 12.dp, vertical = 14.dp),
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(text = "${(current * 100).toInt()}%", color = PanelTokens.ON_SURFACE, fontSize = 15.sp)
-            Spacer(Modifier.height(8.dp))
-            VerticalLevelBar(
-                level = current,
-                onLevel = cb::onVolume,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(Modifier.height(8.dp))
-            CircleActionButton(
-                icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
-                contentDescription = stringResource(if (state.muted) R.string.xr_unmute else R.string.xr_mute),
-                onClick = cb::onToggleMute,
-                size = 56.dp,
-                selected = state.muted,
-            )
-        }
     }
 }

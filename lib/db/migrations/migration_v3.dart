@@ -28,14 +28,6 @@ class MigrationV3DownloadTask extends Migration {
       );
     ''');
 
-    db.execute('PRAGMA user_version = 3;');
     LogUtils.i('已应用迁移v3：创建下载任务表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TABLE IF EXISTS download_tasks;');
-    db.execute('PRAGMA user_version = 2;');
-    LogUtils.i('已回滚迁移v3：删除下载任务表');
   }
 }

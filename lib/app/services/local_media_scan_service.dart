@@ -109,10 +109,12 @@ class LocalMediaScanProgress {
 ///
 /// # ⛔ 为什么 isolate 里只走文件系统、不碰数据库
 ///
-/// `openSqliteDb()` 就是一句 `sqlite3.open(path)`——**没有开 WAL**。默认的
-/// `journal_mode=delete` 下，第二条连接一写就把整库锁住，扫描 isolate 和主
-/// isolate 会互相顶。而 `DatabaseService` 持有的那个 `CommonDatabase` 是主
-/// isolate 的单例、句柄本身也跨不过去。
+/// `DatabaseService` 持有的那个 `CommonDatabase` 是主 isolate 的单例，**句柄本身
+/// 跨不过 isolate 边界**——这一条就足以定死分工，与 journal 模式无关。
+///
+/// （2026-09-11 起 `openSqliteDb()` 会开 WAL，所以「第二条连接一写就锁住整库」
+/// 这个旧理由已经不成立了；想让扫描 isolate 自己开一条连接写库在技术上变得可行。
+/// 但那要另建连接、另管事务与 checkpoint，收益不明，暂不动。）
 ///
 /// 所以分工是死的：**isolate 只做遍历与 stat，把结果分批发回来；写库全部在主
 /// isolate**，按批开显式事务，批与批之间让一帧出去。

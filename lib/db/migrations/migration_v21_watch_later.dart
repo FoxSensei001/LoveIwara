@@ -81,13 +81,4 @@ class MigrationV21WatchLater extends Migration {
 
     LogUtils.i('已应用迁移v21：watch_later 表与索引创建完成');
   }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v21');
-    db.execute('DROP INDEX IF EXISTS idx_watch_later_watched;');
-    db.execute('DROP INDEX IF EXISTS idx_watch_later_type_added;');
-    db.execute('DROP TABLE IF EXISTS watch_later;');
-    LogUtils.i('已回滚迁移v21：watch_later 表已删除');
-  }
 }

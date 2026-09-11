@@ -77,7 +77,8 @@
     <string name="xr_nav_playlist">再生リスト</string>
     <string name="xr_nav_settings">設定</string>
     <string name="xr_nav_back_to_app">アプリに戻る</string>
-    <string name="xr_volume">音量</string>
+    <string name="xr_volume">システム音量</string>
+    <string name="xr_muted_badge">ミュート中</string>
     <string name="xr_mute">ミュート</string>
     <string name="xr_unmute">ミュート解除</string>
     <string name="xr_previous">前へ</string>
@@ -182,6 +183,7 @@
     <string name="xr_notice_playback_failed">この素材は再生できません（%1$s）。外部プレイヤーをお試しください</string>
     <string name="xr_notice_no_external_player">この端末にはこの動画を開けるアプリがありません</string>
     <string name="xr_notice_resumed_at">%1$s から再生を再開しました</string>
+    <string name="xr_notice_volume_blocked">現在システムが音量変更をブロックしています（サイレントモード）。ヘッドセットの音量ボタンで調整してください</string>
 
     <!-- ─────────────────────────────── 空間ギャラリー -->
     <string name="xr_nav_screen_type">スクリーン</string>

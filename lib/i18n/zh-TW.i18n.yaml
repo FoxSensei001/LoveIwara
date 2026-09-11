@@ -595,7 +595,6 @@ settings:
   updateContent: 更新內容
   releaseDate: 發布日期
   ignoreThisVersion: 忽略此版本
-  minVersionUpdateRequired: 目前版本過低，請盡快更新
   forceUpdateTip: "此版本為強制更新，請盡快更新到最新版本"
   viewChangelog: 查看更新日誌
   alreadyLatestVersion: 已是最新版本
@@ -1755,6 +1754,10 @@ download:
     deleteTaskError: '任務刪除失敗'
     taskNotFound: '任務未找到'
     canNotRefreshVideoTask: '無法重新整理影片任務'
+    videoRemovedCanNotRefresh: '影片已被刪除或不存在，無法重新取得下載連結'
+    videoInaccessibleCanNotRefresh: '影片無法存取，可能已設為私密或需要重新登入'
+    videoQualityGone: '該畫質已不再提供，請重新加入下載'
+    refreshLinkNetworkFailed: '網路異常，暫時無法重新取得下載連結，請稍後再試'
     taskAlreadyProcessing: '任務已處理中'
     failedToLoadTasks: '載入任務失敗'
     partialDownloadFailedWithMessage: '部分下載失敗: ${message}'
@@ -2252,7 +2255,12 @@ diagnostics:
   secureStorageHealthy: "可用"
   secureStorageRecovered: "已自癒重置（歷史資料已清除）"
   secureStorageUnavailable: "不可用（登入狀態使用降級加密保存）"
+  secureStoragePlatformOptOut: "依平台策略使用本機加密（macOS 不使用系統鑰匙圈）"
   secureStorageDualWrite: "（雙寫保護已啟用）"
+  schemaHealthLabel: "資料庫結構"
+  schemaHealthOk: "正常"
+  schemaHealthRepairedNow: "本次啟動被安全網補建（遷移未生效）"
+  schemaHealthRepairedBefore: "曾被安全網補建"
   logPolicySectionTitle: "日誌策略"
   configServiceUnavailable: "設定服務未初始化，無法調整日誌策略"
   enableLoggingTitle: "啟用日誌記錄"
@@ -2998,16 +3006,24 @@ localMedia:
     emptyFolder: 這個資料夾是空的
     videosSection: 影片
     imagesSection: 圖片
+    galleriesSection: 圖庫
     location: 位置
     sourceMissing: 這個來源已經不在了
     notScannedYet: 還沒掃描過這個資料夾
     scanning: 正在讀取這個資料夾…
     deleteFileTitle: 刪除這個檔案？
     deleteFileBody: '「${name}」會從這台裝置上真的被刪除，無法復原。'
+    deleteGalleryTitle: 刪除這個圖庫？
+    deleteGalleryBody: '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。'
+    galleryResourceMissing: 本地資源已不存在，已清理該記錄
+    viewDownloadDetail: 查看下載詳情
+    viewOnlineGallery: 在網頁中查看
     pickFolderTitle: 選擇資料夾
     useThisFolder: 使用這個資料夾
     noSubfolders: 這裡沒有子資料夾
     storageRoot: 裝置儲存空間
+    homeFolder: 個人資料夾
+    filesystemRoot: 根目錄
     folderUnreadable: 這個資料夾讀不動
     setCover: 設定封面
     setAsFolderCover: 設為資料夾封面

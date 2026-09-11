@@ -109,7 +109,8 @@ class PlayerPrefs(context: Context) {
         } else {
             state.resetPerVideoSettings()
         }
-        state.volume = sp.getFloat(KEY_VOLUME, 1f)
+        // ⛔ 音量不进偏好：面板上那根调的是**系统**音量（[SystemVolume]），
+        // 归用户和系统管，起播时照读系统当前值，不该由本 App 在下次启动时改回去。
         state.forceMono = sp.getBoolean(KEY_FORCE_MONO, false)
         state.treat180AsFisheye = sp.getBoolean(KEY_TREAT_180_FISHEYE, false)
         state.repeatMode = migratedRepeatMode()
@@ -147,7 +148,6 @@ class PlayerPrefs(context: Context) {
             .putFloat(KEY_HEIGHT_RATIO, state.heightRatio)
             .putFloat(KEY_SPEED, state.speed)
             .putBoolean(KEY_CARRY_OVER, state.carryOverToNextVideo)
-            .putFloat(KEY_VOLUME, state.volume)
             .putBoolean(KEY_FORCE_MONO, state.forceMono)
             .putBoolean(KEY_TREAT_180_FISHEYE, state.treat180AsFisheye)
             .putString(KEY_REPEAT, state.repeatMode.name)
@@ -235,7 +235,6 @@ class PlayerPrefs(context: Context) {
         const val KEY_HEIGHT_RATIO = "heightRatio"
         const val KEY_SPEED = "speed"
         const val KEY_CARRY_OVER = "carryOverToNextVideo"
-        const val KEY_VOLUME = "volume"
         const val KEY_FORCE_MONO = "forceMono"
         const val KEY_TREAT_180_FISHEYE = "treat180Fisheye"
         const val KEY_REPEAT = "repeat"

@@ -46,11 +46,4 @@ class MigrationV22VrFormatOverride extends Migration {
 
     LogUtils.i('已应用迁移v22：video_vr_override 表创建完成');
   }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v22');
-    db.execute('DROP TABLE IF EXISTS video_vr_override;');
-    LogUtils.i('已回滚迁移v22：video_vr_override 表已删除');
-  }
 }

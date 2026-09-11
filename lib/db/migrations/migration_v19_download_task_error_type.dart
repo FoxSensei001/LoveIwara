@@ -28,15 +28,6 @@ class MigrationV19DownloadTaskErrorType extends Migration {
       db.execute('ALTER TABLE download_tasks ADD COLUMN error_type TEXT;');
     }
 
-    db.execute('PRAGMA user_version = 19;');
     LogUtils.i('已应用迁移v19：error_type 字段创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v19');
-    // SQLite 不支持 DROP COLUMN，error_type 列保留即可
-    db.execute('PRAGMA user_version = 18;');
-    LogUtils.i('已回滚迁移v19：数据库版本已回退到 v18');
   }
 }

@@ -88,7 +88,8 @@
     <string name="xr_nav_playlist">Playlist</string>
     <string name="xr_nav_settings">Settings</string>
     <string name="xr_nav_back_to_app">Back to the app</string>
-    <string name="xr_volume">Volume</string>
+    <string name="xr_volume">System volume</string>
+    <string name="xr_muted_badge">Muted</string>
     <string name="xr_mute">Mute</string>
     <string name="xr_unmute">Unmute</string>
     <string name="xr_previous">Previous</string>
@@ -196,6 +197,7 @@
     <string name="xr_notice_playback_failed">This source will not play (%1$s); try an external player</string>
     <string name="xr_notice_no_external_player">No app on this device can open this video</string>
     <string name="xr_notice_resumed_at">Resumed from %1$s</string>
+    <string name="xr_notice_volume_blocked">The system is blocking volume changes right now (Do Not Disturb); change it from the headset’s volume keys</string>
 
     <!-- ─────────────────────────────── 空间画廊（图集页） -->
     <string name="xr_nav_screen_type">Screen</string>

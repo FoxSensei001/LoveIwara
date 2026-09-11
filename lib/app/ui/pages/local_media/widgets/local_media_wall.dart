@@ -33,29 +33,31 @@ class LocalMediaWall extends StatefulWidget {
     required this.kind,
     this.favoritedOnly = false,
     this.sourceId,
-    this.excludeBuiltInSource = false,
     required this.order,
     required this.queueTitle,
     required this.headerExtent,
-  }) : assert(
-         excludeBuiltInSource == (sourceId == null && !favoritedOnly),
-         '墙的取数口径与 LocalLibraryPlaybackQueue.fetchPage 里那一行是同一条规则，'
-         '不能各写各的——池是照着 sourceId/favoritedOnly 自己推的（见 [_openItem]）',
-       );
+  });
 
   final LocalMediaItemKind kind;
   final bool favoritedOnly;
 
-  /// 只看这一个源。null = 不限源。「下载完成视频」那一栏传的是
-  /// [kDownloadsSourceId]。
-  final String? sourceId;
-
-  /// 不限源时，把内建的「已下载」排除在外。
+  /// 只看这一个源。null = **不限源，内建的「已下载」也算在内**。
+  /// 「下载完成视频」那一栏传的是 [kDownloadsSourceId]。
   ///
-  /// ⛔ 「所有视频 / 所有图片」必须开着它：「下载完成视频」自己是一栏，两边都列
-  /// 就是同一批文件在这一页里出现两次。精选那一栏则必须关着——精选是用户跨源
-  /// 挑出来的一小撮，下载来的片子照样能被精选，剔掉等于让星号凭空失效。
-  final bool excludeBuiltInSource;
+  /// # ⛔ 别再给「所有视频 / 所有图片」加回「排除已下载」
+  ///
+  /// 加过（`excludeBuiltInSource`），2026-09-11 用户报「割裂」后整只删掉了。当时
+  /// 的理由是"「下载完成视频」自己是一栏，两边都列就是同一批文件出现两次"——那条
+  /// 理由站不住：
+  ///
+  /// 1. 栏目就叫**所有**。一个在这台机器上、扫进了库的视频不在「所有视频」里，
+  ///    用户第一反应是"没扫到"，然后去重新扫描——而扫描永远修不好它。
+  /// 2. 「全集 + 子集」本来就该重复。「精选视频」一直就和「所有视频」重着，
+  ///    没有人觉得那是 bug；「下载完成视频」是同一种关系。
+  ///
+  /// 排除口径没了以后，仓库那三个查询（`queryItems` / `itemPathsPage` /
+  /// `countItems`）也不再有这个参数——不限源就是真的不限源，没有第二种解释。
+  final String? sourceId;
 
   final LocalMediaOrder order;
 
@@ -101,7 +103,6 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
     if (oldWidget.order != widget.order ||
         oldWidget.kind != widget.kind ||
         oldWidget.sourceId != widget.sourceId ||
-        oldWidget.excludeBuiltInSource != widget.excludeBuiltInSource ||
         oldWidget.favoritedOnly != widget.favoritedOnly) {
       _reloadFromDb();
     }
@@ -139,7 +140,6 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
       final page = _repo.queryItems(
         kind: widget.kind,
         sourceId: widget.sourceId,
-        excludeBuiltInSource: widget.excludeBuiltInSource,
         order: widget.order,
         favoritedOnly: widget.favoritedOnly,
         offset: _offset,
@@ -251,8 +251,6 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
       //
       // ⛔ 参数必须与 [_loadMore] 里那次 `queryItems` 同源（排序尤其）：池的顺序
       // 就是"接下来播什么"，两边不一致时用户点第 3 条，下一条是个毫不相干的东西。
-      // `excludeBuiltInSource` 不用传——池按 `sourceId == null && !favoritedOnly`
-      // 自己推，构造函数上那条 assert 守着这两边同真同假。
       PlaybackQueueRef? queueRef;
       try {
         final queue = PlaybackQueueService.to.openLocalLibrary(

@@ -272,13 +272,17 @@ class VideoService extends GetxService {
     }
   }
 
-  /// 获取视频源
-  Future<List<VideoSource>> getVideoSourcesBy(
+  /// 获取视频源，失败时带回原因。
+  ///
+  /// 与 [getVideoSourcesBy] 的分工：那个把任何失败都压成空列表，调用方无从分辨
+  /// 「视频被删了」和「网断了」；下载重试要据此决定是显示真实死因还是继续重试，
+  /// 所以需要这一份保留异常的版本。
+  Future<ApiResult<List<VideoSource>>> fetchVideoSourcesResult(
     String? fileUrl, {
     IwaraSite? site,
   }) async {
-    if (fileUrl == null) {
-      return [];
+    if (fileUrl == null || fileUrl.trim().isEmpty) {
+      return ApiResult.fail('fileUrl is empty');
     }
     try {
       final response = await _apiService.get(
@@ -290,13 +294,24 @@ class VideoService extends GetxService {
         requestAccess: ApiRequestAccess.optionalAuthShortWait,
         site: site,
       );
-      return (response.data as List)
-          .map((item) => VideoSource.fromJson(item))
-          .toList();
+      return ApiResult.success(
+        data: (response.data as List)
+            .map((item) => VideoSource.fromJson(item))
+            .toList(),
+      );
     } catch (e) {
       LogUtils.e('获取视频源失败', tag: 'VideoService', error: e);
-      return [];
+      return ApiResult.fail(CommonUtils.parseExceptionMessage(e), exception: e);
     }
+  }
+
+  /// 获取视频源
+  Future<List<VideoSource>> getVideoSourcesBy(
+    String? fileUrl, {
+    IwaraSite? site,
+  }) async {
+    final result = await fetchVideoSourcesResult(fileUrl, site: site);
+    return result.isSuccess ? (result.data ?? []) : [];
   }
 
   Future<String?> getVideoDownloadUrlByIdAndQuality(

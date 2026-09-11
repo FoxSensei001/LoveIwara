@@ -30,18 +30,18 @@ class MigrationV2History extends Migration {
 
     // 创建索引
     db.execute('''
-      CREATE INDEX idx_history_records_type_date 
+      CREATE INDEX IF NOT EXISTS idx_history_records_type_date 
       ON history_records(item_type, created_at);
     ''');
 
     db.execute('''
-      CREATE INDEX idx_history_records_title
+      CREATE INDEX IF NOT EXISTS idx_history_records_title
       ON history_records(title);
     ''');
 
     // 创建触发器：自动更新updated_at
     db.execute('''
-      CREATE TRIGGER trigger_history_records_updated_at
+      CREATE TRIGGER IF NOT EXISTS trigger_history_records_updated_at
       AFTER UPDATE ON history_records
       BEGIN
         UPDATE history_records 
@@ -50,17 +50,6 @@ class MigrationV2History extends Migration {
       END;
     ''');
 
-    db.execute('PRAGMA user_version = 2;');
     LogUtils.i('已应用迁移v2：创建历史记录表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TRIGGER IF EXISTS trigger_history_records_updated_at;');
-    db.execute('DROP INDEX IF EXISTS idx_history_records_type_date;');
-    db.execute('DROP INDEX IF EXISTS idx_history_records_title;');
-    db.execute('DROP TABLE IF EXISTS history_records;');
-    db.execute('PRAGMA user_version = 1;');
-    LogUtils.i('已回滚迁移v2：删除历史记录表');
   }
 }

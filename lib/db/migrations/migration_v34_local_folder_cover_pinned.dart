@@ -24,12 +24,10 @@ class MigrationV34LocalFolderCoverPinned extends Migration {
 
   @override
   void up(CommonDatabase db) {
-    final tableExists = db
-        .select(
-          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-          <Object?>['local_media_folders'],
-        )
-        .isNotEmpty;
+    final tableExists = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      <Object?>['local_media_folders'],
+    ).isNotEmpty;
     if (!tableExists) {
       // v31 会按新 DDL（已含 cover_pinned）把表建出来。
       LogUtils.i('local_media_folders 尚不存在，跳过 v34', 'MigrationV34');
@@ -49,12 +47,5 @@ class MigrationV34LocalFolderCoverPinned extends Migration {
       'ADD COLUMN cover_pinned INTEGER NOT NULL DEFAULT 0;',
     );
     LogUtils.i('已为 local_media_folders 添加 cover_pinned', 'MigrationV34');
-  }
-
-  /// ⛔ 回滚不删列：丢了它的唯一后果是「忘记哪些封面是用户自己挑的」，
-  /// 重新设一次就回来了，不值得为它冒重建表的风险（同 v33）。
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('迁移v34 不删列（cover_pinned 丢失只需重新设置）', 'MigrationV34');
   }
 }

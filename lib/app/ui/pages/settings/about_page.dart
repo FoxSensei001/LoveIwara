@@ -189,7 +189,13 @@ class _AboutPageState extends State<AboutPage> {
             );
           }
 
-          if (_versionService.errorMessage.value.isNotEmpty) {
+          // ⛔ 错误态不许盖住"有新版本"。
+          // VersionService 现在会在「远端说有新版、但取不到那一版的更新日志」
+          // 时同时置上 hasUpdate=true 和 errorMessage——那种情况下用户最需要看到
+          // 的恰恰是更新按钮（下面那个分支对 updateInfo==null 是安全的：日期和
+          // 更新日志按钮会自动隐藏，更新按钮照常可点）。
+          if (_versionService.errorMessage.value.isNotEmpty &&
+              !_versionService.hasUpdate.value) {
             return Column(
               children: [
                 Text(
@@ -236,6 +242,16 @@ class _AboutPageState extends State<AboutPage> {
                       ? Text('${t.settings.releaseDate} ${updateInfo.date}')
                       : null,
                 ),
+                if (_versionService.errorMessage.value.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      _versionService.errorMessage.value,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                  ),
                 if (changes.isNotEmpty) ...[
                   const Divider(),
                   Padding(

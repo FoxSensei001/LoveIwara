@@ -594,7 +594,6 @@ settings:
   updateContent: Update Content
   releaseDate: Release Date
   ignoreThisVersion: Ignore This Version
-  minVersionUpdateRequired: Current version is too low, please update as soon as possible
   forceUpdateTip: "This is a mandatory update. Please update to the latest version as soon as possible"
   viewChangelog: View Changelog
   alreadyLatestVersion: Already the latest version
@@ -1708,6 +1707,10 @@ download:
     deleteFileError: 'Failed to delete file, possibly because the file is being used by another process'
     deleteTaskError: 'Failed to delete task'
     canNotRefreshVideoTask: 'Failed to refresh video task'
+    videoRemovedCanNotRefresh: 'This video was deleted or no longer exists, so the download link cannot be refreshed'
+    videoInaccessibleCanNotRefresh: 'This video is not accessible, it may be private or you may need to sign in again'
+    videoQualityGone: 'This quality is no longer offered, please add the download again'
+    refreshLinkNetworkFailed: 'Network error, the download link cannot be refreshed right now, please try again later'
     taskAlreadyProcessing: 'Task already processing'
     taskNotFound: 'Task not found'
     failedToLoadTasks: 'Failed to load tasks'
@@ -2314,7 +2317,12 @@ diagnostics:
   secureStorageHealthy: "Available"
   secureStorageRecovered: "Self-healed by reset (previous data cleared)"
   secureStorageUnavailable: "Unavailable (login saved with fallback encryption)"
+  secureStoragePlatformOptOut: "Local encryption by platform policy (system keychain not used on macOS)"
   secureStorageDualWrite: " (dual-write protection on)"
+  schemaHealthLabel: Database schema
+  schemaHealthOk: OK
+  schemaHealthRepairedNow: Repaired by the safety net on this launch (migration did not take effect)
+  schemaHealthRepairedBefore: Was repaired by the safety net before
   logPolicySectionTitle: "Log Policy"
   configServiceUnavailable: "Config service is not initialized. Log policy cannot be adjusted."
   enableLoggingTitle: "Enable logging"
@@ -2994,16 +3002,24 @@ localMedia:
     emptyFolder: This folder is empty
     videosSection: Videos
     imagesSection: Images
+    galleriesSection: Galleries
     location: Location
     sourceMissing: This source is gone
     notScannedYet: This folder has not been scanned yet
     scanning: Reading this folder…
     deleteFileTitle: Delete this file?
     deleteFileBody: '"${name}" will be permanently removed from this device. This cannot be undone.'
+    deleteGalleryTitle: Delete this gallery?
+    deleteGalleryBody: 'The download record and local image files of "${name}" will be deleted. This cannot be undone.'
+    galleryResourceMissing: Local files no longer exist. Record cleaned up.
+    viewDownloadDetail: View download details
+    viewOnlineGallery: View on website
     pickFolderTitle: Choose a folder
     useThisFolder: Use this folder
     noSubfolders: No subfolders here
     storageRoot: Device storage
+    homeFolder: Home
+    filesystemRoot: Filesystem root
     folderUnreadable: This folder cannot be read
     setCover: Set cover
     setAsFolderCover: Use as folder cover

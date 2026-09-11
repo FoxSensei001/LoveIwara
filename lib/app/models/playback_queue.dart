@@ -1194,13 +1194,11 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
       // `LocalMediaWall`）：池的顺序就是"接下来播什么"，墙里有而池里没有的东西
       // 会让用户点第 3 条、下一条跳过好几个。
       //
-      // 不限源的「所有视频 / 所有图片」把内建的「已下载」排除在外——它自己有一条
-      // 「下载完成视频」（页面上是一个 tab，抽屉里是顶层那一条「已下载」），两边
-      // 都列就是同一批文件出现两次。
-      //
-      // 精选是例外：它是用户**跨源挑出来**的一小撮，下载来的片子照样能被精选，
-      // 把它们从精选里剔掉等于让用户点过的星号在这一页凭空失效。
-      excludeBuiltInSource: sourceId == null && !favoritedOnly,
+      // ⛔ 不限源就是真的不限源：内建的「已下载」也在里面。这里原先按
+      // `sourceId == null && !favoritedOnly` 把它排除掉，2026-09-11 随墙那侧
+      // 一起整只删了（理由见 `LocalMediaWall.sourceId` 的文档）。别再加回来——
+      // 池要是比墙少一批，用户在「所有视频」里点第 3 条，「下一个」给的就是
+      // 毫不相干的东西。
       favoritedOnly: favoritedOnly,
       sort: sort,
       order: order,
@@ -1350,7 +1348,6 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
         folderPath: folderPath,
         categoryId: categoryId,
         kind: LocalMediaItemKind.image,
-        excludeBuiltInSource: sourceId == null,
         sort: sort,
         // ⛔ `order` 与 `favoritedOnly` 必须跟着传：`order` 在仓库那侧**优先于**
         // `sort`，漏传就是这一叠图的顺序和池不一样——不报错，只是点第 3 条开在

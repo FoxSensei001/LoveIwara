@@ -45,16 +45,10 @@ class MigrationV7ConfigStorage extends Migration {
         }
       }
 
-      db.execute('PRAGMA user_version = 7;');
       LogUtils.i('已应用迁移v7：将 config_service 的值从 StorageService 迁移到数据库');
     } catch (e) {
       LogUtils.e('迁移v7失败: $e');
       rethrow; // 重新抛出异常以便事务回滚
     }
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('迁移v7无法回滚');
   }
 }

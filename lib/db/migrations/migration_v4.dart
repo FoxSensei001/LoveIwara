@@ -67,21 +67,14 @@ class MigrationV4Favorites extends Migration {
       ON favorite_items(tags);
     ''');
 
-    // 创建默认收藏夹
+    // 创建默认收藏夹。
+    // OR IGNORE：这一条的主键是写死的 'default'，重跑会撞 UNIQUE。用户可能已经
+    // 改过它的标题，所以是「已存在就别动」，不是 INSERT OR REPLACE。
     db.execute('''
-      INSERT INTO favorite_folders (id, title, description)
+      INSERT OR IGNORE INTO favorite_folders (id, title, description)
       VALUES ('default', 'Default Favorites', 'System default favorites folder');
     ''');
 
-    db.execute('PRAGMA user_version = 4;');
     LogUtils.i('已应用迁移v4：创建收藏夹和收藏项目表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TABLE IF EXISTS favorite_items;');
-    db.execute('DROP TABLE IF EXISTS favorite_folders;');
-    db.execute('PRAGMA user_version = 3;');
-    LogUtils.i('已回滚迁移v4：删除收藏夹和收藏项目表');
   }
 }

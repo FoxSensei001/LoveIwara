@@ -20,14 +20,4 @@ class MigrationV10RemoveLogs extends Migration {
     // 注意：这里不删除 app_logs 表，因为它在独立的日志数据库中
     // 日志数据库的清理将在 DatabaseService 中处理
   }
-
-  @override
-  void down(CommonDatabase db) {
-    // 回滚操作：重新添加日志相关配置项的默认值
-    db.execute('''
-      INSERT OR IGNORE INTO app_config (key, value) VALUES 
-      ('ENABLE_LOG_PERSISTENCE', 'false'),
-      ('MAX_LOG_DATABASE_SIZE', '1073741824')
-    ''');
-  }
 }

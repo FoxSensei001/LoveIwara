@@ -1,13 +1,15 @@
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/update_info.model.dart';
-import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/http_client_factory.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/app_version.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,10 +19,31 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 
 class VersionService extends GetxService {
   final ConfigService _configService = Get.find();
-  final Dio _dio = Dio();
+
+  /// 查更新的超时。裸 `Dio()` 默认是**没有超时**的（connect/receive 都是 null），
+  /// 一条挂住的连接会让 [isChecking] 永远停在 true——「关于」页进去就查，
+  /// 用户看到的是一个永不停的转圈。
+  static const Duration _requestTimeout = Duration(seconds: 20);
+
+  late final Dio _dio;
 
   VersionService() {
+    _dio = Dio(
+      BaseOptions(
+        connectTimeout: _requestTimeout,
+        receiveTimeout: _requestTimeout,
+        sendTimeout: _requestTimeout,
+      ),
+    );
     _dio.options.persistentConnection = false;
+    // ⛔ 必须走应用统一的 HttpClient 工厂。更新日志托管在
+    // raw.githubusercontent.com，对相当一部分目标用户来说只有配了代理才连得通，
+    // 而那份代理配置就挂在这个工厂上（见 ApiService.init 的同款接法）。
+    // 这里以前是一个裸 `Dio()`，于是「用户在设置里配了代理」和「能不能查到更新」
+    // 完全是两回事——更新检测对这批人从上线起就没工作过，而且全程静默。
+    _dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: HttpClientFactory.instance.createHttpClient,
+    );
   }
 
   final currentVersion = ''.obs;
@@ -30,11 +53,16 @@ class VersionService extends GetxService {
   final errorMessage = ''.obs;
   final updateInfo = Rxn<UpdateInfo>();
 
-  final needMinVersionUpdate = false.obs;
-
   Future<VersionService> init() async {
-    // 从 pubspec.yaml 读取当前版本
-    currentVersion.value = CommonConstants.VERSION;
+    // ⚠️ 这里读的是**手写常量**，不是 pubspec.yaml。（这条注释以前写着
+    // "从 pubspec.yaml 读取"，是错的。）版本号在这个仓库里有三份真相
+    // （pubspec / constants.dart / update_logs.yaml），全靠手改；
+    // test/app/services/version_metadata_test.dart 是挡住"发版漏改"的闸门。
+    //
+    // ⭐ 带上 build 号（FULL_VERSION 而非 VERSION）：热修重打包只有 build 号会变，
+    // 不带的话「关于」页会同屏出现「当前版本 0.5.1」和「发现新版本 0.5.1」，
+    // 用户读不出差别，会当成 bug。
+    currentVersion.value = CommonConstants.FULL_VERSION;
     return this;
   }
 
@@ -87,64 +115,120 @@ class VersionService extends GetxService {
         _configService[ConfigKey.REMOTE_REPO_UPDATE_LOGS_YAML_URL],
       );
 
-      if (response.statusCode == 200) {
-        final yaml = loadYaml(response.data);
-        final remoteVersion = yaml['currentVersion']?.toString().split('+')[0];
-
-        LogUtils.d('远程版本: $remoteVersion', 'VersionService');
-
-        if (remoteVersion != null) {
-          latestVersion.value = remoteVersion;
-          hasUpdate.value = _compareVersions(
-            currentVersion.value,
-            latestVersion.value,
-          );
-
-          _applyUpdateInfo(yaml, remoteVersion);
-
-          if (hasUpdate.value) {
-            if (updateInfo.value != null) {
-              needMinVersionUpdate.value = _compareVersions(
-                currentVersion.value,
-                updateInfo.value!.minVersion,
-              );
-            }
-
-            if (showDialog &&
-                latestVersion.value !=
-                    _configService[ConfigKey.IGNORED_VERSION]) {
-              _showUpdateDialog();
-            }
-          }
-        }
+      if (response.statusCode != 200) {
+        _inconclusive('HTTP ${response.statusCode}');
+        return;
       }
 
+      final dynamic yaml = loadYaml(
+        response.data is String ? response.data as String : '${response.data}',
+      );
+      // ⛔ 原样保留远端字符串，**连 build 号一起**。
+      // 曾经在这里 `.split('+').first` 剥掉 build 号，有两个后果：
+      // 1. [IGNORED_VERSION] 存的是剥过的值，用户忽略过 0.5.1 之后，热修
+      //    0.5.1+4 会因为「0.5.1 == 0.5.1」被永久静音；
+      // 2. 弹窗标题显示的版本号和用户已装的一模一样，看着像重复弹窗。
+      // 匹配 updates 条目时才剥（那里写的是纯 semver），见 [_parseUpdateInfo]。
+      final String? remoteVersion = yaml is Map
+          ? yaml['currentVersion']?.toString().trim()
+          : null;
+
+      LogUtils.d('远程版本: $remoteVersion', 'VersionService');
+
+      if (remoteVersion == null || remoteVersion.isEmpty) {
+        // 以前这里是 `if (remoteVersion != null)` 然后什么都不做——yaml 的 key
+        // 一改名，检查就静默变成 no-op，还会照常写「已检查」时间戳把自己挡在
+        // 24 小时之外。
+        _inconclusive('更新日志里取不到 currentVersion 字段');
+        return;
+      }
+
+      latestVersion.value = remoteVersion;
+      final bool updateAvailable = _isRemoteNewer(remoteVersion);
+
+      final UpdateInfo? parsed = _parseUpdateInfo(yaml, remoteVersion);
+      if (updateAvailable && parsed == null) {
+        // 远端声明了新版，却取不到这一版的更新日志条目（yaml 结构变了，或者
+        // 发版时改了 currentVersion 但忘了往 updates 里加条目——那份 yaml 是
+        // 手写的，这个漏法很常见）。以前这里会走到 _showUpdateDialog 然后因为
+        // updateInfo 为 null 直接 return：hasUpdate 是 true，但弹窗不出现、
+        // 也没有任何提示，用户什么都看不到。
+        hasUpdate.value = true;
+        _inconclusive('远端最新版 v$remoteVersion 在 updates 列表里没有对应条目');
+        return;
+      }
+
+      hasUpdate.value = updateAvailable;
+      if (parsed != null) updateInfo.value = parsed;
+
+      // 只有真正得出结论的一次才算「查过了」。
       _configService[ConfigKey.LAST_CHECK_UPDATE_TIME] =
           DateTime.now().millisecondsSinceEpoch;
-    } catch (e) {
-      LogUtils.e('检查更新失败', error: e, tag: 'VersionService');
-      errorMessage.value = t.settings.checkForUpdatesFailed;
-      hasUpdate.value = false;
+
+      if (updateAvailable &&
+          showDialog &&
+          latestVersion.value != _configService[ConfigKey.IGNORED_VERSION]) {
+        _showUpdateDialog();
+      }
+    } catch (e, stackTrace) {
+      LogUtils.e(
+        '检查更新失败',
+        error: e,
+        stackTrace: stackTrace,
+        tag: 'VersionService',
+      );
+      _inconclusive('$e');
     } finally {
       isChecking.value = false;
     }
   }
 
-  /// 从**已经拉下来的**那份 yaml 里取出对应版本的更新日志。
+  /// 这一次检查没能得出结论。
+  ///
+  /// ⛔ 这里**不**碰 [hasUpdate]：失败不等于「没有新版本」。以前 catch 里一句
+  /// `hasUpdate.value = false`，一次网络抖动就能把已经查到的新版状态抹掉。
+  ///
+  /// ⛔ 也**不**写 LAST_CHECK_UPDATE_TIME：没查成的一次不该把下一次挡在 24
+  /// 小时之外。
+  void _inconclusive(String detail) {
+    errorMessage.value = t.settings.checkForUpdatesFailed;
+    LogUtils.w('检查更新未得出结论：$detail', 'VersionService');
+  }
+
+  /// 从**已经拉下来的**那份 yaml 里取出对应版本的更新日志。取不到返回 null。
   ///
   /// 以前这里会拿同一个 URL 再 GET 一次，等于每次检查更新都请求两遍。
-  void _applyUpdateInfo(dynamic yaml, String version) {
+  UpdateInfo? _parseUpdateInfo(dynamic yaml, String version) {
     try {
-      final updates = yaml['updates'] as YamlList;
-
-      for (var update in updates) {
-        if (update['version'] == version) {
-          updateInfo.value = UpdateInfo.fromYaml(update);
-          break;
+      final dynamic updates = yaml is Map ? yaml['updates'] : null;
+      if (updates is! YamlList) {
+        // 以前是 `as YamlList` 强转，失败只 log 一行，调用方无从知晓。
+        LogUtils.w(
+          '更新日志缺少 updates 列表（实际为 ${updates.runtimeType}）',
+          'VersionService',
+        );
+        return null;
+      }
+      // 两边都剥掉 build 号再比：updates 条目写的是纯 semver（"0.5.1"），
+      // 而 currentVersion 在热修时会带上 build 号（"0.5.1+4"）。不剥的话
+      // 热修永远匹配不到条目，于是走进「取不到更新日志」那条岔路。
+      final String wanted = version.split('+').first;
+      for (final update in updates) {
+        if (update is Map &&
+            update['version']?.toString().split('+').first == wanted) {
+          return UpdateInfo.fromYaml(update);
         }
       }
-    } catch (e) {
-      LogUtils.e('解析更新日志失败', error: e, tag: 'VersionService');
+      LogUtils.w('更新日志的 updates 列表里没有 v$wanted 的条目', 'VersionService');
+      return null;
+    } catch (e, stackTrace) {
+      LogUtils.e(
+        '解析更新日志失败',
+        error: e,
+        stackTrace: stackTrace,
+        tag: 'VersionService',
+      );
+      return null;
     }
   }
 
@@ -198,18 +282,6 @@ class VersionService extends GetxService {
                   child: Text(change),
                 ),
               ),
-              if (needMinVersionUpdate.value)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text(
-                    t.settings.minVersionUpdateRequired,
-                    style: TextStyle(
-                      color: Theme.of(
-                        rootNavigatorKey.currentContext!,
-                      ).colorScheme.error,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -236,26 +308,15 @@ class VersionService extends GetxService {
     );
   }
 
-  bool _compareVersions(String current, String latest) {
-    List<int> currentParts = current
-        .split('.')
-        .map((e) => int.tryParse(e) ?? 0)
-        .toList();
-    List<int> latestParts = latest
-        .split('.')
-        .map((e) => int.tryParse(e) ?? 0)
-        .toList();
-
-    for (int i = 0; i < 3; i++) {
-      int currentPart = i < currentParts.length ? currentParts[i] : 0;
-      int latestPart = i < latestParts.length ? latestParts[i] : 0;
-
-      if (latestPart > currentPart) return true;
-      if (latestPart < currentPart) return false;
-    }
-
-    return false;
-  }
+  /// 远端这一版是不是**严格新于**本机这一版。
+  ///
+  /// 本机拿的是 [CommonConstants.FULL_VERSION]（带 build 号），不是
+  /// [currentVersion]（展示用的 semver）——否则同 semver 的热修重打包永远看不见。
+  /// 比较规则（含对严格 semver 的那处故意偏离）见 [AppVersion]。
+  bool _isRemoteNewer(String remoteRaw) => AppVersion.isNewer(
+    current: CommonConstants.FULL_VERSION,
+    latest: remoteRaw,
+  );
 
   Future<void> _openReleaseUrl() async {
     final url = Uri.parse(_configService[ConfigKey.REMOTE_REPO_RELEASE_URL]);

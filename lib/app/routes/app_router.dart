@@ -59,6 +59,7 @@ import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/local_media/downloaded_gallery_browse_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_browse_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_home_page.dart';
@@ -489,6 +490,22 @@ final GoRouter appRouter = GoRouter(
                 sourceId: parsed.sourceId,
                 relPath: parsed.relPath,
               ),
+            );
+          },
+        ),
+
+        // 本机已下载图库浏览：以沿用打开文件夹的形式浏览已下载图库。
+        GoRoute(
+          path: '/local/gallery_browse/:taskId',
+          name: 'local_gallery_browse',
+          pageBuilder: (context, state) {
+            final taskId = state.pathParameters['taskId'];
+            if (taskId == null || taskId.isEmpty) {
+              return buildAdaptiveSwipeablePage(state, const LocalHomePage());
+            }
+            return buildAdaptiveSwipeablePage(
+              state,
+              DownloadedGalleryBrowsePage(taskId: taskId),
             );
           },
         ),

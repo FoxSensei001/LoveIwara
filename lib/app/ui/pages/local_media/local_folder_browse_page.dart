@@ -10,11 +10,14 @@ import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
@@ -25,7 +28,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
@@ -76,6 +78,12 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   List<LocalMediaFolder> _breadcrumb = const <LocalMediaFolder>[];
   List<LocalMediaFolder> _children = const <LocalMediaFolder>[];
   bool _isPinned = false;
+
+  List<DownloadedGalleryRow> _galleries = const <DownloadedGalleryRow>[];
+  int _galleryGeneration = 0;
+
+  bool get _showsDownloadedGalleries =>
+      widget.sourceId == kDownloadsSourceId && widget.relPath.isEmpty;
 
   /// 已置顶目录的 `sourceId\u0000relPath` 集合，[_loadInitialData] 与每次
   /// 置顶/取消置顶后重算一次。
@@ -275,6 +283,41 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         : const <LocalMediaFolder>[];
     _recomputeVisibleChildren();
     _reloadPinnedKeys();
+    unawaited(_loadDownloadedGalleries());
+  }
+
+  Future<void> _loadDownloadedGalleries() async {
+    if (!_showsDownloadedGalleries) {
+      _galleries = const <DownloadedGalleryRow>[];
+      return;
+    }
+    if (!Get.isRegistered<DownloadService>()) return;
+    final generation = ++_galleryGeneration;
+    try {
+      // 已下载的图库超过 500 个时这一页只画前 500 个——那一栏「下载完成图库」是分页的，去那儿看全部。
+      final tasks = await DownloadService.to.repository
+          .getCompletedDownloadTasks(
+            offset: 0,
+            limit: 500,
+            mediaType: 'gallery',
+          );
+      if (!mounted || generation != _galleryGeneration) return;
+      final rows = tasks.map(DownloadedGalleryRow.of).nonNulls.toList();
+      setState(() {
+        _galleries = rows;
+      });
+    } catch (e, s) {
+      LogUtils.e(
+        '读取已下载图库失败',
+        tag: 'LocalFolderBrowsePage',
+        error: e,
+        stackTrace: s,
+      );
+      if (!mounted || generation != _galleryGeneration) return;
+      setState(() {
+        _galleries = const <DownloadedGalleryRow>[];
+      });
+    }
   }
 
   void _resetPagination() {
@@ -827,6 +870,40 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                   // `busy: _scanning`）。那条横线不属于任何东西、出现消失还是硬
                   // 切，把它底下整列内容顶上顶下。别再加回来。
                   if (_needsRescanForTree) _buildRescanHint(context),
+                  if (_galleries.isNotEmpty) ...[
+                    _buildSectionHeader(
+                      slang.t.localMedia.browse.galleriesSection,
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverGrid(
+                        gridDelegate: folderMetrics.delegate(
+                          DownloadedGalleryCard.extentFor(
+                            context,
+                            folderMetrics.cellWidth,
+                          ),
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final gallery = _galleries[index];
+                            return DownloadedGalleryCard(
+                              row: gallery,
+                              onDeleted: () {
+                                if (mounted) {
+                                  setState(() {
+                                    _galleries = _galleries
+                                        .where((e) => e.taskId != gallery.taskId)
+                                        .toList();
+                                  });
+                                }
+                              },
+                            );
+                          },
+                          childCount: _galleries.length,
+                        ),
+                      ),
+                    ),
+                  ],
                   if (_visibleChildren.isNotEmpty) ...[
                     _buildSectionHeader(
                       slang.t.localMedia.browse.sourcesSection,
@@ -881,7 +958,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                     // 只有一种东西时不必分组；一旦这一屏还有别的区块（子目录，
                     // 或另一类媒体），就必须标出来——不然视频会看着像是挂在
                     // 上面那条「文件夹」标题底下的。
-                    if (_images.isNotEmpty || _visibleChildren.isNotEmpty)
+                    if (_images.isNotEmpty ||
+                        _visibleChildren.isNotEmpty ||
+                        _galleries.isNotEmpty)
                       _buildSectionHeader(
                         slang.t.localMedia.browse.videosSection,
                       ),
@@ -904,7 +983,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                     ),
                   ],
                   if (_images.isNotEmpty) ...[
-                    if (_videos.isNotEmpty || _visibleChildren.isNotEmpty)
+                    if (_videos.isNotEmpty ||
+                        _visibleChildren.isNotEmpty ||
+                        _galleries.isNotEmpty)
                       _buildSectionHeader(
                         slang.t.localMedia.browse.imagesSection,
                       ),
@@ -947,36 +1028,11 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                                   ),
                                 ),
                                 Positioned(
-                                  top: 2,
-                                  right: 2,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .surface
-                                          .withValues(alpha: 0.82),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Builder(
-                                      builder: (anchorContext) => GlassTapArea(
-                                        onTap: () =>
-                                            _showItemMenu(anchorContext, item),
-                                        onLongPress: () =>
-                                            _showItemMenu(anchorContext, item),
-                                        opensOverlay: true,
-                                        longPressOpensOverlay: true,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Icon(
-                                            Icons.more_vert,
-                                            size: 18,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                  top: LocalContainerCard.badgeInset,
+                                  right: LocalContainerCard.badgeInset,
+                                  child: LocalCardMenuBadge(
+                                    onMenu: (anchorContext) =>
+                                        _showItemMenu(anchorContext, item),
                                   ),
                                 ),
                               ],
@@ -992,7 +1048,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                   // 都不会出现的死代码。翻页那一下的代价是主线程阻塞，不是等待。
                   if (_visibleChildren.isEmpty &&
                       _videos.isEmpty &&
-                      _images.isEmpty)
+                      _images.isEmpty &&
+                      _galleries.isEmpty)
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(

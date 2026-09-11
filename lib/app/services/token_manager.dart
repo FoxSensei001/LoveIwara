@@ -125,7 +125,15 @@ class TokenManager {
   // 配置常量
   static const int _refreshThresholdSeconds = 5 * 60; // 提前5分钟刷新
   static const Duration _tokenRequestTimeout = Duration(seconds: 15);
-  static const Duration _backgroundRefreshInterval = Duration(minutes: 13);
+  // ⚠️ 不变量：必须 **小于** _refreshThresholdSeconds。
+  // 检查间隔比提前量长，就会出现「上次检查时剩余还够、下次检查时已经过期」的空窗。
+  // 原值 13 分钟 > 提前量 5 分钟：access token 寿命 60 分钟时检查点落在
+  // 13/26/39/52/65 分钟，第 52 分钟检查剩 8 分钟不刷、第 65 分钟才刷，于是
+  // **每小时第 60~65 分钟必然鉴权失败**（实测 2026-09-11：登录 15:20:19、
+  // token 16:20:18 到期、16:20:20 请求 /user/counts 得 403）。
+  // 且救不回来——自动刷新重试只认 401，而服务端对过期 token 返回的是 403。
+  // 改小只增加本地时间比较的次数，刷新请求频率不变（仍是每小时一次）。
+  static const Duration _backgroundRefreshInterval = Duration(minutes: 4);
 
   // Getters
   String? get authToken => _authToken;
@@ -714,6 +722,11 @@ class TokenManager {
 
   /// 启动后台刷新定时器
   void startBackgroundRefresh({bool immediateCheck = true}) {
+    assert(
+      _backgroundRefreshInterval.inSeconds < _refreshThresholdSeconds,
+      '后台检查间隔($_backgroundRefreshInterval)必须小于刷新提前量'
+      '(${_refreshThresholdSeconds}s)，否则 token 会在两次检查之间过期',
+    );
     stopBackgroundRefresh();
 
     // 立即检查是否需要刷新（可在启动阶段延后到 UI Ready 之后执行）
@@ -762,6 +775,12 @@ class TokenManager {
           result.errorMessage ?? 'background_refresh_auth_error',
         );
       }
+    } else {
+      // 此前这一路完全静默，日志里只看得到「定时器已启动」，看不到它有没有在跑，
+      // 上面那个空窗因此一直没被发现。
+      LogUtils.d(
+        '$_tag Access token 仍有效，本次跳过刷新（剩余 ${accessTokenRemainingSeconds}s）',
+      );
     }
   }
 

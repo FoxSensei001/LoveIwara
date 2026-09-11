@@ -138,10 +138,10 @@ class PlaybackEngine(private val context: Context) {
     }
 
     /**
-     * 把预加载好的那条换上来：老播放器释放，新的接管 Surface、音量、倍速、循环并开播。
+     * 把预加载好的那条换上来：老播放器释放，新的接管 Surface、静音态、倍速、循环并开播。
      * @return 新片的画面尺寸（宽 × 高），拿不到为 null。
      */
-    fun commitPreloaded(muted: Boolean, volume: Float, speed: Float, repeatOne: Boolean): Pair<Int, Int>? {
+    fun commitPreloaded(muted: Boolean, speed: Float, repeatOne: Boolean): Pair<Int, Int>? {
         val p = preloading ?: return null
         val url = preloadUrl
         preloadListener?.let { p.removeListener(it) }
@@ -153,7 +153,7 @@ class PlaybackEngine(private val context: Context) {
         playingUrl = url
         pendingSeekMs = 0L
         p.addListener(mainListener(p))
-        p.volume = if (muted) 0f else volume
+        p.volume = if (muted) 0f else 1f
         p.setPlaybackSpeed(speed)
         p.repeatMode = if (repeatOne) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
         surface?.let { p.setVideoSurface(it) }
@@ -167,7 +167,7 @@ class PlaybackEngine(private val context: Context) {
      *
      * @return true 表示新开了一条片子；false 表示同一条片子只是换了 Surface。
      */
-    fun play(url: String, surface: Surface, startPositionMs: Long, muted: Boolean, volume: Float): Boolean {
+    fun play(url: String, surface: Surface, startPositionMs: Long, muted: Boolean): Boolean {
         val running = player
         if (running != null && playingUrl == url) {
             Log.i(TAG, "IMMERSIVE 复用播放器，只换 surface")
@@ -179,7 +179,7 @@ class PlaybackEngine(private val context: Context) {
 
         val p = buildPlayer()
         p.addListener(mainListener(p))
-        return startWith(p, url, surface, startPositionMs, muted, volume)
+        return startWith(p, url, surface, startPositionMs, muted)
     }
 
     /** 正式播放那条的监听：缓冲 / 就绪 / 播完 / 尺寸都往 Activity 报。 */
@@ -270,12 +270,12 @@ class PlaybackEngine(private val context: Context) {
         return Uri.fromFile(file)
     }
 
-    private fun startWith(p: ExoPlayer, url: String, surface: Surface, startPositionMs: Long, muted: Boolean, volume: Float): Boolean {
+    private fun startWith(p: ExoPlayer, url: String, surface: Surface, startPositionMs: Long, muted: Boolean): Boolean {
         player = p
         playingUrl = url
         this.surface = surface
         pendingSeekMs = startPositionMs
-        p.volume = if (muted) 0f else volume
+        p.volume = if (muted) 0f else 1f
         p.setVideoSurface(surface)
         val mediaUri = toMediaUri(url)
         // ⛔ 不打完整路径。logcat 是全机可读的，而在本 App 的内容域下
@@ -303,14 +303,14 @@ class PlaybackEngine(private val context: Context) {
      * 播放器出错停在 IDLE 时也能用（ExoPlayer 出错后保留位置与 playWhenReady），这就是过期地址的恢复路径。
      * @return false = 没有 Surface（还没起播）或地址没变。
      */
-    fun swapSource(url: String, muted: Boolean, volume: Float): Boolean {
+    fun swapSource(url: String, muted: Boolean): Boolean {
         val s = surface ?: return false
         if (url == playingUrl) return false
         val pos = positionMs
         val wasPlaying = isPlaying
         val speed = player?.playbackParameters?.speed ?: 1f
         val repeat = player?.repeatMode ?: Player.REPEAT_MODE_OFF
-        val started = play(url, s, pos, muted, volume)
+        val started = play(url, s, pos, muted)
         if (started) {
             player?.playWhenReady = wasPlaying
             player?.setPlaybackSpeed(speed)
@@ -323,9 +323,9 @@ class PlaybackEngine(private val context: Context) {
      * 空间画廊里从一条短片换到另一条：从头起播、沿用 Surface（同一个幕布实体），倍速不沿用。
      * @return false = 还没有 Surface（幕布还没建出来，走正常的 startPlayback 路径）。
      */
-    fun restart(url: String, muted: Boolean, volume: Float, repeatOne: Boolean): Boolean {
+    fun restart(url: String, muted: Boolean, repeatOne: Boolean): Boolean {
         val s = surface ?: return false
-        val started = play(url, s, 0L, muted, volume)
+        val started = play(url, s, 0L, muted)
         if (!started) {
             player?.seekTo(0L)
             player?.playWhenReady = true
@@ -356,8 +356,12 @@ class PlaybackEngine(private val context: Context) {
         player?.setPlaybackSpeed(speed)
     }
 
-    fun setVolume(volume: Float) {
-        player?.volume = volume.coerceIn(0f, 1f)
+    /**
+     * 静音 / 取消静音。⛔ 这里**只有开关，没有档位** —— 音量大小归系统那一根
+     * （[SystemVolume]），播放器自己的增益只在 0 与 1 之间跳。
+     */
+    fun setMuted(muted: Boolean) {
+        player?.volume = if (muted) 0f else 1f
     }
 
     fun setRepeatOne(repeatOne: Boolean) {

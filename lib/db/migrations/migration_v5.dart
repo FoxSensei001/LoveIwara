@@ -35,14 +35,6 @@ class MigrationV5PlaybackHistory extends Migration {
       ON video_playback_history(created_at);
     ''');
 
-    db.execute('PRAGMA user_version = 5;');
     LogUtils.i('已应用迁移v5：创建视频播放记录表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TABLE IF EXISTS video_playback_history;');
-    db.execute('PRAGMA user_version = 4;');
-    LogUtils.i('已回滚迁移v5：删除视频播放记录表');
   }
 }

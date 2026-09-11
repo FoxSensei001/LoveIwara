@@ -114,32 +114,6 @@ class MigrationV17DownloadTaskConflictTriggers extends Migration {
 
     createTriggers(db);
 
-    db.execute('PRAGMA user_version = 17;');
     LogUtils.i('已应用迁移v17：download_tasks 冲突保护触发器创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v17：移除 download_tasks 冲突保护触发器');
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_video_media_unique_insert;',
-    );
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_video_media_unique_update;',
-    );
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_gallery_media_unique_insert;',
-    );
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_gallery_media_unique_update;',
-    );
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_save_path_unique_insert;',
-    );
-    db.execute(
-      'DROP TRIGGER IF EXISTS trg_download_tasks_save_path_unique_update;',
-    );
-    db.execute('PRAGMA user_version = 16;');
-    LogUtils.i('已回滚迁移v17：数据库版本已回退到 v16');
   }
 }

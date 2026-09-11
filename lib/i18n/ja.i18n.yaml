@@ -595,7 +595,6 @@ settings:
   updateContent: 更新内容
   releaseDate: リリース日
   ignoreThisVersion: このバージョンを無視
-  minVersionUpdateRequired: 現在のバージョンが低すぎます。すぐに更新してください
   forceUpdateTip: "これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください"
   viewChangelog: 更新内容を表示
   alreadyLatestVersion: すでに最新バージョンです
@@ -1712,6 +1711,10 @@ download:
     deleteTaskError: 'タスクの削除に失敗しました'
     taskNotFound: 'タスクが見つかりません'
     canNotRefreshVideoTask: 'ビデオタスクの更新に失敗しました'
+    videoRemovedCanNotRefresh: 'この動画は削除されたか存在しないため、ダウンロードリンクを再取得できません'
+    videoInaccessibleCanNotRefresh: 'この動画にアクセスできません。非公開になっているか、再ログインが必要な可能性があります'
+    videoQualityGone: 'この画質は提供されなくなりました。ダウンロードを追加し直してください'
+    refreshLinkNetworkFailed: 'ネットワークエラーのため、現在ダウンロードリンクを再取得できません。しばらくしてから再試行してください'
     taskAlreadyProcessing: 'タスクはすでに処理中です'
     failedToLoadTasks: 'タスクの読み込みに失敗しました'
     partialDownloadFailedWithMessage: '部分ダウンロードに失敗しました: ${message}'
@@ -2210,7 +2213,12 @@ diagnostics:
   secureStorageHealthy: "利用可能"
   secureStorageRecovered: "リセットで自己修復済み（既存データは消去）"
   secureStorageUnavailable: "利用不可（ログイン状態は代替暗号化で保存）"
+  secureStoragePlatformOptOut: "プラットフォーム方針によりローカル暗号化（macOS ではシステムキーチェーンを使用しません）"
   secureStorageDualWrite: "（二重保存の保護が有効）"
+  schemaHealthLabel: データベース構造
+  schemaHealthOk: 正常
+  schemaHealthRepairedNow: 今回の起動でセーフティネットにより修復（マイグレーション未適用）
+  schemaHealthRepairedBefore: 過去にセーフティネットにより修復
   logPolicySectionTitle: "ログポリシー"
   configServiceUnavailable: "設定サービスが未初期化のため、ログポリシーを調整できません"
   enableLoggingTitle: "ログ記録を有効化"
@@ -2995,16 +3003,24 @@ localMedia:
     emptyFolder: このフォルダは空です
     videosSection: 動画
     imagesSection: 画像
+    galleriesSection: ギャラリー
     location: 場所
     sourceMissing: このソースはもうありません
     notScannedYet: このフォルダはまだスキャンされていません
     scanning: このフォルダーを読み込んでいます…
     deleteFileTitle: このファイルを削除しますか？
     deleteFileBody: '「${name}」はこの端末から完全に削除されます。元に戻せません。'
+    deleteGalleryTitle: このギャラリーを削除しますか？
+    deleteGalleryBody: '「${name}」のダウンロード記録とローカル画像ファイルが削除されます。この操作は取り消せません。'
+    galleryResourceMissing: ローカルリソースが存在しないため、記録を削除しました
+    viewDownloadDetail: ダウンロード詳細を表示
+    viewOnlineGallery: ウェブで表示
     pickFolderTitle: フォルダーを選ぶ
     useThisFolder: このフォルダーを使う
     noSubfolders: サブフォルダーはありません
     storageRoot: 端末のストレージ
+    homeFolder: ホームフォルダ
+    filesystemRoot: ルートディレクトリ
     folderUnreadable: このフォルダーは読み取れません
     setCover: サムネイルを設定
     setAsFolderCover: フォルダーのサムネイルにする

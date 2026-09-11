@@ -56,18 +56,21 @@ class LocalFolderActions {
   final String displayName;
   final bool canRescan;
 
-  /// 这个目录能不能挑封面。⚠️ 它只是个额外的闸门——真正的判据是**有没有一条能
-  /// 用的绝对路径**，见 [_canSetCover]。
+  /// 这个目录能不能挑封面。⚠️ 它只是个额外的闸门——真正的判据见 [_canSetCover]：
+  /// 有绝对路径就从目录直属的图里挑，没有（平的源）就从整个源里挑。
   final bool canSetCover;
 
-  /// 封面选择器要靠绝对路径去列这个目录里的图片。
+  /// 这个目录能不能挑封面。
   ///
-  /// ⛔ 没有真实目录树的源（「已下载」按任务同步、「设备视频」是系统媒体索引）
-  /// 拿不到这条路径，摆出来就是一条点进去永远空白的项。判据放在这里而不是让每个
-  /// 调用点各自去查 `source.kind`：调用点在卡片的 build 里，多查一次库就是滚动中
-  /// 每帧一次同步查询。
+  /// 有绝对路径的目录从**目录直属**的图里挑；没有真实目录树的源（「已下载」按任务
+  /// 同步、「设备视频」是系统媒体索引）只有源根这一层，从**整个源**里挑。
+  ///
+  /// ⛔ 以前这里要求必须有绝对路径，于是「已下载」上连「设为封面」这一条都不出现
+  /// ——卡片空着，用户也没有任何办法自己给它一张图（2026-09-11 用户报的）。更深的
+  /// 一层没有路径是真的出了问题，那时仍然不给。
   bool get _canSetCover =>
-      canSetCover && folderPath != null && folderPath!.isNotEmpty;
+      canSetCover &&
+      ((folderPath != null && folderPath!.isNotEmpty) || _isSourceRoot);
 
   /// 「移除来源」。只有来源根那一层给得出来（子目录没有"移除"这回事）。
   final VoidCallback? onRemove;
@@ -169,11 +172,12 @@ class LocalFolderActions {
                       ?.folderPath ??
                   '');
         if (!anchorContext.mounted) return;
+        // 路径为空 = 平的源（见 [_canSetCover]）：候选从整个源里取。
         final changed = await showLocalFolderCoverPickerDialog(
           context: anchorContext,
           sourceId: sourceId,
           relPath: relPath,
-          folderPath: resolved,
+          folderPath: resolved.isEmpty ? null : resolved,
         );
         if (changed) onChanged?.call();
 

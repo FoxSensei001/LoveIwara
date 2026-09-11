@@ -87,33 +87,38 @@ import java.io.File
  */
 @Composable
 fun GalleryPage(state: VideoControlsState, g: GalleryState, cb: VideoControlsCallbacks) {
-    Column(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
-        GalleryHeaderRow(state, g, cb)
+    Box(modifier = Modifier.fillMaxSize().reportPanelTouches(cb)) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            GalleryHeaderRow(state, g, cb)
 
-        val notice = state.notice ?: g.error
-        if (notice != null) {
-            Text(
-                text = notice,
-                color = PanelTokens.WARN,
-                fontSize = 15.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(top = 6.dp),
-            )
+            val notice = state.notice ?: g.error
+            if (notice != null) {
+                Text(
+                    text = notice,
+                    color = PanelTokens.WARN,
+                    fontSize = 15.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            Filmstrip(g, cb, modifier = Modifier.fillMaxWidth().height(FILMSTRIP_HEIGHT))
+
+            Spacer(Modifier.weight(1f))
+
+            val current = g.current
+            if (current != null && current.isVideo) {
+                VideoBottomRow(state, g, cb)
+            } else {
+                ImageBottomRow(state, g, cb)
+            }
         }
 
-        Spacer(Modifier.weight(1f))
-
-        Filmstrip(g, cb, modifier = Modifier.fillMaxWidth().height(FILMSTRIP_HEIGHT))
-
-        Spacer(Modifier.weight(1f))
-
-        val current = g.current
-        if (current != null && current.isVideo) {
-            VideoBottomRow(state, g, cb)
-        } else {
-            ImageBottomRow(state, g, cb)
-        }
+        // 空间画廊里的短片也要能调音量：与播放页共用同一只弹层、同一根系统音量。
+        VolumePopupOverlay(state, cb)
     }
 }
 
@@ -387,10 +392,10 @@ private fun VideoBottomRow(state: VideoControlsState, g: GalleryState, cb: Video
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CircleActionButton(
-            icon = if (state.muted || state.volume <= 0f) SpatialIcons.Regular.VolumeOff else SpatialIcons.Regular.VolumeOn,
-            contentDescription = stringResource(if (state.muted) R.string.xr_unmute else R.string.xr_mute),
-            onClick = cb::onToggleMute,
-            selected = state.muted,
+            icon = volumeIcon(state.muted, state.volume),
+            contentDescription = stringResource(R.string.xr_volume),
+            onClick = { cb.onVolumePopup(!state.volumePopupOpen) },
+            selected = state.volumePopupOpen,
         )
         CircleActionButton(
             icon = if (state.isPlaying) SpatialIcons.Regular.Pause else SpatialIcons.Regular.Play,

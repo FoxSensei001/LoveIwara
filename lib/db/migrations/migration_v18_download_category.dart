@@ -46,17 +46,6 @@ class MigrationV18DownloadCategory extends Migration {
       ON download_tasks(category_id);
     ''');
 
-    db.execute('PRAGMA user_version = 18;');
     LogUtils.i('已应用迁移v18：下载分类表与 category_id 字段创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v18');
-    db.execute('DROP INDEX IF EXISTS idx_download_tasks_category;');
-    db.execute('DROP TABLE IF EXISTS download_categories;');
-    // SQLite 不支持 DROP COLUMN，category_id 列保留即可
-    db.execute('PRAGMA user_version = 17;');
-    LogUtils.i('已回滚迁移v18：数据库版本已回退到 v17');
   }
 }

@@ -750,7 +750,6 @@ class _TranslationsSettingsZhCn implements TranslationsSettingsEn {
 	@override String get updateContent => '更新内容：';
 	@override String get releaseDate => '发布日期';
 	@override String get ignoreThisVersion => '忽略此版本';
-	@override String get minVersionUpdateRequired => '当前版本过低，请尽快更新';
 	@override String get forceUpdateTip => '此版本为强制更新，请尽快更新到最新版本';
 	@override String get viewChangelog => '查看更新日志';
 	@override String get alreadyLatestVersion => '已是最新版本';
@@ -1754,7 +1753,12 @@ class _TranslationsDiagnosticsZhCn implements TranslationsDiagnosticsEn {
 	@override String get secureStorageHealthy => '可用';
 	@override String get secureStorageRecovered => '已自愈重置（历史数据已清除）';
 	@override String get secureStorageUnavailable => '不可用（登录态使用降级加密保存）';
+	@override String get secureStoragePlatformOptOut => '按平台策略使用本地加密（macOS 不使用系统钥匙串）';
 	@override String get secureStorageDualWrite => '（双写保护已启用）';
+	@override String get schemaHealthLabel => '数据库结构';
+	@override String get schemaHealthOk => '正常';
+	@override String get schemaHealthRepairedNow => '本次启动被安全网补建（迁移未生效）';
+	@override String get schemaHealthRepairedBefore => '曾被安全网补建';
 	@override String get logPolicySectionTitle => '日志策略';
 	@override String get configServiceUnavailable => '配置服务未初始化，无法调整日志策略';
 	@override String get enableLoggingTitle => '启用日志记录';
@@ -3414,6 +3418,10 @@ class _TranslationsDownloadErrorsZhCn implements TranslationsDownloadErrorsEn {
 	@override String get deleteTaskError => '任务删除失败';
 	@override String get taskNotFound => '任务未找到';
 	@override String get canNotRefreshVideoTask => '无法刷新视频任务';
+	@override String get videoRemovedCanNotRefresh => '视频已被删除或不存在，无法重新获取下载链接';
+	@override String get videoInaccessibleCanNotRefresh => '视频无法访问，可能已设为私密或需要重新登录';
+	@override String get videoQualityGone => '该清晰度已不再提供，请重新添加下载';
+	@override String get refreshLinkNetworkFailed => '网络异常，暂时无法重新获取下载链接，请稍后重试';
 	@override String get taskAlreadyProcessing => '任务已处理中';
 	@override String get failedToLoadTasks => '加载任务失败';
 	@override String partialDownloadFailedWithMessage({required Object message}) => '部分下载失败: ${message}';
@@ -3825,16 +3833,24 @@ class _TranslationsLocalMediaBrowseZhCn implements TranslationsLocalMediaBrowseE
 	@override String get emptyFolder => '这个文件夹是空的';
 	@override String get videosSection => '视频';
 	@override String get imagesSection => '图片';
+	@override String get galleriesSection => '图库';
 	@override String get location => '位置';
 	@override String get sourceMissing => '这个来源已经不在了';
 	@override String get notScannedYet => '还没扫描过这个文件夹';
 	@override String get scanning => '正在读取这个文件夹…';
 	@override String get deleteFileTitle => '删除这个文件？';
 	@override String deleteFileBody({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。';
+	@override String get deleteGalleryTitle => '删除这个图库？';
+	@override String deleteGalleryBody({required Object name}) => '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。';
+	@override String get galleryResourceMissing => '本地资源已不存在，已清理该记录';
+	@override String get viewDownloadDetail => '查看下载详情';
+	@override String get viewOnlineGallery => '在网页中查看';
 	@override String get pickFolderTitle => '选择文件夹';
 	@override String get useThisFolder => '使用这个文件夹';
 	@override String get noSubfolders => '这里没有子文件夹';
 	@override String get storageRoot => '设备存储';
+	@override String get homeFolder => '个人文件夹';
+	@override String get filesystemRoot => '根目录';
 	@override String get folderUnreadable => '这个文件夹读不动';
 	@override String get setCover => '设置封面';
 	@override String get setAsFolderCover => '设为文件夹封面';
@@ -4586,7 +4602,6 @@ extension on TranslationsZhCn {
 			'settings.updateContent' => '更新内容：',
 			'settings.releaseDate' => '发布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
-			'settings.minVersionUpdateRequired' => '当前版本过低，请尽快更新',
 			'settings.forceUpdateTip' => '此版本为强制更新，请尽快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日志',
 			'settings.alreadyLatestVersion' => '已是最新版本',
@@ -5043,9 +5058,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.fixIssue' => '修复问题',
 			'settings.downloadSettings.issueFixed' => '问题已修复',
 			'settings.downloadSettings.fixFailed' => '修复失败，请手动处理',
+			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
 			_ => null,
 		} ?? switch (path) {
-			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '无法访问公共目录，需要"所有文件访问权限"',
 			'settings.downloadSettings.cannotCreateDirectory' => '无法创建目录',
 			'settings.downloadSettings.directoryNotWritable' => '目录不可写',
@@ -5557,9 +5572,9 @@ extension on TranslationsZhCn {
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
 			'conversation.errors.pleaseEnterATitle' => '请输入标题',
+			'conversation.errors.clickToSelectAUser' => '点击选择用户',
 			_ => null,
 		} ?? switch (path) {
-			'conversation.errors.clickToSelectAUser' => '点击选择用户',
 			'conversation.errors.loadFailedClickToRetry' => '加载失败,点击重试',
 			'conversation.errors.loadFailed' => '加载失败',
 			'conversation.errors.clickToRetry' => '点击重试',
@@ -5632,6 +5647,10 @@ extension on TranslationsZhCn {
 			'download.errors.deleteTaskError' => '任务删除失败',
 			'download.errors.taskNotFound' => '任务未找到',
 			'download.errors.canNotRefreshVideoTask' => '无法刷新视频任务',
+			'download.errors.videoRemovedCanNotRefresh' => '视频已被删除或不存在，无法重新获取下载链接',
+			'download.errors.videoInaccessibleCanNotRefresh' => '视频无法访问，可能已设为私密或需要重新登录',
+			'download.errors.videoQualityGone' => '该清晰度已不再提供，请重新添加下载',
+			'download.errors.refreshLinkNetworkFailed' => '网络异常，暂时无法重新获取下载链接，请稍后重试',
 			'download.errors.taskAlreadyProcessing' => '任务已处理中',
 			'download.errors.failedToLoadTasks' => '加载任务失败',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下载失败: ${message}',
@@ -6068,11 +6087,11 @@ extension on TranslationsZhCn {
 			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
 			'mediaPlayer.imageLoadFailed' => '图片加载失败',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
 			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
@@ -6096,7 +6115,12 @@ extension on TranslationsZhCn {
 			'diagnostics.secureStorageHealthy' => '可用',
 			'diagnostics.secureStorageRecovered' => '已自愈重置（历史数据已清除）',
 			'diagnostics.secureStorageUnavailable' => '不可用（登录态使用降级加密保存）',
+			'diagnostics.secureStoragePlatformOptOut' => '按平台策略使用本地加密（macOS 不使用系统钥匙串）',
 			'diagnostics.secureStorageDualWrite' => '（双写保护已启用）',
+			'diagnostics.schemaHealthLabel' => '数据库结构',
+			'diagnostics.schemaHealthOk' => '正常',
+			'diagnostics.schemaHealthRepairedNow' => '本次启动被安全网补建（迁移未生效）',
+			'diagnostics.schemaHealthRepairedBefore' => '曾被安全网补建',
 			'diagnostics.logPolicySectionTitle' => '日志策略',
 			'diagnostics.configServiceUnavailable' => '配置服务未初始化，无法调整日志策略',
 			'diagnostics.enableLoggingTitle' => '启用日志记录',
@@ -6577,6 +6601,8 @@ extension on TranslationsZhCn {
 			'savedSearchConfig.deleteSuccess' => '已删除筛选配置',
 			'savedSearchConfig.addCurrent' => '保存当前筛选',
 			'savedSearchConfig.reorderHint' => '长按拖动可调整顺序',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.rename' => '重命名',
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部内容（无筛选）',
@@ -6585,8 +6611,6 @@ extension on TranslationsZhCn {
 			'savedSearch.empty' => '还没有保存的搜索',
 			'savedSearch.saveTooltip' => '保存当前搜索',
 			'savedSearch.namePromptTitle' => '保存搜索',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名称',
 			'savedSearch.nameHint' => '请输入名称',
 			'savedSearch.saveSuccess' => '已保存搜索',
@@ -6792,16 +6816,24 @@ extension on TranslationsZhCn {
 			'localMedia.browse.emptyFolder' => '这个文件夹是空的',
 			'localMedia.browse.videosSection' => '视频',
 			'localMedia.browse.imagesSection' => '图片',
+			'localMedia.browse.galleriesSection' => '图库',
 			'localMedia.browse.location' => '位置',
 			'localMedia.browse.sourceMissing' => '这个来源已经不在了',
 			'localMedia.browse.notScannedYet' => '还没扫描过这个文件夹',
 			'localMedia.browse.scanning' => '正在读取这个文件夹…',
 			'localMedia.browse.deleteFileTitle' => '删除这个文件？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。',
+			'localMedia.browse.deleteGalleryTitle' => '删除这个图库？',
+			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。',
+			'localMedia.browse.galleryResourceMissing' => '本地资源已不存在，已清理该记录',
+			'localMedia.browse.viewDownloadDetail' => '查看下载详情',
+			'localMedia.browse.viewOnlineGallery' => '在网页中查看',
 			'localMedia.browse.pickFolderTitle' => '选择文件夹',
 			'localMedia.browse.useThisFolder' => '使用这个文件夹',
 			'localMedia.browse.noSubfolders' => '这里没有子文件夹',
 			'localMedia.browse.storageRoot' => '设备存储',
+			'localMedia.browse.homeFolder' => '个人文件夹',
+			'localMedia.browse.filesystemRoot' => '根目录',
 			'localMedia.browse.folderUnreadable' => '这个文件夹读不动',
 			'localMedia.browse.setCover' => '设置封面',
 			'localMedia.browse.setAsFolderCover' => '设为文件夹封面',

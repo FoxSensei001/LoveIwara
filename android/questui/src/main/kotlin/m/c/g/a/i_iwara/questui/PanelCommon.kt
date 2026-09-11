@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.drawWithContent
 import kotlinx.coroutines.delay
+import kotlin.math.abs
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -62,6 +64,10 @@ import androidx.compose.ui.unit.sp
 import com.meta.spatial.uiset.button.BorderlessCircleButton
 import com.meta.spatial.uiset.button.SecondaryCircleButton
 import com.meta.spatial.uiset.theme.icons.SpatialIcons
+import com.meta.spatial.uiset.theme.icons.regular.VolumeLow
+import com.meta.spatial.uiset.theme.icons.regular.VolumeMid
+import com.meta.spatial.uiset.theme.icons.regular.VolumeOff
+import com.meta.spatial.uiset.theme.icons.regular.VolumeOn
 import com.meta.spatial.uiset.theme.icons.regular.ChevronLeft
 
 /**
@@ -421,68 +427,6 @@ fun TimeLabel(text: String, modifier: Modifier = Modifier, color: Color = PanelT
 
 
 /**
- * 自绘竖向音量条：宽轨道 + 圆拖块，命中区整列。
- *
- * 不再用旋转过的 UI Set 横向 slider：太细、太矮（用户 2026-09-05 反馈）。
- * @param level 0..1，上满下空。
- */
-@Composable
-fun VerticalLevelBar(
-    level: Float,
-    onLevel: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val trackColor = PanelTokens.SURFACE
-    val fillColor = PanelTokens.ON_SURFACE
-    // ⛔ 拖块的行程要**缩进一个半径**：以前 0% / 100% 时拖块圆心落在条的两端，半个圆凸出去
-    // 盖住上面的百分比数字、又被下面的静音钮压住（用户 2026-09-05）。行程 = [thumbR, h − thumbR]。
-    val thumbRadius = 14.dp
-    fun levelAt(y: Float, h: Float, r: Float): Float {
-        val span = (h - 2f * r).coerceAtLeast(1f)
-        return (1f - (y - r) / span).coerceIn(0f, 1f)
-    }
-    Box(
-        modifier = modifier
-            .width(56.dp)
-            .pointerInput(onLevel) {
-                val h = size.height.toFloat()
-                val r = thumbRadius.toPx()
-                detectTapGestures(onPress = { o -> onLevel(levelAt(o.y, h, r)) })
-            }
-            .pointerInput(onLevel) {
-                val h = size.height.toFloat()
-                val r = thumbRadius.toPx()
-                detectVerticalDragGestures { change, _ ->
-                    change.consume()
-                    onLevel(levelAt(change.position.y, h, r))
-                }
-            },
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val trackW = 14.dp.toPx()
-            val thumbR = thumbRadius.toPx()
-            val cx = size.width / 2f
-            val top = thumbR
-            val bottom = size.height - thumbR
-            val y = bottom - (bottom - top) * level.coerceIn(0f, 1f)
-            drawRoundRect(
-                color = trackColor,
-                topLeft = Offset(cx - trackW / 2f, top),
-                size = Size(trackW, bottom - top),
-                cornerRadius = CornerRadius(trackW / 2f),
-            )
-            drawRoundRect(
-                color = fillColor,
-                topLeft = Offset(cx - trackW / 2f, y),
-                size = Size(trackW, bottom - y),
-                cornerRadius = CornerRadius(trackW / 2f),
-            )
-            drawCircle(color = fillColor, radius = thumbR, center = Offset(cx, y))
-        }
-    }
-}
-
-/**
  * 竖向滚动指示条：内容放不下时才画；刚进页面先亮 2s 提醒「下面还有」，滚动时常亮，停手 1.2s 后淡出。
  *
  * 官方 `hands-ui-best-practices` 明说别做传统滚动条（拖它的人多半失败），所以它**只指示、不可拖**，
@@ -670,5 +614,184 @@ fun DistanceActionButton(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+// ─────────────────────────────────────────────────────────── 音量弹层
+
+/**
+ * 音量弹层 + 它的关闭底板。**播放页与空间画廊共用同一只** —— 两边底行最左都是那枚 🔊，
+ * 弹层因此都贴左下角，手指从钮上抬起来就落在条上。
+ * 调用方只要在根 `Box` 的最后放一行 `VolumePopupOverlay(state, cb)`。
+ *
+ * 条上调的是**系统**音量（见 [VideoControlsState.volume]）；静音钮只静本应用。
+ */
+@Composable
+fun BoxScope.VolumePopupOverlay(state: VideoControlsState, cb: VideoControlsCallbacks) {
+    if (!state.volumePopupOpen) return
+    // 关闭底板画在弹层之下：弹层没消费的触碰才会掉到它上面。
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(cb) { detectTapGestures { cb.onVolumePopup(false) } },
+    )
+    VolumePopupCard(
+        state = state,
+        cb = cb,
+        modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(bottom = 76.dp),
+    )
+}
+
+/**
+ * 音量图标按当前响度分四档（UI Set 自带 `VolumeOff / VolumeLow / VolumeMid / VolumeOn`）。
+ *
+ * 一眼能看出「现在大概多响」，不用去读数字 —— 面板收起时那枚 🔊 也是这个形状，
+ * 于是「音量现在多大」这件事在**不展开弹层**的情况下也说得清。
+ */
+@Composable
+fun volumeIcon(muted: Boolean, level: Float): ImageVector = when {
+    muted || level <= 0f -> SpatialIcons.Regular.VolumeOff
+    level < 0.34f -> SpatialIcons.Regular.VolumeLow
+    level < 0.67f -> SpatialIcons.Regular.VolumeMid
+    else -> SpatialIcons.Regular.VolumeOn
+}
+
+/**
+ * 横向音量条：14dp 轨道 + 32dp 圆拖块，命中区整行 64dp（与 [SeekBar] 同一套手感）。
+ *
+ * ⛔ **不再用竖条**：竖条被面板高度卡死（面板只有 [PanelTokens.HEIGHT_DP] = 360dp，
+ * 弹层还要留出触发钮的位置），行程撑死 200dp 出头，用户 2026-09-11 反馈「有点短」。
+ * 横过来能给到 400dp 以上，同样的 16 档，每档的手感宽了一倍。
+ *
+ * @param steps 系统真实的档数（Quest 上 15 ⇒ 16 档）。2..32 之间会在轨道上画出**刻度点**——
+ *   音量本来就是跳档的，把档位画出来，比让用户以为「拖不顺」要诚实。
+ */
+@Composable
+fun HorizontalLevelBar(
+    level: Float,
+    steps: Int,
+    onLevel: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val thumbRadius = 16.dp
+    fun levelAt(x: Float, w: Float, r: Float): Float {
+        val span = (w - 2f * r).coerceAtLeast(1f)
+        return ((x - r) / span).coerceIn(0f, 1f)
+    }
+    Box(
+        modifier = modifier
+            .height(64.dp)
+            .pointerInput(onLevel) {
+                val w = size.width.toFloat()
+                val r = thumbRadius.toPx()
+                detectTapGestures(onPress = { o -> onLevel(levelAt(o.x, w, r)) })
+            }
+            .pointerInput(onLevel) {
+                val w = size.width.toFloat()
+                val r = thumbRadius.toPx()
+                detectHorizontalDragGestures { change, _ ->
+                    change.consume()
+                    onLevel(levelAt(change.position.x, w, r))
+                }
+            },
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val trackH = 14.dp.toPx()
+            val thumbR = thumbRadius.toPx()
+            val cy = size.height / 2f
+            val left = thumbR
+            val right = size.width - thumbR
+            val x = left + (right - left) * level.coerceIn(0f, 1f)
+            drawRoundRect(
+                color = PanelTokens.SURFACE,
+                topLeft = Offset(left, cy - trackH / 2f),
+                size = Size(right - left, trackH),
+                cornerRadius = CornerRadius(trackH / 2f),
+            )
+            if (x > left) {
+                drawRoundRect(
+                    color = PanelTokens.ON_SURFACE,
+                    topLeft = Offset(left, cy - trackH / 2f),
+                    size = Size(x - left, trackH),
+                    cornerRadius = CornerRadius(trackH / 2f),
+                )
+            }
+            // 刻度点：落在已填充段上的画暗色、落在空轨道上的画亮色，两边都看得见。
+            if (steps in 2..32) {
+                val dotR = 2.dp.toPx()
+                for (i in 0..steps) {
+                    val tx = left + (right - left) * i / steps
+                    if (abs(tx - x) < thumbR * 0.8f) continue // 拖块底下那几点不画，免得从白圆里透出来
+                    drawCircle(
+                        color = if (tx < x) PanelTokens.SURFACE.copy(alpha = 0.55f)
+                                else PanelTokens.ON_SURFACE_DIM.copy(alpha = 0.45f),
+                        radius = dotR,
+                        center = Offset(tx, cy),
+                    )
+                }
+            }
+            drawCircle(color = PanelTokens.ON_SURFACE, radius = thumbR, center = Offset(x, cy))
+        }
+    }
+}
+
+/**
+ * 音量弹层卡片：一行标题（说清这调的是**系统**音量）+ 大百分比，一行静音钮 + 长横条。
+ *
+ * 版式是横的而不是竖的，理由见 [HorizontalLevelBar]。宽度吃掉面板的一半多一点，
+ * 贴在触发钮正上方 —— 手指从 🔊 抬上来就落在条上，不用横跨整块面板。
+ */
+@Composable
+private fun VolumePopupCard(
+    state: VideoControlsState,
+    cb: VideoControlsCallbacks,
+    modifier: Modifier = Modifier,
+) {
+    val current = if (state.muted) 0f else state.volume
+    Column(
+        modifier = modifier
+            .width(608.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(PanelTokens.POPUP)
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Text(
+                text = stringResource(R.string.xr_volume),
+                color = PanelTokens.ON_SURFACE_DIM,
+                fontSize = 15.sp,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = if (state.muted) stringResource(R.string.xr_muted_badge) else "${(current * 100).toInt()}%",
+                color = if (state.muted) PanelTokens.WARN else PanelTokens.ON_SURFACE,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+        Spacer(Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            CircleActionButton(
+                icon = volumeIcon(state.muted, state.volume),
+                contentDescription = stringResource(if (state.muted) R.string.xr_unmute else R.string.xr_mute),
+                onClick = cb::onToggleMute,
+                selected = state.muted,
+            )
+            HorizontalLevelBar(
+                level = current,
+                steps = state.volumeSteps,
+                onLevel = cb::onVolume,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }

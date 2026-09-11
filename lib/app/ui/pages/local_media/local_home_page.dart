@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +13,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
@@ -161,6 +163,7 @@ class _LocalHomePageState extends State<LocalHomePage>
   /// 查完存着即可。
   Map<String, ({String? cover, int videos, int images})> _sourceStats =
       const {};
+  int _downloadedGalleryCount = 0;
   bool _addingSource = false;
   bool _permissionDenied = false;
   String? _scanningSourceId;
@@ -203,13 +206,15 @@ class _LocalHomePageState extends State<LocalHomePage>
       _reloadPinnedFolders();
     }, time: const Duration(milliseconds: 400));
     // 目录行的变化（封面回填、pin）走**另一条**信号，见 [LocalMediaRepository
-    // .folderRevision]。这一页的置顶目录卡片要跟着换封面，来源计数则与它无关，
-    // 所以只重查置顶那一半。
-    _folderWorker = debounce<int>(
-      LocalMediaRepository.folderRevision,
-      (_) => _reloadPinnedFolders(),
-      time: const Duration(milliseconds: 400),
-    );
+    // .folderRevision]。这一页的来源卡与置顶目录卡都要跟着换封面；条目本身没变，
+    // 所以卡片墙不听这条。
+    _folderWorker = debounce<int>(LocalMediaRepository.folderRevision, (_) {
+      // 来源卡的封面也跟着这条信号走：封面回填 / 用户挑封面改的都是目录行，
+      // 只重查置顶那一半的话，来源卡要等到下一次条目变化才肯换图——「点进去
+      // 生成了缩略图、退出来卡片还是空的」就是这么来的。
+      _reloadSources();
+      _reloadPinnedFolders();
+    }, time: const Duration(milliseconds: 400));
     unawaited(_syncDownloads());
   }
 
@@ -309,29 +314,14 @@ class _LocalHomePageState extends State<LocalHomePage>
           .getFolder(sourceId: source.id, relPath: '')
           ?.coverPath;
       if (cover == null || cover.isEmpty) {
-        final videoItems = _repository.queryItems(
+        // ⛔ 兜底必须问「最新的**有图的**那一条」，不是「最新那一条」。
+        // 缩略图是滚进视野才生成的，最新那条十有八九还没有——按它判，一个装着
+        // 几十个视频的来源会一直是一张空夹子（2026-09-11 用户报的）。
+        final candidates = _repository.sourceCoverCandidates(
           sourceId: source.id,
-          kind: LocalMediaItemKind.video,
-          sort: LocalMediaSort.addedDesc,
-          offset: 0,
           limit: 1,
         );
-        if (videoItems.isNotEmpty) {
-          cover =
-              videoItems.first.sidecarImagePath ?? videoItems.first.thumbPath;
-        }
-      }
-      if (cover == null || cover.isEmpty) {
-        final imageItems = _repository.queryItems(
-          sourceId: source.id,
-          kind: LocalMediaItemKind.image,
-          sort: LocalMediaSort.addedDesc,
-          offset: 0,
-          limit: 1,
-        );
-        if (imageItems.isNotEmpty) {
-          cover = imageItems.first.path;
-        }
+        if (candidates.isNotEmpty) cover = candidates.first;
       }
       stats[source.id] = (cover: cover, videos: videos, images: images);
     }
@@ -340,6 +330,19 @@ class _LocalHomePageState extends State<LocalHomePage>
       _sourceStats = stats;
       if (_sources.isNotEmpty) _cachedCandidates = null;
     });
+    unawaited(_reloadDownloadedGalleryCount());
+  }
+
+  Future<void> _reloadDownloadedGalleryCount() async {
+    if (!Get.isRegistered<DownloadService>()) return;
+    try {
+      final counts = await DownloadService.to.repository
+          .getCompletedDownloadCounts(mediaType: 'gallery');
+      if (!mounted) return;
+      setState(() => _downloadedGalleryCount = counts.total);
+    } catch (e) {
+      LogUtils.w('读取已下载图库计数失败: $e', _tag);
+    }
   }
 
   void _reloadPinnedFolders() {
@@ -487,14 +490,7 @@ class _LocalHomePageState extends State<LocalHomePage>
       }
       if (mounted) setState(() => _permissionDenied = false);
 
-      // 为什么不走 SAF：Quest 头显上系统 documentsui 选择器在手柄射线点击下无响应，
-      // 用户无法选中任何文件夹；且应用已持有 MANAGE_EXTERNAL_STORAGE（所有文件访问权限），
-      // 本来就能直接走文件系统，故优先使用应用内的文件夹选择器，不再依赖有缺陷的系统 UI。
-      final picked =
-          candidatePath ??
-          (mounted
-              ? await showLocalDirectoryPickerDialog(context: context)
-              : null);
+      final picked = candidatePath ?? (mounted ? await _pickDirectory() : null);
       if (picked == null || picked.isEmpty) return;
       final overlapping = _repository.findOverlappingSource(picked);
       if (overlapping != null) {
@@ -527,6 +523,36 @@ class _LocalHomePageState extends State<LocalHomePage>
     } finally {
       if (mounted) setState(() => _addingSource = false);
     }
+  }
+
+  /// 挑一个文件夹：桌面交给系统原生选择器，Android / Quest 用应用内那个。
+  ///
+  /// # 为什么 Android 不走 SAF
+  /// Quest 头显上系统 documentsui 选择器在手柄射线点击下无响应，用户无法选中任何
+  /// 文件夹；且应用已持有 MANAGE_EXTERNAL_STORAGE（所有文件访问权限），本来就能
+  /// 直接走文件系统，故用应用内的文件夹选择器，不依赖有缺陷的系统 UI。
+  ///
+  /// # ⛔ 为什么桌面必须走原生
+  /// 应用内那张弹窗的卷列表是按 Android 写的，macOS 上点开只有一条「设备存储」
+  /// （`/storage/emulated/0`），点进去就是一句「这个文件夹读不动」。桌面用户要的
+  /// 是系统选择器里的收藏夹、最近位置、盘符，那些我们复刻不出来也不该复刻。
+  ///
+  /// iOS 不到这里：它在 [_addSource] 开头就走安全书签那条路（沙盒外的目录必须靠
+  /// bookmark 才能持久访问）。
+  Future<String?> _pickDirectory() async {
+    if (GetPlatform.isDesktop) {
+      try {
+        final picked = await getDirectoryPath();
+        if (picked != null && picked.isNotEmpty) return picked;
+        // 用户取消：不要再补一张应用内弹窗，那是第二次问同一件事。
+        return null;
+      } catch (e, s) {
+        // 原生选择器起不来（缺 portal 的 Linux 发行版之类）时退回应用内那张。
+        LogUtils.w('系统目录选择器不可用，回退到应用内选择器: $e\n$s', _tag);
+      }
+    }
+    if (!mounted) return null;
+    return showLocalDirectoryPickerDialog(context: context);
   }
 
   Future<void> _scan(LocalMediaSource source) async {
@@ -692,25 +718,43 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   Future<void> _showAddMenu(BuildContext anchorContext) async {
     final t = slang.t.localMedia;
-    final action = await showGlassMenu<String>(
-      anchorContext: anchorContext,
-      entries: <GlassMenuEntry>[
+    final options = <GlassMenuOption<String>>[
+      GlassMenuOption<String>(
+        value: 'addFolder',
+        label: t.addFolder,
+        icon: Icons.create_new_folder_outlined,
+        enabled: !_addingSource,
+      ),
+      if (_canScanDeviceVideos)
         GlassMenuOption<String>(
-          value: 'addFolder',
-          label: t.addFolder,
-          icon: Icons.create_new_folder_outlined,
+          value: 'addDeviceVideos',
+          label: t.addDeviceVideos,
+          icon: Icons.video_library_outlined,
           enabled: !_addingSource,
         ),
-        if (_canScanDeviceVideos)
-          GlassMenuOption<String>(
-            value: 'addDeviceVideos',
-            label: t.addDeviceVideos,
-            icon: Icons.video_library_outlined,
-            enabled: !_addingSource,
-          ),
-      ],
+    ];
+
+    // 只剩一条时不开菜单，直接做那件事。「扫描设备视频」在桌面 / iOS / 头显上
+    // 整条不存在（见 [_canScanDeviceVideos]），那些平台上弹出来的菜单永远只有
+    // 「添加文件夹」一项——等于逼用户多点一下才走到唯一的出口。
+    if (options.length == 1) {
+      final only = options.first;
+      // 正在添加时这一条是灰的：照旧把菜单开出来，让用户看见它在忙。
+      if (only.enabled) {
+        _runAddAction(only.value);
+        return;
+      }
+    }
+
+    final action = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: options,
     );
     if (!mounted || action == null) return;
+    _runAddAction(action);
+  }
+
+  void _runAddAction(String action) {
     if (action == 'addFolder') unawaited(_addSource());
     if (action == 'addDeviceVideos') unawaited(_addMediaStoreSource());
   }
@@ -924,18 +968,16 @@ class _LocalHomePageState extends State<LocalHomePage>
             ),
             LocalMediaWall(
               kind: LocalMediaItemKind.video,
-              // ⛔ 「所有视频 / 所有图片」把内建的「已下载」排除在外：它自己是
-              // 右边那一栏，两边都列就是同一批文件在这一页里出现两次。精选那一栏
-              // 则必须**不排除**（精选是用户跨源挑出来的）。这两句的口径与
-              // 「接着看」里同名的池逐字一致，见 `LocalLibraryPlaybackQueue`。
-              excludeBuiltInSource: true,
+              // 「所有」就是字面意思：不限源，已下载的也在里面。它和右边那栏
+              // 「下载完成视频」重着一批，这和「精选视频」与它重着是同一种关系
+              // ——全集里有子集，不是 bug。⛔ 别再加回排除口径，理由见
+              // `LocalMediaWall.sourceId` 的文档。
               order: _allVideoOrder,
               queueTitle: slang.t.localMedia.tabAllVideos,
               headerExtent: headerExtent,
             ),
             LocalMediaWall(
               kind: LocalMediaItemKind.image,
-              excludeBuiltInSource: true,
               order: _allImageOrder,
               queueTitle: slang.t.localMedia.tabAllImages,
               headerExtent: headerExtent,
@@ -1278,6 +1320,7 @@ class _LocalHomePageState extends State<LocalHomePage>
             // 来源根也能设为常用（见 [_openSourceMenu]），设了就得在卡片上看得见。
             pinned: _pinnedKeys.contains(_pinKey(source.id, '')),
             coverPath: stats?.cover,
+            childFolderCount: source.isBuiltIn ? _downloadedGalleryCount : 0,
             videoCount: stats?.videos ?? 0,
             imageCount: stats?.images ?? 0,
             scanning: _scanningSourceId == source.id,

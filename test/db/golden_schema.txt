@@ -1,0 +1,267 @@
+TABLE EmojiGroups
+  COLUMN cover_url TEXT
+  COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  COLUMN group_id INTEGER PK1
+  COLUMN name TEXT NOT NULL
+  COLUMN sort_order INTEGER NOT NULL DEFAULT 0
+  COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+TABLE EmojiImages
+  COLUMN group_id INTEGER NOT NULL
+  COLUMN image_id INTEGER PK1
+  COLUMN thumbnail_url TEXT
+  COLUMN url TEXT NOT NULL
+TABLE app_config
+  COLUMN key TEXT PK1
+  COLUMN value TEXT NOT NULL
+  INDEX sqlite_autoindex_app_config_1 :: (auto)
+TABLE commons
+  COLUMN created_at TEXT NOT NULL DEFAULT datetime('now')
+  COLUMN data TEXT NOT NULL
+  COLUMN id INTEGER PK1
+  COLUMN key TEXT NOT NULL
+  COLUMN updated_at TEXT NOT NULL DEFAULT datetime('now')
+  INDEX sqlite_autoindex_commons_1 :: (auto)
+  TRIGGER trigger_commons_updated_at :: CREATE TRIGGER trigger_commons_updated_at AFTER UPDATE ON commons BEGIN UPDATE commons SET updated_at = datetime('now') WHERE id = NEW.id; END
+TABLE download_categories
+  COLUMN created_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN description TEXT
+  COLUMN display_order INTEGER NOT NULL DEFAULT 0
+  COLUMN id TEXT PK1
+  COLUMN title TEXT NOT NULL
+  COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  INDEX sqlite_autoindex_download_categories_1 :: (auto)
+TABLE download_tasks
+  COLUMN category_id TEXT
+  COLUMN completed_at INTEGER
+  COLUMN created_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN downloaded_bytes INTEGER NOT NULL DEFAULT 0
+  COLUMN error TEXT
+  COLUMN error_type TEXT
+  COLUMN ext_data TEXT
+  COLUMN file_name TEXT NOT NULL
+  COLUMN id TEXT PK1
+  COLUMN media_id TEXT
+  COLUMN media_type TEXT
+  COLUMN quality TEXT
+  COLUMN save_path TEXT NOT NULL
+  COLUMN status TEXT NOT NULL
+  COLUMN supports_range INTEGER NOT NULL DEFAULT 0
+  COLUMN total_bytes INTEGER NOT NULL DEFAULT 0
+  COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN url TEXT NOT NULL
+  INDEX idx_download_tasks_category :: CREATE INDEX idx_download_tasks_category ON download_tasks(category_id)
+  INDEX idx_download_tasks_media_type_id :: CREATE INDEX idx_download_tasks_media_type_id ON download_tasks(media_type, media_id)
+  INDEX idx_download_tasks_status_created :: CREATE INDEX idx_download_tasks_status_created ON download_tasks(status, created_at)
+  INDEX idx_download_tasks_video_quality :: CREATE INDEX idx_download_tasks_video_quality ON download_tasks(media_type, media_id, quality)
+  INDEX sqlite_autoindex_download_tasks_1 :: (auto)
+  TRIGGER trg_download_tasks_gallery_media_unique_insert :: CREATE TRIGGER trg_download_tasks_gallery_media_unique_insert BEFORE INSERT ON download_tasks WHEN NEW.media_type = 'gallery' AND NEW.media_id IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_media') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE media_type = 'gallery' AND media_id = NEW.media_id ); END
+  TRIGGER trg_download_tasks_gallery_media_unique_update :: CREATE TRIGGER trg_download_tasks_gallery_media_unique_update BEFORE UPDATE OF media_type, media_id ON download_tasks WHEN NEW.media_type = 'gallery' AND NEW.media_id IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_media') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE media_type = 'gallery' AND media_id = NEW.media_id AND id <> NEW.id ); END
+  TRIGGER trg_download_tasks_save_path_unique_insert :: CREATE TRIGGER trg_download_tasks_save_path_unique_insert BEFORE INSERT ON download_tasks WHEN NEW.save_path IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_save_path') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE save_path = NEW.save_path ); END
+  TRIGGER trg_download_tasks_save_path_unique_update :: CREATE TRIGGER trg_download_tasks_save_path_unique_update BEFORE UPDATE OF save_path ON download_tasks WHEN NEW.save_path IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_save_path') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE save_path = NEW.save_path AND id <> NEW.id ); END
+  TRIGGER trg_download_tasks_video_media_unique_insert :: CREATE TRIGGER trg_download_tasks_video_media_unique_insert BEFORE INSERT ON download_tasks WHEN NEW.media_type = 'video' AND NEW.media_id IS NOT NULL AND NEW.quality IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_media') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE media_type = 'video' AND media_id = NEW.media_id AND quality = NEW.quality ); END
+  TRIGGER trg_download_tasks_video_media_unique_update :: CREATE TRIGGER trg_download_tasks_video_media_unique_update BEFORE UPDATE OF media_type, media_id, quality ON download_tasks WHEN NEW.media_type = 'video' AND NEW.media_id IS NOT NULL AND NEW.quality IS NOT NULL BEGIN SELECT RAISE(ABORT, 'duplicate_download_task_media') WHERE EXISTS ( SELECT 1 FROM download_tasks WHERE media_type = 'video' AND media_id = NEW.media_id AND quality = NEW.quality AND id <> NEW.id ); END
+TABLE favorite_folders
+  COLUMN created_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN description TEXT
+  COLUMN display_order INTEGER NOT NULL DEFAULT 0
+  COLUMN id TEXT PK1
+  COLUMN title TEXT NOT NULL
+  COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  INDEX idx_favorite_folders_display_order :: CREATE INDEX idx_favorite_folders_display_order ON favorite_folders(display_order)
+  INDEX sqlite_autoindex_favorite_folders_1 :: (auto)
+TABLE favorite_items
+  COLUMN author_avatar_url TEXT
+  COLUMN author_name TEXT
+  COLUMN author_username TEXT
+  COLUMN created_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN ext_data TEXT
+  COLUMN folder_id TEXT NOT NULL
+  COLUMN id TEXT PK1
+  COLUMN item_id TEXT NOT NULL
+  COLUMN item_type TEXT NOT NULL
+  COLUMN preview_url TEXT
+  COLUMN tags TEXT
+  COLUMN title TEXT NOT NULL
+  COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  INDEX idx_favorite_items_created_at :: CREATE INDEX idx_favorite_items_created_at ON favorite_items(created_at DESC)
+  INDEX idx_favorite_items_folder_time :: CREATE INDEX idx_favorite_items_folder_time ON favorite_items(folder_id, created_at DESC)
+  INDEX idx_favorite_items_tags :: CREATE INDEX idx_favorite_items_tags ON favorite_items(tags)
+  INDEX idx_favorite_items_type_id :: CREATE INDEX idx_favorite_items_type_id ON favorite_items(item_type, item_id)
+  INDEX sqlite_autoindex_favorite_items_1 :: (auto)
+TABLE history_records
+  COLUMN author TEXT
+  COLUMN author_id TEXT
+  COLUMN created_at TEXT NOT NULL DEFAULT datetime('now')
+  COLUMN data TEXT NOT NULL
+  COLUMN id INTEGER PK1
+  COLUMN item_id TEXT NOT NULL
+  COLUMN item_type TEXT NOT NULL
+  COLUMN thumbnail_url TEXT
+  COLUMN title TEXT NOT NULL
+  COLUMN updated_at TEXT NOT NULL DEFAULT datetime('now')
+  INDEX idx_history_records_title :: CREATE INDEX idx_history_records_title ON history_records(title)
+  INDEX idx_history_records_type_date :: CREATE INDEX idx_history_records_type_date ON history_records(item_type, created_at)
+  INDEX sqlite_autoindex_history_records_1 :: (auto)
+  TRIGGER trigger_history_records_updated_at :: CREATE TRIGGER trigger_history_records_updated_at AFTER UPDATE ON history_records BEGIN UPDATE history_records SET updated_at = datetime('now') WHERE id = NEW.id; END
+TABLE local_media_folders
+  COLUMN child_folder_count INTEGER NOT NULL DEFAULT 0
+  COLUMN cover_borrowed INTEGER NOT NULL DEFAULT 0
+  COLUMN cover_path TEXT
+  COLUMN cover_pinned INTEGER NOT NULL DEFAULT 0
+  COLUMN folder_path TEXT
+  COLUMN id TEXT PK1
+  COLUMN image_count INTEGER NOT NULL DEFAULT 0
+  COLUMN missing INTEGER NOT NULL DEFAULT 0
+  COLUMN modified_at INTEGER
+  COLUMN name TEXT NOT NULL
+  COLUMN parent_rel_path TEXT
+  COLUMN probed_at INTEGER
+  COLUMN rel_path TEXT NOT NULL
+  COLUMN sort_name TEXT NOT NULL
+  COLUMN source_id TEXT NOT NULL
+  COLUMN video_count INTEGER NOT NULL DEFAULT 0
+  INDEX idx_local_folders_abs :: CREATE INDEX idx_local_folders_abs ON local_media_folders(source_id, folder_path)
+  INDEX idx_local_folders_children :: CREATE INDEX idx_local_folders_children ON local_media_folders(source_id, parent_rel_path, missing, sort_name, name, id)
+  INDEX sqlite_autoindex_local_media_folders_1 :: (auto)
+  INDEX sqlite_autoindex_local_media_folders_2 :: (auto)
+TABLE local_media_items
+  COLUMN added_at INTEGER NOT NULL
+  COLUMN category_id TEXT
+  COLUMN download_task_id TEXT
+  COLUMN duration_ms INTEGER
+  COLUMN ext TEXT
+  COLUMN favorited_at INTEGER
+  COLUMN folder_path TEXT
+  COLUMN fps REAL
+  COLUMN fps_probed_at INTEGER
+  COLUMN height INTEGER
+  COLUMN id TEXT PK1
+  COLUMN kind TEXT NOT NULL
+  COLUMN last_played_at INTEGER
+  COLUMN media_store_uri TEXT
+  COLUMN missing INTEGER NOT NULL DEFAULT 0
+  COLUMN modified_at INTEGER
+  COLUMN name TEXT NOT NULL
+  COLUMN path TEXT NOT NULL
+  COLUMN path_hash TEXT NOT NULL
+  COLUMN sidecar_image_path TEXT
+  COLUMN size_bytes INTEGER
+  COLUMN sort_name TEXT NOT NULL
+  COLUMN source_id TEXT NOT NULL
+  COLUMN thumb_path TEXT
+  COLUMN vr_format_json TEXT
+  COLUMN width INTEGER
+  INDEX idx_local_items_all_added :: CREATE INDEX idx_local_items_all_added ON local_media_items(kind, missing, added_at, id)
+  INDEX idx_local_items_all_duration :: CREATE INDEX idx_local_items_all_duration ON local_media_items(kind, missing, duration_ms, sort_name, id)
+  INDEX idx_local_items_all_ext :: CREATE INDEX idx_local_items_all_ext ON local_media_items(kind, missing, ext, sort_name, id)
+  INDEX idx_local_items_all_favorited :: CREATE INDEX idx_local_items_all_favorited ON local_media_items(kind, missing, favorited_at, id)
+  INDEX idx_local_items_all_fps :: CREATE INDEX idx_local_items_all_fps ON local_media_items(kind, missing, fps, sort_name, id)
+  INDEX idx_local_items_all_modified :: CREATE INDEX idx_local_items_all_modified ON local_media_items(kind, missing, modified_at, sort_name, id)
+  INDEX idx_local_items_all_pixels :: CREATE INDEX idx_local_items_all_pixels ON local_media_items(kind, missing, (width * height), sort_name, id)
+  INDEX idx_local_items_all_played :: CREATE INDEX idx_local_items_all_played ON local_media_items(kind, missing, last_played_at, sort_name, id)
+  INDEX idx_local_items_all_size :: CREATE INDEX idx_local_items_all_size ON local_media_items(kind, missing, size_bytes, sort_name, id)
+  INDEX idx_local_items_folder_kind_sort :: CREATE INDEX idx_local_items_folder_kind_sort ON local_media_items(source_id, folder_path, kind, missing, sort_name, name, id)
+  INDEX idx_local_items_folder_sort :: CREATE INDEX idx_local_items_folder_sort ON local_media_items(source_id, folder_path, missing, sort_name, name, id)
+  INDEX idx_local_items_page_added :: CREATE INDEX idx_local_items_page_added ON local_media_items(kind, source_id, missing, added_at, id)
+  INDEX idx_local_items_page_category :: CREATE INDEX idx_local_items_page_category ON local_media_items(kind, source_id, category_id, missing, sort_name, name, id)
+  INDEX idx_local_items_page_category_added :: CREATE INDEX idx_local_items_page_category_added ON local_media_items(kind, source_id, category_id, missing, added_at, id)
+  INDEX idx_local_items_page_category_duration :: CREATE INDEX idx_local_items_page_category_duration ON local_media_items(kind, source_id, category_id, missing, duration_ms, sort_name, id)
+  INDEX idx_local_items_page_category_folder :: CREATE INDEX idx_local_items_page_category_folder ON local_media_items(kind, source_id, category_id, missing, folder_path, sort_name, name, id)
+  INDEX idx_local_items_page_category_played :: CREATE INDEX idx_local_items_page_category_played ON local_media_items(kind, source_id, category_id, missing, last_played_at, sort_name, name, id)
+  INDEX idx_local_items_page_category_size :: CREATE INDEX idx_local_items_page_category_size ON local_media_items(kind, source_id, category_id, missing, size_bytes, sort_name, id)
+  INDEX idx_local_items_page_duration :: CREATE INDEX idx_local_items_page_duration ON local_media_items(kind, source_id, missing, duration_ms, sort_name, id)
+  INDEX idx_local_items_page_folder :: CREATE INDEX idx_local_items_page_folder ON local_media_items(kind, source_id, missing, folder_path, sort_name, name, id)
+  INDEX idx_local_items_page_name :: CREATE INDEX idx_local_items_page_name ON local_media_items(kind, source_id, missing, sort_name, name, id)
+  INDEX idx_local_items_page_name_all :: CREATE INDEX idx_local_items_page_name_all ON local_media_items(kind, missing, sort_name, name, id)
+  INDEX idx_local_items_page_played :: CREATE INDEX idx_local_items_page_played ON local_media_items(kind, source_id, missing, last_played_at, sort_name, name, id)
+  INDEX idx_local_items_page_size :: CREATE INDEX idx_local_items_page_size ON local_media_items(kind, source_id, missing, size_bytes, sort_name, id)
+  INDEX idx_local_items_path :: CREATE INDEX idx_local_items_path ON local_media_items(path)
+  INDEX sqlite_autoindex_local_media_items_1 :: (auto)
+  INDEX sqlite_autoindex_local_media_items_2 :: (auto)
+TABLE local_media_pinned_folders
+  COLUMN created_at INTEGER NOT NULL
+  COLUMN display_name TEXT NOT NULL
+  COLUMN id TEXT PK1
+  COLUMN rel_path TEXT NOT NULL
+  COLUMN sort_order INTEGER NOT NULL DEFAULT 0
+  COLUMN source_id TEXT NOT NULL
+  INDEX idx_local_pinned_order :: CREATE INDEX idx_local_pinned_order ON local_media_pinned_folders(sort_order, created_at)
+  INDEX sqlite_autoindex_local_media_pinned_folders_1 :: (auto)
+  INDEX sqlite_autoindex_local_media_pinned_folders_2 :: (auto)
+TABLE local_media_progress
+  COLUMN completed INTEGER NOT NULL DEFAULT 0
+  COLUMN duration_ms INTEGER
+  COLUMN item_id TEXT PK1
+  COLUMN position_ms INTEGER NOT NULL
+  COLUMN updated_at INTEGER NOT NULL
+  INDEX sqlite_autoindex_local_media_progress_1 :: (auto)
+TABLE local_media_sources
+  COLUMN auto_rescan INTEGER NOT NULL DEFAULT 1
+  COLUMN created_at INTEGER NOT NULL
+  COLUMN display_name TEXT NOT NULL
+  COLUMN id TEXT PK1
+  COLUMN item_count INTEGER NOT NULL DEFAULT 0
+  COLUMN kind TEXT NOT NULL
+  COLUMN last_scan_at INTEGER
+  COLUMN media_kinds TEXT NOT NULL DEFAULT 'both'
+  COLUMN offline INTEGER NOT NULL DEFAULT 0
+  COLUMN path TEXT
+  COLUMN recursive INTEGER NOT NULL DEFAULT 1
+  COLUMN scan_cursor TEXT
+  COLUMN scan_state TEXT NOT NULL DEFAULT 'idle'
+  COLUMN sort_order INTEGER NOT NULL DEFAULT 0
+  COLUMN uri TEXT
+  INDEX sqlite_autoindex_local_media_sources_1 :: (auto)
+TABLE oreno3d_match_cache
+  COLUMN iwara_id TEXT PK1
+  COLUMN oreno3d_id TEXT
+  COLUMN updated_at INTEGER NOT NULL
+  INDEX idx_oreno3d_match_cache_updated_at :: CREATE INDEX idx_oreno3d_match_cache_updated_at ON oreno3d_match_cache(updated_at)
+  INDEX sqlite_autoindex_oreno3d_match_cache_1 :: (auto)
+TABLE sign_in_records
+  COLUMN created_at TEXT NOT NULL DEFAULT datetime('now')
+  COLUMN date TEXT NOT NULL
+  COLUMN id INTEGER PK1
+  COLUMN reason TEXT
+  COLUMN status INTEGER NOT NULL
+  COLUMN updated_at TEXT NOT NULL DEFAULT datetime('now')
+  COLUMN user_id TEXT NOT NULL
+  INDEX idx_sign_in_records_user_date :: CREATE INDEX idx_sign_in_records_user_date ON sign_in_records(user_id, date)
+  INDEX sqlite_autoindex_sign_in_records_1 :: (auto)
+  TRIGGER trigger_sign_in_records_updated_at :: CREATE TRIGGER trigger_sign_in_records_updated_at AFTER UPDATE ON sign_in_records BEGIN UPDATE sign_in_records SET updated_at = datetime('now') WHERE id = NEW.id; END
+TABLE video_playback_history
+  COLUMN created_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN id INTEGER PK1
+  COLUMN played_duration INTEGER NOT NULL
+  COLUMN total_duration INTEGER NOT NULL
+  COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN video_id TEXT NOT NULL
+  INDEX idx_video_playback_history_created_at :: CREATE INDEX idx_video_playback_history_created_at ON video_playback_history(created_at)
+  INDEX idx_video_playback_history_video_id :: CREATE INDEX idx_video_playback_history_video_id ON video_playback_history(video_id)
+  INDEX sqlite_autoindex_video_playback_history_1 :: (auto)
+TABLE video_vr_override
+  COLUMN projection TEXT
+  COLUMN stereo TEXT
+  COLUMN updated_at INTEGER
+  COLUMN video_id TEXT PK1
+  INDEX sqlite_autoindex_video_vr_override_1 :: (auto)
+TABLE watch_later
+  COLUMN added_at INTEGER NOT NULL DEFAULT strftime('%s','now')
+  COLUMN author TEXT
+  COLUMN author_id TEXT
+  COLUMN author_username TEXT
+  COLUMN duration_ms INTEGER
+  COLUMN external_domain TEXT
+  COLUMN id INTEGER PK1
+  COLUMN invalid_at INTEGER
+  COLUMN is_external INTEGER NOT NULL DEFAULT 0
+  COLUMN item_id TEXT NOT NULL
+  COLUMN item_type TEXT NOT NULL
+  COLUMN num_images INTEGER
+  COLUMN progress_permil INTEGER NOT NULL DEFAULT 0
+  COLUMN thumbnail_url TEXT
+  COLUMN title TEXT
+  COLUMN watched_at INTEGER
+  INDEX idx_watch_later_type_added :: CREATE INDEX idx_watch_later_type_added ON watch_later(item_type, added_at)
+  INDEX idx_watch_later_watched :: CREATE INDEX idx_watch_later_watched ON watch_later(watched_at)
+  INDEX sqlite_autoindex_watch_later_1 :: (auto)

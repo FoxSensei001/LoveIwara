@@ -126,12 +126,4 @@ class MigrationV31LocalMediaFolders extends Migration {
       db.execute(statement);
     }
   }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v31');
-    db.execute('DROP TABLE IF EXISTS local_media_pinned_folders;');
-    db.execute('DROP TABLE IF EXISTS local_media_folders;');
-    LogUtils.i('已回滚迁移v31：本地媒体库目录两表已删除');
-  }
 }

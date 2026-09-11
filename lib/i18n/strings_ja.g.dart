@@ -750,7 +750,6 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get updateContent => '更新内容';
 	@override String get releaseDate => 'リリース日';
 	@override String get ignoreThisVersion => 'このバージョンを無視';
-	@override String get minVersionUpdateRequired => '現在のバージョンが低すぎます。すぐに更新してください';
 	@override String get forceUpdateTip => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください';
 	@override String get viewChangelog => '更新内容を表示';
 	@override String get alreadyLatestVersion => 'すでに最新バージョンです';
@@ -1754,7 +1753,12 @@ class _TranslationsDiagnosticsJa implements TranslationsDiagnosticsEn {
 	@override String get secureStorageHealthy => '利用可能';
 	@override String get secureStorageRecovered => 'リセットで自己修復済み（既存データは消去）';
 	@override String get secureStorageUnavailable => '利用不可（ログイン状態は代替暗号化で保存）';
+	@override String get secureStoragePlatformOptOut => 'プラットフォーム方針によりローカル暗号化（macOS ではシステムキーチェーンを使用しません）';
 	@override String get secureStorageDualWrite => '（二重保存の保護が有効）';
+	@override String get schemaHealthLabel => 'データベース構造';
+	@override String get schemaHealthOk => '正常';
+	@override String get schemaHealthRepairedNow => '今回の起動でセーフティネットにより修復（マイグレーション未適用）';
+	@override String get schemaHealthRepairedBefore => '過去にセーフティネットにより修復';
 	@override String get logPolicySectionTitle => 'ログポリシー';
 	@override String get configServiceUnavailable => '設定サービスが未初期化のため、ログポリシーを調整できません';
 	@override String get enableLoggingTitle => 'ログ記録を有効化';
@@ -3414,6 +3418,10 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 	@override String get deleteTaskError => 'タスクの削除に失敗しました';
 	@override String get taskNotFound => 'タスクが見つかりません';
 	@override String get canNotRefreshVideoTask => 'ビデオタスクの更新に失敗しました';
+	@override String get videoRemovedCanNotRefresh => 'この動画は削除されたか存在しないため、ダウンロードリンクを再取得できません';
+	@override String get videoInaccessibleCanNotRefresh => 'この動画にアクセスできません。非公開になっているか、再ログインが必要な可能性があります';
+	@override String get videoQualityGone => 'この画質は提供されなくなりました。ダウンロードを追加し直してください';
+	@override String get refreshLinkNetworkFailed => 'ネットワークエラーのため、現在ダウンロードリンクを再取得できません。しばらくしてから再試行してください';
 	@override String get taskAlreadyProcessing => 'タスクはすでに処理中です';
 	@override String get failedToLoadTasks => 'タスクの読み込みに失敗しました';
 	@override String partialDownloadFailedWithMessage({required Object message}) => '部分ダウンロードに失敗しました: ${message}';
@@ -3825,16 +3833,24 @@ class _TranslationsLocalMediaBrowseJa implements TranslationsLocalMediaBrowseEn 
 	@override String get emptyFolder => 'このフォルダは空です';
 	@override String get videosSection => '動画';
 	@override String get imagesSection => '画像';
+	@override String get galleriesSection => 'ギャラリー';
 	@override String get location => '場所';
 	@override String get sourceMissing => 'このソースはもうありません';
 	@override String get notScannedYet => 'このフォルダはまだスキャンされていません';
 	@override String get scanning => 'このフォルダーを読み込んでいます…';
 	@override String get deleteFileTitle => 'このファイルを削除しますか？';
 	@override String deleteFileBody({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。';
+	@override String get deleteGalleryTitle => 'このギャラリーを削除しますか？';
+	@override String deleteGalleryBody({required Object name}) => '「${name}」のダウンロード記録とローカル画像ファイルが削除されます。この操作は取り消せません。';
+	@override String get galleryResourceMissing => 'ローカルリソースが存在しないため、記録を削除しました';
+	@override String get viewDownloadDetail => 'ダウンロード詳細を表示';
+	@override String get viewOnlineGallery => 'ウェブで表示';
 	@override String get pickFolderTitle => 'フォルダーを選ぶ';
 	@override String get useThisFolder => 'このフォルダーを使う';
 	@override String get noSubfolders => 'サブフォルダーはありません';
 	@override String get storageRoot => '端末のストレージ';
+	@override String get homeFolder => 'ホームフォルダ';
+	@override String get filesystemRoot => 'ルートディレクトリ';
 	@override String get folderUnreadable => 'このフォルダーは読み取れません';
 	@override String get setCover => 'サムネイルを設定';
 	@override String get setAsFolderCover => 'フォルダーのサムネイルにする';
@@ -4586,7 +4602,6 @@ extension on TranslationsJa {
 			'settings.updateContent' => '更新内容',
 			'settings.releaseDate' => 'リリース日',
 			'settings.ignoreThisVersion' => 'このバージョンを無視',
-			'settings.minVersionUpdateRequired' => '現在のバージョンが低すぎます。すぐに更新してください',
 			'settings.forceUpdateTip' => 'これは必須アップデートです。できるだけ早く最新バージョンにアップデートしてください',
 			'settings.viewChangelog' => '更新内容を表示',
 			'settings.alreadyLatestVersion' => 'すでに最新バージョンです',
@@ -5043,9 +5058,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.fixIssue' => '問題を修正',
 			'settings.downloadSettings.issueFixed' => '問題が修正されました',
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
+			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
 			_ => null,
 		} ?? switch (path) {
-			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
 			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
@@ -5557,9 +5572,9 @@ extension on TranslationsJa {
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
+			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			_ => null,
 		} ?? switch (path) {
-			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
 			'conversation.errors.clickToRetry' => 'クリックして再試行',
@@ -5632,6 +5647,10 @@ extension on TranslationsJa {
 			'download.errors.deleteTaskError' => 'タスクの削除に失敗しました',
 			'download.errors.taskNotFound' => 'タスクが見つかりません',
 			'download.errors.canNotRefreshVideoTask' => 'ビデオタスクの更新に失敗しました',
+			'download.errors.videoRemovedCanNotRefresh' => 'この動画は削除されたか存在しないため、ダウンロードリンクを再取得できません',
+			'download.errors.videoInaccessibleCanNotRefresh' => 'この動画にアクセスできません。非公開になっているか、再ログインが必要な可能性があります',
+			'download.errors.videoQualityGone' => 'この画質は提供されなくなりました。ダウンロードを追加し直してください',
+			'download.errors.refreshLinkNetworkFailed' => 'ネットワークエラーのため、現在ダウンロードリンクを再取得できません。しばらくしてから再試行してください',
 			'download.errors.taskAlreadyProcessing' => 'タスクはすでに処理中です',
 			'download.errors.failedToLoadTasks' => 'タスクの読み込みに失敗しました',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分ダウンロードに失敗しました: ${message}',
@@ -6068,11 +6087,11 @@ extension on TranslationsJa {
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
 			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
@@ -6096,7 +6115,12 @@ extension on TranslationsJa {
 			'diagnostics.secureStorageHealthy' => '利用可能',
 			'diagnostics.secureStorageRecovered' => 'リセットで自己修復済み（既存データは消去）',
 			'diagnostics.secureStorageUnavailable' => '利用不可（ログイン状態は代替暗号化で保存）',
+			'diagnostics.secureStoragePlatformOptOut' => 'プラットフォーム方針によりローカル暗号化（macOS ではシステムキーチェーンを使用しません）',
 			'diagnostics.secureStorageDualWrite' => '（二重保存の保護が有効）',
+			'diagnostics.schemaHealthLabel' => 'データベース構造',
+			'diagnostics.schemaHealthOk' => '正常',
+			'diagnostics.schemaHealthRepairedNow' => '今回の起動でセーフティネットにより修復（マイグレーション未適用）',
+			'diagnostics.schemaHealthRepairedBefore' => '過去にセーフティネットにより修復',
 			'diagnostics.logPolicySectionTitle' => 'ログポリシー',
 			'diagnostics.configServiceUnavailable' => '設定サービスが未初期化のため、ログポリシーを調整できません',
 			'diagnostics.enableLoggingTitle' => 'ログ記録を有効化',
@@ -6577,6 +6601,8 @@ extension on TranslationsJa {
 			'savedSearchConfig.deleteSuccess' => '絞り込みを削除しました',
 			'savedSearchConfig.addCurrent' => '現在の絞り込みを保存',
 			'savedSearchConfig.reorderHint' => '長押しでドラッグして並べ替え',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.rename' => '名前を変更',
 			'savedSearchConfig.unnamed' => '無名',
 			'savedSearchConfig.noConditions' => 'すべてのコンテンツ（絞り込みなし）',
@@ -6585,8 +6611,6 @@ extension on TranslationsJa {
 			'savedSearch.empty' => '保存した検索はまだありません',
 			'savedSearch.saveTooltip' => '現在の検索を保存',
 			'savedSearch.namePromptTitle' => '検索を保存',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名前',
 			'savedSearch.nameHint' => '名前を入力',
 			'savedSearch.saveSuccess' => '検索を保存しました',
@@ -6792,16 +6816,24 @@ extension on TranslationsJa {
 			'localMedia.browse.emptyFolder' => 'このフォルダは空です',
 			'localMedia.browse.videosSection' => '動画',
 			'localMedia.browse.imagesSection' => '画像',
+			'localMedia.browse.galleriesSection' => 'ギャラリー',
 			'localMedia.browse.location' => '場所',
 			'localMedia.browse.sourceMissing' => 'このソースはもうありません',
 			'localMedia.browse.notScannedYet' => 'このフォルダはまだスキャンされていません',
 			'localMedia.browse.scanning' => 'このフォルダーを読み込んでいます…',
 			'localMedia.browse.deleteFileTitle' => 'このファイルを削除しますか？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。',
+			'localMedia.browse.deleteGalleryTitle' => 'このギャラリーを削除しますか？',
+			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」のダウンロード記録とローカル画像ファイルが削除されます。この操作は取り消せません。',
+			'localMedia.browse.galleryResourceMissing' => 'ローカルリソースが存在しないため、記録を削除しました',
+			'localMedia.browse.viewDownloadDetail' => 'ダウンロード詳細を表示',
+			'localMedia.browse.viewOnlineGallery' => 'ウェブで表示',
 			'localMedia.browse.pickFolderTitle' => 'フォルダーを選ぶ',
 			'localMedia.browse.useThisFolder' => 'このフォルダーを使う',
 			'localMedia.browse.noSubfolders' => 'サブフォルダーはありません',
 			'localMedia.browse.storageRoot' => '端末のストレージ',
+			'localMedia.browse.homeFolder' => 'ホームフォルダ',
+			'localMedia.browse.filesystemRoot' => 'ルートディレクトリ',
 			'localMedia.browse.folderUnreadable' => 'このフォルダーは読み取れません',
 			'localMedia.browse.setCover' => 'サムネイルを設定',
 			'localMedia.browse.setAsFolderCover' => 'フォルダーのサムネイルにする',

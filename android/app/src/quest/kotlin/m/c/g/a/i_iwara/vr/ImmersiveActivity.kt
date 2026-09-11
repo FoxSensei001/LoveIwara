@@ -158,6 +158,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private lateinit var playback: PlaybackEngine
     private lateinit var prefs: PlayerPrefs
     private lateinit var status: SystemStatus
+    private lateinit var systemVolume: SystemVolume
     private lateinit var input: SpatialInputPoller
     private lateinit var manipulator: WindowManipulator
 
@@ -423,6 +424,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         logMemory("onCreate")
         playback = PlaybackEngine(this).also { it.listener = this }
         prefs = PlayerPrefs(this).also { it.load(controls) }
+        // 音量条拿的是**系统**那一根（物理音量键 / 通用菜单调的同一个值），进来先读一次真值。
+        systemVolume = SystemVolume(this)
+        controls.volume = systemVolume.level()
+        controls.volumeSteps = systemVolume.steps
         status = SystemStatus(this).also {
             it.onChanged = {
                 controls.batteryPercent = it.batteryPercent
@@ -674,7 +679,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 if (switchingVideo && argUrl != null) notifyEnded()
                 val before = controls.format
                 if (sameVideo && request.url != argUrl && playback.isAlive) {
-                    playback.swapSource(request.url, muted = controls.muted, volume = controls.volume)
+                    playback.swapSource(request.url, muted = controls.muted)
                 }
                 applyRequest(request, switchingVideo)
                 if (!switchingVideo && screenEntity != null && ScreenGeometry.sameFamily(before, controls.format)) {
@@ -742,7 +747,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 val refreshing = sourceRefreshUntil != 0L
                 val current = sources.firstOrNull { it.label == controls.sourceLabel }
                 val swapped = current != null && !current.local &&
-                    playback.swapSource(current.url, muted = controls.muted, volume = controls.volume)
+                    playback.swapSource(current.url, muted = controls.muted)
                 if (swapped) {
                     argUrl = current!!.url
                     controls.buffering = true
@@ -887,7 +892,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         applyRequest(request, switchingVideo = true)
         val size = playback.commitPreloaded(
-            muted = controls.muted, volume = controls.volume,
+            muted = controls.muted,
             speed = controls.speed, repeatOne = controls.repeatMode == RepeatMode.ONE,
         )
         if (size != null) {
@@ -1970,6 +1975,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         syncMediaEffects()
         updateTransport()
         status.clockTextIfChanged(System.currentTimeMillis())?.let { controls.clockText = it }
+        tickSystemVolume(now)
         if (!inputSuspended) {
             input.poll()
             settleHeadPlacement()
@@ -2560,7 +2566,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (argMute) controls.muted = true
         val started = playback.play(
             url = url, surface = surface, startPositionMs = pendingStartMs,
-            muted = controls.muted, volume = controls.volume,
+            muted = controls.muted,
         )
         if (started) {
             // 从历史进度续播：面板上给一句提示 + 「从头开始」（与 2D 播放器同一套语义，只跳位置、不动历史记录）。
@@ -2579,8 +2585,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    private fun applyVolume() {
-        playback.setVolume(if (controls.muted) 0f else controls.volume)
+    /** 静音开关落到播放器。⛔ 音量大小不在这里 —— 那是系统那一根（[SystemVolume]）。 */
+    private fun applyMute() {
+        playback.setMuted(controls.muted)
+    }
+
+    /**
+     * 每帧问一次系统音量（[SystemVolume.poll] 自带 5 Hz 节流）。用户按了头显物理音量键、
+     * 或在通用菜单里拖了系统滑杆，面板上的百分比就是这么跟上的。
+     */
+    private fun tickSystemVolume(now: Long) {
+        systemVolume.poll(now) { level -> controls.volume = level }
     }
 
     private fun applyRepeatMode() {
@@ -2716,18 +2731,31 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             markPrefsDirty()
         }
 
+        /**
+         * 拖音量条：直接写系统音量。系统只有十几档，[SystemVolume.setLevel] 会落到最近一档并
+         * 把**落档后的真实值**还回来 —— 面板显示的百分比因此永远等于系统真在用的那个。
+         * ⛔ 不落偏好：系统音量是用户的，不是这个 App 的，下次进来照读系统的当前值。
+         */
         override fun onVolume(value: Float) {
             lastInteractionAt = SystemClock.uptimeMillis()
-            controls.volume = value.coerceIn(0f, 1f)
-            if (value > 0f) controls.muted = false
-            applyVolume()
-            markPrefsDirty()
+            val applied = systemVolume.setLevel(value)
+            if (applied == null) {
+                // 勿扰模式下 setStreamVolume 会被系统挡掉。宁可说一句，也不要假装调成功了。
+                controls.notice = text(UiR.string.xr_notice_volume_blocked)
+                return
+            }
+            controls.volume = applied
+            if (applied > 0f && controls.muted) {
+                controls.muted = false
+                applyMute()
+            }
         }
 
+        /** 静音只静**本应用**（官方媒体应用指引点名：system-wide mute is prohibited）。 */
         override fun onToggleMute() {
             touched()
             controls.muted = !controls.muted
-            applyVolume()
+            applyMute()
         }
 
         override fun onVolumePopup(open: Boolean) {
@@ -2988,7 +3016,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             touched()
             val option = controls.sources.firstOrNull { it.label == label } ?: return
             if (option.label == controls.sourceLabel) return
-            if (!playback.swapSource(option.url, muted = controls.muted, volume = controls.volume)) return
+            if (!playback.swapSource(option.url, muted = controls.muted)) return
             argUrl = option.url
             controls.sourceLabel = option.label
             controls.buffering = true
@@ -3493,7 +3521,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             if (kindChanged) {
                 playback.release()
                 rebuildScreen()
-            } else if (playback.restart(item.url, muted = controls.muted, volume = controls.volume, repeatOne = galleryRepeatOne())) {
+            } else if (playback.restart(item.url, muted = controls.muted, repeatOne = galleryRepeatOne())) {
                 controls.isPlaying = true
                 controls.buffering = true
                 playback.setSpeed(controls.speed)

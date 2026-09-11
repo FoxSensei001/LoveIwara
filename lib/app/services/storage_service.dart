@@ -70,6 +70,10 @@ enum SecureStorageHealth {
 
   /// 本会话不可用，敏感数据走降级加密兜底。
   unavailable,
+
+  /// 按平台策略主动不使用系统安全存储（**非故障**），敏感数据走本地加密兜底。
+  /// 与 [unavailable] 的区别是「不是坏了，是不用」——诊断页不该因此报红。
+  platformOptOut,
 }
 
 class StorageService {
@@ -81,6 +85,7 @@ class StorageService {
   StorageService._internal();
 
   GetStorage? _box;
+  // macOS 上这个实例不会被使用，原因见 init() 里的平台分支。
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   SecureFallbackCipher _fallbackCipher = SecureFallbackCipher();
 
@@ -124,6 +129,22 @@ class StorageService {
         _health = SecureStorageHealth.unavailable;
         _lastSecureError = 'Web 平台不支持安全存储';
         LogUtils.w('运行在 Web 上，不支持安全存储', _tag);
+      } else if (defaultTargetPlatform == TargetPlatform.macOS) {
+        // macOS 主动不用系统钥匙串，这是权衡后的选择，不是故障：
+        //
+        // - 插件默认走 data protection keychain，要求 keychain-access-groups
+        //   entitlement，而带该 entitlement 的 target 必须用开发证书签名；本项目
+        //   桌面包是 ad-hoc 签名分发的（见 macos/packaging/build_dmg.sh），加了
+        //   构建直接失败，不加则运行期报 -34018，安全存储整只降级。
+        // - 改走传统 file-based keychain 虽然能用，但钥匙串按代码签名认程序，
+        //   而 ad-hoc 签名每次构建/每次发版哈希都变，于是系统反复弹「想要访问
+        //   钥匙串」要求输密码——实测体验比不用还差，故放弃。
+        //
+        // 因此 macOS 直接走 AES-256-GCM 本地兜底（密钥在应用私有目录、排除系统
+        // 备份）。等将来有了 Developer ID 证书稳定签名，可以把这个分支去掉。
+        _useSecureStorage = false;
+        _health = SecureStorageHealth.platformOptOut;
+        LogUtils.i('macOS 按平台策略不使用系统钥匙串，敏感数据走本地加密兜底', _tag);
       } else {
         await _initSecureStorageWithSelfHeal();
       }

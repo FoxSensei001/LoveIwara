@@ -36,12 +36,10 @@ class MigrationV32LocalSourceMediaKinds extends Migration {
 
   @override
   void up(CommonDatabase db) {
-    final tableExists = db
-        .select(
-          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-          <Object?>['local_media_sources'],
-        )
-        .isNotEmpty;
+    final tableExists = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      <Object?>['local_media_sources'],
+    ).isNotEmpty;
     if (!tableExists) {
       // v30 会把表按新 DDL（默认 'both'）建出来，这里没有要补的。
       LogUtils.i('local_media_sources 尚不存在，跳过 v32', 'MigrationV32');
@@ -66,11 +64,4 @@ class MigrationV32LocalSourceMediaKinds extends Migration {
 
   /// ⛔ 回滚是**空操作**，不要"把 both 改回 video"。
   ///
-  /// 这条迁移不建表也不加列，它改的是一批行的取值，而且改完之后用户很可能已经
-  /// 扫进来一堆图片条目。回滚时把开关拨回 video 不会删掉那些条目，只会让下一次
-  /// 扫描把它们全判成「文件没了」——比什么都不做糟得多。
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('迁移v32 无需回滚（只改了 media_kinds 取值）', 'MigrationV32');
-  }
 }

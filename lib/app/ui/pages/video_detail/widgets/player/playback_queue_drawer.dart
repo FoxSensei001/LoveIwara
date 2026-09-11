@@ -1226,12 +1226,10 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     var favCount = 0;
     var pinnedCount = 0;
     try {
-      // ⛔ `excludeBuiltInSource` 必须跟池里那一行同真同假，否则菜单上写的数和
-      // 点进去那一池的条数对不上。
-      allCount = repository.countItems(
-        kind: _localItemKind,
-        excludeBuiltInSource: true,
-      );
+      // ⛔ 这里的口径必须跟 `LocalLibraryPlaybackQueue.fetchPage` 逐字一致，
+      // 否则菜单上写的数和点进去那一池的条数对不上。不限源 = 连内建的「已下载」
+      // 一起数（2026-09-11 起；排除口径已整只删除，见 `LocalMediaWall.sourceId`）。
+      allCount = repository.countItems(kind: _localItemKind);
       if (!_isGallery) {
         favCount = repository.countItems(
           kind: _localItemKind,
@@ -1688,8 +1686,16 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       //
       // ⛔ 只在源根这一层退化：更深的一层查不到目录行是真的出了问题，不能悄悄把
       // 整个源端上来。
-      final flatSource = folder == null && relPath.isEmpty && children.isEmpty;
       final path = folder?.folderPath;
+      // ⛔ 判据是「这个源根有没有一条真实路径」，不是「查不查得到目录行」。
+      // 「已下载」现在有源根那一行了（封面/置顶都挂在它上面，见
+      // [LocalMediaRepository.ensureSourceRootFolder]），但它的 `folder_path`
+      // 依旧是 NULL——按"有没有行"判的话，这个源会突然从"平的"变成"有目录的"，
+      // 于是「播放这个目录」那一条因为数不出条目而消失。
+      final flatSource =
+          relPath.isEmpty &&
+          children.isEmpty &&
+          (folder == null || path == null || path.isEmpty);
       final hereCount = flatSource
           ? repository.countItems(sourceId: sourceId, kind: _localItemKind)
           : (path == null || path.isEmpty

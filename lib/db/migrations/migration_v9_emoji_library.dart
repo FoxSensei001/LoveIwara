@@ -1,6 +1,7 @@
 import 'package:sqlite3/common.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'migration.dart';
+import 'migration_sql.dart';
 
 class MigrationV9EmojiLibrary extends Migration {
   @override
@@ -11,6 +12,33 @@ class MigrationV9EmojiLibrary extends Migration {
 
   @override
   void up(CommonDatabase db) {
+    // ⛔ 已经建过就整只跳过，不能只给 CREATE TABLE 加 IF NOT EXISTS 了事。
+    // 这条迁移除了建表还**灌种子数据**（senkosan / neko 两组表情），而 v11
+    // 删过其中一部分、v12 又改过 linux.do 那组。在已有数据的库上重跑会把
+    // v11 删掉的表情整批复活、并且把两个分组再插一遍。
+    if (tableExists(db, 'EmojiGroups')) {
+      // ⛔ 闸门要看**两张**表。只看 EmojiGroups 的话，「组在、图没了」这种半套
+      // 状态会被整只跳过，应用随后在表情面板上撞 `no such table: EmojiImages`。
+      // 正常路径产生不出这种状态（单条迁移是原子的），但这恰恰是
+      // DatabaseService.ensureCriticalSchema 自己列为"安全网存在理由"的那个
+      // 场景。既然那边承认这种状态会发生，这里的闸门就该跟它一致。
+      // 补表**不灌种子**：种子会复活 v11 删掉的表情。
+      if (!tableExists(db, 'EmojiImages')) {
+        db.execute('''
+          CREATE TABLE EmojiImages (
+            image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            group_id INTEGER NOT NULL,
+            url TEXT NOT NULL,
+            thumbnail_url TEXT,
+            FOREIGN KEY (group_id) REFERENCES EmojiGroups(group_id) ON DELETE CASCADE
+          );
+        ''');
+        LogUtils.w('迁移v9：EmojiGroups 在但 EmojiImages 缺失，已补建空表（不灌种子）');
+      }
+      LogUtils.i('迁移v9：EmojiGroups 已存在，跳过（重跑会复活 v11 删掉的表情）');
+      return;
+    }
+
     // 创建表情包分组表
     db.execute('''
       CREATE TABLE EmojiGroups (
@@ -177,15 +205,6 @@ class MigrationV9EmojiLibrary extends Migration {
       );
     }
 
-    db.execute('PRAGMA user_version = 9;');
     LogUtils.i('已应用迁移v9：创建表情包库表并插入默认数据');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TABLE IF EXISTS EmojiImages;');
-    db.execute('DROP TABLE IF EXISTS EmojiGroups;');
-    db.execute('PRAGMA user_version = 8;');
-    LogUtils.i('已回滚迁移v9：删除表情包库表');
   }
 }

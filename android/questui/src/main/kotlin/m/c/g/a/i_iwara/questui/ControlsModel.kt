@@ -327,9 +327,23 @@ class VideoControlsState {
      */
     val switching: Boolean get() = switchingToId != null
 
-    // ---- 音量（⛔ 只调应用音量，官方 Requirement） ----
+    // ---- 音量 ----
+
+    /**
+     * **系统**音量，0..1（Horizon OS 上就是 `STREAM_MUSIC`：头显物理音量键、通用菜单那根滑杆
+     * 调的同一个值）。沉浸态每帧读一次系统真值写进这里，所以它永远是「系统现在多大声」，
+     * 不是「用户上次把手指停在哪」。系统只有十几档，百分比会有台阶 —— 那是真相。
+     */
     var volume by mutableStateOf(1f)
+
+    /** 静音 —— ⛔ 只静**本应用**（官方媒体应用指引：system-wide mute is prohibited）。 */
     var muted by mutableStateOf(false)
+
+    /**
+     * 系统音量一共几段（档数 − 1）。Quest 3 实测 `STREAM_MUSIC` Max 15 ⇒ 这里是 15、共 16 档。
+     * 音量条按它画刻度点 —— 音量本来就是跳档的，画出来比让用户以为「拖不顺」诚实。
+     */
+    var volumeSteps by mutableStateOf(15)
 
     /** 音量竖向滑杆是否弹出（点 🔊 打开，在别处点关闭）。 */
     var volumePopupOpen by mutableStateOf(false)
@@ -485,7 +499,9 @@ interface VideoControlsCallbacks {
     fun onSeekBy(seconds: Int)
     fun onPickSpeed(speed: Float)
 
-    // ---- 音量（⛔ 只影响本应用） ----
+    // ---- 音量 ----
+
+    /** 拖音量条：[value] 0..1，落到**系统**音量上（会被落到最近一档）。 */
     fun onVolume(value: Float)
     fun onToggleMute()
     fun onVolumePopup(open: Boolean)

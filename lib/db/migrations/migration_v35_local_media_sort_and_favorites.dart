@@ -90,10 +90,4 @@ class MigrationV35LocalMediaSortAndFavorites extends Migration {
     }
     LogUtils.i('已为 local_media_items 创建聚合视图排序索引', 'MigrationV35');
   }
-
-  /// ⛔ 回滚不删列和索引：不冒重建表丢失数据的风险，避免开发与运行环境不一致。
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('迁移v35 不删列与索引（保留以防回滚数据风险）', 'MigrationV35');
-  }
 }

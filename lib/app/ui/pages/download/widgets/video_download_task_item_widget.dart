@@ -17,6 +17,7 @@ import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:open_file/open_file.dart';
 import 'package:super_clipboard/super_clipboard.dart';
@@ -822,10 +823,16 @@ class VideoDownloadTaskItem extends StatelessWidget {
       // 导航到本地视频播放页面。**把下载池一起交出去**：这样播放器里的
       // 「接着看」一开就落在「已下载」上，而且下一条同样用本地文件播
       // （见 DownloadsPlaybackQueue）。
+      //
+      // `localLibraryItemId` 也要给：同一个文件从「本机文件 › 下载完成视频」
+      // 点开时进度记在 `local_media_progress` 里，从这儿点开却记在别处、还读
+      // 不回来——详见 [LocalMediaRepository.getItemByDownloadTaskId] 的注释。
+      // 查不到（同步还没跑到）就还是 null，行为与从前一字不差。
       NaviService.navigateToLocalVideoPlayerPage(
         localPath: filePath,
         task: task,
         allQualityTasks: allQualityTasks,
+        localLibraryItemId: _resolveLocalLibraryItemId(),
         playbackQueueRef: await _openDownloadsQueueRef(videoData.id),
       );
     } catch (e) {
@@ -865,6 +872,19 @@ class VideoDownloadTaskItem extends StatelessWidget {
   /// 第一页先拉起来：池空着交过去的话，详情页那枚「下一个」会因为
   /// `loaded` 为空而缺席一小会儿。[mediaId] 为空（历史脏数据）就不给池——
   /// 池的游标就是 id，没有 id 定位不了自己。
+  /// 这条下载任务在本地库里的 id，拿它当进度钥匙（见
+  /// [LocalMediaRepository.getItemByDownloadTaskId]）。
+  ///
+  /// 读库失败不该拦住播放：吞掉异常、答 null，无非是这一次不续播。
+  String? _resolveLocalLibraryItemId() {
+    try {
+      return LocalMediaRepository().getItemByDownloadTaskId(task.id)?.id;
+    } catch (e) {
+      LogUtils.w('查本地库条目失败: $e', 'DownloadTaskItem');
+      return null;
+    }
+  }
+
   Future<PlaybackQueueRef?> _openDownloadsQueueRef(String? mediaId) async {
     final id = mediaId?.trim();
     if (id == null || id.isEmpty) return null;

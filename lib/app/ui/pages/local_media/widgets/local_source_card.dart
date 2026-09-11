@@ -26,6 +26,7 @@ class LocalSourceCardWidget extends StatelessWidget {
     required this.coverPath,
     required this.videoCount,
     required this.imageCount,
+    this.childFolderCount = 0,
     required this.onOpen,
     required this.onMenu,
     this.pinned = false,
@@ -36,6 +37,10 @@ class LocalSourceCardWidget extends StatelessWidget {
   final String? coverPath;
   final int videoCount;
   final int imageCount;
+
+  /// 「已下载」这张卡用它显示已下载图库的个数：图库是容器，和子目录同一种东西，
+  /// 所以共用文件夹那枚图标。
+  final int childFolderCount;
 
   /// 这个来源被设为常用了。⛔ 别忘了接：不接就是"在文件目录里收藏了、卡片上却
   /// 什么都不长"（2026-09-11 用户报的），星怎么画归 [LocalContainerCard]。
@@ -139,7 +144,11 @@ class LocalSourceCardWidget extends StatelessWidget {
             color: theme.colorScheme.outline,
           ),
         ),
-        LocalFolderCountLine(videoCount: videoCount, imageCount: imageCount),
+        LocalFolderCountLine(
+          childFolderCount: childFolderCount,
+          videoCount: videoCount,
+          imageCount: imageCount,
+        ),
       ],
     );
   }

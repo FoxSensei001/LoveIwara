@@ -42,12 +42,4 @@ class MigrationV20Oreno3dMatchCache extends Migration {
 
     LogUtils.i('已应用迁移v20：oreno3d_match_cache 表创建完成');
   }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v20');
-    db.execute('DROP INDEX IF EXISTS idx_oreno3d_match_cache_updated_at;');
-    db.execute('DROP TABLE IF EXISTS oreno3d_match_cache;');
-    LogUtils.i('已回滚迁移v20：oreno3d_match_cache 表已删除');
-  }
 }

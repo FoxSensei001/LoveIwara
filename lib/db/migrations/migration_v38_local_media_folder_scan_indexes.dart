@@ -39,12 +39,10 @@ class MigrationV38LocalMediaFolderScanIndexes extends Migration {
 
   @override
   void up(CommonDatabase db) {
-    final tableExists = db
-        .select(
-          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-          <Object?>['local_media_items'],
-        )
-        .isNotEmpty;
+    final tableExists = db.select(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      <Object?>['local_media_items'],
+    ).isNotEmpty;
     if (!tableExists) {
       LogUtils.i('local_media_items 尚不存在，跳过 v38', _tag);
       return;
@@ -62,17 +60,5 @@ class MigrationV38LocalMediaFolderScanIndexes extends Migration {
       db.execute(statement);
     }
     LogUtils.i('已应用迁移v38：目录条目查询索引补齐', _tag);
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    // 索引可以原样退回去——它不含任何数据。
-    db.execute('DROP INDEX IF EXISTS idx_local_items_folder_sort');
-    db.execute('DROP INDEX IF EXISTS idx_local_items_folder_kind_sort');
-    db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_local_items_folder '
-      'ON local_media_items(source_id, folder_path)',
-    );
-    LogUtils.i('迁移v38 已回滚', _tag);
   }
 }

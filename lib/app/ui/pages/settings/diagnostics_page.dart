@@ -18,6 +18,7 @@ import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/pages/settings/settings_navigation.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
@@ -239,7 +240,9 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
                       children: [
                         _buildInfoRow(
                           t.diagnostics.appVersionLabel,
-                          CommonConstants.VERSION,
+                          // 带 build 号：报障时「同一个 semver 的哪一次打包」
+                          // 常常正是要分辨的那一件事。
+                          CommonConstants.FULL_VERSION,
                         ),
                         const SizedBox(height: 4),
                         if (_deviceInfo.isNotEmpty)
@@ -252,6 +255,8 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
                           ),
                         const SizedBox(height: 4),
                         _buildSecureStorageRow(theme, t),
+                        const SizedBox(height: 4),
+                        _buildSchemaHealthRow(theme, t),
                       ],
                     ),
                   ),
@@ -763,12 +768,17 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
       SecureStorageHealth.recoveredAfterReset =>
         t.diagnostics.secureStorageRecovered,
       SecureStorageHealth.unavailable => t.diagnostics.secureStorageUnavailable,
+      SecureStorageHealth.platformOptOut =>
+        t.diagnostics.secureStoragePlatformOptOut,
     };
     final dualWrite = storage.secureStorageUntrusted
         ? t.diagnostics.secureStorageDualWrite
         : '';
+    final health = storage.secureStorageHealth;
+    // platformOptOut 是「按策略不用」而非故障，与 healthy 同样不报红。
     final healthy =
-        storage.secureStorageHealth == SecureStorageHealth.healthy &&
+        (health == SecureStorageHealth.healthy ||
+            health == SecureStorageHealth.platformOptOut) &&
         !storage.secureStorageUntrusted;
     final error = storage.secureStorageLastError;
 
@@ -801,6 +811,65 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               error,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// 数据库结构健康度。
+  ///
+  /// 正常情况下恒为「正常」。一旦显示「曾被安全网补建」，说明某台设备上
+  /// `user_version` 与实际 schema 对不上，迁移没把事做完——见
+  /// `DatabaseService._ensureCriticalSchema` 的文档。
+  ///
+  /// ⛔ 这一行存在的全部意义是**用户能截图发出来**：侧载分发没有遥测，
+  /// 只写进日志的东西在排障时拿不到。
+  Widget _buildSchemaHealthRow(ThemeData theme, slang.Translations t) {
+    final db = DatabaseService();
+    final repairedNow = db.schemaRepairs.isNotEmpty;
+    final record = db.lastSchemaRepairRecord;
+    final healthy = !repairedNow && record == null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              t.diagnostics.schemaHealthLabel,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                healthy
+                    ? t.diagnostics.schemaHealthOk
+                    : (repairedNow
+                          ? t.diagnostics.schemaHealthRepairedNow
+                          : t.diagnostics.schemaHealthRepairedBefore),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: healthy ? null : theme.colorScheme.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (record != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              record,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -887,9 +956,7 @@ class _DiagnosticsPageState extends State<DiagnosticsPage> {
                   onChanged(next);
                 }
               },
-        items: [
-          for (final e in options) GlassDropdownItem(value: e, label: e),
-        ],
+        items: [for (final e in options) GlassDropdownItem(value: e, label: e)],
       ),
     );
   }

@@ -179,12 +179,4 @@ class MigrationV36LocalMediaIndexDirection extends Migration {
       LogUtils.i('cover_borrowed 已存在，跳过添加', 'MigrationV36');
     }
   }
-
-  @override
-  void down(CommonDatabase db) {
-    // ⛔ 不回滚。
-    // 索引重建是纯性能改动，回滚成混向反而把慢查询装回去；两个新列留着是无害的
-    // （旧代码不读它们）。SQLite 早期版本也不支持 DROP COLUMN，同 v31~v35 的做法。
-    LogUtils.i('v36 无需回滚', 'MigrationV36');
-  }
 }

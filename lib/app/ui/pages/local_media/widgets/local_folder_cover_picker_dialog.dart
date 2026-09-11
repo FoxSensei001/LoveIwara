@@ -8,11 +8,14 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 从目录内已有的图里挑一张当封面。
+///
+/// [folderPath] 为 null 时是**平的源**（「已下载」「设备视频」没有目录树，见
+/// [LocalFolderActions]）：候选改从整个源里取，而不是某一个目录直属。
 Future<bool> showLocalFolderCoverPickerDialog({
   required BuildContext context,
   required String sourceId,
   required String relPath,
-  required String folderPath,
+  required String? folderPath,
 }) async {
   final result = await showAppDialog<bool>(
     _LocalFolderCoverPickerDialog(
@@ -34,7 +37,7 @@ class _LocalFolderCoverPickerDialog extends StatefulWidget {
 
   final String sourceId;
   final String relPath;
-  final String folderPath;
+  final String? folderPath;
 
   @override
   State<_LocalFolderCoverPickerDialog> createState() =>
@@ -54,10 +57,13 @@ class _LocalFolderCoverPickerDialogState
   void initState() {
     super.initState();
     final repository = LocalMediaRepository();
-    _candidates = repository.folderCoverCandidates(
-      sourceId: widget.sourceId,
-      folderPath: widget.folderPath,
-    );
+    final folderPath = widget.folderPath;
+    _candidates = (folderPath == null || folderPath.isEmpty)
+        ? repository.sourceCoverCandidates(sourceId: widget.sourceId)
+        : repository.folderCoverCandidates(
+            sourceId: widget.sourceId,
+            folderPath: folderPath,
+          );
     _currentCover = repository
         .getFolder(sourceId: widget.sourceId, relPath: widget.relPath)
         ?.coverPath;

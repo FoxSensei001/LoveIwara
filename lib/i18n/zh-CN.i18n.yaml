@@ -596,7 +596,6 @@ settings:
   updateContent: "更新内容："
   releaseDate: "发布日期"
   ignoreThisVersion: "忽略此版本"
-  minVersionUpdateRequired: "当前版本过低，请尽快更新"
   forceUpdateTip: "此版本为强制更新，请尽快更新到最新版本"
   viewChangelog: 查看更新日志
   alreadyLatestVersion: 已是最新版本
@@ -1712,6 +1711,10 @@ download:
     deleteTaskError: '任务删除失败'
     taskNotFound: '任务未找到'
     canNotRefreshVideoTask: '无法刷新视频任务'
+    videoRemovedCanNotRefresh: '视频已被删除或不存在，无法重新获取下载链接'
+    videoInaccessibleCanNotRefresh: '视频无法访问，可能已设为私密或需要重新登录'
+    videoQualityGone: '该清晰度已不再提供，请重新添加下载'
+    refreshLinkNetworkFailed: '网络异常，暂时无法重新获取下载链接，请稍后重试'
     taskAlreadyProcessing: '任务已处理中'
     failedToLoadTasks: '加载任务失败'
     partialDownloadFailedWithMessage: '部分下载失败: ${message}'
@@ -2208,7 +2211,12 @@ diagnostics:
   secureStorageHealthy: "可用"
   secureStorageRecovered: "已自愈重置（历史数据已清除）"
   secureStorageUnavailable: "不可用（登录态使用降级加密保存）"
+  secureStoragePlatformOptOut: "按平台策略使用本地加密（macOS 不使用系统钥匙串）"
   secureStorageDualWrite: "（双写保护已启用）"
+  schemaHealthLabel: "数据库结构"
+  schemaHealthOk: "正常"
+  schemaHealthRepairedNow: "本次启动被安全网补建（迁移未生效）"
+  schemaHealthRepairedBefore: "曾被安全网补建"
   logPolicySectionTitle: "日志策略"
   configServiceUnavailable: "配置服务未初始化，无法调整日志策略"
   enableLoggingTitle: "启用日志记录"
@@ -2994,16 +3002,24 @@ localMedia:
     emptyFolder: 这个文件夹是空的
     videosSection: 视频
     imagesSection: 图片
+    galleriesSection: 图库
     location: 位置
     sourceMissing: 这个来源已经不在了
     notScannedYet: 还没扫描过这个文件夹
     scanning: 正在读取这个文件夹…
     deleteFileTitle: 删除这个文件？
     deleteFileBody: '「${name}」会从这台设备上真的被删掉，不能撤销。'
+    deleteGalleryTitle: 删除这个图库？
+    deleteGalleryBody: '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。'
+    galleryResourceMissing: 本地资源已不存在，已清理该记录
+    viewDownloadDetail: 查看下载详情
+    viewOnlineGallery: 在网页中查看
     pickFolderTitle: 选择文件夹
     useThisFolder: 使用这个文件夹
     noSubfolders: 这里没有子文件夹
     storageRoot: 设备存储
+    homeFolder: 个人文件夹
+    filesystemRoot: 根目录
     folderUnreadable: 这个文件夹读不动
     setCover: 设置封面
     setAsFolderCover: 设为文件夹封面

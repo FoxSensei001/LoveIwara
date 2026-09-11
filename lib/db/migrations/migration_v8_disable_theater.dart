@@ -16,18 +16,6 @@ class MigrationV8DisableTheater extends Migration {
       SET value = 'false' 
       WHERE key = 'theater_mode';
     ''');
-    db.execute('PRAGMA user_version = 8;');
     LogUtils.i('已应用迁移v8：强制关闭剧院模式');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('''
-      UPDATE app_config 
-      SET value = 'true' 
-      WHERE key = 'theater_mode';
-    ''');
-    db.execute('PRAGMA user_version = 7;');
-    LogUtils.i('已回滚迁移v8：恢复剧院模式默认值');
   }
 }

@@ -87,9 +87,9 @@ void main() {
       insertRow(
         'KEHrdmtkdjEfeL',
         null,
-        now.subtract(Oreno3dMatchCacheRepository.negativeTtl).subtract(
-          const Duration(minutes: 1),
-        ),
+        now
+            .subtract(Oreno3dMatchCacheRepository.negativeTtl)
+            .subtract(const Duration(minutes: 1)),
       );
       expect(repo.lookup('KEHrdmtkdjEfeL', now: now), isNull);
     });
@@ -98,9 +98,9 @@ void main() {
       insertRow(
         'wZnIuPmUg9UoIX',
         '356315',
-        now.subtract(Oreno3dMatchCacheRepository.negativeTtl).subtract(
-          const Duration(minutes: 1),
-        ),
+        now
+            .subtract(Oreno3dMatchCacheRepository.negativeTtl)
+            .subtract(const Duration(minutes: 1)),
       );
       expect(repo.lookup('wZnIuPmUg9UoIX', now: now)!.oreno3dId, '356315');
     });
@@ -109,9 +109,9 @@ void main() {
       insertRow(
         'wZnIuPmUg9UoIX',
         '356315',
-        now.subtract(Oreno3dMatchCacheRepository.positiveTtl).subtract(
-          const Duration(days: 1),
-        ),
+        now
+            .subtract(Oreno3dMatchCacheRepository.positiveTtl)
+            .subtract(const Duration(days: 1)),
       );
       expect(repo.lookup('wZnIuPmUg9UoIX', now: now), isNull);
     });
@@ -192,18 +192,22 @@ void main() {
   });
 
   group('迁移', () {
-    test('up 可重复执行，down 清干净', () {
+    // 原先这条还断言 `down()` 能把表清干净。`Migration.down()` 已于 2026-09-11
+    // 整只删除（理由见 lib/db/migrations/migration.dart 的类文档）——但**幂等那
+    // 半句是有价值的那半**，留下来，并且补上「重跑不许动已有数据」。
+    test('up 可重复执行，且不动已有数据', () {
       MigrationV20Oreno3dMatchCache().up(db); // 幂等
       repo.remember('a', '1', now: now);
       expect(rowCount(), 1);
 
-      MigrationV20Oreno3dMatchCache().down(db);
+      MigrationV20Oreno3dMatchCache().up(db); // 再来一次
+      expect(rowCount(), 1, reason: '重跑不该清空或重复已有的缓存行');
       expect(
         db
             .select(
               "SELECT name FROM sqlite_master WHERE type='table' AND name='oreno3d_match_cache'",
             )
-            .isEmpty,
+            .isNotEmpty,
         isTrue,
       );
     });

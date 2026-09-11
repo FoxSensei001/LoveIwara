@@ -114,21 +114,6 @@ class MigrationV12LinuxDoEmojiUpdate extends Migration {
       );
     }
 
-    db.execute('PRAGMA user_version = 12;');
     LogUtils.i('已应用迁移v12：更新 neko 分组下的 linux.do 表情包完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v12：恢复 neko 分组下的 linux.do 表情包');
-
-    // 注意：由于我们删除了 linux.do 域名的表情，回滚时需要重新插入
-    // 这里需要从备份或其他地方恢复原始数据
-    // 目前先记录日志，实际回滚可能需要手动处理
-
-    LogUtils.w('迁移v12的回滚操作需要手动处理，因为原始 linux.do 表情包已被删除');
-
-    db.execute('PRAGMA user_version = 11;');
-    LogUtils.i('已回滚迁移v12：数据库版本已回退到 v11');
   }
 }

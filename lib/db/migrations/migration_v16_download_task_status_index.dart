@@ -21,15 +21,6 @@ class MigrationV16DownloadTaskStatusIndex extends Migration {
       'ON download_tasks(status, created_at);',
     );
 
-    db.execute('PRAGMA user_version = 16;');
     LogUtils.i('已应用迁移v16：download_tasks 状态索引创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v16：移除 download_tasks 状态索引');
-    db.execute('DROP INDEX IF EXISTS idx_download_tasks_status_created;');
-    db.execute('PRAGMA user_version = 15;');
-    LogUtils.i('已回滚迁移v16：数据库版本已回退到 v15');
   }
 }

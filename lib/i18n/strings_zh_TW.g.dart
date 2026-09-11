@@ -750,7 +750,6 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get updateContent => '更新內容';
 	@override String get releaseDate => '發布日期';
 	@override String get ignoreThisVersion => '忽略此版本';
-	@override String get minVersionUpdateRequired => '目前版本過低，請盡快更新';
 	@override String get forceUpdateTip => '此版本為強制更新，請盡快更新到最新版本';
 	@override String get viewChangelog => '查看更新日誌';
 	@override String get alreadyLatestVersion => '已是最新版本';
@@ -1782,7 +1781,12 @@ class _TranslationsDiagnosticsZhTw implements TranslationsDiagnosticsEn {
 	@override String get secureStorageHealthy => '可用';
 	@override String get secureStorageRecovered => '已自癒重置（歷史資料已清除）';
 	@override String get secureStorageUnavailable => '不可用（登入狀態使用降級加密保存）';
+	@override String get secureStoragePlatformOptOut => '依平台策略使用本機加密（macOS 不使用系統鑰匙圈）';
 	@override String get secureStorageDualWrite => '（雙寫保護已啟用）';
+	@override String get schemaHealthLabel => '資料庫結構';
+	@override String get schemaHealthOk => '正常';
+	@override String get schemaHealthRepairedNow => '本次啟動被安全網補建（遷移未生效）';
+	@override String get schemaHealthRepairedBefore => '曾被安全網補建';
 	@override String get logPolicySectionTitle => '日誌策略';
 	@override String get configServiceUnavailable => '設定服務未初始化，無法調整日誌策略';
 	@override String get enableLoggingTitle => '啟用日誌記錄';
@@ -3505,6 +3509,10 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 	@override String get deleteTaskError => '任務刪除失敗';
 	@override String get taskNotFound => '任務未找到';
 	@override String get canNotRefreshVideoTask => '無法重新整理影片任務';
+	@override String get videoRemovedCanNotRefresh => '影片已被刪除或不存在，無法重新取得下載連結';
+	@override String get videoInaccessibleCanNotRefresh => '影片無法存取，可能已設為私密或需要重新登入';
+	@override String get videoQualityGone => '該畫質已不再提供，請重新加入下載';
+	@override String get refreshLinkNetworkFailed => '網路異常，暫時無法重新取得下載連結，請稍後再試';
 	@override String get taskAlreadyProcessing => '任務已處理中';
 	@override String get failedToLoadTasks => '載入任務失敗';
 	@override String partialDownloadFailedWithMessage({required Object message}) => '部分下載失敗: ${message}';
@@ -3825,16 +3833,24 @@ class _TranslationsLocalMediaBrowseZhTw implements TranslationsLocalMediaBrowseE
 	@override String get emptyFolder => '這個資料夾是空的';
 	@override String get videosSection => '影片';
 	@override String get imagesSection => '圖片';
+	@override String get galleriesSection => '圖庫';
 	@override String get location => '位置';
 	@override String get sourceMissing => '這個來源已經不在了';
 	@override String get notScannedYet => '還沒掃描過這個資料夾';
 	@override String get scanning => '正在讀取這個資料夾…';
 	@override String get deleteFileTitle => '刪除這個檔案？';
 	@override String deleteFileBody({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。';
+	@override String get deleteGalleryTitle => '刪除這個圖庫？';
+	@override String deleteGalleryBody({required Object name}) => '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。';
+	@override String get galleryResourceMissing => '本地資源已不存在，已清理該記錄';
+	@override String get viewDownloadDetail => '查看下載詳情';
+	@override String get viewOnlineGallery => '在網頁中查看';
 	@override String get pickFolderTitle => '選擇資料夾';
 	@override String get useThisFolder => '使用這個資料夾';
 	@override String get noSubfolders => '這裡沒有子資料夾';
 	@override String get storageRoot => '裝置儲存空間';
+	@override String get homeFolder => '個人資料夾';
+	@override String get filesystemRoot => '根目錄';
 	@override String get folderUnreadable => '這個資料夾讀不動';
 	@override String get setCover => '設定封面';
 	@override String get setAsFolderCover => '設為資料夾封面';
@@ -4586,7 +4602,6 @@ extension on TranslationsZhTw {
 			'settings.updateContent' => '更新內容',
 			'settings.releaseDate' => '發布日期',
 			'settings.ignoreThisVersion' => '忽略此版本',
-			'settings.minVersionUpdateRequired' => '目前版本過低，請盡快更新',
 			'settings.forceUpdateTip' => '此版本為強制更新，請盡快更新到最新版本',
 			'settings.viewChangelog' => '查看更新日誌',
 			'settings.alreadyLatestVersion' => '已是最新版本',
@@ -5043,9 +5058,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.fixIssue' => '修復問題',
 			'settings.downloadSettings.issueFixed' => '問題已修復',
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
+			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
 			_ => null,
 		} ?? switch (path) {
-			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
 			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
@@ -5557,9 +5572,9 @@ extension on TranslationsZhTw {
 			'notifications.markAllAsReadSuccess' => '所有通知已標記為已讀',
 			'notifications.markAllAsReadFailed' => '全部標記已讀失敗',
 			'notifications.markSelectedAsRead' => '標記已讀',
+			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
 			_ => null,
 		} ?? switch (path) {
-			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
 			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
@@ -5663,6 +5678,10 @@ extension on TranslationsZhTw {
 			'download.errors.deleteTaskError' => '任務刪除失敗',
 			'download.errors.taskNotFound' => '任務未找到',
 			'download.errors.canNotRefreshVideoTask' => '無法重新整理影片任務',
+			'download.errors.videoRemovedCanNotRefresh' => '影片已被刪除或不存在，無法重新取得下載連結',
+			'download.errors.videoInaccessibleCanNotRefresh' => '影片無法存取，可能已設為私密或需要重新登入',
+			'download.errors.videoQualityGone' => '該畫質已不再提供，請重新加入下載',
+			'download.errors.refreshLinkNetworkFailed' => '網路異常，暫時無法重新取得下載連結，請稍後再試',
 			'download.errors.taskAlreadyProcessing' => '任務已處理中',
 			'download.errors.failedToLoadTasks' => '載入任務失敗',
 			'download.errors.partialDownloadFailedWithMessage' => ({required Object message}) => '部分下載失敗: ${message}',
@@ -6068,11 +6087,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.unrecognizedVideoFormat' => '無法識別的影片檔案',
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。',
 			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
 			'mediaPlayer.mute' => '靜音',
 			'mediaPlayer.unmute' => '取消靜音',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.video' => '影片',
 			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
@@ -6127,7 +6146,12 @@ extension on TranslationsZhTw {
 			'diagnostics.secureStorageHealthy' => '可用',
 			'diagnostics.secureStorageRecovered' => '已自癒重置（歷史資料已清除）',
 			'diagnostics.secureStorageUnavailable' => '不可用（登入狀態使用降級加密保存）',
+			'diagnostics.secureStoragePlatformOptOut' => '依平台策略使用本機加密（macOS 不使用系統鑰匙圈）',
 			'diagnostics.secureStorageDualWrite' => '（雙寫保護已啟用）',
+			'diagnostics.schemaHealthLabel' => '資料庫結構',
+			'diagnostics.schemaHealthOk' => '正常',
+			'diagnostics.schemaHealthRepairedNow' => '本次啟動被安全網補建（遷移未生效）',
+			'diagnostics.schemaHealthRepairedBefore' => '曾被安全網補建',
 			'diagnostics.logPolicySectionTitle' => '日誌策略',
 			'diagnostics.configServiceUnavailable' => '設定服務未初始化，無法調整日誌策略',
 			'diagnostics.enableLoggingTitle' => '啟用日誌記錄',
@@ -6577,6 +6601,8 @@ extension on TranslationsZhTw {
 			'savedSearchConfig.deleteSuccess' => '已刪除篩選設定',
 			'savedSearchConfig.addCurrent' => '儲存目前篩選',
 			'savedSearchConfig.reorderHint' => '長按拖曳可調整順序',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.rename' => '重新命名',
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部內容（無篩選）',
@@ -6585,8 +6611,6 @@ extension on TranslationsZhTw {
 			'savedSearch.empty' => '還沒有儲存的搜尋',
 			'savedSearch.saveTooltip' => '儲存目前搜尋',
 			'savedSearch.namePromptTitle' => '儲存搜尋',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名稱',
 			'savedSearch.nameHint' => '請輸入名稱',
 			'savedSearch.saveSuccess' => '已儲存搜尋',
@@ -6792,16 +6816,24 @@ extension on TranslationsZhTw {
 			'localMedia.browse.emptyFolder' => '這個資料夾是空的',
 			'localMedia.browse.videosSection' => '影片',
 			'localMedia.browse.imagesSection' => '圖片',
+			'localMedia.browse.galleriesSection' => '圖庫',
 			'localMedia.browse.location' => '位置',
 			'localMedia.browse.sourceMissing' => '這個來源已經不在了',
 			'localMedia.browse.notScannedYet' => '還沒掃描過這個資料夾',
 			'localMedia.browse.scanning' => '正在讀取這個資料夾…',
 			'localMedia.browse.deleteFileTitle' => '刪除這個檔案？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。',
+			'localMedia.browse.deleteGalleryTitle' => '刪除這個圖庫？',
+			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。',
+			'localMedia.browse.galleryResourceMissing' => '本地資源已不存在，已清理該記錄',
+			'localMedia.browse.viewDownloadDetail' => '查看下載詳情',
+			'localMedia.browse.viewOnlineGallery' => '在網頁中查看',
 			'localMedia.browse.pickFolderTitle' => '選擇資料夾',
 			'localMedia.browse.useThisFolder' => '使用這個資料夾',
 			'localMedia.browse.noSubfolders' => '這裡沒有子資料夾',
 			'localMedia.browse.storageRoot' => '裝置儲存空間',
+			'localMedia.browse.homeFolder' => '個人資料夾',
+			'localMedia.browse.filesystemRoot' => '根目錄',
 			'localMedia.browse.folderUnreadable' => '這個資料夾讀不動',
 			'localMedia.browse.setCover' => '設定封面',
 			'localMedia.browse.setAsFolderCover' => '設為資料夾封面',

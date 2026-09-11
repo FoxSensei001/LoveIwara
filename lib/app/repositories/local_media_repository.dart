@@ -773,6 +773,33 @@ class LocalMediaRepository {
     return LocalMediaItem.fromRow(rows.first);
   }
 
+  /// 这个下载任务落盘的那个文件，在本地库里是哪一条。
+  ///
+  /// # ⛔ 一个已下载的文件只能有**一把进度钥匙**
+  ///
+  /// 观看进度按 `local_media_items.id` 存（`local_media_progress`）。同一个已下载
+  /// 的视频有两个入口——「本机文件 › 下载完成视频」那张墙，和下载列表里的条目
+  /// ——而下载列表那头手上只有 `DownloadTask`，2026-09-11 之前它就直接传 null
+  /// 过去了。后果不是"少记一次"，是**两套进度各记各的，其中一套还只写不读**：
+  /// 下载列表那条路把进度按 Iwara videoId 写进 `video_playback_history`，而本地
+  /// 播放器的续播只问 `local_media_progress`（`_resolveLocalLibraryResumePosition`），
+  /// 从下载列表点开永远从头放，用户在另一栏里明明看得见进度条。
+  ///
+  /// 所以下载列表那条路也要先来这儿换一把同样的钥匙，见
+  /// `video_download_task_item_widget._playLocalVideo`。
+  ///
+  /// 查不到就答 null（同步服务还没跑到、任务行是历史脏数据），调用方照旧退回
+  /// 「这一次没有续播」——比拿一把错钥匙去写别人的进度强。
+  LocalMediaItem? getItemByDownloadTaskId(String taskId) {
+    if (taskId.isEmpty) return null;
+    final rows = _db.select(
+      'SELECT * FROM local_media_items WHERE download_task_id = ? LIMIT 1',
+      [taskId],
+    );
+    if (rows.isEmpty) return null;
+    return LocalMediaItem.fromRow(rows.first);
+  }
+
   /// Writes only successful content derivations for the exact file version
   /// that was inspected. A late result for a replaced or missing file is
   /// discarded by the fingerprint predicates.
@@ -979,7 +1006,6 @@ class LocalMediaRepository {
     LocalMediaOrder? order,
     String? folderPath,
     String? categoryId,
-    bool excludeBuiltInSource = false,
     bool includeMissing = false,
     bool favoritedOnly = false,
     required int offset,
@@ -990,9 +1016,6 @@ class LocalMediaRepository {
     if (sourceId != null) {
       where.add('source_id = ?');
       params.add(sourceId);
-    } else if (excludeBuiltInSource) {
-      where.add('source_id != ?');
-      params.add(kDownloadsSourceId);
     }
     if (folderPath != null) {
       where.add('folder_path = ?');
@@ -1035,7 +1058,6 @@ class LocalMediaRepository {
     LocalMediaOrder? order,
     String? folderPath,
     String? categoryId,
-    bool excludeBuiltInSource = false,
     bool includeMissing = false,
     bool favoritedOnly = false,
     required int limit,
@@ -1045,9 +1067,6 @@ class LocalMediaRepository {
     if (sourceId != null) {
       where.add('source_id = ?');
       params.add(sourceId);
-    } else if (excludeBuiltInSource) {
-      where.add('source_id != ?');
-      params.add(kDownloadsSourceId);
     }
     if (folderPath != null) {
       where.add('folder_path = ?');
@@ -1079,7 +1098,6 @@ class LocalMediaRepository {
     LocalMediaItemKind kind = LocalMediaItemKind.video,
     String? folderPath,
     String? categoryId,
-    bool excludeBuiltInSource = false,
     bool includeMissing = false,
     bool favoritedOnly = false,
   }) {
@@ -1088,9 +1106,6 @@ class LocalMediaRepository {
     if (sourceId != null) {
       where.add('source_id = ?');
       params.add(sourceId);
-    } else if (excludeBuiltInSource) {
-      where.add('source_id != ?');
-      params.add(kDownloadsSourceId);
     }
     if (folderPath != null) {
       where.add('folder_path = ?');
@@ -2051,6 +2066,158 @@ class LocalMediaRepository {
         } else {
           candidate = row['thumb_path'] as String?;
         }
+      }
+      if (candidate != null && candidate.isNotEmpty && seen.add(candidate)) {
+        result.add(candidate);
+        if (result.length >= limit) break;
+      }
+    }
+    return result;
+  }
+
+  /// 给「没有真实目录树」的源（「已下载」「设备视频」）补上**源根那一行**目录记录。
+  ///
+  /// # 为什么它必须存在
+  ///
+  /// 封面、置顶、「设为封面 / 恢复自动封面」全都挂在 `local_media_folders` 上。
+  /// 这两个源一行都不写，于是 [setFolderCover] 永远更新 0 行——用户在「已下载」
+  /// 上既看不到自动封面，也**没有任何入口**手动挑一张（2026-09-11 用户报的）。
+  ///
+  /// # ⛔ 这一行的 `folder_path` 必须是 NULL
+  ///
+  /// 它是"源根"而不是"某个目录"：文件散在各个下载目录里。判断一个源是不是平的，
+  /// 判据从此是**这一行有没有 folder_path**，不再是"查不查得到行"——调用点
+  /// （目录浏览页、播放队列抽屉、目录信息弹窗）都按这个口径写。
+  ///
+  /// 计数每次调用都跟着更新，封面那几列一个字都不动（那是 [setFolderCover] 与
+  /// [backfillSourceRootCoverFromItems] 的地盘）。
+  void ensureSourceRootFolder({
+    required String sourceId,
+    required String displayName,
+    required int videoCount,
+    required int imageCount,
+  }) {
+    // ⛔ 没变化就一个字都不要写：这个方法每次同步、每条下载完成都会被调用，
+    // 无脑 upsert 就是一次 `notifyFolderChanged()`，而那条信号会把首页的来源卡
+    // 与常用目录整个重查一遍。
+    final existing = getFolder(sourceId: sourceId, relPath: '');
+    if (existing != null &&
+        existing.name == displayName &&
+        existing.videoCount == videoCount &&
+        existing.imageCount == imageCount &&
+        !existing.missing) {
+      return;
+    }
+
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _db.execute(
+      'INSERT INTO local_media_folders '
+      '(id, source_id, rel_path, parent_rel_path, name, sort_name, '
+      ' folder_path, video_count, image_count, child_folder_count, '
+      ' missing, probed_at) '
+      'VALUES (?, ?, \'\', NULL, ?, ?, NULL, ?, ?, 0, 0, ?) '
+      'ON CONFLICT(id) DO UPDATE SET '
+      '  name = excluded.name, sort_name = excluded.sort_name, '
+      '  video_count = excluded.video_count, '
+      '  image_count = excluded.image_count, '
+      '  missing = 0, probed_at = excluded.probed_at',
+      <Object?>[
+        LocalMediaFolder.buildId(sourceId, ''),
+        sourceId,
+        displayName,
+        displayName.toLowerCase(),
+        videoCount,
+        imageCount,
+        now,
+      ],
+    );
+    notifyFolderChanged();
+  }
+
+  /// 用整个来源里最新的那张图回填**源根**的封面。
+  ///
+  /// [backfillFolderCoverFromItems] 按 `folder_path` 找候选，平的源没有那条路径，
+  /// 于是永远回填不到。用户挑过的封面（`cover_pinned`）不动，自己借来的那张
+  /// （`cover_borrowed`）可以换成更新的一张。
+  bool backfillSourceRootCoverFromItems(String sourceId) {
+    final candidates = sourceCoverCandidates(sourceId: sourceId, limit: 1);
+    if (candidates.isEmpty) return false;
+    _db.execute(
+      'UPDATE local_media_folders '
+      'SET cover_path = ?, cover_borrowed = 1 '
+      'WHERE source_id = ? AND rel_path = \'\' AND cover_pinned = 0 '
+      '  AND (cover_path IS NULL OR cover_path = \'\' OR cover_borrowed = 1) '
+      '  AND (cover_path IS NULL OR cover_path <> ?)',
+      <Object?>[candidates.first, sourceId, candidates.first],
+    );
+    final ok = _db.updatedRows > 0;
+    if (ok) notifyFolderChanged();
+    return ok;
+  }
+
+  /// 整个来源里能当封面的图，新的在前。
+  ///
+  /// # ⛔ 为什么不能沿用 [folderCoverCandidates]
+  ///
+  /// 那个按 `folder_path` 收口，前提是这个源有一棵真实的目录树。「已下载」没有
+  /// （文件散在各个下载目录里，源根本身没有路径），「设备视频」也没有。于是这两个
+  /// 源既选不出封面、也挑不了封面——用户看到的就是一张永远空着的夹子，右键菜单里
+  /// 连「设为封面」都没有（2026-09-11 用户报的）。
+  ///
+  /// # ⛔ 判据是「有没有图」，不是「是不是最新那一条」
+  ///
+  /// 首页原先的兜底是"取最新的一个视频，用它的缩略图"。缩略图是**滚进视野才生成**
+  /// 的（见 `LocalMediaDerivationService.enqueue` 的 `generateThumbnail`），最新那条
+  /// 十有八九还没有——于是明明有几十条带图的条目，卡片照样空着。这里把「有图」写进
+  /// WHERE，取的是**最新的有图的那一条**。
+  List<String> sourceCoverCandidates({
+    required String sourceId,
+    int limit = 60,
+  }) {
+    // ⛔ 必须按 kind 分两条查，不能写成一条 `kind = ? OR 有图` 的 OR。
+    // 本表的分页索引一律以 `kind` 打头（见 v36 迁移里那串 `idx_local_items_page_*`），
+    // 不带 kind 的查询用不上任何一条，会退化成全表扫 + TEMP B-TREE 重排——数据量小时
+    // 完全隐形，几千条之后就是每 400ms 一次的卡顿。分开查，两条都走
+    // `(kind, source_id, missing, added_at, id)`，「有没有图」只是顺着索引扫的残余过滤，
+    // 找到 LIMIT 条就停。
+    List<Map<String, Object?>> pick(String kind, String extraWhere) => _db
+        .select(
+          'SELECT kind, path, sidecar_image_path, thumb_path, added_at '
+          'FROM local_media_items '
+          'WHERE kind = ? AND source_id = ? AND missing = 0$extraWhere '
+          'ORDER BY added_at DESC, id ASC '
+          'LIMIT ?',
+          <Object?>[kind, sourceId, limit],
+        )
+        .map((row) => <String, Object?>{for (final k in row.keys) k: row[k]})
+        .toList();
+
+    final rows =
+        <Map<String, Object?>>[
+          ...pick(
+            LocalMediaItemKind.video.name,
+            ' AND ((sidecar_image_path IS NOT NULL AND sidecar_image_path <> \'\') '
+            'OR (thumb_path IS NOT NULL AND thumb_path <> \'\'))',
+          ),
+          ...pick(LocalMediaItemKind.image.name, ''),
+        ]..sort((a, b) {
+          final aAdded = (a['added_at'] as int?) ?? 0;
+          final bAdded = (b['added_at'] as int?) ?? 0;
+          return bAdded.compareTo(aAdded);
+        });
+
+    final result = <String>[];
+    final seen = <String>{};
+    for (final row in rows) {
+      final kind = row['kind'] as String?;
+      String? candidate;
+      if (kind == LocalMediaItemKind.image.name || kind == 'image') {
+        candidate = row['path'] as String?;
+      } else {
+        final sidecar = row['sidecar_image_path'] as String?;
+        candidate = (sidecar != null && sidecar.isNotEmpty)
+            ? sidecar
+            : row['thumb_path'] as String?;
       }
       if (candidate != null && candidate.isNotEmpty && seen.add(candidate)) {
         result.add(candidate);

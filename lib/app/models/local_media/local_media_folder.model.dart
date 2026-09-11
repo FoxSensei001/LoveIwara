@@ -174,7 +174,9 @@ class LocalMediaFolder {
       id: id ?? this.id,
       sourceId: sourceId ?? this.sourceId,
       relPath: relPath ?? this.relPath,
-      parentRelPath: setParentRelPathNull ? null : (parentRelPath ?? this.parentRelPath),
+      parentRelPath: setParentRelPathNull
+          ? null
+          : (parentRelPath ?? this.parentRelPath),
       name: name ?? this.name,
       sortName: sortName ?? this.sortName,
       folderPath: setFolderPathNull ? null : (folderPath ?? this.folderPath),

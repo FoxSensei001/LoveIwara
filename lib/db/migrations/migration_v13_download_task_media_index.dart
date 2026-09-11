@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:sqlite3/common.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'migration.dart';
+import 'migration_sql.dart';
 
 /// v13: 为 download_tasks 增加媒体维度字段及索引
 class MigrationV13DownloadTaskMediaIndex extends Migration {
@@ -17,10 +18,11 @@ class MigrationV13DownloadTaskMediaIndex extends Migration {
   void up(CommonDatabase db) {
     LogUtils.i('开始执行迁移v13：为 download_tasks 增加媒体字段与索引');
 
-    // 增加可空字段，兼容旧数据
-    db.execute("ALTER TABLE download_tasks ADD COLUMN media_type TEXT;");
-    db.execute("ALTER TABLE download_tasks ADD COLUMN media_id TEXT;");
-    db.execute("ALTER TABLE download_tasks ADD COLUMN quality TEXT;");
+    // 增加可空字段，兼容旧数据。缺列才加——版本号与实际 schema 对不上时
+    // （见 migration_sql.dart 顶部说明）不该撞 duplicate column name。
+    addColumnIfMissing(db, 'download_tasks', 'media_type', 'TEXT');
+    addColumnIfMissing(db, 'download_tasks', 'media_id', 'TEXT');
+    addColumnIfMissing(db, 'download_tasks', 'quality', 'TEXT');
 
     // 为高频查询建立索引
     db.execute(
@@ -122,19 +124,6 @@ class MigrationV13DownloadTaskMediaIndex extends Migration {
       );
     }
 
-    db.execute('PRAGMA user_version = 13;');
     LogUtils.i('已应用迁移v13：download_tasks 媒体字段与索引创建完成');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v13：移除 download_tasks 的媒体索引');
-
-    // 仅删除索引，保留新增列，避免复杂的表重建逻辑
-    db.execute('DROP INDEX IF EXISTS idx_download_tasks_media_type_id;');
-    db.execute('DROP INDEX IF EXISTS idx_download_tasks_video_quality;');
-
-    db.execute('PRAGMA user_version = 12;');
-    LogUtils.i('已回滚迁移v13：数据库版本已回退到 v12');
   }
 }

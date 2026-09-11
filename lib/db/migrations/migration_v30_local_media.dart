@@ -345,13 +345,4 @@ class MigrationV30LocalMedia extends Migration {
     }
     return repaired;
   }
-
-  @override
-  void down(CommonDatabase db) {
-    LogUtils.i('开始回滚迁移v30');
-    db.execute('DROP TABLE IF EXISTS local_media_progress;');
-    db.execute('DROP TABLE IF EXISTS local_media_items;');
-    db.execute('DROP TABLE IF EXISTS local_media_sources;');
-    LogUtils.i('已回滚迁移v30：本地媒体库三表已删除');
-  }
 }

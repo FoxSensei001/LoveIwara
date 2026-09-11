@@ -28,13 +28,13 @@ class MigrationV1Initial extends Migration {
 
     // 创建索引
     db.execute('''
-      CREATE INDEX idx_sign_in_records_user_date
+      CREATE INDEX IF NOT EXISTS idx_sign_in_records_user_date
       ON sign_in_records(user_id, date);
     ''');
 
     // 创建触发器：自动更新updated_at
     db.execute('''
-      CREATE TRIGGER trigger_sign_in_records_updated_at
+      CREATE TRIGGER IF NOT EXISTS trigger_sign_in_records_updated_at
       AFTER UPDATE ON sign_in_records
       BEGIN
         UPDATE sign_in_records
@@ -56,7 +56,7 @@ class MigrationV1Initial extends Migration {
 
     // 创建commons表的触发器
     db.execute('''
-      CREATE TRIGGER trigger_commons_updated_at
+      CREATE TRIGGER IF NOT EXISTS trigger_commons_updated_at
       AFTER UPDATE ON commons
       BEGIN
         UPDATE commons
@@ -65,18 +65,6 @@ class MigrationV1Initial extends Migration {
       END;
     ''');
 
-    db.execute('PRAGMA user_version=1;');
     LogUtils.i('已应用迁移v1：创建戒律签到表和通用配置表');
-  }
-
-  @override
-  void down(CommonDatabase db) {
-    db.execute('DROP TRIGGER IF EXISTS trigger_sign_in_records_updated_at;');
-    db.execute('DROP INDEX IF EXISTS idx_sign_in_records_user_date;');
-    db.execute('DROP TABLE IF EXISTS sign_in_records;');
-    db.execute('DROP TRIGGER IF EXISTS trigger_commons_updated_at;');
-    db.execute('DROP TABLE IF EXISTS commons;');
-    db.execute('PRAGMA user_version=0;');
-    LogUtils.i('已回滚迁移v1：删除戒律签到表和通用配置表');
   }
 }
