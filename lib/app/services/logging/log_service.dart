@@ -249,7 +249,13 @@ class LogService extends GetxService {
       _buffer.pushToRingOnly(processed);
     }
 
-    if (_policy.persistenceEnabled && level.value >= LogLevel.error.value) {
+    // ⛔ 门槛是 warning，不是 error。
+    //
+    // 真机排障靠的就是这个文件，而**最有用的那条往往只是 warning**（权限没拿到、
+    // 文件读不动、seek 失败）。2026-09-10 在 Quest 上查三个 bug 时，app.log 落后了
+    // 七分钟、且一条 warn/error 都没有——只能靠用户复述。warning 本身有去抖窗口
+    // 合批，不会退化成逐条 fsync。
+    if (_policy.persistenceEnabled && level.value >= LogLevel.warning.value) {
       _scheduleErrorFlush();
     }
   }

@@ -24,7 +24,7 @@ void main() {
       .where((s) => s != ShortcutScope.global)
       .toList();
 
-  test('每个叶子作用域都有且仅有注册表这一个入口', () {
+  test('每个叶子作用域都经注册表入口（可以有多个注册者）', () {
     for (final scope in leafScopes) {
       final registrars = <String>[];
       final resolvers = <String>[];
@@ -57,11 +57,23 @@ void main() {
         }
       }
 
+      // ⛔ 这里判的是「有没有」，**不是「只有一个」**。
+      //
+      // [ShortcutTargetRegistry] 本来就是一只后进先出的栈，谁接管由各自的
+      // `isEligible` 实时决定（它的类注释里写着「视频详情页可以层层叠加」）。
+      // 同一个作用域有多个注册者是设计内的：图库域现在就有两个——大图页
+      // （`my_gallery_photo_view_wrapper`）和长按预览弹窗
+      // （`media_preview_dialog`），两块位置翻的是同一批图，弹窗盖上来时它在
+      // 栈顶先被问到。
+      //
+      // 写死 1 只是「当初恰好只有一个消费者」的快照，加第二块会翻的位置时就会
+      // 假红。真正要防的是下面那两条：解析了却没注册（＝还挂在自己的 Focus
+      // 上，焦点一外移就静默失效），以及用 Focus.onKeyEvent 自收（会双触发）。
       expect(
         registrars,
-        hasLength(1),
+        isNotEmpty,
         reason:
-            '$scope 应当恰好有一个注册点，实际: $registrars\n'
+            '$scope 一个注册点都没有。'
             '没有＝它还挂在自己的 Focus 上，焦点一旦外移快捷键就静默失效。',
       );
       for (final resolver in resolvers) {
