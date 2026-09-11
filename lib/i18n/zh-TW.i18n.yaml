@@ -3120,6 +3120,8 @@ localMedia:
   removeSourceTitle: "移除「${name}」？"
   removeSourceBody: 磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。
   remove: 移除
+  removeFolder: 移除資料夾
+  removeFolderSelectTitle: 選擇要移除的資料夾
   longPressToRemove: 長按可移除這個資料夾
   clearProgress: 清除本機觀看記錄
   clearProgressCount: "共 ${count} 筆"

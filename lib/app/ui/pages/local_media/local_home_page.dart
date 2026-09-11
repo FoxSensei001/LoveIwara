@@ -867,9 +867,11 @@ class _LocalHomePageState extends State<LocalHomePage>
         GlassTokens.headerRowHeight + _headerRowGap + GlassTokens.pillHeight;
     final double headerExtent = statusBarHeight + headerHeight;
 
+    final bool isMobile = MediaQuery.sizeOf(context).width <= 600;
+
     // ⛔ 顺序必须与 [_tabFolders] 那几个常量、以及下面 TabBarView 的 children
-    // 一一对上。七栏在手机上肯定摆不下——[GlassAdaptiveSegmentedControl] 会自己
-    // 退化成一枚下拉钮，不要在这里另做窄屏分支。
+    // 一一对上。手机布局（宽 <= 600）时强制退化为下拉钮（select 布局）；
+    // 宽屏时若 7 个段无法完整平铺，同样自适应退化为下拉钮。
     final tabItems = [
       GlassSegmentItem(
         label: slang.t.localMedia.tabFolders,
@@ -939,6 +941,8 @@ class _LocalHomePageState extends State<LocalHomePage>
                       child: GlassAdaptiveSegmentedControl(
                         selectedIndex: _tabController.index,
                         progress: _tabController.animation,
+                        dropdownOnly: isMobile,
+                        minVisibleItems: tabItems.length.toDouble(),
                         onChanged: (index) {
                           _tabController.animateTo(index);
                           setState(() {});
@@ -1064,6 +1068,7 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   Widget _buildHeaderActions(BuildContext context) {
     final t = slang.t.localMedia;
+    final removableSources = _sources.where((s) => !s.isBuiltIn).toList();
     return GlassButtonGroup(
       children: [
         Builder(
@@ -1081,6 +1086,13 @@ class _LocalHomePageState extends State<LocalHomePage>
                     icon: Icons.create_new_folder_outlined,
                     enabled: !_addingSource,
                   ),
+                  if (removableSources.isNotEmpty)
+                    GlassMenuOption<String>(
+                      value: 'removeFolder',
+                      label: t.removeFolder,
+                      icon: Icons.folder_delete_outlined,
+                      destructive: true,
+                    ),
                   if (_canScanDeviceVideos)
                     GlassMenuOption<String>(
                       value: 'addDeviceVideos',
@@ -1095,8 +1107,13 @@ class _LocalHomePageState extends State<LocalHomePage>
                   ),
                 ],
               );
-              if (!mounted || action == null) return;
+              if (!mounted || !anchorContext.mounted || action == null) return;
               if (action == 'addFolder') unawaited(_addSource());
+              if (action == 'removeFolder') {
+                unawaited(
+                  _handleRemoveFolderAction(anchorContext, removableSources),
+                );
+              }
               if (action == 'addDeviceVideos') {
                 unawaited(_addMediaStoreSource());
               }
@@ -1106,6 +1123,33 @@ class _LocalHomePageState extends State<LocalHomePage>
         ),
       ],
     );
+  }
+
+  Future<void> _handleRemoveFolderAction(
+    BuildContext anchorContext,
+    List<LocalMediaSource> sources,
+  ) async {
+    if (sources.isEmpty) return;
+    if (sources.length == 1) {
+      await _remove(sources.first);
+      return;
+    }
+    if (!anchorContext.mounted) return;
+    final chosen = await showGlassMenu<LocalMediaSource>(
+      anchorContext: anchorContext,
+      entries: [
+        GlassMenuSectionHeader(slang.t.localMedia.removeFolderSelectTitle),
+        for (final source in sources)
+          GlassMenuOption<LocalMediaSource>(
+            value: source,
+            label: source.displayName,
+            description: source.path,
+            icon: Icons.folder_outlined,
+          ),
+      ],
+    );
+    if (!mounted || chosen == null) return;
+    await _remove(chosen);
   }
 
   Widget _buildResponsiveBody(BuildContext context, double headerExtent) {
@@ -1279,6 +1323,14 @@ class _LocalHomePageState extends State<LocalHomePage>
                   // 常用目录进和从文件目录进看到的能力不一样，正是用户说的"内外
                   // 没对齐"那个毛病的另一半。
                   canRescan: true,
+                  onRemove: pinned.relPath.isEmpty
+                      ? () async {
+                          final source = _repository.getSource(pinned.sourceId);
+                          if (source != null && !source.isBuiltIn) {
+                            await _remove(source);
+                          }
+                        }
+                      : null,
                   onChanged: () {
                     if (!mounted) return;
                     _reloadPinnedFolders();

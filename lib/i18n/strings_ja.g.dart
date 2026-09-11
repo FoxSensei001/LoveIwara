@@ -2653,6 +2653,8 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String removeSourceTitle({required Object name}) => '「${name}」を削除しますか？';
 	@override String get removeSourceBody => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。';
 	@override String get remove => '削除';
+	@override String get removeFolder => 'フォルダーを削除';
+	@override String get removeFolderSelectTitle => '削除するフォルダーを選択';
 	@override String get longPressToRemove => '長押しでこのフォルダーを削除';
 	@override String get clearProgress => 'ローカル視聴履歴を消去';
 	@override String clearProgressCount({required Object count}) => '${count} 件';
@@ -6930,6 +6932,8 @@ extension on TranslationsJa {
 			'localMedia.removeSourceTitle' => ({required Object name}) => '「${name}」を削除しますか？',
 			'localMedia.removeSourceBody' => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。',
 			'localMedia.remove' => '削除',
+			'localMedia.removeFolder' => 'フォルダーを削除',
+			'localMedia.removeFolderSelectTitle' => '削除するフォルダーを選択',
 			'localMedia.longPressToRemove' => '長押しでこのフォルダーを削除',
 			'localMedia.clearProgress' => 'ローカル視聴履歴を消去',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} 件',

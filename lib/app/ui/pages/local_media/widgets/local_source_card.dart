@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 本机文件根页上的一个来源。
@@ -114,15 +115,36 @@ class LocalSourceCardWidget extends StatelessWidget {
       onMenu: onMenu,
       pinned: pinned,
       cover: _buildCover(context),
-      // 扫描中把 ⋮ 换成一枚转圈。⚠️ 只换角标，**长按照常开菜单**——扫描时想把这个
-      // 源设为常用、改封面都还是合理的，没有理由连入口一起收走。
+      // 扫描中把角标套上转圈指示器，同时保留 ⋮ 菜单入口和点击响应——扫描中想移除、
+      // 设为常用、改封面等操作随时都能点得动，绝不能把入口藏掉。
       trailing: scanning
-          ? const LocalCardBadge(
-              child: Padding(
-                padding: EdgeInsets.all(9),
-                child: SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+          ? LocalCardBadge(
+              child: Builder(
+                builder: (anchorContext) => GlassTapArea(
+                  onTap: () => onMenu(anchorContext),
+                  onLongPress: () => onMenu(anchorContext),
+                  opensOverlay: true,
+                  longPressOpensOverlay: true,
+                  child: Padding(
+                    padding: const EdgeInsets.all(LocalCardMenuBadge.iconPadding),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox.square(
+                          dimension: LocalCardMenuBadge.iconSize,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.more_vert,
+                          size: 14,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             )
@@ -137,11 +159,15 @@ class LocalSourceCardWidget extends StatelessWidget {
           ),
         ),
         Text(
-          _subtitle,
+          scanning
+              ? slang.t.localMedia.scanning(count: videoCount + imageCount)
+              : _subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.outline,
+            color: scanning
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outline,
           ),
         ),
         LocalFolderCountLine(

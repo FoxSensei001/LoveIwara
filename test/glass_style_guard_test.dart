@@ -488,6 +488,7 @@ const _opensOverlayExemptFiles = <String>{
   // 与 local_folder_browse_page 里的图片格。
   'lib/app/ui/pages/local_media/widgets/local_media_item_menu.dart',
   'lib/app/ui/pages/local_media/widgets/local_folder_menu.dart',
+  'lib/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart',
 };
 
 /// 硬编码的液态档供档点：`backend: GlassBackend.liquidWidgets` 之类。

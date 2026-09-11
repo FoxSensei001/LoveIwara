@@ -3116,6 +3116,8 @@ localMedia:
   removeSourceTitle: "Remove \"${name}\"?"
   removeSourceBody: The files stay on disk. Only this library entry is removed.
   remove: Remove
+  removeFolder: Remove folder
+  removeFolderSelectTitle: Select folder to remove
   longPressToRemove: Long-press to remove this folder
   clearProgress: Clear local watch history
   clearProgressCount: "${count} entries"

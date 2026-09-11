@@ -610,9 +610,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         ? (_source?.displayName ?? '')
         : _folder!.name,
     canRescan: _source != null && Get.isRegistered<LocalMediaScanService>(),
-    // 「移除来源」只在**来源根**这一层给得出来（子目录没有"移除"这回事），
-    // 而且内建的「已下载」删不得——它由下载模块自动维护。
-    onRemove: (widget.relPath.isEmpty && _source != null && !_source!.isBuiltIn)
+    // 「移除来源」：只要当前脚下这个源不是内建源，随时支持从浏览页中移除。
+    // 删完后 pop 弹回外层页面。
+    onRemove: (_source != null && !_source!.isBuiltIn)
         ? () => unawaited(_removeThisSource())
         : null,
     onChanged: () {

@@ -3117,6 +3117,8 @@ localMedia:
   removeSourceTitle: "「${name}」を削除しますか？"
   removeSourceBody: ディスク上のファイルはそのままです。ライブラリーから外すだけです。
   remove: 削除
+  removeFolder: フォルダーを削除
+  removeFolderSelectTitle: 削除するフォルダーを選択
   longPressToRemove: 長押しでこのフォルダーを削除
   clearProgress: ローカル視聴履歴を消去
   clearProgressCount: "${count} 件"

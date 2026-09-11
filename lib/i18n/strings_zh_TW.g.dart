@@ -2653,6 +2653,8 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	@override String removeSourceTitle({required Object name}) => '移除「${name}」？';
 	@override String get removeSourceBody => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。';
 	@override String get remove => '移除';
+	@override String get removeFolder => '移除資料夾';
+	@override String get removeFolderSelectTitle => '選擇要移除的資料夾';
 	@override String get longPressToRemove => '長按可移除這個資料夾';
 	@override String get clearProgress => '清除本機觀看記錄';
 	@override String clearProgressCount({required Object count}) => '共 ${count} 筆';
@@ -6930,6 +6932,8 @@ extension on TranslationsZhTw {
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
 			'localMedia.removeSourceBody' => '磁碟上的檔案一個不動，只是把它從本機媒體庫移出去。',
 			'localMedia.remove' => '移除',
+			'localMedia.removeFolder' => '移除資料夾',
+			'localMedia.removeFolderSelectTitle' => '選擇要移除的資料夾',
 			'localMedia.longPressToRemove' => '長按可移除這個資料夾',
 			'localMedia.clearProgress' => '清除本機觀看記錄',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 筆',

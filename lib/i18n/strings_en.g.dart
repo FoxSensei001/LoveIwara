@@ -6671,6 +6671,12 @@ class TranslationsLocalMediaEn {
 	/// en: 'Remove'
 	String get remove => 'Remove';
 
+	/// en: 'Remove folder'
+	String get removeFolder => 'Remove folder';
+
+	/// en: 'Select folder to remove'
+	String get removeFolderSelectTitle => 'Select folder to remove';
+
 	/// en: 'Long-press to remove this folder'
 	String get longPressToRemove => 'Long-press to remove this folder';
 
@@ -12748,6 +12754,8 @@ extension on Translations {
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
 			'localMedia.removeSourceBody' => 'The files stay on disk. Only this library entry is removed.',
 			'localMedia.remove' => 'Remove',
+			'localMedia.removeFolder' => 'Remove folder',
+			'localMedia.removeFolderSelectTitle' => 'Select folder to remove',
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			'localMedia.clearProgress' => 'Clear local watch history',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',
