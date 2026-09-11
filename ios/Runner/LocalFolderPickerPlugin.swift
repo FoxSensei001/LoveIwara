@@ -123,8 +123,10 @@ class LocalFolderPickerPlugin: NSObject, UIDocumentPickerDelegate {
     }
 
     do {
+      // .withSecurityScope 是 macOS 专有选项；iOS 上文件选择器给出的 URL 自带安全作用域，
+      // 空 options 创建出的就是 security-scoped bookmark
       let bookmarkData = try url.bookmarkData(
-        options: .withSecurityScope,
+        options: [],
         includingResourceValuesForKeys: nil,
         relativeTo: nil
       )
@@ -163,7 +165,7 @@ class LocalFolderPickerPlugin: NSObject, UIDocumentPickerDelegate {
     do {
       let url = try URL(
         resolvingBookmarkData: data,
-        options: .withSecurityScope,
+        options: [],
         relativeTo: nil,
         bookmarkDataIsStale: &isStale
       )
@@ -181,7 +183,7 @@ class LocalFolderPickerPlugin: NSObject, UIDocumentPickerDelegate {
           }
         }
         if let newBookmarkData = try? url.bookmarkData(
-          options: .withSecurityScope,
+          options: [],
           includingResourceValuesForKeys: nil,
           relativeTo: nil
         ) {
@@ -213,7 +215,7 @@ class LocalFolderPickerPlugin: NSObject, UIDocumentPickerDelegate {
     do {
       let url = try URL(
         resolvingBookmarkData: data,
-        options: .withSecurityScope,
+        options: [],
         relativeTo: nil,
         bookmarkDataIsStale: &isStale
       )
