@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 「特别关注」首次引导卡片（挂在订阅页 header 的用户选择器下方）。
@@ -92,18 +93,18 @@ class SpecialFollowIntroCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
               child: Align(
                 alignment: Alignment.centerRight,
-                child: FilledButton(
-                  onPressed: onDismiss,
-                  style: FilledButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                // ⛔ 动作行走 [GlassButtonGroup] + [GlassTextActionButton]，不是
+                // 裸 `FilledButton`：全站动作键的按压/停留/配色都收在这一对里
+                // （见 `glass_style_guard_test` 的「裸 Material 按钮只降不升」）。
+                // 单枚键照样进组——组负责那块玻璃底，键只管文字。
+                child: GlassButtonGroup(
+                  children: [
+                    GlassTextActionButton(
+                      label: t.tutorial.gotIt,
+                      onPressed: onDismiss,
+                      emphasized: true,
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(t.tutorial.gotIt),
+                  ],
                 ),
               ),
             ),

@@ -27,6 +27,23 @@ class GlassDialogAction {
 
   /// 传 `null` 表示这个动作暂时禁用（例如提交进行中）——原样透传给
   /// `GlassTextActionButton.onPressed`，行为与它直接传 `onPressed: null` 一致。
+  ///
+  /// # ⛔ 要关弹窗必须写 `rootNavigator: true`
+  ///
+  /// 这张弹窗挂在 **root navigator** 上（[showGlassAlertDialog] 走
+  /// `showAppDialog(useRootNavigator: true)`），而调用点的 context 多半在 shell 的
+  /// 嵌套 navigator 里。于是那句顺手写下的
+  ///
+  /// ```dart
+  /// onPressed: () => Navigator.of(context).pop(true)   // ⛔ 错
+  /// ```
+  ///
+  /// pop 掉的是**调用它的那一页**，弹窗纹丝不动。真机上的样子是「点了确定，背景
+  /// 换成了上一页，弹窗还杵在屏幕中间」——而且不报任何错。正确写法：
+  ///
+  /// ```dart
+  /// onPressed: () => Navigator.of(context, rootNavigator: true).pop(true)
+  /// ```
   final VoidCallback? onPressed;
 
   /// 危险动作（删除/清空一类不可逆操作）：文字转 `cs.error` 语义色。
