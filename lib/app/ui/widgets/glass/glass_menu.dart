@@ -389,6 +389,18 @@ const double _rowCheckWidth = 12 + 18; // gap + check icon
 const double _trailingFontSize = 12.5;
 const double _rowTrailingGap = 12;
 
+/// 行尾那一格最多占多宽，超了就省略。
+///
+/// # ⛔ 尾注永远不许把标题挤没
+///
+/// 尾注多半是个数字（「已下载」的分类条数、本机目录的文件数…）。面板宽度有上限
+/// （[_maxPanelWidth]），量宽时尾注是**足额**算进去的，于是一个特别大的数会把
+/// 标题那一格挤到只剩省略号——用户看得见「12345678」，却看不出这一行是什么。
+///
+/// 数字本身该在调用点压短（`CommonUtils.formatFriendlyNumber`），但那是**约定**，
+/// 靠不住；这里是**机制**：不管来的是什么，尾注最多这么宽，再长就它自己省略。
+const double _maxTrailingWidth = 88;
+
 /// 行尾那个「还在查」的圈（[GlassMenuOption.live]）。比图标小一档：它是一条
 /// 补充说明，不该抢标题的注意力。
 const double _trailingSpinnerSize = 14;
@@ -653,6 +665,9 @@ Size? _measureMenuPanelSize({
           );
           if (w > tailText) tailText = w;
         }
+        // ⛔ 与真正排版那头（[_TrailingSlot]）用同一个上限：量宽按足额算、排版
+        // 按上限截的话，面板会为一个根本画不出来的宽度留一大块空白。
+        if (tailText > _maxTrailingWidth) tailText = _maxTrailingWidth;
         if (tailText > 0) tail += _rowTrailingGap + tailText;
         double rowWidth =
             _rowHorizontalChrome +
@@ -2181,9 +2196,15 @@ class _TrailingSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget content = AnimatedSwitcher(
-      duration: GlassTokens.motionDuration,
-      child: child,
+    // ⛔ 这一格封顶（见 [_maxTrailingWidth]）：里面的 Text 已经是
+    // `maxLines: 1 / ellipsis`，有了上限它才会真的省略，而不是一路撑下去把标题
+    // 挤成一个「…」。量宽那头用的是同一个常数。
+    final Widget content = ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: _maxTrailingWidth),
+      child: AnimatedSwitcher(
+        duration: GlassTokens.motionDuration,
+        child: child,
+      ),
     );
     final String? text = reserve;
     if (text == null) return content;
@@ -2203,7 +2224,7 @@ class _TrailingSlot extends StatelessWidget {
     painter.dispose();
 
     return SizedBox(
-      width: math.max(width, _trailingSpinnerSize),
+      width: math.min(math.max(width, _trailingSpinnerSize), _maxTrailingWidth),
       child: Align(alignment: AlignmentDirectional.centerEnd, child: content),
     );
   }
