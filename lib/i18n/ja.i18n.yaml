@@ -1802,7 +1802,6 @@ download:
     resume: すべて再開
     dismiss: 閉じる
   emptyTaskList: ダウンロードタスクがありません
-  downloadedContentGuide: ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります
   noMatchingTasks: 一致するタスクがありません
   deleteByDate:
     menuTitle: 日付で削除
@@ -2478,6 +2477,16 @@ layoutSettings:
   save: 保存
 
 # ナビゲーション順序設定
+bottomNav:
+  # 下部バー／サイドレール専用の**短い**ラベル。common.* を流用しないこと：
+  # あちらは全画面で使われており、短くすると無関係なページに波及する。
+  # 320dp 画面・5 タブでは 1 枠あたり約 35.6dp しかない（漢字 3 文字が上限）。
+  video: 動画
+  gallery: 画像
+  subscription: 購読
+  community: 広場
+  localMedia: 端末
+
 navigationOrderSettings:
   title: ナビゲーション順序設定
   customNavigationOrder: カスタムナビゲーション順序
@@ -2496,7 +2505,7 @@ navigationOrderSettings:
   show: 表示
   hide: 非表示
   hidden: 非表示中
-  hideHint: 目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます
+  hideHint: 目のアイコンをタップしてコミュニティと端末内のファイルの表示・非表示を切り替えます
   # ナビゲーション項目の説明
   videoDescription: 人気の動画コンテンツを閲覧
   galleryDescription: 画像とギャラリーを閲覧
@@ -2505,6 +2514,7 @@ navigationOrderSettings:
 
   newsDescription: 公式ニュース、記事、放送を閲覧
   communityDescription: フォーラムの議論と公式ニュース・記事・ブロードキャスト
+  localMediaDescription: この端末に保存された動画と画像を閲覧
 
 news:
   title: ニュース
@@ -2915,6 +2925,8 @@ playbackQueue:
   favoriteFolders: お気に入りフォルダ
   localFiles: この端末のファイル
   currentFolder: このファイルのフォルダ
+  playThisFolder: このフォルダの動画キューを見る
+  browseThisFolder: このフォルダのギャラリーキューを見る
   downloads: ダウンロード済み
   otherPlaylists: 他の人の再生リスト
   nothingHere: 何もありません
@@ -2969,6 +2981,85 @@ vrFormat:
   suggestionAction: VR で再生
   suggestionDismiss: 表示しない
 localMedia:
+  # フォルダ閲覧（端末タブ）。「よく使う場所」= ユーザーがピン留めしたフォルダ。
+  browse:
+    pinnedSection: よく使う場所
+    sourcesSection: フォルダ
+    pin: よく使う場所に追加
+    unpin: よく使う場所から削除
+    pinned: よく使う場所に追加しました
+    unpinned: よく使う場所から削除しました
+    folderCount: "${count} 個のフォルダ"
+    videoCount: "${count} 本の動画"
+    imageCount: "${count} 枚の画像"
+    emptyFolder: このフォルダは空です
+    videosSection: 動画
+    imagesSection: 画像
+    location: 場所
+    sourceMissing: このソースはもうありません
+    notScannedYet: このフォルダはまだスキャンされていません
+    scanning: このフォルダーを読み込んでいます…
+    deleteFileTitle: このファイルを削除しますか？
+    deleteFileBody: '「${name}」はこの端末から完全に削除されます。元に戻せません。'
+    pickFolderTitle: フォルダーを選ぶ
+    useThisFolder: このフォルダーを使う
+    noSubfolders: サブフォルダーはありません
+    storageRoot: 端末のストレージ
+    folderUnreadable: このフォルダーは読み取れません
+    setCover: サムネイルを設定
+    setAsFolderCover: フォルダーのサムネイルにする
+    folderCoverSet: フォルダーのサムネイルを更新しました
+    setFolderCoverPick: カバーに設定…
+    restoreAutoCover: 自動カバーに戻す
+    autoCoverRestored: 自動カバーに戻しました
+    rescanFolder: このフォルダを再スキャン
+    coverPickerTitle: フレームを選ぶ
+    folderCoverPickerTitle: カバーを選択
+    coverPickerEmpty: このフォルダにはまだ使える画像がありません。動画のサムネイルはバックグラウンドで生成中の可能性があります。
+    coverSaved: サムネイルを更新しました
+    coverSaveFailed: サムネイルを保存できませんでした
+    coverUnavailable: このファイルから映像を読み取れません
+    deleted: 削除しました
+    deleteFailed: 削除できませんでした。使用中か権限がない可能性があります
+    openFolder: 開く
+    favorite: お気に入りに追加
+    unfavorite: お気に入りから削除
+    favorited: お気に入りに追加しました
+    unfavorited: お気に入りから削除しました
+    sortBy: 並び替え
+    sortAscending: 昇順
+    sortDescending: 降順
+    sortFieldName: ファイル名
+    sortFieldModified: 更新日
+    sortFieldDuration: 再生時間
+    sortFieldSize: サイズ
+    sortFieldResolution: 解像度
+    sortFieldFileType: ファイル形式
+    sortFieldFps: フレームレート
+    sortFieldFavorited: お気に入り追加日
+    emptyAllVideos: 動画がまだ見つかりません。「フォルダ」から追加してください。
+    emptyAllImages: 画像がまだ見つかりません。「フォルダ」から追加してください。
+    emptyFavorites: お気に入りはまだありません。動画の「⋮」メニューから追加できます。
+    emptyPinned: よく使うフォルダはまだありません。「フォルダ」で長押しして「よく使う」に設定してください。
+    emptyDownloadedVideos: ダウンロード済みの動画はまだありません。
+    emptyDownloadedGalleries: ダウンロード済みのギャラリーはまだありません。
+    folderInfo: フォルダ情報
+    folderInfoName: 名前
+    folderInfoPath: パス
+    folderInfoSource: ソース
+    folderInfoContents: 内容
+    folderInfoSize: 使用容量
+    folderInfoScannedAt: 最終スキャン
+    folderInfoNeverScanned: まだスキャンしていません
+    folderInfoNoPath: このソースには開けるフォルダがありません
+    copyPath: パスをコピー
+    pathCopied: パスをコピーしました
+  tabFolders: フォルダ
+  tabFavoriteVideos: お気に入り
+  tabAllVideos: すべての動画
+  tabAllImages: すべての画像
+  tabDownloadedVideos: ダウンロード済み動画
+  tabDownloadedGalleries: ダウンロード済みギャラリー
   title: この端末のファイル
   sourceOnline: Iwara オンライン
   manageSources: ソースを管理

@@ -14,6 +14,7 @@ class HomeShellNavigation {
     'gallery',
     'subscription',
     'community',
+    'localMedia',
   ];
 
   /// Stable key -> go_router branch index.
@@ -23,6 +24,7 @@ class HomeShellNavigation {
     'gallery': 1,
     'subscription': 2,
     'community': 3,
+    'localMedia': 4,
   };
 
   /// Stable key -> tab-root path.
@@ -32,12 +34,18 @@ class HomeShellNavigation {
     'gallery': '/gallery',
     'subscription': '/subscriptions',
     'community': '/community',
+    'localMedia': '/local',
   };
 
   /// Keys the user is allowed to hide from the navigation UI.
   /// The corresponding `StatefulShellRoute` branch still exists so deep links
   /// (e.g. `/community`, `/forum`, `/news`) keep working even while hidden.
-  static const Set<String> hideableKeys = <String>{'community'};
+  ///
+  /// 「本机文件」也可隐藏：这台设备上一个本地文件都没有的用户占多数，
+  /// 而底栏此时是 5 tab + 搜索圆钮共 6 个元素——让不用它的人把它收起来，
+  /// 比替所有人把这一栏做窄要好（窄档见 `glass_floating_tab_bar.dart`
+  /// 的 `_BarMetrics`）。
+  static const Set<String> hideableKeys = <String>{'community', 'localMedia'};
 
   /// 已下线的导航键 -> 现行键。
   ///

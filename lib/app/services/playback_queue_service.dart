@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -76,29 +77,58 @@ class PlaybackQueueService extends GetxService {
 
   /// 下载池。⛔ 原来这一串在 `XrQueueCatalog` 里是手写的字面量——沉浸面板注册的
   /// id 和抽屉判"正开着的是不是这一支"用的 id 分头写，改一处就静默丢高亮。
-  static String downloadsQueueId([String categoryFilter = 'all']) =>
-      'downloads:$categoryFilter';
+  /// ⛔ 媒体类型进 id：已下载的**视频**和已下载的**图库**是两个池（2026-09-11）。
+  /// 不带后缀的话两者在 [_queues] 里撞成同一个键——先开的那一支会被原样发还给
+  /// 后开的那一边，表现成"在图库里点开已下载，列出来的是视频"（同
+  /// [localLibraryQueueId] 那条）。
+  static String downloadsQueueId([
+    String categoryFilter = 'all',
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+  ]) => 'downloads:$categoryFilter${_suffix(mediaType)}';
 
   /// 本机文件池。
   ///
   /// 四样东西都是**池身份的一部分**：哪个源、哪个文件夹、哪个分类、按什么排。
   /// 前三者决定池里装哪些条目，最后一个决定"下一条是谁"——列表按名称排、池按
   /// 添加时间排的话，用户点第 3 集，续播会给出一个毫不相干的东西。
+  ///
+  /// ⛔ 媒体类型同样是身份的一部分：**同一个目录**既能开出一池视频、也能开出一池
+  /// 图片（图库那侧，见 [openLocalLibrary]）。不带后缀的话两者在 [_queues] 里撞成
+  /// 同一个键——先开的那一支会被原样发还给后开的那一边，表现成"在图库里点开本机
+  /// 文件，列出来的是视频"。
+  ///
+  /// [order] 是 [sort] 的展开版：卡片墙那几栏能按任意字段任意方向排（见
+  /// `LocalMediaOrder`），而 [sort] 只有固定几档。给了 [order] 就以它为准，
+  /// 编进 id 的那一段也换成它——否则墙按「分辨率降序」排、池却按 `sort` 那一档
+  /// 排，两边点第 3 条得到的"下一条"根本不是同一个。
+  ///
+  /// ⛔ 两种编码必须**分得开**：`sort.name` 是纯字母（`nameAsc`…），[order]
+  /// 那一段一律以 `+`/`-` 结尾，撞不上。
   static String localLibraryQueueId({
     String? sourceId,
     String? folderPath,
     String? categoryId,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
+    LocalMediaOrder? order,
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+    bool favoritedOnly = false,
   }) {
+    final orderKey = order == null
+        ? sort.name
+        : '${order.field.name}${order.ascending ? '+' : '-'}';
     final buffer = StringBuffer(
-      'localLibrary:${sourceId ?? 'all'}:${categoryId ?? 'all'}:${sort.name}',
+      'localLibrary:${sourceId ?? 'all'}:${categoryId ?? 'all'}:$orderKey',
     );
+    // 「精选」同样是身份的一部分（见 [LocalLibraryPlaybackQueue.favoritedOnly]）。
+    // 只在为真时写一段，老的 id 一个字都不变。
+    if (favoritedOnly) buffer.write(':fav');
     // 文件夹是绝对路径，直接拼进去会带一堆 `/` 和空格。这个串只在进程内当 map
     // 的键用（不进路由、不进磁盘），但仍旧压成定长哈希，免得日志里刷屏、也免得
     // 将来有人顺手把它拼进路由。
     if (folderPath != null && folderPath.isNotEmpty) {
       buffer.write(':${folderPath.hashCode.toRadixString(16)}');
     }
+    buffer.write(_suffix(mediaType));
     return buffer.toString();
   }
 
@@ -231,9 +261,10 @@ class PlaybackQueueService extends GetxService {
   /// 所以编进 [PlaybackQueue.queueId]——换一个分类就是换一个池。
   DownloadsPlaybackQueue openDownloads({
     String categoryFilter = 'all',
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
     String? title,
   }) {
-    final id = downloadsQueueId(categoryFilter);
+    final id = downloadsQueueId(categoryFilter, mediaType);
     final existing = _queues[id];
     if (existing is DownloadsPlaybackQueue) {
       _touch(id);
@@ -244,6 +275,7 @@ class PlaybackQueueService extends GetxService {
         queueId: id,
         repository: DownloadService.to.repository,
         categoryFilter: categoryFilter,
+        queueMediaType: mediaType,
         title: title,
       ),
     );
@@ -253,11 +285,16 @@ class PlaybackQueueService extends GetxService {
   ///
   /// ⛔ 与 [openLocalFavorite] 是两回事：那一条是收藏夹，名字里的"本地"说的是
   /// "存在本机的收藏关系"，不是磁盘目录。
+  /// [mediaType] 为图库时装的是**本机图片**，落点是大图页而不是播放器（见
+  /// `PlaybackQueueNavigator`）。它同时进 id，理由见 [localLibraryQueueId]。
   LocalLibraryPlaybackQueue openLocalLibrary({
     String? sourceId,
     String? folderPath,
     String? categoryId,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
+    LocalMediaOrder? order,
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+    bool favoritedOnly = false,
     String? title,
   }) {
     final id = localLibraryQueueId(
@@ -265,6 +302,9 @@ class PlaybackQueueService extends GetxService {
       folderPath: folderPath,
       categoryId: categoryId,
       sort: sort,
+      order: order,
+      mediaType: mediaType,
+      favoritedOnly: favoritedOnly,
     );
     final existing = _queues[id];
     if (existing is LocalLibraryPlaybackQueue) {
@@ -278,7 +318,12 @@ class PlaybackQueueService extends GetxService {
         sourceId: sourceId,
         folderPath: folderPath,
         categoryId: categoryId,
+        itemKind: mediaType.isGallery
+            ? LocalMediaItemKind.image
+            : LocalMediaItemKind.video,
         sort: sort,
+        order: order,
+        favoritedOnly: favoritedOnly,
         title: title,
       ),
     );

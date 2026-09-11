@@ -13,7 +13,13 @@ void main() {
 
       expect(
         normalized,
-        equals(<String>['gallery', 'video', 'subscription', 'community']),
+        equals(<String>[
+          'gallery',
+          'video',
+          'subscription',
+          'community',
+          'localMedia',
+        ]),
       );
     });
 
@@ -91,14 +97,26 @@ void main() {
             'news',
             'gallery',
           ]),
-          equals(<String>['community', 'video', 'gallery', 'subscription']),
+          equals(<String>[
+            'community',
+            'video',
+            'gallery',
+            'subscription',
+            'localMedia',
+          ]),
         );
       });
 
       test('a lone legacy key still resolves to community', () {
         expect(
           HomeShellNavigation.normalizeOrder(['news', 'video']),
-          equals(<String>['community', 'video', 'gallery', 'subscription']),
+          equals(<String>[
+            'community',
+            'video',
+            'gallery',
+            'subscription',
+            'localMedia',
+          ]),
         );
         expect(HomeShellNavigation.branchIndexForKey('forum'), equals(3));
         expect(HomeShellNavigation.branchIndexForKey('news'), equals(3));

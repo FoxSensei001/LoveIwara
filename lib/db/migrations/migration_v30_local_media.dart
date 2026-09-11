@@ -130,7 +130,7 @@ class MigrationV30LocalMedia extends Migration {
         display_name TEXT NOT NULL,
         path TEXT,
         uri TEXT,
-        media_kinds TEXT NOT NULL DEFAULT 'video',
+        media_kinds TEXT NOT NULL DEFAULT 'both',
         recursive INTEGER NOT NULL DEFAULT 1,
         auto_rescan INTEGER NOT NULL DEFAULT 1,
         sort_order INTEGER NOT NULL DEFAULT 0,

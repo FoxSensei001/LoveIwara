@@ -19,6 +19,14 @@ import 'package:i_iwara/db/migrations/migration_v20_oreno3d_match_cache.dart';
 import 'package:i_iwara/db/migrations/migration_v21_watch_later.dart';
 import 'package:i_iwara/db/migrations/migration_v22_vr_format_override.dart';
 import 'package:i_iwara/db/migrations/migration_v30_local_media.dart';
+import 'package:i_iwara/db/migrations/migration_v31_local_media_folders.dart';
+import 'package:i_iwara/db/migrations/migration_v32_local_source_media_kinds.dart';
+import 'package:i_iwara/db/migrations/migration_v33_local_folder_probed_at.dart';
+import 'package:i_iwara/db/migrations/migration_v34_local_folder_cover_pinned.dart';
+import 'package:i_iwara/db/migrations/migration_v35_local_media_sort_and_favorites.dart';
+import 'package:i_iwara/db/migrations/migration_v36_local_media_index_direction.dart';
+import 'package:i_iwara/db/migrations/migration_v37_local_media_image_favorites.dart';
+import 'package:i_iwara/db/migrations/migration_v38_local_media_folder_scan_indexes.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -59,6 +67,14 @@ class MigrationManager {
     // 没必要把"边做边加"的七步当成七次线上升级留在这里；v30 自己是幂等的，停在
     // 23~29 任何一档的开发机都能被它带上来。见该文件的类注释。
     MigrationV30LocalMedia(),
+    MigrationV31LocalMediaFolders(),
+    MigrationV32LocalSourceMediaKinds(),
+    MigrationV33LocalFolderProbedAt(),
+    MigrationV34LocalFolderCoverPinned(),
+    MigrationV35LocalMediaSortAndFavorites(),
+    MigrationV36LocalMediaIndexDirection(),
+    MigrationV37LocalMediaImageFavorites(),
+    MigrationV38LocalMediaFolderScanIndexes(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加
   ];
 

@@ -74,6 +74,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsEmojiJa emoji = _TranslationsEmojiJa._(_root);
 	@override late final _TranslationsDisplaySettingsJa displaySettings = _TranslationsDisplaySettingsJa._(_root);
 	@override late final _TranslationsLayoutSettingsJa layoutSettings = _TranslationsLayoutSettingsJa._(_root);
+	@override late final _TranslationsBottomNavJa bottomNav = _TranslationsBottomNavJa._(_root);
 	@override late final _TranslationsNavigationOrderSettingsJa navigationOrderSettings = _TranslationsNavigationOrderSettingsJa._(_root);
 	@override late final _TranslationsNewsJa news = _TranslationsNewsJa._(_root);
 	@override late final _TranslationsSearchFilterJa searchFilter = _TranslationsSearchFilterJa._(_root);
@@ -1421,7 +1422,6 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
 	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
-	@override String get downloadedContentGuide => 'ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
 	@override late final _TranslationsDownloadCategoryJa category = _TranslationsDownloadCategoryJa._(_root);
@@ -2053,6 +2053,20 @@ class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
 	@override String get save => '保存';
 }
 
+// Path: bottomNav
+class _TranslationsBottomNavJa implements TranslationsBottomNavEn {
+	_TranslationsBottomNavJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get video => '動画';
+	@override String get gallery => '画像';
+	@override String get subscription => '購読';
+	@override String get community => '広場';
+	@override String get localMedia => '端末';
+}
+
 // Path: navigationOrderSettings
 class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOrderSettingsEn {
 	_TranslationsNavigationOrderSettingsJa._(this._root);
@@ -2077,13 +2091,14 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 	@override String get show => '表示';
 	@override String get hide => '非表示';
 	@override String get hidden => '非表示中';
-	@override String get hideHint => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます';
+	@override String get hideHint => '目のアイコンをタップしてコミュニティと端末内のファイルの表示・非表示を切り替えます';
 	@override String get videoDescription => '人気の動画コンテンツを閲覧';
 	@override String get galleryDescription => '画像とギャラリーを閲覧';
 	@override String get subscriptionDescription => 'フォローしているユーザーの最新コンテンツを表示';
 	@override String get forumDescription => 'コミュニティディスカッションに参加';
 	@override String get newsDescription => '公式ニュース、記事、放送を閲覧';
 	@override String get communityDescription => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト';
+	@override String get localMediaDescription => 'この端末に保存された動画と画像を閲覧';
 }
 
 // Path: news
@@ -2515,6 +2530,8 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 	@override String get favoriteFolders => 'お気に入りフォルダ';
 	@override String get localFiles => 'この端末のファイル';
 	@override String get currentFolder => 'このファイルのフォルダ';
+	@override String get playThisFolder => 'このフォルダの動画キューを見る';
+	@override String get browseThisFolder => 'このフォルダのギャラリーキューを見る';
 	@override String get downloads => 'ダウンロード済み';
 	@override String get otherPlaylists => '他の人の再生リスト';
 	@override String get nothingHere => '何もありません';
@@ -2584,6 +2601,13 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsLocalMediaBrowseJa browse = _TranslationsLocalMediaBrowseJa._(_root);
+	@override String get tabFolders => 'フォルダ';
+	@override String get tabFavoriteVideos => 'お気に入り';
+	@override String get tabAllVideos => 'すべての動画';
+	@override String get tabAllImages => 'すべての画像';
+	@override String get tabDownloadedVideos => 'ダウンロード済み動画';
+	@override String get tabDownloadedGalleries => 'ダウンロード済みギャラリー';
 	@override String get title => 'この端末のファイル';
 	@override String get sourceOnline => 'Iwara オンライン';
 	@override String get manageSources => 'ソースを管理';
@@ -3780,6 +3804,86 @@ class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetName
 	@override String get upscale_non_cnn => '非CNNアップスケーリング (超高速)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + ライン暗化';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + ライン細化';
+}
+
+// Path: localMedia.browse
+class _TranslationsLocalMediaBrowseJa implements TranslationsLocalMediaBrowseEn {
+	_TranslationsLocalMediaBrowseJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get pinnedSection => 'よく使う場所';
+	@override String get sourcesSection => 'フォルダ';
+	@override String get pin => 'よく使う場所に追加';
+	@override String get unpin => 'よく使う場所から削除';
+	@override String get pinned => 'よく使う場所に追加しました';
+	@override String get unpinned => 'よく使う場所から削除しました';
+	@override String folderCount({required Object count}) => '${count} 個のフォルダ';
+	@override String videoCount({required Object count}) => '${count} 本の動画';
+	@override String imageCount({required Object count}) => '${count} 枚の画像';
+	@override String get emptyFolder => 'このフォルダは空です';
+	@override String get videosSection => '動画';
+	@override String get imagesSection => '画像';
+	@override String get location => '場所';
+	@override String get sourceMissing => 'このソースはもうありません';
+	@override String get notScannedYet => 'このフォルダはまだスキャンされていません';
+	@override String get scanning => 'このフォルダーを読み込んでいます…';
+	@override String get deleteFileTitle => 'このファイルを削除しますか？';
+	@override String deleteFileBody({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。';
+	@override String get pickFolderTitle => 'フォルダーを選ぶ';
+	@override String get useThisFolder => 'このフォルダーを使う';
+	@override String get noSubfolders => 'サブフォルダーはありません';
+	@override String get storageRoot => '端末のストレージ';
+	@override String get folderUnreadable => 'このフォルダーは読み取れません';
+	@override String get setCover => 'サムネイルを設定';
+	@override String get setAsFolderCover => 'フォルダーのサムネイルにする';
+	@override String get folderCoverSet => 'フォルダーのサムネイルを更新しました';
+	@override String get setFolderCoverPick => 'カバーに設定…';
+	@override String get restoreAutoCover => '自動カバーに戻す';
+	@override String get autoCoverRestored => '自動カバーに戻しました';
+	@override String get rescanFolder => 'このフォルダを再スキャン';
+	@override String get coverPickerTitle => 'フレームを選ぶ';
+	@override String get folderCoverPickerTitle => 'カバーを選択';
+	@override String get coverPickerEmpty => 'このフォルダにはまだ使える画像がありません。動画のサムネイルはバックグラウンドで生成中の可能性があります。';
+	@override String get coverSaved => 'サムネイルを更新しました';
+	@override String get coverSaveFailed => 'サムネイルを保存できませんでした';
+	@override String get coverUnavailable => 'このファイルから映像を読み取れません';
+	@override String get deleted => '削除しました';
+	@override String get deleteFailed => '削除できませんでした。使用中か権限がない可能性があります';
+	@override String get openFolder => '開く';
+	@override String get favorite => 'お気に入りに追加';
+	@override String get unfavorite => 'お気に入りから削除';
+	@override String get favorited => 'お気に入りに追加しました';
+	@override String get unfavorited => 'お気に入りから削除しました';
+	@override String get sortBy => '並び替え';
+	@override String get sortAscending => '昇順';
+	@override String get sortDescending => '降順';
+	@override String get sortFieldName => 'ファイル名';
+	@override String get sortFieldModified => '更新日';
+	@override String get sortFieldDuration => '再生時間';
+	@override String get sortFieldSize => 'サイズ';
+	@override String get sortFieldResolution => '解像度';
+	@override String get sortFieldFileType => 'ファイル形式';
+	@override String get sortFieldFps => 'フレームレート';
+	@override String get sortFieldFavorited => 'お気に入り追加日';
+	@override String get emptyAllVideos => '動画がまだ見つかりません。「フォルダ」から追加してください。';
+	@override String get emptyAllImages => '画像がまだ見つかりません。「フォルダ」から追加してください。';
+	@override String get emptyFavorites => 'お気に入りはまだありません。動画の「⋮」メニューから追加できます。';
+	@override String get emptyPinned => 'よく使うフォルダはまだありません。「フォルダ」で長押しして「よく使う」に設定してください。';
+	@override String get emptyDownloadedVideos => 'ダウンロード済みの動画はまだありません。';
+	@override String get emptyDownloadedGalleries => 'ダウンロード済みのギャラリーはまだありません。';
+	@override String get folderInfo => 'フォルダ情報';
+	@override String get folderInfoName => '名前';
+	@override String get folderInfoPath => 'パス';
+	@override String get folderInfoSource => 'ソース';
+	@override String get folderInfoContents => '内容';
+	@override String get folderInfoSize => '使用容量';
+	@override String get folderInfoScannedAt => '最終スキャン';
+	@override String get folderInfoNeverScanned => 'まだスキャンしていません';
+	@override String get folderInfoNoPath => 'このソースには開けるフォルダがありません';
+	@override String get copyPath => 'パスをコピー';
+	@override String get pathCopied => 'パスをコピーしました';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5616,7 +5720,6 @@ extension on TranslationsJa {
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
-			'download.downloadedContentGuide' => 'ダウンロード済みのコンテンツは「動画 → ソース → ダウンロード済み」にあります',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
 			'download.deleteByDate.dialogTitle' => '日付で削除',
@@ -5967,9 +6070,9 @@ extension on TranslationsJa {
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
+			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			_ => null,
 		} ?? switch (path) {
-			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => 'デコーダーを読み込めませんでした: ${event}。プレーヤー設定でソフトウェアデコードに切り替え、ページに再入場してお試しください',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '動画読み込みエラー: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '再生失敗が続いています。設定 > 診断とフィードバック からログをエクスポートして報告してください',
@@ -6241,6 +6344,11 @@ extension on TranslationsJa {
 			'layoutSettings.delete' => '削除',
 			'layoutSettings.cancel' => 'キャンセル',
 			'layoutSettings.save' => '保存',
+			'bottomNav.video' => '動画',
+			'bottomNav.gallery' => '画像',
+			'bottomNav.subscription' => '購読',
+			'bottomNav.community' => '広場',
+			'bottomNav.localMedia' => '端末',
 			'navigationOrderSettings.title' => 'ナビゲーション順序設定',
 			'navigationOrderSettings.customNavigationOrder' => 'カスタムナビゲーション順序',
 			'navigationOrderSettings.customNavigationOrderDesc' => 'ドラッグしてボトムナビゲーションバーとサイドバーの各ページの表示順序を調整',
@@ -6258,13 +6366,14 @@ extension on TranslationsJa {
 			'navigationOrderSettings.show' => '表示',
 			'navigationOrderSettings.hide' => '非表示',
 			'navigationOrderSettings.hidden' => '非表示中',
-			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてフォーラムとニュースの表示・非表示を切り替えます',
+			'navigationOrderSettings.hideHint' => '目のアイコンをタップしてコミュニティと端末内のファイルの表示・非表示を切り替えます',
 			'navigationOrderSettings.videoDescription' => '人気の動画コンテンツを閲覧',
 			'navigationOrderSettings.galleryDescription' => '画像とギャラリーを閲覧',
 			'navigationOrderSettings.subscriptionDescription' => 'フォローしているユーザーの最新コンテンツを表示',
 			'navigationOrderSettings.forumDescription' => 'コミュニティディスカッションに参加',
 			'navigationOrderSettings.newsDescription' => '公式ニュース、記事、放送を閲覧',
 			'navigationOrderSettings.communityDescription' => 'フォーラムの議論と公式ニュース・記事・ブロードキャスト',
+			'navigationOrderSettings.localMediaDescription' => 'この端末に保存された動画と画像を閲覧',
 			'news.title' => 'ニュース',
 			'news.newsUpdates' => '更新情報',
 			'news.articles' => '記事',
@@ -6476,13 +6585,13 @@ extension on TranslationsJa {
 			'savedSearch.empty' => '保存した検索はまだありません',
 			'savedSearch.saveTooltip' => '現在の検索を保存',
 			'savedSearch.namePromptTitle' => '検索を保存',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名前',
 			'savedSearch.nameHint' => '名前を入力',
 			'savedSearch.saveSuccess' => '検索を保存しました',
 			'savedSearch.deleteSuccess' => '検索を削除しました',
 			'savedSearch.addCurrent' => '現在の検索を保存',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.reorderHint' => '長押しでドラッグして並べ替え',
 			'savedSearch.rename' => '名前を変更',
 			'savedSearch.noKeyword' => '（キーワードなし）',
@@ -6618,6 +6727,8 @@ extension on TranslationsJa {
 			'playbackQueue.favoriteFolders' => 'お気に入りフォルダ',
 			'playbackQueue.localFiles' => 'この端末のファイル',
 			'playbackQueue.currentFolder' => 'このファイルのフォルダ',
+			'playbackQueue.playThisFolder' => 'このフォルダの動画キューを見る',
+			'playbackQueue.browseThisFolder' => 'このフォルダのギャラリーキューを見る',
 			'playbackQueue.downloads' => 'ダウンロード済み',
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
@@ -6669,6 +6780,83 @@ extension on TranslationsJa {
 			'vrFormat.suggestionTitleShort' => 'これは VR 動画かもしれません',
 			'vrFormat.suggestionAction' => 'VR で再生',
 			'vrFormat.suggestionDismiss' => '表示しない',
+			'localMedia.browse.pinnedSection' => 'よく使う場所',
+			'localMedia.browse.sourcesSection' => 'フォルダ',
+			'localMedia.browse.pin' => 'よく使う場所に追加',
+			'localMedia.browse.unpin' => 'よく使う場所から削除',
+			'localMedia.browse.pinned' => 'よく使う場所に追加しました',
+			'localMedia.browse.unpinned' => 'よく使う場所から削除しました',
+			'localMedia.browse.folderCount' => ({required Object count}) => '${count} 個のフォルダ',
+			'localMedia.browse.videoCount' => ({required Object count}) => '${count} 本の動画',
+			'localMedia.browse.imageCount' => ({required Object count}) => '${count} 枚の画像',
+			'localMedia.browse.emptyFolder' => 'このフォルダは空です',
+			'localMedia.browse.videosSection' => '動画',
+			'localMedia.browse.imagesSection' => '画像',
+			'localMedia.browse.location' => '場所',
+			'localMedia.browse.sourceMissing' => 'このソースはもうありません',
+			'localMedia.browse.notScannedYet' => 'このフォルダはまだスキャンされていません',
+			'localMedia.browse.scanning' => 'このフォルダーを読み込んでいます…',
+			'localMedia.browse.deleteFileTitle' => 'このファイルを削除しますか？',
+			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。',
+			'localMedia.browse.pickFolderTitle' => 'フォルダーを選ぶ',
+			'localMedia.browse.useThisFolder' => 'このフォルダーを使う',
+			'localMedia.browse.noSubfolders' => 'サブフォルダーはありません',
+			'localMedia.browse.storageRoot' => '端末のストレージ',
+			'localMedia.browse.folderUnreadable' => 'このフォルダーは読み取れません',
+			'localMedia.browse.setCover' => 'サムネイルを設定',
+			'localMedia.browse.setAsFolderCover' => 'フォルダーのサムネイルにする',
+			'localMedia.browse.folderCoverSet' => 'フォルダーのサムネイルを更新しました',
+			'localMedia.browse.setFolderCoverPick' => 'カバーに設定…',
+			'localMedia.browse.restoreAutoCover' => '自動カバーに戻す',
+			'localMedia.browse.autoCoverRestored' => '自動カバーに戻しました',
+			'localMedia.browse.rescanFolder' => 'このフォルダを再スキャン',
+			'localMedia.browse.coverPickerTitle' => 'フレームを選ぶ',
+			'localMedia.browse.folderCoverPickerTitle' => 'カバーを選択',
+			'localMedia.browse.coverPickerEmpty' => 'このフォルダにはまだ使える画像がありません。動画のサムネイルはバックグラウンドで生成中の可能性があります。',
+			'localMedia.browse.coverSaved' => 'サムネイルを更新しました',
+			'localMedia.browse.coverSaveFailed' => 'サムネイルを保存できませんでした',
+			'localMedia.browse.coverUnavailable' => 'このファイルから映像を読み取れません',
+			'localMedia.browse.deleted' => '削除しました',
+			'localMedia.browse.deleteFailed' => '削除できませんでした。使用中か権限がない可能性があります',
+			'localMedia.browse.openFolder' => '開く',
+			'localMedia.browse.favorite' => 'お気に入りに追加',
+			'localMedia.browse.unfavorite' => 'お気に入りから削除',
+			'localMedia.browse.favorited' => 'お気に入りに追加しました',
+			'localMedia.browse.unfavorited' => 'お気に入りから削除しました',
+			'localMedia.browse.sortBy' => '並び替え',
+			'localMedia.browse.sortAscending' => '昇順',
+			'localMedia.browse.sortDescending' => '降順',
+			'localMedia.browse.sortFieldName' => 'ファイル名',
+			'localMedia.browse.sortFieldModified' => '更新日',
+			'localMedia.browse.sortFieldDuration' => '再生時間',
+			'localMedia.browse.sortFieldSize' => 'サイズ',
+			'localMedia.browse.sortFieldResolution' => '解像度',
+			'localMedia.browse.sortFieldFileType' => 'ファイル形式',
+			'localMedia.browse.sortFieldFps' => 'フレームレート',
+			'localMedia.browse.sortFieldFavorited' => 'お気に入り追加日',
+			'localMedia.browse.emptyAllVideos' => '動画がまだ見つかりません。「フォルダ」から追加してください。',
+			'localMedia.browse.emptyAllImages' => '画像がまだ見つかりません。「フォルダ」から追加してください。',
+			'localMedia.browse.emptyFavorites' => 'お気に入りはまだありません。動画の「⋮」メニューから追加できます。',
+			'localMedia.browse.emptyPinned' => 'よく使うフォルダはまだありません。「フォルダ」で長押しして「よく使う」に設定してください。',
+			'localMedia.browse.emptyDownloadedVideos' => 'ダウンロード済みの動画はまだありません。',
+			'localMedia.browse.emptyDownloadedGalleries' => 'ダウンロード済みのギャラリーはまだありません。',
+			'localMedia.browse.folderInfo' => 'フォルダ情報',
+			'localMedia.browse.folderInfoName' => '名前',
+			'localMedia.browse.folderInfoPath' => 'パス',
+			'localMedia.browse.folderInfoSource' => 'ソース',
+			'localMedia.browse.folderInfoContents' => '内容',
+			'localMedia.browse.folderInfoSize' => '使用容量',
+			'localMedia.browse.folderInfoScannedAt' => '最終スキャン',
+			'localMedia.browse.folderInfoNeverScanned' => 'まだスキャンしていません',
+			'localMedia.browse.folderInfoNoPath' => 'このソースには開けるフォルダがありません',
+			'localMedia.browse.copyPath' => 'パスをコピー',
+			'localMedia.browse.pathCopied' => 'パスをコピーしました',
+			'localMedia.tabFolders' => 'フォルダ',
+			'localMedia.tabFavoriteVideos' => 'お気に入り',
+			'localMedia.tabAllVideos' => 'すべての動画',
+			'localMedia.tabAllImages' => 'すべての画像',
+			'localMedia.tabDownloadedVideos' => 'ダウンロード済み動画',
+			'localMedia.tabDownloadedGalleries' => 'ダウンロード済みギャラリー',
 			'localMedia.title' => 'この端末のファイル',
 			'localMedia.sourceOnline' => 'Iwara オンライン',
 			'localMedia.manageSources' => 'ソースを管理',

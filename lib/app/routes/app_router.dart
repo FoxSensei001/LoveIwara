@@ -59,7 +59,9 @@ import 'package:i_iwara/app/ui/pages/settings/log_viewer_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/ai_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/deeplx_translation_setting_widget.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
-import 'package:i_iwara/app/ui/pages/local_media/local_media_sources_page.dart';
+import 'package:i_iwara/app/ui/pages/local_media/local_folder_browse_page.dart';
+import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
+import 'package:i_iwara/app/ui/pages/local_media/local_home_page.dart';
 import 'package:i_iwara/app/ui/pages/download/gallery_download_task_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/notifications/notification_list_page.dart';
 import 'package:i_iwara/app/ui/pages/conversation/conversation_page.dart';
@@ -113,7 +115,7 @@ final GlobalKey<NavigatorState> settingsShellNavigatorKey =
 
 /// 按分支索引获取对应的首页栏目页 Widget（实现了 [HomeWidgetInterface]）。
 /// 分支顺序与下方 [StatefulShellRoute] 的 branches 一一对应：
-/// 0=视频 1=图集 2=订阅 3=社区（论坛 + 新闻）。
+/// 0=视频 1=图集 2=订阅 3=社区（论坛 + 新闻） 4=本机文件。
 Widget? _homeBranchWidget(int branchIndex) {
   switch (branchIndex) {
     case 0:
@@ -124,6 +126,8 @@ Widget? _homeBranchWidget(int branchIndex) {
       return SubscriptionsPage.globalKey.currentWidget;
     case 3:
       return CommunityPage.globalKey.currentWidget;
+    case 4:
+      return LocalHomePage.globalKey.currentWidget;
     default:
       return null;
   }
@@ -418,6 +422,28 @@ final GoRouter appRouter = GoRouter(
                 ),
               ],
             ),
+            // 分支 4：本机文件
+            //
+            // 这一栏的浏览模型是目录树，不是信息流，所以它不能再当「视频栏里的
+            // 一个数据源」——那样用户点一下目录期待进去，却只能换掉整屏列表。
+            // 根页 `/local` 是文件管理器的「设备根」，往下每一层走
+            // `/local/browse`（压在同一只 Shell Navigator 上，导航栏保持可见）。
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/local',
+                  name: 'local_home',
+                  builder: (context, state) => Obx(() {
+                    final homeContentVersion =
+                        Get.find<AppService>().homeContentVersion;
+                    return LocalHomePage(
+                      key: LocalHomePage.globalKey,
+                      contentResetVersion: homeContentVersion,
+                    );
+                  }),
+                ),
+              ],
+            ),
           ],
         ),
 
@@ -441,6 +467,31 @@ final GoRouter appRouter = GoRouter(
         ),
 
         // ========== 详情类页面（挂在 Shell 内部，导航栏保持可见） ==========
+
+        // 本机目录浏览：`/local` 那一栏往下的每一层都走这条路由。
+        //
+        // ⛔ 目录的相对路径走 query 不走 path 段——它天然带 `/`
+        //（`番剧/进击的巨人/第一季`），塞进 path 会被当成多级路由拆开。
+        // 地址口径只此一份，见 [LocalFolderRoute]。
+        GoRoute(
+          path: LocalFolderRoute.path,
+          name: LocalFolderRoute.name,
+          pageBuilder: (context, state) {
+            final parsed = LocalFolderRoute.parse(state.uri.queryParameters);
+            if (parsed == null) {
+              // 没有 source 就没有目录可言（多半是手敲或过期的深链）。
+              // 退回本机文件栏目的根，而不是画一屏错误。
+              return buildAdaptiveSwipeablePage(state, const LocalHomePage());
+            }
+            return buildAdaptiveSwipeablePage(
+              state,
+              LocalFolderBrowsePage(
+                sourceId: parsed.sourceId,
+                relPath: parsed.relPath,
+              ),
+            );
+          },
+        ),
 
         // 图片浏览包装页 —— 挂在 Shell 内部，避免 root/shell 双栈竞争返回。
         GoRoute(
@@ -715,13 +766,6 @@ final GoRouter appRouter = GoRouter(
           path: '/download_task_list',
           name: 'download_task_list',
           builder: (context, state) => const DownloadTaskListPage(),
-        ),
-
-        // 本地来源管理：媒体列表本身由视频页 header 的来源切换承载。
-        GoRoute(
-          path: '/local_media_sources',
-          name: 'local_media_sources',
-          builder: (context, state) => const LocalMediaSourcesPage(),
         ),
 
         // 图集下载任务详情

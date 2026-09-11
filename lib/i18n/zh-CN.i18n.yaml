@@ -1801,7 +1801,6 @@ download:
     resume: 全部继续
     dismiss: 忽略
   emptyTaskList: 暂无下载任务
-  downloadedContentGuide: 已经下好的内容在「视频 → 来源 → 已下载」
   noMatchingTasks: 没有匹配的任务
   deleteByDate:
     menuTitle: 按日期删除
@@ -2476,6 +2475,17 @@ layoutSettings:
   save: 保存
 
 # 导航排序设置
+bottomNav:
+  # ⛔ 底栏/侧栏专用的**短**标签，不要复用 common.* ——那些字样全站到处在用，
+  # 改一处会波及无关页面。这里只服务导航栏那一格的宽度上限（见
+  # glass_floating_tab_bar.dart 的 _labelMaxWidth / _BarMetrics）：
+  # 320dp 屏 5 格时每格标签只有约 35.6dp，上限是 3 个汉字 / 6 个拉丁字符。
+  video: 视频
+  gallery: 图库
+  subscription: 订阅
+  community: 社区
+  localMedia: 本机
+
 navigationOrderSettings:
   title: 导航排序设置
   customNavigationOrder: 自定义导航顺序
@@ -2494,7 +2504,7 @@ navigationOrderSettings:
   show: 显示
   hide: 隐藏
   hidden: 已隐藏
-  hideHint: 点击眼睛图标可显示或隐藏论坛和新闻
+  hideHint: 点击眼睛图标可显示或隐藏社区和本机文件
   # 导航项描述
   videoDescription: 浏览热门视频内容
   galleryDescription: 浏览图片和画廊
@@ -2503,6 +2513,7 @@ navigationOrderSettings:
 
   newsDescription: 浏览官方新闻、文章和公告广播
   communityDescription: 论坛讨论与官方新闻、文章、公告广播
+  localMediaDescription: 浏览这台设备上的视频和图片
 
 news:
   title: 新闻
@@ -2913,6 +2924,8 @@ playbackQueue:
   favoriteFolders: 收藏夹
   localFiles: 本机文件
   currentFolder: 当前文件所在文件夹
+  playThisFolder: 查看本目录下的视频池
+  browseThisFolder: 查看本目录下的图库池
   downloads: 已下载
   otherPlaylists: 他人的播放列表
   nothingHere: 暂无内容
@@ -2967,6 +2980,85 @@ vrFormat:
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
 localMedia:
+  # 目录浏览（本机文件 tab）。「常用目录」= 用户置顶的文件夹。
+  browse:
+    pinnedSection: 常用目录
+    sourcesSection: 文件夹
+    pin: 设为常用
+    unpin: 取消常用
+    pinned: 已设为常用目录
+    unpinned: 已取消常用
+    folderCount: "${count} 个文件夹"
+    videoCount: "${count} 个视频"
+    imageCount: "${count} 张图片"
+    emptyFolder: 这个文件夹是空的
+    videosSection: 视频
+    imagesSection: 图片
+    location: 位置
+    sourceMissing: 这个来源已经不在了
+    notScannedYet: 还没扫描过这个文件夹
+    scanning: 正在读取这个文件夹…
+    deleteFileTitle: 删除这个文件？
+    deleteFileBody: '「${name}」会从这台设备上真的被删掉，不能撤销。'
+    pickFolderTitle: 选择文件夹
+    useThisFolder: 使用这个文件夹
+    noSubfolders: 这里没有子文件夹
+    storageRoot: 设备存储
+    folderUnreadable: 这个文件夹读不动
+    setCover: 设置封面
+    setAsFolderCover: 设为文件夹封面
+    folderCoverSet: 已设为文件夹封面
+    setFolderCoverPick: 设为封面…
+    restoreAutoCover: 恢复自动封面
+    autoCoverRestored: 已恢复自动封面
+    rescanFolder: 重新扫描此目录
+    coverPickerTitle: 挑一帧做封面
+    folderCoverPickerTitle: 选择封面
+    coverPickerEmpty: 这个目录里还没有可用的图片。视频的缩略图可能还在后台生成，稍后再来看看。
+    coverSaved: 封面已更新
+    coverSaveFailed: 封面保存失败
+    coverUnavailable: 这个文件读不出画面
+    deleted: 已删除
+    deleteFailed: 删除失败，文件可能正被占用或没有权限
+    openFolder: 打开
+    favorite: 精选
+    unfavorite: 取消精选
+    favorited: 已加入精选
+    unfavorited: 已取消精选
+    sortBy: 排序方式
+    sortAscending: 升序
+    sortDescending: 降序
+    sortFieldName: 文件名
+    sortFieldModified: 修改日期
+    sortFieldDuration: 时长
+    sortFieldSize: 文件大小
+    sortFieldResolution: 分辨率
+    sortFieldFileType: 文件类型
+    sortFieldFps: 帧率
+    sortFieldFavorited: 精选时间
+    emptyAllVideos: 还没有扫描到视频。到「文件目录」里添加一个文件夹试试。
+    emptyAllImages: 还没有扫描到图片。到「文件目录」里添加一个文件夹试试。
+    emptyFavorites: 还没有精选。在视频的「⋮」菜单里可以把它加进来。
+    emptyPinned: 还没有常用目录。在「文件目录」里长按一个文件夹，选「设为常用」。
+    emptyDownloadedVideos: 还没有下载完成的视频。
+    emptyDownloadedGalleries: 还没有下载完成的图库。
+    folderInfo: 文件夹信息
+    folderInfoName: 名称
+    folderInfoPath: 路径
+    folderInfoSource: 所属来源
+    folderInfoContents: 内容
+    folderInfoSize: 占用空间
+    folderInfoScannedAt: 最近扫描
+    folderInfoNeverScanned: 还没扫描过
+    folderInfoNoPath: 这个来源没有可打开的目录
+    copyPath: 复制路径
+    pathCopied: 路径已复制
+  tabFolders: 文件目录
+  tabFavoriteVideos: 精选视频
+  tabAllVideos: 所有视频
+  tabAllImages: 所有图片
+  tabDownloadedVideos: 下载完成视频
+  tabDownloadedGalleries: 下载完成图库
   title: 本机文件
   sourceOnline: Iwara 线上
   manageSources: 管理来源

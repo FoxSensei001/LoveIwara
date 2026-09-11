@@ -1799,7 +1799,6 @@ download:
     resume: Resume all
     dismiss: Dismiss
   emptyTaskList: No download tasks yet
-  downloadedContentGuide: Downloaded content can be found in "Videos → Source → Downloaded"
   noMatchingTasks: No matching tasks
   deleteByDate:
     menuTitle: Delete by date
@@ -2117,6 +2116,17 @@ translation:
   noModelsFound: No models found
 
 # Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: Video
+  gallery: Gallery
+  subscription: Feed
+  community: Forum
+  localMedia: Local
+
 navigationOrderSettings:
   title: Navigation Order Settings
   customNavigationOrder: Custom Navigation Order
@@ -2135,7 +2145,7 @@ navigationOrderSettings:
   show: Show
   hide: Hide
   hidden: Hidden
-  hideHint: Tap the eye icon to show or hide Forum and News
+  hideHint: Tap the eye icon to show or hide Community and local files
   # Navigation item descriptions
   videoDescription: Browse popular video content
   galleryDescription: Browse images and galleries
@@ -2144,6 +2154,7 @@ navigationOrderSettings:
 
   newsDescription: Browse official news, articles, and broadcasts
   communityDescription: Forum discussions plus official news, articles and broadcasts
+  localMediaDescription: Browse videos and images stored on this device
 
 news:
   title: News
@@ -2913,6 +2924,8 @@ playbackQueue:
   favoriteFolders: Favorite folders
   localFiles: On this device
   currentFolder: This file's folder
+  playThisFolder: View this folder’s video queue
+  browseThisFolder: View this folder’s gallery queue
   downloads: Downloaded
   otherPlaylists: Other user's playlists
   nothingHere: Nothing here
@@ -2967,6 +2980,85 @@ vrFormat:
   suggestionAction: Play as VR
   suggestionDismiss: Dismiss
 localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: Quick access
+    sourcesSection: Folders
+    pin: Add to quick access
+    unpin: Remove from quick access
+    pinned: Added to quick access
+    unpinned: Removed from quick access
+    folderCount: "${count} folders"
+    videoCount: "${count} videos"
+    imageCount: "${count} images"
+    emptyFolder: This folder is empty
+    videosSection: Videos
+    imagesSection: Images
+    location: Location
+    sourceMissing: This source is gone
+    notScannedYet: This folder has not been scanned yet
+    scanning: Reading this folder…
+    deleteFileTitle: Delete this file?
+    deleteFileBody: '"${name}" will be permanently removed from this device. This cannot be undone.'
+    pickFolderTitle: Choose a folder
+    useThisFolder: Use this folder
+    noSubfolders: No subfolders here
+    storageRoot: Device storage
+    folderUnreadable: This folder cannot be read
+    setCover: Set cover
+    setAsFolderCover: Use as folder cover
+    folderCoverSet: Folder cover updated
+    setFolderCoverPick: Set cover…
+    restoreAutoCover: Restore automatic cover
+    autoCoverRestored: Automatic cover restored
+    rescanFolder: Rescan this folder
+    coverPickerTitle: Pick a frame
+    folderCoverPickerTitle: Choose cover
+    coverPickerEmpty: No images available in this folder yet. Video thumbnails may still be generating in the background.
+    coverSaved: Cover updated
+    coverSaveFailed: Could not save the cover
+    coverUnavailable: No video frame could be read from this file
+    deleted: Deleted
+    deleteFailed: Could not delete — the file may be in use or not writable
+    openFolder: Open
+    favorite: Add to favorites
+    unfavorite: Remove from favorites
+    favorited: Added to favorites
+    unfavorited: Removed from favorites
+    sortBy: Sort by
+    sortAscending: Ascending
+    sortDescending: Descending
+    sortFieldName: Name
+    sortFieldModified: Date modified
+    sortFieldDuration: Duration
+    sortFieldSize: Size
+    sortFieldResolution: Resolution
+    sortFieldFileType: File type
+    sortFieldFps: Frame rate
+    sortFieldFavorited: Date favorited
+    emptyAllVideos: No videos found yet. Add a folder under Folders to get started.
+    emptyAllImages: No images found yet. Add a folder under Folders to get started.
+    emptyFavorites: No favorites yet. Add one from a video's ⋮ menu.
+    emptyPinned: No pinned folders yet. Long-press a folder under Folders and choose Pin.
+    emptyDownloadedVideos: No finished video downloads yet.
+    emptyDownloadedGalleries: No finished gallery downloads yet.
+    folderInfo: Folder info
+    folderInfoName: Name
+    folderInfoPath: Path
+    folderInfoSource: Source
+    folderInfoContents: Contents
+    folderInfoSize: Size on disk
+    folderInfoScannedAt: Last scanned
+    folderInfoNeverScanned: Not scanned yet
+    folderInfoNoPath: This source has no folder to open
+    copyPath: Copy path
+    pathCopied: Path copied
+  tabFolders: Folders
+  tabFavoriteVideos: Favorites
+  tabAllVideos: All videos
+  tabAllImages: All images
+  tabDownloadedVideos: Downloaded videos
+  tabDownloadedGalleries: Downloaded galleries
   title: On this device
   sourceOnline: Iwara online
   manageSources: Manage sources

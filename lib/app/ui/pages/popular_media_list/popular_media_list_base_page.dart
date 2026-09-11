@@ -4,16 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
-import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
-import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
-import 'package:i_iwara/app/services/local_media_scan_service.dart';
-import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/repositories/local_media_repository.dart';
 
 import 'package:i_iwara/app/models/sort.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
@@ -25,7 +19,6 @@ import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_medi
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/batch_select_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_tab_view.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_filter_drawer.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/saved_search_config_drawer.dart';
@@ -47,10 +40,6 @@ import 'package:loading_more_list/loading_more_list.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/base_media_repository.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/local_media_list_repository.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/local_image_folder_list_repository.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/identity_avatar_button.dart';
 import 'package:i_iwara/app/ui/widgets/search_mode_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
@@ -103,16 +92,7 @@ class PopularMediaListPageBaseState<
   W extends PopularMediaListPageBase<T, C, R>
 >
     extends State<W>
-        // ⛔ 必须是多 ticker 版。来源切换（线上 3 档 ⇄ 本机 6 档）会**换掉整只
-        // TabController**（[_replaceTabController]），而 [SingleTickerProviderStateMixin]
-        // 一个 State 只许要一根 ticker：第二次 `TabController(vsync: this)` 直接抛
-        // 「multiple tickers were created」。那一抛发生在 [_selectLocalSource] 中途，
-        // 于是它后面的 [_replaceLocalRepositories] 再也没跑到，
-        // `_localRepositories[sortId]!` 当场 null → **整面墙变成红色报错页**。
-        // （真机实证 2026-09-10：切到任意本机来源 100% 复现；`dart analyze` 看不出来，
-        // 它是运行时断言。）
-        with
-        TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   final List<Sort> sorts = CommonConstants.mediaSorts;
   late TabController _tabController;
 
@@ -128,54 +108,6 @@ class PopularMediaListPageBaseState<
   final Map<SortId, R> _repositories = {};
   final Map<SortId, C> _controllers = {};
 
-  /// 视频页的本机来源状态。图库页继续使用线上列表，不创建这些池。
-  final LocalMediaRepository _localMediaRepository = LocalMediaRepository();
-  final List<LocalMediaSort> _localSorts = const <LocalMediaSort>[
-    LocalMediaSort.addedDesc,
-    LocalMediaSort.playedDesc,
-    LocalMediaSort.nameAsc,
-    LocalMediaSort.durationDesc,
-    LocalMediaSort.sizeDesc,
-    LocalMediaSort.folderAsc,
-  ];
-  final List<SortId> _localSortIds = const <SortId>[
-    SortId.localAdded,
-    SortId.localPlayed,
-    SortId.localName,
-    SortId.localDuration,
-    SortId.localSize,
-    SortId.localFolder,
-  ];
-  final List<LocalImageFolderSort> _localImageFolderSorts =
-      const <LocalImageFolderSort>[
-        LocalImageFolderSort.addedDesc,
-        LocalImageFolderSort.nameAsc,
-        LocalImageFolderSort.countDesc,
-      ];
-  final List<SortId> _localImageFolderSortIds = const <SortId>[
-    SortId.localAdded,
-    SortId.localName,
-    SortId.localCount,
-  ];
-  List<SortId> get _activeLocalSortIds =>
-      T == ImageModel ? _localImageFolderSortIds : _localSortIds;
-  List<LocalMediaSource> _localSources = const <LocalMediaSource>[];
-  final Map<SortId, LocalMediaListRepository> _localRepositories = {};
-  final Map<SortId, LocalImageFolderListRepository>
-  _localImageFolderRepositories = {};
-  String? _localSourceId;
-  String? _localCategoryId;
-  bool _isLocalSource = false;
-  Worker? _localScanWorker;
-  Worker? _localMediaChangeWorker;
-  Worker? _localScrollSettleWorker;
-
-  /// 有过一次「库变了、但用户正滚在半空」的刷新被推迟了，等他自己回到顶部再补。
-  bool _pendingLocalWallRefresh = false;
-
-  /// 视作「还在顶部」的余量：这点位移内做破坏性刷新，用户看不出被弹回。
-  static const double _kLocalWallTopSlack = 120.0;
-
   List<Tag> tags = [];
   String year = '';
   String rating = '';
@@ -185,10 +117,6 @@ class PopularMediaListPageBaseState<
 
   void tryRefreshCurrentSort() {
     if (mounted) {
-      if (_isLocalSource) {
-        _refreshActiveLocalRepository();
-        return;
-      }
       var sortId = sorts[_tabController.index].id;
       var repository = _repositories[sortId];
       if (!_mediaListController.isPaginated.value) {
@@ -205,11 +133,6 @@ class PopularMediaListPageBaseState<
     if (!mounted) return;
     // 重置头部折叠状态并把当前列表滚动到顶部
     _mediaListController.scrollToTop();
-
-    if (_isLocalSource) {
-      _refreshActiveLocalRepository();
-      return;
-    }
 
     final activeSortId = _activeTabId();
     if (_mediaListController.isPaginated.value) {
@@ -297,411 +220,11 @@ class PopularMediaListPageBaseState<
     );
   }
 
-  bool get _supportsLocalSource => T == Video || T == ImageModel;
-
-  void _refreshLocalSources() {
-    if (!_supportsLocalSource) return;
-    final sources = _localMediaRepository.getSources();
-    final activeStillExists =
-        _localSourceId == null ||
-        sources.any((source) => source.id == _localSourceId);
-    final wasLocalSource = _isLocalSource;
-    final previousIndex = _tabController.index;
-    final activeSourceWasRemoved = wasLocalSource && !activeStillExists;
-    if (activeSourceWasRemoved) {
-      _isLocalSource = false;
-      _localSourceId = null;
-      _localCategoryId = null;
-      _disposeLocalRepositories();
-    }
-    if (!mounted) return;
-    setState(() => _localSources = sources);
-    if (activeSourceWasRemoved) {
-      _replaceTabController(
-        length: sorts.length,
-        initialIndex: previousIndex.clamp(0, sorts.length - 1).toInt(),
-      );
-    }
-  }
-
-  Future<void> _syncLocalDownloads() async {
-    if (!_supportsLocalSource ||
-        !Get.isRegistered<DownloadsLibrarySyncService>()) {
-      return;
-    }
-    await DownloadsLibrarySyncService.to.sync();
-    _refreshLocalSources();
-    if (_isLocalSource) _refreshActiveLocalRepository();
-  }
-
-  void _onLocalScanProgress(LocalMediaScanProgress? progress) {
-    if (!mounted || !_supportsLocalSource || progress == null) return;
-    // ⛔ 这个信号是**每批**推一次的（`local_media_scan_service.dart` 的批处理循环 /
-    // MediaStore 每页 400 条各一次）。源那一行的 scan_state / item_count 只在
-    // 开扫与扫完时变，中途每批都重查一次库是白花的 UI 线程时间。
-    if (progress.finished) _refreshLocalSources();
-    if (_isLocalSource && progress.sourceId == _localSourceId) {
-      _requestLocalWallRefresh();
-    }
-  }
-
-  void _onLocalMediaChanged() {
-    if (!mounted || !_supportsLocalSource) return;
-    _refreshLocalSources();
-    if (!_isLocalSource) return;
-
-    final categoryId = _localCategoryId;
-    final categoryWasDeleted =
-        categoryId != null &&
-        categoryId != kLocalMediaUncategorized &&
-        Get.isRegistered<DownloadService>() &&
-        !DownloadService.to.categories.any(
-          (category) => category.id == categoryId,
-        );
-    if (categoryWasDeleted) {
-      // 当前筛选的分类被别处删掉了：这是**结构性**变化，墙上正显示的东西
-      // 已经不存在，不能等用户滚回顶部。
-      setState(() => _localCategoryId = null);
-      _replaceLocalRepositories();
-      _requestLocalWallRefresh(immediate: true);
-      return;
-    }
-    _requestLocalWallRefresh();
-  }
-
-  /// ⭐ 本机墙**唯一**的「该重新拉一次了」入口。
-  ///
-  /// ⛔ 背后是 `LoadingMoreBase.refresh(true)`，它是**破坏性**的：清空列表、
-  /// 重拉第 0 页、滚动位置复位。而触发它的两个信号——扫描进度、库变更 revision
-  /// ——都是**后台**发生的，用户很可能正滚在半空看别的东西：
-  ///
-  /// - 扫一个两万条的目录，每批推一次进度 ⇒ 墙每隔几百毫秒弹回顶部一次；
-  /// - 后台下完一个片子入库、派生服务回填一次封面，同理。
-  ///
-  /// 所以规矩是：**用户自己触发的（换来源/换排序/换分类/下拉刷新）立即刷；
-  /// 后台触发的只在"用户本来就在顶部"时刷，否则记账，等他自己滚回顶部再补。**
-  /// 滚在半空的人永远不会被弹走。
-  void _requestLocalWallRefresh({bool immediate = false}) {
-    if (!mounted || !_isLocalSource) return;
-    if (immediate ||
-        _mediaListController.currentScrollOffset.value <= _kLocalWallTopSlack) {
-      _pendingLocalWallRefresh = false;
-      _refreshActiveLocalRepository();
-      return;
-    }
-    _pendingLocalWallRefresh = true;
-  }
-
-  /// 滚动停下来之后才判定，避免在惯性滑行**经过**顶部的那一帧上重拉。
-  void _onLocalScrollSettled(double offset) {
-    if (!mounted || !_pendingLocalWallRefresh || !_isLocalSource) return;
-    if (offset > _kLocalWallTopSlack) return;
-    _pendingLocalWallRefresh = false;
-    _refreshActiveLocalRepository();
-  }
-
-  void _disposeLocalRepositories() {
-    for (final repository in _localRepositories.values) {
-      repository.dispose();
-    }
-    _localRepositories.clear();
-    for (final repository in _localImageFolderRepositories.values) {
-      repository.dispose();
-    }
-    _localImageFolderRepositories.clear();
-  }
-
-  void _replaceLocalRepositories() {
-    _disposeLocalRepositories();
-    final sourceId = _localSourceId;
-    if (!_isLocalSource || sourceId == null) return;
-    if (T == ImageModel) {
-      for (var index = 0; index < _localImageFolderSorts.length; index++) {
-        _localImageFolderRepositories[_localImageFolderSortIds[index]] =
-            LocalImageFolderListRepository(
-              sourceId: sourceId,
-              sortOrder: _localImageFolderSorts[index],
-              repository: _localMediaRepository,
-            );
-      }
-      return;
-    }
-    for (var index = 0; index < _localSorts.length; index++) {
-      _localRepositories[_localSortIds[index]] = LocalMediaListRepository(
-        sourceId: sourceId,
-        sortOrder: _localSorts[index],
-        categoryId: _localCategoryId,
-        repository: _localMediaRepository,
-      );
-    }
-  }
-
-  /// 本机墙那一档排序对应的池。**取不到就当场建一个**，绝不 `!`。
-  ///
-  /// ⛔ 这里原来是 `_localRepositories[sortId]!`。池是在 [_selectLocalSource] 里
-  /// 一次性铺好的，而那条链路中间**曾经**会抛（见类声明上的 ticker 那条注释）——
-  /// 一抛，池就没铺完，`!` 把「少了一个池」放大成「整面墙红屏」。构造这个池
-  /// 是纯内存操作、不碰 IO，兜底建一个远比崩掉便宜。
-  LocalMediaListRepository _localRepositoryFor(SortId sortId) {
-    final existing = _localRepositories[sortId];
-    if (existing != null) return existing;
-    final index = _localSortIds.indexOf(sortId);
-    final created = LocalMediaListRepository(
-      sourceId: _localSourceId ?? '',
-      sortOrder: _localSorts[index < 0 ? 0 : index],
-      categoryId: _localCategoryId,
-      repository: _localMediaRepository,
-    );
-    _localRepositories[sortId] = created;
-    return created;
-  }
-
-  LocalImageFolderListRepository _localImageFolderRepositoryFor(SortId sortId) {
-    final existing = _localImageFolderRepositories[sortId];
-    if (existing != null) return existing;
-    final index = _localImageFolderSortIds.indexOf(sortId);
-    final created = LocalImageFolderListRepository(
-      sourceId: _localSourceId ?? '',
-      sortOrder: _localImageFolderSorts[index < 0 ? 0 : index],
-      repository: _localMediaRepository,
-    );
-    _localImageFolderRepositories[sortId] = created;
-    return created;
-  }
-
-  void _refreshActiveLocalRepository() {
-    _pendingLocalWallRefresh = false;
-    if (T == ImageModel) {
-      if (_tabController.index < _localImageFolderSortIds.length) {
-        final repository =
-            _localImageFolderRepositories[_localImageFolderSortIds[_tabController
-                .index]];
-        repository?.refresh(true);
-      }
-      return;
-    }
-    final repository = _localRepositories[_localSortIds[_tabController.index]];
-    repository?.refresh(true);
-  }
-
-  SortId _activeTabId() {
-    if (!_isLocalSource) return sorts[_tabController.index].id;
-    final activeIds = _activeLocalSortIds;
-    final safeIndex = _tabController.index.clamp(0, activeIds.length - 1);
-    return activeIds[safeIndex];
-  }
-
-  void _replaceTabController({required int length, int initialIndex = 0}) {
-    final int safeIndex = initialIndex.clamp(0, length - 1).toInt();
-    if (_tabController.length == length) {
-      _tabController.index = safeIndex;
-      return;
-    }
-    _tabController
-      ..removeListener(_onTabChange)
-      ..dispose();
-    _tabController = TabController(
-      length: length,
-      initialIndex: safeIndex,
-      vsync: this,
-    )..addListener(_onTabChange);
-    _currentTabIndex.value = _tabController.index;
-    _mediaListController.setActiveSort(_activeTabId());
-  }
-
-  void _selectLocalSource(int index) {
-    if (!_supportsLocalSource) return;
-    if (index == 0) {
-      if (!_isLocalSource) return;
-      final previousIndex = _tabController.index;
-      setState(() {
-        _isLocalSource = false;
-        _localSourceId = null;
-        _batchSelectController.exitMultiSelect();
-      });
-      _disposeLocalRepositories();
-      _replaceTabController(
-        length: sorts.length,
-        initialIndex: previousIndex.clamp(0, sorts.length - 1).toInt(),
-      );
-      return;
-    }
-    final sourceIndex = index - 1;
-    if (sourceIndex < _localSources.length) {
-      final source = _localSources[sourceIndex];
-      final enteringLocal = !_isLocalSource;
-      final previousIndex = _tabController.index;
-      setState(() {
-        _isLocalSource = true;
-        _localSourceId = source.id;
-        _localCategoryId = null;
-        _batchSelectController.exitMultiSelect();
-      });
-      final localSortCount = _activeLocalSortIds.length;
-      _replaceTabController(
-        length: localSortCount,
-        initialIndex: enteringLocal
-            ? 0
-            : previousIndex.clamp(0, localSortCount - 1),
-      );
-      _replaceLocalRepositories();
-      return;
-    }
-    _openLocalSourceManager();
-  }
-
-  Future<void> _openLocalSourceManager() async {
-    await NaviService.navigateToLocalMediaSourcesPage();
-    _refreshLocalSources();
-  }
-
-  String _localSortAction(LocalMediaSort sort) => 'local_sort_${sort.name}';
-
-  String _localSortLabel(LocalMediaSort sort) {
-    final local = t.localMedia;
-    return switch (sort) {
-      LocalMediaSort.addedDesc => local.sortRecentlyAdded,
-      LocalMediaSort.playedDesc => local.sortRecentlyPlayed,
-      LocalMediaSort.nameAsc => local.sortName,
-      LocalMediaSort.durationDesc => local.sortDuration,
-      LocalMediaSort.sizeDesc => local.sortSize,
-      LocalMediaSort.folderAsc => local.sortFolder,
-      LocalMediaSort.modifiedDesc => local.sortRecentlyModified,
-    };
-  }
-
-  IconData _localSortIcon(LocalMediaSort sort) => switch (sort) {
-    LocalMediaSort.addedDesc => Icons.schedule_outlined,
-    LocalMediaSort.playedDesc => Icons.history_outlined,
-    LocalMediaSort.nameAsc => Icons.sort_by_alpha,
-    LocalMediaSort.durationDesc => Icons.timelapse_outlined,
-    LocalMediaSort.sizeDesc => Icons.storage_outlined,
-    LocalMediaSort.folderAsc => Icons.folder_outlined,
-    LocalMediaSort.modifiedDesc => Icons.update_outlined,
-  };
-
-  String _localImageFolderSortAction(LocalImageFolderSort sort) =>
-      'local_image_sort_${sort.name}';
-
-  String _localImageFolderSortLabel(LocalImageFolderSort sort) {
-    final local = t.localMedia;
-    return switch (sort) {
-      LocalImageFolderSort.addedDesc => local.sortRecentlyAdded,
-      LocalImageFolderSort.nameAsc => local.sortName,
-      LocalImageFolderSort.countDesc => local.sortCount,
-    };
-  }
-
-  IconData _localImageFolderSortIcon(LocalImageFolderSort sort) =>
-      switch (sort) {
-        LocalImageFolderSort.addedDesc => Icons.schedule_outlined,
-        LocalImageFolderSort.nameAsc => Icons.sort_by_alpha,
-        LocalImageFolderSort.countDesc => Icons.format_list_numbered,
-      };
+  SortId _activeTabId() => sorts[_tabController.index].id;
 
   void _selectSortIndex(int index) {
-    final count = _isLocalSource ? _activeLocalSortIds.length : sorts.length;
-    if (index < 0 || index >= count) return;
+    if (index < 0 || index >= sorts.length) return;
     _tabController.animateTo(index);
-  }
-
-  List<GlassSegmentItem> _sourceItems() {
-    final local = t.localMedia;
-    return <GlassSegmentItem>[
-      GlassSegmentItem(
-        label: local.sourceOnline,
-        icon: const Icon(Icons.cloud_outlined),
-      ),
-      for (final source in _localSources)
-        GlassSegmentItem(
-          label: source.displayName,
-          icon: Icon(
-            source.isBuiltIn
-                ? Icons.download_outlined
-                : Icons.folder_open_outlined,
-          ),
-        ),
-      GlassSegmentItem(
-        label: _localSources.isEmpty ? local.addFolder : local.manageSources,
-        icon: Icon(
-          _localSources.isEmpty
-              ? Icons.create_new_folder_outlined
-              : Icons.settings_outlined,
-        ),
-      ),
-    ];
-  }
-
-  int get _selectedSourceIndex {
-    if (!_isLocalSource || _localSourceId == null) return 0;
-    final index = _localSources.indexWhere(
-      (source) => source.id == _localSourceId,
-    );
-    return index < 0 ? 0 : index + 1;
-  }
-
-  Widget _buildSourceControl() {
-    return GlassAdaptiveSegmentedControl(
-      key: ValueKey('${_selectedSourceIndex}_${_localSources.length}'),
-      items: _sourceItems(),
-      selectedIndex: _selectedSourceIndex,
-      dropdownOnly: true,
-      onChanged: _selectLocalSource,
-    );
-  }
-
-  String _localCategoryLabel() {
-    final categoryId = _localCategoryId;
-    if (categoryId == null) return t.common.all;
-    if (categoryId == kLocalMediaUncategorized) {
-      return t.localMedia.uncategorized;
-    }
-    if (!Get.isRegistered<DownloadService>()) return t.common.all;
-    return DownloadService.to.categories
-            .firstWhereOrNull((category) => category.id == categoryId)
-            ?.title ??
-        t.common.all;
-  }
-
-  Future<void> _pickLocalCategory(BuildContext anchorContext) async {
-    final sourceId = _localSourceId;
-    if (sourceId == null || !anchorContext.mounted) return;
-    final categories = Get.isRegistered<DownloadService>()
-        ? DownloadService.to.categories.toList()
-        : const [];
-    final counts = _localMediaRepository.categoryCounts(sourceId: sourceId);
-    final picked = await showGlassMenu<String>(
-      anchorContext: anchorContext,
-      entries: <GlassMenuEntry>[
-        GlassMenuOption<String>(
-          value: '\u0000all',
-          label: t.common.all,
-          description:
-              '${_localMediaRepository.countItems(sourceId: sourceId)}',
-          icon: Icons.apps,
-        ),
-        GlassMenuOption<String>(
-          value: kLocalMediaUncategorized,
-          label: t.localMedia.uncategorized,
-          description: '${counts.uncategorized}',
-          icon: Icons.folder_outlined,
-          enabled: counts.uncategorized > 0,
-        ),
-        for (final category in categories)
-          GlassMenuOption<String>(
-            value: category.id,
-            label: category.title,
-            description: '${counts.byCategory[category.id] ?? 0}',
-            icon: Icons.folder_outlined,
-            enabled: (counts.byCategory[category.id] ?? 0) > 0,
-          ),
-      ],
-    );
-    if (!mounted || picked == null) return;
-    setState(() {
-      _localCategoryId = picked == '\u0000all' ? null : picked;
-    });
-    _replaceLocalRepositories();
   }
 
   @override
@@ -734,35 +257,10 @@ class PopularMediaListPageBaseState<
     _mediaListController.setActiveSort(_activeTabId());
     // 不再有可折叠的 header 行
     _mediaListController.configureHeaderExtent(0);
-
-    if (_supportsLocalSource) {
-      _refreshLocalSources();
-      _localMediaChangeWorker = debounce<int>(
-        LocalMediaRepository.changeRevision,
-        (_) => _onLocalMediaChanged(),
-        time: const Duration(milliseconds: 300),
-      );
-      _localScrollSettleWorker = debounce<double>(
-        _mediaListController.currentScrollOffset,
-        _onLocalScrollSettled,
-        time: const Duration(milliseconds: 250),
-      );
-      if (Get.isRegistered<LocalMediaScanService>()) {
-        _localScanWorker = ever<LocalMediaScanProgress?>(
-          LocalMediaScanService.to.progress,
-          _onLocalScanProgress,
-        );
-      }
-      unawaited(_syncLocalDownloads());
-    }
   }
 
   @override
   void dispose() {
-    _localMediaChangeWorker?.dispose();
-    _localScanWorker?.dispose();
-    _localScrollSettleWorker?.dispose();
-    _disposeLocalRepositories();
     _tabController.removeListener(_onTabChange);
     _tabController.dispose();
     Get.delete<PopularMediaListController>(tag: widget.controllerTag);
@@ -921,24 +419,8 @@ class PopularMediaListPageBaseState<
   static const String _menuActionTogglePagination = 'toggle_pagination';
   static const String _menuActionToggleBatchSelect = 'toggle_batch_select';
   static const String _menuActionSortPrefix = 'sort_';
-  static const String _menuActionLocalSortPrefix = 'local_sort_';
-  static const String _menuActionLocalCategory = 'local_category';
 
   void _handleTopBarMenuAction(String action) {
-    if (action.startsWith('local_image_sort_')) {
-      final name = action.substring('local_image_sort_'.length);
-      final index = _localImageFolderSorts.indexWhere(
-        (sort) => sort.name == name,
-      );
-      _selectSortIndex(index);
-      return;
-    }
-    if (action.startsWith(_menuActionLocalSortPrefix)) {
-      final name = action.substring(_menuActionLocalSortPrefix.length);
-      final index = _localSorts.indexWhere((sort) => sort.name == name);
-      _selectSortIndex(index);
-      return;
-    }
     if (action.startsWith(_menuActionSortPrefix)) {
       final name = action.substring(_menuActionSortPrefix.length);
       final index = sorts.indexWhere((sort) => sort.id.name == name);
@@ -946,9 +428,6 @@ class PopularMediaListPageBaseState<
       return;
     }
     switch (action) {
-      case _menuActionLocalCategory:
-        _pickLocalCategory(context);
-        break;
       case _menuActionOpenSearch:
         _openSearchDialog();
         break;
@@ -1001,69 +480,28 @@ class PopularMediaListPageBaseState<
       label: t.common.scrollToTop,
     );
     items.add(const GlassMenuSeparator());
-    if (_isLocalSource && T != ImageModel) {
+    for (final sort in sorts) {
       items.add(
         GlassMenuOption<String>(
-          value: _menuActionLocalCategory,
-          icon: Icons.folder_special_outlined,
-          label: t.localMedia.filterByCategory,
-          description: _localCategoryLabel(),
+          value: '$_menuActionSortPrefix${sort.id.name}',
+          leading: sort.icon,
+          label: sort.label,
+          selected: sort.id == sorts[_tabController.index].id,
         ),
       );
-      items.add(const GlassMenuSeparator());
-    }
-    if (_isLocalSource) {
-      if (T == ImageModel) {
-        for (var index = 0; index < _localImageFolderSorts.length; index++) {
-          final sort = _localImageFolderSorts[index];
-          items.add(
-            GlassMenuOption<String>(
-              value: _localImageFolderSortAction(sort),
-              icon: _localImageFolderSortIcon(sort),
-              label: _localImageFolderSortLabel(sort),
-              selected: index == _tabController.index,
-            ),
-          );
-        }
-      } else {
-        for (var index = 0; index < _localSorts.length; index++) {
-          final sort = _localSorts[index];
-          items.add(
-            GlassMenuOption<String>(
-              value: _localSortAction(sort),
-              icon: _localSortIcon(sort),
-              label: _localSortLabel(sort),
-              selected: index == _tabController.index,
-            ),
-          );
-        }
-      }
-    } else {
-      for (final sort in sorts) {
-        items.add(
-          GlassMenuOption<String>(
-            value: '$_menuActionSortPrefix${sort.id.name}',
-            leading: sort.icon,
-            label: sort.label,
-            selected: sort.id == sorts[_tabController.index].id,
-          ),
-        );
-      }
     }
     // 批量选择：默认只收在菜单里；开启后按钮才会冒到右侧胶囊中，
     // 菜单里的入口同步换成「退出编辑模式」。
-    if (!_isLocalSource) {
-      items.add(const GlassMenuSeparator());
-      addMenuItem(
-        value: _menuActionToggleBatchSelect,
-        icon: _batchSelectController.isMultiSelect.value
-            ? Icons.close
-            : Icons.checklist,
-        label: _batchSelectController.isMultiSelect.value
-            ? t.common.exitEditMode
-            : t.common.editMode,
-      );
-    }
+    items.add(const GlassMenuSeparator());
+    addMenuItem(
+      value: _menuActionToggleBatchSelect,
+      icon: _batchSelectController.isMultiSelect.value
+          ? Icons.close
+          : Icons.checklist,
+      label: _batchSelectController.isMultiSelect.value
+          ? t.common.exitEditMode
+          : t.common.editMode,
+    );
     items.add(const GlassMenuSeparator());
     addMenuItem(
       value: _menuActionTogglePagination,
@@ -1160,70 +598,6 @@ class PopularMediaListPageBaseState<
     });
   }
 
-  Future<void> _openLocalItem(LocalMediaItem item) async {
-    if (!item.isPlayableNow) {
-      showAppToast(t.localMedia.fileMissing, type: AppToastType.error);
-      return;
-    }
-    final sourceId = _localSourceId;
-    PlaybackQueueRef? queueRef;
-    if (sourceId != null && Get.isRegistered<PlaybackQueueService>()) {
-      try {
-        final source = _localSources.firstWhereOrNull(
-          (candidate) => candidate.id == sourceId,
-        );
-        final queue = PlaybackQueueService.to.openLocalLibrary(
-          sourceId: sourceId,
-          categoryId: _localCategoryId,
-          sort: _localSorts[_tabController.index],
-          title: source?.displayName,
-        );
-        if (queue.loaded.isEmpty) await queue.loadMore();
-        queueRef = PlaybackQueueRef(
-          queueId: queue.queueId,
-          currentItemId: item.id,
-        );
-      } catch (e, s) {
-        LogUtils.w('创建本机播放队列失败: $e', 'PopularMediaListPageBase');
-        LogUtils.d('$s', 'PopularMediaListPageBase');
-      }
-    }
-    NaviService.navigateToLocalVideoPlayerPage(
-      localPath: item.resolvePlaybackTarget(),
-      localLibraryItemId: item.id,
-      playbackQueueRef: queueRef,
-    );
-  }
-
-  Future<void> _openLocalImageFolder(LocalImageFolder folder) async {
-    final paths = _localMediaRepository.imagePathsInFolder(
-      sourceId: _localSourceId,
-      folderPath: folder.folderPath,
-    );
-    if (paths.isEmpty) {
-      showAppToast(t.localMedia.fileMissing, type: AppToastType.error);
-      return;
-    }
-    final imageItems = paths
-        .map(
-          (path) => ImageItem(
-            url: 'file://$path',
-            data: ImageItemData(
-              id: path,
-              url: 'file://$path',
-              originalUrl: 'file://$path',
-            ),
-          ),
-        )
-        .toList();
-    pushPhotoViewWrapperOverlay(
-      context: context,
-      imageItems: imageItems,
-      initialIndex: 0,
-      menuItemsBuilder: (context, item) => const [],
-      enableMenu: false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1255,7 +629,6 @@ class PopularMediaListPageBaseState<
                 final rebuildKey = _mediaListController.rebuildKey.value
                     .toString();
                 final isMultiSelectMode =
-                    !_isLocalSource &&
                     _batchSelectController.isMultiSelect.value;
                 final selectedMediaIds = _batchSelectController.selectedMediaIds
                     .toSet();
@@ -1265,56 +638,6 @@ class PopularMediaListPageBaseState<
                 // 视口必须铺满整页（不能在外面套 Padding，否则内容会在 header
                 // 下边缘被视口裁掉、永远滚不到 header 背后）；留白交给列表自身的
                 // paddingTop，这样首屏从 header 下方开始、滚动时从 header 背后经过。
-                if (_isLocalSource && _supportsLocalSource) {
-                  if (T == ImageModel) {
-                    return TabBarView(
-                      controller: _tabController,
-                      children: [
-                        for (final sortId in _localImageFolderSortIds)
-                          MediaTabView<LocalImageFolder>(
-                            key: ValueKey(
-                              'local_image_${_localSourceId}_${sortId.name}_'
-                              '$isPaginated$rebuildKey',
-                            ),
-                            sortId: sortId,
-                            repository: _localImageFolderRepositoryFor(sortId),
-                            emptyIcon: widget.emptyIcon,
-                            isPaginated: isPaginated,
-                            showBottomPadding: true,
-                            rebuildKey: rebuildKey,
-                            paddingTop: headerExtent,
-                            mediaListController: _mediaListController,
-                            onOpenLocalImageFolder: _openLocalImageFolder,
-                          ),
-                      ],
-                    );
-                  }
-                  return TabBarView(
-                    controller: _tabController,
-                    children: [
-                      for (final sortId in _localSortIds)
-                        MediaTabView<LocalMediaItem>(
-                          key: ValueKey(
-                            'local_${_localSourceId}_${_localCategoryId}_'
-                            '${sortId.name}_$isPaginated$rebuildKey',
-                          ),
-                          sortId: sortId,
-                          repository: _localRepositoryFor(sortId),
-                          emptyIcon: widget.emptyIcon,
-                          isPaginated: isPaginated,
-                          showBottomPadding: true,
-                          rebuildKey: rebuildKey,
-                          paddingTop: headerExtent,
-                          mediaListController: _mediaListController,
-                          onLocalItemChanged: () {
-                            _refreshActiveLocalRepository();
-                            _refreshLocalSources();
-                          },
-                          onOpenLocalItem: _openLocalItem,
-                        ),
-                    ],
-                  );
-                }
                 return TabBarView(
                   controller: _tabController,
                   children: sorts.map((sort) {
@@ -1367,36 +690,34 @@ class PopularMediaListPageBaseState<
                     const IdentityAvatarButton(),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _supportsLocalSource
-                          ? _buildSourceControl()
-                          : Obx(() {
-                              final bool selecting =
-                                  _batchSelectController.isMultiSelect.value;
-                              return GlassAdaptiveSegmentedControl(
-                                selectedIndex: _currentTabIndex.value,
-                                progress: _tabController.animation,
-                                onChanged: (i) => _tabController.animateTo(i),
-                                items: [
-                                  for (final sort in sorts)
-                                    GlassSegmentItem(
-                                      label: sort.label,
-                                      icon: sort.icon,
-                                    ),
-                                ],
-                                replacement: selecting
-                                    ? SizedBox(
-                                        key: const ValueKey('selection'),
-                                        width: 168,
-                                        child: GlassSelectionSummary(
-                                          selectedCount: _batchSelectController
-                                              .selectedCount,
-                                          allSelected: false,
-                                          onToggleAll: null,
-                                        ),
-                                      )
-                                    : null,
-                              );
-                            }),
+                      child: Obx(() {
+                        final bool selecting =
+                            _batchSelectController.isMultiSelect.value;
+                        return GlassAdaptiveSegmentedControl(
+                          selectedIndex: _currentTabIndex.value,
+                          progress: _tabController.animation,
+                          onChanged: (i) => _tabController.animateTo(i),
+                          items: [
+                            for (final sort in sorts)
+                              GlassSegmentItem(
+                                label: sort.label,
+                                icon: sort.icon,
+                              ),
+                          ],
+                          replacement: selecting
+                              ? SizedBox(
+                                  key: const ValueKey('selection'),
+                                  width: 168,
+                                  child: GlassSelectionSummary(
+                                    selectedCount: _batchSelectController
+                                        .selectedCount,
+                                    allSelected: false,
+                                    onToggleAll: null,
+                                  ),
+                                )
+                              : null,
+                        );
+                      }),
                     ),
                     const SizedBox(width: 8),
                     _buildActionGroup(context, isWide: isWide),

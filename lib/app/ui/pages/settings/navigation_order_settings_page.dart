@@ -34,7 +34,14 @@ class _NavigationOrderSettingsPageState
   int _previewTabIndex = 0;
   int _previewRailIndex = 0;
 
-  // 导航项配置
+  // 导航项配置。
+  //
+  // ⛔ 键集合必须覆盖 [HomeShellNavigation.canonicalOrder] 的全部键：排序列表和
+  // 两块预览都是拿持久化顺序（已被 normalizeOrder 补齐成 canonical 全集）逐项
+  // 来这张表里取的，漏一个键整页就打不开。历史事故：新增「本机文件」分支后这里
+  // 没跟着加，进设置页直接 "Null check operator used on a null value"。
+  // 现在漏配由 initState 的 assert 在 debug 下当场喊出来，release 下 [_itemFor]
+  // 兜底退化成一行占位，不再整页崩。
   final Map<String, NavigationItem> _navigationItems = {
     'video': NavigationItem(
       key: 'video',
@@ -62,11 +69,40 @@ class _NavigationOrderSettingsPageState
       icon: Icons.forum,
       description: slang.t.navigationOrderSettings.communityDescription,
     ),
+    // 本机文件：第 5 个 tab，可隐藏（见 HomeShellNavigation.hideableKeys）。
+    'localMedia': NavigationItem(
+      key: 'localMedia',
+      title: slang.t.localMedia.title,
+      icon: Icons.folder_open,
+      description: slang.t.navigationOrderSettings.localMediaDescription,
+    ),
   };
+
+  /// 取某个导航键的展示信息；未配置的键退化成一行占位而不是崩页。
+  NavigationItem _itemFor(String key) =>
+      _navigationItems[key] ??
+      NavigationItem(
+        key: key,
+        title: key,
+        icon: Icons.tab,
+        description: '',
+      );
+
+  /// 两块预览里该显示的标签：走真实导航栏那一套（`t.bottomNav.*` 的短词，
+  /// 见 [AppService.navigationItems]），不要用本页排序列表里的长标题——
+  /// 底栏一格的标签宽度只有约 3 个汉字，「本机文件」摆进预览会变省略号，
+  /// 跟用户真正看到的底栏对不上（预览的全部意义就是对得上）。
+  String _previewLabel(String key) =>
+      AppService.navigationItems[key]?.title ?? _itemFor(key).title;
 
   @override
   void initState() {
     super.initState();
+    assert(
+      HomeShellNavigation.canonicalOrder.every(_navigationItems.containsKey),
+      '导航排序设置缺少导航项配置：'
+      '${HomeShellNavigation.canonicalOrder.where((k) => !_navigationItems.containsKey(k)).toList()}',
+    );
     _configService = Get.find<ConfigService>();
     _loadSettings();
   }
@@ -338,7 +374,7 @@ class _NavigationOrderSettingsPageState
               },
               itemBuilder: (context, index) {
                 final itemKey = _navigationOrder[index];
-                final item = _navigationItems[itemKey]!;
+                final item = _itemFor(itemKey);
                 final isHideable = HomeShellNavigation.hideableKeys.contains(
                   itemKey,
                 );
@@ -577,8 +613,11 @@ class _NavigationOrderSettingsPageState
                 currentIndex: _previewTabIndex,
                 onTap: (index) => setState(() => _previewTabIndex = index),
                 items: visibleOrder.map((key) {
-                  final item = _navigationItems[key]!;
-                  return GlassTabItem(icon: item.icon, label: item.title);
+                  final item = _itemFor(key);
+                  return GlassTabItem(
+                    icon: item.icon,
+                    label: _previewLabel(key),
+                  );
                 }).toList(),
                 action: GlassFloatingBarAction(
                   icon: Icons.search,
@@ -598,10 +637,14 @@ class _NavigationOrderSettingsPageState
   Widget _buildSidebarPreview(List<String> visibleOrder) {
     final cs = Theme.of(context).colorScheme;
     final destinations = visibleOrder.map((key) {
-      final item = _navigationItems[key]!;
+      final item = _itemFor(key);
       return NavigationRailDestination(
         icon: Icon(item.icon),
-        label: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        label: Text(
+          _previewLabel(key),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       );
     }).toList();
 

@@ -102,6 +102,7 @@
 // `setState` 再 `pop` 来得及。
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
@@ -290,6 +291,7 @@ Future<void> showMediaPreviewDialog({
   Future<Video?> Function()? loadVideoDetail,
   Future<ImageModel?> Function()? loadGalleryDetail,
   Future<void> Function()? onWillLeavePage,
+  bool remoteActionsAvailable = true,
   double heroSourceRadius = 8,
   bool heroSourceIsAllCover = true,
 }) {
@@ -326,6 +328,7 @@ Future<void> showMediaPreviewDialog({
       loadVideoDetail: loadVideoDetail,
       loadGalleryDetail: loadGalleryDetail,
       onWillLeavePage: onWillLeavePage,
+      remoteActionsAvailable: remoteActionsAvailable,
       heroSourceRadius: heroSourceRadius,
       heroSourceIsAllCover: heroSourceIsAllCover,
     ),
@@ -351,6 +354,7 @@ class MediaPreviewDialog extends StatefulWidget {
     this.loadVideoDetail,
     this.loadGalleryDetail,
     this.onWillLeavePage,
+    this.remoteActionsAvailable = true,
     this.heroSourceRadius = 8,
     this.heroSourceIsAllCover = true,
   });
@@ -382,6 +386,18 @@ class MediaPreviewDialog extends StatefulWidget {
   /// 要把用户带去别的页面之前先跑它。见 [showMediaPreviewDialog]。
   final Future<void> Function()? onWillLeavePage;
 
+  /// 这一条**在 Iwara 上有对应的东西**吗。
+  ///
+  /// ⛔ 本机文件必须传 false：它的 id 是 `<源 uuid>-<路径 sha1>`，Iwara 不认识。
+  /// 点赞会拿这把钥匙去打接口，稍后再看更糟——它把这一行**持久写进本地库**，
+  /// 之后从稍后再看点开它推的是 `/video_detail/<本地id>`（图库那侧同理），必然
+  /// 是个 404，而用户没有任何办法理解那一行是什么、也想不到要去哪儿删。
+  ///
+  /// ⛔ 它与 [_detailReady] 是两件事，不能靠"没给加载器"顺带表达：没给加载器的
+  /// 意思是"手上这份已经齐了"，于是三枚钮**照常可用**——本机文件恰恰是"永远不给
+  /// 加载器"的那一类，正好落进那道口子里。这里要的是一个说得出口的开关。
+  final bool remoteActionsAvailable;
+
   /// Hero 起点那只盒子的圆角与构图。见 `MediaCardActionState.previewHeroRadius`
   /// 与 [_buildFlightShuttle]。
   final double heroSourceRadius;
@@ -408,6 +424,13 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   /// 详情齐了没有。没有加载器就是「一开始就齐」。
   late bool _detailReady =
       widget.loadVideoDetail == null && widget.loadGalleryDetail == null;
+
+  /// 三枚快捷键（点赞 / 稍后再看 / 更多）现在能不能按。
+  ///
+  /// 两道闸各管一件事：详情到手了没（[_detailReady]），以及这一条在 Iwara 上到底
+  /// 存不存在（[MediaPreviewDialog.remoteActionsAvailable]）。
+  bool get _quickActionsEnabled =>
+      _detailReady && widget.remoteActionsAvailable;
   bool _detailLoading = false;
   bool _detailFailed = false;
 
@@ -1628,6 +1651,9 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
           // ⛔ 详情没到手之前三枚全部按住（[_detailReady]）：点赞要发这条的 id、
           // 稍后再看与下载要把标题封面写进本地库，而此刻手上只有一份种子——
           // 按下去写进去的就是一行残缺数据。「打开」不受影响，它只要 id。
+          //
+          // ⛔ 本机文件是**另一道**闸（[MediaPreviewDialog.remoteActionsAvailable]）：
+          // 它不是"还没齐"，是压根不在 Iwara 上，等多久都不会齐。
           GlassChromeLayer(
             group: false,
             child: GlassButtonGroup(
@@ -1637,7 +1663,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
                   color: _liked ? Colors.pink : null,
                   loading: _likeBusy,
                   tooltip: _liked ? t.mediaMenu.unlike : t.mediaMenu.like,
-                  onPressed: _detailReady ? _toggleLike : null,
+                  onPressed: _quickActionsEnabled ? _toggleLike : null,
                 ),
                 GlassIconButton(
                   icon: Icon(
@@ -1651,7 +1677,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
                   tooltip: _inWatchLater
                       ? t.watchLater.removeFromWatchLater
                       : t.watchLater.addToWatchLater,
-                  onPressed: _detailReady ? _toggleWatchLater : null,
+                  onPressed: _quickActionsEnabled ? _toggleWatchLater : null,
                 ),
                 Builder(
                   // 菜单要贴着这枚钮弹，所以得拿到它自己那一层的 context。
@@ -1659,7 +1685,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
                     icon: const Icon(Icons.more_horiz),
                     tooltip: t.mediaPreview.moreActions,
                     opensOverlay: true,
-                    onPressed: _detailReady
+                    onPressed: _quickActionsEnabled
                         ? () => _openActionMenu(buttonContext)
                         : null,
                   ),
@@ -1813,6 +1839,10 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
     });
   }
 
+  static Widget _coverBroken() => const Center(
+    child: Icon(Icons.image_not_supported, size: 32, color: Color(0xFF9E9E9E)),
+  );
+
   @override
   Widget build(BuildContext context) {
     final String? animated = _animatedUrl;
@@ -1823,20 +1853,38 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
         // 底色跟翻页器保持一致：图库那一路图到手之后就换成翻页器，两边底色不同
         // 的话会当着用户的面闪一下。
         const ColoredBox(color: Colors.black),
-        CachedNetworkImage(
-          imageUrl: _thumbnailUrl,
-          fit: BoxFit.cover,
-          fadeInDuration: const Duration(milliseconds: 50),
-          placeholderFadeInDuration: Duration.zero,
-          fadeOutDuration: Duration.zero,
-          errorWidget: (context, url, error) => const Center(
-            child: Icon(
-              Icons.image_not_supported,
-              size: 32,
-              color: Color(0xFF9E9E9E),
+        // ⛔ 封面地址不保证是网址：本机内容那几条池（本机文件、已下载图库）发的是
+        // `file://` URI（见 `LocalLibraryPlaybackQueue._coverUriOf`）。喂给
+        // `CachedNetworkImage` 不是"加载不出来"而是**当场画一枚碎图**，比没有封面
+        // 更糟；离线时更是整张预览都成了碎图。所以在这里分路。
+        if (_thumbnailUrl.startsWith('file://'))
+          LayoutBuilder(
+            builder: (context, constraints) => Image.file(
+              File(Uri.parse(_thumbnailUrl).toFilePath()),
+              fit: BoxFit.cover,
+              // ⛔ 必须给 cacheWidth。本机图片的"封面"是 `thumbPath ?? path`
+              // （见 `LocalLibraryPlaybackQueue._coverUriOf`）——还没派生出缩略
+              // 图时它就是**原图**。一张 6000×4000 按原尺寸解码是 ~96MB，而这
+              // 是长按就弹的预览。同 `DownloadedGalleryWall._buildCover`。
+              cacheWidth:
+                  ((constraints.maxWidth.isFinite
+                                  ? constraints.maxWidth
+                                  : 320) *
+                              MediaQuery.devicePixelRatioOf(context))
+                          .round()
+                          .clamp(1, 1280),
+              errorBuilder: (context, error, stackTrace) => _coverBroken(),
             ),
+          )
+        else
+          CachedNetworkImage(
+            imageUrl: _thumbnailUrl,
+            fit: BoxFit.cover,
+            fadeInDuration: const Duration(milliseconds: 50),
+            placeholderFadeInDuration: Duration.zero,
+            fadeOutDuration: Duration.zero,
+            errorWidget: (context, url, error) => _coverBroken(),
           ),
-        ),
         if (animated != null)
           CachedNetworkImage(
             imageUrl: animated,

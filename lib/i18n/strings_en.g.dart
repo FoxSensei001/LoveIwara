@@ -68,6 +68,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsDownloadNotificationsEn downloadNotifications = TranslationsDownloadNotificationsEn._(_root);
 	late final TranslationsFavoriteEn favorite = TranslationsFavoriteEn._(_root);
 	late final TranslationsTranslationEn translation = TranslationsTranslationEn._(_root);
+	late final TranslationsBottomNavEn bottomNav = TranslationsBottomNavEn._(_root);
 	late final TranslationsNavigationOrderSettingsEn navigationOrderSettings = TranslationsNavigationOrderSettingsEn._(_root);
 	late final TranslationsNewsEn news = TranslationsNewsEn._(_root);
 	late final TranslationsDisplaySettingsEn displaySettings = TranslationsDisplaySettingsEn._(_root);
@@ -3586,9 +3587,6 @@ class TranslationsDownloadEn {
 	/// en: 'No download tasks yet'
 	String get emptyTaskList => 'No download tasks yet';
 
-	/// en: 'Downloaded content can be found in "Videos → Source → Downloaded"'
-	String get downloadedContentGuide => 'Downloaded content can be found in "Videos → Source → Downloaded"';
-
 	/// en: 'No matching tasks'
 	String get noMatchingTasks => 'No matching tasks';
 
@@ -4273,6 +4271,30 @@ class TranslationsTranslationEn {
 	String get noModelsFound => 'No models found';
 }
 
+// Path: bottomNav
+class TranslationsBottomNavEn {
+	TranslationsBottomNavEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Video'
+	String get video => 'Video';
+
+	/// en: 'Gallery'
+	String get gallery => 'Gallery';
+
+	/// en: 'Feed'
+	String get subscription => 'Feed';
+
+	/// en: 'Forum'
+	String get community => 'Forum';
+
+	/// en: 'Local'
+	String get localMedia => 'Local';
+}
+
 // Path: navigationOrderSettings
 class TranslationsNavigationOrderSettingsEn {
 	TranslationsNavigationOrderSettingsEn._(this._root);
@@ -4332,8 +4354,8 @@ class TranslationsNavigationOrderSettingsEn {
 	/// en: 'Hidden'
 	String get hidden => 'Hidden';
 
-	/// en: 'Tap the eye icon to show or hide Forum and News'
-	String get hideHint => 'Tap the eye icon to show or hide Forum and News';
+	/// en: 'Tap the eye icon to show or hide Community and local files'
+	String get hideHint => 'Tap the eye icon to show or hide Community and local files';
 
 	/// en: 'Browse popular video content'
 	String get videoDescription => 'Browse popular video content';
@@ -4352,6 +4374,9 @@ class TranslationsNavigationOrderSettingsEn {
 
 	/// en: 'Forum discussions plus official news, articles and broadcasts'
 	String get communityDescription => 'Forum discussions plus official news, articles and broadcasts';
+
+	/// en: 'Browse videos and images stored on this device'
+	String get localMediaDescription => 'Browse videos and images stored on this device';
 }
 
 // Path: news
@@ -6315,6 +6340,12 @@ class TranslationsPlaybackQueueEn {
 	/// en: 'This file's folder'
 	String get currentFolder => 'This file\'s folder';
 
+	/// en: 'View this folder’s video queue'
+	String get playThisFolder => 'View this folder’s video queue';
+
+	/// en: 'View this folder’s gallery queue'
+	String get browseThisFolder => 'View this folder’s gallery queue';
+
 	/// en: 'Downloaded'
 	String get downloads => 'Downloaded';
 
@@ -6485,6 +6516,25 @@ class TranslationsLocalMediaEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	late final TranslationsLocalMediaBrowseEn browse = TranslationsLocalMediaBrowseEn._(_root);
+
+	/// en: 'Folders'
+	String get tabFolders => 'Folders';
+
+	/// en: 'Favorites'
+	String get tabFavoriteVideos => 'Favorites';
+
+	/// en: 'All videos'
+	String get tabAllVideos => 'All videos';
+
+	/// en: 'All images'
+	String get tabAllImages => 'All images';
+
+	/// en: 'Downloaded videos'
+	String get tabDownloadedVideos => 'Downloaded videos';
+
+	/// en: 'Downloaded galleries'
+	String get tabDownloadedGalleries => 'Downloaded galleries';
 
 	/// en: 'On this device'
 	String get title => 'On this device';
@@ -9208,6 +9258,228 @@ class TranslationsAnime4kPresetNamesEn {
 	String get mode_a_hq_thin => 'Mode A (HQ) + Line Thinning';
 }
 
+// Path: localMedia.browse
+class TranslationsLocalMediaBrowseEn {
+	TranslationsLocalMediaBrowseEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Quick access'
+	String get pinnedSection => 'Quick access';
+
+	/// en: 'Folders'
+	String get sourcesSection => 'Folders';
+
+	/// en: 'Add to quick access'
+	String get pin => 'Add to quick access';
+
+	/// en: 'Remove from quick access'
+	String get unpin => 'Remove from quick access';
+
+	/// en: 'Added to quick access'
+	String get pinned => 'Added to quick access';
+
+	/// en: 'Removed from quick access'
+	String get unpinned => 'Removed from quick access';
+
+	/// en: '${count} folders'
+	String folderCount({required Object count}) => '${count} folders';
+
+	/// en: '${count} videos'
+	String videoCount({required Object count}) => '${count} videos';
+
+	/// en: '${count} images'
+	String imageCount({required Object count}) => '${count} images';
+
+	/// en: 'This folder is empty'
+	String get emptyFolder => 'This folder is empty';
+
+	/// en: 'Videos'
+	String get videosSection => 'Videos';
+
+	/// en: 'Images'
+	String get imagesSection => 'Images';
+
+	/// en: 'Location'
+	String get location => 'Location';
+
+	/// en: 'This source is gone'
+	String get sourceMissing => 'This source is gone';
+
+	/// en: 'This folder has not been scanned yet'
+	String get notScannedYet => 'This folder has not been scanned yet';
+
+	/// en: 'Reading this folder…'
+	String get scanning => 'Reading this folder…';
+
+	/// en: 'Delete this file?'
+	String get deleteFileTitle => 'Delete this file?';
+
+	/// en: '"${name}" will be permanently removed from this device. This cannot be undone.'
+	String deleteFileBody({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.';
+
+	/// en: 'Choose a folder'
+	String get pickFolderTitle => 'Choose a folder';
+
+	/// en: 'Use this folder'
+	String get useThisFolder => 'Use this folder';
+
+	/// en: 'No subfolders here'
+	String get noSubfolders => 'No subfolders here';
+
+	/// en: 'Device storage'
+	String get storageRoot => 'Device storage';
+
+	/// en: 'This folder cannot be read'
+	String get folderUnreadable => 'This folder cannot be read';
+
+	/// en: 'Set cover'
+	String get setCover => 'Set cover';
+
+	/// en: 'Use as folder cover'
+	String get setAsFolderCover => 'Use as folder cover';
+
+	/// en: 'Folder cover updated'
+	String get folderCoverSet => 'Folder cover updated';
+
+	/// en: 'Set cover…'
+	String get setFolderCoverPick => 'Set cover…';
+
+	/// en: 'Restore automatic cover'
+	String get restoreAutoCover => 'Restore automatic cover';
+
+	/// en: 'Automatic cover restored'
+	String get autoCoverRestored => 'Automatic cover restored';
+
+	/// en: 'Rescan this folder'
+	String get rescanFolder => 'Rescan this folder';
+
+	/// en: 'Pick a frame'
+	String get coverPickerTitle => 'Pick a frame';
+
+	/// en: 'Choose cover'
+	String get folderCoverPickerTitle => 'Choose cover';
+
+	/// en: 'No images available in this folder yet. Video thumbnails may still be generating in the background.'
+	String get coverPickerEmpty => 'No images available in this folder yet. Video thumbnails may still be generating in the background.';
+
+	/// en: 'Cover updated'
+	String get coverSaved => 'Cover updated';
+
+	/// en: 'Could not save the cover'
+	String get coverSaveFailed => 'Could not save the cover';
+
+	/// en: 'No video frame could be read from this file'
+	String get coverUnavailable => 'No video frame could be read from this file';
+
+	/// en: 'Deleted'
+	String get deleted => 'Deleted';
+
+	/// en: 'Could not delete — the file may be in use or not writable'
+	String get deleteFailed => 'Could not delete — the file may be in use or not writable';
+
+	/// en: 'Open'
+	String get openFolder => 'Open';
+
+	/// en: 'Add to favorites'
+	String get favorite => 'Add to favorites';
+
+	/// en: 'Remove from favorites'
+	String get unfavorite => 'Remove from favorites';
+
+	/// en: 'Added to favorites'
+	String get favorited => 'Added to favorites';
+
+	/// en: 'Removed from favorites'
+	String get unfavorited => 'Removed from favorites';
+
+	/// en: 'Sort by'
+	String get sortBy => 'Sort by';
+
+	/// en: 'Ascending'
+	String get sortAscending => 'Ascending';
+
+	/// en: 'Descending'
+	String get sortDescending => 'Descending';
+
+	/// en: 'Name'
+	String get sortFieldName => 'Name';
+
+	/// en: 'Date modified'
+	String get sortFieldModified => 'Date modified';
+
+	/// en: 'Duration'
+	String get sortFieldDuration => 'Duration';
+
+	/// en: 'Size'
+	String get sortFieldSize => 'Size';
+
+	/// en: 'Resolution'
+	String get sortFieldResolution => 'Resolution';
+
+	/// en: 'File type'
+	String get sortFieldFileType => 'File type';
+
+	/// en: 'Frame rate'
+	String get sortFieldFps => 'Frame rate';
+
+	/// en: 'Date favorited'
+	String get sortFieldFavorited => 'Date favorited';
+
+	/// en: 'No videos found yet. Add a folder under Folders to get started.'
+	String get emptyAllVideos => 'No videos found yet. Add a folder under Folders to get started.';
+
+	/// en: 'No images found yet. Add a folder under Folders to get started.'
+	String get emptyAllImages => 'No images found yet. Add a folder under Folders to get started.';
+
+	/// en: 'No favorites yet. Add one from a video's ⋮ menu.'
+	String get emptyFavorites => 'No favorites yet. Add one from a video\'s ⋮ menu.';
+
+	/// en: 'No pinned folders yet. Long-press a folder under Folders and choose Pin.'
+	String get emptyPinned => 'No pinned folders yet. Long-press a folder under Folders and choose Pin.';
+
+	/// en: 'No finished video downloads yet.'
+	String get emptyDownloadedVideos => 'No finished video downloads yet.';
+
+	/// en: 'No finished gallery downloads yet.'
+	String get emptyDownloadedGalleries => 'No finished gallery downloads yet.';
+
+	/// en: 'Folder info'
+	String get folderInfo => 'Folder info';
+
+	/// en: 'Name'
+	String get folderInfoName => 'Name';
+
+	/// en: 'Path'
+	String get folderInfoPath => 'Path';
+
+	/// en: 'Source'
+	String get folderInfoSource => 'Source';
+
+	/// en: 'Contents'
+	String get folderInfoContents => 'Contents';
+
+	/// en: 'Size on disk'
+	String get folderInfoSize => 'Size on disk';
+
+	/// en: 'Last scanned'
+	String get folderInfoScannedAt => 'Last scanned';
+
+	/// en: 'Not scanned yet'
+	String get folderInfoNeverScanned => 'Not scanned yet';
+
+	/// en: 'This source has no folder to open'
+	String get folderInfoNoPath => 'This source has no folder to open';
+
+	/// en: 'Copy path'
+	String get copyPath => 'Copy path';
+
+	/// en: 'Path copied'
+	String get pathCopied => 'Path copied';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class TranslationsVideoDetailGestureGuideQuestEn {
 	TranslationsVideoDetailGestureGuideQuestEn._(this._root);
@@ -11234,7 +11506,6 @@ extension on Translations {
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
-			'download.downloadedContentGuide' => 'Downloaded content can be found in "Videos → Source → Downloaded"',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
 			'download.deleteByDate.dialogTitle' => 'Delete by date',
@@ -11533,6 +11804,11 @@ extension on Translations {
 			'translation.selectModel' => 'Select Model',
 			'translation.searchModel' => 'Search model',
 			'translation.noModelsFound' => 'No models found',
+			'bottomNav.video' => 'Video',
+			'bottomNav.gallery' => 'Gallery',
+			'bottomNav.subscription' => 'Feed',
+			'bottomNav.community' => 'Forum',
+			'bottomNav.localMedia' => 'Local',
 			'navigationOrderSettings.title' => 'Navigation Order Settings',
 			'navigationOrderSettings.customNavigationOrder' => 'Custom Navigation Order',
 			'navigationOrderSettings.customNavigationOrderDesc' => 'Drag to adjust the display order of pages in the bottom navigation bar and sidebar',
@@ -11550,13 +11826,14 @@ extension on Translations {
 			'navigationOrderSettings.show' => 'Show',
 			'navigationOrderSettings.hide' => 'Hide',
 			'navigationOrderSettings.hidden' => 'Hidden',
-			'navigationOrderSettings.hideHint' => 'Tap the eye icon to show or hide Forum and News',
+			'navigationOrderSettings.hideHint' => 'Tap the eye icon to show or hide Community and local files',
 			'navigationOrderSettings.videoDescription' => 'Browse popular video content',
 			'navigationOrderSettings.galleryDescription' => 'Browse images and galleries',
 			'navigationOrderSettings.subscriptionDescription' => 'View latest content from followed users',
 			'navigationOrderSettings.forumDescription' => 'Participate in community discussions',
 			'navigationOrderSettings.newsDescription' => 'Browse official news, articles, and broadcasts',
 			'navigationOrderSettings.communityDescription' => 'Forum discussions plus official news, articles and broadcasts',
+			'navigationOrderSettings.localMediaDescription' => 'Browse videos and images stored on this device',
 			'news.title' => 'News',
 			'news.newsUpdates' => 'News Updates',
 			'news.articles' => 'Articles',
@@ -11580,13 +11857,13 @@ extension on Translations {
 			'layoutSettings.manualModeDesc' => 'Use fixed column count',
 			'layoutSettings.manualSettings' => 'Manual Settings',
 			'layoutSettings.fixedColumns' => 'Fixed Columns',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.columns' => 'columns',
 			'layoutSettings.breakpointConfig' => 'Breakpoint Configuration',
 			'layoutSettings.add' => 'Add',
 			'layoutSettings.defaultColumns' => 'Default Columns',
 			'layoutSettings.defaultColumnsDesc' => 'Default display for large screens',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.previewEffect' => 'Preview Effect',
 			'layoutSettings.screenWidth' => 'Screen Width',
 			'layoutSettings.addBreakpoint' => 'Add Breakpoint',
@@ -12094,13 +12371,13 @@ extension on Translations {
 			'savedSearch.empty' => 'No saved searches yet',
 			'savedSearch.saveTooltip' => 'Save current search',
 			'savedSearch.namePromptTitle' => 'Save Search',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.nameLabel' => 'Name',
 			'savedSearch.nameHint' => 'Enter a name',
 			'savedSearch.saveSuccess' => 'Search saved',
 			'savedSearch.deleteSuccess' => 'Search removed',
 			'savedSearch.addCurrent' => 'Save current search',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.reorderHint' => 'Long-press and drag to reorder',
 			'savedSearch.rename' => 'Rename',
 			'savedSearch.noKeyword' => '(No keyword)',
@@ -12236,6 +12513,8 @@ extension on Translations {
 			'playbackQueue.favoriteFolders' => 'Favorite folders',
 			'playbackQueue.localFiles' => 'On this device',
 			'playbackQueue.currentFolder' => 'This file\'s folder',
+			'playbackQueue.playThisFolder' => 'View this folder’s video queue',
+			'playbackQueue.browseThisFolder' => 'View this folder’s gallery queue',
 			'playbackQueue.downloads' => 'Downloaded',
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
@@ -12287,6 +12566,83 @@ extension on Translations {
 			'vrFormat.suggestionTitleShort' => 'This may be a VR video',
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
+			'localMedia.browse.pinnedSection' => 'Quick access',
+			'localMedia.browse.sourcesSection' => 'Folders',
+			'localMedia.browse.pin' => 'Add to quick access',
+			'localMedia.browse.unpin' => 'Remove from quick access',
+			'localMedia.browse.pinned' => 'Added to quick access',
+			'localMedia.browse.unpinned' => 'Removed from quick access',
+			'localMedia.browse.folderCount' => ({required Object count}) => '${count} folders',
+			'localMedia.browse.videoCount' => ({required Object count}) => '${count} videos',
+			'localMedia.browse.imageCount' => ({required Object count}) => '${count} images',
+			'localMedia.browse.emptyFolder' => 'This folder is empty',
+			'localMedia.browse.videosSection' => 'Videos',
+			'localMedia.browse.imagesSection' => 'Images',
+			'localMedia.browse.location' => 'Location',
+			'localMedia.browse.sourceMissing' => 'This source is gone',
+			'localMedia.browse.notScannedYet' => 'This folder has not been scanned yet',
+			'localMedia.browse.scanning' => 'Reading this folder…',
+			'localMedia.browse.deleteFileTitle' => 'Delete this file?',
+			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.',
+			'localMedia.browse.pickFolderTitle' => 'Choose a folder',
+			'localMedia.browse.useThisFolder' => 'Use this folder',
+			'localMedia.browse.noSubfolders' => 'No subfolders here',
+			'localMedia.browse.storageRoot' => 'Device storage',
+			'localMedia.browse.folderUnreadable' => 'This folder cannot be read',
+			'localMedia.browse.setCover' => 'Set cover',
+			'localMedia.browse.setAsFolderCover' => 'Use as folder cover',
+			'localMedia.browse.folderCoverSet' => 'Folder cover updated',
+			'localMedia.browse.setFolderCoverPick' => 'Set cover…',
+			'localMedia.browse.restoreAutoCover' => 'Restore automatic cover',
+			'localMedia.browse.autoCoverRestored' => 'Automatic cover restored',
+			'localMedia.browse.rescanFolder' => 'Rescan this folder',
+			'localMedia.browse.coverPickerTitle' => 'Pick a frame',
+			'localMedia.browse.folderCoverPickerTitle' => 'Choose cover',
+			'localMedia.browse.coverPickerEmpty' => 'No images available in this folder yet. Video thumbnails may still be generating in the background.',
+			'localMedia.browse.coverSaved' => 'Cover updated',
+			'localMedia.browse.coverSaveFailed' => 'Could not save the cover',
+			'localMedia.browse.coverUnavailable' => 'No video frame could be read from this file',
+			'localMedia.browse.deleted' => 'Deleted',
+			'localMedia.browse.deleteFailed' => 'Could not delete — the file may be in use or not writable',
+			'localMedia.browse.openFolder' => 'Open',
+			'localMedia.browse.favorite' => 'Add to favorites',
+			'localMedia.browse.unfavorite' => 'Remove from favorites',
+			'localMedia.browse.favorited' => 'Added to favorites',
+			'localMedia.browse.unfavorited' => 'Removed from favorites',
+			'localMedia.browse.sortBy' => 'Sort by',
+			'localMedia.browse.sortAscending' => 'Ascending',
+			'localMedia.browse.sortDescending' => 'Descending',
+			'localMedia.browse.sortFieldName' => 'Name',
+			'localMedia.browse.sortFieldModified' => 'Date modified',
+			'localMedia.browse.sortFieldDuration' => 'Duration',
+			'localMedia.browse.sortFieldSize' => 'Size',
+			'localMedia.browse.sortFieldResolution' => 'Resolution',
+			'localMedia.browse.sortFieldFileType' => 'File type',
+			'localMedia.browse.sortFieldFps' => 'Frame rate',
+			'localMedia.browse.sortFieldFavorited' => 'Date favorited',
+			'localMedia.browse.emptyAllVideos' => 'No videos found yet. Add a folder under Folders to get started.',
+			'localMedia.browse.emptyAllImages' => 'No images found yet. Add a folder under Folders to get started.',
+			'localMedia.browse.emptyFavorites' => 'No favorites yet. Add one from a video\'s ⋮ menu.',
+			'localMedia.browse.emptyPinned' => 'No pinned folders yet. Long-press a folder under Folders and choose Pin.',
+			'localMedia.browse.emptyDownloadedVideos' => 'No finished video downloads yet.',
+			'localMedia.browse.emptyDownloadedGalleries' => 'No finished gallery downloads yet.',
+			'localMedia.browse.folderInfo' => 'Folder info',
+			'localMedia.browse.folderInfoName' => 'Name',
+			'localMedia.browse.folderInfoPath' => 'Path',
+			'localMedia.browse.folderInfoSource' => 'Source',
+			'localMedia.browse.folderInfoContents' => 'Contents',
+			'localMedia.browse.folderInfoSize' => 'Size on disk',
+			'localMedia.browse.folderInfoScannedAt' => 'Last scanned',
+			'localMedia.browse.folderInfoNeverScanned' => 'Not scanned yet',
+			'localMedia.browse.folderInfoNoPath' => 'This source has no folder to open',
+			'localMedia.browse.copyPath' => 'Copy path',
+			'localMedia.browse.pathCopied' => 'Path copied',
+			'localMedia.tabFolders' => 'Folders',
+			'localMedia.tabFavoriteVideos' => 'Favorites',
+			'localMedia.tabAllVideos' => 'All videos',
+			'localMedia.tabAllImages' => 'All images',
+			'localMedia.tabDownloadedVideos' => 'Downloaded videos',
+			'localMedia.tabDownloadedGalleries' => 'Downloaded galleries',
 			'localMedia.title' => 'On this device',
 			'localMedia.sourceOnline' => 'Iwara online',
 			'localMedia.manageSources' => 'Manage sources',

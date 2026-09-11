@@ -76,6 +76,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsEmojiZhTw emoji = _TranslationsEmojiZhTw._(_root);
 	@override late final _TranslationsDisplaySettingsZhTw displaySettings = _TranslationsDisplaySettingsZhTw._(_root);
 	@override late final _TranslationsLayoutSettingsZhTw layoutSettings = _TranslationsLayoutSettingsZhTw._(_root);
+	@override late final _TranslationsBottomNavZhTw bottomNav = _TranslationsBottomNavZhTw._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhTw navigationOrderSettings = _TranslationsNavigationOrderSettingsZhTw._(_root);
 	@override late final _TranslationsNewsZhTw news = _TranslationsNewsZhTw._(_root);
 	@override late final _TranslationsSearchFilterZhTw searchFilter = _TranslationsSearchFilterZhTw._(_root);
@@ -1449,7 +1450,6 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
 	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
-	@override String get downloadedContentGuide => '已經下載的內容在「影片 → 來源 → 已下載」';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
 	@override late final _TranslationsDownloadCategoryZhTw category = _TranslationsDownloadCategoryZhTw._(_root);
@@ -2081,6 +2081,20 @@ class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
 	@override String get save => '儲存';
 }
 
+// Path: bottomNav
+class _TranslationsBottomNavZhTw implements TranslationsBottomNavEn {
+	_TranslationsBottomNavZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get video => '影片';
+	@override String get gallery => '圖庫';
+	@override String get subscription => '訂閱';
+	@override String get community => '社區';
+	@override String get localMedia => '本機';
+}
+
 // Path: navigationOrderSettings
 class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigationOrderSettingsEn {
 	_TranslationsNavigationOrderSettingsZhTw._(this._root);
@@ -2105,13 +2119,14 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 	@override String get show => '顯示';
 	@override String get hide => '隱藏';
 	@override String get hidden => '已隱藏';
-	@override String get hideHint => '點擊眼睛圖示可顯示或隱藏論壇和新聞';
+	@override String get hideHint => '點擊眼睛圖示可顯示或隱藏社區和本機檔案';
 	@override String get videoDescription => '瀏覽熱門影片內容';
 	@override String get galleryDescription => '瀏覽圖片和畫廊';
 	@override String get subscriptionDescription => '查看追蹤使用者的最新內容';
 	@override String get forumDescription => '參與社群討論';
 	@override String get newsDescription => '瀏覽官方新聞、文章與公告廣播';
 	@override String get communityDescription => '論壇討論與官方新聞、文章、公告廣播';
+	@override String get localMediaDescription => '瀏覽這台裝置上的影片與圖片';
 }
 
 // Path: news
@@ -2515,6 +2530,8 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 	@override String get favoriteFolders => '收藏夾';
 	@override String get localFiles => '本機檔案';
 	@override String get currentFolder => '目前檔案所在資料夾';
+	@override String get playThisFolder => '查看本資料夾下的影片池';
+	@override String get browseThisFolder => '查看本資料夾下的圖庫池';
 	@override String get downloads => '已下載';
 	@override String get otherPlaylists => '他人的播放清單';
 	@override String get nothingHere => '暫無內容';
@@ -2584,6 +2601,13 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsLocalMediaBrowseZhTw browse = _TranslationsLocalMediaBrowseZhTw._(_root);
+	@override String get tabFolders => '檔案目錄';
+	@override String get tabFavoriteVideos => '精選影片';
+	@override String get tabAllVideos => '所有影片';
+	@override String get tabAllImages => '所有圖片';
+	@override String get tabDownloadedVideos => '下載完成影片';
+	@override String get tabDownloadedGalleries => '下載完成圖庫';
 	@override String get title => '本機檔案';
 	@override String get sourceOnline => 'Iwara 線上';
 	@override String get manageSources => '管理來源';
@@ -3780,6 +3804,86 @@ class _TranslationsAnime4kPresetNamesZhTw implements TranslationsAnime4kPresetNa
 	@override String get upscale_non_cnn => '非CNN放大 (極快)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + 線條加深';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + 線條細化';
+}
+
+// Path: localMedia.browse
+class _TranslationsLocalMediaBrowseZhTw implements TranslationsLocalMediaBrowseEn {
+	_TranslationsLocalMediaBrowseZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get pinnedSection => '常用目錄';
+	@override String get sourcesSection => '資料夾';
+	@override String get pin => '設為常用';
+	@override String get unpin => '取消常用';
+	@override String get pinned => '已設為常用目錄';
+	@override String get unpinned => '已取消常用';
+	@override String folderCount({required Object count}) => '${count} 個資料夾';
+	@override String videoCount({required Object count}) => '${count} 部影片';
+	@override String imageCount({required Object count}) => '${count} 張圖片';
+	@override String get emptyFolder => '這個資料夾是空的';
+	@override String get videosSection => '影片';
+	@override String get imagesSection => '圖片';
+	@override String get location => '位置';
+	@override String get sourceMissing => '這個來源已經不在了';
+	@override String get notScannedYet => '還沒掃描過這個資料夾';
+	@override String get scanning => '正在讀取這個資料夾…';
+	@override String get deleteFileTitle => '刪除這個檔案？';
+	@override String deleteFileBody({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。';
+	@override String get pickFolderTitle => '選擇資料夾';
+	@override String get useThisFolder => '使用這個資料夾';
+	@override String get noSubfolders => '這裡沒有子資料夾';
+	@override String get storageRoot => '裝置儲存空間';
+	@override String get folderUnreadable => '這個資料夾讀不動';
+	@override String get setCover => '設定封面';
+	@override String get setAsFolderCover => '設為資料夾封面';
+	@override String get folderCoverSet => '已設為資料夾封面';
+	@override String get setFolderCoverPick => '設為封面…';
+	@override String get restoreAutoCover => '恢復自動封面';
+	@override String get autoCoverRestored => '已恢復自動封面';
+	@override String get rescanFolder => '重新掃描此目錄';
+	@override String get coverPickerTitle => '挑一幀做封面';
+	@override String get folderCoverPickerTitle => '選擇封面';
+	@override String get coverPickerEmpty => '這個目錄裡還沒有可用的圖片。影片的縮圖可能還在背景產生，稍後再來看看。';
+	@override String get coverSaved => '封面已更新';
+	@override String get coverSaveFailed => '封面儲存失敗';
+	@override String get coverUnavailable => '這個檔案讀不出畫面';
+	@override String get deleted => '已刪除';
+	@override String get deleteFailed => '刪除失敗，檔案可能正被占用或沒有權限';
+	@override String get openFolder => '開啟';
+	@override String get favorite => '精選';
+	@override String get unfavorite => '取消精選';
+	@override String get favorited => '已加入精選';
+	@override String get unfavorited => '已取消精選';
+	@override String get sortBy => '排序方式';
+	@override String get sortAscending => '升序';
+	@override String get sortDescending => '降序';
+	@override String get sortFieldName => '檔名';
+	@override String get sortFieldModified => '修改日期';
+	@override String get sortFieldDuration => '時長';
+	@override String get sortFieldSize => '檔案大小';
+	@override String get sortFieldResolution => '解析度';
+	@override String get sortFieldFileType => '檔案類型';
+	@override String get sortFieldFps => '幀率';
+	@override String get sortFieldFavorited => '精選時間';
+	@override String get emptyAllVideos => '還沒有掃描到影片。到「檔案目錄」裡新增一個資料夾試試。';
+	@override String get emptyAllImages => '還沒有掃描到圖片。到「檔案目錄」裡新增一個資料夾試試。';
+	@override String get emptyFavorites => '還沒有精選。在影片的「⋮」選單裡可以把它加進來。';
+	@override String get emptyPinned => '還沒有常用資料夾。在「檔案目錄」裡長按一個資料夾，選「設為常用」。';
+	@override String get emptyDownloadedVideos => '還沒有下載完成的影片。';
+	@override String get emptyDownloadedGalleries => '還沒有下載完成的圖庫。';
+	@override String get folderInfo => '資料夾資訊';
+	@override String get folderInfoName => '名稱';
+	@override String get folderInfoPath => '路徑';
+	@override String get folderInfoSource => '所屬來源';
+	@override String get folderInfoContents => '內容';
+	@override String get folderInfoSize => '佔用空間';
+	@override String get folderInfoScannedAt => '最近掃描';
+	@override String get folderInfoNeverScanned => '還沒掃描過';
+	@override String get folderInfoNoPath => '這個來源沒有可開啟的目錄';
+	@override String get copyPath => '複製路徑';
+	@override String get pathCopied => '路徑已複製';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5647,7 +5751,6 @@ extension on TranslationsZhTw {
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
-			'download.downloadedContentGuide' => '已經下載的內容在「影片 → 來源 → 已下載」',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
 			'download.deleteByDate.dialogTitle' => '依日期刪除',
@@ -5967,9 +6070,9 @@ extension on TranslationsZhTw {
 			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
 			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
 			'mediaPlayer.mute' => '靜音',
+			'mediaPlayer.unmute' => '取消靜音',
 			_ => null,
 		} ?? switch (path) {
-			'mediaPlayer.unmute' => '取消靜音',
 			'mediaPlayer.video' => '影片',
 			'mediaPlayer.serverSelector' => 'CDN 伺服器選擇',
 			'mediaPlayer.serverSelectorDescription' => '選擇延遲最低的伺服器以獲得最佳播放體驗',
@@ -6272,6 +6375,11 @@ extension on TranslationsZhTw {
 			'layoutSettings.delete' => '刪除',
 			'layoutSettings.cancel' => '取消',
 			'layoutSettings.save' => '儲存',
+			'bottomNav.video' => '影片',
+			'bottomNav.gallery' => '圖庫',
+			'bottomNav.subscription' => '訂閱',
+			'bottomNav.community' => '社區',
+			'bottomNav.localMedia' => '本機',
 			'navigationOrderSettings.title' => '導航排序設定',
 			'navigationOrderSettings.customNavigationOrder' => '自訂導航順序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖曳調整底部導航欄和側邊欄中各個頁面的顯示順序',
@@ -6289,13 +6397,14 @@ extension on TranslationsZhTw {
 			'navigationOrderSettings.show' => '顯示',
 			'navigationOrderSettings.hide' => '隱藏',
 			'navigationOrderSettings.hidden' => '已隱藏',
-			'navigationOrderSettings.hideHint' => '點擊眼睛圖示可顯示或隱藏論壇和新聞',
+			'navigationOrderSettings.hideHint' => '點擊眼睛圖示可顯示或隱藏社區和本機檔案',
 			'navigationOrderSettings.videoDescription' => '瀏覽熱門影片內容',
 			'navigationOrderSettings.galleryDescription' => '瀏覽圖片和畫廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看追蹤使用者的最新內容',
 			'navigationOrderSettings.forumDescription' => '參與社群討論',
 			'navigationOrderSettings.newsDescription' => '瀏覽官方新聞、文章與公告廣播',
 			'navigationOrderSettings.communityDescription' => '論壇討論與官方新聞、文章、公告廣播',
+			'navigationOrderSettings.localMediaDescription' => '瀏覽這台裝置上的影片與圖片',
 			'news.title' => '新聞',
 			'news.newsUpdates' => '最新動態',
 			'news.articles' => '文章',
@@ -6476,13 +6585,13 @@ extension on TranslationsZhTw {
 			'savedSearch.empty' => '還沒有儲存的搜尋',
 			'savedSearch.saveTooltip' => '儲存目前搜尋',
 			'savedSearch.namePromptTitle' => '儲存搜尋',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名稱',
 			'savedSearch.nameHint' => '請輸入名稱',
 			'savedSearch.saveSuccess' => '已儲存搜尋',
 			'savedSearch.deleteSuccess' => '已刪除搜尋',
 			'savedSearch.addCurrent' => '儲存目前搜尋',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.reorderHint' => '長按拖曳可調整順序',
 			'savedSearch.rename' => '重新命名',
 			'savedSearch.noKeyword' => '（無關鍵字）',
@@ -6618,6 +6727,8 @@ extension on TranslationsZhTw {
 			'playbackQueue.favoriteFolders' => '收藏夾',
 			'playbackQueue.localFiles' => '本機檔案',
 			'playbackQueue.currentFolder' => '目前檔案所在資料夾',
+			'playbackQueue.playThisFolder' => '查看本資料夾下的影片池',
+			'playbackQueue.browseThisFolder' => '查看本資料夾下的圖庫池',
 			'playbackQueue.downloads' => '已下載',
 			'playbackQueue.otherPlaylists' => '他人的播放清單',
 			'playbackQueue.nothingHere' => '暫無內容',
@@ -6669,6 +6780,83 @@ extension on TranslationsZhTw {
 			'vrFormat.suggestionTitleShort' => '這可能是 VR 影片',
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
+			'localMedia.browse.pinnedSection' => '常用目錄',
+			'localMedia.browse.sourcesSection' => '資料夾',
+			'localMedia.browse.pin' => '設為常用',
+			'localMedia.browse.unpin' => '取消常用',
+			'localMedia.browse.pinned' => '已設為常用目錄',
+			'localMedia.browse.unpinned' => '已取消常用',
+			'localMedia.browse.folderCount' => ({required Object count}) => '${count} 個資料夾',
+			'localMedia.browse.videoCount' => ({required Object count}) => '${count} 部影片',
+			'localMedia.browse.imageCount' => ({required Object count}) => '${count} 張圖片',
+			'localMedia.browse.emptyFolder' => '這個資料夾是空的',
+			'localMedia.browse.videosSection' => '影片',
+			'localMedia.browse.imagesSection' => '圖片',
+			'localMedia.browse.location' => '位置',
+			'localMedia.browse.sourceMissing' => '這個來源已經不在了',
+			'localMedia.browse.notScannedYet' => '還沒掃描過這個資料夾',
+			'localMedia.browse.scanning' => '正在讀取這個資料夾…',
+			'localMedia.browse.deleteFileTitle' => '刪除這個檔案？',
+			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。',
+			'localMedia.browse.pickFolderTitle' => '選擇資料夾',
+			'localMedia.browse.useThisFolder' => '使用這個資料夾',
+			'localMedia.browse.noSubfolders' => '這裡沒有子資料夾',
+			'localMedia.browse.storageRoot' => '裝置儲存空間',
+			'localMedia.browse.folderUnreadable' => '這個資料夾讀不動',
+			'localMedia.browse.setCover' => '設定封面',
+			'localMedia.browse.setAsFolderCover' => '設為資料夾封面',
+			'localMedia.browse.folderCoverSet' => '已設為資料夾封面',
+			'localMedia.browse.setFolderCoverPick' => '設為封面…',
+			'localMedia.browse.restoreAutoCover' => '恢復自動封面',
+			'localMedia.browse.autoCoverRestored' => '已恢復自動封面',
+			'localMedia.browse.rescanFolder' => '重新掃描此目錄',
+			'localMedia.browse.coverPickerTitle' => '挑一幀做封面',
+			'localMedia.browse.folderCoverPickerTitle' => '選擇封面',
+			'localMedia.browse.coverPickerEmpty' => '這個目錄裡還沒有可用的圖片。影片的縮圖可能還在背景產生，稍後再來看看。',
+			'localMedia.browse.coverSaved' => '封面已更新',
+			'localMedia.browse.coverSaveFailed' => '封面儲存失敗',
+			'localMedia.browse.coverUnavailable' => '這個檔案讀不出畫面',
+			'localMedia.browse.deleted' => '已刪除',
+			'localMedia.browse.deleteFailed' => '刪除失敗，檔案可能正被占用或沒有權限',
+			'localMedia.browse.openFolder' => '開啟',
+			'localMedia.browse.favorite' => '精選',
+			'localMedia.browse.unfavorite' => '取消精選',
+			'localMedia.browse.favorited' => '已加入精選',
+			'localMedia.browse.unfavorited' => '已取消精選',
+			'localMedia.browse.sortBy' => '排序方式',
+			'localMedia.browse.sortAscending' => '升序',
+			'localMedia.browse.sortDescending' => '降序',
+			'localMedia.browse.sortFieldName' => '檔名',
+			'localMedia.browse.sortFieldModified' => '修改日期',
+			'localMedia.browse.sortFieldDuration' => '時長',
+			'localMedia.browse.sortFieldSize' => '檔案大小',
+			'localMedia.browse.sortFieldResolution' => '解析度',
+			'localMedia.browse.sortFieldFileType' => '檔案類型',
+			'localMedia.browse.sortFieldFps' => '幀率',
+			'localMedia.browse.sortFieldFavorited' => '精選時間',
+			'localMedia.browse.emptyAllVideos' => '還沒有掃描到影片。到「檔案目錄」裡新增一個資料夾試試。',
+			'localMedia.browse.emptyAllImages' => '還沒有掃描到圖片。到「檔案目錄」裡新增一個資料夾試試。',
+			'localMedia.browse.emptyFavorites' => '還沒有精選。在影片的「⋮」選單裡可以把它加進來。',
+			'localMedia.browse.emptyPinned' => '還沒有常用資料夾。在「檔案目錄」裡長按一個資料夾，選「設為常用」。',
+			'localMedia.browse.emptyDownloadedVideos' => '還沒有下載完成的影片。',
+			'localMedia.browse.emptyDownloadedGalleries' => '還沒有下載完成的圖庫。',
+			'localMedia.browse.folderInfo' => '資料夾資訊',
+			'localMedia.browse.folderInfoName' => '名稱',
+			'localMedia.browse.folderInfoPath' => '路徑',
+			'localMedia.browse.folderInfoSource' => '所屬來源',
+			'localMedia.browse.folderInfoContents' => '內容',
+			'localMedia.browse.folderInfoSize' => '佔用空間',
+			'localMedia.browse.folderInfoScannedAt' => '最近掃描',
+			'localMedia.browse.folderInfoNeverScanned' => '還沒掃描過',
+			'localMedia.browse.folderInfoNoPath' => '這個來源沒有可開啟的目錄',
+			'localMedia.browse.copyPath' => '複製路徑',
+			'localMedia.browse.pathCopied' => '路徑已複製',
+			'localMedia.tabFolders' => '檔案目錄',
+			'localMedia.tabFavoriteVideos' => '精選影片',
+			'localMedia.tabAllVideos' => '所有影片',
+			'localMedia.tabAllImages' => '所有圖片',
+			'localMedia.tabDownloadedVideos' => '下載完成影片',
+			'localMedia.tabDownloadedGalleries' => '下載完成圖庫',
 			'localMedia.title' => '本機檔案',
 			'localMedia.sourceOnline' => 'Iwara 線上',
 			'localMedia.manageSources' => '管理來源',

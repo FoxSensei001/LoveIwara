@@ -74,6 +74,7 @@ class TranslationsZhCn with BaseTranslations<AppLocale, Translations> implements
 	@override late final _TranslationsEmojiZhCn emoji = _TranslationsEmojiZhCn._(_root);
 	@override late final _TranslationsDisplaySettingsZhCn displaySettings = _TranslationsDisplaySettingsZhCn._(_root);
 	@override late final _TranslationsLayoutSettingsZhCn layoutSettings = _TranslationsLayoutSettingsZhCn._(_root);
+	@override late final _TranslationsBottomNavZhCn bottomNav = _TranslationsBottomNavZhCn._(_root);
 	@override late final _TranslationsNavigationOrderSettingsZhCn navigationOrderSettings = _TranslationsNavigationOrderSettingsZhCn._(_root);
 	@override late final _TranslationsNewsZhCn news = _TranslationsNewsZhCn._(_root);
 	@override late final _TranslationsSearchFilterZhCn searchFilter = _TranslationsSearchFilterZhCn._(_root);
@@ -1420,7 +1421,6 @@ class _TranslationsDownloadZhCn implements TranslationsDownloadEn {
 	@override String get errorDetailCopyHint => '长按复制错误详情';
 	@override late final _TranslationsDownloadRestoredPausedZhCn restoredPaused = _TranslationsDownloadRestoredPausedZhCn._(_root);
 	@override String get emptyTaskList => '暂无下载任务';
-	@override String get downloadedContentGuide => '已经下好的内容在「视频 → 来源 → 已下载」';
 	@override String get noMatchingTasks => '没有匹配的任务';
 	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
 	@override late final _TranslationsDownloadCategoryZhCn category = _TranslationsDownloadCategoryZhCn._(_root);
@@ -2053,6 +2053,20 @@ class _TranslationsLayoutSettingsZhCn implements TranslationsLayoutSettingsEn {
 	@override String get save => '保存';
 }
 
+// Path: bottomNav
+class _TranslationsBottomNavZhCn implements TranslationsBottomNavEn {
+	_TranslationsBottomNavZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get video => '视频';
+	@override String get gallery => '图库';
+	@override String get subscription => '订阅';
+	@override String get community => '社区';
+	@override String get localMedia => '本机';
+}
+
 // Path: navigationOrderSettings
 class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigationOrderSettingsEn {
 	_TranslationsNavigationOrderSettingsZhCn._(this._root);
@@ -2077,13 +2091,14 @@ class _TranslationsNavigationOrderSettingsZhCn implements TranslationsNavigation
 	@override String get show => '显示';
 	@override String get hide => '隐藏';
 	@override String get hidden => '已隐藏';
-	@override String get hideHint => '点击眼睛图标可显示或隐藏论坛和新闻';
+	@override String get hideHint => '点击眼睛图标可显示或隐藏社区和本机文件';
 	@override String get videoDescription => '浏览热门视频内容';
 	@override String get galleryDescription => '浏览图片和画廊';
 	@override String get subscriptionDescription => '查看关注用户的最新内容';
 	@override String get forumDescription => '参与社区讨论';
 	@override String get newsDescription => '浏览官方新闻、文章和公告广播';
 	@override String get communityDescription => '论坛讨论与官方新闻、文章、公告广播';
+	@override String get localMediaDescription => '浏览这台设备上的视频和图片';
 }
 
 // Path: news
@@ -2515,6 +2530,8 @@ class _TranslationsPlaybackQueueZhCn implements TranslationsPlaybackQueueEn {
 	@override String get favoriteFolders => '收藏夹';
 	@override String get localFiles => '本机文件';
 	@override String get currentFolder => '当前文件所在文件夹';
+	@override String get playThisFolder => '查看本目录下的视频池';
+	@override String get browseThisFolder => '查看本目录下的图库池';
 	@override String get downloads => '已下载';
 	@override String get otherPlaylists => '他人的播放列表';
 	@override String get nothingHere => '暂无内容';
@@ -2584,6 +2601,13 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override late final _TranslationsLocalMediaBrowseZhCn browse = _TranslationsLocalMediaBrowseZhCn._(_root);
+	@override String get tabFolders => '文件目录';
+	@override String get tabFavoriteVideos => '精选视频';
+	@override String get tabAllVideos => '所有视频';
+	@override String get tabAllImages => '所有图片';
+	@override String get tabDownloadedVideos => '下载完成视频';
+	@override String get tabDownloadedGalleries => '下载完成图库';
 	@override String get title => '本机文件';
 	@override String get sourceOnline => 'Iwara 线上';
 	@override String get manageSources => '管理来源';
@@ -3780,6 +3804,86 @@ class _TranslationsAnime4kPresetNamesZhCn implements TranslationsAnime4kPresetNa
 	@override String get upscale_non_cnn => '非CNN放大 (极快)';
 	@override String get mode_a_fast_darken => 'Mode A (Fast) + 线条加深';
 	@override String get mode_a_hq_thin => 'Mode A (HQ) + 线条细化';
+}
+
+// Path: localMedia.browse
+class _TranslationsLocalMediaBrowseZhCn implements TranslationsLocalMediaBrowseEn {
+	_TranslationsLocalMediaBrowseZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get pinnedSection => '常用目录';
+	@override String get sourcesSection => '文件夹';
+	@override String get pin => '设为常用';
+	@override String get unpin => '取消常用';
+	@override String get pinned => '已设为常用目录';
+	@override String get unpinned => '已取消常用';
+	@override String folderCount({required Object count}) => '${count} 个文件夹';
+	@override String videoCount({required Object count}) => '${count} 个视频';
+	@override String imageCount({required Object count}) => '${count} 张图片';
+	@override String get emptyFolder => '这个文件夹是空的';
+	@override String get videosSection => '视频';
+	@override String get imagesSection => '图片';
+	@override String get location => '位置';
+	@override String get sourceMissing => '这个来源已经不在了';
+	@override String get notScannedYet => '还没扫描过这个文件夹';
+	@override String get scanning => '正在读取这个文件夹…';
+	@override String get deleteFileTitle => '删除这个文件？';
+	@override String deleteFileBody({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。';
+	@override String get pickFolderTitle => '选择文件夹';
+	@override String get useThisFolder => '使用这个文件夹';
+	@override String get noSubfolders => '这里没有子文件夹';
+	@override String get storageRoot => '设备存储';
+	@override String get folderUnreadable => '这个文件夹读不动';
+	@override String get setCover => '设置封面';
+	@override String get setAsFolderCover => '设为文件夹封面';
+	@override String get folderCoverSet => '已设为文件夹封面';
+	@override String get setFolderCoverPick => '设为封面…';
+	@override String get restoreAutoCover => '恢复自动封面';
+	@override String get autoCoverRestored => '已恢复自动封面';
+	@override String get rescanFolder => '重新扫描此目录';
+	@override String get coverPickerTitle => '挑一帧做封面';
+	@override String get folderCoverPickerTitle => '选择封面';
+	@override String get coverPickerEmpty => '这个目录里还没有可用的图片。视频的缩略图可能还在后台生成，稍后再来看看。';
+	@override String get coverSaved => '封面已更新';
+	@override String get coverSaveFailed => '封面保存失败';
+	@override String get coverUnavailable => '这个文件读不出画面';
+	@override String get deleted => '已删除';
+	@override String get deleteFailed => '删除失败，文件可能正被占用或没有权限';
+	@override String get openFolder => '打开';
+	@override String get favorite => '精选';
+	@override String get unfavorite => '取消精选';
+	@override String get favorited => '已加入精选';
+	@override String get unfavorited => '已取消精选';
+	@override String get sortBy => '排序方式';
+	@override String get sortAscending => '升序';
+	@override String get sortDescending => '降序';
+	@override String get sortFieldName => '文件名';
+	@override String get sortFieldModified => '修改日期';
+	@override String get sortFieldDuration => '时长';
+	@override String get sortFieldSize => '文件大小';
+	@override String get sortFieldResolution => '分辨率';
+	@override String get sortFieldFileType => '文件类型';
+	@override String get sortFieldFps => '帧率';
+	@override String get sortFieldFavorited => '精选时间';
+	@override String get emptyAllVideos => '还没有扫描到视频。到「文件目录」里添加一个文件夹试试。';
+	@override String get emptyAllImages => '还没有扫描到图片。到「文件目录」里添加一个文件夹试试。';
+	@override String get emptyFavorites => '还没有精选。在视频的「⋮」菜单里可以把它加进来。';
+	@override String get emptyPinned => '还没有常用目录。在「文件目录」里长按一个文件夹，选「设为常用」。';
+	@override String get emptyDownloadedVideos => '还没有下载完成的视频。';
+	@override String get emptyDownloadedGalleries => '还没有下载完成的图库。';
+	@override String get folderInfo => '文件夹信息';
+	@override String get folderInfoName => '名称';
+	@override String get folderInfoPath => '路径';
+	@override String get folderInfoSource => '所属来源';
+	@override String get folderInfoContents => '内容';
+	@override String get folderInfoSize => '占用空间';
+	@override String get folderInfoScannedAt => '最近扫描';
+	@override String get folderInfoNeverScanned => '还没扫描过';
+	@override String get folderInfoNoPath => '这个来源没有可打开的目录';
+	@override String get copyPath => '复制路径';
+	@override String get pathCopied => '路径已复制';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5615,7 +5719,6 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
-			'download.downloadedContentGuide' => '已经下好的内容在「视频 → 来源 → 已下载」',
 			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
 			'download.deleteByDate.dialogTitle' => '按日期删除',
@@ -5967,9 +6070,9 @@ extension on TranslationsZhCn {
 			'mediaPlayer.imageLoadFailed' => '图片加载失败',
 			'mediaPlayer.unsupportedImageFormat' => '不支持的图片格式',
 			'mediaPlayer.tryOtherViewer' => '请尝试使用其他查看器',
+			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
 			_ => null,
 		} ?? switch (path) {
-			'mediaPlayer.retryingOpenVideoLink' => '视频链接打开失败，重试中',
 			'mediaPlayer.decoderOpenFailedWithSuggestion' => ({required Object event}) => '无法加载解码器: ${event}，可以通过在播放器设置里切换至软解，并重新进入页面尝试',
 			'mediaPlayer.videoLoadErrorWithDetail' => ({required Object event}) => '视频加载错误: ${event}',
 			'mediaPlayer.playbackFailureDiagnosticsHint' => '多次播放失败，建议前往 设置 > 诊断与反馈 导出日志反馈',
@@ -6241,6 +6344,11 @@ extension on TranslationsZhCn {
 			'layoutSettings.delete' => '删除',
 			'layoutSettings.cancel' => '取消',
 			'layoutSettings.save' => '保存',
+			'bottomNav.video' => '视频',
+			'bottomNav.gallery' => '图库',
+			'bottomNav.subscription' => '订阅',
+			'bottomNav.community' => '社区',
+			'bottomNav.localMedia' => '本机',
 			'navigationOrderSettings.title' => '导航排序设置',
 			'navigationOrderSettings.customNavigationOrder' => '自定义导航顺序',
 			'navigationOrderSettings.customNavigationOrderDesc' => '拖拽调整底部导航栏和侧边栏中各个页面的显示顺序',
@@ -6258,13 +6366,14 @@ extension on TranslationsZhCn {
 			'navigationOrderSettings.show' => '显示',
 			'navigationOrderSettings.hide' => '隐藏',
 			'navigationOrderSettings.hidden' => '已隐藏',
-			'navigationOrderSettings.hideHint' => '点击眼睛图标可显示或隐藏论坛和新闻',
+			'navigationOrderSettings.hideHint' => '点击眼睛图标可显示或隐藏社区和本机文件',
 			'navigationOrderSettings.videoDescription' => '浏览热门视频内容',
 			'navigationOrderSettings.galleryDescription' => '浏览图片和画廊',
 			'navigationOrderSettings.subscriptionDescription' => '查看关注用户的最新内容',
 			'navigationOrderSettings.forumDescription' => '参与社区讨论',
 			'navigationOrderSettings.newsDescription' => '浏览官方新闻、文章和公告广播',
 			'navigationOrderSettings.communityDescription' => '论坛讨论与官方新闻、文章、公告广播',
+			'navigationOrderSettings.localMediaDescription' => '浏览这台设备上的视频和图片',
 			'news.title' => '新闻',
 			'news.newsUpdates' => '最新动态',
 			'news.articles' => '文章',
@@ -6476,13 +6585,13 @@ extension on TranslationsZhCn {
 			'savedSearch.empty' => '还没有保存的搜索',
 			'savedSearch.saveTooltip' => '保存当前搜索',
 			'savedSearch.namePromptTitle' => '保存搜索',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearch.nameLabel' => '名称',
 			'savedSearch.nameHint' => '请输入名称',
 			'savedSearch.saveSuccess' => '已保存搜索',
 			'savedSearch.deleteSuccess' => '已删除搜索',
 			'savedSearch.addCurrent' => '保存当前搜索',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearch.reorderHint' => '长按拖动可调整顺序',
 			'savedSearch.rename' => '重命名',
 			'savedSearch.noKeyword' => '（无关键词）',
@@ -6618,6 +6727,8 @@ extension on TranslationsZhCn {
 			'playbackQueue.favoriteFolders' => '收藏夹',
 			'playbackQueue.localFiles' => '本机文件',
 			'playbackQueue.currentFolder' => '当前文件所在文件夹',
+			'playbackQueue.playThisFolder' => '查看本目录下的视频池',
+			'playbackQueue.browseThisFolder' => '查看本目录下的图库池',
 			'playbackQueue.downloads' => '已下载',
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
@@ -6669,6 +6780,83 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionTitleShort' => '这可能是 VR 视频',
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
+			'localMedia.browse.pinnedSection' => '常用目录',
+			'localMedia.browse.sourcesSection' => '文件夹',
+			'localMedia.browse.pin' => '设为常用',
+			'localMedia.browse.unpin' => '取消常用',
+			'localMedia.browse.pinned' => '已设为常用目录',
+			'localMedia.browse.unpinned' => '已取消常用',
+			'localMedia.browse.folderCount' => ({required Object count}) => '${count} 个文件夹',
+			'localMedia.browse.videoCount' => ({required Object count}) => '${count} 个视频',
+			'localMedia.browse.imageCount' => ({required Object count}) => '${count} 张图片',
+			'localMedia.browse.emptyFolder' => '这个文件夹是空的',
+			'localMedia.browse.videosSection' => '视频',
+			'localMedia.browse.imagesSection' => '图片',
+			'localMedia.browse.location' => '位置',
+			'localMedia.browse.sourceMissing' => '这个来源已经不在了',
+			'localMedia.browse.notScannedYet' => '还没扫描过这个文件夹',
+			'localMedia.browse.scanning' => '正在读取这个文件夹…',
+			'localMedia.browse.deleteFileTitle' => '删除这个文件？',
+			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。',
+			'localMedia.browse.pickFolderTitle' => '选择文件夹',
+			'localMedia.browse.useThisFolder' => '使用这个文件夹',
+			'localMedia.browse.noSubfolders' => '这里没有子文件夹',
+			'localMedia.browse.storageRoot' => '设备存储',
+			'localMedia.browse.folderUnreadable' => '这个文件夹读不动',
+			'localMedia.browse.setCover' => '设置封面',
+			'localMedia.browse.setAsFolderCover' => '设为文件夹封面',
+			'localMedia.browse.folderCoverSet' => '已设为文件夹封面',
+			'localMedia.browse.setFolderCoverPick' => '设为封面…',
+			'localMedia.browse.restoreAutoCover' => '恢复自动封面',
+			'localMedia.browse.autoCoverRestored' => '已恢复自动封面',
+			'localMedia.browse.rescanFolder' => '重新扫描此目录',
+			'localMedia.browse.coverPickerTitle' => '挑一帧做封面',
+			'localMedia.browse.folderCoverPickerTitle' => '选择封面',
+			'localMedia.browse.coverPickerEmpty' => '这个目录里还没有可用的图片。视频的缩略图可能还在后台生成，稍后再来看看。',
+			'localMedia.browse.coverSaved' => '封面已更新',
+			'localMedia.browse.coverSaveFailed' => '封面保存失败',
+			'localMedia.browse.coverUnavailable' => '这个文件读不出画面',
+			'localMedia.browse.deleted' => '已删除',
+			'localMedia.browse.deleteFailed' => '删除失败，文件可能正被占用或没有权限',
+			'localMedia.browse.openFolder' => '打开',
+			'localMedia.browse.favorite' => '精选',
+			'localMedia.browse.unfavorite' => '取消精选',
+			'localMedia.browse.favorited' => '已加入精选',
+			'localMedia.browse.unfavorited' => '已取消精选',
+			'localMedia.browse.sortBy' => '排序方式',
+			'localMedia.browse.sortAscending' => '升序',
+			'localMedia.browse.sortDescending' => '降序',
+			'localMedia.browse.sortFieldName' => '文件名',
+			'localMedia.browse.sortFieldModified' => '修改日期',
+			'localMedia.browse.sortFieldDuration' => '时长',
+			'localMedia.browse.sortFieldSize' => '文件大小',
+			'localMedia.browse.sortFieldResolution' => '分辨率',
+			'localMedia.browse.sortFieldFileType' => '文件类型',
+			'localMedia.browse.sortFieldFps' => '帧率',
+			'localMedia.browse.sortFieldFavorited' => '精选时间',
+			'localMedia.browse.emptyAllVideos' => '还没有扫描到视频。到「文件目录」里添加一个文件夹试试。',
+			'localMedia.browse.emptyAllImages' => '还没有扫描到图片。到「文件目录」里添加一个文件夹试试。',
+			'localMedia.browse.emptyFavorites' => '还没有精选。在视频的「⋮」菜单里可以把它加进来。',
+			'localMedia.browse.emptyPinned' => '还没有常用目录。在「文件目录」里长按一个文件夹，选「设为常用」。',
+			'localMedia.browse.emptyDownloadedVideos' => '还没有下载完成的视频。',
+			'localMedia.browse.emptyDownloadedGalleries' => '还没有下载完成的图库。',
+			'localMedia.browse.folderInfo' => '文件夹信息',
+			'localMedia.browse.folderInfoName' => '名称',
+			'localMedia.browse.folderInfoPath' => '路径',
+			'localMedia.browse.folderInfoSource' => '所属来源',
+			'localMedia.browse.folderInfoContents' => '内容',
+			'localMedia.browse.folderInfoSize' => '占用空间',
+			'localMedia.browse.folderInfoScannedAt' => '最近扫描',
+			'localMedia.browse.folderInfoNeverScanned' => '还没扫描过',
+			'localMedia.browse.folderInfoNoPath' => '这个来源没有可打开的目录',
+			'localMedia.browse.copyPath' => '复制路径',
+			'localMedia.browse.pathCopied' => '路径已复制',
+			'localMedia.tabFolders' => '文件目录',
+			'localMedia.tabFavoriteVideos' => '精选视频',
+			'localMedia.tabAllVideos' => '所有视频',
+			'localMedia.tabAllImages' => '所有图片',
+			'localMedia.tabDownloadedVideos' => '下载完成视频',
+			'localMedia.tabDownloadedGalleries' => '下载完成图库',
 			'localMedia.title' => '本机文件',
 			'localMedia.sourceOnline' => 'Iwara 线上',
 			'localMedia.manageSources' => '管理来源',

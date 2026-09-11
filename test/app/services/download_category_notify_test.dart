@@ -9,7 +9,7 @@ import 'package:sqlite3/common.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../repositories/download_task_repository_test.dart'
-    show createDownloadTasksTable;
+    show createDownloadTasksTable, createLocalMediaItemsTableForCategoryTests;
 
 void createDownloadCategoriesTable(CommonDatabase db) {
   db.execute('''
@@ -42,6 +42,7 @@ void main() {
     db = sqlite3.openInMemory();
     createDownloadTasksTable(db);
     createDownloadCategoriesTable(db);
+    createLocalMediaItemsTableForCategoryTests(db);
     service = DownloadService(repository: DownloadTaskRepository(db));
     Get.put<DownloadService>(service);
   });

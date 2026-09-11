@@ -47,14 +47,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/light_play_list.model.dart';
-import 'package:i_iwara/app/models/download/download_category.model.dart';
-import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
@@ -63,7 +60,6 @@ import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/services/watch_later_service.dart';
 import 'package:i_iwara/app/ui/pages/download/media_download_launcher.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/add_video_to_playlist_dialog.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/detail/share_video_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/share_gallery_bottom_sheet.dart';
@@ -612,123 +608,6 @@ class MediaActionMenuButton extends StatefulWidget {
 
   @override
   State<MediaActionMenuButton> createState() => _MediaActionMenuButtonState();
-}
-
-enum _LocalMediaAction { preview, moveToCategory }
-
-/// 本机文件卡片的操作入口。
-///
-/// 本机条目没有线上媒体 id，不能伪装成 [Video] 交给全站菜单；它只提供本机语义
-/// 的动作，并复用同一套玻璃菜单和分类写入路径。
-class LocalMediaActionMenuButton extends StatelessWidget {
-  const LocalMediaActionMenuButton({
-    super.key,
-    required this.item,
-    this.onPreview,
-    this.onChanged,
-  });
-
-  final LocalMediaItem item;
-  final VoidCallback? onPreview;
-  final VoidCallback? onChanged;
-
-  Future<void> _open(BuildContext anchorContext) async {
-    final t = slang.Translations.of(anchorContext).localMedia;
-    final action = await showGlassMenu<_LocalMediaAction>(
-      anchorContext: anchorContext,
-      entries: <GlassMenuEntry>[
-        if (onPreview != null)
-          GlassMenuOption<_LocalMediaAction>(
-            value: _LocalMediaAction.preview,
-            label: slang.t.mediaPreview.preview,
-            icon: Icons.zoom_out_map,
-          ),
-        GlassMenuOption<_LocalMediaAction>(
-          value: _LocalMediaAction.moveToCategory,
-          label: t.moveToCategory,
-          icon: Icons.folder_special_outlined,
-        ),
-      ],
-    );
-    if (!anchorContext.mounted || action == null) return;
-
-    switch (action) {
-      case _LocalMediaAction.preview:
-        onPreview?.call();
-      case _LocalMediaAction.moveToCategory:
-        await _pickCategory(anchorContext, t);
-    }
-  }
-
-  Future<void> _pickCategory(
-    BuildContext anchorContext,
-    slang.TranslationsLocalMediaEn t,
-  ) async {
-    final categories = Get.isRegistered<DownloadService>()
-        ? DownloadService.to.categories.toList()
-        : const <DownloadCategory>[];
-    final picked = await showGlassMenu<String>(
-      anchorContext: anchorContext,
-      entries: <GlassMenuEntry>[
-        GlassMenuOption<String>(
-          value: kLocalMediaUncategorized,
-          label: t.uncategorized,
-          icon: Icons.folder_off_outlined,
-          enabled: item.categoryId != null,
-        ),
-        for (final category in categories)
-          GlassMenuOption<String>(
-            value: category.id,
-            label: category.title,
-            icon: Icons.folder,
-            enabled: category.id != item.categoryId,
-          ),
-        GlassMenuOption<String>(
-          value: _kManageLocalCategories,
-          label: t.manageCategories,
-          icon: Icons.settings_outlined,
-        ),
-      ],
-    );
-    if (!anchorContext.mounted || picked == null) return;
-    if (picked == _kManageLocalCategories) {
-      openDownloadCategoryManagePage(anchorContext);
-      return;
-    }
-
-    try {
-      LocalMediaRepository().setItemsCategory(<String>[
-        item.id,
-      ], picked == kLocalMediaUncategorized ? null : picked);
-      if (Get.isRegistered<DownloadService>()) {
-        unawaited(DownloadService.to.notifyLocalCategoryChanged());
-      }
-      onChanged?.call();
-    } catch (e) {
-      LogUtils.e('设置本地条目分类失败', tag: 'LocalMediaActionMenu', error: e);
-      showAppToast(t.setCategoryFailed, type: AppToastType.error);
-    }
-  }
-
-  static const String _kManageLocalCategories = '\u0000manage';
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return GlassTapArea(
-      onTap: () => _open(context),
-      onLongPress: () => _open(context),
-      opensOverlay: true,
-      longPressOpensOverlay: true,
-      child: Padding(
-        padding: const EdgeInsets.all(11),
-        child: SizedBox.square(
-          dimension: 18,
-          child: Icon(Icons.more_vert, size: 18, color: color),
-        ),
-      ),
-    );
-  }
 }
 
 class _MediaActionMenuButtonState extends State<MediaActionMenuButton> {

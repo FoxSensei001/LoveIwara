@@ -36,6 +36,9 @@ class LocalMediaItem {
     this.downloadTaskId,
     this.mediaStoreUri,
     this.lastPlayedAt,
+    this.favoritedAt,
+    this.fps,
+    this.fpsProbedAt,
     required this.addedAt,
     this.missing = false,
   });
@@ -89,6 +92,19 @@ class LocalMediaItem {
   /// 分页查询直接走复合索引，而不是对每条结果执行相关子查询。
   final int? lastPlayedAt;
 
+  /// 用户把这一条标为「精选」的时间戳。为 null 表示未标为精选。
+  final int? favoritedAt;
+
+  /// 视频帧率。为 null 表示尚未探测出来（图片永远为 null）。
+  final double? fps;
+
+  /// 什么时候探测过帧率（毫秒时间戳），NULL 表示从没探测过。
+  ///
+  /// ⛔ 不能用 `fps == null` 当「还没探测过」：容器里本来就不写帧率的文件永远探不出
+  /// 值，那样每次冷启动后第一次滚到它都要重付一遍轮询。内存里那份负缓存挡不住——
+  /// 它随进程清零。
+  final int? fpsProbedAt;
+
   final int addedAt;
   final bool missing;
 
@@ -118,6 +134,9 @@ class LocalMediaItem {
     'download_task_id': downloadTaskId,
     'media_store_uri': mediaStoreUri,
     'last_played_at': lastPlayedAt,
+    'favorited_at': favoritedAt,
+    'fps': fps,
+    'fps_probed_at': fpsProbedAt,
     'added_at': addedAt,
     'missing': missing ? 1 : 0,
   };
@@ -147,6 +166,9 @@ class LocalMediaItem {
       downloadTaskId: row['download_task_id'] as String?,
       mediaStoreUri: row['media_store_uri'] as String?,
       lastPlayedAt: row['last_played_at'] as int?,
+      favoritedAt: row['favorited_at'] as int?,
+      fps: (row['fps'] as num?)?.toDouble(),
+      fpsProbedAt: row['fps_probed_at'] as int?,
       addedAt: row['added_at'] as int? ?? 0,
       missing: (row['missing'] as int? ?? 0) != 0,
     );
@@ -167,6 +189,40 @@ extension LocalMediaPlaybackTarget on LocalMediaItem {
     final uri = mediaStoreUri;
     return uri != null && uri.isNotEmpty ? uri : path;
   }
+
+  /// 这一条还缺派生出来的元数据吗。
+  ///
+  /// # ⛔ 卡片的短路判断与派生服务的开工判断必须共用这一个判据
+  ///
+  /// 卡片为了省掉一次队列往返，会在「封面有了、元数据也齐了」时直接不问派生服务。
+  /// 一旦这里和服务端各写一份"齐了"的定义，新加的字段就会静默失效：派生服务明明
+  /// 判定要补，卡片却提前 return，那个字段永远是 NULL 而且**一条日志都不会有**。
+  ///
+  /// 加帧率那次就是这么翻的车——服务层加好了 `needFps`，卡片这边的判据还停在
+  /// 「时长 + 宽高」，于是全库 138 个视频的 fps 一个都没补上。
+  ///
+  /// 以后再加可派生字段，**只改这里**。
+  bool get needsDerivedMetadata => switch (kind) {
+    // 图片没有时长也没有帧率，只有宽高可派生。
+    LocalMediaItemKind.image => width == null || height == null,
+    // ⛔ 帧率判「探测过没有」而不是「有没有值」，否则容器不写帧率的文件每次
+    // 冷启动都会被重新排进派生队列，白开一次 Player。
+    LocalMediaItemKind.video =>
+      durationMs == null ||
+          width == null ||
+          height == null ||
+          (fps == null && fpsProbedAt == null),
+  };
+
+  /// 这一条能不能被「精选」。
+  ///
+  /// ⛔ **精选是视频独有的**。图片没有精选这回事：聚合 Tab 只有「精选视频」
+  /// （`countFavorited` 默认按 video 数），图片的排序字段表里也从来没有精选那一档。
+  /// 给图片标上的精选是**标了也没地方看**的死状态——菜单里能标，标完哪儿都不显示。
+  ///
+  /// 所以判据只有这一份，菜单要不要出那一条、卡片要不要画那颗星，都读它。
+  /// （2026-09-11 用户发现图片卡片上还有精选入口，明确说了只有视频有。）
+  bool get supportsFavorite => kind == LocalMediaItemKind.video;
 
   /// 这一条现在还放得出来吗（真实路径在，或者有 MediaStore 句柄）。
   bool get isPlayableNow {

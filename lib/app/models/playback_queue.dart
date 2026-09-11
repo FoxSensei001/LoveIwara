@@ -389,9 +389,31 @@ abstract class PagedPlaybackQueue extends PlaybackQueue {
   @override
   bool get isLoading => _loading;
 
+  /// 在途的那一次 [loadMore]。撞上时把它还给调用方，而不是同步 return。
+  ///
+  /// ⛔ 同步 return 会被上层读成「池到底了」：`PlaybackQueueNavigator` 判的是
+  /// `loaded.length` 有没有涨，没涨就 break 并回 false，调用方于是弹「已经是
+  /// 最后一条了」。抽屉滚动触发的预加载正在飞时，自动续播就会这样停掉。
+  Future<void>? _inFlight;
+
   @override
   Future<void> loadMore() async {
-    if (_loading || !_hasMore) return;
+    if (_loading) {
+      final inFlight = _inFlight;
+      if (inFlight != null) await inFlight;
+      return;
+    }
+    if (!_hasMore) return;
+    final future = _loadMore();
+    _inFlight = future;
+    try {
+      await future;
+    } finally {
+      if (identical(_inFlight, future)) _inFlight = null;
+    }
+  }
+
+  Future<void> _loadMore() async {
     _loading = true;
     notifyListeners();
     try {
@@ -814,14 +836,19 @@ class LocalFavoritePlaybackQueue extends PagedPlaybackQueue {
   }
 }
 
-/// 下载池：已经下载到本地的视频。
+/// 下载池：已经下载到本地的内容。视频一池、图库一池，[mediaType] 分开（2026-09-11）。
 ///
-/// ⛔ **只装视频、按 media_id 去重**：图库在播放器里放不了（与稍后再看池同一条
-/// 契约）；同一个视频下过两档清晰度是两条任务，不去重就会在「接着看」里排出
-/// 两条一模一样的片子。去重在 SQL 里做（见
-/// [DownloadTaskRepository.getCompletedVideoTasks]）。
+/// ⛔ **按 media_id 去重**：同一个视频下过两档清晰度是两条任务，不去重就会在
+/// 「接着看」里排出两条一模一样的片子。去重在 SQL 里做（见
+/// [DownloadTaskRepository.getCompletedDownloadTasks]）。
 ///
-/// # ⭐ 这个池里的条目**用本地文件播**
+/// # ⛔ 图库那一池的一条是**一个图库**，不是一张图
+///
+/// 这与视频池「一条 = 一个视频」同构，也与图库模式下别的池（最爱图库、作者的
+/// 图库）一致：「下一个」给的是下一个图库。摊平成图片会让同一个抽屉里的图库
+/// 粒度前后不一——用户在「最爱」里翻的是图库，切到「已下载」忽然在翻单张图。
+///
+/// # ⭐ 视频那一池的条目**用本地文件播**
 ///
 /// 池的身份就是"磁盘上这些文件"。从它里面接着看却回头去联网拉流，等于把这个
 /// 池的意义抹掉——离线时更是直接播不了。所以 [localTargetFor] 会把文件路径连
@@ -830,15 +857,28 @@ class LocalFavoritePlaybackQueue extends PagedPlaybackQueue {
 /// 文件在池建好之后被删掉是可能的（用户去下载页删了、或者系统清了缓存），
 /// 所以 [localTargetFor] **每次都 stat 一遍**：文件没了就答 null，让导航层
 /// 老实退回在线详情页，而不是开一个黑屏播放器。
+///
+/// ⚠️ 图库那一池**没有**这条本地捷径：图库任务的 `save_path` 是个文件夹，而
+/// 「图库详情页的离线形态」今天还不存在（离线看图只有下载页那条
+/// `GalleryDownloadTaskDetailPage`）。所以 [localTargetFor] 在图库池上一律答
+/// null，点一条开的是在线图库详情页——它知道自己被下载过，图片走本地缓存。
 class DownloadsPlaybackQueue extends PagedPlaybackQueue {
   DownloadsPlaybackQueue({
     required super.queueId,
     required DownloadTaskRepository repository,
     this.categoryFilter = 'all',
+    this.queueMediaType = PlaybackMediaType.video,
     String? title,
   }) : _repository = repository,
        _title = title,
        super(pageSize: 32);
+
+  /// 这一池装的是已下载的视频还是已下载的图库。**是池身份的一部分**，编进了
+  /// [queueId]——两者混在一个池里，导航层就分不出该开播放器还是图库详情页。
+  final PlaybackMediaType queueMediaType;
+
+  @override
+  PlaybackMediaType get mediaType => queueMediaType;
 
   /// 与下载列表页同一套字面量：`'all'` 全部 / `'uncategorized'` 未分类 /
   /// 其它值为具体分类 id。**它是池身份的一部分**，编进了 [queueId]——换一个
@@ -858,18 +898,20 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
   PlaybackQueueKind get kind => PlaybackQueueKind.downloads;
 
   @override
-  String get debugLabel => '已下载';
+  String get debugLabel => queueMediaType.isGallery ? '已下载（图库）' : '已下载';
 
   @override
   Future<({List<InnerPlaylistItemSnapshot> items, int rawCount})> fetchPage(
     int page,
     int limit,
   ) async {
-    final tasks = await _repository.getCompletedVideoTasks(
+    final tasks = await _repository.getCompletedDownloadTasks(
       offset: page * limit,
       limit: limit,
       categoryFilter: categoryFilter,
+      mediaType: queueMediaType.isGallery ? 'gallery' : 'video',
     );
+    if (queueMediaType.isGallery) return _galleryPageOf(tasks);
     final items = <InnerPlaylistItemSnapshot>[];
     for (final task in tasks) {
       final mediaId = task.mediaId?.trim();
@@ -907,6 +949,62 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
     return (items: items, rawCount: tasks.length);
   }
 
+  /// 图库那一池的一页：**一条 = 一个已下载的图库**。
+  ///
+  /// 封面优先用**已经下载到磁盘上的第一张图**（`local_paths`），拿不到才退回
+  /// 在线预览图。⛔ 这个顺序不能倒过来：这个池的全部意义就是"东西已经在机器
+  /// 上了"，封面却要联网才画得出来，离线时整列就是一排碎图。发 `file://` URI
+  /// 而不是裸路径，理由见 [_coverUriOf]。
+  ({List<InnerPlaylistItemSnapshot> items, int rawCount}) _galleryPageOf(
+    List<DownloadTask> tasks,
+  ) {
+    final items = <InnerPlaylistItemSnapshot>[];
+    for (final task in tasks) {
+      final mediaId = task.mediaId?.trim();
+      if (mediaId == null || mediaId.isEmpty) continue;
+      final ext = task.extData;
+      GalleryDownloadExtData? data;
+      if (ext != null && ext.type == DownloadTaskExtDataType.gallery) {
+        data = GalleryDownloadExtData.fromJson(ext.data);
+      }
+      _tasksById[mediaId] = task;
+      items.add(
+        InnerPlaylistItemSnapshot(
+          id: mediaId,
+          title: data?.title?.trim().isNotEmpty == true
+              ? data!.title!.trim()
+              : task.fileName,
+          thumbnailUrl: _galleryCoverOf(data),
+          // 统计三件套下载表里没有，留 null 让列表整段让位（同视频那一池）。
+          liked: false,
+          isPrivate: false,
+          isExternalVideo: false,
+          externalVideoDomain: '',
+          authorName: data?.authorName,
+          authorUsername: data?.authorUsername,
+          // 图库卡片上那句「N 张图」靠它，见 `PlaybackQueueNavigator._pushGallery`。
+          numImages: data?.totalImages,
+        ),
+      );
+    }
+    // rawCount 用**过滤前**的条数，同视频那一池。
+    return (items: items, rawCount: tasks.length);
+  }
+
+  /// 已下载图库的封面地址。见 [_galleryPageOf] 里那条"先本地后联网"的纪律。
+  static String _galleryCoverOf(GalleryDownloadExtData? data) {
+    if (data == null) return '';
+    // `image_list` 的键序就是图库里的原始顺序（JSON 对象保序），拿第一张有本地
+    // 文件的那一张当封面。这里**有意不 stat**：一页三十条各 stat 一次是落在 UI
+    // 线程上的同步 IO，而文件万一不在，抽屉那侧画的是碎图图标，代价远小于卡顿。
+    for (final id in data.imageList.keys) {
+      final local = data.localPaths[id]?.trim();
+      if (local != null && local.isNotEmpty) return Uri.file(local).toString();
+    }
+    if (data.previewUrls.isEmpty) return '';
+    return data.previewUrls.first.trim();
+  }
+
   /// 这条任务存的是哪一档清晰度。`quality` 列优先，老行退回 ext_data。
   static String? _qualityOf(DownloadTask task, VideoDownloadExtData? data) {
     final fromColumn = task.quality?.trim();
@@ -928,6 +1026,9 @@ class DownloadsPlaybackQueue extends PagedPlaybackQueue {
   /// 它的文件没了再退到其它还在的那一档——只要还有一档在，这条就仍旧是"已下载"。
   @override
   Future<LocalPlaybackTarget?> localTargetFor(String itemId) async {
+    // ⛔ 图库那一池没有本地落点：`save_path` 是个文件夹，而 [LocalPlaybackTarget]
+    // 说的是"拿这个文件去开播放器"。答 null，导航层照常开图库详情页（见类注释）。
+    if (queueMediaType.isGallery) return null;
     List<DownloadTask> completed = const <DownloadTask>[];
     try {
       final rows = await _repository.getVideoTasksByMedia(itemId);
@@ -1000,11 +1101,21 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
     this.sourceId,
     this.folderPath,
     this.categoryId,
+    this.itemKind = LocalMediaItemKind.video,
     this.sort = LocalMediaSort.addedDesc,
+    this.order,
+    this.favoritedOnly = false,
     String? title,
   }) : _repository = repository,
        _title = title,
        super(pageSize: 32);
+
+  /// 只收精选（`favorited_at IS NOT NULL`）的那些。
+  ///
+  /// ⛔ 同 [sort]，它是**池身份的一部分**（编进 [queueId]）：同一个源既能开出
+  /// 「所有视频」也能开出「精选视频」，两者混成一个键的话，先开的那一支会被
+  /// 原样发还给后开的那一边——用户从「精选」点进去，「下一个」却给出一条没精选过的。
+  final bool favoritedOnly;
 
   /// 限定在哪个源里。null = 全部源（"本机文件 · 全部"）。
   final String? sourceId;
@@ -1015,8 +1126,27 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   /// 再限定到一个本地分类。null = 不筛分类。
   final String? categoryId;
 
+  /// 这一池装的是视频还是图片。
+  ///
+  /// ⛔ 它同时决定 [mediaType]，也就是**这一池归播放器还是归图库**：图片池只出现
+  /// 在图库详情页的抽屉里，点一条走大图页（见 `PlaybackQueueNavigator`），一步也
+  /// 不碰播放器那条路。两种池的 [queueId] 因此必须分家，见
+  /// `PlaybackQueueService.localLibraryQueueId` 里的媒体后缀。
+  final LocalMediaItemKind itemKind;
+
+  bool get _isImageQueue => itemKind == LocalMediaItemKind.image;
+
   /// 与卡片墙同一档排序，见类注释。
   final LocalMediaSort sort;
+
+  /// [sort] 的展开版：任意字段 + 任意方向。给了它就以它为准（[sort] 被忽略）。
+  ///
+  /// ⛔ 「本机文件」页那几张墙（`LocalMediaWall`）排序是用户在栏目顶上现选的，
+  /// 能选的字段（分辨率 / 帧率 / 扩展名…）比 [LocalMediaSort] 那几档多得多。
+  /// 池表达不出来的话，从墙上点开一条，「下一个」就只能按 [sort] 那一档给——
+  /// 用户按分辨率排着看，下一条却是按添加时间来的。它同样是**池身份的一部分**，
+  /// 见 `PlaybackQueueService.localLibraryQueueId`。
+  final LocalMediaOrder? order;
 
   final LocalMediaRepository _repository;
   final String? _title;
@@ -1041,6 +1171,10 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   PlaybackQueueKind get kind => PlaybackQueueKind.localLibrary;
 
   @override
+  PlaybackMediaType get mediaType =>
+      _isImageQueue ? PlaybackMediaType.gallery : PlaybackMediaType.video;
+
+  @override
   String? get title => _title;
 
   @override
@@ -1055,12 +1189,30 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
       sourceId: sourceId,
       folderPath: folderPath,
       categoryId: categoryId,
-      excludeBuiltInSource: sourceId == null,
+      kind: itemKind,
+      // ⛔ 这一行必须与「本机文件」页那两张墙的口径**逐字一致**（见
+      // `LocalMediaWall`）：池的顺序就是"接下来播什么"，墙里有而池里没有的东西
+      // 会让用户点第 3 条、下一条跳过好几个。
+      //
+      // 不限源的「所有视频 / 所有图片」把内建的「已下载」排除在外——它自己有一条
+      // 「下载完成视频」（页面上是一个 tab，抽屉里是顶层那一条「已下载」），两边
+      // 都列就是同一批文件出现两次。
+      //
+      // 精选是例外：它是用户**跨源挑出来**的一小撮，下载来的片子照样能被精选，
+      // 把它们从精选里剔掉等于让用户点过的星号在这一页凭空失效。
+      excludeBuiltInSource: sourceId == null && !favoritedOnly,
+      favoritedOnly: favoritedOnly,
       sort: sort,
+      order: order,
       offset: page * limit,
       limit: limit,
     );
-    final progress = _repository.progressFor([for (final r in rows) r.id]);
+    // ⛔ 图片没有观看进度这回事：`local_watch_progress` 只有视频写得进去，图片池
+    // 发这一轮查询必然全空——白花一次同步查询，还会让"看完"的语义扩散到一类根本
+    // 不存在这个状态的东西上。
+    final progress = _isImageQueue
+        ? const <String, ({int positionMs, int? durationMs, bool completed})>{}
+        : _repository.progressFor([for (final r in rows) r.id]);
     final items = <InnerPlaylistItemSnapshot>[];
     for (final row in rows) {
       _pathsById[row.id] = row.path;
@@ -1077,7 +1229,7 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
           // 图片加载器），喂一条 `/storage/emulated/0/...` 进去不是"加载不出来"
           // 而是**画一枚碎图图标**——比没有封面更糟。`file://` 则是本仓库既有的
           // 约定（大图页、胶片条都认），消费方一眼分得出这是本地文件。
-          thumbnailUrl: _coverUriOf(row),
+          thumbnailUrl: _coverUriOf(row, itemKind),
           // 统计三件套本地库一样没有，留 null 让列表整段让位（同下载池）。
           liked: false,
           isPrivate: false,
@@ -1095,9 +1247,18 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   }
 
   /// 封面地址。sidecar 优先、我们自己生成的缩略图垫后，都没有就空串。
-  static String _coverUriOf(LocalMediaItem row) {
-    final cover = row.sidecarImagePath ?? row.thumbPath;
+  ///
+  /// 图片这一路**图自己就是封面**：拿不到派生缩略图时退回原图（抽屉那侧按
+  /// `cacheWidth` 解码，不会把整张原图解进内存，见 `_buildCover`）。一张图片的
+  /// 条目要是没有封面，列表上就只剩一个文件名——而它本来就是一张图。
+  static String _coverUriOf(LocalMediaItem row, LocalMediaItemKind kind) {
+    final cover = kind == LocalMediaItemKind.image
+        ? (row.thumbPath ?? row.path)
+        : (row.sidecarImagePath ?? row.thumbPath);
     if (cover == null || cover.trim().isEmpty) return '';
+    // ⛔ MediaStore 句柄（`content://`）不是文件路径，`Uri.file` 会把它拼成一条
+    // 谁都打不开的 `file:///content:/…`——抽屉那侧会当场画一枚碎图。宁可没有封面。
+    if (cover.startsWith('content://')) return '';
     return Uri.file(cover).toString();
   }
 
@@ -1144,6 +1305,9 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   /// 而不是开一个黑屏播放器。
   @override
   Future<LocalPlaybackTarget?> localTargetFor(String itemId) async {
+    // 图片池不走播放器这条路（见 [itemKind]）：答 null 而不是交出一条图片路径，
+    // 免得哪天被误当视频喂进 mpv。
+    if (_isImageQueue) return null;
     String? path;
     try {
       final item = _repository.getItem(itemId);
@@ -1166,6 +1330,60 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
     }
     return LocalPlaybackTarget(localPath: path, localLibraryItemId: itemId);
   }
+
+  /// 图片池里点中一条时，交给大图页的**那一整叠图**和它落在第几张。
+  ///
+  /// 大图页收的是一个 `List<ImageItem>`（它自己左右翻页），所以这里要的是整个
+  /// 目录，而不是池当前翻到的那一页。口径与池完全一致（同一批筛选、同一档排序），
+  /// 不然抽屉里数着第 3 条点进去、大图页开在第 7 张。
+  ///
+  /// ⛔ 有上限 [_kViewerBatch]：一个目录里几千张图时，把路径全捞出来再全塞进大图页
+  /// 是白花的内存。超出窗口就退化成"只开这一张"——比开在错的一张上强。
+  ({List<String> paths, int index})? imageFolderSnapshotFor(String itemId) {
+    if (!_isImageQueue) return null;
+    try {
+      // ⛔ 走只读两列的 [LocalMediaRepository.itemPathsPage]，不是 `queryItems`：
+      // 上千行整行读出来再各建一个模型，这一下全落在点击那一帧的 UI 线程上
+      // （sqlite3 是同步 API，见类注释里 `pageSize` 压到 32 的那条）。
+      final rows = _repository.itemPathsPage(
+        sourceId: sourceId,
+        folderPath: folderPath,
+        categoryId: categoryId,
+        kind: LocalMediaItemKind.image,
+        excludeBuiltInSource: sourceId == null,
+        sort: sort,
+        // ⛔ `order` 与 `favoritedOnly` 必须跟着传：`order` 在仓库那侧**优先于**
+        // `sort`，漏传就是这一叠图的顺序和池不一样——不报错，只是点第 3 条开在
+        // 第 7 张。见 [LocalMediaRepository.itemPathsPage] 的注释。
+        order: order,
+        favoritedOnly: favoritedOnly,
+        limit: _kViewerBatch,
+      );
+      // ⛔ `content://` 句柄先滤掉**再算下标**：大图页那侧是裸拼 `file://` 前缀
+      // （见 `PlaybackQueueNavigator`），拼出来的 `file://content://…` 是一张
+      // 打不开的图。滤在算下标之前，是为了不让下标错位。
+      final usable = [
+        for (final row in rows)
+          if (!row.path.startsWith('content://')) row,
+      ];
+      final index = usable.indexWhere((row) => row.id == itemId);
+      if (index >= 0) {
+        return (paths: [for (final row in usable) row.path], index: index);
+      }
+      // 不在这一窗里（目录超过 [_kViewerBatch]），或者被上面那道滤掉了：
+      // 退化成只开这一张——比开在错的一张上强。
+      final single = _repository.getItem(itemId);
+      if (single == null || single.missing) return null;
+      if (single.path.startsWith('content://')) return null;
+      return (paths: <String>[single.path], index: 0);
+    } catch (e) {
+      LogUtils.w('取本机图片目录快照失败：$e', 'LocalLibraryPlaybackQueue');
+      return null;
+    }
+  }
+
+  /// 一次交给大图页的最多张数，见 [imageFolderSnapshotFor]。
+  static const int _kViewerBatch = 1000;
 }
 
 /// 最爱池（图库）：Iwara 服务端的「最爱」里的图库（要登录）。

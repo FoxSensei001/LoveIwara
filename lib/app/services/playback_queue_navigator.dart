@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -76,6 +77,17 @@ class PlaybackQueueNavigator {
     // 一个池里不许混装两种（见 [PlaybackMediaType]），所以这一问就够了。
     // 全屏 / 自动播 / 本地文件那一整套都与图库无关，整条路各走各的。
     if (queue.mediaType.isGallery) {
+      // ⛔ 本机图片池的条目是**磁盘上的一张图**，不是 Iwara 的图库 id：推给
+      // `/gallery_detail/<id>` 只会开出一个 404 的在线详情页。它自己一条路：
+      // 直接开大图页，把这一条所在的整个目录交过去。
+      //
+      // ⚠️ [presentInSpace] 在这条路上**有意不接**：空间画廊走的是图库详情页那
+      // 条路（`GalleryDetailExtra.presentInSpace`），本机图片今天只有平面大图页。
+      // 头显上从沉浸面板点一条本机图片，开的会是平面的那一张——不是漏了，是还没做。
+      if (queue is LocalLibraryPlaybackQueue) {
+        _pushLocalImages(queue: queue, itemId: id);
+        return;
+      }
       _pushGallery(item: item, ref: ref, presentInSpace: presentInSpace);
       return;
     }
@@ -101,10 +113,7 @@ class PlaybackQueueNavigator {
     // 黑屏播放器好——但**不能一声不吭**：用户明明是在「已下载」里点的，页面却以
     // 在线方式打开并联网拉流，不给个说法就只会被当成"离线播放坏了"。
     if (!isExternal && queue.kind == PlaybackQueueKind.downloads) {
-      LogUtils.w(
-        '已下载池里的 $id 落不到本地文件，退回在线播放',
-        'PlaybackQueueNavigator',
-      );
+      LogUtils.w('已下载池里的 $id 落不到本地文件，退回在线播放', 'PlaybackQueueNavigator');
       showAppToast(
         slang.t.download.errors.fileNotFound,
         type: AppToastType.error,
@@ -115,14 +124,8 @@ class PlaybackQueueNavigator {
     // Iwara 根本不认识它，硬推下去会打开一个 404 的在线详情页——比什么都不做更
     // 让人困惑。文件不在了就如实说一句、停在原地。
     if (queue.kind == PlaybackQueueKind.localLibrary) {
-      LogUtils.w(
-        '本机文件池里的 $id 落不到磁盘文件，放弃本次跳转',
-        'PlaybackQueueNavigator',
-      );
-      showAppToast(
-        slang.t.localMedia.fileMissing,
-        type: AppToastType.error,
-      );
+      LogUtils.w('本机文件池里的 $id 落不到磁盘文件，放弃本次跳转', 'PlaybackQueueNavigator');
+      showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
       return;
     }
 
@@ -182,6 +185,51 @@ class PlaybackQueueNavigator {
       LogUtils.e('切换到池内下一个图库失败', tag: 'PlaybackQueueNavigator', error: e);
       // 兜底：至少别把用户卡在原地
       NaviService.navigateToGalleryDetailPage(ref.currentItemId);
+    }
+  }
+
+  /// 本机图片那条路：开大图页，把这一条所在目录的整叠图交过去。
+  ///
+  /// ⛔ 用 `push` 而不是 `pushReplacement`：大图页是**盖在**当前页上的一层
+  /// （图库详情页那条路一直如此），退出来要回到刚才那张图库详情页。
+  ///
+  /// ⛔ 地址一律 `'file://$path'` 这个**裸拼**形式，不能改成 `Uri.file(...)`：
+  /// 大图页那侧是 `replaceFirst('file://', '')` 剥前缀当路径用（见
+  /// `gallery_filmstrip.dart` / `my_gallery_photo_view_wrapper.dart`），喂一条
+  /// 百分号编码的 URI 进去，带空格的文件名会当场变成打不开的路径。
+  static void _pushLocalImages({
+    required LocalLibraryPlaybackQueue queue,
+    required String itemId,
+  }) {
+    final snapshot = queue.imageFolderSnapshotFor(itemId);
+    if (snapshot == null || snapshot.paths.isEmpty) {
+      LogUtils.w(
+        '本机图片池里的 $itemId 落不到磁盘文件，放弃本次跳转',
+        'PlaybackQueueNavigator',
+      );
+      showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
+      return;
+    }
+    final extra = PhotoViewExtra(
+      imageItems: [
+        for (final path in snapshot.paths)
+          ImageItem(
+            url: 'file://$path',
+            data: ImageItemData(
+              id: path,
+              url: 'file://$path',
+              originalUrl: 'file://$path',
+            ),
+          ),
+      ],
+      initialIndex: snapshot.index,
+      menuItemsBuilder: (context, item) => const <MenuItem>[],
+      enableMenu: false,
+    );
+    try {
+      appRouter.push('/photo_view_wrapper', extra: extra);
+    } catch (e) {
+      LogUtils.e('打开本机图片失败', tag: 'PlaybackQueueNavigator', error: e);
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
@@ -74,9 +75,16 @@ class XrQueueCatalog {
       return XrQueueChoice(queueId: queueId, title: title, count: count);
     }
 
-    // 图库池的目录另走一套：图库没有播放列表 / 订阅 / 已下载，作者那一支是「作者的图库」。
+    // 图库池的目录另走一套：图库没有播放列表 / 订阅，作者那一支是「作者的图库」。
+    // 「已下载」两边都有（2026-09-11 补齐），但各是各的池——见 `downloadsQueueId`。
     if (mediaType.isGallery) {
-      _buildGalleryGroups(groups, choice, queues: queues, author: author, self: self);
+      _buildGalleryGroups(
+        groups,
+        choice,
+        queues: queues,
+        author: author,
+        self: self,
+      );
       return groups;
     }
 
@@ -121,7 +129,10 @@ class XrQueueCatalog {
 
     // 3. 我的播放列表
     if (self != null) {
-      final feed = _feed('own:${self.id}', () => _fetchOwnPlaylists(currentItemId));
+      final feed = _feed(
+        'own:${self.id}',
+        () => _fetchOwnPlaylists(currentItemId),
+      );
       groups.add(
         XrQueueGroup(
           id: 'playlists',
@@ -218,10 +229,15 @@ class XrQueueCatalog {
             title: t.playbackQueue.localFiles,
             loading: !feed.ready,
             choices: [
-              // ⛔ 「全部」必须和 2D 抽屉那边一起有：抽屉在源多于一个时给出这一
-              // 支（`localLibrary:all:nameAsc`），面板这边不列的话，用户从抽屉切
-              // 到「全部」之后，沉浸面板里**没有任何一行会高亮**——面板认的是
-              // queueId，目录里没登记的 id 就是一支它不认识的池。
+              // ⚠️ **两边的口径 2026-09-11 起分家了**：2D 抽屉那侧已经改成逐层
+              // 目录（一个池 = 一个目录，见 `playback_queue_drawer` 的
+              // `_pickLocalFolder`），「全部」与「整个源」两支它都不再建得出来。
+              // 面板这一组还是老样子——空间 UI 要逐层下钻得另设计一套交互。
+              //
+              // 后果照旧记在这儿：抽屉现在开的池都带 `folderPath` 哈希，面板目录
+              // 里一个都没登记，所以「在抽屉里切到某个目录 → 开沉浸面板」时**没有
+              // 任何一行会高亮**（面板认的是 queueId）。反过来从面板点「全部」，
+              // 抽屉的源菜单里同样没有一行会亮。要收口就得把这一组也改成按目录列。
               if (rows.length > 1)
                 choice(
                   queueId: PlaybackQueueService.localLibraryQueueId(
@@ -229,9 +245,8 @@ class XrQueueCatalog {
                   ),
                   title: t.common.all,
                   count: rows.fold<int>(0, (sum, r) => sum + (r.count ?? 0)),
-                  open: () => service.openLocalLibrary(
-                    sort: LocalMediaSort.nameAsc,
-                  ),
+                  open: () =>
+                      service.openLocalLibrary(sort: LocalMediaSort.nameAsc),
                 ),
               // 一条都没有的源不列：点进去是个空池，而面板上没有地方解释为什么
               //（2D 抽屉那边是靠 `enabled: count > 0` 置灰的）。
@@ -265,12 +280,16 @@ class XrQueueCatalog {
         title: t.watchLater.title,
         choices: [
           choice(
-            queueId: PlaybackQueueService.watchLaterQueueId(unwatchedOnly: false),
+            queueId: PlaybackQueueService.watchLaterQueueId(
+              unwatchedOnly: false,
+            ),
             title: t.watchLater.filterAll,
             open: () => service.openWatchLater(unwatchedOnly: false),
           ),
           choice(
-            queueId: PlaybackQueueService.watchLaterQueueId(unwatchedOnly: true),
+            queueId: PlaybackQueueService.watchLaterQueueId(
+              unwatchedOnly: true,
+            ),
             title: t.watchLater.filterUnwatched,
             open: () => service.openWatchLater(unwatchedOnly: true),
           ),
@@ -289,7 +308,8 @@ class XrQueueCatalog {
             choice(
               queueId: PlaybackQueueService.authorMediaQueueId(author.id),
               title: author.name,
-              open: () => service.openAuthorVideos(author.id, title: author.name),
+              open: () =>
+                  service.openAuthorVideos(author.id, title: author.name),
             ),
           ],
         ),
@@ -342,8 +362,11 @@ class XrQueueCatalog {
                 queueId: PlaybackQueueService.playlistQueueId(row.id),
                 title: row.title,
                 count: row.count,
-                open: () =>
-                    service.openPlaylist(row.id, title: row.title, owner: other),
+                open: () => service.openPlaylist(
+                  row.id,
+                  title: row.title,
+                  owner: other,
+                ),
               ),
           ],
         ),
@@ -352,7 +375,11 @@ class XrQueueCatalog {
 
     // 已经开着的池即便不在目录里（例如从别处交接来的），也要能点到：给它们各自登记 opener。
     for (final queue in queues) {
-      _openers.putIfAbsent(queue.queueId, () => () => queue);
+      _openers.putIfAbsent(
+        queue.queueId,
+        () =>
+            () => queue,
+      );
     }
     return groups;
   }
@@ -382,7 +409,8 @@ class XrQueueCatalog {
       required String title,
       int? count,
       required PlaybackQueue Function() open,
-    }) choice, {
+    })
+    choice, {
     required List<PlaybackQueue> queues,
     required User? author,
     required User? self,
@@ -453,6 +481,124 @@ class XrQueueCatalog {
       );
     }
 
+    // 订阅动态（图库）。要登录——未登录时 `subscribed=true` 会被服务端静默忽略、
+    // 返回全站内容，摆一条点进去是"全站热门"的「订阅」比不摆更糟（同 2D 抽屉）。
+    if (self != null) {
+      groups.add(
+        XrQueueGroup(
+          id: 'subscriptions',
+          title: t.common.subscriptions,
+          choices: [
+            choice(
+              queueId: PlaybackQueueService.subscriptionsQueueId(gallery),
+              title: t.common.subscriptions,
+              open: () =>
+                  service.openSubscriptions(mediaType: gallery) ??
+                  service.openWatchLater(
+                    unwatchedOnly: false,
+                    mediaType: gallery,
+                  ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 本机文件（按源）。图库这一路装的是本机**图片**。
+    //
+    // ⚠️ 与视频那一组同一条已知缺口：2D 抽屉那侧是逐层目录（一个池 = 一个目录），
+    // 面板这一组还是按源摊平，所以两边的 queueId 对不上、互相都不会高亮。
+    // 要收口得把这一组也改成按目录列，是另一件事。
+    {
+      final feed = _feed(
+        'localSourcesGallery',
+        () => _fetchLocalSources(kind: LocalMediaItemKind.image),
+      );
+      final rows = feed.value ?? const <_Row>[];
+      if (!feed.ready || rows.any((row) => (row.count ?? 0) > 0)) {
+        groups.add(
+          XrQueueGroup(
+            id: 'localLibrary',
+            title: t.playbackQueue.localFiles,
+            loading: !feed.ready,
+            choices: [
+              if (rows.where((r) => (r.count ?? 0) > 0).length > 1)
+                choice(
+                  queueId: PlaybackQueueService.localLibraryQueueId(
+                    sort: LocalMediaSort.nameAsc,
+                    mediaType: gallery,
+                  ),
+                  title: t.common.all,
+                  count: rows.fold<int>(0, (sum, r) => sum + (r.count ?? 0)),
+                  open: () => service.openLocalLibrary(
+                    sort: LocalMediaSort.nameAsc,
+                    mediaType: gallery,
+                  ),
+                ),
+              for (final row in rows.where((r) => (r.count ?? 0) > 0))
+                choice(
+                  queueId: PlaybackQueueService.localLibraryQueueId(
+                    sourceId: row.id,
+                    sort: LocalMediaSort.nameAsc,
+                    mediaType: gallery,
+                  ),
+                  title: row.title,
+                  count: row.count,
+                  // ⛔ 排序必须和 2D 抽屉那边一致（都是 `nameAsc`），理由见视频
+                  // 那一组：排序是池身份的一部分。
+                  open: () => service.openLocalLibrary(
+                    sourceId: row.id,
+                    sort: LocalMediaSort.nameAsc,
+                    mediaType: gallery,
+                    title: row.title,
+                  ),
+                ),
+            ],
+          ),
+        );
+      }
+    }
+
+    // 已下载（图库，按分类）。2026-09-11 补上：这一组原先只有视频那一路有，
+    // 头显上从沉浸面板根本切不到"我下载过的图库"。
+    //
+    // ⛔ 与 2D 抽屉那侧必须同一个池：`downloadsQueueId` 带媒体类型后缀、
+    // `openDownloads` 带 `mediaType: gallery`。两边少写一处，面板里点了不会命中
+    // 抽屉已经开着的那一支（面板认的是 queueId），表现成"点了不高亮"。
+    {
+      final feed = _feed(
+        'downloadsGallery',
+        () => _fetchDownloadCategories(mediaType: 'gallery'),
+      );
+      final rows = feed.value ?? const <_Row>[];
+      // 一条都没下载过时整组不出现——同「本机文件」那一组的理由，空分组只是噪音。
+      if (!feed.ready || rows.any((row) => (row.count ?? 0) > 0)) {
+        groups.add(
+          XrQueueGroup(
+            id: 'downloads',
+            title: t.playbackQueue.downloads,
+            loading: !feed.ready,
+            choices: [
+              for (final row in rows.where((r) => (r.count ?? 0) > 0))
+                choice(
+                  queueId: PlaybackQueueService.downloadsQueueId(
+                    row.id,
+                    gallery,
+                  ),
+                  title: row.title,
+                  count: row.count,
+                  open: () => service.openDownloads(
+                    categoryFilter: row.id,
+                    mediaType: gallery,
+                    title: row.id == 'all' ? null : row.title,
+                  ),
+                ),
+            ],
+          ),
+        );
+      }
+    }
+
     groups.add(
       XrQueueGroup(
         id: 'watchLater',
@@ -464,8 +610,10 @@ class XrQueueCatalog {
               mediaType: gallery,
             ),
             title: t.watchLater.filterAll,
-            open: () =>
-                service.openWatchLater(unwatchedOnly: false, mediaType: gallery),
+            open: () => service.openWatchLater(
+              unwatchedOnly: false,
+              mediaType: gallery,
+            ),
           ),
           choice(
             queueId: PlaybackQueueService.watchLaterQueueId(
@@ -569,21 +717,25 @@ class XrQueueCatalog {
   ///
   /// ⛔ 条数另查一次真数，不能用 `local_media_sources.item_count`：那一列是上次
   /// 扫描结束时的快照（含图片、不排除 missing），而池里只装可播的视频。
-  Future<List<_Row>?> _fetchLocalSources() async {
+  /// 本机来源清单。[kind] 决定数的是视频还是图片——⛔ 图库那一路必须传
+  /// `image`，否则面板上写的是视频条数、点进去却是一池图片。
+  Future<List<_Row>?> _fetchLocalSources({
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+  }) async {
     try {
       final repository = LocalMediaRepository();
       return [
-      // ⛔ 内建的「已下载」不进这张清单：沉浸态目录里**已经有**一条同名的「已下载」
-      // （走 `PlaybackQueueKind.downloads`，按 media_id 去重、带下载分类）。
-      // 两条同名不同数的条目并排站着，用户没有任何办法分辨该点哪一个。
-      // 等 §10.6 把下载页拆完、两条并成一条时再放开。
+        // ⛔ 内建的「已下载」不进这张清单：沉浸态目录里**已经有**一条同名的「已下载」
+        // （走 `PlaybackQueueKind.downloads`，按 media_id 去重、带下载分类）。
+        // 两条同名不同数的条目并排站着，用户没有任何办法分辨该点哪一个。
+        // 等 §10.6 把下载页拆完、两条并成一条时再放开。
         for (final source in repository.getSources())
           if (!source.isBuiltIn)
-          (
-            id: source.id,
-            title: source.displayName,
-            count: repository.countItems(sourceId: source.id),
-          ),
+            (
+              id: source.id,
+              title: source.displayName,
+              count: repository.countItems(sourceId: source.id, kind: kind),
+            ),
       ];
     } catch (e) {
       // ⛔ 这里返回 `const []` 而**不是** null（与那些网络清单相反）。
@@ -598,11 +750,17 @@ class XrQueueCatalog {
     }
   }
 
-  Future<List<_Row>?> _fetchDownloadCategories() async {
+  /// 下载分类清单。[mediaType] 是 `download_tasks.media_type` 的字面量：
+  /// ⛔ 数的桶必须和列的池是同一种媒体，否则视频那一列的数会跑到图库目录上。
+  Future<List<_Row>?> _fetchDownloadCategories({
+    String mediaType = 'video',
+  }) async {
     if (!Get.isRegistered<DownloadService>()) return const <_Row>[];
     final t = slang.t;
     final service = DownloadService.to;
-    final counts = await service.repository.getCompletedVideoCounts();
+    final counts = await service.repository.getCompletedDownloadCounts(
+      mediaType: mediaType,
+    );
     final categories = await service.getAllCategories();
     return [
       (id: 'all', title: t.common.all, count: counts.total),
@@ -656,11 +814,7 @@ class XrQueueGroup {
 
 /// 分组里的一个选项（= 抽屉第二级），对应一个池。
 class XrQueueChoice {
-  const XrQueueChoice({
-    required this.queueId,
-    required this.title,
-    this.count,
-  });
+  const XrQueueChoice({required this.queueId, required this.title, this.count});
 
   final String queueId;
   final String title;

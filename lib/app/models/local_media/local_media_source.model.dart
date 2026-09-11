@@ -37,7 +37,15 @@ class LocalMediaSource {
     required this.displayName,
     this.path,
     this.uri,
-    this.mediaKinds = LocalMediaKinds.video,
+    // ⛔ 默认必须是 both，别改回 video。
+    //
+    // 这个默认值曾经是 `video`，配上 `fromRow` 里同样是 `video` 的兜底，效果是
+    // **一个建早了的源永远看不见图片**：扫描器按 media_kinds 决定收不收图片
+    // （`local_media_scan_service.dart` 里的 wantsImages），而没有任何界面能改它，
+    // 「重新扫描」也只是拿着这个旧值再走一遍。真机上就撞到了——下载好的图库落在
+    // Download 目录里，重扫多少次都不出现，库里那行写着 media_kinds='video'。
+    // 见 v32 迁移。
+    this.mediaKinds = LocalMediaKinds.both,
     this.recursive = true,
     this.autoRescan = true,
     this.sortOrder = 0,
@@ -147,7 +155,7 @@ class LocalMediaSource {
       mediaKinds: _parseEnum(
         LocalMediaKinds.values,
         row['media_kinds'],
-        LocalMediaKinds.video,
+        LocalMediaKinds.both,
       ),
       recursive: (row['recursive'] as int? ?? 1) != 0,
       autoRescan: (row['auto_rescan'] as int? ?? 1) != 0,

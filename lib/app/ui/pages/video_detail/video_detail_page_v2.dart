@@ -34,6 +34,7 @@ import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 
@@ -156,7 +157,6 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),
           tag: uniqueTag,
         );
-
       }
 
       // ⛔ 强制进全屏**两种模式都要**：从「接着看」的下载池连播过来时落的是
@@ -271,20 +271,48 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     // 本地模式下 videoId 是 `local_xxx` 占位，游标只能用 ref 带来的那个。
     _queueItemId = isLocalMode ? (ref?.currentItemId.trim() ?? '') : videoId;
 
-    // ⛔ 本地播放页只认**交接过来的那个池**（从下载列表进来的下载池）。
-    // 来源快照与稍后再看都是在线的东西，摆进一个离线播放页里既没上下文
-    // 也点不动。池认不出来（App 重启后 ref 失效）就整只不出现。
+    // 本地播放页只收**本地的**池：来源快照、稍后再看、订阅那些是在线的东西，
+    // 摆进一个离线播放页里既没上下文，抽屉里那三条播放列表还会拿本机 id 去打
+    // Iwara 接口（闸门在抽屉的 `_playingLocalFile` 上）。
+    //
+    // # ⛔ 但「认不出来源」≠「没有接着看」（2026-09-11 用户要求）
+    //
+    // 这里原来是：池交接不过来（深链/「用其他应用打开」进来、ref 被 LRU 淘汰）
+    // 就 `_queues = []` 直接返回，入口钮整只不出现。可抽屉里那几支
+    // 「已下载 / 本机文件 / 常用目录 / 收藏夹」**全是进了抽屉才现开的**，跟这条
+    // 视频从哪儿来毫无关系——把入口一并收掉，等于因为"不知道你在哪一池"而连
+    // "去别的池挑下一条"也一起没收了。
+    //
+    // 所以认不出来时补一池「本机文件 · 所有视频」兜底。这与在线模式一定补一池
+    // 「稍后再看」是同一个用意：**保证入口一定在场**。
+    //
+    // ⛔ 兜底那一池必须是 `localLibrary`：抽屉靠 `initialQueue.kind` 判"正在播的
+    // 是本机文件"，换成别的 kind 就把上面那道 Iwara 接口的闸门绕开了。排序取
+    // `nameAsc`，与抽屉里「本机文件 › 所有视频」拼出来的是同一个 id——用户在
+    // 菜单里点那一条时命中的就是这一池，不会凭空多出一个同名的孪生池。
     if (isLocalMode) {
-      if (handedOver == null || _queueItemId.isEmpty) {
-        _queues = const <PlaybackQueue>[];
-        _activeQueue = null;
-        return;
+      if (queues.isEmpty) {
+        queues.add(
+          service.openLocalLibrary(
+            sort: LocalMediaSort.nameAsc,
+            title: slang.t.localMedia.tabAllVideos,
+          ),
+        );
       }
       _queues = queues;
-      _activeQueue = handedOver;
-      handedOver.addListener(_onActiveQueueChanged);
-      controller.onPlaybackCompleted = _advanceInQueue;
-    _syncImmersiveQueues();
+      _activeQueue = handedOver ?? queues.first;
+      for (final queue in _queues) {
+        queue.addListener(_onActiveQueueChanged);
+      }
+      // ⛔ 游标认不出来（`ref` 没带 `currentItemId`）时**不要**接自动续播：
+      // `PlaybackQueueNavigator.advance` 第一步就是 `ensureContains(currentItemId)`
+      // ——拿一个空 id 去找，等于把整池一页页翻到底还什么都找不到。底栏那枚
+      // 「下一个」同样不出现（见 [_canPlayNextInQueue]）。这是用户认可的代价：
+      // 不知道这一条在池里的哪个位置，就给不出"下一条"，但抽屉照常能开。
+      if (_queueItemId.isNotEmpty) {
+        controller.onPlaybackCompleted = _advanceInQueue;
+      }
+      _syncImmersiveQueues();
       return;
     }
 
@@ -317,9 +345,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         !queues.any((queue) => queue.kind == PlaybackQueueKind.source)) {
       final query = sourceContext.query;
       if (query != null) {
-        queues.add(
-          service.openRemoteList(query, seed: sourceContext.items),
-        );
+        queues.add(service.openRemoteList(query, seed: sourceContext.items));
       } else if (sourceContext.items.isNotEmpty) {
         queues.add(service.openSource(sourceContext, ownerKey: uniqueTag));
       }
@@ -339,8 +365,8 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
     _activeQueue = handedOver ?? queues.firstOrNull;
     LogUtils.i(
       '视频池就绪 ref=${ref?.queueId} companions=${ref?.companionQueueIds} '
-      'handedOver=${handedOver?.queueId} queues=${queues.map((q) => q.queueId).toList()} '
-      'active=${_activeQueue?.queueId} tag=$uniqueTag',
+          'handedOver=${handedOver?.queueId} queues=${queues.map((q) => q.queueId).toList()} '
+          'active=${_activeQueue?.queueId} tag=$uniqueTag',
       'MyVideoDetailPage',
     );
     // ⛔ **本页持有的每个池都要挂上监听**，不能只挂 active 那一个。
@@ -366,12 +392,19 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
   }
 
   /// 播放器底栏那枚「下一个」要不要在场。判据见 [PlaybackQueue.canAdvance]。
+  ///
+  /// ⛔ 先问一句"游标认不认得出来"。本地播放页可能手上有池、却不知道正在播的
+  /// 这一条在池里的哪个位置（深链 / 「用其他应用打开」进来的文件，见
+  /// [_setupPlaybackQueues]）。那种情况下 `canAdvance` 会因为 `hasMore` 为真而
+  /// 答"能"，按下去却是把整池一页页翻到底、最后弹一句"已经是最后一条了"。
+  /// 不知道当前在哪儿就给不出"下一个"——这一枚钮不该在场（抽屉照常开得出来）。
   bool get _canPlayNextInQueue =>
-      _activeQueue?.canAdvance(
-        _queueItemId,
-        skipWatched: widget.skipWatchedInQueue,
-      ) ??
-      false;
+      _queueItemId.isNotEmpty &&
+      (_activeQueue?.canAdvance(
+            _queueItemId,
+            skipWatched: widget.skipWatchedInQueue,
+          ) ??
+          false);
 
   /// 手动点「下一个」。
   ///
@@ -420,7 +453,20 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
           : null,
       onRelinquishFullscreen: controller.relinquishFullscreenForRouteHandoff,
       // 补页/翻页要联网，这中间用户按了返回就别再往栈上顶新的详情页了。
-      stillWanted: () => mounted,
+      //
+      // ⛔ 只判 `mounted` 不够。这一页被**压在栈下**时 `mounted` 仍是 true，
+      // 而 `playItem` 走的是 `pushReplacement`——它替换的是**栈顶**，也就是
+      // 用户刚点开的那一页。真实路径：视频正好播完 → 续播卡在
+      // `ensureContains`/`loadMore` 联网 → 用户点了相关视频 → 那一页被续播
+      // 目标顶掉。
+      //
+      // 附带效果：这一页上开着弹层（抽屉、菜单、对话框）时 `isCurrent` 也是
+      // false，那一下续播同样放弃。这是有意的——带着弹层换页会把弹层一起冲掉。
+      stillWanted: () {
+        if (!mounted) return false;
+        final route = ModalRoute.of(context);
+        return route == null || route.isCurrent;
+      },
       companionQueues: _queues,
     );
   }

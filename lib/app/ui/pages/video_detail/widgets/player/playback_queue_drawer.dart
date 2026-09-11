@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -15,6 +17,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/favorite_service.dart';
 import 'package:i_iwara/app/services/gallery_service.dart';
 import 'package:i_iwara/app/services/play_list_service.dart';
+import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
@@ -235,7 +238,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   ///
   /// ⛔ 「点开接着看会卡一下」的直接成因（2026-08-29 用户报的）：预取里的三份
   /// 本地清单——`FavoriteService.getAllFolders()`（favorite_items 上的
-  /// JOIN + GROUP BY）、`getCompletedVideoCounts()`、`getAllCategories()`——虽然
+  /// JOIN + GROUP BY）、`getCompletedDownloadCounts()`、`getAllCategories()`——虽然
   /// 签名是 `Future`，函数体里却**一个 await 都没有**，sqlite 查询整段跑在调用
   /// 方这一轮里。`initState` 里发它们，等于把三次同步查库压在抽屉的**第一帧**
   /// 上，260ms 的滑入动画开头就丢帧。
@@ -385,22 +388,28 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       skipWatched: queue.kind == PlaybackQueueKind.watchLater && _unwatchedOnly,
     );
 
+    // 本机文件：id 不是 iwara 的、封面是 file://，两条都不能交给联网那套（见方法
+    // 注释）。图库那一路同样有本机文件（本机图片池），一样得掐掉。
+    final bool isLocalFile = queue.kind == PlaybackQueueKind.localLibrary;
+
     if (queue.mediaType.isGallery) {
       return showMediaPreviewDialog(
         context: context,
         gallery: _seedGallery(item),
-        coverUrl: item.thumbnailUrl,
-        loadGalleryDetail: () async =>
-            (await Get.find<GalleryService>().fetchGalleryDetail(item.id)).data,
+        coverUrl: isLocalFile ? null : item.thumbnailUrl,
+        loadGalleryDetail: isLocalFile
+            ? null
+            : () async => (await Get.find<GalleryService>().fetchGalleryDetail(
+                item.id,
+              )).data,
         onOpenDetail: () async => _selectItem(selection),
         onWillLeavePage: _leaveForPreviewNavigation,
+        remoteActionsAvailable: !isLocalFile,
       );
     }
 
     // 快照带着完整的那份就别再联网拉一遍——它正是列表页刚拿到的那个对象。
     final Video? known = item.sourceVideo;
-    // 本机文件：id 不是 iwara 的、封面是 file://，两条都不能交给上面那套（见方法注释）。
-    final bool isLocalFile = queue.kind == PlaybackQueueKind.localLibrary;
     return showMediaPreviewDialog(
       context: context,
       video: known ?? _seedVideo(item),
@@ -411,6 +420,11 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
                 (await VideoService.to.fetchVideoInfoResult(item.id)).data,
       onOpenDetail: () async => _selectItem(selection),
       onWillLeavePage: _leaveForPreviewNavigation,
+      // ⛔ 本机文件在 Iwara 上没有对应的东西：点赞会拿本地 id 打接口，稍后再看
+      // 会把这一行**持久写进本地库**，之后点开必然 404。这条洞本机视频那一路
+      // 早就有（`isLocalFile` 时 `loadVideoDetail` 也是 null，于是三枚钮照常
+      // 可按），这次一起堵上。
+      remoteActionsAvailable: !isLocalFile,
     );
   }
 
@@ -520,8 +534,25 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   /// 顺带让第二张菜单不用等。拉不到就保持"未知"，下次点到时会重试。
   void _warmUpChoices() {
     _localFolders.warmUp();
-    // ⛔ 图库这一路**不碰播放列表和下载**：Iwara 的播放列表只收视频，下载池里
-    // 也只有视频。预取它们等于为一类根本不会出现的菜单项白打请求。
+    // 见 [_hasLocalSources]：拉完要重建一次，否则「本机文件」那一条在预取完成前
+    // 开菜单是**整只不在**的（而不是像别的条目那样只是没置灰）。
+    //
+    // ⛔ 它在 `if (_isGallery) return` **之上**：图库这一路同样有本机文件（装的是
+    // 本机图片），漏在下面的话那一条在图库里永远不出现。
+    _localSources.get().then((rows) {
+      if (!mounted) return;
+      final has = rows != null && rows.isNotEmpty;
+      if (has != _hasLocalSources) setState(() => _hasLocalSources = has);
+    });
+    // ⛔ 「已下载」的预取在 `if (_isGallery) return` **之上**：2026-09-11 起图库
+    // 也有自己那一池（见下面 `_QueuePick.downloads` 那条上的注释），取数本来就
+    // 按 `_isGallery` 分桶（[_fetchDownloadCategories]）。漏在下面的后果不是那
+    // 一条不出现，而是它的 `knownEmpty` 恒 false——图库里那一条**永远不置灰**，
+    // 一个图库都没下载过也得点进去才知道是空的。
+    _downloadCategories.warmUp();
+    // ⛔ 图库这一路**不碰播放列表**：Iwara 的播放列表只收视频，
+    // [_playlistSources] 那边同样对 `_isGallery` 早退。预取它们等于为一类根本
+    // 不会出现的菜单项白打请求。
     if (_isGallery) return;
     final self = Get.find<UserService>().currentUser.value;
     final author = widget.author;
@@ -531,14 +562,6 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       if (self != null) _ownPlaylists.warmUp();
       if (author != null && author.id != self?.id) _authorPlaylists.warmUp();
     }
-    _downloadCategories.warmUp();
-    // 见 [_hasLocalSources]：拉完要重建一次，否则「本机文件」那一条在预取完成前
-    // 开菜单是**整只不在**的（而不是像别的条目那样只是没置灰）。
-    _localSources.get().then((rows) {
-      if (!mounted) return;
-      final has = rows != null && rows.isNotEmpty;
-      if (has != _hasLocalSources) setState(() => _hasLocalSources = has);
-    });
     final other = _otherPlaylistOwner;
     if (other != null) _otherPlaylistsFeed(other).warmUp();
   }
@@ -746,23 +769,33 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         knownEmpty: _localFolders.knownEmpty,
         icon: Icons.folder_open_outlined,
       ),
-      // ⛔ 「已下载」是**视频专属**：下载池里只有视频文件，而图库即使下载过也
-      // 没有离线浏览的入口。摆一条点进去恒为空的项比不摆更糟。
-      if (!_isGallery)
-        branchEntry(
-          value: _QueuePick.downloads,
-          kind: PlaybackQueueKind.downloads,
-          label: t.playbackQueue.downloads,
-          knownEmpty: _downloadsKnownEmpty,
-          icon: Icons.download_done_outlined,
-        ),
+      // 「已下载」。**视频和图库各一池**（2026-09-11 起图库那一路补上了）：
+      // 图库那一池一条 = 一个下载过的图库，点进去开图库详情页，见
+      // `DownloadsPlaybackQueue`。
+      //
+      // ⛔ 这里原先有一句 `if (!_isGallery)`，理由写的是"图库即使下载过也没有
+      // 离线浏览的入口"。那是把「接着看」当成了离线播放器：这一池的作用是
+      // **顺着我下载过的东西往下翻**，和能不能离线看是两回事。别再加回去。
+      branchEntry(
+        value: _QueuePick.downloads,
+        kind: PlaybackQueueKind.downloads,
+        label: t.playbackQueue.downloads,
+        knownEmpty: _downloadsKnownEmpty,
+        icon: Icons.download_done_outlined,
+      ),
       // 本机文件（扫描建库出来的源文件夹）。
       //
       // ⛔ 一个源都没加过时**整条不出现**，而不是摆一条灰的：本地库是个可选
       // 功能，绝大多数用户一个源都没有，给他们每次开菜单都多读一行没有意义。
       // 加过源的人才需要它（同"来源池没有就不摆"那条）。
-      // 图库同「已下载」：本机图片是 P3，这一期池里只有视频。
-      if (!_isGallery && _hasLocalSources)
+      //
+      // 图库这一路装的是本机**图片**（`kind = image`），点一条开大图页——与
+      // 「已下载」不同，它在图库里是真的有东西可给（2026-09-11 用户要求）。
+      // ⛔ `|| _playingLocalFile`：正在播的就是本机文件时这一条必须在场，哪怕
+      // 源清单还没拉回来（预取是异步的）。少了它，用户从「本机文件」页点开一条
+      // 视频、开抽屉，当前这一池所属的类别在菜单里**看不见**——切走就再也切不
+      // 回来了。
+      if (_hasLocalSources || _playingLocalFile)
         branchEntry(
           value: _QueuePick.localLibrary,
           kind: PlaybackQueueKind.localLibrary,
@@ -880,7 +913,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       case _QueuePick.downloads:
         await _pickDownloadCategory(anchorContext);
       case _QueuePick.localLibrary:
-        await _pickLocalSource(anchorContext);
+        await _pickLocalCategory(anchorContext);
       case _QueuePick.watchLater:
         await _pickWatchLaterFilter(anchorContext);
     }
@@ -1078,7 +1111,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           GlassMenuOption<String>(
             value: choice.id,
             label: choice.title,
-            trailing: choice.count == null ? null : '${choice.count}',
+            trailing: _countLabel(choice.count),
             // ⛔ 走服务里的拼法，不手写字面量（同 PlaybackQueueService 里那段
             // 说明：判断用的串和登记用的串分头写，会静默丢高亮）。
             selected: _isCurrentQueue(
@@ -1116,9 +1149,9 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           GlassMenuOption<String>(
             value: row.id,
             label: row.title,
-            trailing: row.count == null ? null : '${row.count}',
-            // 计数是**这个桶里可播的已下载视频**（见
-            // `getCompletedVideoCounts`），所以 0 就是真的点进去什么都没有。
+            trailing: _countLabel(row.count),
+            // 计数是**这个桶里这一类的已下载条目**（见
+            // `getCompletedDownloadCounts`），所以 0 就是真的点进去什么都没有。
             enabled: (row.count ?? 1) > 0,
             selected: row.id == currentFilter,
           ),
@@ -1133,7 +1166,277 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     _useDownloads(picked, picked == 'all' ? null : titles[picked]);
   }
 
-  /// 第二张菜单：挑一个本机来源（全部 / 各个源 / 当前文件所在文件夹）。
+  /// 这一次抽屉服务的是本机**视频**还是本机**图片**。
+  LocalMediaItemKind get _localItemKind =>
+      _isGallery ? LocalMediaItemKind.image : LocalMediaItemKind.video;
+
+  /// 「本机文件」的第二张菜单：**先分栏目，再往下钻**（2026-09-11 用户要求）。
+  ///
+  /// 原先点「本机文件」直接摊开所有来源，而「精选视频」「所有视频」「常用目录」
+  /// 这几栏只在「本机文件」页的 tab 栏里有入口——在播放器里想切到"我精选的那些"
+  /// 根本无路可走。两边现在对齐：这张菜单上的栏目就是那一页的 tab，同一批东西、
+  /// 同一个口径（连排序和"排不排除内建「已下载」源"都一致，见
+  /// `LocalLibraryPlaybackQueue.fetchPage` 上那段说明）。
+  ///
+  /// ⛔ 栏目按媒体类型分家：视频那一路不摆「所有图片」，图库那一路不摆「精选视频」
+  /// （精选今天只对视频开放）。摆一条点进去恒为空的项比不摆更糟。
+  ///
+  /// ⛔ 这里**不摆「下载完成视频/图库」**，尽管页面上有那两个 tab：抽屉顶层已经
+  /// 有一条「已下载」（`PlaybackQueueKind.downloads`，按 media_id 去重、带下载
+  /// 分类）。两条同名不同数的条目并排站着，用户没有任何办法分辨该点哪一个。
+  /// 菜单行尾那个数。
+  ///
+  /// ⛔ **一律压短**，不要直接 `'$count'`。本机目录动辄几千上万条，一个
+  /// 「12345」会把行尾那一格撑到把标题挤成省略号——菜单面板有宽度上限，行尾多
+  /// 占一分，标题就少一分。压成「1.2万 / 12k」之后，再大的库也只占五六个字符。
+  ///
+  /// 机制那一头在 `glass_menu.dart` 的 `_maxTrailingWidth`（不管来的是什么都
+  /// 封顶），这里是约定那一头：让数字**本来就短**，好过让它被截断。
+  static String? _countLabel(int? count) =>
+      count == null ? null : CommonUtils.formatFriendlyNumber(count);
+
+  /// 正开着的池是不是「本机文件 › 所有视频 / 精选视频」这两栏之一。
+  ///
+  /// # ⛔ 按**形状**比，不比 queueId
+  ///
+  /// 这两条原先拿 `_isCurrentQueue(localLibraryQueueId(sort: nameAsc, …))` 比，
+  /// 也就是**连排序一起比**。可用户是从「本机文件」页那几栏点进来的，那几栏的
+  /// 排序是他自己在栏目顶上现选的（按时长、按分辨率、按帧率…，见
+  /// `LocalMediaWall.order`），拼出来的 id 几乎不可能正好等于 `nameAsc` 那一条
+  /// ——结果就是：明明正在放「所有视频」里的一条，菜单里那一行却不亮，用户在
+  /// 抽屉里找不到自己在哪一层。
+  ///
+  /// 排序是**池身份**的一部分（这条不变，池的顺序就是"接下来播什么"），但它不是
+  /// **栏目身份**的一部分：按哪个字段排都还是同一栏。所以这里只比"装的是哪一批"
+  /// ——不限源、不限目录、精不精选。目录 / 常用目录 / 来源那几条一直就是这么比的
+  /// （`openHere.sourceId == row.id`、`openPath == rows[i].path`），这两条是漏网的。
+  bool _isCurrentLocalCategory({bool favoritedOnly = false}) {
+    final open = _current;
+    return open is LocalLibraryPlaybackQueue &&
+        open.sourceId == null &&
+        open.folderPath == null &&
+        open.categoryId == null &&
+        open.favoritedOnly == favoritedOnly;
+  }
+
+  Future<void> _pickLocalCategory(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final repository = LocalMediaRepository();
+    var allCount = 0;
+    var favCount = 0;
+    var pinnedCount = 0;
+    try {
+      // ⛔ `excludeBuiltInSource` 必须跟池里那一行同真同假，否则菜单上写的数和
+      // 点进去那一池的条数对不上。
+      allCount = repository.countItems(
+        kind: _localItemKind,
+        excludeBuiltInSource: true,
+      );
+      if (!_isGallery) {
+        favCount = repository.countItems(
+          kind: _localItemKind,
+          favoritedOnly: true,
+        );
+      }
+      pinnedCount = repository.getPinnedFolders().length;
+    } catch (e) {
+      LogUtils.w('读取本机栏目计数失败: $e', 'PlaybackQueueDrawer');
+    }
+
+    final open = _current;
+    final openHere = open is LocalLibraryPlaybackQueue ? open : null;
+
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: <GlassMenuEntry>[
+        ..._submenuHeader(t.playbackQueue.localFiles),
+        GlassMenuOption<String>(
+          value: _kLocalCatFolders,
+          label: t.localMedia.tabFolders,
+          icon: Icons.folder_outlined,
+          trailing: _kSubmenuChevron,
+          // 目录本身不是池，被选中的是它里面某一层。
+          selected: openHere != null && openHere.folderPath != null,
+          showCheck: false,
+        ),
+        // 常用目录一个都没置顶时整条不出现：点进去是一张空菜单，而空菜单上
+        // 没有地方解释"去哪儿才能把一个目录设成常用"。
+        if (pinnedCount > 0)
+          GlassMenuOption<String>(
+            value: _kLocalCatPinned,
+            label: t.localMedia.browse.pinnedSection,
+            icon: Icons.push_pin_outlined,
+            trailing: '${_countLabel(pinnedCount)} $_kSubmenuChevron',
+            showCheck: false,
+          ),
+        const GlassMenuSeparator(),
+        if (!_isGallery)
+          GlassMenuOption<String>(
+            value: _kLocalCatFavorites,
+            label: t.localMedia.tabFavoriteVideos,
+            icon: Icons.star_outline,
+            trailing: _countLabel(favCount),
+            enabled: favCount > 0,
+            selected: _isCurrentLocalCategory(favoritedOnly: true),
+          ),
+        GlassMenuOption<String>(
+          value: _kLocalCatAll,
+          label: _isGallery
+              ? t.localMedia.tabAllImages
+              : t.localMedia.tabAllVideos,
+          icon: _isGallery
+              ? Icons.photo_library_outlined
+              : Icons.video_library_outlined,
+          trailing: _countLabel(allCount),
+          enabled: allCount > 0,
+          selected: _isCurrentLocalCategory(),
+        ),
+      ],
+    );
+    if (picked == null || !mounted || !anchorContext.mounted) return;
+    switch (picked) {
+      case _kMenuBackValue:
+        await _openQueuePicker(anchorContext);
+      case _kLocalCatFolders:
+        await _pickLocalSource(anchorContext);
+      case _kLocalCatPinned:
+        await _pickLocalPinned(anchorContext);
+      case _kLocalCatFavorites:
+        _useLocalLibrary(
+          favoritedOnly: true,
+          title: t.localMedia.tabFavoriteVideos,
+        );
+      case _kLocalCatAll:
+        _useLocalLibrary(
+          title: _isGallery
+              ? t.localMedia.tabAllImages
+              : t.localMedia.tabAllVideos,
+        );
+    }
+  }
+
+  /// 「常用目录」那一栏：用户置顶过的那几个目录，点一个直接建池。
+  ///
+  /// ⛔ 建出来的池与从「文件目录」一层层走下去点到同一个目录时**是同一个池**
+  /// （同 sourceId、同 folderPath、同 nameAsc 排序）——常用目录只是一条捷径，
+  /// 不是另一种池。两边要是拼出不同的 id，用户从捷径进去之后，目录菜单里那一
+  /// 行不会亮。
+  Future<void> _pickLocalPinned(BuildContext anchorContext) async {
+    final t = slang.Translations.of(anchorContext);
+    final repository = LocalMediaRepository();
+    final rows = <({String sourceId, String? path, String name, int count})>[];
+    try {
+      for (final pin in repository.getPinnedFolders()) {
+        final folder = repository.getFolder(
+          sourceId: pin.sourceId,
+          relPath: pin.relPath,
+        );
+        final path = folder?.folderPath;
+        if (path == null || path.isEmpty) {
+          // ⛔ 查不到目录行**不等于**这条置顶没用了。
+          //
+          // 「已下载」和「设备视频」一行 `local_media_folders` 都不写（没有真实
+          // 目录树），而来源根现在是可以设为常用的。这里原来一律 `continue`，
+          // 结果就是：用户明明置顶了「已下载」，接着看的「常用目录」里却一条都
+          // 没有——而且不报错，纯粹静默消失。
+          //
+          // 根那一层退化成「整个源」（`folderPath` 传 null），与 [_pickLocalFolder]
+          // 对平铺源的处理同一个口径。更深的一层查不到目录行才是真的出了问题。
+          if (pin.relPath.isNotEmpty) continue;
+          if (repository.getSource(pin.sourceId) == null) continue;
+          rows.add((
+            sourceId: pin.sourceId,
+            path: null,
+            name: pin.displayName,
+            count: repository.countItems(
+              sourceId: pin.sourceId,
+              kind: _localItemKind,
+            ),
+          ));
+          continue;
+        }
+        rows.add((
+          sourceId: pin.sourceId,
+          path: path,
+          name: pin.displayName,
+          count: repository.countItems(
+            sourceId: pin.sourceId,
+            folderPath: path,
+            kind: _localItemKind,
+          ),
+        ));
+      }
+    } catch (e) {
+      LogUtils.w('读取常用目录失败: $e', 'PlaybackQueueDrawer');
+      if (mounted) {
+        showAppToast(
+          slang.t.watchLater.queueLoadFailed,
+          type: AppToastType.error,
+        );
+      }
+      return;
+    }
+    if (!mounted || !anchorContext.mounted) return;
+
+    final open = _current;
+    final openHere = open is LocalLibraryPlaybackQueue ? open : null;
+    final openPath = openHere?.folderPath;
+
+    final picked = await showGlassMenu<String>(
+      anchorContext: anchorContext,
+      entries: <GlassMenuEntry>[
+        ..._submenuHeader(t.localMedia.browse.pinnedSection),
+        for (var i = 0; i < rows.length; i++)
+          GlassMenuOption<String>(
+            value: '$i',
+            label: rows[i].name,
+            // 退化成「整个源」的那一条（见上面）戴来源图标，别装成一个目录。
+            icon: rows[i].path == null
+                ? Icons.devices_outlined
+                : Icons.folder_outlined,
+            trailing: _countLabel(rows[i].count),
+            // 这一栏里一条都没有的目录点进去是空池，置灰（同来源清单那条）。
+            enabled: rows[i].count > 0,
+            selected: rows[i].path == null
+                ? (openHere != null &&
+                      openHere.sourceId == rows[i].sourceId &&
+                      openPath == null)
+                : (openPath != null && openPath == rows[i].path),
+          ),
+        if (rows.isEmpty)
+          GlassMenuOption<String>(
+            value: _kLocalNothingHere,
+            label: t.playbackQueue.nothingHere,
+            enabled: false,
+          ),
+      ],
+    );
+    if (picked == null || !mounted || !anchorContext.mounted) return;
+    if (picked == _kMenuBackValue) {
+      await _pickLocalCategory(anchorContext);
+      return;
+    }
+    if (picked == _kLocalNothingHere) return;
+    final index = int.tryParse(picked);
+    if (index == null || index < 0 || index >= rows.length) return;
+    final row = rows[index];
+    _useLocalLibrary(
+      sourceId: row.sourceId,
+      folderPath: row.path,
+      title: row.name,
+    );
+  }
+
+  /// 第二张菜单：挑一个本机来源，点进去**逐层往下走目录**。
+  ///
+  /// # ⛔ 一个池 = 一个目录，不含子目录
+  ///
+  /// 原来这一层点一个源，建出来的池是**整个源递归摊平**的——用户在菜单里点的是
+  /// 一个看得见的目录名，拿回来的却是它底下所有层的东西混在一起。目录结构是用户
+  /// 自己整理出来的（一季一个文件夹），摊平等于把这份整理丢掉；千级条目的源还要
+  /// 为此翻整张表。2026-09-11 用户明确要求：**点哪个目录就是哪个目录**。
+  ///
+  /// 所以这里只剩"挑源"，真正建池的动作全在 [_pickLocalFolder] 里，一层一张菜单。
   Future<void> _pickLocalSource(BuildContext anchorContext) async {
     final t = slang.Translations.of(anchorContext);
     final rows = await _loadChoices(anchorContext, _localSources);
@@ -1151,13 +1454,16 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           GlassMenuOption<String>(
             value: row.id,
             label: row.title,
-            trailing: row.count == null ? null : '${row.count}',
-            // 计数是**这个源里可播的视频**，所以 0 就是真的点进去什么都没有。
+            // 这个数是**整个源里有多少条**，不是点进去那一池的条数（那一池只装
+            // 某一个目录）。它在这儿的作用只有一个：0 就是这个源里一条都没有，
+            // 点进去是死路。
+            trailing: row.count == null
+                ? _kSubmenuChevron
+                : '${_countLabel(row.count)} $_kSubmenuChevron',
             enabled: (row.count ?? 1) > 0,
-            selected:
-                openHere != null &&
-                openHere.folderPath == null &&
-                (openHere.sourceId ?? _kAllLocalSources) == row.id,
+            selected: openHere != null && openHere.sourceId == row.id,
+            // 源本身不是池，真正被选中的那个目录在下一张菜单里。
+            showCheck: false,
           ),
         // 「当前文件所在文件夹」：条件出现，见 [_currentFolderChoice]。
         if (folder != null) ...[
@@ -1166,7 +1472,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
             value: '$_kLocalFolderPrefix${folder.path}',
             label: folder.name,
             description: t.playbackQueue.currentFolder,
-            trailing: '${folder.count}',
+            trailing: _countLabel(folder.count),
             selected: openHere?.folderPath == folder.path,
           ),
         ],
@@ -1174,7 +1480,8 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     );
     if (picked == null || !mounted || !anchorContext.mounted) return;
     if (picked == _kMenuBackValue) {
-      await _openQueuePicker(anchorContext);
+      // 上一层现在是栏目菜单，不再是顶层池清单。见 [_pickLocalCategory]。
+      await _pickLocalCategory(anchorContext);
       return;
     }
     if (picked.startsWith(_kLocalFolderPrefix)) {
@@ -1187,10 +1494,252 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       return;
     }
     final titles = {for (final row in rows) row.id: row.title};
-    _useLocalLibrary(
-      sourceId: picked == _kAllLocalSources ? null : picked,
-      title: picked == _kAllLocalSources ? null : titles[picked],
+    await _pickLocalFolder(
+      anchorContext,
+      sourceId: picked,
+      rootTitle: titles[picked] ?? t.playbackQueue.localFiles,
     );
+  }
+
+  /// 第三张（以及更深的每一张）菜单：某一个目录。
+  ///
+  /// 一张菜单只说两件事：
+  ///
+  ///   - **查看本目录下的视频池 / 图库池**——直属于这个目录的那些文件，就是一池
+  ///     （不含子目录）；两条文案按媒体类型二选一，见下面的 `_isGallery`；
+  ///   - 下面列它的**直接子目录**，点进去开下一张同样的菜单。
+  ///
+  /// ⛔ 子目录里已经没有更下一层时**直接建池**，不再多开一张只有一行的菜单：
+  /// 那一行说的话和刚点的那一行一字不差，纯粹是多一次点击。
+  ///
+  /// # ⛔ 用循环 + 一根显式的栈走，不许递归调用自己
+  ///
+  /// 玻璃菜单是**一张替一张**开的，"返回上一层"在这里只是再开一张菜单而已。写成
+  /// 递归的话，返回并不出栈：`await 子菜单 → 里面又 await 父菜单`，用户在两层之间
+  /// 来回点几次，挂起的栈帧（连同各自那份目录清单和 BuildContext）就一直往上叠，
+  /// 直到整趟菜单结束才一次性收掉。这里的 [trail] 就是那根栈，进一层压一条、返回
+  /// 一层弹一条，深度永远等于用户所在的层数。
+  Future<void> _pickLocalFolder(
+    BuildContext anchorContext, {
+    required String sourceId,
+    required String rootTitle,
+  }) async {
+    final t = slang.Translations.of(anchorContext);
+    // 走过的上层：每条是 (相对路径, 菜单标题)。空 = 现在就在源根，再返回就回源清单。
+    final trail = <({String relPath, String title})>[];
+    var relPath = '';
+    var title = rootTitle;
+
+    while (true) {
+      final level = await _loadLocalLevel(sourceId: sourceId, relPath: relPath);
+      if (level == null || !mounted || !anchorContext.mounted) return;
+      final folder = level.folder;
+      final children = level.children;
+      final hereCount = level.hereCount;
+      final flatSource = level.flatSource;
+
+      final open = _current;
+      final openHere = open is LocalLibraryPlaybackQueue ? open : null;
+      final openPath = openHere?.folderPath;
+      final herePath = folder?.folderPath;
+      final canPlayHere = hereCount > 0 && (flatSource || herePath != null);
+
+      final picked = await showGlassMenu<String>(
+        anchorContext: anchorContext,
+        entries: <GlassMenuEntry>[
+          ..._submenuHeader(title),
+          if (canPlayHere)
+            GlassMenuOption<String>(
+              value: _kLocalPlayHere,
+              // 平铺的源没有"本目录"这回事，那一行说的是整个源。
+              label: flatSource
+                  ? t.common.all
+                  : (_isGallery
+                        ? t.playbackQueue.browseThisFolder
+                        : t.playbackQueue.playThisFolder),
+              icon: _isGallery
+                  ? Icons.photo_library_outlined
+                  : Icons.play_arrow_rounded,
+              trailing: _countLabel(hereCount),
+              selected: flatSource
+                  ? (openHere != null &&
+                        openHere.sourceId == sourceId &&
+                        openPath == null)
+                  : (openPath != null && openPath == herePath),
+            ),
+          if (canPlayHere && children.isNotEmpty) const GlassMenuSeparator(),
+          for (final child in children)
+            GlassMenuOption<String>(
+              value: '$_kLocalChildPrefix${child.relPath}',
+              label: child.name,
+              trailing: _localFolderTrailing(child),
+              // 展开过的那一层高亮，但不打勾：被选中的是里面某一个目录。
+              selected: _localFolderOnPath(child, openPath),
+              showCheck: _localFolderIsOpen(child, openPath),
+            ),
+          // 走到一个什么都没有的目录：说一句，而不是弹一张只有标题的空菜单。
+          //
+          // ⚠️ 这一行是**够得着的**：`child_folder_count` 不分媒体类型，所以
+          // "子树里只有图片"的目录在视频菜单里照样带箭头，点进来才发现没东西
+          // （见 `LocalMediaRepository.childFolders` 的说明）。分媒体类型传播那
+          // 三个计数才能根治，代价比收益大。
+          if (!canPlayHere && children.isEmpty)
+            GlassMenuOption<String>(
+              value: _kLocalNothingHere,
+              label: t.playbackQueue.nothingHere,
+              enabled: false,
+            ),
+        ],
+      );
+      if (picked == null || !mounted || !anchorContext.mounted) return;
+      if (picked == _kMenuBackValue) {
+        // 源根这一层的上一层是源清单；再深就是弹一条走一层。
+        if (trail.isEmpty) {
+          await _pickLocalSource(anchorContext);
+          return;
+        }
+        final back = trail.removeLast();
+        relPath = back.relPath;
+        title = back.title;
+        continue;
+      }
+      if (picked == _kLocalNothingHere) return;
+      if (picked == _kLocalPlayHere) {
+        _useLocalLibrary(
+          sourceId: sourceId,
+          folderPath: flatSource ? null : herePath,
+          title: folder?.name ?? title,
+        );
+        return;
+      }
+      final childRelPath = picked.substring(_kLocalChildPrefix.length);
+      final child = children.firstWhereOrNull((f) => f.relPath == childRelPath);
+      if (child == null) return;
+      final childPath = child.folderPath;
+      final childCount = _isGallery ? child.imageCount : child.videoCount;
+      // 没有下一层、而且这一层确实有东西 → 就是它了，不必再问一次。
+      if (child.childFolderCount == 0 && childCount > 0 && childPath != null) {
+        _useLocalLibrary(
+          sourceId: sourceId,
+          folderPath: childPath,
+          title: child.name,
+        );
+        return;
+      }
+      trail.add((relPath: relPath, title: title));
+      relPath = child.relPath;
+      title = child.name;
+    }
+  }
+
+  /// 读一层目录：需要时**先把这一层真的列一遍**（懒扫描），再从库里读。
+  ///
+  /// ⛔ 那次懒扫描不能省。`probed_at IS NULL` 的意思是"这一层从来没被列出来看过"，
+  /// 三个计数此刻全是 0——不扫就读的话，一个其实装满了片子的目录会被这张菜单说成
+  /// 「暂无内容」（目录浏览页进一层就扫一次，正是为了这个；两边不一致时用户看到的
+  /// 就是"浏览页里点进去有东西、接着看里点进去是空的"）。
+  ///
+  /// 等待期间胶囊左边转一枚小弧（[_loadingChoices] → `GlassInlineBusy`）：玻璃
+  /// 菜单开出来之后改不了行，所以这一步必须在开菜单**之前**做完。
+  ///
+  /// 返回 null = 读库出错（已经报过），调用方停手。
+  Future<
+    ({
+      LocalMediaFolder? folder,
+      List<LocalMediaFolder> children,
+      int hereCount,
+      bool flatSource,
+    })?
+  >
+  _loadLocalLevel({required String sourceId, required String relPath}) async {
+    try {
+      final repository = LocalMediaRepository();
+      var folder = repository.getFolder(sourceId: sourceId, relPath: relPath);
+      if (folder != null &&
+          folder.probedAt == null &&
+          Get.isRegistered<LocalMediaScanService>()) {
+        final source = repository.getSource(sourceId);
+        if (source != null) {
+          setState(() => _loadingChoices = true);
+          try {
+            await LocalMediaScanService.to.scanFolder(
+              source: source,
+              relPath: relPath,
+            );
+          } catch (e) {
+            // 扫不动就按现有的库存往下走：菜单可能是空的，但不该整个点不开。
+            LogUtils.w('目录级扫描失败: $e', 'PlaybackQueueDrawer');
+          } finally {
+            if (mounted) setState(() => _loadingChoices = false);
+          }
+          if (!mounted) return null;
+          folder = repository.getFolder(sourceId: sourceId, relPath: relPath);
+        }
+      }
+      final children = repository.childFolders(
+        sourceId: sourceId,
+        parentRelPath: relPath,
+        mediaKind: _localItemKind,
+      );
+      // 这个源**没有目录树**（系统媒体索引那一类：`_scanMediaStoreSource` 只写
+      // 条目，一行 `local_media_folders` 都不写）。那儿本来就没有"用户整理出来的
+      // 目录"可分，整个源就是一层——与目录浏览页在同一情形下的退化一致（它那边
+      // `folderPath` 传 null 就是整源平铺）。
+      //
+      // ⛔ 只在源根这一层退化：更深的一层查不到目录行是真的出了问题，不能悄悄把
+      // 整个源端上来。
+      final flatSource = folder == null && relPath.isEmpty && children.isEmpty;
+      final path = folder?.folderPath;
+      final hereCount = flatSource
+          ? repository.countItems(sourceId: sourceId, kind: _localItemKind)
+          : (path == null || path.isEmpty
+                ? 0
+                : repository.countItems(
+                    sourceId: sourceId,
+                    folderPath: path,
+                    kind: _localItemKind,
+                  ));
+      return (
+        folder: folder,
+        children: children,
+        hereCount: hereCount,
+        flatSource: flatSource,
+      );
+    } catch (e) {
+      LogUtils.w('读取本机目录失败: $e', 'PlaybackQueueDrawer');
+      if (mounted) {
+        showAppToast(
+          slang.t.watchLater.queueLoadFailed,
+          type: AppToastType.error,
+        );
+      }
+      return null;
+    }
+  }
+
+  /// 目录行的行尾：本目录直属条数 +（还有下一层时）一枚 `›`。
+  ///
+  /// 计数列是扫描收尾时回填的，还没探过的目录一律是 0——那时只画箭头，不写一个
+  /// 会骗人的「0」。
+  String? _localFolderTrailing(LocalMediaFolder folder) {
+    final drill = folder.childFolderCount > 0;
+    final count = _isGallery ? folder.imageCount : folder.videoCount;
+    final text = folder.probedAt != null && count > 0 ? '$count' : null;
+    if (!drill) return text;
+    return text == null ? _kSubmenuChevron : '$text $_kSubmenuChevron';
+  }
+
+  /// 正开着的那一池就是这个目录。
+  bool _localFolderIsOpen(LocalMediaFolder folder, String? openPath) {
+    final path = folder.folderPath;
+    return path != null && openPath != null && openPath == path;
+  }
+
+  /// 正开着的那一池在这个目录**里面**（含它自己）：这一行要高亮，指路用。
+  bool _localFolderOnPath(LocalMediaFolder folder, String? openPath) {
+    final path = folder.folderPath;
+    if (path == null || openPath == null) return false;
+    return openPath == path || openPath.startsWith('$path${p.separator}');
   }
 
   /// 正在播的这条本机文件所在的文件夹，值得单独摆一条时才返回非 null。
@@ -1207,7 +1756,10 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       final item = repository.getItem(widget.currentItemId);
       final path = item?.folderPath;
       if (item == null || path == null || path.isEmpty) return null;
-      final counts = repository.folderCounts(item.sourceId);
+      final counts = repository.folderCounts(
+        item.sourceId,
+        kind: _localItemKind,
+      );
       final here = counts.firstWhereOrNull((row) => row.folderPath == path);
       if (here == null || here.count < 2) return null;
       // 这个源只有这一个文件夹 → 它就是整个源，别重复摆一条。
@@ -1241,19 +1793,18 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
           .where((s) => !s.isBuiltIn)
           .toList();
       if (sources.isEmpty) return const <_MenuChoice>[];
+      // ⛔ 没有「全部源」那一行了：它建出来的是一池**跨源递归摊平**的东西，正是
+      // 2026-09-11 用户要求去掉的那种池（见 [_pickLocalSource]）。源这一层现在
+      // 只是通往目录树的入口。
       return <_MenuChoice>[
-        // 「全部」只在真有多个源时才有意义——一个源时它和那一行一字不差。
-        if (sources.length > 1)
-          (
-            id: _kAllLocalSources,
-            title: slang.t.common.all,
-            count: repository.countItems(excludeBuiltInSource: true),
-          ),
         for (final source in sources)
           (
             id: source.id,
             title: source.displayName,
-            count: repository.countItems(sourceId: source.id),
+            count: repository.countItems(
+              sourceId: source.id,
+              kind: _localItemKind,
+            ),
           ),
       ];
     } catch (e) {
@@ -1353,12 +1904,20 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   /// 目录里，"接下来播哪一条"用户期待的就是**第 2 集接第 3 集**。按添加时间
   /// 排会给出一个看上去随机的顺序。排序是池身份的一部分，见
   /// `PlaybackQueueService.localLibraryQueueId`。
-  void _useLocalLibrary({String? sourceId, String? folderPath, String? title}) {
+  void _useLocalLibrary({
+    String? sourceId,
+    String? folderPath,
+    bool favoritedOnly = false,
+    String? title,
+  }) {
     _useQueue(
       PlaybackQueueService.to.openLocalLibrary(
         sourceId: sourceId,
         folderPath: folderPath,
         sort: LocalMediaSort.nameAsc,
+        // 图库这一路装的是本机**图片**，落点是大图页（见 PlaybackQueueNavigator）。
+        mediaType: widget.mediaType,
+        favoritedOnly: favoritedOnly,
         title: title,
       ),
     );
@@ -1368,6 +1927,9 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     _useQueue(
       PlaybackQueueService.to.openDownloads(
         categoryFilter: categoryFilter,
+        // 图库那一路装的是已下载的**图库**，落点是图库详情页。它同时进 id，
+        // 见 `PlaybackQueueService.downloadsQueueId`。
+        mediaType: widget.mediaType,
         title: title,
       ),
     );
@@ -1376,12 +1938,15 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
   /// 下载分类清单。
   ///
   /// ⛔ 条数**不能用 `DownloadCategory.itemCount`**：那是这个分类下**所有**任务
-  /// （含图库、含下载中/失败）的条数，而池里只装「已完成的视频、按 media_id
-  /// 去重」。两个数对不上，菜单就会写着「5」而点进去是空的。
+  /// （不分媒体类型、含下载中/失败）的条数，而池里只装「已完成的某一类、按
+  /// media_id 去重」。两个数对不上，菜单就会写着「5」而点进去是空的。
   Future<List<_MenuChoice>?> _fetchDownloadCategories() async {
     final t = slang.t;
     final service = DownloadService.to;
-    final counts = await service.repository.getCompletedVideoCounts();
+    // ⛔ 数的桶必须和列的池是同一种媒体，否则视频那一列的数会跑到图库菜单上。
+    final counts = await service.repository.getCompletedDownloadCounts(
+      mediaType: _isGallery ? 'gallery' : 'video',
+    );
     final categories = await service.getAllCategories();
     return <_MenuChoice>[
       (id: 'all', title: t.common.all, count: counts.total),
@@ -1516,9 +2081,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
             // ⛔ 夹子里的条数是**所有类型**加起来的（视频 + 图库 + 用户），
             // 而池只装其中一种。图库这一路写出来会和点进去看到的对不上，
             // 干脆不写（下载分类那边同一个坑，那儿是另查了一份真数）。
-            trailing: _isGallery || choice.count == null
-                ? null
-                : '${choice.count}',
+            trailing: _isGallery ? null : _countLabel(choice.count),
             selected: isCurrent(choice.id),
           ),
       ],
@@ -1619,10 +2182,12 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
       // 后滚过去时是"溶"进去的。放进 body 的话两件事都得自己重做一遍，漏了
       // 第一件就是「列表一开局就压在控制行底下」（2026-08-29 用户报障）。
       titleWidget: GlassDropdownPill(
-        // 加载态原位换沙漏 + 文案换「加载中」：胶囊自己会做宽度形变，
-        // 不是两只钮硬切。
-        icon: _loadingChoices ? Icons.hourglass_top : _pillIcon(),
-        label: _loadingChoices ? t.common.loading : _pillLabel(context),
+        // ⛔ 加载态**不动 icon、不动文案**：那两样是用户唯一能确认"我现在在哪
+        // 个池里"的信息，拿它们去换一个状态提示是净亏。忙碌另起一枚小弧站在
+        // 最左（[GlassInlineBusy]），胶囊自己做宽度形变把它让出来。
+        icon: _pillIcon(),
+        label: _pillLabel(context),
+        busy: _loadingChoices,
         onTap: _loadingChoices ? (_) {} : _openQueuePicker,
       ),
       bodyBuilder: (context, contentPadding) =>
@@ -2317,12 +2882,27 @@ const String _kSubmenuChevron = '\u203a';
 /// 点错了类别的人只能把菜单关掉、再点一次胶囊，两级菜单就成了单程票。
 /// 真实取值是 uuid / `'all'` / `'uncategorized'` 一类，撞不上这个 NUL 前缀。
 ///
-/// 同理还有下面两个：本机来源菜单里「全部源」与「当前文件所在文件夹」两行的值，
-/// 一律用 NUL 前缀，和源 uuid / 文件夹绝对路径都不会撞。
+/// 同理还有下面几个：本机目录菜单里那几行"不是一个 id"的取值，一律用 NUL 前缀，
+/// 和源 uuid / 目录相对路径 / 文件夹绝对路径都不会撞。
 const String _kMenuBackValue = '\u0000back';
 
-const String _kAllLocalSources = '\u0000allLocalSources';
 const String _kLocalFolderPrefix = '\u0000folder:';
+
+/// 目录菜单里的「播放 / 浏览本目录」那一行。
+const String _kLocalPlayHere = '\u0000here';
+
+/// 目录菜单里的子目录行，后面跟的是那个子目录的**相对路径**。
+const String _kLocalChildPrefix = '\u0000child:';
+
+/// 走到一个空目录时，那一行不可点的占位。
+const String _kLocalNothingHere = '\u0000nothing';
+
+/// 「本机文件」栏目菜单里那四行（见 `_pickLocalCategory`）。同样是 NUL 前缀：
+/// 常用目录那张菜单用下标当取值（`'0'`/`'1'`…），撞不上。
+const String _kLocalCatFolders = '\u0000cat:folders';
+const String _kLocalCatPinned = '\u0000cat:pinned';
+const String _kLocalCatFavorites = '\u0000cat:favorites';
+const String _kLocalCatAll = '\u0000cat:all';
 
 /// 一份「点开才用得上、但抽屉一开就先去拉」的清单。
 ///

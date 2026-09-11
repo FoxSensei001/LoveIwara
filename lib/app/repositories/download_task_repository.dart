@@ -490,31 +490,42 @@ class DownloadTaskRepository {
   ///    就会把同一视频的所有清晰度一起带上）。
   ///    「当前分类内」不是可有可无的限定词：去重要是按全局最新算，同一个视频的
   ///    两档清晰度分属不同分类时，它会从其中一个分类的列表里整个消失，而
-  ///    [getCompletedVideoCounts] 仍按分类把它数进去——两个数就对不上了。
+  ///    [getCompletedDownloadCounts] 仍按分类把它数进去——两个数就对不上了。
   ///
   /// media_id 为空的历史数据直接丢掉——池的游标就是 id，没有 id 的条目
   /// 既定位不了自己也推进不了。
   /// [categoryFilter] 与下载列表页同一套字面量：`'all'` 不限 /
   /// `'uncategorized'` 只要未分类 / 其它值为具体分类 id。
-  Future<List<DownloadTask>> getCompletedVideoTasks({
+  ///
+  /// [mediaType] 是 `download_tasks.media_type` 那一列的字面量（`'video'` /
+  /// `'gallery'`）。⛔ 它**不是**可有可无的参数：图库任务的 `save_path` 指向一个
+  /// 文件夹而不是一个文件，混进视频池里会让 `localTargetFor` 拿目录当文件去 stat。
+  /// 两种媒体各自一个池（见 `PlaybackQueueService.downloadsQueueId`）。
+  Future<List<DownloadTask>> getCompletedDownloadTasks({
     required int offset,
     required int limit,
     String categoryFilter = 'all',
+    String mediaType = 'video',
   }) async {
     try {
-      final params = <Object?>[];
-      final categoryClause = _completedVideoCategoryClause(
+      // ⛔ 参数顺序必须跟着下面那段 SQL 的**文本顺序**走：外层 media_type →
+      // 外层分类 → 子查询 media_type → 子查询分类 → limit → offset。
+      // 两段 clause 都是 append 到 `params` 上的，所以攒的顺序就是文本顺序，
+      // 别再事后去切片重排。
+      final params = <Object?>[mediaType];
+      final categoryClause = _completedDownloadCategoryClause(
         categoryFilter,
         params,
         alias: 't',
       );
+      params.add(mediaType);
       // ⛔ 去重子查询必须带上**同一套**分类过滤，否则它取的是「全局最新完成的
-      // 那条」，而计数（[getCompletedVideoCounts]）是按分类分桶数的——同一个
+      // 那条」，而计数（[getCompletedDownloadCounts]）是按分类分桶数的——同一个
       // 视频 1080 归 A、720 归 B 时，A 桶计数有它、A 的列表却因为「A 里这条不是
       // 全局最新」把它整个滤掉，又变成本文件极力想避免的「显示 N 条、点进去缺项」。
       // 两处必须同一个定义：**在选中的分类内**取该 media_id 最新的那条。
       // 参数顺序跟着 SQL 文本走：外层 clause → 子查询 clause → limit → offset。
-      final innerCategoryClause = _completedVideoCategoryClause(
+      final innerCategoryClause = _completedDownloadCategoryClause(
         categoryFilter,
         params,
         alias: 's',
@@ -522,16 +533,18 @@ class DownloadTaskRepository {
       params
         ..add(limit)
         ..add(offset);
+      // ⛔ `media_type` 绑参数、不拼字符串：它来自调用方，拼进 SQL 文本就是一个
+      // 现成的注入口。它在外层和子查询各出现一次，两次都得绑。
       final results = _db.select('''
         SELECT * FROM download_tasks t
         WHERE t.status = 'completed'
-          AND t.media_type = 'video'
+          AND t.media_type = ?
           AND t.media_id IS NOT NULL AND t.media_id != ''
           $categoryClause
           AND t.id = (
             SELECT s.id FROM download_tasks s
             WHERE s.status = 'completed'
-              AND s.media_type = 'video'
+              AND s.media_type = ?
               AND s.media_id = t.media_id
               $innerCategoryClause
             ORDER BY $_normalizedHistorySortExpression DESC, s.created_at DESC
@@ -542,12 +555,12 @@ class DownloadTaskRepository {
       ''', params);
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
-      LogUtils.e('获取已下载视频任务失败', tag: 'DownloadTaskRepository', error: e);
+      LogUtils.e('获取已下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }
 
-  static String _completedVideoCategoryClause(
+  static String _completedDownloadCategoryClause(
     String categoryFilter,
     List<Object?> params, {
     required String alias,
@@ -563,30 +576,34 @@ class DownloadTaskRepository {
     }
   }
 
-  /// 「接着看」下载池的**分类计数**：每个桶里有多少条可播的已下载视频。
+  /// 「接着看」下载池的**分类计数**：每个桶里有多少条可播的已下载内容。
   ///
-  /// ⛔ 不能拿 [getAllCategories] 那个 `item_count`：那是**所有**任务（含图库、
-  /// 含下载中/失败）的条数，而池里只装「已完成的视频、按 media_id 去重」——
+  /// ⛔ 不能拿 [getAllCategories] 那个 `item_count`：那是**所有**任务（不分媒体
+  /// 类型、含下载中/失败）的条数，而池里只装「已完成的某一类、按 media_id 去重」——
   /// 两个数对不上，菜单就会出现「显示 5 条、点进去空的」。
   ///
   /// 总数单独查一次而不是把各桶相加：同一个视频的两档清晰度可以分属不同分类，
   /// 相加会把它数两遍。
+  ///
+  /// [mediaType] 必须与 [getCompletedDownloadTasks] 那一次传的是同一个值，否则
+  /// 数的桶和列的池不是一回事。
   Future<({int total, int uncategorized, Map<String, int> byCategory})>
-  getCompletedVideoCounts() async {
+  getCompletedDownloadCounts({String mediaType = 'video'}) async {
+    // ⛔ media_type 走绑定参数，不拼进 SQL 文本（同 [getCompletedDownloadTasks]）。
     const base =
-        "status = 'completed' AND media_type = 'video' "
+        "status = 'completed' AND media_type = ? "
         "AND media_id IS NOT NULL AND media_id != ''";
     try {
       final total =
-          _db
-                  .select(
-                    'SELECT COUNT(DISTINCT media_id) AS c FROM download_tasks WHERE $base',
-                  )
-                  .first['c']
+          _db.select(
+                'SELECT COUNT(DISTINCT media_id) AS c FROM download_tasks WHERE $base',
+                <Object?>[mediaType],
+              ).first['c']
               as int;
       final rows = _db.select(
         'SELECT category_id, COUNT(DISTINCT media_id) AS c FROM download_tasks '
         'WHERE $base GROUP BY category_id',
+        <Object?>[mediaType],
       );
       var uncategorized = 0;
       final byCategory = <String, int>{};
@@ -605,7 +622,7 @@ class DownloadTaskRepository {
         byCategory: byCategory,
       );
     } catch (e) {
-      LogUtils.e('统计已下载视频数量失败', tag: 'DownloadTaskRepository', error: e);
+      LogUtils.e('统计已下载数量失败', tag: 'DownloadTaskRepository', error: e);
       return (total: 0, uncategorized: 0, byCategory: <String, int>{});
     }
   }

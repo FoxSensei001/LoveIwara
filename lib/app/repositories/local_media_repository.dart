@@ -1,44 +1,11 @@
-import 'package:path/path.dart' as p;
-
+import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 import 'package:sqlite3/common.dart';
-
-/// 图库文件夹排序。
-enum LocalImageFolderSort { addedDesc, nameAsc, countDesc }
-
-/// 按文件夹聚合的图库实体。
-class LocalImageFolder {
-  const LocalImageFolder({
-    required this.folderPath,
-    required this.name,
-    required this.count,
-    required this.coverPath,
-    required this.addedAt,
-    required this.totalBytes,
-  });
-
-  /// 绝对路径
-  final String folderPath;
-
-  /// p.basename(folderPath)，空则回退整条路径
-  final String name;
-
-  /// 这个文件夹里的图片数
-  final int count;
-
-  /// 封面：按 sort_name 最小的那一张
-  final String coverPath;
-
-  /// 该文件夹里最新的 added_at
-  final int addedAt;
-
-  /// 该文件夹图片体积合计
-  final int totalBytes;
-}
 
 /// 列表排序。名称一档走预计算的 `sort_name`（自然序），见 `natural_sort_key.dart`。
 enum LocalMediaSort {
@@ -51,6 +18,76 @@ enum LocalMediaSort {
 
   /// 旧池身份仍可能在进程内引用这一档，保留它作为兼容项；新 UI 不展示。
   modifiedDesc,
+}
+
+extension LocalMediaSortOrderExtension on LocalMediaSort {
+  LocalMediaOrder get order => switch (this) {
+    LocalMediaSort.nameAsc => const LocalMediaOrder(
+      LocalMediaSortField.name,
+      ascending: true,
+    ),
+    LocalMediaSort.durationDesc => const LocalMediaOrder(
+      LocalMediaSortField.duration,
+      ascending: false,
+    ),
+    LocalMediaSort.sizeDesc => const LocalMediaOrder(
+      LocalMediaSortField.size,
+      ascending: false,
+    ),
+    LocalMediaSort.folderAsc => const LocalMediaOrder(
+      LocalMediaSortField.folder,
+      ascending: true,
+    ),
+    LocalMediaSort.addedDesc => const LocalMediaOrder(
+      LocalMediaSortField.added,
+      ascending: false,
+    ),
+    LocalMediaSort.playedDesc => const LocalMediaOrder(
+      LocalMediaSortField.played,
+      ascending: false,
+    ),
+    LocalMediaSort.modifiedDesc => const LocalMediaOrder(
+      LocalMediaSortField.modified,
+      ascending: false,
+    ),
+  };
+}
+
+/// 可以拿来排序的字段。UI 上的「按 XX 排序」就是这一串。
+enum LocalMediaSortField {
+  name, // sort_name, name
+  modified, // modified_at
+  duration, // duration_ms
+  size, // size_bytes
+  resolution, // width * height
+  fileType, // ext
+  fps, // fps
+  folder, // folder_path
+  added, // added_at
+  played, // last_played_at
+  favorited, // favorited_at
+}
+
+/// 一次排序 ＝ 一个字段 + 一个方向。
+class LocalMediaOrder {
+  const LocalMediaOrder(this.field, {this.ascending = false});
+
+  final LocalMediaSortField field;
+  final bool ascending;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LocalMediaOrder &&
+          runtimeType == other.runtimeType &&
+          field == other.field &&
+          ascending == other.ascending;
+
+  @override
+  int get hashCode => Object.hash(field, ascending);
+
+  @override
+  String toString() => 'LocalMediaOrder($field, ascending: $ascending)';
 }
 
 /// 「只看未分类」的筛选值。分类 id 是 uuid，撞不上这个字面量——与
@@ -79,6 +116,10 @@ class LocalMediaFingerprint {
   final bool missing;
 
   bool get hasMetadata => durationMs != null && width != null && height != null;
+
+  /// 图片只有宽高，没有时长——拿 [hasMetadata] 判图片会永远返回 false，
+  /// 于是每一轮扫描都把全部图片重新入队。
+  bool get hasImageMetadata => width != null && height != null;
 }
 
 class LocalMediaRepository {
@@ -95,6 +136,24 @@ class LocalMediaRepository {
   static final RxInt changeRevision = 0.obs;
 
   static void notifyChanged() => changeRevision.value++;
+
+  /// 目录行的变更信号（封面、pin、目录本身的增删），**与条目集合无关**。
+  ///
+  /// # ⛔ 为什么必须和 [changeRevision] 分家
+  ///
+  /// [updateDerivedFields] 上那条「派生字段是行内变化，绝不能发全局
+  /// notifyChanged()」的纪律，只在它自己那一个方法里生效——紧跟在它后面执行的
+  /// 目录封面回填照发不误，等于把刚堵上的口子从旁边开了回来：用户在「所有视频」
+  /// 滚到第 300 条，视野里每张卡片生成缩略图都可能触发一次目录封面回填，
+  /// 400ms 后卡片墙被 debounce 重载、清空列表、弹回顶部。
+  /// （`f9670012 "Stop the local wall from throwing users back to the top"`
+  /// 修的就是这个症状，从这条路上又漏了回来。）
+  ///
+  /// 分家之后：**卡片墙只听 [changeRevision]**，目录卡片那几页两个都听。
+  /// 封面回填是目录行的事，与哪一页的条目集合都无关。
+  static final RxInt folderRevision = 0.obs;
+
+  static void notifyFolderChanged() => folderRevision.value++;
 
   static const String _tag = 'LocalMediaRepository';
 
@@ -139,8 +198,27 @@ class LocalMediaRepository {
     return null;
   }
 
-  static String _withTrailingSeparator(String path) =>
-      path.endsWith('/') ? path : '$path/';
+  /// 给绝对路径补一个尾部分隔符，供前缀比较用。
+  ///
+  /// ⛔ **不能写死 `/`**。这里比的是 `local_media_sources.path` /
+  /// `local_media_items.folder_path`，存的都是**平台原样**的绝对路径——Windows
+  /// 上是 `C:\a\b`。补成 `C:\a\b/` 的话：
+  /// - [findOverlappingSource] 的三个比较一个都不成立 → 重叠源检测在 Windows
+  ///   上等于从不生效；
+  /// - [markMissingExcept] 的 `substr(folder_path, 1, ?) <> ?` 永远成立 →
+  ///   「读不到的子树」豁免不掉，整棵被标 missing。
+  ///
+  /// 只有 `rel_path` 那一族是归一化过的（`relPathOf` 强制成 `/`），那边不走这里。
+  static String _withTrailingSeparator(String path) {
+    if (path.isEmpty) return path;
+    if (path.endsWith('/') || path.endsWith('\\')) return path;
+    // 路径自己用的是哪种分隔符就补哪种；一个都没有（单段）时用平台默认的。
+    final backslash = path.lastIndexOf('\\');
+    final slash = path.lastIndexOf('/');
+    if (backslash > slash) return '$path\\';
+    if (slash > backslash) return '$path/';
+    return '$path${p.separator}';
+  }
 
   void upsertSource(LocalMediaSource source) {
     final row = source.toRow();
@@ -172,6 +250,16 @@ class LocalMediaRepository {
         [id],
       );
       _db.execute('DELETE FROM local_media_items WHERE source_id = ?', [id]);
+      // 目录树和常用目录必须跟着源一起走，而且必须在**同一个事务**里。
+      //
+      // 漏掉的话不是「多几行垃圾」这么轻：移除来源后常用目录那一排还在，点进去
+      // 是一棵条目已经被删空的目录树——看着有目录、进去什么都没有。而且重新添加
+      // 同一个文件夹会拿到新的 UUID 源 id，老行永远不会被复用或覆盖，只会一直攒着。
+      _db.execute('DELETE FROM local_media_folders WHERE source_id = ?', [id]);
+      _db.execute(
+        'DELETE FROM local_media_pinned_folders WHERE source_id = ?',
+        [id],
+      );
       _db.execute('DELETE FROM local_media_sources WHERE id = ?', [id]);
       _db.execute('COMMIT');
       notifyChanged();
@@ -470,7 +558,9 @@ class LocalMediaRepository {
     final exclusionSql = <String>[];
     final exclusionParams = <Object?>[];
     for (final folder in excluded) {
-      final prefix = folder.endsWith('/') ? folder : '$folder/';
+      // ⛔ 走 [_withTrailingSeparator]，别就地写 `'$folder/'`：Windows 上
+      // `folder_path` 是反斜杠的，拼出来的前缀永远匹配不上。
+      final prefix = _withTrailingSeparator(folder);
       exclusionSql.add(
         '(folder_path IS NULL OR '
         '(folder_path <> ? AND substr(folder_path, 1, ?) <> ?))',
@@ -693,6 +783,8 @@ class LocalMediaRepository {
     int? durationMs,
     int? width,
     int? height,
+    double? fps,
+    bool fpsProbed = false,
     String? thumbPath,
     String? vrFormatJson,
   }) {
@@ -709,6 +801,14 @@ class LocalMediaRepository {
     add('duration_ms', durationMs);
     add('width', width);
     add('height', height);
+    add('fps', fps);
+    // ⛔ 「探测过了」必须能在**没读出值**时也落库——这正是它存在的理由。
+    // 走 add() 的话 null 会被跳过，容器不写帧率的文件就永远标不上，每次冷启动
+    // 重新排队白开一次 Player。所以单独写，不经过那道 null 过滤。
+    if (fpsProbed) {
+      assignments.add('fps_probed_at = ?');
+      values.add(DateTime.now().millisecondsSinceEpoch);
+    }
     add('thumb_path', thumbPath);
     add('vr_format_json', vrFormatJson);
     if (assignments.isEmpty) return false;
@@ -876,10 +976,12 @@ class LocalMediaRepository {
     String? sourceId,
     LocalMediaItemKind kind = LocalMediaItemKind.video,
     LocalMediaSort sort = LocalMediaSort.addedDesc,
+    LocalMediaOrder? order,
     String? folderPath,
     String? categoryId,
     bool excludeBuiltInSource = false,
     bool includeMissing = false,
+    bool favoritedOnly = false,
     required int offset,
     required int limit,
   }) {
@@ -898,23 +1000,45 @@ class LocalMediaRepository {
     }
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
+    if (favoritedOnly) where.add('favorited_at IS NOT NULL');
     params
       ..add(limit)
       ..add(offset);
+    final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
     final rows = _db.select(
       'SELECT * FROM local_media_items WHERE ${where.join(' AND ')} '
-      'ORDER BY ${_orderBy(sort)} LIMIT ? OFFSET ?',
+      'ORDER BY $orderBy LIMIT ? OFFSET ?',
       params,
     );
     return rows.map(LocalMediaItem.fromRow).toList();
   }
 
-  int countItems({
+  /// 只取 `id` + `path` 的轻量版 [queryItems]。
+  ///
+  /// # ⛔ 为什么要单独有它
+  ///
+  /// 大图页收的是**整个目录**那一叠图（它自己左右翻页），所以取数不能像池那样
+  /// 一页 32 条——但也不该为此把上千行整行读出来再各建一个 [LocalMediaItem]：
+  /// sqlite3 是同步 API，这一下全落在点击那一帧的 UI 线程上。这里只读两列。
+  ///
+  /// ⛔ 筛选与排序口径必须和 [queryItems] 一一对应（同 [countItems] 那条）：
+  /// 两边一旦分头改，大图页开出来的顺序就和抽屉里数的对不上——不报错，只是
+  /// "点第 3 条开在第 7 张"。
+  List<({String id, String path})> itemPathsPage({
     String? sourceId,
     LocalMediaItemKind kind = LocalMediaItemKind.video,
+    LocalMediaSort sort = LocalMediaSort.addedDesc,
+    // ⛔ [order] 和 [favoritedOnly] 不是可选的门面：[queryItems] 里 `order`
+    // **优先于** `sort`。以前这两个参数在签名上不存在，调用方传了也只是编译不过
+    // ——但视频墙已经在给池传 `order` 了，图片墙接上同一条路的那天就会当场错位，
+    // 而且编译器一句话都不会说。
+    LocalMediaOrder? order,
+    String? folderPath,
     String? categoryId,
     bool excludeBuiltInSource = false,
     bool includeMissing = false,
+    bool favoritedOnly = false,
+    required int limit,
   }) {
     final where = <String>['kind = ?'];
     final params = <Object?>[kind.name];
@@ -925,8 +1049,56 @@ class LocalMediaRepository {
       where.add('source_id != ?');
       params.add(kDownloadsSourceId);
     }
+    if (folderPath != null) {
+      where.add('folder_path = ?');
+      params.add(folderPath);
+    }
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
+    if (favoritedOnly) where.add('favorited_at IS NOT NULL');
+    params.add(limit);
+    final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
+    final rows = _db.select(
+      'SELECT id, path FROM local_media_items WHERE ${where.join(' AND ')} '
+      'ORDER BY $orderBy LIMIT ?',
+      params,
+    );
+    return [
+      for (final row in rows)
+        (id: row['id'] as String, path: row['path'] as String),
+    ];
+  }
+
+  /// ⛔ 筛选口径必须和 [queryItems] 保持一一对应。
+  ///
+  /// 这两个方法并列摆着、只差一个参数时，下一个人拿 [countItems] 给目录页做总数
+  /// 会**静默**拿到整个源的数字——不报错、不越界，就是数字不对，而且要等用户
+  /// 数着卡片来发现。加参数时两边一起加。
+  int countItems({
+    String? sourceId,
+    LocalMediaItemKind kind = LocalMediaItemKind.video,
+    String? folderPath,
+    String? categoryId,
+    bool excludeBuiltInSource = false,
+    bool includeMissing = false,
+    bool favoritedOnly = false,
+  }) {
+    final where = <String>['kind = ?'];
+    final params = <Object?>[kind.name];
+    if (sourceId != null) {
+      where.add('source_id = ?');
+      params.add(sourceId);
+    } else if (excludeBuiltInSource) {
+      where.add('source_id != ?');
+      params.add(kDownloadsSourceId);
+    }
+    if (folderPath != null) {
+      where.add('folder_path = ?');
+      params.add(folderPath);
+    }
+    _addCategoryFilter(categoryId, where, params);
+    if (!includeMissing) where.add('missing = 0');
+    if (favoritedOnly) where.add('favorited_at IS NOT NULL');
     final rows = _db.select(
       'SELECT COUNT(*) AS c FROM local_media_items WHERE ${where.join(' AND ')}',
       params,
@@ -934,101 +1106,220 @@ class LocalMediaRepository {
     return (rows.first['c'] as int?) ?? 0;
   }
 
+  /// 这一层里那些文件加起来占多少字节（`folder_path` 精确匹配，**不含子目录**）。
+  ///
+  /// ⛔ 口径必须与 [countItems] 一致：卡片上写「128 个视频」、信息弹窗里写
+  /// 「共 12 GB」，两个数说的得是同一批文件，否则用户会以为哪个数算错了。
+  /// 所以这里同样按 `folder_path` 精确匹配、同样滤掉 `missing`，而不是按路径
+  /// 前缀把整棵子树加起来。
+  ///
+  /// `size_bytes` 可空（MediaStore 句柄、还没探到的行），`SUM` 会自动跳过；
+  /// 一行都没有时 `SUM` 返回 NULL，这里折成 0。
+  int sumItemBytes({String? sourceId, String? folderPath}) {
+    final where = <String>['missing = 0'];
+    final params = <Object?>[];
+    if (sourceId != null) {
+      where.add('source_id = ?');
+      params.add(sourceId);
+    }
+    if (folderPath != null) {
+      where.add('folder_path = ?');
+      params.add(folderPath);
+    }
+    final rows = _db.select(
+      'SELECT SUM(size_bytes) AS s FROM local_media_items '
+      'WHERE ${where.join(' AND ')}',
+      params,
+    );
+    return (rows.first['s'] as int?) ?? 0;
+  }
+
+  // ── 精选 ────────────────────────────────────────────────────────────────
+
+  /// 标记 / 取消标记「精选」。[favorited] 为 true 时写入当前时间戳。
+  ///
+  /// ⛔ **不发全局信号**，同 [updateDerivedFields]。在「所有视频」里给一张卡片加个
+  /// 星只是那一行的角标变了，发 [changeRevision] 会把整墙清空重拉、用户滚动位置
+  /// 当场丢失——为一个角标付这个代价荒谬。
+  ///
+  /// 需要重绘的调用方自己就地处理；只有「精选视频」那一页取消精选才是真正的集合
+  /// 变化（那一条要从列表里消失），由那一页自己决定怎么收拾。
+  /// ⛔ 只有视频能被精选，见 [LocalMediaItem.supportsFavorite]。这条 `kind` 判据
+  /// 写在 SQL 里而不是靠调用方自觉：菜单那边已经不出这一条了，但把不变量钉在**写
+  /// 入口**上，以后不管谁调，图片都标不上——标上了就是一份哪儿都显示不出来的死状态。
+  bool setItemFavorited({required String itemId, required bool favorited}) {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    _db.execute(
+      "UPDATE local_media_items SET favorited_at = ? WHERE id = ? AND kind = 'video'",
+      [favorited ? now : null, itemId],
+    );
+    return _db.updatedRows > 0;
+  }
+
+  /// 这一条现在是不是精选。
+  bool isItemFavorited(String itemId) {
+    final rows = _db.select(
+      'SELECT favorited_at FROM local_media_items WHERE id = ?',
+      [itemId],
+    );
+    if (rows.isEmpty) return false;
+    return rows.first['favorited_at'] != null;
+  }
+
+  /// 精选条目数（按 kind 分）。
+  int countFavorited({LocalMediaItemKind kind = LocalMediaItemKind.video}) {
+    final rows = _db.select(
+      'SELECT COUNT(*) AS c FROM local_media_items WHERE kind = ? AND missing = 0 AND favorited_at IS NOT NULL',
+      [kind.name],
+    );
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  // ── 失效标记 ────────────────────────────────────────────────────────────
+
+  /// 把这一批条目标成「已失效」（文件在系统里被删掉/移走了）。
+  ///
+  /// 现有的 [markMissingExcept] 只在整轮扫描收敛时才跑得到，用户在系统里删掉
+  /// 一个文件之后、下次扫描之前，列表里那一格一直是活的，点下去才发现没了。
+  /// 这个方法让上层在翻到某一页时就地把失效的那几条落库。
+  int markItemsMissing(List<String> itemIds) {
+    if (itemIds.isEmpty) return 0;
+    const chunkSize = 400;
+    var totalUpdated = 0;
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < itemIds.length; i += chunkSize) {
+        final chunk = itemIds.sublist(
+          i,
+          i + chunkSize > itemIds.length ? itemIds.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET missing = 1 '
+          'WHERE missing = 0 AND id IN ($marks)',
+          chunk,
+        );
+        totalUpdated += _db.updatedRows;
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('标记条目失效失败', tag: _tag, error: e);
+      rethrow;
+    }
+    if (totalUpdated > 0) {
+      notifyChanged();
+    }
+    return totalUpdated;
+  }
+
   /// 排序表达式。
   ///
   /// ⛔ 每一档都要带一个**唯一的兜底列**（这里是 `id`）：分页靠 OFFSET，排序不稳定
   /// 时同一条会在两页里各出现一次、另一条则一次都不出现——表现是"往下翻着翻着
   /// 少了几个、又重复了几个"，很难查。
-  static String _orderBy(LocalMediaSort sort) => switch (sort) {
-    // 名称档再加一层 `name`：`sort_name` 会吃掉前导零，`ep01` 与 `ep1` 折出同一个 key。
-    LocalMediaSort.nameAsc => 'sort_name ASC, name ASC, id ASC',
-    LocalMediaSort.durationDesc => 'duration_ms DESC, sort_name ASC, id ASC',
-    LocalMediaSort.sizeDesc => 'size_bytes DESC, sort_name ASC, id ASC',
-    LocalMediaSort.folderAsc =>
-      'folder_path ASC, sort_name ASC, name ASC, id ASC',
-    LocalMediaSort.addedDesc => 'added_at DESC, id ASC',
-    LocalMediaSort.playedDesc =>
-      'last_played_at DESC, sort_name ASC, name ASC, id ASC',
-    LocalMediaSort.modifiedDesc => 'modified_at DESC, id ASC',
-  };
+  ///
+  /// 保持与既有调用兼容的薄封装，内部统一委托给 [_orderByClause]。
+  static String _orderBy(LocalMediaSort sort) => _orderByClause(sort.order);
 
-  /// 图库按文件夹聚合分页。
-  List<LocalImageFolder> pageImageFolders({
-    required String sourceId,
-    required LocalImageFolderSort sort,
-    required int offset,
-    required int limit,
-  }) {
-    final orderBy = switch (sort) {
-      LocalImageFolderSort.addedDesc => 'added DESC, folder_path ASC',
-      LocalImageFolderSort.nameAsc => 'folder_path ASC',
-      LocalImageFolderSort.countDesc => 'n DESC, folder_path ASC',
+  /// 统一的 ORDER BY SQL 生成逻辑。
+  ///
+  /// # 规则与约束
+  /// 1. 同一条 ORDER BY 里所有列方向必须一致（全 ASC 或全 DESC），兜底列跟着主字段方向走，
+  ///    以吃满 SQLite 的索引反向扫描特性，避免静默退化为临时 B 树（`USE TEMP B-TREE FOR ORDER BY`）。
+  /// 2. NULL 永远排在最后：DESC 时裸列天然将 NULL 排在最后；ASC 时可空字段添加 `(col IS NULL) ASC` 前缀。
+  /// 3. NOT NULL 或实际非空字段（name, folder, fileType, added）不加 `IS NULL` 前缀，
+  ///    避免破坏索引直查。
+  ///
+  /// # ⛔ 升序那几档的 `USE TEMP B-TREE` 是量过之后有意留下的，别再来"优化"
+  ///
+  /// 带 `(col IS NULL)` 前缀的升序档吃不到索引，`EXPLAIN QUERY PLAN` 里会显示
+  /// `USE TEMP B-TREE FOR ORDER BY`。这看着刺眼，但实测过：5 万行的表上，
+  ///
+  /// - 降序（裸列，索引反扫）：约 0.0003 ms
+  /// - 升序（临时 B 树）：约 2.4 ms
+  /// - 升序 + `OFFSET 10000` 深翻页：约 5.3 ms
+  ///
+  /// 折到中端安卓上按最坏 5 倍算也就一帧左右。要彻底消掉它，得为每个可空字段
+  /// 再建一条 `((col IS NULL), col, sort_name, id)` 表达式索引，索引数从 9 条涨到
+  /// 16 条——扫描时每插一行都要多维护 7 棵树，大库全量扫描的代价远大于这几毫秒。
+  ///
+  /// 所以：**这里不是漏建索引，是权衡过的**。真要改，先拿真实库量一遍再说。
+  static String _orderByClause(LocalMediaOrder order) {
+    final asc = order.ascending;
+    return switch (order.field) {
+      // 名称档：name 与 sort_name 均为 NOT NULL，不加 IS NULL 前缀；
+      // sort_name 折叠前导零，二次排序用 name，兜底列 id 保持同向。
+      LocalMediaSortField.name =>
+        asc
+            ? 'sort_name ASC, name ASC, id ASC'
+            : 'sort_name DESC, name DESC, id DESC',
+
+      // 修改时间：modified_at 可空；ASC 添加 (modified_at IS NULL) ASC 确保未知排最后；
+      // DESC 裸列对齐 idx_local_items_all_modified 索引。
+      LocalMediaSortField.modified =>
+        asc
+            ? '(modified_at IS NULL) ASC, modified_at ASC, sort_name ASC, id ASC'
+            : 'modified_at DESC, sort_name DESC, id DESC',
+
+      // 时长：duration_ms 可空（图片和未探测视频为 NULL）；ASC 添加 (duration_ms IS NULL) ASC 确保未知排最后；
+      // DESC 裸列走 idx_local_items_all_duration 索引。
+      LocalMediaSortField.duration =>
+        asc
+            ? '(duration_ms IS NULL) ASC, duration_ms ASC, sort_name ASC, id ASC'
+            : 'duration_ms DESC, sort_name DESC, id DESC',
+
+      // 大小：size_bytes 可空；ASC 添加 (size_bytes IS NULL) ASC 确保未知排最后；
+      // DESC 裸列走 idx_local_items_all_size 索引。
+      LocalMediaSortField.size =>
+        asc
+            ? '(size_bytes IS NULL) ASC, size_bytes ASC, sort_name ASC, id ASC'
+            : 'size_bytes DESC, sort_name DESC, id DESC',
+
+      // 分辨率：(width * height) 可空；ASC 添加 ((width * height) IS NULL) ASC 确保未知排最后；
+      // DESC 裸列走表达式索引 idx_local_items_all_pixels。
+      LocalMediaSortField.resolution =>
+        asc
+            ? '((width * height) IS NULL) ASC, (width * height) ASC, sort_name ASC, id ASC'
+            : '(width * height) DESC, sort_name DESC, id DESC',
+
+      // 文件类型：ext 视为实际非空，不加 IS NULL 前缀，全列同向走 idx_local_items_all_ext 索引。
+      LocalMediaSortField.fileType =>
+        asc
+            ? 'ext ASC, sort_name ASC, id ASC'
+            : 'ext DESC, sort_name DESC, id DESC',
+
+      // 帧率：fps 可空（图片和未探测视频为 NULL）；ASC 添加 (fps IS NULL) ASC 确保未知排最后；
+      // DESC 裸列走 idx_local_items_all_fps 索引。
+      LocalMediaSortField.fps =>
+        asc
+            ? '(fps IS NULL) ASC, fps ASC, sort_name ASC, id ASC'
+            : 'fps DESC, sort_name DESC, id DESC',
+
+      // 文件夹：folder_path 视为非空，不加 IS NULL 前缀；保留与原版层级一致的细分列，兜底同向。
+      LocalMediaSortField.folder =>
+        asc
+            ? 'folder_path ASC, sort_name ASC, name ASC, id ASC'
+            : 'folder_path DESC, sort_name DESC, name DESC, id DESC',
+
+      // 添加时间：added_at 在 DDL 中明确定义为 NOT NULL，不加 IS NULL 前缀，全列同向走 idx_local_items_all_added 索引。
+      LocalMediaSortField.added =>
+        asc ? 'added_at ASC, id ASC' : 'added_at DESC, id DESC',
+
+      // 最近播放：last_played_at 可空；ASC 添加 (last_played_at IS NULL) ASC 确保未播排最后；
+      // DESC 裸列走 idx_local_items_all_played 索引。
+      LocalMediaSortField.played =>
+        asc
+            ? '(last_played_at IS NULL) ASC, last_played_at ASC, sort_name ASC, id ASC'
+            : 'last_played_at DESC, sort_name DESC, id DESC',
+
+      // 精选标记：favorited_at 可空；ASC 添加 (favorited_at IS NULL) ASC 确保未收藏排最后；
+      // DESC 裸列对齐 idx_local_items_all_favorited 索引。
+      LocalMediaSortField.favorited =>
+        asc
+            ? '(favorited_at IS NULL) ASC, favorited_at ASC, id ASC'
+            : 'favorited_at DESC, id DESC',
     };
-
-    // 扫描器一定会写 folder_path，为 NULL 的是历史脏行，直接过滤跳过。
-    final rows = _db.select(
-      'SELECT folder_path, '
-      'COUNT(*) AS n, '
-      'MAX(added_at) AS added, '
-      'SUM(size_bytes) AS bytes, '
-      'MIN(sort_name) AS cover_key '
-      'FROM local_media_items '
-      'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path IS NOT NULL '
-      'GROUP BY folder_path '
-      'ORDER BY $orderBy '
-      'LIMIT ? OFFSET ?',
-      [sourceId, limit, offset],
-    );
-
-    final result = <LocalImageFolder>[];
-    for (final row in rows) {
-      final folderPath = row['folder_path'] as String;
-      final baseName = p.basename(folderPath);
-      final name = baseName.isEmpty ? folderPath : baseName;
-      final count = (row['n'] as int?) ?? 0;
-      final addedAt = (row['added'] as int?) ?? 0;
-      final totalBytes = (row['bytes'] as int?) ?? 0;
-      final coverKey = row['cover_key'] as String?;
-
-      String coverPath = '';
-      if (coverKey != null) {
-        // ⛔ 别用 MIN(path) 冒充封面——那是字符串序（10.jpg 会排在 2.jpg 前面）。
-        // 按 (source_id, folder_path, sort_name) 单独查一行拿真实 path。
-        final coverRows = _db.select(
-          'SELECT path FROM local_media_items '
-          'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path = ? AND sort_name = ? '
-          'LIMIT 1',
-          [sourceId, folderPath, coverKey],
-        );
-        if (coverRows.isNotEmpty) {
-          coverPath = (coverRows.first['path'] as String?) ?? '';
-        }
-      }
-
-      result.add(
-        LocalImageFolder(
-          folderPath: folderPath,
-          name: name,
-          count: count,
-          coverPath: coverPath,
-          addedAt: addedAt,
-          totalBytes: totalBytes,
-        ),
-      );
-    }
-    return result;
-  }
-
-  /// 该源包含多少个有效的图片文件夹。
-  int countImageFolders({required String sourceId}) {
-    // 扫描器一定会写 folder_path，为 NULL 的是历史脏行，直接过滤跳过。
-    final rows = _db.select(
-      'SELECT COUNT(DISTINCT folder_path) AS c '
-      'FROM local_media_items '
-      'WHERE kind = \'image\' AND source_id = ? AND missing = 0 AND folder_path IS NOT NULL',
-      [sourceId],
-    );
-    return (rows.first['c'] as int?) ?? 0;
   }
 
   /// 查询指定文件夹里的所有图片路径，按 sort_name 升序排列。
@@ -1173,5 +1464,976 @@ class LocalMediaRepository {
     if (removed > 0 || clearedTimestamps > 0) notifyChanged();
     LogUtils.i('已清空本机观看记录：$removed 条', _tag);
     return removed;
+  }
+
+  // ── 目录实体 ────────────────────────────────────────────────────────────
+
+  /// 查询某目录下的直接子目录。
+  ///
+  /// # ⛔ 默认藏掉"空叶子"
+  ///
+  /// 真实设备上的 `Download` 底下躺着几百个哈希命名的缓存目录，一个媒体文件都没有、
+  /// 也没有下级——不藏的话整个首屏全是它们，真正有内容的目录被挤到看不见的地方。
+  /// 这三个计数都为 0 意味着"点进去只会看到『这个文件夹是空的』"，对一个**媒体**
+  /// 浏览器来说它就是不存在。
+  ///
+  /// 覆盖不到的一种：本身有子目录、但子目录全是空叶子的目录，`child_folder_count`
+  /// 不为 0 所以留在列表里，点进去才发现是空的。要根治得在 [backfillFolderCounts]
+  /// 里算"子树里有没有媒体"并向上传播，代价比收益大，先按一层算。
+  ///
+  /// ⛔ 这三列由 [backfillFolderCounts] 在扫描收尾时才写。扫描进行中它们都是 0，
+  /// 此刻查会一个子目录都返回不了——这是**过渡态**，扫完那一下就对了。
+  ///
+  /// [mediaKind] 收窄"非空"的口径：给了它就只看那一种媒体的计数列（视频菜单里
+  /// 一个只有图片的目录点进去是死路一条，反之亦然）。不给则沿用"有任何媒体就算
+  /// 数"的原口径——目录浏览页要的是全部。
+  ///
+  /// ⛔ 它只挡得住**叶子**：`child_folder_count` 不分媒体类型，所以"子树里全是
+  /// 图片"的目录在视频口径下仍会留在列表里。根治同样要在 [backfillFolderCounts]
+  /// 里按 kind 各传播一次，代价比收益大。
+  List<LocalMediaFolder> childFolders({
+    required String sourceId,
+    required String parentRelPath,
+    bool includeMissing = false,
+    bool includeEmpty = false,
+    LocalMediaItemKind? mediaKind,
+  }) {
+    final where = <String>['source_id = ?', 'parent_rel_path = ?'];
+    final params = <Object?>[sourceId, parentRelPath];
+    if (!includeMissing) {
+      where.add('missing = 0');
+    }
+    if (!includeEmpty && mediaKind != null) {
+      final column = mediaKind == LocalMediaItemKind.image
+          ? 'image_count'
+          : 'video_count';
+      where.add('($column > 0 OR child_folder_count > 0 OR probed_at IS NULL)');
+    } else if (!includeEmpty) {
+      // 写成对索引友好的残余过滤：前导列还是 source_id / parent_rel_path /
+      // missing，索引照样能顺着 sort_name 走，不会退回 TEMP B-TREE。
+      //
+      // ⛔ `probed_at IS NULL` 这一项不能省。懒扫描下三个计数全 0 有两种含义：
+      // 「探过、真的空」和「还没探过、不知道」。少了它，用户点进一个还没走到的
+      // 目录会看到一片空白——里面明明有东西。见 v33 迁移。
+      where.add(
+        '(video_count > 0 OR image_count > 0 OR child_folder_count > 0 '
+        'OR probed_at IS NULL)',
+      );
+    }
+    final rows = _db.select(
+      'SELECT * FROM local_media_folders '
+      'WHERE ${where.join(' AND ')} '
+      'ORDER BY sort_name ASC, name ASC, id ASC',
+      params,
+    );
+    return rows.map(LocalMediaFolder.fromRow).toList();
+  }
+
+  /// 获取指定目录。
+  LocalMediaFolder? getFolder({
+    required String sourceId,
+    required String relPath,
+  }) {
+    final rows = _db.select(
+      'SELECT * FROM local_media_folders '
+      'WHERE source_id = ? AND rel_path = ? LIMIT 1',
+      [sourceId, relPath],
+    );
+    if (rows.isEmpty) return null;
+    return LocalMediaFolder.fromRow(rows.first);
+  }
+
+  /// 从源根到该目录的面包屑链，含两端，按层级顺序。
+  ///
+  /// ⛔ 不走递归查询，直接切开 relPath 拼出各级相对路径，一条 WHERE rel_path IN (...) 查回。
+  List<LocalMediaFolder> breadcrumb({
+    required String sourceId,
+    required String relPath,
+  }) {
+    final normalized = relPath.trim().replaceAll(RegExp(r'^/+|/+$'), '');
+    final paths = <String>[''];
+    if (normalized.isNotEmpty) {
+      final segments = normalized.split('/');
+      var current = '';
+      for (final seg in segments) {
+        if (seg.isEmpty) continue;
+        current = current.isEmpty ? seg : '$current/$seg';
+        paths.add(current);
+      }
+    }
+
+    final marks = List.filled(paths.length, '?').join(', ');
+    final rows = _db.select(
+      'SELECT * FROM local_media_folders '
+      'WHERE source_id = ? AND rel_path IN ($marks)',
+      <Object?>[sourceId, ...paths],
+    );
+
+    final map = <String, LocalMediaFolder>{
+      for (final row in rows)
+        (row['rel_path'] as String): LocalMediaFolder.fromRow(row),
+    };
+
+    final result = <LocalMediaFolder>[];
+    for (final p in paths) {
+      final folder = map[p];
+      if (folder != null) {
+        result.add(folder);
+      }
+    }
+    return result;
+  }
+
+  /// 统计某目录下的直接有效子目录数。
+  int childFolderCount({
+    required String sourceId,
+    required String parentRelPath,
+  }) {
+    final rows = _db.select(
+      'SELECT COUNT(*) AS c FROM local_media_folders '
+      'WHERE source_id = ? AND parent_rel_path = ? AND missing = 0',
+      [sourceId, parentRelPath],
+    );
+    return (rows.first['c'] as int?) ?? 0;
+  }
+
+  /// 这几列**不归扫描器管**，upsert 冲突时一律保留库里原值。
+  ///
+  /// ⛔ 三个计数列：扫描器构造 [LocalMediaFolder] 时它们都是默认的 0，照盖的话
+  /// 每次重扫都会先把全库目录的计数清零，直到扫完回填才恢复——扫一个大目录要
+  /// 几十秒，这几十秒里用户看到的是满屏「0 视频 · 0 图」。计数的主人只有一个，
+  /// 就是 [backfillFolderCounts]。
+  ///
+  /// ⛔ `probed_at` 同理，而且后果更重：它的主人是 [markFoldersProbed]，扫描器
+  /// 构造出来的值永远是 null。跟着盖的话，**每次扫描都会把沿途所有目录重新变回
+  /// 「没探过」**，于是空目录再也藏不住——第一屏又变回两千个灰块。
+  static const Set<String> _folderPreservedColumns = <String>{
+    'video_count',
+    'image_count',
+    'child_folder_count',
+    'probed_at',
+    // 「这张封面是谁挑的」只有 [setFolderCover] 说了算，扫描器构造出来永远是 false。
+    'cover_pinned',
+  };
+
+  /// 批量 upsert 目录。
+  void upsertFolders(List<LocalMediaFolder> folders) {
+    if (folders.isEmpty) return;
+    final firstRow = folders.first.toRow();
+    final columns = firstRow.keys.toList();
+    final placeholders = List.filled(columns.length, '?').join(', ');
+    final assignments = columns
+        .where((c) => c != 'id' && !_folderPreservedColumns.contains(c))
+        .map((c) {
+          // ⛔ 用户自己挑过的封面，扫描器不许覆盖。
+          //
+          // 不能简单地把 cover_path 也放进 [_folderPreservedColumns]：那样扫描器
+          // **永远**改不了封面，目录里的内容都换完了封面还是第一次扫到的那张。
+          // 判据是「谁挑的」，所以只能写成条件更新。
+          if (c == 'cover_path') {
+            // ⛔ 扫描器算不出封面时（excluded 为 NULL）必须保留库里已有的那张。
+            //
+            // 扫描器只认目录直属的图片文件，纯视频目录它永远算出 NULL。而这类
+            // 目录的封面是事后由派生服务回填的（视频缩略图 / 借子目录）。不写
+            // 这一条的话，用户每做一次全量扫描，所有靠回填得来的封面就被抹光
+            // 一次，然后再慢慢长回来——封面凭空消失是比没有封面更糟的观感。
+            return 'cover_path = CASE '
+                'WHEN local_media_folders.cover_pinned = 1 '
+                'THEN local_media_folders.cover_path '
+                'WHEN excluded.cover_path IS NULL '
+                'THEN local_media_folders.cover_path '
+                'ELSE excluded.cover_path END';
+          }
+          // ⛔ 这个标必须和 cover_path **逐分支**同步，否则两列会说不同的话。
+          //
+          // 扫描器构造出来的 folder 恒为 false（它只会从直属图片挑封面，那是第 2
+          // 档、不是借的）。可它算不出封面时上面那条 CASE 保留的是**旧封面**——
+          // 若旧封面是借来的，标却被这一轮盖成 0，第 3 档就再也认不出它可以换，
+          // 借来的图从此钉死。所以 cover_path 保留时它也保留，cover_path 真被
+          // 直属图片覆盖时它才归 0。
+          if (c == 'cover_borrowed') {
+            return 'cover_borrowed = CASE '
+                'WHEN local_media_folders.cover_pinned = 1 '
+                'THEN local_media_folders.cover_borrowed '
+                'WHEN excluded.cover_path IS NULL '
+                'THEN local_media_folders.cover_borrowed '
+                'ELSE 0 END';
+          }
+          return '$c = excluded.$c';
+        })
+        .join(', ');
+    final statement = _db.prepare(
+      'INSERT INTO local_media_folders (${columns.join(', ')}) '
+      'VALUES ($placeholders) '
+      'ON CONFLICT(id) DO UPDATE SET $assignments',
+    );
+    _db.execute('BEGIN');
+    try {
+      for (final folder in folders) {
+        final row = folder.toRow();
+        statement.execute(columns.map((c) => row[c]).toList());
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('批量 upsert 本地媒体目录失败', tag: _tag, error: e);
+      rethrow;
+    } finally {
+      statement.close();
+    }
+  }
+
+  /// 收敛目录的 missing 标记。
+  ///
+  /// 口径与 [markMissingExcept] 完全一致：整源先置 missing = 1，将本轮遍历到的批量洗回 0，
+  /// [excludeRelPathTrees] 中的子树整棵豁免。
+  void markFoldersMissingExcept(
+    String sourceId,
+    Set<String> seenRelPaths, {
+    Set<String> excludeRelPathTrees = const {},
+  }) {
+    final excluded = <String>[
+      for (final tree in excludeRelPathTrees)
+        if (tree.trim().isNotEmpty) tree.trim(),
+    ];
+    final exclusionSql = <String>[];
+    final exclusionParams = <Object?>[];
+    for (final tree in excluded) {
+      // ⛔ 这里**可以**写死 `/`，[markMissingExcept] 那边不行——两条长得一样，
+      // 差别全在比的是哪一列：这里是 `rel_path`（`relPathOf` 已强制归一成 `/`，
+      // 见 `LocalMediaScanService`），那边是 `folder_path`（平台原样的绝对路径，
+      // Windows 上是反斜杠）。照抄这一行到绝对路径上就是静默失效。
+      final prefix = tree.endsWith('/') ? tree : '$tree/';
+      exclusionSql.add('(rel_path <> ? AND substr(rel_path, 1, ?) <> ?)');
+      exclusionParams
+        ..add(tree)
+        ..add(prefix.length)
+        ..add(prefix);
+    }
+    final exclusion = exclusionSql.isEmpty
+        ? ''
+        : ' AND ${exclusionSql.join(' AND ')}';
+
+    if (seenRelPaths.isEmpty && excluded.isEmpty) {
+      _db.execute(
+        'UPDATE local_media_folders SET missing = 1 WHERE source_id = ?',
+        [sourceId],
+      );
+      notifyChanged();
+      return;
+    }
+
+    const chunkSize = 400;
+    final relPaths = seenRelPaths.toList();
+    _db.execute('BEGIN');
+    try {
+      _db.execute(
+        'UPDATE local_media_folders SET missing = 1 '
+        'WHERE source_id = ? AND missing = 0$exclusion',
+        <Object?>[sourceId, ...exclusionParams],
+      );
+
+      for (var i = 0; i < relPaths.length; i += chunkSize) {
+        final chunk = relPaths.sublist(
+          i,
+          i + chunkSize > relPaths.length ? relPaths.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_folders SET missing = 0 '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('收敛本地媒体目录 missing 标记失败', tag: _tag, error: e);
+      rethrow;
+    }
+  }
+
+  /// 从库里删掉这些条目，连同它们的观看进度。
+  ///
+  /// # ⛔ 这个方法**不动磁盘上的文件**
+  ///
+  /// 删文件是调用方的事（`File.delete()`），而且必须**先删文件、成功了再删库行**。
+  /// 反过来的话，文件删失败（只读卷、权限没了、正被别的进程占着）你已经把行删了，
+  /// 结果是：磁盘上东西还在，库里没有，用户在应用里再也看不到它、也删不掉它——
+  /// 只能等下一次扫描把它重新收进来，而目录源不会自己重扫。
+  ///
+  /// 反过来「文件删了、库行没删掉」是可以自愈的：那一行会在下一次扫这一层时被
+  /// 收敛成 missing。所以顺序只有一种是对的。
+  int deleteItems(List<String> ids) {
+    if (ids.isEmpty) return 0;
+    const chunkSize = 400;
+    var removed = 0;
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < ids.length; i += chunkSize) {
+        final chunk = ids.sublist(
+          i,
+          i + chunkSize > ids.length ? ids.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'DELETE FROM local_media_progress WHERE item_id IN ($marks)',
+          chunk,
+        );
+        _db.execute(
+          'DELETE FROM local_media_items WHERE id IN ($marks)',
+          chunk,
+        );
+        removed += _db.updatedRows;
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('删除本地条目失败', tag: _tag, error: e);
+      rethrow;
+    }
+    return removed;
+  }
+
+  /// 只是「知道有这么个目录」的占位行：**有则不动，无则插入**。
+  ///
+  /// 懒扫描走到深度尽头时，对那些不再往下走的子目录只发一条占位记录——我们知道
+  /// 它存在，但没列过它，不知道里面有什么（`probed_at` 因此保持 NULL）。
+  ///
+  /// # ⛔ 为什么不能走 [upsertFolders]
+  ///
+  /// 那个方法冲突时会把 `cover_path` / `modified_at` 一起盖成 excluded 的值，而
+  /// 占位记录这两个字段都是 null。于是会出这么一档事：用户进了 C 目录（C 被列过，
+  /// 学到了封面），退回上一级再进来，C 又以占位身份被写一遍，**封面当场被抹掉**。
+  /// 上下翻几次目录，卡片上的封面就掉光了。
+  void upsertFolderStubs(List<LocalMediaFolder> folders) {
+    if (folders.isEmpty) return;
+    final columns = folders.first.toRow().keys.toList();
+    final placeholders = List.filled(columns.length, '?').join(', ');
+    final statement = _db.prepare(
+      'INSERT INTO local_media_folders (${columns.join(', ')}) '
+      'VALUES ($placeholders) '
+      'ON CONFLICT(id) DO NOTHING',
+    );
+    _db.execute('BEGIN');
+    try {
+      for (final folder in folders) {
+        final row = folder.toRow();
+        statement.execute(columns.map((c) => row[c]).toList());
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('插入本地媒体目录占位行失败', tag: _tag, error: e);
+      rethrow;
+    } finally {
+      statement.close();
+    }
+  }
+
+  /// 把 [coverPath] 定成这个目录的封面，并记下「是用户挑的」。
+  ///
+  /// 之后扫描器再怎么重扫都不会把它换掉（见 [upsertFolders] 里那段 CASE）。
+  bool setFolderCover({
+    required String sourceId,
+    required String relPath,
+    required String coverPath,
+  }) {
+    _db.execute(
+      'UPDATE local_media_folders '
+      'SET cover_path = ?, cover_pinned = 1, cover_borrowed = 0 '
+      'WHERE source_id = ? AND rel_path = ?',
+      <Object?>[coverPath, sourceId, relPath],
+    );
+    final ok = _db.updatedRows > 0;
+    if (ok) notifyFolderChanged();
+    return ok;
+  }
+
+  /// 当目录未固定封面且当前无封面时，借用该目录直属首个有缩略图的视频的缩略图作为目录封面。
+  ///
+  /// 解决纯视频目录下因缺少独立图片而长期无封面的问题。
+  bool backfillFolderCoverFromItems({
+    required String sourceId,
+    required String relPath,
+  }) {
+    _db.execute(
+      '''
+      WITH candidate AS (
+        SELECT i.thumb_path FROM local_media_items i
+        WHERE i.source_id = ?
+          AND i.folder_path = (SELECT f.folder_path FROM local_media_folders f
+                               WHERE f.source_id = ? AND f.rel_path = ?)
+          AND i.kind = 'video' AND i.missing = 0
+          AND i.thumb_path IS NOT NULL AND i.thumb_path != ''
+        ORDER BY i.sort_name ASC, i.name ASC, i.id ASC LIMIT 1
+      )
+      UPDATE local_media_folders
+      SET cover_path = (SELECT thumb_path FROM candidate), cover_borrowed = 0
+      WHERE source_id = ? AND rel_path = ? AND cover_pinned = 0
+        AND (cover_path IS NULL OR cover_path = '' OR cover_borrowed = 1)
+        AND (SELECT thumb_path FROM candidate) IS NOT NULL
+      ''',
+      <Object?>[sourceId, sourceId, relPath, sourceId, relPath],
+    );
+    final ok = _db.updatedRows > 0;
+    if (ok) notifyFolderChanged();
+    return ok;
+  }
+
+  /// 当目录未固定封面且当前无封面时，借用排序最靠前的有封面直接子目录的封面。
+  ///
+  /// 解决只有子目录有内容而父目录自身无文件时，父目录封面长期为空的问题。
+  ///
+  /// # ⛔ 借来的封面要打标（`cover_borrowed = 1`）
+  ///
+  /// 四层降级里这是**最低**的一档，但它往往**最先**落地：子目录的直属图片被扫描器
+  /// 一眼看见，而本目录视频的缩略图要等卡片滚进视野才生成。两个 UPDATE 都只写
+  /// 「当前没封面」的行、先到先得的话，父目录就会永远挂着子目录那张图，第 3 档
+  /// （自己视频的缩略图）再也顶不上去——和声明的优先级正好相反。
+  ///
+  /// 打了标之后，[backfillFolderCoverFromItems] 才能认出「这张是借来的，可以换」，
+  /// 而它自己写下的（`cover_borrowed = 0`）不会被本方法再借的图盖掉。
+  bool backfillFolderCoverFromChild({
+    required String sourceId,
+    required String relPath,
+  }) {
+    _db.execute(
+      '''
+      WITH candidate AS (
+        SELECT c.cover_path FROM local_media_folders c
+        WHERE c.source_id = ? AND c.parent_rel_path = ?
+          AND c.missing = 0 AND c.cover_path IS NOT NULL AND c.cover_path != ''
+        ORDER BY c.sort_name ASC, c.rel_path ASC LIMIT 1
+      )
+      UPDATE local_media_folders
+      SET cover_path = (SELECT cover_path FROM candidate), cover_borrowed = 1
+      WHERE source_id = ? AND rel_path = ? AND cover_pinned = 0
+        AND (cover_path IS NULL OR cover_path = '')
+        AND (SELECT cover_path FROM candidate) IS NOT NULL
+      ''',
+      <Object?>[sourceId, relPath, sourceId, relPath],
+    );
+    final ok = _db.updatedRows > 0;
+    if (ok) notifyFolderChanged();
+    return ok;
+  }
+
+  /// 把 [cover_pinned] 置 0 且 [cover_path] 置 NULL，供用户恢复自动封面时使用。
+  ///
+  /// ⛔ 清完必须**当场**重跑一遍自动降级。只清不填的话，用户点「恢复自动封面」
+  /// 看到的是卡片当场退化成灰色文件夹图标，要等下次重扫该目录、或等某个视频
+  /// 恰好生成缩略图才长回来——用户会以为这个菜单项是「删除封面」。
+  bool clearFolderCoverPin({
+    required String sourceId,
+    required String relPath,
+  }) {
+    _db.execute(
+      'UPDATE local_media_folders '
+      'SET cover_pinned = 0, cover_path = NULL, cover_borrowed = 0 '
+      'WHERE source_id = ? AND rel_path = ?',
+      <Object?>[sourceId, relPath],
+    );
+    final ok = _db.updatedRows > 0;
+    if (!ok) return false;
+    // 按声明的优先级重来一遍：直属视频缩略图（第 3 档）优先于借用子目录（第 4 档）。
+    // 第 2 档（直属图片）归扫描器管，这里够不着，下次扫描会顶上来。
+    if (!backfillFolderCoverFromItems(sourceId: sourceId, relPath: relPath)) {
+      backfillFolderCoverFromChild(sourceId: sourceId, relPath: relPath);
+    }
+    notifyFolderChanged();
+    return true;
+  }
+
+  /// 批量筛出「未 pin 封面且当前没有封面」的目录，返回 rel_path → 绝对路径。
+  ///
+  /// ⛔ 扫描服务每收到一批目录就要判一次这件事。一批一批地 [getFolder] 点查
+  /// 等于几千次同步 select 全压在主 isolate 上（`kMaxFolderCoverDerivationEnqueuedPerScan`
+  /// 只封顶入队数，封不住点查次数）。这里一条 IN 查询解决。
+  ///
+  /// 值是库里的 `folder_path`，**可能是空串**：调用方那边手上还有刚扫出来的
+  /// 绝对路径可以兜底，所以这里不把这种行滤掉——滤掉的话调用方分不清是"已经
+  /// 有封面了"还是"库里那一列恰好空着"。
+  Map<String, String> foldersNeedingCover({
+    required String sourceId,
+    required List<String> relPaths,
+  }) {
+    if (relPaths.isEmpty) return const <String, String>{};
+    final result = <String, String>{};
+    // SQLite 的变量上限是 999，分片查。
+    const chunkSize = 400;
+    for (var start = 0; start < relPaths.length; start += chunkSize) {
+      final chunk = relPaths.sublist(
+        start,
+        (start + chunkSize).clamp(0, relPaths.length),
+      );
+      final placeholders = List.filled(chunk.length, '?').join(',');
+      final rows = _db.select(
+        'SELECT rel_path, folder_path FROM local_media_folders '
+        'WHERE source_id = ? AND rel_path IN ($placeholders) '
+        '  AND cover_pinned = 0 '
+        '  AND (cover_path IS NULL OR cover_path = \'\')',
+        <Object?>[sourceId, ...chunk],
+      );
+      for (final row in rows) {
+        final rel = row['rel_path'] as String?;
+        if (rel == null) continue;
+        result[rel] = (row['folder_path'] as String?) ?? '';
+      }
+    }
+    return result;
+  }
+
+  /// 返回该目录直属的、尚未生成缩略图且没有同名 sidecar 图片的首个视频条目。
+  ///
+  /// 供扫描服务在发现纯视频目录无封面时，选出"封面代表"送入派生队列。
+  LocalMediaItem? firstVideoNeedingThumbInFolder({
+    required String sourceId,
+    required String folderPath,
+  }) {
+    final rows = _db.select(
+      'SELECT * FROM local_media_items '
+      'WHERE source_id = ? AND folder_path = ? '
+      '  AND kind = ? AND missing = 0 '
+      '  AND (thumb_path IS NULL OR thumb_path = \'\') '
+      '  AND (sidecar_image_path IS NULL OR sidecar_image_path = \'\') '
+      'ORDER BY sort_name ASC, name ASC, id ASC LIMIT 1',
+      <Object?>[sourceId, folderPath, LocalMediaItemKind.video.name],
+    );
+    if (rows.isEmpty) return null;
+    return LocalMediaItem.fromRow(rows.first);
+  }
+
+  /// 返回该目录直属的可用封面图候选路径。
+  ///
+  /// 图片取自身 [path]，视频优先取同名 [sidecar_image_path] 其次取 [thumb_path]。
+  /// 仅限未缺失条目，去重后最多返回 [limit] 条。
+  ///
+  /// ⛔ [limit] 必须落在 SQL 里，不能只在 Dart 那侧的循环里 break——调用方
+  /// （封面选择弹窗）是在 `initState` 里同步跑的，几千张图的目录会把那一帧
+  /// 整个卡住。同理 `ORDER BY` 的三列必须有索引兜底，否则 SQLite 退回
+  /// TEMP B-TREE 全排，加了 LIMIT 也还是要先排完整张表（见 v38）。
+  ///
+  /// 「取不出候选的行」（既无 sidecar 又无 thumb 的视频）在 SQL 里就滤掉，
+  /// 这样 LIMIT 的每一行都真的产出一个候选，不会出现「取够 60 行但一个候选
+  /// 都没有」。
+  List<String> folderCoverCandidates({
+    required String sourceId,
+    required String folderPath,
+    int limit = 60,
+  }) {
+    final rows = _db.select(
+      'SELECT kind, path, sidecar_image_path, thumb_path '
+      'FROM local_media_items '
+      'WHERE source_id = ? AND folder_path = ? AND missing = 0 '
+      '  AND (kind = ? '
+      '       OR (sidecar_image_path IS NOT NULL AND sidecar_image_path <> \'\') '
+      '       OR (thumb_path IS NOT NULL AND thumb_path <> \'\')) '
+      'ORDER BY sort_name ASC, name ASC, id ASC '
+      'LIMIT ?',
+      <Object?>[sourceId, folderPath, LocalMediaItemKind.image.name, limit],
+    );
+    final result = <String>[];
+    final seen = <String>{};
+    for (final row in rows) {
+      final kind = row['kind'] as String?;
+      String? candidate;
+      if (kind == LocalMediaItemKind.image.name || kind == 'image') {
+        candidate = row['path'] as String?;
+      } else if (kind == LocalMediaItemKind.video.name || kind == 'video') {
+        final sidecar = row['sidecar_image_path'] as String?;
+        if (sidecar != null && sidecar.isNotEmpty) {
+          candidate = sidecar;
+        } else {
+          candidate = row['thumb_path'] as String?;
+        }
+      }
+      if (candidate != null && candidate.isNotEmpty && seen.add(candidate)) {
+        result.add(candidate);
+        if (result.length >= limit) break;
+      }
+    }
+    return result;
+  }
+
+  /// 按来源及绝对路径反查目录实体。
+  LocalMediaFolder? findFolderByPath({
+    required String sourceId,
+    required String folderPath,
+  }) {
+    final rows = _db.select(
+      'SELECT * FROM local_media_folders '
+      'WHERE source_id = ? AND folder_path = ? LIMIT 1',
+      <Object?>[sourceId, folderPath],
+    );
+    if (rows.isEmpty) return null;
+    return LocalMediaFolder.fromRow(rows.first);
+  }
+
+  /// 把这一轮**真的把目录列出来看过**的那些目录标上探测时间。
+  ///
+  /// 只有这个方法和全量扫描收尾会写 `probed_at`。它的语义窄得刻意：不是"扫过这个
+  /// 源"，是"我把这个目录 list 了一遍，所以它的直接内容我说得准"。见 v33 迁移。
+  void markFoldersProbed({
+    required String sourceId,
+    required Iterable<String> relPaths,
+    int? probedAt,
+  }) {
+    final paths = relPaths.toList();
+    if (paths.isEmpty) return;
+    final at = probedAt ?? DateTime.now().millisecondsSinceEpoch;
+    const chunkSize = 400;
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < paths.length; i += chunkSize) {
+        final chunk = paths.sublist(
+          i,
+          i + chunkSize > paths.length ? paths.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_folders SET probed_at = ? '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          <Object?>[at, sourceId, ...chunk],
+        );
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('标记目录已探测失败', tag: _tag, error: e);
+      rethrow;
+    }
+  }
+
+  /// 目录级扫描收尾：**只在这一轮真的列过的目录里**收敛条目的 missing。
+  ///
+  /// # ⛔ 和整源的 [markMissingExcept] 不是同一件事，别混用
+  ///
+  /// 那个方法先把整源置 missing、再把见到的洗回来，靠的是"这一轮走遍了全树"。
+  /// 懒扫描一轮只看了一层，用它就等于宣布"这个源里除了刚才那一层，其余全没了"
+  /// ——整个库当场清空。
+  ///
+  /// 这里的口径是：`folder_path` 落在 [listedFolderPaths] 里的行才参与收敛，
+  /// 范围外一行都不碰。所以"用户在文件管理器里删掉一个文件"能被收敛到（它的目录
+  /// 这一轮列过了），而"还没走到的那半棵树"保持原样。
+  int markItemsMissingExceptInFolders({
+    required String sourceId,
+    required Set<String> listedFolderPaths,
+    required Set<String> seenHashes,
+  }) {
+    if (listedFolderPaths.isEmpty) return 0;
+    const chunkSize = 400;
+    final folders = listedFolderPaths.toList();
+    final hashes = seenHashes.toList();
+    var affected = 0;
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < folders.length; i += chunkSize) {
+        final chunk = folders.sublist(
+          i,
+          i + chunkSize > folders.length ? folders.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET missing = 1 '
+          'WHERE source_id = ? AND missing = 0 AND folder_path IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+        affected += _db.updatedRows;
+      }
+      for (var i = 0; i < hashes.length; i += chunkSize) {
+        final chunk = hashes.sublist(
+          i,
+          i + chunkSize > hashes.length ? hashes.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_items SET missing = 0 '
+          'WHERE source_id = ? AND path_hash IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('目录级收敛条目 missing 失败', tag: _tag, error: e);
+      rethrow;
+    }
+    return affected;
+  }
+
+  /// 目录级扫描收尾：只收敛 [listedRelPaths] 这些目录的**直接子目录**。
+  ///
+  /// 口径与 [markItemsMissingExceptInFolders] 一致——列过谁，才敢对谁的孩子下
+  /// 结论。没列过的那些目录的孩子一行不碰。
+  void markChildFoldersMissingExceptUnder({
+    required String sourceId,
+    required Set<String> listedRelPaths,
+    required Set<String> seenRelPaths,
+  }) {
+    if (listedRelPaths.isEmpty) return;
+    const chunkSize = 400;
+    final parents = listedRelPaths.toList();
+    final seen = seenRelPaths.toList();
+    _db.execute('BEGIN');
+    try {
+      for (var i = 0; i < parents.length; i += chunkSize) {
+        final chunk = parents.sublist(
+          i,
+          i + chunkSize > parents.length ? parents.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_folders SET missing = 1 '
+          'WHERE source_id = ? AND missing = 0 AND parent_rel_path IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+      }
+      for (var i = 0; i < seen.length; i += chunkSize) {
+        final chunk = seen.sublist(
+          i,
+          i + chunkSize > seen.length ? seen.length : i + chunkSize,
+        );
+        final marks = List.filled(chunk.length, '?').join(', ');
+        _db.execute(
+          'UPDATE local_media_folders SET missing = 0 '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          <Object?>[sourceId, ...chunk],
+        );
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('目录级收敛目录 missing 失败', tag: _tag, error: e);
+      rethrow;
+    }
+  }
+
+  /// 删除某源下的全部目录。
+  void deleteFoldersForSource(String sourceId) {
+    _db.execute('DELETE FROM local_media_folders WHERE source_id = ?', [
+      sourceId,
+    ]);
+    notifyChanged();
+  }
+
+  /// `rel_path` 的层级：源根（空串）是 0，`a` 是 1，`a/b` 是 2。
+  static int _relPathDepth(String relPath) =>
+      relPath.isEmpty ? 0 : relPath.split('/').length;
+
+  /// 扫完后一次性回填统计数：一条 GROUP BY 把 items 的直接子文件数灌进 folders。
+  void backfillFolderCounts(String sourceId) {
+    _db.execute('BEGIN');
+    CommonPreparedStatement? updateStmt;
+    try {
+      // 1. 条目计数：按 folder_path 和 kind 聚合直接子文件数
+      final itemCountsRows = _db.select(
+        'SELECT folder_path, kind, COUNT(*) AS c '
+        'FROM local_media_items '
+        'WHERE source_id = ? AND missing = 0 AND folder_path IS NOT NULL '
+        'GROUP BY folder_path, kind',
+        [sourceId],
+      );
+
+      final countsByFolderPath = <String, ({int video, int image})>{};
+      for (final row in itemCountsRows) {
+        final fp = row['folder_path'] as String;
+        final kind = row['kind'] as String;
+        final count = (row['c'] as int?) ?? 0;
+        final current = countsByFolderPath[fp] ?? (video: 0, image: 0);
+        if (kind == LocalMediaItemKind.video.name) {
+          countsByFolderPath[fp] = (
+            video: current.video + count,
+            image: current.image,
+          );
+        } else if (kind == LocalMediaItemKind.image.name) {
+          countsByFolderPath[fp] = (
+            video: current.video,
+            image: current.image + count,
+          );
+        }
+      }
+
+      // 2. 查出该源所有的 folder，在 Dart 侧按 folder_path / rel_path 对齐
+      final folderRows = _db.select(
+        'SELECT id, rel_path, parent_rel_path, folder_path, probed_at, '
+        'video_count, image_count, child_folder_count '
+        'FROM local_media_folders WHERE source_id = ? AND missing = 0',
+        [sourceId],
+      );
+
+      final videoByRel = <String, int>{};
+      final imageByRel = <String, int>{};
+      final childrenByRel = <String, List<String>>{};
+      final probedAtByRel = <String, int?>{};
+      final storedByRel = <String, (int, int, int)>{};
+      final allRelPaths = <String>[];
+      for (final row in folderRows) {
+        final relPath = (row['rel_path'] as String?) ?? '';
+        final folderPath = row['folder_path'] as String?;
+        final parentRel = row['parent_rel_path'] as String?;
+        allRelPaths.add(relPath);
+        probedAtByRel[relPath] = row['probed_at'] as int?;
+        storedByRel[relPath] = (
+          (row['video_count'] as int?) ?? 0,
+          (row['image_count'] as int?) ?? 0,
+          (row['child_folder_count'] as int?) ?? 0,
+        );
+
+        final itemCounts = folderPath != null
+            ? countsByFolderPath[folderPath]
+            : null;
+        videoByRel[relPath] = itemCounts?.video ?? 0;
+        imageByRel[relPath] = itemCounts?.image ?? 0;
+
+        if (parentRel != null) {
+          (childrenByRel[parentRel] ??= <String>[]).add(relPath);
+        }
+      }
+
+      // 3. `child_folder_count` 只数**子树里真有东西**的子目录，自下而上算一遍。
+      //
+      // ⛔ 数全部子目录是不行的：`childFolders` 会把空目录挡在外面（见那边的
+      // 注释），两边口径不一致就会出现「卡片上写着『2 个文件夹』，点进去说
+      // 『这个文件夹是空的』」——同一屏上自相矛盾。
+      //
+      // 一个目录"有东西"的定义是递归的（自己有媒体，或者某个子目录有东西），
+      // 所以按层级从深到浅算：算到某一层时，它的子目录都已经定好了。
+      // 这样一整条只有空目录的链会从最深处一路判空上来，整条链都不再露面。
+      final meaningfulChildCount = <String, int>{};
+      final byDepthDesc = allRelPaths.toList()
+        ..sort((a, b) => _relPathDepth(b).compareTo(_relPathDepth(a)));
+      // ⛔ 没探过的目录一律算「有东西」。
+      //
+      // 这不是保守估计，是唯一正确的答案：懒扫描下它的三个计数是 0 只因为没人
+      // 去看过，把它当空的就会在父目录里把它藏掉——用户从此点不进去，也就永远
+      // 没机会去探它。口径必须和 [childFolders] 的残余过滤一字不差。
+      bool hasAnything(String rel) =>
+          probedAtByRel[rel] == null ||
+          (videoByRel[rel] ?? 0) > 0 ||
+          (imageByRel[rel] ?? 0) > 0 ||
+          (meaningfulChildCount[rel] ?? 0) > 0;
+      for (final relPath in byDepthDesc) {
+        final children = childrenByRel[relPath];
+        if (children == null) {
+          meaningfulChildCount[relPath] = 0;
+          continue;
+        }
+        meaningfulChildCount[relPath] = children.where(hasAnything).length;
+      }
+
+      updateStmt = _db.prepare(
+        'UPDATE local_media_folders '
+        'SET video_count = ?, image_count = ?, child_folder_count = ? '
+        'WHERE source_id = ? AND rel_path = ?',
+      );
+
+      // ⛔ 只写**真的变了**的行。
+      //
+      // 懒扫描下这个方法每进一个目录就跑一次，而它遍历的是**整个源**的目录表。
+      // 一个两千多个目录的源，无条件重写就是每次导航两千多条 UPDATE 落在主
+      // isolate 上（sqlite3 是同步 API）。实际每次变的通常只有一两行。
+      for (final relPath in allRelPaths) {
+        final video = videoByRel[relPath] ?? 0;
+        final image = imageByRel[relPath] ?? 0;
+        final children = meaningfulChildCount[relPath] ?? 0;
+        final stored = storedByRel[relPath];
+        if (stored != null &&
+            stored.$1 == video &&
+            stored.$2 == image &&
+            stored.$3 == children) {
+          continue;
+        }
+        updateStmt.execute([video, image, children, sourceId, relPath]);
+      }
+
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('回填目录统计数失败', tag: _tag, error: e);
+      rethrow;
+    } finally {
+      updateStmt?.close();
+    }
+  }
+
+  // ── 常用目录 ────────────────────────────────────────────────────────────
+
+  /// 获取常用目录列表，按 sort_order 升序、创建时间升序排列。
+  List<LocalPinnedFolder> getPinnedFolders() {
+    final rows = _db.select(
+      'SELECT * FROM local_media_pinned_folders '
+      'ORDER BY sort_order ASC, created_at ASC',
+    );
+    return rows.map(LocalPinnedFolder.fromRow).toList();
+  }
+
+  /// 检查指定相对路径目录是否已被置顶。
+  bool isPinned({required String sourceId, required String relPath}) {
+    final rows = _db.select(
+      'SELECT 1 FROM local_media_pinned_folders '
+      'WHERE source_id = ? AND rel_path = ? LIMIT 1',
+      [sourceId, relPath],
+    );
+    return rows.isNotEmpty;
+  }
+
+  /// 置顶一个目录。
+  void pinFolder(LocalPinnedFolder folder) {
+    final row = folder.toRow();
+    final columns = row.keys.toList();
+    final placeholders = List.filled(columns.length, '?').join(', ');
+    final assignments = columns
+        .where((c) => c != 'id')
+        .map((c) => '$c = excluded.$c')
+        .join(', ');
+    _db.execute(
+      'INSERT INTO local_media_pinned_folders (${columns.join(', ')}) '
+      'VALUES ($placeholders) '
+      'ON CONFLICT(id) DO UPDATE SET $assignments',
+      columns.map((c) => row[c]).toList(),
+    );
+    notifyChanged();
+  }
+
+  /// 取消置顶目录。
+  void unpinFolder({required String sourceId, required String relPath}) {
+    _db.execute(
+      'DELETE FROM local_media_pinned_folders '
+      'WHERE source_id = ? AND rel_path = ?',
+      [sourceId, relPath],
+    );
+    notifyChanged();
+  }
+
+  /// 重排常用目录。
+  void reorderPinnedFolders(List<String> orderedIds) {
+    if (orderedIds.isEmpty) return;
+    _db.execute('BEGIN');
+    CommonPreparedStatement? stmt;
+    try {
+      stmt = _db.prepare(
+        'UPDATE local_media_pinned_folders SET sort_order = ? WHERE id = ?',
+      );
+      for (var i = 0; i < orderedIds.length; i++) {
+        stmt.execute([i, orderedIds[i]]);
+      }
+      _db.execute('COMMIT');
+      notifyChanged();
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('重排常用目录失败', tag: _tag, error: e);
+      rethrow;
+    } finally {
+      stmt?.close();
+    }
   }
 }

@@ -207,6 +207,15 @@ class XrPlaylistSource {
     try {
       final item = LocalMediaRepository().getItem(itemId);
       if (item == null) return null;
+      // ⛔ 图片不是能播的东西。本机文件池现在也装得下图片（图库那侧，见
+      // `LocalLibraryPlaybackQueue.itemKind`），而沉浸态在"池找不到 / 池被 LRU
+      // 淘汰"时会退回这条按 id 解析的兜底路——不拦的话，一张 jpg 的路径会被当
+      // 视频交给原生播放器。这道闸钉在解析入口上而不是靠调用方自觉（同
+      // `LocalMediaRepository.setItemFavorited` 把 kind 写进 SQL 那条）。
+      if (item.kind != LocalMediaItemKind.video) {
+        LogUtils.w('沉浸态换片：$itemId 不是视频（${item.kind.name}），不解析', _tag);
+        return null;
+      }
       final path = item.resolvePlaybackTarget().trim();
       final isContentUri = path.startsWith('content://');
       if (path.isEmpty || (!isContentUri && !await File(path).exists())) {

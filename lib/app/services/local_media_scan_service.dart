@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -64,9 +65,23 @@ const Set<String> kSkippedDirectoryNames = <String>{
 /// 又不至于在一棵病态目录树上走到天荒地老。
 const int kMaxScanDepth = 8;
 
+/// 目录级懒扫描的深度：1 ＝ 这一层的文件 + 每个子目录再列一次。
+///
+/// 为什么必须是 1 而不是 0：0 只列当前目录，子目录里有没有东西一概不知，
+/// 于是「藏空目录」那条规则会把它们**全部**藏掉（三个计数都是 0）。多列一层
+/// 就能分清「探过、真的空」和「里面有东西」——你那个 Download 底下两千多个
+/// 哈希缓存空目录正是靠这一层被判掉的。
+const int kLazyProbeDepth = 1;
+
 /// 单次扫描的文件数上限。撞上了就停，并如实告诉用户"这个目录太大只收了前 N 个"，
 /// 而不是一声不吭地扫到内存爆掉。
 const int kMaxScanFiles = 50000;
+
+/// 每轮扫描通过「选出封面代表」路径入队的最大数量。
+///
+/// 大库一次可能扫出成百上千个纯视频目录；若全部送入派生队列，
+/// 会把串行的派生队列堵塞极长时间。因此设置单轮上限 200，超过即止。
+const int kMaxFolderCoverDerivationEnqueuedPerScan = 200;
 
 /// 一批回推多少条。批太小则事务开销占比高，太大则一次事务卡住的时间可感。
 const int kScanBatchSize = 300;
@@ -191,9 +206,96 @@ class LocalMediaScanService extends GetxService {
       return;
     }
 
+    await _scanTree(
+      source: source,
+      scopeRelPath: '',
+      maxDepth: kMaxScanDepth,
+      scoped: false,
+    );
+  }
+
+  /// 扫一个目录的**这一层**：它自己的直接子文件 + 每个直接子目录再浅探一层
+  /// （只为判断那个子目录是不是空的、顺手取一张封面），不再往下。
+  Future<void> scanFolder({
+    required LocalMediaSource source,
+    required String relPath,
+  }) async {
+    if (source.kind == LocalMediaSourceKind.mediastore) {
+      return;
+    }
+    if (source.kind == LocalMediaSourceKind.downloads) {
+      return;
+    }
+    // ⛔ 目录级扫描撞上别的扫描时**不能**静默丢弃，要排队等。
+    //
+    // 这一条是「进到这一层就把它重新列一遍」的唯一驱动力（见
+    // `LocalFolderBrowsePage._scanThisFolder`）。丢掉它的后果是页面那边的
+    // `finally` 照样把 `_scanning` 清成 false、以为扫完了，用户看到的是一个
+    // **空目录**，而且再也不会自己扫——除非退出去重进。
+    //
+    // 真实路径：用户进目录 A（懒扫描起步），没等完就返回、马上点进没扫过的
+    // 目录 B → B 撞上 A 那一轮，直接 return → B 永远空着。
+    //
+    // 等待有上限：等不到就放弃这一轮（真有个全量扫描在跑几分钟的话，那一轮
+    // 本来也会把这一层扫进去）。
+    if (isScanning) {
+      LogUtils.i('已有扫描在跑，排队等待', _tag);
+      try {
+        await _running!.future.timeout(const Duration(seconds: 20));
+      } catch (_) {
+        LogUtils.i('等待前一轮扫描超时，放弃本次目录扫描', _tag);
+        return;
+      }
+      // 等到了，但可能又有新的一轮插了进来（比如用户手动点了「重新扫描」）。
+      // 不再递归等下去：那一轮同样会覆盖这一层。
+      if (isScanning) {
+        LogUtils.i('前一轮刚结束又有新扫描，放弃本次目录扫描', _tag);
+        return;
+      }
+    }
+
+    await _scanTree(
+      source: source,
+      scopeRelPath: relPath,
+      maxDepth: kLazyProbeDepth,
+      scoped: true,
+    );
+  }
+
+  Future<void> _scanTree({
+    required LocalMediaSource source,
+
+    /// 从源根算起的相对路径；'' 表示整源。
+    required String scopeRelPath,
+    required int maxDepth,
+
+    /// true = 目录级懒扫描，收敛只在扫过的那一层里做。
+    required bool scoped,
+  }) async {
     var currentSource = source;
     var isBookmarkAccessActive = false;
     String? activeBookmark;
+
+    // ⛔ 闸门必须在**任何 await 之前**占住，不能等到下面拿到 root 才占。
+    //
+    // bookmark 源要先 `await resolveBookmark` 再 `await startAccess`，两次调用
+    // 落进这段窗口就会双双进来：后者覆盖 `_running`/`_scanGeneration`，前者的
+    // [_finish] 被 [_isCurrent] 挡掉 → completer 永不完成 → 下面的
+    // `await running.future` 永久挂起 → `finally` 里的 `stopAccess` 不执行
+    // （安全作用域泄漏）、`_port` 不关，调用方的 `finally` 也一起被挂死。
+    final running = Completer<void>();
+    final generation = ++_scanGeneration;
+    _running = running;
+    _runningSourceId = source.id;
+
+    // 早退时把闸门还回去。complete 掉的 completer 不再是 `_isCurrent`，
+    // 所以重复调用是安全的。
+    void releaseSlot() {
+      if (!_isCurrent(generation, running)) return;
+      _running = null;
+      _runningSourceId = null;
+      running.complete();
+    }
 
     if (source.kind == LocalMediaSourceKind.bookmark) {
       final bookmark = source.uri;
@@ -205,6 +307,7 @@ class LocalMediaScanService extends GetxService {
         _repository.upsertSource(
           source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
         );
+        releaseSlot();
         return;
       }
 
@@ -216,6 +319,7 @@ class LocalMediaScanService extends GetxService {
         _repository.upsertSource(
           source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
         );
+        releaseSlot();
         return;
       }
 
@@ -252,6 +356,7 @@ class LocalMediaScanService extends GetxService {
             scanState: LocalMediaScanState.idle,
           ),
         );
+        releaseSlot();
         return;
       }
       isBookmarkAccessActive = true;
@@ -259,24 +364,29 @@ class LocalMediaScanService extends GetxService {
     }
 
     try {
-      final root = currentSource.path;
-      if (root == null || root.isEmpty) {
+      final sourceRoot = currentSource.path;
+      if (sourceRoot == null || sourceRoot.isEmpty) {
         LogUtils.w('源 ${currentSource.id} 没有路径，跳过扫描', _tag);
+        releaseSlot();
         return;
       }
+      final root = scopeRelPath.isEmpty
+          ? sourceRoot
+          : p.normalize(p.join(sourceRoot, scopeRelPath));
 
-      final running = Completer<void>();
-      final generation = ++_scanGeneration;
-      _running = running;
+      // 闸门在函数开头就占住了（见那里的注释），这里只把源 id 对齐到
+      // bookmark 解析后的那一份。
       _runningSourceId = currentSource.id;
       progress.value = LocalMediaScanProgress(
         sourceId: currentSource.id,
         discovered: 0,
         finished: false,
       );
-      _repository.upsertSource(
-        currentSource.copyWith(scanState: LocalMediaScanState.scanning),
-      );
+      if (!scoped) {
+        _repository.upsertSource(
+          currentSource.copyWith(scanState: LocalMediaScanState.scanning),
+        );
+      }
 
       final port = ReceivePort();
       _port = port;
@@ -288,9 +398,20 @@ class LocalMediaScanService extends GetxService {
       // 这个源的那些行会因此在收敛时被标成 missing，等于让出所有权。
       final ownedByDownloads = _repository.pathsOfSource(kDownloadsSourceId);
       final seen = <String>{};
+      // 目录那侧的 seen：装的是 **rel_path**（源根是空字符串），不是 path_hash。
+      // 两个集合口径不同但用途一样——收敛时"这轮没再见到的"就标 missing。
+      final seenFolders = <String>{};
+
+      /// 这一轮**真的 list 过**的目录（有效 rel_path）。只有它们够格被标成探过，
+      /// 也只有它们的孩子够格参与收敛——没列过就没资格对它下结论。
+      final listedRelPaths = <String>{};
+
+      /// 同上，绝对路径版，条目收敛按它筛。
+      final listedFolderPaths = <String>{};
       var discovered = 0;
       var truncated = false;
       String? failure;
+      var enqueuedFolderCovers = 0;
 
       // ⛔ 背压：处理一批时把订阅**暂停**掉，处理完再 resume。
       //
@@ -317,6 +438,9 @@ class LocalMediaScanService extends GetxService {
             running,
             offline: false,
             generation: generation,
+            scoped: scoped,
+            listedRelPaths: listedRelPaths,
+            listedFolderPaths: listedFolderPaths,
           );
           return;
         }
@@ -333,6 +457,9 @@ class LocalMediaScanService extends GetxService {
             running,
             offline: false,
             generation: generation,
+            scoped: scoped,
+            listedRelPaths: listedRelPaths,
+            listedFolderPaths: listedFolderPaths,
           );
           return;
         }
@@ -380,12 +507,15 @@ class LocalMediaScanService extends GetxService {
               // 没变过的老条目连 upsert 都不用发，但仍要补跑尚未完成的
               // 内容派生（例如升级前已经扫过的旧条目）。
               if (!unchanged) items.add(item);
-              // ⛔ 派生服务开的是 media-kit 的 Player，喂图片进去纯属白等超时，只收视频。
-              if (kind == LocalMediaItemKind.video) {
-                final hasMetadata = fingerprint?.hasMetadata ?? false;
-                if (!unchanged || !hasMetadata) {
-                  derivationCandidates.add(item);
-                }
+              // 视频与图片均需派生元数据：视频通过 media-kit 提取时长/宽高/帧率，
+              // 图片走独立的只读文件头通道获取宽高（毫秒级、互不阻塞）。
+              final hasMetadata = switch (kind) {
+                LocalMediaItemKind.video => fingerprint?.hasMetadata ?? false,
+                LocalMediaItemKind.image =>
+                  fingerprint?.hasImageMetadata ?? false,
+              };
+              if (!unchanged || !hasMetadata) {
+                derivationCandidates.add(item);
               }
             }
             discovered += records.length;
@@ -406,8 +536,109 @@ class LocalMediaScanService extends GetxService {
             );
             // 让一帧出去，再放行下一批。
             await Future<void>.delayed(Duration.zero);
-            // ⛔ 只有 batch 这一支才 resume：'done'/'error' 走 [_finish]，
+            // ⛔ 只有 batch / folders 这两支才 resume：'done'/'error' 走 [_finish]，
             // 那里已经把 port 关掉了，再去 resume 一个已结束的订阅没有意义。
+            // ⛔ 反过来说，**任何新增的消息类型都必须自己 resume**——上面统一
+            // `subscription.pause()` 了，漏一处就是订阅永久挂起，表现成
+            // 「扫描卡在半路不动、进度条不再跳」，而且没有任何报错。
+            if (_isCurrent(generation, running) && subscription.isPaused) {
+              subscription.resume();
+            }
+          case 'folders':
+            final records = (message['folders'] as List).cast<Map>();
+            final folders = <LocalMediaFolder>[];
+            // ⛔ 占位行要和列过的行分开写：前者走 `DO NOTHING`，不然它那两个
+            // null（封面、修改时间）会把之前学到的值盖掉。见
+            // [LocalMediaRepository.upsertFolderStubs] 的注释。
+            final stubs = <LocalMediaFolder>[];
+            for (final record in records) {
+              final rawRel = (record['rel'] as String?) ?? '';
+              final relPath = scopeRelPath.isEmpty
+                  ? rawRel
+                  : (rawRel.isEmpty ? scopeRelPath : '$scopeRelPath/$rawRel');
+              final isStub = (record['stub'] as bool?) ?? false;
+              seenFolders.add(relPath);
+              if (!isStub) {
+                listedRelPaths.add(relPath);
+                final abs = record['path'] as String?;
+                if (abs != null && abs.isNotEmpty) listedFolderPaths.add(abs);
+              }
+              // 源根那一行的名字用源的显示名（用户自己起的），而不是磁盘上那截
+              // 目录名——他在来源列表里看到的是哪个名字，进去之后就该还是哪个。
+              final name = relPath.isEmpty
+                  ? currentSource.displayName
+                  : relPath.split('/').last;
+              (isStub ? stubs : folders).add(
+                LocalMediaFolder(
+                  id: LocalMediaFolder.buildId(currentSource.id, relPath),
+                  sourceId: currentSource.id,
+                  relPath: relPath,
+                  // 源根是树顶，没有上一级：null 而不是空字符串。空字符串是
+                  // 「我的父亲是源根」的意思，两者不能混。
+                  parentRelPath: relPath.isEmpty
+                      ? null
+                      : _parentRelPath(relPath),
+                  name: name,
+                  sortName: naturalSortKey(name),
+                  folderPath: record['path'] as String?,
+                  coverPath: record['cover'] as String?,
+                  modifiedAt: record['modified'] as int?,
+                ),
+              );
+            }
+            if (folders.isNotEmpty || stubs.isNotEmpty) {
+              try {
+                if (folders.isNotEmpty) _repository.upsertFolders(folders);
+                if (stubs.isNotEmpty) _repository.upsertFolderStubs(stubs);
+              } catch (e) {
+                LogUtils.e('写入扫描目录批次失败', tag: _tag, error: e);
+              }
+
+              // ⭐ 纯视频目录封面代表入队派生：
+              // 针对本轮真正扫描到的目录（排除 stub），若未 pin 且尚无封面，
+              // 挑出该目录下首个缺少缩略图的视频入队派生，生成缩略图后自动回填目录封面。
+              try {
+                final derivation = _derivationService;
+                if (derivation != null &&
+                    enqueuedFolderCovers <
+                        kMaxFolderCoverDerivationEnqueuedPerScan) {
+                  // ⛔ 一条 IN 查询问清「这批里谁还缺封面」，不要逐个 [getFolder]
+                  // 点查：封顶常量只封入队数，封不住点查次数，几千目录的树就是
+                  // 几千次同步 select 全压在主 isolate 上。
+                  final needing = _repository.foldersNeedingCover(
+                    sourceId: currentSource.id,
+                    relPaths: [for (final f in folders) f.relPath],
+                  );
+                  for (final folder in folders) {
+                    if (enqueuedFolderCovers >=
+                        kMaxFolderCoverDerivationEnqueuedPerScan) {
+                      break;
+                    }
+                    // 不在 needing 里 = 已 pin / 已有封面，跳过。
+                    // 在里面但值是空串 = 库里那一列空着，拿刚扫出来的路径兜底。
+                    final known = needing[folder.relPath];
+                    if (known == null) continue;
+                    final absPath = known.isEmpty ? folder.folderPath : known;
+                    if (absPath == null || absPath.isEmpty) continue;
+
+                    final candidate = _repository
+                        .firstVideoNeedingThumbInFolder(
+                          sourceId: currentSource.id,
+                          folderPath: absPath,
+                        );
+                    if (candidate != null) {
+                      enqueuedFolderCovers++;
+                      unawaited(
+                        derivation.enqueue(candidate, generateThumbnail: true),
+                      );
+                    }
+                  }
+                }
+              } catch (e) {
+                LogUtils.w('挑选并入队目录封面代表失败: $e', _tag);
+              }
+            }
+            await Future<void>.delayed(Duration.zero);
             if (_isCurrent(generation, running) && subscription.isPaused) {
               subscription.resume();
             }
@@ -415,6 +646,12 @@ class LocalMediaScanService extends GetxService {
             truncated = message['truncated'] as bool? ?? false;
             final failedFolders = (message['failedFolders'] as List?)
                 ?.cast<String>();
+            final rawFailedFolderRels = (message['failedFolderRels'] as List?)
+                ?.cast<String>();
+            final failedFolderRels = rawFailedFolderRels?.map((rel) {
+              if (scopeRelPath.isEmpty) return rel;
+              return rel.isEmpty ? scopeRelPath : '$scopeRelPath/$rel';
+            }).toList();
             _finish(
               currentSource,
               seen,
@@ -425,6 +662,11 @@ class LocalMediaScanService extends GetxService {
               offline: message['offline'] as bool? ?? false,
               generation: generation,
               failedFolders: failedFolders,
+              seenFolders: seenFolders,
+              failedFolderRels: failedFolderRels,
+              scoped: scoped,
+              listedRelPaths: listedRelPaths,
+              listedFolderPaths: listedFolderPaths,
             );
           case 'error':
             failure = message['message'] as String? ?? '扫描失败';
@@ -437,6 +679,9 @@ class LocalMediaScanService extends GetxService {
               running,
               offline: message['offline'] as bool? ?? false,
               generation: generation,
+              scoped: scoped,
+              listedRelPaths: listedRelPaths,
+              listedFolderPaths: listedFolderPaths,
             );
         }
       });
@@ -454,7 +699,7 @@ class LocalMediaScanService extends GetxService {
             'send': port.sendPort,
             'root': root,
             'recursive': currentSource.recursive,
-            'maxDepth': kMaxScanDepth,
+            'maxDepth': maxDepth,
             'maxFiles': kMaxScanFiles,
             'batchSize': kScanBatchSize,
             'videoExts': kLocalVideoExtensions.toList(),
@@ -483,6 +728,9 @@ class LocalMediaScanService extends GetxService {
           running,
           offline: !_directoryExists(root),
           generation: generation,
+          scoped: scoped,
+          listedRelPaths: listedRelPaths,
+          listedFolderPaths: listedFolderPaths,
         );
       }
 
@@ -579,17 +827,20 @@ class LocalMediaScanService extends GetxService {
           final name = record.displayName.trim().isEmpty
               ? 'video'
               : record.displayName;
+          const kind = LocalMediaItemKind.video;
           final fingerprint = known[hash];
-          final hasMetadata = fingerprint == null
-              ? false
-              : fingerprint.hasMetadata;
+          final hasMetadata = switch (kind) {
+            LocalMediaItemKind.video => fingerprint?.hasMetadata ?? false,
+            LocalMediaItemKind.image =>
+              fingerprint?.hasImageMetadata ?? false,
+          };
           final item = LocalMediaItem(
             id: LocalMediaItem.buildId(source.id, hash),
             sourceId: source.id,
             pathHash: hash,
             path: identityPath,
             mediaStoreUri: record.contentUri,
-            kind: LocalMediaItemKind.video,
+            kind: kind,
             name: name,
             sortName: naturalSortKey(name),
             ext: _extensionOf(name, record.mimeType),
@@ -738,6 +989,18 @@ class LocalMediaScanService extends GetxService {
     required int generation,
     bool allowMissing = true,
     List<String>? failedFolders,
+
+    /// 这一轮走到过的目录（rel_path）。
+    ///
+    /// ⛔ **为 null 表示"这个源没有目录树"，不是"这轮一个目录都没走到"**。
+    /// 「已下载」（从下载任务同步、没有稳定根路径）和 MediaStore（整机广播式索引、
+    /// 压根没有单一根目录）都走这条：它们不传，于是下面的目录收敛与统计回填
+    /// 整段跳过，不会平白给它们建出一棵假树来。
+    Set<String>? seenFolders,
+    List<String>? failedFolderRels,
+    bool scoped = false,
+    Set<String>? listedRelPaths,
+    Set<String>? listedFolderPaths,
   }) {
     if (!_isCurrent(generation, running)) return;
 
@@ -751,6 +1014,19 @@ class LocalMediaScanService extends GetxService {
       );
     }
 
+    final effectiveListedFolderPaths = Set<String>.from(
+      listedFolderPaths ?? const <String>{},
+    );
+    final effectiveListedRelPaths = Set<String>.from(
+      listedRelPaths ?? const <String>{},
+    );
+    if (failedFolders != null && failedFolders.isNotEmpty) {
+      effectiveListedFolderPaths.removeAll(failedFolders);
+    }
+    if (failedFolderRels != null && failedFolderRels.isNotEmpty) {
+      effectiveListedRelPaths.removeAll(failedFolderRels);
+    }
+
     // ⛔ 只有**扫完了**才收敛 missing。中途出错/被截断时不能收敛：没走到的那一半
     // 会被冤枉成"文件没了"，用户看到的是列表凭空少了一半。
     // ⭐ 有读不动的子目录时，**只把那几棵子树排除在收敛之外**，其余照常收敛。
@@ -759,29 +1035,113 @@ class LocalMediaScanService extends GetxService {
     // 失败清单里、也不会出现在走到过的清单里（父目录列不出它了），于是那一整个
     // 目录的条目永远收敛不掉，变成一堆点不开的幽灵卡片。
     if (allowMissing && error == null && !truncated) {
+      if (scoped) {
+        // ⛔ 目录级扫描**绝不能**用整源的 markMissingExcept。
+        //
+        // 那个方法先把整源置 missing 再把见到的洗回来，前提是「这一轮走遍了全树」。
+        // 一轮只看了一层还这么干，等于宣布「这个源里除了刚才那一层，其余全没了」——
+        // 整个库当场清空。
+        try {
+          _repository.markItemsMissingExceptInFolders(
+            sourceId: source.id,
+            listedFolderPaths: effectiveListedFolderPaths,
+            seenHashes: seen,
+          );
+        } catch (e) {
+          LogUtils.e('目录级收敛条目 missing 失败', tag: _tag, error: e);
+          effectiveError = '$e';
+        }
+
+        try {
+          _repository.markChildFoldersMissingExceptUnder(
+            sourceId: source.id,
+            listedRelPaths: effectiveListedRelPaths,
+            seenRelPaths: seenFolders ?? const <String>{},
+          );
+        } catch (e) {
+          LogUtils.e('目录级收敛目录 missing 失败', tag: _tag, error: e);
+          effectiveError = '$e';
+        }
+      } else {
+        try {
+          _repository.markMissingExcept(
+            source.id,
+            seen,
+            excludeFolderTrees: failedFolders,
+          );
+        } catch (e) {
+          LogUtils.e('收敛 missing 失败', tag: _tag, error: e);
+          effectiveError = '$e';
+        }
+
+        // 目录用**同一口径**收敛：整源先置 missing、这轮走到过的洗回来、读不动的
+        // 子树整棵豁免。上面那段关于"不能只收敛走到过的"的血泪同样适用于目录——
+        // 用户在文件管理器里整个删掉一个文件夹时，它既不在失败清单里也不在 seen 里。
+        if (seenFolders != null) {
+          try {
+            _repository.markFoldersMissingExcept(
+              source.id,
+              seenFolders,
+              excludeRelPathTrees: <String>{...?failedFolderRels},
+            );
+          } catch (e) {
+            LogUtils.e('收敛目录 missing 失败', tag: _tag, error: e);
+            effectiveError = '$e';
+          }
+        }
+      }
+    }
+
+    // 只有真的列过的目录才算探过。占位记录进不来，所以它们的 probed_at 保持 NULL，
+    // 「不知道里面有什么，先显示着」——正是我们要的。
+    // ⛔ 必须排在两次收敛之后、backfillFolderCounts 之前：backfill 里判「这个目录有没有东西」
+    // 要读 probed_at，读到旧值就会把刚探明的空目录又当成"不知道"留着。
+    if (effectiveError == null && effectiveListedRelPaths.isNotEmpty) {
       try {
-        _repository.markMissingExcept(
-          source.id,
-          seen,
-          excludeFolderTrees: failedFolders,
+        _repository.markFoldersProbed(
+          sourceId: source.id,
+          relPaths: effectiveListedRelPaths,
         );
       } catch (e) {
-        LogUtils.e('收敛 missing 失败', tag: _tag, error: e);
+        LogUtils.e('标记目录已探测失败', tag: _tag, error: e);
         effectiveError = '$e';
       }
     }
 
+    // ⭐ 统计数（直接子视频数 / 图片数 / 子目录数）一次性回填，**绝不在扫描途中
+    // 增量维护**：边扫边给每个父目录 +1，会把 300 条一批的写事务放大成上千次
+    // 额外 UPDATE，而写库全在主 isolate、sqlite3 又是同步 API——那就是直接卡 UI。
+    // 一条走覆盖索引的 GROUP BY 几十毫秒就够了。
+    //
+    // 必须排在两次 missing 收敛**之后**：它只数 missing = 0 的行，先收敛才数得准。
+    if (seenFolders != null && effectiveError == null) {
+      try {
+        _repository.backfillFolderCounts(source.id);
+      } catch (e) {
+        LogUtils.e('回填目录统计数失败', tag: _tag, error: e);
+      }
+    }
+
     try {
-      _repository.upsertSource(
-        source.copyWith(
-          scanState: allowMissing && effectiveError == null && !truncated
-              ? LocalMediaScanState.idle
-              : LocalMediaScanState.interrupted,
-          lastScanAt: DateTime.now().millisecondsSinceEpoch,
-          itemCount: _repository.countItems(sourceId: source.id),
-          offline: offline,
-        ),
-      );
+      if (scoped) {
+        _repository.upsertSource(
+          source.copyWith(
+            itemCount: _repository.countItems(sourceId: source.id),
+            offline: offline,
+          ),
+        );
+      } else {
+        _repository.upsertSource(
+          source.copyWith(
+            scanState: allowMissing && effectiveError == null && !truncated
+                ? LocalMediaScanState.idle
+                : LocalMediaScanState.interrupted,
+            lastScanAt: DateTime.now().millisecondsSinceEpoch,
+            itemCount: _repository.countItems(sourceId: source.id),
+            offline: offline,
+          ),
+        );
+      }
     } catch (e) {
       LogUtils.e('回写源状态失败', tag: _tag, error: e);
     }
@@ -859,6 +1219,15 @@ class LocalMediaScanService extends GetxService {
     super.onClose();
   }
 
+  /// `'a/b/c'` → `'a/b'`；`'a'` → `''`（父亲是源根）。
+  ///
+  /// 只切 rel_path，不碰绝对路径——rel_path 一律是 `/` 分隔的，所以这里
+  /// **不能**用 `p.dirname`：那玩意在 Windows 上认 `\`，会把整串原样还回来。
+  static String _parentRelPath(String relPath) {
+    final index = relPath.lastIndexOf('/');
+    return index < 0 ? '' : relPath.substring(0, index);
+  }
+
   static String _hashPath(String path) =>
       sha1.convert(utf8.encode(path)).toString();
 
@@ -898,8 +1267,18 @@ void _scanWorkerEntry(Map<String, Object?> args) {
   final collectVideos = args['collectVideos'] as bool? ?? true;
 
   final batch = <Map<String, Object?>>[];
-  // 只回传**读不动的**目录。走到过的目录全量回传曾经是另一种写法，在几万个目录的
-  // 树上是一大笔白花的内存与 SendPort 开销，而收敛只需要知道"哪几棵没看到"。
+
+  // ⭐ 走到过的目录**要**全量回传：目录自 v31 起是一张真表（`local_media_folders`），
+  // 树形浏览每一次下钻都靠它做点查。这里回传的就是那张表的原料。
+  //
+  // ⛔ 但绝不能攒到 'done' 再一把送走——那正是这段代码上一版的写法（当时的注释是
+  // 「只回传读不动的目录」），在几万个目录的树上是一大笔白白占住的内存加一次巨大的
+  // SendPort 拷贝。规矩跟文件那侧完全一样：**满一批就 flush**，主 isolate 按批写库、
+  // 批与批之间让一帧出去。谁要是又想把它改回"攒到最后"，先看这段。
+  final folderBatch = <Map<String, Object?>>[];
+
+  // 读不动的目录：收敛 missing 时这几棵子树连同底下的一切整棵豁免，
+  // 见 [LocalMediaScanService._finish]。
   final failedFolders = <String>[];
   var total = 0;
   var truncated = false;
@@ -913,6 +1292,27 @@ void _scanWorkerEntry(Map<String, Object?> args) {
       'files': List<Map<String, Object?>>.from(batch),
     });
     batch.clear();
+  }
+
+  void flushFolders() {
+    if (folderBatch.isEmpty) return;
+    send.send(<String, Object?>{
+      'type': 'folders',
+      'folders': List<Map<String, Object?>>.from(folderBatch),
+    });
+    folderBatch.clear();
+  }
+
+  /// 绝对路径 → **相对源根**的路径。源根本身是空字符串。
+  ///
+  /// ⛔ 一律用 `/` 分隔，哪怕在 Windows 上：`rel_path` 是目录树的**权威身份**
+  /// （见 `migration_v31_local_media_folders.dart` 的表注释），它必须跨平台、
+  /// 跨"源根路径变了"稳定——iOS 沙盒容器 UUID 每次升级都可能漂移，绝对路径会
+  /// 整批失效，而相对路径一行都不用动。
+  String relPathOf(String absolute) {
+    final rel = p.relative(p.normalize(absolute), from: p.normalize(root));
+    if (rel == '.' || rel.isEmpty) return '';
+    return p.split(rel).join('/');
   }
 
   try {
@@ -1074,25 +1474,95 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         if (truncated) break;
       }
 
-      if (!recursive || current.depth >= maxDepth) continue;
+      // ⭐ 目录本身入表。
+      //
+      // 位置很关键：必须放在**文件都过完之后**，因为封面要挑一张「不是 sidecar」
+      // 的图——sidecar 是某个视频的封面，不是这个目录的代表作，拿它当目录封面
+      // 会让一个满是视频的文件夹显示成某一集的截图。
+      //
+      // 也必须放在 `blocked`（`.nomedia`）那条 `continue` **之后**：用户明确说了
+      // 这棵子树不要被媒体扫描看到，那它连目录行都不该有。
+      String? cover;
+      String? sidecarCover;
+      for (final file in files) {
+        if (!imageExts.contains(_extensionOf(file.path))) continue;
+        final isSidecar = claimedSidecars.contains(file.path);
+        final key = naturalSortKey(p.basename(file.path));
+        if (isSidecar) {
+          if (sidecarCover == null ||
+              key.compareTo(naturalSortKey(p.basename(sidecarCover))) < 0) {
+            sidecarCover = file.path;
+          }
+        } else if (cover == null ||
+            key.compareTo(naturalSortKey(p.basename(cover))) < 0) {
+          cover = file.path;
+        }
+      }
+      cover ??= sidecarCover;
+
+      // ⛔ `statSync()` 不抛异常（见上面文件那侧的长注释）：量不到时它返回一个
+      // `type = notFound` 的 FileStat，`modified` 是纪元零点。所以判据是 **type**，
+      // 不是 try/catch——把纪元零点当成"这个目录 1970 年改过"写进库，
+      // 「最近修改」那一档排序就全乱了。
+      int? folderModified;
+      final dirStat = current.dir.statSync();
+      if (dirStat.type == FileSystemEntityType.directory) {
+        folderModified = dirStat.modified.millisecondsSinceEpoch;
+      }
+
+      folderBatch.add(<String, Object?>{
+        // 绝对路径必须 normalize：条目那侧的 folder_path 走的是
+        // `p.dirname(file.path)`，两边对不上就 join 不起来（backfill 就是按它对齐的）。
+        'path': p.normalize(current.dir.path),
+        'rel': relPathOf(current.dir.path),
+        'modified': folderModified,
+        'cover': cover,
+      });
+      if (folderBatch.length >= batchSize) flushFolders();
+
+      final visibleSubdirs = <Directory>[];
       for (final dir in subdirs) {
         final name = p.basename(dir.path);
         if (name.startsWith('.')) continue;
         if (skipDirs.contains(name.toLowerCase())) continue;
-        stack.add((dir: dir, depth: current.depth + 1));
+        visibleSubdirs.add(dir);
+      }
+
+      if (recursive && current.depth < maxDepth) {
+        for (final dir in visibleSubdirs) {
+          stack.add((dir: dir, depth: current.depth + 1));
+        }
+      } else {
+        for (final dir in visibleSubdirs) {
+          folderBatch.add(<String, Object?>{
+            'path': p.normalize(dir.path),
+            'rel': relPathOf(dir.path),
+            'modified': null, // 没 stat，别猜
+            'cover': null, // 没列过，不知道封面
+            'stub': true, // ← 新字段：只是「知道有这么个目录」，没看过里面
+          });
+          if (folderBatch.length >= batchSize) flushFolders();
+        }
       }
     }
 
     flush();
+    flushFolders();
     send.send(<String, Object?>{
       'type': 'done',
       'truncated': truncated,
       'error': failure,
       'offline': offline,
       'failedFolders': failedFolders,
+      // 目录那侧按 rel_path 收敛，所以豁免清单也得是 rel_path。在这里换算而不是
+      // 让主 isolate 再算一遍：`root` 在这边，换算规则只该有一份。
+      'failedFolderRels': <String>[
+        for (final folder in failedFolders) relPathOf(folder),
+      ],
     });
   } catch (e) {
     flush();
+    flushFolders();
     send.send(<String, Object?>{
       'type': 'error',
       'message': '$e',

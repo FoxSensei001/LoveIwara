@@ -6,6 +6,26 @@ import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+/// 分类的级联清理要动的那张表。
+///
+/// ⛔ 分类从 2026-09 起是**本地库**的维度，不只是下载任务的：
+/// [DownloadTaskRepository.deleteCategory] / `setCategoryForLocalItems` 都会写
+/// `local_media_items.category_id`。测试库里没有这张表时，删分类那条事务会抛
+/// `no such table` 并整只回滚——分类删不掉，而失败的样子是「断言说分类还在」，
+/// 看着完全不像缺一张表。
+///
+/// 这里只建被那几条 SQL 碰到的列，不复刻生产 DDL（那是迁移的事）。
+void createLocalMediaItemsTableForCategoryTests(CommonDatabase db) {
+  db.execute('''
+    CREATE TABLE local_media_items(
+      id TEXT PRIMARY KEY,
+      source_id TEXT,
+      path TEXT,
+      category_id TEXT
+    );
+  ''');
+}
+
 void createDownloadTasksTable(CommonDatabase db) {
   db.execute('''
     CREATE TABLE download_tasks(

@@ -34,11 +34,19 @@ class ConfigBackupService extends GetxService {
   /// 是会被用户分享、上传网盘的。在本 App 的内容域下**文件名本身就是敏感信息**，
   /// 把它带进一个可分享的文件是隐私事故。理由与 `download_tasks` 同源，只是更重。
   /// 顺带一层：还原到新机器上这些行也只会变成一库 `missing`，本来就没有意义。
+  ///
+  /// ⛔ **已知代价：精选（`favorited_at`）和观看进度一起丢，换机没有找回路径。**
+  /// 这是权衡后的取舍，不是漏了。精选确实是纯用户意图（不像时长/宽高能从磁盘
+  /// 重算），但它以**文件路径**为锚——把它单独捞出来备份，等于把用户的文件名清单
+  /// 装进那个会被分享的文件里，正是上面这条要防的事；而且换机之后路径对不上，
+  /// 捞出来也认不回去。要改这个决定，得先有一套不依赖路径的条目身份。
   static const Set<String> _excludedTables = {
     'download_tasks',
     'local_media_sources',
     'local_media_items',
     'local_media_progress',
+    'local_media_folders',
+    'local_media_pinned_folders',
   };
 
   /// app_config 中属于敏感信息的配置键（API 密钥、会话令牌、可能含账号密码的代理地址、

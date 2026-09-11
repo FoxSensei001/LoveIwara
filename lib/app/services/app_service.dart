@@ -55,34 +55,61 @@ class AppService extends GetxService {
   /// 供 HomeShellScaffold NavigationRail/BottomNav tab 切换使用。
   StatefulNavigationShell? navigationShell;
 
-  // 导航项配置
-  static Map<String, NavigationItem> navigationItems = {
+  /// 导航项配置。
+  ///
+  /// # ⛔ 标题走 `t.bottomNav.*`，不走 `t.common.*`
+  ///
+  /// 底栏一格的标签宽度是有硬上限的（320dp 屏 5 格时只有约 35.6dp，见
+  /// `glass_floating_tab_bar.dart` 的 `_labelMaxWidth`）。`common.subscriptions`
+  /// 在英日是 `Subscriptions` / `サブスクリプション`，摆进去必然变省略号；而那两个
+  /// 字样全站到处在用，不能为了底栏把它们改短。所以导航栏另起一组专用短标签。
+  ///
+  /// # ⛔ 必须是 getter，不能是 static 字段
+  ///
+  /// 写成 `static Map ... = {...}` 时它只在**首次访问**求值一次，`slang.t` 那一下
+  /// 就把当时的语言钉死了——用户在设置里切了语言，底栏和侧栏还是旧语言
+  /// （`navigation_order_settings_page` 没这毛病，是因为它自己另存了一份实例字段）。
+  /// 改成 getter 每次现取，5 个小对象的构造开销可以忽略。
+  static Map<String, NavigationItem> get navigationItems => {
     'video': NavigationItem(
       key: 'video',
-      title: slang.t.common.video,
+      title: slang.t.bottomNav.video,
       icon: Icons.video_library,
       pageIndex: 0,
     ),
     'gallery': NavigationItem(
       key: 'gallery',
-      title: slang.t.common.gallery,
+      title: slang.t.bottomNav.gallery,
       icon: Icons.photo,
       pageIndex: 1,
     ),
     'subscription': NavigationItem(
       key: 'subscription',
-      title: slang.t.common.subscriptions,
+      title: slang.t.bottomNav.subscription,
       icon: Icons.subscriptions,
       pageIndex: 2,
     ),
-    // 论坛 + 新闻合并成一个栏目：底栏最多容得下 5 个元素（4 tab + 搜索圆钮），
-    // 两者在页内用 header 上的目的地下拉切换，见 community_page.dart。
-    // 图标固定不随半边变化——tab 的图标要稳定，用户才找得到它。
+    // 论坛 + 新闻合并成一个栏目，两者在页内用 header 上的目的地下拉切换，
+    // 见 community_page.dart。图标固定不随半边变化——tab 的图标要稳定，
+    // 用户才找得到它。
     'community': NavigationItem(
       key: 'community',
-      title: slang.t.settings.community,
+      title: slang.t.bottomNav.community,
       icon: Icons.forum,
       pageIndex: 3,
+    ),
+    // 本机文件：把本地播放从「视频栏里的一个数据源」抽出来，做成和线上内容
+    // 平级的一等入口，因为它的浏览模型是目录树而不是信息流。
+    //
+    // 它是第 5 个 tab，底栏因此变成 5 tab + 搜索圆钮共 6 个元素。撑得下靠两条：
+    // 标签走 `bottomNav.*` 那组专用短词，排版走 `_BarMetrics` 的紧凑档
+    // （见 glass_floating_tab_bar.dart）；用不上的人还可以在导航排序设置里
+    // 把它隐藏（见 HomeShellNavigation.hideableKeys）。
+    'localMedia': NavigationItem(
+      key: 'localMedia',
+      title: slang.t.bottomNav.localMedia,
+      icon: Icons.folder_open,
+      pageIndex: 4,
     ),
   };
 
@@ -748,11 +775,6 @@ class NaviService {
   // 跳转到下载任务列表页
   static void navigateToDownloadTaskListPage() {
     appRouter.push('/download_task_list');
-  }
-
-  /// 跳转到本地来源管理页。媒体列表本身由视频页 header 的来源切换承载。
-  static Future<void> navigateToLocalMediaSourcesPage() async {
-    await appRouter.push('/local_media_sources');
   }
 
   // 跳转到图库下载任务详情页

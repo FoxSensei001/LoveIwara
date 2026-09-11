@@ -1845,7 +1845,6 @@ download:
     resume: 全部繼續
     dismiss: 忽略
   emptyTaskList: 暫無下載任務
-  downloadedContentGuide: 已經下載的內容在「影片 → 來源 → 已下載」
   noMatchingTasks: 沒有符合的任務
   deleteByDate:
     menuTitle: 依日期刪除
@@ -2522,6 +2521,17 @@ layoutSettings:
   save: 儲存
 
 # 導航排序設定
+bottomNav:
+  # ⛔ 底欄/側欄專用的**短**標籤，不要複用 common.* ——那些字樣全站到處在用，
+  # 改一處會波及無關頁面。這裡只服務導航欄那一格的寬度上限（見
+  # glass_floating_tab_bar.dart 的 _labelMaxWidth / _BarMetrics）：
+  # 320dp 螢幕 5 格時每格標籤只有約 35.6dp，上限是 3 個漢字 / 6 個拉丁字元。
+  video: 影片
+  gallery: 圖庫
+  subscription: 訂閱
+  community: 社區
+  localMedia: 本機
+
 navigationOrderSettings:
   title: 導航排序設定
   customNavigationOrder: 自訂導航順序
@@ -2540,7 +2550,7 @@ navigationOrderSettings:
   show: 顯示
   hide: 隱藏
   hidden: 已隱藏
-  hideHint: 點擊眼睛圖示可顯示或隱藏論壇和新聞
+  hideHint: 點擊眼睛圖示可顯示或隱藏社區和本機檔案
   # 導航項目描述
   videoDescription: 瀏覽熱門影片內容
   galleryDescription: 瀏覽圖片和畫廊
@@ -2549,6 +2559,7 @@ navigationOrderSettings:
 
   newsDescription: 瀏覽官方新聞、文章與公告廣播
   communityDescription: 論壇討論與官方新聞、文章、公告廣播
+  localMediaDescription: 瀏覽這台裝置上的影片與圖片
 
 news:
   title: 新聞
@@ -2917,6 +2928,8 @@ playbackQueue:
   favoriteFolders: 收藏夾
   localFiles: 本機檔案
   currentFolder: 目前檔案所在資料夾
+  playThisFolder: 查看本資料夾下的影片池
+  browseThisFolder: 查看本資料夾下的圖庫池
   downloads: 已下載
   otherPlaylists: 他人的播放清單
   nothingHere: 暫無內容
@@ -2971,6 +2984,85 @@ vrFormat:
   suggestionAction: 以 VR 播放
   suggestionDismiss: 不再提示
 localMedia:
+  # 目錄瀏覽（本機檔案 tab）。「常用目錄」= 使用者置頂的資料夾。
+  browse:
+    pinnedSection: 常用目錄
+    sourcesSection: 資料夾
+    pin: 設為常用
+    unpin: 取消常用
+    pinned: 已設為常用目錄
+    unpinned: 已取消常用
+    folderCount: "${count} 個資料夾"
+    videoCount: "${count} 部影片"
+    imageCount: "${count} 張圖片"
+    emptyFolder: 這個資料夾是空的
+    videosSection: 影片
+    imagesSection: 圖片
+    location: 位置
+    sourceMissing: 這個來源已經不在了
+    notScannedYet: 還沒掃描過這個資料夾
+    scanning: 正在讀取這個資料夾…
+    deleteFileTitle: 刪除這個檔案？
+    deleteFileBody: '「${name}」會從這台裝置上真的被刪除，無法復原。'
+    pickFolderTitle: 選擇資料夾
+    useThisFolder: 使用這個資料夾
+    noSubfolders: 這裡沒有子資料夾
+    storageRoot: 裝置儲存空間
+    folderUnreadable: 這個資料夾讀不動
+    setCover: 設定封面
+    setAsFolderCover: 設為資料夾封面
+    folderCoverSet: 已設為資料夾封面
+    setFolderCoverPick: 設為封面…
+    restoreAutoCover: 恢復自動封面
+    autoCoverRestored: 已恢復自動封面
+    rescanFolder: 重新掃描此目錄
+    coverPickerTitle: 挑一幀做封面
+    folderCoverPickerTitle: 選擇封面
+    coverPickerEmpty: 這個目錄裡還沒有可用的圖片。影片的縮圖可能還在背景產生，稍後再來看看。
+    coverSaved: 封面已更新
+    coverSaveFailed: 封面儲存失敗
+    coverUnavailable: 這個檔案讀不出畫面
+    deleted: 已刪除
+    deleteFailed: 刪除失敗，檔案可能正被占用或沒有權限
+    openFolder: 開啟
+    favorite: 精選
+    unfavorite: 取消精選
+    favorited: 已加入精選
+    unfavorited: 已取消精選
+    sortBy: 排序方式
+    sortAscending: 升序
+    sortDescending: 降序
+    sortFieldName: 檔名
+    sortFieldModified: 修改日期
+    sortFieldDuration: 時長
+    sortFieldSize: 檔案大小
+    sortFieldResolution: 解析度
+    sortFieldFileType: 檔案類型
+    sortFieldFps: 幀率
+    sortFieldFavorited: 精選時間
+    emptyAllVideos: 還沒有掃描到影片。到「檔案目錄」裡新增一個資料夾試試。
+    emptyAllImages: 還沒有掃描到圖片。到「檔案目錄」裡新增一個資料夾試試。
+    emptyFavorites: 還沒有精選。在影片的「⋮」選單裡可以把它加進來。
+    emptyPinned: 還沒有常用資料夾。在「檔案目錄」裡長按一個資料夾，選「設為常用」。
+    emptyDownloadedVideos: 還沒有下載完成的影片。
+    emptyDownloadedGalleries: 還沒有下載完成的圖庫。
+    folderInfo: 資料夾資訊
+    folderInfoName: 名稱
+    folderInfoPath: 路徑
+    folderInfoSource: 所屬來源
+    folderInfoContents: 內容
+    folderInfoSize: 佔用空間
+    folderInfoScannedAt: 最近掃描
+    folderInfoNeverScanned: 還沒掃描過
+    folderInfoNoPath: 這個來源沒有可開啟的目錄
+    copyPath: 複製路徑
+    pathCopied: 路徑已複製
+  tabFolders: 檔案目錄
+  tabFavoriteVideos: 精選影片
+  tabAllVideos: 所有影片
+  tabAllImages: 所有圖片
+  tabDownloadedVideos: 下載完成影片
+  tabDownloadedGalleries: 下載完成圖庫
   title: 本機檔案
   sourceOnline: Iwara 線上
   manageSources: 管理來源

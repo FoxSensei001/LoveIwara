@@ -482,6 +482,12 @@ const _opensOverlayExemptFiles = <String>{
   // 本身没有玻璃化，只有它吐出来的面板换了）。没有 GlassTapArea 就接不了
   // 「长按不抬手直接划进面板」那条手指接力，普通点按照常。
   'lib/app/ui/widgets/follow_button_widget.dart',
+  // 同上：只是菜单的实现，一张卡片一个函数地开。触发钮在卡片那边，而且**两处
+  // 都有**——封面右上角的 ⋮ 与长按整卡，都是 GlassTapArea(opensOverlay: true,
+  // longPressOpensOverlay: true)，见 local_media_item_card / local_folder_card
+  // 与 local_folder_browse_page 里的图片格。
+  'lib/app/ui/pages/local_media/widgets/local_media_item_menu.dart',
+  'lib/app/ui/pages/local_media/widgets/local_folder_menu.dart',
 };
 
 /// 硬编码的液态档供档点：`backend: GlassBackend.liquidWidgets` 之类。
