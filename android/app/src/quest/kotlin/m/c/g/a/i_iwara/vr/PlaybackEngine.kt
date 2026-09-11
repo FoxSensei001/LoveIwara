@@ -2,6 +2,7 @@ package m.c.g.a.i_iwara.vr
 
 import android.content.Context
 import android.net.Uri
+import java.io.File
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.OptIn
@@ -122,7 +123,7 @@ class PlaybackEngine(private val context: Context) {
         preloadListener = l
         p.volume = 0f
         p.playWhenReady = false
-        p.setMediaItem(MediaItem.fromUri(Uri.parse(url)), startPositionMs.coerceAtLeast(0L))
+        p.setMediaItem(MediaItem.fromUri(toMediaUri(url)), startPositionMs.coerceAtLeast(0L))
         p.prepare()
     }
 
@@ -221,6 +222,54 @@ class PlaybackEngine(private val context: Context) {
             }
         }
 
+    /**
+     * 把 Dart 交来的片源字符串变成 ExoPlayer 真能打开的 [Uri]。
+     *
+     * # ⛔ 本地文件绝不能直接 `Uri.parse`
+     *
+     * Dart 那侧是**手工拼**出来的（`'file://' + 路径`，见
+     * `my_video_state_controller.dart` 的清晰度列表），而且**编码口径不统一**：
+     * 真机上抓到过 `file%3A///storage/…`——连 scheme 的冒号都被百分号编码了。
+     * 这种串喂给 `Uri.parse` 会被判成「没有 scheme 的相对 URI」，`getPath()` 解出来
+     * 还带着 `file:`，于是 `RandomAccessFile("file:/storage/…")` 报 ENOENT，最终冒成
+     * `ERROR_CODE_IO_FILE_NOT_FOUND`——**看着像"文件不见了"，其实文件好好躺在那儿**。
+     * （2026-09-10 Quest 真机，`Saki_-_Do_It_VRlapdance_Source.mp4`，`adb ls` 得到。）
+     *
+     * # ⛔ 也不能无脑 `Uri.decode`
+     *
+     * 反过来，Dart 有时候交的又是**没编码**的原始路径。一律解一次的话，文件名里
+     * 真正的 `%` 会被吃掉。两种口径都得接住，而唯一可靠的判据是**问磁盘**：
+     * 原样的路径存在就用原样的，不存在再试解码后的。
+     *
+     * Media3 自己在那条异常的文案里就写着「Did you call Uri.parse() on a string
+     * containing '?' or '#'? Use Uri.fromFile(new File(path))」——照做。
+     */
+    private fun toMediaUri(url: String): Uri {
+        var s = url.trim()
+        // scheme 的冒号可能是被编码过的，先还原再判。
+        while (s.startsWith("file%3A", ignoreCase = true)) {
+            s = "file:" + s.substring("file%3A".length)
+        }
+        // 容忍被拼了不止一层（`file:file:/…`）。
+        //
+        // ⛔ 必须按**长度**切，不能用 `removePrefix`：判据是 ignoreCase 的，而
+        // `removePrefix` 区分大小写。`"File:/storage/…"` 会让判据恒为真、
+        // 两个 removePrefix 都不匹配、`s` 一个字符都不变——死循环（在 Quest 上
+        // 表现为 ANR）。
+        while (s.startsWith("file:", ignoreCase = true)) {
+            s = s.substring("file:".length)
+        }
+        if (!s.startsWith("/")) {
+            // http(s) / content:// / 其它一律原样交给 Uri.parse。
+            return Uri.parse(url)
+        }
+        // `file:///a` 剥完是 `///a`，`file://a` 剥完是 `//a`：都归一成单个前导斜杠。
+        val path = "/" + s.trimStart('/')
+        val direct = File(path)
+        val file = if (direct.exists()) direct else File(Uri.decode(path))
+        return Uri.fromFile(file)
+    }
+
     private fun startWith(p: ExoPlayer, url: String, surface: Surface, startPositionMs: Long, muted: Boolean, volume: Float): Boolean {
         player = p
         playingUrl = url
@@ -228,7 +277,12 @@ class PlaybackEngine(private val context: Context) {
         pendingSeekMs = startPositionMs
         p.volume = if (muted) 0f else volume
         p.setVideoSurface(surface)
-        p.setMediaItem(MediaItem.fromUri(Uri.parse(url)))
+        val mediaUri = toMediaUri(url)
+        // ⛔ 不打完整路径。logcat 是全机可读的，而在本 App 的内容域下
+        // **文件名本身就是敏感信息**（同 `ConfigBackupService` 里钉的那条）。
+        // 排障要的是"走的哪条路"，scheme 和长度就够；真要看路径请在本地接调试器。
+        Log.i(TAG, "IMMERSIVE OPEN scheme=${mediaUri.scheme} rawLen=${url.length}")
+        p.setMediaItem(MediaItem.fromUri(mediaUri))
         p.prepare()
         p.playWhenReady = true
         return true
