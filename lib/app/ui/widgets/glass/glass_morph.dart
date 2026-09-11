@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -24,6 +25,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 /// | 玻璃胶囊之间的形态互换（分段胶囊↔下拉按钮）      | 两侧都自带底色/描边/阴影              | [GlassCapsuleMorph]   |
 /// | 下拉钮标题跟随横滑进度翻页               | 滑完才换字，中途一直是旧文案            | [GlassFlipLabel]      |
 /// | 按钮触发耗时动作（刷新/保存/全部已读）      | 点完毫无变化，或各页自造转圈          | `GlassIconButton.loading` / `GlassAsyncIconButton` |
+/// | 内容还在后台补，但页面已经能用           | 顶上一条横进度条，硬切、还在假装有进度   | [GlassInlineBusy]     |
 /// | 可用↔不可用 / 常态↔危险态的**语义色**变化 | 底色平滑推移、图标文字却瞬间跳色      | [GlassAnimatedColors] |
 /// | 手指按住一块玻璃拖动                   | 玻璃纹丝不动，只有点击才有反应          | `GlassSurface.liquidTouch`（默认开） |
 /// | 被拖动的玻璃靠近邻居                   | 两块玻璃穿模式地叠在一起，各画各的       | `GlassBlendGroup`     |
@@ -987,6 +989,246 @@ class GlassReveal extends StatelessWidget {
               ? const SizedBox.shrink()
               : builder(context, m),
         ),
+      ),
+    );
+  }
+}
+
+/// 一段匀速旋转的细弧：本仓库「正在忙」的**唯一画法**。
+///
+/// 线宽跟着尺寸走（≈`size / 9`，16px 上约 1.8），与周围的线性图标同族；弧长
+/// 固定 280°，**匀速**转，不做弧长伸缩。
+///
+/// # ⛔ 不要用 `CircularProgressIndicator` 代替
+///
+/// 与 [GlassIconButton.loading] 拒绝转圈是同一条理由：Material 那枚默认线宽 4,
+/// 摆在一行 16px 的标题字旁边是一枚突兀的粗环；它的 indeterminate 还带着弧长
+/// 伸缩与周期性跳变，在这个尺寸上只剩毛躁。要更大的转圈（整屏空态那种）也用
+/// 这一枚，把 [size] 调大即可——同一套语言，不要在两个尺寸上用两种画法。
+class GlassSpinningArc extends StatefulWidget {
+  const GlassSpinningArc({
+    super.key,
+    this.size = 16,
+    this.color,
+    this.period = const Duration(milliseconds: 1100),
+  });
+
+  final double size;
+  final Color? color;
+  final Duration period;
+
+  @override
+  State<GlassSpinningArc> createState() => _GlassSpinningArcState();
+}
+
+class _GlassSpinningArcState extends State<GlassSpinningArc>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.period,
+  )..repeat();
+
+  @override
+  void didUpdateWidget(covariant GlassSpinningArc oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.period != oldWidget.period) {
+      _controller.duration = widget.period;
+      _controller
+        ..reset()
+        ..repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.color ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    // ⛔ RepaintBoundary 收在这里：每帧变的只有一层 Transform，弧本身一次都
+    // 不用重画，更不该把外面那行标题拖进重绘。
+    return RepaintBoundary(
+      child: RotationTransition(
+        turns: _controller,
+        child: CustomPaint(
+          size: Size.square(widget.size),
+          painter: _SpinningArcPainter(color: color),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpinningArcPainter extends CustomPainter {
+  const _SpinningArcPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = math.max(1.4, size.shortestSide / 9);
+    final rect = Rect.fromLTWH(
+      stroke / 2,
+      stroke / 2,
+      size.width - stroke,
+      size.height - stroke,
+    );
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      // 留 80° 的缺口：画满一圈就看不出它在转了。
+      math.pi * 2 * (280 / 360),
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round
+        ..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SpinningArcPainter oldDelegate) =>
+      oldDelegate.color != color;
+}
+
+/// 第十一原语「忙碌」：紧挨着一段文字的**行内**忙碌指示。
+///
+/// # 它和另外两种 loading 表达说的不是同一件事
+///
+/// - [GlassIconButton.loading]：图标钮**原位换沙漏**——那件事是用户刚点的，
+///   这枚键要变成"正在做"的样子并拒绝再次点击。
+/// - `GlassActionButton.loading`：文字钮的**标签↔转圈**交换，同理。
+/// - 这一个说的是第三件事：**页面已经能用了，只是内容还在后台补**。它不替换
+///   任何东西、不禁用任何东西，只在标题旁边多出一枚安静转着的小弧，补完自己
+///   收走。所以它是"多出来的一件"，前两个是"换掉的那一件"。
+///
+/// # ⛔ 不要退回顶部一条 `LinearProgressIndicator`
+///
+/// 目录浏览页原来就是那么做的（顶上一条 2px 的横条来回滚）。三个毛病：
+/// ① 那条横线不属于任何东西，读起来像网页加载条，与整套玻璃语言无关；
+/// ② 出现/消失是硬切，把它底下整列内容顶上顶下；③ 它在说"进度"，而目录扫描
+/// 根本没有进度可言。用户 2026-09-11 的原话是「非常的垃圾，没有设计感」。
+///
+/// # 出现与消失都有动画
+///
+/// 走 [GlassGroupSlot]：宽度从 0 展开到「弧 + 间距」，旁边的文字被**平滑推开**
+/// 而不是瞬间跳位（`motion-enter-exit-always`）。
+///
+/// # ⛔ 两道防抖不是可选项
+///
+/// 目录扫描常常几十毫秒就完了。不防抖的话，这枚弧会在用户每次进目录时抽搐
+/// 一下——比压根不给反馈更差。所以：
+///
+/// - [appearDelay]：忙了这么久还没完，才开始显形。快得看不见的扫描**一帧都
+///   不出现**。
+/// - [minVisible]：一旦显形，至少驻留这么久。否则"刚展开就往回收"读起来仍是
+///   一次抽搐，只是晚了 120ms。
+///
+/// 两者都在**逻辑层**（这只 State）而不是动画层：[GlassGroupSlot] 只管"该显
+/// 就展开、该收就收拢"，什么时候算该显是这里的事。
+class GlassInlineBusy extends StatefulWidget {
+  const GlassInlineBusy({
+    super.key,
+    required this.busy,
+    this.size = 16,
+    this.color,
+    this.gap = 6,
+    this.trailing = false,
+    this.appearDelay = const Duration(milliseconds: 120),
+    this.minVisible = const Duration(milliseconds: 450),
+  });
+
+  final bool busy;
+
+  /// 弧的边长。默认 16 配正文；标题旁通常跟着字号走（字号 + 2）。
+  final double size;
+
+  final Color? color;
+
+  /// 弧与文字之间留多宽。默认 6，与 `GlassTitlePill` 的引导图标同一口径。
+  final double gap;
+
+  /// 弧摆在文字**右边**时传 true：间距改留在左侧。
+  final bool trailing;
+
+  /// 忙够这么久才开始显形，用来吃掉快得看不见的那些。
+  final Duration appearDelay;
+
+  /// 一旦显形，至少驻留这么久。
+  final Duration minVisible;
+
+  @override
+  State<GlassInlineBusy> createState() => _GlassInlineBusyState();
+}
+
+class _GlassInlineBusyState extends State<GlassInlineBusy> {
+  bool _shown = false;
+  Timer? _timer;
+
+  /// 显形的那一刻，用来算 [GlassInlineBusy.minVisible] 还差多久。
+  DateTime? _shownAt;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.busy) _schedule();
+  }
+
+  @override
+  void didUpdateWidget(covariant GlassInlineBusy oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.busy != oldWidget.busy) _schedule();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _schedule() {
+    _timer?.cancel();
+    if (widget.busy) {
+      // 还在台上又忙起来了（扫完紧接着扫下一层）：接着显示，别眨眼。
+      if (_shown) return;
+      _timer = Timer(widget.appearDelay, () {
+        if (!mounted || !widget.busy) return;
+        setState(() {
+          _shown = true;
+          _shownAt = DateTime.now();
+        });
+      });
+      return;
+    }
+    // 压根没显出来过——这次扫描快过 appearDelay，什么都不用做。
+    if (!_shown) return;
+    final shownAt = _shownAt;
+    final rest = shownAt == null
+        ? Duration.zero
+        : widget.minVisible - DateTime.now().difference(shownAt);
+    if (rest <= Duration.zero) {
+      setState(() => _shown = false);
+      return;
+    }
+    _timer = Timer(rest, () {
+      if (!mounted || widget.busy) return;
+      setState(() => _shown = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassGroupSlot(
+      visible: _shown,
+      child: Padding(
+        padding: widget.trailing
+            ? EdgeInsets.only(left: widget.gap)
+            : EdgeInsets.only(right: widget.gap),
+        child: GlassSpinningArc(size: widget.size, color: widget.color),
       ),
     );
   }

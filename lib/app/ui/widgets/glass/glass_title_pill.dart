@@ -25,6 +25,7 @@ class GlassTitlePill extends StatelessWidget {
     this.icon,
     this.placeholderWidth = 140,
     this.flat = false,
+    this.busy = false,
     this.onTap,
   });
 
@@ -52,6 +53,16 @@ class GlassTitlePill extends StatelessWidget {
   /// 不自带玻璃壳：外层已经有一只常驻的壳（[GlassCapsuleMorph]）时用，
   /// 否则会套出壳中壳。与 `GlassSegmentedControl.flat` 同一口径。
   final bool flat;
+
+  /// 标题左边那枚「底下的内容还在后台补」的小弧（[GlassInlineBusy]）。
+  ///
+  /// ⛔ 与 [title] 为 null 的 shimmer 占位**不是一回事**：shimmer 说的是"标题
+  /// 本身还不知道"，这个说的是"标题有了，它底下那一屏还在补"。两者可以同时
+  /// 为真，各画各的。
+  ///
+  /// 出现时文字被平滑推开、收走时平滑让回来，且自带出现延迟与最短驻留——
+  /// 快得看不见的那些一帧都不会闪，详见 [GlassInlineBusy]。
+  final bool busy;
 
   /// 点按 / 长按改开别的东西。
   ///
@@ -128,6 +139,13 @@ class GlassTitlePill extends StatelessWidget {
     final Widget content = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // 忙碌弧站在**壳里、标题左边**：它说的是这一页的内容，不是某个按钮的
+        // 状态，所以不该跑到 header 的按钮组里去当第 N 枚钮。
+        GlassInlineBusy(
+          busy: busy,
+          // 跟着标题字号走，与上面那枚引导图标同一口径。
+          size: (textTheme.titleMedium?.fontSize ?? 16) + 2,
+        ),
         Flexible(
           child: GlassShapeSwitcher(
             layoutAlignment: Alignment.centerLeft,

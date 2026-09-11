@@ -99,6 +99,7 @@ class GlassDropdownPill extends StatelessWidget {
     this.icon,
     this.opensOverlay = true,
     this.showArrow = true,
+    this.busy = false,
     this.height = GlassTokens.pillHeight,
   });
 
@@ -115,6 +116,14 @@ class GlassDropdownPill extends StatelessWidget {
 
   /// 见 [GlassDropdownTrigger.showArrow]。
   final bool showArrow;
+
+  /// 胶囊上写的那个东西**还在后台补**（[GlassInlineBusy]）。
+  ///
+  /// ⛔ 别再靠"把 [icon] 换成沙漏 + 把 [label] 换成「加载中」"来表达这件事
+  /// （「接着看」抽屉原来就是那么做的）：那会把用户唯一能确认"我现在在哪个池
+  /// 里"的两处信息一起拿走，等于用**丢失信息**换一个状态提示。忙碌是多出来
+  /// 的一件，不是换掉的一件。
+  final bool busy;
 
   final double height;
 
@@ -134,6 +143,7 @@ class GlassDropdownPill extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              GlassInlineBusy(busy: busy, size: 16),
               if (icon != null) ...[
                 Icon(icon, size: 16, color: colorScheme.onSurface),
                 const SizedBox(width: 6),
