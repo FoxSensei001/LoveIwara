@@ -1245,7 +1245,8 @@ class LocalMediaScanService extends GetxService {
 /// 扫描 worker。**只碰文件系统**，不碰数据库、不碰 GetX。
 ///
 /// 遍历是手写的显式栈而不是 `Directory.list(recursive: true)`，为的是三件
-/// 后者给不了的东西：**深度上限**、**按目录整棵跳过**（`.nomedia` / 黑名单）、
+/// 后者给不了的东西：**深度上限**、**按目录整棵跳过**（`.` 开头目录 / 目录名黑名单，
+/// ⛔ 不含 `.nomedia`，见下面 `files` 收集处）、
 /// 以及 ⭐ **sidecar 匹配**——同名封面必须在"手上正好有这个目录的清单"时匹配，
 /// 逐个文件去 `existsSync` 是一次白白多出来的 IO。
 ///
@@ -1344,26 +1345,63 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         // ⛔ 必须 normalize：条目落库时 folder_path 走的是 p.dirname(file.path)，
         // 而根路径带尾斜杠时 Directory('/a/b/').path 就是 '/a/b/'，两边对不上，
         // 排除范围会静默失效。
-        failedFolders.add(p.normalize(current.dir.path));
+        final normalized = p.normalize(current.dir.path);
+        failedFolders.add(normalized);
+
+        // ⛔ 读不动的目录**也必须留一行占位**，不能只记进 failedFolders 就走。
+        //
+        // 父目录列得出它（它是父目录 entries 里的一个 Directory），所以它既不在
+        // `seenFolders` 里也不会有自己的行——如果这里 `continue` 掉，这个目录在
+        // `local_media_folders` 里**一行都没有**，浏览页的 `childFolders` 自然查
+        // 不到它。表现就是用户在树里根本看不见这个文件夹，连点进去重试的机会都
+        // 没有；而它上层那些能列出来的文件照旧入库，于是症状精确地长成
+        // 「只有这一层的视频/图片被识别，子文件夹全部不见了」。
+        //
+        // Android 上这是**默认形态**而不是边角：只有 READ_MEDIA_* 而没有「所有文件
+        // 访问」时，scoped storage 的 FUSE 会拦住对子目录的 list，Download 根能列、
+        // 它下面每个子目录都抛 EACCES。整棵树就此消失。
+        //
+        // 占位行走 `stub: true`（upsert 是 DO NOTHING）：probed_at 保持 NULL，
+        // 于是它照常出现在列表里，用户点进去会触发一次目录级扫描再试一次——这正是
+        // 我们要的「读不动就先让人看见」，而不是静默抹掉。
+        folderBatch.add(<String, Object?>{
+          'path': normalized,
+          'rel': relPathOf(normalized),
+          'modified': null, // 没列成，别猜
+          'cover': null,
+          'stub': true,
+        });
+        if (folderBatch.length >= batchSize) flushFolders();
         continue;
       }
 
       final files = <File>[];
       final subdirs = <Directory>[];
-      var blocked = false;
       for (final entry in entries) {
         if (entry is Directory) {
           subdirs.add(entry);
         } else if (entry is File) {
-          if (p.basename(entry.path).toLowerCase() == '.nomedia') {
-            // 这个目录（连同子树）明确不想被媒体扫描看到，整棵跳过。
-            blocked = true;
-            break;
-          }
+          // ⛔ 这里**故意不认 `.nomedia`**（行为变更，之前是遇到就整棵子树跳过）。
+          //
+          // `.nomedia` 是**系统媒体扫描器（MediaStore / 系统相册）**的约定，不是
+          // 文件浏览器的约定——VLC、MX Player、Solid Explorer 这些都不认它。而
+          // 我们这个源是**用户自己指过来的目录**，他的意图就是「把这里的东西给我看」。
+          //
+          // 真机上的事故正是这条规则造成的：第三方下载器会在每集目录里塞一个
+          // `.nomedia` 把内容挡在系统相册之外，于是 `Download/hanime_download/407963/`
+          // 里的视频**永远进不了库**。更糟的是那个目录走的是"压栈"分支、**一行都不留**，
+          // 于是父目录的目录级扫描收敛时把它判成 missing=1：
+          // 用户看到的是一张点进去写着「这个文件夹是空的」的卡片，**且没有任何解释**。
+          //
+          // 隐私口径没有因此失守：`.` 开头的目录和 [kSkippedDirectoryNames] 照旧整棵
+          // 跳过——那才是"隐藏"的通用约定，也是用户真正会用来藏东西的方式。应用自己的
+          // 缩略图缓存仍然靠 `.nomedia` 挡系统相册（见 LocalMediaDerivationService），
+          // 它在 cache 目录里，不在任何源下面，不受这里影响。
+          //
+          // `.nomedia` 本身不是媒体扩展名，落进 `files` 后会被扩展名过滤自然丢掉。
           files.add(entry);
         }
       }
-      if (blocked) continue;
 
       // ⭐ sidecar：先把本目录的图片按「去扩展名的文件名」索引起来，
       // 视频再来对号入座。整个目录只建一次表，比每个视频 existsSync 便宜得多。
@@ -1481,9 +1519,6 @@ void _scanWorkerEntry(Map<String, Object?> args) {
       // 位置很关键：必须放在**文件都过完之后**，因为封面要挑一张「不是 sidecar」
       // 的图——sidecar 是某个视频的封面，不是这个目录的代表作，拿它当目录封面
       // 会让一个满是视频的文件夹显示成某一集的截图。
-      //
-      // 也必须放在 `blocked`（`.nomedia`）那条 `continue` **之后**：用户明确说了
-      // 这棵子树不要被媒体扫描看到，那它连目录行都不该有。
       String? cover;
       String? sidecarCover;
       for (final file in files) {
