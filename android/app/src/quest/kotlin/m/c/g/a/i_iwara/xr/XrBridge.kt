@@ -69,11 +69,15 @@ object XrBridge {
         ImmersiveBridge.attachActivity(activity)
         val channel = MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL)
         ImmersiveBridge.attachChannel(channel)
+        LaunchDiagnostics.onMainAttached(activity)
         // 面板里的 MainActivity 自己 finish（根级「再按一次退出」→ SystemNavigator.pop）时，沉浸 Activity 要跟着退：
         // 否则场景还活着、面板却空了，用户「一直按 B 也退不出应用」。只认 isFinishing，配置变化重建不算。
         (activity as? androidx.activity.ComponentActivity)?.lifecycle?.addObserver(
             androidx.lifecycle.LifecycleEventObserver { _, event ->
                 if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) ImmersiveBridge.onPanelActivityResumed()
+                if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY) {
+                    LaunchDiagnostics.onMainEvent(activity, "onDestroy finishing=${activity.isFinishing}")
+                }
                 if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY && activity.isFinishing) {
                     Log.i(TAG, "XR host MainActivity finishing")
                     ImmersiveBridge.notifyHostFinished()
@@ -83,6 +87,9 @@ object XrBridge {
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "isAvailable" -> result.success(ImmersiveBridge.isSceneAlive)
+
+                // 「打开是平面模式」取证：本次形态判定 + 入口解析 + 落盘的最近几次启动经过。
+                "launchDiagnostics" -> result.success(LaunchDiagnostics.snapshot(activity))
 
                 // A confirmed app exit must end the scene. SystemNavigator.pop can merely
                 // background the embedded Activity, so ON_DESTROY is not an exit signal.
@@ -433,7 +440,24 @@ object ImmersiveBridge {
 
     private fun applyPanelRenderingState() {
         val engine = engineRef?.get() ?: return
-        if (panelRenderingPaused) engine.lifecycleChannel.appIsPaused() else engine.lifecycleChannel.appIsResumed()
+        // ⛔ 顺序：停帧前先告诉 Dart「这不是进后台」，恢复后再撤掉，否则应用锁把看视频算成后台计时。
+        // 两条消息走同一个 messenger、都在主线程同步发出，Dart 端按发送顺序收到（不能 post）。
+        val channel = channelRef?.get()
+        if (panelRenderingPaused) {
+            channel?.invokeMethod("panelSuspended", mapOf("suspended" to true))
+            engine.lifecycleChannel.appIsPaused()
+        } else {
+            engine.lifecycleChannel.appIsResumed()
+            channel?.invokeMethod("panelSuspended", mapOf("suspended" to false))
+        }
+    }
+
+    /** 沉浸场景真实的前后台（摘头显 / 回主页）。面板停帧期间 Dart 的生命周期被屏蔽，靠这条喂应用锁。 */
+    fun notifySceneLifecycle(foreground: Boolean) {
+        val channel = channelRef?.get() ?: return
+        // ⛔ 不能 post：排在队尾时，同一轮里先发出的 panelSuspended=false 会抢先到，Dart 那头这次离开就丢了。
+        val send = { channel.invokeMethod("sceneLifecycle", mapOf("foreground" to foreground)) }
+        if (Looper.myLooper() == Looper.getMainLooper()) send() else mainHandler.post(send)
     }
 
     // ---------------------------------------------------------------- 场景侧

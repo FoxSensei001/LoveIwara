@@ -63,7 +63,8 @@ class PlaybackEngine(private val context: Context) {
     val isPreloading: Boolean get() = preloading != null
 
     val isAlive: Boolean get() = player != null
-    val isPlaying: Boolean get() = player?.playWhenReady == true
+    /** ⛔ 播完停在 ENDED 时 playWhenReady 仍是 true：只看它的话按钮一直显示「暂停」、控制面板照样自动收起。 */
+    val isPlaying: Boolean get() = player?.let { it.playWhenReady && it.playbackState != Player.STATE_ENDED } == true
     val positionMs: Long get() = player?.currentPosition ?: 0L
     val durationMs: Long get() = (player?.duration ?: 0L).coerceAtLeast(0L)
 
@@ -340,6 +341,12 @@ class PlaybackEngine(private val context: Context) {
 
     fun togglePlaying(): Boolean {
         val p = player ?: return false
+        if (p.playbackState == Player.STATE_ENDED) {
+            // 播完了再按播放 = 从头放；直接翻 playWhenReady 在 ENDED 上什么都不会发生。
+            p.seekTo(0L)
+            p.playWhenReady = true
+            return true
+        }
         p.playWhenReady = !p.playWhenReady
         return p.playWhenReady
     }

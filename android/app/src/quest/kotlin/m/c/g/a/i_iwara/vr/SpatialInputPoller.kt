@@ -114,6 +114,11 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
     private val stickGate = Array(2) { InputReleaseGate() }
     private val lastControllerButtons = IntArray(2)
 
+    // Per-tick scratch (poll runs every frame): reused instead of allocated.
+    private val rawControllerButtons = IntArray(2)
+    private val sampledSelect = BooleanArray(2)
+    private val sampledGrip = BooleanArray(2)
+
     /** 每只手的本次推杆锁轴：0 = 中位，1 = 横，2 = 纵。另一只手回中不解锁这一只。 */
     private val stickAxis = IntArray(2)
 
@@ -127,13 +132,12 @@ class SpatialInputPoller(private val systemManager: SystemManager) {
         var active = false
         val inputActive = handActive
         inputActive.fill(false)
-        val rawControllerButtons = IntArray(2)
-        val select = BooleanArray(2)
-        val grip = BooleanArray(2)
+        val rawControllerButtons = rawControllerButtons.also { it.fill(0) }
+        val select = sampledSelect.also { it.fill(false) }
+        val grip = sampledGrip.also { it.fill(false) }
         if (body != null) {
-            val hands = arrayOf(body.leftHand, body.rightHand)
             for (i in 0..1) {
-                val hand = hands[i]
+                val hand = if (i == 0) body.leftHand else body.rightHand
                 handEntities[i] = hand
                 val pose = hand.tryGetComponent<Transform>()?.transform
                 handPoses[i] = pose

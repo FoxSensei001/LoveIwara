@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
+import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/config_service.dart';
@@ -44,6 +46,27 @@ class XrImmersiveService extends GetxService {
   /// 供 UI 直接 Obx 的可用性。⚠️ 它是**缓存值**，进入播放器时刷一次即可 ——
   /// 沉浸场景的生死只会随「进/出沉浸空间」变化，不会在页面停留期间反复抖动。
   final RxBool available = false.obs;
+
+  /// 看视频时原生为了省电把面板里的 Flutter 停帧，走的是 `appIsPaused()`——Dart 收到的
+  /// 生命周期**不是真进后台**。为 true 期间应用锁 / token 刷新等「按生命周期判前后台」的逻辑
+  /// 一律不认；真离开（摘头显、Meta 键回主页）由原生另发 `sceneLifecycle` 交给 [_onSceneLifecycle]。
+  ///
+  /// 静态字段：生命周期回调里不想碰 GetX 注册表。原生每次先发它、再发生命周期，顺序有保证。
+  static bool panelSuspended = false;
+
+  /// 沉浸场景本身的真实前后台切换，喂给应用锁（面板停帧期间 Flutter 生命周期被屏蔽，只能靠它）。
+  ///
+  /// 不看 [panelSuspended]：没停帧时 Flutter 自己的生命周期也会报，重复无害
+  /// （onBackgrounded 是 `??=`，onResumed 结算后清零）；而按它过滤会在「恢复出帧与离开同一轮发生」时丢事件＝锁不上。
+  void _onSceneLifecycle(bool foreground) {
+    if (!Get.isRegistered<AppLockService>()) return;
+    final lock = Get.find<AppLockService>();
+    if (foreground) {
+      lock.onResumed();
+    } else {
+      lock.onBackgrounded(AppLifecycleState.paused);
+    }
+  }
 
   /// 幕布上正在放的那条视频的 id（沉浸态自己换过片之后也会更新）。
   String? nowPlayingId;
@@ -97,8 +120,26 @@ class XrImmersiveService extends GetxService {
 
   /// 「接着看」的来源目录（与 2D 抽屉同一套两级菜单），见 [XrQueueCatalog]。
   late final XrQueueCatalog _catalog = XrQueueCatalog(
-    onChanged: () => unawaited(pushQueues()),
+    onChanged: _schedulePushQueues,
   );
+
+  /// 目录里几路来源（自建列表 / 他人列表 / 本地收藏…）各自异步回来、各喊一次 onChanged：
+  /// 直接推就是连着几次查库 + 整棵树序列化过通道 + 原生面板连续重组。合成一次再推。
+  Timer? _catalogPushTimer;
+
+  void _schedulePushQueues() {
+    _catalogPushTimer?.cancel();
+    _catalogPushTimer = Timer(
+      const Duration(milliseconds: 150),
+      () => unawaited(pushQueues()),
+    );
+  }
+
+  @override
+  void onClose() {
+    _catalogPushTimer?.cancel();
+    super.onClose();
+  }
 
   /// 已下载完成的视频 id；每次推列表前刷一次（一条 SQL），给卡片打「已下载」角标。
   Set<String> _downloadedIds = const <String>{};
@@ -111,6 +152,46 @@ class XrImmersiveService extends GetxService {
     _channel.setMethodCallHandler(_onNativeCall);
     // 启动时就问一次：第一张详情页在 onInit 里要靠这个缓存值决定「进页面起不起播」。
     unawaited(refreshAvailability());
+    unawaited(_logLaunchDiagnostics());
+  }
+
+  /// 「Quest 版打开是平面模式」的取证：把原生记下的启动形态写进应用日志，用户导出即可带回。
+  ///
+  /// 原生侧见 `LaunchDiagnostics.kt`：verdict 为 `flat_main_launched_directly` 即平面形态
+  /// （MainActivity 被顶层拉起、沉浸 Activity 没建），配合 intent/referrer 看入口，
+  /// 配合 launcherResolvesTo 看装的是不是还没带入口修复的老包；history 是落盘的最近几次启动经过。
+  /// 场景就绪在 Dart 起来之后，所以隔几秒再补一条最终判定。
+  Future<void> _logLaunchDiagnostics() async {
+    const tag = 'XrLaunch';
+    try {
+      final snap = await _channel.invokeMapMethod<String, dynamic>(
+        'launchDiagnostics',
+      );
+      if (snap == null) return;
+      final history = (snap['history'] as List?)?.cast<Object?>() ?? const [];
+      final summary = Map<String, dynamic>.of(snap)..remove('history');
+      LogUtils.i('启动形态快照: $summary', tag);
+      LogUtils.i('最近启动经过(${history.length}条):\n${history.join('\n')}', tag);
+
+      await Future<void>.delayed(const Duration(seconds: 10));
+      final later = await _channel.invokeMapMethod<String, dynamic>(
+        'launchDiagnostics',
+      );
+      if (later == null) return;
+      final verdict = later['verdict'];
+      final line =
+          '启动 10s 后形态: verdict=$verdict sceneAlive=${later['sceneAlive']} '
+          'firstActivity=${later['firstActivity']} mainDisplayId=${later['mainDisplayId']}';
+      if (verdict == 'immersive') {
+        LogUtils.i(line, tag);
+      } else {
+        LogUtils.w('$line（非空间形态）', tag);
+      }
+    } on MissingPluginException {
+      // standard 变体没有这条通道。
+    } catch (e) {
+      LogUtils.w('读取启动形态诊断失败: $e', tag);
+    }
   }
 
   Future<void> refreshAvailability() async {
@@ -184,10 +265,27 @@ class XrImmersiveService extends GetxService {
         return await loadMoreInQueue((args?['queueId'] as String?) ?? '');
       case 'playItem':
         final args = call.arguments as Map?;
-        return await playQueueItem(
-          queueId: (args?['queueId'] as String?) ?? '',
-          videoId: (args?['id'] as String?) ?? '',
-        );
+        final videoId = (args?['id'] as String?) ?? '';
+        var ok = false;
+        try {
+          ok = await playQueueItem(
+            queueId: (args?['queueId'] as String?) ?? '',
+            videoId: videoId,
+          );
+        } catch (e) {
+          LogUtils.w('沉浸态换片抛异常 videoId=$videoId: $e', 'XrImmersive');
+        }
+        // ⛔ 原生发 playItem 不等回值、已进换片转圈态：这里不喊停，它要干等 45 秒超时。
+        if (!ok) unawaited(abortSwitch(videoId: videoId));
+        return ok;
+      case 'panelSuspended':
+        final args = call.arguments as Map?;
+        panelSuspended = (args?['suspended'] as bool?) ?? false;
+        return true;
+      case 'sceneLifecycle':
+        final args = call.arguments as Map?;
+        _onSceneLifecycle((args?['foreground'] as bool?) ?? true);
+        return true;
       case 'immersiveEnded':
         final args = call.arguments as Map?;
         final id = (args?['videoId'] as String?)?.trim() ?? '';
@@ -281,7 +379,11 @@ class XrImmersiveService extends GetxService {
 
   /// 被换掉的旧片：沉浸端的进度从不经过页面控制器，只能在这一刻回写一次。
   /// 口径与 `MyVideoStateController._disposeAsyncResources` 一致（头尾 5s 内当作没看 / 看完）。
-  Future<void> _saveHistory(String videoId, int positionMs, int durationMs) async {
+  Future<void> _saveHistory(
+    String videoId,
+    int positionMs,
+    int durationMs,
+  ) async {
     if (!Get.isRegistered<PlaybackHistoryService>()) return;
     if (durationMs <= 0) return;
     final history = Get.find<PlaybackHistoryService>();
@@ -325,7 +427,7 @@ class XrImmersiveService extends GetxService {
       }
       LogUtils.i(
         '推送接着看 provider=${queueProvider != null} sections=${sections.map((e) => e.queueId).toList()} '
-        'active=${activeQueueId ?? sections.firstOrNull?.queueId} groups=${groups.map((g) => g.id).toList()}',
+            'active=${activeQueueId ?? sections.firstOrNull?.queueId} groups=${groups.map((g) => g.id).toList()}',
         'XrImmersive',
       );
       await _channel.invokeMethod<void>('setPlaylist', {
@@ -366,7 +468,8 @@ class XrImmersiveService extends GetxService {
       await pushQueues();
       return false;
     }
-    final queue = PlaybackQueueService.to.byId(queueId) ?? _catalog.open(queueId);
+    final queue =
+        PlaybackQueueService.to.byId(queueId) ?? _catalog.open(queueId);
     if (queue == null) {
       LogUtils.w('沉浸态要开的池不在目录里 queueId=$queueId', 'XrImmersive');
       await pushQueues();
@@ -390,7 +493,9 @@ class XrImmersiveService extends GetxService {
   /// 增量：面板那边按 id 做 key，整套替换不会丢滚动位置，而且不用再维护一条
   /// 「追加」协议。池不在了 / 已到底就原样推一次，好让面板把加载态收掉。
   Future<bool> loadMoreInQueue(String queueId) async {
-    final queue = queueId.isEmpty ? null : PlaybackQueueService.to.byId(queueId);
+    final queue = queueId.isEmpty
+        ? null
+        : PlaybackQueueService.to.byId(queueId);
     if (queue == null || !queue.hasMore) {
       await pushQueues();
       return false;
@@ -419,11 +524,13 @@ class XrImmersiveService extends GetxService {
     required String videoId,
   }) async {
     if (videoId.isEmpty) return false;
-    final queue = queueId.isEmpty ? null : PlaybackQueueService.to.byId(queueId);
+    final queue = queueId.isEmpty
+        ? null
+        : PlaybackQueueService.to.byId(queueId);
     final item = queue?.loaded.firstWhereOrNull((e) => e.id == videoId);
     LogUtils.i(
       '沉浸态换片 queue=$queueId found=${queue != null} item=${item != null} '
-      'companions=${queueProvider?.call().queues.map((q) => q.queueId).toList()}',
+          'companions=${queueProvider?.call().queues.map((q) => q.queueId).toList()}',
       'XrImmersive',
     );
     if (queue != null && item != null) {
@@ -682,7 +789,10 @@ class XrImmersiveService extends GetxService {
 
   /// 面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 已删除 / 网络）：
   /// 让原生收掉换片在途态，把老片放回去并提示，不必等 45s 看门狗。
-  Future<bool> abortSwitch({required String videoId, String reason = ''}) async {
+  Future<bool> abortSwitch({
+    required String videoId,
+    String reason = '',
+  }) async {
     try {
       return await _channel.invokeMethod<bool>('abortSwitch', {
             'videoId': videoId,
@@ -739,6 +849,7 @@ typedef XrQueueSnapshot = ({
   String currentItemId,
   User? author,
   void Function(PlaybackQueue queue) adopt,
+
   /// 这张页面的池是视频池还是图库池：分区与来源目录都只列同类的（一个池不许混装两种）。
   PlaybackMediaType mediaType,
 });

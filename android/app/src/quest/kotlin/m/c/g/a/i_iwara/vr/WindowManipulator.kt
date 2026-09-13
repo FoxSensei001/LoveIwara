@@ -154,6 +154,11 @@ class WindowManipulator(
         var rebuildInTicks = 0
         /** The compositor order was applied to a live layer (see [orderLayer]). */
         var layerOrdered = false
+        /** Pose last written to [frameEntity]; an unchanged window must not dirty its Transform every tick. */
+        var appliedPose: Pose? = null
+        var appliedPoseEntity: Entity? = null
+        /** framePanel arrives asynchronously after the entity; it needs its own first write. */
+        var appliedPosePanel: PanelSceneObject? = null
     }
 
     private class Hit(
@@ -609,14 +614,22 @@ class WindowManipulator(
                 }
             }
             slot.appliedSize = size
+            // reshape / Scale may rebuild what the runtime holds: never trust the cached pose across them.
+            slot.appliedPose = null
             syncIsdkShape(entity, size, arc)
             updateFrameMetrics(slot, size)
         }
         val pose = framePose(surface, size, arc)
-        entity.setComponent(Transform(pose))
-        slot.framePanel?.let {
-            it.setPosition(pose.t)
-            it.setRotationQuat(pose.q)
+        val panel = slot.framePanel
+        if (slot.parked || pose != slot.appliedPose || entity !== slot.appliedPoseEntity || panel !== slot.appliedPosePanel) {
+            entity.setComponent(Transform(pose))
+            slot.framePanel?.let {
+                it.setPosition(pose.t)
+                it.setRotationQuat(pose.q)
+            }
+            slot.appliedPose = pose
+            slot.appliedPoseEntity = entity
+            slot.appliedPosePanel = panel
         }
         if (slot.parked) {
             entity.setComponent(Visible(true))

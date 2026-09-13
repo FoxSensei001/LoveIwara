@@ -17,6 +17,9 @@ internal object PanelDepth {
     private const val BOUNDS_PADDING_M = 0.09f
     private const val CURVE_ERROR_M = 0.001f
     private const val MIN_DISTANCE_M = 0.15f
+    private const val MAX_POINTS = 16
+    private val bufA = FloatArray(MAX_POINTS * 3)
+    private val bufB = FloatArray(MAX_POINTS * 3)
 
     fun inFrontOfScreen(
         panel: Pose,
@@ -76,13 +79,29 @@ internal object PanelDepth {
             val next = edge(index)
             // Every eye-to-panel ray stays inside this rectangular prism. Only screen
             // geometry within it can hide a cursor; off-to-the-side screens do not pull UI in.
-            var polygon = listOf(left - vertical, next - vertical, next + vertical, left + vertical)
-            polygon = clip(polygon, 0, 1f, bounds.x)
-            polygon = clip(polygon, 0, -1f, bounds.x)
-            polygon = clip(polygon, 1, 1f, bounds.y)
-            polygon = clip(polygon, 1, -1f, bounds.y)
-            polygon = clip(polygon, 2, -1f, 0f)
-            for (point in polygon) nearest = min(nearest, point.z - CURVE_ERROR_M)
+            val p0 = left - vertical
+            bufA[0] = p0.x
+            bufA[1] = p0.y
+            bufA[2] = p0.z
+            val p1 = next - vertical
+            bufA[3] = p1.x
+            bufA[4] = p1.y
+            bufA[5] = p1.z
+            val p2 = next + vertical
+            bufA[6] = p2.x
+            bufA[7] = p2.y
+            bufA[8] = p2.z
+            val p3 = left + vertical
+            bufA[9] = p3.x
+            bufA[10] = p3.y
+            bufA[11] = p3.z
+            var count = 4
+            count = clip(bufA, count, bufB, 0, 1f, bounds.x)
+            count = clip(bufB, count, bufA, 0, -1f, bounds.x)
+            count = clip(bufA, count, bufB, 1, 1f, bounds.y)
+            count = clip(bufB, count, bufA, 1, -1f, bounds.y)
+            count = clip(bufA, count, bufB, 2, -1f, 0f)
+            for (i in 0 until count) nearest = min(nearest, bufB[i * 3 + 2] - CURVE_ERROR_M)
             left = next
         }
         val limit = nearest - gap
@@ -94,26 +113,40 @@ internal object PanelDepth {
     }
 
     /** Clip a convex polygon against sign * coordinate <= bound. */
-    private fun clip(points: List<Vector3>, axis: Int, sign: Float, bound: Float): List<Vector3> {
-        if (points.isEmpty()) return points
-        fun distance(point: Vector3): Float = sign * when (axis) {
-            0 -> point.x
-            1 -> point.y
-            else -> point.z
-        } - bound
-        val result = ArrayList<Vector3>(points.size + 1)
-        var previous = points.last()
-        var previousDistance = distance(previous)
-        for (point in points) {
-            val currentDistance = distance(point)
+    private fun clip(src: FloatArray, count: Int, dst: FloatArray, axis: Int, sign: Float, bound: Float): Int {
+        if (count == 0) return 0
+        var outCount = 0
+        val lastOffset = (count - 1) * 3
+        var prevX = src[lastOffset]
+        var prevY = src[lastOffset + 1]
+        var prevZ = src[lastOffset + 2]
+        var previousDistance = sign * src[lastOffset + axis] - bound
+        for (i in 0 until count) {
+            val currOffset = i * 3
+            val currX = src[currOffset]
+            val currY = src[currOffset + 1]
+            val currZ = src[currOffset + 2]
+            val currentDistance = sign * src[currOffset + axis] - bound
             if ((previousDistance <= 0f) != (currentDistance <= 0f)) {
                 val fraction = previousDistance / (previousDistance - currentDistance)
-                result.add(previous + (point - previous) * fraction)
+                val outOffset = outCount * 3
+                dst[outOffset] = prevX + (currX - prevX) * fraction
+                dst[outOffset + 1] = prevY + (currY - prevY) * fraction
+                dst[outOffset + 2] = prevZ + (currZ - prevZ) * fraction
+                outCount++
             }
-            if (currentDistance <= 0f) result.add(point)
-            previous = point
+            if (currentDistance <= 0f) {
+                val outOffset = outCount * 3
+                dst[outOffset] = currX
+                dst[outOffset + 1] = currY
+                dst[outOffset + 2] = currZ
+                outCount++
+            }
+            prevX = currX
+            prevY = currY
+            prevZ = currZ
             previousDistance = currentDistance
         }
-        return result
+        return outCount
     }
 }

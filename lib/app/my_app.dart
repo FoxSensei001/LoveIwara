@@ -11,6 +11,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
+import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/version_service.dart';
 import 'package:i_iwara/app/services/player_keybinding/keybinding_service.dart';
@@ -464,6 +465,8 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Quest 看视频时面板停帧借的是 paused 通道，不是真进后台（见 XrImmersiveService.panelSuspended）。
+    if (XrImmersiveService.panelSuspended) return;
     bool activeBackgroundPrivacyMode =
         _configService[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE] ||
         _appLockService.enabled;
