@@ -468,7 +468,7 @@ class _TagMediaListPageState extends State<TagMediaListPage>
   /// 与（窄屏才在场的）动作胶囊排成一列，而不是各自占一处右下角。
   Widget _buildScrollToTopButton(BuildContext context) {
     return Obx(() {
-      final visible = _mediaListController.currentScrollOffset.value > 800;
+      final visible = _mediaListController.canScrollToTop.value;
       return ScrollToTopFab(
         visible: visible,
         onPressed: _mediaListController.scrollToTop,

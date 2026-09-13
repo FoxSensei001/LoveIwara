@@ -222,11 +222,6 @@ class PopularMediaListPageBaseState<
 
   SortId _activeTabId() => sorts[_tabController.index].id;
 
-  void _selectSortIndex(int index) {
-    if (index < 0 || index >= sorts.length) return;
-    _tabController.animateTo(index);
-  }
-
   @override
   void initState() {
     super.initState();
@@ -308,8 +303,9 @@ class PopularMediaListPageBaseState<
     _currentTabIndex.value = 0;
     _mediaListController.invalidateLoadedSorts(activeSortId: activeSortId);
     _mediaListController.resetHeaderState();
-    _mediaListController.currentScrollOffset.value = 0.0;
-    _mediaListController.lastScrollDirection.value = ScrollDirection.idle;
+    _mediaListController.currentScrollOffset = 0.0;
+    _mediaListController.lastScrollDirection = ScrollDirection.idle;
+    _mediaListController.canScrollToTop.value = false;
 
     if (mounted) {
       setState(() {});
@@ -418,15 +414,8 @@ class PopularMediaListPageBaseState<
   static const String _menuActionScrollTop = 'scroll_top';
   static const String _menuActionTogglePagination = 'toggle_pagination';
   static const String _menuActionToggleBatchSelect = 'toggle_batch_select';
-  static const String _menuActionSortPrefix = 'sort_';
 
   void _handleTopBarMenuAction(String action) {
-    if (action.startsWith(_menuActionSortPrefix)) {
-      final name = action.substring(_menuActionSortPrefix.length);
-      final index = sorts.indexWhere((sort) => sort.id.name == name);
-      _selectSortIndex(index);
-      return;
-    }
     switch (action) {
       case _menuActionOpenSearch:
         _openSearchDialog();
@@ -479,17 +468,6 @@ class PopularMediaListPageBaseState<
       icon: Icons.vertical_align_top,
       label: t.common.scrollToTop,
     );
-    items.add(const GlassMenuSeparator());
-    for (final sort in sorts) {
-      items.add(
-        GlassMenuOption<String>(
-          value: '$_menuActionSortPrefix${sort.id.name}',
-          leading: sort.icon,
-          label: sort.label,
-          selected: sort.id == sorts[_tabController.index].id,
-        ),
-      );
-    }
     // 批量选择：默认只收在菜单里；开启后按钮才会冒到右侧胶囊中，
     // 菜单里的入口同步换成「退出编辑模式」。
     items.add(const GlassMenuSeparator());
@@ -573,10 +551,13 @@ class PopularMediaListPageBaseState<
   }
 
   /// 滚过约一屏后出现在右下角的「回到顶部」浮钮。
+  ///
+  /// 读的是阈值化之后的 [PopularMediaListController.canScrollToTop]，**不是**
+  /// 每帧都在变的 `currentScrollOffset`——后者当依赖等于每帧重建这棵子树。
   Widget _buildScrollToTopFab(BuildContext context) {
     return Obx(() {
       final visible =
-          _mediaListController.currentScrollOffset.value > 800 &&
+          _mediaListController.canScrollToTop.value &&
           !_batchSelectController.isMultiSelect.value;
       return Positioned(
         // 移动端底栏可见时与搜索圆钮中心共轴；宽屏（rail 布局）用普通右边距
@@ -630,8 +611,16 @@ class PopularMediaListPageBaseState<
                     .toString();
                 final isMultiSelectMode =
                     _batchSelectController.isMultiSelect.value;
-                final selectedMediaIds = _batchSelectController.selectedMediaIds
-                    .toSet();
+                // ⛔ 这里**绝对不要**去读 selectedMediaIds（哪怕只是 .toSet() 拷一份）。
+                // 这个 Obx 的 builder 里装着 TabBarView + 6 个 keepAlive 的子 tab，
+                // 读它一次就等于把整页登记成选中集合的依赖：多选模式下点一下卡片，
+                // 6 个 tab 全部重建，每个 tab 里已构建的卡片再全部重新 build
+                //（SliverChildBuilderDelegate 每次都是新实例、shouldRebuild 恒真，
+                // performRebuild() 一个都不落）。
+                //
+                // 只取集合对象本身不构成依赖；订阅下沉到每张卡片的勾选层，
+                // 见 MediaTabView.selectionSource。
+                final selectionSource = _batchSelectController.selectedMediaIds;
 
                 _batchSelectController.setPaginatedMode(isPaginated);
 
@@ -658,7 +647,7 @@ class PopularMediaListPageBaseState<
                       paddingTop: headerExtent,
                       mediaListController: _mediaListController,
                       isMultiSelectMode: isMultiSelectMode,
-                      selectedItemIds: selectedMediaIds,
+                      selectionSource: selectionSource,
                       onItemSelect: (media) =>
                           _batchSelectController.toggleSelection(media),
                       onPageChanged: () =>

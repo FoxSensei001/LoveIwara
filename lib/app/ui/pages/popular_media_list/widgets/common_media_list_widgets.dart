@@ -681,16 +681,7 @@ class _PaginationBarState extends State<PaginationBar>
 
   @override
   Widget build(BuildContext context) {
-    // 字色跟着身后滚过去的内容走（见 [GlassAdaptiveChrome]）：这条栏和浮动
-    // 底栏一样常驻在列表之上，页面没开内容感知时整只透传、零成本。
-    //
-    // ⛔ 必须用 Builder 把整条栏建到判决**之下**：下面这些颜色都是就地从
-    // `ColorScheme` 取出来的 Color 值，在外面套一层换了主题的 Theme 对它们
-    // 毫无作用。
-    return GlassAdaptiveChrome(
-      debugLabel: '分页栏',
-      child: Builder(builder: _build),
-    );
+    return _build(context);
   }
 
   Widget _build(BuildContext context) {
@@ -699,66 +690,68 @@ class _PaginationBarState extends State<PaginationBar>
     final selection = BatchSelectionScope.maybeOf(context);
     final bool selectionActive = selection?.active ?? false;
 
-    // 加载态不再跨栏铺一条横向进度条，而是把光环落在页码卡片自己身上
-    // （见 _buildPageNumberPill），这里只负责常规的分页栏内容。
-    final barContent = Container(
-      decoration: BoxDecoration(
-        color: widget.useBlurEffect
-            ? Colors.transparent
-            : Theme.of(context).colorScheme.surface,
-        boxShadow: widget.useBlurEffect
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 主要内容区域。
-          //
-          // 页面处于批量选择态时（由 [BatchSelectionScope] 广播），这条栏
-          // **不是被另一条动作坞盖住，而是自己换了内容**：翻页键收窄留下，
-          // 右侧长出动作行。底部因此永远只有一条栏——原先的做法是把浮钮列
-          // 抬到分页栏之上，手机上分页栏 46 + 浮钮列 + 安全区能吃掉近七分之
-          // 一屏。
-          //
-          // 交接是两段时序（借 Interval 让旧内容先退场、新内容后入场），与
-          // header 中间胶囊的 GlassCapsuleMorph 读起来是同一种形变。
-          AnimatedSwitcher(
-            duration: GlassTokens.capsuleMorphDuration,
-            switchInCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
-            switchOutCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
-            child: selectionActive
-                ? KeyedSubtree(
-                    key: const ValueKey('pagination_selection'),
-                    child: _buildSelectionBar(context, selection!),
-                  )
-                : KeyedSubtree(
-                    key: const ValueKey('pagination_nav'),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isNarrow = constraints.maxWidth < 600;
-                        if (widget.isTotalCountUnknown) {
-                          return isNarrow
-                              ? _buildUnknownTotalCompactPaginationBar(context)
-                              : _buildUnknownTotalFullPaginationBar(context);
-                        }
-                        return isNarrow
-                            ? _buildCompactPaginationBar(context)
-                            : _buildFullPaginationBar(context);
-                      },
+    // 字色跟着身后滚过去的内容走（见 [GlassAdaptiveChrome]）：
+    // ⛔ 仅包裹控制条内容本体，绝不要包裹外层的 EdgeFadeScrim 渐变蒙层！
+    // 渐变蒙层代表页面的底色面纱，必须恒定跟随环境主题（浅色模式下恒为白色、
+    // 深色模式下恒为深色）。若包在蒙层外，滑到底部采到深色卡片时整块渐变蒙层
+    // 就会被误翻成黑色，视觉上如同黑色的背景阴影。
+    final adaptiveBarContent = GlassAdaptiveChrome(
+      debugLabel: '分页栏',
+      child: Builder(
+        builder: (adaptiveContext) => Container(
+          decoration: BoxDecoration(
+            color: widget.useBlurEffect
+                ? Colors.transparent
+                : Theme.of(adaptiveContext).colorScheme.surface,
+            boxShadow: widget.useBlurEffect
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
                     ),
-                  ),
+                  ],
           ),
-          // 底部安全区域占位
-          if (widget.showBottomPadding && widget.paddingBottom > 0)
-            SizedBox(height: widget.paddingBottom),
-        ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedSwitcher(
+                duration: GlassTokens.capsuleMorphDuration,
+                switchInCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+                switchOutCurve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+                child: selectionActive
+                    ? KeyedSubtree(
+                        key: const ValueKey('pagination_selection'),
+                        child: _buildSelectionBar(adaptiveContext, selection!),
+                      )
+                    : KeyedSubtree(
+                        key: const ValueKey('pagination_nav'),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isNarrow = constraints.maxWidth < 600;
+                            if (widget.isTotalCountUnknown) {
+                              return isNarrow
+                                  ? _buildUnknownTotalCompactPaginationBar(
+                                      adaptiveContext,
+                                    )
+                                  : _buildUnknownTotalFullPaginationBar(
+                                      adaptiveContext,
+                                    );
+                            }
+                            return isNarrow
+                                ? _buildCompactPaginationBar(adaptiveContext)
+                                : _buildFullPaginationBar(adaptiveContext);
+                          },
+                        ),
+                      ),
+              ),
+              // 底部安全区域占位
+              if (widget.showBottomPadding && widget.paddingBottom > 0)
+                SizedBox(height: widget.paddingBottom),
+            ],
+          ),
+        ),
       ),
     );
 
@@ -782,13 +775,13 @@ class _PaginationBarState extends State<PaginationBar>
           ),
           Padding(
             padding: const EdgeInsets.only(top: fadeAbove),
-            child: barContent,
+            child: adaptiveBarContent,
           ),
         ],
       );
     } else {
       // 直接返回常规内容
-      result = barContent;
+      result = adaptiveBarContent;
     }
 
     // 分页栏是浮在列表内容之上的固定底栏（不随列表滚动），与 header/浮动

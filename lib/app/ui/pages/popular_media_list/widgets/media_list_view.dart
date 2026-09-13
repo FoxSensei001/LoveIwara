@@ -14,52 +14,11 @@ import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/common_utils.dart' show CommonUtils;
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/utils/frame_perf_logger.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'common_media_list_widgets.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/rendering.dart'; // 用于 ScrollDirection
 import 'package:i_iwara/app/ui/pages/subscriptions/controllers/media_list_controller.dart'; // 导入 MediaListController
-import 'dart:developer';
-
-// 添加性能监视类
-class PerformanceMonitor {
-  static int _frameCount = 0;
-  static int _lastReportTime = 0;
-  static bool _isEnabled = false;
-  static const int _reportIntervalMillis = 2000;
-
-  static void initialize(bool enabled) {
-    _isEnabled = enabled;
-    if (_isEnabled) {
-      _startMonitoring();
-    }
-  }
-
-  static void _startMonitoring() {
-    _frameCount = 0;
-    _lastReportTime = DateTime.now().millisecondsSinceEpoch;
-
-    SchedulerBinding.instance.addPostFrameCallback(_monitorFrames);
-  }
-
-  static void _monitorFrames(Duration timeStamp) {
-    if (!_isEnabled) return;
-
-    _frameCount++;
-    final now = DateTime.now().millisecondsSinceEpoch;
-    final elapsedTime = now - _lastReportTime;
-
-    if (elapsedTime >= _reportIntervalMillis) {
-      final fps = (_frameCount * 1000 / elapsedTime).toStringAsFixed(1);
-      log('MediaListView Performance: $fps FPS');
-
-      _frameCount = 0;
-      _lastReportTime = now;
-    }
-
-    SchedulerBinding.instance.addPostFrameCallback(_monitorFrames);
-  }
-}
 
 // 添加节流控制类
 class ScrollThrottler {
@@ -306,8 +265,20 @@ class MediaListView<T> extends StatefulWidget {
   static const double paginationBarReservedExtent =
       PaginationBar.barHeight + PaginationBar.fadeAboveExtent;
 
+  /// 列表左右内边距。
+  ///
+  /// 提成常量是因为列宽推导要用它——瀑布流拿到的是**扣过这份 padding** 的约束，
+  /// 两处各写一个 `5.0` 迟早会改歪一处，而列宽算歪是肉眼可见的版式错位。
+  static const double listHorizontalPadding = 5.0;
+
   final LoadingMoreBase<T> sourceList;
-  final Widget Function(BuildContext context, T item, int index) itemBuilder;
+
+  /// 兜底的项构建器。
+  ///
+  /// 与 [itemBuilderWithWidth] / [itemBuilderWithVisibleItems] **至少给一个**
+  /// （构造函数里有 assert）。单独用它时就是最朴素的那条路径。
+  final Widget Function(BuildContext context, T item, int index)? itemBuilder;
+
   final Widget Function(
     BuildContext context,
     T item,
@@ -315,11 +286,32 @@ class MediaListView<T> extends StatefulWidget {
     List<T> visibleItems,
   )?
   itemBuilderWithVisibleItems;
+
+  /// 可选的「带列宽」构建入口。给了它就用它，[cardWidth] 由本组件按瀑布流
+  /// delegate 的同一份公式算好递进来。
+  ///
+  /// 存在的理由：瀑布流本来就用**紧约束**把列宽给到了子项，那个宽度在列表层
+  /// 就是已知的；调用方若为每一项再套一个 `LayoutBuilder` 去读它，代价是每项
+  /// 白搭一个 element + render object，而且卡片子树会被迫在**布局阶段**才构建。
+  /// 列宽一旦不是「每项自己量」而是「列表算一次」，这一层就整个消失了。
+  ///
+  /// 本帧不是瀑布流布局（自定义 delegate 不是瀑布流）时没有「列宽」：若它是
+  /// 唯一给到的构建器，会把**整行宽度**递进来兜底，而不是渲染成空盒子。
+  final Widget Function(
+    BuildContext context,
+    T item,
+    int index,
+    double cardWidth,
+  )?
+  itemBuilderWithWidth;
   final IconData? emptyIcon;
   final bool isPaginated;
   final ExtendedListDelegate? extendedListDelegate;
   final ScrollController? scrollController;
   final double paddingTop;
+
+  /// 打开本组件的帧耗时采集。构建期给了 `--dart-define=PERF_LOG=true` 时自动打开，
+  /// 不用改这里（见 [kFramePerfLogEnabled]）。
   final bool enablePerformanceLogging;
   final bool showBottomPadding;
   final bool enablePullToRefresh;
@@ -346,8 +338,9 @@ class MediaListView<T> extends StatefulWidget {
   const MediaListView({
     super.key,
     required this.sourceList,
-    required this.itemBuilder,
+    this.itemBuilder,
     this.itemBuilderWithVisibleItems,
+    this.itemBuilderWithWidth,
     this.emptyIcon,
     this.isPaginated = false,
     this.extendedListDelegate,
@@ -361,7 +354,13 @@ class MediaListView<T> extends StatefulWidget {
     this.onScrollMetricsChanged,
     this.refreshSignal,
     this.listCoordinator,
-  });
+  }) : assert(
+         itemBuilder != null ||
+             itemBuilderWithVisibleItems != null ||
+             itemBuilderWithWidth != null,
+         'MediaListView 至少要给一个项构建器：itemBuilder / '
+         'itemBuilderWithVisibleItems / itemBuilderWithWidth',
+       );
 
   @override
   State<MediaListView<T>> createState() => _MediaListViewState<T>();
@@ -450,9 +449,10 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
       }).call;
     }
 
-    // 初始化性能监控
-    if (widget.enablePerformanceLogging) {
-      PerformanceMonitor.initialize(true);
+    // 帧耗时采集。采集器是全局单例 + 引用计数：热门页有 6 个 keepAlive 的 tab，
+    // 每个都会 attach 一次，但只有第一份回调真正挂上去。
+    if (widget.enablePerformanceLogging || kFramePerfLogEnabled) {
+      FramePerfLogger.instance.attach(label: 'MediaListView<$T>');
     }
 
     if (widget.isPaginated) {
@@ -774,6 +774,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     if (widget.refreshSignal != null && _refreshSignalListener != null) {
       widget.refreshSignal!.removeListener(_refreshSignalListener!);
     }
+    if (widget.enablePerformanceLogging || kFramePerfLogEnabled) {
+      FramePerfLogger.instance.detach();
+    }
     _pageController.dispose();
     super.dispose();
   }
@@ -861,6 +864,81 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     );
   }
 
+  /// 本帧真正会用到的瀑布流 delegate。
+  ///
+  /// 调用方通过 [MediaListView.extendedListDelegate] 塞了自定义的瀑布流 delegate
+  /// 就用它；没塞就按 [defaultMaxCrossAxisExtent] 现造一个。塞进来的**不是**瀑布流
+  /// delegate（那种情况列表走 `ExtendedSliverList`，根本没有「列」的概念）时返回
+  /// null——列宽快路径随之关闭。
+  SliverWaterfallFlowDelegateWithMaxCrossAxisExtent? _resolveWaterfallDelegate(
+    double defaultMaxCrossAxisExtent,
+  ) {
+    final custom = widget.extendedListDelegate;
+    if (custom is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent) {
+      return custom;
+    }
+    if (custom != null) return null;
+    return SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: defaultMaxCrossAxisExtent,
+      crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+    );
+  }
+
+  /// 一张卡占多宽。
+  ///
+  /// 走 [MediaLayoutUtils.resolveWaterfallChildWidth]，与瀑布流 delegate 同一份
+  /// 公式；[delegate] 为 null（不是瀑布流布局）时返回 null，让
+  /// [itemBuilderWithWidth] 这条快路径整体关闭——宁可不省这点开销，也不能算错宽度。
+  double? _resolveCardWidth(
+    double availableWidth,
+    SliverWaterfallFlowDelegateWithMaxCrossAxisExtent? delegate,
+  ) {
+    if (delegate == null) return null;
+    final double width = MediaLayoutUtils.resolveWaterfallChildWidth(
+      sliverCrossAxisExtent: availableWidth - MediaListView.listHorizontalPadding * 2,
+      maxCrossAxisExtent: delegate.maxCrossAxisExtent,
+      crossAxisSpacing: delegate.crossAxisSpacing,
+    );
+    return width > 0 ? width : null;
+  }
+
+  /// 列表项的构建入口。四个构建路径按优先级走：
+  /// [itemBuilderWithWidth]（最快，列宽已算好）→ [itemBuilderWithVisibleItems]
+  /// → [itemBuilder] → [itemBuilderWithWidth]（兜底，[fallbackCardWidth] 即整行
+  /// 宽度，仅当它是唯一给到的构建器时才会走到）。
+  Widget _buildListItem(
+    BuildContext context,
+    T item,
+    int index,
+    double? cardWidth,
+    double fallbackCardWidth,
+    List<T> visibleSource,
+  ) {
+    if (cardWidth != null) {
+      final withWidth = widget.itemBuilderWithWidth;
+      if (withWidth != null) return withWidth(context, item, index, cardWidth);
+    }
+    final withVisibleItems = widget.itemBuilderWithVisibleItems;
+    if (withVisibleItems != null) {
+      // 仅当需要可见项列表时才复制一份，避免每个 cell 都全量复制整个已加载列表
+      //（列表越长开销越大）。绝大多数调用方走的是上面两条快路径。
+      return withVisibleItems(context, item, index, List<T>.of(visibleSource));
+    }
+    final builder = widget.itemBuilder;
+    if (builder != null) return builder(context, item, index);
+    // 只给了 itemBuilderWithWidth、但本帧不是瀑布流布局（自定义 delegate 不是
+    // 瀑布流，没有「列宽」可言）：把整行宽度递进去兜底，而不是渲染成空盒子。
+    // 这种组合构造函数的 assert 拦不住，release 下空盒子就是整页白屏。
+    final withWidth = widget.itemBuilderWithWidth;
+    if (withWidth != null) {
+      return withWidth(context, item, index, fallbackCardWidth);
+    }
+    // 一个构建器都没给：构造函数里的 assert 在 debug 下已经拦住了，
+    // release 下给个空盒子，而不是把整页崩掉。
+    return const SizedBox.shrink();
+  }
+
   Widget _buildInfiniteScrollView(BuildContext context, double availableWidth) {
     // 使用实际可用宽度（来自 LayoutBuilder），而非屏幕宽度
     final screenWidth = availableWidth;
@@ -871,44 +949,47 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     );
     final double maxCrossAxisExtent = screenWidth / crossAxisCount;
 
+    // 本帧真正会用到的瀑布流 delegate。列宽必须由**这个对象**算出来，否则调用方
+    // 通过 extendedListDelegate 塞了自定义 delegate 时列宽会跟实际格子对不上。
+    // 传进来的不是瀑布流 delegate（走 ExtendedSliverList）时它是 null —— 那种
+    // 布局下没有「列宽」这回事，快路径整体关闭。
+    final SliverWaterfallFlowDelegateWithMaxCrossAxisExtent? waterfallDelegate =
+        _resolveWaterfallDelegate(maxCrossAxisExtent);
+
     // 提取骨架图布局配置
-    final skeletonLayoutConfig =
-        widget.extendedListDelegate
-            is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
-        ? SkeletonLayoutConfig.fromDelegate(
-            widget.extendedListDelegate
-                as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent,
-          )
+    final skeletonLayoutConfig = waterfallDelegate != null
+        ? SkeletonLayoutConfig.fromDelegate(waterfallDelegate)
         : SkeletonLayoutConfig.defaultConfig(screenWidth);
+
+    final double? cardWidth = _resolveCardWidth(screenWidth, waterfallDelegate);
 
     final scrollView = LoadingMoreCustomScrollView(
       controller: widget.scrollController,
       physics: const ClampingScrollPhysics(),
+      // 适度放大视口外预布局/预光栅化距离，削平高速滚动时卡片突发进入视口的构建与绘制峰值
+      cacheExtent: 600.0,
       slivers: <Widget>[
         LoadingMoreSliverList(
           SliverListConfig<T>(
             extendedListDelegate:
-                widget.extendedListDelegate ??
-                SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: maxCrossAxisExtent,
-                  crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
-                  mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
-                ),
-            itemBuilder: (context, item, index) {
-              // 仅当需要可见项列表时才复制 sourceList，避免每个 cell 都全量复制整个
-              // 已加载列表（列表越长开销越大）。绝大多数调用方只用 itemBuilder 分支。
-              final withVisibleItems = widget.itemBuilderWithVisibleItems;
-              if (withVisibleItems != null) {
-                final visibleItems = List<T>.of(widget.sourceList.cast<T>());
-                return withVisibleItems(context, item, index, visibleItems);
-              }
-              return widget.itemBuilder(context, item, index);
-            },
+                widget.extendedListDelegate ?? waterfallDelegate,
+            itemBuilder: (context, item, index) => _buildListItem(
+              context,
+              item,
+              index,
+              cardWidth,
+              // 非瀑布流布局下每行占满去掉左右内边距的整行宽度
+              screenWidth - MediaListView.listHorizontalPadding * 2,
+              widget.sourceList.cast<T>(),
+            ),
             sourceList: widget.sourceList,
+            // 关掉空转的 keep-alive 包装：卡片里没有任何
+            // AutomaticKeepAliveClientMixin，这个包装每项一层、从来没生效过。
+            addAutomaticKeepAlives: false,
             padding: EdgeInsets.only(
               top: widget.paddingTop,
-              left: 5.0,
-              right: 5.0,
+              left: MediaListView.listHorizontalPadding,
+              right: MediaListView.listHorizontalPadding,
               bottom: widget.showBottomPadding
                   ? computeBottomSafeInset(MediaQuery.of(context))
                   : 0,
@@ -982,15 +1063,25 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     );
     final double maxCrossAxisExtent = screenWidth / crossAxisCount;
 
+    // 分页分支的 sliver 一定是瀑布流，所以这里**总是**拿得到一个瀑布流 delegate：
+    // 调用方塞的自定义 delegate 不是瀑布流那种时，与原先一样退回默认的。
+    final SliverWaterfallFlowDelegateWithMaxCrossAxisExtent waterfallDelegate =
+        _resolveWaterfallDelegate(maxCrossAxisExtent) ??
+        SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: maxCrossAxisExtent,
+          crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
+          mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+        );
+    final double? cardWidth = _resolveCardWidth(screenWidth, waterfallDelegate);
+    // 非瀑布流布局下的整行宽度兜底（见 _buildListItem）。分页分支恒为瀑布流，
+    // 实际到不了，仅为与无限滚动分支对齐签名。
+    final double fallbackCardWidth =
+        screenWidth - MediaListView.listHorizontalPadding * 2;
+
     // 提取骨架图布局配置
-    final skeletonLayoutConfig =
-        widget.extendedListDelegate
-            is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
-        ? SkeletonLayoutConfig.fromDelegate(
-            widget.extendedListDelegate
-                as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent,
-          )
-        : SkeletonLayoutConfig.defaultConfig(screenWidth);
+    final skeletonLayoutConfig = SkeletonLayoutConfig.fromDelegate(
+      waterfallDelegate,
+    );
 
     return Stack(
       children: [
@@ -1006,7 +1097,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                     context,
                     paginationBarHeight,
                     bottomInset,
-                    maxCrossAxisExtent,
+                    waterfallDelegate,
+                    cardWidth,
+                    fallbackCardWidth,
                     skeletonLayoutConfig,
                   ),
                 )
@@ -1014,7 +1107,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
                   context,
                   paginationBarHeight,
                   bottomInset,
-                  maxCrossAxisExtent,
+                  waterfallDelegate,
+                  cardWidth,
+                  fallbackCardWidth,
                   skeletonLayoutConfig,
                 ),
         ),
@@ -1045,7 +1140,9 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     BuildContext context,
     int paginationBarHeight,
     double bottomInset,
-    double maxCrossAxisExtent,
+    SliverWaterfallFlowDelegateWithMaxCrossAxisExtent waterfallDelegate,
+    double? cardWidth,
+    double fallbackCardWidth,
     SkeletonLayoutConfig skeletonLayoutConfig,
   ) {
     // 判断当前状态并显示相应的指示器
@@ -1093,37 +1190,29 @@ class _MediaListViewState<T> extends State<MediaListView<T>> {
     return LoadingMoreCustomScrollView(
       controller: widget.scrollController,
       physics: const ClampingScrollPhysics(),
+      cacheExtent: 600.0,
       slivers: <Widget>[
         SliverPadding(
           padding: EdgeInsets.only(
             top: widget.paddingTop,
-            left: 5.0,
-            right: 5.0,
+            left: MediaListView.listHorizontalPadding,
+            right: MediaListView.listHorizontalPadding,
             bottom: reservedBottom,
           ),
           sliver: SliverWaterfallFlow(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final withVisibleItems = widget.itemBuilderWithVisibleItems;
-              if (withVisibleItems != null) {
-                return withVisibleItems(
-                  context,
-                  paginatedItems[index],
-                  index,
-                  List<T>.of(paginatedItems),
-                );
-              }
-              return widget.itemBuilder(context, paginatedItems[index], index);
-            }, childCount: paginatedItems.length),
-            gridDelegate:
-                widget.extendedListDelegate
-                    is SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
-                ? widget.extendedListDelegate
-                      as SliverWaterfallFlowDelegateWithMaxCrossAxisExtent
-                : SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: maxCrossAxisExtent,
-                    crossAxisSpacing: MediaLayoutUtils.crossAxisSpacing,
-                    mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
-                  ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildListItem(
+                context,
+                paginatedItems[index],
+                index,
+                cardWidth,
+                fallbackCardWidth,
+                paginatedItems,
+              ),
+              childCount: paginatedItems.length,
+              addAutomaticKeepAlives: false,
+            ),
+            gridDelegate: waterfallDelegate,
           ),
         ),
         // 加载更多指示器

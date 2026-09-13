@@ -23,8 +23,18 @@ class ImageModelCardListItemWidget extends StatefulWidget {
   /// 是否处于多选模式
   final bool isMultiSelectMode;
 
-  /// 是否被选中（多选模式下使用）
+  /// 是否被选中（多选模式下使用）。
+  ///
+  /// 静态快照。给了 [selectionSource] 时这一项被忽略——那种情况下选中态由卡片
+  /// 自己订阅，见 [selectionSource]。
   final bool isSelected;
+
+  /// 选中态的**响应式来源**（选中集合本身）。
+  ///
+  /// 理由与 `VideoCardListItemWidget.selectionSource` 完全一致：选中集合若在调用方
+  /// 的 `Obx` 里被读一次，整页（含 6 个 keepAlive 的子 tab）就成了它的依赖，点一下
+  /// 会把所有已构建的卡片全部重建。给了它之后订阅下沉到勾选层这一个叶子。
+  final RxSet<String>? selectionSource;
 
   /// 选中状态变化回调
   final VoidCallback? onSelect;
@@ -47,6 +57,7 @@ class ImageModelCardListItemWidget extends StatefulWidget {
     required this.width,
     this.isMultiSelectMode = false,
     this.isSelected = false,
+    this.selectionSource,
     this.onSelect,
     this.disableBlock = false,
     this.playbackQueueRefBuilder,
@@ -143,6 +154,12 @@ class _ImageModelCardListItemWidgetState
         title: widget.imageModel.title,
         authorId: widget.imageModel.user?.id,
       );
+      // 未被屏蔽且未经历过揭示：直接走快路径渲染普通卡片，
+      // 避免为绝大多数正常卡片挂载 Stack + IgnorePointer + BlockedMediaOverlayFade
+      // 及其常驻的 AnimationController
+      if (match == null && !_revealed) {
+        return _buildCard(context);
+      }
       final blocked = match != null && !_revealed;
       // 真实卡片与磨砂遮罩同时常驻，遮罩以淡入淡出 + 缩放过渡显隐，
       // 保证与普通卡片完全等高，同时避免揭示/重新屏蔽时的瞬间硬切。
@@ -175,66 +192,39 @@ class _ImageModelCardListItemWidgetState
     final bool enableHover = !widget.isMultiSelectMode && _isDesktopPlatform();
     final bool showHoverState = enableHover && _isHovering;
 
-    return RepaintBoundary(
-      child: SizedBox(
-        width: widget.width,
-        child: MouseRegion(
-          onEnter: enableHover
-              ? (_) => setState(() => _isHovering = true)
-              : null,
-          onExit: enableHover
-              ? (_) => setState(() => _isHovering = false)
-              : null,
-          // ⭐ 「卡片 → 预览弹窗」那段 Hero 的起点是**整张卡片**，不是缩略图。
-          //
-          // 只飞缩略图的话，卡片的轮廓（这张带圆角和投影的白底）原地消失、弹窗
-          // 面板凭空出现，读起来是两件事；整只包住之后飞的是「这张卡片变成了
-          // 这张面板」。包在投影这一层而不是里面那只 Material 上：不然飞行期间
-          // 列表里会留下一圈无主的投影。
-          // HeroMode 的开关见 [previewHeroEnabled]。
-          child: HeroMode(
-            enabled: previewHeroEnabled,
-            child: Hero(
-              tag: previewHeroTag,
-              child: AnimatedContainer(
-                duration: _hoverAnimationDuration,
-                curve: Curves.easeOutCubic,
-                decoration: BoxDecoration(
-                  borderRadius: radius,
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.shadow.withValues(
-                        alpha: showHoverState ? 0.2 : 0.08,
-                      ),
-                      blurRadius: showHoverState ? 18 : 8,
-                      offset: Offset(0, showHoverState ? 8 : 3),
-                    ),
-                  ],
+    final cardDecoration = BoxDecoration(
+      borderRadius: radius,
+      boxShadow: [
+        BoxShadow(
+          color: theme.colorScheme.shadow.withValues(
+            alpha: showHoverState ? 0.2 : 0.08,
+          ),
+          blurRadius: showHoverState ? 18 : 8,
+          offset: Offset(0, showHoverState ? 8 : 3),
+        ),
+      ],
+    );
+
+    final cardContent = Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Ink(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: radius,
+                border: Border.all(
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: showHoverState ? 0.6 : 0.3,
+                  ),
+                  width: 1,
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  borderRadius: radius,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Material(
-                          color: Colors.transparent,
-                          borderRadius: radius,
-                          child: Ink(
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
-                              borderRadius: radius,
-                              border: Border.all(
-                                color: theme.colorScheme.outlineVariant
-                                    .withValues(
-                                      alpha: showHoverState ? 0.6 : 0.3,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      InkWell(
+              ),
+            ),
+          ),
+          InkWell(
                         borderRadius: radius,
                         onTap:
                             widget.isMultiSelectMode && widget.onSelect != null
@@ -311,20 +301,59 @@ class _ImageModelCardListItemWidgetState
                       // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
                       // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
                       // 进出选择态两个方向都有淡入淡出。
-                      Positioned.fill(
-                        child: GlassSelectableOverlay(
-                          selectionMode: widget.isMultiSelectMode,
-                          selected: widget.isSelected,
-                          borderRadius: radius,
-                        ),
-                      ),
+                      Positioned.fill(child: _buildSelectionOverlay(radius)),
                     ],
                   ),
-                ),
-              ),
-            ),
+                );
+
+    final Widget cardBody = enableHover
+        ? AnimatedContainer(
+            duration: _hoverAnimationDuration,
+            curve: Curves.easeOutCubic,
+            decoration: cardDecoration,
+            child: cardContent,
+          )
+        : Container(
+            decoration: cardDecoration,
+            child: cardContent,
+          );
+
+    return SizedBox(
+      width: widget.width,
+      child: MouseRegion(
+        onEnter: enableHover
+            ? (_) => setState(() => _isHovering = true)
+            : null,
+        onExit: enableHover
+            ? (_) => setState(() => _isHovering = false)
+            : null,
+        child: HeroMode(
+          enabled: previewHeroEnabled,
+          child: Hero(
+            tag: previewHeroTag,
+            child: cardBody,
           ),
         ),
+      ),
+    );
+  }
+
+  /// 勾选层。给了 [ImageModelCardListItemWidget.selectionSource] 就让**这一层**
+  /// 去订阅选中集合——点一下只重建这里，卡片主体不动。
+  Widget _buildSelectionOverlay(BorderRadius radius) {
+    final source = widget.selectionSource;
+    if (source == null) {
+      return GlassSelectableOverlay(
+        selectionMode: widget.isMultiSelectMode,
+        selected: widget.isSelected,
+        borderRadius: radius,
+      );
+    }
+    return Obx(
+      () => GlassSelectableOverlay(
+        selectionMode: widget.isMultiSelectMode,
+        selected: source.contains(widget.imageModel.id),
+        borderRadius: radius,
       ),
     );
   }

@@ -296,14 +296,35 @@ class _PlayListPageState extends State<PlayListPage> {
               ),
           // 换页后原来勾的已经不在屏幕上了，留着只会误删
           onPageChanged: controller.clearSelection,
-          itemBuilder: (context, playlist, index) => Obx(
+          // ⛔ 不要在这里读 selectedPlaylistIds / deletingPlaylistIds（哪怕只是
+          // contains 一下）：读了就把整张卡片登记成这两个集合的依赖，勾一项、
+          // 删一项，所有可见卡片全部重建。选中/删除态由 PlaylistItemWidget
+          // 内部的叶子 Obx 订阅 selectionSource / isDeletingSource，编辑态切换
+          // 走页面 setState 整表重建，本层不持有任何响应式依赖。
+          itemBuilderWithWidth: (context, playlist, index, width) => Obx(
             () => PlaylistItemWidget(
               playlist: playlist,
+              width: width,
               onTap: () => _openPlaylistDetail(context, playlist),
               isMultiSelect: _isEditMode,
               isSelected: controller.selectedPlaylistIds.contains(playlist.id),
+              isDeleting: controller.deletingPlaylistIds.contains(playlist.id),
+              selectionSource: controller.selectedPlaylistIds,
+              isDeletingSource: controller.deletingPlaylistIds,
               onToggleSelect: () => controller.toggleSelection(playlist.id),
-              isDeleting: controller.isDeletingPlaylist(playlist.id),
+            ),
+          ),
+          itemBuilder: (context, playlist, index) => Obx(
+            () => PlaylistItemWidget(
+              playlist: playlist,
+              width: 300,
+              onTap: () => _openPlaylistDetail(context, playlist),
+              isMultiSelect: _isEditMode,
+              isSelected: controller.selectedPlaylistIds.contains(playlist.id),
+              isDeleting: controller.deletingPlaylistIds.contains(playlist.id),
+              selectionSource: controller.selectedPlaylistIds,
+              isDeletingSource: controller.deletingPlaylistIds,
+              onToggleSelect: () => controller.toggleSelection(playlist.id),
             ),
           ),
         ),

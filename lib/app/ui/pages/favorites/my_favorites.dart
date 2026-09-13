@@ -386,6 +386,7 @@ class _MyFavoritesState extends State<MyFavorites>
               refreshSignal: _videoRefreshSignal,
               isMultiSelectMode: _videoBatchController.isMultiSelect.value,
               selectedItemIds: _videoBatchController.selectedMediaIds,
+              selectionSource: _videoBatchController.selectedMediaIds,
               onItemSelect: _videoBatchController.toggleSelection,
               onPageChanged: () {
                 _videoBatchController.onPageChanged();
@@ -402,6 +403,7 @@ class _MyFavoritesState extends State<MyFavorites>
               refreshSignal: _imageRefreshSignal,
               isMultiSelectMode: _imageBatchController.isMultiSelect.value,
               selectedItemIds: _imageBatchController.selectedMediaIds,
+              selectionSource: _imageBatchController.selectedMediaIds,
               onItemSelect: _imageBatchController.toggleSelection,
               onPageChanged: () {
                 _imageBatchController.onPageChanged();

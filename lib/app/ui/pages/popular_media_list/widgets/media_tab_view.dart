@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/controllers/popular_media_list_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'media_list_view.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -23,8 +23,15 @@ class MediaTabView<T> extends StatefulWidget {
   /// 是否处于多选模式
   final bool isMultiSelectMode;
 
-  /// 已选中的项目ID集合
+  /// 已选中的项目ID集合。
+  ///
+  /// 静态快照。热门页已经改用 [selectionSource]，这里保留给其它调用方。
   final Set<String>? selectedItemIds;
+
+  /// 选中集合本身（响应式）。给了它，选中态由卡片自己订阅，调用方就不必把
+  /// 选中集合读进 `Obx`——那会让整页变成它的依赖。见
+  /// `VideoCardListItemWidget.selectionSource`。
+  final RxSet<String>? selectionSource;
 
   /// 项目选中状态变化回调
   final void Function(dynamic item)? onItemSelect;
@@ -54,6 +61,7 @@ class MediaTabView<T> extends StatefulWidget {
     this.showBottomPadding = false,
     this.isMultiSelectMode = false,
     this.selectedItemIds,
+    this.selectionSource,
     this.onItemSelect,
     this.onPageChanged,
     this.onOpenVideo,
@@ -121,23 +129,12 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
           delta: delta,
         );
       },
-      itemBuilder: (context, item, index) =>
-          _buildItemForLayout(item, context, index),
-    );
-  }
-
-  Widget _buildItemForLayout(T item, BuildContext context, int index) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double cardWidth =
-            constraints.maxWidth.isFinite && constraints.maxWidth > 0
-            ? constraints.maxWidth
-            : MediaLayoutUtils.calculateCardWidth(
-                MediaQuery.sizeOf(context).width,
-              );
-
-        return _buildItem(item, context, cardWidth);
-      },
+      // 列宽由 MediaListView 算好递进来（与瀑布流 delegate 同一份公式）。
+      // 不再为**每一项**套一个 LayoutBuilder：瀑布流本来就用紧约束把列宽给到了
+      // 子项，这个值在列表层就是已知的；每项再套一层只会白搭一个 element +
+      // render object，还逼着卡片子树在布局阶段才构建。
+      itemBuilderWithWidth: (context, item, index, cardWidth) =>
+          _buildItem(item, context, cardWidth),
     );
   }
 
@@ -150,6 +147,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         width: width,
         isMultiSelectMode: widget.isMultiSelectMode,
         isSelected: isSelected,
+        selectionSource: widget.selectionSource,
         onSelect: widget.onItemSelect != null
             ? () => widget.onItemSelect!(video)
             : null,
@@ -172,6 +170,7 @@ class MediaTabViewState<T> extends State<MediaTabView<T>>
         width: width,
         isMultiSelectMode: widget.isMultiSelectMode,
         isSelected: isSelected,
+        selectionSource: widget.selectionSource,
         onSelect: widget.onItemSelect != null
             ? () => widget.onItemSelect!(imageModel)
             : null,

@@ -23,6 +23,9 @@ class FavoriteVideoList extends StatefulWidget {
 
   final bool isMultiSelectMode;
   final Set<String> selectedItemIds;
+
+  /// 选中态响应式来源：传入时由卡片角标独立订阅，避免勾选单个项触发全卡片/全列表重建
+  final RxSet<String>? selectionSource;
   final void Function(Video video)? onItemSelect;
 
   /// 分页翻页后回调（用于重置多选）。
@@ -44,6 +47,7 @@ class FavoriteVideoList extends StatefulWidget {
     this.refreshSignal,
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
+    this.selectionSource,
     this.onItemSelect,
     this.onPageChanged,
     this.onOpenVideo,
@@ -78,11 +82,13 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
             crossAxisSpacing: 5,
             mainAxisSpacing: 5,
           ),
-      itemBuilder: (context, video, index) => _buildItem(context, video),
+      itemBuilderWithWidth: (context, video, index, width) =>
+          _buildItem(context, video, width),
+      itemBuilder: (context, video, index) => _buildItem(context, video, 220),
     );
   }
 
-  Widget _buildItem(BuildContext context, Video video) {
+  Widget _buildItem(BuildContext context, Video video, double width) {
     final t = slang.Translations.of(context);
     return Obx(() {
       final bool isCanceled = controller.canceledFavoriteVideoIds.contains(
@@ -92,9 +98,12 @@ class _FavoriteVideoListState extends State<FavoriteVideoList>
         children: [
           VideoCardListItemWidget(
             video: video,
-            width: 220,
+            width: width,
             isMultiSelectMode: widget.isMultiSelectMode,
-            isSelected: widget.selectedItemIds.contains(video.id),
+            isSelected: widget.selectionSource != null
+                ? false
+                : widget.selectedItemIds.contains(video.id),
+            selectionSource: widget.selectionSource,
             onSelect: () => widget.onItemSelect?.call(video),
             onOpenVideo: widget.onOpenVideo == null
                 ? null

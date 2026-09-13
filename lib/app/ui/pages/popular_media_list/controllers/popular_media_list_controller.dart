@@ -13,8 +13,23 @@ class PopularMediaListController extends GetxController {
   final RxInt rebuildKey = 0.obs;
 
   // 当前激活 tab 的滚动状态（用于 UI 联动）
-  final Rx<double> currentScrollOffset = 0.0.obs;
-  final Rx<ScrollDirection> lastScrollDirection = ScrollDirection.idle.obs;
+  //
+  // ⛔ 这两个**不是** Rx，别改回去。它们每帧都在变（见 updateScrollInfo），
+  // 而唯一真正的读者是「回到顶部」浮钮的可见性判断。做成 Rx 的代价是每帧一次
+  // 通知 + 每帧重建浮钮那棵子树——实测浮钮本身在滚动期间是不建的（GlassReveal
+  // 退场后不建 child），所以那点重建纯属白干。真正需要响应式的只有**阈值化之后**
+  // 的 [canScrollToTop]，它一整个滚动过程里只会变两次。
+  double currentScrollOffset = 0.0;
+  ScrollDirection lastScrollDirection = ScrollDirection.idle;
+
+  /// 「回到顶部」浮钮是否该出现。只在跨越 [scrollToTopThreshold] 时翻转，
+  /// 所以它驱动的重建是「一次」而不是「每帧」。
+  final RxBool canScrollToTop = false.obs;
+
+  /// 浮钮的出现阈值。原先这个 800 散落在各页面的 `Obx` 里，现在收在这里，
+  /// 让「偏移量 → 是否显示」这条判断只有一个出处。
+  static const double scrollToTopThreshold = 800.0;
+
   final RxDouble headerOffset = 0.0.obs;
   final RxBool showHeader = true.obs;
 
@@ -83,9 +98,18 @@ class PopularMediaListController extends GetxController {
     final offset = _tabScrollOffsets[sortId] ?? 0.0;
     final direction = _tabScrollDirections[sortId] ?? ScrollDirection.idle;
 
-    currentScrollOffset.value = offset;
-    lastScrollDirection.value = direction;
+    currentScrollOffset = offset;
+    lastScrollDirection = direction;
+    _syncCanScrollToTop(offset);
     _syncShowHeader();
+  }
+
+  /// 偏移量 → 浮钮可见性。**只在翻转时**写 Rx，所以静止滚动期间一次通知都没有。
+  void _syncCanScrollToTop(double offset) {
+    final bool next = offset > scrollToTopThreshold;
+    if (canScrollToTop.value != next) {
+      canScrollToTop.value = next;
+    }
   }
 
   void markSortLoaded(SortId sortId) {
@@ -133,8 +157,9 @@ class PopularMediaListController extends GetxController {
 
     // 仅当前激活 tab 驱动 UI
     if (_activeSortId == sortId) {
-      currentScrollOffset.value = offset;
-      lastScrollDirection.value = direction;
+      currentScrollOffset = offset;
+      lastScrollDirection = direction;
+      _syncCanScrollToTop(offset);
       _applyHeaderDelta(delta);
     }
   }
@@ -175,8 +200,9 @@ class PopularMediaListController extends GetxController {
     }
 
     // 重置滚动状态
-    currentScrollOffset.value = 0.0;
-    lastScrollDirection.value = ScrollDirection.idle;
+    currentScrollOffset = 0.0;
+    lastScrollDirection = ScrollDirection.idle;
+    canScrollToTop.value = false;
     resetHeaderState();
   }
 }

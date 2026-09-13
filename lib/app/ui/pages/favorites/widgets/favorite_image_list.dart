@@ -24,6 +24,9 @@ class FavoriteImageList extends StatefulWidget {
 
   final bool isMultiSelectMode;
   final Set<String> selectedItemIds;
+
+  /// 选中态响应式来源：传入时由卡片角标独立订阅，避免勾选单个项触发全卡片/全列表重建
+  final RxSet<String>? selectionSource;
   final void Function(ImageModel image)? onItemSelect;
 
   /// 分页翻页后回调（用于重置多选）。
@@ -37,6 +40,7 @@ class FavoriteImageList extends StatefulWidget {
     this.refreshSignal,
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
+    this.selectionSource,
     this.onItemSelect,
     this.onPageChanged,
   });
@@ -70,11 +74,13 @@ class _FavoriteImageListState extends State<FavoriteImageList>
             crossAxisSpacing: 5,
             mainAxisSpacing: 5,
           ),
-      itemBuilder: (context, image, index) => _buildItem(context, image),
+      itemBuilderWithWidth: (context, image, index, width) =>
+          _buildItem(context, image, width),
+      itemBuilder: (context, image, index) => _buildItem(context, image, 220),
     );
   }
 
-  Widget _buildItem(BuildContext context, ImageModel image) {
+  Widget _buildItem(BuildContext context, ImageModel image, double width) {
     final t = slang.Translations.of(context);
     return Obx(() {
       final bool isCanceled = controller.canceledFavoriteGalleryIds.contains(
@@ -84,14 +90,17 @@ class _FavoriteImageListState extends State<FavoriteImageList>
         children: [
           ImageModelCardListItemWidget(
             imageModel: image,
-            width: 220,
+            width: width,
             // 「最爱」的图库池：详情页的「接着看」直接接着这份列表往下走。
             playbackQueueRefBuilder: (galleryId) => PlaybackQueueRef(
               queueId: PlaybackQueueService.to.openFavoriteGalleries().queueId,
               currentItemId: galleryId,
             ),
             isMultiSelectMode: widget.isMultiSelectMode,
-            isSelected: widget.selectedItemIds.contains(image.id),
+            isSelected: widget.selectionSource != null
+                ? false
+                : widget.selectedItemIds.contains(image.id),
+            selectionSource: widget.selectionSource,
             onSelect: () => widget.onItemSelect?.call(image),
           ),
           if (isCanceled)

@@ -32,12 +32,60 @@ class Video {
   bool get isPrivate => private ?? false;
   bool get isExternalVideo => embedUrl != null && embedUrl!.isNotEmpty;
 
+  static final RegExp _youtubeIdRegex = RegExp(
+    r'(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:.*[?&]v=|embed\/|v\/|shorts\/|live\/))([\w-]{11})',
+    caseSensitive: false,
+  );
+
+  /// 提取 YouTube 视频 ID（支持 youtu.be, watch?v=, embed/, shorts/, live/ 等各类 URL 变种）
+  static String? extractYoutubeVideoId(String? url) {
+    if (url == null || url.isEmpty) return null;
+
+    final trimmed = url.trim();
+    final match = _youtubeIdRegex.firstMatch(trimmed);
+    if (match != null && match.groupCount >= 1) {
+      final id = match.group(1);
+      if (id != null && id.isNotEmpty) {
+        return id;
+      }
+    }
+
+    // 备用兜底：通过 Uri 解析
+    try {
+      final parsedUrl = trimmed.contains('://') ? trimmed : 'https://$trimmed';
+      final uri = Uri.parse(parsedUrl);
+      final host = uri.host.toLowerCase();
+
+      if (host == 'youtu.be' || host.endsWith('.youtu.be')) {
+        for (final segment in uri.pathSegments) {
+          if (segment.isNotEmpty) return segment;
+        }
+      } else if (host.contains('youtube.com') ||
+          host.contains('youtube-nocookie.com')) {
+        final v = uri.queryParameters['v'];
+        if (v != null && v.isNotEmpty) return v;
+
+        final segments = uri.pathSegments;
+        final embedIndex = segments.indexWhere(
+          (s) => s == 'embed' || s == 'v' || s == 'shorts' || s == 'live',
+        );
+        if (embedIndex != -1 && embedIndex + 1 < segments.length) {
+          return segments[embedIndex + 1];
+        }
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
   // 获取外链视频的域名
   String get externalVideoDomain {
     if (!isExternalVideo) return '';
 
     try {
-      final uri = Uri.parse(embedUrl!);
+      final raw = embedUrl!.trim();
+      final url = raw.contains('://') ? raw : 'https://$raw';
+      final uri = Uri.parse(url);
       return uri.host;
     } catch (e) {
       return '';
@@ -48,27 +96,14 @@ class Video {
   String get externalVideoThumbnail {
     if (!isExternalVideo) return '';
 
-    /// 目前假设只有youtube形式的外联
-    try {
-      final uri = Uri.parse(embedUrl!);
-      // 如果是youtube短链，则取id
-      if (uri.host == 'youtu.be') {
-        final id = uri.pathSegments.last;
-        final res =
-            '${CommonConstants.iwaraImageBaseUrl}/image/embed/thumbnail/youtube/$id';
-        return res;
-      } else if (uri.host == 'www.youtube.com') {
-        // 普通有关链接，获取v的参数值 https://www.youtube.com/watch?v=xEwSkjWWyGk
-        final v = uri.queryParameters['v'];
-        final res =
-            '${CommonConstants.iwaraImageBaseUrl}/image/embed/thumbnail/youtube/$v';
-        return res;
-      } else {
-        return '';
-      }
-    } catch (e) {
-      return '';
+    // 目前假设只有youtube形式的外联。封面走 iwara 的图片代理而不是直连
+    // i.ytimg.com：后者在无法直连 YouTube 的网络环境下加载不出来。
+    final ytId = extractYoutubeVideoId(embedUrl);
+    if (ytId != null && ytId.isNotEmpty) {
+      return '${CommonConstants.iwaraImageBaseUrl}/image/embed/thumbnail/youtube/$ytId';
     }
+
+    return '';
   }
 
   final List<VideoSource>? videoSources;
@@ -161,24 +196,27 @@ class Video {
 
   // 头图
   String get thumbnailUrl {
+    if (customThumbnail != null) {
+      return '${CommonConstants.iwaraImageBaseUrl}/image/thumbnail/${customThumbnail!.id}/${customThumbnail!.name}';
+    }
     if (isExternalVideo) {
       return externalVideoThumbnail;
     }
-    if (customThumbnail != null) {
-      return 'https://i.iwara.tv/image/thumbnail/${customThumbnail!.id}/${customThumbnail!.name}';
-    } else if (file != null) {
-      return 'https://i.iwara.tv/image/thumbnail/${file!.id}/thumbnail-${_padNumber(thumbnail, 2)}.jpg';
-    } else {
-      return '';
+    if (file != null) {
+      return '${CommonConstants.iwaraImageBaseUrl}/image/thumbnail/${file!.id}/thumbnail-${_padNumber(thumbnail, 2)}.jpg';
     }
+    return '';
   }
 
   // 预览图
   String get previewUrl {
+    if (customThumbnail != null) {
+      return '${CommonConstants.iwaraImageBaseUrl}/image/thumbnail/${customThumbnail!.id}/${customThumbnail!.name}';
+    }
     if (isExternalVideo) {
       return externalVideoThumbnail;
     }
-    return 'https://i.iwara.tv/image/original/${file?.id}/preview.webp';
+    return '${CommonConstants.iwaraImageBaseUrl}/image/original/${file?.id}/preview.webp';
   }
 
   // 获取分钟形式的时长

@@ -7,7 +7,6 @@ import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/share_service.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/app/ui/pages/play_list/controllers/play_list_detail_controller.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
@@ -155,7 +154,10 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           emptyIcon: Icons.video_library_outlined,
           // 换页后原来的选择已经不在屏幕上了，留着只会误删
           onPageChanged: () => controller.selectedVideos.clear(),
-          itemBuilder: buildVideoItem,
+          itemBuilderWithWidth: (context, video, index, width) =>
+              _buildVideoItem(context, video, width),
+          itemBuilder: (context, video, index) =>
+              _buildVideoItem(context, video, 220),
         ),
       ),
       // header 行：左 返回圆钮 / 中 播放列表标题胶囊 / 右 动作胶囊
@@ -327,75 +329,36 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     );
   }
 
-  Widget buildVideoItem(BuildContext context, Video video, int index) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final itemWidth =
-            constraints.maxWidth.isFinite && constraints.maxWidth > 0
-            ? constraints.maxWidth
-            : MediaLayoutUtils.calculateCardWidth(
-                MediaQuery.sizeOf(context).width,
-              );
-
-        return Obx(() {
-          final bool isSelected = controller.selectedVideos.contains(video.id);
-          final bool isMultiSelect = controller.isMultiSelect.value;
-
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                VideoCardListItemWidget(
-                  video: video,
-                  width: itemWidth,
-                  onOpenVideo:
-                      ({required videoId, Map<String, dynamic>? extData}) {
-                        return _openVideoFromPlaylist(
-                          videoId: videoId,
-                          extData: extData,
-                        );
-                      },
-                ),
-                // 选择态：角标勾选片 + 选中描边（全站统一，
-                // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
-                Positioned.fill(
-                  child: GlassSelectableOverlay(
-                    selectionMode: isMultiSelect,
-                    selected: isSelected,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                if (isMultiSelect)
-                  Positioned.fill(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => controller.toggleSelection(video.id),
-                        child: const SizedBox.expand(),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+  Widget _buildVideoItem(BuildContext context, Video video, double width) {
+    return Obx(
+      () => VideoCardListItemWidget(
+        video: video,
+        width: width,
+        isMultiSelectMode: controller.isMultiSelect.value,
+        selectionSource: controller.selectedVideos,
+        onSelect: () => controller.toggleSelection(video.id),
+        onOpenVideo: ({required videoId, Map<String, dynamic>? extData}) {
+          return _openVideoFromPlaylist(
+            videoId: videoId,
+            initialVideo: video,
+            extData: extData,
           );
-        });
-      },
+        },
+      ),
     );
   }
 
   Future<void> _openVideoFromPlaylist({
     required String videoId,
+    Video? initialVideo,
     required Map<String, dynamic>? extData,
   }) async {
-    final loadedVideos = List<Video>.of(controller.repository);
-
-    Video? initialVideoInfo;
-    for (final video in loadedVideos) {
-      if (video.id == videoId) {
-        initialVideoInfo = video;
-        break;
-      }
-    }
+    final Video? initialVideoInfo =
+        initialVideo ??
+        controller.repository.cast<Video?>().firstWhere(
+          (v) => v?.id == videoId,
+          orElse: () => null,
+        );
 
     // 从播放列表进来时，池就是这张播放列表本身——**不再传来源快照**。
     // 两个原因：

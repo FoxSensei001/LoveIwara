@@ -110,6 +110,39 @@ class MediaLayoutUtils {
     return cardWidth;
   }
 
+  /// 瀑布流里一张卡实际占的宽度。
+  ///
+  /// ⛔ 必须与 `SliverWaterfallFlowDelegateWithMaxCrossAxisExtent` 的
+  /// `getChildUsableCrossAxisExtent` 逐字一致：
+  ///
+  /// ```
+  /// count = ceil(sliverCrossAxisExtent / (maxCrossAxisExtent + crossAxisSpacing))
+  /// width = (sliverCrossAxisExtent - crossAxisSpacing * (count - 1)) / count
+  /// ```
+  ///
+  /// 算错一个像素，卡片就会比它所在的格子宽或窄——那是肉眼直接可见的版式错位，
+  /// 而且只在特定宽度下才暴露。所以这里只复刻 delegate 的算式，不做任何自己的
+  /// 「顺手优化」。
+  ///
+  /// [sliverCrossAxisExtent] 是**扣掉列表左右内边距之后**的宽度：瀑布流拿到的
+  /// 是扣过 `SliverPadding` 的那份约束，不是整页宽度。
+  static double resolveWaterfallChildWidth({
+    required double sliverCrossAxisExtent,
+    required double maxCrossAxisExtent,
+    required double crossAxisSpacing,
+  }) {
+    if (!sliverCrossAxisExtent.isFinite || sliverCrossAxisExtent <= 0) return 0;
+    if (!maxCrossAxisExtent.isFinite || maxCrossAxisExtent <= 0) {
+      return sliverCrossAxisExtent;
+    }
+    final int count =
+        (sliverCrossAxisExtent / (maxCrossAxisExtent + crossAxisSpacing)).ceil();
+    if (count <= 0) return sliverCrossAxisExtent;
+    final double width =
+        (sliverCrossAxisExtent - crossAxisSpacing * (count - 1)) / count;
+    return width.isFinite && width > 0 ? width : sliverCrossAxisExtent;
+  }
+
   /// 获取瀑布流布局的间距
   static double get crossAxisSpacing => 4.0;
   static double get mainAxisSpacing => 4.0;

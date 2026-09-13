@@ -13,6 +13,7 @@ import 'package:i_iwara/app/models/iwara_page.model.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 
 import '../../common/constants.dart';
+import '../../common/enums/media_enums.dart';
 import '../../utils/logger_utils.dart';
 import '../ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
 import 'auth_service.dart';
@@ -240,6 +241,8 @@ class ApiService extends GetxService {
     d_dio.RequestOptions options,
     d_dio.RequestInterceptorHandler handler,
   ) {
+    _applyRatingGate(options);
+
     final accessToken = _authService.accessToken;
     final tokenManager = _authService.tokenManager;
     // 钉过站的请求走它自己那一档；其余跟全局站点模式。重试路径复制 extra，
@@ -280,6 +283,31 @@ class ApiService extends GetxService {
       '(site=${site.name}, access=${access.name}, auth=${options.headers['Authorization'] != null})',
     );
     handler.next(options);
+  }
+
+  /// R18 总闸，由 [CommonConstants.enableR18] 控制。
+  ///
+  /// 关闭时把全站请求的 `rating` 一律改写成 `general`，**优先级高于调用方自带
+  /// 的 rating**：搜索页筛选里手动选的 ecchi、作者页写死的 `all` 都会被覆盖，
+  /// 这是刻意的——总闸的语义就是"关了就一条 R18 都不许出现在响应里"，留口子
+  /// 就等于没关。
+  ///
+  /// 开启时什么都不做：不注入、不删除、不改写，调用方传什么就是什么。
+  ///
+  /// ⚠️ 这段逻辑原先长在拦截器的 onRequest 闭包里，84670146 重写拦截器时被整段
+  ///    删掉，只剩 constants.dart 里那个没人读的开关——开关于是静默失效，值改
+  ///    成什么都不会有反应。别再把它塞回闭包或挪进某个只在部分路径执行的函数。
+  void _applyRatingGate(d_dio.RequestOptions options) {
+    if (CommonConstants.enableR18) return;
+
+    // 重定向请求的 query 已经完全由 Location 头部决定，跟随重定向时不得重新注入 query 参数
+    final redirectCount = options.extra[_redirectCountKey] as int? ?? 0;
+    if (redirectCount > 0) return;
+
+    options.queryParameters = {
+      ...options.queryParameters,
+      'rating': MediaRating.GENERAL.value,
+    };
   }
 
   /// 响应拦截（用于 401 刷新与自动重试）
