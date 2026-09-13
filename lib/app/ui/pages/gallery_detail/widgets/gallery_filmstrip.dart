@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
@@ -26,8 +27,19 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///     真的解出来再[_onAspectResolved]换成实际比例——**换的时候要把滚动位置一起
 ///     补偿**，否则正中那张会被前面变宽的格子顶走。
 ///
-/// 代价是"第几张"不再是一个除法：改成前缀和（[_leadingExtent]）。这条列表最多
-/// 几十上百格，每次滚动线性扫一遍完全无所谓。
+/// 代价是"第几张"不再是一个除法：改成前缀和（[_leadingExtent]）。
+///
+/// # ⛔ 图库可能有成千上万张，别让任何一步随张数线性变慢
+///
+/// 曾经默认「最多几十上百格」，于是每一帧滚动都把整条从头加一遍、正中是第几张
+/// 也是从头扫——几千张的图库拖一下就是每帧几千次求和。现在：
+///
+///   - 前缀和只算一遍存着（[_ensurePrefix]），宽度真变了（某格量出比例 / 换了
+///     清单）才作废重算；
+///   - 「正中是第几张」在前缀和上二分（[_indexAtCenter]）；
+///   - 列表走 `itemExtentBuilder`：视口直接按宽度定位到可见那几格。原先不给尺寸
+///     的 `ListView` 跳到远处（打开时停在第 5000 张、翻大图后胶片跟过去）要把
+///     中间每一格都 build + layout 一遍，每格还会顺手开一次缩略图请求。
 ///
 /// # 双向同步怎么不打架
 ///
@@ -103,6 +115,28 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
 
   double _viewportWidth = 0;
 
+  /// `_prefix[i]` = 第 i 格之前所有格子的总宽，长度是张数 + 1。
+  /// null 表示作废了，下次用到时重算。
+  Float64List? _prefix;
+  List<ImageItem>? _prefixItems;
+
+  Float64List _ensurePrefix() {
+    final items = widget.items;
+    final cached = _prefix;
+    if (cached != null &&
+        identical(_prefixItems, items) &&
+        cached.length == items.length + 1) {
+      return cached;
+    }
+    final prefix = Float64List(items.length + 1);
+    for (var i = 0; i < items.length; i++) {
+      prefix[i + 1] = prefix[i] + _slotWidth(items[i]);
+    }
+    _prefix = prefix;
+    _prefixItems = items;
+    return prefix;
+  }
+
   @override
   void dispose() {
     _wheelSettleTimer?.cancel();
@@ -113,6 +147,9 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
   @override
   void didUpdateWidget(covariant GalleryFilmstrip oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // 换了一份清单（切画质）：宽度表跟着作废。同一份就留着，这是每翻一页都会走
+    // 的路，不能每次重算。
+    if (!identical(widget.items, oldWidget.items)) _prefix = null;
     if (widget.currentIndex != oldWidget.currentIndex && !_selfDriven) {
       _centerOn(widget.currentIndex, animate: true);
     }
@@ -140,11 +177,8 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
 
   /// 第 [index] 格之前所有格子的总宽。
   double _leadingExtent(int index) {
-    double sum = 0;
-    for (var i = 0; i < index && i < widget.items.length; i++) {
-      sum += _slotWidth(widget.items[i]);
-    }
-    return sum;
+    final prefix = _ensurePrefix();
+    return prefix[index.clamp(0, prefix.length - 1)];
   }
 
   /// 把第 [index] 格摆到视口正中要用的偏移。
@@ -166,15 +200,21 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
       return widget.currentIndex;
     }
     final target = _scrollController.offset + _slotWidth(widget.items[0]) / 2;
-    double sum = 0;
-    for (var i = 0; i < widget.items.length; i++) {
-      final slot = _slotWidth(widget.items[i]);
-      // 落在这一格的范围里就是它。⛔ 别写成 `sum + slot / 2`——那是"过了半格就
-      // 算下一格"，正中还没走到下一张就先跳了。
-      if (target < sum + slot) return i;
-      sum += slot;
+    final prefix = _ensurePrefix();
+    // 找第一个「target 落在它右边界之前」的格子。⛔ 比的是右边界
+    // `prefix[i + 1]`，别改成格子中点——那是"过了半格就算下一格"，正中还没走到
+    // 下一张就先跳了。一格都不满足（拖过了尾）就停在最后一张。
+    var lo = 0;
+    var hi = widget.items.length - 1;
+    while (lo < hi) {
+      final mid = (lo + hi) >> 1;
+      if (target < prefix[mid + 1]) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
     }
-    return widget.items.length - 1;
+    return lo;
   }
 
   Future<void> _centerOn(int index, {required bool animate}) async {
@@ -215,6 +255,7 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
     final old = _resolvedAspects[url];
     if (old != null && (old - aspect).abs() < 0.01) return;
     _resolvedAspects[url] = aspect;
+    _prefix = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       // 表在上面已经改过了，这一次只是把「宽度变了」告诉框架。
@@ -318,23 +359,27 @@ class _GalleryFilmstripState extends State<GalleryFilmstrip> {
                 ),
                 physics: const BouncingScrollPhysics(),
                 itemCount: widget.items.length,
+                // 宽度直接从前缀和里取，视口据此定位可见格，不必把前面的格子
+                // 挨个建出来量（见类注释）。
+                itemExtentBuilder: (index, _) {
+                  final prefix = _ensurePrefix();
+                  if (index < 0 || index + 1 >= prefix.length) return null;
+                  return prefix[index + 1] - prefix[index];
+                },
                 itemBuilder: (context, index) {
                   final item = widget.items[index];
-                  return SizedBox(
-                    width: _slotWidth(item),
-                    child: _FilmstripTile(
-                      item: item,
-                      width: _tileWidth(item),
-                      selected: index == widget.currentIndex,
-                      onTap: () => widget.onIndexSelected(index),
-                      // 服务端已经给了宽高、或者已经量过一次的，就别再挂监听了
-                      // ——`ImageStream` 的监听不摘，每次重建挂一个就是泄漏。
-                      onAspectResolved:
-                          _resolvedAspects.containsKey(item.url) ||
-                              (item.width != null && item.height != null)
-                          ? null
-                          : (aspect) => _onAspectResolved(item.url, aspect),
-                    ),
+                  return _FilmstripTile(
+                    item: item,
+                    width: _tileWidth(item),
+                    selected: index == widget.currentIndex,
+                    onTap: () => widget.onIndexSelected(index),
+                    // 服务端已经给了宽高、或者已经量过一次的，就别再挂监听了
+                    // ——`ImageStream` 的监听不摘，每次重建挂一个就是泄漏。
+                    onAspectResolved:
+                        _resolvedAspects.containsKey(item.url) ||
+                            (item.width != null && item.height != null)
+                        ? null
+                        : (aspect) => _onAspectResolved(item.url, aspect),
                   );
                 },
               ),

@@ -97,7 +97,27 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   late int currentIndex;
   late String _activeQuality;
   late PageController pageController;
-  late List<PhotoViewController> controllers;
+
+  /// 每页一只缩放控制器，**按下标、按需现建**。
+  ///
+  /// ⛔ 原来进页面就 `List.generate(张数)` 一次建齐：每只自带一份
+  /// `StreamController` + `ValueNotifier`，上万张的图库一打开就是上万份。现在
+  /// 翻到哪页建哪页，离当前页超过 [_photoControllerKeepRange] 的在帧末还回去
+  /// （[_reapPhotoControllers]）——代价只是翻远了再翻回来，那一页的缩放回到初始。
+  final Map<int, PhotoViewController> _photoControllers = {};
+
+  /// 当前页前后各留几只缩放控制器。PageView 同时挂着的最多是正在滑动的相邻
+  /// 两页，留宽一点保证不会回收一只还挂在树上的。
+  static const int _photoControllerKeepRange = 5;
+
+  /// 胶片条连续拖动时，大图最多多久跳一次。见 [_jumpToIndexFromFilmstrip]。
+  static const Duration _filmstripJumpInterval = Duration(milliseconds: 90);
+  Timer? _filmstripJumpTimer;
+  int? _pendingFilmstripIndex;
+
+  /// 翻页后等停稳再预加载邻图。见 [_onPageChanged]。
+  static const Duration _preloadSettleDelay = Duration(milliseconds: 250);
+  Timer? _preloadTimer;
 
   bool _isUiVisible = true;
   Timer? _uiHideTimer;
@@ -198,17 +218,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   // 背景最多淡到的透明度（保留一点点压暗，避免下层页面直接刺眼地全亮）
   static const double _dismissMinBackgroundAlpha = 0.08;
 
-  int get _controllerCount {
-    var count = widget.galleryItems.length;
-    final standardLength = widget.standardGalleryItems?.length ?? 0;
-    final originalLength = widget.originalGalleryItems?.length ?? 0;
-    if (standardLength > count) {
-      count = standardLength;
-    }
-    if (originalLength > count) {
-      count = originalLength;
-    }
-    return count;
+  PhotoViewController _photoControllerAt(int index) =>
+      _photoControllers.putIfAbsent(index, PhotoViewController.new);
+
+  PhotoViewController? _photoControllerInRange(int index) {
+    if (index < 0 || index >= _activeGalleryItems.length) return null;
+    return _photoControllerAt(index);
+  }
+
+  /// 还回离当前页太远的缩放控制器。排到帧末：翻页那一帧旧页还挂在树上。
+  void _reapPhotoControllers() {
+    if (_photoControllers.length <= _photoControllerKeepRange * 2 + 1) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final stale = _photoControllers.keys
+          .where((i) => (i - currentIndex).abs() > _photoControllerKeepRange)
+          .toList(growable: false);
+      for (final i in stale) {
+        _photoControllers.remove(i)?.dispose();
+      }
+    });
   }
 
   bool get _hasUsableDualDatasets {
@@ -243,8 +272,30 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     return false;
   }
 
-  bool get _canSwitchQuality =>
-      _hasUsableDualDatasets && _hasSwitchableQualityDifference;
+  List<ImageItem>? _qualityCheckedStandard;
+  List<ImageItem>? _qualityCheckedOriginal;
+  bool? _qualityCheckResult;
+
+  /// 两份清单能不能互切。
+  ///
+  /// ⛔ 必须缓存：判定要把两份清单逐条比一遍（O(张数)），而 [_activeGalleryItems]
+  /// 每次都要问它——一次 build 里要问十几次，下拉退出 / 双指缩放又是每帧一次
+  /// setState，上万张的图库会被这一步拖成逐帧卡顿。清单换了对象才重算。
+  bool get _canSwitchQuality {
+    final standardItems = widget.standardGalleryItems;
+    final originalItems = widget.originalGalleryItems;
+    final cached = _qualityCheckResult;
+    if (cached != null &&
+        identical(standardItems, _qualityCheckedStandard) &&
+        identical(originalItems, _qualityCheckedOriginal)) {
+      return cached;
+    }
+    final result = _hasUsableDualDatasets && _hasSwitchableQualityDifference;
+    _qualityCheckedStandard = standardItems;
+    _qualityCheckedOriginal = originalItems;
+    _qualityCheckResult = result;
+    return result;
+  }
 
   List<ImageItem> get _activeGalleryItems {
     if (!_canSwitchQuality) {
@@ -291,14 +342,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _appService?.hideSystemUI(hideTitleBar: false);
     _resolveRotationCapability();
     pageController = PageController(initialPage: currentIndex);
-    controllers = List.generate(
-      _controllerCount,
-      (index) => PhotoViewController(),
-    );
 
     // 初始化控制器
     _galleryControls = GalleryControls(
-      controllers: controllers,
+      controllerAt: _photoControllerInRange,
       onNext: goToNextPage,
       onPrevious: goToPreviousPage,
       // 这三条只在当前页是视频时有事可做，所以取的是**当下**那一页的播放器，
@@ -432,6 +479,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _observedVideo = null;
     _pageScaleSubscription?.cancel();
     _chromeVideoDropTimer?.cancel();
+    _filmstripJumpTimer?.cancel();
+    _preloadTimer?.cancel();
     // 释放所有视频播放器资源
     _releaseAllVideoPlayers();
 
@@ -446,9 +495,10 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _dismissResetController.dispose();
     _keyboardFocusNode.dispose();
     pageController.dispose();
-    for (var controller in controllers) {
+    for (final controller in _photoControllers.values) {
       controller.dispose();
     }
+    _photoControllers.clear();
     super.dispose();
   }
 
@@ -587,8 +637,8 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     // 而 [_reapVideoControllers] 又刻意跳过那一只，等于漏一份 libmpv 实例。
     _pageScaleSubscription?.cancel();
     _pageScaleSubscription = null;
-    if (currentIndex < 0 || currentIndex >= controllers.length) return;
-    final controller = controllers[currentIndex];
+    final controller = _photoControllerInRange(currentIndex);
+    if (controller == null) return;
     _applyPageScale(controller.scale ?? 1.0);
     _pageScaleSubscription = controller.outputStateStream.listen(
       (value) => _applyPageScale(value.scale ?? 1.0),
@@ -707,14 +757,22 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _syncChromeVideo();
     // 离得远的整只还回去（每只都是一份 libmpv 实例）。排到帧末，理由见方法注释。
     _reapVideoControllers(index);
+    _reapPhotoControllers();
     _galleryControls.updateCurrentIndex(index);
     widget.onIndexChanged?.call(index);
 
     // 根据当前页面是否是视频来决定是否启用音量键监听
     _updateVolumeKeyListener();
 
-    // 预加载周围的图片
-    _preloadNearbyImages(index);
+    // 预加载周围的图片——**等停稳了再发**。
+    //
+    // ⛔ 拖胶片是每跨一张就翻一页的，当场预加载就是每跨一张发出前后各
+    // [_preloadRange] 张**原图**的请求：一口气拖过几百张，几百份原图下载就在
+    // 后台排着（CachedNetworkImage 的下载不会因为页面被跳过而取消）。
+    _preloadTimer?.cancel();
+    _preloadTimer = Timer(_preloadSettleDelay, () {
+      if (mounted) _preloadNearbyImages(currentIndex);
+    });
 
     // ⛔ 翻页**不再无条件把界面弹回来**。
     //
@@ -1120,7 +1178,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   bool _canStartDismissDrag() {
-    final scale = controllers[currentIndex].scale ?? 1.0;
+    final scale = _photoControllers[currentIndex]?.scale ?? 1.0;
     return scale <= 1.01;
   }
 
@@ -1443,12 +1501,37 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   }
 
   /// 胶片条把用户拖到的那一张报上来。
+  ///
+  /// ⛔ **节流，首尾都发**：拖胶片每跨一格就报一次，一口气甩过几百格就是几百次
+  /// 跳页，每跳一次大图页都要建一页、开一次原图请求（跳过去的页被拆掉，下载
+  /// 却不会取消）。所以第一下立刻跳（点一格要跟手），之后
+  /// [_filmstripJumpInterval] 内来的只记住最后一张，到点再跳——手指停在哪儿，
+  /// 最后落的就是哪张。
   void _jumpToIndexFromFilmstrip(int index) {
+    if (index < 0 || index >= _activeGalleryItems.length) return;
+    if (_filmstripJumpTimer?.isActive ?? false) {
+      _pendingFilmstripIndex = index;
+      return;
+    }
+    _performFilmstripJump(index);
+    _filmstripJumpTimer = Timer(_filmstripJumpInterval, _flushFilmstripJump);
+  }
+
+  void _flushFilmstripJump() {
+    final pending = _pendingFilmstripIndex;
+    _pendingFilmstripIndex = null;
+    if (!mounted || pending == null) return;
+    _performFilmstripJump(pending);
+    // 手指还在拖就接着节流；没有新的进来，下一次到点时 pending 为空自然停。
+    _filmstripJumpTimer = Timer(_filmstripJumpInterval, _flushFilmstripJump);
+  }
+
+  void _performFilmstripJump(int index) {
     if (index == currentIndex) return;
     if (index < 0 || index >= _activeGalleryItems.length) return;
     if (!pageController.hasClients) return;
-    // 拖胶片是**连续**的：每跨过一张就跳一次，用 jumpToPage 而不是 animateToPage
-    // ——后者的 300ms 会和下一次跳打架，读起来是大图追不上手指。
+    // 拖胶片是**连续**的：用 jumpToPage 而不是 animateToPage——后者的 300ms 会和
+    // 下一次跳打架，读起来是大图追不上手指。
     pageController.jumpToPage(index);
     _showUiAndAutoHide();
   }
@@ -1840,7 +1923,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                         PhotoViewComputedScale.covered * 3,
                                     initialScale:
                                         PhotoViewComputedScale.contained,
-                                    controller: controllers[index],
+                                    controller: _photoControllerAt(index),
                                   );
                                 },
                                 itemCount: activeGalleryItems.length,

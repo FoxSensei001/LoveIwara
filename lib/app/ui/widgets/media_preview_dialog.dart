@@ -490,11 +490,27 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   ///
   /// 图库里偶尔混着一条视频文件，那一条不进翻页器——预览这块位置放不了播放器，
   /// 摆张封面帧只会让人点了没反应。
+  ///
+  /// ⛔ 过滤结果按 `files` 那份清单对象缓存：一本图库可能有成千上万张，而这个
+  /// getter 每次 build 都要问，往下拖成大图页那一段更是每帧 setState 一次——
+  /// 不缓存就是每帧把整本图过滤一遍、再分配一份同样长的新清单。`files` 只会被
+  /// 整份换掉（拉详情 / 补拉文件，都是 `copyWith`），所以按对象身份判断就够。
   List<MediaFile> get _galleryImages {
     final ImageModel? gallery = _gallery;
     if (gallery == null || gallery.files.isEmpty) return const <MediaFile>[];
-    return gallery.files.where(_isPreviewableImage).toList(growable: false);
+    final List<MediaFile> files = gallery.files;
+    final List<MediaFile>? cached = _galleryImagesCache;
+    if (cached != null && identical(files, _galleryImagesSource)) return cached;
+    final List<MediaFile> images = files
+        .where(_isPreviewableImage)
+        .toList(growable: false);
+    _galleryImagesSource = files;
+    _galleryImagesCache = images;
+    return images;
   }
+
+  List<MediaFile>? _galleryImagesSource;
+  List<MediaFile>? _galleryImagesCache;
 
   bool get _sourceLiked => _video?.liked ?? _gallery?.liked ?? false;
   int get _sourceLikeCount => _video?.numLikes ?? _gallery?.numLikes ?? 0;

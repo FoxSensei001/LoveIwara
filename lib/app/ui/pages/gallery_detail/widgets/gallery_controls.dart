@@ -10,7 +10,11 @@ import 'package:photo_view/photo_view.dart';
 class GalleryControls {
   static const platform = MethodChannel('i_iwara/volume_key');
 
-  final List<PhotoViewController> controllers;
+  /// 取第几页的缩放控制器，越界给 null。
+  ///
+  /// 不收整张表：大图页按需现建（图库可能有上万张，一次建齐就是上万份
+  /// StreamController），见 `MyGalleryPhotoViewWrapper` 的 `_photoControllerAt`。
+  final PhotoViewController? Function(int index) controllerAt;
   final VoidCallback? onNext;
   final VoidCallback? onPrevious;
   final Function(bool fine)? onZoomIn;
@@ -33,7 +37,7 @@ class GalleryControls {
   final double _fineZoomInterval = 0.1;
 
   GalleryControls({
-    required this.controllers,
+    required this.controllerAt,
     this.onNext,
     this.onPrevious,
     this.onZoomIn,
@@ -136,32 +140,33 @@ class GalleryControls {
 
   /// 放大
   void zoomIn({bool fine = false}) {
-    if (currentIndex >= controllers.length) return;
+    final controller = controllerAt(currentIndex);
+    if (controller == null) return;
 
-    final scale = controllers[currentIndex].scale;
+    final scale = controller.scale;
     if (scale != null) {
-      controllers[currentIndex].scale =
-          scale + (fine ? _fineZoomInterval : _zoomInterval);
+      controller.scale = scale + (fine ? _fineZoomInterval : _zoomInterval);
     }
     onZoomIn?.call(fine);
   }
 
   /// 缩小
   void zoomOut({bool fine = false}) {
-    if (currentIndex >= controllers.length) return;
+    final controller = controllerAt(currentIndex);
+    if (controller == null) return;
 
-    final scale = controllers[currentIndex].scale;
+    final scale = controller.scale;
     if (scale != null && scale > 0.5) {
-      controllers[currentIndex].scale =
-          scale - (fine ? _fineZoomInterval : _zoomInterval);
+      controller.scale = scale - (fine ? _fineZoomInterval : _zoomInterval);
     }
     onZoomOut?.call(fine);
   }
 
   /// 重置缩放与位置（Telegram Desktop 常见 0 键行为）
   void resetZoom() {
-    if (currentIndex >= controllers.length) return;
-    controllers[currentIndex]
+    final controller = controllerAt(currentIndex);
+    if (controller == null) return;
+    controller
       ..scale = 1.0
       ..position = Offset.zero;
     onResetZoom?.call();
@@ -169,16 +174,17 @@ class GalleryControls {
 
   /// 双击缩放处理
   void handleDoubleTap(int index) {
-    if (index >= controllers.length) return;
+    final controller = controllerAt(index);
+    if (controller == null) return;
 
-    final scale = controllers[index].scale;
+    final scale = controller.scale;
     if (scale != null) {
       if (scale > 1.0) {
         // 如果当前已放大，则缩小到原始大小
-        controllers[index].scale = 1.0;
+        controller.scale = 1.0;
       } else {
         // 如果当前是原始大小，则放大到2倍
-        controllers[index].scale = 2.0;
+        controller.scale = 2.0;
       }
     }
   }

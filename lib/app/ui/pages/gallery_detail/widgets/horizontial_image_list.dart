@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -171,6 +174,15 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   @override
   void didUpdateWidget(covariant HorizontalImageList oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // 影响宽度的任何一项换了，宽度表就作废。`aspectRatioBuilder` 多半是父级
+    // 每次 build 现写的闭包，所以父级一重建这里就重算一遍——O(张数) 的纯算术，
+    // 只在父级重建时发生，远比每帧滚动都扫一遍便宜。
+    if (!identical(oldWidget.images, widget.images) ||
+        oldWidget.itemSpacing != widget.itemSpacing ||
+        oldWidget.defaultAspectRatio != widget.defaultAspectRatio ||
+        oldWidget.aspectRatioBuilder != widget.aspectRatioBuilder) {
+      _prefix = null;
+    }
     if (!identical(oldWidget.listController, widget.listController)) {
       oldWidget.listController?.detach(_revealIndex);
       widget.listController?.attach(_revealIndex);
@@ -187,12 +199,48 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     super.dispose();
   }
 
+  // ---- 每条多宽 ----------------------------------------------------------
+  //
+  // ⛔ 图库可能有成千上万张，这条清单里任何一步都不能随张数线性变慢：
+  //
+  //   - 宽度前缀和只算一遍存着（[_ensurePrefix]），宽度真变了（量出比例 / 换清单 /
+  //     高度变了）才作废；
+  //   - 列表走 `itemExtentBuilder`。原先不给尺寸的 `ListView` 一旦跳到远处（大图页
+  //     翻到第 800 张再退出来，清单要同步过去），会把中间每一条都 build + layout
+  //     一遍：每条图片开一次原图请求，**每条视频当场开一只 libmpv**。
+  //   - 服务端给了宽高的条目直接按真实比例排（[_knownAspectRatio]），不必先摆成
+  //     16:9 等图加载完再跳——跳过去的那一段压根没加载，猜错的宽度永远纠正不了，
+  //     落点就对不上。
+
+  /// `_prefix[i]` = 第 i 条之前所有条目的总宽，长度是张数 + 1。null = 作废。
+  Float64List? _prefix;
+  List<ImageItem>? _prefixItems;
+  double? _prefixHeight;
+
+  Float64List _ensurePrefix(double height) {
+    final items = widget.images;
+    final cached = _prefix;
+    if (cached != null &&
+        identical(_prefixItems, items) &&
+        _prefixHeight == height &&
+        cached.length == items.length + 1) {
+      return cached;
+    }
+    final prefix = Float64List(items.length + 1);
+    for (var i = 0; i < items.length; i++) {
+      prefix[i + 1] = prefix[i] + _itemWidth(items[i], height);
+    }
+    _prefix = prefix;
+    _prefixItems = items;
+    _prefixHeight = height;
+    return prefix;
+  }
+
   // ---- 「滚到第几张」----------------------------------------------------
   //
   // 这条清单每条的宽度都不一样（高度固定、宽高比逐条算），没有现成的
   // `scrollToIndex` 可用；`Scrollable.ensureVisible` 也不行——目标多半远在视野
-  // 之外、压根没被建出来，拿不到 context。所以按 build 里那套同样的算法把前面
-  // 每条的宽度加起来，直接落到偏移上。
+  // 之外、压根没被建出来，拿不到 context。所以从宽度前缀和里直接取出偏移。
   //
   // 宽高比是图片加载完才知道的（[_loadedAspectRatios]），所以目标下标要**粘住**：
   // 每次有新的宽高比进来就照着重算一次，直到用户自己动了这条清单为止。
@@ -243,11 +291,9 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     if (!position.hasViewportDimension || !position.hasContentDimensions) {
       return null;
     }
-    double leading = 0;
-    for (var i = 0; i < index && i < widget.images.length; i++) {
-      leading += _itemWidth(widget.images[i], height);
-    }
-    final itemWidth = _itemWidth(widget.images[index], height);
+    final prefix = _ensurePrefix(height);
+    final leading = prefix[index];
+    final itemWidth = prefix[index + 1] - prefix[index];
     final target = leading - (position.viewportDimension - itemWidth) / 2;
     return target.clamp(position.minScrollExtent, position.maxScrollExtent);
   }
@@ -260,13 +306,22 @@ class _HorizontalImageListState extends State<HorizontalImageList>
   }
 
   double _resolveAspectRatio(ImageItem item) {
-    final loadedAspectRatio = _loadedAspectRatios[item.url];
+    final loadedAspectRatio =
+        _loadedAspectRatios[item.url] ?? _knownAspectRatio(item);
     return widget.aspectRatioBuilder?.call(
           item,
           widget.defaultAspectRatio,
           loadedAspectRatio,
         ) ??
         (loadedAspectRatio ?? widget.defaultAspectRatio);
+  }
+
+  /// 服务端在文件信息里给的宽高比；没给（本地文件 / 裸链接）是 null。
+  static double? _knownAspectRatio(ImageItem item) {
+    final w = item.width;
+    final h = item.height;
+    if (w == null || h == null || w <= 0 || h <= 0) return null;
+    return w / h;
   }
 
   /// 用户自己动了这条清单，就别再把他拽回去了。
@@ -278,11 +333,16 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     return false;
   }
 
+  /// ⛔ 只在两枚钮的显隐**真变了**才 setState。原来每滚一像素都 setState，
+  /// 等于滚动的每一帧把整条清单（连同可见的每一格）重建一遍。
   void _updateButtonVisibility() {
+    final showLeft = _scrollController.offset > 0;
+    final showRight =
+        _scrollController.offset < _scrollController.position.maxScrollExtent;
+    if (showLeft == _showLeftButton && showRight == _showRightButton) return;
     setState(() {
-      _showLeftButton = _scrollController.offset > 0;
-      _showRightButton =
-          _scrollController.offset < _scrollController.position.maxScrollExtent;
+      _showLeftButton = showLeft;
+      _showRightButton = showRight;
     });
   }
 
@@ -407,6 +467,15 @@ class _HorizontalImageListState extends State<HorizontalImageList>
                           controller: _scrollController,
                           scrollDirection: Axis.horizontal,
                           itemCount: widget.images.length,
+                          // 宽度从前缀和里取，视口据此直接定位可见那几条（见
+                          // 「每条多宽」那段说明）。
+                          itemExtentBuilder: (index, _) {
+                            final prefix = _ensurePrefix(constraints.maxHeight);
+                            if (index < 0 || index + 1 >= prefix.length) {
+                              return null;
+                            }
+                            return prefix[index + 1] - prefix[index];
+                          },
                           itemBuilder: (context, index) {
                             final imageItem = widget.images[index];
                             return _buildImageItem(
@@ -562,24 +631,48 @@ class _HorizontalImageListState extends State<HorizontalImageList>
     );
   }
 
-  void _updateImageSize(ImageProvider provider, String url) {
-    // 获取图片实际尺寸并更新状态
-    provider
-        .resolve(const ImageConfiguration())
-        .addListener(
-          ImageStreamListener((ImageInfo info, bool _) {
-            final double width = info.image.width.toDouble();
-            final double height = info.image.height.toDouble();
-            if (_loadedAspectRatios[url] != width / height) {
-              setState(() {
-                _loadedAspectRatios[url] = width / height;
-              });
-              // 宽度刚刚变了，粘住的目标要照新宽度重新落一次位——要等这一帧
-              // 排完版，不然 maxScrollExtent 还是旧的。
-              _scheduleApplyRevealTarget();
-            }
-          }),
-        );
+  /// 正在量比例的地址，免得同一张在量完之前被重复挂监听。
+  final Set<String> _measuringUrls = {};
+
+  /// 量这张图的真实比例，量完摘掉监听。
+  ///
+  /// ⛔ 原来每次 `imageBuilder` 跑一次（可见的每一格每次重建都会跑）就往图片流上
+  /// 挂一只新监听、从来不摘，也不还派给监听器的那份位图克隆——滚一段长清单
+  /// 就在每张图上攒下成百上千只监听。现在：已知比例（量过 / 服务端给了）的不量，
+  /// 正在量的不重复挂，量到一次立刻摘。
+  void _updateImageSize(ImageProvider provider, ImageItem item) {
+    final url = item.url;
+    if (!mounted) return;
+    if (_loadedAspectRatios.containsKey(url) ||
+        _knownAspectRatio(item) != null ||
+        !_measuringUrls.add(url)) {
+      return;
+    }
+    final stream = provider.resolve(const ImageConfiguration());
+    late final ImageStreamListener listener;
+    void finish() {
+      stream.removeListener(listener);
+      _measuringUrls.remove(url);
+    }
+
+    listener = ImageStreamListener((ImageInfo info, bool _) {
+      final double width = info.image.width.toDouble();
+      final double height = info.image.height.toDouble();
+      // 派给监听器的是一份克隆，尺寸读完就还回去。
+      info.dispose();
+      finish();
+      if (!mounted || width <= 0 || height <= 0) return;
+      if (_loadedAspectRatios[url] != width / height) {
+        setState(() {
+          _loadedAspectRatios[url] = width / height;
+          _prefix = null;
+        });
+        // 宽度刚刚变了，粘住的目标要照新宽度重新落一次位——要等这一帧
+        // 排完版，不然 maxScrollExtent 还是旧的。
+        _scheduleApplyRevealTarget();
+      }
+    }, onError: (_, _) => finish());
+    stream.addListener(listener);
   }
 
   // --- Ticker Callback for Continuous Scroll ---
@@ -716,7 +809,7 @@ class _HorizontalImageListState extends State<HorizontalImageList>
       },
       imageBuilder: (context, imageProvider) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _updateImageSize(imageProvider, imageItem.url);
+          _updateImageSize(imageProvider, imageItem);
         });
         return Container(
           decoration: BoxDecoration(
@@ -770,29 +863,55 @@ class _VideoThumbnailWidget extends StatefulWidget {
 }
 
 class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
-  late Player _player;
-  late VideoController _videoController;
+  Player? _player;
+  VideoController? _videoController;
   bool _isInitialized = false;
   bool _hasError = false;
   bool _isHovered = false;
   bool _shouldAutoPlay = false;
 
+  /// 是否已经为这只播放器叫停了后台派生（与 dispose 里的 resume 成对）。
+  bool _pausedBackground = false;
+
+  /// 在场满这么久才真的开播放器。
+  ///
+  /// ⛔ 每条视频缩略图都是一只真 libmpv。图库里视频多、用户又一路甩过去的话，
+  /// 一进一出就是几十只播放器被建了又拆——既白白开网络流，也正撞上
+  /// 「播放器 dispose 后几秒原生闪退」那份悬案。停下来看得见的那几条才开。
+  static const Duration _initDelay = Duration(milliseconds: 300);
+  Timer? _initTimer;
+
   @override
   void initState() {
     super.initState();
-    // 这里开的是一只真 libmpv：在场期间让本机文件的后台派生别再并行开无头
-    // Player，与 dispose 里的 resume 成对（引用计数）。
-    LocalMediaDerivationService.maybe?.pauseBackground();
-    _initializePlayer();
+    _scheduleInitialize();
+  }
+
+  void _scheduleInitialize() {
+    _initTimer?.cancel();
+    _initTimer = Timer(_initDelay, () {
+      if (!mounted) return;
+      // 还在快速滚动（甩动惯性里）就再等一轮，与 `Image` 推迟解码同一个判据。
+      if (Scrollable.recommendDeferredLoadingForContext(context)) {
+        _scheduleInitialize();
+        return;
+      }
+      _initializePlayer();
+    });
   }
 
   Future<void> _initializePlayer() async {
+    // 这里开的是一只真 libmpv：在场期间让本机文件的后台派生别再并行开无头
+    // Player，与 dispose 里的 resume 成对（引用计数）。
+    LocalMediaDerivationService.maybe?.pauseBackground();
+    _pausedBackground = true;
     try {
-      _player = Player();
-      _videoController = VideoController(_player);
+      final player = Player();
+      _player = player;
+      _videoController = VideoController(player);
 
       // 监听播放器状态
-      _player.stream.error.listen((error) {
+      player.stream.error.listen((error) {
         if (mounted) {
           setState(() {
             _hasError = true;
@@ -801,7 +920,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
         }
       });
 
-      _player.stream.buffering.listen((buffering) {
+      player.stream.buffering.listen((buffering) {
         if (mounted && !buffering && !_isInitialized) {
           setState(() {
             _isInitialized = true;
@@ -810,12 +929,12 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       });
 
       // 添加额外的配置来支持 webm 格式
-      await _player.setAudioTrack(AudioTrack.no()); // 禁用音频避免权限问题
+      await player.setAudioTrack(AudioTrack.no()); // 禁用音频避免权限问题
 
       // 打开视频但不自动播放
       final media = Media(widget.videoUrl, httpHeaders: widget.headers);
-      await _player.open(media);
-      await _player.pause(); // 确保暂停状态
+      await player.open(media);
+      await player.pause(); // 确保暂停状态
     } catch (e) {
       LogUtils.e(
         '视频初始化失败: ${widget.videoUrl}',
@@ -833,8 +952,11 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
 
   @override
   void dispose() {
-    _player.dispose();
-    LocalMediaDerivationService.maybe?.resumeBackground();
+    _initTimer?.cancel();
+    _player?.dispose();
+    if (_pausedBackground) {
+      LocalMediaDerivationService.maybe?.resumeBackground();
+    }
     super.dispose();
   }
 
@@ -843,14 +965,16 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       _isHovered = isHovered;
     });
 
+    final player = _player;
+    if (player == null) return;
     if (isHovered && _isInitialized && !_hasError) {
       // 鼠标悬停时播放预览
-      _player.play();
+      player.play();
       _shouldAutoPlay = true;
     } else if (!isHovered && _shouldAutoPlay) {
       // 鼠标离开时暂停并回到开始
-      _player.pause();
-      _player.seek(Duration.zero);
+      player.pause();
+      player.seek(Duration.zero);
       _shouldAutoPlay = false;
     }
   }
@@ -873,11 +997,11 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
           // 大图页那侧的 heroTagBuilder 对视频恒返回 null（视频没有 Hero 对家），
           // 于是它只是一个裸文件 id 的孤儿标签——同一张图在两处同时出现就会撞
           // 「duplicate hero tag」。整套 Hero 已于 2026-09-05 移除，它跟着一起走。
-          if (_isInitialized)
+          if (_isInitialized && _videoController != null)
             ColorVisionFilterWrapper(
               configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
               child: AspectCorrectedVideo(
-                controller: _videoController,
+                controller: _videoController!,
                 fit: widget.fit,
               ),
             )
