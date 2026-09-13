@@ -451,9 +451,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 跨过「松手就翻」那条线出一声（手没有触觉，画面又全程不动，只剩这一条通道）。
         stage.swipe.onArmedChanged = { armed -> if (armed) runOnUiThread { touched() } }
         stage.onPressChanged = { pressed, _, _ -> runOnUiThread { stagePressed = pressed } }
-        // 幕布上捏合 / 双击缩放算一次交互（面板的空闲倒计时要续上）。
-        // ⛔ 缩放倍数**不再镜像进面板**：面板上那组 −/%/+ 已按用户要求整组移除（2026-09-06）。
-        stage.onZoomChanged = { _ -> runOnUiThread { lastInteractionAt = SystemClock.uptimeMillis() } }
         manipulator = WindowManipulator(
             systemManager,
             frameIds = mapOf(
@@ -2138,10 +2135,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             adjustViewDistance(viewDistanceDirection, seconds)
         } else if (twoHandScaling) {
             // 两手缩放中摇杆不管别的。
-        } else if (inGallery && stagePressed && screenIsImage && (stick.up != stick.down)) {
-            // 指着图片按住扳机 / 捏合，再推摇杆上下 = 以指着的那一点为原点缩放内容（放大镜）。
-            stage.zoomAtPress(if (stick.up) STICK_ZOOM_STEP else 1f / STICK_ZOOM_STEP)
-            lastInteractionAt = now
         } else if (manipulator.isMoving) {
             // 抓着窗的时候摇杆上下归它：推远 / 拉近（正抓着窗，射线扫到面板上也算它的）。
             nudgeGrabbedWindows()
@@ -3244,7 +3237,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         nowPlayingId = request.galleryId.ifBlank { null }
         controls.nowPlayingId = nowPlayingId
         clearSwitchWait()
-        stage.resetZoom()
         bufferingState.loadingLabelRes = UiR.string.xr_loading
         Log.i(TAG, "IMMERSIVE gallery present id=${g.galleryId} n=${g.items.size} index=${g.index} quality=${g.quality}")
         showGalleryItem(g.index)
@@ -3263,7 +3255,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         stage.model = null
         stage.itemId = ""
         stage.imageAspect = 0f
-        stage.resetZoom()
         stage.swipe.canPrevious = false
         stage.swipe.canNext = false
         nowPlayingId = null
@@ -3484,7 +3475,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         g.error = null
         controls.notice = null
         slideshowNextAt = 0L
-        stage.resetZoom()
         // 幕布上的横拖预示要知道还有没有下一张（到头的方向只出「到头」样式，不翻页）。
         stage.swipe.canPrevious = i > 0
         stage.swipe.canNext = i < g.items.size - 1
@@ -3860,9 +3850,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         /** 幕布上横拖起算的阈值（幕宽比例）：射线抖一下不算拖。 */
         private const val STAGE_SWIPE_SLOP = 0.02f
-
-        /** 指着图片按住 + 摇杆上下：每帧的缩放倍率（72Hz 下按住 1s ≈ ×2.3）。 */
-        private const val STICK_ZOOM_STEP = 1.012f
 
         /** 抓着窗时摇杆每帧推远 / 拉近的比例。 */
         private const val NUDGE_STEP = 0.02f

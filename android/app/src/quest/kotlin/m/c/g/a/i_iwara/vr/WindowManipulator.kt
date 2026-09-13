@@ -12,6 +12,8 @@ import com.meta.spatial.isdk.IsdkCurvedPanel
 import com.meta.spatial.isdk.IsdkDefaultCursorSystem
 import com.meta.spatial.isdk.IsdkPanelDimensions
 import com.meta.spatial.isdk.IsdkSystem
+import com.meta.spatial.runtime.DepthWrite
+import com.meta.spatial.runtime.PanelConfigOptions
 import com.meta.spatial.runtime.PanelSceneObject
 import com.meta.spatial.runtime.PanelShapeLayerBlendType
 import com.meta.spatial.runtime.PointerEvent
@@ -20,6 +22,7 @@ import com.meta.spatial.toolkit.CylinderShapeOptions
 import com.meta.spatial.toolkit.DpPerMeterDisplayOptions
 import com.meta.spatial.toolkit.Panel
 import com.meta.spatial.toolkit.PanelRenderMode
+import com.meta.spatial.toolkit.PanelStyleOptions
 import com.meta.spatial.toolkit.QuadShapeOptions
 import com.meta.spatial.toolkit.SceneObjectSystem
 import com.meta.spatial.toolkit.Scale
@@ -296,7 +299,34 @@ class WindowManipulator(
             rendering = UIPanelRenderOptions(
                 renderMode = PanelRenderMode.Layer(layerBlendType = PanelShapeLayerBlendType.ALPHA_BLEND),
             ),
+            style = FrameMeshStyle,
         )
+    }
+
+    /**
+     * ⛔ 窗框的像素只许由合成层画，场景网格只留几何、不写颜色（与媒体面板同一招，见 `MediaEffectsRenderer.style`）。
+     *
+     * Layer 模式的面板除了合成层，还有一块场景网格往眼缓冲里画一份。两份各有各的缩放语义，
+     * 拖角时总有一份跟不上幕布（用户 2026-09-13，曲面幕布，前后两次）：
+     * - 用 `Scale` 拉：网格按几何缩放、贴着幕布，圆柱合成层却不认 Scale、飘向镜头；
+     * - 用 `reshape()`：SDK 只重建 `PanelShape`（合成层），**网格不动**（`PanelSceneObject.reshape`
+     *   字节码里只有 PanelShape.destroy / new PanelShape），暗色的旧网格就留在原尺寸上偏离幕布。
+     *   换网格也换不动：`setSceneMesh` 运行时不生效（光晕那次真机证过）。
+     * 平面幕布之所以两种都没事，是 quad 层认 Scale。只要网格不出颜色，残影就无从谈起。
+     */
+    private object FrameMeshStyle : PanelStyleOptions() {
+        override fun applyTo(options: PanelConfigOptions) {
+            super.applyTo(options)
+            val createMesh = options.generateSceneMeshCreator()
+            options.sceneMeshCreator = { config, texture ->
+                createMesh(config, texture).also { mesh ->
+                    mesh.getMaterial(0)?.let { material ->
+                        material.setColorWrite(0)
+                        material.setDepthWrite(DepthWrite.DISABLE)
+                    }
+                }
+            }
+        }
     }
 
     private fun frameShape(size: Vector2, arc: Float): UIPanelShapeOptions {
@@ -536,10 +566,22 @@ class WindowManipulator(
             // the stretch leaves [1/REBUILD_SCALE_LIMIT, REBUILD_SCALE_LIMIT], where the canvas
             // would get too coarse. Those rebuilds happen at rest, never mid-gesture.
             //
-            // Only the screen's frame takes this path. The 2D panel's and the controls' frames
+            // Only the FLAT screen's frame takes this path. The 2D panel's and the controls' frames
             // keep the original reshape(): their behaviour was right, and the 2D panel's cursor
             // misbehaved after a resize once its frame carried a Scale (reverted 2026-09-09).
-            if (host.kind == WindowKind.SCREEN) {
+            //
+            // ⛔ A CURVED screen frame must not be stretched with Scale either (user 2026-09-13:
+            // dragging a corner of the curved stage made the handles fly toward the camera while a
+            // dark copy of them stayed on the stage's corners). Scale reaches two things: the panel's
+            // hole-punch mesh in the eye buffer, which scales geometrically and stays on the stage
+            // (the dark copy), and the SDK cylinder compositor layer, which does not treat Scale as a
+            // geometric scale (`SceneLayer.setScale` → native; same failure as the curved 2D panel,
+            // see `uiHost.resizeTo`) and drifts off (the lit handles). Quad layers do honour Scale
+            // (the controls panel resizes this way and is fine), so only flat frames stay here;
+            // curved ones take the reshape path, exactly like the curved 2D panel's frame.
+            // An arc change still enters this branch: it rebuilds, which also drops any Scale a
+            // flat frame was carrying before it turns curved.
+            if (host.kind == WindowKind.SCREEN && (arcChanged || arc < ScreenGeometry.MIN_ARC_DEGREES)) {
                 val sx = (size.x + 2f * RING_M) / (slot.frameSize.x + 2f * RING_M)
                 val sy = (size.y + 2f * RING_M) / (slot.frameSize.y + 2f * RING_M)
                 // z follows x like the 2D panel's own Scale: a cylinder frame stays a true
