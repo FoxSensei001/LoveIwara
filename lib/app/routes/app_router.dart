@@ -8,6 +8,7 @@ import 'package:i_iwara/app/routes/home_shell_navigation.dart';
 import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/services/page_departure_guard.dart';
 import 'package:i_iwara/app/models/message_and_conversation.model.dart';
@@ -94,6 +95,32 @@ final NavigatorObserver navigationRootObserver = _NavigationLogObserver('root');
 final NavigatorObserver navigationShellObserver = _NavigationLogObserver(
   'shell',
 );
+
+/// 上一次 Shell builder 看到的分支索引。
+int? _lastShellBranchIndex;
+
+/// 离开「本机文件」栏目时清掉后台派生队列。
+///
+/// ⛔ 挂在这里而不是 `LocalHomePage.dispose`：它在 `StatefulShellBranch` 里，
+/// 切底部栏目时整棵子树保活，`dispose` 永远不来，接在那里的清理一次都不会跑。
+/// 分支索引也不能读 `AppService.currentIndex`，那个值有好几处各自写，不保证和
+/// 真实分支同步；Shell builder 每次导航都拿到 go_router 权威的
+/// `navigationShell.currentIndex`，所以在这里判「从 localMedia 切走」这条边。
+///
+/// 只清**后台**队列：前台是用户视野里卡片请求的，回到栏目时它们会重新发起。
+/// 从本机文件点开视频不会触发这里（分支没变），那种情况由播放器页的
+/// pause/resumeBackground 负责。
+///
+/// builder 在 build 阶段调用，不能在里面直接改状态，所以推迟到帧后执行。
+void _onShellBranchMaybeChanged(int index) {
+  final previous = _lastShellBranchIndex;
+  _lastShellBranchIndex = index;
+  final localBranch = HomeShellNavigation.branchIndexByKey['localMedia'];
+  if (previous == null || previous == index || previous != localBranch) return;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    LocalMediaDerivationService.maybe?.clearBackground();
+  });
+}
 
 /// 全局根 Navigator 的 key，用于访问根导航的 context。
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -326,6 +353,7 @@ final GoRouter appRouter = GoRouter(
             // 存储 shell 引用，供 HomeShellScaffold 使用 goBranch()
             // 从 NavigationRail/BottomNav 进行 Tab 切换。
             Get.find<AppService>().navigationShell = navigationShell;
+            _onShellBranchMaybeChanged(navigationShell.currentIndex);
             return navigationShell;
           },
           navigatorContainerBuilder: (context, navigationShell, children) =>

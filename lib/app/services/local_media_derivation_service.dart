@@ -32,8 +32,15 @@ class LocalMediaDerivationService extends GetxService {
   static LocalMediaDerivationService get to => Get.find();
 
   /// 没注册时为 null。给播放器页面挂暂停/恢复用，那边不该关心注册顺序。
+  ///
+  /// ⛔ `Get.find` 必须显式写类型参数。裸写 `Get.find()` 时类型从返回值推断成
+  /// **可空的** `LocalMediaDerivationService?`，GetX 按这个键去查，永远查不到，
+  /// 直接抛异常。这一抛打断了 `MyVideoStateController.onInit`，
+  /// animationController / player 全部没初始化，所有视频详情页都坏了。
   static LocalMediaDerivationService? get maybe =>
-      Get.isRegistered<LocalMediaDerivationService>() ? Get.find() : null;
+      Get.isRegistered<LocalMediaDerivationService>()
+      ? Get.find<LocalMediaDerivationService>()
+      : null;
 
   static const String _tag = 'LocalMediaDerivation';
   static const Duration _metadataTimeout = Duration(seconds: 8);
@@ -271,6 +278,7 @@ class LocalMediaDerivationService extends GetxService {
   /// 被系统杀掉的高危形状。已经在跑的那一条会跑完。
   void pauseBackground() {
     _pauseDepth++;
+    LogUtils.i('派生队列暂停（depth=$_pauseDepth）', _tag);
     _resumeTimer?.cancel();
     _resumeTimer = null;
     _resumeSignal ??= Completer<void>();
@@ -285,6 +293,7 @@ class LocalMediaDerivationService extends GetxService {
     _resumeTimer = Timer(_resumeGrace, () {
       _resumeTimer = null;
       if (_pauseDepth > 0) return;
+      LogUtils.i('派生队列恢复', _tag);
       final signal = _resumeSignal;
       _resumeSignal = null;
       if (signal != null && !signal.isCompleted) signal.complete();
@@ -296,6 +305,7 @@ class LocalMediaDerivationService extends GetxService {
   void clearBackground() {
     final dropped = _backgroundIds.toList(growable: false);
     _backgroundIds.clear();
+    LogUtils.i('清空后台派生队列：丢弃 ${dropped.length} 条', _tag);
     for (final id in dropped) {
       final request = _pending.remove(id);
       if (request != null && !request.completer.isCompleted) {
