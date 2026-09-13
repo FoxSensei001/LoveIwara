@@ -4,21 +4,31 @@
 Requires numpy and Pillow. Run without arguments to reproduce the bundled sky.
 --source-hyg imports the magnitude <= 6.5 subset of the HYG v4.0 CSV (.gz).
 HYG-derived data and star imagery: CC BY-SA 4.0, see the adjacent NOTICE.
-The Milky Way is an artistic, restrained dust model, not survey photography.
+Earth and Moon surface maps, credits and source URLs: see the adjacent NOTICE.
+Planet sizes/positions and illumination are composed for comfortable
+viewing, not an ephemeris or a scale model of the Earth-Moon system.
 """
 
 import argparse
 import csv
+from dataclasses import dataclass
 import gzip
+import json
 from pathlib import Path
+import shutil
 
 import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "tool/data/quest_starfield/hyg_bright.csv"
+EARTH_MAP = CATALOG.parent / "earth_nasa.jpg"
+EARTH_CLOUDS = CATALOG.parent / "earth_clouds_nasa.jpg"
+MOON_MAP = CATALOG.parent / "moon_nasa.tif"
 OUTPUT = ROOT / "android/app/src/quest/assets/environments/deep_space.png"
 WIDTH, HEIGHT = 4096, 2048
+SUN = np.array([-0.30, 0.65, -0.85])
+SUN /= np.linalg.norm(SUN)
 
 # IAU ICRS -> Galactic rotation. HYG right ascension is in hours, declination in degrees.
 ICRS_TO_GALACTIC = np.array([
@@ -47,63 +57,190 @@ def import_catalog(source):
             writer.writerow([row["ra"], row["dec"], row["mag"], row["ci"] or "0.65"])
 
 
-def noise(p):
-    """Seeded 3-D value noise; evaluating directions avoids a panorama seam/pole singularity."""
-    cell = np.floor(p).astype(np.int32)
-    f = p - cell
-    f = f * f * (3 - 2 * f)
-    result = np.zeros(p.shape[:-1], dtype=np.float32)
-    for x in range(2):
-        for y in range(2):
-            for z in range(2):
-                q = cell + [x, y, z]
-                h = (q[..., 0].astype(np.uint32) * np.uint32(73856093)
-                     ^ q[..., 1].astype(np.uint32) * np.uint32(19349663)
-                     ^ q[..., 2].astype(np.uint32) * np.uint32(83492791))
-                h = (h ^ (h >> 13)) * np.uint32(1274126177)
-                v = (h ^ (h >> 16)).astype(np.float64) / 4294967295
-                weight = ((f[..., 0] if x else 1 - f[..., 0])
-                          * (f[..., 1] if y else 1 - f[..., 1])
-                          * (f[..., 2] if z else 1 - f[..., 2]))
-                result += v * weight
-    return result
+def background_radiance(world):
+    # Empty space has no painted band or angular branch cut. In particular, the
+    # former sin(3.2 * galactic_longitude) dust model was NOT 2*pi-periodic and
+    # baked a visible discontinuity inside the texture, despite U=REPEAT.
+    return np.broadcast_to(np.array([0.00012, 0.00015, 0.00023], dtype=np.float32), world.shape).copy()
 
 
-def dust(p):
-    value = np.zeros(p.shape[:-1], dtype=np.float32)
-    weight = 0.54
-    for _ in range(5):
-        value += weight * noise(p)
-        p = p * 2.03 + np.array([3.7, -7.1, 4.3])
-        weight *= 0.46
-    return value
+def directions(longitude, latitude):
+    """Unit directions; all spatial effects operate here, never on wrapped angles."""
+    return np.stack([np.sin(longitude) * np.cos(latitude), np.sin(latitude),
+                     np.cos(longitude) * np.cos(latitude)], -1)
+
+
+def panorama_directions(start, stop, dx=0.5, dy=0.5):
+    lon = (np.arange(WIDTH) + dx) / WIDTH * (2 * np.pi) - np.pi
+    lat = np.pi / 2 - (np.arange(start, stop) + dy) / HEIGHT * np.pi
+    return directions(*np.meshgrid(lon, lat))
 
 
 def sky_background():
-    sky = np.zeros((HEIGHT, WIDTH, 3), dtype=np.float32)
-    longitude = (np.arange(WIDTH) + 0.5) / WIDTH * (2 * np.pi) - np.pi
-    for start in range(0, HEIGHT, 128):
-        latitude = np.pi / 2 - (np.arange(start, min(start + 128, HEIGHT)) + 0.5) / HEIGHT * np.pi
-        lon, lat = np.meshgrid(longitude, latitude)
-        world = np.stack([np.sin(lon) * np.cos(lat), np.sin(lat), np.cos(lon) * np.cos(lat)], -1)
-        galactic = world @ GALACTIC_TO_WORLD
-        l = np.arctan2(galactic[..., 1], galactic[..., 0])
-        b = np.arcsin(np.clip(galactic[..., 2], -1, 1))
-        clouds = dust(galactic * 9)
-        fine = noise(galactic * 67)
-        band = np.exp(-((b / 0.115) ** 2))
-        halo = np.exp(-((b / 0.26) ** 2))
-        core = np.exp(-((l / 0.66) ** 2) - ((b / 0.19) ** 2))
-        lane_center = 0.019 * np.sin(l * 3.2) + (clouds - 0.45) * 0.10
-        lanes = np.exp(-(((b - lane_center) / 0.033) ** 2)) * (0.65 + 0.35 * fine)
-        body = (0.0020 * halo + 0.020 * band * (0.20 + 1.5 * clouds ** 2)) * (1 - 0.88 * lanes)
-        bulge = 0.021 * core * (0.30 + clouds) * (1 - 0.92 * lanes)
-        sky[start:start + len(latitude)] = (
-            np.array([0.00028, 0.00036, 0.00054])
-            + body[..., None] * np.array([0.72, 0.78, 0.88])
-            + bulge[..., None] * np.array([0.97, 0.86, 0.71])
-        )
-    return sky
+    return background_radiance(np.empty((HEIGHT, WIDTH, 3), dtype=np.float32))
+
+
+def linear(srgb_color):
+    return np.where(srgb_color <= 0.04045, srgb_color / 12.92, ((srgb_color + 0.055) / 1.055) ** 2.4)
+
+
+def bilinear(pixels, u, v):
+    """Pixel-centre lat-long sampling: wrap longitude, clamp latitude, like the SDK."""
+    height, width = pixels.shape[:2]
+    x, y = np.asarray(u) * width - 0.5, np.asarray(v) * height - 0.5
+    x0, y0 = np.floor(x).astype(int), np.floor(y).astype(int)
+    fx, fy = (x - x0)[..., None], (y - y0)[..., None]
+    top = (pixels[y0.clip(0, height - 1), x0 % width] * (1 - fx)
+           + pixels[y0.clip(0, height - 1), (x0 + 1) % width] * fx)
+    bottom = (pixels[(y0 + 1).clip(0, height - 1), x0 % width] * (1 - fx)
+              + pixels[(y0 + 1).clip(0, height - 1), (x0 + 1) % width] * fx)
+    return top * (1 - fy) + bottom * fy
+
+
+def load_surface(path):
+    with Image.open(path) as source:
+        source = source.convert("RGB")
+        source.thumbnail((4096, 2048), Image.Resampling.LANCZOS)
+        pixels = linear(np.asarray(source, dtype=np.float32) / 255)
+    # All longitudes represent the SAME point at each pole. Collapse only the
+    # outermost source row so even an exact polar sample is independent of atan2.
+    pixels[0] = pixels[0].mean(axis=0)
+    pixels[-1] = pixels[-1].mean(axis=0)
+    return pixels
+
+
+@dataclass(frozen=True)
+class Planet:
+    name: str
+    yaw: float
+    pitch: float
+    angular_radius: float
+    longitude: float
+    latitude: float
+    texture: np.ndarray
+    clouds: np.ndarray | None = None
+
+    @property
+    def direction(self):
+        return directions(*np.deg2rad([self.yaw, self.pitch]))
+
+    @property
+    def center(self):
+        return self.direction / np.sin(np.deg2rad(self.angular_radius))
+
+    def texture_coordinates(self, normal):
+        facing = -self.direction
+        up = np.array([0., 1., 0.])
+        up -= facing * np.dot(up, facing)
+        if np.linalg.norm(up) < 1e-8:
+            up = np.array([0., 0., 1.])  # A body may also be placed over a pole.
+        up /= np.linalg.norm(up)
+        latitude = np.deg2rad(self.latitude)
+        north = up * np.cos(latitude) + facing * np.sin(latitude)
+        meridian = facing * np.cos(latitude) - up * np.sin(latitude)
+        east = np.cross(meridian, north)
+        lon = np.arctan2(normal @ east, normal @ meridian) + np.deg2rad(self.longitude)
+        lat = np.arcsin(np.clip(normal @ north, -1, 1))
+        return lon / (2 * np.pi) + 0.5, 0.5 - lat / np.pi
+
+
+def smoothstep(low, high, value):
+    x = np.clip((value - low) / (high - low), 0, 1)
+    return x * x * (3 - 2 * x)
+
+
+def planet_layer(world, planet):
+    """Ray/sphere intersection returns radiance and opaque coverage separately.
+
+    Even the unlit hemisphere occludes stars. There are no rectangular cutouts,
+    billboard edges or longitude-dependent illumination in this layer.
+    """
+    center = planet.center
+    projection = world @ center
+    impact2 = np.maximum(np.dot(center, center) - projection ** 2, 0)
+    hit = (projection > 0) & (impact2 <= 1)
+    radiance = np.zeros(world.shape, dtype=np.float32)
+    if np.any(hit):
+        rays = world[hit]
+        distance = projection[hit] - np.sqrt(np.maximum(1 - impact2[hit], 0))
+        normal = rays * distance[..., None] - center
+        normal /= np.linalg.norm(normal, axis=-1)[..., None]
+        coordinates = planet.texture_coordinates(normal)
+        albedo = bilinear(planet.texture, *coordinates)
+        sunlight = np.maximum(normal @ SUN, 0)
+        if planet.name == "earth":
+            cloud = (bilinear(planet.clouds, *coordinates).mean(axis=-1)[..., None]
+                     if planet.clouds is not None else np.zeros((len(normal), 1)))
+            albedo = albedo * (1 - cloud * 0.90) + cloud * np.array([0.80, 0.84, 0.88])
+            color = albedo * (sunlight[..., None] * 0.95 + 0.0008)
+            mu = np.maximum(np.sum(normal * -rays, axis=-1), 0)
+            haze = (0.065 + 0.20 * (1 - mu) ** 3) * sunlight
+            color += haze[..., None] * np.array([0.065, 0.30, 0.78])
+        else:
+            # A subdued lunar surface; almost no light on the night side.
+            color = albedo * (1.25 * sunlight[..., None] + 0.002)
+        radiance[hit] = color
+
+    if planet.name == "earth":
+        impact = np.sqrt(impact2)
+        limb = (projection > 0) & (np.abs(impact - 1) < 0.04)
+        if np.any(limb):
+            tangent = world[limb] * projection[limb, None] - center
+            tangent /= np.linalg.norm(tangent, axis=-1)[..., None]
+            day = smoothstep(-0.08, 0.45, tangent @ SUN)
+            height = np.abs(impact[limb] - 1)
+            glow = 0.28 * np.exp(-height / 0.008) * (1 - smoothstep(0.025, 0.04, height)) * day
+            radiance[limb] += glow[..., None] * np.array([0.055, 0.29, 0.90])
+    return radiance, hit.astype(np.float32)
+
+
+def add_planets(sky, planets):
+    # Supersample the curved silhouettes, without blurring the star catalogue.
+    # The fixed composition has disjoint bodies; draw the distant Moon first.
+    for planet in planets:
+        for start in range(0, HEIGHT, 64):
+            stop = min(start + 64, HEIGHT)
+            radiance = np.zeros((stop - start, WIDTH, 3), dtype=np.float32)
+            coverage = np.zeros((stop - start, WIDTH), dtype=np.float32)
+            for dx, dy in [(0.25, 0.25), (0.75, 0.25), (0.25, 0.75), (0.75, 0.75)]:
+                color, opacity = planet_layer(panorama_directions(start, stop, dx, dy), planet)
+                radiance += color * 0.25
+                coverage += opacity * 0.25
+            sky[start:stop] = sky[start:stop] * (1 - coverage[..., None]) + radiance
+
+
+def load_planets():
+    return [Planet("moon", 32, 22, 4.6, 0, 5, load_surface(MOON_MAP)),
+            Planet("earth", -34, 12, 21, 100, 17, load_surface(EARTH_MAP), load_surface(EARTH_CLOUDS))]
+
+
+def export_runtime_assets(stars, planets, destination):
+    """One static panorama per visibility choice; small maps for optional GPU bodies."""
+    destination.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(np.rint(srgb(stars) * 255).astype(np.uint8)).save(destination / "stars.png", optimize=True)
+    for planet in planets:
+        sky = stars.copy()
+        add_planets(sky, [planet])
+        Image.fromarray(np.rint(srgb(sky) * 255).astype(np.uint8)).save(
+            destination / f"deep_space_{planet.name}.png", optimize=True)
+    for source, name, size in [(EARTH_MAP, "earth.jpg", (2048, 1024)),
+                               (EARTH_CLOUDS, "clouds.jpg", (2048, 1024)),
+                               (MOON_MAP, "moon.jpg", (1024, 512))]:
+        with Image.open(source) as image:
+            image = image.convert("RGB").resize(size, Image.Resampling.LANCZOS)
+            pixels = np.array(image)
+            pixels[0] = np.rint(pixels[0].mean(axis=0)).astype(np.uint8)
+            pixels[-1] = np.rint(pixels[-1].mean(axis=0)).astype(np.uint8)
+            Image.fromarray(pixels).save(destination / name, quality=95, subsampling=0, optimize=True)
+    scene = {"maxFps": 30, "motionFps": 60, "bodies": [
+        {"name": "earth", "yaw": -34, "pitch": 12, "angle": 21, "distance": 20,
+         "longitude": 100, "latitude": 17, "spin": 0.35, "cloudSpin": 0.39,
+         "eyePixels": 768, "zIndex": -80, "surface": "earth.jpg", "clouds": "clouds.jpg"},
+        {"name": "moon", "yaw": 32, "pitch": 22, "angle": 4.6, "distance": 40,
+         "longitude": 0, "latitude": 5, "spin": 0.02, "cloudSpin": 0,
+         "eyePixels": 256, "zIndex": -90, "surface": "moon.jpg"},
+    ]}
+    (destination / "scene.json").write_text(json.dumps(scene, indent=2) + "\n")
 
 
 def star_color(bv):
@@ -150,21 +287,21 @@ def srgb(linear):
 
 
 def preview(image, output):
-    """A 100-degree, monoscopic view for asset inspection; this is not a headset capture."""
+    """A monoscopic perspective for asset inspection; this is not a headset capture."""
     width, height = 1600, 1000
     x, y = np.meshgrid((np.arange(width) + 0.5 - width / 2) / (width / 2),
                        -(np.arange(height) + 0.5 - height / 2) / (width / 2))
-    scale = np.tan(np.deg2rad(100) / 2)
-    directions = np.stack([x * scale, y * scale, np.ones_like(x)], -1)
-    directions /= np.linalg.norm(directions, axis=-1)[..., None]
-    u = (np.arctan2(directions[..., 0], directions[..., 2]) / (2 * np.pi) + 0.5) * WIDTH - 0.5
-    v = (0.5 - np.arcsin(directions[..., 1]) / np.pi) * HEIGHT - 0.5
-    x0, y0 = np.floor(u).astype(int), np.floor(v).astype(int)
-    fx, fy = (u - x0)[..., None], (v - y0)[..., None]
-    pixels = np.asarray(image, dtype=np.float32)
-    a = pixels[y0.clip(0, HEIGHT - 1), x0 % WIDTH] * (1 - fx) + pixels[y0.clip(0, HEIGHT - 1), (x0 + 1) % WIDTH] * fx
-    b = pixels[(y0 + 1).clip(0, HEIGHT - 1), x0 % WIDTH] * (1 - fx) + pixels[(y0 + 1).clip(0, HEIGHT - 1), (x0 + 1) % WIDTH] * fx
-    Image.fromarray(np.rint(a * (1 - fy) + b * fy).astype(np.uint8)).save(output)
+    scale = np.tan(np.deg2rad(110) / 2)
+    rays = np.stack([x * scale, y * scale, np.ones_like(x)], -1)
+    rays /= np.linalg.norm(rays, axis=-1)[..., None]
+    pitch = np.deg2rad(8)
+    rays = rays @ np.array([[1, 0, 0], [0, np.cos(pitch), np.sin(pitch)], [0, -np.sin(pitch), np.cos(pitch)]]).T
+    u = np.arctan2(rays[..., 0], rays[..., 2]) / (2 * np.pi) + 0.5
+    v = 0.5 - np.arcsin(rays[..., 1]) / np.pi
+    pixels = linear(np.asarray(image, dtype=np.float32) / 255)
+    color = srgb(bilinear(pixels, u, v) * 0.65)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(np.rint(color * 255).astype(np.uint8)).save(output)
 
 
 def main():
@@ -172,16 +309,40 @@ def main():
     parser.add_argument("--source-hyg", type=Path)
     parser.add_argument("--output", type=Path, default=OUTPUT)
     parser.add_argument("--preview", type=Path)
+    parser.add_argument("--preview-dir", type=Path, help="Export the draggable 360-degree viewer and its panorama")
+    parser.add_argument("--runtime-assets", type=Path, help="Export static visibility variants and the dynamic environment's source maps")
+    parser.add_argument("--dynamic-preview-dir", type=Path, help="Export the shared-shader dynamic viewer (requires runtime assets)")
     args = parser.parse_args()
     if args.source_hyg:
         import_catalog(args.source_hyg)
     sky = sky_background()
     count = add_stars(sky)
+    planets = load_planets()
+    if args.runtime_assets:
+        export_runtime_assets(sky, planets, args.runtime_assets)
+    add_planets(sky, planets)
     image = Image.fromarray(np.rint(srgb(sky) * 255).astype(np.uint8))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     image.save(args.output, optimize=True)
     if args.preview:
         preview(image, args.preview)
+    if args.preview_dir:
+        args.preview_dir.mkdir(parents=True, exist_ok=True)
+        destination = args.preview_dir / "deep_space.png"
+        if args.output.resolve() != destination.resolve():
+            shutil.copy2(args.output, destination)
+        shutil.copy2(ROOT / "tool/quest_environment_preview.html", args.preview_dir / "index.html")
+        shutil.copy2(CATALOG.parent / "NOTICE.txt", args.preview_dir / "NOTICE.txt")
+    if args.dynamic_preview_dir:
+        args.dynamic_preview_dir.mkdir(parents=True, exist_ok=True)
+        runtime = args.runtime_assets or OUTPUT.parent
+        for name in ["stars.png", "deep_space_earth.png", "deep_space_moon.png", "earth.jpg", "clouds.jpg", "moon.jpg", "scene.json"]:
+            shutil.copy2(runtime / name, args.dynamic_preview_dir / name)
+        for name in ["orbital.glsl", "orbital.frag", "orbital.vert"]:
+            shutil.copy2(OUTPUT.parent / name, args.dynamic_preview_dir / name)
+        shutil.copy2(args.output, args.dynamic_preview_dir / "deep_space.png")
+        shutil.copy2(CATALOG.parent / "NOTICE.txt", args.dynamic_preview_dir / "NOTICE.txt")
+        shutil.copy2(ROOT / "tool/quest_orbital_preview.html", args.dynamic_preview_dir / "index.html")
     print(f"{count} catalogued stars; {WIDTH}x{HEIGHT}; {args.output.stat().st_size:,} bytes")
 
 

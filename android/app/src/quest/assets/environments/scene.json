@@ -1,0 +1,35 @@
+{
+  "maxFps": 30,
+  "motionFps": 60,
+  "bodies": [
+    {
+      "name": "earth",
+      "yaw": -34,
+      "pitch": 12,
+      "angle": 21,
+      "distance": 20,
+      "longitude": 100,
+      "latitude": 17,
+      "spin": 0.35,
+      "cloudSpin": 0.39,
+      "eyePixels": 768,
+      "zIndex": -80,
+      "surface": "earth.jpg",
+      "clouds": "clouds.jpg"
+    },
+    {
+      "name": "moon",
+      "yaw": 32,
+      "pitch": 22,
+      "angle": 4.6,
+      "distance": 40,
+      "longitude": 0,
+      "latitude": 5,
+      "spin": 0.02,
+      "cloudSpin": 0,
+      "eyePixels": 256,
+      "zIndex": -90,
+      "surface": "moon.jpg"
+    }
+  ]
+}

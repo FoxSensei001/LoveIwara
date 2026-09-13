@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>地月之间 · 动态立体预览</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #000; color: #e9edf3; font-family: system-ui, sans-serif; }
+  canvas { display: block; width: 100%; height: 100svh; touch-action: none; cursor: grab; outline-offset: -3px; }
+  canvas:active { cursor: grabbing; }
+  header { position: absolute; top: 28px; left: 32px; right: 24px; pointer-events: none; }
+  h1 { font-size: 24px; font-weight: 500; letter-spacing: .04em; margin: 0 0 8px; }
+  p { margin: 0; color: #9aa9bb; font-size: 13px; line-height: 1.7; }
+  a { color: inherit; pointer-events: auto; text-underline-offset: 3px; }
+  nav { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); padding: 8px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; border-radius: 18px; background: #0e1520e6; border: 1px solid #ffffff16; }
+  button { border: 0; border-radius: 11px; padding: 0 15px; min-height: 44px; background: #1b2635; color: inherit; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  button:hover, button[aria-pressed="true"] { background: #324961; }
+  button:focus-visible { outline: 2px solid #b7d4ff; outline-offset: 2px; }
+  label { display: flex; align-items: center; gap: 9px; padding: 0 10px; height: 44px; color: #bdc9d8; font-size: 13px; }
+  input { width: 100px; accent-color: #b7c8dc; }
+  #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #acbacc; }
+  @media(max-width: 720px) { header { left: 20px; top: 20px; } nav { bottom: 16px; } button { padding: 0 12px; } }
+</style>
+<canvas tabindex="0" aria-label="动态地球、月球与星空。拖动环顾，WASD移动视点。"></canvas>
+<header><h1>地月之间</h1><p>拖动环顾 · WASD 移动视点 · 滚轮缩放<br>开启「立体动态」和「视点轻移」观察远近层次 · <a href="NOTICE.txt" target="_blank" rel="noopener">素材署名</a></p></header>
+<nav aria-label="场景预览控制">
+  <button id="earth">看地球</button><button id="home">全景</button>
+  <button id="show-earth" aria-pressed="true">显示地球</button>
+  <button id="show-moon" aria-pressed="true">显示月球</button>
+  <button id="depth" aria-pressed="false">视点轻移</button>
+  <button id="compare" aria-pressed="false">立体动态</button>
+  <button id="speed" aria-pressed="false">自转 ×1</button>
+  <label>亮度 <input type="range" min="0" max="100" value="65" aria-label="环境亮度"></label>
+</nav>
+<div id="status">正在准备地球与月球…</div>
+<script type="module">
+const canvas = document.querySelector('canvas'), status = document.querySelector('#status');
+const gl = canvas.getContext('webgl2', {alpha:false, antialias:false, preserveDrawingBuffer:true});
+const state = {yaw:0, pitch:8, fov:110, brightness:.65, seconds:0, dynamic:false, showEarth:true, showMoon:true, depth:false, speed:1, eye:0, x:0, y:0, z:0, paused:false, ready:false};
+const preferenceKey='loveiwara-space-preview-settings-v1', preferenceFields=['dynamic','showEarth','showMoon'];
+try {
+ const saved=JSON.parse(localStorage.getItem(preferenceKey)||'{}');
+ for(const key of preferenceFields)if(typeof saved?.[key]==='boolean')state[key]=saved[key];
+} catch(error) { console.warn('Cannot restore preview settings',error); }
+function saveSettings(){try { localStorage.setItem(preferenceKey,JSON.stringify(Object.fromEntries(preferenceFields.map(key=>[key,state[key]])))); } catch(error) { console.warn('Cannot save preview settings',error); }}
+function syncSettings(){for(const [id,key] of [['compare','dynamic'],['show-earth','showEarth'],['show-moon','showMoon'],['depth','depth']])document.getElementById(id).setAttribute('aria-pressed',String(state[key]));}
+window.environmentState = state;
+if (!gl) { status.textContent='浏览器无法显示 WebGL 全景。'; throw Error('WebGL2 unavailable'); }
+const normalize = v => { const l=Math.hypot(...v); return v.map(x=>x/l); };
+const cross = (a,b) => [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const scale = (v,s) => v.map(x=>x*s), add = (a,b) => a.map((x,i)=>x+b[i]);
+const dot = (a,b) => a.reduce((s,x,i)=>s+x*b[i],0), rad=Math.PI/180;
+function program(vertex,fragment) {
+  const compile=(type,source)=>{ const s=gl.createShader(type); gl.shaderSource(s,source); gl.compileShader(s); if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw Error(gl.getShaderInfoLog(s)); return s; };
+  const p=gl.createProgram(), v=compile(gl.VERTEX_SHADER,vertex), f=compile(gl.FRAGMENT_SHADER,fragment);
+  gl.attachShader(p,v); gl.attachShader(p,f); gl.linkProgram(p); gl.deleteShader(v); gl.deleteShader(f);
+  if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw Error(gl.getProgramInfoLog(p)); return p;
+}
+async function texture(url) {
+  const image=new Image(); image.src=url; await image.decode();
+  const t=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.SRGB8_ALPHA8,gl.RGBA,gl.UNSIGNED_BYTE,image); gl.generateMipmap(gl.TEXTURE_2D); return t;
+}
+const vertex=`#version 300 es
+out vec2 uv; void main(){uv=vec2(float((gl_VertexID<<1)&2),float(gl_VertexID&2));gl_Position=vec4(uv*2.-1.,0.,1.);}`;
+const viewCode=`
+uniform vec2 resolution;
+uniform vec3 view;
+uniform vec3 camera;
+vec3 direction(){
+ vec2 p=(gl_FragCoord.xy-resolution*.5)/(resolution.x*.5);
+ vec3 d=normalize(vec3(p*tan(view.z*.5),1.));
+ float cy=cos(view.x),sy=sin(view.x),cp=cos(view.y),sp=sin(view.y);
+ d=vec3(d.x,d.y*cp+d.z*sp,-d.y*sp+d.z*cp);
+ return vec3(d.x*cy+d.z*sy,d.y,-d.x*sy+d.z*cy);
+}`;
+const [spec,core,stars,oldSky,earthSky,moonSky] = await Promise.all([
+  fetch('scene.json').then(r=>r.json()),fetch('orbital.glsl').then(r=>r.text()),texture('stars.png'),texture('deep_space.png'),texture('deep_space_earth.png'),texture('deep_space_moon.png')
+]);
+const skyProgram=program(vertex,`#version 300 es
+precision highp float;
+${viewCode}
+uniform sampler2D sky;out vec4 color;
+void main(){vec3 d=direction();vec2 uv=vec2(atan(d.x,d.z)/6.28318530718+.5,.5-asin(clamp(d.y,-1.,1.))/3.14159265359);
+ vec2 dx=dFdx(uv),dy=dFdy(uv);dx.x-=round(dx.x);dy.x-=round(dy.x);color=vec4(textureGrad(sky,uv,dx,dy).rgb,1.);}`);
+const bodyProgram=program(vertex,`#version 300 es
+precision highp float;
+${viewCode}
+${core}
+out vec4 color;void main(){color=orbitalRadiance(camera,direction());}`);
+const copyProgram=program(vertex,`#version 300 es
+precision highp float;uniform sampler2D source;uniform float brightness;in vec2 uv;out vec4 color;
+vec3 srgb(vec3 c){return mix(c*12.92,1.055*pow(max(c,vec3(0.)),vec3(1./2.4))-.055,step(vec3(.0031308),c));}
+void main(){color=vec4(srgb(texture(source,uv).rgb*brightness),1.);}`);
+const bodies=await Promise.all(spec.bodies.map(async b=>{
+ const d=[Math.sin(b.yaw*rad)*Math.cos(b.pitch*rad),Math.sin(b.pitch*rad),Math.cos(b.yaw*rad)*Math.cos(b.pitch*rad)];
+ const facing=scale(d,-1), up=normalize(add([0,1,0],scale(facing,-facing[1])));
+ const north=add(scale(up,Math.cos(b.latitude*rad)),scale(facing,Math.sin(b.latitude*rad)));
+ const meridian=add(scale(facing,Math.cos(b.latitude*rad)),scale(up,-Math.sin(b.latitude*rad)));
+ const surface=await texture(b.surface), cloud=b.clouds?await texture(b.clouds):surface;
+ const right=normalize(cross([0,1,0],d)), planeUp=cross(d,right);
+ return {...b,center:scale(d,b.distance),radius:b.distance*Math.sin(b.angle*rad),north,meridian,east:cross(meridian,north),surface,cloud,right,up:planeUp};
+}));
+let target=null, targetTexture=null, targetWidth=0,targetHeight=0;
+function uniform(p,name,...values){ const l=gl.getUniformLocation(p,name); if(values.length===1) gl.uniform1f(l,...values); else if(values.length===2) gl.uniform2f(l,...values); else if(values.length===3) gl.uniform3f(l,...values); else gl.uniform4f(l,...values); }
+function bind(p,name,tex,unit){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,tex);gl.uniform1i(gl.getUniformLocation(p,name),unit);}
+function view(p,eye){gl.useProgram(p);uniform(p,'resolution',canvas.width,canvas.height);uniform(p,'view',state.yaw*rad,state.pitch*rad,state.fov*rad);uniform(p,'camera',...eye);}
+function viewPoint(point,eye){
+ const d=point.map((x,i)=>x-eye[i]),cy=Math.cos(state.yaw*rad),sy=Math.sin(state.yaw*rad),cp=Math.cos(state.pitch*rad),sp=Math.sin(state.pitch*rad);
+ const x=d[0]*cy-d[2]*sy,z=d[0]*sy+d[2]*cy;
+ return [x,d[1]*cp-z*sp,d[1]*sp+z*cp];
+}
+function scissor(body,eye){
+ const half=body.radius/Math.cos(body.angle*rad)*1.25;
+ const corners=[[-1,-1],[-1,1],[1,-1],[1,1]].map(([x,y])=>viewPoint(add(body.center,add(scale(body.right,x*half),scale(body.up,y*half))),eye));
+ if(corners.every(p=>p[2]<0)) return false;
+ if(corners.some(p=>p[2]<=.01)){gl.scissor(0,0,canvas.width,canvas.height);return true;}
+ const factor=canvas.width*.5/Math.tan(state.fov*rad*.5), xs=corners.map(p=>canvas.width*.5+factor*p[0]/p[2]),ys=corners.map(p=>canvas.height*.5+factor*p[1]/p[2]);
+ const x=Math.max(0,Math.floor(Math.min(...xs))-2),y=Math.max(0,Math.floor(Math.min(...ys))-2),x1=Math.min(canvas.width,Math.ceil(Math.max(...xs))+2),y1=Math.min(canvas.height,Math.ceil(Math.max(...ys))+2);
+ if(x1<=x||y1<=y)return false;gl.scissor(x,y,x1-x,y1-y);return true;
+}
+function render(){
+ if(!state.ready)return;
+ const dpr=Math.min(devicePixelRatio,1.5), width=Math.round(canvas.clientWidth*dpr),height=Math.round(canvas.clientHeight*dpr);
+ if(width!==targetWidth||height!==targetHeight){
+  canvas.width=width;canvas.height=height;targetWidth=width;targetHeight=height;
+  if(target)gl.deleteFramebuffer(target);if(targetTexture)gl.deleteTexture(targetTexture);
+  targetTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,targetTexture);gl.texImage2D(gl.TEXTURE_2D,0,gl.SRGB8_ALPHA8,width,height,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  target=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,targetTexture,0);
+  if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('sRGB target incomplete');
+ }
+ const offset=state.depth?[Math.sin(state.seconds*.55)*.45,Math.sin(state.seconds*.33)*.12,0]:[0,0,0];
+ const eye=[state.x+offset[0]+state.eye*Math.cos(state.yaw*rad),state.y+offset[1],state.z-state.eye*Math.sin(state.yaw*rad)];
+ gl.bindFramebuffer(gl.FRAMEBUFFER,target);gl.viewport(0,0,width,height);gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);
+ const background=state.dynamic||(!state.showEarth&&!state.showMoon)?stars:state.showEarth?(state.showMoon?oldSky:earthSky):moonSky;
+ view(skyProgram,eye);bind(skyProgram,'sky',background,0);gl.drawArrays(gl.TRIANGLES,0,3);
+ if(state.dynamic){
+  gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.enable(gl.SCISSOR_TEST);view(bodyProgram,eye);
+  for(const b of [...bodies].reverse()){
+   if(b.name==='earth'?!state.showEarth:!state.showMoon)continue;
+   if(!scissor(b,eye))continue;
+   bind(bodyProgram,'surfaceMap',b.surface,0);bind(bodyProgram,'cloudMap',b.cloud,1);
+   uniform(bodyProgram,'bodyCenter',...b.center);uniform(bodyProgram,'geoEast',...b.east);uniform(bodyProgram,'geoNorth',...b.north);uniform(bodyProgram,'geoMeridian',...b.meridian);
+   uniform(bodyProgram,'bodyParameters',b.radius,b.longitude*rad,(state.seconds*b.spin%360)*rad,(state.seconds*b.cloudSpin%360)*rad);
+   gl.uniform1i(gl.getUniformLocation(bodyProgram,'earth'),b.name==='earth'?1:0);gl.drawArrays(gl.TRIANGLES,0,3);
+  }
+ }
+ gl.disable(gl.BLEND);gl.disable(gl.SCISSOR_TEST);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.useProgram(copyProgram);
+ bind(copyProgram,'source',targetTexture,0);uniform(copyProgram,'brightness',state.brightness);gl.drawArrays(gl.TRIANGLES,0,3);
+}
+window.setEnvironmentView=next=>{Object.assign(state,next);state.yaw=((state.yaw+180)%360+360)%360-180;state.pitch=Math.max(-90,Math.min(90,state.pitch));state.fov=Math.max(35,Math.min(120,state.fov));syncSettings();render();return {...state};};
+window.environmentPixels=()=>{const data=new Uint8Array(canvas.width*canvas.height*4);gl.readPixels(0,0,canvas.width,canvas.height,gl.RGBA,gl.UNSIGNED_BYTE,data);return data;};
+window.orbitalTest={gl,bodies,core,program,vertex,bind,uniform};
+let drag=null;
+canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,yaw:state.yaw,pitch:state.pitch};canvas.setPointerCapture(e.pointerId);};
+canvas.onpointermove=e=>{if(drag)setEnvironmentView({yaw:drag.yaw-(e.clientX-drag.x)*state.fov/canvas.clientWidth,pitch:drag.pitch+(e.clientY-drag.y)*state.fov/canvas.clientWidth});};
+canvas.onpointerup=canvas.onpointercancel=()=>drag=null;
+canvas.onwheel=e=>{e.preventDefault();setEnvironmentView({fov:state.fov+e.deltaY*.035});};
+canvas.onkeydown=e=>{
+ const arrows={ArrowLeft:[-5,0],ArrowRight:[5,0],ArrowUp:[0,5],ArrowDown:[0,-5]}[e.key];
+ if(arrows){e.preventDefault();setEnvironmentView({yaw:state.yaw+arrows[0],pitch:state.pitch+arrows[1]});}
+ const movement={a:[-.3,0,0],d:[.3,0,0],w:[0,0,.3],s:[0,0,-.3],q:[0,-.3,0],e:[0,.3,0]}[e.key.toLowerCase()];
+ if(movement){e.preventDefault();setEnvironmentView({x:Math.max(-3,Math.min(3,state.x+movement[0])),y:Math.max(-3,Math.min(3,state.y+movement[1])),z:Math.max(-3,Math.min(3,state.z+movement[2]))});}
+};
+document.querySelector('#earth').onclick=()=>setEnvironmentView({yaw:-34,pitch:12,fov:75});
+document.querySelector('#home').onclick=()=>setEnvironmentView({yaw:0,pitch:8,fov:110,x:0,y:0,z:0});
+document.querySelector('#depth').onclick=e=>{state.depth=!state.depth;e.currentTarget.setAttribute('aria-pressed',state.depth);render();};
+for(const [id,key] of [['compare','dynamic'],['show-earth','showEarth'],['show-moon','showMoon']])document.getElementById(id).onclick=()=>{state[key]=!state[key];saveSettings();syncSettings();render();};
+document.querySelector('#speed').onclick=e=>{state.speed=state.speed===1?8:1;e.currentTarget.setAttribute('aria-pressed',state.speed!==1);e.currentTarget.textContent=`自转 ×${state.speed}`;};
+document.querySelector('input').oninput=e=>{state.brightness=Number(e.target.value)/100;render();};
+window.addEventListener('resize',render);
+state.ready=true;status.hidden=true;syncSettings();render();
+let last=performance.now(),drawAt=0;
+function animate(now){const dt=Math.min((now-last)/1000,.1);last=now;if(!document.hidden&&!state.paused&&state.dynamic&&(state.showEarth||state.showMoon)){state.seconds+=dt*state.speed;if(now-drawAt>=1000/spec.maxFps){render();drawAt=now;}}requestAnimationFrame(animate);}
+requestAnimationFrame(animate);
+</script>
+</html>

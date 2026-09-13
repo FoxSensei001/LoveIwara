@@ -175,6 +175,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private val mediaEffects by lazy { MediaEffectsRenderer(scene, assets) }
     private var backgroundEnvironment: DeepSpaceEnvironment? = null
     private var environmentVrVisible = false
+    private var environmentHmdMounted = true
     private var mediaEffectsFailed = false
     private var screenUsesEffectMesh = false
     private var screenUsesProcessedVideo = false
@@ -551,7 +552,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // The projection layer must leave its empty pixels transparent for both
         // passthrough and a compositor sky behind the -1/0 media layers.
         scene.setBackfillColor(Color4(0f, 0f, 0f, 0f))
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible) }
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible && environmentHmdMounted) }
         applyScene(immediate = true)
         // ⛔ 关掉 VRFeature 自带的 LocomotionSystem：它把摇杆前后当传送（射出抛物线）、左右当转向，
         // 只有光标悬在面板上时才让路 —— 用户 2026-09-05：「摇杆推完松手视角变了 / 手柄射出一道抛物线」。
@@ -580,19 +581,23 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onVRReady() {
         super.onVRReady()
         environmentVrVisible = true
-        backgroundEnvironment?.setResumed(true)
+        backgroundEnvironment?.setResumed(environmentHmdMounted)
         Log.i(TAG, "IMMERSIVE onVRReady")
         resumeAfterSystem()
     }
 
     override fun onHMDUnmounted() {
         super.onHMDUnmounted()
+        environmentHmdMounted = false
+        backgroundEnvironment?.setResumed(false)
         Log.i(TAG, "IMMERSIVE onHMDUnmounted")
         pauseForSystem()
     }
 
     override fun onHMDMounted() {
         super.onHMDMounted()
+        environmentHmdMounted = true
+        backgroundEnvironment?.setResumed(environmentVrVisible)
         Log.i(TAG, "IMMERSIVE onHMDMounted")
         resumeAfterSystem()
     }
@@ -604,6 +609,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onRecenter(isUserInitiated: Boolean) {
         super.onRecenter(isUserInitiated)
         Log.i(TAG, "IMMERSIVE onRecenter user=$isUserInitiated")
+        backgroundEnvironment?.recenter()
         recenterEverything(waitForTracking = true)
     }
 
@@ -2696,8 +2702,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun tickEnvironment(now: Long) {
         val environment = backgroundEnvironment ?: return
         val covered = stageActive && screenShown && controls.format.projection == Projection.PANORAMA_360
-        val position = if (environment.ready) trackedHeadPose()?.t else null
-        val changed = runCatching { environment.tick(now, position, covered, mediaEffects.isPassthroughEnabled) }
+        val pose = if (environment.needsViewerPose) trackedHeadPose() else null
+        val changed = runCatching { environment.tick(now, pose, covered, mediaEffects.isPassthroughEnabled) }
             .getOrElse { failEnvironment(it); return }
         controls.environmentLoading = environment.loading
         environment.takeFailure()?.let { failEnvironment(it); return }
@@ -2708,8 +2714,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.w(TAG, "IMMERSIVE starfield unavailable", error)
         runCatching { backgroundEnvironment?.close() }
             .onFailure { Log.w(TAG, "IMMERSIVE starfield cleanup failed", it) }
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible) }
-        controls.environment = controls.environment.copy(kind = EnvironmentKind.PASSTHROUGH)
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible && environmentHmdMounted) }
+        controls.environment = if (controls.environment.kind == EnvironmentKind.DEEP_SPACE && controls.environment.dynamicSpace)
+            controls.environment.copy(dynamicSpace = false) // Preserve the requested world on lower-capability runtimes.
+        else controls.environment.copy(kind = EnvironmentKind.PASSTHROUGH)
         controls.environmentLoading = false
         controls.environmentLoadFailed = true
         markPrefsDirty()

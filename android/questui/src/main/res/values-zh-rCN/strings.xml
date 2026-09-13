@@ -226,9 +226,14 @@
     <string name="xr_media_effects_360_hint">360° 视频自然环绕整个视野；边缘柔化与光晕用于平面和 180° 画面。</string>
     <string name="xr_media_effects_fallback">画面效果暂不可用，已切回标准画面。</string>
     <string name="xr_environment_passthrough">透视</string>
-    <string name="xr_environment_deep_space">深空</string>
-    <string name="xr_environment_brightness">星空亮度</string>
-    <string name="xr_environment_deep_space_hint">静谧的群星与淡淡的银河环绕四周；调低亮度，让注意力留在画面上。</string>
+    <string name="xr_environment_deep_space">地月星空</string>
+    <string name="xr_environment_brightness">环境亮度</string>
+    <string name="xr_environment_dynamic">立体动态</string>
+    <string name="xr_environment_show_earth">显示地球</string>
+    <string name="xr_environment_show_moon">显示月球</string>
+    <string name="xr_environment_dynamic_unavailable">立体动态暂不可用，已切换为静态星空。</string>
+    <string name="xr_environment_dynamic_hint">开启后天体缓慢转动，并呈现立体深度；默认关闭以降低功耗。</string>
+    <string name="xr_environment_deep_space_hint">地球、月球与远方群星环绕四周；调低亮度，让注意力留在画面上。</string>
     <string name="xr_environment_loading">正在展开星空…</string>
-    <string name="xr_environment_failed">星空暂不可用，请重新选择深空。</string>
+    <string name="xr_environment_failed">星空暂不可用，请重新选择地月星空。</string>
 </resources>

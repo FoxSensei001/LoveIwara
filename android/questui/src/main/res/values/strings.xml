@@ -243,9 +243,14 @@
     <string name="xr_media_effects_360_hint">360° video surrounds you without a border; edge softness and glow apply to flat and 180° media.</string>
     <string name="xr_media_effects_fallback">Media effects are unavailable. Standard playback has been restored.</string>
     <string name="xr_environment_passthrough">Passthrough</string>
-    <string name="xr_environment_deep_space">Deep space</string>
-    <string name="xr_environment_brightness">Starlight</string>
-    <string name="xr_environment_deep_space_hint">A still, all-around starfield with a soft Milky Way. Lower the starlight for a darker viewing space.</string>
+    <string name="xr_environment_deep_space">Earth &amp; Moon</string>
+    <string name="xr_environment_brightness">Environment brightness</string>
+    <string name="xr_environment_dynamic">3D motion</string>
+    <string name="xr_environment_show_earth">Show Earth</string>
+    <string name="xr_environment_show_moon">Show Moon</string>
+    <string name="xr_environment_dynamic_unavailable">3D motion is unavailable. The static starfield is active.</string>
+    <string name="xr_environment_dynamic_hint">Adds slow rotation and stereo depth. Off by default to save power.</string>
+    <string name="xr_environment_deep_space_hint">Earth, the Moon and distant stars surround you. Lower the brightness for a darker viewing space.</string>
     <string name="xr_environment_loading">Preparing the starfield…</string>
-    <string name="xr_environment_failed">Starfield unavailable. Select Deep space to retry.</string>
+    <string name="xr_environment_failed">Starfield unavailable. Select Earth &amp; Moon to retry.</string>
 </resources>

@@ -83,6 +83,9 @@ class PlayerPrefs(context: Context) {
         state.environment = EnvironmentSettings(
             kind = enum(KEY_ENVIRONMENT, EnvironmentKind.PASSTHROUGH),
             spaceBrightness = sp.getFloat(KEY_SPACE_BRIGHTNESS, 0.65f),
+            dynamicSpace = sp.getBoolean(KEY_SPACE_DYNAMIC, false),
+            showEarth = sp.getBoolean(KEY_SPACE_SHOW_EARTH, true),
+            showMoon = sp.getBoolean(KEY_SPACE_SHOW_MOON, true),
         ).normalized()
         state.mediaEffects = MediaEffectsSettings(
             enabled = sp.getBoolean(KEY_EFFECTS_ENABLED, true),
@@ -142,6 +145,9 @@ class PlayerPrefs(context: Context) {
             .putString(KEY_CURVE, state.curve.name)
             .putString(KEY_ENVIRONMENT, state.environment.kind.name)
             .putFloat(KEY_SPACE_BRIGHTNESS, state.environment.spaceBrightness)
+            .putBoolean(KEY_SPACE_DYNAMIC, state.environment.dynamicSpace)
+            .putBoolean(KEY_SPACE_SHOW_EARTH, state.environment.showEarth)
+            .putBoolean(KEY_SPACE_SHOW_MOON, state.environment.showMoon)
             .putBoolean(KEY_EFFECTS_ENABLED, state.mediaEffects.enabled)
             .putInt(KEY_AMBIENCE_VERSION, 2)
             .putFloat(KEY_EDGE_FEATHER, state.mediaEffects.edgeFeather)
@@ -235,6 +241,9 @@ class PlayerPrefs(context: Context) {
         private const val KEY_BACKGROUND_TRANSPARENCY = "mediaBackgroundTransparency"
         private const val KEY_ENVIRONMENT = "backgroundEnvironment"
         private const val KEY_SPACE_BRIGHTNESS = "deepSpaceBrightness"
+        private const val KEY_SPACE_DYNAMIC = "deepSpaceDynamic"
+        private const val KEY_SPACE_SHOW_EARTH = "deepSpaceShowEarth"
+        private const val KEY_SPACE_SHOW_MOON = "deepSpaceShowMoon"
         const val KEY_DISTANCE = "distance"
         const val KEY_OFFSET = "offset"
         private const val KEY_COMFORTABLE_LAYOUT = "comfortableViewingLayoutV2"

@@ -11,6 +11,9 @@ enum class EnvironmentKind(@StringRes val labelRes: Int) {
 data class EnvironmentSettings(
     val kind: EnvironmentKind = EnvironmentKind.PASSTHROUGH,
     val spaceBrightness: Float = 0.65f,
+    val dynamicSpace: Boolean = false,
+    val showEarth: Boolean = true,
+    val showMoon: Boolean = true,
 ) {
     fun normalized() = copy(spaceBrightness = MediaEffectsSettings.unitValue(spaceBrightness, 0.65f))
 }

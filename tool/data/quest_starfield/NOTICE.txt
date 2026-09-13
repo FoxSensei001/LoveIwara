@@ -1,4 +1,4 @@
-Deep-space environment
+Earth and Moon environment
 
 Star positions, visual magnitudes and B-V colour indices are derived from the
 HYG Database v4.0 by David Nash / AstroNexus and contributors:
@@ -11,10 +11,70 @@ orientation and maps magnitude/colour into displayable star profiles. The
 compact source subset is tool/data/quest_starfield/hyg_bright.csv. The sky is
 reproducible with tool/generate_quest_starfield.py (numpy and Pillow required).
 
-The HYG-derived subset and deep_space.png are licensed under Creative Commons
+The HYG-derived subset, deep_space*.png and stars.png are licensed under Creative Commons
 Attribution-ShareAlike 4.0 International:
 https://creativecommons.org/licenses/by-sa/4.0/
 
-The diffuse Milky Way and dust are an artistic procedural approximation aligned
-to the Galactic plane, not astronomical survey imagery. The panorama is static;
-it does not represent the user's location, date or observing horizon.
+Earth surface: NASA Earth Observatory, Blue Marble: Next Generation, July 2004
+MODIS monthly composite. Image by Reto Stöckli.
+Bundled source: earth_nasa.jpg (5400 x 2700, unshaded and cloud-free).
+https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-map/#july
+https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-base/july/world.200407.3x5400x2700.jpg
+
+Earth clouds: NASA Goddard Space Flight Center, The Blue Marble (2002).
+Cloud imagery by Reto Stöckli. Enhancements by Robert Simmon.
+Bundled source: earth_clouds_nasa.jpg (2048 x 1024).
+This is a multi-day visible/infrared composite, not a current weather map.
+https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/
+https://assets.science.nasa.gov/content/dam/science/esd/eo/content-feature/bluemarble/images/cloud_combined_2048.jpg
+
+Moon surface: NASA's Scientific Visualization Studio, CGI Moon Kit (2019).
+LROC Hapke Normalized WAC Mosaic, with LOLA albedo at the poles.
+Bundled source: moon_nasa.tif (2048 x 1024, 0-degree longitude at the centre).
+The source is base colour before illumination and viewing-angle effects.
+https://svs.gsfc.nasa.gov/4720/
+https://assets.science.nasa.gov/content/dam/science/cds/svs/a000000/a004700/a004720/lroc_color_poles_2k.tif
+
+NASA source media are used under NASA's media usage guidelines; these texture
+maps carry no third-party copyright notice. SVS content is public domain unless
+otherwise noted. NASA does not endorse this application.
+https://www.nasa.gov/nasa-brand-center/images-and-media/
+https://svs.gsfc.nasa.gov/help/
+
+The rendered panorama adapts the above sources with spherical projection,
+lighting, an atmospheric limb and display exposure. Planetary apparent sizes
+and positions are composed for viewing comfort, not orbital scale or ephemeris
+accuracy. It is a static environment, not the sky for a particular date/place.
+The former procedural Milky Way is intentionally absent. All directions,
+including the panorama wrap and poles, belong to one complete 360 x 180 sky.
+Dynamic mode keeps distant stars in stars.png and shades the Earth and Moon
+separately from earth.jpg, clouds.jpg and moon.jpg. These are resized derivatives
+of the NASA source images above. The original source maps remain in tool/data.
+The offline scene.json provides a fixed composition; globe distances (20/40m)
+are artistic VR depth cues, not physical Earth-Moon distances. Surface rotation
+and cloud drift are intentionally accelerated, with fixed directional lighting.
+
+The stereo GLES renderer traces the current left/right eye rays into spheres,
+then submits them through fixed compositor proxy planes below the media layers.
+There is a finite-resolution and view-update tradeoff; this is not native
+display-rate sphere geometry. Translated views between updates retain a small
+surface-depth reprojection error. Ordinary animation is capped at 30 updates/s;
+movement can use up to 60. Actual frame time, compositor cost and power require
+Quest hardware measurement. The visible bodies' source textures and mip chains
+upload once per renderer lifetime; there are no recurring pixel uploads or readbacks.
+Dynamic mode defaults to off. Earth and Moon visibility is independently saved.
+The static option selects one baked panorama for the chosen bodies and creates
+no orbital renderer. deep_space.png shows both; deep_space_earth.png and
+deep_space_moon.png show one body; stars.png shows neither. In dynamic mode,
+hidden bodies have no compositor surface or GPU work. Hiding both uses only stars.png.
+
+Rebuild with Python 3.10+, numpy and Pillow:
+  python3 tool/generate_quest_starfield.py --runtime-assets android/app/src/quest/assets/environments
+Optional perspective and interactive 360-degree inspection:
+  python3 tool/generate_quest_starfield.py --preview /tmp/quest-sky/preview.png --preview-dir /tmp/quest-sky
+  python3 -m http.server 8768 --bind 127.0.0.1 --directory /tmp/quest-sky
+Regression checks:
+  python3 -m unittest discover -s tool -p test_quest_starfield.py
+Dynamic browser preview (same orbital.glsl as the app):
+  python3 tool/generate_quest_starfield.py --dynamic-preview-dir /tmp/quest-orbit
+  python3 -m http.server 8769 --bind 127.0.0.1 --directory /tmp/quest-orbit

@@ -207,7 +207,7 @@ fun SettingsPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 @Composable
 internal fun SwitchRow(
     title: String,
-    hint: String,
+    hint: String? = null,
     checked: Boolean,
     onToggle: () -> Unit,
 ) {
@@ -218,7 +218,7 @@ internal fun SwitchRow(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(title, color = PanelTokens.ON_SURFACE, fontSize = 16.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(hint, color = PanelTokens.ON_SURFACE_DIM, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            if (hint != null) Text(hint, color = PanelTokens.ON_SURFACE_DIM, fontSize = 13.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         SpatialSwitch(
             checked = checked,

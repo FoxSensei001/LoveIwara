@@ -47,6 +47,22 @@ internal fun BackgroundControls(
         if (environment.kind == EnvironmentKind.PASSTHROUGH) {
             BackgroundTransparencySlider(state.mediaEffects, cb::onMediaEffects, showHint = !compact)
         } else {
+            SwitchRow(
+                title = stringResource(R.string.xr_environment_show_earth),
+                checked = environment.showEarth,
+                onToggle = { cb.onEnvironment(environment.copy(showEarth = !environment.showEarth)) },
+            )
+            SwitchRow(
+                title = stringResource(R.string.xr_environment_show_moon),
+                checked = environment.showMoon,
+                onToggle = { cb.onEnvironment(environment.copy(showMoon = !environment.showMoon)) },
+            )
+            SwitchRow(
+                title = stringResource(R.string.xr_environment_dynamic),
+                hint = stringResource(R.string.xr_environment_dynamic_hint),
+                checked = environment.dynamicSpace,
+                onToggle = { cb.onEnvironment(environment.copy(dynamicSpace = !environment.dynamicSpace)) },
+            )
             SpatialSliderMedium(
                 value = environment.spaceBrightness,
                 onChanged = { cb.onEnvironment(environment.copy(spaceBrightness = it)) },
@@ -57,7 +73,8 @@ internal fun BackgroundControls(
         }
         val message = when {
             state.environmentLoading -> R.string.xr_environment_loading
-            state.environmentLoadFailed -> R.string.xr_environment_failed
+            state.environmentLoadFailed -> if (environment.kind == EnvironmentKind.DEEP_SPACE && !environment.dynamicSpace)
+                R.string.xr_environment_dynamic_unavailable else R.string.xr_environment_failed
             !compact && environment.kind == EnvironmentKind.DEEP_SPACE -> R.string.xr_environment_deep_space_hint
             else -> null
         }

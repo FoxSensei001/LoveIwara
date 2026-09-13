@@ -7,7 +7,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.Rect
+import android.os.SystemClock
 import com.meta.spatial.core.Entity
+import com.meta.spatial.core.Pose
 import com.meta.spatial.core.SpatialSDKExperimentalAPI
 import com.meta.spatial.core.Vector3
 import com.meta.spatial.core.Vector4
@@ -31,11 +33,11 @@ import m.c.g.a.i_iwara.questui.EnvironmentSettings
 import java.util.concurrent.Executors
 
 /**
- * A static, monoscopic compositor underlay shared by all media and the browse view.
+ * A distant star underlay plus optional stereo bodies, shared by all media and browse.
  *
  * A sky mesh in the projection layer can obscure the native video underlays, even
  * at an enormous radius. This layer explicitly sits below the -1/0 media layers.
- * It has no Android View, decoder, frame loop, or interactive mesh. Only its fade
+ * The star layer has no View, decoder, or recurring bitmap upload. Only its fade
  * and translation change; rotation remains world-locked. Decode happens off the
  * scene thread and a Canvas frame is submitted only while VR is visible.
  *
@@ -46,6 +48,11 @@ import java.util.concurrent.Executors
 internal class DeepSpaceEnvironment(private val scene: Scene, private val assets: AssetManager) {
     private var settings = EnvironmentSettings()
     private var panel: PanelSceneObject? = null
+    private var orbital: OrbitalEnvironment? = null
+    private var orbitClock: OrbitalCadence? = null
+    private var orbitAnchor: Vector3? = null
+    private var reanchor = false
+    private var reportedReady = false
     private var entity: Entity? = null
     private var position: Vector3? = null
     private val fade = EnvironmentFade()
@@ -63,9 +70,11 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     private var executor: java.util.concurrent.ExecutorService? = null
     @Volatile private var closed = false
 
-    var loading = false
-        private set
-    val ready: Boolean get() = panel != null
+    private var skyLoading = false
+    private val needsOrbit: Boolean get() = settings.dynamicSpace && (settings.showEarth || settings.showMoon)
+    val loading: Boolean get() = skyLoading || (wantsSky() && needsOrbit && settings.spaceBrightness > 0f && orbital?.ready != true)
+    val ready: Boolean get() = panel != null && !redrawOnResume && (!needsOrbit || settings.spaceBrightness == 0f || orbital?.ready == true)
+    val needsViewerPose: Boolean get() = settings.kind == EnvironmentKind.DEEP_SPACE || panel != null
     // Keep the camera dark until a fading-out sky has actually been removed.
     val replacesRoom: Boolean get() = ready ||
         (settings.kind == EnvironmentKind.DEEP_SPACE && (covered || enteredSpace))
@@ -73,6 +82,18 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     fun setSettings(next: EnvironmentSettings, now: Long, immediate: Boolean = false) {
         if (closed) return
         if (next.kind != settings.kind) failed = false
+        if (next.dynamicSpace != settings.dynamicSpace || next.showEarth != settings.showEarth || next.showMoon != settings.showMoon) {
+            failed = false
+            if (skyAsset(next) != skyAsset(settings)) {
+                fade.setVisible(false, now, immediate = true)
+                destroyLayer()
+            } else {
+                // The far stars are unchanged. Release hidden bodies and rebuild
+                // only the selected ones, retaining the remaining body's anchor.
+                orbital?.close()
+                orbital = null
+            }
+        }
         settings = next.normalized()
         if (settings.kind == EnvironmentKind.PASSTHROUGH) enteredSpace = false
         requestIfNeeded()
@@ -84,29 +105,48 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
         resumed = value
         // A runtime may recreate its Android consumer while the app is suspended.
         // Re-submit once on resume, never continuously redraw a static sky.
-        if (value && ready) redrawOnResume = true
+        if (value && panel != null) {
+            redrawOnResume = true
+            fade.setVisible(false, SystemClock.uptimeMillis(), immediate = true)
+            // The old consumer may already be invalid. Keep its producer off
+            // until the reloaded sky closes it and creates fresh body layers.
+            orbital?.setResumed(false)
+        } else orbital?.setResumed(value)
     }
 
+    fun recenter() { reanchor = true }
+
     /** Returns true when readiness/coverage changes and passthrough must be reconsidered. */
-    fun tick(now: Long, viewerPosition: Vector3?, fullyCovered: Boolean, passthroughEnabled: Boolean): Boolean {
+    fun tick(now: Long, viewerPose: Pose?, fullyCovered: Boolean, passthroughEnabled: Boolean): Boolean {
         if (closed) return false
         passthroughVisible = passthroughEnabled
         var changed = covered != fullyCovered
         covered = fullyCovered
         if (covered && settings.kind == EnvironmentKind.DEEP_SPACE) enteredSpace = true
-        if (covered && ready) {
+        if (covered && panel != null) {
             fade.setVisible(false, now, immediate = true)
             destroyLayer()
         }
         if (!resumed) return changed
+        if (reanchor) {
+            orbital?.close()
+            orbital = null
+            orbitAnchor = null
+            fade.setVisible(false, now, immediate = true)
+            reanchor = false
+        }
         val loaded = synchronized(loadLock) { pending.also { pending = null } }
         if (loaded != null) {
-            loading = false
+            skyLoading = false
             changed = true
             try {
-                if (wantsSky()) {
+                if (wantsSky() && loaded.asset == skyAsset(settings)) {
                     loaded.error?.let { throw it }
                     upload(checkNotNull(loaded.bitmap))
+                    // A resumed runtime may have replaced its Surface consumers.
+                    // Disconnect old EGL producers before rebuilding body layers.
+                    orbital?.close()
+                    orbital = null
                     enteredSpace = true
                     redrawOnResume = false
                 }
@@ -119,15 +159,23 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
             }
         }
         requestIfNeeded()
+        if (panel != null && !redrawOnResume && wantsSky() && needsOrbit && settings.spaceBrightness > 0f && orbital == null && viewerPose != null) {
+            orbital = OrbitalEnvironment(scene, assets, viewerPose, settings.showEarth, settings.showMoon, orbitClock, orbitAnchor).also {
+                orbitClock = it.animationClock
+                orbitAnchor = it.anchor
+            }
+        }
+        if (!redrawOnResume) orbital?.failure?.let { throw IllegalStateException("Orbital environment failed", it) }
         // Passthrough uses a colour LUT, not alpha. Fade through black rather
         // than depending on where the runtime orders its opaque camera layer.
         fade.setVisible(wantsSky() && ready && !passthroughVisible, now)
         val alpha = fade.valueAt(now)
-        if (!wantsSky() && alpha == 0f && ready) {
+        if (!wantsSky() && alpha == 0f && panel != null) {
             destroyLayer()
             changed = true
         }
         panel?.let { sky ->
+            val viewerPosition = viewerPose?.t
             if (viewerPosition != null && viewerPosition.x.isFinite() && viewerPosition.y.isFinite() &&
                 viewerPosition.z.isFinite() && viewerPosition != position) {
                 // Translation only: distant stars have no walking parallax and never turn with the head.
@@ -141,6 +189,8 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
                 appliedBrightness = settings.spaceBrightness
             }
         }
+        orbital?.tick(now, viewerPose, alpha, settings.spaceBrightness)
+        if (ready != reportedReady) { reportedReady = ready; changed = true }
         return changed
     }
 
@@ -148,28 +198,36 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
 
     private fun wantsSky() = settings.kind == EnvironmentKind.DEEP_SPACE && !covered && !failed
 
+    private fun skyAsset(selection: EnvironmentSettings) = when {
+        selection.dynamicSpace || (!selection.showEarth && !selection.showMoon) -> STARS_ASSET
+        selection.showEarth && selection.showMoon -> ASSET
+        selection.showEarth -> EARTH_ASSET
+        else -> MOON_ASSET
+    }
+
     private fun requestIfNeeded() {
-        if (closed || !wantsSky() || loading || (ready && !redrawOnResume)) return
-        loading = true
+        if (closed || !wantsSky() || skyLoading || (panel != null && !redrawOnResume)) return
+        skyLoading = true
+        val asset = skyAsset(settings)
         val loader = executor ?: Executors.newSingleThreadExecutor { task ->
             Thread(task, "QuestStarfieldLoader").apply { isDaemon = true }
         }.also { executor = it }
         loader.execute {
             val loaded = try {
-                val bitmap = assets.open(ASSET).use {
+                val bitmap = assets.open(asset).use {
                     BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply {
                         inPreferredConfig = Bitmap.Config.ARGB_8888
                         inScaled = false
                     })
                 }
-                checkNotNull(bitmap) { "Cannot decode $ASSET" }
+                checkNotNull(bitmap) { "Cannot decode $asset" }
                 if (bitmap.width != WIDTH || bitmap.height != HEIGHT) {
                     bitmap.recycle()
                     error("Unexpected starfield dimensions")
                 }
-                LoadedSky(bitmap = bitmap)
+                LoadedSky(asset, bitmap = bitmap)
             } catch (error: Throwable) {
-                LoadedSky(error = error)
+                LoadedSky(asset, error = error)
             }
             synchronized(loadLock) {
                 if (closed) loaded.bitmap?.recycle() else pending = loaded
@@ -235,6 +293,9 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     }
 
     private fun destroyLayer() {
+        orbital?.close()
+        orbital = null
+        orbitAnchor = null
         val oldPanel = panel
         val oldEntity = entity
         panel = null
@@ -256,14 +317,17 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
         }
         executor?.shutdownNow()
         executor = null
-        loading = false
+        skyLoading = false
         destroyLayer()
     }
 
-    private data class LoadedSky(val bitmap: Bitmap? = null, val error: Throwable? = null)
+    private data class LoadedSky(val asset: String, val bitmap: Bitmap? = null, val error: Throwable? = null)
 
     companion object {
         private const val ASSET = "environments/deep_space.png"
+        private const val STARS_ASSET = "environments/stars.png"
+        private const val EARTH_ASSET = "environments/deep_space_earth.png"
+        private const val MOON_ASSET = "environments/deep_space_moon.png"
         private const val WIDTH = 4096
         private const val HEIGHT = 2048
         private const val BACKGROUND_Z = -100

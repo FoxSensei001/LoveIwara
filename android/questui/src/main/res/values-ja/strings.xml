@@ -226,9 +226,14 @@
     <string name="xr_media_effects_360_hint">360° 映像には境界がありません。縁のぼかしと光は平面・180° 映像に適用されます。</string>
     <string name="xr_media_effects_fallback">映像効果を利用できないため、通常の表示に戻しました。</string>
     <string name="xr_environment_passthrough">パススルー</string>
-    <string name="xr_environment_deep_space">宇宙</string>
-    <string name="xr_environment_brightness">星空の明るさ</string>
-    <string name="xr_environment_deep_space_hint">静かな星々と淡い天の川が周囲を包みます。明るさを下げると、映像に集中できます。</string>
+    <string name="xr_environment_deep_space">地球と月</string>
+    <string name="xr_environment_brightness">環境の明るさ</string>
+    <string name="xr_environment_dynamic">立体アニメーション</string>
+    <string name="xr_environment_show_earth">地球を表示</string>
+    <string name="xr_environment_show_moon">月を表示</string>
+    <string name="xr_environment_dynamic_unavailable">立体アニメーションを利用できないため、静止した星空に切り替えました。</string>
+    <string name="xr_environment_dynamic_hint">天体のゆっくりした自転と立体感を加えます。節電のため初期設定はオフです。</string>
+    <string name="xr_environment_deep_space_hint">地球と月、遠くの星々が周囲を包みます。明るさを下げると、映像に集中できます。</string>
     <string name="xr_environment_loading">星空を準備中…</string>
-    <string name="xr_environment_failed">星空を表示できません。「宇宙」を選び直してください。</string>
+    <string name="xr_environment_failed">星空を表示できません。「地球と月」を選び直してください。</string>
 </resources>
