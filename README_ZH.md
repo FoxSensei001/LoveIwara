@@ -8,31 +8,34 @@
 
 **一个用 Flutter 打造的、快速且美观的 Iwara 第三方跨平台客户端。**
 
-一套代码 → Android · Windows · macOS · Linux · iOS
+一套代码 → Android · Meta Quest · Windows · macOS · Linux · iOS
 
 [![Telegram 群组](https://img.shields.io/badge/Telegram-群组-2CA5E0?style=flat&logo=telegram&logoColor=white)](https://t.me/+ITH4CV6Z_sc2ZWVl)
 [![GitHub stars](https://img.shields.io/github/stars/FoxSensei001/LoveIwara?label=stars&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
+[![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
 [![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=flat&logo=flutter&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-^3.8-0175C2?style=flat&logo=dart&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)
-![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)
+![Meta Quest](https://img.shields.io/badge/Meta_Quest-Horizon_OS-0467DF?style=flat&logo=meta&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0wIDBoMTEuMzc3djExLjM3Mkgwek0xMi42MjMgMEgyNHYxMS4zNzJIMTIuNjIzek0wIDEyLjYyM2gxMS4zNzdWMjRIMHpNMTIuNjIzIDEyLjYyM0gyNFYyNEgxMi42MjN6Ii8%2BPC9zdmc%2B)
 ![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
 [English](README.md) · **简体中文** · [繁體中文](README_ZH_TW.md) · [日本語](README_JA.md)
-
+    
 </div>
 
 ---
 
 ## 🌟 简介
 
-**Love Iwara**（又名 `i_iwara` 或 **2i**）是一个使用 Flutter 构建的 [Iwara](https://www.iwara.tv) 第三方客户端。它的目标是在手机、平板与桌面端都提供顺滑、接近原生的体验——而这一切都来自同一套代码，覆盖 **Android、Windows、macOS、Linux 和 iOS**。
+**Love Iwara**（又名 `i_iwara` 或 **2i**）是一个使用 Flutter 构建的 [Iwara](https://www.iwara.tv) 第三方客户端。它的目标是在手机、平板与桌面端都提供顺滑、接近原生的体验——而这一切都来自同一套代码，覆盖 **Android、Meta Quest、Windows、macOS、Linux 和 iOS**。
 
 > [!NOTE]
 > 本项目最初是一个学习项目——我第一次尝试开发跨平台 Flutter 应用。部分代码可能还不够完善，但它一直在积极维护、功能也很丰富。如果你也在学习 Flutter，希望我们能一起进步。欢迎提交 PR 与反馈！
