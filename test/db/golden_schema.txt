@@ -139,6 +139,7 @@ TABLE local_media_items
   COLUMN kind TEXT NOT NULL
   COLUMN last_played_at INTEGER
   COLUMN media_store_uri TEXT
+  COLUMN meta_probed_at INTEGER
   COLUMN missing INTEGER NOT NULL DEFAULT 0
   COLUMN modified_at INTEGER
   COLUMN name TEXT NOT NULL
@@ -148,6 +149,7 @@ TABLE local_media_items
   COLUMN size_bytes INTEGER
   COLUMN sort_name TEXT NOT NULL
   COLUMN source_id TEXT NOT NULL
+  COLUMN thumb_is_custom INTEGER NOT NULL DEFAULT 0
   COLUMN thumb_path TEXT
   COLUMN vr_format_json TEXT
   COLUMN width INTEGER
@@ -160,6 +162,7 @@ TABLE local_media_items
   INDEX idx_local_items_all_pixels :: CREATE INDEX idx_local_items_all_pixels ON local_media_items(kind, missing, (width * height), sort_name, id)
   INDEX idx_local_items_all_played :: CREATE INDEX idx_local_items_all_played ON local_media_items(kind, missing, last_played_at, sort_name, id)
   INDEX idx_local_items_all_size :: CREATE INDEX idx_local_items_all_size ON local_media_items(kind, missing, size_bytes, sort_name, id)
+  INDEX idx_local_items_download_task :: CREATE INDEX idx_local_items_download_task ON local_media_items(download_task_id) WHERE download_task_id IS NOT NULL
   INDEX idx_local_items_folder_kind_sort :: CREATE INDEX idx_local_items_folder_kind_sort ON local_media_items(source_id, folder_path, kind, missing, sort_name, name, id)
   INDEX idx_local_items_folder_sort :: CREATE INDEX idx_local_items_folder_sort ON local_media_items(source_id, folder_path, missing, sort_name, name, id)
   INDEX idx_local_items_page_added :: CREATE INDEX idx_local_items_page_added ON local_media_items(kind, source_id, missing, added_at, id)
@@ -167,13 +170,18 @@ TABLE local_media_items
   INDEX idx_local_items_page_category_added :: CREATE INDEX idx_local_items_page_category_added ON local_media_items(kind, source_id, category_id, missing, added_at, id)
   INDEX idx_local_items_page_category_duration :: CREATE INDEX idx_local_items_page_category_duration ON local_media_items(kind, source_id, category_id, missing, duration_ms, sort_name, id)
   INDEX idx_local_items_page_category_folder :: CREATE INDEX idx_local_items_page_category_folder ON local_media_items(kind, source_id, category_id, missing, folder_path, sort_name, name, id)
-  INDEX idx_local_items_page_category_played :: CREATE INDEX idx_local_items_page_category_played ON local_media_items(kind, source_id, category_id, missing, last_played_at, sort_name, name, id)
+  INDEX idx_local_items_page_category_played :: CREATE INDEX idx_local_items_page_category_played ON local_media_items(kind, source_id, category_id, missing, last_played_at, sort_name, id)
   INDEX idx_local_items_page_category_size :: CREATE INDEX idx_local_items_page_category_size ON local_media_items(kind, source_id, category_id, missing, size_bytes, sort_name, id)
   INDEX idx_local_items_page_duration :: CREATE INDEX idx_local_items_page_duration ON local_media_items(kind, source_id, missing, duration_ms, sort_name, id)
+  INDEX idx_local_items_page_ext :: CREATE INDEX idx_local_items_page_ext ON local_media_items(kind, source_id, missing, ext, sort_name, id)
+  INDEX idx_local_items_page_favorited :: CREATE INDEX idx_local_items_page_favorited ON local_media_items(kind, source_id, missing, favorited_at, id)
   INDEX idx_local_items_page_folder :: CREATE INDEX idx_local_items_page_folder ON local_media_items(kind, source_id, missing, folder_path, sort_name, name, id)
+  INDEX idx_local_items_page_fps :: CREATE INDEX idx_local_items_page_fps ON local_media_items(kind, source_id, missing, fps, sort_name, id)
+  INDEX idx_local_items_page_modified :: CREATE INDEX idx_local_items_page_modified ON local_media_items(kind, source_id, missing, modified_at, sort_name, id)
   INDEX idx_local_items_page_name :: CREATE INDEX idx_local_items_page_name ON local_media_items(kind, source_id, missing, sort_name, name, id)
   INDEX idx_local_items_page_name_all :: CREATE INDEX idx_local_items_page_name_all ON local_media_items(kind, missing, sort_name, name, id)
-  INDEX idx_local_items_page_played :: CREATE INDEX idx_local_items_page_played ON local_media_items(kind, source_id, missing, last_played_at, sort_name, name, id)
+  INDEX idx_local_items_page_pixels :: CREATE INDEX idx_local_items_page_pixels ON local_media_items(kind, source_id, missing, (width * height), sort_name, id)
+  INDEX idx_local_items_page_played :: CREATE INDEX idx_local_items_page_played ON local_media_items(kind, source_id, missing, last_played_at, sort_name, id)
   INDEX idx_local_items_page_size :: CREATE INDEX idx_local_items_page_size ON local_media_items(kind, source_id, missing, size_bytes, sort_name, id)
   INDEX idx_local_items_path :: CREATE INDEX idx_local_items_path ON local_media_items(path)
   INDEX sqlite_autoindex_local_media_items_1 :: (auto)

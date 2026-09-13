@@ -2644,6 +2644,10 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 	@override String scanFailed({required Object reason}) => 'スキャンに失敗しました：${reason}';
 	@override String scanTruncated({required Object count}) => 'このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。';
 	@override String sourceOverlaps({required Object name}) => 'フォルダー「${name}」に既に含まれています';
+	@override String addedAsPinnedFolder({required Object name, required Object source}) => '「${name}」は「${source}」の中にあるため、よく使うフォルダーに追加しました';
+	@override String alreadyPinnedFolder({required Object name}) => '「${name}」は既によく使うフォルダーにあります';
+	@override String sourceAlreadyAdded({required Object name}) => '「${name}」は既に追加されています';
+	@override String sourceContainsExisting({required Object name}) => '追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません';
 	@override String get addSourceFailed => 'フォルダーを追加できませんでした';
 	@override String get fileMissing => 'このファイルはディスク上にありません';
 	@override String get permissionDenied => 'ファイルアクセスが許可されていません · タップして許可';
@@ -6923,6 +6927,10 @@ extension on TranslationsJa {
 			'localMedia.scanFailed' => ({required Object reason}) => 'スキャンに失敗しました：${reason}',
 			'localMedia.scanTruncated' => ({required Object count}) => 'このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。',
 			'localMedia.sourceOverlaps' => ({required Object name}) => 'フォルダー「${name}」に既に含まれています',
+			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '「${name}」は「${source}」の中にあるため、よく使うフォルダーに追加しました',
+			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '「${name}」は既によく使うフォルダーにあります',
+			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '「${name}」は既に追加されています',
+			'localMedia.sourceContainsExisting' => ({required Object name}) => '追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません',
 			'localMedia.addSourceFailed' => 'フォルダーを追加できませんでした',
 			'localMedia.fileMissing' => 'このファイルはディスク上にありません',
 			'localMedia.permissionDenied' => 'ファイルアクセスが許可されていません · タップして許可',

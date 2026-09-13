@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,7 +57,13 @@ class DownloadedGalleryWall extends StatefulWidget {
   State<DownloadedGalleryWall> createState() => _DownloadedGalleryWallState();
 }
 
-class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
+class _DownloadedGalleryWallState extends State<DownloadedGalleryWall>
+    with AutomaticKeepAliveClientMixin {
+  /// 切 Tab 时保活，理由同 `LocalMediaWall.wantKeepAlive`。这一栏不听任何全局
+  /// 信号，保活没有后台重拉的代价。
+  @override
+  bool get wantKeepAlive => true;
+
   static const String _tag = 'DownloadedGalleryWall';
   static const int _pageSize = 60;
 
@@ -136,9 +143,11 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
       // ⛔ 游标按**这一页取回来的原始条数**推进，不是按 `_rows` 涨了多少：下面
       // 会丢掉解析不出 ext_data 的脏行，拿过滤后的条数推进会让那几条的位置被
       // 反复重取，翻页原地打转。
+      final rows = await DownloadedGalleryRow.parseAllInBackground(tasks);
+      if (!mounted || generation != _generation) return;
       _offset += tasks.length;
       if (tasks.length < _pageSize) _exhausted = true;
-      _rows.addAll(tasks.map(DownloadedGalleryRow.of).nonNulls);
+      _rows.addAll(rows);
       setState(() => _firstLoadPending = false);
     } catch (e, s) {
       LogUtils.e('读取已下载图库失败', tag: _tag, error: e, stackTrace: s);
@@ -153,6 +162,7 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final metrics = LocalGridMetrics.resolve(
@@ -184,22 +194,25 @@ class _DownloadedGalleryWallState extends State<DownloadedGalleryWall> {
                         metrics.cellWidth,
                       ),
                     ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final row = _rows[index];
-                        return DownloadedGalleryCard(
-                          row: row,
-                          onDeleted: () {
-                            if (mounted) {
-                              setState(() {
-                                _rows.removeWhere((e) => e.taskId == row.taskId);
-                              });
-                            }
-                          },
-                        );
-                      },
-                      childCount: _rows.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final row = _rows[index];
+                      return DownloadedGalleryCard(
+                        row: row,
+                        onDeleted: () {
+                          if (!mounted) return;
+                          setState(() {
+                            final before = _rows.length;
+                            _rows.removeWhere((e) => e.taskId == row.taskId);
+                            // ⛔ 任务已从表里删掉，结果集缩短了同样的条数：游标
+                            // 不跟着退的话，下一页从更后面取，中间那几条永远不出现。
+                            _offset = math.max(
+                              0,
+                              _offset - (before - _rows.length),
+                            );
+                          });
+                        },
+                      );
+                    }, childCount: _rows.length),
                   ),
                 ),
               SliverToBoxAdapter(

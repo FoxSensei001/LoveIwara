@@ -3107,6 +3107,10 @@ localMedia:
   scanFailed: "Scan failed: ${reason}"
   scanTruncated: "That folder is very large — only the first ${count} files were added."
   sourceOverlaps: "Already covered by the folder \"${name}\""
+  addedAsPinnedFolder: "\"${name}\" is inside \"${source}\", so it was added to pinned folders"
+  alreadyPinnedFolder: "\"${name}\" is already in pinned folders"
+  sourceAlreadyAdded: "\"${name}\" has already been added"
+  sourceContainsExisting: "It already contains the added folder \"${name}\"; adding its parent folder isn't supported yet"
   addSourceFailed: Could not add that folder
   fileMissing: That file is no longer on disk
   permissionDenied: File access not granted · tap to grant

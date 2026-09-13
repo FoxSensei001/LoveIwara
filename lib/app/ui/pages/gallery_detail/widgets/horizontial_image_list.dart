@@ -6,6 +6,7 @@ import 'package:flutter/services.dart'; // Import for keyboard events
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/widgets/color_vision_filter_wrapper.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_content_brightness.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -779,6 +780,9 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   @override
   void initState() {
     super.initState();
+    // 这里开的是一只真 libmpv：在场期间让本机文件的后台派生别再并行开无头
+    // Player，与 dispose 里的 resume 成对（引用计数）。
+    LocalMediaDerivationService.maybe?.pauseBackground();
     _initializePlayer();
   }
 
@@ -830,6 +834,7 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   @override
   void dispose() {
     _player.dispose();
+    LocalMediaDerivationService.maybe?.resumeBackground();
     super.dispose();
   }
 

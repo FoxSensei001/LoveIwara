@@ -71,6 +71,8 @@ CommonDatabase openTestDb() {
       favorited_at INTEGER,
       fps REAL,
       fps_probed_at INTEGER,
+      meta_probed_at INTEGER,
+      thumb_is_custom INTEGER NOT NULL DEFAULT 0,
       added_at INTEGER NOT NULL,
       missing INTEGER NOT NULL DEFAULT 0,
       UNIQUE(source_id, path_hash)

@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -88,18 +87,7 @@ class LocalSourceCardWidget extends StatelessWidget {
     );
     final path = coverPath;
     if (path == null || path.isEmpty) return placeholder;
-    return LayoutBuilder(
-      builder: (context, constraints) => Image.file(
-        File(path),
-        fit: BoxFit.cover,
-        cacheWidth:
-            ((constraints.maxWidth.isFinite ? constraints.maxWidth : 320) *
-                    MediaQuery.devicePixelRatioOf(context))
-                .round()
-                .clamp(1, 1280),
-        errorBuilder: (context, error, stackTrace) => placeholder,
-      ),
-    );
+    return LocalCoverImage(path: path, placeholder: placeholder);
   }
 
   @override
@@ -126,7 +114,9 @@ class LocalSourceCardWidget extends StatelessWidget {
                   opensOverlay: true,
                   longPressOpensOverlay: true,
                   child: Padding(
-                    padding: const EdgeInsets.all(LocalCardMenuBadge.iconPadding),
+                    padding: const EdgeInsets.all(
+                      LocalCardMenuBadge.iconPadding,
+                    ),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [

@@ -18,6 +18,7 @@ import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/services/oreno3d_client.dart' show Oreno3dClient;
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -1594,6 +1595,7 @@ class MyVideoStateController extends GetxController
   @override
   void onInit() async {
     super.onInit();
+    LocalMediaDerivationService.maybe?.pauseBackground(); // 与 onClose 成对
     _isDisposed = false; // 初始化时确保标志位为 false
     // 「被别的页面盖住就收尾」那道监控要认得本页，见 [PageDepartureGuard]。
     PageDepartureGuard.attach(this);
@@ -3068,6 +3070,7 @@ class MyVideoStateController extends GetxController
   @override
   void onClose() {
     LogUtils.i('MyVideoStateController onClose 被调用', 'MyVideoStateController');
+    LocalMediaDerivationService.maybe?.resumeBackground();
     _isDisposed = true;
     videoZoomInterruptSignal.value++;
     PageDepartureGuard.detach(this);

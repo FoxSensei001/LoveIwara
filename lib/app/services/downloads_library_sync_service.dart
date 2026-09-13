@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
@@ -164,6 +165,13 @@ class DownloadsLibrarySyncService extends GetxService {
       var written = 0;
       var unreadable = 0;
 
+      // ⛔ stat 一次性挪到后台 isolate 做完再回来。以前是循环里逐条 `statSync()`，
+      // 几百上千个任务就是几百上千次同步系统调用压在 UI 线程上（外置存储 / FUSE
+      // 上单次可达毫秒级），「本机文件」每次打开都要卡这一下。
+      final stats = await _statAllInBackground(
+        byPath.keys.toList(growable: false),
+      );
+
       for (final entry in byPath.entries) {
         final path = entry.key;
         final task = entry.value;
@@ -175,18 +183,12 @@ class DownloadsLibrarySyncService extends GetxService {
         // `size = -1`、`modified` 是纪元零点。量不出来就一个都不写——null 是
         // 「不知道」，`-1` 是一句谎话，而这两列是"文件被换过没有"的唯一判据，
         // 一个假指纹会连带删掉用户的观看进度（见 `LocalMediaScanService`）。
-        FileStat? stat;
-        try {
-          stat = File(path).statSync();
-        } catch (_) {
-          // 统一在下面按 readable 计数，避免同一条任务被记两次。
-        }
-        final readableStat = stat;
-        final readable = readableStat?.type == FileSystemEntityType.file;
+        // 判据收在 [_statAll] 里：只有 `type == file` 的才会带回大小与修改时间。
+        final fileStat = stats[path];
+        final readable = fileStat != null;
         if (readable) {
-          final fileStat = readableStat!;
           size = fileStat.size;
-          modified = fileStat.modified.millisecondsSinceEpoch;
+          modified = fileStat.modified;
         } else {
           unreadable++;
         }
@@ -214,7 +216,8 @@ class DownloadsLibrarySyncService extends GetxService {
             fingerprint.sizeBytes == size &&
             fingerprint.modifiedAt == modified) {
           // 库里那份和磁盘上这份一模一样，连 upsert 都不用发。
-          if (!fingerprint.hasMetadata) {
+          // 「探测过但没读出来」同样不再排队，见 `LocalMediaFingerprint.metaProbed`。
+          if (!(fingerprint.hasMetadata || fingerprint.metaProbed)) {
             derivationCandidates.add(
               _itemOf(
                 task,
@@ -278,6 +281,33 @@ class DownloadsLibrarySyncService extends GetxService {
     } catch (e, s) {
       LogUtils.e('「已下载」同步失败', tag: _tag, error: e, stackTrace: s);
     }
+  }
+
+  /// ⛔ 闭包必须在这个静态方法里建：在 `_sync` 里直接写 `Isolate.run(() => ...)`，
+  /// 闭包会连带捕获外层作用域（任务表、`this` 上的数据库句柄），发不过 isolate 边界。
+  static Future<Map<String, ({int size, int modified})>> _statAllInBackground(
+    List<String> paths,
+  ) => Isolate.run(() => _statAll(paths));
+
+  /// 在后台 isolate 里跑：逐条 stat，只把**真的是普通文件**的那些带回去。
+  ///
+  /// ⛔ 摸不到（notFound / 是目录 / 抛异常）的一律不进结果，调用方按「不在 Map 里」
+  /// 判不可读——不能把 `size = -1` 这类假值带回主 isolate。
+  static Map<String, ({int size, int modified})> _statAll(List<String> paths) {
+    final result = <String, ({int size, int modified})>{};
+    for (final path in paths) {
+      try {
+        final stat = File(path).statSync();
+        if (stat.type != FileSystemEntityType.file) continue;
+        result[path] = (
+          size: stat.size,
+          modified: stat.modified.millisecondsSinceEpoch,
+        );
+      } catch (_) {
+        // 统一在调用方按 readable 计数，避免同一条任务被记两次。
+      }
+    }
+    return result;
   }
 
   /// 一个已完成的下载任务 → 一条本地条目。全量同步与单条即时入库共用。
@@ -473,7 +503,7 @@ class DownloadsLibrarySyncService extends GetxService {
   void _enqueueDerivation(Iterable<LocalMediaItem> items) {
     final service = _derivationService;
     if (service == null) return;
-    unawaited(service.enqueueAll(items));
+    unawaited(service.enqueueAll(items, background: true));
   }
 
   /// 内建源那一行：没有就建，有就把显示名跟上当前语言。

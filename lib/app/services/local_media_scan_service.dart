@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -77,6 +78,12 @@ const int kLazyProbeDepth = 1;
 /// 而不是一声不吭地扫到内存爆掉。
 const int kMaxScanFiles = 50000;
 
+/// 单次扫描的目录数上限，与 [kMaxScanFiles] 同构：撞上了就停并标 truncated。
+///
+/// ⛔ 只封文件数封不住「几万个空目录」那种树（下载器的哈希缓存目录）：每个目录
+/// 都要回传一行、主 isolate 都要写一行，文件数一直是 0，闸门永远不咬合。
+const int kMaxScanFolders = 20000;
+
 /// 每轮扫描通过「选出封面代表」路径入队的最大数量。
 ///
 /// 大库一次可能扫出成百上千个纯视频目录；若全部送入派生队列，
@@ -143,6 +150,15 @@ class LocalMediaScanService extends GetxService {
   int _scanGeneration = 0;
   bool _mediaStoreRescanQueued = false;
   bool _mediaStoreChangePending = false;
+  bool _closed = false;
+
+  /// 排队等闸门的目录级扫描，按 `(sourceId, relPath)` 去重、先来先扫。
+  ///
+  /// ⛔ 不能让多个等待者挂在同一个 `_running.future` 上：唤醒后只有第一个进得去，
+  /// 其余看到 isScanning 直接 return，页面那边以为扫完了、显示一个空目录。
+  final LinkedHashMap<String, _QueuedFolderScan> _pendingFolderScans =
+      LinkedHashMap<String, _QueuedFolderScan>();
+  bool _folderPumping = false;
 
   bool get isScanning => _running != null && !_running!.isCompleted;
 
@@ -238,30 +254,68 @@ class LocalMediaScanService extends GetxService {
     // 真实路径：用户进目录 A（懒扫描起步），没等完就返回、马上点进没扫过的
     // 目录 B → B 撞上 A 那一轮，直接 return → B 永远空着。
     //
-    // 等待有上限：等不到就放弃这一轮（真有个全量扫描在跑几分钟的话，那一轮
-    // 本来也会把这一层扫进去）。
-    if (isScanning) {
-      LogUtils.i('已有扫描在跑，排队等待', _tag);
-      try {
-        await _running!.future.timeout(const Duration(seconds: 20));
-      } catch (_) {
-        LogUtils.i('等待前一轮扫描超时，放弃本次目录扫描', _tag);
-        return;
-      }
-      // 等到了，但可能又有新的一轮插了进来（比如用户手动点了「重新扫描」）。
-      // 不再递归等下去：那一轮同样会覆盖这一层。
-      if (isScanning) {
-        LogUtils.i('前一轮刚结束又有新扫描，放弃本次目录扫描', _tag);
-        return;
-      }
+    // 所以一律进 [_pendingFolderScans]：同一目录重复请求合流到同一个 completer，
+    // 闸门每放一次就取下一个出来跑，见 [_pumpFolderQueue]。
+    final key = '${source.id}\u0000$relPath';
+    final existing = _pendingFolderScans[key];
+    if (existing != null) {
+      existing.source = source;
+      return existing.completer.future;
     }
+    final job = _QueuedFolderScan(source, relPath);
+    _pendingFolderScans[key] = job;
+    if (isScanning) LogUtils.i('已有扫描在跑，目录扫描排队等待', _tag);
+    unawaited(_pumpFolderQueue());
+    return job.completer.future;
+  }
 
-    await _scanTree(
-      source: source,
-      scopeRelPath: relPath,
-      maxDepth: kLazyProbeDepth,
-      scoped: true,
-    );
+  /// 闸门空出来就依次跑排队的目录扫描。每一处放闸（[_teardown] / releaseSlot）
+  /// 都会经 [_scheduleFolderPump] 叫到这里。
+  Future<void> _pumpFolderQueue() async {
+    if (_folderPumping) return;
+    _folderPumping = true;
+    try {
+      while (_pendingFolderScans.isNotEmpty && !isScanning && !_closed) {
+        final key = _pendingFolderScans.keys.first;
+        final job = _pendingFolderScans.remove(key)!;
+        try {
+          // 排队期间源可能被用户删掉了。
+          if (_repository.getSource(job.source.id) == null) continue;
+          await _scanTree(
+            source: job.source,
+            scopeRelPath: job.relPath,
+            maxDepth: kLazyProbeDepth,
+            scoped: true,
+          );
+        } catch (e) {
+          LogUtils.e('排队的目录扫描失败', tag: _tag, error: e);
+        } finally {
+          if (!job.completer.isCompleted) job.completer.complete();
+        }
+      }
+    } finally {
+      _folderPumping = false;
+    }
+  }
+
+  /// 放闸之后再取队列：放闸点都在同步代码中间（completer 还没 complete），
+  /// 挪到微任务里等那一段跑完。
+  void _scheduleFolderPump() {
+    if (_pendingFolderScans.isEmpty || _closed) return;
+    scheduleMicrotask(() => unawaited(_pumpFolderQueue()));
+  }
+
+  /// 把排队中的目录扫描丢掉（源被删 / 服务关闭），completer 一律收尾。
+  void _dropQueuedFolderScans([String? sourceId]) {
+    final dropped = <_QueuedFolderScan>[];
+    _pendingFolderScans.removeWhere((_, job) {
+      final match = sourceId == null || job.source.id == sourceId;
+      if (match) dropped.add(job);
+      return match;
+    });
+    for (final job in dropped) {
+      if (!job.completer.isCompleted) job.completer.complete();
+    }
   }
 
   Future<void> _scanTree({
@@ -297,454 +351,559 @@ class LocalMediaScanService extends GetxService {
       _running = null;
       _runningSourceId = null;
       running.complete();
+      _scheduleFolderPump();
     }
 
-    if (source.kind == LocalMediaSourceKind.bookmark) {
-      final bookmark = source.uri;
-      if (bookmark == null || bookmark.isEmpty) {
-        LogUtils.w(
-          'iOS bookmark 源 ${source.id} 缺少 bookmark 数据，标记为 offline',
-          _tag,
-        );
-        _repository.upsertSource(
-          source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
-        );
-        releaseSlot();
-        return;
-      }
-
-      final resolved = await IosFolderPickerService.to.resolveBookmark(
-        bookmark,
-      );
-      if (resolved == null) {
-        LogUtils.w('iOS bookmark 源 ${source.id} 无法解析书签，标记为 offline', _tag);
-        _repository.upsertSource(
-          source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
-        );
-        releaseSlot();
-        return;
-      }
-
-      final newPath = resolved.path;
-      final newBookmark =
-          (resolved.stale &&
-              resolved.bookmark != null &&
-              resolved.bookmark!.isNotEmpty)
-          ? resolved.bookmark!
-          : bookmark;
-
-      if (newPath != source.path ||
-          newBookmark != source.uri ||
-          source.offline) {
-        currentSource = source.copyWith(
-          path: newPath,
-          uri: newBookmark,
-          offline: false,
-        );
-        _repository.upsertSource(currentSource);
-      }
-
-      final accessed = await IosFolderPickerService.to.startAccess(
-        currentSource.uri!,
-      );
-      if (!accessed) {
-        LogUtils.w(
-          'iOS bookmark 源 ${currentSource.id} 启动访问失败，标记为 offline',
-          _tag,
-        );
-        _repository.upsertSource(
-          currentSource.copyWith(
-            offline: true,
-            scanState: LocalMediaScanState.idle,
-          ),
-        );
-        releaseSlot();
-        return;
-      }
-      isBookmarkAccessActive = true;
-      activeBookmark = currentSource.uri;
-    }
-
+    // ⛔ 占闸之后的**每一句**都必须落在这个 try 里。upsertSource / fingerprints /
+    // pathsOfSource 都是同步写读库，任何一句抛出去，闸门就永远不还——isScanning
+    // 恒为 true，模块到重启前一次都扫不了，而且没有任何提示。
     try {
-      final sourceRoot = currentSource.path;
-      if (sourceRoot == null || sourceRoot.isEmpty) {
-        LogUtils.w('源 ${currentSource.id} 没有路径，跳过扫描', _tag);
-        releaseSlot();
-        return;
-      }
-      final root = scopeRelPath.isEmpty
-          ? sourceRoot
-          : p.normalize(p.join(sourceRoot, scopeRelPath));
+      if (source.kind == LocalMediaSourceKind.bookmark) {
+        final bookmark = source.uri;
+        if (bookmark == null || bookmark.isEmpty) {
+          LogUtils.w(
+            'iOS bookmark 源 ${source.id} 缺少 bookmark 数据，标记为 offline',
+            _tag,
+          );
+          _repository.upsertSource(
+            source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
+          );
+          releaseSlot();
+          return;
+        }
 
-      // 闸门在函数开头就占住了（见那里的注释），这里只把源 id 对齐到
-      // bookmark 解析后的那一份。
-      _runningSourceId = currentSource.id;
-      progress.value = LocalMediaScanProgress(
-        sourceId: currentSource.id,
-        discovered: 0,
-        finished: false,
-      );
-      if (!scoped) {
-        _repository.upsertSource(
-          currentSource.copyWith(scanState: LocalMediaScanState.scanning),
+        final resolved = await IosFolderPickerService.to.resolveBookmark(
+          bookmark,
         );
+        if (resolved == null) {
+          LogUtils.w('iOS bookmark 源 ${source.id} 无法解析书签，标记为 offline', _tag);
+          _repository.upsertSource(
+            source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
+          );
+          releaseSlot();
+          return;
+        }
+
+        final newPath = resolved.path;
+        final newBookmark =
+            (resolved.stale &&
+                resolved.bookmark != null &&
+                resolved.bookmark!.isNotEmpty)
+            ? resolved.bookmark!
+            : bookmark;
+
+        if (newPath != source.path ||
+            newBookmark != source.uri ||
+            source.offline) {
+          currentSource = source.copyWith(
+            path: newPath,
+            uri: newBookmark,
+            offline: false,
+          );
+          _repository.upsertSource(currentSource);
+        }
+
+        final accessed = await IosFolderPickerService.to.startAccess(
+          currentSource.uri!,
+        );
+        if (!accessed) {
+          LogUtils.w(
+            'iOS bookmark 源 ${currentSource.id} 启动访问失败，标记为 offline',
+            _tag,
+          );
+          _repository.upsertSource(
+            currentSource.copyWith(
+              offline: true,
+              scanState: LocalMediaScanState.idle,
+            ),
+          );
+          releaseSlot();
+          return;
+        }
+        isBookmarkAccessActive = true;
+        activeBookmark = currentSource.uri;
       }
-
-      final port = ReceivePort();
-      _port = port;
-
-      // 增量比对用的指纹：只有大小或修改时间变了的才需要重算内容派生字段。
-      final known = _repository.fingerprints(currentSource.id);
-      // 已经归「已下载」管的文件，这一轮一条都不收——同一条内容只能有一个主人，
-      // 见 [LocalMediaRepository.pathsOfSource]。**也不进 `seen`**：以前误收进
-      // 这个源的那些行会因此在收敛时被标成 missing，等于让出所有权。
-      final ownedByDownloads = _repository.pathsOfSource(kDownloadsSourceId);
-      final seen = <String>{};
-      // 目录那侧的 seen：装的是 **rel_path**（源根是空字符串），不是 path_hash。
-      // 两个集合口径不同但用途一样——收敛时"这轮没再见到的"就标 missing。
-      final seenFolders = <String>{};
-
-      /// 这一轮**真的 list 过**的目录（有效 rel_path）。只有它们够格被标成探过，
-      /// 也只有它们的孩子够格参与收敛——没列过就没资格对它下结论。
-      final listedRelPaths = <String>{};
-
-      /// 同上，绝对路径版，条目收敛按它筛。
-      final listedFolderPaths = <String>{};
-      var discovered = 0;
-      var truncated = false;
-      String? failure;
-      var enqueuedFolderCovers = 0;
-
-      // ⛔ 背压：处理一批时把订阅**暂停**掉，处理完再 resume。
-      //
-      // 只在处理末尾 `await Future.delayed(Duration.zero)` 是不够的——`listen` 不会
-      // 等回调返回，下一条消息照样进来，于是"让一帧"根本没让出去，扫大目录时
-      // UI 仍然一顿一顿。暂停订阅才是真的把速度交还给消费端（SendPort 自己会缓冲）。
-      late final StreamSubscription<dynamic> subscription;
-      subscription = port.listen((dynamic message) async {
-        if (!_isCurrent(generation, running)) return;
-        // ⛔ isolate 意外死亡的两种形状必须接住，否则 `_running` 永远不完成、
-        // 页面就一直卡在"扫描中"：
-        //   - `onError` 送回来的是 [error, stackTrace] 这样一个 List；
-        //   - `onExit` 送回来的是 null。
-        if (message is List) {
-          final error = message.isEmpty
-              ? '扫描 isolate 意外退出'
-              : '${message.first}';
-          _finish(
-            currentSource,
-            seen,
-            discovered,
-            truncated,
-            error,
-            running,
-            offline: false,
-            generation: generation,
-            scoped: scoped,
-            listedRelPaths: listedRelPaths,
-            listedFolderPaths: listedFolderPaths,
-          );
-          return;
-        }
-        if (message == null) {
-          // 正常走完时 'done' 已经先到并完成了 running，这里就是个 no-op。
-          // 如果没有 done 就退出，不能把半次扫描当成成功，否则会错误收敛
-          // missing。
-          _finish(
-            currentSource,
-            seen,
-            discovered,
-            truncated,
-            '扫描 isolate 意外退出',
-            running,
-            offline: false,
-            generation: generation,
-            scoped: scoped,
-            listedRelPaths: listedRelPaths,
-            listedFolderPaths: listedFolderPaths,
-          );
-          return;
-        }
-        if (message is! Map) return;
-        subscription.pause();
-        switch (message['type'] as String?) {
-          case 'batch':
-            final records = (message['files'] as List).cast<Map>();
-            final items = <LocalMediaItem>[];
-            final derivationCandidates = <LocalMediaItem>[];
-            final now = DateTime.now().millisecondsSinceEpoch;
-            for (final record in records) {
-              final path = record['path'] as String;
-              if (ownedByDownloads.contains(path)) continue;
-              final hash = _hashPath(path);
-              seen.add(hash);
-              final size = record['size'] as int?;
-              final modified = record['modified'] as int?;
-              final fingerprint = known[hash];
-              final name = p.basename(path);
-              final kind = (record['kind'] as String?) == 'image'
-                  ? LocalMediaItemKind.image
-                  : LocalMediaItemKind.video;
-              final item = LocalMediaItem(
-                id: LocalMediaItem.buildId(currentSource.id, hash),
-                sourceId: currentSource.id,
-                pathHash: hash,
-                path: path,
-                kind: kind,
-                name: name,
-                sortName: naturalSortKey(name),
-                ext: (record['ext'] as String?)?.toLowerCase(),
-                sizeBytes: size,
-                modifiedAt: modified,
-                sidecarImagePath: record['sidecar'] as String?,
-                folderPath: p.dirname(path),
-                addedAt: now,
-              );
-              final unchanged =
-                  fingerprint != null &&
-                  !fingerprint.missing &&
-                  fingerprint.sizeBytes == size &&
-                  fingerprint.modifiedAt == modified &&
-                  fingerprint.sidecarImagePath == item.sidecarImagePath;
-              // 没变过的老条目连 upsert 都不用发，但仍要补跑尚未完成的
-              // 内容派生（例如升级前已经扫过的旧条目）。
-              if (!unchanged) items.add(item);
-              // 视频与图片均需派生元数据：视频通过 media-kit 提取时长/宽高/帧率，
-              // 图片走独立的只读文件头通道获取宽高（毫秒级、互不阻塞）。
-              final hasMetadata = switch (kind) {
-                LocalMediaItemKind.video => fingerprint?.hasMetadata ?? false,
-                LocalMediaItemKind.image =>
-                  fingerprint?.hasImageMetadata ?? false,
-              };
-              if (!unchanged || !hasMetadata) {
-                derivationCandidates.add(item);
-              }
-            }
-            discovered += records.length;
-            if (items.isNotEmpty) {
-              try {
-                _repository.upsertItems(items);
-                _enqueueDerivation(derivationCandidates);
-              } catch (e) {
-                LogUtils.e('写入扫描批次失败', tag: _tag, error: e);
-              }
-            } else {
-              _enqueueDerivation(derivationCandidates);
-            }
-            progress.value = LocalMediaScanProgress(
-              sourceId: currentSource.id,
-              discovered: discovered,
-              finished: false,
-            );
-            // 让一帧出去，再放行下一批。
-            await Future<void>.delayed(Duration.zero);
-            // ⛔ 只有 batch / folders 这两支才 resume：'done'/'error' 走 [_finish]，
-            // 那里已经把 port 关掉了，再去 resume 一个已结束的订阅没有意义。
-            // ⛔ 反过来说，**任何新增的消息类型都必须自己 resume**——上面统一
-            // `subscription.pause()` 了，漏一处就是订阅永久挂起，表现成
-            // 「扫描卡在半路不动、进度条不再跳」，而且没有任何报错。
-            if (_isCurrent(generation, running) && subscription.isPaused) {
-              subscription.resume();
-            }
-          case 'folders':
-            final records = (message['folders'] as List).cast<Map>();
-            final folders = <LocalMediaFolder>[];
-            // ⛔ 占位行要和列过的行分开写：前者走 `DO NOTHING`，不然它那两个
-            // null（封面、修改时间）会把之前学到的值盖掉。见
-            // [LocalMediaRepository.upsertFolderStubs] 的注释。
-            final stubs = <LocalMediaFolder>[];
-            for (final record in records) {
-              final rawRel = (record['rel'] as String?) ?? '';
-              final relPath = scopeRelPath.isEmpty
-                  ? rawRel
-                  : (rawRel.isEmpty ? scopeRelPath : '$scopeRelPath/$rawRel');
-              final isStub = (record['stub'] as bool?) ?? false;
-              seenFolders.add(relPath);
-              if (!isStub) {
-                listedRelPaths.add(relPath);
-                final abs = record['path'] as String?;
-                if (abs != null && abs.isNotEmpty) listedFolderPaths.add(abs);
-              }
-              // 源根那一行的名字用源的显示名（用户自己起的），而不是磁盘上那截
-              // 目录名——他在来源列表里看到的是哪个名字，进去之后就该还是哪个。
-              final name = relPath.isEmpty
-                  ? currentSource.displayName
-                  : relPath.split('/').last;
-              (isStub ? stubs : folders).add(
-                LocalMediaFolder(
-                  id: LocalMediaFolder.buildId(currentSource.id, relPath),
-                  sourceId: currentSource.id,
-                  relPath: relPath,
-                  // 源根是树顶，没有上一级：null 而不是空字符串。空字符串是
-                  // 「我的父亲是源根」的意思，两者不能混。
-                  parentRelPath: relPath.isEmpty
-                      ? null
-                      : _parentRelPath(relPath),
-                  name: name,
-                  sortName: naturalSortKey(name),
-                  folderPath: record['path'] as String?,
-                  coverPath: record['cover'] as String?,
-                  modifiedAt: record['modified'] as int?,
-                ),
-              );
-            }
-            if (folders.isNotEmpty || stubs.isNotEmpty) {
-              try {
-                if (folders.isNotEmpty) _repository.upsertFolders(folders);
-                if (stubs.isNotEmpty) _repository.upsertFolderStubs(stubs);
-              } catch (e) {
-                LogUtils.e('写入扫描目录批次失败', tag: _tag, error: e);
-              }
-
-              // ⭐ 纯视频目录封面代表入队派生：
-              // 针对本轮真正扫描到的目录（排除 stub），若未 pin 且尚无封面，
-              // 挑出该目录下首个缺少缩略图的视频入队派生，生成缩略图后自动回填目录封面。
-              try {
-                final derivation = _derivationService;
-                if (derivation != null &&
-                    enqueuedFolderCovers <
-                        kMaxFolderCoverDerivationEnqueuedPerScan) {
-                  // ⛔ 一条 IN 查询问清「这批里谁还缺封面」，不要逐个 [getFolder]
-                  // 点查：封顶常量只封入队数，封不住点查次数，几千目录的树就是
-                  // 几千次同步 select 全压在主 isolate 上。
-                  final needing = _repository.foldersNeedingCover(
-                    sourceId: currentSource.id,
-                    relPaths: [for (final f in folders) f.relPath],
-                  );
-                  for (final folder in folders) {
-                    if (enqueuedFolderCovers >=
-                        kMaxFolderCoverDerivationEnqueuedPerScan) {
-                      break;
-                    }
-                    // 不在 needing 里 = 已 pin / 已有封面，跳过。
-                    // 在里面但值是空串 = 库里那一列空着，拿刚扫出来的路径兜底。
-                    final known = needing[folder.relPath];
-                    if (known == null) continue;
-                    final absPath = known.isEmpty ? folder.folderPath : known;
-                    if (absPath == null || absPath.isEmpty) continue;
-
-                    final candidate = _repository
-                        .firstVideoNeedingThumbInFolder(
-                          sourceId: currentSource.id,
-                          folderPath: absPath,
-                        );
-                    if (candidate != null) {
-                      enqueuedFolderCovers++;
-                      unawaited(
-                        derivation.enqueue(candidate, generateThumbnail: true),
-                      );
-                    }
-                  }
-                }
-              } catch (e) {
-                LogUtils.w('挑选并入队目录封面代表失败: $e', _tag);
-              }
-            }
-            await Future<void>.delayed(Duration.zero);
-            if (_isCurrent(generation, running) && subscription.isPaused) {
-              subscription.resume();
-            }
-          case 'done':
-            truncated = message['truncated'] as bool? ?? false;
-            final failedFolders = (message['failedFolders'] as List?)
-                ?.cast<String>();
-            final rawFailedFolderRels = (message['failedFolderRels'] as List?)
-                ?.cast<String>();
-            final failedFolderRels = rawFailedFolderRels?.map((rel) {
-              if (scopeRelPath.isEmpty) return rel;
-              return rel.isEmpty ? scopeRelPath : '$scopeRelPath/$rel';
-            }).toList();
-            _finish(
-              currentSource,
-              seen,
-              discovered,
-              truncated,
-              message['error'] as String?,
-              running,
-              offline: message['offline'] as bool? ?? false,
-              generation: generation,
-              failedFolders: failedFolders,
-              seenFolders: seenFolders,
-              failedFolderRels: failedFolderRels,
-              scoped: scoped,
-              listedRelPaths: listedRelPaths,
-              listedFolderPaths: listedFolderPaths,
-            );
-          case 'error':
-            failure = message['message'] as String? ?? '扫描失败';
-            _finish(
-              currentSource,
-              seen,
-              discovered,
-              truncated,
-              failure,
-              running,
-              offline: message['offline'] as bool? ?? false,
-              generation: generation,
-              scoped: scoped,
-              listedRelPaths: listedRelPaths,
-              listedFolderPaths: listedFolderPaths,
-            );
-        }
-      });
 
       try {
-        final collectImages =
-            currentSource.mediaKinds == LocalMediaKinds.image ||
-            currentSource.mediaKinds == LocalMediaKinds.both;
-        final collectVideos =
-            currentSource.mediaKinds == LocalMediaKinds.video ||
-            currentSource.mediaKinds == LocalMediaKinds.both;
-        final isolate = await Isolate.spawn(
-          _scanWorkerEntry,
-          <String, Object?>{
-            'send': port.sendPort,
-            'root': root,
-            'recursive': currentSource.recursive,
-            'maxDepth': maxDepth,
-            'maxFiles': kMaxScanFiles,
-            'batchSize': kScanBatchSize,
-            'videoExts': kLocalVideoExtensions.toList(),
-            'imageExts': kSidecarImageExtensions.toList(),
-            'skipDirs': kSkippedDirectoryNames.toList(),
-            'collectImages': collectImages,
-            'collectVideos': collectVideos,
-          },
-          errorsAreFatal: true,
-          onError: port.sendPort,
-          onExit: port.sendPort,
-        );
-        if (_isCurrent(generation, running)) {
-          _isolate = isolate;
-        } else {
-          isolate.kill(priority: Isolate.immediate);
+        final sourceRoot = currentSource.path;
+        if (sourceRoot == null || sourceRoot.isEmpty) {
+          LogUtils.w('源 ${currentSource.id} 没有路径，跳过扫描', _tag);
+          releaseSlot();
+          return;
         }
-      } catch (e) {
-        LogUtils.e('启动扫描 isolate 失败', tag: _tag, error: e);
-        _finish(
-          currentSource,
-          seen,
-          discovered,
-          truncated,
-          '$e',
-          running,
-          offline: !_directoryExists(root),
-          generation: generation,
-          scoped: scoped,
-          listedRelPaths: listedRelPaths,
-          listedFolderPaths: listedFolderPaths,
-        );
-      }
+        final root = scopeRelPath.isEmpty
+            ? sourceRoot
+            : p.normalize(p.join(sourceRoot, scopeRelPath));
 
-      await running.future;
-    } finally {
-      if (isBookmarkAccessActive && activeBookmark != null) {
+        // 闸门在函数开头就占住了（见那里的注释），这里只把源 id 对齐到
+        // bookmark 解析后的那一份。
+        _runningSourceId = currentSource.id;
+        progress.value = LocalMediaScanProgress(
+          sourceId: currentSource.id,
+          discovered: 0,
+          finished: false,
+        );
+        if (!scoped) {
+          _repository.upsertSource(
+            currentSource.copyWith(scanState: LocalMediaScanState.scanning),
+          );
+        }
+
+        final port = ReceivePort();
+        _port = port;
+
+        // 增量比对用的指纹：只有大小或修改时间变了的才需要重算内容派生字段。
+        // ⛔ 目录级扫描只读这棵子树的：懒扫描每进一层都走这里，整源全读＝每次点进
+        // 目录都在主 isolate 上建一张几万项的 Map。
+        final scopePath = scoped ? root : null;
+        final known = _repository.fingerprints(
+          currentSource.id,
+          underPath: scopePath,
+        );
+        // 已经归「已下载」管的文件，这一轮一条都不收——同一条内容只能有一个主人，
+        // 见 [LocalMediaRepository.pathsOfSource]。**也不进 `seen`**：以前误收进
+        // 这个源的那些行会因此在收敛时被标成 missing，等于让出所有权。
+        final ownedByDownloads = _repository.pathsOfSource(
+          kDownloadsSourceId,
+          underPath: scopePath,
+        );
+        final seen = <String>{};
+        // 目录那侧的 seen：装的是 **rel_path**（源根是空字符串），不是 path_hash。
+        // 两个集合口径不同但用途一样——收敛时"这轮没再见到的"就标 missing。
+        final seenFolders = <String>{};
+
+        /// 这一轮**真的 list 过**的目录（有效 rel_path）。只有它们够格被标成探过，
+        /// 也只有它们的孩子够格参与收敛——没列过就没资格对它下结论。
+        final listedRelPaths = <String>{};
+
+        /// 同上，绝对路径版，条目收敛按它筛。
+        final listedFolderPaths = <String>{};
+        var discovered = 0;
+        var truncated = false;
+        String? failure;
+        var enqueuedFolderCovers = 0;
+
+        // ⛔ 背压是**拉取式**的：worker 每发一批就停下来等主 isolate 回一句 `next`，
+        // 主 isolate 把这一批写完库、让出一帧之后才回。
+        //
+        // 以前是处理时 `subscription.pause()`：那只让主 isolate 这边不往下读，worker
+        // 照样全速遍历、照样往 SendPort 里塞——几万个目录的树上，消息全堆在主 isolate
+        // 的端口缓冲里，内存跟着涨，暂停等于没暂停。
+        SendPort? workerControl;
+        void requestNext() {
+          if (_isCurrent(generation, running)) workerControl?.send('next');
+        }
+
+        port.listen((dynamic message) async {
+          if (!_isCurrent(generation, running)) return;
+          // ⛔ isolate 意外死亡的两种形状必须接住，否则 `_running` 永远不完成、
+          // 页面就一直卡在"扫描中"：
+          //   - `onError` 送回来的是 [error, stackTrace] 这样一个 List；
+          //   - `onExit` 送回来的是 null。
+          if (message is List) {
+            final error = message.isEmpty
+                ? '扫描 isolate 意外退出'
+                : '${message.first}';
+            _finish(
+              currentSource,
+              seen,
+              discovered,
+              truncated,
+              error,
+              running,
+              offline: false,
+              generation: generation,
+              scoped: scoped,
+              scopeRelPath: scopeRelPath,
+              listedRelPaths: listedRelPaths,
+              listedFolderPaths: listedFolderPaths,
+            );
+            return;
+          }
+          if (message == null) {
+            // 正常走完时 'done' 已经先到并完成了 running，这里就是个 no-op。
+            // 如果没有 done 就退出，不能把半次扫描当成成功，否则会错误收敛
+            // missing。
+            _finish(
+              currentSource,
+              seen,
+              discovered,
+              truncated,
+              '扫描 isolate 意外退出',
+              running,
+              offline: false,
+              generation: generation,
+              scoped: scoped,
+              scopeRelPath: scopeRelPath,
+              listedRelPaths: listedRelPaths,
+              listedFolderPaths: listedFolderPaths,
+            );
+            return;
+          }
+          if (message is! Map) return;
+          // ⛔ 整段 switch 必须兜住：这里全是同步写库，任何一处抛出去（写库、入队、
+          // 进度赋值），worker 就永远等不到 `next`，闸门也永远不还。
+          try {
+            switch (message['type'] as String?) {
+              case 'hello':
+                workerControl = message['port'] as SendPort?;
+              case 'batch':
+                final records = (message['files'] as List).cast<Map>();
+                final items = <LocalMediaItem>[];
+                final derivationCandidates = <LocalMediaItem>[];
+                final now = DateTime.now().millisecondsSinceEpoch;
+                for (final record in records) {
+                  final path = record['path'] as String;
+                  if (ownedByDownloads.contains(path)) continue;
+                  final hash = _hashPath(path);
+                  seen.add(hash);
+                  final size = record['size'] as int?;
+                  final modified = record['modified'] as int?;
+                  final fingerprint = known[hash];
+                  final name = p.basename(path);
+                  final kind = (record['kind'] as String?) == 'image'
+                      ? LocalMediaItemKind.image
+                      : LocalMediaItemKind.video;
+                  final item = LocalMediaItem(
+                    id: LocalMediaItem.buildId(currentSource.id, hash),
+                    sourceId: currentSource.id,
+                    pathHash: hash,
+                    path: path,
+                    kind: kind,
+                    name: name,
+                    sortName: naturalSortKey(name),
+                    ext: (record['ext'] as String?)?.toLowerCase(),
+                    sizeBytes: size,
+                    modifiedAt: modified,
+                    sidecarImagePath: record['sidecar'] as String?,
+                    folderPath: p.dirname(path),
+                    addedAt: now,
+                  );
+                  final unchanged =
+                      fingerprint != null &&
+                      !fingerprint.missing &&
+                      fingerprint.sizeBytes == size &&
+                      fingerprint.modifiedAt == modified &&
+                      fingerprint.sidecarImagePath == item.sidecarImagePath;
+                  // 没变过的老条目连 upsert 都不用发，但仍要补跑尚未完成的
+                  // 内容派生（例如升级前已经扫过的旧条目）。
+                  if (!unchanged) items.add(item);
+                  // 视频与图片均需派生元数据：视频通过 media-kit 提取时长/宽高/帧率，
+                  // 图片走独立的只读文件头通道获取宽高（毫秒级、互不阻塞）。
+                  // ⛔ 视频「探测过但没读出来」（库里的 meta_probed）同样算齐：否则
+                  // 解不出时长/宽高的文件每次冷启动都会重新排队、白开一次 Player。
+                  final hasMetadata = switch (kind) {
+                    LocalMediaItemKind.video =>
+                      fingerprint != null &&
+                          (fingerprint.hasMetadata || fingerprint.metaProbed),
+                    LocalMediaItemKind.image =>
+                      fingerprint?.hasImageMetadata ?? false,
+                  };
+                  if (!unchanged || !hasMetadata) {
+                    derivationCandidates.add(item);
+                  }
+                }
+                discovered += records.length;
+                if (items.isNotEmpty) {
+                  try {
+                    _repository.upsertItems(items);
+                    _enqueueDerivation(derivationCandidates);
+                  } catch (e) {
+                    LogUtils.e('写入扫描批次失败', tag: _tag, error: e);
+                  }
+                } else {
+                  _enqueueDerivation(derivationCandidates);
+                }
+                progress.value = LocalMediaScanProgress(
+                  sourceId: currentSource.id,
+                  discovered: discovered,
+                  finished: false,
+                );
+                // 让一帧出去，再放行下一批。
+                await Future<void>.delayed(Duration.zero);
+                // ⛔ 只有 batch / folders 这两支才回 `next`：'done'/'error' 走 [_finish]，
+                // worker 那边已经不再等了。**任何新增的"worker 发完会等"的消息类型都
+                // 必须自己回**——漏一处就是 worker 永久挂起，表现成「扫描卡在半路不动、
+                // 进度条不再跳」，而且没有任何报错。
+                requestNext();
+              case 'folders':
+                final records = (message['folders'] as List).cast<Map>();
+                final folders = <LocalMediaFolder>[];
+                // ⛔ 占位行要和列过的行分开写：前者走 `DO NOTHING`，不然它那两个
+                // null（封面、修改时间）会把之前学到的值盖掉。见
+                // [LocalMediaRepository.upsertFolderStubs] 的注释。
+                final stubs = <LocalMediaFolder>[];
+                // worker 列目录时就知道这一层有没有视频；没有视频的目录不可能挑出
+                // 封面代表，下面那两道查询对它们一律不发。
+                final foldersWithVideo = <String>{};
+                for (final record in records) {
+                  final rawRel = (record['rel'] as String?) ?? '';
+                  final relPath = scopeRelPath.isEmpty
+                      ? rawRel
+                      : (rawRel.isEmpty
+                            ? scopeRelPath
+                            : '$scopeRelPath/$rawRel');
+                  final isStub = (record['stub'] as bool?) ?? false;
+                  if ((record['hasVideo'] as bool?) ?? false) {
+                    foldersWithVideo.add(relPath);
+                  }
+                  seenFolders.add(relPath);
+                  if (!isStub) {
+                    listedRelPaths.add(relPath);
+                    final abs = record['path'] as String?;
+                    if (abs != null && abs.isNotEmpty) {
+                      listedFolderPaths.add(abs);
+                    }
+                  }
+                  // 源根那一行的名字用源的显示名（用户自己起的），而不是磁盘上那截
+                  // 目录名——他在来源列表里看到的是哪个名字，进去之后就该还是哪个。
+                  final name = relPath.isEmpty
+                      ? currentSource.displayName
+                      : relPath.split('/').last;
+                  (isStub ? stubs : folders).add(
+                    LocalMediaFolder(
+                      id: LocalMediaFolder.buildId(currentSource.id, relPath),
+                      sourceId: currentSource.id,
+                      relPath: relPath,
+                      // 源根是树顶，没有上一级：null 而不是空字符串。空字符串是
+                      // 「我的父亲是源根」的意思，两者不能混。
+                      parentRelPath: relPath.isEmpty
+                          ? null
+                          : _parentRelPath(relPath),
+                      name: name,
+                      sortName: naturalSortKey(name),
+                      folderPath: record['path'] as String?,
+                      coverPath: record['cover'] as String?,
+                      modifiedAt: record['modified'] as int?,
+                    ),
+                  );
+                }
+                if (folders.isNotEmpty || stubs.isNotEmpty) {
+                  try {
+                    if (folders.isNotEmpty) _repository.upsertFolders(folders);
+                    if (stubs.isNotEmpty) _repository.upsertFolderStubs(stubs);
+                  } catch (e) {
+                    LogUtils.e('写入扫描目录批次失败', tag: _tag, error: e);
+                  }
+
+                  // ⭐ 纯视频目录封面代表入队派生：
+                  // 针对本轮真正扫描到的目录（排除 stub），若未 pin 且尚无封面，
+                  // 挑出该目录下首个缺少缩略图的视频入队派生，生成缩略图后自动回填目录封面。
+                  try {
+                    final derivation = _derivationService;
+                    if (derivation != null &&
+                        foldersWithVideo.isNotEmpty &&
+                        enqueuedFolderCovers <
+                            kMaxFolderCoverDerivationEnqueuedPerScan) {
+                      // ⛔ 一条 IN 查询问清「这批里谁还缺封面」，不要逐个 [getFolder]
+                      // 点查：封顶常量只封入队数，封不住点查次数，几千目录的树就是
+                      // 几千次同步 select 全压在主 isolate 上。
+                      final needing = _repository.foldersNeedingCover(
+                        sourceId: currentSource.id,
+                        relPaths: [
+                          for (final f in folders)
+                            if (foldersWithVideo.contains(f.relPath)) f.relPath,
+                        ],
+                      );
+                      for (final folder in folders) {
+                        if (!foldersWithVideo.contains(folder.relPath)) {
+                          continue;
+                        }
+                        if (enqueuedFolderCovers >=
+                            kMaxFolderCoverDerivationEnqueuedPerScan) {
+                          break;
+                        }
+                        // 不在 needing 里 = 已 pin / 已有封面，跳过。
+                        // 在里面但值是空串 = 库里那一列空着，拿刚扫出来的路径兜底。
+                        final known = needing[folder.relPath];
+                        if (known == null) continue;
+                        final absPath = known.isEmpty
+                            ? folder.folderPath
+                            : known;
+                        if (absPath == null || absPath.isEmpty) continue;
+
+                        final candidate = _repository
+                            .firstVideoNeedingThumbInFolder(
+                              sourceId: currentSource.id,
+                              folderPath: absPath,
+                            );
+                        if (candidate != null) {
+                          enqueuedFolderCovers++;
+                          unawaited(
+                            derivation.enqueue(
+                              candidate,
+                              generateThumbnail: true,
+                              background: true,
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    LogUtils.w('挑选并入队目录封面代表失败: $e', _tag);
+                  }
+                }
+                await Future<void>.delayed(Duration.zero);
+                requestNext();
+              case 'done':
+                truncated = message['truncated'] as bool? ?? false;
+                final failedFolders = (message['failedFolders'] as List?)
+                    ?.cast<String>();
+                final rawFailedFolderRels =
+                    (message['failedFolderRels'] as List?)?.cast<String>();
+                final failedFolderRels = rawFailedFolderRels?.map((rel) {
+                  if (scopeRelPath.isEmpty) return rel;
+                  return rel.isEmpty ? scopeRelPath : '$scopeRelPath/$rel';
+                }).toList();
+                _finish(
+                  currentSource,
+                  seen,
+                  discovered,
+                  truncated,
+                  message['error'] as String?,
+                  running,
+                  offline: message['offline'] as bool? ?? false,
+                  generation: generation,
+                  failedFolders: failedFolders,
+                  seenFolders: seenFolders,
+                  failedFolderRels: failedFolderRels,
+                  scoped: scoped,
+                  scopeRelPath: scopeRelPath,
+                  listedRelPaths: listedRelPaths,
+                  listedFolderPaths: listedFolderPaths,
+                );
+              case 'error':
+                failure = message['message'] as String? ?? '扫描失败';
+                _finish(
+                  currentSource,
+                  seen,
+                  discovered,
+                  truncated,
+                  failure,
+                  running,
+                  offline: message['offline'] as bool? ?? false,
+                  generation: generation,
+                  scoped: scoped,
+                  scopeRelPath: scopeRelPath,
+                  listedRelPaths: listedRelPaths,
+                  listedFolderPaths: listedFolderPaths,
+                );
+            }
+          } catch (e, st) {
+            LogUtils.e('处理扫描消息失败，本轮按出错收尾', tag: _tag, error: e, stackTrace: st);
+            _abortRun(
+              currentSource,
+              running,
+              generation: generation,
+              error: '$e',
+              scoped: scoped,
+              scopeRelPath: scopeRelPath,
+            );
+          }
+        });
+
         try {
-          await IosFolderPickerService.to.stopAccess(activeBookmark);
+          final collectImages =
+              currentSource.mediaKinds == LocalMediaKinds.image ||
+              currentSource.mediaKinds == LocalMediaKinds.both;
+          final collectVideos =
+              currentSource.mediaKinds == LocalMediaKinds.video ||
+              currentSource.mediaKinds == LocalMediaKinds.both;
+          final isolate = await Isolate.spawn(
+            _scanWorkerEntry,
+            <String, Object?>{
+              'send': port.sendPort,
+              'root': root,
+              'recursive': currentSource.recursive,
+              'maxDepth': maxDepth,
+              'maxFiles': kMaxScanFiles,
+              'maxFolders': kMaxScanFolders,
+              'batchSize': kScanBatchSize,
+              'videoExts': kLocalVideoExtensions.toList(),
+              'imageExts': kSidecarImageExtensions.toList(),
+              'skipDirs': kSkippedDirectoryNames.toList(),
+              'collectImages': collectImages,
+              'collectVideos': collectVideos,
+            },
+            errorsAreFatal: true,
+            onError: port.sendPort,
+            onExit: port.sendPort,
+          );
+          if (_isCurrent(generation, running)) {
+            _isolate = isolate;
+          } else {
+            isolate.kill(priority: Isolate.immediate);
+          }
         } catch (e) {
-          LogUtils.w('停止 iOS bookmark 访问权失败: $e', _tag);
+          LogUtils.e('启动扫描 isolate 失败', tag: _tag, error: e);
+          _finish(
+            currentSource,
+            seen,
+            discovered,
+            truncated,
+            '$e',
+            running,
+            offline: !_directoryExists(root),
+            generation: generation,
+            scoped: scoped,
+            scopeRelPath: scopeRelPath,
+            listedRelPaths: listedRelPaths,
+            listedFolderPaths: listedFolderPaths,
+          );
+        }
+
+        await running.future;
+      } finally {
+        if (isBookmarkAccessActive && activeBookmark != null) {
+          try {
+            await IosFolderPickerService.to.stopAccess(activeBookmark);
+          } catch (e) {
+            LogUtils.w('停止 iOS bookmark 访问权失败: $e', _tag);
+          }
         }
       }
+    } catch (e, s) {
+      LogUtils.e('扫描过程抛出异常，收尾并还闸', tag: _tag, error: e, stackTrace: s);
+      _abortRun(
+        currentSource,
+        running,
+        generation: generation,
+        error: '$e',
+        scoped: scoped,
+        scopeRelPath: scopeRelPath,
+      );
+    }
+  }
+
+  /// 异常路径的收尾：先尽量走 [_finish]（回写源状态、进度带错误），它自己再抛
+  /// 也要把 isolate 收掉、闸门还回去。
+  void _abortRun(
+    LocalMediaSource source,
+    Completer<void> running, {
+    required int generation,
+    required String error,
+    bool scoped = false,
+    String scopeRelPath = '',
+  }) {
+    try {
+      _finish(
+        source,
+        const <String>{},
+        progress.value?.discovered ?? 0,
+        false,
+        error,
+        running,
+        offline: false,
+        generation: generation,
+        scoped: scoped,
+        scopeRelPath: scopeRelPath,
+      );
+    } catch (e) {
+      LogUtils.e('异常收尾时 _finish 再次失败', tag: _tag, error: e);
+    }
+    if (_isCurrent(generation, running)) {
+      _teardown();
+      running.complete();
     }
   }
 
@@ -788,19 +947,18 @@ class LocalMediaScanService extends GetxService {
       discovered: 0,
       finished: false,
     );
-    _repository.upsertSource(
-      source.copyWith(scanState: LocalMediaScanState.scanning),
-    );
-
-    final known = _repository.fingerprints(source.id);
-    final ownedElsewhere = _repository.pathsOwnedElsewhere(source.id);
     final seen = <String>{};
     int? afterModifiedAtSeconds;
     int? afterMediaStoreId;
     var discovered = 0;
     String? failure;
 
+    // ⛔ 占闸之后的同步写读库都要落在 try 里，抛出去就是闸门永远不还，见 [_scanTree]。
     try {
+      _repository.upsertSource(
+        source.copyWith(scanState: LocalMediaScanState.scanning),
+      );
+      final known = _repository.fingerprints(source.id);
       while (_isCurrent(generation, running)) {
         final records = await mediaStore.queryVideos(
           afterModifiedAtSeconds: afterModifiedAtSeconds,
@@ -812,8 +970,18 @@ class LocalMediaScanService extends GetxService {
         final now = DateTime.now().millisecondsSinceEpoch;
         final items = <LocalMediaItem>[];
         final derivationCandidates = <LocalMediaItem>[];
-        for (final record in records) {
-          final resolved = _resolveMediaStorePath(record);
+        final resolvedPaths = <String?>[
+          for (final record in records) _resolveMediaStorePath(record),
+        ];
+        // ⛔ 只问这一页的路径归不归别人管，不要一开头把「别的源全部路径」整张
+        // 拉进内存：显式来源一大，那张 Set 就是几万条字符串常驻整轮扫描。
+        final ownedElsewhere = _repository.pathsOwnedElsewhereAmong(source.id, [
+          for (var i = 0; i < records.length; i++)
+            resolvedPaths[i] ?? records[i].contentUri,
+        ]);
+        for (var i = 0; i < records.length; i++) {
+          final record = records[i];
+          final resolved = resolvedPaths[i];
           final identityPath = resolved ?? record.contentUri;
           if (identityPath.isEmpty) continue;
 
@@ -832,9 +1000,10 @@ class LocalMediaScanService extends GetxService {
           const kind = LocalMediaItemKind.video;
           final fingerprint = known[hash];
           final hasMetadata = switch (kind) {
-            LocalMediaItemKind.video => fingerprint?.hasMetadata ?? false,
-            LocalMediaItemKind.image =>
-              fingerprint?.hasImageMetadata ?? false,
+            LocalMediaItemKind.video =>
+              fingerprint != null &&
+                  (fingerprint.hasMetadata || fingerprint.metaProbed),
+            LocalMediaItemKind.image => fingerprint?.hasImageMetadata ?? false,
           };
           final item = LocalMediaItem(
             id: LocalMediaItem.buildId(source.id, hash),
@@ -950,6 +1119,13 @@ class LocalMediaScanService extends GetxService {
   /// 主卷是 `external_primary` → `/storage/emulated/0`；SD 卡的 volumeName 形如
   /// `1a2b-3c4d`（小写），而挂载点在多数 ROM 上是 `/storage/1A2B-3C4D`（大写）
   /// ——两种都试。一个都对不上就返回 null，那一条继续用 content:// 当身份。
+  ///
+  /// ⭐ 每个卷「哪个挂载点是对的」探明一次就记进 [_mountByVolume]，之后同卷的每条
+  /// 只 existsSync 那一个候选；对不上（文件不在那儿、或挂载点变了）才回退把其余
+  /// 候选重探一遍并更新缓存。以前每条都要把两三个候选挨个 stat，一页 400 条全压在
+  /// 主 isolate 上。
+  static final Map<String, String> _mountByVolume = <String, String>{};
+
   static String? _resolveMediaStorePath(AndroidMediaStoreVideo record) {
     try {
       final relativePath = record.relativePath?.trim();
@@ -970,9 +1146,21 @@ class LocalMediaScanService extends GetxService {
         candidates.add('/storage/emulated/0');
       }
 
-      for (final mount in candidates) {
-        final candidate = p.normalize(p.join(mount, relativePath, displayName));
+      final volumeKey = volume ?? '';
+      final cachedMount = _mountByVolume[volumeKey];
+      if (cachedMount != null) {
+        final candidate = p.normalize(
+          p.join(cachedMount, relativePath, displayName),
+        );
         if (File(candidate).existsSync()) return candidate;
+      }
+      for (final mount in candidates) {
+        if (mount == cachedMount) continue;
+        final candidate = p.normalize(p.join(mount, relativePath, displayName));
+        if (File(candidate).existsSync()) {
+          _mountByVolume[volumeKey] = mount;
+          return candidate;
+        }
       }
       return null;
     } catch (_) {
@@ -1003,6 +1191,7 @@ class LocalMediaScanService extends GetxService {
     bool scoped = false,
     Set<String>? listedRelPaths,
     Set<String>? listedFolderPaths,
+    String scopeRelPath = '',
   }) {
     if (!_isCurrent(generation, running)) return;
 
@@ -1118,9 +1307,32 @@ class LocalMediaScanService extends GetxService {
     // 必须排在两次 missing 收敛**之后**：它只数 missing = 0 的行，先收敛才数得准。
     if (seenFolders != null && effectiveError == null) {
       try {
-        _repository.backfillFolderCounts(source.id);
+        if (scoped) {
+          // 目录级：只重算列过的目录和祖先链，见方法注释。
+          _repository.backfillFolderCountsInScope(
+            sourceId: source.id,
+            scopeRelPath: scopeRelPath,
+            listedRelPaths: effectiveListedRelPaths,
+          );
+        } else {
+          _repository.backfillFolderCounts(source.id);
+        }
       } catch (e) {
         LogUtils.e('回填目录统计数失败', tag: _tag, error: e);
+      }
+    }
+
+    // ⭐ 封面沿树往上借。扫描器从直属图片 / sidecar 填的封面自己不冒泡，
+    // 不补这一步，「A 里只有 B、B 有封面」的 A 永远空着，进出多少次都一样。
+    // 读不动的目录也照做：借封面只看库里已有的行，不依赖这一轮是否扫完整。
+    if (seenFolders != null && effectiveListedRelPaths.isNotEmpty) {
+      try {
+        _repository.propagateFolderCovers(
+          sourceId: source.id,
+          relPaths: effectiveListedRelPaths,
+        );
+      } catch (e) {
+        LogUtils.e('向上传播目录封面失败', tag: _tag, error: e);
       }
     }
 
@@ -1163,6 +1375,8 @@ class LocalMediaScanService extends GetxService {
 
   /// 用户离开页面 / 换源：把 isolate 收掉，别让它在后台接着刨盘。
   void cancel([String? sourceId]) {
+    // 源被删时（带 sourceId 的调用只来自「移除来源」），它排着的目录扫描也一起丢。
+    if (sourceId != null) _dropQueuedFolderScans(sourceId);
     if (!isScanning) return;
     if (sourceId != null && sourceId != _runningSourceId) return;
     LogUtils.i('用户取消扫描', _tag);
@@ -1195,6 +1409,7 @@ class LocalMediaScanService extends GetxService {
     _port = null;
     _running = null;
     _runningSourceId = null;
+    _scheduleFolderPump();
   }
 
   bool _isCurrent(int generation, Completer<void> running) =>
@@ -1216,6 +1431,8 @@ class LocalMediaScanService extends GetxService {
     _mediaStoreDebounceTimer = null;
     _mediaStoreChanges?.cancel();
     _mediaStoreChanges = null;
+    _closed = true;
+    _dropQueuedFolderScans();
     _scanGeneration++;
     _teardown();
     super.onClose();
@@ -1233,11 +1450,25 @@ class LocalMediaScanService extends GetxService {
   static String _hashPath(String path) =>
       sha1.convert(utf8.encode(path)).toString();
 
+  /// ⛔ 扫描发起的派生一律是**后台**优先级：卡片滚进视野的请求永远插在它们前面，
+  /// 且后台那条队列有上限（见 [LocalMediaDerivationService.enqueue]）。
+  ///
+  /// 以前这里是前台同级、不封顶：进一次两千个视频的 Download，两千个「开 libmpv、
+  /// 打开视频解码、读几个属性、关掉」连着排进同一条队列，跟用户这一屏毫无关系，
+  /// 却把他正看着的那几张卡压在最后面，还让原生层持续高负荷。
   void _enqueueDerivation(Iterable<LocalMediaItem> items) {
     final service = _derivationService;
     if (service == null) return;
-    unawaited(service.enqueueAll(items));
+    unawaited(service.enqueueAll(items, background: true));
   }
+}
+
+class _QueuedFolderScan {
+  _QueuedFolderScan(this.source, this.relPath);
+
+  LocalMediaSource source;
+  final String relPath;
+  final Completer<void> completer = Completer<void>();
 }
 
 // ── isolate 侧 ────────────────────────────────────────────────────────────
@@ -1253,12 +1484,29 @@ class LocalMediaScanService extends GetxService {
 /// ⛔ 软链接：`listSync(followLinks: false)` 会把符号链接报成 [Link] 而不是
 /// [Directory]，我们只往 [Directory] 里递归，于是循环目录天然走不进去，
 /// 不需要另外记 realpath。
-void _scanWorkerEntry(Map<String, Object?> args) {
+///
+/// ⛔ 背压是拉取式的：每 flush 一批就停下等主 isolate 回 `next`（见主 isolate 那边
+/// `requestNext` 的注释）。主 isolate 收掉这一轮时直接 kill 本 isolate，所以这边
+/// 不需要处理「取消」消息——等 `next` 的那一下会连同 isolate 一起消失。
+Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
   final send = args['send'] as SendPort;
+  final control = ReceivePort();
+  final acks = StreamIterator<dynamic>(control);
+  send.send(<String, Object?>{'type': 'hello', 'port': control.sendPort});
+
+  /// 发出一批后等主 isolate 放行。返回 false = 端口已关，别再往下走。
+  Future<bool> awaitNext() async {
+    while (await acks.moveNext()) {
+      if (acks.current == 'next') return true;
+    }
+    return false;
+  }
+
   final root = args['root'] as String;
   final recursive = args['recursive'] as bool? ?? true;
   final maxDepth = args['maxDepth'] as int? ?? kMaxScanDepth;
   final maxFiles = args['maxFiles'] as int? ?? kMaxScanFiles;
+  final maxFolders = args['maxFolders'] as int? ?? kMaxScanFolders;
   final batchSize = args['batchSize'] as int? ?? kScanBatchSize;
   final videoExts = (args['videoExts'] as List).cast<String>().toSet();
   final imageExts = (args['imageExts'] as List).cast<String>().toSet();
@@ -1284,26 +1532,46 @@ void _scanWorkerEntry(Map<String, Object?> args) {
   // 见 [LocalMediaScanService._finish]。
   final failedFolders = <String>[];
   var total = 0;
+  var folderTotal = 0;
   var truncated = false;
+  var stopped = false;
   String? failure;
   var offline = false;
 
-  void flush() {
-    if (batch.isEmpty) return;
+  Future<void> flush() async {
+    if (batch.isEmpty || stopped) return;
     send.send(<String, Object?>{
       'type': 'batch',
       'files': List<Map<String, Object?>>.from(batch),
     });
     batch.clear();
+    if (!await awaitNext()) stopped = true;
   }
 
-  void flushFolders() {
-    if (folderBatch.isEmpty) return;
+  Future<void> flushFolders() async {
+    if (folderBatch.isEmpty || stopped) return;
+    // 文件先落库再发目录：主 isolate 收到目录批次时要按目录挑「缺封面的视频」，
+    // 那几条视频还压在文件批次里没发的话，一条都挑不出来。
+    await flush();
+    if (stopped) return;
     send.send(<String, Object?>{
       'type': 'folders',
       'folders': List<Map<String, Object?>>.from(folderBatch),
     });
     folderBatch.clear();
+    if (!await awaitNext()) stopped = true;
+  }
+
+  /// 目录记录进批次。撞上 [maxFolders] 返回 false，调用方就地停下。
+  Future<bool> addFolder(Map<String, Object?> record) async {
+    if (folderTotal >= maxFolders) {
+      truncated = true;
+      return false;
+    }
+    folderBatch.add(record);
+    folderTotal++;
+    if (folderBatch.length >= batchSize) await flushFolders();
+    return !stopped;
   }
 
   /// 绝对路径 → **相对源根**的路径。源根本身是空字符串。
@@ -1322,7 +1590,7 @@ void _scanWorkerEntry(Map<String, Object?> args) {
     final stack = <({Directory dir, int depth})>[
       (dir: Directory(root), depth: 0),
     ];
-    while (stack.isNotEmpty) {
+    while (stack.isNotEmpty && !stopped) {
       if (total >= maxFiles) {
         truncated = true;
         break;
@@ -1364,14 +1632,15 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         // 占位行走 `stub: true`（upsert 是 DO NOTHING）：probed_at 保持 NULL，
         // 于是它照常出现在列表里，用户点进去会触发一次目录级扫描再试一次——这正是
         // 我们要的「读不动就先让人看见」，而不是静默抹掉。
-        folderBatch.add(<String, Object?>{
+        if (!await addFolder(<String, Object?>{
           'path': normalized,
           'rel': relPathOf(normalized),
           'modified': null, // 没列成，别猜
           'cover': null,
           'stub': true,
-        });
-        if (folderBatch.length >= batchSize) flushFolders();
+        })) {
+          break;
+        }
         continue;
       }
 
@@ -1463,13 +1732,14 @@ void _scanWorkerEntry(Map<String, Object?> args) {
           'sidecar': sidecar,
         });
         total++;
-        if (batch.length >= batchSize) flush();
+        if (batch.length >= batchSize) await flush();
         if (total >= maxFiles) {
           truncated = true;
           break;
         }
+        if (stopped) break;
       }
-      if (truncated) break;
+      if (truncated || stopped) break;
 
       if (collectImages) {
         for (final file in files) {
@@ -1505,13 +1775,14 @@ void _scanWorkerEntry(Map<String, Object?> args) {
             'sidecar': null,
           });
           total++;
-          if (batch.length >= batchSize) flush();
+          if (batch.length >= batchSize) await flush();
           if (total >= maxFiles) {
             truncated = true;
             break;
           }
+          if (stopped) break;
         }
-        if (truncated) break;
+        if (truncated || stopped) break;
       }
 
       // ⭐ 目录本身入表。
@@ -1547,15 +1818,18 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         folderModified = dirStat.modified.millisecondsSinceEpoch;
       }
 
-      folderBatch.add(<String, Object?>{
+      if (!await addFolder(<String, Object?>{
         // 绝对路径必须 normalize：条目那侧的 folder_path 走的是
         // `p.dirname(file.path)`，两边对不上就 join 不起来（backfill 就是按它对齐的）。
         'path': p.normalize(current.dir.path),
         'rel': relPathOf(current.dir.path),
         'modified': folderModified,
         'cover': cover,
-      });
-      if (folderBatch.length >= batchSize) flushFolders();
+        // 主 isolate 只为有视频的目录挑封面代表，省掉对纯图片/空目录的点查。
+        'hasVideo': collectVideos && videoStems.isNotEmpty,
+      })) {
+        break;
+      }
 
       final visibleSubdirs = <Directory>[];
       for (final dir in subdirs) {
@@ -1571,20 +1845,26 @@ void _scanWorkerEntry(Map<String, Object?> args) {
         }
       } else {
         for (final dir in visibleSubdirs) {
-          folderBatch.add(<String, Object?>{
+          if (!await addFolder(<String, Object?>{
             'path': p.normalize(dir.path),
             'rel': relPathOf(dir.path),
             'modified': null, // 没 stat，别猜
             'cover': null, // 没列过，不知道封面
             'stub': true, // ← 新字段：只是「知道有这么个目录」，没看过里面
-          });
-          if (folderBatch.length >= batchSize) flushFolders();
+          })) {
+            break;
+          }
         }
+        if (truncated || stopped) break;
       }
     }
 
-    flush();
-    flushFolders();
+    await flushFolders();
+    await flush();
+    if (stopped) {
+      control.close();
+      return;
+    }
     send.send(<String, Object?>{
       'type': 'done',
       'truncated': truncated,
@@ -1598,14 +1878,17 @@ void _scanWorkerEntry(Map<String, Object?> args) {
       ],
     });
   } catch (e) {
-    flush();
-    flushFolders();
+    try {
+      await flushFolders();
+      await flush();
+    } catch (_) {}
     send.send(<String, Object?>{
       'type': 'error',
       'message': '$e',
       'offline': !_directoryExistsInWorker(root),
     });
   }
+  control.close();
 }
 
 bool _directoryExistsInWorker(String path) {

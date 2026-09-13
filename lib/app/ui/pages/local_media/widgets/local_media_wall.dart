@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -10,9 +12,8 @@ import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_menu.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -73,7 +74,18 @@ class LocalMediaWall extends StatefulWidget {
   State<LocalMediaWall> createState() => _LocalMediaWallState();
 }
 
-class _LocalMediaWallState extends State<LocalMediaWall> {
+class _LocalMediaWallState extends State<LocalMediaWall>
+    with AutomaticKeepAliveClientMixin {
+  /// 切 Tab 时保活：用户从「所有视频」滚到第 300 条、切去「常用目录」看一眼再
+  /// 回来，不该被弹回顶部重拉。
+  ///
+  /// ⛔ 保活的前提是后台那几面墙**不会被无关信号反复重拉**：目录行变化走
+  /// `folderRevision`（墙不听）、墙自己剔除失效条目不发 `changeRevision`（见
+  /// [_pruneMissing]）、重载不清空列表（见 [_reloadFromDb]）。这几条任何一条
+  /// 退回去，保活就变成「看不见的几面墙在后台一遍遍整页重查」。
+  @override
+  bool get wantKeepAlive => true;
+
   final LocalMediaRepository _repo = LocalMediaRepository();
   final ScrollController _scrollController = ScrollController();
 
@@ -104,7 +116,8 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
         oldWidget.kind != widget.kind ||
         oldWidget.sourceId != widget.sourceId ||
         oldWidget.favoritedOnly != widget.favoritedOnly) {
-      _reloadFromDb();
+      // 查询口径换了（排序 / 筛选），旧的已加载条数没有意义，从第一页重来。
+      _reloadFromDb(keepLoaded: false);
     }
   }
 
@@ -120,16 +133,44 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
   /// 说的还是不是现在这张墙。
   int _generation = 0;
 
-  void _reloadFromDb() {
+  /// 按当前口径从库里重读。
+  ///
+  /// # ⛔ [keepLoaded] 为真时不许先清空
+  ///
+  /// 原来是 `_items.clear()` 再只拉第 0 页：用户滚到第 300 条时来一次
+  /// `changeRevision`（扫描落批、下载同步），列表当场缩回 120 条，滚动长度塌掉、
+  /// 位置被夹回去——看起来就是「自己弹回顶部」。
+  ///
+  /// 现在一次拉回**已加载的条数**（至少一页），在同一个 setState 里整只换掉，
+  /// 滚动长度与位置都不动。sqlite3 是同步调用，这一下的代价是一次稍大的查询，
+  /// 不是等待。
+  void _reloadFromDb({bool keepLoaded = true}) {
     if (!mounted) return;
     _generation++;
+    final limit = keepLoaded ? math.max(_pageSize, _items.length) : _pageSize;
+    final List<LocalMediaItem> page;
+    try {
+      page = _repo.queryItems(
+        kind: widget.kind,
+        sourceId: widget.sourceId,
+        order: widget.order,
+        favoritedOnly: widget.favoritedOnly,
+        offset: 0,
+        limit: limit,
+      );
+    } catch (e, s) {
+      LogUtils.e('本机文件墙重载失败', tag: 'LocalMediaWall', error: e, stackTrace: s);
+      return;
+    }
     setState(() {
-      _items.clear();
-      _offset = 0;
-      _exhausted = false;
+      _items
+        ..clear()
+        ..addAll(page);
+      _offset = page.length;
+      _exhausted = page.length < limit;
       _loading = false;
-      _loadMore();
     });
+    if (page.isNotEmpty) unawaited(_pruneMissing(page));
   }
 
   void _loadMore() {
@@ -184,38 +225,35 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
   /// 判据：文件不在、**但它所在的目录还在**，才算真没了。目录也读不到就只当这一页
   /// 没看见，不写库——下次进来自然会重试。
   Future<void> _pruneMissing(List<LocalMediaItem> page) async {
-    // ⛔ 这一趟会跨很多帧（每 20 条让一帧）。期间 [_reloadFromDb] 可能已经把
-    // `_items`/`_offset` 整个重建了——那时旧回调再去 `removeWhere` 并扣
-    // `_offset`，扣的是**新结果集**的口径：被剔的条目确实 missing，不会删错
-    // 东西，但 offset 的补偿对不上，下一页会跳过几条。
+    // ⛔ 后台那一趟期间 [_reloadFromDb] 可能已经把 `_items`/`_offset` 整个重建了
+    // ——那时旧结果再去 `removeWhere` 并扣 `_offset`，扣的是**新结果集**的口径：
+    // 被剔的条目确实 missing，不会删错东西，但 offset 的补偿对不上，下一页会跳过
+    // 几条。所以带着代号去、带着代号回。
     final generation = _generation;
-    final confirmedGone = <String>[];
-    // 目录可达性按目录缓存，一页里同目录的条目很多，别对同一个目录反复 stat。
-    final directoryReachable = <String, bool>{};
+    final candidates = <(String, String)>[
+      for (final item in page)
+        // MediaStore 句柄没有真实路径，不能按路径判，跳过。
+        if (!item.path.startsWith('content://')) (item.id, item.path),
+    ];
+    if (candidates.isEmpty) return;
 
-    for (var i = 0; i < page.length; i++) {
-      final item = page[i];
-      // MediaStore 句柄没有真实路径，不能按路径判，跳过。
-      if (item.path.startsWith('content://')) continue;
-      if (File(item.path).existsSync()) continue;
-
-      final directory = p.dirname(item.path);
-      final reachable = directoryReachable.putIfAbsent(
-        directory,
-        () => Directory(directory).existsSync(),
-      );
-      if (reachable) confirmedGone.add(item.id);
-
-      // 每 20 条让出一帧，别把同步 IO 堆成一次长卡顿
-      if (i % 20 == 19) {
-        await Future<void>.delayed(Duration.zero);
-        if (!mounted || generation != _generation) return;
-      }
+    // ⛔ stat 挪到后台 isolate：一页 120 条（重载时可能是上千条）逐个
+    // `existsSync` 摆在主 isolate 上，外置存储慢的时候就是一次看得见的卡顿。
+    final List<String> confirmedGone;
+    try {
+      confirmedGone = await compute(_findGoneLocalItems, candidates);
+    } catch (e) {
+      LogUtils.w('本机文件墙失效校验失败: $e', 'LocalMediaWall');
+      return;
     }
 
     if (confirmedGone.isEmpty || !mounted) return;
     // 落库照做（那几条确实没了，写库对哪一代都成立），只是不再动这一代的列表。
-    _repo.markItemsMissing(confirmedGone);
+    //
+    // ⛔ `notify: false`：这面墙自己已经就地剔掉了，再发 `changeRevision` 就是
+    // 让自己（和另外几面保活着的墙）整墙重拉一遍——剔一条、重拉、再剔下一页、
+    // 再重拉，没完没了。
+    _repo.markItemsMissing(confirmedGone, notify: false);
     if (generation != _generation) return;
 
     final goneSet = confirmedGone.toSet();
@@ -225,8 +263,7 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
       // ⛔ `_offset` 必须跟着退。那几行的 missing 已经置 1，`queryItems` 的
       // `missing = 0` 过滤让**结果集整体缩短了**同样的条数；offset 还停在原处的话，
       // 下一页会从新结果集的更后面取，中间那几条永远不出现。
-      _offset -= before - _items.length;
-      if (_offset < 0) _offset = 0;
+      _offset = math.max(0, _offset - (before - _items.length));
     });
   }
 
@@ -275,48 +312,10 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
         playbackQueueRef: queueRef,
       );
     } else {
-      final paths = _items.map((e) => e.path).toList();
-      final index = paths.indexOf(item.path);
-      final initialIndex = index >= 0 ? index : 0;
-
-      if (paths.isEmpty) {
-        showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
-        return;
-      }
-
-      // ⛔⭐ 这里必须**裸拼** `'file://$path'`，不许换成 `Uri.file(path)`。
-      //
-      // 看着像个待修的 bug（文件名里的 `#`/`?` 在真 URI 里会被当分隔符），实际不是：
-      // 消费方 `my_gallery_photo_view_wrapper.dart:1766` 拿到的是
-      // `imageUrl.replaceFirst('file://', '')` ——**纯字符串剥前缀，从不解析 URI**。
-      // 所以裸拼进去什么、剥出来就是什么，`#` 一路安然无恙。
-      //
-      // 换成 `Uri.file()` 反而当场坏掉：它会把 `#` 正确编码成 `%23`，而剥前缀那头
-      // 不做解码，`%23` 就原样进了文件系统调用。真机实证（2026-09-11）：
-      //   PathNotFoundException: Cannot retrieve length of file,
-      //   path = '/storage/emulated/0/Movies/ClaudeProbe/tag%231_test.png'
-      //
-      // 要改只能连**下游一起**改（把所有 `replaceFirst('file://','')` 换成
-      // `Uri.parse(url).toFilePath()`）——那是全站图库的事，不是这一页能单方面决定的。
-      final imageItems = paths
-          .map(
-            (path) => ImageItem(
-              url: 'file://$path',
-              data: ImageItemData(
-                id: path,
-                url: 'file://$path',
-                originalUrl: 'file://$path',
-              ),
-            ),
-          )
-          .toList();
-
-      pushPhotoViewWrapperOverlay(
-        context: context,
-        imageItems: imageItems,
-        initialIndex: initialIndex,
-        menuItemsBuilder: (context, item) => const [],
-        enableMenu: false,
+      openLocalImageViewer(
+        context,
+        _items.map((e) => e.path).toList(),
+        item.path,
       );
     }
   }
@@ -345,11 +344,13 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
         setState(() => _items[index] = latest);
       },
       onDeleted: (deletedItem) {
-        if (mounted) {
-          setState(() {
-            _items.removeWhere((e) => e.id == deletedItem.id);
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          final before = _items.length;
+          _items.removeWhere((e) => e.id == deletedItem.id);
+          // 同 [_pruneMissing]：结果集缩短了，游标跟着退，否则下一页漏条。
+          _offset = math.max(0, _offset - (before - _items.length));
+        });
       },
     );
   }
@@ -383,6 +384,7 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth - 32;
@@ -469,4 +471,30 @@ class _LocalMediaWallState extends State<LocalMediaWall> {
       },
     );
   }
+}
+
+/// [_LocalMediaWallState._pruneMissing] 的后台那一半：返回确认已经消失的条目 id。
+///
+/// ⛔ 必须使用 `File.existsSync()`，绝对不使用 `statSync()`（后者失败不抛异常、
+/// 返回 `type = notFound`、`size = -1` 的哨兵值）。
+///
+/// ⛔ 顶层函数、只碰参数：跑在另一个 isolate 上。
+///
+/// 判据（理由见 [_LocalMediaWallState._pruneMissing] 的文档）：文件不在、**但它
+/// 所在的目录还在**，才算真没了。目录也读不到就只当没看见——外置存储没挂上、
+/// 权限被回收时 `existsSync` 对每一条都返回 false，不分辨就会把整库标成 missing。
+List<String> _findGoneLocalItems(List<(String, String)> candidates) {
+  final gone = <String>[];
+  // 目录可达性按目录缓存，一页里同目录的条目很多，别对同一个目录反复 stat。
+  final directoryReachable = <String, bool>{};
+  for (final (id, path) in candidates) {
+    if (File(path).existsSync()) continue;
+    final directory = p.dirname(path);
+    final reachable = directoryReachable.putIfAbsent(
+      directory,
+      () => Directory(directory).existsSync(),
+    );
+    if (reachable) gone.add(id);
+  }
+  return gone;
 }

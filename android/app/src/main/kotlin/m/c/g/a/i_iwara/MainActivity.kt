@@ -10,6 +10,7 @@ import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.database.ContentObserver
 import android.database.Cursor
+import android.graphics.Bitmap
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
@@ -21,6 +22,7 @@ import android.os.storage.StorageManager
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
 import android.view.KeyEvent
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
@@ -31,8 +33,10 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import m.c.g.a.i_iwara.xr.XrBridge
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.security.MessageDigest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -228,6 +232,7 @@ class MainActivity : FlutterFragmentActivity() {
         mediaStoreChannel?.setMethodCallHandler { call, result ->
             when (call.method) {
                 "queryVideos" -> queryMediaStoreVideos(call, result)
+                "loadThumbnail" -> loadMediaStoreThumbnail(call, result)
                 "startObserver" -> {
                     registerMediaStoreObserver()
                     result.success(null)
@@ -597,6 +602,53 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     /**
+     * 取 MediaStore 条目的系统缩略图，返回 JPEG 字节（取不到返回 null）。
+     *
+     * 本地库派生封面用：content:// 条目以前要把整片拷进缓存再开 mpv 抓一帧，
+     * 几 GB 的片子为一张封面整个拷一遍。系统缩略图由 MediaStore 自己生成并缓存。
+     */
+    private fun loadMediaStoreThumbnail(call: MethodCall, result: MethodChannel.Result) {
+        val uriString = call.argument<String>("uri")
+        if (uriString.isNullOrEmpty()) {
+            result.error("INVALID_ARGUMENT", "URI is required", null)
+            return
+        }
+        val size = call.argument<Number>("size")?.toInt()?.takeIf { it > 0 } ?: 640
+        mainScope.launch {
+            try {
+                val bytes = withContext(Dispatchers.IO) {
+                    val uri = Uri.parse(uriString)
+                    val bitmap: Bitmap? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        contentResolver.loadThumbnail(uri, Size(size, size), null)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Video.Thumbnails.getThumbnail(
+                                contentResolver,
+                                ContentUris.parseId(uri),
+                                MediaStore.Video.Thumbnails.MINI_KIND,
+                                null
+                        )
+                    }
+                    bitmap?.let { bmp ->
+                        try {
+                            ByteArrayOutputStream().use { out ->
+                                bmp.compress(Bitmap.CompressFormat.JPEG, 85, out)
+                                out.toByteArray()
+                            }
+                        } finally {
+                            bmp.recycle()
+                        }
+                    }
+                }
+                result.success(bytes)
+            } catch (e: Exception) {
+                Log.w("MainActivity", "读取系统缩略图失败: ${e.message}")
+                result.error("THUMBNAIL_FAILED", e.message, null)
+            }
+        }
+    }
+
+    /**
      * 将 content:// URI 的文件复制到应用缓存目录
      * 这是解决 media_kit/mpv 无法播放 content:// URI 的 workaround
      */
@@ -621,15 +673,18 @@ class MainActivity : FlutterFragmentActivity() {
     private fun copyUriToCache(uri: Uri): String {
         val contentResolver = applicationContext.contentResolver
 
-        // 获取文件名
-        var fileName = "video_${System.currentTimeMillis()}"
+        // 缓存文件名 = URI 的 SHA-1。以前是 `video_<时间戳>`（MediaStore URI 末段
+        // 是数字 id、不带 '.'，从 URI 取不到名字），同一个 URI 每次都落到新文件名，
+        // 下面「已存在且大小一致就跳过」永远不命中，每次都整片重拷。
+        val fileName = MessageDigest.getInstance("SHA-1")
+                .digest(uri.toString().toByteArray(Charsets.UTF_8))
+                .joinToString("") { "%02x".format(it) }
         var extension = ".mp4"
 
-        // 尝试从 URI 路径获取文件名
+        // 尝试从 URI 路径获取扩展名
         val uriPath = Uri.decode(uri.toString())
         val pathFileName = uriPath.substringAfterLast('/')
         if (pathFileName.isNotEmpty() && pathFileName.contains('.')) {
-            fileName = pathFileName.substringBeforeLast('.')
             extension = ".${pathFileName.substringAfterLast('.')}"
         }
 
@@ -651,9 +706,9 @@ class MainActivity : FlutterFragmentActivity() {
         // 清理旧的缓存文件（超过 24 小时的文件）
         cleanOldCacheFiles(cacheDir)
 
-        // 清理文件名中的非法字符
-        val safeFileName = fileName.replace(Regex("[^a-zA-Z0-9_\\-\\u4e00-\\u9fa5]"), "_")
-        val targetFile = File(cacheDir, "$safeFileName$extension")
+        // 扩展名来自 URI / MIME，仍要过一遍非法字符
+        val safeExtension = extension.replace(Regex("[^a-zA-Z0-9.]"), "_")
+        val targetFile = File(cacheDir, "$fileName$safeExtension")
 
         // 如果文件已存在且大小匹配，直接返回（避免重复复制）
         if (targetFile.exists()) {
@@ -667,19 +722,41 @@ class MainActivity : FlutterFragmentActivity() {
 
         Log.d("MainActivity", "开始复制文件: $uri -> ${targetFile.absolutePath}")
 
-        // 复制文件内容
-        contentResolver.openInputStream(uri)?.use { inputStream ->
-            FileOutputStream(targetFile).use { outputStream ->
-                val buffer = ByteArray(8192)
-                var bytesRead: Int
-                var totalBytes = 0L
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                    totalBytes += bytesRead
+        // 复制文件内容。先写临时文件、拷完再改名：文件名现在按 URI 固定了，同一个
+        // URI 并发拷两份（或上次拷到一半被杀）不能让半截文件顶着正式名字。
+        val tempFile = File(cacheDir, "$fileName$safeExtension.${System.nanoTime()}.part")
+        try {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                FileOutputStream(tempFile).use { outputStream ->
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    var totalBytes = 0L
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        outputStream.write(buffer, 0, bytesRead)
+                        totalBytes += bytesRead
+                    }
+                    Log.d("MainActivity", "文件复制完成，大小: $totalBytes bytes")
                 }
-                Log.d("MainActivity", "文件复制完成，大小: $totalBytes bytes")
+            } ?: throw Exception("无法打开 content:// URI 的输入流")
+        } catch (e: Exception) {
+            // 拷到一半失败（磁盘满、provider 断开）：别把半截临时文件留在缓存里。
+            tempFile.delete()
+            throw e
+        }
+
+        if (!tempFile.renameTo(targetFile)) {
+            // 目标被并发的另一份抢先落好了：用那一份，丢掉自己这份。
+            val sourceSize = getContentUriSize(uri)
+            if (targetFile.exists() && (sourceSize <= 0 || targetFile.length() == sourceSize)) {
+                tempFile.delete()
+            } else {
+                targetFile.delete()
+                if (!tempFile.renameTo(targetFile)) {
+                    tempFile.delete()
+                    throw Exception("缓存文件改名失败: ${targetFile.absolutePath}")
+                }
             }
-        } ?: throw Exception("无法打开 content:// URI 的输入流")
+        }
 
         return targetFile.absolutePath
     }

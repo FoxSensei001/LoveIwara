@@ -172,8 +172,8 @@ class LocalContainerCard extends StatelessWidget {
                       fit: StackFit.expand,
                       children: <Widget>[
                         cover,
-                        ?_leadingBadge(theme),
-                        ?_menuBadge(),
+                        _leadingBadge(theme),
+                        _menuBadge(),
                       ],
                     ),
                   ),
@@ -196,34 +196,87 @@ class LocalContainerCard extends StatelessWidget {
     );
   }
 
+  /// 角标出入场的时长，与媒体卡精选星标那枚（`local_media_item_card.dart`）一致。
+  static const Duration badgeSwitchDuration = Duration(milliseconds: 200);
+
   /// 左上角那枚角标：[leading] 优先，没传就按 [pinned] 画那枚常用星。
-  Widget? _leadingBadge(ThemeData theme) {
-    final Widget? content =
-        leading ??
-        (pinned
-            ? LocalCardBadge(
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.star_rounded,
-                    size: 15,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              )
-            : null);
-    if (content == null) return null;
-    return Positioned(top: badgeInset, left: badgeInset, child: content);
+  Widget _leadingBadge(ThemeData theme) {
+    final Widget content;
+    if (leading != null) {
+      content = KeyedSubtree(
+        key: const ValueKey<String>('leading'),
+        child: leading!,
+      );
+    } else if (pinned) {
+      content = LocalCardBadge(
+        key: const ValueKey<String>('pinned'),
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Icon(
+            Icons.star_rounded,
+            size: 15,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      );
+    } else {
+      content = const SizedBox.shrink(key: ValueKey<String>('none'));
+    }
+    return Positioned(
+      top: badgeInset,
+      left: badgeInset,
+      child: _BadgeSwitcher(child: content),
+    );
   }
 
   /// 右上角那枚角标：[trailing] 优先，没传就按 [onMenu] 画标准的 ⋮。
-  Widget? _menuBadge() {
-    final Widget? content =
-        trailing ??
-        (onMenu == null ? null : LocalCardMenuBadge(onMenu: onMenu!));
-    if (content == null) return null;
-    return Positioned(top: badgeInset, right: badgeInset, child: content);
+  Widget _menuBadge() {
+    final Widget content;
+    if (trailing != null) {
+      content = KeyedSubtree(
+        key: const ValueKey<String>('trailing'),
+        child: trailing!,
+      );
+    } else if (onMenu != null) {
+      content = LocalCardMenuBadge(
+        key: const ValueKey<String>('menu'),
+        onMenu: onMenu!,
+      );
+    } else {
+      content = const SizedBox.shrink(key: ValueKey<String>('none'));
+    }
+    return Positioned(
+      top: badgeInset,
+      right: badgeInset,
+      child: _BadgeSwitcher(child: content),
+    );
   }
+}
+
+/// 容器卡左右两个角标槽的出入场。
+///
+/// ⛔ 两个槽都**恒挂**这一层，内容为空时是一枚带 key 的 `SizedBox.shrink`，
+/// 别改回「没内容就整个 Positioned 不出现」：那样设为常用的星、扫描中的转圈
+/// 都是硬切出现、硬切消失（本项目要求出现与消失都必须有动画）。
+///
+/// 切换判据是子节点的 key（`pinned` / `menu` / `trailing` …），由调用方按
+/// 「这一槽现在是哪种东西」给出——同一种东西内部的变化（图标颜色之类）不重播。
+class _BadgeSwitcher extends StatelessWidget {
+  const _BadgeSwitcher({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedSwitcher(
+    duration: LocalContainerCard.badgeSwitchDuration,
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeIn,
+    transitionBuilder: (child, animation) => FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(scale: animation, child: child),
+    ),
+    child: child,
+  );
 }
 
 /// 一只文件夹的剪影：左上角一枚翻页舌，其余是普通圆角矩形。

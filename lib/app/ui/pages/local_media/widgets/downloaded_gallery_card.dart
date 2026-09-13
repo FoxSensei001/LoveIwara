@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +9,7 @@ import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -67,10 +69,53 @@ class DownloadedGalleryRow {
     }
   }
 
+  /// 同 [of]，但把整批解析挪到后台 isolate 上做。
+  ///
+  /// 一个几百张的图库，`image_list` / `local_paths` 两张表就是几百项；500 个图库
+  /// 摆在主 isolate 上现解，就是进「已下载」那一下的一次长卡顿。
+  ///
+  /// ⛔ 只把**纯数据**（任务 id / 文件名 / 落盘目录 / ext_data 那张 Map）送过去，
+  /// 不送 [DownloadTask] 本体；解析失败的 id 带回主 isolate 再记日志——后台
+  /// isolate 里没有日志服务可用。
+  static Future<List<DownloadedGalleryRow>> parseAllInBackground(
+    List<DownloadTask> tasks,
+  ) async {
+    final inputs = <_GalleryRowInput>[
+      for (final task in tasks)
+        if (task.extData?.type == DownloadTaskExtDataType.gallery)
+          (
+            taskId: task.id,
+            fileName: task.fileName,
+            savePath: task.savePath,
+            data: task.extData!.data,
+          ),
+    ];
+    if (inputs.isEmpty) return const <DownloadedGalleryRow>[];
+    final result = await compute(_parseGalleryRowInputs, inputs);
+    for (final failure in result.failures) {
+      LogUtils.w('跳过解析失败的图库下载任务 $failure', _tag);
+    }
+    return result.rows;
+  }
+
   static DownloadedGalleryRow? _parse(DownloadTask task) {
     final ext = task.extData;
     if (ext == null || ext.type != DownloadTaskExtDataType.gallery) return null;
-    final data = GalleryDownloadExtData.fromJson(ext.data);
+    return _fromData(
+      taskId: task.id,
+      fileName: task.fileName,
+      savePath: task.savePath,
+      json: ext.data,
+    );
+  }
+
+  static DownloadedGalleryRow _fromData({
+    required String taskId,
+    required String fileName,
+    required String savePath,
+    required Map<String, dynamic> json,
+  }) {
+    final data = GalleryDownloadExtData.fromJson(json);
     // `image_list` 的键序就是图库里的原始顺序（JSON 对象保序）。
     String? cover;
     for (final id in data.imageList.keys) {
@@ -82,24 +127,51 @@ class DownloadedGalleryRow {
     }
     final title = data.title?.trim();
     return DownloadedGalleryRow(
-      taskId: task.id,
-      title: title == null || title.isEmpty ? task.fileName : title,
+      taskId: taskId,
+      title: title == null || title.isEmpty ? fileName : title,
       coverPath: cover,
       imageCount: data.totalImages > 0
           ? data.totalImages
           : data.imageList.length,
-      savePath: task.savePath,
+      savePath: savePath,
       galleryId: data.id,
     );
   }
 }
 
+typedef _GalleryRowInput = ({
+  String taskId,
+  String fileName,
+  String savePath,
+  Map<String, dynamic> data,
+});
+
+/// [DownloadedGalleryRow.parseAllInBackground] 的后台那一半。
+///
+/// ⛔ 顶层函数、只碰参数：跑在另一个 isolate 上，不能摸任何单例或日志服务。
+({List<DownloadedGalleryRow> rows, List<String> failures})
+_parseGalleryRowInputs(List<_GalleryRowInput> inputs) {
+  final rows = <DownloadedGalleryRow>[];
+  final failures = <String>[];
+  for (final input in inputs) {
+    try {
+      rows.add(
+        DownloadedGalleryRow._fromData(
+          taskId: input.taskId,
+          fileName: input.fileName,
+          savePath: input.savePath,
+          json: input.data,
+        ),
+      );
+    } catch (e) {
+      failures.add('${input.taskId}: $e');
+    }
+  }
+  return (rows: rows, failures: failures);
+}
+
 class DownloadedGalleryCard extends StatelessWidget {
-  const DownloadedGalleryCard({
-    super.key,
-    required this.row,
-    this.onDeleted,
-  });
+  const DownloadedGalleryCard({super.key, required this.row, this.onDeleted});
 
   static const double coverAspectRatio = 16 / 10;
 
@@ -115,10 +187,12 @@ class DownloadedGalleryCard extends StatelessWidget {
 
   /// 检查资源是否存在：若本地目录和图片文件均已不存在，自动删除任务并提示。
   Future<void> _handleOpen(BuildContext context) async {
-    final dirExists = row.savePath != null &&
+    final dirExists =
+        row.savePath != null &&
         row.savePath!.isNotEmpty &&
         Directory(row.savePath!).existsSync();
-    final coverExists = row.coverPath != null &&
+    final coverExists =
+        row.coverPath != null &&
         row.coverPath!.isNotEmpty &&
         File(row.coverPath!).existsSync();
 
@@ -290,19 +364,7 @@ class DownloadedGalleryCard extends StatelessWidget {
     );
     final path = row.coverPath;
     if (path == null) return placeholder;
-    return LayoutBuilder(
-      builder: (context, constraints) => Image.file(
-        File(path),
-        fit: BoxFit.cover,
-        // ⛔ 同目录卡：下载下来的原图可能有几千像素宽，不给 cacheWidth 就是按
-        // 原尺寸解进内存，一屏几十格能吃掉几百 MB。
-        cacheWidth:
-            ((constraints.maxWidth.isFinite ? constraints.maxWidth : 320) *
-                    MediaQuery.devicePixelRatioOf(context))
-                .round()
-                .clamp(1, 1280),
-        errorBuilder: (context, error, stackTrace) => placeholder,
-      ),
-    );
+    // 下载下来的原图可能有几千像素宽，解码尺寸归 [LocalCoverImage]。
+    return LocalCoverImage(path: path, placeholder: placeholder);
   }
 }

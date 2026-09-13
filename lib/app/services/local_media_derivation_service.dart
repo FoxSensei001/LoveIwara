@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:path/path.dart' as p;
@@ -31,23 +31,75 @@ class LocalMediaDerivationService extends GetxService {
 
   static LocalMediaDerivationService get to => Get.find();
 
+  /// 没注册时为 null。给播放器页面挂暂停/恢复用，那边不该关心注册顺序。
+  static LocalMediaDerivationService? get maybe =>
+      Get.isRegistered<LocalMediaDerivationService>() ? Get.find() : null;
+
   static const String _tag = 'LocalMediaDerivation';
   static const Duration _metadataTimeout = Duration(seconds: 8);
   static const Duration _nativeCallTimeout = Duration(seconds: 15);
 
-  /// 单次 `getProperty` 的超时。IPC 往返而已，正常是微秒级；给到 600ms 已经
-  /// 是"mpv 明显不对劲"的量级。⛔ 不要用 [_metadataTimeout]，理由见 [_readFps]。
-  static const Duration _propertyProbeTimeout = Duration(milliseconds: 600);
+  /// 自动封面在 mpv 滤镜链里就缩到的长边上限，见 [_configureHeadlessPlayer]。
+  /// 与 [_scaleThumbnail] 的 640 对齐：多解出来的像素最后也是被缩掉。
+  static const int _thumbnailFilterMaxDimension = 640;
 
-  /// 帧率探测的总预算。轮询本身是 6 × 120ms ≈ 0.72s，这道闸只在 mpv 挂起、
-  /// 单次查询走满超时时才咬合，防止一个文件把整条串行队列拖住。
-  static const Duration _fpsProbeBudget = Duration(seconds: 3);
+  /// 封面选择器的预览帧大一档：它要在弹窗里给人看清楚，保存时仍会缩到 640。
+  static const int _coverPickerFilterMaxDimension = 1280;
+
+  /// 播放器页面离开后再等这么久才恢复后台派生：主播放器的 `dispose` 是异步收尾的，
+  /// 紧接着开一个无头 libmpv 正撞上「dispose 后几秒原生闪退」那笔旧账的窗口。
+  static const Duration _resumeGrace = Duration(seconds: 3);
+
+  /// 上一个 Player 的 dispose 超时（原生层卡住、那个实例其实还活着）时，下一次开
+  /// Player 前多等这么久，别在它还没放掉的时候再叠一个。
+  static const Duration _stuckPlayerCooldown = Duration(seconds: 10);
+
+  static const MethodChannel _mediaStoreChannel = MethodChannel(
+    'com.example.i_iwara/media_store',
+  );
 
   final LocalMediaRepository _repository;
-  final Queue<String> _pendingIds = Queue<String>();
+
+  /// 视频派生分两条队列，[_drain] 永远先清前台。
+  ///
+  /// - 前台：卡片滚进视野 / 详情页要的，**新的插在最前**（用户最后看到的那一屏先出），
+  ///   超过 [_maxForegroundPending] 从最旧的那端丢。
+  /// - 后台：扫描 / 下载同步顺手补的元数据与目录封面代表，先进先出，满了**新的直接不收**。
+  ///
+  /// ⛔ 以前只有一条不封顶的 FIFO（2026-09-13 排查「本机文件」内存暴涨与卡顿）：扫描
+  /// 每一批都把目录里全部没派生过的视频塞进来，进一次两千个视频的 Download 就是两千次
+  /// 「开 libmpv + 打开视频解码 + 关掉」连着跑，而用户正看着的那几张卡排在两千名之后。
+  /// 丢掉是安全的：[LocalMediaItem.needsDerivedMetadata] 仍然为 true，下次扫到或
+  /// 滚进视野会再排。
+  final Queue<String> _foregroundIds = Queue<String>();
+  final Queue<String> _backgroundIds = Queue<String>();
   final Map<String, _DerivationRequest> _pending =
       <String, _DerivationRequest>{};
   bool _draining = false;
+
+  static const int _maxForegroundPending = 64;
+  static const int _maxBackgroundPending = 256;
+
+  /// 两次开 Player 之间至少隔这么久。
+  ///
+  /// `dispose()` 返回时 libmpv 的解码器、demuxer 缓冲与线程未必已经收完；紧接着再开
+  /// 一个，原生层就是「上一个还没放、下一个已经在要」的锯齿式峰值。这个 App 有原生层
+  /// 被系统杀掉的旧账（见 native-exit-info 那条诊断），给它留一口气。
+  static const Duration _playerCooldown = Duration(milliseconds: 150);
+  DateTime _lastPlayerReleasedAt = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// 上一个 Player 没能按时 dispose 时，下一个 Player 最早能开的时刻。
+  DateTime _stuckPlayerUntil = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// 暂停引用计数，见 [pauseBackground]。
+  int _pauseDepth = 0;
+
+  /// 非 null ＝ 暂停中；恢复时 complete 掉，[_drain] 就地往下走。
+  Completer<void>? _resumeSignal;
+  Timer? _resumeTimer;
+
+  /// 无头派生只读文件头和一帧，用不着默认的 32MB（×2，前后各一份）demuxer 缓冲。
+  static const int _derivationBufferBytes = 4 * 1024 * 1024;
 
   final Queue<String> _pendingImageIds = Queue<String>();
   final Map<String, _ImageDerivationRequest> _pendingImages =
@@ -137,7 +189,14 @@ class LocalMediaDerivationService extends GetxService {
   ///
   /// 返回的 future 在这一轮跑完时完成，**不带结果**。"到底有没有变化"不是这里
   /// 能回答的问题，见 [ensureDerived]。
-  Future<void> enqueue(LocalMediaItem item, {bool generateThumbnail = false}) {
+  ///
+  /// [background] 为真＝批量顺手补（扫描、下载同步），排在所有卡片请求之后，且队列满了
+  /// 就不收，见 [_foregroundIds] 上的注释。
+  Future<void> enqueue(
+    LocalMediaItem item, {
+    bool generateThumbnail = false,
+    bool background = false,
+  }) {
     if (item.missing) return Future<void>.value();
 
     // 唯一分流点：图片走轻量文件头读取通道，不占用也不阻塞单条视频 Player 队列。
@@ -162,21 +221,96 @@ class LocalMediaDerivationService extends GetxService {
     if (existing != null) {
       existing.generateThumbnail =
           existing.generateThumbnail || generateThumbnail;
+      // 扫描先排了它，现在卡片滚进视野也要它：从后台提到前台最前面。
+      // ⛔ 只有**还在后台队列里**的才挪。已经被 [_drain] 取走、正在跑的那条只改标：
+      // 再往前台塞一份 id，它补抓帧重排时又会塞一份，同一条在队列里出现两次，
+      // 白占前台的名额，还可能把真正排着的卡片从队尾挤掉。
+      if (existing.background && !background) {
+        existing.background = false;
+        if (_backgroundIds.remove(item.id)) {
+          _foregroundIds.addFirst(item.id);
+          _trimForegroundQueue();
+        }
+      }
       return existing.completer.future;
+    }
+
+    if (background && _backgroundIds.length >= _maxBackgroundPending) {
+      return Future<void>.value();
     }
 
     final request = _DerivationRequest(
       item,
       generateThumbnail: generateThumbnail,
+      background: background,
     );
     _pending[item.id] = request;
-    _pendingIds.add(item.id);
+    if (background) {
+      _backgroundIds.add(item.id);
+    } else {
+      _foregroundIds.addFirst(item.id);
+      _trimForegroundQueue();
+    }
     unawaited(_drain());
     return request.completer.future;
   }
 
-  Future<void> enqueueAll(Iterable<LocalMediaItem> items) async {
-    await Future.wait<void>([for (final item in items) enqueue(item)]);
+  void _trimForegroundQueue() {
+    while (_foregroundIds.length > _maxForegroundPending) {
+      final droppedId = _foregroundIds.removeLast();
+      final dropped = _pending.remove(droppedId);
+      // ⛔ completer 必须收尾，否则 `await ensureDerived(...)` 的卡片永远挂着。
+      if (dropped != null && !dropped.completer.isCompleted) {
+        dropped.completer.complete();
+      }
+    }
+  }
+
+  /// 暂停派生队列（引用计数，可嵌套）。暂停期间**不开任何无头 libmpv**，前台请求
+  /// 也一样排着：播放器在前台时，用户看不到卡片墙，而两个 libmpv 同时解码正是原生层
+  /// 被系统杀掉的高危形状。已经在跑的那一条会跑完。
+  void pauseBackground() {
+    _pauseDepth++;
+    _resumeTimer?.cancel();
+    _resumeTimer = null;
+    _resumeSignal ??= Completer<void>();
+  }
+
+  /// 与 [pauseBackground] 成对调用。计数归零后再等 [_resumeGrace] 才真的放行。
+  void resumeBackground() {
+    if (_pauseDepth == 0) return;
+    _pauseDepth--;
+    if (_pauseDepth > 0) return;
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(_resumeGrace, () {
+      _resumeTimer = null;
+      if (_pauseDepth > 0) return;
+      final signal = _resumeSignal;
+      _resumeSignal = null;
+      if (signal != null && !signal.isCompleted) signal.complete();
+    });
+  }
+
+  /// 清掉后台队列（扫描 / 下载同步顺手排的），被丢的请求一律收尾。前台队列与正在
+  /// 跑的那一条不动。丢掉是安全的，理由同 [_foregroundIds] 上的注释。
+  void clearBackground() {
+    final dropped = _backgroundIds.toList(growable: false);
+    _backgroundIds.clear();
+    for (final id in dropped) {
+      final request = _pending.remove(id);
+      if (request != null && !request.completer.isCompleted) {
+        request.completer.complete();
+      }
+    }
+  }
+
+  Future<void> enqueueAll(
+    Iterable<LocalMediaItem> items, {
+    bool background = false,
+  }) async {
+    await Future.wait<void>([
+      for (final item in items) enqueue(item, background: background),
+    ]);
   }
 
   /// 把这一条缺的派生数据补齐：时长 / 宽高，以及（[generateThumbnail] 为真且
@@ -215,8 +349,15 @@ class LocalMediaDerivationService extends GetxService {
     if (_draining) return;
     _draining = true;
     try {
-      while (_pendingIds.isNotEmpty) {
-        final id = _pendingIds.removeFirst();
+      while (_foregroundIds.isNotEmpty || _backgroundIds.isNotEmpty) {
+        // 暂停就停在取下一条之前：恢复后按那时的队列顺序取，期间提到前台的照样优先。
+        while (_resumeSignal != null) {
+          await _resumeSignal!.future;
+        }
+        if (_foregroundIds.isEmpty && _backgroundIds.isEmpty) break;
+        final id = _foregroundIds.isNotEmpty
+            ? _foregroundIds.removeFirst()
+            : _backgroundIds.removeFirst();
         final request = _pending[id];
         if (request == null) continue;
         var threw = false;
@@ -252,7 +393,12 @@ class LocalMediaDerivationService extends GetxService {
               !request.requeuedForThumbnail;
           if (needsThumbnailPass) {
             request.requeuedForThumbnail = true;
-            _pendingIds.add(id);
+            // 放回它所在那条队列的最前面：抓帧意图本来就是卡片刚提的。
+            if (request.background) {
+              _backgroundIds.addFirst(id);
+            } else {
+              _foregroundIds.addFirst(id);
+            }
           } else {
             _pending.remove(id);
             if (!request.completer.isCompleted) request.completer.complete();
@@ -261,7 +407,9 @@ class LocalMediaDerivationService extends GetxService {
       }
     } finally {
       _draining = false;
-      if (_pendingIds.isNotEmpty) unawaited(_drain());
+      if (_foregroundIds.isNotEmpty || _backgroundIds.isNotEmpty) {
+        unawaited(_drain());
+      }
     }
   }
 
@@ -410,9 +558,11 @@ class LocalMediaDerivationService extends GetxService {
 
     final sidecarAvailable = await _exists(current.sidecarImagePath);
     final thumbAvailable = await _exists(current.thumbPath);
-    final needDuration = current.durationMs == null;
-    final needWidth = current.width == null;
-    final needHeight = current.height == null;
+    // 时长/宽高探测过（`meta_probed_at`）就不再为它们开 Player，理由同下面的帧率。
+    final metaProbed = current.metaProbedAt != null;
+    final needDuration = current.durationMs == null && !metaProbed;
+    final needWidth = current.width == null && !metaProbed;
+    final needHeight = current.height == null && !metaProbed;
     // ⛔ 「探测过了」是**库里**的一列，不是内存负缓存。内存那份随进程清零，挡不住
     // 「每次冷启动都为容器不写帧率的文件重付一遍 0.72 秒轮询」——一个 138 条的库
     // 若有一半读不出，就是每次开 App 白占约 50 秒串行队列，期间用户滚到的卡片全在
@@ -454,6 +604,20 @@ class LocalMediaDerivationService extends GetxService {
     // 故障，而负缓存的 key 是文件指纹——指纹不变就永远解不开，等于因为一次磁盘满
     // 把这个文件的封面永久判死。重试的代价被串行队列和 [_nativeCallTimeout] 兜着。
     final playbackTarget = current.resolvePlaybackTarget();
+    // ⛔ content:// 不再整片拷进缓存再开 Player：时长/宽高 MediaStore 自己就有（扫描
+    // 时已写库），封面走系统缩略图接口。以前为了一张封面把几 GB 的片子整个拷一遍，
+    // Dart 侧的超时还取消不了原生那边的拷贝。
+    if (_isContentUri(playbackTarget)) {
+      await _deriveContentUri(
+        request,
+        current,
+        uri: playbackTarget,
+        needMeta: !metaBlocked,
+        needFps: needFps,
+        needThumbnail: !thumbBlocked,
+      );
+      return;
+    }
     final playablePath = await _materializePath(playbackTarget);
     if (playablePath == null) return;
     final contentUri = _isContentUri(playbackTarget);
@@ -470,7 +634,19 @@ class LocalMediaDerivationService extends GetxService {
       return;
     }
 
-    final player = Player();
+    final now = DateTime.now();
+    final sinceLastPlayer = now.difference(_lastPlayerReleasedAt);
+    var cooldown = sinceLastPlayer < _playerCooldown
+        ? _playerCooldown - sinceLastPlayer
+        : Duration.zero;
+    final stuckWait = _stuckPlayerUntil.difference(now);
+    if (stuckWait > cooldown) cooldown = stuckWait;
+    if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
+    final player = Player(
+      configuration: const PlayerConfiguration(
+        bufferSize: _derivationBufferBytes,
+      ),
+    );
     try {
       // ⛔⭐ 没有这一句，这个服务**一件事都做不成**（真机实证 2026-09-10：库里
       // 每一条的 `width/height/thumb_path` 全是 NULL，缩略图缓存目录压根没被建出来）。
@@ -485,17 +661,10 @@ class LocalMediaDerivationService extends GetxService {
       //
       // ⛔ 不能改成挂一个 `VideoController` 了事：那会给每一次派生都建一块纹理，
       // 而这条队列是为了在后台批量过文件用的。只把解码打开，输出仍留在 `vo=null`。
-      final platform = player.platform;
-      if (platform is NativePlayer) {
-        await platform.setProperty('vid', 'auto');
-        // ⛔ 打开视频轨的同时必须关掉音频轨。抓帧路径在 `screenshot` 拿不到帧时
-        // 会退回 `play()` 硬播一小段，而这里是**无头**的：用户可能正在听别的
-        // 东西，那一小段会真的外放出来，并抢走系统音频焦点（安卓上表现为别家
-        // App 被压低甚至暂停）。
-        // 用 `ao=null` 而不是 `setVolume(0)`：后者只把音量调零，音频输出设备照样
-        // 打开、焦点照样被抢；前者根本不建音频输出。
-        await platform.setProperty('ao', 'null');
-      }
+      await _configureHeadlessPlayer(
+        player,
+        maxFrameDimension: _thumbnailFilterMaxDimension,
+      );
       await player
           .open(Media(playablePath), play: false)
           .timeout(_nativeCallTimeout);
@@ -601,62 +770,9 @@ class LocalMediaDerivationService extends GetxService {
 
       // ⭐ 缩略图落库后回填目录封面：
       // 纯视频目录通常没有独立图片，借用本目录首个生成缩略图的视频作为封面；
-      // 若回填成功，则沿父目录链逐级向上回填子目录封面，直到某一祖先目录已存在封面或已被 pin。
+      // 然后本级连同全部祖先按「借子目录封面」重算一遍。
       if (thumbPath != null && thumbPath.isNotEmpty && updated) {
-        try {
-          final folderPath = current.folderPath;
-          if (folderPath != null && folderPath.isNotEmpty) {
-            final folder = _repository.findFolderByPath(
-              sourceId: current.sourceId,
-              folderPath: folderPath,
-            );
-            if (folder == null) {
-              // 这个源没有目录树（「已下载」按任务同步，文件散在各个下载目录；
-              // 「设备视频」是系统媒体索引），按绝对路径找不到目录行是常态而不是
-              // 错误。⛔ 以前这里就此打住，于是这两个源的卡片永远是一张空夹子：
-              // 缩略图明明生成出来了，却没有任何一行记得住它。源根那一行接手。
-              _repository.backfillSourceRootCoverFromItems(current.sourceId);
-            } else {
-              _repository.backfillFolderCoverFromItems(
-                sourceId: folder.sourceId,
-                relPath: folder.relPath,
-              );
-              // ⛔ 向上冒泡**不能**挂在「本级回填成功」这个条件下。
-              //
-              // 上一轮修的是循环体内部的 break，可整个循环的**入口条件**本身
-              // 就是同一个停止信号，只是发生在第 0 级——下面那段注释骂的正是
-              // 这件事，却被它自己包在了 `if (backfilled)` 里面。
-              //
-              // 本级回填失败只说明「本级已有封面或被 pin」，与祖辈有没有封面
-              // 完全无关。真实场景：用户给 A/B 手动 pin 了封面，A 自己没有直属
-              // 媒体；给 A/B 里的视频出了缩略图 → 本级返回 false → A 永远空封面。
-              {
-                // ⛔ 某一级没借到（已有封面或被 pin）**不能**当作停止信号：
-                // 扫描器从直属图片填封面那条路径根本不向上冒泡，所以「这一级
-                // 有封面」完全不保证它上面几级也有。就此打住会让祖辈目录永远
-                // 停在空封面上。一路走到源根为止，每级都是带索引的 LIMIT 1，
-                // 便宜得很。
-                var currentParent = folder.parentRelPath;
-                var depth = 0;
-                while (currentParent != null && depth < 16) {
-                  _repository.backfillFolderCoverFromChild(
-                    sourceId: folder.sourceId,
-                    relPath: currentParent,
-                  );
-                  // '' 是源根，_parentRelPath('') 恒为 ''，不 break 就是死循环。
-                  if (currentParent.isEmpty) break;
-                  currentParent = _parentRelPath(currentParent);
-                  depth++;
-                }
-              }
-            }
-          } else {
-            // 连绝对目录都没有（系统媒体索引那一类）：同样交给源根那一行。
-            _repository.backfillSourceRootCoverFromItems(current.sourceId);
-          }
-        } catch (e) {
-          LogUtils.w('缩略图落库后回填目录封面失败：${current.name}: $e', _tag);
-        }
+        _backfillFolderCover(current);
       }
 
       // 这一行是留给真机核查的抓手：上一版「一件事都没做成」之所以能一直没被
@@ -681,6 +797,8 @@ class LocalMediaDerivationService extends GetxService {
             current.modifiedAt,
             'meta',
           );
+          // 内存负缓存冷启动就清零；库里落一笔，扫描与下载同步据此不再为它排队。
+          _markMetaProbedSafely(current.id);
         }
       }
 
@@ -704,7 +822,199 @@ class LocalMediaDerivationService extends GetxService {
     } finally {
       try {
         await player.dispose().timeout(_nativeCallTimeout);
-      } catch (_) {}
+        _lastPlayerReleasedAt = DateTime.now();
+      } catch (e) {
+        // ⛔ dispose 超时＝原生层卡住，那个实例其实还活着：不能当成「刚释放」，
+        // 否则下一条 150ms 后就叠开一个新的。改成多等一整段再开。
+        _stuckPlayerUntil = DateTime.now().add(_stuckPlayerCooldown);
+        LogUtils.w('无头 Player dispose 超时，延后下一次开 Player: $e', _tag);
+      }
+    }
+  }
+
+  /// 把一个无头 Player 调成「只为抓一帧 / 读几个属性」的形状。派生与封面选择器共用。
+  ///
+  /// 为什么要 `vid=auto` + `ao=null`，见 [_derive] 里 open 之前那段长注释。
+  ///
+  /// # ⭐ 在 mpv 滤镜链里就缩小，而不是抓原图再缩
+  ///
+  /// media_kit 1.2.6 的 `screenshot(format: 'image/jpeg')`
+  /// （`lib/src/player/native/player/real.dart` 的 `_screenshot`）是在 compute
+  /// isolate 里拿 `screenshot-raw` 的**原分辨率** BGRA，再逐像素拷进 `image` 包的
+  /// `Image`、纯 Dart `encodeJpg`：8K 一帧 BGRA ≈ 118MB，加上那份 `Image` ≈ 88MB，
+  /// 回主 isolate 还要整张解码一次——这个 App 有原生层被系统杀掉的旧账。
+  ///
+  /// `format: null` 那条路也救不了：它 `bytes.sublist(0)` 整份拷一遍原图，且**不回传
+  /// w / h / stride**，主 isolate 连怎么解释这块内存都不知道。
+  ///
+  /// 所以在解码之后、进 VO 之前挂一个 libavfilter 的 scale：`screenshot-raw` 取的是
+  /// 过滤后的帧，长边只剩 [maxFrameDimension]，截图、JPEG 编码、回传全是 1MB 级。
+  /// `stream.width/height` 来自 `video-params`（解码器输出，滤镜之前），不受影响。
+  ///
+  /// ⛔ 滤镜挂不上（libmpv 构建里没有 lavfi scale）时 mpv 会拒绝这个属性，读回来
+  /// 是空的；那就退回原来的全尺寸抓帧，封面照样出，只是峰值回到老样子。
+  static Future<void> _configureHeadlessPlayer(
+    Player player, {
+    required int maxFrameDimension,
+  }) async {
+    final platform = player.platform;
+    if (platform is! NativePlayer) return;
+    await platform.setProperty('vid', 'auto');
+    // ⛔ 打开视频轨的同时必须关掉音频轨。抓帧路径在 `screenshot` 拿不到帧时
+    // 会退回 `play()` 硬播一小段，而这里是**无头**的：用户可能正在听别的
+    // 东西，那一小段会真的外放出来，并抢走系统音频焦点（安卓上表现为别家
+    // App 被压低甚至暂停）。
+    // 用 `ao=null` 而不是 `setVolume(0)`：后者只把音量调零，音频输出设备照样
+    // 打开、焦点照样被抢；前者根本不建音频输出。
+    await platform.setProperty('ao', 'null');
+    // 只抓一两帧，用不着按核数开满解码线程（每个线程各有一份帧缓冲）。
+    await platform.setProperty('vd-lavc-threads', '2');
+    await platform.setProperty(
+      'vf',
+      'lavfi-scale=w=$maxFrameDimension:h=$maxFrameDimension'
+          ':force_original_aspect_ratio=decrease',
+    );
+    try {
+      final applied = await platform.getProperty('vf');
+      if (applied.isEmpty) {
+        LogUtils.w('mpv 拒绝了缩放滤镜，退回全尺寸抓帧', _tag);
+      }
+    } catch (_) {}
+  }
+
+  /// content:// 条目的派生：不开 Player、不拷文件。
+  ///
+  /// - 时长 / 宽高：MediaStore 扫描时已经写库；这里还缺的只能是 provider 自己也没有，
+  ///   不拷整片就探不出来——落 meta_probed，别让它每次冷启动重排。
+  /// - 帧率：同理探不了，落 fps_probed。
+  /// - 封面：`ContentResolver.loadThumbnail`（原生侧，见 MainActivity 的
+  ///   `loadMediaStoreThumbnail`）。
+  /// - VR 线索：只看文件名（读 MP4 box 要文件路径）。
+  Future<void> _deriveContentUri(
+    _DerivationRequest request,
+    LocalMediaItem current, {
+    required String uri,
+    required bool needMeta,
+    required bool needFps,
+    required bool needThumbnail,
+  }) async {
+    if (current.sizeBytes == null || current.modifiedAt == null) return;
+
+    Uint8List? thumbnailBytes;
+    if (needThumbnail) {
+      try {
+        thumbnailBytes = await _mediaStoreChannel
+            .invokeMethod<Uint8List>('loadThumbnail', <String, Object?>{
+              'uri': uri,
+              'size': _thumbnailFilterMaxDimension,
+            })
+            .timeout(_nativeCallTimeout);
+      } catch (e) {
+        LogUtils.w('系统缩略图读取失败：${current.name}: $e', _tag);
+      }
+    }
+
+    String? vrFormatJson;
+    if (current.vrFormatJson == null) {
+      try {
+        vrFormatJson = (await _deriveVrHints(current.name, null)).toJson();
+      } catch (error) {
+        LogUtils.w('本地媒体推断 VR 线索失败：${current.name}: $error', _tag);
+      }
+    }
+
+    String? thumbPath;
+    if (thumbnailBytes != null && thumbnailBytes.isNotEmpty) {
+      final scaled = await _scaleThumbnail(
+        thumbnailBytes,
+        hintWidth: current.width,
+        hintHeight: current.height,
+      );
+      thumbPath = await _writeThumbnail(
+        current,
+        sizeBytes: current.sizeBytes!,
+        modifiedAt: current.modifiedAt!,
+        bytes: scaled.bytes,
+        extension: scaled.extension,
+      );
+    }
+
+    final updated = _repository.updateDerivedFields(
+      itemId: current.id,
+      expectedSizeBytes: current.sizeBytes,
+      expectedModifiedAt: current.modifiedAt,
+      fpsProbed: needFps,
+      thumbPath: thumbPath,
+      vrFormatJson: vrFormatJson,
+    );
+    if (thumbPath != null && updated) _backfillFolderCover(current);
+
+    if (needMeta &&
+        (current.durationMs == null ||
+            current.width == null ||
+            current.height == null)) {
+      _markJobFailed(current.id, current.sizeBytes, current.modifiedAt, 'meta');
+      _markMetaProbedSafely(current.id);
+    }
+    if (needThumbnail && thumbPath == null) {
+      _markJobFailed(
+        current.id,
+        current.sizeBytes,
+        current.modifiedAt,
+        'thumb',
+      );
+    }
+    LogUtils.d(
+      '派生完成(content) ${current.name}：thumb=${thumbPath != null} '
+      'vr=${vrFormatJson != null}',
+      _tag,
+    );
+  }
+
+  void _markMetaProbedSafely(String itemId) {
+    try {
+      _repository.markMetaProbed(itemId);
+    } catch (e) {
+      LogUtils.w('落 meta_probed 失败：$e', _tag);
+    }
+  }
+
+  /// 缩略图落库后回填目录封面：纯视频目录通常没有独立图片，借用本目录首个生成
+  /// 缩略图的视频作为封面；然后本级连同全部祖先按「借子目录封面」重算一遍。
+  void _backfillFolderCover(LocalMediaItem current) {
+    try {
+      final folderPath = current.folderPath;
+      if (folderPath != null && folderPath.isNotEmpty) {
+        final folder = _repository.findFolderByPath(
+          sourceId: current.sourceId,
+          folderPath: folderPath,
+        );
+        if (folder == null) {
+          // 这个源没有目录树（「已下载」按任务同步，文件散在各个下载目录；
+          // 「设备视频」是系统媒体索引），按绝对路径找不到目录行是常态而不是
+          // 错误。⛔ 以前这里就此打住，于是这两个源的卡片永远是一张空夹子：
+          // 缩略图明明生成出来了，却没有任何一行记得住它。源根那一行接手。
+          _repository.backfillSourceRootCoverFromItems(current.sourceId);
+        } else {
+          _repository.backfillFolderCoverFromItems(
+            sourceId: folder.sourceId,
+            relPath: folder.relPath,
+          );
+          // ⛔ 向上冒泡不能挂在「本级回填成功」下面，也不能在「某一级已有封面」时
+          // 停：扫描器从直属图片填的封面从不冒泡，这一级有封面不保证上面几级有。
+          // 规则收口在 [LocalMediaRepository.propagateFolderCovers]，别在这里再
+          // 手写一遍循环。
+          _repository.propagateFolderCovers(
+            sourceId: folder.sourceId,
+            relPaths: <String>[folder.relPath],
+          );
+        }
+      } else {
+        // 连绝对目录都没有（系统媒体索引那一类）：同样交给源根那一行。
+        _repository.backfillSourceRootCoverFromItems(current.sourceId);
+      }
+    } catch (e) {
+      LogUtils.w('缩略图落库后回填目录封面失败：${current.name}: $e', _tag);
     }
   }
 
@@ -726,68 +1036,36 @@ class LocalMediaDerivationService extends GetxService {
     return _firstPositiveInt(player.stream.height);
   }
 
-  /// 读取视频帧率。
+  /// 读取视频帧率：等解码器报出视频参数之后，只读**一次** `container-fps`。
   ///
-  /// 优先读取 `container-fps`（容器元数据中声明的帧率，由解复用器直接提供，
-  /// 无需解码实际视频帧即可极速获取）；若容器未声明、解析失败或数值非正（<= 0），
-  /// 再退而尝试读取 `estimated-vf-fps`（基于视频滤镜/解码链估算的帧率）。
-  /// 两者均无法获取有效正数时返回 null，绝不硬编码虚假默认值。
-  /// 过程用 try-catch 兜底并施加超时，防止阻塞时长/宽高/缩略图等派生主流程。
+  /// ⛔ `NativePlayer.getProperty` 是同步的 `mpv_get_property_string` FFI 调用
+  /// （media_kit 1.2.6 `real.dart`），外面套 `.timeout` 打不断它——以前「六轮轮询 ×
+  /// 单次超时 + 总预算」那套双保险一道都不咬合，只是白白多调了十几次。
+  ///
+  /// 查早了是空字符串（`open(play: false)` 返回时容器头未必解析完，真机上 138 条
+  /// 一条都没读出来过）。`stream.width` 来自 `video-params`，它推值时解码器已经建好、
+  /// 容器头早就解析完，这时读一次就够；等不到（没有视频轨 / 解不出）也照读一次，
+  /// 读不出由调用方落 `fps_probed_at`，跨重启不再重试。
   static Future<double?> _readFps(Player player) async {
     final platform = player.platform;
     if (platform is! NativePlayer) return null;
 
-    double? parseFps(String? raw) {
-      if (raw == null || raw.isEmpty) return null;
-      final value = double.tryParse(raw.trim());
-      if (value == null || !value.isFinite || value <= 0) return null;
-      return value;
+    final width = player.state.width;
+    if (width == null || width <= 0) {
+      await _firstPositiveInt(player.stream.width);
     }
 
-    // ⛔ 必须轮询，一次性查询查得太早。
-    //
-    // `player.open(play: false)` 的 future 完成时，mpv 只是接下了这个文件，
-    // **未必已经解析完容器头**。时长和宽高读的是 stream（值到了自然会推过来），
-    // 帧率没有对应的 stream，只能主动查——查早了就是空字符串。
-    // 实证：不轮询的版本在真机上 138 个视频的 fps 一个都没读出来，日志里
-    // 清一色 `fps=null`。
-    //
-    // 六轮 × 120ms 封顶 0.72 秒，只有在真读不到时才会走满；派生本来就是后台
-    // 串行的活，这点代价换的是这个字段有没有值。读不到的那些会由调用方写下
-    // `fps_probed_at`，**跨重启**不再重试（内存负缓存冷启动就清零，挡不住）。
-    //
-    // ⛔ 单次查询的超时不能用 [_metadataTimeout]（8 秒）。`getProperty` 是本地
-    // IPC，正常是微秒级；8 秒那档是给"等解码器出结果"用的，安在这里意味着
-    // mpv 一旦挂起，6 轮 × 2 个属性 = 最坏 96 秒——而这条串行队列后面还排着
-    // 用户正在看的那一屏卡片的缩略图，Player 全程开着。这个仓库有 libmpv
-    // 挂起/野指针的旧账，不能假设它不会发生。
-    // 双保险：单次 [_propertyProbeTimeout]，整个函数再加一道总预算。
-    final budget = Stopwatch()..start();
-    String? lastRaw;
-    for (var attempt = 0; attempt < 6; attempt++) {
-      if (budget.elapsed > _fpsProbeBudget) break;
-      for (final property in const <String>[
-        'container-fps',
-        'estimated-vf-fps',
-      ]) {
-        try {
-          final raw = await platform
-              .getProperty(property)
-              .timeout(_propertyProbeTimeout);
-          lastRaw = raw;
-          final value = parseFps(raw);
-          if (value != null) return value;
-        } catch (_) {
-          // 单个属性读失败不算数，还有下一个属性、下一轮。
-        }
-      }
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+    String? raw;
+    try {
+      raw = await platform.getProperty('container-fps');
+    } catch (_) {}
+    final value = double.tryParse((raw ?? '').trim());
+    if (value == null || !value.isFinite || value <= 0) {
+      // 留个抓手：分清是"容器没写"还是"我们查错了属性名"。
+      LogUtils.d('读不到帧率，原始返回：${raw ?? '(抛异常)'}', _tag);
+      return null;
     }
-
-    // 留个抓手：读不到时把最后一次的原始返回记下来，否则下一个人只能看到
-    // 一个光秃秃的 null，分不清是"容器没写"还是"我们查错了属性名"。
-    LogUtils.d('读不到帧率，最后一次原始返回：${lastRaw ?? '(全部抛异常)'}', _tag);
-    return null;
+    return value;
   }
 
   static Future<Duration?> _firstPositiveDuration(
@@ -918,17 +1196,10 @@ class LocalMediaDerivationService extends GetxService {
     final player = Player();
     try {
       // 同 [_derive] 里那段长注释：无头播放器默认 `vid=no`，不打开就一帧都抓不到。
-      final platform = player.platform;
-      if (platform is NativePlayer) {
-        await platform.setProperty('vid', 'auto');
-        // ⛔ 打开视频轨的同时必须关掉音频轨。抓帧路径在 `screenshot` 拿不到帧时
-        // 会退回 `play()` 硬播一小段，而这里是**无头**的：用户可能正在听别的
-        // 东西，那一小段会真的外放出来，并抢走系统音频焦点（安卓上表现为别家
-        // App 被压低甚至暂停）。
-        // 用 `ao=null` 而不是 `setVolume(0)`：后者只把音量调零，音频输出设备照样
-        // 打开、焦点照样被抢；前者根本不建音频输出。
-        await platform.setProperty('ao', 'null');
-      }
+      await _configureHeadlessPlayer(
+        player,
+        maxFrameDimension: _coverPickerFilterMaxDimension,
+      );
       await player
           .open(Media(playablePath), play: false)
           .timeout(_nativeCallTimeout);
@@ -991,6 +1262,8 @@ class LocalMediaDerivationService extends GetxService {
         expectedSizeBytes: sizeBytes,
         expectedModifiedAt: modifiedAt,
         thumbPath: file.path,
+        // 用户亲手挑的：之后的自动抽帧不许覆盖它。
+        thumbIsCustom: true,
       );
       if (!ok) {
         // 指纹对不上（文件在这中间被换过了）：别留下一个没人引用的文件。
@@ -1062,11 +1335,16 @@ class LocalMediaDerivationService extends GetxService {
       var h = (hintHeight != null && hintHeight > 0) ? hintHeight : null;
 
       if (w == null || h == null) {
-        final probeCodec = await ui.instantiateImageCodec(originalBytes);
-        final frame = await probeCodec.getNextFrame();
-        w = frame.image.width;
-        h = frame.image.height;
-        frame.image.dispose();
+        // ⛔ 只为读宽高就整帧解码一次，4K 截图是 30MB+ 的瞬时峰值。描述符读文件头就够。
+        final buffer = await ui.ImmutableBuffer.fromUint8List(originalBytes);
+        try {
+          final descriptor = await ui.ImageDescriptor.encoded(buffer);
+          w = descriptor.width;
+          h = descriptor.height;
+          descriptor.dispose();
+        } finally {
+          buffer.dispose();
+        }
       }
 
       const maxDimension = 640;
@@ -1108,9 +1386,11 @@ class LocalMediaDerivationService extends GetxService {
 
   /// 推断本地视频的 VR 格式线索。
   /// 严格按 文件名 -> 文本模糊匹配 -> MP4 box 顺序合成。
+  ///
+  /// [playablePath] 为 null（content:// 条目，不拷文件）时跳过读 MP4 box 那一步。
   static Future<LocalVrHints> _deriveVrHints(
     String fileName,
-    String playablePath,
+    String? playablePath,
   ) async {
     // 1. 文件名检测
     final fnSignals = LocalVrFileNameDetector.detect(fileName);
@@ -1134,7 +1414,7 @@ class LocalMediaDerivationService extends GetxService {
     }
 
     // 3. Mp4StereoBoxReader.read(playablePath)——只在第 1、2 步都没拿到 projection 时才读
-    if (projection == null) {
+    if (projection == null && playablePath != null) {
       final boxResult = await Mp4StereoBoxReader.read(playablePath);
       if (boxResult.hasSignal) {
         // 4. 合成规则：box 提供的字段压过文件名/文本的同名字段；
@@ -1160,22 +1440,21 @@ class LocalMediaDerivationService extends GetxService {
       origins: origins,
     );
   }
-
-  /// 'a/b/c' → 'a/b'；'a' → ''（源根）；'' → ''。
-  ///
-  /// 仅按 '/' 切割 relative path，不使用平台相关的路径分隔符。
-  static String _parentRelPath(String relPath) {
-    final index = relPath.lastIndexOf('/');
-    return index < 0 ? '' : relPath.substring(0, index);
-  }
 }
 
 class _DerivationRequest {
-  _DerivationRequest(this.item, {required this.generateThumbnail});
+  _DerivationRequest(
+    this.item, {
+    required this.generateThumbnail,
+    required this.background,
+  });
 
   final LocalMediaItem item;
   final Completer<void> completer = Completer<void>();
   bool generateThumbnail;
+
+  /// 在后台队列里。卡片再来要时会被提到前台，见 [LocalMediaDerivationService.enqueue]。
+  bool background;
 
   /// 这一轮是否已经对「抓不抓帧」做过决定。为 false 而 [generateThumbnail] 为 true，
   /// 说明抓帧的意图是在决定点之后才到的，见 [LocalMediaDerivationService._drain]。

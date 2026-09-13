@@ -3107,6 +3107,10 @@ localMedia:
   scanFailed: "扫描失败：${reason}"
   scanTruncated: "这个文件夹太大了，只收了前 ${count} 个文件。"
   sourceOverlaps: "已被文件夹「${name}」覆盖"
+  addedAsPinnedFolder: "「${name}」在「${source}」里面，已加到常用目录"
+  alreadyPinnedFolder: "「${name}」已经在常用目录里了"
+  sourceAlreadyAdded: "已经添加过「${name}」"
+  sourceContainsExisting: "里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹"
   addSourceFailed: 添加文件夹失败
   fileMissing: 这个文件已经不在磁盘上了
   permissionDenied: 未授予文件访问权限 · 点这里开启

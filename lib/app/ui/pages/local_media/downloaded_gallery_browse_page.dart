@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -7,10 +8,10 @@ import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -98,7 +99,8 @@ class _DownloadedGalleryBrowsePageState
     try {
       DownloadTask? task;
       if (Get.isRegistered<DownloadService>()) {
-        task = DownloadService.to.store.taskOf(widget.taskId) ??
+        task =
+            DownloadService.to.store.taskOf(widget.taskId) ??
             DownloadService.to.tasks[widget.taskId] ??
             await DownloadService.to.repository.getTaskById(widget.taskId);
       }
@@ -130,27 +132,26 @@ class _DownloadedGalleryBrowsePageState
 
       // ── 检查本地资源是否存在 ──────────────────────────────────────────
       //
-      // 目录存在性或本地图片文件存在性判定：
-      final dirExists = task.savePath.isNotEmpty &&
-          Directory(task.savePath).existsSync();
-
-      final validImages = <({String id, String path, int index})>[];
-      var idx = 1;
-      for (final id in galleryData.imageList.keys) {
-        final localPath = galleryData.localPaths[id]?.trim();
-        if (localPath != null &&
-            localPath.isNotEmpty &&
-            File(localPath).existsSync()) {
-          validImages.add((id: id, path: localPath, index: idx++));
-        }
-      }
+      // ⛔ 逐张 `existsSync` 放到后台 isolate：一个几百张的图库就是几百次同步
+      // stat，摆在主 isolate 上是进页那一下的长卡顿。期间标题胶囊照旧转圈
+      // （`busy: _loading`）。
+      final candidates = <(String, String)>[
+        for (final id in galleryData.imageList.keys)
+          if (galleryData.localPaths[id]?.trim() case final localPath?
+              when localPath.isNotEmpty)
+            (id, localPath),
+      ];
+      final checked = await compute(_checkGalleryFiles, (
+        task.savePath,
+        candidates,
+      ));
+      if (!mounted) return;
+      final dirExists = checked.dirExists;
+      final validImages = checked.images;
 
       // 如果目录不存在且没有任何一张本地图片存在：说明资源已被外部彻底删除。
       if (!dirExists && validImages.isEmpty) {
-        LogUtils.w(
-          '图库本地资源已不存在，自动删除失效任务记录: taskId=${widget.taskId}',
-          _tag,
-        );
+        LogUtils.w('图库本地资源已不存在，自动删除失效任务记录: taskId=${widget.taskId}', _tag);
         if (Get.isRegistered<DownloadService>()) {
           await DownloadService.to.deleteTask(
             widget.taskId,
@@ -186,27 +187,11 @@ class _DownloadedGalleryBrowsePageState
 
   void _openImage(int index) {
     if (_validImages.isEmpty) return;
-    final initialIndex = index.clamp(0, _validImages.length - 1);
-
-    final imageItems = _validImages
-        .map(
-          (img) => ImageItem(
-            url: 'file://${img.path}',
-            data: ImageItemData(
-              id: img.id,
-              url: 'file://${img.path}',
-              originalUrl: 'file://${img.path}',
-            ),
-          ),
-        )
-        .toList();
-
-    pushPhotoViewWrapperOverlay(
-      context: context,
-      imageItems: imageItems,
-      initialIndex: initialIndex,
-      menuItemsBuilder: (context, item) => const [],
-      enableMenu: false,
+    final initial = _validImages[index.clamp(0, _validImages.length - 1)];
+    openLocalImageViewer(
+      context,
+      _validImages.map((img) => img.path).toList(),
+      initial.path,
     );
   }
 
@@ -266,9 +251,7 @@ class _DownloadedGalleryBrowsePageState
         children: [
           GlassAlertDialog(
             title: t.localMedia.browse.deleteGalleryTitle,
-            content: Text(
-              t.localMedia.browse.deleteGalleryBody(name: _title),
-            ),
+            content: Text(t.localMedia.browse.deleteGalleryBody(name: _title)),
             actions: [
               GlassDialogAction(
                 label: t.common.cancel,
@@ -380,10 +363,7 @@ class _DownloadedGalleryBrowsePageState
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: GlassTitlePill(
-                    title: _title,
-                    busy: _loading,
-                  ),
+                  child: GlassTitlePill(title: _title, busy: _loading),
                 ),
                 const SizedBox(width: 8),
                 GlassButtonGroup(
@@ -444,8 +424,6 @@ class _DownloadedGalleryBrowsePageState
                             itemCount: _validImages.length,
                             itemBuilder: (context, index, itemWidth) {
                               final item = _validImages[index];
-                              final dpr =
-                                  MediaQuery.of(context).devicePixelRatio;
                               return GestureDetector(
                                 onTap: () => _openImage(index),
                                 child: ClipRRect(
@@ -455,17 +433,11 @@ class _DownloadedGalleryBrowsePageState
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: [
-                                        Image.file(
-                                          File(item.path),
-                                          fit: BoxFit.cover,
-                                          cacheWidth: (itemWidth * dpr)
-                                              .round()
-                                              .clamp(1, 4096),
-                                          errorBuilder: (
+                                        LocalCoverImage(
+                                          path: item.path,
+                                          placeholder: _buildImagePlaceholder(
                                             context,
-                                            error,
-                                            stackTrace,
-                                          ) => _buildImagePlaceholder(context),
+                                          ),
                                         ),
                                         // 序号胶囊角标
                                         Positioned(
@@ -543,4 +515,22 @@ class _DownloadedGalleryBrowsePageState
       ),
     );
   }
+}
+
+/// [_DownloadedGalleryBrowsePageState._loadData] 的后台那一半：落盘目录还在不在、
+/// 哪几张图还在（保持图库原始顺序，序号从 1 起按「还在的」重排）。
+///
+/// ⛔ 顶层函数、只碰参数：跑在另一个 isolate 上。
+({bool dirExists, List<({String id, String path, int index})> images})
+_checkGalleryFiles((String, List<(String, String)>) input) {
+  final (savePath, candidates) = input;
+  final dirExists = savePath.isNotEmpty && Directory(savePath).existsSync();
+  final images = <({String id, String path, int index})>[];
+  var index = 1;
+  for (final (id, path) in candidates) {
+    if (File(path).existsSync()) {
+      images.add((id: id, path: path, index: index++));
+    }
+  }
+  return (dirExists: dirExists, images: images);
 }

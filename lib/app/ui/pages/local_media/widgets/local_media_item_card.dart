@@ -5,11 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -59,7 +59,7 @@ class LocalMediaItemCard extends StatefulWidget {
 
   final LocalMediaItem item;
 
-  /// 这一格的宽度，用来算封面的解码尺寸。
+  /// 这一格的宽度。封面的解码尺寸由 [LocalCoverImage] 按实际约束算，不读它。
   final double? width;
 
   final Future<void> Function() onOpen;
@@ -91,7 +91,11 @@ class LocalMediaItemCard extends StatefulWidget {
 }
 
 class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
-  DownloadTask? _task;
+  /// 下载任务里存的视频元数据，[_loadDownloadTask] 取回时**解析一次**存下来。
+  ///
+  /// ⛔ 别改回每次访问现解的 getter：一次 build 要读标题 / 作者 / 远端封面三处，
+  /// 就是一张卡三遍 `fromJson`，一屏几十张卡在滚动里反复 build。
+  VideoDownloadExtData? _ext;
   LocalMediaItem? _derivedItem;
   bool _derivationRequested = false;
 
@@ -103,28 +107,18 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
 
   LocalMediaItem get _item => _derivedItem ?? widget.item;
 
-  VideoDownloadExtData? get _downloadData {
-    final ext = _task?.extData;
-    if (ext == null || ext.type != DownloadTaskExtDataType.video) return null;
-    try {
-      return VideoDownloadExtData.fromJson(ext.data);
-    } catch (_) {
-      return null;
-    }
-  }
-
   String get _title {
-    final title = _downloadData?.title?.trim();
+    final title = _ext?.title?.trim();
     return title == null || title.isEmpty ? widget.item.name : title;
   }
 
   String? get _author {
-    final author = _downloadData?.authorName?.trim();
+    final author = _ext?.authorName?.trim();
     return author == null || author.isEmpty ? null : author;
   }
 
   String? get _remoteCover {
-    final cover = _downloadData?.thumbnail?.trim();
+    final cover = _ext?.thumbnail?.trim();
     return cover == null || cover.isEmpty ? null : cover;
   }
 
@@ -137,9 +131,16 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
   @override
   void didUpdateWidget(covariant LocalMediaItemCard oldWidget) {
     super.didUpdateWidget(oldWidget);
+    // ⛔ 父级递来的是**新的一份行快照**（重载、就地替换收藏状态、换了自定义封面）
+    // 时，派生快照就过期了：它是更早那一刻的库状态，继续用它会盖住新快照里的
+    // 收藏星标与封面路径（旧缩略图文件此时可能已被删掉）。派生结果早已落库，
+    // 新快照里本来就带着，丢掉不亏。
+    //
+    // 只清快照、不复位 [_derivationRequested]：同一条目不需要再排一次派生队列。
+    if (!identical(oldWidget.item, widget.item)) _derivedItem = null;
     if (oldWidget.item.id != widget.item.id ||
         oldWidget.item.downloadTaskId != widget.item.downloadTaskId) {
-      _task = null;
+      _ext = null;
       _derivedItem = null;
       _derivationRequested = false;
       _loadDownloadTask();
@@ -209,8 +210,20 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
     if (taskId == null || taskId.isEmpty) return;
     if (!Get.isRegistered<DownloadService>()) return;
     final task = await DownloadService.to.repository.getTaskById(taskId);
-    if (!mounted || task == null) return;
-    setState(() => _task = task);
+    // ⛔ 只判 mounted 不够：卡片会被列表复用去承载别的条目，查询在飞的时候
+    // [didUpdateWidget] 可能已经换了 taskId——旧任务的标题就会贴到新条目上。
+    if (!mounted || task == null || widget.item.downloadTaskId != taskId) {
+      return;
+    }
+    final ext = task.extData;
+    if (ext == null || ext.type != DownloadTaskExtDataType.video) return;
+    final VideoDownloadExtData parsed;
+    try {
+      parsed = VideoDownloadExtData.fromJson(ext.data);
+    } catch (_) {
+      return;
+    }
+    setState(() => _ext = parsed);
   }
 
   /// 体积 / 分辨率这两枚角标。
@@ -246,11 +259,7 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
         _derivationRequested = true;
         unawaited(_ensureDerived());
       },
-      child: _Cover(
-        item: item,
-        remoteCover: _remoteCover,
-        decodeWidth: widget.width,
-      ),
+      child: _Cover(item: item, remoteCover: _remoteCover),
     );
   }
 
@@ -377,7 +386,7 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
 }
 
 class _Cover extends StatelessWidget {
-  const _Cover({required this.item, this.remoteCover, this.decodeWidth});
+  const _Cover({required this.item, this.remoteCover});
 
   static const BorderRadius _radius = BorderRadius.vertical(
     top: Radius.circular(14),
@@ -386,56 +395,34 @@ class _Cover extends StatelessWidget {
   final LocalMediaItem item;
   final String? remoteCover;
 
-  /// 卡片的显示宽度，用来算解码尺寸。封面可能是相机直出的原图，不限尺寸
-  /// 就会整张解进内存。传空时退回一个够用的上限。
-  final double? decodeWidth;
-
-  int get _cacheWidth {
-    final width = decodeWidth;
-    if (width == null || !width.isFinite || width <= 0) return 640;
-    return (width * 2).round().clamp(1, 1280);
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final sidecar = item.sidecarImagePath;
+    // ⛔ 挑哪张图只认 [LocalMediaItem.coverImagePath]（自定义封面 > sidecar >
+    // 抓帧缓存），别在这里另写一份优先级：原先这里是「sidecar 优先」，用户给
+    // 带 sidecar 的视频换了封面，卡片上照旧是 sidecar。
+    final cover = item.coverImagePath;
     final thumbnail = item.thumbPath;
-    Widget child;
-    if (sidecar != null && sidecar.isNotEmpty) {
-      child = Image.file(
-        File(sidecar),
-        fit: BoxFit.cover,
-        cacheWidth: _cacheWidth,
-        errorBuilder: (_, _, _) => thumbnail != null && thumbnail.isNotEmpty
-            ? Image.file(
-                File(thumbnail),
-                fit: BoxFit.cover,
-                cacheWidth: _cacheWidth,
-                errorBuilder: (_, _, _) => _remoteOrPlaceholder(scheme),
+    final Widget child;
+    if (cover != null && cover.isNotEmpty) {
+      child = LocalCoverImage(
+        path: cover,
+        placeholder: _placeholder(scheme),
+        // 首选那张读不出来（sidecar 被挪走之类）时，抓帧缓存还能顶一下。
+        errorBuilder: (context) =>
+            thumbnail != null && thumbnail.isNotEmpty && thumbnail != cover
+            ? LocalCoverImage(
+                path: thumbnail,
+                placeholder: _remoteOrPlaceholder(scheme),
               )
             : _remoteOrPlaceholder(scheme),
       );
-    } else if (thumbnail != null && thumbnail.isNotEmpty) {
-      child = Image.file(
-        File(thumbnail),
-        fit: BoxFit.cover,
-        cacheWidth: _cacheWidth,
-        errorBuilder: (_, _, _) => _remoteOrPlaceholder(scheme),
-      );
     } else if (remoteCover != null) {
-      child = CachedNetworkImage(
-        imageUrl: remoteCover!,
-        fit: BoxFit.cover,
-        memCacheWidth: _cacheWidth,
-        errorWidget: (_, _, _) => _placeholder(scheme),
-      );
+      child = _remote(scheme);
     } else if (item.kind == LocalMediaItemKind.image && item.path.isNotEmpty) {
-      child = Image.file(
-        File(item.path),
-        fit: BoxFit.cover,
-        cacheWidth: _cacheWidth,
-        errorBuilder: (_, _, _) => _placeholder(scheme),
+      child = LocalCoverImage(
+        path: item.path,
+        placeholder: _placeholder(scheme),
       );
     } else {
       child = _placeholder(scheme);
@@ -447,17 +434,20 @@ class _Cover extends StatelessWidget {
     );
   }
 
-  Widget _remoteOrPlaceholder(ColorScheme scheme) {
-    if (remoteCover != null) {
-      return CachedNetworkImage(
-        imageUrl: remoteCover!,
-        fit: BoxFit.cover,
-        memCacheWidth: _cacheWidth,
-        errorWidget: (_, _, _) => _placeholder(scheme),
-      );
-    }
-    return _placeholder(scheme);
-  }
+  Widget _remote(ColorScheme scheme) => LayoutBuilder(
+    builder: (context, constraints) => CachedNetworkImage(
+      imageUrl: remoteCover!,
+      fit: BoxFit.cover,
+      memCacheWidth: LocalCoverImage.cacheWidthFor(
+        context,
+        constraints.maxWidth,
+      ),
+      errorWidget: (_, _, _) => _placeholder(scheme),
+    ),
+  );
+
+  Widget _remoteOrPlaceholder(ColorScheme scheme) =>
+      remoteCover != null ? _remote(scheme) : _placeholder(scheme);
 
   Widget _placeholder(ColorScheme scheme) => ColoredBox(
     color: scheme.surfaceContainerHighest,

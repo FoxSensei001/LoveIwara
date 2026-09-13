@@ -6644,6 +6644,18 @@ class TranslationsLocalMediaEn {
 	/// en: 'Already covered by the folder "${name}"'
 	String sourceOverlaps({required Object name}) => 'Already covered by the folder "${name}"';
 
+	/// en: '"${name}" is inside "${source}", so it was added to pinned folders'
+	String addedAsPinnedFolder({required Object name, required Object source}) => '"${name}" is inside "${source}", so it was added to pinned folders';
+
+	/// en: '"${name}" is already in pinned folders'
+	String alreadyPinnedFolder({required Object name}) => '"${name}" is already in pinned folders';
+
+	/// en: '"${name}" has already been added'
+	String sourceAlreadyAdded({required Object name}) => '"${name}" has already been added';
+
+	/// en: 'It already contains the added folder "${name}"; adding its parent folder isn't supported yet'
+	String sourceContainsExisting({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet';
+
 	/// en: 'Could not add that folder'
 	String get addSourceFailed => 'Could not add that folder';
 
@@ -12745,6 +12757,10 @@ extension on Translations {
 			'localMedia.scanFailed' => ({required Object reason}) => 'Scan failed: ${reason}',
 			'localMedia.scanTruncated' => ({required Object count}) => 'That folder is very large — only the first ${count} files were added.',
 			'localMedia.sourceOverlaps' => ({required Object name}) => 'Already covered by the folder "${name}"',
+			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '"${name}" is inside "${source}", so it was added to pinned folders',
+			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '"${name}" is already in pinned folders',
+			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '"${name}" has already been added',
+			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
 			'localMedia.addSourceFailed' => 'Could not add that folder',
 			'localMedia.fileMissing' => 'That file is no longer on disk',
 			'localMedia.permissionDenied' => 'File access not granted · tap to grant',

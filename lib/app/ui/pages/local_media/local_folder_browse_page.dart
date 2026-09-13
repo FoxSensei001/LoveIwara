@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,14 +13,14 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_menu.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -136,7 +136,12 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// initState / didUpdateWidget / 下拉刷新都能再叫一次；两次重叠时先结束的
   /// 那一次会把 `_scanning` 清 false 并 `_reloadFromDb()`，而另一轮还在跑——
   /// 用户看到的是「转完了，可目录是空的」。
-  bool _scanInFlight = false;
+  ///
+  /// ⛔ 记的是**正在扫哪一层**（`sourceId\u0000relPath`），不是一个布尔：同一个
+  /// State 会被 [didUpdateWidget] 换到另一层去，那时旧那一轮还在飞——布尔闸门会把
+  /// 新那一层的扫描当成重入拦掉，旧那一轮收尾时还会替新那一层清掉转圈、重载。
+  /// null ＝ 没有在飞的。
+  String? _scanInFlightKey;
 
   /// 扫描落批时刷新页面的订阅。
   ///
@@ -161,9 +166,20 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     // 走 [_reloadFromDb] 的话，用户滚到半截时后台给某个视频生成了缩略图、顺手
     // 回填了目录封面，这一页的条目列表就被清空重拉、当场弹回顶部——为一张目录
     // 卡片的封面付这个代价荒谬。[_loadInitialData] 不碰条目列表。
+    //
+    // ⛔ 面包屑也不在这里重算（它只随 relPath 变，见 [_loadBreadcrumb]），
+    // 已下载图库更不在这里重拉（那是 500 个任务的一次读库 + 解析，见
+    // [_loadDownloadedGalleries]）。
     _folderWorker = debounce<int>(LocalMediaRepository.folderRevision, (_) {
-      if (mounted) setState(_loadInitialData);
+      if (!mounted) return;
+      setState(() {
+        _loadFolderData();
+        // 唯一的例外：这一层第一次进来时库里还没有目录行，面包屑是空的——
+        // 扫描把行写进来之后得补一次，否则位置菜单一直打不开。
+        if (_breadcrumb.isEmpty) _loadBreadcrumb();
+      });
     }, time: const Duration(milliseconds: 400));
+    unawaited(_loadDownloadedGalleries());
     unawaited(_scanThisFolder());
   }
 
@@ -172,9 +188,14 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.sourceId != widget.sourceId ||
         oldWidget.relPath != widget.relPath) {
+      // 旧那一层的扫描可能还在飞：放掉它的闸门与转圈，它收尾时认出 key 对不上，
+      // 不会再动这一层的状态（见 [_scanInFlightKey]）。
+      _scanInFlightKey = null;
+      _scanning = false;
       _loadInitialData();
       _resetPagination();
       _loadMore();
+      unawaited(_loadDownloadedGalleries());
       unawaited(_scanThisFolder());
     }
   }
@@ -203,11 +224,13 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       return;
     }
     if (!Get.isRegistered<LocalMediaScanService>()) return;
-    if (_scanInFlight) {
+    final relPath = widget.relPath;
+    final key = _pinKey(source.id, relPath);
+    if (_scanInFlightKey == key) {
       LogUtils.i('本页已有一轮目录扫描在跑，忽略本次', 'LocalFolderBrowsePage');
       return;
     }
-    _scanInFlight = true;
+    _scanInFlightKey = key;
     if (mounted) {
       setState(() {
         _scanning = true;
@@ -217,13 +240,15 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     try {
       await LocalMediaScanService.to.scanFolder(
         source: source,
-        relPath: widget.relPath,
+        relPath: relPath,
       );
     } catch (e) {
       LogUtils.w('目录级扫描失败: $e', 'LocalFolderBrowsePage');
     } finally {
-      _scanInFlight = false;
-      if (mounted) {
+      // 页面在扫描期间被换到了别的层：这一轮的结果不属于现在这一层，什么都不动。
+      final stillOurs = _scanInFlightKey == key;
+      if (stillOurs) _scanInFlightKey = null;
+      if (mounted && stillOurs) {
         setState(() {
           _scanning = false;
           _recomputeVisibleChildren();
@@ -256,22 +281,27 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   }
 
   /// 重新从库里读一遍这一层（目录 + 条目），滚动位置不动。
+  ///
+  /// ⛔ 条目**不许先清空再拉第一页**：那样用户滚到半截时来一次 `changeRevision`，
+  /// 列表当场缩回一页，滚动长度塌掉、位置被夹回去。见 [_reloadItemsKeepingLoaded]。
   void _reloadFromDb() {
     if (!mounted) return;
     setState(() {
       _loadInitialData();
-      _resetPagination();
-      _loadMore();
+      _reloadItemsKeepingLoaded();
     });
   }
 
+  /// 目录那一半（来源、这一层、子目录、置顶）+ 面包屑。不碰条目，不碰已下载图库。
   void _loadInitialData() {
+    _loadFolderData();
+    _loadBreadcrumb();
+  }
+
+  /// 目录行那一半。`folderRevision` 只走这里。
+  void _loadFolderData() {
     _source = _repo.getSource(widget.sourceId);
     _folder = _repo.getFolder(
-      sourceId: widget.sourceId,
-      relPath: widget.relPath,
-    );
-    _breadcrumb = _repo.breadcrumb(
       sourceId: widget.sourceId,
       relPath: widget.relPath,
     );
@@ -283,11 +313,78 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         : const <LocalMediaFolder>[];
     _recomputeVisibleChildren();
     _reloadPinnedKeys();
-    unawaited(_loadDownloadedGalleries());
   }
 
+  /// 面包屑只随 `(sourceId, relPath)` 变，目录行的封面 / 计数变化与它无关。
+  void _loadBreadcrumb() {
+    _breadcrumb = _repo.breadcrumb(
+      sourceId: widget.sourceId,
+      relPath: widget.relPath,
+    );
+  }
+
+  /// 按已加载的条数一次拉回两段（视频、图片），原子替换，游标接在末尾。
+  ///
+  /// 游标语义与 [_loadMore] 一致：先视频后图片。视频多拉一条用来判断「视频是不是
+  /// 已经翻完」——翻完了才接着拉图片，否则游标留在视频段、图片清空（它们本来就
+  /// 排在全部视频后面，等视频翻完再来）。
+  void _reloadItemsKeepingLoaded() {
+    if (_loading) return;
+    _loading = true;
+    try {
+      final videoLimit = math.max(_pageSize, _videos.length);
+      final videos = _repo.queryItems(
+        sourceId: widget.sourceId,
+        kind: LocalMediaItemKind.video,
+        sort: _sort,
+        folderPath: _folder?.folderPath,
+        offset: 0,
+        limit: videoLimit + 1,
+      );
+      final List<LocalMediaItem> images;
+      final List<LocalMediaItem> keptVideos;
+      if (videos.length > videoLimit) {
+        keptVideos = videos.sublist(0, videoLimit);
+        images = const <LocalMediaItem>[];
+        _cursorKind = LocalMediaItemKind.video;
+        _cursorOffset = keptVideos.length;
+        _exhausted = false;
+      } else {
+        keptVideos = videos;
+        final imageLimit = math.max(_pageSize, _images.length);
+        images = _repo.queryItems(
+          sourceId: widget.sourceId,
+          kind: LocalMediaItemKind.image,
+          sort: _sort,
+          folderPath: _folder?.folderPath,
+          offset: 0,
+          limit: imageLimit,
+        );
+        _cursorKind = LocalMediaItemKind.image;
+        _cursorOffset = images.length;
+        _exhausted = images.length < imageLimit;
+      }
+      _videos
+        ..clear()
+        ..addAll(keptVideos);
+      _images
+        ..clear()
+        ..addAll(images);
+    } finally {
+      _loading = false;
+    }
+  }
+
+  /// 「已下载」根层那一格格图库。
+  ///
+  /// ⛔ 只在进页、换层、下拉刷新时调：它是一次 500 条的任务表查询 + 整批 JSON
+  /// 解析，挂在 `changeRevision` / `folderRevision` 上的话，扫描落批、封面回填
+  /// 每来一次就重拉一遍——而这些信号跟下载任务表毫无关系。
   Future<void> _loadDownloadedGalleries() async {
     if (!_showsDownloadedGalleries) {
+      // 作废可能还在飞的那一次（换层前发出去的），它回来时不许再把图库塞回来。
+      // 直接赋值不 setState：调用方（换层 / 刷新）紧接着就会重建。
+      _galleryGeneration++;
       _galleries = const <DownloadedGalleryRow>[];
       return;
     }
@@ -302,7 +399,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
             mediaType: 'gallery',
           );
       if (!mounted || generation != _galleryGeneration) return;
-      final rows = tasks.map(DownloadedGalleryRow.of).nonNulls.toList();
+      final rows = await DownloadedGalleryRow.parseAllInBackground(tasks);
+      if (!mounted || generation != _galleryGeneration) return;
       setState(() {
         _galleries = rows;
       });
@@ -391,6 +489,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
 
   Future<void> _refresh() async {
     _reloadFromDb();
+    unawaited(_loadDownloadedGalleries());
     await _scanThisFolder();
   }
 
@@ -443,52 +542,32 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     );
   }
 
+  /// 大图页的顺序必须与网格一致：同一个口径（来源 + 这一层 + [_sort]），不是
+  /// 写死按名称排。
+  ///
+  /// ⛔ 不能只拿 [_images]：那只是已经翻出来的几页，点第 3 张开出来的相册会在
+  /// 第 120 张戛然而止。[_imageViewerLimit] 是防一个几十万张的目录一次性把路径
+  /// 全读进内存的上限。
+  static const int _imageViewerLimit = 5000;
+
   void _openImage(LocalMediaItem item) {
-    final folderPath = _folder?.folderPath;
-    final List<String> paths;
-    if (folderPath != null && folderPath.isNotEmpty) {
-      final dbPaths = _repo.imagePathsInFolder(
-        sourceId: widget.sourceId,
-        folderPath: folderPath,
-      );
-      paths = dbPaths.isNotEmpty
-          ? dbPaths
-          : _images.map((e) => e.path).toList();
-    } else {
-      paths = _images.map((e) => e.path).toList();
+    var paths = <String>[];
+    try {
+      paths = _repo
+          .itemPathsPage(
+            kind: LocalMediaItemKind.image,
+            sourceId: widget.sourceId,
+            folderPath: _folder?.folderPath,
+            sort: _sort,
+            limit: _imageViewerLimit,
+          )
+          .map((row) => row.path)
+          .toList();
+    } catch (e) {
+      LogUtils.w('读取大图页路径失败: $e', 'LocalFolderBrowsePage');
     }
-
-    if (paths.isEmpty) {
-      showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
-      return;
-    }
-
-    final index = paths.indexOf(item.path);
-    final initialIndex = index >= 0 ? index : 0;
-
-    // ⛔ 必须裸拼，不许换成 `Uri.file(path)`——理由见
-    // `local_media_wall.dart` 里同一处的长注释（消费方是字符串剥前缀，
-    // 编码过的 `%23` 会原样进文件系统调用，真机上当场 PathNotFoundException）。
-    final imageItems = paths
-        .map(
-          (path) => ImageItem(
-            url: 'file://$path',
-            data: ImageItemData(
-              id: path,
-              url: 'file://$path',
-              originalUrl: 'file://$path',
-            ),
-          ),
-        )
-        .toList();
-
-    pushPhotoViewWrapperOverlay(
-      context: context,
-      imageItems: imageItems,
-      initialIndex: initialIndex,
-      menuItemsBuilder: (context, item) => const [],
-      enableMenu: false,
-    );
+    if (paths.isEmpty) paths = _images.map((e) => e.path).toList();
+    openLocalImageViewer(context, paths, item.path);
   }
 
   /// 长按一个文件 → 「设置封面」（只有视频有）与「删除」。
@@ -515,30 +594,35 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         if (mounted) _reloadFromDb();
       },
       onDeleted: (deletedItem) {
-        if (mounted) {
-          setState(() {
-            _videos.removeWhere((e) => e.id == deletedItem.id);
-            _images.removeWhere((e) => e.id == deletedItem.id);
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          final videosBefore = _videos.length;
+          final imagesBefore = _images.length;
+          _videos.removeWhere((e) => e.id == deletedItem.id);
+          _images.removeWhere((e) => e.id == deletedItem.id);
+          // 结果集缩短了：游标所在那一段删掉几条就退几条，否则下一页漏条。
+          final removed = _cursorKind == LocalMediaItemKind.video
+              ? videosBefore - _videos.length
+              : imagesBefore - _images.length;
+          _cursorOffset = math.max(0, _cursorOffset - removed);
+        });
       },
     );
   }
 
   /// 拿这一条当目录封面时用哪张图。
   ///
-  /// 图片就是它自己；视频用已经派生出来的封面（sidecar 优先，其次抓帧缓存）。
+  /// 图片就是它自己；视频用卡片上正显示的那张（[LocalMediaItem.coverImagePath]：
+  /// 自定义封面 > sidecar > 抓帧缓存）——⛔ 别在这里另写一份优先级，卡片上看到
+  /// 的和设成目录封面的必须是同一张。
   /// 视频还没派生出封面时返回 null——那一条菜单干脆不出现，比出现了点下去没反应好。
   String? _folderCoverSourceOf(LocalMediaItem item) {
     if (_folder == null) return null;
     if (item.kind == LocalMediaItemKind.image) {
       return item.path.isEmpty ? null : item.path;
     }
-    final sidecar = item.sidecarImagePath;
-    if (sidecar != null && sidecar.isNotEmpty) return sidecar;
-    final thumb = item.thumbPath;
-    if (thumb != null && thumb.isNotEmpty) return thumb;
-    return null;
+    final cover = item.coverImagePath;
+    return cover == null || cover.isEmpty ? null : cover;
   }
 
   void _setFolderCover(String coverPath) {
@@ -550,7 +634,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     if (!mounted) return;
     if (ok) {
       showAppToast(slang.t.localMedia.browse.folderCoverSet);
-      setState(_loadInitialData);
+      setState(_loadFolderData);
     }
   }
 
@@ -617,10 +701,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         : null,
     onChanged: () {
       if (!mounted) return;
-      setState(() {
-        _reloadPinnedKeys();
-        _loadInitialData();
-      });
+      setState(_loadFolderData);
     },
   );
 
@@ -757,6 +838,12 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     );
   }
 
+  String get _emptyStateText => _scanning
+      ? slang.t.localMedia.browse.scanning
+      : _folder == null
+      ? slang.t.localMedia.browse.notScannedYet
+      : slang.t.localMedia.browse.emptyFolder;
+
   Widget _buildSectionHeader(String title) {
     return SliverToBoxAdapter(
       child: Padding(
@@ -883,24 +970,21 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                             folderMetrics.cellWidth,
                           ),
                         ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final gallery = _galleries[index];
-                            return DownloadedGalleryCard(
-                              row: gallery,
-                              onDeleted: () {
-                                if (mounted) {
-                                  setState(() {
-                                    _galleries = _galleries
-                                        .where((e) => e.taskId != gallery.taskId)
-                                        .toList();
-                                  });
-                                }
-                              },
-                            );
-                          },
-                          childCount: _galleries.length,
-                        ),
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final gallery = _galleries[index];
+                          return DownloadedGalleryCard(
+                            row: gallery,
+                            onDeleted: () {
+                              if (mounted) {
+                                setState(() {
+                                  _galleries = _galleries
+                                      .where((e) => e.taskId != gallery.taskId)
+                                      .toList();
+                                });
+                              }
+                            },
+                          );
+                        }, childCount: _galleries.length),
                       ),
                     ),
                   ],
@@ -996,7 +1080,6 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                         itemCount: _images.length,
                         itemBuilder: (context, index, itemWidth) {
                           final item = _images[index];
-                          final dpr = MediaQuery.of(context).devicePixelRatio;
                           // ⛔ 图片格也要一枚看得见的 ⋮：只留长按等于没有入口，
                           // 用户不知道有这个功能（同 `local_media_item_card.dart`
                           // 的类文档）。
@@ -1014,15 +1097,11 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                                     borderRadius: BorderRadius.circular(8),
                                     child: AspectRatio(
                                       aspectRatio: 1,
-                                      child: Image.file(
-                                        File(item.path),
-                                        fit: BoxFit.cover,
-                                        cacheWidth: (itemWidth * dpr)
-                                            .round()
-                                            .clamp(1, 4096),
-                                        errorBuilder:
-                                            (context, error, stackTrace) =>
-                                                _buildImagePlaceholder(context),
+                                      child: LocalCoverImage(
+                                        path: item.path,
+                                        placeholder: _buildImagePlaceholder(
+                                          context,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -1060,27 +1139,41 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                             // 是个结论，而此刻我们还没有资格下结论。
                             // 空态这枚是大号的同一枚弧——整屏转圈与标题旁那枚
                             // 小的必须是同一种画法，否则一页上会出现两种"正在忙"。
-                            if (_scanning)
-                              const GlassSpinningArc(size: 36)
-                            else
-                              Icon(
-                                Icons.folder_open_outlined,
-                                size: 64,
-                                color: Theme.of(context).colorScheme.outline,
-                              ),
+                            //
+                            // ⛔ 转圈 ↔ 空夹子、「正在读取」↔「是空的」都走
+                            // AnimatedSwitcher，不许硬切：扫完那一下正是用户
+                            // 盯着看的时刻。
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 220),
+                              child: _scanning
+                                  ? const GlassSpinningArc(
+                                      key: ValueKey<String>('empty_scanning'),
+                                      size: 36,
+                                    )
+                                  : Icon(
+                                      Icons.folder_open_outlined,
+                                      key: const ValueKey<String>('empty_idle'),
+                                      size: 64,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.outline,
+                                    ),
+                            ),
                             const SizedBox(height: 16),
-                            Text(
-                              _scanning
-                                  ? slang.t.localMedia.browse.scanning
-                                  : _folder == null
-                                  ? slang.t.localMedia.browse.notScannedYet
-                                  : slang.t.localMedia.browse.emptyFolder,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 220),
+                              child: Builder(
+                                key: ValueKey<String>(_emptyStateText),
+                                builder: (context) => Text(
+                                  _emptyStateText,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ),
                             ),
                           ],
                         ),

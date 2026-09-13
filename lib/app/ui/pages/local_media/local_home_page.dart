@@ -415,9 +415,13 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   void _onScanProgress(LocalMediaScanProgress? progress) {
     if (!mounted || progress == null) return;
-    setState(() {
-      _scanningSourceId = progress.finished ? null : progress.sourceId;
-    });
+    // ⛔ 进度是**逐批**广播的（每落一批就发一次，扫一个大目录几百次），而这里
+    // 真正关心的只有「正在扫哪个源」这一个量。每批都 setState 就是每批整页重建
+    // 一遍来源网格，压在扫描本来就吃紧的主 isolate 上——只在它变了时才重建。
+    final next = progress.finished ? null : progress.sourceId;
+    if (next != _scanningSourceId) {
+      setState(() => _scanningSourceId = next);
+    }
     if (!progress.finished) return;
     _reloadSources();
     _reloadPinnedFolders();
@@ -452,14 +456,7 @@ class _LocalHomePageState extends State<LocalHomePage>
         final pickedResult = await IosFolderPickerService.to.pickFolder();
         if (pickedResult == null) return;
         final picked = pickedResult.path;
-        final overlapping = _repository.findOverlappingSource(picked);
-        if (overlapping != null) {
-          showAppToast(
-            slang.t.localMedia.sourceOverlaps(name: overlapping.displayName),
-            type: AppToastType.error,
-          );
-          return;
-        }
+        if (_handleOverlappingPick(picked)) return;
 
         final source = LocalMediaSource(
           id: const Uuid().v4(),
@@ -492,14 +489,7 @@ class _LocalHomePageState extends State<LocalHomePage>
 
       final picked = candidatePath ?? (mounted ? await _pickDirectory() : null);
       if (picked == null || picked.isEmpty) return;
-      final overlapping = _repository.findOverlappingSource(picked);
-      if (overlapping != null) {
-        showAppToast(
-          slang.t.localMedia.sourceOverlaps(name: overlapping.displayName),
-          type: AppToastType.error,
-        );
-        return;
-      }
+      if (_handleOverlappingPick(picked)) return;
 
       final source = LocalMediaSource(
         id: const Uuid().v4(),
@@ -553,6 +543,63 @@ class _LocalHomePageState extends State<LocalHomePage>
     }
     if (!mounted) return null;
     return showLocalDirectoryPickerDialog(context: context);
+  }
+
+  /// 挑中的目录和已添加的文件夹有重叠时就地处理掉，返回 true 表示「不用再建新源了」。
+  ///
+  /// - 挑的是某个源**里面**的子文件夹：加进常用目录（快捷入口），数据仍归那个源。
+  ///   以前这里一律报「已被覆盖」拦下，而用户要的恰恰就是这个入口（2026-09-13）。
+  /// - 挑的就是某个源本身：提示已经加过。
+  /// - 挑的是某个源的**上层**：仍然拦。并成一个源要把老源的条目、观看进度整体
+  ///   迁过去，那是另一件事；这里至少把提示说对（旧文案「已被覆盖」恰好说反了）。
+  bool _handleOverlappingPick(String picked) {
+    final t = slang.t.localMedia;
+    final located = _repository.locateInSources(picked);
+    if (located != null) {
+      final source = located.source;
+      final relPath = located.relPath;
+      if (relPath.isEmpty) {
+        showAppToast(t.sourceAlreadyAdded(name: source.displayName));
+        return true;
+      }
+      final name = relPath.split('/').last;
+      if (_repository.isPinned(sourceId: source.id, relPath: relPath)) {
+        showAppToast(t.alreadyPinnedFolder(name: name));
+        return true;
+      }
+      _repository.ensureFolderChain(source: source, relPath: relPath);
+      _repository.pinFolder(
+        LocalPinnedFolder(
+          id: LocalPinnedFolder.buildId(source.id, relPath),
+          sourceId: source.id,
+          relPath: relPath,
+          displayName: name,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          sortOrder: _repository.getPinnedFolders().length,
+        ),
+      );
+      _reloadPinnedFolders();
+      showAppToast(
+        t.addedAsPinnedFolder(name: name, source: source.displayName),
+      );
+      // 只探这一层，好让卡片尽快有计数和封面；点进去还会再扫一次。
+      if (Get.isRegistered<LocalMediaScanService>()) {
+        unawaited(
+          LocalMediaScanService.to.scanFolder(source: source, relPath: relPath),
+        );
+      }
+      return true;
+    }
+
+    final overlapping = _repository.findOverlappingSource(picked);
+    if (overlapping != null) {
+      showAppToast(
+        t.sourceContainsExisting(name: overlapping.displayName),
+        type: AppToastType.error,
+      );
+      return true;
+    }
+    return false;
   }
 
   Future<void> _scan(LocalMediaSource source) async {

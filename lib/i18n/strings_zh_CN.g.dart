@@ -2644,6 +2644,10 @@ class _TranslationsLocalMediaZhCn implements TranslationsLocalMediaEn {
 	@override String scanFailed({required Object reason}) => '扫描失败：${reason}';
 	@override String scanTruncated({required Object count}) => '这个文件夹太大了，只收了前 ${count} 个文件。';
 	@override String sourceOverlaps({required Object name}) => '已被文件夹「${name}」覆盖';
+	@override String addedAsPinnedFolder({required Object name, required Object source}) => '「${name}」在「${source}」里面，已加到常用目录';
+	@override String alreadyPinnedFolder({required Object name}) => '「${name}」已经在常用目录里了';
+	@override String sourceAlreadyAdded({required Object name}) => '已经添加过「${name}」';
+	@override String sourceContainsExisting({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹';
 	@override String get addSourceFailed => '添加文件夹失败';
 	@override String get fileMissing => '这个文件已经不在磁盘上了';
 	@override String get permissionDenied => '未授予文件访问权限 · 点这里开启';
@@ -6923,6 +6927,10 @@ extension on TranslationsZhCn {
 			'localMedia.scanFailed' => ({required Object reason}) => '扫描失败：${reason}',
 			'localMedia.scanTruncated' => ({required Object count}) => '这个文件夹太大了，只收了前 ${count} 个文件。',
 			'localMedia.sourceOverlaps' => ({required Object name}) => '已被文件夹「${name}」覆盖',
+			'localMedia.addedAsPinnedFolder' => ({required Object name, required Object source}) => '「${name}」在「${source}」里面，已加到常用目录',
+			'localMedia.alreadyPinnedFolder' => ({required Object name}) => '「${name}」已经在常用目录里了',
+			'localMedia.sourceAlreadyAdded' => ({required Object name}) => '已经添加过「${name}」',
+			'localMedia.sourceContainsExisting' => ({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹',
 			'localMedia.addSourceFailed' => '添加文件夹失败',
 			'localMedia.fileMissing' => '这个文件已经不在磁盘上了',
 			'localMedia.permissionDenied' => '未授予文件访问权限 · 点这里开启',

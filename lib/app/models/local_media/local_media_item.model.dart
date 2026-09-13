@@ -39,6 +39,8 @@ class LocalMediaItem {
     this.favoritedAt,
     this.fps,
     this.fpsProbedAt,
+    this.metaProbedAt,
+    this.thumbIsCustom = false,
     required this.addedAt,
     this.missing = false,
   });
@@ -105,12 +107,40 @@ class LocalMediaItem {
   /// 它随进程清零。
   final int? fpsProbedAt;
 
+  /// 什么时候探测过时长/宽高（毫秒时间戳），NULL 表示从没探测过。
+  ///
+  /// ⛔ 理由同 [fpsProbedAt]：探不出元数据的坏文件（截断、编码不认识）永远是
+  /// `durationMs == null`，只靠内存负缓存的话，每次冷启动都要把它们重新排队开一次
+  /// Player。文件指纹变了（换了个文件）时 `upsertItems` 会把它清回 NULL。
+  final int? metaProbedAt;
+
+  /// [thumbPath] 是不是用户**手动指定**的封面。
+  ///
+  /// ⛔ 挑封面的默认口径是「同名 sidecar 优先、其次我们抽的帧」——sidecar 是下载器
+  /// 写的现成图，比抽帧好。但用户亲手挑过的那张必须压过 sidecar，否则「设为封面」
+  /// 点完卡片纹丝不动。判据收口在 [coverImagePath]，SQL 侧挑封面的几处同一口径。
+  final bool thumbIsCustom;
+
   final int addedAt;
   final bool missing;
 
   /// 拼 id。两处（建条目、按 id 查进度）必须用同一个拼法，所以收口在这里。
   static String buildId(String sourceId, String pathHash) =>
       '$sourceId-$pathHash';
+
+  /// 这一条拿来当封面的那张图。
+  ///
+  /// 图片就是它自己；视频按「手动指定的缩略图 > 同名 sidecar > 自动抽的帧」。
+  /// ⛔ 仓库里 `folderCoverCandidates` / `sourceCoverCandidates` 挑候选时是同一条
+  /// 优先级，改这里要一起改。
+  String? get coverImagePath {
+    if (kind == LocalMediaItemKind.image) return path;
+    final thumb = thumbPath;
+    if (thumbIsCustom && thumb != null && thumb.isNotEmpty) return thumb;
+    final sidecar = sidecarImagePath;
+    if (sidecar != null && sidecar.isNotEmpty) return sidecar;
+    return thumb;
+  }
 
   Map<String, Object?> toRow() => <String, Object?>{
     'id': id,
@@ -137,6 +167,8 @@ class LocalMediaItem {
     'favorited_at': favoritedAt,
     'fps': fps,
     'fps_probed_at': fpsProbedAt,
+    'meta_probed_at': metaProbedAt,
+    'thumb_is_custom': thumbIsCustom ? 1 : 0,
     'added_at': addedAt,
     'missing': missing ? 1 : 0,
   };
@@ -169,6 +201,8 @@ class LocalMediaItem {
       favoritedAt: row['favorited_at'] as int?,
       fps: (row['fps'] as num?)?.toDouble(),
       fpsProbedAt: row['fps_probed_at'] as int?,
+      metaProbedAt: row['meta_probed_at'] as int?,
+      thumbIsCustom: (row['thumb_is_custom'] as int? ?? 0) != 0,
       addedAt: row['added_at'] as int? ?? 0,
       missing: (row['missing'] as int? ?? 0) != 0,
     );
@@ -207,10 +241,11 @@ extension LocalMediaPlaybackTarget on LocalMediaItem {
     LocalMediaItemKind.image => width == null || height == null,
     // ⛔ 帧率判「探测过没有」而不是「有没有值」，否则容器不写帧率的文件每次
     // 冷启动都会被重新排进派生队列，白开一次 Player。
+    // 时长/宽高同理：[metaProbedAt] 非空＝这个文件版本探过了（探没探出值都算），
+    // 不然读不出元数据的坏文件每次冷启动滚进视野都要白开一次 Player。
     LocalMediaItemKind.video =>
-      durationMs == null ||
-          width == null ||
-          height == null ||
+      (metaProbedAt == null &&
+              (durationMs == null || width == null || height == null)) ||
           (fps == null && fpsProbedAt == null),
   };
 

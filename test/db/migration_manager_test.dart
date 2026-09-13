@@ -352,13 +352,13 @@ void main() {
             .where((m) => m.version != 7)
             .toList();
 
-    test('空库上跑完 v1→v38 不抛错，版本号到达最高版', () async {
+    test('空库上跑完 v1→v39 不抛错，版本号到达最高版', () async {
       final mgr = MigrationManager(migrations: realMigrationsWithoutV7());
 
       await mgr.runMigrations(db);
 
       expect(userVersion(db), mgr.highestVersion);
-      expect(userVersion(db), 38, reason: '当前最高迁移版本是 38，加了新迁移要同步改这里');
+      expect(userVersion(db), 39, reason: '当前最高迁移版本是 39，加了新迁移要同步改这里');
     });
 
     test('跑完后各条工作线的核心表都在', () async {
@@ -407,17 +407,17 @@ void main() {
       );
     });
 
-    test('⭐ v30~v38 声称幂等：把版本号退回 29 再跑一遍，不许抛错', () async {
+    test('⭐ v30~v39 声称幂等：把版本号退回 29 再跑一遍，不许抛错', () async {
       // v30 的类文档明写这一版必须能把「已经跑过旧 v23~v29 的开发机」带上来，
       // 做法是 CREATE TABLE IF NOT EXISTS + 按 table_info 补列。这条测试直接
-      // 钉住那个承诺：在一个**已经有全部表**的库上重跑 v30~v38。
+      // 钉住那个承诺：在一个**已经有全部表**的库上重跑 v30~v39。
       final migrations = realMigrationsWithoutV7();
       await MigrationManager(migrations: migrations).runMigrations(db);
 
       db.execute('PRAGMA user_version = 29;');
       await MigrationManager(migrations: migrations).runMigrations(db);
 
-      expect(userVersion(db), 38);
+      expect(userVersion(db), 39);
       expect(tableExists(db, 'local_media_items'), isTrue);
     });
 

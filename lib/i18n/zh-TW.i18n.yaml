@@ -3111,6 +3111,10 @@ localMedia:
   scanFailed: "掃描失敗：${reason}"
   scanTruncated: "這個資料夾太大了，只收了前 ${count} 個檔案。"
   sourceOverlaps: "已被資料夾「${name}」涵蓋"
+  addedAsPinnedFolder: "「${name}」在「${source}」裡面，已加到常用資料夾"
+  alreadyPinnedFolder: "「${name}」已經在常用資料夾裡了"
+  sourceAlreadyAdded: "已經新增過「${name}」"
+  sourceContainsExisting: "裡面已經有新增過的資料夾「${name}」，暫時不能再新增它的上層資料夾"
   addSourceFailed: 新增資料夾失敗
   fileMissing: 這個檔案已經不在磁碟上了
   permissionDenied: 未授予檔案存取權限 · 點這裡開啟

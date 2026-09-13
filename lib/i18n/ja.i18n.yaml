@@ -3108,6 +3108,10 @@ localMedia:
   scanFailed: "スキャンに失敗しました：${reason}"
   scanTruncated: "このフォルダーは非常に大きいため、最初の ${count} 件のみ取り込みました。"
   sourceOverlaps: "フォルダー「${name}」に既に含まれています"
+  addedAsPinnedFolder: "「${name}」は「${source}」の中にあるため、よく使うフォルダーに追加しました"
+  alreadyPinnedFolder: "「${name}」は既によく使うフォルダーにあります"
+  sourceAlreadyAdded: "「${name}」は既に追加されています"
+  sourceContainsExisting: "追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません"
   addSourceFailed: フォルダーを追加できませんでした
   fileMissing: このファイルはディスク上にありません
   permissionDenied: ファイルアクセスが許可されていません · タップして許可

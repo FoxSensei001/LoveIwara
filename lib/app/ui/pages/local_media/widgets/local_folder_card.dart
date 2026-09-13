@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -199,20 +198,8 @@ class LocalFolderCardWidget extends StatelessWidget {
     );
 
     if (coverPath == null || coverPath.isEmpty) return placeholder;
-    return LayoutBuilder(
-      builder: (context, constraints) => Image.file(
-        File(coverPath),
-        fit: BoxFit.cover,
-        // ⛔ 封面是用户自己的原图，可能是 6000px 的相机直出。不给 cacheWidth
-        // 就会按原尺寸解进内存：一屏几十格，光解码缓存就能吃掉几百 MB。
-        cacheWidth:
-            ((constraints.maxWidth.isFinite ? constraints.maxWidth : 320) *
-                    MediaQuery.devicePixelRatioOf(context))
-                .round()
-                .clamp(1, 1280),
-        errorBuilder: (context, error, stackTrace) => placeholder,
-      ),
-    );
+    // 解码尺寸归 [LocalCoverImage]（封面可能是相机直出的原图）。
+    return LocalCoverImage(path: coverPath, placeholder: placeholder);
   }
 
   @override

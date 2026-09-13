@@ -27,6 +27,7 @@ import 'package:i_iwara/db/migrations/migration_v35_local_media_sort_and_favorit
 import 'package:i_iwara/db/migrations/migration_v36_local_media_index_direction.dart';
 import 'package:i_iwara/db/migrations/migration_v37_local_media_image_favorites.dart';
 import 'package:i_iwara/db/migrations/migration_v38_local_media_folder_scan_indexes.dart';
+import 'package:i_iwara/db/migrations/migration_v39_local_media_perf_indexes.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -75,6 +76,7 @@ class MigrationManager {
     MigrationV36LocalMediaIndexDirection(),
     MigrationV37LocalMediaImageFavorites(),
     MigrationV38LocalMediaFolderScanIndexes(),
+    MigrationV39LocalMediaPerfIndexes(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加。
     // ⛔ 新迁移的版本号必须**大于当前最大值**（现在是 38，下一条就是 39）。
     //    绝不要回填 23~29 那段空洞：runMigrations 只跑 version > user_version
@@ -142,7 +144,7 @@ class MigrationManager {
   /// 运行所有需要的迁移
   ///
   /// 事务粒度是**每条迁移一个事务**，不是整批一个。整批一个事务看起来更"原子"，
-  /// 实际效果是全新安装必须 v1→v38 一次全过，任何一条失败就整批回滚、版本号停在
+  /// 实际效果是全新安装必须 v1→v39 一次全过，任何一条失败就整批回滚、版本号停在
   /// 原地，下次启动重跑同一批、同样失败——用户只能看着一个确定性失败的错误页，
   /// 卸载重装也救不回来。逐条事务保住已成功的进度，把爆炸半径收到失败的那一条：
   /// 下次启动从它继续，而不是从头再来。
