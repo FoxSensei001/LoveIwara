@@ -1,0 +1,20 @@
+Deep-space environment
+
+Star positions, visual magnitudes and B-V colour indices are derived from the
+HYG Database v4.0 by David Nash / AstroNexus and contributors:
+https://github.com/astronexus/HYG-Database
+https://github.com/astronexus/HYG-Database/blob/main/hyg/CURRENT/LICENSE
+
+Source: hyg/CURRENT/hygdata_v40.csv.gz. This adaptation excludes the Sun, keeps
+stars of visual magnitude <= 6.5, rotates the ICRS positions into a fixed viewing
+orientation and maps magnitude/colour into displayable star profiles. The
+compact source subset is tool/data/quest_starfield/hyg_bright.csv. The sky is
+reproducible with tool/generate_quest_starfield.py (numpy and Pillow required).
+
+The HYG-derived subset and deep_space.png are licensed under Creative Commons
+Attribution-ShareAlike 4.0 International:
+https://creativecommons.org/licenses/by-sa/4.0/
+
+The diffuse Milky Way and dust are an artistic procedural approximation aligned
+to the Galactic plane, not astronomical survey imagery. The panorama is static;
+it does not represent the user's location, date or observing horizon.

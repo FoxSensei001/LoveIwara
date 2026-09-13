@@ -23,15 +23,9 @@ import com.meta.spatial.uiset.theme.icons.regular.Refresh
 import com.meta.spatial.uiset.theme.icons.regular.Reorient
 
 /**
- * 场景页：环境二选一 + 幕布几何微调。
- *
- * # ⛔ 没有「场景」这个选择题了，只剩一条背景不透明度
- *
- * 参考软件有 MAX 影院 / 太空 / 热气球 等一排 3D 场景，我们一开始只做「透视 / 虚空」
- * 两块磁贴。**2026-09-09 用户拍板把这道选择题整只删掉**：有了空间光晕之后，虚空
- * （纯黑）只是「背景不透明度拖到 0」的那一端，两个档位彼此重叠、还多一次点击。
- * 现在默认是**纯透明**（看得见真实房间），亮暗全交给 [MediaEffectsSection] 里那条
- * 滑块 —— 拖到 0 就是原来的虚空。
+ * 场景页：透视 / 深空背景、媒体特效与幕布几何。
+ * 默认保留透视；它的滑块拖到 0 就是黑背景，不额外增加重复的「虚空」选项。
+ * 深空使用独立亮度，两种环境的调整分别记忆。
  *
  * # ⛔ passthrough 切换必须是渐变，不能硬切
  *
@@ -93,7 +87,7 @@ fun ScenePage(state: VideoControlsState, cb: VideoControlsCallbacks) {
 
         // ── 环境 ──────────────────────────────────
         SectionLabel(stringResource(R.string.xr_scene_section_environment))
-
+        BackgroundControls(state, cb)
         MediaEffectsSection(state, cb)
 
         // ── 幕宽 / 高度（平面片） ──────────────

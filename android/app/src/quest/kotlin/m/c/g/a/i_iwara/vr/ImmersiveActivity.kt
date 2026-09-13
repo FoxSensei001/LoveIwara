@@ -11,6 +11,7 @@ import android.view.Surface
 import com.meta.spatial.compose.ComposeFeature
 import com.meta.spatial.compose.ComposeViewPanelRegistration
 import com.meta.spatial.core.Entity
+import com.meta.spatial.core.Color4
 import com.meta.spatial.core.Pose
 import com.meta.spatial.core.Quaternion
 import com.meta.spatial.core.SpatialFeature
@@ -56,6 +57,8 @@ import m.c.g.a.i_iwara.questui.AspectPreset
 import m.c.g.a.i_iwara.questui.BUFFERING_ANIM_MS
 import m.c.g.a.i_iwara.questui.BufferingState
 import m.c.g.a.i_iwara.questui.ControlsRoute
+import m.c.g.a.i_iwara.questui.EnvironmentKind
+import m.c.g.a.i_iwara.questui.EnvironmentSettings
 import m.c.g.a.i_iwara.questui.FormatTab
 import m.c.g.a.i_iwara.questui.GALLERY_QUALITY_STANDARD
 import m.c.g.a.i_iwara.questui.GalleryItem
@@ -68,6 +71,7 @@ import m.c.g.a.i_iwara.questui.PlaylistChoice
 import m.c.g.a.i_iwara.questui.PlaylistEntry
 import m.c.g.a.i_iwara.questui.PlaylistGroup
 import m.c.g.a.i_iwara.questui.PlaylistSection
+import m.c.g.a.i_iwara.questui.Projection
 import m.c.g.a.i_iwara.questui.SourceOption
 import m.c.g.a.i_iwara.questui.RepeatMode
 import m.c.g.a.i_iwara.questui.ScreenCurve
@@ -87,6 +91,7 @@ import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
 import m.c.g.a.i_iwara.xr.ImmersiveSourceOption
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
+import m.c.g.a.i_iwara.xr.LaunchDiagnostics
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -150,6 +155,7 @@ import kotlin.math.tan
  *   --es url "https://..." --es shape 180 --es stereo lr --ei w 4096 --ei h 2048
  * ```
  * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--ef background 0..1`
+ * `--es environment passthrough|deep_space`，`--ef starlight 0..1`。
  * `--es curve flat|slight|medium|deep`。不带 url 的任何 intent（含主页点图标）一律回浏览态。
  */
 class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
@@ -167,6 +173,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var screenEntity: Entity? = null
     private var screenPanel: PanelSceneObject? = null
     private val mediaEffects by lazy { MediaEffectsRenderer(scene, assets) }
+    private var backgroundEnvironment: DeepSpaceEnvironment? = null
+    private var environmentVrVisible = false
     private var mediaEffectsFailed = false
     private var screenUsesEffectMesh = false
     private var screenUsesProcessedVideo = false
@@ -421,6 +429,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "IMMERSIVE onCreate pid=${android.os.Process.myPid()}")
+        LaunchDiagnostics.onImmersiveCreated(this, savedInstanceState)
         logMemory("onCreate")
         playback = PlaybackEngine(this).also { it.listener = this }
         prefs = PlayerPrefs(this).also { it.load(controls) }
@@ -473,6 +482,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onNewIntent(newIntent: Intent) {
         super.onNewIntent(newIntent)
+        LaunchDiagnostics.onImmersiveEvent(
+            this,
+            "onNewIntent action=${newIntent.action} categories=${newIntent.categories?.sorted()} referrer=$referrer",
+        )
         val before = argUrl
         readIntent(newIntent)
         rebuildScreen(keepPlayback = argUrl != null && argUrl == before)
@@ -505,8 +518,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.mediaEffects = controls.mediaEffects
                 .copy(backgroundTransparency = source.getFloatExtra("background", 1f))
                 .normalized()
-            applyScene()
         }
+        source.getStringExtra("environment")?.let { name ->
+            EnvironmentKind.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }?.let {
+                controls.environment = controls.environment.copy(kind = it)
+            }
+        }
+        if (source.hasExtra("starlight")) {
+            controls.environment = controls.environment
+                .copy(spaceBrightness = source.getFloatExtra("starlight", 0.65f)).normalized()
+        }
+        if (source.hasExtra("background") || source.hasExtra("environment") || source.hasExtra("starlight")) applyScene()
         source.getStringExtra("curve")?.let { name ->
             ScreenCurve.entries.firstOrNull { it.name.equals(name, ignoreCase = true) }?.let { controls.curve = it }
         }
@@ -526,6 +548,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             sunColor = Vector3(0f, 0f, 0f),
             sunDirection = -Vector3(1.0f, 3.0f, 2.0f),
         )
+        // The projection layer must leave its empty pixels transparent for both
+        // passthrough and a compositor sky behind the -1/0 media layers.
+        scene.setBackfillColor(Color4(0f, 0f, 0f, 0f))
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible) }
         applyScene(immediate = true)
         // ⛔ 关掉 VRFeature 自带的 LocomotionSystem：它把摇杆前后当传送（射出抛物线）、左右当转向，
         // 只有光标悬在面板上时才让路 —— 用户 2026-09-05：「摇杆推完松手视角变了 / 手柄射出一道抛物线」。
@@ -534,6 +560,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             .onSuccess { Log.i(TAG, "IMMERSIVE locomotion disabled") }
             .onFailure { Log.w(TAG, "IMMERSIVE 关闭 LocomotionSystem 失败", it) }
         Log.i(TAG, "IMMERSIVE onSceneReady")
+        LaunchDiagnostics.onImmersiveEvent(this, "onSceneReady")
         logMemory("onSceneReady")
         manipulator.onSceneReady()
         rebuildScreen()
@@ -544,12 +571,16 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onVRPause() {
         super.onVRPause()
+        environmentVrVisible = false
+        backgroundEnvironment?.setResumed(false)
         Log.i(TAG, "IMMERSIVE onVRPause")
         pauseForSystem()
     }
 
     override fun onVRReady() {
         super.onVRReady()
+        environmentVrVisible = true
+        backgroundEnvironment?.setResumed(true)
         Log.i(TAG, "IMMERSIVE onVRReady")
         resumeAfterSystem()
     }
@@ -577,6 +608,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun pauseForSystem() {
+        ImmersiveBridge.notifySceneLifecycle(foreground = false)
         inputSuspended = true
         cancelSpatialInteractions()
         if (!controls.pauseOnFocusLoss) return
@@ -588,6 +620,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun resumeAfterSystem() {
+        ImmersiveBridge.notifySceneLifecycle(foreground = true)
         inputSuspended = false
         headReadiness.reset()
         lastMotionAt = 0L
@@ -601,6 +634,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onSpatialShutdown() {
         Log.i(TAG, "IMMERSIVE onSpatialShutdown")
+        LaunchDiagnostics.onImmersiveEvent(this, "onSpatialShutdown finishing=$isFinishing")
         logMemory("onSpatialShutdown")
         notifyEnded()
         gallery?.let { ImmersiveBridge.notifyGalleryEnded(it.galleryId, it.index) }
@@ -610,6 +644,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         manipulator.shutdown()
         playback.detachSurface()
         mediaEffects.detach()
+        backgroundEnvironment?.close()
+        backgroundEnvironment = null
+        environmentVrVisible = false
         screenEntity?.destroy()
         screenEntity = null
         screenPanel = null
@@ -629,9 +666,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onDestroy() {
         Log.i(TAG, "IMMERSIVE onDestroy")
+        LaunchDiagnostics.onImmersiveEvent(this, "onDestroy finishing=$isFinishing changingConfig=$isChangingConfigurations")
         logMemory("onDestroy")
         playback.release()
         mediaEffects.detach()
+        backgroundEnvironment?.close()
+        backgroundEnvironment = null
         // The pause request is sticky now (see ImmersiveBridge); never leave the
         // panel's Flutter frozen after the scene that froze it is gone.
         ImmersiveBridge.setPanelRenderingPaused(false)
@@ -942,6 +982,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             playback.setPlaying(true)
             controls.isPlaying = true
         }
+        // ⛔ requestPlayItem 为了让 Dart 换页先恢复了面板出帧，正常路径靠新片 present 再停掉。
+        // 换片没成（Dart 放弃 / 超时 / 预加载失败）就没人停：藏着的面板会在老片背后满帧跑下去。
+        if (resumeOldVideo && stageActive) ImmersiveBridge.setPanelRenderingPaused(true)
     }
 
     /** 把最后的播放位置交还 Dart（回写观看历史）。只在真有片子时发一次。 */
@@ -1729,8 +1772,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /** 平幕上的缓冲指示跟着幕布走（用户可能正抓着挪）；球幕的定死不动。 */
     private fun syncBufferingPose() {
         if (!controls.format.isFlat) return
-        bufferingEntity?.setComponent(Transform(bufferingPose()))
+        val entity = bufferingEntity ?: return
+        val pose = bufferingPose()
+        // 幕布不动时每帧照写 Transform 只是白白弄脏组件；实体重建过（换了对象）必须重写。
+        if (pose == bufferingAppliedPose && entity === bufferingAppliedEntity) return
+        entity.setComponent(Transform(pose))
+        bufferingAppliedPose = pose
+        bufferingAppliedEntity = entity
     }
+
+    private var bufferingAppliedPose: Pose? = null
+    private var bufferingAppliedEntity: Entity? = null
 
     // ================================================================ 控制面板
 
@@ -1975,6 +2027,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     override fun onSceneTick() {
         super.onSceneTick()
         val now = SystemClock.uptimeMillis()
+        tickEnvironment(now)
         mediaEffects.tickBackground(now)
         syncMediaEffects()
         updateTransport()
@@ -2075,11 +2128,34 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (seeking) return
         val dur = playback.durationMs
         if (dur > 0) {
-            controls.progress = (playback.positionMs.toFloat() / dur).coerceIn(0f, 1f)
-            controls.positionText = formatMs(playback.positionMs)
-            controls.durationText = formatMs(dur)
+            // ⛔ 每帧都写：进度条每帧重组、控制面板整张纹理 72/90Hz 重新光栅化上传。
+            // 进度按「轨道上约半个像素」量化，时间文字只在跳秒时格式化（与外部写入者比对同一个 State，不留陈旧缓存）。
+            val position = playback.positionMs
+            val progress = (position.toFloat() / dur).coerceIn(0f, 1f)
+            val shown = controls.progress
+            if (abs(progress - shown) >= PROGRESS_STEP || (progress != shown && (progress == 0f || progress == 1f))) {
+                controls.progress = progress
+            }
+            val second = position / 1000
+            if (second != lastPositionSecond || controls.positionText !== lastPositionText) {
+                lastPositionSecond = second
+                val text = formatMs(position)
+                lastPositionText = text
+                controls.positionText = text
+            }
+            if (dur != lastDurationMs || controls.durationText !== lastDurationText) {
+                lastDurationMs = dur
+                val text = formatMs(dur)
+                lastDurationText = text
+                controls.durationText = text
+            }
         }
     }
+
+    private var lastPositionSecond = -1L
+    private var lastPositionText: String? = null
+    private var lastDurationMs = -1L
+    private var lastDurationText: String? = null
 
     /** ⛔ 只在影院态（有片源）：浏览态里捏合是操作 Flutter 面板的，抢不得。 */
     private fun handleInput(now: Long) {
@@ -2595,16 +2671,49 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 或在通用菜单里拖了系统滑杆，面板上的百分比就是这么跟上的。
      */
     private fun tickSystemVolume(now: Long) {
-        systemVolume.poll(now) { level -> controls.volume = level }
+        systemVolume.poll(now, onSystemVolumeChanged)
     }
+
+    /** 每帧都要传：捕获 this 的 lambda 写在调用处会逐帧新建一个对象。 */
+    private val onSystemVolumeChanged: (Float) -> Unit = { level -> controls.volume = level }
 
     private fun applyRepeatMode() {
         playback.setRepeatOne(controls.repeatMode == RepeatMode.ONE)
     }
 
     private fun applyScene(immediate: Boolean = false) {
-        runCatching { mediaEffects.setBackground(controls.mediaEffects, SystemClock.uptimeMillis(), immediate) }
+        val environment = backgroundEnvironment ?: return // Settings may arrive before onSceneReady.
+        runCatching {
+            val now = SystemClock.uptimeMillis()
+            environment.setSettings(controls.environment, now, immediate)
+            controls.environmentLoading = environment.loading
+            val room = if (environment.replacesRoom) 0f else controls.mediaEffects.backgroundTransparency
+            mediaEffects.setBackground(controls.mediaEffects.copy(backgroundTransparency = room), now, immediate)
+        }
             .onFailure { Log.w(TAG, "IMMERSIVE apply background failed", it) }
+    }
+
+    private fun tickEnvironment(now: Long) {
+        val environment = backgroundEnvironment ?: return
+        val covered = stageActive && screenShown && controls.format.projection == Projection.PANORAMA_360
+        val position = if (environment.ready) trackedHeadPose()?.t else null
+        val changed = runCatching { environment.tick(now, position, covered, mediaEffects.isPassthroughEnabled) }
+            .getOrElse { failEnvironment(it); return }
+        controls.environmentLoading = environment.loading
+        environment.takeFailure()?.let { failEnvironment(it); return }
+        if (changed) applyScene()
+    }
+
+    private fun failEnvironment(error: Throwable) {
+        Log.w(TAG, "IMMERSIVE starfield unavailable", error)
+        runCatching { backgroundEnvironment?.close() }
+            .onFailure { Log.w(TAG, "IMMERSIVE starfield cleanup failed", it) }
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible) }
+        controls.environment = controls.environment.copy(kind = EnvironmentKind.PASSTHROUGH)
+        controls.environmentLoading = false
+        controls.environmentLoadFailed = true
+        markPrefsDirty()
+        applyScene()
     }
 
     private fun markPrefsDirty() {
@@ -2629,11 +2738,25 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun handOffToExternalPlayer() {
         val url = argUrl
         if (url.isNullOrBlank()) return
-        val view = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(Uri.parse(url), "video/*")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
         runCatching {
+            val view = Intent(Intent.ACTION_VIEW).apply {
+                // ⛔ 本地文件必须过 FileProvider（与 MainActivity.buildExternalVideoIntent 同一 authority）：
+                // 甩 file:// / 裸路径出去，API 24+ 抛 FileUriExposedException，被当成「没有外部播放器」。
+                val parsed = Uri.parse(url)
+                val scheme = parsed.scheme?.lowercase()
+                if (scheme == null || scheme == "file") {
+                    // file:// 要解码（%20 等）；裸路径原样用。
+                    val file = java.io.File(if (scheme == "file") parsed.path.orEmpty() else url)
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        this@ImmersiveActivity, "$packageName.videoprovider", file,
+                    )
+                    setDataAndType(uri, "video/*")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                } else {
+                    setDataAndType(Uri.parse(url), "video/*")
+                }
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             startActivity(
                 Intent.createChooser(view, text(UiR.string.xr_open_with))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -2814,6 +2937,17 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.forceMono = !controls.forceMono
             markPrefsDirty()
             if (controls.format.isStereo) requestShape(0L)
+        }
+
+        override fun onEnvironment(settings: EnvironmentSettings) {
+            lastInteractionAt = SystemClock.uptimeMillis()
+            val next = settings.normalized()
+            if (next == controls.environment) return
+            if (next.kind != controls.environment.kind) touched()
+            controls.environment = next
+            controls.environmentLoadFailed = false
+            markPrefsDirty()
+            applyScene()
         }
 
         override fun onMediaEffects(settings: MediaEffectsSettings) {
@@ -3890,6 +4024,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         /** 换片在途上限（Dart 换页 + 拉源 + 预加载）。 */
         private const val SWITCH_WAIT_MS = 45_000L
+
+        /** 进度写回的量化步长：控制面板轨道约 1000px，半个像素以下的变化不重组。 */
+        private const val PROGRESS_STEP = 0.0005f
 
         /** 直链过期后等 Dart 送新地址的上限。 */
         private const val SOURCE_REFRESH_WAIT_MS = 15_000L

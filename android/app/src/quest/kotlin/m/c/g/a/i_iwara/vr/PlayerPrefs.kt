@@ -2,6 +2,8 @@ package m.c.g.a.i_iwara.vr
 
 import android.content.Context
 import m.c.g.a.i_iwara.questui.AspectPreset
+import m.c.g.a.i_iwara.questui.EnvironmentKind
+import m.c.g.a.i_iwara.questui.EnvironmentSettings
 import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.RepeatMode
 import m.c.g.a.i_iwara.questui.ScreenCurve
@@ -76,9 +78,12 @@ class PlayerPrefs(context: Context) {
         slideshowSeconds = sp.getInt(KEY_SLIDESHOW_SECONDS, 5).coerceIn(1, 120)
         galleryLoopVideo = sp.getBoolean(KEY_GALLERY_LOOP, true)
         state.curve = enum(KEY_CURVE, ScreenCurve.SLIGHT)
-        // ⛔ 老版本这里还读过一个 "scene"（虚空 / 透视）。2026-09-09 那个枚举删了，
-        // 背景只剩下面这条 backgroundTransparency：旧键留在盘上不再有人读，
-        // 于是所有人都落到新默认「纯透明」上——这正是删掉纯黑档的目的。
+        // Do not reuse the retired "scene" key (VOID/PASSTHROUGH). Existing users
+        // keep their room visibility; a new environment is selected explicitly.
+        state.environment = EnvironmentSettings(
+            kind = enum(KEY_ENVIRONMENT, EnvironmentKind.PASSTHROUGH),
+            spaceBrightness = sp.getFloat(KEY_SPACE_BRIGHTNESS, 0.65f),
+        ).normalized()
         state.mediaEffects = MediaEffectsSettings(
             enabled = sp.getBoolean(KEY_EFFECTS_ENABLED, true),
             // The first prototype used unrelated Gaussian parameters. Its saved
@@ -135,6 +140,8 @@ class PlayerPrefs(context: Context) {
             .putInt(KEY_SLIDESHOW_SECONDS, slideshowSeconds)
             .putBoolean(KEY_GALLERY_LOOP, galleryLoopVideo)
             .putString(KEY_CURVE, state.curve.name)
+            .putString(KEY_ENVIRONMENT, state.environment.kind.name)
+            .putFloat(KEY_SPACE_BRIGHTNESS, state.environment.spaceBrightness)
             .putBoolean(KEY_EFFECTS_ENABLED, state.mediaEffects.enabled)
             .putInt(KEY_AMBIENCE_VERSION, 2)
             .putFloat(KEY_EDGE_FEATHER, state.mediaEffects.edgeFeather)
@@ -226,6 +233,8 @@ class PlayerPrefs(context: Context) {
         private const val KEY_EDGE_FEATHER = "mediaEdgeFeather"
         private const val KEY_GLOW_STRENGTH = "mediaGlowStrength"
         private const val KEY_BACKGROUND_TRANSPARENCY = "mediaBackgroundTransparency"
+        private const val KEY_ENVIRONMENT = "backgroundEnvironment"
+        private const val KEY_SPACE_BRIGHTNESS = "deepSpaceBrightness"
         const val KEY_DISTANCE = "distance"
         const val KEY_OFFSET = "offset"
         private const val KEY_COMFORTABLE_LAYOUT = "comfortableViewingLayoutV2"

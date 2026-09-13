@@ -21,7 +21,7 @@ import com.meta.spatial.uiset.theme.icons.regular.Scale
 import com.meta.spatial.uiset.theme.icons.regular.ScaleDown
 
 /**
- * 浏览态的空间控制面板：**面板远近 + 背景不透明度**，就这两件事。
+ * 浏览态的空间控制面板：面板远近与背景环境。
  *
  * # 这一页是干什么的
  *
@@ -135,8 +135,7 @@ fun BrowsePanelPage(state: VideoControlsState, cb: VideoControlsCallbacks) {
                 verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP),
             ) {
                 SectionLabel(stringResource(R.string.xr_panel_background))
-                // ⛔ 与场景页共用同一枚滑块、同一份设置（见 [BackgroundTransparencySlider]）。
-                BackgroundTransparencySlider(state.mediaEffects, cb::onMediaEffects)
+                BackgroundControls(state, cb, compact = true)
             }
         }
     }

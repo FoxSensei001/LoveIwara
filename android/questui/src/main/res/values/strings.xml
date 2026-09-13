@@ -242,4 +242,10 @@
     <string name="xr_background_transparency_hint" formatted="false">0%: black surroundings · 100%: your real room, ambient-lit</string>
     <string name="xr_media_effects_360_hint">360° video surrounds you without a border; edge softness and glow apply to flat and 180° media.</string>
     <string name="xr_media_effects_fallback">Media effects are unavailable. Standard playback has been restored.</string>
+    <string name="xr_environment_passthrough">Passthrough</string>
+    <string name="xr_environment_deep_space">Deep space</string>
+    <string name="xr_environment_brightness">Starlight</string>
+    <string name="xr_environment_deep_space_hint">A still, all-around starfield with a soft Milky Way. Lower the starlight for a darker viewing space.</string>
+    <string name="xr_environment_loading">Preparing the starfield…</string>
+    <string name="xr_environment_failed">Starfield unavailable. Select Deep space to retry.</string>
 </resources>

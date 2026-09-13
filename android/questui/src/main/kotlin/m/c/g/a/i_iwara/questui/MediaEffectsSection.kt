@@ -14,12 +14,7 @@ import com.meta.spatial.uiset.button.SecondaryButton
 import com.meta.spatial.uiset.slider.SpatialSliderMedium
 import kotlin.math.roundToInt
 
-/**
- * The scene page is shared by the player and gallery; adjustments remain visible in the media.
- *
- * 背景不透明度对三处（空间视频 / 空间图库 / 图库大图）是同一条：0% 是纯黑的虚空，
- * 100% 是环境光照着的真实房间，**默认 100%**。
- */
+/** Media treatment shared by the player and gallery, independent of the surrounding world. */
 @Composable
 internal fun MediaEffectsSection(state: VideoControlsState, cb: VideoControlsCallbacks) {
     val effects = state.mediaEffects
@@ -40,7 +35,9 @@ internal fun MediaEffectsSection(state: VideoControlsState, cb: VideoControlsCal
                 }
                 SecondaryButton(
                     label = stringResource(R.string.xr_media_effects_reset),
-                    onClick = { cb.onMediaEffects(MediaEffectsSettings()) },
+                    onClick = {
+                        cb.onMediaEffects(MediaEffectsSettings(backgroundTransparency = effects.backgroundTransparency))
+                    },
                 )
             }
             if (effects.enabled) {
@@ -69,10 +66,6 @@ internal fun MediaEffectsSection(state: VideoControlsState, cb: VideoControlsCal
                 fontSize = 15.sp,
             )
         }
-        // ⛔ 这条滑块**恒在**，不再挂任何条件。它此前只在「透视」场景下露面，而
-        // 「虚空」不过是它拖到 0 的那一端 —— 两者并存的结果是用户先要在两块磁贴里
-        // 选对一块，滑块才出现（2026-09-09 用户拍板收成一条）。
-        BackgroundTransparencySlider(effects, cb::onMediaEffects)
     }
 }
 
@@ -89,6 +82,7 @@ internal fun BackgroundTransparencySlider(
     effects: MediaEffectsSettings,
     onChange: (MediaEffectsSettings) -> Unit,
     modifier: Modifier = Modifier,
+    showHint: Boolean = true,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(PanelTokens.GAP), modifier = modifier) {
         SpatialSliderMedium(
@@ -97,11 +91,13 @@ internal fun BackgroundTransparencySlider(
             helperText = stringResource(R.string.xr_background_transparency) to percent(effects.backgroundTransparency),
             modifier = Modifier.fillMaxWidth(),
         )
-        Text(
-            stringResource(R.string.xr_background_transparency_hint),
-            color = PanelTokens.ON_SURFACE_DIM,
-            fontSize = 15.sp,
-        )
+        if (showHint) {
+            Text(
+                stringResource(R.string.xr_background_transparency_hint),
+                color = PanelTokens.ON_SURFACE_DIM,
+                fontSize = 15.sp,
+            )
+        }
     }
 }
 

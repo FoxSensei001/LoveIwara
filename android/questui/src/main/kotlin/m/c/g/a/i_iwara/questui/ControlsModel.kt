@@ -365,6 +365,9 @@ class VideoControlsState {
 
     // ---- 场景 ----
     var mediaEffects by mutableStateOf(MediaEffectsSettings())
+    var environment by mutableStateOf(EnvironmentSettings())
+    var environmentLoading by mutableStateOf(false)
+    var environmentLoadFailed by mutableStateOf(false)
 
     /** 观看距离（米）。 */
     var screenDistance by mutableStateOf(1.6f)
@@ -521,6 +524,7 @@ interface VideoControlsCallbacks {
 
     // ---- 场景 ----
     fun onMediaEffects(settings: MediaEffectsSettings)
+    fun onEnvironment(settings: EnvironmentSettings)
     fun onScreenDistance(meters: Float)
     /** -1 = nearer, +1 = farther. Releasing or cancelling must stop immediately. */
     fun onViewDistanceHold(direction: Int, pressed: Boolean)

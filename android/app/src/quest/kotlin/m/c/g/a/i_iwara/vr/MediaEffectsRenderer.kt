@@ -67,6 +67,7 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
     private var lastUploadedBand: ByteArray? = null
     private var lastUploadedProfile: MediaColorPipeline.Profile? = null
     private var roomTarget = floatArrayOf(1f, 1f, 1f)
+    private var roomTargetStrength = Float.NaN
     private val roomSmoothed = floatArrayOf(1f, 1f, 1f)
     private var immersive = 0f
     private var immersiveTarget = 0f
@@ -74,6 +75,7 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
     private var ambienceActive = false
 
     private var passthroughEnabled = false
+    val isPassthroughEnabled: Boolean get() = passthroughEnabled
     private var background = 0f
     private var backgroundFrom = 0f
     private var backgroundTarget = 0f
@@ -193,8 +195,13 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
                     lastUploadedProfile = colours.profile
                 }
                 lastColourSequence = colours.sequence
+                // Only a new readback (or the strength slider) can move the room colour.
+                roomTarget = MediaAmbienceMath.roomColor(colours.average[0], colours.average[1], colours.average[2], settings.glowStrength)
+                roomTargetStrength = settings.glowStrength
+            } else if (roomTargetStrength != settings.glowStrength) {
+                roomTarget = MediaAmbienceMath.roomColor(colours.average[0], colours.average[1], colours.average[2], settings.glowStrength)
+                roomTargetStrength = settings.glowStrength
             }
-            roomTarget = MediaAmbienceMath.roomColor(colours.average[0], colours.average[1], colours.average[2], settings.glowStrength)
         }
         val material = glowMaterial ?: return
         val hemisphere = format.projection == Projection.PANORAMA_180
@@ -356,6 +363,7 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
         objectScale = null
         ambienceActive = false
         roomTarget = floatArrayOf(1f, 1f, 1f)
+        roomTargetStrength = Float.NaN
     }
 
     /**

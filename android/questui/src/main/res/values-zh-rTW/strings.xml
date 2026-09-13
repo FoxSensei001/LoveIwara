@@ -225,4 +225,10 @@
     <string name="xr_background_transparency_hint" formatted="false">0%：純黑環境，只剩畫面 · 100%：環境光下的真實房間</string>
     <string name="xr_media_effects_360_hint">360° 影片自然環繞整個視野；邊緣柔化與光暈用於平面和 180° 畫面。</string>
     <string name="xr_media_effects_fallback">畫面效果暫時無法使用，已切回標準畫面。</string>
+    <string name="xr_environment_passthrough">透視</string>
+    <string name="xr_environment_deep_space">深空</string>
+    <string name="xr_environment_brightness">星空亮度</string>
+    <string name="xr_environment_deep_space_hint">靜謐的群星與淡淡的銀河環繞四周；調低亮度，讓注意力留在畫面上。</string>
+    <string name="xr_environment_loading">正在展開星空…</string>
+    <string name="xr_environment_failed">星空暫時無法使用，請重新選擇深空。</string>
 </resources>
