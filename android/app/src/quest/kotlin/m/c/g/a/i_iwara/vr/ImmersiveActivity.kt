@@ -963,8 +963,14 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /**
      * A non-null pose alone is not proof of tracking: the initial identity pose is at floor level.
      * Keep the readiness gate when reading the runtime viewer, just as for the former avatar pose.
+     *
+     * 等满 [HeadPoseReadiness] 的超时仍没有位置追踪 = 3DoF：放行「只有朝向可信」的真实位姿。
+     * ⛔ 不能再退回 [fallbackFrame]：相机其实在原点附近，按 1.6m 眼高摆出来的面板整体悬在头顶、
+     * 还只朝 +Z，而拉近 / 推远拿不到视点直接不生效（用户 2026-09-13 暗光实测三条症状同根）。
      */
-    private fun trackedHeadPose(): Pose? = headPose()?.takeIf(SpatialPlacement::isTracked)
+    private fun trackedHeadPose(): Pose? = headPose()?.takeIf {
+        SpatialPlacement.isTracked(it) || (headSettleTimedOut() && SpatialPlacement.hasOrientation(it))
+    }
 
     private fun headTrackingReady(): Boolean = headReadiness.ready
     private fun headSettleTimedOut(): Boolean = headReadiness.timedOut
@@ -979,8 +985,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private fun captureAnchor(): Pose {
         // Entry and recenter share the same tracking gate. Never inherit a moved/parked browsing panel.
-        val head = trackedHeadPose()?.takeIf { headTrackingReady() }
-        anchorIsFallback = head == null
+        val head = trackedHeadPose()?.takeIf { headTrackingReady() || headSettleTimedOut() }
+        // 3DoF 捕获的锚点也算兜底：追踪一恢复，[settleHeadPlacement] 就按真实眼位重摆。
+        anchorIsFallback = head == null || !headTrackingReady()
         sphereForwardOverride = null
         sphereOffsetM = 0f
         return (head?.let(SpatialPlacement::viewFrame) ?: fallbackFrame()).also { anchor = it }
@@ -1185,7 +1192,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         val pose = if (show) uiPanelPose() else PARKED_POSE
         applyUiPanelPose(pose)
         uiPlacement.placed(show, headReady = ready)
-        if (show) Log.i(TAG, "IMMERSIVE ui panel placed byHead=$ready head=${trackedHeadPose()?.t}")
+        if (show) Log.i(TAG, "IMMERSIVE ui panel placed byHead=$ready head=${trackedHeadPose()?.t} raw=${headPose()?.t}")
     }
 
     /** Keep one authoritative pose for both the content and frame, ahead of ECS propagation. */

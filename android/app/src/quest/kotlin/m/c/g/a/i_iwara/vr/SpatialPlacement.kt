@@ -81,7 +81,15 @@ internal object SpatialPlacement {
 
     fun isTracked(head: Pose?): Boolean = head != null &&
         head.t.x.isFinite() && head.t.y.isFinite() && head.t.z.isFinite() &&
-        head.t.length() >= 0.05f && head.q.norm().isFinite() && head.q.norm() > 0.5f
+        head.t.length() >= 0.05f && hasOrientation(head)
+
+    /**
+     * 3DoF（暗光 / 用户点了「继续，不追踪」）：位置钉在原点附近，但朝向仍是真的。
+     * 渲染相机就在这个位置上，所以按它摆才对得上用户的眼睛 —— 自己编一个 1.6m 眼高才会整体仰视。
+     */
+    fun hasOrientation(head: Pose?): Boolean = head != null &&
+        head.t.x.isFinite() && head.t.y.isFinite() && head.t.z.isFinite() &&
+        head.q.norm().isFinite() && head.q.norm() > 0.5f
 
     private fun unit(v: Vector3, fallback: Vector3): Vector3 {
         val length = v.length()
