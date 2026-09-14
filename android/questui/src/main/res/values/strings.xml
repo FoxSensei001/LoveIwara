@@ -105,29 +105,11 @@
     <string name="xr_dismiss_tip">Dismiss</string>
 
     <!-- ─────────────────────────────── 「接着看」页 -->
-    <string name="xr_playlist_title">Up next</string>
-    <string name="xr_opening">Opening…</string>
-    <string name="xr_switching">Switching…</string>
-    <string name="xr_empty_choices">Nothing here</string>
+    <string name="xr_queue_picker">Switch queue</string>
     <string name="xr_card_loading">Loading…</string>
-    <string name="xr_badge_now_playing">Now playing</string>
-    <string name="xr_badge_offsite">Off-site</string>
-    <string name="xr_badge_watched">Watched ✓</string>
-    <string name="xr_badge_downloaded">Downloaded</string>
     <string name="xr_untitled">(untitled)</string>
-    <string name="xr_loading_next_page">Loading the next page…</string>
-    <string name="xr_load_more">Load more</string>
-    <string name="xr_load_more_hint">Scrolling here loads the next page</string>
     <string name="xr_playlist_empty_title">Nothing to continue with</string>
     <string name="xr_playlist_empty_hint">Queue up what you want to watch in the app and it will play straight from here</string>
-    <string name="xr_section_empty">This pool has no items yet — try another tab above</string>
-    <!-- 来源药丸：分组名 + 状态 / 计数 / 副标题。 -->
-    <string name="xr_pill_pending">%1$s …</string>
-    <string name="xr_pill_count">%1$s · %2$d</string>
-    <string name="xr_pill_subtitle">%1$s · %2$s</string>
-    <!-- 页头副标题：「池名 · 共 N 条」，还有下一页时加后缀。 -->
-    <string name="xr_playlist_subtitle">%1$s · %2$d items</string>
-    <string name="xr_playlist_subtitle_more">%1$s (more available)</string>
 
     <!-- ─────────────────────────────── 场景页 -->
     <string name="xr_scene_title">Environment</string>

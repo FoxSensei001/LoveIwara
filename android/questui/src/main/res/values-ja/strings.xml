@@ -93,27 +93,11 @@
     <string name="xr_dismiss_tip">閉じる</string>
 
     <!-- ─────────────────────────────── 「次に見る」ページ -->
-    <string name="xr_playlist_title">次に見る</string>
-    <string name="xr_opening">開いています…</string>
-    <string name="xr_switching">切り替え中…</string>
-    <string name="xr_empty_choices">項目がありません</string>
+    <string name="xr_queue_picker">キューを切り替え</string>
     <string name="xr_card_loading">読み込み中…</string>
-    <string name="xr_badge_now_playing">再生中</string>
-    <string name="xr_badge_offsite">外部サイト</string>
-    <string name="xr_badge_watched">視聴済み ✓</string>
-    <string name="xr_badge_downloaded">ダウンロード済み</string>
     <string name="xr_untitled">（タイトルなし）</string>
-    <string name="xr_loading_next_page">次のページを読み込み中…</string>
-    <string name="xr_load_more">もっと読み込む</string>
-    <string name="xr_load_more_hint">ここまでスクロールすると自動で読み込みます</string>
     <string name="xr_playlist_empty_title">続けて見られる動画がありません</string>
     <string name="xr_playlist_empty_hint">アプリで見たい動画をキューに入れると、ここからそのまま再生できます</string>
-    <string name="xr_section_empty">このキューにはまだ項目がありません。上のタブで別のリストを試してください</string>
-    <string name="xr_pill_pending">%1$s …</string>
-    <string name="xr_pill_count">%1$s · %2$d</string>
-    <string name="xr_pill_subtitle">%1$s · %2$s</string>
-    <string name="xr_playlist_subtitle">%1$s · 全 %2$d 本</string>
-    <string name="xr_playlist_subtitle_more">%1$s（まだあります）</string>
 
     <!-- ─────────────────────────────── 環境ページ -->
     <string name="xr_scene_title">環境</string>

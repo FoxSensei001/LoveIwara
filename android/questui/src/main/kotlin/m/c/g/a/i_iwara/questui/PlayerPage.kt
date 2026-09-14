@@ -277,7 +277,11 @@ private fun TransportRow(
 
         // 换片中三样禁用：老片已暂停，播放 / 暂停、±5 秒、进度条都不接（用户 2026-09-05）。
         val transportEnabled = !state.switching
-        CircleActionButton(SpatialIcons.Regular.PlayPrev, stringResource(R.string.xr_previous)) { cb.onPlayAdjacent(false) }
+        CircleActionButton(
+            SpatialIcons.Regular.PlayPrev,
+            stringResource(R.string.xr_previous),
+            enabled = transportEnabled && state.canPlayPrevious,
+        ) { cb.onPlayAdjacent(false) }
         // ⛔ 不能用 `TenSecondsBackward/Forward`：那两枚图标里画着「10」，而这里跳的是 5 秒
         // （用户 2026-09-08 把步长改成 5s）。SDK 的 259 枚图标里没有 5 秒变体，只有这一对
         // 不带数字的圆弧箭头能表达「原地往回 / 往前跳一小段」，秒数交给 contentDescription。
@@ -299,7 +303,11 @@ private fun TransportRow(
             stringResource(R.string.xr_seek_forward_5),
             enabled = transportEnabled,
         ) { cb.onSeekBy(SEEK_STEP_SECONDS) }
-        CircleActionButton(SpatialIcons.Regular.PlayNext, stringResource(R.string.xr_next)) { cb.onPlayAdjacent(true) }
+        CircleActionButton(
+            SpatialIcons.Regular.PlayNext,
+            stringResource(R.string.xr_next),
+            enabled = transportEnabled && state.canPlayNext,
+        ) { cb.onPlayAdjacent(true) }
 
         Spacer(Modifier.weight(1f))
 

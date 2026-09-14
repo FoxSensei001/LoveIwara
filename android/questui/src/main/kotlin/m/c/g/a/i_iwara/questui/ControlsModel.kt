@@ -205,38 +205,49 @@ data class PlaylistEntry(
     val id: String,
     val title: String,
     val author: String,
-    val durationText: String,
-    /** 封面地址；空串表示没有。 */
     val thumbnailUrl: String,
-    /** 0..1。已看完的按满格。 */
+    val leadKind: String,
+    val leadText: String,
+    val viewsText: String,
+    val likesText: String,
+    val timeText: String,
+    val isPrivate: Boolean,
+    val qualityText: String,
     val progressRatio: Float,
     val watched: Boolean,
-    /** 站外视频（youtube 一类的嵌入）放不了，列出来但点不动。 */
     val playable: Boolean,
-    /** 本机有下载完成的文件。 */
-    val downloaded: Boolean = false,
 )
 
 /**
- * 「接着看」来源目录的一个分组（= 2D 抽屉第一级：来源 / 订阅 / 我的播放列表 / 最爱 / 本地收藏 /
- * 已下载 / 稍后再看 / 作者的视频 / 作者的播放列表 / 他人的播放列表）。
- *
- * 只有一个 [choices] 的分组点了直接选那个池；多个的（播放列表 / 收藏夹 / 下载分类 / 稍后再看筛选）
- * 点了展开第二行让用户挑。选项对应的池还没开（没有同 id 的 [PlaylistSection]）时
- * 走 [VideoControlsCallbacks.onOpenQueue]。
+ * 「接着看」池选择器的多级目录树节点。
  */
-data class PlaylistGroup(
+data class CatalogNode(
+    val type: String,
     val id: String,
     val title: String,
-    /** 作者名一类的副标题；空串没有。 */
-    val subtitle: String,
-    /** 清单还在拉。 */
-    val loading: Boolean,
-    val choices: List<PlaylistChoice>,
-)
-
-/** 分组里的一个选项，对应一个池；[count] < 0 表示没有计数。 */
-data class PlaylistChoice(val queueId: String, val title: String, val count: Int)
+    val subtitle: String = "",
+    val trailing: String = "",
+    val icon: String = "",
+    val avatarUrl: String? = null,
+    val queueId: String = "",
+    val branch: Boolean = false,
+    val lazy: Boolean = false,
+    val enabled: Boolean = true,
+    val selected: Boolean = false,
+    val showCheck: Boolean = false,
+    val loading: Boolean = false,
+    val expandNodeId: String = "",
+    val children: List<CatalogNode> = emptyList(),
+) {
+    fun find(targetId: String): CatalogNode? {
+        if (id == targetId) return this
+        for (child in children) {
+            val hit = child.find(targetId)
+            if (hit != null) return hit
+        }
+        return null
+    }
+}
 
 /**
  * 一档清晰度；[local] = 本机下载完成的文件。
@@ -264,10 +275,12 @@ data class SourceOption(
 data class PlaylistSection(
     val queueId: String,
     val title: String,
+    val icon: String = "",
     val entries: List<PlaylistEntry>,
     val hasMore: Boolean,
-    /** 池正在拉第一页 / 翻页（Dart 的 `isLoading`，或还没装过任何一页）。空列表 + loading 画转圈而不是空态。 */
     val loading: Boolean = false,
+    val skipWatched: Boolean = false,
+    val mediaType: String = "video",
 )
 
 // ─────────────────────────────────────────────────────────── 状态
@@ -423,23 +436,34 @@ class VideoControlsState {
 
     // ---- 播放列表 ----
     val playlistSections = mutableStateListOf<PlaylistSection>()
+    var playlistCatalog by mutableStateOf<CatalogNode?>(null)
 
-    /** 来源目录（分组 → 选项）。 */
-    val playlistGroups = mutableStateListOf<PlaylistGroup>()
-
-    /** 用户展开了哪个多选项分组；null = 看分组行。 */
-    var expandedGroupId by mutableStateOf<String?>(null)
-
-    /** 当前选中的分区（= 详情页的当前池）。null 时取第一个。 */
+    /** 播放器正在用的池。 */
     var activeQueueId by mutableStateOf<String?>(null)
+
+    /** 面板正在浏览的池。 */
+    var browseQueueId by mutableStateOf<String?>(null)
+
+    /** 正在向 Dart 申请浏览的池。推回来的 browseQueueId 命中时清空。 */
+    var pendingBrowseQueueId by mutableStateOf<String?>(null)
+
+    /** 正在向 Dart 申请展开的节点 id。 */
+    var pendingExpandNodeId by mutableStateOf<String?>(null)
+
+    /** 池选择器是否展开。 */
+    var pickerOpen by mutableStateOf(false)
+
+    /** 从根节点往下钻过的节点 id 栈。 */
+    val pickerPath = mutableStateListOf<String>()
+
+    /** 应用内文案字典。 */
+    var playlistTexts by mutableStateOf<Map<String, String>>(emptyMap())
+
     var nowPlayingId by mutableStateOf<String?>(null)
     var playlistLoading by mutableStateOf(false)
 
     /** 正在向 Dart 要下一页的那个池（同一时刻只会有一个）。null = 没在翻页。 */
     var playlistLoadingMoreQueueId by mutableStateOf<String?>(null)
-
-    /** 正在等 Dart 开出来的那个池（分组行上那枚药丸画转圈）。null = 没在开。 */
-    var playlistPendingQueueId by mutableStateOf<String?>(null)
 
     /**
      * 点了卡片、正在后台加载的那条视频 id。老片照常放，那张卡转圈，新片就绪后整个换上来
@@ -448,13 +472,67 @@ class VideoControlsState {
     var switchingToId by mutableStateOf<String?>(null)
 
     /**
-     * 当前分区。⛔ 选中的池还没推过来时返回 **null**，而不是退回第一个分区——
-     * 否则「点了我的播放列表，卡片流却还画着稍后再看」这种状态错位就会出现（用户 2026-09-05）。
+     * 播放器在用的分区。sections 里 queueId == activeQueueId 的那个；activeQueueId 为 null 时取第一个。
      */
     val activeSection: PlaylistSection?
         get() = when {
             activeQueueId == null -> playlistSections.firstOrNull()
             else -> playlistSections.firstOrNull { it.queueId == activeQueueId }
+        }
+
+    /**
+     * 面板正在浏览的分区。sections 里 queueId == (pendingBrowseQueueId ?: browseQueueId) 的那个（pending 还没到时为 null）。
+     */
+    val browseSection: PlaylistSection?
+        get() {
+            val targetQueueId = pendingBrowseQueueId ?: browseQueueId ?: return null
+            return playlistSections.firstOrNull { it.queueId == targetQueueId }
+        }
+
+    /** 是否正在浏览播放器在用的池。 */
+    val isBrowsingActive: Boolean
+        get() = browseSection != null && browseSection?.queueId == activeQueueId
+
+    /** 当前选择器层级：pickerPath 最后一个 id 在 catalog 里找到的节点，否则根。 */
+    val pickerLevel: CatalogNode?
+        get() {
+            val cat = playlistCatalog ?: return null
+            val lastId = pickerPath.lastOrNull() ?: return cat
+            return cat.find(lastId) ?: cat
+        }
+
+    /** 能否播放下一个视频：下一个 = active.hasMore || 往后找得到。 */
+    val canPlayNext: Boolean
+        get() {
+            val active = activeSection ?: return false
+            val entries = active.entries
+            if (entries.isEmpty()) return false
+            val currentIdx = entries.indexOfFirst { it.id == nowPlayingId }
+            if (currentIdx < 0) return false
+            if (active.hasMore) return true
+            for (i in (currentIdx + 1) until entries.size) {
+                val item = entries[i]
+                if (!item.playable) continue
+                if (active.skipWatched && item.watched) continue
+                return true
+            }
+            return false
+        }
+
+    /** 能否播放上一个视频：上一个 = 往前找得到。 */
+    val canPlayPrevious: Boolean
+        get() {
+            val active = activeSection ?: return false
+            val entries = active.entries
+            if (entries.isEmpty()) return false
+            val currentIdx = entries.indexOfFirst { it.id == nowPlayingId }
+            if (currentIdx < 0) return false
+            for (i in (currentIdx - 1) downTo 0) {
+                val item = entries[i]
+                if (!item.playable) continue
+                return true
+            }
+            return false
         }
 
     // ---- 设置 ----
@@ -558,18 +636,27 @@ interface VideoControlsCallbacks {
 
     /** 点了 [queueId] 这个池里的 [id]。Dart 会把详情页换成那条视频，并重新 present。 */
     fun onPlayEntry(queueId: String, id: String)
-    fun onPickPlaylistSection(queueId: String)
+
+    /** 浏览指定池（只浏览，不换池）。 */
+    fun onBrowseQueue(queueId: String)
+
+    /** 展开指定的目录节点。 */
+    fun onExpandCatalogNode(nodeId: String)
+
+    /** 打开 / 关闭池选择器。 */
+    fun onTogglePicker(open: Boolean)
+
+    /** 进入子层级。 */
+    fun onPickerPush(nodeId: String)
+
+    /** 返回上一层级或关闭选择器。 */
+    fun onPickerPop()
+
     fun onPlayAdjacent(forward: Boolean)
     fun onRefreshPlaylist()
 
     /** 卡片流滚到了 [queueId] 这个池的末尾且它还有下一页：请 Dart 翻一页再整套推回来。 */
     fun onLoadMorePlaylist(queueId: String)
-
-    /** 目录里选了一个还没开的池。 */
-    fun onOpenQueue(queueId: String)
-
-    /** 展开 / 收起一个多选项分组（null = 回到分组行）。 */
-    fun onExpandPlaylistGroup(groupId: String?)
 
     // ---- 清晰度 / 续播 ----
     fun onPickSource(label: String)

@@ -34,16 +34,24 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  *   就接着当前位置无缝换过去
  * - `abortSwitch` → `{videoId, reason}`：面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 删除）：
  *   让原生收掉换片在途态、把老片放回去并提示
- * - `setPlaylist` → `{sections: [{queueId, title, hasMore, loading,
- *                    items: [{id,title,author,durationText,thumbnailUrl,progress,watched,playable,downloaded}]}],
- *                    groups: [{id, title, subtitle, loading, choices: [{queueId, title, count}]}],
- *                    activeQueueId, nowPlayingId}`
+ * - `setPlaylist` → `{sections: [{queueId, title, icon, hasMore, loading, skipWatched, mediaType,
+ *                    items: [{id, title, author, thumbnailUrl, leadKind, leadText,
+ *                             viewsText, likesText, timeText, private, qualityText,
+ *                             progress, watched, playable}]}],
+ *                    catalog: {type, id, title, subtitle, trailing, icon, avatarUrl,
+ *                              queueId, branch, lazy, enabled, selected, showCheck,
+ *                              loading, expandNodeId, children: [...]},
+ *                    activeQueueId, browseQueueId, nowPlayingId, browseRejectedQueueId,
+ *                    texts: {upNext, loadFailed, emptyVideo, emptyGallery}}`
  *
  * Kotlin → Dart（同一条通道）：
  * - `requestPlaylist` `{force}` → 让 Dart 重新推一次「接着看」（force = 清单也重拉）
- * - `openQueue` `{queueId}` → 目录里还没开的池：让 Dart 开出来、装第一页、整套推回来
+ * - `browseQueue` `{queueId}` → 目录里选中的池：让 Dart 设为浏览池、装第一页、整套推回来（只浏览，不换池）
+ * - `expandCatalog` `{nodeId}` → 让 Dart 展开目录节点（懒加载逐层目录 / 清单重试）
  * - `loadMore` `{queueId}` → 让那个池翻一页，再整套推回来（面板里的无限滚动）
  * - `sourcePicked` `{label}` → 面板上换了清晰度，记成全局偏好（与 2D 底栏同一落点）
+ * - `formatPicked` `{key, format, shape, stereo}` → 面板上定了视频类型，Dart 按 `present` 带来的
+ *   `formatKey` 永久记住；下次 `present` 带回 `xrFormat`（枚举名）原样还原
  * - `playItem` `{queueId, id}` → 让 Dart 把详情页换成那条视频，新页再 `present` 回来
  * - `immersiveEnded` `{videoId, positionMs, durationMs}` → 沉浸播放结束（返回应用 / 换片 / 退出场景），
  *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
@@ -117,6 +125,8 @@ object XrBridge {
                             shape = call.argument<String>("shape") ?: "flat",
                             stereo = call.argument<String>("stereo") ?: "none",
                             fullFrame = call.argument<Boolean>("fullFrame") ?: false,
+                            formatKey = call.argument<String>("formatKey") ?: "",
+                            xrFormat = call.argument<String>("xrFormat") ?: "",
                             width = call.argument<Int>("w") ?: 0,
                             height = call.argument<Int>("h") ?: 0,
                             positionMs = (call.argument<Number>("positionMs") ?: 0).toLong(),
@@ -205,45 +215,47 @@ object XrBridge {
                         ImmersivePlaylistSection(
                             queueId = sec["queueId"] as? String ?: "",
                             title = sec["title"] as? String ?: "",
+                            icon = sec["icon"] as? String ?: "",
                             hasMore = sec["hasMore"] as? Boolean ?: false,
                             loading = sec["loading"] as? Boolean ?: false,
+                            skipWatched = sec["skipWatched"] as? Boolean ?: false,
+                            mediaType = sec["mediaType"] as? String ?: "video",
                             items = raw.mapNotNull { it as? Map<*, *> }.map { row ->
                                 ImmersivePlaylistItem(
                                     id = row["id"] as? String ?: "",
                                     title = row["title"] as? String ?: "",
                                     author = row["author"] as? String ?: "",
-                                    durationText = row["durationText"] as? String ?: "",
                                     thumbnailUrl = row["thumbnailUrl"] as? String ?: "",
+                                    leadKind = row["leadKind"] as? String ?: "",
+                                    leadText = row["leadText"] as? String ?: "",
+                                    viewsText = row["viewsText"] as? String ?: "",
+                                    likesText = row["likesText"] as? String ?: "",
+                                    timeText = row["timeText"] as? String ?: "",
+                                    isPrivate = row["private"] as? Boolean ?: false,
+                                    qualityText = row["qualityText"] as? String ?: "",
                                     progress = (row["progress"] as? Number)?.toFloat() ?: 0f,
                                     watched = row["watched"] as? Boolean ?: false,
                                     playable = row["playable"] as? Boolean ?: true,
-                                    downloaded = row["downloaded"] as? Boolean ?: false,
                                 )
                             }.filter { it.id.isNotEmpty() },
                         )
                     }.filter { it.queueId.isNotEmpty() }
-                    val rawGroups = call.argument<List<Map<String, Any?>>>("groups").orEmpty()
-                    val groups = rawGroups.map { g ->
-                        val raw = g["choices"] as? List<*> ?: emptyList<Any?>()
-                        ImmersivePlaylistGroup(
-                            id = g["id"] as? String ?: "",
-                            title = g["title"] as? String ?: "",
-                            subtitle = g["subtitle"] as? String ?: "",
-                            loading = g["loading"] as? Boolean ?: false,
-                            choices = raw.mapNotNull { it as? Map<*, *> }.map { c ->
-                                ImmersivePlaylistChoice(
-                                    queueId = c["queueId"] as? String ?: "",
-                                    title = c["title"] as? String ?: "",
-                                    count = (c["count"] as? Number)?.toInt() ?: -1,
-                                )
-                            }.filter { it.queueId.isNotEmpty() },
-                        )
-                    }.filter { it.id.isNotEmpty() }
+                    val rawCatalog = call.argument<Map<*, *>>("catalog")
+                    val catalog = rawCatalog?.let { parseCatalogNode(it) }
+                    val rawTexts = call.argument<Map<*, *>>("texts")
+                    val texts = rawTexts?.entries?.mapNotNull { (k, v) ->
+                        val key = k as? String
+                        val value = v as? String
+                        if (key != null && value != null) key to value else null
+                    }?.toMap() ?: emptyMap()
                     ImmersiveBridge.setPlaylist(
-                        sections,
-                        groups,
+                        sections = sections,
+                        catalog = catalog,
                         activeQueueId = call.argument<String>("activeQueueId"),
+                        browseQueueId = call.argument<String>("browseQueueId"),
                         nowPlayingId = call.argument<String>("nowPlayingId"),
+                        browseRejectedQueueId = call.argument<String>("browseRejectedQueueId"),
+                        texts = texts,
                     )
                     result.success(true)
                 }
@@ -251,6 +263,29 @@ object XrBridge {
                 else -> result.notImplemented()
             }
         }
+    }
+
+    private fun parseCatalogNode(map: Map<*, *>): ImmersiveCatalogNode {
+        val rawChildren = map["children"] as? List<*> ?: emptyList<Any?>()
+        val children = rawChildren.mapNotNull { (it as? Map<*, *>)?.let { childMap -> parseCatalogNode(childMap) } }
+        return ImmersiveCatalogNode(
+            type = map["type"] as? String ?: "option",
+            id = map["id"] as? String ?: "",
+            title = map["title"] as? String ?: "",
+            subtitle = map["subtitle"] as? String ?: "",
+            trailing = map["trailing"] as? String ?: "",
+            icon = map["icon"] as? String ?: "",
+            avatarUrl = map["avatarUrl"] as? String,
+            queueId = map["queueId"] as? String ?: "",
+            branch = map["branch"] as? Boolean ?: false,
+            lazy = map["lazy"] as? Boolean ?: false,
+            enabled = map["enabled"] as? Boolean ?: true,
+            selected = map["selected"] as? Boolean ?: false,
+            showCheck = map["showCheck"] as? Boolean ?: false,
+            loading = map["loading"] as? Boolean ?: false,
+            expandNodeId = map["expandNodeId"] as? String ?: "",
+            children = children,
+        )
     }
 }
 
@@ -266,6 +301,17 @@ data class ImmersiveVideoRequest(
     val stereo: String,
     /** 立体片每只眼占一整幅（FSBS / FOU）。默认半幅（HSBS / HOU）。 */
     val fullFrame: Boolean,
+    /**
+     * 「这条片子的视频类型记在哪把钥匙下」：在线视频 = [videoId]，本机文件 = 本地库条目 id。
+     * ⛔ 不能拿 [videoId] 兼任：本机文件页的 [videoId] 刻意是空串（它还管着回写 Iwara 历史），
+     * 硬塞一个本地 id 进去会拿去打在线历史。空串 = 不记。
+     */
+    val formatKey: String = "",
+    /**
+     * 用户上次在面板上亲手选定的 [m.c.g.a.i_iwara.questui.VideoFormat] 枚举名；空串 = 没选过。
+     * 非空时压过 [shape] / [stereo] / [fullFrame]：那三个字段表达不了全幅 / 鱼眼视场角 / EAC。
+     */
+    val xrFormat: String = "",
     val width: Int,
     val height: Int,
     val positionMs: Long,
@@ -296,34 +342,49 @@ data class ImmersivePlaylistItem(
     val id: String,
     val title: String,
     val author: String,
-    val durationText: String,
     val thumbnailUrl: String,
+    val leadKind: String,
+    val leadText: String,
+    val viewsText: String,
+    val likesText: String,
+    val timeText: String,
+    val isPrivate: Boolean,
+    val qualityText: String,
     val progress: Float,
     val watched: Boolean,
     val playable: Boolean,
-    val downloaded: Boolean,
 )
 
-/** 「接着看」来源目录的一个分组（= 2D 抽屉第一级）。 */
-data class ImmersivePlaylistGroup(
+/** 「接着看」来源目录的一个节点（= 2D 抽屉多级菜单树的一项）。 */
+data class ImmersiveCatalogNode(
+    val type: String,
     val id: String,
     val title: String,
     val subtitle: String,
+    val trailing: String,
+    val icon: String,
+    val avatarUrl: String?,
+    val queueId: String,
+    val branch: Boolean,
+    val lazy: Boolean,
+    val enabled: Boolean,
+    val selected: Boolean,
+    val showCheck: Boolean,
     val loading: Boolean,
-    val choices: List<ImmersivePlaylistChoice>,
+    val expandNodeId: String,
+    val children: List<ImmersiveCatalogNode> = emptyList(),
 )
-
-/** 分组里的一个选项（= 抽屉第二级），对应一个池；count < 0 表示没有计数。 */
-data class ImmersivePlaylistChoice(val queueId: String, val title: String, val count: Int)
 
 /** 「接着看」的一个分区 = 详情页的一个视频池。 */
 data class ImmersivePlaylistSection(
     val queueId: String,
     val title: String,
+    val icon: String,
     val hasMore: Boolean,
-    val items: List<ImmersivePlaylistItem>,
-    /** 池正在拉第一页 / 翻页（或还没装过任何一页）。 */
     val loading: Boolean = false,
+    val skipWatched: Boolean = false,
+    val mediaType: String = "video",
+    val items: List<ImmersivePlaylistItem>,
 )
 
 /** 空间画廊里的一项（与 Dart 的 `XrGalleryItem` 一一对应）。[url] 是当前画质档的地址，只作日志 / 兜底。 */
@@ -470,9 +531,12 @@ object ImmersiveBridge {
 
     private class PendingPlaylist(
         val sections: List<ImmersivePlaylistSection>,
-        val groups: List<ImmersivePlaylistGroup>,
+        val catalog: ImmersiveCatalogNode?,
         val activeQueueId: String?,
+        val browseQueueId: String?,
         val nowPlayingId: String?,
+        val browseRejectedQueueId: String?,
+        val texts: Map<String, String>,
     )
 
     /** 场景还没就绪时先攒着的图库。 */
@@ -502,9 +566,12 @@ object ImmersiveBridge {
         fun onAbortSwitch(videoId: String, reason: String)
         fun onPlaylist(
             sections: List<ImmersivePlaylistSection>,
-            groups: List<ImmersivePlaylistGroup>,
+            catalog: ImmersiveCatalogNode?,
             activeQueueId: String?,
+            browseQueueId: String?,
             nowPlayingId: String?,
+            browseRejectedQueueId: String?,
+            texts: Map<String, String>,
         )
     }
 
@@ -514,7 +581,10 @@ object ImmersiveBridge {
         isSceneAlive = true
         pendingPlaylist?.let {
             pendingPlaylist = null
-            listener.onPlaylist(it.sections, it.groups, it.activeQueueId, it.nowPlayingId)
+            listener.onPlaylist(
+                it.sections, it.catalog, it.activeQueueId, it.browseQueueId, it.nowPlayingId,
+                it.browseRejectedQueueId, it.texts,
+            )
         }
         pending?.let {
             pending = null
@@ -608,15 +678,20 @@ object ImmersiveBridge {
 
     fun setPlaylist(
         sections: List<ImmersivePlaylistSection>,
-        groups: List<ImmersivePlaylistGroup>,
+        catalog: ImmersiveCatalogNode?,
         activeQueueId: String?,
+        browseQueueId: String?,
         nowPlayingId: String?,
+        browseRejectedQueueId: String?,
+        texts: Map<String, String>,
     ) {
         val target = listener
         if (target == null) {
-            pendingPlaylist = PendingPlaylist(sections, groups, activeQueueId, nowPlayingId)
+            pendingPlaylist = PendingPlaylist(
+                sections, catalog, activeQueueId, browseQueueId, nowPlayingId, browseRejectedQueueId, texts,
+            )
         } else {
-            target.onPlaylist(sections, groups, activeQueueId, nowPlayingId)
+            target.onPlaylist(sections, catalog, activeQueueId, browseQueueId, nowPlayingId, browseRejectedQueueId, texts)
         }
     }
 
@@ -640,10 +715,32 @@ object ImmersiveBridge {
         mainHandler.post { channel.invokeMethod("sourcePicked", mapOf("label" to label)) }
     }
 
-    /** 目录里还没开的池：请 Dart 开出来、装第一页、整套推回来。 */
-    fun requestOpenQueue(queueId: String) {
+    /**
+     * 面板上给这条片子定了视频类型：请 Dart 按 [key] 永久记住，下次进空间直接按它铺。
+     * [shape] / [stereo] 与 `present` 同一套取值（另加 `eac`），给 2D 播放器那份粗粒度格式用；
+     * [format] 是枚举名，沉浸端靠它原样还原。
+     */
+    fun notifyFormatPicked(key: String, format: String, shape: String, stereo: String) {
+        if (key.isBlank()) return
         val channel = channelRef?.get() ?: return
-        mainHandler.post { channel.invokeMethod("openQueue", mapOf("queueId" to queueId)) }
+        mainHandler.post {
+            channel.invokeMethod(
+                "formatPicked",
+                mapOf("key" to key, "format" to format, "shape" to shape, "stereo" to stereo),
+            )
+        }
+    }
+
+    /** 目录里选中的池：请 Dart 设为浏览池、装第一页、整套推回来（只浏览，不换池）。 */
+    fun requestBrowseQueue(queueId: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("browseQueue", mapOf("queueId" to queueId)) }
+    }
+
+    /** 面板要钻进一个还没有数据（或上次失败）的目录节点：请 Dart 展开，展开后整套推回来。 */
+    fun requestExpandCatalog(nodeId: String) {
+        val channel = channelRef?.get() ?: return
+        mainHandler.post { channel.invokeMethod("expandCatalog", mapOf("nodeId" to nodeId)) }
     }
 
     /**

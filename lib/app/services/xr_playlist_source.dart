@@ -43,96 +43,95 @@ class XrPlaylistSource {
 
   static const String _tag = 'XrPlaylistSource';
 
-  /// 「接着看」在沉浸面板里要显示的那一串。
-  ///
-  /// - 只要**视频**：图库在沉浸空间里没有承载形式。
-  /// - ⛔ 不排除站外视频，而是把它们标成 `playable = false` 留在列表里 ——
-  ///   用户在应用里加过它们，列表里凭空少几条比「点不动」更让人困惑。
-  ///   （`PlaybackQueue` 那边选择直接排除，因为自动连播撞上站外会断链；
-  ///   这里是手动选片，不存在断链问题。）
-  static List<XrPlaylistEntry> watchLaterEntries({int limit = 200}) {
-    if (!Get.isRegistered<WatchLaterService>()) {
-      return const <XrPlaylistEntry>[];
-    }
-    final items = WatchLaterService.to.query(
-      itemType: WatchLaterItemType.video,
-      excludeInvalid: true,
-      limit: limit,
-    );
-    return items.map(XrPlaylistEntry.fromWatchLater).toList(growable: false);
-  }
-
   /// 兜底：没有详情页在场时，「接着看」就是稍后再看这一个分区。
   ///
   /// 分区 id 是自定的哨兵，原生侧点选时 Dart 认不出这个池，会走「直接解析地址」那条路。
-  static List<XrPlaylistSection> fallbackSections() => [
-    XrPlaylistSection(
+  ///
+  /// ⛔ 不排除站外视频，而是标成 `playable = false` 留在列表里——用户在应用里加过它们，
+  /// 列表里凭空少几条比「点不动」更让人困惑。
+  static XrPlaylistSection fallbackSection({int limit = 200}) {
+    final items = Get.isRegistered<WatchLaterService>()
+        ? WatchLaterService.to.query(
+            itemType: WatchLaterItemType.video,
+            excludeInvalid: true,
+            limit: limit,
+          )
+        : const <WatchLaterItem>[];
+    return XrPlaylistSection(
       queueId: fallbackQueueId,
       title: slang.t.watchLater.title,
+      icon: 'watchLater',
       hasMore: false,
-      items: watchLaterEntries(),
-    ),
-  ];
+      items: items.map(XrPlaylistEntry.fromWatchLater).toList(growable: false),
+    );
+  }
 
   static const String fallbackQueueId = 'xr:watchLater';
 
-  /// 详情页交来的视频池 → 沉浸面板的分区。图库池不进（沉浸空间没有承载形式）。
-  ///
-  /// [downloadedIds] 是已下载完成的视频 id，用来给卡片打「已下载」角标。
-  static List<XrPlaylistSection> sectionsFromQueues(
-    List<PlaybackQueue> queues, {
-    PlaybackMediaType mediaType = PlaybackMediaType.video,
-    Set<String> downloadedIds = const <String>{},
-  }) {
-    return queues
-        .where((q) => q.mediaType == mediaType)
-        .map(
-          (q) => XrPlaylistSection(
-            queueId: q.queueId,
-            title: _queueTitle(q),
-            hasMore: q.hasMore,
-            // 刚开的池在 adopt 那一刻就会被推一次（第一页还没到）：也算 loading，面板画转圈不画空态。
-            loading: q.isLoading || (q.loaded.isEmpty && q.hasMore),
-            items: q.loaded
-                .map(
-                  (item) => XrPlaylistEntry.fromSnapshot(
-                    item,
-                    downloaded:
-                        item.localQuality != null ||
-                        downloadedIds.contains(item.id),
-                  ),
-                )
-                .toList(growable: false),
-          ),
-        )
-        .toList(growable: false);
+  /// 一个池 → 沉浸面板的一个分区。
+  static XrPlaylistSection sectionFromQueue(PlaybackQueue queue) {
+    return XrPlaylistSection(
+      queueId: queue.queueId,
+      title: queueLabel(queue),
+      icon: queueIcon(queue.kind),
+      hasMore: queue.hasMore,
+      // ⛔ 只报真的在加载。「一条都没有、不在加载、还有下一页」= 上一次请求失败了，
+      // 面板据此画「加载失败，点击重试」（同 2D 抽屉 `_buildList`）。原来这里把
+      // `loaded.isEmpty && hasMore` 也算成 loading，失败的池会永远转圈。
+      loading: queue.isLoading,
+      skipWatched: queue is WatchLaterPlaybackQueue && queue.unwatchedOnly,
+      mediaType: queue.mediaType.isGallery ? 'gallery' : 'video',
+      items: queue.loaded
+          .map(XrPlaylistEntry.fromSnapshot)
+          .toList(growable: false),
+    );
   }
 
-  /// 分区标题：与详情页抽屉里的池名同一套文案。
-  static String _queueTitle(PlaybackQueue queue) {
+  /// 池名：**逐字等于 2D 抽屉胶囊上那行字**（`_pillLabel`，不含截断——面板自己省略）。
+  static String queueLabel(PlaybackQueue queue) {
     final t = slang.t;
-    final custom = queue.title?.trim();
+    String titled(String fallback) {
+      final custom = queue.title?.trim();
+      return custom == null || custom.isEmpty ? fallback : custom;
+    }
+
+    String suffixed(String base) {
+      final custom = queue.title?.trim();
+      return custom == null || custom.isEmpty ? base : '$base · $custom';
+    }
+
     return switch (queue.kind) {
       PlaybackQueueKind.source => t.playbackQueue.sourceTab,
       PlaybackQueueKind.subscriptions => t.common.subscriptions,
-      PlaybackQueueKind.playlist =>
-        custom == null || custom.isEmpty ? t.common.playList : custom,
-      PlaybackQueueKind.authorVideos => t.playbackQueue.authorVideos,
-      PlaybackQueueKind.authorGalleries => t.playbackQueue.authorGalleries,
+      PlaybackQueueKind.playlist => titled(t.common.playList),
+      PlaybackQueueKind.authorVideos => titled(t.playbackQueue.authorVideos),
+      PlaybackQueueKind.authorGalleries => titled(
+        t.playbackQueue.authorGalleries,
+      ),
       PlaybackQueueKind.favorites => t.common.favorites,
-      PlaybackQueueKind.localFavorite =>
-        custom == null || custom.isEmpty ? t.favorite.localizeFavorite : custom,
-      PlaybackQueueKind.downloads =>
-        custom == null || custom.isEmpty
-            ? t.playbackQueue.downloads
-            : '${t.playbackQueue.downloads} · $custom',
-      PlaybackQueueKind.localLibrary =>
-        custom == null || custom.isEmpty
-            ? t.playbackQueue.localFiles
-            : '${t.playbackQueue.localFiles} · $custom',
-      PlaybackQueueKind.watchLater => t.watchLater.title,
+      PlaybackQueueKind.localFavorite => titled(t.favorite.localizeFavorite),
+      PlaybackQueueKind.downloads => suffixed(t.playbackQueue.downloads),
+      PlaybackQueueKind.localLibrary => suffixed(t.playbackQueue.localFiles),
+      PlaybackQueueKind.watchLater =>
+        queue is WatchLaterPlaybackQueue && queue.unwatchedOnly
+            ? '${t.watchLater.title} · ${t.watchLater.filterUnwatched}'
+            : t.watchLater.title,
     };
   }
+
+  /// 池的图标键（= 2D 抽屉 `_pillIcon`），面板侧映射成 UI Set 图标。
+  static String queueIcon(PlaybackQueueKind kind) => switch (kind) {
+    PlaybackQueueKind.source => 'source',
+    PlaybackQueueKind.subscriptions => 'subscriptions',
+    PlaybackQueueKind.playlist => 'playlist',
+    PlaybackQueueKind.authorVideos => 'videos',
+    PlaybackQueueKind.authorGalleries => 'gallery',
+    PlaybackQueueKind.favorites => 'favorite',
+    PlaybackQueueKind.localFavorite => 'folder',
+    PlaybackQueueKind.downloads => 'download',
+    PlaybackQueueKind.localLibrary => 'devices',
+    PlaybackQueueKind.watchLater => 'watchLater',
+  };
 
   /// 把一条视频解析成沉浸场景能直接吃的东西。解析不出来返回 null。
   static Future<XrPlayableVideo?> resolve(String videoId) async {
@@ -201,8 +200,9 @@ class XrPlaylistSource {
   ///
   /// ⛔ 片源格式一律 [VrSourceFormat.flatMono]，除非用户自己指定过。本地文件的
   /// 自动识别是 P2 的事，而**沉浸态里猜错的代价是不对称的**：平面片当 SBS 是
-  /// 双眼各看半边的重影加头晕，而且沉浸面板没有改格式的通道方法，切错了要退出
-  /// 整个沉浸空间才能救。真 VR 被当平面则只是"不沉浸"，一眼就知道该点一下。
+  /// 双眼各看半边的重影加头晕。真 VR 被当平面则只是"不沉浸"，一眼就知道该点一下；
+  /// 用户在空间面板上点过的那一档会被记住（`formatPicked`），下次 `present` 时由
+  /// `XrImmersiveService.present` 按条目 id 读回来。
   static Future<XrPlayableVideo?> _resolveLocalLibrary(String itemId) async {
     try {
       final item = LocalMediaRepository().getItem(itemId);
@@ -264,67 +264,143 @@ class XrPlaylistSource {
   }
 }
 
-/// 沉浸面板列表里的一行。字段与 Kotlin 侧的 `PlaylistEntry` 一一对应。
+/// 沉浸面板列表里的一张卡。字段与 Kotlin 侧的 `PlaylistEntry` 一一对应。
+///
+/// ⛔ 显示什么**逐项照 2D 抽屉的 `_QueueRow`**：封面左下「时长 / 张数 / 站外视频」、
+/// 右下播放量、左上本地清晰度（只有已下载池有）、底沿进度条（有进度才画）；文字区
+/// 标题两行 + 「作者 · 🔒 · ♥ 点赞 · 时间」一行。**有才画**：统计是 null 就整段不占
+/// 地方，而不是显示 0。文案全在 Dart 这边按应用语言格式化好，面板只管摆。
+///
+/// 原先空间版多出来的「已看完」「已下载」角标与压暗、少掉的播放量 / 点赞 / 时间，
+/// 都是两边各长各的结果（2026-09-14 按 2D 收口）。
 class XrPlaylistEntry {
   const XrPlaylistEntry({
     required this.id,
     required this.title,
     required this.author,
-    required this.durationText,
     required this.thumbnailUrl,
+    required this.leadKind,
+    required this.leadText,
+    required this.viewsText,
+    required this.likesText,
+    required this.timeText,
+    required this.isPrivate,
+    required this.qualityText,
     required this.progressRatio,
     required this.watched,
     required this.playable,
-    this.downloaded = false,
   });
 
   final String id;
   final String title;
+
+  /// 作者显示名；没有显示名时是 `@username`；都没有是空串。
   final String author;
-  final String durationText;
   final String thumbnailUrl;
+
+  /// 封面左下那一枚是什么：`external` / `images` / `duration`；空串 = 不画。
+  final String leadKind;
+  final String leadText;
+  final String viewsText;
+  final String likesText;
+  final String timeText;
+  final bool isPrivate;
+
+  /// 本地存的清晰度显示名（只有已下载池有）。
+  final String qualityText;
   final double progressRatio;
+
+  /// 看完了（进度 ≥ 95%）：不画角标，只给「跳过已看完」的续播用。
   final bool watched;
+
+  /// 站外视频在沉浸空间里放不了：卡片照常列出、点不动。
   final bool playable;
 
-  /// 本机有下载完成的文件（面板打「已下载」角标；沉浸态选中它会用本地文件播）。
-  final bool downloaded;
-
-  factory XrPlaylistEntry.fromWatchLater(WatchLaterItem item) =>
-      XrPlaylistEntry(
-        id: item.itemId,
-        title: item.title,
-        author: item.author ?? '',
-        durationText: _formatDuration(item.durationMs),
-        thumbnailUrl: item.thumbnailUrl ?? '',
-        progressRatio: item.progressRatio,
-        watched: item.isWatched,
-        playable: !item.isExternal,
-      );
-
-  /// 视频池里的一条快照。「看完」按进度 ≥ 95% 判，与稍后再看的口径一致。
-  factory XrPlaylistEntry.fromSnapshot(
-    InnerPlaylistItemSnapshot item, {
-    bool downloaded = false,
-  }) {
-    final progress = (item.progressPermil / 1000).clamp(0.0, 1.0).toDouble();
-    // 图库条目没有时长，角标写张数（与列表页卡片同一句话）。
-    final numImages = item.numImages;
-    final durationText = item.durationSeconds == null && numImages != null
-        ? slang.t.playbackQueue.galleryImageCount(count: numImages)
-        : _formatDuration(
-            item.durationSeconds == null ? null : item.durationSeconds! * 1000,
+  factory XrPlaylistEntry.fromWatchLater(WatchLaterItem item) {
+    final t = slang.t;
+    final durationMs = item.durationMs;
+    final (lead, leadText) = item.isExternal
+        ? ('external', t.common.externalVideo)
+        : durationMs == null || durationMs <= 0
+        ? ('', '')
+        : (
+            'duration',
+            CommonUtils.formatDuration(Duration(milliseconds: durationMs)),
           );
+    final author = item.author?.trim().isNotEmpty == true
+        ? item.author!.trim()
+        : (item.authorUsername?.trim().isNotEmpty == true
+              ? '@${item.authorUsername!.trim()}'
+              : '');
+    return XrPlaylistEntry(
+      id: item.itemId,
+      title: item.title,
+      author: author,
+      thumbnailUrl: item.thumbnailUrl ?? '',
+      leadKind: lead,
+      leadText: leadText,
+      viewsText: '',
+      likesText: '',
+      timeText: '',
+      isPrivate: false,
+      qualityText: '',
+      progressRatio: item.progressPermil > 0 ? item.progressRatio : 0,
+      watched: item.isWatched,
+      playable: !item.isExternal,
+    );
+  }
+
+  /// 池里的一条快照。
+  factory XrPlaylistEntry.fromSnapshot(InnerPlaylistItemSnapshot item) {
+    final t = slang.t;
+    final String lead;
+    final String leadText;
+    if (item.isExternalVideo) {
+      lead = 'external';
+      leadText = t.common.externalVideo;
+    } else if (item.numImages != null) {
+      lead = 'images';
+      leadText = '${item.numImages}';
+    } else if (item.durationSeconds != null) {
+      lead = 'duration';
+      leadText = CommonUtils.formatDuration(
+        Duration(seconds: item.durationSeconds!),
+      );
+    } else {
+      lead = '';
+      leadText = '';
+    }
+    final author = item.authorName?.trim().isNotEmpty == true
+        ? item.authorName!.trim()
+        : (item.authorUsername?.trim().isNotEmpty == true
+              ? '@${item.authorUsername!.trim()}'
+              : '');
+    final quality = item.localQuality?.trim();
+    final progress = (item.progressPermil / 1000).clamp(0.0, 1.0).toDouble();
     return XrPlaylistEntry(
       id: item.id,
       title: item.title,
-      author: item.authorName ?? '',
-      durationText: durationText,
+      author: author,
       thumbnailUrl: item.thumbnailUrl,
-      progressRatio: progress,
+      leadKind: lead,
+      leadText: leadText,
+      viewsText: item.numViews == null
+          ? ''
+          : CommonUtils.formatFriendlyNumber(item.numViews),
+      likesText: item.numLikes == null
+          ? ''
+          : CommonUtils.formatFriendlyNumber(item.numLikes),
+      timeText: CommonUtils.formatFriendlyTimestamp(
+        item.createdAt,
+        includeTime: false,
+      ),
+      isPrivate: item.isPrivate,
+      qualityText: quality == null || quality.isEmpty
+          ? ''
+          : CommonUtils.getQualityDisplayLabel(t, quality),
+      progressRatio: item.progressPermil > 0 ? progress : 0,
       watched: progress >= 0.95,
       playable: !item.isExternalVideo,
-      downloaded: downloaded,
     );
   }
 
@@ -332,24 +408,18 @@ class XrPlaylistEntry {
     'id': id,
     'title': title,
     'author': author,
-    'durationText': durationText,
     'thumbnailUrl': thumbnailUrl,
+    'leadKind': leadKind,
+    'leadText': leadText,
+    'viewsText': viewsText,
+    'likesText': likesText,
+    'timeText': timeText,
+    'private': isPrivate,
+    'qualityText': qualityText,
     'progress': progressRatio,
     'watched': watched,
     'playable': playable,
-    'downloaded': downloaded,
   };
-
-  static String _formatDuration(int? ms) {
-    if (ms == null || ms <= 0) return '--:--';
-    final total = ms ~/ 1000;
-    final h = total ~/ 3600;
-    final m = (total % 3600) ~/ 60;
-    final s = total % 60;
-    final mm = m.toString().padLeft(2, '0');
-    final ss = s.toString().padLeft(2, '0');
-    return h > 0 ? '$h:$mm:$ss' : '$m:$ss';
-  }
 }
 
 /// 一条解析完成、可以直接交给沉浸场景的视频。
@@ -375,29 +445,49 @@ class XrPlayableVideo {
   final int height;
 }
 
-/// 沉浸面板「接着看」的一个分区 = 详情页的一个视频池。
+/// 沉浸面板「接着看」的一个分区 = 一个池。
+///
+/// 面板上真正画出来的只有**正在浏览的那一个**；播放器在用的那个（active）另外
+/// 带着，给「上一个 / 下一个 / 播完接着放」和「正在播」标记用。
 class XrPlaylistSection {
   const XrPlaylistSection({
     required this.queueId,
     required this.title,
+    required this.icon,
     required this.hasMore,
     required this.items,
     this.loading = false,
+    this.skipWatched = false,
+    this.mediaType = 'video',
   });
 
   final String queueId;
+
+  /// 池名（= 2D 胶囊上那行字）。
   final String title;
+
+  /// 图标键，见 [XrPlaylistSource.queueIcon]。
+  final String icon;
   final bool hasMore;
   final List<XrPlaylistEntry> items;
 
-  /// 池正在拉第一页 / 翻页，或还没装过任何一页。面板据此在空列表上画转圈。
+  /// 池正在拉一页。
   final bool loading;
+
+  /// 顺着这个池往下放时跳过已看完的（稍后再看 · 未看完，同 2D 抽屉点播时的 skipWatched）。
+  final bool skipWatched;
+
+  /// `video` / `gallery`：面板空态文案按它二选一。
+  final String mediaType;
 
   Map<String, dynamic> toChannelMap() => {
     'queueId': queueId,
     'title': title,
+    'icon': icon,
     'hasMore': hasMore,
     'loading': loading,
+    'skipWatched': skipWatched,
+    'mediaType': mediaType,
     'items': items.map((e) => e.toChannelMap()).toList(),
   };
 }

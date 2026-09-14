@@ -68,9 +68,8 @@ import m.c.g.a.i_iwara.questui.GalleryState
 import m.c.g.a.i_iwara.questui.MediaEffectsSettings
 import m.c.g.a.i_iwara.questui.PLAYBACK_SPEEDS
 import m.c.g.a.i_iwara.questui.PanelLocale
-import m.c.g.a.i_iwara.questui.PlaylistChoice
+import m.c.g.a.i_iwara.questui.CatalogNode
 import m.c.g.a.i_iwara.questui.PlaylistEntry
-import m.c.g.a.i_iwara.questui.PlaylistGroup
 import m.c.g.a.i_iwara.questui.PlaylistSection
 import m.c.g.a.i_iwara.questui.Projection
 import m.c.g.a.i_iwara.questui.SourceOption
@@ -85,9 +84,9 @@ import m.c.g.a.i_iwara.questui.createVideoControlsView
 import m.c.g.a.i_iwara.questui.createWindowFrameView
 import m.c.g.a.i_iwara.questui.R as UiR
 import m.c.g.a.i_iwara.xr.ImmersiveBridge
+import m.c.g.a.i_iwara.xr.ImmersiveCatalogNode
 import m.c.g.a.i_iwara.xr.ImmersiveGalleryItem
 import m.c.g.a.i_iwara.xr.ImmersiveGalleryRequest
-import m.c.g.a.i_iwara.xr.ImmersivePlaylistGroup
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
 import m.c.g.a.i_iwara.xr.ImmersiveSourceOption
@@ -259,6 +258,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private var argUrl: String? = null
     private var videoId: String = ""
+
+    /** 视频类型记在哪把钥匙下（见 [ImmersiveVideoRequest.formatKey]）；空串 = 这一条不记。 */
+    private var formatKey: String = ""
     private var videoWidth: Int = 1920
     private var videoHeight: Int = 1080
     private var pendingStartMs = 0L
@@ -356,6 +358,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private var playlistSections: List<ImmersivePlaylistSection> = emptyList()
     private var nowPlayingId: String? = null
+    private var pendingAdvance = false
 
     // ---- 空间画廊 ----
 
@@ -513,6 +516,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.title = source.getStringExtra("title") ?: ""
             controls.author = source.getStringExtra("author") ?: ""
             videoId = source.getStringExtra("videoId") ?: ""
+            // adb 直投没有持久化钥匙：别让上一次 present 的钥匙接住这里的选档。
+            formatKey = ""
         }
         argMute = source.getBooleanExtra("mute", argMute)
         // 背景不透明度（0 = 纯黑虚空、1 = 真实房间）。排查用的直投口子，正常入口是场景页那条滑块。
@@ -810,71 +815,140 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPlaylist(
             sections: List<ImmersivePlaylistSection>,
-            groups: List<ImmersivePlaylistGroup>,
+            catalog: ImmersiveCatalogNode?,
             activeQueueId: String?,
-            playingId: String?,
+            browseQueueId: String?,
+            nowPlayingId: String?,
+            browseRejectedQueueId: String?,
+            texts: Map<String, String>,
         ) {
             runOnUiThread {
                 playlistSections = sections
-                if (playingId != null) nowPlayingId = playingId
-                // 正在等的那个池推过来了、但第一页还在路上（Dart 在 adopt 那一刻就先推一次空池）：
-                // 在途态不收，看门狗顺延，等第一页到了重推再收。
-                val pending = controls.playlistPendingQueueId
-                val pendingStillLoading = pending != null &&
-                    sections.any { it.queueId == pending && it.loading && it.items.isEmpty() }
-                if (pendingStillLoading) {
-                    playlistWaitUntil = SystemClock.uptimeMillis() + PLAYLIST_WAIT_MS
-                } else {
-                    clearPlaylistWait()
+                if (nowPlayingId != null) this@ImmersiveActivity.nowPlayingId = nowPlayingId
+                controls.nowPlayingId = this@ImmersiveActivity.nowPlayingId
+                if (activeQueueId != null || controls.activeQueueId == null) {
+                    controls.activeQueueId = activeQueueId
                 }
-                controls.playlistLoadingMoreQueueId = null
-                controls.nowPlayingId = nowPlayingId
-                if (activeQueueId != null || controls.activeQueueId == null) controls.activeQueueId = activeQueueId
+                controls.browseQueueId = browseQueueId
+                controls.playlistTexts = texts
+                controls.playlistCatalog = catalog?.toModel()
+
                 controls.playlistSections.clear()
                 controls.playlistSections.addAll(
                     sections.map { sec ->
                         PlaylistSection(
                             queueId = sec.queueId,
                             title = sec.title,
+                            icon = sec.icon,
                             hasMore = sec.hasMore,
                             loading = sec.loading,
+                            skipWatched = sec.skipWatched,
+                            mediaType = sec.mediaType,
                             entries = sec.items.map {
                                 PlaylistEntry(
-                                    id = it.id, title = it.title, author = it.author, durationText = it.durationText,
-                                    thumbnailUrl = it.thumbnailUrl, progressRatio = it.progress,
-                                    watched = it.watched, playable = it.playable, downloaded = it.downloaded,
+                                    id = it.id,
+                                    title = it.title,
+                                    author = it.author,
+                                    thumbnailUrl = it.thumbnailUrl,
+                                    leadKind = it.leadKind,
+                                    leadText = it.leadText,
+                                    viewsText = it.viewsText,
+                                    likesText = it.likesText,
+                                    timeText = it.timeText,
+                                    isPrivate = it.isPrivate,
+                                    qualityText = it.qualityText,
+                                    progressRatio = it.progress,
+                                    watched = it.watched,
+                                    playable = it.playable,
                                 )
                             },
                         )
                     },
                 )
-                controls.playlistGroups.clear()
-                controls.playlistGroups.addAll(
-                    groups.map { g ->
-                        PlaylistGroup(
-                            id = g.id, title = g.title, subtitle = g.subtitle, loading = g.loading,
-                            choices = g.choices.map { PlaylistChoice(it.queueId, it.title, it.count) },
-                        )
-                    },
-                )
-                // 展开着的分组已经不在了（例如他人的播放列表随池被顶掉）就收回分组行。
-                if (controls.expandedGroupId != null && groups.none { it.id == controls.expandedGroupId }) {
-                    controls.expandedGroupId = null
+
+                // 在途态：浏览的池到了 / 钻进去的那层有数据了才各自收；两样都收完才关看门狗。
+                // 没有在途的（打开页面 / 刷新 / 翻页 / 清单到了）这一次推送本身就是答复。
+                val pendingBrowse = controls.pendingBrowseQueueId
+                if (pendingBrowse != null &&
+                    (browseQueueId == pendingBrowse || browseRejectedQueueId == pendingBrowse)
+                ) {
+                    // 命中 = 开好了；被拒 = Dart 开不出这一池（页面换了 / 登录掉了），停在原来那一池。
+                    controls.pendingBrowseQueueId = null
+                }
+                val pendingExpand = controls.pendingExpandNodeId
+                if (pendingExpand != null) {
+                    val node = controls.playlistCatalog?.find(pendingExpand)
+                    if (node == null || !node.lazy) {
+                        controls.pendingExpandNodeId = null
+                    }
+                }
+                if (controls.pendingBrowseQueueId == null && controls.pendingExpandNodeId == null) {
+                    clearPlaylistWait()
+                }
+
+                // pickerPath 从尾部弹出在新 catalog 里找不到的 id
+                val currentCatalog = controls.playlistCatalog
+                while (controls.pickerPath.isNotEmpty()) {
+                    val lastId = controls.pickerPath.last()
+                    if (currentCatalog?.find(lastId) == null) {
+                        controls.pickerPath.removeAt(controls.pickerPath.lastIndex)
+                    } else {
+                        break
+                    }
+                }
+
+                // 选择器正停在一层「没有数据」的节点上（点了刷新，Dart 把钻过的目录层缓存清了）：
+                // 没人替它要数据的话，那一层会一直转圈。
+                val standing = controls.pickerPath.lastOrNull()?.let { currentCatalog?.find(it) }
+                if (controls.pickerOpen && standing?.lazy == true && controls.pendingExpandNodeId == null) {
+                    controls.pendingExpandNodeId = standing.id
+                    playlistWaitUntil = SystemClock.uptimeMillis() + PLAYLIST_WAIT_MS
+                    ImmersiveBridge.requestExpandCatalog(standing.id)
+                }
+
+                controls.playlistLoadingMoreQueueId = null
+
+                // 「下一个」撞上已加载部分的末尾、请 Dart 翻了一页：active 那池不再 loading 时
+                // 结算**一次**。⛔ 结算时不许再发翻页——翻页失败时 hasMore 不变，再发就是死循环。
+                if (pendingAdvance && activeSection?.loading != true) {
+                    pendingAdvance = false
+                    adjacentPlayable(forward = true, allowLoadMore = false)?.let { (queueId, item) ->
+                        playFromQueue(queueId, item.id)
+                    }
                 }
             }
         }
     }
 
+    private fun ImmersiveCatalogNode.toModel(): CatalogNode = CatalogNode(
+        type = type,
+        id = id,
+        title = title,
+        subtitle = subtitle,
+        trailing = trailing,
+        icon = icon,
+        avatarUrl = avatarUrl,
+        queueId = queueId,
+        branch = branch,
+        lazy = lazy,
+        enabled = enabled,
+        selected = selected,
+        showCheck = showCheck,
+        loading = loading,
+        expandNodeId = expandNodeId,
+        children = children.map { it.toModel() },
+    )
+
     /** 「接着看」向 Dart 发了请求：进在途态，超时自动收。 */
-    private fun beginPlaylistWait(pendingQueueId: String? = null) {
+    private fun beginPlaylistWait() {
         controls.playlistLoading = true
-        controls.playlistPendingQueueId = pendingQueueId
         playlistWaitUntil = SystemClock.uptimeMillis() + PLAYLIST_WAIT_MS
     }
 
     private fun clearPlaylistWait() {
         controls.playlistLoading = false
-        controls.playlistPendingQueueId = null
+        controls.pendingBrowseQueueId = null
+        controls.pendingExpandNodeId = null
         playlistWaitUntil = 0L
     }
 
@@ -887,9 +961,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun applyRequest(request: ImmersiveVideoRequest, switchingVideo: Boolean) {
         argUrl = request.url
         videoId = request.videoId
+        formatKey = request.formatKey
         if (request.width > 0) videoWidth = request.width
         if (request.height > 0) videoHeight = request.height
-        controls.format = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame)
+        controls.format = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame, request.xrFormat)
         controls.formatTab = controls.format.tab
         controls.title = request.title
         controls.author = request.author
@@ -927,7 +1002,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         cancelSpatialInteractions()
         notifyEnded()
         val before = controls.format
-        val nextFormat = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame)
+        val nextFormat = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame, request.xrFormat)
         // ⛔ 换片且前后有一方是球幕：锚点按**此刻**的视线重新捕获。看 360 时人会转身，
         // 沿用旧锚点的话 180 半球 / 平幕会落在转身前的方向上（「有时出现在右侧」）。
         if (!before.isFlat || !nextFormat.isFlat) {
@@ -2312,15 +2387,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 面板上的「返回一层」。手柄 B/Y 与面板自己那枚返回钮走同一套层次：
      *
      * 1. 音量 / 倍速那类浮层开着 → 先关浮层；
-     * 2. 播放列表里展开着分组 → 先收回分组行（与页内那枚「‹ 全部」同义）；
+     * 2. 播放列表里池选择器开着 → 返回上一层选择器或关闭选择器；
      * 3. 停在子页（场景 / 屏幕类型 / 视频类型 / 列表 / 设置）→ 回主页（各页 `PageHeader.onBack`）；
      * 4. 已经在主页 → 才收面板。
      */
     private fun popPanelOrHide() {
         when {
             controls.volumePopupOpen -> controls.volumePopupOpen = false
-            controls.route == ControlsRoute.PLAYLIST && controls.expandedGroupId != null ->
-                controls.expandedGroupId = null
+            controls.route == ControlsRoute.PLAYLIST && controls.pickerOpen -> {
+                if (controls.pickerPath.isNotEmpty()) {
+                    controls.pickerPath.removeAt(controls.pickerPath.lastIndex)
+                } else {
+                    controls.pickerOpen = false
+                }
+            }
             // 浏览态那一页身下没有播放页可回，「返回一层」就是收面板。
             controls.route == ControlsRoute.BROWSE -> {
                 hideControls()
@@ -2776,18 +2856,40 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
-    /** 当前分区里、正在放的那条前后最近的一条可播项。 */
-    private fun adjacentPlayable(forward: Boolean): Pair<String, ImmersivePlaylistItem>? {
+    /**
+     * active 分区里、正在放的那条前后最近的一条可播项。
+     * 规则对齐 2D PlaybackQueue.itemAfter：当前条找不到返回 null（不要从头找）；跳过 playable=false；
+     * section.skipWatched 为真且往后找时跳过 watched=true。
+     * 往后找不到但 active.hasMore 为真时发起 requestLoadMore 并记 pendingAdvance=true。
+     */
+    private fun adjacentPlayable(
+        forward: Boolean,
+        allowLoadMore: Boolean = true,
+    ): Pair<String, ImmersivePlaylistItem>? {
         val section = activeSection ?: return null
         val items = section.items
         if (items.isEmpty()) return null
         val current = items.indexOfFirst { it.id == nowPlayingId }
-        val step = if (forward) 1 else -1
-        var i = if (current < 0) (if (forward) -1 else items.size) else current
-        while (true) {
-            i += step
-            if (i < 0 || i >= items.size) return null
-            if (items[i].playable) return section.queueId to items[i]
+        if (current < 0) return null
+        if (forward) {
+            for (i in (current + 1) until items.size) {
+                val item = items[i]
+                if (!item.playable) continue
+                if (section.skipWatched && item.watched) continue
+                return section.queueId to item
+            }
+            if (allowLoadMore && section.hasMore && !pendingAdvance) {
+                pendingAdvance = true
+                ImmersiveBridge.requestLoadMore(section.queueId)
+            }
+            return null
+        } else {
+            for (i in (current - 1) downTo 0) {
+                val item = items[i]
+                if (!item.playable) continue
+                return section.queueId to item
+            }
+            return null
         }
     }
 
@@ -2798,6 +2900,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      */
     private fun playFromQueue(queueId: String, id: String) {
         if (controls.switchingToId != null) return
+        // 已经在换片了：之前那次「翻一页再接着放」作废，否则晚到的推送会在新片上再跳一条。
+        pendingAdvance = false
         beginSwitch(id)
         ImmersiveBridge.requestPlayItem(queueId, id)
     }
@@ -2898,6 +3002,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override fun onPickFormat(format: VideoFormat) {
             touched()
             val before = controls.format
+            // ⛔ 在「没变就 return」之前报：机器推断的那一档被用户点一下确认，同样是「以我为准」，
+            // 要记下来——否则下次进来推断换了口径，用户确认过的又没了。
+            ImmersiveBridge.notifyFormatPicked(
+                formatKey, format.name, ScreenGeometry.shapeOf(format), ScreenGeometry.stereoOf(format),
+            )
             controls.format = format
             controls.formatTab = format.tab
             controls.notice = if (format.supported) {
@@ -3113,17 +3222,51 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
         override fun onPlayEntry(queueId: String, id: String) {
             touched()
-            if (id == nowPlayingId) return
-            controls.activeQueueId = queueId
+            if (id == nowPlayingId && queueId == controls.activeQueueId) return
             playFromQueue(queueId, id)
         }
 
-        override fun onPickPlaylistSection(queueId: String) {
+        override fun onBrowseQueue(queueId: String) {
             touched()
-            controls.activeQueueId = queueId
-            // ⛔ 也告诉 Dart：详情页的当前池要跟着换，否则下一次整套重推（翻页 / 清单到了）会把
-            // 分区拽回 Dart 手里那个——「点了别的分区又跳回去」的状态冲突就是这个。
-            ImmersiveBridge.requestOpenQueue(queueId)
+            controls.pickerOpen = false
+            controls.pickerPath.clear()
+            if (queueId == controls.browseQueueId && controls.pendingBrowseQueueId == null) return
+            controls.pendingBrowseQueueId = queueId
+            beginPlaylistWait()
+            ImmersiveBridge.requestBrowseQueue(queueId)
+        }
+
+        override fun onExpandCatalogNode(nodeId: String) {
+            touched()
+            controls.pendingExpandNodeId = nodeId
+            beginPlaylistWait()
+            ImmersiveBridge.requestExpandCatalog(nodeId)
+        }
+
+        override fun onTogglePicker(open: Boolean) {
+            touched()
+            controls.pickerOpen = open
+            if (!open) {
+                controls.pickerPath.clear()
+            }
+        }
+
+        override fun onPickerPush(nodeId: String) {
+            touched()
+            controls.pickerPath.add(nodeId)
+            val node = controls.playlistCatalog?.find(nodeId)
+            if (node?.lazy == true) {
+                onExpandCatalogNode(nodeId)
+            }
+        }
+
+        override fun onPickerPop() {
+            touched()
+            if (controls.pickerPath.isNotEmpty()) {
+                controls.pickerPath.removeAt(controls.pickerPath.lastIndex)
+            } else {
+                controls.pickerOpen = false
+            }
         }
 
         override fun onPlayAdjacent(forward: Boolean) {
@@ -3135,24 +3278,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             touched()
             beginPlaylistWait()
             ImmersiveBridge.requestPlaylist(force = true)
-        }
-
-        override fun onOpenQueue(queueId: String) {
-            touched()
-            if (controls.playlistLoading) return
-            controls.activeQueueId = queueId
-            controls.expandedGroupId = null
-            if (playlistSections.any { it.queueId == queueId }) {
-                ImmersiveBridge.requestOpenQueue(queueId)
-                return
-            }
-            beginPlaylistWait(pendingQueueId = queueId)
-            ImmersiveBridge.requestOpenQueue(queueId)
-        }
-
-        override fun onExpandPlaylistGroup(groupId: String?) {
-            touched()
-            controls.expandedGroupId = groupId
         }
 
         override fun onPickSource(label: String) {
@@ -3238,6 +3363,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             controls.route = route
             controls.volumePopupOpen = false
             if (route == ControlsRoute.PLAYLIST) {
+                controls.pickerOpen = false
+                controls.pickerPath.clear()
                 if (playlistSections.isEmpty()) beginPlaylistWait()
                 ImmersiveBridge.requestPlaylist()
             }
@@ -3341,6 +3468,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         galleryResolving.clear()
         argUrl = null
         videoId = ""
+        formatKey = ""
         nowPlayingId = null
         controls.nowPlayingId = null
         controls.sources.clear()
@@ -3426,6 +3554,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
         argUrl = null
         videoId = ""
+        formatKey = ""
     }
 
     // ================================================================ 幕布横拖翻片（视频）
@@ -3632,6 +3761,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         if (wantImage) {
             argUrl = null
             videoId = ""
+            formatKey = ""
             controls.isPlaying = false
             val path = g.resolvedPath[item.id]
             g.loading = true
@@ -3649,6 +3779,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         } else {
             argUrl = item.url
             videoId = ""
+            formatKey = ""
             pendingStartMs = 0L
             g.loading = false
             resetTrackUi()

@@ -93,27 +93,11 @@
     <string name="xr_dismiss_tip">关闭提示</string>
 
     <!-- ─────────────────────────────── 「接着看」页 -->
-    <string name="xr_playlist_title">接着看</string>
-    <string name="xr_opening">正在打开…</string>
-    <string name="xr_switching">正在切换…</string>
-    <string name="xr_empty_choices">暂无内容</string>
+    <string name="xr_queue_picker">切换视频池</string>
     <string name="xr_card_loading">正在加载…</string>
-    <string name="xr_badge_now_playing">正在播放</string>
-    <string name="xr_badge_offsite">站外</string>
-    <string name="xr_badge_watched">已看完 ✓</string>
-    <string name="xr_badge_downloaded">已下载</string>
     <string name="xr_untitled">（无标题）</string>
-    <string name="xr_loading_next_page">正在读取下一页…</string>
-    <string name="xr_load_more">加载更多</string>
-    <string name="xr_load_more_hint">滚到这里会自动翻页</string>
     <string name="xr_playlist_empty_title">没有可接着看的内容</string>
     <string name="xr_playlist_empty_hint">回应用里把想看的加进队列，这里就能直接接着放</string>
-    <string name="xr_section_empty">这个池里还没有条目 —— 换上面的 tab 试试其它分区</string>
-    <string name="xr_pill_pending">%1$s …</string>
-    <string name="xr_pill_count">%1$s · %2$d</string>
-    <string name="xr_pill_subtitle">%1$s · %2$s</string>
-    <string name="xr_playlist_subtitle">%1$s · 共 %2$d 条</string>
-    <string name="xr_playlist_subtitle_more">%1$s（还有更多）</string>
 
     <!-- ─────────────────────────────── 场景页 -->
     <string name="xr_scene_title">环境与位置</string>

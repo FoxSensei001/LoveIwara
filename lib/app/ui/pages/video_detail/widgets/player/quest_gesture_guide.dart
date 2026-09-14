@@ -91,275 +91,228 @@ class _QuestGestureGuideState extends State<QuestGestureGuide> {
     return Scaffold(
       backgroundColor: cs.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Scrollbar(
-                controller: _scroll,
-                child: SingleChildScrollView(
-                  controller: _scroll,
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1120),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
+        child: Scrollbar(
+          controller: _scroll,
+          child: SingleChildScrollView(
+            controller: _scroll,
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'META QUEST',
-                                      style: theme.textTheme.labelMedium
-                                          ?.copyWith(
-                                            color: cs.primary,
-                                            fontWeight: FontWeight.w700,
-                                            letterSpacing: 1.5,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      q.title,
-                                      style: theme.textTheme.headlineMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            letterSpacing: -.6,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      q.intro,
-                                      style: theme.textTheme.bodyLarge
-                                          ?.copyWith(
-                                            color: cs.onSurfaceVariant,
-                                            height: 1.5,
-                                          ),
-                                    ),
-                                  ],
+                              Text(
+                                'META QUEST',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: cs.primary,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.5,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              GlassIconButton(
-                                key: const ValueKey('quest_guide_close'),
-                                icon: const Icon(Icons.close),
-                                tooltip: t.common.close,
-                                standalone: true,
-                                size: 60,
-                                onPressed: widget.onClose,
+                              const SizedBox(height: 8),
+                              Text(
+                                q.title,
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -.6,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                q.intro,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                  height: 1.5,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 24),
-                          _QuestMediaPicker(
-                            key: const ValueKey('quest_guide_media'),
-                            media: _media,
-                            onChanged: (index) {
-                              setState(() {
-                                _media = QuestGuideMedia.values[index];
-                                _selected = 0;
-                                _startedAt = widget.clock.value;
-                                if (_pausedAt != null) _pausedAt = 0;
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          LayoutBuilder(
-                            key: _demonstration,
-                            builder: (context, constraints) {
-                              final illustration = Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                        ),
+                        const SizedBox(width: 16),
+                        GlassIconButton(
+                          key: const ValueKey('quest_guide_close'),
+                          icon: const Icon(Icons.close),
+                          tooltip: t.common.close,
+                          standalone: true,
+                          size: 60,
+                          onPressed: widget.onClose,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _QuestMediaPicker(
+                      key: const ValueKey('quest_guide_media'),
+                      media: _media,
+                      onChanged: (index) {
+                        setState(() {
+                          _media = QuestGuideMedia.values[index];
+                          _selected = 0;
+                          _startedAt = widget.clock.value;
+                          if (_pausedAt != null) _pausedAt = 0;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    LayoutBuilder(
+                      key: _demonstration,
+                      builder: (context, constraints) {
+                        final illustration = Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Semantics(
+                              image: true,
+                              label: lesson.title,
+                              child: AnimatedQuestGestureIllustration(
+                                key: const ValueKey('quest_guide_illustration'),
+                                visual: lesson.visual,
+                                media: _media,
+                                clock: widget.clock,
+                                startedAt: _startedAt,
+                                pausedAt: _pausedAt,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8),
+                              child: Row(
                                 children: [
-                                  Semantics(
-                                    image: true,
-                                    label: lesson.title,
-                                    child: AnimatedQuestGestureIllustration(
-                                      key: const ValueKey(
-                                        'quest_guide_illustration',
+                                  Expanded(
+                                    child: Text(
+                                      reduced ? q.still : q.looping,
+                                      style: theme.textTheme.labelMedium
+                                          ?.copyWith(
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ),
+                                  if (!reduced) ...[
+                                    GlassIconButton(
+                                      key: const ValueKey('quest_guide_pause'),
+                                      size: 60,
+                                      icon: Icon(
+                                        _pausedAt == null
+                                            ? Icons.pause_rounded
+                                            : Icons.play_arrow_rounded,
                                       ),
-                                      visual: lesson.visual,
-                                      media: _media,
-                                      clock: widget.clock,
-                                      startedAt: _startedAt,
-                                      pausedAt: _pausedAt,
+                                      tooltip: _pausedAt == null
+                                          ? q.pauseDemo
+                                          : q.resumeDemo,
+                                      onPressed: _togglePause,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            reduced ? q.still : q.looping,
-                                            style: theme.textTheme.labelMedium
-                                                ?.copyWith(
-                                                  color: cs.onSurfaceVariant,
-                                                ),
-                                          ),
-                                        ),
-                                        if (!reduced) ...[
-                                          GlassIconButton(
-                                            key: const ValueKey(
-                                              'quest_guide_pause',
-                                            ),
-                                            size: 60,
-                                            icon: Icon(
-                                              _pausedAt == null
-                                                  ? Icons.pause_rounded
-                                                  : Icons.play_arrow_rounded,
-                                            ),
-                                            tooltip: _pausedAt == null
-                                                ? q.pauseDemo
-                                                : q.resumeDemo,
-                                            onPressed: _togglePause,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          GlassIconButton(
-                                            key: const ValueKey(
-                                              'quest_guide_replay',
-                                            ),
-                                            size: 60,
-                                            icon: const Icon(
-                                              Icons.replay_rounded,
-                                            ),
-                                            tooltip: q.replay,
-                                            onPressed: () {
-                                              setState(() {
-                                                _startedAt = widget.clock.value;
-                                                _pausedAt = null;
-                                              });
-                                            },
-                                          ),
-                                        ],
-                                      ],
+                                    const SizedBox(width: 8),
+                                    GlassIconButton(
+                                      key: const ValueKey('quest_guide_replay'),
+                                      size: 60,
+                                      icon: const Icon(Icons.replay_rounded),
+                                      tooltip: q.replay,
+                                      onPressed: () {
+                                        setState(() {
+                                          _startedAt = widget.clock.value;
+                                          _pausedAt = null;
+                                        });
+                                      },
                                     ),
-                                  ),
-                                ],
-                              );
-                              final details = _LessonDetails(
-                                lesson: lesson,
-                                position: q.lessonCount(
-                                  current: _selected + 1,
-                                  total: lessons.length,
-                                ),
-                                onPrevious: _selected == 0
-                                    ? null
-                                    : () => _select(_selected - 1),
-                                onNext: _selected == lessons.length - 1
-                                    ? null
-                                    : () => _select(_selected + 1),
-                              );
-                              if (constraints.maxWidth >= 900 &&
-                                  MediaQuery.textScalerOf(context).scale(16) <
-                                      24) {
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(flex: 6, child: illustration),
-                                    const SizedBox(width: 32),
-                                    Expanded(flex: 4, child: details),
                                   ],
-                                );
-                              }
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  illustration,
-                                  const SizedBox(height: 24),
-                                  details,
                                 ],
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            q.catalog,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
+                              ),
                             ),
+                          ],
+                        );
+                        final details = _LessonDetails(
+                          lesson: lesson,
+                          position: q.lessonCount(
+                            current: _selected + 1,
+                            total: lessons.length,
                           ),
-                          const SizedBox(height: 12),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final scaled =
-                                  MediaQuery.textScalerOf(context).scale(16) >=
-                                  24;
-                              final columns =
-                                  !scaled && constraints.maxWidth >= 900
-                                  ? 3
-                                  : !scaled && constraints.maxWidth >= 580
-                                  ? 2
-                                  : 1;
-                              final width =
-                                  (constraints.maxWidth - (columns - 1) * 12) /
-                                  columns;
-                              return Wrap(
-                                spacing: 12,
-                                runSpacing: 12,
-                                children: [
-                                  for (
-                                    var index = 0;
-                                    index < lessons.length;
-                                    index++
-                                  )
-                                    SizedBox(
-                                      width: width,
-                                      child: _LessonChoice(
-                                        key: ValueKey(
-                                          'quest_lesson_${lessons[index].visual.name}',
-                                        ),
-                                        lesson: lessons[index],
-                                        index: index,
-                                        selected: index == _selected,
-                                        onTap: () =>
-                                            _select(index, reveal: true),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            q.scopeNote,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
+                          onPrevious: _selected == 0
+                              ? null
+                              : () => _select(_selected - 1),
+                          onNext: _selected == lessons.length - 1
+                              ? null
+                              : () => _select(_selected + 1),
+                        );
+                        if (constraints.maxWidth >= 900 &&
+                            MediaQuery.textScalerOf(context).scale(16) < 24) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 6, child: illustration),
+                              const SizedBox(width: 32),
+                              Expanded(flex: 4, child: details),
+                            ],
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            illustration,
+                            const SizedBox(height: 24),
+                            details,
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      q.catalog,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final scaled =
+                            MediaQuery.textScalerOf(context).scale(16) >= 24;
+                        final columns = !scaled && constraints.maxWidth >= 900
+                            ? 3
+                            : !scaled && constraints.maxWidth >= 580
+                            ? 2
+                            : 1;
+                        final width =
+                            (constraints.maxWidth - (columns - 1) * 12) /
+                            columns;
+                        return Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            for (var index = 0; index < lessons.length; index++)
+                              SizedBox(
+                                width: width,
+                                child: _LessonChoice(
+                                  key: ValueKey(
+                                    'quest_lesson_${lessons[index].visual.name}',
+                                  ),
+                                  lesson: lessons[index],
+                                  index: index,
+                                  selected: index == _selected,
+                                  onTap: () => _select(index, reveal: true),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      q.scopeNote,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: cs.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: cs.outlineVariant.withValues(alpha: .4),
-                  ),
-                ),
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: _QuestGuideAction(
-                    key: const ValueKey('quest_guide_done'),
-                    label: q.done,
-                    icon: Icons.check_rounded,
-                    onPressed: widget.onClose,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
