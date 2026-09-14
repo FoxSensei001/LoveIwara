@@ -1363,6 +1363,7 @@ class MyVideoStateController extends GetxController
     } else {
       // 打开失败：把标记收回去，否则用户再也发不起重试。
       _hasIssuedMediaSourceOpen = false;
+      _abortImmersiveSwitchIfPending('open failed');
       _isCurrentMediaNetworkSource = false;
       _activeLoadingSpeedGeneration = null;
     }
@@ -1509,11 +1510,51 @@ class MyVideoStateController extends GetxController
   /// 把老片放回去。不然要等原生那只 45s 看门狗。
   void _abortImmersiveSwitchIfPending(String reason) {
     if (!forceAutoPlay || !Get.isRegistered<XrImmersiveService>()) return;
+    // 已经交出去了：换片由原生的预加载接管（失败它自己放老片回去），这里再喊停会掐掉在途的预加载。
+    if (_immersiveHandOffGeneration != null || _immersiveSwitchAborted) return;
     final xr = Get.find<XrImmersiveService>();
     if (!xr.available.value) return;
     final id = videoId;
     if (id == null || id.isEmpty) return;
+    _immersiveSwitchAborted = true;
+    LogUtils.w(
+      '换进来的片子打不开，通知幕布放弃换片 videoId=$id reason=$reason',
+      'MyVideoStateController',
+    );
     unawaited(xr.abortSwitch(videoId: id, reason: reason));
+  }
+
+  bool _immersiveSwitchAborted = false;
+  final List<Worker> _immersiveSwitchWorkers = <Worker>[];
+
+  /// 「这条播不了」的所有来源收成一处喊停（[isPlaybackBlocked]：详情失败 / 视频源失败 / 外站视频）。
+  ///
+  /// ⛔ 原先只有「取详情」的两个 catch 里手写了喊停：详情拿到了、**视频源**却取失败 / 没有可播档 /
+  /// 是外站视频时没人通知原生，幕布上的老片就一直停在「正在加载下一条」，干等 45s 看门狗。
+  /// 以后新增的错误出口只要落到这几个 Rx 上就自动覆盖，别再一处处补调用。
+  void _setupImmersiveSwitchAbortWatchers() {
+    if (!forceAutoPlay) return;
+    void check(Object? _) {
+      if (_isDisposed || !isPlaybackBlocked) return;
+      _abortImmersiveSwitchIfPending(
+        videoSourceErrorMessage.value ??
+            (videoInfo.value?.isExternalVideo == true ? 'external video' : ''),
+      );
+    }
+
+    _immersiveSwitchWorkers.addAll([
+      rxEver<Widget?>(mainErrorWidget, check),
+      rxEver<String?>(videoSourceErrorMessage, check),
+      rxEver<video_model.Video?>(videoInfo, check),
+    ]);
+    check(null);
+  }
+
+  void _disposeImmersiveSwitchAbortWatchers() {
+    for (final w in _immersiveSwitchWorkers) {
+      w.dispose();
+    }
+    _immersiveSwitchWorkers.clear();
   }
 
   /// 空间播放器被服务端拒了（直链 `expires` 到期）：与定时刷新同一条路，立刻重取清单再推回去。
@@ -1645,6 +1686,7 @@ class MyVideoStateController extends GetxController
       'MyVideoStateController',
     );
     _initVrFormatTracking();
+    _setupImmersiveSwitchAbortWatchers();
     try {
       // 添加生命周期观察者
       WidgetsBinding.instance.addObserver(this);
@@ -3202,6 +3244,10 @@ class MyVideoStateController extends GetxController
     await _runCleanupStep(
       '取消自动全屏监听',
       () async => _disposeAutoFullscreenWatchers(),
+    );
+    await _runCleanupStep(
+      '取消沉浸换片喊停监听',
+      () async => _disposeImmersiveSwitchAbortWatchers(),
     );
     await _runCleanupStep('取消 VR 格式监听', () async {
       _vrFormatWorker?.dispose();
