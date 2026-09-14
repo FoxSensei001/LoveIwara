@@ -1,6 +1,7 @@
 package m.c.g.a.i_iwara.vr
 
 import android.content.Context
+import kotlin.math.abs
 import m.c.g.a.i_iwara.questui.AspectPreset
 import m.c.g.a.i_iwara.questui.EnvironmentKind
 import m.c.g.a.i_iwara.questui.EnvironmentSettings
@@ -91,8 +92,8 @@ class PlayerPrefs(context: Context) {
             enabled = sp.getBoolean(KEY_EFFECTS_ENABLED, true),
             // The first prototype used unrelated Gaussian parameters. Its saved
             // 35/55 defaults cannot describe the reference's coupled response.
-            edgeFeather = if (sp.getInt(KEY_AMBIENCE_VERSION, 0) >= 2) sp.getFloat(KEY_EDGE_FEATHER, 1f) else 1f,
-            glowStrength = if (sp.getInt(KEY_AMBIENCE_VERSION, 0) >= 2) sp.getFloat(KEY_GLOW_STRENGTH, 0.4f) else 0.4f,
+            edgeFeather = readAmbience(sp, KEY_EDGE_FEATHER, MediaEffectsSettings.DEFAULT_EDGE_FEATHER, LEGACY_EDGE_FEATHER),
+            glowStrength = readAmbience(sp, KEY_GLOW_STRENGTH, MediaEffectsSettings.DEFAULT_GLOW_STRENGTH, LEGACY_GLOW_STRENGTH),
             backgroundTransparency = sp.getFloat(KEY_BACKGROUND_TRANSPARENCY, 1f),
         ).normalized()
         state.screenDistance = sp.getFloat(KEY_DISTANCE, DEFAULT_VIEW_DISTANCE_M).coerceIn(1.2f, 8f)
@@ -149,7 +150,7 @@ class PlayerPrefs(context: Context) {
             .putBoolean(KEY_SPACE_SHOW_EARTH, state.environment.showEarth)
             .putBoolean(KEY_SPACE_SHOW_MOON, state.environment.showMoon)
             .putBoolean(KEY_EFFECTS_ENABLED, state.mediaEffects.enabled)
-            .putInt(KEY_AMBIENCE_VERSION, 2)
+            .putInt(KEY_AMBIENCE_VERSION, AMBIENCE_VERSION)
             .putFloat(KEY_EDGE_FEATHER, state.mediaEffects.edgeFeather)
             .putFloat(KEY_GLOW_STRENGTH, state.mediaEffects.glowStrength)
             .putFloat(KEY_BACKGROUND_TRANSPARENCY, state.mediaEffects.backgroundTransparency)
@@ -197,6 +198,20 @@ class PlayerPrefs(context: Context) {
         return runCatching { enumValueOf<E>(name) }.getOrDefault(default)
     }
 
+    /**
+     * 氛围模式的一个滑块。v4 起默认：边缘柔化 40%、光晕 23%（用户 2026-09-14 指定）。
+     *
+     * v1 原型的参数语义不同，一律回默认；v2/v3 存下的值若正好是**某个旧默认**，视为「从没动过」
+     * 跟着新默认走（设置是整份保存的，不这么认的话没碰过滑块的人也永远停在旧默认上）；拖过的值原样保留。
+     */
+    private fun readAmbience(sp: android.content.SharedPreferences, key: String, default: Float, legacy: FloatArray): Float {
+        val version = sp.getInt(KEY_AMBIENCE_VERSION, 0)
+        if (version < 2) return default
+        val stored = sp.getFloat(key, default)
+        if (version < AMBIENCE_VERSION && legacy.any { abs(stored - it) < 1e-4f }) return default
+        return stored
+    }
+
     companion object {
         const val DEFAULT_VIEW_DISTANCE_M = 1.6f
         const val DEFAULT_SCREEN_WIDTH_M = 2.2f
@@ -236,6 +251,10 @@ class PlayerPrefs(context: Context) {
         const val KEY_CURVE = "curve"
         private const val KEY_EFFECTS_ENABLED = "mediaEffectsEnabled"
         private const val KEY_AMBIENCE_VERSION = "mediaAmbienceVersion"
+        private const val AMBIENCE_VERSION = 4
+        /** 历代默认值；只用来认出「没动过」的存档（0.5 是 v3 那一版短暂的光晕默认）。 */
+        private val LEGACY_EDGE_FEATHER = floatArrayOf(1f)
+        private val LEGACY_GLOW_STRENGTH = floatArrayOf(0.4f, 0.5f)
         private const val KEY_EDGE_FEATHER = "mediaEdgeFeather"
         private const val KEY_GLOW_STRENGTH = "mediaGlowStrength"
         private const val KEY_BACKGROUND_TRANSPARENCY = "mediaBackgroundTransparency"
