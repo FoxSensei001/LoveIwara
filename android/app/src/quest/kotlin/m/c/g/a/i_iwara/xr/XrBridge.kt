@@ -22,17 +22,18 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  *
  * Dart → Kotlin（通道 `i_iwara/immersive`）：
  * - `isAvailable` → Boolean，沉浸场景当前是否活着（Dart 用它决定要不要显示入口）
- * - `present` → `{url, title, author, videoId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
+ * - `present` → `{url, title, author, mediaId, videoId, requestId, shape: flat|180|360, stereo: none|lr|tb, fullFrame,
  *                w, h, positionMs, unsupportedProjection,
- *                sources: [{label, url, local}], sourceLabel}`
+ *                sources: [{label, url, local}], sourceLabel}`：应用到场景后返回 true；换片时等预加载提交。
+ *   `mediaId` 是队列/本机身份，`videoId` 只表示 Iwara id；失败、取消、替代、超时返回 false。
  * - `dismiss` → 收起幕布，只留 UI 面板（视频与空间画廊都归它）
  * - `panelControls` → Boolean，唤出 / 收起浏览态的空间控制面板（2D 面板远近 + 背景不透明度）
  * - `presentGallery` → `{galleryId, title, author, index, quality,
  *                        items: [{id, video, url, thumbUrl, thumbPath, w, h}]}`：整本图库空间化呈现
- * - `updateSources` → `{videoId, sources: [{label, url, local}]}`：同一条片子的清晰度清单换了一份新地址
+ * - `updateSources` → `{mediaId, requestId, sources: [{label, url, local}]}`：同一次呈现的清晰度清单换了一份新地址
  *   （Iwara 直链带 `expires`，Dart 侧到期前 5 分钟刷一次 / 原生报过期时刷一次）；正在放的那一档地址变了
  *   就接着当前位置无缝换过去
- * - `abortSwitch` → `{videoId, reason}`：面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 删除）：
+ * - `abortSwitch` → `{mediaId, reason}`：面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 删除）：
  *   让原生收掉换片在途态、把老片放回去并提示
  * - `setPlaylist` → `{sections: [{queueId, title, icon, hasMore, loading, skipWatched, mediaType,
  *                    items: [{id, title, author, thumbnailUrl, leadKind, leadText,
@@ -53,9 +54,9 @@ import m.c.g.a.i_iwara.questui.PanelLocale
  * - `formatPicked` `{key, format, shape, stereo}` → 面板上定了视频类型，Dart 按 `present` 带来的
  *   `formatKey` 永久记住；下次 `present` 带回 `xrFormat`（枚举名）原样还原
  * - `playItem` `{queueId, id}` → 让 Dart 把详情页换成那条视频，新页再 `present` 回来
- * - `immersiveEnded` `{videoId, positionMs, durationMs}` → 沉浸播放结束（返回应用 / 换片 / 退出场景），
- *   把最后的播放位置交还给 Dart 回写观看历史与页面里的播放器
- * - `sourceExpired` `{videoId}` → 播放地址被服务端拒了（非 2xx）：请 Dart 立刻重取一份清单再 `updateSources` 回来
+ * - `immersiveEnded` `{mediaId, videoId, requestId, positionMs, durationMs, replaced}` → 沉浸播放结束，
+ *   把最后位置交还给 Dart；replaced 只回写进度，不能导航回旧页面
+ * - `sourceExpired` `{videoId, requestId}` → 播放地址被服务端拒了（非 2xx）：请 Dart 重取清单再 `updateSources` 回来
  * - 空间画廊四条：`galleryFile` `{id, quality}` → **有返回值**（本地文件路径，空串 = 失败）；
  *   `galleryIndexChanged` `{galleryId, index}`；`galleryQualityPicked` `{quality}`；`galleryEnded` `{galleryId, index}`
  *
@@ -122,6 +123,8 @@ object XrBridge {
                             title = call.argument<String>("title") ?: "",
                             author = call.argument<String>("author") ?: "",
                             videoId = call.argument<String>("videoId") ?: "",
+                            mediaId = call.argument<String>("mediaId") ?: call.argument<String>("videoId") ?: "",
+                            requestId = (call.argument<Number>("requestId") ?: 0).toLong(),
                             shape = call.argument<String>("shape") ?: "flat",
                             stereo = call.argument<String>("stereo") ?: "none",
                             fullFrame = call.argument<Boolean>("fullFrame") ?: false,
@@ -144,7 +147,7 @@ object XrBridge {
                             sourceLabel = call.argument<String>("sourceLabel") ?: "",
                         )
                         Log.i(TAG, "XR present shape=${request.shape} stereo=${request.stereo}")
-                        result.success(ImmersiveBridge.present(request))
+                        ImmersiveBridge.present(request) { committed -> result.success(committed) }
                     }
                 }
 
@@ -188,14 +191,14 @@ object XrBridge {
                 "abortSwitch" -> {
                     result.success(
                         ImmersiveBridge.abortSwitch(
-                            videoId = call.argument<String>("videoId") ?: "",
+                            mediaId = call.argument<String>("mediaId") ?: "",
                             reason = call.argument<String>("reason") ?: "",
                         ),
                     )
                 }
 
                 "updateSources" -> {
-                    val videoId = call.argument<String>("videoId") ?: ""
+                    val mediaId = call.argument<String>("mediaId") ?: ""
                     val sources = call.argument<List<Map<String, Any?>>>("sources").orEmpty().map { row ->
                         ImmersiveSourceOption(
                             label = row["label"] as? String ?: "",
@@ -205,7 +208,9 @@ object XrBridge {
                                 ?: row["label"] as? String ?: "",
                         )
                     }.filter { it.label.isNotEmpty() && it.url.isNotEmpty() }
-                    result.success(ImmersiveBridge.updateSources(videoId, sources))
+                    result.success(ImmersiveBridge.updateSources(
+                        mediaId, (call.argument<Number>("requestId") ?: 0).toLong(), sources,
+                    ))
                 }
 
                 "setPlaylist" -> {
@@ -295,8 +300,11 @@ data class ImmersiveVideoRequest(
     val title: String,
     /** 作者名；本地文件 / 外部地址可为空串。面板标题下面那行小字。 */
     val author: String,
-    /** 应用内的视频 id；本地文件/外部地址可为空串。回写进度时靠它。 */
+    /** Iwara 视频 id；本机文件/外部地址为空串，不能拿本机 UUID 回写线上历史。 */
     val videoId: String,
+    /** 队列和本机进度使用的稳定媒体身份，与 Iwara id 分开。 */
+    val mediaId: String = videoId,
+    val requestId: Long = 0L,
     val shape: String,
     val stereo: String,
     /** 立体片每只眼占一整幅（FSBS / FOU）。默认半幅（HSBS / HOU）。 */
@@ -322,6 +330,20 @@ data class ImmersiveVideoRequest(
     /** [url] 对应的那一档的标签。 */
     val sourceLabel: String = "",
 )
+
+/** present 的返回值表示提交成功；被替代、取消和预加载失败只结算一次 false。 */
+class ImmersiveVideoPresentation(
+    val request: ImmersiveVideoRequest,
+    complete: (Boolean) -> Unit,
+) {
+    private var completion: ((Boolean) -> Unit)? = complete
+
+    fun complete(committed: Boolean) {
+        val callback = completion ?: return
+        completion = null
+        callback(committed)
+    }
+}
 
 /**
  * 一档清晰度。
@@ -524,7 +546,14 @@ object ImmersiveBridge {
     // ---------------------------------------------------------------- 场景侧
 
     private var listener: Listener? = null
-    private var pending: ImmersiveVideoRequest? = null
+    private var pending: ImmersiveVideoPresentation? = null
+    private var pendingTimeout: Runnable? = null
+
+    private fun takePending(): ImmersiveVideoPresentation? {
+        pendingTimeout?.let { mainHandler.removeCallbacks(it) }
+        pendingTimeout = null
+        return pending.also { pending = null }
+    }
 
     /** 场景还没就绪时先攒着的播放列表。 */
     private var pendingPlaylist: PendingPlaylist? = null
@@ -543,14 +572,14 @@ object ImmersiveBridge {
     private var pendingGallery: ImmersiveGalleryRequest? = null
 
     interface Listener {
-        fun onPresent(request: ImmersiveVideoRequest)
+        fun onPresent(presentation: ImmersiveVideoPresentation)
 
         /** 整本图库交给沉浸空间（空间画廊）。 */
         fun onPresentGallery(request: ImmersiveGalleryRequest)
         fun onDismiss()
 
-        /** 同一条片子（[videoId]）的清晰度清单换了新地址。不是正在放的那条就忽略。 */
-        fun onSources(videoId: String, sources: List<ImmersiveSourceOption>)
+        /** 同一次呈现（[mediaId] / [requestId]）的清晰度清单换了新地址。 */
+        fun onSources(mediaId: String, requestId: Long, sources: List<ImmersiveSourceOption>)
 
         /** 面板里的 MainActivity 正在 finish（应用级退出）：沉浸场景也该退。 */
         fun onHostFinished()
@@ -586,8 +615,7 @@ object ImmersiveBridge {
                 it.browseRejectedQueueId, it.texts,
             )
         }
-        pending?.let {
-            pending = null
+        takePending()?.let {
             listener.onPresent(it)
         }
         pendingGallery?.let {
@@ -599,14 +627,14 @@ object ImmersiveBridge {
     fun detachScene() {
         listener = null
         isSceneAlive = false
-        pending = null
+        takePending()?.complete(false)
         pendingGallery = null
         pendingPlaylist = null
     }
 
     /** @return true 表示已直接投递给场景；false 表示场景未就绪、已暂存。 */
     fun presentGallery(request: ImmersiveGalleryRequest): Boolean {
-        pending = null
+        takePending()?.complete(false)
         val target = listener
         return if (target == null) {
             pendingGallery = request
@@ -617,20 +645,24 @@ object ImmersiveBridge {
         }
     }
 
-    /** @return true 表示已直接投递给场景；false 表示场景未就绪、已暂存。 */
-    fun present(request: ImmersiveVideoRequest): Boolean {
+    /** 场景就绪并提交播放后才确认；等待场景期间被取消或超时也必须完成调用。 */
+    fun present(request: ImmersiveVideoRequest, complete: (Boolean) -> Unit) {
+        takePending()?.complete(false)
+        pendingGallery = null
+        val presentation = ImmersiveVideoPresentation(request, complete)
         val target = listener
-        return if (target == null) {
-            pending = request
-            false
+        if (target == null) {
+            pending = presentation
+            pendingTimeout = Runnable {
+                if (pending === presentation) takePending()?.complete(false)
+            }.also { mainHandler.postDelayed(it, 45_000L) }
         } else {
-            target.onPresent(request)
-            true
+            target.onPresent(presentation)
         }
     }
 
     fun dismiss(): Boolean {
-        pending = null
+        takePending()?.complete(false)
         pendingGallery = null
         val target = listener ?: return false
         target.onDismiss()
@@ -638,9 +670,12 @@ object ImmersiveBridge {
     }
 
     /** Dart 打不开面板点的那条：让场景把换片在途态收掉。@return false = 场景没活着。 */
-    fun abortSwitch(videoId: String, reason: String): Boolean {
+    fun abortSwitch(mediaId: String, reason: String): Boolean {
+        if (pending?.let { mediaId.isBlank() || it.request.mediaId == mediaId } == true) {
+            takePending()?.complete(false)
+        }
         val target = listener ?: return false
-        target.onAbortSwitch(videoId, reason)
+        target.onAbortSwitch(mediaId, reason)
         return true
     }
 
@@ -670,9 +705,9 @@ object ImmersiveBridge {
     }
 
     /** @return false = 场景没活着（没有可更新的播放器）。不暂存：新地址只对正在放的那条有意义。 */
-    fun updateSources(videoId: String, sources: List<ImmersiveSourceOption>): Boolean {
+    fun updateSources(mediaId: String, requestId: Long, sources: List<ImmersiveSourceOption>): Boolean {
         val target = listener ?: return false
-        target.onSources(videoId, sources)
+        target.onSources(mediaId, requestId, sources)
         return true
     }
 
@@ -786,9 +821,11 @@ object ImmersiveBridge {
      * 播放地址被服务端拒了（多半是 `expires` 到期）：请 Dart 立刻重取清单、`updateSources` 回来。
      * Dart 侧同一条片子在途只会有一次刷新，这里不做去抖。
      */
-    fun requestSourceRefresh(videoId: String) {
+    fun requestSourceRefresh(videoId: String, requestId: Long) {
         val channel = channelRef?.get() ?: return
-        mainHandler.post { channel.invokeMethod("sourceExpired", mapOf("videoId" to videoId)) }
+        mainHandler.post {
+            channel.invokeMethod("sourceExpired", mapOf("videoId" to videoId, "requestId" to requestId))
+        }
     }
 
     /**
@@ -797,12 +834,18 @@ object ImmersiveBridge {
      * 幕布上的进度从不经过 `MyVideoStateController`，所以观看历史 / 稍后再看的进度
      * 只能在这一刻一次性回写（设计文档 §6.6-4 的决定）。
      */
-    fun notifyImmersiveEnded(videoId: String, positionMs: Long, durationMs: Long) {
+    fun notifyImmersiveEnded(
+        mediaId: String, videoId: String, requestId: Long,
+        positionMs: Long, durationMs: Long, replaced: Boolean,
+    ) {
         val channel = channelRef?.get() ?: return
         mainHandler.post {
             channel.invokeMethod(
                 "immersiveEnded",
-                mapOf("videoId" to videoId, "positionMs" to positionMs, "durationMs" to durationMs),
+                mapOf(
+                    "mediaId" to mediaId, "videoId" to videoId, "requestId" to requestId,
+                    "positionMs" to positionMs, "durationMs" to durationMs, "replaced" to replaced,
+                ),
             )
         }
     }

@@ -185,6 +185,8 @@ class XrPlaylistSource {
         title: video.title?.trim() ?? '',
         author: video.user?.name ?? '',
         url: url,
+        sources: [for (final r in resolutions) (label: r.label, url: r.url)],
+        sourceLabel: resolutions.firstWhere((r) => r.url == url).label,
         format: await _formatOf(video.id, video),
         width: video.file?.width ?? 0,
         height: video.file?.height ?? 0,
@@ -233,6 +235,8 @@ class XrPlaylistSource {
         // 本机文件没有作者——这是它和"已下载"最大的区别，别编一个。
         author: '',
         url: isContentUri ? path : Uri.file(path).toString(),
+        localLibraryItemId: itemId,
+        localPath: path,
         format: format,
         width: item.width ?? 0,
         height: item.height ?? 0,
@@ -432,6 +436,10 @@ class XrPlayableVideo {
     required this.format,
     required this.width,
     required this.height,
+    this.sources = const [],
+    this.sourceLabel = '',
+    this.localLibraryItemId,
+    this.localPath,
   });
 
   final String id;
@@ -443,6 +451,10 @@ class XrPlayableVideo {
   final VrSourceFormat format;
   final int width;
   final int height;
+  final List<({String label, String url})> sources;
+  final String sourceLabel;
+  final String? localLibraryItemId;
+  final String? localPath;
 }
 
 /// 沉浸面板「接着看」的一个分区 = 一个池。

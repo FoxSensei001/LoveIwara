@@ -453,6 +453,14 @@ class MyVideoStateController extends GetxController
     return null;
   }
 
+  /// 本机文件也有队列身份；匿名文件只在本控制器会话内稳定，不暴露文件路径。
+  String get immersiveMediaId {
+    final local = localLibraryItemId?.trim();
+    return local != null && local.isNotEmpty
+        ? local
+        : vrOverrideKey ?? 'local:${identityHashCode(this)}';
+  }
+
   /// 把库里记着的手动覆盖读回来，压过一切推断。只跑一次。
   ///
   /// ⛔ 挂在 [_initVrFormatTracking]（也就是 onInit）而不是"详情到手时"：本机
@@ -1438,9 +1446,11 @@ class MyVideoStateController extends GetxController
   }
 
   Future<void> _handOffToImmersive(XrImmersiveService xr, String url) async {
+    final generation = _mediaSourceGeneration;
     // 清晰度清单：在线各档 + 本机已下载完成、文件真在的各档。当前档有本地文件就用本地
     // 文件播（省下等网络的时间，用户 2026-09-05 要求），面板上也能在各档之间切。
     final sources = await _immersiveSources();
+    if (_isDisposed || generation != _mediaSourceGeneration) return;
     // 清晰度按用户偏好（2D 底栏 / 沉浸面板上一次选的那档，都落在 DEFAULT_QUALITY_KEY）
     // 匹配：精确 → 向下最接近 → 都没有就最低档。本地文件优先在 [_immersiveSources] 里已经
     // 按档顶掉了在线地址。
@@ -1458,12 +1468,20 @@ class MyVideoStateController extends GetxController
     final position = currentPosition > Duration.zero
         ? currentPosition
         : _deferredInitialPlaybackPosition;
+    videoPlaying.value = false;
+    await player.pause();
+    if (_isDisposed || generation != _mediaSourceGeneration) return;
     final ok = await xr.present(
       url: chosen?.url ?? url,
       format: vrFormatForImmersive,
       title: videoInfo.value?.title?.trim() ?? '',
       author: videoInfo.value?.user?.name ?? '',
       videoId: videoId,
+      mediaId: immersiveMediaId,
+      localLibraryItemId: localLibraryItemId,
+      localPath: localVideoPath,
+      localTask: localVideoTask,
+      localAllQualityTasks: localVideoAllQualityTasks,
       formatKey: vrOverrideKey,
       width: sourceVideoWidth.value,
       height: sourceVideoHeight.value,
@@ -1471,11 +1489,14 @@ class MyVideoStateController extends GetxController
       sources: sources,
       sourceLabel: currentLabel,
     );
-    LogUtils.i('片源已交给空间播放器 delivered=$ok url=$url', 'MyVideoStateController');
+    LogUtils.i(
+      '空间播放提交结果 committed=$ok mediaId=$immersiveMediaId',
+      'MyVideoStateController',
+    );
     if (_isDisposed) return;
-    // 幕布在放，面板里这只不该同时出声；留着它是为了返回时能接着上次位置。
-    videoPlaying.value = false;
-    await player.pause();
+    if (!ok && _immersiveHandOffGeneration == generation) {
+      _immersiveHandOffGeneration = null;
+    }
   }
 
   /// 交给空间播放器的清晰度清单。
@@ -1489,7 +1510,12 @@ class MyVideoStateController extends GetxController
       if (r.url.isEmpty) continue;
       byLabel[r.label] = XrMediaSource(
         label: r.label,
-        url: isLocalVideoMode ? Uri.file(r.url).toString() : r.url,
+        url:
+            isLocalVideoMode &&
+                !r.url.startsWith('file://') &&
+                !r.url.startsWith('content://')
+            ? Uri.file(r.url).toString()
+            : r.url,
         local: isLocalVideoMode,
       );
     }
@@ -1533,14 +1559,13 @@ class MyVideoStateController extends GetxController
     if (_immersiveHandOffGeneration != null || _immersiveSwitchAborted) return;
     final xr = Get.find<XrImmersiveService>();
     if (!xr.available.value) return;
-    final id = videoId;
-    if (id == null || id.isEmpty) return;
+    final id = immersiveMediaId;
     _immersiveSwitchAborted = true;
     LogUtils.w(
       '换进来的片子打不开，通知幕布放弃换片 videoId=$id reason=$reason',
       'MyVideoStateController',
     );
-    unawaited(xr.abortSwitch(videoId: id, reason: reason));
+    unawaited(xr.abortSwitch(mediaId: id, reason: reason));
   }
 
   bool _immersiveSwitchAborted = false;
@@ -1591,21 +1616,25 @@ class MyVideoStateController extends GetxController
   Future<void> _pushRefreshedSourcesToImmersive() async {
     if (_isDisposed || !Get.isRegistered<XrImmersiveService>()) return;
     final xr = Get.find<XrImmersiveService>();
-    final id = videoId;
-    if (id == null || id.isEmpty || xr.nowPlayingId != id) return;
+    final id = immersiveMediaId;
+    if (xr.nowPlayingId != id) return;
     final sources = await _immersiveSources();
     if (_isDisposed) return;
-    await xr.updateSources(videoId: id, sources: sources);
+    await xr.updateSources(mediaId: id, sources: sources);
   }
 
   /// 空间播放器结束（返回应用 / 换片 / 退出场景）：把最后位置接回面板里的播放器，
   /// 观看历史随页面关闭时的常规路径一起保存。换过片就跳到那条视频的页面。
-  void _onImmersiveEnded(String endedVideoId, int positionMs) {
+  void _onImmersiveEnded(String endedMediaId, int positionMs, int durationMs) {
     if (_isDisposed) return;
     // 不是本页这条的 ended 由 XrImmersiveService 自己处置（回写历史 / 必要时导航），这里不管。
-    if (endedVideoId != videoId) return;
+    if (endedMediaId != immersiveMediaId) return;
     final target = Duration(milliseconds: positionMs);
     currentPosition = target;
+    if (durationMs > 0) {
+      totalDuration.value = Duration(milliseconds: durationMs);
+    }
+    _saveLocalLibraryProgress(target, totalDuration.value, flush: true);
     unawaited(player.seek(target));
   }
 
@@ -1662,8 +1691,9 @@ class MyVideoStateController extends GetxController
     if (Get.isRegistered<XrImmersiveService>()) {
       final xr = Get.find<XrImmersiveService>();
       xr.onImmersiveEnded = _onImmersiveEnded;
-      xr.onImmersiveEndedVideoId = videoId;
+      xr.onImmersiveEndedMediaId = immersiveMediaId;
       xr.onSourceRefreshRequested = _onImmersiveSourceExpired;
+      xr.onSourceRefreshRequestedMediaId = immersiveMediaId;
       xr.onVrFormatPicked = _onImmersiveVrFormatPicked;
       // 可用性是缓存值，进页面刷一次，好让第一条片源打开时就能判断要不要交出去。
       unawaited(xr.refreshAvailability());
@@ -3140,10 +3170,11 @@ class MyVideoStateController extends GetxController
       final xr = Get.find<XrImmersiveService>();
       if (xr.onImmersiveEnded == _onImmersiveEnded) {
         xr.onImmersiveEnded = null;
-        xr.onImmersiveEndedVideoId = null;
+        xr.onImmersiveEndedMediaId = null;
       }
       if (xr.onSourceRefreshRequested == _onImmersiveSourceExpired) {
         xr.onSourceRefreshRequested = null;
+        xr.onSourceRefreshRequestedMediaId = null;
       }
       if (xr.onVrFormatPicked == _onImmersiveVrFormatPicked) {
         xr.onVrFormatPicked = null;
@@ -3280,7 +3311,11 @@ class MyVideoStateController extends GetxController
     await _runCleanupStep('释放预览播放器', _disposePreviewPlayer);
     await _runCleanupStep('释放主播放器', player.dispose);
 
-    if (videoId == null || duration <= Duration.zero) return;
+    if (videoId == null ||
+        duration <= Duration.zero ||
+        _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] != true) {
+      return;
+    }
 
     final currentMs = position.inMilliseconds;
     final totalMs = duration.inMilliseconds;

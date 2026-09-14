@@ -44,6 +44,9 @@ class PlaybackEngine(private val context: Context) {
     var listener: Listener? = null
 
     private var player: ExoPlayer? = null
+    private var playRequested = false
+    private var systemPaused = false
+    val isPlayRequested: Boolean get() = playRequested
 
     /** 当前播放器正在放的地址。换形状时靠它判断「这还是同一条片子」。 */
     var playingUrl: String? = null
@@ -105,8 +108,9 @@ class PlaybackEngine(private val context: Context) {
         var readyOnce = false
         val l = object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
+                if (preloading !== p) return
                 Log.e(TAG, "IMMERSIVE PRELOAD_ERROR ${error.errorCodeName}: ${error.message}", error)
-                if (preloading === p) cancelPreload()
+                cancelPreload()
                 onError(error.errorCodeName)
             }
 
@@ -158,7 +162,7 @@ class PlaybackEngine(private val context: Context) {
         p.setPlaybackSpeed(speed)
         p.repeatMode = if (repeatOne) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
         surface?.let { p.setVideoSurface(it) }
-        p.playWhenReady = true
+        setPlaying(true)
         val size = p.videoSize
         return if (size.width > 0 && size.height > 0) size.width to size.height else null
     }
@@ -187,6 +191,7 @@ class PlaybackEngine(private val context: Context) {
     private fun mainListener(p: ExoPlayer): Player.Listener =
         object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) {
+                if (player !== p) return
                 Log.e(TAG, "IMMERSIVE PLAYBACK_ERROR ${error.errorCodeName}: ${error.message}", error)
                 listener?.onBuffering(false)
                 listener?.onError(
@@ -196,6 +201,7 @@ class PlaybackEngine(private val context: Context) {
             }
 
             override fun onPlaybackStateChanged(state: Int) {
+                if (player !== p) return
                 val name = when (state) {
                     Player.STATE_IDLE -> "IDLE"
                     Player.STATE_BUFFERING -> "BUFFERING"
@@ -216,6 +222,7 @@ class PlaybackEngine(private val context: Context) {
             }
 
             override fun onVideoSizeChanged(videoSize: VideoSize) {
+                if (player !== p) return
                 Log.i(TAG, "IMMERSIVE VIDEO_SIZE ${videoSize.width}x${videoSize.height}")
                 if (videoSize.width > 0 && videoSize.height > 0) {
                     listener?.onVideoSize(videoSize.width, videoSize.height)
@@ -285,7 +292,7 @@ class PlaybackEngine(private val context: Context) {
         Log.i(TAG, "IMMERSIVE OPEN scheme=${mediaUri.scheme} rawLen=${url.length}")
         p.setMediaItem(MediaItem.fromUri(mediaUri))
         p.prepare()
-        p.playWhenReady = true
+        setPlaying(true)
         return true
     }
 
@@ -308,12 +315,12 @@ class PlaybackEngine(private val context: Context) {
         val s = surface ?: return false
         if (url == playingUrl) return false
         val pos = positionMs
-        val wasPlaying = isPlaying
+        val wasPlaying = playRequested && player?.playbackState != Player.STATE_ENDED
         val speed = player?.playbackParameters?.speed ?: 1f
         val repeat = player?.repeatMode ?: Player.REPEAT_MODE_OFF
         val started = play(url, s, pos, muted)
         if (started) {
-            player?.playWhenReady = wasPlaying
+            setPlaying(wasPlaying)
             player?.setPlaybackSpeed(speed)
             player?.repeatMode = repeat
         }
@@ -329,14 +336,21 @@ class PlaybackEngine(private val context: Context) {
         val started = play(url, s, 0L, muted)
         if (!started) {
             player?.seekTo(0L)
-            player?.playWhenReady = true
+            setPlaying(true)
         }
         setRepeatOne(repeatOne)
         return true
     }
 
     fun setPlaying(playing: Boolean) {
-        player?.playWhenReady = playing
+        playRequested = playing
+        player?.playWhenReady = playing && !systemPaused
+    }
+
+    /** Keep user intent while suppressing every start path, including a late preload. */
+    fun setSystemPaused(paused: Boolean) {
+        systemPaused = paused
+        player?.playWhenReady = playRequested && !paused
     }
 
     fun togglePlaying(): Boolean {
@@ -344,10 +358,10 @@ class PlaybackEngine(private val context: Context) {
         if (p.playbackState == Player.STATE_ENDED) {
             // 播完了再按播放 = 从头放；直接翻 playWhenReady 在 ENDED 上什么都不会发生。
             p.seekTo(0L)
-            p.playWhenReady = true
+            setPlaying(true)
             return true
         }
-        p.playWhenReady = !p.playWhenReady
+        setPlaying(!playRequested)
         return p.playWhenReady
     }
 
@@ -379,6 +393,7 @@ class PlaybackEngine(private val context: Context) {
         cancelPreload()
         player?.release()
         player = null
+        playRequested = false
         playingUrl = null
         pendingSeekMs = 0
     }

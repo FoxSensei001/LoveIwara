@@ -6,6 +6,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MediaEffectsTest {
+    @Test fun equalAspectResizeKeepsTheSameUnitMeshAtEveryCurvature() {
+        for (arc in listOf(0f, 40f, 60f, 85f)) {
+            val initial = ScreenGeometry.normalizedRadiusFor(arc, 2.4f)
+            for (step in 1..200) {
+                assertEquals("arc=$arc step=$step", initial,
+                    ScreenGeometry.normalizedRadiusFor(arc, 2.4f + step * 0.01f), 0f)
+            }
+        }
+    }
+
+    @Test fun unitMeshRetainsMinimumRadiusAndRespondsToCurvatureChanges() {
+        for (arc in listOf(0f, 8f, 40f, 60f, 85f)) {
+            for (width in listOf(0.1f, 0.3f, 0.7f, 2.4f, 4.4f)) {
+                assertEquals(ScreenGeometry.radiusFor(arc, width),
+                    ScreenGeometry.normalizedRadiusFor(arc, width) * width, 0.000001f)
+            }
+        }
+        assertNotEquals(ScreenGeometry.normalizedRadiusFor(40f, 2.4f),
+            ScreenGeometry.normalizedRadiusFor(60f, 2.4f))
+    }
+
     @Test fun invalidPreferencesCannotSendNaNOrOutOfRangeValuesToShaders() {
         val defaults = MediaEffectsSettings()
         val restored = MediaEffectsSettings(

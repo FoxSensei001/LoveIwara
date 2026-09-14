@@ -107,6 +107,16 @@ object ScreenGeometry {
         return max(0.5f, screenWidth / arc)
     }
 
+    /** Radius of a one-metre-wide mesh, shared by every equal-aspect resize. */
+    fun normalizedRadiusFor(arcDegrees: Float, screenWidth: Float): Float {
+        if (arcDegrees < MIN_ARC_DEGREES) return 0f
+        val arc = (arcDegrees * PI / 180.0).toFloat()
+        // Dividing (width / arc) by width introduces a width-dependent rounding
+        // error. A one-ULP change rebuilt the glow mesh during an equal-aspect drag.
+        // Keep the minimum physical radius, which really does change unit geometry.
+        return max(0.5f / screenWidth, 1f / arc)
+    }
+
     /**
      * 低于这个弧度就按平面 Quad 处理。
      *

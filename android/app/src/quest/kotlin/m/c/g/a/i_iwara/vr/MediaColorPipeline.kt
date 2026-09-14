@@ -51,6 +51,8 @@ internal class MediaColorPipeline(
     private val handler = Handler(worker.looper)
     private val main = Handler(Looper.getMainLooper())
     private val tickQueued = AtomicBoolean(false)
+    private val cleanupStarted = AtomicBoolean(false)
+    private val cleanupFinished = CountDownLatch(1)
     private var display: EGLDisplay = EGL14.EGL_NO_DISPLAY
     private var eglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var pbuffer: EGLSurface = EGL14.EGL_NO_SURFACE
@@ -460,41 +462,45 @@ internal class MediaColorPipeline(
     }
 
     fun close() {
-        if (closed) return
         closed = true
-        val finished = CountDownLatch(1)
-        handler.post {
+        if (cleanupStarted.compareAndSet(false, true)) handler.post {
+            val cleanup = GpuResourceCleanup()
             try {
                 if (eglContext != EGL14.EGL_NO_CONTEXT && pbuffer != EGL14.EGL_NO_SURFACE) {
-                    makeCurrent(pbuffer)
-                    if (fence != 0L) GLES30.glDeleteSync(fence)
-                    if (readback != 0) GLES30.glDeleteBuffers(1, intArrayOf(readback), 0)
-                    if (haloReadback != 0) GLES30.glDeleteBuffers(1, intArrayOf(haloReadback), 0)
-                    targets.forEach {
-                        GLES30.glDeleteTextures(1, intArrayOf(it.texture), 0)
-                        GLES30.glDeleteFramebuffers(1, intArrayOf(it.framebuffer), 0)
+                    cleanup.attempt("GL objects") {
+                        makeCurrent(pbuffer)
+                        if (fence != 0L) GLES30.glDeleteSync(fence)
+                        if (readback != 0) GLES30.glDeleteBuffers(1, intArrayOf(readback), 0)
+                        if (haloReadback != 0) GLES30.glDeleteBuffers(1, intArrayOf(haloReadback), 0)
+                        targets.forEach {
+                            GLES30.glDeleteTextures(1, intArrayOf(it.texture), 0)
+                            GLES30.glDeleteFramebuffers(1, intArrayOf(it.framebuffer), 0)
+                        }
+                        GLES30.glDeleteTextures(1, intArrayOf(oes), 0)
+                        GLES30.glDeleteProgram(sourceProgram)
+                        GLES30.glDeleteProgram(filterProgram)
+                        GLES30.glDeleteProgram(nativeProgram)
+                        GLES30.glDeleteProgram(alphaProgram)
+                        GLES30.glDeleteProgram(haloProgram)
                     }
-                    GLES30.glDeleteTextures(1, intArrayOf(oes), 0)
-                    GLES30.glDeleteProgram(sourceProgram)
-                    GLES30.glDeleteProgram(filterProgram)
-                    GLES30.glDeleteProgram(nativeProgram)
-                    GLES30.glDeleteProgram(alphaProgram)
-                    GLES30.glDeleteProgram(haloProgram)
+                }
+                cleanup.attempt("unbind") {
                     EGL14.eglMakeCurrent(display, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT)
                 }
-                if (output != EGL14.EGL_NO_SURFACE) EGL14.eglDestroySurface(display, output)
-                if (pbuffer != EGL14.EGL_NO_SURFACE) EGL14.eglDestroySurface(display, pbuffer)
-                if (eglContext != EGL14.EGL_NO_CONTEXT) EGL14.eglDestroyContext(display, eglContext)
-                inputSurface?.release()
-                inputTexture?.release()
-                if (display != EGL14.EGL_NO_DISPLAY) EGL14.eglTerminate(display)
-                EGL14.eglReleaseThread()
+                if (output != EGL14.EGL_NO_SURFACE) cleanup.attempt("output") { EGL14.eglDestroySurface(display, output) }
+                if (pbuffer != EGL14.EGL_NO_SURFACE) cleanup.attempt("pbuffer") { EGL14.eglDestroySurface(display, pbuffer) }
+                if (eglContext != EGL14.EGL_NO_CONTEXT) cleanup.attempt("context") { EGL14.eglDestroyContext(display, eglContext) }
+                cleanup.attempt("input surface") { inputSurface?.release() }
+                cleanup.attempt("input texture") { inputTexture?.release() }
+                if (display != EGL14.EGL_NO_DISPLAY) cleanup.attempt("display") { EGL14.eglTerminate(display) }
+                cleanup.attempt("thread") { EGL14.eglReleaseThread() }
+                cleanup.failure?.let { android.util.Log.w("MediaGPU", "Released media output after a cleanup failure", it) }
             } finally {
-                finished.countDown()
+                cleanupFinished.countDown()
                 worker.quitSafely()
             }
         }
-        check(finished.await(2, TimeUnit.SECONDS)) { "Media GPU worker did not release the panel output" }
+        check(cleanupFinished.await(2, TimeUnit.SECONDS)) { "Media GPU worker did not release the panel output" }
     }
 
     companion object {

@@ -44,7 +44,14 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// [build] 同样收一个 `browsing`。「正在播」那枚标记（卡片上）另按 active 算，
 /// 那是 [XrPlaylistSource] 的事。
 class XrQueueCatalog {
-  XrQueueCatalog({required this.onChanged});
+  XrQueueCatalog({
+    required this.onChanged,
+    LocalMediaRepository? localRepository,
+  }) : _localRepository = localRepository;
+
+  LocalMediaRepository? _localRepository;
+  LocalMediaRepository get _repository =>
+      _localRepository ??= LocalMediaRepository();
 
   /// 某份清单拉完了：调用方应当重推整套目录。
   final void Function() onChanged;
@@ -61,13 +68,15 @@ class XrQueueCatalog {
       <String, PlaybackQueue? Function()>{};
 
   /// 钻过的本机目录层：`nodeId → 那一层的数据`。只在 [expand] 里填。
-  final Map<String, _LocalLevel> _localLevels = <String, _LocalLevel>{};
+  final Map<(PlaybackMediaType, String), _LocalLevel> _localLevels = {};
 
   /// 读失败的目录层：画一行「点击重试」，点了再 [expand] 一次。
-  final Set<String> _localLevelFailures = <String>{};
+  final Set<(PlaybackMediaType, String)> _localLevelFailures = {};
+  int _localEpoch = 0;
 
   /// 用户点了刷新：清单与目录层都重拉。
   void invalidate() {
+    _localEpoch++;
     _caches.clear();
     _localLevels.clear();
     _localLevelFailures.clear();
@@ -83,6 +92,8 @@ class XrQueueCatalog {
   Future<void> expand(String nodeId) async {
     final mediaType = _lastMediaType;
     if (nodeId.startsWith(_kLocalDirPrefix)) {
+      final epoch = _localEpoch;
+      final cacheKey = (mediaType, nodeId);
       final rest = nodeId.substring(_kLocalDirPrefix.length);
       final split = rest.indexOf('|');
       if (split < 0) return;
@@ -93,12 +104,14 @@ class XrQueueCatalog {
         relPath: relPath,
         kind: _itemKind(mediaType),
       );
+      // A refresh or media-type change retires both successful and failed reads.
+      if (epoch != _localEpoch) return;
       if (level != null) {
-        _localLevels[nodeId] = level;
-        _localLevelFailures.remove(nodeId);
+        _localLevels[cacheKey] = level;
+        _localLevelFailures.remove(cacheKey);
       } else {
         // 读失败也要让这一层**不再是懒节点**，否则面板上那枚转圈永远停不下来。
-        _localLevelFailures.add(nodeId);
+        _localLevelFailures.add(cacheKey);
       }
       return;
     }
@@ -137,6 +150,7 @@ class XrQueueCatalog {
     required bool playingLocalFile,
     PlaybackMediaType mediaType = PlaybackMediaType.video,
   }) {
+    if (_lastMediaType != mediaType) _localEpoch++;
     _lastMediaType = mediaType;
     _openers.clear();
     _nodeCacheKey.clear();
@@ -177,6 +191,7 @@ class XrQueueCatalog {
     } catch (e) {
       LogUtils.e('拉取清单失败 $key', tag: _tag, error: e);
     }
+    if (!identical(_caches[key], lazy)) return value;
     lazy
       ..value = value
       ..failed = value == null
@@ -250,9 +265,9 @@ class XrQueueCatalog {
   ///
   /// ⛔ 读库失败返回 `const []` 而**不是** null：失败的原因（库没开）是持续的，
   /// 返回 null 会在「失败 → onChanged 重推 → 再拉 → 再失败」里打转。
-  static Future<List<_Row>?> _fetchLocalSources(LocalMediaItemKind kind) async {
+  Future<List<_Row>?> _fetchLocalSources(LocalMediaItemKind kind) async {
     try {
-      final repository = LocalMediaRepository();
+      final repository = _repository;
       return [
         for (final source in repository.getSources())
           if (!source.isBuiltIn)
@@ -270,12 +285,12 @@ class XrQueueCatalog {
 
   /// 「本机文件」第二张菜单要的几个数 + 常用目录（= 抽屉 `_pickLocalCategory`
   /// 与 `_pickLocalPinned` 开菜单前查的那些）。
-  static Future<_LocalCategories?> _fetchLocalCategories(
+  Future<_LocalCategories?> _fetchLocalCategories(
     LocalMediaItemKind kind,
   ) async {
     final isGallery = kind == LocalMediaItemKind.image;
     try {
-      final repository = LocalMediaRepository();
+      final repository = _repository;
       final allCount = repository.countItems(kind: kind);
       final favCount = isGallery
           ? 0
@@ -325,13 +340,13 @@ class XrQueueCatalog {
   }
 
   /// = 抽屉 `_loadLocalLevel`（含懒扫描）。返回 null = 读库出错。
-  static Future<_LocalLevel?> _loadLocalLevel({
+  Future<_LocalLevel?> _loadLocalLevel({
     required String sourceId,
     required String relPath,
     required LocalMediaItemKind kind,
   }) async {
     try {
-      final repository = LocalMediaRepository();
+      final repository = _repository;
       var folder = repository.getFolder(sourceId: sourceId, relPath: relPath);
       if (folder != null &&
           folder.probedAt == null &&
@@ -395,7 +410,7 @@ class XrQueueCatalog {
     if (memo != null && memo.key == key) return memo.value;
     _FolderChoice? value;
     try {
-      final repository = LocalMediaRepository();
+      final repository = _repository;
       final item = repository.getItem(currentItemId);
       final path = item?.folderPath;
       if (item != null && path != null && path.isNotEmpty) {
@@ -987,7 +1002,7 @@ class _Builder {
     final sourcesKey = 'localSources:${itemKind.name}';
     final sources = cache(
       sourcesKey,
-      () => XrQueueCatalog._fetchLocalSources(itemKind),
+      () => catalog._fetchLocalSources(itemKind),
     );
     final sourceRows = rowsOf(sources);
     final hasLocalSources = sourceRows != null && sourceRows.isNotEmpty;
@@ -997,7 +1012,7 @@ class _Builder {
     final catKey = 'localCategories:${itemKind.name}';
     final categories = cache(
       catKey,
-      () => XrQueueCatalog._fetchLocalCategories(itemKind),
+      () => catalog._fetchLocalCategories(itemKind),
     );
     catalog._nodeCacheKey[nodeId] = catKey;
 
@@ -1162,9 +1177,10 @@ class _Builder {
     bool showCheck = true,
   }) {
     final nodeId = '$_kLocalDirPrefix$sourceId|$relPath';
-    final level = catalog._localLevels[nodeId];
+    final cacheKey = (mediaType, nodeId);
+    final level = catalog._localLevels[cacheKey];
     List<XrCatalogNode>? children;
-    if (level == null && catalog._localLevelFailures.contains(nodeId)) {
+    if (level == null && catalog._localLevelFailures.contains(cacheKey)) {
       children = [
         XrCatalogNode.retry(
           id: '$nodeId:retry',

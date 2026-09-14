@@ -5,8 +5,10 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -40,7 +42,41 @@ import 'package:i_iwara/utils/logger_utils.dart';
 /// `MissingPluginException`，被这里吃掉并回报「不可用」。
 /// 调用点只需要问 [isAvailable]，不需要知道自己跑在什么设备上。
 class XrImmersiveService extends GetxService {
+  XrImmersiveService({
+    LocalMediaRepository? localRepository,
+    Future<XrPlayableVideo?> Function(String)? resolveVideo,
+    void Function(XrPlaybackReturn)? restorePage,
+  }) : _localRepositoryOverride = localRepository,
+       _resolveVideo = resolveVideo ?? XrPlaylistSource.resolve,
+       _restorePage = restorePage ?? _navigateToPlayback;
+
   static const MethodChannel _channel = MethodChannel('i_iwara/immersive');
+  final LocalMediaRepository? _localRepositoryOverride;
+  late final LocalMediaRepository _localRepository =
+      _localRepositoryOverride ?? LocalMediaRepository();
+  final Future<XrPlayableVideo?> Function(String) _resolveVideo;
+  final void Function(XrPlaybackReturn) _restorePage;
+  int _nextRequestId = 0;
+  int _latestRequestId = 0;
+  int _presentationEpoch = 0;
+  int _lastCommittedRequestId = 0;
+  final Map<int, _XrVideoPresentation> _presentations = {};
+  _XrVideoPresentation? _playing;
+  bool _closed = false;
+
+  void _setPlaying(_XrVideoPresentation? presentation) {
+    if (identical(_playing, presentation)) return;
+    for (final queue in _playing?.queues.toSet() ?? <PlaybackQueue>{}) {
+      queue.removeListener(_schedulePushQueues);
+    }
+    _playing = presentation;
+    nowPlayingId = presentation?.mediaId;
+    _lastSources = presentation?.sources ?? const [];
+    // 页面可以先被换成 B；只要 A 还在幕布上，其队列就不能被 LRU 淘汰。
+    for (final queue in presentation?.queues.toSet() ?? <PlaybackQueue>{}) {
+      if (!queue.isDisposed) queue.addListener(_schedulePushQueues);
+    }
+  }
 
   /// 供 UI 直接 Obx 的可用性。⚠️ 它是**缓存值**，进入播放器时刷一次即可 ——
   /// 沉浸场景的生死只会随「进/出沉浸空间」变化，不会在页面停留期间反复抖动。
@@ -67,7 +103,7 @@ class XrImmersiveService extends GetxService {
     }
   }
 
-  /// 幕布上正在放的那条视频的 id（沉浸态自己换过片之后也会更新）。
+  /// 原生已提交的媒体身份（在线视频 id / 本机条目 id）。等待或失败的请求不改它。
   String? nowPlayingId;
 
   /// 最后一次推给原生的清晰度清单（[nowPlayingId] 那条的）。
@@ -80,15 +116,17 @@ class XrImmersiveService extends GetxService {
 
   /// 沉浸播放结束时的落点：当前活着的视频页控制器挂在这里，收到最后位置后
   /// 回写自己的播放器（观看历史随之保存）。没人挂着时由本服务导航到对应视频页。
-  void Function(String videoId, int positionMs)? onImmersiveEnded;
+  void Function(String mediaId, int positionMs, int durationMs)?
+  onImmersiveEnded;
 
   /// [onImmersiveEnded] 挂着的那张页面的视频 id；ended 只在 id 对得上时才交给它。
-  String? onImmersiveEndedVideoId;
+  String? onImmersiveEndedMediaId;
 
   /// 原生播放器被服务端拒了（直链 `expires` 到期，Iwara 回 404）时的落点：当前活着的视频页
   /// 控制器挂在这里，收到后立刻重取一份清晰度清单并 [updateSources] 推回去。
   /// 只在 [videoId] 与页面这条对得上时才调（详情页自己判）。
   void Function(String videoId)? onSourceRefreshRequested;
+  String? onSourceRefreshRequestedMediaId;
 
   /// 空间面板上定了视频类型时的落点：当前活着的视频页控制器挂在这里，按钥匙（在线 id /
   /// 本地库条目 id）对上了就把 2D 播放器改成同一档。落库不靠它，见 [_handleFormatPicked]。
@@ -153,6 +191,7 @@ class XrImmersiveService extends GetxService {
   /// 「接着看」的来源目录（与 2D 抽屉同一套两级菜单），见 [XrQueueCatalog]。
   late final XrQueueCatalog _catalog = XrQueueCatalog(
     onChanged: _schedulePushQueues,
+    localRepository: _localRepositoryOverride,
   );
 
   /// 目录里几路来源（自建列表 / 他人列表 / 本地收藏…）各自异步回来、各喊一次 onChanged：
@@ -160,6 +199,7 @@ class XrImmersiveService extends GetxService {
   Timer? _catalogPushTimer;
 
   void _schedulePushQueues() {
+    if (_closed) return;
     _catalogPushTimer?.cancel();
     _catalogPushTimer = Timer(
       const Duration(milliseconds: 150),
@@ -169,7 +209,13 @@ class XrImmersiveService extends GetxService {
 
   @override
   void onClose() {
+    _closed = true;
+    _presentationEpoch++;
+    _setPlaying(null);
+    _setBrowse(null);
+    _presentations.clear();
     _catalogPushTimer?.cancel();
+    _channel.setMethodCallHandler(null);
     super.onClose();
   }
 
@@ -250,7 +296,7 @@ class XrImmersiveService extends GetxService {
       // Dart 算好推过去的死字符串，得重推一遍才跟着换。
       final playing = nowPlayingId;
       if (playing != null && playing.isNotEmpty && _lastSources.isNotEmpty) {
-        unawaited(updateSources(videoId: playing, sources: _lastSources));
+        unawaited(updateSources(mediaId: playing, sources: _lastSources));
       }
     } on MissingPluginException {
       // standard 变体没有这条通道，记下来别反复试。
@@ -275,7 +321,7 @@ class XrImmersiveService extends GetxService {
         await pushQueues();
         // 面板打开时把「正在播的那一条」翻进池里（同 2D 抽屉 `_ensureLoaded`），
         // 否则深列表中段进来，卡片流里找不到自己、也没有下一条。
-        final active = queueProvider?.call().active;
+        final active = _activeQueue;
         if (active != null) unawaited(_ensureCurrentLoaded(active));
         return true;
       case 'browseQueue':
@@ -326,7 +372,7 @@ class XrImmersiveService extends GetxService {
           LogUtils.w('沉浸态换片抛异常 videoId=$videoId: $e', 'XrImmersive');
         }
         // ⛔ 原生发 playItem 不等回值、已进换片转圈态：这里不喊停，它要干等 45 秒超时。
-        if (!ok) unawaited(abortSwitch(videoId: videoId));
+        if (!ok) unawaited(abortSwitch(mediaId: videoId));
         return ok;
       case 'panelSuspended':
         final args = call.arguments as Map?;
@@ -338,21 +384,24 @@ class XrImmersiveService extends GetxService {
         return true;
       case 'immersiveEnded':
         final args = call.arguments as Map?;
-        final id = (args?['videoId'] as String?)?.trim() ?? '';
+        final id = (args?['mediaId'] as String?)?.trim() ?? '';
+        final requestId = (args?['requestId'] as num?)?.toInt() ?? 0;
         final positionMs = (args?['positionMs'] as num?)?.toInt() ?? 0;
         final durationMs = (args?['durationMs'] as num?)?.toInt() ?? 0;
-        await _handleImmersiveEnded(id, positionMs, durationMs);
+        await _handleImmersiveEnded(
+          requestId,
+          id,
+          positionMs,
+          durationMs,
+          replaced: args?['replaced'] == true,
+        );
         return true;
       case 'sourceExpired':
         final args = call.arguments as Map?;
-        final id = (args?['videoId'] as String?)?.trim() ?? '';
-        final handler = onSourceRefreshRequested;
-        if (id.isEmpty || handler == null) {
-          LogUtils.w('沉浸态报播放地址过期但没人接 videoId=$id', 'XrImmersive');
-          return false;
-        }
-        handler(id);
-        return true;
+        return _refreshExpiredSource(
+          (args?['videoId'] as String?)?.trim() ?? '',
+          (args?['requestId'] as num?)?.toInt() ?? 0,
+        );
       case 'galleryFile':
         final args = call.arguments as Map?;
         return await _resolveGalleryFile(
@@ -394,41 +443,164 @@ class XrImmersiveService extends GetxService {
     }
   }
 
-  /// 沉浸播放结束（回应用 / 换片 / 退出场景）：把最后位置交回去。
-  ///
-  /// 三种情形要分清：
-  /// 1. 结束的就是页面上这条 → 交给页面控制器（回写面板播放器 + 观看历史）。
-  /// 2. 结束的是**幕布上正放的**那条，而页面已不是它（原生自足换片的兜底路）→ 导航过去，
-  ///    让 2D 面板与刚才看的东西对得上。
-  /// 3. 结束的是一条**已经被 Dart 换掉的旧片**（`playQueueItem` 走导航换片，新页 present 后
-  ///    原生给旧片补发一次 ended）→ **只回写历史，绝不导航**。⛔ 之前这种情形也走了导航：
-  ///    在新页之上又 push 了旧片的详情页，那张页没有来源池，「来源」页签随之消失、
-  ///    分区跳到稍后再看（用户 2026-09-05 报障）。
-  ///
-  /// 判据靠 [nowPlayingId]：[present] 在发通道之前就把它写成新片 id，所以旧片的 ended
-  /// 到达时它已经不等于旧片。
+  /// 用请求身份去重；正常换片只保存旧进度，主动退出才交回或恢复对应页面。
   Future<void> _handleImmersiveEnded(
-    String videoId,
+    int requestId,
+    String mediaId,
+    int positionMs,
+    int durationMs, {
+    required bool replaced,
+  }) async {
+    final presentation = _presentations[requestId];
+    if (presentation == null || presentation.mediaId != mediaId) return;
+    _presentations.remove(requestId);
+    // ended 也可能先于同一次 present 的平台回值到达；它本身证明这一请求已播过。
+    final wasOnScreen =
+        identical(_playing, presentation) ||
+        (!replaced && requestId > _lastCommittedRequestId);
+    if (wasOnScreen) {
+      if (requestId > _lastCommittedRequestId) {
+        _lastCommittedRequestId = requestId;
+      }
+      _setPlaying(null);
+    }
+    final epoch = _presentationEpoch;
+    final latestRequest = _latestRequestId;
+    // 本机与线上存储身份来自发起请求时的元数据，不信任回调把两者混作一个 id。
+    await _savePresentationProgress(presentation, positionMs, durationMs);
+    if (replaced ||
+        !wasOnScreen ||
+        _closed ||
+        _playing != null ||
+        nowShowingGalleryId != null ||
+        _presentationEpoch != epoch ||
+        _latestRequestId != latestRequest) {
+      return;
+    }
+    final handler = onImmersiveEnded;
+    if (handler != null && onImmersiveEndedMediaId == mediaId) {
+      handler(mediaId, positionMs, durationMs);
+      return;
+    }
+    _restorePage((
+      mediaId: mediaId,
+      videoId: presentation.videoId,
+      localPath: presentation.localPath,
+      localLibraryItemId: presentation.localLibraryItemId,
+      localTask: presentation.localTask,
+      localAllQualityTasks: presentation.localAllQualityTasks,
+      queueRef: presentation.queueRef,
+    ));
+  }
+
+  static void _navigateToPlayback(XrPlaybackReturn playback) {
+    if (playback.localPath != null) {
+      NaviService.navigateToLocalVideoPlayerPage(
+        localPath: playback.localPath!,
+        localLibraryItemId: playback.localLibraryItemId,
+        task: playback.localTask,
+        allQualityTasks: playback.localAllQualityTasks,
+        playbackQueueRef: playback.queueRef,
+      );
+    } else if (playback.videoId != null) {
+      unawaited(
+        NaviService.navigateToVideoDetailPage(
+          playback.videoId!,
+          playbackQueueRef: playback.queueRef,
+        ),
+      );
+    }
+  }
+
+  Future<void> _savePresentationProgress(
+    _XrVideoPresentation presentation,
     int positionMs,
     int durationMs,
   ) async {
-    if (videoId.isEmpty) return;
-    final wasOnScreen = nowPlayingId == videoId;
-    if (wasOnScreen) nowPlayingId = null;
-    final handler = onImmersiveEnded;
-    final pageVideoId = onImmersiveEndedVideoId;
-    // 本地播放页没有 iwara id（pageVideoId 为 null）：只在结束的正是幕布上那条时交给它。
-    final pageMatches =
-        pageVideoId == videoId || (pageVideoId == null && wasOnScreen);
-    if (handler != null && pageMatches) {
-      handler(videoId, positionMs);
-      return;
+    final localId = presentation.localLibraryItemId;
+    if (localId != null) {
+      if (durationMs <= 0 ||
+          !Get.isRegistered<ConfigService>() ||
+          Get.find<ConfigService>()[ConfigKey
+                  .RECORD_AND_RESTORE_VIDEO_PROGRESS] !=
+              true) {
+        return;
+      }
+      final position = positionMs.clamp(0, durationMs);
+      final completed =
+          position >= durationMs * 0.9 ||
+          (durationMs > 60000 && durationMs - position < 10000);
+      try {
+        _localRepository.saveProgress(
+          itemId: localId,
+          positionMs: completed ? 0 : position,
+          durationMs: durationMs,
+          completed: completed,
+        );
+      } catch (e) {
+        LogUtils.w('回写沉浸态本机进度失败 $localId: $e', 'XrImmersive');
+      }
     }
-    await _saveHistory(videoId, positionMs, durationMs);
-    if (wasOnScreen) {
-      LogUtils.d('沉浸播放结束但页面不是它，导航到 $videoId', 'XrImmersive');
-      NaviService.navigateToVideoDetailPage(videoId);
+    final onlineId = presentation.videoId;
+    if (onlineId != null) await _saveHistory(onlineId, positionMs, durationMs);
+  }
+
+  Future<bool> _refreshExpiredSource(String videoId, int requestId) async {
+    final presentation = _playing;
+    if (presentation == null ||
+        presentation.videoId != videoId ||
+        presentation.requestId != requestId) {
+      return false;
     }
+    final handler = onSourceRefreshRequested;
+    if (handler != null &&
+        onSourceRefreshRequestedMediaId == presentation.mediaId) {
+      handler(videoId);
+      return true;
+    }
+    // 预加载 B 失败后，页面可能已是 B；A 的刷新不能再依赖那张页面。
+    final resolved = await _resolveVideo(videoId);
+    if (resolved == null || !identical(_playing, presentation)) return false;
+    final sources = [
+      for (final source in resolved.sources)
+        XrMediaSource(label: source.label, url: source.url),
+      // 本机档不会过期，保留它们，避免刷新清单把离线档位删掉。
+      for (final source in _lastSources)
+        if (source.local) source,
+    ];
+    final byLabel = {for (final source in sources) source.label: source};
+    return updateSources(
+      mediaId: presentation.mediaId,
+      sources: byLabel.values.toList(),
+      requestId: presentation.requestId,
+    );
+  }
+
+  PlaybackQueue? _snapshotActive(XrQueueSnapshot? snapshot) {
+    if (snapshot == null) return null;
+    return snapshot.active ??
+        snapshot.queues.firstWhereOrNull(
+          (q) => q.mediaType == snapshot.mediaType && !q.isDisposed,
+        );
+  }
+
+  PlaybackQueue? get _activeQueue {
+    final playing = _playing;
+    if (playing != null) return playing.queue;
+    return _snapshotActive(queueProvider?.call());
+  }
+
+  List<PlaybackQueue> _playbackQueues(XrQueueSnapshot? snapshot) {
+    final playing = _playing;
+    if (playing == null) return snapshot?.queues ?? const [];
+    return [
+      ...playing.queues.where((q) => !q.isDisposed),
+      for (final queue in snapshot?.queues ?? <PlaybackQueue>[])
+        if (queue.mediaType == PlaybackMediaType.video &&
+            !queue.isDisposed &&
+            !playing.queues.any((q) => q.queueId == queue.queueId))
+          queue,
+    ];
   }
 
   /// 空间面板上给一条片子定了视频类型：永久记住，并让还活着的那张详情页当场改口。
@@ -485,7 +657,13 @@ class XrImmersiveService extends GetxService {
     int positionMs,
     int durationMs,
   ) async {
-    if (!Get.isRegistered<PlaybackHistoryService>()) return;
+    if (!Get.isRegistered<PlaybackHistoryService>() ||
+        !Get.isRegistered<ConfigService>() ||
+        Get.find<ConfigService>()[ConfigKey
+                .RECORD_AND_RESTORE_VIDEO_PROGRESS] !=
+            true) {
+      return;
+    }
     if (durationMs <= 0) return;
     final history = Get.find<PlaybackHistoryService>();
     try {
@@ -507,23 +685,22 @@ class XrImmersiveService extends GetxService {
   /// 播完接着放、「正在播」标记看它；两者是同一个时只推一份）、整棵池选择器。
   /// 没有页面挂着时退回稍后再看。
   Future<void> pushQueues() async {
+    if (_closed) return;
     try {
       final snapshot = queueProvider?.call();
       final sections = <XrPlaylistSection>[];
       XrCatalogNode? catalog;
       String? activeQueueId;
       String? browseQueueId;
-      final active = snapshot == null
-          ? null
-          : (snapshot.active ??
-                snapshot.queues.firstWhereOrNull(
-                  (q) => q.mediaType == snapshot.mediaType,
-                ));
-      if (snapshot != null && active != null) {
-        var browsing = _browse;
+      final active = _activeQueue;
+      final mediaType = _playing != null
+          ? PlaybackMediaType.video
+          : snapshot?.mediaType ?? PlaybackMediaType.video;
+      if (active != null && !active.isDisposed) {
+        var browsing = _browse ?? _snapshotActive(snapshot);
         if (browsing != null &&
             (browsing.isDisposed ||
-                browsing.mediaType != snapshot.mediaType ||
+                browsing.mediaType != mediaType ||
                 browsing.queueId == active.queueId)) {
           _setBrowse(null);
           browsing = null;
@@ -536,12 +713,12 @@ class XrImmersiveService extends GetxService {
           sections.add(XrPlaylistSource.sectionFromQueue(current));
         }
         catalog = _catalog.build(
-          queues: _mergeBrowse(snapshot.queues, browsing),
+          queues: _mergeBrowse(_playbackQueues(snapshot), browsing),
           browsing: current,
-          currentItemId: snapshot.currentItemId,
-          author: snapshot.author,
+          currentItemId: nowPlayingId ?? snapshot?.currentItemId ?? '',
+          author: _playing?.author ?? snapshot?.author,
           playingLocalFile: active.kind == PlaybackQueueKind.localLibrary,
-          mediaType: snapshot.mediaType,
+          mediaType: mediaType,
         );
       } else {
         final fallback = XrPlaylistSource.fallbackSection();
@@ -611,13 +788,17 @@ class XrImmersiveService extends GetxService {
   /// 就白翻 8 页。浏览池只在切过去那一下做一次（[browseQueueForImmersive]）。
   Future<void> _ensureCurrentLoaded(PlaybackQueue queue) async {
     final snapshot = queueProvider?.call();
-    if (snapshot == null || queue.isDisposed) return;
+    final currentItemId = nowPlayingId ?? snapshot?.currentItemId;
+    if (currentItemId == null || queue.isDisposed) return;
     try {
       if (queue.loaded.isEmpty && queue.hasMore && !queue.isLoading) {
         await queue.loadMore();
       }
-      if (!queue.isDisposed && !queue.contains(snapshot.currentItemId)) {
-        await queue.ensureContains(snapshot.currentItemId);
+      final knownQueueItem = _playing == null || !_playing!.anonymous;
+      if (knownQueueItem &&
+          !queue.isDisposed &&
+          !queue.contains(currentItemId)) {
+        await queue.ensureContains(currentItemId);
       }
     } catch (e) {
       LogUtils.w('沉浸态装池失败 queue=${queue.queueId}: $e', 'XrImmersive');
@@ -629,20 +810,23 @@ class XrImmersiveService extends GetxService {
   Future<bool> browseQueueForImmersive(String queueId) async {
     if (queueId.isEmpty) return false;
     final snapshot = queueProvider?.call();
-    if (snapshot == null) {
+    if (snapshot == null && _playing == null) {
       _rejectedBrowse = queueId;
       await pushQueues();
       return false;
     }
     final queue =
         PlaybackQueueService.to.byId(queueId) ?? _catalog.open(queueId);
-    if (queue == null || queue.mediaType != snapshot.mediaType) {
+    final mediaType = _playing != null
+        ? PlaybackMediaType.video
+        : snapshot!.mediaType;
+    if (queue == null || queue.mediaType != mediaType) {
       LogUtils.w('沉浸态要浏览的池不在目录里 queueId=$queueId', 'XrImmersive');
       _rejectedBrowse = queueId;
       await pushQueues();
       return false;
     }
-    final active = snapshot.active;
+    final active = _activeQueue;
     _setBrowse(
       active != null && active.queueId == queue.queueId ? null : queue,
     );
@@ -725,7 +909,7 @@ class XrImmersiveService extends GetxService {
         item: item,
         // 「稍后再看 · 未看完」里点的：续播跳过已看完（同 2D 抽屉 `PlaybackQueueSelection`）。
         skipWatched: queue is WatchLaterPlaybackQueue && queue.unwatchedOnly,
-        companionQueues: queueProvider?.call().queues ?? const [],
+        companionQueues: _playbackQueues(queueProvider?.call()),
         // 图库池里点的：新的图库详情页落地就整本交给空间画廊（视频那条路靠 forceAutoPlay）。
         presentInSpace: queue.mediaType.isGallery,
       );
@@ -740,7 +924,12 @@ class XrImmersiveService extends GetxService {
   /// ⛔ **不走导航**：看视频时 Flutter 面板被显式暂停出帧，`pushReplacement`
   /// 建不出页面来。见 [XrPlaylistSource] 的类注释。
   Future<bool> playFromPlaylist(String videoId) async {
-    final playable = await XrPlaylistSource.resolve(videoId);
+    final request = _latestRequestId = ++_nextRequestId;
+    final epoch = _presentationEpoch;
+    final playable = await _resolveVideo(videoId);
+    if (_closed || request != _latestRequestId || epoch != _presentationEpoch) {
+      return false;
+    }
     if (playable == null) {
       LogUtils.w('沉浸态换片失败：解析不出可播地址 videoId=$videoId', 'XrImmersive');
       return false;
@@ -750,7 +939,15 @@ class XrImmersiveService extends GetxService {
       format: playable.format,
       title: playable.title,
       author: playable.author,
-      videoId: playable.id,
+      videoId: playable.localLibraryItemId == null ? playable.id : null,
+      mediaId: playable.id,
+      localLibraryItemId: playable.localLibraryItemId,
+      localPath: playable.localPath,
+      sources: [
+        for (final source in playable.sources)
+          XrMediaSource(label: source.label, url: source.url),
+      ],
+      sourceLabel: playable.sourceLabel,
       width: playable.width,
       height: playable.height,
     );
@@ -798,7 +995,7 @@ class XrImmersiveService extends GetxService {
   /// [format] 直接用播放器已有的 L1 判定结果（`MyVideoStateController.vrFormat`）——
   /// ⛔ 那是「默认档」不是判决，用户在播放器里选过就以用户的为准，这里原样透传即可。
   ///
-  /// @return true 表示已投递给场景；false 表示场景没就绪（原生侧会暂存，就绪后补投）。
+  /// 返回 true 表示原生已提交播放；等待、预加载期间保留上一条的身份和队列。
   ///
   /// [sources] 是这条片子所有可选的清晰度（在线直链 / 本机已下载的文件），[sourceLabel]
   /// 是 [url] 对应的那一档；面板上的「清晰度」钮据此换源，换源在原生侧完成、不回 Dart。
@@ -815,6 +1012,11 @@ class XrImmersiveService extends GetxService {
     String title = '',
     String author = '',
     String? videoId,
+    String? mediaId,
+    String? localLibraryItemId,
+    String? localPath,
+    DownloadTask? localTask,
+    List<DownloadTask> localAllQualityTasks = const [],
     String? formatKey,
     int width = 0,
     int height = 0,
@@ -823,8 +1025,55 @@ class XrImmersiveService extends GetxService {
     List<XrMediaSource> sources = const <XrMediaSource>[],
     String sourceLabel = '',
   }) async {
+    if (_closed) return false;
+    final requestId = _latestRequestId = ++_nextRequestId;
+    final epoch = _presentationEpoch;
+    final onlineId = videoId?.trim().isNotEmpty == true
+        ? videoId!.trim()
+        : null;
+    final localId = localLibraryItemId?.trim().isNotEmpty == true
+        ? localLibraryItemId!.trim()
+        : null;
+    final id = mediaId?.trim().isNotEmpty == true
+        ? mediaId!.trim()
+        : localId ?? onlineId ?? 'local:$requestId';
+    final snapshot = queueProvider?.call();
+    // 任意文件入口可能没有池游标，但页面仍提供本机目录兜底池。
+    final ownsSnapshot =
+        snapshot != null &&
+        snapshot.mediaType == PlaybackMediaType.video &&
+        (snapshot.currentItemId == id ||
+            (snapshot.currentItemId.isEmpty && localPath != null));
+    final queue = ownsSnapshot
+        ? _snapshotActive(snapshot)
+        : _browse?.contains(id) == true
+        ? _browse
+        : _playing?.queue?.contains(id) == true
+        ? _playing?.queue
+        : null;
+    final presentation = _XrVideoPresentation(
+      requestId: requestId,
+      mediaId: id,
+      videoId: onlineId,
+      localLibraryItemId: localId,
+      localPath: localPath,
+      localTask: localTask,
+      localAllQualityTasks: List.unmodifiable(localAllQualityTasks),
+      sources: List.unmodifiable(sources),
+      queue: queue,
+      queues:
+          {
+                ?queue,
+                ...(ownsSnapshot ? snapshot.queues : _playbackQueues(snapshot)),
+              }
+              .where(
+                (q) => !q.isDisposed && q.mediaType == PlaybackMediaType.video,
+              )
+              .toList(),
+      author: snapshot?.currentItemId == id ? snapshot?.author : null,
+    );
     try {
-      final key = (formatKey ?? videoId)?.trim() ?? '';
+      final key = (formatKey ?? localId ?? onlineId)?.trim() ?? '';
       String xrFormat = '';
       if (key.isNotEmpty && Get.isRegistered<VrFormatOverrideService>()) {
         final stored = await Get.find<VrFormatOverrideService>().getEntry(key);
@@ -833,9 +1082,12 @@ class XrImmersiveService extends GetxService {
           xrFormat = stored.xrFormat ?? '';
         }
       }
-      // ⛔ 先记再发：原生处理新片时会给旧片补发一次 ended，那时这里必须已经是新片 id，
-      // 见 [_handleImmersiveEnded] 的判据。
-      nowPlayingId = videoId;
+      if (_closed ||
+          requestId != _latestRequestId ||
+          epoch != _presentationEpoch) {
+        return false;
+      }
+      _presentations[requestId] = presentation;
       final localeTag = slang.LocaleSettings.currentLocale.languageTag;
       _pushedLocaleTag = localeTag;
       final ok = await _channel.invokeMethod<bool>('present', {
@@ -845,7 +1097,9 @@ class XrImmersiveService extends GetxService {
         'title': title,
         // 面板标题下面那行小字。图集页早就有作者了，播放页也得有（用户 2026-09-06）。
         'author': author,
-        'videoId': videoId ?? '',
+        'videoId': onlineId ?? '',
+        'mediaId': id,
+        'requestId': requestId,
         'sources': sources.map((e) => e.toChannelMap()).toList(),
         'sourceLabel': sourceLabel,
         'shape': _shapeOf(format.projection),
@@ -860,14 +1114,27 @@ class XrImmersiveService extends GetxService {
         // 这面旗子在控制面板上如实提示并给出「用其他应用打开」，而不是默默按平面播。
         'unsupportedProjection': format.projection == VrProjection.fisheye,
       });
-      _lastSources = sources;
+      if (ok != true || _closed) {
+        _presentations.remove(requestId);
+        return false;
+      }
+      // 旧请求确实播过：不能接管新会话，但仍需保留元数据供迟到的 ended 回写进度。
+      if (epoch != _presentationEpoch ||
+          requestId <= _lastCommittedRequestId ||
+          !identical(_presentations[requestId], presentation)) {
+        return false;
+      }
+      _lastCommittedRequestId = requestId;
+      _setPlaying(presentation);
       // 幕布一亮就把「接着看」推过去：面板里的播放列表页要能立刻用，
       // 而不是等用户点开那一页时才现拉（那时 Flutter 已经停止出帧了）。
       unawaited(pushQueues());
-      return ok ?? false;
+      return true;
     } on MissingPluginException {
+      _presentations.remove(requestId);
       return false;
     } catch (e) {
+      _presentations.remove(requestId);
       LogUtils.e('交给沉浸空间失败', tag: 'XrImmersive', error: e);
       return false;
     }
@@ -890,10 +1157,9 @@ class XrImmersiveService extends GetxService {
     String quality = galleryImageQualityStandard,
   }) async {
     if (items.isEmpty) return false;
+    final requestId = _latestRequestId = ++_nextRequestId;
     try {
       // ⛔ 幕布上若正放着视频：它的 ended 会随 presentGallery 补发回来，nowPlayingId 由那条路清。
-      nowShowingGalleryId = galleryId;
-      _galleryItems = items;
       final localeTag = slang.LocaleSettings.currentLocale.languageTag;
       _pushedLocaleTag = localeTag;
       final cache = DefaultCacheManager();
@@ -916,6 +1182,10 @@ class XrImmersiveService extends GetxService {
           'h': item.height,
         });
       }
+      if (_closed || requestId != _latestRequestId) return false;
+      _presentationEpoch++;
+      nowShowingGalleryId = galleryId;
+      _galleryItems = items;
       final ok = await _channel.invokeMethod<bool>('presentGallery', {
         'locale': localeTag,
         'galleryId': galleryId,
@@ -974,20 +1244,29 @@ class XrImmersiveService extends GetxService {
   /// 两条来路都汇到这里：详情页到期前 5 分钟的定时刷新（与 2D 播放器同一只定时器），
   /// 以及原生播放被服务端拒了之后的 `sourceExpired` 反向请求。不是幕布上正放的那条就不发。
   Future<bool> updateSources({
-    required String videoId,
+    required String mediaId,
     required List<XrMediaSource> sources,
+    int? requestId,
   }) async {
-    if (videoId.isEmpty || sources.isEmpty || nowPlayingId != videoId) {
+    final presentation = _playing;
+    if (mediaId.isEmpty ||
+        sources.isEmpty ||
+        presentation?.mediaId != mediaId ||
+        (requestId != null && presentation?.requestId != requestId)) {
       return false;
     }
     try {
       final ok = await _channel.invokeMethod<bool>('updateSources', {
-        'videoId': videoId,
+        'mediaId': mediaId,
+        'requestId': presentation!.requestId,
         'sources': sources.map((e) => e.toChannelMap()).toList(),
       });
-      _lastSources = sources;
+      if (ok == true && identical(_playing, presentation)) {
+        _lastSources = List.unmodifiable(sources);
+        presentation.sources = _lastSources;
+      }
       LogUtils.i(
-        '刷新后的片源已推给空间播放器 videoId=$videoId n=${sources.length} ok=$ok',
+        '刷新后的片源已推给空间播放器 mediaId=$mediaId n=${sources.length} ok=$ok',
         'XrImmersive',
       );
       return ok ?? false;
@@ -1002,12 +1281,12 @@ class XrImmersiveService extends GetxService {
   /// 面板点了下一条、Dart 却打不开那张详情页（跨站切换失败 / 私密 / 已删除 / 网络）：
   /// 让原生收掉换片在途态，把老片放回去并提示，不必等 45s 看门狗。
   Future<bool> abortSwitch({
-    required String videoId,
+    required String mediaId,
     String reason = '',
   }) async {
     try {
       return await _channel.invokeMethod<bool>('abortSwitch', {
-            'videoId': videoId,
+            'mediaId': mediaId,
             'reason': reason,
           }) ??
           false;
@@ -1022,8 +1301,8 @@ class XrImmersiveService extends GetxService {
   /// 收起幕布与控制条，把 UI 面板还回来（视频与空间画廊都归它）。
   Future<bool> dismiss() async {
     try {
-      nowPlayingId = null;
-      nowShowingGalleryId = null;
+      _presentationEpoch++;
+      _latestRequestId = ++_nextRequestId;
       return await _channel.invokeMethod<bool>('dismiss') ?? false;
     } on MissingPluginException {
       return false;
@@ -1049,6 +1328,57 @@ class XrImmersiveService extends GetxService {
     VrStereoLayout.topBottom => 'tb',
     VrStereoLayout.mono => 'none',
   };
+}
+
+/// 沉浸播放退出后的页面落点，媒体类型由独立字段决定。
+typedef XrPlaybackReturn = ({
+  String mediaId,
+  String? videoId,
+  String? localPath,
+  String? localLibraryItemId,
+  DownloadTask? localTask,
+  List<DownloadTask> localAllQualityTasks,
+  PlaybackQueueRef? queueRef,
+});
+
+class _XrVideoPresentation {
+  _XrVideoPresentation({
+    required this.requestId,
+    required this.mediaId,
+    required this.videoId,
+    required this.localLibraryItemId,
+    required this.localPath,
+    required this.localTask,
+    required this.localAllQualityTasks,
+    required this.sources,
+    required this.queue,
+    required this.queues,
+    required this.author,
+  });
+
+  final int requestId;
+  final String mediaId;
+  final String? videoId;
+  final String? localLibraryItemId;
+  final String? localPath;
+  final DownloadTask? localTask;
+  final List<DownloadTask> localAllQualityTasks;
+  List<XrMediaSource> sources;
+  final PlaybackQueue? queue;
+  final List<PlaybackQueue> queues;
+  final User? author;
+  bool get anonymous => videoId == null && localLibraryItemId == null;
+
+  PlaybackQueueRef? get queueRef => queue == null
+      ? null
+      : PlaybackQueueRef(
+          queueId: queue!.queueId,
+          currentItemId: anonymous ? '' : mediaId,
+          companionQueueIds: [
+            for (final companion in queues)
+              if (companion.queueId != queue!.queueId) companion.queueId,
+          ],
+        );
 }
 
 /// 详情页交给沉浸面板的「接着看」快照。

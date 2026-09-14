@@ -91,6 +91,7 @@ import m.c.g.a.i_iwara.xr.ImmersivePlaylistItem
 import m.c.g.a.i_iwara.xr.ImmersivePlaylistSection
 import m.c.g.a.i_iwara.xr.ImmersiveSourceOption
 import m.c.g.a.i_iwara.xr.ImmersiveVideoRequest
+import m.c.g.a.i_iwara.xr.ImmersiveVideoPresentation
 import m.c.g.a.i_iwara.xr.LaunchDiagnostics
 import kotlin.math.abs
 import kotlin.math.min
@@ -174,8 +175,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var screenPanel: PanelSceneObject? = null
     private val mediaEffects by lazy { MediaEffectsRenderer(scene, assets) }
     private var backgroundEnvironment: DeepSpaceEnvironment? = null
-    private var environmentVrVisible = false
-    private var environmentHmdMounted = true
+    private val scenePresence = ScenePresence()
     private var mediaEffectsFailed = false
     private var screenUsesEffectMesh = false
     private var screenUsesProcessedVideo = false
@@ -258,6 +258,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private var argUrl: String? = null
     private var videoId: String = ""
+    private var mediaId: String = ""
+    private var presentationId = 0L
+    private var pendingPresentation: ImmersiveVideoPresentation? = null
 
     /** 视频类型记在哪把钥匙下（见 [ImmersiveVideoRequest.formatKey]）；空串 = 这一条不记。 */
     private var formatKey: String = ""
@@ -278,7 +281,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private val headReadiness = HeadPoseReadiness()
     private var screenShown = false
     private var pendingShowControls = false
-    private var inputSuspended = false
+    private var inputSuspended = true
     private var viewDistanceDirection = 0
 
     /** 「面板远近」按住不放的方向（-1 拉近 / +1 拉远 / 0 没按着），只在浏览态那一页有效。 */
@@ -353,8 +356,9 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var prefsDirty = false
     private var prefsFlushAt = 0L
 
-    /** 被系统事件（系统菜单 / 摘下头显）暂停的，回来要续播。 */
-    private var pausedBySystem = false
+    /** Images and video share the same system pause policy. */
+    private val pausedBySystem: Boolean
+        get() = controls.pauseOnFocusLoss && !scenePresence.foreground
 
     private var playlistSections: List<ImmersivePlaylistSection> = emptyList()
     private var nowPlayingId: String? = null
@@ -438,6 +442,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         logMemory("onCreate")
         playback = PlaybackEngine(this).also { it.listener = this }
         prefs = PlayerPrefs(this).also { it.load(controls) }
+        playback.setSystemPaused(pausedBySystem)
         // 音量条拿的是**系统**那一根（物理音量键 / 通用菜单调的同一个值），进来先读一次真值。
         systemVolume = SystemVolume(this)
         controls.volume = systemVolume.level()
@@ -502,8 +507,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 任何不带 url 的 intent 一律回浏览态 —— 主页点图标、系统拉起都不该把上一次的片子留在场景里。
         val urlExtra = source.getStringExtra("url")
         val nextUrl = urlExtra?.takeIf { it.isNotBlank() }
+        playback.cancelPreload()
+        clearSwitchWait()
         if (argUrl != null && nextUrl != argUrl) notifyEnded()
         argUrl = nextUrl
+        videoId = source.getStringExtra("videoId") ?: ""
+        mediaId = videoId
+        presentationId = 0L
+        nowPlayingId = mediaId.ifBlank { null }
+        controls.nowPlayingId = nowPlayingId
         if (urlExtra != null) {
             controls.format = ScreenGeometry.formatOf(
                 source.getStringExtra("shape") ?: "flat",
@@ -515,7 +527,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             videoHeight = source.getIntExtra("h", videoHeight)
             controls.title = source.getStringExtra("title") ?: ""
             controls.author = source.getStringExtra("author") ?: ""
-            videoId = source.getStringExtra("videoId") ?: ""
             // adb 直投没有持久化钥匙：别让上一次 present 的钥匙接住这里的选档。
             formatKey = ""
         }
@@ -558,7 +569,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // The projection layer must leave its empty pixels transparent for both
         // passthrough and a compositor sky behind the -1/0 media layers.
         scene.setBackfillColor(Color4(0f, 0f, 0f, 0f))
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible && environmentHmdMounted) }
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
         applyScene(immediate = true)
         // ⛔ 关掉 VRFeature 自带的 LocomotionSystem：它把摇杆前后当传送（射出抛物线）、左右当转向，
         // 只有光标悬在面板上时才让路 —— 用户 2026-09-05：「摇杆推完松手视角变了 / 手柄射出一道抛物线」。
@@ -578,7 +589,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onVRPause() {
         super.onVRPause()
-        environmentVrVisible = false
+        scenePresence.vrVisible = false
         backgroundEnvironment?.setResumed(false)
         Log.i(TAG, "IMMERSIVE onVRPause")
         pauseForSystem()
@@ -586,15 +597,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onVRReady() {
         super.onVRReady()
-        environmentVrVisible = true
-        backgroundEnvironment?.setResumed(environmentHmdMounted)
+        scenePresence.vrVisible = true
+        backgroundEnvironment?.setResumed(scenePresence.foreground)
         Log.i(TAG, "IMMERSIVE onVRReady")
         resumeAfterSystem()
     }
 
     override fun onHMDUnmounted() {
         super.onHMDUnmounted()
-        environmentHmdMounted = false
+        scenePresence.hmdMounted = false
         backgroundEnvironment?.setResumed(false)
         Log.i(TAG, "IMMERSIVE onHMDUnmounted")
         pauseForSystem()
@@ -602,8 +613,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     override fun onHMDMounted() {
         super.onHMDMounted()
-        environmentHmdMounted = true
-        backgroundEnvironment?.setResumed(environmentVrVisible)
+        scenePresence.hmdMounted = true
+        backgroundEnvironment?.setResumed(scenePresence.foreground)
         Log.i(TAG, "IMMERSIVE onHMDMounted")
         resumeAfterSystem()
     }
@@ -620,34 +631,29 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun pauseForSystem() {
-        ImmersiveBridge.notifySceneLifecycle(foreground = false)
+        if (!inputSuspended) ImmersiveBridge.notifySceneLifecycle(foreground = false)
         inputSuspended = true
         cancelSpatialInteractions()
-        if (!controls.pauseOnFocusLoss) return
-        if (playback.isAlive && playback.isPlaying) {
-            playback.setPlaying(false)
-            controls.isPlaying = false
-            pausedBySystem = true
-        }
+        playback.setSystemPaused(pausedBySystem)
+        controls.isPlaying = playback.isPlaying
+        if (pausedBySystem) slideshowNextAt = 0L
     }
 
     private fun resumeAfterSystem() {
+        if (!scenePresence.foreground || !inputSuspended) return
         ImmersiveBridge.notifySceneLifecycle(foreground = true)
         inputSuspended = false
         headReadiness.reset()
         lastMotionAt = 0L
-        if (!pausedBySystem) return
-        pausedBySystem = false
-        if (playback.isAlive) {
-            playback.setPlaying(true)
-            controls.isPlaying = true
-        }
+        playback.setSystemPaused(false)
+        controls.isPlaying = playback.isPlaying
     }
 
     override fun onSpatialShutdown() {
         Log.i(TAG, "IMMERSIVE onSpatialShutdown")
         LaunchDiagnostics.onImmersiveEvent(this, "onSpatialShutdown finishing=$isFinishing")
         logMemory("onSpatialShutdown")
+        clearSwitchWait()
         notifyEnded()
         gallery?.let { ImmersiveBridge.notifyGalleryEnded(it.galleryId, it.index) }
         ImmersiveBridge.detachScene()
@@ -658,7 +664,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         mediaEffects.detach()
         backgroundEnvironment?.close()
         backgroundEnvironment = null
-        environmentVrVisible = false
+        scenePresence.vrVisible = false
         screenEntity?.destroy()
         screenEntity = null
         screenPanel = null
@@ -680,6 +686,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.i(TAG, "IMMERSIVE onDestroy")
         LaunchDiagnostics.onImmersiveEvent(this, "onDestroy finishing=$isFinishing changingConfig=$isChangingConfigurations")
         logMemory("onDestroy")
+        clearSwitchWait()
         playback.release()
         mediaEffects.detach()
         backgroundEnvironment?.close()
@@ -694,38 +701,50 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     private val bridgeListener = object : ImmersiveBridge.Listener {
 
-        override fun onPresent(request: ImmersiveVideoRequest) {
+        override fun onPresent(presentation: ImmersiveVideoPresentation) {
             runOnUiThread {
+                if (isFinishing || isDestroyed) {
+                    presentation.complete(false)
+                    return@runOnUiThread
+                }
+                val request = presentation.request
+                // 新请求接替预加载，但旧片暂停意图仍要留给失败恢复。
+                pendingPresentation?.complete(false)
+                pendingPresentation = null
+                playback.cancelPreload()
                 val freshPlacement = !stageActive || inGallery
                 if (freshPlacement) resetStagePlacement()
                 // 幕布上正放着图库：先收掉它（图片面板销毁、Dart 收 galleryEnded），下面按「没有片源」的路建视频幕布。
                 if (inGallery) exitGallery()
-                // 同一条片子（videoId 相同）再 present 不算换片：面板上换过清晰度之后 argUrl 已不是 Dart
+                // 同一条片子（mediaId 相同）再 present 不算换片：面板上换过清晰度之后 argUrl 已不是 Dart
                 // 手里那个地址，按地址判会把它当成换片、从 Dart 的旧位置重新起播。同片不同地址 = 换源。
-                val sameVideo = argUrl != null && request.videoId.isNotBlank() && request.videoId == videoId
-                val switchingVideo = !sameVideo && request.url != argUrl
+                val sameVideo = argUrl != null && request.mediaId.isNotBlank() && request.mediaId == mediaId
+                val switchingVideo = !sameVideo
                 Log.i(TAG, "IMMERSIVE present id=${request.videoId} switching=$switchingVideo alive=${playback.isAlive} pos=${request.positionMs}")
                 if (switchingVideo && argUrl != null && playback.isAlive) {
                     // 老片暂停等着，新片后台预加载，就绪再换（见 commitSwitch）；失败把老片放回去。
-                    beginSwitch(request.videoId.ifBlank { controls.switchingToId })
+                    pendingPresentation = presentation
+                    beginSwitch(request.mediaId.ifBlank { controls.switchingToId })
                     // 面板里的 Flutter 已经换好页了，立刻停掉它的出帧（正常路径由 rebuildScreen 做）。
                     ImmersiveBridge.setPanelRenderingPaused(true)
                     placeUiPanel(visible = false)
                     playback.preload(
                         url = request.url,
                         startPositionMs = request.positionMs,
-                        onReady = { runOnUiThread { commitSwitch(request) } },
+                        onReady = { runOnUiThread { commitSwitch(presentation) } },
                         onError = { msg ->
                             runOnUiThread {
-                                clearSwitchWait(resumeOldVideo = true)
-                                controls.notice = text(UiR.string.xr_notice_next_failed_reason, msg)
-                                showControls(summoned = true)
+                                if (pendingPresentation === presentation) {
+                                    clearSwitchWait(resumeOldVideo = true)
+                                    controls.notice = text(UiR.string.xr_notice_next_failed_reason, msg)
+                                    showControls(summoned = true)
+                                }
                             }
                         },
                     )
                     return@runOnUiThread
                 }
-                if (switchingVideo && argUrl != null) notifyEnded()
+                if (argUrl != null) notifyEnded(replaced = true)
                 val before = controls.format
                 if (sameVideo && request.url != argUrl && playback.isAlive) {
                     playback.swapSource(request.url, muted = controls.muted)
@@ -736,6 +755,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 } else {
                     rebuildScreen(keepPlayback = !switchingVideo)
                 }
+                clearSwitchWait(resumeOldVideo = sameVideo)
+                presentation.complete(true)
             }
         }
 
@@ -785,10 +806,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
          * 同一条片子的清晰度清单换了新地址（Dart 到期前 5 分钟主动刷、或应我们 [sourceExpired] 之请刷）。
          * 正在放的那一档地址变了就接着当前位置换过去；本地文件那档不会过期，原样不动。
          */
-        override fun onSources(id: String, sources: List<ImmersiveSourceOption>) {
+        override fun onSources(id: String, requestId: Long, sources: List<ImmersiveSourceOption>) {
             runOnUiThread {
-                if (argUrl.isNullOrBlank() || id.isBlank() || id != videoId) {
-                    Log.i(TAG, "IMMERSIVE sources ignored id=$id playing=$videoId")
+                if (argUrl.isNullOrBlank() || id.isBlank() || id != mediaId || requestId != presentationId) {
+                    Log.i(TAG, "IMMERSIVE sources ignored id=$id playing=$mediaId")
                     return@runOnUiThread
                 }
                 controls.sources.clear()
@@ -824,7 +845,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         ) {
             runOnUiThread {
                 playlistSections = sections
-                if (nowPlayingId != null) this@ImmersiveActivity.nowPlayingId = nowPlayingId
                 controls.nowPlayingId = this@ImmersiveActivity.nowPlayingId
                 if (activeQueueId != null || controls.activeQueueId == null) {
                     controls.activeQueueId = activeQueueId
@@ -961,6 +981,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private fun applyRequest(request: ImmersiveVideoRequest, switchingVideo: Boolean) {
         argUrl = request.url
         videoId = request.videoId
+        mediaId = request.mediaId
+        presentationId = request.requestId
         formatKey = request.formatKey
         if (request.width > 0) videoWidth = request.width
         if (request.height > 0) videoHeight = request.height
@@ -986,7 +1008,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             // 要在起播 / 重塑幕布之前落下去：commitPreloaded 与 startPlayback 都直接读 controls.speed。
             if (!controls.carryOverToNextVideo) controls.resetPerVideoSettings()
         }
-        nowPlayingId = request.videoId.ifBlank { null }
+        nowPlayingId = request.mediaId.ifBlank { null }
         controls.nowPlayingId = nowPlayingId
         Log.i(TAG, "IMMERSIVE apply format=${controls.format} dims=${videoWidth}x$videoHeight pos=${request.positionMs}")
     }
@@ -997,10 +1019,11 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 老片的最后位置先交回 Dart（回写历史），再让引擎把预加载的播放器接上 Surface；
      * 投影家族没变就原地 reshape（幕布实体不动、无黑屏），变了才重建幕布。
      */
-    private fun commitSwitch(request: ImmersiveVideoRequest) {
-        if (!playback.isPreloading) return
+    private fun commitSwitch(presentation: ImmersiveVideoPresentation) {
+        if (pendingPresentation !== presentation || !playback.isPreloading) return
+        val request = presentation.request
         cancelSpatialInteractions()
-        notifyEnded()
+        notifyEnded(replaced = true)
         val before = controls.format
         val nextFormat = ScreenGeometry.formatOf(request.shape, request.stereo, request.fullFrame, request.xrFormat)
         // ⛔ 换片且前后有一方是球幕：锚点按**此刻**的视线重新捕获。看 360 时人会转身，
@@ -1024,14 +1047,16 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             resumeTipUntil = SystemClock.uptimeMillis() + RESUME_TIP_MS
         }
         pendingStartMs = 0L
-        controls.isPlaying = true
+        controls.isPlaying = playback.isPlaying
         resetTrackUi()
-        clearSwitchWait()
         if (screenEntity != null && ScreenGeometry.sameFamily(before, controls.format)) {
             requestShape(0L)
         } else {
             rebuildScreen(keepPlayback = true)
         }
+        pendingPresentation = null
+        clearSwitchWait()
+        presentation.complete(true)
         lastInteractionAt = SystemClock.uptimeMillis()
         Log.i(TAG, "IMMERSIVE switch committed id=$videoId")
     }
@@ -1044,7 +1069,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         cancelSpatialInteractions()
         controls.switchingToId = id
         switchWaitUntil = SystemClock.uptimeMillis() + SWITCH_WAIT_MS
-        if (!pausedForSwitch && playback.isAlive && playback.isPlaying) {
+        if (!pausedForSwitch && playback.isAlive && playback.isPlayRequested) {
             playback.setPlaying(false)
             pausedForSwitch = true
         }
@@ -1056,13 +1081,15 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
 
     /** @param resumeOldVideo 换片失败 / 超时：老片是我们暂停的就放回去；换成功时老播放器已释放，传 false。 */
     private fun clearSwitchWait(resumeOldVideo: Boolean = false) {
+        pendingPresentation?.complete(false)
+        pendingPresentation = null
         controls.switchingToId = null
         switchWaitUntil = 0L
         val resume = pausedForSwitch && resumeOldVideo
         pausedForSwitch = false
         if (resume && playback.isAlive) {
             playback.setPlaying(true)
-            controls.isPlaying = true
+            controls.isPlaying = playback.isPlaying
         }
         // ⛔ requestPlayItem 为了让 Dart 换页先恢复了面板出帧，正常路径靠新片 present 再停掉。
         // 换片没成（Dart 放弃 / 超时 / 预加载失败）就没人停：藏着的面板会在老片背后满帧跑下去。
@@ -1070,11 +1097,12 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     /** 把最后的播放位置交还 Dart（回写观看历史）。只在真有片子时发一次。 */
-    private fun notifyEnded() {
+    private fun notifyEnded(replaced: Boolean = false) {
         if (argUrl.isNullOrBlank()) return
-        val id = videoId
-        if (id.isBlank()) return
-        ImmersiveBridge.notifyImmersiveEnded(id, playback.positionMs, playback.durationMs)
+        if (mediaId.isBlank()) return
+        ImmersiveBridge.notifyImmersiveEnded(
+            mediaId, videoId, presentationId, playback.positionMs, playback.durationMs, replaced,
+        )
     }
 
     // ================================================================ 头部 / 摆位
@@ -2694,7 +2722,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 sourceRefreshUntil = SystemClock.uptimeMillis() + SOURCE_REFRESH_WAIT_MS
                 controls.buffering = true
                 controls.notice = text(UiR.string.xr_notice_url_expired_refreshing)
-                ImmersiveBridge.requestSourceRefresh(videoId)
+                ImmersiveBridge.requestSourceRefresh(videoId, presentationId)
                 Log.i(TAG, "IMMERSIVE bad http status -> ask Dart to refresh sources id=$videoId")
                 return@runOnUiThread
             }
@@ -2795,7 +2823,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         Log.w(TAG, "IMMERSIVE starfield unavailable", error)
         runCatching { backgroundEnvironment?.close() }
             .onFailure { Log.w(TAG, "IMMERSIVE starfield cleanup failed", it) }
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(environmentVrVisible && environmentHmdMounted) }
+        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
         controls.environment = if (controls.environment.kind == EnvironmentKind.DEEP_SPACE && controls.environment.dynamicSpace)
             controls.environment.copy(dynamicSpace = false) // Preserve the requested world on lower-capability runtimes.
         else controls.environment.copy(kind = EnvironmentKind.PASSTHROUGH)
@@ -2921,6 +2949,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private val controlsCallbacks = object : VideoControlsCallbacks {
 
         override fun onPlayPause() {
+            if (inputSuspended) return
             // 空间画廊停在一张图上：播放 / 暂停 = 幻灯片开关（手柄 A 键走同一口）。视频项照常控制播放器。
             val g = gallery
             if (g != null && g.current?.isVideo != true) {
@@ -2932,7 +2961,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             touched()
             if (!playback.isAlive) return
             controls.isPlaying = playback.togglePlaying()
-            pausedBySystem = false
         }
 
         override fun onSeek(value: Float) {
@@ -3354,6 +3382,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         override fun onTogglePauseOnFocusLoss() {
             touched()
             controls.pauseOnFocusLoss = !controls.pauseOnFocusLoss
+            playback.setSystemPaused(pausedBySystem)
             markPrefsDirty()
         }
 
@@ -3453,6 +3482,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
      * 这里只解码 —— Dart 那条 HTTP 走应用内代理，原生没有。
      */
     private fun presentGallery(request: ImmersiveGalleryRequest) {
+        playback.cancelPreload()
+        clearSwitchWait()
         if (!inGallery || gallery?.galleryId != request.galleryId) resetStagePlacement()
         // 幕布上若正放着视频：把它结束掉（回写位置）；正放着别的图库：告诉 Dart 它结束了。
         if (!argUrl.isNullOrBlank() && !inGallery) {
@@ -3460,7 +3491,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             endSphereGrab(hideControls = false)
             playback.cancelPreload()
             clearSwitchWait()
-            notifyEnded()
+            notifyEnded(replaced = true)
         }
         gallery?.let { old ->
             if (old.galleryId != request.galleryId) ImmersiveBridge.notifyGalleryEnded(old.galleryId, old.index)
@@ -3468,6 +3499,8 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         galleryResolving.clear()
         argUrl = null
         videoId = ""
+        mediaId = ""
+        presentationId = 0L
         formatKey = ""
         nowPlayingId = null
         controls.nowPlayingId = null

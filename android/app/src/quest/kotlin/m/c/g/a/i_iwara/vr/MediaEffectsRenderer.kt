@@ -209,7 +209,7 @@ internal class MediaEffectsRenderer(private val scene: Scene, private val assets
         // width, exactly like the reference's parent-scaled 60 x 60 quad. So a
         // corner drag (aspect locked) never touches geometry. Only the arc, the
         // aspect and the 180 degree mode change the shape itself.
-        val radius = if (format.isFlat) ScreenGeometry.radiusFor(arc, width) / width else 0f
+        val radius = if (format.isFlat) ScreenGeometry.normalizedRadiusFor(arc, width) else 0f
         val next = GlowGeometry(1f / aspect, radius, hemisphere)
         if (geometry != next || glowObject == null) {
             // ⛔ SceneObject.setSceneMesh() does not replace what the runtime draws
