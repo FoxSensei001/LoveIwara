@@ -724,7 +724,7 @@ class LocalMediaDerivationService extends GetxService {
         request.thumbnailHandled = true;
         thumbnailBytes = await _captureThumbnail(
           player,
-          at: coverPositionFor(current.id, effectiveDuration),
+          candidates: coverCandidatesFor(current.id, effectiveDuration),
         );
       }
 
@@ -1127,21 +1127,131 @@ class LocalMediaDerivationService extends GetxService {
     return Duration(milliseconds: (totalMs * fraction).round());
   }
 
+  /// 自动封面的候选帧位置：[coverPositionFor] 那一帧打头，后面两帧是它抓出黑场时的退路。
+  ///
+  /// 退路落在时长的 55% / 75%，与首选的 15%~45% 错开：黑场（转场、夜景、片中黑屏）通常只有
+  /// 几秒，隔开一大截再试基本就出画面了。时长未知时返回空，由调用方退回抓当前帧。
+  static List<Duration> coverCandidatesFor(String id, Duration? duration) {
+    final primary = coverPositionFor(id, duration);
+    if (primary == null) return const <Duration>[];
+    final totalMs = duration!.inMilliseconds;
+    return <Duration>[
+      primary,
+      Duration(milliseconds: (totalMs * 0.55).round()),
+      Duration(milliseconds: (totalMs * 0.75).round()),
+    ];
+  }
+
+  /// seek 到 [at]，并**等解码器真把那一帧交出来**再返回。返回 false = 等到超时还在 seek。
+  ///
+  /// # ⛔ 不能 seek 完睡一个固定时长就截（「封面全黑」的真因，2026-09-14 真机取证）
+  ///
+  /// 播放器开着 `hr-seek=yes`（精确 seek）：落点不在关键帧上时，mpv 要从前一个关键帧开始
+  /// 把中间每一帧都解一遍。报障那条片子是 1440p60、关键帧间隔 ~4 秒——一次 seek 最多要解
+  /// 240 帧，而头显上这里只给了 2 个解码线程，要好几秒。以前固定等 220~250ms 就截，截到的
+  /// 是**开播时解出的第 0 帧**（片头黑场），拖滑轨也一样：每一次 seek 都没来得及落地。
+  /// 库里那张封面逐像素是 (0,0,0)，而同一条片子 2 秒之后的画面亮度正常。
+  ///
+  /// # 判据：mpv 的 `seeking` 属性
+  ///
+  /// seek 命令返回那一刻它就是 `yes`，等目标帧解出、播放重新就绪才回 `no`（mpv IPC 实测）。
+  /// ⛔ 别拿 `time-pos` 判：seek 期间它直接报目标时间，看着像「已经到了」，实际一帧都还没解。
+  static Future<bool> _seekAndSettle(
+    Player player,
+    Duration at, {
+    required Duration timeout,
+    bool Function()? cancelled,
+  }) async {
+    await player.seek(at).timeout(_nativeCallTimeout);
+    final platform = player.platform;
+    if (platform is! NativePlayer) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      return true;
+    }
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      // 弹窗关了：别让 close() 干等这一整段超时，它要等在飞的抓帧落地才敢 dispose。
+      if (cancelled?.call() ?? false) return false;
+      String seeking;
+      try {
+        seeking = await platform.getProperty('seeking');
+      } catch (_) {
+        // 读不到属性（播放器正被释放）：别空转到超时。
+        return false;
+      }
+      if (seeking != 'yes') {
+        // 帧已进 VO，再让一拍给截图那条路拿到它。
+        await Future<void>.delayed(const Duration(milliseconds: 30));
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// 这一帧是不是几乎全黑（片头黑场、转场、没解出来的空帧）。
+  ///
+  /// 缩到 32 像素宽再数亮像素，解码开销可以忽略。判定刻意从严——**亮像素不足 2%** 才算黑：
+  /// 夜景、暗调的片子大片是暗的，但总有一些亮部；把它们误判成黑只会让封面换一帧，不会丢封面
+  /// （所有候选都「黑」时照样用第一帧，见 [_captureThumbnail]）。
+  static Future<bool> _isNearlyBlackFrame(Uint8List bytes) async {
+    try {
+      final codec = await ui.instantiateImageCodec(bytes, targetWidth: 32);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+      try {
+        final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+        if (data == null) return false;
+        final pixels = data.lengthInBytes ~/ 4;
+        if (pixels == 0) return false;
+        var bright = 0;
+        for (var i = 0; i < pixels; i++) {
+          final o = i * 4;
+          final luma =
+              (data.getUint8(o) * 299 +
+                  data.getUint8(o + 1) * 587 +
+                  data.getUint8(o + 2) * 114) ~/
+              1000;
+          if (luma > 40) bright++;
+        }
+        return bright * 50 < pixels;
+      } finally {
+        image.dispose();
+        codec.dispose();
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
   static Future<Uint8List?> _captureThumbnail(
     Player player, {
-    Duration? at,
+    List<Duration> candidates = const <Duration>[],
   }) async {
     try {
-      if (at != null) {
+      Uint8List? firstFrame;
+      for (final at in candidates) {
         try {
-          await player.seek(at).timeout(_nativeCallTimeout);
-          // ⛔ seek 之后必须等一下再截：解码器要时间把目标帧解出来，立刻截会拿到
-          // seek 之前那一张（或者空）。这一档是实测够用的最小值。
-          await Future<void>.delayed(const Duration(milliseconds: 250));
+          final settled = await _seekAndSettle(
+            player,
+            at,
+            timeout: const Duration(seconds: 8),
+          );
+          // 没落地就截，截到的是上一帧（多半还是第 0 帧），换下一个候选。
+          if (!settled) continue;
         } catch (_) {
-          // seek 失败不致命：退回原来的行为，抓当前那一帧。
+          continue;
         }
+        final bytes = await player
+            .screenshot(format: 'image/jpeg')
+            .timeout(_nativeCallTimeout);
+        if (bytes == null || bytes.isEmpty) continue;
+        if (!await _isNearlyBlackFrame(bytes)) return bytes;
+        firstFrame ??= bytes;
       }
+      // 候选帧全是黑的：片子本身就暗，用第一张，总比一直没有封面强。
+      if (firstFrame != null) return firstFrame;
+
       var bytes = await player
           .screenshot(format: 'image/jpeg')
           .timeout(_nativeCallTimeout);
@@ -1506,9 +1616,16 @@ class LocalCoverPickerSession {
     final completer = Completer<void>();
     _inFlight = completer.future;
     try {
-      await _player.seek(at).timeout(const Duration(seconds: 10));
-      // ⛔ seek 完要等解码器把目标帧解出来再截，否则拿到的是 seek 之前那一张。
-      await Future<void>.delayed(const Duration(milliseconds: 220));
+      // ⛔ 等 seek 真落地再截，否则拿到的是 seek 之前那一张——长关键帧间隔的高码率片子上
+      // 就是开播时的第 0 帧，拖到哪儿都是一屏黑，见 [LocalMediaDerivationService._seekAndSettle]。
+      // 等不到就不截：返回 null 让弹窗保留上一张，比把旧帧当成新位置的画面强。
+      final settled = await LocalMediaDerivationService._seekAndSettle(
+        _player,
+        at,
+        timeout: const Duration(seconds: 10),
+        cancelled: () => _closed,
+      );
+      if (!settled || _closed) return null;
       return await _player
           .screenshot(format: 'image/jpeg')
           .timeout(const Duration(seconds: 10));
