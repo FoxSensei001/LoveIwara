@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/services.dart';
@@ -318,7 +319,11 @@ class XrImmersiveService extends GetxService {
       case 'galleryQualityPicked':
         final args = call.arguments as Map?;
         final quality = normalizeGalleryImageQuality(args?['quality']);
-        if (Get.isRegistered<ConfigService>()) {
+        // 本机文件那本没有画质之分：面板上点了也别改在线图库的默认画质偏好。
+        final allLocal =
+            _galleryItems.isNotEmpty &&
+            _galleryItems.every((e) => e.isLocalFile);
+        if (!allLocal && Get.isRegistered<ConfigService>()) {
           Get.find<ConfigService>().setSetting(
             ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY,
             quality,
@@ -693,8 +698,8 @@ class XrImmersiveService extends GetxService {
       final cache = DefaultCacheManager();
       final rows = <Map<String, dynamic>>[];
       for (final item in items) {
-        String thumbPath = '';
-        if (!item.isVideo) {
+        String thumbPath = item.isLocalFile ? item.largeUrl : '';
+        if (!item.isVideo && !item.isLocalFile) {
           try {
             final cached = await cache.getFileFromCache(item.thumbUrl);
             thumbPath = cached?.file.path ?? '';
@@ -748,6 +753,12 @@ class XrImmersiveService extends GetxService {
       return '';
     }
     final url = item.urlFor(quality);
+    // 本机文件（本地媒体目录）：路径本身就是答案，不进缓存管理器。文件被外部删了就如实报失败。
+    if (item.isLocalFile) {
+      if (await File(url).exists()) return url;
+      LogUtils.w('空间画廊要的本机文件不存在 id=$id', 'XrImmersive');
+      return '';
+    }
     try {
       final file = await DefaultCacheManager().getSingleFile(url);
       return file.path;
@@ -926,6 +937,10 @@ class XrGalleryItem {
   final int height;
 
   String get thumbUrl => largeUrl;
+
+  /// 本机文件：[largeUrl] / [originalUrl] 是绝对路径而不是网址（本地媒体目录进空间画廊）。
+  bool get isLocalFile =>
+      !largeUrl.startsWith('http://') && !largeUrl.startsWith('https://');
 
   /// [quality] 是 `galleryImageQualityStandard` / `galleryImageQualityOriginal`。
   String urlFor(String quality) =>
