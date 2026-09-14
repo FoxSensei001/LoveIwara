@@ -2,7 +2,7 @@ package m.c.g.a.i_iwara.questui
 
 import android.content.Context
 import androidx.annotation.StringRes
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -23,7 +23,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -62,9 +65,8 @@ import java.io.File
  *
  * # 为什么背景透明
  *
- * 面板注册成 ALPHA_BLEND、这里不铺底色：幕布形状按图片比例走，换比例时形状有 320ms 过渡，
- * 过渡中间态图片会短暂 letterbox —— 透明底就是「照片浮在空间里」，实心底会露出一块黑边在缩放。
- * 透视场景下浮着的照片也比一块黑板好看。
+ * 面板注册成 ALPHA_BLEND、这里不铺底色：透明底就是「照片浮在空间里」，透视场景下也比一块黑板好看。
+ * ⛔ 但画布**不能有空着的时刻**：氛围效果开着时空画布会被画成一圈黑边（见 [StageImage]）。
  *
  * # 状态怎么来
  *
@@ -176,59 +178,129 @@ private fun BoxScope.StageImage(
     context: Context,
     loader: ImageLoader,
 ) {
+    // ⛔ 换图**不能**用 Crossfade（2026-09-14 用户：每加载一张，幕布上下先黑、加载完才显示全部）：
+    // Crossfade 让上一张定时 220ms 淡出，而下一张要等 Coil 解码 —— 中间有一段画布是**空的**。
+    // 氛围效果开着时（默认开）幕布像素归环境光着色器画：边缘柔化那一圈按「画面边缘的颜色」混，
+    // 画布空了边缘色就是黑，于是透明的中间 + 一圈不透明的黑边；形状若再先一步变了，上一张还会被
+    // 按比例塞进新形状出黑边。
+    // 所以：新图先**不可见地**解码，成功那一刻才淡入盖住上一张，淡完才把底下的撤掉 —— 画布从不空。
+    // 幕布形状也改由 `:app` 在解码成功（onLoaded）时才变，与淡入同一刻（见 `onGalleryImageLoaded`）。
+    val layers = remember { mutableStateListOf<StageLayer>() }
+    LaunchedEffect(model, itemId) {
+        if (model == null) {
+            layers.clear()
+            return@LaunchedEffect
+        }
+        val key = "$itemId|$model"
+        if (layers.lastOrNull()?.key == key) return@LaunchedEffect
+        val existing = layers.firstOrNull { it.key == key }
+        // 还没露过面（没淡入过）、又被翻过去的中间项没有用：只留已经显示着的底。
+        layers.removeAll { it !== existing && it.alpha.value <= 0f }
+        if (existing != null) layers.remove(existing)
+        layers.add(existing ?: StageLayer(key, model, itemId, state.imageAspect))
+    }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        // 画布是方的、幕布不是：先在画布里占一块「贴上去正好是图片比例」的矩形 (fx, fy)。
-        // 两个比例只要有一个不知道就退回老办法（Fit 满画布），至少不会变形得离谱。
-        val ai = state.imageAspect
-        val aq = state.quadAspect
-        val known = ai > 0f && aq > 0f
-        val fx = if (!known) 1f else if (ai >= aq) 1f else ai / aq
-        val fy = if (!known) 1f else if (ai >= aq) aq / ai else 1f
-        // ⛔ 这块矩形不能直接当布局尺寸交给 AsyncImage（2026-09-13 动图错位）：它在**画布像素**里
-        // 不是图片比例，静图 BitmapPainter + FillBounds 会老实抻满，但 coil-gif 的 ImageDecoderDecoder
-        // 把动图包进 `coil.drawable.ScaleDrawable`，按请求的 Scale **保比例**画 —— FillBounds 映射成
-        // Scale.FILL＝保比例铺满再裁掉，幕布上看就是「放大 + 错位 + 缺一截」，而面板胶片里的缩略图
-        // 没有方画布拉伸所以正常。
-        // 所以布局给**图片原比例**的盒子（Fit 进画布，任何 Drawable 都画得对），再用 graphicsLayer
-        // 把整层抻到 (fx, fy)。Coil 按布局尺寸解码，长边仍占满画布，清晰度与原来一致。
-        val boxW = if (!known) 1f else minOf(1f, ai)
-        val boxH = if (!known) 1f else minOf(1f, 1f / ai)
-        val stretchX = fx / boxW
-        val stretchY = fy / boxH
-        // 换图走 Crossfade 而不是 Coil 自己的 crossfade：后者是「占位 → 图」，前者是「上一张 → 下一张」。
-        Crossfade(targetState = model to itemId, animationSpec = tween(GALLERY_STAGE_FADE_MS), label = "stage") { (m, id) ->
-            if (m != null) {
-                val data: Any = if (m.startsWith("http://") || m.startsWith("https://")) m else File(m)
-                AsyncImage(
-                    model = ImageRequest.Builder(context).data(data).build(),
-                    imageLoader = loader,
-                    contentDescription = null,
-                    contentScale = if (known) ContentScale.FillBounds else ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth(boxW)
-                        .fillMaxHeight(boxH)
-                        .graphicsLayer {
-                            scaleX = stretchX
-                            scaleY = stretchY
-                        },
-                    onState = { s ->
-                        when (s) {
-                            is AsyncImagePainter.State.Success -> {
-                                val d = s.result.drawable
-                                state.onLoaded?.invoke(id, d.intrinsicWidth, d.intrinsicHeight)
-                            }
-                            is AsyncImagePainter.State.Error ->
-                                state.onFailed?.invoke(id, s.result.throwable.message ?: s.result.throwable.javaClass.simpleName)
-                            else -> Unit
+        for (layer in layers) {
+            key(layer.key) {
+                val isTop = layers.lastOrNull() === layer
+                StageLayerImage(state, layer, isTop, context, loader)
+                LaunchedEffect(layer.loaded, layer.failed, isTop) {
+                    if (!isTop) return@LaunchedEffect
+                    when {
+                        layer.loaded -> {
+                            // 形状不变才淡入；变了就直接换：幕布此刻已经跳成新形状，淡入那 220ms 里底下的
+                            // 上一张会被塞在新形状里露黑边。第一张（底下没东西）照常淡入 —— 有出有入。
+                            val base = layers.getOrNull(layers.indexOf(layer) - 1)
+                            val reshaped = base != null && abs(base.aspect - state.imageAspect) > 0.01f
+                            if (reshaped) layer.alpha.snapTo(1f)
+                            else layer.alpha.animateTo(1f, tween(GALLERY_STAGE_FADE_MS))
+                            // 淡完了，底下的全部撤掉。
+                            val below = layers.indexOf(layer)
+                            repeat(below.coerceAtLeast(0)) { layers.removeAt(0) }
                         }
-                    },
-                )
+                        // 解码失败：别让上一张冒充这一张（原生那边会压「加载失败」）。
+                        layer.failed -> {
+                            val below = layers.indexOf(layer)
+                            repeat(below.coerceAtLeast(0)) { layers.removeAt(0) }
+                        }
+                    }
+                }
             }
         }
     }
+}
+
+/** 幕布上的一张图：从「开始加载」到「被下一张盖住撤掉」。 */
+private class StageLayer(val key: String, val model: String, val itemId: String, var aspect: Float) {
+    var loaded by mutableStateOf(false)
+    var failed by mutableStateOf(false)
+    val alpha = Animatable(0f)
+}
+
+@Composable
+private fun StageLayerImage(
+    state: GalleryStageState,
+    layer: StageLayer,
+    isTop: Boolean,
+    context: Context,
+    loader: ImageLoader,
+) {
+    // ⛔ 比例要**按层各记各的**：底下那张若读 state.imageAspect（已经是下一张的比例），会被按别人的
+    // 比例拉变形。最上面这层跟着 state 走（解码后比例纠正也能跟上），其余冻结在各自最后一次在顶上时的值。
+    // 普通字段不是 State：只记值，不触发重组。
+    if (isTop && state.imageAspect > 0f) layer.aspect = state.imageAspect
+    // 画布是方的、幕布不是：先在画布里占一块「贴上去正好是图片比例」的矩形 (fx, fy)。
+    // 两个比例只要有一个不知道就退回老办法（Fit 满画布），至少不会变形得离谱。
+    val ai = layer.aspect
+    val aq = state.quadAspect
+    val known = ai > 0f && aq > 0f
+    val fx = if (!known) 1f else if (ai >= aq) 1f else ai / aq
+    val fy = if (!known) 1f else if (ai >= aq) aq / ai else 1f
+    // ⛔ 这块矩形不能直接当布局尺寸交给 AsyncImage（2026-09-13 动图错位）：它在**画布像素**里
+    // 不是图片比例，静图 BitmapPainter + FillBounds 会老实抻满，但 coil-gif 的 ImageDecoderDecoder
+    // 把动图包进 `coil.drawable.ScaleDrawable`，按请求的 Scale **保比例**画 —— FillBounds 映射成
+    // Scale.FILL＝保比例铺满再裁掉，幕布上看就是「放大 + 错位 + 缺一截」，而面板胶片里的缩略图
+    // 没有方画布拉伸所以正常。
+    // 所以布局给**图片原比例**的盒子（Fit 进画布，任何 Drawable 都画得对），再用 graphicsLayer
+    // 把整层抻到 (fx, fy)。Coil 按布局尺寸解码，长边仍占满画布，清晰度与原来一致。
+    val boxW = if (!known) 1f else minOf(1f, ai)
+    val boxH = if (!known) 1f else minOf(1f, 1f / ai)
+    val stretchX = fx / boxW
+    val stretchY = fy / boxH
+    val m = layer.model
+    val data: Any = if (m.startsWith("http://") || m.startsWith("https://")) m else File(m)
+    val request = remember(m) { ImageRequest.Builder(context).data(data).build() }
+    AsyncImage(
+        model = request,
+        imageLoader = loader,
+        contentDescription = null,
+        contentScale = if (known) ContentScale.FillBounds else ContentScale.Fit,
+        modifier = Modifier
+            .fillMaxWidth(boxW)
+            .fillMaxHeight(boxH)
+            .graphicsLayer {
+                scaleX = stretchX
+                scaleY = stretchY
+                alpha = layer.alpha.value
+            },
+        onState = { s ->
+            when (s) {
+                is AsyncImagePainter.State.Success -> {
+                    val d = s.result.drawable
+                    state.onLoaded?.invoke(layer.itemId, d.intrinsicWidth, d.intrinsicHeight)
+                    layer.loaded = true
+                }
+                is AsyncImagePainter.State.Error -> {
+                    state.onFailed?.invoke(layer.itemId, s.result.throwable.message ?: s.result.throwable.javaClass.simpleName)
+                    layer.failed = true
+                }
+                else -> Unit
+            }
+        },
+    )
 }
 
 /**

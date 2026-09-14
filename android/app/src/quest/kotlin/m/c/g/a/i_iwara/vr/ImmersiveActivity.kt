@@ -1,5 +1,6 @@
 package m.c.g.a.i_iwara.vr
 
+import android.graphics.BitmapFactory
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -3394,6 +3395,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         controls.gallery = null
         galleryItems = emptyList()
         galleryResolving.clear()
+        galleryProbedSize.clear()
         stage.model = null
         stage.itemId = ""
         stage.imageAspect = 0f
@@ -3602,7 +3604,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     /**
      * 把幕布翻到第 [index] 项。
      *
-     * - 图 → 图：面板实体不动，换 [stage] 的内容 + 形状按新比例过渡（[CURVE_ANIM_MS]）；
+     * - 图 → 图：面板实体不动，换 [stage] 的内容；形状在**新图解码成功**那一刻直接跳到新比例（不做过渡）；
      * - 图 ↔ 视频：种类变了，销毁重建幕布（一次黑屏，可接受）；
      * - 视频 → 视频：沿用 Surface 从头起播（[PlaybackEngine.restart]）。
      * 文件还没到手的图片：先保留上一张在幕布上、压「正在读取…」，到了再换（不闪一次空白）。
@@ -3620,7 +3622,6 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // 幕布上的横拖预示要知道还有没有下一张（到头的方向只出「到头」样式，不翻页）。
         stage.swipe.canPrevious = i > 0
         stage.swipe.canNext = i < g.items.size - 1
-        val shapeMs = CURVE_ANIM_MS
         endScrub()
         if (item.width > 0 && item.height > 0) {
             videoWidth = item.width
@@ -3635,19 +3636,16 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
             val path = g.resolvedPath[item.id]
             g.loading = true
             if (path != null) {
-                stage.itemId = item.id
-                stage.model = path
-                // ⛔ 与 model 成对写：文件还没到手时幕布上还是**上一张**，这时改比例会把它拉变形。
-                stage.imageAspect = ScreenGeometry.screenAspect(controls, item.width, item.height)
+                landGalleryImage(item.id, item.width, item.height, path)
             } else {
                 requestGalleryFile(item.id)
             }
             if (kindChanged) {
                 playback.release()
                 rebuildScreen()
-            } else {
-                requestShape(shapeMs)
             }
+            // ⛔ 图 → 图这里**不动形状**：上一张还在幕布上、新图还没解码，此刻改形状会把上一张按比例塞进
+            // 新形状出黑边（用户 2026-09-14）。形状在新图解码成功、开始淡入的那一刻才跳（[onGalleryImageLoaded]）。
         } else {
             argUrl = item.url
             videoId = ""
@@ -3664,7 +3662,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                 controls.isPlaying = true
                 controls.buffering = true
                 playback.setSpeed(controls.speed)
-                requestShape(shapeMs)
+                requestShape(CURVE_ANIM_MS)
             } else {
                 rebuildScreen()
             }
@@ -3776,13 +3774,48 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
                     return@runOnUiThread
                 }
                 cur.resolvedPath[id] = path
-                if (isCurrent && cur.current?.isVideo != true) {
-                    val item = cur.current
-                    stage.itemId = id
-                    stage.model = path
-                    if (item != null) stage.imageAspect = ScreenGeometry.screenAspect(controls, item.width, item.height)
+                val item = cur.current
+                if (isCurrent && item != null && !item.isVideo) {
+                    landGalleryImage(item.id, item.width, item.height, path)
                 }
             }
+        }
+    }
+
+    /**
+     * 图片文件到手：内容、补偿比例、幕布目标尺寸**三件同一刻**写下。形状不在这里变 —— 等解码成功（[onGalleryImageLoaded]）。
+     *
+     * ⛔ 必须成对：文件还没到手时幕布上还是**上一张**，这时改比例会把它拉变形。
+     */
+    private fun landGalleryImage(id: String, width: Int, height: Int, path: String) {
+        val (w, h) = galleryImageSize(width, height, path)
+        if (w > 0 && h > 0) {
+            videoWidth = w
+            videoHeight = h
+        }
+        stage.itemId = id
+        stage.model = path
+        stage.imageAspect = ScreenGeometry.screenAspect(controls, w, h)
+    }
+
+    /** 按本地路径记下的「文件头读出来的尺寸」：同一张来回翻不重复读盘。 */
+    private val galleryProbedSize = HashMap<String, Pair<Int, Int>>()
+
+    /**
+     * 图片的像素尺寸：清单给了就用清单；没给（本机文件一律没有、Iwara 偶尔不给）就读文件头
+     * （`inJustDecodeBounds` 只读头几 KB，不解码像素）。
+     *
+     * ⛔ 不读的话只能先按 16:9 兜底画、等 Coil 解码完再纠正 —— 每翻一张都「先变形 / 黑边、过一下才对」。
+     * EXIF 旋转过的照片这里读到的是未旋转尺寸，解码后 [onGalleryImageLoaded] 会再纠正一次。
+     */
+    private fun galleryImageSize(width: Int, height: Int, path: String): Pair<Int, Int> {
+        if (width > 0 && height > 0) return width to height
+        return galleryProbedSize.getOrPut(path) {
+            runCatching {
+                val o = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                BitmapFactory.decodeFile(path, o)
+                o.outWidth.coerceAtLeast(0) to o.outHeight.coerceAtLeast(0)
+            }.getOrDefault(0 to 0)
         }
     }
 
@@ -3793,13 +3826,21 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         g.loading = false
         g.error = null
         if (width > 0 && height > 0) {
+            // ⛔ 补偿比例无条件按真实尺寸纠正：清单没给宽高时它是 16:9 兜底，而 videoWidth 还留着上一张 ——
+            // 真实比例恰好等于上一张时下面不会 reshape，只改形状的写法会让画面永久按 16:9 画。
+            stage.imageAspect = ScreenGeometry.screenAspect(controls, width, height)
             val have = videoWidth.toFloat() / videoHeight.coerceAtLeast(1)
             val real = width.toFloat() / height
             if (abs(have - real) > 0.01f) {
                 videoWidth = width
                 videoHeight = height
-                requestShape(0L)
             }
+        }
+        // 新图开始淡入盖住上一张的同一刻，幕布跳到它的形状（之前一直保持上一张的形状，见 showGalleryItem）。
+        // 面板还在建（换种类后异步）就不碰，建好自会按当前比例来。
+        if (screenIsImage && screenPanel != null) {
+            val target = ScreenGeometry.screenAspect(controls, videoWidth, videoHeight)
+            if (abs(target - curAspect) > 1e-3f || abs(targetScreenWidth(target) - curWidth) > 1e-3f) requestShape(0L)
         }
     }
 
