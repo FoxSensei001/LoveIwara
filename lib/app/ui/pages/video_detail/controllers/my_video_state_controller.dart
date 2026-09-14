@@ -255,7 +255,7 @@ class MyVideoStateController extends GetxController
   /// 会把这三处解锁，拿着一个服务端根本不认识的串去打接口。
   ///
   /// 所以本地身份走**独立字段**：要本地记忆的地方读它（进度、VR 格式覆盖，见
-  /// [_vrOverrideKey]），要 Iwara 身份的地方继续被 `videoId == null` 挡住。
+  /// [vrOverrideKey]），要 Iwara 身份的地方继续被 `videoId == null` 挡住。
   final String? localLibraryItemId;
 
   // 状态
@@ -445,7 +445,7 @@ class MyVideoStateController extends GetxController
   /// 一张表是安全的。这也不是新发明：沉浸态那一侧**早就在这么读**（见
   /// `XrPlaylistSource._resolveLocalLibrary`，它拿本机条目 id 直接查这张表）；
   /// 写入侧从前只认 [videoId]，于是那条读永远读到 null。
-  String? get _vrOverrideKey {
+  String? get vrOverrideKey {
     final online = videoId?.trim();
     if (online != null && online.isNotEmpty) return online;
     final local = localLibraryItemId?.trim();
@@ -462,7 +462,7 @@ class MyVideoStateController extends GetxController
   Future<void> _loadStoredVrOverride() async {
     if (_vrOverrideLookupDone) return;
     _vrOverrideLookupDone = true;
-    final id = _vrOverrideKey;
+    final id = vrOverrideKey;
     if (id == null) return;
     final stored = await _vrOverrideService?.get(id);
     if (_isDisposed || stored == null) return;
@@ -650,9 +650,27 @@ class MyVideoStateController extends GetxController
       resetVideoZoomImmediately();
       resetVrView();
     }
-    final id = _vrOverrideKey;
+    final id = vrOverrideKey;
     if (id == null) return;
     unawaited(_vrOverrideService?.put(id, format) ?? Future<void>.value());
+  }
+
+  /// 空间面板上给这条片子定了视频类型：2D 这边当场改口成同一档。
+  ///
+  /// ⛔ 不走 [setVrFormat]：那会再写一次库，而且写的是**不带**空间精确档的版本，
+  /// 把服务刚存下的全幅 / 鱼眼视场角当场抹掉。库已经由 `XrImmersiveService` 写过了。
+  void _onImmersiveVrFormatPicked(String formatKey, VrSourceFormat format) {
+    if (_isDisposed || formatKey != vrOverrideKey) return;
+    final bool changed = vrFormatVerdict.value.format != format;
+    _vrOverrideApplied = true;
+    _vrOverrideLookupDone = true;
+    _vrSuggestionOffered = true;
+    hideVrSuggestionTip();
+    vrFormatVerdict.value = VrFormatVerdict.userSpecified(format);
+    if (changed) {
+      resetVideoZoomImmediately();
+      resetVrView();
+    }
   }
 
   /// 撤销手动覆盖，把默认档交回给自动推断。
@@ -674,7 +692,7 @@ class MyVideoStateController extends GetxController
     _vrSuggestionOffered = false;
     vrSuggestion.value = null;
     hideVrSuggestionTip();
-    final id = _vrOverrideKey;
+    final id = vrOverrideKey;
     if (id != null) {
       unawaited(_vrOverrideService?.remove(id) ?? Future<void>.value());
     }
@@ -1446,6 +1464,7 @@ class MyVideoStateController extends GetxController
       title: videoInfo.value?.title?.trim() ?? '',
       author: videoInfo.value?.user?.name ?? '',
       videoId: videoId,
+      formatKey: vrOverrideKey,
       width: sourceVideoWidth.value,
       height: sourceVideoHeight.value,
       positionMs: position.inMilliseconds,
@@ -1645,6 +1664,7 @@ class MyVideoStateController extends GetxController
       xr.onImmersiveEnded = _onImmersiveEnded;
       xr.onImmersiveEndedVideoId = videoId;
       xr.onSourceRefreshRequested = _onImmersiveSourceExpired;
+      xr.onVrFormatPicked = _onImmersiveVrFormatPicked;
       // 可用性是缓存值，进页面刷一次，好让第一条片源打开时就能判断要不要交出去。
       unawaited(xr.refreshAvailability());
     }
@@ -3124,6 +3144,9 @@ class MyVideoStateController extends GetxController
       }
       if (xr.onSourceRefreshRequested == _onImmersiveSourceExpired) {
         xr.onSourceRefreshRequested = null;
+      }
+      if (xr.onVrFormatPicked == _onImmersiveVrFormatPicked) {
+        xr.onVrFormatPicked = null;
       }
     }
 

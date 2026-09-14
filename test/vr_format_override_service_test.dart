@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/services/vr_format_override_service.dart';
 import 'package:i_iwara/db/migrations/migration_v22_vr_format_override.dart';
+import 'package:i_iwara/db/migrations/migration_v40_vr_override_xr_format.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -29,6 +30,7 @@ void main() {
   setUp(() {
     db = sqlite3.openInMemory();
     MigrationV22VrFormatOverride().up(db);
+    MigrationV40VrOverrideXrFormat().up(db);
     service = VrFormatOverrideService(database: db);
   });
 
@@ -49,11 +51,10 @@ void main() {
 
     expect(await service.get('v1'), vr360Mono);
 
-    final count = db
-        .select('SELECT COUNT(*) AS c FROM video_vr_override WHERE video_id = ?', [
-          'v1',
-        ])
-        .first['c'];
+    final count = db.select(
+      'SELECT COUNT(*) AS c FROM video_vr_override WHERE video_id = ?',
+      ['v1'],
+    ).first['c'];
     expect(count, 1, reason: 'video_id 是主键，覆盖只该留一份');
   });
 
@@ -90,10 +91,10 @@ void main() {
               .subtract(const Duration(days: 365))
               .millisecondsSinceEpoch ~/
           1000;
-      db.execute('UPDATE video_vr_override SET updated_at = ? WHERE video_id = ?', [
-        oneYearAgo,
-        'ancient',
-      ]);
+      db.execute(
+        'UPDATE video_vr_override SET updated_at = ? WHERE video_id = ?',
+        [oneYearAgo, 'ancient'],
+      );
 
       expect(
         await service.get('ancient'),

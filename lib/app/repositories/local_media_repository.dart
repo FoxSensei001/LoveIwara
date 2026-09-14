@@ -337,6 +337,12 @@ class LocalMediaRepository {
         '(SELECT id FROM local_media_items WHERE source_id = ?)',
         [id],
       );
+      // VR 格式覆盖同理：条目行一走，按 id 就再也问不到它，留着只是孤儿。
+      _db.execute(
+        'DELETE FROM video_vr_override WHERE video_id IN '
+        '(SELECT id FROM local_media_items WHERE source_id = ?)',
+        [id],
+      );
       _db.execute('DELETE FROM local_media_items WHERE source_id = ?', [id]);
       // 目录树和常用目录必须跟着源一起走，而且必须在**同一个事务**里。
       //
@@ -861,6 +867,90 @@ class LocalMediaRepository {
       LogUtils.i('同一文件换了来源，搬走 $moved 条观看进度', _tag);
     }
     return moved;
+  }
+
+  /// 本机文件按 id 查不到 VR 格式覆盖时，按**文件指纹**（大小 + 修改时间）从别的条目那里认领一份。
+  ///
+  /// # 为什么要认领
+  ///
+  /// 条目 id 是 `<源 id>-<路径 sha1>`。用户在文件管理器里给片子改个名、挪个目录，路径变了
+  /// id 就变了：新 id 查不到覆盖，用户亲手定过的「这是 180° SBS」又得重选一遍；旧条目
+  /// 被扫描收敛成 missing，那一行覆盖挂在一个再也不会被打开的 id 上。
+  ///
+  /// # 为什么是懒认领（读的时候才做），而不是扫描时搬
+  ///
+  /// - 扫描时搬有**时序**问题：改名后的那一轮扫描里，新条目先 upsert，旧条目要等整轮扫完
+  ///   才被收敛成 missing——upsert 那一刻还分不出「挪走了」和「多了一份拷贝」。
+  /// - 扫描是五万条级别的批处理；而覆盖行一共就用户点过的那几十条，读时只查这几十条、
+  ///   只在真要打开一个视频时查一次，零常驻内存、零扫描开销。
+  ///
+  /// # 规则
+  ///
+  /// - 两边指纹都得量得准（[_fingerprintTrustworthy]），且**完全相等**；不看文件名（改名正是要救的场景）。
+  /// - 候选覆盖彼此不一致（几个同指纹的文件被分别定成了不同格式）就不认领：宁可让用户再选一次，
+  ///   也不能替他猜错。
+  /// - 是**拷**不是搬：同指纹的两份多半是同一个文件的两个副本（内容一样，格式自然一样）；
+  ///   旧行留给旧条目，旧条目若真没了，它会随条目在应用内被删时一起走（见 [deleteItems]）。
+  ///
+  /// 查询从覆盖表一侧出发（逐行按主键回 `local_media_items`），不依赖大小 / 时间上的索引。
+  /// 对在线视频 id 调它也只多一次主键查询（条目表里查不到就返回）。
+  ///
+  /// 返回是否认领成功。任何异常都当「没认领」吞掉——这是锦上添花，不能打断起播。
+  bool adoptVrOverrideByFingerprint(String itemId) {
+    try {
+      final current = _db.select(
+        'SELECT size_bytes, modified_at, kind FROM local_media_items WHERE id = ?',
+        [itemId],
+      );
+      if (current.isEmpty) return false;
+      final row = current.first;
+      final sizeBytes = row['size_bytes'] as int?;
+      final modifiedAt = row['modified_at'] as int?;
+      if (row['kind'] != LocalMediaItemKind.video.name ||
+          !_fingerprintTrustworthy(sizeBytes, modifiedAt) ||
+          sizeBytes == 0) {
+        return false;
+      }
+      final candidates = _db.select(
+        'SELECT o.projection AS projection, o.stereo AS stereo, '
+        'o.xr_format AS xr_format '
+        // ⛔ CROSS JOIN 不是笔误：它在 SQLite 里钉死连接顺序（左表在外）。写成 JOIN 时
+        // 规划器会拿几万行的条目表当外层整表扫（EXPLAIN QUERY PLAN 实证），
+        // 而覆盖表只有用户点过的那几十行。
+        'FROM video_vr_override o '
+        'CROSS JOIN local_media_items i ON i.id = o.video_id '
+        // 墓碑（用户在那份上点过「恢复自动」）不是覆盖，不参与认领。
+        'WHERE o.projection IS NOT NULL '
+        'AND i.size_bytes = ? AND i.modified_at = ? AND i.id != ?',
+        [sizeBytes, modifiedAt, itemId],
+      );
+      if (candidates.isEmpty) return false;
+      final distinct = candidates
+          .map((c) => '${c['projection']} ${c['stereo']} ${c['xr_format']}')
+          .toSet();
+      if (distinct.length != 1) {
+        LogUtils.i('同指纹的 ${candidates.length} 条覆盖彼此不一致，不替 $itemId 认领', _tag);
+        return false;
+      }
+      final picked = candidates.first;
+      _db.execute(
+        'INSERT OR IGNORE INTO video_vr_override '
+        '(video_id, projection, stereo, updated_at, xr_format) VALUES (?, ?, ?, ?, ?)',
+        [
+          itemId,
+          picked['projection'],
+          picked['stereo'],
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          picked['xr_format'],
+        ],
+      );
+      final adopted = _db.updatedRows > 0;
+      if (adopted) LogUtils.i('按文件指纹为 $itemId 认领了 VR 格式覆盖', _tag);
+      return adopted;
+    } catch (e) {
+      LogUtils.w('按指纹认领 VR 格式覆盖失败 $itemId: $e', _tag);
+      return false;
+    }
   }
 
   /// 某个源名下所有条目的绝对路径。
@@ -1943,6 +2033,10 @@ class LocalMediaRepository {
       _inChunks<String>(ids, (marks, chunk) {
         _db.execute(
           'DELETE FROM local_media_progress WHERE item_id IN ($marks)',
+          chunk,
+        );
+        _db.execute(
+          'DELETE FROM video_vr_override WHERE video_id IN ($marks)',
           chunk,
         );
         _db.execute(

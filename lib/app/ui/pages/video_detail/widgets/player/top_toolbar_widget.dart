@@ -683,6 +683,8 @@ class _TopToolbarState extends State<TopToolbar> {
       title: c.videoInfo.value?.title?.trim() ?? '',
       author: c.videoInfo.value?.user?.name ?? '',
       videoId: c.videoId,
+      // 本机文件页没有 videoId：视频类型按本地库条目 id 记（见 present 的 formatKey）。
+      formatKey: c.vrOverrideKey,
       width: c.sourceVideoWidth.value,
       height: c.sourceVideoHeight.value,
       positionMs: c.currentPosition.inMilliseconds,

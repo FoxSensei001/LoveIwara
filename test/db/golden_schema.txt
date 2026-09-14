@@ -252,6 +252,7 @@ TABLE video_vr_override
   COLUMN stereo TEXT
   COLUMN updated_at INTEGER
   COLUMN video_id TEXT PK1
+  COLUMN xr_format TEXT
   INDEX sqlite_autoindex_video_vr_override_1 :: (auto)
 TABLE watch_later
   COLUMN added_at INTEGER NOT NULL DEFAULT strftime('%s','now')

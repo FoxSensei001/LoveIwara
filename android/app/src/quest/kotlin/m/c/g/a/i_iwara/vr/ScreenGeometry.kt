@@ -150,6 +150,30 @@ object ScreenGeometry {
         }
     }
 
+    /**
+     * 一次 present 该铺成哪种格式：用户在面板上亲手定过（[saved] 是枚举名）就原样还原，
+     * 否则按字符串档位推。认不出的枚举名（旧版本存的 / 枚举改过名）退回档位，不抛。
+     */
+    fun formatOf(shape: String, stereo: String, fullFrame: Boolean, saved: String): VideoFormat =
+        saved.takeIf { it.isNotBlank() }
+            ?.let { name -> VideoFormat.entries.firstOrNull { it.name == name } }
+            ?: formatOf(shape, stereo, fullFrame)
+
+    /** [formatOf] 的反方向：回报 Dart 时用的档位字符串（`present` 那套，另加 `eac`）。 */
+    fun shapeOf(format: VideoFormat): String = when (format.projection) {
+        Projection.FLAT -> "flat"
+        Projection.PANORAMA_180 -> "180"
+        Projection.PANORAMA_360 -> "360"
+        Projection.FISHEYE -> "fisheye"
+        Projection.EAC -> "eac"
+    }
+
+    fun stereoOf(format: VideoFormat): String = when (format.packing) {
+        StereoPacking.MONO -> "none"
+        StereoPacking.LEFT_RIGHT -> "lr"
+        StereoPacking.TOP_BOTTOM -> "tb"
+    }
+
     /** intent / bridge 传来的字符串档位 → 格式枚举。 */
     fun formatOf(shape: String, stereo: String, fullFrame: Boolean): VideoFormat = when (shape) {
         "180" -> when (stereo) {
