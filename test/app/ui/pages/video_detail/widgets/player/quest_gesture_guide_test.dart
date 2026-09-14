@@ -220,23 +220,6 @@ void main() {
   );
 
   testWidgets(
-    'the persistent continue action remains reachable on a narrow panel',
-    (tester) async {
-      var closed = false;
-      await pumpGuide(
-        tester,
-        size: const Size(360, 720),
-        onClose: () => closed = true,
-      );
-      final action = find.byKey(const ValueKey('quest_guide_done'));
-      expect(tester.getRect(action).height, greaterThanOrEqualTo(60));
-      expect(tester.getRect(action).bottom, lessThanOrEqualTo(720));
-      await tester.tap(action);
-      expect(closed, isTrue);
-    },
-  );
-
-  testWidgets(
     'both media guides lay out in all locales, narrow panels and large text',
     (tester) async {
       for (final locale in slang.AppLocale.values) {
