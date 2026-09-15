@@ -2,6 +2,11 @@ name: Flutter Build
 
 env:
   FLUTTER_VERSION: '3.47.2'
+  # pubspec.lock 里 290 条依赖记的全是这个镜像地址。CI 不设这一项就会退回 pub.dev，
+  # 来源对不上 → 整份 lock 作废 → 按 ^ 约束重解到最新版，打出来的包根本不是本机测过
+  # 的那套依赖。liquid_glass_easy 就这么从 4.1.1 被解到 4.3.1，Windows/Impeller 上
+  # 首帧出不来、整窗白屏。改动这里前先看一眼 pubspec.lock 里的 url 是什么。
+  PUB_HOSTED_URL: 'https://pub.flutter-io.cn'
 
 on:
   workflow_dispatch:
@@ -80,7 +85,8 @@ jobs:
         shell: bash
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       # ⛔ 必须带 --flavor standard：android/app/build.gradle 定义了 platform 维度
       # （standard / quest）之后，AGP 就不再有「不带 flavor」的变体，裸的
@@ -180,7 +186,8 @@ jobs:
         shell: bash
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       # 只出 arm64：quest flavor 的 abiFilters + androidComponents 已经把 v7a / x86_64
       # 关掉了（那些包里没有 Spatial 的 .so，装上即崩），这里再显式限定一次。
@@ -231,7 +238,8 @@ jobs:
         run: choco install innosetup --no-progress
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       - name: Build Windows with Installer
         env:
@@ -274,7 +282,8 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       - name: Enable macOS
         run: flutter config --enable-macos-desktop
@@ -376,7 +385,8 @@ jobs:
           cache: false
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       - name: Build iOS
         run: flutter build ios --release --no-codesign
@@ -437,7 +447,8 @@ jobs:
           cache: true
 
       - name: Get dependencies
-        run: flutter pub get
+        # --enforce-lockfile：lock 一旦用不上就让构建失败，而不是静默重解成另一套依赖。
+        run: flutter pub get --enforce-lockfile
 
       - name: Enable Linux
         run: flutter config --enable-linux-desktop
