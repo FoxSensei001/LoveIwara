@@ -4,7 +4,7 @@
 #    客户端从 2026-09-11 起会比较 build 号（见 lib/utils/app_version.dart）：
 #    这里只写 "0.5.1" 的话 build 视为 0，所有装着 0.5.1+N 的用户都看不到这次热修。
 #    正常的版本升级（0.5.1 → 0.5.2）不写 build 号也能正常检出。
-currentVersion: "0.6.0"
+currentVersion: "0.5.1"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
