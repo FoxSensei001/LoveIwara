@@ -22,6 +22,8 @@ import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/video_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
+import 'package:i_iwara/app/services/gallery_video_poster.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path/path.dart' as path_lib;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -2682,6 +2684,18 @@ class DownloadService extends GetxService {
       }
       await raf.close();
       raf = null;
+
+      // 图库里混着的视频：把服务端给它生成的那张静图取下来存在旁边，本机浏览时
+      // 才有封面可画（⛔ 别指望解本地帧，理由见 [ensureGalleryVideoPoster]）。
+      // 取不到不影响这次下载，所以不 await 也不让它抛。
+      if (isGalleryVideoFileName(savePath)) {
+        unawaited(
+          ensureGalleryVideoPoster(
+            videoPath: savePath,
+            posterUrl: iwaraPosterUrlFrom(url),
+          ),
+        );
+      }
 
       // 更新进度
       _updateGalleryProgress(task.id, imageId, true);

@@ -239,6 +239,9 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
         originalUrl: file.getOriginalImageUrl(),
       ),
       headers: {},
+      // 视频项的封面：服务端给它生成的那张静图（见 [MediaFile.getPosterUrl]）。
+      // 图片项填的就是 largeUrl 本身，下游一律画 [ImageItem.poster]，不必分类讨论。
+      posterUrl: file.getPosterUrl(),
       // 媒体类型由服务端的 type/mime 说了算，不再让下游按 URL 后缀猜
       // （见 [MediaFile.isVideo]）。
       mediaType: file.isVideo ? MediaItemType.video : MediaItemType.image,
@@ -312,6 +315,7 @@ Future<bool>? openGalleryImageViewer(
           headers: imageItem.headers == null
               ? null
               : Map<String, String>.from(imageItem.headers!),
+          posterUrl: imageItem.posterUrl,
           mediaType: imageItem.mediaType,
         ),
       )
@@ -392,7 +396,8 @@ Future<bool> presentGalleryInSpace({
   final resolvedQuality =
       quality ??
       normalizeGalleryImageQuality(
-        Get.find<ConfigService>()[ConfigKey.GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
+        Get.find<ConfigService>()[ConfigKey
+            .GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY],
       );
   final items = imageItems
       .map(
@@ -401,6 +406,8 @@ Future<bool> presentGalleryInSpace({
           isVideo: item.isVideo,
           largeUrl: item.url,
           originalUrl: item.data.originalUrl,
+          // 面板胶片画它；视频项的 [ImageItem.url] 是原文件，画不出来。
+          posterUrl: item.posterUrl,
           width: item.width?.round() ?? 0,
           height: item.height?.round() ?? 0,
         ),

@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
@@ -15,7 +17,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:i_iwara/utils/image_utils.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -114,38 +115,25 @@ class _GalleryDownloadTaskDetailPageState
     }
   }
 
-  // 构建图片菜单项
-  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) {
-    final t = slang.Translations.of(context);
-
-    return [
-      if (GetPlatform.isDesktop)
-        MenuItem(
-          title: t.galleryDetail.saveAs,
-          icon: Icons.download,
-          onTap: () => ImageUtils.downloadImageToAppDirectory(item),
-        ),
-    ];
-  }
-
-  // 处理图片点击事件
+  /// 处理图片点击事件。
+  ///
+  /// ⛔ 这里走的必须是 [openLocalImageViewer]，不能直接 `pushPhotoViewWrapperOverlay`：
+  /// 「Quest 上要不要改交空间画廊」这道分叉长在前者里头。此前这一页是裸调后者的，
+  /// 于是下载列表 → 图库详情 → 点图，在头显上开的是 2D 大图页
+  /// （用户 2026-09-15 真机报障）；本机文件那三处入口一直是对的，就这一处漏了。
+  ///
+  /// 菜单在这一页本来就是关的（`enableMenu: false` 会让 `menuItemsBuilder` 连调用
+  /// 都不会发生，见 `MyGalleryPhotoViewWrapper._showMenu`），所以不必把它递下去。
   void _onImageTap(
     BuildContext context,
     ImageItem item,
     List<ImageItem> imageItems,
   ) {
-    int index = imageItems.indexWhere((element) => element.url == item.url);
-    if (index == -1) {
-      index = imageItems.indexWhere(
-        (element) => element.data.id == item.data.id,
-      );
-    }
-    pushPhotoViewWrapperOverlay(
-      context: context,
-      imageItems: imageItems,
-      initialIndex: index,
-      menuItemsBuilder: (context, item) => _buildImageMenuItems(context, item),
-      enableMenu: false, // 下载详情进入的查看页不需要菜单/弹窗
+    String pathOf(ImageItem e) => e.url.replaceFirst('file://', '');
+    openLocalImageViewer(
+      context,
+      imageItems.map(pathOf).toList(),
+      pathOf(item),
     );
   }
 
@@ -456,11 +444,21 @@ class _GalleryDownloadTaskDetailPageState
                                     _onImageTap(context, item, imageItems),
                                 child: isDownloaded
                                     ? isVideo
-                                          // 视频格没有现成的缩略图地址，也不值得
-                                          // 为一格几百像素再起一份 libmpv 去解首帧
-                                          // ——摆一格认得出来的片头就够了，和大图页
-                                          // 底下那条胶片同一套（[GalleryFilmstrip]）。
-                                          ? const _VideoTile()
+                                          // ⛔ 这里曾经只摆一格深色片头，理由写的是
+                                          // 「视频格没有现成的缩略图地址，也不值得
+                                          // 为一格几百像素再起一份 libmpv 去解首帧」
+                                          // ——文件就在本机，解一帧是 [LocalCoverImage]
+                                          // 的事，而且解完落盘、只解这一次。
+                                          ? _VideoTile(
+                                              path: item.url.replaceFirst(
+                                                'file://',
+                                                '',
+                                              ),
+                                              posterUrl: iwaraPosterUrlFrom(
+                                                extData.imageList[imageId] ??
+                                                    '',
+                                              ),
+                                            )
                                           : Image.file(
                                               File(
                                                 item.url.replaceFirst(
@@ -669,10 +667,41 @@ class _GalleryDownloadTaskDetailPageState
 /// 点它照样进大图页，在那儿真的会播（[GalleryVideoPlayer]）——所以这一格要读起来
 /// 像「一段可以放的视频」，而不是像以前那样像一条报错。
 class _VideoTile extends StatelessWidget {
-  const _VideoTile();
+  const _VideoTile({required this.path, this.posterUrl});
+
+  /// 这段视频在本机的绝对路径。
+  final String path;
+
+  /// 它那张静图海报的网络地址：本地还没存过时由 [LocalCoverImage] 取一次。
+  final String? posterUrl;
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          LocalCoverImage(
+            path: path,
+            posterUrl: posterUrl,
+            placeholder: _fallback(context),
+          ),
+          // 解出来的是静帧，没有记号就认不出这是段视频。
+          const Center(
+            child: Icon(
+              Icons.play_circle_outline,
+              color: Colors.white,
+              size: 40,
+              shadows: <Shadow>[Shadow(color: Colors.black54, blurRadius: 6)],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fallback(BuildContext context) {
     return SizedBox(
       height: 200,
       child: ColoredBox(

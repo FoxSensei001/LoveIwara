@@ -74,10 +74,7 @@ Future<void> launchVideoDownload(
   if (!_ensureAuthenticated(t)) return;
 
   if (video.isExternalVideo) {
-    showAppToast(
-      t.download.errors.downloadFailed,
-      type: AppToastType.error,
-    );
+    showAppToast(t.download.errors.downloadFailed, type: AppToastType.error);
     return;
   }
 
@@ -158,10 +155,8 @@ Future<void> launchGalleryDownload(
     final extData = GalleryDownloadExtData(
       id: resolved.id,
       title: resolved.title,
-      previewUrls: resolved.files
-          .take(3)
-          .map((e) => e.getLargeImageUrl())
-          .toList(),
+      // 存静图海报，理由同 `batch_download_service.dart` 里那一处。
+      previewUrls: resolved.files.take(3).map((e) => e.getPosterUrl()).toList(),
       authorName: resolved.user?.name,
       authorUsername: resolved.user?.username,
       authorAvatar: resolved.user?.avatar?.avatarUrl,
@@ -199,10 +194,7 @@ Future<void> launchGalleryDownload(
     _showDownloadStartedToast(t);
   } catch (e) {
     LogUtils.e('添加图库下载任务失败', tag: 'MediaDownloadLauncher', error: e);
-    showAppToast(
-      t.download.errors.downloadFailed,
-      type: AppToastType.error,
-    );
+    showAppToast(t.download.errors.downloadFailed, type: AppToastType.error);
   }
 }
 

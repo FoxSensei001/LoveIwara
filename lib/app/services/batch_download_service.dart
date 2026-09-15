@@ -504,9 +504,11 @@ class BatchDownloadService extends GetxService {
       imageList[file.id] = file.getOriginalImageUrl();
     }
 
+    // 预览图存**静图海报**地址：图库里混着的视频，大图档给的就是这张静图，而
+    // `getLargeImageUrl()` 对视频会回落到原文件（13MB webm），拿去当封面画不出来。
     final previewUrls = galleryInfo.files
         .take(3)
-        .map((f) => f.getLargeImageUrl())
+        .map((f) => f.getPosterUrl())
         .toList();
 
     // 6. 创建下载任务

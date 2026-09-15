@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
@@ -192,6 +193,13 @@ class _DownloadedGalleryBrowsePageState
       context,
       _validImages.map((img) => img.path).toList(),
       initial.path,
+      // 图库里混着的视频：把它那张静图海报的地址一并交出去，空间画廊的胶片格
+      // 才有封面可画（本地已经存过就直接用本地那张，见 [ensureGalleryVideoPoster]）。
+      videoPosterUrls: <String, String>{
+        for (final img in _validImages)
+          if (isGalleryVideoFileName(img.path))
+            img.path: iwaraPosterUrlFrom(_galleryData?.imageList[img.id] ?? ''),
+      },
     );
   }
 
@@ -424,6 +432,13 @@ class _DownloadedGalleryBrowsePageState
                             itemCount: _validImages.length,
                             itemBuilder: (context, index, itemWidth) {
                               final item = _validImages[index];
+                              // Iwara 的图库里混着短片（`.webm`），下载下来就躺在
+                              // 同一个文件夹里。⛔ 这一格必须看得出「是一段视频」：
+                              // 它解不成位图，不加记号的话就只剩一格灰占位，读起来
+                              // 像「这张图坏了」。时长要解容器才知道，这条路上没有
+                              // 派生服务，所以只给三角不给数字（[LocalPlaybackPill]
+                              // 本来就允许没有时长）。
+                              final isVideo = isGalleryVideoFileName(item.path);
                               return GestureDetector(
                                 onTap: () => _openImage(index),
                                 child: ClipRRect(
@@ -433,12 +448,28 @@ class _DownloadedGalleryBrowsePageState
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: [
+                                        // 视频那一格画的是它旁边那张封面；不在就照
+                                        // 任务里存的地址取一次存下来（见
+                                        // [ensureGalleryVideoPoster]）。
                                         LocalCoverImage(
                                           path: item.path,
+                                          posterUrl: isVideo
+                                              ? iwaraPosterUrlFrom(
+                                                  _galleryData?.imageList[item
+                                                          .id] ??
+                                                      '',
+                                                )
+                                              : null,
                                           placeholder: _buildImagePlaceholder(
                                             context,
                                           ),
                                         ),
+                                        if (isVideo)
+                                          const Positioned(
+                                            right: 6,
+                                            bottom: 6,
+                                            child: LocalPlaybackPill(),
+                                          ),
                                         // 序号胶囊角标
                                         Positioned(
                                           top: LocalContainerCard.badgeInset,

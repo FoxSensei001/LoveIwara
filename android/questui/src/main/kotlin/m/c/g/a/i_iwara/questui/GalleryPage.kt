@@ -305,7 +305,19 @@ private fun ThumbCell(item: GalleryItem, path: String, selected: Boolean, loadin
             )
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Icon(SpatialIcons.Regular.Image, null, tint = PanelTokens.ON_SURFACE_DIM, modifier = Modifier.size(28.dp))
+                Icon(
+                    if (item.isVideo) SpatialIcons.Regular.Play else SpatialIcons.Regular.Image,
+                    null,
+                    tint = PanelTokens.ON_SURFACE_DIM,
+                    modifier = Modifier.size(28.dp),
+                )
+            }
+        }
+        // 视频项的缩略图是**静图海报**（服务端给 webm 生成的那张），不压一枚三角
+        // 就和普通图片一格一模一样。
+        if (item.isVideo && model != null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Icon(SpatialIcons.Regular.Play, null, tint = PanelTokens.ON_SURFACE, modifier = Modifier.size(24.dp))
             }
         }
         // 非当前项压一层薄暗，当前项原色 —— 一眼看出停在哪。

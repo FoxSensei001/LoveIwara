@@ -78,6 +78,13 @@ class CommonConstants {
   // 图片资源基础URL
   static const String iwaraImageBaseUrl = 'https://i.iwara.tv';
 
+  /// 文件资源基础 URL。
+  ///
+  /// 与 [iwaraImageBaseUrl] 是同一套存储（同一个 id/name 取回来的字节一模一样），
+  /// 区别只在 WAF：`i.iwara.tv` 对**路径以视频扩展名结尾**的请求一律回 Cloudflare
+  /// 的「Just a moment...」挑战页，理由与实测数据写在 `MediaFile.baseUrl` 上。
+  static const String iwaraFileBaseUrl = 'https://files.iwara.tv';
+
   // Iwara 标签本地化映射 —— 打包内的兜底资源（离线可用）
   static const String iwaraTagsLocalizationAsset =
       'assets/data/iwara_tags.min.json';

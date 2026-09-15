@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
@@ -33,6 +34,7 @@ class DownloadedGalleryRow {
     required this.title,
     required this.coverPath,
     required this.imageCount,
+    this.coverPosterUrl,
     this.savePath,
     this.galleryId,
   });
@@ -46,6 +48,12 @@ class DownloadedGalleryRow {
   /// 了"，封面却要联网才画得出来，离线时整面墙就是一排占位图。拿不到本地路径
   /// 时宁可留 null，占位图至少不撒谎。
   final String? coverPath;
+
+  /// [coverPath] 指向一段**视频**时，它那张静图海报的网络地址。
+  ///
+  /// 封面本身还是要落到本地文件（见 [ensureGalleryVideoPoster]）——这条地址只是
+  /// 「本地还没有时上哪儿取一次」。图片封面用不着它，恒为 null。
+  final String? coverPosterUrl;
 
   final int imageCount;
 
@@ -117,19 +125,34 @@ class DownloadedGalleryRow {
   }) {
     final data = GalleryDownloadExtData.fromJson(json);
     // `image_list` 的键序就是图库里的原始顺序（JSON 对象保序）。
+    //
+    // ⛔ 挑封面**优先静图**：图库里混着的 webm 要先解一帧才画得出来
+    // （[LocalCoverImage] 会去做，见 [LocalMediaDerivationService.posterForFile]），
+    // 而现成的静图一次 `Image.file` 就够。一张静图都没有时才回头用那段视频。
     String? cover;
+    String? videoCover;
+    String? videoCoverId;
     for (final id in data.imageList.keys) {
       final local = data.localPaths[id]?.trim();
-      if (local != null && local.isNotEmpty) {
-        cover = local;
-        break;
+      if (local == null || local.isEmpty) continue;
+      if (isGalleryVideoFileName(local)) {
+        if (videoCover == null) {
+          videoCover = local;
+          videoCoverId = id;
+        }
+        continue;
       }
+      cover = local;
+      break;
     }
     final title = data.title?.trim();
     return DownloadedGalleryRow(
       taskId: taskId,
       title: title == null || title.isEmpty ? fileName : title,
-      coverPath: cover,
+      coverPath: cover ?? videoCover,
+      coverPosterUrl: cover == null && videoCover != null
+          ? iwaraPosterUrlFrom(data.imageList[videoCoverId] ?? '')
+          : null,
       imageCount: data.totalImages > 0
           ? data.totalImages
           : data.imageList.length,
@@ -364,7 +387,12 @@ class DownloadedGalleryCard extends StatelessWidget {
     );
     final path = row.coverPath;
     if (path == null) return placeholder;
-    // 下载下来的原图可能有几千像素宽，解码尺寸归 [LocalCoverImage]。
-    return LocalCoverImage(path: path, placeholder: placeholder);
+    // 下载下来的原图可能有几千像素宽，解码尺寸归 [LocalCoverImage]；整本都是视频时
+    // 由它去拿视频旁边那张封面（不在就照 [coverPosterUrl] 取一次存下来）。
+    return LocalCoverImage(
+      path: path,
+      posterUrl: row.coverPosterUrl,
+      placeholder: placeholder,
+    );
   }
 }

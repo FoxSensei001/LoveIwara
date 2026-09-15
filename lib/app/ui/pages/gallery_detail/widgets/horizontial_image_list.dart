@@ -36,14 +36,25 @@ class ImageItem {
   Map<String, String>? headers;
   final MediaItemType mediaType;
 
+  /// 这一条的**静图海报**地址；不给就退回 [url]。
+  ///
+  /// 只有视频项真正需要它：[url] 对视频指向原文件（webm），画不出封面。
+  /// 服务端给视频生成的那张静图在 [MediaFile.getPosterUrl]，由
+  /// `buildGalleryImageItems` 一处算好带进来，渲染方只管画 [poster]。
+  final String? posterUrl;
+
   ImageItem({
     required this.url,
     this.width,
     this.height,
     required this.data,
     this.headers,
+    this.posterUrl,
     MediaItemType? mediaType,
   }) : mediaType = mediaType ?? _detectMediaType(url);
+
+  /// 画封面用哪个地址。本地文件那条路没有海报，退回 [url]（画不出来由调用方兜底）。
+  String get poster => posterUrl ?? url;
 
   /// 兜底的媒体类型判定：**只在调用方没传 [mediaType] 时**才按后缀猜。
   ///
@@ -831,12 +842,20 @@ class _HorizontalImageListState extends State<HorizontalImageList>
         widget.imageFitBuilder?.call(imageItem) ?? widget.imageFit;
 
     return _VideoThumbnailWidget(
-      videoUrl: imageItem.url,
+      // ⛔ 要放就得放**原文件**。这里曾经传 [ImageItem.url]，而那个地址对视频是
+      // 「大图」档 —— 服务端在那一档给的是一张静图 JPEG（见 [MediaFile.getPosterUrl]），
+      // libmpv 拿到它只会报 `Failed to recognize file format.`，于是这一格从头到尾
+      // 只显示错误卡：用户看到的「封面渲染不出来」就是它（2026-09-15 真机报障）。
+      videoUrl: imageItem.data.originalUrl,
       imageItem: imageItem,
       headers: imageItem.headers,
       fit: fit,
       onError: (error) {
-        LogUtils.e('加载视频失败: ${imageItem.url}', tag: 'ImageList', error: error);
+        LogUtils.e(
+          '加载视频失败: ${imageItem.data.originalUrl}',
+          tag: 'ImageList',
+          error: error,
+        );
       },
     );
   }
@@ -873,31 +892,19 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
   /// 是否已经为这只播放器叫停了后台派生（与 dispose 里的 resume 成对）。
   bool _pausedBackground = false;
 
-  /// 在场满这么久才真的开播放器。
-  ///
-  /// ⛔ 每条视频缩略图都是一只真 libmpv。图库里视频多、用户又一路甩过去的话，
-  /// 一进一出就是几十只播放器被建了又拆——既白白开网络流，也正撞上
-  /// 「播放器 dispose 后几秒原生闪退」那份悬案。停下来看得见的那几条才开。
-  static const Duration _initDelay = Duration(milliseconds: 300);
-  Timer? _initTimer;
+  /// 播放器有没有起过（起了就不再起第二只）。
+  bool _playerRequested = false;
 
   @override
   void initState() {
     super.initState();
-    _scheduleInitialize();
-  }
-
-  void _scheduleInitialize() {
-    _initTimer?.cancel();
-    _initTimer = Timer(_initDelay, () {
-      if (!mounted) return;
-      // 还在快速滚动（甩动惯性里）就再等一轮，与 `Image` 推迟解码同一个判据。
-      if (Scrollable.recommendDeferredLoadingForContext(context)) {
-        _scheduleInitialize();
-        return;
-      }
-      _initializePlayer();
-    });
+    // ⛔ 这里曾经「在场 300ms 就起一只 libmpv」，只为了看一眼首帧。
+    // 首帧现在由服务端的静图海报直接给（见 [MediaFile.getPosterUrl]），
+    // 播放器只在**鼠标真的悬上来**时才建：
+    // 每条视频缩略图都是一只真 libmpv，图库里视频多、用户一路甩过去的话，
+    // 一进一出就是几十只播放器被建了又拆——既白白开网络流，也正撞上
+    // 「播放器 dispose 后几秒原生闪退」那份悬案。触屏设备没有 hover，
+    // 于是一只都不会建，看到的就是海报 + 播放三角。
   }
 
   Future<void> _initializePlayer() async {
@@ -925,6 +932,12 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
           setState(() {
             _isInitialized = true;
           });
+          // 播放器是悬停那一下才开始建的，就绪时鼠标多半还在上面——接着播，
+          // 不然得把鼠标挪开再挪回来才动。
+          if (_isHovered && !_hasError) {
+            player.play();
+            _shouldAutoPlay = true;
+          }
         }
       });
 
@@ -952,7 +965,6 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
 
   @override
   void dispose() {
-    _initTimer?.cancel();
     _player?.dispose();
     if (_pausedBackground) {
       LocalMediaDerivationService.maybe?.resumeBackground();
@@ -964,6 +976,12 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
     setState(() {
       _isHovered = isHovered;
     });
+
+    // 悬上来才建播放器（只建一次）。不悬就一直是海报那张静图。
+    if (isHovered && !_playerRequested && !_hasError) {
+      _playerRequested = true;
+      unawaited(_initializePlayer());
+    }
 
     final player = _player;
     if (player == null) return;
@@ -981,9 +999,8 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_hasError) {
-      return _buildErrorWidget();
-    }
+    final bool showPlayer =
+        !_hasError && _isInitialized && _videoController != null;
 
     return MouseRegion(
       onEnter: (_) => _onHover(true),
@@ -991,13 +1008,17 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // 底下永远是海报那张静图：没有它，这一格在鼠标悬上来之前（触屏上是永远）
+          // 什么都没有。播放器就绪后盖在它上面。
+          _buildPoster(context),
+
           // 视频播放器
           //
           // ⛔ 这里曾经包着 `Hero(tag: imageItem.data.id)`，可**从来没飞过**：
           // 大图页那侧的 heroTagBuilder 对视频恒返回 null（视频没有 Hero 对家），
           // 于是它只是一个裸文件 id 的孤儿标签——同一张图在两处同时出现就会撞
           // 「duplicate hero tag」。整套 Hero 已于 2026-09-05 移除，它跟着一起走。
-          if (_isInitialized && _videoController != null)
+          if (showPlayer)
             ColorVisionFilterWrapper(
               configKey: ConfigKey.GALLERY_COLOR_VISION_FILTER_ID,
               child: AspectCorrectedVideo(
@@ -1005,11 +1026,12 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
                 fit: widget.fit,
               ),
             )
-          else
+          else if (_isHovered && _playerRequested && !_hasError)
+            // 悬上来了、播放器还在路上：海报上压一圈转圈，别让这一下看着没反应。
             _buildLoadingWidget(),
 
           // 播放图标覆盖层
-          if (!_isHovered || !_isInitialized)
+          if (!_isHovered || !showPlayer)
             Center(
               child: Container(
                 padding: const EdgeInsets.all(8),
@@ -1054,6 +1076,22 @@ class _VideoThumbnailWidgetState extends State<_VideoThumbnailWidget> {
           ),
         ],
       ),
+    );
+  }
+
+  /// 这一格的静图海报：服务端给视频生成的那张（见 [MediaFile.getPosterUrl]）。
+  ///
+  /// 本地文件那条路没有海报（[ImageItem.poster] 退回 `file://…` 的原片），画不出来
+  /// 就退回错误卡——那张卡说的是实话：这一格确实没有能展示的画面。
+  Widget _buildPoster(BuildContext context) {
+    final poster = widget.imageItem.poster;
+    if (poster.startsWith('file://')) return _buildErrorWidget();
+    return CachedNetworkImage(
+      imageUrl: poster,
+      httpHeaders: widget.headers,
+      fit: widget.fit,
+      placeholder: (_, _) => _buildLoadingWidget(),
+      errorWidget: (_, _, _) => _buildErrorWidget(),
     );
   }
 

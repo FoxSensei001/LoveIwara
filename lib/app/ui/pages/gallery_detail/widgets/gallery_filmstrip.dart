@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
@@ -438,15 +439,49 @@ class _FilmstripTile extends StatelessWidget {
     );
   }
 
+  /// 认不出内容时那一格：深色底 + 一枚播放三角。
+  static const Widget _videoFallback = ColoredBox(
+    color: Color(0xFF2A2A2A),
+    child: Center(
+      child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
+    ),
+  );
+
   Widget _thumbnail(BuildContext context) {
     if (item.isVideo) {
-      // 视频没有现成的缩略图地址，也不值得为一格几十像素再起一份 libmpv 实例
-      // 去解首帧——摆一格能认出来的深色片头就够了。
-      return const ColoredBox(
-        color: Color(0xFF2A2A2A),
-        child: Center(
-          child: Icon(Icons.play_arrow_rounded, color: Colors.white, size: 20),
-        ),
+      // ⛔ 这里曾经只摆一格深色片头，理由写的是「视频没有现成的缩略图地址」——
+      // 那句话是错的：服务端给视频生成了静图（见 [MediaFile.getPosterUrl]），
+      // 一格几十像素正好够它。拿不到（本地文件那条路没有海报）才退回深色格。
+      // 本地文件没有服务端海报，但可以自己解一帧（[LocalCoverImage] 会去做）。
+      final poster = item.posterUrl ?? item.url;
+      final bool local = poster.startsWith('file://');
+      return Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          if (local)
+            LocalCoverImage(
+              path: poster.replaceFirst('file://', ''),
+              placeholder: _videoFallback,
+            )
+          else
+            CachedNetworkImage(
+              imageUrl: poster,
+              httpHeaders: item.headers,
+              fit: BoxFit.cover,
+              memCacheWidth: 256,
+              placeholder: (_, _) => _videoFallback,
+              errorWidget: (_, _, _) => _videoFallback,
+            ),
+          // 海报是静图，不加记号就认不出这一格是段视频。
+          const Center(
+            child: Icon(
+              Icons.play_arrow_rounded,
+              color: Colors.white,
+              size: 20,
+              shadows: <Shadow>[Shadow(color: Colors.black54, blurRadius: 4)],
+            ),
+          ),
+        ],
       );
     }
 

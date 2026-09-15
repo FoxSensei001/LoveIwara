@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
+import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
@@ -126,7 +127,9 @@ class GalleryDownloadTaskItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: RepaintBoundary(
                       child: CachedNetworkImage(
-                        imageUrl: extData.previewUrls[0],
+                        // 同 [_buildPreviewImages]：存下来的地址对视频指向原文件，
+                        // 画不出来，渲染时改写成静图海报。
+                        imageUrl: iwaraPosterUrlFrom(extData.previewUrls[0]),
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
                           color: Theme.of(
@@ -297,7 +300,10 @@ class GalleryDownloadTaskItem extends StatelessWidget {
           // 主预览图
           Positioned.fill(
             child: CachedNetworkImage(
-              imageUrl: extData.previewUrls[0],
+              // ⛔ 过一道 [iwaraPosterUrlFrom]：这张地址是**下载任务建起来那天**
+              // 存进 ext_data 的，视频那几条指向原文件（webm），拿去当封面画不出来。
+              // 那些数据库行不会因为代码改了就自己重写，只能在渲染这一侧改写。
+              imageUrl: iwaraPosterUrlFrom(extData.previewUrls[0]),
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(color: Colors.grey[200]),
               errorWidget: (context, url, error) => Container(

@@ -436,3 +436,54 @@ class LocalCardBadge extends StatelessWidget {
     child: child,
   );
 }
+
+/// 封面右下角那枚「这是一段视频」的胶囊（播放三角 + 可选时长）。
+///
+/// ⛔ 底色写死成半透明黑、字写死成白，**不跟主题走**：它压在用户自己的封面上，
+/// 而封面什么颜色都可能是。跟着 `colorScheme` 走的话，浅色主题下就是白底黑字压在
+/// 一张过曝的截图上，等于没有。
+///
+/// 时长可能拿不到（本地库还没派生出 `durationMs`、或者这一格根本不来自本地库），
+/// 那时只剩一枚播放三角——记号在就够了，宁可少一个数字，也不能让这一格看起来
+/// 不是视频。
+///
+/// ⛔ 媒体卡与「已下载图库」里混着的短片共用这一份：两处原本一个有一个没有，于是
+/// 同一个 `.webm` 在媒体墙上是「一段视频」、在图库网格里是「一张读不出来的图」。
+class LocalPlaybackPill extends StatelessWidget {
+  const LocalPlaybackPill({super.key, this.duration});
+
+  final String? duration;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = duration;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(4, 2, label == null ? 4 : 5, 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Icon(Icons.play_arrow_rounded, size: 13, color: Colors.white),
+            if (label != null) ...<Widget>[
+              const SizedBox(width: 2),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  height: 1.2,
+                  fontWeight: FontWeight.w600,
+                  fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
