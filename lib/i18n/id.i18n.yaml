@@ -1,0 +1,3155 @@
+# en.i18n.yaml
+
+personalProfile:
+  personalProfile: Profil Pribadi
+  editPersonalProfile: Edit Profil Pribadi
+  avatar: Avatar
+  background: Latar Belakang
+  fetchUserProfileFailed: "Gagal mengambil profil pengguna: ${error}"
+  suggestedResolution: "Resolusi yang disarankan: ${resolution}, ukuran file < ${size}"
+  supportedFormats: "Format yang didukung: ${formats}"
+  premiumBenefit: "Pengguna premium dapat menggunakan ${type} dinamis (${formats})"
+  homepageBackground: Latar Belakang Halaman Utama
+  basicInfo: Informasi Dasar
+  nickname: Nama Panggilan
+  username: Nama Pengguna
+  copyUsername: Salin Nama Pengguna
+  usernameCopied: Nama pengguna disalin
+  personalIntroduction: Perkenalan Pribadi
+  noPersonalIntroduction: Tidak ada perkenalan pribadi
+  clickToEdit: Klik untuk mengedit
+  privacySettings: Pengaturan Privasi
+  hideSensitiveContent: Sembunyikan Konten Sensitif
+  hideSensitiveContentDesc: Sembunyikan video atau gambar yang mengandung tag sensitif.
+  notificationSettings: Pengaturan Notifikasi
+  contentCommentNotification: Notifikasi Komentar Konten
+  contentCommentNotificationDesc: Beri tahu saat seseorang mengomentari konten Anda.
+  commentReplyNotification: Notifikasi Balasan Komentar
+  commentReplyNotificationDesc: Beri tahu saat seseorang membalas komentar Anda.
+  mentionNotification: Notifikasi Sebutan
+  mentionNotificationDesc: Beri tahu saat seseorang menyebut Anda dalam konten.
+  accountInfo: Info Akun
+  registrationTime: Waktu Pendaftaran
+  updateSettingsFailed: "Gagal memperbarui pengaturan: ${error}"
+  updateNotificationSettingsFailed: "Gagal memperbarui pengaturan notifikasi: ${error}"
+  editNickname: Edit Nama Panggilan
+  nicknameCannotBeEmpty: Nama panggilan tidak boleh kosong
+  changeSuccess: Perubahan berhasil
+  unsupportedFileFormat: Format file tidak didukung
+  fileTooLarge: "Ukuran file tidak boleh melebihi ${size}"
+  uploadFailed: Unggahan gagal
+  avatarUpdatedSuccessfully: Avatar berhasil diperbarui
+  updateAvatarFailed: "Gagal memperbarui avatar: ${error}"
+  backgroundUpdatedSuccessfully: Latar belakang berhasil diperbarui
+  updateBackgroundFailed: "Gagal memperbarui latar belakang: ${error}"
+  editPersonalIntroduction: Edit Perkenalan Pribadi
+  enterPersonalIntroduction: Silakan masukkan perkenalan pribadi
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "Ikuti Khusus"
+  specialFollowDescription: "Tandai penulis yang paling sering Anda tonton sebagai ikuti khusus, lalu langsung menuju unggahan terbaru mereka dari sini."
+  stepsTitle: "Tiga langkah"
+  stepFollowAuthor: "Ketuk Ikuti pada video, galeri, atau halaman profil penulis."
+  stepPickSpecial: "Ketuk Mengikuti lagi, lalu pilih Ikuti Khusus dari menu."
+  stepSwitchHere: "Kembali ke sini dan beralih ke penulis itu menggunakan pemilih avatar di atas."
+  specialFollowManagementTip: "Kelola daftar ikuti khusus di Bilah Sisi - Daftar Mengikuti - Ikuti Khusus."
+  gotIt: "Mengerti"
+
+common:
+  sort: Urutkan
+  filter: Filter
+  appName: Love Iwara
+  ok: OK
+  cancel: Batal
+  select: Pilih
+  save: Simpan
+  delete: Hapus
+  visit: Kunjungi
+  loading: Memuat...
+  scrollToTop: Gulir ke Atas
+  privacyHint: Mode privasi aktif, konten disembunyikan
+  latest: Terbaru
+  likesCount: Suka
+  viewsCount: Dilihat
+  popular: Populer
+  trending: Sedang Tren
+  commentList: Daftar Komentar
+  sendComment: Kirim Komentar
+  send: Kirim
+  retry: Coba Lagi
+  premium: Premium
+  follower: Pengikut
+  friend: Teman
+  video: Video
+  following: Mengikuti
+  expand: Perluas
+  collapse: Ciutkan
+  cancelFriendRequest: Batalkan Permintaan
+  cancelSpecialFollow: Batalkan Ikuti Spesial
+  addFriend: Tambah Teman
+  removeFriend: Hapus Teman
+  followed: Diikuti
+  follow: Ikuti
+  unfollow: Berhenti Mengikuti
+  specialFollow: Ikuti Spesial
+  specialFollowed: Diikuti Spesial
+  gallery: Galeri
+  playlist: Daftar Putar
+  commentPostedSuccessfully: Komentar Berhasil Dikirim
+  commentPostedFailed: Gagal Mengirim Komentar
+  success: Berhasil
+  commentDeletedSuccessfully: Komentar Berhasil Dihapus
+  commentUpdatedSuccessfully: Komentar Berhasil Diperbarui
+  totalComments:
+    one: '${n} Komentar'
+    other: '${n} Komentar'
+  writeYourCommentHere: Tulis komentar Anda di sini...
+  tmpNoReplies: Belum ada balasan
+  loadMore: Muat Lebih Banyak
+  loadingMore: Memuat lebih banyak...
+  noMoreDatas: Tidak ada data lagi
+  selectTranslationLanguage: Pilih Bahasa Terjemahan
+  translate: Terjemahkan
+  translateFailedPleaseTryAgainLater: Terjemahan gagal, silakan coba lagi nanti
+  translationResult: Hasil Terjemahan
+  justNow: Baru Saja
+  minutesAgo:
+    one: '${n} menit lalu'
+    other: '${n} menit lalu'
+  hoursAgo:
+    one: '${n} jam lalu'
+    other: '${n} jam lalu'
+  daysAgo:
+    one: '${n} hari lalu'
+    other: '${n} hari lalu'
+  editedAt: '${num} diubah'
+  editComment: Ubah Komentar
+  commentUpdated: Komentar Diperbarui
+  replyComment: Balas Komentar
+  reply: Balas
+  edit: Ubah
+  unknownUser: Pengguna Tidak Dikenal
+  me: Saya
+  author: Penulis
+  admin: Administrator
+  viewReplies: 'Lihat Balasan (${num})'
+  hideReplies: Sembunyikan Balasan
+  confirmDelete: Konfirmasi Hapus
+  areYouSureYouWantToDeleteThisItem: Apakah Anda yakin ingin menghapus item ini?
+  tmpNoComments: Belum ada komentar
+  refresh: Segarkan
+  back: Kembali
+  tips: Tips
+  linkIsEmpty: Tautan kosong
+  linkCopiedToClipboard: Tautan disalin ke papan klip
+  imageCopiedToClipboard: Gambar disalin ke papan klip
+  copyImageFailed: Gagal menyalin gambar
+  mobileSaveImageIsUnderDevelopment: Simpan gambar di ponsel masih dalam pengembangan
+  imageSavedTo: Gambar disimpan ke
+  saveImageFailed: Gagal menyimpan gambar
+  close: Tutup
+  more: Lainnya
+  unknownError: Kesalahan Tidak Diketahui
+  moreFeaturesToBeDeveloped: Fitur lainnya akan dikembangkan
+  all: Semua
+  selectedRecords: 'Terpilih ${num} catatan'
+  cancelSelectAll: Batalkan Pilih Semua
+  selectAll: Pilih Semua
+  exitEditMode: Keluar dari Mode Edit
+  areYouSureYouWantToDeleteSelectedItems: 'Apakah Anda yakin ingin menghapus ${num} item yang dipilih?'
+  searchHistoryRecords: Cari Catatan Riwayat...
+  settings: Pengaturan
+  subscriptions: Langganan
+  videoCount:
+    one: '${n} video'
+    other: '${n} video'
+  share: Bagikan
+  areYouSureYouWantToShareThisPlaylist: Apakah Anda yakin ingin membagikan daftar putar ini?
+  editTitle: Ubah Judul
+  editMode: Mode Edit
+  pleaseEnterNewTitle: Silakan masukkan judul baru
+  createPlayList: Buat Daftar Putar
+  create: Buat
+  checkNetworkSettings: Periksa Pengaturan Jaringan
+  general: Umum
+  r18: R18
+  sensitive: Sensitif
+  year: Tahun
+  month: Bulan
+  tag: Tag
+  private: Privat
+  noTitle: Tanpa Judul
+  search: Cari
+  noContent: Tidak ada konten
+  recording: Merekam
+  paused: Dijeda
+  clear: Bersihkan
+  clearSelection: Bersihkan Pilihan
+  selectItemsToContinue: Pilih item untuk melanjutkan
+  andMoreItems(num): 'dan ${num} lainnya'
+  batchDelete: Hapus Massal
+  user: Pengguna
+  post: Postingan
+  seconds: Detik
+  comingSoon: Segera Hadir
+  confirm: Konfirmasi
+  hour: Jam
+  minute: Menit
+  clickToRefresh: Klik untuk Menyegarkan
+  history: Riwayat
+  favorites: Favorit
+  friends: Teman
+  playList: Daftar Putar
+  checkLicense: Periksa Lisensi
+  logout: Keluar
+  fensi: Penggemar
+  accept: Terima
+  reject: Tolak
+  clearAllHistory: Bersihkan Semua Riwayat
+  clearAllHistoryConfirm: Apakah Anda yakin ingin membersihkan semua riwayat?
+  followingList: Daftar Mengikuti
+  followersList: Daftar Pengikut
+  follows: Mengikuti
+  fans: Penggemar
+  followsAndFans: Mengikuti dan Penggemar
+  numViews: Dilihat
+  updatedAt: Diperbarui Pada
+  publishedAt: Diterbitkan Pada
+  externalVideo: Video Eksternal
+  originalText: Teks Asli
+  showOriginalText: Tampilkan Teks Asli
+  showProcessedText: Tampilkan Teks Hasil Olahan
+  preview: Pratinjau
+  rules: Aturan
+  agree: Setuju
+  disagree: Tidak Setuju
+  agreeToRules: Setujui Aturan
+  # Base Input Dialog
+  markdownSyntaxHelp: Bantuan Sintaks Markdown
+  previewContent: Pratinjau Konten
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'Melebihi batas panjang maksimum (${max})'
+  agreeToCommunityRules: Setujui Aturan Komunitas
+  createPost: Buat Postingan
+  title: Judul
+  enterTitle: Silakan masukkan judul
+  content: Konten
+  enterContent: Silakan masukkan konten
+  writeYourContentHere: Silakan masukkan konten...
+  tagBlacklist: Daftar Hitam Tag
+  noData: Tidak ada data
+  tagLimit: Batas Tag
+  enableFloatingButtons: Aktifkan Tombol Melayang
+  disableFloatingButtons: Nonaktifkan Tombol Melayang
+  enabledFloatingButtons: Tombol Melayang Diaktifkan
+  disabledFloatingButtons: Tombol Melayang Dinonaktifkan
+  pendingCommentCount: Jumlah Komentar Tertunda
+  joined: 'Bergabung pada ${str}'
+  lastSeenAt: 'Terakhir dilihat ${str}'
+  download: Unduh
+  selectQuality: Pilih Kualitas
+  videoQualitySource: Sumber
+  selectImageQuality: Pilih kualitas gambar
+  imageQualityStandard: Standar
+  imageQualityOriginal: Asli
+  selectDateRange: Pilih Rentang Tanggal
+  selectDateRangeHint: Pilih rentang tanggal, bawaan adalah 30 hari terakhir
+  clearDateRange: Bersihkan Rentang Tanggal
+  deleteRecordsInDateRange: Hapus Catatan dalam Rentang Ini
+  deleteRecordsInDateRangeConfirm: 'Apakah Anda yakin ingin menghapus ${num} catatan riwayat dalam rentang tanggal ini? Tindakan ini tidak dapat dibatalkan.'
+  noHistoryRecordsInRange: Tidak ada catatan riwayat dalam rentang tanggal ini
+  followSuccessClickAgainToSpecialFollow: Berhasil diikuti, klik lagi untuk mengikuti spesial
+  specialFollowTip: Ditambahkan ke ikuti spesial — pilih mereka dari pemilih di kanan atas halaman Langganan untuk akses cepat
+  exitConfirmTip: Apakah Anda yakin ingin keluar?
+  error: Kesalahan
+  taskRunning: "Tugas sedang berjalan, mohon tunggu."
+  operationCancelled: "Operasi dibatalkan."
+  unsavedChanges: "Anda memiliki perubahan yang belum disimpan"
+  specialFollowsManagementTip: Seret gagang untuk mengurutkan ulang • Ketuk tombol untuk menghapus
+  specialFollowsManagement: Pengelolaan Ikuti Spesial
+  removeSpecialFollow: Hapus ikuti spesial
+  removeSpecialFollowConfirm: 'Hapus ${name} dari ikuti spesial?'
+  noSpecialFollows: Belum ada ikuti spesial
+  createTimeDesc: Waktu Dibuat Turun
+  createTimeAsc: Waktu Dibuat Naik
+  # Pagination related
+  pagination:
+    totalItems: 'Total ${num} item'
+    jumpToPage: 'Lompat ke halaman'
+    pleaseEnterPageNumber: 'Silakan masukkan nomor halaman (1-${max})'
+    pageNumber: 'Nomor halaman'
+    jump: 'Lompat'
+    invalidPageNumber: 'Silakan masukkan nomor halaman yang valid (1-${max})'
+    invalidInput: 'Silakan masukkan nomor halaman yang valid'
+    waterfall: 'Waterfall'
+    pagination: 'Paginasi'
+  notice: Pengumuman
+  detail: Rincian
+  parseExceptionDestopHint: ' - Pengguna desktop dapat mengonfigurasi proxy di pengaturan'
+  iwaraTags: Tag Iwara
+  tagInfo: Info Tag
+  tagOriginalKey: Tag Asli
+  tagTranslation: Terjemahan
+  copy: Salin
+  selectCopy: "Pilih & Salin"
+  copiedToClipboard: Disalin ke papan klip
+  showOriginalTag: Tampilkan Tag Asli
+  showTranslatedTag: Tampilkan Terjemahan
+  tagTranslationFeedback: Ragu dengan terjemahannya? Beri masukan
+  tagLocalizationGuideTitle: Tentang Lokalisasi Tag
+  tagLocalizationGuideContent: "Aplikasi menampilkan tag mentah Iwara (mis. mother) menggunakan nama dalam bahasa Anda saat ini.\n\n• Saat mencari tag, baik terjemahan maupun tag asli akan cocok.\n• Tekan lama / klik kanan pada tag untuk melihat dan menyalin kunci asli serta terjemahannya.\n• Terjemahan dikelola komunitas dan bersifat upaya terbaik — dapat mengandung kesalahan."
+  likeThisVideo: Sukai Video Ini
+  likeThisGallery: Sukai Galeri Ini
+  operation: Operasi
+  replies: Balasan
+  externalLinkWarning: Peringatan Tautan Eksternal
+  externalLinkWarningMessage: Anda akan membuka tautan eksternal yang bukan bagian dari iwara.tv. Harap berhati-hati dan pastikan tautan tersebut aman sebelum melanjutkan.
+  continueToExternalLink: Lanjutkan
+  cancelExternalLink: Batal
+auth:
+  login: Masuk
+  logout: Keluar
+  email: Alamat Email
+  password: Kata Sandi
+  loginOrRegister: Masuk / Daftar
+  register: Daftar
+  pleaseEnterEmail: Silakan masukkan email
+  pleaseEnterPassword: Silakan masukkan kata sandi
+  passwordMustBeAtLeast6Characters: Kata sandi minimal 6 karakter
+  pleaseEnterCaptcha: Silakan masukkan captcha
+  captcha: Kode Captcha
+  refreshCaptcha: Muat Ulang Captcha
+  captchaNotLoaded: Captcha belum dimuat
+  loginSuccess: Berhasil Masuk
+  loginSuccessProfilePending: Sudah masuk. Memuat profil Anda…
+  emailVerificationSent: Email verifikasi telah dikirim
+  notLoggedIn: Belum Masuk
+  clickToLogin: Klik untuk Masuk
+  logoutConfirmation: Apakah Anda yakin ingin keluar?
+  logoutSuccess: Berhasil Keluar
+  logoutFailed: Gagal Keluar
+  usernameOrEmail: Nama Pengguna atau Email
+  pleaseEnterUsernameOrEmail: Silakan masukkan nama pengguna atau email
+  rememberMe: "Ingat Nama Pengguna"
+  registerNoticeTitle: Daftar di situs web resmi
+  registerNoticeDescription: "Pendaftaran di dalam aplikasi tidak lagi tersedia. Silakan buka situs web resmi Iwara untuk membuat akun, lalu kembali ke sini untuk masuk."
+  registerNoticeReturnTip: "Setelah mendaftar, kembali ke sini dan masuk dengan akun Anda."
+  goToOfficialWebsite: Buka situs web resmi
+
+errors:
+  error: Kesalahan
+  required: Kolom ini wajib diisi
+  invalidEmail: Alamat email tidak valid
+  networkError: Kesalahan jaringan, silakan coba lagi
+  errorWhileFetching: Kesalahan saat mengambil data
+  commentCanNotBeEmpty: Isi komentar tidak boleh kosong
+  errorWhileFetchingReplies: Kesalahan saat mengambil balasan, silakan periksa koneksi jaringan
+  canNotFindCommentController: Tidak dapat menemukan pengendali komentar
+  errorWhileLoadingGallery: Kesalahan saat memuat galeri
+  howCouldThereBeNoDataItCantBePossible: Bagaimana bisa tidak ada data? Ini tidak mungkin :<
+  unsupportedImageFormat: 'Format gambar tidak didukung: ${str}'
+  invalidGalleryId: ID galeri tidak valid
+  translationFailedPleaseTryAgainLater: Terjemahan gagal, silakan coba lagi nanti
+  errorOccurred: "Terjadi kesalahan, silakan coba lagi nanti."
+  errorOccurredWhileProcessingRequest: Terjadi kesalahan saat memproses permintaan
+  errorWhileFetchingDatas: Kesalahan saat mengambil data, silakan coba lagi nanti
+  serviceNotInitialized: Layanan belum diinisialisasi
+  unknownType: Jenis tidak diketahui
+  errorWhileOpeningLink: 'Kesalahan saat membuka tautan: ${link}'
+  invalidUrl: URL tidak valid
+  failedToOperate: Gagal melakukan operasi
+  permissionDenied: Izin Ditolak
+  youDoNotHavePermissionToAccessThisResource: Anda tidak memiliki izin untuk mengakses sumber daya ini
+  loginFailed: Gagal Masuk
+  unknownError: Kesalahan Tidak Diketahui
+  sessionExpired: Sesi Telah Berakhir
+  failedToFetchCaptcha: Gagal mengambil captcha
+  emailAlreadyExists: Email sudah terdaftar
+  invalidCaptcha: Captcha tidak valid
+  registerFailed: Gagal Daftar
+  failedToFetchComments: Gagal mengambil komentar
+  failedToFetchImageDetail: Gagal mengambil rincian gambar
+  failedToFetchImageList: Gagal mengambil daftar gambar
+  failedToFetchData: Gagal mengambil data
+  invalidParameter: Parameter tidak valid
+  pleaseLoginFirst: Silakan masuk terlebih dahulu
+  errorWhileLoadingPost: Kesalahan saat memuat postingan
+  errorWhileLoadingPostDetail: Kesalahan saat memuat rincian postingan
+  invalidPostId: ID postingan tidak valid
+  forceUpdateNotPermittedToGoBack: Saat ini dalam status pembaruan wajib, tidak dapat kembali
+  pleaseLoginAgain: Silakan masuk lagi
+  invalidLogin: Login tidak valid, silakan periksa email dan kata sandi Anda
+  tooManyRequests: Terlalu banyak permintaan, silakan coba lagi nanti
+  exceedsMaxLength: 'Melebihi panjang maksimum: ${max}'
+  contentCanNotBeEmpty: Konten tidak boleh kosong
+  titleCanNotBeEmpty: Judul tidak boleh kosong
+  tooManyRequestsPleaseTryAgainLaterText: "Terlalu banyak permintaan, silakan coba lagi nanti, tersisa"
+  remainingHours: "${num} jam"
+  remainingMinutes: "${num} menit"
+  remainingSeconds: "${num} detik"
+  tagLimitExceeded: 'Batas tag terlampaui, batas: ${limit}'
+  failedToRefresh: Gagal menyegarkan
+  noPermission: Tidak ada izin
+  resourceNotFound: Sumber daya tidak ditemukan
+  failedToSaveCredentials: "Gagal menyimpan kredensial login"
+  failedToLoadSavedCredentials: "Gagal memuat kredensial yang tersimpan"
+  notFound: 'Konten tidak ditemukan atau telah dihapus'
+  network:
+    basicPrefix: 'Kesalahan jaringan - '
+    failedToConnectToServer: 'Gagal terhubung ke server'
+    serverNotAvailable: 'Server tidak tersedia'
+    requestTimeout: 'Permintaan habis waktu'
+    unexpectedError: 'Kesalahan tak terduga'
+    invalidResponse: 'Respons tidak valid'
+    invalidRequest: 'Permintaan tidak valid'
+    invalidUrl: 'URL tidak valid'
+    invalidMethod: 'Metode tidak valid'
+    invalidHeader: 'Header tidak valid'
+    invalidBody: 'Isi permintaan tidak valid'
+    invalidStatusCode: 'Kode status tidak valid'
+    serverError: 'Kesalahan server'
+    requestCanceled: 'Permintaan dibatalkan'
+    invalidPort: 'Port tidak valid'
+    proxyPortError: 'Kesalahan port proxy'
+    connectionRefused: 'Koneksi ditolak'
+    networkUnreachable: 'Jaringan tidak dapat dijangkau'
+    noRouteToHost: 'Tidak ada rute ke host'
+    connectionFailed: 'Koneksi gagal'
+    sslConnectionFailed: 'Koneksi SSL gagal, silakan periksa pengaturan jaringan Anda'
+friends:
+  clickToRestoreFriend: Klik untuk memulihkan teman
+  friendsList: Daftar Teman
+  friendRequests: Permintaan Pertemanan
+  friendRequestsList: Daftar Permintaan Pertemanan
+  removingFriend: Menghapus teman...
+  failedToRemoveFriend: Gagal menghapus teman
+  cancelingRequest: Membatalkan permintaan pertemanan...
+  failedToCancelRequest: Gagal membatalkan permintaan pertemanan
+
+authorProfile:
+  noMoreDatas: Tidak ada data lagi
+  userProfile: Profil Pengguna
+
+favorites:
+  clickToRestoreFavorite: Klik untuk memulihkan favorit
+  myFavorites: Favorit Saya
+  batchCancelFavorite: Hapus favorit yang dipilih
+  batchCancelFavoriteConfirm(count): 'Hapus ${count} item yang dipilih dari favorit? Anda dapat memulihkannya dengan mengetuk kartunya setelah itu.'
+  batchCancelFavoriteSuccess(count): 'Menghapus ${count} item dari favorit'
+  batchCancelFavoriteResult(success, failed): 'Menghapus ${success} item, ${failed} gagal'
+
+galleryDetail:
+  browseInSpace: Telusuri di ruang
+  galleryDetail: Rincian Galeri
+  viewGalleryDetail: Lihat Rincian Galeri
+  zoomReset: Atur ulang zoom
+  copyLink: Salin Tautan
+  copyImage: Salin Gambar
+  saveAs: Simpan Sebagai
+  saveToAlbum: Simpan ke Album
+  publishedAt: Diterbitkan Pada
+  viewsCount: Jumlah Dilihat
+  imageLibraryFunctionIntroduction: Pengenalan Fungsi Pustaka Gambar
+  rightClickToSaveSingleImage: Klik Kanan untuk Menyimpan Satu Gambar
+  batchSave: Simpan Massal
+  keyboardLeftAndRightToSwitch: Tombol Kiri dan Kanan untuk Berganti
+  keyboardUpAndDownToZoom: Tombol Atas dan Bawah untuk Zoom
+  mouseWheelToSwitch: Roda Mouse untuk Berganti
+  ctrlAndMouseWheelToZoom: CTRL + Roda Mouse untuk Zoom
+  moreFeaturesToBeDiscovered: Fitur Lainnya untuk Ditemukan...
+  authorOtherGalleries: Galeri Lain dari Penulis
+  relatedGalleries: Galeri Terkait
+  authorNoOtherGalleries: Tidak ada galeri lain dari penulis ini
+  noRelatedGalleries: Tidak ada galeri terkait
+  scrollLeft: Gulir ke kiri
+  scrollRight: Gulir ke kanan
+  clickLeftAndRightEdgeToSwitchImage: Klik Tepi Kiri dan Kanan untuk Berganti Gambar
+  rotateToLandscape: Layar Penuh Lanskap
+  backToPortrait: Kembali ke Potret
+
+playList:
+  myPlayList: Daftar Putar Saya
+  friendlyTips: Tips Berguna
+  dearUser: Pengguna yang Terhormat
+  iwaraPlayListSystemIsNotPerfectYet: sistem daftar putar Iwara belum sempurna
+  notSupportSetCover: Tidak mendukung mengatur sampul
+  notSupportDeleteList: Tidak mendukung menghapus daftar
+  notSupportSetPrivate: Tidak mendukung mengatur privat
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: Ya... daftar yang dibuat akan selalu ada dan terlihat oleh semua orang
+  smallSuggestion: Saran Kecil
+  useLikeToCollectContent: Jika Anda lebih mementingkan privasi, disarankan menggunakan fungsi "suka" untuk mengumpulkan konten
+  welcomeToDiscussOnGitHub: Jika Anda memiliki saran atau ide lain, silakan berdiskusi di GitHub!
+  iUnderstand: Saya Mengerti
+  searchPlaylists: Cari Daftar Putar...
+  newPlaylistName: Nama Daftar Putar Baru
+  createNewPlaylist: Buat Daftar Putar Baru
+  videos: Video
+
+search:
+  googleSearchScope: Cakupan Pencarian
+  searchTags: Cari Tag...
+  contentRating: Peringkat Konten
+  removeTag: Hapus Tag
+  pleaseEnterSearchContent: Silakan masukkan konten pencarian
+  searchHistory: Riwayat Pencarian
+  searchSuggestion: Saran Pencarian
+  usedTimes: Jumlah Penggunaan
+  lastUsed: Terakhir Digunakan
+  noSearchHistoryRecords: Tidak ada riwayat pencarian
+  clearSearchHistoryConfirm: Apakah Anda yakin ingin menghapus semua riwayat pencarian? Tindakan ini tidak dapat dibatalkan.
+  notSupportCurrentSearchType: 'Tidak mendukung jenis pencarian saat ini ${searchType}, silakan tunggu pembaruan'
+  searchResult: Hasil Pencarian
+  unsupportedSearchType: 'Jenis pencarian tidak didukung: ${searchType}'
+  googleSearch: "Penelusuran Google"
+  googleSearchHint: "Fungsi pencarian ${webName} kurang mudah digunakan? Coba Penelusuran Google!"
+  googleSearchDescription: "Gunakan operator pencarian :site dari Penelusuran Google untuk mencari konten di situs. Ini sangat berguna saat mencari video, galeri, daftar putar, dan pengguna."
+  googleSearchKeywordsHint: "Masukkan kata kunci untuk mencari"
+  openLinkJump: "Buka Tautan Eksternal"
+  googleSearchButton: "Penelusuran Google"
+  pleaseEnterSearchKeywords: "Silakan masukkan kata kunci pencarian"
+  googleSearchQueryCopied: "Kueri pencarian disalin ke papan klip"
+  googleSearchBrowserOpenFailed: "Gagal membuka peramban: ${error}"
+  searchRequestTimeout: Permintaan habis waktu, silakan coba lagi nanti
+  searchCannotConnectToServer: Tidak dapat terhubung ke server, silakan periksa koneksi jaringan Anda
+  searchNetworkError: Koneksi jaringan gagal, silakan periksa pengaturan jaringan Anda atau coba lagi nanti
+  searchFailedPleaseRetry: Pencarian gagal, silakan coba lagi nanti
+mediaList:
+  personalIntroduction: Perkenalan
+
+settings:
+  listViewMode: Mode Tampilan Daftar
+  previewEffect: Efek Pratinjau
+  useTraditionalPaginationMode: Gunakan Mode Penomoran Halaman Tradisional
+  useTraditionalPaginationModeDesc: Aktifkan mode penomoran halaman tradisional, nonaktifkan mode air terjun. Berlaku setelah merender ulang halaman atau memulai ulang aplikasi
+  showVideoProgressBottomBarWhenToolbarHidden: Tampilkan Bilah Kemajuan Video Saat Bilah Alat Disembunyikan
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: Konfigurasi ini menentukan apakah bilah kemajuan video bawah akan ditampilkan saat bilah alat disembunyikan.
+  seekPreviewSize: Ukuran Pratinjau Pencarian
+  seekPreviewSizeDesc: Seberapa besar jendela pratinjau di atas bilah kemajuan. Jendela sudah mengikuti ukuran pemutar dan rasio aspek video; ini hanya menyempurnakannya.
+  seekPreviewSizeSmall: Kecil
+  seekPreviewSizeStandard: Standar
+  seekPreviewSizeLarge: Besar
+  seekPreviewSizeStandardDesc: Ukuran yang diturunkan dari pemutar dan video
+  showFullscreenUpNextHint: Tampilkan gagang "Berikutnya"
+  showFullscreenUpNextHintDesc: Menampilkan gagang kecil di tepi kanan pemutar yang membuka laci antrean (sumber / daftar putar / tonton nanti). Tidak ada cara lain untuk masuk setelah ini dinonaktifkan.
+  basicSettings: Pengaturan Dasar
+  personalizedSettings: Pengaturan yang Dipersonalisasi
+  otherSettings: Pengaturan Lain
+  searchConfig: Konfigurasi Pencarian
+  thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: Konfigurasi ini menentukan apakah konfigurasi sebelumnya akan digunakan saat memutar video lagi.
+  playControl: Kontrol Pemutaran
+  playbackSpeedSettings: Pemutaran & Kecepatan
+  playbackBehaviorSettings: Perilaku Pemutaran
+  enhancementSettings: Teater & Peningkatan
+  fastForwardTime: Waktu Maju Cepat
+  fastForwardTimeMustBeAPositiveInteger: Waktu maju cepat harus berupa bilangan bulat positif.
+  rewindTime: Waktu Mundur
+  rewindTimeMustBeAPositiveInteger: Waktu mundur harus berupa bilangan bulat positif.
+  longPressPlaybackSpeed: Kecepatan Pemutaran Tekan Lama
+  longPressPlaybackSpeedMustBeAPositiveNumber: Kecepatan pemutaran tekan lama harus berupa angka positif.
+  defaultPlaybackSpeed: Kecepatan Pemutaran Bawaan
+  rememberPlaybackSpeed: Ingat Kecepatan Pemutaran
+  rememberPlaybackSpeedDesc: Saat diaktifkan, kecepatan yang Anda atur di pemutar disimpan sebagai bawaan dan diterapkan secara otomatis ke video baru.
+  repeat: Ulangi
+  renderVerticalVideoInVerticalScreen: Tampilkan Video Vertikal di Layar Vertikal
+  thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: Konfigurasi ini menentukan apakah video akan ditampilkan di layar vertikal saat diputar dalam layar penuh.
+  rememberVolume: Ingat Volume
+  thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain: Konfigurasi ini menentukan apakah volume akan dipertahankan saat memutar video lagi.
+  rememberBrightness: Ingat Kecerahan
+  thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain: Konfigurasi ini menentukan apakah kecerahan akan dipertahankan saat memutar video lagi.
+  playControlArea: Area Kontrol Pemutaran
+  leftAndRightControlAreaWidth: Lebar Area Kontrol Kiri dan Kanan
+  thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: Konfigurasi ini menentukan lebar area kontrol di sisi kiri dan kanan pemutar.
+  proxyAddressCannotBeEmpty: Alamat proksi tidak boleh kosong.
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: Format alamat proksi tidak valid. Gunakan format IP:port atau nama domain:port.
+  proxyNormalWork: Proksi berfungsi normal.
+  testProxyFailedWithStatusCode: 'Uji proksi gagal, kode status: ${code}'
+  testProxyFailedWithException: 'Uji proksi gagal, pengecualian: ${exception}'
+  proxyConfig: Konfigurasi Proksi
+  thisIsHttpProxyAddress: Ini adalah alamat proksi http
+  checkProxy: Periksa Proksi
+  proxyAddress: Alamat Proksi
+  pleaseEnterTheUrlOfTheProxyServerForExample1270018080: Silakan masukkan URL server proksi, misalnya 127.0.0.1:8080
+  enableProxy: Aktifkan Proksi
+  left: Kiri
+  middle: Tengah
+  right: Kanan
+  playerSettings: Pengaturan Pemutar
+  networkSettings: Pengaturan Jaringan
+  customizeYourPlaybackExperience: Sesuaikan Pengalaman Pemutaran Anda
+  chooseYourFavoriteAppAppearance: Pilih Tampilan Aplikasi Favorit Anda
+  configureYourProxyServer: Konfigurasikan Server Proksi Anda
+  settings: Pengaturan
+  themeSettings: Pengaturan Tema
+  followSystem: Ikuti Sistem
+  lightMode: Mode Terang
+  darkMode: Mode Gelap
+  presetTheme: Tema Prasetel
+  basicTheme: Tema Dasar
+  needRestartToApply: Perlu memulai ulang aplikasi untuk menerapkan pengaturan
+  themeNeedRestartDescription: Pengaturan tema memerlukan memulai ulang aplikasi untuk menerapkan pengaturan
+  about: Tentang
+  diagnosticsAndFeedback: Diagnostik & Umpan Balik
+  currentVersion: Versi Saat Ini
+  latestVersion: Versi Terbaru
+  checkForUpdates: Periksa Pembaruan
+  update: Perbarui
+  newVersionAvailable: Versi Baru Tersedia
+  projectHome: Beranda Proyek
+  release: Rilis
+  issueReport: Laporan Masalah
+  openSourceLicense: Lisensi Sumber Terbuka
+  checkForUpdatesFailed: Gagal memeriksa pembaruan, silakan coba lagi nanti
+  autoCheckUpdate: Periksa Pembaruan Otomatis
+  updateContent: Konten Pembaruan
+  releaseDate: Tanggal Rilis
+  ignoreThisVersion: Abaikan Versi Ini
+  forceUpdateTip: "Ini adalah pembaruan wajib. Harap perbarui ke versi terbaru sesegera mungkin"
+  viewChangelog: Lihat Log Perubahan
+  alreadyLatestVersion: Sudah versi terbaru
+  appSettings: Pengaturan Aplikasi
+  configureYourAppSettings: Konfigurasikan Pengaturan Aplikasi Anda
+  history: Riwayat
+  autoRecordHistory: Rekam Riwayat Otomatis
+  autoRecordHistoryDesc: Secara otomatis merekam video dan gambar yang telah Anda tonton
+  autoDeleteHistory: Bersihkan Riwayat Otomatis
+  autoDeleteHistoryDesc: Secara otomatis menghapus riwayat penjelajahan yang lebih lama dari hari retensi saat memulai (nonaktif secara bawaan)
+  autoDeleteHistoryDays: Hari Retensi
+  autoDeleteHistoryDaysValue: 'Simpan ${num} hari terakhir'
+  autoDeleteHistoryDaysInvalid: Silakan masukkan jumlah hari yang valid (minimal 1)
+  showUnprocessedMarkdownText: Tampilkan Teks Markdown yang Belum Diproses
+  showUnprocessedMarkdownTextDesc: Tampilkan teks asli dari markdown
+  markdown: Markdown
+  activeBackgroundPrivacyMode: Mode Privasi
+  activeBackgroundPrivacyModeDesc: Blokir tangkapan layar dan rekaman layar, serta sembunyikan layar di latar belakang
+  activeBackgroundPrivacyModeDescNonAndroid: Sembunyikan layar saat aplikasi masuk ke latar belakang (platform ini tidak dapat memblokir tangkapan layar)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Blokir tangkapan layar dan rekaman layar
+  privacy: Privasi
+  appLock: Kunci Aplikasi
+  appLockEnabled: Aktifkan kunci aplikasi
+  appLockEnabledDesc: Memerlukan PIN atau biometrik untuk membuka aplikasi; pratinjau latar belakang disembunyikan secara otomatis
+  appLockEnabledSummary: Aktif · Dilindungi PIN
+  appLockDisabledSummary: Nonaktif
+  appLockTimeout: Kunci setelah keluar aplikasi
+  appLockTimeoutDesc: Waktu yang diizinkan di latar belakang sebelum autentikasi diperlukan
+  appLockAfterScreenOff: Kunci setelah kunci layar
+  appLockAfterScreenOffDesc: Memerlukan autentikasi setelah layar perangkat dikunci
+  appLockTimeoutDisabled: Nonaktif
+  appLockImmediately: Segera
+  appLockSeconds: '${seconds} detik'
+  appLockMinutes: '${minutes} menit'
+  appLockUseBiometrics: Gunakan biometrik
+  appLockUseBiometricsDesc: Buka kunci dengan sidik jari atau pengenalan wajah
+  appLockBiometricsUnavailable: Tidak ada biometrik terdaftar yang tersedia di perangkat ini
+  appLockSetPin: Atur PIN
+  appLockEnterPin: Masukkan PIN
+  appLockConfirmPin: Konfirmasi PIN
+  appLockCurrentPin: Masukkan PIN saat ini
+  appLockNewPin: Masukkan PIN baru
+  appLockPinRequirements: PIN harus berisi 4–8 digit
+  appLockPinsDoNotMatch: PIN tidak cocok
+  appLockInvalidPin: PIN salah
+  appLockSetupFailed: Tidak dapat menyimpan PIN dengan aman
+  appLockDisable: Masukkan PIN untuk menonaktifkan kunci aplikasi
+  appLockChangePin: Ubah PIN
+  appLockNow: Kunci sekarang
+  appLockUnlock: Buka Kunci
+  appLockLockedTitle: Terkunci
+  appLockLockedDesc: Autentikasi untuk melanjutkan
+  appLockAuthenticateReason: Autentikasi untuk membuka kunci
+  appLockEnableBiometricsReason: Autentikasi untuk mengaktifkan buka kunci biometrik
+  appLockBiometricFailed: Autentikasi biometrik tidak diselesaikan
+  appLockTooManyAttempts: 'Terlalu banyak percobaan. Coba lagi dalam ${seconds} dtk'
+  appLockCredentialUnavailableTitle: Tidak dapat membaca kredensial kunci aplikasi
+  appLockCredentialUnavailableDesc: Penyimpanan aman sistem sementara tidak tersedia, atau kredensial rusak. Aplikasi tetap terkunci. Coba lagi terlebih dahulu; jika terus gagal, Anda dapat mengatur ulang kunci aplikasi, yang akan mematikannya dan menghapus PIN tersimpan.
+  appLockRetry: Coba Lagi
+  appLockReset: Atur ulang kunci aplikasi
+  appLockResetAction: Atur Ulang
+  appLockResetConfirmTitle: Atur ulang kunci aplikasi?
+  appLockResetConfirmDesc: Ini menonaktifkan kunci aplikasi dan menghapus PIN tersimpan serta pengaturan biometrik. Anda dapat mengaturnya lagi setelahnya.
+  appLockRetrySucceeded: Kredensial berhasil dibaca. Masukkan PIN Anda.
+  appLockRetryFailed: Masih tidak dapat membaca kredensial
+  forum: Forum
+  news: Berita
+  community: Komunitas
+  disableForumReplyQuote: Nonaktifkan Kutipan Balasan Forum
+  disableForumReplyQuoteDesc: Nonaktifkan membawa informasi lantai yang dibalas saat membalas di forum
+  theaterMode: Mode Teater
+  theaterModeDesc: Setelah dibuka, latar belakang pemutar akan diatur ke versi buram dari sampul video
+  appLinks: Tautan Aplikasi
+  defaultBrowser: Peramban Bawaan
+  defaultBrowserDesc: Silakan buka item konfigurasi tautan bawaan di pengaturan sistem dan tambahkan tautan situs iwara.tv
+  themeMode: Mode Tema
+  themeModeDesc: Konfigurasi ini menentukan mode tema aplikasi
+  glassEffect: Material Antarmuka
+  glassEffectDesc: Memilih material yang digunakan di seluruh aplikasi — kapsul header, menu, tombol dialog, dan bilah navigasi bawah
+  liquidGlassEffect: Kaca Cair
+  liquidGlassEffectDesc: Blur dan refraksi nyata. Tampilan terbaik, tetapi dapat menurunkan frame dan memakai sedikit lebih banyak daya pada perangkat kelas bawah
+  plainGlassEffect: Material
+  plainGlassEffectDesc: Permukaan Material 3 standar — opak, tanpa blur, tanpa bayangan. Kinerja dan daya terbaik
+  glassEffectIntroTitle: Pilih material antarmuka Anda
+  glassEffectIntroContent: Header, bilah tab, dan menu menggunakan kaca cair — blur dan refraksi nyata. Jika terasa lambat di perangkat Anda, atau Anda lebih menyukai tampilan yang lebih sederhana, beralihlah ke Material sekarang (permukaan opak, tanpa blur, tanpa bayangan).
+  glassEffectIntroHint: Anda dapat mengubahnya kapan saja di Pengaturan → Tema → Material Antarmuka.
+  glassEffectIntroDone: Pertahankan
+  dynamicColor: Warna Dinamis
+  dynamicColorDesc: Konfigurasi ini menentukan apakah aplikasi menggunakan warna dinamis
+  useDynamicColor: Gunakan Warna Dinamis
+  useDynamicColorDesc: Konfigurasi ini menentukan apakah aplikasi menggunakan warna dinamis
+  presetColors: Warna Prasetel
+  customColors: Warna Kustom
+  customColorsDisabledByDynamicColor: Warna dinamis aktif, sehingga warna prasetel/kustom tidak tersedia. Nonaktifkan warna dinamis terlebih dahulu.
+  pickColor: Pilih Warna
+  cancel: Batal
+  confirm: Konfirmasi
+  noCustomColors: Tidak ada warna kustom
+  recordAndRestorePlaybackProgress: Rekam dan Pulihkan Kemajuan Pemutaran
+  autoPlayVideoOnFirstEnter: Putar Video Otomatis Saat Pertama Masuk
+  autoPlayVideoOnFirstEnterDesc: Pengaturan ini menentukan apakah video mulai diputar secara otomatis saat pertama kali membuka halaman video.
+  autoEnterFullscreen: Masuk Layar Penuh Otomatis
+  autoEnterFullscreenDesc: Kapan pemutar harus masuk layar penuh dengan sendirinya. Video privat, yang dihapus, dan eksternal selalu dibiarkan, begitu juga gambar-dalam-gambar.
+  autoEnterFullscreenOff: 'Nonaktif'
+  autoEnterFullscreenOffDesc: Jangan pernah masuk layar penuh dengan sendirinya
+  autoEnterFullscreenOnPlaybackStart: Saat Pemutaran Dimulai
+  autoEnterFullscreenOnPlaybackStartDesc: Masuk layar penuh tepat saat pemutaran benar-benar dimulai
+  autoEnterFullscreenOnDetailPageEnter: Saat Membuka Video
+  autoEnterFullscreenOnDetailPageEnterDesc: Masuk layar penuh segera setelah halaman video terbuka, tanpa menunggu pemutaran
+  autoEnterFullscreenKind: Jenis Layar Penuh
+  autoEnterFullscreenKindDesc: Jenis layar penuh mana yang akan dimasuki secara otomatis. Hanya desktop.
+  autoEnterFullscreenKindSystem: Layar Penuh Sistem
+  autoEnterFullscreenKindSystemDesc: Biarkan pengelola jendela membuat jendela menjadi layar penuh
+  autoEnterFullscreenKindApp: Layar Penuh Aplikasi
+  autoEnterFullscreenKindAppDesc: Pertahankan jendela apa adanya dan ubah seluruh aplikasi menjadi pemutar
+  signature: Tanda Tangan
+  enableSignature: Aktifkan Tanda Tangan
+  enableSignatureDesc: Konfigurasi ini menentukan apakah aplikasi akan menambahkan tanda tangan saat membalas
+  enterSignature: Masukkan Tanda Tangan
+  editSignature: Edit Tanda Tangan
+  signatureContent: Isi Tanda Tangan
+  exportConfig: "Ekspor Konfigurasi Aplikasi"
+  exportConfigDesc: "Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan."
+  importConfig: "Impor Konfigurasi Aplikasi"
+  importConfigDesc: "Impor konfigurasi aplikasi dari file"
+  exportConfigSuccess: "Konfigurasi berhasil diekspor!"
+  exportConfigFailed: "Gagal mengekspor konfigurasi"
+  importConfigSuccess: "Konfigurasi berhasil diimpor!"
+  importConfigFailed: "Gagal mengimpor konfigurasi"
+  exportIncludeSensitive: "Sertakan info sensitif"
+  exportIncludeSensitiveDesc: "Menyertakan kunci API, token sesi, dan alamat proksi. Hanya aktifkan saat mencadangkan ke perangkat Anda sendiri."
+  importConfigOverwriteWarning: "Mengimpor akan menimpa pengaturan dan riwayat Anda saat ini (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.). Lanjutkan?"
+  importConfigRestartTitle: "Impor berhasil"
+  importConfigRestartContent: "Konfigurasi Anda telah diimpor. Harap tutup sepenuhnya dan buka kembali aplikasi agar semua perubahan berlaku."
+  historyUpdateLogs: "Log Pembaruan Riwayat"
+  noUpdateLogs: "Tidak ada log pembaruan yang tersedia"
+  versionLabel: "Versi: {version}"
+  releaseDateLabel: "Tanggal Rilis: {date}"
+  noChanges: "Tidak ada konten pembaruan yang tersedia"
+  interaction: Interaksi
+  enableVibration: Aktifkan Getaran
+  enableVibrationDesc: Aktifkan umpan balik getaran saat berinteraksi dengan aplikasi
+  defaultKeepVideoToolbarVisible: Pertahankan Bilah Alat Video Terlihat
+  defaultKeepVideoToolbarVisibleDesc: Pengaturan ini menentukan apakah bilah alat video tetap terlihat saat pertama kali membuka halaman video.
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Perangkat seluler mengaktifkan mode teater, yang dapat menyebabkan masalah kinerja. Anda dapat memilih untuk mengaktifkannya.
+  fullscreenOrientation: Orientasi Layar Vertikal Setelah Masuk Layar Penuh
+  fullscreenOrientationDesc: Pengaturan ini menentukan orientasi layar bawaan saat masuk layar penuh (khusus seluler)
+  fullscreenOrientationLeftLandscape: Lanskap Kiri
+  fullscreenOrientationRightLandscape: Lanskap Kanan
+  screenFit: Ukuran Layar
+  screenFitDesc: Pilih bagaimana video mengisi area pemutar.
+  rememberScreenFit: Ingat Ukuran Layar
+  rememberScreenFitDesc: Terapkan ukuran yang dipilih ke video yang dibuka nanti.
+  screenFitFit: Sesuaikan
+  screenFitFitDesc: Tampilkan seluruh bingkai dengan mempertahankan rasio aspek
+  screenFitStretch: Regangkan
+  screenFitStretchDesc: Mengisi area pemutar; gambar mungkin terdistorsi
+  screenFitCover: Isi Penuh
+  screenFitCoverDesc: Mengisi area pemutar dengan mempertahankan rasio aspek; bagian berlebih dipotong
+  screenFitRatioDesc: Paksa rasio aspek ini; gambar mungkin terdistorsi
+  jumpLink: Lompat Tautan
+  language: Bahasa
+  languageNativeName: Bahasa Indonesia
+  followSystemLanguage: Ikuti sistem
+  languageChangedMessage: Bahasa berhasil diubah. Beberapa fitur perlu memulai ulang aplikasi agar berlaku.
+  languageChanged: Pengaturan bahasa telah diubah, harap mulai ulang aplikasi agar berlaku.
+  keybinding:
+    title: Pintasan Papan Ketik
+    entryLabel: Pintasan Papan Ketik
+    entryDesc: Sesuaikan pintasan papan ketik aplikasi (terutama untuk desktop)
+    desktopHint: Pintasan terutama berlaku untuk papan ketik desktop; seluler biasanya menggunakan gerakan.
+    resetAll: Atur Ulang Semua ke Bawaan
+    resetAllConfirm: Atur ulang semua pintasan aplikasi ke bawaannya?
+    resetToDefault: Atur Ulang ke Bawaan
+    resetScope: Atur Ulang Bagian Ini
+    notSet: Belum diatur
+    addShortcut: Tambah Pintasan
+    removeShortcut: Hapus pintasan ini
+    pressNewShortcut: Tekan pintasan baru…
+    recordingCancelHint: Tekan Esc untuk membatalkan
+    mouseHint: Anda juga dapat mengikat tombol samping mouse (kembali / maju) atau tombol tengah
+    mouseNotSupportedInScope: Area ini tidak menangani tombol mouse; gunakan papan ketik sebagai gantinya
+    capabilityKeyboardOnly: Area ini hanya menerima tombol papan ketik
+    capabilityKeyboardAndMouse: Area ini menerima tombol papan ketik, serta tombol tengah dan samping mouse
+    capabilityKeyboardAndMouseMobile: Area ini menerima tombol papan ketik, serta tombol tengah dan maju mouse (tombol kembali diambil oleh sistem)
+    rejectMultipleButtons: Tekan satu tombol mouse dalam satu waktu
+    rejectPlatformBack: Sistem sudah menggunakan ini untuk Kembali; mengikatnya akan membuat kembali dua kali
+    detectedLabel: Terdeteksi
+    reservedKey: Tombol ini disisihkan oleh sistem dan tidak dapat diikat
+    reservedForGlobalBack: Tombol ini diikat ke "${action}"; tombol tetap disisihkan di sini agar Anda masih dapat meninggalkan layar ini
+    conflictTitle: Konflik Pintasan
+    conflictMessage: Kombinasi ini sudah diikat ke "${action}". Melanjutkan akan menghapus ikatan yang ada.
+    conflictContinue: Tetap Ikat
+    shadowWarningTitle: Tumpang Tindih Pintasan Global
+    shadowWarningMessage: Kombinasi ini diikat ke "${action}" secara global. Mengikatnya di sini akan menimpa tindakan itu hanya di dalam bagian ini.
+    globalShadowedMessage: Kombinasi ini sudah diikat ke "${action}" di ${scope}. Di dalam bagian itu, pintasan global ini akan ditimpa olehnya.
+    searchHint: Cari pintasan…
+    scopeGlobal: Global
+    scopeGallery: Galeri
+    scopeVideo: Video
+    categoryNavigation: Navigasi
+    categoryZoom: Zoom
+    categoryPlayback: Pemutaran
+    categorySeek: Pencarian
+    categoryVolume: Volume
+    categoryDisplay: Tampilan
+    actionGlobalBack: Kembali
+    actionGalleryNext: Foto Berikutnya
+    actionGalleryPrevious: Foto Sebelumnya
+    actionGalleryZoomIn: Perbesar
+    actionGalleryZoomOut: Perkecil
+    actionGalleryResetZoom: Atur Ulang Zoom
+    actionGalleryPlayPause: Putar / Jeda
+    actionGallerySeekBackward: Mundur
+    actionGallerySeekForward: Maju Cepat
+    actionGalleryToggleMute: Alihkan Bisu
+    actionPlayPause: Putar / Jeda
+    actionSpeedUp: Tingkatkan Kecepatan
+    actionSpeedDown: Kurangi Kecepatan
+    actionSeekForward: Maju
+    actionSeekBackward: Mundur
+    actionVolumeUp: Besarkan Volume
+    actionVolumeDown: Kecilkan Volume
+    actionToggleMute: Alihkan Bisu
+    actionToggleFullscreen: Alihkan Layar Penuh
+    seekLongPressHint: Tahan tombol maju / mundur untuk memicu mode kecepatan tekan lama
+    zoomSectionTitle: Zoom Gambar (Tetap)
+    zoomFixedNote: Pintasan di bawah ini tetap dan tidak dapat diubah
+    zoomScaleLabel: Perbesar Gambar
+    zoomScaleHint: Ctrl + Roda
+    zoomRotateLabel: Putar Gambar
+    zoomRotateHint: Shift + Roda
+    zoomPinchGesture: Cubit
+    zoomTwoFingerRotateGesture: Putar Dua Jari
+  gestureControl: Kontrol Gerakan
+  leftDoubleTapRewind: Ketuk Ganda Kiri untuk Mundur
+  rightDoubleTapFastForward: Ketuk Ganda Kanan untuk Maju Cepat
+  doubleTapPause: Jeda Ketuk Ganda
+  rightVerticalSwipeVolume: Geser Vertikal Kanan untuk Volume (Berlaku saat memasuki halaman baru)
+  leftVerticalSwipeBrightness: Geser Vertikal Kiri untuk Kecerahan (Berlaku saat memasuki halaman baru)
+  longPressFastForward: Tekan Lama untuk Maju Cepat
+  enableMouseHoverShowToolbar: Aktifkan Tampilkan Bilah Alat saat Kursor Melayang
+  enableMouseHoverShowToolbarInfo: Saat diaktifkan, bilah alat video akan ditampilkan saat kursor melayang di atas pemutar. Bilah akan disembunyikan secara otomatis setelah 3 detik tidak ada aktivitas.
+  enableHorizontalDragSeek: Geser Horizontal untuk Mencari
+  enableVideoGestureZoom: Cubit untuk Memperbesar Bingkai Video
+  enableVideoGestureZoomInfo: Cubit dengan dua jari (atau Ctrl + roda mouse di desktop) untuk memperbesar gambar video, lalu seret untuk memindahkannya.
+  showCenterPlayPauseButton: Tombol Putar/Jeda Tengah
+  showCenterPlayPauseButtonDesc: Tampilkan tombol putar/jeda besar di tengah pemutar.
+  # Audio Video Configuration
+  audioVideoConfig: Konfigurasi Audio Video
+  expandBuffer: Perluas Buffer
+  expandBufferInfo: Saat diaktifkan, ukuran buffer bertambah, waktu pemuatan menjadi lebih lama tetapi pemutaran lebih lancar
+  videoSyncMode: Mode Sinkron Video
+  videoSyncModeSubtitle: Strategi sinkronisasi audio-video
+  hardwareDecodingMode: Mode Dekode Perangkat Keras
+  hardwareDecodingModeSubtitle: Pengaturan dekode perangkat keras
+  enableHardwareAcceleration: Aktifkan Akselerasi Perangkat Keras
+  enableHardwareAccelerationInfo: Mengaktifkan akselerasi perangkat keras dapat meningkatkan kinerja dekode, tetapi beberapa perangkat mungkin tidak kompatibel
+  useOpenSLESAudioOutput: Gunakan Output Audio OpenSLES
+  useOpenSLESAudioOutputInfo: Gunakan output audio latensi rendah, dapat meningkatkan kinerja audio
+  # Video sync options
+  videoSyncAudio: Sinkron Audio
+  videoSyncDisplayResample: Tampilkan Resample
+  videoSyncDisplayResampleVdrop: Tampilkan Resample (Jatuhkan Bingkai)
+  videoSyncDisplayResampleDesync: Tampilkan Resample (Desinkron)
+  videoSyncDisplayTempo: Tampilkan Tempo
+  videoSyncDisplayVdrop: Tampilkan Jatuhkan Bingkai Video
+  videoSyncDisplayAdrop: Tampilkan Jatuhkan Bingkai Audio
+  videoSyncDisplayDesync: Tampilkan Desinkron
+  videoSyncDesync: Desinkron
+  # Forum settings
+  forumSettings:
+    name: Forum
+    configureYourForumSettings: Konfigurasikan Pengaturan Forum Anda
+  gallerySettings:
+    gallerySettingsTitle: Pengaturan Galeri
+    gallerySettingsSubtitle: Konfigurasikan preferensi penampil galeri
+    defaultViewerQuality: Kualitas penampil bawaan
+    defaultViewerQualityDesc: Pilih kualitas gambar mana yang ditampilkan secara bawaan saat membuka penampil galeri.
+  # Content blocking
+  blockSettings:
+    title: Blokir Konten
+    subtitle: Secara otomatis menyembunyikan video dan galeri yang judulnya cocok dengan kata kunci atau pola, atau yang berasal dari pengguna yang diblokir. Semua pencocokan dilakukan di perangkat Anda — tidak ada yang diunggah.
+    blocked: Diblokir
+    reveal: Tampilkan
+    reblock: Blokir lagi
+    why: Mengapa diblokir?
+    manageRules: Kelola aturan
+    reasonKeyword: 'Judul mengandung "${value}"'
+    reasonRegex: 'Judul cocok dengan "${value}"'
+    reasonUser: Dari pengguna yang diblokir
+    addRule: Tambah aturan
+    editRule: Edit aturan
+    deleteRule: Hapus aturan
+    ruleType: Jenis aturan
+    keyword: Kata Kunci
+    regex: Regex
+    userId: Pengguna
+    value: Teks yang dicocokkan
+    caseSensitive: Peka huruf besar-kecil
+    regexHint: mis. trailer|teaser
+    valueRequired: Silakan masukkan teks yang akan dicocokkan
+    invalidRegex: Itu bukan ekspresi reguler yang valid
+    noRules: Belum ada aturan. Ketuk + untuk menambahkan.
+    blockUser: Blokir
+    unblockUser: Buka blokir
+    blockUserConfirm: 'Blokir "${name}"? Video dan galeri mereka akan disembunyikan dari daftar dan pencarian.'
+    userBlocked: Pengguna diblokir
+    userUnblocked: Blokir pengguna dibuka
+    exportRules: Ekspor
+    importRules: Impor
+    importExport: Impor / Ekspor
+    exportSuccess: Aturan diekspor
+    exportFailed: Tidak dapat mengekspor aturan
+    importSuccess: 'Mengimpor ${count} aturan'
+    importFailed: Tidak dapat mengimpor aturan
+    regexHelp: Bantuan pola
+    regexHelpTitle: Referensi regex
+    regexHelpIntro: 'Ekspresi reguler mencocokkan judul lebih fleksibel daripada kata kunci biasa. Beberapa contoh umum:'
+    regexHelpTapHint: Ketuk contoh untuk mengisinya.
+    regexEx1Pattern: trailer|teaser|bonus
+    regexEx1Desc: Cocok dengan salah satu kata ini ("|" berarti "atau")
+    regexEx2Pattern: '^\\[.*\\]'
+    regexEx2Desc: Judul yang diawali dengan [tanda kurung]
+    regexEx3Pattern: 'Koleksi$'
+    regexEx3Desc: Judul yang diakhiri dengan "Koleksi"
+    regexEx4Pattern: 'Ep.[0-9]+'
+    regexEx4Desc: '[0-9]+ berarti satu digit atau lebih — cocok dengan "Ep.12"'
+    regexEx5Pattern: '[0-9]{4}'
+    regexEx5Desc: "[0-9] berarti satu digit dan {4} berarti empat digit berurutan (mis. satu tahun)"
+    regexEx1Sample: "Trailer game baru sudah tayang"
+    regexEx2Sample: "[Remux] Film Utuh"
+    regexEx3Sample: "Koleksi Seni Musim Semi"
+    regexEx4Sample: "Rekap Ep.12 Serial Saya"
+    regexEx5Sample: "Sorotan Terbaik 2024"
+    regexHelpSampleLabel: "Contoh judul"
+    regexHelpMatchedTag: "Diblokir"
+    regexHelpNoMatch: "Tidak cocok"
+    regexEx6Pattern: '[Ss]eason'
+    regexEx6Desc: '[Ss] cocok dengan huruf S besar maupun kecil — di sini menangkap "Season"'
+    regexEx6Sample: 'Trailer Musim Terakhir'
+    regexEx7Pattern: '(film|serial)'
+    regexEx7Desc: 'Tanda kurung () mengelompokkan pilihan — cocok dengan "film" atau "serial"'
+    regexEx7Sample: 'Tonton Serialnya Sekarang'
+    regexEx8Pattern: 'film(nya)?'
+    regexEx8Desc: '(nya)? membuat akhiran "nya" opsional — cocok dengan "film" dan "filmnya"'
+    regexEx8Sample: 'Tonton Filmnya Sekarang'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '+ berarti satu atau lebih — cocok dengan !, !!, !!! ...'
+    regexEx9Sample: 'OMG!!! Wajib Tonton'
+    regexEx10Pattern: 'bonus.*adegan'
+    regexEx10Desc: '.* cocok dengan teks apa pun di antaranya — "bonus … adegan"'
+    regexEx10Sample: 'Adegan Bonus yang Dihapus'
+  # Chat
+  chatSettings:
+    name: Obrolan
+    configureYourChatSettings: Konfigurasikan Pengaturan Obrolan Anda
+  # Hardware decoding options
+  hardwareDecodingAuto: Otomatis
+  hardwareDecodingAutoCopy: Salin Otomatis
+  hardwareDecodingAutoSafe: Otomatis Aman
+  hardwareDecodingNo: Dinonaktifkan
+  hardwareDecodingYes: Paksa Aktifkan
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: Strategi Distribusi Konten
+  cdnDistributionStrategyDesc: Pilih strategi distribusi server sumber video untuk mengoptimalkan kecepatan pemuatan
+  cdnDistributionStrategyLabel: Strategi Distribusi
+  cdnDistributionStrategyNoChange: Tidak Ada Perubahan (Gunakan Server Asli)
+  cdnDistributionStrategyAuto: Pilih Otomatis (Server Tercepat)
+  cdnDistributionStrategySpecial: Tentukan Server
+  cdnSpecialServer: Tentukan Server
+  cdnRefreshServerListHint: Silakan klik tombol di bawah untuk menyegarkan daftar server
+  cdnRefreshButton: Segarkan
+  cdnFastRingServers: Server Fast Ring
+  cdnRefreshServerListTooltip: Segarkan daftar server
+  cdnSpeedTestButton: Uji Kecepatan
+  cdnSpeedTestingButton: 'Menguji (${count})'
+  cdnNoServerDataHint: Tidak ada data server yang tersedia, silakan klik tombol segarkan
+  cdnTestingStatus: Menguji
+  cdnUnreachableStatus: Tidak Terjangkau
+  cdnNotTestedStatus: Belum Diuji
+  downloadSettings:
+    downloadSettings: Pengaturan Unduhan
+    enableDownloadNotifications: Notifikasi Unduhan
+    enableDownloadNotificationsDescription: Tampilkan notifikasi sistem saat satu unduhan selesai atau gagal
+    notificationPermissionDenied: Izin notifikasi ditolak. Notifikasi dalam aplikasi tetap berfungsi; aktifkan notifikasi sistem di pengaturan.
+    storagePermissionStatus: Status Izin Penyimpanan
+    accessPublicDirectoryNeedStoragePermission: Akses Direktori Publik Memerlukan Izin Penyimpanan
+    checkingPermissionStatus: Memeriksa Status Izin...
+    storagePermissionGranted: Izin Penyimpanan Diberikan
+    storagePermissionNotGranted: Izin Penyimpanan Tidak Diberikan
+    storagePermissionGrantSuccess: Pemberian Izin Penyimpanan Berhasil
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Pemberian Izin Penyimpanan Gagal Namun Beberapa Fitur Mungkin Terbatas
+    storagePermissionRationale: "Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nDi Android 11 dan yang lebih baru, ini berarti izin \"Akses semua file\"; tanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya."
+    storagePermissionRationaleLegacy: "Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nTanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya."
+    grantStoragePermission: Beri Izin Penyimpanan
+    customDownloadPath: Jalur Unduhan Kustom
+    customDownloadPathDescription: Saat diaktifkan, Anda dapat memilih lokasi penyimpanan kustom untuk file yang diunduh
+    customDownloadPathTip: "💡 Tips: Memilih direktori publik (seperti folder Unduhan) memerlukan izin penyimpanan, disarankan menggunakan jalur yang direkomendasikan terlebih dahulu"
+    androidWarning: "Catatan Android: Hindari memilih direktori publik (seperti folder Unduhan), disarankan menggunakan direktori khusus aplikasi untuk memastikan izin akses."
+    publicDirectoryPermissionTip: "⚠️ Perhatian: Anda memilih direktori publik, izin penyimpanan diperlukan agar file dapat diunduh dengan normal"
+    permissionRequiredForPublicDirectory: Izin penyimpanan diperlukan untuk direktori publik
+    currentDownloadPath: Jalur Unduhan Saat Ini
+    actualDownloadPath: Jalur Unduhan Sebenarnya
+    defaultAppDirectory: Direktori Aplikasi Bawaan
+    permissionGranted: Diberikan
+    permissionRequired: Izin Diperlukan
+    enableCustomDownloadPath: Aktifkan Jalur Unduhan Kustom
+    disableCustomDownloadPath: Gunakan jalur bawaan aplikasi saat dinonaktifkan
+    customDownloadPathLabel: Jalur Unduhan Kustom
+    selectDownloadFolder: Pilih folder unduhan
+    recommendedPath: Jalur yang Direkomendasikan
+    selectFolder: Pilih Folder
+    filenameTemplate: Templat Nama File
+    filenameTemplateDescription: Sesuaikan aturan penamaan untuk file yang diunduh, mendukung substitusi variabel
+    videoFilenameTemplate: Templat Nama File Video
+    galleryFolderTemplate: Templat Folder Galeri
+    imageFilenameTemplate: Templat Nama File Gambar
+    resetToDefault: Atur Ulang ke Bawaan
+    supportedVariables: Variabel yang Didukung
+    supportedVariablesDescription: "Variabel berikut dapat digunakan dalam templat nama file:"
+    copyVariable: Salin Variabel
+    variableCopied: Variabel disalin
+    warningPublicDirectory: "Peringatan: Direktori publik yang dipilih mungkin tidak dapat diakses. Disarankan memilih direktori khusus aplikasi."
+    downloadPathUpdated: Jalur unduhan diperbarui
+    selectPathFailed: Gagal memilih jalur
+    pickerAlreadyActive: Pemilih folder sudah terbuka
+    unsupportedStorageVolume: Lokasi penyimpanan tidak didukung. Pilih folder di penyimpanan perangkat atau kartu SD.
+    recommendedPathSet: Diatur ke jalur yang direkomendasikan
+    setRecommendedPathFailed: Gagal mengatur jalur yang direkomendasikan
+    templateResetToDefault: Atur ulang ke templat bawaan
+    # Download test related
+    functionalTest: Uji Fungsional
+    testInProgress: Menguji...
+    runTest: Jalankan Uji
+    testDownloadPathAndPermissions: Uji apakah jalur unduhan dan konfigurasi izin berfungsi dengan benar
+    testResults: Hasil Uji
+    testCompleted: Uji selesai
+    testPassed: item lulus
+    testFailed: Uji gagal
+    testStoragePermissionCheck: Pemeriksaan Izin Penyimpanan
+    testStoragePermissionGranted: Izin penyimpanan diberikan
+    testStoragePermissionMissing: Izin penyimpanan tidak ada, beberapa fitur mungkin terbatas
+    testPermissionCheckFailed: Pemeriksaan izin gagal
+    testDownloadPathValidation: Validasi Jalur Unduhan
+    testPathValidationFailed: Validasi jalur gagal
+    testFilenameTemplateValidation: Validasi Templat Nama File
+    testAllTemplatesValid: Semua templat valid
+    testSomeTemplatesInvalid: Beberapa templat mengandung karakter yang tidak valid
+    testTemplateValidationFailed: Validasi templat gagal
+    testDirectoryOperationTest: Uji Operasi Direktori
+    testDirectoryOperationNormal: Pembuatan direktori dan penulisan file normal
+    testDirectoryOperationFailed: Operasi direktori gagal
+    # Test details related
+    testVideoTemplate: Templat Video
+    testGalleryTemplate: Templat Galeri
+    testImageTemplate: Templat Gambar
+    testValid: Valid
+    testInvalid: Tidak Valid
+    testSuccess: Berhasil
+    testCorrect: Benar
+    testError: Kesalahan
+    testPath: Jalur Uji
+    testBasePath: Jalur Dasar
+    testDirectoryCreation: Pembuatan Direktori
+    testFileWriting: Penulisan File
+    testFileContent: Isi File
+    # Path status related
+    checkingPathStatus: Memeriksa status jalur...
+    unableToGetPathStatus: Tidak dapat memperoleh status jalur
+    actualPathDifferentFromSelected: "Catatan: Jalur sebenarnya berbeda dari jalur yang dipilih"
+    grantPermission: Beri Izin
+    fixIssue: Perbaiki Masalah
+    issueFixed: Masalah diperbaiki
+    fixFailed: Perbaikan gagal, silakan tangani secara manual
+    # Download path service related
+    lackStoragePermission: Tidak memiliki izin penyimpanan
+    cannotAccessPublicDirectory: Tidak dapat mengakses direktori publik, memerlukan "Izin akses semua file"
+    cannotCreateDirectory: Tidak dapat membuat direktori
+    directoryNotWritable: Direktori tidak dapat ditulis
+    insufficientSpace: Ruang tersedia tidak cukup
+    pathValid: Jalur valid
+    validationFailed: Validasi gagal
+    usingDefaultAppDirectory: Menggunakan direktori aplikasi bawaan
+    appPrivateDirectory: Direktori Privat Aplikasi
+    appPrivateDirectoryDesc: Aman dan andal, tidak memerlukan izin tambahan
+    downloadDirectory: Direktori Unduhan
+    downloadDirectoryDesc: Lokasi unduhan bawaan sistem, mudah dikelola
+    moviesDirectory: Direktori Film
+    moviesDirectoryDesc: Direktori film sistem, dapat dikenali oleh aplikasi media
+    documentsDirectory: Direktori Dokumen
+    documentsDirectoryDesc: Direktori dokumen aplikasi iOS
+    requiresStoragePermission: Memerlukan izin penyimpanan untuk mengakses
+    # Recommended paths widget related
+    recommendedPaths: Jalur yang Direkomendasikan
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: Direktori Privat Aplikasi Eksternal
+    externalAppPrivateDirectoryDesc: Direktori privat aplikasi di penyimpanan eksternal, dapat diakses pengguna, ruang lebih besar
+    internalAppPrivateDirectory: Direktori Privat Aplikasi Internal
+    internalAppPrivateDirectoryDesc: Penyimpanan internal aplikasi, tidak memerlukan izin, ruang lebih kecil
+    appDocumentsDirectory: Direktori Dokumen Aplikasi
+    appDocumentsDirectoryDesc: Direktori dokumen khusus aplikasi, aman dan andal
+    downloadsFolder: Folder Unduhan
+    downloadsFolderDesc: Direktori unduhan bawaan sistem
+    selectRecommendedDownloadLocation: Pilih lokasi unduhan yang direkomendasikan
+    noRecommendedPaths: Tidak ada jalur yang direkomendasikan
+    recommended: Direkomendasikan
+    requiresPermission: Memerlukan Izin
+    authorizeAndSelect: Otorisasi dan Pilih
+    select: Pilih
+    permissionAuthorizationFailed: Otorisasi izin gagal, tidak dapat memilih jalur ini
+    pathValidationFailed: Validasi jalur gagal
+    downloadPathSetTo: Jalur unduhan diatur ke
+    setPathFailed: Gagal mengatur jalur
+    # Filename template variables
+    variableTitle: Judul
+    variableAuthor: Nama penulis
+    variableUsername: Nama pengguna penulis
+    variableQuality: Kualitas video
+    variableFilename: Nama file asli
+    variableId: ID Konten
+    variableCount: Jumlah gambar galeri
+    variableDate: Tanggal saat ini (YYYY-MM-DD)
+    variableTime: Waktu saat ini (HH-MM-SS)
+    variableDatetime: Tanggal waktu saat ini (YYYY-MM-DD_HH-MM-SS)
+    # Settings page
+    downloadSettingsTitle: Pengaturan Unduhan
+    downloadSettingsSubtitle: Konfigurasikan jalur unduhan dan aturan penamaan file
+    suchAsTitleQuality: 'Contoh: %title_%quality'
+    suchAsTitleId: 'Contoh: %title_%id'
+    suchAsTitleFilename: 'Contoh: %title_%filename'
+favoriteTags:
+  title: Tag Favorit
+  emptyIwara: Belum ada tag Iwara favorit
+  emptyOreno3d: Belum ada favorit
+  addIwaraTag: Tambah tag Iwara
+  quickPickHint: Item favorit muncul sebagai pilihan cepat di pencarian.
+  pickerTitle: Pilih Oreno3D
+  searchHint: Cari berdasarkan nama atau asli
+  worksCount:
+    one: '${n} karya'
+    other: '${n} karya'
+  browseEntry: Telusuri origin / karakter / tag
+  favoritesSection: Favorit
+  addFavorite: Tambah
+  iwaraTitle: Tag Iwara Favorit
+  oreno3dTitle: Tag Oreno3D Favorit
+  changeTag: Ubah tag
+  switchToText: Pencarian teks
+oreno3d:
+  name: Oreno3D
+  tags: Tag
+  characters: Karakter
+  origin: Asal
+  thirdPartyTagsExplanation: "Informasi **tag**, **karakter**, dan **asal** yang ditampilkan di sini disediakan oleh situs pihak ketiga **Oreno3D** hanya sebagai referensi.\n\nKarena sumber informasi ini hanya tersedia dalam bahasa Jepang, saat ini belum ada penyesuaian internasionalisasi.\n\nJika Anda tertarik untuk berkontribusi pada upaya internasionalisasi, silakan kunjungi repositori untuk membantu meningkatkannya!"
+  sortTypes:
+    hot: Tren
+    favorites: Favorit
+    latest: Terbaru
+    popularity: Popularitas
+  errors:
+    requestFailed: Permintaan gagal, kode status
+    connectionTimeout: Waktu koneksi habis, silakan periksa koneksi jaringan
+    sendTimeout: Waktu mengirim permintaan habis
+    receiveTimeout: Waktu menerima respons habis
+    badCertificate: Verifikasi sertifikat gagal
+    resourceNotFound: Sumber daya yang diminta tidak ditemukan
+    accessDenied: Akses ditolak, mungkin memerlukan autentikasi atau izin
+    serverError: Kesalahan server internal
+    serviceUnavailable: Layanan sementara tidak tersedia
+    requestCancelled: Permintaan dibatalkan
+    connectionError: Kesalahan koneksi jaringan, silakan periksa pengaturan jaringan
+    networkRequestFailed: Permintaan jaringan gagal
+    searchVideoError: Terjadi kesalahan tidak dikenal saat mencari video
+    getPopularVideoError: Terjadi kesalahan tidak dikenal saat mengambil video populer
+    getVideoDetailError: Terjadi kesalahan tidak dikenal saat mengambil detail video
+    parseVideoDetailError: Terjadi kesalahan tidak dikenal saat mengambil dan mengurai detail video
+    downloadFileError: Terjadi kesalahan tidak dikenal saat mengunduh file
+  loading:
+    gettingVideoInfo: Mengambil informasi video...
+    cancel: Batal
+  messages:
+    videoNotFoundOrDeleted: Video tidak ditemukan atau telah dihapus
+    unableToGetVideoPlayLink: Tidak dapat memperoleh tautan pemutaran video
+    getVideoDetailFailed: Gagal mengambil detail video
+signIn:
+  pleaseLoginFirst: Silakan masuk terlebih dahulu
+  alreadySignedInToday: Anda sudah melakukan presensi hari ini!
+  youDidNotStickToTheSignIn: Anda tidak konsisten dalam melakukan presensi.
+  signInSuccess: Presensi berhasil!
+  signInFailed: Presensi gagal, silakan coba lagi nanti
+  consecutiveSignIns: Presensi Berturut-turut
+  failureReason: Alasan Kegagalan
+  selectDateRange: Pilih Rentang Tanggal
+  startDate: Tanggal Mulai
+  endDate: Tanggal Akhir
+  invalidDate: Tanggal Tidak Valid
+  invalidDateRange: Rentang Tanggal Tidak Valid
+  errorFormatText: Kesalahan Format Tanggal
+  errorInvalidText: Rentang Tanggal Tidak Valid
+  errorInvalidRangeText: Rentang Tanggal Tidak Valid
+  dateRangeCantBeMoreThanOneYear: Rentang tanggal tidak boleh lebih dari satu tahun
+  signIn: Presensi
+  signInRecord: Riwayat Presensi
+  totalSignIns: Total Presensi
+  pleaseSelectSignInStatus: Silakan pilih status presensi
+
+subscriptions:
+  pleaseLoginFirstToViewYourSubscriptions: Silakan masuk terlebih dahulu untuk melihat langganan Anda.
+  selectUser: Pilih Pengguna
+  noSubscribedUsers: Tidak ada pengguna yang dilanggan
+  showAllSubscribedUsersContent: Tampilkan konten semua pengguna yang dilanggan
+
+videoDetail:
+  pipMode: Mode PiP
+  resumeFromLastPosition: 'Lanjutkan dari posisi terakhir: ${position}'
+  resumedFromHistoryTip: 'Dilanjutkan dari ${position}'
+  restartFromBeginning: Mulai dari awal
+  dismissResumeTip: Tutup
+  localInfo:
+    videoInfo: Info Video
+    currentQuality: Kualitas Saat Ini
+    duration: Durasi
+    resolution: Resolusi
+    fileInfo: Info File
+    fileName: Nama File
+    fileSize: Ukuran File
+    filePath: Jalur File
+    copyPath: Salin Jalur
+    openFolder: Buka Folder
+    pathCopiedToClipboard: Jalur disalin ke papan klip
+    openFolderFailed: Gagal membuka folder
+  videoIdIsEmpty: ID Video kosong
+  videoInfoIsEmpty: Info video kosong
+  thisIsAPrivateVideo: Ini adalah video privat
+  getVideoInfoFailed: 'Gagal mendapatkan info video, silakan coba lagi nanti'
+  noVideoSourceFound: Tidak ada sumber video yang ditemukan
+  tagCopiedToClipboard: 'Tag "${tagId}" disalin ke papan klip'
+  errorLoadingVideo: Kesalahan memuat video
+  play: Putar
+  pause: Jeda
+  exitAppFullscreen: Keluar Layar Penuh Aplikasi
+  enterAppFullscreen: Masuk Layar Penuh Aplikasi
+  exitSystemFullscreen: Keluar Layar Penuh Sistem
+  enterSystemFullscreen: Masuk Layar Penuh Sistem
+  seekTo: Cari Ke
+  switchResolution: Ganti Resolusi
+  switchPlaybackSpeed: Ganti Kecepatan Pemutaran
+  rewindSeconds: 'Mundur ${num} detik'
+  fastForwardSeconds: 'Maju Cepat ${num} detik'
+  playbackSpeedIng: 'Memutar pada kecepatan ${rate}x'
+  brightness: Kecerahan
+  brightnessLowest: Kecerahan paling rendah
+  volume: Volume
+  volumeMuted: Volume dibisukan
+  restoreDefaultZoom: Pulihkan
+  gestureGuide:
+    sampleVideo: Video contoh
+    title: Panduan Gerakan & Interaksi
+    viewGuide: Panduan Gerakan & Interaksi
+    firstTimeIntro: Luangkan beberapa detik untuk mempelajari gerakan pemutar. Anda dapat membuka kembali panduan ini kapan saja dari pengaturan pemutar.
+    startWatching: Mengerti, mulai menonton
+    basicTitle: Kontrol Dasar
+    zoomTitle: Zoom / Putar / Geser
+    restoreTip: 'Ketuk tombol "Pulihkan" di kanan bawah untuk mengatur ulang zoom, rotasi, dan posisi.'
+    mTap: 'Ketuk sekali: tampilkan / sembunyikan kontrol'
+    mDoubleTap: 'Ketuk dua kali: mundur (kiri) / jeda (tengah) / maju cepat (kanan)'
+    mHorizontalDrag: 'Geser horizontal: mencari'
+    mVerticalDrag: 'Geser vertikal: kecerahan (kiri) / volume (kanan)'
+    mLongPress: 'Tekan lama: percepatan sementara'
+    mPinch: 'Cubit dua jari: perbesar gambar'
+    mRotate: 'Putar dua jari: memutar gambar'
+    dTap: 'Klik: tampilkan / sembunyikan kontrol'
+    dDoubleTap: 'Klik dua kali: mundur (kiri) / jeda (tengah) / maju cepat (kanan)'
+    dKeys: 'Tombol pencarian: ketuk untuk melompat mundur / maju, tahan untuk mempercepat; tombol kecepatan: menyesuaikan kecepatan pemutaran selama pemutaran normal; Spasi: putar / jeda'
+    dTrackpadPinch: 'Cubit trackpad: perbesar gambar'
+    dTrackpadRotate: 'Putar trackpad: memutar gambar'
+    dCtrlWheel: 'Ctrl + roda: perbesar di sekitar kursor'
+    dShiftWheel: 'Shift + roda: putar di sekitar kursor'
+    quest:
+      title: "Nyaman di Quest"
+      intro: "Lihat kontrol mana yang melakukan apa, lalu cobalah di ruang Anda."
+      videoTab: "Video spasial"
+      galleryTab: "Galeri spasial"
+      scopeNote: "Untuk layar dan jendela di ruang Quest Anda. Buka kembali kapan saja dari pengaturan pemutar."
+      catalog: "Jelajahi kontrol"
+      lessonCount: "${current} dari ${total}"
+      previous: "Sebelumnya"
+      next: "Kontrol berikutnya"
+      replay: "Putar ulang demo"
+      pauseDemo: "Jeda demo"
+      resumeDemo: "Lanjutkan demo"
+      looping: "Demo kontrol"
+      still: "Ilustrasi diam"
+      done: "Mengerti, lanjutkan"
+      leftController: "Tangan kiri"
+      rightController: "Tangan kanan"
+      trigger: "Pemicu telunjuk"
+      grip: "Tombol pegangan"
+      bothGrips: "Kedua tombol pegangan"
+      stick: "Stik analog"
+      handTracking: "Pelacakan tangan"
+      ready: "Siap"
+      press: "Tekan"
+      hold: "Tahan"
+      release: "Lepaskan"
+      result: "Lihat hasilnya"
+      pinch: "Cubit"
+      selectTitle: "Arahkan dan pilih"
+      selectBody: "Arahkan sinar ke tombol, lalu tekan dan lepaskan pemicu telunjuk. Gunakan untuk memutar, pengaturan, dan penggeser di panel kontrol."
+      selectHint: "Pemicu telunjuk berada di belakang permukaan tombol. Tombol pegangan pada gagang dalam berfungsi memegang jendela."
+      panelTitle: "Tampilkan atau sembunyikan panel"
+      panelBody: "Arahkan ke luar panel kontrol, lalu ketuk pemicu telunjuk untuk menampilkan atau menyembunyikannya. Dengan pelacakan tangan, cubitan cepat di luar panel melakukan hal yang sama."
+      panelHint: "Gunakan ketukan singkat tanpa menyeret. Menahan dan menggerakkan adalah seret, bukan mengalihkan panel."
+      playTitle: "Putar dan jeda"
+      playBody: "Arahkan menjauh dari panel kontrol lalu tekan A di kanan atau X di kiri untuk memutar atau menjeda. Anda juga dapat memilih tombol putar di panel."
+      playHint: "Pintasan bawaan ini dapat dinonaktifkan di pengaturan pemutar spasial. Saat mengarahkan ke panel, masukan akan masuk ke panel."
+      seekTitle: "Geser dengan stik"
+      seekBody: "Geser salah satu stik ke kiri atau kanan untuk langkah 5 detik. Tahan untuk menggeser lebih cepat sambil mempratinjau waktu target. Lepaskan untuk menerapkan pencarian."
+      seekHint: "Jauhkan sinar pengontrol itu dari panel kontrol. Stik yang mengarah ke panel akan menggulir panel sebagai gantinya."
+      browseTitle: "Jelajahi dengan stik"
+      browseBody: "Gerakkan salah satu stik ke kiri atau kanan untuk item sebelumnya atau berikutnya; tahan untuk terus menjelajah. Anda juga dapat memilih gambar mini di strip film."
+      browseHint: "Video dalam galeri juga merupakan item. Mengarahkan ke panel kontrol membuat stik menggulir panel."
+      swipeTitle: "Seret melintasi untuk membalik halaman"
+      swipeBody: "Arahkan ke gambar, tahan pemicu telunjuk dan seret ke kiri. Lepaskan setelah isyarat balik halaman untuk maju; seret ke kanan untuk kembali. Cubit-lalu-seret juga berfungsi."
+      swipeHint: "Gambar harus pada 1× untuk membalik halaman dengan menyeret. Video galeri juga mendukungnya. Panggung tetap diam hingga Anda melepaskan."
+      zoomTitle: "Perbesar ke dalam gambar"
+      zoomBody: "Arahkan ke detail pada gambar, tahan pemicu telunjuk, lalu dorong stik ke atas untuk memperbesar atau ke bawah untuk memperkecil. Zoom berjangkar di tempat Anda menekan."
+      zoomHint: "Ini memperbesar gambar di dalam jendelanya. Tanpa menahan gambar, atas/bawah menyesuaikan jarak pandang."
+      panTitle: "Geser dan pulihkan gambar"
+      panBody: "Setelah diperbesar, tahan pemicu telunjuk dan seret untuk melihat sekeliling. Ketuk dua kali gambar untuk memperbesar ke 2,5× atau memulihkannya. Dengan tangan, cubit dua kali dengan cepat."
+      panHint: "Menyeret akan menggeser gambar yang diperbesar. Pulihkan ke 1× sebelum menyeret untuk membalik halaman."
+      slideshowTitle: "Mulai tayangan slide"
+      slideshowBody: "Pada gambar, A / X memulai atau menjeda tayangan slide. Panel menawarkan interval 3, 5, 10, atau 20 detik serta kualitas gambar standar atau asli."
+      slideshowHint: "Pada video galeri, A / X mengontrol pemutaran video tersebut. Pintasan pengontrol harus diaktifkan di pengaturan."
+      moveTitle: "Pegang dan pindahkan layar"
+      moveBody: "Tahan tombol pegangan pada gagang dalam, gerakkan pengontrol untuk memposisikan layar, lalu lepaskan. Saat menonton, Anda dapat memegang layar tanpa mengarahkannya."
+      moveHint: "Mengarahkan ke jendela aplikasi atau panel kontrol akan memegang jendela itu terlebih dahulu. Pada video panoramik, memegang menyesuaikan orientasi."
+      scaleTitle: "Ubah ukuran dengan kedua tangan"
+      scaleBody: "Tahan kedua tombol pegangan. Rentangkan tangan Anda untuk memperbesar layar, atau dekatkan untuk memperkecilnya. Dengan pelacakan tangan, tahan cubitan di kedua tangan."
+      scaleHint: "Untuk layar datar atau melengkung, termasuk panggung galeri. Jauhkan sinar dari panel kontrol. Ini mengubah ukuran seluruh layar."
+      distanceTitle: "Sesuaikan jarak pandang"
+      distanceBody: "Dorong stik ke atas untuk menjauhkan layar, atau ke bawah untuk mendekatkannya. Saat memegang jendela, atas/bawah memindahkan jendela itu. Sesuaikan volume di panel."
+      distanceHint: "Arahkan menjauh dari panel kontrol. Menahan gambar mengubah atas/bawah menjadi zoom gambar; video panoramik menyesuaikan tampilan sebagai gantinya."
+      resizeTitle: "Gunakan tepi dan sudut"
+      resizeBody: "Bingkai akan menyala saat sinar Anda mendekati tepi. Tahan pemicu atau cubit pada tepi untuk memindahkan jendela; seret sudut untuk mengubah ukurannya."
+      resizeHint: "Berfungsi pada jendela aplikasi, panel kontrol, dan layar. Jendela aplikasi mengubah lebar dan tinggi; layar mempertahankan rasio aspeknya."
+      navigationTitle: "Kembali dan buka pengaturan"
+      navigationBody: "B / Y kembali satu tingkat: menutup popup atau kembali ke beranda panel, menyembunyikan panel, lalu kembali ke aplikasi. Tombol Menu kiri membuka pengaturan spasial."
+      navigationHint: "Tombol Meta kanan milik sistem. Pemusatan ulang sistem membawa tampilan kembali ke depan sambil mempertahankan ukuran dan jarak layar."
+      handsTitle: "Gunakan tangan Anda"
+      handsBody: "Dengan pelacakan tangan aktif, arahkan sinar sistem ke tombol, cubit ibu jari dan telunjuk Anda, lalu lepaskan. Gunakan panel untuk pemutaran, pencarian, dan navigasi galeri."
+      handsHint: "Cubit di luar untuk mengalihkan panel. Cubit tepi untuk memindahkan, sudut untuk mengubah ukuran, atau cubit dengan kedua tangan dan rentangkan untuk memperbesar layar."
+  home: Beranda
+  videoPlayer: Pemutar Video
+  videoPlayerInfo: Info Pemutar Video
+  moreSettings: Pengaturan Lainnya
+  videoPlayerFeatureInfo: Info Fitur Pemutar Video
+  autoRewind: Mundur Otomatis
+  rewindAndFastForward: Mundur dan Maju Cepat
+  volumeAndBrightness: Volume dan Kecerahan
+  centerAreaDoubleTapPauseOrPlay: Ketuk Ganda Area Tengah untuk Jeda atau Putar
+  showVerticalVideoInFullScreen: Tampilkan Video Vertikal dalam Layar Penuh
+  keepLastVolumeAndBrightness: Pertahankan Volume dan Kecerahan Terakhir
+  setProxy: Atur Proksi
+  moreFeaturesToBeDiscovered: Lebih Banyak Fitur untuk Ditemukan...
+  videoPlayerSettings: Pengaturan Pemutar Video
+  commentCount: '${num} komentar'
+  writeYourCommentHere: Tulis komentar Anda di sini...
+  authorOtherVideos: Video Lain dari Penulis
+  relatedVideos: Video Terkait
+  privateVideo: Ini adalah video privat
+  externalVideo: Ini adalah video eksternal
+  openInBrowser: Buka di Peramban
+  resourceDeleted: Video ini tampaknya telah dihapus :/
+  noDownloadUrl: Tidak ada URL unduhan
+  startDownloading: Mulai mengunduh
+  downloadFailed: Unduhan gagal, silakan coba lagi nanti
+  downloadSuccess: Unduhan berhasil
+  download: Unduh
+  downloadManager: Pengelola Unduhan
+  resourceNotFound: Sumber daya tidak ditemukan
+  videoLoadError: Kesalahan memuat video
+  authorNoOtherVideos: Penulis tidak memiliki video lain
+  noRelatedVideos: Tidak ada video terkait
+  player:
+    errorWhileLoadingVideoSource: Kesalahan saat memuat sumber video
+    errorWhileSettingUpListeners: Kesalahan saat menyiapkan pemantau
+    serverFaultDetectedAutoSwitched: Kesalahan server terdeteksi, otomatis beralih rute dan mencoba lagi
+  skeleton:
+    fetchingVideoInfo: Mengambil info video...
+    fetchingVideoSources: Mengambil sumber video...
+    loadingVideo: Memuat video...
+    applyingSolution: Menerapkan solusi...
+    addingListeners: Menambahkan pemantau...
+    successFecthVideoDurationInfo: Berhasil mengambil durasi video, mulai memuat video...
+    successFecthVideoHeightInfo: Pemuatan selesai
+  # 投屏
+  cast:
+    dlnaCast: Siarkan
+    unableToStartCastingSearch: 'Gagal memulai pencarian penyiaran: ${error}'
+    startCastingTo: 'Mulai menyiarkan ke ${deviceName}'
+    castFailed: "Penyiaran gagal: ${error}\nSilakan coba cari ulang perangkat atau ganti jaringan"
+    castStopped: 'Penyiaran dihentikan'
+    deviceTypes:
+      mediaRenderer: Pemutar Media
+      mediaServer: Server Media
+      internetGatewayDevice: Router
+      basicDevice: Perangkat Dasar
+      dimmableLight: Lampu Pintar
+      wlanAccessPoint: Titik Akses WLAN
+      wlanConnectionDevice: Perangkat Koneksi WLAN
+      printer: Pencetak
+      scanner: Pemindai
+      digitalSecurityCamera: Kamera Keamanan Digital
+      unknownDevice: Perangkat Tidak Dikenal
+    currentPlatformNotSupported: Platform saat ini tidak mendukung penyiaran
+    unableToGetVideoUrl: Tidak dapat memperoleh URL video, silakan coba lagi nanti
+    stopCasting: Hentikan penyiaran
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: Penyiaran Jarak Jauh
+      close: Tutup
+      searchingDevices: Mencari perangkat...
+      searchPrompt: Klik tombol cari untuk mencari ulang perangkat penyiaran
+      searching: Mencari
+      searchAgain: Cari Lagi
+      noDevicesFound: "Tidak ada perangkat penyiaran yang ditemukan\nPastikan perangkat berada di jaringan yang sama"
+      searchingDevicesPrompt: Mencari perangkat, harap tunggu...
+      cast: Siarkan
+      connectedTo: 'Terhubung ke: ${deviceName}'
+      notConnected: Tidak ada perangkat terhubung
+      stopCasting: Hentikan Penyiaran
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: Siapa yang diam-diam menyukai
+    dialogDescription: Penasaran siapa mereka? Telusuri "Album Suka" ini~
+    closeTooltip: Tutup
+    retry: Coba Lagi
+    noLikesYet: Belum ada yang muncul di sini. Jadilah yang pertama!
+    pageInfo: 'Halaman ${page} / ${totalPages} · Total ${totalCount} orang'
+    prevPage: Halaman Sebelumnya
+    nextPage: Halaman Berikutnya
+share:
+  sharePlayList: Bagikan Daftar Putar
+  wowDidYouSeeThis: Wow, apakah Anda melihat ini?
+  nameIs: Nama adalah
+  clickLinkToView: Klik tautan untuk melihat
+  iReallyLikeThis: Saya sangat menyukai ini
+  shareFailed: Gagal membagikan, silakan coba lagi nanti
+  share: Bagikan
+  shareAsImage: Bagikan sebagai Gambar
+  shareAsText: Bagikan sebagai Teks
+  shareAsImageDesc: Bagikan sampul video sebagai gambar
+  shareAsTextDesc: Bagikan detail video sebagai teks
+  shareAsImageFailed: Gagal membagikan sampul video sebagai gambar, silakan coba lagi nanti
+  shareAsTextFailed: Gagal membagikan detail video sebagai teks, silakan coba lagi nanti
+  shareVideo: Bagikan Video
+  authorIs: Penulis adalah
+  shareGallery: Bagikan Galeri
+  galleryTitleIs: Judul galeri adalah
+  galleryAuthorIs: Penulis galeri adalah
+  shareUser: Bagikan Pengguna
+  userNameIs: Nama pengguna adalah
+  userAuthorIs: Penulis pengguna adalah
+  comments: Komentar
+  shareThread: Bagikan Utas
+  views: Tayangan
+  sharePost: Bagikan Postingan
+  postTitleIs: Judul postingan adalah
+  postAuthorIs: Penulis postingan adalah
+markdown:
+  markdownSyntax: Sintaks Markdown
+  iwaraSpecialMarkdownSyntax: Sintaks Markdown Khusus Iwara
+  internalLink: Tautan Internal
+  supportAutoConvertLinkBelow: 'Mendukung konversi otomatis tautan berikut:'
+  convertLinkExample: "🎬 Tautan Video\n🖼️ Tautan Gambar\n👤 Tautan Pengguna\n📌 Tautan Forum\n🎵 Tautan Daftar Putar\n💬 Tautan Topik"
+  mentionUser: Sebutkan Pengguna
+  mentionUserDescription: 'Masukkan @ diikuti nama pengguna, akan otomatis diubah menjadi tautan pengguna'
+  markdownBasicSyntax: Sintaks Dasar Markdown
+  paragraphAndLineBreak: Paragraf dan Pemisah Baris
+  paragraphAndLineBreakDescription: 'Paragraf dipisahkan oleh satu baris, dan dua spasi di akhir baris akan diubah menjadi pemisah baris'
+  paragraphAndLineBreakSyntax: "Ini adalah paragraf pertama\n\nIni adalah paragraf kedua\nBaris ini diakhiri dua spasi  \nakan diubah menjadi pemisah baris"
+  textStyle: Gaya Teks
+  textStyleDescription: 'Gunakan simbol khusus untuk mengapit teks agar mengubah gayanya'
+  textStyleSyntax: "**Teks Tebal**\n*Teks Miring*\n~~Teks Coret~~\n`Teks Kode`"
+  quote: Kutipan
+  quoteDescription: 'Gunakan simbol > untuk membuat kutipan, beberapa > untuk membuat kutipan bertingkat'
+  quoteSyntax: "> Ini kutipan tingkat pertama\n>> Ini kutipan tingkat kedua"
+  list: Daftar
+  listDescription: 'Buat daftar berurut dengan angka+titik, buat daftar tak berurut dengan -'
+  listSyntax: "1. Item pertama\n2. Item kedua\n\n- Item tak berurut\n  - Subitem\n  - Subitem lain"
+  linkAndImage: Tautan dan Gambar
+  linkAndImageDescription: "Format tautan: [teks](URL)\nFormat gambar: ![deskripsi](URL)"
+  linkAndImageSyntax: "[teks tautan](${link})\n![deskripsi gambar](${imgUrl})"
+  title: Judul
+  titleDescription: 'Gunakan simbol # untuk membuat judul, jumlahnya menunjukkan tingkat'
+  titleSyntax: "# Judul tingkat pertama\n## Judul tingkat kedua\n### Judul tingkat ketiga"
+  separator: Pemisah
+  separatorDescription: 'Buat pemisah dengan tiga simbol - atau lebih'
+  separatorSyntax: '---'
+  syntax: Sintaks
+
+forum:
+  recent: Terkini
+  category: Kategori
+  lastReply: Balasan Terakhir
+  sitewide:
+    badge: Situs
+    title: Pengumuman Situs
+    readMore: Baca selengkapnya
+  errors:
+    pleaseSelectCategory: Silakan pilih kategori
+    threadLocked: Topik ini terkunci, tidak dapat membalas
+  createPost: Buat Postingan
+  title: Judul
+  enterTitle: Masukkan Judul
+  content: Konten
+  enterContent: Masukkan Konten
+  writeYourContentHere: Tulis konten Anda di sini...
+  posts: Postingan
+  threads: Topik
+  forum: Forum
+  createThread: Buat Topik
+  selectCategory: Pilih Kategori
+  cooldownRemaining: 'Jeda tersisa ${minutes} menit ${seconds} detik'
+  groups:
+    administration: Administrasi
+    global: Global
+    chinese: Mandarin
+    japanese: Jepang
+    korean: Korea
+    other: Lainnya
+  leafNames:
+    announcements: Pengumuman
+    feedback: Masukan
+    support: Dukungan
+    general: Umum
+    guides: Panduan
+    questions: Pertanyaan
+    requests: Permintaan
+    sharing: Berbagi
+    general_zh: Umum
+    'questions_zh': Pertanyaan
+    'requests_zh': Permintaan
+    'support_zh': Dukungan
+    'general_ja': Umum
+    'questions_ja': Pertanyaan
+    'requests_ja': Permintaan
+    'support_ja': Dukungan
+    korean: Korea
+    other: Lainnya
+  leafDescriptions:
+    announcements: Notifikasi dan pengumuman resmi yang penting
+    feedback: Masukan tentang fitur dan layanan situs web
+    support: Bantuan untuk menyelesaikan masalah terkait situs web
+    general: Bahas topik apa saja
+    guides: Bagikan pengalaman dan tutorial Anda
+    questions: Ajukan pertanyaan Anda
+    requests: Kirimkan permintaan Anda
+    sharing: Bagikan konten yang menarik
+    'general_zh': Bahas topik apa saja
+    'questions_zh': Ajukan pertanyaan Anda
+    'requests_zh': Kirimkan permintaan Anda
+    'support_zh': Bantuan untuk menyelesaikan masalah terkait situs web
+    'general_ja': Bahas topik apa saja
+    'questions_ja': Ajukan pertanyaan Anda
+    'requests_ja': Kirimkan permintaan Anda
+    'support_ja': Bantuan untuk menyelesaikan masalah terkait situs web
+    korean: Diskusi terkait bahasa Korea
+    other: Konten lain yang tidak terklasifikasi
+  reply: Balas
+  pendingReview: Menunggu Tinjauan
+  editedAt: Diubah Pada
+  copySuccess: Disalin ke papan klip
+  copySuccessForMessage: 'Disalin ke papan klip: ${str}'
+  editReply: Ubah Balasan
+  editTitle: Ubah Judul
+  submit: Kirim
+
+notifications:
+  errors:
+    unsupportedNotificationType: Jenis notifikasi tidak didukung
+    unknownUser: Pengguna tidak dikenal
+    unsupportedNotificationTypeWithType: 'Jenis notifikasi tidak didukung: ${type}'
+    unknownNotificationType: Jenis notifikasi tidak dikenal
+  notifications: Notifikasi
+  profile: Profil
+  postedNewComment: Memposting komentar baru
+  inYour: Di
+  video: Video
+  repliedYourVideoComment: Membalas komentar video Anda
+  copyInfoToClipboard: Salin info notifikasi ke papan klip
+  copySuccess: Disalin ke papan klip
+  copySuccessForMessage: 'Disalin ke papan klip: ${str}'
+  markAllAsRead: Tandai semua telah dibaca
+  markAllAsReadSuccess: Semua notifikasi telah ditandai sebagai dibaca
+  markAllAsReadFailed: Gagal menandai semua telah dibaca
+  markSelectedAsRead: Tandai yang dipilih sebagai dibaca
+  markSelectedAsReadSuccess: Notifikasi yang dipilih telah ditandai sebagai dibaca
+  markSelectedAsReadFailed: Gagal menandai yang dipilih sebagai dibaca
+  markAsRead: Tandai sebagai dibaca
+  markAsReadSuccess: Notifikasi telah ditandai sebagai dibaca
+  markAsReadFailed: Gagal menandai notifikasi sebagai dibaca
+  notificationTypeHelp: Bantuan Jenis Notifikasi
+  dueToLackOfNotificationTypeDetails: Karena kurangnya detail jenis notifikasi, jenis yang didukung mungkin tidak mencakup pesan yang Anda terima saat ini
+  helpUsImproveNotificationTypeSupport: Jika Anda bersedia membantu kami meningkatkan dukungan jenis notifikasi
+  helpUsImproveNotificationTypeSupportLongText: "1. 📋 Salin informasi notifikasi\n2. 🐞 Kirim issue ke repositori proyek\n\n⚠️ Catatan: Informasi notifikasi dapat berisi privasi pribadi, jika Anda tidak ingin mempublikasikannya, Anda juga dapat mengirimkannya ke penulis proyek melalui email."
+  goToRepository: Buka Repositori
+  copy: Salin
+  commentApproved: Komentar Disetujui
+  repliedYourProfileComment: Membalas komentar profil Anda
+  kReplied: membalas komentar Anda di
+  kCommented: mengomentari
+  kVideo: video
+  kGallery: galeri
+  kProfile: profil
+  kThread: utas
+  kPost: postingan
+  kCommentSection: bagian komentar
+  kApprovedComment: Komentar disetujui
+  kApprovedVideo: Video disetujui
+  kApprovedGallery: Galeri disetujui
+  kApprovedThread: Utas disetujui
+  kApprovedPost: Postingan disetujui
+  kApprovedForumPost: Postingan forum disetujui
+  kRejectedContent: Peninjauan konten ditolak
+  kUnknownType: Jenis notifikasi tidak dikenal
+
+conversation:
+  errors:
+    pleaseSelectAUser: Silakan pilih pengguna
+    pleaseEnterATitle: Silakan masukkan judul
+    clickToSelectAUser: Klik untuk memilih pengguna
+    loadFailedClickToRetry: Gagal memuat, klik untuk mencoba lagi
+    loadFailed: Gagal memuat
+    clickToRetry: Klik untuk mencoba lagi
+    noMoreConversations: Tidak ada percakapan lagi
+  conversation: Percakapan
+  startConversation: Mulai Percakapan
+  noConversation: Tidak ada percakapan
+  selectFromLeftListAndStartConversation: Pilih dari daftar kiri dan mulai percakapan
+  title: Judul
+  body: Isi
+  selectAUser: Pilih pengguna
+  searchUsers: Cari pengguna...
+  tmpNoConversions: Tidak ada percakapan
+  deleteThisMessage: Hapus pesan ini
+  deleteThisMessageSubtitle: Tindakan ini tidak dapat dibatalkan
+  writeMessageHere: Tulis pesan di sini...
+  lastMessageFromMe: "Anda: "
+  sendMessage: Kirim pesan
+
+splash:
+  errors:
+    initializationFailed: Inisialisasi gagal, silakan mulai ulang aplikasi
+  preparing: Mempersiapkan...
+  initializing: Menginisialisasi...
+  loading: Memuat...
+  ready: Siap
+  initializingMessageService: Menginisialisasi layanan pesan...
+
+
+download:
+  errors:
+    imageModelNotFound: Model gambar tidak ditemukan
+    downloadFailed: Unduhan gagal
+    videoInfoNotFound: Info video tidak ditemukan
+    downloadTaskAlreadyExists: Tugas unduhan sudah ada
+    downloadTaskSavePathConflict: Jalur penyimpanan sudah digunakan oleh tugas lain
+    videoAlreadyDownloaded: Video sudah diunduh
+    downloadFailedForMessage: 'Gagal menambahkan tugas unduhan: ${errorInfo}'
+    userPausedDownload: Pengguna menjeda unduhan
+    unknown: Tidak diketahui
+    fileSystemError: 'Kesalahan sistem berkas: ${errorInfo}'
+    unknownError: 'Kesalahan tidak diketahui: ${errorInfo}'
+    writeFileFailedForMessage: 'Gagal menulis berkas: ${errorInfo}'
+    connectionTimeout: Koneksi habis waktu
+    sendTimeout: Waktu pengiriman habis
+    receiveTimeout: Waktu penerimaan habis
+    serverError: 'Kesalahan server: ${errorInfo}'
+    unknownNetworkError: Kesalahan jaringan tidak diketahui
+    sslHandshakeFailed: Handshake SSL gagal, silakan periksa jaringan Anda
+    connectionFailed: Koneksi gagal, silakan periksa jaringan Anda
+    serviceIsClosing: Layanan unduhan sedang ditutup
+    partialDownloadFailed: Unduhan konten sebagian gagal
+    noDownloadTask: Tidak ada tugas unduhan
+    taskNotFoundOrDataError: Tugas tidak ditemukan atau data bermasalah
+    fileNotFound: Berkas tidak ditemukan
+    openFolderFailed: Gagal membuka folder
+    copyDownloadUrlFailed: 'Gagal menyalin URL unduhan'
+    openFolderFailedWithMessage: 'Gagal membuka folder: ${message}'
+    directoryNotFound: Direktori tidak ditemukan
+    copyFailed: Gagal menyalin
+    openFileFailed: Gagal membuka berkas
+    openFileFailedWithMessage: 'Gagal membuka berkas: ${message}'
+    playLocallyFailed: Gagal memutar secara lokal
+    playLocallyFailedWithMessage: 'Gagal memutar secara lokal: ${message}'
+    noDownloadSource: Tidak ada sumber unduhan
+    noDownloadSourceNowPleaseWaitInfoLoaded: Tidak ada sumber unduhan, harap tunggu hingga pemuatan informasi selesai lalu coba lagi
+    noActiveDownloadTask: Tidak ada tugas unduhan aktif
+    noFailedDownloadTask: Tidak ada tugas unduhan yang gagal
+    noCompletedDownloadTask: Tidak ada tugas unduhan yang selesai
+    taskAlreadyCompletedDoNotAdd: Tugas sudah selesai, jangan tambahkan lagi
+    linkExpiredTryAgain: Tautan kedaluwarsa, mencoba mendapatkan tautan unduhan baru
+    linkExpiredTryAgainSuccess: Tautan kedaluwarsa, berhasil mendapatkan tautan unduhan baru
+    linkExpiredTryAgainFailed: Tautan kedaluwarsa, gagal mendapatkan tautan unduhan baru
+    taskDeleted: Tugas dihapus
+    unsupportedImageFormat: 'Format gambar tidak didukung: ${format}'
+    deleteFileError: 'Gagal menghapus berkas, mungkin karena berkas sedang digunakan proses lain'
+    deleteTaskError: 'Gagal menghapus tugas'
+    canNotRefreshVideoTask: 'Gagal menyegarkan tugas video'
+    videoRemovedCanNotRefresh: 'Video ini telah dihapus atau tidak lagi ada, sehingga tautan unduhan tidak dapat disegarkan'
+    videoInaccessibleCanNotRefresh: 'Video ini tidak dapat diakses, mungkin bersifat privat atau Anda perlu masuk lagi'
+    videoQualityGone: 'Kualitas ini tidak lagi tersedia, silakan tambahkan unduhan lagi'
+    refreshLinkNetworkFailed: 'Kesalahan jaringan, tautan unduhan tidak dapat disegarkan saat ini, silakan coba lagi nanti'
+    taskAlreadyProcessing: 'Tugas sedang diproses'
+    taskNotFound: 'Tugas tidak ditemukan'
+    failedToLoadTasks: 'Gagal memuat tugas'
+    partialDownloadFailedWithMessage: 'Unduhan sebagian gagal: ${message}'
+    unsupportedImageFormatWithMessage: 'Format gambar tidak didukung: ${extension}, Anda dapat mencoba mengunduhnya ke perangkat untuk melihatnya'
+    imageLoadFailed: 'Gagal memuat gambar'
+    pleaseTryOtherViewer: 'Silakan coba gunakan penampil lain untuk membuka'
+  downloadList: Daftar Unduhan
+  viewDownloadList: Lihat Daftar Unduhan
+  download: Unduh
+  selectDownloadTitle: Pilih Unduhan
+  qualitySectionLabel: Kualitas
+  saveToSectionLabel: Simpan ke
+  lastUsedBadge: Terakhir digunakan
+  pickedBadge: Dipilih
+  startDownloading: Mulai Mengunduh
+  clearAllFailedTasks: Bersihkan Semua Tugas Gagal
+  clearAllFailedTasksConfirmation: 'Apakah Anda yakin ingin membersihkan semua tugas unduhan yang gagal? Berkas dari tugas-tugas ini juga akan dihapus.'
+  clearAllFailedTasksSuccess: Semua tugas yang gagal telah dibersihkan
+  clearAllFailedTasksError: Terjadi kesalahan saat membersihkan tugas yang gagal
+  downloadStatus: Status Unduhan
+  imageList: Daftar Gambar
+  retryDownload: Coba Unduh Lagi
+  notDownloaded: Belum Diunduh
+  downloaded: Terunduh
+  waitingForDownload: Menunggu Unduhan
+  downloadingProgressForImageProgress: 'Mengunduh (${downloaded}/${total} gambar ${progress}%)'
+  downloadingSingleImageProgress: 'Mengunduh (${downloaded} gambar)'
+  pausedProgressForImageProgress: 'Dijeda (${downloaded}/${total} gambar ${progress}%)'
+  pausedSingleImageProgress: 'Dijeda (${downloaded} gambar)'
+  downloadedProgressForImageProgress: 'Terunduh (Total ${total} gambar)'
+  viewVideoDetail: Lihat Rincian Video
+  viewGalleryDetail: Lihat Rincian Galeri
+  moreOptions: Opsi Lainnya
+  openFile: Buka Berkas
+  playLocally: Putar Secara Lokal
+  pause: Jeda
+  resume: Lanjutkan
+  copyDownloadUrl: Salin URL Unduhan
+  showInFolder: Tampilkan di Folder
+  deleteTask: Hapus Tugas
+  deleteTaskConfirmation: "Apakah Anda yakin ingin menghapus tugas unduhan ini?\nBerkas tugas juga akan dihapus."
+  forceDeleteTask: Paksa Hapus Tugas
+  forceDeleteTaskConfirmation: "Apakah Anda yakin ingin memaksa menghapus tugas unduhan ini?\nBerkas tugas juga akan dihapus, meskipun berkas sedang digunakan."
+  downloadingProgressForVideoTask: 'Mengunduh ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'Mengunduh ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: 'Dijeda ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'Dijeda • Terunduh ${downloaded}'
+  downloadedWithSize: 'Terunduh • ${size}'
+  copyDownloadUrlSuccess: 'URL unduhan disalin'
+  totalImageNums: '${num} gambar'
+  downloadingDownloadedTotalProgressSpeed: 'Mengunduh ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloading: Mengunduh
+  failed: Gagal
+  completed: Selesai
+  downloadDetail: Rincian Unduhan
+  copy: Salin
+  copySuccess: Disalin
+  waiting: Menunggu
+  paused: Dijeda
+  downloadingOnlyDownloaded: 'Mengunduh ${downloaded}'
+  galleryDownloadCompletedWithName: 'Unduhan Galeri Selesai: ${galleryName}'
+  downloadCompletedWithName: 'Unduhan Selesai: ${fileName}'
+  searchTasks: Cari tugas...
+  statusLabel: 'Status: ${label}'
+  allStatus: Semua Status
+  typeLabel: 'Jenis: ${label}'
+  allTypes: Semua Jenis
+  taskType: Jenis
+  video: Video
+  gallery: Galeri
+  other: Lainnya
+  clearFilters: Bersihkan filter
+  pauseAll: Jeda semua
+  resumeAll: Mulai semua
+  errorTypes:
+    network: Masalah jaringan, coba lagi mungkin membantu
+    serverRejected: Ditolak oleh server, Anda mungkin perlu masuk lagi
+    notFound: Sumber daya hilang atau telah dihapus
+    diskFull: Ruang penyimpanan tidak mencukupi
+    fileInUse: Berkas sedang digunakan oleh program lain
+    permission: Tidak ada izin menulis
+    cancelled: Dibatalkan
+    unknown: Kesalahan tidak diketahui
+  errorDetailCopied: Rincian kesalahan disalin
+  errorDetailCopyHint: Tekan lama untuk menyalin rincian kesalahan
+  restoredPaused:
+    banner: '${num} tugas yang belum selesai dari sesi terakhir telah dijeda'
+    resume: Lanjutkan semua
+    dismiss: Tutup
+  emptyTaskList: Belum ada tugas unduhan
+  noMatchingTasks: Tidak ada tugas yang cocok
+  deleteByDate:
+    menuTitle: Hapus berdasarkan tanggal
+    dialogTitle: Hapus berdasarkan tanggal
+    description: 'Hapus tugas unduhan secara massal berdasarkan tanggal pembuatan. Tugas yang berkasnya sedang digunakan akan dilewati; tugas yang berkasnya sudah tidak ada akan dibersihkan.'
+    modeRange: Rentang tanggal
+    modeDays: Lebih lama dari
+    startDate: Tanggal mulai
+    endDate: Tanggal akhir
+    notSet: Belum diatur
+    daysUnit: hari
+    olderThanDaysHint: 'Hapus tugas yang dibuat lebih dari ${days} hari lalu'
+    noMatch: Tidak ada tugas yang cocok dengan kondisi yang dipilih
+    invalidRange: Tanggal mulai harus sama dengan atau sebelum tanggal akhir
+    confirmTitle: Konfirmasi penghapusan
+    confirmContent: 'Hapus ${count} tugas unduhan dan berkasnya? Tindakan ini tidak dapat dibatalkan.'
+    deleting: 'Menghapus ${done}/${total}…'
+    resultSuccess: 'Menghapus ${count} tugas'
+    resultPartial: 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)'
+  category:
+    manageTitle: Kelola kategori
+    label: Kategori
+    uncategorized: Tanpa Kategori
+    manage: Kelola
+    createShortcut: Baru
+    newCategoryHint: Nama kategori baru
+    createSuccess: Kategori dibuat
+    createFailed: Gagal membuat kategori
+    nameEmpty: Nama kategori tidak boleh kosong
+    emptyHint: Belum ada kategori. Buat satu untuk mengatur unduhan Anda.
+    moveTo: Pindahkan ke kategori
+    moveToWithCount: 'Pindahkan ${count} item ke…'
+    moveSuccess: 'Dipindahkan ke ${title}'
+    moveToUncategorizedSuccess: Dipindahkan ke Tanpa Kategori
+    moveFailed: Gagal memindahkan
+    renameTitle: Ganti nama kategori
+    renameHint: Masukkan nama kategori
+    renameSuccess: Nama kategori diubah
+    renameFailed: Gagal mengganti nama kategori
+    deleteTitle: Hapus kategori
+    deleteConfirm: 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.'
+    deleteSuccess: Kategori dihapus
+    deleteFailed: Gagal menghapus kategori
+  maxConcurrentDownloads: Unduhan bersamaan maksimum
+  maxConcurrentDownloadsDesc: 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)'
+  stillInDevelopment: Masih dalam pengembangan
+  saveToAppDirectory: Simpan ke direktori aplikasi
+  alreadyDownloadedWithQuality: 'Sudah diunduh dengan kualitas yang sama, lanjutkan pengunduhan?'
+  alreadyDownloadedWithQualities: 'Sudah diunduh dengan kualitas: ${qualities}, lanjutkan pengunduhan?'
+  otherQualities: Kualitas lain
+  batchDownload:
+    title: Unduhan Massal
+    downloadTaskAlreadyRunning: Tugas sedang berjalan, mohon tunggu.
+    userCancelled: Dibatalkan pengguna
+    failedToGetVideoInfo: Gagal mendapatkan informasi video
+    failedToGetVideoSource: Gagal mendapatkan sumber video
+    failedToGetGalleryInfo: Gagal mendapatkan informasi galeri
+    galleryNoImages: Galeri tidak memiliki gambar
+    failedToGetSavePath: Gagal mendapatkan jalur penyimpanan
+    batchDownloadFailedWithException(exception): 'Unduhan massal gagal: ${exception}'
+    selectQuality: Pilih Kualitas
+    downloading: Mengunduh
+    downloadResult: Hasil Unduhan
+    selectedVideosCount(count): 'Terpilih ${count} video'
+    selectedGalleriesCount(count): 'Terpilih ${count} galeri'
+    qualityNote: Jika kualitas yang dipilih tidak tersedia, kualitas terbaik yang tersedia akan digunakan
+    progress(current, total): 'Memproses ${current}/${total}'
+    queued: Dalam Antrean
+    success: Berhasil
+    skipped: Dilewati
+    failed: Gagal
+    failureDetails: Rincian Kegagalan
+    reasonPrivateVideo: Video privat
+    reasonAlreadyExists: Sudah ada
+    reasonNoSource: Tidak ada sumber unduhan
+    reasonNoSavePath: Tidak dapat mendapatkan jalur penyimpanan
+    reasonOther: Kesalahan lain
+    startDownload: Mulai Unduh
+
+downloadNotifications:
+  completedTitle: Unduhan selesai
+  failedTitle: Unduhan gagal
+  completedBody: '${name} berhasil diunduh'
+  failedBody: '${name} gagal diunduh'
+  completedToast: '${name} telah diunduh'
+  failedToast: 'Unduhan ${name} gagal'
+  channelName: Status unduhan
+  channelDescription: Notifikasi untuk unduhan yang selesai dan gagal
+
+favorite:
+  errors:
+    addFailed: Gagal menambahkan
+    addSuccess: Berhasil ditambahkan
+    deleteFolderFailed: Gagal menghapus folder
+    deleteFolderSuccess: Berhasil menghapus folder
+    folderNameCannotBeEmpty: Nama folder tidak boleh kosong
+  add: Tambah
+  addSuccess: Berhasil ditambahkan
+  addFailed: Gagal menambahkan
+  remove: Hapus
+  removeSuccess: Berhasil dihapus
+  removeFailed: Gagal menghapus
+  removeConfirmation: 'Apakah Anda yakin ingin menghapus item ini dari favorit?'
+  removeConfirmationSuccess: 'Item dihapus dari favorit'
+  removeConfirmationFailed: 'Gagal menghapus item dari favorit'
+  createFolderSuccess: 'Folder berhasil dibuat'
+  createFolderFailed: 'Gagal membuat folder'
+  createFolder: Buat Folder
+  enterFolderName: Masukkan nama folder
+  enterFolderNameHere: Masukkan nama folder di sini...
+  create: Buat
+  items: Item
+  newFolderName: Folder Baru
+  searchFolders: Cari folder...
+  searchItems: Cari item...
+  createdAt: Dibuat Pada
+  myFavorites: Favorit Saya
+  deleteFolderTitle: Hapus Folder
+  deleteFolderConfirmWithTitle: 'Apakah Anda yakin ingin menghapus folder ${title}?'
+  removeItemTitle: Hapus Item
+  removeItemConfirmWithTitle: 'Apakah Anda yakin ingin menghapus item ${title}?'
+  removeItemSuccess: Item dihapus dari favorit
+  removeItemFailed: Gagal menghapus item dari favorit
+  localizeFavorite: Favorit Lokal
+  editFolderTitle: Ubah Folder
+  editFolderSuccess: Folder berhasil diperbarui
+  editFolderFailed: Gagal memperbarui folder
+  searchTags: Cari tag
+  noTagsInFolder: Belum ada tag pada item di folder ini
+  tagFilterMatchAll: Hanya menampilkan item yang memiliki semua tag terpilih
+  clearSelectedTags: Bersihkan tag yang dipilih
+  selectedTagCount: "${count} dipilih"
+  noMatchingTags: Tidak ada tag yang cocok
+
+translation:
+  currentService: Layanan Saat Ini
+  testConnection: Uji Koneksi
+  testConnectionSuccess: Uji koneksi berhasil
+  testConnectionFailed: Uji koneksi gagal
+  testConnectionFailedWithMessage: 'Uji koneksi gagal: ${message}'
+  translation: Terjemahan
+  needVerification: Memerlukan Verifikasi
+  needVerificationContent: Silakan uji koneksi terlebih dahulu sebelum mengaktifkan terjemahan AI
+  confirm: Konfirmasi
+  disclaimer: Penafian
+  riskWarning: Peringatan Risiko
+  dureToRisk1: 'Karena teks dihasilkan oleh pengguna, teks dapat mengandung konten yang melanggar kebijakan konten penyedia layanan AI'
+  dureToRisk2: 'Konten yang tidak pantas dapat menyebabkan penangguhan kunci API atau penghentian layanan'
+  operationSuggestion: Saran Penggunaan
+  operationSuggestion1: '1. Gunakan sebelum meninjau konten yang akan diterjemahkan secara ketat'
+  operationSuggestion2: '2. Hindari menerjemahkan konten yang melibatkan kekerasan, konten dewasa, dll.'
+  apiConfig: Konfigurasi API
+  modifyConfigWillAutoCloseAITranslation: 'Mengubah konfigurasi akan menutup terjemahan AI secara otomatis, perlu diuji lagi setelah diaktifkan'
+  apiAddress: Alamat API
+  modelName: Nama Model
+  modelNameHintText: 'Misalnya: gpt-4-turbo'
+  maxTokens: Token Maksimum
+  maxTokensHintText: 'Misalnya: 32000'
+  temperature: Suhu
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'Klik tombol uji untuk memverifikasi validitas koneksi API'
+  requestPreview: Pratinjau Permintaan
+  enableAITranslation: Aktifkan AI
+  enabled: Diaktifkan
+  disabled: Dinonaktifkan
+  testing: Menguji...
+  testNow: Uji Sekarang
+  connectionStatus: Status Koneksi
+  success: Berhasil
+  failed: Gagal
+  information: Informasi
+  viewRawResponse: Lihat Respons Mentah
+  pleaseCheckInputParametersFormat: Silakan periksa format parameter masukan
+  pleaseFillInAPIAddressModelNameAndKey: Silakan isi alamat API, nama model, dan kunci
+  pleaseFillInValidConfigurationParameters: Silakan isi parameter konfigurasi yang valid
+  pleaseCompleteConnectionTest: Silakan selesaikan uji koneksi
+  notConfigured: Belum Dikonfigurasi
+  apiEndpoint: Endpoint API
+  configuredKey: Kunci yang Dikonfigurasi
+  notConfiguredKey: Kunci Belum Dikonfigurasi
+  authenticationStatus: Status Autentikasi
+  thisFieldCannotBeEmpty: Kolom ini tidak boleh kosong
+  apiKey: Kunci API
+  apiKeyCannotBeEmpty: Kunci API tidak boleh kosong
+  pleaseEnterValidNumber: Silakan masukkan angka yang valid
+  range: Rentang
+  mustBeGreaterThan: Harus lebih besar dari
+  invalidAPIResponse: Respons API tidak valid
+  connectionFailedForMessage: 'Koneksi gagal: ${message}'
+  aiTranslationNotEnabledHint: Terjemahan AI tidak diaktifkan, silakan aktifkan di pengaturan
+  goToSettings: Buka Pengaturan
+  disableAITranslation: Nonaktifkan Terjemahan AI
+  currentValue: Nilai Saat Ini
+  configureTranslationStrategy: Konfigurasikan Strategi Terjemahan
+  advancedSettings: "Pengaturan Lanjutan"
+  translationPrompt: "Prompt Terjemahan"
+  promptHint: "Silakan masukkan prompt terjemahan, gunakan [TL] sebagai placeholder untuk bahasa target"
+  promptHelperText: "Prompt harus berisi [TL] sebagai placeholder untuk bahasa target"
+  promptMustContainTargetLang: "Prompt harus berisi placeholder [TL]"
+  aiTranslationWillBeDisabled: "Terjemahan AI akan dinonaktifkan"
+  aiTranslationWillBeDisabledDueToConfigChange: "Karena perubahan konfigurasi dasar, terjemahan AI akan dinonaktifkan"
+  aiTranslationWillBeDisabledDueToPromptChange: "Karena perubahan prompt terjemahan, terjemahan AI akan dinonaktifkan"
+  aiTranslationWillBeDisabledDueToParamChange: "Karena perubahan konfigurasi parameter, terjemahan AI akan dinonaktifkan"
+  onlyOpenAIAPISupported: "Saat ini hanya mendukung format API yang kompatibel dengan OpenAI (badan permintaan application/json)"
+  streamingTranslation: "Terjemahan Streaming"
+  streamingTranslationSupported: "Terjemahan Streaming Didukung"
+  streamingTranslationNotSupported: "Terjemahan Streaming Tidak Didukung"
+  streamingTranslationDescription: "Terjemahan streaming dapat menampilkan hasil secara real-time selama proses terjemahan, memberikan pengalaman pengguna yang lebih baik"
+  usingFullUrlWithHash: "Menggunakan URL lengkap (diakhiri dengan #)"
+  baseUrlInputHelperText: "Jika diakhiri dengan #, alamat tersebut akan digunakan sebagai alamat permintaan sebenarnya"
+  currentActualUrl: "URL sebenarnya saat ini: ${url}"
+  urlEndingWithHashTip: "URL yang diakhiri dengan # akan digunakan langsung tanpa menambahkan akhiran apa pun"
+  streamingTranslationWarning: "Catatan: Fitur ini memerlukan dukungan layanan API untuk transmisi streaming, beberapa model mungkin tidak mendukungnya"
+  # Translation Service Selection
+  translationService: Layanan Terjemahan
+  translationServiceDescription: Pilih layanan terjemahan yang Anda sukai
+  googleTranslation: Terjemahan Google
+  googleTranslationDescription: Layanan terjemahan online gratis yang mendukung berbagai bahasa
+  aiTranslation: Terjemahan AI
+  aiTranslationDescription: Layanan terjemahan cerdas berbasis model bahasa besar
+  deeplxTranslation: Terjemahan DeepLX
+  deeplxTranslationDescription: Implementasi sumber terbuka dari terjemahan DeepL, menyediakan terjemahan berkualitas tinggi
+  # Google Translation
+  googleTranslationFeatures: Fitur
+  freeToUse: Gratis digunakan
+  freeToUseDescription: Tidak perlu konfigurasi, siap digunakan
+  fastResponse: Respons cepat
+  fastResponseDescription: Kecepatan terjemahan cepat dengan latensi rendah
+  stableAndReliable: Stabil dan andal
+  stableAndReliableDescription: Berbasis API resmi Google
+  enabledDefaultService: Diaktifkan - Layanan terjemahan bawaan
+  notEnabled: Tidak diaktifkan
+  # DeepLX Translation
+  deeplxTranslationService: Layanan Terjemahan DeepLX
+  deeplxDescription: DeepLX adalah implementasi sumber terbuka dari terjemahan DeepL, yang mendukung mode endpoint Free, Pro, dan Official
+  serverAddress: Alamat Server
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: Alamat dasar server DeepLX
+  endpointType: Jenis Endpoint
+  freeEndpoint: Free - Endpoint gratis, mungkin memiliki batas laju
+  proEndpoint: Pro - Memerlukan dl_session, lebih stabil
+  officialEndpoint: Official - Format API resmi
+  finalRequestUrl: URL Permintaan Final
+  apiKeyOptional: Kunci API (Opsional)
+  apiKeyOptionalHint: Untuk mengakses layanan DeepLX yang dilindungi
+  apiKeyOptionalHelperText: Beberapa layanan DeepLX memerlukan Kunci API untuk autentikasi
+  dlSession: DL Session
+  dlSessionHint: Parameter dl_session diperlukan untuk mode Pro
+  dlSessionHelperText: Parameter sesi diperlukan untuk endpoint Pro, diperoleh dari akun DeepL Pro
+  proModeRequiresDlSession: Mode Pro memerlukan dl_session
+  clickTestButtonToVerifyDeepLXAPI: Klik tombol uji untuk memverifikasi koneksi API DeepLX
+  enableDeepLXTranslation: Aktifkan Terjemahan DeepLX
+  deepLXTranslationWillBeDisabled: Terjemahan DeepLX akan dinonaktifkan karena perubahan konfigurasi
+  translatedResult: Hasil Terjemahan
+  # Translation Service Messages
+  testSuccess: Uji berhasil
+  pleaseFillInDeepLXServerAddress: Silakan isi alamat server DeepLX
+  invalidAPIResponseFormat: Format respons API tidak valid
+  translationServiceReturnedError: Layanan terjemahan mengembalikan kesalahan atau hasil kosong
+  connectionFailed: Koneksi gagal
+  # Translation Service Log Messages
+  translationFailed: Terjemahan gagal
+  aiTranslationFailed: Terjemahan AI gagal
+  deeplxTranslationFailed: Terjemahan DeepLX gagal
+  aiTranslationTestFailed: Uji terjemahan AI gagal
+  deeplxTranslationTestFailed: Uji terjemahan DeepLX gagal
+  streamingTranslationTimeout: Waktu habis terjemahan streaming, memaksa pembersihan sumber daya
+  translationRequestTimeout: Waktu habis permintaan terjemahan
+  streamingTranslationDataTimeout: Waktu habis penerimaan data terjemahan streaming
+  dataReceptionTimeout: Waktu habis penerimaan data
+  streamDataParseError: Kesalahan saat mengurai data aliran
+  streamingTranslationFailed: Terjemahan streaming gagal
+  fallbackTranslationFailed: Terjemahan cadangan ke terjemahan normal juga gagal
+  translationSettings: Pengaturan Terjemahan
+  enableGoogleTranslation: Aktifkan Terjemahan Google
+  # Modern AI adaptation
+  thinking: Berpikir...
+  thoughtProcess: Proses Pemikiran
+  modelCompatibility: Kompatibilitas Model
+  modelCompatibilityDescription: Sesuaikan parameter permintaan untuk model modern seperti model penalaran (o1/o3, DeepSeek-R1, QwQ)
+  reasoningModel: Model Penalaran
+  reasoningModelDescription: Untuk o1/o3, DeepSeek-R1, QwQ, dll. Melipat prompt ke dalam pesan pengguna, menghilangkan temperature, dan menggunakan max_completion_tokens
+  useMaxCompletionTokens: Gunakan max_completion_tokens
+  useMaxCompletionTokensDescription: Endpoint OpenAI yang lebih baru memerlukan max_completion_tokens alih-alih max_tokens yang sudah usang
+  sendTemperature: Kirim temperature
+  sendTemperatureDescription: Nonaktifkan untuk model yang menolak parameter temperature (sebagian besar model penalaran)
+  showReasoningProcess: Tampilkan proses pemikiran
+  showReasoningProcessDescription: Tampilkan penalaran yang dapat dilipat dari model penalaran di dialog terjemahan
+  provider: Penyedia
+  providerOpenAI: OpenAI (dan yang kompatibel)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "Mendukung OpenAI (dan endpoint apa pun yang kompatibel dengan OpenAI), Anthropic, dan Google melalui SDK dartantic_ai"
+  baseUrlOptionalHelperText: "Opsional. Biarkan kosong untuk menggunakan endpoint bawaan penyedia; isi untuk endpoint yang kompatibel dengan OpenAI/relai"
+  defaultEndpoint: Endpoint bawaan
+  providerPreset: Prasetel Penyedia
+  selectProviderPreset: Pilih prasetel
+  presetCustom: Kustom
+  presetApplied: 'Prasetel diterapkan: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI Penalaran (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude Penalaran (pemikiran lanjutan)
+    gemini: Google Gemini (asli)
+    geminiReasoning: Google Gemini Penalaran (berpikir)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek Penalaran (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
+  fetchModelList: Ambil daftar model
+  fetchingModels: Mengambil...
+  selectModel: Pilih Model
+  searchModel: Cari model
+  noModelsFound: Tidak ada model ditemukan
+
+# Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: Video
+  gallery: Galeri
+  subscription: Feed
+  community: Forum
+  localMedia: Lokal
+
+navigationOrderSettings:
+  title: Pengaturan Urutan Navigasi
+  customNavigationOrder: Urutan Navigasi Kustom
+  customNavigationOrderDesc: Seret untuk menyesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping
+  restartRequired: Perlu memulai ulang aplikasi
+  navigationItemSorting: Pengurutan Item Navigasi
+  done: Selesai
+  edit: Ubah
+  reset: Atur Ulang
+  previewEffect: Pratinjau Efek
+  bottomNavigationPreview: "Pratinjau Navigasi Bawah:"
+  sidebarPreview: "Pratinjau Bilah Samping:"
+  confirmResetNavigationOrder: Konfirmasi Atur Ulang Urutan Navigasi
+  confirmResetNavigationOrderDesc: Apakah Anda yakin ingin mengatur ulang urutan navigasi ke pengaturan bawaan?
+  cancel: Batal
+  show: Tampilkan
+  hide: Sembunyikan
+  hidden: Tersembunyi
+  hideHint: Ketuk ikon mata untuk menampilkan atau menyembunyikan Komunitas dan berkas lokal
+  # Navigation item descriptions
+  videoDescription: Telusuri konten video populer
+  galleryDescription: Telusuri gambar dan galeri
+  subscriptionDescription: Lihat konten terbaru dari pengguna yang Anda ikuti
+  forumDescription: Ikut serta dalam diskusi komunitas
+
+  newsDescription: Telusuri berita, artikel, dan siaran resmi
+  communityDescription: Diskusi forum serta berita, artikel, dan siaran resmi
+  localMediaDescription: Telusuri video dan gambar yang tersimpan di perangkat ini
+
+news:
+  title: Berita
+  newsUpdates: Pembaruan Berita
+  articles: Artikel
+  broadcast: Siaran
+  openInBrowser: Buka di Peramban
+
+# Display Settings
+displaySettings:
+  title: Pengaturan Tampilan
+  layoutSettings: Pengaturan Tata Letak
+  layoutSettingsDesc: Sesuaikan jumlah kolom dan konfigurasi titik henti
+  gridLayout: Tata Letak Kisi
+  navigationOrderSettings: Pengaturan Urutan Navigasi
+  customNavigationOrder: Urutan Navigasi Kustom
+  customNavigationOrderDesc: Sesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping
+
+# Layout Settings
+layoutSettings:
+  title: Pengaturan Tata Letak
+  descriptionTitle: Penjelasan Konfigurasi Tata Letak
+  descriptionContent: Konfigurasi di sini akan menentukan jumlah kolom yang ditampilkan pada halaman daftar video dan galeri. Anda dapat memilih mode otomatis agar sistem menyesuaikan secara otomatis berdasarkan lebar layar, atau memilih mode manual untuk menetapkan jumlah kolom.
+  layoutMode: Mode Tata Letak
+  reset: Atur Ulang
+  autoMode: Mode Otomatis
+  autoModeDesc: Menyesuaikan secara otomatis berdasarkan lebar layar
+  manualMode: Mode Manual
+  manualModeDesc: Gunakan jumlah kolom tetap
+  manualSettings: Pengaturan Manual
+  fixedColumns: Kolom Tetap
+  columns: kolom
+  breakpointConfig: Konfigurasi Titik Henti
+  add: Tambah
+  defaultColumns: Kolom Bawaan
+  defaultColumnsDesc: Tampilan bawaan untuk layar besar
+  previewEffect: Pratinjau Efek
+  screenWidth: Lebar Layar
+  addBreakpoint: Tambah Titik Henti
+  editBreakpoint: Ubah Titik Henti
+  deleteBreakpoint: Hapus Titik Henti
+  screenWidthLabel: Lebar Layar
+  screenWidthHint: 600
+  columnsLabel: Kolom
+  columnsHint: 3
+  enterWidth: Silakan masukkan lebar
+  enterValidWidth: Silakan masukkan lebar yang valid
+  widthCannotExceed9999: Lebar tidak boleh melebihi 9999
+  breakpointAlreadyExists: Titik henti sudah ada
+  enterColumns: Silakan masukkan jumlah kolom
+  enterValidColumns: Silakan masukkan jumlah kolom yang valid
+  columnsCannotExceed12: Kolom tidak boleh melebihi 12
+  breakpointConflict: Titik henti sudah ada
+  confirmResetLayoutSettings: Atur Ulang Pengaturan Tata Letak
+  confirmResetLayoutSettingsDesc: "Apakah Anda yakin ingin mengatur ulang semua pengaturan tata letak ke nilai bawaan?\n\nAkan dikembalikan ke:\n• Mode otomatis\n• Konfigurasi titik henti bawaan"
+  resetToDefaults: Atur Ulang ke Bawaan
+  confirmDeleteBreakpoint: Hapus Titik Henti
+  confirmDeleteBreakpointDesc: Apakah Anda yakin ingin menghapus titik henti ${width}px?
+  noCustomBreakpoints: Tidak ada titik henti kustom, menggunakan kolom bawaan
+  breakpointRange: Rentang Titik Henti
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: Ubah
+  delete: Hapus
+  cancel: Batal
+  save: Simpan
+
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "Kesalahan Pemutar Video"
+  videoLoadFailed: "Gagal Memuat Video"
+  videoCodecNotSupported: "Codec Video Tidak Didukung"
+  networkConnectionIssue: "Masalah Koneksi Jaringan"
+  insufficientPermission: "Izin Tidak Cukup"
+  unsupportedVideoFormat: "Format Video Tidak Didukung"
+  retry: "Coba Lagi"
+  externalPlayer: "Pemutar Eksternal"
+  detailedErrorInfo: "Informasi Kesalahan Terperinci"
+  format: "Format"
+  suggestion: "Saran"
+  androidWebmCompatibilityIssue: "Perangkat Android memiliki dukungan terbatas untuk format WEBM. Disarankan menggunakan pemutar eksternal atau mengunduh aplikasi pemutar yang mendukung WEBM"
+  currentDeviceCodecNotSupported: "Perangkat saat ini tidak mendukung codec untuk format video ini"
+  checkNetworkConnection: "Silakan periksa koneksi jaringan Anda dan coba lagi"
+  appMayLackMediaPermission: "Aplikasi mungkin kekurangan izin pemutaran media yang diperlukan"
+  tryOtherVideoPlayer: "Silakan coba gunakan pemutar video lain"
+  unrecognizedVideoFormat: "Berkas video tidak dikenali"
+  unrecognizedVideoFormatSuggestion: "Tautan mungkin sudah kedaluwarsa, atau responsnya bukan video. Coba lagi, atau buka dengan aplikasi lain."
+  accessDenied: "Server menolak permintaan ini (403)"
+  accessDeniedSuggestion: "Tautan pemutaran kemungkinan besar sudah kedaluwarsa. Ketuk Coba Lagi untuk mengambilnya kembali, atau buka dengan aplikasi lain."
+  mute: "Bisukan"
+  unmute: "Bunyikan"
+  video: "VIDEO"
+  # CDN Server Selection
+  serverSelector: Pilihan Server CDN
+  serverSelectorDescription: Pilih server dengan latensi terendah untuk pengalaman pemutaran terbaik
+  retestSpeed: Uji Ulang Kecepatan
+  waitingForSpeedTest: Menunggu uji kecepatan
+  testingSpeed: Menguji kecepatan...
+  testFailed: Uji gagal
+  loadingServerList: Memuat daftar server...
+  noAvailableServers: Tidak ada server yang tersedia
+  refreshServerList: Segarkan Daftar Server
+  cannotGetSource: Tidak dapat mendapatkan sumber video saat ini
+  switchedToServer: "Beralih ke server: ${serverName}"
+  serverCount: "Total ${count} server"
+  statusCode: "Kode status: ${code}"
+  connectionFailed: Koneksi gagal
+  connectionTimeout: Koneksi habis waktu
+  networkError: Kesalahan jaringan
+  sslError: Kesalahan sertifikat SSL
+  testCompleted: Uji selesai
+  # Local video playback
+  local: "Lokal"
+  unknown: "Tidak diketahui"
+  localVideoPathEmpty: "Jalur video lokal kosong"
+  localVideoFileNotExists: "Berkas video lokal tidak ada: ${path}"
+  unableToPlayLocalVideo: "Tidak dapat memutar video lokal: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "Jatuhkan berkas video di sini untuk memutar"
+  supportedFormats: "Format yang didukung: MP4, MKV, AVI, MOV, WEBM, dll."
+  noSupportedVideoFile: "Tidak ditemukan berkas video yang didukung"
+
+  # Custom runtime messages
+  retryingOpenVideoLink: "Gagal membuka tautan video, mencoba lagi"
+  decoderOpenFailedWithSuggestion: "Tidak dapat memuat dekoder: ${event}. Coba beralih ke dekode perangkat lunak di pengaturan pemutar lalu masuk kembali ke halaman"
+  videoLoadErrorWithDetail: "Kesalahan pemuatan video: ${event}"
+  playbackFailureDiagnosticsHint: "Terdeteksi kegagalan pemutaran berulang. Buka Pengaturan > Diagnostik & Umpan Balik untuk mengekspor log."
+  openSettingsAction: "Lihat"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "Pemberitahuan pemutaran: ${message}"
+    networkUnstable: "Periksa jaringan Anda; pemutaran mungkin tersendat"
+    audioTrackUnavailable: "Tidak ada suara; video terus diputar"
+    hardwareDecodeFellBack: "Beralih ke dekode perangkat lunak; mungkin lebih boros daya"
+    videoDecodeProblem: "Coba kualitas lain; gambar mungkin rusak"
+    repeatedPlaybackProblems: "Ekspor log untuk melaporkan masalah pemutaran yang berulang"
+    issuesSheetTitle: "Masalah pemutaran"
+    issueOccurrences: "Terjadi ${count} kali"
+    issueAtPosition: "Pada ${position}"
+    noIssuesRecorded: "Tidak ada masalah yang tercatat"
+    exportLogsAction: "Ekspor log"
+
+  # Image Widget
+  imageLoadFailed: "Gagal Memuat Gambar"
+  unsupportedImageFormat: "Format Gambar Tidak Didukung"
+  tryOtherViewer: "Silakan coba gunakan penampil lain"
+
+diagnostics:
+  infoSectionTitle: "Info Diagnostik"
+  appVersionLabel: "Versi Aplikasi"
+  memoryUsage: "Penggunaan memori: ${memMB}MB"
+  deviceInfoUnavailable: "Tidak dapat mengambil info perangkat"
+  secureStorageLabel: "Penyimpanan aman"
+  secureStorageHealthy: "Tersedia"
+  secureStorageRecovered: "Pulih sendiri melalui reset (data sebelumnya dihapus)"
+  secureStorageUnavailable: "Tidak tersedia (login disimpan dengan enkripsi cadangan)"
+  secureStoragePlatformOptOut: "Enkripsi lokal sesuai kebijakan platform (keychain sistem tidak digunakan di macOS)"
+  secureStorageDualWrite: " (perlindungan penulisan ganda aktif)"
+  schemaHealthLabel: Skema basis data
+  schemaHealthOk: OK
+  schemaHealthRepairedNow: Diperbaiki oleh jaring pengaman pada peluncuran ini (migrasi tidak berhasil)
+  schemaHealthRepairedBefore: Sebelumnya pernah diperbaiki oleh jaring pengaman
+  logPolicySectionTitle: "Kebijakan Log"
+  configServiceUnavailable: "Layanan konfigurasi belum diinisialisasi. Kebijakan log tidak dapat disesuaikan."
+  enableLoggingTitle: "Aktifkan pencatatan log"
+  enableLoggingSubtitle: "Nonaktifkan untuk menghentikan penulisan log baru"
+  enableLogPersistenceTitle: "Aktifkan persistensi log"
+  enableLogPersistenceSubtitle: "Nonaktifkan agar log hanya disimpan di memori dan menghentikan penulisan ke disk"
+  minLogLevelTitle: "Level log minimum"
+  minLogLevelSubtitle: "Log di bawah level ini akan disaring"
+  maxFileSizeTitle: "Batas ukuran satu berkas"
+  maxFileSizeSubtitle: "Rotasi saat ambang tercapai"
+  rotatedFileCountTitle: "Jumlah berkas rotasi log utama"
+  rotatedFileCountSubtitle: "Jumlah berkas yang disimpan di luar berkas saat ini"
+  hangFileSizeTitle: "Batas ukuran log hang"
+  hangFileSizeSubtitle: "Kendalikan pertumbuhan berkas hang_events"
+  hangRotatedFileCountTitle: "Jumlah berkas rotasi log hang"
+  hangRotatedFileCountSubtitle: "Kendalikan riwayat yang disimpan untuk hang_events"
+  healthSectionTitle: "Kesehatan Log"
+  refreshMetrics: "Segarkan Metrik"
+  toolsSectionTitle: "Alat"
+  privacyNotice: "Log dapat berisi informasi sensitif seperti data akun dan parameter permintaan. Jangan memposting log lengkap secara publik di issue; tinjau terlebih dahulu lalu kirim melalui email."
+  exportLogsTitle: "Ekspor Log"
+  exportLogsSubtitle: "Tinjau data privasi sebelum mengirim ke pengembang"
+  viewLogsTitle: "Lihat Log"
+  viewLogsSubtitle: "Lihat log runtime secara real-time"
+  copySupportEmailTitle: "Salin Email Dukungan"
+  reportIssueTitle: "Laporkan Masalah"
+  reportIssueSubtitle: "Berikan langkah reproduksi di GitHub (jangan lampirkan log lengkap)"
+  healthSummaryUnavailable: "Belum ada data kesehatan log"
+  healthMetricsUnavailable: "Metrik kesehatan belum dikumpulkan"
+  healthNoRiskIndicators: "Tidak ada indikator risiko yang terdeteksi"
+  healthAlert:
+    flushFailureTitle: "Kegagalan flush"
+    sinkDegradedTitle: "Penulisan log menurun"
+    sinkDegradedDetail: "Sink berkas dalam kondisi menurun"
+    queueBacklogTitle: "Tumpukan antrean penulisan"
+    queueBacklogDetail: "queueDepth=${queueDepth} (ambang=${threshold}, dapat meningkatkan penggunaan memori)"
+    highFlushLatencyTitle: "Latensi flush tinggi"
+    droppedTooManyTitle: "Terlalu banyak log yang dijatuhkan"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (ambang=${threshold})"
+    rateLimitedTitle: "Pembatasan laju terpicu"
+    exportFailedTitle: "Kegagalan ekspor log"
+    fileNearLimitTitle: "Berkas log mendekati batas ukuran"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (tekanan rotasi IO lebih tinggi)"
+  toast:
+    logServiceNotInitialized: "Layanan log belum diinisialisasi"
+    exportSuccess: "Log diekspor. Harap tinjau data privasi sebelum mengirim melalui email."
+    exportFailed: "Ekspor gagal: ${error}"
+    supportEmailCopied: "Email dukungan disalin. Tempelkan ke klien email Anda dan lampirkan log."
+  shareSubject: "Log diagnostik LoveIwara (berisi data sensitif, bagikan dengan hati-hati)"
+
+logViewer:
+  title: "Penampil Log"
+  searchHint: "Cari log..."
+  emptyState: "Tidak ada log"
+  copiedToClipboard: "Disalin ke papan klip"
+
+crashRecoveryDialog:
+  title: "Aplikasi keluar secara tak terduga"
+  description: "Kami mendeteksi penutupan tidak wajar pada sesi terakhir. Silakan ekspor log diagnostik dan kirimkan melalui email kepada pengembang untuk membantu kami memperbaiki masalah ini."
+  previousVersion: "Versi terakhir: ${version}"
+  previousStart: "Peluncuran terakhir: ${time}"
+  lastException: "Pengecualian terakhir: ${message}"
+  lastHangRecovered: "UI sempat macet terakhir kali dan pulih secara otomatis"
+  lastHangStalled: "Kemungkinan pembekuan UI terdeteksi terakhir kali, berlangsung sekitar ${stalledMs}ms"
+  exportGuide: "Buka Pengaturan > Diagnostik & Umpan Balik > Ekspor Log."
+  privacyHint: "Log dapat berisi data pribadi. Harap tinjau sebelum mengirim email ke:"
+  issueWarning: "Jangan lampirkan log lengkap secara publik di issue GitHub"
+  acknowledge: "Mengerti"
+  supportEmailCopied: "Email disalin"
+
+linkInputDialog:
+  title: "Masukkan Tautan"
+  supportedLinksHint: "Mendukung pengenalan cerdas beberapa tautan ${webName} dan melompat dengan cepat ke halaman terkait di aplikasi (pisahkan tautan dari teks lain dengan spasi)"
+  inputHint: "Silakan masukkan tautan ${webName}"
+  validatorEmptyLink: "Silakan masukkan tautan"
+  validatorNoIwaraLink: "Tidak terdeteksi tautan ${webName} yang valid"
+  multipleLinksDetected: "Terdeteksi beberapa tautan, silakan pilih satu:"
+  notIwaraLink: "Bukan tautan ${webName} yang valid"
+  linkParseError: "Kesalahan penguraian tautan: ${error}"
+  unsupportedLinkDialogTitle: "Tautan Tidak Didukung"
+  unsupportedLinkDialogContent: "Jenis tautan ini tidak dapat dibuka langsung di aplikasi dan perlu diakses menggunakan peramban eksternal.\n\nApakah Anda ingin membuka tautan ini di peramban?"
+  openInBrowser: "Buka di Peramban"
+  confirmOpenBrowserDialogTitle: "Konfirmasi Buka Peramban"
+  confirmOpenBrowserDialogContent: "Tautan berikut akan dibuka di peramban eksternal:"
+  confirmContinueBrowserOpen: "Apakah Anda yakin ingin melanjutkan?"
+  browserOpenFailed: "Gagal membuka tautan"
+  unsupportedLink: "Tautan Tidak Didukung"
+  cancel: "Batal"
+  confirm: "Buka di Peramban"
+
+log:
+  logManagement: Pengelolaan Log
+  enableLogPersistence: Aktifkan Persistensi Log
+  enableLogPersistenceDesc: Simpan log ke basis data untuk analisis
+  logDatabaseSizeLimit: Batas Ukuran Basis Data Log
+  logDatabaseSizeLimitDesc: 'Saat ini: ${size}'
+  exportCurrentLogs: Ekspor Log Saat Ini
+  exportCurrentLogsDesc: Ekspor log aplikasi saat ini untuk membantu pengembang mendiagnosis masalah
+  exportHistoryLogs: Ekspor Log Riwayat
+  exportHistoryLogsDesc: Ekspor log dalam rentang tanggal tertentu
+  exportMergedLogs: Ekspor Log Gabungan
+  exportMergedLogsDesc: Ekspor log gabungan dalam rentang tanggal tertentu
+  showLogStats: Tampilkan Statistik Log
+  logExportSuccess: Ekspor log berhasil
+  logExportFailed: 'Ekspor log gagal: ${error}'
+  showLogStatsDesc: Lihat statistik berbagai jenis log
+  logExtractFailed: 'Gagal mendapatkan statistik log: ${error}'
+  clearAllLogs: Bersihkan Semua Log
+  clearAllLogsDesc: Hapus semua data log
+  confirmClearAllLogs: Konfirmasi Bersihkan
+  confirmClearAllLogsDesc: Apakah Anda yakin ingin membersihkan semua data log? Tindakan ini tidak dapat dibatalkan.
+  clearAllLogsSuccess: Log berhasil dibersihkan
+  clearAllLogsFailed: 'Gagal membersihkan log: ${error}'
+  unableToGetLogSizeInfo: Tidak dapat mendapatkan informasi ukuran log
+  currentLogSize: 'Ukuran Log Saat Ini:'
+  logCount: 'Jumlah Log:'
+  logCountUnit: 'log'
+  logSizeLimit: 'Batas Ukuran Log:'
+  usageRate: 'Tingkat Penggunaan:'
+  exceedLimit: 'Melebihi Batas'
+  remaining: 'Tersisa'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'Ukuran log saat ini telah terlampaui, silakan bersihkan log lama atau tingkatkan batas ukuran log'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'Ukuran log saat ini hampir terlampaui, silakan bersihkan log lama'
+  cleaningOldLogs: 'Membersihkan log lama...'
+  logCleaningCompleted: 'Pembersihan log selesai'
+  logCleaningProcessMayNotBeCompleted: 'Proses pembersihan log mungkin belum selesai'
+  cleanExceededLogs: 'Bersihkan log berlebih'
+  noLogsToExport: 'Tidak ada log untuk diekspor'
+  exportingLogs: 'Mengekspor log...'
+  noHistoryLogsToExport: 'Tidak ada log riwayat untuk diekspor, silakan gunakan aplikasi terlebih dahulu untuk beberapa saat'
+  selectLogDate: 'Pilih Tanggal Log'
+  today: 'Hari Ini'
+  selectMergeRange: 'Pilih Rentang Gabungan'
+  selectMergeRangeHint: 'Silakan pilih rentang waktu log yang akan digabungkan'
+  selectMergeRangeDays: '${days} hari terakhir'
+  logStats: 'Statistik Log'
+  todayLogs: 'Log Hari Ini: ${count} log'
+  recent7DaysLogs: 'Log 7 Hari Terakhir: ${count} log'
+  totalLogs: 'Total Log: ${count} log'
+  setLogDatabaseSizeLimit: 'Atur Batas Ukuran Basis Data Log'
+  currentLogSizeWithSize: 'Ukuran Log Saat Ini: ${size}'
+  warning: 'Peringatan'
+  newSizeLimit: 'Batas ukuran baru: ${size}'
+  confirmToContinue: 'Konfirmasi untuk melanjutkan'
+  logSizeLimitSetSuccess: 'Batas ukuran log diatur ke ${size}'
+
+emoji:
+  name: Emoji
+  size: Ukuran
+  small: Kecil
+  medium: Sedang
+  large: Besar
+  extraLarge: Sangat Besar
+  copyEmojiLinkSuccess: 'Tautan emoji disalin'
+  preview: Pratinjau Emoji
+  library: Pustaka Emoji
+  noEmojis: Tidak ada emoji
+  clickToAddEmojis: Klik tombol di kanan atas untuk menambahkan emoji
+  addEmojis: Tambah Emoji
+  imagePreview: Pratinjau Gambar
+  imageLoadFailed: Gagal memuat gambar
+  loading: Memuat...
+  delete: Hapus
+  close: Tutup
+  deleteImage: Hapus Gambar
+  confirmDeleteImage: Apakah Anda yakin ingin menghapus gambar ini?
+  cancel: Batal
+  batchDelete: Hapus Massal
+  confirmBatchDelete: 'Apakah Anda yakin ingin menghapus ${count} gambar yang dipilih? Tindakan ini tidak dapat dibatalkan.'
+  deleteSuccess: Berhasil dihapus
+  addImage: Tambah Gambar
+  addImageByUrl: Tambah lewat URL
+  addImageUrl: Tambah URL Gambar
+  imageUrl: URL Gambar
+  enterImageUrl: Silakan masukkan URL gambar
+  add: Tambah
+  batchImport: Impor Massal
+  enterJsonUrlArray: "Silakan masukkan larik URL dalam format JSON:"
+  formatExample: "Contoh format:\n[\"url1\", \"url2\", \"url3\"]"
+  pasteJsonUrlArray: Silakan tempel larik URL dalam format JSON
+  import: Impor
+  importSuccess: 'Berhasil mengimpor ${count} gambar'
+  jsonFormatError: Kesalahan format JSON, silakan periksa masukan
+  createGroup: Buat Grup Emoji
+  groupName: Nama Grup
+  enterGroupName: Silakan masukkan nama grup
+  create: Buat
+  editGroupName: Ubah Nama Grup
+  save: Simpan
+  deleteGroup: Hapus Grup
+  confirmDeleteGroup: Apakah Anda yakin ingin menghapus grup emoji ini? Semua gambar dalam grup juga akan dihapus.
+  imageCount: '${count} gambar'
+  selectEmoji: Pilih Emoji
+  noEmojisInGroup: Tidak ada emoji di grup ini
+  goToSettingsToAddEmojis: Buka pengaturan untuk menambahkan emoji
+  emojiManagement: Pengelolaan Emoji
+  manageEmojiGroupsAndImages: Kelola grup dan gambar emoji
+  uploadLocalImages: Unggah Gambar Lokal
+  uploadingImages: Mengunggah Gambar
+  uploadingImagesProgress: 'Mengunggah ${count} gambar, mohon tunggu...'
+  doNotCloseDialog: Harap jangan tutup dialog ini
+  uploadSuccess: 'Berhasil mengunggah ${count} gambar'
+  uploadFailed: 'Gagal ${count}'
+  uploadFailedMessage: Gagal mengunggah gambar, silakan periksa koneksi jaringan atau format berkas
+  uploadErrorMessage: 'Terjadi kesalahan saat mengunggah: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "Pilih Bidang"
+  add: "Tambah"
+  clear: "Bersihkan"
+  clearAll: "Bersihkan Semua"
+  generatedQuery: "Kueri yang Dihasilkan"
+  copyToClipboard: "Salin ke Papan Klip"
+  copied: "Disalin"
+  filterCount: "${count} filter"
+  
+  # Filter Button Widget
+  filterSettings: "Pengaturan Filter"
+  
+  # Filter Row Widget
+  field: "Bidang"
+  operator: "Operator"
+  language: "Bahasa"
+  value: "Nilai"
+  dateRange: "Rentang Tanggal"
+  numberRange: "Rentang Angka"
+  from: "Dari"
+  to: "Sampai"
+  date: "Tanggal"
+  number: "Angka"
+  boolean: "Boolean"
+  tags: "Tag"
+  select: "Pilih"
+  clickToSelectDate: "Klik untuk memilih tanggal"
+  pleaseEnterValidNumber: "Silakan masukkan angka yang valid"
+  pleaseEnterValidDate: "Silakan masukkan format tanggal yang valid (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "Nilai awal harus kurang dari nilai akhir"
+  startDateMustBeBeforeEndDate: "Tanggal mulai harus sebelum tanggal akhir"
+  pleaseFillStartValue: "Silakan isi nilai awal"
+  pleaseFillEndValue: "Silakan isi nilai akhir"
+  rangeValueFormatError: "Kesalahan format nilai rentang"
+  
+  # Filter Operators
+  contains: "Mengandung"
+  equals: "Sama dengan"
+  notEquals: "Tidak Sama dengan"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "Rentang"
+  in: "Mengandung Salah Satu"
+  notIn: "Tidak Mengandung Salah Satu"
+  
+  # Filter Field Types
+  username: "Nama Pengguna"
+  nickname: "Nama Panggilan"
+  registrationDate: "Tanggal Pendaftaran"
+  description: "Deskripsi"
+  title: "Judul"
+  body: "Isi"
+  author: "Penulis"
+  publishDate: "Tanggal Publikasi"
+  private: "Privat"
+  duration: "Durasi (detik)"
+  likes: "Suka"
+  views: "Tayangan"
+  comments: "Komentar"
+  rating: "Peringkat"
+  imageCount: "Jumlah Gambar"
+  videoCount: "Jumlah Video"
+  createDate: "Tanggal Dibuat"
+  content: "Konten"
+  
+  # Rating Options
+  all: "Semua"
+  adult: "Dewasa"
+  general: "Umum"
+  
+  # Boolean Values
+  yes: "Ya"
+  no: "Tidak"
+  
+  # Content Types
+  users: "Pengguna"
+  videos: "Video"
+  images: "Gambar"
+  posts: "Postingan"
+  forumThreads: "Utas Forum"
+  forumPosts: "Postingan Forum"
+  playlists: "Daftar Putar"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "Relevansi"
+    latest: "Terbaru"
+    views: "Tayangan"
+    likes: "Suka"
+  # Filter drawer
+  drawerSubtitle: "Perubahan berlaku seketika"
+
+firstTimeSetup:
+  welcome:
+    title: "Selamat Datang"
+    subtitle: "Mari mulai perjalanan penyiapan yang dipersonalisasi"
+    description: "Hanya beberapa langkah untuk menyesuaikan pengalaman terbaik bagi Anda"
+  basic:
+    title: "Pengaturan Dasar"
+    subtitle: "Personalisasi pengalaman Anda"
+    description: "Pilih preferensi yang sesuai untuk Anda"
+  network:
+    title: "Pengaturan Jaringan"
+    subtitle: "Konfigurasikan opsi jaringan"
+    description: "Sesuaikan dengan lingkungan jaringan Anda"
+    tip: "Perlu dimulai ulang setelah konfigurasi berhasil agar berlaku"
+  theme:
+    title: "Pengaturan Tema"
+    subtitle: "Pilih tampilan yang Anda sukai"
+    description: "Personalisasi pengalaman visual Anda"
+  player:
+    title: "Pengaturan Pemutar"
+    subtitle: "Konfigurasikan kontrol pemutaran"
+    description: "Atur preferensi pemutaran yang umum digunakan dengan cepat"
+  spatial:
+    title: "Pemutaran Spasial"
+    subtitle: "Menonton dan menelusuri di headset"
+    description: "Di headset, video dan galeri muncul di ruang sekitar Anda alih-alih di dalam panel melayang ini"
+  completion:
+    title: "Selesaikan Penyiapan"
+    subtitle: "Anda siap memulai perjalanan Anda"
+    description: "Silakan baca dan setujui perjanjian terkait"
+    agreementTitle: "Perjanjian Pengguna dan Aturan Komunitas"
+    agreementDesc: "Sebelum menggunakan aplikasi ini, harap baca dan setujui perjanjian pengguna serta aturan komunitas kami dengan saksama. Ketentuan ini membantu menjaga lingkungan yang baik."
+    checkboxTitle: "Saya telah membaca dan menyetujui perjanjian pengguna dan aturan komunitas"
+    checkboxSubtitle: "Anda tidak dapat menggunakan aplikasi jika tidak setuju"
+  common:
+    settingsChangeableTip: "Pengaturan ini dapat diubah kapan saja di Pengaturan"
+    previousStep: "Langkah sebelumnya"
+    nextStep: "Langkah berikutnya"
+    finishSetup: "Selesaikan penyiapan"
+    agreeAgreementSnackbar: "Silakan setujui perjanjian pengguna dan aturan komunitas terlebih dahulu"
+
+proxyHelper:
+  systemProxyDetected: "Proksi sistem terdeteksi"
+  copied: "Disalin"
+  copy: "Salin"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "Pilih Tag"
+  clickToSelectTags: "Klik untuk memilih tag"
+  addTag: "Tambah Tag"
+  removeTag: "Hapus Tag"
+  deleteTag: "Hapus Tag"
+  usageInstructions: "Tambahkan tag terlebih dahulu, lalu klik untuk memilih dari tag yang ada"
+  usageInstructionsTooltip: "Petunjuk Penggunaan"
+  addTagTooltip: "Tambah Tag"
+  removeTagTooltip: "Hapus Tag"
+  cancelSelection: "Batalkan Pilihan"
+  selectAll: "Pilih Semua"
+  cancelSelectAll: "Batalkan Pilih Semua"
+  delete: "Hapus"
+
+# Anime4K Settings
+anime4k:
+  realTimeVideoUpscalingAndDenoising: "Peningkatan resolusi dan penghilangan noise video secara real-time, meningkatkan kualitas video animasi"
+  settings: "Pengaturan Anime4K"
+  preset: "Preset Anime4K"
+  disable: "Nonaktifkan Anime4K"
+  disableDescription: "Nonaktifkan efek peningkatan video"
+  highQualityPresets: "Preset Kualitas Tinggi"
+  fastPresets: "Preset Cepat"
+  litePresets: "Preset Ringan"
+  moreLitePresets: "Preset Lebih Ringan"
+  customPresets: "Preset Kustom"
+  presetGroups:
+    highQuality: "Kualitas Tinggi"
+    fast: "Cepat"
+    lite: "Ringan"
+    moreLite: "Lebih Ringan"
+    custom: "Kustom"
+  presetDescriptions:
+    mode_a_hq: "Cocok untuk sebagian besar animasi 1080p, terutama yang menghadapi blur, resampling, dan artefak kompresi. Memberikan kualitas persepsi tertinggi."
+    mode_b_hq: "Cocok untuk animasi dengan blur ringan atau efek ringing akibat penskalaan. Dapat mengurangi ringing dan aliasing secara efektif."
+    mode_c_hq: "Cocok untuk sumber berkualitas tinggi (seperti animasi 1080p asli atau film). Menghilangkan noise dan memberikan PSNR tertinggi."
+    mode_a_a_hq: "Versi lanjutan Mode A, memberikan kualitas persepsi maksimal dan dapat merekonstruksi hampir semua garis yang rusak. Dapat menimbulkan penajaman berlebihan atau ringing."
+    mode_b_b_hq: "Versi lanjutan Mode B, memberikan kualitas persepsi lebih tinggi, lebih mengoptimalkan garis dan mengurangi artefak."
+    mode_c_a_hq: "Versi Mode C dengan kualitas persepsi yang ditingkatkan, mempertahankan PSNR tinggi sekaligus mencoba merekonstruksi sebagian detail garis."
+    mode_a_fast: "Versi cepat Mode A, menyeimbangkan kualitas dan performa, cocok untuk sebagian besar animasi 1080p."
+    mode_b_fast: "Versi cepat Mode B, untuk menangani artefak dan ringing ringan dengan beban lebih rendah."
+    mode_c_fast: "Versi cepat Mode C, untuk penghilangan noise dan peningkatan resolusi sumber berkualitas tinggi secara cepat."
+    mode_a_a_fast: "Versi cepat Mode A+A, mengejar kualitas persepsi lebih tinggi pada perangkat dengan performa terbatas."
+    mode_b_b_fast: "Versi cepat Mode B+B, menyediakan perbaikan garis dan pemrosesan artefak yang ditingkatkan untuk perangkat dengan performa terbatas."
+    mode_c_a_fast: "Versi cepat Mode C+A, memproses sumber berkualitas tinggi dengan cepat sekaligus memberikan perbaikan garis ringan."
+    upscale_only_s: "Peningkatan resolusi x2 ultra cepat hanya dengan model CNN tercepat, tanpa perbaikan dan penghilangan noise, beban performa minimal."
+    upscale_deblur_fast: "Peningkatan resolusi dan penghilangan blur secara cepat menggunakan algoritma tradisional non-CNN, lebih baik daripada algoritma pemutar bawaan dengan beban performa sangat rendah."
+    restore_s_only: "Hanya perbaikan menggunakan model CNN tercepat, tanpa peningkatan resolusi. Cocok untuk pemutaran resolusi asli yang ingin ditingkatkan kualitasnya."
+    denoise_bilateral_fast: "Penghilangan noise cepat menggunakan filter bilateral tradisional, sangat cepat, cocok untuk menangani noise ringan."
+    upscale_non_cnn: "Peningkatan resolusi cepat menggunakan algoritma tradisional, beban performa sangat rendah, lebih baik daripada bawaan pemutar."
+    mode_a_fast_darken: "Mode A (Cepat) + Penggelapan garis, menambahkan efek penggelapan garis pada mode A cepat untuk garis yang lebih menonjol dan bergaya."
+    mode_a_hq_thin: "Mode A (HQ) + Penipisan garis, menambahkan efek penipisan garis pada mode A kualitas tinggi untuk tampilan yang lebih halus."
+  presetNames:
+    mode_a_hq: "Mode A (HQ)"
+    mode_b_hq: "Mode B (HQ)"
+    mode_c_hq: "Mode C (HQ)"
+    mode_a_a_hq: "Mode A+A (HQ)"
+    mode_b_b_hq: "Mode B+B (HQ)"
+    mode_c_a_hq: "Mode C+A (HQ)"
+    mode_a_fast: "Mode A (Fast)"
+    mode_b_fast: "Mode B (Fast)"
+    mode_c_fast: "Mode C (Fast)"
+    mode_a_a_fast: "Mode A+A (Fast)"
+    mode_b_b_fast: "Mode B+B (Fast)"
+    mode_c_a_fast: "Mode C+A (Fast)"
+    upscale_only_s: "Peningkatan Resolusi CNN (Ultra Cepat)"
+    upscale_deblur_fast: "Peningkatan Resolusi & Penghilangan Blur (Cepat)"
+    restore_s_only: "Restorasi (Ultra Cepat)"
+    denoise_bilateral_fast: "Penghilangan Noise Bilateral (Ultra Cepat)"
+    upscale_non_cnn: "Peningkatan Resolusi Non-CNN (Ultra Cepat)"
+    mode_a_fast_darken: "Mode A (Cepat) + Penggelapan Garis"
+    mode_a_hq_thin: "Mode A (HQ) + Penipisan Garis"
+  performanceTip: "💡 Tips: Pilih preset yang sesuai dengan performa perangkat. Perangkat kelas bawah disarankan menggunakan preset ringan."
+  compatibilityTip: "⚠️ Sebagian GPU seluler (mis. Kirin 980 / Mali-G76) tidak dapat merender shader kustom apa pun. Jika gambar menjadi hitam sementara audio tetap berjalan, nonaktifkan Anime4K di sini."
+  autoDisabledOnRenderFailure: "GPU perangkat Anda gagal merender shader Anime4K, sehingga dinonaktifkan secara otomatis."
+
+siteMode:
+  title: Mode Situs
+  mainSite: Main
+  aiSite: AI
+  drawerSubtitle: 'Saat ini ${currentSite} · Ketuk untuk beralih ke ${nextSite}'
+  dialogTitle: Beralih Mode Situs
+  dialogDescription: Beralih akan menyegarkan seluruh aplikasi dan mengatur ulang daftar serta status halaman yang dimuat sebelumnya.
+  chooseLinkTargetTitle: Pilih Situs Tujuan
+  chooseLinkTargetDescription: Tautan ini tidak menyertakan domain. Silakan pilih apakah akan membukanya di Main atau AI.
+  chooseLinkTargetHint: Setelah dibuka, halaman ini dan permintaan detail lanjutannya akan terus menggunakan situs yang dipilih.
+  alreadyUsing: Anda sudah menggunakan mode situs ini.
+  openInSite: 'Buka di ${site}'
+  confirmUsing: 'Setelah dikonfirmasi, permintaan mendatang akan menggunakan mode ${site}.'
+  switched: 'Beralih ke ${site}. Aplikasi telah disegarkan.'
+savedSearchConfig:
+  title: Filter Tersimpan
+  empty: Belum ada filter tersimpan
+  saveTooltip: Simpan filter saat ini
+  namePromptTitle: Simpan Filter
+  nameLabel: Nama
+  nameHint: Masukkan nama
+  saveSuccess: Filter disimpan
+  deleteSuccess: Filter dihapus
+  addCurrent: Simpan filter saat ini
+  reorderHint: Tekan lama dan seret untuk mengurutkan
+  rename: Ganti Nama
+  unnamed: Tanpa Nama
+  noConditions: Semua konten (tanpa filter)
+  tagsCount: '${count} tag'
+savedSearch:
+  title: Pencarian Tersimpan
+  empty: Belum ada pencarian tersimpan
+  saveTooltip: Simpan pencarian saat ini
+  namePromptTitle: Simpan Pencarian
+  nameLabel: Nama
+  nameHint: Masukkan nama
+  saveSuccess: Pencarian disimpan
+  deleteSuccess: Pencarian dihapus
+  addCurrent: Simpan pencarian saat ini
+  reorderHint: Tekan lama dan seret untuk mengurutkan
+  rename: Ganti Nama
+  noKeyword: (Tanpa kata kunci)
+  filtersCount: '${count} filter'
+
+defaultBlacklistReminder:
+  title: Daftar Hitam Tag Bawaan Terdeteksi
+  content: Akun Anda masih menggunakan daftar hitam tag yang diterapkan situs web secara otomatis ke setiap akun baru. Ingin meninjau dan mengelolanya?
+  goManage: Kelola
+  dismiss: Nanti saja
+
+# Color Vision Assist (colorblind filter)
+colorVisionAssist:
+  title: "Bantuan Penglihatan Warna"
+  description: "Mengoreksi warna video bagi penonton dengan defisiensi penglihatan warna, dapat digunakan bersama Anime4K"
+  galleryDescription: "Mengoreksi warna gambar galeri bagi penonton dengan defisiensi penglihatan warna (terlepas dari sakelar pemutar)"
+  galleryDescriptionSpatial: "Mengoreksi warna gambar galeri bagi penonton dengan defisiensi penglihatan warna. Hanya berlaku untuk penampil 2D di panel ini — gambar pada layar spasial dirender secara native dan tidak melewati filter ini"
+  disable: "Nonaktif"
+  disableDescription: "Tanpa koreksi warna"
+  protanopia: "Bantuan Merah (Protanopia)"
+  protanopiaDescription: "Untuk protanopia — sulit membedakan warna merah"
+  deuteranopia: "Bantuan Hijau (Deuteranopia)"
+  deuteranopiaDescription: "Untuk deuteranopia — sulit membedakan warna hijau"
+  tritanopia: "Bantuan Biru (Tritanopia)"
+  tritanopiaDescription: "Untuk tritanopia — sulit membedakan warna biru dan kuning"
+  appliedToast: "${filterName} diterapkan, langsung berlaku"
+  disabledToast: "Bantuan penglihatan warna dinonaktifkan"
+externalPlayer:
+  title: "Buka dengan aplikasi lain"
+  description: "Serahkan video saat ini ke pemutar lain di perangkat ini, seperti Skybox atau Pigasus pada headset VR, atau MX Player dan VLC di ponsel"
+  openWithOtherApp: "Pilih aplikasi lain"
+  openWithOtherAppDescription: "Tampilkan pemilih sistem dan pilih pemutar untuk mengambil alih"
+  openWithSystemPlayer: "Buka di pemutar bawaan"
+  openWithSystemPlayerDescription: "Serahkan ke aplikasi video bawaan sistem"
+  copyLink: "Salin tautan video"
+  copyLinkDescription: "Untuk pemutar yang hanya dapat menempel URL, seperti Skybox atau DeoVR"
+  linkCopied: "Tautan video disalin"
+  sourceLocal: "Berkas lokal"
+  sourceOnline: "Tautan langsung"
+  sourceOnlineWithQuality: 'Tautan langsung · ${quality}'
+  onlineLinkExpiryHint: "Tautan langsung dapat kedaluwarsa, sehingga pemutar eksternal mungkin berhenti di tengah jalan. Mengunduh terlebih dahulu adalah cara yang andal."
+  vrPlayerHint: "Jika pemutar VR Anda tidak ada di pemilih, gunakan Salin tautan video lalu tempelkan di dalam pemutar tersebut."
+  noHandler: "Tidak ada aplikasi di perangkat ini yang dapat membuka video"
+  handoffFailed: 'Penyerahan gagal: ${message}'
+  handoffFailedUnknown: "Penyerahan gagal"
+  sourceUnavailable: "Tidak dapat mendapatkan alamat video saat ini, silakan coba lagi"
+  localFileMissing: "Berkas lokal sudah tidak ada"
+  handedOff: "Diserahkan ke pemutar eksternal"
+  desktopSectionTitle: "Pemutar eksternal"
+  managePlayers: "Kelola pemutar eksternal"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "Pemutar PCVR seperti HereSphere, DeoVR, dan Whirligig bukan aplikasi bawaan sistem. Arahkan ini ke berkas .exe mereka dan Anda dapat menyerahkan video saat ini langsung dari pemutar."
+  managePlayersDescMac: "Arahkan ini ke pemutar seperti IINA, VLC, atau mpv dan Anda dapat menyerahkan video saat ini langsung dari pemutar."
+  managePlayersDescLinux: "Arahkan ini ke pemutar seperti mpv, VLC, atau Celluloid dan Anda dapat menyerahkan video saat ini langsung dari pemutar."
+  pickExecutableHintWindows: "Pilih berkas .exe utama di dalam folder pemasangan pemutar, mis. HereSphere.exe atau vlc.exe. Pintasan desktop (.lnk) tidak akan berfungsi."
+  pickExecutableHintMac: "Pilih berkas .app pemutar di Applications, mis. IINA.app — berkas eksekusi sebenarnya di dalamnya akan ditemukan untuk Anda."
+  pickExecutableHintLinux: "Pilih berkas eksekusi pemutar, mis. /usr/bin/mpv. Menjalankan which mpv akan memberi tahu lokasinya."
+  emptyStateGuide: 'Setelah dikonfigurasi, ia muncul sebagai entri tersendiri di bawah Buka dengan aplikasi lain pada halaman pemutar. Yang umum: ${examples}'
+  detectNothingFoundGuide: "Tidak ada pemutar terpasang yang ditemukan. Folder pemasangan kustom dan versi portabel tidak dapat dideteksi — gunakan Tambah pemutar untuk menunjuk pemutar sendiri."
+  detectNothingNew: "Tidak ada pemutar baru yang ditemukan; semua yang terpasang sudah ada dalam daftar"
+  detectFailed: "Deteksi gagal — gunakan Tambah pemutar untuk menunjuk pemutar sendiri"
+  advancedOptions: "Lanjutan"
+  playerNameHint: "Biarkan kosong untuk menggunakan nama berkas"
+  executablePathRequired: "Pilih berkas eksekusi pemutar terlebih dahulu"
+  playerCount: '${count} dikonfigurasi'
+  noPlayerConfigured: "Belum ada pemutar eksternal yang dikonfigurasi"
+  autoDetect: "Deteksi otomatis"
+  detecting: "Mendeteksi…"
+  detectFound: 'Menemukan ${count} pemutar'
+  detectNothingFound: "Tidak ada pemutar baru yang ditemukan, tambahkan secara manual"
+  autoDetectedTag: "terdeteksi"
+  addPlayer: "Tambah pemutar"
+  editPlayer: "Ubah pemutar"
+  playerName: "Nama"
+  executablePath: "Berkas eksekusi"
+  browse: "Telusuri"
+  argumentTemplate: "Argumen peluncuran"
+  argumentTemplateHint: "Gunakan {input} untuk jalur atau URL video. Biarkan kosong untuk meneruskannya sebagai satu-satunya argumen."
+  nameAndPathRequired: "Nama dan berkas eksekusi keduanya wajib diisi"
+  testLaunch: "Uji peluncuran"
+  testLaunched: "Pemutar diluncurkan"
+  testFailed: "Peluncuran gagal, periksa jalur berkas eksekusi"
+  executableMissing: "Berkas eksekusi tidak ditemukan"
+  openWithNamed: 'Buka di ${name}'
+  managePlayersEntry: "Kelola pemutar eksternal…"
+watchLater:
+  title: Tonton Nanti
+  addToWatchLater: Tonton nanti
+  removeFromWatchLater: Hapus dari Tonton Nanti
+  addedToWatchLater: Ditambahkan ke Tonton Nanti
+  alreadyInWatchLater: Sudah ada di Tonton Nanti
+  removedFromWatchLater: Dihapus dari Tonton Nanti
+  removedCount: Menghapus ${count} item
+  viewWatchLaterList: Lihat daftar
+  addFailed: Gagal menambahkan ke Tonton Nanti
+  invalidItem: Tidak Tersedia
+  clearWatched: Bersihkan yang telah ditonton
+  watchedCleared: Membersihkan ${count} item yang ditonton
+  noWatchedToClear: Tidak ada yang ditonton untuk dibersihkan
+  emptyVideo: Belum ada video di Tonton Nanti
+  emptyGallery: Belum ada galeri di Tonton Nanti
+  filterAll: Semua
+  filterUnwatched: Belum Ditonton
+  sortRecentlyAdded: Baru-baru ini ditambahkan
+  sortEarliestAdded: Ditambahkan paling awal
+  watched: Ditonton
+  playlistLoadFailed: Gagal memuat daftar putar
+  noPlaylists: Belum ada daftar putar
+  undo: Urungkan
+  clearWatchedConfirm: Hapus semua yang sudah Anda tonton di tab ini? Tindakan ini tidak dapat dibatalkan.
+  emptyUnwatchedVideo: Tidak ada lagi yang bisa ditonton di sini
+  emptyUnwatchedGallery: Tidak ada lagi yang bisa dilihat di sini
+  queueLoadFailed: Gagal memuat, ketuk untuk mencoba lagi
+mediaMenu:
+  like: Suka
+  unlike: Batal Suka
+  viewAuthor: Lihat penulis
+  inFolders: ${count} folder
+  inPlaylists: ${count} daftar putar
+  downloaded: Terunduh
+mediaPreview:
+  preview: Pratinjau
+  openDetail: Buka
+  moreActions: Tindakan lainnya
+  previousImage: Gambar sebelumnya
+  nextImage: Gambar berikutnya
+playbackQueue:
+  galleryImageCount: '${count} gambar'
+  upNext: Berikutnya
+  sourceTab: Sumber
+  emptyQueue: Tidak ada yang dapat diputar dalam antrean ini
+  emptyGalleryQueue: Tidak ada galeri dalam antrean ini
+  nowPlaying: Sedang diputar
+  myPlaylists: Daftar putar saya
+  authorPlaylists: Daftar putar penulis
+  openQueue: Berikutnya
+  continueInQueue: Lanjutkan pemutaran dari antrean saat ini
+  continueInQueueSubtitle: Memutar item berikutnya secara otomatis; menonaktifkan "ulangi saat selesai"
+  repeatDisabledByQueue: Dinonaktifkan saat "lanjutkan pemutaran dari antrean saat ini" aktif
+  playNext: Putar berikutnya
+  queueEnded: Ini adalah item terakhir dalam antrean
+  playNextHint: Ketuk untuk memutar item berikutnya, tekan lama untuk membuka Berikutnya
+  authorVideos: Video penulis
+  authorGalleries: Galeri penulis
+  favoriteFolders: Folder favorit
+  localFiles: Di perangkat ini
+  currentFolder: Folder file ini
+  playThisFolder: Lihat antrean video folder ini
+  browseThisFolder: Lihat antrean galeri folder ini
+  downloads: Diunduh
+  otherPlaylists: Daftar putar pengguna lain
+  nothingHere: Tidak ada apa-apa di sini
+
+vrFormat:
+  playInSpace: Putar di pemutar spasial
+  handingOff: Menyerahkan ke ruang…
+  title: Mode pemutaran
+  spatialSectionTitle: Pemutaran spasial
+  spatialSectionDesc: Di headset, video tidak digambar di dalam panel ini — pemutar spasial menempatkannya di layar di dalam ruangan.
+  spatialPanelEntry: Panel kontrol spasial
+  spatialPanelEntryDesc: Jarak layar, ukuran dan kelengkungan, lingkungan latar belakang, serta kecepatan, pengulangan, dan sembunyikan otomatis semuanya ada di panel kontrol spasial.
+  spatialGuideEntry: Panduan kontrol headset
+  spatialGuideEntryDesc: Tombol pengontrol, memegang layar, pencarian stik, dan pembalikan halaman
+  spatialFlatOmitted: Gerakan sentuh, peningkatan gambar, dan parameter audio/video hanya berlaku untuk pemutar 2D; pemutar spasial berjalan pada mesin yang berbeda, sehingga tidak dicantumkan di sini.
+  spatialGallerySectionTitle: Galeri spasial
+  spatialGalleryPanelDesc: Interval tayangan slide, pengulangan klip tunggal, dan kelengkungan layar semuanya diatur di panel kontrol spasial.
+  autoEnterGallery: Buka gambar galeri di galeri spasial
+  autoEnterGalleryDesc: Di Quest, mengetuk gambar akan membuka seluruh galeri di layar melayang dengan strip film, tayangan slide, dan pembalikan halaman pengontrol, alih-alih penampil di dalam panel ini.
+  panelSettings: Panel & latar belakang
+  panelSettingsDesc: Seberapa jauh panel aplikasi ini berada, dan seberapa banyak ruangan Anda terlihat di belakangnya
+  panelDistance: Jarak panel
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: Atur ulang penempatan
+  panelResetBackground: Atur ulang ke bawaan
+  panelBackground: Transparansi latar belakang
+  panelBackgroundHint: '0%: lingkungan hitam · 100%: ruangan nyata Anda, dengan pencahayaan sekitar'
+  panelUnavailable: Panel sedang tidak pada tempatnya — coba lagi sebentar lagi
+  desc: Pilih geometri yang harus digunakan untuk memutar video ini. Situs tidak menyediakan informasi ini, jadi deteksi otomatis hanya memilih titik awal — pilihan Anda yang menang.
+  sectionFlat: Datar
+  sectionStereo: 3D datar
+  sectionPanorama: Panorama VR
+  flat: Video normal
+  flatDesc: Putar apa adanya, tanpa pemetaan ulang
+  flatSideBySide: 3D berdampingan
+  flatSideBySideDesc: Satu mata per separuh, kiri dan kanan; menampilkan mata kiri dan memulihkan rasio aspeknya
+  flatTopBottom: 3D atas-bawah
+  flatTopBottomDesc: Satu mata per separuh, atas dan bawah; menampilkan separuh atas dan memulihkan rasio aspeknya
+  vr180SideBySide: VR180 berdampingan
+  vr180SideBySideDesc: Panorama hemisferis dengan kedua mata — sumber VR paling umum
+  vr180Mono: VR180 mono
+  vr180MonoDesc: Panorama hemisferis, satu mata per bingkai
+  vr360Mono: VR360 mono
+  vr360MonoDesc: Panorama sekeliling penuh, satu mata per bingkai
+  vr360TopBottom: VR360 atas-bawah
+  vr360TopBottomDesc: Panorama sekeliling penuh dengan kedua mata ditumpuk
+  resetView: Atur ulang tampilan
+  resetViewDesc: Kembalikan arah pandang dan bidang pandang ke depan
+  resetToAuto: Kembali ke deteksi otomatis
+  resetToAutoDesc: Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi
+  manualBadge: Diatur secara manual
+  panoramaHint: Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang
+  panoramaGestureNotice: Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari
+  shaderUnsupported: Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya
+  handoffTooltip: Putar dengan cara lain
+  suggestedBadge: Disarankan
+  suggestedEntryDesc: 'Tampak seperti ${format} — ketuk untuk beralih'
+  suggestionTitle: 'Ini mungkin video VR (${format})'
+  suggestionTitleShort: Ini mungkin video VR
+  suggestionAction: Putar sebagai VR
+  suggestionDismiss: Tutup
+localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: Akses cepat
+    sourcesSection: Folder
+    pin: Tambahkan ke akses cepat
+    unpin: Hapus dari akses cepat
+    pinned: Ditambahkan ke akses cepat
+    unpinned: Dihapus dari akses cepat
+    folderCount: "${count} folder"
+    videoCount: "${count} video"
+    imageCount: "${count} gambar"
+    emptyFolder: Folder ini kosong
+    videosSection: Video
+    imagesSection: Gambar
+    galleriesSection: Galeri
+    location: Lokasi
+    sourceMissing: Sumber ini sudah hilang
+    notScannedYet: Folder ini belum dipindai
+    scanning: Membaca folder ini…
+    deleteFileTitle: Hapus berkas ini?
+    deleteFileBody: '"${name}" akan dihapus secara permanen dari perangkat ini. Tindakan ini tidak dapat dibatalkan.'
+    deleteGalleryTitle: Hapus galeri ini?
+    deleteGalleryBody: 'Catatan unduhan dan berkas gambar lokal "${name}" akan dihapus. Tindakan ini tidak dapat dibatalkan.'
+    galleryResourceMissing: Berkas lokal sudah tidak ada. Catatan dibersihkan.
+    viewDownloadDetail: Lihat rincian unduhan
+    viewOnlineGallery: Lihat di situs web
+    pickFolderTitle: Pilih folder
+    useThisFolder: Gunakan folder ini
+    noSubfolders: Tidak ada subfolder di sini
+    storageRoot: Penyimpanan perangkat
+    homeFolder: Beranda
+    filesystemRoot: Akar sistem berkas
+    folderUnreadable: Folder ini tidak dapat dibaca
+    setCover: Atur sampul
+    setAsFolderCover: Gunakan sebagai sampul folder
+    folderCoverSet: Sampul folder diperbarui
+    setFolderCoverPick: Atur sampul…
+    restoreAutoCover: Pulihkan sampul otomatis
+    autoCoverRestored: Sampul otomatis dipulihkan
+    rescanFolder: Pindai ulang folder ini
+    coverPickerTitle: Pilih satu bingkai
+    folderCoverPickerTitle: Pilih sampul
+    coverPickerEmpty: Belum ada gambar di folder ini. Thumbnail video mungkin masih dibuat di latar belakang.
+    coverSaved: Sampul diperbarui
+    coverSaveFailed: Tidak dapat menyimpan sampul
+    coverUnavailable: Tidak ada bingkai video yang dapat dibaca dari berkas ini
+    deleted: Dihapus
+    deleteFailed: Tidak dapat menghapus — berkas mungkin sedang digunakan atau tidak dapat ditulis
+    openFolder: Buka
+    favorite: Tambahkan ke favorit
+    unfavorite: Hapus dari favorit
+    favorited: Ditambahkan ke favorit
+    unfavorited: Dihapus dari favorit
+    sortBy: Urutkan berdasarkan
+    sortAscending: Naik
+    sortDescending: Turun
+    sortFieldName: Nama
+    sortFieldModified: Tanggal diubah
+    sortFieldDuration: Durasi
+    sortFieldSize: Ukuran
+    sortFieldResolution: Resolusi
+    sortFieldFileType: Jenis berkas
+    sortFieldFps: Laju bingkai
+    sortFieldFavorited: Tanggal difavoritkan
+    emptyAllVideos: Belum ada video yang ditemukan. Tambahkan folder di bagian Folder untuk memulai.
+    emptyAllImages: Belum ada gambar yang ditemukan. Tambahkan folder di bagian Folder untuk memulai.
+    emptyFavorites: Belum ada favorit. Tambahkan satu dari menu ⋮ pada video.
+    emptyPinned: Belum ada folder yang disematkan. Tekan lama folder di bagian Folder lalu pilih Sematkan.
+    emptyDownloadedVideos: Belum ada unduhan video yang selesai.
+    emptyDownloadedGalleries: Belum ada unduhan galeri yang selesai.
+    folderInfo: Info folder
+    folderInfoName: Nama
+    folderInfoPath: Jalur
+    folderInfoSource: Sumber
+    folderInfoContents: Isi
+    folderInfoSize: Ukuran di disk
+    folderInfoScannedAt: Terakhir dipindai
+    folderInfoNeverScanned: Belum dipindai
+    folderInfoNoPath: Sumber ini tidak memiliki folder untuk dibuka
+    copyPath: Salin jalur
+    pathCopied: Jalur disalin
+  tabFolders: Folder
+  tabFavoriteVideos: Favorit
+  tabAllVideos: Semua video
+  tabAllImages: Semua gambar
+  tabDownloadedVideos: Video terunduh
+  tabDownloadedGalleries: Galeri terunduh
+  title: Di perangkat ini
+  sourceOnline: Iwara online
+  manageSources: Kelola sumber
+  moveToCategory: Pindahkan ke kategori
+  manageCategories: Kelola kategori
+  suggestedFolders: Folder dengan video
+  sortRecentlyAdded: Baru ditambahkan
+  sortRecentlyPlayed: Baru diputar
+  sortName: Nama
+  sortDuration: Durasi
+  sortSize: Ukuran
+  sortFolder: Folder
+  sortRecentlyModified: Baru diubah
+  sortCount: Jumlah
+  folderCardItemCount: "${count} gambar"
+  downloadsSource: Diunduh
+  builtInSourceHint: Unduhan dikelola secara otomatis
+  filterByCategory: Saring berdasarkan kategori
+  longPressToCategorize: Tekan lama untuk memindahkan ke kategori
+  uncategorized: Tanpa Kategori
+  setCategoryFailed: Tidak dapat mengatur kategori
+  categoryUpdated: Kategori diperbarui
+  addFolder: Tambah folder
+  addDeviceVideos: Pindai video perangkat
+  mediaStoreSourceName: Video perangkat
+  mediaStoreUnavailable: Indeks media perangkat hanya tersedia di Android
+  mediaStorePermissionDenied: Akses video tidak diberikan
+  rescan: Pindai ulang
+  scanning: "Memindai… ${count} ditemukan"
+  scanFailed: "Pemindaian gagal: ${reason}"
+  scanTruncated: "Folder itu sangat besar — hanya ${count} berkas pertama yang ditambahkan."
+  sourceOverlaps: "Sudah tercakup oleh folder \"${name}\""
+  addedAsPinnedFolder: "\"${name}\" berada di dalam \"${source}\", jadi ditambahkan ke folder yang disematkan"
+  alreadyPinnedFolder: "\"${name}\" sudah ada di folder yang disematkan"
+  sourceAlreadyAdded: "\"${name}\" sudah ditambahkan"
+  sourceContainsExisting: "Sudah berisi folder yang ditambahkan \"${name}\"; menambahkan folder induknya belum didukung"
+  addSourceFailed: Tidak dapat menambahkan folder tersebut
+  fileMissing: Berkas itu sudah tidak ada di disk
+  permissionDenied: Akses berkas tidak diberikan · ketuk untuk memberi izin
+  noVideosFound: Tidak ada video di folder ini
+  emptyTitle: Tambahkan folder untuk menonton video yang sudah ada di perangkat ini
+  emptyPrivacyNote: Berkas hanya dibaca di perangkat ini. Tidak ada yang diunggah.
+  removeSourceTitle: "Hapus \"${name}\"?"
+  removeSourceBody: Berkas tetap ada di disk. Hanya entri pustaka ini yang dihapus.
+  remove: Hapus
+  removeFolder: Hapus folder
+  removeFolderSelectTitle: Pilih folder untuk dihapus
+  longPressToRemove: Tekan lama untuk menghapus folder ini
+  clearProgress: Bersihkan riwayat tontonan lokal
+  clearProgressCount: "${count} entri"
+  clearProgressEmpty: Belum ada riwayat tontonan lokal
+  clearProgressTitle: Bersihkan riwayat tontonan lokal?
+  clearProgressBody: Hanya posisi pemutaran dan tanda tonton yang dihapus. Berkas dan folder Anda tetap seperti semula.
+  clearProgressDone: "Membersihkan ${count} entri riwayat tontonan lokal"
+  clearAction: Bersihkan
+  iosManualRescanNotice: iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.

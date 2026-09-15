@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest 空间面板的全部界面文案（默认语言 = 英文，与 lib/i18n 的 base_locale 一致）。
+
+  ⛔ 这些词**不跟系统语言走**，跟应用内的「语言」设置走：Dart 侧把
+  `LocaleSettings.currentLocale.languageTag` 通过 XrBridge 的 `setLocale` / `present`
+  推给原生，面板与提示都用 `Context.withPanelLocale(tag)` 造出来的 Context 取词
+  （见 PanelLocale.kt）。所以这里的 values-xx 目录必须与 lib/i18n 的语种保持一致：
+  en（本文件）/ zh-rCN / zh-rTW / ja。
+
+  ⛔ 新增文案一律进这里，别在 Kotlin 里写字面量 —— 面板是产品界面，不是日志。
+-->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">Zurück</string>
+    <string name="xr_refresh">Aktualisieren</string>
+    <string name="xr_reset">Zurücksetzen</string>
+    <string name="xr_loading">Wird geladen…</string>
+    <string name="xr_buffering">Puffert…</string>
+    <string name="xr_open_with">Mit anderer App öffnen</string>
+    <string name="xr_not_supported_here">Hier nicht unterstützt</string>
+
+    <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
+
+    <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
+    <string name="xr_curve_flat">Flacher Bildschirm</string>
+    <string name="xr_curve_slight">Leichte Krümmung</string>
+    <string name="xr_curve_medium">Mittlere Krümmung</string>
+    <string name="xr_curve_deep">Starke Krümmung</string>
+    <string name="xr_curve_flat_hint">Ein flacher Bildschirm</string>
+    <string name="xr_curve_slight_hint">40°-Bogen</string>
+    <string name="xr_curve_medium_hint">60°-Bogen</string>
+    <string name="xr_curve_deep_hint">85°-Bogen</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab（枚举 FormatTab） -->
+    <string name="xr_tab_flat">Flachvideo</string>
+    <string name="xr_tab_panorama">Panorama</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">Fisheye</string>
+
+    <!-- ─────────────────────────────── 具体格式（枚举 VideoFormat） -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D nebeneinander</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D übereinander</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D nebeneinander</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D übereinander</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <!-- 走带行那枚钮上的短标签：「大类 · 具体格式」。 -->
+    <string name="xr_format_short_flat">Flach · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">Fisheye · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸（枚举 AspectPreset） -->
+    <string name="xr_aspect_default">Standard</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后（枚举 RepeatMode） -->
+    <string name="xr_repeat_one">Eins wiederholen</string>
+    <string name="xr_repeat_next">Nächstes abspielen</string>
+    <string name="xr_repeat_stop">Nach Ende stoppen</string>
+    <string name="xr_repeat_one_hint">Wiederholt immer dieses</string>
+    <string name="xr_repeat_next_hint">Mit dem nächsten in der Liste fortfahren</string>
+    <string name="xr_repeat_stop_hint">Bleibt auf dem letzten Bild stehen</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">Bedienelemente ausblenden</string>
+    <string name="xr_player_title_fallback">Wird abgespielt</string>
+    <string name="xr_switching_chip">Nächstes wird geladen…</string>
+    <string name="xr_nav_scene">Umgebung</string>
+    <string name="xr_nav_playlist">Wiedergabeliste</string>
+    <string name="xr_nav_settings">Einstellungen</string>
+    <string name="xr_nav_back_to_app">Zurück zur App</string>
+    <string name="xr_volume">Systemlautstärke</string>
+    <string name="xr_muted_badge">Stumm</string>
+    <string name="xr_mute">Stumm</string>
+    <string name="xr_unmute">Ton an</string>
+    <string name="xr_previous">Zurück</string>
+    <string name="xr_next">Weiter</string>
+    <string name="xr_seek_back_5">5 Sekunden zurück</string>
+    <string name="xr_seek_forward_5">5 Sekunden vor</string>
+    <string name="xr_play">Wiedergabe</string>
+    <string name="xr_pause">Pause</string>
+    <string name="xr_quality">Qualität</string>
+    <!-- 本机已下载的那一档清晰度。 -->
+    <string name="xr_source_local">%1$s · heruntergeladen</string>
+    <string name="xr_restart_from_beginning">Von vorn beginnen</string>
+    <string name="xr_dismiss_tip">Schließen</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_queue_picker">Warteschlange wechseln</string>
+    <string name="xr_card_loading">Wird geladen…</string>
+    <string name="xr_untitled">(ohne Titel)</string>
+    <string name="xr_playlist_empty_title">Nichts zum Fortsetzen</string>
+    <string name="xr_playlist_empty_hint">Reihen Sie in der App ein, was Sie ansehen möchten – die Wiedergabe startet direkt von hier</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">Umgebung</string>
+    <string name="xr_scene_subtitle_flat">Umgebung und Bildschirmplatzierung</string>
+    <string name="xr_scene_subtitle_sphere">Sphärische Quelle – das Bild umgibt Sie bereits</string>
+    <string name="xr_recenter">Neu zentrieren</string>
+    <string name="xr_scene_section_environment">Umgebung</string>
+    <string name="xr_scene_section_adjust">Platzierung</string>
+    <string name="xr_screen_distance">Entfernung</string>
+    <string name="xr_screen_width">Bildschirmbreite</string>
+    <string name="xr_screen_offset">Vertikaler Versatz</string>
+    <string name="xr_scene_sphere_note">Mit „Entfernung“ das Bild näher heranholen oder weiter weg schieben. „Neu zentrieren“ stellt die Blickrichtung wieder her.</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">Bildschirmform</string>
+    <string name="xr_screen_type_subtitle">Jeder Pixel gleich weit von Ihren Augen entfernt – Sie drehen den Kopf weniger</string>
+    <string name="xr_curve_rebuild_note">Das Ändern der Bildschirmform baut den Bildschirm neu auf: Rechnen Sie mit einer kurzen Naht, danach läuft die Wiedergabe an der Stelle weiter.</string>
+    <string name="xr_section_3d_display">3D-Wiedergabe</string>
+    <string name="xr_force_mono">3D-Video als 2D erzwingen</string>
+    <string name="xr_force_mono_hint_stereo">Nutzt nur die halbe Bildfläche – wenn es schwindelig macht oder doppelt erscheint</string>
+    <string name="xr_force_mono_hint_mono">Diese Quelle ist mono, daher ohne Wirkung</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">Videotyp</string>
+    <string name="xr_video_type_subtitle">Falsch erkannt? Hier ändern – gilt sofort</string>
+    <string name="xr_auto_detect">Automatisch erkennen</string>
+    <string name="xr_format_unsupported_inline">%1$s kann hier nicht dargestellt werden; versuchen Sie, es mit einer anderen App zu öffnen</string>
+    <string name="xr_treat_180_as_fisheye">180°-Panorama bei der automatischen Erkennung als 180°-Fisheye behandeln</string>
+    <string name="xr_treat_180_as_fisheye_hint">Fisheye kann hier nicht wiedergegeben werden; aktiviert bieten 180°-Quellen „Mit anderer App öffnen“</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">Einstellungen</string>
+    <string name="xr_settings_subtitle">Nur das Wichtigste im Raum-Player; alles Weitere finden Sie in der App</string>
+    <string name="xr_section_screen_size">Bildschirmgröße</string>
+    <string name="xr_width_ratio">Breitenfaktor</string>
+    <string name="xr_height_ratio">Höhenfaktor</string>
+    <string name="xr_reset_screen_size">Bildschirmgröße zurücksetzen</string>
+    <string name="xr_section_speed">Wiedergabegeschwindigkeit</string>
+    <string name="xr_carry_over">Auf das nächste Video übertragen</string>
+    <string name="xr_carry_over_hint">An: Bildschirmgröße und Geschwindigkeit beim Wechsel beibehalten. Aus: jedes Video startet mit den Standardwerten</string>
+    <string name="xr_section_after_playback">Wenn es endet</string>
+    <string name="xr_section_panel">Bedienfeld</string>
+    <string name="xr_auto_hide">Bei Inaktivität ausblenden</string>
+    <string name="xr_auto_hide_hint">Ausblenden zerstört das Panel wirklich; einmal kneifen, um es zurückzuholen</string>
+    <string name="xr_auto_hide_seconds_label">Ab wann als inaktiv gilt</string>
+    <string name="xr_summon_in_front">Vor Ihnen einblenden</string>
+    <string name="xr_summon_in_front_hint">Verschiebt das Panel dorthin, wohin Sie beim Kneifen blicken</string>
+    <string name="xr_click_sound">Klickton</string>
+    <string name="xr_click_sound_hint">Meta: Hände haben keine Haptik, daher ist Ton nicht optional</string>
+    <string name="xr_section_controller">Controller und System</string>
+    <string name="xr_controller_tap">A/X am Controller tippen für Play/Pause</string>
+    <string name="xr_controller_tap_hint">Kein Zielen auf das Panel nötig – funktioniert quer durch den Raum</string>
+    <string name="xr_pause_on_focus_loss">Pause bei Systemmenü / Headset ab</string>
+    <string name="xr_pause_on_focus_loss_hint">Ohne Fokus schaut niemand zu, und es kostet Akku</string>
+    <string name="xr_section_bindings">Controller-Belegung</string>
+    <string name="xr_controller_bindings">Trigger / Kneifen: auswählen · Panel einblenden\nB / Y: Panel ausblenden\nStick links/rechts: halten zum Spulen (je länger, desto schneller), loslassen zum Springen\nStick hoch/runter: Bild wegdrücken / heranziehen (Panoramen: die Kugel)\nGrip: halten zum Bewegen des Bilds (Panoramen: Ansicht ziehen), loslassen zum Ausblenden</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示（ImmersiveActivity） -->
+    <string name="xr_notice_unsupported_projection">Diese Projektion kann hier nicht dargestellt werden und wird flach angezeigt; versuchen Sie „Mit anderer App öffnen“</string>
+    <string name="xr_notice_next_failed_reason">Das nächste wird nicht abgespielt (%1$s); es bleibt beim aktuellen Video</string>
+    <string name="xr_notice_next_unavailable">Das nächste lässt sich nicht öffnen; es bleibt beim aktuellen Video</string>
+    <string name="xr_notice_next_unavailable_reason">Das nächste lässt sich nicht öffnen (%1$s); es bleibt beim aktuellen Video</string>
+    <string name="xr_notice_next_timeout">Zeitüberschreitung beim Laden des nächsten; es bleibt beim aktuellen Video</string>
+    <string name="xr_notice_url_expired_refreshing">Der Wiedergabelink ist abgelaufen; ein neuer wird geladen…</string>
+    <string name="xr_notice_url_expired_no_refresh">Der Wiedergabelink ist abgelaufen und kein neuer ist eingetroffen – öffnen Sie das Video in der App erneut oder nutzen Sie einen externen Player</string>
+    <string name="xr_notice_refresh_timeout">Der Wiedergabelink ist abgelaufen und das Laden eines neuen hat zu lange gedauert – öffnen Sie das Video in der App erneut oder nutzen Sie einen externen Player</string>
+    <string name="xr_notice_playback_failed">Diese Quelle wird nicht abgespielt (%1$s); versuchen Sie einen externen Player</string>
+    <string name="xr_notice_no_external_player">Keine App auf diesem Gerät kann dieses Video öffnen</string>
+    <string name="xr_notice_resumed_at">Fortgesetzt ab %1$s</string>
+    <string name="xr_notice_volume_blocked">Das System blockiert gerade Lautstärkeänderungen (Nicht stören); ändern Sie sie über die Lautstärketasten des Headsets</string>
+
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">Bildschirm</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">Galerie</string>
+    <!-- 计数 chip：「3 / 12」。 -->
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <!-- 头部副标题里的像素尺寸。 -->
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">Diese Galerie enthält keine Dateien</string>
+    <string name="xr_gallery_video_badge">Video</string>
+    <string name="xr_gallery_slideshow">Diashow</string>
+    <string name="xr_gallery_slideshow_stop">Diashow stoppen</string>
+    <!-- 幻灯片间隔 chip：「5s」。 -->
+    <string name="xr_gallery_interval">%1$ds</string>
+    <string name="xr_gallery_quality_standard">Standard</string>
+    <string name="xr_gallery_quality_original">Original</string>
+    <string name="xr_gallery_loop">Schleife</string>
+    <string name="xr_gallery_load_failed">Diese Datei konnte nicht geladen werden (%1$s)</string>
+
+    <string name="xr_swipe_no_previous_image">Dies ist das erste Bild</string>
+    <string name="xr_swipe_no_next_image">Dies ist das letzte Bild</string>
+    <string name="xr_view_distance">Entfernung</string>
+    <string name="xr_view_distance_hint">Halten, um näher heran- oder weiter wegzugehen. Loslassen zum Stoppen.</string>
+    <string name="xr_view_nearer">Näher</string>
+    <string name="xr_view_farther">Weiter</string>
+    <string name="xr_view_distance_reset">Entfernung zurücksetzen</string>
+
+    <!-- Browsing panel: the app panel's own distance and how much room shows through. -->
+    <string name="xr_panel_settings_title">Panel &amp; Hintergrund</string>
+    <string name="xr_panel_settings_subtitle">Wo dieses App-Panel sitzt und wie viel von Ihrem Raum dahinter sichtbar ist</string>
+    <string name="xr_panel_distance">Panel-Entfernung</string>
+    <string name="xr_panel_background">Hintergrund</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">Medien-Ambiente</string>
+    <string name="xr_media_effects_hint">Weiche Kanten und Licht, das dem Bild folgt</string>
+    <string name="xr_media_effects_reset">Effekte zurücksetzen</string>
+    <string name="xr_edge_feather">Kantenweichheit</string>
+    <string name="xr_ambient_glow">Leuchtbereich &amp; Intensität</string>
+    <string name="xr_background_transparency">Hintergrundtransparenz</string>
+    <string name="xr_background_transparency_hint" formatted="false">0 %: schwarze Umgebung · 100 %: Ihr echter Raum mit Umgebungslicht</string>
+    <string name="xr_media_effects_360_hint">360°-Video umgibt Sie ohne Rand; Kantenweichheit und Leuchten gelten für flache und 180°-Medien.</string>
+    <string name="xr_media_effects_fallback">Medieneffekte sind nicht verfügbar. Die Standardwiedergabe wurde wiederhergestellt.</string>
+    <string name="xr_environment_passthrough">Durchsicht</string>
+    <string name="xr_environment_deep_space">Erde &amp; Mond</string>
+    <string name="xr_environment_brightness">Umgebungshelligkeit</string>
+    <string name="xr_environment_dynamic">3D-Bewegung</string>
+    <string name="xr_environment_show_earth">Erde anzeigen</string>
+    <string name="xr_environment_show_moon">Mond anzeigen</string>
+    <string name="xr_environment_dynamic_unavailable">3D-Bewegung ist nicht verfügbar. Das statische Sternenfeld ist aktiv.</string>
+    <string name="xr_environment_dynamic_hint">Fügt langsame Rotation und Stereo-Tiefe hinzu. Standardmäßig aus, um Energie zu sparen.</string>
+    <string name="xr_environment_deep_space_hint">Erde, Mond und ferne Sterne umgeben Sie. Senken Sie die Helligkeit für einen dunkleren Sehraum.</string>
+    <string name="xr_environment_loading">Umgebung wird vorbereitet…</string>
+    <string name="xr_environment_failed">Umgebung nicht verfügbar. Durchsicht wiederhergestellt; wählen Sie einen Hintergrund zum erneuten Versuch.</string>
+    <string name="xr_environment_void">Fokus</string>
+    <string name="xr_environment_void_hint">Ein schwarzer Sehraum, der die Aufmerksamkeit auf dem Bild hält.</string>
+    <string name="xr_environment_aurora">Polarlicht</string>
+    <string name="xr_environment_aurora_hint">Stille Schneefelder unter Nordlichtern. Ein ruhiger Horizont zum entspannten Ansehen.</string>
+    <string name="xr_environment_sunset">Sonnenuntergangsmeer</string>
+    <string name="xr_environment_sunset_hint">Warmes Abendlicht über offenem Wasser, die Sonne neben Ihrem Sichtbereich.</string>
+    <string name="xr_environment_mist">Nebelgipfel</string>
+    <string name="xr_environment_mist_hint">Schichten ferner Berge steigen durch weichen Nebel auf, wie eine Tuschelandschaft.</string>
+</resources>

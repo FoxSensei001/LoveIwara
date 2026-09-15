@@ -1,0 +1,3155 @@
+# en.i18n.yaml
+
+personalProfile:
+  personalProfile: ข้อมูลส่วนตัว
+  editPersonalProfile: แก้ไขข้อมูลส่วนตัว
+  avatar: รูปโปรไฟล์
+  background: พื้นหลัง
+  fetchUserProfileFailed: "รับข้อมูลโปรไฟล์ผู้ใช้ล้มเหลว: ${error}"
+  suggestedResolution: "ความละเอียดที่แนะนำ: ${resolution}, ขนาดไฟล์ < ${size}"
+  supportedFormats: "รูปแบบที่รองรับ: ${formats}"
+  premiumBenefit: "ผู้ใช้พรีเมียมสามารถใช้ ${type} เคลื่อนไหวได้ (${formats})"
+  homepageBackground: พื้นหลังหน้าแรก
+  basicInfo: ข้อมูลพื้นฐาน
+  nickname: ชื่อเล่น
+  username: ชื่อผู้ใช้
+  copyUsername: คัดลอกชื่อผู้ใช้
+  usernameCopied: คัดลอกชื่อผู้ใช้แล้ว
+  personalIntroduction: ประวัติส่วนตัว
+  noPersonalIntroduction: ไม่มีประวัติส่วนตัว
+  clickToEdit: แตะเพื่อแก้ไข
+  privacySettings: การตั้งค่าความเป็นส่วนตัว
+  hideSensitiveContent: ซ่อนเนื้อหาที่ละเอียดอ่อน
+  hideSensitiveContentDesc: ซ่อนวิดีโอหรือรูปภาพที่มีแท็กละเอียดอ่อน
+  notificationSettings: การตั้งค่าการแจ้งเตือน
+  contentCommentNotification: การแจ้งเตือนความคิดเห็นบนเนื้อหา
+  contentCommentNotificationDesc: แจ้งเตือนเมื่อมีคนแสดงความคิดเห็นบนเนื้อหาของคุณ
+  commentReplyNotification: การแจ้งเตือนการตอบกลับความคิดเห็น
+  commentReplyNotificationDesc: แจ้งเตือนเมื่อมีคนตอบกลับความคิดเห็นของคุณ
+  mentionNotification: การแจ้งเตือนการกล่าวถึง
+  mentionNotificationDesc: แจ้งเตือนเมื่อมีคนกล่าวถึงคุณในเนื้อหา
+  accountInfo: ข้อมูลบัญชี
+  registrationTime: เวลาลงทะเบียน
+  updateSettingsFailed: "อัปเดตการตั้งค่าล้มเหลว: ${error}"
+  updateNotificationSettingsFailed: "อัปเดตการตั้งค่าการแจ้งเตือนล้มเหลว: ${error}"
+  editNickname: แก้ไขชื่อเล่น
+  nicknameCannotBeEmpty: ชื่อเล่นต้องไม่ว่างเปล่า
+  changeSuccess: เปลี่ยนแปลงสำเร็จ
+  unsupportedFileFormat: รูปแบบไฟล์ไม่รองรับ
+  fileTooLarge: "ขนาดไฟล์ต้องไม่เกิน ${size}"
+  uploadFailed: อัปโหลดล้มเหลว
+  avatarUpdatedSuccessfully: อัปเดตรูปโปรไฟล์สำเร็จ
+  updateAvatarFailed: "อัปเดตรูปโปรไฟล์ล้มเหลว: ${error}"
+  backgroundUpdatedSuccessfully: อัปเดตพื้นหลังสำเร็จ
+  updateBackgroundFailed: "อัปเดตพื้นหลังล้มเหลว: ${error}"
+  editPersonalIntroduction: แก้ไขประวัติส่วนตัว
+  enterPersonalIntroduction: โปรดป้อนประวัติส่วนตัว
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "ติดตามพิเศษ"
+  specialFollowDescription: "ตั้งผู้สร้างที่คุณดูบ่อยเป็นติดตามพิเศษ เพื่อข้ามไปยังผลงานล่าสุดจากที่นี่ได้ทันที"
+  stepsTitle: "สามขั้นตอน"
+  stepFollowAuthor: "แตะติดตามในหน้าวิดีโอ แกลเลอรี หรือโปรไฟล์ของผู้สร้าง"
+  stepPickSpecial: "แตะติดตามแล้วอีกครั้ง จากนั้นเลือกติดตามพิเศษจากเมนู"
+  stepSwitchHere: "กลับมาที่นี่แล้วสลับไปยังผู้สร้างคนนั้นด้วยตัวเลือกรูปโปรไฟล์ด้านบน"
+  specialFollowManagementTip: "จัดการรายการติดตามพิเศษได้ที่ แถบด้านข้าง - รายการติดตาม - ติดตามพิเศษ"
+  gotIt: "เข้าใจแล้ว"
+
+common:
+  sort: จัดเรียง
+  filter: ตัวกรอง
+  appName: Love Iwara
+  ok: ตกลง
+  cancel: ยกเลิก
+  select: เลือก
+  save: บันทึก
+  delete: ลบ
+  visit: เยี่ยมชม
+  loading: กำลังโหลด...
+  scrollToTop: เลื่อนขึ้นด้านบน
+  privacyHint: เปิดโหมดความเป็นส่วนตัวอยู่ เนื้อหาถูกซ่อนไว้
+  latest: ล่าสุด
+  likesCount: ถูกใจ
+  viewsCount: การดู
+  popular: ยอดนิยม
+  trending: มาแรง
+  commentList: รายการความคิดเห็น
+  sendComment: ส่งความคิดเห็น
+  send: ส่ง
+  retry: ลองใหม่
+  premium: พรีเมียม
+  follower: ผู้ติดตาม
+  friend: เพื่อน
+  video: วิดีโอ
+  following: กำลังติดตาม
+  expand: ขยาย
+  collapse: ยุบ
+  cancelFriendRequest: ยกเลิกคำขอ
+  cancelSpecialFollow: ยกเลิกการติดตามพิเศษ
+  addFriend: เพิ่มเพื่อน
+  removeFriend: ลบเพื่อน
+  followed: ติดตามแล้ว
+  follow: ติดตาม
+  unfollow: เลิกติดตาม
+  specialFollow: ติดตามพิเศษ
+  specialFollowed: ติดตามพิเศษแล้ว
+  gallery: แกลเลอรี
+  playlist: เพลย์ลิสต์
+  commentPostedSuccessfully: โพสต์ความคิดเห็นสำเร็จ
+  commentPostedFailed: โพสต์ความคิดเห็นล้มเหลว
+  success: สำเร็จ
+  commentDeletedSuccessfully: ลบความคิดเห็นสำเร็จ
+  commentUpdatedSuccessfully: อัปเดตความคิดเห็นสำเร็จ
+  totalComments:
+    one: '${n} ความคิดเห็น'
+    other: '${n} ความคิดเห็น'
+  writeYourCommentHere: เขียนความคิดเห็นของคุณที่นี่...
+  tmpNoReplies: ยังไม่มีการตอบกลับ
+  loadMore: โหลดเพิ่มเติม
+  loadingMore: กำลังโหลดเพิ่มเติม...
+  noMoreDatas: ไม่มีข้อมูลเพิ่มเติม
+  selectTranslationLanguage: เลือกภาษาที่ต้องการแปล
+  translate: แปล
+  translateFailedPleaseTryAgainLater: การแปลล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  translationResult: ผลการแปล
+  justNow: เมื่อสักครู่
+  minutesAgo:
+    one: '${n} นาทีที่แล้ว'
+    other: '${n} นาทีที่แล้ว'
+  hoursAgo:
+    one: '${n} ชั่วโมงที่แล้ว'
+    other: '${n} ชั่วโมงที่แล้ว'
+  daysAgo:
+    one: '${n} วันที่แล้ว'
+    other: '${n} วันที่แล้ว'
+  editedAt: 'แก้ไขเมื่อ ${num}'
+  editComment: แก้ไขความคิดเห็น
+  commentUpdated: อัปเดตความคิดเห็นแล้ว
+  replyComment: ตอบกลับความคิดเห็น
+  reply: ตอบกลับ
+  edit: แก้ไข
+  unknownUser: ผู้ใช้ที่ไม่รู้จัก
+  me: ฉัน
+  author: ผู้สร้าง
+  admin: ผู้ดูแลระบบ
+  viewReplies: 'ดูการตอบกลับ (${num})'
+  hideReplies: ซ่อนการตอบกลับ
+  confirmDelete: ยืนยันการลบ
+  areYouSureYouWantToDeleteThisItem: คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?
+  tmpNoComments: ยังไม่มีความคิดเห็น
+  refresh: รีเฟรช
+  back: ย้อนกลับ
+  tips: เคล็ดลับ
+  linkIsEmpty: ลิงก์ว่างเปล่า
+  linkCopiedToClipboard: คัดลอกลิงก์ไปยังคลิปบอร์ดแล้ว
+  imageCopiedToClipboard: คัดลอกรูปภาพไปยังคลิปบอร์ดแล้ว
+  copyImageFailed: คัดลอกรูปภาพล้มเหลว
+  mobileSaveImageIsUnderDevelopment: ฟังก์ชันบันทึกรูปภาพบนมือถือกำลังพัฒนา
+  imageSavedTo: บันทึกรูปภาพไปที่
+  saveImageFailed: บันทึกรูปภาพล้มเหลว
+  close: ปิด
+  more: เพิ่มเติม
+  unknownError: ข้อผิดพลาดที่ไม่รู้จัก
+  moreFeaturesToBeDeveloped: ฟีเจอร์เพิ่มเติมอยู่ระหว่างการพัฒนา
+  all: ทั้งหมด
+  selectedRecords: 'เลือกแล้ว ${num} รายการ'
+  cancelSelectAll: ยกเลิกการเลือกทั้งหมด
+  selectAll: เลือกทั้งหมด
+  exitEditMode: ออกจากโหมดแก้ไข
+  areYouSureYouWantToDeleteSelectedItems: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่เลือก ${num} รายการ?'
+  searchHistoryRecords: ประวัติการค้นหา...
+  settings: การตั้งค่า
+  subscriptions: การติดตาม
+  videoCount:
+    one: '${n} วิดีโอ'
+    other: '${n} วิดีโอ'
+  share: แชร์
+  areYouSureYouWantToShareThisPlaylist: คุณแน่ใจหรือไม่ว่าต้องการแชร์เพลย์ลิสต์นี้?
+  editTitle: แก้ไขชื่อเรื่อง
+  editMode: โหมดแก้ไข
+  pleaseEnterNewTitle: โปรดป้อนชื่อเรื่องใหม่
+  createPlayList: สร้างเพลย์ลิสต์
+  create: สร้าง
+  checkNetworkSettings: ตรวจสอบการตั้งค่าเครือข่าย
+  general: ทั่วไป
+  r18: R18
+  sensitive: ละเอียดอ่อน
+  year: ปี
+  month: เดือน
+  tag: แท็ก
+  private: ส่วนตัว
+  noTitle: ไม่มีชื่อเรื่อง
+  search: ค้นหา
+  noContent: ไม่มีเนื้อหา
+  recording: กำลังบันทึก
+  paused: หยุดชั่วคราว
+  clear: ล้าง
+  clearSelection: ล้างการเลือก
+  selectItemsToContinue: เลือกรายการเพื่อดำเนินการต่อ
+  andMoreItems(num): 'และอีก ${num} รายการ'
+  batchDelete: ลบเป็นชุด
+  user: ผู้ใช้
+  post: โพสต์
+  seconds: วินาที
+  comingSoon: เร็วๆ นี้
+  confirm: ยืนยัน
+  hour: ชั่วโมง
+  minute: นาที
+  clickToRefresh: แตะเพื่อรีเฟรช
+  history: ประวัติ
+  favorites: รายการโปรด
+  friends: เพื่อน
+  playList: เพลย์ลิสต์
+  checkLicense: ตรวจสอบใบอนุญาต
+  logout: ออกจากระบบ
+  fensi: แฟนๆ
+  accept: ยอมรับ
+  reject: ปฏิเสธ
+  clearAllHistory: ล้างประวัติทั้งหมด
+  clearAllHistoryConfirm: คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติทั้งหมด?
+  followingList: รายชื่อที่กำลังติดตาม
+  followersList: รายชื่อผู้ติดตาม
+  follows: การติดตาม
+  fans: แฟนๆ
+  followsAndFans: การติดตามและแฟนๆ
+  numViews: การดู
+  updatedAt: อัปเดตเมื่อ
+  publishedAt: เผยแพร่เมื่อ
+  externalVideo: วิดีโอภายนอก
+  originalText: ข้อความต้นฉบับ
+  showOriginalText: แสดงข้อความต้นฉบับ
+  showProcessedText: แสดงข้อความที่ประมวลผลแล้ว
+  preview: ตัวอย่าง
+  rules: กฎระเบียบ
+  agree: ยอมรับ
+  disagree: ไม่ยอมรับ
+  agreeToRules: ยอมรับกฎระเบียบ
+  # Base Input Dialog
+  markdownSyntaxHelp: วิธีใช้ไวยากรณ์ Markdown
+  previewContent: แสดงตัวอย่างเนื้อหา
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'ความยาวเกินขีดจำกัดสูงสุด (${max})'
+  agreeToCommunityRules: ยอมรับกฎของชุมชน
+  createPost: สร้างโพสต์
+  title: ชื่อเรื่อง
+  enterTitle: โปรดป้อนชื่อเรื่อง
+  content: เนื้อหา
+  enterContent: โปรดป้อนเนื้อหา
+  writeYourContentHere: โปรดป้อนเนื้อหาที่นี่...
+  tagBlacklist: บัญชีดำแท็ก
+  noData: ไม่มีข้อมูล
+  tagLimit: ขีดจำกัดแท็ก
+  enableFloatingButtons: เปิดใช้ปุ่มลอย
+  disableFloatingButtons: ปิดใช้ปุ่มลอย
+  enabledFloatingButtons: เปิดใช้งานปุ่มลอยแล้ว
+  disabledFloatingButtons: ปิดใช้งานปุ่มลอยแล้ว
+  pendingCommentCount: จำนวนความคิดเห็นที่รอดำเนินการ
+  joined: 'เข้าร่วมเมื่อ ${str}'
+  lastSeenAt: 'เห็นล่าสุด ${str}'
+  download: ดาวน์โหลด
+  selectQuality: เลือกคุณภาพ
+  videoQualitySource: ต้นฉบับ
+  selectImageQuality: เลือกคุณภาพของรูปภาพ
+  imageQualityStandard: มาตรฐาน
+  imageQualityOriginal: ต้นฉบับ
+  selectDateRange: เลือกช่วงวันที่
+  selectDateRangeHint: เลือกช่วงวันที่ ค่าเริ่มต้นคือ 30 วันที่ผ่านมา
+  clearDateRange: ล้างช่วงวันที่
+  deleteRecordsInDateRange: ลบบันทึกในช่วงนี้
+  deleteRecordsInDateRangeConfirm: 'คุณแน่ใจหรือไม่ว่าต้องการลบบันทึกประวัติ ${num} รายการในช่วงนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้'
+  noHistoryRecordsInRange: ไม่มีบันทึกประวัติในช่วงนี้
+  followSuccessClickAgainToSpecialFollow: ติดตามสำเร็จแล้ว แตะอีกครั้งเพื่อติดตามพิเศษ
+  specialFollowTip: เพิ่มในรายการติดตามพิเศษแล้ว — เลือกได้จากเมนูด้านขวาบนของหน้าการติดตามเพื่อเข้าถึงอย่างรวดเร็ว
+  exitConfirmTip: คุณแน่ใจหรือไม่ว่าต้องการออก?
+  error: ข้อผิดพลาด
+  taskRunning: "มีงานกำลังทำงานอยู่ โปรดรอสักครู่"
+  operationCancelled: "การดำเนินการถูกยกเลิก"
+  unsavedChanges: "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก"
+  specialFollowsManagementTip: ลากที่จับเพื่อจัดลำดับใหม่ • แตะปุ่มเพื่อลบออก
+  specialFollowsManagement: การจัดการการติดตามพิเศษ
+  removeSpecialFollow: ลบการติดตามพิเศษ
+  removeSpecialFollowConfirm: 'ลบ ${name} ออกจากการติดตามพิเศษหรือไม่?'
+  noSpecialFollows: ยังไม่มีการติดตามพิเศษ
+  createTimeDesc: เรียงตามเวลาสร้างจากใหม่ไปเก่า
+  createTimeAsc: เรียงตามเวลาสร้างจากเก่าไปใหม่
+  # Pagination related
+  pagination:
+    totalItems: 'ทั้งหมด ${num} รายการ'
+    jumpToPage: 'ข้ามไปที่หน้า'
+    pleaseEnterPageNumber: 'โปรดป้อนหมายเลขหน้า (1-${max})'
+    pageNumber: 'หมายเลขหน้า'
+    jump: 'ข้ามไป'
+    invalidPageNumber: 'โปรดป้อนหมายเลขหน้าที่ถูกต้อง (1-${max})'
+    invalidInput: 'โปรดป้อนหมายเลขหน้าที่ถูกต้อง'
+    waterfall: 'แบบน้ำตก'
+    pagination: 'แบบแบ่งหน้า'
+  notice: ประกาศ
+  detail: รายละเอียด
+  parseExceptionDestopHint: ' - ผู้ใช้เดสก์ท็อปสามารถกำหนดค่าพร็อกซีได้ในการตั้งค่า'
+  iwaraTags: แท็ก Iwara
+  tagInfo: ข้อมูลแท็ก
+  tagOriginalKey: แท็กต้นฉบับ
+  tagTranslation: คำแปล
+  copy: คัดลอก
+  selectCopy: "เลือกและคัดลอก"
+  copiedToClipboard: คัดลอกไปยังคลิปบอร์ดแล้ว
+  showOriginalTag: แสดงแท็กต้นฉบับ
+  showTranslatedTag: แสดงคำแปล
+  tagTranslationFeedback: มีข้อสงสัยเกี่ยวกับคำแปลหรือไม่? ส่งคำติชม
+  tagLocalizationGuideTitle: เกี่ยวกับการแปลแท็ก
+  tagLocalizationGuideContent: "แอปจะแสดงแท็กดิบของ Iwara (เช่น mother) โดยใช้ชื่อในภาษาปัจจุบันของคุณ\n\n• เมื่อค้นหาแท็ก ระบบจะจับคู่ทั้งคำแปลและแท็กต้นฉบับ\n• แตะค้าง / คลิกขวาที่แท็กเพื่อดูและคัดลอกคีย์ต้นฉบับและคำแปล\n• คำแปลได้รับการดูแลโดยชุมชนตามความสามารถ — อาจมีข้อผิดพลาดได้"
+  likeThisVideo: ถูกใจวิดีโอนี้
+  likeThisGallery: ถูกใจแกลเลอรีนี้
+  operation: การดำเนินการ
+  replies: การตอบกลับ
+  externalLinkWarning: คำเตือนลิงก์ภายนอก
+  externalLinkWarningMessage: คุณกำลังจะเปิดลิงก์ภายนอกที่ไม่ได้เป็นส่วนหนึ่งของ iwara.tv โปรดใช้ความระมัดระวังและตรวจสอบให้แน่ใจว่าลิงก์ปลอดภัยก่อนดำเนินการต่อ
+  continueToExternalLink: ดำเนินการต่อ
+  cancelExternalLink: ยกเลิก
+auth:
+  login: เข้าสู่ระบบ
+  logout: ออกจากระบบ
+  email: อีเมล
+  password: รหัสผ่าน
+  loginOrRegister: เข้าสู่ระบบ / ลงทะเบียน
+  register: ลงทะเบียน
+  pleaseEnterEmail: โปรดป้อนอีเมล
+  pleaseEnterPassword: โปรดป้อนรหัสผ่าน
+  passwordMustBeAtLeast6Characters: รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร
+  pleaseEnterCaptcha: โปรดป้อนรหัสยืนยัน
+  captcha: รหัสยืนยัน
+  refreshCaptcha: รีเฟรชรหัสยืนยัน
+  captchaNotLoaded: ยังไม่ได้โหลดรหัสยืนยัน
+  loginSuccess: เข้าสู่ระบบสำเร็จ
+  loginSuccessProfilePending: เข้าสู่ระบบแล้ว กำลังโหลดโปรไฟล์ของคุณ…
+  emailVerificationSent: ส่งอีเมลยืนยันแล้ว
+  notLoggedIn: ยังไม่ได้เข้าสู่ระบบ
+  clickToLogin: แตะเพื่อเข้าสู่ระบบ
+  logoutConfirmation: คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?
+  logoutSuccess: ออกจากระบบสำเร็จ
+  logoutFailed: ออกจากระบบล้มเหลว
+  usernameOrEmail: ชื่อผู้ใช้หรืออีเมล
+  pleaseEnterUsernameOrEmail: โปรดป้อนชื่อผู้ใช้หรืออีเมล
+  rememberMe: "จำชื่อผู้ใช้"
+  registerNoticeTitle: ลงทะเบียนบนเว็บไซต์ทางการ
+  registerNoticeDescription: "ไม่รองรับการลงทะเบียนในแอปแล้ว โปรดไปที่เว็บไซต์ทางการของ Iwara เพื่อสร้างบัญชีของคุณ จากนั้นกลับมาเข้าสู่ระบบที่นี่"
+  registerNoticeReturnTip: "หลังจากลงทะเบียนแล้ว ให้กลับมาที่นี่และเข้าสู่ระบบด้วยบัญชีของคุณ"
+  goToOfficialWebsite: ไปยังเว็บไซต์ทางการ
+
+errors:
+  error: ข้อผิดพลาด
+  required: ฟิลด์นี้จำเป็นต้องกรอก
+  invalidEmail: ที่อยู่อีเมลไม่ถูกต้อง
+  networkError: เครือข่ายผิดพลาด โปรดลองใหม่อีกครั้ง
+  errorWhileFetching: เกิดข้อผิดพลาดขณะดึงข้อมูล
+  commentCanNotBeEmpty: เนื้อหาความคิดเห็นต้องไม่ว่างเปล่า
+  errorWhileFetchingReplies: เกิดข้อผิดพลาดขณะดึงการตอบกลับ โปรดตรวจสอบการเชื่อมต่อเครือข่าย
+  canNotFindCommentController: ไม่พบคอนโทรลเลอร์ความคิดเห็น
+  errorWhileLoadingGallery: เกิดข้อผิดพลาดขณะโหลดแกลเลอรี
+  howCouldThereBeNoDataItCantBePossible: ไม่มีข้อมูลได้อย่างไร? เป็นไปไม่ได้ :<
+  unsupportedImageFormat: 'รูปแบบรูปภาพไม่รองรับ: ${str}'
+  invalidGalleryId: รหัสแกลเลอรีไม่ถูกต้อง
+  translationFailedPleaseTryAgainLater: การแปลล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  errorOccurred: "เกิดข้อผิดพลาด โปรดลองใหม่อีกครั้งในภายหลัง"
+  errorOccurredWhileProcessingRequest: เกิดข้อผิดพลาดขณะประมวลผลคำขอ
+  errorWhileFetchingDatas: เกิดข้อผิดพลาดขณะดึงข้อมูล โปรดลองใหม่อีกครั้งในภายหลัง
+  serviceNotInitialized: ยังไม่ได้เริ่มต้นบริการ
+  unknownType: ประเภทที่ไม่รู้จัก
+  errorWhileOpeningLink: 'เกิดข้อผิดพลาดขณะเปิดลิงก์: ${link}'
+  invalidUrl: URL ไม่ถูกต้อง
+  failedToOperate: ดำเนินการล้มเหลว
+  permissionDenied: การอนุญาตถูกปฏิเสธ
+  youDoNotHavePermissionToAccessThisResource: คุณไม่มีสิทธิ์เข้าถึงทรัพยากรนี้
+  loginFailed: เข้าสู่ระบบล้มเหลว
+  unknownError: ข้อผิดพลาดที่ไม่รู้จัก
+  sessionExpired: เซสชันหมดอายุ
+  failedToFetchCaptcha: ดึงรหัสยืนยันล้มเหลว
+  emailAlreadyExists: อีเมลนี้มีอยู่แล้ว
+  invalidCaptcha: รหัสยืนยันไม่ถูกต้อง
+  registerFailed: ลงทะเบียนล้มเหลว
+  failedToFetchComments: ดึงความคิดเห็นล้มเหลว
+  failedToFetchImageDetail: ดึงรายละเอียดรูปภาพล้มเหลว
+  failedToFetchImageList: ดึงรายการรูปภาพล้มเหลว
+  failedToFetchData: ดึงข้อมูลล้มเหลว
+  invalidParameter: พารามิเตอร์ไม่ถูกต้อง
+  pleaseLoginFirst: โปรดเข้าสู่ระบบก่อน
+  errorWhileLoadingPost: เกิดข้อผิดพลาดขณะโหลดโพสต์
+  errorWhileLoadingPostDetail: เกิดข้อผิดพลาดขณะโหลดรายละเอียดโพสต์
+  invalidPostId: รหัสโพสต์ไม่ถูกต้อง
+  forceUpdateNotPermittedToGoBack: อยู่ในสถานะบังคับอัปเดต ไม่สามารถย้อนกลับได้
+  pleaseLoginAgain: โปรดเข้าสู่ระบบอีกครั้ง
+  invalidLogin: การเข้าสู่ระบบไม่ถูกต้อง โปรดตรวจสอบอีเมลและรหัสผ่านของคุณ
+  tooManyRequests: มีคำขอมากเกินไป โปรดลองใหม่ในภายหลัง
+  exceedsMaxLength: 'ความยาวเกินกำหนด: ${max}'
+  contentCanNotBeEmpty: เนื้อหาต้องไม่ว่างเปล่า
+  titleCanNotBeEmpty: ชื่อเรื่องต้องไม่ว่างเปล่า
+  tooManyRequestsPleaseTryAgainLaterText: "มีคำขอมากเกินไป โปรดลองใหม่ในภายหลัง เหลือเวลาอีก"
+  remainingHours: "${num} ชั่วโมง"
+  remainingMinutes: "${num} นาที"
+  remainingSeconds: "${num} วินาที"
+  tagLimitExceeded: 'แท็กเกินขีดจำกัด ขีดจำกัดคือ: ${limit}'
+  failedToRefresh: รีเฟรชล้มเหลว
+  noPermission: ไม่มีสิทธิ์
+  resourceNotFound: ไม่พบทรัพยากร
+  failedToSaveCredentials: "บันทึกข้อมูลการเข้าสู่ระบบล้มเหลว"
+  failedToLoadSavedCredentials: "โหลดข้อมูลการเข้าสู่ระบบที่บันทึกไว้ล้มเหลว"
+  notFound: 'ไม่พบเนื้อหาหรือเนื้อหาถูกลบไปแล้ว'
+  network:
+    basicPrefix: 'ข้อผิดพลาดเครือข่าย - '
+    failedToConnectToServer: 'เชื่อมต่อกับเซิร์ฟเวอร์ล้มเหลว'
+    serverNotAvailable: 'เซิร์ฟเวอร์ไม่พร้อมใช้งาน'
+    requestTimeout: 'หมดเวลาการร้องขอ'
+    unexpectedError: 'ข้อผิดพลาดที่ไม่คาดคิด'
+    invalidResponse: 'การตอบสนองไม่ถูกต้อง'
+    invalidRequest: 'คำขอไม่ถูกต้อง'
+    invalidUrl: 'URL ไม่ถูกต้อง'
+    invalidMethod: 'เมธอดไม่ถูกต้อง'
+    invalidHeader: 'ส่วนหัวไม่ถูกต้อง'
+    invalidBody: 'เนื้อหาคำขอไม่ถูกต้อง'
+    invalidStatusCode: 'รหัสสถานะไม่ถูกต้อง'
+    serverError: 'เซิร์ฟเวอร์เกิดข้อผิดพลาด'
+    requestCanceled: 'คำขอถูกยกเลิก'
+    invalidPort: 'พอร์ตไม่ถูกต้อง'
+    proxyPortError: 'พอร์ตพร็อกซีไม่ถูกต้อง'
+    connectionRefused: 'การเชื่อมต่อถูกปฏิเสธ'
+    networkUnreachable: 'ไม่สามารถเข้าถึงเครือข่ายได้'
+    noRouteToHost: 'ไม่มีเส้นทางไปยังโฮสต์'
+    connectionFailed: 'การเชื่อมต่อล้มเหลว'
+    sslConnectionFailed: 'การเชื่อมต่อ SSL ล้มเหลว โปรดตรวจสอบการตั้งค่าเครือข่ายของคุณ'
+friends:
+  clickToRestoreFriend: แตะเพื่อคืนค่าเพื่อน
+  friendsList: รายชื่อเพื่อน
+  friendRequests: คำขอเป็นเพื่อน
+  friendRequestsList: รายการคำขอเป็นเพื่อน
+  removingFriend: กำลังลบเพื่อน...
+  failedToRemoveFriend: ลบเพื่อนล้มเหลว
+  cancelingRequest: กำลังยกเลิกคำขอเป็นเพื่อน...
+  failedToCancelRequest: ยกเลิกคำขอเป็นเพื่อนล้มเหลว
+
+authorProfile:
+  noMoreDatas: ไม่มีข้อมูลเพิ่มเติม
+  userProfile: โปรไฟล์ผู้ใช้
+
+favorites:
+  clickToRestoreFavorite: แตะเพื่อคืนค่ารายการโปรด
+  myFavorites: รายการโปรดของฉัน
+  batchCancelFavorite: ลบรายการโปรดที่เลือก
+  batchCancelFavoriteConfirm(count): 'ต้องการลบ ${count} รายการที่เลือกออกจากรายการโปรดหรือไม่? คุณสามารถคืนค่าได้โดยแตะที่การ์ดในภายหลัง'
+  batchCancelFavoriteSuccess(count): 'ลบ ${count} รายการออกจากรายการโปรดแล้ว'
+  batchCancelFavoriteResult(success, failed): 'ลบออกแล้ว ${success} รายการ ล้มเหลว ${failed} รายการ'
+
+galleryDetail:
+  browseInSpace: เรียกดูในพื้นที่เสมือน
+  galleryDetail: รายละเอียดแกลเลอรี
+  viewGalleryDetail: ดูรายละเอียดแกลเลอรี
+  zoomReset: รีเซ็ตการซูม
+  copyLink: คัดลอกลิงก์
+  copyImage: คัดลอกรูปภาพ
+  saveAs: บันทึกเป็น
+  saveToAlbum: บันทึกลงอัลบั้ม
+  publishedAt: เผยแพร่เมื่อ
+  viewsCount: จำนวนการดู
+  imageLibraryFunctionIntroduction: แนะนำฟังก์ชันคลังภาพ
+  rightClickToSaveSingleImage: คลิกขวาเพื่อบันทึกรูปภาพเดี่ยว
+  batchSave: บันทึกเป็นชุด
+  keyboardLeftAndRightToSwitch: ใช้ปุ่มซ้ายและขวาบนคีย์บอร์ดเพื่อสลับ
+  keyboardUpAndDownToZoom: ใช้ปุ่มขึ้นและลงบนคีย์บอร์ดเพื่อซูม
+  mouseWheelToSwitch: ใช้ล้อเลื่อนเมาส์เพื่อสลับ
+  ctrlAndMouseWheelToZoom: CTRL + ล้อเลื่อนเมาส์เพื่อซูม
+  moreFeaturesToBeDiscovered: ฟีเจอร์เพิ่มเติมรอให้คุณค้นพบ...
+  authorOtherGalleries: แกลเลอรีอื่นของผู้สร้าง
+  relatedGalleries: แกลเลอรีที่เกี่ยวข้อง
+  authorNoOtherGalleries: ไม่มีแกลเลอรีอื่นจากผู้สร้างคนนี้
+  noRelatedGalleries: ไม่มีแกลเลอรีที่เกี่ยวข้อง
+  scrollLeft: เลื่อนไปทางซ้าย
+  scrollRight: เลื่อนไปทางขวา
+  clickLeftAndRightEdgeToSwitchImage: แตะขอบซ้ายและขวาเพื่อสลับรูปภาพ
+  rotateToLandscape: แนวนอนเต็มจอ
+  backToPortrait: กลับสู่แนวตั้ง
+
+playList:
+  myPlayList: เพลย์ลิสต์ของฉัน
+  friendlyTips: คำแนะนำที่เป็นประโยชน์
+  dearUser: ผู้ใช้ที่เคารพ
+  iwaraPlayListSystemIsNotPerfectYet: ระบบเพลย์ลิสต์ของ Iwara ยังไม่สมบูรณ์ในขณะนี้
+  notSupportSetCover: ไม่รองรับการตั้งค่าภาพหน้าปก
+  notSupportDeleteList: ไม่รองรับการลบเพลย์ลิสต์
+  notSupportSetPrivate: ไม่รองรับการตั้งเป็นส่วนตัว
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: ใช่แล้ว... เพลย์ลิสต์ที่สร้างขึ้นจะคงอยู่ถาวรและทุกคนสามารถมองเห็นได้
+  smallSuggestion: คำแนะนำเล็กน้อย
+  useLikeToCollectContent: หากคุณให้ความสำคัญกับความเป็นส่วนตัว ขอแนะนำให้ใช้ฟังก์ชัน "ถูกใจ" เพื่อบันทึกเนื้อหา
+  welcomeToDiscussOnGitHub: หากคุณมีข้อเสนอแนะหรือความคิดเห็นอื่นๆ ยินดีต้อนรับสู่การพูดคุยบน GitHub!
+  iUnderstand: ฉันเข้าใจแล้ว
+  searchPlaylists: ค้นหาเพลย์ลิสต์...
+  newPlaylistName: ชื่อเพลย์ลิสต์ใหม่
+  createNewPlaylist: สร้างเพลย์ลิสต์ใหม่
+  videos: วิดีโอ
+
+search:
+  googleSearchScope: ขอบเขตการค้นหา
+  searchTags: ค้นหาแท็ก...
+  contentRating: การจัดระดับเนื้อหา
+  removeTag: ลบแท็ก
+  pleaseEnterSearchContent: โปรดป้อนเนื้อหาที่จะค้นหา
+  searchHistory: ประวัติการค้นหา
+  searchSuggestion: คำแนะนำการค้นหา
+  usedTimes: จำนวนครั้งที่ใช้
+  lastUsed: ใช้งานล่าสุด
+  noSearchHistoryRecords: ไม่มีประวัติการค้นหา
+  clearSearchHistoryConfirm: คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติการค้นหาทั้งหมด? การดำเนินการนี้ไม่สามารถยกเลิกได้
+  notSupportCurrentSearchType: 'ยังไม่รองรับประเภทการค้นหา ${searchType} ในปัจจุบัน โปรดรอการอัปเดต'
+  searchResult: ผลการค้นหา
+  unsupportedSearchType: 'ไม่รองรับประเภทการค้นหา: ${searchType}'
+  googleSearch: "ค้นหาด้วย Google"
+  googleSearchHint: "ฟังก์ชันการค้นหาของ ${webName} ใช้งานยากใช่ไหม? ลองใช้การค้นหาด้วย Google!"
+  googleSearchDescription: "ใช้ตัวดำเนินการค้นหา :site ของ Google เพื่อค้นหาเนื้อหาภายในเว็บไซต์ ซึ่งมีประโยชน์มากเมื่อค้นหาวิดีโอ แกลเลอรี เพลย์ลิสต์ และผู้ใช้"
+  googleSearchKeywordsHint: "ป้อนคำค้นหา"
+  openLinkJump: "เปิดลิงก์เพื่อข้ามไป"
+  googleSearchButton: "ค้นหาด้วย Google"
+  pleaseEnterSearchKeywords: "โปรดป้อนคำค้นหา"
+  googleSearchQueryCopied: "คัดลอกคำค้นหาไปยังคลิปบอร์ดแล้ว"
+  googleSearchBrowserOpenFailed: "เปิดเบราว์เซอร์ล้มเหลว: ${error}"
+  searchRequestTimeout: หมดเวลาคำขอ โปรดลองใหม่ในภายหลัง
+  searchCannotConnectToServer: ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ โปรดตรวจสอบการเชื่อมต่อเครือข่ายของคุณ
+  searchNetworkError: การเชื่อมต่อเครือข่ายล้มเหลว โปรดตรวจสอบการตั้งค่าเครือข่ายหรือลองใหม่ในภายหลัง
+  searchFailedPleaseRetry: การค้นหาล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+mediaList:
+  personalIntroduction: ข้อมูลเบื้องต้น
+
+settings:
+  listViewMode: โหมดมุมมองรายการ
+  previewEffect: เอฟเฟกต์แสดงตัวอย่าง
+  useTraditionalPaginationMode: ใช้โหมดแบ่งหน้าแบบดั้งเดิม
+  useTraditionalPaginationModeDesc: เปิดใช้โหมดแบ่งหน้าแบบดั้งเดิม และปิดโหมดน้ำตก จะมีผลหลังจากเรนเดอร์หน้าใหม่หรือรีสตาร์ตแอป
+  showVideoProgressBottomBarWhenToolbarHidden: แสดงแถบความคืบหน้าวิดีโอด้านล่างเมื่อแถบเครื่องมือถูกซ่อน
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: การกำหนดค่านี้กำหนดว่าจะแสดงแถบความคืบหน้าวิดีโอด้านล่างเมื่อแถบเครื่องมือถูกซ่อนหรือไม่
+  seekPreviewSize: ขนาดหน้าต่างแสดงตัวอย่างการเลื่อน
+  seekPreviewSizeDesc: ขนาดของหน้าต่างแสดงตัวอย่างเหนือแถบความคืบหน้า โดยปกติจะปรับตามขนาดของเครื่องเล่นและอัตราส่วนของวิดีโออยู่แล้ว ค่านี้ใช้เพื่อปรับเพิ่มลดเล็กน้อย
+  seekPreviewSizeSmall: เล็ก
+  seekPreviewSizeStandard: มาตรฐาน
+  seekPreviewSizeLarge: ใหญ่
+  seekPreviewSizeStandardDesc: ขนาดที่คำนวณจากเครื่องเล่นและวิดีโอ
+  showFullscreenUpNextHint: แสดงที่จับ "เล่นต่อไป"
+  showFullscreenUpNextHintDesc: แสดงที่จับเล็กๆ ที่ขอบขวาของเครื่องเล่นเพื่อเปิดลิ้นชักคิว (แหล่งที่มา / เพลย์ลิสต์ / ดูภายหลัง) หากปิดจะไม่มีทางเข้าอื่นอีก
+  basicSettings: การตั้งค่าพื้นฐาน
+  personalizedSettings: การตั้งค่าส่วนบุคคล
+  otherSettings: การตั้งค่าอื่นๆ
+  searchConfig: การกำหนดค่าการค้นหา
+  thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: การกำหนดค่านี้กำหนดว่าจะใช้การกำหนดค่าก่อนหน้าซ้ำหรือไม่เมื่อเล่นวิดีโออีกครั้ง
+  playControl: การควบคุมการเล่น
+  playbackSpeedSettings: การเล่นและความเร็ว
+  playbackBehaviorSettings: พฤติกรรมการเล่น
+  enhancementSettings: โหมดโรงภาพยนตร์และการเพิ่มประสิทธิภาพ
+  fastForwardTime: เวลาเดินหน้าอย่างเร็ว
+  fastForwardTimeMustBeAPositiveInteger: เวลาเดินหน้าอย่างเร็วต้องเป็นจำนวนเต็มบวก
+  rewindTime: เวลาย้อนกลับ
+  rewindTimeMustBeAPositiveInteger: เวลาย้อนกลับต้องเป็นจำนวนเต็มบวก
+  longPressPlaybackSpeed: ความเร็วการเล่นเมื่อกดค้าง
+  longPressPlaybackSpeedMustBeAPositiveNumber: ความเร็วการเล่นเมื่อกดค้างต้องเป็นตัวเลขบวก
+  defaultPlaybackSpeed: ความเร็วการเล่นเริ่มต้น
+  rememberPlaybackSpeed: จำความเร็วการเล่น
+  rememberPlaybackSpeedDesc: เมื่อเปิดใช้งาน ความเร็วที่คุณตั้งในเครื่องเล่นจะถูกบันทึกเป็นค่าเริ่มต้นและใช้กับวิดีโอใหม่โดยอัตโนมัติ
+  repeat: เล่นซ้ำ
+  renderVerticalVideoInVerticalScreen: แสดงผลวิดีโอแนวตั้งในโหมดแนวตั้ง
+  thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: การกำหนดค่านี้กำหนดว่าจะแสดงผลวิดีโอในโหมดแนวตั้งหรือไม่เมื่อเล่นแบบเต็มหน้าจอ
+  rememberVolume: จำระดับเสียง
+  thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain: การกำหนดค่านี้กำหนดว่าจะรักษาระดับเสียงไว้หรือไม่เมื่อเล่นวิดีโออีกครั้ง
+  rememberBrightness: จำความสว่าง
+  thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain: การกำหนดค่านี้กำหนดว่าจะรักษาความสว่างไว้หรือไม่เมื่อเล่นวิดีโออีกครั้ง
+  playControlArea: พื้นที่ควบคุมการเล่น
+  leftAndRightControlAreaWidth: ความกว้างของพื้นที่ควบคุมซ้ายและขวา
+  thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: การกำหนดค่านี้กำหนดความกว้างของพื้นที่ควบคุมทางด้านซ้ายและขวาของเครื่องเล่น
+  proxyAddressCannotBeEmpty: ที่อยู่พร็อกซีต้องไม่ว่างเปล่า
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: รูปแบบที่อยู่พร็อกซีไม่ถูกต้อง โปรดใช้รูปแบบ IP:พอร์ต หรือ ชื่อโดเมน:พอร์ต
+  proxyNormalWork: พร็อกซีทำงานปกติ
+  testProxyFailedWithStatusCode: 'ทดสอบพร็อกซีล้มเหลว รหัสสถานะ: ${code}'
+  testProxyFailedWithException: 'ทดสอบพร็อกซีล้มเหลว ข้อผิดพลาด: ${exception}'
+  proxyConfig: การกำหนดค่าพร็อกซี
+  thisIsHttpProxyAddress: นี่คือที่อยู่ HTTP พร็อกซี
+  checkProxy: ตรวจสอบพร็อกซี
+  proxyAddress: ที่อยู่พร็อกซี
+  pleaseEnterTheUrlOfTheProxyServerForExample1270018080: โปรดป้อน URL ของเซิร์ฟเวอร์พร็อกซี เช่น 127.0.0.1:8080
+  enableProxy: เปิดใช้พร็อกซี
+  left: ซ้าย
+  middle: กลาง
+  right: ขวา
+  playerSettings: การตั้งค่าเครื่องเล่น
+  networkSettings: การตั้งค่าเครือข่าย
+  customizeYourPlaybackExperience: ปรับแต่งประสบการณ์การเล่นของคุณ
+  chooseYourFavoriteAppAppearance: เลือกรูปลักษณ์ของแอปที่คุณชื่นชอบ
+  configureYourProxyServer: กำหนดค่าเซิร์ฟเวอร์พร็อกซีของคุณ
+  settings: การตั้งค่า
+  themeSettings: การตั้งค่าธีม
+  followSystem: ตามระบบ
+  lightMode: โหมดสว่าง
+  darkMode: โหมดมืด
+  presetTheme: ธีมที่ตั้งไว้ล่วงหน้า
+  basicTheme: ธีมพื้นฐาน
+  needRestartToApply: จำเป็นต้องรีสตาร์ตแอปเพื่อใช้การตั้งค่า
+  themeNeedRestartDescription: การตั้งค่าธีมจำเป็นต้องรีสตาร์ตแอปเพื่อให้มีผล
+  about: เกี่ยวกับ
+  diagnosticsAndFeedback: การวินิจฉัยและคำติชม
+  currentVersion: เวอร์ชันปัจจุบัน
+  latestVersion: เวอร์ชันล่าสุด
+  checkForUpdates: ตรวจสอบการอัปเดต
+  update: อัปเดต
+  newVersionAvailable: มีเวอร์ชันใหม่พร้อมใช้งาน
+  projectHome: หน้าแรกของโปรเจกต์
+  release: การเผยแพร่
+  issueReport: รายงานปัญหา
+  openSourceLicense: ใบอนุญาตโอเพนซอร์ส
+  checkForUpdatesFailed: ตรวจสอบการอัปเดตล้มเหลว โปรดลองอีกครั้งในภายหลัง
+  autoCheckUpdate: ตรวจสอบการอัปเดตอัตโนมัติ
+  updateContent: เนื้อหาการอัปเดต
+  releaseDate: วันที่เผยแพร่
+  ignoreThisVersion: ข้ามเวอร์ชันนี้
+  forceUpdateTip: "นี่คือการอัปเดตที่จำเป็น โปรดอัปเดตเป็นเวอร์ชันล่าสุดโดยเร็วที่สุด"
+  viewChangelog: ดูบันทึกการเปลี่ยนแปลง
+  alreadyLatestVersion: เป็นเวอร์ชันล่าสุดแล้ว
+  appSettings: การตั้งค่าแอป
+  configureYourAppSettings: กำหนดค่าการตั้งค่าแอปของคุณ
+  history: ประวัติ
+  autoRecordHistory: บันทึกประวัติอัตโนมัติ
+  autoRecordHistoryDesc: บันทึกวิดีโอและรูปภาพที่คุณดูโดยอัตโนมัติ
+  autoDeleteHistory: ล้างประวัติอัตโนมัติ
+  autoDeleteHistoryDesc: ลบประวัติการท่องเว็บที่เก่ากว่าจำนวนวันที่เก็บรักษาโดยอัตโนมัติเมื่อเริ่มต้น (ปิดอยู่โดยค่าเริ่มต้น)
+  autoDeleteHistoryDays: วันที่เก็บรักษา
+  autoDeleteHistoryDaysValue: 'เก็บไว้ ${num} วันล่าสุด'
+  autoDeleteHistoryDaysInvalid: โปรดป้อนจำนวนวันที่ถูกต้อง (อย่างน้อย 1 วัน)
+  showUnprocessedMarkdownText: แสดงข้อความ Markdown ดิบ
+  showUnprocessedMarkdownTextDesc: แสดงข้อความต้นฉบับของ Markdown
+  markdown: Markdown
+  activeBackgroundPrivacyMode: โหมดความเป็นส่วนตัว
+  activeBackgroundPrivacyModeDesc: บล็อกการจับภาพหน้าจอและการบันทึกหน้าจอ และซ่อนหน้าจอเมื่อทำงานอยู่เบื้องหลัง
+  activeBackgroundPrivacyModeDescNonAndroid: ซ่อนหน้าจอเมื่อแอปไปอยู่เบื้องหลัง (แพลตฟอร์มนี้ไม่สามารถบล็อกการจับภาพหน้าจอได้)
+  activeBackgroundPrivacyModeDescScreenshotOnly: บล็อกการจับภาพหน้าจอและการบันทึกหน้าจอ
+  privacy: ความเป็นส่วนตัว
+  appLock: การล็อกแอป
+  appLockEnabled: เปิดใช้การล็อกแอป
+  appLockEnabledDesc: กำหนดให้ต้องใช้ PIN หรือข้อมูลไบโอเมตริกเพื่อเปิดแอป และซ่อนตัวอย่างพื้นหลังโดยอัตโนมัติ
+  appLockEnabledSummary: เปิดอยู่ · ป้องกันด้วย PIN
+  appLockDisabledSummary: ปิดอยู่
+  appLockTimeout: ล็อกหลังจากออกจากแอป
+  appLockTimeoutDesc: ระยะเวลาที่อนุญาตให้อยู่เบื้องหลังก่อนที่จะต้องยืนยันตัวตน
+  appLockAfterScreenOff: ล็อกหลังจากล็อกหน้าจอ
+  appLockAfterScreenOffDesc: กำหนดให้ยืนยันตัวตนหลังจากหน้าจอของอุปกรณ์ถูกล็อก
+  appLockTimeoutDisabled: ปิดใช้งาน
+  appLockImmediately: ทันที
+  appLockSeconds: '${seconds} วินาที'
+  appLockMinutes: '${minutes} นาที'
+  appLockUseBiometrics: ใช้ข้อมูลไบโอเมตริก
+  appLockUseBiometricsDesc: ปลดล็อกด้วยลายนิ้วมือหรือการจดจำใบหน้า
+  appLockBiometricsUnavailable: ไม่มีข้อมูลไบโอเมตริกที่ลงทะเบียนไว้ในอุปกรณ์นี้
+  appLockSetPin: ตั้งค่า PIN
+  appLockEnterPin: ป้อน PIN
+  appLockConfirmPin: ยืนยัน PIN
+  appLockCurrentPin: ป้อน PIN ปัจจุบัน
+  appLockNewPin: ป้อน PIN ใหม่
+  appLockPinRequirements: PIN ต้องประกอบด้วยตัวเลข 4–8 หลัก
+  appLockPinsDoNotMatch: PIN ไม่ตรงกัน
+  appLockInvalidPin: PIN ไม่ถูกต้อง
+  appLockSetupFailed: ไม่สามารถบันทึก PIN ได้อย่างปลอดภัย
+  appLockDisable: ป้อน PIN เพื่อปิดการล็อกแอป
+  appLockChangePin: เปลี่ยน PIN
+  appLockNow: ล็อกทันที
+  appLockUnlock: ปลดล็อก
+  appLockLockedTitle: ล็อกอยู่
+  appLockLockedDesc: ยืนยันตัวตนเพื่อดำเนินการต่อ
+  appLockAuthenticateReason: ยืนยันตัวตนเพื่อปลดล็อก
+  appLockEnableBiometricsReason: ยืนยันตัวตนเพื่อเปิดใช้การปลดล็อกด้วยไบโอเมตริก
+  appLockBiometricFailed: การยืนยันตัวตนด้วยไบโอเมตริกไม่เสร็จสมบูรณ์
+  appLockTooManyAttempts: 'พยายามมากเกินไป ลองใหม่อีกครั้งในอีก ${seconds} วินาที'
+  appLockCredentialUnavailableTitle: ไม่สามารถอ่านข้อมูลรับรองการล็อกแอปได้
+  appLockCredentialUnavailableDesc: ที่จัดเก็บข้อมูลที่ปลอดภัยของระบบไม่พร้อมใช้งานชั่วคราว หรือข้อมูลรับรองเสียหาย แอปจะยังคงล็อกอยู่ โปรดลองใหม่อีกครั้งก่อน หากยังคงล้มเหลว คุณสามารถรีเซ็ตการล็อกแอปได้ ซึ่งจะเป็นการปิดใช้งานและล้าง PIN ที่บันทึกไว้
+  appLockRetry: ลองใหม่
+  appLockReset: รีเซ็ตการล็อกแอป
+  appLockResetAction: รีเซ็ต
+  appLockResetConfirmTitle: รีเซ็ตการล็อกแอปหรือไม่?
+  appLockResetConfirmDesc: การดำเนินการนี้จะปิดการล็อกแอปและล้าง PIN ที่บันทึกไว้รวมถึงการตั้งค่าไบโอเมตริก คุณสามารถตั้งค่าใหม่ได้ในภายหลัง
+  appLockRetrySucceeded: อ่านข้อมูลรับรองสำเร็จแล้ว โปรดป้อน PIN ของคุณ
+  appLockRetryFailed: ยังคงไม่สามารถอ่านข้อมูลรับรองได้
+  forum: ฟอรัม
+  news: ข่าวสาร
+  community: ชุมชน
+  disableForumReplyQuote: ปิดใช้การอ้างอิงการตอบกลับฟอรัม
+  disableForumReplyQuoteDesc: ปิดการแนบข้อมูลชั้นที่ตอบกลับเมื่อตอบกลับในฟอรัม
+  theaterMode: โหมดโรงภาพยนตร์
+  theaterModeDesc: หลังจากเปิดใช้งาน พื้นหลังของเครื่องเล่นจะถูกตั้งเป็นเวอร์ชันเบลอของภาพปกวิดีโอ
+  appLinks: ลิงก์แอป
+  defaultBrowser: เรียกดูเริ่มต้น
+  defaultBrowserDesc: โปรดเปิดรายการกำหนดค่าลิงก์เริ่มต้นในการตั้งค่าระบบและเพิ่มลิงก์เว็บไซต์ iwara.tv
+  themeMode: โหมดธีม
+  themeModeDesc: การกำหนดค่านี้กำหนดโหมดธีมของแอป
+  glassEffect: วัสดุอินเทอร์เฟซ
+  glassEffectDesc: เลือกวัสดุที่ใช้ทั่วทั้งแอป — แคปซูลส่วนหัว เมนู ปุ่มกล่องโต้ตอบ และแถบนำทางด้านล่าง
+  liquidGlassEffect: กระจกเหลว
+  liquidGlassEffectDesc: การเบลอและการหักเหแสงจริง สวยงามที่สุด แต่อาจมีเฟรมดรอปและเปลืองพลังงานเพิ่มขึ้นเล็กน้อยบนอุปกรณ์ระดับเริ่มต้น
+  plainGlassEffect: Material
+  plainGlassEffectDesc: พื้นผิว Material 3 มาตรฐาน — ทึบแสง ไม่มีการเบลอ ไม่มีเงา ประสิทธิภาพและอายุการใช้งานแบตเตอรี่ดีที่สุด
+  glassEffectIntroTitle: เลือกวัสดุอินเทอร์เฟซของคุณ
+  glassEffectIntroContent: ส่วนหัว แถบแท็บ และเมนูใช้กระจกเหลว — การเบลอและการหักเหแสงจริง หากรู้สึกว่าอุปกรณ์ของคุณช้า หรือชอบอะไรที่เรียบง่ายกว่า สามารถเปลี่ยนเป็น Material ได้ตอนนี้ (พื้นผิวทึบแสง ไม่เบลอ ไม่มีเงา)
+  glassEffectIntroHint: คุณสามารถเปลี่ยนค่านี้ได้ตลอดเวลาใน การตั้งค่า → ธีม → วัสดุอินเทอร์เฟซ
+  glassEffectIntroDone: ใช้แบบนี้
+  dynamicColor: สีแบบไดนามิก
+  dynamicColorDesc: การกำหนดค่านี้กำหนดว่าแอปจะใช้สีแบบไดนามิกหรือไม่
+  useDynamicColor: ใช้สีแบบไดนามิก
+  useDynamicColorDesc: การกำหนดค่านี้กำหนดว่าแอปจะใช้สีแบบไดนามิกหรือไม่
+  presetColors: สีที่ตั้งไว้ล่วงหน้า
+  customColors: สีที่กำหนดเอง
+  customColorsDisabledByDynamicColor: เปิดใช้งานสีแบบไดนามิกอยู่ สีที่ตั้งไว้ล่วงหน้า/สีที่กำหนดเองจึงไม่พร้อมใช้งาน โปรดปิดสีแบบไดนามิกก่อน
+  pickColor: เลือกสี
+  cancel: ยกเลิก
+  confirm: ยืนยัน
+  noCustomColors: ไม่มีสีที่กำหนดเอง
+  recordAndRestorePlaybackProgress: บันทึกและคืนค่าความคืบหน้าการเล่น
+  autoPlayVideoOnFirstEnter: เล่นวิดีโออัตโนมัติเมื่อเข้าครั้งแรก
+  autoPlayVideoOnFirstEnterDesc: การตั้งค่านี้กำหนดว่าวิดีโอจะเริ่มเล่นโดยอัตโนมัติหรือไม่เมื่อเข้าสู่หน้าวิดีโอเป็นครั้งแรก
+  autoEnterFullscreen: เข้าสู่โหมดเต็มหน้าจอโดยอัตโนมัติ
+  autoEnterFullscreenDesc: กำหนดเวลาที่เครื่องเล่นควรเข้าสู่โหมดเต็มหน้าจอเอง วิดีโอส่วนตัว วิดีโอที่ถูกลบ วิดีโอภายนอก และขณะใช้การแสดงภาพซ้อนภาพจะไม่เข้าสู่โหมดเต็มหน้าจออัตโนมัติ
+  autoEnterFullscreenOff: 'ปิด'
+  autoEnterFullscreenOffDesc: ไม่เข้าสู่โหมดเต็มหน้าจอเองโดยอัตโนมัติ
+  autoEnterFullscreenOnPlaybackStart: เมื่อเริ่มเล่น
+  autoEnterFullscreenOnPlaybackStartDesc: เข้าสู่โหมดเต็มหน้าจอทันทีที่เริ่มเล่นวิดีโอจริง
+  autoEnterFullscreenOnDetailPageEnter: เมื่อเปิดหน้าวิดีโอ
+  autoEnterFullscreenOnDetailPageEnterDesc: เข้าสู่โหมดเต็มหน้าจอทันทีที่เปิดหน้าวิดีโอโดยไม่ต้องรอให้เริ่มเล่น
+  autoEnterFullscreenKind: ประเภทเต็มหน้าจอ
+  autoEnterFullscreenKindDesc: ประเภทของโหมดเต็มหน้าจอที่จะเข้าอัตโนมัติ สำหรับเดสก์ท็อปเท่านั้น
+  autoEnterFullscreenKindSystem: เต็มหน้าจอระบบ
+  autoEnterFullscreenKindSystemDesc: ให้ตัวจัดการหน้าต่างขยายหน้าต่างเป็นแบบเต็มหน้าจอ
+  autoEnterFullscreenKindApp: เต็มหน้าจอแอป
+  autoEnterFullscreenKindAppDesc: คงขนาดหน้าต่างไว้เหมือนเดิมและเปลี่ยนทั้งแอปให้กลายเป็นเครื่องเล่น
+  signature: ลายเซ็น
+  enableSignature: เปิดใช้ลายเซ็น
+  enableSignatureDesc: การกำหนดค่านี้กำหนดว่าแอปจะเพิ่มลายเซ็นเมื่อตอบกลับหรือไม่
+  enterSignature: ป้อนลายเซ็น
+  editSignature: แก้ไขลายเซ็น
+  signatureContent: เนื้อหาลายเซ็น
+  exportConfig: "ส่งออกการกำหนดค่าแอป"
+  exportConfigDesc: "ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด"
+  importConfig: "นำเข้าการกำหนดค่าแอป"
+  importConfigDesc: "นำเข้าการกำหนดค่าแอปจากไฟล์"
+  exportConfigSuccess: "ส่งออกการกำหนดค่าสำเร็จ!"
+  exportConfigFailed: "ส่งออกการกำหนดค่าล้มเหลว"
+  importConfigSuccess: "นำเข้าการกำหนดค่าสำเร็จ!"
+  importConfigFailed: "นำเข้าการกำหนดค่าล้มเหลว"
+  exportIncludeSensitive: "รวมข้อมูลที่ละเอียดอ่อน"
+  exportIncludeSensitiveDesc: "รวมคีย์ API โทเค็นเซสชัน และที่อยู่พร็อกซี เปิดใช้งานเมื่อสำรองข้อมูลไปยังอุปกรณ์ของคุณเองเท่านั้น"
+  importConfigOverwriteWarning: "การนำเข้าจะเขียนทับการตั้งค่าและประวัติปัจจุบันของคุณ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ดำเนินการต่อหรือไม่?"
+  importConfigRestartTitle: "นำเข้าสำเร็จ"
+  importConfigRestartContent: "นำเข้าการกำหนดค่าของคุณเรียบร้อยแล้ว โปรดปิดและเปิดแอปใหม่อีกครั้งเพื่อให้การเปลี่ยนแปลงทั้งหมดมีผล"
+  historyUpdateLogs: "บันทึกการอัปเดตประวัติ"
+  noUpdateLogs: "ไม่มีบันทึกการอัปเดต"
+  versionLabel: "เวอร์ชัน: {version}"
+  releaseDateLabel: "วันที่เผยแพร่: {date}"
+  noChanges: "ไม่มีเนื้อหาการอัปเดต"
+  interaction: การโต้ตอบ
+  enableVibration: เปิดใช้การสั่น
+  enableVibrationDesc: เปิดใช้การตอบสนองแบบสั่นเมื่อโต้ตอบกับแอป
+  defaultKeepVideoToolbarVisible: คงแถบเครื่องมือวิดีโอไว้เสมอ
+  defaultKeepVideoToolbarVisibleDesc: การตั้งค่านี้กำหนดว่าจะให้แถบเครื่องมือวิดีโอแสดงอยู่เสมอหรือไม่เมื่อเข้าสู่หน้าวิดีโอเป็นครั้งแรก
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: การเปิดใช้โหมดโรงภาพยนตร์บนอุปกรณ์เคลื่อนที่อาจทำให้เกิดปัญหาด้านประสิทธิภาพ คุณสามารถเลือกเปิดใช้งานได้ตามความเหมาะสม
+  fullscreenOrientation: การวางแนวหน้าจอแนวตั้งหลังจากเข้าสู่โหมดเต็มหน้าจอ
+  fullscreenOrientationDesc: การตั้งค่านี้กำหนดทิศทางหน้าจอเริ่มต้นเมื่อเข้าสู่โหมดเต็มหน้าจอ (สำหรับมือถือเท่านั้น)
+  fullscreenOrientationLeftLandscape: แนวนอนซ้าย
+  fullscreenOrientationRightLandscape: แนวนอนขวา
+  screenFit: ขนาดหน้าจอ
+  screenFitDesc: เลือกว่าจะให้วิดีโอแสดงผลในพื้นที่ของเครื่องเล่นอย่างไร
+  rememberScreenFit: จำขนาดหน้าจอ
+  rememberScreenFitDesc: ใช้ขนาดที่เลือกกับวิดีโอที่เปิดในภายหลัง
+  screenFitFit: พอดี
+  screenFitFitDesc: แสดงภาพทั้งเฟรมโดยรักษาอัตราส่วนเดิมไว้
+  screenFitStretch: ยืด
+  screenFitStretchDesc: ขยายให้เต็มพื้นที่เครื่องเล่น ภาพอาจผิดเพี้ยน
+  screenFitCover: เติมเต็ม
+  screenFitCoverDesc: ขยายให้เต็มพื้นที่เครื่องเล่นโดยรักษาอัตราส่วนเดิมไว้ ส่วนที่เกินจะถูกครอบตัด
+  screenFitRatioDesc: บังคับใช้อัตราส่วนนี้ ภาพอาจผิดเพี้ยน
+  jumpLink: ลิงก์กระโดด
+  language: ภาษา
+  languageNativeName: ไทย
+  followSystemLanguage: ตามภาษาระบบ
+  languageChangedMessage: เปลี่ยนภาษาสำเร็จ ฟีเจอร์บางอย่างต้องรีสตาร์ทแอปจึงจะมีผล
+  languageChanged: การตั้งค่าภาษาถูกเปลี่ยนแปลงแล้ว โปรดรีสตาร์ตแอปเพื่อให้มีผล
+  keybinding:
+    title: แป้นพิมพ์ลัด
+    entryLabel: แป้นพิมพ์ลัด
+    entryDesc: กำหนดค่าแป้นพิมพ์ลัดของแอปเอง (หลักๆ สำหรับเดสก์ท็อป)
+    desktopHint: แป้นพิมพ์ลัดใช้ได้กับแป้นพิมพ์เดสก์ท็อปเป็นหลัก บนมือถือมักใช้ท่าทางสัมผัส
+    resetAll: รีเซ็ตทั้งหมดเป็นค่าเริ่มต้น
+    resetAllConfirm: รีเซ็ตแป้นพิมพ์ลัดทั้งหมดของแอปกลับเป็นค่าเริ่มต้นหรือไม่?
+    resetToDefault: รีเซ็ตเป็นค่าเริ่มต้น
+    resetScope: รีเซ็ตส่วนนี้
+    notSet: ไม่ได้ตั้งค่า
+    addShortcut: เพิ่มแป้นพิมพ์ลัด
+    removeShortcut: ลบแป้นพิมพ์ลัดนี้
+    pressNewShortcut: กดแป้นพิมพ์ลัดใหม่…
+    recordingCancelHint: กด Esc เพื่อยกเลิก
+    mouseHint: คุณยังสามารถผูกปุ่มด้านข้างของเมาส์ (ย้อนกลับ / ไปข้างหน้า) หรือปุ่มกลางได้ด้วย
+    mouseNotSupportedInScope: พื้นที่นี้ไม่รองรับปุ่มเมาส์ โปรดใช้แป้นพิมพ์แทน
+    capabilityKeyboardOnly: พื้นที่นี้ยอมรับเฉพาะแป้นบนแป้นพิมพ์เท่านั้น
+    capabilityKeyboardAndMouse: พื้นที่นี้ยอมรับแป้นบนแป้นพิมพ์ รวมถึงปุ่มกลางและปุ่มด้านข้างของเมาส์
+    capabilityKeyboardAndMouseMobile: พื้นที่นี้ยอมรับแป้นบนแป้นพิมพ์ รวมถึงปุ่มกลางและปุ่มไปข้างหน้าของเมาส์ (ปุ่มย้อนกลับถูกระบบใช้งานแล้ว)
+    rejectMultipleButtons: กดปุ่มเมาส์ทีละปุ่ม
+    rejectPlatformBack: ระบบใช้ปุ่มนี้สำหรับ "ย้อนกลับ" แล้ว การผูกปุ่มนี้จะทำให้ย้อนกลับซ้ำสองครั้ง
+    detectedLabel: ตรวจพบแล้ว
+    reservedKey: แป้นนี้สงวนไว้โดยระบบและไม่สามารถผูกได้
+    reservedForGlobalBack: แป้นนี้ผูกกับ "${action}" ไว้ จึงสงวนไว้ที่นี่เพื่อให้คุณยังสามารถออกจากหน้านี้ได้
+    conflictTitle: ความขัดแย้งของแป้นพิมพ์ลัด
+    conflictMessage: แป้นพิมพ์ลัดชุดนี้ผูกไว้กับ "${action}" แล้ว การดำเนินการต่อจะเป็นการลบการผูกเดิมออก
+    conflictContinue: ผูกต่อไป
+    shadowWarningTitle: แป้นพิมพ์ลัดส่วนกลางซ้ำซ้อน
+    shadowWarningMessage: แป้นพิมพ์ลัดชุดนี้ผูกไว้กับ "${action}" ในระดับส่วนกลาง การผูกที่นี่จะแทนที่การกระทำดังกล่าวเฉพาะภายในส่วนนี้เท่านั้น
+    globalShadowedMessage: แป้นพิมพ์ลัดชุดนี้ผูกไว้กับ "${action}" ใน ${scope} แล้ว เมื่อเข้าสู่ส่วนนั้น แป้นพิมพ์ลัดส่วนกลางนี้จะถูกแทนที่
+    searchHint: ค้นหาแป้นพิมพ์ลัด…
+    scopeGlobal: ส่วนกลาง
+    scopeGallery: แกลเลอรี
+    scopeVideo: วิดีโอ
+    categoryNavigation: การนำทาง
+    categoryZoom: การซูม
+    categoryPlayback: การเล่น
+    categorySeek: การเลื่อนเวลา
+    categoryVolume: ระดับเสียง
+    categoryDisplay: การแสดงผล
+    actionGlobalBack: ย้อนกลับ
+    actionGalleryNext: รูปถัดไป
+    actionGalleryPrevious: รูปก่อนหน้า
+    actionGalleryZoomIn: ซูมเข้า
+    actionGalleryZoomOut: ซูมออก
+    actionGalleryResetZoom: รีเซ็ตการซูม
+    actionGalleryPlayPause: เล่น / หยุดชั่วคราว
+    actionGallerySeekBackward: ย้อนกลับ
+    actionGallerySeekForward: เดินหน้าอย่างเร็ว
+    actionGalleryToggleMute: สลับปิด/เปิดเสียง
+    actionPlayPause: เล่น / หยุดชั่วคราว
+    actionSpeedUp: เพิ่มความเร็ว
+    actionSpeedDown: ลดความเร็ว
+    actionSeekForward: เลื่อนไปข้างหน้า
+    actionSeekBackward: เลื่อนถอยหลัง
+    actionVolumeUp: เพิ่มระดับเสียง
+    actionVolumeDown: ลดระดับเสียง
+    actionToggleMute: สลับปิด/เปิดเสียง
+    actionToggleFullscreen: สลับโหมดเต็มหน้าจอ
+    seekLongPressHint: กดปุ่มเลื่อนไปข้างหน้า / ถอยหลังค้างไว้เพื่อเข้าสู่โหมดความเร็วด้วยการกดค้าง
+    zoomSectionTitle: การซูมรูปภาพ (คงที่)
+    zoomFixedNote: แป้นพิมพ์ลัดด้านล่างนี้ได้รับการกำหนดไว้แล้วและไม่สามารถเปลี่ยนแปลงได้
+    zoomScaleLabel: ซูมรูปภาพ
+    zoomScaleHint: Ctrl + ล้อเลื่อน
+    zoomRotateLabel: หมุนรูปภาพ
+    zoomRotateHint: Shift + ล้อเลื่อน
+    zoomPinchGesture: หนีบนิ้ว
+    zoomTwoFingerRotateGesture: หมุนด้วยสองนิ้ว
+  gestureControl: การควบคุมด้วยท่าทาง
+  leftDoubleTapRewind: แตะสองครั้งด้านซ้ายเพื่อย้อนกลับ
+  rightDoubleTapFastForward: แตะสองครั้งด้านขวาเพื่อเดินหน้าอย่างเร็ว
+  doubleTapPause: แตะสองครั้งเพื่อหยุดชั่วคราว
+  rightVerticalSwipeVolume: ปัดแนวตั้งด้านขวาเพื่อปรับระดับเสียง (มีผลเมื่อเข้าสู่หน้าใหม่)
+  leftVerticalSwipeBrightness: ปัดแนวตั้งด้านซ้ายเพื่อปรับความสว่าง (มีผลเมื่อเข้าสู่หน้าใหม่)
+  longPressFastForward: กดค้างเพื่อเดินหน้าอย่างเร็ว
+  enableMouseHoverShowToolbar: เปิดใช้การชี้เมาส์เพื่อแสดงแถบเครื่องมือ
+  enableMouseHoverShowToolbarInfo: เมื่อเปิดใช้งาน แถบเครื่องมือวิดีโอจะแสดงขึ้นเมื่อเลื่อนเมาส์ไปเหนือเครื่องเล่น และจะซ่อนโดยอัตโนมัติหลังจากไม่มีการใช้งานเป็นเวลา 3 วินาที
+  enableHorizontalDragSeek: ปัดในแนวนอนเพื่อเลื่อนหาตำแหน่ง
+  enableVideoGestureZoom: หนีบนิ้วเพื่อซูมเฟรมวิดีโอ
+  enableVideoGestureZoomInfo: หนีบนิ้วด้วยสองนิ้ว (หรือ Ctrl + ล้อเลื่อนเมาส์บนเดสก์ท็อป) เพื่อซูมภาพวิดีโอ จากนั้นลากเพื่อเลื่อนตำแหน่งภาพ
+  showCenterPlayPauseButton: ปุ่มเล่น/หยุดชั่วคราวตรงกลาง
+  showCenterPlayPauseButtonDesc: แสดงปุ่มเล่น/หยุดชั่วคราวขนาดใหญ่ตรงกลางเครื่องเล่น
+  # Audio Video Configuration
+  audioVideoConfig: การกำหนดค่าเสียงและวิดีโอ
+  expandBuffer: ขยายบัฟเฟอร์
+  expandBufferInfo: เมื่อเปิดใช้งาน ขนาดบัฟเฟอร์จะเพิ่มขึ้น เวลาในการโหลดจะนานขึ้น แต่การเล่นจะราบรื่นยิ่งขึ้น
+  videoSyncMode: โหมดการซิงค์วิดีโอ
+  videoSyncModeSubtitle: กลยุทธ์การซิงโครไนซ์เสียงและวิดีโอ
+  hardwareDecodingMode: โหมดการถอดรหัสฮาร์ดแวร์
+  hardwareDecodingModeSubtitle: การตั้งค่าการถอดรหัสฮาร์ดแวร์
+  enableHardwareAcceleration: เปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์
+  enableHardwareAccelerationInfo: การเปิดใช้การเร่งความเร็วด้วยฮาร์ดแวร์สามารถปรับปรุงประสิทธิภาพการถอดรหัสได้ แต่อุปกรณ์บางรุ่นอาจไม่รองรับ
+  useOpenSLESAudioOutput: ใช้เอาต์พุตเสียง OpenSLES
+  useOpenSLESAudioOutputInfo: ใช้เอาต์พุตเสียงที่มีความหน่วงต่ำ อาจช่วยปรับปรุงประสิทธิภาพของเสียงได้
+  # Video sync options
+  videoSyncAudio: การซิงค์เสียง
+  videoSyncDisplayResample: การสุ่มตัวอย่างใหม่ในการแสดงผล
+  videoSyncDisplayResampleVdrop: การสุ่มตัวอย่างใหม่ในการแสดงผล (ดรอปเฟรม)
+  videoSyncDisplayResampleDesync: การสุ่มตัวอย่างใหม่ในการแสดงผล (ไม่ซิงค์)
+  videoSyncDisplayTempo: จังหวะการแสดงผล
+  videoSyncDisplayVdrop: แสดงผลโดยดรอปเฟรมวิดีโอ
+  videoSyncDisplayAdrop: แสดงผลโดยดรอปเฟรมเสียง
+  videoSyncDisplayDesync: แสดงผลแบบไม่ซิงค์
+  videoSyncDesync: ไม่ซิงค์
+  # Forum settings
+  forumSettings:
+    name: ฟอรัม
+    configureYourForumSettings: กำหนดค่าการตั้งค่าฟอรัมของคุณ
+  gallerySettings:
+    gallerySettingsTitle: การตั้งค่าแกลเลอรี
+    gallerySettingsSubtitle: กำหนดค่ากำหนดของโปรแกรมดูแกลเลอรี
+    defaultViewerQuality: คุณภาพเริ่มต้นของโปรแกรมดู
+    defaultViewerQualityDesc: เลือกคุณภาพของรูปภาพที่จะแสดงเป็นค่าเริ่มต้นเมื่อเปิดโปรแกรมดูแกลเลอรี
+  # Content blocking
+  blockSettings:
+    title: การบล็อกเนื้อหา
+    subtitle: ซ่อนวิดีโอและแกลเลอรีที่มีชื่อเรื่องตรงกับคำสำคัญหรือรูปแบบ หรือมาจากผู้ใช้ที่ถูกบล็อกโดยอัตโนมัติ การจับคู่ทั้งหมดเกิดขึ้นบนอุปกรณ์ของคุณ — ไม่มีการอัปโหลดข้อมูลใดๆ
+    blocked: บล็อกแล้ว
+    reveal: แสดง
+    reblock: บล็อกอีกครั้ง
+    why: ทำไมจึงถูกบล็อก?
+    manageRules: จัดการกฎ
+    reasonKeyword: 'ชื่อเรื่องประกอบด้วย "${value}"'
+    reasonRegex: 'ชื่อเรื่องตรงกับนิพจน์ "${value}"'
+    reasonUser: มาจากผู้ใช้ที่ถูกบล็อก
+    addRule: เพิ่มกฎ
+    editRule: แก้ไขกฎ
+    deleteRule: ลบกฎ
+    ruleType: ประเภทกฎ
+    keyword: คำสำคัญ
+    regex: นิพจน์ทั่วไป (Regex)
+    userId: ผู้ใช้
+    value: ข้อความที่ต้องการจับคู่
+    caseSensitive: ตรงตามตัวพิมพ์ใหญ่-เล็ก
+    regexHint: เช่น trailer|teaser
+    valueRequired: โปรดป้อนข้อความที่ต้องการจับคู่
+    invalidRegex: นิพจน์ทั่วไปไม่ถูกต้อง
+    noRules: ยังไม่มีกฎ แตะ + เพื่อเพิ่ม
+    blockUser: บล็อก
+    unblockUser: เลิกบล็อก
+    blockUserConfirm: 'บล็อก "${name}" หรือไม่? วิดีโอและแกลเลอรีของพวกเขาจะถูกซ่อนจากรายการและการค้นหา'
+    userBlocked: บล็อกผู้ใช้แล้ว
+    userUnblocked: เลิกบล็อกผู้ใช้แล้ว
+    exportRules: ส่งออก
+    importRules: นำเข้า
+    importExport: นำเข้า / ส่งออก
+    exportSuccess: ส่งออกกฎแล้ว
+    exportFailed: ไม่สามารถส่งออกกฎได้
+    importSuccess: 'นำเข้า ${count} กฎเรียบร้อยแล้ว'
+    importFailed: ไม่สามารถนำเข้ากฎได้
+    regexHelp: ความช่วยเหลือเกี่ยวกับรูปแบบ
+    regexHelpTitle: เอกสารอ้างอิง Regex
+    regexHelpIntro: 'นิพจน์ทั่วไปสามารถจับคู่ชื่อเรื่องได้อย่างยืดหยุ่นมากกว่าคำสำคัญธรรมดา ตัวอย่างทั่วไปบางส่วน:'
+    regexHelpTapHint: แตะตัวอย่างเพื่อนำไปใช้
+    regexEx1Pattern: ตัวอย่าง|ทีเซอร์|โบนัส
+    regexEx1Desc: ตรงกับคำใดคำหนึ่งเหล่านี้ ("|" หมายถึง "หรือ")
+    regexEx2Pattern: '^\\[.*\\]'
+    regexEx2Desc: ชื่อเรื่องที่ขึ้นต้นด้วย [วงเล็บ]
+    regexEx3Pattern: 'คอลเลกชัน$'
+    regexEx3Desc: ชื่อเรื่องที่ลงท้ายด้วย "Collection"
+    regexEx4Pattern: 'ตอนที่.'
+    regexEx4Desc: '\\d+ คือตัวเลขตั้งแต่หนึ่งหลักขึ้นไป — ตรงกับ "Ep.12"'
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '\\d คือตัวเลข และ {4} หมายถึงตัวเลขสี่หลักเรียงกัน (เช่น ปี)'
+    regexEx1Sample: "ทีเซอร์เกมใหม่มาแล้ว"
+    regexEx2Sample: "[Remux] ภาพยนตร์เต็มเรื่อง"
+    regexEx3Sample: "คอลเลกชันงานศิลปะฤดูใบไม้ผลิ"
+    regexEx4Sample: "รายการของฉัน ตอนที่12 สรุป"
+    regexEx5Sample: "ที่สุดแห่งปี 2024"
+    regexHelpSampleLabel: "ตัวอย่างชื่อเรื่อง"
+    regexHelpMatchedTag: "ถูกบล็อก"
+    regexHelpNoMatch: "ไม่ตรงกัน"
+    regexEx6Pattern: '[ซส]ีซั่น'
+    regexEx6Desc: '[Ss] ตรงกับตัว S พิมพ์ใหญ่หรือพิมพ์เล็ก — ในที่นี้ใช้จับคำว่า "Season"'
+    regexEx6Sample: 'ตัวอย่างซีซั่นสุดท้าย'
+    regexEx7Pattern: '(ภาพยนตร์|ซีรีส์)'
+    regexEx7Desc: 'วงเล็บ () จัดกลุ่มทางเลือก — ตรงกับ "the movie" หรือ "the series"'
+    regexEx7Sample: 'รับชมซีรีส์ตอนนี้'
+    regexEx8Pattern: 'ซีซั่น?'
+    regexEx8Desc: 's? ทำให้ตัวอักษรก่อนหน้าเป็นตัวเลือกเพิ่มเติม — ตรงกับ "season" และ "seasons"'
+    regexEx8Sample: 'แพ็กเกจสองซีซั่น'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '+ หมายถึงมีหนึ่งตัวหรือมากกว่า — ตรงกับ !, !!, !!! ...'
+    regexEx9Sample: 'สุดยอด!!! ต้องดู'
+    regexEx10Pattern: 'ตัวอย่าง.*ฉาก'
+    regexEx10Desc: '.* ตรงกับข้อความใดๆ ที่อยู่ระหว่างกลาง — "bonus … scene"'
+    regexEx10Sample: 'ตัวอย่าง ฉากที่ถูกลบ'
+  # Chat
+  chatSettings:
+    name: แชท
+    configureYourChatSettings: กำหนดค่าการตั้งค่าแชทของคุณ
+  # Hardware decoding options
+  hardwareDecodingAuto: อัตโนมัติ
+  hardwareDecodingAutoCopy: คัดลอกอัตโนมัติ
+  hardwareDecodingAutoSafe: ปลอดภัยอัตโนมัติ
+  hardwareDecodingNo: ปิดใช้งาน
+  hardwareDecodingYes: บังคับเปิดใช้งาน
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: กลยุทธ์การกระจายเนื้อหา
+  cdnDistributionStrategyDesc: เลือกกลยุทธ์การกระจายของเซิร์ฟเวอร์แหล่งที่มาของวิดีโอเพื่อปรับปรุงความเร็วในการโหลด
+  cdnDistributionStrategyLabel: กลยุทธ์การกระจาย
+  cdnDistributionStrategyNoChange: ไม่เปลี่ยนแปลง (ใช้เซิร์ฟเวอร์เดิม)
+  cdnDistributionStrategyAuto: เลือกอัตโนมัติ (เซิร์ฟเวอร์ที่เร็วที่สุด)
+  cdnDistributionStrategySpecial: ระบุเซิร์ฟเวอร์
+  cdnSpecialServer: ระบุเซิร์ฟเวอร์
+  cdnRefreshServerListHint: โปรดคลิกปุ่มด้านล่างเพื่อรีเฟรชรายการเซิร์ฟเวอร์
+  cdnRefreshButton: รีเฟรช
+  cdnFastRingServers: เซิร์ฟเวอร์วงแหวนเร็ว (Fast Ring)
+  cdnRefreshServerListTooltip: รีเฟรชรายการเซิร์ฟเวอร์
+  cdnSpeedTestButton: ทดสอบความเร็ว
+  cdnSpeedTestingButton: 'กำลังทดสอบ (${count})'
+  cdnNoServerDataHint: ไม่มีข้อมูลเซิร์ฟเวอร์ โปรดคลิกปุ่มรีเฟรช
+  cdnTestingStatus: กำลังทดสอบ
+  cdnUnreachableStatus: ไม่สามารถเข้าถึงได้
+  cdnNotTestedStatus: ยังไม่ได้ทดสอบ
+  downloadSettings:
+    downloadSettings: การตั้งค่าการดาวน์โหลด
+    enableDownloadNotifications: การแจ้งเตือนการดาวน์โหลด
+    enableDownloadNotificationsDescription: แสดงการแจ้งเตือนของระบบเมื่อการดาวน์โหลดรายการหนึ่งเสร็จสิ้นหรือล้มเหลว
+    notificationPermissionDenied: การอนุญาตการแจ้งเตือนถูกปฏิเสธ การแจ้งเตือนในแอปยังคงทำงานอยู่ โปรดเปิดใช้การแจ้งเตือนของระบบในการตั้งค่า
+    storagePermissionStatus: สถานะสิทธิ์การจัดเก็บข้อมูล
+    accessPublicDirectoryNeedStoragePermission: การเข้าถึงโฟลเดอร์สาธารณะจำเป็นต้องมีสิทธิ์การจัดเก็บข้อมูล
+    checkingPermissionStatus: กำลังตรวจสอบสถานะสิทธิ์...
+    storagePermissionGranted: ได้รับสิทธิ์การจัดเก็บข้อมูลแล้ว
+    storagePermissionNotGranted: ยังไม่ได้รับสิทธิ์การจัดเก็บข้อมูล
+    storagePermissionGrantSuccess: อนุญาตสิทธิ์การจัดเก็บข้อมูลสำเร็จ
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: การอนุญาตสิทธิ์การจัดเก็บข้อมูลล้มเหลว ฟีเจอร์บางอย่างอาจถูกจำกัด
+    storagePermissionRationale: "ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nบน Android 11 ขึ้นไป หมายถึงสิทธิ์ \"การเข้าถึงไฟล์ทั้งหมด\" หากไม่มีสิทธิ์นี้ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน"
+    storagePermissionRationaleLegacy: "ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nหากไม่ได้รับสิทธิ์ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน"
+    grantStoragePermission: อนุญาตสิทธิ์การจัดเก็บข้อมูล
+    customDownloadPath: เส้นทางดาวน์โหลดที่กำหนดเอง
+    customDownloadPathDescription: เมื่อเปิดใช้งาน คุณสามารถเลือกตำแหน่งบันทึกที่กำหนดเองสำหรับไฟล์ที่ดาวน์โหลดได้
+    customDownloadPathTip: "💡 คำแนะนำ: การเลือกไดเรกทอรีสาธารณะ (เช่น โฟลเดอร์ดาวน์โหลด) จำเป็นต้องมีสิทธิ์การจัดเก็บข้อมูล ขอแนะนำให้ใช้เส้นทางที่แนะนำก่อน"
+    androidWarning: "หมายเหตุ Android: หลีกเลี่ยงการเลือกไดเรกทอรีสาธารณะ (เช่น โฟลเดอร์ดาวน์โหลด) แนะนำให้ใช้ไดเรกทอรีเฉพาะของแอปเพื่อให้มั่นใจในสิทธิ์การเข้าถึง"
+    publicDirectoryPermissionTip: "⚠️ ประกาศ: คุณเลือกไดเรกทอรีสาธารณะ จำเป็นต้องมีสิทธิ์การจัดเก็บข้อมูลสำหรับการดาวน์โหลดไฟล์ตามปกติ"
+    permissionRequiredForPublicDirectory: จำเป็นต้องมีสิทธิ์การจัดเก็บข้อมูลสำหรับไดเรกทอรีสาธารณะ
+    currentDownloadPath: เส้นทางดาวน์โหลดปัจจุบัน
+    actualDownloadPath: เส้นทางดาวน์โหลดจริง
+    defaultAppDirectory: ไดเรกทอรีเริ่มต้นของแอป
+    permissionGranted: ได้รับอนุญาตแล้ว
+    permissionRequired: จำเป็นต้องมีสิทธิ์
+    enableCustomDownloadPath: เปิดใช้เส้นทางดาวน์โหลดที่กำหนดเอง
+    disableCustomDownloadPath: ใช้เส้นทางเริ่มต้นของแอปเมื่อปิดใช้งาน
+    customDownloadPathLabel: เส้นทางดาวน์โหลดที่กำหนดเอง
+    selectDownloadFolder: เลือกโฟลเดอร์ดาวน์โหลด
+    recommendedPath: เส้นทางที่แนะนำ
+    selectFolder: เลือกโฟลเดอร์
+    filenameTemplate: แม่แบบชื่อไฟล์
+    filenameTemplateDescription: ปรับแต่งกฎการตั้งชื่อสำหรับไฟล์ที่ดาวน์โหลด รองรับการแทนที่ตัวแปร
+    videoFilenameTemplate: แม่แบบชื่อไฟล์วิดีโอ
+    galleryFolderTemplate: แม่แบบโฟลเดอร์แกลเลอรี
+    imageFilenameTemplate: แม่แบบชื่อไฟล์รูปภาพ
+    resetToDefault: รีเซ็ตเป็นค่าเริ่มต้น
+    supportedVariables: ตัวแปรที่รองรับ
+    supportedVariablesDescription: "สามารถใช้ตัวแปรต่อไปนี้ในแม่แบบชื่อไฟล์ได้:"
+    copyVariable: คัดลอกตัวแปร
+    variableCopied: คัดลอกตัวแปรแล้ว
+    warningPublicDirectory: "คำเตือน: ไดเรกทอรีสาธารณะที่เลือกอาจไม่สามารถเข้าถึงได้ แนะนำให้เลือกไดเรกทอรีเฉพาะของแอป"
+    downloadPathUpdated: อัปเดตเส้นทางดาวน์โหลดแล้ว
+    selectPathFailed: เลือกเส้นทางล้มเหลว
+    pickerAlreadyActive: ตัวเลือกโฟลเดอร์เปิดอยู่แล้ว
+    unsupportedStorageVolume: ไม่รองรับตำแหน่งจัดเก็บข้อมูลนี้ โปรดเลือกโฟลเดอร์ในที่จัดเก็บข้อมูลของอุปกรณ์หรือการ์ด SD
+    recommendedPathSet: ตั้งเป็นเส้นทางที่แนะนำแล้ว
+    setRecommendedPathFailed: ตั้งค่าเส้นทางที่แนะนำล้มเหลว
+    templateResetToDefault: รีเซ็ตเป็นแม่แบบเริ่มต้นแล้ว
+    # Download test related
+    functionalTest: การทดสอบการทำงาน
+    testInProgress: กำลังทดสอบ...
+    runTest: เรียกใช้การทดสอบ
+    testDownloadPathAndPermissions: ทดสอบว่าเส้นทางดาวน์โหลดและการกำหนดค่าสิทธิ์ทำงานได้อย่างถูกต้องหรือไม่
+    testResults: ผลการทดสอบ
+    testCompleted: การทดสอบเสร็จสมบูรณ์
+    testPassed: รายการผ่าน
+    testFailed: การทดสอบล้มเหลว
+    testStoragePermissionCheck: การตรวจสอบสิทธิ์การจัดเก็บข้อมูล
+    testStoragePermissionGranted: ได้รับสิทธิ์การจัดเก็บข้อมูลแล้ว
+    testStoragePermissionMissing: ขาดสิทธิ์การจัดเก็บข้อมูล ฟีเจอร์บางอย่างอาจถูกจำกัด
+    testPermissionCheckFailed: ตรวจสอบสิทธิ์ล้มเหลว
+    testDownloadPathValidation: การตรวจสอบความถูกต้องของเส้นทางดาวน์โหลด
+    testPathValidationFailed: การตรวจสอบความถูกต้องของเส้นทางล้มเหลว
+    testFilenameTemplateValidation: การตรวจสอบความถูกต้องของแม่แบบชื่อไฟล์
+    testAllTemplatesValid: แม่แบบทั้งหมดถูกต้อง
+    testSomeTemplatesInvalid: บางแม่แบบมีอักขระที่ไม่ถูกต้อง
+    testTemplateValidationFailed: การตรวจสอบแม่แบบล้มเหลว
+    testDirectoryOperationTest: การทดสอบการทำงานกับไดเรกทอรี
+    testDirectoryOperationNormal: การสร้างไดเรกทอรีและการเขียนไฟล์เป็นปกติ
+    testDirectoryOperationFailed: การดำเนินการกับไดเรกทอรีล้มเหลว
+    # Test details related
+    testVideoTemplate: แม่แบบวิดีโอ
+    testGalleryTemplate: แม่แบบแกลเลอรี
+    testImageTemplate: แม่แบบรูปภาพ
+    testValid: ถูกต้อง
+    testInvalid: ไม่ถูกต้อง
+    testSuccess: สำเร็จ
+    testCorrect: ถูกต้อง
+    testError: ข้อผิดพลาด
+    testPath: เส้นทางการทดสอบ
+    testBasePath: เส้นทางฐาน
+    testDirectoryCreation: การสร้างไดเรกทอรี
+    testFileWriting: การเขียนไฟล์
+    testFileContent: เนื้อหาไฟล์
+    # Path status related
+    checkingPathStatus: กำลังตรวจสอบสถานะเส้นทาง...
+    unableToGetPathStatus: ไม่สามารถรับสถานะเส้นทางได้
+    actualPathDifferentFromSelected: "หมายเหตุ: เส้นทางจริงแตกต่างจากเส้นทางที่เลือก"
+    grantPermission: อนุญาตสิทธิ์
+    fixIssue: แก้ไขปัญหา
+    issueFixed: แก้ไขปัญหาแล้ว
+    fixFailed: แก้ไขล้มเหลว โปรดจัดการด้วยตนเอง
+    # Download path service related
+    lackStoragePermission: ขาดสิทธิ์การจัดเก็บข้อมูล
+    cannotAccessPublicDirectory: ไม่สามารถเข้าถึงไดเรกทอรีสาธารณะได้ จำเป็นต้องมี "สิทธิ์การเข้าถึงไฟล์ทั้งหมด"
+    cannotCreateDirectory: ไม่สามารถสร้างไดเรกทอรีได้
+    directoryNotWritable: ไม่สามารถเขียนลงในไดเรกทอรีได้
+    insufficientSpace: พื้นที่ว่างไม่เพียงพอ
+    pathValid: เส้นทางถูกต้อง
+    validationFailed: การตรวจสอบล้มเหลว
+    usingDefaultAppDirectory: กำลังใช้ไดเรกทอรีเริ่มต้นของแอป
+    appPrivateDirectory: ไดเรกทอรีส่วนตัวของแอป
+    appPrivateDirectoryDesc: ปลอดภัยและเชื่อถือได้ ไม่ต้องใช้สิทธิ์เพิ่มเติม
+    downloadDirectory: ไดเรกทอรีดาวน์โหลด
+    downloadDirectoryDesc: ตำแหน่งดาวน์โหลดเริ่มต้นของระบบ จัดการง่าย
+    moviesDirectory: ไดเรกทอรีภาพยนตร์
+    moviesDirectoryDesc: ไดเรกทอรีภาพยนตร์ของระบบ แอปสื่อสามารถรับรู้ได้
+    documentsDirectory: ไดเรกทอรีเอกสาร
+    documentsDirectoryDesc: ไดเรกทอรีเอกสารของแอป iOS
+    requiresStoragePermission: จำเป็นต้องมีสิทธิ์การจัดเก็บข้อมูลเพื่อเข้าถึง
+    # Recommended paths widget related
+    recommendedPaths: เส้นทางที่แนะนำ
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: ไดเรกทอรีส่วนตัวของแอปในพื้นที่จัดเก็บภายนอก
+    externalAppPrivateDirectoryDesc: ไดเรกทอรีส่วนตัวของแอปในที่จัดเก็บภายนอก ผู้ใช้เข้าถึงได้ มีพื้นที่ขนาดใหญ่กว่า
+    internalAppPrivateDirectory: ไดเรกทอรีส่วนตัวของแอปในพื้นที่จัดเก็บภายใน
+    internalAppPrivateDirectoryDesc: ที่จัดเก็บภายในของแอป ไม่จำเป็นต้องมีสิทธิ์ มีขนาดพื้นที่น้อยกว่า
+    appDocumentsDirectory: ไดเรกทอรีเอกสารของแอป
+    appDocumentsDirectoryDesc: ไดเรกทอรีเอกสารเฉพาะของแอป ปลอดภัยและเชื่อถือได้
+    downloadsFolder: โฟลเดอร์ดาวน์โหลด
+    downloadsFolderDesc: ไดเรกทอรีดาวน์โหลดเริ่มต้นของระบบ
+    selectRecommendedDownloadLocation: เลือกตำแหน่งดาวน์โหลดที่แนะนำ
+    noRecommendedPaths: ไม่มีเส้นทางที่แนะนำ
+    recommended: แนะนำ
+    requiresPermission: ต้องใช้สิทธิ์
+    authorizeAndSelect: อนุญาตสิทธิ์และเลือก
+    select: เลือก
+    permissionAuthorizationFailed: การอนุญาตสิทธิ์ล้มเหลว ไม่สามารถเลือกเส้นทางนี้ได้
+    pathValidationFailed: การตรวจสอบเส้นทางล้มเหลว
+    downloadPathSetTo: ตั้งค่าเส้นทางดาวน์โหลดเป็น
+    setPathFailed: ตั้งค่าเส้นทางล้มเหลว
+    # Filename template variables
+    variableTitle: ชื่อเรื่อง
+    variableAuthor: ชื่อผู้สร้าง
+    variableUsername: ชื่อผู้ใช้ของผู้สร้าง
+    variableQuality: คุณภาพวิดีโอ
+    variableFilename: ชื่อไฟล์ต้นฉบับ
+    variableId: รหัสเนื้อหา
+    variableCount: จำนวนรูปภาพในแกลเลอรี
+    variableDate: วันที่ปัจจุบัน (YYYY-MM-DD)
+    variableTime: เวลาปัจจุบัน (HH-MM-SS)
+    variableDatetime: วันที่และเวลาปัจจุบัน (YYYY-MM-DD_HH-MM-SS)
+    # Settings page
+    downloadSettingsTitle: การตั้งค่าการดาวน์โหลด
+    downloadSettingsSubtitle: กำหนดค่าเส้นทางดาวน์โหลดและกฎการตั้งชื่อไฟล์
+    suchAsTitleQuality: 'ตัวอย่างเช่น: %title_%quality'
+    suchAsTitleId: 'ตัวอย่างเช่น: %title_%id'
+    suchAsTitleFilename: 'ตัวอย่างเช่น: %title_%filename'
+favoriteTags:
+  title: แท็กโปรด
+  emptyIwara: ยังไม่มีแท็ก Iwara ที่ชื่นชอบ
+  emptyOreno3d: ยังไม่มีรายการโปรด
+  addIwaraTag: เพิ่มแท็ก Iwara
+  quickPickHint: รายการโปรดจะปรากฏเป็นตัวเลือกด่วนในการค้นหา
+  pickerTitle: เลือก Oreno3D
+  searchHint: ค้นหาด้วยชื่อหรือต้นฉบับ
+  worksCount:
+    one: '${n} ผลงาน'
+    other: '${n} ผลงาน'
+  browseEntry: เรียกดู ต้นฉบับ / ตัวละคร / แท็ก
+  favoritesSection: รายการโปรด
+  addFavorite: เพิ่ม
+  iwaraTitle: แท็กโปรดของ Iwara
+  oreno3dTitle: แท็กโปรดของ Oreno3D
+  changeTag: เปลี่ยนแท็ก
+  switchToText: ค้นหาด้วยข้อความ
+oreno3d:
+  name: Oreno3D
+  tags: แท็ก
+  characters: ตัวละคร
+  origin: ต้นฉบับ
+  thirdPartyTagsExplanation: "ข้อมูล **แท็ก** **ตัวละคร** และ **ที่มา** ที่แสดงที่นี่จัดทำโดยเว็บไซต์บุคคลที่สาม **Oreno3D** เพื่อใช้อ้างอิงเท่านั้น\n\nเนื่องจากแหล่งข้อมูลนี้มีเฉพาะภาษาญี่ปุ่น จึงยังไม่รองรับการแปลหลายภาษา\n\nหากสนใจร่วมพัฒนาการแปลหลายภาษา เชิญที่รีโพซิทอรี"
+  sortTypes:
+    hot: กำลังฮิต
+    favorites: ถูกใจมาก
+    latest: ล่าสุด
+    popularity: ยอดนิยม
+  errors:
+    requestFailed: คำขอล้มเหลว รหัสสถานะ
+    connectionTimeout: หมดเวลาการเชื่อมต่อ โปรดตรวจสอบการเชื่อมต่อเครือข่าย
+    sendTimeout: หมดเวลาส่งคำขอ
+    receiveTimeout: หมดเวลาการรับคำตอบ
+    badCertificate: การตรวจสอบใบรับรองล้มเหลว
+    resourceNotFound: ไม่พบทรัพยากรที่ร้องขอ
+    accessDenied: การเข้าถึงถูกปฏิเสธ อาจต้องมีการตรวจสอบสิทธิ์หรือการอนุญาต
+    serverError: เซิร์ฟเวอร์เกิดข้อผิดพลาดภายใน
+    serviceUnavailable: บริการไม่พร้อมใช้งานชั่วคราว
+    requestCancelled: คำขอถูกยกเลิก
+    connectionError: เกิดข้อผิดพลาดในการเชื่อมต่อเครือข่าย โปรดตรวจสอบการตั้งค่าเครือข่าย
+    networkRequestFailed: คำขอเครือข่ายล้มเหลว
+    searchVideoError: เกิดข้อผิดพลาดที่ไม่รู้จักขณะค้นหาวิดีโอ
+    getPopularVideoError: เกิดข้อผิดพลาดที่ไม่รู้จักขณะดึงข้อมูลวิดีโอยอดนิยม
+    getVideoDetailError: เกิดข้อผิดพลาดที่ไม่รู้จักขณะดึงรายละเอียดวิดีโอ
+    parseVideoDetailError: เกิดข้อผิดพลาดที่ไม่รู้จักขณะดึงและแยกวิเคราะห์รายละเอียดวิดีโอ
+    downloadFileError: เกิดข้อผิดพลาดที่ไม่รู้จักขณะดาวน์โหลดไฟล์
+  loading:
+    gettingVideoInfo: กำลังรับข้อมูลวิดีโอ...
+    cancel: ยกเลิก
+  messages:
+    videoNotFoundOrDeleted: ไม่พบวิดีโอหรือวิดีโอถูกลบไปแล้ว
+    unableToGetVideoPlayLink: ไม่สามารถรับลิงก์สำหรับเล่นวิดีโอได้
+    getVideoDetailFailed: รับรายละเอียดวิดีโอล้มเหลว
+signIn:
+  pleaseLoginFirst: โปรดเข้าสู่ระบบก่อน
+  alreadySignedInToday: วันนี้คุณได้ลงชื่อเข้าใช้แล้ว!
+  youDidNotStickToTheSignIn: คุณไม่ได้ลงชื่อเข้าใช้อย่างต่อเนื่อง
+  signInSuccess: ลงชื่อเข้าใช้สำเร็จ!
+  signInFailed: ลงชื่อเข้าใช้ล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  consecutiveSignIns: การลงชื่อเข้าใช้ติดต่อกัน
+  failureReason: เหตุผลที่ล้มเหลว
+  selectDateRange: เลือกช่วงวันที่
+  startDate: วันที่เริ่มต้น
+  endDate: วันที่สิ้นสุด
+  invalidDate: รูปแบบวันที่ไม่ถูกต้อง
+  invalidDateRange: ช่วงวันที่ไม่ถูกต้อง
+  errorFormatText: รูปแบบวันที่ไม่ถูกต้อง
+  errorInvalidText: ช่วงวันที่ไม่ถูกต้อง
+  errorInvalidRangeText: ช่วงวันที่ไม่ถูกต้อง
+  dateRangeCantBeMoreThanOneYear: ช่วงวันที่ต้องไม่เกิน 1 ปี
+  signIn: เช็คอิน
+  signInRecord: บันทึกการเช็คอิน
+  totalSignIns: การเช็คอินทั้งหมด
+  pleaseSelectSignInStatus: โปรดเลือกสถานะการเช็คอิน
+
+subscriptions:
+  pleaseLoginFirstToViewYourSubscriptions: โปรดเข้าสู่ระบบก่อนเพื่อดูการติดตามของคุณ
+  selectUser: เลือกผู้ใช้
+  noSubscribedUsers: ไม่มีผู้ใช้ที่ติดตาม
+  showAllSubscribedUsersContent: แสดงเนื้อหาของผู้ใช้ที่ติดตามทั้งหมด
+
+videoDetail:
+  pipMode: โหมดภาพซ้อนภาพ (PiP)
+  resumeFromLastPosition: 'เล่นต่อจากตำแหน่งล่าสุด: ${position}'
+  resumedFromHistoryTip: 'เล่นต่อจาก ${position}'
+  restartFromBeginning: เริ่มใหม่ตั้งแต่ต้น
+  dismissResumeTip: รับทราบ
+  localInfo:
+    videoInfo: ข้อมูลวิดีโอ
+    currentQuality: คุณภาพปัจจุบัน
+    duration: ความยาว
+    resolution: ความละเอียด
+    fileInfo: ข้อมูลไฟล์
+    fileName: ชื่อไฟล์
+    fileSize: ขนาดไฟล์
+    filePath: เส้นทางไฟล์
+    copyPath: คัดลอกเส้นทาง
+    openFolder: เปิดโฟลเดอร์
+    pathCopiedToClipboard: คัดลอกเส้นทางไปยังคลิปบอร์ดแล้ว
+    openFolderFailed: เปิดโฟลเดอร์ล้มเหลว
+  videoIdIsEmpty: รหัสวิดีโอว่างเปล่า
+  videoInfoIsEmpty: ข้อมูลวิดีโอว่างเปล่า
+  thisIsAPrivateVideo: นี่เป็นวิดีโอส่วนตัว
+  getVideoInfoFailed: 'รับข้อมูลวิดีโอล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง'
+  noVideoSourceFound: ไม่พบแหล่งที่มาของวิดีโอ
+  tagCopiedToClipboard: 'คัดลอกแท็ก "${tagId}" ไปยังคลิปบอร์ดแล้ว'
+  errorLoadingVideo: เกิดข้อผิดพลาดขณะโหลดวิดีโอ
+  play: เล่น
+  pause: หยุดชั่วคราว
+  exitAppFullscreen: ออกจากเต็มหน้าจอแอป
+  enterAppFullscreen: เต็มหน้าจอแอป
+  exitSystemFullscreen: ออกจากเต็มหน้าจอระบบ
+  enterSystemFullscreen: เต็มหน้าจอระบบ
+  seekTo: ข้ามไปยัง
+  switchResolution: สลับความละเอียด
+  switchPlaybackSpeed: สลับความเร็วการเล่น
+  rewindSeconds: 'ย้อนกลับ ${num} วินาที'
+  fastForwardSeconds: 'เดินหน้า ${num} วินาที'
+  playbackSpeedIng: 'กำลังเล่นที่ความเร็ว ${rate}x'
+  brightness: ความสว่าง
+  brightnessLowest: ความสว่างต่ำสุดแล้ว
+  volume: ระดับเสียง
+  volumeMuted: ปิดเสียงแล้ว
+  restoreDefaultZoom: คืนค่าเดิม
+  gestureGuide:
+    sampleVideo: ตัวอย่างวิดีโอ
+    title: คำแนะนำท่าทางและการโต้ตอบ
+    viewGuide: คำแนะนำท่าทางและการโต้ตอบ
+    firstTimeIntro: ใช้เวลาสักครู่เพื่อเรียนรู้ท่าทางควบคุมเครื่องเล่น คุณสามารถเปิดคู่มือนี้ได้ทุกเมื่อจากการตั้งค่าเครื่องเล่น
+    startWatching: เข้าใจแล้ว เริ่มรับชม
+    basicTitle: การควบคุมพื้นฐาน
+    zoomTitle: ซูม / หมุน / เลื่อนภาพ
+    restoreTip: 'แตะปุ่ม "คืนค่าเดิม" ที่ด้านล่างขวาเพื่อรีเซ็ตการซูม การหมุน และตำแหน่ง'
+    mTap: 'แตะครั้งเดียว: แสดง / ซ่อนส่วนควบคุม'
+    mDoubleTap: 'แตะสองครั้ง: ย้อนกลับ (ซ้าย) / หยุดชั่วคราว (กลาง) / เดินหน้า (ขวา)'
+    mHorizontalDrag: 'ปัดแนวนอน: เลื่อนหาตำแหน่ง'
+    mVerticalDrag: 'ปัดแนวตั้ง: ความสว่าง (ซ้าย) / ระดับเสียง (ขวา)'
+    mLongPress: 'กดค้าง: เร่งความเร็วชั่วคราว'
+    mPinch: 'หนีบสองนิ้ว: ซูมภาพ'
+    mRotate: 'หมุนสองนิ้ว: หมุนภาพ'
+    dTap: 'คลิก: แสดง / ซ่อนส่วนควบคุม'
+    dDoubleTap: 'ดับเบิลคลิก: ย้อนกลับ (ซ้าย) / หยุดชั่วคราว (กลาง) / เดินหน้า (ขวา)'
+    dKeys: 'แป้นเลื่อนหาตำแหน่ง: แตะเพื่อข้ามถอยหลัง / เดินหน้า กดค้างเพื่อเร่งความเร็ว; แป้นปรับความเร็ว: ปรับระดับความเร็วระหว่างการเล่นปกติ; Space: เล่น / หยุดชั่วคราว'
+    dTrackpadPinch: 'หนีบนิ้วบนแทร็กแพด: ซูมภาพ'
+    dTrackpadRotate: 'หมุนนิ้วบนแทร็กแพด: หมุนภาพ'
+    dCtrlWheel: 'Ctrl + ล้อเลื่อน: ซูมโดยอิงตามตำแหน่งเคอร์เซอร์'
+    dShiftWheel: 'Shift + ล้อเลื่อน: หมุนโดยอิงตามตำแหน่งเคอร์เซอร์'
+    quest:
+      title: "คุ้นเคยกับการควบคุมบน Quest"
+      intro: "ดูว่าการควบคุมแต่ละอย่างทำอะไรได้บ้าง จากนั้นลองใช้งานในพื้นที่เสมือนของคุณ"
+      videoTab: "วิดีโอเชิงพื้นที่"
+      galleryTab: "แกลเลอรีเชิงพื้นที่"
+      scopeNote: "สำหรับหน้าจอและหน้าต่างในพื้นที่ Quest ของคุณ เปิดใหม่ได้ทุกเมื่อจากการตั้งค่าเครื่องเล่น"
+      catalog: "สำรวจการควบคุม"
+      lessonCount: "${current} จาก ${total}"
+      previous: "ก่อนหน้า"
+      next: "การควบคุมถัดไป"
+      replay: "เล่นการสาธิตซ้ำ"
+      pauseDemo: "หยุดการสาธิตชั่วคราว"
+      resumeDemo: "เล่นการสาธิตต่อ"
+      looping: "สาธิตการควบคุม"
+      still: "ภาพประกอบนิ่ง"
+      done: "เข้าใจแล้ว ดำเนินการต่อ"
+      leftController: "มือซ้าย"
+      rightController: "มือขวา"
+      trigger: "ไกชี้"
+      grip: "ปุ่มกริป"
+      bothGrips: "ปุ่มกริปทั้งสองข้าง"
+      stick: "ก้านอนาล็อก"
+      handTracking: "การติดตามมือ"
+      ready: "พร้อม"
+      press: "กด"
+      hold: "กดค้าง"
+      release: "ปล่อย"
+      result: "ดูผลลัพธ์"
+      pinch: "จีบนิ้ว"
+      selectTitle: "ชี้และเลือก"
+      selectBody: "เล็งลำแสงไปที่ปุ่ม จากนั้นกดแล้วปล่อยไกชี้ ใช้สำหรับเล่น ตั้งค่า และเลื่อนแถบเลื่อนบนแผงควบคุม"
+      selectHint: "ไกชี้อยู่ด้านหลังของปุ่ม ปุ่มกริปที่ด้ามจับด้านในใช้สำหรับจับหน้าต่าง"
+      panelTitle: "แสดงหรือซ่อนแผงควบคุม"
+      panelBody: "ชี้ออกไปนอกแผงควบคุม จากนั้นแตะไกชี้เพื่อแสดงหรือซ่อน เมื่อใช้การติดตามมือ การจีบนิ้วสั้นๆ นอกแผงควบคุมจะให้ผลเช่นเดียวกัน"
+      panelHint: "ใช้การแตะสั้นๆ โดยไม่ลาก การกดค้างแล้วขยับคือการลาก ไม่ใช่การสลับแผงควบคุม"
+      playTitle: "เล่นและหยุดชั่วคราว"
+      playBody: "ชี้ออกจากแผงควบคุมแล้วกดปุ่ม A ทางขวา หรือปุ่ม X ทางซ้ายเพื่อเล่นหรือหยุดชั่วคราว คุณยังสามารถเลือกปุ่มเล่นบนแผงควบคุมได้ด้วย"
+      playHint: "สามารถปิดแป้นพิมพ์ลัดเริ่มต้นนี้ได้ในการตั้งค่าเครื่องเล่นเชิงพื้นที่ เมื่อชี้ไปที่แผงควบคุม การป้อนข้อมูลจะส่งไปยังแผงควบคุม"
+      seekTitle: "เลื่อนตำแหน่งด้วยก้านอนาล็อก"
+      seekBody: "ดันก้านอนาล็อกไปทางซ้ายหรือขวาเพื่อข้ามทีละ 5 วินาที ดันค้างไว้เพื่อเลื่อนเร็วขึ้นพร้อมดูตัวอย่างเวลา ปล่อยเพื่อไปยังตำแหน่งที่เลือก"
+      seekHint: "อย่าให้ลำแสงของคอนโทรลเลอร์นั้นชี้ไปที่แผงควบคุม หากก้านอนาล็อกชี้ไปที่แผงควบคุมจะเป็นการเลื่อนแผงแทน"
+      browseTitle: "เรียกดูด้วยก้านอนาล็อก"
+      browseBody: "ขยับก้านอนาล็อกข้างใดก็ได้ไปทางซ้ายหรือขวาเพื่อดูรายการก่อนหน้าหรือถัดไป ดันค้างไว้เพื่อเรียกดูต่อเนื่อง คุณยังสามารถเลือกภาพขนาดย่อในแถบฟิล์มได้ด้วย"
+      browseHint: "วิดีโอในแกลเลอรีก็ถือเป็นรายการเช่นกัน การชี้ไปที่แผงควบคุมจะทำให้ก้านอนาล็อกเลื่อนเนื้อหาในแผงแทน"
+      swipeTitle: "ลากเพื่อพลิกหน้า"
+      swipeBody: "เล็งไปที่รูปภาพ กดไกชี้ค้างไว้แล้วลากไปทางซ้าย ปล่อยหลังจากมีสัญญาณเปลี่ยนหน้าเพื่อไปข้างหน้า ลากไปทางขวาเพื่อย้อนกลับ การจีบนิ้วแล้วลากก็ใช้ได้เช่นกัน"
+      swipeHint: "รูปภาพต้องอยู่ที่ขนาด 1× จึงจะเปลี่ยนหน้าด้วยการลากได้ วิดีโอในแกลเลอรีก็รองรับเช่นกัน หน้าจอจะอยู่นิ่งจนกว่าคุณจะปล่อย"
+      zoomTitle: "ซูมดูรายละเอียดรูปภาพ"
+      zoomBody: "เล็งไปที่รายละเอียดในภาพ กดไกชี้ค้างไว้ แล้วดันก้านอนาล็อกขึ้นเพื่อซูมเข้า หรือลงเพื่อซูมออก การซูมจะยึดตำแหน่งที่คุณกดไว้"
+      zoomHint: "การดำเนินการนี้จะขยายรูปภาพภายในหน้าต่าง หากไม่ได้จับรูปภาพไว้ การดันขึ้น/ลงจะเป็นการปรับระยะการมอง"
+      panTitle: "เลื่อนและคืนค่ารูปภาพ"
+      panBody: "เมื่อซูมเข้าแล้ว ให้กดไกชี้ค้างไว้แล้วลากเพื่อดูรอบๆ แตะสองครั้งที่รูปภาพเพื่อซูมเป็น 2.5× หรือคืนค่าเดิม สำหรับมือ ให้จีบนิ้วสองครั้งอย่างรวดเร็ว"
+      panHint: "การลากจะเป็นการเลื่อนดูภาพที่ซูมอยู่ คืนค่าเป็น 1× ก่อนลากเพื่อเปลี่ยนหน้า"
+      slideshowTitle: "เริ่มการฉายสไลด์"
+      slideshowBody: "เมื่อดูรูปภาพ กดปุ่ม A / X เพื่อเริ่มหรือหยุดการฉายสไลด์ชั่วคราว แผงควบคุมมีช่วงเวลา 3, 5, 10 หรือ 20 วินาที และคุณภาพของภาพแบบมาตรฐานหรือต้นฉบับ"
+      slideshowHint: "ในวิดีโอของแกลเลอรี ปุ่ม A / X จะควบคุมการเล่นของวิดีโอนั้น ต้องเปิดใช้งานปุ่มลัดของคอนโทรลเลอร์ในการตั้งค่าก่อน"
+      moveTitle: "จับและย้ายหน้าจอ"
+      moveBody: "กดปุ่มกริปที่ด้ามจับด้านในค้างไว้ ขยับคอนโทรลเลอร์เพื่อจัดตำแหน่งหน้าจอ จากนั้นจึงปล่อย ขณะรับชม คุณสามารถจับหน้าจอได้โดยไม่ต้องเล็งไปที่หน้าจอ"
+      moveHint: "การเล็งไปที่หน้าต่างแอปหรือแผงควบคุมจะจับหน้าต่างนั้นก่อน ในวิดีโอแบบพาโนรามา การจับจะใช้ปรับทิศทางการมอง"
+      scaleTitle: "ปรับขนาดด้วยสองมือ"
+      scaleBody: "กดปุ่มกริปทั้งสองข้างค้างไว้ กางมือออกเพื่อขยายหน้าจอ หรือดึงมือเข้าหากันเพื่อย่อหน้าจอ เมื่อใช้การติดตามมือ ให้จีบนิ้วค้างไว้ทั้งสองมือ"
+      scaleHint: "สำหรับหน้าจอแบนหรือโค้ง รวมถึงเวทีแกลเลอรี อย่าให้ลำแสงชี้ไปที่แผงควบคุม การทำเช่นนี้จะปรับขนาดของทั้งหน้าจอ"
+      distanceTitle: "ปรับระยะการมอง"
+      distanceBody: "ดันก้านอนาล็อกขึ้นเพื่อเลื่อนหน้าจอออกไปไกลขึ้น หรือดันลงเพื่อดึงเข้ามาใกล้ขึ้น ขณะจับหน้าต่าง การดันขึ้น/ลงจะเลื่อนหน้าต่างนั้น ปรับระดับเสียงได้ที่แผงควบคุม"
+      distanceHint: "ชี้ออกจากแผงควบคุม การจับรูปภาพไว้จะเปลี่ยนการดันขึ้น/ลงเป็นการซูมรูปภาพ ส่วนวิดีโอพาโนรามาจะปรับมุมมองแทน"
+      resizeTitle: "ใช้ขอบและมุม"
+      resizeBody: "กรอบจะสว่างขึ้นเมื่อลำแสงของคุณเข้าใกล้ขอบ กดไกชี้ค้างไว้หรือจีบนิ้วที่ขอบเพื่อย้ายหน้าต่าง ลากมุมเพื่อปรับขนาด"
+      resizeHint: "ใช้ได้กับหน้าต่างแอป แผงควบคุม และหน้าจอ หน้าต่างแอปสามารถปรับความกว้างและความสูงได้ ส่วนหน้าจอจะรักษาอัตราส่วนภาพไว้"
+      navigationTitle: "ย้อนกลับและเปิดการตั้งค่า"
+      navigationBody: "ปุ่ม B / Y ใช้ย้อนกลับหนึ่งระดับ: ปิดป๊อปอัปหรือกลับสู่หน้าแรกของแผงควบคุม ซ่อนแผงควบคุม แล้วกลับสู่แอป ปุ่ม Menu ด้านซ้ายเปิดการตั้งค่าเชิงพื้นที่"
+      navigationHint: "ปุ่ม Meta ด้านขวาเป็นของระบบ การตั้งศูนย์ระบบใหม่จะนำมุมมองกลับมาอยู่ข้างหน้าโดยยังคงขนาดและระยะห่างของหน้าจอไว้"
+      handsTitle: "ใช้มือของคุณ"
+      handsBody: "เมื่อเปิดใช้งานการติดตามมือ ให้เล็งลำแสงของระบบไปที่ปุ่ม จีบนิ้วหัวแม่มือและนิ้วชี้เข้าหากัน แล้วปล่อย ใช้แผงควบคุมสำหรับการเล่น การเลื่อนหาตำแหน่ง และการนำทางแกลเลอรี"
+      handsHint: "จีบนิ้วนอกจากแผงควบคุมเพื่อเปิด/ปิดแผง จีบนิ้วที่ขอบเพื่อย้าย ที่มุมเพื่อปรับขนาด หรือจีบนิ้วทั้งสองมือแล้วกางออกเพื่อขยายหน้าจอ"
+  home: หน้าแรก
+  videoPlayer: เครื่องเล่นวิดีโอ
+  videoPlayerInfo: ข้อมูลเครื่องเล่นวิดีโอ
+  moreSettings: การตั้งค่าเพิ่มเติม
+  videoPlayerFeatureInfo: ข้อมูลฟีเจอร์ของเครื่องเล่นวิดีโอ
+  autoRewind: กรอถอยหลังอัตโนมัติ
+  rewindAndFastForward: ย้อนกลับและเดินหน้าอย่างเร็ว
+  volumeAndBrightness: ระดับเสียงและความสว่าง
+  centerAreaDoubleTapPauseOrPlay: แตะสองครั้งบริเวณตรงกลางเพื่อหยุดหรือเล่น
+  showVerticalVideoInFullScreen: แสดงวิดีโอแนวตั้งในโหมดเต็มหน้าจอ
+  keepLastVolumeAndBrightness: รักษาระดับเสียงและความสว่างล่าสุดไว้
+  setProxy: ตั้งค่าพร็อกซี
+  moreFeaturesToBeDiscovered: ฟีเจอร์เพิ่มเติมรอให้คุณค้นพบ...
+  videoPlayerSettings: การตั้งค่าเครื่องเล่นวิดีโอ
+  commentCount: '${num} ความคิดเห็น'
+  writeYourCommentHere: เขียนความคิดเห็นของคุณที่นี่...
+  authorOtherVideos: วิดีโออื่นของผู้สร้าง
+  relatedVideos: วิดีโอที่เกี่ยวข้อง
+  privateVideo: นี่เป็นวิดีโอส่วนตัว
+  externalVideo: นี่เป็นวิดีโอภายนอก
+  openInBrowser: เปิดในเบราว์เซอร์
+  resourceDeleted: วิดีโอนี้ดูเหมือนจะถูกลบไปแล้ว :/
+  noDownloadUrl: ไม่มี URL ดาวน์โหลด
+  startDownloading: เริ่มดาวน์โหลด
+  downloadFailed: ดาวน์โหลดล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  downloadSuccess: ดาวน์โหลดสำเร็จ
+  download: ดาวน์โหลด
+  downloadManager: ตัวจัดการการดาวน์โหลด
+  resourceNotFound: ไม่พบทรัพยากร
+  videoLoadError: เกิดข้อผิดพลาดในการโหลดวิดีโอ
+  authorNoOtherVideos: ผู้สร้างไม่มีวิดีโออื่น
+  noRelatedVideos: ไม่มีวิดีโอที่เกี่ยวข้อง
+  player:
+    errorWhileLoadingVideoSource: เกิดข้อผิดพลาดขณะโหลดแหล่งที่มาของวิดีโอ
+    errorWhileSettingUpListeners: เกิดข้อผิดพลาดขณะตั้งค่าตัวรับฟังเหตุการณ์
+    serverFaultDetectedAutoSwitched: ตรวจพบข้อผิดพลาดของเซิร์ฟเวอร์ สลับเส้นทางและลองใหม่โดยอัตโนมัติ
+  skeleton:
+    fetchingVideoInfo: กำลังดึงข้อมูลวิดีโอ...
+    fetchingVideoSources: กำลังดึงแหล่งที่มาของวิดีโอ...
+    loadingVideo: กำลังโหลดวิดีโอ...
+    applyingSolution: กำลังนำการตั้งค่าความละเอียดนี้ไปใช้...
+    addingListeners: กำลังเพิ่มตัวรับฟังเหตุการณ์...
+    successFecthVideoDurationInfo: ดึงข้อมูลความยาววิดีโอสำเร็จ เริ่มโหลดวิดีโอ...
+    successFecthVideoHeightInfo: โหลดเสร็จสมบูรณ์
+  # 投屏
+  cast:
+    dlnaCast: แคสต์
+    unableToStartCastingSearch: 'เริ่มค้นหาอุปกรณ์แคสต์ล้มเหลว: ${error}'
+    startCastingTo: 'เริ่มแคสต์ไปยัง ${deviceName}'
+    castFailed: 'แคสต์ล้มเหลว: ${error}\nโปรดลองค้นหาอุปกรณ์ใหม่อีกครั้งหรือเปลี่ยนเครือข่าย'
+    castStopped: 'หยุดแคสต์แล้ว'
+    deviceTypes:
+      mediaRenderer: เครื่องเล่นสื่อ
+      mediaServer: เซิร์ฟเวอร์สื่อ
+      internetGatewayDevice: เราเตอร์
+      basicDevice: อุปกรณ์พื้นฐาน
+      dimmableLight: ไฟอัจฉริยะ
+      wlanAccessPoint: จุดเชื่อมต่อ WLAN
+      wlanConnectionDevice: อุปกรณ์เชื่อมต่อ WLAN
+      printer: เครื่องพิมพ์
+      scanner: เครื่องสแกน
+      digitalSecurityCamera: กล้องวงจรปิดดิจิทัล
+      unknownDevice: อุปกรณ์ที่ไม่รู้จัก
+    currentPlatformNotSupported: แพลตฟอร์มปัจจุบันไม่รองรับการแคสต์
+    unableToGetVideoUrl: ไม่สามารถรับที่อยู่วิดีโอได้ โปรดลองอีกครั้งในภายหลัง
+    stopCasting: หยุดแคสต์
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: รีโมตแคสต์
+      close: ปิด
+      searchingDevices: กำลังค้นหาอุปกรณ์...
+      searchPrompt: คลิกปุ่มค้นหาเพื่อค้นหาอุปกรณ์แคสต์อีกครั้ง
+      searching: กำลังค้นหา
+      searchAgain: ค้นหาอีกครั้ง
+      noDevicesFound: 'ไม่พบอุปกรณ์แคสต์\nโปรดตรวจสอบให้แน่ใจว่าอุปกรณ์อยู่ในเครือข่ายเดียวกัน'
+      searchingDevicesPrompt: กำลังค้นหาอุปกรณ์ โปรดรอสักครู่...
+      cast: แคสต์
+      connectedTo: 'เชื่อมต่อกับ: ${deviceName}'
+      notConnected: ไม่ได้เชื่อมต่ออุปกรณ์
+      stopCasting: หยุดแคสต์
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: ใครแอบมากดถูกใจ
+    dialogDescription: สงสัยไหมว่าพวกเขาคือใคร? ลองเปิดดู "อัลบั้มการกดถูกใจ" นี้สิ~
+    closeTooltip: ปิด
+    retry: ลองใหม่
+    noLikesYet: ยังไม่มีใครปรากฏที่นี่ มาเป็นคนแรกกันเถอะ!
+    pageInfo: 'หน้า ${page} / ${totalPages} · รวม ${totalCount} คน'
+    prevPage: หน้าก่อนหน้า
+    nextPage: หน้าถัดไป
+share:
+  sharePlayList: แชร์เพลย์ลิสต์
+  wowDidYouSeeThis: ว้าว คุณเคยดูอันนี้หรือยัง?
+  nameIs: ชื่อคือ
+  clickLinkToView: คลิกที่ลิงก์เพื่อดู
+  iReallyLikeThis: ฉันชอบสิ่งนี้จริงๆ คุณก็ลองมาดูสิ!
+  shareFailed: การแชร์ล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  share: แชร์
+  shareAsImage: แชร์เป็นรูปภาพ
+  shareAsText: แชร์เป็นข้อความ
+  shareAsImageDesc: แชร์หน้าปกวิดีโอเป็นรูปภาพ
+  shareAsTextDesc: แชร์รายละเอียดวิดีโอเป็นข้อความ
+  shareAsImageFailed: แชร์หน้าปกวิดีโอเป็นรูปภาพล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  shareAsTextFailed: แชร์รายละเอียดวิดีโอเป็นข้อความล้มเหลว โปรดลองใหม่อีกครั้งในภายหลัง
+  shareVideo: แชร์วิดีโอ
+  authorIs: ผู้สร้างคือ
+  shareGallery: แชร์แกลเลอรี
+  galleryTitleIs: ชื่อแกลเลอรีคือ
+  galleryAuthorIs: ผู้สร้างแกลเลอรีคือ
+  shareUser: แชร์ผู้ใช้
+  userNameIs: ชื่อผู้ใช้คือ
+  userAuthorIs: ผู้สร้างคือ
+  comments: ความคิดเห็น
+  shareThread: แชร์กระทู้
+  views: การดู
+  sharePost: แชร์โพสต์
+  postTitleIs: ชื่อเรื่องของโพสต์คือ
+  postAuthorIs: ผู้สร้างโพสต์คือ
+markdown:
+  markdownSyntax: ไวยากรณ์ Markdown
+  iwaraSpecialMarkdownSyntax: ไวยากรณ์ Markdown พิเศษของ Iwara
+  internalLink: ลิงก์ภายในเว็บไซต์
+  supportAutoConvertLinkBelow: 'รองรับการแปลงลิงก์ต่อไปนี้โดยอัตโนมัติ:'
+  convertLinkExample: '🎬 ลิงก์วิดีโอ\n🖼️ ลิงก์รูปภาพ\n👤 ลิงก์ผู้ใช้\n📌 ลิงก์ฟอรัม\n🎵 ลิงก์เพลย์ลิสต์\n💬 ลิงก์กระทู้'
+  mentionUser: กล่าวถึงผู้ใช้
+  mentionUserDescription: 'พิมพ์ @ ตามด้วยชื่อผู้ใช้ ระบบจะแปลงเป็นลิงก์ผู้ใช้โดยอัตโนมัติ'
+  markdownBasicSyntax: ไวยากรณ์พื้นฐานของ Markdown
+  paragraphAndLineBreak: ย่อหน้าและการขึ้นบรรทัดใหม่
+  paragraphAndLineBreakDescription: 'แยกย่อหน้าด้วยการเว้นหนึ่งบรรทัด และการเว้นสองช่องว่างที่ท้ายบรรทัดจะแปลงเป็นการขึ้นบรรทัดใหม่'
+  paragraphAndLineBreakSyntax: 'นี่คือย่อหน้าแรก\n\nนี่คือย่อหน้าที่สอง\nบรรทัดนี้ลงท้ายด้วยสองช่องว่าง  \nจะถูกแปลงเป็นการขึ้นบรรทัดใหม่'
+  textStyle: สไตล์ข้อความ
+  textStyleDescription: 'ใช้สัญลักษณ์พิเศษล้อมรอบข้อความเพื่อเปลี่ยนรูปแบบ'
+  textStyleSyntax: '**ข้อความตัวหนา**\n*ข้อความตัวเอียง*\n~~ข้อความขีดฆ่า~~\n`ข้อความโค้ด`'
+  quote: การอ้างอิง
+  quoteDescription: 'ใช้สัญลักษณ์ > เพื่อสร้างการอ้างอิง ใช้หลายตัว > เพื่อสร้างการอ้างอิงหลายระดับ'
+  quoteSyntax: '> นี่คือการอ้างอิงระดับแรก\n>> นี่คือการอ้างอิงระดับที่สอง'
+  list: รายการ
+  listDescription: 'สร้างรายการแบบมีลำดับด้วย ตัวเลข+จุด สร้างรายการแบบไม่มีลำดับด้วย -'
+  listSyntax: '1. รายการแรก\n2. รายการที่สอง\n\n- รายการแบบไม่มีลำดับ\n  - รายการย่อย\n  - อีกหนึ่งรายการย่อย'
+  linkAndImage: ลิงก์และรูปภาพ
+  linkAndImageDescription: 'รูปแบบลิงก์: [ข้อความ](URL)\nรูปแบบรูปภาพ: ![คำอธิบาย](URL)'
+  linkAndImageSyntax: '[ข้อความลิงก์](${link})\n![คำอธิบายรูปภาพ](${imgUrl})'
+  title: หัวข้อ
+  titleDescription: 'ใช้สัญลักษณ์ # เพื่อสร้างหัวข้อ จำนวนสัญลักษณ์แสดงถึงระดับ'
+  titleSyntax: '# หัวข้อระดับ 1\n## หัวข้อระดับ 2\n### หัวข้อระดับ 3'
+  separator: เส้นคั่น
+  separatorDescription: 'สร้างเส้นคั่นด้วยสัญลักษณ์ - สามตัวขึ้นไป'
+  separatorSyntax: '---'
+  syntax: ไวยากรณ์
+
+forum:
+  recent: ล่าสุด
+  category: หมวดหมู่
+  lastReply: ตอบกลับล่าสุด
+  sitewide:
+    badge: ทั้งเว็บไซต์
+    title: ประกาศทั่วทั้งเว็บไซต์
+    readMore: อ่านเพิ่มเติม
+  errors:
+    pleaseSelectCategory: โปรดเลือกหมวดหมู่
+    threadLocked: กระทู้นี้ถูกล็อก ไม่สามารถตอบกลับได้
+  createPost: สร้างโพสต์
+  title: ชื่อเรื่อง
+  enterTitle: ป้อนชื่อเรื่อง
+  content: เนื้อหา
+  enterContent: ป้อนเนื้อหา
+  writeYourContentHere: เขียนเนื้อหาของคุณที่นี่...
+  posts: โพสต์
+  threads: กระทู้
+  forum: ฟอรัม
+  createThread: สร้างกระทู้
+  selectCategory: เลือกหมวดหมู่
+  cooldownRemaining: 'เหลือเวลาคูลดาวน์อีก ${minutes} นาที ${seconds} วินาที'
+  groups:
+    administration: ฝ่ายบริหาร
+    global: ทั่วโลก
+    chinese: ภาษาจีน
+    japanese: ภาษาญี่ปุ่น
+    korean: ภาษาเกาหลี
+    other: อื่นๆ
+  leafNames:
+    announcements: ประกาศ
+    feedback: ข้อเสนอแนะ
+    support: ความช่วยเหลือ
+    general: ทั่วไป
+    guides: คู่มือ
+    questions: คำถาม
+    requests: คำขอ
+    sharing: การแบ่งปัน
+    'general_zh': ทั่วไป
+    'questions_zh': คำถาม
+    'requests_zh': คำขอ
+    'support_zh': ความช่วยเหลือ
+    'general_ja': ทั่วไป
+    'questions_ja': คำถาม
+    'requests_ja': คำขอ
+    'support_ja': ความช่วยเหลือ
+    korean: ภาษาเกาหลี
+    other: อื่นๆ
+  leafDescriptions:
+    announcements: ประกาศและแจ้งเตือนสำคัญอย่างเป็นทางการ
+    feedback: ข้อเสนอแนะเกี่ยวกับฟีเจอร์และบริการของเว็บไซต์
+    support: ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์
+    general: พูดคุยในทุกหัวข้อ
+    guides: แบ่งปันประสบการณ์และบทเรียนของคุณ
+    questions: สอบถามข้อสงสัยของคุณ
+    requests: โพสต์คำขอของคุณ
+    sharing: แบ่งปันเนื้อหาที่น่าสนใจ
+    'general_zh': พูดคุยในทุกหัวข้อ
+    'questions_zh': สอบถามข้อสงสัยของคุณ
+    'requests_zh': โพสต์คำขอของคุณ
+    'support_zh': ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์
+    'general_ja': พูดคุยในทุกหัวข้อ
+    'questions_ja': สอบถามข้อสงสัยของคุณ
+    'requests_ja': โพสต์คำขอของคุณ
+    'support_ja': ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์
+    korean: การพูดคุยที่เกี่ยวข้องกับภาษาเกาหลี
+    other: เนื้อหาอื่นๆ ที่ไม่ได้จัดหมวดหมู่
+  reply: ตอบกลับ
+  pendingReview: กำลังรอการตรวจสอบ
+  editedAt: แก้ไขเมื่อ
+  copySuccess: คัดลอกไปยังคลิปบอร์ดแล้ว
+  copySuccessForMessage: 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}'
+  editReply: แก้ไขการตอบกลับ
+  editTitle: แก้ไขชื่อเรื่อง
+  submit: ส่ง
+
+notifications:
+  errors:
+    unsupportedNotificationType: ไม่รองรับประเภทการแจ้งเตือนนี้
+    unknownUser: ผู้ใช้ที่ไม่รู้จัก
+    unsupportedNotificationTypeWithType: 'ไม่รองรับประเภทการแจ้งเตือน: ${type}'
+    unknownNotificationType: ประเภทการแจ้งเตือนที่ไม่รู้จัก
+  notifications: การแจ้งเตือน
+  profile: หน้าโปรไฟล์
+  postedNewComment: แสดงความคิดเห็นใหม่
+  inYour: ใน
+  video: วิดีโอ
+  repliedYourVideoComment: ตอบกลับความคิดเห็นวิดีโอของคุณ
+  copyInfoToClipboard: คัดลอกข้อมูลการแจ้งเตือนไปยังคลิปบอร์ด
+  copySuccess: คัดลอกไปยังคลิปบอร์ดแล้ว
+  copySuccessForMessage: 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}'
+  markAllAsRead: ทำเครื่องหมายว่าอ่านแล้วทั้งหมด
+  markAllAsReadSuccess: ทำเครื่องหมายว่าอ่านแล้วทุกการแจ้งเตือน
+  markAllAsReadFailed: ทำเครื่องหมายว่าอ่านแล้วทั้งหมดล้มเหลว
+  markSelectedAsRead: ทำเครื่องหมายรายการที่เลือกว่าอ่านแล้ว
+  markSelectedAsReadSuccess: ทำเครื่องหมายการแจ้งเตือนที่เลือกว่าอ่านแล้ว
+  markSelectedAsReadFailed: ทำเครื่องหมายรายการที่เลือกว่าอ่านแล้วล้มเหลว
+  markAsRead: ทำเครื่องหมายว่าอ่านแล้ว
+  markAsReadSuccess: ทำเครื่องหมายการแจ้งเตือนว่าอ่านแล้ว
+  markAsReadFailed: ทำเครื่องหมายการแจ้งเตือนว่าอ่านแล้วล้มเหลว
+  notificationTypeHelp: ความช่วยเหลือเกี่ยวกับประเภทการแจ้งเตือน
+  dueToLackOfNotificationTypeDetails: เนื่องจากขาดรายละเอียดของประเภทการแจ้งเตือน ประเภทที่รองรับในปัจจุบันอาจไม่ครอบคลุมข้อความที่คุณได้รับ
+  helpUsImproveNotificationTypeSupport: หากคุณยินดีที่จะช่วยเราปรับปรุงการรองรับประเภทการแจ้งเตือน
+  helpUsImproveNotificationTypeSupportLongText: '1. 📋 คัดลอกข้อมูลการแจ้งเตือน\n2. 🐞 ส่ง issue ไปยังที่เก็บข้อมูลโปรเจกต์\n\n⚠️ หมายเหตุ: ข้อมูลการแจ้งเตือนอาจมีความเป็นส่วนตัว หากคุณไม่ต้องการเปิดเผยสู่สาธารณะ คุณสามารถส่งไปยังอีเมลของผู้สร้างโปรเจกต์ได้'
+  goToRepository: ไปยังคลังเก็บโค้ด (Repository)
+  copy: คัดลอก
+  commentApproved: ความคิดเห็นได้รับการอนุมัติแล้ว
+  repliedYourProfileComment: ตอบกลับความคิดเห็นในหน้าโปรไฟล์ของคุณ
+  kReplied: ตอบกลับความคิดเห็นของคุณบน
+  kCommented: แสดงความคิดเห็นบน
+  kVideo: วิดีโอ
+  kGallery: แกลเลอรี
+  kProfile: โปรไฟล์
+  kThread: กระทู้
+  kPost: โพสต์
+  kCommentSection: ในส่วนความคิดเห็น
+  kApprovedComment: อนุมัติความคิดเห็นแล้ว
+  kApprovedVideo: อนุมัติวิดีโอแล้ว
+  kApprovedGallery: อนุมัติแกลเลอรีแล้ว
+  kApprovedThread: อนุมัติกระทู้แล้ว
+  kApprovedPost: อนุมัติโพสต์แล้ว
+  kApprovedForumPost: อนุมัติโพสต์ฟอรัมแล้ว
+  kRejectedContent: การตรวจสอบเนื้อหาถูกปฏิเสธ
+  kUnknownType: ประเภทการแจ้งเตือนที่ไม่รู้จัก
+
+conversation:
+  errors:
+    pleaseSelectAUser: โปรดเลือกผู้ใช้
+    pleaseEnterATitle: โปรดป้อนชื่อเรื่อง
+    clickToSelectAUser: คลิกเพื่อเลือกผู้ใช้
+    loadFailedClickToRetry: โหลดล้มเหลว คลิกเพื่อลองใหม่
+    loadFailed: โหลดล้มเหลว
+    clickToRetry: คลิกเพื่อลองใหม่
+    noMoreConversations: ไม่มีบทสนทนาเพิ่มเติม
+  conversation: บทสนทนา
+  startConversation: เริ่มต้นบทสนทนา
+  noConversation: ไม่มีบทสนทนา
+  selectFromLeftListAndStartConversation: เลือกจากรายการด้านซ้ายและเริ่มการสนทนา
+  title: ชื่อเรื่อง
+  body: เนื้อหา
+  selectAUser: เลือกผู้ใช้
+  searchUsers: ค้นหาผู้ใช้...
+  tmpNoConversions: ยังไม่มีบทสนทนา
+  deleteThisMessage: ลบข้อความนี้
+  deleteThisMessageSubtitle: การดำเนินการนี้ไม่สามารถยกเลิกได้
+  writeMessageHere: เขียนข้อความที่นี่...
+  lastMessageFromMe: "คุณ: "
+  sendMessage: ส่งข้อความ
+
+splash:
+  errors:
+    initializationFailed: การเริ่มต้นล้มเหลว โปรดรีสตาร์ตแอป
+  preparing: กำลังเตรียมการ...
+  initializing: กำลังเริ่มต้นระบบ...
+  loading: กำลังโหลด...
+  ready: พร้อมใช้งาน
+  initializingMessageService: กำลังเริ่มต้นบริการข้อความ...
+
+
+download:
+  errors:
+    imageModelNotFound: ไม่พบข้อมูลแกลเลอรี
+    downloadFailed: การดาวน์โหลดล้มเหลว
+    videoInfoNotFound: ไม่พบข้อมูลวิดีโอ
+    downloadTaskAlreadyExists: งานดาวน์โหลดมีอยู่แล้ว
+    downloadTaskSavePathConflict: เส้นทางบันทึกนี้ถูกใช้งานโดยงานอื่นแล้ว
+    videoAlreadyDownloaded: วิดีโอนี้ถูกดาวน์โหลดแล้ว
+    downloadFailedForMessage: 'เพิ่มงานดาวน์โหลดล้มเหลว: ${errorInfo}'
+    userPausedDownload: ผู้ใช้หยุดการดาวน์โหลดชั่วคราว
+    unknown: ไม่ทราบสาเหตุ
+    fileSystemError: 'ข้อผิดพลาดระบบไฟล์: ${errorInfo}'
+    unknownError: 'ข้อผิดพลาดที่ไม่รู้จัก: ${errorInfo}'
+    writeFileFailedForMessage: 'เขียนไฟล์ไม่สำเร็จ: ${errorInfo}'
+    connectionTimeout: หมดเวลาการเชื่อมต่อ
+    sendTimeout: หมดเวลาการส่งข้อมูล
+    receiveTimeout: หมดเวลาการรับข้อมูล
+    serverError: 'ข้อผิดพลาดเซิร์ฟเวอร์: ${errorInfo}'
+    unknownNetworkError: ข้อผิดพลาดเครือข่ายที่ไม่รู้จัก
+    sslHandshakeFailed: SSL handshake ล้มเหลว โปรดตรวจสอบเครือข่ายของคุณ
+    connectionFailed: การเชื่อมต่อล้มเหลว โปรดตรวจสอบเครือข่ายของคุณ
+    serviceIsClosing: บริการดาวน์โหลดกำลังปิดตัวลง
+    partialDownloadFailed: ดาวน์โหลดเนื้อหาบางส่วนล้มเหลว
+    noDownloadTask: ไม่มีงานดาวน์โหลด
+    taskNotFoundOrDataError: ไม่พบงานหรือข้อมูลผิดพลาด
+    fileNotFound: ไม่พบไฟล์
+    openFolderFailed: เปิดโฟลเดอร์ไม่สำเร็จ
+    copyDownloadUrlFailed: 'คัดลอก URL ดาวน์โหลดไม่สำเร็จ'
+    openFolderFailedWithMessage: 'เปิดโฟลเดอร์ไม่สำเร็จ: ${message}'
+    directoryNotFound: ไม่พบโฟลเดอร์
+    copyFailed: คัดลอกไม่สำเร็จ
+    openFileFailed: เปิดไฟล์ไม่สำเร็จ
+    openFileFailedWithMessage: 'เปิดไฟล์ไม่สำเร็จ: ${message}'
+    playLocallyFailed: เล่นในเครื่องไม่สำเร็จ
+    playLocallyFailedWithMessage: 'เล่นในเครื่องไม่สำเร็จ: ${message}'
+    noDownloadSource: ไม่มีแหล่งดาวน์โหลด
+    noDownloadSourceNowPleaseWaitInfoLoaded: ยังไม่มีแหล่งดาวน์โหลด โปรดรอให้โหลดข้อมูลเสร็จสิ้นแล้วลองใหม่อีกครั้ง
+    noActiveDownloadTask: ไม่มีงานที่กำลังดาวน์โหลด
+    noFailedDownloadTask: ไม่มีงานที่ดาวน์โหลดล้มเหลว
+    noCompletedDownloadTask: ไม่มีงานที่ดาวน์โหลดเสร็จสมบูรณ์
+    taskAlreadyCompletedDoNotAdd: งานเสร็จสมบูรณ์แล้ว อย่าเพิ่มซ้ำ
+    linkExpiredTryAgain: ลิงก์หมดอายุ กำลังขอรับลิงก์ดาวน์โหลดใหม่
+    linkExpiredTryAgainSuccess: ลิงก์หมดอายุ ขอรับลิงก์ดาวน์โหลดใหม่สำเร็จ
+    linkExpiredTryAgainFailed: ลิงก์หมดอายุ ขอรับลิงก์ดาวน์โหลดใหม่ล้มเหลว
+    taskDeleted: ลบงานแล้ว
+    unsupportedImageFormat: 'รูปแบบรูปภาพที่ไม่รองรับ: ${format}'
+    deleteFileError: 'ลบไฟล์ไม่สำเร็จ อาจเป็นเพราะไฟล์กำลังถูกใช้งานโดยกระบวนการอื่น'
+    deleteTaskError: 'ลบงานไม่สำเร็จ'
+    canNotRefreshVideoTask: 'ไม่สามารถรีเฟรชงานวิดีโอได้'
+    videoRemovedCanNotRefresh: 'วิดีโอนี้ถูกลบหรือไม่มีอยู่อีกต่อไป จึงไม่สามารถรีเฟรชลิงก์ดาวน์โหลดได้'
+    videoInaccessibleCanNotRefresh: 'ไม่สามารถเข้าถึงวิดีโอนี้ได้ อาจเป็นวิดีโอส่วนตัวหรือคุณอาจต้องลงชื่อเข้าใช้อีกครั้ง'
+    videoQualityGone: 'ความละเอียดนี้ไม่มีให้บริการแล้ว โปรดเพิ่มการดาวน์โหลดใหม่อีกครั้ง'
+    refreshLinkNetworkFailed: 'ข้อผิดพลาดเครือข่าย ไม่สามารถรีเฟรชลิงก์ดาวน์โหลดได้ในขณะนี้ โปรดลองใหม่อีกครั้งในภายหลัง'
+    taskAlreadyProcessing: 'งานกำลังดำเนินการอยู่แล้ว'
+    taskNotFound: 'ไม่พบงาน'
+    failedToLoadTasks: 'โหลดงานไม่สำเร็จ'
+    partialDownloadFailedWithMessage: 'ดาวน์โหลดบางส่วนล้มเหลว: ${message}'
+    unsupportedImageFormatWithMessage: 'รูปแบบรูปภาพที่ไม่รองรับ: ${extension} คุณสามารถลองดาวน์โหลดลงในอุปกรณ์ของคุณเพื่อดูได้'
+    imageLoadFailed: 'โหลดรูปภาพไม่สำเร็จ'
+    pleaseTryOtherViewer: 'โปรดลองใช้โปรแกรมดูภาพอื่นเพื่อเปิด'
+  downloadList: รายการดาวน์โหลด
+  viewDownloadList: ดูรายการดาวน์โหลด
+  download: ดาวน์โหลด
+  selectDownloadTitle: เลือกการดาวน์โหลด
+  qualitySectionLabel: ความละเอียด
+  saveToSectionLabel: บันทึกไปยัง
+  lastUsedBadge: ใช้ล่าสุด
+  pickedBadge: เลือกแล้ว
+  startDownloading: เริ่มการดาวน์โหลด
+  clearAllFailedTasks: ล้างงานที่ล้มเหลวทั้งหมด
+  clearAllFailedTasksConfirmation: 'คุณแน่ใจหรือไม่ว่าต้องการล้างงานดาวน์โหลดที่ล้มเหลวทั้งหมด? ไฟล์ของงานเหล่านี้จะถูกลบไปด้วย'
+  clearAllFailedTasksSuccess: ล้างงานที่ล้มเหลวทั้งหมดแล้ว
+  clearAllFailedTasksError: เกิดข้อผิดพลาดขณะล้างงานที่ล้มเหลว
+  downloadStatus: สถานะการดาวน์โหลด
+  imageList: รายการรูปภาพ
+  retryDownload: ลองดาวน์โหลดใหม่
+  notDownloaded: ยังไม่ได้ดาวน์โหลด
+  downloaded: ดาวน์โหลดแล้ว
+  waitingForDownload: กำลังรอการดาวน์โหลด
+  downloadingProgressForImageProgress: 'กำลังดาวน์โหลด (${downloaded}/${total} ภาพ ${progress}%)'
+  downloadingSingleImageProgress: 'กำลังดาวน์โหลด (${downloaded} ภาพ)'
+  pausedProgressForImageProgress: 'หยุดชั่วคราว (${downloaded}/${total} ภาพ ${progress}%)'
+  pausedSingleImageProgress: 'หยุดชั่วคราว (${downloaded} ภาพ)'
+  downloadedProgressForImageProgress: 'ดาวน์โหลดเสร็จสมบูรณ์ (ทั้งหมด ${total} ภาพ)'
+  viewVideoDetail: ดูรายละเอียดวิดีโอ
+  viewGalleryDetail: ดูรายละเอียดแกลเลอรี
+  moreOptions: ตัวเลือกเพิ่มเติม
+  openFile: เปิดไฟล์
+  playLocally: เล่นในเครื่อง
+  pause: หยุดชั่วคราว
+  resume: ทำต่อ
+  copyDownloadUrl: คัดลอก URL ดาวน์โหลด
+  showInFolder: แสดงในโฟลเดอร์
+  deleteTask: ลบงาน
+  deleteTaskConfirmation: 'คุณแน่ใจหรือไม่ว่าต้องการลบงานดาวน์โหลดนี้?\nไฟล์ของงานจะถูกลบไปด้วย'
+  forceDeleteTask: บังคับลบงาน
+  forceDeleteTaskConfirmation: 'คุณแน่ใจหรือไม่ว่าต้องการบังคับลบงานดาวน์โหลดนี้?\nไฟล์ของงานจะถูกลบไปด้วย แม้ว่าไฟล์นั้นกำลังถูกใช้งานอยู่ก็ตาม'
+  downloadingProgressForVideoTask: 'กำลังดาวน์โหลด ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'กำลังดาวน์โหลด ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: 'หยุดชั่วคราว ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'หยุดชั่วคราว • ดาวน์โหลดแล้ว ${downloaded}'
+  downloadedWithSize: 'ดาวน์โหลดเสร็จสมบูรณ์ • ${size}'
+  copyDownloadUrlSuccess: 'คัดลอก URL ดาวน์โหลดแล้ว'
+  totalImageNums: '${num} ภาพ'
+  downloadingDownloadedTotalProgressSpeed: 'กำลังดาวน์โหลด ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloading: กำลังดาวน์โหลด
+  failed: ล้มเหลว
+  completed: เสร็จสมบูรณ์
+  downloadDetail: รายละเอียดการดาวน์โหลด
+  copy: คัดลอก
+  copySuccess: คัดลอกแล้ว
+  waiting: กำลังรอ
+  paused: หยุดชั่วคราว
+  downloadingOnlyDownloaded: 'กำลังดาวน์โหลด ${downloaded}'
+  galleryDownloadCompletedWithName: 'ดาวน์โหลดแกลเลอรีเสร็จสมบูรณ์: ${galleryName}'
+  downloadCompletedWithName: 'ดาวน์โหลดเสร็จสมบูรณ์: ${fileName}'
+  searchTasks: ค้นหางาน...
+  statusLabel: 'สถานะ: ${label}'
+  allStatus: ทุกสถานะ
+  typeLabel: 'ประเภท: ${label}'
+  allTypes: ทุกประเภท
+  taskType: ประเภท
+  video: วิดีโอ
+  gallery: แกลเลอรี
+  other: อื่นๆ
+  clearFilters: ล้างตัวกรอง
+  pauseAll: หยุดชั่วคราวทั้งหมด
+  resumeAll: เริ่มทั้งหมด
+  errorTypes:
+    network: ปัญหาเครือข่าย การลองใหม่อาจช่วยได้
+    serverRejected: เซิร์ฟเวอร์ปฏิเสธ คุณอาจต้องลงชื่อเข้าใช้อีกครั้ง
+    notFound: ทรัพยากรหมดอายุหรือถูกลบแล้ว
+    diskFull: พื้นที่จัดเก็บข้อมูลไม่เพียงพอ
+    fileInUse: ไฟล์กำลังถูกใช้งานโดยโปรแกรมอื่น
+    permission: ไม่มีสิทธิ์ในการเขียน
+    cancelled: ยกเลิกแล้ว
+    unknown: ข้อผิดพลาดที่ไม่รู้จัก
+  errorDetailCopied: คัดลอกรายละเอียดข้อผิดพลาดแล้ว
+  errorDetailCopyHint: กดค้างเพื่อคัดลอกรายละเอียดข้อผิดพลาด
+  restoredPaused:
+    banner: 'มี ${num} งานที่ยังไม่เสร็จจากเซสชันก่อนหน้าถูกหยุดชั่วคราวไว้'
+    resume: ดำเนินการต่อทั้งหมด
+    dismiss: ปัดทิ้ง
+  emptyTaskList: ยังไม่มีงานดาวน์โหลด
+  noMatchingTasks: ไม่มีงานที่ตรงกัน
+  deleteByDate:
+    menuTitle: ลบตามวันที่
+    dialogTitle: ลบตามวันที่
+    description: 'ลบงานดาวน์โหลดเป็นชุดตามวันที่สร้าง งานที่ไฟล์กำลังถูกใช้งานจะถูกข้ามไป ส่วนงานที่ไฟล์ไม่มีอยู่อีกต่อไปจะถูกล้างออก'
+    modeRange: ช่วงวันที่
+    modeDays: เก่ากว่า
+    startDate: วันที่เริ่มต้น
+    endDate: วันที่สิ้นสุด
+    notSet: ไม่ได้ตั้งค่า
+    daysUnit: วัน
+    olderThanDaysHint: 'ลบงานที่สร้างมากกว่า ${days} วันที่แล้ว'
+    noMatch: ไม่มีงานที่ตรงกับเงื่อนไขที่เลือก
+    invalidRange: วันที่เริ่มต้นต้องตรงกับหรือก่อนหน้าวันที่สิ้นสุด
+    confirmTitle: ยืนยันการลบ
+    confirmContent: 'ลบ ${count} งานดาวน์โหลดและไฟล์ของงานเหล่านั้นหรือไม่? การดำเนินการนี้ไม่สามารถยกเลิกได้'
+    deleting: 'กำลังลบ ${done}/${total}…'
+    resultSuccess: 'ลบ ${count} งานแล้ว'
+    resultPartial: 'ลบ ${deleted} งานแล้ว; ข้าม ${skipped} งาน (กำลังถูกใช้งาน)'
+  category:
+    manageTitle: จัดการหมวดหมู่
+    label: หมวดหมู่
+    uncategorized: ไม่ได้จัดหมวดหมู่
+    manage: จัดการ
+    createShortcut: สร้างใหม่
+    newCategoryHint: ชื่อหมวดหมู่ใหม่
+    createSuccess: สร้างหมวดหมู่แล้ว
+    createFailed: สร้างหมวดหมู่ไม่สำเร็จ
+    nameEmpty: ชื่อหมวดหมู่ต้องไม่ว่างเปล่า
+    emptyHint: ยังไม่มีหมวดหมู่ สร้างหมวดหมู่เพื่อจัดระเบียบการดาวน์โหลดของคุณ
+    moveTo: ย้ายไปยังหมวดหมู่
+    moveToWithCount: 'ย้าย ${count} รายการไปยัง…'
+    moveSuccess: 'ย้ายไปยัง ${title} แล้ว'
+    moveToUncategorizedSuccess: ย้ายไปยังไม่ได้จัดหมวดหมู่แล้ว
+    moveFailed: ย้ายไม่สำเร็จ
+    renameTitle: เปลี่ยนชื่อหมวดหมู่
+    renameHint: ป้อนชื่อหมวดหมู่
+    renameSuccess: เปลี่ยนชื่อหมวดหมู่แล้ว
+    renameFailed: เปลี่ยนชื่อหมวดหมู่ไม่สำเร็จ
+    deleteTitle: ลบหมวดหมู่
+    deleteConfirm: 'ลบหมวดหมู่ "${title}" หรือไม่? รายการ ${count} รายการในหมวดหมู่นี้จะถูกย้ายไปที่ "ไม่ได้จัดหมวดหมู่" ไฟล์จะไม่ถูกลบ'
+    deleteSuccess: ลบหมวดหมู่แล้ว
+    deleteFailed: ลบหมวดหมู่ไม่สำเร็จ
+  maxConcurrentDownloads: จำนวนการดาวน์โหลดพร้อมกันสูงสุด
+  maxConcurrentDownloadsDesc: 'จำนวนงานที่ดาวน์โหลดในเวลาเดียวกัน (1-5)'
+  stillInDevelopment: ยังอยู่ระหว่างการพัฒนา
+  saveToAppDirectory: บันทึกไปยังโฟลเดอร์ของแอป
+  alreadyDownloadedWithQuality: 'ดาวน์โหลดด้วยความละเอียดเดียวกันนี้แล้ว ดำเนินการดาวน์โหลดต่อหรือไม่?'
+  alreadyDownloadedWithQualities: 'ดาวน์โหลดด้วยความละเอียดต่อไปนี้แล้ว: ${qualities} ดำเนินการดาวน์โหลดต่อหรือไม่?'
+  otherQualities: ความละเอียดอื่นๆ
+  batchDownload:
+    title: การดาวน์โหลดเป็นชุด
+    downloadTaskAlreadyRunning: มีงานกำลังทำงานอยู่แล้ว โปรดรอสักครู่
+    userCancelled: ผู้ใช้ยกเลิก
+    failedToGetVideoInfo: รับข้อมูลวิดีโอไม่สำเร็จ
+    failedToGetVideoSource: รับแหล่งที่มาของวิดีโอไม่สำเร็จ
+    failedToGetGalleryInfo: รับข้อมูลแกลเลอรีไม่สำเร็จ
+    galleryNoImages: แกลเลอรีไม่มีรูปภาพ
+    failedToGetSavePath: รับเส้นทางบันทึกไม่สำเร็จ
+    batchDownloadFailedWithException(exception): 'การดาวน์โหลดเป็นชุดล้มเหลว: ${exception}'
+    selectQuality: เลือกความละเอียด
+    downloading: กำลังดาวน์โหลด
+    downloadResult: ผลลัพธ์การดาวน์โหลด
+    selectedVideosCount(count): 'เลือกแล้ว ${count} วิดีโอ'
+    selectedGalleriesCount(count): 'เลือกแล้ว ${count} แกลเลอรี'
+    qualityNote: หากไม่มีความละเอียดที่เลือกไว้ ระบบจะใช้ความละเอียดที่ดีที่สุดที่มีอยู่แทน
+    progress(current, total): 'กำลังประมวลผล ${current}/${total}'
+    queued: อยู่ในคิว
+    success: สำเร็จ
+    skipped: ข้ามแล้ว
+    failed: ล้มเหลว
+    failureDetails: รายละเอียดความล้มเหลว
+    reasonPrivateVideo: วิดีโอส่วนตัว
+    reasonAlreadyExists: มีอยู่แล้ว
+    reasonNoSource: ไม่มีแหล่งดาวน์โหลด
+    reasonNoSavePath: ไม่สามารถรับเส้นทางบันทึกได้
+    reasonOther: ข้อผิดพลาดอื่นๆ
+    startDownload: เริ่มการดาวน์โหลด
+
+downloadNotifications:
+  completedTitle: การดาวน์โหลดเสร็จสมบูรณ์
+  failedTitle: การดาวน์โหลดล้มเหลว
+  completedBody: 'ดาวน์โหลด ${name} สำเร็จแล้ว'
+  failedBody: 'ดาวน์โหลด ${name} ล้มเหลว'
+  completedToast: 'ดาวน์โหลด ${name} แล้ว'
+  failedToast: 'ดาวน์โหลด ${name} ล้มเหลว'
+  channelName: สถานะการดาวน์โหลด
+  channelDescription: การแจ้งเตือนสำหรับการดาวน์โหลดที่เสร็จสมบูรณ์และล้มเหลว
+
+favorite:
+  errors:
+    addFailed: เพิ่มไม่สำเร็จ
+    addSuccess: เพิ่มสำเร็จ
+    deleteFolderFailed: ลบโฟลเดอร์ไม่สำเร็จ
+    deleteFolderSuccess: ลบโฟลเดอร์สำเร็จ
+    folderNameCannotBeEmpty: ชื่อโฟลเดอร์ต้องไม่ว่างเปล่า
+  add: เพิ่ม
+  addSuccess: เพิ่มสำเร็จ
+  addFailed: เพิ่มไม่สำเร็จ
+  remove: ลบออก
+  removeSuccess: ลบออกสำเร็จ
+  removeFailed: ลบออกไม่สำเร็จ
+  removeConfirmation: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้ออกจากรายการโปรด?'
+  removeConfirmationSuccess: 'ลบรายการออกจากรายการโปรดแล้ว'
+  removeConfirmationFailed: 'ลบรายการออกจากรายการโปรดไม่สำเร็จ'
+  createFolderSuccess: 'สร้างโฟลเดอร์สำเร็จแล้ว'
+  createFolderFailed: 'สร้างโฟลเดอร์ไม่สำเร็จ'
+  createFolder: สร้างโฟลเดอร์
+  enterFolderName: ป้อนชื่อโฟลเดอร์
+  enterFolderNameHere: ป้อนชื่อโฟลเดอร์ที่นี่...
+  create: สร้าง
+  items: รายการ
+  newFolderName: โฟลเดอร์ใหม่
+  searchFolders: ค้นหาโฟลเดอร์...
+  searchItems: ค้นหารายการ...
+  createdAt: สร้างเมื่อ
+  myFavorites: รายการโปรดของฉัน
+  deleteFolderTitle: ลบโฟลเดอร์
+  deleteFolderConfirmWithTitle: 'คุณแน่ใจหรือไม่ว่าต้องการลบโฟลเดอร์ ${title}?'
+  removeItemTitle: ลบรายการ
+  removeItemConfirmWithTitle: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการ ${title}?'
+  removeItemSuccess: ลบรายการออกจากรายการโปรดแล้ว
+  removeItemFailed: ลบรายการออกจากรายการโปรดไม่สำเร็จ
+  localizeFavorite: รายการโปรดในเครื่อง
+  editFolderTitle: แก้ไขโฟลเดอร์
+  editFolderSuccess: อัปเดตโฟลเดอร์สำเร็จแล้ว
+  editFolderFailed: อัปเดตโฟลเดอร์ไม่สำเร็จ
+  searchTags: ค้นหาแท็ก
+  noTagsInFolder: ยังไม่มีแท็กในรายการของโฟลเดอร์นี้
+  tagFilterMatchAll: แสดงเฉพาะรายการที่มีครบทุกแท็กที่เลือก
+  clearSelectedTags: ล้างแท็กที่เลือก
+  selectedTagCount: "เลือกแล้ว ${count} แท็ก"
+  noMatchingTags: ไม่มีแท็กที่ตรงกัน
+
+translation:
+  currentService: บริการปัจจุบัน
+  testConnection: ทดสอบการเชื่อมต่อ
+  testConnectionSuccess: ทดสอบการเชื่อมต่อสำเร็จ
+  testConnectionFailed: ทดสอบการเชื่อมต่อล้มเหลว
+  testConnectionFailedWithMessage: 'ทดสอบการเชื่อมต่อล้มเหลว: ${message}'
+  translation: การแปลภาษา
+  needVerification: จำเป็นต้องยืนยัน
+  needVerificationContent: โปรดทดสอบการเชื่อมต่อก่อนเปิดใช้งานการแปลภาษาด้วย AI
+  confirm: ยืนยัน
+  disclaimer: ข้อจำกัดความรับผิดชอบ
+  riskWarning: คำเตือนเกี่ยวกับความเสี่ยง
+  dureToRisk1: 'เนื่องจากข้อความถูกสร้างโดยผู้ใช้ จึงอาจมีเนื้อหาที่ละเมิดนโยบายเนื้อหาของผู้ให้บริการ AI'
+  dureToRisk2: 'เนื้อหาที่ไม่เหมาะสมอาจนำไปสู่การระงับคีย์ API หรือการยุติบริการ'
+  operationSuggestion: คำแนะนำการใช้งาน
+  operationSuggestion1: '1. ตรวจสอบเนื้อหาที่จะแปลอย่างรอบคอบก่อนใช้งาน'
+  operationSuggestion2: '2. หลีกเลี่ยงการแปลเนื้อหาเกี่ยวกับความรุนแรง เนื้อหาสำหรับผู้ใหญ่ ฯลฯ'
+  apiConfig: การกำหนดค่า API
+  modifyConfigWillAutoCloseAITranslation: 'การแก้ไขการกำหนดค่าจะปิดการแปลด้วย AI โดยอัตโนมัติ และต้องทดสอบใหม่อีกครั้งหลังจากเปิด'
+  apiAddress: ที่อยู่ API
+  modelName: ชื่อโมเดล
+  modelNameHintText: 'ตัวอย่างเช่น: gpt-4-turbo'
+  maxTokens: โทเค็นสูงสุด (Max Tokens)
+  maxTokensHintText: 'ตัวอย่างเช่น: 32000'
+  temperature: อุณหภูมิ (Temperature)
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'คลิกปุ่มทดสอบเพื่อยืนยันความถูกต้องของการเชื่อมต่อ API'
+  requestPreview: ตัวอย่างคำขอ
+  enableAITranslation: เปิดใช้งาน AI
+  enabled: เปิดใช้งานแล้ว
+  disabled: ปิดใช้งานแล้ว
+  testing: กำลังทดสอบ...
+  testNow: ทดสอบทันที
+  connectionStatus: สถานะการเชื่อมต่อ
+  success: สำเร็จ
+  failed: ล้มเหลว
+  information: ข้อมูล
+  viewRawResponse: ดูการตอบกลับดิบ
+  pleaseCheckInputParametersFormat: โปรดตรวจสอบรูปแบบพารามิเตอร์ที่ป้อน
+  pleaseFillInAPIAddressModelNameAndKey: โปรดกรอกที่อยู่ API ชื่อโมเดล และคีย์
+  pleaseFillInValidConfigurationParameters: โปรดกรอกพารามิเตอร์การกำหนดค่าที่ถูกต้อง
+  pleaseCompleteConnectionTest: โปรดทำการทดสอบการเชื่อมต่อให้เสร็จสิ้น
+  notConfigured: ยังไม่ได้กำหนดค่า
+  apiEndpoint: ปลายทาง API (Endpoint)
+  configuredKey: กำหนดค่าคีย์แล้ว
+  notConfiguredKey: ยังไม่ได้กำหนดค่าคีย์
+  authenticationStatus: สถานะการรับรองความถูกต้อง
+  thisFieldCannotBeEmpty: ฟิลด์นี้ต้องไม่ว่างเปล่า
+  apiKey: คีย์ API
+  apiKeyCannotBeEmpty: คีย์ API ต้องไม่ว่างเปล่า
+  pleaseEnterValidNumber: โปรดป้อนตัวเลขที่ถูกต้อง
+  range: ช่วง
+  mustBeGreaterThan: ต้องมากกว่า
+  invalidAPIResponse: การตอบกลับของ API ไม่ถูกต้อง
+  connectionFailedForMessage: 'การเชื่อมต่อล้มเหลว: ${message}'
+  aiTranslationNotEnabledHint: การแปลด้วย AI ยังไม่ได้เปิดใช้งาน โปรดเปิดใช้งานในการตั้งค่า
+  goToSettings: ไปที่การตั้งค่า
+  disableAITranslation: ปิดใช้งานการแปลด้วย AI
+  currentValue: ค่าปัจจุบัน
+  configureTranslationStrategy: กำหนดค่ากลยุทธ์การแปล
+  advancedSettings: "การตั้งค่าขั้นสูง"
+  translationPrompt: "พรอมต์การแปลภาษา"
+  promptHint: "โปรดป้อนพรอมต์การแปล โดยใช้ [TL] เป็นตัวแทนสำหรับภาษาเป้าหมาย"
+  promptHelperText: "พรอมต์ต้องมี [TL] เป็นตัวแทนสำหรับภาษาเป้าหมาย"
+  promptMustContainTargetLang: "พรอมต์ต้องมีตัวแทน [TL]"
+  aiTranslationWillBeDisabled: "การแปลด้วย AI จะถูกปิดใช้งาน"
+  aiTranslationWillBeDisabledDueToConfigChange: "เนื่องจากมีการเปลี่ยนแปลงการกำหนดค่าพื้นฐาน การแปลด้วย AI จะถูกปิดใช้งาน"
+  aiTranslationWillBeDisabledDueToPromptChange: "เนื่องจากมีการเปลี่ยนแปลงพรอมต์การแปล การแปลด้วย AI จะถูกปิดใช้งาน"
+  aiTranslationWillBeDisabledDueToParamChange: "เนื่องจากมีการเปลี่ยนแปลงการกำหนดค่าพารามิเตอร์ การแปลด้วย AI จะถูกปิดใช้งาน"
+  onlyOpenAIAPISupported: "ขณะนี้รองรับเฉพาะรูปแบบ API ที่เข้ากันได้กับ OpenAI เท่านั้น (เนื้อหาคำขอแบบ application/json)"
+  streamingTranslation: "การแปลแบบสตรีมมิง"
+  streamingTranslationSupported: "รองรับการแปลแบบสตรีมมิง"
+  streamingTranslationNotSupported: "ไม่รองรับการแปลแบบสตรีมมิง"
+  streamingTranslationDescription: "การแปลแบบสตรีมมิงสามารถแสดงผลลัพธ์แบบเรียลไทม์ระหว่างกระบวนการแปล ทำให้ผู้ใช้ได้รับประสบการณ์ที่ดียิ่งขึ้น"
+  usingFullUrlWithHash: "ใช้ URL แบบเต็ม (ลงท้ายด้วย #)"
+  baseUrlInputHelperText: "เมื่อลงท้ายด้วย # จะถูกใช้เป็นที่อยู่คำขอจริง"
+  currentActualUrl: "URL จริงในปัจจุบัน: ${url}"
+  urlEndingWithHashTip: "URL ที่ลงท้ายด้วย # จะถูกใช้โดยตรงโดยไม่มีการต่อท้ายใดๆ"
+  streamingTranslationWarning: "หมายเหตุ: คุณสมบัตินี้ต้องการบริการ API ที่รองรับการส่งข้อมูลแบบสตรีมมิง โมเดลบางตัวอาจไม่รองรับ"
+  # Translation Service Selection
+  translationService: บริการแปลภาษา
+  translationServiceDescription: เลือกบริการแปลภาษาที่คุณต้องการ
+  googleTranslation: การแปลภาษาของ Google
+  googleTranslationDescription: บริการแปลภาษาออนไลน์ฟรีที่รองรับหลายภาษา
+  aiTranslation: การแปลภาษาด้วย AI
+  aiTranslationDescription: บริการแปลภาษาอัจฉริยะที่ใช้โมเดลภาษาขนาดใหญ่
+  deeplxTranslation: การแปลภาษา DeepLX
+  deeplxTranslationDescription: การนำ DeepL ไปใช้แบบโอเพนซอร์ส ให้การแปลคุณภาพสูง
+  # Google Translation
+  googleTranslationFeatures: คุณสมบัติ
+  freeToUse: ใช้งานฟรี
+  freeToUseDescription: ไม่ต้องกำหนดค่าใดๆ พร้อมใช้งานทันที
+  fastResponse: ตอบสนองรวดเร็ว
+  fastResponseDescription: ความเร็วในการแปลรวดเร็ว มีความหน่วงต่ำ
+  stableAndReliable: เสถียรและเชื่อถือได้
+  stableAndReliableDescription: ทำงานบน API ทางการของ Google
+  enabledDefaultService: เปิดใช้งานแล้ว - บริการแปลภาษาเริ่มต้น
+  notEnabled: ยังไม่เปิดใช้งาน
+  # DeepLX Translation
+  deeplxTranslationService: บริการแปลภาษา DeepLX
+  deeplxDescription: DeepLX คือการนำ DeepL ไปใช้แบบโอเพนซอร์ส รองรับโหมดปลายทางแบบ Free, Pro และ Official
+  serverAddress: ที่อยู่เซิร์ฟเวอร์
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: ที่อยู่พื้นฐานของเซิร์ฟเวอร์ DeepLX
+  endpointType: ประเภทปลายทาง (Endpoint)
+  freeEndpoint: Free - ปลายทางฟรี อาจมีการจำกัดอัตราการเรียกใช้
+  proEndpoint: Pro - ต้องใช้ dl_session มีความเสถียรมากกว่า
+  officialEndpoint: Official - รูปแบบ API ทางการ
+  finalRequestUrl: URL คำขอขั้นสุดท้าย
+  apiKeyOptional: คีย์ API (ไม่บังคับ)
+  apiKeyOptionalHint: สำหรับเข้าถึงบริการ DeepLX ที่ได้รับการปกป้อง
+  apiKeyOptionalHelperText: บริการ DeepLX บางแห่งจำเป็นต้องใช้คีย์ API ในการตรวจสอบสิทธิ์
+  dlSession: DL Session
+  dlSessionHint: พารามิเตอร์ dl_session ที่จำเป็นสำหรับโหมด Pro
+  dlSessionHelperText: พารามิเตอร์เซสชันที่จำเป็นสำหรับปลายทาง Pro โดยรับได้จากบัญชี DeepL Pro
+  proModeRequiresDlSession: โหมด Pro ต้องระบุ dl_session
+  clickTestButtonToVerifyDeepLXAPI: คลิกปุ่มทดสอบเพื่อตรวจสอบการเชื่อมต่อ DeepLX API
+  enableDeepLXTranslation: เปิดใช้งานการแปลภาษา DeepLX
+  deepLXTranslationWillBeDisabled: การแปลภาษา DeepLX จะถูกปิดใช้งานเนื่องจากการเปลี่ยนแปลงการกำหนดค่า
+  translatedResult: ผลลัพธ์การแปล
+  # Translation Service Messages
+  testSuccess: การทดสอบสำเร็จ
+  pleaseFillInDeepLXServerAddress: โปรดกรอกที่อยู่เซิร์ฟเวอร์ DeepLX
+  invalidAPIResponseFormat: รูปแบบการตอบกลับของ API ไม่ถูกต้อง
+  translationServiceReturnedError: บริการแปลส่งคืนข้อผิดพลาดหรือผลลัพธ์ว่างเปล่า
+  connectionFailed: การเชื่อมต่อล้มเหลว
+  # Translation Service Log Messages
+  translationFailed: การแปลภาษาล้มเหลว
+  aiTranslationFailed: การแปลด้วย AI ล้มเหลว
+  deeplxTranslationFailed: การแปลด้วย DeepLX ล้มเหลว
+  aiTranslationTestFailed: การทดสอบการแปลด้วย AI ล้มเหลว
+  deeplxTranslationTestFailed: การทดสอบการแปลด้วย DeepLX ล้มเหลว
+  streamingTranslationTimeout: การแปลแบบสตรีมมิงหมดเวลา บังคับล้างทรัพยากร
+  translationRequestTimeout: คำขอการแปลภาษาหมดเวลา
+  streamingTranslationDataTimeout: การรับข้อมูลการแปลแบบสตรีมมิงหมดเวลา
+  dataReceptionTimeout: การรับข้อมูลหมดเวลา
+  streamDataParseError: เกิดข้อผิดพลาดในการแยกวิเคราะห์ข้อมูลสตรีม
+  streamingTranslationFailed: การแปลแบบสตรีมมิงล้มเหลว
+  fallbackTranslationFailed: การเปลี่ยนกลับไปใช้การแปลแบบปกติก็ล้มเหลวเช่นกัน
+  translationSettings: การตั้งค่าการแปลภาษา
+  enableGoogleTranslation: เปิดใช้งาน Google Translation
+  # Modern AI adaptation
+  thinking: กำลังคิด…
+  thoughtProcess: กระบวนการคิด
+  modelCompatibility: ความเข้ากันได้ของโมเดล
+  modelCompatibilityDescription: ปรับพารามิเตอร์คำขอสำหรับโมเดลสมัยใหม่ เช่น โมเดลการให้เหตุผล (o1/o3, DeepSeek-R1, QwQ)
+  reasoningModel: โมเดลการให้เหตุผล (Reasoning Model)
+  reasoningModelDescription: สำหรับ o1/o3, DeepSeek-R1, QwQ ฯลฯ รวมพรอมต์เข้ากับข้อความของผู้ใช้ ละเว้น temperature และใช้ max_completion_tokens แทน
+  useMaxCompletionTokens: ใช้ max_completion_tokens
+  useMaxCompletionTokensDescription: ปลายทาง OpenAI รุ่นใหม่ต้องการ max_completion_tokens แทน max_tokens ที่เลิกใช้แล้ว
+  sendTemperature: ส่ง temperature
+  sendTemperatureDescription: ปิดสำหรับโมเดลที่ปฏิเสธพารามิเตอร์ temperature (โมเดลการให้เหตุผลส่วนใหญ่)
+  showReasoningProcess: แสดงกระบวนการคิด
+  showReasoningProcessDescription: แสดงการให้เหตุผลที่สามารถยุบเก็บได้ของโมเดลการให้เหตุผลในกล่องโต้ตอบการแปล
+  provider: ผู้ให้บริการ
+  providerOpenAI: OpenAI (และที่เข้ากันได้)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "รองรับ OpenAI (และปลายทางใดๆ ที่เข้ากันได้กับ OpenAI), Anthropic และ Google ผ่าน dartantic_ai SDK"
+  baseUrlOptionalHelperText: "ไม่บังคับ เว้นว่างไว้เพื่อใช้ปลายทางเริ่มต้นของผู้ให้บริการ กรอกสำหรับปลายทางที่เข้ากันได้กับ OpenAI หรือรีเลย์"
+  defaultEndpoint: ปลายทางเริ่มต้น
+  providerPreset: ค่าที่ตั้งล่วงหน้าของผู้ให้บริการ
+  selectProviderPreset: เลือกค่าที่ตั้งล่วงหน้า
+  presetCustom: กำหนดเอง
+  presetApplied: 'ใช้ค่าที่ตั้งล่วงหน้าแล้ว: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI การให้เหตุผล (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude การให้เหตุผล (extended thinking)
+    gemini: Google Gemini (เนทีฟ)
+    geminiReasoning: Google Gemini การให้เหตุผล (thinking)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek การให้เหตุผล (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
+  fetchModelList: ดึงรายการโมเดล
+  fetchingModels: กำลังดึงข้อมูล…
+  selectModel: เลือกโมเดล
+  searchModel: ค้นหาโมเดล
+  noModelsFound: ไม่พบโมเดล
+
+# Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: วิดีโอ
+  gallery: แกลเลอรี
+  subscription: ติดตาม
+  community: ชุมชน
+  localMedia: ไฟล์
+
+navigationOrderSettings:
+  title: การตั้งค่าลำดับการนำทาง
+  customNavigationOrder: กำหนดลำดับการนำทางเอง
+  customNavigationOrderDesc: ลากเพื่อปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง
+  restartRequired: จำเป็นต้องรีสตาร์ทแอป
+  navigationItemSorting: การเรียงลำดับรายการนำทาง
+  done: เสร็จสิ้น
+  edit: แก้ไข
+  reset: รีเซ็ต
+  previewEffect: ตัวอย่างผลลัพธ์
+  bottomNavigationPreview: "ตัวอย่างแถบนำทางด้านล่าง:"
+  sidebarPreview: "ตัวอย่างแถบด้านข้าง:"
+  confirmResetNavigationOrder: ยืนยันการรีเซ็ตลำดับการนำทาง
+  confirmResetNavigationOrderDesc: คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตลำดับการนำทางกลับเป็นค่าเริ่มต้น?
+  cancel: ยกเลิก
+  show: แสดง
+  hide: ซ่อน
+  hidden: ซ่อนอยู่
+  hideHint: แตะไอคอนรูปตาเพื่อแสดงหรือซ่อนชุมชนและไฟล์ในเครื่อง
+  # Navigation item descriptions
+  videoDescription: เรียกดูเนื้อหาวิดีโอยอดนิยม
+  galleryDescription: เรียกดูรูปภาพและแกลเลอรี
+  subscriptionDescription: ดูเนื้อหาล่าสุดจากผู้ใช้ที่คุณติดตาม
+  forumDescription: เข้าร่วมการสนทนาในชุมชน
+
+  newsDescription: เรียกดูข่าวสาร บทความ และประกาศทางการ
+  communityDescription: การสนทนาในฟอรัมพร้อมข่าวสาร บทความ และประกาศทางการ
+  localMediaDescription: เรียกดูวิดีโอและรูปภาพที่จัดเก็บไว้ในอุปกรณ์นี้
+
+news:
+  title: ข่าวสาร
+  newsUpdates: อัปเดตข่าวสาร
+  articles: บทความ
+  broadcast: ประกาศ
+  openInBrowser: เปิดในเบราว์เซอร์
+
+# Display Settings
+displaySettings:
+  title: การตั้งค่าการแสดงผล
+  layoutSettings: การตั้งค่าเลย์เอาต์
+  layoutSettingsDesc: ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)
+  gridLayout: เลย์เอาต์ตาราง
+  navigationOrderSettings: การตั้งค่าลำดับการนำทาง
+  customNavigationOrder: กำหนดลำดับการนำทางเอง
+  customNavigationOrderDesc: ปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง
+
+# Layout Settings
+layoutSettings:
+  title: การตั้งค่าเลย์เอาต์
+  descriptionTitle: คำอธิบายการกำหนดค่าเลย์เอาต์
+  descriptionContent: การกำหนดค่าที่นี่จะเป็นตัวกำหนดจำนวนคอลัมน์ที่แสดงในหน้ารายการวิดีโอและแกลเลอรี คุณสามารถเลือกโหมดอัตโนมัติเพื่อให้ระบบปรับตามความกว้างหน้าจอโดยอัตโนมัติ หรือเลือกโหมดกำหนดเองเพื่อกำหนดจำนวนคอลัมน์แบบคงที่
+  layoutMode: โหมดเลย์เอาต์
+  reset: รีเซ็ต
+  autoMode: โหมดอัตโนมัติ
+  autoModeDesc: ปรับโดยอัตโนมัติตามความกว้างของหน้าจอ
+  manualMode: โหมดกำหนดเอง
+  manualModeDesc: ใช้จำนวนคอลัมน์คงที่
+  manualSettings: การตั้งค่ากำหนดเอง
+  fixedColumns: จำนวนคอลัมน์คงที่
+  columns: คอลัมน์
+  breakpointConfig: การกำหนดค่าจุดแบ่งหน้าจอ
+  add: เพิ่ม
+  defaultColumns: คอลัมน์เริ่มต้น
+  defaultColumnsDesc: การแสดงผลเริ่มต้นสำหรับหน้าจอขนาดใหญ่
+  previewEffect: ตัวอย่างผลลัพธ์
+  screenWidth: ความกว้างหน้าจอ
+  addBreakpoint: เพิ่มจุดแบ่ง
+  editBreakpoint: แก้ไขจุดแบ่ง
+  deleteBreakpoint: ลบจุดแบ่ง
+  screenWidthLabel: ความกว้างหน้าจอ
+  screenWidthHint: 600
+  columnsLabel: คอลัมน์
+  columnsHint: 3
+  enterWidth: โปรดป้อนความกว้าง
+  enterValidWidth: โปรดป้อนความกว้างที่ถูกต้อง
+  widthCannotExceed9999: ความกว้างต้องไม่เกิน 9999
+  breakpointAlreadyExists: จุดแบ่งมีอยู่แล้ว
+  enterColumns: โปรดป้อนจำนวนคอลัมน์
+  enterValidColumns: โปรดป้อนจำนวนคอลัมน์ที่ถูกต้อง
+  columnsCannotExceed12: คอลัมน์ต้องไม่เกิน 12
+  breakpointConflict: จุดแบ่งมีอยู่แล้ว
+  confirmResetLayoutSettings: รีเซ็ตการตั้งค่าเลย์เอาต์
+  confirmResetLayoutSettingsDesc: คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตการตั้งค่าเลย์เอาต์ทั้งหมดกลับเป็นค่าเริ่มต้น?\n\nจะคืนค่าเป็น:\n• โหมดอัตโนมัติ\n• การกำหนดค่าจุดแบ่งเริ่มต้น
+  resetToDefaults: รีเซ็ตเป็นค่าเริ่มต้น
+  confirmDeleteBreakpoint: ลบจุดแบ่ง
+  confirmDeleteBreakpointDesc: คุณแน่ใจหรือไม่ว่าต้องการลบจุดแบ่ง ${width}px?
+  noCustomBreakpoints: ไม่มีจุดแบ่งที่กำหนดเอง ใช้คอลัมน์เริ่มต้น
+  breakpointRange: ช่วงจุดแบ่ง
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: แก้ไข
+  delete: ลบ
+  cancel: ยกเลิก
+  save: บันทึก
+
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "ข้อผิดพลาดของเครื่องเล่นวิดีโอ"
+  videoLoadFailed: "โหลดวิดีโอล้มเหลว"
+  videoCodecNotSupported: "ไม่รองรับตัวแปลงสัญญาณวิดีโอนี้"
+  networkConnectionIssue: "ปัญหาการเชื่อมต่อเครือข่าย"
+  insufficientPermission: "สิทธิ์ไม่เพียงพอ"
+  unsupportedVideoFormat: "รูปแบบวิดีโอที่ไม่รองรับ"
+  retry: "ลองใหม่อีกครั้ง"
+  externalPlayer: "เครื่องเล่นภายนอก"
+  detailedErrorInfo: "ข้อมูลข้อผิดพลาดโดยละเอียด"
+  format: "รูปแบบ"
+  suggestion: "คำแนะนำ"
+  androidWebmCompatibilityIssue: "อุปกรณ์ Android มีการรองรับรูปแบบ WEBM อย่างจำกัด แนะนำให้ใช้เครื่องเล่นภายนอกหรือดาวน์โหลดแอปเครื่องเล่นที่รองรับ WEBM"
+  currentDeviceCodecNotSupported: "อุปกรณ์ปัจจุบันไม่รองรับตัวแปลงสัญญาณสำหรับรูปแบบวิดีโอนี้"
+  checkNetworkConnection: "โปรดตรวจสอบการเชื่อมต่อเครือข่ายของคุณแล้วลองใหม่อีกครั้ง"
+  appMayLackMediaPermission: "แอปอาจไม่มีสิทธิ์ในการเล่นสื่อที่จำเป็น"
+  tryOtherVideoPlayer: "โปรดลองใช้โปรแกรมเล่นวิดีโออื่น"
+  unrecognizedVideoFormat: "ไม่รู้จักไฟล์วิดีโอ"
+  unrecognizedVideoFormatSuggestion: "ลิงก์อาจหมดอายุแล้ว หรือการตอบกลับไม่ใช่วิดีโอ โปรดลองอีกครั้งหรือเปิดด้วยแอปอื่น"
+  accessDenied: "เซิร์ฟเวอร์ปฏิเสธคำขอนี้ (403)"
+  accessDeniedSuggestion: "ลิงก์เล่นน่าจะหมดอายุแล้ว แตะลองใหม่เพื่อดึงลิงก์อีกครั้ง หรือเปิดด้วยแอปอื่น"
+  mute: "ปิดเสียง"
+  unmute: "เปิดเสียง"
+  video: "วิดีโอ"
+  # CDN Server Selection
+  serverSelector: การเลือกเซิร์ฟเวอร์ CDN
+  serverSelectorDescription: เลือกเซิร์ฟเวอร์ที่มีความหน่วงต่ำที่สุดเพื่อประสบการณ์การเล่นที่ดีที่สุด
+  retestSpeed: ทดสอบความเร็วใหม่
+  waitingForSpeedTest: กำลังรอการทดสอบความเร็ว
+  testingSpeed: กำลังทดสอบความเร็ว...
+  testFailed: การทดสอบล้มเหลว
+  loadingServerList: กำลังโหลดรายการเซิร์ฟเวอร์...
+  noAvailableServers: ไม่มีเซิร์ฟเวอร์ที่พร้อมใช้งาน
+  refreshServerList: รีเฟรชรายการเซิร์ฟเวอร์
+  cannotGetSource: ไม่สามารถรับแหล่งวิดีโอปัจจุบันได้
+  switchedToServer: "สลับไปยังเซิร์ฟเวอร์: ${serverName}"
+  serverCount: "ทั้งหมด ${count} เซิร์ฟเวอร์"
+  statusCode: "รหัสสถานะ: ${code}"
+  connectionFailed: การเชื่อมต่อล้มเหลว
+  connectionTimeout: หมดเวลาการเชื่อมต่อ
+  networkError: ข้อผิดพลาดเครือข่าย
+  sslError: ข้อผิดพลาดใบรับรอง SSL
+  testCompleted: การทดสอบเสร็จสมบูรณ์
+  # Local video playback
+  local: "ในเครื่อง"
+  unknown: "ไม่รู้จัก"
+  localVideoPathEmpty: "เส้นทางวิดีโอในเครื่องว่างเปล่า"
+  localVideoFileNotExists: "ไม่มีไฟล์วิดีโอในเครื่อง: ${path}"
+  unableToPlayLocalVideo: "ไม่สามารถเล่นวิดีโอในเครื่องได้: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "ลากไฟล์วิดีโอมาวางที่นี่เพื่อเล่น"
+  supportedFormats: "รูปแบบที่รองรับ: MP4, MKV, AVI, MOV, WEBM ฯลฯ"
+  noSupportedVideoFile: "ไม่พบไฟล์วิดีโอที่รองรับ"
+
+  # Custom runtime messages
+  retryingOpenVideoLink: "เปิดลิงก์วิดีโอล้มเหลว กำลังลองใหม่"
+  decoderOpenFailedWithSuggestion: "ไม่สามารถโหลดตัวถอดรหัส: ${event} ลองสลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ในการตั้งค่าเครื่องเล่น แล้วเข้าสู่หน้านี้ใหม่อีกครั้ง"
+  videoLoadErrorWithDetail: "ข้อผิดพลาดในการโหลดวิดีโอ: ${event}"
+  playbackFailureDiagnosticsHint: "ตรวจพบข้อผิดพลาดในการเล่นซ้ำหลายครั้ง ไปที่ การตั้งค่า > การวินิจฉัยและข้อเสนอแนะ เพื่อส่งออกบันทึก"
+  openSettingsAction: "ดู"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "การแจ้งเตือนการเล่น: ${message}"
+    networkUnstable: "โปรดตรวจสอบเครือข่าย การเล่นอาจกระตุก"
+    audioTrackUnavailable: "ไม่มีเสียง วิดีโอยังคงเล่นต่อไป"
+    hardwareDecodeFellBack: "สลับไปใช้การถอดรหัสด้วยซอฟต์แวร์ อาจใช้พลังงานแบตเตอรี่มากขึ้น"
+    videoDecodeProblem: "ลองเปลี่ยนความละเอียด ภาพอาจมีอาการกระตุกหรือแตก"
+    repeatedPlaybackProblems: "ส่งออกบันทึกเพื่อรายงานปัญหาการเล่นซ้ำๆ"
+    issuesSheetTitle: "ปัญหาการเล่น"
+    issueOccurrences: "เกิดขึ้น ${count} ครั้ง"
+    issueAtPosition: "ที่ตำแหน่ง ${position}"
+    noIssuesRecorded: "ไม่มีบันทึกปัญหา"
+    exportLogsAction: "ส่งออกบันทึก"
+
+  # Image Widget
+  imageLoadFailed: "โหลดรูปภาพไม่สำเร็จ"
+  unsupportedImageFormat: "รูปแบบรูปภาพที่ไม่รองรับ"
+  tryOtherViewer: "โปรดลองใช้โปรแกรมดูภาพอื่น"
+
+diagnostics:
+  infoSectionTitle: "ข้อมูลการวินิจฉัย"
+  appVersionLabel: "เวอร์ชันแอป"
+  memoryUsage: "การใช้หน่วยความจำ: ${memMB}MB"
+  deviceInfoUnavailable: "ไม่สามารถรับข้อมูลอุปกรณ์ได้"
+  secureStorageLabel: "พื้นที่จัดเก็บที่ปลอดภัย"
+  secureStorageHealthy: "พร้อมใช้งาน"
+  secureStorageRecovered: "กู้คืนตัวเองด้วยการรีเซ็ตแล้ว (ข้อมูลก่อนหน้าถูกล้าง)"
+  secureStorageUnavailable: "ไม่พร้อมใช้งาน (บันทึกสถานะการเข้าสู่ระบบด้วยการเข้ารหัสสำรอง)"
+  secureStoragePlatformOptOut: "การเข้ารหัสในเครื่องตามนโยบายแพลตฟอร์ม (ไม่ได้ใช้พวงกุญแจระบบบน macOS)"
+  secureStorageDualWrite: " (เปิดการป้องกันการเขียนคู่)"
+  schemaHealthLabel: โครงสร้างฐานข้อมูล
+  schemaHealthOk: ปกติ
+  schemaHealthRepairedNow: ได้รับการซ่อมแซมโดยเครือข่ายความปลอดภัยในการเปิดตัวครั้งนี้ (การโยกย้ายไม่มีผล)
+  schemaHealthRepairedBefore: เคยได้รับการซ่อมแซมโดยเครือข่ายความปลอดภัยมาก่อน
+  logPolicySectionTitle: "นโยบายบันทึก"
+  configServiceUnavailable: "บริการกำหนดค่ายังไม่ได้เริ่มต้น ไม่สามารถปรับนโยบายบันทึกได้"
+  enableLoggingTitle: "เปิดใช้งานการบันทึก"
+  enableLoggingSubtitle: "ปิดใช้งานเพื่อหยุดการเขียนบันทึกใหม่"
+  enableLogPersistenceTitle: "เปิดใช้งานการคงอยู่ของบันทึก"
+  enableLogPersistenceSubtitle: "ปิดใช้งานเพื่อเก็บบันทึกไว้ในหน่วยความจำเท่านั้นและหยุดการเขียนลงดิสก์"
+  minLogLevelTitle: "ระดับบันทึกขั้นต่ำ"
+  minLogLevelSubtitle: "บันทึกที่ต่ำกว่าระดับนี้จะถูกกรองออก"
+  maxFileSizeTitle: "จำกัดขนาดไฟล์เดี่ยว"
+  maxFileSizeSubtitle: "หมุนเวียนไฟล์เมื่อถึงเกณฑ์"
+  rotatedFileCountTitle: "จำนวนไฟล์หมุนเวียนบันทึกหลัก"
+  rotatedFileCountSubtitle: "จำนวนไฟล์ที่เก็บรักษาไว้ไม่รวมไฟล์ปัจจุบัน"
+  hangFileSizeTitle: "จำกัดขนาดบันทึกอาการค้าง"
+  hangFileSizeSubtitle: "ควบคุมการเติบโตของไฟล์ hang_events"
+  hangRotatedFileCountTitle: "จำนวนไฟล์หมุนเวียนบันทึกอาการค้าง"
+  hangRotatedFileCountSubtitle: "ควบคุมประวัติที่เก็บรักษาไว้สำหรับ hang_events"
+  healthSectionTitle: "ความสมบูรณ์ของบันทึก"
+  refreshMetrics: "รีเฟรชเมตริก"
+  toolsSectionTitle: "เครื่องมือ"
+  privacyNotice: "บันทึกอาจมีข้อมูลที่ละเอียดอ่อน เช่น ข้อมูลบัญชีและพารามิเตอร์คำขอ โปรดอย่าโพสต์บันทึกฉบับเต็มต่อสาธารณะใน Issues ตรวจสอบก่อนแล้วจึงส่งทางอีเมล"
+  exportLogsTitle: "ส่งออกบันทึก"
+  exportLogsSubtitle: "ตรวจสอบข้อมูลความเป็นส่วนตัวก่อนส่งให้นักพัฒนา"
+  viewLogsTitle: "ดูบันทึก"
+  viewLogsSubtitle: "ดูบันทึกขณะรันไทม์แบบเรียลไทม์"
+  copySupportEmailTitle: "คัดลอกอีเมลสนับสนุน"
+  reportIssueTitle: "รายงานปัญหา"
+  reportIssueSubtitle: "ระบุขั้นตอนการจำลองปัญหาบน GitHub (แนบเฉพาะบันทึกที่จำเป็น ไม่แนบบันทึกฉบับเต็ม)"
+  healthSummaryUnavailable: "ยังไม่มีข้อมูลความสมบูรณ์ของบันทึก"
+  healthMetricsUnavailable: "ยังไม่ได้รวบรวมเมตริกความสมบูรณ์"
+  healthNoRiskIndicators: "ตรวจไม่พบตัวบ่งชี้ความเสี่ยง"
+  healthAlert:
+    flushFailureTitle: "การล้างข้อมูลบันทึก (Flush) ล้มเหลว"
+    sinkDegradedTitle: "ประสิทธิภาพการเขียนบันทึกลดลง"
+    sinkDegradedDetail: "File sink อยู่ในสถานะประสิทธิภาพลดลง"
+    queueBacklogTitle: "คิวการเขียนค้างสะสม"
+    queueBacklogDetail: "queueDepth=${queueDepth} (threshold=${threshold}, อาจเพิ่มการใช้หน่วยความจำ)"
+    highFlushLatencyTitle: "เวลาแฝงในการล้างข้อมูลบันทึกสูง"
+    droppedTooManyTitle: "บันทึกถูกทิ้งมากเกินไป"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (เกณฑ์=${threshold})"
+    rateLimitedTitle: "ถูกจำกัดอัตราการเขียน"
+    exportFailedTitle: "ส่งออกบันทึกล้มเหลว"
+    fileNearLimitTitle: "ไฟล์บันทึกใกล้ถึงขีดจำกัดขนาด"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (แรงกดดันการหมุนเวียน IO สูงขึ้น)"
+  toast:
+    logServiceNotInitialized: "บริการบันทึกยังไม่ได้เริ่มต้น"
+    exportSuccess: "ส่งออกบันทึกแล้ว โปรดตรวจสอบข้อมูลความเป็นส่วนตัวก่อนส่งทางอีเมล"
+    exportFailed: "ส่งออกล้มเหลว: ${error}"
+    supportEmailCopied: "คัดลอกอีเมลสนับสนุนแล้ว วางลงในโปรแกรมรับส่งอีเมลของคุณและแนบบันทึก"
+  shareSubject: "บันทึกการวินิจฉัย LoveIwara (มีข้อมูลที่ละเอียดอ่อน โปรดแชร์ด้วยความระมัดระวัง)"
+
+logViewer:
+  title: "โปรแกรมดูบันทึก"
+  searchHint: "ค้นหาบันทึก..."
+  emptyState: "ไม่มีบันทึก"
+  copiedToClipboard: "คัดลอกไปยังคลิปบอร์ดแล้ว"
+
+crashRecoveryDialog:
+  title: "แอปปิดตัวลงอย่างไม่คาดคิด"
+  description: "เราตรวจพบการปิดตัวลงอย่างผิดปกติในเซสชันล่าสุด โปรดส่งออกบันทึกการวินิจฉัยและส่งอีเมลไปยังนักพัฒนาเพื่อช่วยเราแก้ไขปัญหา"
+  previousVersion: "เวอร์ชันล่าสุด: ${version}"
+  previousStart: "เปิดใช้งานล่าสุด: ${time}"
+  lastException: "ข้อยกเว้นล่าสุด: ${message}"
+  lastHangRecovered: "ตรวจพบอาการค้างของ UI ในครั้งล่าสุด และกู้คืนโดยอัตโนมัติแล้ว"
+  lastHangStalled: "ตรวจพบความเป็นไปได้ที่ UI จะค้างในครั้งล่าสุด โดยกินเวลาประมาณ ${stalledMs}ms"
+  exportGuide: "ไปที่ การตั้งค่า > การวินิจฉัยและข้อเสนอแนะ > ส่งออกบันทึก"
+  privacyHint: "บันทึกอาจมีข้อมูลส่วนตัว โปรดตรวจสอบก่อนส่งอีเมลไปที่:"
+  issueWarning: "อย่าแนบบันทึกฉบับเต็มต่อสาธารณะใน GitHub Issues"
+  acknowledge: "รับทราบ"
+  supportEmailCopied: "คัดลอกอีเมลแล้ว"
+
+linkInputDialog:
+  title: "ป้อนลิงก์"
+  supportedLinksHint: "รองรับการระบุลิงก์ ${webName} หลายรายการอย่างชาญฉลาด และข้ามไปยังหน้าที่เกี่ยวข้องในแอปอย่างรวดเร็ว (คั่นลิงก์ออกจากข้อความอื่นด้วยการเว้นวรรค)"
+  inputHint: "โปรดป้อนลิงก์ ${webName}"
+  validatorEmptyLink: "โปรดป้อนลิงก์"
+  validatorNoIwaraLink: "ตรวจไม่พบลิงก์ ${webName} ที่ถูกต้อง"
+  multipleLinksDetected: "ตรวจพบหลายลิงก์ โปรดเลือกหนึ่งรายการ:"
+  notIwaraLink: "ไม่ใช่ลิงก์ ${webName} ที่ถูกต้อง"
+  linkParseError: "ข้อผิดพลาดในการแยกวิเคราะห์ลิงก์: ${error}"
+  unsupportedLinkDialogTitle: "ลิงก์ที่ไม่รองรับ"
+  unsupportedLinkDialogContent: "ประเภทลิงก์นี้ไม่สามารถเปิดได้โดยตรงในแอป และจำเป็นต้องเข้าถึงโดยใช้เบราว์เซอร์ภายนอก\n\nคุณต้องการเปิดลิงก์นี้ในเบราว์เซอร์หรือไม่?"
+  openInBrowser: "เปิดในเบราว์เซอร์"
+  confirmOpenBrowserDialogTitle: "ยืนยันการเปิดเบราว์เซอร์"
+  confirmOpenBrowserDialogContent: "ลิงก์ต่อไปนี้กำลังจะถูกเปิดในเบราว์เซอร์ภายนอก:"
+  confirmContinueBrowserOpen: "คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?"
+  browserOpenFailed: "เปิดลิงก์ไม่สำเร็จ"
+  unsupportedLink: "ลิงก์ที่ไม่รองรับ"
+  cancel: "ยกเลิก"
+  confirm: "เปิดในเบราว์เซอร์"
+
+log:
+  logManagement: การจัดการบันทึก
+  enableLogPersistence: เปิดใช้งานการคงอยู่ของบันทึก
+  enableLogPersistenceDesc: บันทึกประวัติลงในฐานข้อมูลเพื่อนำไปวิเคราะห์
+  logDatabaseSizeLimit: จำกัดขนาดฐานข้อมูลบันทึก
+  logDatabaseSizeLimitDesc: 'ปัจจุบัน: ${size}'
+  exportCurrentLogs: ส่งออกบันทึกปัจจุบัน
+  exportCurrentLogsDesc: ส่งออกบันทึกแอปพลิเคชันปัจจุบันเพื่อช่วยนักพัฒนาวินิจฉัยปัญหา
+  exportHistoryLogs: ส่งออกบันทึกย้อนหลัง
+  exportHistoryLogsDesc: ส่งออกบันทึกภายในช่วงวันที่ที่ระบุ
+  exportMergedLogs: ส่งออกบันทึกรวม
+  exportMergedLogsDesc: ส่งออกบันทึกรวมภายในช่วงวันที่ที่ระบุ
+  showLogStats: แสดงสถิติต่างๆ ของบันทึก
+  logExportSuccess: ส่งออกบันทึกสำเร็จ
+  logExportFailed: 'ส่งออกบันทึกล้มเหลว: ${error}'
+  showLogStatsDesc: ดูสถิติของบันทึกประเภทต่างๆ
+  logExtractFailed: 'รับสถิติบันทึกไม่สำเร็จ: ${error}'
+  clearAllLogs: ล้างบันทึกทั้งหมด
+  clearAllLogsDesc: ล้างข้อมูลบันทึกทั้งหมด
+  confirmClearAllLogs: ยืนยันการล้าง
+  confirmClearAllLogsDesc: คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลบันทึกทั้งหมด? การดำเนินการนี้ไม่สามารถยกเลิกได้
+  clearAllLogsSuccess: ล้างบันทึกสำเร็จแล้ว
+  clearAllLogsFailed: 'ล้างบันทึกไม่สำเร็จ: ${error}'
+  unableToGetLogSizeInfo: ไม่สามารถรับข้อมูลขนาดบันทึกได้
+  currentLogSize: 'ขนาดบันทึกปัจจุบัน:'
+  logCount: 'จำนวนบันทึก:'
+  logCountUnit: 'รายการ'
+  logSizeLimit: 'ขีดจำกัดขนาดบันทึก:'
+  usageRate: 'อัตราการใช้งาน:'
+  exceedLimit: 'เกินขีดจำกัด'
+  remaining: 'ที่เหลือ'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'ขนาดบันทึกปัจจุบันเกินขีดจำกัดแล้ว โปรดล้างบันทึกเก่าหรือเพิ่มขีดจำกัดขนาดบันทึก'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'ขนาดบันทึกปัจจุบันใกล้เต็มแล้ว โปรดล้างบันทึกเก่า'
+  cleaningOldLogs: 'กำลังล้างบันทึกเก่า...'
+  logCleaningCompleted: 'ล้างบันทึกเสร็จสมบูรณ์แล้ว'
+  logCleaningProcessMayNotBeCompleted: 'กระบวนการล้างบันทึกอาจยังไม่เสร็จสมบูรณ์'
+  cleanExceededLogs: 'ล้างบันทึกที่เกินขีดจำกัด'
+  noLogsToExport: 'ไม่มีบันทึกที่จะส่งออก'
+  exportingLogs: 'กำลังส่งออกบันทึก...'
+  noHistoryLogsToExport: 'ไม่มีประวัติบันทึกให้ส่งออก โปรดลองใช้แอปสักระยะหนึ่งก่อน'
+  selectLogDate: 'เลือกวันที่บันทึก'
+  today: 'วันนี้'
+  selectMergeRange: 'เลือกช่วงที่จะรวม'
+  selectMergeRangeHint: 'โปรดเลือกช่วงเวลาบันทึกที่จะรวม'
+  selectMergeRangeDays: '${days} วันล่าสุด'
+  logStats: 'สถิติต่างๆ ของบันทึก'
+  todayLogs: 'บันทึกของวันนี้: ${count} รายการ'
+  recent7DaysLogs: 'บันทึก 7 วันล่าสุด: ${count} รายการ'
+  totalLogs: 'บันทึกทั้งหมด: ${count} รายการ'
+  setLogDatabaseSizeLimit: 'ตั้งค่าขีดจำกัดขนาดฐานข้อมูลบันทึก'
+  currentLogSizeWithSize: 'ขนาดบันทึกปัจจุบัน: ${size}'
+  warning: 'คำเตือน'
+  newSizeLimit: 'ขีดจำกัดขนาดใหม่: ${size}'
+  confirmToContinue: 'ยืนยันเพื่อดำเนินการต่อ'
+  logSizeLimitSetSuccess: 'ตั้งค่าขีดจำกัดขนาดบันทึกเป็น ${size} แล้ว'
+
+emoji:
+  name: อีโมจิ
+  size: ขนาด
+  small: เล็ก
+  medium: ปานกลาง
+  large: ใหญ่
+  extraLarge: ใหญ่พิเศษ
+  copyEmojiLinkSuccess: 'คัดลอกลิงก์อีโมจิแล้ว'
+  preview: ตัวอย่างอีโมจิ
+  library: คลังอีโมจิ
+  noEmojis: ไม่มีอีโมจิ
+  clickToAddEmojis: คลิกปุ่มที่มุมขวาบนเพื่อเพิ่มอีโมจิ
+  addEmojis: เพิ่มอีโมจิ
+  imagePreview: ตัวอย่างรูปภาพ
+  imageLoadFailed: โหลดรูปภาพไม่สำเร็จ
+  loading: กำลังโหลด...
+  delete: ลบ
+  close: ปิด
+  deleteImage: ลบรูปภาพ
+  confirmDeleteImage: คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?
+  cancel: ยกเลิก
+  batchDelete: ลบเป็นชุด
+  confirmBatchDelete: 'คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพที่เลือก ${count} รูป? การดำเนินการนี้ไม่สามารถยกเลิกได้'
+  deleteSuccess: ลบสำเร็จแล้ว
+  addImage: เพิ่มรูปภาพ
+  addImageByUrl: เพิ่มด้วย URL
+  addImageUrl: เพิ่ม URL รูปภาพ
+  imageUrl: URL รูปภาพ
+  enterImageUrl: โปรดป้อน URL รูปภาพ
+  add: เพิ่ม
+  batchImport: นำเข้าเป็นชุด
+  enterJsonUrlArray: "โปรดป้อนอาร์เรย์ URL รูปแบบ JSON:"
+  formatExample: 'ตัวอย่างรูปแบบ:\n["url1", "url2", "url3"]'
+  pasteJsonUrlArray: โปรดวางอาร์เรย์ URL รูปแบบ JSON
+  import: นำเข้า
+  importSuccess: 'นำเข้ารูปภาพ ${count} รูปสำเร็จแล้ว'
+  jsonFormatError: รูปแบบ JSON ผิดพลาด โปรดตรวจสอบข้อมูลที่ป้อน
+  createGroup: สร้างกลุ่มอีโมจิ
+  groupName: ชื่อกลุ่ม
+  enterGroupName: โปรดป้อนชื่อกลุ่ม
+  create: สร้าง
+  editGroupName: แก้ไขชื่อกลุ่ม
+  save: บันทึก
+  deleteGroup: ลบกลุ่ม
+  confirmDeleteGroup: คุณแน่ใจหรือไม่ว่าต้องการลบกลุ่มอีโมจินี้? รูปภาพทั้งหมดในกลุ่มจะถูกลบไปด้วย
+  imageCount: '${count} รูปภาพ'
+  selectEmoji: เลือกอีโมจิ
+  noEmojisInGroup: ไม่มีอีโมจิในกลุ่มนี้
+  goToSettingsToAddEmojis: ไปที่การตั้งค่าเพื่อเพิ่มอีโมจิ
+  emojiManagement: การจัดการอีโมจิ
+  manageEmojiGroupsAndImages: จัดการกลุ่มอีโมจิและรูปภาพ
+  uploadLocalImages: อัปโหลดรูปภาพในเครื่อง
+  uploadingImages: กำลังอัปโหลดรูปภาพ
+  uploadingImagesProgress: 'กำลังอัปโหลดรูปภาพ ${count} รูป โปรดรอสักครู่...'
+  doNotCloseDialog: โปรดอย่าปิดกล่องโต้ตอบนี้
+  uploadSuccess: 'อัปโหลดรูปภาพ ${count} รูปสำเร็จแล้ว'
+  uploadFailed: 'ล้มเหลว ${count} รูป'
+  uploadFailedMessage: อัปโหลดรูปภาพไม่สำเร็จ โปรดตรวจสอบการเชื่อมต่อเครือข่ายหรือรูปแบบไฟล์
+  uploadErrorMessage: 'เกิดข้อผิดพลาดระหว่างการอัปโหลด: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "เลือกฟิลด์"
+  add: "เพิ่ม"
+  clear: "ล้าง"
+  clearAll: "ล้างทั้งหมด"
+  generatedQuery: "คำค้นที่สร้างขึ้น"
+  copyToClipboard: "คัดลอกไปยังคลิปบอร์ด"
+  copied: "คัดลอกแล้ว"
+  filterCount: "${count} ตัวกรอง"
+  
+  # Filter Button Widget
+  filterSettings: "การตั้งค่าตัวกรอง"
+  
+  # Filter Row Widget
+  field: "ฟิลด์"
+  operator: "ตัวดำเนินการ"
+  language: "ภาษา"
+  value: "ค่า"
+  dateRange: "ช่วงวันที่"
+  numberRange: "ช่วงตัวเลข"
+  from: "จาก"
+  to: "ถึง"
+  date: "วันที่"
+  number: "ตัวเลข"
+  boolean: "บูลีน"
+  tags: "แท็ก"
+  select: "เลือก"
+  clickToSelectDate: "คลิกเพื่อเลือกวันที่"
+  pleaseEnterValidNumber: "โปรดกรอกตัวเลขที่ถูกต้อง"
+  pleaseEnterValidDate: "โปรดกรอกวันที่ในรูปแบบที่ถูกต้อง (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "ค่าเริ่มต้นต้องน้อยกว่าค่าสิ้นสุด"
+  startDateMustBeBeforeEndDate: "วันที่เริ่มต้นต้องอยู่ก่อนวันที่สิ้นสุด"
+  pleaseFillStartValue: "โปรดกรอกค่าเริ่มต้น"
+  pleaseFillEndValue: "โปรดกรอกค่าสิ้นสุด"
+  rangeValueFormatError: "รูปแบบค่าช่วงไม่ถูกต้อง"
+  
+  # Filter Operators
+  contains: "มีคำว่า"
+  equals: "เท่ากับ"
+  notEquals: "ไม่เท่ากับ"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "ช่วง"
+  in: "มีอย่างใดอย่างหนึ่ง"
+  notIn: "ไม่มีอย่างใดอย่างหนึ่ง"
+  
+  # Filter Field Types
+  username: "ชื่อผู้ใช้"
+  nickname: "ชื่อเล่น"
+  registrationDate: "วันที่ลงทะเบียน"
+  description: "คำอธิบาย"
+  title: "ชื่อเรื่อง"
+  body: "เนื้อหา"
+  author: "ผู้สร้าง"
+  publishDate: "วันที่เผยแพร่"
+  private: "ส่วนตัว"
+  duration: "ระยะเวลา (วินาที)"
+  likes: "ถูกใจ"
+  views: "ยอดชม"
+  comments: "ความคิดเห็น"
+  rating: "คะแนน"
+  imageCount: "จำนวนรูปภาพ"
+  videoCount: "จำนวนวิดีโอ"
+  createDate: "วันที่สร้าง"
+  content: "เนื้อหา"
+  
+  # Rating Options
+  all: "ทั้งหมด"
+  adult: "ผู้ใหญ่"
+  general: "ทั่วไป"
+  
+  # Boolean Values
+  yes: "ใช่"
+  no: "ไม่"
+  
+  # Content Types
+  users: "ผู้ใช้"
+  videos: "วิดีโอ"
+  images: "รูปภาพ"
+  posts: "โพสต์"
+  forumThreads: "กระทู้ในฟอรัม"
+  forumPosts: "โพสต์ในฟอรัม"
+  playlists: "เพลย์ลิสต์"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "ความเกี่ยวข้อง"
+    latest: "ล่าสุด"
+    views: "ยอดชม"
+    likes: "ถูกใจ"
+  # Filter drawer
+  drawerSubtitle: "การเปลี่ยนแปลงมีผลทันที"
+
+firstTimeSetup:
+  welcome:
+    title: "ยินดีต้อนรับ"
+    subtitle: "มาเริ่มต้นการตั้งค่าเฉพาะบุคคลของคุณกัน"
+    description: "เพียงไม่กี่ขั้นตอนเพื่อปรับแต่งประสบการณ์ที่ดีที่สุดให้คุณ"
+  basic:
+    title: "การตั้งค่าพื้นฐาน"
+    subtitle: "ปรับแต่งประสบการณ์ของคุณ"
+    description: "เลือกการตั้งค่าที่เหมาะกับคุณ"
+  network:
+    title: "การตั้งค่าเครือข่าย"
+    subtitle: "ตั้งค่าตัวเลือกเครือข่าย"
+    description: "ปรับตามสภาพเครือข่ายของคุณ"
+    tip: "ต้องรีสตาร์ทหลังตั้งค่าสำเร็จจึงจะมีผล"
+  theme:
+    title: "การตั้งค่าธีม"
+    subtitle: "เลือกธีมที่คุณชื่นชอบ"
+    description: "ปรับแต่งประสบการณ์ทางสายตาของคุณ"
+  player:
+    title: "การตั้งค่าโปรแกรมเล่น"
+    subtitle: "ตั้งค่าการควบคุมการเล่น"
+    description: "ตั้งค่าการเล่นที่ใช้บ่อยได้อย่างรวดเร็ว"
+  spatial:
+    title: "การเล่นแบบเชิงพื้นที่"
+    subtitle: "การรับชมและเรียกดูบนชุดหูฟัง"
+    description: "บนชุดหูฟัง วิดีโอและแกลเลอรีจะปรากฏในพื้นที่รอบตัวคุณแทนที่จะอยู่ในแผงลอยนี้"
+  completion:
+    title: "ตั้งค่าเสร็จสมบูรณ์"
+    subtitle: "คุณพร้อมที่จะเริ่มต้นการเดินทางแล้ว"
+    description: "โปรดอ่านและยอมรับข้อตกลงที่เกี่ยวข้อง"
+    agreementTitle: "ข้อตกลงผู้ใช้และกฎของชุมชน"
+    agreementDesc: "ก่อนใช้แอปนี้ โปรดอ่านและยอมรับข้อตกลงผู้ใช้และกฎของชุมชนอย่างละเอียด ข้อกำหนดเหล่านี้ช่วยรักษาสภาพแวดล้อมที่ดี"
+    checkboxTitle: "ข้าพเจ้าได้อ่านและยอมรับข้อตกลงผู้ใช้และกฎของชุมชนแล้ว"
+    checkboxSubtitle: "หากไม่ยอมรับจะไม่สามารถใช้แอปได้"
+  common:
+    settingsChangeableTip: "การตั้งค่าเหล่านี้เปลี่ยนได้ทุกเมื่อในการตั้งค่า"
+    previousStep: "ขั้นตอนก่อนหน้า"
+    nextStep: "ขั้นตอนถัดไป"
+    finishSetup: "เสร็จสิ้นการตั้งค่า"
+    agreeAgreementSnackbar: "โปรดยอมรับข้อตกลงผู้ใช้และกฎของชุมชนก่อน"
+
+proxyHelper:
+  systemProxyDetected: "ตรวจพบพร็อกซีของระบบ"
+  copied: "คัดลอกแล้ว"
+  copy: "คัดลอก"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "เลือกแท็ก"
+  clickToSelectTags: "คลิกเพื่อเลือกแท็ก"
+  addTag: "เพิ่มแท็ก"
+  removeTag: "เอาแท็กออก"
+  deleteTag: "ลบแท็ก"
+  usageInstructions: "เพิ่มแท็กก่อน จากนั้นจึงคลิกเลือกจากแท็กที่มีอยู่"
+  usageInstructionsTooltip: "คำแนะนำการใช้งาน"
+  addTagTooltip: "เพิ่มแท็ก"
+  removeTagTooltip: "เอาแท็กออก"
+  cancelSelection: "ยกเลิกการเลือก"
+  selectAll: "เลือกทั้งหมด"
+  cancelSelectAll: "ยกเลิกเลือกทั้งหมด"
+  delete: "ลบ"
+
+# Anime4K Settings
+anime4k:
+  realTimeVideoUpscalingAndDenoising: "การขยายภาพและลดสัญญาณรบกวนวิดีโอแบบเรียลไทม์ ช่วยยกระดับคุณภาพวิดีโออนิเมชัน"
+  settings: "การตั้งค่า Anime4K"
+  preset: "พรีเซ็ต Anime4K"
+  disable: "ปิด Anime4K"
+  disableDescription: "ปิดเอฟเฟกต์เพิ่มคุณภาพวิดีโอ"
+  highQualityPresets: "พรีเซ็ตคุณภาพสูง"
+  fastPresets: "พรีเซ็ตแบบเร็ว"
+  litePresets: "พรีเซ็ตแบบเบา"
+  moreLitePresets: "พรีเซ็ตแบบเบายิ่งขึ้น"
+  customPresets: "พรีเซ็ตกำหนดเอง"
+  presetGroups:
+    highQuality: "คุณภาพสูง"
+    fast: "เร็ว"
+    lite: "เบา"
+    moreLite: "เบายิ่งขึ้น"
+    custom: "กำหนดเอง"
+  presetDescriptions:
+    mode_a_hq: "เหมาะกับอนิเมชัน 1080p ส่วนใหญ่ โดยเฉพาะที่ต้องรับมือกับความเบลอ การรีแซมเพิล และอาร์ติแฟกต์จากการบีบอัด ให้คุณภาพที่รับรู้ได้สูงสุด"
+    mode_b_hq: "เหมาะกับอนิเมชันที่มีความเบลอหรือเงาสะท้อนเล็กน้อยจากการปรับขนาด ช่วยลดเงาสะท้อนและรอยหยักได้อย่างมีประสิทธิภาพ"
+    mode_c_hq: "เหมาะกับแหล่งคุณภาพสูง (เช่น อนิเมชันหรือภาพยนตร์ 1080p แท้) ลดสัญญาณรบกวนและให้ค่า PSNR สูงสุด"
+    mode_a_a_hq: "เวอร์ชันเสริมของ Mode A ให้คุณภาพที่รับรู้ได้สูงสุดและสามารถสร้างเส้นที่เสื่อมสภาพเกือบทั้งหมดขึ้นมาใหม่ อาจเกิดภาพคมเกินไปหรือเงาสะท้อน"
+    mode_b_b_hq: "เวอร์ชันเสริมของ Mode B ให้คุณภาพที่รับรู้ได้สูงขึ้น ปรับแต่งเส้นให้ดียิ่งขึ้นและลดอาร์ติแฟกต์"
+    mode_c_a_hq: "เวอร์ชันเสริมคุณภาพที่รับรู้ได้ของ Mode C รักษาค่า PSNR ให้สูงพร้อมพยายามสร้างรายละเอียดเส้นบางส่วนขึ้นมาใหม่"
+    mode_a_fast: "เวอร์ชันเร็วของ Mode A สมดุลระหว่างคุณภาพและสมรรถนะ เหมาะกับอนิเมชัน 1080p ส่วนใหญ่"
+    mode_b_fast: "เวอร์ชันเร็วของ Mode B สำหรับจัดการอาร์ติแฟกต์และเงาสะท้อนเล็กน้อยด้วยภาระที่ต่ำลง"
+    mode_c_fast: "เวอร์ชันเร็วของ Mode C สำหรับการลดสัญญาณรบกวนและขยายภาพของแหล่งคุณภาพสูงอย่างรวดเร็ว"
+    mode_a_a_fast: "เวอร์ชันเร็วของ Mode A+A เน้นคุณภาพที่รับรู้ได้สูงขึ้นบนอุปกรณ์ที่มีข้อจำกัดด้านสมรรถนะ"
+    mode_b_b_fast: "เวอร์ชันเร็วของ Mode B+B ให้การซ่อมแซมเส้นและการจัดการอาร์ติแฟกต์ที่ดีขึ้นสำหรับอุปกรณ์ที่มีข้อจำกัดด้านสมรรถนะ"
+    mode_c_a_fast: "เวอร์ชันเร็วของ Mode C+A ประมวลผลแหล่งคุณภาพสูงได้อย่างรวดเร็วพร้อมให้การซ่อมแซมเส้นแบบเบา"
+    upscale_only_s: "การขยายภาพเป็น 2 เท่าความเร็วสูงสุดโดยใช้เฉพาะโมเดล CNN ที่เร็วที่สุด ไม่มีการซ่อมแซมและลดสัญญาณรบกวน ภาระต่ำสุด"
+    upscale_deblur_fast: "การขยายภาพและลดความเบลอแบบเร็วด้วยอัลกอริทึมดั้งเดิมที่ไม่ใช้ CNN ดีกว่าอัลกอริทึมเริ่มต้นของโปรแกรมเล่นด้วยภาระที่ต่ำมาก"
+    restore_s_only: "ซ่อมแซมเท่านั้นโดยใช้โมเดล CNN ที่เร็วที่สุด ไม่ขยายภาพ เหมาะกับการเล่นที่ความละเอียดแท้ที่ต้องการเพิ่มคุณภาพ"
+    denoise_bilateral_fast: "การลดสัญญาณรบกวนแบบเร็วด้วยตัวกรอง bilateral แบบดั้งเดิม เร็วมาก เหมาะกับการจัดการสัญญาณรบกวนเล็กน้อย"
+    upscale_non_cnn: "การขยายภาพแบบเร็วด้วยอัลกอริทึมดั้งเดิม ภาระต่ำมาก ดีกว่าค่าเริ่มต้นของโปรแกรมเล่น"
+    mode_a_fast_darken: "Mode A (Fast) + การทำให้เส้นเข้มขึ้น เพิ่มเอฟเฟกต์ทำให้เส้นเข้มขึ้นบน Mode A แบบเร็ว เพื่อให้เส้นเด่นชัดและมีสไตล์ยิ่งขึ้น"
+    mode_a_hq_thin: "Mode A (HQ) + การทำให้เส้นบางลง เพิ่มเอฟเฟกต์ทำให้เส้นบางลงบน Mode A คุณภาพสูง เพื่อให้ดูประณีตยิ่งขึ้น"
+  presetNames:
+    mode_a_hq: "Mode A (HQ)"
+    mode_b_hq: "Mode B (HQ)"
+    mode_c_hq: "Mode C (HQ)"
+    mode_a_a_hq: "Mode A+A (HQ)"
+    mode_b_b_hq: "Mode B+B (HQ)"
+    mode_c_a_hq: "Mode C+A (HQ)"
+    mode_a_fast: "Mode A (Fast)"
+    mode_b_fast: "Mode B (Fast)"
+    mode_c_fast: "Mode C (Fast)"
+    mode_a_a_fast: "Mode A+A (Fast)"
+    mode_b_b_fast: "Mode B+B (Fast)"
+    mode_c_a_fast: "Mode C+A (Fast)"
+    upscale_only_s: "ขยายภาพด้วย CNN (เร็วมาก)"
+    upscale_deblur_fast: "ขยายภาพและลดความเบลอ (เร็ว)"
+    restore_s_only: "การซ่อมแซม (เร็วมาก)"
+    denoise_bilateral_fast: "ลดสัญญาณรบกวนแบบ Bilateral (เร็วมาก)"
+    upscale_non_cnn: "ขยายภาพแบบไม่ใช้ CNN (เร็วมาก)"
+    mode_a_fast_darken: "Mode A (Fast) + ทำให้เส้นเข้มขึ้น"
+    mode_a_hq_thin: "Mode A (HQ) + ทำให้เส้นบางลง"
+  performanceTip: "💡 เคล็ดลับ: เลือกพรีเซ็ตให้เหมาะกับสมรรถนะของอุปกรณ์ อุปกรณ์สเปกต่ำแนะนำให้ใช้พรีเซ็ตแบบเบา"
+  compatibilityTip: "⚠️ GPU บนมือถือบางรุ่น (เช่น Kirin 980 / Mali-G76) ไม่สามารถเรนเดอร์เชดเดอร์แบบกำหนดเองได้ หากภาพกลายเป็นสีดำแต่เสียงยังเล่นต่อ ให้ปิด Anime4K ที่นี่"
+  autoDisabledOnRenderFailure: "GPU ของอุปกรณ์ไม่สามารถเรนเดอร์เชดเดอร์ Anime4K ได้ จึงปิดใช้งานโดยอัตโนมัติ"
+
+siteMode:
+  title: โหมดไซต์
+  mainSite: ไซต์หลัก
+  aiSite: AI
+  drawerSubtitle: 'ปัจจุบัน ${currentSite} · แตะเพื่อสลับเป็น ${nextSite}'
+  dialogTitle: สลับโหมดไซต์
+  dialogDescription: การสลับจะรีเฟรชทั้งแอป และรีเซ็ตรายการที่โหลดไว้ก่อนหน้ากับสถานะของหน้า
+  chooseLinkTargetTitle: เลือกไซต์ปลายทาง
+  chooseLinkTargetDescription: ลิงก์นี้ไม่มีโดเมน โปรดเลือกว่าจะเปิดในไซต์หลักหรือ AI
+  chooseLinkTargetHint: เมื่อเปิดแล้ว หน้านี้และคำขอรายละเอียดที่ตามมาจะใช้ไซต์ที่เลือกต่อไป
+  alreadyUsing: คุณกำลังใช้โหมดไซต์นี้อยู่แล้ว
+  openInSite: 'เปิดใน ${site}'
+  confirmUsing: 'หลังยืนยัน คำขอต่อๆ ไปจะใช้โหมด ${site}'
+  switched: 'สลับเป็น ${site} แล้ว แอปได้รีเฟรชเรียบร้อย'
+savedSearchConfig:
+  title: ตัวกรองที่บันทึกไว้
+  empty: ยังไม่มีตัวกรองที่บันทึกไว้
+  saveTooltip: บันทึกตัวกรองปัจจุบัน
+  namePromptTitle: บันทึกตัวกรอง
+  nameLabel: ชื่อ
+  nameHint: กรอกชื่อ
+  saveSuccess: บันทึกตัวกรองแล้ว
+  deleteSuccess: ลบตัวกรองแล้ว
+  addCurrent: บันทึกตัวกรองปัจจุบัน
+  reorderHint: กดค้างแล้วลากเพื่อจัดลำดับใหม่
+  rename: เปลี่ยนชื่อ
+  unnamed: ไม่มีชื่อ
+  noConditions: เนื้อหาทั้งหมด (ไม่มีตัวกรอง)
+  tagsCount: '${count} แท็ก'
+savedSearch:
+  title: การค้นหาที่บันทึกไว้
+  empty: ยังไม่มีการค้นหาที่บันทึกไว้
+  saveTooltip: บันทึกการค้นหาปัจจุบัน
+  namePromptTitle: บันทึกการค้นหา
+  nameLabel: ชื่อ
+  nameHint: กรอกชื่อ
+  saveSuccess: บันทึกการค้นหาแล้ว
+  deleteSuccess: ลบการค้นหาแล้ว
+  addCurrent: บันทึกการค้นหาปัจจุบัน
+  reorderHint: กดค้างแล้วลากเพื่อจัดลำดับใหม่
+  rename: เปลี่ยนชื่อ
+  noKeyword: (ไม่มีคำค้น)
+  filtersCount: '${count} ตัวกรอง'
+
+defaultBlacklistReminder:
+  title: ตรวจพบบัญชีดำแท็กเริ่มต้น
+  content: บัญชีของคุณยังใช้บัญชีดำแท็กที่เว็บไซต์ตั้งให้อัตโนมัติกับทุกบัญชีใหม่ ต้องการตรวจสอบและจัดการหรือไม่
+  goManage: จัดการ
+  dismiss: ไว้ก่อน
+
+# Color Vision Assist (colorblind filter)
+colorVisionAssist:
+  title: "ช่วยการมองเห็นสี"
+  description: "ปรับสีวิดีโอให้ผู้ชมที่มีความบกพร่องทางการมองเห็นสี ใช้ร่วมกับ Anime4K ได้"
+  galleryDescription: "ปรับสีภาพในแกลเลอรีให้ผู้ชมที่มีความบกพร่องทางการมองเห็นสี (ทำงานอิสระจากสวิตช์ของโปรแกรมเล่น)"
+  galleryDescriptionSpatial: "ปรับสีภาพในแกลเลอรีให้ผู้ชมที่มีความบกพร่องทางการมองเห็นสี ใช้ได้เฉพาะกับตัวดูภาพ 2D ในแผงนี้เท่านั้น — ภาพบนจอเชิงพื้นที่เรนเดอร์แบบเนทีฟและไม่ผ่านตัวกรองนี้"
+  disable: "ปิด"
+  disableDescription: "ไม่ปรับสี"
+  protanopia: "ช่วยมองสีแดง (Protanopia)"
+  protanopiaDescription: "สำหรับผู้ที่มี Protanopia — แยกแยะสีแดงได้ยาก"
+  deuteranopia: "ช่วยมองสีเขียว (Deuteranopia)"
+  deuteranopiaDescription: "สำหรับผู้ที่มี Deuteranopia — แยกแยะสีเขียวได้ยาก"
+  tritanopia: "ช่วยมองสีน้ำเงิน (Tritanopia)"
+  tritanopiaDescription: "สำหรับผู้ที่มี Tritanopia — แยกแยะสีน้ำเงินและสีเหลืองได้ยาก"
+  appliedToast: "นำ ${filterName} ไปใช้แล้ว มีผลทันที"
+  disabledToast: "ปิดการช่วยการมองเห็นสีแล้ว"
+externalPlayer:
+  title: "เปิดด้วยแอปอื่น"
+  description: "ส่งวิดีโอปัจจุบันไปยังโปรแกรมเล่นอื่นบนอุปกรณ์นี้ เช่น Skybox หรือ Pigasus บนชุดหูฟัง VR หรือ MX Player และ VLC บนมือถือ"
+  openWithOtherApp: "เลือกแอปอื่น"
+  openWithOtherAppDescription: "เปิดตัวเลือกของระบบแล้วเลือกโปรแกรมเล่นที่จะรับช่วงต่อ"
+  openWithSystemPlayer: "เปิดในโปรแกรมเล่นเริ่มต้น"
+  openWithSystemPlayerDescription: "ส่งต่อให้แอปวิดีโอเริ่มต้นของระบบ"
+  copyLink: "คัดลอกลิงก์วิดีโอ"
+  copyLinkDescription: "สำหรับโปรแกรมเล่นที่วาง URL ได้เท่านั้น เช่น Skybox หรือ DeoVR"
+  linkCopied: "คัดลอกลิงก์วิดีโอแล้ว"
+  sourceLocal: "ไฟล์ในเครื่อง"
+  sourceOnline: "ลิงก์ตรง"
+  sourceOnlineWithQuality: 'ลิงก์ตรง · ${quality}'
+  onlineLinkExpiryHint: "ลิงก์ตรงมีอายุจำกัด โปรแกรมเล่นภายนอกอาจหยุดกลางคันได้ การดาวน์โหลดไว้ก่อนเป็นวิธีที่เชื่อถือได้"
+  vrPlayerHint: "หากไม่มีโปรแกรมเล่น VR ของคุณในตัวเลือก ให้ใช้ คัดลอกลิงก์วิดีโอ แล้ววางในโปรแกรมเล่นนั้น"
+  noHandler: "ไม่มีแอปบนอุปกรณ์นี้ที่เปิดวิดีโอได้"
+  handoffFailed: 'ส่งต่อไม่สำเร็จ: ${message}'
+  handoffFailedUnknown: "ส่งต่อไม่สำเร็จ"
+  sourceUnavailable: "ไม่สามารถดึงที่อยู่ของวิดีโอปัจจุบันได้ โปรดลองอีกครั้ง"
+  localFileMissing: "ไฟล์ในเครื่องไม่มีอยู่แล้ว"
+  handedOff: "ส่งต่อให้โปรแกรมเล่นภายนอกแล้ว"
+  desktopSectionTitle: "โปรแกรมเล่นภายนอก"
+  managePlayers: "จัดการโปรแกรมเล่นภายนอก"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "โปรแกรมเล่น PCVR อย่าง HereSphere, DeoVR และ Whirligig ไม่ใช่แอปเริ่มต้นของระบบ ชี้ไปที่ไฟล์ .exe ของโปรแกรมเหล่านั้น แล้วคุณจะส่งวิดีโอปัจจุบันต่อได้จากหน้าโปรแกรมเล่นเลย"
+  managePlayersDescMac: "ชี้ไปที่โปรแกรมเล่นอย่าง IINA, VLC หรือ mpv แล้วคุณจะส่งวิดีโอปัจจุบันต่อได้จากหน้าโปรแกรมเล่นเลย"
+  managePlayersDescLinux: "ชี้ไปที่โปรแกรมเล่นอย่าง mpv, VLC หรือ Celluloid แล้วคุณจะส่งวิดีโอปัจจุบันต่อได้จากหน้าโปรแกรมเล่นเลย"
+  pickExecutableHintWindows: "เลือกไฟล์ .exe หลักในโฟลเดอร์ติดตั้งของโปรแกรมเล่น เช่น HereSphere.exe หรือ vlc.exe ทางลัดบนเดสก์ท็อป (.lnk) ใช้ไม่ได้"
+  pickExecutableHintMac: "เลือกไฟล์ .app ของโปรแกรมเล่นใน Applications เช่น IINA.app — ระบบจะค้นหาไฟล์เรียกใช้งานจริงภายในให้เอง"
+  pickExecutableHintLinux: "เลือกไฟล์เรียกใช้งานของโปรแกรมเล่น เช่น /usr/bin/mpv การรัน which mpv จะบอกตำแหน่งของมัน"
+  emptyStateGuide: 'เมื่อตั้งค่าแล้วจะปรากฏเป็นรายการของตัวเองใต้ เปิดด้วยแอปอื่น ในหน้าโปรแกรมเล่น ที่ใช้บ่อยเช่น: ${examples}'
+  detectNothingFoundGuide: "ไม่พบโปรแกรมเล่นที่ติดตั้งไว้ โฟลเดอร์ติดตั้งแบบกำหนดเองและเวอร์ชันพกพาจะตรวจจับไม่ได้ — ใช้ เพิ่มโปรแกรมเล่น เพื่อระบุเอง"
+  detectNothingNew: "ไม่พบโปรแกรมเล่นใหม่ ทุกอย่างที่ติดตั้งอยู่มีในรายการแล้ว"
+  detectFailed: "ตรวจจับไม่สำเร็จ — ใช้ เพิ่มโปรแกรมเล่น เพื่อระบุเอง"
+  advancedOptions: "ขั้นสูง"
+  playerNameHint: "เว้นว่างไว้เพื่อใช้ชื่อไฟล์"
+  executablePathRequired: "เลือกไฟล์เรียกใช้งานของโปรแกรมเล่นก่อน"
+  playerCount: 'ตั้งค่าแล้ว ${count} รายการ'
+  noPlayerConfigured: "ยังไม่ได้ตั้งค่าโปรแกรมเล่นภายนอก"
+  autoDetect: "ตรวจจับอัตโนมัติ"
+  detecting: "กำลังตรวจจับ…"
+  detectFound: 'พบโปรแกรมเล่น ${count} รายการ'
+  detectNothingFound: "ไม่พบโปรแกรมเล่นใหม่ เพิ่มเองได้เลย"
+  autoDetectedTag: "ตรวจพบ"
+  addPlayer: "เพิ่มโปรแกรมเล่น"
+  editPlayer: "แก้ไขโปรแกรมเล่น"
+  playerName: "ชื่อ"
+  executablePath: "ไฟล์เรียกใช้งาน"
+  browse: "เลือกไฟล์"
+  argumentTemplate: "อาร์กิวเมนต์ตอนเปิด"
+  argumentTemplateHint: "ใช้ {input} แทนเส้นทางหรือ URL ของวิดีโอ เว้นว่างไว้เพื่อส่งเป็นอาร์กิวเมนต์เดียว"
+  nameAndPathRequired: "ต้องกรอกทั้งชื่อและไฟล์เรียกใช้งาน"
+  testLaunch: "ทดสอบเปิด"
+  testLaunched: "เปิดโปรแกรมเล่นแล้ว"
+  testFailed: "เปิดไม่สำเร็จ ตรวจสอบเส้นทางไฟล์เรียกใช้งาน"
+  executableMissing: "ไม่พบไฟล์เรียกใช้งาน"
+  openWithNamed: 'เปิดใน ${name}'
+  managePlayersEntry: "จัดการโปรแกรมเล่นภายนอก…"
+watchLater:
+  title: ดูภายหลัง
+  addToWatchLater: ดูภายหลัง
+  removeFromWatchLater: เอาออกจากดูภายหลัง
+  addedToWatchLater: เพิ่มในดูภายหลังแล้ว
+  alreadyInWatchLater: อยู่ในดูภายหลังแล้ว
+  removedFromWatchLater: เอาออกจากดูภายหลังแล้ว
+  removedCount: ลบออกแล้ว ${count} รายการ
+  viewWatchLaterList: ดูรายการ
+  addFailed: เพิ่มในดูภายหลังไม่สำเร็จ
+  invalidItem: ไม่พร้อมใช้งาน
+  clearWatched: ล้างรายการที่ดูแล้ว
+  watchedCleared: ล้างรายการที่ดูแล้ว ${count} รายการ
+  noWatchedToClear: ไม่มีรายการที่ดูแล้วให้ล้าง
+  emptyVideo: ยังไม่มีวิดีโอในดูภายหลัง
+  emptyGallery: ยังไม่มีแกลเลอรีในดูภายหลัง
+  filterAll: ทั้งหมด
+  filterUnwatched: ยังไม่ดู
+  sortRecentlyAdded: เพิ่มล่าสุด
+  sortEarliestAdded: เพิ่มก่อนสุด
+  watched: ดูแล้ว
+  playlistLoadFailed: โหลดเพลย์ลิสต์ไม่สำเร็จ
+  noPlaylists: ยังไม่มีเพลย์ลิสต์
+  undo: เลิกทำ
+  clearWatchedConfirm: ล้างทุกอย่างที่คุณดูแล้วในแท็บนี้หรือไม่ การกระทำนี้ย้อนกลับไม่ได้
+  emptyUnwatchedVideo: ไม่มีอะไรเหลือให้รับชมที่นี่
+  emptyUnwatchedGallery: ไม่มีอะไรเหลือให้ดูที่นี่
+  queueLoadFailed: โหลดไม่สำเร็จ แตะเพื่อลองใหม่
+mediaMenu:
+  like: ถูกใจ
+  unlike: เลิกถูกใจ
+  viewAuthor: ดูผู้สร้าง
+  inFolders: ${count} โฟลเดอร์
+  inPlaylists: ${count} เพลย์ลิสต์
+  downloaded: ดาวน์โหลดแล้ว
+mediaPreview:
+  preview: ตัวอย่าง
+  openDetail: เปิด
+  moreActions: การกระทำเพิ่มเติม
+  previousImage: รูปก่อนหน้า
+  nextImage: รูปถัดไป
+playbackQueue:
+  galleryImageCount: '${count} รูป'
+  upNext: ถัดไป
+  sourceTab: แหล่งที่มา
+  emptyQueue: ไม่มีรายการที่เล่นได้ในคิวนี้
+  emptyGalleryQueue: ไม่มีแกลเลอรีในคิวนี้
+  nowPlaying: กำลังเล่น
+  myPlaylists: เพลย์ลิสต์ของฉัน
+  authorPlaylists: เพลย์ลิสต์ของผู้สร้าง
+  openQueue: ถัดไป
+  continueInQueue: เล่นต่อจากคิวปัจจุบัน
+  continueInQueueSubtitle: เล่นรายการถัดไปโดยอัตโนมัติ ปิดการทำงานของ “เล่นซ้ำเมื่อจบ”
+  repeatDisabledByQueue: ปิดใช้งานขณะที่ “เล่นต่อจากคิวปัจจุบัน” เปิดอยู่
+  playNext: เล่นถัดไป
+  queueEnded: นี่คือรายการสุดท้ายในคิว
+  playNextHint: แตะเพื่อเล่นรายการถัดไป กดค้างเพื่อเปิด ถัดไป
+  authorVideos: วิดีโอของผู้สร้าง
+  authorGalleries: แกลเลอรีของผู้สร้าง
+  favoriteFolders: โฟลเดอร์โปรด
+  localFiles: บนอุปกรณ์นี้
+  currentFolder: โฟลเดอร์ของไฟล์นี้
+  playThisFolder: ดูคิววิดีโอของโฟลเดอร์นี้
+  browseThisFolder: ดูคิวแกลเลอรีของโฟลเดอร์นี้
+  downloads: ดาวน์โหลด
+  otherPlaylists: เพลย์ลิสต์ของผู้ใช้อื่น
+  nothingHere: ไม่มีอะไรที่นี่
+
+vrFormat:
+  playInSpace: เล่นในโปรแกรมเล่นเชิงพื้นที่
+  handingOff: กำลังส่งต่อไปยังพื้นที่…
+  title: โหมดการเล่น
+  spatialSectionTitle: การเล่นแบบเชิงพื้นที่
+  spatialSectionDesc: บนชุดหูฟัง วิดีโอไม่ได้ถูกวาดในแผงนี้ — โปรแกรมเล่นเชิงพื้นที่จะวางไว้บนจอในห้อง
+  spatialPanelEntry: แผงควบคุมเชิงพื้นที่
+  spatialPanelEntryDesc: ระยะห่างของจอ ขนาดและความโค้ง สภาพแวดล้อมพื้นหลัง ตลอดจนความเร็ว การเล่นซ้ำ และการซ่อนอัตโนมัติ อยู่ในแผงควบคุมเชิงพื้นที่ทั้งหมด
+  spatialGuideEntry: คู่มือการควบคุมด้วยชุดหูฟัง
+  spatialGuideEntryDesc: ปุ่มบนคอนโทรลเลอร์ การคว้าจอ การเลื่อนด้วยก้านควบคุม และการเปลี่ยนหน้า
+  spatialFlatOmitted: ท่าทางการสัมผัส การเพิ่มคุณภาพภาพ และพารามิเตอร์เสียง/วิดีโอ ใช้ได้เฉพาะกับโปรแกรมเล่น 2D เท่านั้น โปรแกรมเล่นเชิงพื้นที่ทำงานบนเอนจินอื่น จึงไม่แสดงไว้ที่นี่
+  spatialGallerySectionTitle: แกลเลอรีเชิงพื้นที่
+  spatialGalleryPanelDesc: ช่วงเวลาสไลด์โชว์ การเล่นซ้ำคลิปเดียว และความโค้งของจอ ปรับได้ทั้งหมดในแผงควบคุมเชิงพื้นที่
+  autoEnterGallery: เปิดภาพในแกลเลอรีเชิงพื้นที่
+  autoEnterGalleryDesc: บน Quest การแตะที่ภาพจะเปิดทั้งแกลเลอรีบนจอลอยพร้อมฟิล์มสตริป สไลด์โชว์ และการเปลี่ยนหน้าด้วยคอนโทรลเลอร์ แทนที่จะเป็นตัวดูภาพในแผงนี้
+  panelSettings: แผงและพื้นหลัง
+  panelSettingsDesc: แผงของแอปนี้อยู่ห่างแค่ไหน และเห็นห้องของคุณด้านหลังมากน้อยเพียงใด
+  panelDistance: ระยะห่างของแผง
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: รีเซ็ตตำแหน่ง
+  panelResetBackground: คืนค่าเริ่มต้น
+  panelBackground: ความโปร่งใสของพื้นหลัง
+  panelBackgroundHint: '0%: รอบข้างเป็นสีดำ · 100%: ห้องจริงของคุณพร้อมแสงแวดล้อม'
+  panelUnavailable: ตอนนี้แผงไม่ได้อยู่ในตำแหน่ง — โปรดลองอีกครั้งในอีกสักครู่
+  desc: เลือกรูปแบบเรขาคณิตที่จะใช้เล่นวิดีโอนี้ ไซต์ไม่ได้ให้ข้อมูลนี้ การตรวจจับอัตโนมัติจึงเลือกเพียงจุดเริ่มต้นเท่านั้น — การเลือกของคุณเป็นตัวตัดสิน
+  sectionFlat: แบน
+  sectionStereo: แบน 3D
+  sectionPanorama: พาโนรามา VR
+  flat: วิดีโอปกติ
+  flatDesc: เล่นตามเดิม ไม่มีการปรับรูปแบบภาพ
+  flatSideBySide: 3D แบบข้างเคียง
+  flatSideBySideDesc: หนึ่งตาต่อครึ่งซ้ายและขวา แสดงตาซ้ายและคืนสัดส่วนภาพเดิม
+  flatTopBottom: 3D แบบบนล่าง
+  flatTopBottomDesc: หนึ่งตาต่อครึ่งบนและล่าง แสดงครึ่งบนและคืนสัดส่วนภาพเดิม
+  vr180SideBySide: VR180 แบบข้างเคียง
+  vr180SideBySideDesc: พาโนรามาซีกโลกพร้อมสองตา — แหล่ง VR ที่พบมากที่สุด
+  vr180Mono: VR180 ภาพเดียว
+  vr180MonoDesc: พาโนรามาซีกโลก หนึ่งตาต่อเฟรม
+  vr360Mono: VR360 ภาพเดียว
+  vr360MonoDesc: พาโนรามาแบบรอบทิศ หนึ่งตาต่อเฟรม
+  vr360TopBottom: VR360 แบบบนล่าง
+  vr360TopBottomDesc: พาโนรามาแบบรอบทิศพร้อมสองตาซ้อนกัน
+  resetView: รีเซ็ตมุมมอง
+  resetViewDesc: คืนทิศทางการมองและมุมมองกลับไปด้านหน้า
+  resetToAuto: กลับสู่การตรวจจับอัตโนมัติ
+  resetToAutoDesc: ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่
+  manualBadge: ตั้งค่าเอง
+  panoramaHint: ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง
+  panoramaGestureNotice: ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง
+  shaderUnsupported: อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว
+  handoffTooltip: เล่นด้วยวิธีอื่น
+  suggestedBadge: แนะนำ
+  suggestedEntryDesc: 'ดูเหมือนเป็น ${format} — แตะเพื่อสลับ'
+  suggestionTitle: 'วิดีโอนี้อาจเป็นวิดีโอ VR (${format})'
+  suggestionTitleShort: วิดีโอนี้อาจเป็นวิดีโอ VR
+  suggestionAction: เล่นเป็น VR
+  suggestionDismiss: ปิด
+localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: การเข้าถึงด่วน
+    sourcesSection: โฟลเดอร์
+    pin: เพิ่มในการเข้าถึงด่วน
+    unpin: ลบออกจากการเข้าถึงด่วน
+    pinned: เพิ่มในการเข้าถึงด่วนแล้ว
+    unpinned: ลบออกจากการเข้าถึงด่วนแล้ว
+    folderCount: "${count} โฟลเดอร์"
+    videoCount: "${count} วิดีโอ"
+    imageCount: "${count} รูป"
+    emptyFolder: โฟลเดอร์นี้ว่างเปล่า
+    videosSection: วิดีโอ
+    imagesSection: รูปภาพ
+    galleriesSection: แกลเลอรี
+    location: ตำแหน่ง
+    sourceMissing: แหล่งนี้หายไปแล้ว
+    notScannedYet: โฟลเดอร์นี้ยังไม่ได้สแกน
+    scanning: กำลังอ่านโฟลเดอร์นี้…
+    deleteFileTitle: ลบไฟล์นี้หรือไม่
+    deleteFileBody: '“${name}” จะถูกลบออกจากอุปกรณ์นี้อย่างถาวร การกระทำนี้ย้อนกลับไม่ได้'
+    deleteGalleryTitle: ลบแกลเลอรีนี้หรือไม่
+    deleteGalleryBody: 'ประวัติการดาวน์โหลดและไฟล์ภาพในเครื่องของ “${name}” จะถูกลบ การกระทำนี้ย้อนกลับไม่ได้'
+    galleryResourceMissing: ไฟล์ในเครื่องไม่มีอยู่แล้ว ล้างข้อมูลเรียบร้อย
+    viewDownloadDetail: ดูรายละเอียดการดาวน์โหลด
+    viewOnlineGallery: ดูบนเว็บไซต์
+    pickFolderTitle: เลือกโฟลเดอร์
+    useThisFolder: ใช้โฟลเดอร์นี้
+    noSubfolders: ไม่มีโฟลเดอร์ย่อยที่นี่
+    storageRoot: ที่เก็บข้อมูลของอุปกรณ์
+    homeFolder: หน้าหลัก
+    filesystemRoot: รากของระบบไฟล์
+    folderUnreadable: ไม่สามารถอ่านโฟลเดอร์นี้ได้
+    setCover: ตั้งเป็นปก
+    setAsFolderCover: ใช้เป็นปกโฟลเดอร์
+    folderCoverSet: อัปเดตปกโฟลเดอร์แล้ว
+    setFolderCoverPick: ตั้งเป็นปก…
+    restoreAutoCover: คืนค่าปกอัตโนมัติ
+    autoCoverRestored: คืนค่าปกอัตโนมัติแล้ว
+    rescanFolder: สแกนโฟลเดอร์นี้ใหม่
+    coverPickerTitle: เลือกเฟรมภาพ
+    folderCoverPickerTitle: เลือกปก
+    coverPickerEmpty: ยังไม่มีรูปภาพในโฟลเดอร์นี้ ภาพตัวอย่างวิดีโออาจยังสร้างอยู่เบื้องหลัง
+    coverSaved: อัปเดตปกแล้ว
+    coverSaveFailed: ไม่สามารถบันทึกปกได้
+    coverUnavailable: ไม่สามารถอ่านเฟรมจากไฟล์นี้ได้
+    deleted: ลบแล้ว
+    deleteFailed: ลบไม่ได้ — ไฟล์อาจถูกใช้งานอยู่หรือเขียนไม่ได้
+    openFolder: เปิด
+    favorite: เพิ่มในรายการโปรด
+    unfavorite: ลบออกจากรายการโปรด
+    favorited: เพิ่มในรายการโปรดแล้ว
+    unfavorited: ลบออกจากรายการโปรดแล้ว
+    sortBy: เรียงตาม
+    sortAscending: น้อยไปมาก
+    sortDescending: มากไปน้อย
+    sortFieldName: ชื่อ
+    sortFieldModified: วันที่แก้ไข
+    sortFieldDuration: ระยะเวลา
+    sortFieldSize: ขนาด
+    sortFieldResolution: ความละเอียด
+    sortFieldFileType: ชนิดไฟล์
+    sortFieldFps: อัตราเฟรม
+    sortFieldFavorited: วันที่เพิ่มในรายการโปรด
+    emptyAllVideos: ยังไม่พบวิดีโอ เพิ่มโฟลเดอร์ใต้ โฟลเดอร์ เพื่อเริ่มต้น
+    emptyAllImages: ยังไม่พบรูปภาพ เพิ่มโฟลเดอร์ใต้ โฟลเดอร์ เพื่อเริ่มต้น
+    emptyFavorites: ยังไม่มีรายการโปรด เพิ่มได้จากเมนู ⋮ ของวิดีโอ
+    emptyPinned: ยังไม่มีโฟลเดอร์ปักหมุด กดค้างที่โฟลเดอร์ใต้ โฟลเดอร์ แล้วเลือก ปักหมุด
+    emptyDownloadedVideos: ยังไม่มีการดาวน์โหลดวิดีโอที่เสร็จสมบูรณ์
+    emptyDownloadedGalleries: ยังไม่มีการดาวน์โหลดแกลเลอรีที่เสร็จสมบูรณ์
+    folderInfo: ข้อมูลโฟลเดอร์
+    folderInfoName: ชื่อ
+    folderInfoPath: เส้นทาง
+    folderInfoSource: แหล่งที่มา
+    folderInfoContents: เนื้อหา
+    folderInfoSize: ขนาดบนดิสก์
+    folderInfoScannedAt: สแกนล่าสุด
+    folderInfoNeverScanned: ยังไม่ได้สแกน
+    folderInfoNoPath: แหล่งนี้ไม่มีโฟลเดอร์ให้เปิด
+    copyPath: คัดลอกเส้นทาง
+    pathCopied: คัดลอกเส้นทางแล้ว
+  tabFolders: โฟลเดอร์
+  tabFavoriteVideos: รายการโปรด
+  tabAllVideos: วิดีโอทั้งหมด
+  tabAllImages: รูปภาพทั้งหมด
+  tabDownloadedVideos: วิดีโอที่ดาวน์โหลด
+  tabDownloadedGalleries: แกลเลอรีที่ดาวน์โหลด
+  title: บนอุปกรณ์นี้
+  sourceOnline: Iwara ออนไลน์
+  manageSources: จัดการแหล่งที่มา
+  moveToCategory: ย้ายไปยังหมวดหมู่
+  manageCategories: จัดการหมวดหมู่
+  suggestedFolders: โฟลเดอร์ที่มีวิดีโอ
+  sortRecentlyAdded: เพิ่มล่าสุด
+  sortRecentlyPlayed: เล่นล่าสุด
+  sortName: ชื่อ
+  sortDuration: ระยะเวลา
+  sortSize: ขนาด
+  sortFolder: โฟลเดอร์
+  sortRecentlyModified: แก้ไขล่าสุด
+  sortCount: จำนวน
+  folderCardItemCount: "${count} รูป"
+  downloadsSource: ดาวน์โหลด
+  builtInSourceHint: รายการดาวน์โหลดถูกจัดการโดยอัตโนมัติ
+  filterByCategory: กรองตามหมวดหมู่
+  longPressToCategorize: กดค้างเพื่อย้ายไปยังหมวดหมู่
+  uncategorized: ไม่มีหมวดหมู่
+  setCategoryFailed: ไม่สามารถตั้งค่าหมวดหมู่ได้
+  categoryUpdated: อัปเดตหมวดหมู่แล้ว
+  addFolder: เพิ่มโฟลเดอร์
+  addDeviceVideos: สแกนวิดีโอในอุปกรณ์
+  mediaStoreSourceName: วิดีโอในอุปกรณ์
+  mediaStoreUnavailable: ดัชนีสื่อของอุปกรณ์ใช้ได้เฉพาะบน Android
+  mediaStorePermissionDenied: ไม่ได้รับอนุญาตให้เข้าถึงวิดีโอ
+  rescan: สแกนใหม่
+  scanning: "กำลังสแกน… พบ ${count} รายการ"
+  scanFailed: "สแกนไม่สำเร็จ: ${reason}"
+  scanTruncated: "โฟลเดอร์นั้นใหญ่โตมาก — เพิ่มเฉพาะ ${count} ไฟล์แรกเท่านั้น"
+  sourceOverlaps: "ถูกครอบคลุมโดยโฟลเดอร์ “${name}” อยู่แล้ว"
+  addedAsPinnedFolder: "“${name}” อยู่ภายใน “${source}” จึงถูกเพิ่มไปยังโฟลเดอร์ปักหมุด"
+  alreadyPinnedFolder: "“${name}” อยู่ในโฟลเดอร์ปักหมุดแล้ว"
+  sourceAlreadyAdded: "“${name}” ถูกเพิ่มไปแล้ว"
+  sourceContainsExisting: "มีโฟลเดอร์ที่เพิ่มไว้แล้ว “${name}” อยู่ภายใน การเพิ่มโฟลเดอร์แม่ยังไม่รองรับในขณะนี้"
+  addSourceFailed: ไม่สามารถเพิ่มโฟลเดอร์นั้นได้
+  fileMissing: ไฟล์นั้นไม่มีอยู่ในดิสก์แล้ว
+  permissionDenied: ไม่ได้รับอนุญาตให้เข้าถึงไฟล์ · แตะเพื่ออนุญาต
+  noVideosFound: ไม่มีวิดีโอในโฟลเดอร์นี้
+  emptyTitle: เพิ่มโฟลเดอร์เพื่อรับชมวิดีโอที่มีอยู่แล้วในอุปกรณ์นี้
+  emptyPrivacyNote: ไฟล์ถูกอ่านบนอุปกรณ์นี้เท่านั้น ไม่มีการอัปโหลดใดๆ
+  removeSourceTitle: "ลบ “${name}” หรือไม่"
+  removeSourceBody: ไฟล์ยังคงอยู่ในดิสก์ ลบเฉพาะรายการในคลังนี้เท่านั้น
+  remove: ลบ
+  removeFolder: ลบโฟลเดอร์
+  removeFolderSelectTitle: เลือกโฟลเดอร์ที่จะลบ
+  longPressToRemove: กดค้างเพื่อลบโฟลเดอร์นี้
+  clearProgress: ล้างประวัติการรับชมในเครื่อง
+  clearProgressCount: "${count} รายการ"
+  clearProgressEmpty: ยังไม่มีประวัติการรับชมในเครื่อง
+  clearProgressTitle: ล้างประวัติการรับชมในเครื่องหรือไม่
+  clearProgressBody: จะลบเฉพาะตำแหน่งการเล่นและเครื่องหมายรับชมแล้วเท่านั้น ไฟล์และโฟลเดอร์ของคุณจะคงอยู่เหมือนเดิม
+  clearProgressDone: "ล้างประวัติการรับชมในเครื่องแล้ว ${count} รายการ"
+  clearAction: ล้าง
+  iosManualRescanNotice: iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../../i18n/strings.g.dart' as slang;
 import '../../../../../services/player_keybinding/keybinding_service.dart';
 import '../../../../../services/player_keybinding/shortcut_action.dart';
 
@@ -464,7 +465,10 @@ class _Painter {
             children: [
               const Icon(Icons.arrow_back_ios_new, size: 11, color: _dim),
               const SizedBox(width: 6),
-              Text('示例视频', style: TextStyle(color: _dim, fontSize: 9.5)),
+              Text(
+                slang.t.videoDetail.gestureGuide.sampleVideo,
+                style: TextStyle(color: _dim, fontSize: 9.5),
+              ),
               const Spacer(),
               const Icon(Icons.more_vert, size: 12, color: _dim),
             ],

@@ -66,7 +66,7 @@ class CommentEntryAreaButtonWidget extends StatelessWidget {
                         Expanded(
                           child: Text(
                             t.common.totalComments(
-                              count: commentController.totalComments.value,
+                              n: commentController.totalComments.value,
                             ),
                             style: const TextStyle(
                               fontSize: 16,

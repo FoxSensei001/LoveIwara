@@ -101,7 +101,9 @@ common:
   success: 成功
   commentDeletedSuccessfully: 評論已刪除
   commentUpdatedSuccessfully: 評論已更新
-  totalComments: '評論 ${count} 則'
+  totalComments:
+    one: '評論 ${n} 則'
+    other: '評論 ${n} 則'
   writeYourCommentHere: 請寫下你的評論...
   tmpNoReplies: 暫無回覆
   loadMore: 載入更多
@@ -112,9 +114,15 @@ common:
   translateFailedPleaseTryAgainLater: 翻譯失敗，請稍後再試
   translationResult: 翻譯結果
   justNow: 剛剛
-  minutesAgo: '${num} 分鐘前'
-  hoursAgo: '${num} 小時前'
-  daysAgo: '${num} 天前'
+  minutesAgo:
+    one: '${n} 分鐘前'
+    other: '${n} 分鐘前'
+  hoursAgo:
+    one: '${n} 小時前'
+    other: '${n} 小時前'
+  daysAgo:
+    one: '${n} 天前'
+    other: '${n} 天前'
   editedAt: '${num} 編輯'
   editComment: 編輯評論
   commentUpdated: 評論已更新
@@ -153,7 +161,9 @@ common:
   searchHistoryRecords: 搜尋歷史紀錄...
   settings: 設定
   subscriptions: 訂閱
-  videoCount: '${num} 支影片'
+  videoCount:
+    one: '${n} 支影片'
+    other: '${n} 支影片'
   share: 分享
   areYouSureYouWantToShareThisPlaylist: 要分享這個播放清單嗎？
   editTitle: 編輯標題
@@ -757,6 +767,9 @@ settings:
   screenFitRatioDesc: 強制按該比例拉伸顯示，畫面可能變形
   jumpLink: 跳轉連結
   language: 語言
+  languageNativeName: 繁體中文
+  followSystemLanguage: 跟隨系統
+  languageChangedMessage: 語言切換成功，部分功能需重啟應用生效
   languageChanged: 語言設定已更改，請重新啟動應用以生效。
   keybinding:
     title: 鍵盤快捷鍵
@@ -920,8 +933,8 @@ settings:
     regexEx3Desc: 比對以「合集」結尾的標題
     regexEx4Pattern: 第.話
     regexEx4Desc: 「.」代表任一個字，可比對「第1話」「第X話」
-    regexEx5Pattern: '\d{4}'
-    regexEx5Desc: 「\d」是數字，{4} 表示連續 4 位，可比對年份等
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '「\\d」是數字，{4} 表示連續 4 位，可比對年份等'
     regexEx1Sample: "新作預告搶先看"
     regexEx2Sample: "【合集】夏日特輯"
     regexEx3Sample: "夏日泳裝合集"
@@ -1131,7 +1144,9 @@ favoriteTags:
   quickPickHint: 收藏的項目會出現在搜尋的快速選擇中。
   pickerTitle: 選擇 Oreno3D
   searchHint: 按名稱或原文搜尋
-  worksCount: '${count} 作品'
+  worksCount:
+    one: '${n} 作品'
+    other: '${n} 作品'
   browseEntry: 瀏覽 原作 / 角色 / 標籤
   favoritesSection: 收藏
   addFavorite: 新增
@@ -1144,14 +1159,7 @@ oreno3d:
   tags: 標籤
   characters: 角色
   origin: 原作
-  thirdPartyTagsExplanation: >-
-    此處顯示的**標籤**、**角色**和**原作**資訊來自第三方站點 **Oreno3D**，僅供參考。
-
-
-    由於此資訊來源只有日文，目前缺乏國際化適配。
-
-
-    如果你有興趣參與國際化建設，歡迎訪問相關倉庫貢獻你的力量！
+  thirdPartyTagsExplanation: "此處顯示的**標籤**、**角色**和**原作**資訊來自第三方站點 **Oreno3D**，僅供參考。\n\n由於此資訊來源只有日文，目前缺乏國際化適配。\n\n如果你有興趣參與國際化建設，歡迎訪問相關倉庫貢獻你的力量！"
   sortTypes:
     hot: 熱門
     favorites: 高評價
@@ -1303,6 +1311,7 @@ videoDetail:
   volumeMuted: 音量已靜音
   restoreDefaultZoom: 還原
   gestureGuide:
+    sampleVideo: 範例影片
     title: 手勢與互動指引
     viewGuide: 檢視手勢與互動指引
     firstTimeIntro: 花幾秒了解播放器手勢，之後可隨時在播放器設定裡再次檢視。

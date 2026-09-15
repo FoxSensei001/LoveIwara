@@ -153,12 +153,8 @@ class _StartupShellMaterialApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en', ''),
-        Locale('ja', ''),
-        Locale('zh', 'CN'),
-        Locale('zh', 'TW'),
-      ],
+      // 与 [MyApp] 一样跟着 slang 的 AppLocale 走，避免两处各维护一份清单。
+      supportedLocales: AppLocaleUtils.supportedLocales,
       locale: LocaleSettings.currentLocale.flutterLocale,
       home: _StartupSplashPage(
         progress: progress,

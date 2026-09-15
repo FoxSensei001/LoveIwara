@@ -574,7 +574,10 @@ class _PersonalProfilePageState extends State<PersonalProfilePage> {
         );
       }
     } catch (e) {
-      showAppToast('操作失败: $e', type: AppToastType.error);
+      showAppToast(
+        '${slang.t.errors.failedToOperate}: $e',
+        type: AppToastType.error,
+      );
     } finally {
       if (mounted) {
         setState(() {

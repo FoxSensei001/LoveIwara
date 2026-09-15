@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest 空间面板的全部界面文案（默认语言 = 英文，与 lib/i18n 的 base_locale 一致）。
+
+  ⛔ 这些词**不跟系统语言走**，跟应用内的「语言」设置走：Dart 侧把
+  `LocaleSettings.currentLocale.languageTag` 通过 XrBridge 的 `setLocale` / `present`
+  推给原生，面板与提示都用 `Context.withPanelLocale(tag)` 造出来的 Context 取词
+  （见 PanelLocale.kt）。所以这里的 values-xx 目录必须与 lib/i18n 的语种保持一致：
+  en（本文件）/ zh-rCN / zh-rTW / ja。
+
+  ⛔ 新增文案一律进这里，别在 Kotlin 里写字面量 —— 面板是产品界面，不是日志。
+-->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">뒤로</string>
+    <string name="xr_refresh">새로 고침</string>
+    <string name="xr_reset">재설정</string>
+    <string name="xr_loading">불러오는 중…</string>
+    <string name="xr_buffering">버퍼링 중…</string>
+    <string name="xr_open_with">다른 앱으로 열기</string>
+    <string name="xr_not_supported_here">여기서는 지원되지 않습니다</string>
+
+    <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
+
+    <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
+    <string name="xr_curve_flat">평면 화면</string>
+    <string name="xr_curve_slight">약한 곡면</string>
+    <string name="xr_curve_medium">중간 곡면</string>
+    <string name="xr_curve_deep">깊은 곡면</string>
+    <string name="xr_curve_flat_hint">평면 화면 한 장</string>
+    <string name="xr_curve_slight_hint">40° 곡률</string>
+    <string name="xr_curve_medium_hint">60° 곡률</string>
+    <string name="xr_curve_deep_hint">85° 곡률</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab（枚举 FormatTab） -->
+    <string name="xr_tab_flat">평면 동영상</string>
+    <string name="xr_tab_panorama">파노라마</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">어안</string>
+
+    <!-- ─────────────────────────────── 具体格式（枚举 VideoFormat） -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D 좌우</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D 상하</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D 좌우</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D 상하</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <!-- 走带行那枚钮上的短标签：「大类 · 具体格式」。 -->
+    <string name="xr_format_short_flat">평면 · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">어안 · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸（枚举 AspectPreset） -->
+    <string name="xr_aspect_default">기본</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后（枚举 RepeatMode） -->
+    <string name="xr_repeat_one">한 개 반복</string>
+    <string name="xr_repeat_next">다음 재생</string>
+    <string name="xr_repeat_stop">끝나면 정지</string>
+    <string name="xr_repeat_one_hint">이 동영상만 계속 반복합니다</string>
+    <string name="xr_repeat_next_hint">목록의 다음 항목으로 이어갑니다</string>
+    <string name="xr_repeat_stop_hint">마지막 프레임에서 멈춥니다</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">컨트롤 숨기기</string>
+    <string name="xr_player_title_fallback">재생 중</string>
+    <string name="xr_switching_chip">다음 항목 불러오는 중…</string>
+    <string name="xr_nav_scene">환경</string>
+    <string name="xr_nav_playlist">재생목록</string>
+    <string name="xr_nav_settings">설정</string>
+    <string name="xr_nav_back_to_app">앱으로 돌아가기</string>
+    <string name="xr_volume">시스템 볼륨</string>
+    <string name="xr_muted_badge">음소거됨</string>
+    <string name="xr_mute">음소거</string>
+    <string name="xr_unmute">음소거 해제</string>
+    <string name="xr_previous">이전</string>
+    <string name="xr_next">다음</string>
+    <string name="xr_seek_back_5">5초 뒤로</string>
+    <string name="xr_seek_forward_5">5초 앞으로</string>
+    <string name="xr_play">재생</string>
+    <string name="xr_pause">일시정지</string>
+    <string name="xr_quality">화질</string>
+    <!-- 本机已下载的那一档清晰度。 -->
+    <string name="xr_source_local">%1$s · 다운로드됨</string>
+    <string name="xr_restart_from_beginning">처음부터</string>
+    <string name="xr_dismiss_tip">닫기</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_queue_picker">대기열 전환</string>
+    <string name="xr_card_loading">불러오는 중…</string>
+    <string name="xr_untitled">(제목 없음)</string>
+    <string name="xr_playlist_empty_title">이어서 볼 항목이 없습니다</string>
+    <string name="xr_playlist_empty_hint">앱에서 보고 싶은 항목을 재생목록에 담아 두면 여기서 바로 재생됩니다</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">환경</string>
+    <string name="xr_scene_subtitle_flat">환경 및 화면 배치</string>
+    <string name="xr_scene_subtitle_sphere">구면 소스 — 영상이 이미 주변을 감쌉니다</string>
+    <string name="xr_recenter">중앙 정렬</string>
+    <string name="xr_scene_section_environment">환경</string>
+    <string name="xr_scene_section_adjust">배치</string>
+    <string name="xr_screen_distance">거리</string>
+    <string name="xr_screen_width">화면 너비</string>
+    <string name="xr_screen_offset">세로 오프셋</string>
+    <string name="xr_scene_sphere_note">“거리”로 영상을 가까이 또는 멀리 옮길 수 있습니다. “중앙 정렬”은 시점 방향을 되돌립니다.</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">화면 형태</string>
+    <string name="xr_screen_type_subtitle">모든 픽셀이 눈에서 같은 거리에 있어 고개를 덜 돌려도 됩니다</string>
+    <string name="xr_curve_rebuild_note">화면 형태를 바꾸면 화면이 다시 만들어집니다. 짧은 끊김이 한 번 있을 수 있으며, 이후 원래 위치에서 재생이 재개됩니다.</string>
+    <string name="xr_section_3d_display">3D 재생</string>
+    <string name="xr_force_mono">3D 동영상을 2D로 강제 재생</string>
+    <string name="xr_force_mono_hint_stereo">절반 프레임만 사용합니다 — 어지럽거나 잔상이 보일 때 사용하세요</string>
+    <string name="xr_force_mono_hint_mono">이 소스는 모노라서 효과가 없습니다</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">동영상 유형</string>
+    <string name="xr_video_type_subtitle">잘못 인식했나요? 여기서 변경하면 즉시 적용됩니다</string>
+    <string name="xr_auto_detect">자동 감지</string>
+    <string name="xr_format_unsupported_inline">%1$s은(는) 여기서 재생할 수 없습니다. 다른 앱으로 열어 보세요</string>
+    <string name="xr_treat_180_as_fisheye">자동 감지 시 180° 파노라마를 180° 어안으로 처리</string>
+    <string name="xr_treat_180_as_fisheye_hint">어안은 여기서 재생할 수 없습니다. 이 기능을 켜면 180° 소스에 “다른 앱으로 열기”가 표시됩니다</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">설정</string>
+    <string name="xr_settings_subtitle">공간 플레이어에 필요한 것만 모았습니다. 나머지는 앱에서 설정합니다</string>
+    <string name="xr_section_screen_size">화면 크기</string>
+    <string name="xr_width_ratio">너비 배율</string>
+    <string name="xr_height_ratio">높이 배율</string>
+    <string name="xr_reset_screen_size">화면 크기 재설정</string>
+    <string name="xr_section_speed">재생 속도</string>
+    <string name="xr_carry_over">다음 동영상으로 이어가기</string>
+    <string name="xr_carry_over_hint">켜짐: 전환 시 화면 크기와 속도를 유지합니다. 꺼짐: 모든 동영상이 기본값에서 시작합니다</string>
+    <string name="xr_section_after_playback">재생이 끝나면</string>
+    <string name="xr_section_panel">컨트롤 패널</string>
+    <string name="xr_auto_hide">유휴 시 숨기기</string>
+    <string name="xr_auto_hide_hint">숨기면 패널이 실제로 제거됩니다. 한 번 핀치하면 다시 나타납니다</string>
+    <string name="xr_auto_hide_seconds_label">유휴로 간주하는 시간</string>
+    <string name="xr_summon_in_front">정면에 불러오기</string>
+    <string name="xr_summon_in_front_hint">핀치할 때 바라보는 방향으로 패널을 이동합니다</string>
+    <string name="xr_click_sound">클릭음</string>
+    <string name="xr_click_sound_hint">Meta: 손에는 햅틱이 없어 소리는 선택 사항이 아닙니다</string>
+    <string name="xr_section_controller">컨트롤러 및 시스템</string>
+    <string name="xr_controller_tap">컨트롤러 A/X를 누르면 재생/일시정지</string>
+    <string name="xr_controller_tap_hint">패널을 조준할 필요가 없습니다 — 방 반대편에서도 작동합니다</string>
+    <string name="xr_pause_on_focus_loss">시스템 메뉴 / 헤드셋 벗을 때 일시정지</string>
+    <string name="xr_pause_on_focus_loss_hint">포커스가 사라지면 아무도 보지 않는데 배터리만 소모됩니다</string>
+    <string name="xr_section_bindings">컨트롤러 바인딩</string>
+    <string name="xr_controller_bindings">트리거 / 핀치: 선택 · 패널 불러오기\nB / Y: 패널 숨기기\n엄지스틱 좌/우: 길게 눌러 탐색 (오래 누를수록 빨라짐), 놓으면 이동\n엄지스틱 상/하: 영상 밀어내기 / 당겨오기 (파노라마: 구체)\n그립: 길게 눌러 영상 이동 (파노라마: 시점 드래그), 놓으면 패널 숨기기</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示（ImmersiveActivity） -->
+    <string name="xr_notice_unsupported_projection">이 투영 방식은 여기서 재생할 수 없어 평면으로 표시됩니다. “다른 앱으로 열기”를 사용해 보세요</string>
+    <string name="xr_notice_next_failed_reason">다음 항목을 재생할 수 없습니다 (%1$s). 현재 동영상에 머뭅니다</string>
+    <string name="xr_notice_next_unavailable">다음 항목을 열 수 없습니다. 현재 동영상에 머뭅니다</string>
+    <string name="xr_notice_next_unavailable_reason">다음 항목을 열 수 없습니다 (%1$s). 현재 동영상에 머뭅니다</string>
+    <string name="xr_notice_next_timeout">다음 항목을 불러오는 시간이 초과되었습니다. 현재 동영상에 머뭅니다</string>
+    <string name="xr_notice_url_expired_refreshing">재생 링크가 만료되었습니다. 새 링크를 가져오는 중…</string>
+    <string name="xr_notice_url_expired_no_refresh">재생 링크가 만료되었고 새 링크를 받지 못했습니다 — 앱에서 동영상을 다시 열거나 외부 플레이어를 사용하세요</string>
+    <string name="xr_notice_refresh_timeout">재생 링크가 만료되었고 새 링크를 가져오는 시간이 초과되었습니다 — 앱에서 동영상을 다시 열거나 외부 플레이어를 사용하세요</string>
+    <string name="xr_notice_playback_failed">이 소스를 재생할 수 없습니다 (%1$s). 외부 플레이어를 사용해 보세요</string>
+    <string name="xr_notice_no_external_player">이 기기에는 이 동영상을 열 수 있는 앱이 없습니다</string>
+    <string name="xr_notice_resumed_at">%1$s부터 이어서 재생</string>
+    <string name="xr_notice_volume_blocked">시스템이 지금 볼륨 변경을 차단하고 있습니다 (방해 금지 모드). 헤드셋의 볼륨 키로 변경하세요</string>
+
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">화면</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">갤러리</string>
+    <!-- 计数 chip：「3 / 12」。 -->
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <!-- 头部副标题里的像素尺寸。 -->
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">이 갤러리에는 파일이 없습니다</string>
+    <string name="xr_gallery_video_badge">동영상</string>
+    <string name="xr_gallery_slideshow">슬라이드쇼</string>
+    <string name="xr_gallery_slideshow_stop">슬라이드쇼 중지</string>
+    <!-- 幻灯片间隔 chip：「5s」。 -->
+    <string name="xr_gallery_interval">%1$d초</string>
+    <string name="xr_gallery_quality_standard">표준</string>
+    <string name="xr_gallery_quality_original">원본</string>
+    <string name="xr_gallery_loop">반복</string>
+    <string name="xr_gallery_load_failed">이 파일을 불러올 수 없습니다 (%1$s)</string>
+
+    <string name="xr_swipe_no_previous_image">첫 번째 이미지입니다</string>
+    <string name="xr_swipe_no_next_image">마지막 이미지입니다</string>
+    <string name="xr_view_distance">거리</string>
+    <string name="xr_view_distance_hint">길게 누르면 가까이 또는 멀리 이동합니다. 놓으면 멈춥니다.</string>
+    <string name="xr_view_nearer">가까이</string>
+    <string name="xr_view_farther">멀리</string>
+    <string name="xr_view_distance_reset">거리 재설정</string>
+
+    <!-- Browsing panel: the app panel's own distance and how much room shows through. -->
+    <string name="xr_panel_settings_title">패널 및 배경</string>
+    <string name="xr_panel_settings_subtitle">이 앱 패널의 위치와 뒤로 실제 방이 얼마나 보이는지 설정합니다</string>
+    <string name="xr_panel_distance">패널 거리</string>
+    <string name="xr_panel_background">배경</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">미디어 분위기</string>
+    <string name="xr_media_effects_hint">부드러운 가장자리와 영상을 따라가는 빛</string>
+    <string name="xr_media_effects_reset">효과 재설정</string>
+    <string name="xr_edge_feather">가장자리 부드러움</string>
+    <string name="xr_ambient_glow">빛 번짐 범위와 강도</string>
+    <string name="xr_background_transparency">배경 투명도</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%: 검은 주변 · 100%: 주변광이 비치는 실제 방</string>
+    <string name="xr_media_effects_360_hint">360° 동영상은 경계 없이 주변을 감쌉니다. 가장자리 부드러움과 빛 번짐은 평면 및 180° 미디어에 적용됩니다.</string>
+    <string name="xr_media_effects_fallback">미디어 효과를 사용할 수 없습니다. 표준 재생으로 복원되었습니다.</string>
+    <string name="xr_environment_passthrough">패스스루</string>
+    <string name="xr_environment_deep_space">지구와 달</string>
+    <string name="xr_environment_brightness">환경 밝기</string>
+    <string name="xr_environment_dynamic">3D 모션</string>
+    <string name="xr_environment_show_earth">지구 표시</string>
+    <string name="xr_environment_show_moon">달 표시</string>
+    <string name="xr_environment_dynamic_unavailable">3D 모션을 사용할 수 없습니다. 정적 별밭이 활성화됩니다.</string>
+    <string name="xr_environment_dynamic_hint">느린 회전과 입체 깊이를 더합니다. 전력 절약을 위해 기본적으로 꺼져 있습니다.</string>
+    <string name="xr_environment_deep_space_hint">지구와 달, 먼 별들이 주변을 감쌉니다. 밝기를 낮추면 더 어두운 시청 공간이 됩니다.</string>
+    <string name="xr_environment_loading">환경을 준비하는 중…</string>
+    <string name="xr_environment_failed">환경을 사용할 수 없습니다. 패스스루로 복원되었습니다. 배경을 선택해 다시 시도하세요.</string>
+    <string name="xr_environment_void">집중</string>
+    <string name="xr_environment_void_hint">주변을 어둡게 하여 영상에 집중하게 합니다.</string>
+    <string name="xr_environment_aurora">오로라</string>
+    <string name="xr_environment_aurora_hint">오로라 아래 고요한 설원. 편안하게 감상할 수 있는 정지된 지평선.</string>
+    <string name="xr_environment_sunset">노을 바다</string>
+    <string name="xr_environment_sunset_hint">탁 트인 바다 위 따뜻한 저녁 빛, 시청 영역 옆에 해가 있습니다.</string>
+    <string name="xr_environment_mist">안개 봉우리</string>
+    <string name="xr_environment_mist_hint">부드러운 안개 사이로 겹겹이 솟은 먼 산들, 수묵화 같은 풍경입니다.</string>
+</resources>

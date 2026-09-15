@@ -3,6 +3,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'emoji_special_text.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class EnhancedEmojiTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -229,12 +230,12 @@ class _SimpleTextInputDialogState extends State<SimpleTextInputDialog> {
       ),
       actions: [
         GlassDialogAction(
-          label: '取消',
+          label: slang.t.common.cancel,
           emphasized: false,
           onPressed: () => Navigator.of(context).pop(),
         ),
         GlassDialogAction(
-          label: '确定',
+          label: slang.t.common.confirm,
           onPressed: () {
             widget.onConfirm(_controller.text);
             Navigator.of(context).pop();

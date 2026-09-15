@@ -290,12 +290,9 @@ class _MyAppState extends State<MyApp> {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            supportedLocales: const [
-              Locale('en', ''), // English
-              Locale('ja', ''), // Japanese
-              Locale('zh', 'CN'), // Chinese (Simplified)
-              Locale('zh', 'TW'), // Chinese (Traditional)
-            ],
+            // 直接跟着 slang 的 AppLocale 走：新增一门语言只要往 lib/i18n/
+            // 丢一份 yaml，这里不用再补一行 Locale(...)。
+            supportedLocales: AppLocaleUtils.supportedLocales,
             locale: LocaleSettings.currentLocale.flutterLocale,
             scrollBehavior: DeviceFormFactorUtils.isXrDevice
                 ? const XrPanelScrollBehavior()

@@ -63,6 +63,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/glsl_shader_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/proxy/proxy_util.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:media_kit/media_kit.dart';
 
 final appStartupCoordinator = AppStartupCoordinator();
@@ -548,6 +549,8 @@ class AppStartupCoordinator implements AppStartupRunner {
     } else {
       await slang.LocaleSettings.useDeviceLocale();
     }
+    // zh/ko/th/id 的复数解析器 slang 没内置，不注册的话用到复数词条会直接抛异常。
+    CommonUtils.ensurePluralResolvers();
   }
 
   void _putIfAbsent<T>(T service, {bool permanent = false}) {

@@ -1,0 +1,3155 @@
+# en.i18n.yaml
+
+personalProfile:
+  personalProfile: Trang cá nhân
+  editPersonalProfile: Chỉnh sửa trang cá nhân
+  avatar: Ảnh đại diện
+  background: Ảnh nền
+  fetchUserProfileFailed: "Không lấy được trang cá nhân: ${error}"
+  suggestedResolution: "Độ phân giải đề xuất: ${resolution}, kích thước tệp < ${size}"
+  supportedFormats: "Định dạng được hỗ trợ: ${formats}"
+  premiumBenefit: "Người dùng Premium có thể dùng ${type} động (${formats})"
+  homepageBackground: Ảnh nền trang chủ
+  basicInfo: Thông tin cơ bản
+  nickname: Biệt danh
+  username: Tên người dùng
+  copyUsername: Sao chép tên người dùng
+  usernameCopied: Đã sao chép tên người dùng
+  personalIntroduction: Giới thiệu cá nhân
+  noPersonalIntroduction: Không có giới thiệu cá nhân
+  clickToEdit: Nhấn để chỉnh sửa
+  privacySettings: Cài đặt quyền riêng tư
+  hideSensitiveContent: Ẩn nội dung nhạy cảm
+  hideSensitiveContentDesc: Ẩn mọi video hoặc hình ảnh chứa thẻ nhạy cảm.
+  notificationSettings: Cài đặt thông báo
+  contentCommentNotification: Thông báo bình luận nội dung
+  contentCommentNotificationDesc: Thông báo khi có người bình luận về nội dung của bạn.
+  commentReplyNotification: Thông báo trả lời bình luận
+  commentReplyNotificationDesc: Thông báo khi có người trả lời bình luận của bạn.
+  mentionNotification: Thông báo nhắc đến
+  mentionNotificationDesc: Thông báo khi có người nhắc đến bạn trong nội dung.
+  accountInfo: Thông tin tài khoản
+  registrationTime: Thời gian đăng ký
+  updateSettingsFailed: "Cập nhật cài đặt thất bại: ${error}"
+  updateNotificationSettingsFailed: "Cập nhật cài đặt thông báo thất bại: ${error}"
+  editNickname: Chỉnh sửa biệt danh
+  nicknameCannotBeEmpty: Biệt danh không được để trống
+  changeSuccess: Thay đổi thành công
+  unsupportedFileFormat: Định dạng tệp không được hỗ trợ
+  fileTooLarge: "Kích thước tệp không được vượt quá ${size}"
+  uploadFailed: Tải lên thất bại
+  avatarUpdatedSuccessfully: Cập nhật ảnh đại diện thành công
+  updateAvatarFailed: "Cập nhật ảnh đại diện thất bại: ${error}"
+  backgroundUpdatedSuccessfully: Cập nhật ảnh nền thành công
+  updateBackgroundFailed: "Cập nhật ảnh nền thất bại: ${error}"
+  editPersonalIntroduction: Chỉnh sửa giới thiệu cá nhân
+  enterPersonalIntroduction: Vui lòng nhập giới thiệu cá nhân
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "Theo dõi đặc biệt"
+  specialFollowDescription: "Đánh dấu những tác giả bạn xem nhiều nhất là theo dõi đặc biệt, rồi vào thẳng video mới nhất của họ từ đây."
+  stepsTitle: "Ba bước"
+  stepFollowAuthor: "Nhấn Theo dõi trên trang video, thư viện hoặc trang cá nhân của tác giả."
+  stepPickSpecial: "Nhấn Đã theo dõi lần nữa, rồi chọn Theo dõi đặc biệt từ menu."
+  stepSwitchHere: "Quay lại đây và chuyển sang tác giả đó bằng trình chọn ảnh đại diện ở trên."
+  specialFollowManagementTip: "Quản lý danh sách theo dõi đặc biệt trong Thanh bên - Danh sách theo dõi - Theo dõi đặc biệt."
+  gotIt: "Đã hiểu"
+
+common:
+  sort: Sắp xếp
+  filter: Bộ lọc
+  appName: Love Iwara
+  ok: OK
+  cancel: Hủy
+  select: Chọn
+  save: Lưu
+  delete: Xóa
+  visit: Truy cập
+  loading: Đang tải...
+  scrollToTop: Lên đầu trang
+  privacyHint: Chế độ riêng tư đang bật, nội dung bị ẩn
+  latest: Mới nhất
+  likesCount: Lượt thích
+  viewsCount: Lượt xem
+  popular: Phổ biến
+  trending: Xu hướng
+  commentList: Danh sách bình luận
+  sendComment: Gửi bình luận
+  send: Gửi
+  retry: Thử lại
+  premium: Cao cấp
+  follower: Người theo dõi
+  friend: Bạn bè
+  video: Video
+  following: Đang theo dõi
+  expand: Mở rộng
+  collapse: Thu gọn
+  cancelFriendRequest: Hủy yêu cầu
+  cancelSpecialFollow: Hủy theo dõi đặc biệt
+  addFriend: Thêm bạn
+  removeFriend: Xóa bạn
+  followed: Đã theo dõi
+  follow: Theo dõi
+  unfollow: Bỏ theo dõi
+  specialFollow: Theo dõi đặc biệt
+  specialFollowed: Đã theo dõi đặc biệt
+  gallery: Thư viện
+  playlist: Danh sách phát
+  commentPostedSuccessfully: Đã đăng bình luận
+  commentPostedFailed: Đăng bình luận thất bại
+  success: Thành công
+  commentDeletedSuccessfully: Đã xóa bình luận
+  commentUpdatedSuccessfully: Cập nhật bình luận thành công
+  totalComments:
+    one: '${n} bình luận'
+    other: '${n} bình luận'
+  writeYourCommentHere: Viết bình luận tại đây...
+  tmpNoReplies: Chưa có trả lời
+  loadMore: Tải thêm
+  loadingMore: Đang tải thêm...
+  noMoreDatas: Không còn dữ liệu
+  selectTranslationLanguage: Chọn ngôn ngữ dịch
+  translate: Dịch
+  translateFailedPleaseTryAgainLater: Dịch thất bại, vui lòng thử lại sau
+  translationResult: Kết quả dịch
+  justNow: Vừa xong
+  minutesAgo:
+    one: '${n} phút trước'
+    other: '${n} phút trước'
+  hoursAgo:
+    one: '${n} giờ trước'
+    other: '${n} giờ trước'
+  daysAgo:
+    one: '${n} ngày trước'
+    other: '${n} ngày trước'
+  editedAt: 'Đã chỉnh sửa ${num}'
+  editComment: Chỉnh sửa bình luận
+  commentUpdated: Đã cập nhật bình luận
+  replyComment: Trả lời bình luận
+  reply: Trả lời
+  edit: Chỉnh sửa
+  unknownUser: Người dùng không xác định
+  me: Tôi
+  author: Tác giả
+  admin: Quản trị viên
+  viewReplies: 'Xem trả lời (${num})'
+  hideReplies: Ẩn trả lời
+  confirmDelete: Xác nhận xóa
+  areYouSureYouWantToDeleteThisItem: Bạn có chắc muốn xóa mục này?
+  tmpNoComments: Chưa có bình luận
+  refresh: Làm mới
+  back: Quay lại
+  tips: Mẹo
+  linkIsEmpty: Liên kết trống
+  linkCopiedToClipboard: Đã sao chép liên kết
+  imageCopiedToClipboard: Đã sao chép ảnh vào clipboard
+  copyImageFailed: Sao chép ảnh thất bại
+  mobileSaveImageIsUnderDevelopment: Tính năng lưu ảnh trên di động đang được phát triển
+  imageSavedTo: Đã lưu ảnh vào
+  saveImageFailed: Lưu ảnh thất bại
+  close: Đóng
+  more: Thêm
+  unknownError: Lỗi không xác định
+  moreFeaturesToBeDeveloped: Nhiều tính năng khác đang được phát triển
+  all: Tất cả
+  selectedRecords: 'Đã chọn ${num} bản ghi'
+  cancelSelectAll: Bỏ chọn tất cả
+  selectAll: Chọn tất cả
+  exitEditMode: Thoát chế độ chỉnh sửa
+  areYouSureYouWantToDeleteSelectedItems: 'Bạn có chắc muốn xóa ${num} mục đã chọn?'
+  searchHistoryRecords: Tìm kiếm bản ghi lịch sử...
+  settings: Cài đặt
+  subscriptions: Đăng ký
+  videoCount:
+    one: '${n} video'
+    other: '${n} video'
+  share: Chia sẻ
+  areYouSureYouWantToShareThisPlaylist: Bạn có chắc muốn chia sẻ danh sách phát này?
+  editTitle: Chỉnh sửa tiêu đề
+  editMode: Chế độ chỉnh sửa
+  pleaseEnterNewTitle: Vui lòng nhập tiêu đề mới
+  createPlayList: Tạo danh sách phát
+  create: Tạo
+  checkNetworkSettings: Kiểm tra cài đặt mạng
+  general: Chung
+  r18: R18
+  sensitive: Nhạy cảm
+  year: Năm
+  month: Tháng
+  tag: Thẻ
+  private: Riêng tư
+  noTitle: Không có tiêu đề
+  search: Tìm kiếm
+  noContent: Không có nội dung
+  recording: Đang ghi
+  paused: Đã tạm dừng
+  clear: Xóa
+  clearSelection: Bỏ chọn
+  selectItemsToContinue: Chọn mục để tiếp tục
+  andMoreItems(num): 'và ${num} mục nữa'
+  batchDelete: Xóa hàng loạt
+  user: Người dùng
+  post: Bài viết
+  seconds: Giây
+  comingSoon: Sắp ra mắt
+  confirm: Xác nhận
+  hour: Giờ
+  minute: Phút
+  clickToRefresh: Nhấn để làm mới
+  history: Lịch sử
+  favorites: Yêu thích
+  friends: Bạn bè
+  playList: Danh sách phát
+  checkLicense: Kiểm tra giấy phép
+  logout: Đăng xuất
+  fensi: Người hâm mộ
+  accept: Chấp nhận
+  reject: Từ chối
+  clearAllHistory: Xóa toàn bộ lịch sử
+  clearAllHistoryConfirm: Bạn có chắc muốn xóa toàn bộ lịch sử?
+  followingList: Danh sách đang theo dõi
+  followersList: Danh sách người theo dõi
+  follows: Đang theo dõi
+  fans: Người hâm mộ
+  followsAndFans: Đang theo dõi và người hâm mộ
+  numViews: Lượt xem
+  updatedAt: Cập nhật lúc
+  publishedAt: Đăng lúc
+  externalVideo: Video ngoài
+  originalText: Văn bản gốc
+  showOriginalText: Hiện văn bản gốc
+  showProcessedText: Hiện văn bản đã xử lý
+  preview: Xem trước
+  rules: Quy tắc
+  agree: Đồng ý
+  disagree: Không đồng ý
+  agreeToRules: Đồng ý với quy tắc
+  # Base Input Dialog
+  markdownSyntaxHelp: Trợ giúp cú pháp Markdown
+  previewContent: Xem trước nội dung
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'Vượt quá giới hạn độ dài tối đa (${max})'
+  agreeToCommunityRules: Đồng ý với quy tắc cộng đồng
+  createPost: Tạo bài viết
+  title: Tiêu đề
+  enterTitle: Vui lòng nhập tiêu đề
+  content: Nội dung
+  enterContent: Vui lòng nhập nội dung
+  writeYourContentHere: Vui lòng nhập nội dung...
+  tagBlacklist: Danh sách thẻ chặn
+  noData: Không có dữ liệu
+  tagLimit: Giới hạn thẻ
+  enableFloatingButtons: Bật nút nổi
+  disableFloatingButtons: Tắt nút nổi
+  enabledFloatingButtons: Đã bật nút nổi
+  disabledFloatingButtons: Đã tắt nút nổi
+  pendingCommentCount: Số bình luận đang chờ
+  joined: 'Tham gia ${str}'
+  lastSeenAt: 'Hoạt động lần cuối ${str}'
+  download: Tải xuống
+  selectQuality: Chọn chất lượng
+  videoQualitySource: Nguồn
+  selectImageQuality: Chọn chất lượng ảnh
+  imageQualityStandard: Tiêu chuẩn
+  imageQualityOriginal: Nguyên bản
+  selectDateRange: Chọn khoảng ngày
+  selectDateRangeHint: Chọn khoảng ngày, mặc định là 30 ngày gần nhất
+  clearDateRange: Xóa khoảng ngày
+  deleteRecordsInDateRange: Xóa bản ghi trong khoảng này
+  deleteRecordsInDateRangeConfirm: 'Bạn có chắc muốn xóa ${num} bản ghi lịch sử trong khoảng ngày này? Thao tác này không thể hoàn tác.'
+  noHistoryRecordsInRange: Không có bản ghi lịch sử trong khoảng ngày này
+  followSuccessClickAgainToSpecialFollow: Đã theo dõi, nhấn lần nữa để theo dõi đặc biệt
+  specialFollowTip: Đã thêm vào theo dõi đặc biệt — chọn từ danh sách ở góc trên bên phải trang Đăng ký để truy cập nhanh
+  exitConfirmTip: Bạn có chắc muốn thoát?
+  error: Lỗi
+  taskRunning: "Đang có tác vụ chạy, vui lòng đợi."
+  operationCancelled: "Đã hủy thao tác."
+  unsavedChanges: "Có thay đổi chưa lưu"
+  specialFollowsManagementTip: Kéo tay cầm để sắp xếp lại • Nhấn nút để xóa
+  specialFollowsManagement: Quản lý theo dõi đặc biệt
+  removeSpecialFollow: Hủy theo dõi đặc biệt
+  removeSpecialFollowConfirm: 'Hủy theo dõi đặc biệt với ${name}?'
+  noSpecialFollows: Chưa có theo dõi đặc biệt
+  createTimeDesc: Thời gian tạo giảm dần
+  createTimeAsc: Thời gian tạo tăng dần
+  # Pagination related
+  pagination:
+    totalItems: 'Tổng ${num} mục'
+    jumpToPage: 'Chuyển tới trang'
+    pleaseEnterPageNumber: 'Vui lòng nhập số trang (1-${max})'
+    pageNumber: 'Số trang'
+    jump: 'Chuyển'
+    invalidPageNumber: 'Vui lòng nhập số trang hợp lệ (1-${max})'
+    invalidInput: 'Vui lòng nhập số trang hợp lệ'
+    waterfall: 'Thác nước'
+    pagination: 'Phân trang'
+  notice: Thông báo
+  detail: Chi tiết
+  parseExceptionDestopHint: ' - Người dùng máy tính có thể cấu hình proxy trong cài đặt'
+  iwaraTags: Thẻ Iwara
+  tagInfo: Thông tin thẻ
+  tagOriginalKey: Thẻ gốc
+  tagTranslation: Bản dịch
+  copy: Sao chép
+  selectCopy: "Chọn & Sao chép"
+  copiedToClipboard: Đã sao chép vào clipboard
+  showOriginalTag: Hiện thẻ gốc
+  showTranslatedTag: Hiện bản dịch
+  tagTranslationFeedback: Còn nghi ngờ về bản dịch? Gửi phản hồi
+  tagLocalizationGuideTitle: Về bản địa hóa thẻ
+  tagLocalizationGuideContent: "Ứng dụng hiển thị thẻ gốc của Iwara (ví dụ: mother) bằng tên theo ngôn ngữ hiện tại của bạn.\n\n• Khi tìm kiếm thẻ, cả bản dịch và thẻ gốc đều được khớp.\n• Nhấn giữ / nhấp chuột phải vào thẻ để xem và sao chép khóa gốc cùng bản dịch.\n• Bản dịch do cộng đồng duy trì và chỉ ở mức tốt nhất có thể — có thể còn sai sót."
+  likeThisVideo: Thích video này
+  likeThisGallery: Thích thư viện này
+  operation: Thao tác
+  replies: Trả lời
+  externalLinkWarning: Cảnh báo liên kết ngoài
+  externalLinkWarningMessage: Bạn sắp mở một liên kết ngoài không thuộc iwara.tv. Hãy cẩn trọng và đảm bảo liên kết an toàn trước khi tiếp tục.
+  continueToExternalLink: Tiếp tục
+  cancelExternalLink: Hủy
+auth:
+  login: Đăng nhập
+  logout: Đăng xuất
+  email: Email
+  password: Mật khẩu
+  loginOrRegister: Đăng nhập / Đăng ký
+  register: Đăng ký
+  pleaseEnterEmail: Vui lòng nhập email
+  pleaseEnterPassword: Vui lòng nhập mật khẩu
+  passwordMustBeAtLeast6Characters: Mật khẩu phải có ít nhất 6 ký tự
+  pleaseEnterCaptcha: Vui lòng nhập mã xác nhận
+  captcha: Mã xác nhận
+  refreshCaptcha: Làm mới mã xác nhận
+  captchaNotLoaded: Chưa tải mã xác nhận
+  loginSuccess: Đăng nhập thành công
+  loginSuccessProfilePending: Đã đăng nhập. Đang tải hồ sơ…
+  emailVerificationSent: Đã gửi email xác minh
+  notLoggedIn: Chưa đăng nhập
+  clickToLogin: Nhấn để đăng nhập
+  logoutConfirmation: Bạn có chắc muốn đăng xuất?
+  logoutSuccess: Đăng xuất thành công
+  logoutFailed: Đăng xuất thất bại
+  usernameOrEmail: Tên người dùng hoặc Email
+  pleaseEnterUsernameOrEmail: Vui lòng nhập tên người dùng hoặc email
+  rememberMe: "Ghi nhớ tên người dùng"
+  registerNoticeTitle: Đăng ký trên trang web chính thức
+  registerNoticeDescription: "Không còn hỗ trợ đăng ký trong ứng dụng. Vui lòng tới trang web chính thức của Iwara để tạo tài khoản, sau đó quay lại đây để đăng nhập."
+  registerNoticeReturnTip: "Sau khi đăng ký, hãy quay lại đây và đăng nhập bằng tài khoản."
+  goToOfficialWebsite: Tới trang web chính thức
+
+errors:
+  error: Lỗi
+  required: Trường này là bắt buộc
+  invalidEmail: Địa chỉ email không hợp lệ
+  networkError: Lỗi mạng, vui lòng thử lại
+  errorWhileFetching: Đã xảy ra lỗi khi tải
+  commentCanNotBeEmpty: Nội dung bình luận không được để trống
+  errorWhileFetchingReplies: Lỗi khi tải trả lời, vui lòng kiểm tra kết nối mạng
+  canNotFindCommentController: Không tìm thấy bộ điều khiển bình luận
+  errorWhileLoadingGallery: Lỗi khi tải thư viện
+  howCouldThereBeNoDataItCantBePossible: Sao lại không có dữ liệu? Không thể như vậy được :<
+  unsupportedImageFormat: 'Định dạng ảnh không được hỗ trợ: ${str}'
+  invalidGalleryId: ID thư viện không hợp lệ
+  translationFailedPleaseTryAgainLater: Dịch thất bại, vui lòng thử lại sau
+  errorOccurred: "Đã xảy ra lỗi, vui lòng thử lại sau."
+  errorOccurredWhileProcessingRequest: Đã xảy ra lỗi khi xử lý yêu cầu
+  errorWhileFetchingDatas: Lỗi khi tải dữ liệu, vui lòng thử lại sau
+  serviceNotInitialized: Dịch vụ chưa được khởi tạo
+  unknownType: Loại không xác định
+  errorWhileOpeningLink: 'Lỗi khi mở liên kết: ${link}'
+  invalidUrl: URL không hợp lệ
+  failedToOperate: Thao tác thất bại
+  permissionDenied: Quyền bị từ chối
+  youDoNotHavePermissionToAccessThisResource: Bạn không có quyền truy cập tài nguyên này
+  loginFailed: Đăng nhập thất bại
+  unknownError: Lỗi không xác định
+  sessionExpired: Phiên đã hết hạn
+  failedToFetchCaptcha: Lấy mã xác nhận thất bại
+  emailAlreadyExists: Email đã tồn tại
+  invalidCaptcha: Mã xác nhận không hợp lệ
+  registerFailed: Đăng ký thất bại
+  failedToFetchComments: Lấy bình luận thất bại
+  failedToFetchImageDetail: Lấy chi tiết ảnh thất bại
+  failedToFetchImageList: Lấy danh sách ảnh thất bại
+  failedToFetchData: Lấy dữ liệu thất bại
+  invalidParameter: Tham số không hợp lệ
+  pleaseLoginFirst: Vui lòng đăng nhập trước
+  errorWhileLoadingPost: Lỗi khi tải bài viết
+  errorWhileLoadingPostDetail: Lỗi khi tải chi tiết bài viết
+  invalidPostId: ID bài viết không hợp lệ
+  forceUpdateNotPermittedToGoBack: Đang ở trạng thái buộc cập nhật, không thể quay lại
+  pleaseLoginAgain: Vui lòng đăng nhập lại
+  invalidLogin: Đăng nhập không hợp lệ, vui lòng kiểm tra email và mật khẩu
+  tooManyRequests: Quá nhiều yêu cầu, vui lòng thử lại sau
+  exceedsMaxLength: 'Vượt quá độ dài tối đa: ${max}'
+  contentCanNotBeEmpty: Nội dung không được để trống
+  titleCanNotBeEmpty: Tiêu đề không được để trống
+  tooManyRequestsPleaseTryAgainLaterText: "Quá nhiều yêu cầu, vui lòng thử lại sau, còn lại"
+  remainingHours: "${num} giờ"
+  remainingMinutes: "${num} phút"
+  remainingSeconds: "${num} giây"
+  tagLimitExceeded: 'Vượt quá giới hạn thẻ, giới hạn: ${limit}'
+  failedToRefresh: Làm mới thất bại
+  noPermission: Không có quyền
+  resourceNotFound: Không tìm thấy tài nguyên
+  failedToSaveCredentials: "Lưu thông tin đăng nhập thất bại"
+  failedToLoadSavedCredentials: "Tải thông tin đăng nhập đã lưu thất bại"
+  notFound: 'Không tìm thấy nội dung hoặc nội dung đã bị xóa'
+  network:
+    basicPrefix: 'Lỗi mạng - '
+    failedToConnectToServer: 'Kết nối tới máy chủ thất bại'
+    serverNotAvailable: 'Máy chủ không khả dụng'
+    requestTimeout: 'Yêu cầu quá thời gian'
+    unexpectedError: 'Lỗi không mong đợi'
+    invalidResponse: 'Phản hồi không hợp lệ'
+    invalidRequest: 'Yêu cầu không hợp lệ'
+    invalidUrl: 'URL không hợp lệ'
+    invalidMethod: 'Phương thức không hợp lệ'
+    invalidHeader: 'Header không hợp lệ'
+    invalidBody: 'Nội dung không hợp lệ'
+    invalidStatusCode: 'Mã trạng thái không hợp lệ'
+    serverError: 'Lỗi máy chủ'
+    requestCanceled: 'Yêu cầu đã bị hủy'
+    invalidPort: 'Cổng không hợp lệ'
+    proxyPortError: 'Lỗi cổng proxy'
+    connectionRefused: 'Kết nối bị từ chối'
+    networkUnreachable: 'Không thể truy cập mạng'
+    noRouteToHost: 'Không có tuyến tới máy chủ'
+    connectionFailed: 'Kết nối thất bại'
+    sslConnectionFailed: 'Kết nối SSL thất bại, vui lòng kiểm tra cài đặt mạng'
+friends:
+  clickToRestoreFriend: Nhấn để khôi phục bạn bè
+  friendsList: Danh sách bạn bè
+  friendRequests: Yêu cầu kết bạn
+  friendRequestsList: Danh sách yêu cầu kết bạn
+  removingFriend: Đang xóa bạn bè...
+  failedToRemoveFriend: Xóa bạn bè thất bại
+  cancelingRequest: Đang hủy yêu cầu kết bạn...
+  failedToCancelRequest: Hủy yêu cầu kết bạn thất bại
+
+authorProfile:
+  noMoreDatas: Không còn dữ liệu
+  userProfile: Hồ sơ người dùng
+
+favorites:
+  clickToRestoreFavorite: Nhấn để khôi phục yêu thích
+  myFavorites: Yêu thích của tôi
+  batchCancelFavorite: Xóa các mục yêu thích đã chọn
+  batchCancelFavoriteConfirm(count): 'Xóa ${count} mục đã chọn khỏi yêu thích? Sau đó có thể khôi phục bằng cách nhấn vào thẻ.'
+  batchCancelFavoriteSuccess(count): 'Đã xóa ${count} mục khỏi yêu thích'
+  batchCancelFavoriteResult(success, failed): 'Đã xóa ${success} mục, ${failed} mục thất bại'
+
+galleryDetail:
+  browseInSpace: Duyệt trong không gian
+  galleryDetail: Chi tiết thư viện
+  viewGalleryDetail: Xem chi tiết thư viện
+  zoomReset: Đặt lại thu phóng
+  copyLink: Sao chép liên kết
+  copyImage: Sao chép ảnh
+  saveAs: Lưu thành
+  saveToAlbum: Lưu vào album
+  publishedAt: Đăng lúc
+  viewsCount: Số lượt xem
+  imageLibraryFunctionIntroduction: Giới thiệu chức năng thư viện ảnh
+  rightClickToSaveSingleImage: Nhấp chuột phải để lưu ảnh đơn
+  batchSave: Lưu hàng loạt
+  keyboardLeftAndRightToSwitch: Phím trái và phải để chuyển
+  keyboardUpAndDownToZoom: Phím lên và xuống để thu phóng
+  mouseWheelToSwitch: Con lăn chuột để chuyển
+  ctrlAndMouseWheelToZoom: CTRL + Con lăn chuột để thu phóng
+  moreFeaturesToBeDiscovered: Nhiều tính năng khác đang chờ khám phá...
+  authorOtherGalleries: Thư viện khác của tác giả
+  relatedGalleries: Thư viện liên quan
+  authorNoOtherGalleries: Tác giả này không có thư viện nào khác
+  noRelatedGalleries: Không có thư viện liên quan
+  scrollLeft: Cuộn sang trái
+  scrollRight: Cuộn sang phải
+  clickLeftAndRightEdgeToSwitchImage: Nhấn vào mép trái và phải để chuyển ảnh
+  rotateToLandscape: Toàn màn hình ngang
+  backToPortrait: Quay lại dọc
+
+playList:
+  myPlayList: Danh sách phát của tôi
+  friendlyTips: Gợi ý hữu ích
+  dearUser: Người dùng thân mến
+  iwaraPlayListSystemIsNotPerfectYet: Hệ thống danh sách phát của Iwara vẫn chưa hoàn thiện
+  notSupportSetCover: Không hỗ trợ đặt ảnh bìa
+  notSupportDeleteList: Không hỗ trợ xóa danh sách
+  notSupportSetPrivate: Không hỗ trợ đặt riêng tư
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: Có... danh sách đã tạo sẽ luôn tồn tại và hiển thị với mọi người
+  smallSuggestion: Gợi ý nhỏ
+  useLikeToCollectContent: Nếu bạn quan tâm đến quyền riêng tư hơn, nên dùng chức năng "thích" để lưu nội dung
+  welcomeToDiscussOnGitHub: Nếu bạn có gợi ý hoặc ý tưởng khác, hoan nghênh thảo luận trên GitHub!
+  iUnderstand: Đã hiểu
+  searchPlaylists: Tìm kiếm danh sách phát...
+  newPlaylistName: Tên danh sách phát mới
+  createNewPlaylist: Tạo danh sách phát mới
+  videos: Video
+
+search:
+  googleSearchScope: Phạm vi tìm kiếm
+  searchTags: Tìm kiếm thẻ...
+  contentRating: Xếp hạng nội dung
+  removeTag: Xóa thẻ
+  pleaseEnterSearchContent: Vui lòng nhập nội dung tìm kiếm
+  searchHistory: Lịch sử tìm kiếm
+  searchSuggestion: Gợi ý tìm kiếm
+  usedTimes: Số lần sử dụng
+  lastUsed: Dùng gần đây
+  noSearchHistoryRecords: Không có lịch sử tìm kiếm
+  clearSearchHistoryConfirm: Bạn có chắc muốn xóa toàn bộ lịch sử tìm kiếm? Thao tác này không thể hoàn tác.
+  notSupportCurrentSearchType: 'Chưa hỗ trợ loại tìm kiếm hiện tại ${searchType}, vui lòng chờ bản cập nhật'
+  searchResult: Kết quả tìm kiếm
+  unsupportedSearchType: 'Loại tìm kiếm không được hỗ trợ: ${searchType}'
+  googleSearch: "Tìm kiếm Google"
+  googleSearchHint: "Chức năng tìm kiếm của ${webName} không dễ dùng? Hãy thử Tìm kiếm Google!"
+  googleSearchDescription: "Dùng toán tử tìm kiếm :site của Google Search để tìm nội dung trên trang web. Rất hữu ích khi tìm video, thư viện, danh sách phát và người dùng."
+  googleSearchKeywordsHint: "Nhập từ khóa để tìm kiếm"
+  openLinkJump: "Mở chuyển tiếp liên kết"
+  googleSearchButton: "Tìm kiếm Google"
+  pleaseEnterSearchKeywords: "Vui lòng nhập từ khóa tìm kiếm"
+  googleSearchQueryCopied: "Đã sao chép truy vấn tìm kiếm vào bộ nhớ tạm"
+  googleSearchBrowserOpenFailed: "Không mở được trình duyệt: ${error}"
+  searchRequestTimeout: Yêu cầu quá thời gian, vui lòng thử lại sau
+  searchCannotConnectToServer: Không thể kết nối đến máy chủ, vui lòng kiểm tra kết nối mạng
+  searchNetworkError: Kết nối mạng thất bại, vui lòng kiểm tra cài đặt mạng hoặc thử lại sau
+  searchFailedPleaseRetry: Tìm kiếm thất bại, vui lòng thử lại sau
+mediaList:
+  personalIntroduction: Giới thiệu
+
+settings:
+  listViewMode: Chế độ xem danh sách
+  previewEffect: Xem trước hiệu ứng
+  useTraditionalPaginationMode: Dùng chế độ phân trang truyền thống
+  useTraditionalPaginationModeDesc: Bật chế độ phân trang truyền thống, tắt chế độ thác nước. Có hiệu lực sau khi hiển thị lại trang hoặc khởi động lại ứng dụng
+  showVideoProgressBottomBarWhenToolbarHidden: Hiển thị thanh tiến trình video khi ẩn thanh công cụ
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: Cấu hình này quyết định thanh tiến trình video có hiển thị khi thanh công cụ bị ẩn hay không.
+  seekPreviewSize: Kích thước xem trước khi tua
+  seekPreviewSizeDesc: Cửa sổ xem trước phía trên thanh tiến trình lớn đến mức nào. Nó vốn đã theo kích thước trình phát và tỉ lệ khung hình của video; mục này chỉ tinh chỉnh thêm.
+  seekPreviewSizeSmall: Nhỏ
+  seekPreviewSizeStandard: Tiêu chuẩn
+  seekPreviewSizeLarge: Lớn
+  seekPreviewSizeStandardDesc: Kích thước suy ra từ trình phát và video
+  showFullscreenUpNextHint: Hiển thị tay cầm "Tiếp theo"
+  showFullscreenUpNextHintDesc: Hiển thị một tay cầm nhỏ ở cạnh phải trình phát để mở ngăn hàng đợi (nguồn / danh sách phát / xem sau). Khi tắt, không còn cách nào khác để mở.
+  basicSettings: Cài đặt cơ bản
+  personalizedSettings: Cài đặt cá nhân hóa
+  otherSettings: Cài đặt khác
+  searchConfig: Cấu hình tìm kiếm
+  thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: Cấu hình này quyết định cấu hình trước đó có được dùng lại khi phát video lần nữa hay không.
+  playControl: Điều khiển phát
+  playbackSpeedSettings: Phát và tốc độ
+  playbackBehaviorSettings: Hành vi phát
+  enhancementSettings: Rạp hát và nâng cao
+  fastForwardTime: Thời gian tua tới
+  fastForwardTimeMustBeAPositiveInteger: Thời gian tua tới phải là số nguyên dương.
+  rewindTime: Thời gian tua lại
+  rewindTimeMustBeAPositiveInteger: Thời gian tua lại phải là số nguyên dương.
+  longPressPlaybackSpeed: Tốc độ phát khi nhấn giữ
+  longPressPlaybackSpeedMustBeAPositiveNumber: Tốc độ phát khi nhấn giữ phải là số dương.
+  defaultPlaybackSpeed: Tốc độ phát mặc định
+  rememberPlaybackSpeed: Ghi nhớ tốc độ phát
+  rememberPlaybackSpeedDesc: Khi bật, tốc độ bạn đặt trong trình phát sẽ được lưu làm mặc định và tự động áp dụng cho video mới.
+  repeat: Lặp lại
+  renderVerticalVideoInVerticalScreen: Hiển thị video dọc trên màn hình dọc
+  thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: Cấu hình này quyết định video có được hiển thị trên màn hình dọc khi phát toàn màn hình hay không.
+  rememberVolume: Ghi nhớ âm lượng
+  thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain: Cấu hình này quyết định âm lượng có được giữ lại khi phát video lần nữa hay không.
+  rememberBrightness: Ghi nhớ độ sáng
+  thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain: Cấu hình này quyết định độ sáng có được giữ lại khi phát video lần nữa hay không.
+  playControlArea: Vùng điều khiển phát
+  leftAndRightControlAreaWidth: Chiều rộng vùng điều khiển trái và phải
+  thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: Cấu hình này quyết định chiều rộng của các vùng điều khiển ở bên trái và bên phải trình phát.
+  proxyAddressCannotBeEmpty: Địa chỉ proxy không được để trống.
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: Định dạng địa chỉ proxy không hợp lệ. Vui lòng dùng định dạng IP:cổng hoặc tên miền:cổng.
+  proxyNormalWork: Proxy hoạt động bình thường.
+  testProxyFailedWithStatusCode: 'Kiểm tra proxy thất bại, mã trạng thái: ${code}'
+  testProxyFailedWithException: 'Kiểm tra proxy thất bại, ngoại lệ: ${exception}'
+  proxyConfig: Cấu hình proxy
+  thisIsHttpProxyAddress: Đây là địa chỉ proxy http
+  checkProxy: Kiểm tra proxy
+  proxyAddress: Địa chỉ proxy
+  pleaseEnterTheUrlOfTheProxyServerForExample1270018080: Vui lòng nhập URL của máy chủ proxy, ví dụ 127.0.0.1:8080
+  enableProxy: Bật proxy
+  left: Trái
+  middle: Giữa
+  right: Phải
+  playerSettings: Cài đặt trình phát
+  networkSettings: Cài đặt mạng
+  customizeYourPlaybackExperience: Tùy chỉnh trải nghiệm phát
+  chooseYourFavoriteAppAppearance: Chọn giao diện ứng dụng yêu thích
+  configureYourProxyServer: Cấu hình máy chủ proxy
+  settings: Cài đặt
+  themeSettings: Cài đặt giao diện
+  followSystem: Theo hệ thống
+  lightMode: Chế độ sáng
+  darkMode: Chế độ tối
+  presetTheme: Giao diện đặt trước
+  basicTheme: Giao diện cơ bản
+  needRestartToApply: Cần khởi động lại ứng dụng để áp dụng cài đặt
+  themeNeedRestartDescription: Cài đặt giao diện cần khởi động lại ứng dụng để áp dụng
+  about: Giới thiệu
+  diagnosticsAndFeedback: Chẩn đoán và phản hồi
+  currentVersion: Phiên bản hiện tại
+  latestVersion: Phiên bản mới nhất
+  checkForUpdates: Kiểm tra cập nhật
+  update: Cập nhật
+  newVersionAvailable: Có phiên bản mới
+  projectHome: Trang chủ dự án
+  release: Phát hành
+  issueReport: Báo cáo sự cố
+  openSourceLicense: Giấy phép mã nguồn mở
+  checkForUpdatesFailed: Kiểm tra cập nhật thất bại, vui lòng thử lại sau
+  autoCheckUpdate: Tự động kiểm tra cập nhật
+  updateContent: Nội dung cập nhật
+  releaseDate: Ngày phát hành
+  ignoreThisVersion: Bỏ qua phiên bản này
+  forceUpdateTip: "Đây là bản cập nhật bắt buộc. Vui lòng cập nhật lên phiên bản mới nhất càng sớm càng tốt"
+  viewChangelog: Xem nhật ký thay đổi
+  alreadyLatestVersion: Đã là phiên bản mới nhất
+  appSettings: Cài đặt ứng dụng
+  configureYourAppSettings: Cấu hình cài đặt ứng dụng
+  history: Lịch sử
+  autoRecordHistory: Tự động ghi lịch sử
+  autoRecordHistoryDesc: Tự động ghi lại video và hình ảnh bạn đã xem
+  autoDeleteHistory: Tự động dọn lịch sử
+  autoDeleteHistoryDesc: Tự động xóa lịch sử duyệt web cũ hơn số ngày lưu giữ khi khởi động (mặc định tắt)
+  autoDeleteHistoryDays: Số ngày lưu giữ
+  autoDeleteHistoryDaysValue: 'Giữ ${num} ngày gần nhất'
+  autoDeleteHistoryDaysInvalid: Vui lòng nhập số ngày hợp lệ (tối thiểu 1)
+  showUnprocessedMarkdownText: Hiển thị văn bản Markdown chưa xử lý
+  showUnprocessedMarkdownTextDesc: Hiển thị văn bản gốc của markdown
+  markdown: Markdown
+  activeBackgroundPrivacyMode: Chế độ riêng tư
+  activeBackgroundPrivacyModeDesc: Chặn chụp màn hình và ghi màn hình, đồng thời ẩn màn hình khi chạy nền
+  activeBackgroundPrivacyModeDescNonAndroid: Ẩn màn hình khi ứng dụng chuyển sang chạy nền (nền tảng này không thể chặn chụp màn hình)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Chặn chụp màn hình và ghi màn hình
+  privacy: Quyền riêng tư
+  appLock: Khóa ứng dụng
+  appLockEnabled: Bật khóa ứng dụng
+  appLockEnabledDesc: Yêu cầu mã PIN hoặc sinh trắc học để mở ứng dụng; bản xem trước khi chạy nền sẽ tự động bị ẩn
+  appLockEnabledSummary: Bật · Bảo vệ bằng mã PIN
+  appLockDisabledSummary: Tắt
+  appLockTimeout: Khóa sau khi rời ứng dụng
+  appLockTimeoutDesc: Thời gian cho phép chạy nền trước khi yêu cầu xác thực
+  appLockAfterScreenOff: Khóa sau khi tắt màn hình
+  appLockAfterScreenOffDesc: Yêu cầu xác thực sau khi màn hình thiết bị bị khóa
+  appLockTimeoutDisabled: Đã tắt
+  appLockImmediately: Ngay lập tức
+  appLockSeconds: '${seconds} giây'
+  appLockMinutes: '${minutes} phút'
+  appLockUseBiometrics: Dùng sinh trắc học
+  appLockUseBiometricsDesc: Mở khóa bằng vân tay hoặc nhận diện khuôn mặt
+  appLockBiometricsUnavailable: Thiết bị này chưa đăng ký dữ liệu sinh trắc học nào
+  appLockSetPin: Đặt mã PIN
+  appLockEnterPin: Nhập mã PIN
+  appLockConfirmPin: Xác nhận mã PIN
+  appLockCurrentPin: Nhập mã PIN hiện tại
+  appLockNewPin: Nhập mã PIN mới
+  appLockPinRequirements: Mã PIN phải gồm 4–8 chữ số
+  appLockPinsDoNotMatch: Mã PIN không khớp
+  appLockInvalidPin: Mã PIN không đúng
+  appLockSetupFailed: Không thể lưu mã PIN một cách an toàn
+  appLockDisable: Nhập mã PIN để tắt khóa ứng dụng
+  appLockChangePin: Đổi mã PIN
+  appLockNow: Khóa ngay
+  appLockUnlock: Mở khóa
+  appLockLockedTitle: Đã khóa
+  appLockLockedDesc: Xác thực để tiếp tục
+  appLockAuthenticateReason: Xác thực để mở khóa
+  appLockEnableBiometricsReason: Xác thực để bật mở khóa bằng sinh trắc học
+  appLockBiometricFailed: Xác thực sinh trắc học chưa hoàn tất
+  appLockTooManyAttempts: 'Quá nhiều lần thử. Thử lại sau ${seconds} giây'
+  appLockCredentialUnavailableTitle: Không đọc được thông tin xác thực khóa ứng dụng
+  appLockCredentialUnavailableDesc: Kho lưu trữ bảo mật của hệ thống tạm thời không khả dụng, hoặc thông tin xác thực đã bị hỏng. Ứng dụng vẫn bị khóa. Hãy thử lại trước; nếu vẫn thất bại, bạn có thể đặt lại khóa ứng dụng, thao tác này sẽ tắt khóa và xóa mã PIN đã lưu.
+  appLockRetry: Thử lại
+  appLockReset: Đặt lại khóa ứng dụng
+  appLockResetAction: Đặt lại
+  appLockResetConfirmTitle: Đặt lại khóa ứng dụng?
+  appLockResetConfirmDesc: Thao tác này sẽ tắt khóa ứng dụng và xóa mã PIN cùng cài đặt sinh trắc học đã lưu. Sau đó bạn có thể thiết lập lại.
+  appLockRetrySucceeded: Đọc thông tin xác thực thành công. Hãy nhập mã PIN.
+  appLockRetryFailed: Vẫn không đọc được thông tin xác thực
+  forum: Diễn đàn
+  news: Tin tức
+  community: Cộng đồng
+  disableForumReplyQuote: Tắt trích dẫn trả lời diễn đàn
+  disableForumReplyQuoteDesc: Tắt việc mang theo thông tin tầng đã trả lời khi trả lời trên diễn đàn
+  theaterMode: Chế độ rạp hát
+  theaterModeDesc: Sau khi bật, nền trình phát sẽ được đặt thành phiên bản làm mờ của ảnh bìa video
+  appLinks: Liên kết ứng dụng
+  defaultBrowser: Trình duyệt mặc định
+  defaultBrowserDesc: Vui lòng mở mục cấu hình liên kết mặc định trong cài đặt hệ thống và thêm liên kết trang web iwara.tv
+  themeMode: Chế độ giao diện
+  themeModeDesc: Cấu hình này quyết định chế độ giao diện của ứng dụng
+  glassEffect: Vật liệu giao diện
+  glassEffectDesc: Chọn vật liệu dùng xuyên suốt ứng dụng — thanh tiêu đề, menu, nút hộp thoại và thanh điều hướng dưới
+  liquidGlassEffect: Kính lỏng
+  liquidGlassEffectDesc: Làm mờ và khúc xạ thật. Trông đẹp nhất, nhưng có thể rớt khung hình và tốn thêm chút pin trên thiết bị yếu
+  plainGlassEffect: Material
+  plainGlassEffectDesc: Bề mặt Material 3 tiêu chuẩn — đục, không mờ, không đổ bóng. Hiệu năng và pin tốt nhất
+  glassEffectIntroTitle: Chọn vật liệu giao diện
+  glassEffectIntroContent: Thanh tiêu đề, thanh tab và menu dùng kính lỏng — làm mờ và khúc xạ thật. Nếu cảm thấy chậm trên thiết bị của bạn, hoặc muốn đơn giản hơn, hãy chuyển sang Material ngay (bề mặt đục, không mờ, không đổ bóng).
+  glassEffectIntroHint: Bạn có thể thay đổi bất cứ lúc nào trong Cài đặt → Giao diện → Vật liệu giao diện.
+  glassEffectIntroDone: Giữ nguyên
+  dynamicColor: Màu động
+  dynamicColorDesc: Cấu hình này quyết định ứng dụng có dùng màu động hay không
+  useDynamicColor: Dùng màu động
+  useDynamicColorDesc: Cấu hình này quyết định ứng dụng có dùng màu động hay không
+  presetColors: Màu đặt trước
+  customColors: Màu tùy chỉnh
+  customColorsDisabledByDynamicColor: Màu động đang bật nên không thể dùng màu đặt trước hoặc tùy chỉnh. Hãy tắt màu động trước.
+  pickColor: Chọn màu
+  cancel: Hủy
+  confirm: Xác nhận
+  noCustomColors: Không có màu tùy chỉnh
+  recordAndRestorePlaybackProgress: Ghi và khôi phục tiến trình phát
+  autoPlayVideoOnFirstEnter: Tự động phát video khi mở lần đầu
+  autoPlayVideoOnFirstEnterDesc: Cài đặt này quyết định video có tự động phát khi lần đầu mở trang video hay không.
+  autoEnterFullscreen: Tự động vào toàn màn hình
+  autoEnterFullscreenDesc: Khi trình phát nên tự vào toàn màn hình. Video riêng tư, đã xóa và video bên ngoài luôn được giữ nguyên, tương tự với chế độ hình trong hình.
+  autoEnterFullscreenOff: 'Tắt'
+  autoEnterFullscreenOffDesc: Không bao giờ tự vào toàn màn hình
+  autoEnterFullscreenOnPlaybackStart: Khi bắt đầu phát
+  autoEnterFullscreenOnPlaybackStartDesc: Vào toàn màn hình ngay khi quá trình phát thực sự bắt đầu
+  autoEnterFullscreenOnDetailPageEnter: Khi mở video
+  autoEnterFullscreenOnDetailPageEnterDesc: Vào toàn màn hình ngay khi trang video mở ra, không cần chờ phát video
+  autoEnterFullscreenKind: Kiểu toàn màn hình
+  autoEnterFullscreenKindDesc: Kiểu toàn màn hình sẽ tự động vào. Chỉ trên máy tính để bàn.
+  autoEnterFullscreenKindSystem: Toàn màn hình hệ thống
+  autoEnterFullscreenKindSystemDesc: Để trình quản lý cửa sổ đưa cửa sổ vào chế độ toàn màn hình
+  autoEnterFullscreenKindApp: Toàn màn hình ứng dụng
+  autoEnterFullscreenKindAppDesc: Giữ nguyên cửa sổ và biến toàn bộ ứng dụng thành trình phát
+  signature: Chữ ký
+  enableSignature: Bật chữ ký
+  enableSignatureDesc: Cấu hình này quyết định ứng dụng có thêm chữ ký khi trả lời hay không
+  enterSignature: Nhập chữ ký
+  editSignature: Chỉnh sửa chữ ký
+  signatureContent: Nội dung chữ ký
+  exportConfig: "Xuất cấu hình ứng dụng"
+  exportConfigDesc: "Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống."
+  importConfig: "Nhập cấu hình ứng dụng"
+  importConfigDesc: "Nhập cấu hình ứng dụng từ tệp"
+  exportConfigSuccess: "Đã xuất cấu hình thành công!"
+  exportConfigFailed: "Xuất cấu hình thất bại"
+  importConfigSuccess: "Đã nhập cấu hình thành công!"
+  importConfigFailed: "Nhập cấu hình thất bại"
+  exportIncludeSensitive: "Bao gồm thông tin nhạy cảm"
+  exportIncludeSensitiveDesc: "Bao gồm khóa API, token phiên và địa chỉ proxy. Chỉ bật khi sao lưu vào thiết bị của chính bạn."
+  importConfigOverwriteWarning: "Nhập sẽ ghi đè cài đặt và lịch sử hiện tại (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.). Tiếp tục?"
+  importConfigRestartTitle: "Nhập thành công"
+  importConfigRestartContent: "Cấu hình của bạn đã được nhập. Vui lòng đóng hoàn toàn và mở lại ứng dụng để mọi thay đổi có hiệu lực."
+  historyUpdateLogs: "Nhật ký cập nhật lịch sử"
+  noUpdateLogs: "Không có nhật ký cập nhật"
+  versionLabel: "Phiên bản: {version}"
+  releaseDateLabel: "Ngày phát hành: {date}"
+  noChanges: "Không có nội dung cập nhật"
+  interaction: Tương tác
+  enableVibration: Bật rung
+  enableVibrationDesc: Bật phản hồi rung khi tương tác với ứng dụng
+  defaultKeepVideoToolbarVisible: Giữ thanh công cụ video luôn hiển thị
+  defaultKeepVideoToolbarVisibleDesc: Cài đặt này quyết định thanh công cụ video có luôn hiển thị khi lần đầu mở trang video hay không.
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Thiết bị di động bật chế độ rạp hát có thể gây vấn đề về hiệu năng. Bạn có thể chọn bật.
+  fullscreenOrientation: Hướng màn hình dọc sau khi vào toàn màn hình
+  fullscreenOrientationDesc: Cài đặt này quyết định hướng màn hình mặc định khi vào toàn màn hình (chỉ trên di động)
+  fullscreenOrientationLeftLandscape: Ngang trái
+  fullscreenOrientationRightLandscape: Ngang phải
+  screenFit: Kích thước màn hình
+  screenFitDesc: Chọn cách video lấp đầy vùng trình phát.
+  rememberScreenFit: Ghi nhớ kích thước màn hình
+  rememberScreenFitDesc: Áp dụng kích thước đã chọn cho các video mở sau này.
+  screenFitFit: Vừa khung
+  screenFitFitDesc: Hiển thị toàn bộ khung hình mà giữ nguyên tỉ lệ
+  screenFitStretch: Kéo giãn
+  screenFitStretchDesc: Lấp đầy vùng trình phát; hình ảnh có thể bị méo
+  screenFitCover: Lấp đầy
+  screenFitCoverDesc: Lấp đầy vùng trình phát mà giữ nguyên tỉ lệ khung hình; phần tràn sẽ bị cắt
+  screenFitRatioDesc: Buộc dùng tỉ lệ khung hình này; hình ảnh có thể bị méo
+  jumpLink: Liên kết nhảy
+  language: Ngôn ngữ
+  languageNativeName: Tiếng Việt
+  followSystemLanguage: Theo hệ thống
+  languageChangedMessage: Đã đổi ngôn ngữ. Một số tính năng cần khởi động lại ứng dụng để có hiệu lực.
+  languageChanged: Đã thay đổi cài đặt ngôn ngữ, vui lòng khởi động lại ứng dụng để có hiệu lực.
+  keybinding:
+    title: Phím tắt bàn phím
+    entryLabel: Phím tắt bàn phím
+    entryDesc: Tùy chỉnh phím tắt bàn phím của ứng dụng (chủ yếu cho máy tính)
+    desktopHint: Phím tắt chủ yếu áp dụng cho bàn phím máy tính; trên di động thường dùng cử chỉ.
+    resetAll: Đặt lại tất cả về mặc định
+    resetAllConfirm: Đặt lại tất cả phím tắt ứng dụng về mặc định?
+    resetToDefault: Đặt lại mặc định
+    resetScope: Đặt lại mục này
+    notSet: Chưa đặt
+    addShortcut: Thêm phím tắt
+    removeShortcut: Xóa phím tắt này
+    pressNewShortcut: Nhấn phím tắt mới…
+    recordingCancelHint: Nhấn Esc để hủy
+    mouseHint: Bạn cũng có thể gán nút bên của chuột (lùi / tiến) hoặc nút giữa
+    mouseNotSupportedInScope: Khu vực này không xử lý nút chuột; hãy dùng bàn phím
+    capabilityKeyboardOnly: Khu vực này chỉ nhận phím bàn phím
+    capabilityKeyboardAndMouse: Khu vực này nhận phím bàn phím, cùng nút giữa và nút bên của chuột
+    capabilityKeyboardAndMouseMobile: Khu vực này nhận phím bàn phím, cùng nút giữa và nút tiến của chuột (nút lùi do hệ thống chiếm)
+    rejectMultipleButtons: Mỗi lần chỉ nhấn một nút chuột
+    rejectPlatformBack: Hệ thống đã dùng phím này cho Quay lại; gán nó sẽ khiến quay lại hai lần
+    detectedLabel: Đã phát hiện
+    reservedKey: Phím này do hệ thống giữ riêng, không thể gán
+    reservedForGlobalBack: Phím này được gán cho "${action}"; nó vẫn được giữ riêng ở đây để bạn có thể rời màn hình này
+    conflictTitle: Xung đột phím tắt
+    conflictMessage: Tổ hợp này đã được gán cho "${action}". Tiếp tục sẽ xóa liên kết hiện có.
+    conflictContinue: Vẫn gán
+    shadowWarningTitle: Trùng phím tắt toàn cục
+    shadowWarningMessage: Tổ hợp này được gán cho "${action}" trên toàn cục. Gán nó ở đây sẽ chỉ ghi đè hành động đó bên trong mục này.
+    globalShadowedMessage: Tổ hợp này đã được gán cho "${action}" trong ${scope}. Trong mục đó, phím tắt toàn cục này sẽ bị ghi đè.
+    searchHint: Tìm kiếm phím tắt…
+    scopeGlobal: Toàn cục
+    scopeGallery: Thư viện
+    scopeVideo: Video
+    categoryNavigation: Điều hướng
+    categoryZoom: Thu phóng
+    categoryPlayback: Phát
+    categorySeek: Tua
+    categoryVolume: Âm lượng
+    categoryDisplay: Hiển thị
+    actionGlobalBack: Quay lại
+    actionGalleryNext: Ảnh tiếp theo
+    actionGalleryPrevious: Ảnh trước
+    actionGalleryZoomIn: Phóng to
+    actionGalleryZoomOut: Thu nhỏ
+    actionGalleryResetZoom: Đặt lại thu phóng
+    actionGalleryPlayPause: Phát / Tạm dừng
+    actionGallerySeekBackward: Tua lại
+    actionGallerySeekForward: Tua tới
+    actionGalleryToggleMute: Bật/tắt tiếng
+    actionPlayPause: Phát / Tạm dừng
+    actionSpeedUp: Tăng tốc độ
+    actionSpeedDown: Giảm tốc độ
+    actionSeekForward: Tua tới
+    actionSeekBackward: Tua lại
+    actionVolumeUp: Tăng âm lượng
+    actionVolumeDown: Giảm âm lượng
+    actionToggleMute: Bật/tắt tiếng
+    actionToggleFullscreen: Bật/tắt toàn màn hình
+    seekLongPressHint: Giữ phím tua tới / tua lại để kích hoạt chế độ tốc độ khi nhấn giữ
+    zoomSectionTitle: Thu phóng hình (cố định)
+    zoomFixedNote: Các phím tắt bên dưới là cố định, không thể thay đổi
+    zoomScaleLabel: Thu phóng hình
+    zoomScaleHint: Ctrl + Con lăn
+    zoomRotateLabel: Xoay hình
+    zoomRotateHint: Shift + Con lăn
+    zoomPinchGesture: Chụm
+    zoomTwoFingerRotateGesture: Xoay bằng hai ngón
+  gestureControl: Điều khiển bằng cử chỉ
+  leftDoubleTapRewind: Nhấn đúp bên trái để tua lại
+  rightDoubleTapFastForward: Nhấn đúp bên phải để tua nhanh
+  doubleTapPause: Nhấn đúp để tạm dừng
+  rightVerticalSwipeVolume: Vuốt dọc bên phải để chỉnh âm lượng (có hiệu lực khi vào trang mới)
+  leftVerticalSwipeBrightness: Vuốt dọc bên trái để chỉnh độ sáng (có hiệu lực khi vào trang mới)
+  longPressFastForward: Nhấn giữ để tua nhanh
+  enableMouseHoverShowToolbar: Hiện thanh công cụ khi di chuột
+  enableMouseHoverShowToolbarInfo: Khi bật, thanh công cụ video sẽ hiện khi con trỏ chuột ở trên trình phát. Thanh này sẽ tự động ẩn sau 3 giây không thao tác.
+  enableHorizontalDragSeek: Vuốt ngang để tua
+  enableVideoGestureZoom: Chụm để thu phóng khung hình video
+  enableVideoGestureZoomInfo: Dùng hai ngón tay chụm (hoặc Ctrl + con lăn chuột trên máy tính) để thu phóng hình video, sau đó kéo để di chuyển.
+  showCenterPlayPauseButton: Nút phát/tạm dừng ở giữa
+  showCenterPlayPauseButtonDesc: Hiển thị nút phát/tạm dừng lớn ở giữa trình phát.
+  # Audio Video Configuration
+  audioVideoConfig: Cấu hình âm thanh và video
+  expandBuffer: Mở rộng bộ đệm
+  expandBufferInfo: Khi bật, kích thước bộ đệm tăng lên, thời gian tải lâu hơn nhưng phát mượt hơn
+  videoSyncMode: Chế độ đồng bộ video
+  videoSyncModeSubtitle: Chiến lược đồng bộ âm thanh - video
+  hardwareDecodingMode: Chế độ giải mã phần cứng
+  hardwareDecodingModeSubtitle: Cài đặt giải mã phần cứng
+  enableHardwareAcceleration: Bật tăng tốc phần cứng
+  enableHardwareAccelerationInfo: Bật tăng tốc phần cứng có thể cải thiện hiệu năng giải mã, nhưng một số thiết bị có thể không tương thích
+  useOpenSLESAudioOutput: Dùng đầu ra âm thanh OpenSLES
+  useOpenSLESAudioOutputInfo: Dùng đầu ra âm thanh độ trễ thấp, có thể cải thiện hiệu năng âm thanh
+  # Video sync options
+  videoSyncAudio: Đồng bộ âm thanh
+  videoSyncDisplayResample: Lấy mẫu lại
+  videoSyncDisplayResampleVdrop: Lấy mẫu lại (bỏ khung hình)
+  videoSyncDisplayResampleDesync: Lấy mẫu lại (mất đồng bộ)
+  videoSyncDisplayTempo: Nhịp độ
+  videoSyncDisplayVdrop: Bỏ khung hình video
+  videoSyncDisplayAdrop: Bỏ khung hình âm thanh
+  videoSyncDisplayDesync: Hiển thị mất đồng bộ
+  videoSyncDesync: Mất đồng bộ
+  # Forum settings
+  forumSettings:
+    name: Diễn đàn
+    configureYourForumSettings: Cấu hình cài đặt diễn đàn
+  gallerySettings:
+    gallerySettingsTitle: Cài đặt thư viện
+    gallerySettingsSubtitle: Cấu hình tùy chọn trình xem thư viện
+    defaultViewerQuality: Chất lượng xem mặc định
+    defaultViewerQualityDesc: Chọn chất lượng hình ảnh hiển thị mặc định khi mở trình xem thư viện.
+  # Content blocking
+  blockSettings:
+    title: Chặn nội dung
+    subtitle: Tự động ẩn video và thư viện có tiêu đề khớp với từ khóa hoặc mẫu, hoặc đến từ người dùng bị chặn. Mọi quá trình khớp đều diễn ra trên thiết bị của bạn — không có gì được tải lên.
+    blocked: Đã chặn
+    reveal: Hiện
+    reblock: Chặn lại
+    why: Vì sao bị chặn?
+    manageRules: Quản lý quy tắc
+    reasonKeyword: 'Tiêu đề chứa "${value}"'
+    reasonRegex: 'Tiêu đề khớp "${value}"'
+    reasonUser: Từ người dùng bị chặn
+    addRule: Thêm quy tắc
+    editRule: Chỉnh sửa quy tắc
+    deleteRule: Xóa quy tắc
+    ruleType: Loại quy tắc
+    keyword: Từ khóa
+    regex: Regex
+    userId: Người dùng
+    value: Văn bản cần khớp
+    caseSensitive: Phân biệt chữ hoa chữ thường
+    regexHint: "ví dụ: trailer|hậu trường"
+    valueRequired: Vui lòng nhập văn bản cần khớp
+    invalidRegex: Đó không phải là biểu thức chính quy hợp lệ
+    noRules: Chưa có quy tắc nào. Nhấn + để thêm.
+    blockUser: Chặn
+    unblockUser: Bỏ chặn
+    blockUserConfirm: 'Chặn "${name}"? Video và thư viện của họ sẽ bị ẩn khỏi danh sách và tìm kiếm.'
+    userBlocked: Đã chặn người dùng
+    userUnblocked: Đã bỏ chặn người dùng
+    exportRules: Xuất
+    importRules: Nhập
+    importExport: Nhập / Xuất
+    exportSuccess: Đã xuất quy tắc
+    exportFailed: Không thể xuất quy tắc
+    importSuccess: 'Đã nhập ${count} quy tắc'
+    importFailed: Không thể nhập quy tắc
+    regexHelp: Trợ giúp về mẫu
+    regexHelpTitle: Tham khảo Regex
+    regexHelpIntro: 'Biểu thức chính quy khớp tiêu đề linh hoạt hơn từ khóa thông thường. Một số ví dụ phổ biến:'
+    regexHelpTapHint: Nhấn vào một ví dụ để điền vào.
+    regexEx1Pattern: trailer|hậu trường|tặng kèm
+    regexEx1Desc: Khớp với bất kỳ từ nào sau đây ("|" nghĩa là "hoặc")
+    regexEx2Pattern: '^\\[.*\\]'
+    regexEx2Desc: Tiêu đề bắt đầu bằng [ngoặc vuông]
+    regexEx3Pattern: 'Tuyển tập$'
+    regexEx3Desc: Tiêu đề kết thúc bằng "Tuyển tập"
+    regexEx4Pattern: 'Tập [0-9]+'
+    regexEx4Desc: '[0-9]+ là một hoặc nhiều chữ số — khớp với "Tập 12"'
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: "[0-9] là một chữ số và {4} nghĩa là bốn chữ số liên tiếp (ví dụ: một năm)"
+    regexEx1Sample: "Video trailer mới ra mắt"
+    regexEx2Sample: "[Remux] Phim đầy đủ"
+    regexEx3Sample: "Ảnh mùa xuân Tuyển tập"
+    regexEx4Sample: "Phim của tôi Tập 12 tóm tắt"
+    regexEx5Sample: "Tuyển chọn hay nhất 2024"
+    regexHelpSampleLabel: "Tiêu đề ví dụ"
+    regexHelpMatchedTag: "Đã chặn"
+    regexHelpNoMatch: "Không khớp"
+    regexEx6Pattern: '[Mm]ùa'
+    regexEx6Desc: '[Mm] khớp với chữ M viết hoa hoặc viết thường — ở đây bắt được "Mùa"'
+    regexEx6Sample: 'Mùa cuối trailer'
+    regexEx7Pattern: 'xem (phim|bộ)'
+    regexEx7Desc: 'Dấu ngoặc đơn () nhóm các lựa chọn — khớp với "xem phim" hoặc "xem bộ"'
+    regexEx7Sample: 'Hãy xem bộ ngay'
+    regexEx8Pattern: 'xem( ngay)?'
+    regexEx8Desc: 'Phần trong ngoặc () là tùy chọn — khớp với "xem" và "xem ngay"'
+    regexEx8Sample: 'Hãy xem ngay bây giờ'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '"+" nghĩa là một hoặc nhiều — khớp với !, !!, !!! ...'
+    regexEx9Sample: 'Quá đỉnh!!! Nhất định phải xem'
+    regexEx10Pattern: 'trailer.*mới'
+    regexEx10Desc: '".*" khớp với mọi thứ ở giữa — "trailer … mới"'
+    regexEx10Sample: 'Xem trailer hấp dẫn mới'
+  # Chat
+  chatSettings:
+    name: Trò chuyện
+    configureYourChatSettings: Cấu hình cài đặt trò chuyện
+  # Hardware decoding options
+  hardwareDecodingAuto: Tự động
+  hardwareDecodingAutoCopy: Tự động sao chép
+  hardwareDecodingAutoSafe: Tự động an toàn
+  hardwareDecodingNo: Đã tắt
+  hardwareDecodingYes: Buộc bật
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: Chiến lược phân phối nội dung
+  cdnDistributionStrategyDesc: Chọn chiến lược phân phối máy chủ nguồn video để tối ưu tốc độ tải
+  cdnDistributionStrategyLabel: Chiến lược phân phối
+  cdnDistributionStrategyNoChange: Không thay đổi (dùng máy chủ gốc)
+  cdnDistributionStrategyAuto: Tự động chọn (máy chủ nhanh nhất)
+  cdnDistributionStrategySpecial: Chỉ định máy chủ
+  cdnSpecialServer: Chỉ định máy chủ
+  cdnRefreshServerListHint: Vui lòng nhấn nút bên dưới để làm mới danh sách máy chủ
+  cdnRefreshButton: Làm mới
+  cdnFastRingServers: Máy chủ vòng nhanh
+  cdnRefreshServerListTooltip: Làm mới danh sách máy chủ
+  cdnSpeedTestButton: Kiểm tra tốc độ
+  cdnSpeedTestingButton: 'Đang kiểm tra (${count})'
+  cdnNoServerDataHint: Không có dữ liệu máy chủ, vui lòng nhấn nút làm mới
+  cdnTestingStatus: Đang kiểm tra
+  cdnUnreachableStatus: Không thể kết nối
+  cdnNotTestedStatus: Chưa kiểm tra
+  downloadSettings:
+    downloadSettings: Cài đặt tải xuống
+    enableDownloadNotifications: Thông báo tải xuống
+    enableDownloadNotificationsDescription: Hiển thị thông báo hệ thống khi một lượt tải xuống hoàn tất hoặc thất bại
+    notificationPermissionDenied: Quyền thông báo bị từ chối. Thông báo trong ứng dụng vẫn hoạt động; hãy bật thông báo hệ thống trong cài đặt.
+    storagePermissionStatus: Trạng thái quyền lưu trữ
+    accessPublicDirectoryNeedStoragePermission: Truy cập thư mục công khai cần quyền lưu trữ
+    checkingPermissionStatus: Đang kiểm tra trạng thái quyền...
+    storagePermissionGranted: Đã được cấp quyền lưu trữ
+    storagePermissionNotGranted: Chưa được cấp quyền lưu trữ
+    storagePermissionGrantSuccess: Cấp quyền lưu trữ thành công
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Cấp quyền lưu trữ thất bại nhưng một số tính năng có thể bị hạn chế
+    storagePermissionRationale: "Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nTrên Android 11 trở lên, điều này có nghĩa là quyền \"truy cập mọi tệp\"; nếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng."
+    storagePermissionRationaleLegacy: "Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nNếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng."
+    grantStoragePermission: Cấp quyền lưu trữ
+    customDownloadPath: Đường dẫn tải xuống tùy chỉnh
+    customDownloadPathDescription: Khi bật, bạn có thể chọn vị trí lưu tùy chỉnh cho tệp tải xuống
+    customDownloadPathTip: "💡 Gợi ý: Chọn thư mục công khai (như thư mục Tải xuống) cần quyền lưu trữ, nên ưu tiên dùng các đường dẫn được đề xuất"
+    androidWarning: "Lưu ý cho Android: Tránh chọn thư mục công khai (như thư mục Tải xuống), nên dùng thư mục riêng của ứng dụng để đảm bảo quyền truy cập."
+    publicDirectoryPermissionTip: "⚠️ Lưu ý: Bạn đã chọn thư mục công khai, cần quyền lưu trữ để tải tệp xuống bình thường"
+    permissionRequiredForPublicDirectory: Cần quyền lưu trữ cho thư mục công khai
+    currentDownloadPath: Đường dẫn tải xuống hiện tại
+    actualDownloadPath: Đường dẫn tải xuống thực tế
+    defaultAppDirectory: Thư mục ứng dụng mặc định
+    permissionGranted: Đã cấp
+    permissionRequired: Cần quyền
+    enableCustomDownloadPath: Bật đường dẫn tải xuống tùy chỉnh
+    disableCustomDownloadPath: Dùng đường dẫn mặc định của ứng dụng khi tắt
+    customDownloadPathLabel: Đường dẫn tải xuống tùy chỉnh
+    selectDownloadFolder: Chọn thư mục tải xuống
+    recommendedPath: Đường dẫn đề xuất
+    selectFolder: Chọn thư mục
+    filenameTemplate: Mẫu tên tệp
+    filenameTemplateDescription: Tùy chỉnh quy tắc đặt tên cho tệp tải xuống, hỗ trợ thay thế biến
+    videoFilenameTemplate: Mẫu tên tệp video
+    galleryFolderTemplate: Mẫu thư mục thư viện
+    imageFilenameTemplate: Mẫu tên tệp hình ảnh
+    resetToDefault: Đặt lại mặc định
+    supportedVariables: Biến được hỗ trợ
+    supportedVariablesDescription: "Các biến sau có thể dùng trong mẫu tên tệp:"
+    copyVariable: Sao chép biến
+    variableCopied: Đã sao chép biến
+    warningPublicDirectory: "Cảnh báo: Thư mục công khai đã chọn có thể không truy cập được. Nên chọn thư mục riêng của ứng dụng."
+    downloadPathUpdated: Đã cập nhật đường dẫn tải xuống
+    selectPathFailed: Chọn đường dẫn thất bại
+    pickerAlreadyActive: Trình chọn thư mục đang mở
+    unsupportedStorageVolume: Vị trí lưu trữ không được hỗ trợ. Hãy chọn thư mục trên bộ nhớ thiết bị hoặc thẻ SD.
+    recommendedPathSet: Đã đặt thành đường dẫn đề xuất
+    setRecommendedPathFailed: Đặt đường dẫn đề xuất thất bại
+    templateResetToDefault: Đặt lại mẫu mặc định
+    # Download test related
+    functionalTest: Kiểm tra chức năng
+    testInProgress: Đang kiểm tra...
+    runTest: Chạy kiểm tra
+    testDownloadPathAndPermissions: Kiểm tra xem đường dẫn tải xuống và cấu hình quyền có hoạt động đúng hay không
+    testResults: Kết quả kiểm tra
+    testCompleted: Kiểm tra hoàn tất
+    testPassed: mục đạt
+    testFailed: Kiểm tra thất bại
+    testStoragePermissionCheck: Kiểm tra quyền lưu trữ
+    testStoragePermissionGranted: Đã được cấp quyền lưu trữ
+    testStoragePermissionMissing: Thiếu quyền lưu trữ, một số tính năng có thể bị hạn chế
+    testPermissionCheckFailed: Kiểm tra quyền thất bại
+    testDownloadPathValidation: Kiểm tra đường dẫn tải xuống
+    testPathValidationFailed: Kiểm tra đường dẫn thất bại
+    testFilenameTemplateValidation: Kiểm tra mẫu tên tệp
+    testAllTemplatesValid: Tất cả mẫu đều hợp lệ
+    testSomeTemplatesInvalid: Một số mẫu chứa ký tự không hợp lệ
+    testTemplateValidationFailed: Kiểm tra mẫu thất bại
+    testDirectoryOperationTest: Kiểm tra thao tác thư mục
+    testDirectoryOperationNormal: Tạo thư mục và ghi tệp diễn ra bình thường
+    testDirectoryOperationFailed: Thao tác thư mục thất bại
+    # Test details related
+    testVideoTemplate: Mẫu video
+    testGalleryTemplate: Mẫu thư viện
+    testImageTemplate: Mẫu hình ảnh
+    testValid: Hợp lệ
+    testInvalid: Không hợp lệ
+    testSuccess: Thành công
+    testCorrect: Đúng
+    testError: Lỗi
+    testPath: Đường dẫn kiểm tra
+    testBasePath: Đường dẫn cơ sở
+    testDirectoryCreation: Tạo thư mục
+    testFileWriting: Ghi tệp
+    testFileContent: Nội dung tệp
+    # Path status related
+    checkingPathStatus: Đang kiểm tra trạng thái đường dẫn...
+    unableToGetPathStatus: Không lấy được trạng thái đường dẫn
+    actualPathDifferentFromSelected: "Lưu ý: Đường dẫn thực tế khác với đường dẫn đã chọn"
+    grantPermission: Cấp quyền
+    fixIssue: Khắc phục sự cố
+    issueFixed: Đã khắc phục sự cố
+    fixFailed: Sửa thất bại, vui lòng xử lý thủ công
+    # Download path service related
+    lackStoragePermission: Thiếu quyền lưu trữ
+    cannotAccessPublicDirectory: Không thể truy cập thư mục công khai, cần "quyền truy cập mọi tệp"
+    cannotCreateDirectory: Không thể tạo thư mục
+    directoryNotWritable: Thư mục không ghi được
+    insufficientSpace: Không đủ dung lượng trống
+    pathValid: Đường dẫn hợp lệ
+    validationFailed: Kiểm tra hợp lệ thất bại
+    usingDefaultAppDirectory: Đang dùng thư mục ứng dụng mặc định
+    appPrivateDirectory: Thư mục riêng của ứng dụng
+    appPrivateDirectoryDesc: An toàn và đáng tin cậy, không cần quyền bổ sung
+    downloadDirectory: Thư mục tải xuống
+    downloadDirectoryDesc: Vị trí tải xuống mặc định của hệ thống, dễ quản lý
+    moviesDirectory: Thư mục phim
+    moviesDirectoryDesc: Thư mục phim của hệ thống, ứng dụng media có thể nhận diện
+    documentsDirectory: Thư mục tài liệu
+    documentsDirectoryDesc: Thư mục tài liệu của ứng dụng iOS
+    requiresStoragePermission: Cần quyền lưu trữ để truy cập
+    # Recommended paths widget related
+    recommendedPaths: Đường dẫn đề xuất
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: Thư mục riêng ứng dụng trên bộ nhớ ngoài
+    externalAppPrivateDirectoryDesc: Thư mục riêng của ứng dụng trên bộ nhớ ngoài, người dùng có thể truy cập, dung lượng lớn hơn
+    internalAppPrivateDirectory: Thư mục riêng ứng dụng trên bộ nhớ trong
+    internalAppPrivateDirectoryDesc: Bộ nhớ trong của ứng dụng, không cần quyền, dung lượng nhỏ hơn
+    appDocumentsDirectory: Thư mục tài liệu ứng dụng
+    appDocumentsDirectoryDesc: Thư mục tài liệu riêng của ứng dụng, an toàn và đáng tin cậy
+    downloadsFolder: Thư mục Tải xuống
+    downloadsFolderDesc: Thư mục tải xuống mặc định của hệ thống
+    selectRecommendedDownloadLocation: Chọn một vị trí tải xuống được đề xuất
+    noRecommendedPaths: Không có đường dẫn đề xuất nào
+    recommended: Đề xuất
+    requiresPermission: Cần quyền
+    authorizeAndSelect: Cấp quyền và chọn
+    select: Chọn
+    permissionAuthorizationFailed: Cấp quyền thất bại, không thể chọn đường dẫn này
+    pathValidationFailed: Kiểm tra đường dẫn thất bại
+    downloadPathSetTo: Đã đặt đường dẫn tải xuống thành
+    setPathFailed: Đặt đường dẫn thất bại
+    # Filename template variables
+    variableTitle: Tiêu đề
+    variableAuthor: Tên tác giả
+    variableUsername: Tên người dùng tác giả
+    variableQuality: Chất lượng video
+    variableFilename: Tên tệp gốc
+    variableId: ID nội dung
+    variableCount: Số hình ảnh trong thư viện
+    variableDate: Ngày hiện tại (YYYY-MM-DD)
+    variableTime: Giờ hiện tại (HH-MM-SS)
+    variableDatetime: Ngày giờ hiện tại (YYYY-MM-DD_HH-MM-SS)
+    # Settings page
+    downloadSettingsTitle: Cài đặt tải xuống
+    downloadSettingsSubtitle: Cấu hình đường dẫn tải xuống và quy tắc đặt tên tệp
+    suchAsTitleQuality: 'Ví dụ: %title_%quality'
+    suchAsTitleId: 'Ví dụ: %title_%id'
+    suchAsTitleFilename: 'Ví dụ: %title_%filename'
+favoriteTags:
+  title: Thẻ yêu thích
+  emptyIwara: Chưa có thẻ Iwara yêu thích
+  emptyOreno3d: Chưa có mục yêu thích
+  addIwaraTag: Thêm thẻ Iwara
+  quickPickHint: Các mục đã yêu thích sẽ xuất hiện dưới dạng gợi ý nhanh khi tìm kiếm.
+  pickerTitle: Chọn Oreno3D
+  searchHint: Tìm theo tên hoặc tên gốc
+  worksCount:
+    one: '${n} tác phẩm'
+    other: '${n} tác phẩm'
+  browseEntry: Duyệt theo nguồn gốc / nhân vật / thẻ
+  favoritesSection: Yêu thích
+  addFavorite: Thêm
+  iwaraTitle: Thẻ Iwara yêu thích
+  oreno3dTitle: Thẻ Oreno3D yêu thích
+  changeTag: Đổi thẻ
+  switchToText: Tìm kiếm văn bản
+oreno3d:
+  name: Oreno3D
+  tags: Thẻ
+  characters: Nhân vật
+  origin: Nguồn gốc
+  thirdPartyTagsExplanation: "Thông tin **thẻ**, **nhân vật** và **nguồn gốc** hiển thị ở đây được cung cấp bởi trang web bên thứ ba **Oreno3D** chỉ để tham khảo.\n\nVì nguồn thông tin này chỉ có tiếng Nhật, hiện tại nó chưa có bản địa hóa.\n\nNếu bạn muốn đóng góp cho nỗ lực bản địa hóa, hãy truy cập kho lưu trữ để giúp cải thiện!"
+  sortTypes:
+    hot: Nổi bật
+    favorites: Yêu thích
+    latest: Mới nhất
+    popularity: Phổ biến
+  errors:
+    requestFailed: Yêu cầu thất bại, mã trạng thái
+    connectionTimeout: Hết thời gian kết nối, vui lòng kiểm tra kết nối mạng
+    sendTimeout: Hết thời gian gửi yêu cầu
+    receiveTimeout: Hết thời gian nhận phản hồi
+    badCertificate: Xác minh chứng chỉ thất bại
+    resourceNotFound: Không tìm thấy tài nguyên được yêu cầu
+    accessDenied: Truy cập bị từ chối, có thể cần xác thực hoặc quyền
+    serverError: Lỗi máy chủ nội bộ
+    serviceUnavailable: Dịch vụ tạm thời không khả dụng
+    requestCancelled: Yêu cầu đã bị hủy
+    connectionError: Lỗi kết nối mạng, vui lòng kiểm tra cài đặt mạng
+    networkRequestFailed: Yêu cầu mạng thất bại
+    searchVideoError: Đã xảy ra lỗi không xác định khi tìm kiếm video
+    getPopularVideoError: Đã xảy ra lỗi không xác định khi lấy video phổ biến
+    getVideoDetailError: Đã xảy ra lỗi không xác định khi lấy chi tiết video
+    parseVideoDetailError: Đã xảy ra lỗi không xác định khi lấy và phân tích chi tiết video
+    downloadFileError: Đã xảy ra lỗi không xác định khi tải tệp xuống
+  loading:
+    gettingVideoInfo: Đang lấy thông tin video...
+    cancel: Hủy
+  messages:
+    videoNotFoundOrDeleted: Không tìm thấy video hoặc video đã bị xóa
+    unableToGetVideoPlayLink: Không thể lấy liên kết phát video
+    getVideoDetailFailed: Không lấy được chi tiết video
+signIn:
+  pleaseLoginFirst: Vui lòng đăng nhập trước
+  alreadySignedInToday: Hôm nay bạn đã điểm danh rồi!
+  youDidNotStickToTheSignIn: Bạn đã không duy trì việc điểm danh.
+  signInSuccess: Điểm danh thành công!
+  signInFailed: Điểm danh thất bại, vui lòng thử lại sau
+  consecutiveSignIns: Điểm danh liên tiếp
+  failureReason: Lý do thất bại
+  selectDateRange: Chọn khoảng ngày
+  startDate: Ngày bắt đầu
+  endDate: Ngày kết thúc
+  invalidDate: Ngày không hợp lệ
+  invalidDateRange: Khoảng ngày không hợp lệ
+  errorFormatText: Lỗi định dạng ngày
+  errorInvalidText: Khoảng ngày không hợp lệ
+  errorInvalidRangeText: Khoảng ngày không hợp lệ
+  dateRangeCantBeMoreThanOneYear: Khoảng ngày không được vượt quá một năm
+  signIn: Điểm danh
+  signInRecord: Lịch sử điểm danh
+  totalSignIns: Tổng số lần điểm danh
+  pleaseSelectSignInStatus: Vui lòng chọn trạng thái điểm danh
+
+subscriptions:
+  pleaseLoginFirstToViewYourSubscriptions: Vui lòng đăng nhập trước để xem các đăng ký của bạn.
+  selectUser: Chọn người dùng
+  noSubscribedUsers: Không có người dùng đã đăng ký
+  showAllSubscribedUsersContent: Hiển thị nội dung của tất cả người dùng đã đăng ký
+
+videoDetail:
+  pipMode: Chế độ PiP
+  resumeFromLastPosition: 'Tiếp tục từ vị trí lần trước: ${position}'
+  resumedFromHistoryTip: 'Đã tiếp tục từ ${position}'
+  restartFromBeginning: Bắt đầu lại
+  dismissResumeTip: Bỏ qua
+  localInfo:
+    videoInfo: Thông tin video
+    currentQuality: Chất lượng hiện tại
+    duration: Thời lượng
+    resolution: Độ phân giải
+    fileInfo: Thông tin tệp
+    fileName: Tên tệp
+    fileSize: Kích thước tệp
+    filePath: Đường dẫn tệp
+    copyPath: Sao chép đường dẫn
+    openFolder: Mở thư mục
+    pathCopiedToClipboard: Đã sao chép đường dẫn vào bộ nhớ tạm
+    openFolderFailed: Mở thư mục thất bại
+  videoIdIsEmpty: ID video trống
+  videoInfoIsEmpty: Thông tin video trống
+  thisIsAPrivateVideo: Đây là video riêng tư
+  getVideoInfoFailed: 'Lấy thông tin video thất bại, vui lòng thử lại sau'
+  noVideoSourceFound: Không tìm thấy nguồn video
+  tagCopiedToClipboard: 'Đã sao chép thẻ "${tagId}" vào bộ nhớ tạm'
+  errorLoadingVideo: Lỗi khi tải video
+  play: Phát
+  pause: Tạm dừng
+  exitAppFullscreen: Thoát toàn màn hình ứng dụng
+  enterAppFullscreen: Vào toàn màn hình ứng dụng
+  exitSystemFullscreen: Thoát toàn màn hình hệ thống
+  enterSystemFullscreen: Vào toàn màn hình hệ thống
+  seekTo: Tua tới
+  switchResolution: Chuyển độ phân giải
+  switchPlaybackSpeed: Chuyển tốc độ phát
+  rewindSeconds: 'Tua lại ${num} giây'
+  fastForwardSeconds: 'Tua tới ${num} giây'
+  playbackSpeedIng: 'Đang phát với tốc độ ${rate}x'
+  brightness: Độ sáng
+  brightnessLowest: Độ sáng ở mức thấp nhất
+  volume: Âm lượng
+  volumeMuted: Âm lượng đã tắt tiếng
+  restoreDefaultZoom: Khôi phục
+  gestureGuide:
+    sampleVideo: Video mẫu
+    title: Hướng dẫn cử chỉ và tương tác
+    viewGuide: Hướng dẫn cử chỉ và tương tác
+    firstTimeIntro: Dành vài giây để tìm hiểu cử chỉ của trình phát. Bạn có thể mở lại hướng dẫn này bất cứ lúc nào từ cài đặt trình phát.
+    startWatching: Đã hiểu, bắt đầu xem
+    basicTitle: Điều khiển cơ bản
+    zoomTitle: Thu phóng / Xoay / Di chuyển
+    restoreTip: 'Nhấn nút "Khôi phục" ở góc dưới bên phải để đặt lại thu phóng, xoay và vị trí.'
+    mTap: 'Nhấn một lần: hiện / ẩn điều khiển'
+    mDoubleTap: 'Nhấn đúp: tua lại (trái) / tạm dừng (giữa) / tua tới (phải)'
+    mHorizontalDrag: 'Vuốt ngang: tua'
+    mVerticalDrag: 'Vuốt dọc: độ sáng (trái) / âm lượng (phải)'
+    mLongPress: 'Nhấn giữ: tăng tốc tạm thời'
+    mPinch: 'Chụm hai ngón: thu phóng hình'
+    mRotate: 'Xoay hai ngón: xoay hình'
+    dTap: 'Nhấp: hiện / ẩn điều khiển'
+    dDoubleTap: 'Nhấp đúp: tua lại (trái) / tạm dừng (giữa) / tua tới (phải)'
+    dKeys: 'Phím tua: nhấn để nhảy lùi / tiến, giữ để tăng tốc; phím tốc độ: điều chỉnh tốc độ phát khi phát bình thường; Space: phát / tạm dừng'
+    dTrackpadPinch: 'Chụm trên bàn di chuột: thu phóng hình'
+    dTrackpadRotate: 'Xoay trên bàn di chuột: xoay hình'
+    dCtrlWheel: 'Ctrl + con lăn: thu phóng quanh con trỏ'
+    dShiftWheel: 'Shift + con lăn: xoay quanh con trỏ'
+    quest:
+      title: "Làm quen với Quest"
+      intro: "Xem điều khiển nào làm gì, rồi thử ngay trong không gian của bạn."
+      videoTab: "Video không gian"
+      galleryTab: "Thư viện không gian"
+      scopeNote: "Dành cho màn hình và cửa sổ trong không gian Quest của bạn. Mở lại bất cứ lúc nào từ cài đặt trình phát."
+      catalog: "Khám phá các điều khiển"
+      lessonCount: "${current} / ${total}"
+      previous: "Trước"
+      next: "Điều khiển tiếp theo"
+      replay: "Phát lại demo"
+      pauseDemo: "Tạm dừng demo"
+      resumeDemo: "Tiếp tục demo"
+      looping: "Bản demo điều khiển"
+      still: "Ảnh minh họa tĩnh"
+      done: "Đã hiểu, tiếp tục"
+      leftController: "Tay trái"
+      rightController: "Tay phải"
+      trigger: "Cò ngón trỏ"
+      grip: "Nút cầm"
+      bothGrips: "Cả hai nút cầm"
+      stick: "Cần điều khiển"
+      handTracking: "Theo dõi bàn tay"
+      ready: "Sẵn sàng"
+      press: "Nhấn"
+      hold: "Giữ"
+      release: "Thả"
+      result: "Xem kết quả"
+      pinch: "Chụm"
+      selectTitle: "Chỉ và chọn"
+      selectBody: "Hướng tia vào một nút, rồi nhấn và thả cò ngón trỏ. Dùng cho phát, cài đặt và thanh trượt trên bảng điều khiển."
+      selectHint: "Cò ngón trỏ nằm sau mặt nút. Nút cầm ở tay cầm bên trong dùng để nắm cửa sổ."
+      panelTitle: "Hiện hoặc ẩn bảng"
+      panelBody: "Chỉ ra ngoài bảng điều khiển, rồi nhấn cò ngón trỏ để hiện hoặc ẩn bảng. Với theo dõi bàn tay, chụm nhanh bên ngoài bảng cũng làm điều tương tự."
+      panelHint: "Dùng một cú nhấn ngắn, không kéo. Giữ và di chuyển là thao tác kéo, không phải bật/tắt bảng."
+      playTitle: "Phát và tạm dừng"
+      playBody: "Chỉ ra xa bảng điều khiển và nhấn A bên phải hoặc X bên trái để phát hoặc tạm dừng. Bạn cũng có thể chọn nút phát trên bảng."
+      playHint: "Phím tắt mặc định này có thể tắt trong cài đặt trình phát không gian. Khi chỉ vào bảng, dữ liệu nhập sẽ chuyển cho bảng."
+      seekTitle: "Tua bằng cần gạt"
+      seekBody: "Đẩy cần gạt sang trái hoặc phải để nhảy 5 giây. Giữ để tua nhanh hơn trong khi xem trước thời điểm đích. Thả ra để xác nhận tua."
+      seekHint: "Giữ tia của bộ điều khiển đó ngoài bảng điều khiển. Cần gạt chỉ vào bảng sẽ cuộn bảng thay vào đó."
+      browseTitle: "Duyệt bằng cần gạt"
+      browseBody: "Đẩy cần gạt sang trái hoặc phải để chuyển mục trước hoặc sau; giữ để tiếp tục duyệt. Bạn cũng có thể chọn một ảnh thu nhỏ trong dải phim."
+      browseHint: "Video trong thư viện cũng là các mục. Chỉ vào bảng điều khiển sẽ khiến cần gạt cuộn bảng."
+      swipeTitle: "Kéo ngang để lật trang"
+      swipeBody: "Hướng vào hình ảnh, giữ cò ngón trỏ và kéo sang trái. Thả ra sau tín hiệu lật trang để chuyển tiếp; kéo sang phải để lùi lại. Chụm và kéo cũng hoạt động."
+      swipeHint: "Hình ảnh phải ở mức 1× để lật trang bằng cách kéo. Video trong thư viện cũng hỗ trợ. Sân khấu đứng yên cho đến khi bạn thả ra."
+      zoomTitle: "Thu phóng vào hình ảnh"
+      zoomBody: "Hướng vào một chi tiết trong hình ảnh, giữ cò ngón trỏ, rồi đẩy cần gạt lên để phóng to hoặc xuống để thu nhỏ. Thu phóng neo tại điểm bạn nhấn."
+      zoomHint: "Thao tác này phóng to hình ảnh bên trong cửa sổ của nó. Nếu không giữ hình ảnh, lên/xuống sẽ điều chỉnh khoảng cách xem."
+      panTitle: "Di chuyển và khôi phục hình ảnh"
+      panBody: "Sau khi đã thu phóng, giữ cò ngón trỏ và kéo để nhìn quanh. Nhấn đúp vào hình ảnh để thu phóng lên 2.5× hoặc khôi phục. Với bàn tay, chụm hai lần thật nhanh."
+      panHint: "Kéo để di chuyển một hình ảnh đã thu phóng. Khôi phục về 1× trước khi kéo để lật trang."
+      slideshowTitle: "Bắt đầu trình chiếu"
+      slideshowBody: "Trên một hình ảnh, A / X bắt đầu hoặc tạm dừng trình chiếu. Bảng cung cấp khoảng thời gian 3, 5, 10 hoặc 20 giây và chất lượng hình ảnh tiêu chuẩn hoặc gốc."
+      slideshowHint: "Trên video trong thư viện, A / X điều khiển việc phát video đó. Phím tắt bộ điều khiển phải được bật trong cài đặt."
+      moveTitle: "Nắm và di chuyển màn hình"
+      moveBody: "Giữ nút cầm ở tay cầm bên trong, di chuyển bộ điều khiển để đặt vị trí màn hình, rồi thả ra. Khi đang xem, bạn có thể nắm màn hình mà không cần chỉ vào nó."
+      moveHint: "Chỉ vào cửa sổ ứng dụng hoặc bảng điều khiển sẽ nắm cửa sổ đó trước. Trong video toàn cảnh, việc cầm nắm sẽ điều chỉnh hướng."
+      scaleTitle: "Đổi kích thước bằng cả hai tay"
+      scaleBody: "Giữ cả hai nút cầm. Dang hai tay ra để phóng to màn hình, hoặc chụm lại để thu nhỏ. Với theo dõi bàn tay, giữ thao tác chụm ở cả hai tay."
+      scaleHint: "Cho màn hình phẳng hoặc cong, kể cả sân khấu thư viện. Giữ tia ngoài bảng điều khiển. Thao tác này đổi kích thước toàn bộ màn hình."
+      distanceTitle: "Điều chỉnh khoảng cách xem"
+      distanceBody: "Đẩy cần gạt lên để đưa màn hình ra xa, hoặc xuống để kéo lại gần. Khi đang nắm một cửa sổ, lên/xuống sẽ di chuyển cửa sổ đó. Điều chỉnh âm lượng trên bảng."
+      distanceHint: "Chỉ ra xa bảng điều khiển. Giữ một hình ảnh sẽ đổi lên/xuống thành thu phóng hình ảnh; video toàn cảnh sẽ điều chỉnh tầm nhìn thay vào đó."
+      resizeTitle: "Dùng các cạnh và góc"
+      resizeBody: "Khung sẽ sáng lên khi tia của bạn tiến gần một cạnh. Giữ cò hoặc chụm vào một cạnh để di chuyển cửa sổ; kéo một góc để đổi kích thước."
+      resizeHint: "Hoạt động trên cửa sổ ứng dụng, bảng điều khiển và màn hình. Cửa sổ ứng dụng thay đổi chiều rộng và chiều cao; màn hình giữ nguyên tỉ lệ khung hình."
+      navigationTitle: "Quay lại và mở cài đặt"
+      navigationBody: "B / Y lùi một cấp: đóng cửa sổ bật lên hoặc quay về trang chính của bảng, ẩn bảng, rồi quay về ứng dụng. Nút Menu bên trái mở cài đặt không gian."
+      navigationHint: "Nút Meta bên phải thuộc về hệ thống. Chức năng định vị lại của hệ thống đưa tầm nhìn về phía trước trong khi giữ nguyên kích thước và khoảng cách màn hình."
+      handsTitle: "Dùng bàn tay"
+      handsBody: "Khi bật theo dõi bàn tay, hướng tia của hệ thống vào một nút, chụm ngón cái và ngón trỏ, rồi thả ra. Dùng bảng để phát, tua và điều hướng thư viện."
+      handsHint: "Chụm bên ngoài để bật/tắt bảng. Chụm một cạnh để di chuyển, một góc để đổi kích thước, hoặc chụm bằng cả hai tay rồi dang ra để phóng to màn hình."
+  home: Trang chủ
+  videoPlayer: Trình phát video
+  videoPlayerInfo: Thông tin trình phát video
+  moreSettings: Cài đặt thêm
+  videoPlayerFeatureInfo: Thông tin tính năng trình phát video
+  autoRewind: Tự động tua lại
+  rewindAndFastForward: Tua lại và tua tới
+  volumeAndBrightness: Âm lượng và độ sáng
+  centerAreaDoubleTapPauseOrPlay: Nhấn đúp vùng giữa để tạm dừng hoặc phát
+  showVerticalVideoInFullScreen: Hiển thị video dọc ở chế độ toàn màn hình
+  keepLastVolumeAndBrightness: Giữ âm lượng và độ sáng lần trước
+  setProxy: Đặt proxy
+  moreFeaturesToBeDiscovered: Còn nhiều tính năng đang chờ khám phá...
+  videoPlayerSettings: Cài đặt trình phát video
+  commentCount: '${num} bình luận'
+  writeYourCommentHere: Viết bình luận của bạn ở đây...
+  authorOtherVideos: Video khác của tác giả
+  relatedVideos: Video liên quan
+  privateVideo: Đây là video riêng tư
+  externalVideo: Đây là video bên ngoài
+  openInBrowser: Mở trong trình duyệt
+  resourceDeleted: Video này có vẻ đã bị xóa :/
+  noDownloadUrl: Không có URL tải xuống
+  startDownloading: Bắt đầu tải xuống
+  downloadFailed: Tải xuống thất bại, vui lòng thử lại sau
+  downloadSuccess: Tải xuống thành công
+  download: Tải xuống
+  downloadManager: Trình quản lý tải xuống
+  resourceNotFound: Không tìm thấy tài nguyên
+  videoLoadError: Lỗi tải video
+  authorNoOtherVideos: Tác giả không có video khác
+  noRelatedVideos: Không có video liên quan
+  player:
+    errorWhileLoadingVideoSource: Lỗi khi tải nguồn video
+    errorWhileSettingUpListeners: Lỗi khi thiết lập trình lắng nghe
+    serverFaultDetectedAutoSwitched: Phát hiện lỗi máy chủ, tự động chuyển tuyến và thử lại
+  skeleton:
+    fetchingVideoInfo: Đang lấy thông tin video...
+    fetchingVideoSources: Đang lấy nguồn video...
+    loadingVideo: Đang tải video...
+    applyingSolution: Đang áp dụng giải pháp...
+    addingListeners: Đang thêm trình lắng nghe...
+    successFecthVideoDurationInfo: Đã lấy thành công thời lượng video, bắt đầu tải video...
+    successFecthVideoHeightInfo: Tải hoàn tất
+  # 投屏
+  cast:
+    dlnaCast: Truyền phát
+    unableToStartCastingSearch: 'Không thể bắt đầu tìm kiếm truyền phát: ${error}'
+    startCastingTo: 'Bắt đầu truyền phát tới ${deviceName}'
+    castFailed: "Truyền phát thất bại: ${error}\nVui lòng thử tìm lại thiết bị hoặc chuyển mạng"
+    castStopped: 'Đã dừng truyền phát'
+    deviceTypes:
+      mediaRenderer: Trình phát media
+      mediaServer: Máy chủ media
+      internetGatewayDevice: Bộ định tuyến
+      basicDevice: Thiết bị cơ bản
+      dimmableLight: Đèn thông minh
+      wlanAccessPoint: Điểm truy cập WLAN
+      wlanConnectionDevice: Thiết bị kết nối WLAN
+      printer: Máy in
+      scanner: Máy quét
+      digitalSecurityCamera: Camera an ninh kỹ thuật số
+      unknownDevice: Thiết bị không xác định
+    currentPlatformNotSupported: Nền tảng hiện tại không hỗ trợ truyền phát
+    unableToGetVideoUrl: Không lấy được URL video, vui lòng thử lại sau
+    stopCasting: Dừng truyền phát
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: Truyền phát từ xa
+      close: Đóng
+      searchingDevices: Đang tìm thiết bị...
+      searchPrompt: Nhấn nút tìm kiếm để tìm lại thiết bị truyền phát
+      searching: Đang tìm kiếm
+      searchAgain: Tìm lại
+      noDevicesFound: "Không tìm thấy thiết bị truyền phát nào\nVui lòng đảm bảo các thiết bị cùng mạng"
+      searchingDevicesPrompt: Đang tìm thiết bị, vui lòng chờ...
+      cast: Truyền phát
+      connectedTo: 'Đã kết nối với: ${deviceName}'
+      notConnected: Chưa kết nối thiết bị nào
+      stopCasting: Dừng truyền phát
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: Ai đang âm thầm thích
+    dialogDescription: Tò mò họ là ai? Lật xem "Album lượt thích" này~
+    closeTooltip: Đóng
+    retry: Thử lại
+    noLikesYet: Chưa có ai xuất hiện ở đây. Hãy là người đầu tiên!
+    pageInfo: 'Trang ${page} / ${totalPages} · Tổng ${totalCount} người'
+    prevPage: Trang trước
+    nextPage: Trang sau
+share:
+  sharePlayList: Chia sẻ danh sách phát
+  wowDidYouSeeThis: Chà, bạn thấy cái này chưa?
+  nameIs: Tên là
+  clickLinkToView: Nhấn liên kết để xem
+  iReallyLikeThis: Tôi rất thích cái này
+  shareFailed: Chia sẻ thất bại, vui lòng thử lại sau
+  share: Chia sẻ
+  shareAsImage: Chia sẻ dưới dạng hình ảnh
+  shareAsText: Chia sẻ dưới dạng văn bản
+  shareAsImageDesc: Chia sẻ ảnh bìa video dưới dạng hình ảnh
+  shareAsTextDesc: Chia sẻ thông tin chi tiết video dưới dạng văn bản
+  shareAsImageFailed: Chia sẻ ảnh bìa video dưới dạng hình ảnh thất bại, vui lòng thử lại sau
+  shareAsTextFailed: Chia sẻ thông tin chi tiết video dưới dạng văn bản thất bại, vui lòng thử lại sau
+  shareVideo: Chia sẻ video
+  authorIs: Tác giả là
+  shareGallery: Chia sẻ thư viện
+  galleryTitleIs: Tiêu đề thư viện là
+  galleryAuthorIs: Tác giả thư viện là
+  shareUser: Chia sẻ người dùng
+  userNameIs: Tên người dùng là
+  userAuthorIs: Tác giả người dùng là
+  comments: Bình luận
+  shareThread: Chia sẻ chủ đề
+  views: Lượt xem
+  sharePost: Chia sẻ bài viết
+  postTitleIs: Tiêu đề bài viết là
+  postAuthorIs: Tác giả bài viết là
+markdown:
+  markdownSyntax: Cú pháp Markdown
+  iwaraSpecialMarkdownSyntax: Cú pháp Markdown đặc biệt của Iwara
+  internalLink: Liên kết nội bộ
+  supportAutoConvertLinkBelow: 'Hỗ trợ tự động chuyển đổi liên kết dưới đây:'
+  convertLinkExample: "🎬 Liên kết video\n🖼️ Liên kết ảnh\n👤 Liên kết người dùng\n📌 Liên kết diễn đàn\n🎵 Liên kết danh sách phát\n💬 Liên kết chủ đề"
+  mentionUser: Nhắc tên người dùng
+  mentionUserDescription: 'Nhập @ theo sau là tên người dùng, sẽ tự động chuyển thành liên kết người dùng'
+  markdownBasicSyntax: Cú pháp Markdown cơ bản
+  paragraphAndLineBreak: Đoạn văn và ngắt dòng
+  paragraphAndLineBreakDescription: 'Các đoạn văn được phân tách bằng một dòng, và hai dấu cách ở cuối dòng sẽ được chuyển thành ngắt dòng'
+  paragraphAndLineBreakSyntax: "Đây là đoạn văn thứ nhất\n\nĐây là đoạn văn thứ hai\nDòng này kết thúc bằng hai dấu cách  \nsẽ được chuyển thành ngắt dòng"
+  textStyle: Kiểu chữ
+  textStyleDescription: 'Dùng ký hiệu đặc biệt bao quanh văn bản để đổi kiểu'
+  textStyleSyntax: "**Chữ đậm**\n*Chữ nghiêng*\n~~Chữ gạch ngang~~\n`Chữ mã`"
+  quote: Trích dẫn
+  quoteDescription: 'Dùng ký hiệu > để tạo trích dẫn, nhiều > để tạo trích dẫn nhiều cấp'
+  quoteSyntax: "> Đây là trích dẫn cấp một\n>> Đây là trích dẫn cấp hai"
+  list: Danh sách
+  listDescription: 'Tạo danh sách có thứ tự bằng số + dấu chấm, tạo danh sách không thứ tự bằng dấu -'
+  listSyntax: "1. Mục thứ nhất\n2. Mục thứ hai\n\n- Mục không thứ tự\n  - Mục con\n  - Mục con khác"
+  linkAndImage: Liên kết và hình ảnh
+  linkAndImageDescription: "Định dạng liên kết: [văn bản](URL)\nĐịnh dạng ảnh: ![mô tả](URL)"
+  linkAndImageSyntax: "[văn bản liên kết](${link})\n![mô tả ảnh](${imgUrl})"
+  title: Tiêu đề
+  titleDescription: 'Dùng ký hiệu # để tạo tiêu đề, số lượng # thể hiện cấp'
+  titleSyntax: "# Tiêu đề cấp một\n## Tiêu đề cấp hai\n### Tiêu đề cấp ba"
+  separator: Đường phân cách
+  separatorDescription: 'Tạo đường phân cách bằng ba ký hiệu - trở lên'
+  separatorSyntax: '---'
+  syntax: Cú pháp
+
+forum:
+  recent: Gần đây
+  category: Danh mục
+  lastReply: Trả lời gần nhất
+  sitewide:
+    badge: Toàn trang
+    title: Thông báo toàn trang
+    readMore: Đọc thêm
+  errors:
+    pleaseSelectCategory: Vui lòng chọn một danh mục
+    threadLocked: Chủ đề này đã bị khóa, không thể trả lời
+  createPost: Tạo bài viết
+  title: Tiêu đề
+  enterTitle: Nhập tiêu đề
+  content: Nội dung
+  enterContent: Nhập nội dung
+  writeYourContentHere: Viết nội dung tại đây...
+  posts: Bài viết
+  threads: Chủ đề
+  forum: Diễn đàn
+  createThread: Tạo chủ đề
+  selectCategory: Chọn danh mục
+  cooldownRemaining: 'Thời gian chờ còn lại ${minutes} phút ${seconds} giây'
+  groups:
+    administration: Quản trị
+    global: Toàn cầu
+    chinese: Tiếng Trung
+    japanese: Tiếng Nhật
+    korean: Tiếng Hàn
+    other: Khác
+  leafNames:
+    announcements: Thông báo
+    feedback: Phản hồi
+    support: Hỗ trợ
+    general: Chung
+    guides: Hướng dẫn
+    questions: Câu hỏi
+    requests: Yêu cầu
+    sharing: Chia sẻ
+    'general_zh': Chung
+    'questions_zh': Câu hỏi
+    'requests_zh': Yêu cầu
+    'support_zh': Hỗ trợ
+    'general_ja': Chung
+    'questions_ja': Câu hỏi
+    'requests_ja': Yêu cầu
+    'support_ja': Hỗ trợ
+    korean: Tiếng Hàn
+    other: Khác
+  leafDescriptions:
+    announcements: Thông báo và tin tức chính thức quan trọng
+    feedback: Phản hồi về tính năng và dịch vụ của trang web
+    support: Giúp giải quyết các vấn đề liên quan tới trang web
+    general: Thảo luận mọi chủ đề
+    guides: Chia sẻ kinh nghiệm và hướng dẫn
+    questions: Đặt câu hỏi của bạn
+    requests: Đăng yêu cầu của bạn
+    sharing: Chia sẻ nội dung thú vị
+    'general_zh': Thảo luận mọi chủ đề
+    'questions_zh': Đặt câu hỏi của bạn
+    'requests_zh': Đăng yêu cầu của bạn
+    'support_zh': Giúp giải quyết các vấn đề liên quan tới trang web
+    'general_ja': Thảo luận mọi chủ đề
+    'questions_ja': Đặt câu hỏi của bạn
+    'requests_ja': Đăng yêu cầu của bạn
+    'support_ja': Giúp giải quyết các vấn đề liên quan tới trang web
+    korean: Thảo luận liên quan tới tiếng Hàn
+    other: Nội dung khác chưa được phân loại
+  reply: Trả lời
+  pendingReview: Đang chờ duyệt
+  editedAt: Chỉnh sửa lúc
+  copySuccess: Đã sao chép vào clipboard
+  copySuccessForMessage: 'Đã sao chép vào clipboard: ${str}'
+  editReply: Chỉnh sửa trả lời
+  editTitle: Chỉnh sửa tiêu đề
+  submit: Gửi
+
+notifications:
+  errors:
+    unsupportedNotificationType: Loại thông báo không được hỗ trợ
+    unknownUser: Người dùng không xác định
+    unsupportedNotificationTypeWithType: 'Loại thông báo không được hỗ trợ: ${type}'
+    unknownNotificationType: Loại thông báo không xác định
+  notifications: Thông báo
+  profile: Trang cá nhân
+  postedNewComment: Đã đăng bình luận mới
+  inYour: trong
+  video: Video
+  repliedYourVideoComment: Đã trả lời bình luận video của bạn
+  copyInfoToClipboard: Sao chép thông tin thông báo vào bộ nhớ tạm
+  copySuccess: Đã sao chép vào bộ nhớ tạm
+  copySuccessForMessage: 'Đã sao chép vào bộ nhớ tạm: ${str}'
+  markAllAsRead: Đánh dấu tất cả là đã đọc
+  markAllAsReadSuccess: Tất cả thông báo đã được đánh dấu là đã đọc
+  markAllAsReadFailed: Đánh dấu tất cả là đã đọc thất bại
+  markSelectedAsRead: Đánh dấu mục đã chọn là đã đọc
+  markSelectedAsReadSuccess: Các thông báo đã chọn đã được đánh dấu là đã đọc
+  markSelectedAsReadFailed: Đánh dấu mục đã chọn là đã đọc thất bại
+  markAsRead: Đánh dấu là đã đọc
+  markAsReadSuccess: Thông báo đã được đánh dấu là đã đọc
+  markAsReadFailed: Đánh dấu thông báo là đã đọc thất bại
+  notificationTypeHelp: Trợ giúp về loại thông báo
+  dueToLackOfNotificationTypeDetails: Do thiếu chi tiết loại thông báo, các loại được hỗ trợ có thể không bao quát hết những thông báo bạn đang nhận
+  helpUsImproveNotificationTypeSupport: Nếu bạn sẵn lòng giúp chúng tôi cải thiện hỗ trợ loại thông báo
+  helpUsImproveNotificationTypeSupportLongText: "1. 📋 Sao chép thông tin thông báo\n2. 🐞 Gửi issue tới kho lưu trữ dự án\n\n⚠️ Lưu ý: Thông tin thông báo có thể chứa thông tin riêng tư cá nhân, nếu bạn không muốn công khai, bạn cũng có thể gửi cho tác giả dự án qua email."
+  goToRepository: Đi tới kho lưu trữ
+  copy: Sao chép
+  commentApproved: Bình luận đã được duyệt
+  repliedYourProfileComment: Đã trả lời bình luận trang cá nhân của bạn
+  kReplied: đã trả lời bình luận của bạn về
+  kCommented: đã bình luận về
+  kVideo: video
+  kGallery: thư viện
+  kProfile: trang cá nhân
+  kThread: chủ đề
+  kPost: bài viết
+  kCommentSection: mục bình luận
+  kApprovedComment: Bình luận đã được duyệt
+  kApprovedVideo: Video đã được duyệt
+  kApprovedGallery: Thư viện đã được duyệt
+  kApprovedThread: Chủ đề đã được duyệt
+  kApprovedPost: Bài viết đã được duyệt
+  kApprovedForumPost: Bài viết diễn đàn đã được duyệt
+  kRejectedContent: Nội dung bị từ chối phê duyệt
+  kUnknownType: Loại thông báo không xác định
+
+conversation:
+  errors:
+    pleaseSelectAUser: Vui lòng chọn một người dùng
+    pleaseEnterATitle: Vui lòng nhập tiêu đề
+    clickToSelectAUser: Nhấn để chọn người dùng
+    loadFailedClickToRetry: Tải thất bại, nhấn để thử lại
+    loadFailed: Tải thất bại
+    clickToRetry: Nhấn để thử lại
+    noMoreConversations: Không còn hội thoại
+  conversation: Hội thoại
+  startConversation: Bắt đầu hội thoại
+  noConversation: Không có hội thoại
+  selectFromLeftListAndStartConversation: Chọn từ danh sách bên trái và bắt đầu hội thoại
+  title: Tiêu đề
+  body: Nội dung
+  selectAUser: Chọn một người dùng
+  searchUsers: Tìm kiếm người dùng...
+  tmpNoConversions: Không có hội thoại
+  deleteThisMessage: Xóa tin nhắn này
+  deleteThisMessageSubtitle: Thao tác này không thể hoàn tác
+  writeMessageHere: Viết tin nhắn tại đây...
+  lastMessageFromMe: "Bạn: "
+  sendMessage: Gửi tin nhắn
+
+splash:
+  errors:
+    initializationFailed: Khởi tạo thất bại, vui lòng khởi động lại ứng dụng
+  preparing: Đang chuẩn bị...
+  initializing: Đang khởi tạo...
+  loading: Đang tải...
+  ready: Sẵn sàng
+  initializingMessageService: Đang khởi tạo dịch vụ tin nhắn...
+
+
+download:
+  errors:
+    imageModelNotFound: Không tìm thấy mẫu ảnh
+    downloadFailed: Tải xuống thất bại
+    videoInfoNotFound: Không tìm thấy thông tin video
+    downloadTaskAlreadyExists: Tác vụ tải xuống đã tồn tại
+    downloadTaskSavePathConflict: Đường dẫn lưu đang được tác vụ khác sử dụng
+    videoAlreadyDownloaded: Video đã được tải xuống
+    downloadFailedForMessage: 'Thêm tác vụ tải xuống thất bại: ${errorInfo}'
+    userPausedDownload: Người dùng đã tạm dừng tải xuống
+    unknown: Không xác định
+    fileSystemError: 'Lỗi hệ thống tệp: ${errorInfo}'
+    unknownError: 'Lỗi không xác định: ${errorInfo}'
+    writeFileFailedForMessage: 'Ghi tệp thất bại: ${errorInfo}'
+    connectionTimeout: Kết nối quá thời gian
+    sendTimeout: Gửi quá thời gian
+    receiveTimeout: Nhận quá thời gian
+    serverError: 'Lỗi máy chủ: ${errorInfo}'
+    unknownNetworkError: Lỗi mạng không xác định
+    sslHandshakeFailed: Bắt tay SSL thất bại, vui lòng kiểm tra mạng
+    connectionFailed: Kết nối thất bại, vui lòng kiểm tra mạng
+    serviceIsClosing: Dịch vụ tải xuống đang đóng
+    partialDownloadFailed: Tải nội dung một phần thất bại
+    noDownloadTask: Không có tác vụ tải xuống
+    taskNotFoundOrDataError: Không tìm thấy tác vụ hoặc lỗi dữ liệu
+    fileNotFound: Không tìm thấy tệp
+    openFolderFailed: Mở thư mục thất bại
+    copyDownloadUrlFailed: 'Sao chép URL tải xuống thất bại'
+    openFolderFailedWithMessage: 'Mở thư mục thất bại: ${message}'
+    directoryNotFound: Không tìm thấy thư mục
+    copyFailed: Sao chép thất bại
+    openFileFailed: Mở tệp thất bại
+    openFileFailedWithMessage: 'Mở tệp thất bại: ${message}'
+    playLocallyFailed: Phát cục bộ thất bại
+    playLocallyFailedWithMessage: 'Phát cục bộ thất bại: ${message}'
+    noDownloadSource: Không có nguồn tải xuống
+    noDownloadSourceNowPleaseWaitInfoLoaded: Không có nguồn tải xuống, vui lòng đợi tải xong thông tin rồi thử lại
+    noActiveDownloadTask: Không có tác vụ tải xuống đang hoạt động
+    noFailedDownloadTask: Không có tác vụ tải xuống thất bại
+    noCompletedDownloadTask: Không có tác vụ tải xuống đã hoàn thành
+    taskAlreadyCompletedDoNotAdd: Tác vụ đã hoàn thành, không thêm lại
+    linkExpiredTryAgain: Liên kết đã hết hạn, đang thử lấy liên kết tải xuống mới
+    linkExpiredTryAgainSuccess: Liên kết đã hết hạn, lấy liên kết tải xuống mới thành công
+    linkExpiredTryAgainFailed: Liên kết đã hết hạn, lấy liên kết tải xuống mới thất bại
+    taskDeleted: Đã xóa tác vụ
+    unsupportedImageFormat: 'Định dạng ảnh không được hỗ trợ: ${format}'
+    deleteFileError: 'Xóa tệp thất bại, có thể do tệp đang được tiến trình khác sử dụng'
+    deleteTaskError: 'Xóa tác vụ thất bại'
+    canNotRefreshVideoTask: 'Làm mới tác vụ video thất bại'
+    videoRemovedCanNotRefresh: 'Video này đã bị xóa hoặc không còn tồn tại nên không thể làm mới liên kết tải xuống'
+    videoInaccessibleCanNotRefresh: 'Không thể truy cập video này, có thể video ở chế độ riêng tư hoặc cần đăng nhập lại'
+    videoQualityGone: 'Chất lượng này không còn được cung cấp, vui lòng thêm lại tác vụ tải xuống'
+    refreshLinkNetworkFailed: 'Lỗi mạng, hiện không thể làm mới liên kết tải xuống, vui lòng thử lại sau'
+    taskAlreadyProcessing: 'Tác vụ đang được xử lý'
+    taskNotFound: 'Không tìm thấy tác vụ'
+    failedToLoadTasks: 'Tải danh sách tác vụ thất bại'
+    partialDownloadFailedWithMessage: 'Tải một phần thất bại: ${message}'
+    unsupportedImageFormatWithMessage: 'Định dạng ảnh không được hỗ trợ: ${extension}, có thể thử tải về thiết bị để xem'
+    imageLoadFailed: 'Tải ảnh thất bại'
+    pleaseTryOtherViewer: 'Vui lòng thử dùng trình xem khác để mở'
+  downloadList: Danh sách tải xuống
+  viewDownloadList: Xem danh sách tải xuống
+  download: Tải xuống
+  selectDownloadTitle: Chọn tải xuống
+  qualitySectionLabel: Chất lượng
+  saveToSectionLabel: Lưu vào
+  lastUsedBadge: Dùng gần nhất
+  pickedBadge: Đã chọn
+  startDownloading: Bắt đầu tải xuống
+  clearAllFailedTasks: Xóa toàn bộ tác vụ thất bại
+  clearAllFailedTasksConfirmation: 'Bạn có chắc muốn xóa toàn bộ tác vụ tải xuống thất bại? Tệp của các tác vụ này cũng sẽ bị xóa.'
+  clearAllFailedTasksSuccess: Đã xóa toàn bộ tác vụ thất bại
+  clearAllFailedTasksError: Đã xảy ra lỗi khi xóa tác vụ thất bại
+  downloadStatus: Trạng thái tải xuống
+  imageList: Danh sách ảnh
+  retryDownload: Thử tải lại
+  notDownloaded: Chưa tải xuống
+  downloaded: Đã tải xuống
+  waitingForDownload: Đang chờ tải xuống
+  downloadingProgressForImageProgress: 'Đang tải (${downloaded}/${total} ảnh ${progress}%)'
+  downloadingSingleImageProgress: 'Đang tải (${downloaded} ảnh)'
+  pausedProgressForImageProgress: 'Đã tạm dừng (${downloaded}/${total} ảnh ${progress}%)'
+  pausedSingleImageProgress: 'Đã tạm dừng (${downloaded} ảnh)'
+  downloadedProgressForImageProgress: 'Đã tải xuống (tổng ${total} ảnh)'
+  viewVideoDetail: Xem chi tiết video
+  viewGalleryDetail: Xem chi tiết thư viện
+  moreOptions: Tùy chọn khác
+  openFile: Mở tệp
+  playLocally: Phát cục bộ
+  pause: Tạm dừng
+  resume: Tiếp tục
+  copyDownloadUrl: Sao chép URL tải xuống
+  showInFolder: Hiện trong thư mục
+  deleteTask: Xóa tác vụ
+  deleteTaskConfirmation: "Bạn có chắc muốn xóa tác vụ tải xuống này?\nTệp của tác vụ cũng sẽ bị xóa."
+  forceDeleteTask: Buộc xóa tác vụ
+  forceDeleteTaskConfirmation: "Bạn có chắc muốn buộc xóa tác vụ tải xuống này?\nTệp của tác vụ cũng sẽ bị xóa, kể cả khi tệp đang được sử dụng."
+  downloadingProgressForVideoTask: 'Đang tải ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'Đang tải ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: 'Đã tạm dừng ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'Đã tạm dừng • Đã tải ${downloaded}'
+  downloadedWithSize: 'Đã tải xuống • ${size}'
+  copyDownloadUrlSuccess: 'Đã sao chép URL tải xuống'
+  totalImageNums: '${num} ảnh'
+  downloadingDownloadedTotalProgressSpeed: 'Đang tải ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloading: Đang tải xuống
+  failed: Thất bại
+  completed: Đã hoàn thành
+  downloadDetail: Chi tiết tải xuống
+  copy: Sao chép
+  copySuccess: Đã sao chép
+  waiting: Đang chờ
+  paused: Đã tạm dừng
+  downloadingOnlyDownloaded: 'Đang tải ${downloaded}'
+  galleryDownloadCompletedWithName: 'Tải thư viện hoàn tất: ${galleryName}'
+  downloadCompletedWithName: 'Tải xuống hoàn tất: ${fileName}'
+  searchTasks: Tìm kiếm tác vụ...
+  statusLabel: 'Trạng thái: ${label}'
+  allStatus: Mọi trạng thái
+  typeLabel: 'Loại: ${label}'
+  allTypes: Mọi loại
+  taskType: Loại
+  video: Video
+  gallery: Thư viện
+  other: Khác
+  clearFilters: Xóa bộ lọc
+  pauseAll: Tạm dừng tất cả
+  resumeAll: Bắt đầu tất cả
+  errorTypes:
+    network: Vấn đề mạng, thử lại có thể giúp ích
+    serverRejected: Bị máy chủ từ chối, có thể cần đăng nhập lại
+    notFound: Tài nguyên không còn tồn tại hoặc đã bị xóa
+    diskFull: Không đủ dung lượng lưu trữ
+    fileInUse: Tệp đang được chương trình khác sử dụng
+    permission: Không có quyền ghi
+    cancelled: Đã hủy
+    unknown: Lỗi không xác định
+  errorDetailCopied: Đã sao chép chi tiết lỗi
+  errorDetailCopyHint: Nhấn giữ để sao chép chi tiết lỗi
+  restoredPaused:
+    banner: '${num} tác vụ chưa hoàn thành từ phiên trước đã được tạm dừng'
+    resume: Tiếp tục tất cả
+    dismiss: Bỏ qua
+  emptyTaskList: Chưa có tác vụ tải xuống
+  noMatchingTasks: Không có tác vụ nào khớp
+  deleteByDate:
+    menuTitle: Xóa theo ngày
+    dialogTitle: Xóa theo ngày
+    description: 'Xóa hàng loạt tác vụ tải xuống theo ngày tạo. Các tác vụ có tệp đang được dùng sẽ bị bỏ qua; tác vụ có tệp không còn tồn tại sẽ được dọn dẹp.'
+    modeRange: Khoảng ngày
+    modeDays: Cũ hơn
+    startDate: Ngày bắt đầu
+    endDate: Ngày kết thúc
+    notSet: Chưa đặt
+    daysUnit: ngày
+    olderThanDaysHint: 'Xóa các tác vụ được tạo cách đây hơn ${days} ngày'
+    noMatch: Không có tác vụ nào khớp điều kiện đã chọn
+    invalidRange: Ngày bắt đầu phải trước hoặc bằng ngày kết thúc
+    confirmTitle: Xác nhận xóa
+    confirmContent: 'Xóa ${count} tác vụ tải xuống và tệp của chúng? Thao tác này không thể hoàn tác.'
+    deleting: 'Đang xóa ${done}/${total}…'
+    resultSuccess: 'Đã xóa ${count} tác vụ'
+    resultPartial: 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)'
+  category:
+    manageTitle: Quản lý danh mục
+    label: Danh mục
+    uncategorized: Chưa phân loại
+    manage: Quản lý
+    createShortcut: Mới
+    newCategoryHint: Tên danh mục mới
+    createSuccess: Đã tạo danh mục
+    createFailed: Tạo danh mục thất bại
+    nameEmpty: Tên danh mục không được để trống
+    emptyHint: Chưa có danh mục nào. Hãy tạo một danh mục để sắp xếp các mục đã tải xuống.
+    moveTo: Chuyển vào danh mục
+    moveToWithCount: 'Chuyển ${count} mục vào…'
+    moveSuccess: 'Đã chuyển vào ${title}'
+    moveToUncategorizedSuccess: Đã chuyển vào Chưa phân loại
+    moveFailed: Di chuyển thất bại
+    renameTitle: Đổi tên danh mục
+    renameHint: Nhập tên danh mục
+    renameSuccess: Đã đổi tên danh mục
+    renameFailed: Đổi tên danh mục thất bại
+    deleteTitle: Xóa danh mục
+    deleteConfirm: 'Xóa danh mục "${title}"? ${count} mục bên trong sẽ chuyển vào Chưa phân loại. Không có tệp nào bị xóa.'
+    deleteSuccess: Đã xóa danh mục
+    deleteFailed: Xóa danh mục thất bại
+  maxConcurrentDownloads: Số tải xuống đồng thời tối đa
+  maxConcurrentDownloadsDesc: 'Số tác vụ tải xuống cùng lúc (1-5)'
+  stillInDevelopment: Vẫn đang phát triển
+  saveToAppDirectory: Lưu vào thư mục ứng dụng
+  alreadyDownloadedWithQuality: 'Đã tải xuống với cùng chất lượng, tiếp tục tải?'
+  alreadyDownloadedWithQualities: 'Đã tải xuống với chất lượng: ${qualities}, tiếp tục tải?'
+  otherQualities: Chất lượng khác
+  batchDownload:
+    title: Tải hàng loạt
+    downloadTaskAlreadyRunning: Đang có tác vụ chạy, vui lòng đợi.
+    userCancelled: Người dùng đã hủy
+    failedToGetVideoInfo: Không lấy được thông tin video
+    failedToGetVideoSource: Không lấy được nguồn video
+    failedToGetGalleryInfo: Không lấy được thông tin thư viện
+    galleryNoImages: Thư viện không có ảnh
+    failedToGetSavePath: Không lấy được đường dẫn lưu
+    batchDownloadFailedWithException(exception): 'Tải hàng loạt thất bại: ${exception}'
+    selectQuality: Chọn chất lượng
+    downloading: Đang tải xuống
+    downloadResult: Kết quả tải xuống
+    selectedVideosCount(count): 'Đã chọn ${count} video'
+    selectedGalleriesCount(count): 'Đã chọn ${count} thư viện'
+    qualityNote: Nếu chất lượng đã chọn không khả dụng, chất lượng tốt nhất hiện có sẽ được dùng
+    progress(current, total): 'Đang xử lý ${current}/${total}'
+    queued: Trong hàng đợi
+    success: Thành công
+    skipped: Đã bỏ qua
+    failed: Thất bại
+    failureDetails: Chi tiết lỗi
+    reasonPrivateVideo: Video riêng tư
+    reasonAlreadyExists: Đã tồn tại
+    reasonNoSource: Không có nguồn tải xuống
+    reasonNoSavePath: Không lấy được đường dẫn lưu
+    reasonOther: Lỗi khác
+    startDownload: Bắt đầu tải xuống
+
+downloadNotifications:
+  completedTitle: Tải xuống hoàn tất
+  failedTitle: Tải xuống thất bại
+  completedBody: '${name} đã tải xuống thành công'
+  failedBody: '${name} tải xuống thất bại'
+  completedToast: 'Đã tải xuống ${name}'
+  failedToast: '${name} tải xuống thất bại'
+  channelName: Trạng thái tải xuống
+  channelDescription: Thông báo cho các tải xuống đã hoàn thành và thất bại
+
+favorite:
+  errors:
+    addFailed: Thêm thất bại
+    addSuccess: Thêm thành công
+    deleteFolderFailed: Xóa thư mục thất bại
+    deleteFolderSuccess: Xóa thư mục thành công
+    folderNameCannotBeEmpty: Tên thư mục không được để trống
+  add: Thêm
+  addSuccess: Thêm thành công
+  addFailed: Thêm thất bại
+  remove: Xóa
+  removeSuccess: Xóa thành công
+  removeFailed: Xóa thất bại
+  removeConfirmation: 'Bạn có chắc muốn xóa mục này khỏi yêu thích?'
+  removeConfirmationSuccess: 'Đã xóa mục khỏi yêu thích'
+  removeConfirmationFailed: 'Xóa mục khỏi yêu thích thất bại'
+  createFolderSuccess: 'Đã tạo thư mục thành công'
+  createFolderFailed: 'Tạo thư mục thất bại'
+  createFolder: Tạo thư mục
+  enterFolderName: Nhập tên thư mục
+  enterFolderNameHere: Nhập tên thư mục tại đây...
+  create: Tạo
+  items: Mục
+  newFolderName: Thư mục mới
+  searchFolders: Tìm kiếm thư mục...
+  searchItems: Tìm kiếm mục...
+  createdAt: Ngày tạo
+  myFavorites: Yêu thích của tôi
+  deleteFolderTitle: Xóa thư mục
+  deleteFolderConfirmWithTitle: 'Bạn có chắc muốn xóa thư mục ${title}?'
+  removeItemTitle: Xóa mục
+  removeItemConfirmWithTitle: 'Bạn có chắc muốn xóa mục ${title}?'
+  removeItemSuccess: Đã xóa mục khỏi yêu thích
+  removeItemFailed: Xóa mục khỏi yêu thích thất bại
+  localizeFavorite: Yêu thích cục bộ
+  editFolderTitle: Chỉnh sửa thư mục
+  editFolderSuccess: Đã cập nhật thư mục thành công
+  editFolderFailed: Cập nhật thư mục thất bại
+  searchTags: Tìm kiếm thẻ
+  noTagsInFolder: Chưa có thẻ nào trên các mục trong thư mục này
+  tagFilterMatchAll: Chỉ hiện các mục có đủ mọi thẻ đã chọn
+  clearSelectedTags: Xóa thẻ đã chọn
+  selectedTagCount: "Đã chọn ${count}"
+  noMatchingTags: Không có thẻ nào khớp
+
+translation:
+  currentService: Dịch vụ hiện tại
+  testConnection: Kiểm tra kết nối
+  testConnectionSuccess: Kiểm tra kết nối thành công
+  testConnectionFailed: Kiểm tra kết nối thất bại
+  testConnectionFailedWithMessage: 'Kiểm tra kết nối thất bại: ${message}'
+  translation: Dịch
+  needVerification: Cần xác minh
+  needVerificationContent: Vui lòng kiểm tra kết nối trước khi bật dịch bằng AI
+  confirm: Xác nhận
+  disclaimer: Miễn trừ trách nhiệm
+  riskWarning: Cảnh báo rủi ro
+  dureToRisk1: 'Do văn bản do người dùng tạo, có thể chứa nội dung vi phạm chính sách nội dung của nhà cung cấp dịch vụ AI'
+  dureToRisk2: 'Nội dung không phù hợp có thể dẫn đến việc khóa API key hoặc chấm dứt dịch vụ'
+  operationSuggestion: Gợi ý thao tác
+  operationSuggestion1: '1. Dùng trước khi kiểm duyệt kỹ nội dung cần dịch'
+  operationSuggestion2: '2. Tránh dịch nội dung liên quan đến bạo lực, nội dung người lớn, v.v.'
+  apiConfig: Cấu hình API
+  modifyConfigWillAutoCloseAITranslation: 'Sửa cấu hình sẽ tự động tắt dịch bằng AI, cần kiểm tra lại sau khi bật'
+  apiAddress: Địa chỉ API
+  modelName: Tên mô hình
+  modelNameHintText: 'Ví dụ: gpt-4-turbo'
+  maxTokens: Số token tối đa
+  maxTokensHintText: 'Ví dụ: 32000'
+  temperature: Nhiệt độ
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'Nhấn nút kiểm tra để xác minh kết nối API có hợp lệ không'
+  requestPreview: Xem trước yêu cầu
+  enableAITranslation: Bật AI
+  enabled: Đã bật
+  disabled: Đã tắt
+  testing: Đang kiểm tra...
+  testNow: Kiểm tra ngay
+  connectionStatus: Trạng thái kết nối
+  success: Thành công
+  failed: Thất bại
+  information: Thông tin
+  viewRawResponse: Xem phản hồi thô
+  pleaseCheckInputParametersFormat: Vui lòng kiểm tra định dạng tham số đầu vào
+  pleaseFillInAPIAddressModelNameAndKey: Vui lòng điền địa chỉ API, tên mô hình và khóa
+  pleaseFillInValidConfigurationParameters: Vui lòng điền các tham số cấu hình hợp lệ
+  pleaseCompleteConnectionTest: Vui lòng hoàn tất kiểm tra kết nối
+  notConfigured: Chưa cấu hình
+  apiEndpoint: Điểm cuối API
+  configuredKey: Khóa đã cấu hình
+  notConfiguredKey: Khóa chưa cấu hình
+  authenticationStatus: Trạng thái xác thực
+  thisFieldCannotBeEmpty: Trường này không được để trống
+  apiKey: Khóa API
+  apiKeyCannotBeEmpty: Khóa API không được để trống
+  pleaseEnterValidNumber: Vui lòng nhập số hợp lệ
+  range: Khoảng
+  mustBeGreaterThan: Phải lớn hơn
+  invalidAPIResponse: Phản hồi API không hợp lệ
+  connectionFailedForMessage: 'Kết nối thất bại: ${message}'
+  aiTranslationNotEnabledHint: Tính năng dịch bằng AI chưa được bật, vui lòng bật trong cài đặt
+  goToSettings: Đi tới Cài đặt
+  disableAITranslation: Tắt dịch bằng AI
+  currentValue: Giá trị hiện tại
+  configureTranslationStrategy: Cấu hình chiến lược dịch
+  advancedSettings: "Cài đặt nâng cao"
+  translationPrompt: "Câu lệnh dịch"
+  promptHint: "Vui lòng nhập câu lệnh dịch, dùng [TL] làm chỗ giữ chỗ cho ngôn ngữ đích"
+  promptHelperText: "Câu lệnh phải chứa [TL] làm chỗ giữ chỗ cho ngôn ngữ đích"
+  promptMustContainTargetLang: "Câu lệnh phải chứa chỗ giữ chỗ [TL]"
+  aiTranslationWillBeDisabled: "Dịch bằng AI sẽ bị tắt"
+  aiTranslationWillBeDisabledDueToConfigChange: "Do thay đổi cấu hình cơ bản, dịch bằng AI sẽ bị tắt"
+  aiTranslationWillBeDisabledDueToPromptChange: "Do thay đổi câu lệnh dịch, dịch bằng AI sẽ bị tắt"
+  aiTranslationWillBeDisabledDueToParamChange: "Do thay đổi cấu hình tham số, dịch bằng AI sẽ bị tắt"
+  onlyOpenAIAPISupported: "Hiện chỉ hỗ trợ định dạng API tương thích OpenAI (phần thân yêu cầu application/json)"
+  streamingTranslation: "Dịch theo luồng"
+  streamingTranslationSupported: "Hỗ trợ dịch theo luồng"
+  streamingTranslationNotSupported: "Không hỗ trợ dịch theo luồng"
+  streamingTranslationDescription: "Dịch theo luồng có thể hiển thị kết quả theo thời gian thực trong quá trình dịch, mang lại trải nghiệm tốt hơn"
+  usingFullUrlWithHash: "Đang dùng URL đầy đủ (kết thúc bằng #)"
+  baseUrlInputHelperText: "Khi kết thúc bằng #, nó sẽ được dùng làm địa chỉ yêu cầu thực tế"
+  currentActualUrl: "URL thực tế hiện tại: ${url}"
+  urlEndingWithHashTip: "URL kết thúc bằng # sẽ được dùng trực tiếp mà không thêm hậu tố nào"
+  streamingTranslationWarning: "Lưu ý: Tính năng này yêu cầu dịch vụ API hỗ trợ truyền theo luồng, một số mô hình có thể không hỗ trợ"
+  # Translation Service Selection
+  translationService: Dịch vụ dịch
+  translationServiceDescription: Chọn dịch vụ dịch bạn muốn dùng
+  googleTranslation: Dịch Google
+  googleTranslationDescription: Dịch vụ dịch trực tuyến miễn phí hỗ trợ nhiều ngôn ngữ
+  aiTranslation: Dịch bằng AI
+  aiTranslationDescription: Dịch vụ dịch thông minh dựa trên mô hình ngôn ngữ lớn
+  deeplxTranslation: Dịch DeepLX
+  deeplxTranslationDescription: Bản triển khai mã nguồn mở của DeepL, cung cấp bản dịch chất lượng cao
+  # Google Translation
+  googleTranslationFeatures: Tính năng
+  freeToUse: Miễn phí sử dụng
+  freeToUseDescription: Không cần cấu hình, dùng được ngay
+  fastResponse: Phản hồi nhanh
+  fastResponseDescription: Tốc độ dịch nhanh với độ trễ thấp
+  stableAndReliable: Ổn định và đáng tin cậy
+  stableAndReliableDescription: Dựa trên API chính thức của Google
+  enabledDefaultService: Đã bật - Dịch vụ dịch mặc định
+  notEnabled: Chưa bật
+  # DeepLX Translation
+  deeplxTranslationService: Dịch vụ dịch DeepLX
+  deeplxDescription: DeepLX là bản triển khai mã nguồn mở của DeepL, hỗ trợ các chế độ điểm cuối Free, Pro và Official
+  serverAddress: Địa chỉ máy chủ
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: Địa chỉ gốc của máy chủ DeepLX
+  endpointType: Loại điểm cuối
+  freeEndpoint: Free - Điểm cuối miễn phí, có thể bị giới hạn tốc độ
+  proEndpoint: Pro - Cần dl_session, ổn định hơn
+  officialEndpoint: Official - Định dạng API chính thức
+  finalRequestUrl: URL yêu cầu cuối cùng
+  apiKeyOptional: Khóa API (tùy chọn)
+  apiKeyOptionalHint: Để truy cập các dịch vụ DeepLX được bảo vệ
+  apiKeyOptionalHelperText: Một số dịch vụ DeepLX yêu cầu Khóa API để xác thực
+  dlSession: DL Session
+  dlSessionHint: Tham số dl_session bắt buộc cho chế độ Pro
+  dlSessionHelperText: Tham số session bắt buộc cho điểm cuối Pro, lấy từ tài khoản DeepL Pro
+  proModeRequiresDlSession: Chế độ Pro cần dl_session
+  clickTestButtonToVerifyDeepLXAPI: Nhấn nút kiểm tra để xác minh kết nối API DeepLX
+  enableDeepLXTranslation: Bật dịch DeepLX
+  deepLXTranslationWillBeDisabled: Dịch DeepLX sẽ bị tắt do thay đổi cấu hình
+  translatedResult: Kết quả dịch
+  # Translation Service Messages
+  testSuccess: Kiểm tra thành công
+  pleaseFillInDeepLXServerAddress: Vui lòng điền địa chỉ máy chủ DeepLX
+  invalidAPIResponseFormat: Định dạng phản hồi API không hợp lệ
+  translationServiceReturnedError: Dịch vụ dịch trả về lỗi hoặc kết quả rỗng
+  connectionFailed: Kết nối thất bại
+  # Translation Service Log Messages
+  translationFailed: Dịch thất bại
+  aiTranslationFailed: Dịch bằng AI thất bại
+  deeplxTranslationFailed: Dịch DeepLX thất bại
+  aiTranslationTestFailed: Kiểm tra dịch bằng AI thất bại
+  deeplxTranslationTestFailed: Kiểm tra dịch DeepLX thất bại
+  streamingTranslationTimeout: Dịch theo luồng quá thời gian, buộc dọn tài nguyên
+  translationRequestTimeout: Yêu cầu dịch quá thời gian
+  streamingTranslationDataTimeout: Hết thời gian nhận dữ liệu dịch theo luồng
+  dataReceptionTimeout: Hết thời gian nhận dữ liệu
+  streamDataParseError: Lỗi phân tích dữ liệu luồng
+  streamingTranslationFailed: Dịch theo luồng thất bại
+  fallbackTranslationFailed: Dịch dự phòng thông thường cũng thất bại
+  translationSettings: Cài đặt dịch
+  enableGoogleTranslation: Bật dịch Google
+  # Modern AI adaptation
+  thinking: Đang suy nghĩ...
+  thoughtProcess: Quá trình suy nghĩ
+  modelCompatibility: Tương thích mô hình
+  modelCompatibilityDescription: Điều chỉnh tham số yêu cầu cho các mô hình hiện đại như mô hình suy luận (o1/o3, DeepSeek-R1, QwQ)
+  reasoningModel: Mô hình suy luận
+  reasoningModelDescription: Cho o1/o3, DeepSeek-R1, QwQ, v.v. Gộp câu lệnh vào tin nhắn người dùng, bỏ temperature và dùng max_completion_tokens
+  useMaxCompletionTokens: Dùng max_completion_tokens
+  useMaxCompletionTokensDescription: Các điểm cuối OpenAI mới hơn yêu cầu max_completion_tokens thay cho max_tokens đã lỗi thời
+  sendTemperature: Gửi temperature
+  sendTemperatureDescription: Tắt cho các mô hình từ chối tham số temperature (hầu hết mô hình suy luận)
+  showReasoningProcess: Hiển thị quá trình suy nghĩ
+  showReasoningProcessDescription: Hiển thị phần suy luận có thể thu gọn của mô hình suy luận trong hộp thoại dịch
+  provider: Nhà cung cấp
+  providerOpenAI: OpenAI (và tương thích)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "Hỗ trợ OpenAI (và mọi điểm cuối tương thích OpenAI), Anthropic và Google qua SDK dartantic_ai"
+  baseUrlOptionalHelperText: "Tùy chọn. Để trống để dùng điểm cuối mặc định của nhà cung cấp; điền vào cho các điểm cuối tương thích OpenAI hoặc trung chuyển"
+  defaultEndpoint: Điểm cuối mặc định
+  providerPreset: Đặt trước nhà cung cấp
+  selectProviderPreset: Chọn một đặt trước
+  presetCustom: Tùy chỉnh
+  presetApplied: 'Đã áp dụng đặt trước: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI Reasoning (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude Reasoning (suy luận mở rộng)
+    gemini: Google Gemini (gốc)
+    geminiReasoning: Google Gemini Reasoning (suy nghĩ)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek Reasoning (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
+  fetchModelList: Tải danh sách mô hình
+  fetchingModels: Đang tải...
+  selectModel: Chọn mô hình
+  searchModel: Tìm kiếm mô hình
+  noModelsFound: Không tìm thấy mô hình nào
+
+# Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: Video
+  gallery: Ảnh
+  subscription: Feed
+  community: Forum
+  localMedia: Cục bộ
+
+navigationOrderSettings:
+  title: Cài đặt thứ tự điều hướng
+  customNavigationOrder: Thứ tự điều hướng tùy chỉnh
+  customNavigationOrderDesc: Kéo để điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên
+  restartRequired: Cần khởi động lại ứng dụng
+  navigationItemSorting: Sắp xếp mục điều hướng
+  done: Xong
+  edit: Chỉnh sửa
+  reset: Đặt lại
+  previewEffect: Xem trước hiệu ứng
+  bottomNavigationPreview: "Xem trước thanh điều hướng dưới:"
+  sidebarPreview: "Xem trước thanh bên:"
+  confirmResetNavigationOrder: Xác nhận đặt lại thứ tự điều hướng
+  confirmResetNavigationOrderDesc: Bạn có chắc muốn đặt lại thứ tự điều hướng về mặc định?
+  cancel: Hủy
+  show: Hiện
+  hide: Ẩn
+  hidden: Đã ẩn
+  hideHint: Nhấn biểu tượng con mắt để hiện hoặc ẩn Cộng đồng và tệp cục bộ
+  # Navigation item descriptions
+  videoDescription: Duyệt nội dung video phổ biến
+  galleryDescription: Duyệt ảnh và thư viện
+  subscriptionDescription: Xem nội dung mới nhất từ những người bạn theo dõi
+  forumDescription: Tham gia thảo luận cộng đồng
+
+  newsDescription: Duyệt tin tức, bài viết và phát sóng chính thức
+  communityDescription: Thảo luận diễn đàn cùng tin tức, bài viết và phát sóng chính thức
+  localMediaDescription: Duyệt video và ảnh lưu trên thiết bị này
+
+news:
+  title: Tin tức
+  newsUpdates: Cập nhật tin tức
+  articles: Bài viết
+  broadcast: Phát sóng
+  openInBrowser: Mở trong trình duyệt
+
+# Display Settings
+displaySettings:
+  title: Cài đặt hiển thị
+  layoutSettings: Cài đặt bố cục
+  layoutSettingsDesc: Tùy chỉnh số cột và cấu hình điểm ngắt
+  gridLayout: Bố cục lưới
+  navigationOrderSettings: Cài đặt thứ tự điều hướng
+  customNavigationOrder: Thứ tự điều hướng tùy chỉnh
+  customNavigationOrderDesc: Điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên
+
+# Layout Settings
+layoutSettings:
+  title: Cài đặt bố cục
+  descriptionTitle: Mô tả cấu hình bố cục
+  descriptionContent: Cấu hình tại đây quyết định số cột hiển thị trong trang danh sách video và thư viện. Có thể chọn chế độ tự động để hệ thống tự điều chỉnh theo chiều rộng màn hình, hoặc chọn chế độ thủ công để cố định số cột.
+  layoutMode: Chế độ bố cục
+  reset: Đặt lại
+  autoMode: Chế độ tự động
+  autoModeDesc: Tự động điều chỉnh theo chiều rộng màn hình
+  manualMode: Chế độ thủ công
+  manualModeDesc: Dùng số cột cố định
+  manualSettings: Cài đặt thủ công
+  fixedColumns: Số cột cố định
+  columns: cột
+  breakpointConfig: Cấu hình điểm ngắt
+  add: Thêm
+  defaultColumns: Số cột mặc định
+  defaultColumnsDesc: Hiển thị mặc định cho màn hình lớn
+  previewEffect: Xem trước hiệu ứng
+  screenWidth: Chiều rộng màn hình
+  addBreakpoint: Thêm điểm ngắt
+  editBreakpoint: Chỉnh sửa điểm ngắt
+  deleteBreakpoint: Xóa điểm ngắt
+  screenWidthLabel: Chiều rộng màn hình
+  screenWidthHint: 600
+  columnsLabel: Số cột
+  columnsHint: 3
+  enterWidth: Vui lòng nhập chiều rộng
+  enterValidWidth: Vui lòng nhập chiều rộng hợp lệ
+  widthCannotExceed9999: Chiều rộng không được vượt quá 9999
+  breakpointAlreadyExists: Điểm ngắt đã tồn tại
+  enterColumns: Vui lòng nhập số cột
+  enterValidColumns: Vui lòng nhập số cột hợp lệ
+  columnsCannotExceed12: Số cột không được vượt quá 12
+  breakpointConflict: Điểm ngắt đã tồn tại
+  confirmResetLayoutSettings: Đặt lại cài đặt bố cục
+  confirmResetLayoutSettingsDesc: "Bạn có chắc muốn đặt lại toàn bộ cài đặt bố cục về giá trị mặc định?\n\nSẽ khôi phục về:\n• Chế độ tự động\n• Cấu hình điểm ngắt mặc định"
+  resetToDefaults: Đặt lại về mặc định
+  confirmDeleteBreakpoint: Xóa điểm ngắt
+  confirmDeleteBreakpointDesc: Bạn có chắc muốn xóa điểm ngắt ${width}px?
+  noCustomBreakpoints: Không có điểm ngắt tùy chỉnh, đang dùng số cột mặc định
+  breakpointRange: Phạm vi điểm ngắt
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: Chỉnh sửa
+  delete: Xóa
+  cancel: Hủy
+  save: Lưu
+
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "Lỗi trình phát video"
+  videoLoadFailed: "Tải video thất bại"
+  videoCodecNotSupported: "Không hỗ trợ codec video"
+  networkConnectionIssue: "Vấn đề kết nối mạng"
+  insufficientPermission: "Quyền không đủ"
+  unsupportedVideoFormat: "Định dạng video không được hỗ trợ"
+  retry: "Thử lại"
+  externalPlayer: "Trình phát ngoài"
+  detailedErrorInfo: "Thông tin lỗi chi tiết"
+  format: "Định dạng"
+  suggestion: "Gợi ý"
+  androidWebmCompatibilityIssue: "Thiết bị Android hỗ trợ hạn chế định dạng WEBM. Nên dùng trình phát ngoài hoặc tải ứng dụng trình phát hỗ trợ WEBM"
+  currentDeviceCodecNotSupported: "Thiết bị hiện tại không hỗ trợ codec cho định dạng video này"
+  checkNetworkConnection: "Vui lòng kiểm tra kết nối mạng và thử lại"
+  appMayLackMediaPermission: "Ứng dụng có thể thiếu quyền phát media cần thiết"
+  tryOtherVideoPlayer: "Vui lòng thử dùng trình phát video khác"
+  unrecognizedVideoFormat: "Tệp video không nhận dạng được"
+  unrecognizedVideoFormatSuggestion: "Liên kết có thể đã hết hạn, hoặc phản hồi không phải video. Hãy thử lại, hoặc mở bằng ứng dụng khác."
+  accessDenied: "Máy chủ từ chối yêu cầu này (403)"
+  accessDeniedSuggestion: "Liên kết phát nhiều khả năng đã hết hạn. Nhấn Thử lại để lấy lại, hoặc mở bằng ứng dụng khác."
+  mute: "Tắt tiếng"
+  unmute: "Bật tiếng"
+  video: "VIDEO"
+  # CDN Server Selection
+  serverSelector: Chọn máy chủ CDN
+  serverSelectorDescription: Chọn máy chủ có độ trễ thấp nhất để có trải nghiệm phát tốt nhất
+  retestSpeed: Đo lại tốc độ
+  waitingForSpeedTest: Đang chờ đo tốc độ
+  testingSpeed: Đang đo tốc độ...
+  testFailed: Đo thất bại
+  loadingServerList: Đang tải danh sách máy chủ...
+  noAvailableServers: Không có máy chủ khả dụng
+  refreshServerList: Làm mới danh sách máy chủ
+  cannotGetSource: Không lấy được nguồn video hiện tại
+  switchedToServer: "Đã chuyển sang máy chủ: ${serverName}"
+  serverCount: "Tổng ${count} máy chủ"
+  statusCode: "Mã trạng thái: ${code}"
+  connectionFailed: Kết nối thất bại
+  connectionTimeout: Kết nối quá thời gian
+  networkError: Lỗi mạng
+  sslError: Lỗi chứng chỉ SSL
+  testCompleted: Đã đo xong
+  # Local video playback
+  local: "Cục bộ"
+  unknown: "Không xác định"
+  localVideoPathEmpty: "Đường dẫn video cục bộ trống"
+  localVideoFileNotExists: "Tệp video cục bộ không tồn tại: ${path}"
+  unableToPlayLocalVideo: "Không thể phát video cục bộ: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "Kéo tệp video vào đây để phát"
+  supportedFormats: "Định dạng được hỗ trợ: MP4, MKV, AVI, MOV, WEBM, v.v."
+  noSupportedVideoFile: "Không tìm thấy tệp video được hỗ trợ"
+
+  # Custom runtime messages
+  retryingOpenVideoLink: "Mở liên kết video thất bại, đang thử lại"
+  decoderOpenFailedWithSuggestion: "Không thể tải bộ giải mã: ${event}. Hãy thử chuyển sang giải mã phần mềm trong cài đặt trình phát rồi vào lại trang"
+  videoLoadErrorWithDetail: "Lỗi tải video: ${event}"
+  playbackFailureDiagnosticsHint: "Phát hiện lỗi phát lặp lại. Vào Cài đặt > Chẩn đoán & Phản hồi để xuất nhật ký."
+  openSettingsAction: "Xem"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "Thông báo phát: ${message}"
+    networkUnstable: "Kiểm tra mạng; phát có thể bị giật"
+    audioTrackUnavailable: "Không có âm thanh; video vẫn tiếp tục phát"
+    hardwareDecodeFellBack: "Đã chuyển sang giải mã phần mềm; có thể tốn pin hơn"
+    videoDecodeProblem: "Hãy thử chất lượng khác; hình ảnh có thể bị lỗi"
+    repeatedPlaybackProblems: "Xuất nhật ký để báo cáo các vấn đề phát lặp lại"
+    issuesSheetTitle: "Vấn đề khi phát"
+    issueOccurrences: "Đã xảy ra ${count} lần"
+    issueAtPosition: "Tại ${position}"
+    noIssuesRecorded: "Không ghi nhận vấn đề nào"
+    exportLogsAction: "Xuất nhật ký"
+
+  # Image Widget
+  imageLoadFailed: "Tải ảnh thất bại"
+  unsupportedImageFormat: "Định dạng ảnh không được hỗ trợ"
+  tryOtherViewer: "Vui lòng thử dùng trình xem khác"
+
+diagnostics:
+  infoSectionTitle: "Thông tin chẩn đoán"
+  appVersionLabel: "Phiên bản ứng dụng"
+  memoryUsage: "Mức dùng bộ nhớ: ${memMB}MB"
+  deviceInfoUnavailable: "Không thể lấy thông tin thiết bị"
+  secureStorageLabel: "Lưu trữ an toàn"
+  secureStorageHealthy: "Khả dụng"
+  secureStorageRecovered: "Tự phục hồi bằng cách đặt lại (đã xóa dữ liệu trước đó)"
+  secureStorageUnavailable: "Không khả dụng (đăng nhập được lưu bằng mã hóa dự phòng)"
+  secureStoragePlatformOptOut: "Mã hóa cục bộ theo chính sách nền tảng (macOS không dùng chuỗi khóa hệ thống)"
+  secureStorageDualWrite: " (bật bảo vệ ghi kép)"
+  schemaHealthLabel: Lược đồ cơ sở dữ liệu
+  schemaHealthOk: OK
+  schemaHealthRepairedNow: Được lưới an toàn sửa chữa trong lần khởi chạy này (di trú chưa có hiệu lực)
+  schemaHealthRepairedBefore: Trước đây đã được lưới an toàn sửa chữa
+  logPolicySectionTitle: "Chính sách nhật ký"
+  configServiceUnavailable: "Dịch vụ cấu hình chưa được khởi tạo. Không thể điều chỉnh chính sách nhật ký."
+  enableLoggingTitle: "Bật ghi nhật ký"
+  enableLoggingSubtitle: "Tắt để ngừng ghi nhật ký mới"
+  enableLogPersistenceTitle: "Bật lưu nhật ký lâu dài"
+  enableLogPersistenceSubtitle: "Tắt để chỉ giữ nhật ký trong bộ nhớ và ngừng ghi ra đĩa"
+  minLogLevelTitle: "Cấp nhật ký tối thiểu"
+  minLogLevelSubtitle: "Nhật ký dưới mức này sẽ bị lọc bỏ"
+  maxFileSizeTitle: "Giới hạn kích thước một tệp"
+  maxFileSizeSubtitle: "Xoay vòng khi đạt ngưỡng"
+  rotatedFileCountTitle: "Số tệp xoay vòng nhật ký chính"
+  rotatedFileCountSubtitle: "Số tệp được giữ lại, không tính tệp hiện tại"
+  hangFileSizeTitle: "Giới hạn kích thước nhật ký treo"
+  hangFileSizeSubtitle: "Kiểm soát mức tăng của tệp hang_events"
+  hangRotatedFileCountTitle: "Số tệp xoay vòng nhật ký treo"
+  hangRotatedFileCountSubtitle: "Kiểm soát lịch sử lưu giữ cho hang_events"
+  healthSectionTitle: "Sức khỏe nhật ký"
+  refreshMetrics: "Làm mới chỉ số"
+  toolsSectionTitle: "Công cụ"
+  privacyNotice: "Nhật ký có thể chứa thông tin nhạy cảm như dữ liệu tài khoản và tham số yêu cầu. Không đăng toàn bộ nhật ký công khai trong issue; hãy xem lại trước và gửi qua email."
+  exportLogsTitle: "Xuất nhật ký"
+  exportLogsSubtitle: "Xem lại dữ liệu riêng tư trước khi gửi cho nhà phát triển"
+  viewLogsTitle: "Xem nhật ký"
+  viewLogsSubtitle: "Xem nhật ký chạy theo thời gian thực"
+  copySupportEmailTitle: "Sao chép email hỗ trợ"
+  reportIssueTitle: "Báo lỗi"
+  reportIssueSubtitle: "Cung cấp các bước tái hiện trên GitHub (không đính kèm toàn bộ nhật ký)"
+  healthSummaryUnavailable: "Chưa có dữ liệu sức khỏe nhật ký"
+  healthMetricsUnavailable: "Chưa thu thập chỉ số sức khỏe"
+  healthNoRiskIndicators: "Không phát hiện chỉ báo rủi ro"
+  healthAlert:
+    flushFailureTitle: "Lỗi ghi đệm"
+    sinkDegradedTitle: "Ghi nhật ký bị suy giảm"
+    sinkDegradedDetail: "Bộ ghi tệp đang ở trạng thái suy giảm"
+    queueBacklogTitle: "Hàng đợi ghi bị tồn đọng"
+    queueBacklogDetail: "queueDepth=${queueDepth} (ngưỡng=${threshold}, có thể làm tăng mức dùng bộ nhớ)"
+    highFlushLatencyTitle: "Độ trễ ghi đệm cao"
+    droppedTooManyTitle: "Quá nhiều nhật ký bị bỏ"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (ngưỡng=${threshold})"
+    rateLimitedTitle: "Đã kích hoạt giới hạn tần suất"
+    exportFailedTitle: "Lỗi xuất nhật ký"
+    fileNearLimitTitle: "Tệp nhật ký gần đạt giới hạn kích thước"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (áp lực xoay vòng IO cao hơn)"
+  toast:
+    logServiceNotInitialized: "Dịch vụ nhật ký chưa được khởi tạo"
+    exportSuccess: "Đã xuất nhật ký. Vui lòng xem lại dữ liệu riêng tư trước khi gửi qua email."
+    exportFailed: "Xuất thất bại: ${error}"
+    supportEmailCopied: "Đã sao chép email hỗ trợ. Dán vào ứng dụng thư và đính kèm nhật ký."
+  shareSubject: "Nhật ký chẩn đoán LoveIwara (chứa dữ liệu nhạy cảm, chia sẻ cẩn trọng)"
+
+logViewer:
+  title: "Trình xem nhật ký"
+  searchHint: "Tìm kiếm nhật ký..."
+  emptyState: "Không có nhật ký"
+  copiedToClipboard: "Đã sao chép vào clipboard"
+
+crashRecoveryDialog:
+  title: "Ứng dụng đã thoát bất ngờ"
+  description: "Chúng tôi phát hiện phiên trước đã thoát không bình thường. Vui lòng xuất nhật ký chẩn đoán và gửi email cho nhà phát triển để giúp khắc phục sự cố."
+  previousVersion: "Phiên bản trước: ${version}"
+  previousStart: "Lần khởi chạy trước: ${time}"
+  lastException: "Ngoại lệ gần nhất: ${message}"
+  lastHangRecovered: "Lần trước phát hiện giao diện bị treo và đã tự động khôi phục"
+  lastHangStalled: "Lần trước phát hiện giao diện có thể bị đơ, kéo dài khoảng ${stalledMs}ms"
+  exportGuide: "Vào Cài đặt > Chẩn đoán & Phản hồi > Xuất nhật ký."
+  privacyHint: "Nhật ký có thể chứa dữ liệu riêng tư. Vui lòng xem lại trước khi gửi email tới:"
+  issueWarning: "Không đính kèm toàn bộ nhật ký công khai trong issue trên GitHub"
+  acknowledge: "Đã hiểu"
+  supportEmailCopied: "Đã sao chép email"
+
+linkInputDialog:
+  title: "Nhập liên kết"
+  supportedLinksHint: "Hỗ trợ nhận diện thông minh nhiều liên kết ${webName} và nhanh chóng chuyển tới trang tương ứng trong ứng dụng (phân tách liên kết với văn bản khác bằng dấu cách)"
+  inputHint: "Vui lòng nhập liên kết ${webName}"
+  validatorEmptyLink: "Vui lòng nhập liên kết"
+  validatorNoIwaraLink: "Không phát hiện liên kết ${webName} hợp lệ"
+  multipleLinksDetected: "Phát hiện nhiều liên kết, vui lòng chọn một:"
+  notIwaraLink: "Không phải liên kết ${webName} hợp lệ"
+  linkParseError: "Lỗi phân tích liên kết: ${error}"
+  unsupportedLinkDialogTitle: "Liên kết không được hỗ trợ"
+  unsupportedLinkDialogContent: "Loại liên kết này không thể mở trực tiếp trong ứng dụng và cần truy cập bằng trình duyệt bên ngoài.\n\nBạn có muốn mở liên kết này trong trình duyệt không?"
+  openInBrowser: "Mở trong trình duyệt"
+  confirmOpenBrowserDialogTitle: "Xác nhận mở trình duyệt"
+  confirmOpenBrowserDialogContent: "Liên kết sau sắp được mở trong trình duyệt bên ngoài:"
+  confirmContinueBrowserOpen: "Bạn có chắc muốn tiếp tục?"
+  browserOpenFailed: "Mở liên kết thất bại"
+  unsupportedLink: "Liên kết không được hỗ trợ"
+  cancel: "Hủy"
+  confirm: "Mở trong trình duyệt"
+
+log:
+  logManagement: Quản lý nhật ký
+  enableLogPersistence: Bật lưu nhật ký lâu dài
+  enableLogPersistenceDesc: Lưu nhật ký vào cơ sở dữ liệu để phân tích
+  logDatabaseSizeLimit: Giới hạn kích thước cơ sở dữ liệu nhật ký
+  logDatabaseSizeLimitDesc: 'Hiện tại: ${size}'
+  exportCurrentLogs: Xuất nhật ký hiện tại
+  exportCurrentLogsDesc: Xuất nhật ký ứng dụng hiện tại để giúp nhà phát triển chẩn đoán vấn đề
+  exportHistoryLogs: Xuất nhật ký lịch sử
+  exportHistoryLogsDesc: Xuất nhật ký trong khoảng ngày được chỉ định
+  exportMergedLogs: Xuất nhật ký hợp nhất
+  exportMergedLogsDesc: Xuất nhật ký hợp nhất trong khoảng ngày được chỉ định
+  showLogStats: Hiện thống kê nhật ký
+  logExportSuccess: Xuất nhật ký thành công
+  logExportFailed: 'Xuất nhật ký thất bại: ${error}'
+  showLogStatsDesc: Xem thống kê các loại nhật ký khác nhau
+  logExtractFailed: 'Lấy thống kê nhật ký thất bại: ${error}'
+  clearAllLogs: Xóa toàn bộ nhật ký
+  clearAllLogsDesc: Xóa toàn bộ dữ liệu nhật ký
+  confirmClearAllLogs: Xác nhận xóa
+  confirmClearAllLogsDesc: Bạn có chắc muốn xóa toàn bộ dữ liệu nhật ký? Thao tác này không thể hoàn tác.
+  clearAllLogsSuccess: Đã xóa nhật ký thành công
+  clearAllLogsFailed: 'Xóa nhật ký thất bại: ${error}'
+  unableToGetLogSizeInfo: Không thể lấy thông tin kích thước nhật ký
+  currentLogSize: 'Kích thước nhật ký hiện tại:'
+  logCount: 'Số nhật ký:'
+  logCountUnit: 'nhật ký'
+  logSizeLimit: 'Giới hạn kích thước nhật ký:'
+  usageRate: 'Tỉ lệ sử dụng:'
+  exceedLimit: 'Vượt hạn mức'
+  remaining: 'Còn lại'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'Kích thước nhật ký hiện tại đã vượt hạn mức, vui lòng dọn nhật ký cũ hoặc tăng giới hạn kích thước nhật ký'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'Kích thước nhật ký hiện tại gần vượt hạn mức, vui lòng dọn nhật ký cũ'
+  cleaningOldLogs: 'Đang dọn nhật ký cũ...'
+  logCleaningCompleted: 'Đã dọn nhật ký xong'
+  logCleaningProcessMayNotBeCompleted: 'Quá trình dọn nhật ký có thể chưa hoàn tất'
+  cleanExceededLogs: 'Dọn nhật ký vượt hạn mức'
+  noLogsToExport: 'Không có nhật ký để xuất'
+  exportingLogs: 'Đang xuất nhật ký...'
+  noHistoryLogsToExport: 'Không có nhật ký lịch sử để xuất, vui lòng dùng ứng dụng một lúc trước'
+  selectLogDate: 'Chọn ngày nhật ký'
+  today: 'Hôm nay'
+  selectMergeRange: 'Chọn khoảng hợp nhất'
+  selectMergeRangeHint: 'Vui lòng chọn khoảng thời gian nhật ký cần hợp nhất'
+  selectMergeRangeDays: '${days} ngày gần đây'
+  logStats: 'Thống kê nhật ký'
+  todayLogs: 'Nhật ký hôm nay: ${count} nhật ký'
+  recent7DaysLogs: 'Nhật ký 7 ngày gần đây: ${count} nhật ký'
+  totalLogs: 'Tổng nhật ký: ${count} nhật ký'
+  setLogDatabaseSizeLimit: 'Đặt giới hạn kích thước cơ sở dữ liệu nhật ký'
+  currentLogSizeWithSize: 'Kích thước nhật ký hiện tại: ${size}'
+  warning: 'Cảnh báo'
+  newSizeLimit: 'Giới hạn kích thước mới: ${size}'
+  confirmToContinue: 'Xác nhận để tiếp tục'
+  logSizeLimitSetSuccess: 'Đã đặt giới hạn kích thước nhật ký thành ${size}'
+
+emoji:
+  name: Biểu tượng cảm xúc
+  size: Kích thước
+  small: Nhỏ
+  medium: Vừa
+  large: Lớn
+  extraLarge: Rất lớn
+  copyEmojiLinkSuccess: 'Đã sao chép liên kết biểu tượng cảm xúc'
+  preview: Xem trước biểu tượng cảm xúc
+  library: Thư viện biểu tượng cảm xúc
+  noEmojis: Không có biểu tượng cảm xúc
+  clickToAddEmojis: Nhấn nút ở góc trên bên phải để thêm biểu tượng cảm xúc
+  addEmojis: Thêm biểu tượng cảm xúc
+  imagePreview: Xem trước ảnh
+  imageLoadFailed: Tải ảnh thất bại
+  loading: Đang tải...
+  delete: Xóa
+  close: Đóng
+  deleteImage: Xóa ảnh
+  confirmDeleteImage: Bạn có chắc muốn xóa ảnh này?
+  cancel: Hủy
+  batchDelete: Xóa hàng loạt
+  confirmBatchDelete: 'Bạn có chắc muốn xóa ${count} ảnh đã chọn? Thao tác này không thể hoàn tác.'
+  deleteSuccess: Đã xóa thành công
+  addImage: Thêm ảnh
+  addImageByUrl: Thêm bằng URL
+  addImageUrl: Thêm URL ảnh
+  imageUrl: URL ảnh
+  enterImageUrl: Vui lòng nhập URL ảnh
+  add: Thêm
+  batchImport: Nhập hàng loạt
+  enterJsonUrlArray: "Vui lòng nhập mảng URL định dạng JSON:"
+  formatExample: "Ví dụ định dạng:\n[\"url1\", \"url2\", \"url3\"]"
+  pasteJsonUrlArray: Vui lòng dán mảng URL định dạng JSON
+  import: Nhập
+  importSuccess: 'Đã nhập thành công ${count} ảnh'
+  jsonFormatError: Lỗi định dạng JSON, vui lòng kiểm tra nội dung nhập
+  createGroup: Tạo nhóm biểu tượng cảm xúc
+  groupName: Tên nhóm
+  enterGroupName: Vui lòng nhập tên nhóm
+  create: Tạo
+  editGroupName: Chỉnh sửa tên nhóm
+  save: Lưu
+  deleteGroup: Xóa nhóm
+  confirmDeleteGroup: Bạn có chắc muốn xóa nhóm biểu tượng cảm xúc này? Tất cả ảnh trong nhóm cũng sẽ bị xóa.
+  imageCount: '${count} ảnh'
+  selectEmoji: Chọn biểu tượng cảm xúc
+  noEmojisInGroup: Không có biểu tượng cảm xúc trong nhóm này
+  goToSettingsToAddEmojis: Vào cài đặt để thêm biểu tượng cảm xúc
+  emojiManagement: Quản lý biểu tượng cảm xúc
+  manageEmojiGroupsAndImages: Quản lý nhóm và ảnh biểu tượng cảm xúc
+  uploadLocalImages: Tải ảnh cục bộ lên
+  uploadingImages: Đang tải ảnh lên
+  uploadingImagesProgress: 'Đang tải lên ${count} ảnh, vui lòng đợi...'
+  doNotCloseDialog: Vui lòng không đóng hộp thoại này
+  uploadSuccess: 'Đã tải lên thành công ${count} ảnh'
+  uploadFailed: 'Thất bại ${count}'
+  uploadFailedMessage: Tải ảnh lên thất bại, vui lòng kiểm tra kết nối mạng hoặc định dạng tệp
+  uploadErrorMessage: 'Đã xảy ra lỗi trong khi tải lên: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "Chọn trường"
+  add: "Thêm"
+  clear: "Xóa"
+  clearAll: "Xóa tất cả"
+  generatedQuery: "Truy vấn đã tạo"
+  copyToClipboard: "Sao chép vào bộ nhớ tạm"
+  copied: "Đã sao chép"
+  filterCount: "${count} bộ lọc"
+  
+  # Filter Button Widget
+  filterSettings: "Cài đặt bộ lọc"
+  
+  # Filter Row Widget
+  field: "Trường"
+  operator: "Toán tử"
+  language: "Ngôn ngữ"
+  value: "Giá trị"
+  dateRange: "Khoảng ngày"
+  numberRange: "Khoảng số"
+  from: "Từ"
+  to: "Đến"
+  date: "Ngày"
+  number: "Số"
+  boolean: "Boolean"
+  tags: "Thẻ"
+  select: "Chọn"
+  clickToSelectDate: "Nhấn để chọn ngày"
+  pleaseEnterValidNumber: "Vui lòng nhập số hợp lệ"
+  pleaseEnterValidDate: "Vui lòng nhập định dạng ngày hợp lệ (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "Giá trị bắt đầu phải nhỏ hơn giá trị kết thúc"
+  startDateMustBeBeforeEndDate: "Ngày bắt đầu phải trước ngày kết thúc"
+  pleaseFillStartValue: "Vui lòng nhập giá trị bắt đầu"
+  pleaseFillEndValue: "Vui lòng nhập giá trị kết thúc"
+  rangeValueFormatError: "Lỗi định dạng giá trị khoảng"
+  
+  # Filter Operators
+  contains: "Chứa"
+  equals: "Bằng"
+  notEquals: "Không bằng"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "Khoảng"
+  in: "Chứa bất kỳ"
+  notIn: "Không chứa bất kỳ"
+  
+  # Filter Field Types
+  username: "Tên người dùng"
+  nickname: "Biệt danh"
+  registrationDate: "Ngày đăng ký"
+  description: "Mô tả"
+  title: "Tiêu đề"
+  body: "Nội dung"
+  author: "Tác giả"
+  publishDate: "Ngày đăng"
+  private: "Riêng tư"
+  duration: "Thời lượng (giây)"
+  likes: "Lượt thích"
+  views: "Lượt xem"
+  comments: "Bình luận"
+  rating: "Xếp hạng"
+  imageCount: "Số hình ảnh"
+  videoCount: "Số video"
+  createDate: "Ngày tạo"
+  content: "Nội dung"
+  
+  # Rating Options
+  all: "Tất cả"
+  adult: "Người lớn"
+  general: "Chung"
+  
+  # Boolean Values
+  yes: "Có"
+  no: "Không"
+  
+  # Content Types
+  users: "Người dùng"
+  videos: "Video"
+  images: "Hình ảnh"
+  posts: "Bài viết"
+  forumThreads: "Chủ đề diễn đàn"
+  forumPosts: "Bài viết diễn đàn"
+  playlists: "Danh sách phát"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "Liên quan"
+    latest: "Mới nhất"
+    views: "Lượt xem"
+    likes: "Lượt thích"
+  # Filter drawer
+  drawerSubtitle: "Thay đổi được áp dụng ngay"
+
+firstTimeSetup:
+  welcome:
+    title: "Chào mừng"
+    subtitle: "Hãy bắt đầu hành trình thiết lập cá nhân hóa"
+    description: "Chỉ vài bước để tùy chỉnh trải nghiệm tốt nhất"
+  basic:
+    title: "Cài đặt cơ bản"
+    subtitle: "Cá nhân hóa trải nghiệm của bạn"
+    description: "Chọn các tùy chọn phù hợp"
+  network:
+    title: "Cài đặt mạng"
+    subtitle: "Cấu hình tùy chọn mạng"
+    description: "Điều chỉnh theo môi trường mạng"
+    tip: "Cần khởi động lại sau khi cấu hình thành công để có hiệu lực"
+  theme:
+    title: "Cài đặt chủ đề"
+    subtitle: "Chọn giao diện bạn thích"
+    description: "Cá nhân hóa trải nghiệm hình ảnh"
+  player:
+    title: "Cài đặt trình phát"
+    subtitle: "Cấu hình điều khiển phát"
+    description: "Thiết lập nhanh các tùy chọn phát thường dùng"
+  spatial:
+    title: "Phát trong không gian"
+    subtitle: "Xem và duyệt trên kính"
+    description: "Trên kính, video và thư viện xuất hiện trong không gian quanh bạn thay vì bên trong bảng nổi này"
+  completion:
+    title: "Hoàn tất thiết lập"
+    subtitle: "Bạn đã sẵn sàng bắt đầu hành trình"
+    description: "Vui lòng đọc và đồng ý với các thỏa thuận liên quan"
+    agreementTitle: "Thỏa thuận người dùng và quy tắc cộng đồng"
+    agreementDesc: "Trước khi dùng ứng dụng này, vui lòng đọc kỹ và đồng ý với thỏa thuận người dùng và quy tắc cộng đồng. Các điều khoản này giúp duy trì môi trường tốt."
+    checkboxTitle: "Tôi đã đọc và đồng ý với thỏa thuận người dùng và quy tắc cộng đồng"
+    checkboxSubtitle: "Không đồng ý thì không thể dùng ứng dụng"
+  common:
+    settingsChangeableTip: "Các cài đặt này có thể thay đổi bất cứ lúc nào trong Cài đặt"
+    previousStep: "Bước trước"
+    nextStep: "Bước tiếp theo"
+    finishSetup: "Hoàn tất thiết lập"
+    agreeAgreementSnackbar: "Vui lòng đồng ý với thỏa thuận người dùng và quy tắc cộng đồng trước"
+
+proxyHelper:
+  systemProxyDetected: "Đã phát hiện proxy hệ thống"
+  copied: "Đã sao chép"
+  copy: "Sao chép"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "Chọn thẻ"
+  clickToSelectTags: "Nhấn để chọn thẻ"
+  addTag: "Thêm thẻ"
+  removeTag: "Bỏ thẻ"
+  deleteTag: "Xóa thẻ"
+  usageInstructions: "Trước tiên thêm thẻ, sau đó nhấn để chọn từ các thẻ hiện có"
+  usageInstructionsTooltip: "Hướng dẫn sử dụng"
+  addTagTooltip: "Thêm thẻ"
+  removeTagTooltip: "Bỏ thẻ"
+  cancelSelection: "Hủy lựa chọn"
+  selectAll: "Chọn tất cả"
+  cancelSelectAll: "Hủy chọn tất cả"
+  delete: "Xóa"
+
+# Anime4K Settings
+anime4k:
+  realTimeVideoUpscalingAndDenoising: "Nâng tỉ lệ và khử nhiễu video theo thời gian thực, nâng cao chất lượng video hoạt hình"
+  settings: "Cài đặt Anime4K"
+  preset: "Cấu hình Anime4K"
+  disable: "Tắt Anime4K"
+  disableDescription: "Tắt hiệu ứng nâng cao chất lượng video"
+  highQualityPresets: "Cấu hình chất lượng cao"
+  fastPresets: "Cấu hình nhanh"
+  litePresets: "Cấu hình nhẹ"
+  moreLitePresets: "Cấu hình nhẹ hơn"
+  customPresets: "Cấu hình tùy chỉnh"
+  presetGroups:
+    highQuality: "Chất lượng cao"
+    fast: "Nhanh"
+    lite: "Nhẹ"
+    moreLite: "Nhẹ hơn"
+    custom: "Tùy chỉnh"
+  presetDescriptions:
+    mode_a_hq: "Phù hợp với hầu hết video hoạt hình 1080p, đặc biệt là các trường hợp bị mờ, lấy mẫu lại và nén. Mang lại chất lượng cảm nhận cao nhất."
+    mode_b_hq: "Phù hợp với video hoạt hình bị mờ nhẹ hoặc có viền răng cưa do nâng tỉ lệ. Giảm hiệu quả viền răng cưa và hiện tượng răng cưa."
+    mode_c_hq: "Phù hợp với nguồn chất lượng cao (như video hoạt hình hoặc phim 1080p gốc). Khử nhiễu và mang lại PSNR cao nhất."
+    mode_a_a_hq: "Phiên bản nâng cao của Mode A, mang lại chất lượng cảm nhận tối đa và có thể tái tạo gần như toàn bộ đường nét bị suy giảm. Có thể gây quá sắc hoặc viền răng cưa."
+    mode_b_b_hq: "Phiên bản nâng cao của Mode B, mang lại chất lượng cảm nhận cao hơn, tối ưu đường nét và giảm lỗi hình."
+    mode_c_a_hq: "Phiên bản nâng cao chất lượng cảm nhận của Mode C, duy trì PSNR cao đồng thời cố tái tạo một số chi tiết đường nét."
+    mode_a_fast: "Phiên bản nhanh của Mode A, cân bằng giữa chất lượng và hiệu năng, phù hợp với hầu hết video hoạt hình 1080p."
+    mode_b_fast: "Phiên bản nhanh của Mode B, xử lý lỗi hình nhẹ và viền răng cưa với chi phí thấp hơn."
+    mode_c_fast: "Phiên bản nhanh của Mode C, khử nhiễu và nâng tỉ lệ nhanh cho nguồn chất lượng cao."
+    mode_a_a_fast: "Phiên bản nhanh của Mode A+A, hướng tới chất lượng cảm nhận cao hơn trên thiết bị hạn chế hiệu năng."
+    mode_b_b_fast: "Phiên bản nhanh của Mode B+B, tăng cường sửa đường nét và xử lý lỗi hình cho thiết bị hạn chế hiệu năng."
+    mode_c_a_fast: "Phiên bản nhanh của Mode C+A, xử lý nhanh nguồn chất lượng cao đồng thời sửa đường nét nhẹ."
+    upscale_only_s: "Nâng tỉ lệ x2 cực nhanh chỉ bằng mô hình CNN nhanh nhất, không phục hồi hay khử nhiễu, chi phí hiệu năng tối thiểu."
+    upscale_deblur_fast: "Nâng tỉ lệ và làm nét nhanh bằng thuật toán truyền thống không dùng CNN, tốt hơn thuật toán mặc định của trình phát với chi phí hiệu năng rất thấp."
+    restore_s_only: "Chỉ phục hồi bằng mô hình CNN nhanh nhất, không nâng tỉ lệ. Phù hợp khi phát ở độ phân giải gốc mà muốn nâng cao chất lượng."
+    denoise_bilateral_fast: "Khử nhiễu nhanh bằng lọc song phương truyền thống, cực nhanh, phù hợp xử lý nhiễu nhẹ."
+    upscale_non_cnn: "Nâng tỉ lệ nhanh bằng thuật toán truyền thống, chi phí hiệu năng rất thấp, tốt hơn mặc định của trình phát."
+    mode_a_fast_darken: "Mode A (Fast) + làm đậm đường nét, bổ sung hiệu ứng làm đậm đường nét cho Mode A nhanh, giúp đường nét nổi bật và cách điệu hơn."
+    mode_a_hq_thin: "Mode A (HQ) + làm mảnh đường nét, bổ sung hiệu ứng làm mảnh đường nét cho Mode A chất lượng cao, giúp hình ảnh tinh tế hơn."
+  presetNames:
+    mode_a_hq: "Mode A (HQ)"
+    mode_b_hq: "Mode B (HQ)"
+    mode_c_hq: "Mode C (HQ)"
+    mode_a_a_hq: "Mode A+A (HQ)"
+    mode_b_b_hq: "Mode B+B (HQ)"
+    mode_c_a_hq: "Mode C+A (HQ)"
+    mode_a_fast: "Mode A (Fast)"
+    mode_b_fast: "Mode B (Fast)"
+    mode_c_fast: "Mode C (Fast)"
+    mode_a_a_fast: "Mode A+A (Fast)"
+    mode_b_b_fast: "Mode B+B (Fast)"
+    mode_c_a_fast: "Mode C+A (Fast)"
+    upscale_only_s: "Nâng tỉ lệ CNN (cực nhanh)"
+    upscale_deblur_fast: "Nâng tỉ lệ & làm nét (nhanh)"
+    restore_s_only: "Phục hồi (cực nhanh)"
+    denoise_bilateral_fast: "Khử nhiễu song phương (cực nhanh)"
+    upscale_non_cnn: "Nâng tỉ lệ không CNN (cực nhanh)"
+    mode_a_fast_darken: "Mode A (Fast) + làm đậm đường nét"
+    mode_a_hq_thin: "Mode A (HQ) + làm mảnh đường nét"
+  performanceTip: "💡 Mẹo: chọn cấu hình phù hợp với hiệu năng thiết bị. Thiết bị cấu hình thấp nên dùng cấu hình nhẹ."
+  compatibilityTip: "⚠️ Một số GPU di động (ví dụ Kirin 980 / Mali-G76) không kết xuất được shader tùy chỉnh. Nếu hình ảnh chuyển đen trong khi âm thanh vẫn phát, hãy tắt Anime4K tại đây."
+  autoDisabledOnRenderFailure: "GPU của thiết bị không kết xuất được shader Anime4K nên tính năng đã tự động tắt."
+
+siteMode:
+  title: Chế độ trang
+  mainSite: Main
+  aiSite: AI
+  drawerSubtitle: 'Hiện tại ${currentSite} · Nhấn để chuyển sang ${nextSite}'
+  dialogTitle: Chuyển chế độ trang
+  dialogDescription: Việc chuyển đổi sẽ làm mới toàn bộ ứng dụng và đặt lại các danh sách cùng trạng thái trang đã tải trước đó.
+  chooseLinkTargetTitle: Chọn trang đích
+  chooseLinkTargetDescription: Liên kết này không bao gồm tên miền. Vui lòng chọn mở trong Main hay AI.
+  chooseLinkTargetHint: Sau khi mở, trang này và các yêu cầu chi tiết tiếp theo sẽ tiếp tục dùng trang đã chọn.
+  alreadyUsing: Bạn đang dùng chế độ trang này rồi.
+  openInSite: 'Mở trong ${site}'
+  confirmUsing: 'Sau khi xác nhận, các yêu cầu tiếp theo sẽ dùng chế độ ${site}.'
+  switched: 'Đã chuyển sang ${site}. Ứng dụng đã được làm mới.'
+savedSearchConfig:
+  title: Bộ lọc đã lưu
+  empty: Chưa có bộ lọc đã lưu
+  saveTooltip: Lưu bộ lọc hiện tại
+  namePromptTitle: Lưu bộ lọc
+  nameLabel: Tên
+  nameHint: Nhập tên
+  saveSuccess: Đã lưu bộ lọc
+  deleteSuccess: Đã xóa bộ lọc
+  addCurrent: Lưu bộ lọc hiện tại
+  reorderHint: Nhấn giữ và kéo để sắp xếp lại
+  rename: Đổi tên
+  unnamed: Chưa đặt tên
+  noConditions: Tất cả nội dung (không lọc)
+  tagsCount: '${count} thẻ'
+savedSearch:
+  title: Tìm kiếm đã lưu
+  empty: Chưa có tìm kiếm đã lưu
+  saveTooltip: Lưu tìm kiếm hiện tại
+  namePromptTitle: Lưu tìm kiếm
+  nameLabel: Tên
+  nameHint: Nhập tên
+  saveSuccess: Đã lưu tìm kiếm
+  deleteSuccess: Đã xóa tìm kiếm
+  addCurrent: Lưu tìm kiếm hiện tại
+  reorderHint: Nhấn giữ và kéo để sắp xếp lại
+  rename: Đổi tên
+  noKeyword: (Không có từ khóa)
+  filtersCount: '${count} bộ lọc'
+
+defaultBlacklistReminder:
+  title: Phát hiện danh sách thẻ chặn mặc định
+  content: Tài khoản của bạn vẫn đang dùng danh sách thẻ chặn mà trang web tự động áp dụng cho mọi tài khoản mới. Bạn có muốn xem lại và quản lý không?
+  goManage: Quản lý
+  dismiss: Để sau
+
+# Color Vision Assist (colorblind filter)
+colorVisionAssist:
+  title: "Hỗ trợ phân biệt màu"
+  description: "Hiệu chỉnh màu video cho người mắc chứng khó phân biệt màu, có thể dùng cùng Anime4K"
+  galleryDescription: "Hiệu chỉnh màu ảnh trong thư viện cho người mắc chứng khó phân biệt màu (độc lập với công tắc của trình phát)"
+  galleryDescriptionSpatial: "Hiệu chỉnh màu ảnh trong thư viện cho người mắc chứng khó phân biệt màu. Chỉ áp dụng cho trình xem 2D trong bảng này — ảnh trên màn hình không gian được kết xuất nguyên bản và không đi qua bộ lọc này"
+  disable: "Tắt"
+  disableDescription: "Không hiệu chỉnh màu"
+  protanopia: "Hỗ trợ màu đỏ (Protanopia)"
+  protanopiaDescription: "Dành cho người mù màu đỏ — khó phân biệt màu đỏ"
+  deuteranopia: "Hỗ trợ màu xanh lá (Deuteranopia)"
+  deuteranopiaDescription: "Dành cho người mù màu lục — khó phân biệt màu xanh lá"
+  tritanopia: "Hỗ trợ màu xanh dương (Tritanopia)"
+  tritanopiaDescription: "Dành cho người mù màu lam — khó phân biệt màu xanh dương và vàng"
+  appliedToast: "${filterName} đã áp dụng, có hiệu lực ngay"
+  disabledToast: "Đã tắt hỗ trợ phân biệt màu"
+externalPlayer:
+  title: "Mở bằng ứng dụng khác"
+  description: "Chuyển video hiện tại sang trình phát khác trên thiết bị này, chẳng hạn Skybox hoặc Pigasus trên kính VR, hoặc MX Player và VLC trên điện thoại"
+  openWithOtherApp: "Chọn ứng dụng khác"
+  openWithOtherAppDescription: "Hiện bảng chọn của hệ thống và chọn trình phát để tiếp nhận"
+  openWithSystemPlayer: "Mở bằng trình phát mặc định"
+  openWithSystemPlayerDescription: "Chuyển cho ứng dụng video mặc định của hệ thống"
+  copyLink: "Sao chép liên kết video"
+  copyLinkDescription: "Dành cho trình phát chỉ có thể dán URL, chẳng hạn Skybox hoặc DeoVR"
+  linkCopied: "Đã sao chép liên kết video"
+  sourceLocal: "Tệp cục bộ"
+  sourceOnline: "Liên kết trực tiếp"
+  sourceOnlineWithQuality: 'Liên kết trực tiếp · ${quality}'
+  onlineLinkExpiryHint: "Liên kết trực tiếp sẽ hết hạn nên trình phát ngoài có thể dừng giữa chừng. Tải xuống trước là cách đáng tin cậy hơn."
+  vrPlayerHint: "Nếu trình phát VR của bạn không có trong bảng chọn, hãy dùng Sao chép liên kết video và dán vào trình phát đó."
+  noHandler: "Không có ứng dụng nào trên thiết bị này mở được video"
+  handoffFailed: 'Chuyển giao thất bại: ${message}'
+  handoffFailedUnknown: "Chuyển giao thất bại"
+  sourceUnavailable: "Không lấy được địa chỉ video hiện tại, vui lòng thử lại"
+  localFileMissing: "Tệp cục bộ không còn tồn tại"
+  handedOff: "Đã chuyển sang trình phát ngoài"
+  desktopSectionTitle: "Trình phát ngoài"
+  managePlayers: "Quản lý trình phát ngoài"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "Các trình phát PCVR như HereSphere, DeoVR và Whirligig không phải ứng dụng mặc định của hệ thống. Hãy chỉ định tới tệp .exe của chúng để có thể chuyển video hiện tại ngay từ trình phát."
+  managePlayersDescMac: "Chỉ định tới các trình phát như IINA, VLC hoặc mpv để có thể chuyển video hiện tại ngay từ trình phát."
+  managePlayersDescLinux: "Chỉ định tới các trình phát như mpv, VLC hoặc Celluloid để có thể chuyển video hiện tại ngay từ trình phát."
+  pickExecutableHintWindows: "Chọn tệp .exe chính trong thư mục cài đặt của trình phát, ví dụ HereSphere.exe hoặc vlc.exe. Lối tắt trên màn hình (.lnk) sẽ không hoạt động."
+  pickExecutableHintMac: "Chọn tệp .app của trình phát trong thư mục Ứng dụng, ví dụ IINA.app — tệp thực thi thật bên trong sẽ được tự động định vị."
+  pickExecutableHintLinux: "Chọn tệp thực thi của trình phát, ví dụ /usr/bin/mpv. Chạy lệnh which mpv sẽ cho biết vị trí của nó."
+  emptyStateGuide: 'Sau khi cấu hình, nó sẽ xuất hiện như một mục riêng trong Mở bằng ứng dụng khác trên trang trình phát. Một số trình phát phổ biến: ${examples}'
+  detectNothingFoundGuide: "Không tìm thấy trình phát nào đã cài. Không thể phát hiện thư mục cài đặt tùy chỉnh và bản portable — hãy dùng Thêm trình phát để tự chỉ định."
+  detectNothingNew: "Không tìm thấy trình phát mới; mọi thứ đã cài đều có trong danh sách"
+  detectFailed: "Phát hiện thất bại — hãy dùng Thêm trình phát để tự chỉ định"
+  advancedOptions: "Nâng cao"
+  playerNameHint: "Để trống để dùng tên tệp"
+  executablePathRequired: "Hãy chọn tệp thực thi của trình phát trước"
+  playerCount: 'Đã cấu hình ${count}'
+  noPlayerConfigured: "Chưa cấu hình trình phát ngoài nào"
+  autoDetect: "Tự động phát hiện"
+  detecting: "Đang phát hiện…"
+  detectFound: 'Đã tìm thấy ${count} trình phát'
+  detectNothingFound: "Không tìm thấy trình phát mới, hãy thêm thủ công"
+  autoDetectedTag: "đã phát hiện"
+  addPlayer: "Thêm trình phát"
+  editPlayer: "Chỉnh sửa trình phát"
+  playerName: "Tên"
+  executablePath: "Tệp thực thi"
+  browse: "Duyệt"
+  argumentTemplate: "Tham số khởi chạy"
+  argumentTemplateHint: "Dùng {input} cho đường dẫn hoặc URL video. Để trống để truyền nó làm tham số duy nhất."
+  nameAndPathRequired: "Cần nhập cả tên và tệp thực thi"
+  testLaunch: "Thử khởi chạy"
+  testLaunched: "Đã khởi chạy trình phát"
+  testFailed: "Khởi chạy thất bại, hãy kiểm tra đường dẫn tệp thực thi"
+  executableMissing: "Không tìm thấy tệp thực thi"
+  openWithNamed: 'Mở bằng ${name}'
+  managePlayersEntry: "Quản lý trình phát ngoài…"
+watchLater:
+  title: Xem sau
+  addToWatchLater: Xem sau
+  removeFromWatchLater: Xóa khỏi Xem sau
+  addedToWatchLater: Đã thêm vào Xem sau
+  alreadyInWatchLater: Đã có trong Xem sau
+  removedFromWatchLater: Đã xóa khỏi Xem sau
+  removedCount: Đã xóa ${count} mục
+  viewWatchLaterList: Xem danh sách
+  addFailed: Thêm vào Xem sau thất bại
+  invalidItem: Không khả dụng
+  clearWatched: Xóa các mục đã xem
+  watchedCleared: Đã xóa ${count} mục đã xem
+  noWatchedToClear: Không có mục đã xem nào để xóa
+  emptyVideo: Chưa có video nào trong Xem sau
+  emptyGallery: Chưa có thư viện nào trong Xem sau
+  filterAll: Tất cả
+  filterUnwatched: Chưa xem
+  sortRecentlyAdded: Thêm gần đây
+  sortEarliestAdded: Thêm sớm nhất
+  watched: Đã xem
+  playlistLoadFailed: Tải danh sách phát thất bại
+  noPlaylists: Chưa có danh sách phát nào
+  undo: Hoàn tác
+  clearWatchedConfirm: Xóa mọi thứ bạn đã xem trong tab này? Thao tác này không thể hoàn tác.
+  emptyUnwatchedVideo: Không còn gì để xem ở đây
+  emptyUnwatchedGallery: Không còn gì để xem ở đây
+  queueLoadFailed: Tải thất bại, nhấn để thử lại
+mediaMenu:
+  like: Thích
+  unlike: Bỏ thích
+  viewAuthor: Xem tác giả
+  inFolders: ${count} thư mục
+  inPlaylists: ${count} danh sách phát
+  downloaded: Đã tải xuống
+mediaPreview:
+  preview: Xem trước
+  openDetail: Mở
+  moreActions: Thao tác khác
+  previousImage: Ảnh trước
+  nextImage: Ảnh tiếp theo
+playbackQueue:
+  galleryImageCount: '${count} hình ảnh'
+  upNext: Tiếp theo
+  sourceTab: Nguồn
+  emptyQueue: Không có gì có thể phát trong hàng đợi này
+  emptyGalleryQueue: Không có thư viện nào trong hàng đợi này
+  nowPlaying: Đang phát
+  myPlaylists: Danh sách phát của tôi
+  authorPlaylists: Danh sách phát của tác giả
+  openQueue: Tiếp theo
+  continueInQueue: Tiếp tục phát từ hàng đợi hiện tại
+  continueInQueueSubtitle: Tự động phát mục tiếp theo; tắt "lặp lại khi kết thúc"
+  repeatDisabledByQueue: Bị tắt khi bật "tiếp tục phát từ hàng đợi hiện tại"
+  playNext: Phát tiếp theo
+  queueEnded: Đây là mục cuối cùng trong hàng đợi
+  playNextHint: Nhấn để phát mục tiếp theo, nhấn giữ để mở Tiếp theo
+  authorVideos: Video của tác giả
+  authorGalleries: Thư viện của tác giả
+  favoriteFolders: Thư mục yêu thích
+  localFiles: Trên thiết bị này
+  currentFolder: Thư mục của tệp này
+  playThisFolder: Xem hàng đợi video của thư mục này
+  browseThisFolder: Xem hàng đợi thư viện của thư mục này
+  downloads: Đã tải xuống
+  otherPlaylists: Danh sách phát của người dùng khác
+  nothingHere: Không có gì ở đây
+
+vrFormat:
+  playInSpace: Phát trong trình phát không gian
+  handingOff: Đang chuyển sang không gian…
+  title: Chế độ phát
+  spatialSectionTitle: Phát không gian
+  spatialSectionDesc: Trên tai nghe, video không được vẽ trong bảng này — trình phát không gian đặt nó lên một màn hình trong phòng.
+  spatialPanelEntry: Bảng điều khiển không gian
+  spatialPanelEntryDesc: Khoảng cách, kích thước và độ cong màn hình, môi trường nền, cùng tốc độ, lặp lại và tự động ẩn đều nằm trong bảng điều khiển không gian.
+  spatialGuideEntry: Hướng dẫn điều khiển tai nghe
+  spatialGuideEntryDesc: Nút bộ điều khiển, nắm màn hình, tua bằng cần gạt và lật trang
+  spatialFlatOmitted: Cử chỉ cảm ứng, nâng cao hình ảnh và tham số âm thanh/video chỉ áp dụng cho trình phát 2D; trình phát không gian chạy trên một engine khác nên không được liệt kê ở đây.
+  spatialGallerySectionTitle: Thư viện không gian
+  spatialGalleryPanelDesc: Khoảng thời gian trình chiếu, lặp một clip và độ cong màn hình đều được điều chỉnh trong bảng điều khiển không gian.
+  autoEnterGallery: Mở hình ảnh thư viện trong thư viện không gian
+  autoEnterGalleryDesc: Trên Quest, nhấn vào một hình ảnh sẽ mở toàn bộ thư viện trên màn hình nổi với dải phim, trình chiếu và lật trang bằng bộ điều khiển thay vì trình xem trong bảng này.
+  panelSettings: Bảng và nền
+  panelSettingsDesc: Bảng ứng dụng này đặt cách bao xa, và phòng của bạn hiện ra phía sau bao nhiêu
+  panelDistance: Khoảng cách bảng
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: Đặt lại vị trí
+  panelResetBackground: Đặt lại mặc định
+  panelBackground: Độ trong suốt nền
+  panelBackgroundHint: '0%: môi trường xung quanh màu đen · 100%: phòng thật của bạn, có ánh sáng xung quanh'
+  panelUnavailable: Bảng hiện không ở đúng vị trí — vui lòng thử lại sau giây lát
+  desc: Chọn hình học để phát video này. Trang web không cung cấp thông tin này, nên tính năng tự động phát hiện chỉ chọn một điểm khởi đầu — lựa chọn của bạn sẽ được ưu tiên.
+  sectionFlat: Phẳng
+  sectionStereo: 3D phẳng
+  sectionPanorama: Toàn cảnh VR
+  flat: Video thường
+  flatDesc: Phát nguyên bản, không ánh xạ lại
+  flatSideBySide: 3D cạnh nhau
+  flatSideBySideDesc: Mỗi mắt một nửa, trái và phải; hiển thị mắt trái và khôi phục tỉ lệ khung hình
+  flatTopBottom: 3D trên dưới
+  flatTopBottomDesc: Mỗi mắt một nửa, trên và dưới; hiển thị nửa trên và khôi phục tỉ lệ khung hình
+  vr180SideBySide: VR180 cạnh nhau
+  vr180SideBySideDesc: Toàn cảnh bán cầu với cả hai mắt — nguồn VR phổ biến nhất
+  vr180Mono: VR180 mono
+  vr180MonoDesc: Toàn cảnh bán cầu, một mắt mỗi khung hình
+  vr360Mono: VR360 mono
+  vr360MonoDesc: Toàn cảnh bao quanh đầy đủ, một mắt mỗi khung hình
+  vr360TopBottom: VR360 trên dưới
+  vr360TopBottomDesc: Toàn cảnh bao quanh đầy đủ với cả hai mắt xếp chồng
+  resetView: Đặt lại tầm nhìn
+  resetViewDesc: Đưa hướng nhìn và trường nhìn về phía trước
+  resetToAuto: Quay lại tự động phát hiện
+  resetToAutoDesc: Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại
+  manualBadge: Đặt thủ công
+  panoramaHint: Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn
+  panoramaGestureNotice: Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua
+  shaderUnsupported: Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt
+  handoffTooltip: Phát theo cách khác
+  suggestedBadge: Đề xuất
+  suggestedEntryDesc: 'Có vẻ là ${format} — nhấn để chuyển'
+  suggestionTitle: 'Đây có thể là video VR (${format})'
+  suggestionTitleShort: Đây có thể là video VR
+  suggestionAction: Phát dạng VR
+  suggestionDismiss: Bỏ qua
+localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: Truy cập nhanh
+    sourcesSection: Thư mục
+    pin: Thêm vào truy cập nhanh
+    unpin: Xóa khỏi truy cập nhanh
+    pinned: Đã thêm vào truy cập nhanh
+    unpinned: Đã xóa khỏi truy cập nhanh
+    folderCount: "${count} thư mục"
+    videoCount: "${count} video"
+    imageCount: "${count} ảnh"
+    emptyFolder: Thư mục này trống
+    videosSection: Video
+    imagesSection: Ảnh
+    galleriesSection: Thư viện
+    location: Vị trí
+    sourceMissing: Nguồn này không còn tồn tại
+    notScannedYet: Thư mục này chưa được quét
+    scanning: Đang đọc thư mục này…
+    deleteFileTitle: Xóa tệp này?
+    deleteFileBody: '"${name}" sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.'
+    deleteGalleryTitle: Xóa thư viện này?
+    deleteGalleryBody: 'Bản ghi tải xuống và các tệp ảnh cục bộ của "${name}" sẽ bị xóa. Không thể hoàn tác.'
+    galleryResourceMissing: Tệp cục bộ không còn tồn tại. Đã dọn bản ghi.
+    viewDownloadDetail: Xem chi tiết tải xuống
+    viewOnlineGallery: Xem trên trang web
+    pickFolderTitle: Chọn một thư mục
+    useThisFolder: Dùng thư mục này
+    noSubfolders: Không có thư mục con ở đây
+    storageRoot: Bộ nhớ thiết bị
+    homeFolder: Trang chủ
+    filesystemRoot: Gốc hệ thống tệp
+    folderUnreadable: Không thể đọc thư mục này
+    setCover: Đặt ảnh bìa
+    setAsFolderCover: Dùng làm ảnh bìa thư mục
+    folderCoverSet: Đã cập nhật ảnh bìa thư mục
+    setFolderCoverPick: Đặt ảnh bìa…
+    restoreAutoCover: Khôi phục ảnh bìa tự động
+    autoCoverRestored: Đã khôi phục ảnh bìa tự động
+    rescanFolder: Quét lại thư mục này
+    coverPickerTitle: Chọn một khung hình
+    folderCoverPickerTitle: Chọn ảnh bìa
+    coverPickerEmpty: Thư mục này chưa có ảnh nào. Ảnh thu nhỏ của video có thể vẫn đang được tạo ở chế độ nền.
+    coverSaved: Đã cập nhật ảnh bìa
+    coverSaveFailed: Không thể lưu ảnh bìa
+    coverUnavailable: Không đọc được khung hình video từ tệp này
+    deleted: Đã xóa
+    deleteFailed: Không thể xóa — tệp có thể đang được dùng hoặc không ghi được
+    openFolder: Mở
+    favorite: Thêm vào yêu thích
+    unfavorite: Xóa khỏi yêu thích
+    favorited: Đã thêm vào yêu thích
+    unfavorited: Đã xóa khỏi yêu thích
+    sortBy: Sắp xếp theo
+    sortAscending: Tăng dần
+    sortDescending: Giảm dần
+    sortFieldName: Tên
+    sortFieldModified: Ngày sửa đổi
+    sortFieldDuration: Thời lượng
+    sortFieldSize: Kích thước
+    sortFieldResolution: Độ phân giải
+    sortFieldFileType: Loại tệp
+    sortFieldFps: Tốc độ khung hình
+    sortFieldFavorited: Ngày yêu thích
+    emptyAllVideos: Chưa tìm thấy video nào. Hãy thêm thư mục trong mục Thư mục để bắt đầu.
+    emptyAllImages: Chưa tìm thấy ảnh nào. Hãy thêm thư mục trong mục Thư mục để bắt đầu.
+    emptyFavorites: Chưa có mục yêu thích. Thêm từ menu ⋮ của video.
+    emptyPinned: Chưa có thư mục ghim. Nhấn giữ một thư mục trong mục Thư mục và chọn Ghim.
+    emptyDownloadedVideos: Chưa có video nào tải xuống hoàn tất.
+    emptyDownloadedGalleries: Chưa có thư viện nào tải xuống hoàn tất.
+    folderInfo: Thông tin thư mục
+    folderInfoName: Tên
+    folderInfoPath: Đường dẫn
+    folderInfoSource: Nguồn
+    folderInfoContents: Nội dung
+    folderInfoSize: Kích thước trên đĩa
+    folderInfoScannedAt: Quét lần cuối
+    folderInfoNeverScanned: Chưa quét
+    folderInfoNoPath: Nguồn này không có thư mục để mở
+    copyPath: Sao chép đường dẫn
+    pathCopied: Đã sao chép đường dẫn
+  tabFolders: Thư mục
+  tabFavoriteVideos: Yêu thích
+  tabAllVideos: Tất cả video
+  tabAllImages: Tất cả ảnh
+  tabDownloadedVideos: Video đã tải
+  tabDownloadedGalleries: Thư viện đã tải
+  title: Trên thiết bị này
+  sourceOnline: Iwara trực tuyến
+  manageSources: Quản lý nguồn
+  moveToCategory: Chuyển vào danh mục
+  manageCategories: Quản lý danh mục
+  suggestedFolders: Thư mục có video
+  sortRecentlyAdded: Thêm gần đây
+  sortRecentlyPlayed: Phát gần đây
+  sortName: Tên
+  sortDuration: Thời lượng
+  sortSize: Kích thước
+  sortFolder: Thư mục
+  sortRecentlyModified: Sửa đổi gần đây
+  sortCount: Số lượng
+  folderCardItemCount: "${count} ảnh"
+  downloadsSource: Đã tải xuống
+  builtInSourceHint: Mục Đã tải xuống được quản lý tự động
+  filterByCategory: Lọc theo danh mục
+  longPressToCategorize: Nhấn giữ để chuyển vào danh mục
+  uncategorized: Chưa phân loại
+  setCategoryFailed: Không thể đặt danh mục
+  categoryUpdated: Đã cập nhật danh mục
+  addFolder: Thêm thư mục
+  addDeviceVideos: Quét video trên thiết bị
+  mediaStoreSourceName: Video trên thiết bị
+  mediaStoreUnavailable: Chỉ mục media của thiết bị chỉ khả dụng trên Android
+  mediaStorePermissionDenied: Quyền truy cập video chưa được cấp
+  rescan: Quét lại
+  scanning: "Đang quét… đã tìm thấy ${count}"
+  scanFailed: "Quét thất bại: ${reason}"
+  scanTruncated: "Thư mục đó rất lớn — chỉ ${count} tệp đầu tiên được thêm."
+  sourceOverlaps: "Đã được bao phủ bởi thư mục \"${name}\""
+  addedAsPinnedFolder: "\"${name}\" nằm trong \"${source}\", nên đã được thêm vào thư mục ghim"
+  alreadyPinnedFolder: "\"${name}\" đã có trong thư mục ghim"
+  sourceAlreadyAdded: "\"${name}\" đã được thêm rồi"
+  sourceContainsExisting: "Đã chứa thư mục đã thêm \"${name}\"; chưa hỗ trợ thêm thư mục cha của nó"
+  addSourceFailed: Không thể thêm thư mục đó
+  fileMissing: Tệp đó không còn trên đĩa
+  permissionDenied: Chưa được cấp quyền truy cập tệp · nhấn để cấp
+  noVideosFound: Không có video trong thư mục này
+  emptyTitle: Thêm thư mục để xem các video đã có trên thiết bị này
+  emptyPrivacyNote: Tệp chỉ được đọc trên thiết bị này. Không có gì được tải lên.
+  removeSourceTitle: "Xóa \"${name}\"?"
+  removeSourceBody: Các tệp vẫn còn trên đĩa. Chỉ mục thư viện này bị xóa.
+  remove: Xóa
+  removeFolder: Xóa thư mục
+  removeFolderSelectTitle: Chọn thư mục để xóa
+  longPressToRemove: Nhấn giữ để xóa thư mục này
+  clearProgress: Xóa lịch sử xem cục bộ
+  clearProgressCount: "${count} mục"
+  clearProgressEmpty: Chưa có lịch sử xem cục bộ
+  clearProgressTitle: Xóa lịch sử xem cục bộ?
+  clearProgressBody: Chỉ vị trí phát và dấu đã xem bị xóa. Các tệp và thư mục của bạn vẫn giữ nguyên.
+  clearProgressDone: "Đã xóa ${count} mục lịch sử xem cục bộ"
+  clearAction: Xóa
+  iosManualRescanNotice: iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.

@@ -109,7 +109,9 @@ common:
   success: 成功
   commentDeletedSuccessfully: コメントが削除されました
   commentUpdatedSuccessfully: コメントが更新されました
-  totalComments: '${count} 件のコメント'
+  totalComments:
+    one: '${n} 件のコメント'
+    other: '${n} 件のコメント'
   writeYourCommentHere: ここにコメントを入力...
   tmpNoReplies: 返信はありません
   loadMore: もっと読み込む
@@ -120,9 +122,15 @@ common:
   translateFailedPleaseTryAgainLater: 翻訳に失敗しました。後でもう一度お試しください
   translationResult: 翻訳結果
   justNow: たった今
-  minutesAgo: '${num} 分前'
-  hoursAgo: '${num} 時間前'
-  daysAgo: '${num} 日前'
+  minutesAgo:
+    one: '${n} 分前'
+    other: '${n} 分前'
+  hoursAgo:
+    one: '${n} 時間前'
+    other: '${n} 時間前'
+  daysAgo:
+    one: '${n} 日前'
+    other: '${n} 日前'
   editedAt: '${num} 編集'
   editComment: コメントを編集
   commentUpdated: コメントが更新されました
@@ -161,7 +169,9 @@ common:
   searchHistoryRecords: 検索履歴...
   settings: 設定
   subscriptions: サブスクリプション
-  videoCount: '${num} 本の動画'
+  videoCount:
+    one: '${n} 本の動画'
+    other: '${n} 本の動画'
   share: 共有
   areYouSureYouWantToShareThisPlaylist: このプレイリストを共有してもよろしいですか？
   editTitle: タイトルを編集
@@ -757,6 +767,9 @@ settings:
   screenFitRatioDesc: この比率に引き伸ばして表示します（変形する場合があります）
   jumpLink: リンクをジャンプ
   language: 言語
+  languageNativeName: 日本語
+  followSystemLanguage: システムに従う
+  languageChangedMessage: 言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。
   languageChanged: 言語設定が変更されました。アプリを再起動して有効にしてください。
   keybinding:
     title: キーボードショートカット
@@ -920,8 +933,8 @@ settings:
     regexEx3Desc: 「総集編」で終わるタイトルに一致
     regexEx4Pattern: 第.話
     regexEx4Desc: 「.」は任意の1文字（「第1話」「第X話」に一致）
-    regexEx5Pattern: '\d{4}'
-    regexEx5Desc: 「\d」は数字、{4} は4桁（年など）
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '「\\d」は数字、{4} は4桁（年など）'
     regexEx1Sample: "新作の予告公開中"
     regexEx2Sample: "【総集編】夏まつり"
     regexEx3Sample: "夏まつり 総集編"
@@ -1131,7 +1144,9 @@ favoriteTags:
   quickPickHint: お気に入りは検索のクイック選択に表示されます。
   pickerTitle: Oreno3D を選択
   searchHint: 名前または原語で検索
-  worksCount: '${count} 作品'
+  worksCount:
+    one: '${n} 作品'
+    other: '${n} 作品'
   browseEntry: 原作 / キャラ / タグを閲覧
   favoritesSection: お気に入り
   addFavorite: 追加
@@ -1144,14 +1159,7 @@ oreno3d:
   tags: タグ
   characters: キャラクター
   origin: 原作
-  thirdPartyTagsExplanation: >-
-    ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。
-
-
-    この情報ソースは日本語のみのため、現在国際化対応が不足しています。
-
-
-    もし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！
+  thirdPartyTagsExplanation: "ここに表示される**タグ**、**キャラクター**、**原作**情報は第三者サイト **Oreno3D** が提供するものであり、参考情報です。\n\nこの情報ソースは日本語のみのため、現在国際化対応が不足しています。\n\nもし国際化開発にご興味があれば、ぜひリポジトリにアクセスしてご協力ください！"
   sortTypes:
     hot: 急上昇
     favorites: 高評価
@@ -1254,6 +1262,7 @@ videoDetail:
   volumeMuted: 音量がミュートされています
   restoreDefaultZoom: リセット
   gestureGuide:
+    sampleVideo: サンプル動画
     title: ジェスチャー・操作ガイド
     viewGuide: ジェスチャー・操作ガイドを見る
     firstTimeIntro: プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。

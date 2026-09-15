@@ -101,7 +101,9 @@ common:
   success: Success
   commentDeletedSuccessfully: Comment Deleted Successfully
   commentUpdatedSuccessfully: Comment Updated Successfully
-  totalComments: '${count} Comments'
+  totalComments:
+    one: '${n} Comment'
+    other: '${n} Comments'
   writeYourCommentHere: Write your comment here...
   tmpNoReplies: No replies yet
   loadMore: Load More
@@ -112,9 +114,15 @@ common:
   translateFailedPleaseTryAgainLater: Translate failed, please try again later
   translationResult: Translation Result
   justNow: Just Now
-  minutesAgo: '${num} minutes ago'
-  hoursAgo: '${num} hours ago'
-  daysAgo: '${num} days ago'
+  minutesAgo:
+    one: '${n} minute ago'
+    other: '${n} minutes ago'
+  hoursAgo:
+    one: '${n} hour ago'
+    other: '${n} hours ago'
+  daysAgo:
+    one: '${n} day ago'
+    other: '${n} days ago'
   editedAt: '${num} edited'
   editComment: Edit Comment
   commentUpdated: Comment Updated
@@ -153,7 +161,9 @@ common:
   searchHistoryRecords: Search History Records...
   settings: Settings
   subscriptions: Subscriptions
-  videoCount: '${num} videos'
+  videoCount:
+    one: '${n} video'
+    other: '${n} videos'
   share: Share
   areYouSureYouWantToShareThisPlaylist: Are you sure you want to share this playlist?
   editTitle: Edit Title
@@ -756,6 +766,9 @@ settings:
   screenFitRatioDesc: Force this aspect ratio; the image may be distorted
   jumpLink: Jump Link
   language: Language
+  languageNativeName: English
+  followSystemLanguage: Follow System
+  languageChangedMessage: Language changed successfully, some features require restarting the app to take effect.
   languageChanged: Language setting has been changed, please restart the app to take effect.
   keybinding:
     title: Keyboard Shortcuts
@@ -913,14 +926,14 @@ settings:
     regexHelpTapHint: Tap an example to fill it in.
     regexEx1Pattern: trailer|teaser|bonus
     regexEx1Desc: Match any one of these words ("|" means "or")
-    regexEx2Pattern: '^\[.*\]'
+    regexEx2Pattern: '^\\[.*\\]'
     regexEx2Desc: Titles that start with [brackets]
     regexEx3Pattern: 'Collection$'
     regexEx3Desc: Titles that end with "Collection"
-    regexEx4Pattern: 'Ep\.\d+'
-    regexEx4Desc: '\d+ is one or more digits — matches "Ep.12"'
-    regexEx5Pattern: '\d{4}'
-    regexEx5Desc: \d is a digit and {4} means four in a row (e.g. a year)
+    regexEx4Pattern: 'Ep\\.\\d+'
+    regexEx4Desc: '\\d+ is one or more digits — matches "Ep.12"'
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '\\d is a digit and {4} means four in a row (e.g. a year)'
     regexEx1Sample: "New Game Teaser Out Now"
     regexEx2Sample: "[Remux] Full Movie"
     regexEx3Sample: "Spring Art Collection"
@@ -1130,7 +1143,9 @@ favoriteTags:
   quickPickHint: Favorited items appear as quick picks in search.
   pickerTitle: Select Oreno3D
   searchHint: Search by name or original
-  worksCount: '${count} works'
+  worksCount:
+    one: '${n} work'
+    other: '${n} works'
   browseEntry: Browse origin / character / tag
   favoritesSection: Favorites
   addFavorite: Add
@@ -1143,14 +1158,7 @@ oreno3d:
   tags: Tags
   characters: Characters
   origin: Origin
-  thirdPartyTagsExplanation: >-
-    The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.
-
-
-    Since this information source is only available in Japanese, it currently lacks internationalization adaptation.
-
-
-    If you are interested in contributing to internationalization efforts, please visit the repository to help improve it!
+  thirdPartyTagsExplanation: "The **tags**, **characters**, and **origin** information displayed here are provided by the third-party site **Oreno3D** for reference only.\n\nSince this information source is only available in Japanese, it currently lacks internationalization adaptation.\n\nIf you are interested in contributing to internationalization efforts, please visit the repository to help improve it!"
   sortTypes:
     hot: Hot
     favorites: Favorites
@@ -1253,6 +1261,7 @@ videoDetail:
   volumeMuted: Volume is muted
   restoreDefaultZoom: Restore
   gestureGuide:
+    sampleVideo: Sample video
     title: Gestures & Interaction Guide
     viewGuide: Gestures & Interaction Guide
     firstTimeIntro: Take a few seconds to learn the player gestures. You can reopen this guide anytime from the player settings.

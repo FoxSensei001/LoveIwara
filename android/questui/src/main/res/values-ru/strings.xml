@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest 空间面板的全部界面文案（默认语言 = 英文，与 lib/i18n 的 base_locale 一致）。
+
+  ⛔ 这些词**不跟系统语言走**，跟应用内的「语言」设置走：Dart 侧把
+  `LocaleSettings.currentLocale.languageTag` 通过 XrBridge 的 `setLocale` / `present`
+  推给原生，面板与提示都用 `Context.withPanelLocale(tag)` 造出来的 Context 取词
+  （见 PanelLocale.kt）。所以这里的 values-xx 目录必须与 lib/i18n 的语种保持一致：
+  en（本文件）/ zh-rCN / zh-rTW / ja。
+
+  ⛔ 新增文案一律进这里，别在 Kotlin 里写字面量 —— 面板是产品界面，不是日志。
+-->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">Назад</string>
+    <string name="xr_refresh">Обновить</string>
+    <string name="xr_reset">Сбросить</string>
+    <string name="xr_loading">Загрузка…</string>
+    <string name="xr_buffering">Буферизация…</string>
+    <string name="xr_open_with">Открыть в другом приложении</string>
+    <string name="xr_not_supported_here">Здесь не поддерживается</string>
+
+    <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
+
+    <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
+    <string name="xr_curve_flat">Плоский экран</string>
+    <string name="xr_curve_slight">Лёгкая кривизна</string>
+    <string name="xr_curve_medium">Средняя кривизна</string>
+    <string name="xr_curve_deep">Сильная кривизна</string>
+    <string name="xr_curve_flat_hint">Один плоский экран</string>
+    <string name="xr_curve_slight_hint">Дуга 40°</string>
+    <string name="xr_curve_medium_hint">Дуга 60°</string>
+    <string name="xr_curve_deep_hint">Дуга 85°</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab（枚举 FormatTab） -->
+    <string name="xr_tab_flat">Плоское видео</string>
+    <string name="xr_tab_panorama">Панорама</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">Рыбий глаз</string>
+
+    <!-- ─────────────────────────────── 具体格式（枚举 VideoFormat） -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D бок о бок</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D друг над другом</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D бок о бок</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D друг над другом</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <!-- 走带行那枚钮上的短标签：「大类 · 具体格式」。 -->
+    <string name="xr_format_short_flat">Плоское · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">Рыбий глаз · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸（枚举 AspectPreset） -->
+    <string name="xr_aspect_default">По умолчанию</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后（枚举 RepeatMode） -->
+    <string name="xr_repeat_one">Повтор одного</string>
+    <string name="xr_repeat_next">Следующее</string>
+    <string name="xr_repeat_stop">Остановить по завершении</string>
+    <string name="xr_repeat_one_hint">Повторять только это видео</string>
+    <string name="xr_repeat_next_hint">Переходить к следующему в списке</string>
+    <string name="xr_repeat_stop_hint">Остановиться на последнем кадре</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">Скрыть элементы управления</string>
+    <string name="xr_player_title_fallback">Сейчас воспроизводится</string>
+    <string name="xr_switching_chip">Загрузка следующего…</string>
+    <string name="xr_nav_scene">Среда</string>
+    <string name="xr_nav_playlist">Плейлист</string>
+    <string name="xr_nav_settings">Настройки</string>
+    <string name="xr_nav_back_to_app">Вернуться в приложение</string>
+    <string name="xr_volume">Системная громкость</string>
+    <string name="xr_muted_badge">Без звука</string>
+    <string name="xr_mute">Выключить звук</string>
+    <string name="xr_unmute">Включить звук</string>
+    <string name="xr_previous">Предыдущее</string>
+    <string name="xr_next">Следующее</string>
+    <string name="xr_seek_back_5">Назад на 5 секунд</string>
+    <string name="xr_seek_forward_5">Вперёд на 5 секунд</string>
+    <string name="xr_play">Воспроизвести</string>
+    <string name="xr_pause">Пауза</string>
+    <string name="xr_quality">Качество</string>
+    <!-- 本机已下载的那一档清晰度。 -->
+    <string name="xr_source_local">%1$s · загружено</string>
+    <string name="xr_restart_from_beginning">Начать сначала</string>
+    <string name="xr_dismiss_tip">Закрыть</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_queue_picker">Сменить очередь</string>
+    <string name="xr_card_loading">Загрузка…</string>
+    <string name="xr_untitled">(без названия)</string>
+    <string name="xr_playlist_empty_title">Нечего продолжать</string>
+    <string name="xr_playlist_empty_hint">Добавьте видео в очередь в приложении — воспроизведение начнётся прямо отсюда</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">Среда</string>
+    <string name="xr_scene_subtitle_flat">Среда и размещение экрана</string>
+    <string name="xr_scene_subtitle_sphere">Сферический источник — изображение уже окружает вас</string>
+    <string name="xr_recenter">Центрировать</string>
+    <string name="xr_scene_section_environment">Среда</string>
+    <string name="xr_scene_section_adjust">Размещение</string>
+    <string name="xr_screen_distance">Расстояние</string>
+    <string name="xr_screen_width">Ширина экрана</string>
+    <string name="xr_screen_offset">Вертикальное смещение</string>
+    <string name="xr_scene_sphere_note">«Расстояние» приближает или отдаляет изображение. «Центрировать» возвращает направление взгляда.</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">Форма экрана</string>
+    <string name="xr_screen_type_subtitle">Все пиксели на одном расстоянии от глаз — меньше поворотов головы</string>
+    <string name="xr_curve_rebuild_note">Смена формы пересоздаёт экран: возможен короткий разрыв, затем воспроизведение продолжится с того же места.</string>
+    <string name="xr_section_3d_display">3D-воспроизведение</string>
+    <string name="xr_force_mono">Проигрывать 3D-видео как 2D</string>
+    <string name="xr_force_mono_hint_stereo">Используется только половина кадра — если от 3D кружится голова или двоится</string>
+    <string name="xr_force_mono_hint_mono">Этот источник моно, поэтому эффекта нет</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">Тип видео</string>
+    <string name="xr_video_type_subtitle">Определено неверно? Измените здесь — применится сразу</string>
+    <string name="xr_auto_detect">Автоопределение</string>
+    <string name="xr_format_unsupported_inline">%1$s здесь не воспроизводится; откройте в другом приложении</string>
+    <string name="xr_treat_180_as_fisheye">При автоопределении считать панораму 180° рыбым глазом 180°</string>
+    <string name="xr_treat_180_as_fisheye_hint">Рыбий глаз здесь не воспроизводится; с этой опцией для источников 180° появится «Открыть в другом приложении»</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">Настройки</string>
+    <string name="xr_settings_subtitle">Только нужное для пространственного плеера; остальное — в приложении</string>
+    <string name="xr_section_screen_size">Размер экрана</string>
+    <string name="xr_width_ratio">Множитель ширины</string>
+    <string name="xr_height_ratio">Множитель высоты</string>
+    <string name="xr_reset_screen_size">Сбросить размер экрана</string>
+    <string name="xr_section_speed">Скорость воспроизведения</string>
+    <string name="xr_carry_over">Переносить на следующее видео</string>
+    <string name="xr_carry_over_hint">Вкл.: размер экрана и скорость сохраняются при переключении. Выкл.: каждое видео начинается со значений по умолчанию</string>
+    <string name="xr_section_after_playback">Когда закончится</string>
+    <string name="xr_section_panel">Панель управления</string>
+    <string name="xr_auto_hide">Скрывать при бездействии</string>
+    <string name="xr_auto_hide_hint">Скрытие полностью удаляет панель; сделайте щипок, чтобы вернуть её</string>
+    <string name="xr_auto_hide_seconds_label">Что считать бездействием</string>
+    <string name="xr_summon_in_front">Вызвать перед собой</string>
+    <string name="xr_summon_in_front_hint">Перемещает панель туда, куда вы смотрите, при щипке</string>
+    <string name="xr_click_sound">Звук щелчка</string>
+    <string name="xr_click_sound_hint">Meta: у рук нет тактильной отдачи, поэтому звук обязателен</string>
+    <string name="xr_section_controller">Контроллеры и система</string>
+    <string name="xr_controller_tap">Нажатие A/X на контроллере — воспроизведение/пауза</string>
+    <string name="xr_controller_tap_hint">Не нужно целиться в панель — работает через всю комнату</string>
+    <string name="xr_pause_on_focus_loss">Пауза при системном меню / снятии шлема</string>
+    <string name="xr_pause_on_focus_loss_hint">Без фокуса никто не смотрит, а батарея расходуется</string>
+    <string name="xr_section_bindings">Назначения контроллера</string>
+    <string name="xr_controller_bindings">Триггер / щипок: выбор · вызов панели\nB / Y: скрыть панель\nСтик влево/вправо: удерживайте для перемотки (чем дольше, тем быстрее), отпустите для перехода\nСтик вверх/вниз: отодвинуть / приблизить изображение (панорамы: сферу)\nGrip: удерживайте для перемещения изображения (панорамы: перетаскивание вида), отпустите, чтобы скрыть панель</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示（ImmersiveActivity） -->
+    <string name="xr_notice_unsupported_projection">Эту проекцию здесь нельзя отобразить, она показана плоско; попробуйте «Открыть в другом приложении»</string>
+    <string name="xr_notice_next_failed_reason">Следующее не воспроизведётся (%1$s); остаёмся на текущем видео</string>
+    <string name="xr_notice_next_unavailable">Следующее не откроется; остаёмся на текущем видео</string>
+    <string name="xr_notice_next_unavailable_reason">Следующее не откроется (%1$s); остаёмся на текущем видео</string>
+    <string name="xr_notice_next_timeout">Время загрузки следующего истекло; остаёмся на текущем видео</string>
+    <string name="xr_notice_url_expired_refreshing">Ссылка на воспроизведение истекла; получаем новую…</string>
+    <string name="xr_notice_url_expired_no_refresh">Ссылка на воспроизведение истекла, новая не получена — откройте видео в приложении или используйте внешний плеер</string>
+    <string name="xr_notice_refresh_timeout">Ссылка на воспроизведение истекла, а получение новой истекло по времени — откройте видео в приложении или используйте внешний плеер</string>
+    <string name="xr_notice_playback_failed">Этот источник не воспроизводится (%1$s); попробуйте внешний плеер</string>
+    <string name="xr_notice_no_external_player">На этом устройстве нет приложения, открывающего это видео</string>
+    <string name="xr_notice_resumed_at">Продолжено с %1$s</string>
+    <string name="xr_notice_volume_blocked">Система сейчас блокирует изменение громкости (Не беспокоить); измените её кнопками громкости на шлеме</string>
+
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">Экран</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">Галерея</string>
+    <!-- 计数 chip：「3 / 12」。 -->
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <!-- 头部副标题里的像素尺寸。 -->
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">В этой галерее нет файлов</string>
+    <string name="xr_gallery_video_badge">Видео</string>
+    <string name="xr_gallery_slideshow">Слайд-шоу</string>
+    <string name="xr_gallery_slideshow_stop">Остановить слайд-шоу</string>
+    <!-- 幻灯片间隔 chip：「5s」。 -->
+    <string name="xr_gallery_interval">%1$d с</string>
+    <string name="xr_gallery_quality_standard">Стандартное</string>
+    <string name="xr_gallery_quality_original">Оригинал</string>
+    <string name="xr_gallery_loop">Повтор</string>
+    <string name="xr_gallery_load_failed">Не удалось загрузить этот файл (%1$s)</string>
+
+    <string name="xr_swipe_no_previous_image">Это первое изображение</string>
+    <string name="xr_swipe_no_next_image">Это последнее изображение</string>
+    <string name="xr_view_distance">Расстояние</string>
+    <string name="xr_view_distance_hint">Удерживайте, чтобы приблизить или отдалить. Отпустите, чтобы остановить.</string>
+    <string name="xr_view_nearer">Ближе</string>
+    <string name="xr_view_farther">Дальше</string>
+    <string name="xr_view_distance_reset">Сбросить расстояние</string>
+
+    <!-- Browsing panel: the app panel's own distance and how much room shows through. -->
+    <string name="xr_panel_settings_title">Панель и фон</string>
+    <string name="xr_panel_settings_subtitle">Где находится панель приложения и сколько комнаты видно за ней</string>
+    <string name="xr_panel_distance">Расстояние панели</string>
+    <string name="xr_panel_background">Фон</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">Атмосфера медиа</string>
+    <string name="xr_media_effects_hint">Мягкие края и свет, следующий за изображением</string>
+    <string name="xr_media_effects_reset">Сбросить эффекты</string>
+    <string name="xr_edge_feather">Мягкость краёв</string>
+    <string name="xr_ambient_glow">Диапазон и интенсивность свечения</string>
+    <string name="xr_background_transparency">Прозрачность фона</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%: чёрное окружение · 100%: ваша реальная комната с подсветкой</string>
+    <string name="xr_media_effects_360_hint">Видео 360° окружает вас без границ; мягкость краёв и свечение применяются к плоским и 180° материалам.</string>
+    <string name="xr_media_effects_fallback">Медиа-эффекты недоступны. Обычное воспроизведение восстановлено.</string>
+    <string name="xr_environment_passthrough">Сквозной вид</string>
+    <string name="xr_environment_deep_space">Земля и Луна</string>
+    <string name="xr_environment_brightness">Яркость среды</string>
+    <string name="xr_environment_dynamic">3D-движение</string>
+    <string name="xr_environment_show_earth">Показать Землю</string>
+    <string name="xr_environment_show_moon">Показать Луну</string>
+    <string name="xr_environment_dynamic_unavailable">3D-движение недоступно. Включено статичное звёздное небо.</string>
+    <string name="xr_environment_dynamic_hint">Добавляет медленное вращение и стереоглубину. По умолчанию выключено для экономии энергии.</string>
+    <string name="xr_environment_deep_space_hint">Земля, Луна и далёкие звёзды окружают вас. Снизьте яркость для более тёмного пространства просмотра.</string>
+    <string name="xr_environment_loading">Подготовка среды…</string>
+    <string name="xr_environment_failed">Среда недоступна. Восстановлен сквозной вид; выберите фон, чтобы повторить.</string>
+    <string name="xr_environment_void">Фокус</string>
+    <string name="xr_environment_void_hint">Чёрное пространство для просмотра, помогающее сосредоточиться на изображении.</string>
+    <string name="xr_environment_aurora">Северное сияние</string>
+    <string name="xr_environment_aurora_hint">Тихие снежные поля под северным сиянием. Неподвижный горизонт для спокойного просмотра.</string>
+    <string name="xr_environment_sunset">Закатное море</string>
+    <string name="xr_environment_sunset_hint">Тёплый вечерний свет над открытой водой, солнце рядом с областью просмотра.</string>
+    <string name="xr_environment_mist">Туманные вершины</string>
+    <string name="xr_environment_mist_hint">Слои далёких гор поднимаются сквозь мягкий туман, словно пейзаж тушью.</string>
+</resources>

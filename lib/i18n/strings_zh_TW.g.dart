@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsZhTw({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsZhTw _root = this; // ignore: unused_field
 
@@ -97,8 +99,8 @@ class TranslationsZhTw with BaseTranslations<AppLocale, Translations> implements
 }
 
 // Path: personalProfile
-class _TranslationsPersonalProfileZhTw implements TranslationsPersonalProfileEn {
-	_TranslationsPersonalProfileZhTw._(this._root);
+class _TranslationsPersonalProfileZhTw extends TranslationsPersonalProfileEn {
+	_TranslationsPersonalProfileZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -149,8 +151,8 @@ class _TranslationsPersonalProfileZhTw implements TranslationsPersonalProfileEn 
 }
 
 // Path: tutorial
-class _TranslationsTutorialZhTw implements TranslationsTutorialEn {
-	_TranslationsTutorialZhTw._(this._root);
+class _TranslationsTutorialZhTw extends TranslationsTutorialEn {
+	_TranslationsTutorialZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -166,8 +168,8 @@ class _TranslationsTutorialZhTw implements TranslationsTutorialEn {
 }
 
 // Path: common
-class _TranslationsCommonZhTw implements TranslationsCommonEn {
-	_TranslationsCommonZhTw._(this._root);
+class _TranslationsCommonZhTw extends TranslationsCommonEn {
+	_TranslationsCommonZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -216,7 +218,10 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get success => '成功';
 	@override String get commentDeletedSuccessfully => '評論已刪除';
 	@override String get commentUpdatedSuccessfully => '評論已更新';
-	@override String totalComments({required Object count}) => '評論 ${count} 則';
+	@override String totalComments({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '評論 ${n} 則',
+		other: '評論 ${n} 則',
+	);
 	@override String get writeYourCommentHere => '請寫下你的評論...';
 	@override String get tmpNoReplies => '暫無回覆';
 	@override String get loadMore => '載入更多';
@@ -227,9 +232,18 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get translateFailedPleaseTryAgainLater => '翻譯失敗，請稍後再試';
 	@override String get translationResult => '翻譯結果';
 	@override String get justNow => '剛剛';
-	@override String minutesAgo({required Object num}) => '${num} 分鐘前';
-	@override String hoursAgo({required Object num}) => '${num} 小時前';
-	@override String daysAgo({required Object num}) => '${num} 天前';
+	@override String minutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '${n} 分鐘前',
+		other: '${n} 分鐘前',
+	);
+	@override String hoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '${n} 小時前',
+		other: '${n} 小時前',
+	);
+	@override String daysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '${n} 天前',
+		other: '${n} 天前',
+	);
 	@override String editedAt({required Object num}) => '${num} 編輯';
 	@override String get editComment => '編輯評論';
 	@override String get commentUpdated => '評論已更新';
@@ -268,7 +282,10 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 	@override String get searchHistoryRecords => '搜尋歷史紀錄...';
 	@override String get settings => '設定';
 	@override String get subscriptions => '訂閱';
-	@override String videoCount({required Object num}) => '${num} 支影片';
+	@override String videoCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '${n} 支影片',
+		other: '${n} 支影片',
+	);
 	@override String get share => '分享';
 	@override String get areYouSureYouWantToShareThisPlaylist => '要分享這個播放清單嗎？';
 	@override String get editTitle => '編輯標題';
@@ -404,8 +421,8 @@ class _TranslationsCommonZhTw implements TranslationsCommonEn {
 }
 
 // Path: auth
-class _TranslationsAuthZhTw implements TranslationsAuthEn {
-	_TranslationsAuthZhTw._(this._root);
+class _TranslationsAuthZhTw extends TranslationsAuthEn {
+	_TranslationsAuthZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -441,8 +458,8 @@ class _TranslationsAuthZhTw implements TranslationsAuthEn {
 }
 
 // Path: errors
-class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
-	_TranslationsErrorsZhTw._(this._root);
+class _TranslationsErrorsZhTw extends TranslationsErrorsEn {
+	_TranslationsErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -508,8 +525,8 @@ class _TranslationsErrorsZhTw implements TranslationsErrorsEn {
 }
 
 // Path: friends
-class _TranslationsFriendsZhTw implements TranslationsFriendsEn {
-	_TranslationsFriendsZhTw._(this._root);
+class _TranslationsFriendsZhTw extends TranslationsFriendsEn {
+	_TranslationsFriendsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -525,8 +542,8 @@ class _TranslationsFriendsZhTw implements TranslationsFriendsEn {
 }
 
 // Path: authorProfile
-class _TranslationsAuthorProfileZhTw implements TranslationsAuthorProfileEn {
-	_TranslationsAuthorProfileZhTw._(this._root);
+class _TranslationsAuthorProfileZhTw extends TranslationsAuthorProfileEn {
+	_TranslationsAuthorProfileZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -536,8 +553,8 @@ class _TranslationsAuthorProfileZhTw implements TranslationsAuthorProfileEn {
 }
 
 // Path: favorites
-class _TranslationsFavoritesZhTw implements TranslationsFavoritesEn {
-	_TranslationsFavoritesZhTw._(this._root);
+class _TranslationsFavoritesZhTw extends TranslationsFavoritesEn {
+	_TranslationsFavoritesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -551,8 +568,8 @@ class _TranslationsFavoritesZhTw implements TranslationsFavoritesEn {
 }
 
 // Path: galleryDetail
-class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
-	_TranslationsGalleryDetailZhTw._(this._root);
+class _TranslationsGalleryDetailZhTw extends TranslationsGalleryDetailEn {
+	_TranslationsGalleryDetailZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -587,8 +604,8 @@ class _TranslationsGalleryDetailZhTw implements TranslationsGalleryDetailEn {
 }
 
 // Path: playList
-class _TranslationsPlayListZhTw implements TranslationsPlayListEn {
-	_TranslationsPlayListZhTw._(this._root);
+class _TranslationsPlayListZhTw extends TranslationsPlayListEn {
+	_TranslationsPlayListZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -612,8 +629,8 @@ class _TranslationsPlayListZhTw implements TranslationsPlayListEn {
 }
 
 // Path: search
-class _TranslationsSearchZhTw implements TranslationsSearchEn {
-	_TranslationsSearchZhTw._(this._root);
+class _TranslationsSearchZhTw extends TranslationsSearchEn {
+	_TranslationsSearchZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -648,8 +665,8 @@ class _TranslationsSearchZhTw implements TranslationsSearchEn {
 }
 
 // Path: mediaList
-class _TranslationsMediaListZhTw implements TranslationsMediaListEn {
-	_TranslationsMediaListZhTw._(this._root);
+class _TranslationsMediaListZhTw extends TranslationsMediaListEn {
+	_TranslationsMediaListZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -658,8 +675,8 @@ class _TranslationsMediaListZhTw implements TranslationsMediaListEn {
 }
 
 // Path: settings
-class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
-	_TranslationsSettingsZhTw._(this._root);
+class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
+	_TranslationsSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -912,6 +929,9 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 	@override String get screenFitRatioDesc => '強制按該比例拉伸顯示，畫面可能變形';
 	@override String get jumpLink => '跳轉連結';
 	@override String get language => '語言';
+	@override String get languageNativeName => '繁體中文';
+	@override String get followSystemLanguage => '跟隨系統';
+	@override String get languageChangedMessage => '語言切換成功，部分功能需重啟應用生效';
 	@override String get languageChanged => '語言設定已更改，請重新啟動應用以生效。';
 	@override late final _TranslationsSettingsKeybindingZhTw keybinding = _TranslationsSettingsKeybindingZhTw._(_root);
 	@override String get gestureControl => '手勢控制';
@@ -978,8 +998,8 @@ class _TranslationsSettingsZhTw implements TranslationsSettingsEn {
 }
 
 // Path: favoriteTags
-class _TranslationsFavoriteTagsZhTw implements TranslationsFavoriteTagsEn {
-	_TranslationsFavoriteTagsZhTw._(this._root);
+class _TranslationsFavoriteTagsZhTw extends TranslationsFavoriteTagsEn {
+	_TranslationsFavoriteTagsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -991,7 +1011,10 @@ class _TranslationsFavoriteTagsZhTw implements TranslationsFavoriteTagsEn {
 	@override String get quickPickHint => '收藏的項目會出現在搜尋的快速選擇中。';
 	@override String get pickerTitle => '選擇 Oreno3D';
 	@override String get searchHint => '按名稱或原文搜尋';
-	@override String worksCount({required Object count}) => '${count} 作品';
+	@override String worksCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n,
+		one: '${n} 作品',
+		other: '${n} 作品',
+	);
 	@override String get browseEntry => '瀏覽 原作 / 角色 / 標籤';
 	@override String get favoritesSection => '收藏';
 	@override String get addFavorite => '新增';
@@ -1002,8 +1025,8 @@ class _TranslationsFavoriteTagsZhTw implements TranslationsFavoriteTagsEn {
 }
 
 // Path: oreno3d
-class _TranslationsOreno3dZhTw implements TranslationsOreno3dEn {
-	_TranslationsOreno3dZhTw._(this._root);
+class _TranslationsOreno3dZhTw extends TranslationsOreno3dEn {
+	_TranslationsOreno3dZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1020,8 +1043,8 @@ class _TranslationsOreno3dZhTw implements TranslationsOreno3dEn {
 }
 
 // Path: firstTimeSetup
-class _TranslationsFirstTimeSetupZhTw implements TranslationsFirstTimeSetupEn {
-	_TranslationsFirstTimeSetupZhTw._(this._root);
+class _TranslationsFirstTimeSetupZhTw extends TranslationsFirstTimeSetupEn {
+	_TranslationsFirstTimeSetupZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1037,8 +1060,8 @@ class _TranslationsFirstTimeSetupZhTw implements TranslationsFirstTimeSetupEn {
 }
 
 // Path: proxyHelper
-class _TranslationsProxyHelperZhTw implements TranslationsProxyHelperEn {
-	_TranslationsProxyHelperZhTw._(this._root);
+class _TranslationsProxyHelperZhTw extends TranslationsProxyHelperEn {
+	_TranslationsProxyHelperZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1049,8 +1072,8 @@ class _TranslationsProxyHelperZhTw implements TranslationsProxyHelperEn {
 }
 
 // Path: signIn
-class _TranslationsSignInZhTw implements TranslationsSignInEn {
-	_TranslationsSignInZhTw._(this._root);
+class _TranslationsSignInZhTw extends TranslationsSignInEn {
+	_TranslationsSignInZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1078,8 +1101,8 @@ class _TranslationsSignInZhTw implements TranslationsSignInEn {
 }
 
 // Path: subscriptions
-class _TranslationsSubscriptionsZhTw implements TranslationsSubscriptionsEn {
-	_TranslationsSubscriptionsZhTw._(this._root);
+class _TranslationsSubscriptionsZhTw extends TranslationsSubscriptionsEn {
+	_TranslationsSubscriptionsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1091,8 +1114,8 @@ class _TranslationsSubscriptionsZhTw implements TranslationsSubscriptionsEn {
 }
 
 // Path: videoDetail
-class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
-	_TranslationsVideoDetailZhTw._(this._root);
+class _TranslationsVideoDetailZhTw extends TranslationsVideoDetailEn {
+	_TranslationsVideoDetailZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1167,8 +1190,8 @@ class _TranslationsVideoDetailZhTw implements TranslationsVideoDetailEn {
 }
 
 // Path: share
-class _TranslationsShareZhTw implements TranslationsShareEn {
-	_TranslationsShareZhTw._(this._root);
+class _TranslationsShareZhTw extends TranslationsShareEn {
+	_TranslationsShareZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1203,8 +1226,8 @@ class _TranslationsShareZhTw implements TranslationsShareEn {
 }
 
 // Path: markdown
-class _TranslationsMarkdownZhTw implements TranslationsMarkdownEn {
-	_TranslationsMarkdownZhTw._(this._root);
+class _TranslationsMarkdownZhTw extends TranslationsMarkdownEn {
+	_TranslationsMarkdownZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1242,8 +1265,8 @@ class _TranslationsMarkdownZhTw implements TranslationsMarkdownEn {
 }
 
 // Path: forum
-class _TranslationsForumZhTw implements TranslationsForumEn {
-	_TranslationsForumZhTw._(this._root);
+class _TranslationsForumZhTw extends TranslationsForumEn {
+	_TranslationsForumZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1279,8 +1302,8 @@ class _TranslationsForumZhTw implements TranslationsForumEn {
 }
 
 // Path: notifications
-class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
-	_TranslationsNotificationsZhTw._(this._root);
+class _TranslationsNotificationsZhTw extends TranslationsNotificationsEn {
+	_TranslationsNotificationsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1331,8 +1354,8 @@ class _TranslationsNotificationsZhTw implements TranslationsNotificationsEn {
 }
 
 // Path: conversation
-class _TranslationsConversationZhTw implements TranslationsConversationEn {
-	_TranslationsConversationZhTw._(this._root);
+class _TranslationsConversationZhTw extends TranslationsConversationEn {
+	_TranslationsConversationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1355,8 +1378,8 @@ class _TranslationsConversationZhTw implements TranslationsConversationEn {
 }
 
 // Path: splash
-class _TranslationsSplashZhTw implements TranslationsSplashEn {
-	_TranslationsSplashZhTw._(this._root);
+class _TranslationsSplashZhTw extends TranslationsSplashEn {
+	_TranslationsSplashZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1370,8 +1393,8 @@ class _TranslationsSplashZhTw implements TranslationsSplashEn {
 }
 
 // Path: download
-class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
-	_TranslationsDownloadZhTw._(this._root);
+class _TranslationsDownloadZhTw extends TranslationsDownloadEn {
+	_TranslationsDownloadZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1464,8 +1487,8 @@ class _TranslationsDownloadZhTw implements TranslationsDownloadEn {
 }
 
 // Path: downloadNotifications
-class _TranslationsDownloadNotificationsZhTw implements TranslationsDownloadNotificationsEn {
-	_TranslationsDownloadNotificationsZhTw._(this._root);
+class _TranslationsDownloadNotificationsZhTw extends TranslationsDownloadNotificationsEn {
+	_TranslationsDownloadNotificationsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1481,8 +1504,8 @@ class _TranslationsDownloadNotificationsZhTw implements TranslationsDownloadNoti
 }
 
 // Path: favorite
-class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
-	_TranslationsFavoriteZhTw._(this._root);
+class _TranslationsFavoriteZhTw extends TranslationsFavoriteEn {
+	_TranslationsFavoriteZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1528,8 +1551,8 @@ class _TranslationsFavoriteZhTw implements TranslationsFavoriteEn {
 }
 
 // Path: translation
-class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
-	_TranslationsTranslationZhTw._(this._root);
+class _TranslationsTranslationZhTw extends TranslationsTranslationEn {
+	_TranslationsTranslationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1701,8 +1724,8 @@ class _TranslationsTranslationZhTw implements TranslationsTranslationEn {
 }
 
 // Path: mediaPlayer
-class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
-	_TranslationsMediaPlayerZhTw._(this._root);
+class _TranslationsMediaPlayerZhTw extends TranslationsMediaPlayerEn {
+	_TranslationsMediaPlayerZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1768,8 +1791,8 @@ class _TranslationsMediaPlayerZhTw implements TranslationsMediaPlayerEn {
 }
 
 // Path: diagnostics
-class _TranslationsDiagnosticsZhTw implements TranslationsDiagnosticsEn {
-	_TranslationsDiagnosticsZhTw._(this._root);
+class _TranslationsDiagnosticsZhTw extends TranslationsDiagnosticsEn {
+	_TranslationsDiagnosticsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1824,8 +1847,8 @@ class _TranslationsDiagnosticsZhTw implements TranslationsDiagnosticsEn {
 }
 
 // Path: logViewer
-class _TranslationsLogViewerZhTw implements TranslationsLogViewerEn {
-	_TranslationsLogViewerZhTw._(this._root);
+class _TranslationsLogViewerZhTw extends TranslationsLogViewerEn {
+	_TranslationsLogViewerZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1837,8 +1860,8 @@ class _TranslationsLogViewerZhTw implements TranslationsLogViewerEn {
 }
 
 // Path: crashRecoveryDialog
-class _TranslationsCrashRecoveryDialogZhTw implements TranslationsCrashRecoveryDialogEn {
-	_TranslationsCrashRecoveryDialogZhTw._(this._root);
+class _TranslationsCrashRecoveryDialogZhTw extends TranslationsCrashRecoveryDialogEn {
+	_TranslationsCrashRecoveryDialogZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1858,8 +1881,8 @@ class _TranslationsCrashRecoveryDialogZhTw implements TranslationsCrashRecoveryD
 }
 
 // Path: linkInputDialog
-class _TranslationsLinkInputDialogZhTw implements TranslationsLinkInputDialogEn {
-	_TranslationsLinkInputDialogZhTw._(this._root);
+class _TranslationsLinkInputDialogZhTw extends TranslationsLinkInputDialogEn {
+	_TranslationsLinkInputDialogZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1885,8 +1908,8 @@ class _TranslationsLinkInputDialogZhTw implements TranslationsLinkInputDialogEn 
 }
 
 // Path: log
-class _TranslationsLogZhTw implements TranslationsLogEn {
-	_TranslationsLogZhTw._(this._root);
+class _TranslationsLogZhTw extends TranslationsLogEn {
+	_TranslationsLogZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -1948,8 +1971,8 @@ class _TranslationsLogZhTw implements TranslationsLogEn {
 }
 
 // Path: emoji
-class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
-	_TranslationsEmojiZhTw._(this._root);
+class _TranslationsEmojiZhTw extends TranslationsEmojiEn {
+	_TranslationsEmojiZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2015,8 +2038,8 @@ class _TranslationsEmojiZhTw implements TranslationsEmojiEn {
 }
 
 // Path: displaySettings
-class _TranslationsDisplaySettingsZhTw implements TranslationsDisplaySettingsEn {
-	_TranslationsDisplaySettingsZhTw._(this._root);
+class _TranslationsDisplaySettingsZhTw extends TranslationsDisplaySettingsEn {
+	_TranslationsDisplaySettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2031,8 +2054,8 @@ class _TranslationsDisplaySettingsZhTw implements TranslationsDisplaySettingsEn 
 }
 
 // Path: layoutSettings
-class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
-	_TranslationsLayoutSettingsZhTw._(this._root);
+class _TranslationsLayoutSettingsZhTw extends TranslationsLayoutSettingsEn {
+	_TranslationsLayoutSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2087,8 +2110,8 @@ class _TranslationsLayoutSettingsZhTw implements TranslationsLayoutSettingsEn {
 }
 
 // Path: bottomNav
-class _TranslationsBottomNavZhTw implements TranslationsBottomNavEn {
-	_TranslationsBottomNavZhTw._(this._root);
+class _TranslationsBottomNavZhTw extends TranslationsBottomNavEn {
+	_TranslationsBottomNavZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2101,8 +2124,8 @@ class _TranslationsBottomNavZhTw implements TranslationsBottomNavEn {
 }
 
 // Path: navigationOrderSettings
-class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigationOrderSettingsEn {
-	_TranslationsNavigationOrderSettingsZhTw._(this._root);
+class _TranslationsNavigationOrderSettingsZhTw extends TranslationsNavigationOrderSettingsEn {
+	_TranslationsNavigationOrderSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2135,8 +2158,8 @@ class _TranslationsNavigationOrderSettingsZhTw implements TranslationsNavigation
 }
 
 // Path: news
-class _TranslationsNewsZhTw implements TranslationsNewsEn {
-	_TranslationsNewsZhTw._(this._root);
+class _TranslationsNewsZhTw extends TranslationsNewsEn {
+	_TranslationsNewsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2149,8 +2172,8 @@ class _TranslationsNewsZhTw implements TranslationsNewsEn {
 }
 
 // Path: searchFilter
-class _TranslationsSearchFilterZhTw implements TranslationsSearchFilterEn {
-	_TranslationsSearchFilterZhTw._(this._root);
+class _TranslationsSearchFilterZhTw extends TranslationsSearchFilterEn {
+	_TranslationsSearchFilterZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2230,8 +2253,8 @@ class _TranslationsSearchFilterZhTw implements TranslationsSearchFilterEn {
 }
 
 // Path: tagSelector
-class _TranslationsTagSelectorZhTw implements TranslationsTagSelectorEn {
-	_TranslationsTagSelectorZhTw._(this._root);
+class _TranslationsTagSelectorZhTw extends TranslationsTagSelectorEn {
+	_TranslationsTagSelectorZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2252,8 +2275,8 @@ class _TranslationsTagSelectorZhTw implements TranslationsTagSelectorEn {
 }
 
 // Path: anime4k
-class _TranslationsAnime4kZhTw implements TranslationsAnime4kEn {
-	_TranslationsAnime4kZhTw._(this._root);
+class _TranslationsAnime4kZhTw extends TranslationsAnime4kEn {
+	_TranslationsAnime4kZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2277,8 +2300,8 @@ class _TranslationsAnime4kZhTw implements TranslationsAnime4kEn {
 }
 
 // Path: siteMode
-class _TranslationsSiteModeZhTw implements TranslationsSiteModeEn {
-	_TranslationsSiteModeZhTw._(this._root);
+class _TranslationsSiteModeZhTw extends TranslationsSiteModeEn {
+	_TranslationsSiteModeZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2299,8 +2322,8 @@ class _TranslationsSiteModeZhTw implements TranslationsSiteModeEn {
 }
 
 // Path: savedSearchConfig
-class _TranslationsSavedSearchConfigZhTw implements TranslationsSavedSearchConfigEn {
-	_TranslationsSavedSearchConfigZhTw._(this._root);
+class _TranslationsSavedSearchConfigZhTw extends TranslationsSavedSearchConfigEn {
+	_TranslationsSavedSearchConfigZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2322,8 +2345,8 @@ class _TranslationsSavedSearchConfigZhTw implements TranslationsSavedSearchConfi
 }
 
 // Path: savedSearch
-class _TranslationsSavedSearchZhTw implements TranslationsSavedSearchEn {
-	_TranslationsSavedSearchZhTw._(this._root);
+class _TranslationsSavedSearchZhTw extends TranslationsSavedSearchEn {
+	_TranslationsSavedSearchZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2344,8 +2367,8 @@ class _TranslationsSavedSearchZhTw implements TranslationsSavedSearchEn {
 }
 
 // Path: defaultBlacklistReminder
-class _TranslationsDefaultBlacklistReminderZhTw implements TranslationsDefaultBlacklistReminderEn {
-	_TranslationsDefaultBlacklistReminderZhTw._(this._root);
+class _TranslationsDefaultBlacklistReminderZhTw extends TranslationsDefaultBlacklistReminderEn {
+	_TranslationsDefaultBlacklistReminderZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2357,8 +2380,8 @@ class _TranslationsDefaultBlacklistReminderZhTw implements TranslationsDefaultBl
 }
 
 // Path: colorVisionAssist
-class _TranslationsColorVisionAssistZhTw implements TranslationsColorVisionAssistEn {
-	_TranslationsColorVisionAssistZhTw._(this._root);
+class _TranslationsColorVisionAssistZhTw extends TranslationsColorVisionAssistEn {
+	_TranslationsColorVisionAssistZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2380,8 +2403,8 @@ class _TranslationsColorVisionAssistZhTw implements TranslationsColorVisionAssis
 }
 
 // Path: externalPlayer
-class _TranslationsExternalPlayerZhTw implements TranslationsExternalPlayerEn {
-	_TranslationsExternalPlayerZhTw._(this._root);
+class _TranslationsExternalPlayerZhTw extends TranslationsExternalPlayerEn {
+	_TranslationsExternalPlayerZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2445,8 +2468,8 @@ class _TranslationsExternalPlayerZhTw implements TranslationsExternalPlayerEn {
 }
 
 // Path: watchLater
-class _TranslationsWatchLaterZhTw implements TranslationsWatchLaterEn {
-	_TranslationsWatchLaterZhTw._(this._root);
+class _TranslationsWatchLaterZhTw extends TranslationsWatchLaterEn {
+	_TranslationsWatchLaterZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2481,8 +2504,8 @@ class _TranslationsWatchLaterZhTw implements TranslationsWatchLaterEn {
 }
 
 // Path: mediaMenu
-class _TranslationsMediaMenuZhTw implements TranslationsMediaMenuEn {
-	_TranslationsMediaMenuZhTw._(this._root);
+class _TranslationsMediaMenuZhTw extends TranslationsMediaMenuEn {
+	_TranslationsMediaMenuZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2496,8 +2519,8 @@ class _TranslationsMediaMenuZhTw implements TranslationsMediaMenuEn {
 }
 
 // Path: mediaPreview
-class _TranslationsMediaPreviewZhTw implements TranslationsMediaPreviewEn {
-	_TranslationsMediaPreviewZhTw._(this._root);
+class _TranslationsMediaPreviewZhTw extends TranslationsMediaPreviewEn {
+	_TranslationsMediaPreviewZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2510,8 +2533,8 @@ class _TranslationsMediaPreviewZhTw implements TranslationsMediaPreviewEn {
 }
 
 // Path: playbackQueue
-class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
-	_TranslationsPlaybackQueueZhTw._(this._root);
+class _TranslationsPlaybackQueueZhTw extends TranslationsPlaybackQueueEn {
+	_TranslationsPlaybackQueueZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2544,8 +2567,8 @@ class _TranslationsPlaybackQueueZhTw implements TranslationsPlaybackQueueEn {
 }
 
 // Path: vrFormat
-class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
-	_TranslationsVrFormatZhTw._(this._root);
+class _TranslationsVrFormatZhTw extends TranslationsVrFormatEn {
+	_TranslationsVrFormatZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2609,8 +2632,8 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 }
 
 // Path: localMedia
-class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
-	_TranslationsLocalMediaZhTw._(this._root);
+class _TranslationsLocalMediaZhTw extends TranslationsLocalMediaEn {
+	_TranslationsLocalMediaZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2681,8 +2704,8 @@ class _TranslationsLocalMediaZhTw implements TranslationsLocalMediaEn {
 }
 
 // Path: common.pagination
-class _TranslationsCommonPaginationZhTw implements TranslationsCommonPaginationEn {
-	_TranslationsCommonPaginationZhTw._(this._root);
+class _TranslationsCommonPaginationZhTw extends TranslationsCommonPaginationEn {
+	_TranslationsCommonPaginationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2699,8 +2722,8 @@ class _TranslationsCommonPaginationZhTw implements TranslationsCommonPaginationE
 }
 
 // Path: errors.network
-class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
-	_TranslationsErrorsNetworkZhTw._(this._root);
+class _TranslationsErrorsNetworkZhTw extends TranslationsErrorsNetworkEn {
+	_TranslationsErrorsNetworkZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2729,8 +2752,8 @@ class _TranslationsErrorsNetworkZhTw implements TranslationsErrorsNetworkEn {
 }
 
 // Path: settings.keybinding
-class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybindingEn {
-	_TranslationsSettingsKeybindingZhTw._(this._root);
+class _TranslationsSettingsKeybindingZhTw extends TranslationsSettingsKeybindingEn {
+	_TranslationsSettingsKeybindingZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2805,8 +2828,8 @@ class _TranslationsSettingsKeybindingZhTw implements TranslationsSettingsKeybind
 }
 
 // Path: settings.forumSettings
-class _TranslationsSettingsForumSettingsZhTw implements TranslationsSettingsForumSettingsEn {
-	_TranslationsSettingsForumSettingsZhTw._(this._root);
+class _TranslationsSettingsForumSettingsZhTw extends TranslationsSettingsForumSettingsEn {
+	_TranslationsSettingsForumSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2816,8 +2839,8 @@ class _TranslationsSettingsForumSettingsZhTw implements TranslationsSettingsForu
 }
 
 // Path: settings.gallerySettings
-class _TranslationsSettingsGallerySettingsZhTw implements TranslationsSettingsGallerySettingsEn {
-	_TranslationsSettingsGallerySettingsZhTw._(this._root);
+class _TranslationsSettingsGallerySettingsZhTw extends TranslationsSettingsGallerySettingsEn {
+	_TranslationsSettingsGallerySettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2829,8 +2852,8 @@ class _TranslationsSettingsGallerySettingsZhTw implements TranslationsSettingsGa
 }
 
 // Path: settings.blockSettings
-class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBlockSettingsEn {
-	_TranslationsSettingsBlockSettingsZhTw._(this._root);
+class _TranslationsSettingsBlockSettingsZhTw extends TranslationsSettingsBlockSettingsEn {
+	_TranslationsSettingsBlockSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2882,8 +2905,8 @@ class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBloc
 	@override String get regexEx3Desc => '比對以「合集」結尾的標題';
 	@override String get regexEx4Pattern => '第.話';
 	@override String get regexEx4Desc => '「.」代表任一個字，可比對「第1話」「第X話」';
-	@override String get regexEx5Pattern => '\d{4}';
-	@override String get regexEx5Desc => '「\d」是數字，{4} 表示連續 4 位，可比對年份等';
+	@override String get regexEx5Pattern => '\\d{4}';
+	@override String get regexEx5Desc => '「\\d」是數字，{4} 表示連續 4 位，可比對年份等';
 	@override String get regexEx1Sample => '新作預告搶先看';
 	@override String get regexEx2Sample => '【合集】夏日特輯';
 	@override String get regexEx3Sample => '夏日泳裝合集';
@@ -2910,8 +2933,8 @@ class _TranslationsSettingsBlockSettingsZhTw implements TranslationsSettingsBloc
 }
 
 // Path: settings.chatSettings
-class _TranslationsSettingsChatSettingsZhTw implements TranslationsSettingsChatSettingsEn {
-	_TranslationsSettingsChatSettingsZhTw._(this._root);
+class _TranslationsSettingsChatSettingsZhTw extends TranslationsSettingsChatSettingsEn {
+	_TranslationsSettingsChatSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -2921,8 +2944,8 @@ class _TranslationsSettingsChatSettingsZhTw implements TranslationsSettingsChatS
 }
 
 // Path: settings.downloadSettings
-class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsDownloadSettingsEn {
-	_TranslationsSettingsDownloadSettingsZhTw._(this._root);
+class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDownloadSettingsEn {
+	_TranslationsSettingsDownloadSettingsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3071,8 +3094,8 @@ class _TranslationsSettingsDownloadSettingsZhTw implements TranslationsSettingsD
 }
 
 // Path: oreno3d.sortTypes
-class _TranslationsOreno3dSortTypesZhTw implements TranslationsOreno3dSortTypesEn {
-	_TranslationsOreno3dSortTypesZhTw._(this._root);
+class _TranslationsOreno3dSortTypesZhTw extends TranslationsOreno3dSortTypesEn {
+	_TranslationsOreno3dSortTypesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3084,8 +3107,8 @@ class _TranslationsOreno3dSortTypesZhTw implements TranslationsOreno3dSortTypesE
 }
 
 // Path: oreno3d.errors
-class _TranslationsOreno3dErrorsZhTw implements TranslationsOreno3dErrorsEn {
-	_TranslationsOreno3dErrorsZhTw._(this._root);
+class _TranslationsOreno3dErrorsZhTw extends TranslationsOreno3dErrorsEn {
+	_TranslationsOreno3dErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3110,8 +3133,8 @@ class _TranslationsOreno3dErrorsZhTw implements TranslationsOreno3dErrorsEn {
 }
 
 // Path: oreno3d.loading
-class _TranslationsOreno3dLoadingZhTw implements TranslationsOreno3dLoadingEn {
-	_TranslationsOreno3dLoadingZhTw._(this._root);
+class _TranslationsOreno3dLoadingZhTw extends TranslationsOreno3dLoadingEn {
+	_TranslationsOreno3dLoadingZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3121,8 +3144,8 @@ class _TranslationsOreno3dLoadingZhTw implements TranslationsOreno3dLoadingEn {
 }
 
 // Path: oreno3d.messages
-class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn {
-	_TranslationsOreno3dMessagesZhTw._(this._root);
+class _TranslationsOreno3dMessagesZhTw extends TranslationsOreno3dMessagesEn {
+	_TranslationsOreno3dMessagesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3133,8 +3156,8 @@ class _TranslationsOreno3dMessagesZhTw implements TranslationsOreno3dMessagesEn 
 }
 
 // Path: firstTimeSetup.welcome
-class _TranslationsFirstTimeSetupWelcomeZhTw implements TranslationsFirstTimeSetupWelcomeEn {
-	_TranslationsFirstTimeSetupWelcomeZhTw._(this._root);
+class _TranslationsFirstTimeSetupWelcomeZhTw extends TranslationsFirstTimeSetupWelcomeEn {
+	_TranslationsFirstTimeSetupWelcomeZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3145,8 +3168,8 @@ class _TranslationsFirstTimeSetupWelcomeZhTw implements TranslationsFirstTimeSet
 }
 
 // Path: firstTimeSetup.basic
-class _TranslationsFirstTimeSetupBasicZhTw implements TranslationsFirstTimeSetupBasicEn {
-	_TranslationsFirstTimeSetupBasicZhTw._(this._root);
+class _TranslationsFirstTimeSetupBasicZhTw extends TranslationsFirstTimeSetupBasicEn {
+	_TranslationsFirstTimeSetupBasicZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3157,8 +3180,8 @@ class _TranslationsFirstTimeSetupBasicZhTw implements TranslationsFirstTimeSetup
 }
 
 // Path: firstTimeSetup.network
-class _TranslationsFirstTimeSetupNetworkZhTw implements TranslationsFirstTimeSetupNetworkEn {
-	_TranslationsFirstTimeSetupNetworkZhTw._(this._root);
+class _TranslationsFirstTimeSetupNetworkZhTw extends TranslationsFirstTimeSetupNetworkEn {
+	_TranslationsFirstTimeSetupNetworkZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3170,8 +3193,8 @@ class _TranslationsFirstTimeSetupNetworkZhTw implements TranslationsFirstTimeSet
 }
 
 // Path: firstTimeSetup.theme
-class _TranslationsFirstTimeSetupThemeZhTw implements TranslationsFirstTimeSetupThemeEn {
-	_TranslationsFirstTimeSetupThemeZhTw._(this._root);
+class _TranslationsFirstTimeSetupThemeZhTw extends TranslationsFirstTimeSetupThemeEn {
+	_TranslationsFirstTimeSetupThemeZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3182,8 +3205,8 @@ class _TranslationsFirstTimeSetupThemeZhTw implements TranslationsFirstTimeSetup
 }
 
 // Path: firstTimeSetup.player
-class _TranslationsFirstTimeSetupPlayerZhTw implements TranslationsFirstTimeSetupPlayerEn {
-	_TranslationsFirstTimeSetupPlayerZhTw._(this._root);
+class _TranslationsFirstTimeSetupPlayerZhTw extends TranslationsFirstTimeSetupPlayerEn {
+	_TranslationsFirstTimeSetupPlayerZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3194,8 +3217,8 @@ class _TranslationsFirstTimeSetupPlayerZhTw implements TranslationsFirstTimeSetu
 }
 
 // Path: firstTimeSetup.spatial
-class _TranslationsFirstTimeSetupSpatialZhTw implements TranslationsFirstTimeSetupSpatialEn {
-	_TranslationsFirstTimeSetupSpatialZhTw._(this._root);
+class _TranslationsFirstTimeSetupSpatialZhTw extends TranslationsFirstTimeSetupSpatialEn {
+	_TranslationsFirstTimeSetupSpatialZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3206,8 +3229,8 @@ class _TranslationsFirstTimeSetupSpatialZhTw implements TranslationsFirstTimeSet
 }
 
 // Path: firstTimeSetup.completion
-class _TranslationsFirstTimeSetupCompletionZhTw implements TranslationsFirstTimeSetupCompletionEn {
-	_TranslationsFirstTimeSetupCompletionZhTw._(this._root);
+class _TranslationsFirstTimeSetupCompletionZhTw extends TranslationsFirstTimeSetupCompletionEn {
+	_TranslationsFirstTimeSetupCompletionZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3222,8 +3245,8 @@ class _TranslationsFirstTimeSetupCompletionZhTw implements TranslationsFirstTime
 }
 
 // Path: firstTimeSetup.common
-class _TranslationsFirstTimeSetupCommonZhTw implements TranslationsFirstTimeSetupCommonEn {
-	_TranslationsFirstTimeSetupCommonZhTw._(this._root);
+class _TranslationsFirstTimeSetupCommonZhTw extends TranslationsFirstTimeSetupCommonEn {
+	_TranslationsFirstTimeSetupCommonZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3236,8 +3259,8 @@ class _TranslationsFirstTimeSetupCommonZhTw implements TranslationsFirstTimeSetu
 }
 
 // Path: videoDetail.localInfo
-class _TranslationsVideoDetailLocalInfoZhTw implements TranslationsVideoDetailLocalInfoEn {
-	_TranslationsVideoDetailLocalInfoZhTw._(this._root);
+class _TranslationsVideoDetailLocalInfoZhTw extends TranslationsVideoDetailLocalInfoEn {
+	_TranslationsVideoDetailLocalInfoZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3257,12 +3280,13 @@ class _TranslationsVideoDetailLocalInfoZhTw implements TranslationsVideoDetailLo
 }
 
 // Path: videoDetail.gestureGuide
-class _TranslationsVideoDetailGestureGuideZhTw implements TranslationsVideoDetailGestureGuideEn {
-	_TranslationsVideoDetailGestureGuideZhTw._(this._root);
+class _TranslationsVideoDetailGestureGuideZhTw extends TranslationsVideoDetailGestureGuideEn {
+	_TranslationsVideoDetailGestureGuideZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get sampleVideo => '範例影片';
 	@override String get title => '手勢與互動指引';
 	@override String get viewGuide => '檢視手勢與互動指引';
 	@override String get firstTimeIntro => '花幾秒了解播放器手勢，之後可隨時在播放器設定裡再次檢視。';
@@ -3288,8 +3312,8 @@ class _TranslationsVideoDetailGestureGuideZhTw implements TranslationsVideoDetai
 }
 
 // Path: videoDetail.player
-class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlayerEn {
-	_TranslationsVideoDetailPlayerZhTw._(this._root);
+class _TranslationsVideoDetailPlayerZhTw extends TranslationsVideoDetailPlayerEn {
+	_TranslationsVideoDetailPlayerZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3300,8 +3324,8 @@ class _TranslationsVideoDetailPlayerZhTw implements TranslationsVideoDetailPlaye
 }
 
 // Path: videoDetail.skeleton
-class _TranslationsVideoDetailSkeletonZhTw implements TranslationsVideoDetailSkeletonEn {
-	_TranslationsVideoDetailSkeletonZhTw._(this._root);
+class _TranslationsVideoDetailSkeletonZhTw extends TranslationsVideoDetailSkeletonEn {
+	_TranslationsVideoDetailSkeletonZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3316,8 +3340,8 @@ class _TranslationsVideoDetailSkeletonZhTw implements TranslationsVideoDetailSke
 }
 
 // Path: videoDetail.cast
-class _TranslationsVideoDetailCastZhTw implements TranslationsVideoDetailCastEn {
-	_TranslationsVideoDetailCastZhTw._(this._root);
+class _TranslationsVideoDetailCastZhTw extends TranslationsVideoDetailCastEn {
+	_TranslationsVideoDetailCastZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3335,8 +3359,8 @@ class _TranslationsVideoDetailCastZhTw implements TranslationsVideoDetailCastEn 
 }
 
 // Path: videoDetail.likeAvatars
-class _TranslationsVideoDetailLikeAvatarsZhTw implements TranslationsVideoDetailLikeAvatarsEn {
-	_TranslationsVideoDetailLikeAvatarsZhTw._(this._root);
+class _TranslationsVideoDetailLikeAvatarsZhTw extends TranslationsVideoDetailLikeAvatarsEn {
+	_TranslationsVideoDetailLikeAvatarsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3352,8 +3376,8 @@ class _TranslationsVideoDetailLikeAvatarsZhTw implements TranslationsVideoDetail
 }
 
 // Path: forum.sitewide
-class _TranslationsForumSitewideZhTw implements TranslationsForumSitewideEn {
-	_TranslationsForumSitewideZhTw._(this._root);
+class _TranslationsForumSitewideZhTw extends TranslationsForumSitewideEn {
+	_TranslationsForumSitewideZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3364,8 +3388,8 @@ class _TranslationsForumSitewideZhTw implements TranslationsForumSitewideEn {
 }
 
 // Path: forum.errors
-class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
-	_TranslationsForumErrorsZhTw._(this._root);
+class _TranslationsForumErrorsZhTw extends TranslationsForumErrorsEn {
+	_TranslationsForumErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3375,8 +3399,8 @@ class _TranslationsForumErrorsZhTw implements TranslationsForumErrorsEn {
 }
 
 // Path: forum.groups
-class _TranslationsForumGroupsZhTw implements TranslationsForumGroupsEn {
-	_TranslationsForumGroupsZhTw._(this._root);
+class _TranslationsForumGroupsZhTw extends TranslationsForumGroupsEn {
+	_TranslationsForumGroupsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3390,8 +3414,8 @@ class _TranslationsForumGroupsZhTw implements TranslationsForumGroupsEn {
 }
 
 // Path: forum.leafNames
-class _TranslationsForumLeafNamesZhTw implements TranslationsForumLeafNamesEn {
-	_TranslationsForumLeafNamesZhTw._(this._root);
+class _TranslationsForumLeafNamesZhTw extends TranslationsForumLeafNamesEn {
+	_TranslationsForumLeafNamesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3417,8 +3441,8 @@ class _TranslationsForumLeafNamesZhTw implements TranslationsForumLeafNamesEn {
 }
 
 // Path: forum.leafDescriptions
-class _TranslationsForumLeafDescriptionsZhTw implements TranslationsForumLeafDescriptionsEn {
-	_TranslationsForumLeafDescriptionsZhTw._(this._root);
+class _TranslationsForumLeafDescriptionsZhTw extends TranslationsForumLeafDescriptionsEn {
+	_TranslationsForumLeafDescriptionsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3444,8 +3468,8 @@ class _TranslationsForumLeafDescriptionsZhTw implements TranslationsForumLeafDes
 }
 
 // Path: notifications.errors
-class _TranslationsNotificationsErrorsZhTw implements TranslationsNotificationsErrorsEn {
-	_TranslationsNotificationsErrorsZhTw._(this._root);
+class _TranslationsNotificationsErrorsZhTw extends TranslationsNotificationsErrorsEn {
+	_TranslationsNotificationsErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3457,8 +3481,8 @@ class _TranslationsNotificationsErrorsZhTw implements TranslationsNotificationsE
 }
 
 // Path: conversation.errors
-class _TranslationsConversationErrorsZhTw implements TranslationsConversationErrorsEn {
-	_TranslationsConversationErrorsZhTw._(this._root);
+class _TranslationsConversationErrorsZhTw extends TranslationsConversationErrorsEn {
+	_TranslationsConversationErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3473,8 +3497,8 @@ class _TranslationsConversationErrorsZhTw implements TranslationsConversationErr
 }
 
 // Path: splash.errors
-class _TranslationsSplashErrorsZhTw implements TranslationsSplashErrorsEn {
-	_TranslationsSplashErrorsZhTw._(this._root);
+class _TranslationsSplashErrorsZhTw extends TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3483,8 +3507,8 @@ class _TranslationsSplashErrorsZhTw implements TranslationsSplashErrorsEn {
 }
 
 // Path: download.errors
-class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
-	_TranslationsDownloadErrorsZhTw._(this._root);
+class _TranslationsDownloadErrorsZhTw extends TranslationsDownloadErrorsEn {
+	_TranslationsDownloadErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3550,8 +3574,8 @@ class _TranslationsDownloadErrorsZhTw implements TranslationsDownloadErrorsEn {
 }
 
 // Path: download.errorTypes
-class _TranslationsDownloadErrorTypesZhTw implements TranslationsDownloadErrorTypesEn {
-	_TranslationsDownloadErrorTypesZhTw._(this._root);
+class _TranslationsDownloadErrorTypesZhTw extends TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3567,8 +3591,8 @@ class _TranslationsDownloadErrorTypesZhTw implements TranslationsDownloadErrorTy
 }
 
 // Path: download.restoredPaused
-class _TranslationsDownloadRestoredPausedZhTw implements TranslationsDownloadRestoredPausedEn {
-	_TranslationsDownloadRestoredPausedZhTw._(this._root);
+class _TranslationsDownloadRestoredPausedZhTw extends TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3579,8 +3603,8 @@ class _TranslationsDownloadRestoredPausedZhTw implements TranslationsDownloadRes
 }
 
 // Path: download.deleteByDate
-class _TranslationsDownloadDeleteByDateZhTw implements TranslationsDownloadDeleteByDateEn {
-	_TranslationsDownloadDeleteByDateZhTw._(this._root);
+class _TranslationsDownloadDeleteByDateZhTw extends TranslationsDownloadDeleteByDateEn {
+	_TranslationsDownloadDeleteByDateZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3605,8 +3629,8 @@ class _TranslationsDownloadDeleteByDateZhTw implements TranslationsDownloadDelet
 }
 
 // Path: download.category
-class _TranslationsDownloadCategoryZhTw implements TranslationsDownloadCategoryEn {
-	_TranslationsDownloadCategoryZhTw._(this._root);
+class _TranslationsDownloadCategoryZhTw extends TranslationsDownloadCategoryEn {
+	_TranslationsDownloadCategoryZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3637,8 +3661,8 @@ class _TranslationsDownloadCategoryZhTw implements TranslationsDownloadCategoryE
 }
 
 // Path: download.batchDownload
-class _TranslationsDownloadBatchDownloadZhTw implements TranslationsDownloadBatchDownloadEn {
-	_TranslationsDownloadBatchDownloadZhTw._(this._root);
+class _TranslationsDownloadBatchDownloadZhTw extends TranslationsDownloadBatchDownloadEn {
+	_TranslationsDownloadBatchDownloadZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3673,8 +3697,8 @@ class _TranslationsDownloadBatchDownloadZhTw implements TranslationsDownloadBatc
 }
 
 // Path: favorite.errors
-class _TranslationsFavoriteErrorsZhTw implements TranslationsFavoriteErrorsEn {
-	_TranslationsFavoriteErrorsZhTw._(this._root);
+class _TranslationsFavoriteErrorsZhTw extends TranslationsFavoriteErrorsEn {
+	_TranslationsFavoriteErrorsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3687,8 +3711,8 @@ class _TranslationsFavoriteErrorsZhTw implements TranslationsFavoriteErrorsEn {
 }
 
 // Path: translation.presetNames
-class _TranslationsTranslationPresetNamesZhTw implements TranslationsTranslationPresetNamesEn {
-	_TranslationsTranslationPresetNamesZhTw._(this._root);
+class _TranslationsTranslationPresetNamesZhTw extends TranslationsTranslationPresetNamesEn {
+	_TranslationsTranslationPresetNamesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3706,8 +3730,8 @@ class _TranslationsTranslationPresetNamesZhTw implements TranslationsTranslation
 }
 
 // Path: mediaPlayer.notice
-class _TranslationsMediaPlayerNoticeZhTw implements TranslationsMediaPlayerNoticeEn {
-	_TranslationsMediaPlayerNoticeZhTw._(this._root);
+class _TranslationsMediaPlayerNoticeZhTw extends TranslationsMediaPlayerNoticeEn {
+	_TranslationsMediaPlayerNoticeZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3726,8 +3750,8 @@ class _TranslationsMediaPlayerNoticeZhTw implements TranslationsMediaPlayerNotic
 }
 
 // Path: diagnostics.healthAlert
-class _TranslationsDiagnosticsHealthAlertZhTw implements TranslationsDiagnosticsHealthAlertEn {
-	_TranslationsDiagnosticsHealthAlertZhTw._(this._root);
+class _TranslationsDiagnosticsHealthAlertZhTw extends TranslationsDiagnosticsHealthAlertEn {
+	_TranslationsDiagnosticsHealthAlertZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3747,8 +3771,8 @@ class _TranslationsDiagnosticsHealthAlertZhTw implements TranslationsDiagnostics
 }
 
 // Path: diagnostics.toast
-class _TranslationsDiagnosticsToastZhTw implements TranslationsDiagnosticsToastEn {
-	_TranslationsDiagnosticsToastZhTw._(this._root);
+class _TranslationsDiagnosticsToastZhTw extends TranslationsDiagnosticsToastEn {
+	_TranslationsDiagnosticsToastZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3760,8 +3784,8 @@ class _TranslationsDiagnosticsToastZhTw implements TranslationsDiagnosticsToastE
 }
 
 // Path: searchFilter.sortTypes
-class _TranslationsSearchFilterSortTypesZhTw implements TranslationsSearchFilterSortTypesEn {
-	_TranslationsSearchFilterSortTypesZhTw._(this._root);
+class _TranslationsSearchFilterSortTypesZhTw extends TranslationsSearchFilterSortTypesEn {
+	_TranslationsSearchFilterSortTypesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3773,8 +3797,8 @@ class _TranslationsSearchFilterSortTypesZhTw implements TranslationsSearchFilter
 }
 
 // Path: anime4k.presetGroups
-class _TranslationsAnime4kPresetGroupsZhTw implements TranslationsAnime4kPresetGroupsEn {
-	_TranslationsAnime4kPresetGroupsZhTw._(this._root);
+class _TranslationsAnime4kPresetGroupsZhTw extends TranslationsAnime4kPresetGroupsEn {
+	_TranslationsAnime4kPresetGroupsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3787,8 +3811,8 @@ class _TranslationsAnime4kPresetGroupsZhTw implements TranslationsAnime4kPresetG
 }
 
 // Path: anime4k.presetDescriptions
-class _TranslationsAnime4kPresetDescriptionsZhTw implements TranslationsAnime4kPresetDescriptionsEn {
-	_TranslationsAnime4kPresetDescriptionsZhTw._(this._root);
+class _TranslationsAnime4kPresetDescriptionsZhTw extends TranslationsAnime4kPresetDescriptionsEn {
+	_TranslationsAnime4kPresetDescriptionsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3815,8 +3839,8 @@ class _TranslationsAnime4kPresetDescriptionsZhTw implements TranslationsAnime4kP
 }
 
 // Path: anime4k.presetNames
-class _TranslationsAnime4kPresetNamesZhTw implements TranslationsAnime4kPresetNamesEn {
-	_TranslationsAnime4kPresetNamesZhTw._(this._root);
+class _TranslationsAnime4kPresetNamesZhTw extends TranslationsAnime4kPresetNamesEn {
+	_TranslationsAnime4kPresetNamesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3843,8 +3867,8 @@ class _TranslationsAnime4kPresetNamesZhTw implements TranslationsAnime4kPresetNa
 }
 
 // Path: localMedia.browse
-class _TranslationsLocalMediaBrowseZhTw implements TranslationsLocalMediaBrowseEn {
-	_TranslationsLocalMediaBrowseZhTw._(this._root);
+class _TranslationsLocalMediaBrowseZhTw extends TranslationsLocalMediaBrowseEn {
+	_TranslationsLocalMediaBrowseZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -3931,8 +3955,8 @@ class _TranslationsLocalMediaBrowseZhTw implements TranslationsLocalMediaBrowseE
 }
 
 // Path: videoDetail.gestureGuide.quest
-class _TranslationsVideoDetailGestureGuideQuestZhTw implements TranslationsVideoDetailGestureGuideQuestEn {
-	_TranslationsVideoDetailGestureGuideQuestZhTw._(this._root);
+class _TranslationsVideoDetailGestureGuideQuestZhTw extends TranslationsVideoDetailGestureGuideQuestEn {
+	_TranslationsVideoDetailGestureGuideQuestZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -4013,8 +4037,8 @@ class _TranslationsVideoDetailGestureGuideQuestZhTw implements TranslationsVideo
 }
 
 // Path: videoDetail.cast.deviceTypes
-class _TranslationsVideoDetailCastDeviceTypesZhTw implements TranslationsVideoDetailCastDeviceTypesEn {
-	_TranslationsVideoDetailCastDeviceTypesZhTw._(this._root);
+class _TranslationsVideoDetailCastDeviceTypesZhTw extends TranslationsVideoDetailCastDeviceTypesEn {
+	_TranslationsVideoDetailCastDeviceTypesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -4033,8 +4057,8 @@ class _TranslationsVideoDetailCastDeviceTypesZhTw implements TranslationsVideoDe
 }
 
 // Path: videoDetail.cast.dlnaCastSheet
-class _TranslationsVideoDetailCastDlnaCastSheetZhTw implements TranslationsVideoDetailCastDlnaCastSheetEn {
-	_TranslationsVideoDetailCastDlnaCastSheetZhTw._(this._root);
+class _TranslationsVideoDetailCastDlnaCastSheetZhTw extends TranslationsVideoDetailCastDlnaCastSheetEn {
+	_TranslationsVideoDetailCastDlnaCastSheetZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
 
 	final TranslationsZhTw _root; // ignore: unused_field
 
@@ -4156,7 +4180,7 @@ extension on TranslationsZhTw {
 			'common.success' => '成功',
 			'common.commentDeletedSuccessfully' => '評論已刪除',
 			'common.commentUpdatedSuccessfully' => '評論已更新',
-			'common.totalComments' => ({required Object count}) => '評論 ${count} 則',
+			'common.totalComments' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '評論 ${n} 則', other: '評論 ${n} 則', ), 
 			'common.writeYourCommentHere' => '請寫下你的評論...',
 			'common.tmpNoReplies' => '暫無回覆',
 			'common.loadMore' => '載入更多',
@@ -4167,9 +4191,9 @@ extension on TranslationsZhTw {
 			'common.translateFailedPleaseTryAgainLater' => '翻譯失敗，請稍後再試',
 			'common.translationResult' => '翻譯結果',
 			'common.justNow' => '剛剛',
-			'common.minutesAgo' => ({required Object num}) => '${num} 分鐘前',
-			'common.hoursAgo' => ({required Object num}) => '${num} 小時前',
-			'common.daysAgo' => ({required Object num}) => '${num} 天前',
+			'common.minutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '${n} 分鐘前', other: '${n} 分鐘前', ), 
+			'common.hoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '${n} 小時前', other: '${n} 小時前', ), 
+			'common.daysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '${n} 天前', other: '${n} 天前', ), 
 			'common.editedAt' => ({required Object num}) => '${num} 編輯',
 			'common.editComment' => '編輯評論',
 			'common.commentUpdated' => '評論已更新',
@@ -4208,7 +4232,7 @@ extension on TranslationsZhTw {
 			'common.searchHistoryRecords' => '搜尋歷史紀錄...',
 			'common.settings' => '設定',
 			'common.subscriptions' => '訂閱',
-			'common.videoCount' => ({required Object num}) => '${num} 支影片',
+			'common.videoCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '${n} 支影片', other: '${n} 支影片', ), 
 			'common.share' => '分享',
 			'common.areYouSureYouWantToShareThisPlaylist' => '要分享這個播放清單嗎？',
 			'common.editTitle' => '編輯標題',
@@ -4792,6 +4816,9 @@ extension on TranslationsZhTw {
 			'settings.screenFitRatioDesc' => '強制按該比例拉伸顯示，畫面可能變形',
 			'settings.jumpLink' => '跳轉連結',
 			'settings.language' => '語言',
+			'settings.languageNativeName' => '繁體中文',
+			'settings.followSystemLanguage' => '跟隨系統',
+			'settings.languageChangedMessage' => '語言切換成功，部分功能需重啟應用生效',
 			'settings.languageChanged' => '語言設定已更改，請重新啟動應用以生效。',
 			'settings.keybinding.title' => '鍵盤快捷鍵',
 			'settings.keybinding.entryLabel' => '鍵盤快捷鍵',
@@ -4947,8 +4974,8 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.regexEx3Desc' => '比對以「合集」結尾的標題',
 			'settings.blockSettings.regexEx4Pattern' => '第.話',
 			'settings.blockSettings.regexEx4Desc' => '「.」代表任一個字，可比對「第1話」「第X話」',
-			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
-			'settings.blockSettings.regexEx5Desc' => '「\d」是數字，{4} 表示連續 4 位，可比對年份等',
+			'settings.blockSettings.regexEx5Pattern' => '\\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '「\\d」是數字，{4} 表示連續 4 位，可比對年份等',
 			'settings.blockSettings.regexEx1Sample' => '新作預告搶先看',
 			'settings.blockSettings.regexEx2Sample' => '【合集】夏日特輯',
 			'settings.blockSettings.regexEx3Sample' => '夏日泳裝合集',
@@ -5084,11 +5111,11 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：實際使用路徑與選擇路徑不同',
 			'settings.downloadSettings.grantPermission' => '授權權限',
 			'settings.downloadSettings.fixIssue' => '修復問題',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.issueFixed' => '問題已修復',
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
 			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.cannotAccessPublicDirectory' => '無法訪問公共目錄，需要「所有檔案存取權限」',
 			'settings.downloadSettings.cannotCreateDirectory' => '無法建立目錄',
 			'settings.downloadSettings.directoryNotWritable' => '目錄不可寫入',
@@ -5146,7 +5173,7 @@ extension on TranslationsZhTw {
 			'favoriteTags.quickPickHint' => '收藏的項目會出現在搜尋的快速選擇中。',
 			'favoriteTags.pickerTitle' => '選擇 Oreno3D',
 			'favoriteTags.searchHint' => '按名稱或原文搜尋',
-			'favoriteTags.worksCount' => ({required Object count}) => '${count} 作品',
+			'favoriteTags.worksCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(n, one: '${n} 作品', other: '${n} 作品', ), 
 			'favoriteTags.browseEntry' => '瀏覽 原作 / 角色 / 標籤',
 			'favoriteTags.favoritesSection' => '收藏',
 			'favoriteTags.addFavorite' => '新增',
@@ -5284,6 +5311,7 @@ extension on TranslationsZhTw {
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量已靜音',
 			'videoDetail.restoreDefaultZoom' => '還原',
+			'videoDetail.gestureGuide.sampleVideo' => '範例影片',
 			'videoDetail.gestureGuide.title' => '手勢與互動指引',
 			'videoDetail.gestureGuide.viewGuide' => '檢視手勢與互動指引',
 			'videoDetail.gestureGuide.firstTimeIntro' => '花幾秒了解播放器手勢，之後可隨時在播放器設定裡再次檢視。',
@@ -5597,12 +5625,12 @@ extension on TranslationsZhTw {
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
 			'notifications.copyInfoToClipboard' => '複製通知資訊到剪貼簿',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.copySuccess' => '已複製到剪貼簿',
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'notifications.markAllAsRead' => '全部標記已讀',
 			'notifications.markAllAsReadSuccess' => '所有通知已標記為已讀',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.markAllAsReadFailed' => '全部標記已讀失敗',
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
@@ -6111,12 +6139,12 @@ extension on TranslationsZhTw {
 			'mediaPlayer.format' => '格式',
 			'mediaPlayer.suggestion' => '建議',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.currentDeviceCodecNotSupported' => '目前裝置不支援此影片格式的編解碼器',
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormat' => '無法識別的影片檔案',
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。',
 			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
@@ -6625,12 +6653,12 @@ extension on TranslationsZhTw {
 			'savedSearchConfig.title' => '已儲存篩選',
 			'savedSearchConfig.empty' => '還沒有儲存的篩選設定',
 			'savedSearchConfig.saveTooltip' => '儲存目前篩選',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => '儲存篩選設定',
 			'savedSearchConfig.nameLabel' => '名稱',
 			'savedSearchConfig.nameHint' => '請輸入名稱',
 			'savedSearchConfig.saveSuccess' => '已儲存篩選設定',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => '已刪除篩選設定',
 			'savedSearchConfig.addCurrent' => '儲存目前篩選',
 			'savedSearchConfig.reorderHint' => '長按拖曳可調整順序',

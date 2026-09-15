@@ -555,7 +555,7 @@ class _TopToolbarState extends State<TopToolbar> {
                             return const SizedBox.shrink();
                           }
                           return IconButton(
-                            tooltip: '进入影院',
+                            tooltip: slang.t.vrFormat.playInSpace,
                             icon: PlayerIcon(
                               PlayerSymbol.theater,
                               color: Colors.white,

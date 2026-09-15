@@ -10,6 +10,9 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+// `loadAllLocales` 是 slang 的 extension：extension 只在不带前缀的导入里进作用域，
+// 所以单独把这一条 show 进来（用它的是下面的 ensureAllAppLocalesLoaded）。
+import 'package:slang/slang.dart' show LocaleSettingsExt;
 import 'package:path_provider/path_provider.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
@@ -446,11 +449,11 @@ class CommonUtils {
     if (difference.inMinutes < 1) {
       return t.common.justNow;
     } else if (difference.inHours < 1) {
-      return t.common.minutesAgo(num: difference.inMinutes);
+      return t.common.minutesAgo(n: difference.inMinutes);
     } else if (difference.inDays < 1) {
-      return t.common.hoursAgo(num: difference.inHours);
+      return t.common.hoursAgo(n: difference.inHours);
     } else if (difference.inDays < 7) {
-      return t.common.daysAgo(num: difference.inDays);
+      return t.common.daysAgo(n: difference.inDays);
     } else {
       final date =
           "${timestamp.year}-${_twoDigits(timestamp.month)}-${_twoDigits(timestamp.day)}";
@@ -461,6 +464,14 @@ class CommonUtils {
 
   /// 辅助方法，将数字补齐为两位
   static String _twoDigits(int n) => n.toString().padLeft(2, '0');
+
+  /// 使用「千/万/亿」这类四位一级计数单位的语言，值是 (千, 万, 亿) 三个词。
+  /// 不在表里的语言走 k/M/B。
+  static const Map<String, (String, String, String)> _eastAsianNumberUnits = {
+    'zh': ('千', '万', '亿'),
+    'ja': ('千', '万', '億'),
+    'ko': ('천', '만', '억'),
+  };
 
   /// 格式化数字为千、万，如果不是中文则返回外国人用的数字格式 1.5k.... 依旧是保留小数点后两位
   /// @param num 数字
@@ -480,18 +491,24 @@ class CommonUtils {
       }
     }
 
-    if (slang.LocaleSettings.currentLocale.languageCode == 'zh') {
+    // 东亚按「千 / 万 / 亿」四位一级分档，其余语言按三位一级的 k/M/B。
+    // 日语和韩语原先落在 k/M/B 分支里，对当地用户是读不惯的。
+    final eastAsianUnits = _eastAsianNumberUnits[
+      slang.LocaleSettings.currentLocale.languageCode
+    ];
+    if (eastAsianUnits != null) {
+      final (thousand, tenThousand, hundredMillion) = eastAsianUnits;
       if (num < 1000) {
         return num.toString();
       } else if (num < 10000) {
         double result = num / 1000;
-        return '${formatNumber(result)}千';
+        return '${formatNumber(result)}$thousand';
       } else if (num < 100000000) {
         double result = num / 10000;
-        return '${formatNumber(result)}万';
+        return '${formatNumber(result)}$tenThousand';
       } else {
         double result = num / 100000000;
-        return '${formatNumber(result)}亿';
+        return '${formatNumber(result)}$hundredMillion';
       }
     } else {
       if (num < 1000) {
@@ -600,16 +617,110 @@ class CommonUtils {
     }
   }
 
+  /// 把设备语言映射成我们的语言代码（与 `lib/i18n/*.i18n.yaml` 的文件名一致）。
+  ///
+  /// ⛔ 这里原来拿 `languageCode` 去 match `case 'zh-HK'` / `case 'zh-TW'`，
+  /// 而 `languageCode` 永远只会是 `'zh'`——那两个分支是死代码，所有中文设备
+  /// 一律被判成简体。繁简要看 scriptCode / countryCode 才分得出来。
   static String getDeviceLocale() {
-    final locale = PlatformDispatcher.instance.locale.languageCode;
-    switch (locale) {
-      case 'zh':
-        return 'zh-CN';
-      case 'zh-HK':
-      case 'zh-TW':
-        return 'zh-TW';
+    final locale = PlatformDispatcher.instance.locale;
+    if (locale.languageCode == 'zh') {
+      final isTraditional =
+          locale.scriptCode == 'Hant' ||
+          const {'TW', 'HK', 'MO'}.contains(locale.countryCode);
+      return isTraditional ? 'zh-TW' : 'zh-CN';
     }
-    return locale;
+    return locale.languageCode;
+  }
+
+  /// 把 slang 支持的所有语言（现在 12 门）的译文都加载进来，
+  /// 供语言选择器「按目标 locale 取译文」用。
+  ///
+  /// 语言列表要显示的不是**当前**语言，而是每门语言自己的母语名与提示语——
+  /// 那只能按目标 locale 取译文（`AppLocale.translations`）。而 slang 是按需加载
+  /// 的（`lib/i18n/strings.g.dart` 里 `lazy: true`，非基准语言走 deferred 导入）：
+  /// 没加载过的语言，`translations` 会**静默**回退成基准语言 en 的译文，母语名
+  /// 整列都会变成 `English`，且不报任何错。所以读之前先把它们补齐。
+  ///
+  /// 幂等：已加载的会跳过，重复调用只剩几次 map 命中。
+  /// slang 自带的复数解析器只覆盖 cs/de/en/es/fr/it/ja/pl/ru/sv/uk/vi。
+  ///
+  /// 本仓还支持 **zh-CN / zh-TW / ko / th / id**——这些语言的名词不随数量变形，
+  /// 所以「永远取 other 形态」就是它们**正确**的规则。不注册的话，一旦用到任何
+  /// 复数词条（`common.totalComments` 一类），slang 会在运行期直接抛异常。
+  ///
+  /// 幂等：重复调用只是重设同一份解析器。
+  /// 语言选择器里的**显示顺序**。
+  ///
+  /// ⛔ 不能用 `AppLocale.values`：那是**文件名字母序**（en, de, es, fr, id, ja, ko, ru, th,
+  /// vi, zh-CN, zh-TW），摆给用户看等于随机。这里按用户实际分布排：
+  ///   1. 原先支持的 4 门（en / ja / zh-CN / zh-TW）——用户最多，放最上面；
+  ///   2. 其余按二次元内容受众规模排：ko（韩）→ th（泰）→ id（印尼）→ vi（越）
+  ///      → es（西语，拉美为主）→ ru（俄）→ fr（法）→ de（德）。
+  ///
+  /// 想换顺序就改这一个列表——语言选择器与首次启动向导共用它。
+  /// 新增语言**不必改这里**：忘了登记也不会让那门语言在选择器里消失，
+  /// 见 [orderedAppLocales]。
+  static const List<slang.AppLocale> appLocaleDisplayOrder = [
+    slang.AppLocale.en,
+    slang.AppLocale.ja,
+    slang.AppLocale.zhCn,
+    slang.AppLocale.zhTw,
+    slang.AppLocale.ko,
+    slang.AppLocale.th,
+    slang.AppLocale.id,
+    slang.AppLocale.vi,
+    slang.AppLocale.es,
+    slang.AppLocale.ru,
+    slang.AppLocale.fr,
+    slang.AppLocale.de,
+  ];
+
+  /// 选择器实际用的顺序：登记过的按 [appLocaleDisplayOrder]，**没登记的补在末尾**。
+  ///
+  /// 这条兜底是故意的：将来加语言的人只要丢一份 yaml 就行，即使忘了更新顺序表，
+  /// 那门语言也只是排最后，不会静默消失（`AppLocale.values` 里它一定存在）。
+  static List<slang.AppLocale> get orderedAppLocales => [
+    ...appLocaleDisplayOrder,
+    ...slang.AppLocale.values.where(
+      (locale) => !appLocaleDisplayOrder.contains(locale),
+    ),
+  ];
+
+  static void ensurePluralResolvers() {
+    for (final locale in const [
+      slang.AppLocale.zhCn,
+      slang.AppLocale.zhTw,
+      slang.AppLocale.ko,
+      slang.AppLocale.th,
+      slang.AppLocale.id,
+    ]) {
+      slang.LocaleSettings.setPluralResolver(
+        locale: locale,
+        cardinalResolver:
+            (num n,
+                    {String? zero,
+                    String? one,
+                    String? two,
+                    String? few,
+                    String? many,
+                    String? other}) =>
+                // 这几门语言的词条只提供 other 形态；万一缺了，退回 one / 空串，
+                // 也绝不抛异常（宁可显示得糙一点，也不能把界面炸掉）。
+                other ?? one ?? many ?? ''
+      );
+    }
+  }
+
+  static Future<void> ensureAllAppLocalesLoaded() async {
+    try {
+      await slang.LocaleSettings.instance.loadAllLocales();
+      // 语言包都到位之后再注册复数解析器（注册要求目标语言已加载）。
+      ensurePluralResolvers();
+    } catch (e) {
+      // 兜底：某个语言包加载失败不该让语言选择器整个打不开，退化成显示 en 文案。
+      LogUtils.e('加载语言包失败', tag: 'CommonUtils', error: e);
+    }
   }
 
   /// 获取视频链接的过期时间
@@ -701,8 +812,45 @@ class CommonUtils {
     return newPath;
   }
 
+  /// 日期在界面上的写法**跟语言走**，不是 12 门语言一个样。
+  ///
+  /// 沿用本仓既有做法（见 [_eastAsianNumberUnits]）：这种「排版格式表」直接放在
+  /// Dart 里，不额外造 12 个 i18n key——它是排版规则，不是文案。
+  ///
+  /// ⛔ 故意只用数字格式、不用月份名：月份名要 12 门语言 × 12 个月 = 144 条新文案，
+  /// 而这些日期出现在历史记录、下载任务这类紧凑位置，数字形式才是惯例。
+  ///
+  /// ⛔ en 保持 `yyyy-MM-dd`（本仓原行为，ISO 无歧义）：这次只让**其它语言**回到
+  /// 各自的习惯写法，不改变英文界面的既有观感。
+  static const Map<String, String> _datePatterns = {
+    'en': 'yyyy-MM-dd',
+    'zh-CN': 'yyyy年M月d日',
+    'zh-TW': 'yyyy年M月d日',
+    'ja': 'yyyy年M月d日',
+    'ko': 'yyyy년 M월 d일',
+    'ru': 'dd.MM.yyyy',
+    'de': 'dd.MM.yyyy',
+    'es': 'dd/MM/yyyy',
+    'fr': 'dd/MM/yyyy',
+    'vi': 'dd/MM/yyyy',
+    'id': 'dd/MM/yyyy',
+    'th': 'dd/MM/yyyy',
+  };
+
+  /// 按当前语言格式化日期（只到日，不含时间）。
+  ///
+  /// 未登记的语言回退 en 的 ISO 写法，不会出现「未知语言给空串」。
   static String formatDate(DateTime start) {
-    return '${start.year}-${_twoDigits(start.month)}-${_twoDigits(start.day)}';
+    final pattern = _datePatterns[
+            slang.LocaleSettings.currentLocale.languageTag] ??
+        _datePatterns['en']!;
+    // 先替换长标记，再替换单字符标记（`MM` 必须在 `M` 之前、`dd` 在 `d` 之前）。
+    return pattern
+        .replaceAll('yyyy', start.year.toString().padLeft(4, '0'))
+        .replaceAll('MM', _twoDigits(start.month))
+        .replaceAll('dd', _twoDigits(start.day))
+        .replaceAll('M', start.month.toString())
+        .replaceAll('d', start.day.toString());
   }
 
   /// 获取当前平台名称

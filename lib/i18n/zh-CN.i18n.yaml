@@ -103,7 +103,9 @@ common:
   success: 成功
   commentDeletedSuccessfully: 评论已删除
   commentUpdatedSuccessfully: 评论已更新
-  totalComments: '评论 ${count} 条'
+  totalComments:
+    one: '评论 ${n} 条'
+    other: '评论 ${n} 条'
   writeYourCommentHere: 在此输入评论...
   tmpNoReplies: 暂无回复
   loadMore: 加载更多
@@ -114,9 +116,15 @@ common:
   translateFailedPleaseTryAgainLater: 翻译失败，请稍后重试
   translationResult: 翻译结果
   justNow: 刚刚
-  minutesAgo: '${num}分钟前'
-  hoursAgo: '${num}小时前'
-  daysAgo: '${num}天前'
+  minutesAgo:
+    one: '${n}分钟前'
+    other: '${n}分钟前'
+  hoursAgo:
+    one: '${n}小时前'
+    other: '${n}小时前'
+  daysAgo:
+    one: '${n}天前'
+    other: '${n}天前'
   editedAt: '${num}编辑'
   editComment: 编辑评论
   commentUpdated: 评论已更新
@@ -155,7 +163,9 @@ common:
   searchHistoryRecords: 搜索历史记录...
   settings: 设置
   subscriptions: 订阅
-  videoCount: '${num} 个视频'
+  videoCount:
+    one: '${n} 个视频'
+    other: '${n} 个视频'
   share: 分享
   areYouSureYouWantToShareThisPlaylist: 要分享这个播放列表吗?
   editTitle: 编辑标题
@@ -758,6 +768,9 @@ settings:
   screenFitRatioDesc: 强制按该比例拉伸显示，画面可能变形
   jumpLink: 跳转链接
   language: 语言
+  languageNativeName: 简体中文
+  followSystemLanguage: 跟随系统
+  languageChangedMessage: 语言切换成功，部分功能需重启应用生效
   languageChanged: 语言设置已更改，请重启应用以生效。
   keybinding:
     title: 键盘快捷键
@@ -921,8 +934,8 @@ settings:
     regexEx3Desc: 匹配以「合集」结尾的标题
     regexEx4Pattern: 第.话
     regexEx4Desc: 「.」代表任意一个字，可匹配「第1话」「第X话」
-    regexEx5Pattern: '\d{4}'
-    regexEx5Desc: 「\d」是数字，{4} 表示连续 4 位，可匹配年份等
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '「\\d」是数字，{4} 表示连续 4 位，可匹配年份等'
     regexEx1Sample: "新作预告抢先看"
     regexEx2Sample: "【合集】夏日特辑"
     regexEx3Sample: "夏日泳装合集"
@@ -1132,7 +1145,9 @@ favoriteTags:
   quickPickHint: 收藏的条目会出现在搜索的快速选择中。
   pickerTitle: 选择 Oreno3D
   searchHint: 按名称或原文搜索
-  worksCount: '${count} 作品'
+  worksCount:
+    one: '${n} 作品'
+    other: '${n} 作品'
   browseEntry: 浏览 原作 / 角色 / 标签
   favoritesSection: 收藏
   addFavorite: 添加
@@ -1145,14 +1160,7 @@ oreno3d:
   tags: 标签
   characters: 角色
   origin: 原作
-  thirdPartyTagsExplanation: >-
-    此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。
-
-
-    由于此信息来源只有日文，目前缺乏国际化适配。
-
-
-    如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！
+  thirdPartyTagsExplanation: "此处显示的**标签**、**角色**和**原作**信息来自第三方站点 **Oreno3D**，仅供参考。\n\n由于此信息来源只有日文，目前缺乏国际化适配。\n\n如果你有兴趣参与国际化建设，欢迎访问相关仓库贡献你的力量！"
   sortTypes:
     hot: 热门
     favorites: 高评价
@@ -1255,6 +1263,7 @@ videoDetail:
   volumeMuted: 音量已静音
   restoreDefaultZoom: 还原
   gestureGuide:
+    sampleVideo: 示例视频
     title: 手势与交互指引
     viewGuide: 查看手势与交互指引
     firstTimeIntro: 花几秒了解播放器手势，之后可随时在播放器设置里再次查看。

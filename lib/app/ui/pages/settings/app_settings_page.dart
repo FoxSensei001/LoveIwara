@@ -29,26 +29,26 @@ class AppSettingsPage extends StatefulWidget {
 }
 
 class _AppSettingsPageState extends State<AppSettingsPage> {
-  // 根据系统语言显示"跟随系统"的常量 map
-  static const Map<String, String> _followSystemTexts = {
-    'en': 'Follow System',
-    'ja': 'システムに従う',
-    'zh-CN': '跟随系统',
-    'zh-TW': '跟隨系統',
-  };
-
+  // 语言列表就地由 slang 生成：新增语言只要往 lib/i18n 丢一份 yaml，这里零改动。
+  //
+  // 每项显示的是**那门语言自己的母语名**（`简体中文` / `日本語` / `한국어`…），
+  // 「跟随系统」也要用**设备语言**说——两者都不能走 `slang.t`，那只给当前语言。
+  // 读之前先 `CommonUtils.ensureAllAppLocalesLoaded()`：slang 是按需加载的，
+  // 没加载过的语言会静默退回英文（见该方法）。
   Map<String, String> get _languageOptions => {
     'system': _getFollowSystemText(),
-    'en': 'English',
-    'ja': '日本語',
-    'zh-CN': '简体中文',
-    'zh-TW': '繁體中文',
+    // 顺序走 CommonUtils.appLocaleDisplayOrder（英/日/简/繁优先，其余按二次元受众规模），
+    // 不用 AppLocale.values 的字母序；新增语言会由 orderedAppLocales 兜底补在末尾。
+    for (final locale in CommonUtils.orderedAppLocales)
+      locale.languageTag: locale.translations.settings.languageNativeName,
   };
 
-  // 根据当前设备语言获取"跟随系统"的文本
+  // 根据当前设备语言获取"跟随系统"的文本（设备语言没适配时 parse 会退回 en）
   String _getFollowSystemText() {
-    final deviceLocale = CommonUtils.getDeviceLocale();
-    return _followSystemTexts[deviceLocale] ?? _followSystemTexts['en']!;
+    final deviceLocale = slang.AppLocaleUtils.parse(
+      CommonUtils.getDeviceLocale(),
+    );
+    return deviceLocale.translations.settings.followSystemLanguage;
   }
 
   // 弹出输入框设置「历史记录保留天数」
@@ -104,15 +104,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     }
   }
 
-  final Map<String, String> _languageChangedMessages = {
-    'en':
-        'Language changed successfully, some features require restarting the app to take effect.',
-    'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
-    'zh-CN': '语言切换成功，部分功能需重启应用生效',
-    'zh-TW': '語言切換成功，部分功能需重啟應用生效',
-  };
+  Future<void> _showLanguageDialog(
+    BuildContext context,
+    ConfigService configService,
+  ) async {
+    // 列表要显示每门语言自己的母语名，先确保所有语言的译文都加载好（幂等）。
+    await CommonUtils.ensureAllAppLocalesLoaded();
 
-  void _showLanguageDialog(BuildContext context, ConfigService configService) {
     showAppDialog(
       Builder(
         builder: (context) {
@@ -160,25 +158,15 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
 
                     Navigator.of(context).pop();
 
-                    String message;
-                    String localeKey = value;
-                    if (localeKey == 'system') {
-                      // 获取设备语言，但确保是我们支持的语言
-                      String deviceLocale = CommonUtils.getDeviceLocale();
-                      // 检查设备语言是否在我们的支持列表中
-                      if (_languageChangedMessages.containsKey(deviceLocale)) {
-                        localeKey = deviceLocale;
-                      } else {
-                        // 如果不支持，使用英语作为默认
-                        localeKey = 'en';
-                      }
-                    }
-
-                    message =
-                        _languageChangedMessages[localeKey] ??
-                        _languageChangedMessages['en']!;
-
-                    showAppToast(message, type: AppToastType.success);
+                    // 提示语用**刚切到的那门语言**说——用户下一眼看到的就是它。
+                    // 选「跟随系统」时，那门语言就是设备语言（没适配时 parse 退回 en）。
+                    final targetLocale = slang.AppLocaleUtils.parse(
+                      value == 'system' ? CommonUtils.getDeviceLocale() : value,
+                    );
+                    showAppToast(
+                      targetLocale.translations.settings.languageChangedMessage,
+                      type: AppToastType.success,
+                    );
                   }
                 },
                 child: ListView(

@@ -713,6 +713,13 @@ class GlassButtonGroup extends StatelessWidget {
   final double height;
   final double spacing;
 
+  /// 胶囊**内壁**与内容之间的横向留白。
+  ///
+  /// 算「这一排键装不装得下」时要减掉它：那一行拿到的是胶囊**里头**的宽度，
+  /// 胶囊自己还会从左右各吃掉一点。[GlassAlertDialog] 的动作行就是这么算的
+  /// （见 `_fitActionButtons`）。
+  static const EdgeInsets surfacePadding = EdgeInsets.symmetric(horizontal: 2);
+
   /// 材质的「在场程度」，透传给胶囊外壳（见 [GlassSurface.materialize]）。
   /// 整只胶囊要做出入场时由 [GlassReveal] 喂进来——⛔ 不要在外面套
   /// `Opacity`/`FadeTransition`，那会把 backdrop 采样隔离掉、折射当场断掉。
@@ -748,7 +755,7 @@ class GlassButtonGroup extends StatelessWidget {
       return GlassSurface(
         height: height,
         width: width,
-        padding: const EdgeInsets.symmetric(horizontal: 2),
+        padding: surfacePadding,
         liquidTouch: liquidTouch,
         materialize: materialize,
         child: AnimatedSize(
@@ -803,6 +810,8 @@ class GlassTextActionButton extends StatelessWidget {
     this.emphasized = false,
     this.destructive = false,
     this.loading = false,
+    this.horizontalPadding = defaultHorizontalPadding,
+    this.scaleDownLabel = false,
   });
 
   final String label;
@@ -821,6 +830,62 @@ class GlassTextActionButton extends StatelessWidget {
   /// `CircularProgressIndicator`——收口前那些裸 `TextButton` 就是各塞各的，
   /// 尺寸会跳。
   final bool loading;
+
+  /// 文字左右的留白，默认 [defaultHorizontalPadding]。
+  ///
+  /// 只有「一排键在窄屏上排不下」时才往下压（见 [minHorizontalPadding] 与
+  /// [GlassAlertDialog] 的动作行）——压它是为了**保住字号**：把 16 压到 12
+  /// 换出来的宽度，够德语 `Abbrechen + Bestätigen` 在 320dp 屏上完全不缩字。
+  final double horizontalPadding;
+
+  /// 按钮被压到比文字还窄时，文字**等比缩小**而不是换行 / 溢出。
+  ///
+  /// 默认关：装得下的场合走的是无 [FittedBox] 的原路，一个像素都不动。只会由
+  /// [GlassAlertDialog] 在「连最小内边距都装不下」那一档打开——那一档不给它
+  /// 缩放就只能省略号或裁切，而按钮文案必须完整可读。
+  final bool scaleDownLabel;
+
+  /// 动作键文字的默认左右留白。
+  static const double defaultHorizontalPadding = 16;
+
+  /// 收窄档愿意压到的下限。再窄文字就贴到胶囊边上了，宁可去缩字号。
+  static const double minHorizontalPadding = 8;
+
+  /// 文字字号 / 字重——[measureLabelWidth] 与 [build] 共用同一份，免得两处各写
+  /// 一份之后，在「装不装得下」那条边界上各说各话。
+  static const double _labelFontSize = 14.5;
+  static const FontWeight _labelWeight = FontWeight.w600;
+  static const FontWeight _labelWeightStrong = FontWeight.w700;
+
+  /// 量 [label] 在本键字号 / 字重下排出来有多宽（含 `letterSpacing` 一类继承项）。
+  ///
+  /// 与真实段落**逐位相同**（同一套 skparagraph），所以可以拿它当「这一排键装不
+  /// 装得下」的判据：估一个余量的话，估多了装得下的组合会被误判进收窄档（视觉就
+  /// 变了），估少了照样溢出。
+  ///
+  /// ⛔ 必须在**按键所在的那套 [DefaultTextStyle] 之下**调用：文字样式是把显式
+  /// 字号 / 字重合并在**环境** DefaultTextStyle 上的（弹窗里那套来自面板
+  /// `Material`，是带 `letterSpacing` / `height` 的 `bodyMedium`），换个基准样式
+  /// 量出来就不是同一个宽度。
+  static double measureLabelWidth(
+    BuildContext context,
+    String label, {
+    bool emphasized = false,
+  }) {
+    final TextStyle style = DefaultTextStyle.of(context).style.merge(
+      TextStyle(
+        fontSize: _labelFontSize,
+        fontWeight: emphasized ? _labelWeightStrong : _labelWeight,
+      ),
+    );
+    final TextPainter painter = TextPainter(
+      text: TextSpan(text: label, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      locale: Localizations.maybeLocaleOf(context),
+    )..layout();
+    return painter.width;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -850,7 +915,7 @@ class GlassTextActionButton extends StatelessWidget {
           duration: GlassTokens.pressDuration,
           curve: Curves.easeOut,
           height: GlassTokens.pillHeight,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           alignment: Alignment.center,
           decoration:
               LiquidGlassScope.of(context) == GlassBackend.material && pressed
@@ -881,15 +946,17 @@ class GlassTextActionButton extends StatelessWidget {
                         valueColor: AlwaysStoppedAnimation<Color>(c.first),
                       ),
                     )
-                  : Text(
-                      label,
-                      key: const ValueKey('glass-action-label'),
-                      style: TextStyle(
-                        color: c.first,
-                        fontSize: 14.5,
-                        fontWeight: emphasized
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                  : _shrinkable(
+                      Text(
+                        label,
+                        key: const ValueKey('glass-action-label'),
+                        style: TextStyle(
+                          color: c.first,
+                          fontSize: _labelFontSize,
+                          fontWeight: emphasized
+                              ? _labelWeightStrong
+                              : _labelWeight,
+                        ),
                       ),
                     ),
             ),
@@ -898,4 +965,10 @@ class GlassTextActionButton extends StatelessWidget {
       ),
     );
   }
+
+  /// 见 [scaleDownLabel]：包一层 [FittedBox]，钥匙仍留在里面那支文字上。
+  /// 「文字 ↔ 转圈」的交叉过渡不受影响——[AnimatedSwitcher] 认的是直接子节点的
+  /// `runtimeType` + key，两支本来就各不相同。
+  Widget _shrinkable(Widget label) =>
+      scaleDownLabel ? FittedBox(fit: BoxFit.scaleDown, child: label) : label;
 }

@@ -55,37 +55,48 @@ class WelcomeStepWidget extends StatelessWidget {
     );
   }
 
-  // 跟随系统文案
-  static const Map<String, String> _followSystemTexts = {
-    'en': 'Follow System',
-    'ja': 'システムに従う',
-    'zh-CN': '跟随系统',
-    'zh-TW': '跟隨系統',
-  };
-
   static const String _systemLocaleKey = 'system';
 
+  // 语言列表就地由 slang 生成：新增语言只要往 lib/i18n 丢一份 yaml，这里零改动。
+  // 与设置页同一套口径：每项显示**那门语言自己的母语名**，「跟随系统」用
+  // **设备语言**说，都不能走 `slang.t`（那只给当前语言）。读之前先
+  // `CommonUtils.ensureAllAppLocalesLoaded()`，否则没加载过的语言会静默退回英文。
   Map<String, String> get _languageOptions => {
     _systemLocaleKey: _getFollowSystemText(),
-    'en': 'English',
-    'ja': '日本語',
-    'zh-CN': '简体中文',
-    'zh-TW': '繁体中文',
+    // 顺序走 CommonUtils.appLocaleDisplayOrder（英/日/简/繁优先，其余按二次元受众规模），
+    // 不用 AppLocale.values 的字母序；新增语言会由 orderedAppLocales 兜底补在末尾。
+    for (final locale in CommonUtils.orderedAppLocales)
+      locale.languageTag: locale.translations.settings.languageNativeName,
   };
 
+  // 跟随系统文案；设备语言没适配时 parse 会退回 en
   String _getFollowSystemText() {
-    final deviceLocale = CommonUtils.getDeviceLocale();
-    return _followSystemTexts[deviceLocale] ?? _followSystemTexts['en']!;
+    final deviceLocale = slang.AppLocaleUtils.parse(
+      CommonUtils.getDeviceLocale(),
+    );
+    return deviceLocale.translations.settings.followSystemLanguage;
   }
 
   String _currentLocaleKey(ConfigService configService) {
     return configService[ConfigKey.APPLICATION_LOCALE] ?? _systemLocaleKey;
   }
 
-  void _showLanguageDialog(BuildContext context, ConfigService configService) {
+  Future<void> _showLanguageDialog(
+    BuildContext context,
+    ConfigService configService,
+  ) async {
+    // 列表要显示每门语言自己的母语名，先确保所有语言的译文都加载好（幂等）。
+    await CommonUtils.ensureAllAppLocalesLoaded();
+    if (!context.mounted) return;
+
     showAppDialog(
       GlassAlertDialog(
         title: slang.t.settings.language,
+        // ⛔ 列表现在是「跟随系统 + 12 门语言」13 行，比面板高：小屏 / 横屏下
+        // 这个 Column 会直接 RenderFlex overflow（375x667 溢出 117px、
+        // 844x390 溢出 374px）。装得下时与不加 `scrollable` 完全一致
+        // （面板尺寸实测不变），装不下才滚。
+        scrollable: true,
         content: SizedBox(
           width: double.maxFinite,
           child: Obx(
@@ -146,27 +157,15 @@ class WelcomeStepWidget extends StatelessWidget {
     AppService.tryPop();
   }
 
-  // 与设置页一致：根据选择值/系统语言确定提示文案
-  static const Map<String, String> _languageChangedMessages = {
-    'en':
-        'Language changed successfully, some features require restarting the app to take effect.',
-    'ja': '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
-    'zh-CN': '语言切换成功，部分功能需重启应用生效',
-    'zh-TW': '語言切換成功，部分功能需重啟應用生效',
-  };
-
+  // 与设置页一致：提示语用**刚切到的那门语言**显示——用户下一眼看到的就是它。
+  // 选「跟随系统」时，那门语言就是设备语言（没适配时 parse 会退回 en）。
   String _resolveLanguageChangedMessage(String selectedValue) {
-    String localeKey = selectedValue;
-    if (localeKey == _systemLocaleKey) {
-      final deviceLocale = CommonUtils.getDeviceLocale();
-      if (_languageChangedMessages.containsKey(deviceLocale)) {
-        localeKey = deviceLocale;
-      } else {
-        localeKey = 'en';
-      }
-    }
-    return _languageChangedMessages[localeKey] ??
-        _languageChangedMessages['en']!;
+    final targetLocale = slang.AppLocaleUtils.parse(
+      selectedValue == _systemLocaleKey
+          ? CommonUtils.getDeviceLocale()
+          : selectedValue,
+    );
+    return targetLocale.translations.settings.languageChangedMessage;
   }
 }
 

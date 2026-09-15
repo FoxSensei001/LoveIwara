@@ -108,7 +108,7 @@ class PlaylistItemWidget extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        t.common.videoCount(num: playlist.numVideos),
+                        t.common.videoCount(n: playlist.numVideos),
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,

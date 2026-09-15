@@ -164,7 +164,8 @@ class _VolumeControlState extends State<VolumeControl>
                                 newVolume,
                               );
                             },
-                            label: '音量: ${(volume * 100).toInt()}%',
+                            label:
+                                '${slang.t.videoDetail.volume}: ${(volume * 100).toInt()}%',
                           )
                           .animate()
                           .fadeIn(duration: 300.ms)

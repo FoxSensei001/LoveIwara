@@ -6,3 +6,7 @@ output_file_name: strings.g.dart
 flutter_integration: true
 locale_handling: true
 timestamp: true
+# 缺失的词条回退到 en，而不是让生成直接失败。十几门语言同步维护时，漏一条
+# 就编译不过的代价太高；漏译改由 `dart run tool/i18n_check.dart` 显式抓，
+# 那条闸门会把缺失/多余 key 和占位符不符逐条列出来。
+fallback_strategy: base_locale

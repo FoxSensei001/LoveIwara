@@ -11,7 +11,7 @@ import 'package:slang/generated.dart';
 import 'strings.g.dart';
 
 // Path: <root>
-class TranslationsJa with BaseTranslations<AppLocale, Translations> implements Translations {
+class TranslationsJa extends Translations with BaseTranslations<AppLocale, Translations> {
 	/// You can call this constructor and build your own translation instance of this locale.
 	/// Constructing via the enum [AppLocale.build] is preferred.
 	TranslationsJa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
@@ -21,7 +21,9 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
-		  ) {
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
 		$meta.setFlatMapFunction(_flatMapFunction);
 	}
 
@@ -29,7 +31,7 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 	@override final TranslationMetadata<AppLocale, Translations> $meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key);
+	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
 
 	late final TranslationsJa _root = this; // ignore: unused_field
 
@@ -97,8 +99,8 @@ class TranslationsJa with BaseTranslations<AppLocale, Translations> implements T
 }
 
 // Path: personalProfile
-class _TranslationsPersonalProfileJa implements TranslationsPersonalProfileEn {
-	_TranslationsPersonalProfileJa._(this._root);
+class _TranslationsPersonalProfileJa extends TranslationsPersonalProfileEn {
+	_TranslationsPersonalProfileJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -149,8 +151,8 @@ class _TranslationsPersonalProfileJa implements TranslationsPersonalProfileEn {
 }
 
 // Path: tutorial
-class _TranslationsTutorialJa implements TranslationsTutorialEn {
-	_TranslationsTutorialJa._(this._root);
+class _TranslationsTutorialJa extends TranslationsTutorialEn {
+	_TranslationsTutorialJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -166,8 +168,8 @@ class _TranslationsTutorialJa implements TranslationsTutorialEn {
 }
 
 // Path: common
-class _TranslationsCommonJa implements TranslationsCommonEn {
-	_TranslationsCommonJa._(this._root);
+class _TranslationsCommonJa extends TranslationsCommonEn {
+	_TranslationsCommonJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -223,7 +225,10 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get success => '成功';
 	@override String get commentDeletedSuccessfully => 'コメントが削除されました';
 	@override String get commentUpdatedSuccessfully => 'コメントが更新されました';
-	@override String totalComments({required Object count}) => '${count} 件のコメント';
+	@override String totalComments({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 件のコメント',
+		other: '${n} 件のコメント',
+	);
 	@override String get writeYourCommentHere => 'ここにコメントを入力...';
 	@override String get tmpNoReplies => '返信はありません';
 	@override String get loadMore => 'もっと読み込む';
@@ -234,9 +239,18 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get translateFailedPleaseTryAgainLater => '翻訳に失敗しました。後でもう一度お試しください';
 	@override String get translationResult => '翻訳結果';
 	@override String get justNow => 'たった今';
-	@override String minutesAgo({required Object num}) => '${num} 分前';
-	@override String hoursAgo({required Object num}) => '${num} 時間前';
-	@override String daysAgo({required Object num}) => '${num} 日前';
+	@override String minutesAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 分前',
+		other: '${n} 分前',
+	);
+	@override String hoursAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 時間前',
+		other: '${n} 時間前',
+	);
+	@override String daysAgo({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 日前',
+		other: '${n} 日前',
+	);
 	@override String editedAt({required Object num}) => '${num} 編集';
 	@override String get editComment => 'コメントを編集';
 	@override String get commentUpdated => 'コメントが更新されました';
@@ -275,7 +289,10 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 	@override String get searchHistoryRecords => '検索履歴...';
 	@override String get settings => '設定';
 	@override String get subscriptions => 'サブスクリプション';
-	@override String videoCount({required Object num}) => '${num} 本の動画';
+	@override String videoCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 本の動画',
+		other: '${n} 本の動画',
+	);
 	@override String get share => '共有';
 	@override String get areYouSureYouWantToShareThisPlaylist => 'このプレイリストを共有してもよろしいですか？';
 	@override String get editTitle => 'タイトルを編集';
@@ -404,8 +421,8 @@ class _TranslationsCommonJa implements TranslationsCommonEn {
 }
 
 // Path: auth
-class _TranslationsAuthJa implements TranslationsAuthEn {
-	_TranslationsAuthJa._(this._root);
+class _TranslationsAuthJa extends TranslationsAuthEn {
+	_TranslationsAuthJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -441,8 +458,8 @@ class _TranslationsAuthJa implements TranslationsAuthEn {
 }
 
 // Path: errors
-class _TranslationsErrorsJa implements TranslationsErrorsEn {
-	_TranslationsErrorsJa._(this._root);
+class _TranslationsErrorsJa extends TranslationsErrorsEn {
+	_TranslationsErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -508,8 +525,8 @@ class _TranslationsErrorsJa implements TranslationsErrorsEn {
 }
 
 // Path: friends
-class _TranslationsFriendsJa implements TranslationsFriendsEn {
-	_TranslationsFriendsJa._(this._root);
+class _TranslationsFriendsJa extends TranslationsFriendsEn {
+	_TranslationsFriendsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -525,8 +542,8 @@ class _TranslationsFriendsJa implements TranslationsFriendsEn {
 }
 
 // Path: authorProfile
-class _TranslationsAuthorProfileJa implements TranslationsAuthorProfileEn {
-	_TranslationsAuthorProfileJa._(this._root);
+class _TranslationsAuthorProfileJa extends TranslationsAuthorProfileEn {
+	_TranslationsAuthorProfileJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -536,8 +553,8 @@ class _TranslationsAuthorProfileJa implements TranslationsAuthorProfileEn {
 }
 
 // Path: favorites
-class _TranslationsFavoritesJa implements TranslationsFavoritesEn {
-	_TranslationsFavoritesJa._(this._root);
+class _TranslationsFavoritesJa extends TranslationsFavoritesEn {
+	_TranslationsFavoritesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -551,8 +568,8 @@ class _TranslationsFavoritesJa implements TranslationsFavoritesEn {
 }
 
 // Path: galleryDetail
-class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
-	_TranslationsGalleryDetailJa._(this._root);
+class _TranslationsGalleryDetailJa extends TranslationsGalleryDetailEn {
+	_TranslationsGalleryDetailJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -587,8 +604,8 @@ class _TranslationsGalleryDetailJa implements TranslationsGalleryDetailEn {
 }
 
 // Path: playList
-class _TranslationsPlayListJa implements TranslationsPlayListEn {
-	_TranslationsPlayListJa._(this._root);
+class _TranslationsPlayListJa extends TranslationsPlayListEn {
+	_TranslationsPlayListJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -612,8 +629,8 @@ class _TranslationsPlayListJa implements TranslationsPlayListEn {
 }
 
 // Path: search
-class _TranslationsSearchJa implements TranslationsSearchEn {
-	_TranslationsSearchJa._(this._root);
+class _TranslationsSearchJa extends TranslationsSearchEn {
+	_TranslationsSearchJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -648,8 +665,8 @@ class _TranslationsSearchJa implements TranslationsSearchEn {
 }
 
 // Path: mediaList
-class _TranslationsMediaListJa implements TranslationsMediaListEn {
-	_TranslationsMediaListJa._(this._root);
+class _TranslationsMediaListJa extends TranslationsMediaListEn {
+	_TranslationsMediaListJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -658,8 +675,8 @@ class _TranslationsMediaListJa implements TranslationsMediaListEn {
 }
 
 // Path: settings
-class _TranslationsSettingsJa implements TranslationsSettingsEn {
-	_TranslationsSettingsJa._(this._root);
+class _TranslationsSettingsJa extends TranslationsSettingsEn {
+	_TranslationsSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -912,6 +929,9 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 	@override String get screenFitRatioDesc => 'この比率に引き伸ばして表示します（変形する場合があります）';
 	@override String get jumpLink => 'リンクをジャンプ';
 	@override String get language => '言語';
+	@override String get languageNativeName => '日本語';
+	@override String get followSystemLanguage => 'システムに従う';
+	@override String get languageChangedMessage => '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。';
 	@override String get languageChanged => '言語設定が変更されました。アプリを再起動して有効にしてください。';
 	@override late final _TranslationsSettingsKeybindingJa keybinding = _TranslationsSettingsKeybindingJa._(_root);
 	@override String get gestureControl => 'ジェスチャー制御';
@@ -978,8 +998,8 @@ class _TranslationsSettingsJa implements TranslationsSettingsEn {
 }
 
 // Path: favoriteTags
-class _TranslationsFavoriteTagsJa implements TranslationsFavoriteTagsEn {
-	_TranslationsFavoriteTagsJa._(this._root);
+class _TranslationsFavoriteTagsJa extends TranslationsFavoriteTagsEn {
+	_TranslationsFavoriteTagsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -991,7 +1011,10 @@ class _TranslationsFavoriteTagsJa implements TranslationsFavoriteTagsEn {
 	@override String get quickPickHint => 'お気に入りは検索のクイック選択に表示されます。';
 	@override String get pickerTitle => 'Oreno3D を選択';
 	@override String get searchHint => '名前または原語で検索';
-	@override String worksCount({required Object count}) => '${count} 作品';
+	@override String worksCount({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n,
+		one: '${n} 作品',
+		other: '${n} 作品',
+	);
 	@override String get browseEntry => '原作 / キャラ / タグを閲覧';
 	@override String get favoritesSection => 'お気に入り';
 	@override String get addFavorite => '追加';
@@ -1002,8 +1025,8 @@ class _TranslationsFavoriteTagsJa implements TranslationsFavoriteTagsEn {
 }
 
 // Path: oreno3d
-class _TranslationsOreno3dJa implements TranslationsOreno3dEn {
-	_TranslationsOreno3dJa._(this._root);
+class _TranslationsOreno3dJa extends TranslationsOreno3dEn {
+	_TranslationsOreno3dJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1020,8 +1043,8 @@ class _TranslationsOreno3dJa implements TranslationsOreno3dEn {
 }
 
 // Path: signIn
-class _TranslationsSignInJa implements TranslationsSignInEn {
-	_TranslationsSignInJa._(this._root);
+class _TranslationsSignInJa extends TranslationsSignInEn {
+	_TranslationsSignInJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1049,8 +1072,8 @@ class _TranslationsSignInJa implements TranslationsSignInEn {
 }
 
 // Path: subscriptions
-class _TranslationsSubscriptionsJa implements TranslationsSubscriptionsEn {
-	_TranslationsSubscriptionsJa._(this._root);
+class _TranslationsSubscriptionsJa extends TranslationsSubscriptionsEn {
+	_TranslationsSubscriptionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1062,8 +1085,8 @@ class _TranslationsSubscriptionsJa implements TranslationsSubscriptionsEn {
 }
 
 // Path: videoDetail
-class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
-	_TranslationsVideoDetailJa._(this._root);
+class _TranslationsVideoDetailJa extends TranslationsVideoDetailEn {
+	_TranslationsVideoDetailJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1138,8 +1161,8 @@ class _TranslationsVideoDetailJa implements TranslationsVideoDetailEn {
 }
 
 // Path: share
-class _TranslationsShareJa implements TranslationsShareEn {
-	_TranslationsShareJa._(this._root);
+class _TranslationsShareJa extends TranslationsShareEn {
+	_TranslationsShareJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1174,8 +1197,8 @@ class _TranslationsShareJa implements TranslationsShareEn {
 }
 
 // Path: markdown
-class _TranslationsMarkdownJa implements TranslationsMarkdownEn {
-	_TranslationsMarkdownJa._(this._root);
+class _TranslationsMarkdownJa extends TranslationsMarkdownEn {
+	_TranslationsMarkdownJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1213,8 +1236,8 @@ class _TranslationsMarkdownJa implements TranslationsMarkdownEn {
 }
 
 // Path: forum
-class _TranslationsForumJa implements TranslationsForumEn {
-	_TranslationsForumJa._(this._root);
+class _TranslationsForumJa extends TranslationsForumEn {
+	_TranslationsForumJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1250,8 +1273,8 @@ class _TranslationsForumJa implements TranslationsForumEn {
 }
 
 // Path: notifications
-class _TranslationsNotificationsJa implements TranslationsNotificationsEn {
-	_TranslationsNotificationsJa._(this._root);
+class _TranslationsNotificationsJa extends TranslationsNotificationsEn {
+	_TranslationsNotificationsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1302,8 +1325,8 @@ class _TranslationsNotificationsJa implements TranslationsNotificationsEn {
 }
 
 // Path: conversation
-class _TranslationsConversationJa implements TranslationsConversationEn {
-	_TranslationsConversationJa._(this._root);
+class _TranslationsConversationJa extends TranslationsConversationEn {
+	_TranslationsConversationJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1326,8 +1349,8 @@ class _TranslationsConversationJa implements TranslationsConversationEn {
 }
 
 // Path: splash
-class _TranslationsSplashJa implements TranslationsSplashEn {
-	_TranslationsSplashJa._(this._root);
+class _TranslationsSplashJa extends TranslationsSplashEn {
+	_TranslationsSplashJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1341,8 +1364,8 @@ class _TranslationsSplashJa implements TranslationsSplashEn {
 }
 
 // Path: download
-class _TranslationsDownloadJa implements TranslationsDownloadEn {
-	_TranslationsDownloadJa._(this._root);
+class _TranslationsDownloadJa extends TranslationsDownloadEn {
+	_TranslationsDownloadJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1435,8 +1458,8 @@ class _TranslationsDownloadJa implements TranslationsDownloadEn {
 }
 
 // Path: downloadNotifications
-class _TranslationsDownloadNotificationsJa implements TranslationsDownloadNotificationsEn {
-	_TranslationsDownloadNotificationsJa._(this._root);
+class _TranslationsDownloadNotificationsJa extends TranslationsDownloadNotificationsEn {
+	_TranslationsDownloadNotificationsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1452,8 +1475,8 @@ class _TranslationsDownloadNotificationsJa implements TranslationsDownloadNotifi
 }
 
 // Path: favorite
-class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
-	_TranslationsFavoriteJa._(this._root);
+class _TranslationsFavoriteJa extends TranslationsFavoriteEn {
+	_TranslationsFavoriteJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1499,8 +1522,8 @@ class _TranslationsFavoriteJa implements TranslationsFavoriteEn {
 }
 
 // Path: translation
-class _TranslationsTranslationJa implements TranslationsTranslationEn {
-	_TranslationsTranslationJa._(this._root);
+class _TranslationsTranslationJa extends TranslationsTranslationEn {
+	_TranslationsTranslationJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1672,8 +1695,8 @@ class _TranslationsTranslationJa implements TranslationsTranslationEn {
 }
 
 // Path: mediaPlayer
-class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
-	_TranslationsMediaPlayerJa._(this._root);
+class _TranslationsMediaPlayerJa extends TranslationsMediaPlayerEn {
+	_TranslationsMediaPlayerJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1739,8 +1762,8 @@ class _TranslationsMediaPlayerJa implements TranslationsMediaPlayerEn {
 }
 
 // Path: diagnostics
-class _TranslationsDiagnosticsJa implements TranslationsDiagnosticsEn {
-	_TranslationsDiagnosticsJa._(this._root);
+class _TranslationsDiagnosticsJa extends TranslationsDiagnosticsEn {
+	_TranslationsDiagnosticsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1795,8 +1818,8 @@ class _TranslationsDiagnosticsJa implements TranslationsDiagnosticsEn {
 }
 
 // Path: logViewer
-class _TranslationsLogViewerJa implements TranslationsLogViewerEn {
-	_TranslationsLogViewerJa._(this._root);
+class _TranslationsLogViewerJa extends TranslationsLogViewerEn {
+	_TranslationsLogViewerJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1808,8 +1831,8 @@ class _TranslationsLogViewerJa implements TranslationsLogViewerEn {
 }
 
 // Path: crashRecoveryDialog
-class _TranslationsCrashRecoveryDialogJa implements TranslationsCrashRecoveryDialogEn {
-	_TranslationsCrashRecoveryDialogJa._(this._root);
+class _TranslationsCrashRecoveryDialogJa extends TranslationsCrashRecoveryDialogEn {
+	_TranslationsCrashRecoveryDialogJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1829,8 +1852,8 @@ class _TranslationsCrashRecoveryDialogJa implements TranslationsCrashRecoveryDia
 }
 
 // Path: linkInputDialog
-class _TranslationsLinkInputDialogJa implements TranslationsLinkInputDialogEn {
-	_TranslationsLinkInputDialogJa._(this._root);
+class _TranslationsLinkInputDialogJa extends TranslationsLinkInputDialogEn {
+	_TranslationsLinkInputDialogJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1856,8 +1879,8 @@ class _TranslationsLinkInputDialogJa implements TranslationsLinkInputDialogEn {
 }
 
 // Path: log
-class _TranslationsLogJa implements TranslationsLogEn {
-	_TranslationsLogJa._(this._root);
+class _TranslationsLogJa extends TranslationsLogEn {
+	_TranslationsLogJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1919,8 +1942,8 @@ class _TranslationsLogJa implements TranslationsLogEn {
 }
 
 // Path: emoji
-class _TranslationsEmojiJa implements TranslationsEmojiEn {
-	_TranslationsEmojiJa._(this._root);
+class _TranslationsEmojiJa extends TranslationsEmojiEn {
+	_TranslationsEmojiJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -1986,8 +2009,8 @@ class _TranslationsEmojiJa implements TranslationsEmojiEn {
 }
 
 // Path: displaySettings
-class _TranslationsDisplaySettingsJa implements TranslationsDisplaySettingsEn {
-	_TranslationsDisplaySettingsJa._(this._root);
+class _TranslationsDisplaySettingsJa extends TranslationsDisplaySettingsEn {
+	_TranslationsDisplaySettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2002,8 +2025,8 @@ class _TranslationsDisplaySettingsJa implements TranslationsDisplaySettingsEn {
 }
 
 // Path: layoutSettings
-class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
-	_TranslationsLayoutSettingsJa._(this._root);
+class _TranslationsLayoutSettingsJa extends TranslationsLayoutSettingsEn {
+	_TranslationsLayoutSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2058,8 +2081,8 @@ class _TranslationsLayoutSettingsJa implements TranslationsLayoutSettingsEn {
 }
 
 // Path: bottomNav
-class _TranslationsBottomNavJa implements TranslationsBottomNavEn {
-	_TranslationsBottomNavJa._(this._root);
+class _TranslationsBottomNavJa extends TranslationsBottomNavEn {
+	_TranslationsBottomNavJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2072,8 +2095,8 @@ class _TranslationsBottomNavJa implements TranslationsBottomNavEn {
 }
 
 // Path: navigationOrderSettings
-class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOrderSettingsEn {
-	_TranslationsNavigationOrderSettingsJa._(this._root);
+class _TranslationsNavigationOrderSettingsJa extends TranslationsNavigationOrderSettingsEn {
+	_TranslationsNavigationOrderSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2106,8 +2129,8 @@ class _TranslationsNavigationOrderSettingsJa implements TranslationsNavigationOr
 }
 
 // Path: news
-class _TranslationsNewsJa implements TranslationsNewsEn {
-	_TranslationsNewsJa._(this._root);
+class _TranslationsNewsJa extends TranslationsNewsEn {
+	_TranslationsNewsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2120,8 +2143,8 @@ class _TranslationsNewsJa implements TranslationsNewsEn {
 }
 
 // Path: searchFilter
-class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
-	_TranslationsSearchFilterJa._(this._root);
+class _TranslationsSearchFilterJa extends TranslationsSearchFilterEn {
+	_TranslationsSearchFilterJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2201,8 +2224,8 @@ class _TranslationsSearchFilterJa implements TranslationsSearchFilterEn {
 }
 
 // Path: firstTimeSetup
-class _TranslationsFirstTimeSetupJa implements TranslationsFirstTimeSetupEn {
-	_TranslationsFirstTimeSetupJa._(this._root);
+class _TranslationsFirstTimeSetupJa extends TranslationsFirstTimeSetupEn {
+	_TranslationsFirstTimeSetupJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2218,8 +2241,8 @@ class _TranslationsFirstTimeSetupJa implements TranslationsFirstTimeSetupEn {
 }
 
 // Path: proxyHelper
-class _TranslationsProxyHelperJa implements TranslationsProxyHelperEn {
-	_TranslationsProxyHelperJa._(this._root);
+class _TranslationsProxyHelperJa extends TranslationsProxyHelperEn {
+	_TranslationsProxyHelperJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2230,8 +2253,8 @@ class _TranslationsProxyHelperJa implements TranslationsProxyHelperEn {
 }
 
 // Path: tagSelector
-class _TranslationsTagSelectorJa implements TranslationsTagSelectorEn {
-	_TranslationsTagSelectorJa._(this._root);
+class _TranslationsTagSelectorJa extends TranslationsTagSelectorEn {
+	_TranslationsTagSelectorJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2252,8 +2275,8 @@ class _TranslationsTagSelectorJa implements TranslationsTagSelectorEn {
 }
 
 // Path: anime4k
-class _TranslationsAnime4kJa implements TranslationsAnime4kEn {
-	_TranslationsAnime4kJa._(this._root);
+class _TranslationsAnime4kJa extends TranslationsAnime4kEn {
+	_TranslationsAnime4kJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2277,8 +2300,8 @@ class _TranslationsAnime4kJa implements TranslationsAnime4kEn {
 }
 
 // Path: siteMode
-class _TranslationsSiteModeJa implements TranslationsSiteModeEn {
-	_TranslationsSiteModeJa._(this._root);
+class _TranslationsSiteModeJa extends TranslationsSiteModeEn {
+	_TranslationsSiteModeJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2299,8 +2322,8 @@ class _TranslationsSiteModeJa implements TranslationsSiteModeEn {
 }
 
 // Path: savedSearchConfig
-class _TranslationsSavedSearchConfigJa implements TranslationsSavedSearchConfigEn {
-	_TranslationsSavedSearchConfigJa._(this._root);
+class _TranslationsSavedSearchConfigJa extends TranslationsSavedSearchConfigEn {
+	_TranslationsSavedSearchConfigJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2322,8 +2345,8 @@ class _TranslationsSavedSearchConfigJa implements TranslationsSavedSearchConfigE
 }
 
 // Path: savedSearch
-class _TranslationsSavedSearchJa implements TranslationsSavedSearchEn {
-	_TranslationsSavedSearchJa._(this._root);
+class _TranslationsSavedSearchJa extends TranslationsSavedSearchEn {
+	_TranslationsSavedSearchJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2344,8 +2367,8 @@ class _TranslationsSavedSearchJa implements TranslationsSavedSearchEn {
 }
 
 // Path: defaultBlacklistReminder
-class _TranslationsDefaultBlacklistReminderJa implements TranslationsDefaultBlacklistReminderEn {
-	_TranslationsDefaultBlacklistReminderJa._(this._root);
+class _TranslationsDefaultBlacklistReminderJa extends TranslationsDefaultBlacklistReminderEn {
+	_TranslationsDefaultBlacklistReminderJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2357,8 +2380,8 @@ class _TranslationsDefaultBlacklistReminderJa implements TranslationsDefaultBlac
 }
 
 // Path: colorVisionAssist
-class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistEn {
-	_TranslationsColorVisionAssistJa._(this._root);
+class _TranslationsColorVisionAssistJa extends TranslationsColorVisionAssistEn {
+	_TranslationsColorVisionAssistJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2380,8 +2403,8 @@ class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistE
 }
 
 // Path: externalPlayer
-class _TranslationsExternalPlayerJa implements TranslationsExternalPlayerEn {
-	_TranslationsExternalPlayerJa._(this._root);
+class _TranslationsExternalPlayerJa extends TranslationsExternalPlayerEn {
+	_TranslationsExternalPlayerJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2445,8 +2468,8 @@ class _TranslationsExternalPlayerJa implements TranslationsExternalPlayerEn {
 }
 
 // Path: watchLater
-class _TranslationsWatchLaterJa implements TranslationsWatchLaterEn {
-	_TranslationsWatchLaterJa._(this._root);
+class _TranslationsWatchLaterJa extends TranslationsWatchLaterEn {
+	_TranslationsWatchLaterJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2481,8 +2504,8 @@ class _TranslationsWatchLaterJa implements TranslationsWatchLaterEn {
 }
 
 // Path: mediaMenu
-class _TranslationsMediaMenuJa implements TranslationsMediaMenuEn {
-	_TranslationsMediaMenuJa._(this._root);
+class _TranslationsMediaMenuJa extends TranslationsMediaMenuEn {
+	_TranslationsMediaMenuJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2496,8 +2519,8 @@ class _TranslationsMediaMenuJa implements TranslationsMediaMenuEn {
 }
 
 // Path: mediaPreview
-class _TranslationsMediaPreviewJa implements TranslationsMediaPreviewEn {
-	_TranslationsMediaPreviewJa._(this._root);
+class _TranslationsMediaPreviewJa extends TranslationsMediaPreviewEn {
+	_TranslationsMediaPreviewJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2510,8 +2533,8 @@ class _TranslationsMediaPreviewJa implements TranslationsMediaPreviewEn {
 }
 
 // Path: playbackQueue
-class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
-	_TranslationsPlaybackQueueJa._(this._root);
+class _TranslationsPlaybackQueueJa extends TranslationsPlaybackQueueEn {
+	_TranslationsPlaybackQueueJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2544,8 +2567,8 @@ class _TranslationsPlaybackQueueJa implements TranslationsPlaybackQueueEn {
 }
 
 // Path: vrFormat
-class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
-	_TranslationsVrFormatJa._(this._root);
+class _TranslationsVrFormatJa extends TranslationsVrFormatEn {
+	_TranslationsVrFormatJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2609,8 +2632,8 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 }
 
 // Path: localMedia
-class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
-	_TranslationsLocalMediaJa._(this._root);
+class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
+	_TranslationsLocalMediaJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2681,8 +2704,8 @@ class _TranslationsLocalMediaJa implements TranslationsLocalMediaEn {
 }
 
 // Path: common.pagination
-class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn {
-	_TranslationsCommonPaginationJa._(this._root);
+class _TranslationsCommonPaginationJa extends TranslationsCommonPaginationEn {
+	_TranslationsCommonPaginationJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2699,8 +2722,8 @@ class _TranslationsCommonPaginationJa implements TranslationsCommonPaginationEn 
 }
 
 // Path: errors.network
-class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
-	_TranslationsErrorsNetworkJa._(this._root);
+class _TranslationsErrorsNetworkJa extends TranslationsErrorsNetworkEn {
+	_TranslationsErrorsNetworkJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2729,8 +2752,8 @@ class _TranslationsErrorsNetworkJa implements TranslationsErrorsNetworkEn {
 }
 
 // Path: settings.keybinding
-class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindingEn {
-	_TranslationsSettingsKeybindingJa._(this._root);
+class _TranslationsSettingsKeybindingJa extends TranslationsSettingsKeybindingEn {
+	_TranslationsSettingsKeybindingJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2805,8 +2828,8 @@ class _TranslationsSettingsKeybindingJa implements TranslationsSettingsKeybindin
 }
 
 // Path: settings.forumSettings
-class _TranslationsSettingsForumSettingsJa implements TranslationsSettingsForumSettingsEn {
-	_TranslationsSettingsForumSettingsJa._(this._root);
+class _TranslationsSettingsForumSettingsJa extends TranslationsSettingsForumSettingsEn {
+	_TranslationsSettingsForumSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2816,8 +2839,8 @@ class _TranslationsSettingsForumSettingsJa implements TranslationsSettingsForumS
 }
 
 // Path: settings.gallerySettings
-class _TranslationsSettingsGallerySettingsJa implements TranslationsSettingsGallerySettingsEn {
-	_TranslationsSettingsGallerySettingsJa._(this._root);
+class _TranslationsSettingsGallerySettingsJa extends TranslationsSettingsGallerySettingsEn {
+	_TranslationsSettingsGallerySettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2829,8 +2852,8 @@ class _TranslationsSettingsGallerySettingsJa implements TranslationsSettingsGall
 }
 
 // Path: settings.blockSettings
-class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockSettingsEn {
-	_TranslationsSettingsBlockSettingsJa._(this._root);
+class _TranslationsSettingsBlockSettingsJa extends TranslationsSettingsBlockSettingsEn {
+	_TranslationsSettingsBlockSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2882,8 +2905,8 @@ class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockS
 	@override String get regexEx3Desc => '「総集編」で終わるタイトルに一致';
 	@override String get regexEx4Pattern => '第.話';
 	@override String get regexEx4Desc => '「.」は任意の1文字（「第1話」「第X話」に一致）';
-	@override String get regexEx5Pattern => '\d{4}';
-	@override String get regexEx5Desc => '「\d」は数字、{4} は4桁（年など）';
+	@override String get regexEx5Pattern => '\\d{4}';
+	@override String get regexEx5Desc => '「\\d」は数字、{4} は4桁（年など）';
 	@override String get regexEx1Sample => '新作の予告公開中';
 	@override String get regexEx2Sample => '【総集編】夏まつり';
 	@override String get regexEx3Sample => '夏まつり 総集編';
@@ -2910,8 +2933,8 @@ class _TranslationsSettingsBlockSettingsJa implements TranslationsSettingsBlockS
 }
 
 // Path: settings.chatSettings
-class _TranslationsSettingsChatSettingsJa implements TranslationsSettingsChatSettingsEn {
-	_TranslationsSettingsChatSettingsJa._(this._root);
+class _TranslationsSettingsChatSettingsJa extends TranslationsSettingsChatSettingsEn {
+	_TranslationsSettingsChatSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -2921,8 +2944,8 @@ class _TranslationsSettingsChatSettingsJa implements TranslationsSettingsChatSet
 }
 
 // Path: settings.downloadSettings
-class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDownloadSettingsEn {
-	_TranslationsSettingsDownloadSettingsJa._(this._root);
+class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownloadSettingsEn {
+	_TranslationsSettingsDownloadSettingsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3071,8 +3094,8 @@ class _TranslationsSettingsDownloadSettingsJa implements TranslationsSettingsDow
 }
 
 // Path: oreno3d.sortTypes
-class _TranslationsOreno3dSortTypesJa implements TranslationsOreno3dSortTypesEn {
-	_TranslationsOreno3dSortTypesJa._(this._root);
+class _TranslationsOreno3dSortTypesJa extends TranslationsOreno3dSortTypesEn {
+	_TranslationsOreno3dSortTypesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3084,8 +3107,8 @@ class _TranslationsOreno3dSortTypesJa implements TranslationsOreno3dSortTypesEn 
 }
 
 // Path: oreno3d.errors
-class _TranslationsOreno3dErrorsJa implements TranslationsOreno3dErrorsEn {
-	_TranslationsOreno3dErrorsJa._(this._root);
+class _TranslationsOreno3dErrorsJa extends TranslationsOreno3dErrorsEn {
+	_TranslationsOreno3dErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3110,8 +3133,8 @@ class _TranslationsOreno3dErrorsJa implements TranslationsOreno3dErrorsEn {
 }
 
 // Path: oreno3d.loading
-class _TranslationsOreno3dLoadingJa implements TranslationsOreno3dLoadingEn {
-	_TranslationsOreno3dLoadingJa._(this._root);
+class _TranslationsOreno3dLoadingJa extends TranslationsOreno3dLoadingEn {
+	_TranslationsOreno3dLoadingJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3121,8 +3144,8 @@ class _TranslationsOreno3dLoadingJa implements TranslationsOreno3dLoadingEn {
 }
 
 // Path: oreno3d.messages
-class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
-	_TranslationsOreno3dMessagesJa._(this._root);
+class _TranslationsOreno3dMessagesJa extends TranslationsOreno3dMessagesEn {
+	_TranslationsOreno3dMessagesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3133,8 +3156,8 @@ class _TranslationsOreno3dMessagesJa implements TranslationsOreno3dMessagesEn {
 }
 
 // Path: videoDetail.localInfo
-class _TranslationsVideoDetailLocalInfoJa implements TranslationsVideoDetailLocalInfoEn {
-	_TranslationsVideoDetailLocalInfoJa._(this._root);
+class _TranslationsVideoDetailLocalInfoJa extends TranslationsVideoDetailLocalInfoEn {
+	_TranslationsVideoDetailLocalInfoJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3154,12 +3177,13 @@ class _TranslationsVideoDetailLocalInfoJa implements TranslationsVideoDetailLoca
 }
 
 // Path: videoDetail.gestureGuide
-class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailGestureGuideEn {
-	_TranslationsVideoDetailGestureGuideJa._(this._root);
+class _TranslationsVideoDetailGestureGuideJa extends TranslationsVideoDetailGestureGuideEn {
+	_TranslationsVideoDetailGestureGuideJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get sampleVideo => 'サンプル動画';
 	@override String get title => 'ジェスチャー・操作ガイド';
 	@override String get viewGuide => 'ジェスチャー・操作ガイドを見る';
 	@override String get firstTimeIntro => 'プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。';
@@ -3185,8 +3209,8 @@ class _TranslationsVideoDetailGestureGuideJa implements TranslationsVideoDetailG
 }
 
 // Path: videoDetail.player
-class _TranslationsVideoDetailPlayerJa implements TranslationsVideoDetailPlayerEn {
-	_TranslationsVideoDetailPlayerJa._(this._root);
+class _TranslationsVideoDetailPlayerJa extends TranslationsVideoDetailPlayerEn {
+	_TranslationsVideoDetailPlayerJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3197,8 +3221,8 @@ class _TranslationsVideoDetailPlayerJa implements TranslationsVideoDetailPlayerE
 }
 
 // Path: videoDetail.skeleton
-class _TranslationsVideoDetailSkeletonJa implements TranslationsVideoDetailSkeletonEn {
-	_TranslationsVideoDetailSkeletonJa._(this._root);
+class _TranslationsVideoDetailSkeletonJa extends TranslationsVideoDetailSkeletonEn {
+	_TranslationsVideoDetailSkeletonJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3213,8 +3237,8 @@ class _TranslationsVideoDetailSkeletonJa implements TranslationsVideoDetailSkele
 }
 
 // Path: videoDetail.cast
-class _TranslationsVideoDetailCastJa implements TranslationsVideoDetailCastEn {
-	_TranslationsVideoDetailCastJa._(this._root);
+class _TranslationsVideoDetailCastJa extends TranslationsVideoDetailCastEn {
+	_TranslationsVideoDetailCastJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3232,8 +3256,8 @@ class _TranslationsVideoDetailCastJa implements TranslationsVideoDetailCastEn {
 }
 
 // Path: videoDetail.likeAvatars
-class _TranslationsVideoDetailLikeAvatarsJa implements TranslationsVideoDetailLikeAvatarsEn {
-	_TranslationsVideoDetailLikeAvatarsJa._(this._root);
+class _TranslationsVideoDetailLikeAvatarsJa extends TranslationsVideoDetailLikeAvatarsEn {
+	_TranslationsVideoDetailLikeAvatarsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3249,8 +3273,8 @@ class _TranslationsVideoDetailLikeAvatarsJa implements TranslationsVideoDetailLi
 }
 
 // Path: forum.sitewide
-class _TranslationsForumSitewideJa implements TranslationsForumSitewideEn {
-	_TranslationsForumSitewideJa._(this._root);
+class _TranslationsForumSitewideJa extends TranslationsForumSitewideEn {
+	_TranslationsForumSitewideJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3261,8 +3285,8 @@ class _TranslationsForumSitewideJa implements TranslationsForumSitewideEn {
 }
 
 // Path: forum.errors
-class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
-	_TranslationsForumErrorsJa._(this._root);
+class _TranslationsForumErrorsJa extends TranslationsForumErrorsEn {
+	_TranslationsForumErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3272,8 +3296,8 @@ class _TranslationsForumErrorsJa implements TranslationsForumErrorsEn {
 }
 
 // Path: forum.groups
-class _TranslationsForumGroupsJa implements TranslationsForumGroupsEn {
-	_TranslationsForumGroupsJa._(this._root);
+class _TranslationsForumGroupsJa extends TranslationsForumGroupsEn {
+	_TranslationsForumGroupsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3287,8 +3311,8 @@ class _TranslationsForumGroupsJa implements TranslationsForumGroupsEn {
 }
 
 // Path: forum.leafNames
-class _TranslationsForumLeafNamesJa implements TranslationsForumLeafNamesEn {
-	_TranslationsForumLeafNamesJa._(this._root);
+class _TranslationsForumLeafNamesJa extends TranslationsForumLeafNamesEn {
+	_TranslationsForumLeafNamesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3314,8 +3338,8 @@ class _TranslationsForumLeafNamesJa implements TranslationsForumLeafNamesEn {
 }
 
 // Path: forum.leafDescriptions
-class _TranslationsForumLeafDescriptionsJa implements TranslationsForumLeafDescriptionsEn {
-	_TranslationsForumLeafDescriptionsJa._(this._root);
+class _TranslationsForumLeafDescriptionsJa extends TranslationsForumLeafDescriptionsEn {
+	_TranslationsForumLeafDescriptionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3341,8 +3365,8 @@ class _TranslationsForumLeafDescriptionsJa implements TranslationsForumLeafDescr
 }
 
 // Path: notifications.errors
-class _TranslationsNotificationsErrorsJa implements TranslationsNotificationsErrorsEn {
-	_TranslationsNotificationsErrorsJa._(this._root);
+class _TranslationsNotificationsErrorsJa extends TranslationsNotificationsErrorsEn {
+	_TranslationsNotificationsErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3354,8 +3378,8 @@ class _TranslationsNotificationsErrorsJa implements TranslationsNotificationsErr
 }
 
 // Path: conversation.errors
-class _TranslationsConversationErrorsJa implements TranslationsConversationErrorsEn {
-	_TranslationsConversationErrorsJa._(this._root);
+class _TranslationsConversationErrorsJa extends TranslationsConversationErrorsEn {
+	_TranslationsConversationErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3370,8 +3394,8 @@ class _TranslationsConversationErrorsJa implements TranslationsConversationError
 }
 
 // Path: splash.errors
-class _TranslationsSplashErrorsJa implements TranslationsSplashErrorsEn {
-	_TranslationsSplashErrorsJa._(this._root);
+class _TranslationsSplashErrorsJa extends TranslationsSplashErrorsEn {
+	_TranslationsSplashErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3380,8 +3404,8 @@ class _TranslationsSplashErrorsJa implements TranslationsSplashErrorsEn {
 }
 
 // Path: download.errors
-class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
-	_TranslationsDownloadErrorsJa._(this._root);
+class _TranslationsDownloadErrorsJa extends TranslationsDownloadErrorsEn {
+	_TranslationsDownloadErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3447,8 +3471,8 @@ class _TranslationsDownloadErrorsJa implements TranslationsDownloadErrorsEn {
 }
 
 // Path: download.errorTypes
-class _TranslationsDownloadErrorTypesJa implements TranslationsDownloadErrorTypesEn {
-	_TranslationsDownloadErrorTypesJa._(this._root);
+class _TranslationsDownloadErrorTypesJa extends TranslationsDownloadErrorTypesEn {
+	_TranslationsDownloadErrorTypesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3464,8 +3488,8 @@ class _TranslationsDownloadErrorTypesJa implements TranslationsDownloadErrorType
 }
 
 // Path: download.restoredPaused
-class _TranslationsDownloadRestoredPausedJa implements TranslationsDownloadRestoredPausedEn {
-	_TranslationsDownloadRestoredPausedJa._(this._root);
+class _TranslationsDownloadRestoredPausedJa extends TranslationsDownloadRestoredPausedEn {
+	_TranslationsDownloadRestoredPausedJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3476,8 +3500,8 @@ class _TranslationsDownloadRestoredPausedJa implements TranslationsDownloadResto
 }
 
 // Path: download.deleteByDate
-class _TranslationsDownloadDeleteByDateJa implements TranslationsDownloadDeleteByDateEn {
-	_TranslationsDownloadDeleteByDateJa._(this._root);
+class _TranslationsDownloadDeleteByDateJa extends TranslationsDownloadDeleteByDateEn {
+	_TranslationsDownloadDeleteByDateJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3502,8 +3526,8 @@ class _TranslationsDownloadDeleteByDateJa implements TranslationsDownloadDeleteB
 }
 
 // Path: download.category
-class _TranslationsDownloadCategoryJa implements TranslationsDownloadCategoryEn {
-	_TranslationsDownloadCategoryJa._(this._root);
+class _TranslationsDownloadCategoryJa extends TranslationsDownloadCategoryEn {
+	_TranslationsDownloadCategoryJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3534,8 +3558,8 @@ class _TranslationsDownloadCategoryJa implements TranslationsDownloadCategoryEn 
 }
 
 // Path: download.batchDownload
-class _TranslationsDownloadBatchDownloadJa implements TranslationsDownloadBatchDownloadEn {
-	_TranslationsDownloadBatchDownloadJa._(this._root);
+class _TranslationsDownloadBatchDownloadJa extends TranslationsDownloadBatchDownloadEn {
+	_TranslationsDownloadBatchDownloadJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3570,8 +3594,8 @@ class _TranslationsDownloadBatchDownloadJa implements TranslationsDownloadBatchD
 }
 
 // Path: favorite.errors
-class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
-	_TranslationsFavoriteErrorsJa._(this._root);
+class _TranslationsFavoriteErrorsJa extends TranslationsFavoriteErrorsEn {
+	_TranslationsFavoriteErrorsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3584,8 +3608,8 @@ class _TranslationsFavoriteErrorsJa implements TranslationsFavoriteErrorsEn {
 }
 
 // Path: translation.presetNames
-class _TranslationsTranslationPresetNamesJa implements TranslationsTranslationPresetNamesEn {
-	_TranslationsTranslationPresetNamesJa._(this._root);
+class _TranslationsTranslationPresetNamesJa extends TranslationsTranslationPresetNamesEn {
+	_TranslationsTranslationPresetNamesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3603,8 +3627,8 @@ class _TranslationsTranslationPresetNamesJa implements TranslationsTranslationPr
 }
 
 // Path: mediaPlayer.notice
-class _TranslationsMediaPlayerNoticeJa implements TranslationsMediaPlayerNoticeEn {
-	_TranslationsMediaPlayerNoticeJa._(this._root);
+class _TranslationsMediaPlayerNoticeJa extends TranslationsMediaPlayerNoticeEn {
+	_TranslationsMediaPlayerNoticeJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3623,8 +3647,8 @@ class _TranslationsMediaPlayerNoticeJa implements TranslationsMediaPlayerNoticeE
 }
 
 // Path: diagnostics.healthAlert
-class _TranslationsDiagnosticsHealthAlertJa implements TranslationsDiagnosticsHealthAlertEn {
-	_TranslationsDiagnosticsHealthAlertJa._(this._root);
+class _TranslationsDiagnosticsHealthAlertJa extends TranslationsDiagnosticsHealthAlertEn {
+	_TranslationsDiagnosticsHealthAlertJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3644,8 +3668,8 @@ class _TranslationsDiagnosticsHealthAlertJa implements TranslationsDiagnosticsHe
 }
 
 // Path: diagnostics.toast
-class _TranslationsDiagnosticsToastJa implements TranslationsDiagnosticsToastEn {
-	_TranslationsDiagnosticsToastJa._(this._root);
+class _TranslationsDiagnosticsToastJa extends TranslationsDiagnosticsToastEn {
+	_TranslationsDiagnosticsToastJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3657,8 +3681,8 @@ class _TranslationsDiagnosticsToastJa implements TranslationsDiagnosticsToastEn 
 }
 
 // Path: searchFilter.sortTypes
-class _TranslationsSearchFilterSortTypesJa implements TranslationsSearchFilterSortTypesEn {
-	_TranslationsSearchFilterSortTypesJa._(this._root);
+class _TranslationsSearchFilterSortTypesJa extends TranslationsSearchFilterSortTypesEn {
+	_TranslationsSearchFilterSortTypesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3670,8 +3694,8 @@ class _TranslationsSearchFilterSortTypesJa implements TranslationsSearchFilterSo
 }
 
 // Path: firstTimeSetup.welcome
-class _TranslationsFirstTimeSetupWelcomeJa implements TranslationsFirstTimeSetupWelcomeEn {
-	_TranslationsFirstTimeSetupWelcomeJa._(this._root);
+class _TranslationsFirstTimeSetupWelcomeJa extends TranslationsFirstTimeSetupWelcomeEn {
+	_TranslationsFirstTimeSetupWelcomeJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3682,8 +3706,8 @@ class _TranslationsFirstTimeSetupWelcomeJa implements TranslationsFirstTimeSetup
 }
 
 // Path: firstTimeSetup.basic
-class _TranslationsFirstTimeSetupBasicJa implements TranslationsFirstTimeSetupBasicEn {
-	_TranslationsFirstTimeSetupBasicJa._(this._root);
+class _TranslationsFirstTimeSetupBasicJa extends TranslationsFirstTimeSetupBasicEn {
+	_TranslationsFirstTimeSetupBasicJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3694,8 +3718,8 @@ class _TranslationsFirstTimeSetupBasicJa implements TranslationsFirstTimeSetupBa
 }
 
 // Path: firstTimeSetup.network
-class _TranslationsFirstTimeSetupNetworkJa implements TranslationsFirstTimeSetupNetworkEn {
-	_TranslationsFirstTimeSetupNetworkJa._(this._root);
+class _TranslationsFirstTimeSetupNetworkJa extends TranslationsFirstTimeSetupNetworkEn {
+	_TranslationsFirstTimeSetupNetworkJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3707,8 +3731,8 @@ class _TranslationsFirstTimeSetupNetworkJa implements TranslationsFirstTimeSetup
 }
 
 // Path: firstTimeSetup.theme
-class _TranslationsFirstTimeSetupThemeJa implements TranslationsFirstTimeSetupThemeEn {
-	_TranslationsFirstTimeSetupThemeJa._(this._root);
+class _TranslationsFirstTimeSetupThemeJa extends TranslationsFirstTimeSetupThemeEn {
+	_TranslationsFirstTimeSetupThemeJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3719,8 +3743,8 @@ class _TranslationsFirstTimeSetupThemeJa implements TranslationsFirstTimeSetupTh
 }
 
 // Path: firstTimeSetup.player
-class _TranslationsFirstTimeSetupPlayerJa implements TranslationsFirstTimeSetupPlayerEn {
-	_TranslationsFirstTimeSetupPlayerJa._(this._root);
+class _TranslationsFirstTimeSetupPlayerJa extends TranslationsFirstTimeSetupPlayerEn {
+	_TranslationsFirstTimeSetupPlayerJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3731,8 +3755,8 @@ class _TranslationsFirstTimeSetupPlayerJa implements TranslationsFirstTimeSetupP
 }
 
 // Path: firstTimeSetup.spatial
-class _TranslationsFirstTimeSetupSpatialJa implements TranslationsFirstTimeSetupSpatialEn {
-	_TranslationsFirstTimeSetupSpatialJa._(this._root);
+class _TranslationsFirstTimeSetupSpatialJa extends TranslationsFirstTimeSetupSpatialEn {
+	_TranslationsFirstTimeSetupSpatialJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3743,8 +3767,8 @@ class _TranslationsFirstTimeSetupSpatialJa implements TranslationsFirstTimeSetup
 }
 
 // Path: firstTimeSetup.completion
-class _TranslationsFirstTimeSetupCompletionJa implements TranslationsFirstTimeSetupCompletionEn {
-	_TranslationsFirstTimeSetupCompletionJa._(this._root);
+class _TranslationsFirstTimeSetupCompletionJa extends TranslationsFirstTimeSetupCompletionEn {
+	_TranslationsFirstTimeSetupCompletionJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3759,8 +3783,8 @@ class _TranslationsFirstTimeSetupCompletionJa implements TranslationsFirstTimeSe
 }
 
 // Path: firstTimeSetup.common
-class _TranslationsFirstTimeSetupCommonJa implements TranslationsFirstTimeSetupCommonEn {
-	_TranslationsFirstTimeSetupCommonJa._(this._root);
+class _TranslationsFirstTimeSetupCommonJa extends TranslationsFirstTimeSetupCommonEn {
+	_TranslationsFirstTimeSetupCommonJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3773,8 +3797,8 @@ class _TranslationsFirstTimeSetupCommonJa implements TranslationsFirstTimeSetupC
 }
 
 // Path: anime4k.presetGroups
-class _TranslationsAnime4kPresetGroupsJa implements TranslationsAnime4kPresetGroupsEn {
-	_TranslationsAnime4kPresetGroupsJa._(this._root);
+class _TranslationsAnime4kPresetGroupsJa extends TranslationsAnime4kPresetGroupsEn {
+	_TranslationsAnime4kPresetGroupsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3787,8 +3811,8 @@ class _TranslationsAnime4kPresetGroupsJa implements TranslationsAnime4kPresetGro
 }
 
 // Path: anime4k.presetDescriptions
-class _TranslationsAnime4kPresetDescriptionsJa implements TranslationsAnime4kPresetDescriptionsEn {
-	_TranslationsAnime4kPresetDescriptionsJa._(this._root);
+class _TranslationsAnime4kPresetDescriptionsJa extends TranslationsAnime4kPresetDescriptionsEn {
+	_TranslationsAnime4kPresetDescriptionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3815,8 +3839,8 @@ class _TranslationsAnime4kPresetDescriptionsJa implements TranslationsAnime4kPre
 }
 
 // Path: anime4k.presetNames
-class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetNamesEn {
-	_TranslationsAnime4kPresetNamesJa._(this._root);
+class _TranslationsAnime4kPresetNamesJa extends TranslationsAnime4kPresetNamesEn {
+	_TranslationsAnime4kPresetNamesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3843,8 +3867,8 @@ class _TranslationsAnime4kPresetNamesJa implements TranslationsAnime4kPresetName
 }
 
 // Path: localMedia.browse
-class _TranslationsLocalMediaBrowseJa implements TranslationsLocalMediaBrowseEn {
-	_TranslationsLocalMediaBrowseJa._(this._root);
+class _TranslationsLocalMediaBrowseJa extends TranslationsLocalMediaBrowseEn {
+	_TranslationsLocalMediaBrowseJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -3931,8 +3955,8 @@ class _TranslationsLocalMediaBrowseJa implements TranslationsLocalMediaBrowseEn 
 }
 
 // Path: videoDetail.gestureGuide.quest
-class _TranslationsVideoDetailGestureGuideQuestJa implements TranslationsVideoDetailGestureGuideQuestEn {
-	_TranslationsVideoDetailGestureGuideQuestJa._(this._root);
+class _TranslationsVideoDetailGestureGuideQuestJa extends TranslationsVideoDetailGestureGuideQuestEn {
+	_TranslationsVideoDetailGestureGuideQuestJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -4013,8 +4037,8 @@ class _TranslationsVideoDetailGestureGuideQuestJa implements TranslationsVideoDe
 }
 
 // Path: videoDetail.cast.deviceTypes
-class _TranslationsVideoDetailCastDeviceTypesJa implements TranslationsVideoDetailCastDeviceTypesEn {
-	_TranslationsVideoDetailCastDeviceTypesJa._(this._root);
+class _TranslationsVideoDetailCastDeviceTypesJa extends TranslationsVideoDetailCastDeviceTypesEn {
+	_TranslationsVideoDetailCastDeviceTypesJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -4033,8 +4057,8 @@ class _TranslationsVideoDetailCastDeviceTypesJa implements TranslationsVideoDeta
 }
 
 // Path: videoDetail.cast.dlnaCastSheet
-class _TranslationsVideoDetailCastDlnaCastSheetJa implements TranslationsVideoDetailCastDlnaCastSheetEn {
-	_TranslationsVideoDetailCastDlnaCastSheetJa._(this._root);
+class _TranslationsVideoDetailCastDlnaCastSheetJa extends TranslationsVideoDetailCastDlnaCastSheetEn {
+	_TranslationsVideoDetailCastDlnaCastSheetJa._(TranslationsJa root) : this._root = root, super.internal(root);
 
 	final TranslationsJa _root; // ignore: unused_field
 
@@ -4163,7 +4187,7 @@ extension on TranslationsJa {
 			'common.success' => '成功',
 			'common.commentDeletedSuccessfully' => 'コメントが削除されました',
 			'common.commentUpdatedSuccessfully' => 'コメントが更新されました',
-			'common.totalComments' => ({required Object count}) => '${count} 件のコメント',
+			'common.totalComments' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 件のコメント', other: '${n} 件のコメント', ), 
 			'common.writeYourCommentHere' => 'ここにコメントを入力...',
 			'common.tmpNoReplies' => '返信はありません',
 			'common.loadMore' => 'もっと読み込む',
@@ -4174,9 +4198,9 @@ extension on TranslationsJa {
 			'common.translateFailedPleaseTryAgainLater' => '翻訳に失敗しました。後でもう一度お試しください',
 			'common.translationResult' => '翻訳結果',
 			'common.justNow' => 'たった今',
-			'common.minutesAgo' => ({required Object num}) => '${num} 分前',
-			'common.hoursAgo' => ({required Object num}) => '${num} 時間前',
-			'common.daysAgo' => ({required Object num}) => '${num} 日前',
+			'common.minutesAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 分前', other: '${n} 分前', ), 
+			'common.hoursAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 時間前', other: '${n} 時間前', ), 
+			'common.daysAgo' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 日前', other: '${n} 日前', ), 
 			'common.editedAt' => ({required Object num}) => '${num} 編集',
 			'common.editComment' => 'コメントを編集',
 			'common.commentUpdated' => 'コメントが更新されました',
@@ -4215,7 +4239,7 @@ extension on TranslationsJa {
 			'common.searchHistoryRecords' => '検索履歴...',
 			'common.settings' => '設定',
 			'common.subscriptions' => 'サブスクリプション',
-			'common.videoCount' => ({required Object num}) => '${num} 本の動画',
+			'common.videoCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 本の動画', other: '${n} 本の動画', ), 
 			'common.share' => '共有',
 			'common.areYouSureYouWantToShareThisPlaylist' => 'このプレイリストを共有してもよろしいですか？',
 			'common.editTitle' => 'タイトルを編集',
@@ -4792,6 +4816,9 @@ extension on TranslationsJa {
 			'settings.screenFitRatioDesc' => 'この比率に引き伸ばして表示します（変形する場合があります）',
 			'settings.jumpLink' => 'リンクをジャンプ',
 			'settings.language' => '言語',
+			'settings.languageNativeName' => '日本語',
+			'settings.followSystemLanguage' => 'システムに従う',
+			'settings.languageChangedMessage' => '言語が正常に変更されました。一部の機能はアプリを再起動して有効にする必要があります。',
 			'settings.languageChanged' => '言語設定が変更されました。アプリを再起動して有効にしてください。',
 			'settings.keybinding.title' => 'キーボードショートカット',
 			'settings.keybinding.entryLabel' => 'キーボードショートカット',
@@ -4947,8 +4974,8 @@ extension on TranslationsJa {
 			'settings.blockSettings.regexEx3Desc' => '「総集編」で終わるタイトルに一致',
 			'settings.blockSettings.regexEx4Pattern' => '第.話',
 			'settings.blockSettings.regexEx4Desc' => '「.」は任意の1文字（「第1話」「第X話」に一致）',
-			'settings.blockSettings.regexEx5Pattern' => '\d{4}',
-			'settings.blockSettings.regexEx5Desc' => '「\d」は数字、{4} は4桁（年など）',
+			'settings.blockSettings.regexEx5Pattern' => '\\d{4}',
+			'settings.blockSettings.regexEx5Desc' => '「\\d」は数字、{4} は4桁（年など）',
 			'settings.blockSettings.regexEx1Sample' => '新作の予告公開中',
 			'settings.blockSettings.regexEx2Sample' => '【総集編】夏まつり',
 			'settings.blockSettings.regexEx3Sample' => '夏まつり 総集編',
@@ -5084,11 +5111,11 @@ extension on TranslationsJa {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
 			'settings.downloadSettings.grantPermission' => '権限を付与',
 			'settings.downloadSettings.fixIssue' => '問題を修正',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.issueFixed' => '問題が修正されました',
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
 			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.cannotAccessPublicDirectory' => 'パブリックディレクトリにアクセスできません、「すべてのファイルアクセス権限」が必要です',
 			'settings.downloadSettings.cannotCreateDirectory' => 'ディレクトリを作成できません',
 			'settings.downloadSettings.directoryNotWritable' => 'ディレクトリに書き込みできません',
@@ -5146,7 +5173,7 @@ extension on TranslationsJa {
 			'favoriteTags.quickPickHint' => 'お気に入りは検索のクイック選択に表示されます。',
 			'favoriteTags.pickerTitle' => 'Oreno3D を選択',
 			'favoriteTags.searchHint' => '名前または原語で検索',
-			'favoriteTags.worksCount' => ({required Object count}) => '${count} 作品',
+			'favoriteTags.worksCount' => ({required num n}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(n, one: '${n} 作品', other: '${n} 作品', ), 
 			'favoriteTags.browseEntry' => '原作 / キャラ / タグを閲覧',
 			'favoriteTags.favoritesSection' => 'お気に入り',
 			'favoriteTags.addFavorite' => '追加',
@@ -5250,6 +5277,7 @@ extension on TranslationsJa {
 			'videoDetail.volume' => '音量',
 			'videoDetail.volumeMuted' => '音量がミュートされています',
 			'videoDetail.restoreDefaultZoom' => 'リセット',
+			'videoDetail.gestureGuide.sampleVideo' => 'サンプル動画',
 			'videoDetail.gestureGuide.title' => 'ジェスチャー・操作ガイド',
 			'videoDetail.gestureGuide.viewGuide' => 'ジェスチャー・操作ガイドを見る',
 			'videoDetail.gestureGuide.firstTimeIntro' => 'プレーヤーのジェスチャーを数秒で確認しましょう。このガイドはプレーヤー設定からいつでも再表示できます。',
@@ -5597,12 +5625,12 @@ extension on TranslationsJa {
 			'notifications.kApprovedPost' => '投稿が承認されました',
 			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
 			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
 			'conversation.errors.clickToSelectAUser' => 'ユーザーを選択してください',
-			_ => null,
-		} ?? switch (path) {
 			'conversation.errors.loadFailedClickToRetry' => '読み込みに失敗しました。クリックして再試行',
 			'conversation.errors.loadFailed' => '読み込みに失敗しました',
 			'conversation.errors.clickToRetry' => 'クリックして再試行',
@@ -6111,12 +6139,12 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
 			'mediaPlayer.imageLoadFailed' => '画像読み込み失敗',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.unsupportedImageFormat' => 'サポートされていない画像形式',
 			'mediaPlayer.tryOtherViewer' => '他のビューアーをお試しください',
 			'mediaPlayer.retryingOpenVideoLink' => '動画リンクのオープンに失敗しました。再試行中',
@@ -6625,12 +6653,12 @@ extension on TranslationsJa {
 			'savedSearchConfig.title' => '保存した絞り込み',
 			'savedSearchConfig.empty' => '保存した絞り込み設定はまだありません',
 			'savedSearchConfig.saveTooltip' => '現在の絞り込みを保存',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => '絞り込みを保存',
 			'savedSearchConfig.nameLabel' => '名前',
 			'savedSearchConfig.nameHint' => '名前を入力',
 			'savedSearchConfig.saveSuccess' => '絞り込みを保存しました',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => '絞り込みを削除しました',
 			'savedSearchConfig.addCurrent' => '現在の絞り込みを保存',
 			'savedSearchConfig.reorderHint' => '長押しでドラッグして並べ替え',

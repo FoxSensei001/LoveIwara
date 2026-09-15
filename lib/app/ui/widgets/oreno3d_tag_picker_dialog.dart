@@ -132,7 +132,7 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
         if (e.original.isNotEmpty && e.original != e.name) {
           subtitleParts.add(e.original);
         }
-        subtitleParts.add(t.favoriteTags.worksCount(count: e.workCount));
+        subtitleParts.add(t.favoriteTags.worksCount(n: e.workCount));
         return ListTile(
           dense: true,
           title: Text(e.name),

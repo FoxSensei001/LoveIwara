@@ -1,0 +1,3155 @@
+# en.i18n.yaml
+
+personalProfile:
+  personalProfile: Профиль
+  editPersonalProfile: Редактировать профиль
+  avatar: Аватар
+  background: Фон
+  fetchUserProfileFailed: "Не удалось загрузить профиль: ${error}"
+  suggestedResolution: "Рекомендуемое разрешение: ${resolution}, размер файла < ${size}"
+  supportedFormats: "Поддерживаемые форматы: ${formats}"
+  premiumBenefit: "Премиум-пользователи могут использовать анимированный ${type} (${formats})"
+  homepageBackground: Фон главной страницы
+  basicInfo: Основная информация
+  nickname: Псевдоним
+  username: Имя пользователя
+  copyUsername: Копировать имя пользователя
+  usernameCopied: Имя пользователя скопировано
+  personalIntroduction: О себе
+  noPersonalIntroduction: Нет описания
+  clickToEdit: Нажмите для редактирования
+  privacySettings: Конфиденциальность
+  hideSensitiveContent: Скрывать деликатный контент
+  hideSensitiveContentDesc: Скрывать видео и изображения с деликатными тегами.
+  notificationSettings: Настройки уведомлений
+  contentCommentNotification: Комментарии к контенту
+  contentCommentNotificationDesc: Уведомлять о новых комментариях к вашему контенту.
+  commentReplyNotification: Ответы на комментарии
+  commentReplyNotificationDesc: Уведомлять об ответах на ваши комментарии.
+  mentionNotification: Упоминания
+  mentionNotificationDesc: Уведомлять, когда вас упоминают в контенте.
+  accountInfo: Данные аккаунта
+  registrationTime: Дата регистрации
+  updateSettingsFailed: "Не удалось обновить настройки: ${error}"
+  updateNotificationSettingsFailed: "Не удалось обновить настройки уведомлений: ${error}"
+  editNickname: Изменить псевдоним
+  nicknameCannotBeEmpty: Псевдоним не может быть пустым
+  changeSuccess: Изменения сохранены
+  unsupportedFileFormat: Неподдерживаемый формат файла
+  fileTooLarge: "Размер файла не может превышать ${size}"
+  uploadFailed: Ошибка загрузки
+  avatarUpdatedSuccessfully: Аватар успешно обновлен
+  updateAvatarFailed: "Не удалось обновить аватар: ${error}"
+  backgroundUpdatedSuccessfully: Фон успешно обновлен
+  updateBackgroundFailed: "Не удалось обновить фон: ${error}"
+  editPersonalIntroduction: Редактировать описание
+  enterPersonalIntroduction: Введите описание о себе
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "Особые подписки"
+  specialFollowDescription: "Отмечайте любимых авторов как особые подписки, чтобы быстро переходить к их новым публикациям."
+  stepsTitle: "Три шага"
+  stepFollowAuthor: "Нажмите «Подписаться» на странице автора, видео или галереи."
+  stepPickSpecial: "Нажмите «Подписан» еще раз и выберите «Особая подписка»."
+  stepSwitchHere: "Вернитесь сюда и переключитесь на автора через панель аватаров выше."
+  specialFollowManagementTip: "Управление списком особых подписок: Боковое меню — Подписки — Особые подписки."
+  gotIt: "Понятно"
+
+common:
+  sort: Сортировка
+  filter: Фильтр
+  appName: Love Iwara
+  ok: ОК
+  cancel: Отмена
+  select: Выбрать
+  save: Сохранить
+  delete: Удалить
+  visit: Перейти
+  loading: Загрузка...
+  scrollToTop: Наверх
+  privacyHint: Включен приватный режим, контент скрыт
+  latest: Новые
+  likesCount: Отметки «Нравится»
+  viewsCount: Просмотры
+  popular: Популярные
+  trending: В тренде
+  commentList: Комментарии
+  sendComment: Написать комментарий
+  send: Отправить
+  retry: Повторить
+  premium: Премиум
+  follower: Подписчик
+  friend: Друг
+  video: Видео
+  following: Подписки
+  expand: Развернуть
+  collapse: Свернуть
+  cancelFriendRequest: Отменить заявку
+  cancelSpecialFollow: Отменить особую подписку
+  addFriend: Добавить в друзья
+  removeFriend: Удалить из друзей
+  followed: Вы подписаны
+  follow: Подписаться
+  unfollow: Отписаться
+  specialFollow: Особая подписка
+  specialFollowed: Особая подписка
+  gallery: Галерея
+  playlist: Плейлист
+  commentPostedSuccessfully: Комментарий опубликован
+  commentPostedFailed: Не удалось опубликовать комментарий
+  success: Успешно
+  commentDeletedSuccessfully: Комментарий удален
+  commentUpdatedSuccessfully: Комментарий обновлен
+  totalComments:
+    one: 'Комментарий: ${n}'
+    other: 'Комментариев: ${n}'
+  writeYourCommentHere: Напишите комментарий...
+  tmpNoReplies: Ответов пока нет
+  loadMore: Загрузить еще
+  loadingMore: Загрузка...
+  noMoreDatas: Больше ничего нет
+  selectTranslationLanguage: Выберите язык перевода
+  translate: Перевести
+  translateFailedPleaseTryAgainLater: Ошибка перевода, повторите позже
+  translationResult: Результат перевода
+  justNow: Только что
+  minutesAgo:
+    one: '${n} мин. назад'
+    other: '${n} мин. назад'
+  hoursAgo:
+    one: '${n} ч. назад'
+    other: '${n} ч. назад'
+  daysAgo:
+    one: '${n} дн. назад'
+    other: '${n} дн. назад'
+  editedAt: 'изменено: ${num}'
+  editComment: Изменить комментарий
+  commentUpdated: Комментарий обновлен
+  replyComment: Ответить на комментарий
+  reply: Ответить
+  edit: Изменить
+  unknownUser: Неизвестный пользователь
+  me: Я
+  author: Автор
+  admin: Администратор
+  viewReplies: 'Показать ответы (${num})'
+  hideReplies: Скрыть ответы
+  confirmDelete: Подтверждение удаления
+  areYouSureYouWantToDeleteThisItem: Вы уверены, что хотите удалить этот элемент?
+  tmpNoComments: Комментариев пока нет
+  refresh: Обновить
+  back: Назад
+  tips: Подсказка
+  linkIsEmpty: Ссылка пуста
+  linkCopiedToClipboard: Ссылка скопирована
+  imageCopiedToClipboard: Изображение скопировано
+  copyImageFailed: Не удалось скопировать изображение
+  mobileSaveImageIsUnderDevelopment: Сохранение на мобильных в разработке
+  imageSavedTo: Изображение сохранено в
+  saveImageFailed: Не удалось сохранить изображение
+  close: Закрыть
+  more: Еще
+  unknownError: Неизвестная ошибка
+  moreFeaturesToBeDeveloped: Другие функции в разработке
+  all: Все
+  selectedRecords: 'Выбрано записей: ${num}'
+  cancelSelectAll: Снять выбор
+  selectAll: Выбрать все
+  exitEditMode: Выйти из режима выбора
+  areYouSureYouWantToDeleteSelectedItems: 'Удалить выбранные элементы (${num})?'
+  searchHistoryRecords: Поиск в истории...
+  settings: Настройки
+  subscriptions: Подписки
+  videoCount:
+    one: 'Видео: ${n}'
+    other: 'Видео: ${n}'
+  share: Поделиться
+  areYouSureYouWantToShareThisPlaylist: Поделиться этим плейлистом?
+  editTitle: Изменить название
+  editMode: Режим редактирования
+  pleaseEnterNewTitle: Введите новое название
+  createPlayList: Создать плейлист
+  create: Создать
+  checkNetworkSettings: Проверьте настройки сети
+  general: Общее
+  r18: R18
+  sensitive: Деликатный
+  year: Год
+  month: Месяц
+  tag: Тег
+  private: Приватный
+  noTitle: Без названия
+  search: Поиск
+  noContent: Нет содержимого
+  recording: Запись
+  paused: На паузе
+  clear: Очистить
+  clearSelection: Снять выбор
+  selectItemsToContinue: Выберите элементы для продолжения
+  andMoreItems(num): 'и еще ${num}'
+  batchDelete: Пакетное удаление
+  user: Пользователь
+  post: Публикация
+  seconds: Секунды
+  comingSoon: Скоро
+  confirm: Подтвердить
+  hour: Час
+  minute: Минута
+  clickToRefresh: Нажмите для обновления
+  history: История
+  favorites: Избранное
+  friends: Друзья
+  playList: Плейлист
+  checkLicense: Лицензия
+  logout: Выйти
+  fensi: Подписчики
+  accept: Принять
+  reject: Отклонить
+  clearAllHistory: Очистить всю историю
+  clearAllHistoryConfirm: Вы уверены, что хотите очистить всю историю?
+  followingList: Подписки
+  followersList: Подписчики
+  follows: Подписки
+  fans: Подписчики
+  followsAndFans: Подписки и подписчики
+  numViews: Просмотры
+  updatedAt: Обновлено
+  publishedAt: Опубликовано
+  externalVideo: Внешнее видео
+  originalText: Исходный текст
+  showOriginalText: Показать оригинал
+  showProcessedText: Показать обработанный текст
+  preview: Предпросмотр
+  rules: Правила
+  agree: Принять
+  disagree: Отклонить
+  agreeToRules: Принять правила
+  # Base Input Dialog
+  markdownSyntaxHelp: Справка по Markdown
+  previewContent: Предпросмотр
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'Превышен лимит символов (${max})'
+  agreeToCommunityRules: Принять правила сообщества
+  createPost: Создать запись
+  title: Заголовок
+  enterTitle: Введите заголовок
+  content: Содержимое
+  enterContent: Введите содержимое
+  writeYourContentHere: Введите текст...
+  tagBlacklist: Черный список тегов
+  noData: Нет данных
+  tagLimit: Лимит тегов
+  enableFloatingButtons: Включить плавающие кнопки
+  disableFloatingButtons: Отключить плавающие кнопки
+  enabledFloatingButtons: Плавающие кнопки включены
+  disabledFloatingButtons: Плавающие кнопки отключены
+  pendingCommentCount: Ожидает проверки
+  joined: 'Регистрация: ${str}'
+  lastSeenAt: 'В сети: ${str}'
+  download: Скачать
+  selectQuality: Выберите качество
+  videoQualitySource: Исходное
+  selectImageQuality: Качество изображений
+  imageQualityStandard: Стандартное
+  imageQualityOriginal: Исходное
+  selectDateRange: Выбрать диапазон дат
+  selectDateRangeHint: Выберите диапазон дат (по умолч. 30 дней)
+  clearDateRange: Сбросить диапазон
+  deleteRecordsInDateRange: Удалить записи за этот период
+  deleteRecordsInDateRangeConfirm: 'Удалить ${num} записей за выбранный период? Действие необратимо.'
+  noHistoryRecordsInRange: Нет записей за указанный период
+  followSuccessClickAgainToSpecialFollow: Вы подписались, нажмите еще раз для особой подписки
+  specialFollowTip: Добавлено в особые подписки — доступно в меню справа вверху на странице подписок
+  exitConfirmTip: Вы действительно хотите выйти?
+  error: Ошибка
+  taskRunning: "Задача уже выполняется, подождите."
+  operationCancelled: "Операция отменена."
+  unsavedChanges: "Есть несохраненные изменения"
+  specialFollowsManagementTip: Потяните за ручку для перемещения • Нажмите кнопку для удаления
+  specialFollowsManagement: Управление особыми подписками
+  removeSpecialFollow: Удалить особую подписку
+  removeSpecialFollowConfirm: 'Удалить ${name} из особых подписок?'
+  noSpecialFollows: Нет особых подписок
+  createTimeDesc: Сначала новые
+  createTimeAsc: Сначала старые
+  # Pagination related
+  pagination:
+    totalItems: 'Всего: ${num}'
+    jumpToPage: 'Перейти на страницу'
+    pleaseEnterPageNumber: 'Введите номер страницы (1-${max})'
+    pageNumber: 'Номер страницы'
+    jump: 'Перейти'
+    invalidPageNumber: 'Введите корректный номер страницы (1-${max})'
+    invalidInput: 'Введите корректный номер страницы'
+    waterfall: 'Лента'
+    pagination: 'Страницы'
+  notice: Внимание
+  detail: Подробнее
+  parseExceptionDestopHint: ' - На ПК можно настроить прокси в настройках'
+  iwaraTags: Теги Iwara
+  tagInfo: Информация о теге
+  tagOriginalKey: Исходный тег
+  tagTranslation: Перевод
+  copy: Копировать
+  selectCopy: "Выбрать и скопировать"
+  copiedToClipboard: Скопировано в буфер
+  showOriginalTag: Показать исходный тег
+  showTranslatedTag: Показать перевод
+  tagTranslationFeedback: Неточность в переводе? Отправьте отзыв
+  tagLocalizationGuideTitle: О локализации тегов
+  tagLocalizationGuideContent: "Приложение отображает теги Iwara (например, mother) на выбранном вами языке.\n\n• При поиске учитываются как перевод, так и оригинал.\n• Удерживайте или нажмите правой кнопкой мыши по тегу, чтобы скопировать оригинал и перевод.\n• Переводы поддерживаются сообществом и могут содержать неточности."
+  likeThisVideo: Оценить видео
+  likeThisGallery: Оценить галерею
+  operation: Действие
+  replies: Ответы
+  externalLinkWarning: Переход по внешней ссылке
+  externalLinkWarningMessage: Вы переходите по ссылке, не относящейся к iwara.tv. Будьте осторожны и убедитесь в надежности ресурса.
+  continueToExternalLink: Продолжить
+  cancelExternalLink: Отмена
+auth:
+  login: Вход
+  logout: Выход
+  email: Эл. почта
+  password: Пароль
+  loginOrRegister: Вход / Регистрация
+  register: Регистрация
+  pleaseEnterEmail: Введите эл. почту
+  pleaseEnterPassword: Введите пароль
+  passwordMustBeAtLeast6Characters: Пароль должен содержать не менее 6 символов
+  pleaseEnterCaptcha: Введите капчу
+  captcha: Капча
+  refreshCaptcha: Обновить капчу
+  captchaNotLoaded: Капча не загружена
+  loginSuccess: Вход выполнен
+  loginSuccessProfilePending: Вход выполнен. Загрузка профиля…
+  emailVerificationSent: Подтверждение отправлено на почту
+  notLoggedIn: Вы не вошли в аккаунт
+  clickToLogin: Нажмите для входа
+  logoutConfirmation: Вы уверены, что хотите выйти из аккаунта?
+  logoutSuccess: Выход выполнен
+  logoutFailed: Не удалось выйти
+  usernameOrEmail: Имя пользователя или эл. почта
+  pleaseEnterUsernameOrEmail: Введите имя пользователя или эл. почту
+  rememberMe: "Запомнить имя пользователя"
+  registerNoticeTitle: Регистрация на официальном сайте
+  registerNoticeDescription: "Регистрация в приложении недоступна. Создайте аккаунт на официальном сайте Iwara, затем войдите здесь."
+  registerNoticeReturnTip: "После регистрации вернитесь сюда и выполните вход."
+  goToOfficialWebsite: Перейти на сайт
+
+errors:
+  error: Ошибка
+  required: Обязательное поле
+  invalidEmail: Некорректный адрес эл. почты
+  networkError: Ошибка сети, повторите попытку
+  errorWhileFetching: Ошибка загрузки
+  commentCanNotBeEmpty: Комментарий не может быть пустым
+  errorWhileFetchingReplies: Ошибка загрузки ответов, проверьте подключение к сети
+  canNotFindCommentController: Не удалось найти контроллер комментариев
+  errorWhileLoadingGallery: Ошибка загрузки галереи
+  howCouldThereBeNoDataItCantBePossible: Данных нет? Этого не может быть :<
+  unsupportedImageFormat: 'Неподдерживаемый формат изображения: ${str}'
+  invalidGalleryId: Некорректный ID галереи
+  translationFailedPleaseTryAgainLater: Ошибка перевода, повторите позже
+  errorOccurred: "Произошла ошибка, повторите попытку позже."
+  errorOccurredWhileProcessingRequest: Произошла ошибка при обработке запроса
+  errorWhileFetchingDatas: Ошибка при получении данных, повторите позже
+  serviceNotInitialized: Сервис не инициализирован
+  unknownType: Неизвестный тип
+  errorWhileOpeningLink: 'Ошибка открытия ссылки: ${link}'
+  invalidUrl: Некорректный URL
+  failedToOperate: Сбой операции
+  permissionDenied: Доступ запрещен
+  youDoNotHavePermissionToAccessThisResource: У вас нет доступа к этому ресурсу
+  loginFailed: Ошибка входа
+  unknownError: Неизвестная ошибка
+  sessionExpired: Сессия истекла
+  failedToFetchCaptcha: Не удалось получить капчу
+  emailAlreadyExists: Эл. почта уже используется
+  invalidCaptcha: Неверная капча
+  registerFailed: Ошибка регистрации
+  failedToFetchComments: Не удалось загрузить комментарии
+  failedToFetchImageDetail: Не удалось загрузить сведения об изображении
+  failedToFetchImageList: Не удалось загрузить список изображений
+  failedToFetchData: Не удалось получить данные
+  invalidParameter: Недопустимый параметр
+  pleaseLoginFirst: Сначала войдите в систему
+  errorWhileLoadingPost: Ошибка загрузки публикации
+  errorWhileLoadingPostDetail: Ошибка загрузки подробностей публикации
+  invalidPostId: Некорректный ID публикации
+  forceUpdateNotPermittedToGoBack: Обязательное обновление, вернуться нельзя
+  pleaseLoginAgain: Пожалуйста, войдите снова
+  invalidLogin: Ошибка входа. Проверьте эл. почту и пароль
+  tooManyRequests: Слишком много запросов, повторите попытку позже
+  exceedsMaxLength: 'Превышена максимальная длина: ${max}'
+  contentCanNotBeEmpty: Содержимое не может быть пустым
+  titleCanNotBeEmpty: Заголовок не может быть пустым
+  tooManyRequestsPleaseTryAgainLaterText: "Слишком много запросов, повторите попытку позже, осталось: "
+  remainingHours: "${num} ч."
+  remainingMinutes: "${num} мин."
+  remainingSeconds: "${num} сек."
+  tagLimitExceeded: 'Превышен лимит тегов (макс.: ${limit})'
+  failedToRefresh: Не удалось обновить
+  noPermission: Нет прав
+  resourceNotFound: Ресурс не найден
+  failedToSaveCredentials: "Не удалось сохранить учетные данные"
+  failedToLoadSavedCredentials: "Не удалось загрузить сохраненные учетные данные"
+  notFound: 'Контент не найден или удален'
+  network:
+    basicPrefix: 'Ошибка сети — '
+    failedToConnectToServer: 'Не удалось подключиться к серверу'
+    serverNotAvailable: 'Сервер недоступен'
+    requestTimeout: 'Время ожидания запроса истекло'
+    unexpectedError: 'Непредвиденная ошибка'
+    invalidResponse: 'Некорректный ответ'
+    invalidRequest: 'Некорректный запрос'
+    invalidUrl: 'Некорректный URL'
+    invalidMethod: 'Недопустимый метод'
+    invalidHeader: 'Недопустимый заголовок'
+    invalidBody: 'Недопустимое тело запроса'
+    invalidStatusCode: 'Недопустимый код состояния'
+    serverError: 'Ошибка сервера'
+    requestCanceled: 'Запрос отменен'
+    invalidPort: 'Недопустимый порт'
+    proxyPortError: 'Ошибка порта прокси'
+    connectionRefused: 'В соединении отказано'
+    networkUnreachable: 'Сеть недоступна'
+    noRouteToHost: 'Нет маршрута к хосту'
+    connectionFailed: 'Сбой подключения'
+    sslConnectionFailed: 'Сбой SSL-соединения, проверьте настройки сети'
+friends:
+  clickToRestoreFriend: Нажмите для восстановления
+  friendsList: Список друзей
+  friendRequests: Заявки в друзья
+  friendRequestsList: Список заявок в друзья
+  removingFriend: Удаление из друзей...
+  failedToRemoveFriend: Не удалось удалить из друзей
+  cancelingRequest: Отмена заявки...
+  failedToCancelRequest: Не удалось отменить заявку
+
+authorProfile:
+  noMoreDatas: Больше ничего нет
+  userProfile: Профиль пользователя
+
+favorites:
+  clickToRestoreFavorite: Нажмите для восстановления
+  myFavorites: Мое избранное
+  batchCancelFavorite: Удалить выбранное из избранного
+  batchCancelFavoriteConfirm(count): 'Удалить выбранные элементы (${count}) из избранного? Их можно восстановить нажатием на карточки.'
+  batchCancelFavoriteSuccess(count): 'Удалено элементов: ${count}'
+  batchCancelFavoriteResult(success, failed): 'Убрано элементов: ${success}, не удалось: ${failed}'
+
+galleryDetail:
+  browseInSpace: Просмотр в пространстве
+  galleryDetail: Сведения о галерее
+  viewGalleryDetail: О галерее
+  zoomReset: Сбросить масштаб
+  copyLink: Копировать ссылку
+  copyImage: Копировать изображение
+  saveAs: Сохранить как
+  saveToAlbum: Сохранить в альбом
+  publishedAt: Опубликовано
+  viewsCount: Просмотры
+  imageLibraryFunctionIntroduction: Возможности галереи
+  rightClickToSaveSingleImage: Правый клик для сохранения изображения
+  batchSave: Пакетное сохранение
+  keyboardLeftAndRightToSwitch: Стрелки влево/вправо для переключения
+  keyboardUpAndDownToZoom: Стрелки вверх/вниз для масштабирования
+  mouseWheelToSwitch: Колесико мыши для переключения
+  ctrlAndMouseWheelToZoom: CTRL + колесико мыши для зума
+  moreFeaturesToBeDiscovered: Больше возможностей впереди...
+  authorOtherGalleries: Другие галереи автора
+  relatedGalleries: Похожие галереи
+  authorNoOtherGalleries: У автора больше нет галерей
+  noRelatedGalleries: Нет похожих галерей
+  scrollLeft: Прокрутка влево
+  scrollRight: Прокрутка вправо
+  clickLeftAndRightEdgeToSwitchImage: Нажатие по краям экрана для перелистывания
+  rotateToLandscape: В альбомный режим
+  backToPortrait: В портретный режим
+
+playList:
+  myPlayList: Мои плейлисты
+  friendlyTips: Обратите внимание
+  dearUser: Уважаемый пользователь
+  iwaraPlayListSystemIsNotPerfectYet: Система плейлистов Iwara пока несовершенна
+  notSupportSetCover: Нельзя установить обложку
+  notSupportDeleteList: Нельзя удалить плейлист
+  notSupportSetPrivate: Нельзя сделать приватным
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: Созданный плейлист останется навсегда и будет виден всем
+  smallSuggestion: Совет
+  useLikeToCollectContent: Если вам важна приватность, рекомендуем сохранять через отметку «Нравится»
+  welcomeToDiscussOnGitHub: Если у вас есть предложения или идеи, присоединяйтесь к обсуждению на GitHub!
+  iUnderstand: Понятно
+  searchPlaylists: Поиск плейлистов...
+  newPlaylistName: Название нового плейлиста
+  createNewPlaylist: Создать плейлист
+  videos: Видео
+
+search:
+  googleSearchScope: Область поиска
+  searchTags: Поиск тегов...
+  contentRating: Возрастной рейтинг
+  removeTag: Удалить тег
+  pleaseEnterSearchContent: Введите поисковый запрос
+  searchHistory: История поиска
+  searchSuggestion: Подсказки поиска
+  usedTimes: Использований
+  lastUsed: Последний раз
+  noSearchHistoryRecords: История поиска пуста
+  clearSearchHistoryConfirm: Очистить всю историю поиска? Действие необратимо.
+  notSupportCurrentSearchType: 'Тип поиска ${searchType} пока не поддерживается'
+  searchResult: Результаты поиска
+  unsupportedSearchType: 'Неподдерживаемый тип поиска: ${searchType}'
+  googleSearch: "Поиск в Google"
+  googleSearchHint: "Поиск на ${webName} работает неудобно? Попробуйте Google!"
+  googleSearchDescription: "Используйте оператор :site в Google для поиска по сайту. Это особенно удобно для видео, галерей, плейлистов и авторов."
+  googleSearchKeywordsHint: "Введите ключевые слова для поиска"
+  openLinkJump: "Переход по ссылке"
+  googleSearchButton: "Поиск в Google"
+  pleaseEnterSearchKeywords: "Введите ключевые слова для поиска"
+  googleSearchQueryCopied: "Поисковый запрос скопирован"
+  googleSearchBrowserOpenFailed: "Не удалось открыть браузер: ${error}"
+  searchRequestTimeout: Время ожидания истекло, повторите попытку позже
+  searchCannotConnectToServer: Не удалось подключиться к серверу, проверьте сеть
+  searchNetworkError: Ошибка сетевого соединения, проверьте настройки сети
+  searchFailedPleaseRetry: Сбой поиска, повторите попытку позже
+mediaList:
+  personalIntroduction: Описание
+
+settings:
+  listViewMode: Режим отображения списка
+  previewEffect: Эффект предпросмотра
+  useTraditionalPaginationMode: Классическая пагинация
+  useTraditionalPaginationModeDesc: Включает страницы вместо бесконечной ленты. Вступает в силу после перезагрузки страницы или перезапуска приложения
+  showVideoProgressBottomBarWhenToolbarHidden: Нижняя полоса прогресса при скрытой панели
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: Показывать тонкую полосу прогресса видео внизу экрана, когда элементы управления скрыты.
+  seekPreviewSize: Размер предпросмотра при перемотке
+  seekPreviewSizeDesc: Размер окна предпросмотра над шкалой времени. Он уже зависит от размера плеера и пропорций видео; эта настройка лишь корректирует его.
+  seekPreviewSizeSmall: Маленький
+  seekPreviewSizeStandard: Стандартный
+  seekPreviewSizeLarge: Большой
+  seekPreviewSizeStandardDesc: Размер по умолчанию с учетом плеера и видео
+  showFullscreenUpNextHint: Ярлык «Далее»
+  showFullscreenUpNextHintDesc: Показывать ярлык справа в плеере для открытия очереди воспроизведения (источник / плейлист / смотреть позже). Если скрыть, доступ к очереди будет невозможен.
+  basicSettings: Основные настройки
+  personalizedSettings: Персонализация
+  otherSettings: Прочие настройки
+  searchConfig: Настройки поиска
+  thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: Использовать ли предыдущие параметры при повторном воспроизведении видео.
+  playControl: Управление воспроизведением
+  playbackSpeedSettings: Скорость воспроизведения
+  playbackBehaviorSettings: Поведение воспроизведения
+  enhancementSettings: Кинотеатр и улучшение
+  fastForwardTime: Время перемотки вперед
+  fastForwardTimeMustBeAPositiveInteger: Время перемотки должно быть положительным целым числом.
+  rewindTime: Время перемотки назад
+  rewindTimeMustBeAPositiveInteger: Время перемотки должно быть положительным целым числом.
+  longPressPlaybackSpeed: Скорость при долгом нажатии
+  longPressPlaybackSpeedMustBeAPositiveNumber: Скорость при долгом нажатии должна быть положительным числом.
+  defaultPlaybackSpeed: Скорость по умолчанию
+  rememberPlaybackSpeed: Запоминать скорость воспроизведения
+  rememberPlaybackSpeedDesc: Скорость, установленная в плеере, будет сохранена по умолчанию и применена к новым видео.
+  repeat: Повтор
+  renderVerticalVideoInVerticalScreen: Вертикальные видео в портретном режиме
+  thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: Отображать ли вертикальное видео на полный экран в портретной ориентации.
+  rememberVolume: Запоминать громкость
+  thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain: Сохранять ли уровень громкости для следующих видео.
+  rememberBrightness: Запоминать яркость
+  thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain: Сохранять ли уровень яркости для следующих видео.
+  playControlArea: Область управления
+  leftAndRightControlAreaWidth: Ширина боковых областей управления
+  thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: Определяет ширину областей управления слева и справа в плеере.
+  proxyAddressCannotBeEmpty: Адрес прокси не может быть пустым.
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: Неверный формат адреса прокси. Используйте IP:порт или домен:порт.
+  proxyNormalWork: Прокси работает нормально.
+  testProxyFailedWithStatusCode: 'Проверка прокси не удалась, код состояния: ${code}'
+  testProxyFailedWithException: 'Проверка прокси не удалась: ${exception}'
+  proxyConfig: Настройки прокси
+  thisIsHttpProxyAddress: Адрес HTTP-прокси
+  checkProxy: Проверить прокси
+  proxyAddress: Адрес прокси
+  pleaseEnterTheUrlOfTheProxyServerForExample1270018080: Введите адрес прокси-сервера, например 127.0.0.1:8080
+  enableProxy: Включить прокси
+  left: Слева
+  middle: По центру
+  right: Справа
+  playerSettings: Настройки плеера
+  networkSettings: Настройки сети
+  customizeYourPlaybackExperience: Настройте параметры воспроизведения
+  chooseYourFavoriteAppAppearance: Выберите внешний вид приложения
+  configureYourProxyServer: Настройка прокси-сервера
+  settings: Настройки
+  themeSettings: Тема оформления
+  followSystem: Как в системе
+  lightMode: Светлая
+  darkMode: Темная
+  presetTheme: Готовые темы
+  basicTheme: Базовая тема
+  needRestartToApply: Требуется перезапуск приложения
+  themeNeedRestartDescription: Для применения настроек темы необходимо перезапустить приложение
+  about: О приложении
+  diagnosticsAndFeedback: Диагностика и отзывы
+  currentVersion: Текущая версия
+  latestVersion: Последняя версия
+  checkForUpdates: Проверить обновления
+  update: Обновить
+  newVersionAvailable: Доступна новая версия
+  projectHome: Страница проекта
+  release: Релизы
+  issueReport: Сообщить об ошибке
+  openSourceLicense: Лицензии открытого ПО
+  checkForUpdatesFailed: Не удалось проверить обновления, повторите позже
+  autoCheckUpdate: Автопроверка обновлений
+  updateContent: Что нового
+  releaseDate: Дата выпуска
+  ignoreThisVersion: Пропустить эту версию
+  forceUpdateTip: "Это обязательное обновление. Пожалуйста, обновите приложение как можно скорее"
+  viewChangelog: Список изменений
+  alreadyLatestVersion: У вас последняя версия
+  appSettings: Настройки приложения
+  configureYourAppSettings: Основные параметры приложения
+  history: История
+  autoRecordHistory: Автосохранение истории
+  autoRecordHistoryDesc: Автоматически сохранять просмотренные видео и изображения
+  autoDeleteHistory: Автоочистка истории
+  autoDeleteHistoryDesc: Автоматически удалять историю старше указанного срока при запуске (по умолч. выкл.)
+  autoDeleteHistoryDays: Срок хранения
+  autoDeleteHistoryDaysValue: 'Хранить последние ${num} дн.'
+  autoDeleteHistoryDaysInvalid: Введите корректное число дней (не менее 1)
+  showUnprocessedMarkdownText: Исходный текст Markdown
+  showUnprocessedMarkdownTextDesc: Показывать сырой исходный текст разметки
+  markdown: Markdown
+  activeBackgroundPrivacyMode: Приватный режим
+  activeBackgroundPrivacyModeDesc: Блокировать скриншоты, запись экрана и скрывать приложение в фоне
+  activeBackgroundPrivacyModeDescNonAndroid: Скрывать экран приложения при переходе в фон (на этой платформе блокировка скриншотов недоступна)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Блокировать скриншоты и запись экрана
+  privacy: Конфиденциальность
+  appLock: Блокировка приложения
+  appLockEnabled: Включить блокировку
+  appLockEnabledDesc: Запрашивать PIN-код или биометрию при входе; превью в фоне скрывается автоматически
+  appLockEnabledSummary: Вкл. · Защищено PIN-кодом
+  appLockDisabledSummary: Выкл.
+  appLockTimeout: Блокировать после выхода
+  appLockTimeoutDesc: Время в фоне, после которого требуется повторная авторизация
+  appLockAfterScreenOff: Блокировать при выключении экрана
+  appLockAfterScreenOffDesc: Требовать авторизацию после блокировки экрана устройства
+  appLockTimeoutDisabled: Отключено
+  appLockImmediately: Немедленно
+  appLockSeconds: '${seconds} сек.'
+  appLockMinutes: '${minutes} мин.'
+  appLockUseBiometrics: Использовать биометрию
+  appLockUseBiometricsDesc: Разблокировка по отпечатку пальца или лицу
+  appLockBiometricsUnavailable: На этом устройстве нет настроенной биометрии
+  appLockSetPin: Установить PIN-код
+  appLockEnterPin: Введите PIN-код
+  appLockConfirmPin: Подтвердите PIN-код
+  appLockCurrentPin: Введите текущий PIN-код
+  appLockNewPin: Введите новый PIN-код
+  appLockPinRequirements: PIN-код должен содержать от 4 до 8 цифр
+  appLockPinsDoNotMatch: PIN-коды не совпадают
+  appLockInvalidPin: Неверный PIN-код
+  appLockSetupFailed: Не удалось безопасно сохранить PIN-код
+  appLockDisable: Введите PIN-код для отключения блокировки
+  appLockChangePin: Изменить PIN-код
+  appLockNow: Заблокировать сейчас
+  appLockUnlock: Разблокировать
+  appLockLockedTitle: Заблокировано
+  appLockLockedDesc: Авторизуйтесь для продолжения
+  appLockAuthenticateReason: Авторизуйтесь для разблокировки
+  appLockEnableBiometricsReason: Авторизуйтесь для включения биометрии
+  appLockBiometricFailed: Сбой биометрической аутентификации
+  appLockTooManyAttempts: 'Слишком много попыток. Повторите через ${seconds} с'
+  appLockCredentialUnavailableTitle: Не удалось прочитать данные блокировки
+  appLockCredentialUnavailableDesc: Системное хранилище недоступно или данные повреждены. Приложение остается заблокированным. Повторите попытку; если ошибка повторяется, сбросьте блокировку (это отключит ее и сотрет PIN-код).
+  appLockRetry: Повторить
+  appLockReset: Сбросить блокировку
+  appLockResetAction: Сбросить
+  appLockResetConfirmTitle: Сбросить блокировку приложения?
+  appLockResetConfirmDesc: Блокировка будет отключена, а сохраненный PIN-код и настройки биометрии — удалены. Вы сможете настроить ее заново.
+  appLockRetrySucceeded: Данные прочитаны. Введите PIN-код.
+  appLockRetryFailed: По-прежнему не удается прочитать данные
+  forum: Форум
+  news: Новости
+  community: Сообщество
+  disableForumReplyQuote: Отключить цитирование в ответах форума
+  disableForumReplyQuoteDesc: Не добавлять информацию о цитируемом сообщении при ответе на форуме
+  theaterMode: Режим кинотеатра
+  theaterModeDesc: Размывать обложку видео в качестве фона плеера
+  appLinks: Ссылки приложения
+  defaultBrowser: Открытие ссылок
+  defaultBrowserDesc: Откройте параметры ссылок по умолчанию в системных настройках и добавьте сайт iwara.tv
+  themeMode: Режим темы
+  themeModeDesc: Определяет тему оформления приложения
+  glassEffect: Стиль интерфейса
+  glassEffectDesc: Материал элементов интерфейса — заголовков, меню, кнопок и нижней панели
+  liquidGlassEffect: Жидкое стекло
+  liquidGlassEffectDesc: Настоящее размытие и преломление. Выглядит красивее всего, но на слабых устройствах может снижать плавность и повышать расход батареи
+  plainGlassEffect: Material
+  plainGlassEffectDesc: Стандартный стиль Material 3 — непрозрачный, без размытия и теней. Максимальная производительность и автономность
+  glassEffectIntroTitle: Выберите стиль интерфейса
+  glassEffectIntroContent: Заголовки, панель вкладок и меню используют эффект стекла — настоящее размытие и преломление. Если интерфейс подтормаживает или вы предпочитаете простой стиль, выберите Material (непрозрачные поверхности, без размытия и теней).
+  glassEffectIntroHint: "Вы можете изменить это в любое время: Настройки → Тема → Стиль интерфейса."
+  glassEffectIntroDone: Оставить
+  dynamicColor: Динамические цвета
+  dynamicColorDesc: Определяет, использует ли приложение динамические цвета системы
+  useDynamicColor: Использовать динамические цвета
+  useDynamicColorDesc: Использовать палитру системы Material You
+  presetColors: Предустановленные цвета
+  customColors: Пользовательские цвета
+  customColorsDisabledByDynamicColor: Включены динамические цвета. Отключите их для выбора палитры вручную.
+  pickColor: Выбрать цвет
+  cancel: Отмена
+  confirm: Подтвердить
+  noCustomColors: Нет пользовательских цветов
+  recordAndRestorePlaybackProgress: Запоминать позицию воспроизведения
+  autoPlayVideoOnFirstEnter: Автовоспроизведение при открытии
+  autoPlayVideoOnFirstEnterDesc: Запускать воспроизведение автоматически при переходе на страницу видео.
+  autoEnterFullscreen: Автоматический полноэкранный режим
+  autoEnterFullscreenDesc: Когда плеер должен автоматически переходить в полноэкранный режим. Приватные, удаленные, внешние видео и режим «картинка в картинке» игнорируются.
+  autoEnterFullscreenOff: 'Выкл.'
+  autoEnterFullscreenOffDesc: Никогда не разворачивать автоматически
+  autoEnterFullscreenOnPlaybackStart: При старте воспроизведения
+  autoEnterFullscreenOnPlaybackStartDesc: Разворачивать сразу при фактическом начале воспроизведения
+  autoEnterFullscreenOnDetailPageEnter: При открытии видео
+  autoEnterFullscreenOnDetailPageEnterDesc: Разворачивать сразу при открытии страницы, не дожидаясь воспроизведения
+  autoEnterFullscreenKind: Тип полноэкранного режима
+  autoEnterFullscreenKindDesc: Вариант полноэкранного режима (только для ПК).
+  autoEnterFullscreenKindSystem: Системный полноэкранный
+  autoEnterFullscreenKindSystemDesc: Разворачивать окно на весь экран средствами системы
+  autoEnterFullscreenKindApp: Внутри приложения
+  autoEnterFullscreenKindAppDesc: Окно остается прежним, плеер занимает все окно приложения
+  signature: Подпись
+  enableSignature: Включить подпись
+  enableSignatureDesc: Добавлять ли подпись при публикации ответов
+  enterSignature: Введите подпись
+  editSignature: Изменить подпись
+  signatureContent: Текст подписи
+  exportConfig: "Экспорт конфигурации"
+  exportConfigDesc: "Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются."
+  importConfig: "Импорт конфигурации"
+  importConfigDesc: "Импорт конфигурации приложения из файла"
+  exportConfigSuccess: "Конфигурация успешно экспортирована!"
+  exportConfigFailed: "Не удалось экспортировать конфигурацию"
+  importConfigSuccess: "Конфигурация успешно импортирована!"
+  importConfigFailed: "Не удалось импортировать конфигурацию"
+  exportIncludeSensitive: "Включать конфиденциальные данные"
+  exportIncludeSensitiveDesc: "Включает ключи API, токены сессий и адрес прокси. Включайте только для личных резервных копий."
+  importConfigOverwriteWarning: "Импорт перезапишет текущие настройки и историю (просмотры, прогресс, избранное). Продолжить?"
+  importConfigRestartTitle: "Импорт выполнен"
+  importConfigRestartContent: "Конфигурация импортирована. Полностью закройте и перезапустите приложение для применения изменений."
+  historyUpdateLogs: "История обновлений"
+  noUpdateLogs: "Нет истории обновлений"
+  versionLabel: "Версия: {version}"
+  releaseDateLabel: "Дата выпуска: {date}"
+  noChanges: "Нет описания изменений"
+  interaction: Взаимодействие
+  enableVibration: Виброотклик
+  enableVibrationDesc: Тактильный отклик при взаимодействии с приложением
+  defaultKeepVideoToolbarVisible: Не скрывать панель управления видео
+  defaultKeepVideoToolbarVisibleDesc: Панель управления видео остается видимой при первом открытии страницы видео.
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Режим кинотеатра на мобильных устройствах может вызывать просадку производительности. Включайте на свое усмотрение.
+  fullscreenOrientation: Ориентация при переходе в полный экран
+  fullscreenOrientationDesc: Ориентация экрана по умолчанию при разворачивании на весь экран (только для мобильных)
+  fullscreenOrientationLeftLandscape: Альбомная влево
+  fullscreenOrientationRightLandscape: Альбомная вправо
+  screenFit: Масштаб видео
+  screenFitDesc: Как видео заполняет область плеера.
+  rememberScreenFit: Запоминать масштаб видео
+  rememberScreenFitDesc: Применять выбранный масштаб к открываемым видео.
+  screenFitFit: По размеру
+  screenFitFitDesc: Поместить в экран с сохранением пропорций
+  screenFitStretch: Растянуть
+  screenFitStretchDesc: Заполнить область плеера с возможным искажением пропорций
+  screenFitCover: Заполнить
+  screenFitCoverDesc: Заполнить экран с сохранением пропорций и обрезкой краев
+  screenFitRatioDesc: Принудительное соотношение сторон с возможным искажением
+  jumpLink: Быстрый переход
+  language: Язык
+  languageNativeName: Русский
+  followSystemLanguage: Как в системе
+  languageChangedMessage: Язык изменён. Некоторые функции вступят в силу после перезапуска приложения.
+  languageChanged: Язык изменен, перезапустите приложение для применения.
+  keybinding:
+    title: Горячие клавиши
+    entryLabel: Горячие клавиши
+    entryDesc: Настройка сочетаний клавиш (в основном для ПК)
+    desktopHint: Сочетания клавиш работают на клавиатуре ПК; на мобильных используются жесты.
+    resetAll: Сбросить все по умолчанию
+    resetAllConfirm: Сбросить все горячие клавиши к значениям по умолчанию?
+    resetToDefault: По умолчанию
+    resetScope: Сбросить этот раздел
+    notSet: Не назначено
+    addShortcut: Добавить клавишу
+    removeShortcut: Удалить это сочетание
+    pressNewShortcut: Нажмите новую клавишу…
+    recordingCancelHint: Нажмите Esc для отмены
+    mouseHint: Можно использовать боковые кнопки мыши (назад / вперед) или колесико
+    mouseNotSupportedInScope: В этой области кнопки мыши не поддерживаются, используйте клавиатуру
+    capabilityKeyboardOnly: Только клавиши клавиатуры
+    capabilityKeyboardAndMouse: Клавиатура, а также средняя и боковые кнопки мыши
+    capabilityKeyboardAndMouseMobile: Клавиатура, средняя и кнопка «вперед» мыши (кнопка «назад» занята системой)
+    rejectMultipleButtons: Нажимайте по одной кнопке мыши
+    rejectPlatformBack: Эта кнопка уже зарезервирована системой для «Назад»
+    detectedLabel: Обнаружено
+    reservedKey: Эта клавиша зарезервирована системой и не может быть назначена
+    reservedForGlobalBack: Эта клавиша назначена на «${action}» и зарезервирована для выхода из этого экрана
+    conflictTitle: Конфликт клавиш
+    conflictMessage: Это сочетание уже назначено на «${action}». Назначение удалит старую привязку.
+    conflictContinue: Все равно назначить
+    shadowWarningTitle: Перекрытие глобальной клавиши
+    shadowWarningMessage: Это сочетание глобально назначено на «${action}». Назначение здесь переопределит его только в этом разделе.
+    globalShadowedMessage: Это сочетание уже назначено на «${action}» в ${scope}. В этом разделе глобальная клавиша будет переопределена.
+    searchHint: Поиск сочетаний…
+    scopeGlobal: Глобальные
+    scopeGallery: Галерея
+    scopeVideo: Видео
+    categoryNavigation: Навигация
+    categoryZoom: Масштабирование
+    categoryPlayback: Воспроизведение
+    categorySeek: Перемотка
+    categoryVolume: Громкость
+    categoryDisplay: Отображение
+    actionGlobalBack: Назад
+    actionGalleryNext: Следующее фото
+    actionGalleryPrevious: Предыдущее фото
+    actionGalleryZoomIn: Приблизить
+    actionGalleryZoomOut: Отдалить
+    actionGalleryResetZoom: Сбросить масштаб
+    actionGalleryPlayPause: Воспроизведение / Пауза
+    actionGallerySeekBackward: Назад
+    actionGallerySeekForward: Вперед
+    actionGalleryToggleMute: Вкл./Выкл. звук
+    actionPlayPause: Воспроизведение / Пауза
+    actionSpeedUp: Увеличить скорость
+    actionSpeedDown: Уменьшить скорость
+    actionSeekForward: Вперед
+    actionSeekBackward: Назад
+    actionVolumeUp: Громче
+    actionVolumeDown: Тише
+    actionToggleMute: Вкл./Выкл. звук
+    actionToggleFullscreen: Полный экран
+    seekLongPressHint: Удерживайте клавишу перемотки для ускорения
+    zoomSectionTitle: Масштаб изображения (фиксировано)
+    zoomFixedNote: Сочетания ниже фиксированы и не могут быть изменены
+    zoomScaleLabel: Масштаб изображения
+    zoomScaleHint: Ctrl + колесико
+    zoomRotateLabel: Поворот изображения
+    zoomRotateHint: Shift + колесико
+    zoomPinchGesture: Сведение пальцев
+    zoomTwoFingerRotateGesture: Поворот двумя пальцами
+  gestureControl: Управление жестами
+  leftDoubleTapRewind: "Двойное нажатие слева: перемотка назад"
+  rightDoubleTapFastForward: "Двойное нажатие справа: перемотка вперед"
+  doubleTapPause: "Двойное нажатие: пауза"
+  rightVerticalSwipeVolume: "Смахивание справа по вертикали: громкость (при входе на новую страницу)"
+  leftVerticalSwipeBrightness: "Смахивание слева по вертикали: яркость (при входе на новую страницу)"
+  longPressFastForward: "Долгое нажатие: ускорение"
+  enableMouseHoverShowToolbar: Показывать панель при наведении мыши
+  enableMouseHoverShowToolbarInfo: Панель управления видео появляется при наведении курсора и скрывается через 3 секунды бездействия.
+  enableHorizontalDragSeek: "Горизонтальный жест: перемотка"
+  enableVideoGestureZoom: Масштабирование кадра жестом
+  enableVideoGestureZoomInfo: Сведите/разведите пальцы (или Ctrl + колесико мыши на ПК) для масштабирования кадра видео, затем перетаскивайте для перемещения.
+  showCenterPlayPauseButton: Кнопка воспроизведения по центру
+  showCenterPlayPauseButtonDesc: Показывать крупную кнопку воспроизведения/паузы в центре плеера.
+  # Audio Video Configuration
+  audioVideoConfig: Аудио и видео
+  expandBuffer: Увеличенный буфер
+  expandBufferInfo: "Увеличивает размер буфера: загрузка длится дольше, но воспроизведение плавнее"
+  videoSyncMode: Режим синхронизации видео
+  videoSyncModeSubtitle: Стратегия синхронизации звука и видео
+  hardwareDecodingMode: Режим аппаратного декодирования
+  hardwareDecodingModeSubtitle: Настройки аппаратного декодирования
+  enableHardwareAcceleration: Аппаратное ускорение
+  enableHardwareAccelerationInfo: Включение аппаратного ускорения может улучшить декодирование, но поддерживается не всеми устройствами
+  useOpenSLESAudioOutput: Использовать вывод OpenSLES
+  useOpenSLESAudioOutputInfo: Низкая задержка звука, может улучшить воспроизведение аудио
+  # Video sync options
+  videoSyncAudio: По звуку
+  videoSyncDisplayResample: Передискретизация дисплея
+  videoSyncDisplayResampleVdrop: Передискретизация (пропуск видеокадров)
+  videoSyncDisplayResampleDesync: Передискретизация (рассинхрон)
+  videoSyncDisplayTempo: Скорость дисплея
+  videoSyncDisplayVdrop: Пропуск видеокадров
+  videoSyncDisplayAdrop: Пропуск аудиокадров
+  videoSyncDisplayDesync: Рассинхрон дисплея
+  videoSyncDesync: Без синхронизации
+  # Forum settings
+  forumSettings:
+    name: Форум
+    configureYourForumSettings: Настройки форума
+  gallerySettings:
+    gallerySettingsTitle: Настройки галереи
+    gallerySettingsSubtitle: Параметры просмотра изображений
+    defaultViewerQuality: Качество при открытии
+    defaultViewerQualityDesc: Качество изображений по умолчанию при открытии галереи.
+  # Content blocking
+  blockSettings:
+    title: Блокировка контента
+    subtitle: Автоматически скрывать видео и галереи по ключевым словам в заголовке или от заблокированных авторов. Фильтрация работает локально на устройстве.
+    blocked: Заблокировано
+    reveal: Показать
+    reblock: Заблокировать снова
+    why: Причина?
+    manageRules: Управление правилами
+    reasonKeyword: 'Заголовок содержит «${value}»'
+    reasonRegex: 'Заголовок соответствует «${value}»'
+    reasonUser: От заблокированного автора
+    addRule: Добавить правило
+    editRule: Изменить правило
+    deleteRule: Удалить правило
+    ruleType: Тип правила
+    keyword: Ключевое слово
+    regex: Регулярное выражение
+    userId: Пользователь
+    value: Текст для совпадения
+    caseSensitive: С учетом регистра
+    regexHint: напр. trailer|teaser
+    valueRequired: Введите текст правила
+    invalidRegex: Некорректное регулярное выражение
+    noRules: Нет правил. Нажмите +, чтобы добавить.
+    blockUser: Заблокировать
+    unblockUser: Разблокировать
+    blockUserConfirm: 'Заблокировать «${name}»? Публикации автора будут скрыты из списков и поиска.'
+    userBlocked: Пользователь заблокирован
+    userUnblocked: Пользователь разблокирован
+    exportRules: Экспорт
+    importRules: Импорт
+    importExport: Импорт / Экспорт
+    exportSuccess: Правила экспортированы
+    exportFailed: Не удалось экспортировать правила
+    importSuccess: 'Импортировано правил: ${count}'
+    importFailed: Не удалось импортировать правила
+    regexHelp: Справка по шаблонам
+    regexHelpTitle: Справка по Regex
+    regexHelpIntro: 'Регулярные выражения позволяют фильтровать точнее обычных слов. Примеры:'
+    regexHelpTapHint: Нажмите на пример, чтобы вставить его.
+    regexEx1Pattern: трейлер|тизер|бонус
+    regexEx1Desc: Любое из этих слов («|» означает «или»)
+    regexEx2Pattern: '^\\[.*\\]'
+    regexEx2Desc: Заголовки, начинающиеся с [скобок]
+    regexEx3Pattern: 'Коллекция$'
+    regexEx3Desc: Заголовки, заканчивающиеся на «Коллекция»
+    regexEx4Pattern: 'Эп.[0-9]+'
+    regexEx4Desc: '[0-9]+ — одна или более цифр (находит «Эп.12»)'
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: '\\d — цифра, {4} — четыре подряд (например, год)'
+    regexEx1Sample: "Тизер новой игры уже вышел"
+    regexEx2Sample: "[Remux] Полный фильм"
+    regexEx3Sample: "Весенняя коллекция арта"
+    regexEx4Sample: "Обзор Эп.12 моего шоу"
+    regexEx5Sample: "Лучшее из 2024 года"
+    regexHelpSampleLabel: "Пример заголовка"
+    regexHelpMatchedTag: "Заблокировано"
+    regexHelpNoMatch: "Нет совпадений"
+    regexEx6Pattern: '[Сс]езон'
+    regexEx6Desc: '[Сс] — заглавная или строчная «С» (находит «Сезон»)'
+    regexEx6Sample: 'Трейлер финального сезона'
+    regexEx7Pattern: '(фильм|сериал)'
+    regexEx7Desc: 'Круглые скобки () группируют варианты: «фильм» или «сериал»'
+    regexEx7Sample: 'Смотрите сериал сейчас'
+    regexEx8Pattern: 'сезон[ыа]?'
+    regexEx8Desc: '«?» делает предыдущий символ необязательным: «сезон» и «сезоны»'
+    regexEx8Sample: 'Набор из двух сезонов'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '+ означает один или более символов: !, !!, !!! ...'
+    regexEx9Sample: 'Ого!!! Обязательно к просмотру'
+    regexEx10Pattern: 'бонус.*сцен'
+    regexEx10Desc: '«.*» означает любые символы между ними: «бонус … сцен»'
+    regexEx10Sample: 'Удалённая бонусная сцена'
+  # Chat
+  chatSettings:
+    name: Чат
+    configureYourChatSettings: Настройки чата
+  # Hardware decoding options
+  hardwareDecodingAuto: Авто
+  hardwareDecodingAutoCopy: Авто-копирование
+  hardwareDecodingAutoSafe: Безопасное авто
+  hardwareDecodingNo: Отключено
+  hardwareDecodingYes: Принудительно
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: Распределение CDN
+  cdnDistributionStrategyDesc: Выбор стратегии распределения серверов для ускорения загрузки видео
+  cdnDistributionStrategyLabel: Стратегия распределения
+  cdnDistributionStrategyNoChange: Без изменений (исходный сервер)
+  cdnDistributionStrategyAuto: Автоматически (самый быстрый)
+  cdnDistributionStrategySpecial: Выбрать сервер вручную
+  cdnSpecialServer: Выбрать сервер
+  cdnRefreshServerListHint: Нажмите кнопку ниже для обновления списка серверов
+  cdnRefreshButton: Обновить
+  cdnFastRingServers: Быстрые серверы Fast Ring
+  cdnRefreshServerListTooltip: Обновить список серверов
+  cdnSpeedTestButton: Проверка скорости
+  cdnSpeedTestingButton: 'Проверка (${count})'
+  cdnNoServerDataHint: Нет данных о серверах, нажмите кнопку обновления
+  cdnTestingStatus: Проверка
+  cdnUnreachableStatus: Недоступен
+  cdnNotTestedStatus: Не проверен
+  downloadSettings:
+    downloadSettings: Настройки загрузки
+    enableDownloadNotifications: Уведомления о загрузках
+    enableDownloadNotificationsDescription: Показывать системное уведомление при завершении или ошибке загрузки
+    notificationPermissionDenied: Нет разрешения на уведомления. Внутри приложения они работают; системные можно включить в настройках.
+    storagePermissionStatus: Доступ к памяти
+    accessPublicDirectoryNeedStoragePermission: Для общедоступных папок требуется разрешение на доступ к памяти
+    checkingPermissionStatus: Проверка разрешений...
+    storagePermissionGranted: Доступ к памяти предоставлен
+    storagePermissionNotGranted: Доступ к памяти не предоставлен
+    storagePermissionGrantSuccess: Разрешение успешно предоставлено
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Не удалось предоставить разрешение, некоторые функции могут быть ограничены
+    storagePermissionRationale: "Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nНа Android 11+ требуется «Доступ ко всем файлам»; без него файлы сохраняются в изолированную папку приложения."
+    storagePermissionRationaleLegacy: "Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nБез него файлы сохраняются в изолированную папку приложения."
+    grantStoragePermission: Предоставить доступ
+    customDownloadPath: Пользовательская папка загрузки
+    customDownloadPathDescription: Возможность выбрать свое место для сохранения файлов
+    customDownloadPathTip: "💡 Совет: Для общедоступных папок (например, Загрузки) нужно разрешение; рекомендуется использовать стандартные пути"
+    androidWarning: "Примечание для Android: Общедоступные папки (например, Downloads) требуют спецразрешений; лучше использовать папки приложения."
+    publicDirectoryPermissionTip: "⚠️ Внимание: Выбрана общая папка, требуется доступ к памяти для скачивания файлов"
+    permissionRequiredForPublicDirectory: Требуется доступ к памяти для общих папок
+    currentDownloadPath: Текущая папка загрузки
+    actualDownloadPath: Фактический путь
+    defaultAppDirectory: Папка приложения по умолчанию
+    permissionGranted: Предоставлено
+    permissionRequired: Требуется разрешение
+    enableCustomDownloadPath: Свой путь загрузки
+    disableCustomDownloadPath: Использовать путь по умолчанию
+    customDownloadPathLabel: Пользовательский путь
+    selectDownloadFolder: Выбрать папку загрузки
+    recommendedPath: Рекомендуемый путь
+    selectFolder: Выбрать папку
+    filenameTemplate: Шаблон имени файла
+    filenameTemplateDescription: Правило именования скачиваемых файлов с поддержкой переменных
+    videoFilenameTemplate: Шаблон имени видео
+    galleryFolderTemplate: Шаблон папки галереи
+    imageFilenameTemplate: Шаблон имени изображения
+    resetToDefault: По умолчанию
+    supportedVariables: Доступные переменные
+    supportedVariablesDescription: "В шаблонах имен можно использовать следующие переменные:"
+    copyVariable: Копировать переменную
+    variableCopied: Переменная скопирована
+    warningPublicDirectory: "Внимание: Выбранная общая папка может быть недоступна. Рекомендуется выбрать папку приложения."
+    downloadPathUpdated: Путь загрузки обновлен
+    selectPathFailed: Не удалось выбрать путь
+    pickerAlreadyActive: Выбор папки уже открыт
+    unsupportedStorageVolume: Неподдерживаемый накопитель. Выберите папку на внутреннем накопителе или SD-карте.
+    recommendedPathSet: Установлен рекомендуемый путь
+    setRecommendedPathFailed: Не удалось установить рекомендуемый путь
+    templateResetToDefault: Сброшено к шаблону по умолчанию
+    # Download test related
+    functionalTest: Проверка функций
+    testInProgress: Проверка...
+    runTest: Запустить тест
+    testDownloadPathAndPermissions: Проверка пути загрузки и корректности разрешений
+    testResults: Результаты теста
+    testCompleted: Проверка завершена
+    testPassed: успешно
+    testFailed: Тест не пройден
+    testStoragePermissionCheck: Проверка доступа к памяти
+    testStoragePermissionGranted: Доступ к памяти предоставлен
+    testStoragePermissionMissing: Доступ к памяти отсутствует, функции могут быть ограничены
+    testPermissionCheckFailed: Ошибка проверки разрешений
+    testDownloadPathValidation: Проверка пути загрузки
+    testPathValidationFailed: Ошибка проверки пути
+    testFilenameTemplateValidation: Проверка шаблона имени
+    testAllTemplatesValid: Все шаблоны корректны
+    testSomeTemplatesInvalid: В шаблонах есть недопустимые символы
+    testTemplateValidationFailed: Ошибка проверки шаблона
+    testDirectoryOperationTest: Проверка операций с папками
+    testDirectoryOperationNormal: Создание папок и запись файлов работают штатно
+    testDirectoryOperationFailed: Ошибка работы с папкой
+    # Test details related
+    testVideoTemplate: Шаблон видео
+    testGalleryTemplate: Шаблон галереи
+    testImageTemplate: Шаблон изображения
+    testValid: Корректно
+    testInvalid: Некорректно
+    testSuccess: Успешно
+    testCorrect: Правильно
+    testError: Ошибка
+    testPath: Тестовый путь
+    testBasePath: Базовый путь
+    testDirectoryCreation: Создание папки
+    testFileWriting: Запись файла
+    testFileContent: Содержимое файла
+    # Path status related
+    checkingPathStatus: Проверка статуса пути...
+    unableToGetPathStatus: Не удалось получить статус пути
+    actualPathDifferentFromSelected: "Примечание: Фактический путь отличается от выбранного"
+    grantPermission: Предоставить разрешение
+    fixIssue: Исправить
+    issueFixed: Исправлено
+    fixFailed: Не удалось исправить, настройте вручную
+    # Download path service related
+    lackStoragePermission: Нет доступа к памяти
+    cannotAccessPublicDirectory: Нет доступа к общей папке, требуется «Доступ ко всем файлам»
+    cannotCreateDirectory: Не удалось создать папку
+    directoryNotWritable: Папка недоступна для записи
+    insufficientSpace: Недостаточно свободного места
+    pathValid: Путь корректен
+    validationFailed: Проверка не пройдена
+    usingDefaultAppDirectory: Используется папка приложения по умолчанию
+    appPrivateDirectory: Изолированная папка приложения
+    appPrivateDirectoryDesc: Надежно и безопасно, дополнительных разрешений не требуется
+    downloadDirectory: Папка «Загрузки»
+    downloadDirectoryDesc: Системная папка загрузок, удобно для управления
+    moviesDirectory: Папка «Фильмы»
+    moviesDirectoryDesc: Системная папка видео, распознается медиаплеерами
+    documentsDirectory: Папка документов
+    documentsDirectoryDesc: Папка документов iOS
+    requiresStoragePermission: Для доступа требуется разрешение
+    # Recommended paths widget related
+    recommendedPaths: Рекомендуемые пути
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: Внешняя папка приложения
+    externalAppPrivateDirectoryDesc: Папка приложения на внешнем накопителе, доступна пользователю, больше места
+    internalAppPrivateDirectory: Внутренняя папка приложения
+    internalAppPrivateDirectoryDesc: Внутреннее хранилище приложения, без спецразрешений, меньше места
+    appDocumentsDirectory: Папка документов приложения
+    appDocumentsDirectoryDesc: Папка документов приложения, надежно и изолированно
+    downloadsFolder: Папка «Загрузки»
+    downloadsFolderDesc: Стандартная папка загрузок устройства
+    selectRecommendedDownloadLocation: Выберите рекомендуемую папку загрузки
+    noRecommendedPaths: Нет рекомендуемых путей
+    recommended: Рекомендуется
+    requiresPermission: Требуется разрешение
+    authorizeAndSelect: Разрешить и выбрать
+    select: Выбрать
+    permissionAuthorizationFailed: Не удалось получить разрешение, выбор пути невозможен
+    pathValidationFailed: Путь не прошел проверку
+    downloadPathSetTo: Путь загрузки установлен в
+    setPathFailed: Не удалось установить путь
+    # Filename template variables
+    variableTitle: Название
+    variableAuthor: Имя автора
+    variableUsername: Имя пользователя автора
+    variableQuality: Качество видео
+    variableFilename: Исходное имя файла
+    variableId: ID контента
+    variableCount: Количество изображений в галерее
+    variableDate: Текущая дата (ГГГГ-ММ-ДД)
+    variableTime: Текущее время (ЧЧ-ММ-СС)
+    variableDatetime: Дата и время (ГГГГ-ММ-ДД_ЧЧ-ММ-СС)
+    # Settings page
+    downloadSettingsTitle: Настройки загрузки
+    downloadSettingsSubtitle: Папка сохранения и правила именования файлов
+    suchAsTitleQuality: 'Например: %title_%quality'
+    suchAsTitleId: 'Например: %title_%id'
+    suchAsTitleFilename: 'Например: %title_%filename'
+favoriteTags:
+  title: Избранные теги
+  emptyIwara: Нет избранных тегов Iwara
+  emptyOreno3d: Нет избранных тегов
+  addIwaraTag: Добавить тег Iwara
+  quickPickHint: Избранные теги будут доступны для быстрого выбора в поиске.
+  pickerTitle: Выбор Oreno3D
+  searchHint: Поиск по названию или оригиналу
+  worksCount:
+    one: 'Работ: ${n}'
+    other: 'Работ: ${n}'
+  browseEntry: "Обзор: оригинал / персонаж / тег"
+  favoritesSection: Избранное
+  addFavorite: Добавить
+  iwaraTitle: Избранные теги Iwara
+  oreno3dTitle: Избранные теги Oreno3D
+  changeTag: Изменить тег
+  switchToText: Поиск по тексту
+oreno3d:
+  name: Oreno3D
+  tags: Теги
+  characters: Персонажи
+  origin: Первоисточник
+  thirdPartyTagsExplanation: "Информация о **тегах**, **персонажах** и **источнике**, показанная здесь, предоставлена сторонним сайтом **Oreno3D** исключительно для справки.\n\nЭтот источник доступен только на японском языке, поэтому пока не адаптирован под локализацию.\n\nЕсли вы хотите помочь с локализацией, перейдите в репозиторий."
+  sortTypes:
+    hot: Популярные
+    favorites: В избранном
+    latest: Новые
+    popularity: Рейтинг
+  errors:
+    requestFailed: Ошибка запроса, код состояния
+    connectionTimeout: Время ожидания подключения истекло, проверьте сеть
+    sendTimeout: Время отправки запроса истекло
+    receiveTimeout: Время получения ответа истекло
+    badCertificate: Ошибка проверки сертификата
+    resourceNotFound: Запрошенный ресурс не найден
+    accessDenied: Доступ запрещен
+    serverError: Внутренняя ошибка сервера
+    serviceUnavailable: Сервис временно недоступен
+    requestCancelled: Запрос отменен
+    connectionError: Ошибка сетевого соединения, проверьте настройки сети
+    networkRequestFailed: Сбой сетевого запроса
+    searchVideoError: Ошибка поиска видео
+    getPopularVideoError: Ошибка загрузки популярных видео
+    getVideoDetailError: Ошибка получения сведений о видео
+    parseVideoDetailError: Ошибка обработки данных видео
+    downloadFileError: Ошибка скачивания файла
+  loading:
+    gettingVideoInfo: Получение информации о видео...
+    cancel: Отмена
+  messages:
+    videoNotFoundOrDeleted: Видео не найдено или удалено
+    unableToGetVideoPlayLink: Не удалось получить ссылку на видео
+    getVideoDetailFailed: Не удалось получить сведения о видео
+signIn:
+  pleaseLoginFirst: Сначала войдите в систему
+  alreadySignedInToday: Вы уже отметились сегодня!
+  youDidNotStickToTheSignIn: Серия отметок прервана.
+  signInSuccess: Отметка успешно поставлена!
+  signInFailed: Не удалось отметиться, повторите позже
+  consecutiveSignIns: Дней подряд
+  failureReason: Причина сбоя
+  selectDateRange: Выбрать диапазон дат
+  startDate: Начальная дата
+  endDate: Конечная дата
+  invalidDate: Неверная дата
+  invalidDateRange: Неверный диапазон дат
+  errorFormatText: Ошибка формата даты
+  errorInvalidText: Неверный диапазон дат
+  errorInvalidRangeText: Неверный диапазон дат
+  dateRangeCantBeMoreThanOneYear: Диапазон дат не может превышать один год
+  signIn: Отметиться
+  signInRecord: История отметок
+  totalSignIns: Всего отметок
+  pleaseSelectSignInStatus: Выберите статус отметки
+
+subscriptions:
+  pleaseLoginFirstToViewYourSubscriptions: Войдите в систему для просмотра подписок.
+  selectUser: Выбрать пользователя
+  noSubscribedUsers: Нет подписок
+  showAllSubscribedUsersContent: Контент всех авторов
+
+videoDetail:
+  pipMode: Режим «картинка в картинке»
+  resumeFromLastPosition: 'Продолжить с места остановки: ${position}'
+  resumedFromHistoryTip: 'Воспроизведение с ${position}'
+  restartFromBeginning: Начать сначала
+  dismissResumeTip: Скрыть
+  localInfo:
+    videoInfo: Информация о видео
+    currentQuality: Текущее качество
+    duration: Длительность
+    resolution: Разрешение
+    fileInfo: О файле
+    fileName: Имя файла
+    fileSize: Размер файла
+    filePath: Путь к файлу
+    copyPath: Копировать путь
+    openFolder: Открыть папку
+    pathCopiedToClipboard: Путь скопирован в буфер
+    openFolderFailed: Не удалось открыть папку
+  videoIdIsEmpty: ID видео пуст
+  videoInfoIsEmpty: Нет данных о видео
+  thisIsAPrivateVideo: Это приватное видео
+  getVideoInfoFailed: 'Не удалось получить данные о видео, повторите позже'
+  noVideoSourceFound: Источник видео не найден
+  tagCopiedToClipboard: 'Тег «${tagId}» скопирован'
+  errorLoadingVideo: Ошибка загрузки видео
+  play: Воспроизвести
+  pause: Пауза
+  exitAppFullscreen: Выйти из полноэкранного режима
+  enterAppFullscreen: Полный экран в приложении
+  exitSystemFullscreen: Выйти из полного экрана
+  enterSystemFullscreen: Системный полный экран
+  seekTo: Перемотать на
+  switchResolution: Сменить качество
+  switchPlaybackSpeed: Сменить скорость
+  rewindSeconds: 'Назад на ${num} сек.'
+  fastForwardSeconds: 'Вперед на ${num} сек.'
+  playbackSpeedIng: 'Скорость: ${rate}x'
+  brightness: Яркость
+  brightnessLowest: Минимальная яркость
+  volume: Громкость
+  volumeMuted: Звук выключен
+  restoreDefaultZoom: Сбросить
+  gestureGuide:
+    sampleVideo: Пример видео
+    title: Руководство по жестам
+    viewGuide: Жесты и управление
+    firstTimeIntro: Ознакомьтесь с жестами управления плеером. Вы всегда можете вернуться к этой справке в настройках плеера.
+    startWatching: Понятно, перейти к просмотру
+    basicTitle: Основное управление
+    zoomTitle: Зум / Поворот / Смещение
+    restoreTip: 'Нажмите «Сбросить» в правом нижнем углу для сброса масштаба, поворота и позиции.'
+    mTap: 'Одиночное касание: показать/скрыть элементы управления'
+    mDoubleTap: 'Двойное касание: назад (слева) / пауза (по центру) / вперед (справа)'
+    mHorizontalDrag: 'Горизонтальное смахивание: перемотка'
+    mVerticalDrag: 'Вертикальное смахивание: яркость (слева) / громкость (справа)'
+    mLongPress: 'Долгое нажатие: ускорение'
+    mPinch: 'Два пальца (щипок): масштаб кадра'
+    mRotate: 'Два пальца (поворот): поворот кадра'
+    dTap: 'Клик: показать/скрыть элементы управления'
+    dDoubleTap: 'Двойной клик: назад (слева) / пауза (по центру) / вперед (справа)'
+    dKeys: 'Стрелки перемотки: нажатие — шаг назад/вперед, удержание — ускорение; клавиши скорости: изменение скорости; Пробел: пауза/пуск'
+    dTrackpadPinch: 'Жест трекпада: масштаб'
+    dTrackpadRotate: 'Жест трекпада: поворот'
+    dCtrlWheel: 'Ctrl + колесико: масштаб относительно курсора'
+    dShiftWheel: 'Shift + колесико: поворот относительно курсора'
+    quest:
+      title: "Управление в Quest"
+      intro: "Познакомьтесь с элементами управления и попробуйте их в своем пространстве."
+      videoTab: "Пространственное видео"
+      galleryTab: "Пространственная галерея"
+      scopeNote: "Для экранов и окон в пространстве Quest. Доступно в любое время в настройках плеера."
+      catalog: "Обзор управления"
+      lessonCount: "${current} из ${total}"
+      previous: "Назад"
+      next: "Далее"
+      replay: "Повторить демо"
+      pauseDemo: "Пауза демо"
+      resumeDemo: "Продолжить демо"
+      looping: "Демонстрация"
+      still: "Иллюстрация"
+      done: "Понятно, продолжить"
+      leftController: "Левая рука"
+      rightController: "Правая рука"
+      trigger: "Триггер (курок)"
+      grip: "Боковая кнопка (хват)"
+      bothGrips: "Обе боковые кнопки"
+      stick: "Стик"
+      handTracking: "Отслеживание рук"
+      ready: "Готово"
+      press: "Нажать"
+      hold: "Удерживать"
+      release: "Отпустить"
+      result: "Результат"
+      pinch: "Щипок"
+      selectTitle: "Наведение и выбор"
+      selectBody: "Наведите луч на кнопку, затем нажмите и отпустите триггер. Используется для воспроизведения, настроек и ползунков."
+      selectHint: "Триггер находится под указательным пальцем. Кнопка хвата на рукоятке перемещает окна."
+      panelTitle: "Показать или скрыть панель"
+      panelBody: "Направьте луч мимо панели и нажмите триггер, чтобы скрыть или показать ее. При отслеживании рук выполните быстрый щипок в пустоте."
+      panelHint: "Используйте короткое нажатие без перемещения. Удержание с движением перемещает экран."
+      playTitle: "Воспроизведение и пауза"
+      playBody: "Направьте луч в сторону от панели и нажмите кнопку A (справа) или X (слева). Также можно нажать кнопку воспроизведения на панели."
+      playHint: "Это сочетание можно отключить в настройках пространственного плеера. При наведении на панель нажатие управляет панелью."
+      seekTitle: "Перемотка стиком"
+      seekBody: "Отклоните любой стик влево или вправо на 5 секунд. Удерживайте для быстрой перемотки с предпросмотром. Отпустите для применения."
+      seekHint: "Удерживайте луч в стороне от панели управления, иначе стик будет прокручивать панель."
+      browseTitle: "Просмотр стиком"
+      browseBody: "Отклоните стик влево/вправо для перехода к предыдущему или следующему элементу; удерживайте для непрерывного листания. Можно также выбрать миниатюру."
+      browseHint: "Видео в галерее также считаются элементами. Наведение на панель переключает стик на ее прокрутку."
+      swipeTitle: "Перелистывание перетаскиванием"
+      swipeBody: "Наведите на изображение, зажмите триггер и потяните влево. Отпустите после подсказки о смене страницы; потяните вправо для возврата. Щипок с перетаскиванием тоже работает."
+      swipeHint: "Для перелистывания изображение должно быть в масштабе 1×. Поддерживаются и видео в галерее. Сцена остается на месте до отпускания."
+      zoomTitle: "Масштабирование изображения"
+      zoomBody: "Наведите на деталь, зажмите триггер и отклоните стик вверх для приближения или вниз для отдаления. Центр зума фиксируется в точке нажатия."
+      zoomHint: "Масштабирует изображение внутри его окна. Без зажатия изображения стик вверх/вниз меняет расстояние до экрана."
+      panTitle: "Панорамирование и сброс"
+      panBody: "При приближении удерживайте триггер и двигайте руку для осмотра. Двойное нажатие по изображению увеличивает до 2.5× или сбрасывает масштаб. Руками: быстрый двойной щипок."
+      panHint: "Перетаскивание перемещает увеличенное изображение. Сбросьте до 1× перед перелистыванием страниц."
+      slideshowTitle: "Запуск слайд-шоу"
+      slideshowBody: "Кнопки A / X на изображении запускают слайд-шоу. На панели можно выбрать интервал (3, 5, 10 или 20 с) и качество."
+      slideshowHint: "Для видео в галерее A / X управляют воспроизведением. Горячие клавиши контроллера должны быть включены в настройках."
+      moveTitle: "Захват и перемещение экрана"
+      moveBody: "Зажмите кнопку хвата на внутренней стороне рукоятки, переместите экран контроллером и отпустите. При просмотре можно хватать экран, не целясь в него."
+      moveHint: "Наведение на окно приложения или панель захватывает их в первую очередь. В панорамном видео хват вращает ракурс."
+      scaleTitle: "Изменение размера двумя руками"
+      scaleBody: "Зажмите обе кнопки хвата. Разведите руки в стороны для увеличения или сведите для уменьшения. Руками: удерживайте щипок обеими руками."
+      scaleHint: "Для плоских и изогнутых экранов, включая сцену галереи. Не наводите на панель. Изменяет размер экрана целиком."
+      distanceTitle: "Расстояние просмотра"
+      distanceBody: "Отклоните стик вверх, чтобы отдалить экран, или вниз, чтобы приблизить. При захвате окна стик двигает это окно. Громкость настраивается на панели."
+      distanceHint: "Направьте луч мимо панели управления. Удержание изображения переключает стик на зум; в панорамном видео настраивается угол обзора."
+      resizeTitle: "Края и углы"
+      resizeBody: "Рамка подсвечивается при приближении луча к краю. Зажмите триггер или щипок на краю для перемещения; потяните за угол для масштабирования."
+      resizeHint: "Работает для окна приложения, панели управления и экрана. Окно меняет ширину и высоту; экран сохраняет пропорции."
+      navigationTitle: "Назад и открытие настроек"
+      navigationBody: "B / Y возвращает на шаг назад: закрывает всплывающее окно, скрывает панель и возвращает в приложение. Левая кнопка меню открывает настройки пространства."
+      navigationHint: "Правая кнопка Meta зарезервирована системой. Системное центрирование возвращает экран перед вами с сохранением размера и расстояния."
+      handsTitle: "Управление руками"
+      handsBody: "При включенном отслеживании рук наведите системный луч на кнопку, сомкните большой и указательный пальцы (щипок) и разомкните. Панель служит для воспроизведения, перемотки и галереи."
+      handsHint: "Щипок в пустоте скрывает/показывает панель. Щипок за край перемещает, за угол меняет размер, щипок двумя руками масштабирует экран."
+  home: Главная
+  videoPlayer: Видеоплеер
+  videoPlayerInfo: О видеоплеере
+  moreSettings: Дополнительные настройки
+  videoPlayerFeatureInfo: О возможностях плеера
+  autoRewind: Автоперемотка
+  rewindAndFastForward: Перемотка назад и вперед
+  volumeAndBrightness: Громкость и яркость
+  centerAreaDoubleTapPauseOrPlay: "Двойное нажатие по центру: пауза/воспроизведение"
+  showVerticalVideoInFullScreen: Вертикальное видео на весь экран
+  keepLastVolumeAndBrightness: Запоминать громкость и яркость
+  setProxy: Настройка прокси
+  moreFeaturesToBeDiscovered: Больше возможностей впереди...
+  videoPlayerSettings: Настройки видеоплеера
+  commentCount: 'Комментариев: ${num}'
+  writeYourCommentHere: Напишите комментарий...
+  authorOtherVideos: Другие видео автора
+  relatedVideos: Похожие видео
+  privateVideo: Это приватное видео
+  externalVideo: Это внешнее видео
+  openInBrowser: Открыть в браузере
+  resourceDeleted: Похоже, это видео удалено :/
+  noDownloadUrl: Ссылка для скачивания отсутствует
+  startDownloading: Начать скачивание
+  downloadFailed: Ошибка скачивания, повторите позже
+  downloadSuccess: Скачивание завершено
+  download: Скачать
+  downloadManager: Менеджер загрузок
+  resourceNotFound: Ресурс не найден
+  videoLoadError: Ошибка загрузки видео
+  authorNoOtherVideos: У автора больше нет других видео
+  noRelatedVideos: Нет похожих видео
+  player:
+    errorWhileLoadingVideoSource: Ошибка загрузки источника видео
+    errorWhileSettingUpListeners: Ошибка настройки слушателей
+    serverFaultDetectedAutoSwitched: Ошибка сервера, выполнен автоматический переход на другой маршрут
+  skeleton:
+    fetchingVideoInfo: Загрузка информации о видео...
+    fetchingVideoSources: Загрузка источников видео...
+    loadingVideo: Загрузка видео...
+    applyingSolution: Применение решения...
+    addingListeners: Добавление слушателей...
+    successFecthVideoDurationInfo: Длительность видео получена, загрузка видео...
+    successFecthVideoHeightInfo: Загрузка завершена
+  # 投屏
+  cast:
+    dlnaCast: Трансляция
+    unableToStartCastingSearch: 'Не удалось запустить поиск устройств: ${error}'
+    startCastingTo: 'Трансляция на ${deviceName}'
+    castFailed: 'Ошибка трансляции: ${error}\nПовторите поиск устройств или смените сеть'
+    castStopped: 'Трансляция остановлена'
+    deviceTypes:
+      mediaRenderer: Медиаплеер
+      mediaServer: Медиасервер
+      internetGatewayDevice: Маршрутизатор
+      basicDevice: Базовое устройство
+      dimmableLight: Умный светильник
+      wlanAccessPoint: Точка доступа WLAN
+      wlanConnectionDevice: Сетевое устройство WLAN
+      printer: Принтер
+      scanner: Сканер
+      digitalSecurityCamera: Камера безопасности
+      unknownDevice: Неизвестное устройство
+    currentPlatformNotSupported: Трансляция не поддерживается на этой платформе
+    unableToGetVideoUrl: Не удалось получить адрес видео, повторите позже
+    stopCasting: Остановить трансляцию
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: Беспроводная трансляция
+      close: Закрыть
+      searchingDevices: Поиск устройств...
+      searchPrompt: Нажмите кнопку для повторного поиска устройств трансляции
+      searching: Поиск
+      searchAgain: Искать снова
+      noDevicesFound: 'Устройства трансляции не найдены\nУбедитесь, что устройства в одной сети'
+      searchingDevicesPrompt: Поиск устройств, подождите...
+      cast: Транслировать
+      connectedTo: 'Подключено к: ${deviceName}'
+      notConnected: Нет подключенных устройств
+      stopCasting: Остановить трансляцию
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: Кто оценил
+    dialogDescription: Интересно, кто это? Посмотрите список оценивших~
+    closeTooltip: Закрыть
+    retry: Повторить
+    noLikesYet: Здесь пока никого нет. Будьте первым!
+    pageInfo: 'Страница ${page} / ${totalPages} · всего ${totalCount} чел.'
+    prevPage: Предыдущая страница
+    nextPage: Следующая страница
+share:
+  sharePlayList: Поделиться плейлистом
+  wowDidYouSeeThis: Вау, вы это видели?
+  nameIs: "Название:"
+  clickLinkToView: Нажмите ссылку для просмотра
+  iReallyLikeThis: Мне очень нравится
+  shareFailed: Не удалось поделиться, повторите попытку позже
+  share: Поделиться
+  shareAsImage: Поделиться изображением
+  shareAsText: Поделиться текстом
+  shareAsImageDesc: Поделиться обложкой видео как изображением
+  shareAsTextDesc: Поделиться деталями видео в виде текста
+  shareAsImageFailed: Не удалось поделиться обложкой видео как изображением, повторите попытку позже
+  shareAsTextFailed: Не удалось поделиться деталями видео в виде текста, повторите попытку позже
+  shareVideo: Поделиться видео
+  authorIs: "Автор:"
+  shareGallery: Поделиться галереей
+  galleryTitleIs: "Название галереи:"
+  galleryAuthorIs: "Автор галереи:"
+  shareUser: Поделиться пользователем
+  userNameIs: "Имя пользователя:"
+  userAuthorIs: "Автор пользователя:"
+  comments: Комментарии
+  shareThread: Поделиться темой
+  views: Просмотры
+  sharePost: Поделиться публикацией
+  postTitleIs: "Заголовок публикации:"
+  postAuthorIs: "Автор публикации:"
+markdown:
+  markdownSyntax: Синтаксис Markdown
+  iwaraSpecialMarkdownSyntax: Особый синтаксис Markdown Iwara
+  internalLink: Внутренняя ссылка
+  supportAutoConvertLinkBelow: 'Поддерживается автоматическое преобразование следующих ссылок:'
+  convertLinkExample: "🎬 Ссылка на видео\n🖼️ Ссылка на изображение\n👤 Ссылка на пользователя\n📌 Ссылка на форум\n🎵 Ссылка на плейлист\n💬 Ссылка на тему"
+  mentionUser: Упоминание пользователя
+  mentionUserDescription: 'Введите @, а затем имя пользователя — оно автоматически преобразуется в ссылку на пользователя'
+  markdownBasicSyntax: Основы синтаксиса Markdown
+  paragraphAndLineBreak: Абзац и перенос строки
+  paragraphAndLineBreakDescription: 'Абзацы разделяются пустой строкой, а два пробела в конце строки преобразуются в перенос строки'
+  paragraphAndLineBreakSyntax: "Это первый абзац\n\nЭто второй абзац\nЭта строка заканчивается двумя пробелами  \nпреобразуется в перенос строки"
+  textStyle: Стиль текста
+  textStyleDescription: 'Окружите текст специальными символами, чтобы изменить стиль'
+  textStyleSyntax: "**Жирный текст**\n*Курсив*\n~~Зачёркнутый текст~~\n`Код`"
+  quote: Цитата
+  quoteDescription: 'Символ > создаёт цитату, несколько > — многоуровневую цитату'
+  quoteSyntax: "> Это цитата первого уровня\n>> Это цитата второго уровня"
+  list: Список
+  listDescription: 'Нумерованный список создаётся цифрой с точкой, маркированный — знаком -'
+  listSyntax: "1. Первый пункт\n2. Второй пункт\n\n- Пункт маркированного списка\n  - Подпункт\n  - Ещё один подпункт"
+  linkAndImage: Ссылка и изображение
+  linkAndImageDescription: "Формат ссылки: [текст](URL)\nФормат изображения: ![описание](URL)"
+  linkAndImageSyntax: "[текст ссылки](${link})\n![описание изображения](${imgUrl})"
+  title: Заголовок
+  titleDescription: 'Символ # создаёт заголовок, число символов # задаёт уровень'
+  titleSyntax: "# Заголовок первого уровня\n## Заголовок второго уровня\n### Заголовок третьего уровня"
+  separator: Разделитель
+  separatorDescription: 'Разделитель создаётся тремя или более символами -'
+  separatorSyntax: '---'
+  syntax: Синтаксис
+
+forum:
+  recent: Недавние
+  category: Категория
+  lastReply: Последний ответ
+  sitewide:
+    badge: По всему сайту
+    title: Объявление для всего сайта
+    readMore: Подробнее
+  errors:
+    pleaseSelectCategory: Выберите категорию
+    threadLocked: Эта тема закрыта, ответить нельзя
+  createPost: Создать публикацию
+  title: Заголовок
+  enterTitle: Введите заголовок
+  content: Содержание
+  enterContent: Введите содержание
+  writeYourContentHere: Напишите здесь свой текст...
+  posts: Публикации
+  threads: Темы
+  forum: Форум
+  createThread: Создать тему
+  selectCategory: Выберите категорию
+  cooldownRemaining: 'Осталось ждать: ${minutes} мин ${seconds} с'
+  groups:
+    administration: Администрация
+    global: Глобальный
+    chinese: Китайский
+    japanese: Японский
+    korean: Корейский
+    other: Другое
+  leafNames:
+    announcements: Объявления
+    feedback: Отзывы
+    support: Поддержка
+    general: Общее
+    guides: Руководства
+    questions: Вопросы
+    requests: Запросы
+    sharing: Обмен
+    'general_zh': Общее
+    'questions_zh': Вопросы
+    'requests_zh': Запросы
+    'support_zh': Поддержка
+    'general_ja': Общее
+    'questions_ja': Вопросы
+    'requests_ja': Запросы
+    'support_ja': Поддержка
+    korean: Корейский
+    other: Прочее
+  leafDescriptions:
+    announcements: Официальные важные уведомления и объявления
+    feedback: Отзывы о функциях и сервисах сайта
+    support: Помощь в решении проблем, связанных с сайтом
+    general: Обсуждение любых тем
+    guides: Делитесь опытом и руководствами
+    questions: Задавайте свои вопросы
+    requests: Публикуйте свои запросы
+    sharing: Делитесь интересным контентом
+    'general_zh': Обсуждение любых тем
+    'questions_zh': Задавайте свои вопросы
+    'requests_zh': Публикуйте свои запросы
+    'support_zh': Помощь в решении проблем, связанных с сайтом
+    'general_ja': Обсуждение любых тем
+    'questions_ja': Задавайте свои вопросы
+    'requests_ja': Публикуйте свои запросы
+    'support_ja': Помощь в решении проблем, связанных с сайтом
+    korean: Обсуждения, связанные с корейским
+    other: Прочий неклассифицированный контент
+  reply: Ответить
+  pendingReview: На рассмотрении
+  editedAt: Дата изменения
+  copySuccess: Скопировано в буфер обмена
+  copySuccessForMessage: 'Скопировано в буфер обмена: ${str}'
+  editReply: Изменить ответ
+  editTitle: Изменить заголовок
+  submit: Отправить
+
+notifications:
+  errors:
+    unsupportedNotificationType: Неподдерживаемый тип уведомления
+    unknownUser: Неизвестный пользователь
+    unsupportedNotificationTypeWithType: 'Неподдерживаемый тип уведомления: ${type}'
+    unknownNotificationType: Неизвестный тип уведомления
+  notifications: Уведомления
+  profile: Профиль
+  postedNewComment: Опубликован новый комментарий
+  inYour: В вашем
+  video: Видео
+  repliedYourVideoComment: Ответил(а) на ваш комментарий к видео
+  copyInfoToClipboard: Скопировать информацию об уведомлении в буфер обмена
+  copySuccess: Скопировано в буфер обмена
+  copySuccessForMessage: 'Скопировано в буфер обмена: ${str}'
+  markAllAsRead: Отметить всё как прочитанное
+  markAllAsReadSuccess: Все уведомления отмечены как прочитанные
+  markAllAsReadFailed: Не удалось отметить всё как прочитанное
+  markSelectedAsRead: Отметить выбранные как прочитанные
+  markSelectedAsReadSuccess: Выбранные уведомления отмечены как прочитанные
+  markSelectedAsReadFailed: Не удалось отметить выбранные как прочитанные
+  markAsRead: Отметить как прочитанное
+  markAsReadSuccess: Уведомление отмечено как прочитанное
+  markAsReadFailed: Не удалось отметить уведомление как прочитанное
+  notificationTypeHelp: Справка по типам уведомлений
+  dueToLackOfNotificationTypeDetails: Из-за отсутствия подробностей о типе уведомления поддерживаемые типы могут не охватывать получаемые вами сообщения
+  helpUsImproveNotificationTypeSupport: Если вы хотите помочь нам улучшить поддержку типов уведомлений
+  helpUsImproveNotificationTypeSupportLongText: "1. 📋 Скопируйте информацию об уведомлении\n2. 🐞 Создайте задачу в репозитории проекта\n\n⚠️ Примечание: информация об уведомлении может содержать личные данные; если вы не хотите публиковать её, можно отправить автору проекта по электронной почте."
+  goToRepository: Перейти в репозиторий
+  copy: Копировать
+  commentApproved: Комментарий одобрен
+  repliedYourProfileComment: Ответил(а) на ваш комментарий в профиле
+  kReplied: ответил(а) на ваш комментарий в
+  kCommented: оставил(а) комментарий к вашему
+  kVideo: видео
+  kGallery: галерее
+  kProfile: профиле
+  kThread: теме
+  kPost: публикации
+  kCommentSection: раздел комментариев
+  kApprovedComment: Комментарий одобрен
+  kApprovedVideo: Видео одобрено
+  kApprovedGallery: Галерея одобрена
+  kApprovedThread: Тема одобрена
+  kApprovedPost: Публикация одобрена
+  kApprovedForumPost: Публикация на форуме одобрена
+  kRejectedContent: Контент отклонён модерацией
+  kUnknownType: Неизвестный тип уведомления
+
+conversation:
+  errors:
+    pleaseSelectAUser: Выберите пользователя
+    pleaseEnterATitle: Введите заголовок
+    clickToSelectAUser: Нажмите, чтобы выбрать пользователя
+    loadFailedClickToRetry: Ошибка загрузки, нажмите для повтора
+    loadFailed: Ошибка загрузки
+    clickToRetry: Нажмите, чтобы повторить
+    noMoreConversations: Больше нет бесед
+  conversation: Беседа
+  startConversation: Начать беседу
+  noConversation: Нет бесед
+  selectFromLeftListAndStartConversation: Выберите пользователя из списка слева и начните беседу
+  title: Заголовок
+  body: Текст
+  selectAUser: Выберите пользователя
+  searchUsers: Поиск пользователей...
+  tmpNoConversions: Нет бесед
+  deleteThisMessage: Удалить это сообщение
+  deleteThisMessageSubtitle: Это действие нельзя отменить
+  writeMessageHere: Введите сообщение...
+  lastMessageFromMe: "Вы: "
+  sendMessage: Отправить сообщение
+
+splash:
+  errors:
+    initializationFailed: Ошибка инициализации, перезапустите приложение
+  preparing: Подготовка...
+  initializing: Инициализация...
+  loading: Загрузка...
+  ready: Готово
+  initializingMessageService: Инициализация службы сообщений...
+
+
+download:
+  errors:
+    imageModelNotFound: Модель изображения не найдена
+    downloadFailed: Ошибка загрузки
+    videoInfoNotFound: Информация о видео не найдена
+    downloadTaskAlreadyExists: Задача загрузки уже существует
+    downloadTaskSavePathConflict: Путь сохранения уже используется другой задачей
+    videoAlreadyDownloaded: Видео уже скачано
+    downloadFailedForMessage: 'Не удалось добавить задачу загрузки: ${errorInfo}'
+    userPausedDownload: Загрузка приостановлена пользователем
+    unknown: Неизвестно
+    fileSystemError: 'Ошибка файловой системы: ${errorInfo}'
+    unknownError: 'Неизвестная ошибка: ${errorInfo}'
+    writeFileFailedForMessage: 'Не удалось записать файл: ${errorInfo}'
+    connectionTimeout: Тайм-аут подключения
+    sendTimeout: Тайм-аут отправки
+    receiveTimeout: Тайм-аут приёма
+    serverError: 'Ошибка сервера: ${errorInfo}'
+    unknownNetworkError: Неизвестная сетевая ошибка
+    sslHandshakeFailed: Ошибка SSL-рукопожатия, проверьте сеть
+    connectionFailed: Не удалось подключиться, проверьте сеть
+    serviceIsClosing: Служба загрузки закрывается
+    partialDownloadFailed: Не удалось загрузить часть содержимого
+    noDownloadTask: Нет задачи загрузки
+    taskNotFoundOrDataError: Задача не найдена или ошибка данных
+    fileNotFound: Файл не найден
+    openFolderFailed: Не удалось открыть папку
+    copyDownloadUrlFailed: 'Не удалось скопировать ссылку загрузки'
+    openFolderFailedWithMessage: 'Не удалось открыть папку: ${message}'
+    directoryNotFound: Каталог не найден
+    copyFailed: Не удалось скопировать
+    openFileFailed: Не удалось открыть файл
+    openFileFailedWithMessage: 'Не удалось открыть файл: ${message}'
+    playLocallyFailed: Не удалось воспроизвести локально
+    playLocallyFailedWithMessage: 'Не удалось воспроизвести локально: ${message}'
+    noDownloadSource: Нет источника загрузки
+    noDownloadSourceNowPleaseWaitInfoLoaded: Нет источника загрузки, дождитесь завершения загрузки информации и повторите попытку
+    noActiveDownloadTask: Нет активных задач загрузки
+    noFailedDownloadTask: Нет неудачных задач загрузки
+    noCompletedDownloadTask: Нет завершённых задач загрузки
+    taskAlreadyCompletedDoNotAdd: Задача уже завершена, не добавляйте её снова
+    linkExpiredTryAgain: Ссылка устарела, получение новой ссылки загрузки
+    linkExpiredTryAgainSuccess: Ссылка устарела, новая ссылка загрузки успешно получена
+    linkExpiredTryAgainFailed: Ссылка устарела, не удалось получить новую ссылку загрузки
+    taskDeleted: Задача удалена
+    unsupportedImageFormat: 'Неподдерживаемый формат изображения: ${format}'
+    deleteFileError: 'Не удалось удалить файл, возможно, он используется другим процессом'
+    deleteTaskError: 'Не удалось удалить задачу'
+    canNotRefreshVideoTask: 'Не удалось обновить задачу видео'
+    videoRemovedCanNotRefresh: 'Видео удалено или больше не существует, поэтому ссылку загрузки нельзя обновить'
+    videoInaccessibleCanNotRefresh: 'Это видео недоступно: возможно, оно приватное или нужно войти заново'
+    videoQualityGone: 'Это качество больше не доступно, добавьте загрузку снова'
+    refreshLinkNetworkFailed: 'Ошибка сети: сейчас не удаётся обновить ссылку загрузки, повторите попытку позже'
+    taskAlreadyProcessing: 'Задача уже обрабатывается'
+    taskNotFound: 'Задача не найдена'
+    failedToLoadTasks: 'Не удалось загрузить задачи'
+    partialDownloadFailedWithMessage: 'Ошибка частичной загрузки: ${message}'
+    unsupportedImageFormatWithMessage: 'Неподдерживаемый формат изображения: ${extension}. Попробуйте скачать его на устройство для просмотра'
+    imageLoadFailed: 'Не удалось загрузить изображение'
+    pleaseTryOtherViewer: 'Попробуйте открыть в другом просмотрщике'
+  downloadList: Список загрузок
+  viewDownloadList: Открыть список загрузок
+  download: Скачать
+  selectDownloadTitle: Выбор загрузки
+  qualitySectionLabel: Качество
+  saveToSectionLabel: Сохранить в
+  lastUsedBadge: Недавно использованное
+  pickedBadge: Выбрано
+  startDownloading: Начать загрузку
+  clearAllFailedTasks: Очистить все неудачные задачи
+  clearAllFailedTasksConfirmation: 'Вы уверены, что хотите очистить все неудачные задачи загрузки? Файлы этих задач также будут удалены.'
+  clearAllFailedTasksSuccess: Все неудачные задачи очищены
+  clearAllFailedTasksError: Произошла ошибка при очистке неудачных задач
+  downloadStatus: Статус загрузки
+  imageList: Список изображений
+  retryDownload: Повторить загрузку
+  notDownloaded: Не скачано
+  downloaded: Скачано
+  waitingForDownload: Ожидание загрузки
+  downloadingProgressForImageProgress: 'Загрузка (${downloaded}/${total} изображений, ${progress}%)'
+  downloadingSingleImageProgress: 'Загрузка (${downloaded} изображений)'
+  pausedProgressForImageProgress: 'Приостановлено (${downloaded}/${total} изображений, ${progress}%)'
+  pausedSingleImageProgress: 'Приостановлено (${downloaded} изображений)'
+  downloadedProgressForImageProgress: 'Скачано (всего изображений: ${total})'
+  viewVideoDetail: Открыть детали видео
+  viewGalleryDetail: Открыть детали галереи
+  moreOptions: Дополнительно
+  openFile: Открыть файл
+  playLocally: Воспроизвести локально
+  pause: Пауза
+  resume: Продолжить
+  copyDownloadUrl: Копировать ссылку загрузки
+  showInFolder: Показать в папке
+  deleteTask: Удалить задачу
+  deleteTaskConfirmation: "Вы уверены, что хотите удалить эту задачу загрузки?\nФайл задачи также будет удалён."
+  forceDeleteTask: Принудительно удалить задачу
+  forceDeleteTaskConfirmation: "Вы уверены, что хотите принудительно удалить эту задачу загрузки?\nФайл задачи также будет удалён, даже если он используется."
+  downloadingProgressForVideoTask: 'Загрузка ${downloaded}/${total} (${progress}%) • ${speed} МБ/с'
+  downloadingOnlyDownloadedAndSpeed: 'Загрузка ${downloaded} • ${speed} МБ/с'
+  pausedForDownloadedAndTotal: 'Приостановлено ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'Приостановлено • скачано ${downloaded}'
+  downloadedWithSize: 'Скачано • ${size}'
+  copyDownloadUrlSuccess: 'Ссылка загрузки скопирована'
+  totalImageNums: 'Изображений: ${num}'
+  downloadingDownloadedTotalProgressSpeed: 'Загрузка ${downloaded}/${total} (${progress}%) • ${speed} МБ/с'
+  downloading: Загрузка
+  failed: Ошибка
+  completed: Завершено
+  downloadDetail: Детали загрузки
+  copy: Копировать
+  copySuccess: Скопировано
+  waiting: Ожидание
+  paused: Приостановлено
+  downloadingOnlyDownloaded: 'Загрузка ${downloaded}'
+  galleryDownloadCompletedWithName: 'Загрузка галереи завершена: ${galleryName}'
+  downloadCompletedWithName: 'Загрузка завершена: ${fileName}'
+  searchTasks: Поиск задач...
+  statusLabel: 'Статус: ${label}'
+  allStatus: Все статусы
+  typeLabel: 'Тип: ${label}'
+  allTypes: Все типы
+  taskType: Тип
+  video: Видео
+  gallery: Галерея
+  other: Другое
+  clearFilters: Сбросить фильтры
+  pauseAll: Приостановить все
+  resumeAll: Запустить все
+  errorTypes:
+    network: Проблема с сетью, повтор может помочь
+    serverRejected: Отклонено сервером, возможно, нужно войти заново
+    notFound: Ресурс отсутствует или был удалён
+    diskFull: Недостаточно места для хранения
+    fileInUse: Файл используется другой программой
+    permission: Нет разрешения на запись
+    cancelled: Отменено
+    unknown: Неизвестная ошибка
+  errorDetailCopied: Детали ошибки скопированы
+  errorDetailCopyHint: Нажмите и удерживайте, чтобы скопировать детали ошибки
+  restoredPaused:
+    banner: 'Незавершённые задачи из прошлого сеанса (${num}) были приостановлены'
+    resume: Возобновить все
+    dismiss: Закрыть
+  emptyTaskList: Пока нет задач загрузки
+  noMatchingTasks: Нет подходящих задач
+  deleteByDate:
+    menuTitle: Удаление по дате
+    dialogTitle: Удаление по дате
+    description: 'Массовое удаление задач загрузки по дате создания. Задачи с используемыми файлами пропускаются; задачи с отсутствующими файлами очищаются.'
+    modeRange: Диапазон дат
+    modeDays: Старше
+    startDate: Дата начала
+    endDate: Дата окончания
+    notSet: Не задано
+    daysUnit: дн.
+    olderThanDaysHint: 'Удалить задачи, созданные более ${days} дн. назад'
+    noMatch: Нет задач, соответствующих выбранному условию
+    invalidRange: Дата начала должна быть не позже даты окончания
+    confirmTitle: Подтвердите удаление
+    confirmContent: 'Удалить задач загрузки (${count}) и их файлы? Это действие нельзя отменить.'
+    deleting: 'Удаление ${done}/${total}…'
+    resultSuccess: 'Удалено задач: ${count}'
+    resultPartial: 'Удалено задач: ${deleted}; пропущено: ${skipped} (используются)'
+  category:
+    manageTitle: Управление категориями
+    label: Категории
+    uncategorized: Без категории
+    manage: Управление
+    createShortcut: Новая
+    newCategoryHint: Название новой категории
+    createSuccess: Категория создана
+    createFailed: Не удалось создать категорию
+    nameEmpty: Название категории не может быть пустым
+    emptyHint: Пока нет категорий. Создайте категорию для упорядочивания загрузок.
+    moveTo: Переместить в категорию
+    moveToWithCount: 'Переместить элементов (${count}) в…'
+    moveSuccess: 'Перемещено в ${title}'
+    moveToUncategorizedSuccess: Перемещено в «Без категории»
+    moveFailed: Не удалось переместить
+    renameTitle: Переименовать категорию
+    renameHint: Введите название категории
+    renameSuccess: Категория переименована
+    renameFailed: Не удалось переименовать категорию
+    deleteTitle: Удалить категорию
+    deleteConfirm: 'Удалить категорию «${title}»? Элементы (${count}) перейдут в «Без категории». Файлы не удаляются.'
+    deleteSuccess: Категория удалена
+    deleteFailed: Не удалось удалить категорию
+  maxConcurrentDownloads: Макс. одновременных загрузок
+  maxConcurrentDownloadsDesc: 'Число задач, загружаемых одновременно (1–5)'
+  stillInDevelopment: Всё ещё в разработке
+  saveToAppDirectory: Сохранить в каталог приложения
+  alreadyDownloadedWithQuality: 'Уже скачано в том же качестве. Продолжить загрузку?'
+  alreadyDownloadedWithQualities: 'Уже скачано в качестве: ${qualities}. Продолжить загрузку?'
+  otherQualities: Другое качество
+  batchDownload:
+    title: Пакетная загрузка
+    downloadTaskAlreadyRunning: Задача уже выполняется, подождите.
+    userCancelled: Отменено пользователем
+    failedToGetVideoInfo: Не удалось получить информацию о видео
+    failedToGetVideoSource: Не удалось получить источник видео
+    failedToGetGalleryInfo: Не удалось получить информацию о галерее
+    galleryNoImages: В галерее нет изображений
+    failedToGetSavePath: Не удалось получить путь сохранения
+    batchDownloadFailedWithException(exception): 'Ошибка пакетной загрузки: ${exception}'
+    selectQuality: Выберите качество
+    downloading: Загрузка
+    downloadResult: Результат загрузки
+    selectedVideosCount(count): 'Выбрано видео: ${count}'
+    selectedGalleriesCount(count): 'Выбрано галерей: ${count}'
+    qualityNote: Если выбранное качество недоступно, будет использовано лучшее доступное
+    progress(current, total): 'Обработка ${current}/${total}'
+    queued: В очереди
+    success: Успешно
+    skipped: Пропущено
+    failed: Ошибка
+    failureDetails: Детали ошибок
+    reasonPrivateVideo: Приватное видео
+    reasonAlreadyExists: Уже существует
+    reasonNoSource: Нет источника загрузки
+    reasonNoSavePath: Не удаётся получить путь сохранения
+    reasonOther: Другая ошибка
+    startDownload: Начать загрузку
+
+downloadNotifications:
+  completedTitle: Загрузка завершена
+  failedTitle: Ошибка загрузки
+  completedBody: 'Загрузка ${name} успешно завершена'
+  failedBody: 'Не удалось скачать ${name}'
+  completedToast: '${name} скачан'
+  failedToast: 'Ошибка загрузки ${name}'
+  channelName: Статус загрузки
+  channelDescription: Уведомления о завершённых и неудачных загрузках
+
+favorite:
+  errors:
+    addFailed: Не удалось добавить
+    addSuccess: Добавлено
+    deleteFolderFailed: Не удалось удалить папку
+    deleteFolderSuccess: Папка удалена
+    folderNameCannotBeEmpty: Название папки не может быть пустым
+  add: Добавить
+  addSuccess: Добавлено
+  addFailed: Не удалось добавить
+  remove: Убрать
+  removeSuccess: Убрано
+  removeFailed: Не удалось убрать
+  removeConfirmation: 'Вы уверены, что хотите убрать этот элемент из избранного?'
+  removeConfirmationSuccess: 'Элемент убран из избранного'
+  removeConfirmationFailed: 'Не удалось убрать элемент из избранного'
+  createFolderSuccess: 'Папка успешно создана'
+  createFolderFailed: 'Не удалось создать папку'
+  createFolder: Создать папку
+  enterFolderName: Введите название папки
+  enterFolderNameHere: Введите название папки...
+  create: Создать
+  items: Элементы
+  newFolderName: Новая папка
+  searchFolders: Поиск папок...
+  searchItems: Поиск элементов...
+  createdAt: Дата создания
+  myFavorites: Моё избранное
+  deleteFolderTitle: Удалить папку
+  deleteFolderConfirmWithTitle: 'Вы уверены, что хотите удалить папку ${title}?'
+  removeItemTitle: Убрать элемент
+  removeItemConfirmWithTitle: 'Вы уверены, что хотите удалить элемент ${title}?'
+  removeItemSuccess: Элемент убран из избранного
+  removeItemFailed: Не удалось убрать элемент из избранного
+  localizeFavorite: Локальное избранное
+  editFolderTitle: Изменить папку
+  editFolderSuccess: Папка успешно обновлена
+  editFolderFailed: Не удалось обновить папку
+  searchTags: Поиск тегов
+  noTagsInFolder: В этой папке пока нет тегов у элементов
+  tagFilterMatchAll: Показывает только элементы со всеми выбранными тегами
+  clearSelectedTags: Сбросить выбранные теги
+  selectedTagCount: "Выбрано: ${count}"
+  noMatchingTags: Нет подходящих тегов
+
+translation:
+  currentService: Текущий сервис
+  testConnection: Проверить подключение
+  testConnectionSuccess: Подключение успешно проверено
+  testConnectionFailed: Проверка подключения не пройдена
+  testConnectionFailedWithMessage: 'Проверка подключения не пройдена: ${message}'
+  translation: Перевод
+  needVerification: Требуется проверка
+  needVerificationContent: Перед включением AI-перевода сначала проверьте подключение
+  confirm: Подтвердить
+  disclaimer: Отказ от ответственности
+  riskWarning: Предупреждение о рисках
+  dureToRisk1: 'Поскольку текст создаётся пользователями, он может содержать контент, нарушающий политику контента поставщика AI-услуг'
+  dureToRisk2: 'Неприемлемый контент может привести к приостановке ключа API или прекращению обслуживания'
+  operationSuggestion: Рекомендации по использованию
+  operationSuggestion1: '1. Используйте перед строгой проверкой переводимого контента'
+  operationSuggestion2: '2. Избегайте перевода контента, связанного с насилием, взрослым контентом и т. п.'
+  apiConfig: Конфигурация API
+  modifyConfigWillAutoCloseAITranslation: 'Изменение конфигурации автоматически отключит AI-перевод; после включения потребуется пройти тест заново'
+  apiAddress: Адрес API
+  modelName: Название модели
+  modelNameHintText: 'Например: gpt-4-turbo'
+  maxTokens: Макс. токенов
+  maxTokensHintText: 'Например: 32000'
+  temperature: Температура
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'Нажмите кнопку теста, чтобы проверить доступность подключения к API'
+  requestPreview: Предпросмотр запроса
+  enableAITranslation: Включить AI
+  enabled: Включено
+  disabled: Отключено
+  testing: Проверка...
+  testNow: Проверить сейчас
+  connectionStatus: Статус подключения
+  success: Успешно
+  failed: Не удалось
+  information: Информация
+  viewRawResponse: Просмотреть исходный ответ
+  pleaseCheckInputParametersFormat: Проверьте формат входных параметров
+  pleaseFillInAPIAddressModelNameAndKey: Заполните адрес API, название модели и ключ
+  pleaseFillInValidConfigurationParameters: Заполните корректные параметры конфигурации
+  pleaseCompleteConnectionTest: Пройдите тест подключения
+  notConfigured: Не настроено
+  apiEndpoint: Конечная точка API
+  configuredKey: Настроенный ключ
+  notConfiguredKey: Ключ не настроен
+  authenticationStatus: Статус аутентификации
+  thisFieldCannotBeEmpty: Это поле не может быть пустым
+  apiKey: Ключ API
+  apiKeyCannotBeEmpty: Ключ API не может быть пустым
+  pleaseEnterValidNumber: Введите корректное число
+  range: Диапазон
+  mustBeGreaterThan: Должно быть больше
+  invalidAPIResponse: Некорректный ответ API
+  connectionFailedForMessage: 'Не удалось подключиться: ${message}'
+  aiTranslationNotEnabledHint: AI-перевод не включён, включите его в настройках
+  goToSettings: Перейти в настройки
+  disableAITranslation: Отключить AI-перевод
+  currentValue: Текущее значение
+  configureTranslationStrategy: Настройте стратегию перевода
+  advancedSettings: "Расширенные настройки"
+  translationPrompt: "Подсказка перевода"
+  promptHint: "Введите подсказку перевода, используйте [TL] как заполнитель для целевого языка"
+  promptHelperText: "Подсказка должна содержать [TL] как заполнитель для целевого языка"
+  promptMustContainTargetLang: "Подсказка должна содержать заполнитель [TL]"
+  aiTranslationWillBeDisabled: "AI-перевод будет отключён"
+  aiTranslationWillBeDisabledDueToConfigChange: "Из-за изменения базовой конфигурации AI-перевод будет отключён"
+  aiTranslationWillBeDisabledDueToPromptChange: "Из-за изменения подсказки перевода AI-перевод будет отключён"
+  aiTranslationWillBeDisabledDueToParamChange: "Из-за изменения параметров конфигурации AI-перевод будет отключён"
+  onlyOpenAIAPISupported: "Сейчас поддерживается только OpenAI-совместимый формат API (тело запроса application/json)"
+  streamingTranslation: "Потоковый перевод"
+  streamingTranslationSupported: "Потоковый перевод поддерживается"
+  streamingTranslationNotSupported: "Потоковый перевод не поддерживается"
+  streamingTranslationDescription: "Потоковый перевод отображает результаты в реальном времени в процессе перевода, обеспечивая лучший пользовательский опыт"
+  usingFullUrlWithHash: "Используется полный URL (заканчивающийся на #)"
+  baseUrlInputHelperText: "Если заканчивается на #, будет использоваться как фактический адрес запроса"
+  currentActualUrl: "Текущий фактический URL: ${url}"
+  urlEndingWithHashTip: "URL, заканчивающийся на #, будет использоваться напрямую без добавления суффикса"
+  streamingTranslationWarning: "Примечание: для этой функции требуется поддержка потоковой передачи со стороны API-сервиса; некоторые модели могут её не поддерживать"
+  # Translation Service Selection
+  translationService: Сервис перевода
+  translationServiceDescription: Выберите предпочитаемый сервис перевода
+  googleTranslation: Перевод Google
+  googleTranslationDescription: Бесплатный онлайн-сервис перевода с поддержкой множества языков
+  aiTranslation: AI-перевод
+  aiTranslationDescription: Интеллектуальный сервис перевода на основе больших языковых моделей
+  deeplxTranslation: Перевод DeepLX
+  deeplxTranslationDescription: Открытая реализация перевода DeepL, обеспечивающая высокое качество перевода
+  # Google Translation
+  googleTranslationFeatures: Возможности
+  freeToUse: Бесплатно
+  freeToUseDescription: Настройка не требуется, готово к использованию
+  fastResponse: Быстрый отклик
+  fastResponseDescription: Высокая скорость перевода с низкой задержкой
+  stableAndReliable: Стабильно и надёжно
+  stableAndReliableDescription: На основе официального API Google
+  enabledDefaultService: Включено — сервис перевода по умолчанию
+  notEnabled: Не включено
+  # DeepLX Translation
+  deeplxTranslationService: Сервис перевода DeepLX
+  deeplxDescription: DeepLX — это открытая реализация перевода DeepL, поддерживающая режимы конечных точек Free, Pro и Official
+  serverAddress: Адрес сервера
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: Базовый адрес сервера DeepLX
+  endpointType: Тип конечной точки
+  freeEndpoint: Free — бесплатная конечная точка, возможны ограничения частоты
+  proEndpoint: Pro — требуется dl_session, более стабильно
+  officialEndpoint: Official — официальный формат API
+  finalRequestUrl: Итоговый URL запроса
+  apiKeyOptional: Ключ API (необязательно)
+  apiKeyOptionalHint: Для доступа к защищённым сервисам DeepLX
+  apiKeyOptionalHelperText: Некоторые сервисы DeepLX требуют ключ API для аутентификации
+  dlSession: DL Session
+  dlSessionHint: Параметр dl_session необходим для режима Pro
+  dlSessionHelperText: Параметр сессии, необходимый для конечной точки Pro; получается в аккаунте DeepL Pro
+  proModeRequiresDlSession: Для режима Pro требуется dl_session
+  clickTestButtonToVerifyDeepLXAPI: Нажмите кнопку теста, чтобы проверить подключение к API DeepLX
+  enableDeepLXTranslation: Включить перевод DeepLX
+  deepLXTranslationWillBeDisabled: Перевод DeepLX будет отключён из-за изменений конфигурации
+  translatedResult: Результат перевода
+  # Translation Service Messages
+  testSuccess: Тест пройден
+  pleaseFillInDeepLXServerAddress: Заполните адрес сервера DeepLX
+  invalidAPIResponseFormat: Некорректный формат ответа API
+  translationServiceReturnedError: Сервис перевода вернул ошибку или пустой результат
+  connectionFailed: Не удалось подключиться
+  # Translation Service Log Messages
+  translationFailed: Перевод не выполнен
+  aiTranslationFailed: AI-перевод не выполнен
+  deeplxTranslationFailed: Перевод DeepLX не выполнен
+  aiTranslationTestFailed: Тест AI-перевода не пройден
+  deeplxTranslationTestFailed: Тест перевода DeepLX не пройден
+  streamingTranslationTimeout: Тайм-аут потокового перевода, принудительная очистка ресурсов
+  translationRequestTimeout: Тайм-аут запроса перевода
+  streamingTranslationDataTimeout: Тайм-аут приёма данных потокового перевода
+  dataReceptionTimeout: Тайм-аут приёма данных
+  streamDataParseError: Ошибка разбора потоковых данных
+  streamingTranslationFailed: Потоковый перевод не выполнен
+  fallbackTranslationFailed: Резервный обычный перевод также не удался
+  translationSettings: Настройки перевода
+  enableGoogleTranslation: Включить перевод Google
+  # Modern AI adaptation
+  thinking: Размышление...
+  thoughtProcess: Процесс рассуждения
+  modelCompatibility: Совместимость моделей
+  modelCompatibilityDescription: Адаптирует параметры запроса для современных моделей, таких как модели рассуждения (o1/o3, DeepSeek-R1, QwQ)
+  reasoningModel: Модель рассуждений
+  reasoningModelDescription: Для o1/o3, DeepSeek-R1, QwQ и др. Объединяет подсказку с сообщением пользователя, пропускает temperature и использует max_completion_tokens
+  useMaxCompletionTokens: Использовать max_completion_tokens
+  useMaxCompletionTokensDescription: Новые конечные точки OpenAI требуют max_completion_tokens вместо устаревшего max_tokens
+  sendTemperature: Отправлять temperature
+  sendTemperatureDescription: Отключите для моделей, отвергающих параметр temperature (большинство моделей рассуждений)
+  showReasoningProcess: Показывать процесс рассуждения
+  showReasoningProcessDescription: Показывать сворачиваемые рассуждения моделей рассуждений в диалоге перевода
+  provider: Провайдер
+  providerOpenAI: OpenAI (и совместимые)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "Поддерживаются OpenAI (и любая OpenAI-совместимая конечная точка), Anthropic и Google через SDK dartantic_ai"
+  baseUrlOptionalHelperText: "Необязательно. Оставьте пустым, чтобы использовать конечную точку провайдера по умолчанию; заполните для OpenAI-совместимых/промежуточных точек"
+  defaultEndpoint: Конечная точка по умолчанию
+  providerPreset: Пресет провайдера
+  selectProviderPreset: Выберите пресет
+  presetCustom: Пользовательский
+  presetApplied: 'Пресет применён: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI Рассуждение (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude Рассуждение (расширенное мышление)
+    gemini: Google Gemini (нативно)
+    geminiReasoning: Google Gemini Рассуждение (мышление)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek Рассуждение (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
+  fetchModelList: Получить список моделей
+  fetchingModels: Получение...
+  selectModel: Выберите модель
+  searchModel: Поиск модели
+  noModelsFound: Модели не найдены
+
+# Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: Видео
+  gallery: Фото
+  subscription: Лента
+  community: Форум
+  localMedia: Файлы
+
+navigationOrderSettings:
+  title: Настройки порядка навигации
+  customNavigationOrder: Свой порядок навигации
+  customNavigationOrderDesc: Перетащите, чтобы изменить порядок отображения страниц на нижней панели навигации и в боковом меню
+  restartRequired: Требуется перезапуск приложения
+  navigationItemSorting: Сортировка элементов навигации
+  done: Готово
+  edit: Изменить
+  reset: Сбросить
+  previewEffect: Предпросмотр
+  bottomNavigationPreview: "Предпросмотр нижней навигации:"
+  sidebarPreview: "Предпросмотр бокового меню:"
+  confirmResetNavigationOrder: Подтвердите сброс порядка навигации
+  confirmResetNavigationOrderDesc: Вы уверены, что хотите сбросить порядок навигации к настройкам по умолчанию?
+  cancel: Отмена
+  show: Показать
+  hide: Скрыть
+  hidden: Скрыто
+  hideHint: Нажмите значок глаза, чтобы показать или скрыть разделы «Сообщество» и локальные файлы
+  # Navigation item descriptions
+  videoDescription: Просматривайте популярный видеоконтент
+  galleryDescription: Просматривайте изображения и галереи
+  subscriptionDescription: Смотрите последний контент от пользователей, на которых вы подписаны
+  forumDescription: Участвуйте в обсуждениях сообщества
+
+  newsDescription: Просматривайте официальные новости, статьи и трансляции
+  communityDescription: Обсуждения на форуме, а также официальные новости, статьи и трансляции
+  localMediaDescription: Просматривайте видео и изображения, хранящиеся на этом устройстве
+
+news:
+  title: Новости
+  newsUpdates: Обновления новостей
+  articles: Статьи
+  broadcast: Трансляция
+  openInBrowser: Открыть в браузере
+
+# Display Settings
+displaySettings:
+  title: Настройки отображения
+  layoutSettings: Настройки макета
+  layoutSettingsDesc: Настройте число столбцов и точки перелома
+  gridLayout: Сетка
+  navigationOrderSettings: Настройки порядка навигации
+  customNavigationOrder: Свой порядок навигации
+  customNavigationOrderDesc: Настройте порядок отображения страниц на нижней панели навигации и в боковом меню
+
+# Layout Settings
+layoutSettings:
+  title: Настройки макета
+  descriptionTitle: Описание настройки макета
+  descriptionContent: Настроенная здесь конфигурация определяет число столбцов на страницах списков видео и галерей. Выберите автоматический режим, чтобы система подстраивалась под ширину экрана, или ручной режим, чтобы зафиксировать число столбцов.
+  layoutMode: Режим макета
+  reset: Сбросить
+  autoMode: Автоматический режим
+  autoModeDesc: Автоматически подстраивается под ширину экрана
+  manualMode: Ручной режим
+  manualModeDesc: Использовать фиксированное число столбцов
+  manualSettings: Ручные настройки
+  fixedColumns: Фиксированные столбцы
+  columns: столбцов
+  breakpointConfig: Настройка точек перелома
+  add: Добавить
+  defaultColumns: Столбцы по умолчанию
+  defaultColumnsDesc: Отображение по умолчанию для больших экранов
+  previewEffect: Предпросмотр
+  screenWidth: Ширина экрана
+  addBreakpoint: Добавить точку перелома
+  editBreakpoint: Изменить точку перелома
+  deleteBreakpoint: Удалить точку перелома
+  screenWidthLabel: Ширина экрана
+  screenWidthHint: 600
+  columnsLabel: Столбцы
+  columnsHint: 3
+  enterWidth: Введите ширину
+  enterValidWidth: Введите корректную ширину
+  widthCannotExceed9999: Ширина не может превышать 9999
+  breakpointAlreadyExists: Точка перелома уже существует
+  enterColumns: Введите число столбцов
+  enterValidColumns: Введите корректное число столбцов
+  columnsCannotExceed12: Число столбцов не может превышать 12
+  breakpointConflict: Точка перелома уже существует
+  confirmResetLayoutSettings: Сбросить настройки макета
+  confirmResetLayoutSettingsDesc: "Вы уверены, что хотите сбросить все настройки макета до значений по умолчанию?\n\nБудет восстановлено:\n• Автоматический режим\n• Конфигурация точек перелома по умолчанию"
+  resetToDefaults: Сбросить к значениям по умолчанию
+  confirmDeleteBreakpoint: Удалить точку перелома
+  confirmDeleteBreakpointDesc: Вы уверены, что хотите удалить точку перелома ${width}px?
+  noCustomBreakpoints: Нет пользовательских точек перелома, используются столбцы по умолчанию
+  breakpointRange: Диапазон точек перелома
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: Изменить
+  delete: Удалить
+  cancel: Отмена
+  save: Сохранить
+
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "Ошибка видеоплеера"
+  videoLoadFailed: "Не удалось загрузить видео"
+  videoCodecNotSupported: "Видеокодек не поддерживается"
+  networkConnectionIssue: "Проблема с подключением к сети"
+  insufficientPermission: "Недостаточно прав"
+  unsupportedVideoFormat: "Неподдерживаемый формат видео"
+  retry: "Повторить"
+  externalPlayer: "Внешний плеер"
+  detailedErrorInfo: "Подробная информация об ошибке"
+  format: "Формат"
+  suggestion: "Рекомендация"
+  androidWebmCompatibilityIssue: "Устройства Android ограниченно поддерживают формат WEBM. Рекомендуется использовать внешний плеер или скачать приложение-плеер с поддержкой WEBM"
+  currentDeviceCodecNotSupported: "Текущее устройство не поддерживает кодек для этого формата видео"
+  checkNetworkConnection: "Проверьте подключение к сети и повторите попытку"
+  appMayLackMediaPermission: "Возможно, у приложения нет необходимых разрешений на воспроизведение медиа"
+  tryOtherVideoPlayer: "Попробуйте использовать другой видеоплеер"
+  unrecognizedVideoFormat: "Нераспознанный видеофайл"
+  unrecognizedVideoFormatSuggestion: "Возможно, ссылка устарела или ответ не является видео. Повторите попытку или откройте в другом приложении."
+  accessDenied: "Сервер отклонил этот запрос (403)"
+  accessDeniedSuggestion: "Ссылка для воспроизведения, скорее всего, устарела. Нажмите «Повторить», чтобы получить её заново, или откройте в другом приложении."
+  mute: "Без звука"
+  unmute: "Включить звук"
+  video: "ВИДЕО"
+  # CDN Server Selection
+  serverSelector: Выбор CDN-сервера
+  serverSelectorDescription: Выберите сервер с наименьшей задержкой для наилучшего воспроизведения
+  retestSpeed: Повторить тест скорости
+  waitingForSpeedTest: Ожидание теста скорости
+  testingSpeed: Проверка скорости...
+  testFailed: Тест не пройден
+  loadingServerList: Загрузка списка серверов...
+  noAvailableServers: Нет доступных серверов
+  refreshServerList: Обновить список серверов
+  cannotGetSource: Не удаётся получить источник текущего видео
+  switchedToServer: "Переключено на сервер: ${serverName}"
+  serverCount: "Всего серверов: ${count}"
+  statusCode: "Код состояния: ${code}"
+  connectionFailed: Не удалось подключиться
+  connectionTimeout: Тайм-аут подключения
+  networkError: Ошибка сети
+  sslError: Ошибка SSL-сертификата
+  testCompleted: Тест завершён
+  # Local video playback
+  local: "Локально"
+  unknown: "Неизвестно"
+  localVideoPathEmpty: "Путь к локальному видео пуст"
+  localVideoFileNotExists: "Локальный видеофайл не существует: ${path}"
+  unableToPlayLocalVideo: "Не удалось воспроизвести локальное видео: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "Перетащите сюда видеофайл для воспроизведения"
+  supportedFormats: "Поддерживаемые форматы: MP4, MKV, AVI, MOV, WEBM и др."
+  noSupportedVideoFile: "Поддерживаемый видеофайл не найден"
+
+  # Custom runtime messages
+  retryingOpenVideoLink: "Не удалось открыть ссылку на видео, повторная попытка"
+  decoderOpenFailedWithSuggestion: "Не удалось загрузить декодер: ${event}. Попробуйте переключиться на программное декодирование в настройках плеера и заново открыть страницу"
+  videoLoadErrorWithDetail: "Ошибка загрузки видео: ${event}"
+  playbackFailureDiagnosticsHint: "Обнаружены повторяющиеся сбои воспроизведения. Перейдите в «Настройки» > «Диагностика и обратная связь», чтобы экспортировать логи."
+  openSettingsAction: "Просмотреть"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "Уведомление воспроизведения: ${message}"
+    networkUnstable: "Проверьте сеть; воспроизведение может прерываться"
+    audioTrackUnavailable: "Звук недоступен; видео продолжает воспроизводиться"
+    hardwareDecodeFellBack: "Переключено на программное декодирование; может расходовать больше энергии"
+    videoDecodeProblem: "Попробуйте другое качество; изображение может сбоить"
+    repeatedPlaybackProblems: "Экспортируйте логи, чтобы сообщить о повторяющихся проблемах воспроизведения"
+    issuesSheetTitle: "Проблемы воспроизведения"
+    issueOccurrences: "Произошло раз: ${count}"
+    issueAtPosition: "На ${position}"
+    noIssuesRecorded: "Проблемы не зафиксированы"
+    exportLogsAction: "Экспортировать логи"
+
+  # Image Widget
+  imageLoadFailed: "Не удалось загрузить изображение"
+  unsupportedImageFormat: "Неподдерживаемый формат изображения"
+  tryOtherViewer: "Попробуйте использовать другой просмотрщик"
+
+diagnostics:
+  infoSectionTitle: "Сведения о диагностике"
+  appVersionLabel: "Версия приложения"
+  memoryUsage: "Использование памяти: ${memMB} МБ"
+  deviceInfoUnavailable: "Не удалось получить информацию об устройстве"
+  secureStorageLabel: "Защищённое хранилище"
+  secureStorageHealthy: "Доступно"
+  secureStorageRecovered: "Восстановлено сбросом (прежние данные удалены)"
+  secureStorageUnavailable: "Недоступно (вход сохранён с резервным шифрованием)"
+  secureStoragePlatformOptOut: "Локальное шифрование согласно политике платформы (в macOS системная связка ключей не используется)"
+  secureStorageDualWrite: " (включена защита двойной записью)"
+  schemaHealthLabel: Схема базы данных
+  schemaHealthOk: ОК
+  schemaHealthRepairedNow: Восстановлена защитным механизмом при этом запуске (миграция не сработала)
+  schemaHealthRepairedBefore: Ранее была восстановлена защитным механизмом
+  logPolicySectionTitle: "Политика логов"
+  configServiceUnavailable: "Служба конфигурации не инициализирована. Невозможно изменить политику логов."
+  enableLoggingTitle: "Вести журнал"
+  enableLoggingSubtitle: "Отключите, чтобы прекратить запись новых логов"
+  enableLogPersistenceTitle: "Сохранять логи на диск"
+  enableLogPersistenceSubtitle: "Отключите, чтобы хранить логи только в памяти и прекратить запись на диск"
+  minLogLevelTitle: "Минимальный уровень логов"
+  minLogLevelSubtitle: "Логи ниже этого уровня будут отфильтрованы"
+  maxFileSizeTitle: "Ограничение размера одного файла"
+  maxFileSizeSubtitle: "Ротация при достижении порога"
+  rotatedFileCountTitle: "Число ротируемых файлов основного лога"
+  rotatedFileCountSubtitle: "Число сохраняемых файлов без учёта текущего"
+  hangFileSizeTitle: "Ограничение размера логов зависаний"
+  hangFileSizeSubtitle: "Управляйте ростом файла hang_events"
+  hangRotatedFileCountTitle: "Число ротируемых файлов логов зависаний"
+  hangRotatedFileCountSubtitle: "Управляйте объёмом сохраняемой истории hang_events"
+  healthSectionTitle: "Состояние логов"
+  refreshMetrics: "Обновить метрики"
+  toolsSectionTitle: "Инструменты"
+  privacyNotice: "Логи могут содержать конфиденциальную информацию, например данные аккаунта и параметры запросов. Не публикуйте полные логи в задачах; сначала проверьте их и отправьте по электронной почте."
+  exportLogsTitle: "Экспорт логов"
+  exportLogsSubtitle: "Проверьте личные данные перед отправкой разработчикам"
+  viewLogsTitle: "Просмотр логов"
+  viewLogsSubtitle: "Просмотр логов выполнения в реальном времени"
+  copySupportEmailTitle: "Копировать адрес поддержки"
+  reportIssueTitle: "Сообщить о проблеме"
+  reportIssueSubtitle: "Опишите шаги воспроизведения на GitHub (не прикрепляйте полные логи)"
+  healthSummaryUnavailable: "Данных о состоянии логов пока нет"
+  healthMetricsUnavailable: "Метрики состояния ещё не собраны"
+  healthNoRiskIndicators: "Индикаторов риска не обнаружено"
+  healthAlert:
+    flushFailureTitle: "Сбои сброса на диск"
+    sinkDegradedTitle: "Запись логов деградировала"
+    sinkDegradedDetail: "Файловый приёмник в деградированном состоянии"
+    queueBacklogTitle: "Очередь записи переполнена"
+    queueBacklogDetail: "queueDepth=${queueDepth} (порог=${threshold}, может увеличить использование памяти)"
+    highFlushLatencyTitle: "Высокая задержка сброса"
+    droppedTooManyTitle: "Слишком много потерянных логов"
+    droppedTooManyDetail: "droppedCount=${droppedCount} (порог=${threshold})"
+    rateLimitedTitle: "Сработало ограничение частоты"
+    exportFailedTitle: "Сбои экспорта логов"
+    fileNearLimitTitle: "Файл лога близок к пределу размера"
+    fileNearLimitDetail: "currentFileUsage=${usagePercent}% (высокое давление ротации ввода-вывода)"
+  toast:
+    logServiceNotInitialized: "Служба логов не инициализирована"
+    exportSuccess: "Логи экспортированы. Проверьте личные данные перед отправкой по электронной почте."
+    exportFailed: "Ошибка экспорта: ${error}"
+    supportEmailCopied: "Адрес поддержки скопирован. Вставьте его в почтовый клиент и прикрепите логи."
+  shareSubject: "Диагностические логи LoveIwara (содержат конфиденциальные данные, делитесь осторожно)"
+
+logViewer:
+  title: "Просмотр логов"
+  searchHint: "Поиск по логам..."
+  emptyState: "Нет логов"
+  copiedToClipboard: "Скопировано в буфер обмена"
+
+crashRecoveryDialog:
+  title: "Приложение неожиданно закрылось"
+  description: "Мы обнаружили некорректное завершение в прошлом сеансе. Экспортируйте логи диагностики и отправьте их разработчику по электронной почте, чтобы помочь исправить проблему."
+  previousVersion: "Прошлая версия: ${version}"
+  previousStart: "Прошлый запуск: ${time}"
+  lastException: "Последнее исключение: ${message}"
+  lastHangRecovered: "В прошлый раз было обнаружено зависание интерфейса, и оно было автоматически устранено"
+  lastHangStalled: "В прошлый раз было обнаружено возможное зависание интерфейса длительностью около ${stalledMs} мс"
+  exportGuide: "Перейдите в «Настройки» > «Диагностика и обратная связь» > «Экспорт логов»."
+  privacyHint: "Логи могут содержать личные данные. Проверьте их перед отправкой на адрес:"
+  issueWarning: "Не прикрепляйте полные логи публично в задачах GitHub"
+  acknowledge: "Понятно"
+  supportEmailCopied: "Адрес скопирован"
+
+linkInputDialog:
+  title: "Ввод ссылки"
+  supportedLinksHint: "Поддерживается распознавание нескольких ссылок ${webName} с быстрым переходом на соответствующую страницу в приложении (отделяйте ссылки от другого текста пробелами)"
+  inputHint: "Введите ссылку ${webName}"
+  validatorEmptyLink: "Введите ссылку"
+  validatorNoIwaraLink: "Действительная ссылка ${webName} не обнаружена"
+  multipleLinksDetected: "Обнаружено несколько ссылок, выберите одну:"
+  notIwaraLink: "Недействительная ссылка ${webName}"
+  linkParseError: "Ошибка разбора ссылки: ${error}"
+  unsupportedLinkDialogTitle: "Неподдерживаемая ссылка"
+  unsupportedLinkDialogContent: "Этот тип ссылки нельзя открыть напрямую в приложении, требуется внешний браузер.\n\nОткрыть эту ссылку в браузере?"
+  openInBrowser: "Открыть в браузере"
+  confirmOpenBrowserDialogTitle: "Подтвердите открытие браузера"
+  confirmOpenBrowserDialogContent: "Следующая ссылка будет открыта во внешнем браузере:"
+  confirmContinueBrowserOpen: "Вы уверены, что хотите продолжить?"
+  browserOpenFailed: "Не удалось открыть ссылку"
+  unsupportedLink: "Неподдерживаемая ссылка"
+  cancel: "Отмена"
+  confirm: "Открыть в браузере"
+
+log:
+  logManagement: Управление логами
+  enableLogPersistence: Сохранять логи в базе данных
+  enableLogPersistenceDesc: Сохранять логи в базе данных для анализа
+  logDatabaseSizeLimit: Лимит размера базы данных логов
+  logDatabaseSizeLimitDesc: 'Текущий: ${size}'
+  exportCurrentLogs: Экспортировать текущие логи
+  exportCurrentLogsDesc: Экспортировать текущие логи приложения, чтобы помочь разработчикам диагностировать проблемы
+  exportHistoryLogs: Экспортировать историю логов
+  exportHistoryLogsDesc: Экспортировать логи за указанный диапазон дат
+  exportMergedLogs: Экспортировать объединённые логи
+  exportMergedLogsDesc: Экспортировать объединённые логи за указанный диапазон дат
+  showLogStats: Показать статистику логов
+  logExportSuccess: Экспорт логов выполнен
+  logExportFailed: 'Ошибка экспорта логов: ${error}'
+  showLogStatsDesc: Просмотр статистики по различным типам логов
+  logExtractFailed: 'Не удалось получить статистику логов: ${error}'
+  clearAllLogs: Очистить все логи
+  clearAllLogsDesc: Очистить все данные логов
+  confirmClearAllLogs: Подтвердите очистку
+  confirmClearAllLogsDesc: Вы уверены, что хотите очистить все данные логов? Это действие нельзя отменить.
+  clearAllLogsSuccess: Логи успешно очищены
+  clearAllLogsFailed: 'Не удалось очистить логи: ${error}'
+  unableToGetLogSizeInfo: Не удалось получить информацию о размере логов
+  currentLogSize: 'Текущий размер логов:'
+  logCount: 'Количество логов:'
+  logCountUnit: 'логов'
+  logSizeLimit: 'Лимит размера логов:'
+  usageRate: 'Использование:'
+  exceedLimit: 'Превышен лимит'
+  remaining: 'Осталось'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'Текущий размер логов превышен, очистите старые логи или увеличьте лимит размера'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'Текущий размер логов почти достиг лимита, очистите старые логи'
+  cleaningOldLogs: 'Очистка старых логов...'
+  logCleaningCompleted: 'Очистка логов завершена'
+  logCleaningProcessMayNotBeCompleted: 'Процесс очистки логов может быть не завершён'
+  cleanExceededLogs: 'Очистить превышающие лимит логи'
+  noLogsToExport: 'Нет логов для экспорта'
+  exportingLogs: 'Экспорт логов...'
+  noHistoryLogsToExport: 'Нет истории логов для экспорта, сначала некоторое время попользуйтесь приложением'
+  selectLogDate: 'Выберите дату логов'
+  today: 'Сегодня'
+  selectMergeRange: 'Выберите диапазон объединения'
+  selectMergeRangeHint: 'Выберите временной диапазон логов для объединения'
+  selectMergeRangeDays: 'Последние ${days} дней'
+  logStats: 'Статистика логов'
+  todayLogs: 'Логи за сегодня: ${count}'
+  recent7DaysLogs: 'Логи за последние 7 дней: ${count}'
+  totalLogs: 'Всего логов: ${count}'
+  setLogDatabaseSizeLimit: 'Задать лимит размера базы данных логов'
+  currentLogSizeWithSize: 'Текущий размер логов: ${size}'
+  warning: 'Предупреждение'
+  newSizeLimit: 'Новый лимит размера: ${size}'
+  confirmToContinue: 'Подтвердите для продолжения'
+  logSizeLimitSetSuccess: 'Лимит размера логов установлен: ${size}'
+
+emoji:
+  name: Эмодзи
+  size: Размер
+  small: Маленький
+  medium: Средний
+  large: Большой
+  extraLarge: Очень большой
+  copyEmojiLinkSuccess: 'Ссылка на эмодзи скопирована'
+  preview: Просмотр эмодзи
+  library: Библиотека эмодзи
+  noEmojis: Нет эмодзи
+  clickToAddEmojis: Нажмите кнопку в правом верхнем углу, чтобы добавить эмодзи
+  addEmojis: Добавить эмодзи
+  imagePreview: Просмотр изображения
+  imageLoadFailed: Не удалось загрузить изображение
+  loading: Загрузка...
+  delete: Удалить
+  close: Закрыть
+  deleteImage: Удалить изображение
+  confirmDeleteImage: Вы уверены, что хотите удалить это изображение?
+  cancel: Отмена
+  batchDelete: Пакетное удаление
+  confirmBatchDelete: 'Вы уверены, что хотите удалить выбранные изображения (${count})? Это действие нельзя отменить.'
+  deleteSuccess: Успешно удалено
+  addImage: Добавить изображение
+  addImageByUrl: Добавить по URL
+  addImageUrl: Добавить URL изображения
+  imageUrl: URL изображения
+  enterImageUrl: Введите URL изображения
+  add: Добавить
+  batchImport: Пакетный импорт
+  enterJsonUrlArray: "Введите массив URL в формате JSON:"
+  formatExample: "Пример формата:\n[\"url1\", \"url2\", \"url3\"]"
+  pasteJsonUrlArray: Вставьте массив URL в формате JSON
+  import: Импорт
+  importSuccess: 'Успешно импортировано изображений: ${count}'
+  jsonFormatError: Ошибка формата JSON, проверьте ввод
+  createGroup: Создать группу эмодзи
+  groupName: Название группы
+  enterGroupName: Введите название группы
+  create: Создать
+  editGroupName: Изменить название группы
+  save: Сохранить
+  deleteGroup: Удалить группу
+  confirmDeleteGroup: Вы уверены, что хотите удалить эту группу эмодзи? Все изображения в группе также будут удалены.
+  imageCount: 'Изображений: ${count}'
+  selectEmoji: Выберите эмодзи
+  noEmojisInGroup: В этой группе нет эмодзи
+  goToSettingsToAddEmojis: Перейдите в настройки, чтобы добавить эмодзи
+  emojiManagement: Управление эмодзи
+  manageEmojiGroupsAndImages: Управление группами и изображениями эмодзи
+  uploadLocalImages: Загрузить локальные изображения
+  uploadingImages: Загрузка изображений
+  uploadingImagesProgress: 'Загрузка изображений (${count}), подождите...'
+  doNotCloseDialog: Не закрывайте это окно
+  uploadSuccess: 'Успешно загружено изображений: ${count}'
+  uploadFailed: 'Не удалось: ${count}'
+  uploadFailedMessage: Не удалось загрузить изображение, проверьте подключение к сети или формат файла
+  uploadErrorMessage: 'Произошла ошибка при загрузке: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "Выберите поле"
+  add: "Добавить"
+  clear: "Очистить"
+  clearAll: "Очистить всё"
+  generatedQuery: "Сформированный запрос"
+  copyToClipboard: "Копировать в буфер обмена"
+  copied: "Скопировано"
+  filterCount: "Фильтров: ${count}"
+  
+  # Filter Button Widget
+  filterSettings: "Настройки фильтра"
+  
+  # Filter Row Widget
+  field: "Поле"
+  operator: "Оператор"
+  language: "Язык"
+  value: "Значение"
+  dateRange: "Диапазон дат"
+  numberRange: "Диапазон чисел"
+  from: "От"
+  to: "До"
+  date: "Дата"
+  number: "Число"
+  boolean: "Логическое"
+  tags: "Теги"
+  select: "Выбрать"
+  clickToSelectDate: "Нажмите, чтобы выбрать дату"
+  pleaseEnterValidNumber: "Введите корректное число"
+  pleaseEnterValidDate: "Введите корректный формат даты (ГГГГ-ММ-ДД)"
+  startValueMustBeLessThanEndValue: "Начальное значение должно быть меньше конечного"
+  startDateMustBeBeforeEndDate: "Дата начала должна быть раньше даты окончания"
+  pleaseFillStartValue: "Укажите начальное значение"
+  pleaseFillEndValue: "Укажите конечное значение"
+  rangeValueFormatError: "Ошибка формата значения диапазона"
+  
+  # Filter Operators
+  contains: "Содержит"
+  equals: "Равно"
+  notEquals: "Не равно"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "Диапазон"
+  in: "Содержит любой из"
+  notIn: "Не содержит ни одного из"
+  
+  # Filter Field Types
+  username: "Имя пользователя"
+  nickname: "Псевдоним"
+  registrationDate: "Дата регистрации"
+  description: "Описание"
+  title: "Заголовок"
+  body: "Текст"
+  author: "Автор"
+  publishDate: "Дата публикации"
+  private: "Приватное"
+  duration: "Длительность (в секундах)"
+  likes: "Отметки «Нравится»"
+  views: "Просмотры"
+  comments: "Комментарии"
+  rating: "Рейтинг"
+  imageCount: "Количество изображений"
+  videoCount: "Количество видео"
+  createDate: "Дата создания"
+  content: "Контент"
+  
+  # Rating Options
+  all: "Все"
+  adult: "Для взрослых"
+  general: "Общее"
+  
+  # Boolean Values
+  yes: "Да"
+  no: "Нет"
+  
+  # Content Types
+  users: "Пользователи"
+  videos: "Видео"
+  images: "Изображения"
+  posts: "Публикации"
+  forumThreads: "Темы форума"
+  forumPosts: "Публикации форума"
+  playlists: "Плейлисты"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "По релевантности"
+    latest: "Новые"
+    views: "По просмотрам"
+    likes: "По отметкам «Нравится»"
+  # Filter drawer
+  drawerSubtitle: "Изменения применяются сразу"
+
+firstTimeSetup:
+  welcome:
+    title: "Добро пожаловать"
+    subtitle: "Начнём персональную настройку"
+    description: "Всего несколько шагов, чтобы настроить всё под вас"
+  basic:
+    title: "Основные настройки"
+    subtitle: "Настройте под себя"
+    description: "Выберите подходящие вам предпочтения"
+  network:
+    title: "Настройки сети"
+    subtitle: "Настройте параметры сети"
+    description: "Настройте под свою сетевую среду"
+    tip: "Чтобы изменения вступили в силу, после успешной настройки требуется перезапуск"
+  theme:
+    title: "Настройки темы"
+    subtitle: "Выберите предпочитаемый вид"
+    description: "Персонализируйте визуальное оформление"
+  player:
+    title: "Настройки плеера"
+    subtitle: "Настройте элементы управления воспроизведением"
+    description: "Быстрая настройка параметров воспроизведения"
+  spatial:
+    title: "Пространственное воспроизведение"
+    subtitle: "Просмотр на гарнитуре"
+    description: "На гарнитуре видео и галереи появляются в окружающем пространстве, а не внутри этой плавающей панели"
+  completion:
+    title: "Завершение настройки"
+    subtitle: "Вы готовы начать"
+    description: "Прочитайте и примите соответствующие соглашения"
+    agreementTitle: "Пользовательское соглашение и правила сообщества"
+    agreementDesc: "Перед использованием приложения внимательно прочитайте и примите наше пользовательское соглашение и правила сообщества. Эти условия помогают поддерживать здоровую атмосферу."
+    checkboxTitle: "Я прочитал(а) и принимаю пользовательское соглашение и правила сообщества"
+    checkboxSubtitle: "При несогласии использовать приложение нельзя"
+  common:
+    settingsChangeableTip: "Эти настройки можно изменить в любое время в разделе «Настройки»"
+    previousStep: "Назад"
+    nextStep: "Далее"
+    finishSetup: "Завершить настройку"
+    agreeAgreementSnackbar: "Сначала примите пользовательское соглашение и правила сообщества"
+
+proxyHelper:
+  systemProxyDetected: "Обнаружен системный прокси"
+  copied: "Скопировано"
+  copy: "Копировать"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "Выбрать теги"
+  clickToSelectTags: "Нажмите, чтобы выбрать теги"
+  addTag: "Добавить тег"
+  removeTag: "Убрать тег"
+  deleteTag: "Удалить тег"
+  usageInstructions: "Сначала добавьте теги, затем нажимайте, чтобы выбрать из существующих тегов"
+  usageInstructionsTooltip: "Инструкция по использованию"
+  addTagTooltip: "Добавить тег"
+  removeTagTooltip: "Убрать тег"
+  cancelSelection: "Отменить выбор"
+  selectAll: "Выбрать все"
+  cancelSelectAll: "Отменить выбор всех"
+  delete: "Удалить"
+
+# Anime4K Settings
+anime4k:
+  realTimeVideoUpscalingAndDenoising: "Масштабирование и шумоподавление видео в реальном времени для улучшения качества аниме"
+  settings: "Настройки Anime4K"
+  preset: "Пресет Anime4K"
+  disable: "Отключить Anime4K"
+  disableDescription: "Отключить эффекты улучшения видео"
+  highQualityPresets: "Пресеты высокого качества"
+  fastPresets: "Быстрые пресеты"
+  litePresets: "Облегчённые пресеты"
+  moreLitePresets: "Более облегчённые пресеты"
+  customPresets: "Пользовательские пресеты"
+  presetGroups:
+    highQuality: "Высокое качество"
+    fast: "Быстрый"
+    lite: "Облегчённый"
+    moreLite: "Более облегчённый"
+    custom: "Пользовательский"
+  presetDescriptions:
+    mode_a_hq: "Подходит для большинства аниме в 1080p, особенно при наличии размытия, артефактов ресемплинга и сжатия. Обеспечивает наивысшее воспринимаемое качество."
+    mode_b_hq: "Подходит для аниме с лёгким размытием или звоном, вызванным масштабированием. Эффективно снижает звон и алиасинг."
+    mode_c_hq: "Подходит для качественных источников (например, нативных аниме или фильмов в 1080p). Устраняет шум и обеспечивает наивысший PSNR."
+    mode_a_a_hq: "Улучшенная версия режима A: максимальное воспринимаемое качество, позволяет восстановить почти все повреждённые линии. Возможно появление избыточной резкости или звона."
+    mode_b_b_hq: "Улучшенная версия режима B: более высокое воспринимаемое качество, дополнительная оптимизация линий и снижение артефактов."
+    mode_c_a_hq: "Версия режима C с повышенным воспринимаемым качеством: сохраняет высокий PSNR и пытается восстановить часть деталей линий."
+    mode_a_fast: "Быстрая версия режима A: баланс качества и производительности, подходит для большинства аниме в 1080p."
+    mode_b_fast: "Быстрая версия режима B: обработка лёгких артефактов и звона с меньшими затратами ресурсов."
+    mode_c_fast: "Быстрая версия режима C: быстрое шумоподавление и масштабирование качественных источников."
+    mode_a_a_fast: "Быстрая версия режима A+A: обеспечивает более высокое воспринимаемое качество на устройствах с ограниченной производительностью."
+    mode_b_b_fast: "Быстрая версия режима B+B: улучшенное восстановление линий и обработка артефактов для устройств с ограниченной производительностью."
+    mode_c_a_fast: "Быстрая версия режима C+A: быстро обрабатывает качественные источники и обеспечивает лёгкое восстановление линий."
+    upscale_only_s: "Сверхбыстрое масштабирование x2 только с помощью самой быстрой CNN-модели: без восстановления и шумоподавления, минимальные затраты ресурсов."
+    upscale_deblur_fast: "Быстрое масштабирование и устранение размытия с помощью традиционных алгоритмов без CNN: лучше стандартных алгоритмов плеера при очень низких затратах ресурсов."
+    restore_s_only: "Только восстановление с помощью самой быстрой CNN-модели, без масштабирования. Подходит для воспроизведения в нативном разрешении, когда нужно улучшить качество."
+    denoise_bilateral_fast: "Быстрое шумоподавление с помощью традиционной двусторонней фильтрации: очень быстро, подходит для обработки слабого шума."
+    upscale_non_cnn: "Быстрое масштабирование традиционными алгоритмами: очень низкие затраты ресурсов, лучше стандартных настроек плеера."
+    mode_a_fast_darken: "Режим A (быстрый) + затемнение линий: добавляет эффект затемнения линий к быстрому режиму A для более выразительных, стилизованных линий."
+    mode_a_hq_thin: "Режим A (HQ) + утончение линий: добавляет эффект утончения линий к высококачественному режиму A для более изящного вида."
+  presetNames:
+    mode_a_hq: "Mode A (HQ)"
+    mode_b_hq: "Mode B (HQ)"
+    mode_c_hq: "Mode C (HQ)"
+    mode_a_a_hq: "Mode A+A (HQ)"
+    mode_b_b_hq: "Mode B+B (HQ)"
+    mode_c_a_hq: "Mode C+A (HQ)"
+    mode_a_fast: "Mode A (Fast)"
+    mode_b_fast: "Mode B (Fast)"
+    mode_c_fast: "Mode C (Fast)"
+    mode_a_a_fast: "Mode A+A (Fast)"
+    mode_b_b_fast: "Mode B+B (Fast)"
+    mode_c_a_fast: "Mode C+A (Fast)"
+    upscale_only_s: "Масштабирование CNN (сверхбыстро)"
+    upscale_deblur_fast: "Масштабирование и устранение размытия (быстро)"
+    restore_s_only: "Восстановление (сверхбыстро)"
+    denoise_bilateral_fast: "Двустороннее шумоподавление (сверхбыстро)"
+    upscale_non_cnn: "Масштабирование без CNN (сверхбыстро)"
+    mode_a_fast_darken: "Режим A (быстрый) + затемнение линий"
+    mode_a_hq_thin: "Режим A (HQ) + утончение линий"
+  performanceTip: "💡 Совет: выбирайте пресеты с учётом производительности устройства. На слабых устройствах рекомендуются облегчённые пресеты."
+  compatibilityTip: "⚠️ Некоторые мобильные GPU (например, Kirin 980 / Mali-G76) не могут отрисовывать пользовательские шейдеры. Если изображение становится чёрным, а звук продолжает воспроизводиться, отключите Anime4K здесь."
+  autoDisabledOnRenderFailure: "GPU вашего устройства не смог отрисовать шейдер Anime4K, поэтому он был отключён автоматически."
+
+siteMode:
+  title: Режим сайта
+  mainSite: Основной
+  aiSite: AI
+  drawerSubtitle: 'Текущий ${currentSite} · нажмите, чтобы переключиться на ${nextSite}'
+  dialogTitle: Переключить режим сайта
+  dialogDescription: Переключение обновит всё приложение и сбросит ранее загруженные списки и состояние страниц.
+  chooseLinkTargetTitle: Выберите целевой сайт
+  chooseLinkTargetDescription: Эта ссылка не содержит домена. Выберите, открыть её в «Основном» или «AI».
+  chooseLinkTargetHint: После открытия эта страница и последующие запросы деталей продолжат использовать выбранный сайт.
+  alreadyUsing: Вы уже используете этот режим сайта.
+  openInSite: 'Открыть в ${site}'
+  confirmUsing: 'После подтверждения будущие запросы будут использовать режим ${site}.'
+  switched: 'Переключено на ${site}. Приложение обновлено.'
+savedSearchConfig:
+  title: Сохранённые фильтры
+  empty: Сохранённых фильтров пока нет
+  saveTooltip: Сохранить текущий фильтр
+  namePromptTitle: Сохранить фильтр
+  nameLabel: Название
+  nameHint: Введите название
+  saveSuccess: Фильтр сохранён
+  deleteSuccess: Фильтр удалён
+  addCurrent: Сохранить текущий фильтр
+  reorderHint: Нажмите и удерживайте, затем перетащите для изменения порядка
+  rename: Переименовать
+  unnamed: Без названия
+  noConditions: Весь контент (без фильтра)
+  tagsCount: 'Тегов: ${count}'
+savedSearch:
+  title: Сохранённые поиски
+  empty: Сохранённых поисков пока нет
+  saveTooltip: Сохранить текущий поиск
+  namePromptTitle: Сохранить поиск
+  nameLabel: Название
+  nameHint: Введите название
+  saveSuccess: Поиск сохранён
+  deleteSuccess: Поиск удалён
+  addCurrent: Сохранить текущий поиск
+  reorderHint: Нажмите и удерживайте, затем перетащите для изменения порядка
+  rename: Переименовать
+  noKeyword: (Без ключевого слова)
+  filtersCount: 'Фильтров: ${count}'
+
+defaultBlacklistReminder:
+  title: Обнаружен чёрный список тегов по умолчанию
+  content: В вашем аккаунте всё ещё используется чёрный список тегов, который сайт автоматически применяет ко всем новым аккаунтам. Хотите просмотреть и настроить его?
+  goManage: Управлять
+  dismiss: Не сейчас
+
+# Color Vision Assist (colorblind filter)
+colorVisionAssist:
+  title: "Помощь цветовосприятию"
+  description: "Корректирует цвета видео для пользователей с нарушениями цветовосприятия; можно использовать вместе с Anime4K"
+  galleryDescription: "Корректирует цвета изображений в галерее для пользователей с нарушениями цветовосприятия (независимо от переключателя плеера)"
+  galleryDescriptionSpatial: "Корректирует цвета изображений в галерее для пользователей с нарушениями цветовосприятия. Применяется только к 2D-просмотрщику в этой панели — изображения на пространственном экране отображаются нативно и не проходят через этот фильтр"
+  disable: "Выкл."
+  disableDescription: "Без коррекции цвета"
+  protanopia: "Помощь с красным (протанопия)"
+  protanopiaDescription: "Для протанопии — сложность различения красного"
+  deuteranopia: "Помощь с зелёным (дейтеранопия)"
+  deuteranopiaDescription: "Для дейтеранопии — сложность различения зелёного"
+  tritanopia: "Помощь с синим (тританопия)"
+  tritanopiaDescription: "Для тританопии — сложность различения синего и жёлтого"
+  appliedToast: "Применён фильтр ${filterName}, действует сразу"
+  disabledToast: "Помощь цветовосприятию отключена"
+externalPlayer:
+  title: "Открыть в другом приложении"
+  description: "Передайте текущее видео другому плееру на этом устройстве: например, Skybox или Pigasus на гарнитуре VR либо MX Player и VLC на телефоне"
+  openWithOtherApp: "Выбрать другое приложение"
+  openWithOtherAppDescription: "Показать системный выбор и указать плеер для передачи"
+  openWithSystemPlayer: "Открыть в плеере по умолчанию"
+  openWithSystemPlayerDescription: "Передать приложению для видео по умолчанию"
+  copyLink: "Копировать ссылку на видео"
+  copyLinkDescription: "Для плееров, которые принимают только вставку URL, например Skybox или DeoVR"
+  linkCopied: "Ссылка на видео скопирована"
+  sourceLocal: "Локальный файл"
+  sourceOnline: "Прямая ссылка"
+  sourceOnlineWithQuality: 'Прямая ссылка · ${quality}'
+  onlineLinkExpiryHint: "Прямые ссылки истекают, поэтому внешний плеер может остановиться на середине. Надёжный способ — сначала скачать."
+  vrPlayerHint: "Если вашего VR-плеера нет в списке выбора, используйте «Копировать ссылку на видео» и вставьте её в этом плеере."
+  noHandler: "Ни одно приложение на этом устройстве не может открыть видео"
+  handoffFailed: 'Не удалось передать: ${message}'
+  handoffFailedUnknown: "Не удалось передать"
+  sourceUnavailable: "Не удалось получить адрес текущего видео, повторите попытку"
+  localFileMissing: "Локальный файл больше не существует"
+  handedOff: "Передано внешнему плееру"
+  desktopSectionTitle: "Внешние плееры"
+  managePlayers: "Управление внешними плеерами"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "Плееры для PCVR, такие как HereSphere, DeoVR и Whirligig, не являются приложением по умолчанию в системе. Укажите их .exe — и сможете передавать текущее видео прямо из плеера."
+  managePlayersDescMac: "Укажите здесь такие плееры, как IINA, VLC или mpv, — и сможете передавать текущее видео прямо из плеера."
+  managePlayersDescLinux: "Укажите здесь такие плееры, как mpv, VLC или Celluloid, — и сможете передавать текущее видео прямо из плеера."
+  pickExecutableHintWindows: "Выберите основной файл .exe в папке установки плеера, например HereSphere.exe или vlc.exe. Ярлыки на рабочем столе (.lnk) не подойдут."
+  pickExecutableHintMac: "Выберите приложение .app плеера в папке «Программы», например IINA.app, — настоящий исполняемый файл внутри будет найден автоматически."
+  pickExecutableHintLinux: "Выберите исполняемый файл плеера, например /usr/bin/mpv. Команда which mpv покажет, где он находится."
+  emptyStateGuide: 'После настройки он появится отдельным пунктом в разделе «Открыть в другом приложении» на странице плеера. Частые варианты: ${examples}'
+  detectNothingFoundGuide: "Установленные плееры не найдены. Пользовательские папки установки и портативные сборки не определяются — используйте «Добавить плеер», чтобы указать его вручную."
+  detectNothingNew: "Новые плееры не найдены; всё установленное уже есть в списке"
+  detectFailed: "Не удалось выполнить поиск — используйте «Добавить плеер», чтобы указать его вручную"
+  advancedOptions: "Дополнительно"
+  playerNameHint: "Оставьте пустым, чтобы использовать имя файла"
+  executablePathRequired: "Сначала выберите исполняемый файл плеера"
+  playerCount: 'Настроено: ${count}'
+  noPlayerConfigured: "Внешний плеер ещё не настроен"
+  autoDetect: "Автоопределение"
+  detecting: "Поиск…"
+  detectFound: 'Найдено плееров: ${count}'
+  detectNothingFound: "Новые плееры не найдены, добавьте вручную"
+  autoDetectedTag: "обнаружен"
+  addPlayer: "Добавить плеер"
+  editPlayer: "Изменить плеер"
+  playerName: "Название"
+  executablePath: "Исполняемый файл"
+  browse: "Обзор"
+  argumentTemplate: "Аргументы запуска"
+  argumentTemplateHint: "Используйте {input} для пути к видео или URL. Оставьте пустым, чтобы передать его единственным аргументом."
+  nameAndPathRequired: "Необходимо указать и название, и исполняемый файл"
+  testLaunch: "Пробный запуск"
+  testLaunched: "Плеер запущен"
+  testFailed: "Не удалось запустить, проверьте путь к исполняемому файлу"
+  executableMissing: "Исполняемый файл не найден"
+  openWithNamed: 'Открыть в ${name}'
+  managePlayersEntry: "Управление внешними плеерами…"
+watchLater:
+  title: Посмотреть позже
+  addToWatchLater: Посмотреть позже
+  removeFromWatchLater: Убрать из «Посмотреть позже»
+  addedToWatchLater: Добавлено в «Посмотреть позже»
+  alreadyInWatchLater: Уже в «Посмотреть позже»
+  removedFromWatchLater: Убрано из «Посмотреть позже»
+  removedCount: "Удалено элементов: ${count}"
+  viewWatchLaterList: Открыть список
+  addFailed: Не удалось добавить в «Посмотреть позже»
+  invalidItem: Недоступно
+  clearWatched: Очистить просмотренное
+  watchedCleared: "Очищено просмотренных элементов: ${count}"
+  noWatchedToClear: Нет просмотренного для очистки
+  emptyVideo: В «Посмотреть позже» пока нет видео
+  emptyGallery: В «Посмотреть позже» пока нет галерей
+  filterAll: Все
+  filterUnwatched: Непросмотренные
+  sortRecentlyAdded: Недавно добавленные
+  sortEarliestAdded: Добавленные раньше всех
+  watched: Просмотрено
+  playlistLoadFailed: Не удалось загрузить плейлисты
+  noPlaylists: Плейлистов пока нет
+  undo: Отменить
+  clearWatchedConfirm: Очистить всё просмотренное на этой вкладке? Это действие нельзя отменить.
+  emptyUnwatchedVideo: Здесь больше нечего смотреть
+  emptyUnwatchedGallery: Здесь больше нечего смотреть
+  queueLoadFailed: Не удалось загрузить, нажмите для повтора
+mediaMenu:
+  like: Нравится
+  unlike: Убрать отметку «Нравится»
+  viewAuthor: Открыть автора
+  inFolders: "Папок: ${count}"
+  inPlaylists: "Плейлистов: ${count}"
+  downloaded: Скачано
+mediaPreview:
+  preview: Просмотр
+  openDetail: Открыть
+  moreActions: Дополнительные действия
+  previousImage: Предыдущее изображение
+  nextImage: Следующее изображение
+playbackQueue:
+  galleryImageCount: 'Изображений: ${count}'
+  upNext: Далее
+  sourceTab: Источник
+  emptyQueue: В этой очереди нет ничего для воспроизведения
+  emptyGalleryQueue: В этой очереди нет галерей
+  nowPlaying: Сейчас играет
+  myPlaylists: Мои плейлисты
+  authorPlaylists: Плейлисты автора
+  openQueue: Далее
+  continueInQueue: Продолжать воспроизведение из текущей очереди
+  continueInQueueSubtitle: Автоматически воспроизводит следующий элемент; отключает «повтор по завершении»
+  repeatDisabledByQueue: Отключено, пока включено «продолжать воспроизведение из текущей очереди»
+  playNext: Играть следующим
+  queueEnded: Это последний элемент в очереди
+  playNextHint: Нажмите, чтобы воспроизвести следующий элемент; нажмите и удерживайте, чтобы открыть «Далее»
+  authorVideos: Видео автора
+  authorGalleries: Галереи автора
+  favoriteFolders: Избранные папки
+  localFiles: На этом устройстве
+  currentFolder: Папка этого файла
+  playThisFolder: Очередь видео этой папки
+  browseThisFolder: Очередь галерей этой папки
+  downloads: Скачанное
+  otherPlaylists: Плейлисты других пользователей
+  nothingHere: Здесь ничего нет
+
+vrFormat:
+  playInSpace: Воспроизвести в пространственном плеере
+  handingOff: Передача в пространство…
+  title: Режим воспроизведения
+  spatialSectionTitle: Пространственное воспроизведение
+  spatialSectionDesc: На гарнитуре видео не отображается внутри этой панели — пространственный плеер выводит его на экран в комнате.
+  spatialPanelEntry: Пространственная панель управления
+  spatialPanelEntryDesc: Расстояние до экрана, размер и кривизна, фоновое окружение, а также скорость, повтор и автоскрытие — всё это находится в пространственной панели управления.
+  spatialGuideEntry: Руководство по управлению гарнитурой
+  spatialGuideEntryDesc: Кнопки контроллера, захват экрана, перемотка стиком и перелистывание страниц
+  spatialFlatOmitted: Сенсорные жесты, улучшение изображения и параметры аудио/видео применяются только к 2D-плееру; пространственный плеер работает на другом движке, поэтому здесь они не перечислены.
+  spatialGallerySectionTitle: Пространственная галерея
+  spatialGalleryPanelDesc: Интервал слайд-шоу, повтор одного клипа и кривизна экрана настраиваются в пространственной панели управления.
+  autoEnterGallery: Открывать изображения галереи в пространственной галерее
+  autoEnterGalleryDesc: На Quest нажатие на изображение открывает всю галерею на плавающем экране с лентой миниатюр, слайд-шоу и перелистыванием контроллером вместо просмотрщика внутри этой панели.
+  panelSettings: Панель и фон
+  panelSettingsDesc: На каком расстоянии находится панель приложения и насколько видна ваша комната позади неё
+  panelDistance: Расстояние до панели
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: Сбросить размещение
+  panelResetBackground: Сбросить к значению по умолчанию
+  panelBackground: Прозрачность фона
+  panelBackgroundHint: '0%: чёрное окружение · 100%: ваша реальная комната с общим освещением'
+  panelUnavailable: Панель сейчас не размещена — повторите попытку через мгновение
+  desc: Выберите геометрию, с которой должно воспроизводиться это видео. Сайт не предоставляет эту информацию, поэтому автоопределение лишь задаёт отправную точку — решает ваш выбор.
+  sectionFlat: Плоское
+  sectionStereo: Плоское 3D
+  sectionPanorama: VR-панорама
+  flat: Обычное видео
+  flatDesc: Воспроизводить как есть, без перепроецирования
+  flatSideBySide: Стерео 3D (side-by-side)
+  flatSideBySideDesc: По одному глазу на половину, слева и справа; показывает левый глаз и восстанавливает его соотношение сторон
+  flatTopBottom: Стерео 3D (over-under)
+  flatTopBottomDesc: По одному глазу на половину, сверху и снизу; показывает верхнюю половину и восстанавливает её соотношение сторон
+  vr180SideBySide: VR180 стерео (side-by-side)
+  vr180SideBySideDesc: Полусферическая панорама с двумя глазами — самый распространённый VR-источник
+  vr180Mono: VR180 моно
+  vr180MonoDesc: Полусферическая панорама, один глаз на кадр
+  vr360Mono: VR360 моно
+  vr360MonoDesc: Полноценная круговая панорама, один глаз на кадр
+  vr360TopBottom: VR360 стерео (over-under)
+  vr360TopBottomDesc: Полноценная круговая панорама с двумя расположенными друг над другом глазами
+  resetView: Сбросить вид
+  resetViewDesc: Вернуть направление взгляда и угол обзора к фронтальному положению
+  resetToAuto: Вернуть к автоопределению
+  resetToAutoDesc: Забыть ручной выбор для этого видео и снова доверить решение автоопределению
+  manualBadge: Задано вручную
+  panoramaHint: Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора
+  panoramaGestureNotice: При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса
+  shaderUnsupported: Это устройство не может отображать живую панораму; вместо этого показывается один глаз
+  handoffTooltip: Другой способ воспроизведения
+  suggestedBadge: Рекомендуется
+  suggestedEntryDesc: 'Похоже на ${format} — нажмите, чтобы переключить'
+  suggestionTitle: 'Возможно, это VR-видео (${format})'
+  suggestionTitleShort: Возможно, это VR-видео
+  suggestionAction: Воспроизвести как VR
+  suggestionDismiss: Закрыть
+localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: Быстрый доступ
+    sourcesSection: Папки
+    pin: Добавить в быстрый доступ
+    unpin: Убрать из быстрого доступа
+    pinned: Добавлено в быстрый доступ
+    unpinned: Убрано из быстрого доступа
+    folderCount: "Папок: ${count}"
+    videoCount: "Видео: ${count}"
+    imageCount: "Изображений: ${count}"
+    emptyFolder: Эта папка пуста
+    videosSection: Видео
+    imagesSection: Изображения
+    galleriesSection: Галереи
+    location: Расположение
+    sourceMissing: Этот источник недоступен
+    notScannedYet: Эта папка ещё не просканирована
+    scanning: Чтение папки…
+    deleteFileTitle: Удалить этот файл?
+    deleteFileBody: '«${name}» будет безвозвратно удалён с этого устройства. Это действие нельзя отменить.'
+    deleteGalleryTitle: Удалить эту галерею?
+    deleteGalleryBody: 'Запись о загрузке и локальные файлы изображений «${name}» будут удалены. Это действие нельзя отменить.'
+    galleryResourceMissing: Локальные файлы больше не существуют. Запись очищена.
+    viewDownloadDetail: Открыть детали загрузки
+    viewOnlineGallery: Открыть на сайте
+    pickFolderTitle: Выберите папку
+    useThisFolder: Использовать эту папку
+    noSubfolders: Здесь нет подпапок
+    storageRoot: Хранилище устройства
+    homeFolder: Домашняя
+    filesystemRoot: Корень файловой системы
+    folderUnreadable: Не удаётся прочитать эту папку
+    setCover: Задать обложку
+    setAsFolderCover: Использовать как обложку папки
+    folderCoverSet: Обложка папки обновлена
+    setFolderCoverPick: Задать обложку…
+    restoreAutoCover: Восстановить автоматическую обложку
+    autoCoverRestored: Автоматическая обложка восстановлена
+    rescanFolder: Пересканировать эту папку
+    coverPickerTitle: Выберите кадр
+    folderCoverPickerTitle: Выберите обложку
+    coverPickerEmpty: В этой папке пока нет изображений. Миниатюры видео могут ещё создаваться в фоне.
+    coverSaved: Обложка обновлена
+    coverSaveFailed: Не удалось сохранить обложку
+    coverUnavailable: Не удалось прочитать кадр видео из этого файла
+    deleted: Удалено
+    deleteFailed: Не удалось удалить — возможно, файл используется или защищён от записи
+    openFolder: Открыть
+    favorite: Добавить в избранное
+    unfavorite: Убрать из избранного
+    favorited: Добавлено в избранное
+    unfavorited: Убрано из избранного
+    sortBy: Сортировать по
+    sortAscending: По возрастанию
+    sortDescending: По убыванию
+    sortFieldName: Название
+    sortFieldModified: Дата изменения
+    sortFieldDuration: Длительность
+    sortFieldSize: Размер
+    sortFieldResolution: Разрешение
+    sortFieldFileType: Тип файла
+    sortFieldFps: Частота кадров
+    sortFieldFavorited: Дата добавления в избранное
+    emptyAllVideos: Видео не найдены. Добавьте папку в разделе «Папки», чтобы начать.
+    emptyAllImages: Изображения не найдены. Добавьте папку в разделе «Папки», чтобы начать.
+    emptyFavorites: Пока нет избранного. Добавьте из меню ⋮ на видео.
+    emptyPinned: Пока нет закреплённых папок. Нажмите и удерживайте папку в разделе «Папки» и выберите «Закрепить».
+    emptyDownloadedVideos: Пока нет завершённых загрузок видео.
+    emptyDownloadedGalleries: Пока нет завершённых загрузок галерей.
+    folderInfo: Сведения о папке
+    folderInfoName: Название
+    folderInfoPath: Путь
+    folderInfoSource: Источник
+    folderInfoContents: Содержимое
+    folderInfoSize: Размер на диске
+    folderInfoScannedAt: Последнее сканирование
+    folderInfoNeverScanned: Ещё не сканировалось
+    folderInfoNoPath: У этого источника нет папки для открытия
+    copyPath: Копировать путь
+    pathCopied: Путь скопирован
+  tabFolders: Папки
+  tabFavoriteVideos: Избранное
+  tabAllVideos: Все видео
+  tabAllImages: Все изображения
+  tabDownloadedVideos: Скачанные видео
+  tabDownloadedGalleries: Скачанные галереи
+  title: На этом устройстве
+  sourceOnline: Iwara онлайн
+  manageSources: Управление источниками
+  moveToCategory: Переместить в категорию
+  manageCategories: Управление категориями
+  suggestedFolders: Папки с видео
+  sortRecentlyAdded: Недавно добавленные
+  sortRecentlyPlayed: Недавно просмотренные
+  sortName: Название
+  sortDuration: Длительность
+  sortSize: Размер
+  sortFolder: Папка
+  sortRecentlyModified: Недавно изменённые
+  sortCount: Количество
+  folderCardItemCount: "Изображений: ${count}"
+  downloadsSource: Скачанное
+  builtInSourceHint: Раздел «Скачанное» управляется автоматически
+  filterByCategory: Фильтр по категории
+  longPressToCategorize: Нажмите и удерживайте, чтобы переместить в категорию
+  uncategorized: Без категории
+  setCategoryFailed: Не удалось задать категорию
+  categoryUpdated: Категория обновлена
+  addFolder: Добавить папку
+  addDeviceVideos: Сканировать видео на устройстве
+  mediaStoreSourceName: Видео устройства
+  mediaStoreUnavailable: Индекс медиафайлов устройства доступен только на Android
+  mediaStorePermissionDenied: Доступ к видео не предоставлен
+  rescan: Пересканировать
+  scanning: "Сканирование… найдено ${count}"
+  scanFailed: "Ошибка сканирования: ${reason}"
+  scanTruncated: "Эта папка очень большая — добавлены только первые ${count} файлов."
+  sourceOverlaps: "Уже охвачено папкой «${name}»"
+  addedAsPinnedFolder: "«${name}» находится внутри «${source}», поэтому добавлено в закреплённые папки"
+  alreadyPinnedFolder: "«${name}» уже в закреплённых папках"
+  sourceAlreadyAdded: "«${name}» уже добавлено"
+  sourceContainsExisting: "Он уже содержит добавленную папку «${name}»; добавление её родительской папки пока не поддерживается"
+  addSourceFailed: Не удалось добавить эту папку
+  fileMissing: Этот файл больше не находится на диске
+  permissionDenied: Доступ к файлам не предоставлен · нажмите, чтобы предоставить
+  noVideosFound: В этой папке нет видео
+  emptyTitle: Добавьте папку, чтобы просматривать видео, уже имеющиеся на этом устройстве
+  emptyPrivacyNote: Файлы читаются только на этом устройстве. Ничего не загружается.
+  removeSourceTitle: "Удалить «${name}»?"
+  removeSourceBody: Файлы остаются на диске. Удаляется только эта запись в библиотеке.
+  remove: Удалить
+  removeFolder: Удалить папку
+  removeFolderSelectTitle: Выберите папку для удаления
+  longPressToRemove: Нажмите и удерживайте, чтобы удалить эту папку
+  clearProgress: Очистить локальную историю просмотров
+  clearProgressCount: "Записей: ${count}"
+  clearProgressEmpty: Локальной истории просмотров пока нет
+  clearProgressTitle: Очистить локальную историю просмотров?
+  clearProgressBody: Удаляются только позиции воспроизведения и отметки о просмотре. Ваши файлы и папки остаются без изменений.
+  clearProgressDone: "Очищено записей локальной истории просмотров: ${count}"
+  clearAction: Очистить
+  iosManualRescanNotice: iOS не обнаруживает новые файлы автоматически. После добавления или удаления файлов потребуется вручную запустить повторное сканирование.

@@ -12,6 +12,24 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<!-- 声明应用支持的语言。缺了这项，系统原生的上下文菜单、权限弹窗、
+	     分享面板一律只按 CFBundleDevelopmentRegion 出英文，与应用内语言对不上。
+	     新增语言时这里要跟着补一行。 -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ja</string>
+		<string>zh-Hans</string>
+		<string>zh-Hant</string>
+		<string>ko</string>
+		<string>ru</string>
+		<string>es</string>
+		<string>fr</string>
+		<string>de</string>
+		<string>vi</string>
+		<string>id</string>
+		<string>th</string>
+	</array>
 	<key>CFBundleName</key>
 	<string>Love Iwara</string>
 	<key>CFBundlePackageType</key>

@@ -42,6 +42,7 @@ import 'package:i_iwara/utils/loading_more_refresh_guard.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 /// Status filter options for download tasks
 enum DownloadStatusFilter { all, failed, downloaded }
@@ -1813,8 +1814,7 @@ class _DeleteByDateDialogState extends State<_DeleteByDateDialog> {
     super.dispose();
   }
 
-  String _formatDate(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  String _formatDate(DateTime d) => CommonUtils.formatDate(d);
 
   /// 最大可输入的“多少天以前”。约 100 年，远小于 DateTime / Duration 的溢出边界，
   /// 防止超大值导致 Duration(days:) 溢出回绕成“未来”时间点而误删全部历史。

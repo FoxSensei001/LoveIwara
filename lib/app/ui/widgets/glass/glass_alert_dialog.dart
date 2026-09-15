@@ -67,7 +67,8 @@ class GlassDialogAction {
 ///
 /// 动作行（[actions]）走 [GlassButtonGroup] + `GlassTextActionButton`——多个
 /// 动作键共处同一坨玻璃，按住会一起蠕动（[GlassButtonGroup.touchFlex]
-/// 默认开），不是各自一只裸 `TextButton`/`FilledButton`。
+/// 默认开），不是各自一只裸 `TextButton`/`FilledButton`；横向装不下时按
+/// `_fitActionButtons` 收窄（先压内边距、再等比缩字），既不换行也不省略号。
 ///
 /// 用 [showGlassAlertDialog] 打开，不要直接 `showDialog(GlassAlertDialog(...))`
 /// ——出入场动画、安全区、主题继承都在那层。
@@ -165,26 +166,6 @@ class GlassAlertDialog extends StatelessWidget {
           )
         : null;
 
-    final actionGroup = actions.isEmpty
-        ? null
-        // group: false —— 动作行整只就是一块玻璃（GlassButtonGroup 的胶囊），
-        // 同上。
-        : GlassChromeLayer(
-            group: false,
-            child: GlassButtonGroup(
-              children: [
-                for (final action in actions)
-                  GlassTextActionButton(
-                    label: action.label,
-                    onPressed: action.onPressed,
-                    emphasized: action.emphasized,
-                    destructive: action.destructive,
-                    loading: action.loading,
-                  ),
-              ],
-            ),
-          );
-
     return Padding(
       padding: insetPadding,
       child: Center(
@@ -205,6 +186,9 @@ class GlassAlertDialog extends StatelessWidget {
               // 压成一条竖线，选项文字一个字一行。标题行自带 `Expanded`，面板
               // 本来就恒等于 `maxWidth`，把正文一起拉满不改变既有观感，却让
               // 「正文塌成 0 宽」这类事故从此不可能发生。
+              //
+              // 顺带，动作行也因此拿到**紧**约束——收窄档要的面板内容宽度就是
+              // 从这里传下去的 `maxWidth`（见 `_fitActionButtons`）。
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -229,9 +213,32 @@ class GlassAlertDialog extends StatelessWidget {
                     const SizedBox(height: 16),
                     Flexible(child: body),
                   ],
-                  if (actionGroup != null) ...[
+                  if (actions.isNotEmpty) ...[
                     const SizedBox(height: 20),
-                    Align(alignment: Alignment.centerRight, child: actionGroup),
+                    // ⛔ 这层 `LayoutBuilder` 长在**面板里、玻璃之外**：玻璃件会长在
+                    // `IntrinsicHeight` 底下（侧边导航栏的 trailing 就是），而
+                    // `LayoutBuilder` 一进那种量法就抛——`GlassSurface` 当初正是
+                    // 为了这条才没用它（见 test/glass_surface_size_parity_test.dart
+                    // 最后一例）。这里的祖先链上没有 intrinsics，安全。
+                    LayoutBuilder(
+                      // ⛔ 量文字必须在**面板 `Material` 之内**做——动作键的文字
+                      // 样式继承的是这套 DefaultTextStyle，见
+                      // [GlassTextActionButton.measureLabelWidth]。
+                      builder: (context, constraints) => Align(
+                        alignment: Alignment.centerRight,
+                        child: GlassChromeLayer(
+                          // group: false —— 动作行整只就是一块玻璃
+                          // （GlassButtonGroup 的胶囊），同上。
+                          group: false,
+                          child: GlassButtonGroup(
+                            children: _fitActionButtons(
+                              context,
+                              constraints.maxWidth,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -240,6 +247,97 @@ class GlassAlertDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// 把 [actions] 排成胶囊里的一行动作键；横向装不下时**按比例收窄**。
+  ///
+  /// # 为什么需要收窄
+  ///
+  /// 动作行是一颗横向胶囊（[GlassButtonGroup]），宽度只能抱内容：320dp 屏上留给
+  /// 它的只有 192dp（屏宽 320 − [insetPadding] 左右各 40 − 面板内边距 24/20 −
+  /// 胶囊内壁 2×2），而德语 `Abbrechen + Bestätigen` 自然宽度要 210dp、俄语三个
+  /// 动作要 307dp。收口前这里就是 `Row` 直接溢出（RenderFlex overflow，被胶囊的
+  /// `Clip.hardEdge` 裁掉），真机上表现为最后一枚键缺一截。
+  ///
+  /// # 三档：装得下就一像素都不动
+  ///
+  ///   1. 原样（内边距 16 + 原字号）装得下 —— 与收窄前**逐像素相同**；
+  ///   2. 只压内边距（16 → 14 → 12 → 10 → 8）就装得下 —— 字号不动，键排紧一点；
+  ///   3. 连最小内边距都装不下 —— 内边距压到
+  ///      [GlassTextActionButton.minHorizontalPadding]，余下的宽度按**文字宽度
+  ///      等比**分给各键，文字走 `FittedBox(scaleDown)` 等比缩小。
+  ///
+  /// 三档都不换行、不省略号、不横向滚动：动作键始终是同一坨玻璃里的一行（长按
+  /// 蠕动的 `touchFlex` 也就还在）。
+  ///
+  /// 判据是 [GlassTextActionButton.measureLabelWidth]——它与真实段落逐位相同，
+  /// 所以第 1 档的边界恰好落在「现在会不会溢出」那条线上：装得下的组合不会因为
+  /// 一个估出来的余量被误判进第 2 档（那档内边距就从 16 变成了 12，视觉变了）。
+  ///
+  /// [available] 是面板内容宽度（`Column(crossAxisAlignment: stretch)` 递下来的
+  /// 紧约束）。
+  List<Widget> _fitActionButtons(BuildContext context, double available) {
+    final int count = actions.length;
+    // 胶囊内壁的留白不归动作键，见 [GlassButtonGroup.surfacePadding]。
+    final double budget =
+        available - GlassButtonGroup.surfacePadding.horizontal;
+    final List<double> textWidths = [
+      for (final action in actions)
+        GlassTextActionButton.measureLabelWidth(
+          context,
+          action.label,
+          emphasized: action.emphasized,
+        ),
+    ];
+    final double textSum = textWidths.fold(0.0, (sum, w) => sum + w);
+
+    double padding = GlassTextActionButton.defaultHorizontalPadding;
+    double scale = 1;
+    bool fits(double pad) => textSum + 2 * pad * count <= budget;
+    if (!fits(padding)) {
+      double? relaxed;
+      for (final double candidate in const <double>[
+        14,
+        12,
+        10,
+        GlassTextActionButton.minHorizontalPadding,
+      ]) {
+        if (fits(candidate)) {
+          relaxed = candidate;
+          break;
+        }
+      }
+      if (relaxed == null) {
+        // 连下限都装不下：内边距就压在下限（极端到连它都放不下就清零，免得宽度
+        // 预算算成负数），余下的按文字宽度等比分配，文字等比缩小。
+        if (budget - 2 * padding * count < 0) padding = 0;
+        final double room = budget - 2 * padding * count;
+        scale = textSum > 0 ? (room / textSum).clamp(0.0, 1.0) : 1;
+      } else {
+        padding = relaxed;
+      }
+    }
+
+    return [
+      for (int i = 0; i < count; i++)
+        ConstrainedBox(
+          // 这枚键分到的宽度上限。第 1、2 档下它**不生效**（恰好等于自然宽度：
+          // 量出来的文字宽 + 内边距本身，谁也压不着谁），第 3 档下它就是收窄后
+          // 的宽度。这样「装得下」那条路上连一个像素都不会被这层碰到。
+          constraints: BoxConstraints(
+            maxWidth: textWidths[i] * scale + 2 * padding,
+          ),
+          child: GlassTextActionButton(
+            label: actions[i].label,
+            onPressed: actions[i].onPressed,
+            emphasized: actions[i].emphasized,
+            destructive: actions[i].destructive,
+            loading: actions[i].loading,
+            horizontalPadding: padding,
+            scaleDownLabel: scale < 1,
+          ),
+        ),
+    ];
   }
 }
 

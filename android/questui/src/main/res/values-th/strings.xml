@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Quest 空间面板的全部界面文案（默认语言 = 英文，与 lib/i18n 的 base_locale 一致）。
+
+  ⛔ 这些词**不跟系统语言走**，跟应用内的「语言」设置走：Dart 侧把
+  `LocaleSettings.currentLocale.languageTag` 通过 XrBridge 的 `setLocale` / `present`
+  推给原生，面板与提示都用 `Context.withPanelLocale(tag)` 造出来的 Context 取词
+  （见 PanelLocale.kt）。所以这里的 values-xx 目录必须与 lib/i18n 的语种保持一致：
+  en（本文件）/ zh-rCN / zh-rTW / ja。
+
+  ⛔ 新增文案一律进这里，别在 Kotlin 里写字面量 —— 面板是产品界面，不是日志。
+-->
+<resources>
+
+    <!-- ─────────────────────────────── 通用 -->
+    <string name="xr_back">ย้อนกลับ</string>
+    <string name="xr_refresh">รีเฟรช</string>
+    <string name="xr_reset">รีเซ็ต</string>
+    <string name="xr_loading">กำลังโหลด…</string>
+    <string name="xr_buffering">กำลังบัฟเฟอร์…</string>
+    <string name="xr_open_with">เปิดด้วยแอปอื่น</string>
+    <string name="xr_not_supported_here">ไม่รองรับที่นี่</string>
+
+    <!-- ─────────────────────────────── 场景（枚举 SceneKind） -->
+
+    <!-- ─────────────────────────────── 屏幕类型（枚举 ScreenCurve） -->
+    <string name="xr_curve_flat">หน้าจอแบน</string>
+    <string name="xr_curve_slight">โค้งเล็กน้อย</string>
+    <string name="xr_curve_medium">โค้งปานกลาง</string>
+    <string name="xr_curve_deep">โค้งลึก</string>
+    <string name="xr_curve_flat_hint">หน้าจอแบนหนึ่งจอ</string>
+    <string name="xr_curve_slight_hint">ส่วนโค้ง 40°</string>
+    <string name="xr_curve_medium_hint">ส่วนโค้ง 60°</string>
+    <string name="xr_curve_deep_hint">ส่วนโค้ง 85°</string>
+
+    <!-- ─────────────────────────────── 视频类型 tab（枚举 FormatTab） -->
+    <string name="xr_tab_flat">วิดีโอแบน</string>
+    <string name="xr_tab_panorama">พาโนรามา</string>
+    <string name="xr_tab_eac">EAC</string>
+    <string name="xr_tab_fisheye">ตาปลา</string>
+
+    <!-- ─────────────────────────────── 具体格式（枚举 VideoFormat） -->
+    <string name="xr_format_flat_2d">2D</string>
+    <string name="xr_format_flat_3d_hsbs">3D HSBS</string>
+    <string name="xr_format_flat_3d_fsbs">3D FSBS</string>
+    <string name="xr_format_flat_3d_hou">3D HOU</string>
+    <string name="xr_format_flat_3d_fou">3D FOU</string>
+    <string name="xr_format_pano_180_2d">180 2D</string>
+    <string name="xr_format_pano_180_3d_lr">180 3D เคียงข้าง</string>
+    <string name="xr_format_pano_180_3d_tb">180 3D บนล่าง</string>
+    <string name="xr_format_pano_360_2d">360 2D</string>
+    <string name="xr_format_pano_360_3d_lr">360 3D เคียงข้าง</string>
+    <string name="xr_format_pano_360_3d_tb">360 3D บนล่าง</string>
+    <string name="xr_format_eac_360_2d">360 2D</string>
+    <string name="xr_format_eac_360_3d">360 3D</string>
+    <string name="xr_format_fisheye_2d">2D</string>
+    <string name="xr_format_fisheye_180_3d">180 3D</string>
+    <string name="xr_format_fisheye_190_3d">190 3D</string>
+    <string name="xr_format_fisheye_200_3d">200 3D</string>
+    <string name="xr_format_fisheye_220_3d">220 3D</string>
+    <!-- 走带行那枚钮上的短标签：「大类 · 具体格式」。 -->
+    <string name="xr_format_short_flat">แบน · %1$s</string>
+    <string name="xr_format_short_eac">EAC · %1$s</string>
+    <string name="xr_format_short_fisheye">ตาปลา · %1$s</string>
+
+    <!-- ─────────────────────────────── 屏幕尺寸（枚举 AspectPreset） -->
+    <string name="xr_aspect_default">ค่าเริ่มต้น</string>
+    <string name="xr_aspect_2_1">2:1</string>
+    <string name="xr_aspect_16_9">16:9</string>
+    <string name="xr_aspect_4_3">4:3</string>
+    <string name="xr_aspect_9_16">9:16</string>
+    <string name="xr_aspect_1_1">1:1</string>
+    <string name="xr_aspect_12_5">12:5</string>
+
+    <!-- ─────────────────────────────── 播完之后（枚举 RepeatMode） -->
+    <string name="xr_repeat_one">เล่นซ้ำหนึ่งรายการ</string>
+    <string name="xr_repeat_next">เล่นถัดไป</string>
+    <string name="xr_repeat_stop">หยุดเมื่อจบ</string>
+    <string name="xr_repeat_one_hint">เล่นซ้ำรายการนี้ต่อไป</string>
+    <string name="xr_repeat_next_hint">เล่นต่อจากรายการถัดไปในรายการ</string>
+    <string name="xr_repeat_stop_hint">หยุดที่เฟรมสุดท้าย</string>
+
+    <!-- ─────────────────────────────── 播放页 -->
+    <string name="xr_hide_panel">ซ่อนส่วนควบคุม</string>
+    <string name="xr_player_title_fallback">กำลังเล่น</string>
+    <string name="xr_switching_chip">กำลังโหลดรายการถัดไป…</string>
+    <string name="xr_nav_scene">สภาพแวดล้อม</string>
+    <string name="xr_nav_playlist">เพลย์ลิสต์</string>
+    <string name="xr_nav_settings">การตั้งค่า</string>
+    <string name="xr_nav_back_to_app">กลับไปที่แอป</string>
+    <string name="xr_volume">ระดับเสียงระบบ</string>
+    <string name="xr_muted_badge">ปิดเสียงอยู่</string>
+    <string name="xr_mute">ปิดเสียง</string>
+    <string name="xr_unmute">เปิดเสียง</string>
+    <string name="xr_previous">ก่อนหน้า</string>
+    <string name="xr_next">ถัดไป</string>
+    <string name="xr_seek_back_5">ย้อนกลับ 5 วินาที</string>
+    <string name="xr_seek_forward_5">เดินหน้า 5 วินาที</string>
+    <string name="xr_play">เล่น</string>
+    <string name="xr_pause">หยุดชั่วคราว</string>
+    <string name="xr_quality">คุณภาพ</string>
+    <!-- 本机已下载的那一档清晰度。 -->
+    <string name="xr_source_local">%1$s · ดาวน์โหลดแล้ว</string>
+    <string name="xr_restart_from_beginning">เริ่มใหม่</string>
+    <string name="xr_dismiss_tip">ปิด</string>
+
+    <!-- ─────────────────────────────── 「接着看」页 -->
+    <string name="xr_queue_picker">สลับคิว</string>
+    <string name="xr_card_loading">กำลังโหลด…</string>
+    <string name="xr_untitled">(ไม่มีชื่อ)</string>
+    <string name="xr_playlist_empty_title">ไม่มีอะไรให้เล่นต่อ</string>
+    <string name="xr_playlist_empty_hint">จัดคิวสิ่งที่คุณอยากดูในแอป แล้วจะเล่นต่อจากที่นี่ได้เลย</string>
+
+    <!-- ─────────────────────────────── 场景页 -->
+    <string name="xr_scene_title">สภาพแวดล้อม</string>
+    <string name="xr_scene_subtitle_flat">สภาพแวดล้อมและการวางตำแหน่งหน้าจอ</string>
+    <string name="xr_scene_subtitle_sphere">ต้นฉบับทรงกลม — ภาพโอบล้อมคุณอยู่แล้ว</string>
+    <string name="xr_recenter">ตั้งศูนย์กลางใหม่</string>
+    <string name="xr_scene_section_environment">สภาพแวดล้อม</string>
+    <string name="xr_scene_section_adjust">การวางตำแหน่ง</string>
+    <string name="xr_screen_distance">ระยะ</string>
+    <string name="xr_screen_width">ความกว้างหน้าจอ</string>
+    <string name="xr_screen_offset">การเลื่อนแนวตั้ง</string>
+    <string name="xr_scene_sphere_note">ใช้ “ระยะ” เพื่อเลื่อนภาพเข้าใกล้หรือออกห่าง “ตั้งศูนย์กลางใหม่” จะคืนทิศทางการมอง</string>
+
+    <!-- ─────────────────────────────── 屏幕类型页 -->
+    <string name="xr_screen_type_title">รูปทรงหน้าจอ</string>
+    <string name="xr_screen_type_subtitle">ทุกพิกเซลอยู่ห่างจากดวงตาคุณเท่ากัน จึงต้องหันศีรษะน้อยลง</string>
+    <string name="xr_curve_rebuild_note">การเปลี่ยนรูปทรงหน้าจอจะสร้างหน้าจอใหม่ จะมีรอยต่อสั้น ๆ แล้วการเล่นจะกลับมาต่อจากเดิม</string>
+    <string name="xr_section_3d_display">การเล่น 3D</string>
+    <string name="xr_force_mono">บังคับให้วิดีโอ 3D เล่นเป็น 2D</string>
+    <string name="xr_force_mono_hint_stereo">ใช้เพียงครึ่งเฟรมเท่านั้น — สำหรับเมื่อทำให้คุณเวียนหัวหรือเห็นภาพซ้อน</string>
+    <string name="xr_force_mono_hint_mono">ต้นฉบับนี้เป็นภาพเดียว จึงไม่มีผล</string>
+
+    <!-- ─────────────────────────────── 视频类型页 -->
+    <string name="xr_video_type_title">ประเภทวิดีโอ</string>
+    <string name="xr_video_type_subtitle">ตรวจผิดหรือ เปลี่ยนได้ที่นี่ — มีผลทันที</string>
+    <string name="xr_auto_detect">ตรวจจับอัตโนมัติ</string>
+    <string name="xr_format_unsupported_inline">%1$s ไม่สามารถแสดงผลที่นี่ได้ ลองเปิดด้วยแอปอื่น</string>
+    <string name="xr_treat_180_as_fisheye">มองพาโนรามา 180° เป็นตาปลา 180° เมื่อตรวจจับอัตโนมัติ</string>
+    <string name="xr_treat_180_as_fisheye_hint">ตาปลาไม่สามารถเล่นที่นี่ได้ เมื่อเปิด ต้นฉบับ 180° จะมีตัวเลือก “เปิดด้วยแอปอื่น”</string>
+
+    <!-- ─────────────────────────────── 设置页 -->
+    <string name="xr_settings_title">การตั้งค่า</string>
+    <string name="xr_settings_subtitle">เฉพาะสิ่งที่จำเป็นในเครื่องเล่นเชิงพื้นที่ ส่วนที่เหลืออยู่ในแอป</string>
+    <string name="xr_section_screen_size">ขนาดหน้าจอ</string>
+    <string name="xr_width_ratio">ตัวคูณความกว้าง</string>
+    <string name="xr_height_ratio">ตัวคูณความสูง</string>
+    <string name="xr_reset_screen_size">รีเซ็ตขนาดหน้าจอ</string>
+    <string name="xr_section_speed">ความเร็วการเล่น</string>
+    <string name="xr_carry_over">ไปใช้กับวิดีโอถัดไปด้วย</string>
+    <string name="xr_carry_over_hint">เปิด: คงขนาดหน้าจอและความเร็วไว้เมื่อสลับ ปิด: วิดีโอใหม่ทุกตัวเริ่มจากค่าเริ่มต้น</string>
+    <string name="xr_section_after_playback">เมื่อจบ</string>
+    <string name="xr_section_panel">แผงควบคุม</string>
+    <string name="xr_auto_hide">ซ่อนเมื่อไม่ใช้งาน</string>
+    <string name="xr_auto_hide_hint">การซ่อนจะทำลายแผงจริง ๆ หนีบนิ้วหนึ่งครั้งเพื่อเรียกกลับมา</string>
+    <string name="xr_auto_hide_seconds_label">นานเท่าไรจึงถือว่าไม่ใช้งาน</string>
+    <string name="xr_summon_in_front">เรียกไว้ตรงหน้าคุณ</string>
+    <string name="xr_summon_in_front_hint">ย้ายแผงไปยังทิศที่คุณกำลังหันหน้าเมื่อหนีบนิ้ว</string>
+    <string name="xr_click_sound">เสียงคลิก</string>
+    <string name="xr_click_sound_hint">Meta: มือไม่มีการสั่นสะเทือน ดังนั้นเสียงจึงจำเป็น</string>
+    <string name="xr_section_controller">คอนโทรลเลอร์และระบบ</string>
+    <string name="xr_controller_tap">แตะ A/X บนคอนโทรลเลอร์เพื่อเล่น/หยุดชั่วคราว</string>
+    <string name="xr_controller_tap_hint">ไม่ต้องเล็งไปที่แผง — ใช้ได้จากอีกฟากของห้อง</string>
+    <string name="xr_pause_on_focus_loss">หยุดชั่วคราวเมื่อเปิดเมนูระบบ / ถอดเฮดเซ็ต</string>
+    <string name="xr_pause_on_focus_loss_hint">ไม่มีใครดูเมื่อเสียโฟกัส และทำให้สิ้นเปลืองแบตเตอรี่</string>
+    <string name="xr_section_bindings">การผูกปุ่มคอนโทรลเลอร์</string>
+    <string name="xr_controller_bindings">ไกชี้ / หนีบนิ้ว: เลือก · เรียกแผง\nB / Y: ซ่อนแผง\nก้านอนาล็อกซ้าย/ขวา: กดค้างเพื่อเลื่อนหา (ยิ่งค้างนานยิ่งเร็ว) ปล่อยเพื่อข้ามไป\nก้านอนาล็อกขึ้น/ลง: ดันภาพออกห่าง / ดึงเข้ามาใกล้ (พาโนรามา: ทรงกลม)\nกริป: กดค้างเพื่อย้ายภาพ (พาโนรามา: ลากมุมมอง) ปล่อยเพื่อซ่อนแผง</string>
+
+    <!-- ─────────────────────────────── 沉浸场景的提示（ImmersiveActivity） -->
+    <string name="xr_notice_unsupported_projection">การฉายภาพนี้ไม่สามารถแสดงผลที่นี่ได้ จึงแสดงแบบแบน ลอง “เปิดด้วยแอปอื่น”</string>
+    <string name="xr_notice_next_failed_reason">รายการถัดไปเล่นไม่ได้ (%1$s) จะอยู่ที่วิดีโอปัจจุบัน</string>
+    <string name="xr_notice_next_unavailable">เปิดรายการถัดไปไม่ได้ จะอยู่ที่วิดีโอปัจจุบัน</string>
+    <string name="xr_notice_next_unavailable_reason">เปิดรายการถัดไปไม่ได้ (%1$s) จะอยู่ที่วิดีโอปัจจุบัน</string>
+    <string name="xr_notice_next_timeout">โหลดรายการถัดไปหมดเวลา จะอยู่ที่วิดีโอปัจจุบัน</string>
+    <string name="xr_notice_url_expired_refreshing">ลิงก์เล่นหมดอายุ กำลังดึงลิงก์ใหม่…</string>
+    <string name="xr_notice_url_expired_no_refresh">ลิงก์เล่นหมดอายุและไม่มีลิงก์ใหม่มา — เปิดวิดีโอใหม่ในแอปหรือใช้เครื่องเล่นภายนอก</string>
+    <string name="xr_notice_refresh_timeout">ลิงก์เล่นหมดอายุและดึงลิงก์ใหม่หมดเวลา — เปิดวิดีโอใหม่ในแอปหรือใช้เครื่องเล่นภายนอก</string>
+    <string name="xr_notice_playback_failed">ต้นฉบับนี้เล่นไม่ได้ (%1$s) ลองใช้เครื่องเล่นภายนอก</string>
+    <string name="xr_notice_no_external_player">ไม่มีแอปในอุปกรณ์นี้ที่เปิดวิดีโอนี้ได้</string>
+    <string name="xr_notice_resumed_at">เล่นต่อจาก %1$s</string>
+    <string name="xr_notice_volume_blocked">ระบบกำลังบล็อกการเปลี่ยนระดับเสียงอยู่ (ห้ามรบกวน) ให้ปรับจากปุ่มระดับเสียงของเฮดเซ็ต</string>
+
+    <!-- ─────────────────────────────── 空间画廊（图集页） -->
+    <string name="xr_nav_screen_type">หน้าจอ</string>
+    <string name="xr_dot_separator">" · "</string>
+    <string name="xr_gallery_title_fallback">แกลเลอรี</string>
+    <!-- 计数 chip：「3 / 12」。 -->
+    <string name="xr_gallery_counter">%1$d / %2$d</string>
+    <!-- 头部副标题里的像素尺寸。 -->
+    <string name="xr_gallery_dims">%1$d × %2$d</string>
+    <string name="xr_gallery_empty">แกลเลอรีนี้ไม่มีไฟล์</string>
+    <string name="xr_gallery_video_badge">วิดีโอ</string>
+    <string name="xr_gallery_slideshow">สไลด์โชว์</string>
+    <string name="xr_gallery_slideshow_stop">หยุดสไลด์โชว์</string>
+    <!-- 幻灯片间隔 chip：「5s」。 -->
+    <string name="xr_gallery_interval">%1$d วินาที</string>
+    <string name="xr_gallery_quality_standard">มาตรฐาน</string>
+    <string name="xr_gallery_quality_original">ต้นฉบับ</string>
+    <string name="xr_gallery_loop">เล่นวน</string>
+    <string name="xr_gallery_load_failed">โหลดไฟล์นี้ไม่สำเร็จ (%1$s)</string>
+
+    <string name="xr_swipe_no_previous_image">นี่คือรูปแรก</string>
+    <string name="xr_swipe_no_next_image">นี่คือรูปสุดท้าย</string>
+    <string name="xr_view_distance">ระยะ</string>
+    <string name="xr_view_distance_hint">กดค้างเพื่อเข้าใกล้หรือออกห่าง ปล่อยเพื่อหยุด</string>
+    <string name="xr_view_nearer">เข้าใกล้</string>
+    <string name="xr_view_farther">ออกห่าง</string>
+    <string name="xr_view_distance_reset">รีเซ็ตระยะ</string>
+
+    <!-- Browsing panel: the app panel's own distance and how much room shows through. -->
+    <string name="xr_panel_settings_title">แผงและพื้นหลัง</string>
+    <string name="xr_panel_settings_subtitle">ตำแหน่งของแผงแอปนี้ และปริมาณห้องจริงที่ปรากฏด้านหลัง</string>
+    <string name="xr_panel_distance">ระยะแผง</string>
+    <string name="xr_panel_background">พื้นหลัง</string>
+
+    <!-- Shared video/gallery ambience controls. -->
+    <string name="xr_media_effects">บรรยากาศสื่อ</string>
+    <string name="xr_media_effects_hint">ขอบที่นุ่มนวลและแสงที่เคลื่อนตามภาพ</string>
+    <string name="xr_media_effects_reset">รีเซ็ตเอฟเฟกต์</string>
+    <string name="xr_edge_feather">ความนุ่มของขอบ</string>
+    <string name="xr_ambient_glow">ช่วงและความเข้มของแสงเรือง</string>
+    <string name="xr_background_transparency">ความโปร่งใสของพื้นหลัง</string>
+    <string name="xr_background_transparency_hint" formatted="false">0%: รอบข้างสีดำ · 100%: ห้องจริงของคุณ มีแสงแวดล้อม</string>
+    <string name="xr_media_effects_360_hint">วิดีโอ 360° โอบล้อมคุณโดยไม่มีขอบ ความนุ่มของขอบและแสงเรืองใช้กับสื่อแบบแบนและ 180°</string>
+    <string name="xr_media_effects_fallback">เอฟเฟกต์สื่อไม่พร้อมใช้งาน กลับมาใช้การเล่นแบบมาตรฐานแล้ว</string>
+    <string name="xr_environment_passthrough">พาสทรู</string>
+    <string name="xr_environment_deep_space">โลกและดวงจันทร์</string>
+    <string name="xr_environment_brightness">ความสว่างของสภาพแวดล้อม</string>
+    <string name="xr_environment_dynamic">การเคลื่อนไหว 3D</string>
+    <string name="xr_environment_show_earth">แสดงโลก</string>
+    <string name="xr_environment_show_moon">แสดงดวงจันทร์</string>
+    <string name="xr_environment_dynamic_unavailable">การเคลื่อนไหว 3D ไม่พร้อมใช้งาน ใช้ท้องฟ้าดาวนิ่งอยู่</string>
+    <string name="xr_environment_dynamic_hint">เพิ่มการหมุนช้า ๆ และความลึกแบบสเตอริโอ ปิดไว้เป็นค่าเริ่มต้นเพื่อประหยัดพลังงาน</string>
+    <string name="xr_environment_deep_space_hint">โลก ดวงจันทร์ และดวงดาวอันไกลโพ้นโอบล้อมคุณ ลดความสว่างเพื่อพื้นที่รับชมที่มืดลง</string>
+    <string name="xr_environment_loading">กำลังเตรียมสภาพแวดล้อม…</string>
+    <string name="xr_environment_failed">สภาพแวดล้อมไม่พร้อมใช้งาน กลับมาใช้พาสทรูแล้ว เลือกพื้นหลังเพื่อลองใหม่</string>
+    <string name="xr_environment_void">โฟกัส</string>
+    <string name="xr_environment_void_hint">พื้นที่รับชมสีดำ ช่วยให้จดจ่อกับภาพ</string>
+    <string name="xr_environment_aurora">ออโรรา</string>
+    <string name="xr_environment_aurora_hint">ทุ่งหิมะอันเงียบสงบใต้แสงเหนือ เส้นขอบฟ้านิ่ง ๆ สำหรับการรับชมผ่อนคลาย</string>
+    <string name="xr_environment_sunset">ทะเลพระอาทิตย์ตก</string>
+    <string name="xr_environment_sunset_hint">แสงยามเย็นอันอบอุ่นเหนือผืนน้ำกว้าง โดยมีดวงอาทิตย์อยู่ข้างพื้นที่รับชมของคุณ</string>
+    <string name="xr_environment_mist">ยอดเขาหมอก</string>
+    <string name="xr_environment_mist_hint">ชั้นภูเขาอันไกลโพ้นโผล่พ้นหมอกบาง ๆ ราวกับภาพทิวทัศน์หมึกจีน</string>
+</resources>

@@ -8,6 +8,7 @@ import '../../../services/login_service.dart';
 import 'controllers/sign_in_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -66,9 +67,10 @@ class _SignInPageState extends State<SignInPage> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month}-${date.day}';
-  }
+  /// 日期统一走 [CommonUtils.formatDate]（按语言渲染，并保证月/日补零）。
+  /// 这里原来自己拼 `'${date.year}-${date.month}-${date.day}'`，缺补零，
+  /// 与「注册时间」「历史记录」处的写法不一致。
+  String _formatDate(DateTime date) => CommonUtils.formatDate(date);
 
   @override
   void dispose() {

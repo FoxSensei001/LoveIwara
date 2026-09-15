@@ -1,0 +1,3155 @@
+# en.i18n.yaml
+
+personalProfile:
+  personalProfile: Persönliches Profil
+  editPersonalProfile: Persönliches Profil bearbeiten
+  avatar: Avatar
+  background: Hintergrund
+  fetchUserProfileFailed: "Benutzerprofil konnte nicht abgerufen werden: ${error}"
+  suggestedResolution: "Empfohlene Auflösung: ${resolution}, Dateigröße < ${size}"
+  supportedFormats: "Unterstützte Formate: ${formats}"
+  premiumBenefit: "Premium-Nutzer können dynamische ${type} verwenden (${formats})"
+  homepageBackground: Startseiten-Hintergrund
+  basicInfo: Grundlegende Informationen
+  nickname: Spitzname
+  username: Benutzername
+  copyUsername: Benutzernamen kopieren
+  usernameCopied: Benutzername kopiert
+  personalIntroduction: Persönliche Vorstellung
+  noPersonalIntroduction: Keine persönliche Vorstellung
+  clickToEdit: Zum Bearbeiten tippen
+  privacySettings: Datenschutzeinstellungen
+  hideSensitiveContent: Sensible Inhalte ausblenden
+  hideSensitiveContentDesc: Blendet alle Videos oder Bilder mit sensiblen Tags aus.
+  notificationSettings: Benachrichtigungseinstellungen
+  contentCommentNotification: Benachrichtigung bei Inhaltskommentaren
+  contentCommentNotificationDesc: Benachrichtigen, wenn jemand Ihre Inhalte kommentiert.
+  commentReplyNotification: Benachrichtigung bei Kommentarantworten
+  commentReplyNotificationDesc: Benachrichtigen, wenn jemand auf Ihren Kommentar antwortet.
+  mentionNotification: Benachrichtigung bei Erwähnungen
+  mentionNotificationDesc: Benachrichtigen, wenn jemand Sie in Inhalten erwähnt.
+  accountInfo: Kontoinformationen
+  registrationTime: Registrierungszeitpunkt
+  updateSettingsFailed: "Einstellungen konnten nicht aktualisiert werden: ${error}"
+  updateNotificationSettingsFailed: "Benachrichtigungseinstellungen konnten nicht aktualisiert werden: ${error}"
+  editNickname: Spitznamen bearbeiten
+  nicknameCannotBeEmpty: Spitzname darf nicht leer sein
+  changeSuccess: Erfolgreich geändert
+  unsupportedFileFormat: Nicht unterstütztes Dateiformat
+  fileTooLarge: "Dateigröße darf ${size} nicht überschreiten"
+  uploadFailed: Upload fehlgeschlagen
+  avatarUpdatedSuccessfully: Avatar erfolgreich aktualisiert
+  updateAvatarFailed: "Avatar konnte nicht aktualisiert werden: ${error}"
+  backgroundUpdatedSuccessfully: Hintergrund erfolgreich aktualisiert
+  updateBackgroundFailed: "Hintergrund konnte nicht aktualisiert werden: ${error}"
+  editPersonalIntroduction: Persönliche Vorstellung bearbeiten
+  enterPersonalIntroduction: Bitte geben Sie Ihre persönliche Vorstellung ein
+
+# Tutorial Service
+tutorial:
+  specialFollowFeature: "Spezielles Folgen"
+  specialFollowDescription: "Markieren Sie die Autoren, die Sie am meisten verfolgen, als „Spezielles Folgen“ und springen Sie dann von hier direkt zu deren neuesten Uploads."
+  stepsTitle: "Drei Schritte"
+  stepFollowAuthor: "Tippen Sie auf „Folgen“ auf der Video-, Galerie- oder Profilseite des Autors."
+  stepPickSpecial: "Tippen Sie erneut auf „Gefolgt“ und wählen Sie dann im Menü „Spezielles Folgen“."
+  stepSwitchHere: "Kommen Sie hierher zurück und wechseln Sie mit der Avatar-Auswahl oben zu diesem Autor."
+  specialFollowManagementTip: "Verwalten Sie die Liste „Spezielles Folgen“ unter Seitenleiste – Folge-Liste – Spezielles Folgen."
+  gotIt: "Verstanden"
+
+common:
+  sort: Sortieren
+  filter: Filter
+  appName: Love Iwara
+  ok: OK
+  cancel: Abbrechen
+  select: Auswählen
+  save: Speichern
+  delete: Löschen
+  visit: Besuchen
+  loading: Wird geladen…
+  scrollToTop: Nach oben scrollen
+  privacyHint: Datenschutzmodus ist aktiv, Inhalte sind ausgeblendet
+  latest: Neueste
+  likesCount: Likes
+  viewsCount: Aufrufe
+  popular: Beliebt
+  trending: Im Trend
+  commentList: Kommentarliste
+  sendComment: Kommentar senden
+  send: Senden
+  retry: Erneut versuchen
+  premium: Premium
+  follower: Follower
+  friend: Freund
+  video: Video
+  following: Folge ich
+  expand: Erweitern
+  collapse: Einklappen
+  cancelFriendRequest: Anfrage abbrechen
+  cancelSpecialFollow: Spezial-Follow aufheben
+  addFriend: Freund hinzufügen
+  removeFriend: Freund entfernen
+  followed: Gefolgt
+  follow: Folgen
+  unfollow: Nicht mehr folgen
+  specialFollow: Spezial-Follow
+  specialFollowed: Spezial-Follow aktiv
+  gallery: Galerie
+  playlist: Playlist
+  commentPostedSuccessfully: Kommentar erfolgreich gesendet
+  commentPostedFailed: Kommentar konnte nicht gesendet werden
+  success: Erfolg
+  commentDeletedSuccessfully: Kommentar erfolgreich gelöscht
+  commentUpdatedSuccessfully: Kommentar erfolgreich aktualisiert
+  totalComments:
+    one: '${n} Kommentar'
+    other: '${n} Kommentare'
+  writeYourCommentHere: Schreiben Sie hier Ihren Kommentar…
+  tmpNoReplies: Noch keine Antworten
+  loadMore: Mehr laden
+  loadingMore: Weitere werden geladen…
+  noMoreDatas: Keine weiteren Daten
+  selectTranslationLanguage: Übersetzungssprache auswählen
+  translate: Übersetzen
+  translateFailedPleaseTryAgainLater: Übersetzung fehlgeschlagen, bitte später erneut versuchen
+  translationResult: Übersetzungsergebnis
+  justNow: Gerade eben
+  minutesAgo:
+    one: 'vor ${n} Minute'
+    other: 'vor ${n} Minuten'
+  hoursAgo:
+    one: 'vor ${n} Stunde'
+    other: 'vor ${n} Stunden'
+  daysAgo:
+    one: 'vor ${n} Tag'
+    other: 'vor ${n} Tagen'
+  editedAt: '${num} bearbeitet'
+  editComment: Kommentar bearbeiten
+  commentUpdated: Kommentar aktualisiert
+  replyComment: Auf Kommentar antworten
+  reply: Antworten
+  edit: Bearbeiten
+  unknownUser: Unbekannter Benutzer
+  me: Ich
+  author: Autor
+  admin: Admin
+  viewReplies: 'Antworten ansehen (${num})'
+  hideReplies: Antworten ausblenden
+  confirmDelete: Löschen bestätigen
+  areYouSureYouWantToDeleteThisItem: Möchten Sie dieses Element wirklich löschen?
+  tmpNoComments: Noch keine Kommentare
+  refresh: Aktualisieren
+  back: Zurück
+  tips: Tipps
+  linkIsEmpty: Link ist leer
+  linkCopiedToClipboard: Link in die Zwischenablage kopiert
+  imageCopiedToClipboard: Bild in die Zwischenablage kopiert
+  copyImageFailed: Kopieren des Bildes fehlgeschlagen
+  mobileSaveImageIsUnderDevelopment: Das Speichern von Bildern ist auf Mobilgeräten noch in Entwicklung
+  imageSavedTo: Bild gespeichert unter
+  saveImageFailed: Bild konnte nicht gespeichert werden
+  close: Schließen
+  more: Mehr
+  unknownError: Unbekannter Fehler
+  moreFeaturesToBeDeveloped: Weitere Funktionen werden noch entwickelt
+  all: Alle
+  selectedRecords: '${num} Einträge ausgewählt'
+  cancelSelectAll: Alle abwählen
+  selectAll: Alle auswählen
+  exitEditMode: Bearbeitungsmodus beenden
+  areYouSureYouWantToDeleteSelectedItems: 'Möchten Sie die ausgewählten ${num} Elemente wirklich löschen?'
+  searchHistoryRecords: Verlaufseinträge durchsuchen…
+  settings: Einstellungen
+  subscriptions: Abos
+  videoCount:
+    one: '${n} Video'
+    other: '${n} Videos'
+  share: Teilen
+  areYouSureYouWantToShareThisPlaylist: Möchten Sie diese Wiedergabeliste wirklich teilen?
+  editTitle: Titel bearbeiten
+  editMode: Bearbeitungsmodus
+  pleaseEnterNewTitle: Bitte neuen Titel eingeben
+  createPlayList: Wiedergabeliste erstellen
+  create: Erstellen
+  checkNetworkSettings: Netzwerkeinstellungen prüfen
+  general: Allgemein
+  r18: R18
+  sensitive: Sensibel
+  year: Jahr
+  month: Monat
+  tag: Tag
+  private: Privat
+  noTitle: Kein Titel
+  search: Suchen
+  noContent: Kein Inhalt
+  recording: Aufzeichnung
+  paused: Pausiert
+  clear: Leeren
+  clearSelection: Auswahl aufheben
+  selectItemsToContinue: Elemente auswählen, um fortzufahren
+  andMoreItems(num): 'und ${num} weitere'
+  batchDelete: Stapellöschung
+  user: Benutzer
+  post: Beitrag
+  seconds: Sekunden
+  comingSoon: Demnächst
+  confirm: Bestätigen
+  hour: Stunde
+  minute: Minute
+  clickToRefresh: Zum Aktualisieren tippen
+  history: Verlauf
+  favorites: Favoriten
+  friends: Freunde
+  playList: Wiedergabeliste
+  checkLicense: Lizenz prüfen
+  logout: Abmelden
+  fensi: Fans
+  accept: Annehmen
+  reject: Ablehnen
+  clearAllHistory: Gesamten Verlauf löschen
+  clearAllHistoryConfirm: Möchten Sie den gesamten Verlauf wirklich löschen?
+  followingList: Liste meiner Follows
+  followersList: Follower-Liste
+  follows: Folgt
+  fans: Fans
+  followsAndFans: Gefolgt und Fans
+  numViews: Aufrufe
+  updatedAt: Aktualisiert am
+  publishedAt: Veröffentlicht am
+  externalVideo: Externes Video
+  originalText: Originaltext
+  showOriginalText: Originaltext anzeigen
+  showProcessedText: Verarbeiteten Text anzeigen
+  preview: Vorschau
+  rules: Regeln
+  agree: Zustimmen
+  disagree: Ablehnen
+  agreeToRules: Den Regeln zustimmen
+  # Base Input Dialog
+  markdownSyntaxHelp: Markdown-Syntax-Hilfe
+  previewContent: Inhalt vorschauen
+  characterCount: '${current}/${max}'
+  exceedsMaxLengthLimit: 'Maximale Länge überschritten (${max})'
+  agreeToCommunityRules: Den Community-Regeln zustimmen
+  createPost: Beitrag erstellen
+  title: Titel
+  enterTitle: Bitte Titel eingeben
+  content: Inhalt
+  enterContent: Bitte Inhalt eingeben
+  writeYourContentHere: Bitte Inhalt eingeben…
+  tagBlacklist: Tag-Sperrliste
+  noData: Keine Daten
+  tagLimit: Tag-Limit
+  enableFloatingButtons: Schwebende Schaltflächen aktivieren
+  disableFloatingButtons: Schwebende Schaltflächen deaktivieren
+  enabledFloatingButtons: Schwebende Schaltflächen aktiviert
+  disabledFloatingButtons: Schwebende Schaltflächen deaktiviert
+  pendingCommentCount: Ausstehende Kommentare
+  joined: 'Beigetreten am ${str}'
+  lastSeenAt: 'Zuletzt gesehen ${str}'
+  download: Herunterladen
+  selectQuality: Qualität auswählen
+  videoQualitySource: Quelle
+  selectImageQuality: Bildqualität auswählen
+  imageQualityStandard: Standard
+  imageQualityOriginal: Original
+  selectDateRange: Datumsbereich auswählen
+  selectDateRangeHint: Datumsbereich auswählen, Standard sind die letzten 30 Tage
+  clearDateRange: Datumsbereich löschen
+  deleteRecordsInDateRange: Einträge in diesem Bereich löschen
+  deleteRecordsInDateRangeConfirm: 'Möchten Sie ${num} Verlaufseinträge in diesem Datumsbereich wirklich löschen? Dies kann nicht rückgängig gemacht werden.'
+  noHistoryRecordsInRange: Keine Verlaufseinträge in diesem Datumsbereich
+  followSuccessClickAgainToSpecialFollow: Erfolgreich gefolgt, erneut tippen für Spezial-Follow
+  specialFollowTip: Zu den Spezial-Follows hinzugefügt – wählen Sie sie über die Auswahl oben rechts auf der Abo-Seite für den Schnellzugriff
+  exitConfirmTip: Möchten Sie wirklich beenden?
+  error: Fehler
+  taskRunning: "Es läuft bereits eine Aufgabe, bitte warten."
+  operationCancelled: "Vorgang abgebrochen."
+  unsavedChanges: "Sie haben ungespeicherte Änderungen"
+  specialFollowsManagementTip: Zum Umsortieren am Griff ziehen • Zum Entfernen auf die Schaltfläche tippen
+  specialFollowsManagement: Spezial-Follows verwalten
+  removeSpecialFollow: Spezial-Follow entfernen
+  removeSpecialFollowConfirm: '${name} aus den Spezial-Follows entfernen?'
+  noSpecialFollows: Noch keine Spezial-Follows
+  createTimeDesc: Erstellzeit absteigend
+  createTimeAsc: Erstellzeit aufsteigend
+  # Pagination related
+  pagination:
+    totalItems: 'Insgesamt ${num} Elemente'
+    jumpToPage: 'Zu Seite springen'
+    pleaseEnterPageNumber: 'Bitte Seitenzahl eingeben (1-${max})'
+    pageNumber: 'Seitenzahl'
+    jump: 'Springen'
+    invalidPageNumber: 'Bitte eine gültige Seitenzahl eingeben (1-${max})'
+    invalidInput: 'Bitte eine gültige Seitenzahl eingeben'
+    waterfall: 'Wasserfall'
+    pagination: 'Seitennummerierung'
+  notice: Hinweis
+  detail: Details
+  parseExceptionDestopHint: ' – Desktop-Benutzer können den Proxy in den Einstellungen konfigurieren'
+  iwaraTags: Iwara-Tags
+  tagInfo: Tag-Info
+  tagOriginalKey: Original-Tag
+  tagTranslation: Übersetzung
+  copy: Kopieren
+  selectCopy: "Auswählen & kopieren"
+  copiedToClipboard: In die Zwischenablage kopiert
+  showOriginalTag: Original-Tag anzeigen
+  showTranslatedTag: Übersetzung anzeigen
+  tagTranslationFeedback: Zweifel an einer Übersetzung? Geben Sie Feedback
+  tagLocalizationGuideTitle: Über die Tag-Lokalisierung
+  tagLocalizationGuideContent: "Die App zeigt die Original-Tags von Iwara (z. B. mother) mit dem Namen in Ihrer aktuellen Sprache an.\n\n• Bei der Tag-Suche stimmen sowohl die Übersetzung als auch das Original-Tag überein.\n• Halten Sie ein Tag gedrückt bzw. klicken Sie mit der rechten Maustaste darauf, um den Originalschlüssel und die Übersetzung anzuzeigen und zu kopieren.\n• Die Übersetzungen werden von der Community gepflegt und nach bestem Wissen erstellt – sie können Fehler enthalten."
+  likeThisVideo: Dieses Video liken
+  likeThisGallery: Diese Galerie liken
+  operation: Aktion
+  replies: Antworten
+  externalLinkWarning: Warnung vor externem Link
+  externalLinkWarningMessage: Sie sind dabei, einen externen Link zu öffnen, der nicht zu iwara.tv gehört. Bitte seien Sie vorsichtig und stellen Sie sicher, dass der Link sicher ist, bevor Sie fortfahren.
+  continueToExternalLink: Weiter
+  cancelExternalLink: Abbrechen
+auth:
+  login: Anmelden
+  logout: Abmelden
+  email: E-Mail
+  password: Passwort
+  loginOrRegister: Anmelden / Registrieren
+  register: Registrieren
+  pleaseEnterEmail: Bitte E-Mail eingeben
+  pleaseEnterPassword: Bitte Passwort eingeben
+  passwordMustBeAtLeast6Characters: Das Passwort muss mindestens 6 Zeichen lang sein
+  pleaseEnterCaptcha: Bitte Captcha eingeben
+  captcha: Captcha
+  refreshCaptcha: Captcha erneuern
+  captchaNotLoaded: Captcha nicht geladen
+  loginSuccess: Anmeldung erfolgreich
+  loginSuccessProfilePending: Angemeldet. Profil wird geladen…
+  emailVerificationSent: E-Mail-Verifizierung gesendet
+  notLoggedIn: Nicht angemeldet
+  clickToLogin: Zum Anmelden tippen
+  logoutConfirmation: Möchten Sie sich wirklich abmelden?
+  logoutSuccess: Abmeldung erfolgreich
+  logoutFailed: Abmeldung fehlgeschlagen
+  usernameOrEmail: Benutzername oder E-Mail
+  pleaseEnterUsernameOrEmail: Bitte Benutzername oder E-Mail eingeben
+  rememberMe: "Benutzername merken"
+  registerNoticeTitle: Auf der offiziellen Website registrieren
+  registerNoticeDescription: "Die In-App-Registrierung ist nicht mehr verfügbar. Bitte rufen Sie die offizielle Iwara-Website auf, um Ihr Konto zu erstellen, und kehren Sie dann hierher zurück, um sich anzumelden."
+  registerNoticeReturnTip: "Kehren Sie nach der Registrierung hierher zurück und melden Sie sich mit Ihrem Konto an."
+  goToOfficialWebsite: Zur offiziellen Website
+
+errors:
+  error: Fehler
+  required: Dieses Feld ist erforderlich
+  invalidEmail: Ungültige E-Mail-Adresse
+  networkError: Netzwerkfehler, bitte erneut versuchen
+  errorWhileFetching: Fehler beim Abrufen
+  commentCanNotBeEmpty: Der Kommentarinhalt darf nicht leer sein
+  errorWhileFetchingReplies: Fehler beim Abrufen der Antworten, bitte prüfen Sie die Netzwerkverbindung
+  canNotFindCommentController: Kommentar-Controller nicht gefunden
+  errorWhileLoadingGallery: Fehler beim Laden der Galerie
+  howCouldThereBeNoDataItCantBePossible: Wie kann es keine Daten geben? Das ist unmöglich :<
+  unsupportedImageFormat: 'Nicht unterstütztes Bildformat: ${str}'
+  invalidGalleryId: Ungültige Galerie-ID
+  translationFailedPleaseTryAgainLater: Übersetzung fehlgeschlagen, bitte später erneut versuchen
+  errorOccurred: "Ein Fehler ist aufgetreten, bitte später erneut versuchen."
+  errorOccurredWhileProcessingRequest: Beim Verarbeiten der Anfrage ist ein Fehler aufgetreten
+  errorWhileFetchingDatas: Fehler beim Abrufen der Daten, bitte später erneut versuchen
+  serviceNotInitialized: Dienst nicht initialisiert
+  unknownType: Unbekannter Typ
+  errorWhileOpeningLink: 'Fehler beim Öffnen des Links: ${link}'
+  invalidUrl: Ungültige URL
+  failedToOperate: Vorgang fehlgeschlagen
+  permissionDenied: Berechtigung verweigert
+  youDoNotHavePermissionToAccessThisResource: Sie haben keine Berechtigung, auf diese Ressource zuzugreifen
+  loginFailed: Anmeldung fehlgeschlagen
+  unknownError: Unbekannter Fehler
+  sessionExpired: Sitzung abgelaufen
+  failedToFetchCaptcha: Captcha konnte nicht abgerufen werden
+  emailAlreadyExists: E-Mail existiert bereits
+  invalidCaptcha: Ungültiges Captcha
+  registerFailed: Registrierung fehlgeschlagen
+  failedToFetchComments: Kommentare konnten nicht abgerufen werden
+  failedToFetchImageDetail: Bilddetails konnten nicht abgerufen werden
+  failedToFetchImageList: Bildliste konnte nicht abgerufen werden
+  failedToFetchData: Daten konnten nicht abgerufen werden
+  invalidParameter: Ungültiger Parameter
+  pleaseLoginFirst: Bitte zuerst anmelden
+  errorWhileLoadingPost: Fehler beim Laden des Beitrags
+  errorWhileLoadingPostDetail: Fehler beim Laden der Beitragsdetails
+  invalidPostId: Ungültige Beitrags-ID
+  forceUpdateNotPermittedToGoBack: Derzeit im Zustand der erzwungenen Aktualisierung, Zurückgehen nicht möglich
+  pleaseLoginAgain: Bitte erneut anmelden
+  invalidLogin: Ungültige Anmeldung, bitte prüfen Sie E-Mail und Passwort
+  tooManyRequests: Zu viele Anfragen, bitte später erneut versuchen
+  exceedsMaxLength: 'Maximale Länge überschritten: ${max}'
+  contentCanNotBeEmpty: Der Inhalt darf nicht leer sein
+  titleCanNotBeEmpty: Der Titel darf nicht leer sein
+  tooManyRequestsPleaseTryAgainLaterText: "Zu viele Anfragen, bitte später erneut versuchen, verbleibend"
+  remainingHours: "${num} Stunden"
+  remainingMinutes: "${num} Minuten"
+  remainingSeconds: "${num} Sekunden"
+  tagLimitExceeded: 'Tag-Limit überschritten, Limit: ${limit}'
+  failedToRefresh: Aktualisierung fehlgeschlagen
+  noPermission: Keine Berechtigung
+  resourceNotFound: Ressource nicht gefunden
+  failedToSaveCredentials: "Anmeldedaten konnten nicht gespeichert werden"
+  failedToLoadSavedCredentials: "Gespeicherte Anmeldedaten konnten nicht geladen werden"
+  notFound: 'Inhalt nicht gefunden oder wurde gelöscht'
+  network:
+    basicPrefix: 'Netzwerkfehler – '
+    failedToConnectToServer: 'Verbindung zum Server fehlgeschlagen'
+    serverNotAvailable: 'Server nicht verfügbar'
+    requestTimeout: 'Zeitüberschreitung der Anfrage'
+    unexpectedError: 'Unerwarteter Fehler'
+    invalidResponse: 'Ungültige Antwort'
+    invalidRequest: 'Ungültige Anfrage'
+    invalidUrl: 'Ungültige URL'
+    invalidMethod: 'Ungültige Methode'
+    invalidHeader: 'Ungültiger Header'
+    invalidBody: 'Ungültiger Anfragetext'
+    invalidStatusCode: 'Ungültiger Statuscode'
+    serverError: 'Serverfehler'
+    requestCanceled: 'Anfrage abgebrochen'
+    invalidPort: 'Ungültiger Port'
+    proxyPortError: 'Proxy-Port-Fehler'
+    connectionRefused: 'Verbindung abgelehnt'
+    networkUnreachable: 'Netzwerk nicht erreichbar'
+    noRouteToHost: 'Keine Route zum Host'
+    connectionFailed: 'Verbindung fehlgeschlagen'
+    sslConnectionFailed: 'SSL-Verbindung fehlgeschlagen, bitte prüfen Sie Ihre Netzwerkeinstellungen'
+friends:
+  clickToRestoreFriend: Zum Wiederherstellen des Freundes klicken
+  friendsList: Freundesliste
+  friendRequests: Freundschaftsanfragen
+  friendRequestsList: Liste der Freundschaftsanfragen
+  removingFriend: Freund wird entfernt…
+  failedToRemoveFriend: Freund konnte nicht entfernt werden
+  cancelingRequest: Freundschaftsanfrage wird abgebrochen…
+  failedToCancelRequest: Freundschaftsanfrage konnte nicht abgebrochen werden
+
+authorProfile:
+  noMoreDatas: Keine weiteren Daten
+  userProfile: Benutzerprofil
+
+favorites:
+  clickToRestoreFavorite: Zum Wiederherstellen des Favoriten klicken
+  myFavorites: Meine Favoriten
+  batchCancelFavorite: Ausgewählte Favoriten entfernen
+  batchCancelFavoriteConfirm(count): 'Die ${count} ausgewählten Element(e) aus den Favoriten entfernen? Sie können sie anschließend durch Antippen der Karten wiederherstellen.'
+  batchCancelFavoriteSuccess(count): '${count} Element(e) aus den Favoriten entfernt'
+  batchCancelFavoriteResult(success, failed): '${success} Element(e) entfernt, ${failed} fehlgeschlagen'
+
+galleryDetail:
+  browseInSpace: Im Raum durchsuchen
+  galleryDetail: Galeriedetails
+  viewGalleryDetail: Galeriedetails anzeigen
+  zoomReset: Zoom zurücksetzen
+  copyLink: Link kopieren
+  copyImage: Bild kopieren
+  saveAs: Speichern unter
+  saveToAlbum: In Album speichern
+  publishedAt: Veröffentlicht am
+  viewsCount: Aufrufe
+  imageLibraryFunctionIntroduction: Einführung in die Funktionen der Bildbibliothek
+  rightClickToSaveSingleImage: Rechtsklick, um einzelnes Bild zu speichern
+  batchSave: Stapelspeicherung
+  keyboardLeftAndRightToSwitch: Tastatur links und rechts zum Wechseln
+  keyboardUpAndDownToZoom: Tastatur oben und unten zum Zoomen
+  mouseWheelToSwitch: Mausrad zum Wechseln
+  ctrlAndMouseWheelToZoom: STRG + Mausrad zum Zoomen
+  moreFeaturesToBeDiscovered: Weitere Funktionen zu entdecken…
+  authorOtherGalleries: Weitere Galerien des Autors
+  relatedGalleries: Verwandte Galerien
+  authorNoOtherGalleries: Keine weiteren Galerien von diesem Autor
+  noRelatedGalleries: Keine verwandten Galerien
+  scrollLeft: Nach links scrollen
+  scrollRight: Nach rechts scrollen
+  clickLeftAndRightEdgeToSwitchImage: Zum Wechseln des Bildes auf den linken oder rechten Rand klicken
+  rotateToLandscape: Vollbild im Querformat
+  backToPortrait: Zurück zum Hochformat
+
+playList:
+  myPlayList: Meine Wiedergabeliste
+  friendlyTips: Freundliche Hinweise
+  dearUser: Liebe Nutzerin, lieber Nutzer
+  iwaraPlayListSystemIsNotPerfectYet: Iwaras Wiedergabelisten-System ist noch nicht perfekt
+  notSupportSetCover: Festlegen eines Titelbilds wird nicht unterstützt
+  notSupportDeleteList: Löschen der Liste wird nicht unterstützt
+  notSupportSetPrivate: Festlegen als privat wird nicht unterstützt
+  yesCreateListWillAlwaysExistAndVisibleToEveryone: Ja... eine erstellte Liste bleibt dauerhaft bestehen und ist für alle sichtbar
+  smallSuggestion: Kleiner Tipp
+  useLikeToCollectContent: Wenn Ihnen Datenschutz wichtiger ist, empfiehlt es sich, die Funktion „Gefällt mir“ zum Sammeln von Inhalten zu verwenden
+  welcomeToDiscussOnGitHub: Wenn Sie weitere Vorschläge oder Ideen haben, diskutieren Sie gerne auf GitHub!
+  iUnderstand: Verstanden
+  searchPlaylists: Wiedergabelisten suchen...
+  newPlaylistName: Name der neuen Wiedergabeliste
+  createNewPlaylist: Neue Wiedergabeliste erstellen
+  videos: Videos
+
+search:
+  googleSearchScope: Suchbereich
+  searchTags: Tags suchen...
+  contentRating: Inhaltseinstufung
+  removeTag: Tag entfernen
+  pleaseEnterSearchContent: Bitte Suchinhalt eingeben
+  searchHistory: Suchverlauf
+  searchSuggestion: Suchvorschläge
+  usedTimes: Nutzungshäufigkeit
+  lastUsed: Zuletzt verwendet
+  noSearchHistoryRecords: Kein Suchverlauf
+  clearSearchHistoryConfirm: Möchten Sie wirklich den gesamten Suchverlauf löschen? Dies kann nicht rückgängig gemacht werden.
+  notSupportCurrentSearchType: 'Der aktuelle Suchtyp ${searchType} wird nicht unterstützt, bitte warten Sie auf das Update'
+  searchResult: Suchergebnis
+  unsupportedSearchType: 'Nicht unterstützter Suchtyp: ${searchType}'
+  googleSearch: "Google-Suche"
+  googleSearchHint: "${webName}s Suchfunktion ist unpraktisch? Probieren Sie die Google-Suche!"
+  googleSearchDescription: "Verwenden Sie den Suchoperator :site der Google-Suche, um Inhalte auf der Website zu suchen. Das ist sehr nützlich bei der Suche nach Videos, Galerien, Wiedergabelisten und Nutzern."
+  googleSearchKeywordsHint: "Stichwörter zum Suchen eingeben"
+  openLinkJump: "Link extern öffnen"
+  googleSearchButton: "Google-Suche"
+  pleaseEnterSearchKeywords: "Bitte Suchbegriffe eingeben"
+  googleSearchQueryCopied: "Suchanfrage in die Zwischenablage kopiert"
+  googleSearchBrowserOpenFailed: "Browser konnte nicht geöffnet werden: ${error}"
+  searchRequestTimeout: Zeitüberschreitung der Anfrage, bitte später erneut versuchen
+  searchCannotConnectToServer: Verbindung zum Server nicht möglich, bitte prüfen Sie Ihre Netzwerkverbindung
+  searchNetworkError: Netzwerkverbindung fehlgeschlagen, bitte prüfen Sie Ihre Netzwerkeinstellungen oder versuchen Sie es später erneut
+  searchFailedPleaseRetry: Suche fehlgeschlagen, bitte später erneut versuchen
+mediaList:
+  personalIntroduction: Vorstellung
+
+settings:
+  listViewMode: Listenansicht
+  previewEffect: Effektvorschau
+  useTraditionalPaginationMode: Traditionellen Seitenmodus verwenden
+  useTraditionalPaginationModeDesc: Traditionellen Seitenmodus aktivieren, Wasserfall-Modus deaktivieren. Wirkt nach erneutem Rendern der Seite oder Neustart der App
+  showVideoProgressBottomBarWhenToolbarHidden: Untere Fortschrittsleiste bei ausgeblendeter Symbolleiste anzeigen
+  showVideoProgressBottomBarWhenToolbarHiddenDesc: Diese Konfiguration legt fest, ob die untere Videofortschrittsleiste angezeigt wird, wenn die Symbolleiste ausgeblendet ist.
+  seekPreviewSize: Größe der Spulvorschau
+  seekPreviewSizeDesc: Wie groß das Vorschaufenster über dem Fortschrittsbalken ist. Es richtet sich bereits nach der Playergröße und dem Seitenverhältnis des Videos; dies passt es nur leicht an.
+  seekPreviewSizeSmall: Klein
+  seekPreviewSizeStandard: Standard
+  seekPreviewSizeLarge: Groß
+  seekPreviewSizeStandardDesc: Die aus Player und Video abgeleitete Größe
+  showFullscreenUpNextHint: Den Griff „Als Nächstes“ anzeigen
+  showFullscreenUpNextHintDesc: Zeigt einen kleinen Griff am rechten Rand des Players an, der die Warteschlangen-Schublade (Quelle / Wiedergabeliste / Später ansehen) öffnet. Wenn er ausgeschaltet ist, gibt es keinen anderen Zugang.
+  basicSettings: Grundeinstellungen
+  personalizedSettings: Personalisierte Einstellungen
+  otherSettings: Weitere Einstellungen
+  searchConfig: Suchkonfiguration
+  thisConfigurationDeterminesWhetherThePreviousConfigurationWillBeUsedWhenPlayingVideosAgain: Diese Konfiguration legt fest, ob beim erneuten Abspielen von Videos die vorherige Konfiguration verwendet wird.
+  playControl: Wiedergabesteuerung
+  playbackSpeedSettings: Wiedergabe & Geschwindigkeit
+  playbackBehaviorSettings: Wiedergabeverhalten
+  enhancementSettings: Kino & Verbesserungen
+  fastForwardTime: Vorspulzeit
+  fastForwardTimeMustBeAPositiveInteger: Die Vorspulzeit muss eine positive ganze Zahl sein.
+  rewindTime: Rückspulzeit
+  rewindTimeMustBeAPositiveInteger: Die Rückspulzeit muss eine positive ganze Zahl sein.
+  longPressPlaybackSpeed: Wiedergabegeschwindigkeit bei Langdruck
+  longPressPlaybackSpeedMustBeAPositiveNumber: Die Wiedergabegeschwindigkeit bei Langdruck muss eine positive Zahl sein.
+  defaultPlaybackSpeed: Standard-Wiedergabegeschwindigkeit
+  rememberPlaybackSpeed: Wiedergabegeschwindigkeit merken
+  rememberPlaybackSpeedDesc: Wenn aktiviert, wird die im Player eingestellte Geschwindigkeit als Standard gespeichert und automatisch auf neue Videos angewendet.
+  repeat: Wiederholen
+  renderVerticalVideoInVerticalScreen: Vertikales Video im Hochformat darstellen
+  thisConfigurationDeterminesWhetherTheVideoWillBeRenderedInVerticalScreenWhenPlayingInFullScreen: Diese Konfiguration legt fest, ob das Video bei der Wiedergabe im Vollbildmodus im Hochformat dargestellt wird.
+  rememberVolume: Lautstärke merken
+  thisConfigurationDeterminesWhetherTheVolumeWillBeKeptWhenPlayingVideosAgain: Diese Konfiguration legt fest, ob die Lautstärke beim erneuten Abspielen von Videos beibehalten wird.
+  rememberBrightness: Helligkeit merken
+  thisConfigurationDeterminesWhetherTheBrightnessWillBeKeptWhenPlayingVideosAgain: Diese Konfiguration legt fest, ob die Helligkeit beim erneuten Abspielen von Videos beibehalten wird.
+  playControlArea: Wiedergabesteuerbereich
+  leftAndRightControlAreaWidth: Breite der linken und rechten Steuerfläche
+  thisConfigurationDeterminesTheWidthOfTheControlAreasOnTheLeftAndRightSidesOfThePlayer: Diese Konfiguration legt die Breite der Steuerbereiche links und rechts am Player fest.
+  proxyAddressCannotBeEmpty: Proxy-Adresse darf nicht leer sein.
+  invalidProxyAddressFormatPleaseUseTheFormatOfIpPortOrDomainNamePort: Ungültiges Proxy-Adressformat. Bitte verwenden Sie das Format IP:Port oder Domainname:Port.
+  proxyNormalWork: Proxy funktioniert normal.
+  testProxyFailedWithStatusCode: 'Proxy-Test fehlgeschlagen, Statuscode: ${code}'
+  testProxyFailedWithException: 'Proxy-Test fehlgeschlagen, Ausnahme: ${exception}'
+  proxyConfig: Proxy-Konfiguration
+  thisIsHttpProxyAddress: Dies ist eine HTTP-Proxy-Adresse
+  checkProxy: Proxy prüfen
+  proxyAddress: Proxy-Adresse
+  pleaseEnterTheUrlOfTheProxyServerForExample1270018080: Bitte geben Sie die URL des Proxyservers ein, zum Beispiel 127.0.0.1:8080
+  enableProxy: Proxy aktivieren
+  left: Links
+  middle: Mitte
+  right: Rechts
+  playerSettings: Player-Einstellungen
+  networkSettings: Netzwerkeinstellungen
+  customizeYourPlaybackExperience: Passen Sie Ihr Wiedergabeerlebnis an
+  chooseYourFavoriteAppAppearance: Wählen Sie Ihr bevorzugtes App-Erscheinungsbild
+  configureYourProxyServer: Konfigurieren Sie Ihren Proxyserver
+  settings: Einstellungen
+  themeSettings: Design-Einstellungen
+  followSystem: System folgen
+  lightMode: Hellmodus
+  darkMode: Dunkelmodus
+  presetTheme: Voreingestelltes Design
+  basicTheme: Standarddesign
+  needRestartToApply: Die App muss neu gestartet werden, damit die Einstellungen wirksam werden
+  themeNeedRestartDescription: Die Design-Einstellungen erfordern einen Neustart der App, um wirksam zu werden
+  about: Über
+  diagnosticsAndFeedback: Diagnose & Feedback
+  currentVersion: Aktuelle Version
+  latestVersion: Neueste Version
+  checkForUpdates: Nach Updates suchen
+  update: Aktualisieren
+  newVersionAvailable: Neue Version verfügbar
+  projectHome: Projekt-Startseite
+  release: Version
+  issueReport: Problem melden
+  openSourceLicense: Open-Source-Lizenz
+  checkForUpdatesFailed: Suche nach Updates fehlgeschlagen, bitte später erneut versuchen
+  autoCheckUpdate: Automatisch nach Updates suchen
+  updateContent: Update-Inhalt
+  releaseDate: Veröffentlichungsdatum
+  ignoreThisVersion: Diese Version ignorieren
+  forceUpdateTip: "Dies ist ein obligatorisches Update. Bitte aktualisieren Sie so bald wie möglich auf die neueste Version"
+  viewChangelog: Änderungsprotokoll anzeigen
+  alreadyLatestVersion: Bereits die neueste Version
+  appSettings: App-Einstellungen
+  configureYourAppSettings: Konfigurieren Sie Ihre App-Einstellungen
+  history: Verlauf
+  autoRecordHistory: Verlauf automatisch aufzeichnen
+  autoRecordHistoryDesc: Angesehene Videos und Bilder automatisch aufzeichnen
+  autoDeleteHistory: Verlauf automatisch löschen
+  autoDeleteHistoryDesc: Beim Start automatisch den Browserverlauf löschen, der älter als die Aufbewahrungstage ist (standardmäßig aus)
+  autoDeleteHistoryDays: Aufbewahrungstage
+  autoDeleteHistoryDaysValue: 'Die letzten ${num} Tage behalten'
+  autoDeleteHistoryDaysInvalid: Bitte eine gültige Anzahl von Tagen eingeben (mindestens 1)
+  showUnprocessedMarkdownText: Unverarbeiteten Markdown-Text anzeigen
+  showUnprocessedMarkdownTextDesc: Den Originaltext des Markdown anzeigen
+  markdown: Markdown
+  activeBackgroundPrivacyMode: Datenschutzmodus
+  activeBackgroundPrivacyModeDesc: Screenshots und Bildschirmaufnahmen blockieren und den Bildschirm im Hintergrund ausblenden
+  activeBackgroundPrivacyModeDescNonAndroid: Den Bildschirm ausblenden, wenn die App in den Hintergrund wechselt (diese Plattform kann Screenshots nicht blockieren)
+  activeBackgroundPrivacyModeDescScreenshotOnly: Screenshots und Bildschirmaufnahmen blockieren
+  privacy: Datenschutz
+  appLock: App-Sperre
+  appLockEnabled: App-Sperre aktivieren
+  appLockEnabledDesc: PIN oder Biometrie zum Öffnen der App erforderlich; die Hintergrundvorschau wird automatisch ausgeblendet
+  appLockEnabledSummary: An · PIN-geschützt
+  appLockDisabledSummary: Aus
+  appLockTimeout: Sperren nach Verlassen der App
+  appLockTimeoutDesc: Zulässige Zeit im Hintergrund, bevor eine Authentifizierung erforderlich ist
+  appLockAfterScreenOff: Sperren nach Bildschirmsperre
+  appLockAfterScreenOffDesc: Authentifizierung nach Sperren des Gerätebildschirms erforderlich
+  appLockTimeoutDisabled: Deaktiviert
+  appLockImmediately: Sofort
+  appLockSeconds: '${seconds} Sekunden'
+  appLockMinutes: '${minutes} Minuten'
+  appLockUseBiometrics: Biometrie verwenden
+  appLockUseBiometricsDesc: Mit Fingerabdruck oder Gesichtserkennung entsperren
+  appLockBiometricsUnavailable: Auf diesem Gerät sind keine registrierten biometrischen Daten verfügbar
+  appLockSetPin: PIN festlegen
+  appLockEnterPin: PIN eingeben
+  appLockConfirmPin: PIN bestätigen
+  appLockCurrentPin: Aktuelle PIN eingeben
+  appLockNewPin: Neue PIN eingeben
+  appLockPinRequirements: Die PIN muss 4–8 Ziffern enthalten
+  appLockPinsDoNotMatch: Die PINs stimmen nicht überein
+  appLockInvalidPin: Falsche PIN
+  appLockSetupFailed: PIN konnte nicht sicher gespeichert werden
+  appLockDisable: PIN eingeben, um die App-Sperre zu deaktivieren
+  appLockChangePin: PIN ändern
+  appLockNow: Jetzt sperren
+  appLockUnlock: Entsperren
+  appLockLockedTitle: Gesperrt
+  appLockLockedDesc: Zum Fortfahren authentifizieren
+  appLockAuthenticateReason: Zum Entsperren authentifizieren
+  appLockEnableBiometricsReason: Authentifizieren, um die biometrische Entsperrung zu aktivieren
+  appLockBiometricFailed: Biometrische Authentifizierung wurde nicht abgeschlossen
+  appLockTooManyAttempts: 'Zu viele Versuche. Erneut versuchen in ${seconds}s'
+  appLockCredentialUnavailableTitle: Zugangsdaten der App-Sperre können nicht gelesen werden
+  appLockCredentialUnavailableDesc: Der sichere Systemspeicher ist vorübergehend nicht verfügbar oder die Zugangsdaten sind beschädigt. Die App bleibt gesperrt. Versuchen Sie es zunächst erneut; wenn es weiter fehlschlägt, können Sie die App-Sperre zurücksetzen, wodurch sie deaktiviert und die gespeicherte PIN gelöscht wird.
+  appLockRetry: Erneut versuchen
+  appLockReset: App-Sperre zurücksetzen
+  appLockResetAction: Zurücksetzen
+  appLockResetConfirmTitle: App-Sperre zurücksetzen?
+  appLockResetConfirmDesc: Dadurch wird die App-Sperre deaktiviert und die gespeicherte PIN sowie die Biometrie-Einstellung gelöscht. Sie können sie danach erneut einrichten.
+  appLockRetrySucceeded: Zugangsdaten erfolgreich gelesen. Geben Sie Ihre PIN ein.
+  appLockRetryFailed: Zugangsdaten können weiterhin nicht gelesen werden
+  forum: Forum
+  news: Neuigkeiten
+  community: Community
+  disableForumReplyQuote: Zitat von Forumantworten deaktivieren
+  disableForumReplyQuoteDesc: Das Mitführen von Informationen zum beantworteten Beitrag beim Antworten im Forum deaktivieren
+  theaterMode: Kinomodus
+  theaterModeDesc: Nach dem Öffnen wird der Player-Hintergrund auf die unscharfe Version des Videocovers gesetzt
+  appLinks: App-Links
+  defaultBrowser: Standardbrowser
+  defaultBrowserDesc: Bitte öffnen Sie in den Systemeinstellungen den Eintrag für die Standard-Linkkonfiguration und fügen Sie den Link zur Website iwara.tv hinzu
+  themeMode: Designmodus
+  themeModeDesc: Diese Konfiguration legt den Designmodus der App fest
+  glassEffect: Oberflächenmaterial
+  glassEffectDesc: Wählt das in der gesamten App verwendete Material — Kopfbereich-Kapseln, Menüs, Dialogschaltflächen und die untere Navigationsleiste
+  liquidGlassEffect: Liquid Glass
+  liquidGlassEffectDesc: Echte Unschärfe und Lichtbrechung. Sieht am besten aus, kann aber auf schwächeren Geräten Bildraten senken und etwas mehr Energie verbrauchen
+  plainGlassEffect: Material
+  plainGlassEffectDesc: Standard-Material-3-Oberflächen — undurchsichtig, keine Unschärfe, keine Schatten. Beste Leistung und Akkulaufzeit
+  glassEffectIntroTitle: Wählen Sie Ihr Oberflächenmaterial
+  glassEffectIntroContent: Kopfbereiche, die Registerleiste und Menüs verwenden Liquid Glass — echte Unschärfe und Lichtbrechung. Wenn es sich auf Ihrem Gerät langsam anfühlt oder Sie etwas Schlichteres bevorzugen, wechseln Sie jetzt zu Material (undurchsichtige Oberflächen, keine Unschärfe, keine Schatten).
+  glassEffectIntroHint: Sie können dies jederzeit unter Einstellungen → Design → Oberflächenmaterial ändern.
+  glassEffectIntroDone: Beibehalten
+  dynamicColor: Dynamische Farbe
+  dynamicColorDesc: Diese Konfiguration legt fest, ob die App dynamische Farben verwendet
+  useDynamicColor: Dynamische Farbe verwenden
+  useDynamicColorDesc: Diese Konfiguration legt fest, ob die App dynamische Farben verwendet
+  presetColors: Voreingestellte Farben
+  customColors: Benutzerdefinierte Farben
+  customColorsDisabledByDynamicColor: Dynamische Farbe ist aktiviert, daher sind Voreinstellungs-/benutzerdefinierte Farben nicht verfügbar. Deaktivieren Sie zuerst die dynamische Farbe.
+  pickColor: Farbe auswählen
+  cancel: Abbrechen
+  confirm: Bestätigen
+  noCustomColors: Keine benutzerdefinierten Farben
+  recordAndRestorePlaybackProgress: Wiedergabefortschritt aufzeichnen und wiederherstellen
+  autoPlayVideoOnFirstEnter: Video beim ersten Betreten automatisch abspielen
+  autoPlayVideoOnFirstEnterDesc: Diese Einstellung legt fest, ob das Video beim ersten Betreten der Videoseite automatisch zu spielen beginnt.
+  autoEnterFullscreen: Automatisch Vollbild aktivieren
+  autoEnterFullscreenDesc: Wann der Player von selbst in den Vollbildmodus wechseln soll. Private, gelöschte und externe Videos bleiben unberührt, ebenso Bild-in-Bild.
+  autoEnterFullscreenOff: 'Aus'
+  autoEnterFullscreenOffDesc: Nie von selbst in den Vollbildmodus wechseln
+  autoEnterFullscreenOnPlaybackStart: Wenn die Wiedergabe startet
+  autoEnterFullscreenOnPlaybackStartDesc: Im Moment des tatsächlichen Wiedergabebeginns in den Vollbildmodus wechseln
+  autoEnterFullscreenOnDetailPageEnter: Beim Öffnen des Videos
+  autoEnterFullscreenOnDetailPageEnterDesc: Sofort in den Vollbildmodus wechseln, sobald die Videoseite geöffnet wird, ohne auf die Wiedergabe zu warten
+  autoEnterFullscreenKind: Vollbildtyp
+  autoEnterFullscreenKindDesc: Welche Art von Vollbild automatisch aktiviert wird. Nur Desktop.
+  autoEnterFullscreenKindSystem: System-Vollbild
+  autoEnterFullscreenKindSystemDesc: Den Fenstermanager das Fenster in den Vollbildmodus versetzen lassen
+  autoEnterFullscreenKindApp: App-Vollbild
+  autoEnterFullscreenKindAppDesc: Das Fenster unverändert lassen und die gesamte App in den Player verwandeln
+  signature: Signatur
+  enableSignature: Signatur aktivieren
+  enableSignatureDesc: Diese Konfiguration legt fest, ob die App beim Antworten eine Signatur hinzufügt
+  enterSignature: Signatur eingeben
+  editSignature: Signatur bearbeiten
+  signatureContent: Signaturinhalt
+  exportConfig: "App-Konfiguration exportieren"
+  exportConfigDesc: "Einstellungen und Verlauf (Browserverlauf, Wiedergabefortschritt, Favoriten usw.) zur Sicherung oder Übertragung auf ein anderes Gerät in eine Datei exportieren. Download-Aufgaben sind nicht enthalten."
+  importConfig: "App-Konfiguration importieren"
+  importConfigDesc: "App-Konfiguration aus einer Datei importieren"
+  exportConfigSuccess: "Konfiguration erfolgreich exportiert!"
+  exportConfigFailed: "Konfiguration konnte nicht exportiert werden"
+  importConfigSuccess: "Konfiguration erfolgreich importiert!"
+  importConfigFailed: "Konfiguration konnte nicht importiert werden"
+  exportIncludeSensitive: "Sensible Informationen einschließen"
+  exportIncludeSensitiveDesc: "Schließt API-Schlüssel, Sitzungstoken und Proxy-Adresse ein. Nur aktivieren, wenn Sie auf Ihr eigenes Gerät sichern."
+  importConfigOverwriteWarning: "Beim Importieren werden Ihre aktuellen Einstellungen und Ihr Verlauf (Browserverlauf, Wiedergabefortschritt, Favoriten usw.) überschrieben. Fortfahren?"
+  importConfigRestartTitle: "Import erfolgreich"
+  importConfigRestartContent: "Ihre Konfiguration wurde importiert. Bitte schließen Sie die App vollständig und öffnen Sie sie erneut, damit alle Änderungen wirksam werden."
+  historyUpdateLogs: "Update-Verlauf"
+  noUpdateLogs: "Keine Update-Protokolle verfügbar"
+  versionLabel: "Version: {version}"
+  releaseDateLabel: "Veröffentlichungsdatum: {date}"
+  noChanges: "Kein Update-Inhalt verfügbar"
+  interaction: Interaktion
+  enableVibration: Vibration aktivieren
+  enableVibrationDesc: Vibrationsfeedback bei der Interaktion mit der App aktivieren
+  defaultKeepVideoToolbarVisible: Video-Symbolleiste sichtbar halten
+  defaultKeepVideoToolbarVisibleDesc: Diese Einstellung legt fest, ob die Video-Symbolleiste beim ersten Betreten der Videoseite sichtbar bleibt.
+  theaterModelHasPerformanceIssuesAndIDontKnowHowToFixItNowIfYouRRuningOnDeskTopYouCanOpenIt: Auf Mobilgeräten kann der Kinomodus Leistungsprobleme verursachen. Sie können ihn optional aktivieren.
+  fullscreenOrientation: Bildschirmausrichtung nach Wechsel in den Vollbildmodus
+  fullscreenOrientationDesc: Diese Einstellung legt die Standardbildschirmausrichtung beim Wechsel in den Vollbildmodus fest (nur mobil)
+  fullscreenOrientationLeftLandscape: Querformat links
+  fullscreenOrientationRightLandscape: Querformat rechts
+  screenFit: Bildschirmgröße
+  screenFitDesc: Wählen Sie, wie das Video den Player-Bereich füllt.
+  rememberScreenFit: Bildschirmgröße merken
+  rememberScreenFitDesc: Die ausgewählte Größe auf später geöffnete Videos anwenden.
+  screenFitFit: Einpassen
+  screenFitFitDesc: Das gesamte Bild unter Beibehaltung des Seitenverhältnisses anzeigen
+  screenFitStretch: Strecken
+  screenFitStretchDesc: Den Player-Bereich füllen; das Bild kann verzerrt werden
+  screenFitCover: Ausfüllen
+  screenFitCoverDesc: Den Player-Bereich unter Beibehaltung des Seitenverhältnisses füllen; Überstehendes wird abgeschnitten
+  screenFitRatioDesc: Dieses Seitenverhältnis erzwingen; das Bild kann verzerrt werden
+  jumpLink: Sprunglink
+  language: Sprache
+  languageNativeName: Deutsch
+  followSystemLanguage: Systemsprache
+  languageChangedMessage: Sprache geändert. Einige Funktionen werden erst nach einem Neustart der App wirksam.
+  languageChanged: Die Spracheinstellung wurde geändert. Bitte starten Sie die App neu, damit sie wirksam wird.
+  keybinding:
+    title: Tastenkürzel
+    entryLabel: Tastenkürzel
+    entryDesc: Tastenkürzel der App anpassen (hauptsächlich für Desktop)
+    desktopHint: Tastenkürzel gelten hauptsächlich für Desktop-Tastaturen; auf Mobilgeräten werden meist Gesten verwendet.
+    resetAll: Alle auf Standard zurücksetzen
+    resetAllConfirm: Alle Tastenkürzel der App auf die Standardwerte zurücksetzen?
+    resetToDefault: Auf Standard zurücksetzen
+    resetScope: Diesen Bereich zurücksetzen
+    notSet: Nicht festgelegt
+    addShortcut: Tastenkürzel hinzufügen
+    removeShortcut: Dieses Tastenkürzel entfernen
+    pressNewShortcut: Neues Tastenkürzel drücken…
+    recordingCancelHint: Esc drücken zum Abbrechen
+    mouseHint: Sie können auch Seitentasten der Maus (Zurück / Vorwärts) oder die mittlere Taste belegen
+    mouseNotSupportedInScope: Dieser Bereich verarbeitet keine Maustasten; verwenden Sie stattdessen die Tastatur
+    capabilityKeyboardOnly: Dieser Bereich akzeptiert nur Tastaturtasten
+    capabilityKeyboardAndMouse: Dieser Bereich akzeptiert Tastaturtasten sowie die mittlere und die seitlichen Maustasten
+    capabilityKeyboardAndMouseMobile: Dieser Bereich akzeptiert Tastaturtasten sowie die mittlere und die vordere Maustaste (die Zurück-Taste ist vom System belegt)
+    rejectMultipleButtons: Drücken Sie jeweils nur eine Maustaste
+    rejectPlatformBack: Das System verwendet dies bereits für Zurück; eine Belegung würde zweimal zurückgehen
+    detectedLabel: Erkannt
+    reservedKey: Diese Taste ist vom System reserviert und kann nicht belegt werden
+    reservedForGlobalBack: Diese Taste ist mit „${action}“ belegt; sie bleibt hier reserviert, damit Sie diesen Bildschirm weiterhin verlassen können
+    conflictTitle: Tastenkürzel-Konflikt
+    conflictMessage: Diese Kombination ist bereits mit „${action}“ belegt. Wenn Sie fortfahren, wird die vorhandene Belegung entfernt.
+    conflictContinue: Trotzdem belegen
+    shadowWarningTitle: Überschneidung mit globalem Tastenkürzel
+    shadowWarningMessage: Diese Kombination ist global mit „${action}“ belegt. Wenn Sie sie hier belegen, wird diese Aktion nur innerhalb dieses Bereichs überschrieben.
+    globalShadowedMessage: Diese Kombination ist bereits in ${scope} mit „${action}“ belegt. In diesem Bereich wird dieses globale Tastenkürzel dadurch überschrieben.
+    searchHint: Tastenkürzel suchen…
+    scopeGlobal: Global
+    scopeGallery: Galerie
+    scopeVideo: Video
+    categoryNavigation: Navigation
+    categoryZoom: Zoom
+    categoryPlayback: Wiedergabe
+    categorySeek: Spulen
+    categoryVolume: Lautstärke
+    categoryDisplay: Anzeige
+    actionGlobalBack: Zurück
+    actionGalleryNext: Nächstes Foto
+    actionGalleryPrevious: Vorheriges Foto
+    actionGalleryZoomIn: Vergrößern
+    actionGalleryZoomOut: Verkleinern
+    actionGalleryResetZoom: Zoom zurücksetzen
+    actionGalleryPlayPause: Wiedergabe / Pause
+    actionGallerySeekBackward: Zurückspulen
+    actionGallerySeekForward: Vorspulen
+    actionGalleryToggleMute: Stummschaltung umschalten
+    actionPlayPause: Wiedergabe / Pause
+    actionSpeedUp: Geschwindigkeit erhöhen
+    actionSpeedDown: Geschwindigkeit verringern
+    actionSeekForward: Vorspulen
+    actionSeekBackward: Zurückspulen
+    actionVolumeUp: Lautstärke erhöhen
+    actionVolumeDown: Lautstärke verringern
+    actionToggleMute: Stummschaltung umschalten
+    actionToggleFullscreen: Vollbild umschalten
+    seekLongPressHint: Halten Sie die Taste zum Vor-/Zurückspulen gedrückt, um den Langdruck-Geschwindigkeitsmodus auszulösen
+    zoomSectionTitle: Bildzoom (fest)
+    zoomFixedNote: Die folgenden Tastenkürzel sind fest und können nicht geändert werden
+    zoomScaleLabel: Bild vergrößern
+    zoomScaleHint: Strg + Mausrad
+    zoomRotateLabel: Bild drehen
+    zoomRotateHint: Umschalt + Mausrad
+    zoomPinchGesture: Zusammenziehen
+    zoomTwoFingerRotateGesture: Drehen mit zwei Fingern
+  gestureControl: Gestensteuerung
+  leftDoubleTapRewind: Zurückspulen bei Doppeltipp links
+  rightDoubleTapFastForward: Vorspulen bei Doppeltipp rechts
+  doubleTapPause: Pause durch Doppeltippen
+  rightVerticalSwipeVolume: Lautstärke durch vertikales Wischen rechts (wirksam beim Öffnen einer neuen Seite)
+  leftVerticalSwipeBrightness: Helligkeit durch vertikales Wischen links (wirksam beim Öffnen einer neuen Seite)
+  longPressFastForward: Vorspulen bei Langdruck
+  enableMouseHoverShowToolbar: Symbolleiste bei Mauszeiger-Anzeige einblenden
+  enableMouseHoverShowToolbarInfo: Wenn aktiviert, wird die Video-Symbolleiste angezeigt, wenn der Mauszeiger über dem Player schwebt. Nach 3 Sekunden Inaktivität wird sie automatisch ausgeblendet.
+  enableHorizontalDragSeek: Horizontales Wischen zum Spulen
+  enableVideoGestureZoom: Videobild durch Zusammenziehen vergrößern
+  enableVideoGestureZoomInfo: Ziehen Sie mit zwei Fingern zusammen (oder Strg + Mausrad auf dem Desktop), um das Videobild zu vergrößern, und ziehen Sie es dann zum Verschieben.
+  showCenterPlayPauseButton: Wiedergabe-/Pause-Schaltfläche in der Mitte
+  showCenterPlayPauseButtonDesc: Die große Wiedergabe-/Pause-Schaltfläche in der Mitte des Players anzeigen.
+  # Audio Video Configuration
+  audioVideoConfig: Audio-Video-Konfiguration
+  expandBuffer: Puffer erweitern
+  expandBufferInfo: Wenn aktiviert, wird die Puffergröße erhöht; die Ladezeit wird länger, aber die Wiedergabe ist flüssiger
+  videoSyncMode: Video-Synchronisierungsmodus
+  videoSyncModeSubtitle: Strategie zur Audio-Video-Synchronisierung
+  hardwareDecodingMode: Hardware-Dekodierungsmodus
+  hardwareDecodingModeSubtitle: Einstellungen für die Hardware-Dekodierung
+  enableHardwareAcceleration: Hardwarebeschleunigung aktivieren
+  enableHardwareAccelerationInfo: Das Aktivieren der Hardwarebeschleunigung kann die Dekodierungsleistung verbessern, aber einige Geräte sind möglicherweise nicht kompatibel
+  useOpenSLESAudioOutput: OpenSLES-Audioausgabe verwenden
+  useOpenSLESAudioOutputInfo: Audioausgabe mit niedriger Latenz verwenden, kann die Audioleistung verbessern
+  # Video sync options
+  videoSyncAudio: Audio-Synchronisierung
+  videoSyncDisplayResample: Neuabtastung anzeigen
+  videoSyncDisplayResampleVdrop: Neuabtastung anzeigen (Frames verwerfen)
+  videoSyncDisplayResampleDesync: Neuabtastung anzeigen (desynchronisiert)
+  videoSyncDisplayTempo: Tempo anzeigen
+  videoSyncDisplayVdrop: Video-Frames verwerfen anzeigen
+  videoSyncDisplayAdrop: Audio-Frames verwerfen anzeigen
+  videoSyncDisplayDesync: Desynchronisation anzeigen
+  videoSyncDesync: Desynchronisiert
+  # Forum settings
+  forumSettings:
+    name: Forum
+    configureYourForumSettings: Konfigurieren Sie Ihre Forum-Einstellungen
+  gallerySettings:
+    gallerySettingsTitle: Galerie-Einstellungen
+    gallerySettingsSubtitle: Einstellungen des Galerie-Betrachters konfigurieren
+    defaultViewerQuality: Standard-Bildqualität des Betrachters
+    defaultViewerQualityDesc: Wählen Sie, welche Bildqualität beim Öffnen des Galerie-Betrachters standardmäßig angezeigt wird.
+  # Content blocking
+  blockSettings:
+    title: Inhaltsblockierung
+    subtitle: Videos und Galerien automatisch ausblenden, deren Titel einem Stichwort oder Muster entspricht oder die von einem blockierten Nutzer stammen. Der gesamte Abgleich erfolgt auf Ihrem Gerät — nichts wird hochgeladen.
+    blocked: Blockiert
+    reveal: Anzeigen
+    reblock: Erneut blockieren
+    why: Warum blockiert?
+    manageRules: Regeln verwalten
+    reasonKeyword: 'Titel enthält „${value}“'
+    reasonRegex: 'Titel entspricht „${value}“'
+    reasonUser: Von einem blockierten Nutzer
+    addRule: Regel hinzufügen
+    editRule: Regel bearbeiten
+    deleteRule: Regel löschen
+    ruleType: Regeltyp
+    keyword: Stichwort
+    regex: Regex
+    userId: Nutzer
+    value: Abzugleichender Text
+    caseSensitive: Groß-/Kleinschreibung beachten
+    regexHint: z. B. Vorschau|Teaser
+    valueRequired: Bitte geben Sie den abzugleichenden Text ein
+    invalidRegex: Das ist kein gültiger regulärer Ausdruck
+    noRules: Noch keine Regeln. Tippen Sie auf +, um eine hinzuzufügen.
+    blockUser: Blockieren
+    unblockUser: Entsperren
+    blockUserConfirm: '„${name}“ blockieren? Deren Videos und Galerien werden in Listen und Suchergebnissen ausgeblendet.'
+    userBlocked: Nutzer blockiert
+    userUnblocked: Blockierung des Nutzers aufgehoben
+    exportRules: Exportieren
+    importRules: Importieren
+    importExport: Import / Export
+    exportSuccess: Regeln exportiert
+    exportFailed: Regeln konnten nicht exportiert werden
+    importSuccess: '${count} Regel(n) importiert'
+    importFailed: Regeln konnten nicht importiert werden
+    regexHelp: Musterhilfe
+    regexHelpTitle: Regex-Referenz
+    regexHelpIntro: 'Ein regulärer Ausdruck gleicht Titel flexibler ab als ein einfaches Stichwort. Einige gängige Beispiele:'
+    regexHelpTapHint: Tippen Sie auf ein Beispiel, um es einzusetzen.
+    regexEx1Pattern: Vorschau|Teaser|Bonus
+    regexEx1Desc: Entspricht einem dieser Wörter (| bedeutet „oder“)
+    regexEx2Pattern: '^\\[.*\\]'
+    regexEx2Desc: Titel, die mit [Klammern] beginnen
+    regexEx3Pattern: 'Sammlung$'
+    regexEx3Desc: Titel, die mit „Sammlung“ enden
+    regexEx4Pattern: 'Folge [0-9]+'
+    regexEx4Desc: '[0-9]+ steht für eine oder mehrere Ziffern — entspricht „Folge 12“'
+    regexEx5Pattern: '\\d{4}'
+    regexEx5Desc: "[0-9] steht für eine Ziffer und {4} bedeutet vier hintereinander (z. B. ein Jahr)"
+    regexEx1Sample: "Neuer Spiel-Teaser jetzt online"
+    regexEx2Sample: "[Remux] Ganzer Film"
+    regexEx3Sample: "Frühlings-Kunstsammlung"
+    regexEx4Sample: "Meine Serie Folge 12 Zusammenfassung"
+    regexEx5Sample: "Die besten Highlights von 2024"
+    regexHelpSampleLabel: "Beispieltitel"
+    regexHelpMatchedTag: "Blockiert"
+    regexHelpNoMatch: "Keine Übereinstimmung"
+    regexEx6Pattern: '[Ss]taffel'
+    regexEx6Desc: '[Ss] entspricht einem großen oder kleinen S — hier erfasst es „Staffel“'
+    regexEx6Sample: 'Trailer zur letzten Staffel'
+    regexEx7Pattern: '(der Film|die Serie)'
+    regexEx7Desc: 'Klammern () gruppieren Alternativen — entspricht „der Film“ oder „die Serie“'
+    regexEx7Sample: 'Jetzt die Serie ansehen'
+    regexEx8Pattern: 'Staffeln?'
+    regexEx8Desc: 's? macht den vorherigen Buchstaben optional — entspricht „Staffel“ und „Staffeln“'
+    regexEx8Sample: 'Paket mit zwei Staffeln'
+    regexEx9Pattern: '!+'
+    regexEx9Desc: '+ bedeutet ein oder mehr — entspricht !, !!, !!! ...'
+    regexEx9Sample: 'OMG!!! Muss man sehen'
+    regexEx10Pattern: 'Bonus.*Szene'
+    regexEx10Desc: '.* entspricht beliebigem Text dazwischen — „Bonus … Szene“'
+    regexEx10Sample: 'Bonus Gelöschte Szene'
+  # Chat
+  chatSettings:
+    name: Chat
+    configureYourChatSettings: Konfigurieren Sie Ihre Chat-Einstellungen
+  # Hardware decoding options
+  hardwareDecodingAuto: Automatisch
+  hardwareDecodingAutoCopy: Automatisch kopieren
+  hardwareDecodingAutoSafe: Automatisch sicher
+  hardwareDecodingNo: Deaktiviert
+  hardwareDecodingYes: Erzwingen
+  # CDN Distribution Strategy
+  cdnDistributionStrategy: Inhaltsverteilungsstrategie
+  cdnDistributionStrategyDesc: Wählen Sie die Verteilungsstrategie der Videoquellenserver, um die Ladegeschwindigkeit zu optimieren
+  cdnDistributionStrategyLabel: Verteilungsstrategie
+  cdnDistributionStrategyNoChange: Keine Änderung (ursprünglichen Server verwenden)
+  cdnDistributionStrategyAuto: Automatisch auswählen (schnellster Server)
+  cdnDistributionStrategySpecial: Server festlegen
+  cdnSpecialServer: Server festlegen
+  cdnRefreshServerListHint: Bitte klicken Sie auf die Schaltfläche unten, um die Serverliste zu aktualisieren
+  cdnRefreshButton: Aktualisieren
+  cdnFastRingServers: Fast-Ring-Server
+  cdnRefreshServerListTooltip: Serverliste aktualisieren
+  cdnSpeedTestButton: Geschwindigkeitstest
+  cdnSpeedTestingButton: 'Test läuft (${count})'
+  cdnNoServerDataHint: Keine Serverdaten verfügbar, bitte klicken Sie auf die Aktualisieren-Schaltfläche
+  cdnTestingStatus: Wird getestet
+  cdnUnreachableStatus: Nicht erreichbar
+  cdnNotTestedStatus: Nicht getestet
+  downloadSettings:
+    downloadSettings: Download-Einstellungen
+    enableDownloadNotifications: Download-Benachrichtigungen
+    enableDownloadNotificationsDescription: Eine Systembenachrichtigung anzeigen, wenn ein einzelner Download abgeschlossen ist oder fehlschlägt
+    notificationPermissionDenied: Benachrichtigungsberechtigung verweigert. In-App-Benachrichtigungen funktionieren weiterhin; aktivieren Sie Systembenachrichtigungen in den Einstellungen.
+    storagePermissionStatus: Status der Speicherberechtigung
+    accessPublicDirectoryNeedStoragePermission: Zugriff auf öffentliches Verzeichnis erfordert Speicherberechtigung
+    checkingPermissionStatus: Berechtigungsstatus wird geprüft...
+    storagePermissionGranted: Speicherberechtigung erteilt
+    storagePermissionNotGranted: Speicherberechtigung nicht erteilt
+    storagePermissionGrantSuccess: Speicherberechtigung erfolgreich erteilt
+    storagePermissionGrantFailedButSomeFeaturesMayBeLimited: Speicherberechtigung nicht erteilt, einige Funktionen sind möglicherweise eingeschränkt
+    storagePermissionRationale: "Um Downloads in dem von Ihnen gewählten Ordner zu speichern, benötigt die App Speicherzugriff.\n\nUnter Android 11 und höher bedeutet das die Berechtigung „Zugriff auf alle Dateien“; ohne sie werden Dateien stattdessen im privaten App-Ordner gespeichert."
+    storagePermissionRationaleLegacy: "Um Downloads in dem von Ihnen gewählten Ordner zu speichern, benötigt die App Speicherzugriff.\n\nOhne ihn werden Dateien stattdessen im privaten App-Ordner gespeichert."
+    grantStoragePermission: Speicherberechtigung erteilen
+    customDownloadPath: Benutzerdefinierter Downloadpfad
+    customDownloadPathDescription: Wenn aktiviert, können Sie einen benutzerdefinierten Speicherort für heruntergeladene Dateien wählen
+    customDownloadPathTip: "💡 Tipp: Die Auswahl öffentlicher Verzeichnisse (z. B. des Downloads-Ordners) erfordert eine Speicherberechtigung; verwenden Sie am besten zuerst die empfohlenen Pfade"
+    androidWarning: "Android-Hinweis: Vermeiden Sie die Auswahl öffentlicher Verzeichnisse (z. B. des Downloads-Ordners); verwenden Sie am besten app-spezifische Verzeichnisse, um die Zugriffsberechtigungen zu gewährleisten."
+    publicDirectoryPermissionTip: "⚠️ Hinweis: Sie haben ein öffentliches Verzeichnis ausgewählt; für normale Datei-Downloads ist eine Speicherberechtigung erforderlich"
+    permissionRequiredForPublicDirectory: Für öffentliche Verzeichnisse ist eine Speicherberechtigung erforderlich
+    currentDownloadPath: Aktueller Downloadpfad
+    actualDownloadPath: Tatsächlicher Downloadpfad
+    defaultAppDirectory: Standard-App-Verzeichnis
+    permissionGranted: Erteilt
+    permissionRequired: Berechtigung erforderlich
+    enableCustomDownloadPath: Benutzerdefinierten Downloadpfad aktivieren
+    disableCustomDownloadPath: Bei Deaktivierung wird der Standardpfad der App verwendet
+    customDownloadPathLabel: Benutzerdefinierter Downloadpfad
+    selectDownloadFolder: Download-Ordner auswählen
+    recommendedPath: Empfohlener Pfad
+    selectFolder: Ordner auswählen
+    filenameTemplate: Dateinamen-Vorlage
+    filenameTemplateDescription: Passen Sie die Benennungsregeln für heruntergeladene Dateien an, Variablenersetzung wird unterstützt
+    videoFilenameTemplate: Dateinamen-Vorlage für Videos
+    galleryFolderTemplate: Galerie-Ordner-Vorlage
+    imageFilenameTemplate: Dateinamen-Vorlage für Bilder
+    resetToDefault: Auf Standard zurücksetzen
+    supportedVariables: Unterstützte Variablen
+    supportedVariablesDescription: "In Dateinamen-Vorlagen können die folgenden Variablen verwendet werden:"
+    copyVariable: Variable kopieren
+    variableCopied: Variable kopiert
+    warningPublicDirectory: "Warnung: Das ausgewählte öffentliche Verzeichnis ist möglicherweise nicht zugänglich. Wählen Sie am besten ein app-spezifisches Verzeichnis."
+    downloadPathUpdated: Downloadpfad aktualisiert
+    selectPathFailed: Pfad konnte nicht ausgewählt werden
+    pickerAlreadyActive: Die Ordnerauswahl ist bereits geöffnet
+    unsupportedStorageVolume: Nicht unterstützter Speicherort. Wählen Sie einen Ordner im Gerätespeicher oder auf der SD-Karte.
+    recommendedPathSet: Auf empfohlenen Pfad festgelegt
+    setRecommendedPathFailed: Empfohlener Pfad konnte nicht festgelegt werden
+    templateResetToDefault: Auf Standardvorlage zurücksetzen
+    # Download test related
+    functionalTest: Funktionstest
+    testInProgress: Test läuft...
+    runTest: Test ausführen
+    testDownloadPathAndPermissions: Testen, ob Downloadpfad und Berechtigungskonfiguration ordnungsgemäß funktionieren
+    testResults: Testergebnisse
+    testCompleted: Test abgeschlossen
+    testPassed: Elemente bestanden
+    testFailed: Test fehlgeschlagen
+    testStoragePermissionCheck: Prüfung der Speicherberechtigung
+    testStoragePermissionGranted: Speicherberechtigung erteilt
+    testStoragePermissionMissing: Speicherberechtigung fehlt, einige Funktionen sind möglicherweise eingeschränkt
+    testPermissionCheckFailed: Berechtigungsprüfung fehlgeschlagen
+    testDownloadPathValidation: Validierung des Downloadpfads
+    testPathValidationFailed: Pfadvalidierung fehlgeschlagen
+    testFilenameTemplateValidation: Validierung der Dateinamen-Vorlage
+    testAllTemplatesValid: Alle Vorlagen sind gültig
+    testSomeTemplatesInvalid: Einige Vorlagen enthalten ungültige Zeichen
+    testTemplateValidationFailed: Vorlagenvalidierung fehlgeschlagen
+    testDirectoryOperationTest: Test der Verzeichnisvorgänge
+    testDirectoryOperationNormal: Verzeichniserstellung und Dateischreiben sind normal
+    testDirectoryOperationFailed: Verzeichnisvorgang fehlgeschlagen
+    # Test details related
+    testVideoTemplate: Video-Vorlage
+    testGalleryTemplate: Galerie-Vorlage
+    testImageTemplate: Bild-Vorlage
+    testValid: Gültig
+    testInvalid: Ungültig
+    testSuccess: Erfolg
+    testCorrect: Korrekt
+    testError: Fehler
+    testPath: Testpfad
+    testBasePath: Basispfad
+    testDirectoryCreation: Verzeichniserstellung
+    testFileWriting: Dateischreiben
+    testFileContent: Dateiinhalt
+    # Path status related
+    checkingPathStatus: Pfadstatus wird geprüft...
+    unableToGetPathStatus: Pfadstatus kann nicht abgerufen werden
+    actualPathDifferentFromSelected: "Hinweis: Der tatsächliche Pfad weicht vom ausgewählten Pfad ab"
+    grantPermission: Berechtigung erteilen
+    fixIssue: Problem beheben
+    issueFixed: Problem behoben
+    fixFailed: Behebung fehlgeschlagen, bitte manuell bearbeiten
+    # Download path service related
+    lackStoragePermission: Fehlende Speicherberechtigung
+    cannotAccessPublicDirectory: Zugriff auf öffentliches Verzeichnis nicht möglich, „Zugriff auf alle Dateien“ erforderlich
+    cannotCreateDirectory: Verzeichnis kann nicht erstellt werden
+    directoryNotWritable: Verzeichnis nicht beschreibbar
+    insufficientSpace: Nicht genügend verfügbarer Speicherplatz
+    pathValid: Pfad ist gültig
+    validationFailed: Validierung fehlgeschlagen
+    usingDefaultAppDirectory: Standard-App-Verzeichnis wird verwendet
+    appPrivateDirectory: Privates App-Verzeichnis
+    appPrivateDirectoryDesc: Sicher und zuverlässig, keine zusätzlichen Berechtigungen erforderlich
+    downloadDirectory: Download-Verzeichnis
+    downloadDirectoryDesc: Systemstandard-Speicherort für Downloads, einfach zu verwalten
+    moviesDirectory: Filme-Verzeichnis
+    moviesDirectoryDesc: System-Filmeverzeichnis, von Medien-Apps erkannt
+    documentsDirectory: Dokumentenverzeichnis
+    documentsDirectoryDesc: iOS-App-Dokumentenverzeichnis
+    requiresStoragePermission: Für den Zugriff ist eine Speicherberechtigung erforderlich
+    # Recommended paths widget related
+    recommendedPaths: Empfohlene Pfade
+    # Additional recommended path names and descriptions
+    externalAppPrivateDirectory: Externes privates App-Verzeichnis
+    externalAppPrivateDirectoryDesc: Privates App-Verzeichnis im externen Speicher, für Nutzer zugänglich, mehr Speicherplatz
+    internalAppPrivateDirectory: Internes privates App-Verzeichnis
+    internalAppPrivateDirectoryDesc: Interner App-Speicher, keine Berechtigungen erforderlich, weniger Speicherplatz
+    appDocumentsDirectory: App-Dokumentenverzeichnis
+    appDocumentsDirectoryDesc: App-spezifisches Dokumentenverzeichnis, sicher und zuverlässig
+    downloadsFolder: Downloads-Ordner
+    downloadsFolderDesc: Systemstandard-Downloadverzeichnis
+    selectRecommendedDownloadLocation: Empfohlenen Download-Speicherort auswählen
+    noRecommendedPaths: Keine empfohlenen Pfade verfügbar
+    recommended: Empfohlen
+    requiresPermission: Berechtigung erforderlich
+    authorizeAndSelect: Autorisieren und auswählen
+    select: Auswählen
+    permissionAuthorizationFailed: Berechtigungsautorisierung fehlgeschlagen, dieser Pfad kann nicht ausgewählt werden
+    pathValidationFailed: Pfadvalidierung fehlgeschlagen
+    downloadPathSetTo: Downloadpfad festgelegt auf
+    setPathFailed: Pfad konnte nicht festgelegt werden
+    # Filename template variables
+    variableTitle: Titel
+    variableAuthor: Name des Autors
+    variableUsername: Benutzername des Autors
+    variableQuality: Videoqualität
+    variableFilename: Ursprünglicher Dateiname
+    variableId: Inhalts-ID
+    variableCount: Anzahl der Galeriebilder
+    variableDate: Aktuelles Datum (YYYY-MM-DD)
+    variableTime: Aktuelle Uhrzeit (HH-MM-SS)
+    variableDatetime: Aktuelles Datum und Uhrzeit (YYYY-MM-DD_HH-MM-SS)
+    # Settings page
+    downloadSettingsTitle: Download-Einstellungen
+    downloadSettingsSubtitle: Downloadpfad und Dateibenennungsregeln konfigurieren
+    suchAsTitleQuality: 'Zum Beispiel: %title_%quality'
+    suchAsTitleId: 'Zum Beispiel: %title_%id'
+    suchAsTitleFilename: 'Zum Beispiel: %title_%filename'
+favoriteTags:
+  title: Favorisierte Tags
+  emptyIwara: Noch keine favorisierten Iwara-Tags
+  emptyOreno3d: Noch keine Favoriten
+  addIwaraTag: Iwara-Tag hinzufügen
+  quickPickHint: Favorisierte Elemente erscheinen als Schnellauswahl in der Suche.
+  pickerTitle: Oreno3D auswählen
+  searchHint: Nach Name oder Original suchen
+  worksCount:
+    one: '${n} Werk'
+    other: '${n} Werke'
+  browseEntry: Nach Herkunft / Charakter / Tag durchsuchen
+  favoritesSection: Favoriten
+  addFavorite: Hinzufügen
+  iwaraTitle: Favorisierte Iwara-Tags
+  oreno3dTitle: Favorisierte Oreno3D-Tags
+  changeTag: Tag ändern
+  switchToText: Textsuche
+oreno3d:
+  name: Oreno3D
+  tags: Tags
+  characters: Charaktere
+  origin: Herkunft
+  thirdPartyTagsExplanation: "Die hier angezeigten Informationen zu **Tags**, **Charakteren** und **Herkunft** stammen von der Drittanbieter-Seite **Oreno3D** und dienen nur als Referenz.\n\nDa diese Informationsquelle nur auf Japanisch verfügbar ist, fehlt derzeit eine Internationalisierungsanpassung.\n\nWenn Sie zur Internationalisierung beitragen möchten, besuchen Sie bitte das Repository, um es zu verbessern!"
+  sortTypes:
+    hot: Angesagt
+    favorites: Favoriten
+    latest: Neueste
+    popularity: Beliebtheit
+  errors:
+    requestFailed: Anfrage fehlgeschlagen, Statuscode
+    connectionTimeout: Verbindungszeitüberschreitung, bitte prüfen Sie die Netzwerkverbindung
+    sendTimeout: Zeitüberschreitung beim Senden der Anfrage
+    receiveTimeout: Zeitüberschreitung beim Empfangen der Antwort
+    badCertificate: Zertifikatsüberprüfung fehlgeschlagen
+    resourceNotFound: Angeforderte Ressource nicht gefunden
+    accessDenied: Zugriff verweigert, ggf. sind Anmeldung oder Berechtigung erforderlich
+    serverError: Interner Serverfehler
+    serviceUnavailable: Dienst vorübergehend nicht verfügbar
+    requestCancelled: Anfrage abgebrochen
+    connectionError: Netzwerkverbindungsfehler, bitte prüfen Sie die Netzwerkeinstellungen
+    networkRequestFailed: Netzwerkanfrage fehlgeschlagen
+    searchVideoError: Unbekannter Fehler bei der Videosuche
+    getPopularVideoError: Unbekannter Fehler beim Abrufen beliebter Videos
+    getVideoDetailError: Unbekannter Fehler beim Abrufen der Videodetails
+    parseVideoDetailError: Unbekannter Fehler beim Abrufen und Verarbeiten der Videodetails
+    downloadFileError: Unbekannter Fehler beim Herunterladen der Datei
+  loading:
+    gettingVideoInfo: Videoinformationen werden abgerufen...
+    cancel: Abbrechen
+  messages:
+    videoNotFoundOrDeleted: Video nicht gefunden oder gelöscht
+    unableToGetVideoPlayLink: Wiedergabelink konnte nicht abgerufen werden
+    getVideoDetailFailed: Videodetails konnten nicht abgerufen werden
+signIn:
+  pleaseLoginFirst: Bitte melden Sie sich zuerst an
+  alreadySignedInToday: Sie haben sich heute bereits angemeldet!
+  youDidNotStickToTheSignIn: Sie haben die Anmeldung nicht durchgehalten.
+  signInSuccess: Erfolgreich angemeldet!
+  signInFailed: Anmeldung fehlgeschlagen, bitte später erneut versuchen
+  consecutiveSignIns: Aufeinanderfolgende Anmeldungen
+  failureReason: Fehlergrund
+  selectDateRange: Datumsbereich auswählen
+  startDate: Startdatum
+  endDate: Enddatum
+  invalidDate: Ungültiges Datum
+  invalidDateRange: Ungültiger Datumsbereich
+  errorFormatText: Datumsformatfehler
+  errorInvalidText: Ungültiger Datumsbereich
+  errorInvalidRangeText: Ungültiger Datumsbereich
+  dateRangeCantBeMoreThanOneYear: Der Datumsbereich darf nicht mehr als ein Jahr betragen
+  signIn: Anmelden
+  signInRecord: Anmeldeverlauf
+  totalSignIns: Anmeldungen insgesamt
+  pleaseSelectSignInStatus: Bitte wählen Sie den Anmeldestatus
+
+subscriptions:
+  pleaseLoginFirstToViewYourSubscriptions: Bitte melden Sie sich zuerst an, um Ihre Abonnements anzusehen.
+  selectUser: Nutzer auswählen
+  noSubscribedUsers: Keine abonnierten Nutzer
+  showAllSubscribedUsersContent: Inhalte aller abonnierten Nutzer anzeigen
+
+videoDetail:
+  pipMode: PiP-Modus
+  resumeFromLastPosition: 'Von der letzten Position fortsetzen: ${position}'
+  resumedFromHistoryTip: 'Fortgesetzt ab ${position}'
+  restartFromBeginning: Von vorne beginnen
+  dismissResumeTip: Ausblenden
+  localInfo:
+    videoInfo: Videoinfo
+    currentQuality: Aktuelle Qualität
+    duration: Dauer
+    resolution: Auflösung
+    fileInfo: Dateiinfo
+    fileName: Dateiname
+    fileSize: Dateigröße
+    filePath: Dateipfad
+    copyPath: Pfad kopieren
+    openFolder: Ordner öffnen
+    pathCopiedToClipboard: Pfad in die Zwischenablage kopiert
+    openFolderFailed: Ordner konnte nicht geöffnet werden
+  videoIdIsEmpty: Video-ID ist leer
+  videoInfoIsEmpty: Videoinformationen sind leer
+  thisIsAPrivateVideo: Dies ist ein privates Video
+  getVideoInfoFailed: 'Videoinformationen konnten nicht abgerufen werden, bitte später erneut versuchen'
+  noVideoSourceFound: Keine Videoquelle gefunden
+  tagCopiedToClipboard: 'Tag „${tagId}“ in die Zwischenablage kopiert'
+  errorLoadingVideo: Fehler beim Laden des Videos
+  play: Wiedergabe
+  pause: Pause
+  exitAppFullscreen: App-Vollbild beenden
+  enterAppFullscreen: App-Vollbild aktivieren
+  exitSystemFullscreen: System-Vollbild beenden
+  enterSystemFullscreen: System-Vollbild aktivieren
+  seekTo: Springen zu
+  switchResolution: Auflösung wechseln
+  switchPlaybackSpeed: Wiedergabegeschwindigkeit wechseln
+  rewindSeconds: '${num} Sekunden zurückspulen'
+  fastForwardSeconds: '${num} Sekunden vorspulen'
+  playbackSpeedIng: 'Wiedergabe mit ${rate}x Geschwindigkeit'
+  brightness: Helligkeit
+  brightnessLowest: Helligkeit ist am niedrigsten
+  volume: Lautstärke
+  volumeMuted: Lautstärke ist stummgeschaltet
+  restoreDefaultZoom: Wiederherstellen
+  gestureGuide:
+    sampleVideo: Beispielvideo
+    title: Anleitung für Gesten & Interaktion
+    viewGuide: Anleitung für Gesten & Interaktion
+    firstTimeIntro: Nehmen Sie sich ein paar Sekunden Zeit, um die Player-Gesten kennenzulernen. Sie können diese Anleitung jederzeit in den Player-Einstellungen erneut öffnen.
+    startWatching: Verstanden, Wiedergabe starten
+    basicTitle: Grundlegende Steuerung
+    zoomTitle: Zoom / Drehen / Verschieben
+    restoreTip: 'Tippen Sie unten rechts auf die Schaltfläche „Wiederherstellen“, um Zoom, Drehung und Position zurückzusetzen.'
+    mTap: 'Einmaliges Tippen: Steuerelemente ein-/ausblenden'
+    mDoubleTap: 'Doppeltippen: zurückspulen (links) / Pause (Mitte) / vorspulen (rechts)'
+    mHorizontalDrag: 'Horizontales Wischen: spulen'
+    mVerticalDrag: 'Vertikales Wischen: Helligkeit (links) / Lautstärke (rechts)'
+    mLongPress: 'Langdruck: vorübergehende Beschleunigung'
+    mPinch: 'Zusammenziehen mit zwei Fingern: das Bild vergrößern'
+    mRotate: 'Drehen mit zwei Fingern: das Bild drehen'
+    dTap: 'Klick: Steuerelemente ein-/ausblenden'
+    dDoubleTap: 'Doppelklick: zurückspulen (links) / Pause (Mitte) / vorspulen (rechts)'
+    dKeys: 'Spultasten: tippen zum Zurück-/Vorspringen, halten zum Beschleunigen; Geschwindigkeitstasten: die Wiedergabegeschwindigkeit während der normalen Wiedergabe stufenweise ändern; Leertaste: Wiedergabe / Pause'
+    dTrackpadPinch: 'Trackpad-Zusammenziehen: das Bild vergrößern'
+    dTrackpadRotate: 'Trackpad-Drehen: das Bild drehen'
+    dCtrlWheel: 'Strg + Mausrad: um den Cursor zoomen'
+    dShiftWheel: 'Umschalt + Mausrad: um den Cursor drehen'
+    quest:
+      title: "In Quest zurechtkommen"
+      intro: "Sehen Sie, welche Steuerung was bewirkt, und probieren Sie es dann in Ihrem Raum aus."
+      videoTab: "Räumliches Video"
+      galleryTab: "Räumliche Galerie"
+      scopeNote: "Für Bildschirme und Fenster in Ihrem Quest-Raum. Jederzeit in den Player-Einstellungen erneut öffnen."
+      catalog: "Die Steuerelemente erkunden"
+      lessonCount: "${current} von ${total}"
+      previous: "Zurück"
+      next: "Nächste Steuerung"
+      replay: "Demo erneut abspielen"
+      pauseDemo: "Demo pausieren"
+      resumeDemo: "Demo fortsetzen"
+      looping: "Steuerungsdemo"
+      still: "Stehende Illustration"
+      done: "Verstanden, weiter"
+      leftController: "Linke Hand"
+      rightController: "Rechte Hand"
+      trigger: "Zeigefinger-Auslöser"
+      grip: "Greiftaste"
+      bothGrips: "Beide Greiftasten"
+      stick: "Daumenstick"
+      handTracking: "Handverfolgung"
+      ready: "Bereit"
+      press: "Drücken"
+      hold: "Halten"
+      release: "Loslassen"
+      result: "Das Ergebnis sehen"
+      pinch: "Kneifen"
+      selectTitle: "Zeigen und auswählen"
+      selectBody: "Richten Sie den Strahl auf eine Schaltfläche und drücken und lassen Sie dann den Zeigefinger-Auslöser los. Verwenden Sie ihn für Wiedergabe, Einstellungen und Schieberegler im Bedienfeld."
+      selectHint: "Der Zeigefinger-Auslöser befindet sich hinter der Schaltflächenvorderseite. Die Greiftaste am inneren Griff greift Fenster."
+      panelTitle: "Das Bedienfeld ein- oder ausblenden"
+      panelBody: "Zeigen Sie außerhalb des Bedienfelds und tippen Sie dann auf den Zeigefinger-Auslöser, um es ein- oder auszublenden. Mit Handverfolgung bewirkt ein kurzes Kneifen außerhalb des Bedienfelds dasselbe."
+      panelHint: "Verwenden Sie ein kurzes Tippen ohne Ziehen. Halten und Bewegen ist ein Ziehen, kein Umschalten des Bedienfelds."
+      playTitle: "Abspielen und pausieren"
+      playBody: "Zeigen Sie weg vom Bedienfeld und drücken Sie A rechts oder X links, um abzuspielen oder zu pausieren. Sie können auch die Wiedergabetaste im Bedienfeld auswählen."
+      playHint: "Dieses Standard-Tastenkürzel kann in den Einstellungen des räumlichen Players deaktiviert werden. Wenn Sie auf das Bedienfeld zeigen, gehen Eingaben an das Bedienfeld."
+      seekTitle: "Mit dem Stick spulen"
+      seekBody: "Bewegen Sie einen der Sticks leicht nach links oder rechts für einen 5-Sekunden-Schritt. Halten Sie ihn, um schneller zu spulen, während die Zielzeit als Vorschau angezeigt wird. Lassen Sie los, um das Spulen zu übernehmen."
+      seekHint: "Halten Sie den Strahl dieses Controllers vom Bedienfeld fern. Ein Stick, der auf das Bedienfeld zeigt, scrollt stattdessen das Bedienfeld."
+      browseTitle: "Mit dem Stick blättern"
+      browseBody: "Bewegen Sie einen der Sticks nach links oder rechts für das vorherige oder nächste Element; halten, um weiterzublättern. Sie können auch ein Miniaturbild im Filmstreifen auswählen."
+      browseHint: "Videos in einer Galerie sind ebenfalls Elemente. Wenn Sie auf das Bedienfeld zeigen, scrollt der Stick das Bedienfeld."
+      swipeTitle: "Zum Umblättern quer ziehen"
+      swipeBody: "Zielen Sie auf das Bild, halten Sie den Zeigefinger-Auslöser und ziehen Sie nach links. Lassen Sie nach dem Umblätter-Signal los, um weiterzublättern; ziehen Sie nach rechts, um zurückzugehen. Kneifen und Ziehen funktioniert ebenfalls."
+      swipeHint: "Bilder müssen bei 1× sein, um durch Ziehen umzublättern. Galerie-Videos unterstützen dies ebenfalls. Die Bühne bleibt stehen, bis Sie loslassen."
+      zoomTitle: "In das Bild hineinzoomen"
+      zoomBody: "Zielen Sie auf ein Detail im Bild, halten Sie den Zeigefinger-Auslöser und schieben Sie dann den Stick nach oben, um hineinzuzoomen, oder nach unten, um herauszuzoomen. Der Zoom ist dort verankert, wo Sie gedrückt haben."
+      zoomHint: "Dadurch wird das Bild innerhalb seines Fensters vergrößert. Ohne Halten des Bildes passt Auf/Ab den Betrachtungsabstand an."
+      panTitle: "Das Bild verschieben und wiederherstellen"
+      panBody: "Sobald Sie hineingezoomt haben, halten Sie den Zeigefinger-Auslöser und ziehen Sie, um sich umzusehen. Doppeltippen Sie auf das Bild, um auf 2,5× zu zoomen oder es wiederherzustellen. Mit Händen zweimal schnell kneifen."
+      panHint: "Durch Ziehen wird ein gezoomtes Bild verschoben. Stellen Sie vor dem Ziehen zum Umblättern auf 1× zurück."
+      slideshowTitle: "Eine Diashow starten"
+      slideshowBody: "Bei einem Bild startet oder pausiert A / X die Diashow. Das Bedienfeld bietet Intervalle von 3, 5, 10 oder 20 Sekunden sowie Standard- oder Original-Bildqualität."
+      slideshowHint: "Bei einem Galerie-Video steuert A / X die Wiedergabe dieses Videos. Das Controller-Tastenkürzel muss in den Einstellungen aktiviert sein."
+      moveTitle: "Den Bildschirm greifen und bewegen"
+      moveBody: "Halten Sie die Greiftaste am inneren Griff, bewegen Sie den Controller, um den Bildschirm zu positionieren, und lassen Sie dann los. Beim Zuschauen können Sie den Bildschirm greifen, ohne darauf zu zeigen."
+      moveHint: "Wenn Sie auf das App-Fenster oder das Bedienfeld zeigen, wird zuerst dieses Fenster gegriffen. Bei Panoramavideos passt das Greifen die Ausrichtung an."
+      scaleTitle: "Mit beiden Händen skalieren"
+      scaleBody: "Halten Sie beide Greiftasten. Spreizen Sie die Hände, um den Bildschirm zu vergrößern, oder führen Sie sie zusammen, um ihn zu verkleinern. Bei der Handverfolgung halten Sie mit beiden Händen ein Kneifen."
+      scaleHint: "Für flache oder gewölbte Bildschirme, einschließlich der Galerie-Bühne. Halten Sie die Strahlen vom Bedienfeld fern. Dadurch wird der gesamte Bildschirm skaliert."
+      distanceTitle: "Betrachtungsabstand anpassen"
+      distanceBody: "Schieben Sie den Stick nach oben, um den Bildschirm zu entfernen, oder nach unten, um ihn näher zu bringen. Während Sie ein Fenster greifen, bewegt Auf/Ab dieses Fenster. Die Lautstärke stellen Sie im Bedienfeld ein."
+      distanceHint: "Zeigen Sie weg vom Bedienfeld. Beim Halten eines Bildes wird Auf/Ab zur Bildvergrößerung; Panoramavideos passen stattdessen die Ansicht an."
+      resizeTitle: "Ränder und Ecken verwenden"
+      resizeBody: "Der Rahmen leuchtet auf, wenn sich Ihr Strahl einem Rand nähert. Halten Sie den Auslöser oder kneifen Sie an einem Rand, um das Fenster zu verschieben; ziehen Sie an einer Ecke, um die Größe zu ändern."
+      resizeHint: "Funktioniert am App-Fenster, am Bedienfeld und am Bildschirm. Das App-Fenster ändert Breite und Höhe; Bildschirme behalten ihr Seitenverhältnis."
+      navigationTitle: "Zurückgehen und Einstellungen öffnen"
+      navigationBody: "B / Y geht eine Ebene zurück: ein Popup schließen oder zum Start des Bedienfelds zurückkehren, das Bedienfeld ausblenden und dann zur App zurückkehren. Die linke Menü-Taste öffnet die räumlichen Einstellungen."
+      navigationHint: "Die rechte Meta-Taste gehört zum System. Das System-Recenter bringt die Ansicht wieder nach vorne, wobei Bildschirmgröße und -abstand erhalten bleiben."
+      handsTitle: "Hände verwenden"
+      handsBody: "Wenn die Handverfolgung aktiviert ist, richten Sie den Systemstrahl auf eine Schaltfläche, kneifen Sie Daumen und Zeigefinger zusammen und lassen Sie dann los. Verwenden Sie das Bedienfeld für Wiedergabe, Spulen und Galerie-Navigation."
+      handsHint: "Kneifen Sie außerhalb, um das Bedienfeld umzuschalten. Kneifen Sie an einem Rand, um es zu verschieben, an einer Ecke, um die Größe zu ändern, oder mit beiden Händen und spreizen Sie, um den Bildschirm zu vergrößern."
+  home: Startseite
+  videoPlayer: Videoplayer
+  videoPlayerInfo: Videoplayer-Info
+  moreSettings: Weitere Einstellungen
+  videoPlayerFeatureInfo: Funktionsinfo zum Videoplayer
+  autoRewind: Automatisches Zurückspulen
+  rewindAndFastForward: Zurückspulen und Vorspulen
+  volumeAndBrightness: Lautstärke und Helligkeit
+  centerAreaDoubleTapPauseOrPlay: Pause oder Wiedergabe bei Doppeltipp im mittleren Bereich
+  showVerticalVideoInFullScreen: Vertikales Video im Vollbild anzeigen
+  keepLastVolumeAndBrightness: Letzte Lautstärke und Helligkeit beibehalten
+  setProxy: Proxy festlegen
+  moreFeaturesToBeDiscovered: Weitere Funktionen zu entdecken...
+  videoPlayerSettings: Videoplayer-Einstellungen
+  commentCount: '${num} Kommentare'
+  writeYourCommentHere: Schreiben Sie hier Ihren Kommentar...
+  authorOtherVideos: Weitere Videos des Autors
+  relatedVideos: Ähnliche Videos
+  privateVideo: Dies ist ein privates Video
+  externalVideo: Dies ist ein externes Video
+  openInBrowser: Im Browser öffnen
+  resourceDeleted: Dieses Video wurde offenbar gelöscht :/
+  noDownloadUrl: Keine Download-URL
+  startDownloading: Download starten
+  downloadFailed: Download fehlgeschlagen, bitte später erneut versuchen
+  downloadSuccess: Download erfolgreich
+  download: Herunterladen
+  downloadManager: Download-Manager
+  resourceNotFound: Ressource nicht gefunden
+  videoLoadError: Fehler beim Laden des Videos
+  authorNoOtherVideos: Autor hat keine weiteren Videos
+  noRelatedVideos: Keine ähnlichen Videos
+  player:
+    errorWhileLoadingVideoSource: Fehler beim Laden der Videoquelle
+    errorWhileSettingUpListeners: Fehler beim Einrichten der Listener
+    serverFaultDetectedAutoSwitched: Serverfehler erkannt, Route automatisch gewechselt und erneuter Versuch
+  skeleton:
+    fetchingVideoInfo: Videoinformationen werden abgerufen...
+    fetchingVideoSources: Videoquellen werden abgerufen...
+    loadingVideo: Video wird geladen...
+    applyingSolution: Lösung wird angewendet...
+    addingListeners: Listener werden hinzugefügt...
+    successFecthVideoDurationInfo: Videodauer erfolgreich abgerufen, Video wird geladen...
+    successFecthVideoHeightInfo: Laden abgeschlossen
+  # 投屏
+  cast:
+    dlnaCast: Übertragen
+    unableToStartCastingSearch: 'Suche nach Übertragungsgeräten konnte nicht gestartet werden: ${error}'
+    startCastingTo: 'Übertragung an ${deviceName} starten'
+    castFailed: "Übertragen fehlgeschlagen: ${error}\nBitte suchen Sie erneut nach Geräten oder wechseln Sie das Netzwerk"
+    castStopped: 'Übertragung beendet'
+    deviceTypes:
+      mediaRenderer: Mediaplayer
+      mediaServer: Medienserver
+      internetGatewayDevice: Router
+      basicDevice: Einfaches Gerät
+      dimmableLight: Smartes Licht
+      wlanAccessPoint: WLAN-Zugangspunkt
+      wlanConnectionDevice: WLAN-Verbindungsgerät
+      printer: Drucker
+      scanner: Scanner
+      digitalSecurityCamera: Digitale Überwachungskamera
+      unknownDevice: Unbekanntes Gerät
+    currentPlatformNotSupported: Die aktuelle Plattform unterstützt keine Übertragung
+    unableToGetVideoUrl: Video-URL konnte nicht abgerufen werden, bitte später erneut versuchen
+    stopCasting: Übertragung beenden
+    # DLNA Cast Sheet
+    dlnaCastSheet:
+      title: Remote-Übertragung
+      close: Schließen
+      searchingDevices: Geräte werden gesucht...
+      searchPrompt: Klicken Sie auf die Suchschaltfläche, um erneut nach Übertragungsgeräten zu suchen
+      searching: Suche läuft
+      searchAgain: Erneut suchen
+      noDevicesFound: "Keine Übertragungsgeräte gefunden\nBitte stellen Sie sicher, dass sich die Geräte im selben Netzwerk befinden"
+      searchingDevicesPrompt: Geräte werden gesucht, bitte warten...
+      cast: Übertragen
+      connectedTo: 'Verbunden mit: ${deviceName}'
+      notConnected: Kein Gerät verbunden
+      stopCasting: Übertragung beenden
+  # Like Avatars Component
+  likeAvatars:
+    dialogTitle: Wer heimlich liked
+    dialogDescription: Neugierig, wer sie sind? Blättern Sie durch dieses „Like-Album“~
+    closeTooltip: Schließen
+    retry: Erneut versuchen
+    noLikesYet: Hier ist noch niemand aufgetaucht. Seien Sie der Erste!
+    pageInfo: 'Seite ${page} / ${totalPages} · Insgesamt ${totalCount} Personen'
+    prevPage: Vorherige Seite
+    nextPage: Nächste Seite
+share:
+  sharePlayList: Wiedergabeliste teilen
+  wowDidYouSeeThis: Wow, haben Sie das gesehen?
+  nameIs: Name ist
+  clickLinkToView: Zum Ansehen auf den Link klicken
+  iReallyLikeThis: Das gefällt mir sehr
+  shareFailed: Teilen fehlgeschlagen, bitte später erneut versuchen
+  share: Teilen
+  shareAsImage: Als Bild teilen
+  shareAsText: Als Text teilen
+  shareAsImageDesc: Das Videocover als Bild teilen
+  shareAsTextDesc: Die Videodetails als Text teilen
+  shareAsImageFailed: Teilen des Videocovers als Bild fehlgeschlagen, bitte später erneut versuchen
+  shareAsTextFailed: Teilen der Videodetails als Text fehlgeschlagen, bitte später erneut versuchen
+  shareVideo: Video teilen
+  authorIs: Autor ist
+  shareGallery: Galerie teilen
+  galleryTitleIs: Titel der Galerie ist
+  galleryAuthorIs: Autor der Galerie ist
+  shareUser: Nutzer teilen
+  userNameIs: Benutzername ist
+  userAuthorIs: Autor des Nutzers ist
+  comments: Kommentare
+  shareThread: Thread teilen
+  views: Aufrufe
+  sharePost: Beitrag teilen
+  postTitleIs: Titel des Beitrags ist
+  postAuthorIs: Autor des Beitrags ist
+markdown:
+  markdownSyntax: Markdown-Syntax
+  iwaraSpecialMarkdownSyntax: Iwara-spezifische Markdown-Syntax
+  internalLink: Interner Link
+  supportAutoConvertLinkBelow: 'Automatische Umwandlung der folgenden Links wird unterstützt:'
+  convertLinkExample: "🎬 Videolink\n🖼️ Bildlink\n👤 Benutzerlink\n📌 Forum-Link\n🎵 Playlist-Link\n💬 Themenlink"
+  mentionUser: Benutzer erwähnen
+  mentionUserDescription: 'Geben Sie @ gefolgt vom Benutzernamen ein; dies wird automatisch in einen Benutzerlink umgewandelt'
+  markdownBasicSyntax: Markdown-Grundsyntax
+  paragraphAndLineBreak: Absatz und Zeilenumbruch
+  paragraphAndLineBreakDescription: 'Absätze werden durch eine Leerzeile getrennt, und zwei Leerzeichen am Zeilenende werden in einen Zeilenumbruch umgewandelt'
+  paragraphAndLineBreakSyntax: "Dies ist der erste Absatz\n\nDies ist der zweite Absatz\nDiese Zeile endet mit zwei Leerzeichen  \nwird in einen Zeilenumbruch umgewandelt"
+  textStyle: Textstil
+  textStyleDescription: 'Umgeben Sie Text mit speziellen Symbolen, um den Stil zu ändern'
+  textStyleSyntax: "**Fetter Text**\n*Kursiver Text*\n~~Durchgestrichener Text~~\n`Code-Text`"
+  quote: Zitat
+  quoteDescription: 'Verwenden Sie das Symbol >, um ein Zitat zu erstellen, mehrere > für ein mehrstufiges Zitat'
+  quoteSyntax: "> Dies ist ein Zitat der ersten Ebene\n>> Dies ist ein Zitat der zweiten Ebene"
+  list: Liste
+  listDescription: 'Erstellen Sie eine geordnete Liste mit Zahl+Punkt und eine ungeordnete Liste mit -'
+  listSyntax: "1. Erstes Element\n2. Zweites Element\n\n- Ungeordnetes Element\n  - Unterelement\n  - Weiteres Unterelement"
+  linkAndImage: Link und Bild
+  linkAndImageDescription: "Link-Format: [Text](URL)\nBild-Format: ![Beschreibung](URL)"
+  linkAndImageSyntax: "[Linktext](${link})\n![Bildbeschreibung](${imgUrl})"
+  title: Titel
+  titleDescription: 'Verwenden Sie das Symbol #, um einen Titel zu erstellen, die Anzahl zeigt die Ebene an'
+  titleSyntax: "# Titel der ersten Ebene\n## Titel der zweiten Ebene\n### Titel der dritten Ebene"
+  separator: Trennlinie
+  separatorDescription: 'Erstellen Sie eine Trennlinie mit drei oder mehr -Symbolen'
+  separatorSyntax: '---'
+  syntax: Syntax
+
+forum:
+  recent: Neueste
+  category: Kategorie
+  lastReply: Letzte Antwort
+  sitewide:
+    badge: Websiteweit
+    title: Websiteweite Ankündigung
+    readMore: Mehr lesen
+  errors:
+    pleaseSelectCategory: Bitte eine Kategorie auswählen
+    threadLocked: Dieses Thema ist gesperrt, Antwort nicht möglich
+  createPost: Beitrag erstellen
+  title: Titel
+  enterTitle: Titel eingeben
+  content: Inhalt
+  enterContent: Inhalt eingeben
+  writeYourContentHere: Schreiben Sie hier Ihren Inhalt…
+  posts: Beiträge
+  threads: Themen
+  forum: Forum
+  createThread: Thema erstellen
+  selectCategory: Kategorie auswählen
+  cooldownRemaining: 'Verbleibende Sperrzeit ${minutes} Minuten ${seconds} Sekunden'
+  groups:
+    administration: Verwaltung
+    global: Global
+    chinese: Chinesisch
+    japanese: Japanisch
+    korean: Koreanisch
+    other: Sonstiges
+  leafNames:
+    announcements: Ankündigungen
+    feedback: Feedback
+    support: Support
+    general: Allgemein
+    guides: Anleitungen
+    questions: Fragen
+    requests: Wünsche
+    sharing: Teilen
+    'general_zh': Allgemein
+    'questions_zh': Fragen
+    'requests_zh': Wünsche
+    'support_zh': Support
+    'general_ja': Allgemein
+    'questions_ja': Fragen
+    'requests_ja': Wünsche
+    'support_ja': Support
+    korean: Koreanisch
+    other: Sonstiges
+  leafDescriptions:
+    announcements: Offizielle wichtige Mitteilungen und Ankündigungen
+    feedback: Feedback zu den Funktionen und Diensten der Website
+    support: Hilfe bei der Behebung websitebezogener Probleme
+    general: Über jedes Thema diskutieren
+    guides: Teilen Sie Ihre Erfahrungen und Anleitungen
+    questions: Stellen Sie Ihre Fragen
+    requests: Veröffentlichen Sie Ihre Wünsche
+    sharing: Teilen Sie interessante Inhalte
+    'general_zh': Über jedes Thema diskutieren
+    'questions_zh': Stellen Sie Ihre Fragen
+    'requests_zh': Veröffentlichen Sie Ihre Wünsche
+    'support_zh': Hilfe bei der Behebung websitebezogener Probleme
+    'general_ja': Über jedes Thema diskutieren
+    'questions_ja': Stellen Sie Ihre Fragen
+    'requests_ja': Veröffentlichen Sie Ihre Wünsche
+    'support_ja': Hilfe bei der Behebung websitebezogener Probleme
+    korean: Diskussionen rund um Koreanisch
+    other: Sonstige nicht klassifizierte Inhalte
+  reply: Antworten
+  pendingReview: Ausstehende Prüfung
+  editedAt: Bearbeitet am
+  copySuccess: In die Zwischenablage kopiert
+  copySuccessForMessage: 'In die Zwischenablage kopiert: ${str}'
+  editReply: Antwort bearbeiten
+  editTitle: Titel bearbeiten
+  submit: Absenden
+
+notifications:
+  errors:
+    unsupportedNotificationType: Nicht unterstützter Benachrichtigungstyp
+    unknownUser: Unbekannter Benutzer
+    unsupportedNotificationTypeWithType: 'Nicht unterstützter Benachrichtigungstyp: ${type}'
+    unknownNotificationType: Unbekannter Benachrichtigungstyp
+  notifications: Benachrichtigungen
+  profile: Profil
+  postedNewComment: Neuer Kommentar veröffentlicht
+  inYour: In Ihrem
+  video: Video
+  repliedYourVideoComment: Hat auf Ihren Videokommentar geantwortet
+  copyInfoToClipboard: Benachrichtigungsinfo in die Zwischenablage kopieren
+  copySuccess: In die Zwischenablage kopiert
+  copySuccessForMessage: 'In die Zwischenablage kopiert: ${str}'
+  markAllAsRead: Alle als gelesen markieren
+  markAllAsReadSuccess: Alle Benachrichtigungen wurden als gelesen markiert
+  markAllAsReadFailed: Alle als gelesen markieren fehlgeschlagen
+  markSelectedAsRead: Ausgewählte als gelesen markieren
+  markSelectedAsReadSuccess: Ausgewählte Benachrichtigungen wurden als gelesen markiert
+  markSelectedAsReadFailed: Ausgewählte als gelesen markieren fehlgeschlagen
+  markAsRead: Als gelesen markieren
+  markAsReadSuccess: Benachrichtigung wurde als gelesen markiert
+  markAsReadFailed: Benachrichtigung als gelesen markieren fehlgeschlagen
+  notificationTypeHelp: Hilfe zu Benachrichtigungstypen
+  dueToLackOfNotificationTypeDetails: Da Details zum Benachrichtigungstyp fehlen, decken die unterstützten Typen möglicherweise nicht die Nachrichten ab, die Sie derzeit erhalten
+  helpUsImproveNotificationTypeSupport: Wenn Sie uns helfen möchten, die Unterstützung für Benachrichtigungstypen zu verbessern
+  helpUsImproveNotificationTypeSupportLongText: "1. 📋 Kopieren Sie die Benachrichtigungsinformationen\n2. 🐞 Reichen Sie ein Issue im Projekt-Repository ein\n\n⚠️ Hinweis: Benachrichtigungsinformationen können persönliche Privatsphäre enthalten. Wenn Sie sie nicht veröffentlichen möchten, können Sie sie auch per E-Mail an den Projektautor senden."
+  goToRepository: Zum Repository
+  copy: Kopieren
+  commentApproved: Kommentar genehmigt
+  repliedYourProfileComment: Hat auf Ihren Profilkommentar geantwortet
+  kReplied: hat auf Ihren Kommentar geantwortet zu
+  kCommented: hat kommentiert in Ihrem
+  kVideo: Video
+  kGallery: Galerie
+  kProfile: Profil
+  kThread: Thread
+  kPost: Beitrag
+  kCommentSection: Kommentarbereich
+  kApprovedComment: Kommentar genehmigt
+  kApprovedVideo: Video genehmigt
+  kApprovedGallery: Galerie genehmigt
+  kApprovedThread: Thread genehmigt
+  kApprovedPost: Beitrag genehmigt
+  kApprovedForumPost: Forumsbeitrag genehmigt
+  kRejectedContent: Inhaltsprüfung abgelehnt
+  kUnknownType: Unbekannter Benachrichtigungstyp
+
+conversation:
+  errors:
+    pleaseSelectAUser: Bitte einen Benutzer auswählen
+    pleaseEnterATitle: Bitte einen Titel eingeben
+    clickToSelectAUser: Tippen, um einen Benutzer auszuwählen
+    loadFailedClickToRetry: Laden fehlgeschlagen, zum erneuten Versuch tippen
+    loadFailed: Laden fehlgeschlagen
+    clickToRetry: Zum erneuten Versuch tippen
+    noMoreConversations: Keine weiteren Unterhaltungen
+  conversation: Unterhaltung
+  startConversation: Unterhaltung starten
+  noConversation: Keine Unterhaltung
+  selectFromLeftListAndStartConversation: In der linken Liste auswählen und Unterhaltung starten
+  title: Titel
+  body: Text
+  selectAUser: Benutzer auswählen
+  searchUsers: Benutzer suchen…
+  tmpNoConversions: Keine Unterhaltungen
+  deleteThisMessage: Diese Nachricht löschen
+  deleteThisMessageSubtitle: Dieser Vorgang kann nicht rückgängig gemacht werden
+  writeMessageHere: Nachricht hier schreiben…
+  lastMessageFromMe: "Sie: "
+  sendMessage: Nachricht senden
+
+splash:
+  errors:
+    initializationFailed: Initialisierung fehlgeschlagen, bitte starten Sie die App neu
+  preparing: Wird vorbereitet...
+  initializing: Wird initialisiert...
+  loading: Wird geladen...
+  ready: Bereit
+  initializingMessageService: Nachrichtendienst wird initialisiert...
+
+
+download:
+  errors:
+    imageModelNotFound: Bildmodell nicht gefunden
+    downloadFailed: Download fehlgeschlagen
+    videoInfoNotFound: Videoinformationen nicht gefunden
+    downloadTaskAlreadyExists: Download-Aufgabe existiert bereits
+    downloadTaskSavePathConflict: Der Speicherpfad wird bereits von einer anderen Aufgabe verwendet
+    videoAlreadyDownloaded: Video bereits heruntergeladen
+    downloadFailedForMessage: 'Hinzufügen der Download-Aufgabe fehlgeschlagen: ${errorInfo}'
+    userPausedDownload: Download vom Benutzer pausiert
+    unknown: Unbekannt
+    fileSystemError: 'Dateisystemfehler: ${errorInfo}'
+    unknownError: 'Unbekannter Fehler: ${errorInfo}'
+    writeFileFailedForMessage: 'Datei konnte nicht geschrieben werden: ${errorInfo}'
+    connectionTimeout: Verbindungszeitüberschreitung
+    sendTimeout: Zeitüberschreitung beim Senden
+    receiveTimeout: Zeitüberschreitung beim Empfangen
+    serverError: 'Serverfehler: ${errorInfo}'
+    unknownNetworkError: Unbekannter Netzwerkfehler
+    sslHandshakeFailed: SSL-Handshake fehlgeschlagen, bitte prüfen Sie Ihr Netzwerk
+    connectionFailed: Verbindung fehlgeschlagen, bitte prüfen Sie Ihr Netzwerk
+    serviceIsClosing: Der Download-Dienst wird beendet
+    partialDownloadFailed: Download von Teilinhalten fehlgeschlagen
+    noDownloadTask: Keine Download-Aufgabe
+    taskNotFoundOrDataError: Aufgabe nicht gefunden oder Datenfehler
+    fileNotFound: Datei nicht gefunden
+    openFolderFailed: Ordner konnte nicht geöffnet werden
+    copyDownloadUrlFailed: 'Download-URL konnte nicht kopiert werden'
+    openFolderFailedWithMessage: 'Ordner konnte nicht geöffnet werden: ${message}'
+    directoryNotFound: Verzeichnis nicht gefunden
+    copyFailed: Kopieren fehlgeschlagen
+    openFileFailed: Datei konnte nicht geöffnet werden
+    openFileFailedWithMessage: 'Datei konnte nicht geöffnet werden: ${message}'
+    playLocallyFailed: Lokale Wiedergabe fehlgeschlagen
+    playLocallyFailedWithMessage: 'Lokale Wiedergabe fehlgeschlagen: ${message}'
+    noDownloadSource: Keine Download-Quelle
+    noDownloadSourceNowPleaseWaitInfoLoaded: Keine Download-Quelle, bitte warten Sie, bis die Informationen geladen sind, und versuchen Sie es erneut
+    noActiveDownloadTask: Keine aktive Download-Aufgabe
+    noFailedDownloadTask: Keine fehlgeschlagene Download-Aufgabe
+    noCompletedDownloadTask: Keine abgeschlossene Download-Aufgabe
+    taskAlreadyCompletedDoNotAdd: Aufgabe bereits abgeschlossen, nicht erneut hinzufügen
+    linkExpiredTryAgain: Link abgelaufen, es wird versucht, einen neuen Download-Link zu erhalten
+    linkExpiredTryAgainSuccess: Link abgelaufen, neuer Download-Link erfolgreich abgerufen
+    linkExpiredTryAgainFailed: Link abgelaufen, das Abrufen eines neuen Download-Links ist fehlgeschlagen
+    taskDeleted: Aufgabe gelöscht
+    unsupportedImageFormat: 'Nicht unterstütztes Bildformat: ${format}'
+    deleteFileError: 'Datei konnte nicht gelöscht werden, möglicherweise wird sie von einem anderen Prozess verwendet'
+    deleteTaskError: 'Aufgabe konnte nicht gelöscht werden'
+    canNotRefreshVideoTask: 'Video-Aufgabe konnte nicht aktualisiert werden'
+    videoRemovedCanNotRefresh: 'Dieses Video wurde gelöscht oder existiert nicht mehr, daher kann der Download-Link nicht aktualisiert werden'
+    videoInaccessibleCanNotRefresh: 'Auf dieses Video kann nicht zugegriffen werden; es ist möglicherweise privat oder Sie müssen sich erneut anmelden'
+    videoQualityGone: 'Diese Qualität wird nicht mehr angeboten, bitte fügen Sie den Download erneut hinzu'
+    refreshLinkNetworkFailed: 'Netzwerkfehler, der Download-Link kann derzeit nicht aktualisiert werden, bitte später erneut versuchen'
+    taskAlreadyProcessing: 'Aufgabe wird bereits verarbeitet'
+    taskNotFound: 'Aufgabe nicht gefunden'
+    failedToLoadTasks: 'Aufgaben konnten nicht geladen werden'
+    partialDownloadFailedWithMessage: 'Teilweiser Download fehlgeschlagen: ${message}'
+    unsupportedImageFormatWithMessage: 'Nicht unterstütztes Bildformat: ${extension}; Sie können versuchen, es auf Ihr Gerät herunterzuladen, um es anzusehen'
+    imageLoadFailed: 'Bild konnte nicht geladen werden'
+    pleaseTryOtherViewer: 'Bitte versuchen Sie, es mit einem anderen Betrachter zu öffnen'
+  downloadList: Download-Liste
+  viewDownloadList: Download-Liste anzeigen
+  download: Herunterladen
+  selectDownloadTitle: Download auswählen
+  qualitySectionLabel: Qualität
+  saveToSectionLabel: Speichern in
+  lastUsedBadge: Zuletzt verwendet
+  pickedBadge: Ausgewählt
+  startDownloading: Download starten
+  clearAllFailedTasks: Alle fehlgeschlagenen Aufgaben löschen
+  clearAllFailedTasksConfirmation: 'Möchten Sie wirklich alle fehlgeschlagenen Download-Aufgaben löschen? Die Dateien dieser Aufgaben werden ebenfalls gelöscht.'
+  clearAllFailedTasksSuccess: Alle fehlgeschlagenen Aufgaben gelöscht
+  clearAllFailedTasksError: Beim Löschen der fehlgeschlagenen Aufgaben ist ein Fehler aufgetreten
+  downloadStatus: Download-Status
+  imageList: Bildliste
+  retryDownload: Download erneut versuchen
+  notDownloaded: Nicht heruntergeladen
+  downloaded: Heruntergeladen
+  waitingForDownload: Wartet auf Download
+  downloadingProgressForImageProgress: 'Wird heruntergeladen (${downloaded}/${total} Bilder ${progress}%)'
+  downloadingSingleImageProgress: 'Wird heruntergeladen (${downloaded} Bilder)'
+  pausedProgressForImageProgress: 'Pausiert (${downloaded}/${total} Bilder ${progress}%)'
+  pausedSingleImageProgress: 'Pausiert (${downloaded} Bilder)'
+  downloadedProgressForImageProgress: 'Heruntergeladen (insgesamt ${total} Bilder)'
+  viewVideoDetail: Videodetails anzeigen
+  viewGalleryDetail: Galeriedetails anzeigen
+  moreOptions: Weitere Optionen
+  openFile: Datei öffnen
+  playLocally: Lokal abspielen
+  pause: Pausieren
+  resume: Fortsetzen
+  copyDownloadUrl: Download-URL kopieren
+  showInFolder: Im Ordner anzeigen
+  deleteTask: Aufgabe löschen
+  deleteTaskConfirmation: "Möchten Sie diese Download-Aufgabe wirklich löschen?\nDie Datei der Aufgabe wird ebenfalls gelöscht."
+  forceDeleteTask: Aufgabe zwangsweise löschen
+  forceDeleteTaskConfirmation: "Möchten Sie diese Download-Aufgabe wirklich zwangsweise löschen?\nDie Datei der Aufgabe wird ebenfalls gelöscht, auch wenn sie gerade verwendet wird."
+  downloadingProgressForVideoTask: 'Wird heruntergeladen ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloadingOnlyDownloadedAndSpeed: 'Wird heruntergeladen ${downloaded} • ${speed}MB/s'
+  pausedForDownloadedAndTotal: 'Pausiert ${downloaded}/${total} (${progress}%)'
+  pausedAndDownloaded: 'Pausiert • Heruntergeladen ${downloaded}'
+  downloadedWithSize: 'Heruntergeladen • ${size}'
+  copyDownloadUrlSuccess: 'Download-URL kopiert'
+  totalImageNums: '${num} Bilder'
+  downloadingDownloadedTotalProgressSpeed: 'Wird heruntergeladen ${downloaded}/${total} (${progress}%) • ${speed}MB/s'
+  downloading: Wird heruntergeladen
+  failed: Fehlgeschlagen
+  completed: Abgeschlossen
+  downloadDetail: Download-Details
+  copy: Kopieren
+  copySuccess: Kopiert
+  waiting: Wartend
+  paused: Pausiert
+  downloadingOnlyDownloaded: 'Wird heruntergeladen ${downloaded}'
+  galleryDownloadCompletedWithName: 'Galerie-Download abgeschlossen: ${galleryName}'
+  downloadCompletedWithName: 'Download abgeschlossen: ${fileName}'
+  searchTasks: Aufgaben suchen…
+  statusLabel: 'Status: ${label}'
+  allStatus: Alle Status
+  typeLabel: 'Typ: ${label}'
+  allTypes: Alle Typen
+  taskType: Typ
+  video: Video
+  gallery: Galerie
+  other: Sonstiges
+  clearFilters: Filter zurücksetzen
+  pauseAll: Alle pausieren
+  resumeAll: Alle starten
+  errorTypes:
+    network: Netzwerkproblem, ein erneuter Versuch kann helfen
+    serverRejected: Vom Server abgelehnt, möglicherweise müssen Sie sich erneut anmelden
+    notFound: Ressource ist nicht mehr vorhanden oder wurde gelöscht
+    diskFull: Nicht genügend Speicherplatz
+    fileInUse: Die Datei wird von einem anderen Programm verwendet
+    permission: Keine Schreibberechtigung
+    cancelled: Abgebrochen
+    unknown: Unbekannter Fehler
+  errorDetailCopied: Fehlerdetails kopiert
+  errorDetailCopyHint: Lange drücken, um Fehlerdetails zu kopieren
+  restoredPaused:
+    banner: '${num} unvollendete Aufgaben aus der letzten Sitzung wurden pausiert'
+    resume: Alle fortsetzen
+    dismiss: Verwerfen
+  emptyTaskList: Noch keine Download-Aufgaben
+  noMatchingTasks: Keine passenden Aufgaben
+  deleteByDate:
+    menuTitle: Nach Datum löschen
+    dialogTitle: Nach Datum löschen
+    description: 'Löscht Download-Aufgaben gesammelt nach Erstellungsdatum. Aufgaben, deren Dateien gerade verwendet werden, werden übersprungen; Aufgaben, deren Dateien nicht mehr existieren, werden bereinigt.'
+    modeRange: Datumsbereich
+    modeDays: Älter als
+    startDate: Startdatum
+    endDate: Enddatum
+    notSet: Nicht festgelegt
+    daysUnit: Tage
+    olderThanDaysHint: 'Aufgaben löschen, die vor mehr als ${days} Tag(en) erstellt wurden'
+    noMatch: Keine Aufgaben entsprechen der gewählten Bedingung
+    invalidRange: Das Startdatum muss am oder vor dem Enddatum liegen
+    confirmTitle: Löschen bestätigen
+    confirmContent: '${count} Download-Aufgabe(n) und ihre Dateien löschen? Dies kann nicht rückgängig gemacht werden.'
+    deleting: 'Lösche ${done}/${total}…'
+    resultSuccess: '${count} Aufgabe(n) gelöscht'
+    resultPartial: '${deleted} Aufgabe(n) gelöscht; ${skipped} übersprungen (in Verwendung)'
+  category:
+    manageTitle: Kategorien verwalten
+    label: Kategorien
+    uncategorized: Nicht kategorisiert
+    manage: Verwalten
+    createShortcut: Neu
+    newCategoryHint: Name der neuen Kategorie
+    createSuccess: Kategorie erstellt
+    createFailed: Kategorie konnte nicht erstellt werden
+    nameEmpty: Der Kategoriename darf nicht leer sein
+    emptyHint: Noch keine Kategorien. Erstellen Sie eine, um Ihre Downloads zu organisieren.
+    moveTo: In Kategorie verschieben
+    moveToWithCount: '${count} Element(e) verschieben nach…'
+    moveSuccess: 'Verschoben nach ${title}'
+    moveToUncategorizedSuccess: Nach „Nicht kategorisiert“ verschoben
+    moveFailed: Verschieben fehlgeschlagen
+    renameTitle: Kategorie umbenennen
+    renameHint: Kategoriename eingeben
+    renameSuccess: Kategorie umbenannt
+    renameFailed: Kategorie konnte nicht umbenannt werden
+    deleteTitle: Kategorie löschen
+    deleteConfirm: 'Kategorie „${title}“ löschen? Die ${count} Elemente darin werden nach „Nicht kategorisiert“ verschoben. Es werden keine Dateien gelöscht.'
+    deleteSuccess: Kategorie gelöscht
+    deleteFailed: Kategorie konnte nicht gelöscht werden
+  maxConcurrentDownloads: Max. gleichzeitige Downloads
+  maxConcurrentDownloadsDesc: 'Anzahl der gleichzeitig herunterladenden Aufgaben (1-5)'
+  stillInDevelopment: Noch in Entwicklung
+  saveToAppDirectory: Im App-Verzeichnis speichern
+  alreadyDownloadedWithQuality: 'Bereits in der gleichen Qualität heruntergeladen. Möchten Sie den Download fortsetzen?'
+  alreadyDownloadedWithQualities: 'Bereits in den Qualitätsstufen heruntergeladen: ${qualities}. Möchten Sie den Download fortsetzen?'
+  otherQualities: Andere Qualitäten
+  batchDownload:
+    title: Stapel-Download
+    downloadTaskAlreadyRunning: Es läuft bereits eine Aufgabe, bitte warten.
+    userCancelled: Vom Benutzer abgebrochen
+    failedToGetVideoInfo: Videoinformationen konnten nicht abgerufen werden
+    failedToGetVideoSource: Videoquelle konnte nicht ermittelt werden
+    failedToGetGalleryInfo: Galerieinformationen konnten nicht abgerufen werden
+    galleryNoImages: Die Galerie enthält keine Bilder
+    failedToGetSavePath: Speicherpfad konnte nicht ermittelt werden
+    batchDownloadFailedWithException(exception): 'Stapel-Download fehlgeschlagen: ${exception}'
+    selectQuality: Qualität auswählen
+    downloading: Wird heruntergeladen
+    downloadResult: Download-Ergebnis
+    selectedVideosCount(count): '${count} Video(s) ausgewählt'
+    selectedGalleriesCount(count): '${count} Galerie(n) ausgewählt'
+    qualityNote: Ist die gewählte Qualität nicht verfügbar, wird die bestmögliche verfügbare Qualität verwendet
+    progress(current, total): 'Verarbeite ${current}/${total}'
+    queued: In Warteschlange
+    success: Erfolg
+    skipped: Übersprungen
+    failed: Fehlgeschlagen
+    failureDetails: Fehlerdetails
+    reasonPrivateVideo: Privates Video
+    reasonAlreadyExists: Bereits vorhanden
+    reasonNoSource: Keine Download-Quelle
+    reasonNoSavePath: Speicherpfad nicht ermittelbar
+    reasonOther: Anderer Fehler
+    startDownload: Download starten
+
+downloadNotifications:
+  completedTitle: Download abgeschlossen
+  failedTitle: Download fehlgeschlagen
+  completedBody: '${name} wurde erfolgreich heruntergeladen'
+  failedBody: '${name} konnte nicht heruntergeladen werden'
+  completedToast: '${name} heruntergeladen'
+  failedToast: 'Download von ${name} fehlgeschlagen'
+  channelName: Download-Status
+  channelDescription: Benachrichtigungen für abgeschlossene und fehlgeschlagene Downloads
+
+favorite:
+  errors:
+    addFailed: Hinzufügen fehlgeschlagen
+    addSuccess: Erfolgreich hinzugefügt
+    deleteFolderFailed: Ordner löschen fehlgeschlagen
+    deleteFolderSuccess: Ordner erfolgreich gelöscht
+    folderNameCannotBeEmpty: Der Ordnername darf nicht leer sein
+  add: Hinzufügen
+  addSuccess: Erfolgreich hinzugefügt
+  addFailed: Hinzufügen fehlgeschlagen
+  remove: Entfernen
+  removeSuccess: Erfolgreich entfernt
+  removeFailed: Entfernen fehlgeschlagen
+  removeConfirmation: 'Möchten Sie dieses Element wirklich aus den Favoriten entfernen?'
+  removeConfirmationSuccess: 'Element aus den Favoriten entfernt'
+  removeConfirmationFailed: 'Element konnte nicht aus den Favoriten entfernt werden'
+  createFolderSuccess: 'Ordner erfolgreich erstellt'
+  createFolderFailed: 'Ordner konnte nicht erstellt werden'
+  createFolder: Ordner erstellen
+  enterFolderName: Ordnernamen eingeben
+  enterFolderNameHere: Ordnernamen hier eingeben…
+  create: Erstellen
+  items: Elemente
+  newFolderName: Neuer Ordner
+  searchFolders: Ordner suchen…
+  searchItems: Elemente suchen…
+  createdAt: Erstellt am
+  myFavorites: Meine Favoriten
+  deleteFolderTitle: Ordner löschen
+  deleteFolderConfirmWithTitle: 'Möchten Sie den Ordner ${title} wirklich löschen?'
+  removeItemTitle: Element entfernen
+  removeItemConfirmWithTitle: 'Möchten Sie das Element ${title} wirklich löschen?'
+  removeItemSuccess: Element aus den Favoriten entfernt
+  removeItemFailed: Element konnte nicht aus den Favoriten entfernt werden
+  localizeFavorite: Lokale Favoriten
+  editFolderTitle: Ordner bearbeiten
+  editFolderSuccess: Ordner erfolgreich aktualisiert
+  editFolderFailed: Ordner konnte nicht aktualisiert werden
+  searchTags: Tags suchen
+  noTagsInFolder: Noch keine Tags an den Elementen in diesem Ordner
+  tagFilterMatchAll: Zeigt nur Elemente, die alle ausgewählten Tags tragen
+  clearSelectedTags: Ausgewählte Tags zurücksetzen
+  selectedTagCount: "${count} ausgewählt"
+  noMatchingTags: Keine passenden Tags
+
+translation:
+  currentService: Aktueller Dienst
+  testConnection: Verbindung testen
+  testConnectionSuccess: Verbindungstest erfolgreich
+  testConnectionFailed: Verbindungstest fehlgeschlagen
+  testConnectionFailedWithMessage: 'Verbindungstest fehlgeschlagen: ${message}'
+  translation: Übersetzung
+  needVerification: Verifizierung erforderlich
+  needVerificationContent: Bitte testen Sie zuerst die Verbindung, bevor Sie die KI-Übersetzung aktivieren
+  confirm: Bestätigen
+  disclaimer: Haftungsausschluss
+  riskWarning: Risikowarnung
+  dureToRisk1: 'Da der Text von Nutzern erstellt wird, kann er Inhalte enthalten, die gegen die Inhaltsrichtlinien des KI-Dienstanbieters verstoßen'
+  dureToRisk2: 'Unangemessene Inhalte können zur Sperrung des API-Schlüssels oder zur Beendigung des Dienstes führen'
+  operationSuggestion: Bedienhinweis
+  operationSuggestion1: '1. Vor der strengen Prüfung der zu übersetzenden Inhalte verwenden'
+  operationSuggestion2: '2. Vermeiden Sie die Übersetzung von Inhalten mit Gewalt, sexuellen Inhalten usw.'
+  apiConfig: API-Konfiguration
+  modifyConfigWillAutoCloseAITranslation: 'Das Ändern der Konfiguration schließt die KI-Übersetzung automatisch; nach dem Aktivieren muss erneut getestet werden'
+  apiAddress: API-Adresse
+  modelName: Modellname
+  modelNameHintText: 'Zum Beispiel: gpt-4-turbo'
+  maxTokens: Max. Tokens
+  maxTokensHintText: 'Zum Beispiel: 32000'
+  temperature: Temperatur
+  temperatureHintText: '0.0-2.0'
+  clickTestButtonToVerifyAPIConnection: 'Klicken Sie auf die Testschaltfläche, um die Gültigkeit der API-Verbindung zu prüfen'
+  requestPreview: Anfragevorschau
+  enableAITranslation: KI aktivieren
+  enabled: Aktiviert
+  disabled: Deaktiviert
+  testing: Wird getestet...
+  testNow: Jetzt testen
+  connectionStatus: Verbindungsstatus
+  success: Erfolg
+  failed: Fehlgeschlagen
+  information: Information
+  viewRawResponse: Rohantwort anzeigen
+  pleaseCheckInputParametersFormat: Bitte überprüfen Sie das Format der Eingabeparameter
+  pleaseFillInAPIAddressModelNameAndKey: Bitte API-Adresse, Modellname und Schlüssel ausfüllen
+  pleaseFillInValidConfigurationParameters: Bitte gültige Konfigurationsparameter ausfüllen
+  pleaseCompleteConnectionTest: Bitte schließen Sie den Verbindungstest ab
+  notConfigured: Nicht konfiguriert
+  apiEndpoint: API-Endpunkt
+  configuredKey: Konfigurierter Schlüssel
+  notConfiguredKey: Nicht konfigurierter Schlüssel
+  authenticationStatus: Authentifizierungsstatus
+  thisFieldCannotBeEmpty: Dieses Feld darf nicht leer sein
+  apiKey: API-Schlüssel
+  apiKeyCannotBeEmpty: Der API-Schlüssel darf nicht leer sein
+  pleaseEnterValidNumber: Bitte eine gültige Zahl eingeben
+  range: Bereich
+  mustBeGreaterThan: Muss größer sein als
+  invalidAPIResponse: Ungültige API-Antwort
+  connectionFailedForMessage: 'Verbindung fehlgeschlagen: ${message}'
+  aiTranslationNotEnabledHint: KI-Übersetzung ist nicht aktiviert, bitte aktivieren Sie sie in den Einstellungen
+  goToSettings: Zu den Einstellungen
+  disableAITranslation: KI-Übersetzung deaktivieren
+  currentValue: Aktueller Wert
+  configureTranslationStrategy: Übersetzungsstrategie konfigurieren
+  advancedSettings: "Erweiterte Einstellungen"
+  translationPrompt: "Übersetzungs-Prompt"
+  promptHint: "Bitte geben Sie den Übersetzungs-Prompt ein und verwenden Sie [TL] als Platzhalter für die Zielsprache"
+  promptHelperText: "Der Prompt muss [TL] als Platzhalter für die Zielsprache enthalten"
+  promptMustContainTargetLang: "Der Prompt muss den Platzhalter [TL] enthalten"
+  aiTranslationWillBeDisabled: "KI-Übersetzung wird deaktiviert"
+  aiTranslationWillBeDisabledDueToConfigChange: "Aufgrund einer Änderung der Basiskonfiguration wird die KI-Übersetzung deaktiviert"
+  aiTranslationWillBeDisabledDueToPromptChange: "Aufgrund einer Änderung des Übersetzungs-Prompts wird die KI-Übersetzung deaktiviert"
+  aiTranslationWillBeDisabledDueToParamChange: "Aufgrund einer Änderung der Parameterkonfiguration wird die KI-Übersetzung deaktiviert"
+  onlyOpenAIAPISupported: "Derzeit wird nur das OpenAI-kompatible API-Format unterstützt (Anfragetext im Format application/json)"
+  streamingTranslation: "Streaming-Übersetzung"
+  streamingTranslationSupported: "Streaming-Übersetzung wird unterstützt"
+  streamingTranslationNotSupported: "Streaming-Übersetzung wird nicht unterstützt"
+  streamingTranslationDescription: "Die Streaming-Übersetzung kann Ergebnisse während des Übersetzungsvorgangs in Echtzeit anzeigen und bietet so ein besseres Nutzererlebnis"
+  usingFullUrlWithHash: "Vollständige URL verwenden (endet mit #)"
+  baseUrlInputHelperText: "Bei einem abschließenden # wird es als tatsächliche Anfrageadresse verwendet"
+  currentActualUrl: "Aktuelle tatsächliche URL: ${url}"
+  urlEndingWithHashTip: "Eine URL mit abschließendem # wird direkt verwendet, ohne einen Suffix anzuhängen"
+  streamingTranslationWarning: "Hinweis: Diese Funktion erfordert, dass der API-Dienst Streaming-Übertragung unterstützt; einige Modelle unterstützen dies möglicherweise nicht"
+  # Translation Service Selection
+  translationService: Übersetzungsdienst
+  translationServiceDescription: Wählen Sie Ihren bevorzugten Übersetzungsdienst
+  googleTranslation: Google-Übersetzung
+  googleTranslationDescription: Kostenloser Online-Übersetzungsdienst, der mehrere Sprachen unterstützt
+  aiTranslation: KI-Übersetzung
+  aiTranslationDescription: Intelligenter Übersetzungsdienst auf Basis großer Sprachmodelle
+  deeplxTranslation: DeepLX-Übersetzung
+  deeplxTranslationDescription: Open-Source-Implementierung der DeepL-Übersetzung mit qualitativ hochwertiger Übersetzung
+  # Google Translation
+  googleTranslationFeatures: Funktionen
+  freeToUse: Kostenlos nutzbar
+  freeToUseDescription: Keine Konfiguration erforderlich, sofort einsatzbereit
+  fastResponse: Schnelle Antwort
+  fastResponseDescription: Schnelle Übersetzungsgeschwindigkeit mit geringer Latenz
+  stableAndReliable: Stabil und zuverlässig
+  stableAndReliableDescription: Basierend auf der offiziellen Google-API
+  enabledDefaultService: Aktiviert – Standard-Übersetzungsdienst
+  notEnabled: Nicht aktiviert
+  # DeepLX Translation
+  deeplxTranslationService: DeepLX-Übersetzungsdienst
+  deeplxDescription: DeepLX ist eine Open-Source-Implementierung der DeepL-Übersetzung und unterstützt die Endpunktmodi Free, Pro und Official
+  serverAddress: Serveradresse
+  serverAddressHint: https://api.deeplx.org
+  serverAddressHelperText: Basisadresse des DeepLX-Servers
+  endpointType: Endpunkttyp
+  freeEndpoint: Free – kostenloser Endpunkt, ggf. mit Ratenlimits
+  proEndpoint: Pro – erfordert dl_session, stabiler
+  officialEndpoint: Official – offizielles API-Format
+  finalRequestUrl: Endgültige Anfrage-URL
+  apiKeyOptional: API-Schlüssel (optional)
+  apiKeyOptionalHint: Für den Zugriff auf geschützte DeepLX-Dienste
+  apiKeyOptionalHelperText: Einige DeepLX-Dienste erfordern zur Authentifizierung einen API-Schlüssel
+  dlSession: DL Session
+  dlSessionHint: Für den Pro-Modus erforderlicher dl_session-Parameter
+  dlSessionHelperText: Für den Pro-Endpunkt erforderlicher Sitzungsparameter, erhalten aus dem DeepL-Pro-Konto
+  proModeRequiresDlSession: Der Pro-Modus erfordert dl_session
+  clickTestButtonToVerifyDeepLXAPI: Klicken Sie auf die Testschaltfläche, um die DeepLX-API-Verbindung zu prüfen
+  enableDeepLXTranslation: DeepLX-Übersetzung aktivieren
+  deepLXTranslationWillBeDisabled: Die DeepLX-Übersetzung wird aufgrund von Konfigurationsänderungen deaktiviert
+  translatedResult: Übersetztes Ergebnis
+  # Translation Service Messages
+  testSuccess: Test erfolgreich
+  pleaseFillInDeepLXServerAddress: Bitte die DeepLX-Serveradresse ausfüllen
+  invalidAPIResponseFormat: Ungültiges API-Antwortformat
+  translationServiceReturnedError: Der Übersetzungsdienst hat einen Fehler oder ein leeres Ergebnis zurückgegeben
+  connectionFailed: Verbindung fehlgeschlagen
+  # Translation Service Log Messages
+  translationFailed: Übersetzung fehlgeschlagen
+  aiTranslationFailed: KI-Übersetzung fehlgeschlagen
+  deeplxTranslationFailed: DeepLX-Übersetzung fehlgeschlagen
+  aiTranslationTestFailed: Test der KI-Übersetzung fehlgeschlagen
+  deeplxTranslationTestFailed: Test der DeepLX-Übersetzung fehlgeschlagen
+  streamingTranslationTimeout: Zeitüberschreitung der Streaming-Übersetzung, Ressourcenbereinigung wird erzwungen
+  translationRequestTimeout: Zeitüberschreitung der Übersetzungsanfrage
+  streamingTranslationDataTimeout: Zeitüberschreitung beim Empfang der Streaming-Übersetzungsdaten
+  dataReceptionTimeout: Zeitüberschreitung beim Datenempfang
+  streamDataParseError: Fehler beim Analysieren der Stream-Daten
+  streamingTranslationFailed: Streaming-Übersetzung fehlgeschlagen
+  fallbackTranslationFailed: Rückfall auf die normale Übersetzung ist ebenfalls fehlgeschlagen
+  translationSettings: Übersetzungseinstellungen
+  enableGoogleTranslation: Google-Übersetzung aktivieren
+  # Modern AI adaptation
+  thinking: Denkt nach...
+  thoughtProcess: Denkprozess
+  modelCompatibility: Modellkompatibilität
+  modelCompatibilityDescription: Anfrageparameter für moderne Modelle wie Reasoning-Modelle (o1/o3, DeepSeek-R1, QwQ) anpassen
+  reasoningModel: Reasoning-Modell
+  reasoningModelDescription: Für o1/o3, DeepSeek-R1, QwQ usw. Faltet den Prompt in die Benutzernachricht, lässt temperature weg und verwendet max_completion_tokens
+  useMaxCompletionTokens: max_completion_tokens verwenden
+  useMaxCompletionTokensDescription: Neuere OpenAI-Endpunkte erfordern max_completion_tokens anstelle des veralteten max_tokens
+  sendTemperature: Temperature senden
+  sendTemperatureDescription: Für Modelle deaktivieren, die den Parameter temperature ablehnen (die meisten Reasoning-Modelle)
+  showReasoningProcess: Denkprozess anzeigen
+  showReasoningProcessDescription: Das einklappbare Reasoning von Reasoning-Modellen im Übersetzungsdialog anzeigen
+  provider: Anbieter
+  providerOpenAI: OpenAI (und kompatibel)
+  providerAnthropic: Anthropic (Claude)
+  providerGoogle: Google (Gemini)
+  multiProviderHint: "Unterstützt OpenAI (und jeden OpenAI-kompatiblen Endpunkt), Anthropic und Google über das dartantic_ai SDK"
+  baseUrlOptionalHelperText: "Optional. Leer lassen, um den Standardendpunkt des Anbieters zu verwenden; ausfüllen für OpenAI-kompatible/Relay-Endpunkte"
+  defaultEndpoint: Standardendpunkt
+  providerPreset: Anbieter-Voreinstellung
+  selectProviderPreset: Voreinstellung auswählen
+  presetCustom: Benutzerdefiniert
+  presetApplied: 'Voreinstellung angewendet: ${name}'
+  presetNames:
+    openai: OpenAI (GPT-4o / GPT-4.1)
+    openaiReasoning: OpenAI Reasoning (o1 / o3 / o4)
+    anthropic: Anthropic Claude
+    anthropicReasoning: Anthropic Claude Reasoning (erweitertes Denken)
+    gemini: Google Gemini (nativ)
+    geminiReasoning: Google Gemini Reasoning (Denken)
+    deepseek: DeepSeek (deepseek-chat)
+    deepseekReasoner: DeepSeek Reasoning (deepseek-reasoner / R1)
+    siliconflow: SiliconFlow
+    zhipu: Zhipu GLM
+  fetchModelList: Modellliste abrufen
+  fetchingModels: Wird abgerufen...
+  selectModel: Modell auswählen
+  searchModel: Modell suchen
+  noModelsFound: Keine Modelle gefunden
+
+# Navigation Order Settings
+bottomNav:
+  # Short labels for the bottom bar / rail only. Do NOT reuse common.* here:
+  # those strings are used all over the app and shortening them would leak
+  # into unrelated pages. A tab label gets ~35.6dp on a 320dp screen with five
+  # tabs, so keep these under ~6 characters.
+  video: Video
+  gallery: Galerie
+  subscription: Feed
+  community: Forum
+  localMedia: Lokal
+
+navigationOrderSettings:
+  title: Navigationsreihenfolge
+  customNavigationOrder: Benutzerdefinierte Navigationsreihenfolge
+  customNavigationOrderDesc: Ziehen Sie, um die Anzeigereihenfolge der Seiten in der unteren Navigationsleiste und der Seitenleiste anzupassen
+  restartRequired: Neustart der App erforderlich
+  navigationItemSorting: Sortierung der Navigationselemente
+  done: Fertig
+  edit: Bearbeiten
+  reset: Zurücksetzen
+  previewEffect: Vorschau der Wirkung
+  bottomNavigationPreview: "Vorschau der unteren Navigation:"
+  sidebarPreview: "Vorschau der Seitenleiste:"
+  confirmResetNavigationOrder: Zurücksetzen der Navigationsreihenfolge bestätigen
+  confirmResetNavigationOrderDesc: Möchten Sie die Navigationsreihenfolge wirklich auf die Standardeinstellungen zurücksetzen?
+  cancel: Abbrechen
+  show: Anzeigen
+  hide: Ausblenden
+  hidden: Ausgeblendet
+  hideHint: Tippen Sie auf das Augensymbol, um Community und lokale Dateien ein- oder auszublenden
+  # Navigation item descriptions
+  videoDescription: Beliebte Videoinhalte durchsuchen
+  galleryDescription: Bilder und Galerien durchsuchen
+  subscriptionDescription: Neueste Inhalte von gefolgten Benutzern ansehen
+  forumDescription: An Community-Diskussionen teilnehmen
+
+  newsDescription: Offizielle Neuigkeiten, Artikel und Ankündigungen durchsuchen
+  communityDescription: Forumdiskussionen sowie offizielle Neuigkeiten, Artikel und Ankündigungen
+  localMediaDescription: Auf diesem Gerät gespeicherte Videos und Bilder durchsuchen
+
+news:
+  title: Neuigkeiten
+  newsUpdates: Neuigkeiten
+  articles: Artikel
+  broadcast: Übertragung
+  openInBrowser: Im Browser öffnen
+
+# Display Settings
+displaySettings:
+  title: Anzeige-Einstellungen
+  layoutSettings: Layout-Einstellungen
+  layoutSettingsDesc: Spaltenanzahl und Haltepunkte anpassen
+  gridLayout: Raster-Layout
+  navigationOrderSettings: Navigationsreihenfolge
+  customNavigationOrder: Benutzerdefinierte Navigationsreihenfolge
+  customNavigationOrderDesc: Passen Sie die Anzeigereihenfolge der Seiten in der unteren Navigationsleiste und der Seitenleiste an
+
+# Layout Settings
+layoutSettings:
+  title: Layout-Einstellungen
+  descriptionTitle: Beschreibung der Layout-Konfiguration
+  descriptionContent: Die Konfiguration hier bestimmt die Anzahl der Spalten, die in den Video- und Galerielisten angezeigt werden. Sie können den automatischen Modus wählen, damit das System anhand der Bildschirmbreite automatisch anpasst, oder den manuellen Modus, um die Spaltenzahl festzulegen.
+  layoutMode: Layout-Modus
+  reset: Zurücksetzen
+  autoMode: Automatischer Modus
+  autoModeDesc: Automatisch anhand der Bildschirmbreite anpassen
+  manualMode: Manueller Modus
+  manualModeDesc: Feste Spaltenzahl verwenden
+  manualSettings: Manuelle Einstellungen
+  fixedColumns: Feste Spalten
+  columns: Spalten
+  breakpointConfig: Konfiguration der Haltepunkte
+  add: Hinzufügen
+  defaultColumns: Standardspalten
+  defaultColumnsDesc: Standardanzeige für große Bildschirme
+  previewEffect: Vorschau der Wirkung
+  screenWidth: Bildschirmbreite
+  addBreakpoint: Haltepunkt hinzufügen
+  editBreakpoint: Haltepunkt bearbeiten
+  deleteBreakpoint: Haltepunkt löschen
+  screenWidthLabel: Bildschirmbreite
+  screenWidthHint: 600
+  columnsLabel: Spalten
+  columnsHint: 3
+  enterWidth: Bitte Breite eingeben
+  enterValidWidth: Bitte eine gültige Breite eingeben
+  widthCannotExceed9999: Die Breite darf 9999 nicht überschreiten
+  breakpointAlreadyExists: Haltepunkt existiert bereits
+  enterColumns: Bitte Spaltenzahl eingeben
+  enterValidColumns: Bitte eine gültige Spaltenzahl eingeben
+  columnsCannotExceed12: Die Spaltenzahl darf 12 nicht überschreiten
+  breakpointConflict: Haltepunkt existiert bereits
+  confirmResetLayoutSettings: Layout-Einstellungen zurücksetzen
+  confirmResetLayoutSettingsDesc: "Möchten Sie alle Layout-Einstellungen wirklich auf die Standardwerte zurücksetzen?\n\nWird wiederhergestellt:\n• Automatischer Modus\n• Standard-Konfiguration der Haltepunkte"
+  resetToDefaults: Auf Standard zurücksetzen
+  confirmDeleteBreakpoint: Haltepunkt löschen
+  confirmDeleteBreakpointDesc: Möchten Sie den Haltepunkt bei ${width}px wirklich löschen?
+  noCustomBreakpoints: Keine benutzerdefinierten Haltepunkte, es werden Standardspalten verwendet
+  breakpointRange: Haltepunktbereich
+  breakpointRangeDesc: '${range}px'
+  breakpointRangeDescFirst: '≤${width}px'
+  breakpointRangeDescMiddle: '${start}-${end}px'
+  edit: Bearbeiten
+  delete: Löschen
+  cancel: Abbrechen
+  save: Speichern
+
+# Media Player Widgets
+mediaPlayer:
+  # Video Player Widget
+  videoPlayerError: "Video-Player-Fehler"
+  videoLoadFailed: "Video konnte nicht geladen werden"
+  videoCodecNotSupported: "Videocodec nicht unterstützt"
+  networkConnectionIssue: "Problem mit der Netzwerkverbindung"
+  insufficientPermission: "Unzureichende Berechtigung"
+  unsupportedVideoFormat: "Nicht unterstütztes Videoformat"
+  retry: "Erneut versuchen"
+  externalPlayer: "Externer Player"
+  detailedErrorInfo: "Detaillierte Fehlerinformationen"
+  format: "Format"
+  suggestion: "Vorschlag"
+  androidWebmCompatibilityIssue: "Android-Geräte unterstützen das WEBM-Format nur eingeschränkt. Es wird empfohlen, einen externen Player zu verwenden oder eine Player-App herunterzuladen, die WEBM unterstützt"
+  currentDeviceCodecNotSupported: "Das aktuelle Gerät unterstützt den Codec für dieses Videoformat nicht"
+  checkNetworkConnection: "Bitte prüfen Sie Ihre Netzwerkverbindung und versuchen Sie es erneut"
+  appMayLackMediaPermission: "Der App fehlen möglicherweise die erforderlichen Berechtigungen für die Medienwiedergabe"
+  tryOtherVideoPlayer: "Bitte versuchen Sie es mit anderen Video-Playern"
+  unrecognizedVideoFormat: "Nicht erkannte Videodatei"
+  unrecognizedVideoFormatSuggestion: "Der Link ist möglicherweise abgelaufen, oder die Antwort war kein Video. Versuchen Sie es erneut oder öffnen Sie es mit einer anderen App."
+  accessDenied: "Der Server hat diese Anfrage abgelehnt (403)"
+  accessDeniedSuggestion: "Der Wiedergabelink ist höchstwahrscheinlich abgelaufen. Tippen Sie auf „Wiederholen“, um ihn erneut abzurufen, oder öffnen Sie ihn mit einer anderen App."
+  mute: "Stummschalten"
+  unmute: "Stummschaltung aufheben"
+  video: "VIDEO"
+  # CDN Server Selection
+  serverSelector: CDN-Server-Auswahl
+  serverSelectorDescription: Wählen Sie den Server mit der niedrigsten Latenz für das beste Wiedergabeerlebnis
+  retestSpeed: Geschwindigkeit erneut testen
+  waitingForSpeedTest: Warten auf Geschwindigkeitstest
+  testingSpeed: Geschwindigkeit wird getestet…
+  testFailed: Test fehlgeschlagen
+  loadingServerList: Serverliste wird geladen…
+  noAvailableServers: Keine verfügbaren Server
+  refreshServerList: Serverliste aktualisieren
+  cannotGetSource: Die aktuelle Videoquelle kann nicht abgerufen werden
+  switchedToServer: "Zu Server gewechselt: ${serverName}"
+  serverCount: "Insgesamt ${count} Server"
+  statusCode: "Statuscode: ${code}"
+  connectionFailed: Verbindung fehlgeschlagen
+  connectionTimeout: Verbindungszeitüberschreitung
+  networkError: Netzwerkfehler
+  sslError: SSL-Zertifikatsfehler
+  testCompleted: Test abgeschlossen
+  # Local video playback
+  local: "Lokal"
+  unknown: "Unbekannt"
+  localVideoPathEmpty: "Der lokale Videopfad ist leer"
+  localVideoFileNotExists: "Lokale Videodatei existiert nicht: ${path}"
+  unableToPlayLocalVideo: "Lokales Video kann nicht abgespielt werden: ${error}"
+  # File drag and drop
+  dropVideoFileHere: "Videodatei zum Abspielen hierher ziehen"
+  supportedFormats: "Unterstützte Formate: MP4, MKV, AVI, MOV, WEBM usw."
+  noSupportedVideoFile: "Keine unterstützte Videodatei gefunden"
+
+  # Custom runtime messages
+  retryingOpenVideoLink: "Öffnen des Videolinks fehlgeschlagen, erneuter Versuch"
+  decoderOpenFailedWithSuggestion: "Decoder konnte nicht geladen werden: ${event}. Versuchen Sie, in den Player-Einstellungen auf Software-Dekodierung umzuschalten, und rufen Sie die Seite erneut auf"
+  videoLoadErrorWithDetail: "Fehler beim Laden des Videos: ${event}"
+  playbackFailureDiagnosticsHint: "Wiederholte Wiedergabefehler erkannt. Gehen Sie zu Einstellungen > Diagnose & Feedback, um Protokolle zu exportieren."
+  openSettingsAction: "Anzeigen"
+
+  # Player notice chip & playback issue sheet
+  notice:
+    semanticsPrefix: "Wiedergabehinweis: ${message}"
+    networkUnstable: "Prüfen Sie Ihr Netzwerk; die Wiedergabe kann ruckeln"
+    audioTrackUnavailable: "Kein Ton verfügbar; das Video läuft weiter"
+    hardwareDecodeFellBack: "Auf Software-Dekodierung umgeschaltet; kann mehr Energie verbrauchen"
+    videoDecodeProblem: "Versuchen Sie eine andere Qualität; das Bild kann Störungen aufweisen"
+    repeatedPlaybackProblems: "Exportieren Sie die Protokolle, um wiederkehrende Wiedergabeprobleme zu melden"
+    issuesSheetTitle: "Wiedergabeprobleme"
+    issueOccurrences: "${count}-mal aufgetreten"
+    issueAtPosition: "Bei ${position}"
+    noIssuesRecorded: "Keine Probleme aufgezeichnet"
+    exportLogsAction: "Protokolle exportieren"
+
+  # Image Widget
+  imageLoadFailed: "Bild konnte nicht geladen werden"
+  unsupportedImageFormat: "Nicht unterstütztes Bildformat"
+  tryOtherViewer: "Bitte versuchen Sie es mit anderen Betrachtern"
+
+diagnostics:
+  infoSectionTitle: "Diagnoseinformationen"
+  appVersionLabel: "App-Version"
+  memoryUsage: "Speicherverbrauch: ${memMB}MB"
+  deviceInfoUnavailable: "Geräteinformationen konnten nicht abgerufen werden"
+  secureStorageLabel: "Sicherer Speicher"
+  secureStorageHealthy: "Verfügbar"
+  secureStorageRecovered: "Durch Zurücksetzen selbst geheilt (vorherige Daten gelöscht)"
+  secureStorageUnavailable: "Nicht verfügbar (Anmeldung mit Ersatzverschlüsselung gespeichert)"
+  secureStoragePlatformOptOut: "Lokale Verschlüsselung gemäß Plattformrichtlinie (auf macOS wird der Systemschlüsselbund nicht verwendet)"
+  secureStorageDualWrite: " (Dual-Write-Schutz aktiv)"
+  schemaHealthLabel: Datenbankschema
+  schemaHealthOk: OK
+  schemaHealthRepairedNow: Bei diesem Start vom Sicherheitsnetz repariert (Migration hat nicht gegriffen)
+  schemaHealthRepairedBefore: Wurde zuvor vom Sicherheitsnetz repariert
+  logPolicySectionTitle: "Protokollrichtlinie"
+  configServiceUnavailable: "Der Konfigurationsdienst ist nicht initialisiert. Die Protokollrichtlinie kann nicht angepasst werden."
+  enableLoggingTitle: "Protokollierung aktivieren"
+  enableLoggingSubtitle: "Deaktivieren, um keine neuen Protokolle mehr zu schreiben"
+  enableLogPersistenceTitle: "Protokollpersistenz aktivieren"
+  enableLogPersistenceSubtitle: "Deaktivieren, um Protokolle nur im Speicher zu halten und Schreibvorgänge auf die Festplatte zu stoppen"
+  minLogLevelTitle: "Minimale Protokollstufe"
+  minLogLevelSubtitle: "Protokolle unterhalb dieser Stufe werden herausgefiltert"
+  maxFileSizeTitle: "Größenlimit für einzelne Datei"
+  maxFileSizeSubtitle: "Rotieren, wenn die Schwelle erreicht ist"
+  rotatedFileCountTitle: "Anzahl rotierter Hauptprotokolldateien"
+  rotatedFileCountSubtitle: "Anzahl der aufbewahrten Dateien ohne die aktuelle Datei"
+  hangFileSizeTitle: "Größenlimit des Hänger-Protokolls"
+  hangFileSizeSubtitle: "Wachstum der hang_events-Datei steuern"
+  hangRotatedFileCountTitle: "Anzahl rotierter Hänger-Protokolldateien"
+  hangRotatedFileCountSubtitle: "Anzahl der aufbewahrten Dateien für hang_events steuern"
+  healthSectionTitle: "Protokollzustand"
+  refreshMetrics: "Metriken aktualisieren"
+  toolsSectionTitle: "Werkzeuge"
+  privacyNotice: "Protokolle können sensible Informationen wie Kontodaten und Anfrageparameter enthalten. Veröffentlichen Sie keine vollständigen Protokolle in Issues; prüfen Sie sie zuerst und senden Sie sie per E-Mail."
+  exportLogsTitle: "Protokolle exportieren"
+  exportLogsSubtitle: "Prüfen Sie die privaten Daten, bevor Sie sie an Entwickler senden"
+  viewLogsTitle: "Protokolle anzeigen"
+  viewLogsSubtitle: "Laufzeitprotokolle in Echtzeit anzeigen"
+  copySupportEmailTitle: "Support-E-Mail kopieren"
+  reportIssueTitle: "Problem melden"
+  reportIssueSubtitle: "Geben Sie Reproduktionsschritte auf GitHub an (hängen Sie keine vollständigen Protokolle an)"
+  healthSummaryUnavailable: "Noch keine Daten zum Protokollzustand"
+  healthMetricsUnavailable: "Zustandsmetriken wurden noch nicht erfasst"
+  healthNoRiskIndicators: "Keine Risikoindikatoren erkannt"
+  healthAlert:
+    flushFailureTitle: "Fehler beim Leeren (Flush)"
+    sinkDegradedTitle: "Protokollschreiben eingeschränkt"
+    sinkDegradedDetail: "Dateisenke befindet sich im eingeschränkten Zustand"
+    queueBacklogTitle: "Rückstand der Schreibwarteschlange"
+    queueBacklogDetail: "Warteschlangentiefe=${queueDepth} (Schwelle=${threshold}, kann den Speicherverbrauch erhöhen)"
+    highFlushLatencyTitle: "Hohe Flush-Latenz"
+    droppedTooManyTitle: "Zu viele verworfene Protokolle"
+    droppedTooManyDetail: "Verworfen=${droppedCount} (Schwelle=${threshold})"
+    rateLimitedTitle: "Ratenbegrenzung ausgelöst"
+    exportFailedTitle: "Fehler beim Protokollexport"
+    fileNearLimitTitle: "Protokolldatei nahe am Größenlimit"
+    fileNearLimitDetail: "Dateinutzung=${usagePercent}% (höherer Rotationsdruck auf IO)"
+  toast:
+    logServiceNotInitialized: "Der Protokolldienst ist nicht initialisiert"
+    exportSuccess: "Protokolle exportiert. Bitte prüfen Sie die privaten Daten, bevor Sie sie per E-Mail senden."
+    exportFailed: "Export fehlgeschlagen: ${error}"
+    supportEmailCopied: "Support-E-Mail kopiert. Fügen Sie sie in Ihr E-Mail-Programm ein und hängen Sie die Protokolle an."
+  shareSubject: "LoveIwara-Diagnoseprotokolle (enthält sensible Daten, mit Vorsicht teilen)"
+
+logViewer:
+  title: "Protokollanzeige"
+  searchHint: "Protokolle durchsuchen…"
+  emptyState: "Keine Protokolle"
+  copiedToClipboard: "In die Zwischenablage kopiert"
+
+crashRecoveryDialog:
+  title: "App unerwartet beendet"
+  description: "In der letzten Sitzung wurde ein unsauberes Beenden festgestellt. Bitte exportieren Sie die Diagnoseprotokolle und senden Sie sie per E-Mail an den Entwickler, damit wir das Problem beheben können."
+  previousVersion: "Letzte Version: ${version}"
+  previousStart: "Letzter Start: ${time}"
+  lastException: "Letzte Ausnahme: ${message}"
+  lastHangRecovered: "Beim letzten Mal wurde ein UI-Hänger erkannt und automatisch behoben"
+  lastHangStalled: "Beim letzten Mal wurde ein mögliches Einfrieren der UI erkannt, das etwa ${stalledMs}ms dauerte"
+  exportGuide: "Gehen Sie zu Einstellungen > Diagnose & Feedback > Protokolle exportieren."
+  privacyHint: "Protokolle können private Daten enthalten. Bitte prüfen Sie sie, bevor Sie sie per E-Mail senden an:"
+  issueWarning: "Hängen Sie keine vollständigen Protokolle öffentlich an GitHub-Issues an"
+  acknowledge: "Verstanden"
+  supportEmailCopied: "E-Mail kopiert"
+
+linkInputDialog:
+  title: "Link eingeben"
+  supportedLinksHint: "Erkennt mehrere ${webName}-Links intelligent und springt schnell zur entsprechenden Seite in der App (trennen Sie Links mit Leerzeichen vom übrigen Text)"
+  inputHint: "Bitte ${webName}-Link eingeben"
+  validatorEmptyLink: "Bitte Link eingeben"
+  validatorNoIwaraLink: "Kein gültiger ${webName}-Link erkannt"
+  multipleLinksDetected: "Mehrere Links erkannt, bitte einen auswählen:"
+  notIwaraLink: "Kein gültiger ${webName}-Link"
+  linkParseError: "Fehler beim Parsen des Links: ${error}"
+  unsupportedLinkDialogTitle: "Nicht unterstützter Link"
+  unsupportedLinkDialogContent: "Dieser Linktyp kann nicht direkt in der App geöffnet werden und muss über einen externen Browser aufgerufen werden.\n\nMöchten Sie diesen Link in einem Browser öffnen?"
+  openInBrowser: "Im Browser öffnen"
+  confirmOpenBrowserDialogTitle: "Browser öffnen bestätigen"
+  confirmOpenBrowserDialogContent: "Der folgende Link wird in einem externen Browser geöffnet:"
+  confirmContinueBrowserOpen: "Möchten Sie wirklich fortfahren?"
+  browserOpenFailed: "Link konnte nicht geöffnet werden"
+  unsupportedLink: "Nicht unterstützter Link"
+  cancel: "Abbrechen"
+  confirm: "Im Browser öffnen"
+
+log:
+  logManagement: Protokollverwaltung
+  enableLogPersistence: Protokollpersistenz aktivieren
+  enableLogPersistenceDesc: Protokolle zur Analyse in der Datenbank speichern
+  logDatabaseSizeLimit: Größenlimit der Protokolldatenbank
+  logDatabaseSizeLimitDesc: 'Aktuell: ${size}'
+  exportCurrentLogs: Aktuelle Protokolle exportieren
+  exportCurrentLogsDesc: Die aktuellen App-Protokolle exportieren, um Entwicklern bei der Diagnose von Problemen zu helfen
+  exportHistoryLogs: Verlaufsprotokolle exportieren
+  exportHistoryLogsDesc: Protokolle innerhalb eines bestimmten Datumsbereichs exportieren
+  exportMergedLogs: Zusammengeführte Protokolle exportieren
+  exportMergedLogsDesc: Zusammengeführte Protokolle innerhalb eines bestimmten Datumsbereichs exportieren
+  showLogStats: Protokollstatistiken anzeigen
+  logExportSuccess: Protokollexport erfolgreich
+  logExportFailed: 'Protokollexport fehlgeschlagen: ${error}'
+  showLogStatsDesc: Statistiken zu verschiedenen Protokolltypen anzeigen
+  logExtractFailed: 'Protokollstatistiken konnten nicht abgerufen werden: ${error}'
+  clearAllLogs: Alle Protokolle löschen
+  clearAllLogsDesc: Alle Protokolldaten löschen
+  confirmClearAllLogs: Löschen bestätigen
+  confirmClearAllLogsDesc: Möchten Sie wirklich alle Protokolldaten löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+  clearAllLogsSuccess: Protokoll erfolgreich gelöscht
+  clearAllLogsFailed: 'Protokolle konnten nicht gelöscht werden: ${error}'
+  unableToGetLogSizeInfo: Protokollgrößeninformationen konnten nicht abgerufen werden
+  currentLogSize: 'Aktuelle Protokollgröße:'
+  logCount: 'Anzahl der Protokolle:'
+  logCountUnit: 'Protokolle'
+  logSizeLimit: 'Größenlimit der Protokolle:'
+  usageRate: 'Nutzungsrate:'
+  exceedLimit: 'Limit überschritten'
+  remaining: 'Verbleibend'
+  currentLogSizeExceededPleaseCleanOldLogsOrIncreaseLogSizeLimit: 'Die aktuelle Protokollgröße wurde überschritten, bitte bereinigen Sie alte Protokolle oder erhöhen Sie das Größenlimit'
+  currentLogSizeAlmostExceededPleaseCleanOldLogs: 'Die aktuelle Protokollgröße ist fast erreicht, bitte bereinigen Sie alte Protokolle'
+  cleaningOldLogs: 'Alte Protokolle werden bereinigt…'
+  logCleaningCompleted: 'Protokollbereinigung abgeschlossen'
+  logCleaningProcessMayNotBeCompleted: 'Der Vorgang der Protokollbereinigung wurde möglicherweise nicht abgeschlossen'
+  cleanExceededLogs: 'Übermäßige Protokolle bereinigen'
+  noLogsToExport: 'Keine Protokolle zum Exportieren'
+  exportingLogs: 'Protokolle werden exportiert…'
+  noHistoryLogsToExport: 'Keine Verlaufsprotokolle zum Exportieren; verwenden Sie die App bitte zunächst eine Weile'
+  selectLogDate: 'Protokolldatum auswählen'
+  today: 'Heute'
+  selectMergeRange: 'Zusammenführungsbereich auswählen'
+  selectMergeRangeHint: 'Bitte wählen Sie den zusammenzuführenden Protokollzeitraum'
+  selectMergeRangeDays: 'Letzte ${days} Tage'
+  logStats: 'Protokollstatistiken'
+  todayLogs: 'Heutige Protokolle: ${count} Protokolle'
+  recent7DaysLogs: 'Protokolle der letzten 7 Tage: ${count} Protokolle'
+  totalLogs: 'Protokolle insgesamt: ${count} Protokolle'
+  setLogDatabaseSizeLimit: 'Größenlimit der Protokolldatenbank festlegen'
+  currentLogSizeWithSize: 'Aktuelle Protokollgröße: ${size}'
+  warning: 'Warnung'
+  newSizeLimit: 'Neues Größenlimit: ${size}'
+  confirmToContinue: 'Zur Fortsetzung bestätigen'
+  logSizeLimitSetSuccess: 'Größenlimit der Protokolle auf ${size} festgelegt'
+
+emoji:
+  name: Emoji
+  size: Größe
+  small: Klein
+  medium: Mittel
+  large: Groß
+  extraLarge: Sehr groß
+  copyEmojiLinkSuccess: 'Emoji-Link kopiert'
+  preview: Emoji-Vorschau
+  library: Emoji-Bibliothek
+  noEmojis: Keine Emojis
+  clickToAddEmojis: Klicken Sie oben rechts auf die Schaltfläche, um Emojis hinzuzufügen
+  addEmojis: Emojis hinzufügen
+  imagePreview: Bildvorschau
+  imageLoadFailed: Bild konnte nicht geladen werden
+  loading: Wird geladen…
+  delete: Löschen
+  close: Schließen
+  deleteImage: Bild löschen
+  confirmDeleteImage: Möchten Sie dieses Bild wirklich löschen?
+  cancel: Abbrechen
+  batchDelete: Stapellöschung
+  confirmBatchDelete: 'Möchten Sie die ausgewählten ${count} Bilder wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.'
+  deleteSuccess: Erfolgreich gelöscht
+  addImage: Bild hinzufügen
+  addImageByUrl: Per URL hinzufügen
+  addImageUrl: Bild-URL hinzufügen
+  imageUrl: Bild-URL
+  enterImageUrl: Bitte Bild-URL eingeben
+  add: Hinzufügen
+  batchImport: Stapelimport
+  enterJsonUrlArray: "Bitte URL-Array im JSON-Format eingeben:"
+  formatExample: "Formatbeispiel:\n[\"url1\", \"url2\", \"url3\"]"
+  pasteJsonUrlArray: Bitte fügen Sie ein URL-Array im JSON-Format ein
+  import: Importieren
+  importSuccess: '${count} Bilder erfolgreich importiert'
+  jsonFormatError: JSON-Formatfehler, bitte Eingabe prüfen
+  createGroup: Emoji-Gruppe erstellen
+  groupName: Gruppenname
+  enterGroupName: Bitte Gruppennamen eingeben
+  create: Erstellen
+  editGroupName: Gruppennamen bearbeiten
+  save: Speichern
+  deleteGroup: Gruppe löschen
+  confirmDeleteGroup: Möchten Sie diese Emoji-Gruppe wirklich löschen? Alle Bilder in der Gruppe werden ebenfalls gelöscht.
+  imageCount: '${count} Bilder'
+  selectEmoji: Emoji auswählen
+  noEmojisInGroup: Keine Emojis in dieser Gruppe
+  goToSettingsToAddEmojis: Gehen Sie zu den Einstellungen, um Emojis hinzuzufügen
+  emojiManagement: Emoji-Verwaltung
+  manageEmojiGroupsAndImages: Emoji-Gruppen und -Bilder verwalten
+  uploadLocalImages: Lokale Bilder hochladen
+  uploadingImages: Bilder werden hochgeladen
+  uploadingImagesProgress: 'Es werden ${count} Bilder hochgeladen, bitte warten…'
+  doNotCloseDialog: Bitte schließen Sie diesen Dialog nicht
+  uploadSuccess: '${count} Bilder erfolgreich hochgeladen'
+  uploadFailed: 'Fehlgeschlagen: ${count}'
+  uploadFailedMessage: Bild-Upload fehlgeschlagen, bitte prüfen Sie Netzwerkverbindung oder Dateiformat
+  uploadErrorMessage: 'Beim Hochladen ist ein Fehler aufgetreten: ${error}'
+
+# Search Filter Configuration
+searchFilter:
+  # Filter Builder Widget
+  selectField: "Feld auswählen"
+  add: "Hinzufügen"
+  clear: "Leeren"
+  clearAll: "Alle löschen"
+  generatedQuery: "Generierte Abfrage"
+  copyToClipboard: "In die Zwischenablage kopieren"
+  copied: "Kopiert"
+  filterCount: "${count} Filter"
+  
+  # Filter Button Widget
+  filterSettings: "Filtereinstellungen"
+  
+  # Filter Row Widget
+  field: "Feld"
+  operator: "Operator"
+  language: "Sprache"
+  value: "Wert"
+  dateRange: "Datumsbereich"
+  numberRange: "Zahlenbereich"
+  from: "Von"
+  to: "Bis"
+  date: "Datum"
+  number: "Zahl"
+  boolean: "Boolesch"
+  tags: "Tags"
+  select: "Auswählen"
+  clickToSelectDate: "Zum Auswählen des Datums klicken"
+  pleaseEnterValidNumber: "Bitte eine gültige Zahl eingeben"
+  pleaseEnterValidDate: "Bitte ein gültiges Datumsformat eingeben (YYYY-MM-DD)"
+  startValueMustBeLessThanEndValue: "Der Startwert muss kleiner als der Endwert sein"
+  startDateMustBeBeforeEndDate: "Das Startdatum muss vor dem Enddatum liegen"
+  pleaseFillStartValue: "Bitte Startwert eingeben"
+  pleaseFillEndValue: "Bitte Endwert eingeben"
+  rangeValueFormatError: "Format des Bereichswerts fehlerhaft"
+  
+  # Filter Operators
+  contains: "Enthält"
+  equals: "Gleich"
+  notEquals: "Ungleich"
+  greaterThan: ">"
+  greaterEqual: ">="
+  lessThan: "<"
+  lessEqual: "<="
+  range: "Bereich"
+  in: "Enthält beliebiges"
+  notIn: "Enthält kein beliebiges"
+  
+  # Filter Field Types
+  username: "Benutzername"
+  nickname: "Spitzname"
+  registrationDate: "Registrierungsdatum"
+  description: "Beschreibung"
+  title: "Titel"
+  body: "Text"
+  author: "Autor"
+  publishDate: "Veröffentlichungsdatum"
+  private: "Privat"
+  duration: "Dauer (Sekunden)"
+  likes: "Likes"
+  views: "Aufrufe"
+  comments: "Kommentare"
+  rating: "Bewertung"
+  imageCount: "Bildanzahl"
+  videoCount: "Videoanzahl"
+  createDate: "Erstellungsdatum"
+  content: "Inhalt"
+  
+  # Rating Options
+  all: "Alle"
+  adult: "Erwachsene"
+  general: "Allgemein"
+  
+  # Boolean Values
+  yes: "Ja"
+  no: "Nein"
+  
+  # Content Types
+  users: "Nutzer"
+  videos: "Videos"
+  images: "Bilder"
+  posts: "Beiträge"
+  forumThreads: "Forum-Threads"
+  forumPosts: "Forumsbeiträge"
+  playlists: "Wiedergabelisten"
+  
+  # Sort Types for common search
+  sortTypes:
+    relevance: "Relevanz"
+    latest: "Neueste"
+    views: "Aufrufe"
+    likes: "Likes"
+  # Filter drawer
+  drawerSubtitle: "Änderungen werden sofort übernommen"
+
+firstTimeSetup:
+  welcome:
+    title: "Willkommen"
+    subtitle: "Beginnen wir mit Ihrer personalisierten Einrichtung"
+    description: "Nur wenige Schritte, um das beste Erlebnis für Sie abzustimmen"
+  basic:
+    title: "Grundeinstellungen"
+    subtitle: "Personalisieren Sie Ihr Erlebnis"
+    description: "Wählen Sie die Einstellungen, die zu Ihnen passen"
+  network:
+    title: "Netzwerkeinstellungen"
+    subtitle: "Netzwerkoptionen konfigurieren"
+    description: "Passen Sie die Einstellungen an Ihre Netzwerkumgebung an"
+    tip: "Nach erfolgreicher Konfiguration ist ein Neustart erforderlich, damit die Änderungen wirksam werden"
+  theme:
+    title: "Design-Einstellungen"
+    subtitle: "Wählen Sie Ihr bevorzugtes Erscheinungsbild"
+    description: "Personalisieren Sie Ihr visuelles Erlebnis"
+  player:
+    title: "Player-Einstellungen"
+    subtitle: "Wiedergabesteuerung konfigurieren"
+    description: "Legen Sie schnell häufig verwendete Wiedergabeeinstellungen fest"
+  spatial:
+    title: "Räumliche Wiedergabe"
+    subtitle: "Ansehen und Durchsuchen auf dem Headset"
+    description: "Auf dem Headset erscheinen Videos und Galerien im Raum um Sie herum statt in diesem schwebenden Fenster"
+  completion:
+    title: "Einrichtung abschließen"
+    subtitle: "Sie sind bereit, Ihre Reise zu beginnen"
+    description: "Bitte lesen Sie die zugehörigen Vereinbarungen und stimmen Sie ihnen zu"
+    agreementTitle: "Nutzungsvereinbarung und Community-Regeln"
+    agreementDesc: "Bevor Sie diese App verwenden, lesen Sie bitte sorgfältig unsere Nutzungsvereinbarung und die Community-Regeln und stimmen Sie ihnen zu. Diese Bedingungen helfen, eine gute Umgebung zu erhalten."
+    checkboxTitle: "Ich habe die Nutzungsvereinbarung und die Community-Regeln gelesen und stimme ihnen zu"
+    checkboxSubtitle: "Wenn Sie nicht zustimmen, können Sie die App nicht verwenden"
+  common:
+    settingsChangeableTip: "Diese Einstellungen können jederzeit in den Einstellungen geändert werden"
+    previousStep: "Vorheriger Schritt"
+    nextStep: "Nächster Schritt"
+    finishSetup: "Einrichtung abschließen"
+    agreeAgreementSnackbar: "Bitte stimmen Sie zuerst der Nutzungsvereinbarung und den Community-Regeln zu"
+
+proxyHelper:
+  systemProxyDetected: "Systemproxy erkannt"
+  copied: "Kopiert"
+  copy: "Kopieren"
+
+# Tag Selector Widget
+tagSelector:
+  selectTags: "Tags auswählen"
+  clickToSelectTags: "Klicken Sie, um Tags auszuwählen"
+  addTag: "Tag hinzufügen"
+  removeTag: "Tag entfernen"
+  deleteTag: "Tag löschen"
+  usageInstructions: "Fügen Sie zuerst Tags hinzu und klicken Sie dann, um aus vorhandenen Tags auszuwählen"
+  usageInstructionsTooltip: "Anleitung"
+  addTagTooltip: "Tag hinzufügen"
+  removeTagTooltip: "Tag entfernen"
+  cancelSelection: "Auswahl abbrechen"
+  selectAll: "Alle auswählen"
+  cancelSelectAll: "Alle auswählen abbrechen"
+  delete: "Löschen"
+
+# Anime4K Settings
+anime4k:
+  realTimeVideoUpscalingAndDenoising: "Echtzeit-Video-Upscaling und Rauschunterdrückung zur Verbesserung der Qualität von Animationsvideos"
+  settings: "Anime4K-Einstellungen"
+  preset: "Anime4K-Preset"
+  disable: "Anime4K deaktivieren"
+  disableDescription: "Video-Verbesserungseffekte deaktivieren"
+  highQualityPresets: "Presets hoher Qualität"
+  fastPresets: "Schnelle Presets"
+  litePresets: "Leichte Presets"
+  moreLitePresets: "Noch leichtere Presets"
+  customPresets: "Eigene Presets"
+  presetGroups:
+    highQuality: "Hohe Qualität"
+    fast: "Schnell"
+    lite: "Leicht"
+    moreLite: "Leichter"
+    custom: "Eigene"
+  presetDescriptions:
+    mode_a_hq: "Geeignet für die meisten 1080p-Animationen, insbesondere bei Unschärfe, Resampling- und Kompressionsartefakten. Bietet die höchste wahrgenommene Qualität."
+    mode_b_hq: "Geeignet für Animationen mit leichter Unschärfe oder durch Skalierung verursachtem Ringing. Kann Ringing und Aliasing wirksam reduzieren."
+    mode_c_hq: "Geeignet für hochwertige Quellen (z. B. native 1080p-Animationen oder Filme). Unterdrückt Rauschen und bietet den höchsten PSNR."
+    mode_a_a_hq: "Erweiterte Version von Modus A, bietet höchste wahrgenommene Qualität und kann fast alle degradierten Linien rekonstruieren. Kann Überschärfung oder Ringing erzeugen."
+    mode_b_b_hq: "Erweiterte Version von Modus B, bietet höhere wahrgenommene Qualität, optimiert Linien weiter und reduziert Artefakte."
+    mode_c_a_hq: "Version von Modus C mit verbesserter wahrgenommener Qualität, hält hohen PSNR und versucht, einige Liniendetails zu rekonstruieren."
+    mode_a_fast: "Schnelle Version von Modus A, gleicht Qualität und Leistung aus, geeignet für die meisten 1080p-Animationen."
+    mode_b_fast: "Schnelle Version von Modus B, für geringe Artefakte und Ringing mit geringerem Aufwand."
+    mode_c_fast: "Schnelle Version von Modus C, für schnelle Rauschunterdrückung und Skalierung hochwertiger Quellen."
+    mode_a_a_fast: "Schnelle Version von Modus A+A, für höhere wahrgenommene Qualität auf leistungsbegrenzten Geräten."
+    mode_b_b_fast: "Schnelle Version von Modus B+B, bietet verbesserte Linienreparatur und Artefaktverarbeitung für leistungsbegrenzte Geräte."
+    mode_c_a_fast: "Schnelle Version von Modus C+A, verarbeitet hochwertige Quellen schnell und bietet leichte Linienreparatur."
+    upscale_only_s: "Ultraschnelles x2-Upscaling nur mit dem schnellsten CNN-Modell, keine Reparatur und Rauschunterdrückung, minimaler Leistungsaufwand."
+    upscale_deblur_fast: "Schnelles Upscaling und Deblurring mit herkömmlichen Nicht-CNN-Algorithmen, besser als Standard-Player-Algorithmen bei sehr geringem Leistungsaufwand."
+    restore_s_only: "Nur Reparatur mit dem schnellsten CNN-Modell, kein Upscaling. Geeignet für Wiedergabe in nativer Auflösung, wenn Sie die Qualität verbessern möchten."
+    denoise_bilateral_fast: "Schnelle Rauschunterdrückung mit herkömmlicher bilateraler Filterung, extrem schnell, geeignet für leichtes Rauschen."
+    upscale_non_cnn: "Schnelles Upscaling mit herkömmlichen Algorithmen, sehr geringer Leistungsaufwand, besser als die Player-Standardeinstellungen."
+    mode_a_fast_darken: "Modus A (Schnell) + Linienabdunklung, fügt zusätzlich zur schnellen Variante A eine Linienabdunklung für kräftigere, stilisierte Linien hinzu."
+    mode_a_hq_thin: "Modus A (HQ) + Linienverdünnung, fügt zusätzlich zur hochwertigen Variante A eine Linienverdünnung für ein feineres Erscheinungsbild hinzu."
+  presetNames:
+    mode_a_hq: "Mode A (HQ)"
+    mode_b_hq: "Mode B (HQ)"
+    mode_c_hq: "Mode C (HQ)"
+    mode_a_a_hq: "Mode A+A (HQ)"
+    mode_b_b_hq: "Mode B+B (HQ)"
+    mode_c_a_hq: "Mode C+A (HQ)"
+    mode_a_fast: "Mode A (Fast)"
+    mode_b_fast: "Mode B (Fast)"
+    mode_c_fast: "Mode C (Fast)"
+    mode_a_a_fast: "Mode A+A (Fast)"
+    mode_b_b_fast: "Mode B+B (Fast)"
+    mode_c_a_fast: "Mode C+A (Fast)"
+    upscale_only_s: "CNN-Upscaling (Ultraschnell)"
+    upscale_deblur_fast: "Upscaling & Deblurring (Schnell)"
+    restore_s_only: "Restaurierung (Ultraschnell)"
+    denoise_bilateral_fast: "Bilaterale Rauschunterdrückung (Ultraschnell)"
+    upscale_non_cnn: "Nicht-CNN-Upscaling (Ultraschnell)"
+    mode_a_fast_darken: "Modus A (Schnell) + Linienabdunklung"
+    mode_a_hq_thin: "Modus A (HQ) + Linienverdünnung"
+  performanceTip: "💡 Tipp: Wählen Sie passende Presets je nach Geräteleistung. Für leistungsschwache Geräte empfiehlt sich die Verwendung leichter Presets."
+  compatibilityTip: "⚠️ Einige mobile GPUs (z. B. Kirin 980 / Mali-G76) können keine benutzerdefinierten Shader rendern. Wenn das Bild schwarz wird, der Ton aber weiterläuft, deaktivieren Sie Anime4K hier."
+  autoDisabledOnRenderFailure: "Die GPU Ihres Geräts konnte den Anime4K-Shader nicht rendern, daher wurde er automatisch deaktiviert."
+
+siteMode:
+  title: Website-Modus
+  mainSite: Main
+  aiSite: AI
+  drawerSubtitle: 'Aktuell ${currentSite} · Tippen, um zu ${nextSite} zu wechseln'
+  dialogTitle: Website-Modus wechseln
+  dialogDescription: Beim Wechseln wird die gesamte App neu geladen und zuvor geladene Listen und Seitenzustände werden zurückgesetzt.
+  chooseLinkTargetTitle: Ziel-Website wählen
+  chooseLinkTargetDescription: Dieser Link enthält keine Domain. Bitte wählen Sie, ob er in Main oder AI geöffnet werden soll.
+  chooseLinkTargetHint: Nach dem Öffnen verwenden diese Seite und ihre nachfolgenden Detailanfragen weiterhin die ausgewählte Website.
+  alreadyUsing: Sie verwenden diesen Website-Modus bereits.
+  openInSite: 'In ${site} öffnen'
+  confirmUsing: 'Nach der Bestätigung verwenden zukünftige Anfragen den Modus ${site}.'
+  switched: 'Zu ${site} gewechselt. Die App wurde neu geladen.'
+savedSearchConfig:
+  title: Gespeicherte Filter
+  empty: Noch keine gespeicherten Filter
+  saveTooltip: Aktuellen Filter speichern
+  namePromptTitle: Filter speichern
+  nameLabel: Name
+  nameHint: Namen eingeben
+  saveSuccess: Filter gespeichert
+  deleteSuccess: Filter entfernt
+  addCurrent: Aktuellen Filter speichern
+  reorderHint: Zum Umsortieren lange drücken und ziehen
+  rename: Umbenennen
+  unnamed: Unbenannt
+  noConditions: Alle Inhalte (kein Filter)
+  tagsCount: '${count} Tags'
+savedSearch:
+  title: Gespeicherte Suchen
+  empty: Noch keine gespeicherten Suchen
+  saveTooltip: Aktuelle Suche speichern
+  namePromptTitle: Suche speichern
+  nameLabel: Name
+  nameHint: Namen eingeben
+  saveSuccess: Suche gespeichert
+  deleteSuccess: Suche entfernt
+  addCurrent: Aktuelle Suche speichern
+  reorderHint: Zum Umsortieren lange drücken und ziehen
+  rename: Umbenennen
+  noKeyword: (Kein Stichwort)
+  filtersCount: '${count} Filter'
+
+defaultBlacklistReminder:
+  title: Standard-Tag-Sperrliste erkannt
+  content: Ihr Konto verwendet noch die Tag-Sperrliste, die die Website automatisch auf jedes neue Konto anwendet. Möchten Sie sie überprüfen und verwalten?
+  goManage: Verwalten
+  dismiss: Nicht jetzt
+
+# Color Vision Assist (colorblind filter)
+colorVisionAssist:
+  title: "Farbseh-Unterstützung"
+  description: "Korrigiert Videofarben für farbenblindheitsbeeinträchtigte Zuschauer, kann zusammen mit Anime4K verwendet werden"
+  galleryDescription: "Korrigiert die Bildfarben der Galerie für farbenblindheitsbeeinträchtigte Zuschauer (unabhängig vom Player-Schalter)"
+  galleryDescriptionSpatial: "Korrigiert die Bildfarben der Galerie für farbenblindheitsbeeinträchtigte Zuschauer. Gilt nur für den 2D-Betrachter in diesem Bereich – Bilder auf dem räumlichen Bildschirm werden nativ gerendert und durchlaufen diesen Filter nicht"
+  disable: "Aus"
+  disableDescription: "Keine Farbkorrektur"
+  protanopia: "Rot-Unterstützung (Protanopie)"
+  protanopiaDescription: "Für Protanopie – Schwierigkeiten, Rot zu unterscheiden"
+  deuteranopia: "Grün-Unterstützung (Deuteranopie)"
+  deuteranopiaDescription: "Für Deuteranopie – Schwierigkeiten, Grün zu unterscheiden"
+  tritanopia: "Blau-Unterstützung (Tritanopie)"
+  tritanopiaDescription: "Für Tritanopie – Schwierigkeiten, Blau und Gelb zu unterscheiden"
+  appliedToast: "${filterName} angewendet, wirkt sofort"
+  disabledToast: "Farbseh-Unterstützung deaktiviert"
+externalPlayer:
+  title: "Mit anderer App öffnen"
+  description: "Übergeben Sie das aktuelle Video an einen anderen Player auf diesem Gerät, z. B. Skybox oder Pegasus auf einem VR-Headset oder MX Player und VLC auf einem Telefon"
+  openWithOtherApp: "Andere App wählen"
+  openWithOtherAppDescription: "Systemauswahl anzeigen und einen Player zum Übernehmen wählen"
+  openWithSystemPlayer: "Im Standard-Player öffnen"
+  openWithSystemPlayerDescription: "An die Standard-Video-App des Systems übergeben"
+  copyLink: "Videolink kopieren"
+  copyLinkDescription: "Für Player, die nur eine URL einfügen können, z. B. Skybox oder DeoVR"
+  linkCopied: "Videolink kopiert"
+  sourceLocal: "Lokale Datei"
+  sourceOnline: "Direkter Link"
+  sourceOnlineWithQuality: 'Direkter Link · ${quality}'
+  onlineLinkExpiryHint: "Direkte Links laufen ab, daher kann ein externer Player mittendrin abbrechen. Zuerst herunterzuladen ist der zuverlässige Weg."
+  vrPlayerHint: "Wenn Ihr VR-Player in der Auswahl fehlt, verwenden Sie „Videolink kopieren“ und fügen Sie ihn in diesem Player ein."
+  noHandler: "Keine App auf diesem Gerät kann das Video öffnen"
+  handoffFailed: 'Übergabe fehlgeschlagen: ${message}'
+  handoffFailedUnknown: "Übergabe fehlgeschlagen"
+  sourceUnavailable: "Die aktuelle Videoadresse konnte nicht abgerufen werden, bitte erneut versuchen"
+  localFileMissing: "Die lokale Datei existiert nicht mehr"
+  handedOff: "An den externen Player übergeben"
+  desktopSectionTitle: "Externe Player"
+  managePlayers: "Externe Player verwalten"
+  # Copy is split per platform: the three platforms ask for genuinely different
+  # things, and the example apps only exist on their own platform.
+  managePlayersDescWindows: "PCVR-Player wie HereSphere, DeoVR und Whirligig sind nicht die Standard-App des Systems. Richten Sie dies auf ihre .exe aus, und Sie können das aktuelle Video direkt aus dem Player übergeben."
+  managePlayersDescMac: "Richten Sie dies auf Player wie IINA, VLC oder mpv aus, und Sie können das aktuelle Video direkt aus dem Player übergeben."
+  managePlayersDescLinux: "Richten Sie dies auf Player wie mpv, VLC oder Celluloid aus, und Sie können das aktuelle Video direkt aus dem Player übergeben."
+  pickExecutableHintWindows: "Wählen Sie die Haupt-.exe im Installationsordner des Players, z. B. HereSphere.exe oder vlc.exe. Desktop-Verknüpfungen (.lnk) funktionieren nicht."
+  pickExecutableHintMac: "Wählen Sie die .app des Players in „Programme“, z. B. IINA.app – die tatsächliche Programmdatei darin wird für Sie ermittelt."
+  pickExecutableHintLinux: "Wählen Sie die Programmdatei des Players, z. B. /usr/bin/mpv. Mit „which mpv“ finden Sie heraus, wo sie liegt."
+  emptyStateGuide: 'Nach der Konfiguration erscheint er als eigener Eintrag unter „Mit anderer App öffnen“ auf der Player-Seite. Häufige: ${examples}'
+  detectNothingFoundGuide: "Keine installierten Player gefunden. Benutzerdefinierte Installationsordner und portable Versionen können nicht erkannt werden – verwenden Sie „Player hinzufügen“, um selbst einen anzugeben."
+  detectNothingNew: "Keine neuen Player gefunden; alles Installierte ist bereits in der Liste"
+  detectFailed: "Erkennung fehlgeschlagen – verwenden Sie „Player hinzufügen“, um selbst einen anzugeben"
+  advancedOptions: "Erweitert"
+  playerNameHint: "Leer lassen, um den Dateinamen zu verwenden"
+  executablePathRequired: "Wählen Sie zuerst die Programmdatei des Players"
+  playerCount: '${count} konfiguriert'
+  noPlayerConfigured: "Noch kein externer Player konfiguriert"
+  autoDetect: "Automatisch erkennen"
+  detecting: "Wird erkannt…"
+  detectFound: '${count} Player gefunden'
+  detectNothingFound: "Keine neuen Player gefunden, fügen Sie einen manuell hinzu"
+  autoDetectedTag: "erkannt"
+  addPlayer: "Player hinzufügen"
+  editPlayer: "Player bearbeiten"
+  playerName: "Name"
+  executablePath: "Programmdatei"
+  browse: "Durchsuchen"
+  argumentTemplate: "Startargumente"
+  argumentTemplateHint: "Verwenden Sie {input} für den Videopfad oder die URL. Leer lassen, um sie als einziges Argument zu übergeben."
+  nameAndPathRequired: "Name und Programmdatei sind beide erforderlich"
+  testLaunch: "Teststart"
+  testLaunched: "Player gestartet"
+  testFailed: "Start fehlgeschlagen, prüfen Sie den Pfad der Programmdatei"
+  executableMissing: "Programmdatei nicht gefunden"
+  openWithNamed: 'In ${name} öffnen'
+  managePlayersEntry: "Externe Player verwalten…"
+watchLater:
+  title: Später ansehen
+  addToWatchLater: Später ansehen
+  removeFromWatchLater: Aus „Später ansehen“ entfernen
+  addedToWatchLater: Zu „Später ansehen“ hinzugefügt
+  alreadyInWatchLater: Bereits in „Später ansehen“
+  removedFromWatchLater: Aus „Später ansehen“ entfernt
+  removedCount: ${count} Elemente entfernt
+  viewWatchLaterList: Liste anzeigen
+  addFailed: Hinzufügen zu „Später ansehen“ fehlgeschlagen
+  invalidItem: Nicht verfügbar
+  clearWatched: Angesehenes löschen
+  watchedCleared: ${count} angesehene Elemente gelöscht
+  noWatchedToClear: Nichts Angesehenes zum Löschen
+  emptyVideo: Noch keine Videos in „Später ansehen“
+  emptyGallery: Noch keine Galerien in „Später ansehen“
+  filterAll: Alle
+  filterUnwatched: Nicht angesehen
+  sortRecentlyAdded: Zuletzt hinzugefügt
+  sortEarliestAdded: Zuerst hinzugefügt
+  watched: Angesehen
+  playlistLoadFailed: Wiedergabelisten konnten nicht geladen werden
+  noPlaylists: Noch keine Wiedergabelisten
+  undo: Rückgängig
+  clearWatchedConfirm: Alles löschen, was Sie in diesem Tab bereits angesehen haben? Dies kann nicht rückgängig gemacht werden.
+  emptyUnwatchedVideo: Hier gibt es nichts mehr anzuschauen
+  emptyUnwatchedGallery: Hier gibt es nichts mehr anzusehen
+  queueLoadFailed: Laden fehlgeschlagen, zum Wiederholen tippen
+mediaMenu:
+  like: Gefällt mir
+  unlike: Gefällt mir nicht mehr
+  viewAuthor: Autor ansehen
+  inFolders: ${count} Ordner
+  inPlaylists: ${count} Playlists
+  downloaded: Heruntergeladen
+mediaPreview:
+  preview: Vorschau
+  openDetail: Öffnen
+  moreActions: Weitere Aktionen
+  previousImage: Vorheriges Bild
+  nextImage: Nächstes Bild
+playbackQueue:
+  galleryImageCount: '${count} Bilder'
+  upNext: Als Nächstes
+  sourceTab: Quelle
+  emptyQueue: Nichts Abspielbares in dieser Warteschlange
+  emptyGalleryQueue: Keine Galerien in dieser Warteschlange
+  nowPlaying: Wird abgespielt
+  myPlaylists: Meine Wiedergabelisten
+  authorPlaylists: Wiedergabelisten des Autors
+  openQueue: Als Nächstes
+  continueInQueue: Weiter aus der aktuellen Warteschlange abspielen
+  continueInQueueSubtitle: Spielt automatisch das nächste Element ab; deaktiviert „Wiederholen nach Ende“
+  repeatDisabledByQueue: Deaktiviert, solange „Weiter aus der aktuellen Warteschlange abspielen“ aktiv ist
+  playNext: Als Nächstes abspielen
+  queueEnded: Dies ist das letzte Element in der Warteschlange
+  playNextHint: Tippen, um das nächste Element abzuspielen, lange drücken, um „Als Nächstes“ zu öffnen
+  authorVideos: Videos des Autors
+  authorGalleries: Galerien des Autors
+  favoriteFolders: Favoriten-Ordner
+  localFiles: Auf diesem Gerät
+  currentFolder: Ordner dieser Datei
+  playThisFolder: Video-Warteschlange dieses Ordners anzeigen
+  browseThisFolder: Galerie-Warteschlange dieses Ordners anzeigen
+  downloads: Heruntergeladen
+  otherPlaylists: Wiedergabelisten anderer Nutzer
+  nothingHere: Hier ist nichts
+
+vrFormat:
+  playInSpace: Im räumlichen Player abspielen
+  handingOff: Übergabe an den Raum…
+  title: Wiedergabemodus
+  spatialSectionTitle: Räumliche Wiedergabe
+  spatialSectionDesc: Auf dem Headset wird ein Video nicht in diesem Bedienfeld dargestellt — der räumliche Player zeigt es auf einem Bildschirm im Raum.
+  spatialPanelEntry: Räumliches Bedienfeld
+  spatialPanelEntryDesc: Bildschirmabstand, Größe und Krümmung, die Hintergrundumgebung sowie Geschwindigkeit, Wiederholung und automatisches Ausblenden befinden sich alle im räumlichen Bedienfeld.
+  spatialGuideEntry: Anleitung zur Headset-Steuerung
+  spatialGuideEntryDesc: Controller-Tasten, Greifen des Bildschirms, Stick-Spulen und Umblättern
+  spatialFlatOmitted: Touch-Gesten, Bildverbesserung und die Audio-/Videoparameter gelten nur für den 2D-Player; der räumliche Player läuft auf einer anderen Engine und wird hier daher nicht aufgeführt.
+  spatialGallerySectionTitle: Räumliche Galerie
+  spatialGalleryPanelDesc: Diashow-Intervall, Wiederholung einzelner Clips und Bildschirmkrümmung werden alle im räumlichen Bedienfeld eingestellt.
+  autoEnterGallery: Galeriebilder in der räumlichen Galerie öffnen
+  autoEnterGalleryDesc: In Quest öffnet das Tippen auf ein Bild die gesamte Galerie auf dem schwebenden Bildschirm mit Filmstreifen, Diashow und Controller-Blättern statt des Betrachters in diesem Bedienfeld.
+  panelSettings: Bedienfeld & Hintergrund
+  panelSettingsDesc: Wie weit dieses App-Bedienfeld entfernt ist und wie viel von Ihrem Raum dahinter sichtbar ist
+  panelDistance: Abstand des Bedienfelds
+  panelDistanceValue: '${meters} m'
+  panelResetPlacement: Platzierung zurücksetzen
+  panelResetBackground: Auf Standard zurücksetzen
+  panelBackground: Transparenz des Hintergrunds
+  panelBackgroundHint: '0 %: schwarze Umgebung · 100 %: Ihr echter Raum mit Umgebungslicht'
+  panelUnavailable: Das Bedienfeld ist derzeit nicht platziert — versuchen Sie es gleich noch einmal
+  desc: Wählen Sie die Geometrie, mit der dieses Video abgespielt werden soll. Die Website liefert diese Information nicht, daher wählt die automatische Erkennung nur einen Ausgangspunkt — Ihre Wahl entscheidet.
+  sectionFlat: Flach
+  sectionStereo: Flaches 3D
+  sectionPanorama: VR-Panorama
+  flat: Normales Video
+  flatDesc: Unverändert abspielen, keine Neuzuordnung
+  flatSideBySide: Side-by-Side-3D
+  flatSideBySideDesc: Ein Auge pro Hälfte, links und rechts; zeigt das linke Auge und stellt dessen Seitenverhältnis wieder her
+  flatTopBottom: Over-Under-3D
+  flatTopBottomDesc: Ein Auge pro Hälfte, oben und unten; zeigt die obere Hälfte und stellt deren Seitenverhältnis wieder her
+  vr180SideBySide: VR180 Side-by-Side
+  vr180SideBySideDesc: Hemisphärisches Panorama mit beiden Augen — die häufigste VR-Quelle
+  vr180Mono: VR180 Mono
+  vr180MonoDesc: Hemisphärisches Panorama, ein Auge pro Bild
+  vr360Mono: VR360 Mono
+  vr360MonoDesc: Vollständiges Rundumpanorama, ein Auge pro Bild
+  vr360TopBottom: VR360 Over-Under
+  vr360TopBottomDesc: Vollständiges Rundumpanorama mit beiden Augen übereinander
+  resetView: Ansicht zurücksetzen
+  resetViewDesc: Blickrichtung und Sichtfeld wieder nach vorne ausrichten
+  resetToAuto: Zurück zur automatischen Erkennung
+  resetToAutoDesc: Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen
+  manualBadge: Manuell festgelegt
+  panoramaHint: Ziehen Sie das Bild, um sich umzusehen; ziehen Sie zusammen, um das Sichtfeld zu ändern
+  panoramaGestureNotice: Beim Umsehen dreht Ziehen die Ansicht — verwenden Sie den Fortschrittsbalken zum Spulen
+  shaderUnsupported: Dieses Gerät kann Live-Panorama nicht rendern; es wird stattdessen ein einzelnes Auge angezeigt
+  handoffTooltip: Anders abspielen
+  suggestedBadge: Vorgeschlagen
+  suggestedEntryDesc: 'Sieht aus wie ${format} — zum Wechseln tippen'
+  suggestionTitle: 'Dies könnte ein VR-Video sein (${format})'
+  suggestionTitleShort: Dies könnte ein VR-Video sein
+  suggestionAction: Als VR abspielen
+  suggestionDismiss: Ausblenden
+localMedia:
+  # Folder browsing (the Local tab). "Quick access" = folders the user pinned.
+  browse:
+    pinnedSection: Schnellzugriff
+    sourcesSection: Ordner
+    pin: Zum Schnellzugriff hinzufügen
+    unpin: Aus dem Schnellzugriff entfernen
+    pinned: Zum Schnellzugriff hinzugefügt
+    unpinned: Aus dem Schnellzugriff entfernt
+    folderCount: "${count} Ordner"
+    videoCount: "${count} Videos"
+    imageCount: "${count} Bilder"
+    emptyFolder: Dieser Ordner ist leer
+    videosSection: Videos
+    imagesSection: Bilder
+    galleriesSection: Galerien
+    location: Ort
+    sourceMissing: Diese Quelle ist nicht mehr vorhanden
+    notScannedYet: Dieser Ordner wurde noch nicht gescannt
+    scanning: Dieser Ordner wird gelesen…
+    deleteFileTitle: Diese Datei löschen?
+    deleteFileBody: '„${name}“ wird endgültig von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.'
+    deleteGalleryTitle: Diese Galerie löschen?
+    deleteGalleryBody: 'Der Download-Eintrag und die lokalen Bilddateien von „${name}“ werden gelöscht. Dies kann nicht rückgängig gemacht werden.'
+    galleryResourceMissing: Lokale Dateien existieren nicht mehr. Eintrag bereinigt.
+    viewDownloadDetail: Download-Details anzeigen
+    viewOnlineGallery: Auf der Website ansehen
+    pickFolderTitle: Ordner wählen
+    useThisFolder: Diesen Ordner verwenden
+    noSubfolders: Keine Unterordner hier
+    storageRoot: Gerätespeicher
+    homeFolder: Persönlicher Ordner
+    filesystemRoot: Dateisystem-Wurzel
+    folderUnreadable: Dieser Ordner kann nicht gelesen werden
+    setCover: Titelbild festlegen
+    setAsFolderCover: Als Ordner-Titelbild verwenden
+    folderCoverSet: Ordner-Titelbild aktualisiert
+    setFolderCoverPick: Titelbild festlegen…
+    restoreAutoCover: Automatisches Titelbild wiederherstellen
+    autoCoverRestored: Automatisches Titelbild wiederhergestellt
+    rescanFolder: Diesen Ordner erneut scannen
+    coverPickerTitle: Ein Einzelbild auswählen
+    folderCoverPickerTitle: Titelbild wählen
+    coverPickerEmpty: In diesem Ordner sind noch keine Bilder verfügbar. Video-Miniaturbilder werden möglicherweise noch im Hintergrund erzeugt.
+    coverSaved: Titelbild aktualisiert
+    coverSaveFailed: Das Titelbild konnte nicht gespeichert werden
+    coverUnavailable: Aus dieser Datei konnte kein Video-Einzelbild gelesen werden
+    deleted: Gelöscht
+    deleteFailed: Löschen nicht möglich – die Datei wird möglicherweise verwendet oder ist nicht beschreibbar
+    openFolder: Öffnen
+    favorite: Zu Favoriten hinzufügen
+    unfavorite: Aus Favoriten entfernen
+    favorited: Zu Favoriten hinzugefügt
+    unfavorited: Aus Favoriten entfernt
+    sortBy: Sortieren nach
+    sortAscending: Aufsteigend
+    sortDescending: Absteigend
+    sortFieldName: Name
+    sortFieldModified: Änderungsdatum
+    sortFieldDuration: Dauer
+    sortFieldSize: Größe
+    sortFieldResolution: Auflösung
+    sortFieldFileType: Dateityp
+    sortFieldFps: Bildrate
+    sortFieldFavorited: Datum der Favorisierung
+    emptyAllVideos: Noch keine Videos gefunden. Fügen Sie unter „Ordner“ einen Ordner hinzu, um zu beginnen.
+    emptyAllImages: Noch keine Bilder gefunden. Fügen Sie unter „Ordner“ einen Ordner hinzu, um zu beginnen.
+    emptyFavorites: Noch keine Favoriten. Fügen Sie einen über das ⋮-Menü eines Videos hinzu.
+    emptyPinned: Noch keine angehefteten Ordner. Halten Sie einen Ordner unter „Ordner“ gedrückt und wählen Sie „Anheften“.
+    emptyDownloadedVideos: Noch keine abgeschlossenen Video-Downloads.
+    emptyDownloadedGalleries: Noch keine abgeschlossenen Galerie-Downloads.
+    folderInfo: Ordnerinfo
+    folderInfoName: Name
+    folderInfoPath: Pfad
+    folderInfoSource: Quelle
+    folderInfoContents: Inhalt
+    folderInfoSize: Größe auf dem Datenträger
+    folderInfoScannedAt: Zuletzt gescannt
+    folderInfoNeverScanned: Noch nicht gescannt
+    folderInfoNoPath: Diese Quelle hat keinen zu öffnenden Ordner
+    copyPath: Pfad kopieren
+    pathCopied: Pfad kopiert
+  tabFolders: Ordner
+  tabFavoriteVideos: Favoriten
+  tabAllVideos: Alle Videos
+  tabAllImages: Alle Bilder
+  tabDownloadedVideos: Heruntergeladene Videos
+  tabDownloadedGalleries: Heruntergeladene Galerien
+  title: Auf diesem Gerät
+  sourceOnline: Iwara online
+  manageSources: Quellen verwalten
+  moveToCategory: In Kategorie verschieben
+  manageCategories: Kategorien verwalten
+  suggestedFolders: Ordner mit Videos
+  sortRecentlyAdded: Zuletzt hinzugefügt
+  sortRecentlyPlayed: Zuletzt abgespielt
+  sortName: Name
+  sortDuration: Dauer
+  sortSize: Größe
+  sortFolder: Ordner
+  sortRecentlyModified: Zuletzt geändert
+  sortCount: Anzahl
+  folderCardItemCount: "${count} Bilder"
+  downloadsSource: Heruntergeladen
+  builtInSourceHint: „Heruntergeladen“ wird automatisch verwaltet
+  filterByCategory: Nach Kategorie filtern
+  longPressToCategorize: Zum Verschieben in eine Kategorie lange drücken
+  uncategorized: Nicht kategorisiert
+  setCategoryFailed: Kategorie konnte nicht festgelegt werden
+  categoryUpdated: Kategorie aktualisiert
+  addFolder: Ordner hinzufügen
+  addDeviceVideos: Gerätevideos scannen
+  mediaStoreSourceName: Gerätevideos
+  mediaStoreUnavailable: Der Gerätemedienindex ist nur unter Android verfügbar
+  mediaStorePermissionDenied: Der Videozugriff wurde nicht erteilt
+  rescan: Erneut scannen
+  scanning: "Wird gescannt… ${count} gefunden"
+  scanFailed: "Scan fehlgeschlagen: ${reason}"
+  scanTruncated: "Dieser Ordner ist sehr groß – es wurden nur die ersten ${count} Dateien hinzugefügt."
+  sourceOverlaps: "Bereits durch den Ordner „${name}“ abgedeckt"
+  addedAsPinnedFolder: "„${name}“ befindet sich in „${source}“ und wurde daher zu den angehefteten Ordnern hinzugefügt"
+  alreadyPinnedFolder: "„${name}“ befindet sich bereits in den angehefteten Ordnern"
+  sourceAlreadyAdded: "„${name}“ wurde bereits hinzugefügt"
+  sourceContainsExisting: "Er enthält bereits den hinzugefügten Ordner „${name}“; das Hinzufügen des übergeordneten Ordners wird noch nicht unterstützt"
+  addSourceFailed: Dieser Ordner konnte nicht hinzugefügt werden
+  fileMissing: Diese Datei befindet sich nicht mehr auf dem Datenträger
+  permissionDenied: Dateizugriff nicht erteilt · zum Erteilen tippen
+  noVideosFound: Keine Videos in diesem Ordner
+  emptyTitle: Fügen Sie einen Ordner hinzu, um die bereits auf diesem Gerät befindlichen Videos anzusehen
+  emptyPrivacyNote: Dateien werden nur auf diesem Gerät gelesen. Nichts wird hochgeladen.
+  removeSourceTitle: "„${name}“ entfernen?"
+  removeSourceBody: Die Dateien bleiben auf dem Datenträger. Nur dieser Bibliothekseintrag wird entfernt.
+  remove: Entfernen
+  removeFolder: Ordner entfernen
+  removeFolderSelectTitle: Zu entfernenden Ordner auswählen
+  longPressToRemove: Diesen Ordner durch langes Drücken entfernen
+  clearProgress: Lokalen Wiedergabeverlauf löschen
+  clearProgressCount: "${count} Einträge"
+  clearProgressEmpty: Noch kein lokaler Wiedergabeverlauf
+  clearProgressTitle: Lokalen Wiedergabeverlauf löschen?
+  clearProgressBody: Nur Wiedergabepositionen und Gesehen-Markierungen werden gelöscht. Ihre Dateien und Ordner bleiben unverändert.
+  clearProgressDone: "${count} lokale Wiedergabeverlauf-Einträge gelöscht"
+  clearAction: Leeren
+  iosManualRescanNotice: iOS erkennt neue Dateien nicht automatisch. Nach dem Hinzufügen oder Löschen von Dateien müssen Sie manuell erneut scannen.
