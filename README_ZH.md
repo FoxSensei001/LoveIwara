@@ -125,7 +125,7 @@
 - 「记住音量」选项（PC）
 
 ### 🌍 多语言
-English · 简体中文 · 繁體中文 · 日本語——包括 Quest 上的空间面板，它跟随应用内的语言设置而不是系统语言
+**界面支持 12 门语言** —— English · 简体中文 · 繁體中文 · 日本語 · 한국어 · ภาษาไทย · Bahasa Indonesia · Tiếng Việt · Español · Русский · Français · Deutsch——包括 Quest 上的空间面板，它跟随应用内的语言设置而不是系统语言。标签（Iwara / Oreno3d）的翻译覆盖范围更小，见[下文](#-国际化)。
 
 > 还有更多隐藏功能等你发现，也有更多功能在路上。有想法？欢迎提交 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群组](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 国际化
 
-目前的翻译大多由机器生成。如果你愿意协助改进，请从简体中文模板入手：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，然后运行 `dart run slang`。
+界面目前支持 **12 门语言**；除最初那四门（English / 简体中文 / 繁體中文 / 日本語，已人工校对）外，其余均为机器翻译，尚待人工校对。如果你愿意协助改进，请从简体中文模板入手：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，然后运行 `dart run slang`。完整的分语言状态与维护命令见 **[`docs/i18n/README.md`](docs/i18n/README.md)**。
 
 ### 🏷️ Iwara 标签本地化
 
@@ -343,6 +343,9 @@ Iwara 的原始标签是英文式的 key（如 `mother`、`blue_archive`）。Ap
 3. 同时提交源文件与生成的 `iwara_tags.min.json`（详见 [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)）。
 
 第三方 **Oreno3d** 的元数据（原作 / 角色 / 标签）采用同样方式本地化——词库位于 [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/)，打包资源 + jsDelivr CDN，在视频详情页与搜索卡片上按当前语言展示。
+
+> [!NOTE]
+> 以上两份标签词库只维护 **zh-CN / zh-TW / ja / en** 四门语言，**没有**随界面语言一起扩展到其余 8 门（ko / th / id / vi / es / ru / fr / de）。这 2600+ 条 ACG / Vtuber / 同人黑话严重依赖亚文化圈子约定俗成的译法而非字面直译，把 AI 翻译铺到没人能校对的语言上，只会留下没人发现的错译。在这四门之外的界面语言里，标签会直接显示 Iwara / Oreno3d 的原始 key，而不是被翻译。详细说明见 [`docs/i18n/README.md`](docs/i18n/README.md)。
 
 ## 🙏 致谢
 

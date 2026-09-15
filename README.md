@@ -125,7 +125,7 @@ One codebase → Android · Meta Quest · Windows · macOS · Linux · iOS
 - "Remember last volume" option (PC)
 
 ### 🌍 Multi-language
-English · 简体中文 · 繁體中文 · 日本語 — including the spatial panels on Quest, which follow the app's language rather than the system's
+**12 UI languages** — English · 简体中文 · 繁體中文 · 日本語 · 한국어 · ภาษาไทย · Bahasa Indonesia · Tiếng Việt · Español · Русский · Français · Deutsch — including the spatial panels on Quest, which follow the app's language rather than the system's. Iwara/Oreno3d tag names are translated for a smaller set of these languages — see [below](#-internationalization).
 
 > Found something else? There are more hidden gems to discover — and more on the way. Got an idea? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues) or drop by the [Telegram group](https://t.me/+ITH4CV6Z_sc2ZWVl).
 
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Internationalization
 
-Translations are currently mostly machine-generated. If you'd like to help improve them, start from the Simplified Chinese template: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), then run `dart run slang`.
+The UI now ships in **12 languages**; translations are mostly machine-generated except for the original four (English / 简体中文 / 繁體中文 / 日本語), which are human-reviewed. If you'd like to help improve a translation, start from the Simplified Chinese template: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), then run `dart run slang`. See **[`docs/i18n/README.md`](docs/i18n/README.md)** for the full per-language status and maintenance commands.
 
 ### 🏷️ Iwara Tag Localization
 
@@ -343,6 +343,9 @@ These are best-effort translations of 2600+ ACG / Vtuber / NSFW terms and may co
 3. Commit both the source and the generated `iwara_tags.min.json` (see [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
 
 The third-party **Oreno3d** metadata (origins / characters / tags) is localized the same way — dictionary in [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), bundled asset + jsDelivr CDN, shown in your current language on the video detail page and search cards.
+
+> [!NOTE]
+> Both tag dictionaries above are maintained for **zh-CN / zh-TW / ja / en only** — they are *not* extended to the other 8 UI languages (ko / th / id / vi / es / ru / fr / de). These are 2600+ ACG / Vtuber / doujin-slang terms that lean on subculture-specific phrasing rather than literal translation; scaling AI translation to 12 languages without anyone able to review the result risks silently-wrong tags nobody catches. In UI languages outside those four, tags simply fall back to their raw Iwara/Oreno3d key instead of a translation. Details and rationale: [`docs/i18n/README.md`](docs/i18n/README.md).
 
 ## 🙏 Acknowledgments
 

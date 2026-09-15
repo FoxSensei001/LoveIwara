@@ -125,7 +125,7 @@
 - 「前回の音量を記憶する」オプション（PC）
 
 ### 🌍 多言語対応
-English · 简体中文 · 繁體中文 · 日本語——Quest の空間パネルも含みます（システムの言語ではなくアプリの言語設定に追従します）
+**UI は 12 言語に対応** —— English · 简体中文 · 繁體中文 · 日本語 · 한국어 · ภาษาไทย · Bahasa Indonesia · Tiếng Việt · Español · Русский · Français · Deutsch——Quest の空間パネルも含みます（システムの言語ではなくアプリの言語設定に追従します）。Iwara / Oreno3d のタグ翻訳はこれより少ない言語のみ対応——詳細は[下記](#-多言語化)。
 
 > ほかにも隠れた機能があり、新しい機能も準備中です。アイデアがあれば [Issue](https://github.com/FoxSensei001/LoveIwara/issues) を立てるか、[Telegram グループ](https://t.me/+ITH4CV6Z_sc2ZWVl) までお気軽にどうぞ。
 
@@ -321,7 +321,7 @@ steps:
 
 ## 🌍 多言語化
 
-現在の翻訳はほとんどが機械翻訳です。改善に協力していただける場合は、簡体字中国語のテンプレート [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml) を起点に編集し、`dart run slang` を実行してください。
+UI は現在 **12 言語**に対応しています。もともとの 4 言語（English / 简体中文 / 繁體中文 / 日本語）は人によるレビュー済みですが、それ以外は機械翻訳のままレビュー待ちです。改善に協力していただける場合は、簡体字中国語のテンプレート [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml) を起点に編集し、`dart run slang` を実行してください。言語ごとの状況とメンテナンス用コマンドの一覧は **[`docs/i18n/README.md`](docs/i18n/README.md)** を参照してください。
 
 ### 🏷️ Iwara タグのローカライズ
 
@@ -344,6 +344,9 @@ Iwara の生のタグは英語風のキー（例：`mother`、`blue_archive`）�
 3. ソースと生成された `iwara_tags.min.json` の両方をコミットしてください（[`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md) を参照）。
 
 サードパーティの **Oreno3d** のメタデータ（原作 / キャラクター / タグ）も同じ方法でローカライズされています——辞書は [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/) にあり、同梱アセット + jsDelivr CDN で配信され、動画詳細ページと検索カードに現在の言語で表示されます。
+
+> [!NOTE]
+> 上記 2 つのタグ辞書は **zh-CN / zh-TW / ja / en の 4 言語のみ**を対象としており、他の 8 言語（ko / th / id / vi / es / ru / fr / de）には拡張していません。これらは 2600 語を超える ACG / Vtuber / 同人系の用語で、逐語訳ではなくサブカルチャー特有の言い回しに強く依存します。レビューできる人がいない言語にまで機械翻訳を広げると、誰にも気づかれない誤訳がそのまま残ってしまいます。この 4 言語以外の UI 言語では、タグは翻訳されず Iwara / Oreno3d の元の key がそのまま表示されます。詳しい経緯は [`docs/i18n/README.md`](docs/i18n/README.md) を参照してください。
 
 ## 🙏 謝辞
 

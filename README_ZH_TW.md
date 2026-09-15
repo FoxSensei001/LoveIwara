@@ -125,7 +125,7 @@
 - 「記住上次音量」選項（PC）
 
 ### 🌍 多國語言
-English · 简体中文 · 繁體中文 · 日本語——包括 Quest 上的空間面板，它跟隨應用程式內的語言設定而不是系統語言
+**介面支援 12 種語言** —— English · 简体中文 · 繁體中文 · 日本語 · 한국어 · ภาษาไทย · Bahasa Indonesia · Tiếng Việt · Español · Русский · Français · Deutsch——包括 Quest 上的空間面板，它跟隨應用程式內的語言設定而不是系統語言。標籤（Iwara / Oreno3d）的翻譯涵蓋範圍較小，見[下文](#-多語系)。
 
 > 還有更多隱藏功能等你挖掘，也有更多功能正在路上。有想法嗎？歡迎開 [Issue](https://github.com/FoxSensei001/LoveIwara/issues) 或加入 [Telegram 群組](https://t.me/+ITH4CV6Z_sc2ZWVl)。
 
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 多語系
 
-目前的翻譯大多由機器產生。如果你願意幫忙改進，請從簡體中文範本開始：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，接著執行 `dart run slang`。
+介面目前支援 **12 種語言**；除了最初那四種（English / 简体中文 / 繁體中文 / 日本語，已經人工校對）之外，其餘都是機器翻譯，還沒逐條人工校對。如果你願意幫忙改進，請從簡體中文範本開始：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，接著執行 `dart run slang`。完整的各語言狀態與維護指令見 **[`docs/i18n/README.md`](docs/i18n/README.md)**。
 
 ### 🏷️ Iwara 標籤在地化
 
@@ -343,6 +343,9 @@ Iwara 的原始標籤是英文式的 key（例如 `mother`、`blue_archive`）�
 3. 原始檔與產生的 `iwara_tags.min.json` 都要一起提交（詳見 [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)）。
 
 第三方 **Oreno3d** 的中繼資料（原作 / 角色 / 標籤）也用同樣的方式在地化——詞庫位於 [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/)，內建資源 + jsDelivr CDN，會在影片詳情頁與搜尋卡片上以你目前的語言顯示。
+
+> [!NOTE]
+> 以上兩份標籤詞庫只維護 **zh-CN / zh-TW / ja / en** 四種語言，**沒有**隨介面語言一起擴充到其餘 8 種（ko / th / id / vi / es / ru / fr / de）。這 2600 多條 ACG / Vtuber / 同人黑話高度依賴次文化圈子約定俗成的譯法，而非字面直譯；把 AI 翻譯鋪到沒人能校對的語言上，只會留下沒人發現的錯譯。在這四種之外的介面語言裡，標籤會直接顯示 Iwara / Oreno3d 的原始 key，而不是被翻譯。詳細說明見 [`docs/i18n/README.md`](docs/i18n/README.md)。
 
 ## 🙏 致謝
 
