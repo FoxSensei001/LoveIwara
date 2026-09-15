@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · **日本語** · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · **日本語** · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@
 
 | スクリーンとコントロールパネル | ギャラリー：1 枚のスクリーン＋フィルムストリップ |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 モバイル & デスクトップ
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 クイックスタート
 
@@ -208,7 +208,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > `lib/i18n/*.i18n.yaml` を編集したあとは、`dart run slang` で多言語文字列を再生成してください。
-> 依存関係の全体像は [`pubspec.yaml`](pubspec.yaml) を参照してください——いくつかのパッケージには追加のセットアップが必要です。
+> 依存関係の全体像は [`pubspec.yaml`](../../pubspec.yaml) を参照してください——いくつかのパッケージには追加のセットアップが必要です。
 
 <details>
 <summary><b>🛠️ 開発環境の詳細なセットアップ</b></summary>
@@ -321,7 +321,7 @@ steps:
 
 ## 🌍 多言語化
 
-UI は現在 **12 言語**に対応しています。もともとの 4 言語（English / 简体中文 / 繁體中文 / 日本語）は人によるレビュー済みですが、それ以外は機械翻訳のままレビュー待ちです。改善に協力していただける場合は、簡体字中国語のテンプレート [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml) を起点に編集し、`dart run slang` を実行してください。言語ごとの状況とメンテナンス用コマンドの一覧は **[`docs/i18n/README.md`](docs/i18n/README.md)** を参照してください。
+UI は現在 **12 言語**に対応しています。もともとの 4 言語（English / 简体中文 / 繁體中文 / 日本語）は人によるレビュー済みですが、それ以外は機械翻訳のままレビュー待ちです。改善に協力していただける場合は、簡体字中国語のテンプレート [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml) を起点に編集し、`dart run slang` を実行してください。言語ごとの状況とメンテナンス用コマンドの一覧は **[`docs/i18n/README.md`](../i18n/README.md)** を参照してください。
 
 ### 🏷️ Iwara タグのローカライズ
 
@@ -329,7 +329,7 @@ Iwara の生のタグは英語風のキー（例：`mother`、`blue_archive`）�
 
 仕組み：
 
-- **辞書**：[`tool/data/iwara_tags/`](tool/data/iwara_tags/) にあります。アプリが実際に読み込むのは、マージ・圧縮された [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json) です。
+- **辞書**：[`tool/data/iwara_tags/`](../../tool/data/iwara_tags/) にあります。アプリが実際に読み込むのは、マージ・圧縮された [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json) です。
 - **配信**：オフライン用のフォールバックとしてアプリに同梱（`assets/data/iwara_tags.min.json`）しつつ、jsDelivr CDN からホットアップデートします——つまり**アプリを再リリースしなくても**訳語を改善できます。
 - **アプリ内**：タグのチップには訳語が表示されます。詳細ページのタグカードでは、展開／折りたたみの行にあるアイコンボタンで **元のキー ⇄ 訳語** を切り替えられます。タグを長押し／右クリック（またはタグ一覧ページでタグ名をタップ）すると、訳語と元のキー、コピーボタン、フィードバック用リンクをまとめたダイアログが開きます。
 
@@ -339,14 +339,14 @@ Iwara の生のタグは英語風のキー（例：`mother`、`blue_archive`）�
 
 **修正を送る場合**（メンテナー／コントリビューター向け）：
 
-1. 人が読める [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) を編集します（タグごとの `zh-CN` / `zh-TW` / `ja` / `en`）。
+1. 人が読める [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) を編集します（タグごとの `zh-CN` / `zh-TW` / `ja` / `en`）。
 2. マージ済みの成果物と同梱アセットを再生成します：`dart run tool/data/iwara_tags/build_localized_min.dart`。
-3. ソースと生成された `iwara_tags.min.json` の両方をコミットしてください（[`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md) を参照）。
+3. ソースと生成された `iwara_tags.min.json` の両方をコミットしてください（[`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md) を参照）。
 
-サードパーティの **Oreno3d** のメタデータ（原作 / キャラクター / タグ）も同じ方法でローカライズされています——辞書は [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/) にあり、同梱アセット + jsDelivr CDN で配信され、動画詳細ページと検索カードに現在の言語で表示されます。
+サードパーティの **Oreno3d** のメタデータ（原作 / キャラクター / タグ）も同じ方法でローカライズされています——辞書は [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/) にあり、同梱アセット + jsDelivr CDN で配信され、動画詳細ページと検索カードに現在の言語で表示されます。
 
 > [!NOTE]
-> 上記 2 つのタグ辞書は **zh-CN / zh-TW / ja / en の 4 言語のみ**を対象としており、他の 8 言語（ko / th / id / vi / es / ru / fr / de）には拡張していません。これらは 2600 語を超える ACG / Vtuber / 同人系の用語で、逐語訳ではなくサブカルチャー特有の言い回しに強く依存します。レビューできる人がいない言語にまで機械翻訳を広げると、誰にも気づかれない誤訳がそのまま残ってしまいます。この 4 言語以外の UI 言語では、タグは翻訳されず Iwara / Oreno3d の元の key がそのまま表示されます。詳しい経緯は [`docs/i18n/README.md`](docs/i18n/README.md) を参照してください。
+> 上記 2 つのタグ辞書は **zh-CN / zh-TW / ja / en の 4 言語のみ**を対象としており、他の 8 言語（ko / th / id / vi / es / ru / fr / de）には拡張していません。これらは 2600 語を超える ACG / Vtuber / 同人系の用語で、逐語訳ではなくサブカルチャー特有の言い回しに強く依存します。レビューできる人がいない言語にまで機械翻訳を広げると、誰にも気づかれない誤訳がそのまま残ってしまいます。この 4 言語以外の UI 言語では、タグは翻訳されず Iwara / Oreno3d の元の key がそのまま表示されます。詳しい経緯は [`docs/i18n/README.md`](../i18n/README.md) を参照してください。
 
 ## 🙏 謝辞
 

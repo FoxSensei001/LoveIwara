@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · **Русский** · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · **Русский** · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@
 
 | Экран и его панель управления | Галерея: одна сцена плюс лента миниатюр |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 Телефон и десктоп
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 Быстрый старт
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > После правки любого `lib/i18n/*.i18n.yaml` пересоздайте строки локализации командой `dart run slang`.
-> Полный список зависимостей — в [`pubspec.yaml`](pubspec.yaml) — некоторым пакетам нужны дополнительные шаги настройки.
+> Полный список зависимостей — в [`pubspec.yaml`](../../pubspec.yaml) — некоторым пакетам нужны дополнительные шаги настройки.
 
 <details>
 <summary><b>🛠️ Полная настройка окружения разработки</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Интернационализация
 
-Сейчас UI доступен на **12 языках**; переводы в основном машинные, за исключением исходных четырёх (English / 简体中文 / 繁體中文 / 日本語), которые прошли проверку человеком. Если хотите помочь улучшить перевод, начните с шаблона на упрощённом китайском: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), затем выполните `dart run slang`. Полный статус по каждому языку и команды для поддержки — в **[`docs/i18n/README.md`](docs/i18n/README.md)** (на китайском языке).
+Сейчас UI доступен на **12 языках**; переводы в основном машинные, за исключением исходных четырёх (English / 简体中文 / 繁體中文 / 日本語), которые прошли проверку человеком. Если хотите помочь улучшить перевод, начните с шаблона на упрощённом китайском: [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml), затем выполните `dart run slang`. Полный статус по каждому языку и команды для поддержки — в **[`docs/i18n/README.md`](../i18n/README.md)** (на китайском языке).
 
 ### 🏷️ Локализация тегов Iwara
 
@@ -328,7 +328,7 @@ steps:
 
 Как это работает:
 
-- **Словарь**: находится в [`tool/data/iwara_tags/`](tool/data/iwara_tags/). Приложение использует объединённый и минифицированный [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json).
+- **Словарь**: находится в [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/). Приложение использует объединённый и минифицированный [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json).
 - **Доставка**: встроен как офлайн-резерв (`assets/data/iwara_tags.min.json`) и обновляется «на горячую» через jsDelivr CDN — так формулировки можно улучшать **без выпуска новой сборки приложения**.
 - **Внутри приложения**: чипы тегов показывают локализованное имя. На карточке тега на странице деталей в строке разворачивания/сворачивания есть кнопка-иконка для переключения **между оригинальным ключом и переводом**; долгое нажатие / клик правой кнопкой мыши по тегу (или тап по заголовку тега на странице списка тегов) открывает диалог с переводом, оригинальным ключом, кнопками копирования и ссылкой для обратной связи.
 
@@ -338,14 +338,14 @@ steps:
 
 **Как внести исправление** (для мейнтейнеров/контрибьюторов):
 
-1. Отредактируйте человекочитаемый файл [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (для каждого тега — `zh-CN` / `zh-TW` / `ja` / `en`).
+1. Отредактируйте человекочитаемый файл [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) (для каждого тега — `zh-CN` / `zh-TW` / `ja` / `en`).
 2. Пересоздайте объединённый артефакт и встроенный ассет: `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. Закоммитьте и исходный файл, и сгенерированный `iwara_tags.min.json` (см. [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+3. Закоммитьте и исходный файл, и сгенерированный `iwara_tags.min.json` (см. [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)).
 
-Сторонние метаданные **Oreno3d** (произведения / персонажи / теги) локализуются тем же способом — словарь в [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), встроенный ассет + jsDelivr CDN, отображаются на вашем текущем языке на странице деталей видео и в карточках поиска.
+Сторонние метаданные **Oreno3d** (произведения / персонажи / теги) локализуются тем же способом — словарь в [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), встроенный ассет + jsDelivr CDN, отображаются на вашем текущем языке на странице деталей видео и в карточках поиска.
 
 > [!NOTE]
-> Оба словаря тегов выше поддерживаются **только для zh-CN / zh-TW / ja / en** — они *не* расширены на остальные 8 языков UI (ko / th / id / vi / es / ru / fr / de). Это более 2600 терминов из ACG / Vtuber / доуджин-сленга, которые опираются на специфичные для субкультуры формулировки, а не на буквальный перевод; масштабирование ИИ-перевода на 12 языков без возможности кем-либо проверить результат рискует оставить незамеченными ошибочные теги. В языках UI за пределами этих четырёх теги просто отображаются как исходный ключ Iwara/Oreno3d, а не как перевод. Подробности и обоснование — в [`docs/i18n/README.md`](docs/i18n/README.md).
+> Оба словаря тегов выше поддерживаются **только для zh-CN / zh-TW / ja / en** — они *не* расширены на остальные 8 языков UI (ko / th / id / vi / es / ru / fr / de). Это более 2600 терминов из ACG / Vtuber / доуджин-сленга, которые опираются на специфичные для субкультуры формулировки, а не на буквальный перевод; масштабирование ИИ-перевода на 12 языков без возможности кем-либо проверить результат рискует оставить незамеченными ошибочные теги. В языках UI за пределами этих четырёх теги просто отображаются как исходный ключ Iwara/Oreno3d, а не как перевод. Подробности и обоснование — в [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Благодарности
 

@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · **한국어** · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · **한국어** · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@
 
 | 화면과 컨트롤 패널 | 갤러리: 스테이지와 필름 스트립 |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 모바일 & 데스크톱
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 빠르게 시작하기
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > `lib/i18n/*.i18n.yaml`을 수정한 뒤에는 `dart run slang`을 실행해 로컬라이제이션 문자열을 다시 생성하세요.
-> 전체 의존성 목록은 [`pubspec.yaml`](pubspec.yaml)을 참고하세요 — 일부 패키지는 추가 설정이 필요합니다.
+> 전체 의존성 목록은 [`pubspec.yaml`](../../pubspec.yaml)을 참고하세요 — 일부 패키지는 추가 설정이 필요합니다.
 
 <details>
 <summary><b>🛠️ 전체 개발 환경 설정</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 국제화
 
-이제 UI는 **12개 언어**로 제공됩니다. 최초의 네 언어(English / 简体中文 / 繁體中文 / 日本語)를 제외한 나머지 번역은 대부분 기계 번역입니다. 번역 개선에 협력하고 싶다면 간체 중국어 템플릿인 [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)을 기준으로 작업한 뒤 `dart run slang`을 실행하세요. 언어별 전체 현황과 유지 관리 명령어는 **[`docs/i18n/README.md`](docs/i18n/README.md)**(중국어)를 참고하세요.
+이제 UI는 **12개 언어**로 제공됩니다. 최초의 네 언어(English / 简体中文 / 繁體中文 / 日本語)를 제외한 나머지 번역은 대부분 기계 번역입니다. 번역 개선에 협력하고 싶다면 간체 중국어 템플릿인 [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml)을 기준으로 작업한 뒤 `dart run slang`을 실행하세요. 언어별 전체 현황과 유지 관리 명령어는 **[`docs/i18n/README.md`](../i18n/README.md)**(중국어)를 참고하세요.
 
 ### 🏷️ Iwara 태그 로컬라이제이션
 
@@ -328,7 +328,7 @@ Iwara의 원본 태그는 영어식 키입니다(예: `mother`, `blue_archive`).
 
 작동 방식:
 
-- **사전**: [`tool/data/iwara_tags/`](tool/data/iwara_tags/)에 위치합니다. 앱은 병합·압축된 [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json)을 사용합니다.
+- **사전**: [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/)에 위치합니다. 앱은 병합·압축된 [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json)을 사용합니다.
 - **배포**: 오프라인 대체용으로 앱에 내장(`assets/data/iwara_tags.min.json`)되며, jsDelivr CDN을 통해 핫 업데이트됩니다 — 따라서 **새 앱 빌드를 배포하지 않고도** 번역을 개선할 수 있습니다.
 - **앱 내부**: 태그 칩에는 번역된 이름이 표시됩니다. 상세 페이지의 태그 카드에서는 펼침/접힘 행에 아이콘 버튼이 있어 **원본 키 ⇄ 번역** 전환이 가능하며, 태그를 길게 누르거나 우클릭(또는 태그 목록 페이지에서 태그 제목 탭)하면 번역과 원본 키, 복사 버튼, 피드백 링크를 함께 보여주는 대화상자가 열립니다.
 
@@ -338,14 +338,14 @@ Iwara의 원본 태그는 영어식 키입니다(예: `mother`, `blue_archive`).
 
 **수정 기여하기**(관리자/기여자용):
 
-1. 사람이 읽을 수 있는 [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json)을 수정합니다(태그별 `zh-CN` / `zh-TW` / `ja` / `en`).
+1. 사람이 읽을 수 있는 [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json)을 수정합니다(태그별 `zh-CN` / `zh-TW` / `ja` / `en`).
 2. 병합된 산출물과 내장 에셋을 재생성합니다: `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. 소스 파일과 생성된 `iwara_tags.min.json`을 함께 커밋합니다([`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md) 참고).
+3. 소스 파일과 생성된 `iwara_tags.min.json`을 함께 커밋합니다([`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md) 참고).
 
-서드파티 **Oreno3d** 메타데이터(원작 / 캐릭터 / 태그)도 동일한 방식으로 로컬라이즈됩니다 — 사전은 [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/)에 있으며, 내장 에셋 + jsDelivr CDN으로 배포되고, 동영상 상세 페이지와 검색 카드에서 현재 언어로 표시됩니다.
+서드파티 **Oreno3d** 메타데이터(원작 / 캐릭터 / 태그)도 동일한 방식으로 로컬라이즈됩니다 — 사전은 [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/)에 있으며, 내장 에셋 + jsDelivr CDN으로 배포되고, 동영상 상세 페이지와 검색 카드에서 현재 언어로 표시됩니다.
 
 > [!NOTE]
-> 위의 두 태그 사전은 **zh-CN / zh-TW / ja / en 네 언어만** 유지 관리하며, 나머지 8개 UI 언어(ko / th / id / vi / es / ru / fr / de)로는 확장되어 있지 *않습니다*. 이들은 문자 그대로의 번역보다는 서브컬처 특유의 표현에 크게 의존하는 2,600개 이상의 ACG / Vtuber / 동인 은어 용어이며, 결과를 검토할 사람이 없는 채로 AI 번역을 12개 언어까지 확대하면 아무도 발견하지 못하는 잘못된 태그가 남을 위험이 있습니다. 이 네 언어 이외의 UI 언어에서는 태그가 번역되지 않고 Iwara/Oreno3d의 원본 키 그대로 표시됩니다. 자세한 내용과 이유는 [`docs/i18n/README.md`](docs/i18n/README.md)를 참고하세요.
+> 위의 두 태그 사전은 **zh-CN / zh-TW / ja / en 네 언어만** 유지 관리하며, 나머지 8개 UI 언어(ko / th / id / vi / es / ru / fr / de)로는 확장되어 있지 *않습니다*. 이들은 문자 그대로의 번역보다는 서브컬처 특유의 표현에 크게 의존하는 2,600개 이상의 ACG / Vtuber / 동인 은어 용어이며, 결과를 검토할 사람이 없는 채로 AI 번역을 12개 언어까지 확대하면 아무도 발견하지 못하는 잘못된 태그가 남을 위험이 있습니다. 이 네 언어 이외의 UI 언어에서는 태그가 번역되지 않고 Iwara/Oreno3d의 원본 키 그대로 표시됩니다. 자세한 내용과 이유는 [`docs/i18n/README.md`](../i18n/README.md)를 참고하세요.
 
 ## 🙏 감사의 말
 

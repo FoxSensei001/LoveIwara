@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@ Une seule base de code → Android · Meta Quest · Windows · macOS · Linux ·
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@ Une seule base de code → Android · Meta Quest · Windows · macOS · Linux ·
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · **Français** · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · **Français** · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@ Une demande ? Ouvrez une [Issue](https://github.com/FoxSensei001/LoveIwara/issue
 
 | L'écran et son panneau de contrôle | Une galerie : une scène plus une bande de pellicule |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 Téléphone et bureau
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 Démarrage rapide
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > Après avoir modifié un fichier `lib/i18n/*.i18n.yaml`, régénérez les chaînes de localisation avec `dart run slang`.
-> Voir [`pubspec.yaml`](pubspec.yaml) pour la liste complète des dépendances — quelques paquets nécessitent des étapes de configuration supplémentaires.
+> Voir [`pubspec.yaml`](../../pubspec.yaml) pour la liste complète des dépendances — quelques paquets nécessitent des étapes de configuration supplémentaires.
 
 <details>
 <summary><b>🛠️ Configuration complète de l'environnement de développement</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Internationalisation
 
-L'interface est désormais disponible en **12 langues** ; les traductions sont majoritairement générées par machine, à l'exception des quatre langues d'origine (English / 简体中文 / 繁體中文 / 日本語), qui ont été relues par des humains. Si vous souhaitez aider à améliorer une traduction, partez du modèle en chinois simplifié : [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), puis lancez `dart run slang`. Consultez **[`docs/i18n/README.md`](docs/i18n/README.md)** (en chinois) pour le statut complet par langue et les commandes de maintenance.
+L'interface est désormais disponible en **12 langues** ; les traductions sont majoritairement générées par machine, à l'exception des quatre langues d'origine (English / 简体中文 / 繁體中文 / 日本語), qui ont été relues par des humains. Si vous souhaitez aider à améliorer une traduction, partez du modèle en chinois simplifié : [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml), puis lancez `dart run slang`. Consultez **[`docs/i18n/README.md`](../i18n/README.md)** (en chinois) pour le statut complet par langue et les commandes de maintenance.
 
 ### 🏷️ Localisation des tags Iwara
 
@@ -328,7 +328,7 @@ Les tags bruts d'Iwara sont des clés à consonance anglaise (par ex. `mother`, 
 
 Fonctionnement :
 
-- **Dictionnaire** : situé dans [`tool/data/iwara_tags/`](tool/data/iwara_tags/). L'application utilise le fichier fusionné et minifié [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json).
+- **Dictionnaire** : situé dans [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/). L'application utilise le fichier fusionné et minifié [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json).
 - **Diffusion** : embarqué comme solution de repli hors ligne (`assets/data/iwara_tags.min.json`) et mis à jour à chaud depuis le CDN jsDelivr — ce qui permet d'améliorer les formulations **sans publier de nouvelle version de l'application**.
 - **Dans l'application** : les puces de tags affichent le nom localisé. Sur la carte de tag d'une page de détail, la ligne d'expansion/réduction comporte un bouton icône pour basculer entre **clé d'origine ⇄ traduction** ; un appui long / clic droit sur un tag (ou un appui sur le titre du tag dans la page de liste des tags) ouvre une boîte de dialogue avec la traduction, la clé d'origine, des boutons de copie et un lien de retour d'information.
 
@@ -338,14 +338,14 @@ Ce sont des traductions faites au mieux pour plus de 2600 termes ACG / Vtuber / 
 
 **Contribuer une correction** (pour les mainteneurs/contributeurs) :
 
-1. Modifiez le fichier lisible [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (pour chaque tag, `zh-CN` / `zh-TW` / `ja` / `en`).
+1. Modifiez le fichier lisible [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) (pour chaque tag, `zh-CN` / `zh-TW` / `ja` / `en`).
 2. Régénérez l'artefact fusionné et l'asset embarqué : `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. Commitez à la fois la source et le fichier `iwara_tags.min.json` généré (voir [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+3. Commitez à la fois la source et le fichier `iwara_tags.min.json` généré (voir [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)).
 
-Les métadonnées tierces **Oreno3d** (œuvres d'origine / personnages / tags) sont localisées de la même manière — dictionnaire dans [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), asset embarqué + CDN jsDelivr, affichées dans votre langue actuelle sur la page de détail vidéo et les cartes de recherche.
+Les métadonnées tierces **Oreno3d** (œuvres d'origine / personnages / tags) sont localisées de la même manière — dictionnaire dans [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset embarqué + CDN jsDelivr, affichées dans votre langue actuelle sur la page de détail vidéo et les cartes de recherche.
 
 > [!NOTE]
-> Les deux dictionnaires de tags ci-dessus ne sont maintenus que pour **zh-CN / zh-TW / ja / en** — ils ne sont *pas* étendus aux 8 autres langues de l'interface (ko / th / id / vi / es / ru / fr / de). Il s'agit de plus de 2600 termes ACG / Vtuber / argot dōjin qui reposent sur des tournures propres à la sous-culture plutôt que sur une traduction littérale ; étendre la traduction automatique à 12 langues sans que personne ne puisse en relire le résultat risquerait de laisser passer des tags mal traduits sans que personne ne s'en aperçoive. Dans les langues d'interface hors de ces quatre-là, les tags s'affichent simplement avec leur clé Iwara/Oreno3d d'origine plutôt qu'une traduction. Détails et raisons : [`docs/i18n/README.md`](docs/i18n/README.md).
+> Les deux dictionnaires de tags ci-dessus ne sont maintenus que pour **zh-CN / zh-TW / ja / en** — ils ne sont *pas* étendus aux 8 autres langues de l'interface (ko / th / id / vi / es / ru / fr / de). Il s'agit de plus de 2600 termes ACG / Vtuber / argot dōjin qui reposent sur des tournures propres à la sous-culture plutôt que sur une traduction littérale ; étendre la traduction automatique à 12 langues sans que personne ne puisse en relire le résultat risquerait de laisser passer des tags mal traduits sans que personne ne s'en aperçoive. Dans les langues d'interface hors de ces quatre-là, les tags s'affichent simplement avec leur clé Iwara/Oreno3d d'origine plutôt qu'une traduction. Détails et raisons : [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Remerciements
 

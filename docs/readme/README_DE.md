@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@ Eine Codebasis → Android · Meta Quest · Windows · macOS · Linux · iOS
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@ Eine Codebasis → Android · Meta Quest · Windows · macOS · Linux · iOS
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · **Deutsch**
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · **Deutsch**
 
 </div>
 
@@ -163,22 +163,22 @@ Hast du einen Wunsch? Eröffne ein [Issue](https://github.com/FoxSensei001/LoveI
 
 | Der Bildschirm und sein Steuerungspanel | Eine Galerie: eine Bühne plus ein Filmstreifen |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 Smartphone & Desktop
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 Schnellstart
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > Nach dem Bearbeiten einer `lib/i18n/*.i18n.yaml`-Datei die Lokalisierungsstrings mit `dart run slang` neu generieren.
-> Die vollständige Abhängigkeitsliste steht in [`pubspec.yaml`](pubspec.yaml) — einige Pakete benötigen zusätzliche Einrichtungsschritte.
+> Die vollständige Abhängigkeitsliste steht in [`pubspec.yaml`](../../pubspec.yaml) — einige Pakete benötigen zusätzliche Einrichtungsschritte.
 
 <details>
 <summary><b>🛠️ Vollständige Einrichtung der Entwicklungsumgebung</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Internationalisierung
 
-Die Oberfläche ist inzwischen in **12 Sprachen** verfügbar; die Übersetzungen sind größtenteils maschinell erstellt, mit Ausnahme der ursprünglichen vier (English / 简体中文 / 繁體中文 / 日本語), die von Menschen geprüft wurden. Wenn du helfen möchtest, eine Übersetzung zu verbessern, starte mit der Vorlage in vereinfachtem Chinesisch: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml) und führe danach `dart run slang` aus. Den vollständigen Status pro Sprache sowie die Pflege-Befehle findest du in **[`docs/i18n/README.md`](docs/i18n/README.md)** (auf Chinesisch).
+Die Oberfläche ist inzwischen in **12 Sprachen** verfügbar; die Übersetzungen sind größtenteils maschinell erstellt, mit Ausnahme der ursprünglichen vier (English / 简体中文 / 繁體中文 / 日本語), die von Menschen geprüft wurden. Wenn du helfen möchtest, eine Übersetzung zu verbessern, starte mit der Vorlage in vereinfachtem Chinesisch: [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml) und führe danach `dart run slang` aus. Den vollständigen Status pro Sprache sowie die Pflege-Befehle findest du in **[`docs/i18n/README.md`](../i18n/README.md)** (auf Chinesisch).
 
 ### 🏷️ Lokalisierung der Iwara-Tags
 
@@ -328,7 +328,7 @@ Die rohen Tags von Iwara sind englisch anmutende Schlüssel (z. B. `mother`, `bl
 
 So funktioniert es:
 
-- **Wörterbuch**: liegt in [`tool/data/iwara_tags/`](tool/data/iwara_tags/). Die App nutzt die zusammengeführte, minifizierte Datei [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json).
+- **Wörterbuch**: liegt in [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/). Die App nutzt die zusammengeführte, minifizierte Datei [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json).
 - **Verteilung**: als Offline-Fallback gebündelt (`assets/data/iwara_tags.min.json`) und per Hot-Update über das jsDelivr-CDN aktualisiert — die Formulierungen können sich also **ohne neuen App-Build** verbessern.
 - **In der App**: Tag-Chips zeigen den lokalisierten Namen. Auf der Tag-Karte einer Detailseite gibt es in der Ein-/Ausklapp-Zeile eine Icon-Schaltfläche zum Umschalten zwischen **Originalschlüssel ⇄ Übersetzung**; langes Drücken/Rechtsklick auf ein Tag (oder Tippen auf den Tag-Titel auf der Tag-Listenseite) öffnet einen Dialog mit Übersetzung und Originalschlüssel, Kopier-Schaltflächen und einem Feedback-Link.
 
@@ -338,14 +338,14 @@ Es handelt sich um nach bestem Wissen erstellte Übersetzungen von über 2600 AC
 
 **Eine Korrektur beisteuern** (für Maintainer/Contributor):
 
-1. Bearbeite die menschenlesbare Datei [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (pro Tag `zh-CN` / `zh-TW` / `ja` / `en`).
+1. Bearbeite die menschenlesbare Datei [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) (pro Tag `zh-CN` / `zh-TW` / `ja` / `en`).
 2. Regeneriere das zusammengeführte Artefakt und das gebündelte Asset: `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. Committe sowohl die Quelle als auch die generierte Datei `iwara_tags.min.json` (siehe [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+3. Committe sowohl die Quelle als auch die generierte Datei `iwara_tags.min.json` (siehe [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)).
 
-Die Drittanbieter-Metadaten von **Oreno3d** (Ursprungswerke / Charaktere / Tags) werden auf dieselbe Weise lokalisiert — Wörterbuch in [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), gebündeltes Asset + jsDelivr-CDN, angezeigt in deiner aktuellen Sprache auf der Video-Detailseite und in den Suchkarten.
+Die Drittanbieter-Metadaten von **Oreno3d** (Ursprungswerke / Charaktere / Tags) werden auf dieselbe Weise lokalisiert — Wörterbuch in [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), gebündeltes Asset + jsDelivr-CDN, angezeigt in deiner aktuellen Sprache auf der Video-Detailseite und in den Suchkarten.
 
 > [!NOTE]
-> Beide oben genannten Tag-Wörterbücher werden **nur für zh-CN / zh-TW / ja / en** gepflegt — sie sind *nicht* auf die übrigen 8 UI-Sprachen (ko / th / id / vi / es / ru / fr / de) ausgeweitet. Es handelt sich um über 2600 ACG-/Vtuber-/Dōjin-Slang-Begriffe, die sich stark auf subkultur-spezifische Formulierungen stützen statt auf wörtliche Übersetzung; würde man KI-Übersetzung auf 12 Sprachen ausweiten, ohne dass jemand das Ergebnis prüfen kann, riskiert man stillschweigend falsche Tags, die niemand bemerkt. In UI-Sprachen außerhalb dieser vier fallen Tags einfach auf ihren rohen Iwara-/Oreno3d-Schlüssel zurück, statt übersetzt zu werden. Details und Gründe: [`docs/i18n/README.md`](docs/i18n/README.md).
+> Beide oben genannten Tag-Wörterbücher werden **nur für zh-CN / zh-TW / ja / en** gepflegt — sie sind *nicht* auf die übrigen 8 UI-Sprachen (ko / th / id / vi / es / ru / fr / de) ausgeweitet. Es handelt sich um über 2600 ACG-/Vtuber-/Dōjin-Slang-Begriffe, die sich stark auf subkultur-spezifische Formulierungen stützen statt auf wörtliche Übersetzung; würde man KI-Übersetzung auf 12 Sprachen ausweiten, ohne dass jemand das Ergebnis prüfen kann, riskiert man stillschweigend falsche Tags, die niemand bemerkt. In UI-Sprachen außerhalb dieser vier fallen Tags einfach auf ihren rohen Iwara-/Oreno3d-Schlüssel zurück, statt übersetzt zu werden. Details und Gründe: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Danksagungen
 

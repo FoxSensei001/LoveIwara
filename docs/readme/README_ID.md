@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@ Satu basis kode → Android · Meta Quest · Windows · macOS · Linux · iOS
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@ Satu basis kode → Android · Meta Quest · Windows · macOS · Linux · iOS
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · **Bahasa Indonesia** · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · **Bahasa Indonesia** · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@ Punya permintaan? Buka [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 | Layar dan panel kontrolnya | Sebuah galeri: satu panggung ditambah strip film |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 Ponsel & Desktop
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 Mulai Cepat
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > Setelah mengedit file `lib/i18n/*.i18n.yaml` mana pun, buat ulang string lokalisasi dengan `dart run slang`.
-> Lihat [`pubspec.yaml`](pubspec.yaml) untuk daftar dependency lengkap — beberapa paket memerlukan langkah pengaturan tambahan.
+> Lihat [`pubspec.yaml`](../../pubspec.yaml) untuk daftar dependency lengkap — beberapa paket memerlukan langkah pengaturan tambahan.
 
 <details>
 <summary><b>🛠️ Pengaturan lingkungan pengembangan lengkap</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Internasionalisasi
 
-UI kini tersedia dalam **12 bahasa**; terjemahan sebagian besar dihasilkan mesin, kecuali empat bahasa awal (English / 简体中文 / 繁體中文 / 日本語) yang sudah ditinjau manusia. Jika kamu ingin membantu meningkatkan sebuah terjemahan, mulailah dari template bahasa Mandarin sederhana: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), lalu jalankan `dart run slang`. Lihat **[`docs/i18n/README.md`](docs/i18n/README.md)** (dalam bahasa Mandarin) untuk status lengkap per bahasa dan perintah pemeliharaan.
+UI kini tersedia dalam **12 bahasa**; terjemahan sebagian besar dihasilkan mesin, kecuali empat bahasa awal (English / 简体中文 / 繁體中文 / 日本語) yang sudah ditinjau manusia. Jika kamu ingin membantu meningkatkan sebuah terjemahan, mulailah dari template bahasa Mandarin sederhana: [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml), lalu jalankan `dart run slang`. Lihat **[`docs/i18n/README.md`](../i18n/README.md)** (dalam bahasa Mandarin) untuk status lengkap per bahasa dan perintah pemeliharaan.
 
 ### 🏷️ Lokalisasi Tag Iwara
 
@@ -328,7 +328,7 @@ Tag mentah Iwara adalah key bergaya bahasa Inggris (misalnya `mother`, `blue_arc
 
 Cara kerjanya:
 
-- **Kamus**: berada di [`tool/data/iwara_tags/`](tool/data/iwara_tags/). Aplikasi menggunakan file [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json) yang telah digabung dan diperkecil.
+- **Kamus**: berada di [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/). Aplikasi menggunakan file [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json) yang telah digabung dan diperkecil.
 - **Pengiriman**: dibundel sebagai cadangan offline (`assets/data/iwara_tags.min.json`) dan diperbarui secara hot melalui jsDelivr CDN — sehingga kata-katanya bisa ditingkatkan **tanpa perlu merilis build aplikasi baru**.
 - **Di dalam aplikasi**: chip tag menampilkan nama yang sudah dilokalkan. Pada kartu tag di halaman detail, baris expand/collapse memiliki tombol ikon untuk beralih antara **key asli ⇄ terjemahan**; tekan lama / klik kanan pada sebuah tag (atau ketuk judul tag pada halaman daftar tag) akan membuka dialog yang menampilkan terjemahan dan key asli, tombol salin, serta tautan umpan balik.
 
@@ -338,14 +338,14 @@ Ini adalah terjemahan usaha terbaik untuk lebih dari 2600 istilah ACG / Vtuber /
 
 **Berkontribusi perbaikan** (untuk maintainer/kontributor):
 
-1. Edit file yang mudah dibaca manusia [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (per tag `zh-CN` / `zh-TW` / `ja` / `en`).
+1. Edit file yang mudah dibaca manusia [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) (per tag `zh-CN` / `zh-TW` / `ja` / `en`).
 2. Buat ulang artefak gabungan dan asset yang dibundel: `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. Commit baik sumber maupun `iwara_tags.min.json` yang dihasilkan (lihat [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+3. Commit baik sumber maupun `iwara_tags.min.json` yang dihasilkan (lihat [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)).
 
-Metadata pihak ketiga **Oreno3d** (karya asal / karakter / tag) dilokalkan dengan cara yang sama — kamus ada di [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), asset yang dibundel + jsDelivr CDN, ditampilkan dalam bahasamu saat ini di halaman detail video dan kartu hasil pencarian.
+Metadata pihak ketiga **Oreno3d** (karya asal / karakter / tag) dilokalkan dengan cara yang sama — kamus ada di [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset yang dibundel + jsDelivr CDN, ditampilkan dalam bahasamu saat ini di halaman detail video dan kartu hasil pencarian.
 
 > [!NOTE]
-> Kedua kamus tag di atas hanya dipelihara untuk **zh-CN / zh-TW / ja / en** — keduanya *tidak* diperluas ke 8 bahasa UI lainnya (ko / th / id / vi / es / ru / fr / de). Ini adalah lebih dari 2600 istilah ACG / Vtuber / bahasa gaul dōjin yang sangat bergantung pada ungkapan khas subkultur, bukan terjemahan harfiah; memperluas terjemahan AI ke 12 bahasa tanpa ada yang bisa meninjau hasilnya berisiko meninggalkan tag yang salah terjemahan tanpa ada yang menyadarinya. Pada bahasa UI di luar keempat bahasa tersebut, tag hanya akan kembali menampilkan key asli Iwara/Oreno3d, bukan terjemahan. Detail dan alasannya: [`docs/i18n/README.md`](docs/i18n/README.md).
+> Kedua kamus tag di atas hanya dipelihara untuk **zh-CN / zh-TW / ja / en** — keduanya *tidak* diperluas ke 8 bahasa UI lainnya (ko / th / id / vi / es / ru / fr / de). Ini adalah lebih dari 2600 istilah ACG / Vtuber / bahasa gaul dōjin yang sangat bergantung pada ungkapan khas subkultur, bukan terjemahan harfiah; memperluas terjemahan AI ke 12 bahasa tanpa ada yang bisa meninjau hasilnya berisiko meninggalkan tag yang salah terjemahan tanpa ada yang menyadarinya. Pada bahasa UI di luar keempat bahasa tersebut, tag hanya akan kembali menampilkan key asli Iwara/Oreno3d, bukan terjemahan. Detail dan alasannya: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Ucapan Terima Kasih
 

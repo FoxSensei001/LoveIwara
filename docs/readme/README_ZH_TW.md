@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · **繁體中文** · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · **繁體中文** · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · [Tiếng Việt](README_VI.md) · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@
 
 | 幕布與它的控制面板 | 圖庫：一塊幕布 + 一條膠片 |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 手機與桌面
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 快速開始
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > 修改任何 `lib/i18n/*.i18n.yaml` 之後，請執行 `dart run slang` 重新產生多語系字串。
-> 完整的相依套件請見 [`pubspec.yaml`](pubspec.yaml) —— 少數套件需要額外的設定步驟。
+> 完整的相依套件請見 [`pubspec.yaml`](../../pubspec.yaml) —— 少數套件需要額外的設定步驟。
 
 <details>
 <summary><b>🛠️ 完整開發環境設定</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 多語系
 
-介面目前支援 **12 種語言**；除了最初那四種（English / 简体中文 / 繁體中文 / 日本語，已經人工校對）之外，其餘都是機器翻譯，還沒逐條人工校對。如果你願意幫忙改進，請從簡體中文範本開始：[`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml)，接著執行 `dart run slang`。完整的各語言狀態與維護指令見 **[`docs/i18n/README.md`](docs/i18n/README.md)**。
+介面目前支援 **12 種語言**；除了最初那四種（English / 简体中文 / 繁體中文 / 日本語，已經人工校對）之外，其餘都是機器翻譯，還沒逐條人工校對。如果你願意幫忙改進，請從簡體中文範本開始：[`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml)，接著執行 `dart run slang`。完整的各語言狀態與維護指令見 **[`docs/i18n/README.md`](../i18n/README.md)**。
 
 ### 🏷️ Iwara 標籤在地化
 
@@ -328,7 +328,7 @@ Iwara 的原始標籤是英文式的 key（例如 `mother`、`blue_archive`）�
 
 運作方式：
 
-- **詞庫**：位於 [`tool/data/iwara_tags/`](tool/data/iwara_tags/)，App 實際使用的是合併壓縮後的 [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json)。
+- **詞庫**：位於 [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/)，App 實際使用的是合併壓縮後的 [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json)。
 - **發布方式**：隨 App 內建一份離線備援（`assets/data/iwara_tags.min.json`），並透過 jsDelivr CDN 熱更新——因此**不必重新發布新版本**也能改善用詞。
 - **App 內**：標籤 chip 會顯示譯名；詳情頁標籤卡片的展開／收合那一列有一個圖示按鈕，可在 **原始 key ⇄ 譯文** 之間切換；長按／右鍵點擊標籤（或在標籤列表頁點選標籤標題）會開啟對話框，同時顯示譯文與原始 key、複製按鈕以及回報連結。
 
@@ -338,14 +338,14 @@ Iwara 的原始標籤是英文式的 key（例如 `mother`、`blue_archive`）�
 
 **送出修正**（給維護者／貢獻者）：
 
-1. 編輯人類可讀的 [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json)（每個標籤的 `zh-CN` / `zh-TW` / `ja` / `en`）。
+1. 編輯人類可讀的 [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json)（每個標籤的 `zh-CN` / `zh-TW` / `ja` / `en`）。
 2. 重新產生合併後的產物與內建資源：`dart run tool/data/iwara_tags/build_localized_min.dart`。
-3. 原始檔與產生的 `iwara_tags.min.json` 都要一起提交（詳見 [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)）。
+3. 原始檔與產生的 `iwara_tags.min.json` 都要一起提交（詳見 [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)）。
 
-第三方 **Oreno3d** 的中繼資料（原作 / 角色 / 標籤）也用同樣的方式在地化——詞庫位於 [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/)，內建資源 + jsDelivr CDN，會在影片詳情頁與搜尋卡片上以你目前的語言顯示。
+第三方 **Oreno3d** 的中繼資料（原作 / 角色 / 標籤）也用同樣的方式在地化——詞庫位於 [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/)，內建資源 + jsDelivr CDN，會在影片詳情頁與搜尋卡片上以你目前的語言顯示。
 
 > [!NOTE]
-> 以上兩份標籤詞庫只維護 **zh-CN / zh-TW / ja / en** 四種語言，**沒有**隨介面語言一起擴充到其餘 8 種（ko / th / id / vi / es / ru / fr / de）。這 2600 多條 ACG / Vtuber / 同人黑話高度依賴次文化圈子約定俗成的譯法，而非字面直譯；把 AI 翻譯鋪到沒人能校對的語言上，只會留下沒人發現的錯譯。在這四種之外的介面語言裡，標籤會直接顯示 Iwara / Oreno3d 的原始 key，而不是被翻譯。詳細說明見 [`docs/i18n/README.md`](docs/i18n/README.md)。
+> 以上兩份標籤詞庫只維護 **zh-CN / zh-TW / ja / en** 四種語言，**沒有**隨介面語言一起擴充到其餘 8 種（ko / th / id / vi / es / ru / fr / de）。這 2600 多條 ACG / Vtuber / 同人黑話高度依賴次文化圈子約定俗成的譯法，而非字面直譯；把 AI 翻譯鋪到沒人能校對的語言上，只會留下沒人發現的錯譯。在這四種之外的介面語言裡，標籤會直接顯示 Iwara / Oreno3d 的原始 key，而不是被翻譯。詳細說明見 [`docs/i18n/README.md`](../i18n/README.md)。
 
 ## 🙏 致謝
 

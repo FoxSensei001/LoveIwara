@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://github.com/FoxSensei001/LoveIwara">
-    <img src="assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
+    <img src="../../assets/icon/launcher_icon_v2.png" alt="Love Iwara logo" title="Love Iwara logo" width="96"/>
 </a>
 
 # Love Iwara <sup>(2i)</sup>
@@ -15,7 +15,7 @@ Một codebase duy nhất → Android · Meta Quest · Windows · macOS · Linux
 [![GitHub forks](https://img.shields.io/github/forks/FoxSensei001/LoveIwara?label=forks&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara)
 [![Latest release](https://img.shields.io/github/v/release/FoxSensei001/LoveIwara?label=release&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/FoxSensei001/LoveIwara/total?label=downloads&labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/releases)
-[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](LICENSE)
+[![License: MIT](https://img.shields.io/github/license/FoxSensei001/LoveIwara?labelColor=27303D&color=0877d2)](../../LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/FoxSensei001/LoveIwara?labelColor=27303D&color=0D1117&logo=github&logoColor=FFFFFF&style=flat)](https://github.com/FoxSensei001/LoveIwara/issues)
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?style=flat&logo=flutter&logoColor=white)
@@ -27,7 +27,7 @@ Một codebase duy nhất → Android · Meta Quest · Windows · macOS · Linux
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![iOS](https://img.shields.io/badge/iOS-000000?style=flat&logo=apple&logoColor=white)
 
-[English](README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · **Tiếng Việt** · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
+[English](../../README.md) · [日本語](README_JA.md) · [简体中文](README_ZH.md) · [繁體中文](README_ZH_TW.md) · [한국어](README_KO.md) · [ภาษาไทย](README_TH.md) · [Bahasa Indonesia](README_ID.md) · **Tiếng Việt** · [Español](README_ES.md) · [Русский](README_RU.md) · [Français](README_FR.md) · [Deutsch](README_DE.md)
 
 </div>
 
@@ -163,22 +163,22 @@ Có yêu cầu gì không? Hãy mở một [Issue](https://github.com/FoxSensei0
 
 | Màn hình và panel điều khiển của nó | Một thư viện ảnh: một sân khấu cùng một dải phim |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/video_quest.jpg" width="420">|<img src="docs/imgs/gallery_quest.jpg" width="420">|
+|<img src="../imgs/vr_video.jpg" width="420">|<img src="../imgs/gallery_quest.jpg" width="420">|
 
 ### 📱 Điện thoại & Desktop
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
+|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
+|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
+|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
+|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
+|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
+|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
+|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
+|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
+|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
 
 ## 🚀 Bắt đầu nhanh
 
@@ -207,7 +207,7 @@ flutter run -d windows   # macos / linux / ios
 
 > [!TIP]
 > Sau khi chỉnh sửa bất kỳ tệp `lib/i18n/*.i18n.yaml` nào, hãy tạo lại các chuỗi bản địa hóa bằng `dart run slang`.
-> Xem [`pubspec.yaml`](pubspec.yaml) để có danh sách dependency đầy đủ — một vài package cần các bước thiết lập bổ sung.
+> Xem [`pubspec.yaml`](../../pubspec.yaml) để có danh sách dependency đầy đủ — một vài package cần các bước thiết lập bổ sung.
 
 <details>
 <summary><b>🛠️ Thiết lập môi trường phát triển đầy đủ</b></summary>
@@ -320,7 +320,7 @@ steps:
 
 ## 🌍 Quốc tế hóa
 
-Hiện giao diện đã có **12 ngôn ngữ**; các bản dịch phần lớn được tạo bằng máy, ngoại trừ bốn ngôn ngữ ban đầu (English / 简体中文 / 繁體中文 / 日本語) đã được con người rà soát. Nếu bạn muốn giúp cải thiện một bản dịch, hãy bắt đầu từ mẫu tiếng Trung giản thể: [`lib/i18n/zh-CN.i18n.yaml`](lib/i18n/zh-CN.i18n.yaml), sau đó chạy `dart run slang`. Xem **[`docs/i18n/README.md`](docs/i18n/README.md)** (bằng tiếng Trung) để biết trạng thái đầy đủ theo từng ngôn ngữ và các lệnh bảo trì.
+Hiện giao diện đã có **12 ngôn ngữ**; các bản dịch phần lớn được tạo bằng máy, ngoại trừ bốn ngôn ngữ ban đầu (English / 简体中文 / 繁體中文 / 日本語) đã được con người rà soát. Nếu bạn muốn giúp cải thiện một bản dịch, hãy bắt đầu từ mẫu tiếng Trung giản thể: [`lib/i18n/zh-CN.i18n.yaml`](../../lib/i18n/zh-CN.i18n.yaml), sau đó chạy `dart run slang`. Xem **[`docs/i18n/README.md`](../i18n/README.md)** (bằng tiếng Trung) để biết trạng thái đầy đủ theo từng ngôn ngữ và các lệnh bảo trì.
 
 ### 🏷️ Bản địa hóa tag của Iwara
 
@@ -328,7 +328,7 @@ Các tag gốc của Iwara là các key mang dáng dấp tiếng Anh (ví dụ: 
 
 Cách hoạt động:
 
-- **Từ điển**: nằm trong [`tool/data/iwara_tags/`](tool/data/iwara_tags/). Ứng dụng sử dụng tệp [`iwara_tags.min.json`](tool/data/iwara_tags/iwara_tags.min.json) đã được hợp nhất và rút gọn.
+- **Từ điển**: nằm trong [`tool/data/iwara_tags/`](../../tool/data/iwara_tags/). Ứng dụng sử dụng tệp [`iwara_tags.min.json`](../../tool/data/iwara_tags/iwara_tags.min.json) đã được hợp nhất và rút gọn.
 - **Phân phối**: được đóng gói sẵn như một phương án dự phòng ngoại tuyến (`assets/data/iwara_tags.min.json`) và cập nhật nóng từ jsDelivr CDN — vì vậy cách diễn đạt có thể được cải thiện **mà không cần phát hành bản build mới của ứng dụng**.
 - **Bên trong ứng dụng**: các chip tag hiển thị tên đã bản địa hóa. Trên thẻ tag ở trang chi tiết, hàng mở rộng/thu gọn có một nút biểu tượng để chuyển đổi giữa **key gốc ⇄ bản dịch**; nhấn giữ / nhấp chuột phải vào một tag (hoặc chạm vào tiêu đề tag trên trang danh sách tag) sẽ mở một hộp thoại hiển thị cả bản dịch lẫn key gốc, các nút sao chép và một liên kết phản hồi.
 
@@ -338,14 +338,14 @@ Cách hoạt động:
 
 **Đóng góp một bản sửa lỗi** (dành cho maintainer/contributor):
 
-1. Chỉnh sửa tệp dễ đọc [`iwara_tags_localized.json`](tool/data/iwara_tags/iwara_tags_localized.json) (mỗi tag có `zh-CN` / `zh-TW` / `ja` / `en`).
+1. Chỉnh sửa tệp dễ đọc [`iwara_tags_localized.json`](../../tool/data/iwara_tags/iwara_tags_localized.json) (mỗi tag có `zh-CN` / `zh-TW` / `ja` / `en`).
 2. Tạo lại sản phẩm đã hợp nhất và asset đóng gói sẵn: `dart run tool/data/iwara_tags/build_localized_min.dart`.
-3. Commit cả tệp nguồn và tệp `iwara_tags.min.json` được tạo ra (xem [`tool/data/iwara_tags/README.md`](tool/data/iwara_tags/README.md)).
+3. Commit cả tệp nguồn và tệp `iwara_tags.min.json` được tạo ra (xem [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md)).
 
-Metadata của bên thứ ba **Oreno3d** (tác phẩm gốc / nhân vật / tag) được bản địa hóa theo cùng cách — từ điển nằm trong [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), asset đóng gói sẵn + jsDelivr CDN, hiển thị bằng ngôn ngữ hiện tại của bạn trên trang chi tiết video và các thẻ tìm kiếm.
+Metadata của bên thứ ba **Oreno3d** (tác phẩm gốc / nhân vật / tag) được bản địa hóa theo cùng cách — từ điển nằm trong [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset đóng gói sẵn + jsDelivr CDN, hiển thị bằng ngôn ngữ hiện tại của bạn trên trang chi tiết video và các thẻ tìm kiếm.
 
 > [!NOTE]
-> Cả hai từ điển tag ở trên chỉ được duy trì cho **zh-CN / zh-TW / ja / en** — chúng *không* được mở rộng sang 8 ngôn ngữ giao diện còn lại (ko / th / id / vi / es / ru / fr / de). Đây là hơn 2600 thuật ngữ ACG / Vtuber / tiếng lóng dōjin, vốn phụ thuộc nhiều vào cách diễn đạt đặc thù của tiểu văn hóa hơn là dịch theo nghĩa đen; mở rộng dịch bằng AI sang 12 ngôn ngữ mà không có ai có thể rà soát kết quả sẽ có nguy cơ để lại những tag dịch sai mà không ai phát hiện ra. Ở các ngôn ngữ giao diện ngoài bốn ngôn ngữ này, tag chỉ đơn giản hiển thị lại key gốc của Iwara/Oreno3d thay vì bản dịch. Chi tiết và lý do: [`docs/i18n/README.md`](docs/i18n/README.md).
+> Cả hai từ điển tag ở trên chỉ được duy trì cho **zh-CN / zh-TW / ja / en** — chúng *không* được mở rộng sang 8 ngôn ngữ giao diện còn lại (ko / th / id / vi / es / ru / fr / de). Đây là hơn 2600 thuật ngữ ACG / Vtuber / tiếng lóng dōjin, vốn phụ thuộc nhiều vào cách diễn đạt đặc thù của tiểu văn hóa hơn là dịch theo nghĩa đen; mở rộng dịch bằng AI sang 12 ngôn ngữ mà không có ai có thể rà soát kết quả sẽ có nguy cơ để lại những tag dịch sai mà không ai phát hiện ra. Ở các ngôn ngữ giao diện ngoài bốn ngôn ngữ này, tag chỉ đơn giản hiển thị lại key gốc của Iwara/Oreno3d thay vì bản dịch. Chi tiết và lý do: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Lời cảm ơn
 
