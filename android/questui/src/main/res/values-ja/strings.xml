@@ -218,6 +218,14 @@
     <string name="xr_environment_dynamic_unavailable">立体アニメーションを利用できないため、静止した星空に切り替えました。</string>
     <string name="xr_environment_dynamic_hint">天体のゆっくりした自転と立体感を加えます。節電のため初期設定はオフです。</string>
     <string name="xr_environment_deep_space_hint">地球と月、遠くの星々が周囲を包みます。明るさを下げると、映像に集中できます。</string>
-    <string name="xr_environment_loading">星空を準備中…</string>
-    <string name="xr_environment_failed">星空を表示できません。「地球と月」を選び直してください。</string>
+    <string name="xr_environment_loading">環境を準備中…</string>
+    <string name="xr_environment_failed">環境を表示できないため、パススルーに戻しました。背景を選び直すと再試行できます。</string>
+    <string name="xr_environment_void">暗闇</string>
+    <string name="xr_environment_void_hint">周囲を暗くして、映像に集中できます。</string>
+    <string name="xr_environment_aurora">オーロラ</string>
+    <string name="xr_environment_aurora_hint">雪山の上に広がるオーロラ。静かな地平線に包まれます。</string>
+    <string name="xr_environment_sunset">夕暮れの海</string>
+    <string name="xr_environment_sunset_hint">海面に広がる暖かな夕映え。夕日は視界の横に置かれています。</string>
+    <string name="xr_environment_mist">水墨の山々</string>
+    <string name="xr_environment_mist_hint">薄霧に溶け込む山々が、静かな奥行きを描きます。</string>
 </resources>

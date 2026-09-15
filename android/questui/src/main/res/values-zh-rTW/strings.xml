@@ -218,6 +218,14 @@
     <string name="xr_environment_dynamic_unavailable">立體動態暫時無法使用，已切換為靜態星空。</string>
     <string name="xr_environment_dynamic_hint">開啟後天體緩慢轉動，並呈現立體深度；預設關閉以降低功耗。</string>
     <string name="xr_environment_deep_space_hint">地球、月球與遠方群星環繞四周；調低亮度，讓注意力留在畫面上。</string>
-    <string name="xr_environment_loading">正在展開星空…</string>
-    <string name="xr_environment_failed">星空暫時無法使用，請重新選擇地月星空。</string>
+    <string name="xr_environment_loading">正在展開環境…</string>
+    <string name="xr_environment_failed">環境暫時無法使用，已恢復透視；重新選擇背景即可重試。</string>
+    <string name="xr_environment_void">專注黑場</string>
+    <string name="xr_environment_void_hint">四周歸於黑暗，把注意力留給畫面。</string>
+    <string name="xr_environment_aurora">極光雪原</string>
+    <string name="xr_environment_aurora_hint">極光舒展在雪山上方，地平線安靜而穩定。</string>
+    <string name="xr_environment_sunset">日落海面</string>
+    <string name="xr_environment_sunset_hint">暖色餘暉鋪向海面，落日停在視野側方。</string>
+    <string name="xr_environment_mist">水墨遠山</string>
+    <string name="xr_environment_mist_hint">層疊山巒隱入薄霧，留一片安靜的遠景。</string>
 </resources>

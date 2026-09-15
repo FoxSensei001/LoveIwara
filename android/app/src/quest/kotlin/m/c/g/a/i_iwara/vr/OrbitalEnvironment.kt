@@ -2,6 +2,7 @@ package m.c.g.a.i_iwara.vr
 
 import android.content.res.AssetManager
 import android.os.SystemClock
+import android.util.Log
 import com.meta.spatial.core.Entity
 import com.meta.spatial.core.Pose
 import com.meta.spatial.core.SpatialSDKExperimentalAPI
@@ -134,12 +135,25 @@ internal class OrbitalEnvironment(
 
     fun close() {
         if (closed) return
-        cadence.tick(SystemClock.uptimeMillis(), false)
-        // Disconnect EGL before destroying the SDK swapchains that own Surfaces.
-        renderer?.close()
         closed = true
+        cadence.tick(SystemClock.uptimeMillis(), false)
+        targets.forEach { target ->
+            runCatching { target.panel.layer?.setColorScaleBias(ZERO, ZERO) }
+                .onFailure { Log.w("OrbitGPU", "Could not hide retiring body", it) }
+        }
+        // Disconnect EGL before destroying the SDK swapchains that own Surfaces.
+        // Normally this completes synchronously. On timeout the callback keeps
+        // this owner alive and releases its hidden layers after the worker exits.
+        val retiring = renderer
         renderer = null
-        targets.forEach { target -> try { target.panel.destroy() } finally { target.entity.destroy() } }
+        if (retiring == null || retiring.close { releaseTargets() }) releaseTargets()
+    }
+
+    private fun releaseTargets() {
+        targets.forEach { target ->
+            runCatching { target.panel.destroy() }.onFailure { Log.w("OrbitGPU", "Could not release body panel", it) }
+            runCatching { target.entity.destroy() }.onFailure { Log.w("OrbitGPU", "Could not release body entity", it) }
+        }
         targets.clear()
     }
 

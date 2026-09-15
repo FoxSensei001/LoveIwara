@@ -156,7 +156,7 @@ import kotlin.math.tan
  *   --es url "https://..." --es shape 180 --es stereo lr --ei w 4096 --ei h 2048
  * ```
  * `shape`: flat | 180 | 360   `stereo`: none | lr | tb   `--ez fullFrame`   `--ef background 0..1`
- * `--es environment passthrough|deep_space`，`--ef starlight 0..1`。
+ * `--es environment passthrough|deep_space|void|aurora|sunset|mist`，`--ef starlight 0..1`。
  * `--es curve flat|slight|medium|deep`。不带 url 的任何 intent（含主页点图标）一律回浏览态。
  */
 class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
@@ -174,7 +174,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     private var screenEntity: Entity? = null
     private var screenPanel: PanelSceneObject? = null
     private val mediaEffects by lazy { MediaEffectsRenderer(scene, assets) }
-    private var backgroundEnvironment: DeepSpaceEnvironment? = null
+    private var backgroundEnvironment: BackgroundEnvironment? = null
     private val scenePresence = ScenePresence()
     private var mediaEffectsFailed = false
     private var screenUsesEffectMesh = false
@@ -569,7 +569,7 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         // The projection layer must leave its empty pixels transparent for both
         // passthrough and a compositor sky behind the -1/0 media layers.
         scene.setBackfillColor(Color4(0f, 0f, 0f, 0f))
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
+        backgroundEnvironment = BackgroundEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
         applyScene(immediate = true)
         // ⛔ 关掉 VRFeature 自带的 LocomotionSystem：它把摇杆前后当传送（射出抛物线）、左右当转向，
         // 只有光标悬在面板上时才让路 —— 用户 2026-09-05：「摇杆推完松手视角变了 / 手柄射出一道抛物线」。
@@ -2820,10 +2820,10 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
     }
 
     private fun failEnvironment(error: Throwable) {
-        Log.w(TAG, "IMMERSIVE starfield unavailable", error)
+        Log.w(TAG, "IMMERSIVE environment unavailable", error)
         runCatching { backgroundEnvironment?.close() }
-            .onFailure { Log.w(TAG, "IMMERSIVE starfield cleanup failed", it) }
-        backgroundEnvironment = DeepSpaceEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
+            .onFailure { Log.w(TAG, "IMMERSIVE environment cleanup failed", it) }
+        backgroundEnvironment = BackgroundEnvironment(scene, assets).also { it.setResumed(scenePresence.foreground) }
         controls.environment = if (controls.environment.kind == EnvironmentKind.DEEP_SPACE && controls.environment.dynamicSpace)
             controls.environment.copy(dynamicSpace = false) // Preserve the requested world on lower-capability runtimes.
         else controls.environment.copy(kind = EnvironmentKind.PASSTHROUGH)

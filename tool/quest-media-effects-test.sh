@@ -4,7 +4,10 @@ set -euo pipefail
 # Run the real Quest GPU/player tests without wearing the headset.
 # Usage: tool/quest-media-effects-test.sh 192.168.1.20:5555
 # QUEST_SKIP_BUILD=1 reuses APKs from the last successful build.
+# QUEST_PROBE_MODE=environments runs the environment/lifecycle regression instead.
 quest_device="${1:?Pass the Quest ADB serial or address}"
+quest_probe_mode="${QUEST_PROBE_MODE:-media}"
+[[ "$quest_probe_mode" == media || "$quest_probe_mode" == environments ]] || { printf 'Unknown probe mode: %s\n' "$quest_probe_mode"; exit 1; }
 quest_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 quest_adb="${QUEST_ADB:-adb}"
 if ! command -v "$quest_adb" >/dev/null 2>&1; then
@@ -65,19 +68,24 @@ if "$quest_adb" -s "$quest_device" shell run-as m.c.g.a.i_iwara.debug cat shared
     quest_preferences_present=true
 fi
 quest_test_started=true
-python3 - "$quest_adb" "$quest_device" <<'PY' | tee "$quest_log_dir/device.txt"
+python3 - "$quest_adb" "$quest_device" "$quest_probe_mode" <<'PY' | tee "$quest_log_dir/device.txt"
 import subprocess, sys
 try:
-    result = subprocess.run([sys.argv[1], "-s", sys.argv[2], "shell", "am", "instrument", "-w",
-        "m.c.g.a.i_iwara.debug.test/m.c.g.a.i_iwara.vr.MediaEffectsProbe"], timeout=180)
+    command = [sys.argv[1], "-s", sys.argv[2], "shell", "am", "instrument", "-w"]
+    if sys.argv[3] == "environments":
+        command += ["-e", "mode", "environments"]
+    command += ["m.c.g.a.i_iwara.debug.test/m.c.g.a.i_iwara.vr.MediaEffectsProbe"]
+    result = subprocess.run(command, timeout=180)
     raise SystemExit(result.returncode)
 except subprocess.TimeoutExpired:
     raise SystemExit("Quest instrumentation did not finish within 180 seconds")
 PY
-python3 - "$quest_log_dir/device.txt" <<'PY'
+python3 - "$quest_log_dir/device.txt" "$quest_probe_mode" <<'PY'
 import pathlib, sys
 result = pathlib.Path(sys.argv[1]).read_text()
 required = ["PASS reference GPU comparison", "PASS live video colour pipeline", "PASS media resize follows frame"]
+if sys.argv[2] == "environments":
+    required = ["PASS environment regression", "PASS rapid environment changes", "PASS delayed GPU cleanup", "PASS 360 coverage"]
 if "FAIL " in result or any(marker not in result for marker in required):
     raise SystemExit("The device regression did not complete successfully")
 PY

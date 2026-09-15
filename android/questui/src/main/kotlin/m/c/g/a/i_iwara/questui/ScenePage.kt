@@ -23,9 +23,9 @@ import com.meta.spatial.uiset.theme.icons.regular.Refresh
 import com.meta.spatial.uiset.theme.icons.regular.Reorient
 
 /**
- * 场景页：透视 / 深空背景、媒体特效与幕布几何。
- * 默认保留透视；它的滑块拖到 0 就是黑背景，不额外增加重复的「虚空」选项。
- * 深空使用独立亮度，两种环境的调整分别记忆。
+ * 场景页：空间背景、媒体特效与幕布几何。
+ * 默认保留透视；专注黑场可一键遮蔽房间，同时保留原来的透视亮度。
+ * 全景环境共用独立的环境亮度，地月选项在访问其他环境时保留。
  *
  * # ⛔ passthrough 切换必须是渐变，不能硬切
  *

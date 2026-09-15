@@ -11,6 +11,7 @@ import android.opengl.EGLSurface
 import android.opengl.GLES30
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.os.Process
 import android.util.Log
 import android.view.Surface
@@ -212,7 +213,8 @@ internal class OrbitalRenderer(
         check(code == GLES30.GL_NO_ERROR) { "Orbital GL error 0x${code.toString(16)}" }
     }
 
-    fun close() {
+    /** The completion retains the surface owner even if the GPU exceeds the wait budget. */
+    fun close(onReleased: () -> Unit): Boolean {
         closed = true
         enabled = false
         if (cleanupStarted.compareAndSet(false, true)) handler.post {
@@ -237,9 +239,15 @@ internal class OrbitalRenderer(
                     attempt("display") { EGL14.eglTerminate(display) }
                 }
                 attempt("thread") { EGL14.eglReleaseThread() }
-            } finally { cleanupFinished.countDown(); worker.quitSafely() }
+            } finally {
+                cleanupFinished.countDown()
+                worker.quitSafely()
+                Handler(Looper.getMainLooper()).post { onReleased() }
+            }
         }
-        check(cleanupFinished.await(2, TimeUnit.SECONDS)) { "Orbital worker did not release its compositor surfaces" }
+        return cleanupFinished.await(2, TimeUnit.SECONDS).also { finished ->
+            if (!finished) Log.w("OrbitGPU", "Deferring compositor surface release until the GPU disconnects")
+        }
     }
 
     companion object { private const val FRAMEBUFFER_SRGB_EXT = 0x8DB9 }

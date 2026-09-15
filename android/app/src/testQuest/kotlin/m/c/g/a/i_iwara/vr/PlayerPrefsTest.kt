@@ -11,6 +11,29 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PlayerPrefsTest {
+    @Test fun everyEnvironmentSurvivesRestartAndPerVideoResetWithoutChangingRoomVisibility() {
+        for (kind in EnvironmentKind.entries) {
+            val storage = MemoryPreferences()
+            val expected = EnvironmentSettings(kind, .28f, dynamicSpace = true, showMoon = false)
+            val state = VideoControlsState().apply {
+                environment = expected
+                mediaEffects = mediaEffects.copy(backgroundTransparency = .71f)
+            }
+            prefs(storage).save(state)
+            val restored = VideoControlsState()
+            prefs(MemoryPreferences(storage.all)).load(restored)
+            restored.resetPerVideoSettings()
+            assertEquals(expected, restored.environment)
+            assertEquals(.71f, restored.mediaEffects.backgroundTransparency, 0f)
+        }
+    }
+
+    @Test fun anUnknownFutureEnvironmentFallsBackToTheRoom() {
+        val state = VideoControlsState()
+        prefs(MemoryPreferences(mapOf("backgroundEnvironment" to "FUTURE_WORLD"))).load(state)
+        assertEquals(EnvironmentKind.PASSTHROUGH, state.environment.kind)
+    }
+
     @Test fun newAndExistingProfilesWithoutSpaceOptionsStartStaticWithBothBodies() {
         for (stored in listOf(emptyMap(), mapOf("backgroundEnvironment" to "DEEP_SPACE"))) {
             val state = VideoControlsState()

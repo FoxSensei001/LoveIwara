@@ -31,6 +31,17 @@ class MediaEffectsProbe : Instrumentation() {
     }
 
     override fun onStart() {
+        if (arguments?.getString("mode") == "environments") {
+            try {
+                EnvironmentDeviceProbe(this).run { message ->
+                    sendStatus(0, Bundle().apply { putString("stream", "$message\n") })
+                }
+                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "PASS environment regression\n") })
+            } catch (error: Throwable) {
+                finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", "FAIL ${error.stackTraceToString()}\n") })
+            }
+            return
+        }
         // `-e mode visual`: interactive driver instead of the regression run.
         if (arguments?.getString("mode") == "visual") {
             try {

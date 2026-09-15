@@ -9,6 +9,8 @@ import com.meta.spatial.core.Vector2
 import com.meta.spatial.runtime.PanelSceneObject
 import com.meta.spatial.runtime.SceneObject
 import m.c.g.a.i_iwara.questui.ScreenCurve
+import m.c.g.a.i_iwara.questui.EnvironmentKind
+import m.c.g.a.i_iwara.questui.ControlsRoute
 import m.c.g.a.i_iwara.questui.VideoControlsCallbacks
 import m.c.g.a.i_iwara.questui.VideoControlsState
 
@@ -32,6 +34,9 @@ import m.c.g.a.i_iwara.questui.VideoControlsState
  *   framemesh <on|off> colour writes of the frame's eye-buffer mesh
  *   curve <FLAT|SLIGHT|MEDIUM|DEEP>
  *   background <0..1>  0 = black surroundings, 1 = the passthrough room
+ *   environment <PASSTHROUGH|DEEP_SPACE|VOID|AURORA|SUNSET|MIST>
+ *   starlight <0..1>   environment brightness
+ *   route <SCENE|BROWSE|PLAYER> show the controls and select a page
  *   glow <0..1>        brightness slider
  *   feather <0..1>
  *   effects <true|false>
@@ -179,6 +184,14 @@ internal class MediaEffectsVisualProbe(private val instrumentation: Instrumentat
                                     if (lit) m.c.g.a.i_iwara.questui.WindowFrameZone.CORNER_BR else m.c.g.a.i_iwara.questui.WindowFrameZone.NONE
                             }
                             "curve" -> callbacks.onPickCurve(ScreenCurve.valueOf(parts[1]))
+                            "environment" -> callbacks.onEnvironment(state.environment.copy(kind = EnvironmentKind.valueOf(parts[1])))
+                            "starlight" -> callbacks.onEnvironment(state.environment.copy(spaceBrightness = parts[1].toFloat()))
+                            "route" -> {
+                                callbacks.onRoute(ControlsRoute.valueOf(parts[1]))
+                                state.autoHide = false
+                                activity.javaClass.getDeclaredMethod("showControls", Boolean::class.javaPrimitiveType)
+                                    .apply { isAccessible = true }.invoke(activity, true)
+                            }
                             "background" -> callbacks.onMediaEffects(state.mediaEffects.copy(backgroundTransparency = parts[1].toFloat()))
                             "glow" -> callbacks.onMediaEffects(state.mediaEffects.copy(glowStrength = parts[1].toFloat()))
                             "feather" -> callbacks.onMediaEffects(state.mediaEffects.copy(edgeFeather = parts[1].toFloat()))

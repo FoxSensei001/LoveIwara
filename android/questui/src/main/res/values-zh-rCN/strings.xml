@@ -218,6 +218,14 @@
     <string name="xr_environment_dynamic_unavailable">立体动态暂不可用，已切换为静态星空。</string>
     <string name="xr_environment_dynamic_hint">开启后天体缓慢转动，并呈现立体深度；默认关闭以降低功耗。</string>
     <string name="xr_environment_deep_space_hint">地球、月球与远方群星环绕四周；调低亮度，让注意力留在画面上。</string>
-    <string name="xr_environment_loading">正在展开星空…</string>
-    <string name="xr_environment_failed">星空暂不可用，请重新选择地月星空。</string>
+    <string name="xr_environment_loading">正在展开环境…</string>
+    <string name="xr_environment_failed">环境暂不可用，已恢复透视；重新选择背景即可重试。</string>
+    <string name="xr_environment_void">专注黑场</string>
+    <string name="xr_environment_void_hint">四周归于黑暗，把注意力留给画面。</string>
+    <string name="xr_environment_aurora">极光雪原</string>
+    <string name="xr_environment_aurora_hint">极光舒展在雪山上方，地平线安静而稳定。</string>
+    <string name="xr_environment_sunset">日落海面</string>
+    <string name="xr_environment_sunset_hint">暖色余晖铺向海面，落日停在视野侧方。</string>
+    <string name="xr_environment_mist">水墨远山</string>
+    <string name="xr_environment_mist_hint">层叠山峦隐入薄雾，留一片安静的远景。</string>
 </resources>

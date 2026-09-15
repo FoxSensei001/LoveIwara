@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LoveIwara · Quest 环境预览</title>
+<link rel="icon" href="data:,">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #030509; color: #e9edf3; font-family: system-ui, sans-serif; }
+  canvas { display: block; width: 100%; height: 100svh; touch-action: none; cursor: grab; outline-offset: -3px; }
+  canvas:active { cursor: grabbing; }
+  header { position: absolute; inset: 28px auto auto 32px; pointer-events: none; }
+  h1 { font-size: 24px; font-weight: 500; letter-spacing: .04em; margin: 0 0 8px; }
+  p { margin: 0; color: #9aa9bb; font-size: 13px; }
+  button[aria-pressed="true"] { background: #dce5ec; color: #121a21; }
+  header a { color: inherit; pointer-events: auto; text-underline-offset: 3px; }
+  nav { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 24px); padding: 8px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; border-radius: 18px; background: #0e1520e6; border: 1px solid #ffffff16; }
+  button { border: 0; border-radius: 11px; padding: 0 18px; min-height: 44px; background: #1b2635; color: inherit; font: inherit; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  button:hover { background: #2a3b50; }
+  button[aria-pressed="true"]:hover { background: #c7d6e1; }
+  button:active { transform: scale(.98); }
+  button:focus-visible { outline: 2px solid #b7d4ff; outline-offset: 2px; }
+  label { display: flex; align-items: center; gap: 12px; padding: 0 12px; height: 44px; color: #bdc9d8; white-space: nowrap; font-size: 13px; }
+  input { width: 128px; accent-color: #b7c8dc; }
+  #status { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #acbacc; }
+  @media(max-width: 620px) { header { left: 20px; top: 20px; } nav { width: max-content; bottom: 16px; } button { padding: 0 14px; } label { flex-basis: 100%; justify-content: center; } }
+</style>
+<canvas aria-label="Quest 环境的单眼全景预览。拖动或使用方向键环顾，滚轮缩放。" tabindex="0"></canvas>
+<header><h1>极光雪原</h1><p>拖动环顾 · 滚轮缩放 · 单眼素材预览，非头显录屏<br><a href="NOTICE.txt" target="_blank" rel="noopener">素材说明</a></p></header>
+<nav aria-label="查看方向和亮度">
+  <button data-kind="aurora" aria-pressed="true">极光雪原</button><button data-kind="sunset" aria-pressed="false">日落海面</button><button data-kind="mist" aria-pressed="false">水墨远山</button><button data-kind="void" aria-pressed="false">专注黑场</button><button data-kind="deep_space" aria-pressed="false">地月星空</button><button data-view="home">正前方</button>
+  <label>环境亮度 <input type="range" min="0" max="100" value="65" aria-label="环境亮度"></label>
+</nav>
+<div id="status">正在展开环境…</div>
+<script>
+  const canvas = document.querySelector('canvas');
+  const status = document.getElementById('status');
+  const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, preserveDrawingBuffer: true });
+  const state = { yaw: -42, pitch: 17, fov: 100, brightness: .65, ready: false, kind: 'aurora' };
+  if (!gl) { status.textContent = '当前浏览器无法显示 WebGL 全景。'; throw new Error('WebGL2 unavailable'); }
+  function shader(type, source) {
+    const s = gl.createShader(type); gl.shaderSource(s, source); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const vs = shader(gl.VERTEX_SHADER, `#version 300 es
+    in vec2 position; void main() { gl_Position = vec4(position, 0., 1.); }`);
+  const fs = shader(gl.FRAGMENT_SHADER, `#version 300 es
+    precision highp float;
+    uniform sampler2D panorama;
+    uniform vec2 resolution;
+    uniform vec4 view;
+    out vec4 outColor;
+    vec3 srgb(vec3 c) { return mix(c * 12.92, 1.055 * pow(c, vec3(1./2.4)) - .055, step(vec3(.0031308), c)); }
+    void main() {
+      vec2 p = (gl_FragCoord.xy - resolution * .5) / (resolution.x * .5);
+      vec3 d = normalize(vec3(p * tan(view.z * .5), 1.));
+      float cy = cos(view.x), sy = sin(view.x), cp = cos(view.y), sp = sin(view.y);
+      d = vec3(d.x, d.y * cp + d.z * sp, -d.y * sp + d.z * cp);
+      d = vec3(d.x * cy + d.z * sy, d.y, -d.x * sy + d.z * cy);
+      vec2 uv = vec2(atan(d.x, d.z) / 6.28318530718 + .5, .5 - asin(clamp(d.y, -1., 1.)) / 3.14159265359);
+      vec3 color = texture(panorama, uv).rgb * view.w;
+      outColor = vec4(srgb(color), 1.);
+    }`);
+  const program = gl.createProgram(); gl.attachShader(program, vs); gl.attachShader(program, fs); gl.linkProgram(program);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
+  gl.useProgram(program);
+  const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
+  const position = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+  const view = gl.getUniformLocation(program, 'view'), resolution = gl.getUniformLocation(program, 'resolution');
+  function render() {
+    if (!state.ready) return;
+    const scale = Math.min(devicePixelRatio, 2);
+    const width = Math.round(canvas.clientWidth * scale), height = Math.round(canvas.clientHeight * scale);
+    if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+    gl.viewport(0, 0, width, height);
+    gl.uniform2f(resolution, width, height);
+    gl.uniform4f(view, state.yaw * Math.PI / 180, state.pitch * Math.PI / 180, state.fov * Math.PI / 180, state.brightness);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  window.setEnvironmentView = (next) => {
+    Object.assign(state, next);
+    state.yaw = ((state.yaw + 180) % 360 + 360) % 360 - 180;
+    state.pitch = Math.max(-90, Math.min(90, state.pitch));
+    state.fov = Math.max(35, Math.min(120, state.fov));
+    state.brightness = Math.max(0, Math.min(1, state.brightness));
+    document.querySelector('input').value = Math.round(state.brightness * 100);
+    render(); return { ...state };
+  };
+  window.environmentState = state;
+  window.environmentPixels = () => {
+    const data = new Uint8Array(canvas.width * canvas.height * 4);
+    gl.readPixels(0, 0, canvas.width, canvas.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    return data;
+  };
+  const texture = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  const worlds = {
+    aurora: ['极光雪原', -42, 17], sunset: ['日落海面', 48, 2],
+    mist: ['水墨远山', -30, 5], void: ['专注黑场', 0, 0], deep_space: ['地月星空', -15, 12],
+  };
+  let loadToken = 0;
+  window.setEnvironmentKind = (kind) => {
+    if (!worlds[kind]) return;
+    const token = ++loadToken, [title, yaw, pitch] = worlds[kind];
+    Object.assign(state, { kind, yaw, pitch, ready: false });
+    document.querySelector('h1').textContent = title;
+    document.querySelectorAll('[data-kind]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.kind === kind)));
+    status.hidden = false; status.textContent = '正在展开环境…';
+    const ready = () => { state.ready = true; status.hidden = true; render(); };
+    if (kind === 'void') {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([0,0,0]));
+      ready(); return;
+    }
+    const image = new Image();
+    image.onload = () => {
+      if (token !== loadToken) return;
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8, gl.RGB, gl.UNSIGNED_BYTE, image); ready();
+    };
+    image.onerror = () => { if (token === loadToken) status.textContent = '全景素材未能加载，请重新选择。'; };
+    image.src = kind + '.png';
+  };
+  document.querySelectorAll('[data-kind]').forEach(b => b.onclick = () => setEnvironmentKind(b.dataset.kind));
+  setEnvironmentKind('aurora');
+  let drag = null;
+  canvas.onpointerdown = (e) => { drag = { x: e.clientX, y: e.clientY, yaw: state.yaw, pitch: state.pitch }; canvas.setPointerCapture(e.pointerId); };
+  canvas.onpointermove = (e) => { if (drag) setEnvironmentView({ yaw: drag.yaw - (e.clientX - drag.x) * state.fov / canvas.clientWidth, pitch: drag.pitch + (e.clientY - drag.y) * state.fov / canvas.clientWidth }); };
+  canvas.onpointerup = canvas.onpointercancel = () => { drag = null; };
+  canvas.onwheel = (e) => { e.preventDefault(); setEnvironmentView({ fov: state.fov + e.deltaY * .035 }); };
+  canvas.onkeydown = (e) => { const step = { ArrowLeft: [-5,0], ArrowRight: [5,0], ArrowUp: [0,5], ArrowDown: [0,-5] }[e.key]; if (step) { e.preventDefault(); setEnvironmentView({ yaw: state.yaw + step[0], pitch: state.pitch + step[1] }); } };
+  const views = { earth: { yaw: -34, pitch: 12, fov: 75 }, moon: { yaw: 32, pitch: 22, fov: 45 }, home: { yaw: 0, pitch: 0, fov: 100 } };
+  document.querySelectorAll('[data-view]').forEach(button => button.onclick = () => setEnvironmentView(views[button.dataset.view]));
+  document.querySelector('input').oninput = (e) => setEnvironmentView({ brightness: Number(e.target.value) / 100 });
+  window.addEventListener('resize', render);
+</script>
+</html>

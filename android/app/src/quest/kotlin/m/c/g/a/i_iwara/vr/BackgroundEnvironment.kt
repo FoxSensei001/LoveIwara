@@ -33,11 +33,11 @@ import m.c.g.a.i_iwara.questui.EnvironmentSettings
 import java.util.concurrent.Executors
 
 /**
- * A distant star underlay plus optional stereo bodies, shared by all media and browse.
+ * A distant panorama underlay plus optional stereo bodies, shared by all media and browse.
  *
  * A sky mesh in the projection layer can obscure the native video underlays, even
  * at an enormous radius. This layer explicitly sits below the -1/0 media layers.
- * The star layer has no View, decoder, or recurring bitmap upload. Only its fade
+ * The background layer has no View, decoder, or recurring bitmap upload. Only its fade
  * and translation change; rotation remains world-locked. Decode happens off the
  * scene thread and a Canvas frame is submitted only while VR is visible.
  *
@@ -45,9 +45,10 @@ import java.util.concurrent.Executors
  * releases it immediately. Media switches must not otherwise detach this owner.
  */
 @OptIn(SpatialSDKExperimentalAPI::class)
-internal class DeepSpaceEnvironment(private val scene: Scene, private val assets: AssetManager) {
+internal class BackgroundEnvironment(private val scene: Scene, private val assets: AssetManager) {
     private var settings = EnvironmentSettings()
     private var panel: PanelSceneObject? = null
+    private var displayedAsset: String? = null
     private var orbital: OrbitalEnvironment? = null
     private var orbitClock: OrbitalCadence? = null
     private var orbitAnchor: Vector3? = null
@@ -71,23 +72,21 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     @Volatile private var closed = false
 
     private var skyLoading = false
-    private val needsOrbit: Boolean get() = settings.dynamicSpace && (settings.showEarth || settings.showMoon)
+    private val needsOrbit: Boolean get() = settings.usesOrbitalBodies
     val loading: Boolean get() = skyLoading || (wantsSky() && needsOrbit && settings.spaceBrightness > 0f && orbital?.ready != true)
-    val ready: Boolean get() = panel != null && !redrawOnResume && (!needsOrbit || settings.spaceBrightness == 0f || orbital?.ready == true)
-    val needsViewerPose: Boolean get() = settings.kind == EnvironmentKind.DEEP_SPACE || panel != null
+    val ready: Boolean get() = panel != null && displayedAsset == environmentAsset(settings) &&
+        !redrawOnResume && (!needsOrbit || settings.spaceBrightness == 0f || orbital?.ready == true)
+    val needsViewerPose: Boolean get() = settings.kind.hasPanorama || panel != null
     // Keep the camera dark until a fading-out sky has actually been removed.
-    val replacesRoom: Boolean get() = ready ||
-        (settings.kind == EnvironmentKind.DEEP_SPACE && (covered || enteredSpace))
+    val replacesRoom: Boolean get() = panel != null || settings.kind == EnvironmentKind.VOID ||
+        (settings.kind.hasPanorama && (covered || enteredSpace))
 
     fun setSettings(next: EnvironmentSettings, now: Long, immediate: Boolean = false) {
         if (closed) return
         if (next.kind != settings.kind) failed = false
         if (next.dynamicSpace != settings.dynamicSpace || next.showEarth != settings.showEarth || next.showMoon != settings.showMoon) {
             failed = false
-            if (skyAsset(next) != skyAsset(settings)) {
-                fade.setVisible(false, now, immediate = true)
-                destroyLayer()
-            } else {
+            if (environmentAsset(next) == environmentAsset(settings)) {
                 // The far stars are unchanged. Release hidden bodies and rebuild
                 // only the selected ones, retaining the remaining body's anchor.
                 orbital?.close()
@@ -96,6 +95,7 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
         }
         settings = next.normalized()
         if (settings.kind == EnvironmentKind.PASSTHROUGH) enteredSpace = false
+        if (settings.kind == EnvironmentKind.VOID) enteredSpace = true
         requestIfNeeded()
         fade.setVisible(wantsSky() && ready && !passthroughVisible, now, immediate)
     }
@@ -122,7 +122,7 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
         passthroughVisible = passthroughEnabled
         var changed = covered != fullyCovered
         covered = fullyCovered
-        if (covered && settings.kind == EnvironmentKind.DEEP_SPACE) enteredSpace = true
+        if (covered && settings.kind.hasPanorama) enteredSpace = true
         if (covered && panel != null) {
             fade.setVisible(false, now, immediate = true)
             destroyLayer()
@@ -135,14 +135,23 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
             fade.setVisible(false, now, immediate = true)
             reanchor = false
         }
-        val loaded = synchronized(loadLock) { pending.also { pending = null } }
+        // Keep the old panorama until it is dark. Replace pixels in the SAME
+        // compositor surface, avoiding layer churn and a flash of passthrough.
+        // A stale decode can be discarded immediately after a rapid selection.
+        val loaded = synchronized(loadLock) {
+            pending?.takeIf {
+                panel == null || (fade.valueAt(now) == 0f && appliedAlpha == 0f) ||
+                    it.asset != environmentAsset(settings) || !wantsSky()
+            }?.also { pending = null }
+        }
         if (loaded != null) {
             skyLoading = false
             changed = true
             try {
-                if (wantsSky() && loaded.asset == skyAsset(settings)) {
+                if (wantsSky() && loaded.asset == environmentAsset(settings)) {
                     loaded.error?.let { throw it }
                     upload(checkNotNull(loaded.bitmap))
+                    displayedAsset = loaded.asset
                     // A resumed runtime may have replaced its Surface consumers.
                     // Disconnect old EGL producers before rebuilding body layers.
                     orbital?.close()
@@ -159,7 +168,7 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
             }
         }
         requestIfNeeded()
-        if (panel != null && !redrawOnResume && wantsSky() && needsOrbit && settings.spaceBrightness > 0f && orbital == null && viewerPose != null) {
+        if (panel != null && displayedAsset == environmentAsset(settings) && !redrawOnResume && wantsSky() && needsOrbit && settings.spaceBrightness > 0f && orbital == null && viewerPose != null) {
             orbital = OrbitalEnvironment(scene, assets, viewerPose, settings.showEarth, settings.showMoon, orbitClock, orbitAnchor).also {
                 orbitClock = it.animationClock
                 orbitAnchor = it.anchor
@@ -178,7 +187,7 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
             val viewerPosition = viewerPose?.t
             if (viewerPosition != null && viewerPosition.x.isFinite() && viewerPosition.y.isFinite() &&
                 viewerPosition.z.isFinite() && viewerPosition != position) {
-                // Translation only: distant stars have no walking parallax and never turn with the head.
+                // Translation only: these are distant vistas, with a stable horizon.
                 sky.setPosition(viewerPosition)
                 position = viewerPosition
             }
@@ -196,21 +205,15 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
 
     fun takeFailure(): Throwable? = failure.also { failure = null }
 
-    private fun wantsSky() = settings.kind == EnvironmentKind.DEEP_SPACE && !covered && !failed
-
-    private fun skyAsset(selection: EnvironmentSettings) = when {
-        selection.dynamicSpace || (!selection.showEarth && !selection.showMoon) -> STARS_ASSET
-        selection.showEarth && selection.showMoon -> ASSET
-        selection.showEarth -> EARTH_ASSET
-        else -> MOON_ASSET
-    }
+    private fun wantsSky() = settings.kind.hasPanorama && !covered && !failed
 
     private fun requestIfNeeded() {
-        if (closed || !wantsSky() || skyLoading || (panel != null && !redrawOnResume)) return
+        if (closed || !resumed || !wantsSky() || skyLoading ||
+            (panel != null && displayedAsset == environmentAsset(settings) && !redrawOnResume)) return
         skyLoading = true
-        val asset = skyAsset(settings)
+        val asset = checkNotNull(environmentAsset(settings))
         val loader = executor ?: Executors.newSingleThreadExecutor { task ->
-            Thread(task, "QuestStarfieldLoader").apply { isDaemon = true }
+            Thread(task, "QuestEnvironmentLoader").apply { isDaemon = true }
         }.also { executor = it }
         loader.execute {
             val loaded = try {
@@ -223,7 +226,7 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
                 checkNotNull(bitmap) { "Cannot decode $asset" }
                 if (bitmap.width != WIDTH || bitmap.height != HEIGHT) {
                     bitmap.recycle()
-                    error("Unexpected starfield dimensions")
+                    error("Unexpected environment dimensions: $asset")
                 }
                 LoadedSky(asset, bitmap = bitmap)
             } catch (error: Throwable) {
@@ -293,18 +296,22 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     }
 
     private fun destroyLayer() {
-        orbital?.close()
-        orbital = null
-        orbitAnchor = null
         val oldPanel = panel
         val oldEntity = entity
         panel = null
+        displayedAsset = null
         entity = null
         position = null
         try {
-            oldPanel?.destroy() // owns the mesh, layer, swapchain and Surface
+            orbital?.close()
         } finally {
-            oldEntity?.destroy()
+            orbital = null
+            orbitAnchor = null
+            try {
+                oldPanel?.destroy() // owns the mesh, layer, swapchain and Surface
+            } finally {
+                oldEntity?.destroy()
+            }
         }
     }
 
@@ -324,10 +331,6 @@ internal class DeepSpaceEnvironment(private val scene: Scene, private val assets
     private data class LoadedSky(val asset: String, val bitmap: Bitmap? = null, val error: Throwable? = null)
 
     companion object {
-        private const val ASSET = "environments/deep_space.png"
-        private const val STARS_ASSET = "environments/stars.png"
-        private const val EARTH_ASSET = "environments/deep_space_earth.png"
-        private const val MOON_ASSET = "environments/deep_space_moon.png"
         private const val WIDTH = 4096
         private const val HEIGHT = 2048
         private const val BACKGROUND_Z = -100

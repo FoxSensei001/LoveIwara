@@ -78,3 +78,21 @@ Regression checks:
 Dynamic browser preview (same orbital.glsl as the app):
   python3 tool/generate_quest_starfield.py --dynamic-preview-dir /tmp/quest-orbit
   python3 -m http.server 8769 --bind 127.0.0.1 --directory /tmp/quest-orbit
+
+Additional stationary landscapes
+
+aurora.png, sunset.png and mist.png are original procedural scenery generated
+by tool/generate_quest_landscapes.py with numpy and Pillow, without external
+photographs, models or downloaded image inputs. Aurora stars are a deterministic
+artistic distribution, not the HYG catalogue. These are composed distant vistas,
+not reconstructions of real locations. UI thumbnails are baked perspectives of
+the bundled panoramas; the passthrough thumbnail is an abstract room pictogram.
+The black environment creates no panorama and has no full-size image asset.
+
+Rebuild landscapes and UI thumbnails:
+  python3 tool/generate_quest_landscapes.py
+Export the interactive viewer:
+  python3 tool/generate_quest_landscapes.py --preview-dir /tmp/quest-landscapes
+  python3 -m http.server 8974 --bind 127.0.0.1 --directory /tmp/quest-landscapes
+Regression checks:
+  python3 -m unittest discover -s tool -p 'test_quest_*.py'
