@@ -21,6 +21,7 @@ import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:i_iwara/utils/rx_ever.dart';
 
 /// 本机文件聚合列表（精选视频 / 所有视频 / 所有图片 / 下载完成视频）。
 ///
@@ -96,6 +97,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
   bool _loading = false;
   bool _exhausted = false;
   Worker? _repoWorker;
+  Worker? _favoriteWorker;
 
   @override
   void initState() {
@@ -107,6 +109,43 @@ class _LocalMediaWallState extends State<LocalMediaWall>
       (_) => _reloadFromDb(),
       time: const Duration(milliseconds: 400),
     );
+    // 「精选」走自己那条信号（分工见 [LocalMediaRepository.favoriteChange]）。
+    //
+    // ⛔ 不 debounce，和上面那条相反：它只由用户点菜单发出，一次点击一条，没有
+    // 「扫描逐批发几百次」那回事。压 400ms 的静默窗口只会让切过去的那一栏先空着
+    // 再突然长出一条。
+    //
+    // ⛔ 用 [rxEver] 而不是 GetX 的 `ever`：后者走 Rx 的 stream，最后一个订阅者
+    // 取消之后那条流**永久失聪**（详见 `lib/utils/rx_ever.dart`）。这几面墙的
+    // State 是会被销毁重建的，而 `favoriteChange` 除了它们没有别的订阅者——用
+    // `ever` 的话这个修复只在第一次进页面时有效，之后悄无声息地退回原样。
+    _favoriteWorker = rxEver<LocalMediaFavoriteChange?>(
+      LocalMediaRepository.favoriteChange,
+      _onFavoriteChanged,
+    );
+  }
+
+  /// 别处（另一面墙、文件夹浏览页）改了某一条的精选。
+  ///
+  /// ⛔ 两种页面要做的事完全不同，别一律整墙重载：
+  /// - 「精选视频」栏：集合变了——加精选要出现、取消要消失，只能重读。
+  /// - 其它几面墙：只是那一行的角标，重读会把用户的滚动位置整个丢掉。
+  void _onFavoriteChanged(LocalMediaFavoriteChange? change) {
+    if (change == null || !mounted) return;
+    // 图片墙与精选无关（只有视频能被精选，见 [LocalMediaItem.supportsFavorite]）。
+    if (widget.kind != LocalMediaItemKind.video) return;
+
+    if (widget.favoritedOnly) {
+      _reloadFromDb();
+      return;
+    }
+
+    final index = _items.indexWhere((e) => e.id == change.itemId);
+    // 这一栏里没有这一条（别的源、还没翻到），什么都不用做。
+    if (index < 0) return;
+    final latest = _repo.getItem(change.itemId);
+    if (latest == null) return;
+    setState(() => _items[index] = latest);
   }
 
   @override
@@ -124,6 +163,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
   @override
   void dispose() {
     _repoWorker?.dispose();
+    _favoriteWorker?.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
@@ -329,14 +369,11 @@ class _LocalMediaWallState extends State<LocalMediaWall>
       item: item,
       onChanged: () {
         if (!mounted) return;
-        // ⛔ 「精选」在这几页里是两种完全不同的事，不能一律整墙重载：
-        // - 「精选视频」页：取消精选＝这一条要从列表里消失，是集合变化，得重拉。
-        // - 「所有视频 / 所有图片」页：只是那一行的角标变了，重拉会把用户的滚动
-        //   位置整个丢掉——为一个角标付这个代价荒谬。就地把那一行换成库里的新版本。
-        if (widget.favoritedOnly) {
-          _reloadFromDb();
-          return;
-        }
+        // ⛔ 这里**不再**分「精选 / 非精选」：精选那一路已经由
+        // [LocalMediaRepository.favoriteChange] 统一收（见 [_onFavoriteChanged]），
+        // 而且必须由它收——在这里只处理「恰好是我这一栏点的」，别的栏目点的星
+        // 就漏了，这正是「加了精选切过去不显示」的成因。
+        // 剩下的（换封面）都是行内变化：就地把那一行换成库里的新版本。
         final index = _items.indexWhere((e) => e.id == item.id);
         if (index < 0) return;
         final latest = _repo.getItem(item.id);

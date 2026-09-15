@@ -130,6 +130,13 @@ class LocalMediaFingerprint {
   bool get hasImageMetadata => width != null && height != null;
 }
 
+/// 一次「精选 / 取消精选」。见 [LocalMediaRepository.favoriteChange]。
+typedef LocalMediaFavoriteChange = ({
+  int revision,
+  String itemId,
+  bool favorited,
+});
+
 class LocalMediaRepository {
   LocalMediaRepository([CommonDatabase? database])
     : _db = database ?? DatabaseService().database;
@@ -162,6 +169,43 @@ class LocalMediaRepository {
   static final RxInt folderRevision = 0.obs;
 
   static void notifyFolderChanged() => folderRevision.value++;
+
+  /// 「精选」标记的变更信号，**与条目集合、与目录行都无关**。
+  ///
+  /// # ⛔ 为什么不能并进 [changeRevision]
+  ///
+  /// 见 [setItemFavorited]：加一颗星在「所有视频」那几面墙上只是一行的角标变了，
+  /// 发全局信号就是让每一面保活着的墙都重查一遍上千条——为一个角标付这个代价荒谬。
+  ///
+  /// # ⛔ 但也不能什么都不发
+  ///
+  /// 原来就是什么都不发，靠「点菜单的那一栏自己收拾自己」。可「精选视频」那一栏
+  /// 是**别人**的动作改变的集合：用户在「所有视频」或文件夹浏览页点了星，回到
+  /// 「精选视频」那一栏——它保活着（[AutomaticKeepAliveClientMixin]），没人通知它，
+  /// 于是新加的那条不在里面，得下拉刷新才出来。用户 2026-09-15 报的就是这个。
+  ///
+  /// 所以发一条**自己的**信号，并且带上是哪一条：
+  ///   - 「精选视频」那一栏：集合变了（加要出现、取消要消失），整栏重读。
+  ///   - 其它几面墙：只把那一行换成库里的新版本，不动滚动位置。
+  ///
+  /// [revision] 是单调自增的流水号，不是业务字段：记录类型按值相等，
+  /// 「精选 → 取消 → 再精选」两次的 `(itemId, favorited)` 完全一样，
+  /// 没有它 `Rx` 会认为值没变而不发。
+  static final Rx<LocalMediaFavoriteChange?> favoriteChange =
+      Rx<LocalMediaFavoriteChange?>(null);
+
+  static int _favoriteRevision = 0;
+
+  static void notifyFavoriteChanged({
+    required String itemId,
+    required bool favorited,
+  }) {
+    favoriteChange.value = (
+      revision: ++_favoriteRevision,
+      itemId: itemId,
+      favorited: favorited,
+    );
+  }
 
   static const String _tag = 'LocalMediaRepository';
 
@@ -1450,12 +1494,15 @@ class LocalMediaRepository {
 
   /// 标记 / 取消标记「精选」。[favorited] 为 true 时写入当前时间戳。
   ///
-  /// ⛔ **不发全局信号**，同 [updateDerivedFields]。在「所有视频」里给一张卡片加个
-  /// 星只是那一行的角标变了，发 [changeRevision] 会把整墙清空重拉、用户滚动位置
+  /// ⛔ **不发 [changeRevision]**，同 [updateDerivedFields]。在「所有视频」里给一张
+  /// 卡片加个星只是那一行的角标变了，发全局信号会把整墙清空重拉、用户滚动位置
   /// 当场丢失——为一个角标付这个代价荒谬。
   ///
-  /// 需要重绘的调用方自己就地处理；只有「精选视频」那一页取消精选才是真正的集合
-  /// 变化（那一条要从列表里消失），由那一页自己决定怎么收拾。
+  /// 发的是 [favoriteChange]：它带着「哪一条、现在是不是精选」，让每一页自己决定
+  /// 是整栏重读（「精选视频」那一栏的集合真的变了）还是就地换一行（其它几面墙只是
+  /// 角标）。⛔ 别再退回「什么都不发、点菜单的那一栏自己收拾」——那样在别的栏目里
+  /// 加的精选，保活着的「精选视频」栏永远不知道，用户得下拉刷新才看得见。
+  ///
   /// ⛔ 只有视频能被精选，见 [LocalMediaItem.supportsFavorite]。这条 `kind` 判据
   /// 写在 SQL 里而不是靠调用方自觉：菜单那边已经不出这一条了，但把不变量钉在**写
   /// 入口**上，以后不管谁调，图片都标不上——标上了就是一份哪儿都显示不出来的死状态。
@@ -1465,7 +1512,10 @@ class LocalMediaRepository {
       "UPDATE local_media_items SET favorited_at = ? WHERE id = ? AND kind = 'video'",
       [favorited ? now : null, itemId],
     );
-    return _db.updatedRows > 0;
+    // 没落到行（id 不存在、或那是张图片）就不是一次变化，别发信号让各页白跑一趟。
+    if (_db.updatedRows <= 0) return false;
+    notifyFavoriteChanged(itemId: itemId, favorited: favorited);
+    return true;
   }
 
   /// 这一条现在是不是精选。
