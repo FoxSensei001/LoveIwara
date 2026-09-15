@@ -154,5 +154,10 @@ flutter:
 
 dependency_overrides:
   js: ^0.7.1
+  # objective_c 9.6.1 (published 2026-09-15) ships a broken native-assets build
+  # hook that references code_assets' Architecture.arm64e, which doesn't exist
+  # in the code_assets version it depends on — breaks native asset builds on
+  # every platform. Pin to the last known-good release until upstream fixes it.
+  objective_c: 9.6.0
 
 license: MIT
