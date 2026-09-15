@@ -926,7 +926,7 @@ class LocalMediaRepository {
       );
       if (candidates.isEmpty) return false;
       final distinct = candidates
-          .map((c) => '${c['projection']} ${c['stereo']} ${c['xr_format']}')
+          .map((c) => '${c['projection']}\u0000${c['stereo']}\u0000${c['xr_format']}')
           .toSet();
       if (distinct.length != 1) {
         LogUtils.i('同指纹的 ${candidates.length} 条覆盖彼此不一致，不替 $itemId 认领', _tag);
