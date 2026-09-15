@@ -15,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/translation_language_selector.dart';
 import 'package:i_iwara/app/ui/widgets/translation_powered_by_widget.dart';
 import 'package:i_iwara/app/utils/url_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/image_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:markdown_widget/markdown_widget.dart';
@@ -61,6 +62,16 @@ class CustomMarkdownBody extends StatefulWidget {
   // [initialShowUnprocessedText] 回来受控当前状态。
   final ValueChanged<bool>? onProcessedContentChanged;
 
+  /// 正文能不能按住拖选（外层那只 `SelectionArea` 要不要装）。
+  ///
+  /// null（默认）= 跟设备走，见 [DeviceFormFactorUtils.supportsDragTextSelection]：
+  /// 头显上不装 —— 那只选中识别器与 TabBarView / PageView 同 slop 且更深，装上就把
+  /// 横向翻页手势整只吃掉（那份分析写在上面那个 getter 上）。
+  ///
+  /// 只有「本身就是为了选文字」的地方才显式传 true（如「选择复制」一类弹窗）；
+  /// 它们不在任何翻页容器里，没有可抢的手势。
+  final bool? selectable;
+
   const CustomMarkdownBody({
     super.key,
     required this.data,
@@ -79,6 +90,7 @@ class CustomMarkdownBody extends StatefulWidget {
     this.onTap,
     this.onLongPress,
     this.onProcessedContentChanged,
+    this.selectable,
   });
 
   @override
@@ -1185,6 +1197,11 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         child: content,
       );
     }
+    // 拖选不在场时（头显）就别装 SelectionArea：它内部那只横向拖动识别器会把
+    // TabBarView 的翻页手势吃掉（见 [CustomMarkdownBody.selectable]）。
+    final bool selectable =
+        widget.selectable ?? DeviceFormFactorUtils.supportsDragTextSelection;
+    if (!selectable) return content;
     return SelectionArea(child: content);
   }
 

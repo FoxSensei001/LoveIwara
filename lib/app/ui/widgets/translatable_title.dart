@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
+import 'package:i_iwara/utils/device_form_factor_utils.dart';
 
 /// 标题组件：在标题**最前端**内联一个「翻译」按钮，与文本融为一体；
 /// 当标题文本超过 [collapsedMaxLines] 行（默认一行）时，紧挨翻译按钮再显示一个
@@ -29,6 +30,11 @@ class TranslatableTitle extends StatefulWidget {
   final int collapsedMaxLines;
 
   /// 文本是否可选中（视频标题沿用可选中，图库标题为普通文本）。
+  ///
+  /// ⛔ 头显上它一律不生效（见 [DeviceFormFactorUtils.supportsDragTextSelection]）：
+  /// `SelectableText` 内部那只横向拖动识别器与 TabBarView 同 slop 且更深，装上就把
+  /// 「横拖切 tab」整只吃掉。头显上因此走的是不可选中那条路 —— 长按照旧弹完整标题
+  /// 弹窗（自带复制），复制反而比拖选顺手。
   final bool selectable;
 
   /// 内联图标尺寸。
@@ -172,7 +178,10 @@ class _TranslatableTitleState extends State<TranslatableTitle> {
           maxLines: widget.collapsedMaxLines,
           overflow: TextOverflow.ellipsis,
         );
-        final Widget expandedChild = widget.selectable
+        final bool selectable =
+            widget.selectable &&
+            DeviceFormFactorUtils.supportsDragTextSelection;
+        final Widget expandedChild = selectable
             ? SelectableText.rich(rootSpan)
             : Text.rich(rootSpan, overflow: TextOverflow.clip);
 

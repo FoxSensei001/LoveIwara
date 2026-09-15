@@ -74,6 +74,32 @@ class DeviceFormFactorUtils {
   /// 设备而不是停驻的鼠标，悬停态对它没有意义。
   static bool get supportsPointerHover => !isXrDevice;
 
+  /// 「按住正文拖动来选中文字」这套交互在这台设备上算不算数。
+  ///
+  /// # ⛔ XR 上一律 false，不是因为难用，是因为**它把翻页手势整只吃掉**
+  ///
+  /// 拖动的胜负只有一条规则：谁先跨过自己的 slop 谁就当场认领；**同时跨过**时
+  /// 更深的那个先被派发、先认领（指针路由按命中顺序由里向外）。而这两只识别器的
+  /// slop 来路不同：
+  ///
+  /// | 识别器 | slop 来自 | 头显上的值 |
+  /// |---|---|---|
+  /// | TabBarView / PageView（`Scrollable` 自建） | `MediaQuery.gestureSettings` | 18（被 `withClampedTouchSlop` 夹平的平台值 32.2） |
+  /// | 文本选中（`SelectionArea` / `SelectableText` 内部的 `TapAndHorizontalDragGestureRecognizer`，裸 `RawGestureDetector`） | 没设 → 框架默认 | `kTouchSlop` = 18 |
+  ///
+  /// 两边同为 18，文本更深 ⇒ **文本恒赢**。手机上平台值≈8 < 18，翻页先到线，所以
+  /// 同一份代码在手机上一直是好的 —— Quest 上「详情 tab 里横拖切不了 tab、别的 tab
+  /// 都行」就是这一幕（2026-09-15 用户报障）。Flutter 自己在 iOS 上用
+  /// `eagerVictoryOnDrag = false` 解过同一道题（见 `selectable_region.dart`
+  /// `_initTouchGestureRecognizer` 的注释），但那个开关在框架内部，外面够不着。
+  ///
+  /// ⛔ 也别指望把 slop 再往下夹一点来抢先：一枚 move 事件跨过 10~30px 是射线的常态，
+  /// 跨线那一帧同时超过两边的门槛就又是「更深者胜」。只有**不装这只识别器**才是确定的。
+  ///
+  /// 所以头显上正文/标题不装拖选：复制走已有的长按路（标题长按 → 完整标题弹窗带复制；
+  /// 评论长按 → 复制 / 选择复制）。「本身就是为了选文字」的弹窗显式传 true 覆盖。
+  static bool get supportsDragTextSelection => !isXrDevice;
+
   /// [isXrDevice] 的异步版本：确保平台信息已读取。
   static Future<bool> resolveIsXrDevice() async {
     if (!isMobilePlatform) return false;

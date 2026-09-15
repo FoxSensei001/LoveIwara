@@ -357,6 +357,14 @@ const double kXrPanelCornerRadiusDp = 20;
 /// ⛔ 别在弹窗里一个个补 `gestureSettings`：这是「凡是与框架内置识别器同场竞技的可配置识别器」
 /// 的通病，收口在这里才是一处管全站（见记忆 `prefer-mechanism-fix-over-per-callsite`）。
 /// 夹取只在平台值 > 18 时发生，手机 / 桌面上是彻底的空操作。
+///
+/// # ⚠️ 夹平只赢得了「同值时更深者胜」这条规则，它有另一面
+///
+/// 同值之后，**比 Scrollable 更深**的那族框架裸识别器反过来恒赢。头显上真被它咬到的是
+/// 文本选中（`SelectionArea` / `SelectableText`，slop 也是硬编码 18、且站在正文这一层，
+/// 比 TabBarView 深）：详情 tab 里横拖切不了 tab 就是它。那一族不能靠再往下夹 slop 解决，
+/// 收口在 [DeviceFormFactorUtils.supportsDragTextSelection]（头显上干脆不装拖选），
+/// 完整分析写在那个 getter 上。
 Widget withClampedTouchSlop(BuildContext context, Widget child) {
   final MediaQueryData data = MediaQuery.of(context);
   final double? slop = data.gestureSettings.touchSlop;
