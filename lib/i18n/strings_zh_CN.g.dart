@@ -2551,6 +2551,7 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 
 	// Translations
 	@override String get playInSpace => '在空间播放器中播放';
+	@override String get handingOff => '正在交给空间…';
 	@override String get title => '播放模式';
 	@override String get spatialSectionTitle => '空间播放';
 	@override String get spatialSectionDesc => '头显上的视频不画在这块面板里，而是交给空间播放器呈现在幕布上。';
@@ -6788,6 +6789,7 @@ extension on TranslationsZhCn {
 			'playbackQueue.otherPlaylists' => '他人的播放列表',
 			'playbackQueue.nothingHere' => '暂无内容',
 			'vrFormat.playInSpace' => '在空间播放器中播放',
+			'vrFormat.handingOff' => '正在交给空间…',
 			'vrFormat.title' => '播放模式',
 			'vrFormat.spatialSectionTitle' => '空间播放',
 			'vrFormat.spatialSectionDesc' => '头显上的视频不画在这块面板里，而是交给空间播放器呈现在幕布上。',

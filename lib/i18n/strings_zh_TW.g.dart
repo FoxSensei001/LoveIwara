@@ -2551,6 +2551,7 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 
 	// Translations
 	@override String get playInSpace => '在空間播放器中播放';
+	@override String get handingOff => '正在交給空間…';
 	@override String get title => '播放模式';
 	@override String get spatialSectionTitle => '空間播放';
 	@override String get spatialSectionDesc => '頭戴裝置上的影片不會畫在這塊面板裡，而是交給空間播放器呈現在幕布上。';
@@ -6788,6 +6789,7 @@ extension on TranslationsZhTw {
 			'playbackQueue.otherPlaylists' => '他人的播放清單',
 			'playbackQueue.nothingHere' => '暫無內容',
 			'vrFormat.playInSpace' => '在空間播放器中播放',
+			'vrFormat.handingOff' => '正在交給空間…',
 			'vrFormat.title' => '播放模式',
 			'vrFormat.spatialSectionTitle' => '空間播放',
 			'vrFormat.spatialSectionDesc' => '頭戴裝置上的影片不會畫在這塊面板裡，而是交給空間播放器呈現在幕布上。',

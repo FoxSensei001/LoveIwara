@@ -6383,6 +6383,9 @@ class TranslationsVrFormatEn {
 	/// en: 'Play in the spatial player'
 	String get playInSpace => 'Play in the spatial player';
 
+	/// en: 'Handing off to space…'
+	String get handingOff => 'Handing off to space…';
+
 	/// en: 'Playback mode'
 	String get title => 'Playback mode';
 
@@ -12640,6 +12643,7 @@ extension on Translations {
 			'playbackQueue.otherPlaylists' => 'Other user\'s playlists',
 			'playbackQueue.nothingHere' => 'Nothing here',
 			'vrFormat.playInSpace' => 'Play in the spatial player',
+			'vrFormat.handingOff' => 'Handing off to space…',
 			'vrFormat.title' => 'Playback mode',
 			'vrFormat.spatialSectionTitle' => 'Spatial playback',
 			'vrFormat.spatialSectionDesc' => 'On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.',

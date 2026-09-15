@@ -20,6 +20,7 @@ import 'package:i_iwara/app/services/player_keybinding/shortcut_scope.dart';
 import 'package:i_iwara/app/services/player_keybinding/text_input_focus.dart';
 import 'package:i_iwara/app/services/player_keybinding/shortcut_target_registry.dart';
 import 'package:i_iwara/app/services/glass_material_intro.dart';
+import 'package:i_iwara/app/ui/widgets/xr_handoff_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/global_drawer_content_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_lock_screen.dart';
@@ -551,6 +552,8 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
           ),
         ),
         if (_showPrivacyOverlay) const PrivacyOverlay(),
+        // 「正在交给空间…」：交付期间罩住整屏并挡住重复触发，见 [XrHandoffOverlay]。
+        const Positioned.fill(child: XrHandoffOverlay()),
         // 拖拽悬浮提示
         if (_isDragging && isDesktop) _buildDragOverlay(context),
         Obx(

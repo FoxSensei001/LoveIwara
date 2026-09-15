@@ -2945,6 +2945,7 @@ playbackQueue:
 
 vrFormat:
   playInSpace: 在空间播放器中播放
+  handingOff: 正在交给空间…
   title: 播放模式
   spatialSectionTitle: 空间播放
   spatialSectionDesc: 头显上的视频不画在这块面板里，而是交给空间播放器呈现在幕布上。

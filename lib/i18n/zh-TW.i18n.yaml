@@ -2949,6 +2949,7 @@ playbackQueue:
 
 vrFormat:
   playInSpace: 在空間播放器中播放
+  handingOff: 正在交給空間…
   title: 播放模式
   spatialSectionTitle: 空間播放
   spatialSectionDesc: 頭戴裝置上的影片不會畫在這塊面板裡，而是交給空間播放器呈現在幕布上。

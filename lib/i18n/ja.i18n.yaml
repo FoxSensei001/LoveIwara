@@ -2946,6 +2946,7 @@ playbackQueue:
 
 vrFormat:
   playInSpace: 空間プレイヤーで再生
+  handingOff: 空間へ引き渡し中…
   title: 再生モード
   spatialSectionTitle: 空間再生
   spatialSectionDesc: ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。

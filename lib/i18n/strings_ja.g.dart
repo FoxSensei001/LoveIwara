@@ -2551,6 +2551,7 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 
 	// Translations
 	@override String get playInSpace => '空間プレイヤーで再生';
+	@override String get handingOff => '空間へ引き渡し中…';
 	@override String get title => '再生モード';
 	@override String get spatialSectionTitle => '空間再生';
 	@override String get spatialSectionDesc => 'ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。';
@@ -6788,6 +6789,7 @@ extension on TranslationsJa {
 			'playbackQueue.otherPlaylists' => '他の人の再生リスト',
 			'playbackQueue.nothingHere' => '何もありません',
 			'vrFormat.playInSpace' => '空間プレイヤーで再生',
+			'vrFormat.handingOff' => '空間へ引き渡し中…',
 			'vrFormat.title' => '再生モード',
 			'vrFormat.spatialSectionTitle' => '空間再生',
 			'vrFormat.spatialSectionDesc' => 'ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。',

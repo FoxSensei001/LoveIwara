@@ -1006,6 +1006,24 @@ class XrImmersiveService extends GetxService {
   /// ⛔ 库里有这把钥匙的手动覆盖时，**它压过调用方传来的 [format]**：调用方手里的格式是
   /// 进页那一刻读的，用户随后在空间面板上改过的档只在库里（面板改档不经过任何调用方）。
   /// 收口在这里，而不是指望每个调用方都记得先查一次库。
+  /// 正在把东西交给沉浸场景（空间播放器 / 空间画廊）。
+  ///
+  /// ⛔ 这段窗口在 **2D 面板里看不出任何变化**：幕布在用户身前另一个地方亮起来，
+  /// 而面板这侧一动不动，交付本身又要过通道、等原生回执（图库还要先把封面备齐），
+  /// 短则半秒、长则好几秒。不给个「正在交出去」的样子，用户会当成没点上、连点好几下
+  /// ——每一下都是一次重新提交（用户 2026-09-15 提的）。
+  ///
+  /// 收口在服务上而不是各个页面：交付的入口只有 [present] 与 [presentGallery] 两个，
+  /// 而调用点（视频详情页 / 图库详情页 / 本机文件的三处入口 / 面板里的「接着看」）
+  /// 只会越来越多。全局那层罩子见 `XrHandoffOverlay`。
+  final RxInt handoffDepth = 0.obs;
+
+  /// 交付期间为真。界面据此罩一层 + 挡住重复触发。
+  ///
+  /// ⛔ 计数而不是布尔：两条交付可能叠在一起（幕布上正放着视频时点开一本图库，
+  /// 旧的还在收尾、新的已经开始），布尔会被先结束的那条提前抹掉。
+  bool get handingOff => handoffDepth.value > 0;
+
   Future<bool> present({
     required String url,
     required VrSourceFormat format,
@@ -1025,118 +1043,128 @@ class XrImmersiveService extends GetxService {
     List<XrMediaSource> sources = const <XrMediaSource>[],
     String sourceLabel = '',
   }) async {
-    if (_closed) return false;
-    final requestId = _latestRequestId = ++_nextRequestId;
-    final epoch = _presentationEpoch;
-    final onlineId = videoId?.trim().isNotEmpty == true
-        ? videoId!.trim()
-        : null;
-    final localId = localLibraryItemId?.trim().isNotEmpty == true
-        ? localLibraryItemId!.trim()
-        : null;
-    final id = mediaId?.trim().isNotEmpty == true
-        ? mediaId!.trim()
-        : localId ?? onlineId ?? 'local:$requestId';
-    final snapshot = queueProvider?.call();
-    // 任意文件入口可能没有池游标，但页面仍提供本机目录兜底池。
-    final ownsSnapshot =
-        snapshot != null &&
-        snapshot.mediaType == PlaybackMediaType.video &&
-        (snapshot.currentItemId == id ||
-            (snapshot.currentItemId.isEmpty && localPath != null));
-    final queue = ownsSnapshot
-        ? _snapshotActive(snapshot)
-        : _browse?.contains(id) == true
-        ? _browse
-        : _playing?.queue?.contains(id) == true
-        ? _playing?.queue
-        : null;
-    final presentation = _XrVideoPresentation(
-      requestId: requestId,
-      mediaId: id,
-      videoId: onlineId,
-      localLibraryItemId: localId,
-      localPath: localPath,
-      localTask: localTask,
-      localAllQualityTasks: List.unmodifiable(localAllQualityTasks),
-      sources: List.unmodifiable(sources),
-      queue: queue,
-      queues:
-          {
-                ?queue,
-                ...(ownsSnapshot ? snapshot.queues : _playbackQueues(snapshot)),
-              }
-              .where(
-                (q) => !q.isDisposed && q.mediaType == PlaybackMediaType.video,
-              )
-              .toList(),
-      author: snapshot?.currentItemId == id ? snapshot?.author : null,
-    );
+    handoffDepth.value++;
     try {
-      final key = (formatKey ?? localId ?? onlineId)?.trim() ?? '';
-      String xrFormat = '';
-      if (key.isNotEmpty && Get.isRegistered<VrFormatOverrideService>()) {
-        final stored = await Get.find<VrFormatOverrideService>().getEntry(key);
-        if (stored != null) {
-          format = stored.format;
-          xrFormat = stored.xrFormat ?? '';
+      if (_closed) return false;
+      final requestId = _latestRequestId = ++_nextRequestId;
+      final epoch = _presentationEpoch;
+      final onlineId = videoId?.trim().isNotEmpty == true
+          ? videoId!.trim()
+          : null;
+      final localId = localLibraryItemId?.trim().isNotEmpty == true
+          ? localLibraryItemId!.trim()
+          : null;
+      final id = mediaId?.trim().isNotEmpty == true
+          ? mediaId!.trim()
+          : localId ?? onlineId ?? 'local:$requestId';
+      final snapshot = queueProvider?.call();
+      // 任意文件入口可能没有池游标，但页面仍提供本机目录兜底池。
+      final ownsSnapshot =
+          snapshot != null &&
+          snapshot.mediaType == PlaybackMediaType.video &&
+          (snapshot.currentItemId == id ||
+              (snapshot.currentItemId.isEmpty && localPath != null));
+      final queue = ownsSnapshot
+          ? _snapshotActive(snapshot)
+          : _browse?.contains(id) == true
+          ? _browse
+          : _playing?.queue?.contains(id) == true
+          ? _playing?.queue
+          : null;
+      final presentation = _XrVideoPresentation(
+        requestId: requestId,
+        mediaId: id,
+        videoId: onlineId,
+        localLibraryItemId: localId,
+        localPath: localPath,
+        localTask: localTask,
+        localAllQualityTasks: List.unmodifiable(localAllQualityTasks),
+        sources: List.unmodifiable(sources),
+        queue: queue,
+        queues:
+            {
+                  ?queue,
+                  ...(ownsSnapshot
+                      ? snapshot.queues
+                      : _playbackQueues(snapshot)),
+                }
+                .where(
+                  (q) =>
+                      !q.isDisposed && q.mediaType == PlaybackMediaType.video,
+                )
+                .toList(),
+        author: snapshot?.currentItemId == id ? snapshot?.author : null,
+      );
+      try {
+        final key = (formatKey ?? localId ?? onlineId)?.trim() ?? '';
+        String xrFormat = '';
+        if (key.isNotEmpty && Get.isRegistered<VrFormatOverrideService>()) {
+          final stored = await Get.find<VrFormatOverrideService>().getEntry(
+            key,
+          );
+          if (stored != null) {
+            format = stored.format;
+            xrFormat = stored.xrFormat ?? '';
+          }
         }
-      }
-      if (_closed ||
-          requestId != _latestRequestId ||
-          epoch != _presentationEpoch) {
-        return false;
-      }
-      _presentations[requestId] = presentation;
-      final localeTag = slang.LocaleSettings.currentLocale.languageTag;
-      _pushedLocaleTag = localeTag;
-      final ok = await _channel.invokeMethod<bool>('present', {
-        // 面板的语言随包带一份：面板可能在这次 present 之后才第一次被唤出。
-        'locale': localeTag,
-        'url': url,
-        'title': title,
-        // 面板标题下面那行小字。图集页早就有作者了，播放页也得有（用户 2026-09-06）。
-        'author': author,
-        'videoId': onlineId ?? '',
-        'mediaId': id,
-        'requestId': requestId,
-        'sources': sources.map((e) => e.toChannelMap()).toList(),
-        'sourceLabel': sourceLabel,
-        'shape': _shapeOf(format.projection),
-        'stereo': _stereoOf(format.stereoLayout),
-        'fullFrame': fullFrame,
-        'formatKey': key,
-        'xrFormat': xrFormat,
-        'w': width,
-        'h': height,
-        'positionMs': positionMs,
-        // ⛔ 鱼眼片源在沉浸态**放不出正确画面**（SDK 没有这个投影），原生侧要靠
-        // 这面旗子在控制面板上如实提示并给出「用其他应用打开」，而不是默默按平面播。
-        'unsupportedProjection': format.projection == VrProjection.fisheye,
-      });
-      if (ok != true || _closed) {
+        if (_closed ||
+            requestId != _latestRequestId ||
+            epoch != _presentationEpoch) {
+          return false;
+        }
+        _presentations[requestId] = presentation;
+        final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+        _pushedLocaleTag = localeTag;
+        final ok = await _channel.invokeMethod<bool>('present', {
+          // 面板的语言随包带一份：面板可能在这次 present 之后才第一次被唤出。
+          'locale': localeTag,
+          'url': url,
+          'title': title,
+          // 面板标题下面那行小字。图集页早就有作者了，播放页也得有（用户 2026-09-06）。
+          'author': author,
+          'videoId': onlineId ?? '',
+          'mediaId': id,
+          'requestId': requestId,
+          'sources': sources.map((e) => e.toChannelMap()).toList(),
+          'sourceLabel': sourceLabel,
+          'shape': _shapeOf(format.projection),
+          'stereo': _stereoOf(format.stereoLayout),
+          'fullFrame': fullFrame,
+          'formatKey': key,
+          'xrFormat': xrFormat,
+          'w': width,
+          'h': height,
+          'positionMs': positionMs,
+          // ⛔ 鱼眼片源在沉浸态**放不出正确画面**（SDK 没有这个投影），原生侧要靠
+          // 这面旗子在控制面板上如实提示并给出「用其他应用打开」，而不是默默按平面播。
+          'unsupportedProjection': format.projection == VrProjection.fisheye,
+        });
+        if (ok != true || _closed) {
+          _presentations.remove(requestId);
+          return false;
+        }
+        // 旧请求确实播过：不能接管新会话，但仍需保留元数据供迟到的 ended 回写进度。
+        if (epoch != _presentationEpoch ||
+            requestId <= _lastCommittedRequestId ||
+            !identical(_presentations[requestId], presentation)) {
+          return false;
+        }
+        _lastCommittedRequestId = requestId;
+        _setPlaying(presentation);
+        // 幕布一亮就把「接着看」推过去：面板里的播放列表页要能立刻用，
+        // 而不是等用户点开那一页时才现拉（那时 Flutter 已经停止出帧了）。
+        unawaited(pushQueues());
+        return true;
+      } on MissingPluginException {
         _presentations.remove(requestId);
         return false;
-      }
-      // 旧请求确实播过：不能接管新会话，但仍需保留元数据供迟到的 ended 回写进度。
-      if (epoch != _presentationEpoch ||
-          requestId <= _lastCommittedRequestId ||
-          !identical(_presentations[requestId], presentation)) {
+      } catch (e) {
+        _presentations.remove(requestId);
+        LogUtils.e('交给沉浸空间失败', tag: 'XrImmersive', error: e);
         return false;
       }
-      _lastCommittedRequestId = requestId;
-      _setPlaying(presentation);
-      // 幕布一亮就把「接着看」推过去：面板里的播放列表页要能立刻用，
-      // 而不是等用户点开那一页时才现拉（那时 Flutter 已经停止出帧了）。
-      unawaited(pushQueues());
-      return true;
-    } on MissingPluginException {
-      _presentations.remove(requestId);
-      return false;
-    } catch (e) {
-      _presentations.remove(requestId);
-      LogUtils.e('交给沉浸空间失败', tag: 'XrImmersive', error: e);
-      return false;
+    } finally {
+      handoffDepth.value--;
     }
   }
 
@@ -1156,59 +1184,70 @@ class XrImmersiveService extends GetxService {
     int index = 0,
     String quality = galleryImageQualityStandard,
   }) async {
-    if (items.isEmpty) return false;
-    final requestId = _latestRequestId = ++_nextRequestId;
+    handoffDepth.value++;
     try {
-      // ⛔ 幕布上若正放着视频：它的 ended 会随 presentGallery 补发回来，nowPlayingId 由那条路清。
-      final localeTag = slang.LocaleSettings.currentLocale.languageTag;
-      _pushedLocaleTag = localeTag;
-      final cache = DefaultCacheManager();
-      final rows = <Map<String, dynamic>>[];
-      for (final item in items) {
-        String thumbPath = item.isLocalFile ? item.largeUrl : '';
-        if (!item.isVideo && !item.isLocalFile) {
-          try {
-            final cached = await cache.getFileFromCache(item.thumbUrl);
-            thumbPath = cached?.file.path ?? '';
-          } catch (_) {}
+      if (items.isEmpty) return false;
+      final requestId = _latestRequestId = ++_nextRequestId;
+      try {
+        // ⛔ 幕布上若正放着视频：它的 ended 会随 presentGallery 补发回来，nowPlayingId 由那条路清。
+        final localeTag = slang.LocaleSettings.currentLocale.languageTag;
+        _pushedLocaleTag = localeTag;
+        final cache = DefaultCacheManager();
+        final rows = <Map<String, dynamic>>[];
+        for (final item in items) {
+          // ⛔ 面板那条胶片是 Coil 解码的，给它一个 `.webm` 只会解出一格空白。
+          // 本机文件：图片就是它自己，视频用它旁边那张封面（[XrGalleryItem.posterPath]，
+          // 见 `_presentLocalImagesInSpace`）；在线：图片与视频都有网址，先查一遍缓存
+          // ——详情页那条横向清单刚画过，多半已在盘上，面板就不必再走一次网络。
+          String thumbPath = '';
+          if (item.isLocalFile) {
+            thumbPath = item.isVideo ? (item.posterPath ?? '') : item.largeUrl;
+          } else if (item.thumbUrl.isNotEmpty) {
+            try {
+              final cached = await cache.getFileFromCache(item.thumbUrl);
+              thumbPath = cached?.file.path ?? '';
+            } catch (_) {}
+          }
+          rows.add({
+            'id': item.id,
+            'video': item.isVideo,
+            'url': item.isVideo ? item.originalUrl : item.urlFor(quality),
+            'thumbUrl': item.thumbUrl,
+            'thumbPath': thumbPath,
+            'w': item.width,
+            'h': item.height,
+          });
         }
-        rows.add({
-          'id': item.id,
-          'video': item.isVideo,
-          'url': item.isVideo ? item.originalUrl : item.urlFor(quality),
-          'thumbUrl': item.thumbUrl,
-          'thumbPath': thumbPath,
-          'w': item.width,
-          'h': item.height,
+        if (_closed || requestId != _latestRequestId) return false;
+        _presentationEpoch++;
+        nowShowingGalleryId = galleryId;
+        _galleryItems = items;
+        final ok = await _channel.invokeMethod<bool>('presentGallery', {
+          'locale': localeTag,
+          'galleryId': galleryId,
+          'title': title,
+          'author': author,
+          'index': index,
+          'quality': quality,
+          'items': rows,
         });
+        LogUtils.i(
+          '图库已交给空间画廊 id=$galleryId n=${items.length} index=$index delivered=$ok',
+          'XrImmersive',
+        );
+        // 「接着看」立刻推过去：图库详情页的池（来源 / 稍后再看的图库）就是面板里的列表。
+        unawaited(pushQueues());
+        return ok ?? false;
+      } on MissingPluginException {
+        nowShowingGalleryId = null;
+        return false;
+      } catch (e) {
+        nowShowingGalleryId = null;
+        LogUtils.e('交给空间画廊失败', tag: 'XrImmersive', error: e);
+        return false;
       }
-      if (_closed || requestId != _latestRequestId) return false;
-      _presentationEpoch++;
-      nowShowingGalleryId = galleryId;
-      _galleryItems = items;
-      final ok = await _channel.invokeMethod<bool>('presentGallery', {
-        'locale': localeTag,
-        'galleryId': galleryId,
-        'title': title,
-        'author': author,
-        'index': index,
-        'quality': quality,
-        'items': rows,
-      });
-      LogUtils.i(
-        '图库已交给空间画廊 id=$galleryId n=${items.length} index=$index delivered=$ok',
-        'XrImmersive',
-      );
-      // 「接着看」立刻推过去：图库详情页的池（来源 / 稍后再看的图库）就是面板里的列表。
-      unawaited(pushQueues());
-      return ok ?? false;
-    } on MissingPluginException {
-      nowShowingGalleryId = null;
-      return false;
-    } catch (e) {
-      nowShowingGalleryId = null;
-      LogUtils.e('交给空间画廊失败', tag: 'XrImmersive', error: e);
-      return false;
+    } finally {
+      handoffDepth.value--;
     }
   }
 
@@ -1456,6 +1495,8 @@ class XrGalleryItem {
     required this.isVideo,
     required this.largeUrl,
     required this.originalUrl,
+    this.posterUrl,
+    this.posterPath,
     this.width = 0,
     this.height = 0,
   });
@@ -1464,10 +1505,30 @@ class XrGalleryItem {
   final bool isVideo;
   final String largeUrl;
   final String originalUrl;
+
+  /// 静图海报的**网络**地址（视频项才需要，见 [MediaFile.getPosterUrl]）。
+  final String? posterUrl;
+
+  /// 静图海报**已经落盘**的本地路径（本机文件那条路：视频旁边那张 `.poster.jpg`，
+  /// 见 [galleryVideoPosterPath]）。有它就不必让原生走网络。
+  final String? posterPath;
+
   final int width;
   final int height;
 
-  String get thumbUrl => largeUrl;
+  /// 面板里那条胶片走**网络**时画哪个地址。
+  ///
+  /// ⛔ 视频项不能用 [largeUrl]：对视频它就是原文件（webm），面板那侧是 Coil，
+  /// 解不出位图，那一格于是一直空着（用户 2026-09-15 报障）。服务端给视频生成的
+  /// 静图在 [posterUrl]。
+  ///
+  /// ⛔ 已经落盘的那张走 [posterPath] / `thumbPath`，不从这里出：原生这条网络不带
+  /// 应用内代理，能不走就不走。
+  String get thumbUrl {
+    final poster = posterUrl;
+    if (poster != null && poster.startsWith('http')) return poster;
+    return isVideo ? '' : largeUrl;
+  }
 
   /// 本机文件：[largeUrl] / [originalUrl] 是绝对路径而不是网址（本地媒体目录进空间画廊）。
   bool get isLocalFile =>

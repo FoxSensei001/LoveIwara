@@ -2945,6 +2945,7 @@ playbackQueue:
 
 vrFormat:
   playInSpace: Play in the spatial player
+  handingOff: Handing off to space…
   title: Playback mode
   spatialSectionTitle: Spatial playback
   spatialSectionDesc: On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.

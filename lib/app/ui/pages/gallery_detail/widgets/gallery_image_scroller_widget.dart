@@ -155,29 +155,10 @@ class _GalleryImageScrollerWidgetState
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // 交付期间不再接点击：连点只会让原生一次次重新提交同一本。
-            AbsorbPointer(absorbing: _presenting, child: list),
-            // 蒙一层 + 转圈，交代「这一下收到了，正在交给幕布」。
-            IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: _presenting ? 1 : 0,
-                duration: const Duration(milliseconds: 160),
-                curve: Curves.easeOut,
-                child: const ColoredBox(
-                  color: Color(0x73000000),
-                  child: Center(
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // ⛔ 这里曾经自己罩一层半透明黑 + 转圈。那层已经上移成全局的
+            // [XrHandoffOverlay]（跟着服务走，交付的每个入口都有），留在这儿会叠成
+            // 两层灰。挡重复触发也归它，这一层只剩内容本身。
+            list,
             Positioned(
               top: 10,
               right: 10,
