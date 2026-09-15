@@ -13,7 +13,7 @@ class CommonConstants {
   //    update_logs.yaml 的 currentVersion，全靠手改。漏改这里的后果是**静默**的
   //    ——更新检测拿的就是它，要么永远提示有更新，要么永远不提示。
   //    test/app/services/version_metadata_test.dart 是挡住这件事的闸门。
-  static const String VERSION = '0.5.1';
+  static const String VERSION = '0.6.0';
 
   /// 构建号，对应 pubspec.yaml `version: x.y.z+N` 里的 `N`。
   ///
