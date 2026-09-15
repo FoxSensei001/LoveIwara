@@ -484,7 +484,17 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
               blur: GlassPerfKnobs.barBlur ? null : 0,
             ),
             quality: chromeGlassQuality,
-            indicatorColor: GlassTokens.tabIndicatorTint(cs),
+            // ⛔ 静止时不画底色（2026-09-15 用户拍板：选中项只靠图标 / 文字变色
+            // 表达，不要那块高亮背景）。
+            //
+            // 为什么是「把颜色调成透明」而不是 `showIndicator: false`：包里那颗
+            // 指示器同时是**选中态的蒙版**——选中样式的那一层是按指示器的形状
+            // 裁出来的（`JellyClipper`），关掉它整条栏就全是未选中样式，图标 /
+            // 文字再也不变色。透明只去掉它的填充，蒙版照旧。
+            //
+            // 跟手那块果冻玻璃不受影响：它只在按下 / 拖动期间画（`thickness`
+            // 大于 0 才建），落定即消失——用户选的就是「留手感、去底色」。
+            indicatorColor: Colors.transparent,
             indicatorSettings: switch (GlassPerfKnobs.indicator) {
               'noblur' => GlassTokens.widgetsGlass(
                 cs,
@@ -567,9 +577,12 @@ class _GlassFloatingTabBarState extends State<GlassFloatingTabBar> {
 ///
 /// 材质走 [GlassTokens.materialFill]：不透明、无描边、**无投影**
 /// （Material 档一概不画投影，见 [MaterialSurfaceBox]），层级差别由 M3 的
-/// surface container 色阶表达。选中项那颗药丸是框架公开的
-/// [NavigationIndicator]（M3 那套 `easeInOutCubicEmphasized` 横向缩放 +
-/// 100ms 淡入淡出），涟漪由 [InkWell] 出。
+/// surface container 色阶表达。涟漪由 [InkWell] 出。
+///
+/// ⛔ **选中项不画底块**（2026-09-15 用户拍板）：这里曾经是框架公开的
+/// `NavigationIndicator`（M3 那颗药丸），现在整只去掉了——选中态只由图标 /
+/// 文字变色 + 字重表达，两档口径一致（液态档那边是把包的 `indicatorColor`
+/// 调成透明）。颜色带 200ms 过渡，见 [_MaterialTabState]。
 ///
 /// # ⛔ 为什么不直接用框架的 `NavigationBar`
 ///
@@ -691,11 +704,21 @@ class _MaterialTab extends StatefulWidget {
 
 class _MaterialTabState extends State<_MaterialTab>
     with SingleTickerProviderStateMixin {
-  /// 500ms 是 M3 `NavigationBar` 自己的 `animationDuration` 默认值。
+  /// 选中态的进出过渡。
+  ///
+  /// 药丸去掉之后（见 [_MaterialFloatingTabBar] 类文档），这一格的选中信号只剩
+  /// 颜色与字重——要是硬切，换项就成了「闪一下」。200ms 是照 M3 状态层的口径
+  /// 给的（药丸那套 500ms 是位移动画的量，套在纯变色上太拖）。
   late final AnimationController _selection = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 500),
+    duration: const Duration(milliseconds: 200),
     value: widget.selected ? 1 : 0,
+  );
+
+  late final CurvedAnimation _fade = CurvedAnimation(
+    parent: _selection,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
   );
 
   @override
@@ -707,22 +730,34 @@ class _MaterialTabState extends State<_MaterialTab>
 
   @override
   void dispose() {
+    _fade.dispose();
     _selection.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _fade,
+      builder: (context, _) => _buildTab(context),
+    );
+  }
+
+  Widget _buildTab(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final GlassTabItem item = widget.item;
     final IconData iconData = widget.selected
         ? (item.activeIcon ?? item.icon)
         : item.icon;
 
+    // 选中色用 `primary` 而不是 M3 的 `onSecondaryContainer`：那个色角色是配
+    // 「药丸底色上的图标」的，药丸没了之后它落在 `surfaceContainerHigh` 上既
+    // 不够亮也说不通。`primary` 与液态档的 `selectedIconColor` 同值，两档的
+    // 选中态从此是同一个颜色。
     Widget icon = Icon(
       iconData,
       size: widget.metrics.iconSize,
-      color: widget.selected ? cs.onSecondaryContainer : cs.onSurfaceVariant,
+      color: Color.lerp(cs.onSurfaceVariant, cs.primary, _fade.value)!,
     );
     if (item.badge != null) {
       icon = Stack(
@@ -746,16 +781,7 @@ class _MaterialTabState extends State<_MaterialTab>
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                NavigationIndicator(
-                  animation: _selection,
-                  color: GlassTokens.materialSelected(cs),
-                ),
-                icon,
-              ],
-            ),
+            icon,
             SizedBox(height: widget.metrics.iconLabelGap),
             // 每格都有标签，装不下就在一格宽度内省略（见 [_TabLabel]）。
             _TabLabel(
@@ -764,10 +790,14 @@ class _MaterialTabState extends State<_MaterialTab>
               style: TextStyle(
                 fontSize: widget.metrics.labelFontSize,
                 height: 1.1,
-                fontWeight: widget.selected
-                    ? FontWeight.w600
-                    : FontWeight.w500,
-                color: widget.selected ? cs.onSurface : cs.onSurfaceVariant,
+                fontWeight: widget.selected ? FontWeight.w600 : FontWeight.w500,
+                // 与图标同步渐变（字重没法插值，只能硬切——一格里有一样在渐变，
+                // 换项就不会读成闪一下）。
+                color: Color.lerp(
+                  cs.onSurfaceVariant,
+                  cs.onSurface,
+                  _fade.value,
+                ),
               ),
             ),
           ],

@@ -318,15 +318,10 @@ abstract final class GlassTokens {
   /// `secondaryContainer`，不透明。
   static Color materialSelected(ColorScheme cs) => cs.secondaryContainer;
 
-  /// 浮动底栏那颗果冻指示器的色调。
-  ///
-  /// **不要拿 [selectedHighlight] 顶替**：那是一块「底色」（0.9 不透明度，垫在
-  /// 图标下面）；而这颗指示器本身是一块真玻璃，浮在图标层**之上**靠折射与放大
-  /// 标记选中项。给它 0.9 的填充等于把折射整个盖死，果冻感与磁透镜一起消失。
-  /// 这里只是在玻璃里掺一点品牌色，让选中项偏暖一档。
-  static Color tabIndicatorTint(ColorScheme cs) => cs.primary.withValues(
-    alpha: cs.brightness == Brightness.dark ? 0.16 : 0.12,
-  );
+  // ⛔ 浮动底栏那颗指示器**不再有底色**（2026-09-15 用户拍板：选中项只靠图标 /
+  // 文字变色表达）。这里原先有一个 `tabIndicatorTint`，已随之删掉——液态档传
+  // 给包的 `indicatorColor` 现在是 `Colors.transparent`，Material 档那颗药丸
+  // 整只去掉了，见 `glass_floating_tab_bar.dart`。
 
   /// 边缘渐变蒙层的基色。
   static Color scrimBase(ColorScheme cs) => cs.surface;

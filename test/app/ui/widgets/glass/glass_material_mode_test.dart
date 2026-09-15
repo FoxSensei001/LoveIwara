@@ -154,9 +154,7 @@ void main() {
   // ⭐ 2026-09-04 用户拍板：底栏**跟着**全局材质开关走了（旧结论「底栏是唯一
   // 的例外、两档都是真液态玻璃」已作废）。Material 档下它整只换成 M3 的
   // `NavigationBar`，果冻指示器 / 磁透镜 / 按住即滑是液态档专有的。
-  testWidgets('浮动底栏跟着开关走：液态档是玻璃栏，Material 档是 M3 导航栏', (
-    tester,
-  ) async {
+  testWidgets('浮动底栏跟着开关走：液态档是玻璃栏，Material 档是 M3 导航栏', (tester) async {
     final taps = <int>[];
     Future<void> pumpBar(GlassMaterialMode mode) async {
       glassMaterialMode.value = mode;
@@ -201,8 +199,9 @@ void main() {
       findsNothing,
       reason: 'Material 档下底栏还在采样背景：这一档本该一块玻璃都不建',
     );
-    // M3 那颗选中药丸（框架公开的 [NavigationIndicator]）一格一只。
-    expect(find.byType(NavigationIndicator), findsNWidgets(3));
+    // ⛔ 选中项不画底块：M3 那颗药丸（`NavigationIndicator`）已整只去掉，
+    // 选中态只剩图标 / 文字变色（2026-09-15 用户拍板）。
+    expect(find.byType(NavigationIndicator), findsNothing);
     // 换项照常（同项也回调，首页的「再点一次 = 回顶」靠它）。
     // 点图标而不是文字：标签只在选中项在场，未选中那格的 `Text` 高度是 0。
     await tester.tap(find.byIcon(Icons.subscriptions).first);

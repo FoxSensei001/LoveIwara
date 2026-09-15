@@ -75,16 +75,14 @@ void main() {
       (barWidth - GlassTokens.floatingActionSize - 12) / items.length;
 
   /// 真正喂给包的选中下标——指示器与图标高亮都只认它。
-  int visualIndex(WidgetTester tester) =>
-      tester.widget<lgw.GlassTabBar>(find.byType(lgw.GlassTabBar)).selectedIndex;
+  int visualIndex(WidgetTester tester) => tester
+      .widget<lgw.GlassTabBar>(find.byType(lgw.GlassTabBar))
+      .selectedIndex;
 
   /// 第 [index] 项中心的全局坐标。
   Offset tabCenter(WidgetTester tester, int index) {
     final Rect bar = tester.getRect(find.byType(GlassFloatingTabBar));
-    return Offset(
-      bar.left + slotWidth() * (index + 0.5),
-      bar.center.dy,
-    );
+    return Offset(bar.left + slotWidth() * (index + 0.5), bar.center.dy);
   }
 
   testWidgets('四项加圆钮都画得出来，且只占一行高度', (tester) async {
@@ -112,11 +110,7 @@ void main() {
     final taps = await pumpBar(tester, currentIndex: 1);
     await tester.tapAt(tabCenter(tester, 1));
     await tester.pump(const Duration(milliseconds: 400));
-    expect(
-      taps,
-      contains(1),
-      reason: '同项被吞掉的话，「再点一次当前栏目回顶 + 重载」就没了',
-    );
+    expect(taps, contains(1), reason: '同项被吞掉的话，「再点一次当前栏目回顶 + 重载」就没了');
   });
 
   testWidgets('横向拖动能换项', (tester) async {
@@ -147,11 +141,7 @@ void main() {
     final TestGesture gesture = await tester.startGesture(tabCenter(tester, 2));
     // 按下满 kPressTimeout（100ms）——包内部的 tap 识别器就是在这一刻抢跑的。
     await tester.pump(const Duration(milliseconds: 300));
-    expect(
-      taps,
-      isEmpty,
-      reason: '手指还按着就换页了，这段时间本该留给拖动',
-    );
+    expect(taps, isEmpty, reason: '手指还按着就换页了，这段时间本该留给拖动');
 
     await gesture.up();
     await tester.pump(const Duration(milliseconds: 400));
@@ -166,11 +156,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 16));
     await gesture.up();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(
-      taps,
-      [3],
-      reason: '按下那一项被抢跑回调了的话，会先白刷新/白跳一次再换到终点',
-    );
+    expect(taps, [3], reason: '按下那一项被抢跑回调了的话，会先白刷新/白跳一次再换到终点');
   });
 
   testWidgets('按住不动：焦点当场跟到按下那一项，但还没换页', (tester) async {
@@ -251,8 +237,9 @@ void main() {
 
     testWidgets('底栏换成 M3 导航栏，且不再采样背景', (tester) async {
       await pumpBar(tester);
-      // 一格一只 M3 选中药丸（框架公开的 [NavigationIndicator]）。
-      expect(find.byType(NavigationIndicator), findsNWidgets(items.length));
+      // ⛔ 选中项不画底块：M3 那颗药丸（`NavigationIndicator`）已整只去掉，
+      // 选中态只剩图标 / 文字变色（2026-09-15 用户拍板）。
+      expect(find.byType(NavigationIndicator), findsNothing);
       expect(
         find.byType(lgw.GlassTabBar),
         findsNothing,
@@ -323,5 +310,4 @@ void main() {
       expect(iconSizes.length, 1, reason: '各格图标大小不一致 = 被标签挤小了');
     });
   }
-
 }
