@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseZhTw extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => '影片';
 	@override String get imagesSection => '圖片';
 	@override String get galleriesSection => '圖庫';
+	@override String get filterAll => '全部';
+	@override String get searchInFolder => '在這個資料夾裡搜尋';
+	@override String get searchHint => '依名稱搜尋';
+	@override String get clearSearch => '清除搜尋';
+	@override String searchNoResult({required Object query}) => '沒有符合「${query}」的內容';
+	@override String viewAllFolders({required Object count}) => '查看全部 ${count} 個資料夾';
+	@override String viewAllVideos({required Object count}) => '查看全部 ${count} 個影片';
+	@override String viewAllImages({required Object count}) => '查看全部 ${count} 張圖片';
+	@override String viewAllGalleries({required Object count}) => '查看全部 ${count} 個圖庫';
 	@override String get location => '位置';
 	@override String get sourceMissing => '這個來源已經不在了';
 	@override String get notScannedYet => '還沒掃描過這個資料夾';
 	@override String get scanning => '正在讀取這個資料夾…';
 	@override String get deleteFileTitle => '刪除這個檔案？';
 	@override String deleteFileBody({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。';
+	@override String get hideFolder => '隱藏此資料夾';
+	@override String get unhideFolder => '取消隱藏';
+	@override String get showHiddenFolders => '顯示隱藏的資料夾';
+	@override String get folderHidden => '已隱藏，掃描也會跳過它';
+	@override String get folderUnhidden => '已取消隱藏';
+	@override String get hiddenFolderBadge => '已隱藏';
+	@override String get deleteFolder => '刪除資料夾';
+	@override String get deleteFolderTitle => '刪除這個資料夾？';
+	@override String deleteFolderBody({required Object name}) => '「${name}」連同裡面的所有內容都會從這台裝置上真的被刪除，無法復原。';
+	@override String get deleteFolderIncludesOthers => '裡面的其它檔案也會一併刪除';
+	@override String get folderDeleted => '已刪除資料夾';
+	@override String get deleteFolderFailed => '刪除失敗，可能沒有權限，或裡面的檔案正被占用';
 	@override String get deleteGalleryTitle => '刪除這個圖庫？';
 	@override String deleteGalleryBody({required Object name}) => '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。';
 	@override String get galleryResourceMissing => '本地資源已不存在，已清理該記錄';
@@ -6885,12 +6906,33 @@ extension on TranslationsZhTw {
 			'localMedia.browse.videosSection' => '影片',
 			'localMedia.browse.imagesSection' => '圖片',
 			'localMedia.browse.galleriesSection' => '圖庫',
+			'localMedia.browse.filterAll' => '全部',
+			'localMedia.browse.searchInFolder' => '在這個資料夾裡搜尋',
+			'localMedia.browse.searchHint' => '依名稱搜尋',
+			'localMedia.browse.clearSearch' => '清除搜尋',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => '沒有符合「${query}」的內容',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => '查看全部 ${count} 個資料夾',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => '查看全部 ${count} 個影片',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => '查看全部 ${count} 張圖片',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => '查看全部 ${count} 個圖庫',
 			'localMedia.browse.location' => '位置',
 			'localMedia.browse.sourceMissing' => '這個來源已經不在了',
 			'localMedia.browse.notScannedYet' => '還沒掃描過這個資料夾',
 			'localMedia.browse.scanning' => '正在讀取這個資料夾…',
 			'localMedia.browse.deleteFileTitle' => '刪除這個檔案？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」會從這台裝置上真的被刪除，無法復原。',
+			'localMedia.browse.hideFolder' => '隱藏此資料夾',
+			'localMedia.browse.unhideFolder' => '取消隱藏',
+			'localMedia.browse.showHiddenFolders' => '顯示隱藏的資料夾',
+			'localMedia.browse.folderHidden' => '已隱藏，掃描也會跳過它',
+			'localMedia.browse.folderUnhidden' => '已取消隱藏',
+			'localMedia.browse.hiddenFolderBadge' => '已隱藏',
+			'localMedia.browse.deleteFolder' => '刪除資料夾',
+			'localMedia.browse.deleteFolderTitle' => '刪除這個資料夾？',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」連同裡面的所有內容都會從這台裝置上真的被刪除，無法復原。',
+			'localMedia.browse.deleteFolderIncludesOthers' => '裡面的其它檔案也會一併刪除',
+			'localMedia.browse.folderDeleted' => '已刪除資料夾',
+			'localMedia.browse.deleteFolderFailed' => '刪除失敗，可能沒有權限，或裡面的檔案正被占用',
 			'localMedia.browse.deleteGalleryTitle' => '刪除這個圖庫？',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。',
 			'localMedia.browse.galleryResourceMissing' => '本地資源已不存在，已清理該記錄',

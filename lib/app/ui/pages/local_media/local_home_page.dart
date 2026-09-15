@@ -13,6 +13,7 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
@@ -90,22 +91,28 @@ class _LocalHomePageState extends State<LocalHomePage>
   static const int _tabDownloadedGalleries = 6;
   static const int _tabCount = 7;
 
-  LocalMediaOrder _favVideoOrder = const LocalMediaOrder(
+  /// 各栏排序在配置里的键（值形如 `modified:desc`）。
+  ///
+  /// ⛔ 这几个字符串是**持久化格式的一部分**，改名等于把所有老用户已经记下的
+  /// 排序偏好静默丢掉（读不到就退回默认，不报错、不迁移）。
+  static const String _sortKeyFavVideos = 'favoriteVideos';
+  static const String _sortKeyAllVideos = 'allVideos';
+  static const String _sortKeyAllImages = 'allImages';
+  static const String _sortKeyDownloadedVideos = 'downloadedVideos';
+
+  static const LocalMediaOrder _defaultFavVideoOrder = LocalMediaOrder(
     LocalMediaSortField.favorited,
     ascending: false,
   );
-  LocalMediaOrder _downloadedVideoOrder = const LocalMediaOrder(
+  static const LocalMediaOrder _defaultMediaOrder = LocalMediaOrder(
     LocalMediaSortField.modified,
     ascending: false,
   );
-  LocalMediaOrder _allVideoOrder = const LocalMediaOrder(
-    LocalMediaSortField.modified,
-    ascending: false,
-  );
-  LocalMediaOrder _allImageOrder = const LocalMediaOrder(
-    LocalMediaSortField.modified,
-    ascending: false,
-  );
+
+  late LocalMediaOrder _favVideoOrder;
+  late LocalMediaOrder _downloadedVideoOrder;
+  late LocalMediaOrder _allVideoOrder;
+  late LocalMediaOrder _allImageOrder;
 
   static const List<LocalMediaSortField> _imageSortFields = [
     LocalMediaSortField.name,
@@ -156,6 +163,10 @@ class _LocalHomePageState extends State<LocalHomePage>
   /// [_reloadPinnedFolders] 一起更新。
   Set<String> _pinnedKeys = const <String>{};
 
+  /// 「常用目录」里那些**同时被隐藏**的（键同 [_pinKey]）。只有开着
+  /// 「显示隐藏的文件夹」时才可能非空——关着的时候它们根本不在列表里。
+  Set<String> _hiddenPinKeys = const <String>{};
+
   /// 每个来源的封面与条目数，随 [_reloadSources] 一起算一次。
   ///
   /// ⛔ 不要在 build 里现查：sqlite3 在主 isolate 上是同步的，卡片在滚动中反复
@@ -181,9 +192,36 @@ class _LocalHomePageState extends State<LocalHomePage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: _tabCount, vsync: this);
+    _favVideoOrder = _restoreOrder(
+      _sortKeyFavVideos,
+      _favVideoSortFields,
+      _defaultFavVideoOrder,
+    );
+    _allVideoOrder = _restoreOrder(
+      _sortKeyAllVideos,
+      _videoSortFields,
+      _defaultMediaOrder,
+    );
+    _allImageOrder = _restoreOrder(
+      _sortKeyAllImages,
+      _imageSortFields,
+      _defaultMediaOrder,
+    );
+    _downloadedVideoOrder = _restoreOrder(
+      _sortKeyDownloadedVideos,
+      _videoSortFields,
+      _defaultMediaOrder,
+    );
+    _lastPersistedTab = _restoreTabIndex();
+    _tabController = TabController(
+      length: _tabCount,
+      vsync: this,
+      initialIndex: _lastPersistedTab,
+    );
     _tabController.addListener(() {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      setState(() {});
+      _persistTabIndex();
     });
     WidgetsBinding.instance.addObserver(this);
     _reloadSources();
@@ -347,7 +385,22 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   void _reloadPinnedFolders() {
     if (!mounted) return;
-    final pinned = _repository.getPinnedFolders();
+    // 「常用目录」也是目录树的一部分：藏了的目录不该从这儿绕回来。
+    //
+    // ⛔ 隐藏时**不顺手取消置顶**：那是两件事，用户藏一阵子再放出来时，自己设过
+    // 的常用还得在。所以这里只是**不显示**，置顶行原样留着。
+    final showHidden = LocalFolderActions.showHiddenFolders;
+    final hiddenBySource = <String, Set<String>>{};
+    final pinned = _repository.getPinnedFolders().where((folder) {
+      if (folder.relPath.isEmpty) return true;
+      // ⛔ 这一次查库**不能**放在 `showHidden` 短路后面：开关开着时也要知道谁是
+      // 隐藏的，卡片和菜单都要照它换脸（见下面 `_hiddenPinKeys` 那段）。
+      final hidden = hiddenBySource.putIfAbsent(
+        folder.sourceId,
+        () => _repository.hiddenRelPaths(folder.sourceId),
+      );
+      return showHidden || !hidden.contains(folder.relPath);
+    }).toList();
     final rows = <String, LocalMediaFolder>{};
     for (final folder in pinned) {
       final row =
@@ -365,6 +418,20 @@ class _LocalHomePageState extends State<LocalHomePage>
       _pinnedFolderRows = rows;
       _pinnedKeys = <String>{
         for (final folder in pinned) _pinKey(folder.sourceId, folder.relPath),
+      };
+      // ⛔ 隐藏集合要**存下来往卡片上传**，不能只用来过滤。
+      //
+      // 只过滤的话，「显示隐藏的文件夹」开着时，一个既被置顶又被隐藏的目录会画成
+      // 一张普普通通的卡片（不半透明、没有闭眼图标），而它的 ⋮ 里出的是「隐藏此
+      // 文件夹」——点下去走 `ON CONFLICT DO UPDATE`，弹一句「已隐藏」、画面纹丝
+      // 不动、一句错都不报。用户从这张卡上**永远取消不掉隐藏**。
+      _hiddenPinKeys = <String>{
+        for (final folder in pinned)
+          if (folder.relPath.isNotEmpty &&
+              (hiddenBySource[folder.sourceId] ?? const <String>{}).contains(
+                folder.relPath,
+              ))
+            _pinKey(folder.sourceId, folder.relPath),
       };
     });
   }
@@ -412,6 +479,70 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   static String _pinKey(String sourceId, String relPath) =>
       '$sourceId\u0000$relPath';
+
+  // ── 「下次进来还是我上次那一栏」 ────────────────────────────────────────────
+  //
+  // 栏目下标与四个卡片墙的排序都落进 app_config。⛔ 全程**读不到就用默认值**，
+  // 一句错都不许报：这是个锦上添花的记忆，不该因为配置服务没起来（测试环境、
+  // 首帧竞态）而把整页拦下来。
+
+  /// 上一次写进配置的栏目下标。每次 tab 动都写一遍库是浪费——`TabController`
+  /// 的监听在一次横滑里会响很多次，而这里的写入是同步 sqlite。
+  int _lastPersistedTab = _tabFolders;
+
+  ConfigService? get _config =>
+      Get.isRegistered<ConfigService>() ? Get.find<ConfigService>() : null;
+
+  int _restoreTabIndex() {
+    final stored = _config?[ConfigKey.LOCAL_MEDIA_LAST_TAB_KEY];
+    // ⛔ 必须夹一次：栏目数量以后改小、或库里那条被写脏时，越界的 initialIndex
+    // 会让 TabController 在首帧当场断言崩掉。
+    if (stored is int && stored >= 0 && stored < _tabCount) return stored;
+    return _tabFolders;
+  }
+
+  void _persistTabIndex() {
+    final index = _tabController.index;
+    if (index == _lastPersistedTab) return;
+    _lastPersistedTab = index;
+    _config?[ConfigKey.LOCAL_MEDIA_LAST_TAB_KEY] = index;
+  }
+
+  /// 读回某一栏的排序。
+  ///
+  /// [allowed] 是这一栏**排序控件真的列得出来**的字段。存档里的字段不在其中就退回
+  /// 默认——「精选时间」只有精选栏有，哪天我们收窄了某一栏的字段表，一个在列表里
+  /// 根本选不中的排序会让排序胶囊显示成空白。
+  LocalMediaOrder _restoreOrder(
+    String tabKey,
+    List<LocalMediaSortField> allowed,
+    LocalMediaOrder fallback,
+  ) {
+    final raw = _config?[ConfigKey.LOCAL_MEDIA_TAB_SORTS_KEY];
+    if (raw is! Map) return fallback;
+    final stored = raw[tabKey];
+    if (stored is! String) return fallback;
+    final parts = stored.split(':');
+    if (parts.length != 2) return fallback;
+    for (final field in allowed) {
+      if (field.name == parts[0]) {
+        return LocalMediaOrder(field, ascending: parts[1] == 'asc');
+      }
+    }
+    return fallback;
+  }
+
+  void _persistOrder(String tabKey, LocalMediaOrder order) {
+    final config = _config;
+    if (config == null) return;
+    final raw = config[ConfigKey.LOCAL_MEDIA_TAB_SORTS_KEY];
+    final map = <String, String>{
+      if (raw is Map)
+        for (final entry in raw.entries) '${entry.key}': '${entry.value}',
+    };
+    map[tabKey] = '${order.field.name}:${order.ascending ? 'asc' : 'desc'}';
+    config[ConfigKey.LOCAL_MEDIA_TAB_SORTS_KEY] = map;
+  }
 
   void _onScanProgress(LocalMediaScanProgress? progress) {
     if (!mounted || progress == null) return;
@@ -1057,22 +1188,34 @@ class _LocalHomePageState extends State<LocalHomePage>
       _tabFavoriteVideos => (
         _favVideoOrder,
         _favVideoSortFields,
-        (LocalMediaOrder o) => setState(() => _favVideoOrder = o),
+        (LocalMediaOrder o) {
+          setState(() => _favVideoOrder = o);
+          _persistOrder(_sortKeyFavVideos, o);
+        },
       ),
       _tabAllVideos => (
         _allVideoOrder,
         _videoSortFields,
-        (LocalMediaOrder o) => setState(() => _allVideoOrder = o),
+        (LocalMediaOrder o) {
+          setState(() => _allVideoOrder = o);
+          _persistOrder(_sortKeyAllVideos, o);
+        },
       ),
       _tabAllImages => (
         _allImageOrder,
         _imageSortFields,
-        (LocalMediaOrder o) => setState(() => _allImageOrder = o),
+        (LocalMediaOrder o) {
+          setState(() => _allImageOrder = o);
+          _persistOrder(_sortKeyAllImages, o);
+        },
       ),
       _tabDownloadedVideos => (
         _downloadedVideoOrder,
         _videoSortFields,
-        (LocalMediaOrder o) => setState(() => _downloadedVideoOrder = o),
+        (LocalMediaOrder o) {
+          setState(() => _downloadedVideoOrder = o);
+          _persistOrder(_sortKeyDownloadedVideos, o);
+        },
       ),
       // 文件目录 / 常用目录 / 下载完成图库这三栏摆的是**容器**不是条目，没有
       // 「按时长排」这回事，整组排序控件让位（`AnimatedSwitcher` 会收进去）。
@@ -1349,6 +1492,9 @@ class _LocalHomePageState extends State<LocalHomePage>
             builder: (cardContext) => LocalFolderCardWidget(
               folder: folder,
               pinned: true,
+              hidden: _hiddenPinKeys.contains(
+                _pinKey(pinned.sourceId, pinned.relPath),
+              ),
               onOpen: () {
                 appRouter.push(
                   LocalFolderRoute.location(
@@ -1365,6 +1511,9 @@ class _LocalHomePageState extends State<LocalHomePage>
                   folderPath: folder.folderPath,
                   pinned: true,
                   coverPinned: folder.coverPinned,
+                  hidden: _hiddenPinKeys.contains(
+                    _pinKey(pinned.sourceId, pinned.relPath),
+                  ),
                   displayName: pinned.displayName,
                   // ⛔ 与「文件目录」里同一个目录的卡片必须是**同一张菜单**：从
                   // 常用目录进和从文件目录进看到的能力不一样，正是用户说的"内外

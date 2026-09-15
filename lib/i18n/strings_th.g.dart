@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseTh extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'วิดีโอ';
 	@override String get imagesSection => 'รูปภาพ';
 	@override String get galleriesSection => 'แกลเลอรี';
+	@override String get filterAll => 'ทั้งหมด';
+	@override String get searchInFolder => 'ค้นหาในโฟลเดอร์นี้';
+	@override String get searchHint => 'ค้นหาตามชื่อ';
+	@override String get clearSearch => 'ล้างการค้นหา';
+	@override String searchNoResult({required Object query}) => 'ไม่พบรายการที่ตรงกับ "${query}"';
+	@override String viewAllFolders({required Object count}) => 'ดูโฟลเดอร์ทั้งหมด ${count} รายการ';
+	@override String viewAllVideos({required Object count}) => 'ดูวิดีโอทั้งหมด ${count} รายการ';
+	@override String viewAllImages({required Object count}) => 'ดูรูปภาพทั้งหมด ${count} รายการ';
+	@override String viewAllGalleries({required Object count}) => 'ดูแกลเลอรีทั้งหมด ${count} รายการ';
 	@override String get location => 'ตำแหน่ง';
 	@override String get sourceMissing => 'แหล่งนี้หายไปแล้ว';
 	@override String get notScannedYet => 'โฟลเดอร์นี้ยังไม่ได้สแกน';
 	@override String get scanning => 'กำลังอ่านโฟลเดอร์นี้…';
 	@override String get deleteFileTitle => 'ลบไฟล์นี้หรือไม่';
 	@override String deleteFileBody({required Object name}) => '“${name}” จะถูกลบออกจากอุปกรณ์นี้อย่างถาวร การกระทำนี้ย้อนกลับไม่ได้';
+	@override String get hideFolder => 'ซ่อนโฟลเดอร์นี้';
+	@override String get unhideFolder => 'เลิกซ่อน';
+	@override String get showHiddenFolders => 'แสดงโฟลเดอร์ที่ซ่อนไว้';
+	@override String get folderHidden => 'ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย';
+	@override String get folderUnhidden => 'เลิกซ่อนแล้ว';
+	@override String get hiddenFolderBadge => 'ซ่อนอยู่';
+	@override String get deleteFolder => 'ลบโฟลเดอร์';
+	@override String get deleteFolderTitle => 'ลบโฟลเดอร์นี้หรือไม่';
+	@override String deleteFolderBody({required Object name}) => '"${name}" และทุกอย่างข้างในจะถูกลบออกจากอุปกรณ์นี้อย่างถาวร ไม่สามารถกู้คืนได้';
+	@override String get deleteFolderIncludesOthers => 'ไฟล์อื่นที่อยู่ข้างในจะถูกลบไปด้วย';
+	@override String get folderDeleted => 'ลบโฟลเดอร์แล้ว';
+	@override String get deleteFolderFailed => 'ลบไม่สำเร็จ อาจไม่มีสิทธิ์ หรือมีไฟล์ข้างในกำลังถูกใช้งาน';
 	@override String get deleteGalleryTitle => 'ลบแกลเลอรีนี้หรือไม่';
 	@override String deleteGalleryBody({required Object name}) => 'ประวัติการดาวน์โหลดและไฟล์ภาพในเครื่องของ “${name}” จะถูกลบ การกระทำนี้ย้อนกลับไม่ได้';
 	@override String get galleryResourceMissing => 'ไฟล์ในเครื่องไม่มีอยู่แล้ว ล้างข้อมูลเรียบร้อย';
@@ -6885,12 +6906,33 @@ extension on TranslationsTh {
 			'localMedia.browse.videosSection' => 'วิดีโอ',
 			'localMedia.browse.imagesSection' => 'รูปภาพ',
 			'localMedia.browse.galleriesSection' => 'แกลเลอรี',
+			'localMedia.browse.filterAll' => 'ทั้งหมด',
+			'localMedia.browse.searchInFolder' => 'ค้นหาในโฟลเดอร์นี้',
+			'localMedia.browse.searchHint' => 'ค้นหาตามชื่อ',
+			'localMedia.browse.clearSearch' => 'ล้างการค้นหา',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'ไม่พบรายการที่ตรงกับ "${query}"',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'ดูโฟลเดอร์ทั้งหมด ${count} รายการ',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'ดูวิดีโอทั้งหมด ${count} รายการ',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'ดูรูปภาพทั้งหมด ${count} รายการ',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'ดูแกลเลอรีทั้งหมด ${count} รายการ',
 			'localMedia.browse.location' => 'ตำแหน่ง',
 			'localMedia.browse.sourceMissing' => 'แหล่งนี้หายไปแล้ว',
 			'localMedia.browse.notScannedYet' => 'โฟลเดอร์นี้ยังไม่ได้สแกน',
 			'localMedia.browse.scanning' => 'กำลังอ่านโฟลเดอร์นี้…',
 			'localMedia.browse.deleteFileTitle' => 'ลบไฟล์นี้หรือไม่',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '“${name}” จะถูกลบออกจากอุปกรณ์นี้อย่างถาวร การกระทำนี้ย้อนกลับไม่ได้',
+			'localMedia.browse.hideFolder' => 'ซ่อนโฟลเดอร์นี้',
+			'localMedia.browse.unhideFolder' => 'เลิกซ่อน',
+			'localMedia.browse.showHiddenFolders' => 'แสดงโฟลเดอร์ที่ซ่อนไว้',
+			'localMedia.browse.folderHidden' => 'ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย',
+			'localMedia.browse.folderUnhidden' => 'เลิกซ่อนแล้ว',
+			'localMedia.browse.hiddenFolderBadge' => 'ซ่อนอยู่',
+			'localMedia.browse.deleteFolder' => 'ลบโฟลเดอร์',
+			'localMedia.browse.deleteFolderTitle' => 'ลบโฟลเดอร์นี้หรือไม่',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" และทุกอย่างข้างในจะถูกลบออกจากอุปกรณ์นี้อย่างถาวร ไม่สามารถกู้คืนได้',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'ไฟล์อื่นที่อยู่ข้างในจะถูกลบไปด้วย',
+			'localMedia.browse.folderDeleted' => 'ลบโฟลเดอร์แล้ว',
+			'localMedia.browse.deleteFolderFailed' => 'ลบไม่สำเร็จ อาจไม่มีสิทธิ์ หรือมีไฟล์ข้างในกำลังถูกใช้งาน',
 			'localMedia.browse.deleteGalleryTitle' => 'ลบแกลเลอรีนี้หรือไม่',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'ประวัติการดาวน์โหลดและไฟล์ภาพในเครื่องของ “${name}” จะถูกลบ การกระทำนี้ย้อนกลับไม่ได้',
 			'localMedia.browse.galleryResourceMissing' => 'ไฟล์ในเครื่องไม่มีอยู่แล้ว ล้างข้อมูลเรียบร้อย',

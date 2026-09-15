@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Vídeos
     imagesSection: Imágenes
     galleriesSection: Galerías
+    filterAll: Todo
+    searchInFolder: Buscar en esta carpeta
+    searchHint: Buscar por nombre
+    clearSearch: Borrar búsqueda
+    searchNoResult: 'No hay coincidencias con «${query}»'
+    viewAllFolders: "Ver las ${count} carpetas"
+    viewAllVideos: "Ver los ${count} vídeos"
+    viewAllImages: "Ver las ${count} imágenes"
+    viewAllGalleries: "Ver las ${count} galerías"
     location: Ubicación
     sourceMissing: Esta fuente ya no existe
     notScannedYet: Esta carpeta aún no se ha escaneado
     scanning: Leyendo esta carpeta…
     deleteFileTitle: ¿Eliminar este archivo?
     deleteFileBody: '"${name}" se eliminará permanentemente de este dispositivo. Esta acción no se puede deshacer.'
+    hideFolder: Ocultar esta carpeta
+    unhideFolder: Mostrar de nuevo
+    showHiddenFolders: Mostrar carpetas ocultas
+    folderHidden: Oculta; el escaneo también la omitirá
+    folderUnhidden: Ya no está oculta
+    hiddenFolderBadge: Oculta
+    deleteFolder: Eliminar carpeta
+    deleteFolderTitle: ¿Eliminar esta carpeta?
+    deleteFolderBody: '«${name}» y todo su contenido se eliminarán definitivamente de este dispositivo. No se puede deshacer.'
+    deleteFolderIncludesOthers: Los demás archivos que contenga también se eliminarán
+    folderDeleted: Carpeta eliminada
+    deleteFolderFailed: 'No se pudo eliminar: sin permisos o hay un archivo en uso'
     deleteGalleryTitle: ¿Eliminar esta galería?
     deleteGalleryBody: 'Se eliminarán el registro de descarga y los archivos de imagen locales de "${name}". Esta acción no se puede deshacer.'
     galleryResourceMissing: Los archivos locales ya no existen. Se limpió el registro.

@@ -318,6 +318,22 @@ class LocalMediaScanService extends GetxService {
     }
   }
 
+  /// 这个源里被隐藏的目录的**绝对路径**，交给 worker 当"别进去"的名单。
+  ///
+  /// 拼法必须与 worker 里那份 `p.normalize(dir.path)` 一字不差（同 `root` 那一行
+  /// 的处理）：worker 拿规范化后的绝对路径去比，这边少 normalize 一次，Windows 上
+  /// 就会因为 `a/b` 与 `a\b` 对不上而一条都匹配不到——而且**不报任何错**，表现成
+  /// 「隐藏了却还是照扫」。
+  List<String> _hiddenAbsolutePaths(LocalMediaSource source) {
+    final root = source.path;
+    if (root == null || root.isEmpty) return const <String>[];
+    final hidden = LocalMediaRepository().hiddenRelPaths(source.id);
+    return <String>[
+      for (final rel in hidden)
+        if (rel.isNotEmpty) p.normalize(p.join(root, rel)),
+    ];
+  }
+
   Future<void> _scanTree({
     required LocalMediaSource source,
 
@@ -822,6 +838,16 @@ class LocalMediaScanService extends GetxService {
               'videoExts': kLocalVideoExtensions.toList(),
               'imageExts': kSidecarImageExtensions.toList(),
               'skipDirs': kSkippedDirectoryNames.toList(),
+              // 用户隐藏过的目录：**整棵子树连列都不列**。
+              //
+              // ⛔ 不能只在界面上过滤——「隐藏」这条功能一半的价值就在"别去遍历
+              // 它"（用户的原话是"不需要展示和遍历"）：一个装着几万个缓存文件的
+              // 目录，藏了还照扫，该省的时间一秒都没省下。
+              //
+              // ⛔ 扫描根**自己**不在此列（见 worker 里那条判据）：用户开着
+              // 「显示隐藏的文件夹」主动点进一个隐藏目录时，那一层照样要列出来，
+              // 否则他看到的是一屏"空的"。
+              'skipPaths': _hiddenAbsolutePaths(currentSource),
               'collectImages': collectImages,
               'collectVideos': collectVideos,
             },
@@ -1254,11 +1280,22 @@ class LocalMediaScanService extends GetxService {
           effectiveError = '$e';
         }
       } else {
+        // ⛔ 隐藏目录必须和"读不动的目录"一起豁免收敛。
+        //
+        // 这一轮 worker 压根没走进去（`skipPaths`），所以它底下的条目一个都不在
+        // `seen` 里——不豁免的话，一次全量重扫就会把整棵子树的条目打成 missing。
+        // 后果远不止"墙上少了一批"：`backfillFolderCounts` 只数 missing = 0 的东西，
+        // 于是隐藏目录的三个计数全部归零，`childFolders` 的"藏空叶子"残余过滤当场
+        // 把它滤掉——**开着「显示隐藏的文件夹」也再看不见它**，隐藏成了单程票。
+        //
+        // `excludeFolderTrees` 的口径本来就是「这一轮确实没走进去的子树，没看到
+        // 不等于不存在」（见那边的文档），隐藏目录精确符合。
+        final hiddenTrees = _hiddenAbsolutePaths(source);
         try {
           _repository.markMissingExcept(
             source.id,
             seen,
-            excludeFolderTrees: failedFolders,
+            excludeFolderTrees: <String>[...?failedFolders, ...hiddenTrees],
           );
         } catch (e) {
           LogUtils.e('收敛 missing 失败', tag: _tag, error: e);
@@ -1273,7 +1310,13 @@ class LocalMediaScanService extends GetxService {
             _repository.markFoldersMissingExcept(
               source.id,
               seenFolders,
-              excludeRelPathTrees: <String>{...?failedFolderRels},
+              // ⛔ 这一个比的是 `rel_path`，上面那个比的是绝对 `folder_path`
+              // ——两个方法的文档都写着"照抄到另一列上就是静默失效"。隐藏目录
+              // 在这里用 `hiddenRelPaths` 的原样返回值，别拿 `hiddenTrees`。
+              excludeRelPathTrees: <String>{
+                ...?failedFolderRels,
+                ..._repository.hiddenRelPaths(source.id),
+              },
             );
           } catch (e) {
             LogUtils.e('收敛目录 missing 失败', tag: _tag, error: e);
@@ -1514,6 +1557,12 @@ Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
       .cast<String>()
       .map((e) => e.toLowerCase())
       .toSet();
+  // 用户隐藏的目录（绝对路径，已 normalize）。⛔ 这里**不折大小写**：
+  // macOS/Windows 的文件系统是大小写不敏感的，但两边的路径都来自同一处
+  // （库里的 rel_path 与磁盘上列出来的名字），本来就一字不差；折了反而会在
+  // Linux 上把两个真正不同的目录当成同一个。
+  final skipPaths =
+      (args['skipPaths'] as List?)?.cast<String>().toSet() ?? const <String>{};
   final collectImages = args['collectImages'] as bool? ?? false;
   final collectVideos = args['collectVideos'] as bool? ?? true;
 
@@ -1832,11 +1881,42 @@ Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
       }
 
       final visibleSubdirs = <Directory>[];
+      final hiddenSubdirs = <Directory>[];
       for (final dir in subdirs) {
         final name = p.basename(dir.path);
         if (name.startsWith('.')) continue;
         if (skipDirs.contains(name.toLowerCase())) continue;
+        // 用户隐藏的目录：知道它在，但**不进去**。
+        //
+        // ⛔ 判据只在这里（子目录那一侧），够不到扫描根自己——那是有意的：用户
+        // 开着「显示隐藏的文件夹」主动点进一个隐藏目录时，`root` 就是它，那一层
+        // 必须照常列出来，否则点进去是一屏「这个文件夹是空的」。
+        if (skipPaths.contains(p.normalize(dir.path))) {
+          hiddenSubdirs.add(dir);
+          continue;
+        }
         visibleSubdirs.add(dir);
+      }
+
+      // ⛔ 隐藏目录必须**发一条占位行**，不能当它不存在。
+      //
+      // 这一层的收敛是"先把没见到的孩子标 missing、见到的洗回来"
+      // （`markChildFoldersMissingExceptUnder`）。一声不吭地跳过，等于宣布这个
+      // 目录没了 → 它的行被标 missing → 而 `childFolders` 默认滤掉 missing →
+      // 用户打开「显示隐藏的文件夹」之后**什么都看不到**，隐藏就此变成了单程票。
+      //
+      // 占位行走的是 `stub: true` 那条路（`upsertFolderStubs`，ON CONFLICT DO
+      // NOTHING），所以它已经学到的封面和计数一个都不会被这次的两个 null 抹掉。
+      for (final dir in hiddenSubdirs) {
+        if (!await addFolder(<String, Object?>{
+          'path': p.normalize(dir.path),
+          'rel': relPathOf(dir.path),
+          'modified': null,
+          'cover': null,
+          'stub': true,
+        })) {
+          break;
+        }
       }
 
       if (recursive && current.depth < maxDepth) {

@@ -398,6 +398,12 @@ class LocalMediaRepository {
         'DELETE FROM local_media_pinned_folders WHERE source_id = ?',
         [id],
       );
+      // 隐藏目录同理：不删的话，重新添加同一个文件夹（新 UUID）虽然不受影响，
+      // 但这些行永远不会被谁清掉，只会一直攒着。
+      _db.execute(
+        'DELETE FROM local_media_hidden_folders WHERE source_id = ?',
+        [id],
+      );
       _db.execute('DELETE FROM local_media_sources WHERE id = ?', [id]);
       _db.execute('COMMIT');
       notifyChanged();
@@ -970,7 +976,10 @@ class LocalMediaRepository {
       );
       if (candidates.isEmpty) return false;
       final distinct = candidates
-          .map((c) => '${c['projection']}\u0000${c['stereo']}\u0000${c['xr_format']}')
+          .map(
+            (c) =>
+                '${c['projection']}\u0000${c['stereo']}\u0000${c['xr_format']}',
+          )
           .toSet();
       if (distinct.length != 1) {
         LogUtils.i('同指纹的 ${candidates.length} 条覆盖彼此不一致，不替 $itemId 认领', _tag);
@@ -1338,6 +1347,7 @@ class LocalMediaRepository {
     required String? categoryId,
     required bool includeMissing,
     required bool favoritedOnly,
+    String? nameQuery,
   }) {
     final where = <String>['kind = ?'];
     final params = <Object?>[kind.name];
@@ -1349,6 +1359,21 @@ class LocalMediaRepository {
       where.add('folder_path = ?');
       params.add(folderPath);
     }
+    final like = buildLikePattern(nameQuery);
+    if (like != null) {
+      // ⛔ 匹配 `name`，**绝不能**匹配 `sort_name`。
+      //
+      // 第一版写的是 `sort_name`，理由是"那一列写库时就 toLowerCase 过"——这个
+      // 理由是错的。`sort_name` 是 [naturalSortKey] 的产物，它把**每一段数字重写成
+      // 「两位长度前缀 + 去前导零的数字」**：`EP5.mp4` → `ep015.mp4`、
+      // `第2话` → `第012话`。于是搜 `ep5` 在里头一条都匹配不上，而同一屏的子文件夹
+      // （在内存里按 name 过滤）却搜得到——同一个词，文件夹出得来、视频出不来。
+      //
+      // 大小写不用自己折：SQLite 的 `LIKE` 默认就对 ASCII 不区分大小写
+      // （`case_sensitive_like` 默认关），而 CJK 本来就没有大小写。
+      where.add("name LIKE ? ESCAPE '\\'");
+      params.add(like);
+    }
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
     if (favoritedOnly) where.add('favorited_at IS NOT NULL');
@@ -1356,6 +1381,23 @@ class LocalMediaRepository {
         ? ' INDEXED BY idx_local_items_folder_kind_sort'
         : '';
     return (sql: '$indexed WHERE ${where.join(' AND ')}', params: params);
+  }
+
+  /// 把用户输入的一段关键词变成 `LIKE` 的模式串；空白输入返回 null（＝不过滤）。
+  ///
+  /// ⛔ `%` `_` `\` 必须转义。不转的话用户输入一个 `_`（文件名里极常见，
+  /// `[4K]_1080P` 之类）就成了「任意一个字符」的通配符，搜出来一堆对不上的东西；
+  /// 输入 `%` 更是直接匹配全部。转义符声明在调用点的 `ESCAPE '\'` 里。
+  /// ⛔ 不折大小写：`LIKE` 自己对 ASCII 就不区分（见 [_itemFilter]）。折了反而会让
+  /// 用户输入的大写字母去和原样存着的 `name` 比，白白少一批命中。
+  static String? buildLikePattern(String? raw) {
+    final trimmed = raw?.trim();
+    if (trimmed == null || trimmed.isEmpty) return null;
+    final escaped = trimmed
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
+    return '%$escaped%';
   }
 
   /// 分页查条目。列表永远走这里，**不整表进内存**。
@@ -1368,6 +1410,7 @@ class LocalMediaRepository {
     String? categoryId,
     bool includeMissing = false,
     bool favoritedOnly = false,
+    String? nameQuery,
     required int offset,
     required int limit,
   }) {
@@ -1378,6 +1421,7 @@ class LocalMediaRepository {
       categoryId: categoryId,
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
+      nameQuery: nameQuery,
     );
     final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
     final rows = _db.select(
@@ -1412,6 +1456,7 @@ class LocalMediaRepository {
     String? categoryId,
     bool includeMissing = false,
     bool favoritedOnly = false,
+    String? nameQuery,
     required int limit,
   }) {
     final filter = _itemFilter(
@@ -1421,6 +1466,7 @@ class LocalMediaRepository {
       categoryId: categoryId,
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
+      nameQuery: nameQuery,
     );
     final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
     final rows = _db.select(
@@ -1446,6 +1492,7 @@ class LocalMediaRepository {
     String? categoryId,
     bool includeMissing = false,
     bool favoritedOnly = false,
+    String? nameQuery,
   }) {
     final filter = _itemFilter(
       sourceId: sourceId,
@@ -1454,6 +1501,7 @@ class LocalMediaRepository {
       categoryId: categoryId,
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
+      nameQuery: nameQuery,
     );
     final rows = _db.select(
       'SELECT COUNT(*) AS c FROM local_media_items${filter.sql}',
@@ -1824,15 +1872,36 @@ class LocalMediaRepository {
   /// ⛔ 它只挡得住**叶子**：`child_folder_count` 不分媒体类型，所以"子树里全是
   /// 图片"的目录在视频口径下仍会留在列表里。根治同样要在 [backfillFolderCounts]
   /// 里按 kind 各传播一次，代价比收益大。
+  /// [includeHidden] ＝ 把用户隐藏过的目录也列出来（「显示隐藏的文件夹」开着时）。
+  ///
+  /// ⛔ 这道过滤写在**仓储层**，不是各个页面各自过滤一遍：目录树不止浏览页一处
+  /// 在画（还有播放器的「接着看」抽屉、Quest 的空间面板），漏掉哪一处，用户就会在
+  /// 那儿撞见自己明明藏起来的目录。见本仓库的 `prefer-mechanism-fix-over-per-callsite`。
+  ///
+  /// ⚠️ 口径写在这里免得以后被当 bug 修：**只有「本机文件」这个模块会把
+  /// `includeHidden` 传真**。「接着看」抽屉与 Quest 空间面板一律用默认值，也就是
+  /// 开着「显示隐藏的文件夹」时它们**照样看不见**隐藏目录——那个开关是这个模块里
+  /// 用来"把藏起来的请回来取消隐藏"的临时工具，不是一个全局可见性阀门。
   List<LocalMediaFolder> childFolders({
     required String sourceId,
     required String parentRelPath,
     bool includeMissing = false,
     bool includeEmpty = false,
+    bool includeHidden = false,
     LocalMediaItemKind? mediaKind,
   }) {
     final where = <String>['source_id = ?', 'parent_rel_path = ?'];
     final params = <Object?>[sourceId, parentRelPath];
+    if (!includeHidden) {
+      // 子查询而不是先查一份集合再拼 IN：隐藏目录通常只有几条，这张表小到
+      // SQLite 会整表读进内存，而拼 IN 会让 SQL 的形状随隐藏个数变（吃不到
+      // 语句缓存），隐藏得多了还会撞上变量上限。
+      where.add(
+        'rel_path NOT IN (SELECT rel_path FROM local_media_hidden_folders '
+        'WHERE source_id = ?)',
+      );
+      params.add(sourceId);
+    }
     if (!includeMissing) {
       where.add('missing = 0');
     }
@@ -2103,6 +2172,161 @@ class LocalMediaRepository {
     }
     if (removed > 0) notifyChanged();
     return removed;
+  }
+
+  /// 一棵子目录**整个子树**里有多少东西，供「真删」的确认弹窗报数。
+  ///
+  /// # ⛔ 不能拿目录行自己那三个计数去报
+  ///
+  /// `video_count` / `image_count` 数的是**直属**子文件，`child_folder_count` 是
+  /// **直属**子目录（见 [backfillFolderCounts]）。而删是 `recursive: true` 的整棵树。
+  /// 一个"自己没有直属媒体、底下 8 个子目录各装 2000 个视频"的目录，照直属口径报出来
+  /// 是「8 个文件夹」——用户据此按下的那一下，删掉的是 16000 个文件。不可撤销的操作
+  /// 上，量级差三个数量级的提示比没有提示更坏。
+  ///
+  /// [probed] ＝ 这一层**探过没有**。没探过时连子树的数都是虚的（懒扫描还没走到
+  /// 底下几层），调用方该换成一句定性的警告，而不是报一个偏小的数。
+  ///
+  /// ⚠️ 即便探过，这个数也**只含扫进库的媒体**：压缩包、字幕、文档、`.nomedia`
+  /// 一概不在其中，而它们同样会被删掉。调用方必须另外说明这一点。
+  ({int folders, int videos, int images, bool probed}) folderSubtreeSummary({
+    required String sourceId,
+    required String relPath,
+  }) {
+    final rows = _db.select(
+      'SELECT rel_path, video_count, image_count, probed_at '
+      'FROM local_media_folders WHERE source_id = ? AND missing = 0',
+      <Object?>[sourceId],
+    );
+    final prefix = '$relPath/';
+    var folders = 0;
+    var videos = 0;
+    var images = 0;
+    var probed = false;
+    for (final row in rows) {
+      final rel = (row['rel_path'] as String?) ?? '';
+      final isSelf = rel == relPath;
+      if (!isSelf && !rel.startsWith(prefix)) continue;
+      if (!isSelf) folders++;
+      videos += (row['video_count'] as int?) ?? 0;
+      images += (row['image_count'] as int?) ?? 0;
+      if (isSelf) probed = row['probed_at'] != null;
+    }
+    return (folders: folders, videos: videos, images: images, probed: probed);
+  }
+
+  /// 把一棵子目录连同它底下的一切**从库里**抹掉：条目、进度、VR 覆盖、目录行、
+  /// 常用目录。
+  ///
+  /// # ⛔ 这个方法同样**不动磁盘**
+  ///
+  /// 删目录是调用方的事（`Directory.delete(recursive: true)`），顺序与
+  /// [deleteItems] 一字不差：**先删磁盘，成功了再删库行**。反过来的话，目录删失败
+  /// （权限没了、里面有文件正被播放器占着）而库行已经没了，结果是磁盘上东西还在、
+  /// 应用里再也看不见也删不掉——目录源不会自己重扫，得等用户碰巧再点进这一层。
+  ///
+  /// # ⛔ 子树是在 Dart 里按前缀挑的，不下 `LIKE`
+  ///
+  /// 真实路径里 `%` 和 `_` 都是常客（`[4K]_1080P`），拿它去拼 LIKE 就是一串通配符；
+  /// 而且 Windows 上 `folder_path` 的分隔符是反斜杠，前缀里写死 `/` 一条都匹配不上。
+  /// `rel_path` 倒是全平台都用 `/`（见 [breadcrumb]），所以子树判据只认它，绝对路径
+  /// 只作为「要删哪些 `folder_path`」的取值。
+  ///
+  /// [folderPath] 是这一层的绝对路径，由调用方给：库里那一行**可能还不存在**
+  /// （懒扫描还没走到这一层，却已经有条目落在里面），而它正是删条目的唯一钥匙。
+  ///
+  /// ⛔ 来源根（`relPath` 为空）不走这里：那是「移除来源」的地盘，见 [deleteSource]。
+  /// 真把一个源的根目录从磁盘上删掉是这个模块能做的最重的一件事，不该和"删个子
+  /// 文件夹"共用一条路。
+  ({int folders, int items}) deleteFolderSubtree({
+    required String sourceId,
+    required String relPath,
+    required String folderPath,
+  }) {
+    if (relPath.isEmpty) {
+      throw ArgumentError.value(relPath, 'relPath', '来源根不走这里，见 deleteSource');
+    }
+
+    final prefix = '$relPath/';
+    final rows = _db.select(
+      'SELECT rel_path, folder_path FROM local_media_folders '
+      'WHERE source_id = ?',
+      <Object?>[sourceId],
+    );
+    final relPaths = <String>{relPath};
+    final folderPaths = <String>{folderPath};
+    for (final row in rows) {
+      final rel = (row['rel_path'] as String?) ?? '';
+      if (rel != relPath && !rel.startsWith(prefix)) continue;
+      relPaths.add(rel);
+      final abs = row['folder_path'] as String?;
+      if (abs != null && abs.isNotEmpty) folderPaths.add(abs);
+    }
+
+    var removedItems = 0;
+    var removedFolders = 0;
+    _db.execute('BEGIN');
+    try {
+      _inChunks<String>(folderPaths.toList(), (marks, chunk) {
+        final params = <Object?>[sourceId, ...chunk];
+        const itemIds =
+            'SELECT id FROM local_media_items '
+            'WHERE source_id = ? AND folder_path IN';
+        _db.execute(
+          'DELETE FROM local_media_progress WHERE item_id IN '
+          '($itemIds ($marks))',
+          params,
+        );
+        _db.execute(
+          'DELETE FROM video_vr_override WHERE video_id IN '
+          '($itemIds ($marks))',
+          params,
+        );
+        _db.execute(
+          'DELETE FROM local_media_items '
+          'WHERE source_id = ? AND folder_path IN ($marks)',
+          params,
+        );
+        removedItems += _db.updatedRows;
+      });
+      _inChunks<String>(relPaths.toList(), (marks, chunk) {
+        final params = <Object?>[sourceId, ...chunk];
+        // 常用目录也得跟着走：不删的话「常用目录」那一栏还杵着一张卡片，点进去
+        // 是一层已经不存在的目录（同 [deleteSource] 里那条级联的理由）。
+        _db.execute(
+          'DELETE FROM local_media_pinned_folders '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          params,
+        );
+        // 隐藏标记也跟着走：磁盘上那个目录已经没了，留着这一行只会在以后
+        // 「同名目录又出现」时把它无声地藏起来——用户完全不知道为什么看不见。
+        _db.execute(
+          'DELETE FROM local_media_hidden_folders '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          params,
+        );
+        _db.execute(
+          'DELETE FROM local_media_folders '
+          'WHERE source_id = ? AND rel_path IN ($marks)',
+          params,
+        );
+        removedFolders += _db.updatedRows;
+      });
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('删除本地目录子树失败', tag: _tag, error: e);
+      rethrow;
+    }
+
+    // 祖先的「几个子文件夹 / 几个视频」得跟着改口，否则父目录的卡片上还写着
+    // 刚被删掉的那一份。⛔ 必须在事务**外面**：它自己要开一个。
+    backfillFolderCounts(sourceId);
+
+    notifyChanged();
+    notifyFolderChanged();
+    LogUtils.i('已删除目录子树 $relPath：$removedFolders 个目录行、$removedItems 个条目', _tag);
+    return (folders: removedFolders, items: removedItems);
   }
 
   /// 只是「知道有这么个目录」的占位行：**有则不动，无则插入**。
@@ -3045,6 +3269,84 @@ class LocalMediaRepository {
       'DELETE FROM local_media_pinned_folders '
       'WHERE source_id = ? AND rel_path = ?',
       [sourceId, relPath],
+    );
+    if (_db.updatedRows > 0) notifyFolderChanged();
+  }
+
+  // ── 隐藏目录 ────────────────────────────────────────────────────────────
+  //
+  // 「隐藏」＝ 目录树里不出现 + 扫描不往里走（见 `LocalMediaScanService` 的
+  // `skipPaths`）。⛔ 它**不动已经扫进库的条目**：那些视频照旧出现在「所有视频」
+  // 等聚合墙上。这是 2026-09-16 用户在三档口径里选的那一档（另两档是"连墙上也
+  // 一起藏"和"隐藏即删条目"），别自己改口径。
+
+  /// 这个源里被隐藏的相对路径。给扫描器发 `skipPaths`、给界面判"这张卡要不要
+  /// 画成半透明"都读它。
+  Set<String> hiddenRelPaths(String sourceId) {
+    final rows = _db.select(
+      'SELECT rel_path FROM local_media_hidden_folders WHERE source_id = ?',
+      <Object?>[sourceId],
+    );
+    return <String>{for (final row in rows) (row['rel_path'] as String?) ?? ''};
+  }
+
+  /// 全部隐藏目录（跨源），按加入时间。给"隐藏的文件夹有几个"这类问法。
+  List<({String sourceId, String relPath, String displayName})>
+  getHiddenFolders() {
+    final rows = _db.select(
+      'SELECT source_id, rel_path, display_name FROM local_media_hidden_folders '
+      'ORDER BY created_at ASC',
+    );
+    return <({String sourceId, String relPath, String displayName})>[
+      for (final row in rows)
+        (
+          sourceId: (row['source_id'] as String?) ?? '',
+          relPath: (row['rel_path'] as String?) ?? '',
+          displayName: (row['display_name'] as String?) ?? '',
+        ),
+    ];
+  }
+
+  bool isFolderHidden({required String sourceId, required String relPath}) {
+    return _db.select(
+      'SELECT 1 FROM local_media_hidden_folders '
+      'WHERE source_id = ? AND rel_path = ? LIMIT 1',
+      <Object?>[sourceId, relPath],
+    ).isNotEmpty;
+  }
+
+  /// 隐藏一个目录。⛔ 来源根不许隐藏：整个源都看不见了，用户会以为源没了，而
+  /// 「显示隐藏的文件夹」那个开关在根页上还够不着它。要不看某个源，那是"移除来源"。
+  void hideFolder({
+    required String sourceId,
+    required String relPath,
+    String displayName = '',
+  }) {
+    if (relPath.isEmpty) {
+      throw ArgumentError.value(relPath, 'relPath', '来源根不许隐藏');
+    }
+    _db.execute(
+      'INSERT INTO local_media_hidden_folders '
+      '(id, source_id, rel_path, display_name, created_at) '
+      'VALUES (?, ?, ?, ?, ?) '
+      'ON CONFLICT(id) DO UPDATE SET display_name = excluded.display_name',
+      <Object?>[
+        // 借常用目录那份 id 拼法：同样是 (源 + 相对路径) 唯一，没必要再发明一个。
+        LocalPinnedFolder.buildId(sourceId, relPath),
+        sourceId,
+        relPath,
+        displayName,
+        DateTime.now().millisecondsSinceEpoch,
+      ],
+    );
+    notifyFolderChanged();
+  }
+
+  void unhideFolder({required String sourceId, required String relPath}) {
+    _db.execute(
+      'DELETE FROM local_media_hidden_folders '
+      'WHERE source_id = ? AND rel_path = ?',
+      <Object?>[sourceId, relPath],
     );
     if (_db.updatedRows > 0) notifyFolderChanged();
   }

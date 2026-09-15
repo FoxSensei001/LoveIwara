@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseId extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Video';
 	@override String get imagesSection => 'Gambar';
 	@override String get galleriesSection => 'Galeri';
+	@override String get filterAll => 'Semua';
+	@override String get searchInFolder => 'Cari di folder ini';
+	@override String get searchHint => 'Cari berdasarkan nama';
+	@override String get clearSearch => 'Hapus pencarian';
+	@override String searchNoResult({required Object query}) => 'Tidak ada yang cocok dengan "${query}"';
+	@override String viewAllFolders({required Object count}) => 'Lihat semua ${count} folder';
+	@override String viewAllVideos({required Object count}) => 'Lihat semua ${count} video';
+	@override String viewAllImages({required Object count}) => 'Lihat semua ${count} gambar';
+	@override String viewAllGalleries({required Object count}) => 'Lihat semua ${count} galeri';
 	@override String get location => 'Lokasi';
 	@override String get sourceMissing => 'Sumber ini sudah hilang';
 	@override String get notScannedYet => 'Folder ini belum dipindai';
 	@override String get scanning => 'Membaca folder ini…';
 	@override String get deleteFileTitle => 'Hapus berkas ini?';
 	@override String deleteFileBody({required Object name}) => '"${name}" akan dihapus secara permanen dari perangkat ini. Tindakan ini tidak dapat dibatalkan.';
+	@override String get hideFolder => 'Sembunyikan folder ini';
+	@override String get unhideFolder => 'Tampilkan lagi';
+	@override String get showHiddenFolders => 'Tampilkan folder tersembunyi';
+	@override String get folderHidden => 'Disembunyikan — pemindaian juga akan melewatinya';
+	@override String get folderUnhidden => 'Tidak lagi disembunyikan';
+	@override String get hiddenFolderBadge => 'Tersembunyi';
+	@override String get deleteFolder => 'Hapus folder';
+	@override String get deleteFolderTitle => 'Hapus folder ini?';
+	@override String deleteFolderBody({required Object name}) => '"${name}" beserta seluruh isinya akan dihapus permanen dari perangkat ini. Tindakan ini tidak bisa dibatalkan.';
+	@override String get deleteFolderIncludesOthers => 'Berkas lain di dalamnya juga akan dihapus';
+	@override String get folderDeleted => 'Folder dihapus';
+	@override String get deleteFolderFailed => 'Gagal menghapus — tidak ada izin, atau ada berkas di dalamnya yang sedang dipakai';
 	@override String get deleteGalleryTitle => 'Hapus galeri ini?';
 	@override String deleteGalleryBody({required Object name}) => 'Catatan unduhan dan berkas gambar lokal "${name}" akan dihapus. Tindakan ini tidak dapat dibatalkan.';
 	@override String get galleryResourceMissing => 'Berkas lokal sudah tidak ada. Catatan dibersihkan.';
@@ -6885,12 +6906,33 @@ extension on TranslationsId {
 			'localMedia.browse.videosSection' => 'Video',
 			'localMedia.browse.imagesSection' => 'Gambar',
 			'localMedia.browse.galleriesSection' => 'Galeri',
+			'localMedia.browse.filterAll' => 'Semua',
+			'localMedia.browse.searchInFolder' => 'Cari di folder ini',
+			'localMedia.browse.searchHint' => 'Cari berdasarkan nama',
+			'localMedia.browse.clearSearch' => 'Hapus pencarian',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Tidak ada yang cocok dengan "${query}"',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Lihat semua ${count} folder',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Lihat semua ${count} video',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Lihat semua ${count} gambar',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Lihat semua ${count} galeri',
 			'localMedia.browse.location' => 'Lokasi',
 			'localMedia.browse.sourceMissing' => 'Sumber ini sudah hilang',
 			'localMedia.browse.notScannedYet' => 'Folder ini belum dipindai',
 			'localMedia.browse.scanning' => 'Membaca folder ini…',
 			'localMedia.browse.deleteFileTitle' => 'Hapus berkas ini?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" akan dihapus secara permanen dari perangkat ini. Tindakan ini tidak dapat dibatalkan.',
+			'localMedia.browse.hideFolder' => 'Sembunyikan folder ini',
+			'localMedia.browse.unhideFolder' => 'Tampilkan lagi',
+			'localMedia.browse.showHiddenFolders' => 'Tampilkan folder tersembunyi',
+			'localMedia.browse.folderHidden' => 'Disembunyikan — pemindaian juga akan melewatinya',
+			'localMedia.browse.folderUnhidden' => 'Tidak lagi disembunyikan',
+			'localMedia.browse.hiddenFolderBadge' => 'Tersembunyi',
+			'localMedia.browse.deleteFolder' => 'Hapus folder',
+			'localMedia.browse.deleteFolderTitle' => 'Hapus folder ini?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" beserta seluruh isinya akan dihapus permanen dari perangkat ini. Tindakan ini tidak bisa dibatalkan.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Berkas lain di dalamnya juga akan dihapus',
+			'localMedia.browse.folderDeleted' => 'Folder dihapus',
+			'localMedia.browse.deleteFolderFailed' => 'Gagal menghapus — tidak ada izin, atau ada berkas di dalamnya yang sedang dipakai',
 			'localMedia.browse.deleteGalleryTitle' => 'Hapus galeri ini?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'Catatan unduhan dan berkas gambar lokal "${name}" akan dihapus. Tindakan ini tidak dapat dibatalkan.',
 			'localMedia.browse.galleryResourceMissing' => 'Berkas lokal sudah tidak ada. Catatan dibersihkan.',

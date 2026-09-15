@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseRu extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Видео';
 	@override String get imagesSection => 'Изображения';
 	@override String get galleriesSection => 'Галереи';
+	@override String get filterAll => 'Все';
+	@override String get searchInFolder => 'Поиск в этой папке';
+	@override String get searchHint => 'Поиск по имени';
+	@override String get clearSearch => 'Очистить поиск';
+	@override String searchNoResult({required Object query}) => 'Ничего не найдено по запросу «${query}»';
+	@override String viewAllFolders({required Object count}) => 'Показать все папки (${count})';
+	@override String viewAllVideos({required Object count}) => 'Показать все видео (${count})';
+	@override String viewAllImages({required Object count}) => 'Показать все изображения (${count})';
+	@override String viewAllGalleries({required Object count}) => 'Показать все галереи (${count})';
 	@override String get location => 'Расположение';
 	@override String get sourceMissing => 'Этот источник недоступен';
 	@override String get notScannedYet => 'Эта папка ещё не просканирована';
 	@override String get scanning => 'Чтение папки…';
 	@override String get deleteFileTitle => 'Удалить этот файл?';
 	@override String deleteFileBody({required Object name}) => '«${name}» будет безвозвратно удалён с этого устройства. Это действие нельзя отменить.';
+	@override String get hideFolder => 'Скрыть эту папку';
+	@override String get unhideFolder => 'Показать снова';
+	@override String get showHiddenFolders => 'Показывать скрытые папки';
+	@override String get folderHidden => 'Скрыта — сканирование тоже её пропустит';
+	@override String get folderUnhidden => 'Больше не скрыта';
+	@override String get hiddenFolderBadge => 'Скрыта';
+	@override String get deleteFolder => 'Удалить папку';
+	@override String get deleteFolderTitle => 'Удалить эту папку?';
+	@override String deleteFolderBody({required Object name}) => '«${name}» и всё её содержимое будут безвозвратно удалены с этого устройства. Отменить это нельзя.';
+	@override String get deleteFolderIncludesOthers => 'Другие файлы внутри тоже будут удалены';
+	@override String get folderDeleted => 'Папка удалена';
+	@override String get deleteFolderFailed => 'Не удалось удалить: нет прав или файл внутри занят';
 	@override String get deleteGalleryTitle => 'Удалить эту галерею?';
 	@override String deleteGalleryBody({required Object name}) => 'Запись о загрузке и локальные файлы изображений «${name}» будут удалены. Это действие нельзя отменить.';
 	@override String get galleryResourceMissing => 'Локальные файлы больше не существуют. Запись очищена.';
@@ -6885,12 +6906,33 @@ extension on TranslationsRu {
 			'localMedia.browse.videosSection' => 'Видео',
 			'localMedia.browse.imagesSection' => 'Изображения',
 			'localMedia.browse.galleriesSection' => 'Галереи',
+			'localMedia.browse.filterAll' => 'Все',
+			'localMedia.browse.searchInFolder' => 'Поиск в этой папке',
+			'localMedia.browse.searchHint' => 'Поиск по имени',
+			'localMedia.browse.clearSearch' => 'Очистить поиск',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Ничего не найдено по запросу «${query}»',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Показать все папки (${count})',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Показать все видео (${count})',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Показать все изображения (${count})',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Показать все галереи (${count})',
 			'localMedia.browse.location' => 'Расположение',
 			'localMedia.browse.sourceMissing' => 'Этот источник недоступен',
 			'localMedia.browse.notScannedYet' => 'Эта папка ещё не просканирована',
 			'localMedia.browse.scanning' => 'Чтение папки…',
 			'localMedia.browse.deleteFileTitle' => 'Удалить этот файл?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '«${name}» будет безвозвратно удалён с этого устройства. Это действие нельзя отменить.',
+			'localMedia.browse.hideFolder' => 'Скрыть эту папку',
+			'localMedia.browse.unhideFolder' => 'Показать снова',
+			'localMedia.browse.showHiddenFolders' => 'Показывать скрытые папки',
+			'localMedia.browse.folderHidden' => 'Скрыта — сканирование тоже её пропустит',
+			'localMedia.browse.folderUnhidden' => 'Больше не скрыта',
+			'localMedia.browse.hiddenFolderBadge' => 'Скрыта',
+			'localMedia.browse.deleteFolder' => 'Удалить папку',
+			'localMedia.browse.deleteFolderTitle' => 'Удалить эту папку?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '«${name}» и всё её содержимое будут безвозвратно удалены с этого устройства. Отменить это нельзя.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Другие файлы внутри тоже будут удалены',
+			'localMedia.browse.folderDeleted' => 'Папка удалена',
+			'localMedia.browse.deleteFolderFailed' => 'Не удалось удалить: нет прав или файл внутри занят',
 			'localMedia.browse.deleteGalleryTitle' => 'Удалить эту галерею?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'Запись о загрузке и локальные файлы изображений «${name}» будут удалены. Это действие нельзя отменить.',
 			'localMedia.browse.galleryResourceMissing' => 'Локальные файлы больше не существуют. Запись очищена.',

@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Videos
     imagesSection: Images
     galleriesSection: Galleries
+    filterAll: All
+    searchInFolder: Search in this folder
+    searchHint: Search by name
+    clearSearch: Clear search
+    searchNoResult: 'Nothing matches "${query}"'
+    viewAllFolders: "View all ${count} folders"
+    viewAllVideos: "View all ${count} videos"
+    viewAllImages: "View all ${count} images"
+    viewAllGalleries: "View all ${count} galleries"
     location: Location
     sourceMissing: This source is gone
     notScannedYet: This folder has not been scanned yet
     scanning: Reading this folder…
     deleteFileTitle: Delete this file?
     deleteFileBody: '"${name}" will be permanently removed from this device. This cannot be undone.'
+    hideFolder: Hide this folder
+    unhideFolder: Unhide
+    showHiddenFolders: Show hidden folders
+    folderHidden: Hidden — scanning will skip it too
+    folderUnhidden: No longer hidden
+    hiddenFolderBadge: Hidden
+    deleteFolder: Delete folder
+    deleteFolderTitle: Delete this folder?
+    deleteFolderBody: '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.'
+    deleteFolderIncludesOthers: Other files inside will be deleted too
+    folderDeleted: Folder deleted
+    deleteFolderFailed: Delete failed — permission denied, or a file inside is in use
     deleteGalleryTitle: Delete this gallery?
     deleteGalleryBody: 'The download record and local image files of "${name}" will be deleted. This cannot be undone.'
     galleryResourceMissing: Local files no longer exist. Record cleaned up.

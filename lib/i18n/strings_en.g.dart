@@ -9423,6 +9423,33 @@ class TranslationsLocalMediaBrowseEn {
 	/// en: 'Galleries'
 	String get galleriesSection => 'Galleries';
 
+	/// en: 'All'
+	String get filterAll => 'All';
+
+	/// en: 'Search in this folder'
+	String get searchInFolder => 'Search in this folder';
+
+	/// en: 'Search by name'
+	String get searchHint => 'Search by name';
+
+	/// en: 'Clear search'
+	String get clearSearch => 'Clear search';
+
+	/// en: 'Nothing matches "${query}"'
+	String searchNoResult({required Object query}) => 'Nothing matches "${query}"';
+
+	/// en: 'View all ${count} folders'
+	String viewAllFolders({required Object count}) => 'View all ${count} folders';
+
+	/// en: 'View all ${count} videos'
+	String viewAllVideos({required Object count}) => 'View all ${count} videos';
+
+	/// en: 'View all ${count} images'
+	String viewAllImages({required Object count}) => 'View all ${count} images';
+
+	/// en: 'View all ${count} galleries'
+	String viewAllGalleries({required Object count}) => 'View all ${count} galleries';
+
 	/// en: 'Location'
 	String get location => 'Location';
 
@@ -9440,6 +9467,42 @@ class TranslationsLocalMediaBrowseEn {
 
 	/// en: '"${name}" will be permanently removed from this device. This cannot be undone.'
 	String deleteFileBody({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.';
+
+	/// en: 'Hide this folder'
+	String get hideFolder => 'Hide this folder';
+
+	/// en: 'Unhide'
+	String get unhideFolder => 'Unhide';
+
+	/// en: 'Show hidden folders'
+	String get showHiddenFolders => 'Show hidden folders';
+
+	/// en: 'Hidden — scanning will skip it too'
+	String get folderHidden => 'Hidden — scanning will skip it too';
+
+	/// en: 'No longer hidden'
+	String get folderUnhidden => 'No longer hidden';
+
+	/// en: 'Hidden'
+	String get hiddenFolderBadge => 'Hidden';
+
+	/// en: 'Delete folder'
+	String get deleteFolder => 'Delete folder';
+
+	/// en: 'Delete this folder?'
+	String get deleteFolderTitle => 'Delete this folder?';
+
+	/// en: '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.'
+	String deleteFolderBody({required Object name}) => '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.';
+
+	/// en: 'Other files inside will be deleted too'
+	String get deleteFolderIncludesOthers => 'Other files inside will be deleted too';
+
+	/// en: 'Folder deleted'
+	String get folderDeleted => 'Folder deleted';
+
+	/// en: 'Delete failed — permission denied, or a file inside is in use'
+	String get deleteFolderFailed => 'Delete failed — permission denied, or a file inside is in use';
 
 	/// en: 'Delete this gallery?'
 	String get deleteGalleryTitle => 'Delete this gallery?';
@@ -12745,12 +12808,33 @@ extension on Translations {
 			'localMedia.browse.videosSection' => 'Videos',
 			'localMedia.browse.imagesSection' => 'Images',
 			'localMedia.browse.galleriesSection' => 'Galleries',
+			'localMedia.browse.filterAll' => 'All',
+			'localMedia.browse.searchInFolder' => 'Search in this folder',
+			'localMedia.browse.searchHint' => 'Search by name',
+			'localMedia.browse.clearSearch' => 'Clear search',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Nothing matches "${query}"',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'View all ${count} folders',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'View all ${count} videos',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'View all ${count} images',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'View all ${count} galleries',
 			'localMedia.browse.location' => 'Location',
 			'localMedia.browse.sourceMissing' => 'This source is gone',
 			'localMedia.browse.notScannedYet' => 'This folder has not been scanned yet',
 			'localMedia.browse.scanning' => 'Reading this folder…',
 			'localMedia.browse.deleteFileTitle' => 'Delete this file?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" will be permanently removed from this device. This cannot be undone.',
+			'localMedia.browse.hideFolder' => 'Hide this folder',
+			'localMedia.browse.unhideFolder' => 'Unhide',
+			'localMedia.browse.showHiddenFolders' => 'Show hidden folders',
+			'localMedia.browse.folderHidden' => 'Hidden — scanning will skip it too',
+			'localMedia.browse.folderUnhidden' => 'No longer hidden',
+			'localMedia.browse.hiddenFolderBadge' => 'Hidden',
+			'localMedia.browse.deleteFolder' => 'Delete folder',
+			'localMedia.browse.deleteFolderTitle' => 'Delete this folder?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Other files inside will be deleted too',
+			'localMedia.browse.folderDeleted' => 'Folder deleted',
+			'localMedia.browse.deleteFolderFailed' => 'Delete failed — permission denied, or a file inside is in use',
 			'localMedia.browse.deleteGalleryTitle' => 'Delete this gallery?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'The download record and local image files of "${name}" will be deleted. This cannot be undone.',
 			'localMedia.browse.galleryResourceMissing' => 'Local files no longer exist. Record cleaned up.',

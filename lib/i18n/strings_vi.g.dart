@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseVi extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Video';
 	@override String get imagesSection => 'Ảnh';
 	@override String get galleriesSection => 'Thư viện';
+	@override String get filterAll => 'Tất cả';
+	@override String get searchInFolder => 'Tìm trong thư mục này';
+	@override String get searchHint => 'Tìm theo tên';
+	@override String get clearSearch => 'Xóa tìm kiếm';
+	@override String searchNoResult({required Object query}) => 'Không có kết quả cho "${query}"';
+	@override String viewAllFolders({required Object count}) => 'Xem tất cả ${count} thư mục';
+	@override String viewAllVideos({required Object count}) => 'Xem tất cả ${count} video';
+	@override String viewAllImages({required Object count}) => 'Xem tất cả ${count} ảnh';
+	@override String viewAllGalleries({required Object count}) => 'Xem tất cả ${count} thư viện';
 	@override String get location => 'Vị trí';
 	@override String get sourceMissing => 'Nguồn này không còn tồn tại';
 	@override String get notScannedYet => 'Thư mục này chưa được quét';
 	@override String get scanning => 'Đang đọc thư mục này…';
 	@override String get deleteFileTitle => 'Xóa tệp này?';
 	@override String deleteFileBody({required Object name}) => '"${name}" sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.';
+	@override String get hideFolder => 'Ẩn thư mục này';
+	@override String get unhideFolder => 'Bỏ ẩn';
+	@override String get showHiddenFolders => 'Hiện thư mục đã ẩn';
+	@override String get folderHidden => 'Đã ẩn — quá trình quét cũng sẽ bỏ qua';
+	@override String get folderUnhidden => 'Đã bỏ ẩn';
+	@override String get hiddenFolderBadge => 'Đã ẩn';
+	@override String get deleteFolder => 'Xóa thư mục';
+	@override String get deleteFolderTitle => 'Xóa thư mục này?';
+	@override String deleteFolderBody({required Object name}) => '"${name}" cùng toàn bộ nội dung bên trong sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.';
+	@override String get deleteFolderIncludesOthers => 'Các tệp khác bên trong cũng sẽ bị xóa';
+	@override String get folderDeleted => 'Đã xóa thư mục';
+	@override String get deleteFolderFailed => 'Xóa thất bại — không có quyền, hoặc tệp bên trong đang được sử dụng';
 	@override String get deleteGalleryTitle => 'Xóa thư viện này?';
 	@override String deleteGalleryBody({required Object name}) => 'Bản ghi tải xuống và các tệp ảnh cục bộ của "${name}" sẽ bị xóa. Không thể hoàn tác.';
 	@override String get galleryResourceMissing => 'Tệp cục bộ không còn tồn tại. Đã dọn bản ghi.';
@@ -6885,12 +6906,33 @@ extension on TranslationsVi {
 			'localMedia.browse.videosSection' => 'Video',
 			'localMedia.browse.imagesSection' => 'Ảnh',
 			'localMedia.browse.galleriesSection' => 'Thư viện',
+			'localMedia.browse.filterAll' => 'Tất cả',
+			'localMedia.browse.searchInFolder' => 'Tìm trong thư mục này',
+			'localMedia.browse.searchHint' => 'Tìm theo tên',
+			'localMedia.browse.clearSearch' => 'Xóa tìm kiếm',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Không có kết quả cho "${query}"',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Xem tất cả ${count} thư mục',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Xem tất cả ${count} video',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Xem tất cả ${count} ảnh',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Xem tất cả ${count} thư viện',
 			'localMedia.browse.location' => 'Vị trí',
 			'localMedia.browse.sourceMissing' => 'Nguồn này không còn tồn tại',
 			'localMedia.browse.notScannedYet' => 'Thư mục này chưa được quét',
 			'localMedia.browse.scanning' => 'Đang đọc thư mục này…',
 			'localMedia.browse.deleteFileTitle' => 'Xóa tệp này?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.',
+			'localMedia.browse.hideFolder' => 'Ẩn thư mục này',
+			'localMedia.browse.unhideFolder' => 'Bỏ ẩn',
+			'localMedia.browse.showHiddenFolders' => 'Hiện thư mục đã ẩn',
+			'localMedia.browse.folderHidden' => 'Đã ẩn — quá trình quét cũng sẽ bỏ qua',
+			'localMedia.browse.folderUnhidden' => 'Đã bỏ ẩn',
+			'localMedia.browse.hiddenFolderBadge' => 'Đã ẩn',
+			'localMedia.browse.deleteFolder' => 'Xóa thư mục',
+			'localMedia.browse.deleteFolderTitle' => 'Xóa thư mục này?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" cùng toàn bộ nội dung bên trong sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Các tệp khác bên trong cũng sẽ bị xóa',
+			'localMedia.browse.folderDeleted' => 'Đã xóa thư mục',
+			'localMedia.browse.deleteFolderFailed' => 'Xóa thất bại — không có quyền, hoặc tệp bên trong đang được sử dụng',
 			'localMedia.browse.deleteGalleryTitle' => 'Xóa thư viện này?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'Bản ghi tải xuống và các tệp ảnh cục bộ của "${name}" sẽ bị xóa. Không thể hoàn tác.',
 			'localMedia.browse.galleryResourceMissing' => 'Tệp cục bộ không còn tồn tại. Đã dọn bản ghi.',

@@ -164,6 +164,7 @@ class LocalFolderCardWidget extends StatelessWidget {
     required this.onOpen,
     this.onMenu,
     this.pinned = false,
+    this.hidden = false,
   });
 
   /// 封面卡的封面宽高比。
@@ -186,6 +187,13 @@ class LocalFolderCardWidget extends StatelessWidget {
   final void Function(BuildContext anchorContext)? onMenu;
   final bool pinned;
 
+  /// 用户把这个目录隐藏了，此刻是因为「显示隐藏的文件夹」开着才画出来的。
+  ///
+  /// 它必须**一眼与普通目录分得开**：否则用户打开开关之后看到的是一屏分不清
+  /// 藏没藏的卡片，"取消哪一个"全靠回忆。半透明 + 名字前一枚闭眼图标，两样一起
+  /// 上——只靠透明度的话，一张本来就偏暗的封面看不出区别。
+  final bool hidden;
+
   Widget _buildCover(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final coverPath = folder.coverPath;
@@ -205,7 +213,11 @@ class LocalFolderCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget tile = _buildCard(context);
-    return folder.missing ? Opacity(opacity: 0.45, child: tile) : tile;
+    // 隐藏的与"已经不在了"的用同一档半透明：两者对用户都是"这张卡不算数"，
+    // 分两档深浅只会让人以为其中一档还有别的含义。
+    return (folder.missing || hidden)
+        ? Opacity(opacity: 0.45, child: tile)
+        : tile;
   }
 
   Widget _buildCard(BuildContext context) {
@@ -221,13 +233,27 @@ class LocalFolderCardWidget extends StatelessWidget {
       // 常用星也归 [LocalContainerCard]（同 ⋮ 与长按），这里只说"我是不是"。
       pinned: pinned,
       lines: <Widget>[
-        Text(
-          folder.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          children: <Widget>[
+            if (hidden) ...[
+              Icon(
+                Icons.visibility_off_outlined,
+                size: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+            ],
+            Expanded(
+              child: Text(
+                folder.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
         LocalFolderCountLine(
           childFolderCount: folder.childFolderCount,

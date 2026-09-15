@@ -29,6 +29,7 @@ import 'package:i_iwara/db/migrations/migration_v37_local_media_image_favorites.
 import 'package:i_iwara/db/migrations/migration_v38_local_media_folder_scan_indexes.dart';
 import 'package:i_iwara/db/migrations/migration_v39_local_media_perf_indexes.dart';
 import 'package:i_iwara/db/migrations/migration_v40_vr_override_xr_format.dart';
+import 'package:i_iwara/db/migrations/migration_v41_local_media_hidden_folders.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 
@@ -79,8 +80,9 @@ class MigrationManager {
     MigrationV38LocalMediaFolderScanIndexes(),
     MigrationV39LocalMediaPerfIndexes(),
     MigrationV40VrOverrideXrFormat(),
+    MigrationV41LocalMediaHiddenFolders(),
     // [TODO_PLACEHOLDER] 将来新增的迁移在这里添加。
-    // ⛔ 新迁移的版本号必须**大于当前最大值**（现在是 40，下一条就是 41）。
+    // ⛔ 新迁移的版本号必须**大于当前最大值**（现在是 41，下一条就是 42）。
     //    绝不要回填 23~29 那段空洞：runMigrations 只跑 version > user_version
     //    的迁移，回填的那条在版本号已经越过它的设备上永远不会执行，且不报错。
     //    MigrationManager 的构造函数里有 assert 会在开发期挡下重复版本号。

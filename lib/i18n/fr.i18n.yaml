@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Vidéos
     imagesSection: Images
     galleriesSection: Galeries
+    filterAll: Tout
+    searchInFolder: Rechercher dans ce dossier
+    searchHint: Rechercher par nom
+    clearSearch: Effacer la recherche
+    searchNoResult: 'Aucun résultat pour « ${query} »'
+    viewAllFolders: "Voir les ${count} dossiers"
+    viewAllVideos: "Voir les ${count} vidéos"
+    viewAllImages: "Voir les ${count} images"
+    viewAllGalleries: "Voir les ${count} galeries"
     location: Emplacement
     sourceMissing: Cette source a disparu
     notScannedYet: Ce dossier n'a pas encore été analysé
     scanning: Lecture de ce dossier…
     deleteFileTitle: Supprimer ce fichier ?
     deleteFileBody: '« ${name} » sera définitivement supprimé de cet appareil. Cette action est irréversible.'
+    hideFolder: Masquer ce dossier
+    unhideFolder: Afficher de nouveau
+    showHiddenFolders: Afficher les dossiers masqués
+    folderHidden: Masqué ; l’analyse l’ignorera aussi
+    folderUnhidden: N’est plus masqué
+    hiddenFolderBadge: Masqué
+    deleteFolder: Supprimer le dossier
+    deleteFolderTitle: Supprimer ce dossier ?
+    deleteFolderBody: '« ${name} » et tout son contenu seront définitivement supprimés de cet appareil. Cette action est irréversible.'
+    deleteFolderIncludesOthers: Les autres fichiers qu’il contient seront aussi supprimés
+    folderDeleted: Dossier supprimé
+    deleteFolderFailed: 'Échec de la suppression : permission refusée ou fichier en cours d’utilisation'
     deleteGalleryTitle: Supprimer cette galerie ?
     deleteGalleryBody: 'L''enregistrement de téléchargement et les fichiers image locaux de « ${name} » seront supprimés. Cette action est irréversible.'
     galleryResourceMissing: Les fichiers locaux n'existent plus. Enregistrement nettoyé.

@@ -1,10 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_cover_picker_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_info_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -36,12 +42,15 @@ class LocalFolderActions {
     required this.folderPath,
     required this.pinned,
     required this.coverPinned,
+    this.hidden = false,
     this.displayName = '',
     this.canRescan = false,
     this.canSetCover = true,
     this.onRemove,
     this.onRescan,
     this.onChanged,
+    this.onDeleted,
+    this.onHidden,
   });
 
   final String sourceId;
@@ -53,6 +62,12 @@ class LocalFolderActions {
   final String? folderPath;
   final bool pinned;
   final bool coverPinned;
+
+  /// 这个目录此刻是不是被隐藏的。菜单据此在「隐藏此文件夹 / 取消隐藏」之间换脸。
+  ///
+  /// ⚠️ 由调用点给（它们本来就要一份隐藏集合去把卡片画成半透明），这里不自己查库
+  /// ——菜单每开一次查一遍不算什么，但卡片那侧本来就有，两处各查各的迟早说不一样的话。
+  final bool hidden;
   final String displayName;
   final bool canRescan;
 
@@ -81,7 +96,58 @@ class LocalFolderActions {
 
   final VoidCallback? onChanged;
 
+  /// 这个目录**刚被隐藏**之后叫谁。没给就退回 [onChanged]。
+  ///
+  /// 站在这一层的详情页要用它决定去留：「显示隐藏的文件夹」关着的时候，用户刚把
+  /// 脚下这一层藏起来，页面却还开着——那是一页"按约定不该存在"的内容。
+  final VoidCallback? onHidden;
+
+  /// 这个目录**被真删了**之后叫谁。没给就退回 [onChanged]。
+  ///
+  /// ⛔ 站在这一层的详情页必须给：它整页的内容都来自那个目录，删完留在原地就是
+  /// 一屏空壳，顶栏那些动作还都点得动（同 `confirmAndRemoveLocalSource` 删完要 pop
+  /// 的理由）。卡片上的 ⋮ 不用给，重查一次列表就够。
+  final VoidCallback? onDeleted;
+
   bool get _isSourceRoot => relPath.isEmpty;
+
+  /// 这个目录能不能**真删**（磁盘 + 库）。
+  ///
+  /// ⛔ 来源根一律不给。它已经有「移除来源」（只解除关联、不动磁盘），而把一个源的
+  /// 根目录连同里面的一切从磁盘上抹掉是这个模块能做的最重的事——它不该和"删个子
+  /// 文件夹"长在同一条菜单项上，更不该和只是"移除"的那一条挨着，点错的代价不对等。
+  ///
+  /// ⛔ 没有绝对路径 / `content://` 的也不给：「已下载」按任务同步、「设备视频」是
+  /// 系统媒体索引，两者都没有可删的真目录（同 `local_media_item_menu.dart` 里
+  /// 那条 `content://` 判据——那次的教训是漏了它就会谎报"删掉了"）。
+  bool get _canDeleteFolder {
+    if (_isSourceRoot) return false;
+    final path = folderPath;
+    if (path == null || path.isEmpty) return false;
+    return !path.startsWith('content://');
+  }
+
+  /// 这个目录能不能隐藏。判据与 [_canDeleteFolder] 同源：
+  ///
+  /// ⛔ 来源根不给。整个源在目录树里消失，用户第一反应是"我加的文件夹没了"，
+  /// 而「显示隐藏的文件夹」那个开关在根页上够不着它（根页画的是**来源卡**，
+  /// 不是目录卡）。不想看某个源，那是「移除来源」。
+  ///
+  /// 没有真实目录树的源（`content://`、平的源）也不给：隐藏的另一半价值是
+  /// 「扫描不进去」，而它们根本不走目录遍历，藏了只是半件事。
+  bool get _canHideFolder => _canDeleteFolder;
+
+  /// 「显示隐藏的文件夹」此刻开着没有。读不到配置就当关着。
+  static bool get showHiddenFolders {
+    if (!Get.isRegistered<ConfigService>()) return false;
+    return Get.find<ConfigService>()[ConfigKey
+            .LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY] ==
+        true;
+  }
+
+  /// 这台设备上**存在**被隐藏的目录（跨源）。只在开菜单时问一次库。
+  bool get _hasHiddenFolders =>
+      LocalMediaRepository().getHiddenFolders().isNotEmpty;
 
   /// 菜单条目。取值一律是 [String]，与详情页混在一起的排序项（[LocalMediaSort]）
   /// 天然分得开。
@@ -125,11 +191,41 @@ class LocalFolderActions {
           label: _isSourceRoot ? t.rescan : t.browse.rescanFolder,
           icon: Icons.refresh,
         ),
+      // 「显示隐藏的文件夹」是个**视图开关**，不是对这个目录做什么——所以它摆在
+      // 分隔线之后、和「隐藏此文件夹」挨着：用户刚藏完一个、想反悔时，反悔的路
+      // 就在原地。
+      //
+      // ⛔ 一个隐藏目录都没有、开关也没开时不出现：那是一条对谁都没用的选项，
+      // 而这张菜单已经不短了。开关开着时必须出现，否则用户关不掉它。
+      if (showHiddenFolders || _hasHiddenFolders)
+        GlassMenuOption<String>(
+          value: 'toggleShowHidden',
+          label: t.browse.showHiddenFolders,
+          icon: showHiddenFolders
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined,
+          selected: showHiddenFolders,
+        ),
+      if (_canHideFolder)
+        GlassMenuOption<String>(
+          value: hidden ? 'unhide' : 'hide',
+          label: hidden ? t.browse.unhideFolder : t.browse.hideFolder,
+          icon: hidden
+              ? Icons.visibility_outlined
+              : Icons.visibility_off_outlined,
+        ),
       if (onRemove != null)
         GlassMenuOption<String>(
           value: 'remove',
           label: t.remove,
           icon: Icons.remove_circle_outline,
+          destructive: true,
+        ),
+      if (_canDeleteFolder)
+        GlassMenuOption<String>(
+          value: 'deleteFolder',
+          label: t.browse.deleteFolder,
+          icon: Icons.folder_delete_outlined,
           destructive: true,
         ),
     ];
@@ -236,9 +332,191 @@ class LocalFolderActions {
           LogUtils.w('目录级扫描失败: $e', 'LocalFolderMenu');
         }
 
+      case 'hide':
+        if (relPath.isEmpty) return;
+        repository.hideFolder(
+          sourceId: sourceId,
+          relPath: relPath,
+          displayName: displayName,
+        );
+        showAppToast(slang.t.localMedia.browse.folderHidden);
+        // 「显示隐藏的文件夹」开着的时候它还看得见（只是变成半透明），页面留在
+        // 原地即可；关着的时候脚下这一层已经不该存在了，由调用点决定去留。
+        (onHidden ?? onChanged)?.call();
+
+      case 'unhide':
+        repository.unhideFolder(sourceId: sourceId, relPath: relPath);
+        showAppToast(slang.t.localMedia.browse.folderUnhidden);
+        // ⛔ 取消隐藏之后要补扫一次。藏着的这段时间里扫描器一次都没进去过
+        // （`skipPaths`），里面新增的东西一个都不在库里——不补扫的话用户看到的是
+        // 一个"内容停留在被隐藏那天"的目录，而重扫入口还藏在另一层菜单里。
+        final source = repository.getSource(sourceId);
+        if (source != null &&
+            relPath.isNotEmpty &&
+            Get.isRegistered<LocalMediaScanService>() &&
+            (source.kind == LocalMediaSourceKind.directory ||
+                source.kind == LocalMediaSourceKind.bookmark)) {
+          unawaited(
+            LocalMediaScanService.to.scanFolder(
+              source: source,
+              relPath: relPath,
+            ),
+          );
+        }
+        onChanged?.call();
+
+      case 'toggleShowHidden':
+        if (!Get.isRegistered<ConfigService>()) return;
+        final next = !showHiddenFolders;
+        Get.find<ConfigService>()[ConfigKey
+                .LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY] =
+            next;
+        // 别的页面（根页的常用目录、播放器的「接着看」抽屉）靠这条信号跟上。
+        LocalMediaRepository.notifyFolderChanged();
+        onChanged?.call();
+
       case 'remove':
         onRemove?.call();
+
+      case 'deleteFolder':
+        await _confirmAndDeleteFolder(anchorContext, repository);
     }
+  }
+
+  /// 真删这个文件夹：确认 → 删磁盘 → 删库行。
+  ///
+  /// ⛔ 顺序只有一种是对的（见 [LocalMediaRepository.deleteFolderSubtree]）。
+  Future<void> _confirmAndDeleteFolder(
+    BuildContext anchorContext,
+    LocalMediaRepository repository,
+  ) async {
+    final t = slang.t.localMedia;
+    final path = folderPath;
+    if (path == null || path.isEmpty) return;
+
+    final source = repository.getSource(sourceId);
+    final sourcePath = source?.path;
+    // ⛔ 双保险：只删**确实落在这个来源里面**的目录。
+    //
+    // 这一条不是形式主义：`folderPath` 一路从库行传下来，而删的是磁盘。万一哪天
+    // 有人把别处的路径塞进这个对象（脏行、拼错的相对路径、以后新加的调用点），
+    // 没有这道闸门就是一次递归删除打在用户的别的目录上，没有任何撤销余地。
+    if (sourcePath == null ||
+        sourcePath.isEmpty ||
+        !p.isWithin(sourcePath, path)) {
+      LogUtils.e(
+        '拒绝删除：目录不在来源内 source=$sourcePath folder=$path',
+        tag: 'LocalFolderMenu',
+      );
+      showAppToast(t.browse.deleteFolderFailed, type: AppToastType.error);
+      return;
+    }
+
+    final row = repository.getFolder(sourceId: sourceId, relPath: relPath);
+    final name = displayName.isNotEmpty
+        ? displayName
+        : (row?.name.isNotEmpty == true ? row!.name : p.basename(path));
+    // 里面有什么，得按**整棵子树**报——删的是 `recursive: true`。
+    //
+    // ⛔ 这里曾经用目录行自己那三个计数（也就是卡片上那一行），那是**直属**口径：
+    // 一个自己没有直属媒体、底下八个子目录各装两千个视频的目录，会报成
+    // 「8 个文件夹」，而按下去删掉的是一万六千个文件。见 [folderSubtreeSummary]。
+    final subtree = repository.folderSubtreeSummary(
+      sourceId: sourceId,
+      relPath: relPath,
+    );
+    final summary = formatLocalFolderCounts(
+      childFolderCount: subtree.folders,
+      videoCount: subtree.videos,
+      imageCount: subtree.images,
+      // 没探过就返回空串，由下面那句定性的警告顶上——报一个偏小的数比不报更坏。
+      probed: subtree.probed,
+    );
+
+    if (!anchorContext.mounted) return;
+    final confirmed = await showGlassAlertDialog<bool>(
+      title: t.browse.deleteFolderTitle,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(t.browse.deleteFolderBody(name: name)),
+          const SizedBox(height: 8),
+          Text(
+            // 有数就报数，没数（还没探过这一层）就只留那句"里面的东西一并删掉"
+            // ——这条永远在场，因为库里那几个数**只含扫进来的媒体**：压缩包、
+            // 字幕、文档一概不在其中，而它们同样会被删掉。
+            summary.isEmpty
+                ? t.browse.deleteFolderIncludesOthers
+                : '$summary · ${t.browse.deleteFolderIncludesOthers}',
+            style: Theme.of(anchorContext).textTheme.bodySmall?.copyWith(
+              color: Theme.of(anchorContext).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+      actions: <GlassDialogAction>[
+        GlassDialogAction(
+          label: slang.t.common.cancel,
+          emphasized: false,
+          onPressed: () =>
+              Navigator.of(anchorContext, rootNavigator: true).pop(false),
+        ),
+        GlassDialogAction(
+          label: slang.t.common.delete,
+          destructive: true,
+          // ⛔ rootNavigator: true。这张弹窗挂在 root 上，拿调用点的 navigator
+          // pop 会把**调用它的那一页**弹掉、弹窗纹丝不动，且不报任何错。
+          onPressed: () =>
+              Navigator.of(anchorContext, rootNavigator: true).pop(true),
+        ),
+      ],
+    );
+    if (confirmed != true) return;
+
+    final directory = Directory(path);
+    try {
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+      } else {
+        // 目录本来就不在了。⛔ 但「不在」有两种：真没了，和卷没挂上 / 权限被回收。
+        // 后者删库行就是数据丢失（连观看进度一起），所以拿父目录可不可达来分辨
+        // ——同 `local_media_item_menu.dart` 里删文件那条判据。
+        if (!await Directory(p.dirname(path)).exists()) {
+          showAppToast(t.browse.deleteFolderFailed, type: AppToastType.error);
+          return;
+        }
+      }
+    } catch (e) {
+      // ⛔ 「删失败」不等于「什么都没发生」：`delete(recursive: true)` 是**边走边
+      // 删**的，撞上一个删不掉的文件（Windows 上被播放器占着的那个）时抛出来，此前
+      // 已经 unlink 掉的文件不会回来。所以日志要把"可能删了一半"写清楚——库行一行
+      // 没动，用户看到的却是「删除失败」，不写下来的话下次查这种半棵树无从查起。
+      // 库那头能自愈：下次扫这一层会把没了的收敛成 missing。
+      LogUtils.w(
+        '删除文件夹失败（可能已删掉一部分，库行未动，等下次扫描收敛）: $path: $e',
+        'LocalFolderMenu',
+      );
+      showAppToast(t.browse.deleteFolderFailed, type: AppToastType.error);
+      // 让调用点重查一次：万一删掉了一部分，至少列表与库保持一致地刷新一遍。
+      onChanged?.call();
+      return;
+    }
+
+    try {
+      repository.deleteFolderSubtree(
+        sourceId: sourceId,
+        relPath: relPath,
+        folderPath: path,
+      );
+    } catch (e) {
+      // 磁盘已经删掉了，库行没删干净。这一头是**能自愈**的：下次扫这一层会把
+      // 它们收敛成 missing。所以只记日志，不把它说成"删除失败"——东西是真没了。
+      LogUtils.w('删除目录库行失败（磁盘已删）: $e', 'LocalFolderMenu');
+    }
+
+    showAppToast(t.browse.folderDeleted);
+    (onDeleted ?? onChanged)?.call();
   }
 }
 

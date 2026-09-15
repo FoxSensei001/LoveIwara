@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseJa extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => '動画';
 	@override String get imagesSection => '画像';
 	@override String get galleriesSection => 'ギャラリー';
+	@override String get filterAll => 'すべて';
+	@override String get searchInFolder => 'このフォルダ内を検索';
+	@override String get searchHint => '名前で検索';
+	@override String get clearSearch => '検索をクリア';
+	@override String searchNoResult({required Object query}) => '「${query}」に一致するものはありません';
+	@override String viewAllFolders({required Object count}) => '${count} 件のフォルダをすべて表示';
+	@override String viewAllVideos({required Object count}) => '${count} 件の動画をすべて表示';
+	@override String viewAllImages({required Object count}) => '${count} 枚の画像をすべて表示';
+	@override String viewAllGalleries({required Object count}) => '${count} 件のギャラリーをすべて表示';
 	@override String get location => '場所';
 	@override String get sourceMissing => 'このソースはもうありません';
 	@override String get notScannedYet => 'このフォルダはまだスキャンされていません';
 	@override String get scanning => 'このフォルダーを読み込んでいます…';
 	@override String get deleteFileTitle => 'このファイルを削除しますか？';
 	@override String deleteFileBody({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。';
+	@override String get hideFolder => 'このフォルダを隠す';
+	@override String get unhideFolder => '非表示を解除';
+	@override String get showHiddenFolders => '隠したフォルダを表示';
+	@override String get folderHidden => '非表示にしました。スキャンもスキップします';
+	@override String get folderUnhidden => '非表示を解除しました';
+	@override String get hiddenFolderBadge => '非表示';
+	@override String get deleteFolder => 'フォルダを削除';
+	@override String get deleteFolderTitle => 'このフォルダを削除しますか？';
+	@override String deleteFolderBody({required Object name}) => '「${name}」と中身のすべてがこの端末から完全に削除されます。元に戻せません。';
+	@override String get deleteFolderIncludesOthers => '中にある他のファイルも一緒に削除されます';
+	@override String get folderDeleted => 'フォルダを削除しました';
+	@override String get deleteFolderFailed => '削除に失敗しました。権限がないか、中のファイルが使用中の可能性があります';
 	@override String get deleteGalleryTitle => 'このギャラリーを削除しますか？';
 	@override String deleteGalleryBody({required Object name}) => '「${name}」のダウンロード記録とローカル画像ファイルが削除されます。この操作は取り消せません。';
 	@override String get galleryResourceMissing => 'ローカルリソースが存在しないため、記録を削除しました';
@@ -6885,12 +6906,33 @@ extension on TranslationsJa {
 			'localMedia.browse.videosSection' => '動画',
 			'localMedia.browse.imagesSection' => '画像',
 			'localMedia.browse.galleriesSection' => 'ギャラリー',
+			'localMedia.browse.filterAll' => 'すべて',
+			'localMedia.browse.searchInFolder' => 'このフォルダ内を検索',
+			'localMedia.browse.searchHint' => '名前で検索',
+			'localMedia.browse.clearSearch' => '検索をクリア',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => '「${query}」に一致するものはありません',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => '${count} 件のフォルダをすべて表示',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => '${count} 件の動画をすべて表示',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => '${count} 枚の画像をすべて表示',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => '${count} 件のギャラリーをすべて表示',
 			'localMedia.browse.location' => '場所',
 			'localMedia.browse.sourceMissing' => 'このソースはもうありません',
 			'localMedia.browse.notScannedYet' => 'このフォルダはまだスキャンされていません',
 			'localMedia.browse.scanning' => 'このフォルダーを読み込んでいます…',
 			'localMedia.browse.deleteFileTitle' => 'このファイルを削除しますか？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」はこの端末から完全に削除されます。元に戻せません。',
+			'localMedia.browse.hideFolder' => 'このフォルダを隠す',
+			'localMedia.browse.unhideFolder' => '非表示を解除',
+			'localMedia.browse.showHiddenFolders' => '隠したフォルダを表示',
+			'localMedia.browse.folderHidden' => '非表示にしました。スキャンもスキップします',
+			'localMedia.browse.folderUnhidden' => '非表示を解除しました',
+			'localMedia.browse.hiddenFolderBadge' => '非表示',
+			'localMedia.browse.deleteFolder' => 'フォルダを削除',
+			'localMedia.browse.deleteFolderTitle' => 'このフォルダを削除しますか？',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」と中身のすべてがこの端末から完全に削除されます。元に戻せません。',
+			'localMedia.browse.deleteFolderIncludesOthers' => '中にある他のファイルも一緒に削除されます',
+			'localMedia.browse.folderDeleted' => 'フォルダを削除しました',
+			'localMedia.browse.deleteFolderFailed' => '削除に失敗しました。権限がないか、中のファイルが使用中の可能性があります',
 			'localMedia.browse.deleteGalleryTitle' => 'このギャラリーを削除しますか？',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」のダウンロード記録とローカル画像ファイルが削除されます。この操作は取り消せません。',
 			'localMedia.browse.galleryResourceMissing' => 'ローカルリソースが存在しないため、記録を削除しました',

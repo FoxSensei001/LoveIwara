@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseEs extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Vídeos';
 	@override String get imagesSection => 'Imágenes';
 	@override String get galleriesSection => 'Galerías';
+	@override String get filterAll => 'Todo';
+	@override String get searchInFolder => 'Buscar en esta carpeta';
+	@override String get searchHint => 'Buscar por nombre';
+	@override String get clearSearch => 'Borrar búsqueda';
+	@override String searchNoResult({required Object query}) => 'No hay coincidencias con «${query}»';
+	@override String viewAllFolders({required Object count}) => 'Ver las ${count} carpetas';
+	@override String viewAllVideos({required Object count}) => 'Ver los ${count} vídeos';
+	@override String viewAllImages({required Object count}) => 'Ver las ${count} imágenes';
+	@override String viewAllGalleries({required Object count}) => 'Ver las ${count} galerías';
 	@override String get location => 'Ubicación';
 	@override String get sourceMissing => 'Esta fuente ya no existe';
 	@override String get notScannedYet => 'Esta carpeta aún no se ha escaneado';
 	@override String get scanning => 'Leyendo esta carpeta…';
 	@override String get deleteFileTitle => '¿Eliminar este archivo?';
 	@override String deleteFileBody({required Object name}) => '"${name}" se eliminará permanentemente de este dispositivo. Esta acción no se puede deshacer.';
+	@override String get hideFolder => 'Ocultar esta carpeta';
+	@override String get unhideFolder => 'Mostrar de nuevo';
+	@override String get showHiddenFolders => 'Mostrar carpetas ocultas';
+	@override String get folderHidden => 'Oculta; el escaneo también la omitirá';
+	@override String get folderUnhidden => 'Ya no está oculta';
+	@override String get hiddenFolderBadge => 'Oculta';
+	@override String get deleteFolder => 'Eliminar carpeta';
+	@override String get deleteFolderTitle => '¿Eliminar esta carpeta?';
+	@override String deleteFolderBody({required Object name}) => '«${name}» y todo su contenido se eliminarán definitivamente de este dispositivo. No se puede deshacer.';
+	@override String get deleteFolderIncludesOthers => 'Los demás archivos que contenga también se eliminarán';
+	@override String get folderDeleted => 'Carpeta eliminada';
+	@override String get deleteFolderFailed => 'No se pudo eliminar: sin permisos o hay un archivo en uso';
 	@override String get deleteGalleryTitle => '¿Eliminar esta galería?';
 	@override String deleteGalleryBody({required Object name}) => 'Se eliminarán el registro de descarga y los archivos de imagen locales de "${name}". Esta acción no se puede deshacer.';
 	@override String get galleryResourceMissing => 'Los archivos locales ya no existen. Se limpió el registro.';
@@ -6885,12 +6906,33 @@ extension on TranslationsEs {
 			'localMedia.browse.videosSection' => 'Vídeos',
 			'localMedia.browse.imagesSection' => 'Imágenes',
 			'localMedia.browse.galleriesSection' => 'Galerías',
+			'localMedia.browse.filterAll' => 'Todo',
+			'localMedia.browse.searchInFolder' => 'Buscar en esta carpeta',
+			'localMedia.browse.searchHint' => 'Buscar por nombre',
+			'localMedia.browse.clearSearch' => 'Borrar búsqueda',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'No hay coincidencias con «${query}»',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Ver las ${count} carpetas',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Ver los ${count} vídeos',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Ver las ${count} imágenes',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Ver las ${count} galerías',
 			'localMedia.browse.location' => 'Ubicación',
 			'localMedia.browse.sourceMissing' => 'Esta fuente ya no existe',
 			'localMedia.browse.notScannedYet' => 'Esta carpeta aún no se ha escaneado',
 			'localMedia.browse.scanning' => 'Leyendo esta carpeta…',
 			'localMedia.browse.deleteFileTitle' => '¿Eliminar este archivo?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}" se eliminará permanentemente de este dispositivo. Esta acción no se puede deshacer.',
+			'localMedia.browse.hideFolder' => 'Ocultar esta carpeta',
+			'localMedia.browse.unhideFolder' => 'Mostrar de nuevo',
+			'localMedia.browse.showHiddenFolders' => 'Mostrar carpetas ocultas',
+			'localMedia.browse.folderHidden' => 'Oculta; el escaneo también la omitirá',
+			'localMedia.browse.folderUnhidden' => 'Ya no está oculta',
+			'localMedia.browse.hiddenFolderBadge' => 'Oculta',
+			'localMedia.browse.deleteFolder' => 'Eliminar carpeta',
+			'localMedia.browse.deleteFolderTitle' => '¿Eliminar esta carpeta?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '«${name}» y todo su contenido se eliminarán definitivamente de este dispositivo. No se puede deshacer.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Los demás archivos que contenga también se eliminarán',
+			'localMedia.browse.folderDeleted' => 'Carpeta eliminada',
+			'localMedia.browse.deleteFolderFailed' => 'No se pudo eliminar: sin permisos o hay un archivo en uso',
 			'localMedia.browse.deleteGalleryTitle' => '¿Eliminar esta galería?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'Se eliminarán el registro de descarga y los archivos de imagen locales de "${name}". Esta acción no se puede deshacer.',
 			'localMedia.browse.galleryResourceMissing' => 'Los archivos locales ya no existen. Se limpió el registro.',

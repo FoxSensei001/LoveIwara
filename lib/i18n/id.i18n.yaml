@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Video
     imagesSection: Gambar
     galleriesSection: Galeri
+    filterAll: Semua
+    searchInFolder: Cari di folder ini
+    searchHint: Cari berdasarkan nama
+    clearSearch: Hapus pencarian
+    searchNoResult: 'Tidak ada yang cocok dengan "${query}"'
+    viewAllFolders: "Lihat semua ${count} folder"
+    viewAllVideos: "Lihat semua ${count} video"
+    viewAllImages: "Lihat semua ${count} gambar"
+    viewAllGalleries: "Lihat semua ${count} galeri"
     location: Lokasi
     sourceMissing: Sumber ini sudah hilang
     notScannedYet: Folder ini belum dipindai
     scanning: Membaca folder ini…
     deleteFileTitle: Hapus berkas ini?
     deleteFileBody: '"${name}" akan dihapus secara permanen dari perangkat ini. Tindakan ini tidak dapat dibatalkan.'
+    hideFolder: Sembunyikan folder ini
+    unhideFolder: Tampilkan lagi
+    showHiddenFolders: Tampilkan folder tersembunyi
+    folderHidden: Disembunyikan — pemindaian juga akan melewatinya
+    folderUnhidden: Tidak lagi disembunyikan
+    hiddenFolderBadge: Tersembunyi
+    deleteFolder: Hapus folder
+    deleteFolderTitle: Hapus folder ini?
+    deleteFolderBody: '"${name}" beserta seluruh isinya akan dihapus permanen dari perangkat ini. Tindakan ini tidak bisa dibatalkan.'
+    deleteFolderIncludesOthers: Berkas lain di dalamnya juga akan dihapus
+    folderDeleted: Folder dihapus
+    deleteFolderFailed: Gagal menghapus — tidak ada izin, atau ada berkas di dalamnya yang sedang dipakai
     deleteGalleryTitle: Hapus galeri ini?
     deleteGalleryBody: 'Catatan unduhan dan berkas gambar lokal "${name}" akan dihapus. Tindakan ini tidak dapat dibatalkan.'
     galleryResourceMissing: Berkas lokal sudah tidak ada. Catatan dibersihkan.

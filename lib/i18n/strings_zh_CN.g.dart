@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseZhCn extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => '视频';
 	@override String get imagesSection => '图片';
 	@override String get galleriesSection => '图库';
+	@override String get filterAll => '全部';
+	@override String get searchInFolder => '在这个文件夹里搜索';
+	@override String get searchHint => '按名称搜索';
+	@override String get clearSearch => '清除搜索';
+	@override String searchNoResult({required Object query}) => '没有匹配「${query}」的内容';
+	@override String viewAllFolders({required Object count}) => '查看全部 ${count} 个文件夹';
+	@override String viewAllVideos({required Object count}) => '查看全部 ${count} 个视频';
+	@override String viewAllImages({required Object count}) => '查看全部 ${count} 张图片';
+	@override String viewAllGalleries({required Object count}) => '查看全部 ${count} 个图库';
 	@override String get location => '位置';
 	@override String get sourceMissing => '这个来源已经不在了';
 	@override String get notScannedYet => '还没扫描过这个文件夹';
 	@override String get scanning => '正在读取这个文件夹…';
 	@override String get deleteFileTitle => '删除这个文件？';
 	@override String deleteFileBody({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。';
+	@override String get hideFolder => '隐藏此文件夹';
+	@override String get unhideFolder => '取消隐藏';
+	@override String get showHiddenFolders => '显示隐藏的文件夹';
+	@override String get folderHidden => '已隐藏，扫描也会跳过它';
+	@override String get folderUnhidden => '已取消隐藏';
+	@override String get hiddenFolderBadge => '已隐藏';
+	@override String get deleteFolder => '删除文件夹';
+	@override String get deleteFolderTitle => '删除这个文件夹？';
+	@override String deleteFolderBody({required Object name}) => '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。';
+	@override String get deleteFolderIncludesOthers => '里面的其它文件也会一并删掉';
+	@override String get folderDeleted => '已删除文件夹';
+	@override String get deleteFolderFailed => '删除失败，可能没有权限，或里面的文件正被占用';
 	@override String get deleteGalleryTitle => '删除这个图库？';
 	@override String deleteGalleryBody({required Object name}) => '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。';
 	@override String get galleryResourceMissing => '本地资源已不存在，已清理该记录';
@@ -6885,12 +6906,33 @@ extension on TranslationsZhCn {
 			'localMedia.browse.videosSection' => '视频',
 			'localMedia.browse.imagesSection' => '图片',
 			'localMedia.browse.galleriesSection' => '图库',
+			'localMedia.browse.filterAll' => '全部',
+			'localMedia.browse.searchInFolder' => '在这个文件夹里搜索',
+			'localMedia.browse.searchHint' => '按名称搜索',
+			'localMedia.browse.clearSearch' => '清除搜索',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => '没有匹配「${query}」的内容',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => '查看全部 ${count} 个文件夹',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => '查看全部 ${count} 个视频',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => '查看全部 ${count} 张图片',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => '查看全部 ${count} 个图库',
 			'localMedia.browse.location' => '位置',
 			'localMedia.browse.sourceMissing' => '这个来源已经不在了',
 			'localMedia.browse.notScannedYet' => '还没扫描过这个文件夹',
 			'localMedia.browse.scanning' => '正在读取这个文件夹…',
 			'localMedia.browse.deleteFileTitle' => '删除这个文件？',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '「${name}」会从这台设备上真的被删掉，不能撤销。',
+			'localMedia.browse.hideFolder' => '隐藏此文件夹',
+			'localMedia.browse.unhideFolder' => '取消隐藏',
+			'localMedia.browse.showHiddenFolders' => '显示隐藏的文件夹',
+			'localMedia.browse.folderHidden' => '已隐藏，扫描也会跳过它',
+			'localMedia.browse.folderUnhidden' => '已取消隐藏',
+			'localMedia.browse.hiddenFolderBadge' => '已隐藏',
+			'localMedia.browse.deleteFolder' => '删除文件夹',
+			'localMedia.browse.deleteFolderTitle' => '删除这个文件夹？',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。',
+			'localMedia.browse.deleteFolderIncludesOthers' => '里面的其它文件也会一并删掉',
+			'localMedia.browse.folderDeleted' => '已删除文件夹',
+			'localMedia.browse.deleteFolderFailed' => '删除失败，可能没有权限，或里面的文件正被占用',
 			'localMedia.browse.deleteGalleryTitle' => '删除这个图库？',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。',
 			'localMedia.browse.galleryResourceMissing' => '本地资源已不存在，已清理该记录',

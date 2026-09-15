@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: วิดีโอ
     imagesSection: รูปภาพ
     galleriesSection: แกลเลอรี
+    filterAll: ทั้งหมด
+    searchInFolder: ค้นหาในโฟลเดอร์นี้
+    searchHint: ค้นหาตามชื่อ
+    clearSearch: ล้างการค้นหา
+    searchNoResult: 'ไม่พบรายการที่ตรงกับ "${query}"'
+    viewAllFolders: "ดูโฟลเดอร์ทั้งหมด ${count} รายการ"
+    viewAllVideos: "ดูวิดีโอทั้งหมด ${count} รายการ"
+    viewAllImages: "ดูรูปภาพทั้งหมด ${count} รายการ"
+    viewAllGalleries: "ดูแกลเลอรีทั้งหมด ${count} รายการ"
     location: ตำแหน่ง
     sourceMissing: แหล่งนี้หายไปแล้ว
     notScannedYet: โฟลเดอร์นี้ยังไม่ได้สแกน
     scanning: กำลังอ่านโฟลเดอร์นี้…
     deleteFileTitle: ลบไฟล์นี้หรือไม่
     deleteFileBody: '“${name}” จะถูกลบออกจากอุปกรณ์นี้อย่างถาวร การกระทำนี้ย้อนกลับไม่ได้'
+    hideFolder: ซ่อนโฟลเดอร์นี้
+    unhideFolder: เลิกซ่อน
+    showHiddenFolders: แสดงโฟลเดอร์ที่ซ่อนไว้
+    folderHidden: ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย
+    folderUnhidden: เลิกซ่อนแล้ว
+    hiddenFolderBadge: ซ่อนอยู่
+    deleteFolder: ลบโฟลเดอร์
+    deleteFolderTitle: ลบโฟลเดอร์นี้หรือไม่
+    deleteFolderBody: '"${name}" และทุกอย่างข้างในจะถูกลบออกจากอุปกรณ์นี้อย่างถาวร ไม่สามารถกู้คืนได้'
+    deleteFolderIncludesOthers: ไฟล์อื่นที่อยู่ข้างในจะถูกลบไปด้วย
+    folderDeleted: ลบโฟลเดอร์แล้ว
+    deleteFolderFailed: ลบไม่สำเร็จ อาจไม่มีสิทธิ์ หรือมีไฟล์ข้างในกำลังถูกใช้งาน
     deleteGalleryTitle: ลบแกลเลอรีนี้หรือไม่
     deleteGalleryBody: 'ประวัติการดาวน์โหลดและไฟล์ภาพในเครื่องของ “${name}” จะถูกลบ การกระทำนี้ย้อนกลับไม่ได้'
     galleryResourceMissing: ไฟล์ในเครื่องไม่มีอยู่แล้ว ล้างข้อมูลเรียบร้อย

@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Videos
     imagesSection: Bilder
     galleriesSection: Galerien
+    filterAll: Alle
+    searchInFolder: In diesem Ordner suchen
+    searchHint: Nach Namen suchen
+    clearSearch: Suche löschen
+    searchNoResult: 'Keine Treffer für „${query}“'
+    viewAllFolders: "Alle ${count} Ordner anzeigen"
+    viewAllVideos: "Alle ${count} Videos anzeigen"
+    viewAllImages: "Alle ${count} Bilder anzeigen"
+    viewAllGalleries: "Alle ${count} Galerien anzeigen"
     location: Ort
     sourceMissing: Diese Quelle ist nicht mehr vorhanden
     notScannedYet: Dieser Ordner wurde noch nicht gescannt
     scanning: Dieser Ordner wird gelesen…
     deleteFileTitle: Diese Datei löschen?
     deleteFileBody: '„${name}“ wird endgültig von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.'
+    hideFolder: Diesen Ordner ausblenden
+    unhideFolder: Einblenden
+    showHiddenFolders: Ausgeblendete Ordner anzeigen
+    folderHidden: Ausgeblendet – wird auch beim Scannen übersprungen
+    folderUnhidden: Nicht mehr ausgeblendet
+    hiddenFolderBadge: Ausgeblendet
+    deleteFolder: Ordner löschen
+    deleteFolderTitle: Diesen Ordner löschen?
+    deleteFolderBody: '„${name}“ und der gesamte Inhalt werden endgültig von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen.'
+    deleteFolderIncludesOthers: Andere Dateien darin werden ebenfalls gelöscht
+    folderDeleted: Ordner gelöscht
+    deleteFolderFailed: Löschen fehlgeschlagen – keine Berechtigung, oder eine Datei darin wird gerade verwendet
     deleteGalleryTitle: Diese Galerie löschen?
     deleteGalleryBody: 'Der Download-Eintrag und die lokalen Bilddateien von „${name}“ werden gelöscht. Dies kann nicht rückgängig gemacht werden.'
     galleryResourceMissing: Lokale Dateien existieren nicht mehr. Eintrag bereinigt.

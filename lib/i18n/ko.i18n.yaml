@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: 동영상
     imagesSection: 이미지
     galleriesSection: 갤러리
+    filterAll: 전체
+    searchInFolder: 이 폴더에서 검색
+    searchHint: 이름으로 검색
+    clearSearch: 검색 지우기
+    searchNoResult: '"${query}"와 일치하는 항목이 없습니다'
+    viewAllFolders: "폴더 ${count}개 모두 보기"
+    viewAllVideos: "동영상 ${count}개 모두 보기"
+    viewAllImages: "이미지 ${count}장 모두 보기"
+    viewAllGalleries: "갤러리 ${count}개 모두 보기"
     location: 위치
     sourceMissing: 이 소스가 사라졌습니다
     notScannedYet: 이 폴더는 아직 검사되지 않았습니다
     scanning: 이 폴더를 읽는 중…
     deleteFileTitle: 이 파일을 삭제하시겠습니까?
     deleteFileBody: '"${name}"이(가) 이 기기에서 영구적으로 삭제됩니다. 되돌릴 수 없습니다.'
+    hideFolder: 이 폴더 숨기기
+    unhideFolder: 숨김 해제
+    showHiddenFolders: 숨긴 폴더 표시
+    folderHidden: 숨겼습니다. 검색에서도 건너뜁니다
+    folderUnhidden: 숨김을 해제했습니다
+    hiddenFolderBadge: 숨김
+    deleteFolder: 폴더 삭제
+    deleteFolderTitle: 이 폴더를 삭제할까요?
+    deleteFolderBody: '"${name}"와 그 안의 모든 항목이 이 기기에서 완전히 삭제됩니다. 되돌릴 수 없습니다.'
+    deleteFolderIncludesOthers: 안에 있는 다른 파일도 함께 삭제됩니다
+    folderDeleted: 폴더를 삭제했습니다
+    deleteFolderFailed: 삭제하지 못했습니다. 권한이 없거나 안의 파일이 사용 중일 수 있습니다
     deleteGalleryTitle: 이 갤러리를 삭제하시겠습니까?
     deleteGalleryBody: '"${name}"의 다운로드 기록과 로컬 이미지 파일이 삭제됩니다. 되돌릴 수 없습니다.'
     galleryResourceMissing: 로컬 파일이 더 이상 존재하지 않습니다. 기록이 정리되었습니다.

@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseDe extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Videos';
 	@override String get imagesSection => 'Bilder';
 	@override String get galleriesSection => 'Galerien';
+	@override String get filterAll => 'Alle';
+	@override String get searchInFolder => 'In diesem Ordner suchen';
+	@override String get searchHint => 'Nach Namen suchen';
+	@override String get clearSearch => 'Suche löschen';
+	@override String searchNoResult({required Object query}) => 'Keine Treffer für „${query}“';
+	@override String viewAllFolders({required Object count}) => 'Alle ${count} Ordner anzeigen';
+	@override String viewAllVideos({required Object count}) => 'Alle ${count} Videos anzeigen';
+	@override String viewAllImages({required Object count}) => 'Alle ${count} Bilder anzeigen';
+	@override String viewAllGalleries({required Object count}) => 'Alle ${count} Galerien anzeigen';
 	@override String get location => 'Ort';
 	@override String get sourceMissing => 'Diese Quelle ist nicht mehr vorhanden';
 	@override String get notScannedYet => 'Dieser Ordner wurde noch nicht gescannt';
 	@override String get scanning => 'Dieser Ordner wird gelesen…';
 	@override String get deleteFileTitle => 'Diese Datei löschen?';
 	@override String deleteFileBody({required Object name}) => '„${name}“ wird endgültig von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.';
+	@override String get hideFolder => 'Diesen Ordner ausblenden';
+	@override String get unhideFolder => 'Einblenden';
+	@override String get showHiddenFolders => 'Ausgeblendete Ordner anzeigen';
+	@override String get folderHidden => 'Ausgeblendet – wird auch beim Scannen übersprungen';
+	@override String get folderUnhidden => 'Nicht mehr ausgeblendet';
+	@override String get hiddenFolderBadge => 'Ausgeblendet';
+	@override String get deleteFolder => 'Ordner löschen';
+	@override String get deleteFolderTitle => 'Diesen Ordner löschen?';
+	@override String deleteFolderBody({required Object name}) => '„${name}“ und der gesamte Inhalt werden endgültig von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen.';
+	@override String get deleteFolderIncludesOthers => 'Andere Dateien darin werden ebenfalls gelöscht';
+	@override String get folderDeleted => 'Ordner gelöscht';
+	@override String get deleteFolderFailed => 'Löschen fehlgeschlagen – keine Berechtigung, oder eine Datei darin wird gerade verwendet';
 	@override String get deleteGalleryTitle => 'Diese Galerie löschen?';
 	@override String deleteGalleryBody({required Object name}) => 'Der Download-Eintrag und die lokalen Bilddateien von „${name}“ werden gelöscht. Dies kann nicht rückgängig gemacht werden.';
 	@override String get galleryResourceMissing => 'Lokale Dateien existieren nicht mehr. Eintrag bereinigt.';
@@ -6885,12 +6906,33 @@ extension on TranslationsDe {
 			'localMedia.browse.videosSection' => 'Videos',
 			'localMedia.browse.imagesSection' => 'Bilder',
 			'localMedia.browse.galleriesSection' => 'Galerien',
+			'localMedia.browse.filterAll' => 'Alle',
+			'localMedia.browse.searchInFolder' => 'In diesem Ordner suchen',
+			'localMedia.browse.searchHint' => 'Nach Namen suchen',
+			'localMedia.browse.clearSearch' => 'Suche löschen',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Keine Treffer für „${query}“',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Alle ${count} Ordner anzeigen',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Alle ${count} Videos anzeigen',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Alle ${count} Bilder anzeigen',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Alle ${count} Galerien anzeigen',
 			'localMedia.browse.location' => 'Ort',
 			'localMedia.browse.sourceMissing' => 'Diese Quelle ist nicht mehr vorhanden',
 			'localMedia.browse.notScannedYet' => 'Dieser Ordner wurde noch nicht gescannt',
 			'localMedia.browse.scanning' => 'Dieser Ordner wird gelesen…',
 			'localMedia.browse.deleteFileTitle' => 'Diese Datei löschen?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '„${name}“ wird endgültig von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.',
+			'localMedia.browse.hideFolder' => 'Diesen Ordner ausblenden',
+			'localMedia.browse.unhideFolder' => 'Einblenden',
+			'localMedia.browse.showHiddenFolders' => 'Ausgeblendete Ordner anzeigen',
+			'localMedia.browse.folderHidden' => 'Ausgeblendet – wird auch beim Scannen übersprungen',
+			'localMedia.browse.folderUnhidden' => 'Nicht mehr ausgeblendet',
+			'localMedia.browse.hiddenFolderBadge' => 'Ausgeblendet',
+			'localMedia.browse.deleteFolder' => 'Ordner löschen',
+			'localMedia.browse.deleteFolderTitle' => 'Diesen Ordner löschen?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '„${name}“ und der gesamte Inhalt werden endgültig von diesem Gerät gelöscht. Das lässt sich nicht rückgängig machen.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Andere Dateien darin werden ebenfalls gelöscht',
+			'localMedia.browse.folderDeleted' => 'Ordner gelöscht',
+			'localMedia.browse.deleteFolderFailed' => 'Löschen fehlgeschlagen – keine Berechtigung, oder eine Datei darin wird gerade verwendet',
 			'localMedia.browse.deleteGalleryTitle' => 'Diese Galerie löschen?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'Der Download-Eintrag und die lokalen Bilddateien von „${name}“ werden gelöscht. Dies kann nicht rückgängig gemacht werden.',
 			'localMedia.browse.galleryResourceMissing' => 'Lokale Dateien existieren nicht mehr. Eintrag bereinigt.',

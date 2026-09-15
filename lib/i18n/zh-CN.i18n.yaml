@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: 视频
     imagesSection: 图片
     galleriesSection: 图库
+    filterAll: 全部
+    searchInFolder: 在这个文件夹里搜索
+    searchHint: 按名称搜索
+    clearSearch: 清除搜索
+    searchNoResult: '没有匹配「${query}」的内容'
+    viewAllFolders: "查看全部 ${count} 个文件夹"
+    viewAllVideos: "查看全部 ${count} 个视频"
+    viewAllImages: "查看全部 ${count} 张图片"
+    viewAllGalleries: "查看全部 ${count} 个图库"
     location: 位置
     sourceMissing: 这个来源已经不在了
     notScannedYet: 还没扫描过这个文件夹
     scanning: 正在读取这个文件夹…
     deleteFileTitle: 删除这个文件？
     deleteFileBody: '「${name}」会从这台设备上真的被删掉，不能撤销。'
+    hideFolder: 隐藏此文件夹
+    unhideFolder: 取消隐藏
+    showHiddenFolders: 显示隐藏的文件夹
+    folderHidden: 已隐藏，扫描也会跳过它
+    folderUnhidden: 已取消隐藏
+    hiddenFolderBadge: 已隐藏
+    deleteFolder: 删除文件夹
+    deleteFolderTitle: 删除这个文件夹？
+    deleteFolderBody: '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。'
+    deleteFolderIncludesOthers: 里面的其它文件也会一并删掉
+    folderDeleted: 已删除文件夹
+    deleteFolderFailed: 删除失败，可能没有权限，或里面的文件正被占用
     deleteGalleryTitle: 删除这个图库？
     deleteGalleryBody: '「${name}」的下载记录和本地图片文件都会被删除，不能撤销。'
     galleryResourceMissing: 本地资源已不存在，已清理该记录

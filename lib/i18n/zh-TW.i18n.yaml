@@ -3029,12 +3029,33 @@ localMedia:
     videosSection: 影片
     imagesSection: 圖片
     galleriesSection: 圖庫
+    filterAll: 全部
+    searchInFolder: 在這個資料夾裡搜尋
+    searchHint: 依名稱搜尋
+    clearSearch: 清除搜尋
+    searchNoResult: '沒有符合「${query}」的內容'
+    viewAllFolders: "查看全部 ${count} 個資料夾"
+    viewAllVideos: "查看全部 ${count} 個影片"
+    viewAllImages: "查看全部 ${count} 張圖片"
+    viewAllGalleries: "查看全部 ${count} 個圖庫"
     location: 位置
     sourceMissing: 這個來源已經不在了
     notScannedYet: 還沒掃描過這個資料夾
     scanning: 正在讀取這個資料夾…
     deleteFileTitle: 刪除這個檔案？
     deleteFileBody: '「${name}」會從這台裝置上真的被刪除，無法復原。'
+    hideFolder: 隱藏此資料夾
+    unhideFolder: 取消隱藏
+    showHiddenFolders: 顯示隱藏的資料夾
+    folderHidden: 已隱藏，掃描也會跳過它
+    folderUnhidden: 已取消隱藏
+    hiddenFolderBadge: 已隱藏
+    deleteFolder: 刪除資料夾
+    deleteFolderTitle: 刪除這個資料夾？
+    deleteFolderBody: '「${name}」連同裡面的所有內容都會從這台裝置上真的被刪除，無法復原。'
+    deleteFolderIncludesOthers: 裡面的其它檔案也會一併刪除
+    folderDeleted: 已刪除資料夾
+    deleteFolderFailed: 刪除失敗，可能沒有權限，或裡面的檔案正被占用
     deleteGalleryTitle: 刪除這個圖庫？
     deleteGalleryBody: '「${name}」的下載記錄和本地圖片文件都會被刪除，無法復原。'
     galleryResourceMissing: 本地資源已不存在，已清理該記錄

@@ -124,6 +124,14 @@ TABLE local_media_folders
   INDEX idx_local_folders_children :: CREATE INDEX idx_local_folders_children ON local_media_folders(source_id, parent_rel_path, missing, sort_name, name, id)
   INDEX sqlite_autoindex_local_media_folders_1 :: (auto)
   INDEX sqlite_autoindex_local_media_folders_2 :: (auto)
+TABLE local_media_hidden_folders
+  COLUMN created_at INTEGER NOT NULL
+  COLUMN display_name TEXT NOT NULL DEFAULT ''
+  COLUMN id TEXT PK1
+  COLUMN rel_path TEXT NOT NULL
+  COLUMN source_id TEXT NOT NULL
+  INDEX sqlite_autoindex_local_media_hidden_folders_1 :: (auto)
+  INDEX sqlite_autoindex_local_media_hidden_folders_2 :: (auto)
 TABLE local_media_items
   COLUMN added_at INTEGER NOT NULL
   COLUMN category_id TEXT

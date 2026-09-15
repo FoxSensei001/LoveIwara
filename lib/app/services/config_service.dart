@@ -315,6 +315,28 @@ enum ConfigKey {
   /// 稍后再看的排序（'recentlyAdded' | 'earliestAdded'）。
   /// 列表页与播放器抽屉共享同一份——两处显示同一批内容却排序不同会很怪。
   WATCH_LATER_SORT_KEY,
+
+  /// 「本机文件」上次停在哪个栏目（下标，见 `local_home_page.dart` 的 `_tabFolders`
+  /// 那组常量）。用户要的是"下次进来还是我上次看的那一栏"。
+  ///
+  /// ⛔ 读的时候必须夹进 `[0, _tabCount)`：栏目数量改过、或者库里被写脏，
+  /// `TabController(initialIndex:)` 越界会当场断言崩在首帧。
+  LOCAL_MEDIA_LAST_TAB_KEY,
+
+  /// 「本机文件」各栏目的排序（`Map<String, String>`，键是栏目 id，
+  /// 值是 `<字段名>:<asc|desc>`）。四个卡片墙栏目各记各的。
+  LOCAL_MEDIA_TAB_SORTS_KEY,
+
+  /// 目录浏览页的排序（[LocalMediaSort] 的 name）。它是**跨目录共享**的一档：
+  /// 用户设了"按大小"就是宣布自己此刻在找大文件，进下一层还得再设一遍很荒谬。
+  LOCAL_MEDIA_BROWSE_SORT_KEY,
+
+  /// 「显示隐藏的文件夹」。用户在 ⋮ 菜单里切，跨重启记住（用户 2026-09-16 选的
+  /// 这一档，另一档是"每次重开自动关掉"）。
+  ///
+  /// ⛔ 它只影响**目录树里看不看得见**，不影响「所有视频」那几面聚合墙——隐藏的
+  /// 口径就是"目录树 + 扫描"两件事，别在别处偷偷扩大它。
+  LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY,
   VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
   BRIGHTNESS_KEY,
   KEEP_LAST_BRIGHTNESS_KEY,
@@ -506,6 +528,14 @@ extension ConfigKeyExtension on ConfigKey {
         return 'continue_in_queue';
       case ConfigKey.WATCH_LATER_SORT_KEY:
         return 'watch_later_sort';
+      case ConfigKey.LOCAL_MEDIA_LAST_TAB_KEY:
+        return 'local_media_last_tab';
+      case ConfigKey.LOCAL_MEDIA_TAB_SORTS_KEY:
+        return 'local_media_tab_sorts';
+      case ConfigKey.LOCAL_MEDIA_BROWSE_SORT_KEY:
+        return 'local_media_browse_sort';
+      case ConfigKey.LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY:
+        return 'local_media_show_hidden_folders';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 'video_left_and_right_control_area_ratio';
       case ConfigKey.BRIGHTNESS_KEY:
@@ -806,6 +836,17 @@ extension ConfigKeyExtension on ConfigKey {
         return false;
       case ConfigKey.WATCH_LATER_SORT_KEY:
         return 'recentlyAdded';
+      case ConfigKey.LOCAL_MEDIA_LAST_TAB_KEY:
+        return 0;
+      case ConfigKey.LOCAL_MEDIA_TAB_SORTS_KEY:
+        // ⛔ 默认值的**静态类型**决定了怎么解析（见 [parseStoredSetting]）：
+        // 写成 `{}` 会被推成 `Map<String, dynamic>`，取出来的值就是 dynamic，
+        // 调用点的 `as String` 会在真机上炸。必须显式标成 Map<String, String>。
+        return <String, String>{};
+      case ConfigKey.LOCAL_MEDIA_BROWSE_SORT_KEY:
+        return 'nameAsc';
+      case ConfigKey.LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY:
+        return false;
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 0.2;
       case ConfigKey.BRIGHTNESS_KEY:

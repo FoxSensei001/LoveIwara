@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Video
     imagesSection: Ảnh
     galleriesSection: Thư viện
+    filterAll: Tất cả
+    searchInFolder: Tìm trong thư mục này
+    searchHint: Tìm theo tên
+    clearSearch: Xóa tìm kiếm
+    searchNoResult: 'Không có kết quả cho "${query}"'
+    viewAllFolders: "Xem tất cả ${count} thư mục"
+    viewAllVideos: "Xem tất cả ${count} video"
+    viewAllImages: "Xem tất cả ${count} ảnh"
+    viewAllGalleries: "Xem tất cả ${count} thư viện"
     location: Vị trí
     sourceMissing: Nguồn này không còn tồn tại
     notScannedYet: Thư mục này chưa được quét
     scanning: Đang đọc thư mục này…
     deleteFileTitle: Xóa tệp này?
     deleteFileBody: '"${name}" sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.'
+    hideFolder: Ẩn thư mục này
+    unhideFolder: Bỏ ẩn
+    showHiddenFolders: Hiện thư mục đã ẩn
+    folderHidden: Đã ẩn — quá trình quét cũng sẽ bỏ qua
+    folderUnhidden: Đã bỏ ẩn
+    hiddenFolderBadge: Đã ẩn
+    deleteFolder: Xóa thư mục
+    deleteFolderTitle: Xóa thư mục này?
+    deleteFolderBody: '"${name}" cùng toàn bộ nội dung bên trong sẽ bị xóa vĩnh viễn khỏi thiết bị này. Không thể hoàn tác.'
+    deleteFolderIncludesOthers: Các tệp khác bên trong cũng sẽ bị xóa
+    folderDeleted: Đã xóa thư mục
+    deleteFolderFailed: Xóa thất bại — không có quyền, hoặc tệp bên trong đang được sử dụng
     deleteGalleryTitle: Xóa thư viện này?
     deleteGalleryBody: 'Bản ghi tải xuống và các tệp ảnh cục bộ của "${name}" sẽ bị xóa. Không thể hoàn tác.'
     galleryResourceMissing: Tệp cục bộ không còn tồn tại. Đã dọn bản ghi.

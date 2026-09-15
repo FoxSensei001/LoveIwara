@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseFr extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => 'Vidéos';
 	@override String get imagesSection => 'Images';
 	@override String get galleriesSection => 'Galeries';
+	@override String get filterAll => 'Tout';
+	@override String get searchInFolder => 'Rechercher dans ce dossier';
+	@override String get searchHint => 'Rechercher par nom';
+	@override String get clearSearch => 'Effacer la recherche';
+	@override String searchNoResult({required Object query}) => 'Aucun résultat pour « ${query} »';
+	@override String viewAllFolders({required Object count}) => 'Voir les ${count} dossiers';
+	@override String viewAllVideos({required Object count}) => 'Voir les ${count} vidéos';
+	@override String viewAllImages({required Object count}) => 'Voir les ${count} images';
+	@override String viewAllGalleries({required Object count}) => 'Voir les ${count} galeries';
 	@override String get location => 'Emplacement';
 	@override String get sourceMissing => 'Cette source a disparu';
 	@override String get notScannedYet => 'Ce dossier n\'a pas encore été analysé';
 	@override String get scanning => 'Lecture de ce dossier…';
 	@override String get deleteFileTitle => 'Supprimer ce fichier ?';
 	@override String deleteFileBody({required Object name}) => '« ${name} » sera définitivement supprimé de cet appareil. Cette action est irréversible.';
+	@override String get hideFolder => 'Masquer ce dossier';
+	@override String get unhideFolder => 'Afficher de nouveau';
+	@override String get showHiddenFolders => 'Afficher les dossiers masqués';
+	@override String get folderHidden => 'Masqué ; l’analyse l’ignorera aussi';
+	@override String get folderUnhidden => 'N’est plus masqué';
+	@override String get hiddenFolderBadge => 'Masqué';
+	@override String get deleteFolder => 'Supprimer le dossier';
+	@override String get deleteFolderTitle => 'Supprimer ce dossier ?';
+	@override String deleteFolderBody({required Object name}) => '« ${name} » et tout son contenu seront définitivement supprimés de cet appareil. Cette action est irréversible.';
+	@override String get deleteFolderIncludesOthers => 'Les autres fichiers qu’il contient seront aussi supprimés';
+	@override String get folderDeleted => 'Dossier supprimé';
+	@override String get deleteFolderFailed => 'Échec de la suppression : permission refusée ou fichier en cours d’utilisation';
 	@override String get deleteGalleryTitle => 'Supprimer cette galerie ?';
 	@override String deleteGalleryBody({required Object name}) => 'L\'enregistrement de téléchargement et les fichiers image locaux de « ${name} » seront supprimés. Cette action est irréversible.';
 	@override String get galleryResourceMissing => 'Les fichiers locaux n\'existent plus. Enregistrement nettoyé.';
@@ -6885,12 +6906,33 @@ extension on TranslationsFr {
 			'localMedia.browse.videosSection' => 'Vidéos',
 			'localMedia.browse.imagesSection' => 'Images',
 			'localMedia.browse.galleriesSection' => 'Galeries',
+			'localMedia.browse.filterAll' => 'Tout',
+			'localMedia.browse.searchInFolder' => 'Rechercher dans ce dossier',
+			'localMedia.browse.searchHint' => 'Rechercher par nom',
+			'localMedia.browse.clearSearch' => 'Effacer la recherche',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => 'Aucun résultat pour « ${query} »',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => 'Voir les ${count} dossiers',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => 'Voir les ${count} vidéos',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => 'Voir les ${count} images',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => 'Voir les ${count} galeries',
 			'localMedia.browse.location' => 'Emplacement',
 			'localMedia.browse.sourceMissing' => 'Cette source a disparu',
 			'localMedia.browse.notScannedYet' => 'Ce dossier n\'a pas encore été analysé',
 			'localMedia.browse.scanning' => 'Lecture de ce dossier…',
 			'localMedia.browse.deleteFileTitle' => 'Supprimer ce fichier ?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '« ${name} » sera définitivement supprimé de cet appareil. Cette action est irréversible.',
+			'localMedia.browse.hideFolder' => 'Masquer ce dossier',
+			'localMedia.browse.unhideFolder' => 'Afficher de nouveau',
+			'localMedia.browse.showHiddenFolders' => 'Afficher les dossiers masqués',
+			'localMedia.browse.folderHidden' => 'Masqué ; l’analyse l’ignorera aussi',
+			'localMedia.browse.folderUnhidden' => 'N’est plus masqué',
+			'localMedia.browse.hiddenFolderBadge' => 'Masqué',
+			'localMedia.browse.deleteFolder' => 'Supprimer le dossier',
+			'localMedia.browse.deleteFolderTitle' => 'Supprimer ce dossier ?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '« ${name} » et tout son contenu seront définitivement supprimés de cet appareil. Cette action est irréversible.',
+			'localMedia.browse.deleteFolderIncludesOthers' => 'Les autres fichiers qu’il contient seront aussi supprimés',
+			'localMedia.browse.folderDeleted' => 'Dossier supprimé',
+			'localMedia.browse.deleteFolderFailed' => 'Échec de la suppression : permission refusée ou fichier en cours d’utilisation',
 			'localMedia.browse.deleteGalleryTitle' => 'Supprimer cette galerie ?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => 'L\'enregistrement de téléchargement et les fichiers image locaux de « ${name} » seront supprimés. Cette action est irréversible.',
 			'localMedia.browse.galleryResourceMissing' => 'Les fichiers locaux n\'existent plus. Enregistrement nettoyé.',

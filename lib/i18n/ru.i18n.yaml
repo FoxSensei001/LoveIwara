@@ -3025,12 +3025,33 @@ localMedia:
     videosSection: Видео
     imagesSection: Изображения
     galleriesSection: Галереи
+    filterAll: Все
+    searchInFolder: Поиск в этой папке
+    searchHint: Поиск по имени
+    clearSearch: Очистить поиск
+    searchNoResult: 'Ничего не найдено по запросу «${query}»'
+    viewAllFolders: "Показать все папки (${count})"
+    viewAllVideos: "Показать все видео (${count})"
+    viewAllImages: "Показать все изображения (${count})"
+    viewAllGalleries: "Показать все галереи (${count})"
     location: Расположение
     sourceMissing: Этот источник недоступен
     notScannedYet: Эта папка ещё не просканирована
     scanning: Чтение папки…
     deleteFileTitle: Удалить этот файл?
     deleteFileBody: '«${name}» будет безвозвратно удалён с этого устройства. Это действие нельзя отменить.'
+    hideFolder: Скрыть эту папку
+    unhideFolder: Показать снова
+    showHiddenFolders: Показывать скрытые папки
+    folderHidden: Скрыта — сканирование тоже её пропустит
+    folderUnhidden: Больше не скрыта
+    hiddenFolderBadge: Скрыта
+    deleteFolder: Удалить папку
+    deleteFolderTitle: Удалить эту папку?
+    deleteFolderBody: '«${name}» и всё её содержимое будут безвозвратно удалены с этого устройства. Отменить это нельзя.'
+    deleteFolderIncludesOthers: Другие файлы внутри тоже будут удалены
+    folderDeleted: Папка удалена
+    deleteFolderFailed: 'Не удалось удалить: нет прав или файл внутри занят'
     deleteGalleryTitle: Удалить эту галерею?
     deleteGalleryBody: 'Запись о загрузке и локальные файлы изображений «${name}» будут удалены. Это действие нельзя отменить.'
     galleryResourceMissing: Локальные файлы больше не существуют. Запись очищена.

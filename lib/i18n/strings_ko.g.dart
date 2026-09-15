@@ -3886,12 +3886,33 @@ class _TranslationsLocalMediaBrowseKo extends TranslationsLocalMediaBrowseEn {
 	@override String get videosSection => '동영상';
 	@override String get imagesSection => '이미지';
 	@override String get galleriesSection => '갤러리';
+	@override String get filterAll => '전체';
+	@override String get searchInFolder => '이 폴더에서 검색';
+	@override String get searchHint => '이름으로 검색';
+	@override String get clearSearch => '검색 지우기';
+	@override String searchNoResult({required Object query}) => '"${query}"와 일치하는 항목이 없습니다';
+	@override String viewAllFolders({required Object count}) => '폴더 ${count}개 모두 보기';
+	@override String viewAllVideos({required Object count}) => '동영상 ${count}개 모두 보기';
+	@override String viewAllImages({required Object count}) => '이미지 ${count}장 모두 보기';
+	@override String viewAllGalleries({required Object count}) => '갤러리 ${count}개 모두 보기';
 	@override String get location => '위치';
 	@override String get sourceMissing => '이 소스가 사라졌습니다';
 	@override String get notScannedYet => '이 폴더는 아직 검사되지 않았습니다';
 	@override String get scanning => '이 폴더를 읽는 중…';
 	@override String get deleteFileTitle => '이 파일을 삭제하시겠습니까?';
 	@override String deleteFileBody({required Object name}) => '"${name}"이(가) 이 기기에서 영구적으로 삭제됩니다. 되돌릴 수 없습니다.';
+	@override String get hideFolder => '이 폴더 숨기기';
+	@override String get unhideFolder => '숨김 해제';
+	@override String get showHiddenFolders => '숨긴 폴더 표시';
+	@override String get folderHidden => '숨겼습니다. 검색에서도 건너뜁니다';
+	@override String get folderUnhidden => '숨김을 해제했습니다';
+	@override String get hiddenFolderBadge => '숨김';
+	@override String get deleteFolder => '폴더 삭제';
+	@override String get deleteFolderTitle => '이 폴더를 삭제할까요?';
+	@override String deleteFolderBody({required Object name}) => '"${name}"와 그 안의 모든 항목이 이 기기에서 완전히 삭제됩니다. 되돌릴 수 없습니다.';
+	@override String get deleteFolderIncludesOthers => '안에 있는 다른 파일도 함께 삭제됩니다';
+	@override String get folderDeleted => '폴더를 삭제했습니다';
+	@override String get deleteFolderFailed => '삭제하지 못했습니다. 권한이 없거나 안의 파일이 사용 중일 수 있습니다';
 	@override String get deleteGalleryTitle => '이 갤러리를 삭제하시겠습니까?';
 	@override String deleteGalleryBody({required Object name}) => '"${name}"의 다운로드 기록과 로컬 이미지 파일이 삭제됩니다. 되돌릴 수 없습니다.';
 	@override String get galleryResourceMissing => '로컬 파일이 더 이상 존재하지 않습니다. 기록이 정리되었습니다.';
@@ -6885,12 +6906,33 @@ extension on TranslationsKo {
 			'localMedia.browse.videosSection' => '동영상',
 			'localMedia.browse.imagesSection' => '이미지',
 			'localMedia.browse.galleriesSection' => '갤러리',
+			'localMedia.browse.filterAll' => '전체',
+			'localMedia.browse.searchInFolder' => '이 폴더에서 검색',
+			'localMedia.browse.searchHint' => '이름으로 검색',
+			'localMedia.browse.clearSearch' => '검색 지우기',
+			'localMedia.browse.searchNoResult' => ({required Object query}) => '"${query}"와 일치하는 항목이 없습니다',
+			'localMedia.browse.viewAllFolders' => ({required Object count}) => '폴더 ${count}개 모두 보기',
+			'localMedia.browse.viewAllVideos' => ({required Object count}) => '동영상 ${count}개 모두 보기',
+			'localMedia.browse.viewAllImages' => ({required Object count}) => '이미지 ${count}장 모두 보기',
+			'localMedia.browse.viewAllGalleries' => ({required Object count}) => '갤러리 ${count}개 모두 보기',
 			'localMedia.browse.location' => '위치',
 			'localMedia.browse.sourceMissing' => '이 소스가 사라졌습니다',
 			'localMedia.browse.notScannedYet' => '이 폴더는 아직 검사되지 않았습니다',
 			'localMedia.browse.scanning' => '이 폴더를 읽는 중…',
 			'localMedia.browse.deleteFileTitle' => '이 파일을 삭제하시겠습니까?',
 			'localMedia.browse.deleteFileBody' => ({required Object name}) => '"${name}"이(가) 이 기기에서 영구적으로 삭제됩니다. 되돌릴 수 없습니다.',
+			'localMedia.browse.hideFolder' => '이 폴더 숨기기',
+			'localMedia.browse.unhideFolder' => '숨김 해제',
+			'localMedia.browse.showHiddenFolders' => '숨긴 폴더 표시',
+			'localMedia.browse.folderHidden' => '숨겼습니다. 검색에서도 건너뜁니다',
+			'localMedia.browse.folderUnhidden' => '숨김을 해제했습니다',
+			'localMedia.browse.hiddenFolderBadge' => '숨김',
+			'localMedia.browse.deleteFolder' => '폴더 삭제',
+			'localMedia.browse.deleteFolderTitle' => '이 폴더를 삭제할까요?',
+			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}"와 그 안의 모든 항목이 이 기기에서 완전히 삭제됩니다. 되돌릴 수 없습니다.',
+			'localMedia.browse.deleteFolderIncludesOthers' => '안에 있는 다른 파일도 함께 삭제됩니다',
+			'localMedia.browse.folderDeleted' => '폴더를 삭제했습니다',
+			'localMedia.browse.deleteFolderFailed' => '삭제하지 못했습니다. 권한이 없거나 안의 파일이 사용 중일 수 있습니다',
 			'localMedia.browse.deleteGalleryTitle' => '이 갤러리를 삭제하시겠습니까?',
 			'localMedia.browse.deleteGalleryBody' => ({required Object name}) => '"${name}"의 다운로드 기록과 로컬 이미지 파일이 삭제됩니다. 되돌릴 수 없습니다.',
 			'localMedia.browse.galleryResourceMissing' => '로컬 파일이 더 이상 존재하지 않습니다. 기록이 정리되었습니다.',
