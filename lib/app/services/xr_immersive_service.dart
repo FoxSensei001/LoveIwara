@@ -132,10 +132,10 @@ class XrImmersiveService extends GetxService {
   /// 本地库条目 id）对上了就把 2D 播放器改成同一档。落库不靠它，见 [_handleFormatPicked]。
   void Function(String formatKey, VrSourceFormat format)? onVrFormatPicked;
 
-  /// Quest 上打开视频是否自动交给空间播放器（设置项，默认开）。
-  bool get autoEnterEnabled =>
-      Get.find<ConfigService>()[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] == true;
-
+  /// ⛔ 视频没有「要不要交给空间播放器」这个选项：Quest 上详情页的播放器区域本来
+  /// 就被换成了封面（见 `video_detail_page_v2._buildImmersiveCover`），不交出去就
+  /// 没人放。图库不同——2D 大图页在面板里是好用的，所以下面那枚开关是真开关。
+  ///
   /// Quest 上点开图库里的图片是否自动进空间画廊（设置项，默认开）。
   bool get galleryAutoEnterEnabled =>
       Get.find<ConfigService>()[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY] == true;

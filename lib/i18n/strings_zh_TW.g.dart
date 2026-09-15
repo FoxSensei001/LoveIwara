@@ -1031,6 +1031,7 @@ class _TranslationsFirstTimeSetupZhTw implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupNetworkZhTw network = _TranslationsFirstTimeSetupNetworkZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupThemeZhTw theme = _TranslationsFirstTimeSetupThemeZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupPlayerZhTw player = _TranslationsFirstTimeSetupPlayerZhTw._(_root);
+	@override late final _TranslationsFirstTimeSetupSpatialZhTw spatial = _TranslationsFirstTimeSetupSpatialZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionZhTw completion = _TranslationsFirstTimeSetupCompletionZhTw._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonZhTw common = _TranslationsFirstTimeSetupCommonZhTw._(_root);
 }
@@ -2365,6 +2366,7 @@ class _TranslationsColorVisionAssistZhTw implements TranslationsColorVisionAssis
 	@override String get title => '色覺輔助';
 	@override String get description => '為色覺障礙使用者矯正影片畫面色彩，可與 Anime4K 同時開啟';
 	@override String get galleryDescription => '為色覺障礙使用者矯正圖庫圖片色彩（與播放器開關相互獨立）';
+	@override String get galleryDescriptionSpatial => '為色覺障礙使用者矯正圖庫圖片色彩。僅作用於這塊面板裡的 2D 大圖頁——空間幕布上的畫面由原生渲染，不套這個濾鏡';
 	@override String get disable => '關閉';
 	@override String get disableDescription => '不進行色彩矯正';
 	@override String get protanopia => '紅色覺輔助';
@@ -2550,8 +2552,15 @@ class _TranslationsVrFormatZhTw implements TranslationsVrFormatEn {
 	// Translations
 	@override String get playInSpace => '在空間播放器中播放';
 	@override String get title => '播放模式';
-	@override String get autoEnterImmersive => '開啟影片自動進入空間播放器';
-	@override String get autoEnterImmersiveDesc => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。';
+	@override String get spatialSectionTitle => '空間播放';
+	@override String get spatialSectionDesc => '頭戴裝置上的影片不會畫在這塊面板裡，而是交給空間播放器呈現在幕布上。';
+	@override String get spatialPanelEntry => '空間控制面板';
+	@override String get spatialPanelEntryDesc => '幕布的遠近、大小、曲率、背景環境，以及倍速、循環、面板自動隱藏，都在空間控制面板裡調。';
+	@override String get spatialGuideEntry => '頭戴裝置操作指引';
+	@override String get spatialGuideEntryDesc => '控制器按鍵、抓取移動幕布、搖桿快轉與翻頁';
+	@override String get spatialFlatOmitted => '觸控手勢、畫質增強與音視訊參數只對 2D 播放器生效；空間播放器用的是另一套引擎，因此不在這裡列出。';
+	@override String get spatialGallerySectionTitle => '空間畫廊';
+	@override String get spatialGalleryPanelDesc => '幻燈片間隔、短片單條循環、幕布曲率都在空間控制面板裡調。';
 	@override String get autoEnterGallery => '點開圖庫圖片自動進入空間畫廊';
 	@override String get autoEnterGalleryDesc => '在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。';
 	@override String get panelSettings => '面板與背景';
@@ -3181,6 +3190,18 @@ class _TranslationsFirstTimeSetupPlayerZhTw implements TranslationsFirstTimeSetu
 	@override String get title => '播放器設定';
 	@override String get subtitle => '配置播放控制偏好';
 	@override String get description => '您可以在此快速設定常用的播放體驗';
+}
+
+// Path: firstTimeSetup.spatial
+class _TranslationsFirstTimeSetupSpatialZhTw implements TranslationsFirstTimeSetupSpatialEn {
+	_TranslationsFirstTimeSetupSpatialZhTw._(this._root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '空間播放';
+	@override String get subtitle => '頭戴裝置上的播放與瀏覽';
+	@override String get description => '在頭戴裝置上，影片與圖庫都會放到空間中呈現，而不是畫在這塊懸浮面板上';
 }
 
 // Path: firstTimeSetup.completion
@@ -5179,6 +5200,9 @@ extension on TranslationsZhTw {
 			'firstTimeSetup.player.title' => '播放器設定',
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '您可以在此快速設定常用的播放體驗',
+			'firstTimeSetup.spatial.title' => '空間播放',
+			'firstTimeSetup.spatial.subtitle' => '頭戴裝置上的播放與瀏覽',
+			'firstTimeSetup.spatial.description' => '在頭戴裝置上，影片與圖庫都會放到空間中呈現，而不是畫在這塊懸浮面板上',
 			'firstTimeSetup.completion.title' => '完成設定',
 			'firstTimeSetup.completion.subtitle' => '即將開始您的精彩旅程',
 			'firstTimeSetup.completion.description' => '請閱讀並同意相關協議',
@@ -5576,11 +5600,11 @@ extension on TranslationsZhTw {
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'notifications.markAllAsRead' => '全部標記已讀',
 			'notifications.markAllAsReadSuccess' => '所有通知已標記為已讀',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.markAllAsReadFailed' => '全部標記已讀失敗',
 			'notifications.markSelectedAsRead' => '標記已讀',
 			'notifications.markSelectedAsReadSuccess' => '已標記為已讀',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.markSelectedAsReadFailed' => '標記已讀失敗',
 			'notifications.markAsRead' => '標記已讀',
 			'notifications.markAsReadSuccess' => '已標記為已讀',
@@ -6090,11 +6114,11 @@ extension on TranslationsZhTw {
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
 			'mediaPlayer.tryOtherVideoPlayer' => '請嘗試使用其他影片播放器',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormat' => '無法識別的影片檔案',
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '可能是連結已失效，或回傳的根本不是影片。請重試，或用其他應用程式開啟。',
 			'mediaPlayer.accessDenied' => '伺服器拒絕了這次存取（403）',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.accessDeniedSuggestion' => '播放連結多半已經過期。點「重試」重新取一次，或用其他應用程式開啟。',
 			'mediaPlayer.mute' => '靜音',
 			'mediaPlayer.unmute' => '取消靜音',
@@ -6604,11 +6628,11 @@ extension on TranslationsZhTw {
 			'savedSearchConfig.nameLabel' => '名稱',
 			'savedSearchConfig.nameHint' => '請輸入名稱',
 			'savedSearchConfig.saveSuccess' => '已儲存篩選設定',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => '已刪除篩選設定',
 			'savedSearchConfig.addCurrent' => '儲存目前篩選',
 			'savedSearchConfig.reorderHint' => '長按拖曳可調整順序',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.rename' => '重新命名',
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部內容（無篩選）',
@@ -6633,6 +6657,7 @@ extension on TranslationsZhTw {
 			'colorVisionAssist.title' => '色覺輔助',
 			'colorVisionAssist.description' => '為色覺障礙使用者矯正影片畫面色彩，可與 Anime4K 同時開啟',
 			'colorVisionAssist.galleryDescription' => '為色覺障礙使用者矯正圖庫圖片色彩（與播放器開關相互獨立）',
+			'colorVisionAssist.galleryDescriptionSpatial' => '為色覺障礙使用者矯正圖庫圖片色彩。僅作用於這塊面板裡的 2D 大圖頁——空間幕布上的畫面由原生渲染，不套這個濾鏡',
 			'colorVisionAssist.disable' => '關閉',
 			'colorVisionAssist.disableDescription' => '不進行色彩矯正',
 			'colorVisionAssist.protanopia' => '紅色覺輔助',
@@ -6764,8 +6789,15 @@ extension on TranslationsZhTw {
 			'playbackQueue.nothingHere' => '暫無內容',
 			'vrFormat.playInSpace' => '在空間播放器中播放',
 			'vrFormat.title' => '播放模式',
-			'vrFormat.autoEnterImmersive' => '開啟影片自動進入空間播放器',
-			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，影片直接呈現在空間中的幕布上並使用空間控制面板，而不是在這塊面板裡播放。',
+			'vrFormat.spatialSectionTitle' => '空間播放',
+			'vrFormat.spatialSectionDesc' => '頭戴裝置上的影片不會畫在這塊面板裡，而是交給空間播放器呈現在幕布上。',
+			'vrFormat.spatialPanelEntry' => '空間控制面板',
+			'vrFormat.spatialPanelEntryDesc' => '幕布的遠近、大小、曲率、背景環境，以及倍速、循環、面板自動隱藏，都在空間控制面板裡調。',
+			'vrFormat.spatialGuideEntry' => '頭戴裝置操作指引',
+			'vrFormat.spatialGuideEntryDesc' => '控制器按鍵、抓取移動幕布、搖桿快轉與翻頁',
+			'vrFormat.spatialFlatOmitted' => '觸控手勢、畫質增強與音視訊參數只對 2D 播放器生效；空間播放器用的是另一套引擎，因此不在這裡列出。',
+			'vrFormat.spatialGallerySectionTitle' => '空間畫廊',
+			'vrFormat.spatialGalleryPanelDesc' => '幻燈片間隔、短片單條循環、幕布曲率都在空間控制面板裡調。',
 			'vrFormat.autoEnterGallery' => '點開圖庫圖片自動進入空間畫廊',
 			'vrFormat.autoEnterGalleryDesc' => '在 Quest 上，點一張圖就把整本圖庫放到空間中的幕布上瀏覽：縮圖膠卷、幻燈片、搖桿翻頁，而不是在這塊面板裡開大圖頁。',
 			'vrFormat.panelSettings' => '面板與背景',

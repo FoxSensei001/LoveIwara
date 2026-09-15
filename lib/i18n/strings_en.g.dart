@@ -5628,6 +5628,7 @@ class TranslationsFirstTimeSetupEn {
 	late final TranslationsFirstTimeSetupNetworkEn network = TranslationsFirstTimeSetupNetworkEn._(_root);
 	late final TranslationsFirstTimeSetupThemeEn theme = TranslationsFirstTimeSetupThemeEn._(_root);
 	late final TranslationsFirstTimeSetupPlayerEn player = TranslationsFirstTimeSetupPlayerEn._(_root);
+	late final TranslationsFirstTimeSetupSpatialEn spatial = TranslationsFirstTimeSetupSpatialEn._(_root);
 	late final TranslationsFirstTimeSetupCompletionEn completion = TranslationsFirstTimeSetupCompletionEn._(_root);
 	late final TranslationsFirstTimeSetupCommonEn common = TranslationsFirstTimeSetupCommonEn._(_root);
 }
@@ -5934,6 +5935,9 @@ class TranslationsColorVisionAssistEn {
 
 	/// en: 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)'
 	String get galleryDescription => 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)';
+
+	/// en: 'Corrects gallery image colors for color-vision-deficient viewers. Applies only to the 2D viewer inside this panel — images on the spatial screen are rendered natively and do not pass through this filter'
+	String get galleryDescriptionSpatial => 'Corrects gallery image colors for color-vision-deficient viewers. Applies only to the 2D viewer inside this panel — images on the spatial screen are rendered natively and do not pass through this filter';
 
 	/// en: 'Off'
 	String get disable => 'Off';
@@ -6382,11 +6386,32 @@ class TranslationsVrFormatEn {
 	/// en: 'Playback mode'
 	String get title => 'Playback mode';
 
-	/// en: 'Open videos in the spatial player'
-	String get autoEnterImmersive => 'Open videos in the spatial player';
+	/// en: 'Spatial playback'
+	String get spatialSectionTitle => 'Spatial playback';
 
-	/// en: 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.'
-	String get autoEnterImmersiveDesc => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.';
+	/// en: 'On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.'
+	String get spatialSectionDesc => 'On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.';
+
+	/// en: 'Spatial control panel'
+	String get spatialPanelEntry => 'Spatial control panel';
+
+	/// en: 'Screen distance, size and curvature, the background environment, plus speed, repeat and auto-hide all live in the spatial control panel.'
+	String get spatialPanelEntryDesc => 'Screen distance, size and curvature, the background environment, plus speed, repeat and auto-hide all live in the spatial control panel.';
+
+	/// en: 'Headset controls guide'
+	String get spatialGuideEntry => 'Headset controls guide';
+
+	/// en: 'Controller buttons, grabbing the screen, stick seek and page turns'
+	String get spatialGuideEntryDesc => 'Controller buttons, grabbing the screen, stick seek and page turns';
+
+	/// en: 'Touch gestures, image enhancement and the audio/video parameters only apply to the 2D player; the spatial player runs on a different engine, so they are not listed here.'
+	String get spatialFlatOmitted => 'Touch gestures, image enhancement and the audio/video parameters only apply to the 2D player; the spatial player runs on a different engine, so they are not listed here.';
+
+	/// en: 'Spatial gallery'
+	String get spatialGallerySectionTitle => 'Spatial gallery';
+
+	/// en: 'Slideshow interval, single-clip repeat and screen curvature are all adjusted in the spatial control panel.'
+	String get spatialGalleryPanelDesc => 'Slideshow interval, single-clip repeat and screen curvature are all adjusted in the spatial control panel.';
 
 	/// en: 'Open gallery images in the spatial gallery'
 	String get autoEnterGallery => 'Open gallery images in the spatial gallery';
@@ -9088,6 +9113,24 @@ class TranslationsFirstTimeSetupPlayerEn {
 
 	/// en: 'Quickly set commonly used playback preferences'
 	String get description => 'Quickly set commonly used playback preferences';
+}
+
+// Path: firstTimeSetup.spatial
+class TranslationsFirstTimeSetupSpatialEn {
+	TranslationsFirstTimeSetupSpatialEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Spatial Playback'
+	String get title => 'Spatial Playback';
+
+	/// en: 'Watching and browsing on the headset'
+	String get subtitle => 'Watching and browsing on the headset';
+
+	/// en: 'On the headset, videos and galleries appear in the space around you instead of inside this floating panel'
+	String get description => 'On the headset, videos and galleries appear in the space around you instead of inside this floating panel';
 }
 
 // Path: firstTimeSetup.completion
@@ -12330,6 +12373,9 @@ extension on Translations {
 			'firstTimeSetup.player.title' => 'Player Settings',
 			'firstTimeSetup.player.subtitle' => 'Configure playback controls',
 			'firstTimeSetup.player.description' => 'Quickly set commonly used playback preferences',
+			'firstTimeSetup.spatial.title' => 'Spatial Playback',
+			'firstTimeSetup.spatial.subtitle' => 'Watching and browsing on the headset',
+			'firstTimeSetup.spatial.description' => 'On the headset, videos and galleries appear in the space around you instead of inside this floating panel',
 			'firstTimeSetup.completion.title' => 'Complete Setup',
 			'firstTimeSetup.completion.subtitle' => 'You\'re ready to start your journey',
 			'firstTimeSetup.completion.description' => 'Please read and agree to the related agreements',
@@ -12434,11 +12480,11 @@ extension on Translations {
 			'savedSearchConfig.nameLabel' => 'Name',
 			'savedSearchConfig.nameHint' => 'Enter a name',
 			'savedSearchConfig.saveSuccess' => 'Filter saved',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => 'Filter removed',
 			'savedSearchConfig.addCurrent' => 'Save current filter',
 			'savedSearchConfig.reorderHint' => 'Long-press and drag to reorder',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.rename' => 'Rename',
 			'savedSearchConfig.unnamed' => 'Unnamed',
 			'savedSearchConfig.noConditions' => 'All content (no filter)',
@@ -12463,6 +12509,7 @@ extension on Translations {
 			'colorVisionAssist.title' => 'Color Vision Assist',
 			'colorVisionAssist.description' => 'Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K',
 			'colorVisionAssist.galleryDescription' => 'Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)',
+			'colorVisionAssist.galleryDescriptionSpatial' => 'Corrects gallery image colors for color-vision-deficient viewers. Applies only to the 2D viewer inside this panel — images on the spatial screen are rendered natively and do not pass through this filter',
 			'colorVisionAssist.disable' => 'Off',
 			'colorVisionAssist.disableDescription' => 'No color correction',
 			'colorVisionAssist.protanopia' => 'Red Assist (Protanopia)',
@@ -12594,8 +12641,15 @@ extension on Translations {
 			'playbackQueue.nothingHere' => 'Nothing here',
 			'vrFormat.playInSpace' => 'Play in the spatial player',
 			'vrFormat.title' => 'Playback mode',
-			'vrFormat.autoEnterImmersive' => 'Open videos in the spatial player',
-			'vrFormat.autoEnterImmersiveDesc' => 'On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.',
+			'vrFormat.spatialSectionTitle' => 'Spatial playback',
+			'vrFormat.spatialSectionDesc' => 'On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.',
+			'vrFormat.spatialPanelEntry' => 'Spatial control panel',
+			'vrFormat.spatialPanelEntryDesc' => 'Screen distance, size and curvature, the background environment, plus speed, repeat and auto-hide all live in the spatial control panel.',
+			'vrFormat.spatialGuideEntry' => 'Headset controls guide',
+			'vrFormat.spatialGuideEntryDesc' => 'Controller buttons, grabbing the screen, stick seek and page turns',
+			'vrFormat.spatialFlatOmitted' => 'Touch gestures, image enhancement and the audio/video parameters only apply to the 2D player; the spatial player runs on a different engine, so they are not listed here.',
+			'vrFormat.spatialGallerySectionTitle' => 'Spatial gallery',
+			'vrFormat.spatialGalleryPanelDesc' => 'Slideshow interval, single-clip repeat and screen curvature are all adjusted in the spatial control panel.',
 			'vrFormat.autoEnterGallery' => 'Open gallery images in the spatial gallery',
 			'vrFormat.autoEnterGalleryDesc' => 'On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.',
 			'vrFormat.panelSettings' => 'Panel & background',

@@ -29,6 +29,7 @@ class ImmersiveCover extends StatelessWidget {
     required this.onBack,
     required this.onPlay,
     this.onOpenQueue,
+    this.presenting = false,
   });
 
   final String thumbnailUrl;
@@ -41,6 +42,13 @@ class ImmersiveCover extends StatelessWidget {
 
   /// 「接着看」入口；null 表示本页手上没有视频池，入口整只不出现。
   final VoidCallback? onOpenQueue;
+
+  /// 已经按下「在空间中播放」、幕布还没接手的那段窗口。
+  ///
+  /// ⛔ 这段窗口**不短**：片源还没打开时要先取详情 / 取源（联网），之后还要查一遍本机
+  /// 已下载的各档、再过通道交给原生。期间面板上这张封面一动不动，用户只会当成没点上、
+  /// 于是连点好几次（2026-09-15 报障）。转圈 + 吃掉重复点击就是这枚钮的全部交代。
+  final bool presenting;
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +134,11 @@ class ImmersiveCover extends StatelessWidget {
                   size: 88,
                   iconSize: 50,
                   onTap: onPlay,
+                  busy: presenting,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  t.vrFormat.playInSpace,
+                  presenting ? t.common.loading : t.vrFormat.playInSpace,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -192,6 +201,7 @@ class ImmersiveCoverButton extends StatefulWidget {
     required this.onTap,
     required this.size,
     required this.iconSize,
+    this.busy = false,
   }) : label = null;
 
   const ImmersiveCoverButton.pill({
@@ -200,6 +210,7 @@ class ImmersiveCoverButton extends StatefulWidget {
     required String this.label,
     required this.tooltip,
     required this.onTap,
+    this.busy = false,
   }) : size = 44,
        iconSize = 22;
 
@@ -207,6 +218,13 @@ class ImmersiveCoverButton extends StatefulWidget {
   final String? label;
   final String tooltip;
   final VoidCallback onTap;
+
+  /// 这枚钮发起的事情还在路上：图标换成转圈，并且**不再接点击**。
+  ///
+  /// 「交给空间」那两条路（视频 present / 图库 presentGallery）都要等联网 + 查缓存 +
+  /// 过通道，短的几百毫秒、长的好几秒。不给回执用户就会连点，而连点在原生侧是一次次
+  /// 重新提交。
+  final bool busy;
 
   /// 圆钮直径 / 药丸高度。
   final double size;
@@ -231,13 +249,31 @@ class ImmersiveCoverButtonState extends State<ImmersiveCoverButton> {
     final border = Colors.white.withValues(alpha: _hovered ? 0.36 : 0.18);
     final radius = BorderRadius.circular(widget.size / 2);
 
+    // 转圈直接占掉图标的位置：尺寸与图标一致，药丸不会因为状态切换变宽/跳动。
+    final Widget glyph = widget.busy
+        ? SizedBox(
+            width: widget.iconSize,
+            height: widget.iconSize,
+            child: Center(
+              child: SizedBox(
+                width: widget.iconSize * 0.78,
+                height: widget.iconSize * 0.78,
+                child: const CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            ),
+          )
+        : Icon(widget.icon, color: Colors.white, size: widget.iconSize);
+
     final content = isPill
         ? Padding(
             padding: const EdgeInsets.only(left: 12, right: 16),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(widget.icon, color: Colors.white, size: widget.iconSize),
+                glyph,
                 const SizedBox(width: 6),
                 Text(
                   widget.label!,
@@ -250,17 +286,19 @@ class ImmersiveCoverButtonState extends State<ImmersiveCoverButton> {
               ],
             ),
           )
-        : Icon(widget.icon, color: Colors.white, size: widget.iconSize);
+        : glyph;
 
     return Semantics(
       label: widget.tooltip,
       button: true,
       child: MouseRegion(
-        cursor: SystemMouseCursors.click,
+        cursor: widget.busy
+            ? SystemMouseCursors.basic
+            : SystemMouseCursors.click,
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
         child: GlassTapArea(
-          onTap: widget.onTap,
+          onTap: widget.busy ? null : widget.onTap,
           onPressedChanged: (pressed) => setState(() => _pressed = pressed),
           child: AnimatedScale(
             scale: _pressed ? 0.94 : 1.0,

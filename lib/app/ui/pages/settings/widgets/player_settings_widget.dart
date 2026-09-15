@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/desktop_external_player.dart';
+import 'package:i_iwara/app/services/xr_capability.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart';
 import 'package:i_iwara/app/ui/pages/settings/keybinding_settings_page.dart';
@@ -20,6 +23,38 @@ import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+/// 一个分区在哪种播放形态下才算数。
+///
+/// # ⛔ 为什么要有这个东西
+///
+/// Quest 上视频不画在面板里，而是交给**原生空间播放器**（ExoPlayer + 空间幕布）。
+/// 那条路上 libmpv 整只不在场：Anime4K、色觉滤镜、`--video-sync` / `--hwdec` 这一族
+/// 参数、触屏手势、2D 全屏与工具栏……全部读都没人读（见 `PlaybackEngine.kt` 开头那段
+/// 注释）。把它们摆在头显用户面前，调了不生效是最难排查的那类问题。
+///
+/// 反过来，幕布远近 / 大小 / 曲率 / 背景 / 倍速 / 循环这些空间参数存在原生
+/// SharedPreferences 里，只有空间控制面板调得动 —— 一块面板没法把自己推远，所以
+/// 这边只给「唤出」，不镜像。
+///
+/// 一处处写 `if (!spatial)` 会漏：分区是数据，形态就做成数据上的一栏，两个消费方
+/// （设置页与播放器抽屉）都在 [PlayerSettingsWidget.buildSections] 的出口一次过滤。
+enum PlayerSettingsScope {
+  /// 两种形态都算数。
+  both,
+
+  /// 只在 2D 播放器上生效（Quest 的空间形态下不露）。
+  flatOnly,
+
+  /// 只在空间形态下露出。
+  spatialOnly;
+
+  bool visibleIn({required bool spatial}) => switch (this) {
+    PlayerSettingsScope.both => true,
+    PlayerSettingsScope.flatOnly => !spatial,
+    PlayerSettingsScope.spatialOnly => spatial,
+  };
+}
+
 /// 播放器设置的一个分区：一张（或几张）分组卡片 + 它的标题与图标。
 ///
 /// 分区之所以是数据而不是 build 里的一段 Column，见
@@ -30,6 +65,7 @@ class PlayerSettingsSection {
     required this.title,
     required this.icon,
     required this.content,
+    this.scope = PlayerSettingsScope.both,
   });
 
   /// 稳定标识。抽屉的分区导航拿它做「当前在哪一区」的键，因此**不能**用标题
@@ -44,6 +80,9 @@ class PlayerSettingsSection {
 
   /// 分区正文（分组卡片）。
   final Widget content;
+
+  /// 这一区在哪种播放形态下才算数，默认两种都算。见 [PlayerSettingsScope]。
+  final PlayerSettingsScope scope;
 }
 
 /// 视频播放器设置列表。
@@ -382,8 +421,59 @@ class PlayerSettingsWidget extends StatelessWidget {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     final isMobile = GetPlatform.isAndroid || GetPlatform.isIOS;
+    // 空间形态：视频交给原生空间播放器，2D 播放器那一大半设置整块不算数。
+    // 非响应式读取即可（见 xrImmersiveAvailableNow 的注释：场景没了面板也没了）。
+    final spatial = xrImmersiveAvailableNow;
 
-    return [
+    return <PlayerSettingsSection>[
+      // -------- 空间播放（只在头显上露出，排最前） --------
+      //
+      // 头显上这一区就是「播放器设置」的主角：视频交给原生空间播放器，下面那些
+      // 2D 条目一个都不算数（[PlayerSettingsScope.flatOnly] 会把它们滤掉）。
+      //
+      // ⛔ 幕布远近 / 大小 / 曲率 / 背景 / 倍速 / 循环**不镜像到这里**：它们躺在原生
+      // SharedPreferences 里，而且一块面板没法把自己推远——调节界面必须画在被调的
+      // 那块布之外。所以这里只给「唤出空间控制面板」一个动作。
+      PlayerSettingsSection(
+        id: 'spatialPlayback',
+        icon: Icons.view_in_ar,
+        title: t.vrFormat.spatialSectionTitle,
+        scope: PlayerSettingsScope.spatialOnly,
+        content: _groupCard([
+          // 「行为相关」那一整区在头显上是空气，唯独这一项还算数：起播位置由 Dart
+          // 随包交给原生，原生回 `immersiveEnded` 时 `_saveHistory` 认这枚开关。
+          // 所以它跟着搬到这里，而不是留在被整区藏掉的地方。
+          _switchTile(
+            context: context,
+            iconData: Icons.restore,
+            label: t.settings.recordAndRestorePlaybackProgress,
+            rxValue: _configService
+                .settings[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]!,
+            onChanged: (value) {
+              _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS] =
+                  value;
+            },
+          ),
+          _navigationTile(
+            context: context,
+            iconData: Icons.open_with,
+            label: t.vrFormat.spatialPanelEntry,
+            description: t.vrFormat.spatialPanelEntryDesc,
+            onTap: () {
+              if (!Get.isRegistered<XrImmersiveService>()) return;
+              unawaited(Get.find<XrImmersiveService>().togglePanelControls());
+            },
+          ),
+          _navigationTile(
+            context: context,
+            iconData: Icons.sports_esports_outlined,
+            label: t.vrFormat.spatialGuideEntry,
+            description: t.vrFormat.spatialGuideEntryDesc,
+            onTap: () => VideoGestureGuideDialog.show(context),
+          ),
+        ]),
+      ),
+
       // -------- 播放模式：VR / 立体（仅从播放器呼出时显示） --------
       //
       // 排在画面尺寸前面是刻意的：画面尺寸回答「画面占多大地方」，播放模式回答
@@ -456,44 +546,11 @@ class PlayerSettingsWidget extends StatelessWidget {
                 onTap: playerController!.resetVrFormatToInferred,
               ),
             ),
-            // Quest 专属：只在沉浸场景活着时露出（standard 变体永远不露）。
-            // ⛔ 「有没有注册」的判断放在 Obx 外面：放在里面用 `||` 短路，standard 变体下
-            // 这只 Obx 首次 build 读不到任何 Rx，GetX 会抛「improper use」。
-            if (Get.isRegistered<XrImmersiveService>())
-              Obx(() {
-                if (!Get.find<XrImmersiveService>().available.value) {
-                  return const SizedBox.shrink();
-                }
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _switchTile(
-                      context: context,
-                      iconData: Icons.view_in_ar,
-                      label: t.vrFormat.autoEnterImmersive,
-                      description: t.vrFormat.autoEnterImmersiveDesc,
-                      rxValue: _configService
-                          .settings[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY]!,
-                      onChanged: (value) {
-                        _configService[ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY] =
-                            value;
-                      },
-                    ),
-                    _switchTile(
-                      context: context,
-                      iconData: Icons.photo_library_outlined,
-                      label: t.vrFormat.autoEnterGallery,
-                      description: t.vrFormat.autoEnterGalleryDesc,
-                      rxValue: _configService
-                          .settings[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY]!,
-                      onChanged: (value) {
-                        _configService[ConfigKey.XR_GALLERY_AUTO_ENTER_KEY] =
-                            value;
-                      },
-                    ),
-                  ],
-                );
-              }),
+            // ⛔ 这里曾经挂着两枚 Quest 开关（自动进沉浸 / 自动进空间画廊）。它们裹在
+            // `playerController != null` 里，也就是**只有播放器抽屉里看得见**——而
+            // Quest 上 2D 播放器根本不渲染，那只抽屉永远打不开，等于两枚开关在头显上
+            // 一辈子不露面。现在：前者已整个删除（视频在头显上只有空间一条路），
+            // 后者搬去了图库设置页（GallerySettingsPage 的「空间画廊」分区）。
           ]),
         ),
 
@@ -559,9 +616,12 @@ class PlayerSettingsWidget extends StatelessWidget {
         ),
 
       // -------- 播放控制：倍速相关 --------
+      // 整区只对 2D 播放器算数：空间播放器的快进步长写死在原生（SEEK_STEP_SECONDS = 5），
+      // 倍速与「换片沿用倍速」也走原生自己的 SharedPreferences，不读这里任何一项。
       PlayerSettingsSection(
         id: 'speed',
         icon: Icons.speed,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.playbackSpeedSettings,
         content: _groupCard([
           // 快进时间
@@ -655,9 +715,19 @@ class PlayerSettingsWidget extends StatelessWidget {
       ),
 
       // -------- 播放控制：行为相关 --------
+      //
+      // ⛔ 整区只对 2D 播放器算数。逐条查过：
+      // - 「池内续播」的三个读取点全挂在 `player.stream.completed` 上（2D 播放器的
+      //   mpv 事件），空间态一条都不会触发——那边播完接着放由原生的 repeat 档决定；
+      // - 循环、倍速归原生 SharedPreferences 管；
+      // - 全屏时机 / 工具栏 / 进度预览 / 屏幕方向在空间里压根没有对应物；
+      // - 「首次进入自动播放」被 `_shouldAutoPlayOnInitialEntry` 明文挡在头显之外。
+      // 唯一还算数的「记录并恢复播放进度」已挪进上面的空间播放区（原生 ended 回来时
+      // 由 `XrImmersiveService._saveHistory` 认这枚开关）。
       PlayerSettingsSection(
         id: 'behavior',
         icon: Icons.play_circle_outline,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.playbackBehaviorSettings,
         content: _groupCard([
           // 在当前视频池内续播
@@ -722,6 +792,9 @@ class PlayerSettingsWidget extends StatelessWidget {
               },
             ),
           // 记录并恢复播放进度
+          //
+          // 头显上这一项在「空间播放」区里另有一份（同一个 key）：那是这一整区
+          // 唯一还算数的条目，不跟着整区一起藏掉。
           _switchTile(
             context: context,
             iconData: Icons.restore,
@@ -957,6 +1030,7 @@ class PlayerSettingsWidget extends StatelessWidget {
       PlayerSettingsSection(
         id: 'controlArea',
         icon: Icons.view_column,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.playControlArea,
         content: _card(
           child: Column(
@@ -1007,6 +1081,7 @@ class PlayerSettingsWidget extends StatelessWidget {
       PlayerSettingsSection(
         id: 'gesture',
         icon: Icons.touch_app,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.gestureControl,
         content: _groupCard([
           _switchTile(
@@ -1119,9 +1194,13 @@ class PlayerSettingsWidget extends StatelessWidget {
       // -------- 剧院模式 & 画质增强 --------
       // Anime4K / 色觉辅助以嵌入模式渲染，去掉各自的独立卡片与提示横幅，
       // 与剧院模式开关同处一张分组卡片。
+      // ⛔ 整区在头显上不露：Anime4K 与色觉滤镜都挂在 libmpv / Flutter 的渲染层上，
+      // 而空间播放器是 ExoPlayer 直出 Spatial Surface（`PlaybackEngine.kt` 开头那段
+      // 注释写明了这笔交换）。摆着只会让人调了发现没变化。
       PlayerSettingsSection(
         id: 'enhancement',
         icon: Icons.auto_awesome,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.enhancementSettings,
         content: _groupCard([
           _switchTile(
@@ -1141,9 +1220,12 @@ class PlayerSettingsWidget extends StatelessWidget {
       ),
 
       // -------- 音视频配置 --------
+      // 整区都是 libmpv 的命令行参数（--demuxer-max-bytes / --video-sync / --hwdec /
+      // --ao=opensles）。空间播放器不跑 mpv，一项都不读。
       PlayerSettingsSection(
         id: 'audioVideo',
         icon: Icons.tune,
+        scope: PlayerSettingsScope.flatOnly,
         title: t.settings.audioVideoConfig,
         content: _groupCard([
           // 扩大缓冲区
@@ -1272,7 +1354,9 @@ class PlayerSettingsWidget extends StatelessWidget {
             }),
           ]),
         ),
-    ];
+      // 形态过滤收在这一个出口上：设置页与播放器抽屉都吃 buildSections，
+      // 谁都不必自己再判一次。
+    ].where((section) => section.scope.visibleIn(spatial: spatial)).toList();
   }
 
   // ---------------------------------------------------------------------------

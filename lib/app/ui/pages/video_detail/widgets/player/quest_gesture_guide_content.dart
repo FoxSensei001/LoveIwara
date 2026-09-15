@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+import 'package:i_iwara/app/services/xr_capability.dart';
 
 import '../../../../../../i18n/strings.g.dart' as slang;
 
 /// Spatial controls only exist in the Quest build. An ordinary Android APK on
 /// a headset still uses the ordinary player and must not advertise these inputs.
-const usesQuestGestureGuide = appFlavor == 'quest';
+const usesQuestGestureGuide = kIsQuestBuild;
 
 enum QuestGuideMedia { video, gallery }
 

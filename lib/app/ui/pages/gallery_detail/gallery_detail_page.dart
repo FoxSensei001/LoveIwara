@@ -238,11 +238,13 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       final items = buildGalleryImageItems(im);
       if (items.isEmpty) return;
       detailController.imageListController.revealIndex(0);
-      presentGalleryInSpace(
-        gallery: im,
-        imageItems: items,
-        index: 0,
-        onIndexChanged: detailController.imageListController.revealIndex,
+      unawaited(
+        presentGalleryInSpace(
+          gallery: im,
+          imageItems: items,
+          index: 0,
+          onIndexChanged: detailController.imageListController.revealIndex,
+        ),
       );
     }
     final current = detailController.imageModelInfo.value;

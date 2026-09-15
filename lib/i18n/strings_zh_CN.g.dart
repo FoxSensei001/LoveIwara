@@ -2212,6 +2212,7 @@ class _TranslationsFirstTimeSetupZhCn implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupNetworkZhCn network = _TranslationsFirstTimeSetupNetworkZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupThemeZhCn theme = _TranslationsFirstTimeSetupThemeZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupPlayerZhCn player = _TranslationsFirstTimeSetupPlayerZhCn._(_root);
+	@override late final _TranslationsFirstTimeSetupSpatialZhCn spatial = _TranslationsFirstTimeSetupSpatialZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionZhCn completion = _TranslationsFirstTimeSetupCompletionZhCn._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonZhCn common = _TranslationsFirstTimeSetupCommonZhCn._(_root);
 }
@@ -2365,6 +2366,7 @@ class _TranslationsColorVisionAssistZhCn implements TranslationsColorVisionAssis
 	@override String get title => '色觉辅助';
 	@override String get description => '为色觉障碍用户矫正视频画面色彩，可与 Anime4K 同时开启';
 	@override String get galleryDescription => '为色觉障碍用户矫正图库图片色彩（与播放器开关相互独立）';
+	@override String get galleryDescriptionSpatial => '为色觉障碍用户矫正图库图片色彩。仅作用于这块面板里的 2D 大图页——空间幕布上的画面由原生渲染，不套这个滤镜';
 	@override String get disable => '关闭';
 	@override String get disableDescription => '不进行色彩矫正';
 	@override String get protanopia => '红色觉辅助';
@@ -2550,8 +2552,15 @@ class _TranslationsVrFormatZhCn implements TranslationsVrFormatEn {
 	// Translations
 	@override String get playInSpace => '在空间播放器中播放';
 	@override String get title => '播放模式';
-	@override String get autoEnterImmersive => '打开视频自动进入空间播放器';
-	@override String get autoEnterImmersiveDesc => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。';
+	@override String get spatialSectionTitle => '空间播放';
+	@override String get spatialSectionDesc => '头显上的视频不画在这块面板里，而是交给空间播放器呈现在幕布上。';
+	@override String get spatialPanelEntry => '空间控制面板';
+	@override String get spatialPanelEntryDesc => '幕布的远近、大小、曲率、背景环境，以及倍速、循环、面板自动隐藏，都在空间控制面板里调。';
+	@override String get spatialGuideEntry => '头显操作指引';
+	@override String get spatialGuideEntryDesc => '手柄按键、抓取挪动幕布、摇杆快进与翻页';
+	@override String get spatialFlatOmitted => '触屏手势、画质增强与音视频参数只对 2D 播放器生效；空间播放器用的是另一套引擎，因此不在这里列出。';
+	@override String get spatialGallerySectionTitle => '空间画廊';
+	@override String get spatialGalleryPanelDesc => '幻灯片间隔、短片单条循环、幕布曲率都在空间控制面板里调。';
 	@override String get autoEnterGallery => '点开图库图片自动进入空间画廊';
 	@override String get autoEnterGalleryDesc => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。';
 	@override String get panelSettings => '面板与背景';
@@ -3718,6 +3727,18 @@ class _TranslationsFirstTimeSetupPlayerZhCn implements TranslationsFirstTimeSetu
 	@override String get title => '播放器设置';
 	@override String get subtitle => '配置播放控制偏好';
 	@override String get description => '你可以在此快速设置常用的播放体验';
+}
+
+// Path: firstTimeSetup.spatial
+class _TranslationsFirstTimeSetupSpatialZhCn implements TranslationsFirstTimeSetupSpatialEn {
+	_TranslationsFirstTimeSetupSpatialZhCn._(this._root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '空间播放';
+	@override String get subtitle => '头显上的播放与浏览';
+	@override String get description => '在头显上，视频和图库都会放到空间里呈现，而不是画在这块悬浮面板上';
 }
 
 // Path: firstTimeSetup.completion
@@ -6500,6 +6521,9 @@ extension on TranslationsZhCn {
 			'firstTimeSetup.player.title' => '播放器设置',
 			'firstTimeSetup.player.subtitle' => '配置播放控制偏好',
 			'firstTimeSetup.player.description' => '你可以在此快速设置常用的播放体验',
+			'firstTimeSetup.spatial.title' => '空间播放',
+			'firstTimeSetup.spatial.subtitle' => '头显上的播放与浏览',
+			'firstTimeSetup.spatial.description' => '在头显上，视频和图库都会放到空间里呈现，而不是画在这块悬浮面板上',
 			'firstTimeSetup.completion.title' => '完成设置',
 			'firstTimeSetup.completion.subtitle' => '即将开始您的精彩之旅',
 			'firstTimeSetup.completion.description' => '请阅读并同意相关协议',
@@ -6604,11 +6628,11 @@ extension on TranslationsZhCn {
 			'savedSearchConfig.nameLabel' => '名称',
 			'savedSearchConfig.nameHint' => '请输入名称',
 			'savedSearchConfig.saveSuccess' => '已保存筛选配置',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => '已删除筛选配置',
 			'savedSearchConfig.addCurrent' => '保存当前筛选',
 			'savedSearchConfig.reorderHint' => '长按拖动可调整顺序',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.rename' => '重命名',
 			'savedSearchConfig.unnamed' => '未命名',
 			'savedSearchConfig.noConditions' => '全部内容（无筛选）',
@@ -6633,6 +6657,7 @@ extension on TranslationsZhCn {
 			'colorVisionAssist.title' => '色觉辅助',
 			'colorVisionAssist.description' => '为色觉障碍用户矫正视频画面色彩，可与 Anime4K 同时开启',
 			'colorVisionAssist.galleryDescription' => '为色觉障碍用户矫正图库图片色彩（与播放器开关相互独立）',
+			'colorVisionAssist.galleryDescriptionSpatial' => '为色觉障碍用户矫正图库图片色彩。仅作用于这块面板里的 2D 大图页——空间幕布上的画面由原生渲染，不套这个滤镜',
 			'colorVisionAssist.disable' => '关闭',
 			'colorVisionAssist.disableDescription' => '不进行色彩矫正',
 			'colorVisionAssist.protanopia' => '红色觉辅助',
@@ -6764,8 +6789,15 @@ extension on TranslationsZhCn {
 			'playbackQueue.nothingHere' => '暂无内容',
 			'vrFormat.playInSpace' => '在空间播放器中播放',
 			'vrFormat.title' => '播放模式',
-			'vrFormat.autoEnterImmersive' => '打开视频自动进入空间播放器',
-			'vrFormat.autoEnterImmersiveDesc' => '在 Quest 上，视频直接呈现在空间里的幕布上并使用空间控制面板，而不是在这块面板里播放。',
+			'vrFormat.spatialSectionTitle' => '空间播放',
+			'vrFormat.spatialSectionDesc' => '头显上的视频不画在这块面板里，而是交给空间播放器呈现在幕布上。',
+			'vrFormat.spatialPanelEntry' => '空间控制面板',
+			'vrFormat.spatialPanelEntryDesc' => '幕布的远近、大小、曲率、背景环境，以及倍速、循环、面板自动隐藏，都在空间控制面板里调。',
+			'vrFormat.spatialGuideEntry' => '头显操作指引',
+			'vrFormat.spatialGuideEntryDesc' => '手柄按键、抓取挪动幕布、摇杆快进与翻页',
+			'vrFormat.spatialFlatOmitted' => '触屏手势、画质增强与音视频参数只对 2D 播放器生效；空间播放器用的是另一套引擎，因此不在这里列出。',
+			'vrFormat.spatialGallerySectionTitle' => '空间画廊',
+			'vrFormat.spatialGalleryPanelDesc' => '幻灯片间隔、短片单条循环、幕布曲率都在空间控制面板里调。',
 			'vrFormat.autoEnterGallery' => '点开图库图片自动进入空间画廊',
 			'vrFormat.autoEnterGalleryDesc' => '在 Quest 上，点一张图就把整本图库放到空间里的幕布上浏览：缩略图胶片、幻灯片、摇杆翻页，而不是在这块面板里开大图页。',
 			'vrFormat.panelSettings' => '面板与背景',

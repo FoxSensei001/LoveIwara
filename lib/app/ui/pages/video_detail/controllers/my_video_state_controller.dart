@@ -1389,6 +1389,8 @@ class MyVideoStateController extends GetxController
     } else {
       // 打开失败：把标记收回去，否则用户再也发不起重试。
       _hasIssuedMediaSourceOpen = false;
+      // 「按了空间播放正等着」的转圈同理收掉：这一下已经没有下文了。
+      immersivePresentPending.value = false;
       _abortImmersiveSwitchIfPending('open failed');
       _isCurrentMediaNetworkSource = false;
       _activeLoadingSpeedGeneration = null;
@@ -1404,6 +1406,16 @@ class MyVideoStateController extends GetxController
       Get.isRegistered<XrImmersiveService>() &&
       Get.find<XrImmersiveService>().available.value;
 
+  /// 「按下了封面上的播放、幕布还没接手」这段窗口，给封面那枚钮转圈用。
+  ///
+  /// ⛔ 这段**不是一个 await 能盖住的**：片源没打开时这一下只是排了个队
+  /// （[requestInitialPlayback] → 取详情 / 取源 → 打开 → 收口点才交出去），
+  /// `presentInImmersive()` 的 future 早就 return 了。所以状态挂在控制器上，
+  /// 由真正的交付点（[_handOffToImmersive]）和失败点（[_finishCurrentMediaSourceOpen]）
+  /// 收回来；「这条片子根本播不了」那一族由页面侧连同 [isPlaybackBlocked] 一起判
+  /// （错误页一出现，转圈自然不再画）。
+  final RxBool immersivePresentPending = false.obs;
+
   /// 详情页封面上的「播放」：把当前视频交给空间播放器。
   ///
   /// 片源已经打开就直接交；还没打开（Quest 上首次进入不自动起播）就先走
@@ -1411,6 +1423,7 @@ class MyVideoStateController extends GetxController
   Future<void> presentInImmersive() async {
     if (_isDisposed) return;
     _immersiveRequested = true;
+    immersivePresentPending.value = true;
     final url = currentMediaSource;
     if (url != null &&
         url.isNotEmpty &&
@@ -1435,7 +1448,7 @@ class MyVideoStateController extends GetxController
     if (_immersiveHandOffGeneration == generation) return;
     if (!Get.isRegistered<XrImmersiveService>()) return;
     final xr = Get.find<XrImmersiveService>();
-    if (!xr.available.value || !xr.autoEnterEnabled) return;
+    if (!xr.available.value) return;
     // Quest 上详情页的播放器区域是一张封面 + 播放钮：用户没点播放、也不是从「接着看」
     // 换片进来（forceAutoPlay）的，片源开了也不交出去。
     if (!forceAutoPlay && !_immersiveRequested) return;
@@ -1445,7 +1458,17 @@ class MyVideoStateController extends GetxController
     unawaited(_handOffToImmersive(xr, url));
   }
 
+  /// 交付的唯一出入口：无论成没成，出来时封面上的转圈都要收掉
+  /// （见 [immersivePresentPending]）。
   Future<void> _handOffToImmersive(XrImmersiveService xr, String url) async {
+    try {
+      await _presentToImmersive(xr, url);
+    } finally {
+      immersivePresentPending.value = false;
+    }
+  }
+
+  Future<void> _presentToImmersive(XrImmersiveService xr, String url) async {
     final generation = _mediaSourceGeneration;
     // 清晰度清单：在线各档 + 本机已下载完成、文件真在的各档。当前档有本地文件就用本地
     // 文件播（省下等网络的时间，用户 2026-09-05 要求），面板上也能在各档之间切。

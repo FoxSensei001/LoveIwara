@@ -187,7 +187,9 @@ class ConfigService extends GetxService {
       }
       if (defaultVal is Map<String, String>) {
         return Map<String, String>.from(
-          decoded.map((key, value) => MapEntry(key.toString(), value.toString())),
+          decoded.map(
+            (key, value) => MapEntry(key.toString(), value.toString()),
+          ),
         );
       }
       return Map<String, dynamic>.from(decoded);
@@ -291,7 +293,11 @@ enum ConfigKey {
   REMEMBER_PLAYBACK_SPEED_KEY, // 是否记住在播放器中调整的倍速作为默认倍速
   DEFAULT_SCREEN_FIT_MODE_KEY, // 新播放器默认使用的画面尺寸模式
   REMEMBER_SCREEN_FIT_MODE_KEY, // 是否让新播放器沿用当前画面尺寸模式
-  XR_AUTO_ENTER_IMMERSIVE_KEY, // Quest 上打开视频自动交给空间播放器（默认开）
+  // ⛔ 这里曾经有一枚 XR_AUTO_ENTER_IMMERSIVE_KEY（「打开视频自动交给空间播放器」）。
+  // 它是半残的：Quest 上详情页的播放器区域被整只换成封面（video_detail_page_v2 的
+  // `_immersiveAvailable` 判据里没有它），关掉它并不会退回 2D 播放器，只会让片源开了
+  // 却无人接管——一张不动的封面。视频在头显上只有空间播放器一条路，所以这枚开关
+  // 连同它的配置项一起删了，别再加回来。
   XR_GALLERY_AUTO_ENTER_KEY, // Quest 上点开图库里的图片自动进空间画廊（默认开）
   SEEK_PREVIEW_SIZE_KEY, // 进度条预览窗口（Seek Preview）的尺寸档位
   AUTO_ENTER_FULLSCREEN_MODE_KEY, // 自动进入全屏的时机（见 AutoFullscreenMode，默认关）
@@ -301,9 +307,11 @@ enum ConfigKey {
   DEFAULT_QUALITY_KEY,
   GALLERY_VIEWER_DEFAULT_IMAGE_QUALITY,
   REPEAT_KEY,
+
   /// 在当前视频池内续播：一条播完自动播池里的下一条。
   /// 开启后 [REPEAT_KEY]（播放结束重播）不再生效——两者是互斥的收尾方式。
   CONTINUE_IN_QUEUE_KEY,
+
   /// 稍后再看的排序（'recentlyAdded' | 'earliestAdded'）。
   /// 列表页与播放器抽屉共享同一份——两处显示同一批内容却排序不同会很怪。
   WATCH_LATER_SORT_KEY,
@@ -476,8 +484,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'default_screen_fit_mode';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return 'remember_screen_fit_mode';
-      case ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY:
-        return 'xr_auto_enter_immersive';
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return 'xr_gallery_auto_enter';
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:
@@ -775,8 +781,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'fit';
       case ConfigKey.REMEMBER_SCREEN_FIT_MODE_KEY:
         return false;
-      case ConfigKey.XR_AUTO_ENTER_IMMERSIVE_KEY:
-        return true;
       case ConfigKey.XR_GALLERY_AUTO_ENTER_KEY:
         return true;
       case ConfigKey.SEEK_PREVIEW_SIZE_KEY:

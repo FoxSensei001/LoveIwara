@@ -22,7 +22,7 @@ import 'package:shimmer/shimmer.dart';
 /// 路由自己那段淡入淡出。所以这里没有 `coverHeroTag`、没有 `heroTagBuilder`，
 /// 封面文件 id（[_resolveCoverFileId]）留着只为一件事：给封面那格换个大一档的
 /// 圆角。
-class GalleryImageScrollerWidget extends StatelessWidget {
+class GalleryImageScrollerWidget extends StatefulWidget {
   final GalleryDetailController controller;
   final double maxHeight; // Max height constraint for the image area
   final int? initialImageCount;
@@ -35,7 +35,35 @@ class GalleryImageScrollerWidget extends StatelessWidget {
   });
 
   @override
+  State<GalleryImageScrollerWidget> createState() =>
+      _GalleryImageScrollerWidgetState();
+}
+
+class _GalleryImageScrollerWidgetState
+    extends State<GalleryImageScrollerWidget> {
+  /// 正在把整本图库交给空间画廊。
+  ///
+  /// ⛔ 这段窗口**看不出任何变化**：幕布在用户身前另一个地方亮起来，2D 面板里这条
+  /// 清单一动不动，而交付本身要把整本的缩略图缓存查一遍、再过通道等原生回执
+  /// （图多时好几秒）。用户于是当成没点上、连点好几张（2026-09-15 报障）。
+  ///
+  /// 所以状态挂在**整条清单**上而不是被点的那一格：交付的是整本，重复提交要一并
+  /// 拦住（点角上那枚钮和点任意一张图走的是同一条路）。
+  bool _presenting = false;
+
+  /// 跟住一次交付：[handoff] 为 null 表示这一下没走空间画廊（2D 大图页），什么都不做。
+  void _track(Future<bool>? handoff) {
+    if (handoff == null || _presenting) return;
+    setState(() => _presenting = true);
+    handoff.whenComplete(() {
+      if (mounted) setState(() => _presenting = false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final maxHeight = widget.maxHeight;
     final t = slang.Translations.of(context);
     final mediaQuery = MediaQuery.of(context);
     final reduceMotion =
@@ -74,7 +102,7 @@ class GalleryImageScrollerWidget extends StatelessWidget {
                   child: _GalleryHorizontalListSkeleton(
                     height: maxHeight,
                     itemCount: _resolveSkeletonItemCount(
-                      initialImageCount: initialImageCount,
+                      initialImageCount: widget.initialImageCount,
                     ),
                     reduceMotion: reduceMotion,
                   ),
@@ -127,7 +155,29 @@ class GalleryImageScrollerWidget extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            list,
+            // 交付期间不再接点击：连点只会让原生一次次重新提交同一本。
+            AbsorbPointer(absorbing: _presenting, child: list),
+            // 蒙一层 + 转圈，交代「这一下收到了，正在交给幕布」。
+            IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: _presenting ? 1 : 0,
+                duration: const Duration(milliseconds: 160),
+                curve: Curves.easeOut,
+                child: const ColoredBox(
+                  color: Color(0x73000000),
+                  child: Center(
+                    child: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Positioned(
               top: 10,
               right: 10,
@@ -135,11 +185,14 @@ class GalleryImageScrollerWidget extends StatelessWidget {
                 icon: Icons.view_in_ar,
                 label: t.galleryDetail.browseInSpace,
                 tooltip: t.galleryDetail.browseInSpace,
-                onTap: () => presentGalleryInSpace(
-                  gallery: im,
-                  imageItems: imageItems,
-                  index: 0,
-                  onIndexChanged: controller.imageListController.revealIndex,
+                busy: _presenting,
+                onTap: () => _track(
+                  presentGalleryInSpace(
+                    gallery: im,
+                    imageItems: imageItems,
+                    index: 0,
+                    onIndexChanged: controller.imageListController.revealIndex,
+                  ),
                 ),
               ),
             ),
@@ -164,12 +217,15 @@ class GalleryImageScrollerWidget extends StatelessWidget {
         (element) => element.data.id == item.data.id,
       );
     }
-    openGalleryImageViewer(
-      context,
-      imageItems: imageItems,
-      index: index,
-      gallery: gallery,
-      onIndexChanged: controller.imageListController.revealIndex,
+    // 返回非 null = 这一下走的是空间画廊（幕布），跟住它给转圈用。
+    _track(
+      openGalleryImageViewer(
+        context,
+        imageItems: imageItems,
+        index: index,
+        gallery: gallery,
+        onIndexChanged: widget.controller.imageListController.revealIndex,
+      ),
     );
   }
 
@@ -232,7 +288,11 @@ List<ImageItem> buildGalleryImageItems(ImageModel imageModel) {
 /// **Quest**：沉浸场景活着且「点开图片自动进空间画廊」开着时，整本图库交给空间画廊
 /// （[presentGalleryInSpace]），这块面板里不开大图页。[gallery] 就是为这条路带的
 /// （标题 / 作者 / id）；没带就永远走 2D。
-void openGalleryImageViewer(
+///
+/// 返回值只为**空间画廊那条路**存在：走了幕布就回交付的 future（完成 = 原生给了回执），
+/// 走 2D 大图页则是 null。调用方据此画等待态 —— 交给幕布这一下在 2D 面板里毫无动静，
+/// 不给回执用户会连点（见 [_GalleryImageScrollerWidgetState._track]）。
+Future<bool>? openGalleryImageViewer(
   BuildContext context, {
   required List<ImageItem> imageItems,
   required int index,
@@ -247,14 +307,13 @@ void openGalleryImageViewer(
   if (gallery != null && Get.isRegistered<XrImmersiveService>()) {
     final xr = Get.find<XrImmersiveService>();
     if (xr.available.value && xr.galleryAutoEnterEnabled) {
-      presentGalleryInSpace(
+      return presentGalleryInSpace(
         gallery: gallery,
         imageItems: imageItems,
         index: index,
         onIndexChanged: onIndexChanged,
         quality: initialQuality,
       );
-      return;
     }
   }
   final standardImageItems = imageItems
@@ -294,6 +353,8 @@ void openGalleryImageViewer(
     // 那张，不是当初点进去的那张。
     onIndexChanged: onIndexChanged,
   );
+  // 2D 大图页是同步压上来的一层路由，没有「在路上」这回事。
+  return null;
 }
 
 /// 直接把 [imageModel] 里 id 为 [fileId] 的那一张开成大图页。
@@ -314,6 +375,8 @@ bool openGalleryImageViewerByFileId(
   // 这条路（预览弹窗直接开大图）落地时清单还停在第 0 张，大图页却已经在第
   // [index] 张上——先播一次种，之后翻页由大图页自己回报。
   onIndexChanged?.call(index);
+  // 这条路是从预览弹窗直达的，屏幕上没有那条横向清单可以蒙，等待态无处可画
+  // ——交付的 future 明确丢掉（它自己吃错误，见 XrImmersiveService.presentGallery）。
   openGalleryImageViewer(
     context,
     imageItems: imageItems,
@@ -321,7 +384,7 @@ bool openGalleryImageViewerByFileId(
     instant: instant,
     onIndexChanged: onIndexChanged,
     gallery: imageModel,
-  );
+  )?.ignore();
   return true;
 }
 
@@ -330,14 +393,20 @@ bool openGalleryImageViewerByFileId(
 /// 清单顺序与 [imageItems] 一致（封面提前那条规则已经在 [buildGalleryImageItems] 里做过），
 /// 所以原生回报的下标可以直接喂给 [onIndexChanged]，2D 面板里的横向清单跟着幕布翻。
 /// [quality] 不传就取大图页的默认画质偏好；面板上换档会写回同一份偏好。
-void presentGalleryInSpace({
+///
+/// 返回的 future 在**原生给出回执**时完成（true = 幕布已接手）：调用方据此画等待态，
+/// 不然这一下在面板上看不出任何变化，用户会连点
+/// （见 [_GalleryImageScrollerWidgetState._track]）。
+Future<bool> presentGalleryInSpace({
   required ImageModel gallery,
   required List<ImageItem> imageItems,
   required int index,
   ValueChanged<int>? onIndexChanged,
   String? quality,
-}) {
-  if (imageItems.isEmpty || !Get.isRegistered<XrImmersiveService>()) return;
+}) async {
+  if (imageItems.isEmpty || !Get.isRegistered<XrImmersiveService>()) {
+    return false;
+  }
   final xr = Get.find<XrImmersiveService>();
   final resolvedQuality =
       quality ??
@@ -371,15 +440,13 @@ void presentGalleryInSpace({
     '图库交给空间画廊 id=$galleryId n=${items.length} index=$index quality=$resolvedQuality',
     'GalleryImageScrollerWidget',
   );
-  unawaited(
-    xr.presentGallery(
-      galleryId: galleryId,
-      title: gallery.title,
-      author: gallery.user?.name.trim() ?? '',
-      items: items,
-      index: index < 0 ? 0 : index,
-      quality: resolvedQuality,
-    ),
+  return xr.presentGallery(
+    galleryId: galleryId,
+    title: gallery.title,
+    author: gallery.user?.name.trim() ?? '',
+    items: items,
+    index: index < 0 ? 0 : index,
+    quality: resolvedQuality,
   );
 }
 

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/theme_mode.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/theme_service.dart';
+import 'package:i_iwara/app/services/xr_capability.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
@@ -40,7 +41,9 @@ class ThemeStepWidget extends StatelessWidget {
         children: [
           _buildThemeModeSection(themeService),
           _buildGlassEffectSection(themeService),
-          _buildDynamicColorSection(themeService),
+          // 动态取色是从系统壁纸取的（Material You / Monet）。头显的 Horizon OS
+          // 没有壁纸也没有这套取色，拨了不会有任何变化，首启就别摆出来。
+          if (!xrSpatialFormFactor) _buildDynamicColorSection(themeService),
           _buildPresetColorsSection(context, themeService),
           _buildCustomColorsSection(context, themeService),
         ],

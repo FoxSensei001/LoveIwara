@@ -1031,6 +1031,13 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         if (author.isNotEmpty) author,
         if (duration != null && duration.isNotEmpty) duration,
       ].join(' · ');
+      // 转圈到「幕布接手」为止。⛔ 还要问一句这条片子是不是已经判死：交付之前
+      // 走的是取详情 / 取源，那一族失败只落在 mainErrorWidget / videoSourceErrorMessage
+      // 上（[isPlaybackBlocked]），不会经过交付点，光看 pending 会一直转。
+      // 两个读都在这只 Obx 里，错误一出现这里就重画。
+      final presenting =
+          controller.immersivePresentPending.value &&
+          !controller.isPlaybackBlocked;
       return ImmersiveCover(
         thumbnailUrl: info?.thumbnailUrl ?? '',
         title: info?.title?.trim() ?? '',
@@ -1038,6 +1045,7 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         onBack: () => AppService.tryPop(context: context),
         onPlay: controller.presentInImmersive,
         onOpenQueue: _hasPlaybackQueue ? _openQueueDrawer : null,
+        presenting: presenting,
       );
     });
   }

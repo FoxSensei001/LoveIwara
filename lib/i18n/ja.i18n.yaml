@@ -2650,6 +2650,10 @@ firstTimeSetup:
     title: "プレーヤー設定"
     subtitle: "再生コントロールを構成"
     description: "よく使う再生設定を素早く設定"
+  spatial:
+    title: "空間再生"
+    subtitle: "ヘッドセットでの再生と閲覧"
+    description: "ヘッドセットでは、動画もギャラリーもこの浮かぶパネル内ではなく空間に表示されます"
   completion:
     title: "設定完了"
     subtitle: "すぐに始められます"
@@ -2803,6 +2807,7 @@ colorVisionAssist:
   title: "色覚アシスト"
   description: "色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます"
   galleryDescription: "色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）"
+  galleryDescriptionSpatial: "色覚障がいのあるユーザー向けにギャラリー画像の色を補正します。このパネル内の 2D ビューアーにのみ適用され、空間スクリーン上の画像はネイティブ描画のためこのフィルターを通りません"
   disable: "オフ"
   disableDescription: "色補正を行いません"
   protanopia: "赤色覚アシスト（1型）"
@@ -2942,8 +2947,15 @@ playbackQueue:
 vrFormat:
   playInSpace: 空間プレイヤーで再生
   title: 再生モード
-  autoEnterImmersive: 動画を空間プレイヤーで開く
-  autoEnterImmersiveDesc: Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。
+  spatialSectionTitle: 空間再生
+  spatialSectionDesc: ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。
+  spatialPanelEntry: 空間コントロールパネル
+  spatialPanelEntryDesc: スクリーンの距離・大きさ・湾曲、背景環境、さらに再生速度・リピート・自動非表示は空間コントロールパネルで調整します。
+  spatialGuideEntry: ヘッドセット操作ガイド
+  spatialGuideEntryDesc: コントローラーのボタン、スクリーンを掴んで移動、スティックでシークとページ送り
+  spatialFlatOmitted: タッチ操作・画質補正・音声/映像パラメーターは 2D プレーヤー専用です。空間プレイヤーは別のエンジンで動くため、ここには表示されません。
+  spatialGallerySectionTitle: 空間ギャラリー
+  spatialGalleryPanelDesc: スライドショーの間隔、短い動画の単体リピート、スクリーンの湾曲は空間コントロールパネルで調整します。
   autoEnterGallery: ギャラリー画像を空間ギャラリーで開く
   autoEnterGalleryDesc: Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。
   panelSettings: パネルと背景

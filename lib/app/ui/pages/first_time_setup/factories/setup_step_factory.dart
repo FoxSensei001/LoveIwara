@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/xr_capability.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import '../models/setup_step.dart';
 import '../widgets/welcome_step_widget.dart';
 import '../widgets/basic_settings_step_widget.dart';
 import '../widgets/network_settings_step_widget.dart';
 import '../widgets/completion_step_widget.dart';
+import '../widgets/spatial_playback_step_widget.dart';
 import '../widgets/theme_step_widget.dart';
 import '../widgets/player_settings_step_widget.dart';
 
 /// 设置步骤工厂类
 class SetupStepFactory {
+  /// 头显形态：整套引导要换一半。
+  ///
+  /// ⛔ 这里问的是**编译期变体**（[xrSpatialFormFactor] 里的 `kIsQuestBuild`），不是
+  /// 运行时的沉浸场景可用性。场景可用性是异步问出来的（`refreshAvailability`），而
+  /// 引导页恰恰长在冷启动那几帧里、步骤清单又只装配一次——等答复回来时清单早定了。
+  /// 别把它改成纯能力判定。
+  static bool get _isSpatial => xrSpatialFormFactor;
+
   /// 创建欢迎步骤
   static SetupStep createWelcomeStep() {
     return SetupStep(
@@ -48,7 +58,10 @@ class SetupStepFactory {
     );
   }
 
-  /// 网络设置显示条件：仅在桌面平台显示
+  /// 网络设置显示条件：仅在桌面平台显示。
+  ///
+  /// ⛔ 曾经放宽到「桌面或头显」（理由是头显没有系统级代理可借），用户 2026-09-15
+  /// 明确否掉了：头显首启不要这一步。别再加回来。
   static bool _shouldShowNetworkSettings() => GetPlatform.isDesktop;
 
   /// 创建主题设置步骤（示例：如何添加新步骤）
@@ -64,7 +77,11 @@ class SetupStepFactory {
     );
   }
 
-  /// 创建播放器设置步骤
+  /// 创建播放器设置步骤。
+  ///
+  /// ⛔ 头显上不显示：这一步问的全是 2D 播放器的事（影院模式、Anime4K、色觉滤镜、
+  /// 快进秒数、长按倍速、鼠标悬停、双指缩放……）。空间播放器是 ExoPlayer + 空间幕布，
+  /// 一项都不读，问了等于骗人。头显换成 [createSpatialPlaybackStep]。
   static SetupStep createPlayerSettingsStep() {
     return SetupStep(
       id: 'player_settings',
@@ -72,9 +89,27 @@ class SetupStepFactory {
       subtitle: slang.t.firstTimeSetup.player.subtitle,
       description: slang.t.firstTimeSetup.player.description,
       icon: Icons.play_circle,
+      showStatus: () => !_isSpatial,
       builder: _buildPlayerSettingsStep,
     );
   }
+
+  /// 创建空间播放步骤（仅头显）：顶替 [createPlayerSettingsStep]。
+  static SetupStep createSpatialPlaybackStep() {
+    return SetupStep(
+      id: 'spatial_playback',
+      title: slang.t.firstTimeSetup.spatial.title,
+      subtitle: slang.t.firstTimeSetup.spatial.subtitle,
+      description: slang.t.firstTimeSetup.spatial.description,
+      icon: Icons.view_in_ar,
+      showStatus: () => _isSpatial,
+      builder: _buildSpatialPlaybackStep,
+    );
+  }
+
+  // ⛔ 这里曾经有一步「头显操作」（复用 QuestGuideLesson 讲手柄按键 / 抓取 / 摇杆）。
+  // 用户 2026-09-15 明确不要：首启不讲操作，那套教学卡片仍在「首次点进视频详情」时
+  // 弹一次（AppService._maybeShowFirstTimeGestureGuide），也仍能从播放器设置里翻。
 
   /// 主题设置显示条件：默认显示，可以通过配置控制
   static bool _shouldShowThemeSettings() => true; // 暂时总是显示，可以根据需要修改
@@ -96,10 +131,12 @@ class SetupStepFactory {
   static List<SetupStep> buildStepsForPlatform() {
     final allSteps = <SetupStep>[];
 
-    // 注册所有可能的步骤
+    // 注册所有可能的步骤。互斥的两步（播放器设置 / 空间播放）都登记在这里，
+    // 各自的 showStatus 保证同一台设备上只出现一个。
     allSteps.add(createWelcomeStep());
     allSteps.add(createThemeStep());
     allSteps.add(createPlayerSettingsStep());
+    allSteps.add(createSpatialPlaybackStep());
     allSteps.add(createBasicSettingsStep());
     allSteps.add(createNetworkSettingsStep());
     // allSteps.add(createCompletionStep());
@@ -160,6 +197,15 @@ class SetupStepFactory {
       subtitle: slang.t.firstTimeSetup.player.subtitle,
       description: slang.t.firstTimeSetup.player.description,
       icon: Icons.play_circle,
+    );
+  }
+
+  static Widget _buildSpatialPlaybackStep(BuildContext context) {
+    return SpatialPlaybackStepWidget(
+      title: slang.t.firstTimeSetup.spatial.title,
+      subtitle: slang.t.firstTimeSetup.spatial.subtitle,
+      description: slang.t.firstTimeSetup.spatial.description,
+      icon: Icons.view_in_ar,
     );
   }
 

@@ -2648,6 +2648,10 @@ firstTimeSetup:
     title: "Player Settings"
     subtitle: "Configure playback controls"
     description: "Quickly set commonly used playback preferences"
+  spatial:
+    title: "Spatial Playback"
+    subtitle: "Watching and browsing on the headset"
+    description: "On the headset, videos and galleries appear in the space around you instead of inside this floating panel"
   completion:
     title: "Complete Setup"
     subtitle: "You're ready to start your journey"
@@ -2801,6 +2805,7 @@ colorVisionAssist:
   title: "Color Vision Assist"
   description: "Corrects video colors for color-vision-deficient viewers, can be used together with Anime4K"
   galleryDescription: "Corrects gallery image colors for color-vision-deficient viewers (independent of the player switch)"
+  galleryDescriptionSpatial: "Corrects gallery image colors for color-vision-deficient viewers. Applies only to the 2D viewer inside this panel — images on the spatial screen are rendered natively and do not pass through this filter"
   disable: "Off"
   disableDescription: "No color correction"
   protanopia: "Red Assist (Protanopia)"
@@ -2941,8 +2946,15 @@ playbackQueue:
 vrFormat:
   playInSpace: Play in the spatial player
   title: Playback mode
-  autoEnterImmersive: Open videos in the spatial player
-  autoEnterImmersiveDesc: On Quest, a video opens straight on the floating screen with the spatial controls instead of playing inside this panel.
+  spatialSectionTitle: Spatial playback
+  spatialSectionDesc: On the headset a video is not drawn inside this panel — the spatial player puts it on a screen in the room.
+  spatialPanelEntry: Spatial control panel
+  spatialPanelEntryDesc: Screen distance, size and curvature, the background environment, plus speed, repeat and auto-hide all live in the spatial control panel.
+  spatialGuideEntry: Headset controls guide
+  spatialGuideEntryDesc: Controller buttons, grabbing the screen, stick seek and page turns
+  spatialFlatOmitted: Touch gestures, image enhancement and the audio/video parameters only apply to the 2D player; the spatial player runs on a different engine, so they are not listed here.
+  spatialGallerySectionTitle: Spatial gallery
+  spatialGalleryPanelDesc: Slideshow interval, single-clip repeat and screen curvature are all adjusted in the spatial control panel.
   autoEnterGallery: Open gallery images in the spatial gallery
   autoEnterGalleryDesc: On Quest, tapping an image opens the whole gallery on the floating screen with a filmstrip, slideshow and controller paging instead of the viewer inside this panel.
   panelSettings: Panel & background

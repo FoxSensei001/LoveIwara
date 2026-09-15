@@ -2212,6 +2212,7 @@ class _TranslationsFirstTimeSetupJa implements TranslationsFirstTimeSetupEn {
 	@override late final _TranslationsFirstTimeSetupNetworkJa network = _TranslationsFirstTimeSetupNetworkJa._(_root);
 	@override late final _TranslationsFirstTimeSetupThemeJa theme = _TranslationsFirstTimeSetupThemeJa._(_root);
 	@override late final _TranslationsFirstTimeSetupPlayerJa player = _TranslationsFirstTimeSetupPlayerJa._(_root);
+	@override late final _TranslationsFirstTimeSetupSpatialJa spatial = _TranslationsFirstTimeSetupSpatialJa._(_root);
 	@override late final _TranslationsFirstTimeSetupCompletionJa completion = _TranslationsFirstTimeSetupCompletionJa._(_root);
 	@override late final _TranslationsFirstTimeSetupCommonJa common = _TranslationsFirstTimeSetupCommonJa._(_root);
 }
@@ -2365,6 +2366,7 @@ class _TranslationsColorVisionAssistJa implements TranslationsColorVisionAssistE
 	@override String get title => '色覚アシスト';
 	@override String get description => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます';
 	@override String get galleryDescription => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）';
+	@override String get galleryDescriptionSpatial => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します。このパネル内の 2D ビューアーにのみ適用され、空間スクリーン上の画像はネイティブ描画のためこのフィルターを通りません';
 	@override String get disable => 'オフ';
 	@override String get disableDescription => '色補正を行いません';
 	@override String get protanopia => '赤色覚アシスト（1型）';
@@ -2550,8 +2552,15 @@ class _TranslationsVrFormatJa implements TranslationsVrFormatEn {
 	// Translations
 	@override String get playInSpace => '空間プレイヤーで再生';
 	@override String get title => '再生モード';
-	@override String get autoEnterImmersive => '動画を空間プレイヤーで開く';
-	@override String get autoEnterImmersiveDesc => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。';
+	@override String get spatialSectionTitle => '空間再生';
+	@override String get spatialSectionDesc => 'ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。';
+	@override String get spatialPanelEntry => '空間コントロールパネル';
+	@override String get spatialPanelEntryDesc => 'スクリーンの距離・大きさ・湾曲、背景環境、さらに再生速度・リピート・自動非表示は空間コントロールパネルで調整します。';
+	@override String get spatialGuideEntry => 'ヘッドセット操作ガイド';
+	@override String get spatialGuideEntryDesc => 'コントローラーのボタン、スクリーンを掴んで移動、スティックでシークとページ送り';
+	@override String get spatialFlatOmitted => 'タッチ操作・画質補正・音声/映像パラメーターは 2D プレーヤー専用です。空間プレイヤーは別のエンジンで動くため、ここには表示されません。';
+	@override String get spatialGallerySectionTitle => '空間ギャラリー';
+	@override String get spatialGalleryPanelDesc => 'スライドショーの間隔、短い動画の単体リピート、スクリーンの湾曲は空間コントロールパネルで調整します。';
 	@override String get autoEnterGallery => 'ギャラリー画像を空間ギャラリーで開く';
 	@override String get autoEnterGalleryDesc => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。';
 	@override String get panelSettings => 'パネルと背景';
@@ -3718,6 +3727,18 @@ class _TranslationsFirstTimeSetupPlayerJa implements TranslationsFirstTimeSetupP
 	@override String get title => 'プレーヤー設定';
 	@override String get subtitle => '再生コントロールを構成';
 	@override String get description => 'よく使う再生設定を素早く設定';
+}
+
+// Path: firstTimeSetup.spatial
+class _TranslationsFirstTimeSetupSpatialJa implements TranslationsFirstTimeSetupSpatialEn {
+	_TranslationsFirstTimeSetupSpatialJa._(this._root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '空間再生';
+	@override String get subtitle => 'ヘッドセットでの再生と閲覧';
+	@override String get description => 'ヘッドセットでは、動画もギャラリーもこの浮かぶパネル内ではなく空間に表示されます';
 }
 
 // Path: firstTimeSetup.completion
@@ -6500,6 +6521,9 @@ extension on TranslationsJa {
 			'firstTimeSetup.player.title' => 'プレーヤー設定',
 			'firstTimeSetup.player.subtitle' => '再生コントロールを構成',
 			'firstTimeSetup.player.description' => 'よく使う再生設定を素早く設定',
+			'firstTimeSetup.spatial.title' => '空間再生',
+			'firstTimeSetup.spatial.subtitle' => 'ヘッドセットでの再生と閲覧',
+			'firstTimeSetup.spatial.description' => 'ヘッドセットでは、動画もギャラリーもこの浮かぶパネル内ではなく空間に表示されます',
 			'firstTimeSetup.completion.title' => '設定完了',
 			'firstTimeSetup.completion.subtitle' => 'すぐに始められます',
 			'firstTimeSetup.completion.description' => '関連規約をお読みの上ご同意ください',
@@ -6604,11 +6628,11 @@ extension on TranslationsJa {
 			'savedSearchConfig.nameLabel' => '名前',
 			'savedSearchConfig.nameHint' => '名前を入力',
 			'savedSearchConfig.saveSuccess' => '絞り込みを保存しました',
+			_ => null,
+		} ?? switch (path) {
 			'savedSearchConfig.deleteSuccess' => '絞り込みを削除しました',
 			'savedSearchConfig.addCurrent' => '現在の絞り込みを保存',
 			'savedSearchConfig.reorderHint' => '長押しでドラッグして並べ替え',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.rename' => '名前を変更',
 			'savedSearchConfig.unnamed' => '無名',
 			'savedSearchConfig.noConditions' => 'すべてのコンテンツ（絞り込みなし）',
@@ -6633,6 +6657,7 @@ extension on TranslationsJa {
 			'colorVisionAssist.title' => '色覚アシスト',
 			'colorVisionAssist.description' => '色覚障がいのあるユーザー向けに動画の色を補正します。Anime4K と併用できます',
 			'colorVisionAssist.galleryDescription' => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します（プレイヤーの設定とは独立）',
+			'colorVisionAssist.galleryDescriptionSpatial' => '色覚障がいのあるユーザー向けにギャラリー画像の色を補正します。このパネル内の 2D ビューアーにのみ適用され、空間スクリーン上の画像はネイティブ描画のためこのフィルターを通りません',
 			'colorVisionAssist.disable' => 'オフ',
 			'colorVisionAssist.disableDescription' => '色補正を行いません',
 			'colorVisionAssist.protanopia' => '赤色覚アシスト（1型）',
@@ -6764,8 +6789,15 @@ extension on TranslationsJa {
 			'playbackQueue.nothingHere' => '何もありません',
 			'vrFormat.playInSpace' => '空間プレイヤーで再生',
 			'vrFormat.title' => '再生モード',
-			'vrFormat.autoEnterImmersive' => '動画を空間プレイヤーで開く',
-			'vrFormat.autoEnterImmersiveDesc' => 'Quest では、このパネル内ではなく空間のスクリーンと空間コントロールで動画を再生します。',
+			'vrFormat.spatialSectionTitle' => '空間再生',
+			'vrFormat.spatialSectionDesc' => 'ヘッドセットでは動画はこのパネル内には描かれず、空間プレイヤーがスクリーンに映します。',
+			'vrFormat.spatialPanelEntry' => '空間コントロールパネル',
+			'vrFormat.spatialPanelEntryDesc' => 'スクリーンの距離・大きさ・湾曲、背景環境、さらに再生速度・リピート・自動非表示は空間コントロールパネルで調整します。',
+			'vrFormat.spatialGuideEntry' => 'ヘッドセット操作ガイド',
+			'vrFormat.spatialGuideEntryDesc' => 'コントローラーのボタン、スクリーンを掴んで移動、スティックでシークとページ送り',
+			'vrFormat.spatialFlatOmitted' => 'タッチ操作・画質補正・音声/映像パラメーターは 2D プレーヤー専用です。空間プレイヤーは別のエンジンで動くため、ここには表示されません。',
+			'vrFormat.spatialGallerySectionTitle' => '空間ギャラリー',
+			'vrFormat.spatialGalleryPanelDesc' => 'スライドショーの間隔、短い動画の単体リピート、スクリーンの湾曲は空間コントロールパネルで調整します。',
 			'vrFormat.autoEnterGallery' => 'ギャラリー画像を空間ギャラリーで開く',
 			'vrFormat.autoEnterGalleryDesc' => 'Quest では、画像をタップするとこのパネル内のビューアではなく、空間のスクリーンでギャラリー全体を閲覧します（フィルムストリップ・スライドショー・スティックでページ送り）。',
 			'vrFormat.panelSettings' => 'パネルと背景',

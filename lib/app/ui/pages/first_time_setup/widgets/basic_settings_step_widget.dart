@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/xr_capability.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
@@ -99,13 +100,17 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
       description: widget.description,
       content: GlassSettingSection(
         children: [
-          GlassSwitchItem(
-            icon: Icons.vibration,
-            title: Text(slang.t.settings.enableVibration),
-            subtitle: Text(slang.t.settings.enableVibrationDesc),
-            value: enableVibration,
-            onChanged: _updateVibration,
-          ),
+          // 震动走 Flutter 的 HapticFeedback（最终落到设备自带的马达）。头显没有
+          // 机身马达，手柄触觉得经 OpenXR 另发——这一项在头显上拨了不会有任何反馈，
+          // 首启就别拿它占一行。应用设置里仍留着，不在这里做取舍。
+          if (!xrSpatialFormFactor)
+            GlassSwitchItem(
+              icon: Icons.vibration,
+              title: Text(slang.t.settings.enableVibration),
+              subtitle: Text(slang.t.settings.enableVibrationDesc),
+              value: enableVibration,
+              onChanged: _updateVibration,
+            ),
           GlassSwitchItem(
             icon: Icons.history,
             title: Text(slang.t.settings.autoRecordHistory),
