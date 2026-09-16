@@ -169,16 +169,12 @@ Got a request? Open an [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="docs/imgs/all.png" width="300">|<img src="docs/imgs/dingyue.png" width="300">|
-|<img src="docs/imgs/filter.png" width="300">|<img src="docs/imgs/gonggao.png" width="300">|
-|<img src="docs/imgs/huihua.png" width="300">|<img src="docs/imgs/luntan.png" width="300">|
-|<img src="docs/imgs/luntanxaingqing.png" width="300">|<img src="docs/imgs/pinglun.png" width="300">|
-|<img src="docs/imgs/record.png" width="300">|<img src="docs/imgs/shezhi.png" width="300">|
-|<img src="docs/imgs/shipin.png" width="300">|<img src="docs/imgs/shipin2.png" width="300">|
-|<img src="docs/imgs/shipinliebiao.png" width="300">|<img src="docs/imgs/sousuo.png" width="300">|
-|<img src="docs/imgs/tongzhi.png" width="300">|<img src="docs/imgs/tuku.png" width="300">|
-|<img src="docs/imgs/tukuliebiao.png" width="300">|<img src="docs/imgs/zuozhe.png" width="300">|
-|<img src="docs/imgs/download.png" width="300">|<img src="docs/imgs/localshoucang.png" width="300">|
+|<img src="docs/imgs/home_screen.png" width="300">|<img src="docs/imgs/forum_page.png" width="300">|
+|<img src="docs/imgs/gallery.png" width="300">|<img src="docs/imgs/gallery_detail.png" width="300">|
+|<img src="docs/imgs/local_page.png" width="300">|<img src="docs/imgs/search_page.png" width="300">|
+|<img src="docs/imgs/search_result_page.png" width="300">|<img src="docs/imgs/settings_page.png" width="300">|
+|<img src="docs/imgs/sub_page.png" width="300">|<img src="docs/imgs/thread_detail.png" width="300">|
+|<img src="docs/imgs/user_detail_page.png" width="300">|<img src="docs/imgs/video_detail.png" width="300">|
 
 ## 🚀 Quick Start
 
@@ -345,7 +341,7 @@ These are best-effort translations of 2600+ ACG / Vtuber / NSFW terms and may co
 The third-party **Oreno3d** metadata (origins / characters / tags) is localized the same way — dictionary in [`tool/data/oreno3d_tags/`](tool/data/oreno3d_tags/), bundled asset + jsDelivr CDN, shown in your current language on the video detail page and search cards.
 
 > [!NOTE]
-> Both tag dictionaries above are maintained for **zh-CN / zh-TW / ja / en only** — they are *not* extended to the other 8 UI languages (ko / th / id / vi / es / ru / fr / de). These are 2600+ ACG / Vtuber / doujin-slang terms that lean on subculture-specific phrasing rather than literal translation; scaling AI translation to 12 languages without anyone able to review the result risks silently-wrong tags nobody catches. In UI languages outside those four, tags simply fall back to their raw Iwara/Oreno3d key instead of a translation. Details and rationale: [`docs/i18n/README.md`](docs/i18n/README.md).
+> Both tag dictionaries above are maintained for **zh-CN / zh-TW / ja / en only** — they are *not* extended to the other 8 UI languages (ko / th / id / vi / es / ru / fr / de). These are 2600+ ACG / Vtuber / doujin-slang terms that lean on subculture-specific phrasing rather than literal translation; scaling AI translation to 12 languages without anyone able to review the result risks silently-wrong tags nobody catches. In UI languages outside those four, tags aren't translated into that language — they fall back to the dictionary's **English** name instead (e.g. `mother` → `Mother`). Only a tag missing from the dictionary entirely falls back to its raw key, and that happens regardless of UI language. Details and rationale: [`docs/i18n/README.md`](docs/i18n/README.md).
 
 ## 🙏 Acknowledgments
 

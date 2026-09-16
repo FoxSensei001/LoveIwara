@@ -169,16 +169,12 @@
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 快速开始
 
@@ -345,7 +341,7 @@ Iwara 的原始标签是英文式的 key（如 `mother`、`blue_archive`）。Ap
 第三方 **Oreno3d** 的元数据（原作 / 角色 / 标签）采用同样方式本地化——词库位于 [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/)，打包资源 + jsDelivr CDN，在视频详情页与搜索卡片上按当前语言展示。
 
 > [!NOTE]
-> 以上两份标签词库只维护 **zh-CN / zh-TW / ja / en** 四门语言，**没有**随界面语言一起扩展到其余 8 门（ko / th / id / vi / es / ru / fr / de）。这 2600+ 条 ACG / Vtuber / 同人黑话严重依赖亚文化圈子约定俗成的译法而非字面直译，把 AI 翻译铺到没人能校对的语言上，只会留下没人发现的错译。在这四门之外的界面语言里，标签会直接显示 Iwara / Oreno3d 的原始 key，而不是被翻译。详细说明见 [`docs/i18n/README.md`](../i18n/README.md)。
+> 以上两份标签词库只维护 **zh-CN / zh-TW / ja / en** 四门语言，**没有**随界面语言一起扩展到其余 8 门（ko / th / id / vi / es / ru / fr / de）。这 2600+ 条 ACG / Vtuber / 同人黑话严重依赖亚文化圈子约定俗成的译法而非字面直译，把 AI 翻译铺到没人能校对的语言上，只会留下没人发现的错译。在这四门之外的界面语言里，标签不会被翻译成该语言，而是回退显示词库里的**英文**译名（如 `mother` → `Mother`）。只有当某个标签完全不在词库里时，才会回退到原始 key，这与界面语言无关。详细说明见 [`docs/i18n/README.md`](../i18n/README.md)。
 
 ## 🙏 致谢
 

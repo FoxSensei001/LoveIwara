@@ -169,16 +169,12 @@ Hast du einen Wunsch? Eröffne ein [Issue](https://github.com/FoxSensei001/LoveI
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Schnellstart
 
@@ -345,7 +341,7 @@ Es handelt sich um nach bestem Wissen erstellte Übersetzungen von über 2600 AC
 Die Drittanbieter-Metadaten von **Oreno3d** (Ursprungswerke / Charaktere / Tags) werden auf dieselbe Weise lokalisiert — Wörterbuch in [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), gebündeltes Asset + jsDelivr-CDN, angezeigt in deiner aktuellen Sprache auf der Video-Detailseite und in den Suchkarten.
 
 > [!NOTE]
-> Beide oben genannten Tag-Wörterbücher werden **nur für zh-CN / zh-TW / ja / en** gepflegt — sie sind *nicht* auf die übrigen 8 UI-Sprachen (ko / th / id / vi / es / ru / fr / de) ausgeweitet. Es handelt sich um über 2600 ACG-/Vtuber-/Dōjin-Slang-Begriffe, die sich stark auf subkultur-spezifische Formulierungen stützen statt auf wörtliche Übersetzung; würde man KI-Übersetzung auf 12 Sprachen ausweiten, ohne dass jemand das Ergebnis prüfen kann, riskiert man stillschweigend falsche Tags, die niemand bemerkt. In UI-Sprachen außerhalb dieser vier fallen Tags einfach auf ihren rohen Iwara-/Oreno3d-Schlüssel zurück, statt übersetzt zu werden. Details und Gründe: [`docs/i18n/README.md`](../i18n/README.md).
+> Beide oben genannten Tag-Wörterbücher werden **nur für zh-CN / zh-TW / ja / en** gepflegt — sie sind *nicht* auf die übrigen 8 UI-Sprachen (ko / th / id / vi / es / ru / fr / de) ausgeweitet. Es handelt sich um über 2600 ACG-/Vtuber-/Dōjin-Slang-Begriffe, die sich stark auf subkultur-spezifische Formulierungen stützen statt auf wörtliche Übersetzung; würde man KI-Übersetzung auf 12 Sprachen ausweiten, ohne dass jemand das Ergebnis prüfen kann, riskiert man stillschweigend falsche Tags, die niemand bemerkt. In UI-Sprachen außerhalb dieser vier werden Tags nicht in diese Sprache übersetzt — sie fallen stattdessen auf den **englischen** Namen aus dem Wörterbuch zurück (z. B. `mother` → `Mother`). Nur ein Tag, das im Wörterbuch komplett fehlt, fällt auf seinen rohen Schlüssel zurück, und das passiert unabhängig von der UI-Sprache. Details und Gründe: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Danksagungen
 

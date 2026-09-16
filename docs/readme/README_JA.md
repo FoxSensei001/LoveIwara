@@ -169,16 +169,12 @@
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 クイックスタート
 
@@ -346,7 +342,7 @@ Iwara の生のタグは英語風のキー（例：`mother`、`blue_archive`）�
 サードパーティの **Oreno3d** のメタデータ（原作 / キャラクター / タグ）も同じ方法でローカライズされています——辞書は [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/) にあり、同梱アセット + jsDelivr CDN で配信され、動画詳細ページと検索カードに現在の言語で表示されます。
 
 > [!NOTE]
-> 上記 2 つのタグ辞書は **zh-CN / zh-TW / ja / en の 4 言語のみ**を対象としており、他の 8 言語（ko / th / id / vi / es / ru / fr / de）には拡張していません。これらは 2600 語を超える ACG / Vtuber / 同人系の用語で、逐語訳ではなくサブカルチャー特有の言い回しに強く依存します。レビューできる人がいない言語にまで機械翻訳を広げると、誰にも気づかれない誤訳がそのまま残ってしまいます。この 4 言語以外の UI 言語では、タグは翻訳されず Iwara / Oreno3d の元の key がそのまま表示されます。詳しい経緯は [`docs/i18n/README.md`](../i18n/README.md) を参照してください。
+> 上記 2 つのタグ辞書は **zh-CN / zh-TW / ja / en の 4 言語のみ**を対象としており、他の 8 言語（ko / th / id / vi / es / ru / fr / de）には拡張していません。これらは 2600 語を超える ACG / Vtuber / 同人系の用語で、逐語訳ではなくサブカルチャー特有の言い回しに強く依存します。レビューできる人がいない言語にまで機械翻訳を広げると、誰にも気づかれない誤訳がそのまま残ってしまいます。この 4 言語以外の UI 言語では、タグはその言語には翻訳されず、辞書内の**英語**名にフォールバックします（例: `mother` → `Mother`）。辞書に丸ごと収録されていないタグのみ元の key にフォールバックし、これは UI 言語に関係なく起こります。詳しい経緯は [`docs/i18n/README.md`](../i18n/README.md) を参照してください。
 
 ## 🙏 謝辞
 

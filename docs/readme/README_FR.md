@@ -169,16 +169,12 @@ Une demande ? Ouvrez une [Issue](https://github.com/FoxSensei001/LoveIwara/issue
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Démarrage rapide
 
@@ -345,7 +341,7 @@ Ce sont des traductions faites au mieux pour plus de 2600 termes ACG / Vtuber / 
 Les métadonnées tierces **Oreno3d** (œuvres d'origine / personnages / tags) sont localisées de la même manière — dictionnaire dans [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset embarqué + CDN jsDelivr, affichées dans votre langue actuelle sur la page de détail vidéo et les cartes de recherche.
 
 > [!NOTE]
-> Les deux dictionnaires de tags ci-dessus ne sont maintenus que pour **zh-CN / zh-TW / ja / en** — ils ne sont *pas* étendus aux 8 autres langues de l'interface (ko / th / id / vi / es / ru / fr / de). Il s'agit de plus de 2600 termes ACG / Vtuber / argot dōjin qui reposent sur des tournures propres à la sous-culture plutôt que sur une traduction littérale ; étendre la traduction automatique à 12 langues sans que personne ne puisse en relire le résultat risquerait de laisser passer des tags mal traduits sans que personne ne s'en aperçoive. Dans les langues d'interface hors de ces quatre-là, les tags s'affichent simplement avec leur clé Iwara/Oreno3d d'origine plutôt qu'une traduction. Détails et raisons : [`docs/i18n/README.md`](../i18n/README.md).
+> Les deux dictionnaires de tags ci-dessus ne sont maintenus que pour **zh-CN / zh-TW / ja / en** — ils ne sont *pas* étendus aux 8 autres langues de l'interface (ko / th / id / vi / es / ru / fr / de). Il s'agit de plus de 2600 termes ACG / Vtuber / argot dōjin qui reposent sur des tournures propres à la sous-culture plutôt que sur une traduction littérale ; étendre la traduction automatique à 12 langues sans que personne ne puisse en relire le résultat risquerait de laisser passer des tags mal traduits sans que personne ne s'en aperçoive. Dans les langues d'interface hors de ces quatre-là, les tags ne sont pas traduits dans cette langue — ils reviennent au nom **anglais** du dictionnaire (par ex. `mother` → `Mother`). Seul un tag totalement absent du dictionnaire retombe sur sa clé brute, et cela se produit quelle que soit la langue de l'interface. Détails et raisons : [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Remerciements
 

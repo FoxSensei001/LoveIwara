@@ -169,16 +169,12 @@
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 빠르게 시작하기
 
@@ -345,7 +341,7 @@ Iwara의 원본 태그는 영어식 키입니다(예: `mother`, `blue_archive`).
 서드파티 **Oreno3d** 메타데이터(원작 / 캐릭터 / 태그)도 동일한 방식으로 로컬라이즈됩니다 — 사전은 [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/)에 있으며, 내장 에셋 + jsDelivr CDN으로 배포되고, 동영상 상세 페이지와 검색 카드에서 현재 언어로 표시됩니다.
 
 > [!NOTE]
-> 위의 두 태그 사전은 **zh-CN / zh-TW / ja / en 네 언어만** 유지 관리하며, 나머지 8개 UI 언어(ko / th / id / vi / es / ru / fr / de)로는 확장되어 있지 *않습니다*. 이들은 문자 그대로의 번역보다는 서브컬처 특유의 표현에 크게 의존하는 2,600개 이상의 ACG / Vtuber / 동인 은어 용어이며, 결과를 검토할 사람이 없는 채로 AI 번역을 12개 언어까지 확대하면 아무도 발견하지 못하는 잘못된 태그가 남을 위험이 있습니다. 이 네 언어 이외의 UI 언어에서는 태그가 번역되지 않고 Iwara/Oreno3d의 원본 키 그대로 표시됩니다. 자세한 내용과 이유는 [`docs/i18n/README.md`](../i18n/README.md)를 참고하세요.
+> 위의 두 태그 사전은 **zh-CN / zh-TW / ja / en 네 언어만** 유지 관리하며, 나머지 8개 UI 언어(ko / th / id / vi / es / ru / fr / de)로는 확장되어 있지 *않습니다*. 이들은 문자 그대로의 번역보다는 서브컬처 특유의 표현에 크게 의존하는 2,600개 이상의 ACG / Vtuber / 동인 은어 용어이며, 결과를 검토할 사람이 없는 채로 AI 번역을 12개 언어까지 확대하면 아무도 발견하지 못하는 잘못된 태그가 남을 위험이 있습니다. 이 네 언어 이외의 UI 언어에서는 태그가 해당 언어로 번역되지 않고, 대신 사전에 있는 **영어** 이름으로 대체되어 표시됩니다(예: `mother` → `Mother`). 사전에 아예 등록되지 않은 태그만 원본 키로 대체되며, 이는 UI 언어와 무관하게 발생합니다. 자세한 내용과 이유는 [`docs/i18n/README.md`](../i18n/README.md)를 참고하세요.
 
 ## 🙏 감사의 말
 

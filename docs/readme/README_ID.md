@@ -169,16 +169,12 @@ Punya permintaan? Buka [Issue](https://github.com/FoxSensei001/LoveIwara/issues)
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Mulai Cepat
 
@@ -345,7 +341,7 @@ Ini adalah terjemahan usaha terbaik untuk lebih dari 2600 istilah ACG / Vtuber /
 Metadata pihak ketiga **Oreno3d** (karya asal / karakter / tag) dilokalkan dengan cara yang sama — kamus ada di [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset yang dibundel + jsDelivr CDN, ditampilkan dalam bahasamu saat ini di halaman detail video dan kartu hasil pencarian.
 
 > [!NOTE]
-> Kedua kamus tag di atas hanya dipelihara untuk **zh-CN / zh-TW / ja / en** — keduanya *tidak* diperluas ke 8 bahasa UI lainnya (ko / th / id / vi / es / ru / fr / de). Ini adalah lebih dari 2600 istilah ACG / Vtuber / bahasa gaul dōjin yang sangat bergantung pada ungkapan khas subkultur, bukan terjemahan harfiah; memperluas terjemahan AI ke 12 bahasa tanpa ada yang bisa meninjau hasilnya berisiko meninggalkan tag yang salah terjemahan tanpa ada yang menyadarinya. Pada bahasa UI di luar keempat bahasa tersebut, tag hanya akan kembali menampilkan key asli Iwara/Oreno3d, bukan terjemahan. Detail dan alasannya: [`docs/i18n/README.md`](../i18n/README.md).
+> Kedua kamus tag di atas hanya dipelihara untuk **zh-CN / zh-TW / ja / en** — keduanya *tidak* diperluas ke 8 bahasa UI lainnya (ko / th / id / vi / es / ru / fr / de). Ini adalah lebih dari 2600 istilah ACG / Vtuber / bahasa gaul dōjin yang sangat bergantung pada ungkapan khas subkultur, bukan terjemahan harfiah; memperluas terjemahan AI ke 12 bahasa tanpa ada yang bisa meninjau hasilnya berisiko meninggalkan tag yang salah terjemahan tanpa ada yang menyadarinya. Pada bahasa UI di luar keempat bahasa tersebut, tag tidak diterjemahkan ke bahasa itu — melainkan kembali menggunakan nama **bahasa Inggris** dari kamus (mis. `mother` → `Mother`). Hanya tag yang sama sekali tidak ada di kamus yang akan kembali ke key aslinya, dan ini terjadi terlepas dari bahasa UI yang dipakai. Detail dan alasannya: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Ucapan Terima Kasih
 

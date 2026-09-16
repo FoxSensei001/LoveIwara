@@ -169,16 +169,12 @@
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Быстрый старт
 
@@ -345,7 +341,7 @@ steps:
 Сторонние метаданные **Oreno3d** (произведения / персонажи / теги) локализуются тем же способом — словарь в [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), встроенный ассет + jsDelivr CDN, отображаются на вашем текущем языке на странице деталей видео и в карточках поиска.
 
 > [!NOTE]
-> Оба словаря тегов выше поддерживаются **только для zh-CN / zh-TW / ja / en** — они *не* расширены на остальные 8 языков UI (ko / th / id / vi / es / ru / fr / de). Это более 2600 терминов из ACG / Vtuber / доуджин-сленга, которые опираются на специфичные для субкультуры формулировки, а не на буквальный перевод; масштабирование ИИ-перевода на 12 языков без возможности кем-либо проверить результат рискует оставить незамеченными ошибочные теги. В языках UI за пределами этих четырёх теги просто отображаются как исходный ключ Iwara/Oreno3d, а не как перевод. Подробности и обоснование — в [`docs/i18n/README.md`](../i18n/README.md).
+> Оба словаря тегов выше поддерживаются **только для zh-CN / zh-TW / ja / en** — они *не* расширены на остальные 8 языков UI (ko / th / id / vi / es / ru / fr / de). Это более 2600 терминов из ACG / Vtuber / доуджин-сленга, которые опираются на специфичные для субкультуры формулировки, а не на буквальный перевод; масштабирование ИИ-перевода на 12 языков без возможности кем-либо проверить результат рискует оставить незамеченными ошибочные теги. В языках UI за пределами этих четырёх теги не переводятся на этот язык — вместо этого используется **английское** название из словаря (например, `mother` → `Mother`). Только тег, которого вообще нет в словаре, отображается как исходный ключ, и это происходит независимо от языка интерфейса. Подробности и обоснование — в [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Благодарности
 

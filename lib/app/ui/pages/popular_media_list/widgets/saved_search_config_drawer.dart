@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/saved_search_config.model.dart';
 import 'package:i_iwara/app/models/tag.model.dart';
 import 'package:i_iwara/app/services/saved_search_config_service.dart';
+import 'package:i_iwara/app/services/tag_localization_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/enums/media_enums.dart';
@@ -101,7 +102,11 @@ class SavedSearchConfigDrawer extends StatelessWidget {
       if (rating != MediaRating.ALL) parts.add(rating.label);
     }
     if (config.date.isNotEmpty) parts.add(config.date);
-    parts.addAll(config.tags.map((tag) => '#${tag.id}'));
+    parts.addAll(
+      config.tags.map(
+        (tag) => '#${TagLocalizationService.displayName(tag.id)}',
+      ),
+    );
 
     if (parts.isEmpty) return t.savedSearchConfig.noConditions;
     return parts.join(' · ');
@@ -134,9 +139,8 @@ class SavedSearchConfigDrawer extends StatelessWidget {
       reorderHint: t.savedSearchConfig.reorderHint,
       items: () => _service.listFor(segment),
       itemKey: (config) => ValueKey(config.id),
-      itemTitle: (config) => config.name.isNotEmpty
-          ? config.name
-          : t.savedSearchConfig.unnamed,
+      itemTitle: (config) =>
+          config.name.isNotEmpty ? config.name : t.savedSearchConfig.unnamed,
       itemSubtitle: (ctx, config) => _summaryOf(ctx, config),
       onApply: onApply,
       onAddCurrent: onAddCurrent,

@@ -47,10 +47,13 @@ dart run tool/i18n_sync.dart <locale>  # 给某门语言补齐 en 新增的 key�
   这个维护成本会随语言数线性增长，而不是界面翻译那种「翻一次就结束」的一次性成本。
 - **语境差异大、错译更难发现**：这类词条严重依赖亚文化圈子约定俗成的译法（角色梗、作品别称、
   同人称呼），不是字面直译。在译者本人不熟悉的语言里，AI 译错的概率更高，而维护者又没有能力
-  校对该语言，错译会一直留在词库里没人发现。宁可标签缺译退回原文，也不提供无法校对的翻译。
+  校对该语言，错译会一直留在词库里没人发现。宁可标签缺译退回英文，也不提供无法校对的翻译。
 
-**实际表现**：界面语言若不在 zh-CN / zh-TW / ja / en 之列，标签会显示 Iwara / Oreno3d 的原始 key
-（英文式写法，如 `mother`、`blue_archive`），而不是被翻译成当前界面语言。
+**实际表现**：界面语言若不在 zh-CN / zh-TW / ja / en 之列，标签**不会**翻译成当前界面语言，
+而是回退显示词库里的**英文译名**（如 `mother` -> `Mother`、`blue_archive` -> `Blue Archive`）。
+只有当某个标签压根不在这 2600+ 条词库范围内时（词库里连英文译名都没有），才会退到
+「美化后的原始 key」（下划线转空格，如 `some_new_tag` -> `some new tag`）——这种情况与界面语言无关，
+zh-CN / zh-TW / ja / en 四门语言遇到未收录标签时同样会看到这个原始 key。
 
 想帮某门新语言把词库也覆盖到？欢迎在 [Issue #98](https://github.com/FoxSensei001/LoveIwara/issues/98)
 讨论，或参考 [`tool/data/iwara_tags/README.md`](../../tool/data/iwara_tags/README.md) 提交修正/新增。

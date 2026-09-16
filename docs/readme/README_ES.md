@@ -169,16 +169,12 @@ Aparte de eso: las descargas siguen marcadas como beta, y Linux se compila pero 
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Inicio rápido
 
@@ -345,7 +341,7 @@ Se trata de traducciones hechas con el mayor esfuerzo posible de más de 2600 t�
 Los metadatos de terceros de **Oreno3d** (obras originales / personajes / etiquetas) se localizan de la misma manera: el diccionario está en [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), como asset incluido + CDN de jsDelivr, y se muestra en tu idioma actual en la página de detalle del vídeo y en las tarjetas de búsqueda.
 
 > [!NOTE]
-> Ambos diccionarios de etiquetas anteriores se mantienen **únicamente para zh-CN / zh-TW / ja / en**; *no* se han ampliado a los otros 8 idiomas de la interfaz (ko / th / id / vi / es / ru / fr / de). Se trata de más de 2600 términos de ACG / Vtuber / jerga dōjin que dependen de expresiones propias de la subcultura en lugar de una traducción literal; ampliar la traducción automática a 12 idiomas sin que nadie pueda revisar el resultado corre el riesgo de dejar etiquetas mal traducidas que nadie detecte. En los idiomas de interfaz fuera de esos cuatro, las etiquetas simplemente se muestran con su clave original de Iwara/Oreno3d en lugar de una traducción. Detalles y motivos: [`docs/i18n/README.md`](../i18n/README.md).
+> Ambos diccionarios de etiquetas anteriores se mantienen **únicamente para zh-CN / zh-TW / ja / en**; *no* se han ampliado a los otros 8 idiomas de la interfaz (ko / th / id / vi / es / ru / fr / de). Se trata de más de 2600 términos de ACG / Vtuber / jerga dōjin que dependen de expresiones propias de la subcultura en lugar de una traducción literal; ampliar la traducción automática a 12 idiomas sin que nadie pueda revisar el resultado corre el riesgo de dejar etiquetas mal traducidas que nadie detecte. En los idiomas de interfaz fuera de esos cuatro, las etiquetas no se traducen a ese idioma: en su lugar, recurren al nombre en **inglés** del diccionario (por ejemplo, `mother` → `Mother`). Solo una etiqueta que falte por completo en el diccionario recae en su clave original, y eso ocurre independientemente del idioma de la interfaz. Detalles y motivos: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Agradecimientos
 

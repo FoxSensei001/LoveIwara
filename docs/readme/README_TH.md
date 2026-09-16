@@ -169,16 +169,12 @@
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 เริ่มต้นอย่างรวดเร็ว
 
@@ -345,7 +341,7 @@ steps:
 เมทาดาทาของบุคคลที่สาม **Oreno3d** (ต้นฉบับ / ตัวละคร / แท็ก) ถูกแปลเป็นภาษาท้องถิ่นด้วยวิธีเดียวกัน — พจนานุกรมอยู่ใน [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/) เป็นอาเซ็ทที่บรรจุมากับแอป + jsDelivr CDN แสดงในภาษาปัจจุบันของคุณบนหน้ารายละเอียดวิดีโอและการ์ดผลการค้นหา
 
 > [!NOTE]
-> พจนานุกรมแท็กทั้งสองข้างต้นดูแลรักษาเฉพาะ **zh-CN / zh-TW / ja / en เท่านั้น** — *ไม่ได้* ขยายไปยัง UI อีก 8 ภาษาที่เหลือ (ko / th / id / vi / es / ru / fr / de) คำศัพท์เหล่านี้กว่า 2,600 คำในหมวด ACG / Vtuber / ศัพท์เฉพาะโดจิน พึ่งพาสำนวนเฉพาะของกลุ่มซับคัลเจอร์มากกว่าการแปลตามตัวอักษร การขยายการแปลด้วย AI ไปยัง 12 ภาษาโดยไม่มีใครสามารถตรวจสอบผลลัพธ์ได้ มีความเสี่ยงที่จะเกิดแท็กที่แปลผิดโดยไม่มีใครรู้ ในภาษา UI ที่นอกเหนือจากสี่ภาษานี้ แท็กจะแสดงเป็นคีย์ดั้งเดิมของ Iwara/Oreno3d แทนที่จะเป็นคำแปล รายละเอียดและเหตุผลดูได้ที่ [`docs/i18n/README.md`](../i18n/README.md)
+> พจนานุกรมแท็กทั้งสองข้างต้นดูแลรักษาเฉพาะ **zh-CN / zh-TW / ja / en เท่านั้น** — *ไม่ได้* ขยายไปยัง UI อีก 8 ภาษาที่เหลือ (ko / th / id / vi / es / ru / fr / de) คำศัพท์เหล่านี้กว่า 2,600 คำในหมวด ACG / Vtuber / ศัพท์เฉพาะโดจิน พึ่งพาสำนวนเฉพาะของกลุ่มซับคัลเจอร์มากกว่าการแปลตามตัวอักษร การขยายการแปลด้วย AI ไปยัง 12 ภาษาโดยไม่มีใครสามารถตรวจสอบผลลัพธ์ได้ มีความเสี่ยงที่จะเกิดแท็กที่แปลผิดโดยไม่มีใครรู้ ในภาษา UI ที่นอกเหนือจากสี่ภาษานี้ แท็กจะไม่ถูกแปลเป็นภาษานั้น แต่จะย้อนกลับไปใช้ชื่อภาษา**อังกฤษ**จากพจนานุกรมแทน (เช่น `mother` → `Mother`) มีเพียงแท็กที่ไม่มีอยู่ในพจนานุกรมเลยเท่านั้นที่จะย้อนกลับไปแสดงเป็นคีย์ดั้งเดิม ซึ่งเกิดขึ้นโดยไม่ขึ้นกับภาษา UI ที่ใช้ รายละเอียดและเหตุผลดูได้ที่ [`docs/i18n/README.md`](../i18n/README.md)
 
 ## 🙏 กิตติกรรมประกาศ
 

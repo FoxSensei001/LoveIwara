@@ -169,16 +169,12 @@ Có yêu cầu gì không? Hãy mở một [Issue](https://github.com/FoxSensei0
 
 | | |
 |:-------------------------:|:-------------------------:|
-|<img src="../imgs/all.png" width="300">|<img src="../imgs/dingyue.png" width="300">|
-|<img src="../imgs/filter.png" width="300">|<img src="../imgs/gonggao.png" width="300">|
-|<img src="../imgs/huihua.png" width="300">|<img src="../imgs/luntan.png" width="300">|
-|<img src="../imgs/luntanxaingqing.png" width="300">|<img src="../imgs/pinglun.png" width="300">|
-|<img src="../imgs/record.png" width="300">|<img src="../imgs/shezhi.png" width="300">|
-|<img src="../imgs/shipin.png" width="300">|<img src="../imgs/shipin2.png" width="300">|
-|<img src="../imgs/shipinliebiao.png" width="300">|<img src="../imgs/sousuo.png" width="300">|
-|<img src="../imgs/tongzhi.png" width="300">|<img src="../imgs/tuku.png" width="300">|
-|<img src="../imgs/tukuliebiao.png" width="300">|<img src="../imgs/zuozhe.png" width="300">|
-|<img src="../imgs/download.png" width="300">|<img src="../imgs/localshoucang.png" width="300">|
+|<img src="../imgs/home_screen.png" width="300">|<img src="../imgs/forum_page.png" width="300">|
+|<img src="../imgs/gallery.png" width="300">|<img src="../imgs/gallery_detail.png" width="300">|
+|<img src="../imgs/local_page.png" width="300">|<img src="../imgs/search_page.png" width="300">|
+|<img src="../imgs/search_result_page.png" width="300">|<img src="../imgs/settings_page.png" width="300">|
+|<img src="../imgs/sub_page.png" width="300">|<img src="../imgs/thread_detail.png" width="300">|
+|<img src="../imgs/user_detail_page.png" width="300">|<img src="../imgs/video_detail.png" width="300">|
 
 ## 🚀 Bắt đầu nhanh
 
@@ -345,7 +341,7 @@ Cách hoạt động:
 Metadata của bên thứ ba **Oreno3d** (tác phẩm gốc / nhân vật / tag) được bản địa hóa theo cùng cách — từ điển nằm trong [`tool/data/oreno3d_tags/`](../../tool/data/oreno3d_tags/), asset đóng gói sẵn + jsDelivr CDN, hiển thị bằng ngôn ngữ hiện tại của bạn trên trang chi tiết video và các thẻ tìm kiếm.
 
 > [!NOTE]
-> Cả hai từ điển tag ở trên chỉ được duy trì cho **zh-CN / zh-TW / ja / en** — chúng *không* được mở rộng sang 8 ngôn ngữ giao diện còn lại (ko / th / id / vi / es / ru / fr / de). Đây là hơn 2600 thuật ngữ ACG / Vtuber / tiếng lóng dōjin, vốn phụ thuộc nhiều vào cách diễn đạt đặc thù của tiểu văn hóa hơn là dịch theo nghĩa đen; mở rộng dịch bằng AI sang 12 ngôn ngữ mà không có ai có thể rà soát kết quả sẽ có nguy cơ để lại những tag dịch sai mà không ai phát hiện ra. Ở các ngôn ngữ giao diện ngoài bốn ngôn ngữ này, tag chỉ đơn giản hiển thị lại key gốc của Iwara/Oreno3d thay vì bản dịch. Chi tiết và lý do: [`docs/i18n/README.md`](../i18n/README.md).
+> Cả hai từ điển tag ở trên chỉ được duy trì cho **zh-CN / zh-TW / ja / en** — chúng *không* được mở rộng sang 8 ngôn ngữ giao diện còn lại (ko / th / id / vi / es / ru / fr / de). Đây là hơn 2600 thuật ngữ ACG / Vtuber / tiếng lóng dōjin, vốn phụ thuộc nhiều vào cách diễn đạt đặc thù của tiểu văn hóa hơn là dịch theo nghĩa đen; mở rộng dịch bằng AI sang 12 ngôn ngữ mà không có ai có thể rà soát kết quả sẽ có nguy cơ để lại những tag dịch sai mà không ai phát hiện ra. Ở các ngôn ngữ giao diện ngoài bốn ngôn ngữ này, tag không được dịch sang ngôn ngữ đó — mà quay về dùng tên **tiếng Anh** có trong từ điển (ví dụ `mother` → `Mother`). Chỉ khi một tag hoàn toàn không có trong từ điển thì mới quay về hiển thị key gốc, và điều này xảy ra bất kể ngôn ngữ giao diện nào. Chi tiết và lý do: [`docs/i18n/README.md`](../i18n/README.md).
 
 ## 🙏 Lời cảm ơn
 
