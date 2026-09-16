@@ -4,7 +4,7 @@
 #    客户端从 2026-09-11 起会比较 build 号（见 lib/utils/app_version.dart）：
 #    这里只写 "0.5.1" 的话 build 视为 0，所有装着 0.5.1+N 的用户都看不到这次热修。
 #    正常的版本升级（0.5.1 → 0.5.2）不写 build 号也能正常检出。
-currentVersion: "0.5.1"
+currentVersion: "0.6.1"
 # 更新日志
 # 格式介绍
 # 1. version: 版本号
@@ -19,8 +19,8 @@ currentVersion: "0.5.1"
 #    下面历史条目里残留的 minVersion 字段保留不动：删掉它对已发布的旧版客户端
 #    没有区别（它们读不到就按 '0.0.1' 兜底），但改动 21 条历史记录纯属噪音。
 updates:
-  - version: "0.6.0"
-    date: "2026-09-15"
+  - version: "0.6.1"
+    date: "2026-09-16"
     changes:
       zh-CN:
         - "新增「本机文件」顶栏主栏目：可直接在应用内管理与播放设备本地的视频与图片，支持在导航设置中自由开启或隐藏"
@@ -55,6 +55,7 @@ updates:
         - "全新 Material 3 全局轻提示（AppToast）：实心浮起卡片设计，字数自适应停留时长，支持滑走与悬停暂停，自动避让顶底栏"
         - "在本地文件、下载任务详情等长列表页面加入全新玻璃悬浮返回顶部按钮（ScrollToTopFab）"
         - "订阅页顶部的「特别关注」首次引导卡片采用动态主题配色与清晰的步骤轨指引重绘"
+        - "界面语言扩展至 12 门：新增德语、西班牙语、法语、印尼语、韩语、俄语、泰语、越南语，与原有的英文、日文、简体中文、繁体中文并列（标签词库暂未同步扩容，新增语言下标签会回退显示英文译名）"
       en:
         - "New \"Local Media\" top-level section: browse and play videos and images stored on your device directly within the app, with the ability to show or hide the tab in navigation settings"
         - "Local Media categorized into seven dedicated views: Folders, Pinned Folders (long-press to pin), Favorite Videos, All Videos, All Images, Downloaded Videos, and Downloaded Galleries"
@@ -88,6 +89,7 @@ updates:
         - "New AppToast notification system: solid Material 3 elevated cards with text-length reading duration estimation, swipe-to-dismiss, hover pause, and automatic obstacle avoidance"
         - "Added a glass floating back-to-top button (ScrollToTopFab) on long list pages"
         - "Redesigned the Special Follow introductory card in subscriptions with theme-adaptive styling and a clear step track"
+        - "UI now speaks 12 languages: added German, Spanish, French, Indonesian, Korean, Russian, Thai, and Vietnamese alongside the existing English, Japanese, Simplified Chinese, and Traditional Chinese (the tag dictionary hasn't caught up yet — tags fall back to their English name in the new languages)"
       ja:
         - "「ローカルファイル」タブを新設：デバイス内の動画や画像をアプリ内で直接管理・再生できるようになり、ナビゲーション設定から表示／非表示を切り替えられます"
         - "ローカルファイルに 7 つの分類を追加：「フォルダ」「よく使うフォルダ（長押しでピン留め）」「厳選動画」「すべての動画」「すべての画像」「ダウンロード完了動画」「ダウンロード完了ギャラリー」から閲覧できます"
@@ -121,6 +123,7 @@ updates:
         - "新しいトースト通知（AppToast）：Material 3 のソリッドカード形式に刷新し、文字数に応じた表示時間計算、スワイプ消去、ホバーによる一時停止、ヘッダー・フッターの自動回避に対応しました"
         - "長いリストページにガラス質感の「トップへ戻る」フローティングボタンを追加しました"
         - "購読ページの「特別フォロー」初回ガイドカードをテーマ連動カラーとわかりやすいステップ表示に刷新しました"
+        - "UI 対応言語を 12 言語に拡張：ドイツ語・スペイン語・フランス語・インドネシア語・韓国語・ロシア語・タイ語・ベトナム語を、既存の英語・日本語・簡体字中国語・繁体字中国語に追加しました（タグ辞書はまだ対応拡張が済んでおらず、新規言語ではタグが英語表記にフォールバックします）"
   - version: "0.5.1"
     date: "2026-08-30"
     minVersion: "0.3.0"
