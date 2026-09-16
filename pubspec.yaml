@@ -4,7 +4,12 @@ description: "A new Flutter project."
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 0.6.1+1
+# ⛔ `+` 后面的 build number 只许递增，绝不许回退或重置。
+# 它就是 Android 的 versionCode（CI 不传 --build-number，直接取这里），
+# 退位会让老用户装新包时被系统判成降级，报「已安装更高版本，无法安装」。
+# 0.6.1 曾从 +3 退到 +1，发出去的包在装着 0.5.1 的机器上全装不上。
+# 版本名可以回退（如 0.6.0 → 0.5.1），build number 不行，只能继续往上加。
+version: 0.6.1+4
 
 environment:
   sdk: ^3.8.0

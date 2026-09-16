@@ -43,7 +43,47 @@ on:
         default: true
 
 jobs:
+  # pubspec 里 `version: x.y.z+N` 的 N 就是 Android 的 versionCode（下面各 job 都不传
+  # --build-number，Flutter 直接取这里）。N 一旦比历史上出现过的值小，老用户升级时会被
+  # 系统判成降级，报「已安装更高版本，无法安装」，而构建本身全绿、下载页也看不出异常——
+  # 0.6.1 就是这么把 +3 写成 +1 发出去的。这一关要求 N 必须是 pubspec 全部历史里的最大值，
+  # 不合格就在出包之前把整条产线拦下来。
+  version-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # 要遍历 pubspec.yaml 的完整历史，浅克隆看不到旧版本号
+
+      - name: Check build number is monotonic
+        run: |
+          set -euo pipefail
+          # 两处 `|| true`：pipefail 下，grep/git show 没匹配到就会让整条赋值失败、
+          # set -e 直接静默掐掉脚本，反而看不到下面写好的报错。
+          CURRENT=$(sed -n 's/^version:.*+\([0-9]\{1,\}\)[[:space:]]*$/\1/p' pubspec.yaml | head -1 || true)
+          if [ -z "$CURRENT" ]; then
+            echo "::error file=pubspec.yaml::version 行缺少 +N build number，或 N 不是纯数字"
+            exit 1
+          fi
+
+          MAX=0
+          MAX_COMMIT=HEAD
+          for commit in $(git log --format=%H -- pubspec.yaml); do
+            n=$(git show "$commit:pubspec.yaml" 2>/dev/null \
+                | sed -n 's/^version:.*+\([0-9]\{1,\}\)[[:space:]]*$/\1/p' | head -1 || true)
+            [ -n "$n" ] || continue
+            if [ "$n" -gt "$MAX" ]; then MAX=$n; MAX_COMMIT=$commit; fi
+          done
+
+          echo "当前 build number: ${CURRENT} ；历史最大: ${MAX}（${MAX_COMMIT}）"
+          if [ "$CURRENT" -lt "$MAX" ]; then
+            echo "::error file=pubspec.yaml::build number 退位了：当前 +${CURRENT} < 历史最大 +${MAX}。"
+            echo "::error file=pubspec.yaml::这会让老用户升级时报「已安装更高版本，无法安装」。请把它改成大于 ${MAX} 的值。"
+            exit 1
+          fi
+
   build-android:
+    needs: version-guard
     if: ${{ inputs.build_android }}
     runs-on: ubuntu-latest
     env:
@@ -145,6 +185,7 @@ jobs:
   # 只有 arm64，任何一条都不能混进 standard 产线（见 android/app/build.gradle 的
   # productFlavors 注释）。产物名带 quest 字样，下载列表里一眼能分开。
   build-quest:
+    needs: version-guard
     if: ${{ inputs.build_quest }}
     runs-on: ubuntu-latest
     env:
@@ -211,6 +252,7 @@ jobs:
           if-no-files-found: error
 
   build-windows:
+    needs: version-guard
     if: ${{ inputs.build_windows }}
     runs-on: windows-latest
 
@@ -266,6 +308,7 @@ jobs:
           if-no-files-found: error
 
   build-macos:
+    needs: version-guard
     if: ${{ inputs.build_macos }}
     runs-on: macos-latest
 
@@ -350,6 +393,7 @@ jobs:
           if-no-files-found: error
 
   build-ios:
+    needs: version-guard
     if: ${{ inputs.build_ios }}
     runs-on: macos-15
 
@@ -426,6 +470,7 @@ jobs:
           if-no-files-found: error
 
   build-linux:
+    needs: version-guard
     if: ${{ inputs.build_linux }}
     runs-on: ubuntu-latest
 
