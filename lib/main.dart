@@ -18,6 +18,7 @@ import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'app/ui/widgets/restart_app_widget.dart';
 import 'package:i_iwara/utils/desktop_native_fullscreen.dart';
+import 'package:i_iwara/utils/desktop_window_geometry.dart';
 import 'package:i_iwara/utils/device_form_factor_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/refresh_rate_helper.dart';
@@ -202,11 +203,28 @@ Future<void> _initializeDesktop() async {
   const minWidth = 200.0;
   const minHeight = 200.0;
 
-  // 先设置窗口大小（不需要补偿，因为此时标题栏还未隐藏）
-  if (storedWidth != null &&
+  final hasSize =
+      storedWidth != null &&
       storedHeight != null &&
       storedWidth >= minWidth &&
-      storedHeight >= minHeight) {
+      storedHeight >= minHeight;
+  final hasPosition =
+      storedX != null && storedY != null && storedX != -1.0 && storedY != -1.0;
+
+  // 存下的几何先对着当前的屏幕校一遍：上次在全屏 / 最大化时关掉、外接屏拔了、
+  // 分辨率改了，原样摆回去窗口会一半在屏幕外、大小也不对。
+  Rect? restored;
+  if (hasSize && hasPosition) {
+    restored = await fitStoredWindowRect(
+      Rect.fromLTWH(storedX, storedY, storedWidth, storedHeight),
+    );
+  }
+
+  // 先设置窗口大小（不需要补偿，因为此时标题栏还未隐藏）
+  if (restored != null) {
+    await windowManager.setSize(restored.size);
+    LogUtils.d('已从配置恢复窗口大小: ${restored.size}', '桌面初始化');
+  } else if (hasSize) {
     await windowManager.setSize(Size(storedWidth, storedHeight));
     LogUtils.d('已从配置恢复窗口大小: ${storedWidth}x$storedHeight', '桌面初始化');
   } else {
@@ -224,15 +242,25 @@ Future<void> _initializeDesktop() async {
   //   await windowManager.setBackgroundColor(Colors.transparent);
   // }
 
-  // 在隐藏标题栏之后再恢复窗口位置，此时需要减去系统标题栏高度进行补偿
-  if (storedX != null &&
-      storedY != null &&
-      storedX != -1.0 &&
-      storedY != -1.0) {
-    final adjustedY = storedY;
-    await windowManager.setPosition(Offset(storedX, adjustedY));
+  // 在隐藏标题栏之后再恢复窗口位置
+  if (restored != null) {
+    await windowManager.setPosition(restored.topLeft);
+    // 校正过就把新值写回去：监听器要到 show 之后才挂上，用户一次都不拖的话，
+    // 配置里会一直躺着那组坏值，每次启动都得重新校正一遍。
+    if (restored !=
+        Rect.fromLTWH(storedX!, storedY!, storedWidth!, storedHeight!)) {
+      for (final (key, value) in [
+        (ConfigKey.WINDOW_X, restored.left),
+        (ConfigKey.WINDOW_Y, restored.top),
+        (ConfigKey.WINDOW_WIDTH, restored.width),
+        (ConfigKey.WINDOW_HEIGHT, restored.height),
+      ]) {
+        configService.updateSetting(key, value);
+        unawaited(configService.saveSettingToStorage(key, value));
+      }
+    }
     LogUtils.d(
-      '已从配置恢复窗口位置: x=$storedX, y=$storedY (调整后: x=$storedX, y=$adjustedY)',
+      '已从配置恢复窗口位置: 存储 x=$storedX, y=$storedY → ${restored.topLeft}',
       '桌面初始化',
     );
   }
@@ -289,20 +317,28 @@ class DesktopWindowListener extends WindowListener {
   }
 
   @override
-  void onWindowResized() {
-    _saveWindowSize();
-  }
+  void onWindowResized() => _scheduleGeometrySave();
 
   @override
-  void onWindowMoved() {
-    _saveWindowPosition();
+  void onWindowMoved() => _scheduleGeometrySave();
+
+  /// 拖动 / 缩放 / 进出全屏的动画会连着打几十次事件；等停下来再记一次，
+  /// 记的时候窗口已经落定，[_skipGeometryPersist] 问到的也是最终状态。
+  Timer? _geometryTimer;
+
+  void _scheduleGeometrySave() {
+    _geometryTimer?.cancel();
+    _geometryTimer = Timer(const Duration(milliseconds: 400), () {
+      _saveWindowSize();
+      _saveWindowPosition();
+    });
   }
 
   @override
   void onWindowMaximize() {
+    // 最大化的尺寸不记：那是屏幕的尺寸，不是用户摆的窗口。取消最大化后还原
+    // 出来的那一组会再触发 resize / move，自然记上。
     LogUtils.d('窗口最大化', '桌面监听器');
-    _saveWindowSize();
-    _saveWindowPosition();
   }
 
   @override
@@ -312,13 +348,19 @@ class DesktopWindowListener extends WindowListener {
 
   @override
   void onWindowEnterFullScreen() {
+    _systemFullScreen = true;
     LogUtils.d('窗口进入全屏', '桌面监听器');
   }
 
   @override
   void onWindowLeaveFullScreen() {
+    _systemFullScreen = false;
     LogUtils.d('窗口退出全屏', '桌面监听器');
   }
+
+  /// 系统级全屏（macOS 绿灯 / 全屏快捷键）。与 [DesktopNativeFullscreen]
+  /// （播放器自己进的全屏）是两回事，两者都不能把几何写进配置。
+  bool _systemFullScreen = false;
 
   /// 全屏期间这两条不落盘。
   ///
@@ -326,14 +368,24 @@ class DesktopWindowListener extends WindowListener {
   /// 照单全收就会把「铺满显示器」写进配置。用户此时关掉应用（或应用崩了），
   /// 下次启动窗口就以满屏尺寸开在 (0,0)。真正该记的是进全屏**之前**那一组，
   /// 它在退出全屏、窗口还原之后会重新触发一次 resize/move 自然补回来。
-  bool _skipGeometryPersist(String what) {
-    if (!DesktopNativeFullscreen.isActive) return false;
-    LogUtils.d('原生全屏中，跳过保存窗口$what', '桌面监听器');
-    return true;
+  ///
+  /// macOS 的系统全屏同理，而且它的 resize 会**先于** enterFullScreen 回调
+  /// 打过来，只看标志挡不住，所以落盘前再问一次窗口当下的状态。
+  Future<bool> _skipGeometryPersist(String what) async {
+    var skip = DesktopNativeFullscreen.isActive || _systemFullScreen;
+    if (!skip) {
+      try {
+        skip =
+            await windowManager.isFullScreen() ||
+            await windowManager.isMaximized();
+      } catch (_) {}
+    }
+    if (skip) LogUtils.d('全屏 / 最大化中，跳过保存窗口$what', '桌面监听器');
+    return skip;
   }
 
   Future<void> _saveWindowSize() async {
-    if (_skipGeometryPersist('大小')) return;
+    if (await _skipGeometryPersist('大小')) return;
     try {
       final size = await windowManager.getSize();
       final configService = Get.find<ConfigService>();
@@ -370,7 +422,7 @@ class DesktopWindowListener extends WindowListener {
   }
 
   Future<void> _saveWindowPosition() async {
-    if (_skipGeometryPersist('位置')) return;
+    if (await _skipGeometryPersist('位置')) return;
     try {
       final position = await windowManager.getPosition();
       final configService = Get.find<ConfigService>();
