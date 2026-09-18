@@ -144,6 +144,19 @@ class _ImageModelCardListItemWidgetState
 
   @override
   Widget build(BuildContext context) {
+    // 给了 onSelect 的卡片属于一个批量选择列表：接住 Cmd/Ctrl/Shift+点击（见
+    // SelectableItem；上面没有带 SelectionModel 的 SelectionPopScope 时原样返回）。
+    final onSelect = widget.onSelect;
+    final card = _buildBlockAware(context);
+    if (onSelect == null) return card;
+    return SelectableItem(
+      itemKey: widget.imageModel.id,
+      onToggle: onSelect,
+      child: card,
+    );
+  }
+
+  Widget _buildBlockAware(BuildContext context) {
     if (widget.disableBlock ||
         widget.isMultiSelectMode ||
         !Get.isRegistered<ContentBlockService>()) {
@@ -225,86 +238,80 @@ class _ImageModelCardListItemWidgetState
             ),
           ),
           InkWell(
-                        borderRadius: radius,
-                        onTap:
-                            widget.isMultiSelectMode && widget.onSelect != null
-                            ? widget.onSelect!
-                            : _openGalleryDetail,
-                        // 长按 / 右键 → 预览弹窗；三点钮 → 操作菜单（菜单第一条又
-                        // 能回到预览）。与视频卡片一致，见
-                        // media_preview_dialog.dart 文件头。
-                        onSecondaryTap: widget.isMultiSelectMode
-                            ? null
-                            : openPreview,
-                        onLongPress: widget.isMultiSelectMode
-                            ? null
-                            : openPreview,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _Thumbnail(
-                              imageModel: widget.imageModel,
-                              width: widget.width,
-                              isHovering: showHoverState,
-                              reblockVisible: showReblock,
-                              onReblock: () =>
-                                  setState(() => _revealed = false),
+            borderRadius: radius,
+            onTap: widget.isMultiSelectMode && widget.onSelect != null
+                ? widget.onSelect!
+                : _openGalleryDetail,
+            // 长按 / 右键 → 预览弹窗；三点钮 → 操作菜单（菜单第一条又
+            // 能回到预览）。与视频卡片一致，见
+            // media_preview_dialog.dart 文件头。
+            onSecondaryTap: widget.isMultiSelectMode ? null : openPreview,
+            onLongPress: widget.isMultiSelectMode ? null : openPreview,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Thumbnail(
+                  imageModel: widget.imageModel,
+                  width: widget.width,
+                  isHovering: showHoverState,
+                  reblockVisible: showReblock,
+                  onReblock: () => setState(() => _revealed = false),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: _titleHeight,
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            _displayTitle,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            strutStyle: const StrutStyle(
+                              fontSize: _titleFontSize,
+                              height: _titleLineHeight,
+                              forceStrutHeight: true,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(
-                                    height: _titleHeight,
-                                    child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Text(
-                                        _displayTitle,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        strutStyle: const StrutStyle(
-                                          fontSize: _titleFontSize,
-                                          height: _titleLineHeight,
-                                          forceStrutHeight: true,
-                                        ),
-                                        style: titleStyle,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  ImageModelCardMetaLine(
-                                    imageModel: widget.imageModel,
-                                    isLiked: effectiveLiked,
-                                    likeCount: effectiveLikeCount,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  MediaCardAuthorLine(
-                                    user: widget.imageModel.user,
-                                    isMultiSelectMode: widget.isMultiSelectMode,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            style: titleStyle,
+                          ),
                         ),
                       ),
-                      // 三点钮：压在整张卡片的右下角。
-                      MediaCardActionSlot(
-                        gallery: widget.imageModel,
-                        isMultiSelectMode: widget.isMultiSelectMode,
-                        likedOverride: effectiveLiked,
-                        onLikeChanged: applyLikeToggle,
-                        onPreview: openPreview,
-                        duration: _hoverAnimationDuration,
+                      const SizedBox(height: 8),
+                      ImageModelCardMetaLine(
+                        imageModel: widget.imageModel,
+                        isLiked: effectiveLiked,
+                        likeCount: effectiveLikeCount,
                       ),
-                      // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
-                      // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
-                      // 进出选择态两个方向都有淡入淡出。
-                      Positioned.fill(child: _buildSelectionOverlay(radius)),
+                      const SizedBox(height: 8),
+                      MediaCardAuthorLine(
+                        user: widget.imageModel.user,
+                        isMultiSelectMode: widget.isMultiSelectMode,
+                      ),
                     ],
                   ),
-                );
+                ),
+              ],
+            ),
+          ),
+          // 三点钮：压在整张卡片的右下角。
+          MediaCardActionSlot(
+            gallery: widget.imageModel,
+            isMultiSelectMode: widget.isMultiSelectMode,
+            likedOverride: effectiveLiked,
+            onLikeChanged: applyLikeToggle,
+            onPreview: openPreview,
+            duration: _hoverAnimationDuration,
+          ),
+          // 多选态：勾选片 + 描边包住**整张卡片**（含标题与作者行），
+          // 而不是只框住缩略图——框到一半读起来像被裁断了。常驻挂载，
+          // 进出选择态两个方向都有淡入淡出。
+          Positioned.fill(child: _buildSelectionOverlay(radius)),
+        ],
+      ),
+    );
 
     final Widget cardBody = enableHover
         ? AnimatedContainer(
@@ -313,26 +320,16 @@ class _ImageModelCardListItemWidgetState
             decoration: cardDecoration,
             child: cardContent,
           )
-        : Container(
-            decoration: cardDecoration,
-            child: cardContent,
-          );
+        : Container(decoration: cardDecoration, child: cardContent);
 
     return SizedBox(
       width: widget.width,
       child: MouseRegion(
-        onEnter: enableHover
-            ? (_) => setState(() => _isHovering = true)
-            : null,
-        onExit: enableHover
-            ? (_) => setState(() => _isHovering = false)
-            : null,
+        onEnter: enableHover ? (_) => setState(() => _isHovering = true) : null,
+        onExit: enableHover ? (_) => setState(() => _isHovering = false) : null,
         child: HeroMode(
           enabled: previewHeroEnabled,
-          child: Hero(
-            tag: previewHeroTag,
-            child: cardBody,
-          ),
+          child: Hero(tag: previewHeroTag, child: cardBody),
         ),
       ),
     );

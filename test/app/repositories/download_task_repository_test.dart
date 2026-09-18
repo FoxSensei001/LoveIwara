@@ -146,6 +146,65 @@ void main() {
     });
   });
 
+  group('DownloadTaskRepository.getCompletedTasksByIds', () {
+    DownloadTask completed(String id, {required int completedAtMs}) =>
+        DownloadTask(
+          id: id,
+          url: 'https://example.test/$id',
+          savePath: '/tmp/$id',
+          fileName: 'matched_$id',
+          status: DownloadStatus.completed,
+          completedAt: DateTime.fromMillisecondsSinceEpoch(completedAtMs),
+        );
+
+    test('ids 超过单批上限时分批查询，合并后按完成时间降序', () async {
+      final total = DownloadTaskRepository.idsChunkSize * 2 + 7;
+      for (var i = 0; i < total; i++) {
+        await repository.insertTask(
+          completed('c$i', completedAtMs: 1700000000000 + i * 1000),
+        );
+      }
+      // 不在集合里的、不是已完成的都不该出现。
+      await repository.insertTask(
+        taskWithStatus('failed-task', DownloadStatus.failed),
+      );
+
+      final ids = [for (var i = 0; i < total; i++) 'c$i', 'failed-task', 'x'];
+      final tasks = await repository.getCompletedTasksByIds(ids);
+
+      expect(tasks, hasLength(total));
+      expect(tasks.first.id, 'c${total - 1}');
+      expect(tasks.last.id, 'c0');
+    });
+
+    test('套用搜索 / 分类条件；空集合直接返回空', () async {
+      await repository.insertTask(completed('a', completedAtMs: 1700000000000));
+      await repository.insertTask(
+        DownloadTask(
+          id: 'b',
+          url: 'https://example.test/b',
+          savePath: '/tmp/b',
+          fileName: 'other_b',
+          status: DownloadStatus.completed,
+        ),
+      );
+
+      expect(await repository.getCompletedTasksByIds(const []), isEmpty);
+      final tasks = await repository.getCompletedTasksByIds([
+        'a',
+        'b',
+      ], searchQuery: 'matched');
+      expect(tasks.map((t) => t.id), ['a']);
+      expect(
+        await repository.getCompletedTasksByIds([
+          'a',
+          'b',
+        ], categoryFilter: 'x'),
+        isEmpty,
+      );
+    });
+  });
+
   group('DownloadTaskRepository.insertTask conflict protection', () {
     test(
       'rejects duplicate video media and quality at database boundary',

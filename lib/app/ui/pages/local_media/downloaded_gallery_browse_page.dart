@@ -13,6 +13,7 @@ import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.da
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
@@ -150,20 +151,18 @@ class _DownloadedGalleryBrowsePageState
       final dirExists = checked.dirExists;
       final validImages = checked.images;
 
-      // 如果目录不存在且没有任何一张本地图片存在：说明资源已被外部彻底删除。
+      // 目录不在、一张图也摸不到。⛔ 不能就此认定「被删了」自动删记录：
+      // SD 卡没插、用户自己挪过文件夹、iOS 更新换了容器，都长这样。
+      // 交给用户：去别处找回（找到就重新加载），或确认删记录。
       if (!dirExists && validImages.isEmpty) {
-        LogUtils.w('图库本地资源已不存在，自动删除失效任务记录: taskId=${widget.taskId}', _tag);
-        if (Get.isRegistered<DownloadService>()) {
-          await DownloadService.to.deleteTask(
-            widget.taskId,
-            ignoreFileDeleteError: true,
-          );
-        }
+        LogUtils.w('图库本地资源找不到: taskId=${widget.taskId}', _tag);
         if (!mounted) return;
-        showAppToast(
-          slang.t.localMedia.browse.galleryResourceMissing,
-          type: AppToastType.warning,
-        );
+        final outcome = await showMissingDownloadDialog(task);
+        if (!mounted) return;
+        if (outcome == MissingDownloadOutcome.located) {
+          await _loadData();
+          return;
+        }
         AppService.tryPop();
         return;
       }

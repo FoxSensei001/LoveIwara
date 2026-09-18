@@ -156,6 +156,7 @@ common:
   selectedRecords: 'Selected ${num} records'
   cancelSelectAll: Cancel Select All
   selectAll: Select All
+  invertSelection: Invert Selection
   exitEditMode: Exit Edit Mode
   areYouSureYouWantToDeleteSelectedItems: 'Are you sure you want to delete selected ${num} items?'
   searchHistoryRecords: Search History Records...
@@ -1810,6 +1811,46 @@ download:
     banner: '${num} unfinished tasks from last session were paused'
     resume: Resume all
     dismiss: Dismiss
+  actions:
+    open: Open
+    play: Play
+    openWith: Open with another app
+    redownload: Download again
+    relocate: Move files to…
+    categorize: Categorize…
+    viewOnline: View online page
+    delete: Delete…
+    redownloadStarted: 'Started downloading ${count} items again'
+    redownloadNone: Nothing to download again
+    deleteTitle: 'Delete ${count} downloads?'
+    deleteSummary: '${count} items · ${size}'
+    deleteSummaryNoSize: '${count} items'
+    deleteGalleryNote: 'Size of ${count} galleries not included'
+    deleteFiles: Also delete files from disk
+    deleteFilesDesc: When off, only the list entries are removed and the files stay where they are
+    deleteFilesAllMissing: The files are already gone; only the entries will be removed
+    deleteDone: 'Deleted ${count} items'
+    deletePartial: 'Could not delete the files of ${failed} items (they may be in use); their entries were kept'
+    removeRecordAnyway: Remove entries anyway
+    fileMissing: File is missing
+    filePending: File not found right now, it may still be recoverable
+    statusActive: In progress
+    statusCompleted: Completed
+    needsAttention: Needs attention
+    needsAttentionCount: 'Needs attention · ${count}'
+    organize: Organize
+    checkIntegrity: Check file integrity…
+    migrateToCurrent: Move to current download folder…
+    migrateNone: Everything is already in the current download folder
+  notice:
+    failed: '${count} downloads failed'
+    retryAll: Retry all
+    view: View
+    missing: 'Files of ${count} downloaded items are missing'
+    handle: Handle…
+    outside: '${count} items are still in the old download folder'
+    migrate: Move
+    dismiss: Dismiss
   emptyTaskList: No download tasks yet
   noMatchingTasks: No matching tasks
   deleteByDate:
@@ -1830,6 +1871,141 @@ download:
     deleting: 'Deleting ${done}/${total}…'
     resultSuccess: 'Deleted ${count} task(s)'
     resultPartial: 'Deleted ${deleted} task(s); ${skipped} skipped (in use)'
+  relocation:
+    moveFiles: Move files
+    moveFilesEllipsis: Move files…
+    chooseDestination: Move files to
+    currentDownloadDir: Current download folder
+    otherFolder: Choose another folder…
+    pickerUnsupported: Folders can't be picked on this device. Downloads stay in the app's own folder.
+    planning: Checking files…
+    confirmTitle: Move files?
+    confirmNote: Files are moved on disk. Watch progress, VR settings and favorites move with them.
+    nothingToMove: Nothing in the selection can be moved. See the reason for each item below.
+    move: Move
+    moving: 'Moving ${done}/${total}'
+    stop: Stop
+    stopping: Stopping after the current item…
+    resultTitle: Move finished
+    resultMoved: '${count} item(s) moved'
+    cancelled: Stopped. Items already moved are complete.
+    alreadyRunning: Another move is already in progress
+    destination: Destination
+    statMove: To move
+    statSkip: Skipped
+    statRenamed: Renamed
+    statMoved: Moved
+    statFailed: Not moved
+    statLeftover: Left behind
+    sectionMove: Will be moved
+    sectionSkip: Will be skipped
+    sectionMoved: Moved
+    sectionFailed: Not moved (left where it was)
+    sectionLeftover: Old folders not fully removed
+    leftoverHint: The copy at the new location is complete. These leftovers can be deleted.
+    from: From
+    to: To
+    renamedBadge: 'Name taken, will be saved as "${name}"'
+    showPaths: Show paths
+    hidePaths: Hide paths
+    revealInFolder: Show in folder
+    copyPath: Copy path
+    pathCopied: Path copied
+    stateDownloading: 'downloading, ${percent}%'
+    statePending: waiting to download
+    statePaused: 'paused at ${percent}%'
+    stateFailed: download failed
+    skipAlreadyThere: Already in this folder
+    skipInsideSource: The destination is inside this gallery's own folder
+    reasonBusy: Busy with another operation (deleting or moving)
+    reasonSourceLocked: The file is in use (for example, playing), so it couldn't be removed from the old location. Nothing was changed.
+    reasonNoSpace: The destination ran out of space. The rest of the batch was stopped.
+    reasonVerifyFailed: The copy didn't match the original's size. The copy was discarded.
+    reasonIoError: Couldn't read or write the file. Nothing was changed.
+    systemMessage: 'System message: ${message}'
+    outsideTitle: '${count} downloaded item(s) are outside this folder'
+    outsideSubtitle: They still play where they are. Move them here to keep everything together.
+    moveHere: Move here
+    missingTitle: Files not found
+    recordedLocation: Recorded location
+    legendExists: still exists
+    legendMissing: missing
+    diagVolume: 'Storage "${volume}" is not available. The SD card or external drive may not be connected.'
+    diagVolumeShort: 'storage "${volume}" not connected'
+    diagContainer: 'After an app update, the system moved the app''s storage. The file is still here:'
+    diagContainerShort: app storage moved after update
+    diagNoAccess: The app doesn't have permission to read this location. Grant "All files access" and check again.
+    diagNoAccessShort: no permission to read this location
+    diagFolder: 'The folder "${folder}" no longer exists.'
+    diagFolderShort: 'folder "${folder}" no longer exists'
+    diagFile: 'The folder is still there, but "${name}" isn''t in it.'
+    diagFileShort: 'not found in its folder'
+    diagCandidates: 'Found something in that folder that looks like it (maybe renamed):'
+    diagNoCandidates: Nothing with the same size was found in that folder.
+    useThis: Use this
+    fixPath: Fix path
+    checkAgain: Check again
+    grantPermission: Grant permission
+    locate: Find in another folder…
+    deleteRecord: Delete record
+    locateNotFound: This download's files aren't in that folder
+    located: Found. The record now points to the new location.
+    stillMissing: Still not found
+    downloadedOn: 'Downloaded ${date}'
+    galleryImages: '${count} images'
+    unfinishedDownloading: 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues'
+    unfinishedPending: 'Waiting to download: re-queued after the move'
+    unfinishedPaused: 'Paused at ${percent}%: the downloaded part moves too, stays paused'
+    unfinishedFailed: 'Download failed: the downloaded part moves too'
+    noDataYet: 'Nothing downloaded yet, only the save location changes'
+    missingGroup: '${count} item(s) with missing files'
+    missingSkip: 'Leave as is'
+    missingRedownload: 'Re-download to the destination'
+    missingRemove: 'Remove records'
+    missingRemoveVolumeNote: '${count} of them are on storage that isnt connected and wont be removed'
+    failedGroup: '${count} failed download(s)'
+    failedMoveOnly: 'Just move'
+    failedMoveAndRetry: 'Move, then re-download'
+    failedRemove: 'Remove tasks'
+    failedRemoveNote: 'Their partially downloaded files are deleted too'
+    execute: 'Apply'
+    actionWillRedownload: 'Will be re-downloaded to the destination'
+    actionWillRemove: 'This record will be removed'
+    actionWillKeep: 'Storage not connected, will be kept'
+    actionWillRetry: 'Re-downloaded after the move'
+    actionWillRemoveTask: 'This task will be removed'
+    statRedownload: 'Re-download'
+    statRemoved: 'Removed'
+    sectionRedownloaded: 'Re-download started'
+    sectionRedownloadFailed: 'Couldnt start re-download'
+    redownloadFailedHint: 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.'
+    sectionRemoved: 'Removed'
+    sectionKept: 'Kept (storage not connected)'
+    redownload: 'Re-download'
+    redownloadStarted: 'Re-download started'
+    redownloadNotStarted: 'Couldnt start re-download'
+    diagFileShortWithCandidates: 'a file with the same size is in its folder, maybe renamed'
+    cleanupMenu: 'Clean up broken records…'
+    cleanupScanning: 'Checking ${done}/${total}'
+    cleanupTitle: 'Clean up broken records'
+    cleanupNone: 'Checked ${count} completed download(s). All files are there.'
+    statChecked: 'Checked'
+    statMissing: 'Missing'
+    statKeep: 'Keep'
+    cleanupGroupGone: 'Files are gone'
+    cleanupGroupRecoverable: 'May still be recoverable'
+    cleanupRecoverableHint: 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.'
+    selectAll: 'Select all'
+    selectNone: 'Select none'
+    removeSelected: 'Remove selected (${count})'
+    redownloadSelected: 'Re-download selected (${count})'
+    processing: 'Processing ${done}/${total}'
+    cleanupRemoved: '${count} record(s) removed'
+    cleanupRedownloaded: 'Re-download started for ${count} item(s)'
+    tapForDetail: 'Details'
+    deleteRecordFailed: 'Couldnt delete the record. Try again later.'
+    sectionNotAttempted: 'Not processed (stopped, left as is)'
+    unexpectedError: 'Stopped because of an error: ${message}. Items already moved are complete.'
   category:
     manageTitle: Manage categories
     label: Categories
@@ -1854,6 +2030,80 @@ download:
     deleteConfirm: 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.'
     deleteSuccess: Category deleted
     deleteFailed: Failed to delete category
+  location:
+    sectionTitle: Save location
+    behaviorSection: Download behavior
+    namingSection: File naming
+    advancedSection: Advanced
+    advancedSubtitle: Write diagnostics and other tools
+    volumeInternal: Internal storage
+    volumeSdCard: SD card
+    volumeExternalDrive: External drive
+    appSpace: App-only storage
+    downloadsFolder: Downloads
+    askEveryTime: Ask every time
+    askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    freeSpace: '${size} free'
+    statusWritable: Writable
+    statusNeedsPermission: Needs permission
+    statusFallback: Temporarily redirected
+    statusLowSpace: Low space
+    statusChecking: Checking
+    grant: Grant
+    fix: Fix
+    changeLocation: Change location
+    openInFileManager: Open in file manager
+    moreActions: More
+    copyPath: Copy path
+    pathCopied: Path copied
+    manualInput: Enter path manually (advanced)
+    restoreDefault: Restore default
+    runDiagnostics: Run diagnostics
+    restoredDefault: Restored the default location
+    sheetTitle: Choose download location
+    chooseOtherFolder: Choose another folder…
+    chooseOtherFolderDesc: Pick one with the system file picker
+    optionRecommendedDesc: Recommended · no permission needed
+    optionRecommendedLegacyDesc: Recommended · needs storage permission
+    optionAppPrivateDesc: Deleted on uninstall · hidden from the gallery
+    optionRemovableDesc: 'Needs "All files access"'
+    optionDesktopDownloadsDesc: Recommended · your Downloads folder
+    optionAskEveryTimeDesc: Pick a folder for each download
+    current: Current
+    fallbackBanner: Your last download was temporarily saved to app storage because the chosen folder could not be used.
+    fallbackReasonPermission: storage permission is missing
+    fallbackReasonVolumeMissing: the storage device is not connected
+    fallbackReasonCannotCreate: the folder could not be created
+    fallbackReasonNotWritable: the folder cannot be written to
+    fallbackDetail: 'Temporarily redirected: ${reason}'
+    errorUnresolvable: This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.
+    errorNotWritable: This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.
+    errorVolumeMissing: This storage device cannot be found (removed or not connected). The location was not changed.
+    permissionTitle: Permission needed
+    permissionAllFiles: 'Writing to this folder needs "All files access". If you''d rather not allow that, use "Downloads › LoveIwara" instead.'
+    permissionLegacy: 'Writing to this folder needs the storage permission. If you''d rather not allow that, use app-only storage instead.'
+    useDownloadsInstead: Use Downloads › LoveIwara
+    useAppSpaceInstead: Use app-only storage
+    goToSettings: Grant
+    permissionDenied: Permission was not granted. The location was not changed.
+    checking: Checking this location…
+    confirmTitle: Use this location?
+    confirmFree: '${size} free'
+    confirmOutside: '${count} downloaded item(s) stay in the old location'
+    confirmOutsideDesc: New downloads will be saved here. What about the ones you already have?
+    moveThem: Move them here
+    keepThem: Keep them where they are
+    decideLater: Decide later
+    useThisLocation: Use this location
+    locationChanged: Download location changed
+    manualTitle: Enter path manually
+    manualLabel: Folder path
+    manualHint: 'e.g. /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: Check and use
+    manualEmpty: Enter a path
+    manualNotAbsolute: Enter a full absolute path
+    fixStillFailing: This location still cannot be used. Choose another one.
+    fixed: The location works again
   maxConcurrentDownloads: Max concurrent downloads
   maxConcurrentDownloadsDesc: 'Number of tasks downloading at the same time (1-5)'
   stillInDevelopment: Still in development

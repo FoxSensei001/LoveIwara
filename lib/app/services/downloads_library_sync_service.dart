@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:crypto/crypto.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -80,11 +78,38 @@ class DownloadsLibrarySyncService extends GetxService {
   /// 同步一次。并发调用会**合流到同一次**——页面进来、下载完成、用户点刷新
   /// 三处都会叫它，各跑一遍纯属白费。
   Future<void> sync() {
+    final hold = _hold;
+    if (hold != null) return hold.future.then((_) => sync());
     final running = _running;
     if (running != null) return running;
     final future = _sync().whenComplete(() => _running = null);
     _running = future;
     return future;
+  }
+
+  /// 「移动已下载文件」进行中时挂起全量同步，见 [holdFullSync]。
+  Completer<void>? _hold;
+
+  /// 跑 [body] 期间不许开始全量同步（先等正在跑的那次结束）。
+  ///
+  /// ⛔ 全量同步开头就把任务清单定死了。移动中途插进来一次的话：它 stat 旧路径
+  /// 扑空 → 那一条不进 `seen` → 收尾的 `markMissingExcept` 把刚改完主键的新条目
+  /// 标成 missing；或者 stat 在移动前、写库在移动后，按旧快照再插回一条旧 id
+  /// 的幽灵行。移动自己会在结束后补跑一次同步。
+  ///
+  /// [syncTask]（下载完成即入库）不受影响：它只写那一条新下载的真实路径。
+  Future<T> holdFullSync<T>(Future<T> Function() body) async {
+    while (_running != null) {
+      await _running;
+    }
+    final gate = Completer<void>();
+    _hold = gate;
+    try {
+      return await body();
+    } finally {
+      _hold = null;
+      gate.complete();
+    }
   }
 
   /// 等当前同步结束后，再基于最新的任务表跑一轮。
@@ -555,6 +580,5 @@ class DownloadsLibrarySyncService extends GetxService {
     }
   }
 
-  static String _hashPath(String path) =>
-      sha1.convert(utf8.encode(path)).toString();
+  static String _hashPath(String path) => LocalMediaItem.hashPath(path);
 }

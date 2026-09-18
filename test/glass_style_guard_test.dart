@@ -557,7 +557,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/settings/about_page.dart': 4,
   'lib/app/ui/pages/settings/block_settings_page.dart': 5,
   'lib/app/ui/pages/settings/diagnostics_page.dart': 1,
-  'lib/app/ui/pages/settings/download_settings_page.dart': 10,
   'lib/app/ui/pages/settings/google_translation_settings_page.dart': 2,
   'lib/app/ui/pages/settings/history_update_logs_page.dart': 1,
   'lib/app/ui/pages/settings/keybinding_settings_page.dart': 2,
@@ -569,7 +568,6 @@ const _rawMaterialButtonBaseline = <String, int>{
   'lib/app/ui/pages/settings/widgets/desktop_player_manager_dialog.dart': 1,
   'lib/app/ui/pages/settings/widgets/download_test_widget.dart': 1,
   'lib/app/ui/pages/settings/widgets/proxy_config_widget.dart': 1,
-  'lib/app/ui/pages/settings/widgets/recommended_paths_widget.dart': 1,
   'lib/app/ui/pages/sign_in/sing_in_page.dart': 6,
   'lib/app/ui/pages/subscriptions/subscriptions_page.dart': 2,
   'lib/app/ui/pages/subscriptions/widgets/subscription_select_list_widget.dart':

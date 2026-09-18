@@ -277,6 +277,7 @@ class _TranslationsCommonId extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => 'Terpilih ${num} catatan';
 	@override String get cancelSelectAll => 'Batalkan Pilih Semua';
 	@override String get selectAll => 'Pilih Semua';
+	@override String get invertSelection => 'Balik Pilihan';
 	@override String get exitEditMode => 'Keluar dari Mode Edit';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Apakah Anda yakin ingin menghapus ${num} item yang dipilih?';
 	@override String get searchHistoryRecords => 'Cari Catatan Riwayat...';
@@ -4248,6 +4249,7 @@ extension on TranslationsId {
 			'common.selectedRecords' => ({required Object num}) => 'Terpilih ${num} catatan',
 			'common.cancelSelectAll' => 'Batalkan Pilih Semua',
 			'common.selectAll' => 'Pilih Semua',
+			'common.invertSelection' => 'Balik Pilihan',
 			'common.exitEditMode' => 'Keluar dari Mode Edit',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Apakah Anda yakin ingin menghapus ${num} item yang dipilih?',
 			'common.searchHistoryRecords' => 'Cari Catatan Riwayat...',
@@ -4617,9 +4619,9 @@ extension on TranslationsId {
 			'settings.longPressPlaybackSpeed' => 'Kecepatan Pemutaran Tekan Lama',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Kecepatan pemutaran tekan lama harus berupa angka positif.',
 			'settings.defaultPlaybackSpeed' => 'Kecepatan Pemutaran Bawaan',
-			'settings.rememberPlaybackSpeed' => 'Ingat Kecepatan Pemutaran',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Ingat Kecepatan Pemutaran',
 			'settings.rememberPlaybackSpeedDesc' => 'Saat diaktifkan, kecepatan yang Anda atur di pemutar disimpan sebagai bawaan dan diterapkan secara otomatis ke video baru.',
 			'settings.repeat' => 'Ulangi',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Tampilkan Video Vertikal di Layar Vertikal',
@@ -5131,9 +5133,9 @@ extension on TranslationsId {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Tidak dapat memperoleh status jalur',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Catatan: Jalur sebenarnya berbeda dari jalur yang dipilih',
 			'settings.downloadSettings.grantPermission' => 'Beri Izin',
-			'settings.downloadSettings.fixIssue' => 'Perbaiki Masalah',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Perbaiki Masalah',
 			'settings.downloadSettings.issueFixed' => 'Masalah diperbaiki',
 			'settings.downloadSettings.fixFailed' => 'Perbaikan gagal, silakan tangani secara manual',
 			'settings.downloadSettings.lackStoragePermission' => 'Tidak memiliki izin penyimpanan',
@@ -5645,9 +5647,9 @@ extension on TranslationsId {
 			'notifications.kApprovedThread' => 'Utas disetujui',
 			'notifications.kApprovedPost' => 'Postingan disetujui',
 			'notifications.kApprovedForumPost' => 'Postingan forum disetujui',
-			'notifications.kRejectedContent' => 'Peninjauan konten ditolak',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Peninjauan konten ditolak',
 			'notifications.kUnknownType' => 'Jenis notifikasi tidak dikenal',
 			'conversation.errors.pleaseSelectAUser' => 'Silakan pilih pengguna',
 			'conversation.errors.pleaseEnterATitle' => 'Silakan masukkan judul',
@@ -6159,9 +6161,9 @@ extension on TranslationsId {
 			'layoutSettings.title' => 'Pengaturan Tata Letak',
 			'layoutSettings.descriptionTitle' => 'Penjelasan Konfigurasi Tata Letak',
 			'layoutSettings.descriptionContent' => 'Konfigurasi di sini akan menentukan jumlah kolom yang ditampilkan pada halaman daftar video dan galeri. Anda dapat memilih mode otomatis agar sistem menyesuaikan secara otomatis berdasarkan lebar layar, atau memilih mode manual untuk menetapkan jumlah kolom.',
-			'layoutSettings.layoutMode' => 'Mode Tata Letak',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Mode Tata Letak',
 			'layoutSettings.reset' => 'Atur Ulang',
 			'layoutSettings.autoMode' => 'Mode Otomatis',
 			'layoutSettings.autoModeDesc' => 'Menyesuaikan secara otomatis berdasarkan lebar layar',
@@ -6673,9 +6675,9 @@ extension on TranslationsId {
 			'siteMode.switched' => ({required Object site}) => 'Beralih ke ${site}. Aplikasi telah disegarkan.',
 			'savedSearchConfig.title' => 'Filter Tersimpan',
 			'savedSearchConfig.empty' => 'Belum ada filter tersimpan',
-			'savedSearchConfig.saveTooltip' => 'Simpan filter saat ini',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Simpan filter saat ini',
 			'savedSearchConfig.namePromptTitle' => 'Simpan Filter',
 			'savedSearchConfig.nameLabel' => 'Nama',
 			'savedSearchConfig.nameHint' => 'Masukkan nama',

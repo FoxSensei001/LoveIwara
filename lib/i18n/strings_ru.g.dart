@@ -277,6 +277,7 @@ class _TranslationsCommonRu extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => 'Выбрано записей: ${num}';
 	@override String get cancelSelectAll => 'Снять выбор';
 	@override String get selectAll => 'Выбрать все';
+	@override String get invertSelection => 'Инвертировать выбор';
 	@override String get exitEditMode => 'Выйти из режима выбора';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Удалить выбранные элементы (${num})?';
 	@override String get searchHistoryRecords => 'Поиск в истории...';
@@ -4248,6 +4249,7 @@ extension on TranslationsRu {
 			'common.selectedRecords' => ({required Object num}) => 'Выбрано записей: ${num}',
 			'common.cancelSelectAll' => 'Снять выбор',
 			'common.selectAll' => 'Выбрать все',
+			'common.invertSelection' => 'Инвертировать выбор',
 			'common.exitEditMode' => 'Выйти из режима выбора',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Удалить выбранные элементы (${num})?',
 			'common.searchHistoryRecords' => 'Поиск в истории...',
@@ -4617,9 +4619,9 @@ extension on TranslationsRu {
 			'settings.longPressPlaybackSpeed' => 'Скорость при долгом нажатии',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Скорость при долгом нажатии должна быть положительным числом.',
 			'settings.defaultPlaybackSpeed' => 'Скорость по умолчанию',
-			'settings.rememberPlaybackSpeed' => 'Запоминать скорость воспроизведения',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Запоминать скорость воспроизведения',
 			'settings.rememberPlaybackSpeedDesc' => 'Скорость, установленная в плеере, будет сохранена по умолчанию и применена к новым видео.',
 			'settings.repeat' => 'Повтор',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Вертикальные видео в портретном режиме',
@@ -5131,9 +5133,9 @@ extension on TranslationsRu {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Не удалось получить статус пути',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Примечание: Фактический путь отличается от выбранного',
 			'settings.downloadSettings.grantPermission' => 'Предоставить разрешение',
-			'settings.downloadSettings.fixIssue' => 'Исправить',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Исправить',
 			'settings.downloadSettings.issueFixed' => 'Исправлено',
 			'settings.downloadSettings.fixFailed' => 'Не удалось исправить, настройте вручную',
 			'settings.downloadSettings.lackStoragePermission' => 'Нет доступа к памяти',
@@ -5645,9 +5647,9 @@ extension on TranslationsRu {
 			'notifications.kApprovedThread' => 'Тема одобрена',
 			'notifications.kApprovedPost' => 'Публикация одобрена',
 			'notifications.kApprovedForumPost' => 'Публикация на форуме одобрена',
-			'notifications.kRejectedContent' => 'Контент отклонён модерацией',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Контент отклонён модерацией',
 			'notifications.kUnknownType' => 'Неизвестный тип уведомления',
 			'conversation.errors.pleaseSelectAUser' => 'Выберите пользователя',
 			'conversation.errors.pleaseEnterATitle' => 'Введите заголовок',
@@ -6159,9 +6161,9 @@ extension on TranslationsRu {
 			'layoutSettings.title' => 'Настройки макета',
 			'layoutSettings.descriptionTitle' => 'Описание настройки макета',
 			'layoutSettings.descriptionContent' => 'Настроенная здесь конфигурация определяет число столбцов на страницах списков видео и галерей. Выберите автоматический режим, чтобы система подстраивалась под ширину экрана, или ручной режим, чтобы зафиксировать число столбцов.',
-			'layoutSettings.layoutMode' => 'Режим макета',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Режим макета',
 			'layoutSettings.reset' => 'Сбросить',
 			'layoutSettings.autoMode' => 'Автоматический режим',
 			'layoutSettings.autoModeDesc' => 'Автоматически подстраивается под ширину экрана',
@@ -6673,9 +6675,9 @@ extension on TranslationsRu {
 			'siteMode.switched' => ({required Object site}) => 'Переключено на ${site}. Приложение обновлено.',
 			'savedSearchConfig.title' => 'Сохранённые фильтры',
 			'savedSearchConfig.empty' => 'Сохранённых фильтров пока нет',
-			'savedSearchConfig.saveTooltip' => 'Сохранить текущий фильтр',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Сохранить текущий фильтр',
 			'savedSearchConfig.namePromptTitle' => 'Сохранить фильтр',
 			'savedSearchConfig.nameLabel' => 'Название',
 			'savedSearchConfig.nameHint' => 'Введите название',

@@ -284,6 +284,7 @@ class _TranslationsCommonJa extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '${num} 件のレコードが選択されました';
 	@override String get cancelSelectAll => 'すべての選択を解除';
 	@override String get selectAll => 'すべて選択';
+	@override String get invertSelection => '選択を反転';
 	@override String get exitEditMode => '編集モードを終了';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => '選択した ${num} 件のレコードを削除してもよろしいですか？';
 	@override String get searchHistoryRecords => '検索履歴...';
@@ -1443,10 +1444,14 @@ class _TranslationsDownloadJa extends TranslationsDownloadEn {
 	@override String get errorDetailCopied => 'エラー詳細をコピーしました';
 	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
 	@override late final _TranslationsDownloadRestoredPausedJa restoredPaused = _TranslationsDownloadRestoredPausedJa._(_root);
+	@override late final _TranslationsDownloadActionsJa actions = _TranslationsDownloadActionsJa._(_root);
+	@override late final _TranslationsDownloadNoticeJa notice = _TranslationsDownloadNoticeJa._(_root);
 	@override String get emptyTaskList => 'ダウンロードタスクがありません';
 	@override String get noMatchingTasks => '一致するタスクがありません';
 	@override late final _TranslationsDownloadDeleteByDateJa deleteByDate = _TranslationsDownloadDeleteByDateJa._(_root);
+	@override late final _TranslationsDownloadRelocationJa relocation = _TranslationsDownloadRelocationJa._(_root);
 	@override late final _TranslationsDownloadCategoryJa category = _TranslationsDownloadCategoryJa._(_root);
+	@override late final _TranslationsDownloadLocationJa location = _TranslationsDownloadLocationJa._(_root);
 	@override String get maxConcurrentDownloads => '最大同時ダウンロード数';
 	@override String get maxConcurrentDownloadsDesc => '同時にダウンロードするタスク数（1-5）';
 	@override String get stillInDevelopment => '開発中';
@@ -3499,6 +3504,62 @@ class _TranslationsDownloadRestoredPausedJa extends TranslationsDownloadRestored
 	@override String get dismiss => '閉じる';
 }
 
+// Path: download.actions
+class _TranslationsDownloadActionsJa extends TranslationsDownloadActionsEn {
+	_TranslationsDownloadActionsJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get open => '開く';
+	@override String get play => '再生';
+	@override String get openWith => '他のアプリで開く';
+	@override String get redownload => '再ダウンロード';
+	@override String get relocate => 'ファイルを移動…';
+	@override String get categorize => '分類…';
+	@override String get viewOnline => 'オンラインページを見る';
+	@override String get delete => '削除…';
+	@override String redownloadStarted({required Object count}) => '${count} 件の再ダウンロードを開始しました';
+	@override String get redownloadNone => '再ダウンロードできる項目がありません';
+	@override String deleteTitle({required Object count}) => '${count} 件のダウンロードを削除しますか？';
+	@override String deleteSummary({required Object count, required Object size}) => '${count} 件 · ${size}';
+	@override String deleteSummaryNoSize({required Object count}) => '${count} 件';
+	@override String deleteGalleryNote({required Object count}) => 'うち ${count} 件のギャラリーはサイズに含まれていません';
+	@override String get deleteFiles => 'ディスク上のファイルも削除';
+	@override String get deleteFilesDesc => 'オフにするとリストの記録だけを削除し、ファイルはそのまま残ります';
+	@override String get deleteFilesAllMissing => 'ファイルはすでにないため、記録だけを削除します';
+	@override String deleteDone({required Object count}) => '${count} 件を削除しました';
+	@override String deletePartial({required Object failed}) => '${failed} 件のファイルを削除できませんでした（使用中の可能性があります）。記録は残しています';
+	@override String get removeRecordAnyway => '記録だけ削除';
+	@override String get fileMissing => 'ファイルが見つかりません';
+	@override String get filePending => '今はファイルが見つかりません（復元できる可能性があります）';
+	@override String get statusActive => '進行中';
+	@override String get statusCompleted => '完了';
+	@override String get needsAttention => '要対応';
+	@override String needsAttentionCount({required Object count}) => '要対応 · ${count}';
+	@override String get organize => '整理';
+	@override String get checkIntegrity => 'ファイルの整合性をチェック…';
+	@override String get migrateToCurrent => '現在のダウンロードフォルダへ移動…';
+	@override String get migrateNone => 'すべてのダウンロード済みコンテンツは現在のダウンロードフォルダにあります';
+}
+
+// Path: download.notice
+class _TranslationsDownloadNoticeJa extends TranslationsDownloadNoticeEn {
+	_TranslationsDownloadNoticeJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String failed({required Object count}) => '${count} 件のダウンロードが失敗しました';
+	@override String get retryAll => 'すべて再試行';
+	@override String get view => '表示';
+	@override String missing({required Object count}) => 'ダウンロード済みの ${count} 件のファイルが見つかりません';
+	@override String get handle => '対処…';
+	@override String outside({required Object count}) => '古いダウンロードフォルダに ${count} 件残っています';
+	@override String get migrate => '移動';
+	@override String get dismiss => '閉じる';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateJa extends TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -3523,6 +3584,149 @@ class _TranslationsDownloadDeleteByDateJa extends TranslationsDownloadDeleteByDa
 	@override String deleting({required Object done, required Object total}) => '削除中 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '${count}件のタスクを削除しました';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）';
+}
+
+// Path: download.relocation
+class _TranslationsDownloadRelocationJa extends TranslationsDownloadRelocationEn {
+	_TranslationsDownloadRelocationJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get moveFiles => 'ファイルを移動';
+	@override String get moveFilesEllipsis => 'ファイルを移動…';
+	@override String get chooseDestination => 'ファイルの移動先';
+	@override String get currentDownloadDir => '現在のダウンロードフォルダ';
+	@override String get otherFolder => '別のフォルダを選択…';
+	@override String get pickerUnsupported => 'この端末ではフォルダを選択できません。ダウンロードはアプリ専用フォルダに保存されます。';
+	@override String get planning => 'ファイルを確認しています…';
+	@override String get confirmTitle => 'ファイルを移動しますか？';
+	@override String get confirmNote => 'ディスク上でファイルを移動します。視聴位置、VR 設定、お気に入りも一緒に引き継がれます。';
+	@override String get nothingToMove => '選択した項目はどれも移動できません。各項目の理由は下を確認してください。';
+	@override String get move => '移動';
+	@override String moving({required Object done, required Object total}) => '移動中 ${done}/${total}';
+	@override String get stop => '停止';
+	@override String get stopping => '現在の項目が終わったら停止します…';
+	@override String get resultTitle => '移動が完了しました';
+	@override String resultMoved({required Object count}) => '${count} 件を移動しました';
+	@override String get cancelled => '停止しました。移動済みの項目はすべて完全です。';
+	@override String get alreadyRunning => '別の移動がすでに実行中です';
+	@override String get destination => '移動先';
+	@override String get statMove => '移動予定';
+	@override String get statSkip => 'スキップ';
+	@override String get statRenamed => '名前変更';
+	@override String get statMoved => '移動済み';
+	@override String get statFailed => '未移動';
+	@override String get statLeftover => '残存';
+	@override String get sectionMove => '移動する項目';
+	@override String get sectionSkip => 'スキップする項目';
+	@override String get sectionMoved => '移動済み';
+	@override String get sectionFailed => '移動されなかった項目（元の場所のまま）';
+	@override String get sectionLeftover => '削除しきれなかった古いフォルダ';
+	@override String get leftoverHint => '新しい場所のコピーは完全です。これらの残りは削除して構いません。';
+	@override String get from => '移動元';
+	@override String get to => '移動先';
+	@override String renamedBadge({required Object name}) => '同じ名前があるため「${name}」として保存します';
+	@override String get showPaths => 'パスを表示';
+	@override String get hidePaths => 'パスを隠す';
+	@override String get revealInFolder => 'フォルダで表示';
+	@override String get copyPath => 'パスをコピー';
+	@override String get pathCopied => 'パスをコピーしました';
+	@override String stateDownloading({required Object percent}) => 'ダウンロード中 ${percent}%';
+	@override String get statePending => 'ダウンロード待ち';
+	@override String statePaused({required Object percent}) => '${percent}% で一時停止中';
+	@override String get stateFailed => 'ダウンロード失敗';
+	@override String get skipAlreadyThere => 'すでにこのフォルダにあります';
+	@override String get skipInsideSource => '移動先がこのギャラリー自身のフォルダの中にあります';
+	@override String get reasonBusy => '別の操作（削除または移動）を実行中';
+	@override String get reasonSourceLocked => 'ファイルが使用中（再生中など）のため元の場所から削除できませんでした。何も変更していません。';
+	@override String get reasonNoSpace => '移動先の空き容量が不足したため、残りをすべて停止しました。';
+	@override String get reasonVerifyFailed => 'コピーしたファイルのサイズが元と一致しなかったため、コピーを破棄しました。';
+	@override String get reasonIoError => 'ファイルの読み書きに失敗しました。何も変更していません。';
+	@override String systemMessage({required Object message}) => 'システムメッセージ：${message}';
+	@override String outsideTitle({required Object count}) => 'ダウンロード済みの ${count} 件がこのフォルダの外にあります';
+	@override String get outsideSubtitle => '今の場所でもそのまま再生できます。ここへ移動するとひとまとめにできます。';
+	@override String get moveHere => 'ここへ移動';
+	@override String get missingTitle => 'ファイルが見つかりません';
+	@override String get recordedLocation => '記録されている場所';
+	@override String get legendExists => '存在する';
+	@override String get legendMissing => '見つからない';
+	@override String diagVolume({required Object volume}) => 'ストレージ「${volume}」が利用できません。SD カードや外付けドライブが接続されていない可能性があります。';
+	@override String diagVolumeShort({required Object volume}) => 'ストレージ「${volume}」が未接続';
+	@override String get diagContainer => 'アプリの更新後、システムがアプリの保存場所を移動しました。ファイルはここにあります：';
+	@override String get diagContainerShort => '更新後に保存場所が変わりました';
+	@override String get diagNoAccess => 'この場所を読み取る権限がありません。「すべてのファイルへのアクセス」を許可してから再確認してください。';
+	@override String get diagNoAccessShort => 'この場所を読み取る権限がありません';
+	@override String diagFolder({required Object folder}) => 'フォルダ「${folder}」はもう存在しません。';
+	@override String diagFolderShort({required Object folder}) => 'フォルダ「${folder}」が存在しません';
+	@override String diagFile({required Object name}) => 'フォルダはありますが、「${name}」が中にありません。';
+	@override String get diagFileShort => '元のフォルダにありません';
+	@override String get diagCandidates => 'そのフォルダに、これと思われるもの（名前が変わった可能性）が見つかりました：';
+	@override String get diagNoCandidates => 'そのフォルダに同じサイズのファイルはありませんでした。';
+	@override String get useThis => 'これを使う';
+	@override String get fixPath => 'パスを修正';
+	@override String get checkAgain => '再確認';
+	@override String get grantPermission => '権限を許可';
+	@override String get locate => '別のフォルダで探す…';
+	@override String get deleteRecord => '記録を削除';
+	@override String get locateNotFound => 'そのフォルダにこのダウンロードのファイルはありません';
+	@override String get located => '見つかりました。記録を新しい場所に更新しました';
+	@override String get stillMissing => 'まだ見つかりません';
+	@override String downloadedOn({required Object date}) => '${date} にダウンロード';
+	@override String galleryImages({required Object count}) => '${count} 枚';
+	@override String unfinishedDownloading({required Object percent}) => 'ダウンロード中 ${percent}%：一時停止してから途中のデータごと移動し、移動後に再開';
+	@override String get unfinishedPending => 'ダウンロード待ち：移動後にもう一度キューに入れます';
+	@override String unfinishedPaused({required Object percent}) => '${percent}% で一時停止中：途中のデータごと移動し、一時停止のまま';
+	@override String get unfinishedFailed => 'ダウンロード失敗：途中のデータごと移動';
+	@override String get noDataYet => 'まだ何もダウンロードされていないため、保存先だけ変更します';
+	@override String missingGroup({required Object count}) => 'ファイルが見つからない ${count} 件';
+	@override String get missingSkip => 'そのまま';
+	@override String get missingRedownload => '移動先に再ダウンロード';
+	@override String get missingRemove => '記録を削除';
+	@override String missingRemoveVolumeNote({required Object count}) => 'うち ${count} 件は未接続のストレージ上にあるため削除しません';
+	@override String failedGroup({required Object count}) => 'ダウンロード失敗の ${count} 件';
+	@override String get failedMoveOnly => '移動のみ';
+	@override String get failedMoveAndRetry => '移動して再ダウンロード';
+	@override String get failedRemove => 'タスクを削除';
+	@override String get failedRemoveNote => '途中までダウンロードしたファイルも削除されます';
+	@override String get execute => '実行';
+	@override String get actionWillRedownload => '移動先に再ダウンロードします';
+	@override String get actionWillRemove => 'この記録を削除します';
+	@override String get actionWillKeep => 'ストレージ未接続のため残します';
+	@override String get actionWillRetry => '移動後に再ダウンロード';
+	@override String get actionWillRemoveTask => 'このタスクを削除します';
+	@override String get statRedownload => '再ダウンロード';
+	@override String get statRemoved => '削除済み';
+	@override String get sectionRedownloaded => '再ダウンロードを開始しました';
+	@override String get sectionRedownloadFailed => '再ダウンロードを開始できませんでした';
+	@override String get redownloadFailedHint => 'ダウンロードリンクが無効になっている可能性があります（作品が削除または非公開）。後でダウンロード一覧から再試行できます。';
+	@override String get sectionRemoved => '削除済み';
+	@override String get sectionKept => '残した項目（ストレージ未接続）';
+	@override String get redownload => '再ダウンロード';
+	@override String get redownloadStarted => '再ダウンロードを開始しました';
+	@override String get redownloadNotStarted => '再ダウンロードを開始できませんでした';
+	@override String get diagFileShortWithCandidates => '元のフォルダに同じサイズのファイルがあります（名前変更の可能性）';
+	@override String get cleanupMenu => '無効な記録を整理…';
+	@override String cleanupScanning({required Object done, required Object total}) => '確認中 ${done}/${total}';
+	@override String get cleanupTitle => '無効な記録を整理';
+	@override String cleanupNone({required Object count}) => '完了済みの ${count} 件を確認しました。ファイルはすべてあります。';
+	@override String get statChecked => '確認済み';
+	@override String get statMissing => '見つからない';
+	@override String get statKeep => '残す推奨';
+	@override String get cleanupGroupGone => 'ファイルがありません';
+	@override String get cleanupGroupRecoverable => 'まだ取り戻せる可能性あり';
+	@override String get cleanupRecoverableHint => 'ストレージ未接続、権限なし、または名前変更の可能性があるため、既定では選択しません。項目を開くと詳細の確認と復旧ができます。';
+	@override String get selectAll => 'すべて選択';
+	@override String get selectNone => '選択解除';
+	@override String removeSelected({required Object count}) => '選択を削除（${count}）';
+	@override String redownloadSelected({required Object count}) => '選択を再ダウンロード（${count}）';
+	@override String processing({required Object done, required Object total}) => '処理中 ${done}/${total}';
+	@override String cleanupRemoved({required Object count}) => '${count} 件の記録を削除しました';
+	@override String cleanupRedownloaded({required Object count}) => '${count} 件の再ダウンロードを開始しました';
+	@override String get tapForDetail => '詳細';
+	@override String get deleteRecordFailed => '記録を削除できませんでした。後でもう一度お試しください';
+	@override String get sectionNotAttempted => '未処理（停止したため元のまま）';
+	@override String unexpectedError({required Object message}) => 'エラーで停止しました：${message}。移動済みの項目はすべて完全です。';
 }
 
 // Path: download.category
@@ -3555,6 +3759,88 @@ class _TranslationsDownloadCategoryJa extends TranslationsDownloadCategoryEn {
 	@override String deleteConfirm({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。';
 	@override String get deleteSuccess => 'カテゴリーを削除しました';
 	@override String get deleteFailed => 'カテゴリーの削除に失敗しました';
+}
+
+// Path: download.location
+class _TranslationsDownloadLocationJa extends TranslationsDownloadLocationEn {
+	_TranslationsDownloadLocationJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionTitle => '保存先';
+	@override String get behaviorSection => 'ダウンロードの動作';
+	@override String get namingSection => 'ファイル名';
+	@override String get advancedSection => '詳細';
+	@override String get advancedSubtitle => '書き込み診断などのツール';
+	@override String get volumeInternal => '内部ストレージ';
+	@override String get volumeSdCard => 'SD カード';
+	@override String get volumeExternalDrive => '外付けドライブ';
+	@override String get appSpace => 'アプリ専用領域';
+	@override String get downloadsFolder => 'ダウンロード';
+	@override String get askEveryTime => '毎回確認する';
+	@override String askEveryTimeDesc({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます';
+	@override String freeSpace({required Object size}) => '空き ${size}';
+	@override String get statusWritable => '書き込み可';
+	@override String get statusNeedsPermission => '許可が必要';
+	@override String get statusFallback => '一時的に別の場所へ保存';
+	@override String get statusLowSpace => '空き容量不足';
+	@override String get statusChecking => '確認中';
+	@override String get grant => '許可';
+	@override String get fix => '修復';
+	@override String get changeLocation => '保存先を変更';
+	@override String get openInFileManager => 'ファイルマネージャーで開く';
+	@override String get moreActions => 'その他';
+	@override String get copyPath => 'パスをコピー';
+	@override String get pathCopied => 'パスをコピーしました';
+	@override String get manualInput => 'パスを手動入力（上級者向け）';
+	@override String get restoreDefault => 'デフォルトに戻す';
+	@override String get runDiagnostics => '診断を実行';
+	@override String get restoredDefault => 'デフォルトの保存先に戻しました';
+	@override String get sheetTitle => '保存先を選択';
+	@override String get chooseOtherFolder => '別のフォルダを選択…';
+	@override String get chooseOtherFolderDesc => 'システムのファイル選択画面から選びます';
+	@override String get optionRecommendedDesc => 'おすすめ · 許可不要';
+	@override String get optionRecommendedLegacyDesc => 'おすすめ · ストレージの許可が必要';
+	@override String get optionAppPrivateDesc => 'アンインストール時に削除 · ギャラリーに表示されません';
+	@override String get optionRemovableDesc => '「全ファイルへのアクセス」が必要';
+	@override String get optionDesktopDownloadsDesc => 'おすすめ · システムのダウンロードフォルダ';
+	@override String get optionAskEveryTimeDesc => 'ダウンロードのたびにフォルダを選びます';
+	@override String get current => '現在';
+	@override String get fallbackBanner => '選択したフォルダが一時的に使えなかったため、前回のダウンロードはアプリ領域に保存されました。';
+	@override String get fallbackReasonPermission => 'ストレージの許可がありません';
+	@override String get fallbackReasonVolumeMissing => 'ストレージが接続されていません';
+	@override String get fallbackReasonCannotCreate => 'フォルダを作成できません';
+	@override String get fallbackReasonNotWritable => 'フォルダに書き込めません';
+	@override String fallbackDetail({required Object reason}) => '一時的に別の場所へ保存中：${reason}';
+	@override String get errorUnresolvable => 'この場所はクラウドドライブや他のアプリのもので、直接書き込めません。端末のストレージか SD カードのフォルダを選んでください。';
+	@override String get errorNotWritable => 'このフォルダには書き込めません（読み取り専用、システムで保護されている、または切断されています）。保存先は変更されていません。';
+	@override String get errorVolumeMissing => 'このストレージが見つかりません（取り外されたか、接続されていません）。保存先は変更されていません。';
+	@override String get permissionTitle => '許可が必要です';
+	@override String get permissionAllFiles => 'このフォルダに書き込むには「全ファイルへのアクセス」が必要です。許可したくない場合は「ダウンロード › LoveIwara」を使えます。';
+	@override String get permissionLegacy => 'このフォルダに書き込むにはストレージの許可が必要です。許可したくない場合はアプリ専用領域を使えます。';
+	@override String get useDownloadsInstead => 'ダウンロード › LoveIwara を使う';
+	@override String get useAppSpaceInstead => 'アプリ専用領域を使う';
+	@override String get goToSettings => '許可する';
+	@override String get permissionDenied => '許可されなかったため、保存先は変更されていません。';
+	@override String get checking => 'この場所を確認しています…';
+	@override String get confirmTitle => 'この場所を使いますか？';
+	@override String confirmFree({required Object size}) => '空き容量 ${size}';
+	@override String confirmOutside({required Object count}) => 'ダウンロード済みの ${count} 件は元の場所に残っています';
+	@override String get confirmOutsideDesc => '今後のダウンロードは新しい場所に保存されます。ダウンロード済みのものはどうしますか？';
+	@override String get moveThem => '移動する';
+	@override String get keepThem => '元の場所に残す';
+	@override String get decideLater => 'あとで決める';
+	@override String get useThisLocation => 'この場所を使う';
+	@override String get locationChanged => '保存先を変更しました';
+	@override String get manualTitle => 'パスを手動入力';
+	@override String get manualLabel => 'フォルダのパス';
+	@override String get manualHint => '例: /storage/emulated/0/Download/LoveIwara';
+	@override String get manualSubmit => '確認して使う';
+	@override String get manualEmpty => 'パスを入力してください';
+	@override String get manualNotAbsolute => '完全な絶対パスを入力してください';
+	@override String get fixStillFailing => 'この場所はまだ使えません。別の場所を選んでください。';
+	@override String get fixed => '保存先が使えるようになりました';
 }
 
 // Path: download.batchDownload
@@ -4255,6 +4541,7 @@ extension on TranslationsJa {
 			'common.selectedRecords' => ({required Object num}) => '${num} 件のレコードが選択されました',
 			'common.cancelSelectAll' => 'すべての選択を解除',
 			'common.selectAll' => 'すべて選択',
+			'common.invertSelection' => '選択を反転',
 			'common.exitEditMode' => '編集モードを終了',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '選択した ${num} 件のレコードを削除してもよろしいですか？',
 			'common.searchHistoryRecords' => '検索履歴...',
@@ -4617,9 +4904,9 @@ extension on TranslationsJa {
 			'settings.longPressPlaybackSpeed' => '長押し再生速度',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
 			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
-			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
 			'settings.renderVerticalVideoInVerticalScreen' => '全画面再生時に縦向きビデオを縦画面モードでレンダリング',
@@ -5131,9 +5418,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.unableToGetPathStatus' => 'パス状態を取得できません',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
 			'settings.downloadSettings.grantPermission' => '権限を付与',
-			'settings.downloadSettings.fixIssue' => '問題を修正',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => '問題を修正',
 			'settings.downloadSettings.issueFixed' => '問題が修正されました',
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
 			'settings.downloadSettings.lackStoragePermission' => 'ストレージ権限がありません',
@@ -5645,9 +5932,9 @@ extension on TranslationsJa {
 			'notifications.kApprovedThread' => 'スレッドが承認されました',
 			'notifications.kApprovedPost' => '投稿が承認されました',
 			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
-			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
 			'conversation.errors.pleaseEnterATitle' => 'タイトルを入力してください',
@@ -5815,6 +6102,44 @@ extension on TranslationsJa {
 			'download.restoredPaused.banner' => ({required Object num}) => '前回終了時に未完了だったタスク ${num} 件を一時停止しました',
 			'download.restoredPaused.resume' => 'すべて再開',
 			'download.restoredPaused.dismiss' => '閉じる',
+			'download.actions.open' => '開く',
+			'download.actions.play' => '再生',
+			'download.actions.openWith' => '他のアプリで開く',
+			'download.actions.redownload' => '再ダウンロード',
+			'download.actions.relocate' => 'ファイルを移動…',
+			'download.actions.categorize' => '分類…',
+			'download.actions.viewOnline' => 'オンラインページを見る',
+			'download.actions.delete' => '削除…',
+			'download.actions.redownloadStarted' => ({required Object count}) => '${count} 件の再ダウンロードを開始しました',
+			'download.actions.redownloadNone' => '再ダウンロードできる項目がありません',
+			'download.actions.deleteTitle' => ({required Object count}) => '${count} 件のダウンロードを削除しますか？',
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} 件 · ${size}',
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} 件',
+			'download.actions.deleteGalleryNote' => ({required Object count}) => 'うち ${count} 件のギャラリーはサイズに含まれていません',
+			'download.actions.deleteFiles' => 'ディスク上のファイルも削除',
+			'download.actions.deleteFilesDesc' => 'オフにするとリストの記録だけを削除し、ファイルはそのまま残ります',
+			'download.actions.deleteFilesAllMissing' => 'ファイルはすでにないため、記録だけを削除します',
+			'download.actions.deleteDone' => ({required Object count}) => '${count} 件を削除しました',
+			'download.actions.deletePartial' => ({required Object failed}) => '${failed} 件のファイルを削除できませんでした（使用中の可能性があります）。記録は残しています',
+			'download.actions.removeRecordAnyway' => '記録だけ削除',
+			'download.actions.fileMissing' => 'ファイルが見つかりません',
+			'download.actions.filePending' => '今はファイルが見つかりません（復元できる可能性があります）',
+			'download.actions.statusActive' => '進行中',
+			'download.actions.statusCompleted' => '完了',
+			'download.actions.needsAttention' => '要対応',
+			'download.actions.needsAttentionCount' => ({required Object count}) => '要対応 · ${count}',
+			'download.actions.organize' => '整理',
+			'download.actions.checkIntegrity' => 'ファイルの整合性をチェック…',
+			'download.actions.migrateToCurrent' => '現在のダウンロードフォルダへ移動…',
+			'download.actions.migrateNone' => 'すべてのダウンロード済みコンテンツは現在のダウンロードフォルダにあります',
+			'download.notice.failed' => ({required Object count}) => '${count} 件のダウンロードが失敗しました',
+			'download.notice.retryAll' => 'すべて再試行',
+			'download.notice.view' => '表示',
+			'download.notice.missing' => ({required Object count}) => 'ダウンロード済みの ${count} 件のファイルが見つかりません',
+			'download.notice.handle' => '対処…',
+			'download.notice.outside' => ({required Object count}) => '古いダウンロードフォルダに ${count} 件残っています',
+			'download.notice.migrate' => '移動',
+			'download.notice.dismiss' => '閉じる',
 			'download.emptyTaskList' => 'ダウンロードタスクがありません',
 			'download.noMatchingTasks' => '一致するタスクがありません',
 			'download.deleteByDate.menuTitle' => '日付で削除',
@@ -5834,6 +6159,140 @@ extension on TranslationsJa {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '削除中 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '${count}件のタスクを削除しました',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '${deleted}件を削除、${skipped}件をスキップ（使用中）',
+			'download.relocation.moveFiles' => 'ファイルを移動',
+			'download.relocation.moveFilesEllipsis' => 'ファイルを移動…',
+			'download.relocation.chooseDestination' => 'ファイルの移動先',
+			'download.relocation.currentDownloadDir' => '現在のダウンロードフォルダ',
+			'download.relocation.otherFolder' => '別のフォルダを選択…',
+			'download.relocation.pickerUnsupported' => 'この端末ではフォルダを選択できません。ダウンロードはアプリ専用フォルダに保存されます。',
+			'download.relocation.planning' => 'ファイルを確認しています…',
+			'download.relocation.confirmTitle' => 'ファイルを移動しますか？',
+			'download.relocation.confirmNote' => 'ディスク上でファイルを移動します。視聴位置、VR 設定、お気に入りも一緒に引き継がれます。',
+			'download.relocation.nothingToMove' => '選択した項目はどれも移動できません。各項目の理由は下を確認してください。',
+			'download.relocation.move' => '移動',
+			'download.relocation.moving' => ({required Object done, required Object total}) => '移動中 ${done}/${total}',
+			'download.relocation.stop' => '停止',
+			'download.relocation.stopping' => '現在の項目が終わったら停止します…',
+			'download.relocation.resultTitle' => '移動が完了しました',
+			'download.relocation.resultMoved' => ({required Object count}) => '${count} 件を移動しました',
+			'download.relocation.cancelled' => '停止しました。移動済みの項目はすべて完全です。',
+			'download.relocation.alreadyRunning' => '別の移動がすでに実行中です',
+			'download.relocation.destination' => '移動先',
+			'download.relocation.statMove' => '移動予定',
+			'download.relocation.statSkip' => 'スキップ',
+			'download.relocation.statRenamed' => '名前変更',
+			'download.relocation.statMoved' => '移動済み',
+			'download.relocation.statFailed' => '未移動',
+			'download.relocation.statLeftover' => '残存',
+			'download.relocation.sectionMove' => '移動する項目',
+			'download.relocation.sectionSkip' => 'スキップする項目',
+			'download.relocation.sectionMoved' => '移動済み',
+			'download.relocation.sectionFailed' => '移動されなかった項目（元の場所のまま）',
+			'download.relocation.sectionLeftover' => '削除しきれなかった古いフォルダ',
+			'download.relocation.leftoverHint' => '新しい場所のコピーは完全です。これらの残りは削除して構いません。',
+			'download.relocation.from' => '移動元',
+			'download.relocation.to' => '移動先',
+			'download.relocation.renamedBadge' => ({required Object name}) => '同じ名前があるため「${name}」として保存します',
+			'download.relocation.showPaths' => 'パスを表示',
+			'download.relocation.hidePaths' => 'パスを隠す',
+			'download.relocation.revealInFolder' => 'フォルダで表示',
+			'download.relocation.copyPath' => 'パスをコピー',
+			'download.relocation.pathCopied' => 'パスをコピーしました',
+			'download.relocation.stateDownloading' => ({required Object percent}) => 'ダウンロード中 ${percent}%',
+			'download.relocation.statePending' => 'ダウンロード待ち',
+			'download.relocation.statePaused' => ({required Object percent}) => '${percent}% で一時停止中',
+			'download.relocation.stateFailed' => 'ダウンロード失敗',
+			'download.relocation.skipAlreadyThere' => 'すでにこのフォルダにあります',
+			'download.relocation.skipInsideSource' => '移動先がこのギャラリー自身のフォルダの中にあります',
+			'download.relocation.reasonBusy' => '別の操作（削除または移動）を実行中',
+			'download.relocation.reasonSourceLocked' => 'ファイルが使用中（再生中など）のため元の場所から削除できませんでした。何も変更していません。',
+			'download.relocation.reasonNoSpace' => '移動先の空き容量が不足したため、残りをすべて停止しました。',
+			'download.relocation.reasonVerifyFailed' => 'コピーしたファイルのサイズが元と一致しなかったため、コピーを破棄しました。',
+			'download.relocation.reasonIoError' => 'ファイルの読み書きに失敗しました。何も変更していません。',
+			'download.relocation.systemMessage' => ({required Object message}) => 'システムメッセージ：${message}',
+			'download.relocation.outsideTitle' => ({required Object count}) => 'ダウンロード済みの ${count} 件がこのフォルダの外にあります',
+			'download.relocation.outsideSubtitle' => '今の場所でもそのまま再生できます。ここへ移動するとひとまとめにできます。',
+			'download.relocation.moveHere' => 'ここへ移動',
+			'download.relocation.missingTitle' => 'ファイルが見つかりません',
+			'download.relocation.recordedLocation' => '記録されている場所',
+			'download.relocation.legendExists' => '存在する',
+			'download.relocation.legendMissing' => '見つからない',
+			'download.relocation.diagVolume' => ({required Object volume}) => 'ストレージ「${volume}」が利用できません。SD カードや外付けドライブが接続されていない可能性があります。',
+			'download.relocation.diagVolumeShort' => ({required Object volume}) => 'ストレージ「${volume}」が未接続',
+			'download.relocation.diagContainer' => 'アプリの更新後、システムがアプリの保存場所を移動しました。ファイルはここにあります：',
+			'download.relocation.diagContainerShort' => '更新後に保存場所が変わりました',
+			'download.relocation.diagNoAccess' => 'この場所を読み取る権限がありません。「すべてのファイルへのアクセス」を許可してから再確認してください。',
+			'download.relocation.diagNoAccessShort' => 'この場所を読み取る権限がありません',
+			'download.relocation.diagFolder' => ({required Object folder}) => 'フォルダ「${folder}」はもう存在しません。',
+			'download.relocation.diagFolderShort' => ({required Object folder}) => 'フォルダ「${folder}」が存在しません',
+			'download.relocation.diagFile' => ({required Object name}) => 'フォルダはありますが、「${name}」が中にありません。',
+			'download.relocation.diagFileShort' => '元のフォルダにありません',
+			'download.relocation.diagCandidates' => 'そのフォルダに、これと思われるもの（名前が変わった可能性）が見つかりました：',
+			'download.relocation.diagNoCandidates' => 'そのフォルダに同じサイズのファイルはありませんでした。',
+			'download.relocation.useThis' => 'これを使う',
+			'download.relocation.fixPath' => 'パスを修正',
+			'download.relocation.checkAgain' => '再確認',
+			'download.relocation.grantPermission' => '権限を許可',
+			'download.relocation.locate' => '別のフォルダで探す…',
+			'download.relocation.deleteRecord' => '記録を削除',
+			'download.relocation.locateNotFound' => 'そのフォルダにこのダウンロードのファイルはありません',
+			'download.relocation.located' => '見つかりました。記録を新しい場所に更新しました',
+			'download.relocation.stillMissing' => 'まだ見つかりません',
+			'download.relocation.downloadedOn' => ({required Object date}) => '${date} にダウンロード',
+			'download.relocation.galleryImages' => ({required Object count}) => '${count} 枚',
+			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'ダウンロード中 ${percent}%：一時停止してから途中のデータごと移動し、移動後に再開',
+			'download.relocation.unfinishedPending' => 'ダウンロード待ち：移動後にもう一度キューに入れます',
+			'download.relocation.unfinishedPaused' => ({required Object percent}) => '${percent}% で一時停止中：途中のデータごと移動し、一時停止のまま',
+			'download.relocation.unfinishedFailed' => 'ダウンロード失敗：途中のデータごと移動',
+			'download.relocation.noDataYet' => 'まだ何もダウンロードされていないため、保存先だけ変更します',
+			'download.relocation.missingGroup' => ({required Object count}) => 'ファイルが見つからない ${count} 件',
+			'download.relocation.missingSkip' => 'そのまま',
+			'download.relocation.missingRedownload' => '移動先に再ダウンロード',
+			'download.relocation.missingRemove' => '記録を削除',
+			'download.relocation.missingRemoveVolumeNote' => ({required Object count}) => 'うち ${count} 件は未接続のストレージ上にあるため削除しません',
+			'download.relocation.failedGroup' => ({required Object count}) => 'ダウンロード失敗の ${count} 件',
+			'download.relocation.failedMoveOnly' => '移動のみ',
+			'download.relocation.failedMoveAndRetry' => '移動して再ダウンロード',
+			'download.relocation.failedRemove' => 'タスクを削除',
+			'download.relocation.failedRemoveNote' => '途中までダウンロードしたファイルも削除されます',
+			'download.relocation.execute' => '実行',
+			'download.relocation.actionWillRedownload' => '移動先に再ダウンロードします',
+			'download.relocation.actionWillRemove' => 'この記録を削除します',
+			'download.relocation.actionWillKeep' => 'ストレージ未接続のため残します',
+			'download.relocation.actionWillRetry' => '移動後に再ダウンロード',
+			'download.relocation.actionWillRemoveTask' => 'このタスクを削除します',
+			'download.relocation.statRedownload' => '再ダウンロード',
+			'download.relocation.statRemoved' => '削除済み',
+			'download.relocation.sectionRedownloaded' => '再ダウンロードを開始しました',
+			'download.relocation.sectionRedownloadFailed' => '再ダウンロードを開始できませんでした',
+			'download.relocation.redownloadFailedHint' => 'ダウンロードリンクが無効になっている可能性があります（作品が削除または非公開）。後でダウンロード一覧から再試行できます。',
+			'download.relocation.sectionRemoved' => '削除済み',
+			'download.relocation.sectionKept' => '残した項目（ストレージ未接続）',
+			'download.relocation.redownload' => '再ダウンロード',
+			'download.relocation.redownloadStarted' => '再ダウンロードを開始しました',
+			'download.relocation.redownloadNotStarted' => '再ダウンロードを開始できませんでした',
+			'download.relocation.diagFileShortWithCandidates' => '元のフォルダに同じサイズのファイルがあります（名前変更の可能性）',
+			'download.relocation.cleanupMenu' => '無効な記録を整理…',
+			'download.relocation.cleanupScanning' => ({required Object done, required Object total}) => '確認中 ${done}/${total}',
+			'download.relocation.cleanupTitle' => '無効な記録を整理',
+			'download.relocation.cleanupNone' => ({required Object count}) => '完了済みの ${count} 件を確認しました。ファイルはすべてあります。',
+			'download.relocation.statChecked' => '確認済み',
+			'download.relocation.statMissing' => '見つからない',
+			'download.relocation.statKeep' => '残す推奨',
+			'download.relocation.cleanupGroupGone' => 'ファイルがありません',
+			'download.relocation.cleanupGroupRecoverable' => 'まだ取り戻せる可能性あり',
+			'download.relocation.cleanupRecoverableHint' => 'ストレージ未接続、権限なし、または名前変更の可能性があるため、既定では選択しません。項目を開くと詳細の確認と復旧ができます。',
+			'download.relocation.selectAll' => 'すべて選択',
+			'download.relocation.selectNone' => '選択解除',
+			'download.relocation.removeSelected' => ({required Object count}) => '選択を削除（${count}）',
+			'download.relocation.redownloadSelected' => ({required Object count}) => '選択を再ダウンロード（${count}）',
+			'download.relocation.processing' => ({required Object done, required Object total}) => '処理中 ${done}/${total}',
+			'download.relocation.cleanupRemoved' => ({required Object count}) => '${count} 件の記録を削除しました',
+			'download.relocation.cleanupRedownloaded' => ({required Object count}) => '${count} 件の再ダウンロードを開始しました',
+			'download.relocation.tapForDetail' => '詳細',
+			'download.relocation.deleteRecordFailed' => '記録を削除できませんでした。後でもう一度お試しください',
+			'download.relocation.sectionNotAttempted' => '未処理（停止したため元のまま）',
+			'download.relocation.unexpectedError' => ({required Object message}) => 'エラーで停止しました：${message}。移動済みの項目はすべて完全です。',
 			'download.category.manageTitle' => 'カテゴリーの管理',
 			'download.category.label' => 'カテゴリー',
 			'download.category.uncategorized' => '未分類',
@@ -5857,6 +6316,79 @@ extension on TranslationsJa {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
 			'download.category.deleteFailed' => 'カテゴリーの削除に失敗しました',
+			'download.location.sectionTitle' => '保存先',
+			'download.location.behaviorSection' => 'ダウンロードの動作',
+			'download.location.namingSection' => 'ファイル名',
+			'download.location.advancedSection' => '詳細',
+			'download.location.advancedSubtitle' => '書き込み診断などのツール',
+			'download.location.volumeInternal' => '内部ストレージ',
+			'download.location.volumeSdCard' => 'SD カード',
+			'download.location.volumeExternalDrive' => '外付けドライブ',
+			'download.location.appSpace' => 'アプリ専用領域',
+			'download.location.downloadsFolder' => 'ダウンロード',
+			'download.location.askEveryTime' => '毎回確認する',
+			'download.location.askEveryTimeDesc' => ({required Object location}) => 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます',
+			'download.location.freeSpace' => ({required Object size}) => '空き ${size}',
+			'download.location.statusWritable' => '書き込み可',
+			'download.location.statusNeedsPermission' => '許可が必要',
+			'download.location.statusFallback' => '一時的に別の場所へ保存',
+			'download.location.statusLowSpace' => '空き容量不足',
+			'download.location.statusChecking' => '確認中',
+			'download.location.grant' => '許可',
+			'download.location.fix' => '修復',
+			'download.location.changeLocation' => '保存先を変更',
+			'download.location.openInFileManager' => 'ファイルマネージャーで開く',
+			'download.location.moreActions' => 'その他',
+			'download.location.copyPath' => 'パスをコピー',
+			'download.location.pathCopied' => 'パスをコピーしました',
+			'download.location.manualInput' => 'パスを手動入力（上級者向け）',
+			'download.location.restoreDefault' => 'デフォルトに戻す',
+			'download.location.runDiagnostics' => '診断を実行',
+			'download.location.restoredDefault' => 'デフォルトの保存先に戻しました',
+			'download.location.sheetTitle' => '保存先を選択',
+			'download.location.chooseOtherFolder' => '別のフォルダを選択…',
+			'download.location.chooseOtherFolderDesc' => 'システムのファイル選択画面から選びます',
+			'download.location.optionRecommendedDesc' => 'おすすめ · 許可不要',
+			'download.location.optionRecommendedLegacyDesc' => 'おすすめ · ストレージの許可が必要',
+			'download.location.optionAppPrivateDesc' => 'アンインストール時に削除 · ギャラリーに表示されません',
+			'download.location.optionRemovableDesc' => '「全ファイルへのアクセス」が必要',
+			'download.location.optionDesktopDownloadsDesc' => 'おすすめ · システムのダウンロードフォルダ',
+			'download.location.optionAskEveryTimeDesc' => 'ダウンロードのたびにフォルダを選びます',
+			'download.location.current' => '現在',
+			'download.location.fallbackBanner' => '選択したフォルダが一時的に使えなかったため、前回のダウンロードはアプリ領域に保存されました。',
+			'download.location.fallbackReasonPermission' => 'ストレージの許可がありません',
+			'download.location.fallbackReasonVolumeMissing' => 'ストレージが接続されていません',
+			'download.location.fallbackReasonCannotCreate' => 'フォルダを作成できません',
+			'download.location.fallbackReasonNotWritable' => 'フォルダに書き込めません',
+			'download.location.fallbackDetail' => ({required Object reason}) => '一時的に別の場所へ保存中：${reason}',
+			'download.location.errorUnresolvable' => 'この場所はクラウドドライブや他のアプリのもので、直接書き込めません。端末のストレージか SD カードのフォルダを選んでください。',
+			'download.location.errorNotWritable' => 'このフォルダには書き込めません（読み取り専用、システムで保護されている、または切断されています）。保存先は変更されていません。',
+			'download.location.errorVolumeMissing' => 'このストレージが見つかりません（取り外されたか、接続されていません）。保存先は変更されていません。',
+			'download.location.permissionTitle' => '許可が必要です',
+			'download.location.permissionAllFiles' => 'このフォルダに書き込むには「全ファイルへのアクセス」が必要です。許可したくない場合は「ダウンロード › LoveIwara」を使えます。',
+			'download.location.permissionLegacy' => 'このフォルダに書き込むにはストレージの許可が必要です。許可したくない場合はアプリ専用領域を使えます。',
+			'download.location.useDownloadsInstead' => 'ダウンロード › LoveIwara を使う',
+			'download.location.useAppSpaceInstead' => 'アプリ専用領域を使う',
+			'download.location.goToSettings' => '許可する',
+			'download.location.permissionDenied' => '許可されなかったため、保存先は変更されていません。',
+			'download.location.checking' => 'この場所を確認しています…',
+			'download.location.confirmTitle' => 'この場所を使いますか？',
+			'download.location.confirmFree' => ({required Object size}) => '空き容量 ${size}',
+			'download.location.confirmOutside' => ({required Object count}) => 'ダウンロード済みの ${count} 件は元の場所に残っています',
+			'download.location.confirmOutsideDesc' => '今後のダウンロードは新しい場所に保存されます。ダウンロード済みのものはどうしますか？',
+			'download.location.moveThem' => '移動する',
+			'download.location.keepThem' => '元の場所に残す',
+			'download.location.decideLater' => 'あとで決める',
+			'download.location.useThisLocation' => 'この場所を使う',
+			'download.location.locationChanged' => '保存先を変更しました',
+			'download.location.manualTitle' => 'パスを手動入力',
+			'download.location.manualLabel' => 'フォルダのパス',
+			'download.location.manualHint' => '例: /storage/emulated/0/Download/LoveIwara',
+			'download.location.manualSubmit' => '確認して使う',
+			'download.location.manualEmpty' => 'パスを入力してください',
+			'download.location.manualNotAbsolute' => '完全な絶対パスを入力してください',
+			'download.location.fixStillFailing' => 'この場所はまだ使えません。別の場所を選んでください。',
+			'download.location.fixed' => '保存先が使えるようになりました',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
@@ -5914,6 +6446,8 @@ extension on TranslationsJa {
 			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
 			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
 			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			'favorite.createFolder' => 'フォルダーを作成',
 			'favorite.enterFolderName' => 'フォルダー名を入力',
@@ -6160,8 +6694,6 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
@@ -6428,6 +6960,8 @@ extension on TranslationsJa {
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
 			'layoutSettings.enterColumns' => 'カラム数を入力してください',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.enterValidColumns' => '有効なカラム数を入力してください',
 			'layoutSettings.columnsCannotExceed12' => 'カラム数は12を超えることはできません',
 			'layoutSettings.breakpointConflict' => 'ブレークポイントが既に存在します',
@@ -6674,8 +7208,6 @@ extension on TranslationsJa {
 			'savedSearchConfig.title' => '保存した絞り込み',
 			'savedSearchConfig.empty' => '保存した絞り込み設定はまだありません',
 			'savedSearchConfig.saveTooltip' => '現在の絞り込みを保存',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => '絞り込みを保存',
 			'savedSearchConfig.nameLabel' => '名前',
 			'savedSearchConfig.nameHint' => '名前を入力',
@@ -6942,6 +7474,8 @@ extension on TranslationsJa {
 			'localMedia.browse.useThisFolder' => 'このフォルダーを使う',
 			'localMedia.browse.noSubfolders' => 'サブフォルダーはありません',
 			'localMedia.browse.storageRoot' => '端末のストレージ',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.homeFolder' => 'ホームフォルダ',
 			'localMedia.browse.filesystemRoot' => 'ルートディレクトリ',
 			'localMedia.browse.folderUnreadable' => 'このフォルダーは読み取れません',

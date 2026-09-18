@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 
 /// 批量选择控制器
 /// 用于管理媒体列表的多选模式状态（支持视频和图库）
@@ -114,6 +115,52 @@ class BatchSelectController<T> extends GetxController {
       selectedMediaIds.add(id);
       selectedMediaItems[id] = item;
     }
+  }
+
+  /// 交给通用键鼠多选（[SelectionPopScope]）的选择状态。
+  ///
+  /// [loadedItems]：屏幕上按显示顺序的已加载项。给了才有 Shift 连选 / 全选 /
+  /// 反选；拿不到（数据源藏在子组件里）就只剩 Cmd/Ctrl+点击——那条路由卡片
+  /// 自己带着对象切换（见 SelectableItem.onToggle），用不到这里的 toggle。
+  ///
+  /// 参数类型故意不带 T：调用方手上常常是 `BatchSelectController<dynamic>`
+  /// （见 BatchDownloadSelectionScope），而运行时是 `<Video>`——带 T 的函数型
+  /// 参数会在调用那一刻过协变检查、直接抛类型错误（红屏）。这里收宽，里面按
+  /// 运行时的 T 过滤。
+  SelectionModel selectionModel({List<Object?> Function()? loadedItems}) {
+    final source = loadedItems;
+    List<T> items() =>
+        source == null ? <T>[] : source().whereType<T>().toList();
+    return SelectionModel(
+      enter: enterMultiSelect,
+      isSelected: (key) => selectedMediaIds.contains(key),
+      toggle: (key) {
+        for (final item in items()) {
+          if (_idOf(item) == key) {
+            toggleSelection(item);
+            return;
+          }
+        }
+      },
+      loadedKeys: loadedItems == null
+          ? null
+          : () => [for (final item in items()) ?_idOf(item)],
+      replaceSelection: loadedItems == null
+          ? null
+          : (keys) {
+              final next = <String, T>{
+                for (final item in items())
+                  if (_idOf(item) case final id? when keys.contains(id))
+                    id: item,
+              };
+              selectedMediaIds
+                ..clear()
+                ..addAll(next.keys);
+              selectedMediaItems
+                ..clear()
+                ..addAll(next);
+            },
+    );
   }
 
   /// 分页切换时重置选择（分页模式专用）

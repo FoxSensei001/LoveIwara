@@ -49,6 +49,14 @@ class PlaylistItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 接住 Cmd/Ctrl/Shift+点击（见 SelectableItem）。
+    final toggle = onToggleSelect;
+    final card = _buildCard(context);
+    if (toggle == null) return card;
+    return SelectableItem(itemKey: playlist.id, onToggle: toggle, child: card);
+  }
+
+  Widget _buildCard(BuildContext context) {
     final t = slang.Translations.of(context);
     const radius = BorderRadius.all(Radius.circular(12));
 
@@ -80,17 +88,18 @@ class PlaylistItemWidget extends StatelessWidget {
                       imageUrl: playlist.thumbnailUrl,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      memCacheWidth:
-                          width != null && width! > 0
-                              ? (width! * 1.5).toInt()
-                              : null,
+                      memCacheWidth: width != null && width! > 0
+                          ? (width! * 1.5).toInt()
+                          : null,
                       maxWidthDiskCache: 500,
                       maxHeightDiskCache: 500,
                       placeholder: _buildPlaceholder,
-                      errorWidget:
-                          (context, url, error) => _buildErrorPlaceholder(),
+                      errorWidget: (context, url, error) =>
+                          _buildErrorPlaceholder(),
                       fadeInDuration: const Duration(milliseconds: 50),
-                      placeholderFadeInDuration: const Duration(milliseconds: 0),
+                      placeholderFadeInDuration: const Duration(
+                        milliseconds: 0,
+                      ),
                       fadeOutDuration: const Duration(milliseconds: 0),
                     ),
                   ),
@@ -121,9 +130,7 @@ class PlaylistItemWidget extends StatelessWidget {
             ),
             // 选择态：角标勾选片 + 选中描边，不盖死封面（全站统一，
             // 见 GlassSelectableOverlay）。常驻挂载以获得进出两个方向的过渡。
-            Positioned.fill(
-              child: _buildSelectionOverlay(),
-            ),
+            Positioned.fill(child: _buildSelectionOverlay()),
             // 选择态下点按 = 勾选/取消，而不是进详情
             if (isMultiSelect)
               Positioned.fill(
@@ -194,9 +201,7 @@ class PlaylistItemWidget extends StatelessWidget {
 
   static Widget _buildPlaceholder(BuildContext context, String url) {
     return const SizedBox.expand(
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: Color(0xFFE0E0E0)),
-      ),
+      child: DecoratedBox(decoration: BoxDecoration(color: Color(0xFFE0E0E0))),
     );
   }
 

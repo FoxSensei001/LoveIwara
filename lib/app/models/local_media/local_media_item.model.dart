@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 
 /// 本地库里的一条。
@@ -127,6 +129,11 @@ class LocalMediaItem {
   /// 拼 id。两处（建条目、按 id 查进度）必须用同一个拼法，所以收口在这里。
   static String buildId(String sourceId, String pathHash) =>
       '$sourceId-$pathHash';
+
+  /// 「已下载」源给路径算 `path_hash` 的拼法。同步入库与「移动已下载文件」
+  /// 改路径两处必须同一口径，否则搬完的条目 id 对不上、进度成孤儿。
+  static String hashPath(String path) =>
+      sha1.convert(utf8.encode(path)).toString();
 
   /// 这一条拿来当封面的那张图。
   ///

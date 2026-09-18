@@ -6,6 +6,18 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
+/// 往某个目录里写文件，要先拿到哪一档存储权限（只有 Android 有这回事）。
+///
+/// 三档而不是「要不要权限」一个布尔：
+///   - [none]：不用任何权限。App 自己的专属目录；以及 Android 11+ 上公共
+///     `Download/` 之下——分区存储允许任何 App 不申请权限就在那里建子目录、写
+///     **自己的**文件（写别人留下的同名文件会 EACCES，那是 probe 的事）。
+///   - [legacyStorage]：Android 10 及以下的普通存储权限（WRITE_EXTERNAL_STORAGE；
+///     Android 10 还要靠清单里的 requestLegacyExternalStorage 退回旧行为）。
+///   - [allFilesAccess]：Android 11+ 写 `Download/` 以外的共享存储（自建目录、
+///     SD 卡……）要的「所有文件访问」（MANAGE_EXTERNAL_STORAGE）。
+enum StorageAccessNeed { none, legacyStorage, allFilesAccess }
+
 /// 权限管理服务
 /// 处理各平台的存储权限请求和检查
 class PermissionService extends GetxService {
@@ -263,6 +275,29 @@ class PermissionService extends GetxService {
       case PermissionStatus.provisional:
         return '临时授权';
     }
+  }
+
+  /// 当前 Android API level；非 Android 返回 0。
+  Future<int> androidSdkInt() => _getAndroidVersion();
+
+  /// 已经探测到的 API level（同步读，给不能 await 的判定用）；没暖上返回 null。
+  int? get cachedAndroidSdkInt =>
+      GetPlatform.isAndroid ? _cachedAndroidSdkInt : 0;
+
+  /// 这一档存储权限现在有没有。[StorageAccessNeed.none] 恒为 true。
+  ///
+  /// 分区存储之前（API < 30）根本没有「所有文件访问」，两档都落到普通存储权限；
+  /// 30 起两档也都落到 [_storagePermission]（MANAGE_EXTERNAL_STORAGE）——
+  /// legacyStorage 在 30+ 上不会被判出来，这里不另开分支。
+  Future<bool> hasStorageAccess(StorageAccessNeed need) async {
+    if (need == StorageAccessNeed.none) return true;
+    return hasStoragePermission();
+  }
+
+  /// 申请这一档存储权限，返回用户**最终**有没有给（见 [requestStoragePermission]）。
+  Future<bool> requestStorageAccess(StorageAccessNeed need) async {
+    if (need == StorageAccessNeed.none) return true;
+    return requestStoragePermission();
   }
 
   /// 检查是否可以访问共享存储（公共目录、外置 SD 卡上的用户目录等）。

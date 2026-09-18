@@ -25,7 +25,12 @@ class BatchDownloadSelectionScope extends StatelessWidget {
     required this.controllers,
     required this.child,
     this.activeIndex,
+    this.loadedItems,
   });
+
+  /// 第 i 个控制器对应列表屏幕上的已加载项（按显示顺序）；返回 null 表示拿不到。
+  /// 给了才有 Shift 连选 / 全选 / 反选（见 [BatchSelectController.selectionModel]）。
+  final List<dynamic>? Function(int index)? loadedItems;
 
   /// 本页所有的批量选择控制器（单 tab 页传一个）。
   final List<BatchSelectController<dynamic>> controllers;
@@ -74,6 +79,11 @@ class BatchDownloadSelectionScope extends StatelessWidget {
         // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
         child: SelectionPopScope(
           active: active,
+          model: controller?.selectionModel(
+            loadedItems: loadedItems == null || loadedItems!(index) == null
+                ? null
+                : () => loadedItems!(index) ?? const [],
+          ),
           onExit: () => controller?.exitMultiSelect(),
           child: child,
         ),

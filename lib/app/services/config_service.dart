@@ -461,6 +461,7 @@ enum ConfigKey {
   // 下载设置
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
+  DOWNLOADS_OUTSIDE_DISMISSED_DIR, // 「旧目录里还有 N 项」对哪个目标目录已选过不搬
   VIDEO_FILENAME_TEMPLATE, // 视频文件命名模板
   GALLERY_FILENAME_TEMPLATE, // 图库文件命名模板
   IMAGE_FILENAME_TEMPLATE, // 单张图片文件命名模板
@@ -741,6 +742,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'custom_download_path';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return 'enable_custom_download_path';
+      case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
+        return 'downloads_outside_dismissed_dir';
       case ConfigKey.VIDEO_FILENAME_TEMPLATE:
         return 'video_filename_template';
       case ConfigKey.GALLERY_FILENAME_TEMPLATE:
@@ -1050,6 +1053,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.SHOW_CENTER_PLAY_PAUSE_BUTTON:
         return true; // 默认显示屏幕中央播放/暂停按钮
       case ConfigKey.CUSTOM_DOWNLOAD_PATH:
+        return '';
+      case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
         return '';
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return false;

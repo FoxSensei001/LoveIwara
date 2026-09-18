@@ -156,6 +156,7 @@ common:
   selectedRecords: '${num} registros seleccionados'
   cancelSelectAll: Cancelar selección
   selectAll: Seleccionar todo
+  invertSelection: Invertir selección
   exitEditMode: Salir del modo de edición
   areYouSureYouWantToDeleteSelectedItems: '¿Seguro que quiere eliminar los ${num} elementos seleccionados?'
   searchHistoryRecords: Buscar en el historial...

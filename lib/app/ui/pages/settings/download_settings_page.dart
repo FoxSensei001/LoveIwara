@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
-import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/recommended_paths_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/download_location_card.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/downloads_outside_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
@@ -16,11 +15,23 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/utils/logger_utils.dart';
 
 import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
+/// 下载设置页。
+///
+/// ```
+/// [保存位置]  当前位置卡（DownloadLocationCard） + 目录外的已下载内容
+/// [下载行为]  并发数、通知
+/// [文件命名]  三个模板 + 支持的变量
+/// [高级]      可折叠：写入诊断
+/// ```
+///
+/// 保存位置整块由 [DownloadLocationCard] 负责（状态、授权、修复、更改、手输、
+/// 恢复默认都在那里），本页不再有常驻的路径输入框、「启用自定义路径」开关、
+/// 独立的权限卡——改位置只有「更改位置」一个入口，走同一条检查 → 确认 → 写配置
+/// 流程（见 change_download_location_sheet.dart）。
 class DownloadSettingsPage extends StatefulWidget {
   final bool isWideScreen;
 
@@ -33,10 +44,7 @@ class DownloadSettingsPage extends StatefulWidget {
 class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   final ConfigService configService = Get.find<ConfigService>();
   late FilenameTemplateService filenameTemplateService;
-  late DownloadPathService downloadPathService;
-  late PermissionService permissionService;
 
-  final TextEditingController _customPathController = TextEditingController();
   final TextEditingController _videoTemplateController =
       TextEditingController();
   final TextEditingController _galleryTemplateController =
@@ -44,108 +52,24 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   final TextEditingController _imageTemplateController =
       TextEditingController();
 
-  // 添加焦点节点和状态管理
-  final FocusNode _customPathFocusNode = FocusNode();
-  bool _isUpdatingFromConfig = false; // 防止循环更新的标志位
-
   @override
   void initState() {
     super.initState();
 
     // 获取文件命名模板服务
     filenameTemplateService = Get.find<FilenameTemplateService>();
-    // 缓存服务实例
-    downloadPathService = Get.find<DownloadPathService>();
-    permissionService = Get.find<PermissionService>();
 
     // 初始化控制器值
-    _customPathController.text =
-        configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] ?? '';
     _videoTemplateController.text =
         configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] ?? '%title_%quality';
     _galleryTemplateController.text =
         configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] ?? '%title_%id';
     _imageTemplateController.text =
         configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] ?? '%title_%filename';
-
-    // 添加焦点监听器
-    _customPathFocusNode.addListener(_onCustomPathFocusChanged);
-  }
-
-  /// 处理自定义路径输入框焦点变化
-  void _onCustomPathFocusChanged() {
-    // 失去焦点即提交一次（同时也是唯一的写配置时机）。
-    if (!_customPathFocusNode.hasFocus && !_isUpdatingFromConfig) {
-      _commitCustomPath();
-    }
-  }
-
-  /// 把输入框里手打的路径提交到配置，并刷新路径状态。
-  ///
-  /// 只在敲回车 / 失去焦点时调用：逐字符写配置会让打字中途的半截路径真的被
-  /// 当成下载目录用（还会被建出来）。
-  bool _isCommittingCustomPath = false;
-
-  Future<void> _commitCustomPath() async {
-    if (_isUpdatingFromConfig) return;
-    // EditableText 在 onSubmitted 之前会先 unfocus，于是焦点监听器和 onSubmitted
-    // 各提交一次；第二次会白跑一趟 refreshPathStatus（它内部有 I/O，还会
-    // create(recursive: true)）。
-    if (_isCommittingCustomPath) return;
-    _isCommittingCustomPath = true;
-    try {
-      await _commitCustomPathInner();
-    } finally {
-      _isCommittingCustomPath = false;
-    }
-  }
-
-  Future<void> _commitCustomPathInner() async {
-    final typed = _customPathController.text.trim();
-    final current =
-        (configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String?) ?? '';
-
-    if (typed != current) {
-      configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = typed;
-    }
-    if (typed != _customPathController.text) {
-      // 回写归一化后的值（去掉两端空格），不触发再次提交
-      _isUpdatingFromConfig = true;
-      _customPathController.text = typed;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _isUpdatingFromConfig = false;
-      });
-    }
-
-    await downloadPathService.refreshPathStatus();
-  }
-
-  /// 从配置同步自定义路径到控制器
-  void _syncCustomPathFromConfig() {
-    final configPath = configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] ?? '';
-    if (_customPathController.text != configPath) {
-      _isUpdatingFromConfig = true;
-      _customPathController.text = configPath;
-      // 使用 PostFrameCallback 确保在下一帧重置标志位
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _isUpdatingFromConfig = false;
-      });
-    }
   }
 
   @override
   void dispose() {
-    // 改成失焦/回车才提交之后，如果页面在输入框仍有焦点时被卸载，那次输入就没了
-    // （旧实现逐字符写配置，丢不掉）。这里同步补写一次配置，异步的路径校验略过。
-    if (!_isUpdatingFromConfig) {
-      final typed = _customPathController.text.trim();
-      if (typed != ((configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String?) ?? '')) {
-        configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = typed;
-      }
-    }
-    _customPathFocusNode.removeListener(_onCustomPathFocusChanged);
-    _customPathFocusNode.dispose();
-    _customPathController.dispose();
     _videoTemplateController.dispose();
     _galleryTemplateController.dispose();
     _imageTemplateController.dispose();
@@ -164,43 +88,23 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
           padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              // 最大并发下载数设置
-              _buildConcurrencySection(context),
+              // [保存位置]
+              const DownloadLocationCard(),
               const SizedBox(height: 16),
 
-              // 下载完成/失败通知开关
-              _buildNotificationSection(context),
+              // 当前目录之外的已下载内容 · 移到这里（没有时不占位，自带底部间距）
+              const DownloadsOutsideFolderCard(),
+
+              // [下载行为]
+              _buildBehaviorSection(context),
               const SizedBox(height: 16),
 
-              // 文件命名模板设置
+              // [文件命名]
               _buildFilenameTemplateSection(context),
               const SizedBox(height: 16),
 
-              // 推荐路径选择
-              RecommendedPathsWidget(
-                key: const ValueKey('recommended_paths'),
-                onPathSelected: () {
-                  // 同步自定义路径控制器
-                  _syncCustomPathFromConfig();
-                  setState(() {});
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 权限状态显示
-              _buildPermissionSection(context),
-              const SizedBox(height: 16),
-
-              // 路径状态显示
-              _buildPathStatusWidget(context),
-              const SizedBox(height: 16),
-
-              // 自定义下载路径设置
-              _buildCustomPathSection(context),
-              const SizedBox(height: 16),
-
-              // 功能测试
-              const DownloadTestWidget(key: ValueKey('download_test')),
+              // [高级]
+              _buildAdvancedSection(context),
             ]),
           ),
         ),
@@ -208,995 +112,187 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     );
   }
 
-  Widget _buildPermissionSection(BuildContext context) {
-    if (!GetPlatform.isAndroid) {
-      return const SizedBox.shrink(); // 非Android平台不显示权限状态
-    }
-
+  Widget _buildBehaviorSection(BuildContext context) {
     final t = slang.Translations.of(context);
-
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.security,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  t.settings.downloadSettings.storagePermissionStatus,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => DownloadTestWidget.showTestDialog(context),
-                  icon: const Icon(Icons.bug_report, size: 18),
-                  tooltip: t.settings.downloadSettings.functionalTest,
-                  style: IconButton.styleFrom(
-                    padding: const EdgeInsets.all(8),
-                    minimumSize: const Size(32, 32),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t
-                  .settings
-                  .downloadSettings
-                  .accessPublicDirectoryNeedStoragePermission,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Obx(() {
-              if (downloadPathService.isStoragePermissionLoading) {
-                return Row(
-                  children: [
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(t.settings.downloadSettings.checkingPermissionStatus),
-                  ],
-                );
-              }
-
-              final hasPermission =
-                  downloadPathService.storagePermissionGranted;
-
-              return Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        hasPermission ? Icons.check_circle : Icons.error,
-                        color: hasPermission ? Colors.green : Colors.orange,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          hasPermission
-                              ? t
-                                    .settings
-                                    .downloadSettings
-                                    .storagePermissionGranted
-                              : t
-                                    .settings
-                                    .downloadSettings
-                                    .storagePermissionNotGranted,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: hasPermission
-                                    ? Colors.green
-                                    : Colors.orange,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  if (!hasPermission) ...[
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final granted = await permissionService
-                              .requestStoragePermission();
-                          if (granted) {
-                            showAppToast(
-                              t
-                                  .settings
-                                  .downloadSettings
-                                  .storagePermissionGrantSuccess,
-                              type: AppToastType.success,
-                            );
-                          } else {
-                            showAppToast(
-                              t
-                                  .settings
-                                  .downloadSettings
-                                  .storagePermissionGrantFailedButSomeFeaturesMayBeLimited,
-                              type: AppToastType.warning,
-                            );
-                          }
-                          await downloadPathService
-                              .refreshPermissionAndRelated();
-                        },
-                        icon: const Icon(Icons.security),
-                        label: Text(
-                          t.settings.downloadSettings.grantStoragePermission,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      permissionService.getPermissionDescription(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                    ),
-                  ],
-                ],
-              );
-            }),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPathStatusWidget(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Obx(() {
-      final isLoading = downloadPathService.isPathStatusLoading;
-      final pathInfo = downloadPathService.pathStatus;
-
-      if (isLoading && pathInfo == null) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-                const SizedBox(width: 12),
-                Text(t.settings.downloadSettings.checkingPathStatus),
-              ],
-            ),
-          ),
-        );
-      }
-
-      if (pathInfo == null) {
-        final defaultPath = downloadPathService.defaultDownloadPath.isNotEmpty
-            ? downloadPathService.defaultDownloadPath
-            : '';
-        return _buildPathStatusCard(
-          context,
-          PathStatusInfo(
-            currentPath: defaultPath,
-            isCustomPath: false,
-            isValid: true,
-            validationResult: PathValidationResult(
-              isValid: true,
-              reason: PathValidationReason.valid,
-              message: t.settings.downloadSettings.usingDefaultAppDirectory,
-              canFix: false,
-            ),
-          ),
-        );
-      }
-
-      return _buildPathStatusCard(context, pathInfo);
-    });
-  }
-
-  Widget _buildPathStatusCard(BuildContext context, PathStatusInfo pathInfo) {
-    final t = slang.Translations.of(context);
-
-    // Handle default path case
-    if (!pathInfo.isCustomPath) {
-      final defaultPath = downloadPathService.defaultDownloadPath.isNotEmpty
-          ? downloadPathService.defaultDownloadPath
-          : t.settings.downloadSettings.checkingPathStatus;
-      final updatedPathInfo = PathStatusInfo(
-        currentPath: defaultPath,
-        isCustomPath: false,
-        isValid: true,
-        validationResult: pathInfo.validationResult,
-      );
-      return _buildPathInfoCard(context, updatedPathInfo);
-    }
-
-    return _buildPathInfoCard(context, pathInfo);
-  }
-
-  Widget _buildPathInfoCard(BuildContext context, PathStatusInfo pathInfo) {
-    final t = slang.Translations.of(context);
-
-    if (pathInfo.currentPath.isEmpty) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.red),
-              const SizedBox(width: 12),
-              Text(t.settings.downloadSettings.unableToGetPathStatus),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 标题
-            Row(
-              children: [
-                Icon(
-                  pathInfo.isValid ? Icons.folder : Icons.folder_off,
-                  color: pathInfo.isValid ? Colors.green : Colors.orange,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  t.settings.downloadSettings.currentDownloadPath,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () => DownloadTestWidget.showTestDialog(context),
-                  icon: const Icon(Icons.bug_report, size: 18),
-                  tooltip: t.settings.downloadSettings.functionalTest,
-                  style: IconButton.styleFrom(
-                    padding: const EdgeInsets.all(8),
-                    minimumSize: const Size(32, 32),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // 路径信息
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    pathInfo.currentPath,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(fontFamily: 'monospace'),
-                    softWrap: true,
-                  ),
-                  if (pathInfo.selectedPath != null &&
-                      pathInfo.selectedPath != pathInfo.currentPath) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      t
-                          .settings
-                          .downloadSettings
-                          .actualPathDifferentFromSelected,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.orange,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 状态信息
-            Row(
-              children: [
-                Icon(
-                  _getStatusIcon(pathInfo.validationResult.reason),
-                  size: 16,
-                  color: _getStatusColor(pathInfo.validationResult),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    pathInfo.validationResult.message,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: _getStatusColor(pathInfo.validationResult),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // 操作按钮
-            if (pathInfo.validationResult.canFix) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () =>
-                      _fixPathIssue(pathInfo.validationResult.reason),
-                  icon: const Icon(Icons.build),
-                  label: Text(
-                    _getFixButtonText(pathInfo.validationResult.reason),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getStatusIcon(PathValidationReason reason) {
-    switch (reason) {
-      case PathValidationReason.valid:
-        return Icons.check_circle;
-      case PathValidationReason.noPermission:
-      case PathValidationReason.noPublicDirectoryAccess:
-        return Icons.security;
-      case PathValidationReason.cannotCreate:
-      case PathValidationReason.notWritable:
-        return Icons.error;
-      case PathValidationReason.lowSpace:
-        return Icons.warning;
-      default:
-        return Icons.help;
-    }
-  }
-
-  Color _getStatusColor(PathValidationResult result) {
-    if (!result.isValid) {
-      return Colors.red;
-    } else if (result.isWarning) {
-      return Colors.orange;
-    } else {
-      return Colors.green;
-    }
-  }
-
-  String _getFixButtonText(PathValidationReason reason) {
-    final t = slang.Translations.of(context);
-    switch (reason) {
-      case PathValidationReason.noPermission:
-      case PathValidationReason.noPublicDirectoryAccess:
-        return t.settings.downloadSettings.grantPermission;
-      default:
-        return t.settings.downloadSettings.fixIssue;
-    }
-  }
-
-  Future<void> _fixPathIssue(PathValidationReason reason) async {
-    final t = slang.Translations.of(context);
-    final success = await downloadPathService.fixPathIssue(reason);
-
-    if (success) {
-      showAppToast(
-        t.settings.downloadSettings.issueFixed,
-        type: AppToastType.success,
-      );
-      await downloadPathService.refreshPathStatus();
-    } else {
-      showAppToast(
-        t.settings.downloadSettings.fixFailed,
-        type: AppToastType.error,
-      );
-    }
-  }
-
-  Widget _buildConcurrencySection(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final current =
         ((configService[ConfigKey.MAX_CONCURRENT_DOWNLOADS] as int?) ?? 3)
             .clamp(1, 5);
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.downloading_outlined,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    t.download.maxConcurrentDownloads,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Text(
-                  '$current',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              t.download.maxConcurrentDownloadsDesc,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-            GlassSlider(
-              value: current.toDouble(),
-              min: 1,
-              max: 5,
-              divisions: 4,
-              label: '$current',
-              onChanged: (value) {
-                setState(() {
-                  configService[ConfigKey.MAX_CONCURRENT_DOWNLOADS] = value
-                      .round();
-                });
-                // 调高并发后立即让队列补充启动更多等待中的任务
-                if (Get.isRegistered<DownloadService>()) {
-                  DownloadService.to.kickQueue();
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotificationSection(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.notifications_outlined,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    t.settings.downloadSettings.enableDownloadNotifications,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Obx(
-              () => GlassSwitchItem(
-                title: Text(
-                  t
-                      .settings
-                      .downloadSettings
-                      .enableDownloadNotificationsDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-                ),
-                value:
-                    configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] ??
-                    true,
-                onChanged: (value) async {
-                  configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] =
-                      value;
-                  // 开启时请求系统通知权限；被拒绝时提示（应用内通知仍可用）。
-                  if (value &&
-                      Get.isRegistered<DownloadNotificationService>()) {
-                    final granted = await DownloadNotificationService.to
-                        .requestPermission();
-                    if (!granted) {
-                      showAppToast(
-                        t
-                            .settings
-                            .downloadSettings
-                            .notificationPermissionDenied,
-                        type: AppToastType.warning,
-                      );
-                    }
-                  }
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCustomPathSection(BuildContext context) {
-    final t = slang.Translations.of(context);
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.folder_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  t.settings.downloadSettings.customDownloadPath,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              t.settings.downloadSettings.customDownloadPathDescription,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 通用提示信息
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassSettingSection(
+      title: t.download.location.behaviorSection,
+      children: [
+        // 最大并发下载数
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
                   Icon(
-                    Icons.lightbulb_outline,
-                    color: Theme.of(context).colorScheme.primary,
+                    Icons.downloading_outlined,
+                    color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      t.settings.downloadSettings.customDownloadPathTip,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      ),
+                      t.download.maxConcurrentDownloads,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                  Text(
+                    '$current',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-            ),
-
-            if (GetPlatform.isAndroid) ...[
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.errorContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.error.withValues(alpha: 0.5),
+              Padding(
+                padding: const EdgeInsets.only(left: 32, top: 2),
+                child: Text(
+                  t.download.maxConcurrentDownloadsDesc,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.warning,
-                          color: Theme.of(context).colorScheme.error,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            t.settings.downloadSettings.androidWarning,
-                            style: Theme.of(context).textTheme.bodySmall
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
               ),
-            ],
-            const SizedBox(height: 16),
-
-            // 启用开关
-            Obx(
-              () => GlassSwitchItem(
-                title: Text(
-                  t.settings.downloadSettings.enableCustomDownloadPath,
-                ),
-                subtitle: Text(
-                  t.settings.downloadSettings.disableCustomDownloadPath,
-                ),
-                value:
-                    configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] ??
-                    false,
-                onChanged: (value) async {
-                  configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] = value;
-                  await downloadPathService.refreshPathStatus();
+              GlassSlider(
+                value: current.toDouble(),
+                min: 1,
+                max: 5,
+                divisions: 4,
+                label: '$current',
+                onChanged: (value) {
+                  setState(() {
+                    configService[ConfigKey.MAX_CONCURRENT_DOWNLOADS] = value
+                        .round();
+                  });
+                  // 调高并发后立即让队列补充启动更多等待中的任务
+                  if (Get.isRegistered<DownloadService>()) {
+                    DownloadService.to.kickQueue();
+                  }
                 },
               ),
-            ),
-
-            // 路径选择
-            Obx(() {
-              final isEnabled =
-                  configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] ?? false;
-              final currentPath =
-                  configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] ?? '';
-              final isPublicDirectory =
-                  GetPlatform.isAndroid &&
-                  currentPath.isNotEmpty &&
-                  downloadPathService.isPublicDirectory(currentPath);
-
-              // 同步配置到控制器（仅在失去焦点且不是用户输入时）
-              if (!_customPathFocusNode.hasFocus &&
-                  !_isUpdatingFromConfig &&
-                  _customPathController.text != currentPath) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _syncCustomPathFromConfig();
-                });
-              }
-
-              return AnimatedOpacity(
-                opacity: isEnabled ? 1.0 : 0.5,
-                duration: const Duration(milliseconds: 200),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    GlassInputSurface(
-                      borderRadius: 8,
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: TextField(
-                        controller: _customPathController,
-                        focusNode: _customPathFocusNode,
-                        enabled: isEnabled,
-                        maxLines: null,
-                        decoration: glassFieldDecoration(
-                          context,
-                          hint:
-                              t.settings.downloadSettings.selectDownloadFolder,
-                          label: t
-                              .settings
-                              .downloadSettings
-                              .customDownloadPathLabel,
-                        ).copyWith(alignLabelWithHint: true),
-                        // ⛔ 不要在 onChanged 里写配置：那等于把打字过程中的每一段
-                        // 半截路径都当成真的下载目录（_getBasePath 还会
-                        // create(recursive: true) 把它们一个个建出来）。
-                        // 改成敲回车或失去焦点时提交一次。
-                        textInputAction: TextInputAction.done,
-                        onSubmitted: (_) => _commitCustomPath(),
-                      ),
-                    ),
-
-                    // 公共目录权限提示
-                    if (isEnabled && isPublicDirectory) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: Colors.orange.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              Icons.info_outline,
-                              color: Colors.orange,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    t
-                                        .settings
-                                        .downloadSettings
-                                        .publicDirectoryPermissionTip,
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: Colors.orange.shade800,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Obx(() {
-                                    final hasPermission = downloadPathService
-                                        .storagePermissionGranted;
-                                    if (!hasPermission) {
-                                      return SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () async {
-                                            final granted =
-                                                await permissionService
-                                                    .requestStoragePermission();
-                                            if (granted) {
-                                              showAppToast(
-                                                t
-                                                    .settings
-                                                    .downloadSettings
-                                                    .storagePermissionGrantSuccess,
-                                                type: AppToastType.success,
-                                              );
-                                            }
-                                            await downloadPathService
-                                                .refreshPermissionAndRelated();
-                                          },
-                                          icon: const Icon(
-                                            Icons.security,
-                                            size: 16,
-                                          ),
-                                          label: Text(
-                                            t
-                                                .settings
-                                                .downloadSettings
-                                                .grantStoragePermission,
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.orange,
-                                            foregroundColor: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      return Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
-                                            size: 16,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            t
-                                                .settings
-                                                .downloadSettings
-                                                .storagePermissionGranted,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall
-                                                ?.copyWith(
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                          ),
-                                        ],
-                                      );
-                                    }
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 8),
-                    // 推荐路径和选择文件夹按钮放在一行。
-                    // iOS 没有目录选择器（file_selector_ios 未实现
-                    // getDirectoryPath），只能靠「推荐路径」在沙盒内选，
-                    // 所以那边只显示推荐路径这一颗。
-                    Builder(
-                      builder: (context) {
-                        final showRecommended =
-                            GetPlatform.isAndroid || GetPlatform.isIOS;
-                        final showPicker =
-                            downloadPathService.supportsDirectoryPicker;
-                        return Row(
-                          children: [
-                            if (showRecommended && isEnabled) ...[
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _useRecommendedPath,
-                                  icon: const Icon(Icons.recommend, size: 18),
-                                  label: Text(
-                                    t.settings.downloadSettings.recommendedPath,
-                                  ),
-                                ),
-                              ),
-                              if (showPicker) const SizedBox(width: 8),
-                            ],
-                            if (showPicker)
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: isEnabled
-                                      ? _selectDownloadPath
-                                      : null,
-                                  icon: const Icon(Icons.folder_open, size: 18),
-                                  label: Text(
-                                    t.settings.downloadSettings.selectFolder,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                    // 运行测试按钮单独一行
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: isEnabled
-                            ? () => DownloadTestWidget.showTestDialog(context)
-                            : null,
-                        icon: const Icon(Icons.bug_report, size: 18),
-                        label: Text(t.settings.downloadSettings.runTest),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
+            ],
+          ),
         ),
-      ),
+        // 下载完成/失败通知
+        Obx(
+          () => GlassSwitchItem(
+            icon: Icons.notifications_outlined,
+            title: Text(
+              t.settings.downloadSettings.enableDownloadNotifications,
+            ),
+            subtitle: Text(
+              t
+                  .settings
+                  .downloadSettings
+                  .enableDownloadNotificationsDescription,
+            ),
+            value:
+                configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] ?? true,
+            onChanged: (value) async {
+              configService[ConfigKey.DOWNLOAD_NOTIFICATIONS_ENABLED] = value;
+              // 开启时请求系统通知权限；被拒绝时提示（应用内通知仍可用）。
+              if (value && Get.isRegistered<DownloadNotificationService>()) {
+                final granted = await DownloadNotificationService.to
+                    .requestPermission();
+                if (!granted) {
+                  showAppToast(
+                    t.settings.downloadSettings.notificationPermissionDenied,
+                    type: AppToastType.warning,
+                  );
+                }
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdvancedSection(BuildContext context) {
+    final t = slang.Translations.of(context);
+    return GlassExpansionCard(
+      icon: Icons.tune,
+      title: Text(t.download.location.advancedSection),
+      subtitle: Text(t.download.location.advancedSubtitle),
+      children: const [
+        Padding(
+          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: DownloadTestWidget(key: ValueKey('download_test')),
+        ),
+      ],
     );
   }
 
   Widget _buildFilenameTemplateSection(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.text_fields,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  t.settings.downloadSettings.filenameTemplate,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+    final theme = Theme.of(context);
+    return GlassSettingSection(
+      title: t.download.location.namingSection,
+      divided: false,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Text(
+            t.settings.downloadSettings.filenameTemplateDescription,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 8),
-            Text(
-              t.settings.downloadSettings.filenameTemplateDescription,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // 视频文件命名模板
-            _buildTemplateField(
-              context,
-              controller: _videoTemplateController,
-              label: t.settings.downloadSettings.videoFilenameTemplate,
-              hint: t.settings.downloadSettings.suchAsTitleQuality,
-              configKey: ConfigKey.VIDEO_FILENAME_TEMPLATE,
-            ),
-            const SizedBox(height: 16),
-
-            // 图库文件夹命名模板
-            _buildTemplateField(
-              context,
-              controller: _galleryTemplateController,
-              label: t.settings.downloadSettings.galleryFolderTemplate,
-              hint: t.settings.downloadSettings.suchAsTitleId,
-              configKey: ConfigKey.GALLERY_FILENAME_TEMPLATE,
-            ),
-            const SizedBox(height: 16),
-
-            // 单张图片命名模板
-            _buildTemplateField(
-              context,
-              controller: _imageTemplateController,
-              label: t.settings.downloadSettings.imageFilenameTemplate,
-              hint: t.settings.downloadSettings.suchAsTitleFilename,
-              configKey: ConfigKey.IMAGE_FILENAME_TEMPLATE,
-            ),
-            const SizedBox(height: 16),
-
-            // 查看支持的变量按钮
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => _showVariableHelpDialog(context),
-                icon: const Icon(Icons.help_outline, size: 18),
-                label: Text(t.settings.downloadSettings.supportedVariables),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Column(
+            children: [
+              // 视频文件命名模板
+              _buildTemplateField(
+                context,
+                controller: _videoTemplateController,
+                label: t.settings.downloadSettings.videoFilenameTemplate,
+                hint: t.settings.downloadSettings.suchAsTitleQuality,
+                configKey: ConfigKey.VIDEO_FILENAME_TEMPLATE,
+              ),
+              const SizedBox(height: 12),
+
+              // 图库文件夹命名模板
+              _buildTemplateField(
+                context,
+                controller: _galleryTemplateController,
+                label: t.settings.downloadSettings.galleryFolderTemplate,
+                hint: t.settings.downloadSettings.suchAsTitleId,
+                configKey: ConfigKey.GALLERY_FILENAME_TEMPLATE,
+              ),
+              const SizedBox(height: 12),
+
+              // 单张图片命名模板
+              _buildTemplateField(
+                context,
+                controller: _imageTemplateController,
+                label: t.settings.downloadSettings.imageFilenameTemplate,
+                hint: t.settings.downloadSettings.suchAsTitleFilename,
+                configKey: ConfigKey.IMAGE_FILENAME_TEMPLATE,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 4),
+        // 查看支持的变量
+        GlassSettingTile(
+          icon: Icons.help_outline,
+          title: Text(t.settings.downloadSettings.supportedVariables),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          onTap: () => _showVariableHelpDialog(context),
+        ),
+      ],
     );
   }
 
@@ -1242,190 +338,97 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-                        Text(
-                          t
-                              .settings
-                              .downloadSettings
-                              .supportedVariablesDescription,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).textTheme.bodySmall?.color,
-                              ),
-                        ),
-                        const SizedBox(height: 16),
+            Text(
+              t.settings.downloadSettings.supportedVariablesDescription,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+            const SizedBox(height: 16),
 
-                        ...variables.map(
-                          (variable) => Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            child: Material(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
-                              child: InkWell(
-                                onTap: () => _copyVariableToClipboard(
+            ...variables.map(
+              (variable) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    onTap: () =>
+                        _copyVariableToClipboard(variable.variable, context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  variable.variable,
+                                  style: TextStyle(
+                                    fontFamily: 'monospace',
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () => _copyVariableToClipboard(
                                   variable.variable,
                                   context,
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline
-                                          .withValues(alpha: 0.2),
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.primaryContainer,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              variable.variable,
-                                              style: TextStyle(
-                                                fontFamily: 'monospace',
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimaryContainer,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          IconButton(
-                                            onPressed: () =>
-                                                _copyVariableToClipboard(
-                                                  variable.variable,
-                                                  context,
-                                                ),
-                                            icon: const Icon(
-                                              Icons.copy,
-                                              size: 18,
-                                            ),
-                                            tooltip: t
-                                                .settings
-                                                .downloadSettings
-                                                .copyVariable,
-                                            visualDensity:
-                                                VisualDensity.compact,
-                                            style: IconButton.styleFrom(
-                                              minimumSize: const Size(36, 36),
-                                              tapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        variable.description,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                    ],
-                                  ),
+                                icon: const Icon(Icons.copy, size: 18),
+                                tooltip:
+                                    t.settings.downloadSettings.copyVariable,
+                                visualDensity: VisualDensity.compact,
+                                style: IconButton.styleFrom(
+                                  minimumSize: const Size(36, 36),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
-                        ),
+                          const SizedBox(height: 8),
+                          Text(
+                            variable.description,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
-  }
-
-  Future<void> _selectDownloadPath() async {
-    final t = slang.Translations.of(context);
-    try {
-      final String? directoryPath = await downloadPathService
-          .pickDirectoryPath();
-      if (directoryPath != null) {
-        _isUpdatingFromConfig = true;
-        _customPathController.text = directoryPath;
-        configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = directoryPath;
-        _isUpdatingFromConfig = false;
-
-        // 先刷新并验证路径，再根据验证结果提示，避免成功 toast 与状态卡片矛盾
-        await downloadPathService.refreshPathStatus();
-        final validation = downloadPathService.pathStatus?.validationResult;
-        final isUsable = validation == null || validation.isValid;
-        showAppToast(
-          isUsable
-              ? t.settings.downloadSettings.downloadPathUpdated
-              : validation.message,
-          type: isUsable ? AppToastType.success : AppToastType.warning,
-          position: AppToastPosition.bottom,
-        );
-      }
-    } on PlatformException catch (e) {
-      // ⛔ 不能把 `e.message` 吐给用户：那是原生里写死的中文，英文/日文界面下会露馅。
-      // 原生只负责给**错误码**，文案在这里按码取（认不出的码退回通用那句，原文只进日志）。
-      LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      final downloadSettings = t.settings.downloadSettings;
-      showAppToast(
-        switch (e.code) {
-          'ALREADY_ACTIVE' => downloadSettings.pickerAlreadyActive,
-          'UNSUPPORTED_VOLUME' => downloadSettings.unsupportedStorageVolume,
-          _ => downloadSettings.selectPathFailed,
-        },
-        type: AppToastType.error,
-        position: AppToastPosition.bottom,
-      );
-    } catch (e) {
-      LogUtils.e('选择下载路径失败', error: e, tag: 'DownloadSettingsPage');
-      showAppToast(
-        '${t.settings.downloadSettings.selectPathFailed}: $e',
-        type: AppToastType.error,
-        position: AppToastPosition.bottom,
-      );
-    }
-  }
-
-  Future<void> _useRecommendedPath() async {
-    final t = slang.Translations.of(context);
-    try {
-      final recommendedPath = await downloadPathService
-          .getRecommendedDownloadPath();
-
-      _isUpdatingFromConfig = true;
-      _customPathController.text = recommendedPath;
-      configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] = recommendedPath;
-      _isUpdatingFromConfig = false;
-
-      showAppToast(
-        t.settings.downloadSettings.recommendedPathSet,
-        type: AppToastType.success,
-      );
-      await downloadPathService.refreshPathStatus();
-    } catch (e) {
-      showAppToast(
-        '${t.settings.downloadSettings.setRecommendedPathFailed}: $e',
-        type: AppToastType.error,
-      );
-    }
   }
 
   void _resetTemplate(TextEditingController controller, ConfigKey configKey) {

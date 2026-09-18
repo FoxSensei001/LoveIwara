@@ -579,7 +579,6 @@ class PopularMediaListPageBaseState<
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -593,6 +592,8 @@ class PopularMediaListPageBaseState<
 
           return BatchDownloadSelectionScope(
             controllers: [_batchSelectController],
+            // 交给通用键鼠多选
+            loadedItems: (_) => _repositories[_activeTabId()],
             child: GlassHeaderOverlay(
               // 热门视频 / 图库：header 与浮层 chrome 走真折射透镜，列表本体
               // 留在传统档（见 GlassHeaderOverlay.liquid）。
@@ -698,8 +699,8 @@ class PopularMediaListPageBaseState<
                                   key: const ValueKey('selection'),
                                   width: 168,
                                   child: GlassSelectionSummary(
-                                    selectedCount: _batchSelectController
-                                        .selectedCount,
+                                    selectedCount:
+                                        _batchSelectController.selectedCount,
                                     allSelected: false,
                                     onToggleAll: null,
                                   ),

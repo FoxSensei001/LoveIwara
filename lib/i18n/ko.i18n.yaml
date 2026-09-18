@@ -156,6 +156,7 @@ common:
   selectedRecords: '${num}개 기록 선택됨'
   cancelSelectAll: 전체 선택 해제
   selectAll: 전체 선택
+  invertSelection: 선택 반전
   exitEditMode: 편집 모드 종료
   areYouSureYouWantToDeleteSelectedItems: '선택한 ${num}개 항목을 삭제하시겠습니까?'
   searchHistoryRecords: 기록 검색...

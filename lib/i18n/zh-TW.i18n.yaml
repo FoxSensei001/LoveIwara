@@ -156,6 +156,7 @@ common:
   selectedRecords: '已選擇 ${num} 筆資料'
   cancelSelectAll: 取消全選
   selectAll: 全選
+  invertSelection: 反選
   exitEditMode: 退出編輯模式
   areYouSureYouWantToDeleteSelectedItems: '確定要刪除選中的 ${num} 筆資料嗎？'
   searchHistoryRecords: 搜尋歷史紀錄...
@@ -1860,6 +1861,46 @@ download:
     banner: '上次離開時有 ${num} 個任務未完成，已暫停'
     resume: 全部繼續
     dismiss: 忽略
+  actions:
+    open: 開啟
+    play: 播放
+    openWith: 用其他應用程式開啟
+    redownload: 重新下載
+    relocate: 移動檔案到…
+    categorize: 歸類到…
+    viewOnline: 查看線上頁面
+    delete: 刪除…
+    redownloadStarted: '已開始重新下載 ${count} 項'
+    redownloadNone: 沒有可重新下載的項目
+    deleteTitle: '刪除 ${count} 項下載？'
+    deleteSummary: '共 ${count} 項 · ${size}'
+    deleteSummaryNoSize: '共 ${count} 項'
+    deleteGalleryNote: '其中 ${count} 個圖庫的大小未計入'
+    deleteFiles: 同時刪除磁碟檔案
+    deleteFilesDesc: 關閉後只移除列表記錄，檔案留在原處
+    deleteFilesAllMissing: 檔案已經不在了，只會移除記錄
+    deleteDone: '已刪除 ${count} 項'
+    deletePartial: '${failed} 項的檔案刪不掉（可能正被佔用），記錄已保留'
+    removeRecordAnyway: 仍移除記錄
+    fileMissing: 檔案已不在
+    filePending: 暫時找不到檔案，可能還能找回
+    statusActive: 進行中
+    statusCompleted: 已完成
+    needsAttention: 需處理
+    needsAttentionCount: '需處理 · ${count}'
+    organize: 整理
+    checkIntegrity: 檢查檔案完整性…
+    migrateToCurrent: 遷移到目前下載目錄…
+    migrateNone: 所有已下載內容都在目前下載目錄裡
+  notice:
+    failed: '${count} 個任務下載失敗'
+    retryAll: 全部重試
+    view: 查看
+    missing: '${count} 項已下載內容的檔案不見了'
+    handle: 處理…
+    outside: '舊下載目錄裡還有 ${count} 項'
+    migrate: 遷移
+    dismiss: 忽略
   emptyTaskList: 暫無下載任務
   noMatchingTasks: 沒有符合的任務
   deleteByDate:
@@ -1880,6 +1921,141 @@ download:
     deleting: 正在刪除 ${done}/${total}…
     resultSuccess: 已刪除 ${count} 個任務
     resultPartial: 已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）
+  relocation:
+    moveFiles: 移動檔案
+    moveFilesEllipsis: 移動檔案…
+    chooseDestination: 把檔案移動到
+    currentDownloadDir: 目前下載目錄
+    otherFolder: 選擇其他資料夾…
+    pickerUnsupported: 此裝置無法選擇資料夾，下載內容只能留在應用程式自己的目錄中。
+    planning: 正在檢查檔案…
+    confirmTitle: 移動檔案？
+    confirmNote: 會實際在磁碟上移動檔案，觀看進度、VR 設定和收藏會一起跟過去。
+    nothingToMove: 所選內容都無法移動，每一項的原因見下方。
+    move: 移動
+    moving: '正在移動 ${done}/${total}'
+    stop: 停止
+    stopping: 目前這一項完成後停止…
+    resultTitle: 移動完成
+    resultMoved: '已移動 ${count} 項'
+    cancelled: 已停止。已移動的項目都是完整的。
+    alreadyRunning: 已有一個移動工作在進行
+    destination: 目標位置
+    statMove: 將移動
+    statSkip: 略過
+    statRenamed: 改名
+    statMoved: 已移動
+    statFailed: 未移動
+    statLeftover: 殘留
+    sectionMove: 將移動
+    sectionSkip: 將略過
+    sectionMoved: 已移動
+    sectionFailed: 未移動（仍在原處）
+    sectionLeftover: 沒刪乾淨的舊資料夾
+    leftoverHint: 新位置的那份是完整的，這些殘留可以放心刪除。
+    from: 從
+    to: 到
+    renamedBadge: '目標處已有同名項目，將另存為「${name}」'
+    showPaths: 顯示路徑
+    hidePaths: 收起路徑
+    revealInFolder: 在資料夾中顯示
+    copyPath: 複製路徑
+    pathCopied: 已複製路徑
+    stateDownloading: '下載中 ${percent}%'
+    statePending: 等待下載
+    statePaused: '已暫停於 ${percent}%'
+    stateFailed: 下載失敗
+    skipAlreadyThere: 已經在這個資料夾中
+    skipInsideSource: 目標資料夾就在這個圖庫自己的資料夾裡面
+    reasonBusy: 正在進行其他操作（刪除或移動）
+    reasonSourceLocked: 檔案正被占用（如正在播放），舊位置刪不掉，本項已撤回，什麼都沒改。
+    reasonNoSpace: 目標位置空間不足，其餘的已全部停止。
+    reasonVerifyFailed: 複製出的檔案與原檔大小不一致，複製件已丟棄。
+    reasonIoError: 讀寫檔案出錯，什麼都沒改。
+    systemMessage: '系統訊息：${message}'
+    outsideTitle: '有 ${count} 項已下載內容不在這個目錄中'
+    outsideSubtitle: 它們在原位置照樣能播放。移到這裡可以把內容集中在一處。
+    moveHere: 移到這裡
+    missingTitle: 找不到檔案
+    recordedLocation: 記錄的位置
+    legendExists: 仍然存在
+    legendMissing: 已不存在
+    diagVolume: '儲存空間「${volume}」目前無法使用，記憶卡或外接硬碟可能沒有連接。'
+    diagVolumeShort: '儲存空間「${volume}」未連接'
+    diagContainer: 應用程式更新後，系統移動了應用程式的儲存位置。檔案還在這裡：
+    diagContainerShort: 應用程式更新後儲存位置變了
+    diagNoAccess: 應用程式沒有讀取這個位置的權限。授予「所有檔案存取權」後再檢查一次。
+    diagNoAccessShort: 沒有讀取該位置的權限
+    diagFolder: '資料夾「${folder}」已經不存在了。'
+    diagFolderShort: '資料夾「${folder}」已不存在'
+    diagFile: '資料夾還在，但裡面沒有「${name}」。'
+    diagFileShort: 原資料夾裡沒有它
+    diagCandidates: 在那個資料夾裡找到了像是它的（可能被改了名）：
+    diagNoCandidates: 那個資料夾裡沒有大小相同的檔案。
+    useThis: 就是它
+    fixPath: 修復路徑
+    checkAgain: 再檢查一次
+    grantPermission: 授予權限
+    locate: 去其他資料夾找…
+    deleteRecord: 刪除記錄
+    locateNotFound: 那個資料夾裡沒有這項下載的檔案
+    located: 已找到，記錄已指向新位置
+    stillMissing: 仍然找不到
+    downloadedOn: '下載於 ${date}'
+    galleryImages: '${count} 張圖'
+    unfinishedDownloading: '下載中 ${percent}%：先暫停，已下的部分一起搬，搬完自動繼續'
+    unfinishedPending: '等待下載：搬完重新排隊'
+    unfinishedPaused: '已暫停於 ${percent}%：已下的部分一起搬，搬完仍保持暫停'
+    unfinishedFailed: '下載失敗：已下的部分一起搬'
+    noDataYet: '還沒有下載任何內容，只改儲存位置'
+    missingGroup: '找不到檔案的 ${count} 項'
+    missingSkip: '不處理'
+    missingRedownload: '重新下載到目標位置'
+    missingRemove: '移除記錄'
+    missingRemoveVolumeNote: '其中 ${count} 項所在的儲存空間未連接，不會被移除'
+    failedGroup: '下載失敗的 ${count} 項'
+    failedMoveOnly: '只移動'
+    failedMoveAndRetry: '移動後重新下載'
+    failedRemove: '移除任務'
+    failedRemoveNote: '會一併刪除已下載的半截檔案'
+    execute: '執行'
+    actionWillRedownload: '將重新下載到目標位置'
+    actionWillRemove: '將移除這條記錄'
+    actionWillKeep: '儲存空間未連接，保留不移除'
+    actionWillRetry: '移動後重新下載'
+    actionWillRemoveTask: '將移除任務'
+    statRedownload: '重新下載'
+    statRemoved: '已移除'
+    sectionRedownloaded: '已開始重新下載'
+    sectionRedownloadFailed: '沒能開始重新下載'
+    redownloadFailedHint: '多半是下載連結已失效（作品被刪除或設為私密），可以稍後在下載列表中重試。'
+    sectionRemoved: '已移除'
+    sectionKept: '保留（儲存空間未連接）'
+    redownload: '重新下載'
+    redownloadStarted: '已開始重新下載'
+    redownloadNotStarted: '沒能開始重新下載'
+    diagFileShortWithCandidates: '原資料夾裡有大小相同的檔案，可能被改了名'
+    cleanupMenu: '清理失效記錄…'
+    cleanupScanning: '正在檢查 ${done}/${total}'
+    cleanupTitle: '清理失效記錄'
+    cleanupNone: '檢查了 ${count} 項已完成的下載，檔案都在。'
+    statChecked: '已檢查'
+    statMissing: '找不到'
+    statKeep: '建議保留'
+    cleanupGroupGone: '檔案已不在'
+    cleanupGroupRecoverable: '可能還能找回'
+    cleanupRecoverableHint: '儲存空間未連接、沒有權限、或可能被改了名，預設不選。點開單項可查看詳情並找回。'
+    selectAll: '全選'
+    selectNone: '全不選'
+    removeSelected: '移除所選（${count}）'
+    redownloadSelected: '重新下載所選（${count}）'
+    processing: '正在處理 ${done}/${total}'
+    cleanupRemoved: '已移除 ${count} 條記錄'
+    cleanupRedownloaded: '已開始重新下載 ${count} 項'
+    tapForDetail: '查看詳情'
+    deleteRecordFailed: '刪除記錄失敗，請稍後再試'
+    sectionNotAttempted: '未處理（已停止，原樣未動）'
+    unexpectedError: '中途出錯停止：${message}。已移動的項目都是完整的。'
   category:
     manageTitle: 管理分類
     label: 分類
@@ -1904,6 +2080,80 @@ download:
     deleteConfirm: '刪除分類「${title}」？該分類下的 ${count} 項內容將移到「未分類」，檔案不會被刪除。'
     deleteSuccess: 分類已刪除
     deleteFailed: 刪除分類失敗
+  location:
+    sectionTitle: 儲存位置
+    behaviorSection: 下載行為
+    namingSection: 檔案命名
+    advancedSection: 進階
+    advancedSubtitle: 寫入診斷等工具
+    volumeInternal: 內部儲存空間
+    volumeSdCard: SD 卡
+    volumeExternalDrive: 外接磁碟
+    appSpace: 應用程式專屬空間
+    downloadsFolder: 下載
+    askEveryTime: 每次詢問
+    askEveryTimeDesc: '每次下載時選擇儲存位置；批次下載存到 ${location}'
+    freeSpace: '剩餘 ${size}'
+    statusWritable: 可寫入
+    statusNeedsPermission: 需要授權
+    statusFallback: 已暫時改存
+    statusLowSpace: 空間不足
+    statusChecking: 檢查中
+    grant: 授權
+    fix: 修復
+    changeLocation: 變更位置
+    openInFileManager: 在檔案管理器中開啟
+    moreActions: 更多
+    copyPath: 複製路徑
+    pathCopied: 已複製路徑
+    manualInput: 手動輸入路徑（進階）
+    restoreDefault: 還原預設
+    runDiagnostics: 執行診斷
+    restoredDefault: 已還原預設位置
+    sheetTitle: 選擇下載位置
+    chooseOtherFolder: 選擇其他資料夾…
+    chooseOtherFolderDesc: 用系統檔案選擇器挑一個
+    optionRecommendedDesc: 推薦 · 無需授權
+    optionRecommendedLegacyDesc: 推薦 · 需要儲存權限
+    optionAppPrivateDesc: 解除安裝時刪除 · 相簿看不到
+    optionRemovableDesc: 需要「所有檔案存取權」
+    optionDesktopDownloadsDesc: 推薦 · 系統的下載資料夾
+    optionAskEveryTimeDesc: 每次下載時挑一個資料夾
+    current: 目前
+    fallbackBanner: 上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。
+    fallbackReasonPermission: 缺少儲存權限
+    fallbackReasonVolumeMissing: 儲存裝置沒有連接
+    fallbackReasonCannotCreate: 無法建立資料夾
+    fallbackReasonNotWritable: 資料夾無法寫入
+    fallbackDetail: '已暫時改存：${reason}'
+    errorUnresolvable: 這個位置來自雲端硬碟或其他 App，無法直接寫入。請選擇手機儲存空間或 SD 卡裡的資料夾。
+    errorNotWritable: 這個資料夾無法寫入（唯讀、受系統保護或已中斷連線），位置沒有變更。
+    errorVolumeMissing: 找不到這個儲存裝置（已移除或沒有連接），位置沒有變更。
+    permissionTitle: 需要授權
+    permissionAllFiles: 要寫到這個資料夾需開啟「所有檔案存取權」，不想開可改用「下載 › LoveIwara」。
+    permissionLegacy: 要寫到這個資料夾需要儲存權限，不想開可改用應用程式專屬空間。
+    useDownloadsInstead: 改用 下載 › LoveIwara
+    useAppSpaceInstead: 改用應用程式專屬空間
+    goToSettings: 去授權
+    permissionDenied: 沒有取得權限，位置沒有變更。
+    checking: 正在檢查這個位置…
+    confirmTitle: 改用這個位置？
+    confirmFree: '剩餘空間 ${size}'
+    confirmOutside: '有 ${count} 項已下載內容還在舊位置'
+    confirmOutsideDesc: 之後的下載會存到新位置。已經下載的內容要怎麼處理？
+    moveThem: 搬過去
+    keepThem: 保留在原處
+    decideLater: 之後再說
+    useThisLocation: 使用這個位置
+    locationChanged: 下載位置已變更
+    manualTitle: 手動輸入路徑
+    manualLabel: 資料夾路徑
+    manualHint: '例如 /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: 檢查並使用
+    manualEmpty: 請輸入路徑
+    manualNotAbsolute: 請輸入完整的絕對路徑
+    fixStillFailing: 這個位置仍然無法使用，請換一個。
+    fixed: 位置已恢復正常
   maxConcurrentDownloads: 最大同時下載數
   maxConcurrentDownloadsDesc: '同時進行下載的任務數量（1-5）'
   stillInDevelopment: 開發中

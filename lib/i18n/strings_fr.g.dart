@@ -277,6 +277,7 @@ class _TranslationsCommonFr extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '${num} enregistrements sélectionnés';
 	@override String get cancelSelectAll => 'Annuler la sélection';
 	@override String get selectAll => 'Tout sélectionner';
+	@override String get invertSelection => 'Inverser la sélection';
 	@override String get exitEditMode => 'Quitter le mode édition';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Voulez-vous vraiment supprimer les ${num} éléments sélectionnés ?';
 	@override String get searchHistoryRecords => 'Rechercher dans l\'historique...';
@@ -4248,6 +4249,7 @@ extension on TranslationsFr {
 			'common.selectedRecords' => ({required Object num}) => '${num} enregistrements sélectionnés',
 			'common.cancelSelectAll' => 'Annuler la sélection',
 			'common.selectAll' => 'Tout sélectionner',
+			'common.invertSelection' => 'Inverser la sélection',
 			'common.exitEditMode' => 'Quitter le mode édition',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Voulez-vous vraiment supprimer les ${num} éléments sélectionnés ?',
 			'common.searchHistoryRecords' => 'Rechercher dans l\'historique...',
@@ -4617,9 +4619,9 @@ extension on TranslationsFr {
 			'settings.longPressPlaybackSpeed' => 'Vitesse en appui long',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'La vitesse de lecture en appui long doit être un nombre positif.',
 			'settings.defaultPlaybackSpeed' => 'Vitesse de lecture par défaut',
-			'settings.rememberPlaybackSpeed' => 'Mémoriser la vitesse de lecture',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Mémoriser la vitesse de lecture',
 			'settings.rememberPlaybackSpeedDesc' => 'Une fois activé, la vitesse définie dans le lecteur est enregistrée comme valeur par défaut et appliquée automatiquement aux nouvelles vidéos.',
 			'settings.repeat' => 'Répéter',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Afficher les vidéos verticales en écran vertical',
@@ -5131,9 +5133,9 @@ extension on TranslationsFr {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Impossible d\'obtenir l\'état du chemin',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Remarque : le chemin réel diffère du chemin sélectionné',
 			'settings.downloadSettings.grantPermission' => 'Accorder l\'autorisation',
-			'settings.downloadSettings.fixIssue' => 'Corriger le problème',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Corriger le problème',
 			'settings.downloadSettings.issueFixed' => 'Problème corrigé',
 			'settings.downloadSettings.fixFailed' => 'Échec de la correction, veuillez agir manuellement',
 			'settings.downloadSettings.lackStoragePermission' => 'Autorisation de stockage manquante',
@@ -5645,9 +5647,9 @@ extension on TranslationsFr {
 			'notifications.kApprovedThread' => 'Sujet approuvé',
 			'notifications.kApprovedPost' => 'Publication approuvée',
 			'notifications.kApprovedForumPost' => 'Message de forum approuvé',
-			'notifications.kRejectedContent' => 'Contenu rejeté par la modération',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Contenu rejeté par la modération',
 			'notifications.kUnknownType' => 'Type de notification inconnu',
 			'conversation.errors.pleaseSelectAUser' => 'Veuillez choisir un utilisateur',
 			'conversation.errors.pleaseEnterATitle' => 'Veuillez saisir un titre',
@@ -6159,9 +6161,9 @@ extension on TranslationsFr {
 			'layoutSettings.title' => 'Réglages de disposition',
 			'layoutSettings.descriptionTitle' => 'Description de la configuration de disposition',
 			'layoutSettings.descriptionContent' => 'La configuration ici détermine le nombre de colonnes affichées dans les pages de liste de vidéos et de galeries. Vous pouvez choisir le mode automatique pour laisser le système s\'ajuster selon la largeur de l\'écran, ou le mode manuel pour fixer le nombre de colonnes.',
-			'layoutSettings.layoutMode' => 'Mode de disposition',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Mode de disposition',
 			'layoutSettings.reset' => 'Réinitialiser',
 			'layoutSettings.autoMode' => 'Mode automatique',
 			'layoutSettings.autoModeDesc' => 'Ajuster automatiquement selon la largeur de l\'écran',
@@ -6673,9 +6675,9 @@ extension on TranslationsFr {
 			'siteMode.switched' => ({required Object site}) => 'Passé à ${site}. L\'app a été actualisée.',
 			'savedSearchConfig.title' => 'Filtres enregistrés',
 			'savedSearchConfig.empty' => 'Aucun filtre enregistré',
-			'savedSearchConfig.saveTooltip' => 'Enregistrer le filtre actuel',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Enregistrer le filtre actuel',
 			'savedSearchConfig.namePromptTitle' => 'Enregistrer le filtre',
 			'savedSearchConfig.nameLabel' => 'Nom',
 			'savedSearchConfig.nameHint' => 'Saisir un nom',

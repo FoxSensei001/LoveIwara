@@ -277,6 +277,7 @@ class _TranslationsCommonEs extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '${num} registros seleccionados';
 	@override String get cancelSelectAll => 'Cancelar selección';
 	@override String get selectAll => 'Seleccionar todo';
+	@override String get invertSelection => 'Invertir selección';
 	@override String get exitEditMode => 'Salir del modo de edición';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => '¿Seguro que quiere eliminar los ${num} elementos seleccionados?';
 	@override String get searchHistoryRecords => 'Buscar en el historial...';
@@ -4248,6 +4249,7 @@ extension on TranslationsEs {
 			'common.selectedRecords' => ({required Object num}) => '${num} registros seleccionados',
 			'common.cancelSelectAll' => 'Cancelar selección',
 			'common.selectAll' => 'Seleccionar todo',
+			'common.invertSelection' => 'Invertir selección',
 			'common.exitEditMode' => 'Salir del modo de edición',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '¿Seguro que quiere eliminar los ${num} elementos seleccionados?',
 			'common.searchHistoryRecords' => 'Buscar en el historial...',
@@ -4617,9 +4619,9 @@ extension on TranslationsEs {
 			'settings.longPressPlaybackSpeed' => 'Velocidad de reproducción con pulsación larga',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'La velocidad de reproducción con pulsación larga debe ser un número positivo.',
 			'settings.defaultPlaybackSpeed' => 'Velocidad de reproducción predeterminada',
-			'settings.rememberPlaybackSpeed' => 'Recordar la velocidad de reproducción',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Recordar la velocidad de reproducción',
 			'settings.rememberPlaybackSpeedDesc' => 'Cuando está activado, la velocidad que ajuste en el reproductor se guarda como predeterminada y se aplica automáticamente a los videos nuevos.',
 			'settings.repeat' => 'Repetir',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Mostrar el video vertical en pantalla vertical',
@@ -5131,9 +5133,9 @@ extension on TranslationsEs {
 			'settings.downloadSettings.unableToGetPathStatus' => 'No se puede obtener el estado de la ruta',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Nota: la ruta real difiere de la ruta seleccionada',
 			'settings.downloadSettings.grantPermission' => 'Conceder permiso',
-			'settings.downloadSettings.fixIssue' => 'Solucionar problema',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Solucionar problema',
 			'settings.downloadSettings.issueFixed' => 'Problema solucionado',
 			'settings.downloadSettings.fixFailed' => 'No se pudo solucionar; hágalo manualmente',
 			'settings.downloadSettings.lackStoragePermission' => 'Falta el permiso de almacenamiento',
@@ -5645,9 +5647,9 @@ extension on TranslationsEs {
 			'notifications.kApprovedThread' => 'Hilo aprobado',
 			'notifications.kApprovedPost' => 'Publicación aprobada',
 			'notifications.kApprovedForumPost' => 'Publicación del foro aprobada',
-			'notifications.kRejectedContent' => 'Revisión de contenido rechazada',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Revisión de contenido rechazada',
 			'notifications.kUnknownType' => 'Tipo de notificación desconocido',
 			'conversation.errors.pleaseSelectAUser' => 'Seleccione un usuario',
 			'conversation.errors.pleaseEnterATitle' => 'Introduzca un título',
@@ -6159,9 +6161,9 @@ extension on TranslationsEs {
 			'layoutSettings.title' => 'Ajustes de diseño',
 			'layoutSettings.descriptionTitle' => 'Descripción de la configuración de diseño',
 			'layoutSettings.descriptionContent' => 'La configuración de aquí determina el número de columnas que se muestran en las páginas de lista de vídeos y galerías. Puede elegir el modo automático para que el sistema se ajuste según el ancho de pantalla, o el modo manual para fijar el número de columnas.',
-			'layoutSettings.layoutMode' => 'Modo de diseño',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Modo de diseño',
 			'layoutSettings.reset' => 'Restablecer',
 			'layoutSettings.autoMode' => 'Modo automático',
 			'layoutSettings.autoModeDesc' => 'Ajustar automáticamente según el ancho de pantalla',
@@ -6673,9 +6675,9 @@ extension on TranslationsEs {
 			'siteMode.switched' => ({required Object site}) => 'Se cambió a ${site}. La aplicación se ha actualizado.',
 			'savedSearchConfig.title' => 'Filtros guardados',
 			'savedSearchConfig.empty' => 'Aún no hay filtros guardados',
-			'savedSearchConfig.saveTooltip' => 'Guardar filtro actual',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Guardar filtro actual',
 			'savedSearchConfig.namePromptTitle' => 'Guardar filtro',
 			'savedSearchConfig.nameLabel' => 'Nombre',
 			'savedSearchConfig.nameHint' => 'Introduzca un nombre',

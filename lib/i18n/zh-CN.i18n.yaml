@@ -158,6 +158,7 @@ common:
   selectedRecords: '已选择 ${num} 条记录'
   cancelSelectAll: 取消全选
   selectAll: 全选
+  invertSelection: 反选
   exitEditMode: 退出编辑模式
   areYouSureYouWantToDeleteSelectedItems: '确定要删除选中的 ${num} 条记录吗？'
   searchHistoryRecords: 搜索历史记录...
@@ -1812,6 +1813,46 @@ download:
     banner: '上次退出时有 ${num} 个任务未完成，已暂停'
     resume: 全部继续
     dismiss: 忽略
+  actions:
+    open: 打开
+    play: 播放
+    openWith: 用其他应用打开
+    redownload: 重新下载
+    relocate: 移动文件到…
+    categorize: 归类到…
+    viewOnline: 查看在线页面
+    delete: 删除…
+    redownloadStarted: '已开始重新下载 ${count} 项'
+    redownloadNone: 没有可重新下载的项目
+    deleteTitle: '删除 ${count} 项下载？'
+    deleteSummary: '共 ${count} 项 · ${size}'
+    deleteSummaryNoSize: '共 ${count} 项'
+    deleteGalleryNote: '其中 ${count} 个图库的大小未计入'
+    deleteFiles: 同时删除磁盘文件
+    deleteFilesDesc: 关闭后只移除列表记录，文件留在原处
+    deleteFilesAllMissing: 文件已经不在了，只会移除记录
+    deleteDone: '已删除 ${count} 项'
+    deletePartial: '${failed} 项的文件删不掉（可能正被占用），记录已保留'
+    removeRecordAnyway: 仍移除记录
+    fileMissing: 文件已不在
+    filePending: 暂时找不到文件，可能还能找回
+    statusActive: 进行中
+    statusCompleted: 已完成
+    needsAttention: 需处理
+    needsAttentionCount: '需处理 · ${count}'
+    organize: 整理
+    checkIntegrity: 检查文件完整性…
+    migrateToCurrent: 迁移到当前下载目录…
+    migrateNone: 所有已下载内容都在当前下载目录里
+  notice:
+    failed: '${count} 个任务下载失败'
+    retryAll: 全部重试
+    view: 查看
+    missing: '${count} 项已下载内容的文件不见了'
+    handle: 处理…
+    outside: '旧下载目录里还有 ${count} 项'
+    migrate: 迁移
+    dismiss: 忽略
   emptyTaskList: 暂无下载任务
   noMatchingTasks: 没有匹配的任务
   deleteByDate:
@@ -1832,6 +1873,141 @@ download:
     deleting: 正在删除 ${done}/${total}…
     resultSuccess: 已删除 ${count} 个任务
     resultPartial: 已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）
+  relocation:
+    moveFiles: 移动文件
+    moveFilesEllipsis: 移动文件…
+    chooseDestination: 把文件移动到
+    currentDownloadDir: 当前下载目录
+    otherFolder: 选择其他文件夹…
+    pickerUnsupported: 此设备不能选择文件夹，下载内容只能留在应用自己的目录里。
+    planning: 正在检查文件…
+    confirmTitle: 移动文件？
+    confirmNote: 会真的在磁盘上移动文件，观看进度、VR 设置和收藏会跟着一起走。
+    nothingToMove: 所选内容都不能移动，每一项的原因见下方。
+    move: 移动
+    moving: '正在移动 ${done}/${total}'
+    stop: 停止
+    stopping: 当前这一项完成后停止…
+    resultTitle: 移动完成
+    resultMoved: '已移动 ${count} 项'
+    cancelled: 已停止。已移动的项目都是完整的。
+    alreadyRunning: 已有一个移动任务在进行
+    destination: 目标位置
+    statMove: 将移动
+    statSkip: 跳过
+    statRenamed: 改名
+    statMoved: 已移动
+    statFailed: 未移动
+    statLeftover: 残留
+    sectionMove: 将移动
+    sectionSkip: 将跳过
+    sectionMoved: 已移动
+    sectionFailed: 未移动（仍在原处）
+    sectionLeftover: 没删干净的旧文件夹
+    leftoverHint: 新位置的那份是完整的，这些残留可以放心删除。
+    from: 从
+    to: 到
+    renamedBadge: '目标处已有同名项，将另存为「${name}」'
+    showPaths: 显示路径
+    hidePaths: 收起路径
+    revealInFolder: 在文件夹中显示
+    copyPath: 复制路径
+    pathCopied: 已复制路径
+    stateDownloading: '下载中 ${percent}%'
+    statePending: 等待下载
+    statePaused: '已暂停于 ${percent}%'
+    stateFailed: 下载失败
+    skipAlreadyThere: 已经在这个文件夹里
+    skipInsideSource: 目标文件夹就在这个图库自己的文件夹里面
+    reasonBusy: 正在进行其他操作（删除或移动）
+    reasonSourceLocked: 文件正被占用（如正在播放），旧位置删不掉，本项已撤回，什么都没改。
+    reasonNoSpace: 目标位置空间不足，剩下的已全部停止。
+    reasonVerifyFailed: 复制出的文件与原文件大小不一致，复制件已丢弃。
+    reasonIoError: 读写文件出错，什么都没改。
+    systemMessage: '系统信息：${message}'
+    outsideTitle: '有 ${count} 项已下载内容不在这个目录里'
+    outsideSubtitle: 它们在原位置照样能播放。移到这里可以把内容集中在一处。
+    moveHere: 移到这里
+    missingTitle: 找不到文件
+    recordedLocation: 记录的位置
+    legendExists: 仍然存在
+    legendMissing: 已不存在
+    diagVolume: '存储「${volume}」当前不可用，存储卡或移动硬盘可能没有连接。'
+    diagVolumeShort: '存储「${volume}」未连接'
+    diagContainer: 应用更新后，系统挪了应用的存储位置。文件还在这里：
+    diagContainerShort: 应用更新后存储位置变了
+    diagNoAccess: 应用没有读取这个位置的权限。授予「所有文件访问」后再检查一次。
+    diagNoAccessShort: 没有读取该位置的权限
+    diagFolder: '文件夹「${folder}」已经不存在了。'
+    diagFolderShort: '文件夹「${folder}」已不存在'
+    diagFile: '文件夹还在，但里面没有「${name}」。'
+    diagFileShort: 原文件夹里没有它
+    diagCandidates: 在那个文件夹里找到了像是它的（可能被改了名）：
+    diagNoCandidates: 那个文件夹里没有大小相同的文件。
+    useThis: 就是它
+    fixPath: 修复路径
+    checkAgain: 再检查一次
+    grantPermission: 授予权限
+    locate: 去其他文件夹找…
+    deleteRecord: 删除记录
+    locateNotFound: 那个文件夹里没有这项下载的文件
+    located: 已找到，记录已指向新位置
+    stillMissing: 仍然找不到
+    downloadedOn: '下载于 ${date}'
+    galleryImages: '${count} 张图'
+    unfinishedDownloading: '下载中 ${percent}%：先暂停，已下的部分一起搬，搬完自动继续'
+    unfinishedPending: '等待下载：搬完重新排队'
+    unfinishedPaused: '已暂停于 ${percent}%：已下的部分一起搬，搬完仍保持暂停'
+    unfinishedFailed: '下载失败：已下的部分一起搬'
+    noDataYet: '还没有下载任何内容，只改保存位置'
+    missingGroup: '找不到文件的 ${count} 项'
+    missingSkip: '不处理'
+    missingRedownload: '重新下载到目标位置'
+    missingRemove: '移除记录'
+    missingRemoveVolumeNote: '其中 ${count} 项所在的存储未连接，不会被移除'
+    failedGroup: '下载失败的 ${count} 项'
+    failedMoveOnly: '只移动'
+    failedMoveAndRetry: '移动后重新下载'
+    failedRemove: '移除任务'
+    failedRemoveNote: '会一并删除已下载的半截文件'
+    execute: '执行'
+    actionWillRedownload: '将重新下载到目标位置'
+    actionWillRemove: '将移除这条记录'
+    actionWillKeep: '存储未连接，保留不移除'
+    actionWillRetry: '移动后重新下载'
+    actionWillRemoveTask: '将移除任务'
+    statRedownload: '重新下载'
+    statRemoved: '已移除'
+    sectionRedownloaded: '已开始重新下载'
+    sectionRedownloadFailed: '没能开始重新下载'
+    redownloadFailedHint: '多半是下载链接已失效（作品被删或设为私密），可以稍后在下载列表里重试。'
+    sectionRemoved: '已移除'
+    sectionKept: '保留（存储未连接）'
+    redownload: '重新下载'
+    redownloadStarted: '已开始重新下载'
+    redownloadNotStarted: '没能开始重新下载'
+    diagFileShortWithCandidates: '原文件夹里有大小相同的文件，可能被改了名'
+    cleanupMenu: '清理失效记录…'
+    cleanupScanning: '正在检查 ${done}/${total}'
+    cleanupTitle: '清理失效记录'
+    cleanupNone: '检查了 ${count} 项已完成的下载，文件都在。'
+    statChecked: '已检查'
+    statMissing: '找不到'
+    statKeep: '建议保留'
+    cleanupGroupGone: '文件已不在'
+    cleanupGroupRecoverable: '可能还能找回'
+    cleanupRecoverableHint: '存储未连接、没有权限、或可能被改了名，默认不选。点开单项可查看详情并找回。'
+    selectAll: '全选'
+    selectNone: '全不选'
+    removeSelected: '移除所选（${count}）'
+    redownloadSelected: '重新下载所选（${count}）'
+    processing: '正在处理 ${done}/${total}'
+    cleanupRemoved: '已移除 ${count} 条记录'
+    cleanupRedownloaded: '已开始重新下载 ${count} 项'
+    tapForDetail: '查看详情'
+    deleteRecordFailed: '删除记录失败，请稍后再试'
+    sectionNotAttempted: '未处理（已停止，原样未动）'
+    unexpectedError: '中途出错停止：${message}。已移动的项目都是完整的。'
   category:
     manageTitle: 管理分类
     label: 分类
@@ -1856,6 +2032,80 @@ download:
     deleteConfirm: '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。'
     deleteSuccess: 分类已删除
     deleteFailed: 删除分类失败
+  location:
+    sectionTitle: 保存位置
+    behaviorSection: 下载行为
+    namingSection: 文件命名
+    advancedSection: 高级
+    advancedSubtitle: 写入诊断等工具
+    volumeInternal: 内部存储
+    volumeSdCard: SD 卡
+    volumeExternalDrive: 外置盘
+    appSpace: 应用专属空间
+    downloadsFolder: 下载
+    askEveryTime: 每次询问
+    askEveryTimeDesc: '每次下载时选择保存位置；批量下载存到 ${location}'
+    freeSpace: '剩余 ${size}'
+    statusWritable: 可写
+    statusNeedsPermission: 需要授权
+    statusFallback: 已临时回退
+    statusLowSpace: 空间不足
+    statusChecking: 检查中
+    grant: 授权
+    fix: 修复
+    changeLocation: 更改位置
+    openInFileManager: 在文件管理器中打开
+    moreActions: 更多
+    copyPath: 复制路径
+    pathCopied: 已复制路径
+    manualInput: 手动输入路径（高级）
+    restoreDefault: 恢复默认
+    runDiagnostics: 运行诊断
+    restoredDefault: 已恢复默认位置
+    sheetTitle: 选择下载位置
+    chooseOtherFolder: 选择其他文件夹…
+    chooseOtherFolderDesc: 用系统文件选择器挑一个
+    optionRecommendedDesc: 推荐 · 无需授权
+    optionRecommendedLegacyDesc: 推荐 · 需要存储权限
+    optionAppPrivateDesc: 卸载时删除 · 相册看不到
+    optionRemovableDesc: 需要「所有文件访问」
+    optionDesktopDownloadsDesc: 推荐 · 系统的下载文件夹
+    optionAskEveryTimeDesc: 每次下载时挑一个文件夹
+    current: 当前
+    fallbackBanner: 上次下载临时存到了应用空间，因为选定的文件夹暂时不能用。
+    fallbackReasonPermission: 缺少存储权限
+    fallbackReasonVolumeMissing: 存储设备没有连接
+    fallbackReasonCannotCreate: 文件夹建不出来
+    fallbackReasonNotWritable: 文件夹没法写入
+    fallbackDetail: '已临时回退：${reason}'
+    errorUnresolvable: 这个位置来自云盘或其他 App，没法直接写入。请选择手机存储或 SD 卡里的文件夹。
+    errorNotWritable: 这个文件夹没法写入（只读、被系统保护或已断开），位置没有改动。
+    errorVolumeMissing: 找不到这个存储设备（已拔出或没有连接），位置没有改动。
+    permissionTitle: 需要授权
+    permissionAllFiles: 要写到这个文件夹需开启「所有文件访问」，不想开可改用「下载 › LoveIwara」。
+    permissionLegacy: 要写到这个文件夹需要存储权限，不想开可改用应用专属空间。
+    useDownloadsInstead: 改用 下载 › LoveIwara
+    useAppSpaceInstead: 改用应用专属空间
+    goToSettings: 去授权
+    permissionDenied: 没有拿到权限，位置没有改动。
+    checking: 正在检查这个位置…
+    confirmTitle: 改用这个位置？
+    confirmFree: '剩余空间 ${size}'
+    confirmOutside: '有 ${count} 项已下载内容还在旧位置'
+    confirmOutsideDesc: 以后的下载会存到新位置。已经下载的内容要怎么办？
+    moveThem: 搬过去
+    keepThem: 保留在原处
+    decideLater: 以后再说
+    useThisLocation: 使用这个位置
+    locationChanged: 下载位置已更改
+    manualTitle: 手动输入路径
+    manualLabel: 文件夹路径
+    manualHint: '例如 /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: 检查并使用
+    manualEmpty: 请输入路径
+    manualNotAbsolute: 请输入完整的绝对路径
+    fixStillFailing: 这个位置仍然不能用，请换一个。
+    fixed: 位置已恢复正常
   maxConcurrentDownloads: 最大同时下载数
   maxConcurrentDownloadsDesc: '同时进行下载的任务数量（1-5）'
   downloadCompletedWithName: '下载完成: ${fileName}'

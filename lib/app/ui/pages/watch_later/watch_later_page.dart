@@ -247,55 +247,84 @@ class _WatchLaterPageState extends State<WatchLaterPage>
     final statusBarHeight = MediaQuery.paddingOf(context).top;
     const headerHeight = GlassTokens.headerRowHeight;
 
+    final selectionActions = [
+      GlassSelectionAction(
+        icon: Icons.playlist_remove,
+        label: t.watchLater.removeFromWatchLater,
+        destructive: true,
+        onPressed: () => _removeSelected(t),
+      ),
+    ];
+
     return Scaffold(
       // 选择态下先吃掉一次返回（系统返回键 / iOS 侧滑 / Esc）：勾了几十项被
       // 一次误触整页弹掉太亏。
-      body: SelectionPopScope(
+      body: BatchSelectionScope(
         active: _selecting,
-        onExit: () => _setSelecting(false),
-        child: GlassHeaderOverlay(
-          headerExtent: statusBarHeight + headerHeight,
-          headerTop: statusBarHeight,
-          headerHeight: headerHeight,
-          solidExtent: statusBarHeight,
-          liquid: true,
-          header: _buildHeader(context, t),
-          extra: [
-            GlassSelectionDock(
-              visible: _selecting,
-              selectedCount: _selectedKeys.length,
-              onClear: () => setState(_selectedKeys.clear),
-              actions: [
-                GlassSelectionAction(
-                  icon: Icons.playlist_remove,
-                  label: t.watchLater.removeFromWatchLater,
-                  destructive: true,
-                  onPressed: () => _removeSelected(t),
+        selectedCount: _selectedKeys.length,
+        actions: selectionActions,
+        onClear: () => setState(_selectedKeys.clear),
+        child: SelectionPopScope(
+          active: _selecting,
+          // 交给通用键鼠多选
+          model: SelectionModel(
+            enter: () => _setSelecting(true),
+            isSelected: (k) => _selectedKeys.contains(k),
+            toggle: (k) {
+              for (final item in _currentItems) {
+                if (_keyOf(item) == k) {
+                  _toggleSelection(item);
+                  return;
+                }
+              }
+            },
+            loadedKeys: () => [for (final i in _currentItems) _keyOf(i)],
+            replaceSelection: (keys) {
+              setState(() {
+                _selectedKeys
+                  ..clear()
+                  ..addAll(keys.cast<String>());
+              });
+            },
+          ),
+          onExit: () => _setSelecting(false),
+          child: GlassHeaderOverlay(
+            headerExtent: statusBarHeight + headerHeight,
+            headerTop: statusBarHeight,
+            headerHeight: headerHeight,
+            solidExtent: statusBarHeight,
+            liquid: true,
+            header: _buildHeader(context, t),
+            extra: [
+              GlassSelectionDock(
+                visible: _selecting,
+                selectedCount: _selectedKeys.length,
+                onClear: () => setState(_selectedKeys.clear),
+                actions: selectionActions,
+              ),
+            ],
+            body: TabBarView(
+              controller: _tabController,
+              // ⛔ 选择态下锁掉横滑：类型胶囊此刻是「已选 N 项」，换 tab 的入口
+              // 本来就没了；手一滑换成另一类，勾着的还是上一类的东西。
+              physics: _selecting
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
+              children: [
+                _buildList(
+                  context,
+                  t,
+                  statusBarHeight + headerHeight,
+                  WatchLaterItemType.video,
+                ),
+                _buildList(
+                  context,
+                  t,
+                  statusBarHeight + headerHeight,
+                  WatchLaterItemType.image,
                 ),
               ],
             ),
-          ],
-          body: TabBarView(
-            controller: _tabController,
-            // ⛔ 选择态下锁掉横滑：类型胶囊此刻是「已选 N 项」，换 tab 的入口
-            // 本来就没了；手一滑换成另一类，勾着的还是上一类的东西。
-            physics: _selecting
-                ? const NeverScrollableScrollPhysics()
-                : const ClampingScrollPhysics(),
-            children: [
-              _buildList(
-                context,
-                t,
-                statusBarHeight + headerHeight,
-                WatchLaterItemType.video,
-              ),
-              _buildList(
-                context,
-                t,
-                statusBarHeight + headerHeight,
-                WatchLaterItemType.image,
-              ),
-            ],
           ),
         ),
       ),
@@ -584,13 +613,16 @@ class _WatchLaterPageState extends State<WatchLaterPage>
         // 它和这一页的 [TabBarView] 抢同一个方向的手势：想从「视频」滑到
         // 「图库」，手指落在某一条上就把那条删了（2026-08-29 报障）。同一件事
         // 现在由批量编辑承担——看得见勾、能撤销、也不会被手滑触发。
-        return _WatchLaterTile(
-          key: ValueKey(_keyOf(item)),
-          item: item,
-          unwatchedOnly: _unwatchedOnly,
-          selectionMode: _selecting,
-          selected: _selectedKeys.contains(_keyOf(item)),
-          onToggleSelect: () => _toggleSelection(item),
+        return SelectableItem(
+          itemKey: _keyOf(item),
+          child: _WatchLaterTile(
+            key: ValueKey(_keyOf(item)),
+            item: item,
+            unwatchedOnly: _unwatchedOnly,
+            selectionMode: _selecting,
+            selected: _selectedKeys.contains(_keyOf(item)),
+            onToggleSelect: () => _toggleSelection(item),
+          ),
         );
       },
     );
@@ -637,10 +669,7 @@ class _WatchLaterTile extends StatelessWidget {
           return;
         }
         if (item.isInvalid) {
-          showAppToast(
-            t.watchLater.invalidItem,
-            type: AppToastType.warning,
-          );
+          showAppToast(t.watchLater.invalidItem, type: AppToastType.warning);
           return;
         }
         if (item.itemType == WatchLaterItemType.video) {

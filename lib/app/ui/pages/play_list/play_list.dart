@@ -220,10 +220,8 @@ class _PlayListPageState extends State<PlayListPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -253,6 +251,20 @@ class _PlayListPageState extends State<PlayListPage> {
           // 系统返回 / iOS 侧滑 / Esc 先退编辑态，而不是把整页弹掉
           child: SelectionPopScope(
             active: _isEditMode,
+            // 交给通用键鼠多选
+            model: SelectionModel(
+              enter: () {
+                if (!_isEditMode) _toggleEditMode();
+              },
+              isSelected: (k) => controller.selectedPlaylistIds.contains(k),
+              toggle: (k) => controller.toggleSelection(k as String),
+              loadedKeys: () => [for (final p in listSourceRepository) p.id],
+              replaceSelection: (keys) {
+                controller.selectedPlaylistIds
+                  ..clear()
+                  ..addAll(keys.cast<String>());
+              },
+            ),
             onExit: _toggleEditMode,
             child: _buildBody(context, headerExtent, statusBarHeight, isWide),
           ),

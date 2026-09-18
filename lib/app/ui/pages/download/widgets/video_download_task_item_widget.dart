@@ -2,29 +2,22 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/download_error_label.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/move_to_category_sheet.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/download_status_colors.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
-import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:open_file/open_file.dart';
-import 'package:super_clipboard/super_clipboard.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:path/path.dart' as path;
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 
@@ -46,454 +39,67 @@ class VideoDownloadTaskItem extends StatelessWidget {
   /// 上面那个筛选的显示名，用于「接着看」胶囊上写清是哪一批（'all' 为 null）。
   final String? queueCategoryTitle;
 
-  /// 单个任务的操作菜单：右键和右侧的「更多」按钮共用这一份条目。
-  ///
-  /// 「更多」原来吐的是底部 sheet，和右键那条路长得不一样——同一堆操作两套
-  /// 观感。现在两条路都走全站统一的玻璃面板：右键时没有「触发件」，落点用
-  /// 指针处一个零尺寸的 `Rect` 给（[globalPosition]，见 [showGlassMenu] 的
-  /// globalAnchor）；「更多」按钮则贴着按钮自己弹，落点由 [context] 量出来。
-  Future<void> _showTaskMenu(
-    BuildContext context, {
-    Offset? globalPosition,
-  }) async {
-    final t = slang.Translations.of(context);
-    final action = await showGlassMenu<String>(
-      anchorContext: context,
-      globalAnchor: globalPosition == null ? null : globalPosition & Size.zero,
-      entries: [
-        GlassMenuOption<String>(
-          value: 'detail',
-          icon: Icons.info,
-          label: t.download.downloadDetail,
-        ),
-        GlassMenuOption<String>(
-          value: 'copyUrl',
-          icon: Icons.link,
-          label: t.download.copyDownloadUrl,
-        ),
-        GlassMenuOption<String>(
-          value: 'moveTo',
-          icon: Icons.drive_file_move_outline,
-          label: t.download.category.moveTo,
-        ),
-        if (task.status == DownloadStatus.completed) ...[
-          GlassMenuOption<String>(
-            value: 'open',
-            icon: Icons.open_in_new,
-            label: t.download.openFile,
-          ),
-          GlassMenuOption<String>(
-            value: 'playLocally',
-            icon: Icons.play_circle_outline,
-            label: t.download.playLocally,
-          ),
-          if (Platform.isWindows || Platform.isMacOS || Platform.isLinux)
-            GlassMenuOption<String>(
-              value: 'reveal',
-              icon: Icons.folder_open,
-              label: t.download.showInFolder,
-            ),
-        ],
-        const GlassMenuSeparator(),
-        GlassMenuOption<String>(
-          value: 'delete',
-          icon: Icons.delete,
-          label: t.download.deleteTask,
-          destructive: true,
-        ),
-        GlassMenuOption<String>(
-          value: 'forceDelete',
-          icon: Icons.delete_forever,
-          label: t.download.forceDeleteTask,
-          destructive: true,
-        ),
-      ],
+  /// 卡片自己才会做的两件事：本地播放要带上列表页的分类池，进在线详情页
+  /// 也要把下载池交过去。其余动作走 [runDownloadAction] 的通用实现。
+  DownloadTaskActionHandlers _actionHandlers(BuildContext context) {
+    final videoId = VideoDownloadExtData.fromJson(task.extData!.data).id;
+    return DownloadTaskActionHandlers(
+      onOpen: () => _playLocalVideo(context),
+      onViewOnline: videoId == null ? null : () => _openVideoDetail(videoId),
     );
-    if (action == null || !context.mounted) return;
-    switch (action) {
-      case 'detail':
-        showDownloadDetailDialog(context, task);
-      case 'copyUrl':
-        _copyDownloadUrl(context);
-      case 'moveTo':
-        showMoveToCategorySheet(context, [task.id]);
-      case 'open':
-        _openFile(context);
-      case 'playLocally':
-        _playLocalVideo(context);
-      case 'reveal':
-        _showInFolder(context);
-      case 'delete':
-        _showDeleteConfirmDialog(context);
-      case 'forceDelete':
-        _showDeleteConfirmDialog(context, force: true);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final videoData = VideoDownloadExtData.fromJson(task.extData!.data);
-    final width = MediaQuery.of(context).size.width;
-    final isSmallScreen = width < 600;
-    final scale = DownloadUiScale.of(context);
-
-    // 从任务ID中提取清晰度信息
+    final isSmallScreen = MediaQuery.sizeOf(context).width < 600;
     final quality = videoData.quality;
 
-    return DownloadActionButtonTheme(
-      child: RepaintBoundary(
-        child: Card(
-          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          clipBehavior: Clip.hardEdge,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return DownloadTaskTile(
+      task: task,
+      title: videoData.title ?? task.fileName,
+      author: videoData.authorName == null
+          ? null
+          : DownloadTileAuthor(
+              name: videoData.authorName!,
+              avatarUrl: videoData.authorAvatar,
+              onTap: videoData.authorUsername == null
+                  ? null
+                  : () => _navigateToAuthorProfile(videoData),
+            ),
+      cover: videoData.thumbnail == null
+          ? const Center(child: Icon(Icons.video_library, size: 32))
+          : CachedNetworkImage(
+              imageUrl: videoData.thumbnail!,
+              fit: BoxFit.cover,
+              errorWidget: (context, url, error) =>
+                  const Center(child: Icon(Icons.broken_image_outlined)),
+            ),
+      coverBadges: [
+        if (quality != null)
+          Positioned(
+            left: 4,
+            bottom: 4,
+            child: _CoverBadge(CommonUtils.getQualityDisplayLabel(t, quality)),
           ),
-          child: Stack(
-            children: [
-              // 背景封面图 - 对应 Android 的 ivCoverBg
-              if (videoData.thumbnail != null)
-                Positioned.fill(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: RepaintBoundary(
-                      child: CachedNetworkImage(
-                        imageUrl: videoData.thumbnail!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              // 半透明遮罩层（替代模糊效果，避免边缘问题）
-              if (videoData.thumbnail != null)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: 0.85),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              // 内容层
-              GestureDetector(
-                onSecondaryTapUp: (details) => _showTaskMenu(
-                  context,
-                  globalPosition: details.globalPosition,
-                ),
-                child: InkWell(
-                  onTap: () => _onTap(context),
-                  mouseCursor: task.status == DownloadStatus.completed
-                      ? SystemMouseCursors.click
-                      : SystemMouseCursors.basic,
-                  splashFactory: task.status == DownloadStatus.completed
-                      ? InkSplash.splashFactory
-                      : NoSplash.splashFactory,
-                  child: Column(
-                    children: [
-                      // 上部内容区域（带 padding）
-                      Padding(
-                        padding: EdgeInsets.all(12 * scale),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 视频缩略图
-                            _buildThumbnail(
-                              context,
-                              videoData,
-                              isSmallScreen,
-                              quality,
-                            ),
-                            SizedBox(width: 12 * scale),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // 视频标题
-                                  Text(
-                                    videoData.title ?? task.fileName,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  // 作者信息
-                                  if (videoData.authorName != null)
-                                    MouseRegion(
-                                      cursor: videoData.authorUsername != null
-                                          ? SystemMouseCursors.click
-                                          : SystemMouseCursors.basic,
-                                      child: GestureDetector(
-                                        onTap: videoData.authorUsername != null
-                                            ? () => _navigateToAuthorProfile(
-                                                videoData,
-                                              )
-                                            : null,
-                                        child: Row(
-                                          children: [
-                                            AvatarWidget(
-                                              avatarUrl: videoData.authorAvatar,
-                                              size: 25 * scale,
-                                            ),
-                                            SizedBox(width: 12 * scale),
-                                            Text(
-                                              videoData.authorName!,
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.titleMedium,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            // 主要操作 + 快捷删除按钮
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildMainActionButton(context),
-                                Obx(() {
-                                  final isProcessing = DownloadService.to
-                                      .isTaskProcessing(task.id);
-                                  return IconButton(
-                                    icon: isProcessing
-                                        ? SizedBox(
-                                            width: 24 * scale,
-                                            height: 24 * scale,
-                                            child:
-                                                const CircularProgressIndicator(
-                                                  strokeWidth: 2,
-                                                ),
-                                          )
-                                        : const Icon(Icons.delete_outline),
-                                    tooltip: t.download.deleteTask,
-                                    onPressed: isProcessing
-                                        ? null
-                                        : () =>
-                                              _showDeleteConfirmDialog(context),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      // 进度和状态（紧贴边缘，无 padding）
-                      _buildProgressStatusBar(
-                        context,
-                        videoData,
-                        isSmallScreen,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+        if (videoData.duration != null)
+          Positioned(
+            right: 4,
+            bottom: 4,
+            child: _CoverBadge(_formatDuration(videoData.duration!)),
           ),
-        ),
-      ),
+      ],
+      statusBuilder: (context) =>
+          isSmallScreen && task.status == DownloadStatus.downloading
+          ? _buildSmallScreenDownloadingStatus(context, t)
+          : StatusLabel(status: task.status, text: _getStatusText(context)),
+      primaryAction: _buildMainActionButton(context),
+      gridMeta: _formatFileSize(task.downloadedBytes),
+      onTap: () => _onTap(context),
+      handlers: _actionHandlers(context),
+      showPlayHint: task.status == DownloadStatus.completed,
     );
-  }
-
-  Widget _buildThumbnail(
-    BuildContext context,
-    VideoDownloadExtData videoData,
-    bool isSmallScreen,
-    String? quality,
-  ) {
-    final t = slang.Translations.of(context);
-    final scale = DownloadUiScale.of(context);
-    if (videoData.thumbnail == null) {
-      return Container(
-        width: 120 * scale,
-        height: 80 * scale,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(child: Icon(Icons.video_library, size: 32 * scale)),
-      );
-    }
-
-    return Container(
-      width: 120 * scale,
-      height: 80 * scale,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Stack(
-          children: [
-            // 主缩略图
-            Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: videoData.thumbnail!,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: Colors.grey[200]),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error_outline),
-                ),
-              ),
-            ),
-            // 清晰度标签
-            if (quality != null)
-              Positioned(
-                left: 4,
-                top: 4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    CommonUtils.getQualityDisplayLabel(t, quality),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            // 时长标签
-            if (videoData.duration != null)
-              Positioned(
-                right: 4,
-                bottom: 4,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    _formatDuration(videoData.duration!),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProgressStatusBar(
-    BuildContext context,
-    VideoDownloadExtData videoData,
-    bool isSmallScreen,
-  ) {
-    final t = slang.Translations.of(context);
-    final scale = DownloadUiScale.of(context);
-
-    return Obx(() {
-      // 监听进度变更
-      DownloadService.to.getProgressTrigger(task.id).value;
-
-      // 计算进度
-      double progress = 0.0;
-      if (task.totalBytes > 0) {
-        progress = task.downloadedBytes / task.totalBytes;
-      } else if (task.status == DownloadStatus.completed) {
-        progress = 1.0;
-      }
-
-      // 完成状态使用更淡的颜色
-      final isCompleted = task.status == DownloadStatus.completed;
-      final alphaStart = isCompleted ? 0.15 : 0.3;
-      final alphaEnd = isCompleted ? 0.05 : 0.1;
-
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12),
-          ),
-          gradient: LinearGradient(
-            colors: [
-              downloadStatusColor(
-                context,
-                task.status,
-              ).withValues(alpha: alphaStart),
-              downloadStatusColor(
-                context,
-                task.status,
-              ).withValues(alpha: alphaEnd),
-            ],
-            stops: [progress.clamp(0.0, 1.0), progress.clamp(0.0, 1.0)],
-          ),
-        ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 12 * scale,
-          vertical: 8 * scale,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 窄屏下载中状态：分两行显示
-                  if (isSmallScreen &&
-                      task.status == DownloadStatus.downloading)
-                    _buildSmallScreenDownloadingStatus(context, t)
-                  // 窄屏其他状态或宽屏所有状态：单行显示
-                  else
-                    StatusLabel(
-                      status: task.status,
-                      text: _getStatusText(context),
-                    ),
-                  DownloadErrorLabel(task: task),
-                ],
-              ),
-            ),
-            // 视频详情按钮
-            if (videoData.id != null)
-              IconButton(
-                icon: const Icon(Icons.video_library),
-                onPressed: () => _openVideoDetail(videoData.id!),
-                tooltip: t.download.viewVideoDetail,
-              ),
-            // 更多操作按钮
-            DownloadMoreButton(
-              tooltip: t.download.moreOptions,
-              onPressed: _showTaskMenu,
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   // 窄屏下载中状态的专用显示组件
@@ -687,106 +293,6 @@ class VideoDownloadTaskItem extends StatelessWidget {
     return '$sizeStr ${units[unitIndex]}';
   }
 
-  Future<void> _copyDownloadUrl(BuildContext context) async {
-    final t = slang.Translations.of(context);
-    try {
-      final item = DataWriterItem();
-      item.add(Formats.plainText(task.url));
-      await SystemClipboard.instance?.write([item]);
-
-      if (context.mounted) {
-        showAppToast(
-          t.download.copyDownloadUrlSuccess,
-          type: AppToastType.success,
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        showAppToast(
-          t.download.errors.copyDownloadUrlFailed,
-          type: AppToastType.error,
-        );
-      }
-    }
-  }
-
-  Future<void> _showInFolder(BuildContext context) async {
-    final t = slang.Translations.of(context);
-    try {
-      final filePath = path.normalize(task.savePath);
-      LogUtils.d('显示文件夹: $filePath', 'DownloadTaskItem');
-
-      final file = File(filePath);
-      if (!await file.exists()) {
-        if (context.mounted) {
-          showAppToast(
-            t.download.errors.fileNotFound,
-            type: AppToastType.error,
-          );
-        }
-        return;
-      }
-
-      if (Platform.isWindows) {
-        await Process.run('explorer.exe', ['/select,', filePath]);
-      } else if (Platform.isMacOS) {
-        await Process.run('open', ['-R', filePath]);
-      } else if (Platform.isLinux) {
-        final directory = path.dirname(filePath);
-        await Process.run('xdg-open', [directory]);
-      }
-    } catch (e) {
-      LogUtils.e('打开文件夹失败', tag: 'DownloadTaskItem', error: e);
-      if (context.mounted) {
-        showAppToast(
-          t.download.errors.openFolderFailed,
-          type: AppToastType.error,
-        );
-      }
-    }
-  }
-
-  Future<void> _openFile(BuildContext context) async {
-    final t = slang.Translations.of(context);
-    try {
-      final filePath = path.normalize(task.savePath);
-      LogUtils.d('打开文件: $filePath', 'DownloadTaskItem');
-
-      final file = File(filePath);
-      if (!await file.exists()) {
-        if (context.mounted) {
-          showAppToast(
-            t.download.errors.fileNotFound,
-            type: AppToastType.error,
-          );
-        }
-        return;
-      }
-
-      final result = await OpenFile.open(filePath);
-      LogUtils.d('打开文件结果: ${result.type}', 'DownloadTaskItem');
-      if (result.type != ResultType.done) {
-        LogUtils.e('打开文件失败: ${result.message}', tag: 'DownloadTaskItem');
-        if (context.mounted) {
-          showAppToast(
-            t.download.errors.openFolderFailedWithMessage(
-              message: result.message,
-            ),
-            type: AppToastType.error,
-          );
-        }
-      }
-    } catch (e) {
-      LogUtils.e('打开文件失败', tag: 'DownloadTaskItem', error: e);
-      if (context.mounted) {
-        showAppToast(
-          t.download.errors.openFolderFailed,
-          type: AppToastType.error,
-        );
-      }
-    }
-  }
-
   /// 本地播放视频
   Future<void> _playLocalVideo(BuildContext context) async {
     final t = slang.Translations.of(context);
@@ -796,12 +302,8 @@ class VideoDownloadTaskItem extends StatelessWidget {
 
       final file = File(filePath);
       if (!await file.exists()) {
-        if (context.mounted) {
-          showAppToast(
-            t.download.errors.fileNotFound,
-            type: AppToastType.error,
-          );
-        }
+        // 找不到不等于删掉了：让用户去别处找回，或自己确认删记录。
+        if (context.mounted) await showMissingDownloadDialog(task);
         return;
       }
 
@@ -897,42 +399,31 @@ class VideoDownloadTaskItem extends StatelessWidget {
     }
     return PlaybackQueueRef(queueId: queue.queueId, currentItemId: id);
   }
+}
 
-  void _showDeleteConfirmDialog(BuildContext context, {bool force = false}) {
-    final t = slang.Translations.of(context);
-    showAppDialog(
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GlassAlertDialog(
-            title: force ? t.download.forceDeleteTask : t.download.deleteTask,
-            content: Text(
-              force
-                  ? t.download.forceDeleteTaskConfirmation
-                  : t.download.deleteTaskConfirmation,
-            ),
-            actions: [
-              GlassDialogAction(
-                label: t.common.cancel,
-                emphasized: false,
-                onPressed: () => AppService.tryPop(),
-              ),
-              GlassDialogAction(
-                label: t.common.confirm,
-                emphasized: false,
-                destructive: true,
-                onPressed: () {
-                  AppService.tryPop();
-                  DownloadService.to.deleteTask(
-                    task.id,
-                    ignoreFileDeleteError: force,
-                  );
-                },
-              ),
-            ],
+/// 封面角上的小胶囊（清晰度、时长）。
+class _CoverBadge extends StatelessWidget {
+  const _CoverBadge(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black54,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
           ),
-          const SafeArea(top: false, child: SizedBox.shrink()),
-        ],
+        ),
       ),
     );
   }

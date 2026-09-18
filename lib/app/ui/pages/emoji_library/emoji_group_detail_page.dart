@@ -101,6 +101,20 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
       onClear: _clearSelection,
       child: SelectionPopScope(
         active: _isSelectionMode,
+        // 交给通用键鼠多选
+        model: SelectionModel(
+          enter: () {
+            if (!_isSelectionMode) _toggleSelectionMode();
+          },
+          isSelected: (k) => _selectedImages.contains(k),
+          toggle: (k) => _toggleImageSelection(k as int),
+          loadedKeys: () => [for (final i in _images) i.imageId],
+          replaceSelection: (keys) {
+            setState(() {
+              _selectedImages = keys.cast<int>().toSet();
+            });
+          },
+        ),
         onExit: _toggleSelectionMode,
         child: _buildSheet(context),
       ),
@@ -304,76 +318,79 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
         final image = _images[index];
         final isSelected = _selectedImages.contains(image.imageId);
 
-        return GestureDetector(
-          onLongPress: () {
-            if (!_isSelectionMode) {
-              _toggleSelectionMode();
-              _toggleImageSelection(image.imageId);
-            }
-          },
-          onTap: () {
-            if (_isSelectionMode) {
-              _toggleImageSelection(image.imageId);
-            } else {
-              _showImagePreview(image);
-            }
-          },
-          child: Container(
-            // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐。
-            // 选中态的描边/勾选角标统一由下面的 GlassSelectableOverlay 负责，
-            // 这里只画一条常驻的静态细边框，不再跟着 isSelected 变色/加粗
-            // （曾经两层描边各画各的，选中时会叠出双层边框）。
-            decoration: BoxDecoration(
-              border: Border.all(color: cs.outlineVariant, width: 1),
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Stack(
-                fit: StackFit.expand, // 确保 Stack 填满整个容器
-                children: [
-                  // 图片
-                  Image.network(
-                    image.thumbnailUrl ?? image.url,
-                    fit: BoxFit.cover,
-                    headers: const {'referer': CommonConstants.iwaraBaseUrl},
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(color: Colors.white),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: cs.surfaceContainerHighest,
-                        child: Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // 选择态：角标勾选片 + 选中描边（全站统一，
-                  // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
-                  Positioned.fill(
-                    child: GlassSelectableOverlay(
-                      selectionMode: _isSelectionMode,
-                      selected: isSelected,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+        return SelectableItem(
+          itemKey: image.imageId,
+          child: GestureDetector(
+            onLongPress: () {
+              if (!_isSelectionMode) {
+                _toggleSelectionMode();
+                _toggleImageSelection(image.imageId);
+              }
+            },
+            onTap: () {
+              if (_isSelectionMode) {
+                _toggleImageSelection(image.imageId);
+              } else {
+                _showImagePreview(image);
+              }
+            },
+            child: Container(
+              // 使用 Container 包装整个 Stack，确保一致的尺寸和对齐。
+              // 选中态的描边/勾选角标统一由下面的 GlassSelectableOverlay 负责，
+              // 这里只画一条常驻的静态细边框，不再跟着 isSelected 变色/加粗
+              // （曾经两层描边各画各的，选中时会叠出双层边框）。
+              decoration: BoxDecoration(
+                border: Border.all(color: cs.outlineVariant, width: 1),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 2,
+                    offset: const Offset(0, 1),
                   ),
                 ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Stack(
+                  fit: StackFit.expand, // 确保 Stack 填满整个容器
+                  children: [
+                    // 图片
+                    Image.network(
+                      image.thumbnailUrl ?? image.url,
+                      fit: BoxFit.cover,
+                      headers: const {'referer': CommonConstants.iwaraBaseUrl},
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: cs.surfaceContainerHighest,
+                          child: Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    // 选择态：角标勾选片 + 选中描边（全站统一，
+                    // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
+                    Positioned.fill(
+                      child: GlassSelectableOverlay(
+                        selectionMode: _isSelectionMode,
+                        selected: isSelected,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -503,9 +520,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                             ),
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: cs.error),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ),
@@ -516,9 +531,7 @@ class _EmojiGroupDetailSheetState extends State<EmojiGroupDetailSheet> {
                             icon: const Icon(Icons.close),
                             label: Text(t.emoji.close),
                             style: FilledButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
                         ),

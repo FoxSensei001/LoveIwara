@@ -277,6 +277,7 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '${num}개 기록 선택됨';
 	@override String get cancelSelectAll => '전체 선택 해제';
 	@override String get selectAll => '전체 선택';
+	@override String get invertSelection => '선택 반전';
 	@override String get exitEditMode => '편집 모드 종료';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => '선택한 ${num}개 항목을 삭제하시겠습니까?';
 	@override String get searchHistoryRecords => '기록 검색...';
@@ -4248,6 +4249,7 @@ extension on TranslationsKo {
 			'common.selectedRecords' => ({required Object num}) => '${num}개 기록 선택됨',
 			'common.cancelSelectAll' => '전체 선택 해제',
 			'common.selectAll' => '전체 선택',
+			'common.invertSelection' => '선택 반전',
 			'common.exitEditMode' => '편집 모드 종료',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '선택한 ${num}개 항목을 삭제하시겠습니까?',
 			'common.searchHistoryRecords' => '기록 검색...',
@@ -4617,9 +4619,9 @@ extension on TranslationsKo {
 			'settings.longPressPlaybackSpeed' => '길게 누르기 재생 속도',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '길게 누르기 재생 속도는 양수여야 합니다.',
 			'settings.defaultPlaybackSpeed' => '기본 재생 속도',
-			'settings.rememberPlaybackSpeed' => '재생 속도 기억',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => '재생 속도 기억',
 			'settings.rememberPlaybackSpeedDesc' => '활성화하면 플레이어에서 설정한 속도가 기본값으로 저장되어 새 동영상에 자동으로 적용됩니다.',
 			'settings.repeat' => '반복',
 			'settings.renderVerticalVideoInVerticalScreen' => '세로 화면에서 세로 동영상 렌더링',
@@ -5131,9 +5133,9 @@ extension on TranslationsKo {
 			'settings.downloadSettings.unableToGetPathStatus' => '경로 상태를 가져올 수 없습니다',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '참고: 실제 경로가 선택한 경로와 다릅니다',
 			'settings.downloadSettings.grantPermission' => '권한 부여',
-			'settings.downloadSettings.fixIssue' => '문제 수정',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => '문제 수정',
 			'settings.downloadSettings.issueFixed' => '문제가 수정되었습니다',
 			'settings.downloadSettings.fixFailed' => '수정에 실패했습니다. 수동으로 처리해 주세요',
 			'settings.downloadSettings.lackStoragePermission' => '저장소 권한이 없습니다',
@@ -5645,9 +5647,9 @@ extension on TranslationsKo {
 			'notifications.kApprovedThread' => '스레드 승인됨',
 			'notifications.kApprovedPost' => '게시물 승인됨',
 			'notifications.kApprovedForumPost' => '포럼 게시물 승인됨',
-			'notifications.kRejectedContent' => '콘텐츠 검토가 거부되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => '콘텐츠 검토가 거부되었습니다',
 			'notifications.kUnknownType' => '알 수 없는 알림 유형',
 			'conversation.errors.pleaseSelectAUser' => '사용자를 선택해 주세요',
 			'conversation.errors.pleaseEnterATitle' => '제목을 입력해 주세요',
@@ -6159,9 +6161,9 @@ extension on TranslationsKo {
 			'layoutSettings.title' => '레이아웃 설정',
 			'layoutSettings.descriptionTitle' => '레이아웃 구성 설명',
 			'layoutSettings.descriptionContent' => '여기서의 구성은 동영상 및 갤러리 목록 페이지에 표시되는 열 수를 결정합니다. 자동 모드를 선택하면 시스템이 화면 너비에 따라 자동으로 조정하고, 수동 모드를 선택하면 열 수를 고정할 수 있습니다.',
-			'layoutSettings.layoutMode' => '레이아웃 모드',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => '레이아웃 모드',
 			'layoutSettings.reset' => '초기화',
 			'layoutSettings.autoMode' => '자동 모드',
 			'layoutSettings.autoModeDesc' => '화면 너비에 따라 자동으로 조정',
@@ -6673,9 +6675,9 @@ extension on TranslationsKo {
 			'siteMode.switched' => ({required Object site}) => '${site} 모드로 전환했습니다. 앱이 새로 고쳐졌습니다.',
 			'savedSearchConfig.title' => '저장된 필터',
 			'savedSearchConfig.empty' => '저장된 필터가 없습니다',
-			'savedSearchConfig.saveTooltip' => '현재 필터 저장',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => '현재 필터 저장',
 			'savedSearchConfig.namePromptTitle' => '필터 저장',
 			'savedSearchConfig.nameLabel' => '이름',
 			'savedSearchConfig.nameHint' => '이름을 입력하세요',

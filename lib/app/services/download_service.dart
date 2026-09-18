@@ -40,10 +40,14 @@ class DeleteTasksResult {
   /// 因文件被占用 / 删除目标不安全等原因被跳过（记录保留）的任务数。
   final int skipped;
 
+  /// 被跳过（记录保留）的那些任务 id——删除入口据此提供「仍移除记录」。
+  final List<String> skippedIds;
+
   const DeleteTasksResult({
     required this.total,
     required this.deleted,
     required this.skipped,
+    this.skippedIds = const [],
   });
 }
 
@@ -358,6 +362,76 @@ class DownloadService extends GetxService {
 
   // 检查任务是否正在处理中（用于 UI 显示 loading）
   bool isTaskProcessing(String taskId) => _processingTaskIds.contains(taskId);
+
+  /// 外部长操作（移动已下载文件）占住一个任务，期间删除 / 暂停 / 重试一律
+  /// 被挡回，卡片也显示「处理中」。已被占用时返回 false。
+  bool tryLockTask(String taskId) {
+    if (_processingTaskIds.contains(taskId)) return false;
+    _processingTaskIds.add(taskId);
+    return true;
+  }
+
+  void unlockTask(String taskId) => _processingTaskIds.remove(taskId);
+
+  /// 库里的保存路径被改过（移动 / 重新定位）之后，让内存里那份跟上。
+  ///
+  /// ⛔ 未完成的任务常驻内存（Store 里就是 UI 正显示的那个对象），下载循环
+  /// 会把它**整行**写回库（[DownloadTaskRepository.updateTask]）——内存里还是
+  /// 旧路径的话，下一次写库就把刚改好的路径改回去了。
+  Future<void> syncRelocatedTask(String taskId) async {
+    final fresh = await _repository.getTaskById(taskId);
+    if (fresh == null) return;
+    final memory = store.taskOf(taskId) ?? _activeTasks[taskId];
+    if (memory == null) {
+      store.invalidateCompleted();
+      return;
+    }
+    memory.savePath = fresh.savePath;
+    memory.extData = fresh.extData;
+    _publishTask(memory, 'relocated');
+  }
+
+  /// 已完成但文件没了、或下载失败的任务：从头再下一遍（保存位置不变，
+  /// 要换位置由调用方先改好路径）。
+  ///
+  /// 视频走 [retryTask] 那条路：先按过期时间刷新链接再入队。图库只会补下
+  /// 磁盘上缺的那几张（续传判据本来就是「本地文件在不在」）。
+  /// 返回是否已入队。
+  Future<bool> redownloadTask(String taskId) async {
+    if (_processingTaskIds.contains(taskId)) return false;
+    final task =
+        store.taskOf(taskId) ??
+        _activeTasks[taskId] ??
+        await _repository.getTaskById(taskId);
+    if (task == null) return false;
+    if (task.status != DownloadStatus.completed &&
+        task.status != DownloadStatus.failed) {
+      return false;
+    }
+    // 文件好好的已完成任务不许「重新下载」：那等于在它身上从头覆写一遍。
+    if (task.status == DownloadStatus.completed &&
+        FileSystemEntity.typeSync(task.savePath) !=
+            FileSystemEntityType.notFound) {
+      return false;
+    }
+    if (task.extData?.type != DownloadTaskExtDataType.gallery) {
+      task.downloadedBytes = 0;
+    }
+    final wasCompleted = task.status == DownloadStatus.completed;
+    task.completedAt = null;
+    task.error = null;
+    task.errorType = null;
+    // 借失败任务的重试通道：它负责刷新链接、入队、乐观发布与回滚。
+    task.status = DownloadStatus.failed;
+    await _repository.updateTask(task);
+    _publishTask(task, 'redownloadRequested');
+    // 从历史区（DB 分页）挪进活跃区：活跃区那一侧 upsert 管，历史区那一行
+    // 得让它重拉，否则同一条会在两区各出现一次，直到这次下完。
+    if (wasCompleted) store.invalidateCompleted();
+    await retryTask(taskId);
+    final after = store.taskOf(taskId);
+    return after != null && after.status != DownloadStatus.failed;
+  }
 
   // =============================== 图库下载相关的字段(图库需要特殊处理，因为它需要下载多个图片而非单个文件) ===============================
   // 图库下载相关的字段, key是任务的id，value是图库下载进度
@@ -933,33 +1007,13 @@ class DownloadService extends GetxService {
   }
 
   Future<List<String>> _knownDownloadRoots() async {
-    final roots = <String>[];
-
+    if (!Get.isRegistered<DownloadPathService>()) return const [];
     try {
-      final defaultDir = await CommonUtils.getAppDirectory(
-        pathSuffix: 'downloads',
-      );
-      roots.add(defaultDir.path);
+      return await DownloadPathService.to.knownDownloadRoots();
     } catch (e) {
-      LogUtils.w('获取默认下载根目录失败: $e', 'DownloadService');
+      LogUtils.w('获取下载根目录失败: $e', 'DownloadService');
+      return const [];
     }
-
-    try {
-      if (Get.isRegistered<ConfigService>()) {
-        final configService = Get.find<ConfigService>();
-        final isCustomPathEnabled =
-            configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
-        final customPath =
-            configService[ConfigKey.CUSTOM_DOWNLOAD_PATH] as String;
-        if (isCustomPathEnabled && customPath.trim().isNotEmpty) {
-          roots.add(customPath);
-        }
-      }
-    } catch (e) {
-      LogUtils.w('获取自定义下载根目录失败: $e', 'DownloadService');
-    }
-
-    return roots.toSet().toList();
   }
 
   Future<bool> _isSafeDeleteTargetForTask(
@@ -968,13 +1022,96 @@ class DownloadService extends GetxService {
   ) async {
     if (!isSafeDeleteTarget(task.savePath, entityType)) return false;
     if (entityType != FileSystemEntityType.directory) return true;
+    // 图库文件夹从不递归删：只删我们自己写进去的那几张（见
+    // [_deleteOwnedGalleryFiles]），所以它落在哪儿都不会殃及旁人的文件。
+    if (_isGalleryTask(task)) return true;
 
+    // 其余目录才递归删，必须**严格**位于某个下载根之内——等于根本身也不行
+    // （重新定位时选的就是下载根，删它等于清空全部下载）。
     final roots = await _knownDownloadRoots();
-    if (roots.isEmpty) return true;
+    if (roots.isEmpty) return false;
+    return roots.any(
+      (root) =>
+          !_sameDeletePath(root, task.savePath) &&
+          DownloadPathService.isPathInsideBase(root, task.savePath),
+    );
+  }
 
-    return roots.any((root) {
-      return DownloadPathService.isPathInsideBase(root, task.savePath);
-    });
+  static const systemMetadataFileNames = {'.DS_Store', 'Thumbs.db', '.nomedia'};
+
+  static bool _isGalleryTask(DownloadTask task) =>
+      task.extData?.type == DownloadTaskExtDataType.gallery;
+
+  /// 图库文件夹里**我们写进去的**文件名：每张图按 [buildGalleryImageSavePath]
+  /// 的规则、记录里的 localPaths，以及图库视频旁边那张 `.poster.jpg`。
+  ///
+  /// 只认文件夹的直属文件、只按文件名比：savePath 被污染成上级目录时，那一级
+  /// 里不会恰好躺着这些名字的文件，于是什么都删不到。
+  static Set<String> galleryOwnedFileNames(DownloadTask task) {
+    final data = task.extData?.data;
+    if (!_isGalleryTask(task) || data == null) return const {};
+    final gallery = GalleryDownloadExtData.fromJson(data);
+    final names = <String>{};
+    for (final entry in gallery.imageList.entries) {
+      names.add(
+        path_lib.basename(
+          buildGalleryImageSavePath(
+            galleryDirectory: task.savePath,
+            imageId: entry.key,
+            url: entry.value,
+          ),
+        ),
+      );
+    }
+    for (final local in gallery.localPaths.values) {
+      names.add(path_lib.basename(local));
+    }
+    return {
+      for (final name in names) ...[
+        name,
+        path_lib.basename(galleryVideoPosterPath(name)),
+      ],
+    };
+  }
+
+  /// 删一个图库文件夹：只删 [galleryOwnedFileNames] 里的直属文件，删完文件夹
+  /// 空了才把它本身删掉（非递归）；还剩别人的东西就留着文件夹。
+  ///
+  /// 某个文件删不掉会抛出，交给外层的重试循环。返回删掉的文件路径。
+  static Future<List<String>> _deleteOwnedGalleryFiles(
+    DownloadTask task,
+  ) async {
+    final dir = Directory(task.savePath);
+    final owned = galleryOwnedFileNames(task);
+    final removed = <String>[];
+    await for (final entity in dir.list(followLinks: false)) {
+      if (entity is! File) continue;
+      if (!owned.contains(path_lib.basename(entity.path))) continue;
+      if (await entity.exists()) await entity.delete();
+      removed.add(entity.path);
+    }
+    // 只剩系统自己丢进来的元数据（Finder / 资源管理器 / 安卓媒体扫描标记）时，
+    // 一并清掉，否则文件夹永远删不掉。
+    final leftovers = await dir.list(followLinks: false).toList();
+    if (leftovers.isNotEmpty &&
+        leftovers.every(
+          (e) =>
+              e is File &&
+              systemMetadataFileNames.contains(path_lib.basename(e.path)),
+        )) {
+      for (final e in leftovers) {
+        await e.delete();
+      }
+    }
+    try {
+      await dir.delete();
+    } on io.FileSystemException catch (e) {
+      LogUtils.i(
+        '图库文件夹里还有别的文件，保留文件夹: ${task.savePath} ($e)',
+        'DownloadService',
+      );
+    }
+    return removed;
   }
 
   // 删除任务
@@ -985,11 +1122,16 @@ class DownloadService extends GetxService {
   // [silent] 为 true 时不弹出任何 toast（用于批量删除，避免逐条刷屏）。
   // [notify] 为 true 时在删除成功后递增状态版本触发 UI 刷新；批量删除可置 false，
   // 由调用方在结束后统一刷新一次，避免长任务期间反复重载列表。
+  ///
+  /// [deleteFiles] 为 false 时只删记录、磁盘一个字节都不碰。「找不到文件 →
+  /// 移除记录」必须走这条：从诊断到真正执行之间文件可能已经回来了（SD 卡插回、
+  /// 文件夹挪回），按路径删就会把用户刚找回的真文件删掉。
   Future<bool> deleteTask(
     String taskId, {
     bool ignoreFileDeleteError = false,
     bool silent = false,
     bool notify = true,
+    bool deleteFiles = true,
   }) async {
     // 防止重复删除
     if (_processingTaskIds.contains(taskId)) {
@@ -1038,7 +1180,10 @@ class DownloadService extends GetxService {
       const retryDelay = Duration(milliseconds: 300);
       final deleteTargetType = FileSystemEntity.typeSync(task.savePath);
 
-      if (!await _isSafeDeleteTargetForTask(task, deleteTargetType)) {
+      if (!deleteFiles) {
+        LogUtils.i('只删记录、保留磁盘文件: ${task.savePath}', 'DownloadService');
+        isDeleteSuccess = true;
+      } else if (!await _isSafeDeleteTargetForTask(task, deleteTargetType)) {
         LogUtils.e('拒绝删除不安全的下载目标: ${task.savePath}', tag: 'DownloadService');
         if (!ignoreFileDeleteError) {
           if (!silent) {
@@ -1053,9 +1198,11 @@ class DownloadService extends GetxService {
       // 上面判定为不安全而跳过删除时（isDeleteSuccess 已为真）不列：那可能是
       // 整个下载根目录。
       final removedMediaPaths = isDeleteSuccess
-          ? const <String>[]
+          ? <String>[]
           : deleteTargetType == FileSystemEntityType.directory
-          ? MediaScanService.listFilesForRemoval(task.savePath)
+          ? (_isGalleryTask(task)
+                ? <String>[]
+                : MediaScanService.listFilesForRemoval(task.savePath))
           : [task.savePath];
 
       while (!isDeleteSuccess && retryCount < maxRetries) {
@@ -1070,7 +1217,11 @@ class DownloadService extends GetxService {
           final dir = Directory(task.savePath);
           if (await dir.exists()) {
             try {
-              await dir.delete(recursive: true);
+              if (_isGalleryTask(task)) {
+                removedMediaPaths.addAll(await _deleteOwnedGalleryFiles(task));
+              } else {
+                await dir.delete(recursive: true);
+              }
               LogUtils.d('已删除文件夹: ${task.savePath}', 'DownloadService');
               isDeleteSuccess = true;
             } catch (e) {
@@ -1199,11 +1350,13 @@ class DownloadService extends GetxService {
     List<DownloadTask> tasks, {
     void Function(int done, int total)? onProgress,
     bool ignoreFileDeleteError = false,
+    bool deleteFiles = true,
   }) async {
     final total = tasks.length;
     int deleted = 0;
     int skipped = 0;
     final removedIds = <String>[];
+    final skippedIds = <String>[];
 
     onProgress?.call(0, total);
     for (var i = 0; i < tasks.length; i++) {
@@ -1214,6 +1367,7 @@ class DownloadService extends GetxService {
           ignoreFileDeleteError: ignoreFileDeleteError,
           silent: true,
           notify: false,
+          deleteFiles: deleteFiles,
         );
       } catch (e) {
         ok = false;
@@ -1228,6 +1382,7 @@ class DownloadService extends GetxService {
         removedIds.add(tasks[i].id);
       } else {
         skipped++;
+        skippedIds.add(tasks[i].id);
       }
       onProgress?.call(i + 1, total);
     }
@@ -1247,7 +1402,12 @@ class DownloadService extends GetxService {
 
     if (total > 0) await _syncLocalLibraryAfterTaskChange();
 
-    return DeleteTasksResult(total: total, deleted: deleted, skipped: skipped);
+    return DeleteTasksResult(
+      total: total,
+      deleted: deleted,
+      skipped: skipped,
+      skippedIds: skippedIds,
+    );
   }
 
   Future<void> _syncLocalLibraryAfterTaskChange() async {
@@ -2515,10 +2675,15 @@ class DownloadService extends GetxService {
         return localPath == null || !File(localPath).existsSync();
       }).toList();
 
+      // ⛔ 「被取消没有」一律看**本轮自己的** [cancelToken]，不查
+      // `_activeDownloads[task.id]`：暂停后很快又继续（用户手快，或「移动已下载
+      // 文件」暂停→搬→恢复）时，那个位置已经换成了新一轮的令牌。拿新令牌判旧循环
+      // 会让旧循环以为自己没被取消 → 把任务写成「部分失败」，并在 finally 里把
+      // 新一轮的令牌删掉（新一轮从此暂停不了、还白占一个并发位）。
       // 串行下载每个图片
       for (var entry in pendingImages) {
         // 如果任务被取消，则退出循环
-        if (_activeDownloads[task.id]?.isCancelled ?? true) {
+        if (cancelToken.isCancelled) {
           LogUtils.i('图库下载任务已取消: ${task.fileName}', 'DownloadService');
           break;
         }
@@ -2565,15 +2730,18 @@ class DownloadService extends GetxService {
             }
           }
 
-          // 如果是第一次失败，等待后重试
+          // 如果是第一次失败，等待后重试（被取消的不重试，也别空等 3 秒）
           if (!success && retry == 0) {
+            if (cancelToken.isCancelled) break;
             await Future.delayed(const Duration(seconds: 3));
+            // 等的这 3 秒里可能被暂停了（移动会先暂停再搬）。
+            if (cancelToken.isCancelled) break;
           }
         }
       }
 
       // 检查最终状态
-      if (_activeDownloads[task.id]?.isCancelled ?? true) {
+      if (cancelToken.isCancelled) {
         // 任务被取消，更新状态为暂停
         task.status = DownloadStatus.paused;
       } else {
@@ -2644,8 +2812,10 @@ class DownloadService extends GetxService {
       _galleryDownloadProgress.remove(task.id);
       _galleryImageProgress.remove(task.id);
     } finally {
-      // 如果不是暂停状态，清理活跃下载状态
-      if (task.status != DownloadStatus.paused) {
+      // 如果不是暂停状态，清理活跃下载状态——只清**自己**那一轮的：
+      // 位置上若已是新一轮的令牌，旧循环不许动它（见上面循环开头的说明）。
+      if (task.status != DownloadStatus.paused &&
+          identical(_activeDownloads[task.id], cancelToken)) {
         _activeDownloads.remove(task.id);
         _activeTasks.remove(task.id);
       }
@@ -2659,6 +2829,9 @@ class DownloadService extends GetxService {
     String imageId,
     CancelToken cancelToken,
   ) async {
+    // 已被取消（暂停 / 移动）就一个字都别写：下面第一步就是整行写库 + 发布
+    // 「下载中」，旧循环醒来时会把状态和旧路径写回去。
+    if (cancelToken.isCancelled) return false;
     final savePath = buildGalleryImageSavePath(
       galleryDirectory: task.savePath,
       imageId: imageId,

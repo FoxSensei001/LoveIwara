@@ -214,6 +214,19 @@ class _HistoryListPageState extends State<HistoryListPage>
           // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
           child: SelectionPopScope(
             active: active,
+            // 交给通用键鼠多选
+            model: SelectionModel(
+              enter: () {
+                if (!controller.isMultiSelect.value) {
+                  controller.toggleMultiSelect();
+                }
+              },
+              isSelected: (k) => controller.selectedRecords.contains(k),
+              toggle: (k) => controller.toggleSelection(k as int),
+              loadedKeys: () => [for (final r in controller.repository) r.id],
+              replaceSelection: (keys) =>
+                  controller.selectedRecords.assignAll(keys.cast<int>()),
+            ),
             onExit: controller.toggleMultiSelect,
             child: _buildScaffoldBody(
               context,
@@ -500,10 +513,8 @@ class _HistoryListPageState extends State<HistoryListPage>
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -529,82 +540,85 @@ class _HistoryListPageState extends State<HistoryListPage>
     HistoryRecord record,
     HistoryListController controller,
   ) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final itemWidth =
-            constraints.maxWidth.isFinite && constraints.maxWidth > 0
-            ? constraints.maxWidth
-            : MediaLayoutUtils.calculateCardWidth(
-                MediaQuery.sizeOf(context).width,
-              );
+    return SelectableItem(
+      itemKey: record.id,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final itemWidth =
+              constraints.maxWidth.isFinite && constraints.maxWidth > 0
+              ? constraints.maxWidth
+              : MediaLayoutUtils.calculateCardWidth(
+                  MediaQuery.sizeOf(context).width,
+                );
 
-        return Obx(() {
-          final bool isSelected = controller.selectedRecords.contains(
-            record.id,
-          );
-          final bool isMultiSelect = controller.isMultiSelect.value;
-          final dynamic originalData = record.getOriginalData();
+          return Obx(() {
+            final bool isSelected = controller.selectedRecords.contains(
+              record.id,
+            );
+            final bool isMultiSelect = controller.isMultiSelect.value;
+            final dynamic originalData = record.getOriginalData();
 
-          return SizedBox(
-            width: itemWidth,
-            child: Card(
-              margin: EdgeInsets.zero,
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(itemWidth < 220 ? 6 : 8),
-              ),
-              child: Stack(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (record.itemType == 'video')
-                        VideoCardListItemWidget(
-                          video: originalData,
-                          width: itemWidth,
-                        )
-                      else if (record.itemType == 'image')
-                        ImageModelCardListItemWidget(
-                          imageModel: originalData,
-                          width: itemWidth,
-                        )
-                      else if (record.itemType == 'post')
-                        PostCardListItemWidget(post: originalData)
-                      else if (record.itemType == 'thread')
-                        ThreadListItemWidget(
-                          thread: originalData,
-                          categoryId: originalData.section,
-                        ),
-                      _buildHistoryItemFooter(record, controller),
-                    ],
-                  ),
-                  // 选择态：角标勾选片 + 选中描边（全站统一，
-                  // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
-                  Positioned.fill(
-                    child: GlassSelectableOverlay(
-                      selectionMode: isMultiSelect,
-                      selected: isSelected,
-                      borderRadius: BorderRadius.circular(
-                        itemWidth < 220 ? 6 : 8,
-                      ),
+            return SizedBox(
+              width: itemWidth,
+              child: Card(
+                margin: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(itemWidth < 220 ? 6 : 8),
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (record.itemType == 'video')
+                          VideoCardListItemWidget(
+                            video: originalData,
+                            width: itemWidth,
+                          )
+                        else if (record.itemType == 'image')
+                          ImageModelCardListItemWidget(
+                            imageModel: originalData,
+                            width: itemWidth,
+                          )
+                        else if (record.itemType == 'post')
+                          PostCardListItemWidget(post: originalData)
+                        else if (record.itemType == 'thread')
+                          ThreadListItemWidget(
+                            thread: originalData,
+                            categoryId: originalData.section,
+                          ),
+                        _buildHistoryItemFooter(record, controller),
+                      ],
                     ),
-                  ),
-                  if (isMultiSelect)
+                    // 选择态：角标勾选片 + 选中描边（全站统一，
+                    // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
                     Positioned.fill(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => controller.toggleSelection(record.id),
-                          child: const SizedBox.expand(),
+                      child: GlassSelectableOverlay(
+                        selectionMode: isMultiSelect,
+                        selected: isSelected,
+                        borderRadius: BorderRadius.circular(
+                          itemWidth < 220 ? 6 : 8,
                         ),
                       ),
                     ),
-                ],
+                    if (isMultiSelect)
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => controller.toggleSelection(record.id),
+                            child: const SizedBox.expand(),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          );
-        });
-      },
+            );
+          });
+        },
+      ),
     );
   }
 
@@ -836,10 +850,7 @@ class _HistoryListPageState extends State<HistoryListPage>
               );
               await controller.repository.refresh(true);
               _notifyFilterChanged();
-              showAppToast(
-                slang.t.common.success,
-                type: AppToastType.success,
-              );
+              showAppToast(slang.t.common.success, type: AppToastType.success);
             },
           ),
         ],

@@ -164,6 +164,7 @@ common:
   selectedRecords: '${num} 件のレコードが選択されました'
   cancelSelectAll: すべての選択を解除
   selectAll: すべて選択
+  invertSelection: 選択を反転
   exitEditMode: 編集モードを終了
   areYouSureYouWantToDeleteSelectedItems: '選択した ${num} 件のレコードを削除してもよろしいですか？'
   searchHistoryRecords: 検索履歴...
@@ -1813,6 +1814,46 @@ download:
     banner: '前回終了時に未完了だったタスク ${num} 件を一時停止しました'
     resume: すべて再開
     dismiss: 閉じる
+  actions:
+    open: 開く
+    play: 再生
+    openWith: 他のアプリで開く
+    redownload: 再ダウンロード
+    relocate: ファイルを移動…
+    categorize: 分類…
+    viewOnline: オンラインページを見る
+    delete: 削除…
+    redownloadStarted: '${count} 件の再ダウンロードを開始しました'
+    redownloadNone: 再ダウンロードできる項目がありません
+    deleteTitle: '${count} 件のダウンロードを削除しますか？'
+    deleteSummary: '${count} 件 · ${size}'
+    deleteSummaryNoSize: '${count} 件'
+    deleteGalleryNote: 'うち ${count} 件のギャラリーはサイズに含まれていません'
+    deleteFiles: ディスク上のファイルも削除
+    deleteFilesDesc: オフにするとリストの記録だけを削除し、ファイルはそのまま残ります
+    deleteFilesAllMissing: ファイルはすでにないため、記録だけを削除します
+    deleteDone: '${count} 件を削除しました'
+    deletePartial: '${failed} 件のファイルを削除できませんでした（使用中の可能性があります）。記録は残しています'
+    removeRecordAnyway: 記録だけ削除
+    fileMissing: ファイルが見つかりません
+    filePending: 今はファイルが見つかりません（復元できる可能性があります）
+    statusActive: 進行中
+    statusCompleted: 完了
+    needsAttention: 要対応
+    needsAttentionCount: '要対応 · ${count}'
+    organize: 整理
+    checkIntegrity: ファイルの整合性をチェック…
+    migrateToCurrent: 現在のダウンロードフォルダへ移動…
+    migrateNone: すべてのダウンロード済みコンテンツは現在のダウンロードフォルダにあります
+  notice:
+    failed: '${count} 件のダウンロードが失敗しました'
+    retryAll: すべて再試行
+    view: 表示
+    missing: 'ダウンロード済みの ${count} 件のファイルが見つかりません'
+    handle: 対処…
+    outside: '古いダウンロードフォルダに ${count} 件残っています'
+    migrate: 移動
+    dismiss: 閉じる
   emptyTaskList: ダウンロードタスクがありません
   noMatchingTasks: 一致するタスクがありません
   deleteByDate:
@@ -1833,6 +1874,141 @@ download:
     deleting: 削除中 ${done}/${total}…
     resultSuccess: ${count}件のタスクを削除しました
     resultPartial: ${deleted}件を削除、${skipped}件をスキップ（使用中）
+  relocation:
+    moveFiles: ファイルを移動
+    moveFilesEllipsis: ファイルを移動…
+    chooseDestination: ファイルの移動先
+    currentDownloadDir: 現在のダウンロードフォルダ
+    otherFolder: 別のフォルダを選択…
+    pickerUnsupported: この端末ではフォルダを選択できません。ダウンロードはアプリ専用フォルダに保存されます。
+    planning: ファイルを確認しています…
+    confirmTitle: ファイルを移動しますか？
+    confirmNote: ディスク上でファイルを移動します。視聴位置、VR 設定、お気に入りも一緒に引き継がれます。
+    nothingToMove: 選択した項目はどれも移動できません。各項目の理由は下を確認してください。
+    move: 移動
+    moving: '移動中 ${done}/${total}'
+    stop: 停止
+    stopping: 現在の項目が終わったら停止します…
+    resultTitle: 移動が完了しました
+    resultMoved: '${count} 件を移動しました'
+    cancelled: 停止しました。移動済みの項目はすべて完全です。
+    alreadyRunning: 別の移動がすでに実行中です
+    destination: 移動先
+    statMove: 移動予定
+    statSkip: スキップ
+    statRenamed: 名前変更
+    statMoved: 移動済み
+    statFailed: 未移動
+    statLeftover: 残存
+    sectionMove: 移動する項目
+    sectionSkip: スキップする項目
+    sectionMoved: 移動済み
+    sectionFailed: 移動されなかった項目（元の場所のまま）
+    sectionLeftover: 削除しきれなかった古いフォルダ
+    leftoverHint: 新しい場所のコピーは完全です。これらの残りは削除して構いません。
+    from: 移動元
+    to: 移動先
+    renamedBadge: '同じ名前があるため「${name}」として保存します'
+    showPaths: パスを表示
+    hidePaths: パスを隠す
+    revealInFolder: フォルダで表示
+    copyPath: パスをコピー
+    pathCopied: パスをコピーしました
+    stateDownloading: 'ダウンロード中 ${percent}%'
+    statePending: ダウンロード待ち
+    statePaused: '${percent}% で一時停止中'
+    stateFailed: ダウンロード失敗
+    skipAlreadyThere: すでにこのフォルダにあります
+    skipInsideSource: 移動先がこのギャラリー自身のフォルダの中にあります
+    reasonBusy: 別の操作（削除または移動）を実行中
+    reasonSourceLocked: ファイルが使用中（再生中など）のため元の場所から削除できませんでした。何も変更していません。
+    reasonNoSpace: 移動先の空き容量が不足したため、残りをすべて停止しました。
+    reasonVerifyFailed: コピーしたファイルのサイズが元と一致しなかったため、コピーを破棄しました。
+    reasonIoError: ファイルの読み書きに失敗しました。何も変更していません。
+    systemMessage: 'システムメッセージ：${message}'
+    outsideTitle: 'ダウンロード済みの ${count} 件がこのフォルダの外にあります'
+    outsideSubtitle: 今の場所でもそのまま再生できます。ここへ移動するとひとまとめにできます。
+    moveHere: ここへ移動
+    missingTitle: ファイルが見つかりません
+    recordedLocation: 記録されている場所
+    legendExists: 存在する
+    legendMissing: 見つからない
+    diagVolume: 'ストレージ「${volume}」が利用できません。SD カードや外付けドライブが接続されていない可能性があります。'
+    diagVolumeShort: 'ストレージ「${volume}」が未接続'
+    diagContainer: アプリの更新後、システムがアプリの保存場所を移動しました。ファイルはここにあります：
+    diagContainerShort: 更新後に保存場所が変わりました
+    diagNoAccess: この場所を読み取る権限がありません。「すべてのファイルへのアクセス」を許可してから再確認してください。
+    diagNoAccessShort: この場所を読み取る権限がありません
+    diagFolder: 'フォルダ「${folder}」はもう存在しません。'
+    diagFolderShort: 'フォルダ「${folder}」が存在しません'
+    diagFile: 'フォルダはありますが、「${name}」が中にありません。'
+    diagFileShort: 元のフォルダにありません
+    diagCandidates: そのフォルダに、これと思われるもの（名前が変わった可能性）が見つかりました：
+    diagNoCandidates: そのフォルダに同じサイズのファイルはありませんでした。
+    useThis: これを使う
+    fixPath: パスを修正
+    checkAgain: 再確認
+    grantPermission: 権限を許可
+    locate: 別のフォルダで探す…
+    deleteRecord: 記録を削除
+    locateNotFound: そのフォルダにこのダウンロードのファイルはありません
+    located: 見つかりました。記録を新しい場所に更新しました
+    stillMissing: まだ見つかりません
+    downloadedOn: '${date} にダウンロード'
+    galleryImages: '${count} 枚'
+    unfinishedDownloading: 'ダウンロード中 ${percent}%：一時停止してから途中のデータごと移動し、移動後に再開'
+    unfinishedPending: 'ダウンロード待ち：移動後にもう一度キューに入れます'
+    unfinishedPaused: '${percent}% で一時停止中：途中のデータごと移動し、一時停止のまま'
+    unfinishedFailed: 'ダウンロード失敗：途中のデータごと移動'
+    noDataYet: 'まだ何もダウンロードされていないため、保存先だけ変更します'
+    missingGroup: 'ファイルが見つからない ${count} 件'
+    missingSkip: 'そのまま'
+    missingRedownload: '移動先に再ダウンロード'
+    missingRemove: '記録を削除'
+    missingRemoveVolumeNote: 'うち ${count} 件は未接続のストレージ上にあるため削除しません'
+    failedGroup: 'ダウンロード失敗の ${count} 件'
+    failedMoveOnly: '移動のみ'
+    failedMoveAndRetry: '移動して再ダウンロード'
+    failedRemove: 'タスクを削除'
+    failedRemoveNote: '途中までダウンロードしたファイルも削除されます'
+    execute: '実行'
+    actionWillRedownload: '移動先に再ダウンロードします'
+    actionWillRemove: 'この記録を削除します'
+    actionWillKeep: 'ストレージ未接続のため残します'
+    actionWillRetry: '移動後に再ダウンロード'
+    actionWillRemoveTask: 'このタスクを削除します'
+    statRedownload: '再ダウンロード'
+    statRemoved: '削除済み'
+    sectionRedownloaded: '再ダウンロードを開始しました'
+    sectionRedownloadFailed: '再ダウンロードを開始できませんでした'
+    redownloadFailedHint: 'ダウンロードリンクが無効になっている可能性があります（作品が削除または非公開）。後でダウンロード一覧から再試行できます。'
+    sectionRemoved: '削除済み'
+    sectionKept: '残した項目（ストレージ未接続）'
+    redownload: '再ダウンロード'
+    redownloadStarted: '再ダウンロードを開始しました'
+    redownloadNotStarted: '再ダウンロードを開始できませんでした'
+    diagFileShortWithCandidates: '元のフォルダに同じサイズのファイルがあります（名前変更の可能性）'
+    cleanupMenu: '無効な記録を整理…'
+    cleanupScanning: '確認中 ${done}/${total}'
+    cleanupTitle: '無効な記録を整理'
+    cleanupNone: '完了済みの ${count} 件を確認しました。ファイルはすべてあります。'
+    statChecked: '確認済み'
+    statMissing: '見つからない'
+    statKeep: '残す推奨'
+    cleanupGroupGone: 'ファイルがありません'
+    cleanupGroupRecoverable: 'まだ取り戻せる可能性あり'
+    cleanupRecoverableHint: 'ストレージ未接続、権限なし、または名前変更の可能性があるため、既定では選択しません。項目を開くと詳細の確認と復旧ができます。'
+    selectAll: 'すべて選択'
+    selectNone: '選択解除'
+    removeSelected: '選択を削除（${count}）'
+    redownloadSelected: '選択を再ダウンロード（${count}）'
+    processing: '処理中 ${done}/${total}'
+    cleanupRemoved: '${count} 件の記録を削除しました'
+    cleanupRedownloaded: '${count} 件の再ダウンロードを開始しました'
+    tapForDetail: '詳細'
+    deleteRecordFailed: '記録を削除できませんでした。後でもう一度お試しください'
+    sectionNotAttempted: '未処理（停止したため元のまま）'
+    unexpectedError: 'エラーで停止しました：${message}。移動済みの項目はすべて完全です。'
   category:
     manageTitle: カテゴリーの管理
     label: カテゴリー
@@ -1857,6 +2033,80 @@ download:
     deleteConfirm: 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。'
     deleteSuccess: カテゴリーを削除しました
     deleteFailed: カテゴリーの削除に失敗しました
+  location:
+    sectionTitle: 保存先
+    behaviorSection: ダウンロードの動作
+    namingSection: ファイル名
+    advancedSection: 詳細
+    advancedSubtitle: 書き込み診断などのツール
+    volumeInternal: 内部ストレージ
+    volumeSdCard: SD カード
+    volumeExternalDrive: 外付けドライブ
+    appSpace: アプリ専用領域
+    downloadsFolder: ダウンロード
+    askEveryTime: 毎回確認する
+    askEveryTimeDesc: 'ダウンロードのたびに保存先を選びます。一括ダウンロードは ${location} に保存されます'
+    freeSpace: '空き ${size}'
+    statusWritable: 書き込み可
+    statusNeedsPermission: 許可が必要
+    statusFallback: 一時的に別の場所へ保存
+    statusLowSpace: 空き容量不足
+    statusChecking: 確認中
+    grant: 許可
+    fix: 修復
+    changeLocation: 保存先を変更
+    openInFileManager: ファイルマネージャーで開く
+    moreActions: その他
+    copyPath: パスをコピー
+    pathCopied: パスをコピーしました
+    manualInput: パスを手動入力（上級者向け）
+    restoreDefault: デフォルトに戻す
+    runDiagnostics: 診断を実行
+    restoredDefault: デフォルトの保存先に戻しました
+    sheetTitle: 保存先を選択
+    chooseOtherFolder: 別のフォルダを選択…
+    chooseOtherFolderDesc: システムのファイル選択画面から選びます
+    optionRecommendedDesc: おすすめ · 許可不要
+    optionRecommendedLegacyDesc: おすすめ · ストレージの許可が必要
+    optionAppPrivateDesc: アンインストール時に削除 · ギャラリーに表示されません
+    optionRemovableDesc: 「全ファイルへのアクセス」が必要
+    optionDesktopDownloadsDesc: おすすめ · システムのダウンロードフォルダ
+    optionAskEveryTimeDesc: ダウンロードのたびにフォルダを選びます
+    current: 現在
+    fallbackBanner: 選択したフォルダが一時的に使えなかったため、前回のダウンロードはアプリ領域に保存されました。
+    fallbackReasonPermission: ストレージの許可がありません
+    fallbackReasonVolumeMissing: ストレージが接続されていません
+    fallbackReasonCannotCreate: フォルダを作成できません
+    fallbackReasonNotWritable: フォルダに書き込めません
+    fallbackDetail: '一時的に別の場所へ保存中：${reason}'
+    errorUnresolvable: この場所はクラウドドライブや他のアプリのもので、直接書き込めません。端末のストレージか SD カードのフォルダを選んでください。
+    errorNotWritable: このフォルダには書き込めません（読み取り専用、システムで保護されている、または切断されています）。保存先は変更されていません。
+    errorVolumeMissing: このストレージが見つかりません（取り外されたか、接続されていません）。保存先は変更されていません。
+    permissionTitle: 許可が必要です
+    permissionAllFiles: このフォルダに書き込むには「全ファイルへのアクセス」が必要です。許可したくない場合は「ダウンロード › LoveIwara」を使えます。
+    permissionLegacy: このフォルダに書き込むにはストレージの許可が必要です。許可したくない場合はアプリ専用領域を使えます。
+    useDownloadsInstead: ダウンロード › LoveIwara を使う
+    useAppSpaceInstead: アプリ専用領域を使う
+    goToSettings: 許可する
+    permissionDenied: 許可されなかったため、保存先は変更されていません。
+    checking: この場所を確認しています…
+    confirmTitle: この場所を使いますか？
+    confirmFree: '空き容量 ${size}'
+    confirmOutside: 'ダウンロード済みの ${count} 件は元の場所に残っています'
+    confirmOutsideDesc: 今後のダウンロードは新しい場所に保存されます。ダウンロード済みのものはどうしますか？
+    moveThem: 移動する
+    keepThem: 元の場所に残す
+    decideLater: あとで決める
+    useThisLocation: この場所を使う
+    locationChanged: 保存先を変更しました
+    manualTitle: パスを手動入力
+    manualLabel: フォルダのパス
+    manualHint: '例: /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: 確認して使う
+    manualEmpty: パスを入力してください
+    manualNotAbsolute: 完全な絶対パスを入力してください
+    fixStillFailing: この場所はまだ使えません。別の場所を選んでください。
+    fixed: 保存先が使えるようになりました
   maxConcurrentDownloads: 最大同時ダウンロード数
   maxConcurrentDownloadsDesc: '同時にダウンロードするタスク数（1-5）'
   stillInDevelopment: 開発中

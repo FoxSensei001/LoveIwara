@@ -118,6 +118,22 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
           child: SelectionPopScope(
             active: active,
+            // 交给通用键鼠多选
+            model: SelectionModel(
+              enter: () {
+                if (!controller.isMultiSelect.value) {
+                  controller.toggleMultiSelect();
+                }
+              },
+              isSelected: (k) => controller.selectedVideos.contains(k),
+              toggle: (k) => controller.toggleSelection(k as String),
+              loadedKeys: () => [for (final v in controller.repository) v.id],
+              replaceSelection: (keys) {
+                controller.selectedVideos
+                  ..clear()
+                  ..addAll(keys.cast<String>());
+              },
+            ),
             onExit: controller.toggleMultiSelect,
             child: _buildBody(context, headerExtent, statusBarHeight),
           ),
@@ -321,10 +337,8 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -422,15 +436,9 @@ class _PlayListDetailPageState extends State<PlayListDetailPage> {
     final String url = ShareService.buildUrl('/playlist/${widget.playlistId}');
     try {
       await ShareService.copyToClipboard(url);
-      showAppToast(
-        slang.t.galleryDetail.copyLink,
-        type: AppToastType.success,
-      );
+      showAppToast(slang.t.galleryDetail.copyLink, type: AppToastType.success);
     } catch (e) {
-      showAppToast(
-        slang.t.errors.failedToOperate,
-        type: AppToastType.error,
-      );
+      showAppToast(slang.t.errors.failedToOperate, type: AppToastType.error);
     }
   }
 

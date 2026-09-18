@@ -277,6 +277,7 @@ class _TranslationsCommonZhCn extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '已选择 ${num} 条记录';
 	@override String get cancelSelectAll => '取消全选';
 	@override String get selectAll => '全选';
+	@override String get invertSelection => '反选';
 	@override String get exitEditMode => '退出编辑模式';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => '确定要删除选中的 ${num} 条记录吗？';
 	@override String get searchHistoryRecords => '搜索历史记录...';
@@ -1442,10 +1443,14 @@ class _TranslationsDownloadZhCn extends TranslationsDownloadEn {
 	@override String get errorDetailCopied => '已复制错误详情';
 	@override String get errorDetailCopyHint => '长按复制错误详情';
 	@override late final _TranslationsDownloadRestoredPausedZhCn restoredPaused = _TranslationsDownloadRestoredPausedZhCn._(_root);
+	@override late final _TranslationsDownloadActionsZhCn actions = _TranslationsDownloadActionsZhCn._(_root);
+	@override late final _TranslationsDownloadNoticeZhCn notice = _TranslationsDownloadNoticeZhCn._(_root);
 	@override String get emptyTaskList => '暂无下载任务';
 	@override String get noMatchingTasks => '没有匹配的任务';
 	@override late final _TranslationsDownloadDeleteByDateZhCn deleteByDate = _TranslationsDownloadDeleteByDateZhCn._(_root);
+	@override late final _TranslationsDownloadRelocationZhCn relocation = _TranslationsDownloadRelocationZhCn._(_root);
 	@override late final _TranslationsDownloadCategoryZhCn category = _TranslationsDownloadCategoryZhCn._(_root);
+	@override late final _TranslationsDownloadLocationZhCn location = _TranslationsDownloadLocationZhCn._(_root);
 	@override String get maxConcurrentDownloads => '最大同时下载数';
 	@override String get maxConcurrentDownloadsDesc => '同时进行下载的任务数量（1-5）';
 	@override String downloadCompletedWithName({required Object fileName}) => '下载完成: ${fileName}';
@@ -3499,6 +3504,62 @@ class _TranslationsDownloadRestoredPausedZhCn extends TranslationsDownloadRestor
 	@override String get dismiss => '忽略';
 }
 
+// Path: download.actions
+class _TranslationsDownloadActionsZhCn extends TranslationsDownloadActionsEn {
+	_TranslationsDownloadActionsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get open => '打开';
+	@override String get play => '播放';
+	@override String get openWith => '用其他应用打开';
+	@override String get redownload => '重新下载';
+	@override String get relocate => '移动文件到…';
+	@override String get categorize => '归类到…';
+	@override String get viewOnline => '查看在线页面';
+	@override String get delete => '删除…';
+	@override String redownloadStarted({required Object count}) => '已开始重新下载 ${count} 项';
+	@override String get redownloadNone => '没有可重新下载的项目';
+	@override String deleteTitle({required Object count}) => '删除 ${count} 项下载？';
+	@override String deleteSummary({required Object count, required Object size}) => '共 ${count} 项 · ${size}';
+	@override String deleteSummaryNoSize({required Object count}) => '共 ${count} 项';
+	@override String deleteGalleryNote({required Object count}) => '其中 ${count} 个图库的大小未计入';
+	@override String get deleteFiles => '同时删除磁盘文件';
+	@override String get deleteFilesDesc => '关闭后只移除列表记录，文件留在原处';
+	@override String get deleteFilesAllMissing => '文件已经不在了，只会移除记录';
+	@override String deleteDone({required Object count}) => '已删除 ${count} 项';
+	@override String deletePartial({required Object failed}) => '${failed} 项的文件删不掉（可能正被占用），记录已保留';
+	@override String get removeRecordAnyway => '仍移除记录';
+	@override String get fileMissing => '文件已不在';
+	@override String get filePending => '暂时找不到文件，可能还能找回';
+	@override String get statusActive => '进行中';
+	@override String get statusCompleted => '已完成';
+	@override String get needsAttention => '需处理';
+	@override String needsAttentionCount({required Object count}) => '需处理 · ${count}';
+	@override String get organize => '整理';
+	@override String get checkIntegrity => '检查文件完整性…';
+	@override String get migrateToCurrent => '迁移到当前下载目录…';
+	@override String get migrateNone => '所有已下载内容都在当前下载目录里';
+}
+
+// Path: download.notice
+class _TranslationsDownloadNoticeZhCn extends TranslationsDownloadNoticeEn {
+	_TranslationsDownloadNoticeZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String failed({required Object count}) => '${count} 个任务下载失败';
+	@override String get retryAll => '全部重试';
+	@override String get view => '查看';
+	@override String missing({required Object count}) => '${count} 项已下载内容的文件不见了';
+	@override String get handle => '处理…';
+	@override String outside({required Object count}) => '旧下载目录里还有 ${count} 项';
+	@override String get migrate => '迁移';
+	@override String get dismiss => '忽略';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateZhCn extends TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -3523,6 +3584,149 @@ class _TranslationsDownloadDeleteByDateZhCn extends TranslationsDownloadDeleteBy
 	@override String deleting({required Object done, required Object total}) => '正在删除 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '已删除 ${count} 个任务';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）';
+}
+
+// Path: download.relocation
+class _TranslationsDownloadRelocationZhCn extends TranslationsDownloadRelocationEn {
+	_TranslationsDownloadRelocationZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get moveFiles => '移动文件';
+	@override String get moveFilesEllipsis => '移动文件…';
+	@override String get chooseDestination => '把文件移动到';
+	@override String get currentDownloadDir => '当前下载目录';
+	@override String get otherFolder => '选择其他文件夹…';
+	@override String get pickerUnsupported => '此设备不能选择文件夹，下载内容只能留在应用自己的目录里。';
+	@override String get planning => '正在检查文件…';
+	@override String get confirmTitle => '移动文件？';
+	@override String get confirmNote => '会真的在磁盘上移动文件，观看进度、VR 设置和收藏会跟着一起走。';
+	@override String get nothingToMove => '所选内容都不能移动，每一项的原因见下方。';
+	@override String get move => '移动';
+	@override String moving({required Object done, required Object total}) => '正在移动 ${done}/${total}';
+	@override String get stop => '停止';
+	@override String get stopping => '当前这一项完成后停止…';
+	@override String get resultTitle => '移动完成';
+	@override String resultMoved({required Object count}) => '已移动 ${count} 项';
+	@override String get cancelled => '已停止。已移动的项目都是完整的。';
+	@override String get alreadyRunning => '已有一个移动任务在进行';
+	@override String get destination => '目标位置';
+	@override String get statMove => '将移动';
+	@override String get statSkip => '跳过';
+	@override String get statRenamed => '改名';
+	@override String get statMoved => '已移动';
+	@override String get statFailed => '未移动';
+	@override String get statLeftover => '残留';
+	@override String get sectionMove => '将移动';
+	@override String get sectionSkip => '将跳过';
+	@override String get sectionMoved => '已移动';
+	@override String get sectionFailed => '未移动（仍在原处）';
+	@override String get sectionLeftover => '没删干净的旧文件夹';
+	@override String get leftoverHint => '新位置的那份是完整的，这些残留可以放心删除。';
+	@override String get from => '从';
+	@override String get to => '到';
+	@override String renamedBadge({required Object name}) => '目标处已有同名项，将另存为「${name}」';
+	@override String get showPaths => '显示路径';
+	@override String get hidePaths => '收起路径';
+	@override String get revealInFolder => '在文件夹中显示';
+	@override String get copyPath => '复制路径';
+	@override String get pathCopied => '已复制路径';
+	@override String stateDownloading({required Object percent}) => '下载中 ${percent}%';
+	@override String get statePending => '等待下载';
+	@override String statePaused({required Object percent}) => '已暂停于 ${percent}%';
+	@override String get stateFailed => '下载失败';
+	@override String get skipAlreadyThere => '已经在这个文件夹里';
+	@override String get skipInsideSource => '目标文件夹就在这个图库自己的文件夹里面';
+	@override String get reasonBusy => '正在进行其他操作（删除或移动）';
+	@override String get reasonSourceLocked => '文件正被占用（如正在播放），旧位置删不掉，本项已撤回，什么都没改。';
+	@override String get reasonNoSpace => '目标位置空间不足，剩下的已全部停止。';
+	@override String get reasonVerifyFailed => '复制出的文件与原文件大小不一致，复制件已丢弃。';
+	@override String get reasonIoError => '读写文件出错，什么都没改。';
+	@override String systemMessage({required Object message}) => '系统信息：${message}';
+	@override String outsideTitle({required Object count}) => '有 ${count} 项已下载内容不在这个目录里';
+	@override String get outsideSubtitle => '它们在原位置照样能播放。移到这里可以把内容集中在一处。';
+	@override String get moveHere => '移到这里';
+	@override String get missingTitle => '找不到文件';
+	@override String get recordedLocation => '记录的位置';
+	@override String get legendExists => '仍然存在';
+	@override String get legendMissing => '已不存在';
+	@override String diagVolume({required Object volume}) => '存储「${volume}」当前不可用，存储卡或移动硬盘可能没有连接。';
+	@override String diagVolumeShort({required Object volume}) => '存储「${volume}」未连接';
+	@override String get diagContainer => '应用更新后，系统挪了应用的存储位置。文件还在这里：';
+	@override String get diagContainerShort => '应用更新后存储位置变了';
+	@override String get diagNoAccess => '应用没有读取这个位置的权限。授予「所有文件访问」后再检查一次。';
+	@override String get diagNoAccessShort => '没有读取该位置的权限';
+	@override String diagFolder({required Object folder}) => '文件夹「${folder}」已经不存在了。';
+	@override String diagFolderShort({required Object folder}) => '文件夹「${folder}」已不存在';
+	@override String diagFile({required Object name}) => '文件夹还在，但里面没有「${name}」。';
+	@override String get diagFileShort => '原文件夹里没有它';
+	@override String get diagCandidates => '在那个文件夹里找到了像是它的（可能被改了名）：';
+	@override String get diagNoCandidates => '那个文件夹里没有大小相同的文件。';
+	@override String get useThis => '就是它';
+	@override String get fixPath => '修复路径';
+	@override String get checkAgain => '再检查一次';
+	@override String get grantPermission => '授予权限';
+	@override String get locate => '去其他文件夹找…';
+	@override String get deleteRecord => '删除记录';
+	@override String get locateNotFound => '那个文件夹里没有这项下载的文件';
+	@override String get located => '已找到，记录已指向新位置';
+	@override String get stillMissing => '仍然找不到';
+	@override String downloadedOn({required Object date}) => '下载于 ${date}';
+	@override String galleryImages({required Object count}) => '${count} 张图';
+	@override String unfinishedDownloading({required Object percent}) => '下载中 ${percent}%：先暂停，已下的部分一起搬，搬完自动继续';
+	@override String get unfinishedPending => '等待下载：搬完重新排队';
+	@override String unfinishedPaused({required Object percent}) => '已暂停于 ${percent}%：已下的部分一起搬，搬完仍保持暂停';
+	@override String get unfinishedFailed => '下载失败：已下的部分一起搬';
+	@override String get noDataYet => '还没有下载任何内容，只改保存位置';
+	@override String missingGroup({required Object count}) => '找不到文件的 ${count} 项';
+	@override String get missingSkip => '不处理';
+	@override String get missingRedownload => '重新下载到目标位置';
+	@override String get missingRemove => '移除记录';
+	@override String missingRemoveVolumeNote({required Object count}) => '其中 ${count} 项所在的存储未连接，不会被移除';
+	@override String failedGroup({required Object count}) => '下载失败的 ${count} 项';
+	@override String get failedMoveOnly => '只移动';
+	@override String get failedMoveAndRetry => '移动后重新下载';
+	@override String get failedRemove => '移除任务';
+	@override String get failedRemoveNote => '会一并删除已下载的半截文件';
+	@override String get execute => '执行';
+	@override String get actionWillRedownload => '将重新下载到目标位置';
+	@override String get actionWillRemove => '将移除这条记录';
+	@override String get actionWillKeep => '存储未连接，保留不移除';
+	@override String get actionWillRetry => '移动后重新下载';
+	@override String get actionWillRemoveTask => '将移除任务';
+	@override String get statRedownload => '重新下载';
+	@override String get statRemoved => '已移除';
+	@override String get sectionRedownloaded => '已开始重新下载';
+	@override String get sectionRedownloadFailed => '没能开始重新下载';
+	@override String get redownloadFailedHint => '多半是下载链接已失效（作品被删或设为私密），可以稍后在下载列表里重试。';
+	@override String get sectionRemoved => '已移除';
+	@override String get sectionKept => '保留（存储未连接）';
+	@override String get redownload => '重新下载';
+	@override String get redownloadStarted => '已开始重新下载';
+	@override String get redownloadNotStarted => '没能开始重新下载';
+	@override String get diagFileShortWithCandidates => '原文件夹里有大小相同的文件，可能被改了名';
+	@override String get cleanupMenu => '清理失效记录…';
+	@override String cleanupScanning({required Object done, required Object total}) => '正在检查 ${done}/${total}';
+	@override String get cleanupTitle => '清理失效记录';
+	@override String cleanupNone({required Object count}) => '检查了 ${count} 项已完成的下载，文件都在。';
+	@override String get statChecked => '已检查';
+	@override String get statMissing => '找不到';
+	@override String get statKeep => '建议保留';
+	@override String get cleanupGroupGone => '文件已不在';
+	@override String get cleanupGroupRecoverable => '可能还能找回';
+	@override String get cleanupRecoverableHint => '存储未连接、没有权限、或可能被改了名，默认不选。点开单项可查看详情并找回。';
+	@override String get selectAll => '全选';
+	@override String get selectNone => '全不选';
+	@override String removeSelected({required Object count}) => '移除所选（${count}）';
+	@override String redownloadSelected({required Object count}) => '重新下载所选（${count}）';
+	@override String processing({required Object done, required Object total}) => '正在处理 ${done}/${total}';
+	@override String cleanupRemoved({required Object count}) => '已移除 ${count} 条记录';
+	@override String cleanupRedownloaded({required Object count}) => '已开始重新下载 ${count} 项';
+	@override String get tapForDetail => '查看详情';
+	@override String get deleteRecordFailed => '删除记录失败，请稍后再试';
+	@override String get sectionNotAttempted => '未处理（已停止，原样未动）';
+	@override String unexpectedError({required Object message}) => '中途出错停止：${message}。已移动的项目都是完整的。';
 }
 
 // Path: download.category
@@ -3555,6 +3759,88 @@ class _TranslationsDownloadCategoryZhCn extends TranslationsDownloadCategoryEn {
 	@override String deleteConfirm({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。';
 	@override String get deleteSuccess => '分类已删除';
 	@override String get deleteFailed => '删除分类失败';
+}
+
+// Path: download.location
+class _TranslationsDownloadLocationZhCn extends TranslationsDownloadLocationEn {
+	_TranslationsDownloadLocationZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionTitle => '保存位置';
+	@override String get behaviorSection => '下载行为';
+	@override String get namingSection => '文件命名';
+	@override String get advancedSection => '高级';
+	@override String get advancedSubtitle => '写入诊断等工具';
+	@override String get volumeInternal => '内部存储';
+	@override String get volumeSdCard => 'SD 卡';
+	@override String get volumeExternalDrive => '外置盘';
+	@override String get appSpace => '应用专属空间';
+	@override String get downloadsFolder => '下载';
+	@override String get askEveryTime => '每次询问';
+	@override String askEveryTimeDesc({required Object location}) => '每次下载时选择保存位置；批量下载存到 ${location}';
+	@override String freeSpace({required Object size}) => '剩余 ${size}';
+	@override String get statusWritable => '可写';
+	@override String get statusNeedsPermission => '需要授权';
+	@override String get statusFallback => '已临时回退';
+	@override String get statusLowSpace => '空间不足';
+	@override String get statusChecking => '检查中';
+	@override String get grant => '授权';
+	@override String get fix => '修复';
+	@override String get changeLocation => '更改位置';
+	@override String get openInFileManager => '在文件管理器中打开';
+	@override String get moreActions => '更多';
+	@override String get copyPath => '复制路径';
+	@override String get pathCopied => '已复制路径';
+	@override String get manualInput => '手动输入路径（高级）';
+	@override String get restoreDefault => '恢复默认';
+	@override String get runDiagnostics => '运行诊断';
+	@override String get restoredDefault => '已恢复默认位置';
+	@override String get sheetTitle => '选择下载位置';
+	@override String get chooseOtherFolder => '选择其他文件夹…';
+	@override String get chooseOtherFolderDesc => '用系统文件选择器挑一个';
+	@override String get optionRecommendedDesc => '推荐 · 无需授权';
+	@override String get optionRecommendedLegacyDesc => '推荐 · 需要存储权限';
+	@override String get optionAppPrivateDesc => '卸载时删除 · 相册看不到';
+	@override String get optionRemovableDesc => '需要「所有文件访问」';
+	@override String get optionDesktopDownloadsDesc => '推荐 · 系统的下载文件夹';
+	@override String get optionAskEveryTimeDesc => '每次下载时挑一个文件夹';
+	@override String get current => '当前';
+	@override String get fallbackBanner => '上次下载临时存到了应用空间，因为选定的文件夹暂时不能用。';
+	@override String get fallbackReasonPermission => '缺少存储权限';
+	@override String get fallbackReasonVolumeMissing => '存储设备没有连接';
+	@override String get fallbackReasonCannotCreate => '文件夹建不出来';
+	@override String get fallbackReasonNotWritable => '文件夹没法写入';
+	@override String fallbackDetail({required Object reason}) => '已临时回退：${reason}';
+	@override String get errorUnresolvable => '这个位置来自云盘或其他 App，没法直接写入。请选择手机存储或 SD 卡里的文件夹。';
+	@override String get errorNotWritable => '这个文件夹没法写入（只读、被系统保护或已断开），位置没有改动。';
+	@override String get errorVolumeMissing => '找不到这个存储设备（已拔出或没有连接），位置没有改动。';
+	@override String get permissionTitle => '需要授权';
+	@override String get permissionAllFiles => '要写到这个文件夹需开启「所有文件访问」，不想开可改用「下载 › LoveIwara」。';
+	@override String get permissionLegacy => '要写到这个文件夹需要存储权限，不想开可改用应用专属空间。';
+	@override String get useDownloadsInstead => '改用 下载 › LoveIwara';
+	@override String get useAppSpaceInstead => '改用应用专属空间';
+	@override String get goToSettings => '去授权';
+	@override String get permissionDenied => '没有拿到权限，位置没有改动。';
+	@override String get checking => '正在检查这个位置…';
+	@override String get confirmTitle => '改用这个位置？';
+	@override String confirmFree({required Object size}) => '剩余空间 ${size}';
+	@override String confirmOutside({required Object count}) => '有 ${count} 项已下载内容还在旧位置';
+	@override String get confirmOutsideDesc => '以后的下载会存到新位置。已经下载的内容要怎么办？';
+	@override String get moveThem => '搬过去';
+	@override String get keepThem => '保留在原处';
+	@override String get decideLater => '以后再说';
+	@override String get useThisLocation => '使用这个位置';
+	@override String get locationChanged => '下载位置已更改';
+	@override String get manualTitle => '手动输入路径';
+	@override String get manualLabel => '文件夹路径';
+	@override String get manualHint => '例如 /storage/emulated/0/Download/LoveIwara';
+	@override String get manualSubmit => '检查并使用';
+	@override String get manualEmpty => '请输入路径';
+	@override String get manualNotAbsolute => '请输入完整的绝对路径';
+	@override String get fixStillFailing => '这个位置仍然不能用，请换一个。';
+	@override String get fixed => '位置已恢复正常';
 }
 
 // Path: download.batchDownload
@@ -4248,6 +4534,7 @@ extension on TranslationsZhCn {
 			'common.selectedRecords' => ({required Object num}) => '已选择 ${num} 条记录',
 			'common.cancelSelectAll' => '取消全选',
 			'common.selectAll' => '全选',
+			'common.invertSelection' => '反选',
 			'common.exitEditMode' => '退出编辑模式',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '确定要删除选中的 ${num} 条记录吗？',
 			'common.searchHistoryRecords' => '搜索历史记录...',
@@ -4617,9 +4904,9 @@ extension on TranslationsZhCn {
 			'settings.longPressPlaybackSpeed' => '长按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
 			'settings.defaultPlaybackSpeed' => '默认播放倍速',
-			'settings.rememberPlaybackSpeed' => '记住播放倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => '记住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			'settings.repeat' => '循环播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全屏播放时以竖屏模式渲染竖屏视频',
@@ -5131,9 +5418,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.unableToGetPathStatus' => '无法获取路径状态',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：实际使用路径与选择路径不同',
 			'settings.downloadSettings.grantPermission' => '授权权限',
-			'settings.downloadSettings.fixIssue' => '修复问题',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => '修复问题',
 			'settings.downloadSettings.issueFixed' => '问题已修复',
 			'settings.downloadSettings.fixFailed' => '修复失败，请手动处理',
 			'settings.downloadSettings.lackStoragePermission' => '缺少存储权限',
@@ -5645,9 +5932,9 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedThread' => '帖子审核通过',
 			'notifications.kApprovedPost' => '投稿审核通过',
 			'notifications.kApprovedForumPost' => '论坛发言审核通过',
-			'notifications.kRejectedContent' => '内容审核被拒绝',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => '内容审核被拒绝',
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
 			'conversation.errors.pleaseEnterATitle' => '请输入标题',
@@ -5814,6 +6101,44 @@ extension on TranslationsZhCn {
 			'download.restoredPaused.banner' => ({required Object num}) => '上次退出时有 ${num} 个任务未完成，已暂停',
 			'download.restoredPaused.resume' => '全部继续',
 			'download.restoredPaused.dismiss' => '忽略',
+			'download.actions.open' => '打开',
+			'download.actions.play' => '播放',
+			'download.actions.openWith' => '用其他应用打开',
+			'download.actions.redownload' => '重新下载',
+			'download.actions.relocate' => '移动文件到…',
+			'download.actions.categorize' => '归类到…',
+			'download.actions.viewOnline' => '查看在线页面',
+			'download.actions.delete' => '删除…',
+			'download.actions.redownloadStarted' => ({required Object count}) => '已开始重新下载 ${count} 项',
+			'download.actions.redownloadNone' => '没有可重新下载的项目',
+			'download.actions.deleteTitle' => ({required Object count}) => '删除 ${count} 项下载？',
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '共 ${count} 项 · ${size}',
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 项',
+			'download.actions.deleteGalleryNote' => ({required Object count}) => '其中 ${count} 个图库的大小未计入',
+			'download.actions.deleteFiles' => '同时删除磁盘文件',
+			'download.actions.deleteFilesDesc' => '关闭后只移除列表记录，文件留在原处',
+			'download.actions.deleteFilesAllMissing' => '文件已经不在了，只会移除记录',
+			'download.actions.deleteDone' => ({required Object count}) => '已删除 ${count} 项',
+			'download.actions.deletePartial' => ({required Object failed}) => '${failed} 项的文件删不掉（可能正被占用），记录已保留',
+			'download.actions.removeRecordAnyway' => '仍移除记录',
+			'download.actions.fileMissing' => '文件已不在',
+			'download.actions.filePending' => '暂时找不到文件，可能还能找回',
+			'download.actions.statusActive' => '进行中',
+			'download.actions.statusCompleted' => '已完成',
+			'download.actions.needsAttention' => '需处理',
+			'download.actions.needsAttentionCount' => ({required Object count}) => '需处理 · ${count}',
+			'download.actions.organize' => '整理',
+			'download.actions.checkIntegrity' => '检查文件完整性…',
+			'download.actions.migrateToCurrent' => '迁移到当前下载目录…',
+			'download.actions.migrateNone' => '所有已下载内容都在当前下载目录里',
+			'download.notice.failed' => ({required Object count}) => '${count} 个任务下载失败',
+			'download.notice.retryAll' => '全部重试',
+			'download.notice.view' => '查看',
+			'download.notice.missing' => ({required Object count}) => '${count} 项已下载内容的文件不见了',
+			'download.notice.handle' => '处理…',
+			'download.notice.outside' => ({required Object count}) => '旧下载目录里还有 ${count} 项',
+			'download.notice.migrate' => '迁移',
+			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暂无下载任务',
 			'download.noMatchingTasks' => '没有匹配的任务',
 			'download.deleteByDate.menuTitle' => '按日期删除',
@@ -5833,6 +6158,140 @@ extension on TranslationsZhCn {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在删除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已删除 ${count} 个任务',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已删除 ${deleted} 个任务，跳过 ${skipped} 个（被占用）',
+			'download.relocation.moveFiles' => '移动文件',
+			'download.relocation.moveFilesEllipsis' => '移动文件…',
+			'download.relocation.chooseDestination' => '把文件移动到',
+			'download.relocation.currentDownloadDir' => '当前下载目录',
+			'download.relocation.otherFolder' => '选择其他文件夹…',
+			'download.relocation.pickerUnsupported' => '此设备不能选择文件夹，下载内容只能留在应用自己的目录里。',
+			'download.relocation.planning' => '正在检查文件…',
+			'download.relocation.confirmTitle' => '移动文件？',
+			'download.relocation.confirmNote' => '会真的在磁盘上移动文件，观看进度、VR 设置和收藏会跟着一起走。',
+			'download.relocation.nothingToMove' => '所选内容都不能移动，每一项的原因见下方。',
+			'download.relocation.move' => '移动',
+			'download.relocation.moving' => ({required Object done, required Object total}) => '正在移动 ${done}/${total}',
+			'download.relocation.stop' => '停止',
+			'download.relocation.stopping' => '当前这一项完成后停止…',
+			'download.relocation.resultTitle' => '移动完成',
+			'download.relocation.resultMoved' => ({required Object count}) => '已移动 ${count} 项',
+			'download.relocation.cancelled' => '已停止。已移动的项目都是完整的。',
+			'download.relocation.alreadyRunning' => '已有一个移动任务在进行',
+			'download.relocation.destination' => '目标位置',
+			'download.relocation.statMove' => '将移动',
+			'download.relocation.statSkip' => '跳过',
+			'download.relocation.statRenamed' => '改名',
+			'download.relocation.statMoved' => '已移动',
+			'download.relocation.statFailed' => '未移动',
+			'download.relocation.statLeftover' => '残留',
+			'download.relocation.sectionMove' => '将移动',
+			'download.relocation.sectionSkip' => '将跳过',
+			'download.relocation.sectionMoved' => '已移动',
+			'download.relocation.sectionFailed' => '未移动（仍在原处）',
+			'download.relocation.sectionLeftover' => '没删干净的旧文件夹',
+			'download.relocation.leftoverHint' => '新位置的那份是完整的，这些残留可以放心删除。',
+			'download.relocation.from' => '从',
+			'download.relocation.to' => '到',
+			'download.relocation.renamedBadge' => ({required Object name}) => '目标处已有同名项，将另存为「${name}」',
+			'download.relocation.showPaths' => '显示路径',
+			'download.relocation.hidePaths' => '收起路径',
+			'download.relocation.revealInFolder' => '在文件夹中显示',
+			'download.relocation.copyPath' => '复制路径',
+			'download.relocation.pathCopied' => '已复制路径',
+			'download.relocation.stateDownloading' => ({required Object percent}) => '下载中 ${percent}%',
+			'download.relocation.statePending' => '等待下载',
+			'download.relocation.statePaused' => ({required Object percent}) => '已暂停于 ${percent}%',
+			'download.relocation.stateFailed' => '下载失败',
+			'download.relocation.skipAlreadyThere' => '已经在这个文件夹里',
+			'download.relocation.skipInsideSource' => '目标文件夹就在这个图库自己的文件夹里面',
+			'download.relocation.reasonBusy' => '正在进行其他操作（删除或移动）',
+			'download.relocation.reasonSourceLocked' => '文件正被占用（如正在播放），旧位置删不掉，本项已撤回，什么都没改。',
+			'download.relocation.reasonNoSpace' => '目标位置空间不足，剩下的已全部停止。',
+			'download.relocation.reasonVerifyFailed' => '复制出的文件与原文件大小不一致，复制件已丢弃。',
+			'download.relocation.reasonIoError' => '读写文件出错，什么都没改。',
+			'download.relocation.systemMessage' => ({required Object message}) => '系统信息：${message}',
+			'download.relocation.outsideTitle' => ({required Object count}) => '有 ${count} 项已下载内容不在这个目录里',
+			'download.relocation.outsideSubtitle' => '它们在原位置照样能播放。移到这里可以把内容集中在一处。',
+			'download.relocation.moveHere' => '移到这里',
+			'download.relocation.missingTitle' => '找不到文件',
+			'download.relocation.recordedLocation' => '记录的位置',
+			'download.relocation.legendExists' => '仍然存在',
+			'download.relocation.legendMissing' => '已不存在',
+			'download.relocation.diagVolume' => ({required Object volume}) => '存储「${volume}」当前不可用，存储卡或移动硬盘可能没有连接。',
+			'download.relocation.diagVolumeShort' => ({required Object volume}) => '存储「${volume}」未连接',
+			'download.relocation.diagContainer' => '应用更新后，系统挪了应用的存储位置。文件还在这里：',
+			'download.relocation.diagContainerShort' => '应用更新后存储位置变了',
+			'download.relocation.diagNoAccess' => '应用没有读取这个位置的权限。授予「所有文件访问」后再检查一次。',
+			'download.relocation.diagNoAccessShort' => '没有读取该位置的权限',
+			'download.relocation.diagFolder' => ({required Object folder}) => '文件夹「${folder}」已经不存在了。',
+			'download.relocation.diagFolderShort' => ({required Object folder}) => '文件夹「${folder}」已不存在',
+			'download.relocation.diagFile' => ({required Object name}) => '文件夹还在，但里面没有「${name}」。',
+			'download.relocation.diagFileShort' => '原文件夹里没有它',
+			'download.relocation.diagCandidates' => '在那个文件夹里找到了像是它的（可能被改了名）：',
+			'download.relocation.diagNoCandidates' => '那个文件夹里没有大小相同的文件。',
+			'download.relocation.useThis' => '就是它',
+			'download.relocation.fixPath' => '修复路径',
+			'download.relocation.checkAgain' => '再检查一次',
+			'download.relocation.grantPermission' => '授予权限',
+			'download.relocation.locate' => '去其他文件夹找…',
+			'download.relocation.deleteRecord' => '删除记录',
+			'download.relocation.locateNotFound' => '那个文件夹里没有这项下载的文件',
+			'download.relocation.located' => '已找到，记录已指向新位置',
+			'download.relocation.stillMissing' => '仍然找不到',
+			'download.relocation.downloadedOn' => ({required Object date}) => '下载于 ${date}',
+			'download.relocation.galleryImages' => ({required Object count}) => '${count} 张图',
+			'download.relocation.unfinishedDownloading' => ({required Object percent}) => '下载中 ${percent}%：先暂停，已下的部分一起搬，搬完自动继续',
+			'download.relocation.unfinishedPending' => '等待下载：搬完重新排队',
+			'download.relocation.unfinishedPaused' => ({required Object percent}) => '已暂停于 ${percent}%：已下的部分一起搬，搬完仍保持暂停',
+			'download.relocation.unfinishedFailed' => '下载失败：已下的部分一起搬',
+			'download.relocation.noDataYet' => '还没有下载任何内容，只改保存位置',
+			'download.relocation.missingGroup' => ({required Object count}) => '找不到文件的 ${count} 项',
+			'download.relocation.missingSkip' => '不处理',
+			'download.relocation.missingRedownload' => '重新下载到目标位置',
+			'download.relocation.missingRemove' => '移除记录',
+			'download.relocation.missingRemoveVolumeNote' => ({required Object count}) => '其中 ${count} 项所在的存储未连接，不会被移除',
+			'download.relocation.failedGroup' => ({required Object count}) => '下载失败的 ${count} 项',
+			'download.relocation.failedMoveOnly' => '只移动',
+			'download.relocation.failedMoveAndRetry' => '移动后重新下载',
+			'download.relocation.failedRemove' => '移除任务',
+			'download.relocation.failedRemoveNote' => '会一并删除已下载的半截文件',
+			'download.relocation.execute' => '执行',
+			'download.relocation.actionWillRedownload' => '将重新下载到目标位置',
+			'download.relocation.actionWillRemove' => '将移除这条记录',
+			'download.relocation.actionWillKeep' => '存储未连接，保留不移除',
+			'download.relocation.actionWillRetry' => '移动后重新下载',
+			'download.relocation.actionWillRemoveTask' => '将移除任务',
+			'download.relocation.statRedownload' => '重新下载',
+			'download.relocation.statRemoved' => '已移除',
+			'download.relocation.sectionRedownloaded' => '已开始重新下载',
+			'download.relocation.sectionRedownloadFailed' => '没能开始重新下载',
+			'download.relocation.redownloadFailedHint' => '多半是下载链接已失效（作品被删或设为私密），可以稍后在下载列表里重试。',
+			'download.relocation.sectionRemoved' => '已移除',
+			'download.relocation.sectionKept' => '保留（存储未连接）',
+			'download.relocation.redownload' => '重新下载',
+			'download.relocation.redownloadStarted' => '已开始重新下载',
+			'download.relocation.redownloadNotStarted' => '没能开始重新下载',
+			'download.relocation.diagFileShortWithCandidates' => '原文件夹里有大小相同的文件，可能被改了名',
+			'download.relocation.cleanupMenu' => '清理失效记录…',
+			'download.relocation.cleanupScanning' => ({required Object done, required Object total}) => '正在检查 ${done}/${total}',
+			'download.relocation.cleanupTitle' => '清理失效记录',
+			'download.relocation.cleanupNone' => ({required Object count}) => '检查了 ${count} 项已完成的下载，文件都在。',
+			'download.relocation.statChecked' => '已检查',
+			'download.relocation.statMissing' => '找不到',
+			'download.relocation.statKeep' => '建议保留',
+			'download.relocation.cleanupGroupGone' => '文件已不在',
+			'download.relocation.cleanupGroupRecoverable' => '可能还能找回',
+			'download.relocation.cleanupRecoverableHint' => '存储未连接、没有权限、或可能被改了名，默认不选。点开单项可查看详情并找回。',
+			'download.relocation.selectAll' => '全选',
+			'download.relocation.selectNone' => '全不选',
+			'download.relocation.removeSelected' => ({required Object count}) => '移除所选（${count}）',
+			'download.relocation.redownloadSelected' => ({required Object count}) => '重新下载所选（${count}）',
+			'download.relocation.processing' => ({required Object done, required Object total}) => '正在处理 ${done}/${total}',
+			'download.relocation.cleanupRemoved' => ({required Object count}) => '已移除 ${count} 条记录',
+			'download.relocation.cleanupRedownloaded' => ({required Object count}) => '已开始重新下载 ${count} 项',
+			'download.relocation.tapForDetail' => '查看详情',
+			'download.relocation.deleteRecordFailed' => '删除记录失败，请稍后再试',
+			'download.relocation.sectionNotAttempted' => '未处理（已停止，原样未动）',
+			'download.relocation.unexpectedError' => ({required Object message}) => '中途出错停止：${message}。已移动的项目都是完整的。',
 			'download.category.manageTitle' => '管理分类',
 			'download.category.label' => '分类',
 			'download.category.uncategorized' => '未分类',
@@ -5856,6 +6315,79 @@ extension on TranslationsZhCn {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。',
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
+			'download.location.sectionTitle' => '保存位置',
+			'download.location.behaviorSection' => '下载行为',
+			'download.location.namingSection' => '文件命名',
+			'download.location.advancedSection' => '高级',
+			'download.location.advancedSubtitle' => '写入诊断等工具',
+			'download.location.volumeInternal' => '内部存储',
+			'download.location.volumeSdCard' => 'SD 卡',
+			'download.location.volumeExternalDrive' => '外置盘',
+			'download.location.appSpace' => '应用专属空间',
+			'download.location.downloadsFolder' => '下载',
+			'download.location.askEveryTime' => '每次询问',
+			'download.location.askEveryTimeDesc' => ({required Object location}) => '每次下载时选择保存位置；批量下载存到 ${location}',
+			'download.location.freeSpace' => ({required Object size}) => '剩余 ${size}',
+			'download.location.statusWritable' => '可写',
+			'download.location.statusNeedsPermission' => '需要授权',
+			'download.location.statusFallback' => '已临时回退',
+			'download.location.statusLowSpace' => '空间不足',
+			'download.location.statusChecking' => '检查中',
+			'download.location.grant' => '授权',
+			'download.location.fix' => '修复',
+			'download.location.changeLocation' => '更改位置',
+			'download.location.openInFileManager' => '在文件管理器中打开',
+			'download.location.moreActions' => '更多',
+			'download.location.copyPath' => '复制路径',
+			'download.location.pathCopied' => '已复制路径',
+			'download.location.manualInput' => '手动输入路径（高级）',
+			'download.location.restoreDefault' => '恢复默认',
+			'download.location.runDiagnostics' => '运行诊断',
+			'download.location.restoredDefault' => '已恢复默认位置',
+			'download.location.sheetTitle' => '选择下载位置',
+			'download.location.chooseOtherFolder' => '选择其他文件夹…',
+			'download.location.chooseOtherFolderDesc' => '用系统文件选择器挑一个',
+			'download.location.optionRecommendedDesc' => '推荐 · 无需授权',
+			'download.location.optionRecommendedLegacyDesc' => '推荐 · 需要存储权限',
+			'download.location.optionAppPrivateDesc' => '卸载时删除 · 相册看不到',
+			'download.location.optionRemovableDesc' => '需要「所有文件访问」',
+			'download.location.optionDesktopDownloadsDesc' => '推荐 · 系统的下载文件夹',
+			'download.location.optionAskEveryTimeDesc' => '每次下载时挑一个文件夹',
+			'download.location.current' => '当前',
+			'download.location.fallbackBanner' => '上次下载临时存到了应用空间，因为选定的文件夹暂时不能用。',
+			'download.location.fallbackReasonPermission' => '缺少存储权限',
+			'download.location.fallbackReasonVolumeMissing' => '存储设备没有连接',
+			'download.location.fallbackReasonCannotCreate' => '文件夹建不出来',
+			'download.location.fallbackReasonNotWritable' => '文件夹没法写入',
+			'download.location.fallbackDetail' => ({required Object reason}) => '已临时回退：${reason}',
+			'download.location.errorUnresolvable' => '这个位置来自云盘或其他 App，没法直接写入。请选择手机存储或 SD 卡里的文件夹。',
+			'download.location.errorNotWritable' => '这个文件夹没法写入（只读、被系统保护或已断开），位置没有改动。',
+			'download.location.errorVolumeMissing' => '找不到这个存储设备（已拔出或没有连接），位置没有改动。',
+			'download.location.permissionTitle' => '需要授权',
+			'download.location.permissionAllFiles' => '要写到这个文件夹需开启「所有文件访问」，不想开可改用「下载 › LoveIwara」。',
+			'download.location.permissionLegacy' => '要写到这个文件夹需要存储权限，不想开可改用应用专属空间。',
+			'download.location.useDownloadsInstead' => '改用 下载 › LoveIwara',
+			'download.location.useAppSpaceInstead' => '改用应用专属空间',
+			'download.location.goToSettings' => '去授权',
+			'download.location.permissionDenied' => '没有拿到权限，位置没有改动。',
+			'download.location.checking' => '正在检查这个位置…',
+			'download.location.confirmTitle' => '改用这个位置？',
+			'download.location.confirmFree' => ({required Object size}) => '剩余空间 ${size}',
+			'download.location.confirmOutside' => ({required Object count}) => '有 ${count} 项已下载内容还在旧位置',
+			'download.location.confirmOutsideDesc' => '以后的下载会存到新位置。已经下载的内容要怎么办？',
+			'download.location.moveThem' => '搬过去',
+			'download.location.keepThem' => '保留在原处',
+			'download.location.decideLater' => '以后再说',
+			'download.location.useThisLocation' => '使用这个位置',
+			'download.location.locationChanged' => '下载位置已更改',
+			'download.location.manualTitle' => '手动输入路径',
+			'download.location.manualLabel' => '文件夹路径',
+			'download.location.manualHint' => '例如 /storage/emulated/0/Download/LoveIwara',
+			'download.location.manualSubmit' => '检查并使用',
+			'download.location.manualEmpty' => '请输入路径',
+			'download.location.manualNotAbsolute' => '请输入完整的绝对路径',
+			'download.location.fixStillFailing' => '这个位置仍然不能用，请换一个。',
+			'download.location.fixed' => '位置已恢复正常',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
@@ -5914,6 +6446,8 @@ extension on TranslationsZhCn {
 			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeConfirmationFailed' => '删除项目失败',
 			'favorite.createFolderSuccess' => '文件夹创建成功',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.createFolderFailed' => '创建文件夹失败',
 			'favorite.createFolder' => '创建文件夹',
 			'favorite.enterFolderName' => '输入文件夹名称',
@@ -6160,8 +6694,6 @@ extension on TranslationsZhCn {
 			'mediaPlayer.localVideoPathEmpty' => '本地视频路径为空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
 			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
@@ -6428,6 +6960,8 @@ extension on TranslationsZhCn {
 			'layoutSettings.widthCannotExceed9999' => '宽度不能超过9999',
 			'layoutSettings.breakpointAlreadyExists' => '断点已存在',
 			'layoutSettings.enterColumns' => '请输入列数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.enterValidColumns' => '请输入有效列数',
 			'layoutSettings.columnsCannotExceed12' => '列数不能超过12',
 			'layoutSettings.breakpointConflict' => '断点已存在',
@@ -6674,8 +7208,6 @@ extension on TranslationsZhCn {
 			'savedSearchConfig.title' => '已保存筛选',
 			'savedSearchConfig.empty' => '还没有保存的筛选配置',
 			'savedSearchConfig.saveTooltip' => '保存当前筛选',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => '保存筛选配置',
 			'savedSearchConfig.nameLabel' => '名称',
 			'savedSearchConfig.nameHint' => '请输入名称',
@@ -6942,6 +7474,8 @@ extension on TranslationsZhCn {
 			'localMedia.browse.useThisFolder' => '使用这个文件夹',
 			'localMedia.browse.noSubfolders' => '这里没有子文件夹',
 			'localMedia.browse.storageRoot' => '设备存储',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.homeFolder' => '个人文件夹',
 			'localMedia.browse.filesystemRoot' => '根目录',
 			'localMedia.browse.folderUnreadable' => '这个文件夹读不动',

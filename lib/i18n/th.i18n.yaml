@@ -156,6 +156,7 @@ common:
   selectedRecords: 'เลือกแล้ว ${num} รายการ'
   cancelSelectAll: ยกเลิกการเลือกทั้งหมด
   selectAll: เลือกทั้งหมด
+  invertSelection: สลับการเลือก
   exitEditMode: ออกจากโหมดแก้ไข
   areYouSureYouWantToDeleteSelectedItems: 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่เลือก ${num} รายการ?'
   searchHistoryRecords: ประวัติการค้นหา...

@@ -277,6 +277,7 @@ class _TranslationsCommonDe extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '${num} Einträge ausgewählt';
 	@override String get cancelSelectAll => 'Alle abwählen';
 	@override String get selectAll => 'Alle auswählen';
+	@override String get invertSelection => 'Auswahl umkehren';
 	@override String get exitEditMode => 'Bearbeitungsmodus beenden';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Möchten Sie die ausgewählten ${num} Elemente wirklich löschen?';
 	@override String get searchHistoryRecords => 'Verlaufseinträge durchsuchen…';
@@ -4248,6 +4249,7 @@ extension on TranslationsDe {
 			'common.selectedRecords' => ({required Object num}) => '${num} Einträge ausgewählt',
 			'common.cancelSelectAll' => 'Alle abwählen',
 			'common.selectAll' => 'Alle auswählen',
+			'common.invertSelection' => 'Auswahl umkehren',
 			'common.exitEditMode' => 'Bearbeitungsmodus beenden',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Möchten Sie die ausgewählten ${num} Elemente wirklich löschen?',
 			'common.searchHistoryRecords' => 'Verlaufseinträge durchsuchen…',
@@ -4617,9 +4619,9 @@ extension on TranslationsDe {
 			'settings.longPressPlaybackSpeed' => 'Wiedergabegeschwindigkeit bei Langdruck',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Die Wiedergabegeschwindigkeit bei Langdruck muss eine positive Zahl sein.',
 			'settings.defaultPlaybackSpeed' => 'Standard-Wiedergabegeschwindigkeit',
-			'settings.rememberPlaybackSpeed' => 'Wiedergabegeschwindigkeit merken',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Wiedergabegeschwindigkeit merken',
 			'settings.rememberPlaybackSpeedDesc' => 'Wenn aktiviert, wird die im Player eingestellte Geschwindigkeit als Standard gespeichert und automatisch auf neue Videos angewendet.',
 			'settings.repeat' => 'Wiederholen',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Vertikales Video im Hochformat darstellen',
@@ -5131,9 +5133,9 @@ extension on TranslationsDe {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Pfadstatus kann nicht abgerufen werden',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Hinweis: Der tatsächliche Pfad weicht vom ausgewählten Pfad ab',
 			'settings.downloadSettings.grantPermission' => 'Berechtigung erteilen',
-			'settings.downloadSettings.fixIssue' => 'Problem beheben',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Problem beheben',
 			'settings.downloadSettings.issueFixed' => 'Problem behoben',
 			'settings.downloadSettings.fixFailed' => 'Behebung fehlgeschlagen, bitte manuell bearbeiten',
 			'settings.downloadSettings.lackStoragePermission' => 'Fehlende Speicherberechtigung',
@@ -5645,9 +5647,9 @@ extension on TranslationsDe {
 			'notifications.kApprovedThread' => 'Thread genehmigt',
 			'notifications.kApprovedPost' => 'Beitrag genehmigt',
 			'notifications.kApprovedForumPost' => 'Forumsbeitrag genehmigt',
-			'notifications.kRejectedContent' => 'Inhaltsprüfung abgelehnt',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Inhaltsprüfung abgelehnt',
 			'notifications.kUnknownType' => 'Unbekannter Benachrichtigungstyp',
 			'conversation.errors.pleaseSelectAUser' => 'Bitte einen Benutzer auswählen',
 			'conversation.errors.pleaseEnterATitle' => 'Bitte einen Titel eingeben',
@@ -6159,9 +6161,9 @@ extension on TranslationsDe {
 			'layoutSettings.title' => 'Layout-Einstellungen',
 			'layoutSettings.descriptionTitle' => 'Beschreibung der Layout-Konfiguration',
 			'layoutSettings.descriptionContent' => 'Die Konfiguration hier bestimmt die Anzahl der Spalten, die in den Video- und Galerielisten angezeigt werden. Sie können den automatischen Modus wählen, damit das System anhand der Bildschirmbreite automatisch anpasst, oder den manuellen Modus, um die Spaltenzahl festzulegen.',
-			'layoutSettings.layoutMode' => 'Layout-Modus',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Layout-Modus',
 			'layoutSettings.reset' => 'Zurücksetzen',
 			'layoutSettings.autoMode' => 'Automatischer Modus',
 			'layoutSettings.autoModeDesc' => 'Automatisch anhand der Bildschirmbreite anpassen',
@@ -6673,9 +6675,9 @@ extension on TranslationsDe {
 			'siteMode.switched' => ({required Object site}) => 'Zu ${site} gewechselt. Die App wurde neu geladen.',
 			'savedSearchConfig.title' => 'Gespeicherte Filter',
 			'savedSearchConfig.empty' => 'Noch keine gespeicherten Filter',
-			'savedSearchConfig.saveTooltip' => 'Aktuellen Filter speichern',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Aktuellen Filter speichern',
 			'savedSearchConfig.namePromptTitle' => 'Filter speichern',
 			'savedSearchConfig.nameLabel' => 'Name',
 			'savedSearchConfig.nameHint' => 'Namen eingeben',

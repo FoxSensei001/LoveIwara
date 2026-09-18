@@ -12,6 +12,7 @@ import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/ui/pages/download/widgets/download_relocation_flow.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -208,7 +209,7 @@ class DownloadedGalleryCard extends StatelessWidget {
   final DownloadedGalleryRow row;
   final VoidCallback? onDeleted;
 
-  /// 检查资源是否存在：若本地目录和图片文件均已不存在，自动删除任务并提示。
+  /// 检查资源是否存在：目录和封面都摸不到时先问用户（找回 / 删记录），再决定进不进。
   Future<void> _handleOpen(BuildContext context) async {
     final dirExists =
         row.savePath != null &&
@@ -219,20 +220,22 @@ class DownloadedGalleryCard extends StatelessWidget {
         row.coverPath!.isNotEmpty &&
         File(row.coverPath!).existsSync();
 
+    // 找不到不等于删掉了（SD 卡没插 / 文件夹被挪过），由用户决定找回还是删记录。
     if (!dirExists && !coverExists) {
-      LogUtils.w('图库本地资源已不存在，自动清理任务: taskId=${row.taskId}', _tag);
-      showAppToast(
-        slang.t.localMedia.browse.galleryResourceMissing,
-        type: AppToastType.warning,
-      );
-      if (Get.isRegistered<DownloadService>()) {
-        await DownloadService.to.deleteTask(
-          row.taskId,
-          ignoreFileDeleteError: true,
-        );
+      LogUtils.w('图库本地资源找不到: taskId=${row.taskId}', _tag);
+      final task = Get.isRegistered<DownloadService>()
+          ? await DownloadService.to.repository.getTaskById(row.taskId)
+          : null;
+      if (task == null) {
+        onDeleted?.call();
+        return;
       }
-      onDeleted?.call();
-      return;
+      // 行数据可能是重新定位之前查的：以库里的最新路径为准再看一眼。
+      if (!Directory(task.savePath).existsSync()) {
+        final outcome = await showMissingDownloadDialog(task);
+        if (outcome == MissingDownloadOutcome.deleted) onDeleted?.call();
+        if (outcome != MissingDownloadOutcome.located) return;
+      }
     }
 
     NaviService.navigateToDownloadedGalleryBrowsePage(row.taskId);

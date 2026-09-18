@@ -30,6 +30,13 @@ TABLE download_categories
   COLUMN title TEXT NOT NULL
   COLUMN updated_at INTEGER NOT NULL DEFAULT strftime('%s','now')
   INDEX sqlite_autoindex_download_categories_1 :: (auto)
+TABLE download_relocation_journal
+  COLUMN created_at INTEGER NOT NULL
+  COLUMN dest_path TEXT NOT NULL
+  COLUMN src_path TEXT NOT NULL
+  COLUMN task_id TEXT PK1
+  COLUMN temp_path TEXT
+  INDEX sqlite_autoindex_download_relocation_journal_1 :: (auto)
 TABLE download_tasks
   COLUMN category_id TEXT
   COLUMN completed_at INTEGER

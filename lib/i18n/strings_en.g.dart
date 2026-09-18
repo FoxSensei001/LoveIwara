@@ -563,6 +563,9 @@ class TranslationsCommonEn {
 	/// en: 'Select All'
 	String get selectAll => 'Select All';
 
+	/// en: 'Invert Selection'
+	String get invertSelection => 'Invert Selection';
+
 	/// en: 'Exit Edit Mode'
 	String get exitEditMode => 'Exit Edit Mode';
 
@@ -3607,6 +3610,8 @@ class TranslationsDownloadEn {
 	String get errorDetailCopyHint => 'Long press to copy error details';
 
 	late final TranslationsDownloadRestoredPausedEn restoredPaused = TranslationsDownloadRestoredPausedEn.internal(_root);
+	late final TranslationsDownloadActionsEn actions = TranslationsDownloadActionsEn.internal(_root);
+	late final TranslationsDownloadNoticeEn notice = TranslationsDownloadNoticeEn.internal(_root);
 
 	/// en: 'No download tasks yet'
 	String get emptyTaskList => 'No download tasks yet';
@@ -3615,7 +3620,9 @@ class TranslationsDownloadEn {
 	String get noMatchingTasks => 'No matching tasks';
 
 	late final TranslationsDownloadDeleteByDateEn deleteByDate = TranslationsDownloadDeleteByDateEn.internal(_root);
+	late final TranslationsDownloadRelocationEn relocation = TranslationsDownloadRelocationEn.internal(_root);
 	late final TranslationsDownloadCategoryEn category = TranslationsDownloadCategoryEn.internal(_root);
+	late final TranslationsDownloadLocationEn location = TranslationsDownloadLocationEn.internal(_root);
 
 	/// en: 'Max concurrent downloads'
 	String get maxConcurrentDownloads => 'Max concurrent downloads';
@@ -8635,6 +8642,138 @@ class TranslationsDownloadRestoredPausedEn {
 	String get dismiss => 'Dismiss';
 }
 
+// Path: download.actions
+class TranslationsDownloadActionsEn {
+	TranslationsDownloadActionsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Open'
+	String get open => 'Open';
+
+	/// en: 'Play'
+	String get play => 'Play';
+
+	/// en: 'Open with another app'
+	String get openWith => 'Open with another app';
+
+	/// en: 'Download again'
+	String get redownload => 'Download again';
+
+	/// en: 'Move files to…'
+	String get relocate => 'Move files to…';
+
+	/// en: 'Categorize…'
+	String get categorize => 'Categorize…';
+
+	/// en: 'View online page'
+	String get viewOnline => 'View online page';
+
+	/// en: 'Delete…'
+	String get delete => 'Delete…';
+
+	/// en: 'Started downloading ${count} items again'
+	String redownloadStarted({required Object count}) => 'Started downloading ${count} items again';
+
+	/// en: 'Nothing to download again'
+	String get redownloadNone => 'Nothing to download again';
+
+	/// en: 'Delete ${count} downloads?'
+	String deleteTitle({required Object count}) => 'Delete ${count} downloads?';
+
+	/// en: '${count} items · ${size}'
+	String deleteSummary({required Object count, required Object size}) => '${count} items · ${size}';
+
+	/// en: '${count} items'
+	String deleteSummaryNoSize({required Object count}) => '${count} items';
+
+	/// en: 'Size of ${count} galleries not included'
+	String deleteGalleryNote({required Object count}) => 'Size of ${count} galleries not included';
+
+	/// en: 'Also delete files from disk'
+	String get deleteFiles => 'Also delete files from disk';
+
+	/// en: 'When off, only the list entries are removed and the files stay where they are'
+	String get deleteFilesDesc => 'When off, only the list entries are removed and the files stay where they are';
+
+	/// en: 'The files are already gone; only the entries will be removed'
+	String get deleteFilesAllMissing => 'The files are already gone; only the entries will be removed';
+
+	/// en: 'Deleted ${count} items'
+	String deleteDone({required Object count}) => 'Deleted ${count} items';
+
+	/// en: 'Could not delete the files of ${failed} items (they may be in use); their entries were kept'
+	String deletePartial({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept';
+
+	/// en: 'Remove entries anyway'
+	String get removeRecordAnyway => 'Remove entries anyway';
+
+	/// en: 'File is missing'
+	String get fileMissing => 'File is missing';
+
+	/// en: 'File not found right now, it may still be recoverable'
+	String get filePending => 'File not found right now, it may still be recoverable';
+
+	/// en: 'In progress'
+	String get statusActive => 'In progress';
+
+	/// en: 'Completed'
+	String get statusCompleted => 'Completed';
+
+	/// en: 'Needs attention'
+	String get needsAttention => 'Needs attention';
+
+	/// en: 'Needs attention · ${count}'
+	String needsAttentionCount({required Object count}) => 'Needs attention · ${count}';
+
+	/// en: 'Organize'
+	String get organize => 'Organize';
+
+	/// en: 'Check file integrity…'
+	String get checkIntegrity => 'Check file integrity…';
+
+	/// en: 'Move to current download folder…'
+	String get migrateToCurrent => 'Move to current download folder…';
+
+	/// en: 'Everything is already in the current download folder'
+	String get migrateNone => 'Everything is already in the current download folder';
+}
+
+// Path: download.notice
+class TranslationsDownloadNoticeEn {
+	TranslationsDownloadNoticeEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: '${count} downloads failed'
+	String failed({required Object count}) => '${count} downloads failed';
+
+	/// en: 'Retry all'
+	String get retryAll => 'Retry all';
+
+	/// en: 'View'
+	String get view => 'View';
+
+	/// en: 'Files of ${count} downloaded items are missing'
+	String missing({required Object count}) => 'Files of ${count} downloaded items are missing';
+
+	/// en: 'Handle…'
+	String get handle => 'Handle…';
+
+	/// en: '${count} items are still in the old download folder'
+	String outside({required Object count}) => '${count} items are still in the old download folder';
+
+	/// en: 'Move'
+	String get migrate => 'Move';
+
+	/// en: 'Dismiss'
+	String get dismiss => 'Dismiss';
+}
+
 // Path: download.deleteByDate
 class TranslationsDownloadDeleteByDateEn {
 	TranslationsDownloadDeleteByDateEn.internal(this._root);
@@ -8693,6 +8832,417 @@ class TranslationsDownloadDeleteByDateEn {
 
 	/// en: 'Deleted ${deleted} task(s); ${skipped} skipped (in use)'
 	String resultPartial({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)';
+}
+
+// Path: download.relocation
+class TranslationsDownloadRelocationEn {
+	TranslationsDownloadRelocationEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Move files'
+	String get moveFiles => 'Move files';
+
+	/// en: 'Move files…'
+	String get moveFilesEllipsis => 'Move files…';
+
+	/// en: 'Move files to'
+	String get chooseDestination => 'Move files to';
+
+	/// en: 'Current download folder'
+	String get currentDownloadDir => 'Current download folder';
+
+	/// en: 'Choose another folder…'
+	String get otherFolder => 'Choose another folder…';
+
+	/// en: 'Folders can't be picked on this device. Downloads stay in the app's own folder.'
+	String get pickerUnsupported => 'Folders can\'t be picked on this device. Downloads stay in the app\'s own folder.';
+
+	/// en: 'Checking files…'
+	String get planning => 'Checking files…';
+
+	/// en: 'Move files?'
+	String get confirmTitle => 'Move files?';
+
+	/// en: 'Files are moved on disk. Watch progress, VR settings and favorites move with them.'
+	String get confirmNote => 'Files are moved on disk. Watch progress, VR settings and favorites move with them.';
+
+	/// en: 'Nothing in the selection can be moved. See the reason for each item below.'
+	String get nothingToMove => 'Nothing in the selection can be moved. See the reason for each item below.';
+
+	/// en: 'Move'
+	String get move => 'Move';
+
+	/// en: 'Moving ${done}/${total}'
+	String moving({required Object done, required Object total}) => 'Moving ${done}/${total}';
+
+	/// en: 'Stop'
+	String get stop => 'Stop';
+
+	/// en: 'Stopping after the current item…'
+	String get stopping => 'Stopping after the current item…';
+
+	/// en: 'Move finished'
+	String get resultTitle => 'Move finished';
+
+	/// en: '${count} item(s) moved'
+	String resultMoved({required Object count}) => '${count} item(s) moved';
+
+	/// en: 'Stopped. Items already moved are complete.'
+	String get cancelled => 'Stopped. Items already moved are complete.';
+
+	/// en: 'Another move is already in progress'
+	String get alreadyRunning => 'Another move is already in progress';
+
+	/// en: 'Destination'
+	String get destination => 'Destination';
+
+	/// en: 'To move'
+	String get statMove => 'To move';
+
+	/// en: 'Skipped'
+	String get statSkip => 'Skipped';
+
+	/// en: 'Renamed'
+	String get statRenamed => 'Renamed';
+
+	/// en: 'Moved'
+	String get statMoved => 'Moved';
+
+	/// en: 'Not moved'
+	String get statFailed => 'Not moved';
+
+	/// en: 'Left behind'
+	String get statLeftover => 'Left behind';
+
+	/// en: 'Will be moved'
+	String get sectionMove => 'Will be moved';
+
+	/// en: 'Will be skipped'
+	String get sectionSkip => 'Will be skipped';
+
+	/// en: 'Moved'
+	String get sectionMoved => 'Moved';
+
+	/// en: 'Not moved (left where it was)'
+	String get sectionFailed => 'Not moved (left where it was)';
+
+	/// en: 'Old folders not fully removed'
+	String get sectionLeftover => 'Old folders not fully removed';
+
+	/// en: 'The copy at the new location is complete. These leftovers can be deleted.'
+	String get leftoverHint => 'The copy at the new location is complete. These leftovers can be deleted.';
+
+	/// en: 'From'
+	String get from => 'From';
+
+	/// en: 'To'
+	String get to => 'To';
+
+	/// en: 'Name taken, will be saved as "${name}"'
+	String renamedBadge({required Object name}) => 'Name taken, will be saved as "${name}"';
+
+	/// en: 'Show paths'
+	String get showPaths => 'Show paths';
+
+	/// en: 'Hide paths'
+	String get hidePaths => 'Hide paths';
+
+	/// en: 'Show in folder'
+	String get revealInFolder => 'Show in folder';
+
+	/// en: 'Copy path'
+	String get copyPath => 'Copy path';
+
+	/// en: 'Path copied'
+	String get pathCopied => 'Path copied';
+
+	/// en: 'downloading, ${percent}%'
+	String stateDownloading({required Object percent}) => 'downloading, ${percent}%';
+
+	/// en: 'waiting to download'
+	String get statePending => 'waiting to download';
+
+	/// en: 'paused at ${percent}%'
+	String statePaused({required Object percent}) => 'paused at ${percent}%';
+
+	/// en: 'download failed'
+	String get stateFailed => 'download failed';
+
+	/// en: 'Already in this folder'
+	String get skipAlreadyThere => 'Already in this folder';
+
+	/// en: 'The destination is inside this gallery's own folder'
+	String get skipInsideSource => 'The destination is inside this gallery\'s own folder';
+
+	/// en: 'Busy with another operation (deleting or moving)'
+	String get reasonBusy => 'Busy with another operation (deleting or moving)';
+
+	/// en: 'The file is in use (for example, playing), so it couldn't be removed from the old location. Nothing was changed.'
+	String get reasonSourceLocked => 'The file is in use (for example, playing), so it couldn\'t be removed from the old location. Nothing was changed.';
+
+	/// en: 'The destination ran out of space. The rest of the batch was stopped.'
+	String get reasonNoSpace => 'The destination ran out of space. The rest of the batch was stopped.';
+
+	/// en: 'The copy didn't match the original's size. The copy was discarded.'
+	String get reasonVerifyFailed => 'The copy didn\'t match the original\'s size. The copy was discarded.';
+
+	/// en: 'Couldn't read or write the file. Nothing was changed.'
+	String get reasonIoError => 'Couldn\'t read or write the file. Nothing was changed.';
+
+	/// en: 'System message: ${message}'
+	String systemMessage({required Object message}) => 'System message: ${message}';
+
+	/// en: '${count} downloaded item(s) are outside this folder'
+	String outsideTitle({required Object count}) => '${count} downloaded item(s) are outside this folder';
+
+	/// en: 'They still play where they are. Move them here to keep everything together.'
+	String get outsideSubtitle => 'They still play where they are. Move them here to keep everything together.';
+
+	/// en: 'Move here'
+	String get moveHere => 'Move here';
+
+	/// en: 'Files not found'
+	String get missingTitle => 'Files not found';
+
+	/// en: 'Recorded location'
+	String get recordedLocation => 'Recorded location';
+
+	/// en: 'still exists'
+	String get legendExists => 'still exists';
+
+	/// en: 'missing'
+	String get legendMissing => 'missing';
+
+	/// en: 'Storage "${volume}" is not available. The SD card or external drive may not be connected.'
+	String diagVolume({required Object volume}) => 'Storage "${volume}" is not available. The SD card or external drive may not be connected.';
+
+	/// en: 'storage "${volume}" not connected'
+	String diagVolumeShort({required Object volume}) => 'storage "${volume}" not connected';
+
+	/// en: 'After an app update, the system moved the app's storage. The file is still here:'
+	String get diagContainer => 'After an app update, the system moved the app\'s storage. The file is still here:';
+
+	/// en: 'app storage moved after update'
+	String get diagContainerShort => 'app storage moved after update';
+
+	/// en: 'The app doesn't have permission to read this location. Grant "All files access" and check again.'
+	String get diagNoAccess => 'The app doesn\'t have permission to read this location. Grant "All files access" and check again.';
+
+	/// en: 'no permission to read this location'
+	String get diagNoAccessShort => 'no permission to read this location';
+
+	/// en: 'The folder "${folder}" no longer exists.'
+	String diagFolder({required Object folder}) => 'The folder "${folder}" no longer exists.';
+
+	/// en: 'folder "${folder}" no longer exists'
+	String diagFolderShort({required Object folder}) => 'folder "${folder}" no longer exists';
+
+	/// en: 'The folder is still there, but "${name}" isn't in it.'
+	String diagFile({required Object name}) => 'The folder is still there, but "${name}" isn\'t in it.';
+
+	/// en: 'not found in its folder'
+	String get diagFileShort => 'not found in its folder';
+
+	/// en: 'Found something in that folder that looks like it (maybe renamed):'
+	String get diagCandidates => 'Found something in that folder that looks like it (maybe renamed):';
+
+	/// en: 'Nothing with the same size was found in that folder.'
+	String get diagNoCandidates => 'Nothing with the same size was found in that folder.';
+
+	/// en: 'Use this'
+	String get useThis => 'Use this';
+
+	/// en: 'Fix path'
+	String get fixPath => 'Fix path';
+
+	/// en: 'Check again'
+	String get checkAgain => 'Check again';
+
+	/// en: 'Grant permission'
+	String get grantPermission => 'Grant permission';
+
+	/// en: 'Find in another folder…'
+	String get locate => 'Find in another folder…';
+
+	/// en: 'Delete record'
+	String get deleteRecord => 'Delete record';
+
+	/// en: 'This download's files aren't in that folder'
+	String get locateNotFound => 'This download\'s files aren\'t in that folder';
+
+	/// en: 'Found. The record now points to the new location.'
+	String get located => 'Found. The record now points to the new location.';
+
+	/// en: 'Still not found'
+	String get stillMissing => 'Still not found';
+
+	/// en: 'Downloaded ${date}'
+	String downloadedOn({required Object date}) => 'Downloaded ${date}';
+
+	/// en: '${count} images'
+	String galleryImages({required Object count}) => '${count} images';
+
+	/// en: 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues'
+	String unfinishedDownloading({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues';
+
+	/// en: 'Waiting to download: re-queued after the move'
+	String get unfinishedPending => 'Waiting to download: re-queued after the move';
+
+	/// en: 'Paused at ${percent}%: the downloaded part moves too, stays paused'
+	String unfinishedPaused({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused';
+
+	/// en: 'Download failed: the downloaded part moves too'
+	String get unfinishedFailed => 'Download failed: the downloaded part moves too';
+
+	/// en: 'Nothing downloaded yet, only the save location changes'
+	String get noDataYet => 'Nothing downloaded yet, only the save location changes';
+
+	/// en: '${count} item(s) with missing files'
+	String missingGroup({required Object count}) => '${count} item(s) with missing files';
+
+	/// en: 'Leave as is'
+	String get missingSkip => 'Leave as is';
+
+	/// en: 'Re-download to the destination'
+	String get missingRedownload => 'Re-download to the destination';
+
+	/// en: 'Remove records'
+	String get missingRemove => 'Remove records';
+
+	/// en: '${count} of them are on storage that isnt connected and wont be removed'
+	String missingRemoveVolumeNote({required Object count}) => '${count} of them are on storage that isnt connected and wont be removed';
+
+	/// en: '${count} failed download(s)'
+	String failedGroup({required Object count}) => '${count} failed download(s)';
+
+	/// en: 'Just move'
+	String get failedMoveOnly => 'Just move';
+
+	/// en: 'Move, then re-download'
+	String get failedMoveAndRetry => 'Move, then re-download';
+
+	/// en: 'Remove tasks'
+	String get failedRemove => 'Remove tasks';
+
+	/// en: 'Their partially downloaded files are deleted too'
+	String get failedRemoveNote => 'Their partially downloaded files are deleted too';
+
+	/// en: 'Apply'
+	String get execute => 'Apply';
+
+	/// en: 'Will be re-downloaded to the destination'
+	String get actionWillRedownload => 'Will be re-downloaded to the destination';
+
+	/// en: 'This record will be removed'
+	String get actionWillRemove => 'This record will be removed';
+
+	/// en: 'Storage not connected, will be kept'
+	String get actionWillKeep => 'Storage not connected, will be kept';
+
+	/// en: 'Re-downloaded after the move'
+	String get actionWillRetry => 'Re-downloaded after the move';
+
+	/// en: 'This task will be removed'
+	String get actionWillRemoveTask => 'This task will be removed';
+
+	/// en: 'Re-download'
+	String get statRedownload => 'Re-download';
+
+	/// en: 'Removed'
+	String get statRemoved => 'Removed';
+
+	/// en: 'Re-download started'
+	String get sectionRedownloaded => 'Re-download started';
+
+	/// en: 'Couldnt start re-download'
+	String get sectionRedownloadFailed => 'Couldnt start re-download';
+
+	/// en: 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.'
+	String get redownloadFailedHint => 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.';
+
+	/// en: 'Removed'
+	String get sectionRemoved => 'Removed';
+
+	/// en: 'Kept (storage not connected)'
+	String get sectionKept => 'Kept (storage not connected)';
+
+	/// en: 'Re-download'
+	String get redownload => 'Re-download';
+
+	/// en: 'Re-download started'
+	String get redownloadStarted => 'Re-download started';
+
+	/// en: 'Couldnt start re-download'
+	String get redownloadNotStarted => 'Couldnt start re-download';
+
+	/// en: 'a file with the same size is in its folder, maybe renamed'
+	String get diagFileShortWithCandidates => 'a file with the same size is in its folder, maybe renamed';
+
+	/// en: 'Clean up broken records…'
+	String get cleanupMenu => 'Clean up broken records…';
+
+	/// en: 'Checking ${done}/${total}'
+	String cleanupScanning({required Object done, required Object total}) => 'Checking ${done}/${total}';
+
+	/// en: 'Clean up broken records'
+	String get cleanupTitle => 'Clean up broken records';
+
+	/// en: 'Checked ${count} completed download(s). All files are there.'
+	String cleanupNone({required Object count}) => 'Checked ${count} completed download(s). All files are there.';
+
+	/// en: 'Checked'
+	String get statChecked => 'Checked';
+
+	/// en: 'Missing'
+	String get statMissing => 'Missing';
+
+	/// en: 'Keep'
+	String get statKeep => 'Keep';
+
+	/// en: 'Files are gone'
+	String get cleanupGroupGone => 'Files are gone';
+
+	/// en: 'May still be recoverable'
+	String get cleanupGroupRecoverable => 'May still be recoverable';
+
+	/// en: 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.'
+	String get cleanupRecoverableHint => 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.';
+
+	/// en: 'Select all'
+	String get selectAll => 'Select all';
+
+	/// en: 'Select none'
+	String get selectNone => 'Select none';
+
+	/// en: 'Remove selected (${count})'
+	String removeSelected({required Object count}) => 'Remove selected (${count})';
+
+	/// en: 'Re-download selected (${count})'
+	String redownloadSelected({required Object count}) => 'Re-download selected (${count})';
+
+	/// en: 'Processing ${done}/${total}'
+	String processing({required Object done, required Object total}) => 'Processing ${done}/${total}';
+
+	/// en: '${count} record(s) removed'
+	String cleanupRemoved({required Object count}) => '${count} record(s) removed';
+
+	/// en: 'Re-download started for ${count} item(s)'
+	String cleanupRedownloaded({required Object count}) => 'Re-download started for ${count} item(s)';
+
+	/// en: 'Details'
+	String get tapForDetail => 'Details';
+
+	/// en: 'Couldnt delete the record. Try again later.'
+	String get deleteRecordFailed => 'Couldnt delete the record. Try again later.';
+
+	/// en: 'Not processed (stopped, left as is)'
+	String get sectionNotAttempted => 'Not processed (stopped, left as is)';
+
+	/// en: 'Stopped because of an error: ${message}. Items already moved are complete.'
+	String unexpectedError({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.';
 }
 
 // Path: download.category
@@ -8771,6 +9321,234 @@ class TranslationsDownloadCategoryEn {
 
 	/// en: 'Failed to delete category'
 	String get deleteFailed => 'Failed to delete category';
+}
+
+// Path: download.location
+class TranslationsDownloadLocationEn {
+	TranslationsDownloadLocationEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Save location'
+	String get sectionTitle => 'Save location';
+
+	/// en: 'Download behavior'
+	String get behaviorSection => 'Download behavior';
+
+	/// en: 'File naming'
+	String get namingSection => 'File naming';
+
+	/// en: 'Advanced'
+	String get advancedSection => 'Advanced';
+
+	/// en: 'Write diagnostics and other tools'
+	String get advancedSubtitle => 'Write diagnostics and other tools';
+
+	/// en: 'Internal storage'
+	String get volumeInternal => 'Internal storage';
+
+	/// en: 'SD card'
+	String get volumeSdCard => 'SD card';
+
+	/// en: 'External drive'
+	String get volumeExternalDrive => 'External drive';
+
+	/// en: 'App-only storage'
+	String get appSpace => 'App-only storage';
+
+	/// en: 'Downloads'
+	String get downloadsFolder => 'Downloads';
+
+	/// en: 'Ask every time'
+	String get askEveryTime => 'Ask every time';
+
+	/// en: 'Choose where to save for each download. Batch downloads go to ${location}'
+	String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+
+	/// en: '${size} free'
+	String freeSpace({required Object size}) => '${size} free';
+
+	/// en: 'Writable'
+	String get statusWritable => 'Writable';
+
+	/// en: 'Needs permission'
+	String get statusNeedsPermission => 'Needs permission';
+
+	/// en: 'Temporarily redirected'
+	String get statusFallback => 'Temporarily redirected';
+
+	/// en: 'Low space'
+	String get statusLowSpace => 'Low space';
+
+	/// en: 'Checking'
+	String get statusChecking => 'Checking';
+
+	/// en: 'Grant'
+	String get grant => 'Grant';
+
+	/// en: 'Fix'
+	String get fix => 'Fix';
+
+	/// en: 'Change location'
+	String get changeLocation => 'Change location';
+
+	/// en: 'Open in file manager'
+	String get openInFileManager => 'Open in file manager';
+
+	/// en: 'More'
+	String get moreActions => 'More';
+
+	/// en: 'Copy path'
+	String get copyPath => 'Copy path';
+
+	/// en: 'Path copied'
+	String get pathCopied => 'Path copied';
+
+	/// en: 'Enter path manually (advanced)'
+	String get manualInput => 'Enter path manually (advanced)';
+
+	/// en: 'Restore default'
+	String get restoreDefault => 'Restore default';
+
+	/// en: 'Run diagnostics'
+	String get runDiagnostics => 'Run diagnostics';
+
+	/// en: 'Restored the default location'
+	String get restoredDefault => 'Restored the default location';
+
+	/// en: 'Choose download location'
+	String get sheetTitle => 'Choose download location';
+
+	/// en: 'Choose another folder…'
+	String get chooseOtherFolder => 'Choose another folder…';
+
+	/// en: 'Pick one with the system file picker'
+	String get chooseOtherFolderDesc => 'Pick one with the system file picker';
+
+	/// en: 'Recommended · no permission needed'
+	String get optionRecommendedDesc => 'Recommended · no permission needed';
+
+	/// en: 'Recommended · needs storage permission'
+	String get optionRecommendedLegacyDesc => 'Recommended · needs storage permission';
+
+	/// en: 'Deleted on uninstall · hidden from the gallery'
+	String get optionAppPrivateDesc => 'Deleted on uninstall · hidden from the gallery';
+
+	/// en: 'Needs "All files access"'
+	String get optionRemovableDesc => 'Needs "All files access"';
+
+	/// en: 'Recommended · your Downloads folder'
+	String get optionDesktopDownloadsDesc => 'Recommended · your Downloads folder';
+
+	/// en: 'Pick a folder for each download'
+	String get optionAskEveryTimeDesc => 'Pick a folder for each download';
+
+	/// en: 'Current'
+	String get current => 'Current';
+
+	/// en: 'Your last download was temporarily saved to app storage because the chosen folder could not be used.'
+	String get fallbackBanner => 'Your last download was temporarily saved to app storage because the chosen folder could not be used.';
+
+	/// en: 'storage permission is missing'
+	String get fallbackReasonPermission => 'storage permission is missing';
+
+	/// en: 'the storage device is not connected'
+	String get fallbackReasonVolumeMissing => 'the storage device is not connected';
+
+	/// en: 'the folder could not be created'
+	String get fallbackReasonCannotCreate => 'the folder could not be created';
+
+	/// en: 'the folder cannot be written to'
+	String get fallbackReasonNotWritable => 'the folder cannot be written to';
+
+	/// en: 'Temporarily redirected: ${reason}'
+	String fallbackDetail({required Object reason}) => 'Temporarily redirected: ${reason}';
+
+	/// en: 'This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.'
+	String get errorUnresolvable => 'This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.';
+
+	/// en: 'This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.'
+	String get errorNotWritable => 'This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.';
+
+	/// en: 'This storage device cannot be found (removed or not connected). The location was not changed.'
+	String get errorVolumeMissing => 'This storage device cannot be found (removed or not connected). The location was not changed.';
+
+	/// en: 'Permission needed'
+	String get permissionTitle => 'Permission needed';
+
+	/// en: 'Writing to this folder needs "All files access". If you'd rather not allow that, use "Downloads › LoveIwara" instead.'
+	String get permissionAllFiles => 'Writing to this folder needs "All files access". If you\'d rather not allow that, use "Downloads › LoveIwara" instead.';
+
+	/// en: 'Writing to this folder needs the storage permission. If you'd rather not allow that, use app-only storage instead.'
+	String get permissionLegacy => 'Writing to this folder needs the storage permission. If you\'d rather not allow that, use app-only storage instead.';
+
+	/// en: 'Use Downloads › LoveIwara'
+	String get useDownloadsInstead => 'Use Downloads › LoveIwara';
+
+	/// en: 'Use app-only storage'
+	String get useAppSpaceInstead => 'Use app-only storage';
+
+	/// en: 'Grant'
+	String get goToSettings => 'Grant';
+
+	/// en: 'Permission was not granted. The location was not changed.'
+	String get permissionDenied => 'Permission was not granted. The location was not changed.';
+
+	/// en: 'Checking this location…'
+	String get checking => 'Checking this location…';
+
+	/// en: 'Use this location?'
+	String get confirmTitle => 'Use this location?';
+
+	/// en: '${size} free'
+	String confirmFree({required Object size}) => '${size} free';
+
+	/// en: '${count} downloaded item(s) stay in the old location'
+	String confirmOutside({required Object count}) => '${count} downloaded item(s) stay in the old location';
+
+	/// en: 'New downloads will be saved here. What about the ones you already have?'
+	String get confirmOutsideDesc => 'New downloads will be saved here. What about the ones you already have?';
+
+	/// en: 'Move them here'
+	String get moveThem => 'Move them here';
+
+	/// en: 'Keep them where they are'
+	String get keepThem => 'Keep them where they are';
+
+	/// en: 'Decide later'
+	String get decideLater => 'Decide later';
+
+	/// en: 'Use this location'
+	String get useThisLocation => 'Use this location';
+
+	/// en: 'Download location changed'
+	String get locationChanged => 'Download location changed';
+
+	/// en: 'Enter path manually'
+	String get manualTitle => 'Enter path manually';
+
+	/// en: 'Folder path'
+	String get manualLabel => 'Folder path';
+
+	/// en: 'e.g. /storage/emulated/0/Download/LoveIwara'
+	String get manualHint => 'e.g. /storage/emulated/0/Download/LoveIwara';
+
+	/// en: 'Check and use'
+	String get manualSubmit => 'Check and use';
+
+	/// en: 'Enter a path'
+	String get manualEmpty => 'Enter a path';
+
+	/// en: 'Enter a full absolute path'
+	String get manualNotAbsolute => 'Enter a full absolute path';
+
+	/// en: 'This location still cannot be used. Choose another one.'
+	String get fixStillFailing => 'This location still cannot be used. Choose another one.';
+
+	/// en: 'The location works again'
+	String get fixed => 'The location works again';
 }
 
 // Path: download.batchDownload
@@ -10150,6 +10928,7 @@ extension on Translations {
 			'common.selectedRecords' => ({required Object num}) => 'Selected ${num} records',
 			'common.cancelSelectAll' => 'Cancel Select All',
 			'common.selectAll' => 'Select All',
+			'common.invertSelection' => 'Invert Selection',
 			'common.exitEditMode' => 'Exit Edit Mode',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Are you sure you want to delete selected ${num} items?',
 			'common.searchHistoryRecords' => 'Search History Records...',
@@ -10519,9 +11298,9 @@ extension on Translations {
 			'settings.longPressPlaybackSpeed' => 'Long Press Playback Speed',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Long press playback speed must be a positive number.',
 			'settings.defaultPlaybackSpeed' => 'Default Playback Speed',
-			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Remember Playback Speed',
 			'settings.rememberPlaybackSpeedDesc' => 'When enabled, the speed you set in the player is saved as the default and applied automatically to new videos.',
 			'settings.repeat' => 'Repeat',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Render Vertical Video in Vertical Screen',
@@ -11033,9 +11812,9 @@ extension on Translations {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Unable to get path status',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Note: Actual path differs from selected path',
 			'settings.downloadSettings.grantPermission' => 'Grant Permission',
-			'settings.downloadSettings.fixIssue' => 'Fix Issue',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Fix Issue',
 			'settings.downloadSettings.issueFixed' => 'Issue fixed',
 			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
 			'settings.downloadSettings.lackStoragePermission' => 'Lack storage permission',
@@ -11547,9 +12326,9 @@ extension on Translations {
 			'notifications.kApprovedThread' => 'Thread approved',
 			'notifications.kApprovedPost' => 'Post approved',
 			'notifications.kApprovedForumPost' => 'Forum post approved',
-			'notifications.kRejectedContent' => 'Content review rejected',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Content review rejected',
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
 			'conversation.errors.pleaseEnterATitle' => 'Please enter a title',
@@ -11717,6 +12496,44 @@ extension on Translations {
 			'download.restoredPaused.banner' => ({required Object num}) => '${num} unfinished tasks from last session were paused',
 			'download.restoredPaused.resume' => 'Resume all',
 			'download.restoredPaused.dismiss' => 'Dismiss',
+			'download.actions.open' => 'Open',
+			'download.actions.play' => 'Play',
+			'download.actions.openWith' => 'Open with another app',
+			'download.actions.redownload' => 'Download again',
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
+			'download.actions.viewOnline' => 'View online page',
+			'download.actions.delete' => 'Delete…',
+			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
+			'download.actions.redownloadNone' => 'Nothing to download again',
+			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
+			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
+			'download.actions.deleteFiles' => 'Also delete files from disk',
+			'download.actions.deleteFilesDesc' => 'When off, only the list entries are removed and the files stay where they are',
+			'download.actions.deleteFilesAllMissing' => 'The files are already gone; only the entries will be removed',
+			'download.actions.deleteDone' => ({required Object count}) => 'Deleted ${count} items',
+			'download.actions.deletePartial' => ({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept',
+			'download.actions.removeRecordAnyway' => 'Remove entries anyway',
+			'download.actions.fileMissing' => 'File is missing',
+			'download.actions.filePending' => 'File not found right now, it may still be recoverable',
+			'download.actions.statusActive' => 'In progress',
+			'download.actions.statusCompleted' => 'Completed',
+			'download.actions.needsAttention' => 'Needs attention',
+			'download.actions.needsAttentionCount' => ({required Object count}) => 'Needs attention · ${count}',
+			'download.actions.organize' => 'Organize',
+			'download.actions.checkIntegrity' => 'Check file integrity…',
+			'download.actions.migrateToCurrent' => 'Move to current download folder…',
+			'download.actions.migrateNone' => 'Everything is already in the current download folder',
+			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
+			'download.notice.retryAll' => 'Retry all',
+			'download.notice.view' => 'View',
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			'download.notice.handle' => 'Handle…',
+			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
+			'download.notice.migrate' => 'Move',
+			'download.notice.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'No download tasks yet',
 			'download.noMatchingTasks' => 'No matching tasks',
 			'download.deleteByDate.menuTitle' => 'Delete by date',
@@ -11736,6 +12553,140 @@ extension on Translations {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Deleting ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Deleted ${count} task(s)',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Deleted ${deleted} task(s); ${skipped} skipped (in use)',
+			'download.relocation.moveFiles' => 'Move files',
+			'download.relocation.moveFilesEllipsis' => 'Move files…',
+			'download.relocation.chooseDestination' => 'Move files to',
+			'download.relocation.currentDownloadDir' => 'Current download folder',
+			'download.relocation.otherFolder' => 'Choose another folder…',
+			'download.relocation.pickerUnsupported' => 'Folders can\'t be picked on this device. Downloads stay in the app\'s own folder.',
+			'download.relocation.planning' => 'Checking files…',
+			'download.relocation.confirmTitle' => 'Move files?',
+			'download.relocation.confirmNote' => 'Files are moved on disk. Watch progress, VR settings and favorites move with them.',
+			'download.relocation.nothingToMove' => 'Nothing in the selection can be moved. See the reason for each item below.',
+			'download.relocation.move' => 'Move',
+			'download.relocation.moving' => ({required Object done, required Object total}) => 'Moving ${done}/${total}',
+			'download.relocation.stop' => 'Stop',
+			'download.relocation.stopping' => 'Stopping after the current item…',
+			'download.relocation.resultTitle' => 'Move finished',
+			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
+			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
+			'download.relocation.statMove' => 'To move',
+			'download.relocation.statSkip' => 'Skipped',
+			'download.relocation.statRenamed' => 'Renamed',
+			'download.relocation.statMoved' => 'Moved',
+			'download.relocation.statFailed' => 'Not moved',
+			'download.relocation.statLeftover' => 'Left behind',
+			'download.relocation.sectionMove' => 'Will be moved',
+			'download.relocation.sectionSkip' => 'Will be skipped',
+			'download.relocation.sectionMoved' => 'Moved',
+			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
+			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
+			'download.relocation.leftoverHint' => 'The copy at the new location is complete. These leftovers can be deleted.',
+			'download.relocation.from' => 'From',
+			'download.relocation.to' => 'To',
+			'download.relocation.renamedBadge' => ({required Object name}) => 'Name taken, will be saved as "${name}"',
+			'download.relocation.showPaths' => 'Show paths',
+			'download.relocation.hidePaths' => 'Hide paths',
+			'download.relocation.revealInFolder' => 'Show in folder',
+			'download.relocation.copyPath' => 'Copy path',
+			'download.relocation.pathCopied' => 'Path copied',
+			'download.relocation.stateDownloading' => ({required Object percent}) => 'downloading, ${percent}%',
+			'download.relocation.statePending' => 'waiting to download',
+			'download.relocation.statePaused' => ({required Object percent}) => 'paused at ${percent}%',
+			'download.relocation.stateFailed' => 'download failed',
+			'download.relocation.skipAlreadyThere' => 'Already in this folder',
+			'download.relocation.skipInsideSource' => 'The destination is inside this gallery\'s own folder',
+			'download.relocation.reasonBusy' => 'Busy with another operation (deleting or moving)',
+			'download.relocation.reasonSourceLocked' => 'The file is in use (for example, playing), so it couldn\'t be removed from the old location. Nothing was changed.',
+			'download.relocation.reasonNoSpace' => 'The destination ran out of space. The rest of the batch was stopped.',
+			'download.relocation.reasonVerifyFailed' => 'The copy didn\'t match the original\'s size. The copy was discarded.',
+			'download.relocation.reasonIoError' => 'Couldn\'t read or write the file. Nothing was changed.',
+			'download.relocation.systemMessage' => ({required Object message}) => 'System message: ${message}',
+			'download.relocation.outsideTitle' => ({required Object count}) => '${count} downloaded item(s) are outside this folder',
+			'download.relocation.outsideSubtitle' => 'They still play where they are. Move them here to keep everything together.',
+			'download.relocation.moveHere' => 'Move here',
+			'download.relocation.missingTitle' => 'Files not found',
+			'download.relocation.recordedLocation' => 'Recorded location',
+			'download.relocation.legendExists' => 'still exists',
+			'download.relocation.legendMissing' => 'missing',
+			'download.relocation.diagVolume' => ({required Object volume}) => 'Storage "${volume}" is not available. The SD card or external drive may not be connected.',
+			'download.relocation.diagVolumeShort' => ({required Object volume}) => 'storage "${volume}" not connected',
+			'download.relocation.diagContainer' => 'After an app update, the system moved the app\'s storage. The file is still here:',
+			'download.relocation.diagContainerShort' => 'app storage moved after update',
+			'download.relocation.diagNoAccess' => 'The app doesn\'t have permission to read this location. Grant "All files access" and check again.',
+			'download.relocation.diagNoAccessShort' => 'no permission to read this location',
+			'download.relocation.diagFolder' => ({required Object folder}) => 'The folder "${folder}" no longer exists.',
+			'download.relocation.diagFolderShort' => ({required Object folder}) => 'folder "${folder}" no longer exists',
+			'download.relocation.diagFile' => ({required Object name}) => 'The folder is still there, but "${name}" isn\'t in it.',
+			'download.relocation.diagFileShort' => 'not found in its folder',
+			'download.relocation.diagCandidates' => 'Found something in that folder that looks like it (maybe renamed):',
+			'download.relocation.diagNoCandidates' => 'Nothing with the same size was found in that folder.',
+			'download.relocation.useThis' => 'Use this',
+			'download.relocation.fixPath' => 'Fix path',
+			'download.relocation.checkAgain' => 'Check again',
+			'download.relocation.grantPermission' => 'Grant permission',
+			'download.relocation.locate' => 'Find in another folder…',
+			'download.relocation.deleteRecord' => 'Delete record',
+			'download.relocation.locateNotFound' => 'This download\'s files aren\'t in that folder',
+			'download.relocation.located' => 'Found. The record now points to the new location.',
+			'download.relocation.stillMissing' => 'Still not found',
+			'download.relocation.downloadedOn' => ({required Object date}) => 'Downloaded ${date}',
+			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
+			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
+			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
+			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
+			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
+			'download.relocation.missingSkip' => 'Leave as is',
+			'download.relocation.missingRedownload' => 'Re-download to the destination',
+			'download.relocation.missingRemove' => 'Remove records',
+			'download.relocation.missingRemoveVolumeNote' => ({required Object count}) => '${count} of them are on storage that isnt connected and wont be removed',
+			'download.relocation.failedGroup' => ({required Object count}) => '${count} failed download(s)',
+			'download.relocation.failedMoveOnly' => 'Just move',
+			'download.relocation.failedMoveAndRetry' => 'Move, then re-download',
+			'download.relocation.failedRemove' => 'Remove tasks',
+			'download.relocation.failedRemoveNote' => 'Their partially downloaded files are deleted too',
+			'download.relocation.execute' => 'Apply',
+			'download.relocation.actionWillRedownload' => 'Will be re-downloaded to the destination',
+			'download.relocation.actionWillRemove' => 'This record will be removed',
+			'download.relocation.actionWillKeep' => 'Storage not connected, will be kept',
+			'download.relocation.actionWillRetry' => 'Re-downloaded after the move',
+			'download.relocation.actionWillRemoveTask' => 'This task will be removed',
+			'download.relocation.statRedownload' => 'Re-download',
+			'download.relocation.statRemoved' => 'Removed',
+			'download.relocation.sectionRedownloaded' => 'Re-download started',
+			'download.relocation.sectionRedownloadFailed' => 'Couldnt start re-download',
+			'download.relocation.redownloadFailedHint' => 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.',
+			'download.relocation.sectionRemoved' => 'Removed',
+			'download.relocation.sectionKept' => 'Kept (storage not connected)',
+			'download.relocation.redownload' => 'Re-download',
+			'download.relocation.redownloadStarted' => 'Re-download started',
+			'download.relocation.redownloadNotStarted' => 'Couldnt start re-download',
+			'download.relocation.diagFileShortWithCandidates' => 'a file with the same size is in its folder, maybe renamed',
+			'download.relocation.cleanupMenu' => 'Clean up broken records…',
+			'download.relocation.cleanupScanning' => ({required Object done, required Object total}) => 'Checking ${done}/${total}',
+			'download.relocation.cleanupTitle' => 'Clean up broken records',
+			'download.relocation.cleanupNone' => ({required Object count}) => 'Checked ${count} completed download(s). All files are there.',
+			'download.relocation.statChecked' => 'Checked',
+			'download.relocation.statMissing' => 'Missing',
+			'download.relocation.statKeep' => 'Keep',
+			'download.relocation.cleanupGroupGone' => 'Files are gone',
+			'download.relocation.cleanupGroupRecoverable' => 'May still be recoverable',
+			'download.relocation.cleanupRecoverableHint' => 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.',
+			'download.relocation.selectAll' => 'Select all',
+			'download.relocation.selectNone' => 'Select none',
+			'download.relocation.removeSelected' => ({required Object count}) => 'Remove selected (${count})',
+			'download.relocation.redownloadSelected' => ({required Object count}) => 'Re-download selected (${count})',
+			'download.relocation.processing' => ({required Object done, required Object total}) => 'Processing ${done}/${total}',
+			'download.relocation.cleanupRemoved' => ({required Object count}) => '${count} record(s) removed',
+			'download.relocation.cleanupRedownloaded' => ({required Object count}) => 'Re-download started for ${count} item(s)',
+			'download.relocation.tapForDetail' => 'Details',
+			'download.relocation.deleteRecordFailed' => 'Couldnt delete the record. Try again later.',
+			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
+			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Manage categories',
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
@@ -11759,6 +12710,79 @@ extension on Translations {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
 			'download.category.deleteFailed' => 'Failed to delete category',
+			'download.location.sectionTitle' => 'Save location',
+			'download.location.behaviorSection' => 'Download behavior',
+			'download.location.namingSection' => 'File naming',
+			'download.location.advancedSection' => 'Advanced',
+			'download.location.advancedSubtitle' => 'Write diagnostics and other tools',
+			'download.location.volumeInternal' => 'Internal storage',
+			'download.location.volumeSdCard' => 'SD card',
+			'download.location.volumeExternalDrive' => 'External drive',
+			'download.location.appSpace' => 'App-only storage',
+			'download.location.downloadsFolder' => 'Downloads',
+			'download.location.askEveryTime' => 'Ask every time',
+			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.freeSpace' => ({required Object size}) => '${size} free',
+			'download.location.statusWritable' => 'Writable',
+			'download.location.statusNeedsPermission' => 'Needs permission',
+			'download.location.statusFallback' => 'Temporarily redirected',
+			'download.location.statusLowSpace' => 'Low space',
+			'download.location.statusChecking' => 'Checking',
+			'download.location.grant' => 'Grant',
+			'download.location.fix' => 'Fix',
+			'download.location.changeLocation' => 'Change location',
+			'download.location.openInFileManager' => 'Open in file manager',
+			'download.location.moreActions' => 'More',
+			'download.location.copyPath' => 'Copy path',
+			'download.location.pathCopied' => 'Path copied',
+			'download.location.manualInput' => 'Enter path manually (advanced)',
+			'download.location.restoreDefault' => 'Restore default',
+			'download.location.runDiagnostics' => 'Run diagnostics',
+			'download.location.restoredDefault' => 'Restored the default location',
+			'download.location.sheetTitle' => 'Choose download location',
+			'download.location.chooseOtherFolder' => 'Choose another folder…',
+			'download.location.chooseOtherFolderDesc' => 'Pick one with the system file picker',
+			'download.location.optionRecommendedDesc' => 'Recommended · no permission needed',
+			'download.location.optionRecommendedLegacyDesc' => 'Recommended · needs storage permission',
+			'download.location.optionAppPrivateDesc' => 'Deleted on uninstall · hidden from the gallery',
+			'download.location.optionRemovableDesc' => 'Needs "All files access"',
+			'download.location.optionDesktopDownloadsDesc' => 'Recommended · your Downloads folder',
+			'download.location.optionAskEveryTimeDesc' => 'Pick a folder for each download',
+			'download.location.current' => 'Current',
+			'download.location.fallbackBanner' => 'Your last download was temporarily saved to app storage because the chosen folder could not be used.',
+			'download.location.fallbackReasonPermission' => 'storage permission is missing',
+			'download.location.fallbackReasonVolumeMissing' => 'the storage device is not connected',
+			'download.location.fallbackReasonCannotCreate' => 'the folder could not be created',
+			'download.location.fallbackReasonNotWritable' => 'the folder cannot be written to',
+			'download.location.fallbackDetail' => ({required Object reason}) => 'Temporarily redirected: ${reason}',
+			'download.location.errorUnresolvable' => 'This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.',
+			'download.location.errorNotWritable' => 'This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.',
+			'download.location.errorVolumeMissing' => 'This storage device cannot be found (removed or not connected). The location was not changed.',
+			'download.location.permissionTitle' => 'Permission needed',
+			'download.location.permissionAllFiles' => 'Writing to this folder needs "All files access". If you\'d rather not allow that, use "Downloads › LoveIwara" instead.',
+			'download.location.permissionLegacy' => 'Writing to this folder needs the storage permission. If you\'d rather not allow that, use app-only storage instead.',
+			'download.location.useDownloadsInstead' => 'Use Downloads › LoveIwara',
+			'download.location.useAppSpaceInstead' => 'Use app-only storage',
+			'download.location.goToSettings' => 'Grant',
+			'download.location.permissionDenied' => 'Permission was not granted. The location was not changed.',
+			'download.location.checking' => 'Checking this location…',
+			'download.location.confirmTitle' => 'Use this location?',
+			'download.location.confirmFree' => ({required Object size}) => '${size} free',
+			'download.location.confirmOutside' => ({required Object count}) => '${count} downloaded item(s) stay in the old location',
+			'download.location.confirmOutsideDesc' => 'New downloads will be saved here. What about the ones you already have?',
+			'download.location.moveThem' => 'Move them here',
+			'download.location.keepThem' => 'Keep them where they are',
+			'download.location.decideLater' => 'Decide later',
+			'download.location.useThisLocation' => 'Use this location',
+			'download.location.locationChanged' => 'Download location changed',
+			'download.location.manualTitle' => 'Enter path manually',
+			'download.location.manualLabel' => 'Folder path',
+			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
+			'download.location.manualSubmit' => 'Check and use',
+			'download.location.manualEmpty' => 'Enter a path',
+			'download.location.manualNotAbsolute' => 'Enter a full absolute path',
+			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
+			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
@@ -11816,6 +12840,8 @@ extension on Translations {
 			'favorite.removeConfirmationSuccess' => 'Item removed from favorites',
 			'favorite.removeConfirmationFailed' => 'Failed to remove item from favorites',
 			'favorite.createFolderSuccess' => 'Folder created successfully',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'Failed to create folder',
 			'favorite.createFolder' => 'Create Folder',
 			'favorite.enterFolderName' => 'Enter folder name',
@@ -12062,8 +13088,6 @@ extension on Translations {
 			'layoutSettings.descriptionTitle' => 'Layout Configuration Description',
 			'layoutSettings.descriptionContent' => 'The configuration here will determine the number of columns displayed in video and gallery list pages. You can choose auto mode to let the system automatically adjust based on screen width, or choose manual mode to fix the column count.',
 			'layoutSettings.layoutMode' => 'Layout Mode',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.reset' => 'Reset',
 			'layoutSettings.autoMode' => 'Auto Mode',
 			'layoutSettings.autoModeDesc' => 'Automatically adjust based on screen width',
@@ -12330,6 +13354,8 @@ extension on Translations {
 			'emoji.medium' => 'Medium',
 			'emoji.large' => 'Large',
 			'emoji.extraLarge' => 'Extra Large',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
 			'emoji.preview' => 'Emoji Preview',
 			'emoji.library' => 'Emoji Library',
@@ -12576,8 +13602,6 @@ extension on Translations {
 			'savedSearchConfig.title' => 'Saved Filters',
 			'savedSearchConfig.empty' => 'No saved filters yet',
 			'savedSearchConfig.saveTooltip' => 'Save current filter',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => 'Save Filter',
 			'savedSearchConfig.nameLabel' => 'Name',
 			'savedSearchConfig.nameHint' => 'Enter a name',
@@ -12844,6 +13868,8 @@ extension on Translations {
 			'localMedia.browse.useThisFolder' => 'Use this folder',
 			'localMedia.browse.noSubfolders' => 'No subfolders here',
 			'localMedia.browse.storageRoot' => 'Device storage',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.homeFolder' => 'Home',
 			'localMedia.browse.filesystemRoot' => 'Filesystem root',
 			'localMedia.browse.folderUnreadable' => 'This folder cannot be read',

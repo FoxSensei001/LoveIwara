@@ -156,6 +156,7 @@ common:
   selectedRecords: 'Terpilih ${num} catatan'
   cancelSelectAll: Batalkan Pilih Semua
   selectAll: Pilih Semua
+  invertSelection: Balik Pilihan
   exitEditMode: Keluar dari Mode Edit
   areYouSureYouWantToDeleteSelectedItems: 'Apakah Anda yakin ingin menghapus ${num} item yang dipilih?'
   searchHistoryRecords: Cari Catatan Riwayat...

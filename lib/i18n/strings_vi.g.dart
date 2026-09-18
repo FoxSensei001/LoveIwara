@@ -277,6 +277,7 @@ class _TranslationsCommonVi extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => 'Đã chọn ${num} bản ghi';
 	@override String get cancelSelectAll => 'Bỏ chọn tất cả';
 	@override String get selectAll => 'Chọn tất cả';
+	@override String get invertSelection => 'Đảo lựa chọn';
 	@override String get exitEditMode => 'Thoát chế độ chỉnh sửa';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'Bạn có chắc muốn xóa ${num} mục đã chọn?';
 	@override String get searchHistoryRecords => 'Tìm kiếm bản ghi lịch sử...';
@@ -4248,6 +4249,7 @@ extension on TranslationsVi {
 			'common.selectedRecords' => ({required Object num}) => 'Đã chọn ${num} bản ghi',
 			'common.cancelSelectAll' => 'Bỏ chọn tất cả',
 			'common.selectAll' => 'Chọn tất cả',
+			'common.invertSelection' => 'Đảo lựa chọn',
 			'common.exitEditMode' => 'Thoát chế độ chỉnh sửa',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'Bạn có chắc muốn xóa ${num} mục đã chọn?',
 			'common.searchHistoryRecords' => 'Tìm kiếm bản ghi lịch sử...',
@@ -4617,9 +4619,9 @@ extension on TranslationsVi {
 			'settings.longPressPlaybackSpeed' => 'Tốc độ phát khi nhấn giữ',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Tốc độ phát khi nhấn giữ phải là số dương.',
 			'settings.defaultPlaybackSpeed' => 'Tốc độ phát mặc định',
-			'settings.rememberPlaybackSpeed' => 'Ghi nhớ tốc độ phát',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'Ghi nhớ tốc độ phát',
 			'settings.rememberPlaybackSpeedDesc' => 'Khi bật, tốc độ bạn đặt trong trình phát sẽ được lưu làm mặc định và tự động áp dụng cho video mới.',
 			'settings.repeat' => 'Lặp lại',
 			'settings.renderVerticalVideoInVerticalScreen' => 'Hiển thị video dọc trên màn hình dọc',
@@ -5131,9 +5133,9 @@ extension on TranslationsVi {
 			'settings.downloadSettings.unableToGetPathStatus' => 'Không lấy được trạng thái đường dẫn',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Lưu ý: Đường dẫn thực tế khác với đường dẫn đã chọn',
 			'settings.downloadSettings.grantPermission' => 'Cấp quyền',
-			'settings.downloadSettings.fixIssue' => 'Khắc phục sự cố',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'Khắc phục sự cố',
 			'settings.downloadSettings.issueFixed' => 'Đã khắc phục sự cố',
 			'settings.downloadSettings.fixFailed' => 'Sửa thất bại, vui lòng xử lý thủ công',
 			'settings.downloadSettings.lackStoragePermission' => 'Thiếu quyền lưu trữ',
@@ -5645,9 +5647,9 @@ extension on TranslationsVi {
 			'notifications.kApprovedThread' => 'Chủ đề đã được duyệt',
 			'notifications.kApprovedPost' => 'Bài viết đã được duyệt',
 			'notifications.kApprovedForumPost' => 'Bài viết diễn đàn đã được duyệt',
-			'notifications.kRejectedContent' => 'Nội dung bị từ chối phê duyệt',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'Nội dung bị từ chối phê duyệt',
 			'notifications.kUnknownType' => 'Loại thông báo không xác định',
 			'conversation.errors.pleaseSelectAUser' => 'Vui lòng chọn một người dùng',
 			'conversation.errors.pleaseEnterATitle' => 'Vui lòng nhập tiêu đề',
@@ -6159,9 +6161,9 @@ extension on TranslationsVi {
 			'layoutSettings.title' => 'Cài đặt bố cục',
 			'layoutSettings.descriptionTitle' => 'Mô tả cấu hình bố cục',
 			'layoutSettings.descriptionContent' => 'Cấu hình tại đây quyết định số cột hiển thị trong trang danh sách video và thư viện. Có thể chọn chế độ tự động để hệ thống tự điều chỉnh theo chiều rộng màn hình, hoặc chọn chế độ thủ công để cố định số cột.',
-			'layoutSettings.layoutMode' => 'Chế độ bố cục',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'Chế độ bố cục',
 			'layoutSettings.reset' => 'Đặt lại',
 			'layoutSettings.autoMode' => 'Chế độ tự động',
 			'layoutSettings.autoModeDesc' => 'Tự động điều chỉnh theo chiều rộng màn hình',
@@ -6673,9 +6675,9 @@ extension on TranslationsVi {
 			'siteMode.switched' => ({required Object site}) => 'Đã chuyển sang ${site}. Ứng dụng đã được làm mới.',
 			'savedSearchConfig.title' => 'Bộ lọc đã lưu',
 			'savedSearchConfig.empty' => 'Chưa có bộ lọc đã lưu',
-			'savedSearchConfig.saveTooltip' => 'Lưu bộ lọc hiện tại',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'Lưu bộ lọc hiện tại',
 			'savedSearchConfig.namePromptTitle' => 'Lưu bộ lọc',
 			'savedSearchConfig.nameLabel' => 'Tên',
 			'savedSearchConfig.nameHint' => 'Nhập tên',

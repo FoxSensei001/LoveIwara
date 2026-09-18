@@ -156,6 +156,7 @@ common:
   selectedRecords: 'Đã chọn ${num} bản ghi'
   cancelSelectAll: Bỏ chọn tất cả
   selectAll: Chọn tất cả
+  invertSelection: Đảo lựa chọn
   exitEditMode: Thoát chế độ chỉnh sửa
   areYouSureYouWantToDeleteSelectedItems: 'Bạn có chắc muốn xóa ${num} mục đã chọn?'
   searchHistoryRecords: Tìm kiếm bản ghi lịch sử...

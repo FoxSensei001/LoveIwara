@@ -224,9 +224,7 @@ class _MyFavoritesState extends State<MyFavorites>
                 success: result.success,
                 failed: result.failed,
               ),
-        type: result.failed == 0
-            ? AppToastType.success
-            : AppToastType.warning,
+        type: result.failed == 0 ? AppToastType.success : AppToastType.warning,
         position: AppToastPosition.bottom,
       );
 
@@ -298,10 +296,8 @@ class _MyFavoritesState extends State<MyFavorites>
           (_isPaginated ? PaginationBar.barHeight : 0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -347,6 +343,14 @@ class _MyFavoritesState extends State<MyFavorites>
           // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
           child: SelectionPopScope(
             active: active,
+            // 交给通用键鼠多选
+            model: _isVideoTab
+                ? _videoBatchController.selectionModel(
+                    loadedItems: () => controller.videoRepository,
+                  )
+                : _imageBatchController.selectionModel(
+                    loadedItems: () => controller.imageRepository,
+                  ),
             onExit: batch.exitMultiSelect,
             child: _buildBody(
               context,

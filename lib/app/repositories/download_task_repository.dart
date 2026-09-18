@@ -1,9 +1,21 @@
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
+
+import 'package:path/path.dart' as path_lib;
+
+/// 账本里一次尚未收尾的「移动已下载文件」，见 v42 迁移。
+typedef DownloadRelocationJournalEntry = ({
+  String taskId,
+  String srcPath,
+  String destPath,
+  String? tempPath,
+});
 
 enum DownloadTaskConflictType { id, media, savePath }
 
@@ -670,21 +682,14 @@ class DownloadTaskRepository {
       final whereClauses = <String>[];
       final params = <Object?>[];
 
-      // Search query filter
-      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-        whereClauses.add("file_name LIKE ? ESCAPE '\\'");
-        params.add('%${_escapeLikeQuery(searchQuery.trim())}%');
-      }
-
-      // Status filter
+      // 状态条件只有这里用得上 'failed' / 'history'；搜索 / 类型 / 分类三项
+      // 与 [getCompletedTasksByIds] 共用 [_appendCommonFilters]。
       switch (statusFilter) {
         case 'failed':
           whereClauses.add("status = 'failed'");
           break;
-        case 'downloaded':
-          whereClauses.add("status = 'completed'");
-          break;
         // 'history' = 已完成。暂停任务归活跃区管（见 getHistoryTasks 的注释）。
+        case 'downloaded':
         case 'history':
           whereClauses.add("status = 'completed'");
           break;
@@ -693,39 +698,13 @@ class DownloadTaskRepository {
           // No status filter - include all statuses
           break;
       }
-
-      // Type filter (based on ext_data JSON)
-      switch (typeFilter) {
-        case 'video':
-          whereClauses.add("media_type = 'video'");
-          break;
-        case 'gallery':
-          whereClauses.add("media_type = 'gallery'");
-          break;
-        case 'other':
-          whereClauses.add(
-            "(media_type IS NULL OR media_type NOT IN ('video', 'gallery'))",
-          );
-          break;
-        case 'all':
-        default:
-          // No type filter
-          break;
-      }
-
-      // Category filter（自定义分类；'all' 不限，'uncategorized' 表示未分类(NULL)，
-      // 否则为具体分类 id。分类 id 为 UUID，不会与上述字面量冲突。）
-      switch (categoryFilter) {
-        case 'all':
-          break;
-        case 'uncategorized':
-          whereClauses.add('category_id IS NULL');
-          break;
-        default:
-          whereClauses.add('category_id = ?');
-          params.add(categoryFilter);
-          break;
-      }
+      _appendCommonFilters(
+        whereClauses,
+        params,
+        searchQuery: searchQuery,
+        typeFilter: typeFilter,
+        categoryFilter: categoryFilter,
+      );
 
       final whereClause = whereClauses.isNotEmpty
           ? 'WHERE ${whereClauses.join(' AND ')}'
@@ -753,6 +732,113 @@ class DownloadTaskRepository {
       return results.map((row) => DownloadTask.fromRow(row)).toList();
     } catch (e) {
       LogUtils.e('搜索下载任务失败', tag: 'DownloadTaskRepository', error: e);
+      rethrow;
+    }
+  }
+
+  /// 搜索词 / 类型 / 分类三项筛选条件的 SQL 片段（状态条件由调用方各自处理）。
+  static void _appendCommonFilters(
+    List<String> whereClauses,
+    List<Object?> params, {
+    String? searchQuery,
+    String typeFilter = 'all',
+    String categoryFilter = 'all',
+  }) {
+    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+      whereClauses.add("file_name LIKE ? ESCAPE '\\'");
+      params.add('%${_escapeLikeQuery(searchQuery.trim())}%');
+    }
+
+    // 类型（media_type 列）
+    switch (typeFilter) {
+      case 'video':
+        whereClauses.add("media_type = 'video'");
+        break;
+      case 'gallery':
+        whereClauses.add("media_type = 'gallery'");
+        break;
+      case 'other':
+        whereClauses.add(
+          "(media_type IS NULL OR media_type NOT IN ('video', 'gallery'))",
+        );
+        break;
+      case 'all':
+      default:
+        break;
+    }
+
+    // 自定义分类：'all' 不限，'uncategorized' 表示未分类(NULL)，否则为具体
+    // 分类 id。分类 id 为 UUID，不会与上述字面量冲突。
+    switch (categoryFilter) {
+      case 'all':
+        break;
+      case 'uncategorized':
+        whereClauses.add('category_id IS NULL');
+        break;
+      default:
+        whereClauses.add('category_id = ?');
+        params.add(categoryFilter);
+        break;
+    }
+  }
+
+  /// `IN (…)` 一次最多塞多少个 id。SQLite 老版本的变量上限是 999，同一条语句
+  /// 里还有搜索词 / 分类几个参数，400 留足余量（与本地媒体仓库同一取值）。
+  static const int idsChunkSize = 400;
+
+  /// 已完成任务里 id 属于 [ids] 的那些，套上与 [searchTasks] 相同的搜索 / 类型 /
+  /// 分类条件，按历史区同一口径（完成时间降序）排好整批返回。
+  ///
+  /// 给下载列表的「需处理」筛选用：失效集合只在内存里（文件健康缓存），规模
+  /// 是「丢了多少个文件」，一次取完再由调用方切片即可，不走 OFFSET 分页。
+  /// [ids] 超过 [idsChunkSize] 时分批查询再合并排序，绕开 SQLite 变量上限。
+  Future<List<DownloadTask>> getCompletedTasksByIds(
+    Iterable<String> ids, {
+    String? searchQuery,
+    String typeFilter = 'all',
+    String categoryFilter = 'all',
+  }) async {
+    final idList = ids.toSet().toList();
+    if (idList.isEmpty) return const [];
+    try {
+      final keyed = <({int sortKey, int createdAt, DownloadTask task})>[];
+      for (var i = 0; i < idList.length; i += idsChunkSize) {
+        final end = i + idsChunkSize > idList.length
+            ? idList.length
+            : i + idsChunkSize;
+        final chunk = idList.sublist(i, end);
+        final whereClauses = <String>[
+          "status = 'completed'",
+          'id IN (${List.filled(chunk.length, '?').join(', ')})',
+        ];
+        final params = <Object?>[...chunk];
+        _appendCommonFilters(
+          whereClauses,
+          params,
+          searchQuery: searchQuery,
+          typeFilter: typeFilter,
+          categoryFilter: categoryFilter,
+        );
+        final rows = _db.select('''
+          SELECT *, $_normalizedHistorySortExpression AS history_sort_key
+          FROM download_tasks
+          WHERE ${whereClauses.join(' AND ')}
+        ''', params);
+        for (final row in rows) {
+          keyed.add((
+            sortKey: (row['history_sort_key'] as num?)?.toInt() ?? 0,
+            createdAt: (row['created_at'] as num?)?.toInt() ?? 0,
+            task: DownloadTask.fromRow(row),
+          ));
+        }
+      }
+      keyed.sort((a, b) {
+        final byKey = b.sortKey.compareTo(a.sortKey);
+        return byKey != 0 ? byKey : b.createdAt.compareTo(a.createdAt);
+      });
+      return [for (final e in keyed) e.task];
+    } catch (e) {
+      LogUtils.e('按 id 查询已完成任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
   }
@@ -1037,5 +1123,212 @@ class DownloadTaskRepository {
       LogUtils.e('归类下载任务失败', tag: 'DownloadTaskRepository', error: e);
       rethrow;
     }
+  }
+
+  // ---------- 移动已下载文件 ----------
+
+  /// 所有已完成任务的 id 与保存路径。只取两列：图库的 `ext_data` 动辄几百条
+  /// 逐张路径，这里用不上。
+  List<({String id, String savePath})> completedTaskPaths() {
+    return [
+      for (final row in _db.select(
+        "SELECT id, save_path FROM download_tasks WHERE status = 'completed'",
+      ))
+        (id: row['id'] as String, savePath: row['save_path'] as String),
+    ];
+  }
+
+  /// 记一笔即将开始的搬运。动磁盘**之前**写，见 v42 迁移的类注释。
+  void recordRelocation({
+    required String taskId,
+    required String srcPath,
+    required String destPath,
+    String? tempPath,
+  }) {
+    _db.execute(
+      'INSERT OR REPLACE INTO download_relocation_journal '
+      '(task_id, src_path, dest_path, temp_path, created_at) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [
+        taskId,
+        srcPath,
+        destPath,
+        tempPath,
+        DateTime.now().millisecondsSinceEpoch,
+      ],
+    );
+  }
+
+  void clearRelocation(String taskId) {
+    _db.execute('DELETE FROM download_relocation_journal WHERE task_id = ?', [
+      taskId,
+    ]);
+  }
+
+  List<DownloadRelocationJournalEntry> pendingRelocations() {
+    return [
+      for (final row in _db.select(
+        'SELECT task_id, src_path, dest_path, temp_path '
+        'FROM download_relocation_journal ORDER BY created_at',
+      ))
+        (
+          taskId: row['task_id'] as String,
+          srcPath: row['src_path'] as String,
+          destPath: row['dest_path'] as String,
+          tempPath: row['temp_path'] as String?,
+        ),
+    ];
+  }
+
+  /// 把任务改指到 [newPath]，并（默认）在同一事务里销掉它的账本行。返回任务是否还在。
+  ///
+  /// [clearJournal] 为 false 用于「改完库还要删源」的跨卷搬运：删源之前被杀
+  /// 进程的话，账本得留着让下次启动把残留的源清掉。
+  ///
+  /// 一个事务里改齐所有记着这条路径的地方：`save_path`、图库 `ext_data` 里的
+  /// 逐张路径、「已下载」源里对应的本地条目（连同挂在条目 id 上的观看进度与
+  /// VR 覆盖）。少改一处，用户看到的就是进度归零 / 图库点开是空的。
+  ///
+  /// [newSizeBytes] / [newModifiedAt] 是新文件量到的指纹：跨盘复制后修改时间
+  /// 未必保得住（有的卷不让设），而「已下载」同步拿大小 + 修改时间判「文件被
+  /// 换过没有」——指纹对不上会把刚搬过去的观看进度当陈旧数据清掉。所以这里
+  /// 顺手把条目的指纹写成新文件的真值。
+  bool relocateTaskPath({
+    required String taskId,
+    required String oldPath,
+    required String newPath,
+    int? newSizeBytes,
+    int? newModifiedAt,
+    bool clearJournal = true,
+  }) {
+    final rows = _db.select(
+      'SELECT ext_data FROM download_tasks WHERE id = ?',
+      [taskId],
+    );
+    _db.execute('BEGIN TRANSACTION');
+    try {
+      if (rows.isNotEmpty) {
+        _db.execute(
+          'UPDATE download_tasks SET save_path = ?, ext_data = ? WHERE id = ?',
+          [
+            newPath,
+            rewriteExtDataPaths(
+              rows.first['ext_data'] as String?,
+              oldPath,
+              newPath,
+            ),
+            taskId,
+          ],
+        );
+        _relocateDownloadsLibraryItem(
+          oldPath,
+          newPath,
+          sizeBytes: newSizeBytes,
+          modifiedAt: newModifiedAt,
+        );
+      }
+      if (clearJournal) {
+        _db.execute(
+          'DELETE FROM download_relocation_journal WHERE task_id = ?',
+          [taskId],
+        );
+      }
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      final conflict = _mapConflictException(e);
+      if (conflict != null) throw conflict;
+      rethrow;
+    }
+    return rows.isNotEmpty;
+  }
+
+  /// 把 [raw]（`ext_data` 列的 JSON）里落在 [oldBase] 之下的逐张本地路径
+  /// 换到 [newBase] 之下。其余字段原样保留——不经模型往返，免得丢掉模型
+  /// 不认识的键。
+  static String? rewriteExtDataPaths(
+    String? raw,
+    String oldBase,
+    String newBase,
+  ) {
+    if (raw == null || raw.isEmpty) return raw;
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } catch (_) {
+      return raw;
+    }
+    if (decoded is! Map<String, dynamic>) return raw;
+    final data = decoded['data'];
+    if (data is! Map<String, dynamic>) return raw;
+    final localPaths = data['local_paths'];
+    if (localPaths is! Map<String, dynamic>) return raw;
+    data['local_paths'] = <String, dynamic>{
+      for (final entry in localPaths.entries)
+        entry.key: entry.value is String
+            ? rebasePath(entry.value as String, oldBase, newBase)
+            : entry.value,
+    };
+    return jsonEncode(decoded);
+  }
+
+  /// [target] 等于或位于 [oldBase] 之下时，换成 [newBase] 下的对应路径；
+  /// 否则原样返回。
+  static String rebasePath(String target, String oldBase, String newBase) {
+    if (path_lib.equals(target, oldBase)) return newBase;
+    if (!path_lib.isWithin(oldBase, target)) return target;
+    return path_lib.join(newBase, path_lib.relative(target, from: oldBase));
+  }
+
+  /// 「已下载」源里那一行跟着改名。
+  ///
+  /// 条目 id 由路径派生（`downloads-<sha1(path)>`），所以这是一次**改主键**：
+  /// 进度（`local_media_progress`）与 VR 覆盖（`video_vr_override`）都只认 id，
+  /// 必须一起搬。原地改行而不是删了重建，收藏 / 分类 / 缩略图这些列才留得住。
+  /// 还没同步进库的（这一行不存在）什么都不做，下次同步会按新路径建。
+  void _relocateDownloadsLibraryItem(
+    String oldPath,
+    String newPath, {
+    int? sizeBytes,
+    int? modifiedAt,
+  }) {
+    final oldId = LocalMediaItem.buildId(
+      kDownloadsSourceId,
+      LocalMediaItem.hashPath(oldPath),
+    );
+    final newHash = LocalMediaItem.hashPath(newPath);
+    final newId = LocalMediaItem.buildId(kDownloadsSourceId, newHash);
+    if (oldId == newId) return;
+    final exists = _db.select('SELECT 1 FROM local_media_items WHERE id = ?', [
+      oldId,
+    ]);
+    if (exists.isEmpty) return;
+    // 目标路径是新挑出来的空位，照理不会有行；真有也是陈旧残留，让位给搬来的。
+    _db.execute('DELETE FROM local_media_progress WHERE item_id = ?', [newId]);
+    _db.execute('DELETE FROM video_vr_override WHERE video_id = ?', [newId]);
+    _db.execute('DELETE FROM local_media_items WHERE id = ?', [newId]);
+    _db.execute(
+      'UPDATE local_media_progress SET item_id = ? WHERE item_id = ?',
+      [newId, oldId],
+    );
+    _db.execute(
+      'UPDATE video_vr_override SET video_id = ? WHERE video_id = ?',
+      [newId, oldId],
+    );
+    _db.execute(
+      'UPDATE local_media_items SET id = ?, path_hash = ?, path = ?, '
+      'folder_path = ?, media_store_uri = NULL, missing = 0, '
+      'size_bytes = COALESCE(?, size_bytes), '
+      'modified_at = COALESCE(?, modified_at) WHERE id = ?',
+      [
+        newId,
+        newHash,
+        newPath,
+        path_lib.dirname(newPath),
+        sizeBytes,
+        modifiedAt,
+        oldId,
+      ],
+    );
   }
 }

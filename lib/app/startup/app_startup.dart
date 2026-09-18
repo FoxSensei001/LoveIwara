@@ -33,6 +33,8 @@ import 'package:i_iwara/app/services/light_service.dart';
 import 'package:i_iwara/app/services/logging/log_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
+import 'package:i_iwara/app/services/download_relocation_service.dart';
+import 'package:i_iwara/app/services/download_file_health.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/services/android_media_store_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
@@ -446,6 +448,18 @@ class AppStartupCoordinator implements AppStartupRunner {
     // 将来的来源下拉）自己叫一次，见 `DownloadsLibrarySyncService.sync`。
     _registerDeferredSingleton<DownloadsLibrarySyncService>(
       DownloadsLibrarySyncService(),
+    );
+    // 移动已下载文件。onInit 里按账本收尾上次被杀进程时没搬完的那几条，
+    // 所以要排在下载服务与「已下载」同步之后。
+    _registerDeferredSingleton<DownloadRelocationService>(
+      DownloadRelocationService(),
+      permanent: true,
+    );
+    // 已完成下载「文件还在不在」的会话缓存（下载列表的横幅 / 需处理筛选读它）。
+    // permanent：页面订阅它的 Rx，被启动回滚换掉实例会让那些订阅静默失聪。
+    _registerDeferredSingleton<DownloadFileHealth>(
+      DownloadFileHealth(),
+      permanent: true,
     );
     _registerDeferredSingleton<EmojiLibraryService>(EmojiLibraryService());
     _registerDeferredSingleton<DlnaCastService>(DlnaCastService());

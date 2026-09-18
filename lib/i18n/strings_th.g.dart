@@ -277,6 +277,7 @@ class _TranslationsCommonTh extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => 'เลือกแล้ว ${num} รายการ';
 	@override String get cancelSelectAll => 'ยกเลิกการเลือกทั้งหมด';
 	@override String get selectAll => 'เลือกทั้งหมด';
+	@override String get invertSelection => 'สลับการเลือก';
 	@override String get exitEditMode => 'ออกจากโหมดแก้ไข';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่เลือก ${num} รายการ?';
 	@override String get searchHistoryRecords => 'ประวัติการค้นหา...';
@@ -4248,6 +4249,7 @@ extension on TranslationsTh {
 			'common.selectedRecords' => ({required Object num}) => 'เลือกแล้ว ${num} รายการ',
 			'common.cancelSelectAll' => 'ยกเลิกการเลือกทั้งหมด',
 			'common.selectAll' => 'เลือกทั้งหมด',
+			'common.invertSelection' => 'สลับการเลือก',
 			'common.exitEditMode' => 'ออกจากโหมดแก้ไข',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการที่เลือก ${num} รายการ?',
 			'common.searchHistoryRecords' => 'ประวัติการค้นหา...',
@@ -4617,9 +4619,9 @@ extension on TranslationsTh {
 			'settings.longPressPlaybackSpeed' => 'ความเร็วการเล่นเมื่อกดค้าง',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'ความเร็วการเล่นเมื่อกดค้างต้องเป็นตัวเลขบวก',
 			'settings.defaultPlaybackSpeed' => 'ความเร็วการเล่นเริ่มต้น',
-			'settings.rememberPlaybackSpeed' => 'จำความเร็วการเล่น',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => 'จำความเร็วการเล่น',
 			'settings.rememberPlaybackSpeedDesc' => 'เมื่อเปิดใช้งาน ความเร็วที่คุณตั้งในเครื่องเล่นจะถูกบันทึกเป็นค่าเริ่มต้นและใช้กับวิดีโอใหม่โดยอัตโนมัติ',
 			'settings.repeat' => 'เล่นซ้ำ',
 			'settings.renderVerticalVideoInVerticalScreen' => 'แสดงผลวิดีโอแนวตั้งในโหมดแนวตั้ง',
@@ -5131,9 +5133,9 @@ extension on TranslationsTh {
 			'settings.downloadSettings.unableToGetPathStatus' => 'ไม่สามารถรับสถานะเส้นทางได้',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'หมายเหตุ: เส้นทางจริงแตกต่างจากเส้นทางที่เลือก',
 			'settings.downloadSettings.grantPermission' => 'อนุญาตสิทธิ์',
-			'settings.downloadSettings.fixIssue' => 'แก้ไขปัญหา',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => 'แก้ไขปัญหา',
 			'settings.downloadSettings.issueFixed' => 'แก้ไขปัญหาแล้ว',
 			'settings.downloadSettings.fixFailed' => 'แก้ไขล้มเหลว โปรดจัดการด้วยตนเอง',
 			'settings.downloadSettings.lackStoragePermission' => 'ขาดสิทธิ์การจัดเก็บข้อมูล',
@@ -5645,9 +5647,9 @@ extension on TranslationsTh {
 			'notifications.kApprovedThread' => 'อนุมัติกระทู้แล้ว',
 			'notifications.kApprovedPost' => 'อนุมัติโพสต์แล้ว',
 			'notifications.kApprovedForumPost' => 'อนุมัติโพสต์ฟอรัมแล้ว',
-			'notifications.kRejectedContent' => 'การตรวจสอบเนื้อหาถูกปฏิเสธ',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kRejectedContent' => 'การตรวจสอบเนื้อหาถูกปฏิเสธ',
 			'notifications.kUnknownType' => 'ประเภทการแจ้งเตือนที่ไม่รู้จัก',
 			'conversation.errors.pleaseSelectAUser' => 'โปรดเลือกผู้ใช้',
 			'conversation.errors.pleaseEnterATitle' => 'โปรดป้อนชื่อเรื่อง',
@@ -6159,9 +6161,9 @@ extension on TranslationsTh {
 			'layoutSettings.title' => 'การตั้งค่าเลย์เอาต์',
 			'layoutSettings.descriptionTitle' => 'คำอธิบายการกำหนดค่าเลย์เอาต์',
 			'layoutSettings.descriptionContent' => 'การกำหนดค่าที่นี่จะเป็นตัวกำหนดจำนวนคอลัมน์ที่แสดงในหน้ารายการวิดีโอและแกลเลอรี คุณสามารถเลือกโหมดอัตโนมัติเพื่อให้ระบบปรับตามความกว้างหน้าจอโดยอัตโนมัติ หรือเลือกโหมดกำหนดเองเพื่อกำหนดจำนวนคอลัมน์แบบคงที่',
-			'layoutSettings.layoutMode' => 'โหมดเลย์เอาต์',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.layoutMode' => 'โหมดเลย์เอาต์',
 			'layoutSettings.reset' => 'รีเซ็ต',
 			'layoutSettings.autoMode' => 'โหมดอัตโนมัติ',
 			'layoutSettings.autoModeDesc' => 'ปรับโดยอัตโนมัติตามความกว้างของหน้าจอ',
@@ -6673,9 +6675,9 @@ extension on TranslationsTh {
 			'siteMode.switched' => ({required Object site}) => 'สลับเป็น ${site} แล้ว แอปได้รีเฟรชเรียบร้อย',
 			'savedSearchConfig.title' => 'ตัวกรองที่บันทึกไว้',
 			'savedSearchConfig.empty' => 'ยังไม่มีตัวกรองที่บันทึกไว้',
-			'savedSearchConfig.saveTooltip' => 'บันทึกตัวกรองปัจจุบัน',
 			_ => null,
 		} ?? switch (path) {
+			'savedSearchConfig.saveTooltip' => 'บันทึกตัวกรองปัจจุบัน',
 			'savedSearchConfig.namePromptTitle' => 'บันทึกตัวกรอง',
 			'savedSearchConfig.nameLabel' => 'ชื่อ',
 			'savedSearchConfig.nameHint' => 'กรอกชื่อ',

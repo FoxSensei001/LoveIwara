@@ -277,6 +277,7 @@ class _TranslationsCommonZhTw extends TranslationsCommonEn {
 	@override String selectedRecords({required Object num}) => '已選擇 ${num} 筆資料';
 	@override String get cancelSelectAll => '取消全選';
 	@override String get selectAll => '全選';
+	@override String get invertSelection => '反選';
 	@override String get exitEditMode => '退出編輯模式';
 	@override String areYouSureYouWantToDeleteSelectedItems({required Object num}) => '確定要刪除選中的 ${num} 筆資料嗎？';
 	@override String get searchHistoryRecords => '搜尋歷史紀錄...';
@@ -1472,10 +1473,14 @@ class _TranslationsDownloadZhTw extends TranslationsDownloadEn {
 	@override String get errorDetailCopied => '已複製錯誤詳情';
 	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
 	@override late final _TranslationsDownloadRestoredPausedZhTw restoredPaused = _TranslationsDownloadRestoredPausedZhTw._(_root);
+	@override late final _TranslationsDownloadActionsZhTw actions = _TranslationsDownloadActionsZhTw._(_root);
+	@override late final _TranslationsDownloadNoticeZhTw notice = _TranslationsDownloadNoticeZhTw._(_root);
 	@override String get emptyTaskList => '暫無下載任務';
 	@override String get noMatchingTasks => '沒有符合的任務';
 	@override late final _TranslationsDownloadDeleteByDateZhTw deleteByDate = _TranslationsDownloadDeleteByDateZhTw._(_root);
+	@override late final _TranslationsDownloadRelocationZhTw relocation = _TranslationsDownloadRelocationZhTw._(_root);
 	@override late final _TranslationsDownloadCategoryZhTw category = _TranslationsDownloadCategoryZhTw._(_root);
+	@override late final _TranslationsDownloadLocationZhTw location = _TranslationsDownloadLocationZhTw._(_root);
 	@override String get maxConcurrentDownloads => '最大同時下載數';
 	@override String get maxConcurrentDownloadsDesc => '同時進行下載的任務數量（1-5）';
 	@override String get stillInDevelopment => '開發中';
@@ -3602,6 +3607,62 @@ class _TranslationsDownloadRestoredPausedZhTw extends TranslationsDownloadRestor
 	@override String get dismiss => '忽略';
 }
 
+// Path: download.actions
+class _TranslationsDownloadActionsZhTw extends TranslationsDownloadActionsEn {
+	_TranslationsDownloadActionsZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get open => '開啟';
+	@override String get play => '播放';
+	@override String get openWith => '用其他應用程式開啟';
+	@override String get redownload => '重新下載';
+	@override String get relocate => '移動檔案到…';
+	@override String get categorize => '歸類到…';
+	@override String get viewOnline => '查看線上頁面';
+	@override String get delete => '刪除…';
+	@override String redownloadStarted({required Object count}) => '已開始重新下載 ${count} 項';
+	@override String get redownloadNone => '沒有可重新下載的項目';
+	@override String deleteTitle({required Object count}) => '刪除 ${count} 項下載？';
+	@override String deleteSummary({required Object count, required Object size}) => '共 ${count} 項 · ${size}';
+	@override String deleteSummaryNoSize({required Object count}) => '共 ${count} 項';
+	@override String deleteGalleryNote({required Object count}) => '其中 ${count} 個圖庫的大小未計入';
+	@override String get deleteFiles => '同時刪除磁碟檔案';
+	@override String get deleteFilesDesc => '關閉後只移除列表記錄，檔案留在原處';
+	@override String get deleteFilesAllMissing => '檔案已經不在了，只會移除記錄';
+	@override String deleteDone({required Object count}) => '已刪除 ${count} 項';
+	@override String deletePartial({required Object failed}) => '${failed} 項的檔案刪不掉（可能正被佔用），記錄已保留';
+	@override String get removeRecordAnyway => '仍移除記錄';
+	@override String get fileMissing => '檔案已不在';
+	@override String get filePending => '暫時找不到檔案，可能還能找回';
+	@override String get statusActive => '進行中';
+	@override String get statusCompleted => '已完成';
+	@override String get needsAttention => '需處理';
+	@override String needsAttentionCount({required Object count}) => '需處理 · ${count}';
+	@override String get organize => '整理';
+	@override String get checkIntegrity => '檢查檔案完整性…';
+	@override String get migrateToCurrent => '遷移到目前下載目錄…';
+	@override String get migrateNone => '所有已下載內容都在目前下載目錄裡';
+}
+
+// Path: download.notice
+class _TranslationsDownloadNoticeZhTw extends TranslationsDownloadNoticeEn {
+	_TranslationsDownloadNoticeZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String failed({required Object count}) => '${count} 個任務下載失敗';
+	@override String get retryAll => '全部重試';
+	@override String get view => '查看';
+	@override String missing({required Object count}) => '${count} 項已下載內容的檔案不見了';
+	@override String get handle => '處理…';
+	@override String outside({required Object count}) => '舊下載目錄裡還有 ${count} 項';
+	@override String get migrate => '遷移';
+	@override String get dismiss => '忽略';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateZhTw extends TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
@@ -3626,6 +3687,149 @@ class _TranslationsDownloadDeleteByDateZhTw extends TranslationsDownloadDeleteBy
 	@override String deleting({required Object done, required Object total}) => '正在刪除 ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => '已刪除 ${count} 個任務';
 	@override String resultPartial({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）';
+}
+
+// Path: download.relocation
+class _TranslationsDownloadRelocationZhTw extends TranslationsDownloadRelocationEn {
+	_TranslationsDownloadRelocationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get moveFiles => '移動檔案';
+	@override String get moveFilesEllipsis => '移動檔案…';
+	@override String get chooseDestination => '把檔案移動到';
+	@override String get currentDownloadDir => '目前下載目錄';
+	@override String get otherFolder => '選擇其他資料夾…';
+	@override String get pickerUnsupported => '此裝置無法選擇資料夾，下載內容只能留在應用程式自己的目錄中。';
+	@override String get planning => '正在檢查檔案…';
+	@override String get confirmTitle => '移動檔案？';
+	@override String get confirmNote => '會實際在磁碟上移動檔案，觀看進度、VR 設定和收藏會一起跟過去。';
+	@override String get nothingToMove => '所選內容都無法移動，每一項的原因見下方。';
+	@override String get move => '移動';
+	@override String moving({required Object done, required Object total}) => '正在移動 ${done}/${total}';
+	@override String get stop => '停止';
+	@override String get stopping => '目前這一項完成後停止…';
+	@override String get resultTitle => '移動完成';
+	@override String resultMoved({required Object count}) => '已移動 ${count} 項';
+	@override String get cancelled => '已停止。已移動的項目都是完整的。';
+	@override String get alreadyRunning => '已有一個移動工作在進行';
+	@override String get destination => '目標位置';
+	@override String get statMove => '將移動';
+	@override String get statSkip => '略過';
+	@override String get statRenamed => '改名';
+	@override String get statMoved => '已移動';
+	@override String get statFailed => '未移動';
+	@override String get statLeftover => '殘留';
+	@override String get sectionMove => '將移動';
+	@override String get sectionSkip => '將略過';
+	@override String get sectionMoved => '已移動';
+	@override String get sectionFailed => '未移動（仍在原處）';
+	@override String get sectionLeftover => '沒刪乾淨的舊資料夾';
+	@override String get leftoverHint => '新位置的那份是完整的，這些殘留可以放心刪除。';
+	@override String get from => '從';
+	@override String get to => '到';
+	@override String renamedBadge({required Object name}) => '目標處已有同名項目，將另存為「${name}」';
+	@override String get showPaths => '顯示路徑';
+	@override String get hidePaths => '收起路徑';
+	@override String get revealInFolder => '在資料夾中顯示';
+	@override String get copyPath => '複製路徑';
+	@override String get pathCopied => '已複製路徑';
+	@override String stateDownloading({required Object percent}) => '下載中 ${percent}%';
+	@override String get statePending => '等待下載';
+	@override String statePaused({required Object percent}) => '已暫停於 ${percent}%';
+	@override String get stateFailed => '下載失敗';
+	@override String get skipAlreadyThere => '已經在這個資料夾中';
+	@override String get skipInsideSource => '目標資料夾就在這個圖庫自己的資料夾裡面';
+	@override String get reasonBusy => '正在進行其他操作（刪除或移動）';
+	@override String get reasonSourceLocked => '檔案正被占用（如正在播放），舊位置刪不掉，本項已撤回，什麼都沒改。';
+	@override String get reasonNoSpace => '目標位置空間不足，其餘的已全部停止。';
+	@override String get reasonVerifyFailed => '複製出的檔案與原檔大小不一致，複製件已丟棄。';
+	@override String get reasonIoError => '讀寫檔案出錯，什麼都沒改。';
+	@override String systemMessage({required Object message}) => '系統訊息：${message}';
+	@override String outsideTitle({required Object count}) => '有 ${count} 項已下載內容不在這個目錄中';
+	@override String get outsideSubtitle => '它們在原位置照樣能播放。移到這裡可以把內容集中在一處。';
+	@override String get moveHere => '移到這裡';
+	@override String get missingTitle => '找不到檔案';
+	@override String get recordedLocation => '記錄的位置';
+	@override String get legendExists => '仍然存在';
+	@override String get legendMissing => '已不存在';
+	@override String diagVolume({required Object volume}) => '儲存空間「${volume}」目前無法使用，記憶卡或外接硬碟可能沒有連接。';
+	@override String diagVolumeShort({required Object volume}) => '儲存空間「${volume}」未連接';
+	@override String get diagContainer => '應用程式更新後，系統移動了應用程式的儲存位置。檔案還在這裡：';
+	@override String get diagContainerShort => '應用程式更新後儲存位置變了';
+	@override String get diagNoAccess => '應用程式沒有讀取這個位置的權限。授予「所有檔案存取權」後再檢查一次。';
+	@override String get diagNoAccessShort => '沒有讀取該位置的權限';
+	@override String diagFolder({required Object folder}) => '資料夾「${folder}」已經不存在了。';
+	@override String diagFolderShort({required Object folder}) => '資料夾「${folder}」已不存在';
+	@override String diagFile({required Object name}) => '資料夾還在，但裡面沒有「${name}」。';
+	@override String get diagFileShort => '原資料夾裡沒有它';
+	@override String get diagCandidates => '在那個資料夾裡找到了像是它的（可能被改了名）：';
+	@override String get diagNoCandidates => '那個資料夾裡沒有大小相同的檔案。';
+	@override String get useThis => '就是它';
+	@override String get fixPath => '修復路徑';
+	@override String get checkAgain => '再檢查一次';
+	@override String get grantPermission => '授予權限';
+	@override String get locate => '去其他資料夾找…';
+	@override String get deleteRecord => '刪除記錄';
+	@override String get locateNotFound => '那個資料夾裡沒有這項下載的檔案';
+	@override String get located => '已找到，記錄已指向新位置';
+	@override String get stillMissing => '仍然找不到';
+	@override String downloadedOn({required Object date}) => '下載於 ${date}';
+	@override String galleryImages({required Object count}) => '${count} 張圖';
+	@override String unfinishedDownloading({required Object percent}) => '下載中 ${percent}%：先暫停，已下的部分一起搬，搬完自動繼續';
+	@override String get unfinishedPending => '等待下載：搬完重新排隊';
+	@override String unfinishedPaused({required Object percent}) => '已暫停於 ${percent}%：已下的部分一起搬，搬完仍保持暫停';
+	@override String get unfinishedFailed => '下載失敗：已下的部分一起搬';
+	@override String get noDataYet => '還沒有下載任何內容，只改儲存位置';
+	@override String missingGroup({required Object count}) => '找不到檔案的 ${count} 項';
+	@override String get missingSkip => '不處理';
+	@override String get missingRedownload => '重新下載到目標位置';
+	@override String get missingRemove => '移除記錄';
+	@override String missingRemoveVolumeNote({required Object count}) => '其中 ${count} 項所在的儲存空間未連接，不會被移除';
+	@override String failedGroup({required Object count}) => '下載失敗的 ${count} 項';
+	@override String get failedMoveOnly => '只移動';
+	@override String get failedMoveAndRetry => '移動後重新下載';
+	@override String get failedRemove => '移除任務';
+	@override String get failedRemoveNote => '會一併刪除已下載的半截檔案';
+	@override String get execute => '執行';
+	@override String get actionWillRedownload => '將重新下載到目標位置';
+	@override String get actionWillRemove => '將移除這條記錄';
+	@override String get actionWillKeep => '儲存空間未連接，保留不移除';
+	@override String get actionWillRetry => '移動後重新下載';
+	@override String get actionWillRemoveTask => '將移除任務';
+	@override String get statRedownload => '重新下載';
+	@override String get statRemoved => '已移除';
+	@override String get sectionRedownloaded => '已開始重新下載';
+	@override String get sectionRedownloadFailed => '沒能開始重新下載';
+	@override String get redownloadFailedHint => '多半是下載連結已失效（作品被刪除或設為私密），可以稍後在下載列表中重試。';
+	@override String get sectionRemoved => '已移除';
+	@override String get sectionKept => '保留（儲存空間未連接）';
+	@override String get redownload => '重新下載';
+	@override String get redownloadStarted => '已開始重新下載';
+	@override String get redownloadNotStarted => '沒能開始重新下載';
+	@override String get diagFileShortWithCandidates => '原資料夾裡有大小相同的檔案，可能被改了名';
+	@override String get cleanupMenu => '清理失效記錄…';
+	@override String cleanupScanning({required Object done, required Object total}) => '正在檢查 ${done}/${total}';
+	@override String get cleanupTitle => '清理失效記錄';
+	@override String cleanupNone({required Object count}) => '檢查了 ${count} 項已完成的下載，檔案都在。';
+	@override String get statChecked => '已檢查';
+	@override String get statMissing => '找不到';
+	@override String get statKeep => '建議保留';
+	@override String get cleanupGroupGone => '檔案已不在';
+	@override String get cleanupGroupRecoverable => '可能還能找回';
+	@override String get cleanupRecoverableHint => '儲存空間未連接、沒有權限、或可能被改了名，預設不選。點開單項可查看詳情並找回。';
+	@override String get selectAll => '全選';
+	@override String get selectNone => '全不選';
+	@override String removeSelected({required Object count}) => '移除所選（${count}）';
+	@override String redownloadSelected({required Object count}) => '重新下載所選（${count}）';
+	@override String processing({required Object done, required Object total}) => '正在處理 ${done}/${total}';
+	@override String cleanupRemoved({required Object count}) => '已移除 ${count} 條記錄';
+	@override String cleanupRedownloaded({required Object count}) => '已開始重新下載 ${count} 項';
+	@override String get tapForDetail => '查看詳情';
+	@override String get deleteRecordFailed => '刪除記錄失敗，請稍後再試';
+	@override String get sectionNotAttempted => '未處理（已停止，原樣未動）';
+	@override String unexpectedError({required Object message}) => '中途出錯停止：${message}。已移動的項目都是完整的。';
 }
 
 // Path: download.category
@@ -3658,6 +3862,88 @@ class _TranslationsDownloadCategoryZhTw extends TranslationsDownloadCategoryEn {
 	@override String deleteConfirm({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 項內容將移到「未分類」，檔案不會被刪除。';
 	@override String get deleteSuccess => '分類已刪除';
 	@override String get deleteFailed => '刪除分類失敗';
+}
+
+// Path: download.location
+class _TranslationsDownloadLocationZhTw extends TranslationsDownloadLocationEn {
+	_TranslationsDownloadLocationZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionTitle => '儲存位置';
+	@override String get behaviorSection => '下載行為';
+	@override String get namingSection => '檔案命名';
+	@override String get advancedSection => '進階';
+	@override String get advancedSubtitle => '寫入診斷等工具';
+	@override String get volumeInternal => '內部儲存空間';
+	@override String get volumeSdCard => 'SD 卡';
+	@override String get volumeExternalDrive => '外接磁碟';
+	@override String get appSpace => '應用程式專屬空間';
+	@override String get downloadsFolder => '下載';
+	@override String get askEveryTime => '每次詢問';
+	@override String askEveryTimeDesc({required Object location}) => '每次下載時選擇儲存位置；批次下載存到 ${location}';
+	@override String freeSpace({required Object size}) => '剩餘 ${size}';
+	@override String get statusWritable => '可寫入';
+	@override String get statusNeedsPermission => '需要授權';
+	@override String get statusFallback => '已暫時改存';
+	@override String get statusLowSpace => '空間不足';
+	@override String get statusChecking => '檢查中';
+	@override String get grant => '授權';
+	@override String get fix => '修復';
+	@override String get changeLocation => '變更位置';
+	@override String get openInFileManager => '在檔案管理器中開啟';
+	@override String get moreActions => '更多';
+	@override String get copyPath => '複製路徑';
+	@override String get pathCopied => '已複製路徑';
+	@override String get manualInput => '手動輸入路徑（進階）';
+	@override String get restoreDefault => '還原預設';
+	@override String get runDiagnostics => '執行診斷';
+	@override String get restoredDefault => '已還原預設位置';
+	@override String get sheetTitle => '選擇下載位置';
+	@override String get chooseOtherFolder => '選擇其他資料夾…';
+	@override String get chooseOtherFolderDesc => '用系統檔案選擇器挑一個';
+	@override String get optionRecommendedDesc => '推薦 · 無需授權';
+	@override String get optionRecommendedLegacyDesc => '推薦 · 需要儲存權限';
+	@override String get optionAppPrivateDesc => '解除安裝時刪除 · 相簿看不到';
+	@override String get optionRemovableDesc => '需要「所有檔案存取權」';
+	@override String get optionDesktopDownloadsDesc => '推薦 · 系統的下載資料夾';
+	@override String get optionAskEveryTimeDesc => '每次下載時挑一個資料夾';
+	@override String get current => '目前';
+	@override String get fallbackBanner => '上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。';
+	@override String get fallbackReasonPermission => '缺少儲存權限';
+	@override String get fallbackReasonVolumeMissing => '儲存裝置沒有連接';
+	@override String get fallbackReasonCannotCreate => '無法建立資料夾';
+	@override String get fallbackReasonNotWritable => '資料夾無法寫入';
+	@override String fallbackDetail({required Object reason}) => '已暫時改存：${reason}';
+	@override String get errorUnresolvable => '這個位置來自雲端硬碟或其他 App，無法直接寫入。請選擇手機儲存空間或 SD 卡裡的資料夾。';
+	@override String get errorNotWritable => '這個資料夾無法寫入（唯讀、受系統保護或已中斷連線），位置沒有變更。';
+	@override String get errorVolumeMissing => '找不到這個儲存裝置（已移除或沒有連接），位置沒有變更。';
+	@override String get permissionTitle => '需要授權';
+	@override String get permissionAllFiles => '要寫到這個資料夾需開啟「所有檔案存取權」，不想開可改用「下載 › LoveIwara」。';
+	@override String get permissionLegacy => '要寫到這個資料夾需要儲存權限，不想開可改用應用程式專屬空間。';
+	@override String get useDownloadsInstead => '改用 下載 › LoveIwara';
+	@override String get useAppSpaceInstead => '改用應用程式專屬空間';
+	@override String get goToSettings => '去授權';
+	@override String get permissionDenied => '沒有取得權限，位置沒有變更。';
+	@override String get checking => '正在檢查這個位置…';
+	@override String get confirmTitle => '改用這個位置？';
+	@override String confirmFree({required Object size}) => '剩餘空間 ${size}';
+	@override String confirmOutside({required Object count}) => '有 ${count} 項已下載內容還在舊位置';
+	@override String get confirmOutsideDesc => '之後的下載會存到新位置。已經下載的內容要怎麼處理？';
+	@override String get moveThem => '搬過去';
+	@override String get keepThem => '保留在原處';
+	@override String get decideLater => '之後再說';
+	@override String get useThisLocation => '使用這個位置';
+	@override String get locationChanged => '下載位置已變更';
+	@override String get manualTitle => '手動輸入路徑';
+	@override String get manualLabel => '資料夾路徑';
+	@override String get manualHint => '例如 /storage/emulated/0/Download/LoveIwara';
+	@override String get manualSubmit => '檢查並使用';
+	@override String get manualEmpty => '請輸入路徑';
+	@override String get manualNotAbsolute => '請輸入完整的絕對路徑';
+	@override String get fixStillFailing => '這個位置仍然無法使用，請換一個。';
+	@override String get fixed => '位置已恢復正常';
 }
 
 // Path: download.batchDownload
@@ -4248,6 +4534,7 @@ extension on TranslationsZhTw {
 			'common.selectedRecords' => ({required Object num}) => '已選擇 ${num} 筆資料',
 			'common.cancelSelectAll' => '取消全選',
 			'common.selectAll' => '全選',
+			'common.invertSelection' => '反選',
 			'common.exitEditMode' => '退出編輯模式',
 			'common.areYouSureYouWantToDeleteSelectedItems' => ({required Object num}) => '確定要刪除選中的 ${num} 筆資料嗎？',
 			'common.searchHistoryRecords' => '搜尋歷史紀錄...',
@@ -4617,9 +4904,9 @@ extension on TranslationsZhTw {
 			'settings.longPressPlaybackSpeed' => '長按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
 			'settings.defaultPlaybackSpeed' => '預設播放倍速',
-			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
 			'settings.renderVerticalVideoInVerticalScreen' => '全螢幕播放時以直向模式呈現直向影片',
@@ -5131,9 +5418,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.unableToGetPathStatus' => '無法獲取路徑狀態',
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：實際使用路徑與選擇路徑不同',
 			'settings.downloadSettings.grantPermission' => '授權權限',
-			'settings.downloadSettings.fixIssue' => '修復問題',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.fixIssue' => '修復問題',
 			'settings.downloadSettings.issueFixed' => '問題已修復',
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
 			'settings.downloadSettings.lackStoragePermission' => '缺少儲存權限',
@@ -5645,9 +5932,9 @@ extension on TranslationsZhTw {
 			'notifications.inYour' => '在您的',
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
-			'notifications.copyInfoToClipboard' => '複製通知資訊到剪貼簿',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.copyInfoToClipboard' => '複製通知資訊到剪貼簿',
 			'notifications.copySuccess' => '已複製到剪貼簿',
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
 			'notifications.markAllAsRead' => '全部標記已讀',
@@ -5849,6 +6136,44 @@ extension on TranslationsZhTw {
 			'download.restoredPaused.banner' => ({required Object num}) => '上次離開時有 ${num} 個任務未完成，已暫停',
 			'download.restoredPaused.resume' => '全部繼續',
 			'download.restoredPaused.dismiss' => '忽略',
+			'download.actions.open' => '開啟',
+			'download.actions.play' => '播放',
+			'download.actions.openWith' => '用其他應用程式開啟',
+			'download.actions.redownload' => '重新下載',
+			'download.actions.relocate' => '移動檔案到…',
+			'download.actions.categorize' => '歸類到…',
+			'download.actions.viewOnline' => '查看線上頁面',
+			'download.actions.delete' => '刪除…',
+			'download.actions.redownloadStarted' => ({required Object count}) => '已開始重新下載 ${count} 項',
+			'download.actions.redownloadNone' => '沒有可重新下載的項目',
+			'download.actions.deleteTitle' => ({required Object count}) => '刪除 ${count} 項下載？',
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '共 ${count} 項 · ${size}',
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '共 ${count} 項',
+			'download.actions.deleteGalleryNote' => ({required Object count}) => '其中 ${count} 個圖庫的大小未計入',
+			'download.actions.deleteFiles' => '同時刪除磁碟檔案',
+			'download.actions.deleteFilesDesc' => '關閉後只移除列表記錄，檔案留在原處',
+			'download.actions.deleteFilesAllMissing' => '檔案已經不在了，只會移除記錄',
+			'download.actions.deleteDone' => ({required Object count}) => '已刪除 ${count} 項',
+			'download.actions.deletePartial' => ({required Object failed}) => '${failed} 項的檔案刪不掉（可能正被佔用），記錄已保留',
+			'download.actions.removeRecordAnyway' => '仍移除記錄',
+			'download.actions.fileMissing' => '檔案已不在',
+			'download.actions.filePending' => '暫時找不到檔案，可能還能找回',
+			'download.actions.statusActive' => '進行中',
+			'download.actions.statusCompleted' => '已完成',
+			'download.actions.needsAttention' => '需處理',
+			'download.actions.needsAttentionCount' => ({required Object count}) => '需處理 · ${count}',
+			'download.actions.organize' => '整理',
+			'download.actions.checkIntegrity' => '檢查檔案完整性…',
+			'download.actions.migrateToCurrent' => '遷移到目前下載目錄…',
+			'download.actions.migrateNone' => '所有已下載內容都在目前下載目錄裡',
+			'download.notice.failed' => ({required Object count}) => '${count} 個任務下載失敗',
+			'download.notice.retryAll' => '全部重試',
+			'download.notice.view' => '查看',
+			'download.notice.missing' => ({required Object count}) => '${count} 項已下載內容的檔案不見了',
+			'download.notice.handle' => '處理…',
+			'download.notice.outside' => ({required Object count}) => '舊下載目錄裡還有 ${count} 項',
+			'download.notice.migrate' => '遷移',
+			'download.notice.dismiss' => '忽略',
 			'download.emptyTaskList' => '暫無下載任務',
 			'download.noMatchingTasks' => '沒有符合的任務',
 			'download.deleteByDate.menuTitle' => '依日期刪除',
@@ -5868,6 +6193,140 @@ extension on TranslationsZhTw {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => '正在刪除 ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => '已刪除 ${count} 個任務',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => '已刪除 ${deleted} 個任務，略過 ${skipped} 個（被佔用）',
+			'download.relocation.moveFiles' => '移動檔案',
+			'download.relocation.moveFilesEllipsis' => '移動檔案…',
+			'download.relocation.chooseDestination' => '把檔案移動到',
+			'download.relocation.currentDownloadDir' => '目前下載目錄',
+			'download.relocation.otherFolder' => '選擇其他資料夾…',
+			'download.relocation.pickerUnsupported' => '此裝置無法選擇資料夾，下載內容只能留在應用程式自己的目錄中。',
+			'download.relocation.planning' => '正在檢查檔案…',
+			'download.relocation.confirmTitle' => '移動檔案？',
+			'download.relocation.confirmNote' => '會實際在磁碟上移動檔案，觀看進度、VR 設定和收藏會一起跟過去。',
+			'download.relocation.nothingToMove' => '所選內容都無法移動，每一項的原因見下方。',
+			'download.relocation.move' => '移動',
+			'download.relocation.moving' => ({required Object done, required Object total}) => '正在移動 ${done}/${total}',
+			'download.relocation.stop' => '停止',
+			'download.relocation.stopping' => '目前這一項完成後停止…',
+			'download.relocation.resultTitle' => '移動完成',
+			'download.relocation.resultMoved' => ({required Object count}) => '已移動 ${count} 項',
+			'download.relocation.cancelled' => '已停止。已移動的項目都是完整的。',
+			'download.relocation.alreadyRunning' => '已有一個移動工作在進行',
+			'download.relocation.destination' => '目標位置',
+			'download.relocation.statMove' => '將移動',
+			'download.relocation.statSkip' => '略過',
+			'download.relocation.statRenamed' => '改名',
+			'download.relocation.statMoved' => '已移動',
+			'download.relocation.statFailed' => '未移動',
+			'download.relocation.statLeftover' => '殘留',
+			'download.relocation.sectionMove' => '將移動',
+			'download.relocation.sectionSkip' => '將略過',
+			'download.relocation.sectionMoved' => '已移動',
+			'download.relocation.sectionFailed' => '未移動（仍在原處）',
+			'download.relocation.sectionLeftover' => '沒刪乾淨的舊資料夾',
+			'download.relocation.leftoverHint' => '新位置的那份是完整的，這些殘留可以放心刪除。',
+			'download.relocation.from' => '從',
+			'download.relocation.to' => '到',
+			'download.relocation.renamedBadge' => ({required Object name}) => '目標處已有同名項目，將另存為「${name}」',
+			'download.relocation.showPaths' => '顯示路徑',
+			'download.relocation.hidePaths' => '收起路徑',
+			'download.relocation.revealInFolder' => '在資料夾中顯示',
+			'download.relocation.copyPath' => '複製路徑',
+			'download.relocation.pathCopied' => '已複製路徑',
+			'download.relocation.stateDownloading' => ({required Object percent}) => '下載中 ${percent}%',
+			'download.relocation.statePending' => '等待下載',
+			'download.relocation.statePaused' => ({required Object percent}) => '已暫停於 ${percent}%',
+			'download.relocation.stateFailed' => '下載失敗',
+			'download.relocation.skipAlreadyThere' => '已經在這個資料夾中',
+			'download.relocation.skipInsideSource' => '目標資料夾就在這個圖庫自己的資料夾裡面',
+			'download.relocation.reasonBusy' => '正在進行其他操作（刪除或移動）',
+			'download.relocation.reasonSourceLocked' => '檔案正被占用（如正在播放），舊位置刪不掉，本項已撤回，什麼都沒改。',
+			'download.relocation.reasonNoSpace' => '目標位置空間不足，其餘的已全部停止。',
+			'download.relocation.reasonVerifyFailed' => '複製出的檔案與原檔大小不一致，複製件已丟棄。',
+			'download.relocation.reasonIoError' => '讀寫檔案出錯，什麼都沒改。',
+			'download.relocation.systemMessage' => ({required Object message}) => '系統訊息：${message}',
+			'download.relocation.outsideTitle' => ({required Object count}) => '有 ${count} 項已下載內容不在這個目錄中',
+			'download.relocation.outsideSubtitle' => '它們在原位置照樣能播放。移到這裡可以把內容集中在一處。',
+			'download.relocation.moveHere' => '移到這裡',
+			'download.relocation.missingTitle' => '找不到檔案',
+			'download.relocation.recordedLocation' => '記錄的位置',
+			'download.relocation.legendExists' => '仍然存在',
+			'download.relocation.legendMissing' => '已不存在',
+			'download.relocation.diagVolume' => ({required Object volume}) => '儲存空間「${volume}」目前無法使用，記憶卡或外接硬碟可能沒有連接。',
+			'download.relocation.diagVolumeShort' => ({required Object volume}) => '儲存空間「${volume}」未連接',
+			'download.relocation.diagContainer' => '應用程式更新後，系統移動了應用程式的儲存位置。檔案還在這裡：',
+			'download.relocation.diagContainerShort' => '應用程式更新後儲存位置變了',
+			'download.relocation.diagNoAccess' => '應用程式沒有讀取這個位置的權限。授予「所有檔案存取權」後再檢查一次。',
+			'download.relocation.diagNoAccessShort' => '沒有讀取該位置的權限',
+			'download.relocation.diagFolder' => ({required Object folder}) => '資料夾「${folder}」已經不存在了。',
+			'download.relocation.diagFolderShort' => ({required Object folder}) => '資料夾「${folder}」已不存在',
+			'download.relocation.diagFile' => ({required Object name}) => '資料夾還在，但裡面沒有「${name}」。',
+			'download.relocation.diagFileShort' => '原資料夾裡沒有它',
+			'download.relocation.diagCandidates' => '在那個資料夾裡找到了像是它的（可能被改了名）：',
+			'download.relocation.diagNoCandidates' => '那個資料夾裡沒有大小相同的檔案。',
+			'download.relocation.useThis' => '就是它',
+			'download.relocation.fixPath' => '修復路徑',
+			'download.relocation.checkAgain' => '再檢查一次',
+			'download.relocation.grantPermission' => '授予權限',
+			'download.relocation.locate' => '去其他資料夾找…',
+			'download.relocation.deleteRecord' => '刪除記錄',
+			'download.relocation.locateNotFound' => '那個資料夾裡沒有這項下載的檔案',
+			'download.relocation.located' => '已找到，記錄已指向新位置',
+			'download.relocation.stillMissing' => '仍然找不到',
+			'download.relocation.downloadedOn' => ({required Object date}) => '下載於 ${date}',
+			'download.relocation.galleryImages' => ({required Object count}) => '${count} 張圖',
+			'download.relocation.unfinishedDownloading' => ({required Object percent}) => '下載中 ${percent}%：先暫停，已下的部分一起搬，搬完自動繼續',
+			'download.relocation.unfinishedPending' => '等待下載：搬完重新排隊',
+			'download.relocation.unfinishedPaused' => ({required Object percent}) => '已暫停於 ${percent}%：已下的部分一起搬，搬完仍保持暫停',
+			'download.relocation.unfinishedFailed' => '下載失敗：已下的部分一起搬',
+			'download.relocation.noDataYet' => '還沒有下載任何內容，只改儲存位置',
+			'download.relocation.missingGroup' => ({required Object count}) => '找不到檔案的 ${count} 項',
+			'download.relocation.missingSkip' => '不處理',
+			'download.relocation.missingRedownload' => '重新下載到目標位置',
+			'download.relocation.missingRemove' => '移除記錄',
+			'download.relocation.missingRemoveVolumeNote' => ({required Object count}) => '其中 ${count} 項所在的儲存空間未連接，不會被移除',
+			'download.relocation.failedGroup' => ({required Object count}) => '下載失敗的 ${count} 項',
+			'download.relocation.failedMoveOnly' => '只移動',
+			'download.relocation.failedMoveAndRetry' => '移動後重新下載',
+			'download.relocation.failedRemove' => '移除任務',
+			'download.relocation.failedRemoveNote' => '會一併刪除已下載的半截檔案',
+			'download.relocation.execute' => '執行',
+			'download.relocation.actionWillRedownload' => '將重新下載到目標位置',
+			'download.relocation.actionWillRemove' => '將移除這條記錄',
+			'download.relocation.actionWillKeep' => '儲存空間未連接，保留不移除',
+			'download.relocation.actionWillRetry' => '移動後重新下載',
+			'download.relocation.actionWillRemoveTask' => '將移除任務',
+			'download.relocation.statRedownload' => '重新下載',
+			'download.relocation.statRemoved' => '已移除',
+			'download.relocation.sectionRedownloaded' => '已開始重新下載',
+			'download.relocation.sectionRedownloadFailed' => '沒能開始重新下載',
+			'download.relocation.redownloadFailedHint' => '多半是下載連結已失效（作品被刪除或設為私密），可以稍後在下載列表中重試。',
+			'download.relocation.sectionRemoved' => '已移除',
+			'download.relocation.sectionKept' => '保留（儲存空間未連接）',
+			'download.relocation.redownload' => '重新下載',
+			'download.relocation.redownloadStarted' => '已開始重新下載',
+			'download.relocation.redownloadNotStarted' => '沒能開始重新下載',
+			'download.relocation.diagFileShortWithCandidates' => '原資料夾裡有大小相同的檔案，可能被改了名',
+			'download.relocation.cleanupMenu' => '清理失效記錄…',
+			'download.relocation.cleanupScanning' => ({required Object done, required Object total}) => '正在檢查 ${done}/${total}',
+			'download.relocation.cleanupTitle' => '清理失效記錄',
+			'download.relocation.cleanupNone' => ({required Object count}) => '檢查了 ${count} 項已完成的下載，檔案都在。',
+			'download.relocation.statChecked' => '已檢查',
+			'download.relocation.statMissing' => '找不到',
+			'download.relocation.statKeep' => '建議保留',
+			'download.relocation.cleanupGroupGone' => '檔案已不在',
+			'download.relocation.cleanupGroupRecoverable' => '可能還能找回',
+			'download.relocation.cleanupRecoverableHint' => '儲存空間未連接、沒有權限、或可能被改了名，預設不選。點開單項可查看詳情並找回。',
+			'download.relocation.selectAll' => '全選',
+			'download.relocation.selectNone' => '全不選',
+			'download.relocation.removeSelected' => ({required Object count}) => '移除所選（${count}）',
+			'download.relocation.redownloadSelected' => ({required Object count}) => '重新下載所選（${count}）',
+			'download.relocation.processing' => ({required Object done, required Object total}) => '正在處理 ${done}/${total}',
+			'download.relocation.cleanupRemoved' => ({required Object count}) => '已移除 ${count} 條記錄',
+			'download.relocation.cleanupRedownloaded' => ({required Object count}) => '已開始重新下載 ${count} 項',
+			'download.relocation.tapForDetail' => '查看詳情',
+			'download.relocation.deleteRecordFailed' => '刪除記錄失敗，請稍後再試',
+			'download.relocation.sectionNotAttempted' => '未處理（已停止，原樣未動）',
+			'download.relocation.unexpectedError' => ({required Object message}) => '中途出錯停止：${message}。已移動的項目都是完整的。',
 			'download.category.manageTitle' => '管理分類',
 			'download.category.label' => '分類',
 			'download.category.uncategorized' => '未分類',
@@ -5891,6 +6350,79 @@ extension on TranslationsZhTw {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '刪除分類「${title}」？該分類下的 ${count} 項內容將移到「未分類」，檔案不會被刪除。',
 			'download.category.deleteSuccess' => '分類已刪除',
 			'download.category.deleteFailed' => '刪除分類失敗',
+			'download.location.sectionTitle' => '儲存位置',
+			'download.location.behaviorSection' => '下載行為',
+			'download.location.namingSection' => '檔案命名',
+			'download.location.advancedSection' => '進階',
+			'download.location.advancedSubtitle' => '寫入診斷等工具',
+			'download.location.volumeInternal' => '內部儲存空間',
+			'download.location.volumeSdCard' => 'SD 卡',
+			'download.location.volumeExternalDrive' => '外接磁碟',
+			'download.location.appSpace' => '應用程式專屬空間',
+			'download.location.downloadsFolder' => '下載',
+			'download.location.askEveryTime' => '每次詢問',
+			'download.location.askEveryTimeDesc' => ({required Object location}) => '每次下載時選擇儲存位置；批次下載存到 ${location}',
+			'download.location.freeSpace' => ({required Object size}) => '剩餘 ${size}',
+			'download.location.statusWritable' => '可寫入',
+			'download.location.statusNeedsPermission' => '需要授權',
+			'download.location.statusFallback' => '已暫時改存',
+			'download.location.statusLowSpace' => '空間不足',
+			'download.location.statusChecking' => '檢查中',
+			'download.location.grant' => '授權',
+			'download.location.fix' => '修復',
+			'download.location.changeLocation' => '變更位置',
+			'download.location.openInFileManager' => '在檔案管理器中開啟',
+			'download.location.moreActions' => '更多',
+			'download.location.copyPath' => '複製路徑',
+			'download.location.pathCopied' => '已複製路徑',
+			'download.location.manualInput' => '手動輸入路徑（進階）',
+			'download.location.restoreDefault' => '還原預設',
+			'download.location.runDiagnostics' => '執行診斷',
+			'download.location.restoredDefault' => '已還原預設位置',
+			'download.location.sheetTitle' => '選擇下載位置',
+			'download.location.chooseOtherFolder' => '選擇其他資料夾…',
+			'download.location.chooseOtherFolderDesc' => '用系統檔案選擇器挑一個',
+			'download.location.optionRecommendedDesc' => '推薦 · 無需授權',
+			'download.location.optionRecommendedLegacyDesc' => '推薦 · 需要儲存權限',
+			'download.location.optionAppPrivateDesc' => '解除安裝時刪除 · 相簿看不到',
+			'download.location.optionRemovableDesc' => '需要「所有檔案存取權」',
+			'download.location.optionDesktopDownloadsDesc' => '推薦 · 系統的下載資料夾',
+			'download.location.optionAskEveryTimeDesc' => '每次下載時挑一個資料夾',
+			'download.location.current' => '目前',
+			'download.location.fallbackBanner' => '上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。',
+			'download.location.fallbackReasonPermission' => '缺少儲存權限',
+			'download.location.fallbackReasonVolumeMissing' => '儲存裝置沒有連接',
+			'download.location.fallbackReasonCannotCreate' => '無法建立資料夾',
+			'download.location.fallbackReasonNotWritable' => '資料夾無法寫入',
+			'download.location.fallbackDetail' => ({required Object reason}) => '已暫時改存：${reason}',
+			'download.location.errorUnresolvable' => '這個位置來自雲端硬碟或其他 App，無法直接寫入。請選擇手機儲存空間或 SD 卡裡的資料夾。',
+			'download.location.errorNotWritable' => '這個資料夾無法寫入（唯讀、受系統保護或已中斷連線），位置沒有變更。',
+			'download.location.errorVolumeMissing' => '找不到這個儲存裝置（已移除或沒有連接），位置沒有變更。',
+			'download.location.permissionTitle' => '需要授權',
+			'download.location.permissionAllFiles' => '要寫到這個資料夾需開啟「所有檔案存取權」，不想開可改用「下載 › LoveIwara」。',
+			'download.location.permissionLegacy' => '要寫到這個資料夾需要儲存權限，不想開可改用應用程式專屬空間。',
+			'download.location.useDownloadsInstead' => '改用 下載 › LoveIwara',
+			'download.location.useAppSpaceInstead' => '改用應用程式專屬空間',
+			'download.location.goToSettings' => '去授權',
+			'download.location.permissionDenied' => '沒有取得權限，位置沒有變更。',
+			'download.location.checking' => '正在檢查這個位置…',
+			'download.location.confirmTitle' => '改用這個位置？',
+			'download.location.confirmFree' => ({required Object size}) => '剩餘空間 ${size}',
+			'download.location.confirmOutside' => ({required Object count}) => '有 ${count} 項已下載內容還在舊位置',
+			'download.location.confirmOutsideDesc' => '之後的下載會存到新位置。已經下載的內容要怎麼處理？',
+			'download.location.moveThem' => '搬過去',
+			'download.location.keepThem' => '保留在原處',
+			'download.location.decideLater' => '之後再說',
+			'download.location.useThisLocation' => '使用這個位置',
+			'download.location.locationChanged' => '下載位置已變更',
+			'download.location.manualTitle' => '手動輸入路徑',
+			'download.location.manualLabel' => '資料夾路徑',
+			'download.location.manualHint' => '例如 /storage/emulated/0/Download/LoveIwara',
+			'download.location.manualSubmit' => '檢查並使用',
+			'download.location.manualEmpty' => '請輸入路徑',
+			'download.location.manualNotAbsolute' => '請輸入完整的絕對路徑',
+			'download.location.fixStillFailing' => '這個位置仍然無法使用，請換一個。',
+			'download.location.fixed' => '位置已恢復正常',
 			'download.maxConcurrentDownloads' => '最大同時下載數',
 			'download.maxConcurrentDownloadsDesc' => '同時進行下載的任務數量（1-5）',
 			'download.stillInDevelopment' => '開發中',
@@ -5914,6 +6446,8 @@ extension on TranslationsZhTw {
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已選擇 ${count} 個圖庫',
 			'download.batchDownload.qualityNote' => '如果所選清晰度不可用，將使用最佳可用清晰度',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => '處理中 ${current}/${total}',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.queued' => '已入隊',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
@@ -6160,8 +6694,6 @@ extension on TranslationsZhTw {
 			'mediaPlayer.format' => '格式',
 			'mediaPlayer.suggestion' => '建議',
 			'mediaPlayer.androidWebmCompatibilityIssue' => 'Android裝置對WEBM格式支援有限，建議使用外部播放器或下載支援WEBM的播放器應用',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.currentDeviceCodecNotSupported' => '目前裝置不支援此影片格式的編解碼器',
 			'mediaPlayer.checkNetworkConnection' => '請檢查網路連線後重試',
 			'mediaPlayer.appMayLackMediaPermission' => '應用可能缺少必要的媒體播放權限',
@@ -6428,6 +6960,8 @@ extension on TranslationsZhTw {
 			'displaySettings.title' => '顯示設定',
 			'displaySettings.layoutSettings' => '版面配置設定',
 			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.gridLayout' => '網格版面配置',
 			'displaySettings.navigationOrderSettings' => '導航排序設定',
 			'displaySettings.customNavigationOrder' => '自訂導航順序',
@@ -6674,8 +7208,6 @@ extension on TranslationsZhTw {
 			'savedSearchConfig.title' => '已儲存篩選',
 			'savedSearchConfig.empty' => '還沒有儲存的篩選設定',
 			'savedSearchConfig.saveTooltip' => '儲存目前篩選',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.namePromptTitle' => '儲存篩選設定',
 			'savedSearchConfig.nameLabel' => '名稱',
 			'savedSearchConfig.nameHint' => '請輸入名稱',
@@ -6942,6 +7474,8 @@ extension on TranslationsZhTw {
 			'localMedia.browse.useThisFolder' => '使用這個資料夾',
 			'localMedia.browse.noSubfolders' => '這裡沒有子資料夾',
 			'localMedia.browse.storageRoot' => '裝置儲存空間',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.homeFolder' => '個人資料夾',
 			'localMedia.browse.filesystemRoot' => '根目錄',
 			'localMedia.browse.folderUnreadable' => '這個資料夾讀不動',

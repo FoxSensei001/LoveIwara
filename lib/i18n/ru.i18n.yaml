@@ -156,6 +156,7 @@ common:
   selectedRecords: 'Выбрано записей: ${num}'
   cancelSelectAll: Снять выбор
   selectAll: Выбрать все
+  invertSelection: Инвертировать выбор
   exitEditMode: Выйти из режима выбора
   areYouSureYouWantToDeleteSelectedItems: 'Удалить выбранные элементы (${num})?'
   searchHistoryRecords: Поиск в истории...
