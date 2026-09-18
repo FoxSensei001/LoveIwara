@@ -1854,6 +1854,18 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                               ),
                                             ),
                                             fit: BoxFit.contain,
+                                            // ⛔ 本地文件可能已被删掉/挪走（库里的
+                                            // 路径还在）。不接住的话 FileImage 的
+                                            // PathNotFoundException 会一路抛到全局
+                                            // FlutterError.onError，这一页也只剩黑屏。
+                                            errorBuilder: (_, _, _) =>
+                                                const Center(
+                                                  child: Icon(
+                                                    Icons.broken_image_outlined,
+                                                    size: 64,
+                                                    color: Colors.white54,
+                                                  ),
+                                                ),
                                           )
                                         : ImageWidget(
                                             imageUrl: imageUrl,
