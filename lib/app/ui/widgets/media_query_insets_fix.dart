@@ -90,10 +90,24 @@ class RestoreRawMediaQueryInsets extends StatelessWidget {
 
   const RestoreRawMediaQueryInsets({super.key, required this.child});
 
+  /// ⛔ 只还原 **bottom**——[ApplyFixedMediaQueryInsets] 改动的也只有它。
+  ///
+  /// 以前是把整份 raw 数据换回来，可 raw 是在 app 最外层抓的，比桌面自绘标题栏
+  /// （`WindowTitleBarLayout` 往 padding.top 里塞的 26）还靠外：整份换回去等于把
+  /// 标题栏的顶部让位一起抹成 0，macOS 上大图页 / 视频页的顶栏钮就钻进红绿灯底下
+  /// （2026-09-18 用户报障）。
   @override
   Widget build(BuildContext context) {
     final rawScope = RawMediaQueryDataScope.maybeOf(context);
     if (rawScope == null) return child;
-    return MediaQuery(data: rawScope.rawData, child: child);
+    final current = MediaQuery.of(context);
+    return MediaQuery(
+      data: current.copyWith(
+        padding: current.padding.copyWith(
+          bottom: rawScope.rawData.padding.bottom,
+        ),
+      ),
+      child: child,
+    );
   }
 }
