@@ -9,6 +9,7 @@ import 'package:i_iwara/app/models/block_rule.model.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 本地内容屏蔽服务。
@@ -238,7 +239,8 @@ class ContentBlockService extends GetxService {
       'rules': rules.map((r) => r.toJson()).toList(),
     };
     final jsonString = const JsonEncoder.withIndent('  ').convert(data);
-    final suggestedName = '${CommonConstants.applicationName}_block_rules.json';
+    final suggestedName =
+        '${CommonConstants.applicationName}_block_rules_${CommonUtils.exportFileTimestamp()}.json';
 
     if (Platform.isAndroid || Platform.isIOS) {
       final bytes = Uint8List.fromList(utf8.encode(jsonString));

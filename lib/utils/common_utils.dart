@@ -23,6 +23,15 @@ import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/services/config_service.dart';
 
 class CommonUtils {
+  /// 导出文件名用的本地时间戳后缀（`20260918_153012`）。同名导出多次时系统
+  /// 会一路追加「(1)(2)…」，带上时间就既不撞名、也看得出是哪一次备份。
+  static String exportFileTimestamp([DateTime? now]) {
+    final t = now ?? DateTime.now();
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${t.year}${two(t.month)}${two(t.day)}_'
+        '${two(t.hour)}${two(t.minute)}${two(t.second)}';
+  }
+
   /// 规范化 URL，确保有正确的协议前缀
   /// 如果 URL 已经包含 http:// 或 https://，则直接返回
   /// 如果 URL 以 // 开头，则添加 https: 前缀
@@ -493,9 +502,8 @@ class CommonUtils {
 
     // 东亚按「千 / 万 / 亿」四位一级分档，其余语言按三位一级的 k/M/B。
     // 日语和韩语原先落在 k/M/B 分支里，对当地用户是读不惯的。
-    final eastAsianUnits = _eastAsianNumberUnits[
-      slang.LocaleSettings.currentLocale.languageCode
-    ];
+    final eastAsianUnits =
+        _eastAsianNumberUnits[slang.LocaleSettings.currentLocale.languageCode];
     if (eastAsianUnits != null) {
       final (thousand, tenThousand, hundredMillion) = eastAsianUnits;
       if (num < 1000) {
@@ -698,16 +706,18 @@ class CommonUtils {
       slang.LocaleSettings.setPluralResolver(
         locale: locale,
         cardinalResolver:
-            (num n,
-                    {String? zero,
-                    String? one,
-                    String? two,
-                    String? few,
-                    String? many,
-                    String? other}) =>
+            (
+              num n, {
+              String? zero,
+              String? one,
+              String? two,
+              String? few,
+              String? many,
+              String? other,
+            }) =>
                 // 这几门语言的词条只提供 other 形态；万一缺了，退回 one / 空串，
                 // 也绝不抛异常（宁可显示得糙一点，也不能把界面炸掉）。
-                other ?? one ?? many ?? ''
+                other ?? one ?? many ?? '',
       );
     }
   }
@@ -841,8 +851,8 @@ class CommonUtils {
   ///
   /// 未登记的语言回退 en 的 ISO 写法，不会出现「未知语言给空串」。
   static String formatDate(DateTime start) {
-    final pattern = _datePatterns[
-            slang.LocaleSettings.currentLocale.languageTag] ??
+    final pattern =
+        _datePatterns[slang.LocaleSettings.currentLocale.languageTag] ??
         _datePatterns['en']!;
     // 先替换长标记，再替换单字符标记（`MM` 必须在 `M` 之前、`dd` 在 `d` 之前）。
     return pattern

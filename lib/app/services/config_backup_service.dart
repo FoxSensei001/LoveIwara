@@ -9,6 +9,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/overlay_tracker.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:path_provider/path_provider.dart';
@@ -72,7 +73,7 @@ class ConfigBackupService extends GetxService {
   }
 
   /// 导出数据库中所有用户配置表的数据（排除下载记录表），
-  /// 并将其保存成 JSON 文件（默认文件名：i_iwara_backup.json）。
+  /// 并将其保存成 JSON 文件（默认文件名：i_iwara_backup_<时间戳>.json）。
   ///
   /// [includeSensitive] 为 true 时才会把 API 密钥 / 会话令牌 / 代理地址等敏感配置写入备份，
   /// 默认 false。
@@ -136,12 +137,13 @@ class ConfigBackupService extends GetxService {
 
       // 后台 isolate 中进行 JSON 序列化
       final jsonString = await compute(_encodeData, exportedData);
+      final fileName =
+          '${CommonConstants.applicationName}_backup_${CommonUtils.exportFileTimestamp()}.json';
 
       if (Platform.isAndroid || Platform.isIOS) {
         // 移动平台：使用 try-finally 确保临时文件被删除
         final tempDir = await getTemporaryDirectory();
-        final tempFilePath =
-            '${tempDir.path}/${CommonConstants.applicationName}_backup.json';
+        final tempFilePath = '${tempDir.path}/$fileName';
         final tempFile = File(tempFilePath);
         try {
           await tempFile.writeAsString(jsonString);
@@ -171,7 +173,7 @@ class ConfigBackupService extends GetxService {
           acceptedTypeGroups: [
             const fs.XTypeGroup(label: 'JSON', extensions: ['json']),
           ],
-          suggestedName: '${CommonConstants.applicationName}_backup.json',
+          suggestedName: fileName,
         );
         if (fileSaveLocation == null) {
           showAppToast(

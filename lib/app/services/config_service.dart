@@ -19,6 +19,36 @@ class ConfigService extends GetxService {
 
   late final CommonDatabase _db;
 
+  /// 最近任务缩略图是否已由系统层面遮住（安卓 13+ 的
+  /// `setRecentsScreenshotEnabled(false)`，或隐私模式开着时的 `FLAG_SECURE`）。
+  ///
+  /// 为真时安卓上的后台遮罩就不必抢在 `inactive` 挂出来——`inactive` 在安卓上
+  /// 并不等于离开前台：下拉通知栏、小窗/分屏失焦、画中画都会触发，抢在那里挂
+  /// 遮罩就是 #123「什么都看不了」。见 `my_app.dart` 的 didChangeAppLifecycleState。
+  bool get recentsThumbnailProtectedNatively =>
+      _recentsHiddenNatively ||
+      (GetPlatform.isAndroid &&
+          settings[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true);
+  bool _recentsHiddenNatively = false;
+
+  /// 隐私模式或应用锁任一开着，就让系统别给最近任务拍真实画面。
+  Future<void> _syncRecentsPrivacy() async {
+    if (!GetPlatform.isAndroid) return;
+    final protect =
+        settings[ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE]!.value == true ||
+        settings[ConfigKey.APP_LOCK_ENABLED]!.value == true;
+    try {
+      final handled = await screenshotChannel.invokeMethod<bool>(
+        'setRecentsPrivacy',
+        {'enabled': protect},
+      );
+      _recentsHiddenNatively = protect && handled == true;
+    } catch (e) {
+      _recentsHiddenNatively = false;
+      LogUtils.w('同步最近任务缩略图隐私失败: $e', 'ConfigService');
+    }
+  }
+
   final Rx<Sort> _currentTranslationSort =
       CommonConstants.translationSorts.first.obs;
   Sort get currentTranslationSort => _currentTranslationSort.value;
@@ -43,6 +73,7 @@ class ConfigService extends GetxService {
         GetPlatform.isAndroid) {
       await screenshotChannel.invokeMethod('preventScreenshot');
     }
+    await _syncRecentsPrivacy();
 
     // 初始化翻译语言
     String savedLanguage = settings[ConfigKey.DEFAULT_LANGUAGE_KEY]!.value;
@@ -230,6 +261,10 @@ class ConfigService extends GetxService {
       } else {
         await screenshotChannel.invokeMethod('allowScreenshot');
       }
+    }
+    if (key == ConfigKey.ACTIVE_BACKGROUND_PRIVACY_MODE ||
+        key == ConfigKey.APP_LOCK_ENABLED) {
+      await _syncRecentsPrivacy();
     }
 
     // 处理翻译方式互斥逻辑

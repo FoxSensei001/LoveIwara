@@ -11,6 +11,7 @@ import android.content.ComponentName
 import android.database.ContentObserver
 import android.database.Cursor
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Build
@@ -121,6 +122,17 @@ class MainActivity : FlutterFragmentActivity() {
                         "allowScreenshot" -> {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                             result.success(null)
+                        }
+                        // 只遮最近任务缩略图、不拦截图（安卓 13+）。返回 false 表示本机
+                        // 不支持，Dart 侧会退回旧的「inactive 就挂遮罩」。
+                        "setRecentsPrivacy" -> {
+                            val enabled = call.argument<Boolean>("enabled") ?: false
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                setRecentsScreenshotEnabled(!enabled)
+                                result.success(true)
+                            } else {
+                                result.success(false)
+                            }
                         }
                         else -> {
                             result.notImplemented()
@@ -237,7 +249,46 @@ class MainActivity : FlutterFragmentActivity() {
                     registerMediaStoreObserver()
                     result.success(null)
                 }
+                "scanFiles" -> scanFilesIntoMediaStore(call, result)
                 else -> result.notImplemented()
+            }
+        }
+    }
+
+    /**
+     * 让 MediaStore 登记（或移除）一批路径。下载是按绝对路径直接写盘的，
+     * 不主动扫的话其他应用的媒体选择器看不到新文件（#124）。
+     * 目录会递归展开成文件；不存在的路径照样交给扫描器，系统据此删掉旧索引。
+     */
+    private fun scanFilesIntoMediaStore(call: MethodCall, result: MethodChannel.Result) {
+        val paths = call.argument<List<String>>("paths").orEmpty()
+        if (paths.isEmpty()) {
+            result.success(null)
+            return
+        }
+        mainScope.launch {
+            try {
+                val files = withContext(Dispatchers.IO) {
+                    paths.flatMap { path ->
+                        val file = File(path)
+                        if (file.isDirectory) {
+                            file.walkTopDown().filter { it.isFile }.map { it.absolutePath }.toList()
+                        } else {
+                            listOf(path)
+                        }
+                    }
+                }
+                if (files.isNotEmpty()) {
+                    MediaScannerConnection.scanFile(
+                            applicationContext,
+                            files.toTypedArray(),
+                            null,
+                            null
+                    )
+                }
+                result.success(null)
+            } catch (e: Exception) {
+                result.error("SCAN_FAILED", e.message, null)
             }
         }
     }

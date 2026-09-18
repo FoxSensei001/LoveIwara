@@ -489,6 +489,12 @@ class _MyAppLayoutState extends State<MyAppLayout> with WidgetsBindingObserver {
         break;
       case AppLifecycleState.inactive:
         _appLockService.onBackgrounded(state);
+        // 安卓的 inactive 不是离开前台（下拉通知栏、小窗失焦、画中画都会进来），
+        // 缩略图已由系统遮住时就等 hidden 再挂，否则前台用着就被整屏盖住（#123）。
+        if (GetPlatform.isAndroid &&
+            _configService.recentsThumbnailProtectedNatively) {
+          break;
+        }
         if (activeBackgroundPrivacyMode &&
             !_appLockService.isAuthenticating.value &&
             !_showPrivacyOverlay) {

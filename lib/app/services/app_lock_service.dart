@@ -295,6 +295,10 @@ class AppLockService extends GetxService {
     // inactive——那不是真进后台，超时不该从这里起算（否则「立即锁定」档一
     // 弹认证框就注定要锁）。paused / hidden 是真的离开了前台，认证期间照记。
     if (isAuthenticating.value && state == AppLifecycleState.inactive) return;
+    // 手机上 inactive 只是失焦：下拉通知栏/控制中心、小窗失焦、画中画都会进来，
+    // 从这里起算的话「立即锁定」档下拉一次通知栏回来就被锁（#123）。真离开
+    // 前台必然还会经过 hidden / paused，从那里起算只差几毫秒。
+    if (state == AppLifecycleState.inactive && GetPlatform.isMobile) return;
     _backgroundedAt ??= DateTime.now();
   }
 
@@ -349,9 +353,7 @@ class AppLockService extends GetxService {
     // 字段缺失 / 类型不对 / base64 解不开 / 长度越界 —— 数据在，只是坏了。
     // 当作「没有凭据」会把应用锁静默关掉，一律算读失败。
     if (salt is! String || hash is! String || iterations is! int) {
-      return const SecureReadResult<Map<String, Object>>.failed(
-        '凭据字段缺失或类型不符',
-      );
+      return const SecureReadResult<Map<String, Object>>.failed('凭据字段缺失或类型不符');
     }
     try {
       final saltBytes = base64Decode(salt);

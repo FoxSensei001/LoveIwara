@@ -16,6 +16,7 @@ import 'package:i_iwara/app/services/download/download_state_log.dart';
 import 'package:i_iwara/app/services/download/download_task_store.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
+import 'package:i_iwara/app/services/media_scan_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/message_service.dart';
@@ -1048,6 +1049,15 @@ class DownloadService extends GetxService {
         isDeleteSuccess = true;
       }
 
+      // 删掉以后要让媒体库移除索引；目录删完就列不出里面有什么了，先列。
+      // 上面判定为不安全而跳过删除时（isDeleteSuccess 已为真）不列：那可能是
+      // 整个下载根目录。
+      final removedMediaPaths = isDeleteSuccess
+          ? const <String>[]
+          : deleteTargetType == FileSystemEntityType.directory
+          ? MediaScanService.listFilesForRemoval(task.savePath)
+          : [task.savePath];
+
       while (!isDeleteSuccess && retryCount < maxRetries) {
         final fileOrDir = FileSystemEntity.typeSync(task.savePath);
 
@@ -1129,6 +1139,8 @@ class DownloadService extends GetxService {
         }
         return false;
       }
+
+      unawaited(MediaScanService.scan(removedMediaPaths));
 
       // 从数据库删除任务记录
       await _repository.deleteTask(taskId);
@@ -1820,6 +1832,9 @@ class DownloadService extends GetxService {
     if (task.status == DownloadStatus.completed &&
         Get.isRegistered<DownloadsLibrarySyncService>()) {
       unawaited(DownloadsLibrarySyncService.to.syncTask(task));
+    }
+    if (task.status == DownloadStatus.completed) {
+      unawaited(MediaScanService.scan([task.savePath]));
     }
 
     // 通知任务状态变更
@@ -2609,6 +2624,11 @@ class DownloadService extends GetxService {
 
       // 图库主完成/部分失败路径不经过 _updateTaskStatus，需显式派发终态通知。
       await _dispatchTerminalNotification(task);
+      // 部分失败时已落盘的图片同样该让其他应用看得到。
+      if (task.status == DownloadStatus.completed ||
+          task.status == DownloadStatus.failed) {
+        unawaited(MediaScanService.scan([task.savePath]));
+      }
 
       // 等待一段时间后清理进度状态
       await Future.delayed(const Duration(seconds: 1));
