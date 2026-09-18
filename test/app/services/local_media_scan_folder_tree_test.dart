@@ -20,94 +20,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
+import 'package:i_iwara/db/migration_manager.dart';
+import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-/// 只建被扫描链路碰到的列/表，不复刻生产 DDL（那是迁移的事）。
-CommonDatabase openTestDb() {
+/// 跑真实迁移建库，而不是手抄 DDL —— 手抄的表结构会随迁移演进悄悄过期
+/// （v41 的 local_media_hidden_folders 就是这么漏掉的）。
+/// v7 依赖平台存储，跟 webdav_folder_scanner_test 一样跳过。
+Future<CommonDatabase> openTestDb() async {
   final db = sqlite3.openInMemory();
-  db.execute('''
-    CREATE TABLE local_media_sources(
-      id TEXT PRIMARY KEY,
-      kind TEXT NOT NULL,
-      display_name TEXT NOT NULL,
-      path TEXT,
-      uri TEXT,
-      media_kinds TEXT NOT NULL DEFAULT 'both',
-      recursive INTEGER NOT NULL DEFAULT 1,
-      auto_rescan INTEGER NOT NULL DEFAULT 1,
-      sort_order INTEGER NOT NULL DEFAULT 0,
-      scan_state TEXT NOT NULL DEFAULT 'idle',
-      scan_cursor TEXT,
-      offline INTEGER NOT NULL DEFAULT 0,
-      last_scan_at INTEGER,
-      item_count INTEGER NOT NULL DEFAULT 0,
-      created_at INTEGER NOT NULL
-    );
-  ''');
-  db.execute('''
-    CREATE TABLE local_media_items(
-      id TEXT PRIMARY KEY,
-      source_id TEXT NOT NULL,
-      path_hash TEXT NOT NULL,
-      path TEXT NOT NULL,
-      kind TEXT NOT NULL,
-      name TEXT NOT NULL,
-      sort_name TEXT NOT NULL,
-      ext TEXT,
-      size_bytes INTEGER,
-      modified_at INTEGER,
-      duration_ms INTEGER,
-      width INTEGER,
-      height INTEGER,
-      thumb_path TEXT,
-      sidecar_image_path TEXT,
-      vr_format_json TEXT,
-      folder_path TEXT,
-      category_id TEXT,
-      download_task_id TEXT,
-      last_played_at INTEGER,
-      media_store_uri TEXT,
-      favorited_at INTEGER,
-      fps REAL,
-      fps_probed_at INTEGER,
-      meta_probed_at INTEGER,
-      thumb_is_custom INTEGER NOT NULL DEFAULT 0,
-      added_at INTEGER NOT NULL,
-      missing INTEGER NOT NULL DEFAULT 0,
-      UNIQUE(source_id, path_hash)
-    );
-  ''');
-  db.execute('''
-    CREATE TABLE local_media_folders(
-      id TEXT PRIMARY KEY,
-      source_id TEXT NOT NULL,
-      rel_path TEXT NOT NULL,
-      parent_rel_path TEXT,
-      name TEXT NOT NULL,
-      sort_name TEXT NOT NULL,
-      folder_path TEXT,
-      video_count INTEGER NOT NULL DEFAULT 0,
-      image_count INTEGER NOT NULL DEFAULT 0,
-      child_folder_count INTEGER NOT NULL DEFAULT 0,
-      cover_path TEXT,
-      modified_at INTEGER,
-      missing INTEGER NOT NULL DEFAULT 0,
-      probed_at INTEGER,
-      cover_pinned INTEGER NOT NULL DEFAULT 0,
-      cover_borrowed INTEGER NOT NULL DEFAULT 0,
-      UNIQUE(source_id, rel_path)
-    );
-  ''');
-  db.execute('''
-    CREATE TABLE local_media_progress(
-      item_id TEXT PRIMARY KEY,
-      position_ms INTEGER NOT NULL,
-      duration_ms INTEGER,
-      completed INTEGER NOT NULL DEFAULT 0,
-      updated_at INTEGER NOT NULL
-    );
-  ''');
+  await MigrationManager(
+    migrations: MigrationManager.defaultMigrations()
+        .where((m) => m.version != 7)
+        .toList(),
+  ).runMigrations(db);
   return db;
 }
 
@@ -120,6 +47,11 @@ List<String> visibleChildRelPaths(LocalMediaRepository repo, String sourceId) {
 }
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await LogUtils.init(enablePersistence: false);
+  });
+
   test('多层嵌套子目录全部入库，且根目录下能查到它们', () async {
     final root = Directory.systemTemp.createTempSync('lm_tree_');
     try {
@@ -133,7 +65,7 @@ void main() {
       File('${root.path}/Series A/Season 1/s1e1.mp4').writeAsStringSync('x');
       File('${root.path}/Series B/b1.mkv').writeAsStringSync('x');
 
-      final repo = LocalMediaRepository(openTestDb());
+      final repo = LocalMediaRepository(await openTestDb());
       final source = LocalMediaSource(
         id: 'src-tree',
         kind: LocalMediaSourceKind.directory,
@@ -184,7 +116,7 @@ void main() {
       // 这与 Android 上 scoped storage 拦住子目录 list 的效果是同一条代码路径。
       Process.runSync('chmod', ['000', blocked.path]);
 
-      final repo = LocalMediaRepository(openTestDb());
+      final repo = LocalMediaRepository(await openTestDb());
       final source = LocalMediaSource(
         id: 'src-denied',
         kind: LocalMediaSourceKind.directory,
@@ -204,7 +136,9 @@ void main() {
       // 占位行的语义必须是「不知道」而不是「探过且是空的」：probed_at 保持 NULL，
       // 用户点进去才会再触发一轮目录级扫描去重试。
       expect(
-        repo.getFolder(sourceId: source.id, relPath: 'Blocked Series')?.probedAt,
+        repo
+            .getFolder(sourceId: source.id, relPath: 'Blocked Series')
+            ?.probedAt,
         isNull,
       );
       // 能读的那一支照旧。
@@ -230,7 +164,7 @@ void main() {
       File('${episode.path}/ep.png').writeAsStringSync('x');
       File('${episode.path}/info.json').writeAsStringSync('{}');
 
-      final db = openTestDb();
+      final db = await openTestDb();
       final repo = LocalMediaRepository(db);
       final source = LocalMediaSource(
         id: 'src-nomedia',
@@ -252,10 +186,7 @@ void main() {
 
       expect(
         repo
-            .childFolders(
-              sourceId: source.id,
-              parentRelPath: 'hanime_download',
-            )
+            .childFolders(sourceId: source.id, parentRelPath: 'hanime_download')
             .map((folder) => folder.relPath),
         contains('hanime_download/407963'),
         reason: '父目录的懒扫描收敛不能把这一层判成 missing',
