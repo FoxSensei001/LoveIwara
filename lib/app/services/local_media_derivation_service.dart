@@ -1,13 +1,20 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
+import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:media_kit/generated/libmpv/bindings.dart' as mpv_bindings;
 import 'package:media_kit/media_kit.dart';
+// ignore: implementation_imports
+import 'package:media_kit/src/player/native/core/native_library.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -674,6 +681,8 @@ class LocalMediaDerivationService extends GetxService {
       await _configureHeadlessPlayer(
         player,
         maxFrameDimension: _thumbnailFilterMaxDimension,
+        // 自动封面只要「大概那个位置的一帧」，落在关键帧上就够了。
+        preciseSeek: false,
       );
       await player
           .open(Media(playablePath), play: false)
@@ -863,13 +872,25 @@ class LocalMediaDerivationService extends GetxService {
   ///
   /// ⛔ 滤镜挂不上（libmpv 构建里没有 lavfi scale）时 mpv 会拒绝这个属性，读回来
   /// 是空的；那就退回原来的全尺寸抓帧，封面照样出，只是峰值回到老样子。
+  ///
+  /// # ⛔ 自动封面必须关掉精确 seek（[preciseSeek] = false）
+  ///
+  /// media_kit 默认 `hr-seek=yes` + `hr-seek-framedrop=no`：落点不在关键帧上时，mpv 要
+  /// 从前一个关键帧起把中间每一帧都**软解**一遍。外部下载器产出的片子关键帧间隔动辄
+  /// 5~10 秒，4K 片子一次 seek 就是几百帧软解，三个候选各等满 8 秒超时——这正是
+  /// 「点进目录后整个应用卡很久，封面过了很久才出来」（2026-09-18 用户报障）。
+  /// 关键帧 seek 只解一帧，封面落在目标附近的关键帧上，对封面毫无影响。
+  ///
+  /// 挑封面弹窗保留精确 seek：用户拖到哪一格就该看到哪一格。
   static Future<void> _configureHeadlessPlayer(
     Player player, {
     required int maxFrameDimension,
+    bool preciseSeek = true,
   }) async {
     final platform = player.platform;
     if (platform is! NativePlayer) return;
     await platform.setProperty('vid', 'auto');
+    if (!preciseSeek) await platform.setProperty('hr-seek', 'no');
     // ⛔ 打开视频轨的同时必须关掉音频轨。抓帧路径在 `screenshot` 拿不到帧时
     // 会退回 `play()` 硬播一小段，而这里是**无头**的：用户可能正在听别的
     // 东西，那一小段会真的外放出来，并抢走系统音频焦点（安卓上表现为别家
@@ -1067,7 +1088,7 @@ class LocalMediaDerivationService extends GetxService {
 
     String? raw;
     try {
-      raw = await platform.getProperty('container-fps');
+      raw = await _readPropertyOffUiIsolate(platform, 'container-fps');
     } catch (_) {}
     final value = double.tryParse((raw ?? '').trim());
     if (value == null || !value.isFinite || value <= 0) {
@@ -1146,7 +1167,8 @@ class LocalMediaDerivationService extends GetxService {
   ///
   /// # ⛔ 不能 seek 完睡一个固定时长就截（「封面全黑」的真因，2026-09-14 真机取证）
   ///
-  /// 播放器开着 `hr-seek=yes`（精确 seek）：落点不在关键帧上时，mpv 要从前一个关键帧开始
+  /// 挑封面弹窗开着 `hr-seek=yes`（精确 seek；自动封面已关，见 [_configureHeadlessPlayer]）：
+  /// 落点不在关键帧上时，mpv 要从前一个关键帧开始
   /// 把中间每一帧都解一遍。报障那条片子是 1440p60、关键帧间隔 ~4 秒——一次 seek 最多要解
   /// 240 帧，而头显上这里只给了 2 个解码线程，要好几秒。以前固定等 220~250ms 就截，截到的
   /// 是**开播时解出的第 0 帧**（片头黑场），拖滑轨也一样：每一次 seek 都没来得及落地。
@@ -1156,6 +1178,15 @@ class LocalMediaDerivationService extends GetxService {
   ///
   /// seek 命令返回那一刻它就是 `yes`，等目标帧解出、播放重新就绪才回 `no`（mpv IPC 实测）。
   /// ⛔ 别拿 `time-pos` 判：seek 期间它直接报目标时间，看着像「已经到了」，实际一帧都还没解。
+  ///
+  /// # ⛔ 轮询必须在后台 isolate 里做
+  ///
+  /// `NativePlayer.getProperty` 是同步的 `mpv_get_property_string` FFI 调用，要拿 mpv 的
+  /// core 锁——而 seek 期间 core 线程正忙着解帧，这一下会一直等到它让出来。以前在 UI
+  /// isolate 上每 40ms 读一次，等于把 UI 线程和 mpv 的软解绑在一起：整个应用跟着卡，
+  /// 一直卡到封面出来（2026-09-18 用户报障，见 [_configureHeadlessPlayer]）。
+  /// 现在每一片最多 [_seekPollSlice] 丢进后台 isolate 去等，片与片之间回主 isolate 看一眼
+  /// [cancelled] 与总超时。
   static Future<bool> _seekAndSettle(
     Player player,
     Duration at, {
@@ -1164,29 +1195,53 @@ class LocalMediaDerivationService extends GetxService {
   }) async {
     await player.seek(at).timeout(_nativeCallTimeout);
     final platform = player.platform;
-    if (platform is! NativePlayer) {
+    if (platform is! NativePlayer || platform.ctx == nullptr) {
       await Future<void>.delayed(const Duration(milliseconds: 250));
       return true;
     }
+    final ctx = platform.ctx.address;
+    final String lib;
+    try {
+      lib = NativeLibrary.path;
+    } catch (_) {
+      return false;
+    }
     final deadline = DateTime.now().add(timeout);
-    while (DateTime.now().isBefore(deadline)) {
-      await Future<void>.delayed(const Duration(milliseconds: 40));
+    while (true) {
       // 弹窗关了：别让 close() 干等这一整段超时，它要等在飞的抓帧落地才敢 dispose。
       if (cancelled?.call() ?? false) return false;
-      String seeking;
+      final remainingMs = deadline.difference(DateTime.now()).inMilliseconds;
+      if (remainingMs <= 0) return false;
+      final sliceMs = math.min(_seekPollSlice.inMilliseconds, remainingMs);
+      final bool settled;
       try {
-        seeking = await platform.getProperty('seeking');
+        settled = await Isolate.run(
+          () => _pollSeekingSlice(ctx: ctx, lib: lib, sliceMs: sliceMs),
+        );
       } catch (_) {
         // 读不到属性（播放器正被释放）：别空转到超时。
         return false;
       }
-      if (seeking != 'yes') {
+      if (settled) {
         // 帧已进 VO，再让一拍给截图那条路拿到它。
         await Future<void>.delayed(const Duration(milliseconds: 30));
         return true;
       }
     }
-    return false;
+  }
+
+  /// 一片后台轮询的上限：[_seekAndSettle] 回主 isolate 查取消的最长间隔。
+  static const Duration _seekPollSlice = Duration(milliseconds: 400);
+
+  /// 在后台 isolate 里同步读一次 mpv 属性，理由见 [_seekAndSettle]。
+  static Future<String> _readPropertyOffUiIsolate(
+    NativePlayer platform,
+    String name,
+  ) async {
+    if (platform.ctx == nullptr) return '';
+    final ctx = platform.ctx.address;
+    final lib = NativeLibrary.path;
+    return Isolate.run(() => _readMpvProperty(ctx: ctx, lib: lib, name: name));
   }
 
   /// 这一帧是不是几乎全黑（片头黑场、转场、没解出来的空帧）。
@@ -1662,5 +1717,57 @@ class LocalCoverPickerSession {
     try {
       await _player.dispose();
     } catch (_) {}
+  }
+}
+
+// ── 后台 isolate 里的 mpv 读属性 ─────────────────────────────────────────────
+//
+// 做法与 media_kit 自己的 `screenshot`（`real.dart` 的 `_screenshot`）一致：把
+// `mpv_handle` 的地址和 libmpv 路径带过去，在那边重新打开库、按地址还原句柄。
+// ⛔ 调用方必须保证这一片跑完之前 Player 不会 dispose——派生与挑封面弹窗都是
+// 先 await 完 [LocalMediaDerivationService._seekAndSettle] 才走到 dispose。
+
+/// 每 40ms 读一次 `seeking`，直到它不再是 `yes`（返回 true）或用满 [sliceMs]
+/// （返回 false）。
+bool _pollSeekingSlice({
+  required int ctx,
+  required String lib,
+  required int sliceMs,
+}) {
+  final mpv = mpv_bindings.MPV(DynamicLibrary.open(lib));
+  final handle = Pointer<mpv_bindings.mpv_handle>.fromAddress(ctx);
+  final stopwatch = Stopwatch()..start();
+  while (true) {
+    sleep(const Duration(milliseconds: 40));
+    // 与 `NativePlayer.getProperty` 同口径：读不到＝空串＝不在 seek。
+    if (_getMpvPropertyString(mpv, handle, 'seeking') != 'yes') return true;
+    if (stopwatch.elapsedMilliseconds >= sliceMs) return false;
+  }
+}
+
+String _readMpvProperty({
+  required int ctx,
+  required String lib,
+  required String name,
+}) => _getMpvPropertyString(
+  mpv_bindings.MPV(DynamicLibrary.open(lib)),
+  Pointer<mpv_bindings.mpv_handle>.fromAddress(ctx),
+  name,
+);
+
+String _getMpvPropertyString(
+  mpv_bindings.MPV mpv,
+  Pointer<mpv_bindings.mpv_handle> handle,
+  String name,
+) {
+  final nativeName = name.toNativeUtf8();
+  try {
+    final value = mpv.mpv_get_property_string(handle, nativeName.cast());
+    if (value == nullptr) return '';
+    final result = value.cast<Utf8>().toDartString();
+    mpv.mpv_free(value.cast());
+    return result;
+  } finally {
+    calloc.free(nativeName);
   }
 }

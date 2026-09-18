@@ -267,6 +267,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       // ⛔ 不清的话，从一个全是视频的目录点进一个全是图片的子目录，用户会撞上
       // 一屏「没有内容」——而筛选胶囊上那一段"视频"此刻连出现的理由都没有。
       _filter = _BrowseFilter.all;
+      // 上一层读条目时的口径，对这一层不作数；不清的话下面 [_loadInitialData]
+      // 会拿它和新一层的构成比，平白先按半截数据重读一次条目。
+      _loadedFilter = null;
       _toolRowLatched = false;
       // ⛔ 计数必须跟着清零。[_loadInitialData] 会在 [_loadItems] **之前**跑
       // `_recomputeVisibleChildren` → `_updateToolRowLatch`，那一刻这几个数还是
@@ -389,6 +392,12 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
               .where((row) => row.title.toLowerCase().contains(needle))
               .toList();
     _updateToolRowLatch();
+    // 子目录 / 图库这一半变了，可能让这一层从「只有一类」变成「混着几类」或反过来
+    // ——条目那一半得跟着换口径（整页 ↔ 预览）。⛔ 只在真的变了时重读：这里在
+    // 扫描期间随 folderRevision 频繁进来，逐次重查条目就是逐次同步读库。
+    if (_loadedFilter != null && _effectiveFilter != _loadedFilter) {
+      _loadItems(keepLoaded: true);
+    }
   }
 
   /// 重新从库里读一遍这一层（目录 + 条目），滚动位置不动。
@@ -468,7 +477,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       // 「这个文件夹是空的」——可这一层还有两百个子文件夹。
       if (!_filterStillExists) _filter = _BrowseFilter.all;
 
-      switch (_filter) {
+      final effective = _effectiveFilter;
+      _loadedFilter = effective;
+      switch (effective) {
         case _BrowseFilter.all:
           // 预览：两类各读一小撮，不翻页。
           _replace(
@@ -510,6 +521,31 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       _loading = false;
     }
   }
+
+  /// 这一层**实际**按哪一档来读、来画。
+  ///
+  /// 停在「全部」、而这一层只有一类东西（只有视频 / 只有子文件夹 / 只有图库…）时，
+  /// 预览就没有意义了：两行之后挂一条「查看全部」，逼用户多点一下才看得到其余的——
+  /// 可这一层根本没有别的东西要让位。这时直接当成那一档：完整列表、可翻页。
+  ///
+  /// ⛔ 只改读法与画法，**不改 [_filter]**：这一层后来又多出第二类东西（扫描落批、
+  /// 图库异步读回来）时，要自动回到预览，而不是被钉在某一档上。筛选胶囊此时本来
+  /// 就不出现（只有「全部」+ 一段，见 build 里的 `showSegments`）。
+  /// 口径与 [_segments] 一致：看不带搜索词的总数。
+  _BrowseFilter get _effectiveFilter {
+    if (_filter != _BrowseFilter.all) return _filter;
+    final present = <_BrowseFilter>[
+      if (_probedChildren.isNotEmpty) _BrowseFilter.folders,
+      if (_galleries.isNotEmpty) _BrowseFilter.galleries,
+      if (_videoTotal > 0) _BrowseFilter.videos,
+      if (_imageTotal > 0) _BrowseFilter.images,
+    ];
+    return present.length == 1 ? present.single : _BrowseFilter.all;
+  }
+
+  /// [_loadItems] 上一次是按哪一档读的。与 [_effectiveFilter] 对不上＝这一层的构成
+  /// 变了（多出/少了一类），条目得按新口径重读，见 [_recomputeVisibleChildren]。
+  _BrowseFilter? _loadedFilter;
 
   /// 当前这一档筛选在这一层还有没有对应的东西。
   ///
@@ -604,7 +640,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// 翻下一页。**只有**视频档与图片档有下一页可翻（见 [_loadItems] 的注释）。
   void _loadMore() {
     if (_loading || _exhausted) return;
-    final kind = switch (_filter) {
+    final kind = switch (_effectiveFilter) {
       _BrowseFilter.videos => LocalMediaItemKind.video,
       _BrowseFilter.images => LocalMediaItemKind.image,
       _ => null,
@@ -850,9 +886,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
           final removedVideos = videosBefore - _videos.length;
           final removedImages = imagesBefore - _images.length;
           // 结果集缩短了：**正在翻页的那一类**删掉几条游标就退几条，否则下一页漏条。
-          final removed = _filter == _BrowseFilter.videos
+          final removed = _effectiveFilter == _BrowseFilter.videos
               ? removedVideos
-              : _filter == _BrowseFilter.images
+              : _effectiveFilter == _BrowseFilter.images
               ? removedImages
               : 0;
           _cursorOffset = math.max(0, _cursorOffset - removed);
@@ -865,7 +901,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
           // 删掉的正好是这一档的最后一条：这一档就此不存在了，得退回「全部」，
           // 否则筛选胶囊上那一段消失、整屏却报「这个文件夹是空的」（而这一层
           // 可能还有两百个子文件夹）。[_loadItems] 里那道归一化会接手。
-          if (!_filterStillExists) _loadItems();
+          if (!_filterStillExists || _effectiveFilter != _loadedFilter) {
+            _loadItems();
+          }
         });
       },
     );
@@ -1131,7 +1169,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// ⛔ 不能只问「四个列表是不是都空」：筛在"文件夹"档时视频列表**本来就**是空的
   /// （[_loadItems] 根本没去读），照那个问法，一个有 96 个视频的目录切到文件夹档
   /// 会因为"文件夹是空的"之外的三个也空而显示整屏空态。
-  bool get _currentViewIsEmpty => switch (_filter) {
+  bool get _currentViewIsEmpty => switch (_effectiveFilter) {
     _BrowseFilter.all =>
       _visibleChildren.isEmpty &&
           _videos.isEmpty &&
@@ -1227,6 +1265,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// 顶栏两行之间的缝。与 `local_home_page.dart` 的 `_headerRowGap` 同值——两页
   /// 的 header 上下相连（从根页点进来），缝不一样宽会在切换的那一下看出跳动。
   static const double _toolRowGap = 6;
+
+  /// 没有区块标题时，内容与 header 之间的缝。
+  static const double _contentTopGap = 12;
 
   /// 顶栏第二行：筛选胶囊 + 搜索。两者**互斥地占用这一行**。
   ///
@@ -1484,7 +1525,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
               //
               // 「全部」＝预览：四块都在，每块最多 [_previewRows] 行，末尾一条
               // 「查看全部」。选了某一类＝只有那一块，完整、可无限翻页。
-              final bool preview = _filter == _BrowseFilter.all;
+              final effective = _effectiveFilter;
+              final bool preview = effective == _BrowseFilter.all;
               final int previewCap = _previewRows * crossAxisCount;
               int shownOf(int length, bool visible) => visible
                   ? (preview ? math.min(length, previewCap) : length)
@@ -1492,19 +1534,19 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
 
               final int galleryShown = shownOf(
                 _visibleGalleries.length,
-                preview || _filter == _BrowseFilter.galleries,
+                preview || effective == _BrowseFilter.galleries,
               );
               final int folderShown = shownOf(
                 _visibleChildren.length,
-                preview || _filter == _BrowseFilter.folders,
+                preview || effective == _BrowseFilter.folders,
               );
               final int videoShown = shownOf(
                 _videos.length,
-                preview || _filter == _BrowseFilter.videos,
+                preview || effective == _BrowseFilter.videos,
               );
               final int imageShown = shownOf(
                 _images.length,
-                preview || _filter == _BrowseFilter.images,
+                preview || effective == _BrowseFilter.images,
               );
 
               // 区块标题只在预览视图里、且这一屏不止一块时出现：只有一块时标题
@@ -1521,7 +1563,14 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  SliverToBoxAdapter(child: SizedBox(height: headerExtent)),
+                  // 有区块标题时，缝由标题自己的上边距给；没有时（只有一类东西、
+                  // 或选了某一档）第一排卡片会直接贴着 header 的下沿——留一道与
+                  // `local_home_page.dart` 同宽的缝。
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: headerExtent + (showHeaders ? 0 : _contentTopGap),
+                    ),
+                  ),
                   // ⛔ 这里原先顶着一条 `LinearProgressIndicator(minHeight: 2)`。
                   // 已经删掉——「还在扫」现在画在 header 的标题胶囊上（见上面的
                   // `busy: _scanning`）。那条横线不属于任何东西、出现消失还是硬
