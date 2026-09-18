@@ -228,4 +228,8 @@
     <string name="xr_environment_sunset_hint">暖色餘暉鋪向海面，落日停在視野側方。</string>
     <string name="xr_environment_mist">水墨遠山</string>
     <string name="xr_environment_mist_hint">層疊山巒隱入薄霧，留一片安靜的遠景。</string>
+    <string name="xr_notice_nas_panel_closed">應用面板已關閉，NAS 影片無法繼續播放。重新開啟應用面板後再試</string>
+    <string name="xr_notice_nas_auth">NAS 需要重新登入，請在應用面板的「本機檔案」裡操作</string>
+    <string name="xr_notice_nas_cert">NAS 憑證已變更，請在應用面板的「本機檔案」裡重新確認</string>
+    <string name="xr_notice_nas_unreachable">連不上 NAS，檢查頭顯和 NAS 是否在同一網路</string>
 </resources>

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/utils/loopback_host.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/api_service.dart';
@@ -632,7 +633,12 @@ class MyHttpOverrides extends HttpOverrides {
     client.idleTimeout = const Duration(seconds: 90);
 
     if (proxy != null && proxy!.isNotEmpty) {
-      client.findProxy = (uri) => 'PROXY $proxy; DIRECT';
+      // ⛔ 本机回环必须直连：自定义 findProxy 不会像 findProxyFromEnvironment
+      // 那样自动放过 localhost。NAS 的本机网关（127.0.0.1）一旦被送进用户代理，
+      // 代理在另一台机器上时连的是**它自己的** 127.0.0.1，带 token 的地址还会
+      // 进代理日志。
+      client.findProxy = (uri) =>
+          isLoopbackHost(uri.host) ? 'DIRECT' : 'PROXY $proxy; DIRECT';
     }
 
     return client;

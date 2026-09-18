@@ -11,10 +11,17 @@ class ImageWidget extends StatefulWidget {
   final String imageUrl;
   final Map<String, String>? headers;
 
+  /// 磁盘缓存的键。不给就用 [imageUrl]。
+  ///
+  /// NAS 图片的地址是本机网关的回环地址，端口 / token 进程级、每次启动都可能变：
+  /// 按 URL 当键的话，每次启动都重新下载、缓存里还堆着同一张图的好几份。
+  final String? cacheKey;
+
   const ImageWidget({
     super.key,
     required this.imageUrl,
     this.headers,
+    this.cacheKey,
   });
 
   @override
@@ -28,6 +35,13 @@ class _ImageWidgetState extends State<ImageWidget> {
       ? '${widget.imageUrl}${widget.imageUrl.contains('?') ? '&' : '?'}r=$_reloadNonce'
       : widget.imageUrl;
 
+  /// 重试时键也要跟着换，否则缓存里那份失败的结果会被原样拿回来。
+  String? get _effectiveCacheKey {
+    final key = widget.cacheKey;
+    if (key == null) return null;
+    return _reloadNonce > 0 ? '$key#r$_reloadNonce' : key;
+  }
+
   int? _extractStatusCode(dynamic error) {
     final text = error.toString();
     final match = RegExp(r'statusCode:\s*(\d{3})').firstMatch(text);
@@ -39,7 +53,10 @@ class _ImageWidgetState extends State<ImageWidget> {
 
   Future<void> _retry() async {
     try {
-      await CachedNetworkImage.evictFromCache(widget.imageUrl);
+      await CachedNetworkImage.evictFromCache(
+        widget.imageUrl,
+        cacheKey: _effectiveCacheKey,
+      );
     } catch (_) {}
     if (mounted) {
       setState(() {
@@ -63,6 +80,7 @@ class _ImageWidgetState extends State<ImageWidget> {
   Widget build(BuildContext context) {
     return CachedNetworkImage(
       imageUrl: _effectiveUrl,
+      cacheKey: _effectiveCacheKey,
       httpHeaders: widget.headers,
       // 全图查看器保留清晰度，仅设较高磁盘缓存上限（4096px）防超大图全解码爆内存
       maxWidthDiskCache: 4096,

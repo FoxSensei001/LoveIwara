@@ -20,6 +20,7 @@ import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/ui/pages/home_page.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_wall.dart';
@@ -30,10 +31,13 @@ import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_wall.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_sort_controls.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_source_card.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_webdav_connect_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_search_input_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
@@ -91,6 +95,51 @@ class _LocalHomePageState extends State<LocalHomePage>
   static const int _tabDownloadedGalleries = 6;
   static const int _tabCount = 7;
 
+  // ── 全库搜索 ────────────────────────────────────────────────────────────
+  //
+  // 「找某一集」是回来的用户最常做的事，以前聚合栏里没有任何搜索入口，目录页的
+  // 搜索又只搜当前这一层——深处的文件除了一层层点进去就找不到。
+  // 搜索框占掉顶栏第二行（栏目切换那一行），关掉就回来；关键词交给条目墙过滤。
+  bool _searchOpen = false;
+  String _query = '';
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  Timer? _searchDebounce;
+
+  /// 这几栏是条目墙，吃得下关键词。
+  static bool _isWallTab(int index) =>
+      index == _tabFavoriteVideos ||
+      index == _tabAllVideos ||
+      index == _tabAllImages ||
+      index == _tabDownloadedVideos;
+
+  void _openSearch() {
+    setState(() => _searchOpen = true);
+    // 站在目录 / 常用 / 图库栏上：那几栏没有「文件名」可搜，先带去「所有视频」。
+    if (!_isWallTab(_tabController.index)) {
+      _tabController.animateTo(_tabAllVideos);
+    }
+    _searchFocus.requestFocus();
+  }
+
+  void _closeSearch() {
+    _searchDebounce?.cancel();
+    _searchController.clear();
+    _searchFocus.unfocus();
+    setState(() {
+      _searchOpen = false;
+      _query = '';
+    });
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      setState(() => _query = value.trim());
+    });
+  }
+
   /// 各栏排序在配置里的键（值形如 `modified:desc`）。
   ///
   /// ⛔ 这几个字符串是**持久化格式的一部分**，改名等于把所有老用户已经记下的
@@ -124,6 +173,9 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   static const List<LocalMediaSortField> _videoSortFields = [
     LocalMediaSortField.name,
+    // 「接着看」的入口：刚看过的排最前。字段、索引早就在（migration v29），
+    // 只是没摆进这张表——进度存着却没有地方能按它找回来。
+    LocalMediaSortField.played,
     LocalMediaSortField.modified,
     LocalMediaSortField.duration,
     LocalMediaSortField.size,
@@ -172,13 +224,14 @@ class _LocalHomePageState extends State<LocalHomePage>
   /// ⛔ 不要在 build 里现查：sqlite3 在主 isolate 上是同步的，卡片在滚动中反复
   /// build，现查就是每帧 N 次同步查询卡在光栅前面。来源本来就没几个，一次性
   /// 查完存着即可。
-  Map<String, ({String? cover, int videos, int images})> _sourceStats =
-      const {};
+  Map<String, ({String? cover, int videos, int images, int folders})>
+  _sourceStats = const {};
   int _downloadedGalleryCount = 0;
   bool _addingSource = false;
   bool _permissionDenied = false;
   String? _scanningSourceId;
   Worker? _scanWorker;
+  Worker? _queueWorker;
   Worker? _repoWorker;
   Worker? _folderWorker;
   List<String>? _cachedCandidates;
@@ -231,6 +284,12 @@ class _LocalHomePageState extends State<LocalHomePage>
         LocalMediaScanService.to.progress,
         _onScanProgress,
       );
+      _queueWorker = ever<Set<String>>(
+        LocalMediaScanService.to.queuedSourceIds,
+        (_) {
+          if (mounted) setState(() {});
+        },
+      );
     }
     // ⛔ 这里必须 debounce，不能用 ever。
     //
@@ -282,6 +341,14 @@ class _LocalHomePageState extends State<LocalHomePage>
     if (_addingSource && mounted) {
       setState(() => _addingSource = false);
     }
+    // 从「去设置开启」回来：权限给了就把横幅收掉，不必等用户再点一次添加。
+    if (_permissionDenied && Get.isRegistered<PermissionService>()) {
+      unawaited(
+        Get.find<PermissionService>().hasStoragePermission().then((granted) {
+          if (granted && mounted) setState(() => _permissionDenied = false);
+        }),
+      );
+    }
   }
 
   /// 请求「所有文件访问权限」，并且**不把自己压在一个可能永不完成的 future 上**。
@@ -312,10 +379,14 @@ class _LocalHomePageState extends State<LocalHomePage>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    _searchFocus.dispose();
     _tabController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _resumeSignal = null;
     _scanWorker?.dispose();
+    _queueWorker?.dispose();
     _repoWorker?.dispose();
     _folderWorker?.dispose();
     _scrollController.dispose();
@@ -338,7 +409,8 @@ class _LocalHomePageState extends State<LocalHomePage>
   void _reloadSources() {
     if (!mounted) return;
     final sources = _repository.getSources();
-    final stats = <String, ({String? cover, int videos, int images})>{};
+    final stats =
+        <String, ({String? cover, int videos, int images, int folders})>{};
     for (final source in sources) {
       final videos = _repository.countItems(
         sourceId: source.id,
@@ -361,12 +433,23 @@ class _LocalHomePageState extends State<LocalHomePage>
         );
         if (candidates.isNotEmpty) cover = candidates.first;
       }
-      stats[source.id] = (cover: cover, videos: videos, images: images);
+      // 根下的子目录数：以前来源卡对非内建源恒传 0，一个只有子文件夹、根下
+      // 没有直属媒体的来源（NAS 尤其常见）就被写成「这个文件夹是空的」。
+      final folders = source.isBuiltIn
+          ? 0
+          : _repository
+                .childFolders(sourceId: source.id, parentRelPath: '')
+                .length;
+      stats[source.id] = (
+        cover: cover,
+        videos: videos,
+        images: images,
+        folders: folders,
+      );
     }
     setState(() {
       _sources = sources;
       _sourceStats = stats;
-      if (_sources.isNotEmpty) _cachedCandidates = null;
     });
     unawaited(_reloadDownloadedGalleryCount());
   }
@@ -733,9 +816,30 @@ class _LocalHomePageState extends State<LocalHomePage>
     return false;
   }
 
+  /// 用户自己加的、能扫的来源（内建「已下载」走下载同步，另算）。
+  List<LocalMediaSource> get _rescannableSources =>
+      _sources.where((source) => !source.isBuiltIn && !source.isInert).toList();
+
+  /// 「全部重新扫描」：逐源排队（扫描服务同一时刻只跑一个，其余排队，卡片上
+  /// 写「排队等待扫描」）。以前只能在每张来源卡的 ⋮ 里逐个点——iOS 上还常驻着
+  /// 一句「要手动重新扫描」，却没给一个一次扫完的按钮。
+  void _rescanAll() {
+    final sources = _rescannableSources;
+    if (sources.isEmpty) return;
+    unawaited(_syncDownloads());
+    for (final source in sources) {
+      unawaited(_scan(source));
+    }
+    showAppToast(slang.t.localMedia.rescanAllStarted(count: sources.length));
+  }
+
   Future<void> _scan(LocalMediaSource source) async {
     if (!mounted || !Get.isRegistered<LocalMediaScanService>()) return;
-    setState(() => _scanningSourceId = source.id);
+    // 别的源正在扫：这一个会排队（卡片写「排队等待扫描」），轮到它时进度广播
+    // 会把转圈挪过来——这里先点亮的话，排队的卡会假装自己在扫。
+    if (!LocalMediaScanService.to.isScanning) {
+      setState(() => _scanningSourceId = source.id);
+    }
     try {
       await LocalMediaScanService.to.scanSource(source);
     } catch (e, s) {
@@ -866,7 +970,8 @@ class _LocalHomePageState extends State<LocalHomePage>
         pinned: _pinnedKeys.contains(_pinKey(source.id, '')),
         coverPinned: root?.coverPinned ?? false,
         displayName: source.displayName,
-        canRescan: _scanningSourceId == null,
+        // 别的源在扫时照样能点：整源扫描会排队（见 `LocalMediaScanService.scanSource`）。
+        canRescan: true,
         // 「已下载」不走扫描器，它是从 download_tasks 同步过来的。
         onRescan: () => _rescan(source),
         onRemove: source.isBuiltIn ? null : () => unawaited(_remove(source)),
@@ -894,9 +999,11 @@ class _LocalHomePageState extends State<LocalHomePage>
   bool get _canScanDeviceVideos =>
       GetPlatform.isAndroid && !DeviceFormFactorUtils.isXrDevice;
 
-  Future<void> _showAddMenu(BuildContext anchorContext) async {
+  /// 三种来源的添加入口。「添加」卡片的菜单与右上角 ⋮ 共用这一份，
+  /// 免得哪天加了新来源只挂到其中一处（「连接 NAS」就曾只在卡片菜单里）。
+  List<GlassMenuOption<String>> _addOptions() {
     final t = slang.t.localMedia;
-    final options = <GlassMenuOption<String>>[
+    return <GlassMenuOption<String>>[
       GlassMenuOption<String>(
         value: 'addFolder',
         label: t.addFolder,
@@ -910,23 +1017,19 @@ class _LocalHomePageState extends State<LocalHomePage>
           icon: Icons.video_library_outlined,
           enabled: !_addingSource,
         ),
+      GlassMenuOption<String>(
+        value: 'addNas',
+        label: t.webdav.addNas,
+        icon: Icons.dns_outlined,
+        enabled: !_addingSource,
+      ),
     ];
+  }
 
-    // 只剩一条时不开菜单，直接做那件事。「扫描设备视频」在桌面 / iOS / 头显上
-    // 整条不存在（见 [_canScanDeviceVideos]），那些平台上弹出来的菜单永远只有
-    // 「添加文件夹」一项——等于逼用户多点一下才走到唯一的出口。
-    if (options.length == 1) {
-      final only = options.first;
-      // 正在添加时这一条是灰的：照旧把菜单开出来，让用户看见它在忙。
-      if (only.enabled) {
-        _runAddAction(only.value);
-        return;
-      }
-    }
-
+  Future<void> _showAddMenu(BuildContext anchorContext) async {
     final action = await showGlassMenu<String>(
       anchorContext: anchorContext,
-      entries: options,
+      entries: _addOptions(),
     );
     if (!mounted || action == null) return;
     _runAddAction(action);
@@ -935,6 +1038,128 @@ class _LocalHomePageState extends State<LocalHomePage>
   void _runAddAction(String action) {
     if (action == 'addFolder') unawaited(_addSource());
     if (action == 'addDeviceVideos') unawaited(_addMediaStoreSource());
+    if (action == 'addNas') unawaited(_addNasSource());
+  }
+
+  /// 添加一个 NAS（WebDAV）源：连接弹窗里测通、选好根目录，这里只负责落库。
+  ///
+  /// ⛔ 先存凭据、存成功了才建源：反过来的话，凭据没存下来时建出的源一出生就是
+  /// 「需要重新登录」，用户刚输完的密码白输了。
+  Future<void> _addNasSource() async {
+    if (_addingSource) return;
+    setState(() => _addingSource = true);
+    final t = slang.t.localMedia;
+    try {
+      final result = await showWebDavConnectDialog(
+        context: context,
+        savedServers: _savedNasServers(),
+      );
+      if (result == null || !mounted) return;
+      final overlapping = _repository.findOverlappingRemoteSource(
+        origin: result.origin,
+        davPath: result.rootDavPath,
+      );
+      if (overlapping != null) {
+        _handleOverlappingNasPick(overlapping, result.rootDavPath);
+        return;
+      }
+      final id = const Uuid().v4();
+      final saved = await WebDavService.instance.writeCredentials(
+        id,
+        result.credentials,
+      );
+      if (!saved) {
+        showAppToast(t.addSourceFailed, type: AppToastType.error);
+        return;
+      }
+      final source = LocalMediaSource(
+        id: id,
+        kind: LocalMediaSourceKind.webdav,
+        displayName: result.displayName,
+        path: result.rootDavPath,
+        uri: result.origin,
+        mediaKinds: LocalMediaKinds.both,
+        sortOrder: _sources.where((source) => !source.isBuiltIn).length,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        remoteState: LocalMediaRemoteState.ok,
+        tlsFingerprint: result.tlsFingerprint,
+      );
+      _repository.upsertSource(source);
+      if (!mounted) return;
+      _reloadSources();
+      _reloadPinnedFolders();
+      unawaited(_scan(source));
+    } catch (e, s) {
+      LogUtils.e('添加 NAS 源失败', tag: _tag, error: e, stackTrace: s);
+      showAppToast(t.addSourceFailed, type: AppToastType.error);
+    } finally {
+      if (mounted) setState(() => _addingSource = false);
+    }
+  }
+
+  /// 已经连过的 NAS（按 地址 + 用户名 去重），连接弹窗第一步列出来，点一下免输密码。
+  List<WebDavSavedServer> _savedNasServers() {
+    final seen = <String>{};
+    return <WebDavSavedServer>[
+      for (final source in _sources)
+        if (source.isRemote && source.uri != null)
+          if (seen.add(source.uri!))
+            WebDavSavedServer(
+              sourceId: source.id,
+              origin: source.uri!,
+              displayName: source.displayName,
+              tlsFingerprint: source.tlsFingerprint,
+            ),
+    ];
+  }
+
+  /// 选中的 NAS 目录与已有的源重叠：与本机文件夹同一套规矩（见
+  /// [_handleOverlappingPick]）。
+  ///
+  /// - 就是那个源的根 → 「已经添加过」；
+  /// - 落在它里面 → 加进常用目录（数据仍只归那一个源，不生第二份进度）；
+  /// - 反过来把它包在里面 → 暂不支持，照实说。
+  ///
+  /// ⛔ 以前一律只弹「已经添加过了」然后什么都不做——用户想要的「首页直接点进
+  /// 这个子目录」没有任何办法达成。
+  void _handleOverlappingNasPick(LocalMediaSource source, String davPath) {
+    final t = slang.t.localMedia;
+    final root = source.path!;
+    if (root == davPath) {
+      showAppToast(t.sourceAlreadyAdded(name: source.displayName));
+      return;
+    }
+    if (!DavPath.isWithin(root, davPath)) {
+      showAppToast(
+        t.sourceContainsExisting(name: source.displayName),
+        type: AppToastType.error,
+      );
+      return;
+    }
+    final relPath = DavPath.relative(root, davPath);
+    final name = relPath.split('/').last;
+    if (_repository.isPinned(sourceId: source.id, relPath: relPath)) {
+      showAppToast(t.alreadyPinnedFolder(name: name));
+      return;
+    }
+    _repository.ensureFolderChain(source: source, relPath: relPath);
+    _repository.pinFolder(
+      LocalPinnedFolder(
+        id: LocalPinnedFolder.buildId(source.id, relPath),
+        sourceId: source.id,
+        relPath: relPath,
+        displayName: name,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        sortOrder: _repository.getPinnedFolders().length,
+      ),
+    );
+    _reloadPinnedFolders();
+    showAppToast(t.addedAsPinnedFolder(name: name, source: source.displayName));
+    if (Get.isRegistered<LocalMediaScanService>()) {
+      unawaited(
+        LocalMediaScanService.to.scanFolder(source: source, relPath: relPath),
+      );
+    }
   }
 
   /// 空态上那几枚「一键加这个目录」的建议。
@@ -945,9 +1170,37 @@ class _LocalHomePageState extends State<LocalHomePage>
   ///
   /// 所以这里只读缓存：没算过就丢一个后台任务出去，算完 `setState` 再来一帧。
   /// 那一帧之前不显示建议——首屏少两枚按钮，好过整屏卡住。
+  bool get _hasOwnSources => _sources.any((source) => !source.isBuiltIn);
+
+  bool get _suggestionsDismissed =>
+      Get.isRegistered<ConfigService>() &&
+      Get.find<ConfigService>()[ConfigKey
+              .LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY] ==
+          true;
+
+  void _dismissSuggestions() {
+    if (Get.isRegistered<ConfigService>()) {
+      Get.find<ConfigService>()[ConfigKey
+              .LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY] =
+          true;
+    }
+    setState(() {});
+  }
+
   List<String> _candidatePaths() {
-    if (!GetPlatform.isAndroid || _sources.isNotEmpty) return const <String>[];
-    if (_cachedCandidates != null) return _cachedCandidates!;
+    if (!GetPlatform.isAndroid || _suggestionsDismissed) {
+      return const <String>[];
+    }
+    // 算过了：只留下还没被任何来源覆盖的，加一个消失一个。
+    final cached = _cachedCandidates;
+    if (cached != null) {
+      return cached
+          .where((path) => _repository.findOverlappingSource(path) == null)
+          .toList();
+    }
+    // ⛔ 判据是「用户自己的来源一个都没有」，不是 `_sources.isEmpty`：只要下载过
+    // 东西，内建的「已下载」源就在，按旧判据大多数用户永远看不到建议。
+    if (_hasOwnSources) return const <String>[];
     if (!_candidatesPending) {
       _candidatesPending = true;
       unawaited(_computeCandidatePaths());
@@ -967,7 +1220,7 @@ class _LocalHomePageState extends State<LocalHomePage>
       );
       if (!mounted) return;
       // 期间用户可能已经自己加了源——那就不再给建议了。
-      if (_sources.isNotEmpty) return;
+      if (_hasOwnSources) return;
       setState(() => _cachedCandidates = found);
     } catch (e) {
       LogUtils.w('探测候选目录失败: $e', _tag);
@@ -1113,24 +1366,26 @@ class _LocalHomePageState extends State<LocalHomePage>
               height: GlassTokens.pillHeight,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GlassAdaptiveSegmentedControl(
-                        selectedIndex: _tabController.index,
-                        progress: _tabController.animation,
-                        dropdownOnly: isMobile,
-                        minVisibleItems: tabItems.length.toDouble(),
-                        onChanged: (index) {
-                          _tabController.animateTo(index);
-                          setState(() {});
-                        },
-                        items: tabItems,
+                child: _searchOpen
+                    ? _buildSearchRow(context)
+                    : Row(
+                        children: [
+                          Expanded(
+                            child: GlassAdaptiveSegmentedControl(
+                              selectedIndex: _tabController.index,
+                              progress: _tabController.animation,
+                              dropdownOnly: isMobile,
+                              minVisibleItems: tabItems.length.toDouble(),
+                              onChanged: (index) {
+                                _tabController.animateTo(index);
+                                setState(() {});
+                              },
+                              items: tabItems,
+                            ),
+                          ),
+                          _buildSortControls(context),
+                        ],
                       ),
-                    ),
-                    _buildSortControls(context),
-                  ],
-                ),
               ),
             ),
           ],
@@ -1147,9 +1402,11 @@ class _LocalHomePageState extends State<LocalHomePage>
               order: _favVideoOrder,
               queueTitle: slang.t.localMedia.tabFavoriteVideos,
               headerExtent: headerExtent,
+              nameQuery: _query,
             ),
             LocalMediaWall(
               kind: LocalMediaItemKind.video,
+              onAddSource: _showAddMenu,
               // 「所有」就是字面意思：不限源，已下载的也在里面。它和右边那栏
               // 「下载完成视频」重着一批，这和「精选视频」与它重着是同一种关系
               // ——全集里有子集，不是 bug。⛔ 别再加回排除口径，理由见
@@ -1157,12 +1414,15 @@ class _LocalHomePageState extends State<LocalHomePage>
               order: _allVideoOrder,
               queueTitle: slang.t.localMedia.tabAllVideos,
               headerExtent: headerExtent,
+              nameQuery: _query,
             ),
             LocalMediaWall(
               kind: LocalMediaItemKind.image,
+              onAddSource: _showAddMenu,
               order: _allImageOrder,
               queueTitle: slang.t.localMedia.tabAllImages,
               headerExtent: headerExtent,
+              nameQuery: _query,
             ),
             LocalMediaWall(
               kind: LocalMediaItemKind.video,
@@ -1172,6 +1432,7 @@ class _LocalHomePageState extends State<LocalHomePage>
               order: _downloadedVideoOrder,
               queueTitle: slang.t.localMedia.tabDownloadedVideos,
               headerExtent: headerExtent,
+              nameQuery: _query,
             ),
             // ⛔ 图库那一栏走的是**下载任务表**，不是本地库：图库压根没同步进去。
             // 完整理由见 [DownloadedGalleryWall] 的类注释。
@@ -1179,6 +1440,56 @@ class _LocalHomePageState extends State<LocalHomePage>
           ],
         ),
       ),
+    );
+  }
+
+  /// 顶栏第二行的搜索态：搜索框 + 当前栏的排序 + 关闭。
+  Widget _buildSearchRow(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Expanded(
+          child: GlassSearchPillTapArea(
+            focusNode: _searchFocus,
+            child: GlassSurface(
+              height: GlassTokens.pillHeight,
+              borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
+              padding: const EdgeInsets.only(left: 12, right: 6),
+              liquidTouch: false,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: GlassSearchInputField(
+                      controller: _searchController,
+                      focusNode: _searchFocus,
+                      hintText: slang.t.localMedia.browse.searchHint,
+                      onChanged: () => _onSearchChanged(_searchController.text),
+                      onSubmitted: (_) => _searchFocus.unfocus(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        _buildSortControls(context),
+        const SizedBox(width: 8),
+        GlassButtonGroup(
+          children: [
+            GlassIconButton(
+              icon: const Icon(Icons.close),
+              tooltip: slang.t.localMedia.browse.clearSearch,
+              onPressed: _closeSearch,
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -1261,6 +1572,11 @@ class _LocalHomePageState extends State<LocalHomePage>
     final removableSources = _sources.where((s) => !s.isBuiltIn).toList();
     return GlassButtonGroup(
       children: [
+        GlassIconButton(
+          icon: const Icon(Icons.search),
+          tooltip: t.searchLibrary,
+          onPressed: _searchOpen ? _closeSearch : _openSearch,
+        ),
         Builder(
           builder: (anchorContext) => GlassIconButton(
             icon: const Icon(Icons.more_vert),
@@ -1270,25 +1586,20 @@ class _LocalHomePageState extends State<LocalHomePage>
               final action = await showGlassMenu<String>(
                 anchorContext: anchorContext,
                 entries: <GlassMenuEntry>[
-                  GlassMenuOption<String>(
-                    value: 'addFolder',
-                    label: t.addFolder,
-                    icon: Icons.create_new_folder_outlined,
-                    enabled: !_addingSource,
-                  ),
+                  ..._addOptions(),
+                  const GlassMenuSeparator(),
+                  if (_rescannableSources.isNotEmpty)
+                    GlassMenuOption<String>(
+                      value: 'rescanAll',
+                      label: t.rescanAll,
+                      icon: Icons.refresh,
+                    ),
                   if (removableSources.isNotEmpty)
                     GlassMenuOption<String>(
                       value: 'removeFolder',
                       label: t.removeFolder,
-                      icon: Icons.folder_delete_outlined,
+                      icon: Icons.remove_circle_outline,
                       destructive: true,
-                    ),
-                  if (_canScanDeviceVideos)
-                    GlassMenuOption<String>(
-                      value: 'addDeviceVideos',
-                      label: t.addDeviceVideos,
-                      icon: Icons.video_library_outlined,
-                      enabled: !_addingSource,
                     ),
                   GlassMenuOption<String>(
                     value: 'clearProgress',
@@ -1298,16 +1609,17 @@ class _LocalHomePageState extends State<LocalHomePage>
                 ],
               );
               if (!mounted || !anchorContext.mounted || action == null) return;
-              if (action == 'addFolder') unawaited(_addSource());
               if (action == 'removeFolder') {
                 unawaited(
                   _handleRemoveFolderAction(anchorContext, removableSources),
                 );
+              } else if (action == 'clearProgress') {
+                unawaited(_clearProgress());
+              } else if (action == 'rescanAll') {
+                _rescanAll();
+              } else {
+                _runAddAction(action);
               }
-              if (action == 'addDeviceVideos') {
-                unawaited(_addMediaStoreSource());
-              }
-              if (action == 'clearProgress') unawaited(_clearProgress());
             },
           ),
         ),
@@ -1333,8 +1645,8 @@ class _LocalHomePageState extends State<LocalHomePage>
           GlassMenuOption<LocalMediaSource>(
             value: source,
             label: source.displayName,
-            description: source.path,
-            icon: Icons.folder_outlined,
+            description: LocalSourceCardWidget.subtitleOf(source),
+            icon: LocalSourceCardWidget.iconOf(source),
           ),
       ],
     );
@@ -1356,7 +1668,12 @@ class _LocalHomePageState extends State<LocalHomePage>
           },
           child: _sources.isEmpty
               ? _buildEmpty(context, candidates, headerExtent)
-              : _buildContentList(context, headerExtent, availableWidth),
+              : _buildContentList(
+                  context,
+                  headerExtent,
+                  availableWidth,
+                  candidates,
+                ),
         );
       },
     );
@@ -1366,6 +1683,7 @@ class _LocalHomePageState extends State<LocalHomePage>
     BuildContext context,
     double headerExtent,
     double availableWidth,
+    List<String> candidates,
   ) {
     return CustomScrollView(
       controller: _scrollController,
@@ -1381,6 +1699,8 @@ class _LocalHomePageState extends State<LocalHomePage>
           ),
         if (GetPlatform.isIOS)
           SliverToBoxAdapter(child: _iosManualScanNoticeWidget(context)),
+        if (candidates.isNotEmpty)
+          SliverToBoxAdapter(child: _suggestionStrip(context, candidates)),
         // ⛔ 这里原先顶着「常用目录」那一块。2026-09-11 按用户要求搬去了自己的
         // 栏目（见 [_buildPinnedTab]）：置顶几个之后它会把真正的来源网格整个挤到
         // 屏幕外面，而来源才是这一栏的主体。别再加回来。
@@ -1568,10 +1888,17 @@ class _LocalHomePageState extends State<LocalHomePage>
             // 来源根也能设为常用（见 [_openSourceMenu]），设了就得在卡片上看得见。
             pinned: _pinnedKeys.contains(_pinKey(source.id, '')),
             coverPath: stats?.cover,
-            childFolderCount: source.isBuiltIn ? _downloadedGalleryCount : 0,
+            childFolderCount: source.isBuiltIn
+                ? _downloadedGalleryCount
+                : (stats?.folders ?? 0),
+            // NAS 只收录打开过的层：没列到东西不等于空。
+            probed: !source.isRemote,
             videoCount: stats?.videos ?? 0,
             imageCount: stats?.images ?? 0,
             scanning: _scanningSourceId == source.id,
+            queued:
+                Get.isRegistered<LocalMediaScanService>() &&
+                LocalMediaScanService.to.queuedSourceIds.contains(source.id),
             onOpen: () =>
                 appRouter.push(LocalFolderRoute.location(sourceId: source.id)),
             onMenu: (anchorContext) => _openSourceMenu(anchorContext, source),
@@ -1607,7 +1934,73 @@ class _LocalHomePageState extends State<LocalHomePage>
                 label: t.addDeviceVideos,
                 onPressed: _addingSource ? null : _addMediaStoreSource,
               ),
+            GlassTextActionButton(
+              label: t.webdav.addNas,
+              onPressed: _addingSource ? null : _addNasSource,
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// 「这些目录里有视频，要不要加」：来源网格上方一条可关掉的提示。
+  ///
+  /// 以前建议只长在空态里，而只要下载过东西空态就不会出现（「已下载」是内建源）
+  /// ——对这个应用的大多数用户，建议从来没露过面。首次上手最短的那条路就这么丢了。
+  Widget _suggestionStrip(BuildContext context, List<String> candidates) {
+    final theme = Theme.of(context);
+    final t = slang.t.localMedia;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 0,
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.lightbulb_outline,
+                    size: 18,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      t.suggestedFolders,
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  GlassIconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: slang.t.common.close,
+                    onPressed: _dismissSuggestions,
+                  ),
+                ],
+              ),
+              for (final path in candidates)
+                ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.only(left: 28),
+                  title: Text(p.basename(path)),
+                  subtitle: Text(
+                    path,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: GlassIconButton(
+                    tooltip: t.addFolder,
+                    onPressed: _addingSource ? null : () => _addSource(path),
+                    icon: const Icon(Icons.add_rounded),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -1642,6 +2035,18 @@ class _LocalHomePageState extends State<LocalHomePage>
                   ),
                 ),
               ),
+              if (_rescannableSources.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                GlassButtonGroup(
+                  children: [
+                    GlassTextActionButton(
+                      label: t.rescanAll,
+                      emphasized: true,
+                      onPressed: _rescanAll,
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -1658,14 +2063,21 @@ class _LocalHomePageState extends State<LocalHomePage>
         GlassButtonGroup(
           children: [
             GlassTextActionButton(
-              label: t.addFolder,
+              label: t.openSettings,
               emphasized: true,
-              onPressed: _addSource,
+              onPressed: _openPermissionSettings,
             ),
           ],
         ),
       ],
     );
+  }
+
+  /// 权限被拒之后的出路：直接去系统设置页。以前横幅上写「点这里开启」，文字却点
+  /// 不动，唯一的按钮叫「添加文件夹」——被永久拒绝时它什么也弹不出来。
+  Future<void> _openPermissionSettings() async {
+    if (!Get.isRegistered<PermissionService>()) return;
+    await Get.find<PermissionService>().openSettings();
   }
 
   Widget _buildEmpty(

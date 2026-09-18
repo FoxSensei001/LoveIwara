@@ -43,6 +43,9 @@ class ImageItem {
   /// `buildGalleryImageItems` 一处算好带进来，渲染方只管画 [poster]。
   final String? posterUrl;
 
+  /// 磁盘缓存键，见 `ImageWidget.cacheKey`。只有地址不稳定的来源（NAS 本机网关）给。
+  final String? cacheKey;
+
   ImageItem({
     required this.url,
     this.width,
@@ -50,6 +53,7 @@ class ImageItem {
     required this.data,
     this.headers,
     this.posterUrl,
+    this.cacheKey,
     MediaItemType? mediaType,
   }) : mediaType = mediaType ?? _detectMediaType(url);
 

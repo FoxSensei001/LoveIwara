@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Lumière chaude du soir sur l\'eau libre, le soleil à côté de votre zone de visionnage.</string>
     <string name="xr_environment_mist">Pics dans la brume</string>
     <string name="xr_environment_mist_hint">Des couches de montagnes lointaines s\'élèvent dans une brume douce, comme un paysage à l\'encre.</string>
+    <string name="xr_notice_nas_panel_closed">Le panneau de l\'app a été fermé : les vidéos du NAS ne peuvent plus être lues. Rouvrez le panneau puis réessayez</string>
+    <string name="xr_notice_nas_auth">Le NAS demande une nouvelle connexion. Faites-le depuis Fichiers locaux dans le panneau de l\'app</string>
+    <string name="xr_notice_nas_cert">Le certificat du NAS a changé. Confirmez-le à nouveau depuis Fichiers locaux dans le panneau de l\'app</string>
+    <string name="xr_notice_nas_unreachable">Impossible de joindre le NAS. Vérifiez que le casque et le NAS sont sur le même réseau</string>
 </resources>

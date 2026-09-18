@@ -1041,7 +1041,7 @@ class _MissingDownloadDialogState extends State<_MissingDownloadDialog> {
                                 existingPrefix: null,
                               ),
                       )
-                    : _DiagnosisBody(
+                    : MissingDiagnosisBody(
                         key: ValueKey(diagnosis.kind),
                         diagnosis: diagnosis,
                         busy: _busy,
@@ -1109,8 +1109,10 @@ class _TaskHeader extends StatelessWidget {
   }
 }
 
-class _DiagnosisBody extends StatelessWidget {
-  const _DiagnosisBody({
+/// 「找不到」的诊断结论 + 断在哪一级 + 疑似改名件（逐个「就是它」）。下载与
+/// 本机文件库共用（`local_item_missing_dialog.dart`）。
+class MissingDiagnosisBody extends StatelessWidget {
+  const MissingDiagnosisBody({
     super.key,
     required this.diagnosis,
     required this.busy,

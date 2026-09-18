@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../../utils/logger_utils.dart';
+import '../../utils/loopback_host.dart';
 
 /// 共享 HttpClient 工厂
 ///
@@ -107,7 +108,9 @@ class HttpClientFactory {
     _httpClient!.idleTimeout = const Duration(seconds: 90);
     final proxyRule = _buildProxyRule();
     if (proxyRule != null) {
-      _httpClient!.findProxy = (uri) => proxyRule;
+      // ⛔ 本机回环必须直连，理由同 `MyHttpOverrides`（NAS 本机网关）。
+      _httpClient!.findProxy = (uri) =>
+          isLoopbackHost(uri.host) ? 'DIRECT' : proxyRule;
     }
 
     LogUtils.d(

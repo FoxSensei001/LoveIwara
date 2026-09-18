@@ -228,4 +228,8 @@
     <string name="xr_environment_sunset_hint">海面に広がる暖かな夕映え。夕日は視界の横に置かれています。</string>
     <string name="xr_environment_mist">水墨の山々</string>
     <string name="xr_environment_mist_hint">薄霧に溶け込む山々が、静かな奥行きを描きます。</string>
+    <string name="xr_notice_nas_panel_closed">アプリパネルが閉じられたため、NAS の動画を再生できません。アプリパネルを開き直してから再試行してください</string>
+    <string name="xr_notice_nas_auth">NAS への再ログインが必要です。アプリパネルの「ローカルファイル」から操作してください</string>
+    <string name="xr_notice_nas_cert">NAS の証明書が変更されました。アプリパネルの「ローカルファイル」から再確認してください</string>
+    <string name="xr_notice_nas_unreachable">NAS に接続できません。ヘッドセットと NAS が同じネットワークにあるか確認してください</string>
 </resources>

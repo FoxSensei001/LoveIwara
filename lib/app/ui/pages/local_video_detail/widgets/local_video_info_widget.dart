@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
@@ -261,7 +262,9 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
   Widget _buildCover(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final item = _localItem;
-    final sidecar = item?.sidecarImagePath;
+    // NAS 条目的同名图是远端引用，封面只认拉进缓存的 thumbPath。
+    final rawSidecar = item?.sidecarImagePath;
+    final sidecar = DavPath.isDav(rawSidecar) ? null : rawSidecar;
     final thumbnail = item?.thumbPath;
 
     Widget placeholder() => ColoredBox(
@@ -439,11 +442,13 @@ class _LocalVideoInfoWidgetState extends State<LocalVideoInfoWidget> {
                   icon: const Icon(Icons.copy, size: 18),
                   label: Text(t.videoDetail.localInfo.copyPath),
                 ),
-                TextButton.icon(
-                  onPressed: () => _openFolder(context),
-                  icon: const Icon(Icons.folder_open, size: 18),
-                  label: Text(t.videoDetail.localInfo.openFolder),
-                ),
+                // NAS 片不在本机，没有「所在文件夹」可开。
+                if (!DavPath.isDav(localPath))
+                  TextButton.icon(
+                    onPressed: () => _openFolder(context),
+                    icon: const Icon(Icons.folder_open, size: 18),
+                    label: Text(t.videoDetail.localInfo.openFolder),
+                  ),
               ],
             ),
           ],

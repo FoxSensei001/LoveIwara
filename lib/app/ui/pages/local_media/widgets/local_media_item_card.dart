@@ -5,7 +5,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
@@ -126,6 +128,45 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
   void initState() {
     super.initState();
     _loadDownloadTask();
+    _loadProgress();
+    _progressSub = LocalMediaRepository.progressChanges.listen((id) {
+      if (id == '*' || id == widget.item.id) _loadProgress(rebuild: true);
+    });
+  }
+
+  /// 这一条的观看进度。视频才有；一次主键查询，只在挂上、换条目、进度变了时读。
+  ///
+  /// 卡片自己读而不是让每个调用点批量传：墙、目录页、预览区好几处在画这张卡，
+  /// 让它们各自接一遍，迟早有一处漏掉（见 [[prefer-mechanism-fix-over-per-callsite]]）。
+  ({int positionMs, int? durationMs, bool completed})? _progress;
+  StreamSubscription<String>? _progressSub;
+
+  void _loadProgress({bool rebuild = false}) {
+    if (widget.item.kind != LocalMediaItemKind.video) {
+      _progress = null;
+      return;
+    }
+    final next = LocalMediaRepository().getProgress(widget.item.id);
+    if (rebuild && mounted) {
+      setState(() => _progress = next);
+    } else {
+      _progress = next;
+    }
+  }
+
+  /// 0~1；没看过、或看到头了（由「已看完」角标负责）时返回 null。
+  double? get _progressFraction {
+    final progress = _progress;
+    if (progress == null || progress.completed) return null;
+    final total = progress.durationMs ?? _item.durationMs;
+    if (total == null || total <= 0 || progress.positionMs <= 0) return null;
+    return (progress.positionMs / total).clamp(0.0, 1.0);
+  }
+
+  @override
+  void dispose() {
+    _progressSub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -144,6 +185,7 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
       _derivedItem = null;
       _derivationRequested = false;
       _loadDownloadTask();
+      _loadProgress();
 
       // ⛔ 光把 [_derivationRequested] 放回 false 是不够的，必须**主动**再问一次。
       //
@@ -175,10 +217,12 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
     if (item.missing || !Get.isRegistered<LocalMediaDerivationService>()) {
       return;
     }
-    final hasCover =
-        (item.kind == LocalMediaItemKind.image && item.path.isNotEmpty) ||
-        await _fileExists(item.sidecarImagePath) ||
-        await _fileExists(item.thumbPath);
+    // NAS 条目：原图 / 同名图都在远端，只有拉进本机缓存的那张算「有封面」。
+    final hasCover = DavPath.isDav(item.path)
+        ? await _fileExists(item.thumbPath)
+        : (item.kind == LocalMediaItemKind.image && item.path.isNotEmpty) ||
+              await _fileExists(item.sidecarImagePath) ||
+              await _fileExists(item.thumbPath);
     // 封面有了、元数据也齐了，这张卡没有要补的——省掉一次派生队列的往返。
     //
     // ⛔ 判据必须走 [LocalMediaItem.needsDerivedMetadata]，不许在这里另写一份：
@@ -291,6 +335,36 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
                 Stack(
                   children: <Widget>[
                     _coverWithDerivation(),
+                    // 看到哪了：封面底边一条细线，看完的换成左下角一枚勾。
+                    // 这是「回来接着看」在墙上唯一看得见的线索——没有它，用户
+                    // 只能记住自己看到了哪一集。
+                    if (_progressFraction case final fraction?)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: LinearProgressIndicator(
+                          value: fraction,
+                          minHeight: 3,
+                          backgroundColor: Colors.black.withValues(alpha: 0.35),
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    if (_progress?.completed ?? false)
+                      Positioned(
+                        left: 6,
+                        bottom: 6,
+                        child: LocalCardBadge(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Icon(
+                              Icons.check_rounded,
+                              size: 14,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
                     if (_item.kind == LocalMediaItemKind.video)
                       Positioned(
                         right: 6,
@@ -419,7 +493,9 @@ class _Cover extends StatelessWidget {
       );
     } else if (remoteCover != null) {
       child = _remote(scheme);
-    } else if (item.kind == LocalMediaItemKind.image && item.path.isNotEmpty) {
+    } else if (item.kind == LocalMediaItemKind.image &&
+        item.path.isNotEmpty &&
+        !DavPath.isDav(item.path)) {
       child = LocalCoverImage(
         path: item.path,
         placeholder: _placeholder(scheme),

@@ -872,7 +872,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       if (imageUrl.startsWith('file://')) continue;
 
       // 使用 CachedNetworkImage 预加载
-      _preloadImage(i, imageUrl, item.headers);
+      _preloadImage(i, imageUrl, item.headers, cacheKey: item.cacheKey);
     }
   }
 
@@ -880,8 +880,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   Future<void> _preloadImage(
     int index,
     String imageUrl,
-    Map<String, String>? headers,
-  ) async {
+    Map<String, String>? headers, {
+    String? cacheKey,
+  }) async {
     if (!mounted) return;
 
     try {
@@ -892,6 +893,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
       final imageProvider = CachedNetworkImageProvider(
         imageUrl,
         headers: headers,
+        cacheKey: cacheKey,
       );
 
       // 预加载到缓存
@@ -1870,6 +1872,7 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                                         : ImageWidget(
                                             imageUrl: imageUrl,
                                             headers: activeItem.headers,
+                                            cacheKey: activeItem.cacheKey,
                                           ),
                                   );
 

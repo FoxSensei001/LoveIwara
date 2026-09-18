@@ -2430,6 +2430,7 @@ mediaPlayer:
   localVideoPathEmpty: "本地视频路径为空"
   localVideoFileNotExists: "本地视频文件不存在: ${path}"
   unableToPlayLocalVideo: "无法播放本地视频: ${error}"
+  unableToPlayNasVideo: "无法播放 NAS 上的视频：${error}"
   # 文件拖放
   dropVideoFileHere: "拖放视频文件到此处播放"
   supportedFormats: "支持格式: MP4, MKV, AVI, MOV, WEBM 等"
@@ -3393,6 +3394,85 @@ localMedia:
   addFolder: 添加文件夹
   addDeviceVideos: 扫描设备视频
   mediaStoreSourceName: 设备视频
+  scanQueued: "排队等待扫描"
+  itemInfo: "文件信息"
+  revealInFolder: "在文件夹中显示"
+  rescanAll: "全部重新扫描"
+  rescanAllStarted: "开始重新扫描 ${count} 个来源"
+  searchLibrary: "搜索"
+  searchIncludeSubfolders: "含子文件夹"
+  savedServers: "已保存的 NAS"
+  newServer: "连接新的 NAS"
+  itemInfoLabels:
+    size: "大小"
+    resolution: "分辨率"
+    duration: "时长"
+    modified: "修改时间"
+    lastPlayed: "上次播放"
+    neverPlayed: "还没看过"
+    completed: "已看完"
+  addSource: "添加来源"
+  addSourceKinds: "文件夹 · NAS"
+  openSettings: "去设置开启"
+  removeSourceLoses: "下面这些会一起清掉，重新添加也找不回来：${items}"
+  loseProgress: "${count} 条观看进度"
+  loseFavorites: "${count} 个精选"
+  losePinned: "${count} 个常用目录"
+  loseHidden: "${count} 个隐藏设置"
+  loseCovers: "${count} 张手选封面"
+  renameSource: "重命名"
+  renameSourceTitle: "重命名来源"
+  renameSourceLabel: "名称"
+  renamed: "已重命名"
+  nasAggregateHint: "NAS 上的内容只收录打开过的文件夹。没打开过的文件夹，里面的视频和图片不会出现在这里。"
+  rescanDone: "「${name}」已更新"
+  unknownSourceHint: 这个来源需要更新版本的应用才能使用
+  missing:
+    title: "找不到这个文件"
+    rescanFolder: "重新扫描文件夹"
+    relistNas: "重新列这个文件夹"
+    removeFromList: "从列表移除"
+    removed: "已从列表移除，磁盘上的文件没有改动"
+    found: "找到了"
+    nasGone: "NAS 上已经找不到「${name}」：可能被删除、移动或改了名。重新列一遍这个文件夹，就能看到它现在的样子。"
+  webdav:
+    addNas: "连接 NAS（WebDAV）"
+    connectTitle: "连接 NAS"
+    editTitle: "重新登录 NAS"
+    hint: "在 NAS 管理页开启 WebDAV 服务后，填入它的地址和账号。"
+    address: "地址"
+    addressHint: "例如 192.168.1.10:5005"
+    username: "用户名"
+    password: "密码"
+    displayName: "名称（可选）"
+    connect: "连接"
+    invalidAddress: "地址格式不对"
+    errorAuth: "用户名或密码不对"
+    errorUnreachable: "连不上服务器：检查地址和端口，以及设备和 NAS 是否在同一网络"
+    errorNotWebdav: "这个地址不是 WebDAV 服务"
+    errorGeneric: "连接失败（${code}）"
+    errorCredUnreadable: "读取已保存的密码失败，请稍后重试"
+    certTitle: "信任这个服务器？"
+    certBody: "服务器的证书不受系统信任（NAS 自签证书常见这种情况）。请确认下面的指纹与 NAS 管理页显示的一致："
+    certChangedBody: "这个服务器的证书和上次信任的不一样。如果你没有更换过 NAS 的证书，可能有人在冒充它，请不要继续。"
+    trust: "信任"
+    pickRootTitle: "选择要添加的文件夹"
+    serverRoot: "根目录"
+    alreadyAdded: "这个 NAS 文件夹已经添加过了"
+    relogin: "重新登录"
+    stateAuthFailed: "需要重新登录"
+    stateCertUntrusted: "服务器证书已变化"
+    stateUnreachable: "连不上 NAS"
+    stateCredUnreadable: "读取密码失败"
+    connected: "已连接"
+    errorForbidden: "这个账号没有 WebDAV 访问权限：请在 NAS 的 WebDAV 设置里给它开权限"
+    errorTls: "安全连接失败：检查地址开头的 http:// 或 https:// 与 NAS 设置是否一致"
+    errorTryHttps: "如果 NAS 只开了 HTTPS，请在地址前加上 https://"
+    previousStep: "上一步"
+    bannerUnreachable: "连不上 NAS，下面是上次看到的内容"
+    bannerAuthFailed: "登录已失效，重新登录后才能看到最新内容"
+    bannerCertUntrusted: "NAS 的证书变了，确认之后才能继续"
+    bannerCredUnreadable: "读取保存的密码失败，重新登录一次即可"
   mediaStoreUnavailable: 设备媒体索引仅在 Android 上可用
   mediaStorePermissionDenied: 未授予视频访问权限
   rescan: 重新扫描
@@ -3406,15 +3486,15 @@ localMedia:
   sourceContainsExisting: "里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹"
   addSourceFailed: 添加文件夹失败
   fileMissing: 这个文件已经不在磁盘上了
-  permissionDenied: 未授予文件访问权限 · 点这里开启
+  permissionDenied: "未授予文件访问权限，添加文件夹前需要先开启"
   noVideosFound: 这个文件夹里没有视频
-  emptyTitle: 添加一个文件夹，看这台设备上已有的视频
+  emptyTitle: "添加文件夹或连接 NAS，看你已有的视频"
   emptyPrivacyNote: 只在本机读取，不上传任何东西。
   removeSourceTitle: "移除「${name}」？"
-  removeSourceBody: 磁盘上的文件一个不动，只是把它从本地库里移出去。
+  removeSourceBody: "文件本身一个不动，只是把它从本地库里移出去。"
   remove: 移除
-  removeFolder: 移除文件夹
-  removeFolderSelectTitle: 选择要移除的文件夹
+  removeFolder: "移除来源"
+  removeFolderSelectTitle: "选择要移除的来源"
   longPressToRemove: 长按可移除这个文件夹
   clearProgress: 清除本机观看记录
   clearProgressCount: "共 ${count} 条"

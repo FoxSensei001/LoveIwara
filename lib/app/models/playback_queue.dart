@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 
 import 'package:flutter/foundation.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
@@ -1250,7 +1251,12 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
   /// `cacheWidth` 解码，不会把整张原图解进内存，见 `_buildCover`）。一张图片的
   /// 条目要是没有封面，列表上就只剩一个文件名——而它本来就是一张图。
   static String _coverUriOf(LocalMediaItem row, LocalMediaItemKind kind) {
-    final cover = kind == LocalMediaItemKind.image
+    // NAS 条目：原图与同名图都是 `dav:/…` 远端引用，`Uri.file` 拼不出能打开的东西；
+    // 只认拉进本机缓存的那张（thumbPath）。
+    final remote = DavPath.isDav(row.path);
+    final cover = remote
+        ? row.thumbPath
+        : kind == LocalMediaItemKind.image
         ? (row.thumbPath ?? row.path)
         : (row.sidecarImagePath ?? row.thumbPath);
     if (cover == null || cover.trim().isEmpty) return '';
@@ -1322,7 +1328,10 @@ class LocalLibraryPlaybackQueue extends PagedPlaybackQueue {
       LogUtils.w('本机文件池里的 $itemId 在库里找不到', 'LocalLibraryPlaybackQueue');
       return null;
     }
-    if (!path.startsWith('content://') && !await File(path).exists()) {
+    // NAS 条目不在本机：原样交出 `dav:/…`，播放器打开时再现算网关地址。
+    if (!path.startsWith('content://') &&
+        !DavPath.isDav(path) &&
+        !await File(path).exists()) {
       LogUtils.w('本机文件池里的 $itemId 在磁盘上已不存在', 'LocalLibraryPlaybackQueue');
       return null;
     }

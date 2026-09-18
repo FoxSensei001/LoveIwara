@@ -6,19 +6,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_menu.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
 import 'package:i_iwara/app/utils/media_layout_utils.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
@@ -34,6 +36,8 @@ class LocalMediaWall extends StatefulWidget {
     super.key,
     required this.kind,
     this.favoritedOnly = false,
+    this.onAddSource,
+    this.nameQuery = '',
     this.sourceId,
     required this.order,
     required this.queueTitle,
@@ -42,6 +46,14 @@ class LocalMediaWall extends StatefulWidget {
 
   final LocalMediaItemKind kind;
   final bool favoritedOnly;
+
+  /// 空态下的「添加来源」。给了就在空态文案下面放一枚能直接点的按钮——
+  /// 以前那里只有一句「到『文件目录』里添加一个文件夹试试」，用户得自己找过去。
+  /// [BuildContext] 是菜单锚点。
+  final void Function(BuildContext anchorContext)? onAddSource;
+
+  /// 首页全库搜索的关键词，空串＝不过滤。只按文件名匹配（口径同目录页的搜索）。
+  final String nameQuery;
 
   /// 只看这一个源。null = **不限源，内建的「已下载」也算在内**。
   /// 「下载完成视频」那一栏传的是 [kDownloadsSourceId]。
@@ -102,6 +114,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
   @override
   void initState() {
     super.initState();
+    _hasRemoteSource = _repo.getSources().any((source) => source.isRemote);
     _loadMore();
     _scrollController.addListener(_onScroll);
     _repoWorker = debounce<int>(
@@ -154,7 +167,8 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     if (oldWidget.order != widget.order ||
         oldWidget.kind != widget.kind ||
         oldWidget.sourceId != widget.sourceId ||
-        oldWidget.favoritedOnly != widget.favoritedOnly) {
+        oldWidget.favoritedOnly != widget.favoritedOnly ||
+        oldWidget.nameQuery != widget.nameQuery) {
       // 查询口径换了（排序 / 筛选），旧的已加载条数没有意义，从第一页重来。
       _reloadFromDb(keepLoaded: false);
     }
@@ -186,6 +200,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
   /// 不是等待。
   void _reloadFromDb({bool keepLoaded = true}) {
     if (!mounted) return;
+    _hasRemoteSource = _repo.getSources().any((source) => source.isRemote);
     _generation++;
     final limit = keepLoaded ? math.max(_pageSize, _items.length) : _pageSize;
     final List<LocalMediaItem> page;
@@ -195,6 +210,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
         sourceId: widget.sourceId,
         order: widget.order,
         favoritedOnly: widget.favoritedOnly,
+        nameQuery: _nameQuery,
         offset: 0,
         limit: limit,
       );
@@ -223,6 +239,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
         sourceId: widget.sourceId,
         order: widget.order,
         favoritedOnly: widget.favoritedOnly,
+        nameQuery: _nameQuery,
         offset: _offset,
         limit: _pageSize,
       );
@@ -273,7 +290,9 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     final candidates = <(String, String)>[
       for (final item in page)
         // MediaStore 句柄没有真实路径，不能按路径判，跳过。
-        if (!item.path.startsWith('content://')) (item.id, item.path),
+        // NAS 条目（`dav:/…`）不在本机：「文件没了」由列目录收敛判，不在这里 stat。
+        if (!item.path.startsWith('content://') && !DavPath.isDav(item.path))
+          (item.id, item.path),
     ];
     if (candidates.isEmpty) return;
 
@@ -320,8 +339,10 @@ class _LocalMediaWallState extends State<LocalMediaWall>
   Future<void> _openItem(LocalMediaItem item) async {
     if (item.kind == LocalMediaItemKind.video) {
       if (!item.isPlayableNow) {
-        showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
-        return;
+        // 同 `LocalFolderBrowsePage._openVideo`：诊断 + 出路，找回了就打开找回的。
+        final found = await showLocalItemMissingDialog(item);
+        if (!mounted || found == null) return;
+        item = found;
       }
       // 按**这一栏自己的查询**建池，让播放器右侧的「接着看」一开就落在这一栏上、
       // 底栏那枚「下一个」给的也是墙上紧挨着的下一格。
@@ -352,10 +373,37 @@ class _LocalMediaWallState extends State<LocalMediaWall>
         playbackQueueRef: queueRef,
       );
     } else {
+      // ⛔ 不能只拿 [_items]：那只是已经翻出来的几页（每页 [_pageSize]），
+      // 相册会在第 120 张戛然而止。与目录页同一口径：按这一栏的排序现读路径，
+      // 上限防一个几十万张的库一次性把路径全读进内存。
+      var rows = [for (final e in _items) (id: e.id, path: e.path)];
+      try {
+        final all = _repo.itemPathsPage(
+          kind: widget.kind,
+          sourceId: widget.sourceId,
+          order: widget.order,
+          favoritedOnly: widget.favoritedOnly,
+          // 大图页滑过去的就是网格上搜出来的这几张。
+          nameQuery: _nameQuery,
+          limit: _imageViewerLimit,
+        );
+        if (all.isNotEmpty) rows = all;
+      } catch (e) {
+        LogUtils.w('读取大图页路径失败: $e', 'LocalMediaWall');
+      }
+      final loaded = {for (final e in _items) e.id: e};
+      if (!mounted) return;
       openLocalImageViewer(
         context,
-        _items.map((e) => e.path).toList(),
+        [for (final row in rows) row.path],
         item.path,
+        // 墙上可能混着好几个源（「所有图片」），NAS 图按条目各自的源连；
+        // 还没翻出来的那些按 id 现查条目（主键查询）。
+        davItems: {
+          for (final row in rows)
+            if (DavPath.isDav(row.path))
+              row.path: ?(loaded[row.id] ?? _repo.getItem(row.id)),
+        },
       );
     }
   }
@@ -392,8 +440,22 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     );
   }
 
+  /// 跨源的栏（没限定 [LocalMediaWall.sourceId]）里有没有 NAS 源。
+  ///
+  /// NAS 只收录打开过的那几层（整树后台扫描不在本期），聚合栏里天然缺一块——
+  /// 不说一声的话，用户会以为 NAS 上深处的视频丢了。
+  bool _hasRemoteSource = false;
+
+  /// 大图页一次最多带多少张（同目录页的 `_imageViewerLimit`）。
+  static const int _imageViewerLimit = 5000;
+
+  String? get _nameQuery => widget.nameQuery.isEmpty ? null : widget.nameQuery;
+
   String get _emptyText {
     final b = slang.t.localMedia.browse;
+    if (widget.nameQuery.isNotEmpty) {
+      return b.searchNoResult(query: widget.nameQuery);
+    }
     if (widget.sourceId == kDownloadsSourceId) {
       return b.emptyDownloadedVideos;
     }
@@ -444,6 +506,33 @@ class _LocalMediaWallState extends State<LocalMediaWall>
               SliverToBoxAdapter(
                 child: SizedBox(height: widget.headerExtent + 12),
               ),
+              if (_hasRemoteSource && widget.sourceId == null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            slang.t.localMedia.nasAggregateHint,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               // ⛔ 判据只能是 `_items.isEmpty`，别再往里加 `!_loading`：
               // [_loadMore] 全程同步（sqlite3 是同步调用），`finally` 在同一个
               // 微任务里就把 `_loading` 复位了，外面**永远**观察不到它为 true。
@@ -474,6 +563,21 @@ class _LocalMediaWallState extends State<LocalMediaWall>
                                   ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
+                          if (widget.onAddSource case final onAdd?
+                              when widget.nameQuery.isEmpty) ...[
+                            const SizedBox(height: 16),
+                            Builder(
+                              builder: (anchorContext) => GlassButtonGroup(
+                                children: [
+                                  GlassTextActionButton(
+                                    label: slang.t.localMedia.addSource,
+                                    emphasized: true,
+                                    onPressed: () => onAdd(anchorContext),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

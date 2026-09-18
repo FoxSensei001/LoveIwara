@@ -3,6 +3,9 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_dialog_motion.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_measured_box.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 
@@ -82,7 +85,19 @@ class GlassAlertDialog extends StatelessWidget {
     this.scrollable = false,
     this.maxWidth = 400,
     this.insetPadding = defaultInsetPadding,
+    this.floatingActions = false,
   });
+
+  /// 动作行浮在正文之上（正文铺到面板底，从动作胶囊背后滚过去，底部垫一层
+  /// 渐隐蒙层），而不是在正文下面单独占一行。正文会一直长的弹窗（列表、表单）用。
+  ///
+  /// 正文怎么给动作行让位：
+  /// - [scrollable] 为 true 时由本组件的滚动视图加底部内边距；
+  /// - 自带列表的正文：本组件把让位高度塞进 `MediaQuery.padding.bottom`，
+  ///   `ListView` / `GridView` 不传 `padding` 时会自动把它用成底部内边距。
+  ///   自己写了 `padding` 的滚动视图要自己加上
+  ///   `MediaQuery.paddingOf(context).bottom`。
+  final bool floatingActions;
 
   /// 面板与屏幕边缘之间的留白。
   ///
@@ -132,7 +147,9 @@ class GlassAlertDialog extends StatelessWidget {
     final cs = theme.colorScheme;
 
     Widget? body = content;
-    if (scrollable && body != null) {
+    if (scrollable &&
+        body != null &&
+        !(floatingActions && actions.isNotEmpty)) {
       body = SingleChildScrollView(child: body);
     }
     if (body != null) {
@@ -143,10 +160,7 @@ class GlassAlertDialog extends StatelessWidget {
       // 给的任意内容——标签浏览器、变量说明这类还会往里塞
       // `ListView`/`SingleChildScrollView`，正是 lens 最不该进的地方。
       // 路由层供档是为了让「弹窗里的按钮」不再漏，不是为了把正文一起卷进来。
-      body = LiquidGlassScope(
-        backend: flatGlassBackend(context),
-        child: body,
-      );
+      body = LiquidGlassScope(backend: flatGlassBackend(context), child: body);
     }
 
     // 液态档不在这里供了——[GlassDialogRoute] 已经在路由层给整张弹窗供上
@@ -165,6 +179,29 @@ class GlassAlertDialog extends StatelessWidget {
             ),
           )
         : null;
+
+    final Widget actionRow =
+        // ⛔ 这层 `LayoutBuilder` 长在**面板里、玻璃之外**：玻璃件会长在
+        // `IntrinsicHeight` 底下（侧边导航栏的 trailing 就是），而
+        // `LayoutBuilder` 一进那种量法就抛——`GlassSurface` 当初正是
+        // 为了这条才没用它（见 test/glass_surface_size_parity_test.dart
+        // 最后一例）。这里的祖先链上没有 intrinsics，安全。
+        LayoutBuilder(
+          // ⛔ 量文字必须在**面板 `Material` 之内**做——动作键的文字
+          // 样式继承的是这套 DefaultTextStyle，见
+          // [GlassTextActionButton.measureLabelWidth]。
+          builder: (context, constraints) => Align(
+            alignment: Alignment.centerRight,
+            child: GlassChromeLayer(
+              // group: false —— 动作行整只就是一块玻璃
+              // （GlassButtonGroup 的胶囊），同上。
+              group: false,
+              child: GlassButtonGroup(
+                children: _fitActionButtons(context, constraints.maxWidth),
+              ),
+            ),
+          ),
+        );
 
     return Padding(
       padding: insetPadding,
@@ -209,36 +246,24 @@ class GlassAlertDialog extends StatelessWidget {
                       ],
                     ),
                   ],
-                  if (body != null) ...[
-                    const SizedBox(height: 16),
-                    Flexible(child: body),
-                  ],
-                  if (actions.isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    // ⛔ 这层 `LayoutBuilder` 长在**面板里、玻璃之外**：玻璃件会长在
-                    // `IntrinsicHeight` 底下（侧边导航栏的 trailing 就是），而
-                    // `LayoutBuilder` 一进那种量法就抛——`GlassSurface` 当初正是
-                    // 为了这条才没用它（见 test/glass_surface_size_parity_test.dart
-                    // 最后一例）。这里的祖先链上没有 intrinsics，安全。
-                    LayoutBuilder(
-                      // ⛔ 量文字必须在**面板 `Material` 之内**做——动作键的文字
-                      // 样式继承的是这套 DefaultTextStyle，见
-                      // [GlassTextActionButton.measureLabelWidth]。
-                      builder: (context, constraints) => Align(
-                        alignment: Alignment.centerRight,
-                        child: GlassChromeLayer(
-                          // group: false —— 动作行整只就是一块玻璃
-                          // （GlassButtonGroup 的胶囊），同上。
-                          group: false,
-                          child: GlassButtonGroup(
-                            children: _fitActionButtons(
-                              context,
-                              constraints.maxWidth,
-                            ),
-                          ),
-                        ),
+                  if (floatingActions && actions.isNotEmpty) ...[
+                    if (title != null) const SizedBox(height: 16),
+                    Flexible(
+                      child: _FloatingActionsBody(
+                        scrollable: scrollable,
+                        actionRow: actionRow,
+                        body: body,
                       ),
                     ),
+                  ] else ...[
+                    if (body != null) ...[
+                      const SizedBox(height: 16),
+                      Flexible(child: body),
+                    ],
+                    if (actions.isNotEmpty) ...[
+                      const SizedBox(height: 20),
+                      actionRow,
+                    ],
                   ],
                 ],
               ),
@@ -363,4 +388,80 @@ Future<T?> showGlassAlertDialog<T>({
     barrierDismissible: barrierDismissible,
     motion: motion,
   );
+}
+
+/// [GlassAlertDialog.floatingActions] 的正文区：正文铺满，动作行浮在右下，
+/// 底部垫渐隐蒙层；动作行高度实测后让给正文。
+class _FloatingActionsBody extends StatefulWidget {
+  const _FloatingActionsBody({
+    required this.scrollable,
+    required this.actionRow,
+    required this.body,
+  });
+
+  final bool scrollable;
+  final Widget actionRow;
+  final Widget? body;
+
+  @override
+  State<_FloatingActionsBody> createState() => _FloatingActionsBodyState();
+}
+
+class _FloatingActionsBodyState extends State<_FloatingActionsBody> {
+  /// 首帧用胶囊的标称高度，布局后换成实测值。
+  double _actionHeight = GlassTokens.pillHeight;
+
+  /// 正文末尾与动作行之间的呼吸位（与非浮动档的 20 同值）。
+  static const double _gap = 20;
+
+  @override
+  Widget build(BuildContext context) {
+    final inset = _actionHeight + _gap;
+    Widget? body = widget.body;
+    if (body != null) {
+      body = widget.scrollable
+          ? SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: inset),
+              child: body,
+            )
+          : MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                padding: MediaQuery.paddingOf(context).copyWith(bottom: inset),
+              ),
+              child: body,
+            );
+    }
+    final plateau = _actionHeight * 0.45;
+    return Stack(
+      children: [
+        if (body != null) body else SizedBox(height: inset),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: IgnorePointer(
+            child: EdgeFadeScrim.bottom(
+              height: EdgeFadeScrim.overlayHeight(
+                headerExtent: _actionHeight,
+                plateauExtent: plateau,
+              ),
+              solidExtent: plateau,
+            ),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: GlassMeasuredBox(
+            onSize: (size) {
+              if (!mounted || (size.height - _actionHeight).abs() < 0.5) return;
+              setState(() => _actionHeight = size.height);
+            },
+            child: widget.actionRow,
+          ),
+        ),
+      ],
+    );
+  }
 }

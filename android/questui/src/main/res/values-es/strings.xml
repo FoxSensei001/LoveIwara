@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Luz cálida de atardecer sobre mar abierto, con el sol junto a su área de visualización.</string>
     <string name="xr_environment_mist">Picos en la niebla</string>
     <string name="xr_environment_mist_hint">Capas de montañas lejanas emergen entre una niebla suave, como un paisaje de tinta.</string>
+    <string name="xr_notice_nas_panel_closed">Se cerró el panel de la app, así que los vídeos del NAS no pueden seguir reproduciéndose. Vuelve a abrir el panel e inténtalo de nuevo</string>
+    <string name="xr_notice_nas_auth">El NAS necesita que vuelvas a iniciar sesión. Hazlo desde Archivos locales en el panel de la app</string>
+    <string name="xr_notice_nas_cert">El certificado del NAS cambió. Confírmalo de nuevo desde Archivos locales en el panel de la app</string>
+    <string name="xr_notice_nas_unreachable">No se puede conectar con el NAS. Comprueba que el visor y el NAS estén en la misma red</string>
 </resources>

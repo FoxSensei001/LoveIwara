@@ -61,7 +61,9 @@
   <uses-feature android:name="com.oculus.feature.VIRTUAL_KEYBOARD" android:required="false" />
   <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false" />
 
-  <application>
+  <!-- 唯一一个加在 application 上的属性：main 清单没有它，合并时是纯增量，
+       standard 包不受影响。理由见 res/xml/network_security_config.xml。 -->
+  <application android:networkSecurityConfig="@xml/network_security_config">
     <!-- ⛔ 只能填官方罐头值（quest / quest2 / questpro / quest3 / quest3s，竖线分隔）。
          这里原来写的 `all` 是我编的：它不在官方表内，还会让 Android Studio 的 Meta
          插件兼容性检查失效。初代 quest 不在列 —— 它的 Horizon OS 上不去 v69。 -->

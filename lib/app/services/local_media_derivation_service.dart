@@ -18,6 +18,10 @@ import 'package:media_kit/src/player/native/core/native_library.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
+import 'package:i_iwara/app/services/webdav/webdav_media_fetch.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -152,6 +156,9 @@ class LocalMediaDerivationService extends GetxService {
   /// 把这一条图片排进独立的图片派生队列（读取文件头宽高，毫秒级，不占用视频播放器资源）。
   Future<void> enqueueImage(LocalMediaItem item) {
     if (item.missing) return Future<void>.value();
+    if (DavPath.isDav(item.path) && _remoteBlocked(item.sourceId)) {
+      return Future<void>.value();
+    }
 
     final metaFailed = _failedJobKeys.contains(
       _jobKey(item.id, item.sizeBytes, item.modifiedAt, 'imgmeta'),
@@ -212,6 +219,13 @@ class LocalMediaDerivationService extends GetxService {
     bool background = false,
   }) {
     if (item.missing) return Future<void>.value();
+    // ⛔ NAS 条目每派生一条都要走网络（拉同名图 / 开无头 Player 抽帧），只接
+    // **前台**请求（卡片真的滚进了视野）。扫描发起的后台批量一律不入队：一个
+    // 几千条的目录全排进来，NAS 慢的时候会把本地卡片的封面饿死。熔断中的源也不接。
+    if (DavPath.isDav(item.path) &&
+        (background || _remoteBlocked(item.sourceId))) {
+      return Future<void>.value();
+    }
 
     // 唯一分流点：图片走轻量文件头读取通道，不占用也不阻塞单条视频 Player 队列。
     if (item.kind == LocalMediaItemKind.image) {
@@ -503,6 +517,11 @@ class LocalMediaDerivationService extends GetxService {
       return;
     }
 
+    if (DavPath.isDav(current.path)) {
+      await _deriveRemoteImage(current);
+      return;
+    }
+
     final playbackTarget = current.resolvePlaybackTarget();
     final playablePath = await _materializePath(playbackTarget);
     if (playablePath == null) return;
@@ -569,9 +588,412 @@ class LocalMediaDerivationService extends GetxService {
     }
   }
 
+  // ── NAS（WebDAV）条目 ────────────────────────────────────────────────────
+  //
+  // 字节一律走本机网关（`WebDavService.gatewayUrlForItem`）：鉴权、证书、绕代理
+  // 都在网关里。封面只落**本机缓存**里的文件（`thumb_path`），远端路径绝不交给
+  // `Image.file`。文件指纹（大小 / 修改时间）取库里的——它来自 PROPFIND，本来就是
+  // 这一份的指纹，不存在「库里那份说的不是磁盘上这个」的问题。
+
+  /// 同名图 / 图片原图拉进缓存的上限。封面不值得为一张巨图拉几十 MB。
+  static const int _remoteCoverMaxBytes = 20 * 1024 * 1024;
+  static const int _remoteImageMaxBytes = 32 * 1024 * 1024;
+
+  /// 同一个源连续失败这么多次就熔断一阵：NAS 掉线时别让每张滚进视野的卡片都去
+  /// 撞一次网络超时、占着串行的派生队列。
+  static const int _remoteFailureThreshold = 3;
+  static const Duration _remoteBlockDuration = Duration(minutes: 5);
+  final Map<String, int> _remoteFailures = <String, int>{};
+  final Map<String, DateTime> _remoteBlockedUntil = <String, DateTime>{};
+
+  bool _remoteBlocked(String sourceId) {
+    final until = _remoteBlockedUntil[sourceId];
+    if (until == null) return false;
+    if (DateTime.now().isBefore(until)) return true;
+    _remoteBlockedUntil.remove(sourceId);
+    return false;
+  }
+
+  void _remoteSucceeded(String sourceId) => _remoteFailures.remove(sourceId);
+
+  void _remoteFailed(String sourceId) {
+    final count = (_remoteFailures[sourceId] ?? 0) + 1;
+    if (count < _remoteFailureThreshold) {
+      _remoteFailures[sourceId] = count;
+      return;
+    }
+    _remoteFailures.remove(sourceId);
+    _remoteBlockedUntil[sourceId] = DateTime.now().add(_remoteBlockDuration);
+    LogUtils.w('NAS 派生连续失败，暂停该源 ${_remoteBlockDuration.inMinutes} 分钟', _tag);
+  }
+
+  /// 网关上的一张 NAS 图片 → 本机的缩略图（缩到长边 640 再落盘，命名同自动缩略图）。
+  ///
+  /// 原图只作中转：拉下来、读宽高、缩放、删掉。不把几十 MB 的原图当缩略图存——
+  /// 几百张图的目录会让缓存目录线性涨。
+  Future<
+    ({GatewayFetchResult result, String? thumbPath, int? width, int? height})
+  >
+  _remoteImageToThumbnail(
+    LocalMediaItem item, {
+    required String davPath,
+    required int maxBytes,
+  }) async {
+    final String url;
+    try {
+      url = await WebDavService.instance.gatewayUrlFor(
+        _repository.getSource(item.sourceId) ??
+            (throw const WebDavUnavailable(LocalMediaRemoteState.unreachable)),
+        davPath,
+      );
+    } catch (e) {
+      LogUtils.w('NAS 文件取不到网关地址：$e', _tag);
+      return (
+        result: GatewayFetchResult.failed,
+        thumbPath: null,
+        width: null,
+        height: null,
+      );
+    }
+    final directory = await _thumbnailPath();
+    final download = File(
+      p.join(
+        directory,
+        'dl-${sha1.convert(utf8.encode('$davPath\u0000${item.id}')).toString()}',
+      ),
+    );
+    final fetched = await fetchGatewayFileTo(url, download, maxBytes: maxBytes);
+    if (fetched != GatewayFetchResult.ok) {
+      return (result: fetched, thumbPath: null, width: null, height: null);
+    }
+    try {
+      final bytes = await download.readAsBytes();
+      int? width;
+      int? height;
+      final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      try {
+        final descriptor = await ui.ImageDescriptor.encoded(buffer);
+        width = descriptor.width;
+        height = descriptor.height;
+        descriptor.dispose();
+      } catch (e) {
+        LogUtils.w('读取 NAS 图片分辨率失败：${item.name}: $e', _tag);
+      } finally {
+        buffer.dispose();
+      }
+      if (width == null || width <= 0 || height == null || height <= 0) {
+        return (
+          result: GatewayFetchResult.ok,
+          thumbPath: null,
+          width: null,
+          height: null,
+        );
+      }
+      final scaled = await _scaleThumbnail(
+        bytes,
+        hintWidth: width,
+        hintHeight: height,
+      );
+      final thumbPath = await _writeThumbnail(
+        item,
+        sizeBytes: item.sizeBytes ?? 0,
+        modifiedAt: item.modifiedAt ?? 0,
+        bytes: scaled.bytes,
+        extension: scaled.extension,
+      );
+      return (
+        result: GatewayFetchResult.ok,
+        thumbPath: thumbPath,
+        width: width,
+        height: height,
+      );
+    } finally {
+      await download.delete().catchError((_) => download);
+    }
+  }
+
+  /// NAS 图片：拉下来读宽高、缩成缩略图。
+  ///
+  /// ⛔ 失败分两种处理：「太大 / 解不出」是这个文件自己的确定性结论，记负缓存；
+  /// 「没拉到」多半是网络暂时不好（NAS 硬盘休眠唤醒就要十几秒），只计熔断，
+  /// 下次滚进视野还会再试。
+  Future<void> _deriveRemoteImage(LocalMediaItem current) async {
+    final outcome = await _remoteImageToThumbnail(
+      current,
+      davPath: current.path,
+      maxBytes: _remoteImageMaxBytes,
+    );
+    LogUtils.d(
+      'NAS 图片派生 ${current.name}：${outcome.result.name} '
+      '${outcome.width}x${outcome.height} thumb=${outcome.thumbPath != null}',
+      _tag,
+    );
+    switch (outcome.result) {
+      case GatewayFetchResult.failed:
+        _remoteFailed(current.sourceId);
+        return;
+      case GatewayFetchResult.tooLarge:
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'imgmeta',
+        );
+        return;
+      case GatewayFetchResult.ok:
+        _remoteSucceeded(current.sourceId);
+    }
+    if (outcome.thumbPath == null) {
+      _markJobFailed(
+        current.id,
+        current.sizeBytes,
+        current.modifiedAt,
+        'imgmeta',
+      );
+      return;
+    }
+    final updated = _repository.updateDerivedFields(
+      itemId: current.id,
+      expectedSizeBytes: current.sizeBytes,
+      expectedModifiedAt: current.modifiedAt,
+      width: outcome.width,
+      height: outcome.height,
+      thumbPath: outcome.thumbPath,
+    );
+    // NAS 目录的封面只能来自拉进本机的缩略图（扫描器不给远端路径当封面）。
+    if (updated) _backfillFolderCover(current);
+  }
+
+  /// NAS 视频：有同名图就拉同名图当封面；时长 / 宽高 / 缺封面时的抽帧，开一个
+  /// 无头 Player 连网关。
+  Future<void> _deriveRemoteVideo(
+    _DerivationRequest request,
+    LocalMediaItem current,
+  ) async {
+    var thumbAvailable = await _exists(current.thumbPath);
+    final remoteSidecar = current.sidecarImagePath;
+    // 同名图在远端：只要它在，就不为封面抽帧（与本地同一规则）。先把它拉进来。
+    var sidecarAvailable = false;
+    if (remoteSidecar != null && DavPath.isDav(remoteSidecar)) {
+      sidecarAvailable = true;
+      if (!thumbAvailable) {
+        final outcome = await _remoteImageToThumbnail(
+          current,
+          davPath: remoteSidecar,
+          maxBytes: _remoteCoverMaxBytes,
+        );
+        final thumbPath = outcome.thumbPath;
+        if (thumbPath != null) {
+          final updated = _repository.updateDerivedFields(
+            itemId: current.id,
+            expectedSizeBytes: current.sizeBytes,
+            expectedModifiedAt: current.modifiedAt,
+            thumbPath: thumbPath,
+          );
+          thumbAvailable = true;
+          if (updated) _backfillFolderCover(current);
+        } else {
+          // 同名图拉不下来（太大 / 掉线 / 解不出）：退回抽帧，别让这张卡永远空着。
+          if (outcome.result == GatewayFetchResult.failed) {
+            _remoteFailed(current.sourceId);
+          }
+          sidecarAvailable = false;
+        }
+      }
+    }
+
+    final metaProbed = current.metaProbedAt != null;
+    final needDuration = current.durationMs == null && !metaProbed;
+    final needWidth = current.width == null && !metaProbed;
+    final needHeight = current.height == null && !metaProbed;
+    final needThumbnail =
+        request.generateThumbnail && !sidecarAvailable && !thumbAvailable;
+    if (request.generateThumbnail) request.thumbnailHandled = true;
+    final metaBlocked =
+        (!needDuration && !needWidth && !needHeight) ||
+        _failedJobKeys.contains(
+          _jobKey(current.id, current.sizeBytes, current.modifiedAt, 'meta'),
+        );
+    final thumbBlocked =
+        !needThumbnail ||
+        _failedJobKeys.contains(
+          _jobKey(current.id, current.sizeBytes, current.modifiedAt, 'thumb'),
+        );
+    if (metaBlocked && thumbBlocked) {
+      // 帧率与 VR 线索：前者要开 Player 读，NAS 上不值得单为它开；后者只看文件名。
+      if (current.vrFormatJson == null) {
+        try {
+          final hints = await _deriveVrHints(current.name, null);
+          _repository.updateDerivedFields(
+            itemId: current.id,
+            expectedSizeBytes: current.sizeBytes,
+            expectedModifiedAt: current.modifiedAt,
+            vrFormatJson: hints.toJson(),
+          );
+        } catch (_) {}
+      }
+      return;
+    }
+    if (current.sizeBytes == null || current.modifiedAt == null) return;
+
+    final String url;
+    try {
+      url = await WebDavService.instance.gatewayUrlForItem(current.id);
+    } catch (e) {
+      LogUtils.w('NAS 视频取不到网关地址：$e', _tag);
+      _remoteFailed(current.sourceId);
+      return;
+    }
+
+    final now = DateTime.now();
+    final sinceLastPlayer = now.difference(_lastPlayerReleasedAt);
+    var cooldown = sinceLastPlayer < _playerCooldown
+        ? _playerCooldown - sinceLastPlayer
+        : Duration.zero;
+    final stuckWait = _stuckPlayerUntil.difference(now);
+    if (stuckWait > cooldown) cooldown = stuckWait;
+    if (cooldown > Duration.zero) await Future<void>.delayed(cooldown);
+    final player = Player(
+      configuration: const PlayerConfiguration(
+        bufferSize: _derivationBufferBytes,
+      ),
+    );
+    try {
+      await _configureHeadlessPlayer(
+        player,
+        maxFrameDimension: _thumbnailFilterMaxDimension,
+        preciseSeek: false,
+      );
+      final platform = player.platform;
+      if (platform is NativePlayer) {
+        // ⛔ 网关在回环地址上，mpv 默认 60s 的网络超时太长：NAS 卡住时这个 Player
+        // 会一直占着「同一时刻只有一个无头 Player」的名额（`.timeout` 打断不了
+        // FFI 调用，见 [_nativeCallTimeout] 那一段）。
+        await platform.setProperty('network-timeout', '10');
+      }
+      await player.open(Media(url), play: false).timeout(_nativeCallTimeout);
+
+      final metadata = await Future.wait<Object?>([
+        needDuration ? _readDuration(player) : Future<Duration?>.value(),
+        (needWidth || needHeight || needThumbnail)
+            ? _readWidth(player)
+            : Future<int?>.value(),
+        (needWidth || needHeight || needThumbnail)
+            ? _readHeight(player)
+            : Future<int?>.value(),
+      ]);
+      final duration = metadata[0] as Duration?;
+      final width = metadata[1] as int?;
+      final height = metadata[2] as int?;
+      final effectiveDuration =
+          duration ??
+          (current.durationMs != null
+              ? Duration(milliseconds: current.durationMs!)
+              : null);
+
+      Uint8List? thumbnailBytes;
+      if (needThumbnail && !thumbBlocked) {
+        thumbnailBytes = await _captureThumbnail(
+          player,
+          candidates: coverCandidatesFor(current.id, effectiveDuration),
+        );
+      }
+
+      String? vrFormatJson;
+      if (current.vrFormatJson == null) {
+        try {
+          vrFormatJson = (await _deriveVrHints(current.name, null)).toJson();
+        } catch (_) {}
+      }
+
+      String? thumbPath;
+      if (thumbnailBytes != null && thumbnailBytes.isNotEmpty) {
+        final scaled = await _scaleThumbnail(
+          thumbnailBytes,
+          hintWidth: width,
+          hintHeight: height,
+        );
+        thumbPath = await _writeThumbnail(
+          current,
+          sizeBytes: current.sizeBytes!,
+          modifiedAt: current.modifiedAt!,
+          bytes: scaled.bytes,
+          extension: scaled.extension,
+        );
+      }
+
+      final updated = _repository.updateDerivedFields(
+        itemId: current.id,
+        expectedSizeBytes: current.sizeBytes,
+        expectedModifiedAt: current.modifiedAt,
+        durationMs: duration?.inMilliseconds,
+        width: width,
+        height: height,
+        thumbPath: thumbPath,
+        vrFormatJson: vrFormatJson,
+      );
+      if (thumbPath != null && updated) _backfillFolderCover(current);
+      LogUtils.d(
+        'NAS 派生完成 ${current.name}：duration=${duration?.inMilliseconds} '
+        '${width}x$height thumb=${thumbPath != null}',
+        _tag,
+      );
+
+      // ⛔ 一样都没读到 = 多半根本没连上（NAS 休眠唤醒、网关回 401/502、超时），
+      // 不是「这个文件解不出」。这种只计熔断：写了 meta_probed 就**跨重启**再也
+      // 不补，这张卡永远没有时长和分辨率。
+      final nothingRead =
+          (needDuration || needWidth || needHeight || needThumbnail) &&
+          duration == null &&
+          width == null &&
+          height == null;
+      if (nothingRead) {
+        _remoteFailed(current.sourceId);
+        return;
+      }
+      final metaKnown =
+          (current.durationMs != null || duration != null) &&
+          (current.width != null || width != null) &&
+          (current.height != null || height != null);
+      if ((needDuration || needWidth || needHeight) && !metaKnown) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'meta',
+        );
+        _markMetaProbedSafely(current.id);
+      }
+      if (needThumbnail && (thumbnailBytes == null || thumbnailBytes.isEmpty)) {
+        _markJobFailed(
+          current.id,
+          current.sizeBytes,
+          current.modifiedAt,
+          'thumb',
+        );
+      }
+      _remoteSucceeded(current.sourceId);
+    } catch (e) {
+      LogUtils.w('NAS 视频派生失败：${current.name}: $e', _tag);
+      _remoteFailed(current.sourceId);
+    } finally {
+      try {
+        await player.dispose().timeout(_nativeCallTimeout);
+        _lastPlayerReleasedAt = DateTime.now();
+      } catch (e) {
+        _stuckPlayerUntil = DateTime.now().add(_stuckPlayerCooldown);
+        LogUtils.w('无头 Player dispose 超时，延后下一次开 Player: $e', _tag);
+      }
+    }
+  }
+
   Future<void> _derive(_DerivationRequest request) async {
     final current = _repository.getItem(request.item.id);
     if (current == null || current.missing) return;
+    if (DavPath.isDav(current.path)) {
+      await _deriveRemoteVideo(request, current);
+      return;
+    }
 
     final sidecarAvailable = await _exists(current.sidecarImagePath);
     final thumbAvailable = await _exists(current.thumbPath);

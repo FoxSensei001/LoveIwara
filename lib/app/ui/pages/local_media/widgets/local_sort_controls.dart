@@ -21,7 +21,7 @@ class LocalSortControls extends StatelessWidget {
   final List<LocalMediaSortField> fields;
   final ValueChanged<LocalMediaOrder> onChanged;
 
-  static String _labelForField(LocalMediaSortField field) {
+  static String labelForField(LocalMediaSortField field) {
     final b = slang.t.localMedia.browse;
     return switch (field) {
       LocalMediaSortField.name => b.sortFieldName,
@@ -32,6 +32,7 @@ class LocalSortControls extends StatelessWidget {
       LocalMediaSortField.fileType => b.sortFieldFileType,
       LocalMediaSortField.fps => b.sortFieldFps,
       LocalMediaSortField.favorited => b.sortFieldFavorited,
+      LocalMediaSortField.played => slang.t.localMedia.sortRecentlyPlayed,
       _ => field.name,
     };
   }
@@ -67,7 +68,7 @@ class LocalSortControls extends StatelessWidget {
                   for (final field in fields)
                     GlassMenuOption<LocalMediaSortField>(
                       value: field,
-                      label: _labelForField(field),
+                      label: labelForField(field),
                       selected: field == order.field,
                     ),
                 ],

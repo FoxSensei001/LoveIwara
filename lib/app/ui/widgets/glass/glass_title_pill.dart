@@ -23,6 +23,7 @@ class GlassTitlePill extends StatelessWidget {
     this.title,
     this.subtitle,
     this.icon,
+    this.trailingIcon,
     this.placeholderWidth = 140,
     this.flat = false,
     this.busy = false,
@@ -43,6 +44,12 @@ class GlassTitlePill extends StatelessWidget {
   /// 加载中（[title] 为 null）时**不画**：那会儿画一枚光秃秃的图标和当年画一
   /// 个光秃秃的「#」一样不诚实，占位就老老实实只是占位。
   final IconData? icon;
+
+  /// 标题右边的一枚小图标，说明「点这里有东西」（如位置菜单的下拉箭头）。
+  ///
+  /// 自定义 [onTap] 开的若不是全文弹窗，就该给它：否则用户没有理由知道点标题
+  /// 能跳去别处——同一个胶囊在别的页面点开只是看完整标题。
+  final IconData? trailingIcon;
 
   /// 可选副标题（如分类描述）；胶囊里不展示，只出现在完整标题弹窗里。
   final String? subtitle;
@@ -118,6 +125,14 @@ class GlassTitlePill extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (trailingIcon != null) ...[
+                  const SizedBox(width: 2),
+                  Icon(
+                    trailingIcon,
+                    size: (textTheme.titleMedium?.fontSize ?? 16) + 4,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
               ],
             ),
           );

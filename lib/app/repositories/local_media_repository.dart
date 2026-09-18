@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 import 'package:i_iwara/db/database_service.dart';
@@ -152,6 +154,15 @@ class LocalMediaRepository {
 
   static void notifyChanged() => changeRevision.value++;
 
+  static final StreamController<String> _progressChanges =
+      StreamController<String>.broadcast();
+
+  /// 哪一条的观看进度刚变了（清空全部时发 `'*'`）。
+  ///
+  /// 卡片上的进度条靠它就地刷新自己那一张。⛔ 不走 [changeRevision]：
+  /// 播放期间每 5 秒落一次进度，走那条会让整面墙清空重拉（见 [saveProgress]）。
+  static Stream<String> get progressChanges => _progressChanges.stream;
+
   /// 目录行的变更信号（封面、pin、目录本身的增删），**与条目集合无关**。
   ///
   /// # ⛔ 为什么必须和 [changeRevision] 分家
@@ -254,12 +265,36 @@ class LocalMediaRepository {
       // 挡在自己的下载目录（以及它的任何上级目录）之外。真正防重复的是
       // [pathsOfSource] 那条逐路径让位规则，不是这里。
       if (source.isBuiltIn) continue;
+      // ⛔ 只和本机文件系统的源比。NAS 源的 path 是 `dav:/…`，和本机路径没有
+      // 包含关系可言（NAS 之间的重叠在添加 NAS 源那条路上单独判）。
+      if (!source.usesLocalFileSystem) continue;
       final existing = source.path;
       if (existing == null || existing.isEmpty) continue;
       final other = _withTrailingSeparator(existing);
       if (normalized == other ||
           normalized.startsWith(other) ||
           other.startsWith(normalized)) {
+        return source;
+      }
+    }
+    return null;
+  }
+
+  /// NAS 版的 [findOverlappingSource]：同一台服务器（[origin] 相同）上，[davPath]
+  /// 与某个已加的 NAS 源相同、在它里面、或是它的上层。
+  ///
+  /// ⛔ 必须带 origin 比：两台 NAS 的 `dav:/video` 是两个不相干的目录。
+  LocalMediaSource? findOverlappingRemoteSource({
+    required String origin,
+    required String davPath,
+  }) {
+    for (final source in getSources()) {
+      if (!source.isRemote || source.uri != origin) continue;
+      final existing = source.path;
+      if (existing == null || !DavPath.isDav(existing)) continue;
+      if (existing == davPath ||
+          DavPath.isWithin(existing, davPath) ||
+          DavPath.isWithin(davPath, existing)) {
         return source;
       }
     }
@@ -321,9 +356,13 @@ class LocalMediaRepository {
           parentRelPath: i == 1 ? '' : segments.take(i - 1).join('/'),
           name: name,
           sortName: naturalSortKey(name),
-          folderPath: p.normalize(
-            p.joinAll(<String>[root, ...segments.take(i)]),
-          ),
+          // NAS 源的根是 `dav:/…`：走 posix 拼接。`p.joinAll` 在 Windows 上会拼出
+          // 反斜杠，得到一条库里别处永远对不上的 folder_path。
+          folderPath: DavPath.isDav(root)
+              ? DavPath.fromServerPath(
+                  '${DavPath.toServerPath(root)}/${segments.take(i).join('/')}',
+                )
+              : p.normalize(p.joinAll(<String>[root, ...segments.take(i)])),
         ),
       );
     }
@@ -373,6 +412,37 @@ class LocalMediaRepository {
   ///
   /// ⛔ 进度必须跟着删（§8.3 P4）。留着的话下次重新加同一个目录，会拿到一份
   /// 用户以为已经删掉的观看记录——那是隐私问题，不是"贴心"。
+  /// 移除这个源会一并清掉的「用户自己攒下的东西」，给确认框报数用。
+  ///
+  /// 口径与 [deleteSource] 删的一一对应：那边删了什么，这里就得数什么——确认框
+  /// 只说「磁盘上的文件一个不动」时，用户以为移除后还能原样加回来，其实进度、
+  /// 精选、常用目录全没了（2026-09-19 走查）。
+  ({int progress, int favorites, int pinned, int hidden, int covers})
+  sourceRemovalImpact(String id) {
+    int count(String sql) =>
+        (_db.select(sql, [id]).first.columnAt(0) as int?) ?? 0;
+    return (
+      progress: count(
+        'SELECT COUNT(*) FROM local_media_progress WHERE item_id IN '
+        '(SELECT id FROM local_media_items WHERE source_id = ?)',
+      ),
+      favorites: count(
+        'SELECT COUNT(*) FROM local_media_items '
+        'WHERE source_id = ? AND favorited_at IS NOT NULL',
+      ),
+      pinned: count(
+        'SELECT COUNT(*) FROM local_media_pinned_folders WHERE source_id = ?',
+      ),
+      hidden: count(
+        'SELECT COUNT(*) FROM local_media_hidden_folders WHERE source_id = ?',
+      ),
+      covers: count(
+        'SELECT COUNT(*) FROM local_media_folders '
+        'WHERE source_id = ? AND cover_pinned = 1',
+      ),
+    );
+  }
+
   void deleteSource(String id) {
     _db.execute('BEGIN');
     try {
@@ -1036,8 +1106,14 @@ class LocalMediaRepository {
     if (underPath == null || underPath.isEmpty) {
       return (sql: '', args: const <Object?>[]);
     }
-    final exact = p.normalize(underPath);
-    final prefix = _withTrailingSeparator(exact);
+    // ⛔ NAS 的 `dav:/…` 不许走平台 `p.normalize`：Windows 上它会被改写成
+    // `dav:\video`，和库里存的对不上，查询静默落空（条目指纹、收敛全错）。
+    // DavPath 产出的本来就是规范形，原样用，分隔符固定 `/`。
+    final isDav = DavPath.isDav(underPath);
+    final exact = isDav ? underPath : p.normalize(underPath);
+    final prefix = isDav
+        ? (exact.endsWith('/') ? exact : '$exact/')
+        : _withTrailingSeparator(exact);
     // 「以 prefix 打头」＝ `[prefix, 上界)` 这段 BINARY 序区间，上界是把末尾那个
     // 分隔符换成码点 +1 的字符（`/`→`0`、`\`→`]`）。分隔符是 ASCII，不会撞上代理对。
     final sep = prefix.codeUnitAt(prefix.length - 1);
@@ -1348,6 +1424,7 @@ class LocalMediaRepository {
     required bool includeMissing,
     required bool favoritedOnly,
     String? nameQuery,
+    bool includeSubfolders = false,
   }) {
     final where = <String>['kind = ?'];
     final params = <Object?>[kind.name];
@@ -1355,7 +1432,15 @@ class LocalMediaRepository {
       where.add('source_id = ?');
       params.add(sourceId);
     }
-    if (folderPath != null) {
+    final subtree = includeSubfolders && folderPath != null;
+    if (subtree) {
+      // 「含子文件夹」：这一层 + 路径前缀落在它下面的所有层。前缀里的 `%` `_`
+      // `\` 同样要转义（文件夹名里 `_` 极常见）。
+      where.add("(folder_path = ? OR folder_path LIKE ? ESCAPE '\\')");
+      params
+        ..add(folderPath)
+        ..add(_subtreeLikePattern(folderPath));
+    } else if (folderPath != null) {
       where.add('folder_path = ?');
       params.add(folderPath);
     }
@@ -1377,10 +1462,28 @@ class LocalMediaRepository {
     _addCategoryFilter(categoryId, where, params);
     if (!includeMissing) where.add('missing = 0');
     if (favoritedOnly) where.add('favorited_at IS NOT NULL');
-    final indexed = sourceId != null && folderPath != null
+    // ⛔ 含子文件夹时不能钉这条索引：OR + LIKE 用不上它的等值前缀，
+    // `INDEXED BY` 找不到可用方案时 SQLite 直接报错而不是退回全扫。
+    final indexed = sourceId != null && folderPath != null && !subtree
         ? ' INDEXED BY idx_local_items_folder_kind_sort'
         : '';
     return (sql: '$indexed WHERE ${where.join(' AND ')}', params: params);
+  }
+
+  /// `folder_path LIKE` 用的子树前缀：`<目录><分隔符>%`。
+  ///
+  /// 分隔符按库里存的形状取：NAS 的 `dav:/…` 一律 `/`；本机路径是平台原样
+  /// （Windows 上是 `\`，见 [_withTrailingSeparator] 的说明）。
+  static String _subtreeLikePattern(String folderPath) {
+    final separator = DavPath.isDav(folderPath) ? '/' : p.separator;
+    final base = folderPath.endsWith(separator)
+        ? folderPath
+        : '$folderPath$separator';
+    final escaped = base
+        .replaceAll('\\', '\\\\')
+        .replaceAll('%', '\\%')
+        .replaceAll('_', '\\_');
+    return '$escaped%';
   }
 
   /// 把用户输入的一段关键词变成 `LIKE` 的模式串；空白输入返回 null（＝不过滤）。
@@ -1411,6 +1514,7 @@ class LocalMediaRepository {
     bool includeMissing = false,
     bool favoritedOnly = false,
     String? nameQuery,
+    bool includeSubfolders = false,
     required int offset,
     required int limit,
   }) {
@@ -1422,6 +1526,7 @@ class LocalMediaRepository {
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
       nameQuery: nameQuery,
+      includeSubfolders: includeSubfolders,
     );
     final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
     final rows = _db.select(
@@ -1457,6 +1562,7 @@ class LocalMediaRepository {
     bool includeMissing = false,
     bool favoritedOnly = false,
     String? nameQuery,
+    bool includeSubfolders = false,
     required int limit,
   }) {
     final filter = _itemFilter(
@@ -1467,6 +1573,7 @@ class LocalMediaRepository {
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
       nameQuery: nameQuery,
+      includeSubfolders: includeSubfolders,
     );
     final orderBy = order != null ? _orderByClause(order) : _orderBy(sort);
     final rows = _db.select(
@@ -1493,6 +1600,7 @@ class LocalMediaRepository {
     bool includeMissing = false,
     bool favoritedOnly = false,
     String? nameQuery,
+    bool includeSubfolders = false,
   }) {
     final filter = _itemFilter(
       sourceId: sourceId,
@@ -1502,6 +1610,7 @@ class LocalMediaRepository {
       includeMissing: includeMissing,
       favoritedOnly: favoritedOnly,
       nameQuery: nameQuery,
+      includeSubfolders: includeSubfolders,
     );
     final rows = _db.select(
       'SELECT COUNT(*) AS c FROM local_media_items${filter.sql}',
@@ -1807,6 +1916,7 @@ class LocalMediaRepository {
         [now, itemId],
       );
       _db.execute('COMMIT');
+      _progressChanges.add(itemId);
     } catch (e) {
       _db.execute('ROLLBACK');
       rethrow;
@@ -1844,6 +1954,7 @@ class LocalMediaRepository {
     }
     if (removed > 0 || clearedTimestamps > 0) notifyChanged();
     LogUtils.i('已清空本机观看记录：$removed 条', _tag);
+    _progressChanges.add('*');
     return removed;
   }
 
@@ -2413,9 +2524,12 @@ class LocalMediaRepository {
         WHERE i.source_id = ?
           AND i.folder_path = (SELECT f.folder_path FROM local_media_folders f
                                WHERE f.source_id = ? AND f.rel_path = ?)
-          AND i.kind = 'video' AND i.missing = 0
+          AND i.missing = 0
           AND i.thumb_path IS NOT NULL AND i.thumb_path != ''
-        ORDER BY i.sort_name ASC, i.name ASC, i.id ASC LIMIT 1
+        -- 视频优先；图片只有 NAS 的才有 thumb_path（本机图片派生只写宽高、
+        -- 目录封面由扫描器直接取目录里的图），于是 NAS 纯图片目录也借得到封面。
+        ORDER BY (i.kind = 'video') DESC, i.sort_name ASC, i.name ASC, i.id ASC
+        LIMIT 1
       )
       UPDATE local_media_folders
       SET cover_path = (SELECT thumb_path FROM candidate), cover_borrowed = 0
@@ -2638,7 +2752,10 @@ class LocalMediaRepository {
     for (final row in rows) {
       final kind = row['kind'] as String?;
       String? candidate;
-      if (kind == LocalMediaItemKind.image.name || kind == 'image') {
+      // NAS 条目：原图 / 同名图是远端引用，只认拉进本机缓存的那张。
+      if (DavPath.isDav(row['path'] as String?)) {
+        candidate = row['thumb_path'] as String?;
+      } else if (kind == LocalMediaItemKind.image.name || kind == 'image') {
         candidate = row['path'] as String?;
       } else if (kind == LocalMediaItemKind.video.name || kind == 'video') {
         candidate = _videoCoverOf(row);
@@ -2789,7 +2906,10 @@ class LocalMediaRepository {
     for (final row in rows) {
       final kind = row['kind'] as String?;
       String? candidate;
-      if (kind == LocalMediaItemKind.image.name || kind == 'image') {
+      // NAS 条目：原图 / 同名图是远端引用，只认拉进本机缓存的那张。
+      if (DavPath.isDav(row['path'] as String?)) {
+        candidate = row['thumb_path'] as String?;
+      } else if (kind == LocalMediaItemKind.image.name || kind == 'image') {
         candidate = row['path'] as String?;
       } else {
         candidate = _videoCoverOf(row);

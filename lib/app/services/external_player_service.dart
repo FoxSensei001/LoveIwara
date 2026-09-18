@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/services/desktop_external_player.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -91,6 +92,9 @@ class ExternalPlayerService {
     String? title,
     String? qualityTag,
   }) {
+    // ⛔ NAS 片的 `dav:/…` 不是本机文件，交出去外部播放器也打不开；返回 null
+    // 由调用方提示「地址不可用」。
+    if (DavPath.isDav(localVideoPath)) return null;
     if (localVideoPath != null && localVideoPath.isNotEmpty) {
       return ExternalPlayerSource(
         kind: ExternalPlayerSourceKind.localFile,

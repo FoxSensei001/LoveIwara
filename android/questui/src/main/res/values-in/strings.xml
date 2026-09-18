@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Cahaya senja hangat di atas laut lepas, dengan matahari di samping area tonton Anda.</string>
     <string name="xr_environment_mist">Puncak Berkabut</string>
     <string name="xr_environment_mist_hint">Lapisan gunung jauh menjulang menembus kabut lembut, seperti lukisan tinta.</string>
+    <string name="xr_notice_nas_panel_closed">Panel aplikasi ditutup, jadi video NAS tidak bisa diputar. Buka lagi panel aplikasi lalu coba lagi</string>
+    <string name="xr_notice_nas_auth">NAS meminta Anda masuk lagi. Lakukan dari File lokal di panel aplikasi</string>
+    <string name="xr_notice_nas_cert">Sertifikat NAS berubah. Konfirmasi lagi dari File lokal di panel aplikasi</string>
+    <string name="xr_notice_nas_unreachable">Tidak dapat terhubung ke NAS. Pastikan headset dan NAS berada di jaringan yang sama</string>
 </resources>

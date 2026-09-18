@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
@@ -220,7 +222,18 @@ class XrPlaylistSource {
       }
       final path = item.resolvePlaybackTarget().trim();
       final isContentUri = path.startsWith('content://');
-      if (path.isEmpty || (!isContentUri && !await File(path).exists())) {
+      // NAS 条目：原生播放器只连本机网关，地址此刻现算（端口/token 进程级）。
+      String? remoteUrl;
+      if (DavPath.isDav(path)) {
+        try {
+          remoteUrl = await WebDavService.instance.gatewayUrlForItem(itemId);
+        } catch (e) {
+          LogUtils.w('沉浸态换片：NAS 条目 $itemId 取不到网关地址: $e', _tag);
+          return null;
+        }
+      }
+      if (path.isEmpty ||
+          (remoteUrl == null && !isContentUri && !await File(path).exists())) {
         LogUtils.w('沉浸态换片：本机文件 $itemId 在磁盘上已不存在', _tag);
         return null;
       }
@@ -234,7 +247,7 @@ class XrPlaylistSource {
         title: item.name,
         // 本机文件没有作者——这是它和"已下载"最大的区别，别编一个。
         author: '',
-        url: isContentUri ? path : Uri.file(path).toString(),
+        url: remoteUrl ?? (isContentUri ? path : Uri.file(path).toString()),
         localLibraryItemId: itemId,
         localPath: path,
         format: format,

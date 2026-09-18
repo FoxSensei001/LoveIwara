@@ -13,6 +13,7 @@ import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 
@@ -39,6 +40,27 @@ class PlaybackEngine(private val context: Context) {
          */
         fun onError(message: String, badHttpStatus: Boolean)
         fun onVideoSize(width: Int, height: Int)
+
+        /**
+         * NAS 片源（经应用内本机网关 `http://127.0.0.1:…` 播放）失败，且能说清原因。
+         * 给了这一条就不再走 [onError]——泛泛的「播放失败」对这几种情况都是错话。
+         */
+        fun onGatewayError(kind: GatewayError) {}
+    }
+
+    /** NAS 本机网关那条链路上能分辨出来的失败。 */
+    enum class GatewayError {
+        /** 连网关本身被拒：网关跑在 2D 面板的 Flutter 引擎里，面板被关掉它就没了。 */
+        PANEL_CLOSED,
+
+        /** NAS 回 401/403：密码改了或被撤了权限。 */
+        AUTH,
+
+        /** NAS 证书与信任过的不一致。 */
+        CERT,
+
+        /** NAS 连不上（网关回 502）。 */
+        UNREACHABLE,
     }
 
     var listener: Listener? = null
@@ -187,6 +209,56 @@ class PlaybackEngine(private val context: Context) {
         return startWith(p, url, surface, startPositionMs, muted)
     }
 
+    /**
+     * 这次失败是不是 NAS 本机网关那条链路上的、能说清原因的那几种。不是网关地址
+     * （Iwara 直链、本地文件）一律 null，照旧走 [Listener.onError]。
+     *
+     * 网关把上游 401/403 原样回传；连不上 / 证书不符时回 502 并在 `X-Dav-Error`
+     * 头里写原因（见 Dart 侧 `WebDavGateway`）。
+     */
+    @OptIn(UnstableApi::class)
+    private fun classifyGatewayError(error: PlaybackException): GatewayError? {
+        var cause: Throwable? = error.cause
+        while (cause != null) {
+            if (cause is HttpDataSource.HttpDataSourceException) {
+                val host = cause.dataSpec.uri.host
+                if (host != "127.0.0.1" && host != "localhost") return null
+                if (cause is HttpDataSource.InvalidResponseCodeException) {
+                    return when (cause.responseCode) {
+                        401, 403 -> GatewayError.AUTH
+                        502 -> when (cause.headerFields["X-Dav-Error"]?.firstOrNull()
+                            ?: cause.headerFields["x-dav-error"]?.firstOrNull()) {
+                            "cert" -> GatewayError.CERT
+                            else -> GatewayError.UNREACHABLE
+                        }
+                        else -> null
+                    }
+                }
+                // ⛔ 只有「打开阶段连回环地址被拒」才是网关没了（随 2D 面板的 Flutter 引擎
+                // 一起走了）。Media3 把**读取途中**的 IOException 也归进
+                // CONNECTION_FAILED——NAS 播放中掉线、网关空闲超时断流都长这样，
+                // 那些要说「连不上 NAS」，说「面板已关闭」就是错话。
+                if (cause.type == HttpDataSource.HttpDataSourceException.TYPE_OPEN &&
+                    hasCause(cause, java.net.ConnectException::class.java)
+                ) {
+                    return GatewayError.PANEL_CLOSED
+                }
+                return GatewayError.UNREACHABLE
+            }
+            cause = cause.cause
+        }
+        return null
+    }
+
+    private fun hasCause(error: Throwable, type: Class<out Throwable>): Boolean {
+        var current: Throwable? = error
+        while (current != null) {
+            if (type.isInstance(current)) return true
+            current = current.cause
+        }
+        return false
+    }
+
     /** 正式播放那条的监听：缓冲 / 就绪 / 播完 / 尺寸都往 Activity 报。 */
     private fun mainListener(p: ExoPlayer): Player.Listener =
         object : Player.Listener {
@@ -194,6 +266,11 @@ class PlaybackEngine(private val context: Context) {
                 if (player !== p) return
                 Log.e(TAG, "IMMERSIVE PLAYBACK_ERROR ${error.errorCodeName}: ${error.message}", error)
                 listener?.onBuffering(false)
+                val gateway = classifyGatewayError(error)
+                if (gateway != null) {
+                    listener?.onGatewayError(gateway)
+                    return
+                }
                 listener?.onError(
                     error.errorCodeName,
                     badHttpStatus = error.errorCode == PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,

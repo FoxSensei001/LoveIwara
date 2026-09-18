@@ -1752,6 +1752,7 @@ class _TranslationsMediaPlayerJa extends TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => 'ローカルビデオパスが空です';
 	@override String localVideoFileNotExists({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => 'ローカルビデオを再生できません: ${error}';
+	@override String unableToPlayNasVideo({required Object error}) => 'NAS の動画を再生できません：${error}';
 	@override String get dropVideoFileHere => 'ここにビデオファイルをドロップして再生';
 	@override String get supportedFormats => '対応形式: MP4, MKV, AVI, MOV, WEBM など';
 	@override String get noSupportedVideoFile => 'サポートされているビデオファイルが見つかりません';
@@ -2675,6 +2676,34 @@ class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
 	@override String get addFolder => 'フォルダーを追加';
 	@override String get addDeviceVideos => '端末の動画をスキャン';
 	@override String get mediaStoreSourceName => '端末の動画';
+	@override String get scanQueued => 'スキャン待ち';
+	@override String get itemInfo => 'ファイル情報';
+	@override String get revealInFolder => 'フォルダーで表示';
+	@override String get rescanAll => 'すべて再スキャン';
+	@override String rescanAllStarted({required Object count}) => '${count} 件のソースを再スキャンします';
+	@override String get searchLibrary => '検索';
+	@override String get searchIncludeSubfolders => 'サブフォルダーを含む';
+	@override String get savedServers => '保存済みの NAS';
+	@override String get newServer => '新しい NAS に接続';
+	@override late final _TranslationsLocalMediaItemInfoLabelsJa itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsJa._(_root);
+	@override String get addSource => 'ソースを追加';
+	@override String get addSourceKinds => 'フォルダー · NAS';
+	@override String get openSettings => '設定を開く';
+	@override String removeSourceLoses({required Object items}) => '次の内容も一緒に消え、追加し直しても戻りません：${items}';
+	@override String loseProgress({required Object count}) => '視聴進捗 ${count} 件';
+	@override String loseFavorites({required Object count}) => 'おすすめ ${count} 件';
+	@override String losePinned({required Object count}) => 'よく使うフォルダー ${count} 件';
+	@override String loseHidden({required Object count}) => '非表示設定 ${count} 件';
+	@override String loseCovers({required Object count}) => '手動で選んだカバー ${count} 枚';
+	@override String get renameSource => '名前を変更';
+	@override String get renameSourceTitle => 'ソース名を変更';
+	@override String get renameSourceLabel => '名前';
+	@override String get renamed => '名前を変更しました';
+	@override String get nasAggregateHint => 'NAS の内容は開いたことのあるフォルダーだけが対象です。開いていないフォルダーの動画や画像はここに表示されません。';
+	@override String rescanDone({required Object name}) => '「${name}」を更新しました';
+	@override String get unknownSourceHint => 'このソースを使うにはアプリの更新が必要です';
+	@override late final _TranslationsLocalMediaMissingJa missing = _TranslationsLocalMediaMissingJa._(_root);
+	@override late final _TranslationsLocalMediaWebdavJa webdav = _TranslationsLocalMediaWebdavJa._(_root);
 	@override String get mediaStoreUnavailable => '端末のメディアインデックスは Android でのみ利用できます';
 	@override String get mediaStorePermissionDenied => '動画へのアクセスが許可されていません';
 	@override String get rescan => '再スキャン';
@@ -2688,15 +2717,15 @@ class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
 	@override String sourceContainsExisting({required Object name}) => '追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません';
 	@override String get addSourceFailed => 'フォルダーを追加できませんでした';
 	@override String get fileMissing => 'このファイルはディスク上にありません';
-	@override String get permissionDenied => 'ファイルアクセスが許可されていません · タップして許可';
+	@override String get permissionDenied => 'ファイルアクセスが許可されていません。フォルダーを追加する前に許可してください';
 	@override String get noVideosFound => 'このフォルダーに動画はありません';
-	@override String get emptyTitle => 'フォルダーを追加して、この端末にある動画を見る';
+	@override String get emptyTitle => 'フォルダーを追加するか NAS に接続して、手元の動画を見る';
 	@override String get emptyPrivacyNote => '端末内でのみ読み取ります。アップロードは一切ありません。';
 	@override String removeSourceTitle({required Object name}) => '「${name}」を削除しますか？';
-	@override String get removeSourceBody => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。';
+	@override String get removeSourceBody => 'ファイル自体はそのままです。ライブラリーから外すだけです。';
 	@override String get remove => '削除';
-	@override String get removeFolder => 'フォルダーを削除';
-	@override String get removeFolderSelectTitle => '削除するフォルダーを選択';
+	@override String get removeFolder => 'ソースを削除';
+	@override String get removeFolderSelectTitle => '削除するソースを選択';
 	@override String get longPressToRemove => '長押しでこのフォルダーを削除';
 	@override String get clearProgress => 'ローカル視聴履歴を消去';
 	@override String clearProgressCount({required Object count}) => '${count} 件';
@@ -4259,6 +4288,84 @@ class _TranslationsLocalMediaBrowseJa extends TranslationsLocalMediaBrowseEn {
 	@override String get folderInfoNoPath => 'このソースには開けるフォルダがありません';
 	@override String get copyPath => 'パスをコピー';
 	@override String get pathCopied => 'パスをコピーしました';
+}
+
+// Path: localMedia.itemInfoLabels
+class _TranslationsLocalMediaItemInfoLabelsJa extends TranslationsLocalMediaItemInfoLabelsEn {
+	_TranslationsLocalMediaItemInfoLabelsJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get size => 'サイズ';
+	@override String get resolution => '解像度';
+	@override String get duration => '長さ';
+	@override String get modified => '更新日時';
+	@override String get lastPlayed => '最後に再生';
+	@override String get neverPlayed => '未視聴';
+	@override String get completed => '視聴済み';
+}
+
+// Path: localMedia.missing
+class _TranslationsLocalMediaMissingJa extends TranslationsLocalMediaMissingEn {
+	_TranslationsLocalMediaMissingJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'このファイルが見つかりません';
+	@override String get rescanFolder => 'フォルダーを再スキャン';
+	@override String get relistNas => 'このフォルダーを再読み込み';
+	@override String get removeFromList => 'リストから削除';
+	@override String get removed => 'リストから削除しました。ディスク上のファイルは変更していません';
+	@override String get found => '見つかりました';
+	@override String nasGone({required Object name}) => 'NAS 上に「${name}」が見つかりません。削除・移動・名前変更された可能性があります。このフォルダーを再読み込みすると、現在の中身を確認できます。';
+}
+
+// Path: localMedia.webdav
+class _TranslationsLocalMediaWebdavJa extends TranslationsLocalMediaWebdavEn {
+	_TranslationsLocalMediaWebdavJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get addNas => 'NAS に接続（WebDAV）';
+	@override String get connectTitle => 'NAS に接続';
+	@override String get editTitle => 'NAS に再ログイン';
+	@override String get hint => 'NAS の管理画面で WebDAV サービスを有効にしてから、アドレスとアカウントを入力してください。';
+	@override String get address => 'アドレス';
+	@override String get addressHint => '例：192.168.1.10:5005';
+	@override String get username => 'ユーザー名';
+	@override String get password => 'パスワード';
+	@override String get displayName => '名前（任意）';
+	@override String get connect => '接続';
+	@override String get invalidAddress => 'アドレスの形式が正しくありません';
+	@override String get errorAuth => 'ユーザー名またはパスワードが違います';
+	@override String get errorUnreachable => 'サーバーに接続できません。アドレスとポート、端末と NAS が同じネットワークにあるか確認してください';
+	@override String get errorNotWebdav => 'このアドレスは WebDAV サービスではありません';
+	@override String errorGeneric({required Object code}) => '接続に失敗しました（${code}）';
+	@override String get errorCredUnreadable => '保存したパスワードを読み込めませんでした。しばらくしてから再試行してください';
+	@override String get certTitle => 'このサーバーを信頼しますか？';
+	@override String get certBody => 'サーバーの証明書はシステムに信頼されていません（NAS の自己署名証明書でよくあります）。下のフィンガープリントが NAS の管理画面の表示と一致するか確認してください：';
+	@override String get certChangedBody => 'このサーバーの証明書は前回信頼したものと異なります。NAS の証明書を変更していない場合、なりすましの可能性があります。続行しないでください。';
+	@override String get trust => '信頼する';
+	@override String get pickRootTitle => '追加するフォルダーを選択';
+	@override String get serverRoot => 'ルート';
+	@override String get alreadyAdded => 'この NAS フォルダーは追加済みです';
+	@override String get relogin => '再ログイン';
+	@override String get stateAuthFailed => '再ログインが必要';
+	@override String get stateCertUntrusted => 'サーバー証明書が変更されました';
+	@override String get stateUnreachable => 'NAS に接続できません';
+	@override String get stateCredUnreadable => 'パスワードを読み込めません';
+	@override String get connected => '接続済み';
+	@override String get errorForbidden => 'このアカウントには WebDAV のアクセス権がありません。NAS の WebDAV 設定で許可してください';
+	@override String get errorTls => '安全な接続に失敗しました。アドレスの http:// / https:// が NAS の設定と一致しているか確認してください';
+	@override String get errorTryHttps => 'NAS が HTTPS のみの場合は、アドレスの前に https:// を付けてください';
+	@override String get previousStep => '戻る';
+	@override String get bannerUnreachable => 'NAS に接続できません。前回の内容を表示しています';
+	@override String get bannerAuthFailed => 'ログインが切れました。再ログインすると最新の内容が見られます';
+	@override String get bannerCertUntrusted => 'NAS の証明書が変わりました。確認すると続行できます';
+	@override String get bannerCredUnreadable => '保存したパスワードを読み取れませんでした。再ログインしてください';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -6694,6 +6801,7 @@ extension on TranslationsJa {
 			'mediaPlayer.localVideoPathEmpty' => 'ローカルビデオパスが空です',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'ローカルビデオファイルが存在しません: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'ローカルビデオを再生できません: ${error}',
+			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => 'NAS の動画を再生できません：${error}',
 			'mediaPlayer.dropVideoFileHere' => 'ここにビデオファイルをドロップして再生',
 			'mediaPlayer.supportedFormats' => '対応形式: MP4, MKV, AVI, MOV, WEBM など',
 			'mediaPlayer.noSupportedVideoFile' => 'サポートされているビデオファイルが見つかりません',
@@ -6959,9 +7067,9 @@ extension on TranslationsJa {
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
-			'layoutSettings.enterColumns' => 'カラム数を入力してください',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.enterColumns' => 'カラム数を入力してください',
 			'layoutSettings.enterValidColumns' => '有効なカラム数を入力してください',
 			'layoutSettings.columnsCannotExceed12' => 'カラム数は12を超えることはできません',
 			'layoutSettings.breakpointConflict' => 'ブレークポイントが既に存在します',
@@ -7473,9 +7581,9 @@ extension on TranslationsJa {
 			'localMedia.browse.pickFolderTitle' => 'フォルダーを選ぶ',
 			'localMedia.browse.useThisFolder' => 'このフォルダーを使う',
 			'localMedia.browse.noSubfolders' => 'サブフォルダーはありません',
-			'localMedia.browse.storageRoot' => '端末のストレージ',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.browse.storageRoot' => '端末のストレージ',
 			'localMedia.browse.homeFolder' => 'ホームフォルダ',
 			'localMedia.browse.filesystemRoot' => 'ルートディレクトリ',
 			'localMedia.browse.folderUnreadable' => 'このフォルダーは読み取れません',
@@ -7558,6 +7666,82 @@ extension on TranslationsJa {
 			'localMedia.addFolder' => 'フォルダーを追加',
 			'localMedia.addDeviceVideos' => '端末の動画をスキャン',
 			'localMedia.mediaStoreSourceName' => '端末の動画',
+			'localMedia.scanQueued' => 'スキャン待ち',
+			'localMedia.itemInfo' => 'ファイル情報',
+			'localMedia.revealInFolder' => 'フォルダーで表示',
+			'localMedia.rescanAll' => 'すべて再スキャン',
+			'localMedia.rescanAllStarted' => ({required Object count}) => '${count} 件のソースを再スキャンします',
+			'localMedia.searchLibrary' => '検索',
+			'localMedia.searchIncludeSubfolders' => 'サブフォルダーを含む',
+			'localMedia.savedServers' => '保存済みの NAS',
+			'localMedia.newServer' => '新しい NAS に接続',
+			'localMedia.itemInfoLabels.size' => 'サイズ',
+			'localMedia.itemInfoLabels.resolution' => '解像度',
+			'localMedia.itemInfoLabels.duration' => '長さ',
+			'localMedia.itemInfoLabels.modified' => '更新日時',
+			'localMedia.itemInfoLabels.lastPlayed' => '最後に再生',
+			'localMedia.itemInfoLabels.neverPlayed' => '未視聴',
+			'localMedia.itemInfoLabels.completed' => '視聴済み',
+			'localMedia.addSource' => 'ソースを追加',
+			'localMedia.addSourceKinds' => 'フォルダー · NAS',
+			'localMedia.openSettings' => '設定を開く',
+			'localMedia.removeSourceLoses' => ({required Object items}) => '次の内容も一緒に消え、追加し直しても戻りません：${items}',
+			'localMedia.loseProgress' => ({required Object count}) => '視聴進捗 ${count} 件',
+			'localMedia.loseFavorites' => ({required Object count}) => 'おすすめ ${count} 件',
+			'localMedia.losePinned' => ({required Object count}) => 'よく使うフォルダー ${count} 件',
+			'localMedia.loseHidden' => ({required Object count}) => '非表示設定 ${count} 件',
+			'localMedia.loseCovers' => ({required Object count}) => '手動で選んだカバー ${count} 枚',
+			'localMedia.renameSource' => '名前を変更',
+			'localMedia.renameSourceTitle' => 'ソース名を変更',
+			'localMedia.renameSourceLabel' => '名前',
+			'localMedia.renamed' => '名前を変更しました',
+			'localMedia.nasAggregateHint' => 'NAS の内容は開いたことのあるフォルダーだけが対象です。開いていないフォルダーの動画や画像はここに表示されません。',
+			'localMedia.rescanDone' => ({required Object name}) => '「${name}」を更新しました',
+			'localMedia.unknownSourceHint' => 'このソースを使うにはアプリの更新が必要です',
+			'localMedia.missing.title' => 'このファイルが見つかりません',
+			'localMedia.missing.rescanFolder' => 'フォルダーを再スキャン',
+			'localMedia.missing.relistNas' => 'このフォルダーを再読み込み',
+			'localMedia.missing.removeFromList' => 'リストから削除',
+			'localMedia.missing.removed' => 'リストから削除しました。ディスク上のファイルは変更していません',
+			'localMedia.missing.found' => '見つかりました',
+			'localMedia.missing.nasGone' => ({required Object name}) => 'NAS 上に「${name}」が見つかりません。削除・移動・名前変更された可能性があります。このフォルダーを再読み込みすると、現在の中身を確認できます。',
+			'localMedia.webdav.addNas' => 'NAS に接続（WebDAV）',
+			'localMedia.webdav.connectTitle' => 'NAS に接続',
+			'localMedia.webdav.editTitle' => 'NAS に再ログイン',
+			'localMedia.webdav.hint' => 'NAS の管理画面で WebDAV サービスを有効にしてから、アドレスとアカウントを入力してください。',
+			'localMedia.webdav.address' => 'アドレス',
+			'localMedia.webdav.addressHint' => '例：192.168.1.10:5005',
+			'localMedia.webdav.username' => 'ユーザー名',
+			'localMedia.webdav.password' => 'パスワード',
+			'localMedia.webdav.displayName' => '名前（任意）',
+			'localMedia.webdav.connect' => '接続',
+			'localMedia.webdav.invalidAddress' => 'アドレスの形式が正しくありません',
+			'localMedia.webdav.errorAuth' => 'ユーザー名またはパスワードが違います',
+			'localMedia.webdav.errorUnreachable' => 'サーバーに接続できません。アドレスとポート、端末と NAS が同じネットワークにあるか確認してください',
+			'localMedia.webdav.errorNotWebdav' => 'このアドレスは WebDAV サービスではありません',
+			'localMedia.webdav.errorGeneric' => ({required Object code}) => '接続に失敗しました（${code}）',
+			'localMedia.webdav.errorCredUnreadable' => '保存したパスワードを読み込めませんでした。しばらくしてから再試行してください',
+			'localMedia.webdav.certTitle' => 'このサーバーを信頼しますか？',
+			'localMedia.webdav.certBody' => 'サーバーの証明書はシステムに信頼されていません（NAS の自己署名証明書でよくあります）。下のフィンガープリントが NAS の管理画面の表示と一致するか確認してください：',
+			'localMedia.webdav.certChangedBody' => 'このサーバーの証明書は前回信頼したものと異なります。NAS の証明書を変更していない場合、なりすましの可能性があります。続行しないでください。',
+			'localMedia.webdav.trust' => '信頼する',
+			'localMedia.webdav.pickRootTitle' => '追加するフォルダーを選択',
+			'localMedia.webdav.serverRoot' => 'ルート',
+			'localMedia.webdav.alreadyAdded' => 'この NAS フォルダーは追加済みです',
+			'localMedia.webdav.relogin' => '再ログイン',
+			'localMedia.webdav.stateAuthFailed' => '再ログインが必要',
+			'localMedia.webdav.stateCertUntrusted' => 'サーバー証明書が変更されました',
+			'localMedia.webdav.stateUnreachable' => 'NAS に接続できません',
+			'localMedia.webdav.stateCredUnreadable' => 'パスワードを読み込めません',
+			'localMedia.webdav.connected' => '接続済み',
+			'localMedia.webdav.errorForbidden' => 'このアカウントには WebDAV のアクセス権がありません。NAS の WebDAV 設定で許可してください',
+			'localMedia.webdav.errorTls' => '安全な接続に失敗しました。アドレスの http:// / https:// が NAS の設定と一致しているか確認してください',
+			'localMedia.webdav.errorTryHttps' => 'NAS が HTTPS のみの場合は、アドレスの前に https:// を付けてください',
+			'localMedia.webdav.previousStep' => '戻る',
+			'localMedia.webdav.bannerUnreachable' => 'NAS に接続できません。前回の内容を表示しています',
+			'localMedia.webdav.bannerAuthFailed' => 'ログインが切れました。再ログインすると最新の内容が見られます',
+			'localMedia.webdav.bannerCertUntrusted' => 'NAS の証明書が変わりました。確認すると続行できます',
+			'localMedia.webdav.bannerCredUnreadable' => '保存したパスワードを読み取れませんでした。再ログインしてください',
 			'localMedia.mediaStoreUnavailable' => '端末のメディアインデックスは Android でのみ利用できます',
 			'localMedia.mediaStorePermissionDenied' => '動画へのアクセスが許可されていません',
 			'localMedia.rescan' => '再スキャン',
@@ -7571,15 +7755,15 @@ extension on TranslationsJa {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません',
 			'localMedia.addSourceFailed' => 'フォルダーを追加できませんでした',
 			'localMedia.fileMissing' => 'このファイルはディスク上にありません',
-			'localMedia.permissionDenied' => 'ファイルアクセスが許可されていません · タップして許可',
+			'localMedia.permissionDenied' => 'ファイルアクセスが許可されていません。フォルダーを追加する前に許可してください',
 			'localMedia.noVideosFound' => 'このフォルダーに動画はありません',
-			'localMedia.emptyTitle' => 'フォルダーを追加して、この端末にある動画を見る',
+			'localMedia.emptyTitle' => 'フォルダーを追加するか NAS に接続して、手元の動画を見る',
 			'localMedia.emptyPrivacyNote' => '端末内でのみ読み取ります。アップロードは一切ありません。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '「${name}」を削除しますか？',
-			'localMedia.removeSourceBody' => 'ディスク上のファイルはそのままです。ライブラリーから外すだけです。',
+			'localMedia.removeSourceBody' => 'ファイル自体はそのままです。ライブラリーから外すだけです。',
 			'localMedia.remove' => '削除',
-			'localMedia.removeFolder' => 'フォルダーを削除',
-			'localMedia.removeFolderSelectTitle' => '削除するフォルダーを選択',
+			'localMedia.removeFolder' => 'ソースを削除',
+			'localMedia.removeFolderSelectTitle' => '削除するソースを選択',
 			'localMedia.longPressToRemove' => '長押しでこのフォルダーを削除',
 			'localMedia.clearProgress' => 'ローカル視聴履歴を消去',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} 件',

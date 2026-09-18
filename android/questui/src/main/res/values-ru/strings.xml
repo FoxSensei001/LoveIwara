@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Тёплый вечерний свет над открытой водой, солнце рядом с областью просмотра.</string>
     <string name="xr_environment_mist">Туманные вершины</string>
     <string name="xr_environment_mist_hint">Слои далёких гор поднимаются сквозь мягкий туман, словно пейзаж тушью.</string>
+    <string name="xr_notice_nas_panel_closed">Панель приложения закрыта, поэтому видео с NAS не воспроизводится. Откройте панель снова и повторите попытку</string>
+    <string name="xr_notice_nas_auth">NAS требует повторного входа. Сделайте это в разделе «Локальные файлы» на панели приложения</string>
+    <string name="xr_notice_nas_cert">Сертификат NAS изменился. Подтвердите его снова в разделе «Локальные файлы» на панели приложения</string>
+    <string name="xr_notice_nas_unreachable">Не удаётся подключиться к NAS. Проверьте, что гарнитура и NAS в одной сети</string>
 </resources>

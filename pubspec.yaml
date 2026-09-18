@@ -51,6 +51,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.1.5
   path: ^1.9.1
+  # NAS（WebDAV）PROPFIND 响应解析。原先只是传递依赖，直接用就得显式声明。
+  xml: ^6.6.1
   loading_more_list: ^7.1.0
   waterfall_flow: ^3.1.1
   share_plus: ^12.0.1

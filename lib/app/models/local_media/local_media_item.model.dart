@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 
 /// 本地库里的一条。
@@ -140,7 +141,11 @@ class LocalMediaItem {
   /// 图片就是它自己；视频按「手动指定的缩略图 > 同名 sidecar > 自动抽的帧」。
   /// ⛔ 仓库里 `folderCoverCandidates` / `sourceCoverCandidates` 挑候选时是同一条
   /// 优先级，改这里要一起改。
+  ///
+  /// ⛔ NAS 条目（`dav:/…`）的原图与同名图都是**远端引用**，交给 `Image.file` 只会
+  /// 画出碎图。它们的封面只认拉进本机缓存的那一张（[thumbPath]）。
   String? get coverImagePath {
+    if (DavPath.isDav(path)) return thumbPath;
     if (kind == LocalMediaItemKind.image) return path;
     final thumb = thumbPath;
     if (thumbIsCustom && thumb != null && thumb.isNotEmpty) return thumb;
@@ -226,6 +231,10 @@ extension LocalMediaPlaybackTarget on LocalMediaItem {
   /// ——只授予 `READ_MEDIA_VIDEO`（没给「所有文件访问」）时，按路径直读会被
   /// scoped storage 挡住，那时只有 URI 能用。
   String resolvePlaybackTarget() {
+    // ⛔ NAS 条目的 path 是 `dav:/…`，不在本机：不许 `File()`，原样交回。
+    // 真正的播放地址（本机网关 URL）由调用方在打开那一刻现算——端口和 token
+    // 每次进程都变，绝不能存进库或播放池。
+    if (DavPath.isDav(path)) return path;
     if (!path.startsWith('content://') && File(path).existsSync()) return path;
     final uri = mediaStoreUri;
     return uri != null && uri.isNotEmpty ? uri : path;
@@ -267,7 +276,12 @@ extension LocalMediaPlaybackTarget on LocalMediaItem {
   bool get supportsFavorite => kind == LocalMediaItemKind.video;
 
   /// 这一条现在还放得出来吗（真实路径在，或者有 MediaStore 句柄）。
+  ///
+  /// NAS 条目（`dav:/…`）不在本机，不能 `File()`：没被列目录收敛成 missing 就算
+  /// 放得出来——连不连得上由打开那一刻的网关给出具体原因（需要重新登录 /
+  /// 连不上 NAS），而不是在这里一律说「文件不存在」。
   bool get isPlayableNow {
+    if (DavPath.isDav(path)) return !missing;
     if (path.startsWith('content://')) return true;
     if (File(path).existsSync()) return true;
     final uri = mediaStoreUri;

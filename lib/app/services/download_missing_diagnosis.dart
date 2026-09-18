@@ -111,7 +111,33 @@ Future<MissingDiagnosis> diagnoseMissingDownload(
 
   final recorded = p.normalize(task.savePath);
   final isGallery = task.extData?.type == DownloadTaskExtDataType.gallery;
+  return _diagnose(
+    recorded,
+    exists: exists,
+    findCandidates: (parent) => isGallery && cache != null
+        ? Future.value(const <MissingCandidate>[])
+        : _findCandidates(task, parent, isGallery: isGallery, cache: cache),
+  );
+}
 
+/// 诊断**任意一个**找不到的文件（本机文件库的条目用这个）：与下载同一套判据，
+/// 只是「疑似改名件」按扩展名 + 大小分毫不差来认。只读磁盘，不改任何东西。
+Future<MissingDiagnosis> diagnoseMissingPath(String path, {int? sizeBytes}) {
+  final recorded = p.normalize(path);
+  return _diagnose(
+    recorded,
+    exists: _exists,
+    findCandidates: (parent) =>
+        _findSameSizeFiles(parent, recorded: recorded, sizeBytes: sizeBytes),
+  );
+}
+
+Future<MissingDiagnosis> _diagnose(
+  String recorded, {
+  required Future<bool> Function(String) exists,
+  required Future<List<MissingCandidate>> Function(String parent)
+  findCandidates,
+}) async {
   // iOS：容器 UUID 换了，文件多半原样躺在新容器的同一相对位置。
   if (GetPlatform.isIOS) {
     try {
@@ -160,14 +186,7 @@ Future<MissingDiagnosis> diagnoseMissingDownload(
 
   final List<MissingCandidate> candidates;
   try {
-    candidates = isGallery && cache != null
-        ? const []
-        : await _findCandidates(
-            task,
-            parent,
-            isGallery: isGallery,
-            cache: cache,
-          );
+    candidates = await findCandidates(parent);
   } on FileSystemException catch (e) {
     LogUtils.w('列不出上级文件夹: $parent ($e)', _tag);
     return MissingDiagnosis(
@@ -285,6 +304,36 @@ Future<List<MissingCandidate>> _findCandidates(
     if (task.totalBytes <= 0) continue;
     final stat = await entity.stat();
     if (stat.size != task.totalBytes) continue;
+    result.add(
+      MissingCandidate(
+        path: entity.path,
+        isDirectory: false,
+        sizeBytes: stat.size,
+        modified: stat.modified,
+      ),
+    );
+  }
+  return result;
+}
+
+/// [diagnoseMissingPath] 的疑似改名件：同扩展名、大小分毫不差。
+Future<List<MissingCandidate>> _findSameSizeFiles(
+  String parent, {
+  required String recorded,
+  required int? sizeBytes,
+}) async {
+  if (sizeBytes == null || sizeBytes <= 0) return const [];
+  final wantExt = p.extension(recorded).toLowerCase();
+  final result = <MissingCandidate>[];
+  var scanned = 0;
+  await for (final entity in Directory(parent).list(followLinks: false)) {
+    if (++scanned > _scanLimit || result.length >= _candidateLimit) break;
+    if (entity is! File) continue;
+    if (p.extension(entity.path).toLowerCase() != wantExt) continue;
+    final stat = await entity.stat();
+    if (stat.type != FileSystemEntityType.file || stat.size != sizeBytes) {
+      continue;
+    }
     result.add(
       MissingCandidate(
         path: entity.path,

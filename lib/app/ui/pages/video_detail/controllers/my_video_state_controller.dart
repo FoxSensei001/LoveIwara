@@ -10,11 +10,19 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/services/webdav/webdav_gateway.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/models/history_record.dart';
 import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart'
+    show GlassButtonGroup, GlassTextActionButton;
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart'
+    show reloginRemoteSource;
 import 'package:i_iwara/app/repositories/oreno3d_match_cache_repository.dart';
 import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -257,6 +265,9 @@ class MyVideoStateController extends GetxController
   /// 所以本地身份走**独立字段**：要本地记忆的地方读它（进度、VR 格式覆盖，见
   /// [vrOverrideKey]），要 Iwara 身份的地方继续被 `videoId == null` 挡住。
   final String? localLibraryItemId;
+
+  /// NAS 条目这一次打开用的本机网关地址（进程级，不落盘）。本地 / 在线恒为 null。
+  String? _remotePlaybackUrl;
 
   // 状态
   // 播放器状态
@@ -1536,7 +1547,10 @@ class MyVideoStateController extends GetxController
         url:
             isLocalVideoMode &&
                 !r.url.startsWith('file://') &&
-                !r.url.startsWith('content://')
+                !r.url.startsWith('content://') &&
+                // NAS 条目的网关地址本来就是 URL，再套 Uri.file 就成了死路径。
+                !r.url.startsWith('http://') &&
+                !r.url.startsWith('https://')
             ? Uri.file(r.url).toString()
             : r.url,
         local: isLocalVideoMode,
@@ -2564,6 +2578,29 @@ class MyVideoStateController extends GetxController
         throw Exception(slang.t.mediaPlayer.localVideoPathEmpty);
       }
 
+      // NAS 条目：路径是 `dav:/…`，不在本机。播放地址是本机网关的回环地址，
+      // **打开这一刻现算**（端口/token 进程级，绝不存下来）；本地那套存在检查、
+      // `file://` 拼接一概不适用。
+      final isRemote = DavPath.isDav(localVideoPath);
+      _remotePlaybackUrl = null;
+      if (isRemote) {
+        final itemId = localLibraryItemId;
+        if (itemId == null) {
+          throw Exception(slang.t.mediaPlayer.localVideoPathEmpty);
+        }
+        try {
+          _remotePlaybackUrl = await WebDavService.instance.gatewayUrlForItem(
+            itemId,
+          );
+        } on WebDavUnavailable catch (e) {
+          // 凭据缺失 / 读不出：不当普通异常抛（那条路只给「重试」，重试多少次
+          // 都一样），直接给带「重新登录」的错误页。
+          _showRemotePlaybackFailure(e.state);
+          return;
+        }
+        if (_isDisposed) return;
+      }
+
       LogUtils.d('检查文件是否存在: $localVideoPath', 'MyVideoStateController');
 
       // 处理不同类型的 URI
@@ -2606,8 +2643,8 @@ class MyVideoStateController extends GetxController
         );
       }
 
-      // 只有非 content:// URI 才能进行文件存在检查
-      if (!isContentUri) {
+      // 只有非 content:// URI 才能进行文件存在检查（NAS 条目不在本机，也不查）
+      if (!isContentUri && !isRemote) {
         final file = File(pathToCheck);
         if (!await file.exists()) {
           throw Exception(
@@ -2645,7 +2682,9 @@ class MyVideoStateController extends GetxController
         );
       } else {
         // 纯本地文件，使用文件名作为标题
-        final fileName = pathToCheck.split('/').last;
+        final fileName = isRemote
+            ? DavPath.basename(pathToCheck)
+            : pathToCheck.split('/').last;
         videoInfo.value = video_model.Video(
           id: '',
           title: fileName,
@@ -2661,7 +2700,9 @@ class MyVideoStateController extends GetxController
       // 对于 content:// URI，直接使用解码后的 URI
       // 对于普通路径，转换为 file:// URI
       String mediaPath;
-      if (fileSchemePathOverride != null) {
+      if (_remotePlaybackUrl != null) {
+        mediaPath = _remotePlaybackUrl!;
+      } else if (fileSchemePathOverride != null) {
         // 优先使用我们解析出的真实文件路径
         mediaPath = 'file://$fileSchemePathOverride';
       } else if (localVideoPath!.startsWith('content://')) {
@@ -2673,7 +2714,10 @@ class MyVideoStateController extends GetxController
         mediaPath = 'file://$localVideoPath';
       }
 
-      LogUtils.i('准备打开视频文件: $mediaPath', 'MyVideoStateController');
+      LogUtils.i(
+        '准备打开视频文件: ${WebDavGateway.redact(mediaPath)}',
+        'MyVideoStateController',
+      );
       final shouldAutoPlay = _resolvePlayStateForInitialEntry();
       videoPlaying.value = shouldAutoPlay;
       // 本地库的续播位置（非本地库来源恒为 zero，行为一字不变）。
@@ -2735,6 +2779,13 @@ class MyVideoStateController extends GetxController
       if (localVideoPath != null) {
         String quality = slang.t.mediaPlayer.local;
         String urlPath = localVideoPath!;
+        // NAS 条目：唯一一档就是网关地址（切清晰度 / 交给空间播放器都从这里取）。
+        final remoteUrl = _remotePlaybackUrl;
+        if (remoteUrl != null) {
+          videoResolutions.add(VideoResolution(label: quality, url: remoteUrl));
+          currentResolutionTag.value = quality;
+          return;
+        }
 
         // 针对 ColorOS 文件管理器返回的 content://com.coloros.filemanager/root/...，
         // 在构建清晰度列表时也尝试转换为真实文件路径，保持与播放器打开时一致
@@ -4039,7 +4090,7 @@ class MyVideoStateController extends GetxController
       // 打开新的视频源
       videoPlaying.value = playOnOpen;
       LogUtils.i(
-        '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: $finalUrl, 起始位置: ${startPosition?.inSeconds ?? currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
+        '播放器即将播放视频源 [无缝切换] - 分辨率: $resolutionTag, URL: ${WebDavGateway.redact(finalUrl)}, 起始位置: ${startPosition?.inSeconds ?? currentPosition.inSeconds}秒, 是否本地文件: ${finalUrl.startsWith("file://")}',
         'MyVideoStateController',
       );
       mediaSourceGeneration = _beginCurrentMediaSourceOpen(finalUrl);
@@ -4310,7 +4361,19 @@ class MyVideoStateController extends GetxController
       if (_isDisposed) return;
 
       final String event = error;
-      LogUtils.w('播放器错误事件: $event', 'MyVideoStateController');
+      // ⛔ 网关地址里有进程 token 和 NAS 上的文件名，不能原样落日志。
+      LogUtils.w(
+        '播放器错误事件: ${WebDavGateway.redactIn(event)}',
+        'MyVideoStateController',
+      );
+
+      // NAS 条目打不开：网关（本机回环）知道真实原因，去问它，给用户一句具体的话。
+      // 不走下面那套「在线直链节流重试」——那是为 Iwara 直链过期设计的。
+      if (_remotePlaybackUrl != null &&
+          event.startsWith('Failed to open http://127.0.0.1')) {
+        unawaited(_reportRemotePlaybackFailure());
+        return;
+      }
 
       // 针对常见网络/打开失败错误进行节流重试。
       // ffurl_write 与 ffurl_read 是同一件事的两个方向（mpv 主动断连时也会报），
@@ -4366,8 +4429,105 @@ class MyVideoStateController extends GetxController
 
       // 其他错误只落日志。SnackBar 会盖住播放条并连它的点击一起吃掉（issue #110），
       // 而这些原文（端口、错误码）对用户也没有可操作性。
-      LogUtils.e('视频加载错误: $event', tag: 'MyVideoStateController');
+      LogUtils.e(
+        '视频加载错误: ${WebDavGateway.redactIn(event)}',
+        tag: 'MyVideoStateController',
+      );
     });
+  }
+
+  /// NAS 条目打开失败：向网关补一次 HEAD 问清原因（它会把上游 401/403 原样回传，
+  /// 连不上 / 证书不符回 502 + `X-Dav-Error`），换成错误页 + 重试。
+  Future<void> _reportRemotePlaybackFailure() async {
+    final url = _remotePlaybackUrl;
+    if (url == null || _isDisposed) return;
+    var state = LocalMediaRemoteState.unreachable;
+    final client = HttpClient()..findProxy = ((_) => 'DIRECT');
+    try {
+      final request = await client
+          .openUrl('HEAD', Uri.parse(url))
+          .timeout(const Duration(seconds: 15));
+      final response = await request.close().timeout(
+        const Duration(seconds: 15),
+      );
+      await response.drain<void>();
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        state = LocalMediaRemoteState.authFailed;
+      } else if (response.headers.value('X-Dav-Error') == 'cert') {
+        state = LocalMediaRemoteState.certUntrusted;
+      }
+    } catch (_) {
+      // 连网关都问不通：按连不上处理。
+    } finally {
+      client.close(force: true);
+    }
+    if (_isDisposed) return;
+    _showRemotePlaybackFailure(state);
+  }
+
+  /// NAS 条目放不了的错误页。
+  ///
+  /// 连不上：「重试」有意义。登录失效 / 证书变了 / 读不出密码：重试多少次都一样，
+  /// 所以把「重新登录」摆在最前面，登上之后直接重开这一条。源状态顺手落库，
+  /// 回到本机文件页时来源卡与目录页横幅说的是同一件事。
+  void _showRemotePlaybackFailure(LocalMediaRemoteState state) {
+    if (_isDisposed) return;
+    final itemId = localLibraryItemId;
+    final repository = LocalMediaRepository();
+    final item = itemId == null ? null : repository.getItem(itemId);
+    final source = item == null ? null : repository.getSource(item.sourceId);
+    if (source != null && source.remoteState != state) {
+      repository.upsertSource(
+        source.copyWith(
+          remoteState: state,
+          offline: state == LocalMediaRemoteState.unreachable,
+        ),
+      );
+    }
+    final needsLogin = state != LocalMediaRemoteState.unreachable;
+    void retry() {
+      mainErrorWidget.value = null;
+      unawaited(_initLocalVideoPlayback());
+    }
+
+    videoBuffering.value = false;
+    pageLoadingState.value = VideoDetailPageLoadingState.idle;
+    mainErrorWidget.value = CommonErrorWidget(
+      text: slang.t.mediaPlayer.unableToPlayNasVideo(
+        error: WebDavService.describeState(state),
+      ),
+      children: [
+        GlassButtonGroup(
+          children: [
+            if (needsLogin && source != null)
+              GlassTextActionButton(
+                label: slang.t.localMedia.webdav.relogin,
+                emphasized: true,
+                onPressed: () async {
+                  final context = rootNavigatorKey.currentContext;
+                  if (context == null) return;
+                  final latest = repository.getSource(source.id) ?? source;
+                  if (await reloginRemoteSource(
+                    context: context,
+                    source: latest,
+                  )) {
+                    retry();
+                  }
+                },
+              ),
+            GlassTextActionButton(
+              label: slang.t.common.retry,
+              emphasized: !needsLogin,
+              onPressed: retry,
+            ),
+            GlassTextActionButton(
+              label: slang.t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   /// 刷新播放器（重开当前清晰度与进度）
@@ -6194,6 +6354,12 @@ class MyVideoStateController extends GetxController
       return;
     }
 
+    // NAS 片：本机播放走的是只有本机能连的回环地址，电视够不着，NAS 的鉴权头
+    // 投屏协议也带不过去。
+    if (isLocalVideoMode && DavPath.isDav(localVideoPath)) {
+      noticeCenter.reportApp(PlayerNoticeKind.castUrlUnavailable);
+      return;
+    }
     final videoUrl = getCurrentVideoUrl();
     if (videoUrl == null || videoUrl.isEmpty) {
       noticeCenter.reportApp(PlayerNoticeKind.castUrlUnavailable);

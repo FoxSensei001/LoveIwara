@@ -2731,6 +2731,20 @@ class ImmersiveActivity : AppSystemActivity(), PlaybackEngine.Listener {
         }
     }
 
+    override fun onGatewayError(kind: PlaybackEngine.GatewayError) {
+        runOnUiThread {
+            controls.notice = text(
+                when (kind) {
+                    PlaybackEngine.GatewayError.PANEL_CLOSED -> UiR.string.xr_notice_nas_panel_closed
+                    PlaybackEngine.GatewayError.AUTH -> UiR.string.xr_notice_nas_auth
+                    PlaybackEngine.GatewayError.CERT -> UiR.string.xr_notice_nas_cert
+                    PlaybackEngine.GatewayError.UNREACHABLE -> UiR.string.xr_notice_nas_unreachable
+                },
+            )
+            showControls(summoned = true)
+        }
+    }
+
     override fun onVideoSize(width: Int, height: Int) {
         runOnUiThread {
             if (width == videoWidth && height == videoHeight) return@runOnUiThread

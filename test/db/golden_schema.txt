@@ -230,9 +230,11 @@ TABLE local_media_sources
   COLUMN offline INTEGER NOT NULL DEFAULT 0
   COLUMN path TEXT
   COLUMN recursive INTEGER NOT NULL DEFAULT 1
+  COLUMN remote_state TEXT
   COLUMN scan_cursor TEXT
   COLUMN scan_state TEXT NOT NULL DEFAULT 'idle'
   COLUMN sort_order INTEGER NOT NULL DEFAULT 0
+  COLUMN tls_fingerprint TEXT
   COLUMN uri TEXT
   INDEX sqlite_autoindex_local_media_sources_1 :: (auto)
 TABLE oreno3d_match_cache

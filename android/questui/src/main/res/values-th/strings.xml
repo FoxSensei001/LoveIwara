@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">แสงยามเย็นอันอบอุ่นเหนือผืนน้ำกว้าง โดยมีดวงอาทิตย์อยู่ข้างพื้นที่รับชมของคุณ</string>
     <string name="xr_environment_mist">ยอดเขาหมอก</string>
     <string name="xr_environment_mist_hint">ชั้นภูเขาอันไกลโพ้นโผล่พ้นหมอกบาง ๆ ราวกับภาพทิวทัศน์หมึกจีน</string>
+    <string name="xr_notice_nas_panel_closed">แผงแอปถูกปิด จึงเล่นวิดีโอจาก NAS ต่อไม่ได้ เปิดแผงแอปอีกครั้งแล้วลองใหม่</string>
+    <string name="xr_notice_nas_auth">NAS ต้องให้เข้าสู่ระบบอีกครั้ง ทำได้ที่ไฟล์ในเครื่องบนแผงแอป</string>
+    <string name="xr_notice_nas_cert">ใบรับรองของ NAS เปลี่ยนไป ยืนยันอีกครั้งที่ไฟล์ในเครื่องบนแผงแอป</string>
+    <string name="xr_notice_nas_unreachable">เชื่อมต่อ NAS ไม่ได้ ตรวจสอบว่าแว่นและ NAS อยู่ในเครือข่ายเดียวกัน</string>
 </resources>

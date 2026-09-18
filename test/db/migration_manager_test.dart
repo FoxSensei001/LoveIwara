@@ -358,7 +358,7 @@ void main() {
       await mgr.runMigrations(db);
 
       expect(userVersion(db), mgr.highestVersion);
-      expect(userVersion(db), 42, reason: '当前最高迁移版本是 42，加了新迁移要同步改这里');
+      expect(userVersion(db), 43, reason: '当前最高迁移版本是 43，加了新迁移要同步改这里');
     });
 
     test('跑完后各条工作线的核心表都在', () async {
@@ -421,7 +421,7 @@ void main() {
       db.execute('PRAGMA user_version = 29;');
       await MigrationManager(migrations: migrations).runMigrations(db);
 
-      expect(userVersion(db), 42);
+      expect(userVersion(db), 43);
       expect(tableExists(db, 'local_media_items'), isTrue);
     });
 

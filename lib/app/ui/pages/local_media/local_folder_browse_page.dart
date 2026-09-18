@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
@@ -14,16 +15,20 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
-import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_thumb.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_menu.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_remote_state_banner.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_sort_controls.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
@@ -186,7 +191,14 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// 把下一个区块顶出屏幕——一屏之内看得见第二个区块的标题，用户才知道还有别的。
   static const int _previewRows = 2;
 
-  LocalMediaSort _sort = LocalMediaSort.nameAsc;
+  LocalMediaOrder _order = _defaultOrder;
+
+  /// 搜索框旁「含子文件夹」开着没有。只在搜索时生效：不搜的时候这一页永远只
+  /// 列这一层（目录树的本分），搜的时候用户要找的往往就在下面几层。
+  bool _searchSubfolders = false;
+
+  bool get _searchingSubtree =>
+      _searchSubfolders && _query.isNotEmpty && _folder != null;
 
   // ⛔ 这一页只有一种密度，别再加「网格 / 列表」切换。
   //
@@ -224,7 +236,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   @override
   void initState() {
     super.initState();
-    _sort = _restoreSort();
+    _order = _restoreOrder();
     _loadInitialData();
     _loadItems();
     _scrollController.addListener(_onScroll);
@@ -286,11 +298,39 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       _loadItems();
       unawaited(_loadDownloadedGalleries());
       unawaited(_scanThisFolder());
+      _syncRegistration();
     }
+  }
+
+  /// 这一页在 [_LiveBrowsePages] 里登记的 (键, 路由)。
+  (String, ModalRoute<Object?>)? _registration;
+
+  /// 登记「这一层开在哪个路由上」。路由只有在 [didChangeDependencies] 里才拿得到；
+  /// 同一页换层（[didUpdateWidget]）时键变了，要重登。
+  void _syncRegistration() {
+    final route = ModalRoute.of(context);
+    final key = _LiveBrowsePages.keyOf(widget.sourceId, widget.relPath);
+    final current = _registration;
+    if (current != null && current.$1 == key && current.$2 == route) return;
+    if (current != null) _LiveBrowsePages.remove(current.$1, current.$2);
+    _registration = null;
+    if (route == null) return;
+    _LiveBrowsePages.add(key, route);
+    _registration = (key, route);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncRegistration();
   }
 
   @override
   void dispose() {
+    final registration = _registration;
+    if (registration != null) {
+      _LiveBrowsePages.remove(registration.$1, registration.$2);
+    }
     _repoWorker?.dispose();
     _folderWorker?.dispose();
     _searchDebounce?.cancel();
@@ -312,7 +352,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     // 「已下载」和「设备视频」没有目录树可走：前者从下载任务同步，后者是系统
     // 媒体索引。对它们叫目录扫描是空转。
     if (source.kind != LocalMediaSourceKind.directory &&
-        source.kind != LocalMediaSourceKind.bookmark) {
+        source.kind != LocalMediaSourceKind.bookmark &&
+        source.kind != LocalMediaSourceKind.webdav) {
       return;
     }
     if (!Get.isRegistered<LocalMediaScanService>()) return;
@@ -371,7 +412,11 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   List<LocalMediaFolder> _probedChildren = const <LocalMediaFolder>[];
 
   void _recomputeVisibleChildren() {
-    _probedChildren = _scanning
+    // NAS 例外：它先落这一层、再逐个探子目录（见 `WebDavFolderScanner`），
+    // 占位卡片在探完前不写「空的」（计数行对没探过的只留白），挡掉的话首屏就
+    // 又回到「等所有子目录探完才出东西」。本机那两千个空目录的问题它没有：
+    // NAS 一层最多探 48 个，其余本来就是占位。
+    _probedChildren = _scanning && !(_source?.isRemote ?? false)
         ? _children.where((folder) => folder.probedAt != null).toList()
         : _children;
     // 文件夹与图库都**整份在内存里**（`childFolders` 一次查完、图库上限 500），
@@ -572,6 +617,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       kind: kind,
       folderPath: _folder?.folderPath,
       nameQuery: withQuery ? _query : null,
+      includeSubfolders: withQuery && _searchingSubtree,
     );
   }
 
@@ -583,9 +629,10 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     return _repo.queryItems(
       sourceId: widget.sourceId,
       kind: kind,
-      sort: _sort,
+      order: _order,
       folderPath: _folder?.folderPath,
       nameQuery: _query.isEmpty ? null : _query,
+      includeSubfolders: _searchingSubtree,
       offset: offset,
       limit: limit,
     );
@@ -752,40 +799,67 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   // 排序是**跨目录共享**的一档：用户切到「按大小」就是宣布自己此刻在找大文件，
   // 每进一层子目录都要重设一遍很荒谬。读不到就用默认档，一句错都不报。
 
-  LocalMediaSort _restoreSort() {
-    if (!Get.isRegistered<ConfigService>()) return LocalMediaSort.nameAsc;
+  static const LocalMediaOrder _defaultOrder = LocalMediaOrder(
+    LocalMediaSortField.name,
+    ascending: true,
+  );
+
+  /// 这一页能按哪些字段排：与首页「所有视频」同一套字段（去掉目录页没意义的
+  /// 文件类型 / 帧率），⋮ 里列的就是这张表。以前这里只有「名称 / 最近修改 / 大小」
+  /// 三档、还不能换方向——在目录里想按时长排、找最近看过的都做不到。
+  static const List<LocalMediaSortField> _browseSortFields = [
+    LocalMediaSortField.name,
+    LocalMediaSortField.played,
+    LocalMediaSortField.modified,
+    LocalMediaSortField.duration,
+    LocalMediaSortField.size,
+    LocalMediaSortField.resolution,
+  ];
+
+  /// 存档格式 `字段:asc|desc`。老版本存的是 [LocalMediaSort] 的名字，照旧认。
+  LocalMediaOrder _restoreOrder() {
+    if (!Get.isRegistered<ConfigService>()) return _defaultOrder;
     final stored =
         Get.find<ConfigService>()[ConfigKey.LOCAL_MEDIA_BROWSE_SORT_KEY];
-    if (stored is! String) return LocalMediaSort.nameAsc;
-    for (final sort in _browseSorts) {
-      if (sort.name == stored) return sort;
+    if (stored is! String) return _defaultOrder;
+    const legacy = <String, LocalMediaOrder>{
+      'nameAsc': _defaultOrder,
+      'modifiedDesc': LocalMediaOrder(LocalMediaSortField.modified),
+      'sizeDesc': LocalMediaOrder(LocalMediaSortField.size),
+    };
+    if (legacy[stored] case final order?) return order;
+    final parts = stored.split(':');
+    if (parts.length != 2) return _defaultOrder;
+    for (final field in _browseSortFields) {
+      if (field.name == parts[0]) {
+        return LocalMediaOrder(field, ascending: parts[1] == 'asc');
+      }
     }
-    return LocalMediaSort.nameAsc;
+    return _defaultOrder;
   }
 
-  void _persistSort(LocalMediaSort sort) {
+  void _persistOrder(LocalMediaOrder order) {
     if (!Get.isRegistered<ConfigService>()) return;
     Get.find<ConfigService>()[ConfigKey.LOCAL_MEDIA_BROWSE_SORT_KEY] =
-        sort.name;
+        '${order.field.name}:${order.ascending ? 'asc' : 'desc'}';
   }
 
-  /// ⛔ 这一页的 ⋮ 菜单里**真的列得出来**的那几档。存档里是别的档（老版本写的、
-  /// 或者哪天我们收窄了这张表）就退回默认——一个选不中的排序会让菜单里一条勾都
-  /// 没有，而列表却按某种没人认得的顺序排着。
-  static const List<LocalMediaSort> _browseSorts = <LocalMediaSort>[
-    LocalMediaSort.nameAsc,
-    LocalMediaSort.modifiedDesc,
-    LocalMediaSort.sizeDesc,
-  ];
+  /// 字段的默认方向：名称正序，其余（时间、大小、时长…）大的/新的在前。
+  static bool _defaultAscending(LocalMediaSortField field) =>
+      field == LocalMediaSortField.name;
 
   Future<void> _openVideo(LocalMediaItem item) async {
     if (!item.isPlayableNow) {
-      showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
-      return;
+      // 不许只丢一句「不在磁盘上了」：说清是哪种找不到、给出路（重扫 / 认领
+      // 改名件 / 移除记录）。找回来了就直接打开找回的那一条。
+      final found = await showLocalItemMissingDialog(item);
+      if (mounted) _reloadFromDb();
+      if (found == null || !mounted) return;
+      item = found;
     }
     // 按**当前这一层目录**建池，让播放器底栏的「下一个」和播完续播都留在同目录里。
     //
-    // ⛔ `sort` 必须是页面此刻正在用的那一档（[_sort]），不能图省事写死一个默认值：
+    // ⛔ 排序必须是页面此刻正在用的那一档（[_order]），不能图省事写死一个默认值：
     // 排序是池身份的一部分（见 `PlaybackQueueService.localLibraryQueueId` 与
     // `LocalLibraryPlaybackQueue` 的类注释）。池按添加时间排、列表按名称排的话，
     // 用户点第 3 集，「下一个」会是个毫不相干的东西。
@@ -801,8 +875,13 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     try {
       final queue = PlaybackQueueService.to.openLocalLibrary(
         sourceId: widget.sourceId,
-        folderPath: _folder?.folderPath,
-        sort: _sort,
+        // 「含子文件夹」搜出来的可能在下面某一层：池按它自己那一层建，
+        // 否则池里根本没有它，「下一个」无从谈起。
+        folderPath: _searchingSubtree ? item.folderPath : _folder?.folderPath,
+        // 名称正序时仍按老的 `nameAsc` 建池：播放器抽屉与 XR 面板开目录池时
+        // 写死的就是它（池身份含排序），同一个目录两种写法会变成两个池。
+        sort: LocalMediaSort.nameAsc,
+        order: _order == _defaultOrder ? null : _order,
         title: _queueTitle,
       );
       queueRef = PlaybackQueueRef(
@@ -822,7 +901,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     );
   }
 
-  /// 大图页的顺序必须与网格一致：同一个口径（来源 + 这一层 + [_sort]），不是
+  /// 大图页的顺序必须与网格一致：同一个口径（来源 + 这一层 + [_order]），不是
   /// 写死按名称排。
   ///
   /// ⛔ 不能只拿 [_images]：那只是已经翻出来的几页，点第 3 张开出来的相册会在
@@ -831,26 +910,38 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   static const int _imageViewerLimit = 5000;
 
   void _openImage(LocalMediaItem item) {
-    var paths = <String>[];
+    var rows = <({String id, String path})>[];
     try {
-      paths = _repo
-          .itemPathsPage(
-            kind: LocalMediaItemKind.image,
-            sourceId: widget.sourceId,
-            folderPath: _folder?.folderPath,
-            sort: _sort,
-            // 搜索着的时候，相册里也只该有搜出来的那几张：网格上看得见的是什么，
-            // 左右滑过去的就该是什么。
-            nameQuery: _query.isEmpty ? null : _query,
-            limit: _imageViewerLimit,
-          )
-          .map((row) => row.path)
-          .toList();
+      rows = _repo.itemPathsPage(
+        kind: LocalMediaItemKind.image,
+        sourceId: widget.sourceId,
+        folderPath: _folder?.folderPath,
+        order: _order,
+        // 搜索着的时候，相册里也只该有搜出来的那几张：网格上看得见的是什么，
+        // 左右滑过去的就该是什么。
+        nameQuery: _query.isEmpty ? null : _query,
+        includeSubfolders: _searchingSubtree,
+        limit: _imageViewerLimit,
+      );
     } catch (e) {
       LogUtils.w('读取大图页路径失败: $e', 'LocalFolderBrowsePage');
     }
-    if (paths.isEmpty) paths = _images.map((e) => e.path).toList();
-    openLocalImageViewer(context, paths, item.path);
+    var paths = rows.map((row) => row.path).toList();
+    if (paths.isEmpty) {
+      rows = [for (final e in _images) (id: e.id, path: e.path)];
+      paths = _images.map((e) => e.path).toList();
+    }
+    // NAS 图：大图页要知道每张属于哪台 NAS、指纹是多少（缓存键），按 id 取回整条。
+    // 本地目录不走这一趟。
+    Map<String, LocalMediaItem>? davItems;
+    if (DavPath.isDav(item.path)) {
+      davItems = {};
+      for (final row in rows) {
+        final full = row.id == item.id ? item : _repo.getItem(row.id);
+        if (full != null) davItems[row.path] = full;
+      }
+    }
+    openLocalImageViewer(context, paths, item.path, davItems: davItems);
   }
 
   /// 长按一个文件 → 「设置封面」（只有视频有）与「删除」。
@@ -870,6 +961,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       anchorContext: anchorContext,
       item: item,
       folderCoverSource: folderCoverSource,
+      // 就站在这个目录里，「在文件夹中显示」是原地踏步。
+      showRevealInFolder: false,
       onSetAsFolderCover: folderCoverSource != null
           ? () => _setFolderCover(folderCoverSource)
           : null,
@@ -917,7 +1010,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// 视频还没派生出封面时返回 null——那一条菜单干脆不出现，比出现了点下去没反应好。
   String? _folderCoverSourceOf(LocalMediaItem item) {
     if (_folder == null) return null;
-    if (item.kind == LocalMediaItemKind.image) {
+    // NAS 图片的 path 是 `dav:/…`，设成目录封面会被 `Image.file` 画成碎图；
+    // 它能用的只有拉进本机缓存的那张（coverImagePath 已按此分流）。
+    if (item.kind == LocalMediaItemKind.image && !DavPath.isDav(item.path)) {
       return item.path.isEmpty ? null : item.path;
     }
     final cover = item.coverImagePath;
@@ -972,6 +1067,15 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
 
     if (!mounted || selectedRelPath == null) return;
     if (selectedRelPath != widget.relPath) {
+      // 那一层已经在栈里（一路点进来的）：退回去，而不是在栈顶再压一份——
+      // 否则从第 5 层跳回第 2 层后，按返回会回到第 5 层，返回键倒着走。
+      // 只有从「常用目录」直达深层、栈里没有那一层时才 push。
+      final target = _LiveBrowsePages.routeOf(widget.sourceId, selectedRelPath);
+      final navigator = Navigator.of(context);
+      if (target != null && target.isActive && target.navigator == navigator) {
+        navigator.popUntil((route) => route == target);
+        return;
+      }
       appRouter.push(
         LocalFolderRoute.location(
           sourceId: widget.sourceId,
@@ -1046,24 +1150,19 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     final selected = await showGlassMenu<Object>(
       anchorContext: anchorContext,
       entries: <GlassMenuEntry>[
-        GlassMenuOption<LocalMediaSort>(
-          value: LocalMediaSort.nameAsc,
-          label: slang.t.localMedia.sortName,
-          icon: Icons.sort_by_alpha,
-          selected: _sort == LocalMediaSort.nameAsc,
-        ),
-        GlassMenuOption<LocalMediaSort>(
-          value: LocalMediaSort.modifiedDesc,
-          label: slang.t.localMedia.sortRecentlyModified,
-          icon: Icons.schedule,
-          selected: _sort == LocalMediaSort.modifiedDesc,
-        ),
-        GlassMenuOption<LocalMediaSort>(
-          value: LocalMediaSort.sizeDesc,
-          label: slang.t.localMedia.sortSize,
-          icon: Icons.data_usage,
-          selected: _sort == LocalMediaSort.sizeDesc,
-        ),
+        GlassMenuSectionHeader(slang.t.localMedia.browse.sortBy),
+        // 选中的那一项再点一次＝翻方向（箭头画在它的图标上）。
+        for (final field in _browseSortFields)
+          GlassMenuOption<LocalMediaSortField>(
+            value: field,
+            label: LocalSortControls.labelForField(field),
+            icon: _order.field == field
+                ? (_order.ascending
+                      ? Icons.arrow_upward_rounded
+                      : Icons.arrow_downward_rounded)
+                : Icons.sort,
+            selected: _order.field == field,
+          ),
         const GlassMenuSeparator(),
         ...actions.entries(),
       ],
@@ -1071,16 +1170,17 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
 
     if (!mounted || selected == null) return;
 
-    if (selected is LocalMediaSort) {
-      if (_sort != selected) {
-        setState(() {
-          _sort = selected;
-          _loadItems();
-        });
-        // 换了排序，第一页的内容跟刚才毫无关系——不回顶就会落在新列表的末尾。
-        _resetScroll();
-        _persistSort(selected);
-      }
+    if (selected is LocalMediaSortField) {
+      final next = _order.field == selected
+          ? LocalMediaOrder(selected, ascending: !_order.ascending)
+          : LocalMediaOrder(selected, ascending: _defaultAscending(selected));
+      setState(() {
+        _order = next;
+        _loadItems();
+      });
+      // 换了排序，第一页的内容跟刚才毫无关系——不回顶就会落在新列表的末尾。
+      _resetScroll();
+      _persistOrder(next);
       return;
     }
     if (!anchorContext.mounted) return;
@@ -1161,7 +1261,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       : _query.isNotEmpty
       ? slang.t.localMedia.browse.searchNoResult(query: _query)
       : _folder == null
-      ? slang.t.localMedia.browse.notScannedYet
+      ? (LocalRemoteStateBanner.shouldShow(_source)
+            ? WebDavService.describeState(_source!.remoteState!)
+            : slang.t.localMedia.browse.notScannedYet)
       : slang.t.localMedia.browse.emptyFolder;
 
   /// 当前这一档视图里一样东西都没有。
@@ -1314,6 +1416,22 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                         onSubmitted: (_) => _searchFocus.unfocus(),
                       ),
                     ),
+                    if (_folder != null && _probedChildren.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: FilterChip(
+                          label: Text(
+                            slang.t.localMedia.searchIncludeSubfolders,
+                          ),
+                          selected: _searchSubfolders,
+                          showCheckmark: false,
+                          visualDensity: VisualDensity.compact,
+                          onSelected: (value) => setState(() {
+                            _searchSubfolders = value;
+                            if (_query.isNotEmpty) _loadItems();
+                          }),
+                        ),
+                      ),
                     if (_searchController.text.isNotEmpty)
                       IconButton(
                         icon: const Icon(Icons.close, size: 18),
@@ -1460,6 +1578,10 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                           // 扫这一层的时候，标题左边转一枚小弧。见 [GlassInlineBusy]：
                           // 这取代了原先顶在列表上方的那条横进度条。
                           busy: _scanning,
+                          // 有上层可去时才挂箭头：根页的位置菜单只有自己一行。
+                          trailingIcon: _breadcrumb.length > 1
+                              ? Icons.arrow_drop_down_rounded
+                              : null,
                           onTap: () => _showLocationMenu(pillContext),
                         ),
                       ),
@@ -1470,7 +1592,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                         if (_folder != null)
                           GlassIconButton(
                             icon: Icon(
-                              _isPinned ? Icons.star : Icons.star_border,
+                              _isPinned
+                                  ? Icons.push_pin
+                                  : Icons.push_pin_outlined,
                             ),
                             tooltip: _isPinned
                                 ? slang.t.localMedia.browse.unpin
@@ -1575,6 +1699,17 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                   // 已经删掉——「还在扫」现在画在 header 的标题胶囊上（见上面的
                   // `busy: _scanning`）。那条横线不属于任何东西、出现消失还是硬
                   // 切，把它底下整列内容顶上顶下。别再加回来。
+                  if (LocalRemoteStateBanner.shouldShow(_source))
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                        child: LocalRemoteStateBanner(
+                          source: _source!,
+                          busy: _scanning,
+                          onRetry: () => unawaited(_scanThisFolder()),
+                        ),
+                      ),
+                    ),
                   if (_needsRescanForTree) _buildRescanHint(context),
                   if (galleryShown > 0) ...[
                     if (showHeaders) _buildSectionHeader(t.galleriesSection),
@@ -1721,8 +1856,8 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                                     borderRadius: BorderRadius.circular(8),
                                     child: AspectRatio(
                                       aspectRatio: 1,
-                                      child: LocalCoverImage(
-                                        path: item.path,
+                                      child: LocalImageThumb(
+                                        item: item,
                                         placeholder: _buildImagePlaceholder(
                                           context,
                                         ),
@@ -1817,5 +1952,31 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         ),
       ),
     );
+  }
+}
+
+/// 此刻开着的目录页：(源, 层) → 它们所在的路由（同一层可能开了不止一份）。
+///
+/// 位置菜单据此判断目标那一层是不是已经在栈里——在就退回去，不在才压新页。
+class _LiveBrowsePages {
+  static final Map<String, List<ModalRoute<Object?>>> _routes = {};
+
+  static String keyOf(String sourceId, String relPath) =>
+      '$sourceId\u0000$relPath';
+
+  static void add(String key, ModalRoute<Object?> route) =>
+      (_routes[key] ??= <ModalRoute<Object?>>[]).add(route);
+
+  static void remove(String key, ModalRoute<Object?> route) {
+    final list = _routes[key];
+    if (list == null) return;
+    list.remove(route);
+    if (list.isEmpty) _routes.remove(key);
+  }
+
+  /// 最近开的那一份。
+  static ModalRoute<Object?>? routeOf(String sourceId, String relPath) {
+    final list = _routes[keyOf(sourceId, relPath)];
+    return list == null || list.isEmpty ? null : list.last;
   }
 }

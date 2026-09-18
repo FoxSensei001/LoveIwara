@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">탁 트인 바다 위 따뜻한 저녁 빛, 시청 영역 옆에 해가 있습니다.</string>
     <string name="xr_environment_mist">안개 봉우리</string>
     <string name="xr_environment_mist_hint">부드러운 안개 사이로 겹겹이 솟은 먼 산들, 수묵화 같은 풍경입니다.</string>
+    <string name="xr_notice_nas_panel_closed">앱 패널이 닫혀서 NAS 동영상을 계속 재생할 수 없습니다. 앱 패널을 다시 연 뒤 시도하세요</string>
+    <string name="xr_notice_nas_auth">NAS에 다시 로그인해야 합니다. 앱 패널의 로컬 파일에서 진행하세요</string>
+    <string name="xr_notice_nas_cert">NAS 인증서가 바뀌었습니다. 앱 패널의 로컬 파일에서 다시 확인하세요</string>
+    <string name="xr_notice_nas_unreachable">NAS에 연결할 수 없습니다. 헤드셋과 NAS가 같은 네트워크에 있는지 확인하세요</string>
 </resources>

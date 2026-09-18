@@ -4760,6 +4760,9 @@ class TranslationsMediaPlayerEn {
 	/// en: 'Unable to play local video: ${error}'
 	String unableToPlayLocalVideo({required Object error}) => 'Unable to play local video: ${error}';
 
+	/// en: 'Unable to play the NAS video: ${error}'
+	String unableToPlayNasVideo({required Object error}) => 'Unable to play the NAS video: ${error}';
+
 	/// en: 'Drop video file here to play'
 	String get dropVideoFileHere => 'Drop video file here to play';
 
@@ -6685,6 +6688,86 @@ class TranslationsLocalMediaEn {
 	/// en: 'Device videos'
 	String get mediaStoreSourceName => 'Device videos';
 
+	/// en: 'Waiting to scan'
+	String get scanQueued => 'Waiting to scan';
+
+	/// en: 'File info'
+	String get itemInfo => 'File info';
+
+	/// en: 'Show in folder'
+	String get revealInFolder => 'Show in folder';
+
+	/// en: 'Rescan all'
+	String get rescanAll => 'Rescan all';
+
+	/// en: 'Rescanning ${count} sources'
+	String rescanAllStarted({required Object count}) => 'Rescanning ${count} sources';
+
+	/// en: 'Search'
+	String get searchLibrary => 'Search';
+
+	/// en: 'Include subfolders'
+	String get searchIncludeSubfolders => 'Include subfolders';
+
+	/// en: 'Saved NAS'
+	String get savedServers => 'Saved NAS';
+
+	/// en: 'Connect a new NAS'
+	String get newServer => 'Connect a new NAS';
+
+	late final TranslationsLocalMediaItemInfoLabelsEn itemInfoLabels = TranslationsLocalMediaItemInfoLabelsEn.internal(_root);
+
+	/// en: 'Add source'
+	String get addSource => 'Add source';
+
+	/// en: 'Folder · NAS'
+	String get addSourceKinds => 'Folder · NAS';
+
+	/// en: 'Open settings'
+	String get openSettings => 'Open settings';
+
+	/// en: 'This also clears the following, and re-adding won't bring it back: ${items}'
+	String removeSourceLoses({required Object items}) => 'This also clears the following, and re-adding won\'t bring it back: ${items}';
+
+	/// en: '${count} watch progress'
+	String loseProgress({required Object count}) => '${count} watch progress';
+
+	/// en: '${count} featured'
+	String loseFavorites({required Object count}) => '${count} featured';
+
+	/// en: '${count} pinned folders'
+	String losePinned({required Object count}) => '${count} pinned folders';
+
+	/// en: '${count} hidden folders'
+	String loseHidden({required Object count}) => '${count} hidden folders';
+
+	/// en: '${count} custom covers'
+	String loseCovers({required Object count}) => '${count} custom covers';
+
+	/// en: 'Rename'
+	String get renameSource => 'Rename';
+
+	/// en: 'Rename source'
+	String get renameSourceTitle => 'Rename source';
+
+	/// en: 'Name'
+	String get renameSourceLabel => 'Name';
+
+	/// en: 'Renamed'
+	String get renamed => 'Renamed';
+
+	/// en: 'NAS content only includes folders you have opened. Videos and images in folders you haven't opened won't show up here.'
+	String get nasAggregateHint => 'NAS content only includes folders you have opened. Videos and images in folders you haven\'t opened won\'t show up here.';
+
+	/// en: '"${name}" updated'
+	String rescanDone({required Object name}) => '"${name}" updated';
+
+	/// en: 'This source needs a newer version of the app'
+	String get unknownSourceHint => 'This source needs a newer version of the app';
+
+	late final TranslationsLocalMediaMissingEn missing = TranslationsLocalMediaMissingEn.internal(_root);
+	late final TranslationsLocalMediaWebdavEn webdav = TranslationsLocalMediaWebdavEn.internal(_root);
+
 	/// en: 'The device media index is only available on Android'
 	String get mediaStoreUnavailable => 'The device media index is only available on Android';
 
@@ -6724,14 +6807,14 @@ class TranslationsLocalMediaEn {
 	/// en: 'That file is no longer on disk'
 	String get fileMissing => 'That file is no longer on disk';
 
-	/// en: 'File access not granted · tap to grant'
-	String get permissionDenied => 'File access not granted · tap to grant';
+	/// en: 'File access not granted. Allow it before adding a folder.'
+	String get permissionDenied => 'File access not granted. Allow it before adding a folder.';
 
 	/// en: 'No videos in this folder'
 	String get noVideosFound => 'No videos in this folder';
 
-	/// en: 'Add a folder to watch the videos already on this device'
-	String get emptyTitle => 'Add a folder to watch the videos already on this device';
+	/// en: 'Add a folder or connect a NAS to watch the videos you already have'
+	String get emptyTitle => 'Add a folder or connect a NAS to watch the videos you already have';
 
 	/// en: 'Files are read on this device only. Nothing is uploaded.'
 	String get emptyPrivacyNote => 'Files are read on this device only. Nothing is uploaded.';
@@ -6739,17 +6822,17 @@ class TranslationsLocalMediaEn {
 	/// en: 'Remove "${name}"?'
 	String removeSourceTitle({required Object name}) => 'Remove "${name}"?';
 
-	/// en: 'The files stay on disk. Only this library entry is removed.'
-	String get removeSourceBody => 'The files stay on disk. Only this library entry is removed.';
+	/// en: 'The files themselves are not touched. Only this library entry is removed.'
+	String get removeSourceBody => 'The files themselves are not touched. Only this library entry is removed.';
 
 	/// en: 'Remove'
 	String get remove => 'Remove';
 
-	/// en: 'Remove folder'
-	String get removeFolder => 'Remove folder';
+	/// en: 'Remove source'
+	String get removeFolder => 'Remove source';
 
-	/// en: 'Select folder to remove'
-	String get removeFolderSelectTitle => 'Select folder to remove';
+	/// en: 'Select a source to remove'
+	String get removeFolderSelectTitle => 'Select a source to remove';
 
 	/// en: 'Long-press to remove this folder'
 	String get longPressToRemove => 'Long-press to remove this folder';
@@ -10463,6 +10546,186 @@ class TranslationsLocalMediaBrowseEn {
 	String get pathCopied => 'Path copied';
 }
 
+// Path: localMedia.itemInfoLabels
+class TranslationsLocalMediaItemInfoLabelsEn {
+	TranslationsLocalMediaItemInfoLabelsEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Size'
+	String get size => 'Size';
+
+	/// en: 'Resolution'
+	String get resolution => 'Resolution';
+
+	/// en: 'Duration'
+	String get duration => 'Duration';
+
+	/// en: 'Modified'
+	String get modified => 'Modified';
+
+	/// en: 'Last played'
+	String get lastPlayed => 'Last played';
+
+	/// en: 'Not watched yet'
+	String get neverPlayed => 'Not watched yet';
+
+	/// en: 'Finished'
+	String get completed => 'Finished';
+}
+
+// Path: localMedia.missing
+class TranslationsLocalMediaMissingEn {
+	TranslationsLocalMediaMissingEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Can't find this file'
+	String get title => 'Can\'t find this file';
+
+	/// en: 'Rescan folder'
+	String get rescanFolder => 'Rescan folder';
+
+	/// en: 'Refresh this folder'
+	String get relistNas => 'Refresh this folder';
+
+	/// en: 'Remove from list'
+	String get removeFromList => 'Remove from list';
+
+	/// en: 'Removed from the list. The file on disk was not touched'
+	String get removed => 'Removed from the list. The file on disk was not touched';
+
+	/// en: 'Found it'
+	String get found => 'Found it';
+
+	/// en: '"${name}" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now.'
+	String nasGone({required Object name}) => '"${name}" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now.';
+}
+
+// Path: localMedia.webdav
+class TranslationsLocalMediaWebdavEn {
+	TranslationsLocalMediaWebdavEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Connect NAS (WebDAV)'
+	String get addNas => 'Connect NAS (WebDAV)';
+
+	/// en: 'Connect NAS'
+	String get connectTitle => 'Connect NAS';
+
+	/// en: 'Sign in to NAS again'
+	String get editTitle => 'Sign in to NAS again';
+
+	/// en: 'Turn on the WebDAV service in your NAS settings, then enter its address and account.'
+	String get hint => 'Turn on the WebDAV service in your NAS settings, then enter its address and account.';
+
+	/// en: 'Address'
+	String get address => 'Address';
+
+	/// en: 'e.g. 192.168.1.10:5005'
+	String get addressHint => 'e.g. 192.168.1.10:5005';
+
+	/// en: 'Username'
+	String get username => 'Username';
+
+	/// en: 'Password'
+	String get password => 'Password';
+
+	/// en: 'Name (optional)'
+	String get displayName => 'Name (optional)';
+
+	/// en: 'Connect'
+	String get connect => 'Connect';
+
+	/// en: 'Invalid address'
+	String get invalidAddress => 'Invalid address';
+
+	/// en: 'Wrong username or password'
+	String get errorAuth => 'Wrong username or password';
+
+	/// en: 'Can't reach the server. Check the address and port, and that this device is on the same network as the NAS'
+	String get errorUnreachable => 'Can\'t reach the server. Check the address and port, and that this device is on the same network as the NAS';
+
+	/// en: 'This address is not a WebDAV service'
+	String get errorNotWebdav => 'This address is not a WebDAV service';
+
+	/// en: 'Connection failed (${code})'
+	String errorGeneric({required Object code}) => 'Connection failed (${code})';
+
+	/// en: 'Couldn't read the saved password. Try again later'
+	String get errorCredUnreadable => 'Couldn\'t read the saved password. Try again later';
+
+	/// en: 'Trust this server?'
+	String get certTitle => 'Trust this server?';
+
+	/// en: 'The server's certificate isn't trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:'
+	String get certBody => 'The server\'s certificate isn\'t trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:';
+
+	/// en: 'This server's certificate is different from the one you trusted before. If you didn't replace your NAS certificate, someone may be impersonating it. Don't continue.'
+	String get certChangedBody => 'This server\'s certificate is different from the one you trusted before. If you didn\'t replace your NAS certificate, someone may be impersonating it. Don\'t continue.';
+
+	/// en: 'Trust'
+	String get trust => 'Trust';
+
+	/// en: 'Choose a folder to add'
+	String get pickRootTitle => 'Choose a folder to add';
+
+	/// en: 'Root'
+	String get serverRoot => 'Root';
+
+	/// en: 'This NAS folder has already been added'
+	String get alreadyAdded => 'This NAS folder has already been added';
+
+	/// en: 'Sign in again'
+	String get relogin => 'Sign in again';
+
+	/// en: 'Sign-in required'
+	String get stateAuthFailed => 'Sign-in required';
+
+	/// en: 'Server certificate changed'
+	String get stateCertUntrusted => 'Server certificate changed';
+
+	/// en: 'Can't reach NAS'
+	String get stateUnreachable => 'Can\'t reach NAS';
+
+	/// en: 'Couldn't read password'
+	String get stateCredUnreadable => 'Couldn\'t read password';
+
+	/// en: 'Connected'
+	String get connected => 'Connected';
+
+	/// en: 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.'
+	String get errorForbidden => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.';
+
+	/// en: 'Secure connection failed. Check that http:// or https:// matches the NAS settings.'
+	String get errorTls => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.';
+
+	/// en: 'If the NAS only serves HTTPS, add https:// in front of the address.'
+	String get errorTryHttps => 'If the NAS only serves HTTPS, add https:// in front of the address.';
+
+	/// en: 'Back'
+	String get previousStep => 'Back';
+
+	/// en: 'Can't reach the NAS. Showing what was seen last time.'
+	String get bannerUnreachable => 'Can\'t reach the NAS. Showing what was seen last time.';
+
+	/// en: 'Login expired. Sign in again to see the latest content.'
+	String get bannerAuthFailed => 'Login expired. Sign in again to see the latest content.';
+
+	/// en: 'The NAS certificate changed. Confirm it to continue.'
+	String get bannerCertUntrusted => 'The NAS certificate changed. Confirm it to continue.';
+
+	/// en: 'Couldn't read the saved password. Sign in again.'
+	String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class TranslationsVideoDetailGestureGuideQuestEn {
 	TranslationsVideoDetailGestureGuideQuestEn.internal(this._root);
@@ -13177,6 +13440,7 @@ extension on Translations {
 			'mediaPlayer.localVideoPathEmpty' => 'Local video path is empty',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Local video file does not exist: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Unable to play local video: ${error}',
+			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => 'Unable to play the NAS video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Drop video file here to play',
 			'mediaPlayer.supportedFormats' => 'Supported formats: MP4, MKV, AVI, MOV, WEBM, etc.',
 			'mediaPlayer.noSupportedVideoFile' => 'No supported video file found',
@@ -13353,9 +13617,9 @@ extension on Translations {
 			'emoji.small' => 'Small',
 			'emoji.medium' => 'Medium',
 			'emoji.large' => 'Large',
-			'emoji.extraLarge' => 'Extra Large',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
 			'emoji.preview' => 'Emoji Preview',
 			'emoji.library' => 'Emoji Library',
@@ -13867,9 +14131,9 @@ extension on Translations {
 			'localMedia.browse.pickFolderTitle' => 'Choose a folder',
 			'localMedia.browse.useThisFolder' => 'Use this folder',
 			'localMedia.browse.noSubfolders' => 'No subfolders here',
-			'localMedia.browse.storageRoot' => 'Device storage',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.browse.storageRoot' => 'Device storage',
 			'localMedia.browse.homeFolder' => 'Home',
 			'localMedia.browse.filesystemRoot' => 'Filesystem root',
 			'localMedia.browse.folderUnreadable' => 'This folder cannot be read',
@@ -13952,6 +14216,82 @@ extension on Translations {
 			'localMedia.addFolder' => 'Add folder',
 			'localMedia.addDeviceVideos' => 'Scan device videos',
 			'localMedia.mediaStoreSourceName' => 'Device videos',
+			'localMedia.scanQueued' => 'Waiting to scan',
+			'localMedia.itemInfo' => 'File info',
+			'localMedia.revealInFolder' => 'Show in folder',
+			'localMedia.rescanAll' => 'Rescan all',
+			'localMedia.rescanAllStarted' => ({required Object count}) => 'Rescanning ${count} sources',
+			'localMedia.searchLibrary' => 'Search',
+			'localMedia.searchIncludeSubfolders' => 'Include subfolders',
+			'localMedia.savedServers' => 'Saved NAS',
+			'localMedia.newServer' => 'Connect a new NAS',
+			'localMedia.itemInfoLabels.size' => 'Size',
+			'localMedia.itemInfoLabels.resolution' => 'Resolution',
+			'localMedia.itemInfoLabels.duration' => 'Duration',
+			'localMedia.itemInfoLabels.modified' => 'Modified',
+			'localMedia.itemInfoLabels.lastPlayed' => 'Last played',
+			'localMedia.itemInfoLabels.neverPlayed' => 'Not watched yet',
+			'localMedia.itemInfoLabels.completed' => 'Finished',
+			'localMedia.addSource' => 'Add source',
+			'localMedia.addSourceKinds' => 'Folder · NAS',
+			'localMedia.openSettings' => 'Open settings',
+			'localMedia.removeSourceLoses' => ({required Object items}) => 'This also clears the following, and re-adding won\'t bring it back: ${items}',
+			'localMedia.loseProgress' => ({required Object count}) => '${count} watch progress',
+			'localMedia.loseFavorites' => ({required Object count}) => '${count} featured',
+			'localMedia.losePinned' => ({required Object count}) => '${count} pinned folders',
+			'localMedia.loseHidden' => ({required Object count}) => '${count} hidden folders',
+			'localMedia.loseCovers' => ({required Object count}) => '${count} custom covers',
+			'localMedia.renameSource' => 'Rename',
+			'localMedia.renameSourceTitle' => 'Rename source',
+			'localMedia.renameSourceLabel' => 'Name',
+			'localMedia.renamed' => 'Renamed',
+			'localMedia.nasAggregateHint' => 'NAS content only includes folders you have opened. Videos and images in folders you haven\'t opened won\'t show up here.',
+			'localMedia.rescanDone' => ({required Object name}) => '"${name}" updated',
+			'localMedia.unknownSourceHint' => 'This source needs a newer version of the app',
+			'localMedia.missing.title' => 'Can\'t find this file',
+			'localMedia.missing.rescanFolder' => 'Rescan folder',
+			'localMedia.missing.relistNas' => 'Refresh this folder',
+			'localMedia.missing.removeFromList' => 'Remove from list',
+			'localMedia.missing.removed' => 'Removed from the list. The file on disk was not touched',
+			'localMedia.missing.found' => 'Found it',
+			'localMedia.missing.nasGone' => ({required Object name}) => '"${name}" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now.',
+			'localMedia.webdav.addNas' => 'Connect NAS (WebDAV)',
+			'localMedia.webdav.connectTitle' => 'Connect NAS',
+			'localMedia.webdav.editTitle' => 'Sign in to NAS again',
+			'localMedia.webdav.hint' => 'Turn on the WebDAV service in your NAS settings, then enter its address and account.',
+			'localMedia.webdav.address' => 'Address',
+			'localMedia.webdav.addressHint' => 'e.g. 192.168.1.10:5005',
+			'localMedia.webdav.username' => 'Username',
+			'localMedia.webdav.password' => 'Password',
+			'localMedia.webdav.displayName' => 'Name (optional)',
+			'localMedia.webdav.connect' => 'Connect',
+			'localMedia.webdav.invalidAddress' => 'Invalid address',
+			'localMedia.webdav.errorAuth' => 'Wrong username or password',
+			'localMedia.webdav.errorUnreachable' => 'Can\'t reach the server. Check the address and port, and that this device is on the same network as the NAS',
+			'localMedia.webdav.errorNotWebdav' => 'This address is not a WebDAV service',
+			'localMedia.webdav.errorGeneric' => ({required Object code}) => 'Connection failed (${code})',
+			'localMedia.webdav.errorCredUnreadable' => 'Couldn\'t read the saved password. Try again later',
+			'localMedia.webdav.certTitle' => 'Trust this server?',
+			'localMedia.webdav.certBody' => 'The server\'s certificate isn\'t trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:',
+			'localMedia.webdav.certChangedBody' => 'This server\'s certificate is different from the one you trusted before. If you didn\'t replace your NAS certificate, someone may be impersonating it. Don\'t continue.',
+			'localMedia.webdav.trust' => 'Trust',
+			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
+			'localMedia.webdav.serverRoot' => 'Root',
+			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
+			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
+			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
+			'localMedia.webdav.connected' => 'Connected',
+			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
+			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
+			'localMedia.webdav.previousStep' => 'Back',
+			'localMedia.webdav.bannerUnreachable' => 'Can\'t reach the NAS. Showing what was seen last time.',
+			'localMedia.webdav.bannerAuthFailed' => 'Login expired. Sign in again to see the latest content.',
+			'localMedia.webdav.bannerCertUntrusted' => 'The NAS certificate changed. Confirm it to continue.',
+			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'The device media index is only available on Android',
 			'localMedia.mediaStorePermissionDenied' => 'Video access was not granted',
 			'localMedia.rescan' => 'Rescan',
@@ -13965,15 +14305,15 @@ extension on Translations {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => 'It already contains the added folder "${name}"; adding its parent folder isn\'t supported yet',
 			'localMedia.addSourceFailed' => 'Could not add that folder',
 			'localMedia.fileMissing' => 'That file is no longer on disk',
-			'localMedia.permissionDenied' => 'File access not granted · tap to grant',
+			'localMedia.permissionDenied' => 'File access not granted. Allow it before adding a folder.',
 			'localMedia.noVideosFound' => 'No videos in this folder',
-			'localMedia.emptyTitle' => 'Add a folder to watch the videos already on this device',
+			'localMedia.emptyTitle' => 'Add a folder or connect a NAS to watch the videos you already have',
 			'localMedia.emptyPrivacyNote' => 'Files are read on this device only. Nothing is uploaded.',
 			'localMedia.removeSourceTitle' => ({required Object name}) => 'Remove "${name}"?',
-			'localMedia.removeSourceBody' => 'The files stay on disk. Only this library entry is removed.',
+			'localMedia.removeSourceBody' => 'The files themselves are not touched. Only this library entry is removed.',
 			'localMedia.remove' => 'Remove',
-			'localMedia.removeFolder' => 'Remove folder',
-			'localMedia.removeFolderSelectTitle' => 'Select folder to remove',
+			'localMedia.removeFolder' => 'Remove source',
+			'localMedia.removeFolderSelectTitle' => 'Select a source to remove',
 			'localMedia.longPressToRemove' => 'Long-press to remove this folder',
 			'localMedia.clearProgress' => 'Clear local watch history',
 			'localMedia.clearProgressCount' => ({required Object count}) => '${count} entries',

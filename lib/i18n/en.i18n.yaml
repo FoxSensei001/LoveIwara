@@ -2536,6 +2536,7 @@ mediaPlayer:
   localVideoPathEmpty: "Local video path is empty"
   localVideoFileNotExists: "Local video file does not exist: ${path}"
   unableToPlayLocalVideo: "Unable to play local video: ${error}"
+  unableToPlayNasVideo: "Unable to play the NAS video: ${error}"
   # File drag and drop
   dropVideoFileHere: "Drop video file here to play"
   supportedFormats: "Supported formats: MP4, MKV, AVI, MOV, WEBM, etc."
@@ -3393,6 +3394,85 @@ localMedia:
   addFolder: Add folder
   addDeviceVideos: Scan device videos
   mediaStoreSourceName: Device videos
+  scanQueued: "Waiting to scan"
+  itemInfo: "File info"
+  revealInFolder: "Show in folder"
+  rescanAll: "Rescan all"
+  rescanAllStarted: "Rescanning ${count} sources"
+  searchLibrary: "Search"
+  searchIncludeSubfolders: "Include subfolders"
+  savedServers: "Saved NAS"
+  newServer: "Connect a new NAS"
+  itemInfoLabels:
+    size: "Size"
+    resolution: "Resolution"
+    duration: "Duration"
+    modified: "Modified"
+    lastPlayed: "Last played"
+    neverPlayed: "Not watched yet"
+    completed: "Finished"
+  addSource: "Add source"
+  addSourceKinds: "Folder · NAS"
+  openSettings: "Open settings"
+  removeSourceLoses: "This also clears the following, and re-adding won't bring it back: ${items}"
+  loseProgress: "${count} watch progress"
+  loseFavorites: "${count} featured"
+  losePinned: "${count} pinned folders"
+  loseHidden: "${count} hidden folders"
+  loseCovers: "${count} custom covers"
+  renameSource: "Rename"
+  renameSourceTitle: "Rename source"
+  renameSourceLabel: "Name"
+  renamed: "Renamed"
+  nasAggregateHint: "NAS content only includes folders you have opened. Videos and images in folders you haven't opened won't show up here."
+  rescanDone: "\"${name}\" updated"
+  unknownSourceHint: This source needs a newer version of the app
+  missing:
+    title: "Can't find this file"
+    rescanFolder: "Rescan folder"
+    relistNas: "Refresh this folder"
+    removeFromList: "Remove from list"
+    removed: "Removed from the list. The file on disk was not touched"
+    found: "Found it"
+    nasGone: "\"${name}\" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now."
+  webdav:
+    addNas: "Connect NAS (WebDAV)"
+    connectTitle: "Connect NAS"
+    editTitle: "Sign in to NAS again"
+    hint: "Turn on the WebDAV service in your NAS settings, then enter its address and account."
+    address: "Address"
+    addressHint: "e.g. 192.168.1.10:5005"
+    username: "Username"
+    password: "Password"
+    displayName: "Name (optional)"
+    connect: "Connect"
+    invalidAddress: "Invalid address"
+    errorAuth: "Wrong username or password"
+    errorUnreachable: "Can't reach the server. Check the address and port, and that this device is on the same network as the NAS"
+    errorNotWebdav: "This address is not a WebDAV service"
+    errorGeneric: "Connection failed (${code})"
+    errorCredUnreadable: "Couldn't read the saved password. Try again later"
+    certTitle: "Trust this server?"
+    certBody: "The server's certificate isn't trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:"
+    certChangedBody: "This server's certificate is different from the one you trusted before. If you didn't replace your NAS certificate, someone may be impersonating it. Don't continue."
+    trust: "Trust"
+    pickRootTitle: "Choose a folder to add"
+    serverRoot: "Root"
+    alreadyAdded: "This NAS folder has already been added"
+    relogin: "Sign in again"
+    stateAuthFailed: "Sign-in required"
+    stateCertUntrusted: "Server certificate changed"
+    stateUnreachable: "Can't reach NAS"
+    stateCredUnreadable: "Couldn't read password"
+    connected: "Connected"
+    errorForbidden: "This account has no WebDAV access. Grant it WebDAV permission in the NAS settings."
+    errorTls: "Secure connection failed. Check that http:// or https:// matches the NAS settings."
+    errorTryHttps: "If the NAS only serves HTTPS, add https:// in front of the address."
+    previousStep: "Back"
+    bannerUnreachable: "Can't reach the NAS. Showing what was seen last time."
+    bannerAuthFailed: "Login expired. Sign in again to see the latest content."
+    bannerCertUntrusted: "The NAS certificate changed. Confirm it to continue."
+    bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: The device media index is only available on Android
   mediaStorePermissionDenied: Video access was not granted
   rescan: Rescan
@@ -3406,15 +3486,15 @@ localMedia:
   sourceContainsExisting: "It already contains the added folder \"${name}\"; adding its parent folder isn't supported yet"
   addSourceFailed: Could not add that folder
   fileMissing: That file is no longer on disk
-  permissionDenied: File access not granted · tap to grant
+  permissionDenied: "File access not granted. Allow it before adding a folder."
   noVideosFound: No videos in this folder
-  emptyTitle: Add a folder to watch the videos already on this device
+  emptyTitle: "Add a folder or connect a NAS to watch the videos you already have"
   emptyPrivacyNote: Files are read on this device only. Nothing is uploaded.
   removeSourceTitle: "Remove \"${name}\"?"
-  removeSourceBody: The files stay on disk. Only this library entry is removed.
+  removeSourceBody: "The files themselves are not touched. Only this library entry is removed."
   remove: Remove
-  removeFolder: Remove folder
-  removeFolderSelectTitle: Select folder to remove
+  removeFolder: "Remove source"
+  removeFolderSelectTitle: "Select a source to remove"
   longPressToRemove: Long-press to remove this folder
   clearProgress: Clear local watch history
   clearProgressCount: "${count} entries"

@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/downloads_library_sync_service.dart';
@@ -13,9 +15,12 @@ import 'package:i_iwara/app/services/local_media_scan_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_cover_picker_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_info_dialog.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_webdav_connect_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_saved_items_drawer.dart'
+    show showGlassPromptNameDialog;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -85,6 +90,9 @@ class LocalFolderActions {
   /// 一层没有路径是真的出了问题，那时仍然不给。
   bool get _canSetCover =>
       canSetCover &&
+      // NAS 目录：挑封面的弹窗按本机路径 `Image.file` 画候选图，远端的画不出来。
+      // 等远端图片走本机缓存之后再开。
+      !DavPath.isDav(folderPath) &&
       ((folderPath != null && folderPath!.isNotEmpty) || _isSourceRoot);
 
   /// 「移除来源」。只有来源根那一层给得出来（子目录没有"移除"这回事）。
@@ -111,6 +119,17 @@ class LocalFolderActions {
 
   bool get _isSourceRoot => relPath.isEmpty;
 
+  bool get _isRemoteSource =>
+      DavPath.isDav(folderPath) ||
+      (LocalMediaRepository().getSource(sourceId)?.isRemote ?? false);
+
+  /// 来源根可以改名（内建源的名字由应用给，不给改）。
+  bool get _canRename {
+    if (!_isSourceRoot) return false;
+    final source = LocalMediaRepository().getSource(sourceId);
+    return source != null && !source.isBuiltIn && !source.isInert;
+  }
+
   /// 这个目录能不能**真删**（磁盘 + 库）。
   ///
   /// ⛔ 来源根一律不给。它已经有「移除来源」（只解除关联、不动磁盘），而把一个源的
@@ -120,14 +139,20 @@ class LocalFolderActions {
   /// ⛔ 没有绝对路径 / `content://` 的也不给：「已下载」按任务同步、「设备视频」是
   /// 系统媒体索引，两者都没有可删的真目录（同 `local_media_item_menu.dart` 里
   /// 那条 `content://` 判据——那次的教训是漏了它就会谎报"删掉了"）。
-  bool get _canDeleteFolder {
+  bool get _canDeleteFolder =>
+      _hasRealFolderTree &&
+      // ⛔ NAS 目录不在本机：`Directory(path).delete` 碰的会是本机磁盘。
+      !DavPath.isDav(folderPath);
+
+  /// 不是来源根、有一条真目录路径（不是 `content://`、不是平的源）。
+  bool get _hasRealFolderTree {
     if (_isSourceRoot) return false;
     final path = folderPath;
     if (path == null || path.isEmpty) return false;
     return !path.startsWith('content://');
   }
 
-  /// 这个目录能不能隐藏。判据与 [_canDeleteFolder] 同源：
+  /// 这个目录能不能隐藏。判据与 [_canDeleteFolder] 同源（只是不排除 NAS）：
   ///
   /// ⛔ 来源根不给。整个源在目录树里消失，用户第一反应是"我加的文件夹没了"，
   /// 而「显示隐藏的文件夹」那个开关在根页上够不着它（根页画的是**来源卡**，
@@ -135,7 +160,9 @@ class LocalFolderActions {
   ///
   /// 没有真实目录树的源（`content://`、平的源）也不给：隐藏的另一半价值是
   /// 「扫描不进去」，而它们根本不走目录遍历，藏了只是半件事。
-  bool get _canHideFolder => _canDeleteFolder;
+  ///
+  /// NAS 目录可以藏：隐藏只是库里的一句用户意图，不碰文件。
+  bool get _canHideFolder => _hasRealFolderTree;
 
   /// 「显示隐藏的文件夹」此刻开着没有。读不到配置就当关着。
   static bool get showHiddenFolders {
@@ -157,7 +184,7 @@ class LocalFolderActions {
       GlassMenuOption<String>(
         value: pinned ? 'unpin' : 'pin',
         label: pinned ? t.browse.unpin : t.browse.pin,
-        icon: pinned ? Icons.star_border : Icons.star,
+        icon: pinned ? Icons.push_pin_outlined : Icons.push_pin,
         destructive: pinned,
       ),
       if (_canSetCover) ...[
@@ -213,6 +240,22 @@ class LocalFolderActions {
           icon: hidden
               ? Icons.visibility_outlined
               : Icons.visibility_off_outlined,
+        ),
+      if (_canRename)
+        GlassMenuOption<String>(
+          value: 'rename',
+          label: t.renameSource,
+          icon: Icons.drive_file_rename_outline,
+        ),
+      // NAS 源根：改密码 / 证书变了之后重新确认，都走这一条。
+      //
+      // ⛔ 按源的种类判，不按 [folderPath]：第一次就没连上时根目录行还没写进库，
+      // 调用点给的 folderPath 是空的——恰恰是最需要重新登录的时候这条不出现。
+      if (_isSourceRoot && _isRemoteSource)
+        GlassMenuOption<String>(
+          value: 'relogin',
+          label: t.webdav.relogin,
+          icon: Icons.key_outlined,
         ),
       if (onRemove != null)
         GlassMenuOption<String>(
@@ -300,6 +343,7 @@ class LocalFolderActions {
         final override = onRescan;
         if (override != null) {
           await override();
+          _announceRescan(repository);
           onChanged?.call();
           return;
         }
@@ -312,6 +356,7 @@ class LocalFolderActions {
         if (source.kind == LocalMediaSourceKind.downloads) {
           if (!Get.isRegistered<DownloadsLibrarySyncService>()) return;
           await DownloadsLibrarySyncService.to.sync();
+          _announceRescan(repository);
           onChanged?.call();
           return;
         }
@@ -327,10 +372,37 @@ class LocalFolderActions {
               relPath: relPath,
             );
           }
+          _announceRescan(repository);
           onChanged?.call();
         } catch (e) {
           LogUtils.w('目录级扫描失败: $e', 'LocalFolderMenu');
+          showAppToast(
+            slang.t.localMedia.scanFailed(reason: '$e'),
+            type: AppToastType.error,
+          );
+          onChanged?.call();
         }
+
+      case 'relogin':
+        final source = repository.getSource(sourceId);
+        if (source == null || !source.isRemote) return;
+        await reloginRemoteSource(context: anchorContext, source: source);
+        onChanged?.call();
+
+      case 'rename':
+        final source = repository.getSource(sourceId);
+        if (source == null || !anchorContext.mounted) return;
+        final name = await showGlassPromptNameDialog(
+          title: slang.t.localMedia.renameSourceTitle,
+          hint: slang.t.localMedia.renameSourceLabel,
+          initialText: source.displayName,
+        );
+        if (name == null || name.isEmpty || name == source.displayName) {
+          return;
+        }
+        repository.upsertSource(source.copyWith(displayName: name));
+        showAppToast(slang.t.localMedia.renamed);
+        onChanged?.call();
 
       case 'hide':
         if (relPath.isEmpty) return;
@@ -355,7 +427,8 @@ class LocalFolderActions {
             relPath.isNotEmpty &&
             Get.isRegistered<LocalMediaScanService>() &&
             (source.kind == LocalMediaSourceKind.directory ||
-                source.kind == LocalMediaSourceKind.bookmark)) {
+                source.kind == LocalMediaSourceKind.bookmark ||
+                source.kind == LocalMediaSourceKind.webdav)) {
           unawaited(
             LocalMediaScanService.to.scanFolder(
               source: source,
@@ -381,6 +454,32 @@ class LocalFolderActions {
       case 'deleteFolder':
         await _confirmAndDeleteFolder(anchorContext, repository);
     }
+  }
+
+  /// 扫完了说一声：扫描本身不在这一页画转圈的地方（子目录卡、菜单），不说的话
+  /// 用户点完「重新扫描」什么都看不到，只能猜它做没做。
+  ///
+  /// NAS 列目录失败不抛异常，只把源标成用不了——这里照源状态说实话。
+  void _announceRescan(LocalMediaRepository repository) {
+    final source = repository.getSource(sourceId);
+    final state = source?.remoteState;
+    if (source != null &&
+        source.isRemote &&
+        state != null &&
+        state != LocalMediaRemoteState.ok) {
+      showAppToast(
+        WebDavService.describeState(state),
+        type: AppToastType.error,
+      );
+      return;
+    }
+    final name = displayName.isNotEmpty
+        ? displayName
+        : (source?.displayName ?? '');
+    showAppToast(
+      slang.t.localMedia.rescanDone(name: name),
+      type: AppToastType.success,
+    );
   }
 
   /// 真删这个文件夹：确认 → 删磁盘 → 删库行。
@@ -536,6 +635,50 @@ Future<void> showLocalFolderMenu({
   await actions.handle(anchorContext, action);
 }
 
+/// 「重新登录」一个 NAS 源：弹窗测通 → 存新凭据 → 源状态复位 → 交给网关。
+/// 返回真表示登上了。
+///
+/// ⛔ 只此一份：源卡上的状态角标和 ⋮ 菜单都走这里，别在调用点各写一遍。
+Future<bool> reloginRemoteSource({
+  required BuildContext context,
+  required LocalMediaSource source,
+}) async {
+  final origin = source.uri;
+  final root = source.path;
+  if (origin == null || root == null || !DavPath.isDav(root)) return false;
+  final service = WebDavService.instance;
+  final saved = await service.readCredentials(source.id);
+  if (!context.mounted) return false;
+  final result = await showWebDavReloginDialog(
+    context: context,
+    origin: origin,
+    rootDavPath: root,
+    displayName: source.displayName,
+    username: saved.value?.username,
+    tlsFingerprint: source.tlsFingerprint,
+  );
+  if (result == null) return false;
+  if (!await service.writeCredentials(source.id, result.credentials)) {
+    showAppToast(slang.t.localMedia.addSourceFailed, type: AppToastType.error);
+    return false;
+  }
+  final updated = source.copyWith(
+    offline: false,
+    remoteState: LocalMediaRemoteState.ok,
+    tlsFingerprint: result.tlsFingerprint,
+  );
+  LocalMediaRepository().upsertSource(updated);
+  // 网关里旧的连接信息（旧密码 / 旧指纹）作废，换新的。
+  await service.endpointFor(updated);
+  showAppToast(slang.t.localMedia.webdav.connected);
+  // 登上了就顺手重列一遍：失效期间卡片和目录停在旧样子，不重列的话用户还得
+  // 自己再去找「重新扫描」。
+  if (Get.isRegistered<LocalMediaScanService>()) {
+    unawaited(LocalMediaScanService.to.scanSource(updated));
+  }
+  return true;
+}
+
 /// 「移除来源」：确认 → 停掉这个源正在跑的扫描 → 删库行。返回真表示**真的删了**。
 ///
 /// ⛔ 只此一份。外面（首页来源卡）和里面（目录详情页顶栏）都得能移除，而"删之前
@@ -547,9 +690,30 @@ Future<bool> confirmAndRemoveLocalSource({
   required LocalMediaSource source,
 }) async {
   final t = slang.t.localMedia;
+  final impact = LocalMediaRepository().sourceRemovalImpact(source.id);
+  final losses = <String>[
+    if (impact.progress > 0) t.loseProgress(count: impact.progress),
+    if (impact.favorites > 0) t.loseFavorites(count: impact.favorites),
+    if (impact.pinned > 0) t.losePinned(count: impact.pinned),
+    if (impact.hidden > 0) t.loseHidden(count: impact.hidden),
+    if (impact.covers > 0) t.loseCovers(count: impact.covers),
+  ];
   final confirmed = await showGlassAlertDialog<bool>(
     title: t.removeSourceTitle(name: source.displayName),
-    content: Text(t.removeSourceBody),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(t.removeSourceBody),
+        if (losses.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Text(
+            t.removeSourceLoses(items: losses.join(' · ')),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ],
+      ],
+    ),
     actions: <GlassDialogAction>[
       GlassDialogAction(
         label: slang.t.common.cancel,
@@ -568,5 +732,10 @@ Future<bool> confirmAndRemoveLocalSource({
     LocalMediaScanService.to.cancel(source.id);
   }
   LocalMediaRepository().deleteSource(source.id);
+  // NAS 源：secure storage 里的账号密码与网关里的连接信息一并清掉，
+  // 不留一份「源已删、凭据还在」的孤儿。
+  if (source.isRemote) {
+    await WebDavService.instance.forgetSource(source.id);
+  }
   return true;
 }

@@ -73,5 +73,9 @@
     <true/>
     <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
+    <!-- 连接局域网 NAS（WebDAV）。macOS 15 起本地网络隐私对未开沙盒的应用同样生效，
+         缺这一条时系统不给弹授权框，局域网请求会直接失败。 -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>App needs local network access to browse and play videos on your NAS.</string>
 </dict>
 </plist>

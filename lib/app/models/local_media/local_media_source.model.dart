@@ -8,7 +8,37 @@
 /// - [LocalMediaSourceKind.bookmark]：iOS 的书签（沙盒外目录只能这么长期持有）。
 /// - [LocalMediaSourceKind.downloads]：应用自己的下载目录。它是**真实源**不是虚拟源
 ///   ——下载来的文件和拷进来的文件在同一张表里排序分页，卡片才可能同构。
-enum LocalMediaSourceKind { directory, mediastore, bookmark, downloads }
+/// - [LocalMediaSourceKind.webdav]：NAS（WebDAV）。路径是 `dav:/…` 伪路径
+///   （见 `DavPath`），**不在本机磁盘上**——一切读写本机文件的操作都不许碰它。
+/// - [LocalMediaSourceKind.unknown]：库里的种类本版本认不出（更新版本写的、降级
+///   回来了）。惰性：不扫描、不给菜单，只能移除。
+///
+/// ⛔ 新种类只许**追加在末尾**，且 [unknown] 之前；[LocalMediaSource.fromRow]
+/// 认不出的值一律落到 [unknown]，**绝不能**兜底成 [directory]——那会拿一条不是
+/// 本机路径的 path 去扫本机磁盘。
+enum LocalMediaSourceKind {
+  directory,
+  mediastore,
+  bookmark,
+  downloads,
+  webdav,
+  unknown,
+}
+
+/// 远端源最近一次连接的结论。本地源恒为 null。
+///
+/// 和 [LocalMediaSource.offline] 并存：offline 回答「现在能不能用」，这里回答
+/// 「为什么不能用」——「连不上」和「密码不对」要给用户的是两句完全不同的话。
+enum LocalMediaRemoteState {
+  ok,
+  authFailed,
+  certUntrusted,
+  unreachable,
+
+  /// secure storage **读失败**（不是「没有」）。⛔ 不许当成 [authFailed]：那会让
+  /// 用户去重输一个其实还在的密码。
+  credUnreadable,
+}
 
 /// 「已下载」那个源的固定 id。
 ///
@@ -55,6 +85,8 @@ class LocalMediaSource {
     this.lastScanAt,
     this.itemCount = 0,
     required this.createdAt,
+    this.remoteState,
+    this.tlsFingerprint,
   });
 
   final String id;
@@ -81,6 +113,22 @@ class LocalMediaSource {
   final int itemCount;
   final int createdAt;
 
+  /// 远端源最近一次连接的结论，本地源恒为 null。见 [LocalMediaRemoteState]。
+  final LocalMediaRemoteState? remoteState;
+
+  /// 用户确认信任过的服务器证书 SHA-256（自签证书 TOFU）。null = 走系统信任。
+  final String? tlsFingerprint;
+
+  /// NAS 源：路径是 `dav:/…`，文件不在本机。
+  bool get isRemote => kind == LocalMediaSourceKind.webdav;
+
+  /// 本版本认不出的源：不扫描、不给菜单，只能移除。
+  bool get isInert => kind == LocalMediaSourceKind.unknown;
+
+  /// 这个源的文件在本机文件系统里（或 MediaStore 句柄）——删文件、打开所在
+  /// 文件夹、交给外部播放器、按路径 `File()` 这些操作的**唯一闸门**。
+  bool get usesLocalFileSystem => !isRemote && !isInert;
+
   /// 内建源：用户不能删、也不能改路径（「已下载」跟着下载设置走，不是他加的
   /// 一个目录）。UI 拿它决定要不要给移除入口。
   bool get isBuiltIn => kind == LocalMediaSourceKind.downloads;
@@ -96,6 +144,8 @@ class LocalMediaSource {
     int? itemCount,
     int? sortOrder,
     bool? autoRescan,
+    Object? remoteState = _unset,
+    Object? tlsFingerprint = _unset,
   }) {
     return LocalMediaSource(
       id: id,
@@ -115,6 +165,12 @@ class LocalMediaSource {
       lastScanAt: lastScanAt ?? this.lastScanAt,
       itemCount: itemCount ?? this.itemCount,
       createdAt: createdAt,
+      remoteState: remoteState == _unset
+          ? this.remoteState
+          : remoteState as LocalMediaRemoteState?,
+      tlsFingerprint: tlsFingerprint == _unset
+          ? this.tlsFingerprint
+          : tlsFingerprint as String?,
     );
   }
 
@@ -134,6 +190,8 @@ class LocalMediaSource {
     'last_scan_at': lastScanAt,
     'item_count': itemCount,
     'created_at': createdAt,
+    'remote_state': remoteState?.name,
+    'tls_fingerprint': tlsFingerprint,
   };
 
   /// 从库里读回来。
@@ -147,7 +205,8 @@ class LocalMediaSource {
       kind: _parseEnum(
         LocalMediaSourceKind.values,
         row['kind'],
-        LocalMediaSourceKind.directory,
+        // ⛔ 认不出的种类落 unknown，绝不能落 directory（见枚举文档）。
+        LocalMediaSourceKind.unknown,
       ),
       displayName: (row['display_name'] as String?) ?? '',
       path: row['path'] as String?,
@@ -170,6 +229,14 @@ class LocalMediaSource {
       lastScanAt: row['last_scan_at'] as int?,
       itemCount: row['item_count'] as int? ?? 0,
       createdAt: row['created_at'] as int? ?? 0,
+      remoteState: row['remote_state'] == null
+          ? null
+          : _parseEnum(
+              LocalMediaRemoteState.values,
+              row['remote_state'],
+              LocalMediaRemoteState.unreachable,
+            ),
+      tlsFingerprint: row['tls_fingerprint'] as String?,
     );
   }
 }

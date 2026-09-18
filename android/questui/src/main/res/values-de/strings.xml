@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Warmes Abendlicht über offenem Wasser, die Sonne neben Ihrem Sichtbereich.</string>
     <string name="xr_environment_mist">Nebelgipfel</string>
     <string name="xr_environment_mist_hint">Schichten ferner Berge steigen durch weichen Nebel auf, wie eine Tuschelandschaft.</string>
+    <string name="xr_notice_nas_panel_closed">Das App-Fenster wurde geschlossen, NAS-Videos können nicht weiter abgespielt werden. Öffne das App-Fenster erneut und versuche es noch einmal</string>
+    <string name="xr_notice_nas_auth">Das NAS verlangt eine erneute Anmeldung. Erledige das unter „Lokale Dateien“ im App-Fenster</string>
+    <string name="xr_notice_nas_cert">Das NAS-Zertifikat hat sich geändert. Bestätige es erneut unter „Lokale Dateien“ im App-Fenster</string>
+    <string name="xr_notice_nas_unreachable">Das NAS ist nicht erreichbar. Prüfe, ob Headset und NAS im selben Netzwerk sind</string>
 </resources>

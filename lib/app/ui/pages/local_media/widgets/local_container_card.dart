@@ -212,8 +212,10 @@ class LocalContainerCard extends StatelessWidget {
         key: const ValueKey<String>('pinned'),
         child: Padding(
           padding: const EdgeInsets.all(4),
+          // 常用＝图钉，与「常用目录」栏同一枚；星只留给视频「精选」。两件事共用
+          // 一颗星时，用户点了星却在精选栏里找不到它。
           child: Icon(
-            Icons.star_rounded,
+            Icons.push_pin_rounded,
             size: 15,
             color: theme.colorScheme.primary,
           ),

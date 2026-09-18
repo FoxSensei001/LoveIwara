@@ -1,14 +1,26 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_info_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_picker_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
+
+/// 这条能不能真删本机文件：NAS 条目不在本机；「设备视频」（`content://`）要走
+/// 系统的删除授权，本模块还没有这条路。
+///
+/// ⛔ 以前只排除了 NAS：设备视频的菜单里照样有「删除」，点了必失败，失败提示还
+/// 说「文件可能正被占用或没有权限」——一条永远走不通、原因还说错的路。
+bool _canDeleteFile(LocalMediaItem item) =>
+    !DavPath.isDav(item.path) && !item.path.startsWith('content://');
 
 /// 本地媒体条目（视频 / 图片）的「更多操作」菜单。
 ///
@@ -24,10 +36,19 @@ Future<void> showLocalMediaItemMenu({
   VoidCallback? onSetAsFolderCover,
   VoidCallback? onChanged,
   void Function(LocalMediaItem item)? onDeleted,
+  bool showRevealInFolder = true,
 }) async {
   final repo = LocalMediaRepository();
   // 图片没有精选（见 [LocalMediaItem.supportsFavorite]），连这一次查库都省掉。
   final isFavorited = item.supportsFavorite && repo.isItemFavorited(item.id);
+  // NAS 条目不在本机：删不了本机文件，手选封面帧也还没有能读远端的播放器。
+  final isRemote = DavPath.isDav(item.path);
+
+  // 「在文件夹中显示」：聚合栏跨源平铺，这一条来自哪个目录只有跳过去才看得见。
+  // 目录页里本来就站在那个目录上，调用点传 false。
+  final folderRelPath = showRevealInFolder
+      ? _folderRelPathOf(repo, item)
+      : null;
 
   final action = await showGlassMenu<String>(
     anchorContext: anchorContext,
@@ -40,7 +61,7 @@ Future<void> showLocalMediaItemMenu({
               : slang.t.localMedia.browse.favorite,
           icon: isFavorited ? Icons.star_border : Icons.star,
         ),
-      if (item.kind == LocalMediaItemKind.video)
+      if (item.kind == LocalMediaItemKind.video && !isRemote)
         GlassMenuOption<String>(
           value: 'cover',
           label: slang.t.localMedia.browse.setCover,
@@ -52,12 +73,25 @@ Future<void> showLocalMediaItemMenu({
           label: slang.t.localMedia.browse.setAsFolderCover,
           icon: Icons.folder_special_outlined,
         ),
+      const GlassMenuSeparator(),
+      if (folderRelPath != null)
+        GlassMenuOption<String>(
+          value: 'reveal',
+          label: slang.t.localMedia.revealInFolder,
+          icon: Icons.folder_open_outlined,
+        ),
       GlassMenuOption<String>(
-        value: 'delete',
-        label: slang.t.common.delete,
-        icon: Icons.delete_outline,
-        destructive: true,
+        value: 'info',
+        label: slang.t.localMedia.itemInfo,
+        icon: Icons.info_outline,
       ),
+      if (_canDeleteFile(item))
+        GlassMenuOption<String>(
+          value: 'delete',
+          label: slang.t.common.delete,
+          icon: Icons.delete_outline,
+          destructive: true,
+        ),
     ],
   );
 
@@ -74,6 +108,21 @@ Future<void> showLocalMediaItemMenu({
       );
       onChanged?.call();
     }
+    return;
+  }
+
+  if (action == 'reveal' && folderRelPath != null) {
+    appRouter.push(
+      LocalFolderRoute.location(
+        sourceId: item.sourceId,
+        relPath: folderRelPath,
+      ),
+    );
+    return;
+  }
+
+  if (action == 'info') {
+    await showLocalMediaItemInfoDialog(context: anchorContext, item: item);
     return;
   }
 
@@ -169,4 +218,13 @@ Future<void> showLocalMediaItemMenu({
     showAppToast(slang.t.localMedia.browse.deleted);
     onDeleted?.call(item);
   }
+}
+
+/// 条目所在目录在目录树里的相对路径；没有目录树的源（已下载、设备视频）返回 null。
+String? _folderRelPathOf(LocalMediaRepository repo, LocalMediaItem item) {
+  final folderPath = item.folderPath;
+  if (folderPath == null || folderPath.isEmpty) return null;
+  return repo
+      .findFolderByPath(sourceId: item.sourceId, folderPath: folderPath)
+      ?.relPath;
 }

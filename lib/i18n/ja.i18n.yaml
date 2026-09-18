@@ -2432,6 +2432,7 @@ mediaPlayer:
   localVideoPathEmpty: "ローカルビデオパスが空です"
   localVideoFileNotExists: "ローカルビデオファイルが存在しません: ${path}"
   unableToPlayLocalVideo: "ローカルビデオを再生できません: ${error}"
+  unableToPlayNasVideo: "NAS の動画を再生できません：${error}"
   # ファイルのドラッグ＆ドロップ
   dropVideoFileHere: "ここにビデオファイルをドロップして再生"
   supportedFormats: "対応形式: MP4, MKV, AVI, MOV, WEBM など"
@@ -3394,6 +3395,85 @@ localMedia:
   addFolder: フォルダーを追加
   addDeviceVideos: 端末の動画をスキャン
   mediaStoreSourceName: 端末の動画
+  scanQueued: "スキャン待ち"
+  itemInfo: "ファイル情報"
+  revealInFolder: "フォルダーで表示"
+  rescanAll: "すべて再スキャン"
+  rescanAllStarted: "${count} 件のソースを再スキャンします"
+  searchLibrary: "検索"
+  searchIncludeSubfolders: "サブフォルダーを含む"
+  savedServers: "保存済みの NAS"
+  newServer: "新しい NAS に接続"
+  itemInfoLabels:
+    size: "サイズ"
+    resolution: "解像度"
+    duration: "長さ"
+    modified: "更新日時"
+    lastPlayed: "最後に再生"
+    neverPlayed: "未視聴"
+    completed: "視聴済み"
+  addSource: "ソースを追加"
+  addSourceKinds: "フォルダー · NAS"
+  openSettings: "設定を開く"
+  removeSourceLoses: "次の内容も一緒に消え、追加し直しても戻りません：${items}"
+  loseProgress: "視聴進捗 ${count} 件"
+  loseFavorites: "おすすめ ${count} 件"
+  losePinned: "よく使うフォルダー ${count} 件"
+  loseHidden: "非表示設定 ${count} 件"
+  loseCovers: "手動で選んだカバー ${count} 枚"
+  renameSource: "名前を変更"
+  renameSourceTitle: "ソース名を変更"
+  renameSourceLabel: "名前"
+  renamed: "名前を変更しました"
+  nasAggregateHint: "NAS の内容は開いたことのあるフォルダーだけが対象です。開いていないフォルダーの動画や画像はここに表示されません。"
+  rescanDone: "「${name}」を更新しました"
+  unknownSourceHint: このソースを使うにはアプリの更新が必要です
+  missing:
+    title: "このファイルが見つかりません"
+    rescanFolder: "フォルダーを再スキャン"
+    relistNas: "このフォルダーを再読み込み"
+    removeFromList: "リストから削除"
+    removed: "リストから削除しました。ディスク上のファイルは変更していません"
+    found: "見つかりました"
+    nasGone: "NAS 上に「${name}」が見つかりません。削除・移動・名前変更された可能性があります。このフォルダーを再読み込みすると、現在の中身を確認できます。"
+  webdav:
+    addNas: "NAS に接続（WebDAV）"
+    connectTitle: "NAS に接続"
+    editTitle: "NAS に再ログイン"
+    hint: "NAS の管理画面で WebDAV サービスを有効にしてから、アドレスとアカウントを入力してください。"
+    address: "アドレス"
+    addressHint: "例：192.168.1.10:5005"
+    username: "ユーザー名"
+    password: "パスワード"
+    displayName: "名前（任意）"
+    connect: "接続"
+    invalidAddress: "アドレスの形式が正しくありません"
+    errorAuth: "ユーザー名またはパスワードが違います"
+    errorUnreachable: "サーバーに接続できません。アドレスとポート、端末と NAS が同じネットワークにあるか確認してください"
+    errorNotWebdav: "このアドレスは WebDAV サービスではありません"
+    errorGeneric: "接続に失敗しました（${code}）"
+    errorCredUnreadable: "保存したパスワードを読み込めませんでした。しばらくしてから再試行してください"
+    certTitle: "このサーバーを信頼しますか？"
+    certBody: "サーバーの証明書はシステムに信頼されていません（NAS の自己署名証明書でよくあります）。下のフィンガープリントが NAS の管理画面の表示と一致するか確認してください："
+    certChangedBody: "このサーバーの証明書は前回信頼したものと異なります。NAS の証明書を変更していない場合、なりすましの可能性があります。続行しないでください。"
+    trust: "信頼する"
+    pickRootTitle: "追加するフォルダーを選択"
+    serverRoot: "ルート"
+    alreadyAdded: "この NAS フォルダーは追加済みです"
+    relogin: "再ログイン"
+    stateAuthFailed: "再ログインが必要"
+    stateCertUntrusted: "サーバー証明書が変更されました"
+    stateUnreachable: "NAS に接続できません"
+    stateCredUnreadable: "パスワードを読み込めません"
+    connected: "接続済み"
+    errorForbidden: "このアカウントには WebDAV のアクセス権がありません。NAS の WebDAV 設定で許可してください"
+    errorTls: "安全な接続に失敗しました。アドレスの http:// / https:// が NAS の設定と一致しているか確認してください"
+    errorTryHttps: "NAS が HTTPS のみの場合は、アドレスの前に https:// を付けてください"
+    previousStep: "戻る"
+    bannerUnreachable: "NAS に接続できません。前回の内容を表示しています"
+    bannerAuthFailed: "ログインが切れました。再ログインすると最新の内容が見られます"
+    bannerCertUntrusted: "NAS の証明書が変わりました。確認すると続行できます"
+    bannerCredUnreadable: "保存したパスワードを読み取れませんでした。再ログインしてください"
   mediaStoreUnavailable: 端末のメディアインデックスは Android でのみ利用できます
   mediaStorePermissionDenied: 動画へのアクセスが許可されていません
   rescan: 再スキャン
@@ -3407,15 +3487,15 @@ localMedia:
   sourceContainsExisting: "追加済みのフォルダー「${name}」を含んでいるため、その親フォルダーはまだ追加できません"
   addSourceFailed: フォルダーを追加できませんでした
   fileMissing: このファイルはディスク上にありません
-  permissionDenied: ファイルアクセスが許可されていません · タップして許可
+  permissionDenied: "ファイルアクセスが許可されていません。フォルダーを追加する前に許可してください"
   noVideosFound: このフォルダーに動画はありません
-  emptyTitle: フォルダーを追加して、この端末にある動画を見る
+  emptyTitle: "フォルダーを追加するか NAS に接続して、手元の動画を見る"
   emptyPrivacyNote: 端末内でのみ読み取ります。アップロードは一切ありません。
   removeSourceTitle: "「${name}」を削除しますか？"
-  removeSourceBody: ディスク上のファイルはそのままです。ライブラリーから外すだけです。
+  removeSourceBody: "ファイル自体はそのままです。ライブラリーから外すだけです。"
   remove: 削除
-  removeFolder: フォルダーを削除
-  removeFolderSelectTitle: 削除するフォルダーを選択
+  removeFolder: "ソースを削除"
+  removeFolderSelectTitle: "削除するソースを選択"
   longPressToRemove: 長押しでこのフォルダーを削除
   clearProgress: ローカル視聴履歴を消去
   clearProgressCount: "${count} 件"

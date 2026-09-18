@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
+import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/video_fullscreen_handoff.model.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
@@ -124,8 +127,28 @@ class PlaybackQueueNavigator {
     // Iwara 根本不认识它，硬推下去会打开一个 404 的在线详情页——比什么都不做更
     // 让人困惑。文件不在了就如实说一句、停在原地。
     if (queue.kind == PlaybackQueueKind.localLibrary) {
-      LogUtils.w('本机文件池里的 $id 落不到磁盘文件，放弃本次跳转', 'PlaybackQueueNavigator');
-      showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
+      LogUtils.w('本机文件池里的 $id 落不到磁盘文件', 'PlaybackQueueNavigator');
+      // 不只丢一句 toast：说清是哪种找不到、给出路；用户找回来了就接着跳过去。
+      final missing = LocalMediaRepository().getItem(id);
+      final found = missing == null
+          ? null
+          : await showLocalItemMissingDialog(missing);
+      if (found == null) return;
+      _pushLocal(
+        local: LocalPlaybackTarget(
+          localPath: found.resolvePlaybackTarget(),
+          localLibraryItemId: found.id,
+        ),
+        ref: PlaybackQueueRef(
+          queueId: ref.queueId,
+          currentItemId: found.id,
+          companionQueueIds: ref.companionQueueIds,
+        ),
+        skipWatched: skipWatched,
+        forceEnterFullscreen: forceEnterFullscreen,
+        fullscreenHandoff: fullscreenHandoff,
+        onRelinquishFullscreen: onRelinquishFullscreen,
+      );
       return;
     }
 
@@ -203,10 +226,7 @@ class PlaybackQueueNavigator {
   }) {
     final snapshot = queue.imageFolderSnapshotFor(itemId);
     if (snapshot == null || snapshot.paths.isEmpty) {
-      LogUtils.w(
-        '本机图片池里的 $itemId 落不到磁盘文件，放弃本次跳转',
-        'PlaybackQueueNavigator',
-      );
+      LogUtils.w('本机图片池里的 $itemId 落不到磁盘文件，放弃本次跳转', 'PlaybackQueueNavigator');
       showAppToast(slang.t.localMedia.fileMissing, type: AppToastType.error);
       return;
     }

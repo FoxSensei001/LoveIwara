@@ -1752,6 +1752,7 @@ class _TranslationsMediaPlayerZhCn extends TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => '本地视频路径为空';
 	@override String localVideoFileNotExists({required Object path}) => '本地视频文件不存在: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => '无法播放本地视频: ${error}';
+	@override String unableToPlayNasVideo({required Object error}) => '无法播放 NAS 上的视频：${error}';
 	@override String get dropVideoFileHere => '拖放视频文件到此处播放';
 	@override String get supportedFormats => '支持格式: MP4, MKV, AVI, MOV, WEBM 等';
 	@override String get noSupportedVideoFile => '未找到支持的视频文件';
@@ -2675,6 +2676,34 @@ class _TranslationsLocalMediaZhCn extends TranslationsLocalMediaEn {
 	@override String get addFolder => '添加文件夹';
 	@override String get addDeviceVideos => '扫描设备视频';
 	@override String get mediaStoreSourceName => '设备视频';
+	@override String get scanQueued => '排队等待扫描';
+	@override String get itemInfo => '文件信息';
+	@override String get revealInFolder => '在文件夹中显示';
+	@override String get rescanAll => '全部重新扫描';
+	@override String rescanAllStarted({required Object count}) => '开始重新扫描 ${count} 个来源';
+	@override String get searchLibrary => '搜索';
+	@override String get searchIncludeSubfolders => '含子文件夹';
+	@override String get savedServers => '已保存的 NAS';
+	@override String get newServer => '连接新的 NAS';
+	@override late final _TranslationsLocalMediaItemInfoLabelsZhCn itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsZhCn._(_root);
+	@override String get addSource => '添加来源';
+	@override String get addSourceKinds => '文件夹 · NAS';
+	@override String get openSettings => '去设置开启';
+	@override String removeSourceLoses({required Object items}) => '下面这些会一起清掉，重新添加也找不回来：${items}';
+	@override String loseProgress({required Object count}) => '${count} 条观看进度';
+	@override String loseFavorites({required Object count}) => '${count} 个精选';
+	@override String losePinned({required Object count}) => '${count} 个常用目录';
+	@override String loseHidden({required Object count}) => '${count} 个隐藏设置';
+	@override String loseCovers({required Object count}) => '${count} 张手选封面';
+	@override String get renameSource => '重命名';
+	@override String get renameSourceTitle => '重命名来源';
+	@override String get renameSourceLabel => '名称';
+	@override String get renamed => '已重命名';
+	@override String get nasAggregateHint => 'NAS 上的内容只收录打开过的文件夹。没打开过的文件夹，里面的视频和图片不会出现在这里。';
+	@override String rescanDone({required Object name}) => '「${name}」已更新';
+	@override String get unknownSourceHint => '这个来源需要更新版本的应用才能使用';
+	@override late final _TranslationsLocalMediaMissingZhCn missing = _TranslationsLocalMediaMissingZhCn._(_root);
+	@override late final _TranslationsLocalMediaWebdavZhCn webdav = _TranslationsLocalMediaWebdavZhCn._(_root);
 	@override String get mediaStoreUnavailable => '设备媒体索引仅在 Android 上可用';
 	@override String get mediaStorePermissionDenied => '未授予视频访问权限';
 	@override String get rescan => '重新扫描';
@@ -2688,15 +2717,15 @@ class _TranslationsLocalMediaZhCn extends TranslationsLocalMediaEn {
 	@override String sourceContainsExisting({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹';
 	@override String get addSourceFailed => '添加文件夹失败';
 	@override String get fileMissing => '这个文件已经不在磁盘上了';
-	@override String get permissionDenied => '未授予文件访问权限 · 点这里开启';
+	@override String get permissionDenied => '未授予文件访问权限，添加文件夹前需要先开启';
 	@override String get noVideosFound => '这个文件夹里没有视频';
-	@override String get emptyTitle => '添加一个文件夹，看这台设备上已有的视频';
+	@override String get emptyTitle => '添加文件夹或连接 NAS，看你已有的视频';
 	@override String get emptyPrivacyNote => '只在本机读取，不上传任何东西。';
 	@override String removeSourceTitle({required Object name}) => '移除「${name}」？';
-	@override String get removeSourceBody => '磁盘上的文件一个不动，只是把它从本地库里移出去。';
+	@override String get removeSourceBody => '文件本身一个不动，只是把它从本地库里移出去。';
 	@override String get remove => '移除';
-	@override String get removeFolder => '移除文件夹';
-	@override String get removeFolderSelectTitle => '选择要移除的文件夹';
+	@override String get removeFolder => '移除来源';
+	@override String get removeFolderSelectTitle => '选择要移除的来源';
 	@override String get longPressToRemove => '长按可移除这个文件夹';
 	@override String get clearProgress => '清除本机观看记录';
 	@override String clearProgressCount({required Object count}) => '共 ${count} 条';
@@ -4259,6 +4288,84 @@ class _TranslationsLocalMediaBrowseZhCn extends TranslationsLocalMediaBrowseEn {
 	@override String get folderInfoNoPath => '这个来源没有可打开的目录';
 	@override String get copyPath => '复制路径';
 	@override String get pathCopied => '路径已复制';
+}
+
+// Path: localMedia.itemInfoLabels
+class _TranslationsLocalMediaItemInfoLabelsZhCn extends TranslationsLocalMediaItemInfoLabelsEn {
+	_TranslationsLocalMediaItemInfoLabelsZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get size => '大小';
+	@override String get resolution => '分辨率';
+	@override String get duration => '时长';
+	@override String get modified => '修改时间';
+	@override String get lastPlayed => '上次播放';
+	@override String get neverPlayed => '还没看过';
+	@override String get completed => '已看完';
+}
+
+// Path: localMedia.missing
+class _TranslationsLocalMediaMissingZhCn extends TranslationsLocalMediaMissingEn {
+	_TranslationsLocalMediaMissingZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '找不到这个文件';
+	@override String get rescanFolder => '重新扫描文件夹';
+	@override String get relistNas => '重新列这个文件夹';
+	@override String get removeFromList => '从列表移除';
+	@override String get removed => '已从列表移除，磁盘上的文件没有改动';
+	@override String get found => '找到了';
+	@override String nasGone({required Object name}) => 'NAS 上已经找不到「${name}」：可能被删除、移动或改了名。重新列一遍这个文件夹，就能看到它现在的样子。';
+}
+
+// Path: localMedia.webdav
+class _TranslationsLocalMediaWebdavZhCn extends TranslationsLocalMediaWebdavEn {
+	_TranslationsLocalMediaWebdavZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get addNas => '连接 NAS（WebDAV）';
+	@override String get connectTitle => '连接 NAS';
+	@override String get editTitle => '重新登录 NAS';
+	@override String get hint => '在 NAS 管理页开启 WebDAV 服务后，填入它的地址和账号。';
+	@override String get address => '地址';
+	@override String get addressHint => '例如 192.168.1.10:5005';
+	@override String get username => '用户名';
+	@override String get password => '密码';
+	@override String get displayName => '名称（可选）';
+	@override String get connect => '连接';
+	@override String get invalidAddress => '地址格式不对';
+	@override String get errorAuth => '用户名或密码不对';
+	@override String get errorUnreachable => '连不上服务器：检查地址和端口，以及设备和 NAS 是否在同一网络';
+	@override String get errorNotWebdav => '这个地址不是 WebDAV 服务';
+	@override String errorGeneric({required Object code}) => '连接失败（${code}）';
+	@override String get errorCredUnreadable => '读取已保存的密码失败，请稍后重试';
+	@override String get certTitle => '信任这个服务器？';
+	@override String get certBody => '服务器的证书不受系统信任（NAS 自签证书常见这种情况）。请确认下面的指纹与 NAS 管理页显示的一致：';
+	@override String get certChangedBody => '这个服务器的证书和上次信任的不一样。如果你没有更换过 NAS 的证书，可能有人在冒充它，请不要继续。';
+	@override String get trust => '信任';
+	@override String get pickRootTitle => '选择要添加的文件夹';
+	@override String get serverRoot => '根目录';
+	@override String get alreadyAdded => '这个 NAS 文件夹已经添加过了';
+	@override String get relogin => '重新登录';
+	@override String get stateAuthFailed => '需要重新登录';
+	@override String get stateCertUntrusted => '服务器证书已变化';
+	@override String get stateUnreachable => '连不上 NAS';
+	@override String get stateCredUnreadable => '读取密码失败';
+	@override String get connected => '已连接';
+	@override String get errorForbidden => '这个账号没有 WebDAV 访问权限：请在 NAS 的 WebDAV 设置里给它开权限';
+	@override String get errorTls => '安全连接失败：检查地址开头的 http:// 或 https:// 与 NAS 设置是否一致';
+	@override String get errorTryHttps => '如果 NAS 只开了 HTTPS，请在地址前加上 https://';
+	@override String get previousStep => '上一步';
+	@override String get bannerUnreachable => '连不上 NAS，下面是上次看到的内容';
+	@override String get bannerAuthFailed => '登录已失效，重新登录后才能看到最新内容';
+	@override String get bannerCertUntrusted => 'NAS 的证书变了，确认之后才能继续';
+	@override String get bannerCredUnreadable => '读取保存的密码失败，重新登录一次即可';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -6694,6 +6801,7 @@ extension on TranslationsZhCn {
 			'mediaPlayer.localVideoPathEmpty' => '本地视频路径为空',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => '本地视频文件不存在: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => '无法播放本地视频: ${error}',
+			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => '无法播放 NAS 上的视频：${error}',
 			'mediaPlayer.dropVideoFileHere' => '拖放视频文件到此处播放',
 			'mediaPlayer.supportedFormats' => '支持格式: MP4, MKV, AVI, MOV, WEBM 等',
 			'mediaPlayer.noSupportedVideoFile' => '未找到支持的视频文件',
@@ -6959,9 +7067,9 @@ extension on TranslationsZhCn {
 			'layoutSettings.enterValidWidth' => '请输入有效宽度',
 			'layoutSettings.widthCannotExceed9999' => '宽度不能超过9999',
 			'layoutSettings.breakpointAlreadyExists' => '断点已存在',
-			'layoutSettings.enterColumns' => '请输入列数',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.enterColumns' => '请输入列数',
 			'layoutSettings.enterValidColumns' => '请输入有效列数',
 			'layoutSettings.columnsCannotExceed12' => '列数不能超过12',
 			'layoutSettings.breakpointConflict' => '断点已存在',
@@ -7473,9 +7581,9 @@ extension on TranslationsZhCn {
 			'localMedia.browse.pickFolderTitle' => '选择文件夹',
 			'localMedia.browse.useThisFolder' => '使用这个文件夹',
 			'localMedia.browse.noSubfolders' => '这里没有子文件夹',
-			'localMedia.browse.storageRoot' => '设备存储',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.browse.storageRoot' => '设备存储',
 			'localMedia.browse.homeFolder' => '个人文件夹',
 			'localMedia.browse.filesystemRoot' => '根目录',
 			'localMedia.browse.folderUnreadable' => '这个文件夹读不动',
@@ -7558,6 +7666,82 @@ extension on TranslationsZhCn {
 			'localMedia.addFolder' => '添加文件夹',
 			'localMedia.addDeviceVideos' => '扫描设备视频',
 			'localMedia.mediaStoreSourceName' => '设备视频',
+			'localMedia.scanQueued' => '排队等待扫描',
+			'localMedia.itemInfo' => '文件信息',
+			'localMedia.revealInFolder' => '在文件夹中显示',
+			'localMedia.rescanAll' => '全部重新扫描',
+			'localMedia.rescanAllStarted' => ({required Object count}) => '开始重新扫描 ${count} 个来源',
+			'localMedia.searchLibrary' => '搜索',
+			'localMedia.searchIncludeSubfolders' => '含子文件夹',
+			'localMedia.savedServers' => '已保存的 NAS',
+			'localMedia.newServer' => '连接新的 NAS',
+			'localMedia.itemInfoLabels.size' => '大小',
+			'localMedia.itemInfoLabels.resolution' => '分辨率',
+			'localMedia.itemInfoLabels.duration' => '时长',
+			'localMedia.itemInfoLabels.modified' => '修改时间',
+			'localMedia.itemInfoLabels.lastPlayed' => '上次播放',
+			'localMedia.itemInfoLabels.neverPlayed' => '还没看过',
+			'localMedia.itemInfoLabels.completed' => '已看完',
+			'localMedia.addSource' => '添加来源',
+			'localMedia.addSourceKinds' => '文件夹 · NAS',
+			'localMedia.openSettings' => '去设置开启',
+			'localMedia.removeSourceLoses' => ({required Object items}) => '下面这些会一起清掉，重新添加也找不回来：${items}',
+			'localMedia.loseProgress' => ({required Object count}) => '${count} 条观看进度',
+			'localMedia.loseFavorites' => ({required Object count}) => '${count} 个精选',
+			'localMedia.losePinned' => ({required Object count}) => '${count} 个常用目录',
+			'localMedia.loseHidden' => ({required Object count}) => '${count} 个隐藏设置',
+			'localMedia.loseCovers' => ({required Object count}) => '${count} 张手选封面',
+			'localMedia.renameSource' => '重命名',
+			'localMedia.renameSourceTitle' => '重命名来源',
+			'localMedia.renameSourceLabel' => '名称',
+			'localMedia.renamed' => '已重命名',
+			'localMedia.nasAggregateHint' => 'NAS 上的内容只收录打开过的文件夹。没打开过的文件夹，里面的视频和图片不会出现在这里。',
+			'localMedia.rescanDone' => ({required Object name}) => '「${name}」已更新',
+			'localMedia.unknownSourceHint' => '这个来源需要更新版本的应用才能使用',
+			'localMedia.missing.title' => '找不到这个文件',
+			'localMedia.missing.rescanFolder' => '重新扫描文件夹',
+			'localMedia.missing.relistNas' => '重新列这个文件夹',
+			'localMedia.missing.removeFromList' => '从列表移除',
+			'localMedia.missing.removed' => '已从列表移除，磁盘上的文件没有改动',
+			'localMedia.missing.found' => '找到了',
+			'localMedia.missing.nasGone' => ({required Object name}) => 'NAS 上已经找不到「${name}」：可能被删除、移动或改了名。重新列一遍这个文件夹，就能看到它现在的样子。',
+			'localMedia.webdav.addNas' => '连接 NAS（WebDAV）',
+			'localMedia.webdav.connectTitle' => '连接 NAS',
+			'localMedia.webdav.editTitle' => '重新登录 NAS',
+			'localMedia.webdav.hint' => '在 NAS 管理页开启 WebDAV 服务后，填入它的地址和账号。',
+			'localMedia.webdav.address' => '地址',
+			'localMedia.webdav.addressHint' => '例如 192.168.1.10:5005',
+			'localMedia.webdav.username' => '用户名',
+			'localMedia.webdav.password' => '密码',
+			'localMedia.webdav.displayName' => '名称（可选）',
+			'localMedia.webdav.connect' => '连接',
+			'localMedia.webdav.invalidAddress' => '地址格式不对',
+			'localMedia.webdav.errorAuth' => '用户名或密码不对',
+			'localMedia.webdav.errorUnreachable' => '连不上服务器：检查地址和端口，以及设备和 NAS 是否在同一网络',
+			'localMedia.webdav.errorNotWebdav' => '这个地址不是 WebDAV 服务',
+			'localMedia.webdav.errorGeneric' => ({required Object code}) => '连接失败（${code}）',
+			'localMedia.webdav.errorCredUnreadable' => '读取已保存的密码失败，请稍后重试',
+			'localMedia.webdav.certTitle' => '信任这个服务器？',
+			'localMedia.webdav.certBody' => '服务器的证书不受系统信任（NAS 自签证书常见这种情况）。请确认下面的指纹与 NAS 管理页显示的一致：',
+			'localMedia.webdav.certChangedBody' => '这个服务器的证书和上次信任的不一样。如果你没有更换过 NAS 的证书，可能有人在冒充它，请不要继续。',
+			'localMedia.webdav.trust' => '信任',
+			'localMedia.webdav.pickRootTitle' => '选择要添加的文件夹',
+			'localMedia.webdav.serverRoot' => '根目录',
+			'localMedia.webdav.alreadyAdded' => '这个 NAS 文件夹已经添加过了',
+			'localMedia.webdav.relogin' => '重新登录',
+			'localMedia.webdav.stateAuthFailed' => '需要重新登录',
+			'localMedia.webdav.stateCertUntrusted' => '服务器证书已变化',
+			'localMedia.webdav.stateUnreachable' => '连不上 NAS',
+			'localMedia.webdav.stateCredUnreadable' => '读取密码失败',
+			'localMedia.webdav.connected' => '已连接',
+			'localMedia.webdav.errorForbidden' => '这个账号没有 WebDAV 访问权限：请在 NAS 的 WebDAV 设置里给它开权限',
+			'localMedia.webdav.errorTls' => '安全连接失败：检查地址开头的 http:// 或 https:// 与 NAS 设置是否一致',
+			'localMedia.webdav.errorTryHttps' => '如果 NAS 只开了 HTTPS，请在地址前加上 https://',
+			'localMedia.webdav.previousStep' => '上一步',
+			'localMedia.webdav.bannerUnreachable' => '连不上 NAS，下面是上次看到的内容',
+			'localMedia.webdav.bannerAuthFailed' => '登录已失效，重新登录后才能看到最新内容',
+			'localMedia.webdav.bannerCertUntrusted' => 'NAS 的证书变了，确认之后才能继续',
+			'localMedia.webdav.bannerCredUnreadable' => '读取保存的密码失败，重新登录一次即可',
 			'localMedia.mediaStoreUnavailable' => '设备媒体索引仅在 Android 上可用',
 			'localMedia.mediaStorePermissionDenied' => '未授予视频访问权限',
 			'localMedia.rescan' => '重新扫描',
@@ -7571,15 +7755,15 @@ extension on TranslationsZhCn {
 			'localMedia.sourceContainsExisting' => ({required Object name}) => '里面已经有添加过的文件夹「${name}」，暂时不能再添加它的上层文件夹',
 			'localMedia.addSourceFailed' => '添加文件夹失败',
 			'localMedia.fileMissing' => '这个文件已经不在磁盘上了',
-			'localMedia.permissionDenied' => '未授予文件访问权限 · 点这里开启',
+			'localMedia.permissionDenied' => '未授予文件访问权限，添加文件夹前需要先开启',
 			'localMedia.noVideosFound' => '这个文件夹里没有视频',
-			'localMedia.emptyTitle' => '添加一个文件夹，看这台设备上已有的视频',
+			'localMedia.emptyTitle' => '添加文件夹或连接 NAS，看你已有的视频',
 			'localMedia.emptyPrivacyNote' => '只在本机读取，不上传任何东西。',
 			'localMedia.removeSourceTitle' => ({required Object name}) => '移除「${name}」？',
-			'localMedia.removeSourceBody' => '磁盘上的文件一个不动，只是把它从本地库里移出去。',
+			'localMedia.removeSourceBody' => '文件本身一个不动，只是把它从本地库里移出去。',
 			'localMedia.remove' => '移除',
-			'localMedia.removeFolder' => '移除文件夹',
-			'localMedia.removeFolderSelectTitle' => '选择要移除的文件夹',
+			'localMedia.removeFolder' => '移除来源',
+			'localMedia.removeFolderSelectTitle' => '选择要移除的来源',
 			'localMedia.longPressToRemove' => '长按可移除这个文件夹',
 			'localMedia.clearProgress' => '清除本机观看记录',
 			'localMedia.clearProgressCount' => ({required Object count}) => '共 ${count} 条',

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  quest 变体专用。只做一件事：允许对**本机回环地址**发明文 HTTP。
+
+  沉浸态的 ExoPlayer 走 Java 网络栈（HttpURLConnection），受 Android 明文 HTTP 策略
+  约束；NAS（WebDAV）片源一律经应用内的本机网关 http://127.0.0.1:<端口>/… 播放
+  （鉴权、证书校验、绕开代理都在网关里做），不放行这一段，沉浸态放不出任何 NAS 片。
+
+  ⛔ 只放行 127.0.0.1 / localhost，不放开 base-config：播放器从不直连局域网 NAS，
+  没有理由让整个应用对任意主机走明文。standard 变体不需要这份：2D 播放器是 libmpv
+  （原生 socket），Dart 的 HttpClient 也不查这份策略。
+-->
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="false">127.0.0.1</domain>
+    <domain includeSubdomains="false">localhost</domain>
+  </domain-config>
+</network-security-config>

@@ -372,6 +372,9 @@ enum ConfigKey {
   /// ⛔ 它只影响**目录树里看不看得见**，不影响「所有视频」那几面聚合墙——隐藏的
   /// 口径就是"目录树 + 扫描"两件事，别在别处偷偷扩大它。
   LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY,
+
+  /// 「文件目录」顶上那条「建议添加的文件夹」被用户关掉了。
+  LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY,
   VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO,
   BRIGHTNESS_KEY,
   KEEP_LAST_BRIGHTNESS_KEY,
@@ -572,6 +575,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'local_media_browse_sort';
       case ConfigKey.LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY:
         return 'local_media_show_hidden_folders';
+      case ConfigKey.LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY:
+        return 'local_media_suggestions_dismissed';
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 'video_left_and_right_control_area_ratio';
       case ConfigKey.BRIGHTNESS_KEY:
@@ -884,6 +889,8 @@ extension ConfigKeyExtension on ConfigKey {
       case ConfigKey.LOCAL_MEDIA_BROWSE_SORT_KEY:
         return 'nameAsc';
       case ConfigKey.LOCAL_MEDIA_SHOW_HIDDEN_FOLDERS_KEY:
+        return false;
+      case ConfigKey.LOCAL_MEDIA_SUGGESTIONS_DISMISSED_KEY:
         return false;
       case ConfigKey.VIDEO_LEFT_AND_RIGHT_CONTROL_AREA_RATIO:
         return 0.2;

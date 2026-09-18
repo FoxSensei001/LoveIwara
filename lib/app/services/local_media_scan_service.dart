@@ -12,6 +12,7 @@ import 'package:i_iwara/app/models/local_media/local_media_folder.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
+import 'package:i_iwara/app/services/webdav/webdav_folder_scanner.dart';
 import 'package:i_iwara/app/services/android_media_store_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
@@ -138,6 +139,11 @@ class LocalMediaScanService extends GetxService {
 
   final LocalMediaRepository _repository;
 
+  /// NAS 源的目录列表与落库（网络在闸门外，见类文档）。
+  late final WebDavFolderScanner _remoteScanner = WebDavFolderScanner(
+    _repository,
+  );
+
   static const String _tag = 'LocalMediaScan';
 
   final Rxn<LocalMediaScanProgress> progress = Rxn<LocalMediaScanProgress>();
@@ -208,8 +214,15 @@ class LocalMediaScanService extends GetxService {
   /// 扫一个源。同一时刻只跑一个——并发扫两个目录只会让两边都变慢，
   /// 而且写库那一侧本来就是串行的。
   Future<void> scanSource(LocalMediaSource source) async {
-    if (source.kind == LocalMediaSourceKind.mediastore) {
-      await _scanMediaStoreSource(source);
+    // NAS 源的「重新扫描」＝把根这一层重列一遍（整树后台全量扫描不在本期）。
+    if (source.isRemote) {
+      await _remoteScanner.scanFolder(source, '');
+      return;
+    }
+    // ⛔ 下面的 `_scanTree` 拿 `source.path` 当**本机目录**去 listSync。远端源的
+    // path 是 `dav:/…`、惰性源的 path 可能是任何东西——都绝不能走到那里。
+    if (!source.usesLocalFileSystem) {
+      LogUtils.i('非本机文件系统的源（${source.kind.name}）不走目录扫描', _tag);
       return;
     }
     if (source.kind == LocalMediaSourceKind.downloads) {
@@ -219,11 +232,26 @@ class LocalMediaScanService extends GetxService {
       LogUtils.w('「已下载」源不走目录扫描，请改叫 DownloadsLibrarySyncService', _tag);
       return;
     }
+    // ⛔ 撞上别的扫描时排队，不能静默丢弃。
+    //
+    // 以前这里直接 return：首次扫一个大 Download 时顺手再加一个文件夹，新来源
+    // 一轮都没扫，卡片却写着「这个文件夹是空的」，之后也不会自己补扫。
+    // 与目录级扫描共用 [_pendingFolderScans]，闸门放一次取一个。
     if (isScanning) {
-      LogUtils.i('已有扫描在跑，忽略本次请求', _tag);
+      LogUtils.i('已有扫描在跑，整源扫描排队等待', _tag);
+      return _enqueue(source, _fullScanMarker, full: true);
+    }
+    await _runFullScan(source);
+  }
+
+  /// 整源扫描的排队键里 relPath 那一段用它——不会与任何真实相对路径撞上。
+  static const String _fullScanMarker = '\u0001full';
+
+  Future<void> _runFullScan(LocalMediaSource source) async {
+    if (source.kind == LocalMediaSourceKind.mediastore) {
+      await _scanMediaStoreSource(source);
       return;
     }
-
     await _scanTree(
       source: source,
       scopeRelPath: '',
@@ -232,12 +260,37 @@ class LocalMediaScanService extends GetxService {
     );
   }
 
+  /// 正在排队等整源扫描的来源（首页来源卡据此写「排队等待扫描」，而不是空态）。
+  final RxSet<String> queuedSourceIds = <String>{}.obs;
+
+  Future<void> _enqueue(
+    LocalMediaSource source,
+    String relPath, {
+    bool full = false,
+  }) {
+    final key = '${source.id}\u0000$relPath';
+    final existing = _pendingFolderScans[key];
+    if (existing != null) {
+      existing.source = source;
+      return existing.completer.future;
+    }
+    final job = _QueuedFolderScan(source, relPath, full: full);
+    _pendingFolderScans[key] = job;
+    if (full) queuedSourceIds.add(source.id);
+    unawaited(_pumpFolderQueue());
+    return job.completer.future;
+  }
+
   /// 扫一个目录的**这一层**：它自己的直接子文件 + 每个直接子目录再浅探一层
   /// （只为判断那个子目录是不是空的、顺手取一张封面），不再往下。
   Future<void> scanFolder({
     required LocalMediaSource source,
     required String relPath,
   }) async {
+    // NAS 源走网络列目录，不进本机扫描的闸门与 isolate（见 [WebDavFolderScanner]）。
+    if (source.isRemote) return _remoteScanner.scanFolder(source, relPath);
+    // 同 [scanSource]：惰性源绝不能进本机目录扫描。
+    if (!source.usesLocalFileSystem) return;
     if (source.kind == LocalMediaSourceKind.mediastore) {
       return;
     }
@@ -256,17 +309,8 @@ class LocalMediaScanService extends GetxService {
     //
     // 所以一律进 [_pendingFolderScans]：同一目录重复请求合流到同一个 completer，
     // 闸门每放一次就取下一个出来跑，见 [_pumpFolderQueue]。
-    final key = '${source.id}\u0000$relPath';
-    final existing = _pendingFolderScans[key];
-    if (existing != null) {
-      existing.source = source;
-      return existing.completer.future;
-    }
-    final job = _QueuedFolderScan(source, relPath);
-    _pendingFolderScans[key] = job;
     if (isScanning) LogUtils.i('已有扫描在跑，目录扫描排队等待', _tag);
-    unawaited(_pumpFolderQueue());
-    return job.completer.future;
+    return _enqueue(source, relPath);
   }
 
   /// 闸门空出来就依次跑排队的目录扫描。每一处放闸（[_teardown] / releaseSlot）
@@ -278,9 +322,14 @@ class LocalMediaScanService extends GetxService {
       while (_pendingFolderScans.isNotEmpty && !isScanning && !_closed) {
         final key = _pendingFolderScans.keys.first;
         final job = _pendingFolderScans.remove(key)!;
+        if (job.full) queuedSourceIds.remove(job.source.id);
         try {
           // 排队期间源可能被用户删掉了。
           if (_repository.getSource(job.source.id) == null) continue;
+          if (job.full) {
+            await _runFullScan(job.source);
+            continue;
+          }
           await _scanTree(
             source: job.source,
             scopeRelPath: job.relPath,
@@ -314,6 +363,7 @@ class LocalMediaScanService extends GetxService {
       return match;
     });
     for (final job in dropped) {
+      if (job.full) queuedSourceIds.remove(job.source.id);
       if (!job.completer.isCompleted) job.completer.complete();
     }
   }
@@ -327,7 +377,7 @@ class LocalMediaScanService extends GetxService {
   List<String> _hiddenAbsolutePaths(LocalMediaSource source) {
     final root = source.path;
     if (root == null || root.isEmpty) return const <String>[];
-    final hidden = LocalMediaRepository().hiddenRelPaths(source.id);
+    final hidden = _repository.hiddenRelPaths(source.id);
     return <String>[
       for (final rel in hidden)
         if (rel.isNotEmpty) p.normalize(p.join(root, rel)),
@@ -1507,10 +1557,13 @@ class LocalMediaScanService extends GetxService {
 }
 
 class _QueuedFolderScan {
-  _QueuedFolderScan(this.source, this.relPath);
+  _QueuedFolderScan(this.source, this.relPath, {this.full = false});
 
   LocalMediaSource source;
   final String relPath;
+
+  /// 整源扫描（用户点「重新扫描」/ 刚添加），不是进目录时的那一层。
+  final bool full;
   final Completer<void> completer = Completer<void>();
 }
 

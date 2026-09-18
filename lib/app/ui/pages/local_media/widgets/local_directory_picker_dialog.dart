@@ -296,6 +296,7 @@ class _LocalDirectoryPickerDialogState
     return GlassAlertDialog(
       title: slang.t.localMedia.browse.pickFolderTitle,
       maxWidth: 520,
+      floatingActions: true,
       scrollable: false,
       actions: [
         GlassDialogAction(

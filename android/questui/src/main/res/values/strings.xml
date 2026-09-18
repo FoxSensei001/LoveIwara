@@ -243,4 +243,8 @@
     <string name="xr_environment_sunset_hint">Warm evening light over open water, with the sun beside your viewing area.</string>
     <string name="xr_environment_mist">Mist Peaks</string>
     <string name="xr_environment_mist_hint">Layers of distant mountains rise through soft mist, like an ink landscape.</string>
+    <string name="xr_notice_nas_panel_closed">The app panel was closed, so NAS videos can\'t stream. Reopen the app panel and try again</string>
+    <string name="xr_notice_nas_auth">The NAS needs you to sign in again. Do it from Local files in the app panel</string>
+    <string name="xr_notice_nas_cert">The NAS certificate changed. Confirm it again from Local files in the app panel</string>
+    <string name="xr_notice_nas_unreachable">Can\'t reach the NAS. Check that the headset and the NAS are on the same network</string>
 </resources>

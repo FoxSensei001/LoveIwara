@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 本机文件根页上的一个来源。
@@ -31,7 +33,16 @@ class LocalSourceCardWidget extends StatelessWidget {
     required this.onMenu,
     this.pinned = false,
     this.scanning = false,
+    this.queued = false,
+    this.probed = true,
   });
+
+  /// 排队等别的源扫完。副标题说「排队等待扫描」，计数行不下「是空的」的结论。
+  final bool queued;
+
+  /// 计数全为 0 时能不能下「是空的」这个结论。NAS 只收录打开过的层，
+  /// 没列到东西不等于空，调用点对它传 false。
+  final bool probed;
 
   final LocalMediaSource source;
   final String? coverPath;
@@ -64,17 +75,40 @@ class LocalSourceCardWidget extends StatelessWidget {
         textExtent: textExtent(context),
       );
 
-  IconData get _icon => source.isBuiltIn
-      ? Icons.download_rounded
-      : source.kind == LocalMediaSourceKind.mediastore
-      ? Icons.video_library_rounded
-      : Icons.folder_rounded;
+  IconData get _icon => iconOf(source);
 
-  String get _subtitle {
+  /// 按来源种类的图标。顶栏「移除来源」的选择列表也用它，和卡片同一套。
+  static IconData iconOf(LocalMediaSource source) => switch (source.kind) {
+    LocalMediaSourceKind.downloads => Icons.download_rounded,
+    LocalMediaSourceKind.mediastore => Icons.video_library_rounded,
+    LocalMediaSourceKind.webdav => Icons.dns_rounded,
+    LocalMediaSourceKind.unknown => Icons.help_outline_rounded,
+    LocalMediaSourceKind.directory ||
+    LocalMediaSourceKind.bookmark => Icons.folder_rounded,
+  };
+
+  String get _subtitle => subtitleOf(source);
+
+  /// 卡片第二行：内建源的说明、NAS 的主机路径或故障原因、目录的路径。
+  /// 顶栏「移除来源」的选择列表也用它——那里曾经把 `dav:/…` 原样露给用户。
+  static String subtitleOf(LocalMediaSource source) {
     final t = slang.t.localMedia;
     if (source.isBuiltIn) return t.builtInSourceHint;
     if (source.kind == LocalMediaSourceKind.mediastore) {
       return t.mediaStoreSourceName;
+    }
+    if (source.isInert) return t.unknownSourceHint;
+    if (source.isRemote) {
+      // 连不上 / 要重新登录时，副标题直接说原因——这比地址重要。
+      final state = source.remoteState;
+      if (state != null && state != LocalMediaRemoteState.ok) {
+        return WebDavService.describeState(state);
+      }
+      // 「主机/服务端路径」——`dav:/` 前缀是库内形状，不给用户看。
+      final host = Uri.tryParse(source.uri ?? '')?.host ?? '';
+      final path = source.path;
+      final serverPath = DavPath.isDav(path) ? DavPath.toServerPath(path!) : '';
+      return '$host$serverPath';
     }
     return source.path ?? '';
   }
@@ -151,11 +185,13 @@ class LocalSourceCardWidget extends StatelessWidget {
         Text(
           scanning
               ? slang.t.localMedia.scanning(count: videoCount + imageCount)
+              : queued
+              ? slang.t.localMedia.scanQueued
               : _subtitle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodySmall?.copyWith(
-            color: scanning
+            color: scanning || queued
                 ? theme.colorScheme.primary
                 : theme.colorScheme.outline,
           ),
@@ -164,6 +200,7 @@ class LocalSourceCardWidget extends StatelessWidget {
           childFolderCount: childFolderCount,
           videoCount: videoCount,
           imageCount: imageCount,
+          probed: probed && !queued,
         ),
       ],
     );
@@ -212,10 +249,23 @@ class LocalAddSourceCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  slang.t.localMedia.addFolder,
+                  slang.t.localMedia.addSource,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(color: color),
+                ),
+              ),
+              // 名字只写「添加来源」的话，用户不知道 NAS 也从这里进
+              // （2026-09-19：入口原先叫「添加文件夹」，连 NAS 的人根本想不到点它）。
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  slang.t.localMedia.addSourceKinds,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
                 ),
               ),
             ],
