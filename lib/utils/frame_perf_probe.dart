@@ -2,8 +2,12 @@ import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:ui' show FramePhase;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/utils/glass_perf_knobs.dart';
 
@@ -173,6 +177,13 @@ class FramePerfProbe {
       Map<String, String> params,
     ) async {
       final String? route = params['route'];
+      // 全新安装的基准包会被首次设置守卫拦住，这里直接标记完成。
+      if (params['skipSetup'] == '1') {
+        await Get.find<ConfigService>().setSetting(
+          ConfigKey.FIRST_TIME_SETUP_COMPLETED,
+          true,
+        );
+      }
       if (route != null && route.isNotEmpty) {
         if (params['push'] == '1') {
           appRouter.push(route);
@@ -182,6 +193,48 @@ class FramePerfProbe {
       }
       await Future<void>.delayed(const Duration(milliseconds: 600));
       return developer.ServiceExtensionResponse.result('{"ok":true}');
+    });
+    // 合成一次真实手势滑动（down → 若干 move → up，带速度所以会 fling）。
+    // iOS 真机没有 adb input 可用，这是脚本化滚动的唯一入口。
+    // 参数：dy 位移（负数=内容上移）、ms 手指时长、x/y 起点占屏比例。
+    developer.registerExtension('ext.glassperf.swipe', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      final double dy = double.tryParse(params['dy'] ?? '') ?? -600;
+      final int ms = int.tryParse(params['ms'] ?? '') ?? 120;
+      final double fx = double.tryParse(params['x'] ?? '') ?? 0.5;
+      final double fy = double.tryParse(params['y'] ?? '') ?? 0.7;
+      await _synthSwipe(dy: dy, ms: ms, fx: fx, fy: fy);
+      return developer.ServiceExtensionResponse.result('{"ok":true}');
+    });
+    // 找「空闲时还在每帧重建」的东西：列出活树里所有进度指示器及其祖先链。
+    developer.registerExtension('ext.glassperf.find', (
+      String method,
+      Map<String, String> params,
+    ) async {
+      final String needle = params['type'] ?? 'ProgressIndicator';
+      final List<String> hits = <String>[];
+      void visit(Element e) {
+        if (e.widget.runtimeType.toString().contains(needle)) {
+          final List<String> chain = <String>[];
+          e.visitAncestorElements((Element a) {
+            final String t = a.widget.runtimeType.toString();
+            if (!t.startsWith('_') || chain.length < 6) chain.add(t);
+            return chain.length < 120;
+          });
+          hits.add(
+            '${e.widget.runtimeType} tickerMode=${TickerMode.valuesOf(e).enabled} '
+            '<- ${chain.join(' <- ')}',
+          );
+        }
+        e.visitChildren(visit);
+      }
+
+      WidgetsBinding.instance.rootElement?.visitChildren(visit);
+      return developer.ServiceExtensionResponse.result(
+        '{"hits":[${hits.map(_json).join(',')}]}',
+      );
     });
     developer.registerExtension('ext.glassperf.state', (
       String method,
@@ -256,6 +309,46 @@ class FramePerfProbe {
     await Future<void>.delayed(const Duration(milliseconds: 200));
     glassMaterialMode.value = current;
     await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
+
+  static int _synthPointer = 9000;
+
+  static Future<void> _synthSwipe({
+    required double dy,
+    required int ms,
+    required double fx,
+    required double fy,
+  }) async {
+    final view = SchedulerBinding.instance.platformDispatcher.views.first;
+    final Size size = view.physicalSize / view.devicePixelRatio;
+    final Offset start = Offset(size.width * fx, size.height * fy);
+    final int pointer = ++_synthPointer;
+    const int steps = 12;
+    final Duration stepGap = Duration(microseconds: ms * 1000 ~/ steps);
+    Duration ts = Duration(
+      microseconds: DateTime.now().microsecondsSinceEpoch,
+    );
+    GestureBinding.instance.handlePointerEvent(
+      PointerDownEvent(pointer: pointer, position: start, timeStamp: ts),
+    );
+    Offset pos = start;
+    for (int i = 1; i <= steps; i++) {
+      await Future<void>.delayed(stepGap);
+      ts += stepGap;
+      final Offset next = start + Offset(0, dy * i / steps);
+      GestureBinding.instance.handlePointerEvent(
+        PointerMoveEvent(
+          pointer: pointer,
+          position: next,
+          delta: next - pos,
+          timeStamp: ts,
+        ),
+      );
+      pos = next;
+    }
+    GestureBinding.instance.handlePointerEvent(
+      PointerUpEvent(pointer: pointer, position: pos, timeStamp: ts),
+    );
   }
 
   /// 极简 JSON 字符串转义——只够把一条路由塞进响应里，别拿它当通用序列化器。
