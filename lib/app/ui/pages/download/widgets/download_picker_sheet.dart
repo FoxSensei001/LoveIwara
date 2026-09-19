@@ -303,10 +303,6 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
     );
   }
 
-  /// 分类标签行。
-  ///
-  /// 直接 Obx 读服务里的分类状态：在这个弹窗上点「管理分类」新建完返回，标签当场
-  /// 就在，不需要页面自己订阅广播再去重拉（那条链断掉时是静默的）。
   /// 「将保存到」预览行。
   ///
   /// 与真实落盘共用同一条模板渲染 + 清洗规则（preview 不写作者首见名缓存），
@@ -356,7 +352,7 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
             text: segments[i],
             style: TextStyle(
               color: isFile ? colorScheme.onSurface : colorScheme.primary,
-              fontWeight: isFile ? FontWeight.w600 : FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         );
@@ -408,6 +404,10 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
     );
   }
 
+  /// 分类标签行。
+  ///
+  /// 直接 Obx 读服务里的分类状态：在这个弹窗上点「管理分类」新建完返回，标签当场
+  /// 就在，不需要页面自己订阅广播再去重拉（那条链断掉时是静默的）。
   Widget _buildCategoryChips(BuildContext context, slang.Translations t) {
     return Obx(
       () => _buildCategoryChipsContent(t, DownloadService.to.categories),

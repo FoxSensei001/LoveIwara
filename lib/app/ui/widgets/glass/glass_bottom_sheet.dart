@@ -181,11 +181,11 @@ class _GlassBottomSheetShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // 面板背景使用不透明的 Material 底色（surfaceContainerLow），
-    // 避免半透明玻璃导致下层被遮挡的内容透出来。
-    // 内部按钮通过 LiquidGlassScope 接入液态档。
+    // 面板背景用不透明的 surfaceContainerLow：半透明会把下层被遮的内容透出
+    // 来；也不能用 surface——M3 下页面 Scaffold 的背景就是它，弹层会跟页面
+    // 完全同色，只剩遮罩能看出层次。内部按钮通过 LiquidGlassScope 接入液态档。
     return Material(
-      color: cs.surface,
+      color: cs.surfaceContainerLow,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -302,7 +302,9 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       // 留在 LiquidGlassScope 之外，面板背景保持原样；底部安全区也同样让在
       // Material **里面**（壳外面套 Padding 的话，导航条那条带只剩弹层遮罩）。
       builder: (context, scrollController) => Material(
-        color: Theme.of(context).colorScheme.surface,
+        // 同 [_GlassBottomSheetShell]：比页面背景（surface）高一个调，
+        // 否则弹层跟页面同色。
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         clipBehavior: Clip.antiAlias,
         child: Column(
