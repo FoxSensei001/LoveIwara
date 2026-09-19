@@ -10,6 +10,7 @@ import 'package:i_iwara/app/models/media_file.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -23,8 +24,6 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -43,7 +42,7 @@ const String _tag = 'DownloadedGalleryBrowsePage';
 /// 是「打开这个文件夹看图」。因此本页沿用 [LocalFolderBrowsePage] 的视觉架构：
 ///
 /// 1. 顶栏：[GlassHeaderOverlay] + 返回圆钮 + 标题胶囊 [GlassTitlePill] + 更多操作 [GlassIconButton]。
-/// 2. 主体：[MediaWaterfallSliver] 统一瀑布流网格，列数与间距严格遵循 [MediaLayoutUtils]。
+/// 2. 主体：正方形定高网格（`SliverGrid`），列数与间距走 [LocalGridMetrics.media]。
 /// 3. 图片点击：调用 [pushPhotoViewWrapperOverlay] 进行大图相册滑动浏览与手势缩放。
 /// 4. 资源存在性校验：进入时若本地资源已不存在（目录与图片均被外部删除），自动调用
 ///    `deleteTask` 清理失效记录并提示后退出。
@@ -409,9 +408,9 @@ class _DownloadedGalleryBrowsePageState
               onRefresh: _loadData,
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final availableWidth = constraints.maxWidth - 32;
-                  final crossAxisCount =
-                      MediaLayoutUtils.calculateCrossAxisCount(availableWidth);
+                  final metrics = LocalGridMetrics.media(
+                    constraints.maxWidth - 32,
+                  );
 
                   return CustomScrollView(
                     controller: _scrollController,
@@ -426,10 +425,13 @@ class _DownloadedGalleryBrowsePageState
                         ),
                         SliverPadding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          sliver: MediaWaterfallSliver(
-                            crossAxisCount: crossAxisCount,
-                            itemCount: _validImages.length,
-                            itemBuilder: (context, index, itemWidth) {
+                          // 正方形定高网格：格高＝格宽。
+                          sliver: SliverGrid(
+                            gridDelegate: metrics.squareDelegate(),
+                            delegate: SliverChildBuilderDelegate((
+                              context,
+                              index,
+                            ) {
                               final item = _validImages[index];
                               // Iwara 的图库里混着短片（`.webm`），下载下来就躺在
                               // 同一个文件夹里。⛔ 这一格必须看得出「是一段视频」：
@@ -500,7 +502,7 @@ class _DownloadedGalleryBrowsePageState
                                   ),
                                 ),
                               );
-                            },
+                            }, childCount: _validImages.length),
                           ),
                         ),
                       ],

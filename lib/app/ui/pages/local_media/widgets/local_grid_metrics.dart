@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:i_iwara/app/utils/media_layout_utils.dart';
 
 /// 本机文件那几页共用的网格度量。
 ///
@@ -17,11 +18,17 @@ class LocalGridMetrics {
     required this.crossAxisCount,
     required this.cellWidth,
     required this.spacing,
-  });
+    double? mainAxisSpacing,
+  }) : mainAxisSpacing = mainAxisSpacing ?? spacing;
 
   final int crossAxisCount;
   final double cellWidth;
+
+  /// 列与列之间的沟。
   final double spacing;
+
+  /// 行与行之间的缝。
+  final double mainAxisSpacing;
 
   /// 默认格间距，也是各页横向内边距的一半基准。
   static const double defaultSpacing = 12;
@@ -46,13 +53,42 @@ class LocalGridMetrics {
     );
   }
 
+  /// 跟线上媒体墙同一套列数与沟宽（[MediaLayoutUtils]，用户在设置里调的列数
+  /// 就作用在这里）。[availableWidth] 同样是扣掉左右内边距之后的宽度。
+  ///
+  /// 格宽按 `SliverGrid` 自己的算法给出（可用宽扣掉沟再均分），卡片的
+  /// `extentFor` 拿它算高，才和网格实际发下去的宽度是同一个数。
+  static LocalGridMetrics media(double availableWidth) {
+    final spacing = MediaLayoutUtils.crossAxisSpacing;
+    final count = MediaLayoutUtils.calculateCrossAxisCount(availableWidth);
+    final safeWidth = availableWidth.isFinite && availableWidth > 0
+        ? availableWidth
+        : 0.0;
+    final cellWidth = (safeWidth - spacing * (count - 1)) / count;
+    return LocalGridMetrics(
+      crossAxisCount: count,
+      cellWidth: cellWidth > 0 ? cellWidth : 1,
+      spacing: spacing,
+      mainAxisSpacing: MediaLayoutUtils.mainAxisSpacing,
+    );
+  }
+
   /// 每格高度固定为 [mainAxisExtent] 的网格。
   SliverGridDelegate delegate(double mainAxisExtent) =>
       SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: spacing,
-        mainAxisSpacing: spacing,
+        mainAxisSpacing: mainAxisSpacing,
         mainAxisExtent: mainAxisExtent,
+      );
+
+  /// 正方形纯图网格：格高＝格宽。
+  SliverGridDelegate squareDelegate() =>
+      SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        mainAxisExtent: cellWidth,
       );
 
   /// 每格高度由卡片自己算：`delegate(LocalFolderCardWidget.extentFor(context, cellWidth))`。

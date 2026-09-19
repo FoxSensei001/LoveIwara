@@ -18,8 +18,6 @@ import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_media_item_menu.dart';
-import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -486,15 +484,7 @@ class _LocalMediaWallState extends State<LocalMediaWall>
     super.build(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth - 32;
-        final crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
-          availableWidth,
-        );
-        final metrics = LocalGridMetrics(
-          crossAxisCount: crossAxisCount,
-          cellWidth: MediaLayoutUtils.calculateCardWidth(availableWidth),
-          spacing: MediaLayoutUtils.crossAxisSpacing,
-        );
+        final metrics = LocalGridMetrics.media(constraints.maxWidth - 32);
 
         return RefreshIndicator(
           displacement: widget.headerExtent,
@@ -586,19 +576,26 @@ class _LocalMediaWallState extends State<LocalMediaWall>
               else
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: MediaWaterfallSliver(
-                    crossAxisCount: metrics.crossAxisCount,
-                    itemCount: _items.length,
-                    itemBuilder: (context, index, itemWidth) {
+                  // 定高网格，不是瀑布流：见 [LocalMediaItemCard] 的类文档。
+                  sliver: SliverGrid(
+                    gridDelegate: widget.kind == LocalMediaItemKind.image
+                        ? metrics.squareDelegate()
+                        : metrics.delegate(
+                            LocalMediaItemCard.extentFor(
+                              context,
+                              metrics.cellWidth,
+                              widget.kind,
+                            ),
+                          ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
                       final item = _items[index];
                       return LocalMediaItemCard(
                         item: item,
-                        width: itemWidth,
                         onOpen: () => _openItem(item),
                         onMenu: (anchorContext) =>
                             _showItemMenu(anchorContext, item),
                       );
-                    },
+                    }, childCount: _items.length),
                   ),
                 ),
               SliverToBoxAdapter(

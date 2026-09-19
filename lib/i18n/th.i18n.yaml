@@ -1796,6 +1796,12 @@ download:
   clearFilters: ล้างตัวกรอง
   pauseAll: หยุดชั่วคราวทั้งหมด
   resumeAll: เริ่มทั้งหมด
+  remainingTime: "เหลือ ${time}"
+  timeline:
+    today: "วันนี้"
+    yesterday: "เมื่อวาน"
+    thisWeek: "สัปดาห์นี้"
+    thisMonth: "เดือนนี้"
   errorTypes:
     network: ปัญหาเครือข่าย การลองใหม่อาจช่วยได้
     serverRejected: เซิร์ฟเวอร์ปฏิเสธ คุณอาจต้องลงชื่อเข้าใช้อีกครั้ง
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: ซ่อนโฟลเดอร์นี้
     unhideFolder: เลิกซ่อน
     showHiddenFolders: แสดงโฟลเดอร์ที่ซ่อนไว้
+    includeDotFolders: "สแกนโฟลเดอร์ที่ขึ้นต้นด้วย ."
+    dotFoldersIncluded: "เริ่มสแกนโฟลเดอร์ที่ขึ้นต้นด้วย . แล้ว"
+    dotFoldersExcluded: "ไม่สแกนโฟลเดอร์ที่ขึ้นต้นด้วย . อีกต่อไป"
+    showDotFolders: "แสดงโฟลเดอร์ที่ขึ้นต้นด้วย ."
+    dotFoldersSkipped: "ที่นี่มีโฟลเดอร์ที่ขึ้นต้นด้วย . อีก ${count} โฟลเดอร์ที่ยังไม่ได้สแกน"
+    scanDotFoldersAction: "เปิดสำหรับแหล่งนี้"
+    otherAppsPrivateNotice: "ตั้งแต่ Android 11 ไม่มีแอปใดอ่านไฟล์ของแอปอื่นใน Android/data หรือ Android/obb ได้ และแอปนี้ก็หลีกเลี่ยงไม่ได้ โปรดดาวน์โหลดหรือส่งออกวิดีโอไปยังโฟลเดอร์สาธารณะ เช่น Download ในแอปต้นทาง แล้วเพิ่มโฟลเดอร์นั้นที่นี่ แคชระหว่างดูมักถูกแบ่งเป็นชิ้นและเล่นไม่ได้แม้จะอ่านได้"
     folderHidden: ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย
     folderUnhidden: เลิกซ่อนแล้ว
     hiddenFolderBadge: ซ่อนอยู่

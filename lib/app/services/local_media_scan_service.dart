@@ -16,6 +16,7 @@ import 'package:i_iwara/app/services/webdav/webdav_folder_scanner.dart';
 import 'package:i_iwara/app/services/android_media_store_service.dart';
 import 'package:i_iwara/app/services/ios_folder_picker_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
+import 'package:i_iwara/app/services/local_media_directory_policy.dart';
 import 'package:i_iwara/app/utils/natural_sort_key.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -46,21 +47,6 @@ const Set<String> kSidecarImageExtensions = <String>{
   'png',
   'webp',
   'avif',
-};
-
-/// 默认跳过的目录名。
-///
-/// - `.` 开头：隐藏目录，用户不想被看到的东西多半在这儿（§8.3 P3）；
-/// - `Android`：`Android/data` 与 `Android/obb` 本来就读不到，白走一趟；
-/// - 回收站 / 缩略图缓存：全是垃圾，还特别多。
-const Set<String> kSkippedDirectoryNames = <String>{
-  'Android',
-  'LOST.DIR',
-  r'$RECYCLE.BIN',
-  'System Volume Information',
-  '.thumbnails',
-  '.trash',
-  '.trashed',
 };
 
 /// 递归深度上限。够深到覆盖 `<下载器>/<id>/<文件>` 这类三层布局，
@@ -297,6 +283,13 @@ class LocalMediaScanService extends GetxService {
     if (source.kind == LocalMediaSourceKind.downloads) {
       return;
     }
+    // ⛔ 没开「扫描 . 开头的文件夹」时，范围根落在 `.` 路径下就不扫。worker 只判
+    // 子目录、够不到范围根自己；常用目录、播放队列抽屉、条目丢失弹窗都会按条目
+    // 所在目录发来这种请求，放过去就会把刚收敛掉的 `.` 目录又洗回来。
+    if (!_includeDot(source) &&
+        LocalDirectoryPolicy.relPathHasDotSegment(relPath)) {
+      return;
+    }
     // ⛔ 目录级扫描撞上别的扫描时**不能**静默丢弃，要排队等。
     //
     // 这一条是「进到这一层就把它重新列一遍」的唯一驱动力（见
@@ -377,11 +370,33 @@ class LocalMediaScanService extends GetxService {
   List<String> _hiddenAbsolutePaths(LocalMediaSource source) {
     final root = source.path;
     if (root == null || root.isEmpty) return const <String>[];
-    final hidden = _repository.hiddenRelPaths(source.id);
+    final hidden = _effectiveHiddenRelPaths(source);
     return <String>[
       for (final rel in hidden)
         if (rel.isNotEmpty) p.normalize(p.join(root, rel)),
     ];
+  }
+
+  /// 源的 `includeDotEntries` **库里的最新值**。
+  ///
+  /// ⛔ 不能读调用方传进来的 [LocalMediaSource]：浏览页、排队的任务手里拿的都可能
+  /// 是开关切换之前的旧对象，拿旧的 true 去扫，会把刚收敛掉的 `.` 目录又洗回来。
+  bool _includeDot(LocalMediaSource source) =>
+      _repository.getSource(source.id)?.includeDotEntries ??
+      source.includeDotEntries;
+
+  /// 真正要「豁免收敛 / 别进去」的隐藏目录。
+  ///
+  /// ⛔ 没开「扫描 . 开头的文件夹」时，藏在 `.` 路径下的隐藏目录要剔掉：worker 先按
+  /// 策略跳过 `.` 目录、根本轮不到隐藏判据，它们若还留在豁免名单里，开关关掉之后
+  /// 那批条目就永远收敛不掉（开着开关时藏了 `.foo`、再关开关就是这个现场）。
+  Set<String> _effectiveHiddenRelPaths(LocalMediaSource source) {
+    final hidden = _repository.hiddenRelPaths(source.id);
+    if (_includeDot(source)) return hidden;
+    return <String>{
+      for (final rel in hidden)
+        if (!LocalDirectoryPolicy.relPathHasDotSegment(rel)) rel,
+    };
   }
 
   Future<void> _scanTree({
@@ -424,15 +439,20 @@ class LocalMediaScanService extends GetxService {
     // pathsOfSource 都是同步写读库，任何一句抛出去，闸门就永远不还——isScanning
     // 恒为 true，模块到重启前一次都扫不了，而且没有任何提示。
     try {
-      if (source.kind == LocalMediaSourceKind.bookmark) {
-        final bookmark = source.uri;
+      // ⛔ 以库里的最新行为底，别用调用方传进来的对象：它可能是开关切换 / 改名
+      // 之前的旧对象（排队时被 `_enqueue` 换成旧的、浏览页一直拿着的），而下面
+      // 好几处都是整行 upsert——旧对象会把新字段悄悄写回去。
+      final base = _repository.getSource(source.id) ?? source;
+      currentSource = base;
+      if (base.kind == LocalMediaSourceKind.bookmark) {
+        final bookmark = base.uri;
         if (bookmark == null || bookmark.isEmpty) {
           LogUtils.w(
-            'iOS bookmark 源 ${source.id} 缺少 bookmark 数据，标记为 offline',
+            'iOS bookmark 源 ${base.id} 缺少 bookmark 数据，标记为 offline',
             _tag,
           );
           _repository.upsertSource(
-            source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
+            base.copyWith(offline: true, scanState: LocalMediaScanState.idle),
           );
           releaseSlot();
           return;
@@ -442,9 +462,9 @@ class LocalMediaScanService extends GetxService {
           bookmark,
         );
         if (resolved == null) {
-          LogUtils.w('iOS bookmark 源 ${source.id} 无法解析书签，标记为 offline', _tag);
+          LogUtils.w('iOS bookmark 源 ${base.id} 无法解析书签，标记为 offline', _tag);
           _repository.upsertSource(
-            source.copyWith(offline: true, scanState: LocalMediaScanState.idle),
+            base.copyWith(offline: true, scanState: LocalMediaScanState.idle),
           );
           releaseSlot();
           return;
@@ -458,10 +478,8 @@ class LocalMediaScanService extends GetxService {
             ? resolved.bookmark!
             : bookmark;
 
-        if (newPath != source.path ||
-            newBookmark != source.uri ||
-            source.offline) {
-          currentSource = source.copyWith(
+        if (newPath != base.path || newBookmark != base.uri || base.offline) {
+          currentSource = base.copyWith(
             path: newPath,
             uri: newBookmark,
             offline: false,
@@ -887,7 +905,6 @@ class LocalMediaScanService extends GetxService {
               'batchSize': kScanBatchSize,
               'videoExts': kLocalVideoExtensions.toList(),
               'imageExts': kSidecarImageExtensions.toList(),
-              'skipDirs': kSkippedDirectoryNames.toList(),
               // 用户隐藏过的目录：**整棵子树连列都不列**。
               //
               // ⛔ 不能只在界面上过滤——「隐藏」这条功能一半的价值就在"别去遍历
@@ -898,6 +915,7 @@ class LocalMediaScanService extends GetxService {
               // 「显示隐藏的文件夹」主动点进一个隐藏目录时，那一层照样要列出来，
               // 否则他看到的是一屏"空的"。
               'skipPaths': _hiddenAbsolutePaths(currentSource),
+              'includeDot': _includeDot(currentSource),
               'collectImages': collectImages,
               'collectVideos': collectVideos,
             },
@@ -1032,7 +1050,9 @@ class LocalMediaScanService extends GetxService {
     // ⛔ 占闸之后的同步写读库都要落在 try 里，抛出去就是闸门永远不还，见 [_scanTree]。
     try {
       _repository.upsertSource(
-        source.copyWith(scanState: LocalMediaScanState.scanning),
+        (_repository.getSource(source.id) ?? source).copyWith(
+          scanState: LocalMediaScanState.scanning,
+        ),
       );
       final known = _repository.fingerprints(source.id);
       while (_isCurrent(generation, running)) {
@@ -1362,10 +1382,10 @@ class LocalMediaScanService extends GetxService {
               seenFolders,
               // ⛔ 这一个比的是 `rel_path`，上面那个比的是绝对 `folder_path`
               // ——两个方法的文档都写着"照抄到另一列上就是静默失效"。隐藏目录
-              // 在这里用 `hiddenRelPaths` 的原样返回值，别拿 `hiddenTrees`。
+              // 在这里用 rel_path 口径的 `_effectiveHiddenRelPaths`，别拿 `hiddenTrees`。
               excludeRelPathTrees: <String>{
                 ...?failedFolderRels,
-                ..._repository.hiddenRelPaths(source.id),
+                ..._effectiveHiddenRelPaths(source),
               },
             );
           } catch (e) {
@@ -1429,17 +1449,23 @@ class LocalMediaScanService extends GetxService {
       }
     }
 
+    // ⛔ 必须从库里重新读一次再改，不能拿扫描开始时的 [source] 快照：
+    // upsertSource 是整行覆盖，扫描期间用户改的名字（以及任何别的字段）会被
+    // 这份旧快照悄悄写回去。读不到说明扫描途中源已被删，别把它写活回来。
+    final latest = _repository.getSource(source.id);
     try {
-      if (scoped) {
+      if (latest == null) {
+        // 源已删除：只剩下面的进度收尾。
+      } else if (scoped) {
         _repository.upsertSource(
-          source.copyWith(
+          latest.copyWith(
             itemCount: _repository.countItems(sourceId: source.id),
             offline: offline,
           ),
         );
       } else {
         _repository.upsertSource(
-          source.copyWith(
+          latest.copyWith(
             scanState: allowMissing && effectiveError == null && !truncated
                 ? LocalMediaScanState.idle
                 : LocalMediaScanState.interrupted,
@@ -1466,9 +1492,34 @@ class LocalMediaScanService extends GetxService {
     _scheduleMediaStoreRescan();
   }
 
+  /// 切换源的「扫描 . 开头的文件夹」。改这个字段的**唯一**入口。
+  ///
+  /// 顺序不能换：
+  /// 1. 先停掉这个源正在跑 / 排着的扫描。它们是按旧开关起的，跑完会把旧的
+  ///    结论写回来（关了开关却又扫进一批 `.` 目录）。
+  /// 2. 写库。
+  /// 3. 关掉时当场在库里收敛（见 [LocalMediaRepository.markDotSubtreesMissing]，
+  ///    不能指望重扫——被截断的那一轮不收敛）。
+  /// 4. 整源重扫：打开时把 `.` 目录扫进来，关掉时顺带把计数重算一遍。
+  Future<void> setIncludeDotEntries(String sourceId, bool value) async {
+    final latest = _repository.getSource(sourceId);
+    // 值没变就什么都别碰：先 cancel 的话，连点两下会把正在跑的整源扫描打断成
+    // interrupted，又没有重扫补上。
+    if (latest == null || latest.includeDotEntries == value) return;
+    cancel(sourceId);
+    final updated = latest.copyWith(includeDotEntries: value);
+    _repository.upsertSource(updated);
+    final root = updated.path;
+    if (!value && root != null && root.isNotEmpty) {
+      _repository.markDotSubtreesMissing(sourceId: sourceId, rootPath: root);
+    }
+    await scanSource(updated);
+  }
+
   /// 用户离开页面 / 换源：把 isolate 收掉，别让它在后台接着刨盘。
   void cancel([String? sourceId]) {
-    // 源被删时（带 sourceId 的调用只来自「移除来源」），它排着的目录扫描也一起丢。
+    // 带 sourceId 的调用来自「移除来源」与 [setIncludeDotEntries]：这个源排着的
+    // 目录扫描是按旧状态起的，一起丢。
     if (sourceId != null) _dropQueuedFolderScans(sourceId);
     if (!isScanning) return;
     if (sourceId != null && sourceId != _runningSourceId) return;
@@ -1606,10 +1657,7 @@ Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
   final batchSize = args['batchSize'] as int? ?? kScanBatchSize;
   final videoExts = (args['videoExts'] as List).cast<String>().toSet();
   final imageExts = (args['imageExts'] as List).cast<String>().toSet();
-  final skipDirs = (args['skipDirs'] as List)
-      .cast<String>()
-      .map((e) => e.toLowerCase())
-      .toSet();
+  final includeDot = args['includeDot'] as bool? ?? false;
   // 用户隐藏的目录（绝对路径，已 normalize）。⛔ 这里**不折大小写**：
   // macOS/Windows 的文件系统是大小写不敏感的，但两边的路径都来自同一处
   // （库里的 rel_path 与磁盘上列出来的名字），本来就一字不差；折了反而会在
@@ -1764,7 +1812,7 @@ Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
           // 于是父目录的目录级扫描收敛时把它判成 missing=1：
           // 用户看到的是一张点进去写着「这个文件夹是空的」的卡片，**且没有任何解释**。
           //
-          // 隐私口径没有因此失守：`.` 开头的目录和 [kSkippedDirectoryNames] 照旧整棵
+          // 隐私口径没有因此失守：`.` 开头的目录和 [LocalDirectoryPolicy] 的垃圾目录照旧整棵
           // 跳过——那才是"隐藏"的通用约定，也是用户真正会用来藏东西的方式。应用自己的
           // 缩略图缓存仍然靠 `.nomedia` 挡系统相册（见 LocalMediaDerivationService），
           // 它在 cache 目录里，不在任何源下面，不受这里影响。
@@ -1937,8 +1985,13 @@ Future<void> _scanWorkerEntry(Map<String, Object?> args) async {
       final hiddenSubdirs = <Directory>[];
       for (final dir in subdirs) {
         final name = p.basename(dir.path);
-        if (name.startsWith('.')) continue;
-        if (skipDirs.contains(name.toLowerCase())) continue;
+        if (LocalDirectoryPolicy.skipLocalChild(
+          parentName: p.basename(current.dir.path),
+          name: name,
+          includeDot: includeDot,
+        )) {
+          continue;
+        }
         // 用户隐藏的目录：知道它在，但**不进去**。
         //
         // ⛔ 判据只在这里（子目录那一侧），够不到扫描根自己——那是有意的：用户

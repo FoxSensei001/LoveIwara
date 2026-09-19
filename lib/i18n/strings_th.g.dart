@@ -1440,6 +1440,8 @@ class _TranslationsDownloadTh extends TranslationsDownloadEn {
 	@override String get clearFilters => 'ล้างตัวกรอง';
 	@override String get pauseAll => 'หยุดชั่วคราวทั้งหมด';
 	@override String get resumeAll => 'เริ่มทั้งหมด';
+	@override String remainingTime({required Object time}) => 'เหลือ ${time}';
+	@override late final _TranslationsDownloadTimelineTh timeline = _TranslationsDownloadTimelineTh._(_root);
 	@override late final _TranslationsDownloadErrorTypesTh errorTypes = _TranslationsDownloadErrorTypesTh._(_root);
 	@override String get errorDetailCopied => 'คัดลอกรายละเอียดข้อผิดพลาดแล้ว';
 	@override String get errorDetailCopyHint => 'กดค้างเพื่อคัดลอกรายละเอียดข้อผิดพลาด';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsTh extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'โปรดลองใช้โปรแกรมดูภาพอื่นเพื่อเปิด';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineTh extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'วันนี้';
+	@override String get yesterday => 'เมื่อวาน';
+	@override String get thisWeek => 'สัปดาห์นี้';
+	@override String get thisMonth => 'เดือนนี้';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesTh extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesTh._(TranslationsTh root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseTh extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'ซ่อนโฟลเดอร์นี้';
 	@override String get unhideFolder => 'เลิกซ่อน';
 	@override String get showHiddenFolders => 'แสดงโฟลเดอร์ที่ซ่อนไว้';
+	@override String get includeDotFolders => 'สแกนโฟลเดอร์ที่ขึ้นต้นด้วย .';
+	@override String get dotFoldersIncluded => 'เริ่มสแกนโฟลเดอร์ที่ขึ้นต้นด้วย . แล้ว';
+	@override String get dotFoldersExcluded => 'ไม่สแกนโฟลเดอร์ที่ขึ้นต้นด้วย . อีกต่อไป';
+	@override String get showDotFolders => 'แสดงโฟลเดอร์ที่ขึ้นต้นด้วย .';
+	@override String dotFoldersSkipped({required Object count}) => 'ที่นี่มีโฟลเดอร์ที่ขึ้นต้นด้วย . อีก ${count} โฟลเดอร์ที่ยังไม่ได้สแกน';
+	@override String get scanDotFoldersAction => 'เปิดสำหรับแหล่งนี้';
+	@override String get otherAppsPrivateNotice => 'ตั้งแต่ Android 11 ไม่มีแอปใดอ่านไฟล์ของแอปอื่นใน Android/data หรือ Android/obb ได้ และแอปนี้ก็หลีกเลี่ยงไม่ได้ โปรดดาวน์โหลดหรือส่งออกวิดีโอไปยังโฟลเดอร์สาธารณะ เช่น Download ในแอปต้นทาง แล้วเพิ่มโฟลเดอร์นั้นที่นี่ แคชระหว่างดูมักถูกแบ่งเป็นชิ้นและเล่นไม่ได้แม้จะอ่านได้';
 	@override String get folderHidden => 'ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย';
 	@override String get folderUnhidden => 'เลิกซ่อนแล้ว';
 	@override String get hiddenFolderBadge => 'ซ่อนอยู่';
@@ -5804,6 +5826,11 @@ extension on TranslationsTh {
 			'download.clearFilters' => 'ล้างตัวกรอง',
 			'download.pauseAll' => 'หยุดชั่วคราวทั้งหมด',
 			'download.resumeAll' => 'เริ่มทั้งหมด',
+			'download.remainingTime' => ({required Object time}) => 'เหลือ ${time}',
+			'download.timeline.today' => 'วันนี้',
+			'download.timeline.yesterday' => 'เมื่อวาน',
+			'download.timeline.thisWeek' => 'สัปดาห์นี้',
+			'download.timeline.thisMonth' => 'เดือนนี้',
 			'download.errorTypes.network' => 'ปัญหาเครือข่าย การลองใหม่อาจช่วยได้',
 			'download.errorTypes.serverRejected' => 'เซิร์ฟเวอร์ปฏิเสธ คุณอาจต้องลงชื่อเข้าใช้อีกครั้ง',
 			'download.errorTypes.notFound' => 'ทรัพยากรหมดอายุหรือถูกลบแล้ว',
@@ -6156,13 +6183,13 @@ extension on TranslationsTh {
 			'displaySettings.layoutSettingsDesc' => 'ปรับแต่งจำนวนคอลัมน์และการกำหนดค่าจุดแบ่งหน้าจอ (Breakpoint)',
 			'displaySettings.gridLayout' => 'เลย์เอาต์ตาราง',
 			'displaySettings.navigationOrderSettings' => 'การตั้งค่าลำดับการนำทาง',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'กำหนดลำดับการนำทางเอง',
 			'displaySettings.customNavigationOrderDesc' => 'ปรับลำดับการแสดงผลของหน้าต่างๆ ในแถบนำทางด้านล่างและแถบด้านข้าง',
 			'layoutSettings.title' => 'การตั้งค่าเลย์เอาต์',
 			'layoutSettings.descriptionTitle' => 'คำอธิบายการกำหนดค่าเลย์เอาต์',
 			'layoutSettings.descriptionContent' => 'การกำหนดค่าที่นี่จะเป็นตัวกำหนดจำนวนคอลัมน์ที่แสดงในหน้ารายการวิดีโอและแกลเลอรี คุณสามารถเลือกโหมดอัตโนมัติเพื่อให้ระบบปรับตามความกว้างหน้าจอโดยอัตโนมัติ หรือเลือกโหมดกำหนดเองเพื่อกำหนดจำนวนคอลัมน์แบบคงที่',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'โหมดเลย์เอาต์',
 			'layoutSettings.reset' => 'รีเซ็ต',
 			'layoutSettings.autoMode' => 'โหมดอัตโนมัติ',
@@ -6670,13 +6697,13 @@ extension on TranslationsTh {
 			'siteMode.chooseLinkTargetDescription' => 'ลิงก์นี้ไม่มีโดเมน โปรดเลือกว่าจะเปิดในไซต์หลักหรือ AI',
 			'siteMode.chooseLinkTargetHint' => 'เมื่อเปิดแล้ว หน้านี้และคำขอรายละเอียดที่ตามมาจะใช้ไซต์ที่เลือกต่อไป',
 			'siteMode.alreadyUsing' => 'คุณกำลังใช้โหมดไซต์นี้อยู่แล้ว',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'เปิดใน ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'หลังยืนยัน คำขอต่อๆ ไปจะใช้โหมด ${site}',
 			'siteMode.switched' => ({required Object site}) => 'สลับเป็น ${site} แล้ว แอปได้รีเฟรชเรียบร้อย',
 			'savedSearchConfig.title' => 'ตัวกรองที่บันทึกไว้',
 			'savedSearchConfig.empty' => 'ยังไม่มีตัวกรองที่บันทึกไว้',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'บันทึกตัวกรองปัจจุบัน',
 			'savedSearchConfig.namePromptTitle' => 'บันทึกตัวกรอง',
 			'savedSearchConfig.nameLabel' => 'ชื่อ',
@@ -6926,6 +6953,13 @@ extension on TranslationsTh {
 			'localMedia.browse.hideFolder' => 'ซ่อนโฟลเดอร์นี้',
 			'localMedia.browse.unhideFolder' => 'เลิกซ่อน',
 			'localMedia.browse.showHiddenFolders' => 'แสดงโฟลเดอร์ที่ซ่อนไว้',
+			'localMedia.browse.includeDotFolders' => 'สแกนโฟลเดอร์ที่ขึ้นต้นด้วย .',
+			'localMedia.browse.dotFoldersIncluded' => 'เริ่มสแกนโฟลเดอร์ที่ขึ้นต้นด้วย . แล้ว',
+			'localMedia.browse.dotFoldersExcluded' => 'ไม่สแกนโฟลเดอร์ที่ขึ้นต้นด้วย . อีกต่อไป',
+			'localMedia.browse.showDotFolders' => 'แสดงโฟลเดอร์ที่ขึ้นต้นด้วย .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'ที่นี่มีโฟลเดอร์ที่ขึ้นต้นด้วย . อีก ${count} โฟลเดอร์ที่ยังไม่ได้สแกน',
+			'localMedia.browse.scanDotFoldersAction' => 'เปิดสำหรับแหล่งนี้',
+			'localMedia.browse.otherAppsPrivateNotice' => 'ตั้งแต่ Android 11 ไม่มีแอปใดอ่านไฟล์ของแอปอื่นใน Android/data หรือ Android/obb ได้ และแอปนี้ก็หลีกเลี่ยงไม่ได้ โปรดดาวน์โหลดหรือส่งออกวิดีโอไปยังโฟลเดอร์สาธารณะ เช่น Download ในแอปต้นทาง แล้วเพิ่มโฟลเดอร์นั้นที่นี่ แคชระหว่างดูมักถูกแบ่งเป็นชิ้นและเล่นไม่ได้แม้จะอ่านได้',
 			'localMedia.browse.folderHidden' => 'ซ่อนแล้ว การสแกนจะข้ามโฟลเดอร์นี้ด้วย',
 			'localMedia.browse.folderUnhidden' => 'เลิกซ่อนแล้ว',
 			'localMedia.browse.hiddenFolderBadge' => 'ซ่อนอยู่',

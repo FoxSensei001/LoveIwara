@@ -3601,6 +3601,10 @@ class TranslationsDownloadEn {
 	/// en: 'Start all'
 	String get resumeAll => 'Start all';
 
+	/// en: '${time} left'
+	String remainingTime({required Object time}) => '${time} left';
+
+	late final TranslationsDownloadTimelineEn timeline = TranslationsDownloadTimelineEn.internal(_root);
 	late final TranslationsDownloadErrorTypesEn errorTypes = TranslationsDownloadErrorTypesEn.internal(_root);
 
 	/// en: 'Error details copied'
@@ -6709,6 +6713,12 @@ class TranslationsLocalMediaEn {
 	/// en: 'Include subfolders'
 	String get searchIncludeSubfolders => 'Include subfolders';
 
+	/// en: 'This folder only'
+	String get searchThisFolderOnly => 'This folder only';
+
+	/// en: 'Found ${count}'
+	String searchResultCount({required Object count}) => 'Found ${count}';
+
 	/// en: 'Saved NAS'
 	String get savedServers => 'Saved NAS';
 
@@ -8674,6 +8684,27 @@ class TranslationsDownloadErrorsEn {
 	String get pleaseTryOtherViewer => 'Please try using other viewers to open';
 }
 
+// Path: download.timeline
+class TranslationsDownloadTimelineEn {
+	TranslationsDownloadTimelineEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Today'
+	String get today => 'Today';
+
+	/// en: 'Yesterday'
+	String get yesterday => 'Yesterday';
+
+	/// en: 'This week'
+	String get thisWeek => 'This week';
+
+	/// en: 'This month'
+	String get thisMonth => 'This month';
+}
+
 // Path: download.errorTypes
 class TranslationsDownloadErrorTypesEn {
 	TranslationsDownloadErrorTypesEn.internal(this._root);
@@ -10337,6 +10368,27 @@ class TranslationsLocalMediaBrowseEn {
 
 	/// en: 'Show hidden folders'
 	String get showHiddenFolders => 'Show hidden folders';
+
+	/// en: 'Scan folders starting with .'
+	String get includeDotFolders => 'Scan folders starting with .';
+
+	/// en: 'Now scanning folders starting with .'
+	String get dotFoldersIncluded => 'Now scanning folders starting with .';
+
+	/// en: 'No longer scanning folders starting with .'
+	String get dotFoldersExcluded => 'No longer scanning folders starting with .';
+
+	/// en: 'Show folders starting with .'
+	String get showDotFolders => 'Show folders starting with .';
+
+	/// en: '${count} folders starting with . here are not scanned'
+	String dotFoldersSkipped({required Object count}) => '${count} folders starting with . here are not scanned';
+
+	/// en: 'Enable for this source'
+	String get scanDotFoldersAction => 'Enable for this source';
+
+	/// en: 'Since Android 11, no app can read other apps' files in Android/data or Android/obb, and this app can't work around it. Download or export the videos to a public folder such as Download in the original app, then add that folder here. Streaming caches are usually split into chunks and can't be played even if read.'
+	String get otherAppsPrivateNotice => 'Since Android 11, no app can read other apps\' files in Android/data or Android/obb, and this app can\'t work around it. Download or export the videos to a public folder such as Download in the original app, then add that folder here. Streaming caches are usually split into chunks and can\'t be played even if read.';
 
 	/// en: 'Hidden — scanning will skip it too'
 	String get folderHidden => 'Hidden — scanning will skip it too';
@@ -12746,6 +12798,11 @@ extension on Translations {
 			'download.clearFilters' => 'Clear filters',
 			'download.pauseAll' => 'Pause all',
 			'download.resumeAll' => 'Start all',
+			'download.remainingTime' => ({required Object time}) => '${time} left',
+			'download.timeline.today' => 'Today',
+			'download.timeline.yesterday' => 'Yesterday',
+			'download.timeline.thisWeek' => 'This week',
+			'download.timeline.thisMonth' => 'This month',
 			'download.errorTypes.network' => 'Network problem, retry may help',
 			'download.errorTypes.serverRejected' => 'Rejected by server, you may need to sign in again',
 			'download.errorTypes.notFound' => 'Resource is gone or was deleted',
@@ -13098,13 +13155,13 @@ extension on Translations {
 			'favorite.addFailed' => 'Add failed',
 			'favorite.remove' => 'Remove',
 			'favorite.removeSuccess' => 'Remove success',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeFailed' => 'Remove failed',
 			'favorite.removeConfirmation' => 'Are you sure you want to remove this item from favorites?',
 			'favorite.removeConfirmationSuccess' => 'Item removed from favorites',
 			'favorite.removeConfirmationFailed' => 'Failed to remove item from favorites',
 			'favorite.createFolderSuccess' => 'Folder created successfully',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'Failed to create folder',
 			'favorite.createFolder' => 'Create Folder',
 			'favorite.enterFolderName' => 'Enter folder name',
@@ -13612,13 +13669,13 @@ extension on Translations {
 			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',
 			'log.confirmToContinue' => 'Confirm to continue',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Log size limit set to ${size}',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Size',
 			'emoji.small' => 'Small',
 			'emoji.medium' => 'Medium',
 			'emoji.large' => 'Large',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.extraLarge' => 'Extra Large',
 			'emoji.copyEmojiLinkSuccess' => 'Emoji link copied',
 			'emoji.preview' => 'Emoji Preview',
@@ -14114,11 +14171,20 @@ extension on Translations {
 			'localMedia.browse.hideFolder' => 'Hide this folder',
 			'localMedia.browse.unhideFolder' => 'Unhide',
 			'localMedia.browse.showHiddenFolders' => 'Show hidden folders',
+			'localMedia.browse.includeDotFolders' => 'Scan folders starting with .',
+			'localMedia.browse.dotFoldersIncluded' => 'Now scanning folders starting with .',
+			'localMedia.browse.dotFoldersExcluded' => 'No longer scanning folders starting with .',
+			'localMedia.browse.showDotFolders' => 'Show folders starting with .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '${count} folders starting with . here are not scanned',
+			'localMedia.browse.scanDotFoldersAction' => 'Enable for this source',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Since Android 11, no app can read other apps\' files in Android/data or Android/obb, and this app can\'t work around it. Download or export the videos to a public folder such as Download in the original app, then add that folder here. Streaming caches are usually split into chunks and can\'t be played even if read.',
 			'localMedia.browse.folderHidden' => 'Hidden — scanning will skip it too',
 			'localMedia.browse.folderUnhidden' => 'No longer hidden',
 			'localMedia.browse.hiddenFolderBadge' => 'Hidden',
 			'localMedia.browse.deleteFolder' => 'Delete folder',
 			'localMedia.browse.deleteFolderTitle' => 'Delete this folder?',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.',
 			'localMedia.browse.deleteFolderIncludesOthers' => 'Other files inside will be deleted too',
 			'localMedia.browse.folderDeleted' => 'Folder deleted',
@@ -14131,8 +14197,6 @@ extension on Translations {
 			'localMedia.browse.pickFolderTitle' => 'Choose a folder',
 			'localMedia.browse.useThisFolder' => 'Use this folder',
 			'localMedia.browse.noSubfolders' => 'No subfolders here',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.storageRoot' => 'Device storage',
 			'localMedia.browse.homeFolder' => 'Home',
 			'localMedia.browse.filesystemRoot' => 'Filesystem root',
@@ -14223,6 +14287,8 @@ extension on Translations {
 			'localMedia.rescanAllStarted' => ({required Object count}) => 'Rescanning ${count} sources',
 			'localMedia.searchLibrary' => 'Search',
 			'localMedia.searchIncludeSubfolders' => 'Include subfolders',
+			'localMedia.searchThisFolderOnly' => 'This folder only',
+			'localMedia.searchResultCount' => ({required Object count}) => 'Found ${count}',
 			'localMedia.savedServers' => 'Saved NAS',
 			'localMedia.newServer' => 'Connect a new NAS',
 			'localMedia.itemInfoLabels.size' => 'Size',

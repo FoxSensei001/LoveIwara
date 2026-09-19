@@ -1796,6 +1796,12 @@ download:
   clearFilters: Clear filters
   pauseAll: Pause all
   resumeAll: Start all
+  remainingTime: "${time} left"
+  timeline:
+    today: "Today"
+    yesterday: "Yesterday"
+    thisWeek: "This week"
+    thisMonth: "This month"
   errorTypes:
     network: Network problem, retry may help
     serverRejected: Rejected by server, you may need to sign in again
@@ -3294,6 +3300,13 @@ localMedia:
     hideFolder: Hide this folder
     unhideFolder: Unhide
     showHiddenFolders: Show hidden folders
+    includeDotFolders: "Scan folders starting with ."
+    dotFoldersIncluded: "Now scanning folders starting with ."
+    dotFoldersExcluded: "No longer scanning folders starting with ."
+    showDotFolders: "Show folders starting with ."
+    dotFoldersSkipped: "${count} folders starting with . here are not scanned"
+    scanDotFoldersAction: "Enable for this source"
+    otherAppsPrivateNotice: "Since Android 11, no app can read other apps' files in Android/data or Android/obb, and this app can't work around it. Download or export the videos to a public folder such as Download in the original app, then add that folder here. Streaming caches are usually split into chunks and can't be played even if read."
     folderHidden: Hidden — scanning will skip it too
     folderUnhidden: No longer hidden
     hiddenFolderBadge: Hidden
@@ -3401,6 +3414,8 @@ localMedia:
   rescanAllStarted: "Rescanning ${count} sources"
   searchLibrary: "Search"
   searchIncludeSubfolders: "Include subfolders"
+  searchThisFolderOnly: "This folder only"
+  searchResultCount: "Found ${count}"
   savedServers: "Saved NAS"
   newServer: "Connect a new NAS"
   itemInfoLabels:

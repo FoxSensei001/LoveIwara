@@ -1439,6 +1439,8 @@ class _TranslationsDownloadZhCn extends TranslationsDownloadEn {
 	@override String get clearFilters => '清除筛选';
 	@override String get pauseAll => '全部暂停';
 	@override String get resumeAll => '全部开始';
+	@override String remainingTime({required Object time}) => '剩 ${time}';
+	@override late final _TranslationsDownloadTimelineZhCn timeline = _TranslationsDownloadTimelineZhCn._(_root);
 	@override late final _TranslationsDownloadErrorTypesZhCn errorTypes = _TranslationsDownloadErrorTypesZhCn._(_root);
 	@override String get errorDetailCopied => '已复制错误详情';
 	@override String get errorDetailCopyHint => '长按复制错误详情';
@@ -2683,6 +2685,8 @@ class _TranslationsLocalMediaZhCn extends TranslationsLocalMediaEn {
 	@override String rescanAllStarted({required Object count}) => '开始重新扫描 ${count} 个来源';
 	@override String get searchLibrary => '搜索';
 	@override String get searchIncludeSubfolders => '含子文件夹';
+	@override String get searchThisFolderOnly => '仅此文件夹';
+	@override String searchResultCount({required Object count}) => '找到 ${count} 项';
 	@override String get savedServers => '已保存的 NAS';
 	@override String get newServer => '连接新的 NAS';
 	@override late final _TranslationsLocalMediaItemInfoLabelsZhCn itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsZhCn._(_root);
@@ -3504,6 +3508,19 @@ class _TranslationsDownloadErrorsZhCn extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '请尝试使用其他查看器打开';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineZhCn extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => '今天';
+	@override String get yesterday => '昨天';
+	@override String get thisWeek => '本周';
+	@override String get thisMonth => '本月';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesZhCn extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -4219,6 +4236,13 @@ class _TranslationsLocalMediaBrowseZhCn extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => '隐藏此文件夹';
 	@override String get unhideFolder => '取消隐藏';
 	@override String get showHiddenFolders => '显示隐藏的文件夹';
+	@override String get includeDotFolders => '扫描 . 开头的文件夹';
+	@override String get dotFoldersIncluded => '开始扫描 . 开头的文件夹';
+	@override String get dotFoldersExcluded => '不再扫描 . 开头的文件夹';
+	@override String get showDotFolders => '显示 . 开头的文件夹';
+	@override String dotFoldersSkipped({required Object count}) => '这里还有 ${count} 个以 . 开头的文件夹没有扫描';
+	@override String get scanDotFoldersAction => '为此来源开启';
+	@override String get otherAppsPrivateNotice => 'Android 11 起，系统不允许任何应用读取其他应用在 Android/data、Android/obb 里的文件，本应用也无法绕过。请在原应用里把视频下载或导出到 Download 等公共目录，再把那个文件夹添加进来。边看边缓存的数据通常是分片，即使读到也无法播放。';
 	@override String get folderHidden => '已隐藏，扫描也会跳过它';
 	@override String get folderUnhidden => '已取消隐藏';
 	@override String get hiddenFolderBadge => '已隐藏';
@@ -6195,6 +6219,11 @@ extension on TranslationsZhCn {
 			'download.clearFilters' => '清除筛选',
 			'download.pauseAll' => '全部暂停',
 			'download.resumeAll' => '全部开始',
+			'download.remainingTime' => ({required Object time}) => '剩 ${time}',
+			'download.timeline.today' => '今天',
+			'download.timeline.yesterday' => '昨天',
+			'download.timeline.thisWeek' => '本周',
+			'download.timeline.thisMonth' => '本月',
 			'download.errorTypes.network' => '网络异常，可重试',
 			'download.errorTypes.serverRejected' => '服务器拒绝，可能需要重新登录',
 			'download.errorTypes.notFound' => '资源已失效或被删除',
@@ -6548,13 +6577,13 @@ extension on TranslationsZhCn {
 			'favorite.addFailed' => '追加失败',
 			'favorite.remove' => '删除',
 			'favorite.removeSuccess' => '删除成功',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
 			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
 			'favorite.removeConfirmationFailed' => '删除项目失败',
 			'favorite.createFolderSuccess' => '文件夹创建成功',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.createFolderFailed' => '创建文件夹失败',
 			'favorite.createFolder' => '创建文件夹',
 			'favorite.enterFolderName' => '输入文件夹名称',
@@ -7062,13 +7091,13 @@ extension on TranslationsZhCn {
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => '列数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '请输入宽度',
 			'layoutSettings.enterValidWidth' => '请输入有效宽度',
 			'layoutSettings.widthCannotExceed9999' => '宽度不能超过9999',
 			'layoutSettings.breakpointAlreadyExists' => '断点已存在',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.enterColumns' => '请输入列数',
 			'layoutSettings.enterValidColumns' => '请输入有效列数',
 			'layoutSettings.columnsCannotExceed12' => '列数不能超过12',
@@ -7564,11 +7593,20 @@ extension on TranslationsZhCn {
 			'localMedia.browse.hideFolder' => '隐藏此文件夹',
 			'localMedia.browse.unhideFolder' => '取消隐藏',
 			'localMedia.browse.showHiddenFolders' => '显示隐藏的文件夹',
+			'localMedia.browse.includeDotFolders' => '扫描 . 开头的文件夹',
+			'localMedia.browse.dotFoldersIncluded' => '开始扫描 . 开头的文件夹',
+			'localMedia.browse.dotFoldersExcluded' => '不再扫描 . 开头的文件夹',
+			'localMedia.browse.showDotFolders' => '显示 . 开头的文件夹',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '这里还有 ${count} 个以 . 开头的文件夹没有扫描',
+			'localMedia.browse.scanDotFoldersAction' => '为此来源开启',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Android 11 起，系统不允许任何应用读取其他应用在 Android/data、Android/obb 里的文件，本应用也无法绕过。请在原应用里把视频下载或导出到 Download 等公共目录，再把那个文件夹添加进来。边看边缓存的数据通常是分片，即使读到也无法播放。',
 			'localMedia.browse.folderHidden' => '已隐藏，扫描也会跳过它',
 			'localMedia.browse.folderUnhidden' => '已取消隐藏',
 			'localMedia.browse.hiddenFolderBadge' => '已隐藏',
 			'localMedia.browse.deleteFolder' => '删除文件夹',
 			'localMedia.browse.deleteFolderTitle' => '删除这个文件夹？',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '里面的其它文件也会一并删掉',
 			'localMedia.browse.folderDeleted' => '已删除文件夹',
@@ -7581,8 +7619,6 @@ extension on TranslationsZhCn {
 			'localMedia.browse.pickFolderTitle' => '选择文件夹',
 			'localMedia.browse.useThisFolder' => '使用这个文件夹',
 			'localMedia.browse.noSubfolders' => '这里没有子文件夹',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.storageRoot' => '设备存储',
 			'localMedia.browse.homeFolder' => '个人文件夹',
 			'localMedia.browse.filesystemRoot' => '根目录',
@@ -7673,6 +7709,8 @@ extension on TranslationsZhCn {
 			'localMedia.rescanAllStarted' => ({required Object count}) => '开始重新扫描 ${count} 个来源',
 			'localMedia.searchLibrary' => '搜索',
 			'localMedia.searchIncludeSubfolders' => '含子文件夹',
+			'localMedia.searchThisFolderOnly' => '仅此文件夹',
+			'localMedia.searchResultCount' => ({required Object count}) => '找到 ${count} 项',
 			'localMedia.savedServers' => '已保存的 NAS',
 			'localMedia.newServer' => '连接新的 NAS',
 			'localMedia.itemInfoLabels.size' => '大小',

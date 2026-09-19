@@ -1846,6 +1846,12 @@ download:
   clearFilters: 清除篩選
   pauseAll: 全部暫停
   resumeAll: 全部開始
+  remainingTime: "剩 ${time}"
+  timeline:
+    today: "今天"
+    yesterday: "昨天"
+    thisWeek: "本週"
+    thisMonth: "本月"
   errorTypes:
     network: 網路異常，可重試
     serverRejected: 伺服器拒絕，可能需要重新登入
@@ -3298,6 +3304,13 @@ localMedia:
     hideFolder: 隱藏此資料夾
     unhideFolder: 取消隱藏
     showHiddenFolders: 顯示隱藏的資料夾
+    includeDotFolders: "掃描 . 開頭的資料夾"
+    dotFoldersIncluded: "開始掃描 . 開頭的資料夾"
+    dotFoldersExcluded: "不再掃描 . 開頭的資料夾"
+    showDotFolders: "顯示 . 開頭的資料夾"
+    dotFoldersSkipped: "這裡還有 ${count} 個以 . 開頭的資料夾沒有掃描"
+    scanDotFoldersAction: "為此來源開啟"
+    otherAppsPrivateNotice: "Android 11 起，系統不允許任何應用程式讀取其他應用程式在 Android/data、Android/obb 裡的檔案，本應用程式也無法繞過。請在原應用程式裡把影片下載或匯出到 Download 等公共目錄，再把那個資料夾加進來。邊看邊快取的資料通常是分片，即使讀到也無法播放。"
     folderHidden: 已隱藏，掃描也會跳過它
     folderUnhidden: 已取消隱藏
     hiddenFolderBadge: 已隱藏
@@ -3405,6 +3418,8 @@ localMedia:
   rescanAllStarted: "開始重新掃描 ${count} 個來源"
   searchLibrary: "搜尋"
   searchIncludeSubfolders: "含子資料夾"
+  searchThisFolderOnly: "僅此資料夾"
+  searchResultCount: "找到 ${count} 項"
   savedServers: "已儲存的 NAS"
   newServer: "連接新的 NAS"
   itemInfoLabels:

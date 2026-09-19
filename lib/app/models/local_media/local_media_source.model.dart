@@ -87,6 +87,7 @@ class LocalMediaSource {
     required this.createdAt,
     this.remoteState,
     this.tlsFingerprint,
+    this.includeDotEntries = false,
   });
 
   final String id;
@@ -119,6 +120,11 @@ class LocalMediaSource {
   /// 用户确认信任过的服务器证书 SHA-256（自签证书 TOFU）。null = 走系统信任。
   final String? tlsFingerprint;
 
+  /// 扫不扫源里 `.` 开头的子文件夹（v44）。默认不扫；扫描根自己不受它管。
+  /// 改它要走 `LocalMediaScanService.setIncludeDotEntries`，别直接 upsert：
+  /// 关掉时库里那批条目得当场收敛，不能指望下一轮重扫。
+  final bool includeDotEntries;
+
   /// NAS 源：路径是 `dav:/…`，文件不在本机。
   bool get isRemote => kind == LocalMediaSourceKind.webdav;
 
@@ -146,6 +152,7 @@ class LocalMediaSource {
     bool? autoRescan,
     Object? remoteState = _unset,
     Object? tlsFingerprint = _unset,
+    bool? includeDotEntries,
   }) {
     return LocalMediaSource(
       id: id,
@@ -171,6 +178,7 @@ class LocalMediaSource {
       tlsFingerprint: tlsFingerprint == _unset
           ? this.tlsFingerprint
           : tlsFingerprint as String?,
+      includeDotEntries: includeDotEntries ?? this.includeDotEntries,
     );
   }
 
@@ -192,6 +200,7 @@ class LocalMediaSource {
     'created_at': createdAt,
     'remote_state': remoteState?.name,
     'tls_fingerprint': tlsFingerprint,
+    'include_dot_entries': includeDotEntries ? 1 : 0,
   };
 
   /// 从库里读回来。
@@ -237,6 +246,7 @@ class LocalMediaSource {
               LocalMediaRemoteState.unreachable,
             ),
       tlsFingerprint: row['tls_fingerprint'] as String?,
+      includeDotEntries: (row['include_dot_entries'] as int? ?? 0) != 0,
     );
   }
 }

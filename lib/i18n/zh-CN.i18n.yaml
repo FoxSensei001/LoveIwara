@@ -1798,6 +1798,12 @@ download:
   clearFilters: 清除筛选
   pauseAll: 全部暂停
   resumeAll: 全部开始
+  remainingTime: "剩 ${time}"
+  timeline:
+    today: "今天"
+    yesterday: "昨天"
+    thisWeek: "本周"
+    thisMonth: "本月"
   errorTypes:
     network: 网络异常，可重试
     serverRejected: 服务器拒绝，可能需要重新登录
@@ -3294,6 +3300,13 @@ localMedia:
     hideFolder: 隐藏此文件夹
     unhideFolder: 取消隐藏
     showHiddenFolders: 显示隐藏的文件夹
+    includeDotFolders: "扫描 . 开头的文件夹"
+    dotFoldersIncluded: "开始扫描 . 开头的文件夹"
+    dotFoldersExcluded: "不再扫描 . 开头的文件夹"
+    showDotFolders: "显示 . 开头的文件夹"
+    dotFoldersSkipped: "这里还有 ${count} 个以 . 开头的文件夹没有扫描"
+    scanDotFoldersAction: "为此来源开启"
+    otherAppsPrivateNotice: "Android 11 起，系统不允许任何应用读取其他应用在 Android/data、Android/obb 里的文件，本应用也无法绕过。请在原应用里把视频下载或导出到 Download 等公共目录，再把那个文件夹添加进来。边看边缓存的数据通常是分片，即使读到也无法播放。"
     folderHidden: 已隐藏，扫描也会跳过它
     folderUnhidden: 已取消隐藏
     hiddenFolderBadge: 已隐藏
@@ -3401,6 +3414,8 @@ localMedia:
   rescanAllStarted: "开始重新扫描 ${count} 个来源"
   searchLibrary: "搜索"
   searchIncludeSubfolders: "含子文件夹"
+  searchThisFolderOnly: "仅此文件夹"
+  searchResultCount: "找到 ${count} 项"
   savedServers: "已保存的 NAS"
   newServer: "连接新的 NAS"
   itemInfoLabels:

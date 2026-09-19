@@ -1,21 +1,28 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
+import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
+import 'package:i_iwara/app/models/local_media/local_vr_hints.dart';
+import 'package:i_iwara/app/models/vr_format.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_thumb.dart';
+import 'package:i_iwara/app/utils/local_vr_filename_detector.dart';
 import 'package:i_iwara/utils/common_utils.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
-/// 本机文件浏览页里的一个视频条目。
+/// 本机文件浏览页里的一个媒体条目：视频是「封面 + 标题 + 出处」，图片是一格纯方图。
 ///
 /// 本地文件不是一个缺少网络字段的 `Video`：扫描来的文件没有作者、官方标题或远端
 /// 封面，所以这里直接用文件语义排版。下载条目才通过 `download_task_id` 补上任务
@@ -33,40 +40,71 @@ import 'package:visibility_detector/visibility_detector.dart';
 ///
 /// # ⛔ 别长得像文件夹
 ///
-/// 2026-09-11 用户原话：「文件夹和视频的卡片长得好像啊，不然用户分不清」。目录卡
-/// 那边改成了一只夹子（[LocalContainerCard]：翻页舌 + 封面留边 + 带主色的底），
-/// 这边则朝反方向拉开：
+/// 2026-09-11 用户原话：「文件夹和视频的卡片长得好像啊，不然用户分不清」。那之后
+/// 试过把外形分家（夹子剪影 vs 顶到边的封面），2026-09-19 用户选了统一成线上视频
+/// 卡同款外壳（[LocalCardShell]）；同日用户又嫌差异不够，容器卡加了叠纸轮廓。
+/// 所以区分由这几处记号承担，**都别拿掉**：
 ///
-/// - **封面顶到边**，四角只有卡片自己的圆角——封面即内容本身，不是「装在里面的
-///   某一件」。
-/// - **封面上压一枚时长胶囊**（拿不到时长就退成一枚播放三角）。这是全世界的
-///   播放器都在用的记号，它出现在哪张卡上，哪张卡就是能播的。
+/// - 容器卡背后有两层纸边、封面右下是「文件夹 + 项数」胶囊（[LocalContainerCard]）；
+/// - 容器卡的标题前有种类图标（文件夹 / NAS / 图库），视频卡没有；
+/// - 视频封面右下角**恒有**一枚时长胶囊（拿不到时长就退成一枚播放三角）。这是
+///   全世界的播放器都在用的记号，它出现在哪张卡上，哪张卡就是能播的。
 ///
-/// 所以时长**不在**下面那排角标里——同一个数字印两遍是白占地方，而印在封面上
-/// 才顺带把「这是段视频」也说了。
+/// 机器信息（时长 / 画质 / VR / 进度）全在封面角标上，字只剩标题和一行出处。
 ///
 /// # ⛔ 长按必须配一枚看得见的 ⋮
 ///
 /// 只留长按是不行的——**用户根本不知道有这个功能**（2026-09-10 用户原话）。手势是
-/// 快捷方式，不是入口；入口得看得见。所以封面右上角常驻一枚 ⋮，和长按指向同一个
-/// 菜单。加了 ⋮ 就别再把长按摘掉：两者是同一个动作的两种够得着的方式。
+/// 快捷方式，不是入口；入口得看得见。视频卡的 ⋮ 挂在出处那一行右端，图片格没有
+/// 文字行、⋮ 在封面右上角；两者都和长按指向同一个菜单。加了 ⋮ 就别再把长按摘掉：
+/// 两者是同一个动作的两种够得着的方式。
+///
+/// # ⛔ 高度写死，别再回瀑布流
+///
+/// 原先走瀑布流：有没有作者行、角标换不换行，每张卡高度都不一样，滚动时要逐张
+/// layout 才知道下一张摆在哪。现在一张卡＝16:9 封面 + [LocalCardText] 那块定高
+/// 文字（两行标题 + 一行说明），总高由 [extentFor] 从格宽算出，网格用
+/// `SliverGrid` + `mainAxisExtent` 铺。所以：
+///
+/// - 说明只有**一行**（作者，没有就写所在文件夹），超出省略，不许加第二行；
+/// - 想往卡面上加东西，只能加在封面上（角标），不能加在文字区里。
+///
+/// # 卡面上不写的东西
+///
+/// 2026-09-19 用户：「里面是有非必要信息的，也可以移除」。体积、「1920x1080」
+/// 这串分辨率、文件扩展名都拿掉了：画质只在够得上 1080P 时做成封面角标，体积在
+/// 信息弹窗里。**别再往卡面上加数字**——每加一个，一屏几十张卡就多几十个要读的东西。
 class LocalMediaItemCard extends StatefulWidget {
   const LocalMediaItemCard({
     super.key,
     required this.item,
     required this.onOpen,
-    this.width,
     this.onMenu,
+    this.showFolder = true,
   });
+
+  /// 出处那一行没有作者时写不写所在文件夹。
+  ///
+  /// 聚合墙（所有视频 / 精选）里写：同名文件散在各处，文件夹就是出处。目录页里
+  /// 不写——用户正站在这个文件夹里，那一行改写修改时间。
+  final bool showFolder;
 
   final LocalMediaItem item;
 
-  /// 这一格的宽度。封面的解码尺寸由 [LocalCoverImage] 按实际约束算，不读它。
-  final double? width;
+  /// 给定格宽下一格的总高，交给 `LocalGridMetrics.delegate`。
+  ///
+  /// 图片是纯方图（格高＝格宽），视频是封面 + [LocalCardText]。
+  static double extentFor(
+    BuildContext context,
+    double cellWidth,
+    LocalMediaItemKind kind,
+  ) => kind == LocalMediaItemKind.image
+      ? cellWidth
+      : LocalCardShell.extentFor(context, cellWidth);
 
   final Future<void> Function() onOpen;
 
-  /// 打开这一条的操作菜单。封面右上角那枚 ⋮ 与长按整卡都走它；不传则两者都没有。
+  /// 打开这一条的操作菜单。那枚 ⋮ 与长按整卡都走它；不传则两者都没有。
   ///
   /// [BuildContext] 是菜单的锚点：⋮ 传它自己的，长按传卡片的。
   final void Function(BuildContext anchorContext)? onMenu;
@@ -111,7 +149,11 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
 
   String get _title {
     final title = _ext?.title?.trim();
-    return title == null || title.isEmpty ? widget.item.name : title;
+    if (title != null && title.isNotEmpty) return title;
+    // 扩展名不是标题的一部分：一墙都是 .mp4，写出来只是噪音。
+    final name = widget.item.name;
+    final stem = p.basenameWithoutExtension(name);
+    return stem.isEmpty ? name : stem;
   }
 
   String? get _author {
@@ -270,26 +312,73 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
     setState(() => _ext = parsed);
   }
 
-  /// 体积 / 分辨率这两枚角标。
-  ///
-  /// 这些原本只在长按弹出的信息弹窗里，现在直接印在卡面上：一屏能一眼比出
-  /// 「哪个是完整片、哪个是几十秒的片段」，比逐个长按有用得多。
-  ///
-  /// ⛔ 时长不在这里，它在封面上那枚胶囊里（见类文档）。
-  List<Widget> _metaChips() {
+  static final RegExp _digitsOnly = RegExp(r'^\d+$');
+
+  /// 标题下面那一行出处：作者；没有作者时聚合墙写所在文件夹、目录页写修改时间。
+  String _sourceLine() {
+    final author = _author;
+    if (author != null) return author;
     final item = _item;
-    return <Widget>[
-      if (item.sizeBytes != null)
-        _MetaChip(
-          icon: Icons.storage_outlined,
-          label: _formatBytes(item.sizeBytes!),
-        ),
-      if (item.width != null && item.height != null)
-        _MetaChip(
-          icon: Icons.aspect_ratio_outlined,
-          label: '${item.width}x${item.height}',
-        ),
-    ];
+    // 下载任务按 id 建的文件夹（「407963」）不是人起的名字，写出来只是噪音。
+    // 同一个下载目录也可能被当成普通文件夹扫进来（来源不是「已下载」），所以
+    // 按「有下载任务」和「名字全是数字」两条判，不按来源判。
+    if (widget.showFolder &&
+        item.sourceId != kDownloadsSourceId &&
+        item.downloadTaskId == null) {
+      final folder = p.basename(item.folderPath ?? p.dirname(item.path));
+      if (folder.isNotEmpty &&
+          folder != '.' &&
+          folder != '/' &&
+          !_digitsOnly.hasMatch(folder)) {
+        return folder;
+      }
+    }
+    final modified = item.modifiedAt;
+    if (modified == null || modified <= 0) return '';
+    return CommonUtils.formatFriendlyTimestamp(
+      DateTime.fromMillisecondsSinceEpoch(modified),
+      includeTime: false,
+    );
+  }
+
+  /// 封面右上角的规格角标：VR 投影、画质。只写够得上说一声的——720P 以下不标，
+  /// 标了也只是提醒用户「这个不清楚」，不值一枚角标。
+  List<String> _specTags() {
+    final item = _item;
+    final tags = <String>[];
+    final vr = _vrLabel(item.vrFormatJson);
+    if (vr != null) tags.add(vr);
+    if (item.width != null && item.height != null) {
+      final short = math.min(item.width!, item.height!);
+      if (short >= 2160) {
+        tags.add('4K');
+      } else if (short >= 1440) {
+        tags.add('2K');
+      } else if (short >= 1080) {
+        tags.add('1080P');
+      }
+    }
+    return tags;
+  }
+
+  String? _vrJson;
+  String? _vrLabelCache;
+
+  /// VR 线索是一串 JSON，按原串缓存，别每次 build 都解一遍。
+  String? _vrLabel(String? json) {
+    if (json == _vrJson) return _vrLabelCache;
+    _vrJson = json;
+    final hints = LocalVrHints.fromJson(json);
+    _vrLabelCache =
+        hints == null || hints.strength != LocalVrSignalStrength.strong
+        ? null
+        : switch (hints.projection) {
+            VrProjection.equirect180 => 'VR180',
+            VrProjection.equirect360 => 'VR360',
+            VrProjection.fisheye => 'VR',
+            VrProjection.flat || null => null,
+          };
+    return _vrLabelCache;
   }
 
   Widget _coverWithDerivation() {
@@ -308,145 +397,145 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
   }
 
   @override
-  Widget build(BuildContext context) => _buildCard(context);
+  Widget build(BuildContext context) => _item.kind == LocalMediaItemKind.image
+      ? _buildImageTile(context)
+      : _buildVideoCard(context);
 
-  Widget _buildCard(BuildContext context) {
+  /// 视频：与线上视频卡同一副外壳（[LocalCardShell]），封面上是时长 / 画质 /
+  /// 进度，下面是恒占两行的标题和一行出处。
+  Widget _buildVideoCard(BuildContext context) {
     final theme = Theme.of(context);
-    final radius = BorderRadius.circular(14);
-    final author = _author;
+    return LocalCardShell(
+      onTap: () => widget.onOpen(),
+      onMenu: widget.onMenu,
+      title: _title,
+      meta: LocalCardText.metaText(context, _sourceLine()),
+      cover: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[_coverWithDerivation(), ..._coverBadges(theme)],
+      ),
+    );
+  }
 
-    return SizedBox(
-      width: widget.width,
-      child: Card(
-        margin: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: radius),
-        child: Builder(
-          builder: (cardContext) => InkWell(
-            onTap: () => widget.onOpen(),
-            onLongPress: widget.onMenu == null
-                ? null
-                : () => widget.onMenu!(cardContext),
-            borderRadius: radius,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Stack(
-                  children: <Widget>[
-                    _coverWithDerivation(),
-                    // 看到哪了：封面底边一条细线，看完的换成左下角一枚勾。
-                    // 这是「回来接着看」在墙上唯一看得见的线索——没有它，用户
-                    // 只能记住自己看到了哪一集。
-                    if (_progressFraction case final fraction?)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: LinearProgressIndicator(
-                          value: fraction,
-                          minHeight: 3,
-                          backgroundColor: Colors.black.withValues(alpha: 0.35),
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    if (_progress?.completed ?? false)
-                      Positioned(
-                        left: 6,
-                        bottom: 6,
-                        child: LocalCardBadge(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3),
-                            child: Icon(
-                              Icons.check_rounded,
-                              size: 14,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (_item.kind == LocalMediaItemKind.video)
-                      Positioned(
-                        right: 6,
-                        bottom: 6,
-                        child: LocalPlaybackPill(
-                          duration: _item.durationMs == null
-                              ? null
-                              : _formatDuration(_item.durationMs!),
-                        ),
-                      ),
-                    Positioned(
-                      top: LocalContainerCard.badgeInset,
-                      left: LocalContainerCard.badgeInset,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
-                        // 图片没有精选（见 [LocalMediaItem.supportsFavorite]）：
-                        // 库里若还留着旧的标记，这里也不画——判据只有那一份。
-                        child:
-                            _item.supportsFavorite && _item.favoritedAt != null
-                            ? LocalCardBadge(
-                                key: const ValueKey('favorited_badge'),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: Icon(
-                                    Icons.star_rounded,
-                                    size: 15,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
-                              )
-                            : const SizedBox.shrink(
-                                key: ValueKey('favorited_none'),
-                              ),
-                      ),
+  /// 图片：一格纯方图，不带任何字。文件名、宽高、体积对「挑一张看」都没用，
+  /// 真要看在信息弹窗里。⋮ 没有文字行可挂，放在右上角。
+  Widget _buildImageTile(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Builder(
+      builder: (cellContext) => GestureDetector(
+        onTap: () => widget.onOpen(),
+        onLongPress: widget.onMenu == null
+            ? null
+            : () => widget.onMenu!(cellContext),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          child: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              LocalImageThumb(
+                item: _item,
+                placeholder: ColoredBox(
+                  color: scheme.surfaceContainerHighest,
+                  child: Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: scheme.onSurfaceVariant,
                     ),
-                    if (widget.onMenu != null)
-                      Positioned(
-                        top: LocalContainerCard.badgeInset,
-                        right: LocalContainerCard.badgeInset,
-                        child: LocalCardMenuBadge(onMenu: widget.onMenu!),
-                      ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 11),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                        height: 36,
-                        child: Text(
-                          _title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            height: 1.2,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      Wrap(spacing: 8, runSpacing: 4, children: _metaChips()),
-                      if (author != null) ...[
-                        const SizedBox(height: 7),
-                        Text(
-                          author,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+              if (widget.onMenu != null)
+                Positioned(
+                  top: LocalContainerCard.badgeInset,
+                  right: LocalContainerCard.badgeInset,
+                  child: LocalCardMenuBadge(onMenu: widget.onMenu!),
+                ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  List<Widget> _coverBadges(ThemeData theme) {
+    final tags = _specTags();
+    return <Widget>[
+      // 看到哪了：封面底边一条细线，看完的换成左下角一枚勾。
+      // 这是「回来接着看」在墙上唯一看得见的线索——没有它，用户
+      // 只能记住自己看到了哪一集。
+      if (_progressFraction case final fraction?)
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: LinearProgressIndicator(
+            value: fraction,
+            minHeight: 3,
+            backgroundColor: Colors.black.withValues(alpha: 0.35),
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      if (_progress?.completed ?? false)
+        Positioned(
+          left: 6,
+          bottom: 6,
+          child: LocalCardBadge(
+            child: Padding(
+              padding: const EdgeInsets.all(3),
+              child: Icon(
+                Icons.check_rounded,
+                size: 14,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ),
+      Positioned(
+        right: 6,
+        bottom: 6,
+        child: LocalPlaybackPill(
+          duration: _item.durationMs == null
+              ? null
+              : _formatDuration(_item.durationMs!),
+        ),
+      ),
+      if (tags.isNotEmpty)
+        Positioned(
+          top: 6,
+          right: 6,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              for (var i = 0; i < tags.length; i++) ...<Widget>[
+                if (i > 0) const SizedBox(width: 4),
+                LocalCoverTag(label: tags[i]),
+              ],
+            ],
+          ),
+        ),
+      Positioned(
+        top: LocalContainerCard.badgeInset,
+        left: LocalContainerCard.badgeInset,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          // 图片没有精选（见 [LocalMediaItem.supportsFavorite]）：
+          // 库里若还留着旧的标记，这里也不画——判据只有那一份。
+          child: _item.supportsFavorite && _item.favoritedAt != null
+              ? LocalCardBadge(
+                  key: const ValueKey('favorited_badge'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Icon(
+                      Icons.star_rounded,
+                      size: 15,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(key: ValueKey('favorited_none')),
+        ),
+      ),
+    ];
   }
 
   static String _formatDuration(int milliseconds) {
@@ -454,17 +543,10 @@ class _LocalMediaItemCardState extends State<LocalMediaItemCard> {
       Duration(milliseconds: milliseconds.clamp(0, 864000000)),
     );
   }
-
-  static String _formatBytes(int bytes) =>
-      LocalMediaItemCard.formatBytes(bytes);
 }
 
 class _Cover extends StatelessWidget {
   const _Cover({required this.item, this.remoteCover});
-
-  static const BorderRadius _radius = BorderRadius.vertical(
-    top: Radius.circular(14),
-  );
 
   final LocalMediaItem item;
   final String? remoteCover;
@@ -504,10 +586,7 @@ class _Cover extends StatelessWidget {
       child = _placeholder(scheme);
     }
 
-    return ClipRRect(
-      borderRadius: _radius,
-      child: AspectRatio(aspectRatio: 16 / 9, child: child),
-    );
+    return child;
   }
 
   Widget _remote(ColorScheme scheme) => LayoutBuilder(
@@ -536,30 +615,4 @@ class _Cover extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: color,
-            fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-          ),
-        ),
-      ],
-    );
-  }
 }

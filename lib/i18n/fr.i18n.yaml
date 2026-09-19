@@ -1796,6 +1796,12 @@ download:
   clearFilters: Effacer les filtres
   pauseAll: Tout mettre en pause
   resumeAll: Tout démarrer
+  remainingTime: "${time} restant"
+  timeline:
+    today: "Aujourd'hui"
+    yesterday: "Hier"
+    thisWeek: "Cette semaine"
+    thisMonth: "Ce mois-ci"
   errorTypes:
     network: Problème réseau, réessayer peut aider
     serverRejected: Rejeté par le serveur, vous devrez peut-être vous reconnecter
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Masquer ce dossier
     unhideFolder: Afficher de nouveau
     showHiddenFolders: Afficher les dossiers masqués
+    includeDotFolders: "Analyser les dossiers commençant par ."
+    dotFoldersIncluded: "Les dossiers commençant par . sont maintenant analysés"
+    dotFoldersExcluded: "Les dossiers commençant par . ne sont plus analysés"
+    showDotFolders: "Afficher les dossiers commençant par ."
+    dotFoldersSkipped: "${count} dossiers commençant par . ne sont pas analysés ici"
+    scanDotFoldersAction: "Activer pour cette source"
+    otherAppsPrivateNotice: "Depuis Android 11, aucune application ne peut lire les fichiers des autres applications dans Android/data ou Android/obb, et cette application ne peut pas le contourner. Téléchargez ou exportez les vidéos vers un dossier public comme Download dans l'application d'origine, puis ajoutez ce dossier ici. Les caches de lecture sont généralement fragmentés et illisibles même s'ils sont accessibles."
     folderHidden: Masqué ; l’analyse l’ignorera aussi
     folderUnhidden: N’est plus masqué
     hiddenFolderBadge: Masqué

@@ -130,6 +130,20 @@ class LocalFolderActions {
     return source != null && !source.isBuiltIn && !source.isInert;
   }
 
+  /// 来源根上给「扫描 . 开头的文件夹」。
+  ///
+  /// ⛔ iOS 的书签源不给：「文件」App 本来就不显示 `.` 开头的目录，用户无从知道
+  /// 它们存在，这一条只会是噪音。内建源（已下载 / 设备视频）不走目录遍历，也不给。
+  bool get _canToggleDotFolders {
+    if (!_isSourceRoot) return false;
+    final kind = LocalMediaRepository().getSource(sourceId)?.kind;
+    return kind == LocalMediaSourceKind.directory ||
+        kind == LocalMediaSourceKind.webdav;
+  }
+
+  bool get _includeDotFolders =>
+      LocalMediaRepository().getSource(sourceId)?.includeDotEntries ?? false;
+
   /// 这个目录能不能**真删**（磁盘 + 库）。
   ///
   /// ⛔ 来源根一律不给。它已经有「移除来源」（只解除关联、不动磁盘），而把一个源的
@@ -217,6 +231,16 @@ class LocalFolderActions {
           // 来源根重扫的是整个源，子目录只重列这一层——文案得说的是实情。
           label: _isSourceRoot ? t.rescan : t.browse.rescanFolder,
           icon: Icons.refresh,
+        ),
+      // 「扫描 . 开头的文件夹」跟着「重新扫描」：两条都在回答"这个源扫什么"。
+      // ⛔ 它和下面「显示隐藏的文件夹」是两回事——那边是用户自己藏的目录，这边是
+      // 名字以 `.` 开头的目录。文案里刻意不出现「隐藏」二字，别让两条撞名。
+      if (_canToggleDotFolders)
+        GlassMenuOption<String>(
+          value: 'toggleDotFolders',
+          label: t.browse.includeDotFolders,
+          icon: Icons.folder_open_outlined,
+          selected: _includeDotFolders,
         ),
       // 「显示隐藏的文件夹」是个**视图开关**，不是对这个目录做什么——所以它摆在
       // 分隔线之后、和「隐藏此文件夹」挨着：用户刚藏完一个、想反悔时，反悔的路
@@ -400,7 +424,10 @@ class LocalFolderActions {
         if (name == null || name.isEmpty || name == source.displayName) {
           return;
         }
-        repository.upsertSource(source.copyWith(displayName: name));
+        // 弹窗期间扫描 / 开关可能改过这一行，upsertSource 是整行覆盖，重读再改。
+        final latest = repository.getSource(sourceId);
+        if (latest == null) return;
+        repository.upsertSource(latest.copyWith(displayName: name));
         showAppToast(slang.t.localMedia.renamed);
         onChanged?.call();
 
@@ -446,6 +473,30 @@ class LocalFolderActions {
             next;
         // 别的页面（根页的常用目录、播放器的「接着看」抽屉）靠这条信号跟上。
         LocalMediaRepository.notifyFolderChanged();
+        onChanged?.call();
+
+      case 'toggleDotFolders':
+        if (!Get.isRegistered<LocalMediaScanService>()) return;
+        final next = !_includeDotFolders;
+        // 改库、关掉时的收敛都在 setIncludeDotEntries 的第一个 await 之前同步做完，
+        // 所以不等整源重扫结束，页面这就能刷新；扫描进度由来源卡自己的转圈交代。
+        // async 函数里同步段抛的错也会落进返回的 future，这里一并兜住。
+        unawaited(
+          LocalMediaScanService.to
+              .setIncludeDotEntries(sourceId, next)
+              .catchError((Object e) {
+                LogUtils.w('切换 . 开头文件夹扫描失败: $e', 'LocalFolderMenu');
+                showAppToast(
+                  slang.t.localMedia.scanFailed(reason: '$e'),
+                  type: AppToastType.error,
+                );
+              }),
+        );
+        showAppToast(
+          next
+              ? slang.t.localMedia.browse.dotFoldersIncluded
+              : slang.t.localMedia.browse.dotFoldersExcluded,
+        );
         onChanged?.call();
 
       case 'remove':
@@ -662,7 +713,10 @@ Future<bool> reloginRemoteSource({
     showAppToast(slang.t.localMedia.addSourceFailed, type: AppToastType.error);
     return false;
   }
-  final updated = source.copyWith(
+  // 弹窗期间这一行可能被扫描 / 开关改过，upsertSource 是整行覆盖，重读再改。
+  final latest = LocalMediaRepository().getSource(source.id);
+  if (latest == null) return false;
+  final updated = latest.copyWith(
     offline: false,
     remoteState: LocalMediaRemoteState.ok,
     tlsFingerprint: result.tlsFingerprint,

@@ -1796,6 +1796,12 @@ download:
   clearFilters: Сбросить фильтры
   pauseAll: Приостановить все
   resumeAll: Запустить все
+  remainingTime: "осталось ${time}"
+  timeline:
+    today: "Сегодня"
+    yesterday: "Вчера"
+    thisWeek: "На этой неделе"
+    thisMonth: "В этом месяце"
   errorTypes:
     network: Проблема с сетью, повтор может помочь
     serverRejected: Отклонено сервером, возможно, нужно войти заново
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Скрыть эту папку
     unhideFolder: Показать снова
     showHiddenFolders: Показывать скрытые папки
+    includeDotFolders: "Сканировать папки, начинающиеся с ."
+    dotFoldersIncluded: "Папки, начинающиеся с ., теперь сканируются"
+    dotFoldersExcluded: "Папки, начинающиеся с ., больше не сканируются"
+    showDotFolders: "Показывать папки, начинающиеся с ."
+    dotFoldersSkipped: "Здесь есть ${count} несканированных папок, начинающихся с ."
+    scanDotFoldersAction: "Включить для этого источника"
+    otherAppsPrivateNotice: "Начиная с Android 11 ни одно приложение не может читать файлы других приложений в Android/data и Android/obb, и это приложение не может обойти запрет. Скачайте или экспортируйте видео в общую папку, например Download, в исходном приложении, а затем добавьте эту папку сюда. Кэш при просмотре обычно разбит на фрагменты и не воспроизводится, даже если его прочитать."
     folderHidden: Скрыта — сканирование тоже её пропустит
     folderUnhidden: Больше не скрыта
     hiddenFolderBadge: Скрыта

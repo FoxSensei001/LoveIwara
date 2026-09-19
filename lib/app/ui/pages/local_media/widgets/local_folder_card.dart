@@ -74,9 +74,7 @@ class LocalFolderCountLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
+    final style = LocalCardText.metaStyle(theme);
     final text = formatLocalFolderCounts(
       childFolderCount: childFolderCount,
       videoCount: videoCount,
@@ -135,16 +133,15 @@ class LocalFolderCountLine extends StatelessWidget {
   }
 }
 
-/// 本机文件里的一个目录：一只夹子，里面露出一张封面 + 名字 + 计数。
+/// 本机文件里的一个目录：封面 + 名字 + 计数。
 ///
 /// 目录不是抽象的路标，它就是「里面那些东西」的入口——一眼看见封面就知道该不该
 /// 进去，这比一行文件名快得多。
 ///
-/// # ⛔ 外形归 [LocalContainerCard]，这里只管填内容
+/// # ⛔ 外形归 [LocalCardShell]，这里只管填内容
 ///
-/// 夹子的舌头、封面留边、底色，全在 [LocalContainerCard]，来源卡也用同一份。
-/// 别在这里另画一套——媒体卡与容器卡「一眼分得清」这件事是靠两族各自统一撑起来
-/// 的，任何一张卡自己长歪，两族的界线就糊了。
+/// 卡片外壳（与线上视频卡同款）全在 [LocalCardShell]，来源卡、图库卡、视频卡都用
+/// 同一份。别在这里另画一套。
 ///
 /// # ⛔ 高度必须写死
 ///
@@ -167,20 +164,12 @@ class LocalFolderCardWidget extends StatelessWidget {
     this.hidden = false,
   });
 
-  /// 封面卡的封面宽高比。
-  static const double coverAspectRatio = 16 / 10;
-
-  /// 封面以下那块文字区的高度：名字 + 计数两行。
-  static double textExtent(BuildContext context) =>
-      LocalContainerCard.textExtentOf(context, lines: 2);
+  /// 封面宽高比。与媒体卡同一个（见 [LocalCardShell]），封面选择弹窗也用它。
+  static const double coverAspectRatio = LocalCardShell.coverAspectRatio;
 
   /// 给定格宽下一张目录卡的总高，交给 `LocalGridMetrics.delegate`。
   static double extentFor(BuildContext context, double cellWidth) =>
-      LocalContainerCard.extentFor(
-        cellWidth: cellWidth,
-        coverAspectRatio: coverAspectRatio,
-        textExtent: textExtent(context),
-      );
+      LocalContainerCard.extentFor(context, cellWidth);
 
   final LocalMediaFolder folder;
   final VoidCallback onOpen;
@@ -198,7 +187,7 @@ class LocalFolderCardWidget extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final coverPath = folder.coverPath;
     final placeholder = ColoredBox(
-      // 空夹子的占位比夹子底色再深一点，缺封面时也还看得出「这里本该有张封面」。
+      // 缺封面时一块比卡面深一档的底 + 文件夹图标，看得出「这里本该有张封面」。
       color: colorScheme.surfaceContainerHighest,
       child: Center(
         child: Icon(Icons.folder_rounded, size: 30, color: colorScheme.outline),
@@ -221,10 +210,7 @@ class LocalFolderCardWidget extends StatelessWidget {
   }
 
   Widget _buildCard(BuildContext context) {
-    final theme = Theme.of(context);
-
     return LocalContainerCard(
-      coverAspectRatio: coverAspectRatio,
       onTap: onOpen,
       // ⛔ ⋮ 角标和长按都由 [LocalContainerCard] 按这一个回调统一发，别在这里
       // 再画一份（来源卡当初就是那样漏掉长按的）。
@@ -232,36 +218,20 @@ class LocalFolderCardWidget extends StatelessWidget {
       cover: _buildCover(context),
       // 常用星也归 [LocalContainerCard]（同 ⋮ 与长按），这里只说"我是不是"。
       pinned: pinned,
-      lines: <Widget>[
-        Row(
-          children: <Widget>[
-            if (hidden) ...[
-              Icon(
-                Icons.visibility_off_outlined,
-                size: 13,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 4),
-            ],
-            Expanded(
-              child: Text(
-                folder.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        LocalFolderCountLine(
-          childFolderCount: folder.childFolderCount,
-          videoCount: folder.videoCount,
-          imageCount: folder.imageCount,
-          probed: folder.probedAt != null,
-        ),
-      ],
+      title: folder.name,
+      // 种类图标：外壳与视频卡一样，靠它一眼认出「这是个文件夹」。
+      // 隐藏的换成闭眼——和普通目录一眼分得开，不用靠回忆。
+      titleIcon: hidden ? Icons.visibility_off_outlined : Icons.folder_outlined,
+      // 没真的列过这个目录时不下数字（同 [LocalFolderCountLine] 的 probed）。
+      itemCount: folder.probedAt == null
+          ? null
+          : folder.childFolderCount + folder.videoCount + folder.imageCount,
+      meta: LocalFolderCountLine(
+        childFolderCount: folder.childFolderCount,
+        videoCount: folder.videoCount,
+        imageCount: folder.imageCount,
+        probed: folder.probedAt != null,
+      ),
     );
   }
 }

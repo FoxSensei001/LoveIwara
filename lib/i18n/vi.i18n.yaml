@@ -1796,6 +1796,12 @@ download:
   clearFilters: Xóa bộ lọc
   pauseAll: Tạm dừng tất cả
   resumeAll: Bắt đầu tất cả
+  remainingTime: "còn ${time}"
+  timeline:
+    today: "Hôm nay"
+    yesterday: "Hôm qua"
+    thisWeek: "Tuần này"
+    thisMonth: "Tháng này"
   errorTypes:
     network: Vấn đề mạng, thử lại có thể giúp ích
     serverRejected: Bị máy chủ từ chối, có thể cần đăng nhập lại
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Ẩn thư mục này
     unhideFolder: Bỏ ẩn
     showHiddenFolders: Hiện thư mục đã ẩn
+    includeDotFolders: "Quét thư mục bắt đầu bằng ."
+    dotFoldersIncluded: "Đã bắt đầu quét thư mục bắt đầu bằng ."
+    dotFoldersExcluded: "Không còn quét thư mục bắt đầu bằng ."
+    showDotFolders: "Hiện thư mục bắt đầu bằng ."
+    dotFoldersSkipped: "Ở đây còn ${count} thư mục bắt đầu bằng . chưa được quét"
+    scanDotFoldersAction: "Bật cho nguồn này"
+    otherAppsPrivateNotice: "Từ Android 11, không ứng dụng nào đọc được tệp của ứng dụng khác trong Android/data hoặc Android/obb, ứng dụng này cũng không thể vượt qua. Hãy tải xuống hoặc xuất video sang thư mục công khai như Download trong ứng dụng gốc, rồi thêm thư mục đó vào đây. Bộ nhớ đệm khi xem thường bị chia nhỏ và không phát được dù đọc được."
     folderHidden: Đã ẩn — quá trình quét cũng sẽ bỏ qua
     folderUnhidden: Đã bỏ ẩn
     hiddenFolderBadge: Đã ẩn

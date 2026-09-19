@@ -2,204 +2,268 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
+import 'package:i_iwara/app/ui/widgets/media_card_meta.dart';
+import 'package:i_iwara/utils/common_utils.dart';
 
-/// 「容器」这一族卡片的外形与骨架：来源、目录，凡是**点进去还有东西**的都长这样。
+/// 本机文件所有卡片的外壳：**与线上视频卡同一副样子**。
 ///
-/// # 为什么要单独有这么一族
+/// 白卡 + 一圈淡描边 + 一层很轻的阴影，封面 16:9 顶在上沿，下面是恒占两行的
+/// 标题和一行说明，⋮ 在说明行右端。数值照抄 `VideoCardListItemWidget`
+/// （14 圆角、outlineVariant 30% 描边、shadow 8% / 模糊 8 / 下移 3、标题 14 号
+/// 1.22 行高 w700）。
 ///
-/// 2026-09-11 用户原话：「文件夹和视频的卡片长得好像啊，不然用户分不清」。
-/// 当时两边用的是同一套语言——一张顶天立地的封面、底下两行字、右上角一枚 ⋮，
-/// 差别只剩文字内容。可文字要读，形状不用读：一屏几十格滑过去，用户是靠轮廓
-/// 认东西的，轮廓一样就等于没有区别。
+/// # 为什么跟线上卡一个样
 ///
-/// 所以差异必须做在**形状**上，而不是颜色深浅或者多加一枚小角标：
+/// 2026-09-19 前后改了三版：夹子剪影 + 带主色底板、去底板把字落在页面上……用户
+/// 都嫌丑。给了三种样式对照（线上同款 / 封面叠字 / 横向列表行），用户选了线上
+/// 同款。本机文件与首页视频列表是同一个应用里的两块，卡片语言一致本身就是观感的
+/// 一大半——各自一套，再精致也像拼起来的。
 ///
-/// - **卡片本体是一只文件夹的剪影**（左上角一枚翻页舌 [tabHeight]）。这是所有人
-///   不用学就认得的符号，缩到手机上一格 150px 宽也还认得出。
-/// - **封面是「装在里面」的**：四周留 [coverInset] 的边，自己带圆角，浮在夹子
-///   的底色上。媒体卡的封面是**顶到边**的——封面即内容本身；容器卡的封面只是
-///   里面某一件东西的样子，留边就是在说这件事。
-/// - **底色带一点主色**，跟媒体卡的中性卡面分开。
+/// # 容器与媒体怎么分
 ///
-/// 反过来，媒体卡那边加了「时长胶囊」这类只有媒体才会有的东西（见
-/// `local_media_item_card.dart`），两边是一起往相反方向拉开的。
+/// 外壳一样，区别在**标题前的种类图标**（文件夹 / NAS / 已下载 / 图库）和说明行
+/// 的内容（计数 vs 出处）；视频封面上有时长胶囊，容器没有。以前那只文件夹剪影
+/// 已删：外形分家的代价是两族卡片高度、圆角、留白全都对不齐。
 ///
-/// # ⛔ 差异只做一份
+/// # ⛔ 定高
 ///
-/// 目录卡和来源卡都从这里取外形，别再各自画一遍——两边一分家，下次改夹子的
-/// 舌头就会只改到一半（本项目已有明确要求：同类问题按机制修，不要一处一处改）。
+/// 网格用 `SliverGrid` + 固定 `mainAxisExtent` 铺，高度由 [extentFor] 从格宽
+/// 算出。标题短到一行也占两行的位置（用户明确要求：标题默认显示两行），说明只许
+/// 一行。想往卡面上加东西只能加在封面上（角标），不能加在文字区里。
+class LocalCardShell extends StatelessWidget {
+  const LocalCardShell({
+    super.key,
+    required this.cover,
+    required this.title,
+    required this.meta,
+    this.titleIcon,
+    this.onTap,
+    this.onMenu,
+    this.onLongPress,
+  });
+
+  /// 封面比例。两族卡片同一个，同一张网格里的行高才对得齐。
+  static const double coverAspectRatio = 16 / 9;
+
+  static const double radius = kMediaCardThumbnailRadius;
+
+  /// 给定格宽下一张卡的总高。
+  static double extentFor(BuildContext context, double cellWidth) =>
+      cellWidth / coverAspectRatio + LocalCardText.blockExtent(context);
+
+  /// 封面（连同压在上面的角标），会被裁进卡片上沿的圆角里。
+  final Widget cover;
+
+  final String title;
+  final IconData? titleIcon;
+
+  /// 说明行。纯文字用 [LocalCardText.metaText] 包一下。
+  final Widget meta;
+
+  final VoidCallback? onTap;
+
+  /// 「更多操作」：⋮ 与长按整卡都开它。
+  ///
+  /// ⛔ ⋮ 与长按由这一层统一发，卡片只说「我有哪些操作」：来源卡当初就是自己画
+  /// ⋮、忘了接长按，长按子目录有菜单、长按来源没反应（2026-09-11）。只留长按也
+  /// 不行——用户不知道有这个功能（2026-09-10）。
+  final void Function(BuildContext anchorContext)? onMenu;
+
+  /// 覆盖长按。一般不传：长按默认就是 [onMenu]。
+  final VoidCallback? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const borderRadius = BorderRadius.all(Radius.circular(radius));
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: theme.colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: theme.colorScheme.surface,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: borderRadius,
+          side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
+        ),
+        // Builder 拿**卡片自己**那层 context 当长按菜单的锚点：菜单该贴着这张卡
+        // 开，而不是贴着调用方那个撑满整条 sliver 的 context。
+        child: Builder(
+          builder: (cardContext) => InkWell(
+            onTap: onTap,
+            onLongPress:
+                onLongPress ??
+                (onMenu == null ? null : () => onMenu!(cardContext)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                AspectRatio(aspectRatio: coverAspectRatio, child: cover),
+                Expanded(
+                  child: LocalCardText(
+                    title: title,
+                    titleIcon: titleIcon,
+                    meta: meta,
+                    onMenu: onMenu,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 「容器」卡：来源、目录、下载图库，凡是**点进去还有东西**的。
+///
+/// 外壳是 [LocalCardShell]，在它上面加两样视频卡没有的东西：
+///
+/// - **叠纸**：卡片背后从上沿露出两层纸边（[stackReveal]），轮廓一眼就是「一叠
+///   东西」。这是跟视频拉开的主力——2026-09-19 用户在同款外壳上仍嫌「视频和文件夹
+///   差异不够明显」，从叠纸 / 页签 / 封面拼贴三案里选了叠纸。拼贴没选：每张卡要
+///   多查库、多解码几张图，跟定高提速的初衷相悖。
+/// - **封面右下角的「文件夹 + 项数」胶囊**，占的正是视频卡「▶ 时长」胶囊的位置：
+///   同一个位置，一边说「能播、多长」，一边说「能进、多少件」。
+///
+/// 封面上另有两个角标槽——左上（常用图钉，或调用方给的记号）、右上（扫描中的转圈）。
 class LocalContainerCard extends StatelessWidget {
   const LocalContainerCard({
     super.key,
     required this.cover,
-    required this.lines,
+    required this.title,
+    required this.meta,
+    this.titleIcon,
     this.leading,
     this.trailing,
     this.pinned = false,
     this.onMenu,
     this.onTap,
     this.onLongPress,
-    this.coverAspectRatio = 16 / 10,
+    this.itemCount,
+    this.countIcon = Icons.folder_outlined,
   });
 
-  /// 夹子左上那枚翻页舌的高度。卡片总高比封面 + 文字多出的就是它。
-  static const double tabHeight = 13;
+  /// 叠纸从卡片上沿露出来的高度（两层各一半）。卡片总高比视频卡多出的就是它。
+  static const double stackReveal = 12;
 
-  /// 封面四周留的边——「装在夹子里」这个观感全靠它。
-  static const double coverInset = 6;
-
-  /// 封面自己的圆角。比卡片本体的小一档，看起来才像是叠在上面的一张纸。
-  static const double coverRadius = 9;
-
-  /// 卡片本体的圆角。
-  static const double bodyRadius = 15;
-
-  /// 封面上那几枚角标（⋮ / 星 / 转圈）离封面边的距离。
+  /// 封面上那几枚角标（星 / 图钉 / 转圈 / 规格）离封面边的距离。
   ///
-  /// ⛔ 这是**两族卡片共用**的一个数：容器卡和媒体卡常常并排出现，角标的大小和
-  /// 离边距离一分家，一眼就能看出两边不是一套东西。之前容器卡是 1（⋮ 的圆底正
-  /// 好贴死在封面圆角上）、媒体卡是 2、星标又是 6，三处各写各的。
+  /// ⛔ 这是**两族卡片共用**的一个数：容器卡和媒体卡常常并排出现，角标离边距离
+  /// 一分家，一眼就能看出两边不是一套东西。
   static const double badgeInset = 6;
 
-  /// 文字区上下的固定内边距，[textExtentOf] 的常数项就是它。
-  static const EdgeInsets textPadding = EdgeInsets.fromLTRB(10, 8, 10, 10);
+  /// 给定格宽下一张容器卡的总高。与媒体卡同一个算法（[LocalCardShell.extentFor]）。
+  static double extentFor(BuildContext context, double cellWidth) =>
+      stackReveal + LocalCardShell.extentFor(context, cellWidth);
 
-  /// 一张容器卡在给定格宽下的总高。
-  ///
-  /// 网格靠 `mainAxisExtent` 铺，行高必须**算得出来**而不是量出来；这里是唯一
-  /// 的算法出处，调用方只管把格宽递进来。
-  ///
-  /// [textExtent] 是文字区的高度（含 [textPadding]），由各张卡按自己有几行字
-  /// 给出，见 `LocalFolderCardWidget.textExtent`。
-  static double extentFor({
-    required double cellWidth,
-    required double coverAspectRatio,
-    required double textExtent,
-  }) {
-    final coverWidth = math.max(1.0, cellWidth - coverInset * 2);
-    return tabHeight + coverInset + coverWidth / coverAspectRatio + textExtent;
-  }
-
-  /// 文字区高度：[lines] 行正文 + [textPadding]，跟着系统字号缩放。
-  ///
-  /// ⛔ 别写成常数：用户把字体调到最大时，写死的高度会把最后一行切掉半截。
-  /// 上限钉在 2 倍——再大只能靠省略号，不能让网格无限长高。
-  ///
-  /// 每行 20 是「一行正文 + 行间距」量出来的 19 再留 1px 余量；贴着量真机上会
-  /// 吐 `BOTTOM OVERFLOWED BY 1.00 PIXELS`，字体度量各机不同，不留余量必翻车。
-  static double textExtentOf(BuildContext context, {required int lines}) {
-    final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
-    return textPadding.vertical + 20 * lines * scale;
-  }
-
-  /// 夹子里那张封面。会被裁成 [coverRadius] 的圆角。
   final Widget cover;
+  final String title;
 
-  /// 封面以下的几行字，从上到下。行数要和 [textExtentOf] 传的一致。
-  final List<Widget> lines;
+  /// 标题前的种类图标：容器与媒体长同一副外壳，靠它一眼分开。
+  final IconData? titleIcon;
 
-  /// 封面左上角的角标。留空时由 [pinned] 自动画那枚星；只有要画**别的东西**
+  /// 说明行（计数或状态）。
+  final Widget meta;
+
+  /// 封面左上角的角标。留空时由 [pinned] 自动画那枚图钉；只有要画**别的东西**
   /// （「下载完成图库」那枚下载完成角标）时才传。
   final Widget? leading;
 
-  /// 封面右上角的角标。留空时由 [onMenu] 自动画那枚 ⋮；只有要画**别的东西**
-  /// （来源卡扫描中那枚转圈）时才传。
+  /// 封面右上角的状态角标（来源卡扫描中那枚转圈）。
   final Widget? trailing;
 
-  /// 这张卡代表的东西被设为常用了：左上角画一枚星。
+  /// 这张卡代表的东西被设为常用了：左上角画一枚图钉。
   ///
-  /// ⛔ 星标由这一层画，别再让每张卡自己拼一遍：来源卡就是因为自己没拼，
-  /// 在「文件目录」里把一个来源设为常用之后**卡片上什么都不长**，用户得切到
-  /// 「常用目录」才看得到那枚星（2026-09-11 用户报的）。同 [onMenu] 那条理由——
-  /// 同一族卡片的共同特征归这一层，卡片只负责说"我是不是"。
+  /// ⛔ 图钉由这一层画，别再让每张卡自己拼一遍：来源卡就是因为自己没拼，
+  /// 在「文件目录」里把一个来源设为常用之后**卡片上什么都不长**（2026-09-11）。
   final bool pinned;
 
-  /// 「更多操作」。给了它，这张卡就**同时**长出右上角那枚 ⋮ 和整卡长按，两个入口
-  /// 走同一份菜单。
-  ///
-  /// # ⛔ 别再回到「每张卡自己画 ⋮、自己接 onLongPress」那一套
-  ///
-  /// 来源卡就是那么漏掉长按的：它画了 ⋮、也给那枚 ⋮ 接了长按，唯独忘了把
-  /// `onLongPress` 递给这一层——于是长按子目录有菜单、长按来源没反应
-  /// （2026-09-11 用户报的正是这个）。手势由这一层统一发，卡片只负责说"我有哪些
-  /// 操作"，就没有哪张卡还能漏。
   final void Function(BuildContext anchorContext)? onMenu;
-
   final VoidCallback? onTap;
-
-  /// 覆盖长按。⛔ 一般**不要传**：长按默认就是 [onMenu]，两个入口一份菜单是这一
-  /// 族卡片的约定。只有确实要让长按做别的事时才用它。
   final VoidCallback? onLongPress;
 
-  final double coverAspectRatio;
+  /// 里面一共多少件（子目录 + 视频 + 图片），画在封面右下角的胶囊里。
+  /// null＝还没数过，胶囊只剩一枚图标——记号在就够了，不猜数字。
+  final int? itemCount;
 
-  /// 夹子的底色：中性卡面掺一点主色。
-  ///
-  /// 单靠深浅差在深色主题上会糊成一片，掺主色才是能同时在明暗两套主题里站住的
-  /// 差异。分量刻意压得很低——它是背景，抢眼的应该是封面。
-  static Color bodyColor(ColorScheme scheme) => Color.alphaBlend(
-    scheme.primary.withValues(alpha: 0.07),
-    scheme.surfaceContainerHigh,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Material(
-      color: bodyColor(theme.colorScheme),
-      clipBehavior: Clip.antiAlias,
-      shape: const LocalFolderShape(),
-      // Builder 是为了拿到**卡片自己**那层 context 当菜单锚点：长按整张卡时，
-      // 菜单该贴着这张卡开，而不是贴着调用方那个撑满整条 sliver 的 context。
-      child: Builder(
-        builder: (cardContext) => InkWell(
-          onTap: onTap,
-          onLongPress:
-              onLongPress ??
-              (onMenu == null ? null : () => onMenu!(cardContext)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              const SizedBox(height: tabHeight),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: coverInset),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(coverRadius),
-                  child: AspectRatio(
-                    aspectRatio: coverAspectRatio,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: <Widget>[
-                        cover,
-                        _leadingBadge(theme),
-                        _menuBadge(),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: textPadding,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: lines,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  /// 胶囊里那枚图标。下载图库用相册图标，其余是文件夹。
+  final IconData countIcon;
 
   /// 角标出入场的时长，与媒体卡精选星标那枚（`local_media_item_card.dart`）一致。
   static const Duration badgeSwitchDuration = Duration(milliseconds: 200);
 
-  /// 左上角那枚角标：[leading] 优先，没传就按 [pinned] 画那枚常用星。
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final border = BorderSide(color: scheme.outlineVariant);
+    // 纸边要一眼看得见：第一版用 surfaceContainerHigh/Highest，真机上跟页面底色
+    // 几乎一样，叠纸等于没画。改成在卡面色上压一层前景色，深浅跟主题走。
+    Color shade(double alpha) => Color.alphaBlend(
+      scheme.onSurface.withValues(alpha: alpha),
+      scheme.surface,
+    );
+    // 纸边只画露出来的那一截：一块顶上圆角的矩形，被前面的卡盖住下半。越靠后
+    // 越窄、越深一档——不用 Opacity（那是一层 saveLayer，一屏几十张卡都要还）。
+    Widget sheet(double inset, double top, Color color) => Positioned(
+      left: inset,
+      right: inset,
+      top: top,
+      height: LocalCardShell.radius * 2,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          border: Border.fromBorderSide(border),
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(LocalCardShell.radius),
+          ),
+        ),
+      ),
+    );
+    return Stack(
+      children: <Widget>[
+        sheet(16, 0, shade(0.14)),
+        sheet(8, stackReveal / 2, shade(0.07)),
+        Padding(
+          padding: const EdgeInsets.only(top: stackReveal),
+          child: LocalCardShell(
+            title: title,
+            titleIcon: titleIcon,
+            meta: meta,
+            onTap: onTap,
+            onMenu: onMenu,
+            onLongPress: onLongPress,
+            cover: Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                cover,
+                _leadingBadge(theme),
+                _trailingBadge(),
+                Positioned(
+                  right: badgeInset,
+                  bottom: badgeInset,
+                  child: LocalCountPill(icon: countIcon, count: itemCount),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 左上角那枚角标：[leading] 优先，没传就按 [pinned] 画那枚常用图钉。
   Widget _leadingBadge(ThemeData theme) {
     final Widget content;
     if (leading != null) {
@@ -231,28 +295,209 @@ class LocalContainerCard extends StatelessWidget {
     );
   }
 
-  /// 右上角那枚角标：[trailing] 优先，没传就按 [onMenu] 画标准的 ⋮。
-  Widget _menuBadge() {
-    final Widget content;
-    if (trailing != null) {
-      content = KeyedSubtree(
-        key: const ValueKey<String>('trailing'),
-        child: trailing!,
-      );
-    } else if (onMenu != null) {
-      content = LocalCardMenuBadge(
-        key: const ValueKey<String>('menu'),
-        onMenu: onMenu!,
-      );
-    } else {
-      content = const SizedBox.shrink(key: ValueKey<String>('none'));
-    }
+  /// 封面右上角的状态角标（来源卡扫描中那枚转圈）。
+  Widget _trailingBadge() {
+    final Widget content = trailing != null
+        ? KeyedSubtree(
+            key: const ValueKey<String>('trailing'),
+            child: trailing!,
+          )
+        : const SizedBox.shrink(key: ValueKey<String>('none'));
     return Positioned(
       top: badgeInset,
       right: badgeInset,
       child: _BadgeSwitcher(child: content),
     );
   }
+}
+
+/// 卡片封面以下那块字：**标题恒占两行 + 一行说明**，⋮ 挂在说明行右端。
+///
+/// 标题短到一行也占两行的位置（用户要求「默认显示两行」）：一排卡片的说明行因此
+/// 落在同一条水平线上，卡片也才定得了高。
+///
+/// # 只写人要读的东西
+///
+/// 标题回答「这是什么」，说明回答「它从哪来 / 里面有什么」。机器信息（时长、画质、
+/// VR、进度）一律做成封面角标；路径、体积这类要用时才查的东西在信息弹窗里，不上
+/// 卡面（2026-09-19 用户：「里面有非必要信息」）。
+///
+/// # ⛔ 行高是强制的，不是量出来的
+///
+/// 标题与说明都挂 `forceStrutHeight` 的 [StrutStyle]：每一行的高度就是
+/// 「字号 × 行高系数」，不会因为混进一个 emoji、换了一个回退字体而多出一两像素
+/// ——那一两像素在定高的格子里就是 `BOTTOM OVERFLOWED`。[blockExtent] 与这里
+/// 画字用的是同一组常数。
+///
+/// 字号跟着系统缩放，但夹在 2 倍以内（同一个 [TextScaler] 既用来算高、也用来
+/// 画字）。再大只能靠省略号，不能让网格无限长高。
+class LocalCardText extends StatelessWidget {
+  const LocalCardText({
+    super.key,
+    required this.title,
+    required this.meta,
+    this.titleIcon,
+    this.onMenu,
+  });
+
+  final String title;
+  final IconData? titleIcon;
+  final Widget meta;
+  final void Function(BuildContext anchorContext)? onMenu;
+
+  static const int titleLines = 2;
+
+  // 标题字样与线上视频卡（`VideoCardListItemWidget`）一致。
+  static const double _titleSize = 14;
+  static const double _titleHeight = 1.22;
+  static const double _metaSize = 12;
+  static const double _metaHeight = 1.4;
+
+  /// 文字区的内边距。右边比左边窄：说明行右端那枚 ⋮ 自带点击留白。
+  static const EdgeInsets padding = EdgeInsets.fromLTRB(10, 10, 4, 5);
+
+  /// 标题右侧补回的那一截，让标题与左边对称（说明行靠 ⋮ 的留白对称）。
+  static const double _titleEndInset = 6;
+
+  /// 标题与说明行之间的缝。
+  static const double gap = 5;
+
+  /// ⋮ 那一格的边长。说明行至少这么高。
+  static const double menuExtent = 28;
+
+  static TextScaler scalerOf(BuildContext context) =>
+      MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 2);
+
+  /// 标题那两行的高度。+1 是给浮点取整留的余量。
+  static double titleExtent(BuildContext context) =>
+      (scalerOf(context).scale(_titleSize) * _titleHeight * titleLines)
+          .ceilToDouble() +
+      1;
+
+  /// 一条说明行的字高。
+  static double metaExtent(BuildContext context) =>
+      (scalerOf(context).scale(_metaSize) * _metaHeight).ceilToDouble() + 1;
+
+  static double _rowExtent(BuildContext context) =>
+      math.max(metaExtent(context), menuExtent);
+
+  /// 整块文字区（含 [padding]）的高度。
+  static double blockExtent(BuildContext context) =>
+      padding.vertical + titleExtent(context) + gap + _rowExtent(context);
+
+  static const StrutStyle _metaStrut = StrutStyle(
+    fontSize: _metaSize,
+    height: _metaHeight,
+    forceStrutHeight: true,
+  );
+
+  /// 说明行的字样：12 号、次要色、等宽数字。
+  static TextStyle? metaStyle(ThemeData theme, {Color? color}) =>
+      theme.textTheme.bodySmall?.copyWith(
+        fontSize: _metaSize,
+        height: _metaHeight,
+        color: color ?? theme.colorScheme.onSurfaceVariant,
+        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      );
+
+  /// 一条纯文字的说明行。
+  static Widget metaText(BuildContext context, String text, {Color? color}) =>
+      Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        strutStyle: _metaStrut,
+        style: metaStyle(Theme.of(context), color: color),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontSize: _titleSize,
+      height: _titleHeight,
+      fontWeight: FontWeight.w700,
+    );
+    // 子树里的字（包括调用方塞进来的说明行）一律用算高时那一把尺子。
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 2,
+      child: Padding(
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            SizedBox(
+              height: titleExtent(context),
+              child: Padding(
+                padding: const EdgeInsets.only(right: _titleEndInset),
+                child: Text.rich(
+                  TextSpan(
+                    children: <InlineSpan>[
+                      if (titleIcon != null) ...<InlineSpan>[
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Icon(
+                            titleIcon,
+                            size: 15,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const TextSpan(text: ' '),
+                      ],
+                      TextSpan(text: title),
+                    ],
+                  ),
+                  maxLines: titleLines,
+                  overflow: TextOverflow.ellipsis,
+                  strutStyle: const StrutStyle(
+                    fontSize: _titleSize,
+                    height: _titleHeight,
+                    forceStrutHeight: true,
+                  ),
+                  style: titleStyle,
+                ),
+              ),
+            ),
+            const SizedBox(height: gap),
+            SizedBox(
+              height: _rowExtent(context),
+              child: Row(
+                children: <Widget>[
+                  Expanded(child: meta),
+                  if (onMenu != null) _MenuDots(onMenu: onMenu!),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 说明行右端那枚 ⋮：不带底色，只是一枚次要色的图标（线上卡同一个位置）。
+class _MenuDots extends StatelessWidget {
+  const _MenuDots({required this.onMenu});
+
+  final void Function(BuildContext anchorContext) onMenu;
+
+  @override
+  Widget build(BuildContext context) => Builder(
+    builder: (anchorContext) => GlassTapArea(
+      onTap: () => onMenu(anchorContext),
+      onLongPress: () => onMenu(anchorContext),
+      opensOverlay: true,
+      longPressOpensOverlay: true,
+      child: SizedBox.square(
+        dimension: LocalCardText.menuExtent,
+        child: Icon(
+          Icons.more_vert,
+          size: 18,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    ),
+  );
 }
 
 /// 容器卡左右两个角标槽的出入场。
@@ -279,110 +524,6 @@ class _BadgeSwitcher extends StatelessWidget {
     ),
     child: child,
   );
-}
-
-/// 一只文件夹的剪影：左上角一枚翻页舌，其余是普通圆角矩形。
-///
-/// 舌头宽度按卡片宽度取比例（窄屏上也还是一枚舌头，不是一条横杠），右端斜切下来
-/// 接到本体，转角都用二次贝塞尔抹圆——直角的舌头看着像个缺口，不像夹子。
-///
-/// ⛔ 裁剪归 [Material]（`clipBehavior` + `shape`），别在外面再套一层 `ClipPath`：
-/// 多一层裁剪就多一次离屏合成，一屏几十格是要还的。
-class LocalFolderShape extends OutlinedBorder {
-  const LocalFolderShape({
-    super.side = BorderSide.none,
-    this.tabHeight = LocalContainerCard.tabHeight,
-    this.bodyRadius = LocalContainerCard.bodyRadius,
-  });
-
-  final double tabHeight;
-  final double bodyRadius;
-
-  @override
-  EdgeInsetsGeometry get dimensions => EdgeInsets.all(side.width);
-
-  @override
-  LocalFolderShape copyWith({
-    BorderSide? side,
-    double? tabHeight,
-    double? bodyRadius,
-  }) => LocalFolderShape(
-    side: side ?? this.side,
-    tabHeight: tabHeight ?? this.tabHeight,
-    bodyRadius: bodyRadius ?? this.bodyRadius,
-  );
-
-  @override
-  ShapeBorder scale(double t) => LocalFolderShape(
-    side: side.scale(t),
-    tabHeight: tabHeight * t,
-    bodyRadius: bodyRadius * t,
-  );
-
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
-      _path(rect.deflate(side.strokeInset));
-
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => _path(rect);
-
-  Path _path(Rect rect) {
-    final r = math.min(bodyRadius, math.min(rect.width, rect.height) / 2);
-    // 舌角比本体的角小一档：一样大会把那点斜切吃光，看起来就成了圆角缺口。
-    final tr = r * 0.45;
-    final th = math.min(tabHeight, rect.height / 3);
-    // 舌头占卡宽的三分之一多一点。窄屏上给个下限，宽屏上留住右边的空当——两头
-    // 不夹住的话，平板上它会长成半张卡宽的一条横杠，夹子的形就没了。
-    final tabWidth = (rect.width * 0.38).clamp(
-      math.min(56.0, rect.width * 0.5),
-      math.max(56.0, rect.width - r * 3),
-    );
-    final slant = th * 0.85;
-
-    final left = rect.left;
-    final right = rect.right;
-    final top = rect.top;
-    final bottom = rect.bottom;
-    final bodyTop = top + th;
-    final tabRight = left + tabWidth;
-
-    return Path()
-      ..moveTo(left, top + tr)
-      ..quadraticBezierTo(left, top, left + tr, top)
-      ..lineTo(tabRight - slant - tr * 0.5, top)
-      // 舌头右上角 → 斜切 → 落到本体上沿，两头各抹一个小圆角。
-      ..quadraticBezierTo(
-        tabRight - slant,
-        top,
-        tabRight - slant + tr * 0.35,
-        top + tr * 0.6,
-      )
-      ..lineTo(tabRight - tr * 0.35, bodyTop - tr * 0.6)
-      ..quadraticBezierTo(tabRight, bodyTop, tabRight + tr, bodyTop)
-      ..lineTo(right - r, bodyTop)
-      ..quadraticBezierTo(right, bodyTop, right, bodyTop + r)
-      ..lineTo(right, bottom - r)
-      ..quadraticBezierTo(right, bottom, right - r, bottom)
-      ..lineTo(left + r, bottom)
-      ..quadraticBezierTo(left, bottom, left, bottom - r)
-      ..close();
-  }
-
-  @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    if (side.style == BorderStyle.none) return;
-    canvas.drawPath(_path(rect.deflate(side.strokeInset)), side.toPaint());
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      other is LocalFolderShape &&
-      other.side == side &&
-      other.tabHeight == tabHeight &&
-      other.bodyRadius == bodyRadius;
-
-  @override
-  int get hashCode => Object.hash(side, tabHeight, bodyRadius);
 }
 
 /// 卡片封面右上角那枚 ⋮。
@@ -474,6 +615,81 @@ class LocalPlaybackPill extends StatelessWidget {
               const SizedBox(width: 2),
               Text(
                 label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  height: 1.2,
+                  fontWeight: FontWeight.w600,
+                  fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 封面右上角的规格角标（「4K」「VR180」）。
+///
+/// 与 [LocalPlaybackPill] 同一副样子——半透明黑底、白字、写死不跟主题走，理由
+/// 同那边：它压在用户自己的封面上。两枚记号长得一样，读起来才是「封面上的一组
+/// 规格」，而不是两套装饰。
+class LocalCoverTag extends StatelessWidget {
+  const LocalCoverTag({super.key, required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(
+      color: Colors.black.withValues(alpha: 0.62),
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(5, 2, 5, 2),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          height: 1.2,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.2,
+        ),
+      ),
+    ),
+  );
+}
+
+/// 容器卡封面右下角那枚「图标 + 项数」胶囊，与视频卡的 [LocalPlaybackPill] 占
+/// 同一个位置、同一副样子（半透明黑底白字，理由同那边）。
+class LocalCountPill extends StatelessWidget {
+  const LocalCountPill({super.key, required this.icon, this.count});
+
+  final IconData icon;
+  final int? count;
+
+  @override
+  Widget build(BuildContext context) {
+    // 0 件不写数字：「📁 0」读起来像出错了，空不空由说明行那句话交代。
+    final label = (count ?? 0) > 0 ? count : null;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.62),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(5, 2, label == null ? 5 : 6, 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 13, color: Colors.white),
+            if (label != null) ...<Widget>[
+              const SizedBox(width: 3),
+              Text(
+                CommonUtils.formatFriendlyNumber(label),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 11,

@@ -1469,6 +1469,8 @@ class _TranslationsDownloadZhTw extends TranslationsDownloadEn {
 	@override String get clearFilters => '清除篩選';
 	@override String get pauseAll => '全部暫停';
 	@override String get resumeAll => '全部開始';
+	@override String remainingTime({required Object time}) => '剩 ${time}';
+	@override late final _TranslationsDownloadTimelineZhTw timeline = _TranslationsDownloadTimelineZhTw._(_root);
 	@override late final _TranslationsDownloadErrorTypesZhTw errorTypes = _TranslationsDownloadErrorTypesZhTw._(_root);
 	@override String get errorDetailCopied => '已複製錯誤詳情';
 	@override String get errorDetailCopyHint => '長按複製錯誤詳情';
@@ -2683,6 +2685,8 @@ class _TranslationsLocalMediaZhTw extends TranslationsLocalMediaEn {
 	@override String rescanAllStarted({required Object count}) => '開始重新掃描 ${count} 個來源';
 	@override String get searchLibrary => '搜尋';
 	@override String get searchIncludeSubfolders => '含子資料夾';
+	@override String get searchThisFolderOnly => '僅此資料夾';
+	@override String searchResultCount({required Object count}) => '找到 ${count} 項';
 	@override String get savedServers => '已儲存的 NAS';
 	@override String get newServer => '連接新的 NAS';
 	@override late final _TranslationsLocalMediaItemInfoLabelsZhTw itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsZhTw._(_root);
@@ -3607,6 +3611,19 @@ class _TranslationsDownloadErrorsZhTw extends TranslationsDownloadErrorsEn {
 	@override String get imageLoadFailed => '圖片載入失敗';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineZhTw extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => '今天';
+	@override String get yesterday => '昨天';
+	@override String get thisWeek => '本週';
+	@override String get thisMonth => '本月';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesZhTw extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
@@ -4219,6 +4236,13 @@ class _TranslationsLocalMediaBrowseZhTw extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => '隱藏此資料夾';
 	@override String get unhideFolder => '取消隱藏';
 	@override String get showHiddenFolders => '顯示隱藏的資料夾';
+	@override String get includeDotFolders => '掃描 . 開頭的資料夾';
+	@override String get dotFoldersIncluded => '開始掃描 . 開頭的資料夾';
+	@override String get dotFoldersExcluded => '不再掃描 . 開頭的資料夾';
+	@override String get showDotFolders => '顯示 . 開頭的資料夾';
+	@override String dotFoldersSkipped({required Object count}) => '這裡還有 ${count} 個以 . 開頭的資料夾沒有掃描';
+	@override String get scanDotFoldersAction => '為此來源開啟';
+	@override String get otherAppsPrivateNotice => 'Android 11 起，系統不允許任何應用程式讀取其他應用程式在 Android/data、Android/obb 裡的檔案，本應用程式也無法繞過。請在原應用程式裡把影片下載或匯出到 Download 等公共目錄，再把那個資料夾加進來。邊看邊快取的資料通常是分片，即使讀到也無法播放。';
 	@override String get folderHidden => '已隱藏，掃描也會跳過它';
 	@override String get folderUnhidden => '已取消隱藏';
 	@override String get hiddenFolderBadge => '已隱藏';
@@ -6230,6 +6254,11 @@ extension on TranslationsZhTw {
 			'download.clearFilters' => '清除篩選',
 			'download.pauseAll' => '全部暫停',
 			'download.resumeAll' => '全部開始',
+			'download.remainingTime' => ({required Object time}) => '剩 ${time}',
+			'download.timeline.today' => '今天',
+			'download.timeline.yesterday' => '昨天',
+			'download.timeline.thisWeek' => '本週',
+			'download.timeline.thisMonth' => '本月',
 			'download.errorTypes.network' => '網路異常，可重試',
 			'download.errorTypes.serverRejected' => '伺服器拒絕，可能需要重新登入',
 			'download.errorTypes.notFound' => '資源已失效或被刪除',
@@ -6548,13 +6577,13 @@ extension on TranslationsZhTw {
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '批量下載失敗: ${exception}',
 			'download.batchDownload.selectQuality' => '選擇清晰度',
 			'download.batchDownload.downloading' => '下載中',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.downloadResult' => '下載結果',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '已選擇 ${count} 個影片',
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已選擇 ${count} 個圖庫',
 			'download.batchDownload.qualityNote' => '如果所選清晰度不可用，將使用最佳可用清晰度',
 			'download.batchDownload.progress' => ({required Object current, required Object total}) => '處理中 ${current}/${total}',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.queued' => '已入隊',
 			'download.batchDownload.success' => '成功',
 			'download.batchDownload.skipped' => '跳過',
@@ -7062,13 +7091,13 @@ extension on TranslationsZhTw {
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
 			'displaySettings.title' => '顯示設定',
 			'displaySettings.layoutSettings' => '版面配置設定',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.layoutSettingsDesc' => '自訂欄數和斷點配置',
 			'displaySettings.gridLayout' => '網格版面配置',
 			'displaySettings.navigationOrderSettings' => '導航排序設定',
@@ -7564,11 +7593,20 @@ extension on TranslationsZhTw {
 			'localMedia.browse.hideFolder' => '隱藏此資料夾',
 			'localMedia.browse.unhideFolder' => '取消隱藏',
 			'localMedia.browse.showHiddenFolders' => '顯示隱藏的資料夾',
+			'localMedia.browse.includeDotFolders' => '掃描 . 開頭的資料夾',
+			'localMedia.browse.dotFoldersIncluded' => '開始掃描 . 開頭的資料夾',
+			'localMedia.browse.dotFoldersExcluded' => '不再掃描 . 開頭的資料夾',
+			'localMedia.browse.showDotFolders' => '顯示 . 開頭的資料夾',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '這裡還有 ${count} 個以 . 開頭的資料夾沒有掃描',
+			'localMedia.browse.scanDotFoldersAction' => '為此來源開啟',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Android 11 起，系統不允許任何應用程式讀取其他應用程式在 Android/data、Android/obb 裡的檔案，本應用程式也無法繞過。請在原應用程式裡把影片下載或匯出到 Download 等公共目錄，再把那個資料夾加進來。邊看邊快取的資料通常是分片，即使讀到也無法播放。',
 			'localMedia.browse.folderHidden' => '已隱藏，掃描也會跳過它',
 			'localMedia.browse.folderUnhidden' => '已取消隱藏',
 			'localMedia.browse.hiddenFolderBadge' => '已隱藏',
 			'localMedia.browse.deleteFolder' => '刪除資料夾',
 			'localMedia.browse.deleteFolderTitle' => '刪除這個資料夾？',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」連同裡面的所有內容都會從這台裝置上真的被刪除，無法復原。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '裡面的其它檔案也會一併刪除',
 			'localMedia.browse.folderDeleted' => '已刪除資料夾',
@@ -7581,8 +7619,6 @@ extension on TranslationsZhTw {
 			'localMedia.browse.pickFolderTitle' => '選擇資料夾',
 			'localMedia.browse.useThisFolder' => '使用這個資料夾',
 			'localMedia.browse.noSubfolders' => '這裡沒有子資料夾',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.storageRoot' => '裝置儲存空間',
 			'localMedia.browse.homeFolder' => '個人資料夾',
 			'localMedia.browse.filesystemRoot' => '根目錄',
@@ -7673,6 +7709,8 @@ extension on TranslationsZhTw {
 			'localMedia.rescanAllStarted' => ({required Object count}) => '開始重新掃描 ${count} 個來源',
 			'localMedia.searchLibrary' => '搜尋',
 			'localMedia.searchIncludeSubfolders' => '含子資料夾',
+			'localMedia.searchThisFolderOnly' => '僅此資料夾',
+			'localMedia.searchResultCount' => ({required Object count}) => '找到 ${count} 項',
 			'localMedia.savedServers' => '已儲存的 NAS',
 			'localMedia.newServer' => '連接新的 NAS',
 			'localMedia.itemInfoLabels.size' => '大小',

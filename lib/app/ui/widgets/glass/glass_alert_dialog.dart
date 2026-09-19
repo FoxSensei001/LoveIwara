@@ -86,7 +86,27 @@ class GlassAlertDialog extends StatelessWidget {
     this.maxWidth = 400,
     this.insetPadding = defaultInsetPadding,
     this.floatingActions = false,
+    this.floatingHeader = false,
+    this.headerRows = const <Widget>[],
   });
+
+  /// 标题行（连同 [headerRows]）浮在正文之上：正文铺到面板顶，从标题背后滚
+  /// 过去，顶部垫一层与 [GlassPickerDialog] 同一条曲线的渐隐蒙层——只有标题行
+  /// 是平台段，其余 header 行属于淡出的一部分。与 [floatingActions] 是一对，
+  /// 两个都开就是「上下都浮」的完整选择器版式。
+  ///
+  /// 正文怎么给 header 让位（高度实测，字号放大 / 换语言都不用改常数）：
+  /// - [scrollable] 为 true 时由本组件的滚动视图加顶部内边距；
+  /// - 自带列表的正文：让位高度塞进 `MediaQuery.padding.top`，`ListView` 不传
+  ///   `padding` 时会自动用上。自己写了 `padding` 的要自己加
+  ///   `MediaQuery.paddingOf(context).top`。
+  ///
+  /// [title] 为 null 时不生效（没有标题行可浮）。
+  final bool floatingHeader;
+
+  /// 标题行下面、同样浮在正文之上的控件行（路径条、搜索框……）。
+  /// 只在 [floatingHeader] 为 true 时使用。
+  final List<Widget> headerRows;
 
   /// 动作行浮在正文之上（正文铺到面板底，从动作胶囊背后滚过去，底部垫一层
   /// 渐隐蒙层），而不是在正文下面单独占一行。正文会一直长的弹窗（列表、表单）用。
@@ -149,7 +169,8 @@ class GlassAlertDialog extends StatelessWidget {
     Widget? body = content;
     if (scrollable &&
         body != null &&
-        !(floatingActions && actions.isNotEmpty)) {
+        !(floatingActions && actions.isNotEmpty) &&
+        !(floatingHeader && title != null)) {
       body = SingleChildScrollView(child: body);
     }
     if (body != null) {
@@ -203,6 +224,65 @@ class GlassAlertDialog extends StatelessWidget {
           ),
         );
 
+    final Widget? titleRow = title == null
+        ? null
+        : Row(
+            children: [
+              Expanded(child: Text(title!, style: theme.textTheme.titleLarge)),
+              if (closeButton != null) ...[
+                const SizedBox(width: 8),
+                closeButton,
+              ],
+            ],
+          );
+
+    final Widget panel = floatingHeader && titleRow != null
+        ? _buildFloatingHeaderPanel(
+            titleRow: titleRow,
+            body: body,
+            actionRow: actionRow,
+          )
+        : Padding(
+            padding: _panelPadding,
+            // ⛔ `stretch` 不是排版口味，是道闸门：`start` 时正文拿到的是
+            // 松约束（0..maxWidth），正文自己说多宽就多宽——调用点只要塞进
+            // 一个宽度算出来接近 0 的盒子（`SizedBox(width: double.minPositive)`
+            // 这种 Material `AlertDialog` 专用的老写法就是，它靠的是
+            // `AlertDialog` 内部那层 `IntrinsicWidth`，本组件没有），正文就被
+            // 压成一条竖线，选项文字一个字一行。标题行自带 `Expanded`，面板
+            // 本来就恒等于 `maxWidth`，把正文一起拉满不改变既有观感，却让
+            // 「正文塌成 0 宽」这类事故从此不可能发生。
+            //
+            // 顺带，动作行也因此拿到**紧**约束——收窄档要的面板内容宽度就是
+            // 从这里传下去的 `maxWidth`（见 `_fitActionButtons`）。
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ?titleRow,
+                if (floatingActions && actions.isNotEmpty) ...[
+                  if (title != null) const SizedBox(height: 16),
+                  Flexible(
+                    child: _FloatingActionsBody(
+                      scrollable: scrollable,
+                      actionRow: actionRow,
+                      body: body,
+                    ),
+                  ),
+                ] else ...[
+                  if (body != null) ...[
+                    const SizedBox(height: 16),
+                    Flexible(child: body),
+                  ],
+                  if (actions.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    actionRow,
+                  ],
+                ],
+              ],
+            ),
+          );
+
     return Padding(
       padding: insetPadding,
       child: Center(
@@ -213,63 +293,51 @@ class GlassAlertDialog extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
             clipBehavior: Clip.antiAlias,
             elevation: 6,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 20, 16),
-              // ⛔ `stretch` 不是排版口味，是道闸门：`start` 时正文拿到的是
-              // 松约束（0..maxWidth），正文自己说多宽就多宽——调用点只要塞进
-              // 一个宽度算出来接近 0 的盒子（`SizedBox(width: double.minPositive)`
-              // 这种 Material `AlertDialog` 专用的老写法就是，它靠的是
-              // `AlertDialog` 内部那层 `IntrinsicWidth`，本组件没有），正文就被
-              // 压成一条竖线，选项文字一个字一行。标题行自带 `Expanded`，面板
-              // 本来就恒等于 `maxWidth`，把正文一起拉满不改变既有观感，却让
-              // 「正文塌成 0 宽」这类事故从此不可能发生。
-              //
-              // 顺带，动作行也因此拿到**紧**约束——收窄档要的面板内容宽度就是
-              // 从这里传下去的 `maxWidth`（见 `_fitActionButtons`）。
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (title != null) ...[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title!,
-                            style: theme.textTheme.titleLarge,
-                          ),
-                        ),
-                        if (closeButton != null) ...[
-                          const SizedBox(width: 8),
-                          closeButton,
-                        ],
-                      ],
-                    ),
-                  ],
-                  if (floatingActions && actions.isNotEmpty) ...[
-                    if (title != null) const SizedBox(height: 16),
-                    Flexible(
-                      child: _FloatingActionsBody(
-                        scrollable: scrollable,
-                        actionRow: actionRow,
-                        body: body,
-                      ),
-                    ),
-                  ] else ...[
-                    if (body != null) ...[
-                      const SizedBox(height: 16),
-                      Flexible(child: body),
-                    ],
-                    if (actions.isNotEmpty) ...[
-                      const SizedBox(height: 20),
-                      actionRow,
-                    ],
-                  ],
-                ],
-              ),
-            ),
+            child: panel,
           ),
         ),
+      ),
+    );
+  }
+
+  /// 面板四周的内边距。浮动 header 版式里正文与 header 各自取用其中的几条边。
+  static const EdgeInsets _panelPadding = EdgeInsets.fromLTRB(24, 20, 20, 16);
+
+  /// [floatingHeader] 版式的面板：正文铺满（上边距让给 header），header 浮在上面。
+  Widget _buildFloatingHeaderPanel({
+    required Widget titleRow,
+    required Widget? body,
+    required Widget actionRow,
+  }) {
+    return _FloatingHeaderPanel(
+      padding: _panelPadding,
+      titleRow: titleRow,
+      headerRows: headerRows,
+      bodyBuilder: (topInset) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (floatingActions && actions.isNotEmpty)
+            Flexible(
+              child: _FloatingActionsBody(
+                scrollable: scrollable,
+                actionRow: actionRow,
+                body: body,
+                topInset: topInset,
+              ),
+            )
+          else ...[
+            Flexible(
+              child: _FloatingActionsBody(
+                scrollable: scrollable,
+                actionRow: null,
+                body: body,
+                topInset: topInset,
+              ),
+            ),
+            if (actions.isNotEmpty) ...[const SizedBox(height: 20), actionRow],
+          ],
+        ],
       ),
     );
   }
@@ -392,16 +460,23 @@ Future<T?> showGlassAlertDialog<T>({
 
 /// [GlassAlertDialog.floatingActions] 的正文区：正文铺满，动作行浮在右下，
 /// 底部垫渐隐蒙层；动作行高度实测后让给正文。
+///
+/// 也给 [GlassAlertDialog.floatingHeader] 用：[topInset] 是浮动 header 要的
+/// 顶部让位；[actionRow] 为 null 时底部不浮任何东西、也不让位。
 class _FloatingActionsBody extends StatefulWidget {
   const _FloatingActionsBody({
     required this.scrollable,
     required this.actionRow,
     required this.body,
+    this.topInset,
   });
 
   final bool scrollable;
-  final Widget actionRow;
+  final Widget? actionRow;
   final Widget? body;
+
+  /// 非 null＝上方有浮动 header，正文顶部要让出这么高。
+  final double? topInset;
 
   @override
   State<_FloatingActionsBody> createState() => _FloatingActionsBodyState();
@@ -416,25 +491,34 @@ class _FloatingActionsBodyState extends State<_FloatingActionsBody> {
 
   @override
   Widget build(BuildContext context) {
-    final inset = _actionHeight + _gap;
+    final Widget? actionRow = widget.actionRow;
+    final double inset = actionRow == null ? 0 : _actionHeight + _gap;
+    final double? topInset = widget.topInset;
     Widget? body = widget.body;
     if (body != null) {
+      final padding = MediaQuery.paddingOf(context);
       body = widget.scrollable
           ? SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: inset),
+              padding: EdgeInsets.only(top: topInset ?? 0, bottom: inset),
               child: body,
             )
           : MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                padding: MediaQuery.paddingOf(context).copyWith(bottom: inset),
+                padding: padding.copyWith(
+                  top: topInset ?? padding.top,
+                  bottom: inset,
+                ),
               ),
               child: body,
             );
     }
+    if (actionRow == null) {
+      return body ?? SizedBox(height: topInset ?? 0);
+    }
     final plateau = _actionHeight * 0.45;
     return Stack(
       children: [
-        if (body != null) body else SizedBox(height: inset),
+        if (body != null) body else SizedBox(height: inset + (topInset ?? 0)),
         Positioned(
           left: 0,
           right: 0,
@@ -458,7 +542,100 @@ class _FloatingActionsBodyState extends State<_FloatingActionsBody> {
               if (!mounted || (size.height - _actionHeight).abs() < 0.5) return;
               setState(() => _actionHeight = size.height);
             },
-            child: widget.actionRow,
+            child: actionRow,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// [GlassAlertDialog.floatingHeader] 的面板：正文铺满整块面板，标题行与
+/// [headerRows] 浮在上面，header 高度实测后作为 `topInset` 交给正文。
+///
+/// 蒙层与 [GlassPickerDialog] 同一条曲线：平台段只盖「面板上边距 + 标题行」，
+/// 其余 header 行属于淡出的一部分（见 [EdgeFadeScrim.headerOverlay]）。
+class _FloatingHeaderPanel extends StatefulWidget {
+  const _FloatingHeaderPanel({
+    required this.padding,
+    required this.titleRow,
+    required this.headerRows,
+    required this.bodyBuilder,
+  });
+
+  final EdgeInsets padding;
+  final Widget titleRow;
+  final List<Widget> headerRows;
+  final Widget Function(double topInset) bodyBuilder;
+
+  @override
+  State<_FloatingHeaderPanel> createState() => _FloatingHeaderPanelState();
+}
+
+class _FloatingHeaderPanelState extends State<_FloatingHeaderPanel> {
+  /// header 各行之间的缝。
+  static const double _rowGap = 12;
+
+  /// header 底缘与正文首行之间的缝（与非浮动档标题→正文的 16 同值）。
+  static const double _tailGap = 16;
+
+  /// 首帧用标称值（玻璃圆钮一行 / 胶囊一行），布局后换成实测值。
+  double _titleHeight = GlassTokens.pillHeight;
+  late double _headerHeight = _estimatedHeaderHeight;
+
+  double get _estimatedHeaderHeight =>
+      GlassTokens.pillHeight +
+      widget.headerRows.length * (_rowGap + GlassTokens.pillHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final EdgeInsets p = widget.padding;
+    final double headerExtent = p.top + _headerHeight + _tailGap;
+    return Stack(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(p.left, 0, p.right, p.bottom),
+          child: widget.bodyBuilder(headerExtent),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: EdgeFadeScrim.headerOverlay(
+            headerExtent: headerExtent,
+            plateauExtent: p.top + _titleHeight,
+          ),
+        ),
+        Positioned(
+          top: p.top,
+          left: p.left,
+          right: p.right,
+          child: GlassMeasuredBox(
+            onSize: (size) {
+              if (!mounted || (size.height - _headerHeight).abs() < 0.5) {
+                return;
+              }
+              setState(() => _headerHeight = size.height);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GlassMeasuredBox(
+                  onSize: (size) {
+                    if (!mounted || (size.height - _titleHeight).abs() < 0.5) {
+                      return;
+                    }
+                    setState(() => _titleHeight = size.height);
+                  },
+                  child: widget.titleRow,
+                ),
+                for (final row in widget.headerRows) ...[
+                  const SizedBox(height: _rowGap),
+                  row,
+                ],
+              ],
+            ),
           ),
         ),
       ],

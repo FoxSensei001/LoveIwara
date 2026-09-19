@@ -1440,6 +1440,8 @@ class _TranslationsDownloadKo extends TranslationsDownloadEn {
 	@override String get clearFilters => '필터 지우기';
 	@override String get pauseAll => '모두 일시정지';
 	@override String get resumeAll => '모두 시작';
+	@override String remainingTime({required Object time}) => '${time} 남음';
+	@override late final _TranslationsDownloadTimelineKo timeline = _TranslationsDownloadTimelineKo._(_root);
 	@override late final _TranslationsDownloadErrorTypesKo errorTypes = _TranslationsDownloadErrorTypesKo._(_root);
 	@override String get errorDetailCopied => '오류 세부 정보가 복사되었습니다';
 	@override String get errorDetailCopyHint => '길게 눌러 오류 세부 정보 복사';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsKo extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '다른 뷰어로 열어 보세요';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineKo extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => '오늘';
+	@override String get yesterday => '어제';
+	@override String get thisWeek => '이번 주';
+	@override String get thisMonth => '이번 달';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesKo extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesKo._(TranslationsKo root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseKo extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => '이 폴더 숨기기';
 	@override String get unhideFolder => '숨김 해제';
 	@override String get showHiddenFolders => '숨긴 폴더 표시';
+	@override String get includeDotFolders => '. 으로 시작하는 폴더도 스캔';
+	@override String get dotFoldersIncluded => '. 으로 시작하는 폴더 스캔을 시작했습니다';
+	@override String get dotFoldersExcluded => '. 으로 시작하는 폴더를 더 이상 스캔하지 않습니다';
+	@override String get showDotFolders => '. 으로 시작하는 폴더 표시';
+	@override String dotFoldersSkipped({required Object count}) => '여기에 스캔되지 않은 . 으로 시작하는 폴더가 ${count}개 있습니다';
+	@override String get scanDotFoldersAction => '이 소스에서 켜기';
+	@override String get otherAppsPrivateNotice => 'Android 11부터는 어떤 앱도 다른 앱의 Android/data, Android/obb 파일을 읽을 수 없으며 이 앱도 우회할 수 없습니다. 원래 앱에서 동영상을 Download 같은 공용 폴더로 다운로드하거나 내보낸 뒤 그 폴더를 추가하세요. 재생 중 캐시는 보통 조각으로 나뉘어 있어 읽더라도 재생할 수 없습니다.';
 	@override String get folderHidden => '숨겼습니다. 검색에서도 건너뜁니다';
 	@override String get folderUnhidden => '숨김을 해제했습니다';
 	@override String get hiddenFolderBadge => '숨김';
@@ -5804,6 +5826,11 @@ extension on TranslationsKo {
 			'download.clearFilters' => '필터 지우기',
 			'download.pauseAll' => '모두 일시정지',
 			'download.resumeAll' => '모두 시작',
+			'download.remainingTime' => ({required Object time}) => '${time} 남음',
+			'download.timeline.today' => '오늘',
+			'download.timeline.yesterday' => '어제',
+			'download.timeline.thisWeek' => '이번 주',
+			'download.timeline.thisMonth' => '이번 달',
 			'download.errorTypes.network' => '네트워크 문제, 재시도하면 해결될 수 있습니다',
 			'download.errorTypes.serverRejected' => '서버에서 거부했습니다. 다시 로그인해야 할 수 있습니다',
 			'download.errorTypes.notFound' => '리소스가 사라졌거나 삭제되었습니다',
@@ -6156,13 +6183,13 @@ extension on TranslationsKo {
 			'displaySettings.layoutSettingsDesc' => '열 수와 중단점 구성을 사용자 지정합니다',
 			'displaySettings.gridLayout' => '그리드 레이아웃',
 			'displaySettings.navigationOrderSettings' => '내비게이션 순서 설정',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => '내비게이션 순서 사용자 지정',
 			'displaySettings.customNavigationOrderDesc' => '하단 내비게이션 바와 사이드바에서 페이지 표시 순서를 조정합니다',
 			'layoutSettings.title' => '레이아웃 설정',
 			'layoutSettings.descriptionTitle' => '레이아웃 구성 설명',
 			'layoutSettings.descriptionContent' => '여기서의 구성은 동영상 및 갤러리 목록 페이지에 표시되는 열 수를 결정합니다. 자동 모드를 선택하면 시스템이 화면 너비에 따라 자동으로 조정하고, 수동 모드를 선택하면 열 수를 고정할 수 있습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => '레이아웃 모드',
 			'layoutSettings.reset' => '초기화',
 			'layoutSettings.autoMode' => '자동 모드',
@@ -6670,13 +6697,13 @@ extension on TranslationsKo {
 			'siteMode.chooseLinkTargetDescription' => '이 링크에는 도메인이 없습니다. 메인 또는 AI로 열지 선택하세요.',
 			'siteMode.chooseLinkTargetHint' => '한 번 열면 이 페이지와 이후 세부 요청이 선택한 사이트를 계속 사용합니다.',
 			'siteMode.alreadyUsing' => '이미 이 사이트 모드를 사용 중입니다.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => '${site}에서 열기',
 			'siteMode.confirmUsing' => ({required Object site}) => '확인하면 이후 요청은 ${site} 모드를 사용합니다.',
 			'siteMode.switched' => ({required Object site}) => '${site} 모드로 전환했습니다. 앱이 새로 고쳐졌습니다.',
 			'savedSearchConfig.title' => '저장된 필터',
 			'savedSearchConfig.empty' => '저장된 필터가 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => '현재 필터 저장',
 			'savedSearchConfig.namePromptTitle' => '필터 저장',
 			'savedSearchConfig.nameLabel' => '이름',
@@ -6926,6 +6953,13 @@ extension on TranslationsKo {
 			'localMedia.browse.hideFolder' => '이 폴더 숨기기',
 			'localMedia.browse.unhideFolder' => '숨김 해제',
 			'localMedia.browse.showHiddenFolders' => '숨긴 폴더 표시',
+			'localMedia.browse.includeDotFolders' => '. 으로 시작하는 폴더도 스캔',
+			'localMedia.browse.dotFoldersIncluded' => '. 으로 시작하는 폴더 스캔을 시작했습니다',
+			'localMedia.browse.dotFoldersExcluded' => '. 으로 시작하는 폴더를 더 이상 스캔하지 않습니다',
+			'localMedia.browse.showDotFolders' => '. 으로 시작하는 폴더 표시',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '여기에 스캔되지 않은 . 으로 시작하는 폴더가 ${count}개 있습니다',
+			'localMedia.browse.scanDotFoldersAction' => '이 소스에서 켜기',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Android 11부터는 어떤 앱도 다른 앱의 Android/data, Android/obb 파일을 읽을 수 없으며 이 앱도 우회할 수 없습니다. 원래 앱에서 동영상을 Download 같은 공용 폴더로 다운로드하거나 내보낸 뒤 그 폴더를 추가하세요. 재생 중 캐시는 보통 조각으로 나뉘어 있어 읽더라도 재생할 수 없습니다.',
 			'localMedia.browse.folderHidden' => '숨겼습니다. 검색에서도 건너뜁니다',
 			'localMedia.browse.folderUnhidden' => '숨김을 해제했습니다',
 			'localMedia.browse.hiddenFolderBadge' => '숨김',

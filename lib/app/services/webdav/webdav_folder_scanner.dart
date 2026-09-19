@@ -6,11 +6,8 @@ import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/services/local_media_scan_service.dart'
-    show
-        kLocalVideoExtensions,
-        kMaxScanFiles,
-        kSidecarImageExtensions,
-        kSkippedDirectoryNames;
+    show kLocalVideoExtensions, kMaxScanFiles, kSidecarImageExtensions;
+import 'package:i_iwara/app/services/local_media_directory_policy.dart';
 import 'package:i_iwara/app/services/webdav/webdav_client.dart';
 import 'package:i_iwara/app/services/webdav/webdav_propfind.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
@@ -68,7 +65,16 @@ class WebDavFolderScanner {
   Future<void> _scan(LocalMediaSource source, String relPath) async {
     final root = source.path;
     if (!source.isRemote || root == null || !DavPath.isDav(root)) return;
+    // 同本地 `LocalMediaScanService.scanFolder`：开关关着时，落在 `.` 路径下的
+    // 范围根不扫，否则常用目录 / 播放队列会把收敛掉的 `.` 目录洗回来。
+    final latestSource = _repository.getSource(source.id) ?? source;
+    if (!latestSource.includeDotEntries &&
+        LocalDirectoryPolicy.relPathHasDotSegment(relPath)) {
+      return;
+    }
     final hidden = _repository.hiddenRelPaths(source.id);
+    // ⛔ 读库里的最新值，别信 [source]：调用方手里可能是开关切换前的旧对象。
+    final includeDot = latestSource.includeDotEntries;
 
     // ── 1. 这一层 ────────────────────────────────────────────────────────
     final List<DavEntry> entries;
@@ -98,7 +104,7 @@ class WebDavFolderScanner {
         folder.relPath: folder,
     };
     final toProbe = <DavEntry>[];
-    for (final entry in _visibleSubfolders(entries)) {
+    for (final entry in _visibleSubfolders(entries, includeDot)) {
       final childRel = _childRel(relPath, entry.name);
       if (hidden.contains(childRel)) continue;
       final known = existingChildren[childRel];
@@ -178,6 +184,19 @@ class WebDavFolderScanner {
     required Map<String, List<DavEntry>> childListings,
     required LocalMediaFolder? existingScopeFolder,
   }) async {
+    // 调用点传进来的都是刚从库里读的源，开关值可信。
+    final includeDot = source.includeDotEntries;
+    // ⛔ [childListings] 是按探测**开始**时的开关挑的。慢 NAS 上探一轮几十秒，
+    // 用户这期间关掉开关的话，不在这里按最新值再滤一遍，探回来的 `.` 子目录会被
+    // 整批写库、洗回 missing = 0（关掉时那次整源扫描被 `_inFlight` 合流到这一轮
+    // 旧的上面，不会另起一轮来纠正）。
+    final probed = includeDot
+        ? childListings
+        : <String, List<DavEntry>>{
+            for (final MapEntry(key: rel, value: entries)
+                in childListings.entries)
+              if (!LocalDirectoryPolicy.relPathHasDotSegment(rel)) rel: entries,
+          };
     final collectVideos =
         source.mediaKinds == LocalMediaKinds.video ||
         source.mediaKinds == LocalMediaKinds.both;
@@ -187,11 +206,11 @@ class WebDavFolderScanner {
 
     final listings = <String, List<DavEntry>>{
       scopeRelPath: scopeEntries,
-      ...childListings,
+      ...probed,
     };
     // 子目录的 mtime 取自父目录的列表（它自己的 PROPFIND 不回自身那一条）。
     final childModified = <String, int?>{
-      for (final entry in _visibleSubfolders(scopeEntries))
+      for (final entry in _visibleSubfolders(scopeEntries, includeDot))
         _childRel(scopeRelPath, entry.name): entry.modifiedMs,
     };
 
@@ -292,7 +311,7 @@ class WebDavFolderScanner {
       );
 
       // 它的子目录：没列过的只留占位行（不覆盖已学到的封面与 mtime）。
-      for (final sub in _visibleSubfolders(entries)) {
+      for (final sub in _visibleSubfolders(entries, includeDot)) {
         final subRel = _childRel(rel, sub.name);
         seenFolders.add(subRel);
         if (listings.containsKey(subRel)) continue;
@@ -419,18 +438,15 @@ class WebDavFolderScanner {
     );
   }
 
-  /// 与本地 worker 同一套跳过规则：`.` 开头、系统垃圾目录。
-  static Iterable<DavEntry> _visibleSubfolders(List<DavEntry> entries) =>
-      entries.where(
-        (e) =>
-            e.isDirectory &&
-            !e.name.startsWith('.') &&
-            !_skippedLower.contains(e.name.toLowerCase()),
-      );
-
-  static final Set<String> _skippedLower = {
-    for (final name in kSkippedDirectoryNames) name.toLowerCase(),
-  };
+  /// 与本地 worker 同一套跳过规则，见 [LocalDirectoryPolicy.skipListedChild]。
+  static Iterable<DavEntry> _visibleSubfolders(
+    List<DavEntry> entries,
+    bool includeDot,
+  ) => entries.where(
+    (e) =>
+        e.isDirectory &&
+        !LocalDirectoryPolicy.skipListedChild(e.name, includeDot: includeDot),
+  );
 
   static String _davFolderOf(String root, String relPath) => relPath.isEmpty
       ? root

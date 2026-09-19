@@ -1796,6 +1796,12 @@ download:
   clearFilters: Filter zurücksetzen
   pauseAll: Alle pausieren
   resumeAll: Alle starten
+  remainingTime: "noch ${time}"
+  timeline:
+    today: "Heute"
+    yesterday: "Gestern"
+    thisWeek: "Diese Woche"
+    thisMonth: "Diesen Monat"
   errorTypes:
     network: Netzwerkproblem, ein erneuter Versuch kann helfen
     serverRejected: Vom Server abgelehnt, möglicherweise müssen Sie sich erneut anmelden
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Diesen Ordner ausblenden
     unhideFolder: Einblenden
     showHiddenFolders: Ausgeblendete Ordner anzeigen
+    includeDotFolders: "Ordner mit . am Anfang scannen"
+    dotFoldersIncluded: "Ordner mit . am Anfang werden jetzt gescannt"
+    dotFoldersExcluded: "Ordner mit . am Anfang werden nicht mehr gescannt"
+    showDotFolders: "Ordner mit . am Anfang anzeigen"
+    dotFoldersSkipped: "${count} Ordner mit . am Anfang werden hier nicht gescannt"
+    scanDotFoldersAction: "Für diese Quelle aktivieren"
+    otherAppsPrivateNotice: "Seit Android 11 kann keine App die Dateien anderer Apps in Android/data oder Android/obb lesen, auch diese App nicht. Lade die Videos in der ursprünglichen App herunter oder exportiere sie in einen öffentlichen Ordner wie Download und füge diesen Ordner hier hinzu. Streaming-Caches bestehen meist aus Fragmenten und lassen sich auch gelesen nicht abspielen."
     folderHidden: Ausgeblendet – wird auch beim Scannen übersprungen
     folderUnhidden: Nicht mehr ausgeblendet
     hiddenFolderBadge: Ausgeblendet

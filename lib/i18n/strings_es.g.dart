@@ -1440,6 +1440,8 @@ class _TranslationsDownloadEs extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Borrar filtros';
 	@override String get pauseAll => 'Pausar todo';
 	@override String get resumeAll => 'Iniciar todo';
+	@override String remainingTime({required Object time}) => 'quedan ${time}';
+	@override late final _TranslationsDownloadTimelineEs timeline = _TranslationsDownloadTimelineEs._(_root);
 	@override late final _TranslationsDownloadErrorTypesEs errorTypes = _TranslationsDownloadErrorTypesEs._(_root);
 	@override String get errorDetailCopied => 'Detalles del error copiados';
 	@override String get errorDetailCopyHint => 'Mantenga pulsado para copiar los detalles del error';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsEs extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Intente abrirlo con otro visor';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineEs extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Hoy';
+	@override String get yesterday => 'Ayer';
+	@override String get thisWeek => 'Esta semana';
+	@override String get thisMonth => 'Este mes';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesEs extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesEs._(TranslationsEs root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseEs extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Ocultar esta carpeta';
 	@override String get unhideFolder => 'Mostrar de nuevo';
 	@override String get showHiddenFolders => 'Mostrar carpetas ocultas';
+	@override String get includeDotFolders => 'Escanear carpetas que empiezan por .';
+	@override String get dotFoldersIncluded => 'Ahora se escanean las carpetas que empiezan por .';
+	@override String get dotFoldersExcluded => 'Ya no se escanean las carpetas que empiezan por .';
+	@override String get showDotFolders => 'Mostrar carpetas que empiezan por .';
+	@override String dotFoldersSkipped({required Object count}) => 'Aquí hay ${count} carpetas que empiezan por . sin escanear';
+	@override String get scanDotFoldersAction => 'Activar para esta fuente';
+	@override String get otherAppsPrivateNotice => 'Desde Android 11 ninguna app puede leer los archivos de otras apps en Android/data o Android/obb, y esta app no puede evitarlo. Descarga o exporta los vídeos a una carpeta pública como Download en la app original y luego añade esa carpeta aquí. Las cachés de reproducción suelen estar fragmentadas y no se pueden reproducir aunque se lean.';
 	@override String get folderHidden => 'Oculta; el escaneo también la omitirá';
 	@override String get folderUnhidden => 'Ya no está oculta';
 	@override String get hiddenFolderBadge => 'Oculta';
@@ -5804,6 +5826,11 @@ extension on TranslationsEs {
 			'download.clearFilters' => 'Borrar filtros',
 			'download.pauseAll' => 'Pausar todo',
 			'download.resumeAll' => 'Iniciar todo',
+			'download.remainingTime' => ({required Object time}) => 'quedan ${time}',
+			'download.timeline.today' => 'Hoy',
+			'download.timeline.yesterday' => 'Ayer',
+			'download.timeline.thisWeek' => 'Esta semana',
+			'download.timeline.thisMonth' => 'Este mes',
 			'download.errorTypes.network' => 'Problema de red; reintentar puede ayudar',
 			'download.errorTypes.serverRejected' => 'Rechazado por el servidor; es posible que deba iniciar sesión de nuevo',
 			'download.errorTypes.notFound' => 'El recurso ya no existe o se eliminó',
@@ -6156,13 +6183,13 @@ extension on TranslationsEs {
 			'displaySettings.layoutSettingsDesc' => 'Personalice el número de columnas y la configuración de puntos de corte',
 			'displaySettings.gridLayout' => 'Diseño de cuadrícula',
 			'displaySettings.navigationOrderSettings' => 'Ajustes del orden de navegación',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Orden de navegación personalizado',
 			'displaySettings.customNavigationOrderDesc' => 'Ajuste el orden de visualización de las páginas en la barra de navegación inferior y la barra lateral',
 			'layoutSettings.title' => 'Ajustes de diseño',
 			'layoutSettings.descriptionTitle' => 'Descripción de la configuración de diseño',
 			'layoutSettings.descriptionContent' => 'La configuración de aquí determina el número de columnas que se muestran en las páginas de lista de vídeos y galerías. Puede elegir el modo automático para que el sistema se ajuste según el ancho de pantalla, o el modo manual para fijar el número de columnas.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Modo de diseño',
 			'layoutSettings.reset' => 'Restablecer',
 			'layoutSettings.autoMode' => 'Modo automático',
@@ -6670,13 +6697,13 @@ extension on TranslationsEs {
 			'siteMode.chooseLinkTargetDescription' => 'Este enlace no incluye un dominio. Elija si desea abrirlo en Principal o en AI.',
 			'siteMode.chooseLinkTargetHint' => 'Una vez abierta, esta página y sus solicitudes de detalle posteriores seguirán usando el sitio seleccionado.',
 			'siteMode.alreadyUsing' => 'Ya está usando este modo de sitio.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Abrir en ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Tras confirmar, las solicitudes futuras usarán el modo ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Se cambió a ${site}. La aplicación se ha actualizado.',
 			'savedSearchConfig.title' => 'Filtros guardados',
 			'savedSearchConfig.empty' => 'Aún no hay filtros guardados',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Guardar filtro actual',
 			'savedSearchConfig.namePromptTitle' => 'Guardar filtro',
 			'savedSearchConfig.nameLabel' => 'Nombre',
@@ -6926,6 +6953,13 @@ extension on TranslationsEs {
 			'localMedia.browse.hideFolder' => 'Ocultar esta carpeta',
 			'localMedia.browse.unhideFolder' => 'Mostrar de nuevo',
 			'localMedia.browse.showHiddenFolders' => 'Mostrar carpetas ocultas',
+			'localMedia.browse.includeDotFolders' => 'Escanear carpetas que empiezan por .',
+			'localMedia.browse.dotFoldersIncluded' => 'Ahora se escanean las carpetas que empiezan por .',
+			'localMedia.browse.dotFoldersExcluded' => 'Ya no se escanean las carpetas que empiezan por .',
+			'localMedia.browse.showDotFolders' => 'Mostrar carpetas que empiezan por .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'Aquí hay ${count} carpetas que empiezan por . sin escanear',
+			'localMedia.browse.scanDotFoldersAction' => 'Activar para esta fuente',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Desde Android 11 ninguna app puede leer los archivos de otras apps en Android/data o Android/obb, y esta app no puede evitarlo. Descarga o exporta los vídeos a una carpeta pública como Download en la app original y luego añade esa carpeta aquí. Las cachés de reproducción suelen estar fragmentadas y no se pueden reproducir aunque se lean.',
 			'localMedia.browse.folderHidden' => 'Oculta; el escaneo también la omitirá',
 			'localMedia.browse.folderUnhidden' => 'Ya no está oculta',
 			'localMedia.browse.hiddenFolderBadge' => 'Oculta',

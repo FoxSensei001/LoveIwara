@@ -1440,6 +1440,8 @@ class _TranslationsDownloadJa extends TranslationsDownloadEn {
 	@override String get clearFilters => 'フィルターをクリア';
 	@override String get pauseAll => 'すべて一時停止';
 	@override String get resumeAll => 'すべて開始';
+	@override String remainingTime({required Object time}) => '残り ${time}';
+	@override late final _TranslationsDownloadTimelineJa timeline = _TranslationsDownloadTimelineJa._(_root);
 	@override late final _TranslationsDownloadErrorTypesJa errorTypes = _TranslationsDownloadErrorTypesJa._(_root);
 	@override String get errorDetailCopied => 'エラー詳細をコピーしました';
 	@override String get errorDetailCopyHint => '長押しでエラー詳細をコピー';
@@ -2683,6 +2685,8 @@ class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
 	@override String rescanAllStarted({required Object count}) => '${count} 件のソースを再スキャンします';
 	@override String get searchLibrary => '検索';
 	@override String get searchIncludeSubfolders => 'サブフォルダーを含む';
+	@override String get searchThisFolderOnly => 'このフォルダーのみ';
+	@override String searchResultCount({required Object count}) => '${count} 件';
 	@override String get savedServers => '保存済みの NAS';
 	@override String get newServer => '新しい NAS に接続';
 	@override late final _TranslationsLocalMediaItemInfoLabelsJa itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsJa._(_root);
@@ -3504,6 +3508,19 @@ class _TranslationsDownloadErrorsJa extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => '他のビューアーを使用してみてください';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineJa extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => '今日';
+	@override String get yesterday => '昨日';
+	@override String get thisWeek => '今週';
+	@override String get thisMonth => '今月';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesJa extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -4219,6 +4236,13 @@ class _TranslationsLocalMediaBrowseJa extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'このフォルダを隠す';
 	@override String get unhideFolder => '非表示を解除';
 	@override String get showHiddenFolders => '隠したフォルダを表示';
+	@override String get includeDotFolders => '「.」で始まるフォルダもスキャン';
+	@override String get dotFoldersIncluded => '「.」で始まるフォルダのスキャンを開始しました';
+	@override String get dotFoldersExcluded => '「.」で始まるフォルダをスキャンしなくなりました';
+	@override String get showDotFolders => '「.」で始まるフォルダを表示';
+	@override String dotFoldersSkipped({required Object count}) => 'ここには「.」で始まる未スキャンのフォルダが ${count} 個あります';
+	@override String get scanDotFoldersAction => 'このソースで有効にする';
+	@override String get otherAppsPrivateNotice => 'Android 11 以降、他のアプリの Android/data・Android/obb 内のファイルはどのアプリからも読み取れず、本アプリでも回避できません。元のアプリで動画を Download などの共有フォルダにダウンロードまたはエクスポートしてから、そのフォルダを追加してください。再生中のキャッシュは通常分割されており、読み取れても再生できません。';
 	@override String get folderHidden => '非表示にしました。スキャンもスキップします';
 	@override String get folderUnhidden => '非表示を解除しました';
 	@override String get hiddenFolderBadge => '非表示';
@@ -6196,6 +6220,11 @@ extension on TranslationsJa {
 			'download.clearFilters' => 'フィルターをクリア',
 			'download.pauseAll' => 'すべて一時停止',
 			'download.resumeAll' => 'すべて開始',
+			'download.remainingTime' => ({required Object time}) => '残り ${time}',
+			'download.timeline.today' => '今日',
+			'download.timeline.yesterday' => '昨日',
+			'download.timeline.thisWeek' => '今週',
+			'download.timeline.thisMonth' => '今月',
 			'download.errorTypes.network' => 'ネットワークエラー、再試行できます',
 			'download.errorTypes.serverRejected' => 'サーバーに拒否されました。再ログインが必要かもしれません',
 			'download.errorTypes.notFound' => 'リソースが失効または削除されました',
@@ -6548,13 +6577,13 @@ extension on TranslationsJa {
 			'favorite.addFailed' => '追加に失敗しました',
 			'favorite.remove' => '削除',
 			'favorite.removeSuccess' => '削除に成功しました',
+			_ => null,
+		} ?? switch (path) {
 			'favorite.removeFailed' => '削除に失敗しました',
 			'favorite.removeConfirmation' => 'このアイテムをお気に入りから削除しますか？',
 			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
 			'favorite.removeConfirmationFailed' => 'アイテムをお気に入りから削除に失敗しました',
 			'favorite.createFolderSuccess' => 'フォルダーが作成されました',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.createFolderFailed' => 'フォルダーの作成に失敗しました',
 			'favorite.createFolder' => 'フォルダーを作成',
 			'favorite.enterFolderName' => 'フォルダー名を入力',
@@ -7062,13 +7091,13 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidthLabel' => '画面幅',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
+			_ => null,
+		} ?? switch (path) {
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '幅を入力してください',
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
 			'layoutSettings.widthCannotExceed9999' => '幅は9999を超えることはできません',
 			'layoutSettings.breakpointAlreadyExists' => 'ブレークポイントが既に存在します',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.enterColumns' => 'カラム数を入力してください',
 			'layoutSettings.enterValidColumns' => '有効なカラム数を入力してください',
 			'layoutSettings.columnsCannotExceed12' => 'カラム数は12を超えることはできません',
@@ -7564,11 +7593,20 @@ extension on TranslationsJa {
 			'localMedia.browse.hideFolder' => 'このフォルダを隠す',
 			'localMedia.browse.unhideFolder' => '非表示を解除',
 			'localMedia.browse.showHiddenFolders' => '隠したフォルダを表示',
+			'localMedia.browse.includeDotFolders' => '「.」で始まるフォルダもスキャン',
+			'localMedia.browse.dotFoldersIncluded' => '「.」で始まるフォルダのスキャンを開始しました',
+			'localMedia.browse.dotFoldersExcluded' => '「.」で始まるフォルダをスキャンしなくなりました',
+			'localMedia.browse.showDotFolders' => '「.」で始まるフォルダを表示',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'ここには「.」で始まる未スキャンのフォルダが ${count} 個あります',
+			'localMedia.browse.scanDotFoldersAction' => 'このソースで有効にする',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Android 11 以降、他のアプリの Android/data・Android/obb 内のファイルはどのアプリからも読み取れず、本アプリでも回避できません。元のアプリで動画を Download などの共有フォルダにダウンロードまたはエクスポートしてから、そのフォルダを追加してください。再生中のキャッシュは通常分割されており、読み取れても再生できません。',
 			'localMedia.browse.folderHidden' => '非表示にしました。スキャンもスキップします',
 			'localMedia.browse.folderUnhidden' => '非表示を解除しました',
 			'localMedia.browse.hiddenFolderBadge' => '非表示',
 			'localMedia.browse.deleteFolder' => 'フォルダを削除',
 			'localMedia.browse.deleteFolderTitle' => 'このフォルダを削除しますか？',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」と中身のすべてがこの端末から完全に削除されます。元に戻せません。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '中にある他のファイルも一緒に削除されます',
 			'localMedia.browse.folderDeleted' => 'フォルダを削除しました',
@@ -7581,8 +7619,6 @@ extension on TranslationsJa {
 			'localMedia.browse.pickFolderTitle' => 'フォルダーを選ぶ',
 			'localMedia.browse.useThisFolder' => 'このフォルダーを使う',
 			'localMedia.browse.noSubfolders' => 'サブフォルダーはありません',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.storageRoot' => '端末のストレージ',
 			'localMedia.browse.homeFolder' => 'ホームフォルダ',
 			'localMedia.browse.filesystemRoot' => 'ルートディレクトリ',
@@ -7673,6 +7709,8 @@ extension on TranslationsJa {
 			'localMedia.rescanAllStarted' => ({required Object count}) => '${count} 件のソースを再スキャンします',
 			'localMedia.searchLibrary' => '検索',
 			'localMedia.searchIncludeSubfolders' => 'サブフォルダーを含む',
+			'localMedia.searchThisFolderOnly' => 'このフォルダーのみ',
+			'localMedia.searchResultCount' => ({required Object count}) => '${count} 件',
 			'localMedia.savedServers' => '保存済みの NAS',
 			'localMedia.newServer' => '新しい NAS に接続',
 			'localMedia.itemInfoLabels.size' => 'サイズ',

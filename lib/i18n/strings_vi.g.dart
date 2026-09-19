@@ -1440,6 +1440,8 @@ class _TranslationsDownloadVi extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Xóa bộ lọc';
 	@override String get pauseAll => 'Tạm dừng tất cả';
 	@override String get resumeAll => 'Bắt đầu tất cả';
+	@override String remainingTime({required Object time}) => 'còn ${time}';
+	@override late final _TranslationsDownloadTimelineVi timeline = _TranslationsDownloadTimelineVi._(_root);
 	@override late final _TranslationsDownloadErrorTypesVi errorTypes = _TranslationsDownloadErrorTypesVi._(_root);
 	@override String get errorDetailCopied => 'Đã sao chép chi tiết lỗi';
 	@override String get errorDetailCopyHint => 'Nhấn giữ để sao chép chi tiết lỗi';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsVi extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Vui lòng thử dùng trình xem khác để mở';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineVi extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Hôm nay';
+	@override String get yesterday => 'Hôm qua';
+	@override String get thisWeek => 'Tuần này';
+	@override String get thisMonth => 'Tháng này';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesVi extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesVi._(TranslationsVi root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseVi extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Ẩn thư mục này';
 	@override String get unhideFolder => 'Bỏ ẩn';
 	@override String get showHiddenFolders => 'Hiện thư mục đã ẩn';
+	@override String get includeDotFolders => 'Quét thư mục bắt đầu bằng .';
+	@override String get dotFoldersIncluded => 'Đã bắt đầu quét thư mục bắt đầu bằng .';
+	@override String get dotFoldersExcluded => 'Không còn quét thư mục bắt đầu bằng .';
+	@override String get showDotFolders => 'Hiện thư mục bắt đầu bằng .';
+	@override String dotFoldersSkipped({required Object count}) => 'Ở đây còn ${count} thư mục bắt đầu bằng . chưa được quét';
+	@override String get scanDotFoldersAction => 'Bật cho nguồn này';
+	@override String get otherAppsPrivateNotice => 'Từ Android 11, không ứng dụng nào đọc được tệp của ứng dụng khác trong Android/data hoặc Android/obb, ứng dụng này cũng không thể vượt qua. Hãy tải xuống hoặc xuất video sang thư mục công khai như Download trong ứng dụng gốc, rồi thêm thư mục đó vào đây. Bộ nhớ đệm khi xem thường bị chia nhỏ và không phát được dù đọc được.';
 	@override String get folderHidden => 'Đã ẩn — quá trình quét cũng sẽ bỏ qua';
 	@override String get folderUnhidden => 'Đã bỏ ẩn';
 	@override String get hiddenFolderBadge => 'Đã ẩn';
@@ -5804,6 +5826,11 @@ extension on TranslationsVi {
 			'download.clearFilters' => 'Xóa bộ lọc',
 			'download.pauseAll' => 'Tạm dừng tất cả',
 			'download.resumeAll' => 'Bắt đầu tất cả',
+			'download.remainingTime' => ({required Object time}) => 'còn ${time}',
+			'download.timeline.today' => 'Hôm nay',
+			'download.timeline.yesterday' => 'Hôm qua',
+			'download.timeline.thisWeek' => 'Tuần này',
+			'download.timeline.thisMonth' => 'Tháng này',
 			'download.errorTypes.network' => 'Vấn đề mạng, thử lại có thể giúp ích',
 			'download.errorTypes.serverRejected' => 'Bị máy chủ từ chối, có thể cần đăng nhập lại',
 			'download.errorTypes.notFound' => 'Tài nguyên không còn tồn tại hoặc đã bị xóa',
@@ -6156,13 +6183,13 @@ extension on TranslationsVi {
 			'displaySettings.layoutSettingsDesc' => 'Tùy chỉnh số cột và cấu hình điểm ngắt',
 			'displaySettings.gridLayout' => 'Bố cục lưới',
 			'displaySettings.navigationOrderSettings' => 'Cài đặt thứ tự điều hướng',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Thứ tự điều hướng tùy chỉnh',
 			'displaySettings.customNavigationOrderDesc' => 'Điều chỉnh thứ tự hiển thị của các trang trong thanh điều hướng dưới và thanh bên',
 			'layoutSettings.title' => 'Cài đặt bố cục',
 			'layoutSettings.descriptionTitle' => 'Mô tả cấu hình bố cục',
 			'layoutSettings.descriptionContent' => 'Cấu hình tại đây quyết định số cột hiển thị trong trang danh sách video và thư viện. Có thể chọn chế độ tự động để hệ thống tự điều chỉnh theo chiều rộng màn hình, hoặc chọn chế độ thủ công để cố định số cột.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Chế độ bố cục',
 			'layoutSettings.reset' => 'Đặt lại',
 			'layoutSettings.autoMode' => 'Chế độ tự động',
@@ -6670,13 +6697,13 @@ extension on TranslationsVi {
 			'siteMode.chooseLinkTargetDescription' => 'Liên kết này không bao gồm tên miền. Vui lòng chọn mở trong Main hay AI.',
 			'siteMode.chooseLinkTargetHint' => 'Sau khi mở, trang này và các yêu cầu chi tiết tiếp theo sẽ tiếp tục dùng trang đã chọn.',
 			'siteMode.alreadyUsing' => 'Bạn đang dùng chế độ trang này rồi.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Mở trong ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Sau khi xác nhận, các yêu cầu tiếp theo sẽ dùng chế độ ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Đã chuyển sang ${site}. Ứng dụng đã được làm mới.',
 			'savedSearchConfig.title' => 'Bộ lọc đã lưu',
 			'savedSearchConfig.empty' => 'Chưa có bộ lọc đã lưu',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Lưu bộ lọc hiện tại',
 			'savedSearchConfig.namePromptTitle' => 'Lưu bộ lọc',
 			'savedSearchConfig.nameLabel' => 'Tên',
@@ -6926,6 +6953,13 @@ extension on TranslationsVi {
 			'localMedia.browse.hideFolder' => 'Ẩn thư mục này',
 			'localMedia.browse.unhideFolder' => 'Bỏ ẩn',
 			'localMedia.browse.showHiddenFolders' => 'Hiện thư mục đã ẩn',
+			'localMedia.browse.includeDotFolders' => 'Quét thư mục bắt đầu bằng .',
+			'localMedia.browse.dotFoldersIncluded' => 'Đã bắt đầu quét thư mục bắt đầu bằng .',
+			'localMedia.browse.dotFoldersExcluded' => 'Không còn quét thư mục bắt đầu bằng .',
+			'localMedia.browse.showDotFolders' => 'Hiện thư mục bắt đầu bằng .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'Ở đây còn ${count} thư mục bắt đầu bằng . chưa được quét',
+			'localMedia.browse.scanDotFoldersAction' => 'Bật cho nguồn này',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Từ Android 11, không ứng dụng nào đọc được tệp của ứng dụng khác trong Android/data hoặc Android/obb, ứng dụng này cũng không thể vượt qua. Hãy tải xuống hoặc xuất video sang thư mục công khai như Download trong ứng dụng gốc, rồi thêm thư mục đó vào đây. Bộ nhớ đệm khi xem thường bị chia nhỏ và không phát được dù đọc được.',
 			'localMedia.browse.folderHidden' => 'Đã ẩn — quá trình quét cũng sẽ bỏ qua',
 			'localMedia.browse.folderUnhidden' => 'Đã bỏ ẩn',
 			'localMedia.browse.hiddenFolderBadge' => 'Đã ẩn',

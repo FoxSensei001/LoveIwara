@@ -802,6 +802,59 @@ class LocalMediaRepository {
     return changed;
   }
 
+  /// 源关掉「扫描 . 开头的文件夹」时，把源里 `.` 开头子目录底下的条目与目录
+  /// **当场**置 missing，返回翻了状态的行数。
+  ///
+  /// # ⛔ 为什么不等下一轮重扫去收敛
+  ///
+  /// 打开开关时卷进来的东西可能很多，重扫撞上 `kMaxScanFiles` 被截断，而截断的
+  /// 那一轮**整轮不收敛**（没走到的会被冤枉成"文件没了"）——于是这批条目会一直
+  /// 挂在「所有视频」墙上，关开关等于没关。
+  ///
+  /// 只翻 `missing`，不删行：进度、置顶、精选都还挂着，重新打开开关一扫就洗回来。
+  ///
+  /// 只看**源根以下**的相对部分：源根自己是 `.` 开头的目录时，不能把整源判掉。
+  int markDotSubtreesMissing({
+    required String sourceId,
+    required String rootPath,
+  }) {
+    if (rootPath.isEmpty) return 0;
+    final prefix = _withTrailingSeparator(rootPath);
+    final prefixLength = prefix.runes.length;
+    var changed = 0;
+    _db.execute('BEGIN');
+    try {
+      // 相对部分统一成 `/` 再前补一个 `/`，`%/.%` 就同时认得第一段和中间段。
+      _db.execute(
+        'UPDATE local_media_items SET missing = 1 '
+        'WHERE source_id = ? AND missing = 0 AND folder_path IS NOT NULL '
+        'AND substr(folder_path, 1, ?) = ? '
+        r"AND ('/' || replace(substr(folder_path, ?), '\', '/')) LIKE '%/.%'",
+        <Object?>[sourceId, prefixLength, prefix, prefixLength + 1],
+      );
+      changed += _db.updatedRows;
+      // rel_path 一族是归一化过的 `/`，直接比。
+      _db.execute(
+        'UPDATE local_media_folders SET missing = 1 '
+        'WHERE source_id = ? AND missing = 0 '
+        "AND ('/' || rel_path) LIKE '%/.%'",
+        <Object?>[sourceId],
+      );
+      changed += _db.updatedRows;
+      _db.execute('COMMIT');
+    } catch (e) {
+      _db.execute('ROLLBACK');
+      LogUtils.e('收敛 . 开头目录失败', tag: _tag, error: e);
+      rethrow;
+    }
+    if (changed > 0) {
+      backfillFolderCounts(sourceId);
+      notifyChanged();
+      notifyFolderChanged();
+    }
+    return changed;
+  }
+
   /// seen 键的临时表。连接级 TEMP，一张表反复用，每次收敛完清空。
   static const String _seenKeysTable = 'temp.lm_seen_keys';
 

@@ -18,10 +18,9 @@ import 'package:i_iwara/app/services/playback_queue_service.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/ui/pages/local_media/local_folder_route.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/downloaded_gallery_card.dart';
-import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_empty_hint.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_menu.dart';
-import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_thumb.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_item_missing_dialog.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_image_viewer.dart';
@@ -39,8 +38,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/media_waterfall_grid.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -91,7 +88,8 @@ class LocalFolderBrowsePage extends StatefulWidget {
   State<LocalFolderBrowsePage> createState() => _LocalFolderBrowsePageState();
 }
 
-class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
+class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage>
+    with SingleTickerProviderStateMixin {
   final LocalMediaRepository _repo = LocalMediaRepository();
   final ScrollController _scrollController = ScrollController();
 
@@ -193,8 +191,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
 
   LocalMediaOrder _order = _defaultOrder;
 
-  /// 搜索框旁「含子文件夹」开着没有。只在搜索时生效：不搜的时候这一页永远只
+  /// 搜索范围是不是「含子文件夹」。只在搜索时生效：不搜的时候这一页永远只
   /// 列这一层（目录树的本分），搜的时候用户要找的往往就在下面几层。
+  /// 开关在结果上方的范围栏里，见 [_buildSearchScopeBar]。
   bool _searchSubfolders = false;
 
   bool get _searchingSubtree =>
@@ -239,6 +238,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     _order = _restoreOrder();
     _loadInitialData();
     _loadItems();
+    // 进页那一刻就已够格（计数是同步读库拿到的）：随页面路由一起进场，不再
+    // 单独放一遍出场动画。只有「加载了一会儿才够格」的那一下才要动画。
+    if (_toolRowLatched) _toolRowReveal.value = 1;
     _scrollController.addListener(_onScroll);
     _repoWorker = debounce<int>(
       LocalMediaRepository.changeRevision,
@@ -283,6 +285,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       // 会拿它和新一层的构成比，平白先按半截数据重读一次条目。
       _loadedFilter = null;
       _toolRowLatched = false;
+      _toolRowReveal.reverse();
       // ⛔ 计数必须跟着清零。[_loadInitialData] 会在 [_loadItems] **之前**跑
       // `_recomputeVisibleChildren` → `_updateToolRowLatch`，那一刻这几个数还是
       // **上一层**的；不清的话，从一个有上千条的目录点进一个空目录，那一行筛选/
@@ -338,6 +341,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     _searchFocus.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _toolRowReveal.dispose();
     super.dispose();
   }
 
@@ -1295,10 +1299,38 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   /// 一旦够格就钉住：这一层后来即使被删空，多出一行搜索框也好过当场跳一下。
   bool _toolRowLatched = false;
 
+  /// 顶栏第二行的出场进度：0＝不在，1＝到位。
+  ///
+  /// ⛔ 这一行**不许硬切**进来。它往往是扫完、读完一层之后才够格上闩的——那一刻
+  /// 用户正盯着屏幕，原先的写法是整行凭空插进 header、整页内容同一帧被顶下去
+  /// 一截（2026-09-19 用户报「已下载」文件夹进去后 tabs 很硬地切入）。现在
+  /// header 高度、列表让位高度、这一行的玻璃材质都跟着这一个进度走：行从上方
+  /// 滑下来、材质淡入，内容同步被推开。
+  late final AnimationController _toolRowReveal = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 320),
+  );
+  late final Animation<double> _toolRowCurve = CurvedAnimation(
+    parent: _toolRowReveal,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
+
   void _updateToolRowLatch() {
     if (_toolRowLatched) return;
     if (_segments.length >= 3 || _totalEntryCount > 24 || _query.isNotEmpty) {
       _toolRowLatched = true;
+      // 系统关了动画就直接到位。⛔ 这里可能在 initState 里被调到，不能读
+      // `MediaQuery.disableAnimationsOf(context)`，直接问平台。
+      if (WidgetsBinding
+          .instance
+          .platformDispatcher
+          .accessibilityFeatures
+          .disableAnimations) {
+        _toolRowReveal.value = 1;
+      } else {
+        _toolRowReveal.forward();
+      }
     }
   }
 
@@ -1378,8 +1410,9 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
   Widget _buildToolRow(
     BuildContext context,
     List<({_BrowseFilter filter, String label, IconData icon})> segments,
-    bool showSegments,
-  ) {
+    bool showSegments, {
+    double materialize = 1.0,
+  }) {
     final t = slang.t.localMedia.browse;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -1398,6 +1431,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                 borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
                 padding: const EdgeInsets.only(left: 12, right: 6),
                 liquidTouch: false,
+                materialize: materialize,
                 child: Row(
                   children: [
                     Icon(
@@ -1416,22 +1450,6 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
                         onSubmitted: (_) => _searchFocus.unfocus(),
                       ),
                     ),
-                    if (_folder != null && _probedChildren.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: FilterChip(
-                          label: Text(
-                            slang.t.localMedia.searchIncludeSubfolders,
-                          ),
-                          selected: _searchSubfolders,
-                          showCheckmark: false,
-                          visualDensity: VisualDensity.compact,
-                          onSelected: (value) => setState(() {
-                            _searchSubfolders = value;
-                            if (_query.isNotEmpty) _loadItems();
-                          }),
-                        ),
-                      ),
                     if (_searchController.text.isNotEmpty)
                       IconButton(
                         icon: const Icon(Icons.close, size: 18),
@@ -1455,6 +1473,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
           if (showSegments) ...[
             const SizedBox(width: 8),
             GlassButtonGroup(
+              materialize: materialize,
               children: [
                 GlassIconButton(
                   icon: const Icon(Icons.close),
@@ -1473,6 +1492,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
       children: [
         Expanded(
           child: GlassAdaptiveSegmentedControl(
+            materialize: materialize,
             // ⛔ 找不到就落回 0（「全部」）。重扫之后某一类可能整个消失，而
             // `_filter` 还指着它——传 -1 进去分段控件会画不出高亮块。
             selectedIndex: selected < 0 ? 0 : selected,
@@ -1488,6 +1508,7 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
         ),
         const SizedBox(width: 8),
         GlassButtonGroup(
+          materialize: materialize,
           children: [
             GlassIconButton(
               icon: const Icon(Icons.search),
@@ -1506,6 +1527,88 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     );
   }
 
+  /// 搜索范围栏：有关键词时从结果顶上滑进来——左边「找到 N 项」，右边
+  /// 「仅此文件夹 / 含子文件夹」二段胶囊。
+  ///
+  /// ⛔ 这个开关**不许塞回输入框里**。它原先是一枚 `FilterChip` 嵌在搜索胶囊
+  /// 右端（2026-09-19 用户：「直接嵌入到搜索框里了，很丑，没有品味」）：
+  /// Material 的描边小片挤在玻璃胶囊里，把本就只有半行宽的输入区又吃掉一截，
+  /// 而且不搜的时候它也在，说的是一件此刻无关的事。范围只对「这次搜到了什么」
+  /// 有意义，所以跟结果数放在一起、只在搜的时候出现（Finder 的搜索范围栏同理）。
+  ///
+  /// 没有子文件夹可搜（或在源根页）时整条不出现——只剩一个选项的开关不是开关。
+  bool get _showsSearchScopeBar =>
+      _query.isNotEmpty && _folder != null && _probedChildren.isNotEmpty;
+
+  /// [showHeaders]：下面紧跟着区块标题（它自带上边距）时，栏底不再多留缝。
+  Widget _buildSearchScopeBar(
+    BuildContext context, {
+    required bool showHeaders,
+  }) {
+    final t = slang.t.localMedia;
+    final colorScheme = Theme.of(context).colorScheme;
+    final bool visible = _showsSearchScopeBar;
+    final int found =
+        _visibleChildren.length +
+        _visibleGalleries.length +
+        _videoCount +
+        _imageCount;
+    // 高度收放与材质淡入是两件事：[GlassReveal] 管材质与位移（不建 Opacity
+    // 层，液态折射不断），外层 AnimatedSize 让下面的结果平滑让位 / 回填。
+    return AnimatedSize(
+      duration: GlassTokens.motionDuration,
+      curve: GlassTokens.motionCurve,
+      alignment: Alignment.topCenter,
+      child: GlassReveal(
+        visible: visible,
+        slideFrom: const Offset(0, -0.25),
+        builder: (context, m) => Padding(
+          // 栏顶到 header 底缘恒为 [_contentTopGap]，有无区块标题都不跳：
+          // 没有标题时列表顶部让位已经带着这道缝，栏就不再加上边距，改由
+          // 下边距把首排卡片隔开；有标题时反过来（标题自带上边距）。
+          padding: EdgeInsets.fromLTRB(
+            16,
+            showHeaders ? _contentTopGap : 0,
+            16,
+            showHeaders ? 0 : _contentTopGap,
+          ),
+          child: Row(
+            children: [
+              Text(
+                t.searchResultCount(count: found),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  // 文字的淡入走颜色通道，同 [GlassSurface.materialize]。
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: m),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GlassAdaptiveSegmentedControl(
+                  alignment: Alignment.centerRight,
+                  height: 36,
+                  materialize: m,
+                  selectedIndex: _searchSubfolders ? 1 : 0,
+                  onChanged: (index) {
+                    final bool next = index == 1;
+                    if (next == _searchSubfolders) return;
+                    setState(() {
+                      _searchSubfolders = next;
+                      if (_query.isNotEmpty) _loadItems();
+                    });
+                  },
+                  items: <GlassSegmentItem>[
+                    GlassSegmentItem(label: t.searchThisFolderOnly),
+                    GlassSegmentItem(label: t.searchIncludeSubfolders),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(String title) {
     return SliverToBoxAdapter(
       child: Padding(
@@ -1520,18 +1623,6 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     );
   }
 
-  Widget _buildImagePlaceholder(BuildContext context) {
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      alignment: Alignment.center,
-      child: Icon(
-        Icons.broken_image_outlined,
-        size: 24,
-        color: Theme.of(context).colorScheme.outline,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -1539,417 +1630,445 @@ class _LocalFolderBrowsePageState extends State<LocalFolderBrowsePage> {
     // 第二行（筛选 + 搜索）什么时候在场：混着两类以上东西时要筛，东西多到一屏
     // 翻不完时要搜。两个条件都不成立的小目录（三五个视频）就不该多这一行。
     final bool showSegments = segments.length >= 3;
-    // ⛔ 读的是钉住的那个，不是当下现算的——理由见 [_toolRowLatched]。
-    final bool showToolRow = _toolRowLatched;
-    final double headerHeight =
-        GlassTokens.headerRowHeight +
-        (showToolRow ? _toolRowGap + GlassTokens.pillHeight : 0);
-    final double headerExtent = statusBarHeight + headerHeight;
+    // 第二行整行占的高度（缝 + 胶囊）。乘上出场进度就是它此刻让出的高度——
+    // header、蒙层、列表顶部的让位三处读的都是同一个数，才不会互相错开。
+    // ⛔ 在不在场读的是钉住的那个，不是当下现算的——理由见 [_toolRowLatched]。
+    const double toolRowExtent = _toolRowGap + GlassTokens.pillHeight;
+    double headerHeightAt(double reveal) =>
+        GlassTokens.headerRowHeight + toolRowExtent * reveal;
+    // 下拉刷新的指示器按「到位之后」的高度摆，不跟着动画逐帧挪。
+    final double settledHeaderExtent =
+        statusBarHeight + headerHeightAt(_toolRowLatched ? 1 : 0);
 
     final String currentTitle = _queueTitle;
 
-    return Scaffold(
-      body: GlassHeaderOverlay(
-        liquid: true,
-        headerExtent: headerExtent,
-        headerTop: statusBarHeight,
-        headerHeight: headerHeight,
-        solidExtent: statusBarHeight,
-        header: Column(
-          mainAxisSize: MainAxisSize.min,
+    final Widget titleRow = SizedBox(
+      height: GlassTokens.headerRowHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
           children: [
-            SizedBox(
-              height: GlassTokens.headerRowHeight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    GlassIconButton(
-                      standalone: true,
-                      icon: const Icon(Icons.arrow_back),
-                      tooltip: slang.t.common.back,
-                      onPressed: () => AppService.tryPop(),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Builder(
-                        builder: (pillContext) => GlassTitlePill(
-                          title: currentTitle,
-                          // 扫这一层的时候，标题左边转一枚小弧。见 [GlassInlineBusy]：
-                          // 这取代了原先顶在列表上方的那条横进度条。
-                          busy: _scanning,
-                          // 有上层可去时才挂箭头：根页的位置菜单只有自己一行。
-                          trailingIcon: _breadcrumb.length > 1
-                              ? Icons.arrow_drop_down_rounded
-                              : null,
-                          onTap: () => _showLocationMenu(pillContext),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GlassButtonGroup(
-                      children: [
-                        if (_folder != null)
-                          GlassIconButton(
-                            icon: Icon(
-                              _isPinned
-                                  ? Icons.push_pin
-                                  : Icons.push_pin_outlined,
-                            ),
-                            tooltip: _isPinned
-                                ? slang.t.localMedia.browse.unpin
-                                : slang.t.localMedia.browse.pin,
-                            onPressed: _togglePin,
-                          ),
-                        Builder(
-                          builder: (menuContext) => GlassIconButton(
-                            icon: const Icon(Icons.more_vert),
-                            tooltip: slang.t.common.more,
-                            opensOverlay: true,
-                            onPressed: () => _showMoreMenu(menuContext),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+            GlassIconButton(
+              standalone: true,
+              icon: const Icon(Icons.arrow_back),
+              tooltip: slang.t.common.back,
+              onPressed: () => AppService.tryPop(),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Builder(
+                builder: (pillContext) => GlassTitlePill(
+                  title: currentTitle,
+                  // 扫这一层的时候，标题左边转一枚小弧。见 [GlassInlineBusy]：
+                  // 这取代了原先顶在列表上方的那条横进度条。
+                  busy: _scanning,
+                  // 有上层可去时才挂箭头：根页的位置菜单只有自己一行。
+                  trailingIcon: _breadcrumb.length > 1
+                      ? Icons.arrow_drop_down_rounded
+                      : null,
+                  onTap: () => _showLocationMenu(pillContext),
                 ),
               ),
             ),
-            if (showToolRow) ...[
-              const SizedBox(height: _toolRowGap),
-              SizedBox(
-                height: GlassTokens.pillHeight,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildToolRow(context, segments, showSegments),
+            const SizedBox(width: 8),
+            GlassButtonGroup(
+              children: [
+                if (_folder != null)
+                  GlassIconButton(
+                    icon: Icon(
+                      _isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                    ),
+                    tooltip: _isPinned
+                        ? slang.t.localMedia.browse.unpin
+                        : slang.t.localMedia.browse.pin,
+                    onPressed: _togglePin,
+                  ),
+                Builder(
+                  builder: (menuContext) => GlassIconButton(
+                    icon: const Icon(Icons.more_vert),
+                    tooltip: slang.t.common.more,
+                    opensOverlay: true,
+                    onPressed: () => _showMoreMenu(menuContext),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ],
         ),
-        body: RefreshIndicator(
-          displacement: headerExtent,
-          onRefresh: _refresh,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final availableWidth = constraints.maxWidth - 32;
-              final crossAxisCount = MediaLayoutUtils.calculateCrossAxisCount(
-                availableWidth,
-              );
-              // 目录**跟着媒体墙的列走**：同样的列数、同样的沟宽。各算各的会让
-              // 目录卡比视频卡窄一截，两个区块的右边界错开——一眼就看得出是两套
-              // 网格拼在一起的。
-              final folderMetrics = LocalGridMetrics(
-                crossAxisCount: crossAxisCount,
-                cellWidth: MediaLayoutUtils.calculateCardWidth(availableWidth),
-                spacing: MediaLayoutUtils.crossAxisSpacing,
-              );
+      ),
+    );
 
-              // ── 这一屏画哪几块、每块画几个 ──────────────────────────────
-              //
-              // 「全部」＝预览：四块都在，每块最多 [_previewRows] 行，末尾一条
-              // 「查看全部」。选了某一类＝只有那一块，完整、可无限翻页。
-              final effective = _effectiveFilter;
-              final bool preview = effective == _BrowseFilter.all;
-              final int previewCap = _previewRows * crossAxisCount;
-              int shownOf(int length, bool visible) => visible
-                  ? (preview ? math.min(length, previewCap) : length)
-                  : 0;
+    final Widget body = RefreshIndicator(
+      displacement: settledHeaderExtent,
+      onRefresh: _refresh,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // 目录**跟着媒体墙的列走**：同样的列数、同样的沟宽。各算各的会让
+          // 目录卡比视频卡窄一截，两个区块的右边界错开——一眼就看得出是两套
+          // 网格拼在一起的。四块（图库 / 目录 / 视频 / 图片）都是定高网格。
+          final folderMetrics = LocalGridMetrics.media(
+            constraints.maxWidth - 32,
+          );
+          final crossAxisCount = folderMetrics.crossAxisCount;
 
-              final int galleryShown = shownOf(
-                _visibleGalleries.length,
-                preview || effective == _BrowseFilter.galleries,
-              );
-              final int folderShown = shownOf(
-                _visibleChildren.length,
-                preview || effective == _BrowseFilter.folders,
-              );
-              final int videoShown = shownOf(
-                _videos.length,
-                preview || effective == _BrowseFilter.videos,
-              );
-              final int imageShown = shownOf(
-                _images.length,
-                preview || effective == _BrowseFilter.images,
-              );
+          // ── 这一屏画哪几块、每块画几个 ──────────────────────────────
+          //
+          // 「全部」＝预览：四块都在，每块最多 [_previewRows] 行，末尾一条
+          // 「查看全部」。选了某一类＝只有那一块，完整、可无限翻页。
+          final effective = _effectiveFilter;
+          final bool preview = effective == _BrowseFilter.all;
+          final int previewCap = _previewRows * crossAxisCount;
+          int shownOf(int length, bool visible) =>
+              visible ? (preview ? math.min(length, previewCap) : length) : 0;
 
-              // 区块标题只在预览视图里、且这一屏不止一块时出现：只有一块时标题
-              // 是废话（上面的筛选胶囊已经写着它是什么），选了某一类时更是。
-              final int sectionCount =
-                  (galleryShown > 0 ? 1 : 0) +
-                  (folderShown > 0 ? 1 : 0) +
-                  (videoShown > 0 ? 1 : 0) +
-                  (imageShown > 0 ? 1 : 0);
-              final bool showHeaders = preview && sectionCount > 1;
-              final t = slang.t.localMedia.browse;
+          final int galleryShown = shownOf(
+            _visibleGalleries.length,
+            preview || effective == _BrowseFilter.galleries,
+          );
+          final int folderShown = shownOf(
+            _visibleChildren.length,
+            preview || effective == _BrowseFilter.folders,
+          );
+          final int videoShown = shownOf(
+            _videos.length,
+            preview || effective == _BrowseFilter.videos,
+          );
+          final int imageShown = shownOf(
+            _images.length,
+            preview || effective == _BrowseFilter.images,
+          );
 
-              return CustomScrollView(
-                controller: _scrollController,
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  // 有区块标题时，缝由标题自己的上边距给；没有时（只有一类东西、
-                  // 或选了某一档）第一排卡片会直接贴着 header 的下沿——留一道与
-                  // `local_home_page.dart` 同宽的缝。
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: headerExtent + (showHeaders ? 0 : _contentTopGap),
+          // 区块标题只在预览视图里、且这一屏不止一块时出现：只有一块时标题
+          // 是废话（上面的筛选胶囊已经写着它是什么），选了某一类时更是。
+          final int sectionCount =
+              (galleryShown > 0 ? 1 : 0) +
+              (folderShown > 0 ? 1 : 0) +
+              (videoShown > 0 ? 1 : 0) +
+              (imageShown > 0 ? 1 : 0);
+          final bool showHeaders = preview && sectionCount > 1;
+          final t = slang.t.localMedia.browse;
+
+          return CustomScrollView(
+            controller: _scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              // 有区块标题时，缝由标题自己的上边距给；没有时（只有一类东西、
+              // 或选了某一档）第一排卡片会直接贴着 header 的下沿——留一道与
+              // `local_home_page.dart` 同宽的缝。
+              // 只有这一格跟着第二行的出场逐帧重建，整张网格不陪跑。
+              SliverToBoxAdapter(
+                child: AnimatedBuilder(
+                  animation: _toolRowCurve,
+                  builder: (context, _) => SizedBox(
+                    height:
+                        statusBarHeight +
+                        headerHeightAt(_toolRowCurve.value) +
+                        (showHeaders ? 0 : _contentTopGap),
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _buildSearchScopeBar(context, showHeaders: showHeaders),
+              ),
+              // ⛔ 这里原先顶着一条 `LinearProgressIndicator(minHeight: 2)`。
+              // 已经删掉——「还在扫」现在画在 header 的标题胶囊上（见上面的
+              // `busy: _scanning`）。那条横线不属于任何东西、出现消失还是硬
+              // 切，把它底下整列内容顶上顶下。别再加回来。
+              if (LocalRemoteStateBanner.shouldShow(_source))
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    child: LocalRemoteStateBanner(
+                      source: _source!,
+                      busy: _scanning,
+                      onRetry: () => unawaited(_scanThisFolder()),
                     ),
                   ),
-                  // ⛔ 这里原先顶着一条 `LinearProgressIndicator(minHeight: 2)`。
-                  // 已经删掉——「还在扫」现在画在 header 的标题胶囊上（见上面的
-                  // `busy: _scanning`）。那条横线不属于任何东西、出现消失还是硬
-                  // 切，把它底下整列内容顶上顶下。别再加回来。
-                  if (LocalRemoteStateBanner.shouldShow(_source))
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                        child: LocalRemoteStateBanner(
-                          source: _source!,
-                          busy: _scanning,
-                          onRetry: () => unawaited(_scanThisFolder()),
-                        ),
+                ),
+              if (_needsRescanForTree) _buildRescanHint(context),
+              if (galleryShown > 0) ...[
+                if (showHeaders) _buildSectionHeader(t.galleriesSection),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate: folderMetrics.delegate(
+                      DownloadedGalleryCard.extentFor(
+                        context,
+                        folderMetrics.cellWidth,
                       ),
                     ),
-                  if (_needsRescanForTree) _buildRescanHint(context),
-                  if (galleryShown > 0) ...[
-                    if (showHeaders) _buildSectionHeader(t.galleriesSection),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverGrid(
-                        gridDelegate: folderMetrics.delegate(
-                          DownloadedGalleryCard.extentFor(
-                            context,
-                            folderMetrics.cellWidth,
-                          ),
-                        ),
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final gallery = _visibleGalleries[index];
-                          return DownloadedGalleryCard(
-                            row: gallery,
-                            onDeleted: () {
-                              if (mounted) {
-                                setState(() {
-                                  _galleries = _galleries
-                                      .where((e) => e.taskId != gallery.taskId)
-                                      .toList();
-                                  _recomputeVisibleChildren();
-                                });
-                              }
-                            },
-                          );
-                        }, childCount: galleryShown),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final gallery = _visibleGalleries[index];
+                      return DownloadedGalleryCard(
+                        row: gallery,
+                        onDeleted: () {
+                          if (mounted) {
+                            setState(() {
+                              _galleries = _galleries
+                                  .where((e) => e.taskId != gallery.taskId)
+                                  .toList();
+                              _recomputeVisibleChildren();
+                            });
+                          }
+                        },
+                      );
+                    }, childCount: galleryShown),
+                  ),
+                ),
+                if (_visibleGalleries.length > galleryShown)
+                  _buildViewAllSliver(
+                    t.viewAllGalleries(count: _visibleGalleries.length),
+                    _BrowseFilter.galleries,
+                  ),
+              ],
+              if (folderShown > 0) ...[
+                if (showHeaders) _buildSectionHeader(t.sourcesSection),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate: folderMetrics.delegate(
+                      LocalFolderCardWidget.extentFor(
+                        context,
+                        folderMetrics.cellWidth,
                       ),
                     ),
-                    if (_visibleGalleries.length > galleryShown)
-                      _buildViewAllSliver(
-                        t.viewAllGalleries(count: _visibleGalleries.length),
-                        _BrowseFilter.galleries,
-                      ),
-                  ],
-                  if (folderShown > 0) ...[
-                    if (showHeaders) _buildSectionHeader(t.sourcesSection),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverGrid(
-                        gridDelegate: folderMetrics.delegate(
-                          LocalFolderCardWidget.extentFor(
-                            context,
-                            folderMetrics.cellWidth,
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final child = _visibleChildren[index];
+                      return Builder(
+                        builder: (cardContext) => LocalFolderCardWidget(
+                          folder: child,
+                          pinned: _pinnedKeys.contains(
+                            _pinKey(child.sourceId, child.relPath),
                           ),
-                        ),
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final child = _visibleChildren[index];
-                          return Builder(
-                            builder: (cardContext) => LocalFolderCardWidget(
-                              folder: child,
+                          hidden: _hiddenRelPaths.contains(child.relPath),
+                          onOpen: () {
+                            appRouter.push(
+                              LocalFolderRoute.locationForFolder(child),
+                            );
+                          },
+                          onMenu: (anchorContext) => showLocalFolderMenu(
+                            anchorContext: anchorContext,
+                            actions: LocalFolderActions(
+                              sourceId: child.sourceId,
+                              relPath: child.relPath,
+                              folderPath: child.folderPath,
                               pinned: _pinnedKeys.contains(
                                 _pinKey(child.sourceId, child.relPath),
                               ),
+                              coverPinned: child.coverPinned,
                               hidden: _hiddenRelPaths.contains(child.relPath),
-                              onOpen: () {
-                                appRouter.push(
-                                  LocalFolderRoute.locationForFolder(child),
-                                );
-                              },
-                              onMenu: (anchorContext) => showLocalFolderMenu(
-                                anchorContext: anchorContext,
-                                actions: LocalFolderActions(
-                                  sourceId: child.sourceId,
-                                  relPath: child.relPath,
-                                  folderPath: child.folderPath,
-                                  pinned: _pinnedKeys.contains(
-                                    _pinKey(child.sourceId, child.relPath),
-                                  ),
-                                  coverPinned: child.coverPinned,
-                                  hidden: _hiddenRelPaths.contains(
-                                    child.relPath,
-                                  ),
-                                  displayName: child.name.isEmpty
-                                      ? (_source?.displayName ?? '')
-                                      : child.name,
-                                  canRescan: true,
-                                  onChanged: _reloadFromDb,
+                              displayName: child.name.isEmpty
+                                  ? (_source?.displayName ?? '')
+                                  : child.name,
+                              canRescan: true,
+                              onChanged: _reloadFromDb,
+                            ),
+                          ),
+                        ),
+                      );
+                    }, childCount: folderShown),
+                  ),
+                ),
+                if (_visibleChildren.length > folderShown)
+                  _buildViewAllSliver(
+                    t.viewAllFolders(count: _visibleChildren.length),
+                    _BrowseFilter.folders,
+                  ),
+              ],
+              if (videoShown > 0) ...[
+                if (showHeaders) _buildSectionHeader(t.videosSection),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate: folderMetrics.delegate(
+                      LocalMediaItemCard.extentFor(
+                        context,
+                        folderMetrics.cellWidth,
+                        LocalMediaItemKind.video,
+                      ),
+                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = _videos[index];
+                      return LocalMediaItemCard(
+                        item: item,
+                        // 用户就站在这个文件夹里，出处写文件夹是废话；
+                        // 连子文件夹一起搜时结果来自下面各层，要写出处。
+                        showFolder: _searchingSubtree,
+                        onOpen: () => _openVideo(item),
+                        onMenu: (anchorContext) =>
+                            _showItemMenu(anchorContext, item),
+                      );
+                    }, childCount: videoShown),
+                  ),
+                ),
+                // ⛔ 必须夹一道 `preview`：视频档下列表本来就是分页的
+                // （首屏 120 条 / 总数 96 以上），不夹的话完整视图底下会一直
+                // 挂着一条「查看全部 500 个」——而用户正在看的就是那 500 个。
+                if (preview && _videoCount > videoShown)
+                  _buildViewAllSliver(
+                    t.viewAllVideos(count: _videoCount),
+                    _BrowseFilter.videos,
+                  ),
+              ],
+              if (imageShown > 0) ...[
+                if (showHeaders) _buildSectionHeader(t.imagesSection),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverGrid(
+                    gridDelegate: folderMetrics.squareDelegate(),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final item = _images[index];
+                      // 纯方图，与「所有图片」墙同一格（见 [LocalMediaItemCard]）。
+                      return LocalMediaItemCard(
+                        item: item,
+                        onOpen: () async => _openImage(item),
+                        onMenu: (anchorContext) =>
+                            _showItemMenu(anchorContext, item),
+                      );
+                    }, childCount: imageShown),
+                  ),
+                ),
+                if (preview && _imageCount > imageShown)
+                  _buildViewAllSliver(
+                    t.viewAllImages(count: _imageCount),
+                    _BrowseFilter.images,
+                  ),
+              ],
+              // ⛔ 这里没有加载指示器，也不该有：[_loadMore] 从头到尾是同步的
+              // （sqlite3 在主 isolate 上是同步 API），`_loading` 只在那一个
+              // 函数调用栈内为真，build 时永远读到 false——画出来的转圈是一帧
+              // 都不会出现的死代码。翻页那一下的代价是主线程阻塞，不是等待。
+              if (_currentViewIsEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 还在读这一层时不要报「这个文件夹是空的」——那句话
+                        // 是个结论，而此刻我们还没有资格下结论。
+                        // 空态这枚是大号的同一枚弧——整屏转圈与标题旁那枚
+                        // 小的必须是同一种画法，否则一页上会出现两种"正在忙"。
+                        //
+                        // ⛔ 转圈 ↔ 空夹子、「正在读取」↔「是空的」都走
+                        // AnimatedSwitcher，不许硬切：扫完那一下正是用户
+                        // 盯着看的时刻。
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 220),
+                          child: _scanning
+                              ? const GlassSpinningArc(
+                                  key: ValueKey<String>('empty_scanning'),
+                                  size: 36,
+                                )
+                              : Icon(
+                                  Icons.folder_open_outlined,
+                                  key: const ValueKey<String>('empty_idle'),
+                                  size: 64,
+                                  color: Theme.of(context).colorScheme.outline,
                                 ),
+                        ),
+                        const SizedBox(height: 16),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 220),
+                          child: Builder(
+                            key: ValueKey<String>(_emptyStateText),
+                            builder: (context) => Text(
+                              _emptyStateText,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ),
+                        ),
+                        // 「为什么是空的」：跳过的 `.` 文件夹 / 读不动 /
+                        // 别的应用的私有目录。不满足条件时传 null，让它
+                        // 带动画收起，而不是从树上硬切掉。
+                        LocalFolderEmptyHint(
+                          source: _source,
+                          folderPath:
+                              !_scanning &&
+                                  _query.isEmpty &&
+                                  _effectiveFilter == _BrowseFilter.all
+                              ? _folder?.folderPath
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: MediaQuery.of(context).padding.bottom + 24,
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    return Scaffold(
+      // [body] 从外面传进来：动画逐帧重建的只有 header 与蒙层，列表那一大棵
+      // 子树是同一个 widget 实例，element 直接跳过。
+      body: AnimatedBuilder(
+        animation: _toolRowCurve,
+        child: body,
+        builder: (context, body) {
+          final double reveal = _toolRowCurve.value;
+          final double headerHeight = headerHeightAt(reveal);
+          return GlassHeaderOverlay(
+            liquid: true,
+            headerExtent: statusBarHeight + headerHeight,
+            headerTop: statusBarHeight,
+            headerHeight: headerHeight,
+            solidExtent: statusBarHeight,
+            header: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                titleRow,
+                // 出场：这一行占的高度从 0 长到整行，行本身停在终点位置、从
+                // 上方 10px 滑落到位，玻璃材质跟着进度淡入（⛔ 不能套 Opacity，
+                // 会打断液态折射，见 [GlassReveal]）。退场反过来走一遍。
+                if (reveal > 0)
+                  SizedBox(
+                    height: toolRowExtent * reveal,
+                    child: OverflowBox(
+                      alignment: Alignment.topCenter,
+                      minHeight: toolRowExtent,
+                      maxHeight: toolRowExtent,
+                      child: IgnorePointer(
+                        ignoring: !_toolRowLatched,
+                        child: Transform.translate(
+                          offset: Offset(0, -10 * (1 - reveal)),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              16,
+                              _toolRowGap,
+                              16,
+                              0,
+                            ),
+                            child: SizedBox(
+                              height: GlassTokens.pillHeight,
+                              child: _buildToolRow(
+                                context,
+                                segments,
+                                showSegments,
+                                materialize: reveal,
                               ),
                             ),
-                          );
-                        }, childCount: folderShown),
-                      ),
-                    ),
-                    if (_visibleChildren.length > folderShown)
-                      _buildViewAllSliver(
-                        t.viewAllFolders(count: _visibleChildren.length),
-                        _BrowseFilter.folders,
-                      ),
-                  ],
-                  if (videoShown > 0) ...[
-                    if (showHeaders) _buildSectionHeader(t.videosSection),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: MediaWaterfallSliver(
-                        crossAxisCount: crossAxisCount,
-                        itemCount: videoShown,
-                        itemBuilder: (context, index, itemWidth) {
-                          final item = _videos[index];
-                          return LocalMediaItemCard(
-                            item: item,
-                            width: itemWidth,
-                            onOpen: () => _openVideo(item),
-                            onMenu: (anchorContext) =>
-                                _showItemMenu(anchorContext, item),
-                          );
-                        },
-                      ),
-                    ),
-                    // ⛔ 必须夹一道 `preview`：视频档下列表本来就是分页的
-                    // （首屏 120 条 / 总数 96 以上），不夹的话完整视图底下会一直
-                    // 挂着一条「查看全部 500 个」——而用户正在看的就是那 500 个。
-                    if (preview && _videoCount > videoShown)
-                      _buildViewAllSliver(
-                        t.viewAllVideos(count: _videoCount),
-                        _BrowseFilter.videos,
-                      ),
-                  ],
-                  if (imageShown > 0) ...[
-                    if (showHeaders) _buildSectionHeader(t.imagesSection),
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: MediaWaterfallSliver(
-                        crossAxisCount: crossAxisCount,
-                        itemCount: imageShown,
-                        itemBuilder: (context, index, itemWidth) {
-                          final item = _images[index];
-                          // ⛔ 图片格也要一枚看得见的 ⋮：只留长按等于没有入口，
-                          // 用户不知道有这个功能（同 `local_media_item_card.dart`
-                          // 的类文档）。
-                          // ⛔ 锚点必须是**这一格**自己的 context。原来传的是
-                          // itemBuilder 那个 `context`——它是整条 sliver 的，长按
-                          // 哪一格菜单都贴着同一个位置开。
-                          return Builder(
-                            builder: (cellContext) => Stack(
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () => _openImage(item),
-                                  onLongPress: () =>
-                                      _showItemMenu(cellContext, item),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: AspectRatio(
-                                      aspectRatio: 1,
-                                      child: LocalImageThumb(
-                                        item: item,
-                                        placeholder: _buildImagePlaceholder(
-                                          context,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: LocalContainerCard.badgeInset,
-                                  right: LocalContainerCard.badgeInset,
-                                  child: LocalCardMenuBadge(
-                                    onMenu: (anchorContext) =>
-                                        _showItemMenu(anchorContext, item),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    if (preview && _imageCount > imageShown)
-                      _buildViewAllSliver(
-                        t.viewAllImages(count: _imageCount),
-                        _BrowseFilter.images,
-                      ),
-                  ],
-                  // ⛔ 这里没有加载指示器，也不该有：[_loadMore] 从头到尾是同步的
-                  // （sqlite3 在主 isolate 上是同步 API），`_loading` 只在那一个
-                  // 函数调用栈内为真，build 时永远读到 false——画出来的转圈是一帧
-                  // 都不会出现的死代码。翻页那一下的代价是主线程阻塞，不是等待。
-                  if (_currentViewIsEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // 还在读这一层时不要报「这个文件夹是空的」——那句话
-                            // 是个结论，而此刻我们还没有资格下结论。
-                            // 空态这枚是大号的同一枚弧——整屏转圈与标题旁那枚
-                            // 小的必须是同一种画法，否则一页上会出现两种"正在忙"。
-                            //
-                            // ⛔ 转圈 ↔ 空夹子、「正在读取」↔「是空的」都走
-                            // AnimatedSwitcher，不许硬切：扫完那一下正是用户
-                            // 盯着看的时刻。
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 220),
-                              child: _scanning
-                                  ? const GlassSpinningArc(
-                                      key: ValueKey<String>('empty_scanning'),
-                                      size: 36,
-                                    )
-                                  : Icon(
-                                      Icons.folder_open_outlined,
-                                      key: const ValueKey<String>('empty_idle'),
-                                      size: 64,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.outline,
-                                    ),
-                            ),
-                            const SizedBox(height: 16),
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 220),
-                              child: Builder(
-                                key: ValueKey<String>(_emptyStateText),
-                                builder: (context) => Text(
-                                  _emptyStateText,
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: MediaQuery.of(context).padding.bottom + 24,
-                    ),
                   ),
-                ],
-              );
-            },
-          ),
-        ),
+              ],
+            ),
+            body: body!,
+          );
+        },
       ),
     );
   }

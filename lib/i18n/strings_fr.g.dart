@@ -1440,6 +1440,8 @@ class _TranslationsDownloadFr extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Effacer les filtres';
 	@override String get pauseAll => 'Tout mettre en pause';
 	@override String get resumeAll => 'Tout démarrer';
+	@override String remainingTime({required Object time}) => '${time} restant';
+	@override late final _TranslationsDownloadTimelineFr timeline = _TranslationsDownloadTimelineFr._(_root);
 	@override late final _TranslationsDownloadErrorTypesFr errorTypes = _TranslationsDownloadErrorTypesFr._(_root);
 	@override String get errorDetailCopied => 'Détails de l\'erreur copiés';
 	@override String get errorDetailCopyHint => 'Appuyez longuement pour copier les détails de l\'erreur';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsFr extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Essayez d\'ouvrir avec d\'autres visionneuses';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineFr extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineFr._(TranslationsFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Aujourd\'hui';
+	@override String get yesterday => 'Hier';
+	@override String get thisWeek => 'Cette semaine';
+	@override String get thisMonth => 'Ce mois-ci';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesFr extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesFr._(TranslationsFr root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseFr extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Masquer ce dossier';
 	@override String get unhideFolder => 'Afficher de nouveau';
 	@override String get showHiddenFolders => 'Afficher les dossiers masqués';
+	@override String get includeDotFolders => 'Analyser les dossiers commençant par .';
+	@override String get dotFoldersIncluded => 'Les dossiers commençant par . sont maintenant analysés';
+	@override String get dotFoldersExcluded => 'Les dossiers commençant par . ne sont plus analysés';
+	@override String get showDotFolders => 'Afficher les dossiers commençant par .';
+	@override String dotFoldersSkipped({required Object count}) => '${count} dossiers commençant par . ne sont pas analysés ici';
+	@override String get scanDotFoldersAction => 'Activer pour cette source';
+	@override String get otherAppsPrivateNotice => 'Depuis Android 11, aucune application ne peut lire les fichiers des autres applications dans Android/data ou Android/obb, et cette application ne peut pas le contourner. Téléchargez ou exportez les vidéos vers un dossier public comme Download dans l\'application d\'origine, puis ajoutez ce dossier ici. Les caches de lecture sont généralement fragmentés et illisibles même s\'ils sont accessibles.';
 	@override String get folderHidden => 'Masqué ; l’analyse l’ignorera aussi';
 	@override String get folderUnhidden => 'N’est plus masqué';
 	@override String get hiddenFolderBadge => 'Masqué';
@@ -5804,6 +5826,11 @@ extension on TranslationsFr {
 			'download.clearFilters' => 'Effacer les filtres',
 			'download.pauseAll' => 'Tout mettre en pause',
 			'download.resumeAll' => 'Tout démarrer',
+			'download.remainingTime' => ({required Object time}) => '${time} restant',
+			'download.timeline.today' => 'Aujourd\'hui',
+			'download.timeline.yesterday' => 'Hier',
+			'download.timeline.thisWeek' => 'Cette semaine',
+			'download.timeline.thisMonth' => 'Ce mois-ci',
 			'download.errorTypes.network' => 'Problème réseau, réessayer peut aider',
 			'download.errorTypes.serverRejected' => 'Rejeté par le serveur, vous devrez peut-être vous reconnecter',
 			'download.errorTypes.notFound' => 'La ressource a disparu ou a été supprimée',
@@ -6156,13 +6183,13 @@ extension on TranslationsFr {
 			'displaySettings.layoutSettingsDesc' => 'Personnalisez le nombre de colonnes et la configuration des points de rupture',
 			'displaySettings.gridLayout' => 'Disposition en grille',
 			'displaySettings.navigationOrderSettings' => 'Réglages de l\'ordre de navigation',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Ordre de navigation personnalisé',
 			'displaySettings.customNavigationOrderDesc' => 'Ajustez l\'ordre d\'affichage des pages dans la barre de navigation inférieure et la barre latérale',
 			'layoutSettings.title' => 'Réglages de disposition',
 			'layoutSettings.descriptionTitle' => 'Description de la configuration de disposition',
 			'layoutSettings.descriptionContent' => 'La configuration ici détermine le nombre de colonnes affichées dans les pages de liste de vidéos et de galeries. Vous pouvez choisir le mode automatique pour laisser le système s\'ajuster selon la largeur de l\'écran, ou le mode manuel pour fixer le nombre de colonnes.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Mode de disposition',
 			'layoutSettings.reset' => 'Réinitialiser',
 			'layoutSettings.autoMode' => 'Mode automatique',
@@ -6670,13 +6697,13 @@ extension on TranslationsFr {
 			'siteMode.chooseLinkTargetDescription' => 'Ce lien n\'inclut pas de domaine. Choisissez de l\'ouvrir dans Principal ou AI.',
 			'siteMode.chooseLinkTargetHint' => 'Une fois ouvert, cette page et les requêtes de détail suivantes continueront d\'utiliser le site sélectionné.',
 			'siteMode.alreadyUsing' => 'Vous utilisez déjà ce mode de site.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Ouvrir dans ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Après confirmation, les requêtes suivantes utiliseront le mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Passé à ${site}. L\'app a été actualisée.',
 			'savedSearchConfig.title' => 'Filtres enregistrés',
 			'savedSearchConfig.empty' => 'Aucun filtre enregistré',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Enregistrer le filtre actuel',
 			'savedSearchConfig.namePromptTitle' => 'Enregistrer le filtre',
 			'savedSearchConfig.nameLabel' => 'Nom',
@@ -6926,6 +6953,13 @@ extension on TranslationsFr {
 			'localMedia.browse.hideFolder' => 'Masquer ce dossier',
 			'localMedia.browse.unhideFolder' => 'Afficher de nouveau',
 			'localMedia.browse.showHiddenFolders' => 'Afficher les dossiers masqués',
+			'localMedia.browse.includeDotFolders' => 'Analyser les dossiers commençant par .',
+			'localMedia.browse.dotFoldersIncluded' => 'Les dossiers commençant par . sont maintenant analysés',
+			'localMedia.browse.dotFoldersExcluded' => 'Les dossiers commençant par . ne sont plus analysés',
+			'localMedia.browse.showDotFolders' => 'Afficher les dossiers commençant par .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '${count} dossiers commençant par . ne sont pas analysés ici',
+			'localMedia.browse.scanDotFoldersAction' => 'Activer pour cette source',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Depuis Android 11, aucune application ne peut lire les fichiers des autres applications dans Android/data ou Android/obb, et cette application ne peut pas le contourner. Téléchargez ou exportez les vidéos vers un dossier public comme Download dans l\'application d\'origine, puis ajoutez ce dossier ici. Les caches de lecture sont généralement fragmentés et illisibles même s\'ils sont accessibles.',
 			'localMedia.browse.folderHidden' => 'Masqué ; l’analyse l’ignorera aussi',
 			'localMedia.browse.folderUnhidden' => 'N’est plus masqué',
 			'localMedia.browse.hiddenFolderBadge' => 'Masqué',

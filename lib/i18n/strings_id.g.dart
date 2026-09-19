@@ -1440,6 +1440,8 @@ class _TranslationsDownloadId extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Bersihkan filter';
 	@override String get pauseAll => 'Jeda semua';
 	@override String get resumeAll => 'Mulai semua';
+	@override String remainingTime({required Object time}) => 'sisa ${time}';
+	@override late final _TranslationsDownloadTimelineId timeline = _TranslationsDownloadTimelineId._(_root);
 	@override late final _TranslationsDownloadErrorTypesId errorTypes = _TranslationsDownloadErrorTypesId._(_root);
 	@override String get errorDetailCopied => 'Rincian kesalahan disalin';
 	@override String get errorDetailCopyHint => 'Tekan lama untuk menyalin rincian kesalahan';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsId extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Silakan coba gunakan penampil lain untuk membuka';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineId extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Hari ini';
+	@override String get yesterday => 'Kemarin';
+	@override String get thisWeek => 'Minggu ini';
+	@override String get thisMonth => 'Bulan ini';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesId extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesId._(TranslationsId root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseId extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Sembunyikan folder ini';
 	@override String get unhideFolder => 'Tampilkan lagi';
 	@override String get showHiddenFolders => 'Tampilkan folder tersembunyi';
+	@override String get includeDotFolders => 'Pindai folder yang diawali .';
+	@override String get dotFoldersIncluded => 'Folder yang diawali . sekarang dipindai';
+	@override String get dotFoldersExcluded => 'Folder yang diawali . tidak lagi dipindai';
+	@override String get showDotFolders => 'Tampilkan folder yang diawali .';
+	@override String dotFoldersSkipped({required Object count}) => 'Ada ${count} folder yang diawali . di sini yang belum dipindai';
+	@override String get scanDotFoldersAction => 'Aktifkan untuk sumber ini';
+	@override String get otherAppsPrivateNotice => 'Sejak Android 11, tidak ada aplikasi yang dapat membaca file aplikasi lain di Android/data atau Android/obb, dan aplikasi ini tidak bisa mengakalinya. Unduh atau ekspor video ke folder publik seperti Download di aplikasi aslinya, lalu tambahkan folder itu di sini. Cache saat menonton biasanya terpecah-pecah dan tidak bisa diputar meski terbaca.';
 	@override String get folderHidden => 'Disembunyikan — pemindaian juga akan melewatinya';
 	@override String get folderUnhidden => 'Tidak lagi disembunyikan';
 	@override String get hiddenFolderBadge => 'Tersembunyi';
@@ -5804,6 +5826,11 @@ extension on TranslationsId {
 			'download.clearFilters' => 'Bersihkan filter',
 			'download.pauseAll' => 'Jeda semua',
 			'download.resumeAll' => 'Mulai semua',
+			'download.remainingTime' => ({required Object time}) => 'sisa ${time}',
+			'download.timeline.today' => 'Hari ini',
+			'download.timeline.yesterday' => 'Kemarin',
+			'download.timeline.thisWeek' => 'Minggu ini',
+			'download.timeline.thisMonth' => 'Bulan ini',
 			'download.errorTypes.network' => 'Masalah jaringan, coba lagi mungkin membantu',
 			'download.errorTypes.serverRejected' => 'Ditolak oleh server, Anda mungkin perlu masuk lagi',
 			'download.errorTypes.notFound' => 'Sumber daya hilang atau telah dihapus',
@@ -6156,13 +6183,13 @@ extension on TranslationsId {
 			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
 			'displaySettings.gridLayout' => 'Tata Letak Kisi',
 			'displaySettings.navigationOrderSettings' => 'Pengaturan Urutan Navigasi',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Urutan Navigasi Kustom',
 			'displaySettings.customNavigationOrderDesc' => 'Sesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
 			'layoutSettings.title' => 'Pengaturan Tata Letak',
 			'layoutSettings.descriptionTitle' => 'Penjelasan Konfigurasi Tata Letak',
 			'layoutSettings.descriptionContent' => 'Konfigurasi di sini akan menentukan jumlah kolom yang ditampilkan pada halaman daftar video dan galeri. Anda dapat memilih mode otomatis agar sistem menyesuaikan secara otomatis berdasarkan lebar layar, atau memilih mode manual untuk menetapkan jumlah kolom.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Mode Tata Letak',
 			'layoutSettings.reset' => 'Atur Ulang',
 			'layoutSettings.autoMode' => 'Mode Otomatis',
@@ -6670,13 +6697,13 @@ extension on TranslationsId {
 			'siteMode.chooseLinkTargetDescription' => 'Tautan ini tidak menyertakan domain. Silakan pilih apakah akan membukanya di Main atau AI.',
 			'siteMode.chooseLinkTargetHint' => 'Setelah dibuka, halaman ini dan permintaan detail lanjutannya akan terus menggunakan situs yang dipilih.',
 			'siteMode.alreadyUsing' => 'Anda sudah menggunakan mode situs ini.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Buka di ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Setelah dikonfirmasi, permintaan mendatang akan menggunakan mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Beralih ke ${site}. Aplikasi telah disegarkan.',
 			'savedSearchConfig.title' => 'Filter Tersimpan',
 			'savedSearchConfig.empty' => 'Belum ada filter tersimpan',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Simpan filter saat ini',
 			'savedSearchConfig.namePromptTitle' => 'Simpan Filter',
 			'savedSearchConfig.nameLabel' => 'Nama',
@@ -6926,6 +6953,13 @@ extension on TranslationsId {
 			'localMedia.browse.hideFolder' => 'Sembunyikan folder ini',
 			'localMedia.browse.unhideFolder' => 'Tampilkan lagi',
 			'localMedia.browse.showHiddenFolders' => 'Tampilkan folder tersembunyi',
+			'localMedia.browse.includeDotFolders' => 'Pindai folder yang diawali .',
+			'localMedia.browse.dotFoldersIncluded' => 'Folder yang diawali . sekarang dipindai',
+			'localMedia.browse.dotFoldersExcluded' => 'Folder yang diawali . tidak lagi dipindai',
+			'localMedia.browse.showDotFolders' => 'Tampilkan folder yang diawali .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'Ada ${count} folder yang diawali . di sini yang belum dipindai',
+			'localMedia.browse.scanDotFoldersAction' => 'Aktifkan untuk sumber ini',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Sejak Android 11, tidak ada aplikasi yang dapat membaca file aplikasi lain di Android/data atau Android/obb, dan aplikasi ini tidak bisa mengakalinya. Unduh atau ekspor video ke folder publik seperti Download di aplikasi aslinya, lalu tambahkan folder itu di sini. Cache saat menonton biasanya terpecah-pecah dan tidak bisa diputar meski terbaca.',
 			'localMedia.browse.folderHidden' => 'Disembunyikan — pemindaian juga akan melewatinya',
 			'localMedia.browse.folderUnhidden' => 'Tidak lagi disembunyikan',
 			'localMedia.browse.hiddenFolderBadge' => 'Tersembunyi',

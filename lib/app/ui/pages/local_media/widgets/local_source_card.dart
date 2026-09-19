@@ -4,7 +4,6 @@ import 'package:i_iwara/app/models/local_media/local_media_source.model.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_container_card.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_cover_image.dart';
 import 'package:i_iwara/app/ui/pages/local_media/widgets/local_folder_card.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -19,8 +18,8 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 /// 一句「N 个视频 · N 张图片」。这些数字本来只有点进去才看得到，现在提前一层
 /// 摆出来，用户在根页就能挑。
 ///
-/// 外形与目录卡同族（[LocalContainerCard] 那只夹子）：来源就是最外面的那一层
-/// 目录，长得一样是对的——要跟媒体卡分开的是**它们俩一起**。
+/// 外形与目录卡同一副（[LocalContainerCard]）：来源就是最外面的那一层目录，
+/// 标题前的种类图标（已下载 / 设备视频 / NAS / 文件夹）说清它是哪一种。
 class LocalSourceCardWidget extends StatelessWidget {
   const LocalSourceCardWidget({
     super.key,
@@ -63,31 +62,22 @@ class LocalSourceCardWidget extends StatelessWidget {
   /// 打开「重新扫描 / 移除」菜单；[BuildContext] 是菜单的锚点。
   final void Function(BuildContext anchorContext) onMenu;
 
-  /// 封面以下那块文字区的高度：名字 + 路径 + 计数三行。
-  static double textExtent(BuildContext context) =>
-      LocalContainerCard.textExtentOf(context, lines: 3);
-
   /// 给定格宽下一张来源卡的总高，交给 `LocalGridMetrics.delegate`。
   static double extentFor(BuildContext context, double cellWidth) =>
-      LocalContainerCard.extentFor(
-        cellWidth: cellWidth,
-        coverAspectRatio: LocalFolderCardWidget.coverAspectRatio,
-        textExtent: textExtent(context),
-      );
+      LocalContainerCard.extentFor(context, cellWidth);
 
   IconData get _icon => iconOf(source);
 
   /// 按来源种类的图标。顶栏「移除来源」的选择列表也用它，和卡片同一套。
   static IconData iconOf(LocalMediaSource source) => switch (source.kind) {
-    LocalMediaSourceKind.downloads => Icons.download_rounded,
-    LocalMediaSourceKind.mediastore => Icons.video_library_rounded,
-    LocalMediaSourceKind.webdav => Icons.dns_rounded,
+    // 描边款：卡片标题前那一枚与目录卡的文件夹图标同一套线稿。
+    LocalMediaSourceKind.downloads => Icons.download_outlined,
+    LocalMediaSourceKind.mediastore => Icons.video_library_outlined,
+    LocalMediaSourceKind.webdav => Icons.dns_outlined,
     LocalMediaSourceKind.unknown => Icons.help_outline_rounded,
     LocalMediaSourceKind.directory ||
-    LocalMediaSourceKind.bookmark => Icons.folder_rounded,
+    LocalMediaSourceKind.bookmark => Icons.folder_outlined,
   };
-
-  String get _subtitle => subtitleOf(source);
 
   /// 卡片第二行：内建源的说明、NAS 的主机路径或故障原因、目录的路径。
   /// 顶栏「移除来源」的选择列表也用它——那里曾经把 `dav:/…` 原样露给用户。
@@ -129,7 +119,6 @@ class LocalSourceCardWidget extends StatelessWidget {
     final theme = Theme.of(context);
 
     return LocalContainerCard(
-      coverAspectRatio: LocalFolderCardWidget.coverAspectRatio,
       onTap: onOpen,
       // ⛔ 这一行就是 2026-09-11 那个 bug 的位置：以前这里只画了一枚 ⋮、给那枚 ⋮
       // 接了长按，却**没有**把长按递给整张卡——长按子目录有菜单、长按来源没反应。
@@ -137,72 +126,74 @@ class LocalSourceCardWidget extends StatelessWidget {
       onMenu: onMenu,
       pinned: pinned,
       cover: _buildCover(context),
-      // 扫描中把角标套上转圈指示器，同时保留 ⋮ 菜单入口和点击响应——扫描中想移除、
-      // 设为常用、改封面等操作随时都能点得动，绝不能把入口藏掉。
+      // 扫描中在封面右上角挂一枚转圈；⋮ 在说明行右端，扫描中照样点得动。
       trailing: scanning
           ? LocalCardBadge(
-              child: Builder(
-                builder: (anchorContext) => GlassTapArea(
-                  onTap: () => onMenu(anchorContext),
-                  onLongPress: () => onMenu(anchorContext),
-                  opensOverlay: true,
-                  longPressOpensOverlay: true,
-                  child: Padding(
-                    padding: const EdgeInsets.all(
-                      LocalCardMenuBadge.iconPadding,
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox.square(
-                          dimension: LocalCardMenuBadge.iconSize,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                        Icon(
-                          Icons.more_vert,
-                          size: 14,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: SizedBox.square(
+                  dimension: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ),
             )
           : null,
-      lines: <Widget>[
-        Text(
-          source.displayName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          scanning
-              ? slang.t.localMedia.scanning(count: videoCount + imageCount)
-              : queued
-              ? slang.t.localMedia.scanQueued
-              : _subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: scanning || queued
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline,
-          ),
-        ),
-        LocalFolderCountLine(
-          childFolderCount: childFolderCount,
-          videoCount: videoCount,
-          imageCount: imageCount,
-          probed: probed && !queued,
-        ),
-      ],
+      title: source.displayName,
+      // 种类图标行内挂在名字前：已下载 / 设备视频 / NAS / 文件夹一眼分得开，
+      // 不用再靠下面那行路径去猜。
+      titleIcon: _icon,
+      itemCount: probed && !queued
+          ? childFolderCount + videoCount + imageCount
+          : null,
+      meta: _statusOrCounts(context, theme),
+    );
+  }
+
+  /// 说明行：正常时是计数；扫描中 / 排队 / NAS 出故障 / 认不出的源时换成那句状态。
+  ///
+  /// ⛔ 路径与内建源说明（「『已下载』由下载模块自动维护」）不上卡面：一张卡只该
+  /// 回答「里面有什么」，路径是要用时才查的东西，在菜单的信息里。
+  Widget _statusOrCounts(BuildContext context, ThemeData theme) {
+    final t = slang.t.localMedia;
+    if (scanning) {
+      return LocalCardText.metaText(
+        context,
+        t.scanning(count: videoCount + imageCount),
+        color: theme.colorScheme.primary,
+      );
+    }
+    if (queued) {
+      return LocalCardText.metaText(
+        context,
+        t.scanQueued,
+        color: theme.colorScheme.primary,
+      );
+    }
+    final remoteState = source.remoteState;
+    if (source.isRemote &&
+        remoteState != null &&
+        remoteState != LocalMediaRemoteState.ok) {
+      return LocalCardText.metaText(
+        context,
+        WebDavService.describeState(remoteState),
+        color: theme.colorScheme.error,
+      );
+    }
+    if (source.isInert) {
+      return LocalCardText.metaText(
+        context,
+        t.unknownSourceHint,
+        color: theme.colorScheme.error,
+      );
+    }
+    return LocalFolderCountLine(
+      childFolderCount: childFolderCount,
+      videoCount: videoCount,
+      imageCount: imageCount,
+      probed: probed,
     );
   }
 }
@@ -213,7 +204,7 @@ class LocalSourceCardWidget extends StatelessWidget {
 /// 的时候又要滚到底才够得着。做成网格里的最后一格，它就永远跟在来源后面，位置随
 /// 内容走，也把那一行的空格填上了。
 ///
-/// 外形也是那只夹子，只是空心的——它要占的正是「下一只夹子」的位置。
+/// 外壳与来源卡同一副，只是空心的——它要占的正是「下一张来源卡」的位置。
 class LocalAddSourceCard extends StatelessWidget {
   const LocalAddSourceCard({
     super.key,
@@ -231,44 +222,51 @@ class LocalAddSourceCard extends StatelessWidget {
         ? theme.colorScheme.primary
         : theme.colorScheme.outline;
 
-    return Opacity(
-      opacity: enabled ? 1 : 0.5,
-      child: Material(
-        color: Colors.transparent,
-        shape: LocalFolderShape(
-          side: BorderSide(color: theme.colorScheme.outlineVariant, width: 1.2),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: enabled ? onTap : null,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(Icons.add_rounded, size: 30, color: color),
-              const SizedBox(height: 6),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  slang.t.localMedia.addSource,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: color),
-                ),
-              ),
-              // 名字只写「添加来源」的话，用户不知道 NAS 也从这里进
-              // （2026-09-19：入口原先叫「添加文件夹」，连 NAS 的人根本想不到点它）。
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  slang.t.localMedia.addSourceKinds,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
+    // 与来源卡同一副外壳（[LocalCardShell]），只是空心的：虚一档的描边、没有
+    // 阴影、封面位置换成一枚加号。它占的正是「下一张来源卡」的位置，形状对得上，
+    // 一排看过去才不参差。
+    const radius = BorderRadius.all(Radius.circular(LocalCardShell.radius));
+    // 来源卡上沿有叠纸（[LocalContainerCard.stackReveal]），空心那格让出同样一截，
+    // 一排卡片的上沿才齐。
+    return Padding(
+      padding: const EdgeInsets.only(top: LocalContainerCard.stackReveal),
+      child: Opacity(
+        opacity: enabled ? 1 : 0.5,
+        child: Material(
+          color: Colors.transparent,
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(
+            borderRadius: radius,
+            side: BorderSide(
+              color: theme.colorScheme.outlineVariant,
+              width: 1.2,
+            ),
+          ),
+          child: InkWell(
+            onTap: enabled ? onTap : null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                AspectRatio(
+                  aspectRatio: LocalCardShell.coverAspectRatio,
+                  child: ColoredBox(
+                    color: theme.colorScheme.surfaceContainerLow,
+                    child: Icon(Icons.add_rounded, size: 32, color: color),
                   ),
                 ),
-              ),
-            ],
+                Expanded(
+                  child: LocalCardText(
+                    title: slang.t.localMedia.addSource,
+                    // 名字只写「添加来源」的话，用户不知道 NAS 也从这里进
+                    // （2026-09-19：入口原先叫「添加文件夹」，连 NAS 的人根本想不到点它）。
+                    meta: LocalCardText.metaText(
+                      context,
+                      slang.t.localMedia.addSourceKinds,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1440,6 +1440,8 @@ class _TranslationsDownloadRu extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Сбросить фильтры';
 	@override String get pauseAll => 'Приостановить все';
 	@override String get resumeAll => 'Запустить все';
+	@override String remainingTime({required Object time}) => 'осталось ${time}';
+	@override late final _TranslationsDownloadTimelineRu timeline = _TranslationsDownloadTimelineRu._(_root);
 	@override late final _TranslationsDownloadErrorTypesRu errorTypes = _TranslationsDownloadErrorTypesRu._(_root);
 	@override String get errorDetailCopied => 'Детали ошибки скопированы';
 	@override String get errorDetailCopyHint => 'Нажмите и удерживайте, чтобы скопировать детали ошибки';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsRu extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Попробуйте открыть в другом просмотрщике';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineRu extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Сегодня';
+	@override String get yesterday => 'Вчера';
+	@override String get thisWeek => 'На этой неделе';
+	@override String get thisMonth => 'В этом месяце';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesRu extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesRu._(TranslationsRu root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseRu extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Скрыть эту папку';
 	@override String get unhideFolder => 'Показать снова';
 	@override String get showHiddenFolders => 'Показывать скрытые папки';
+	@override String get includeDotFolders => 'Сканировать папки, начинающиеся с .';
+	@override String get dotFoldersIncluded => 'Папки, начинающиеся с ., теперь сканируются';
+	@override String get dotFoldersExcluded => 'Папки, начинающиеся с ., больше не сканируются';
+	@override String get showDotFolders => 'Показывать папки, начинающиеся с .';
+	@override String dotFoldersSkipped({required Object count}) => 'Здесь есть ${count} несканированных папок, начинающихся с .';
+	@override String get scanDotFoldersAction => 'Включить для этого источника';
+	@override String get otherAppsPrivateNotice => 'Начиная с Android 11 ни одно приложение не может читать файлы других приложений в Android/data и Android/obb, и это приложение не может обойти запрет. Скачайте или экспортируйте видео в общую папку, например Download, в исходном приложении, а затем добавьте эту папку сюда. Кэш при просмотре обычно разбит на фрагменты и не воспроизводится, даже если его прочитать.';
 	@override String get folderHidden => 'Скрыта — сканирование тоже её пропустит';
 	@override String get folderUnhidden => 'Больше не скрыта';
 	@override String get hiddenFolderBadge => 'Скрыта';
@@ -5804,6 +5826,11 @@ extension on TranslationsRu {
 			'download.clearFilters' => 'Сбросить фильтры',
 			'download.pauseAll' => 'Приостановить все',
 			'download.resumeAll' => 'Запустить все',
+			'download.remainingTime' => ({required Object time}) => 'осталось ${time}',
+			'download.timeline.today' => 'Сегодня',
+			'download.timeline.yesterday' => 'Вчера',
+			'download.timeline.thisWeek' => 'На этой неделе',
+			'download.timeline.thisMonth' => 'В этом месяце',
 			'download.errorTypes.network' => 'Проблема с сетью, повтор может помочь',
 			'download.errorTypes.serverRejected' => 'Отклонено сервером, возможно, нужно войти заново',
 			'download.errorTypes.notFound' => 'Ресурс отсутствует или был удалён',
@@ -6156,13 +6183,13 @@ extension on TranslationsRu {
 			'displaySettings.layoutSettingsDesc' => 'Настройте число столбцов и точки перелома',
 			'displaySettings.gridLayout' => 'Сетка',
 			'displaySettings.navigationOrderSettings' => 'Настройки порядка навигации',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Свой порядок навигации',
 			'displaySettings.customNavigationOrderDesc' => 'Настройте порядок отображения страниц на нижней панели навигации и в боковом меню',
 			'layoutSettings.title' => 'Настройки макета',
 			'layoutSettings.descriptionTitle' => 'Описание настройки макета',
 			'layoutSettings.descriptionContent' => 'Настроенная здесь конфигурация определяет число столбцов на страницах списков видео и галерей. Выберите автоматический режим, чтобы система подстраивалась под ширину экрана, или ручной режим, чтобы зафиксировать число столбцов.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Режим макета',
 			'layoutSettings.reset' => 'Сбросить',
 			'layoutSettings.autoMode' => 'Автоматический режим',
@@ -6670,13 +6697,13 @@ extension on TranslationsRu {
 			'siteMode.chooseLinkTargetDescription' => 'Эта ссылка не содержит домена. Выберите, открыть её в «Основном» или «AI».',
 			'siteMode.chooseLinkTargetHint' => 'После открытия эта страница и последующие запросы деталей продолжат использовать выбранный сайт.',
 			'siteMode.alreadyUsing' => 'Вы уже используете этот режим сайта.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Открыть в ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'После подтверждения будущие запросы будут использовать режим ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Переключено на ${site}. Приложение обновлено.',
 			'savedSearchConfig.title' => 'Сохранённые фильтры',
 			'savedSearchConfig.empty' => 'Сохранённых фильтров пока нет',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Сохранить текущий фильтр',
 			'savedSearchConfig.namePromptTitle' => 'Сохранить фильтр',
 			'savedSearchConfig.nameLabel' => 'Название',
@@ -6926,6 +6953,13 @@ extension on TranslationsRu {
 			'localMedia.browse.hideFolder' => 'Скрыть эту папку',
 			'localMedia.browse.unhideFolder' => 'Показать снова',
 			'localMedia.browse.showHiddenFolders' => 'Показывать скрытые папки',
+			'localMedia.browse.includeDotFolders' => 'Сканировать папки, начинающиеся с .',
+			'localMedia.browse.dotFoldersIncluded' => 'Папки, начинающиеся с ., теперь сканируются',
+			'localMedia.browse.dotFoldersExcluded' => 'Папки, начинающиеся с ., больше не сканируются',
+			'localMedia.browse.showDotFolders' => 'Показывать папки, начинающиеся с .',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => 'Здесь есть ${count} несканированных папок, начинающихся с .',
+			'localMedia.browse.scanDotFoldersAction' => 'Включить для этого источника',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Начиная с Android 11 ни одно приложение не может читать файлы других приложений в Android/data и Android/obb, и это приложение не может обойти запрет. Скачайте или экспортируйте видео в общую папку, например Download, в исходном приложении, а затем добавьте эту папку сюда. Кэш при просмотре обычно разбит на фрагменты и не воспроизводится, даже если его прочитать.',
 			'localMedia.browse.folderHidden' => 'Скрыта — сканирование тоже её пропустит',
 			'localMedia.browse.folderUnhidden' => 'Больше не скрыта',
 			'localMedia.browse.hiddenFolderBadge' => 'Скрыта',

@@ -1796,6 +1796,12 @@ download:
   clearFilters: Borrar filtros
   pauseAll: Pausar todo
   resumeAll: Iniciar todo
+  remainingTime: "quedan ${time}"
+  timeline:
+    today: "Hoy"
+    yesterday: "Ayer"
+    thisWeek: "Esta semana"
+    thisMonth: "Este mes"
   errorTypes:
     network: Problema de red; reintentar puede ayudar
     serverRejected: Rechazado por el servidor; es posible que deba iniciar sesión de nuevo
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Ocultar esta carpeta
     unhideFolder: Mostrar de nuevo
     showHiddenFolders: Mostrar carpetas ocultas
+    includeDotFolders: "Escanear carpetas que empiezan por ."
+    dotFoldersIncluded: "Ahora se escanean las carpetas que empiezan por ."
+    dotFoldersExcluded: "Ya no se escanean las carpetas que empiezan por ."
+    showDotFolders: "Mostrar carpetas que empiezan por ."
+    dotFoldersSkipped: "Aquí hay ${count} carpetas que empiezan por . sin escanear"
+    scanDotFoldersAction: "Activar para esta fuente"
+    otherAppsPrivateNotice: "Desde Android 11 ninguna app puede leer los archivos de otras apps en Android/data o Android/obb, y esta app no puede evitarlo. Descarga o exporta los vídeos a una carpeta pública como Download en la app original y luego añade esa carpeta aquí. Las cachés de reproducción suelen estar fragmentadas y no se pueden reproducir aunque se lean."
     folderHidden: Oculta; el escaneo también la omitirá
     folderUnhidden: Ya no está oculta
     hiddenFolderBadge: Oculta

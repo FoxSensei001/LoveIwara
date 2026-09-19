@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:i_iwara/app/models/local_media/dav_path.dart';
+import 'package:i_iwara/app/services/local_media_directory_policy.dart';
 import 'package:i_iwara/app/services/webdav/webdav_client.dart';
 import 'package:i_iwara/app/services/webdav/webdav_propfind.dart';
 import 'package:i_iwara/app/services/webdav/webdav_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -309,7 +312,9 @@ class _WebDavConnectDialogState extends State<_WebDavConnectDialog> {
 
   List<DavEntry> _foldersOf(List<DavEntry> entries) {
     final folders = entries
-        .where((e) => e.isDirectory && !e.name.startsWith('.'))
+        .where(
+          (e) => e.isDirectory && !LocalDirectoryPolicy.skipListedChild(e.name),
+        )
         .toList();
     folders.sort(
       (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
@@ -494,6 +499,7 @@ class _WebDavConnectDialogState extends State<_WebDavConnectDialog> {
       title: relogin != null ? _t.editTitle : _t.connectTitle,
       maxWidth: 460,
       floatingActions: true,
+      floatingHeader: true,
       scrollable: true,
       actions: [
         GlassDialogAction(
@@ -611,6 +617,9 @@ class _WebDavConnectDialogState extends State<_WebDavConnectDialog> {
       title: _t.pickRootTitle,
       maxWidth: 520,
       floatingActions: true,
+      // 标题 + 路径条浮在目录列表之上，列表从它们背后滚过去（与动作行一上一下，
+      // 同选择器弹窗的版式）。
+      floatingHeader: true,
       scrollable: false,
       actions: [
         GlassDialogAction(
@@ -630,67 +639,153 @@ class _WebDavConnectDialogState extends State<_WebDavConnectDialog> {
           onPressed: _busy ? null : _useCurrentFolder,
         ),
       ],
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              GlassIconButton(
-                standalone: true,
-                icon: const Icon(Icons.arrow_upward),
-                tooltip: slang.t.common.back,
-                onPressed: atRoot || _busy
-                    ? null
-                    : () => _open(DavPath.dirname(_currentDav)),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  atRoot ? _t.serverRoot : serverPath,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+      headerRows: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                GlassIconButton(
+                  standalone: true,
+                  icon: const Icon(Icons.arrow_upward),
+                  tooltip: slang.t.common.back,
+                  onPressed: atRoot || _busy
+                      ? null
+                      : () => _open(DavPath.dirname(_currentDav)),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: GlassSurface(
+                    height: GlassTokens.pillHeight,
+                    borderRadius: BorderRadius.circular(
+                      GlassTokens.pillHeight / 2,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    liquidTouch: false,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.folder_open_outlined,
+                          size: 18,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            atRoot ? _t.serverRoot : serverPath,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(height: 320, child: _buildFolderList(context)),
-          if (_error != null) _StatusLine(busy: false, error: _error),
-        ],
-      ),
+              ],
+            ),
+            // 打不开某个子目录时的原因挂在路径条下面：它说的就是「这一跳」。
+            // ⛔ 别放回列表底下——那里被浮动的动作行盖着。
+            _PickerErrorLine(error: _error),
+          ],
+        ),
+      ],
+      // 列表铺满整块面板，高度里含着上下两段浮层让出去的部分。
+      content: SizedBox(height: 480, child: _buildFolderList(context)),
     );
   }
 
   Widget _buildFolderList(BuildContext context) {
-    if (_busy) return const Center(child: CircularProgressIndicator());
-    if (_folders.isEmpty) {
-      return Center(
-        child: Text(
-          slang.t.localMedia.browse.noSubfolders,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+    final theme = Theme.of(context);
+    final Widget child;
+    if (_busy) {
+      child = const GlassSpinningArc(key: ValueKey('busy'), size: 36);
+    } else if (_folders.isEmpty) {
+      child = Text(
+        slang.t.localMedia.browse.noSubfolders,
+        key: const ValueKey('empty'),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
         ),
       );
+    } else {
+      child = ListView.builder(
+        key: ValueKey(_currentDav),
+        itemCount: _folders.length,
+        itemBuilder: (context, index) {
+          final folder = _folders[index];
+          return ListTile(
+            leading: const Icon(Icons.folder_outlined),
+            title: Text(
+              folder.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () => _open(DavPath.fromServerPath(folder.serverPath)),
+          );
+        },
+      );
     }
-    return ListView.builder(
-      itemCount: _folders.length,
-      itemBuilder: (context, index) {
-        final folder = _folders[index];
-        return ListTile(
-          leading: const Icon(Icons.folder_outlined),
-          title: Text(
-            folder.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          onTap: () => _open(DavPath.fromServerPath(folder.serverPath)),
-        );
-      },
+    // 转圈 / 空态要落在「两段浮层之间」那块看得见的区域中间，不是整块面板中间。
+    final insets = MediaQuery.paddingOf(context);
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      layoutBuilder: (current, previous) =>
+          Stack(fit: StackFit.expand, children: [...previous, ?current]),
+      child: child is ListView
+          ? child
+          : Padding(
+              key: child.key,
+              padding: EdgeInsets.only(top: insets.top, bottom: insets.bottom),
+              child: Center(child: child),
+            ),
+    );
+  }
+}
+
+/// 选根目录那一步，路径条下面的出错原因：带底色的一小条（它浮在列表之上，
+/// 光秃秃的红字压在滚动的条目上读不清）。出现与消失都有过渡。
+class _PickerErrorLine extends StatelessWidget {
+  const _PickerErrorLine({required this.error});
+
+  final String? error;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final error = this.error;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        child: error == null
+            ? const SizedBox(key: ValueKey('none'), width: double.infinity)
+            : Padding(
+                key: ValueKey(error),
+                padding: const EdgeInsets.only(top: 8),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: cs.errorContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    child: Text(
+                      error,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onErrorContainer,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+      ),
     );
   }
 }

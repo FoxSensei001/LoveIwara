@@ -1796,6 +1796,12 @@ download:
   clearFilters: Bersihkan filter
   pauseAll: Jeda semua
   resumeAll: Mulai semua
+  remainingTime: "sisa ${time}"
+  timeline:
+    today: "Hari ini"
+    yesterday: "Kemarin"
+    thisWeek: "Minggu ini"
+    thisMonth: "Bulan ini"
   errorTypes:
     network: Masalah jaringan, coba lagi mungkin membantu
     serverRejected: Ditolak oleh server, Anda mungkin perlu masuk lagi
@@ -3044,6 +3050,13 @@ localMedia:
     hideFolder: Sembunyikan folder ini
     unhideFolder: Tampilkan lagi
     showHiddenFolders: Tampilkan folder tersembunyi
+    includeDotFolders: "Pindai folder yang diawali ."
+    dotFoldersIncluded: "Folder yang diawali . sekarang dipindai"
+    dotFoldersExcluded: "Folder yang diawali . tidak lagi dipindai"
+    showDotFolders: "Tampilkan folder yang diawali ."
+    dotFoldersSkipped: "Ada ${count} folder yang diawali . di sini yang belum dipindai"
+    scanDotFoldersAction: "Aktifkan untuk sumber ini"
+    otherAppsPrivateNotice: "Sejak Android 11, tidak ada aplikasi yang dapat membaca file aplikasi lain di Android/data atau Android/obb, dan aplikasi ini tidak bisa mengakalinya. Unduh atau ekspor video ke folder publik seperti Download di aplikasi aslinya, lalu tambahkan folder itu di sini. Cache saat menonton biasanya terpecah-pecah dan tidak bisa diputar meski terbaca."
     folderHidden: Disembunyikan — pemindaian juga akan melewatinya
     folderUnhidden: Tidak lagi disembunyikan
     hiddenFolderBadge: Tersembunyi

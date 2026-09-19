@@ -222,4 +222,118 @@ void main() {
       root.deleteSync(recursive: true);
     }
   });
+
+  test('只挡 Android/data|obb 与垃圾目录，嵌套的 Android 和 Android/media 照扫', () async {
+    // 以前按名字挡整个 `Android`：任意深度的 Games/Android、Android/media
+    // （WhatsApp / Telegram 在 11 之后的媒体）全被误伤。
+    final root = Directory.systemTemp.createTempSync('lm_policy_');
+    try {
+      final files = <String>[
+        'Games/Android/keep_nested.mp4',
+        'Android/media/com.whatsapp/keep_media.mp4',
+        'Android/data/com.other.app/skip_data.mp4',
+        'Android/obb/com.other.app/skip_obb.mp4',
+        'Photos/@eaDir/skip_nas_thumb.mp4',
+        'Library/Containers/com.other.app/skip_mac.mp4',
+        '.private/skip_dot.mp4',
+      ];
+      for (final rel in files) {
+        File('${root.path}/$rel')
+          ..createSync(recursive: true)
+          ..writeAsStringSync('x');
+      }
+
+      final db = await openTestDb();
+      final repo = LocalMediaRepository(db);
+      final source = LocalMediaSource(
+        id: 'src-policy',
+        kind: LocalMediaSourceKind.directory,
+        displayName: 'Storage',
+        path: root.path,
+        createdAt: 0,
+      );
+      repo.upsertSource(source);
+      await LocalMediaScanService(repository: repo).scanSource(source);
+
+      final names = db
+          .select(
+            'SELECT name FROM local_media_items '
+            'WHERE source_id = ? AND missing = 0',
+            [source.id],
+          )
+          .map((row) => row['name'] as String)
+          .toSet();
+      expect(names, {'keep_nested.mp4', 'keep_media.mp4'});
+    } finally {
+      root.deleteSync(recursive: true);
+    }
+  });
+
+  test('每源开关：开了扫进 . 目录，关掉当场收敛，再开洗回来', () async {
+    final root = Directory.systemTemp.createTempSync('lm_dot_');
+    try {
+      for (final rel in <String>[
+        'top.mp4',
+        '.private/secret.mp4',
+        'Series/.extras/bonus.mp4',
+        '.git/objects/junk.mp4',
+      ]) {
+        File('${root.path}/$rel')
+          ..createSync(recursive: true)
+          ..writeAsStringSync('x');
+      }
+
+      final db = await openTestDb();
+      final repo = LocalMediaRepository(db);
+      final source = LocalMediaSource(
+        id: 'src-dot',
+        kind: LocalMediaSourceKind.directory,
+        displayName: 'Storage',
+        path: root.path,
+        createdAt: 0,
+      );
+      repo.upsertSource(source);
+      final service = LocalMediaScanService(repository: repo);
+      await service.scanSource(source);
+
+      Set<String> alive() => db
+          .select(
+            'SELECT name FROM local_media_items '
+            'WHERE source_id = ? AND missing = 0',
+            [source.id],
+          )
+          .map((row) => row['name'] as String)
+          .toSet();
+
+      expect(alive(), {'top.mp4'}, reason: '默认不扫 . 开头的子目录');
+
+      await service.setIncludeDotEntries(source.id, true);
+      expect(alive(), {
+        'top.mp4',
+        'secret.mp4',
+        'bonus.mp4',
+      }, reason: '打开后扫进来，但 .git 这类垃圾目录照挡');
+
+      // 不经重扫、只靠库内收敛也必须成立：真实场景里重扫可能被截断而整轮不收敛。
+      repo.markDotSubtreesMissing(sourceId: source.id, rootPath: root.path);
+      expect(alive(), {'top.mp4'}, reason: '库内收敛就要把 . 目录判掉');
+
+      await service.setIncludeDotEntries(source.id, false);
+      expect(alive(), {'top.mp4'}, reason: '关掉后当场收敛');
+      // 常用目录 / 播放队列会按条目所在目录发目录级扫描，不许把它洗回来。
+      await service.scanFolder(source: source, relPath: '.private');
+      expect(alive(), {'top.mp4'}, reason: '开关关着时不扫落在 . 路径下的范围根');
+      expect(
+        repo
+            .childFolders(sourceId: source.id, parentRelPath: '')
+            .map((folder) => folder.relPath),
+        isNot(contains('.private')),
+      );
+
+      await service.setIncludeDotEntries(source.id, true);
+      expect(alive(), {'top.mp4', 'secret.mp4', 'bonus.mp4'});
+    } finally {
+      root.deleteSync(recursive: true);
+    }
+  });
 }

@@ -1799,6 +1799,12 @@ download:
   clearFilters: フィルターをクリア
   pauseAll: すべて一時停止
   resumeAll: すべて開始
+  remainingTime: "残り ${time}"
+  timeline:
+    today: "今日"
+    yesterday: "昨日"
+    thisWeek: "今週"
+    thisMonth: "今月"
   errorTypes:
     network: ネットワークエラー、再試行できます
     serverRejected: サーバーに拒否されました。再ログインが必要かもしれません
@@ -3295,6 +3301,13 @@ localMedia:
     hideFolder: このフォルダを隠す
     unhideFolder: 非表示を解除
     showHiddenFolders: 隠したフォルダを表示
+    includeDotFolders: "「.」で始まるフォルダもスキャン"
+    dotFoldersIncluded: "「.」で始まるフォルダのスキャンを開始しました"
+    dotFoldersExcluded: "「.」で始まるフォルダをスキャンしなくなりました"
+    showDotFolders: "「.」で始まるフォルダを表示"
+    dotFoldersSkipped: "ここには「.」で始まる未スキャンのフォルダが ${count} 個あります"
+    scanDotFoldersAction: "このソースで有効にする"
+    otherAppsPrivateNotice: "Android 11 以降、他のアプリの Android/data・Android/obb 内のファイルはどのアプリからも読み取れず、本アプリでも回避できません。元のアプリで動画を Download などの共有フォルダにダウンロードまたはエクスポートしてから、そのフォルダを追加してください。再生中のキャッシュは通常分割されており、読み取れても再生できません。"
     folderHidden: 非表示にしました。スキャンもスキップします
     folderUnhidden: 非表示を解除しました
     hiddenFolderBadge: 非表示
@@ -3402,6 +3415,8 @@ localMedia:
   rescanAllStarted: "${count} 件のソースを再スキャンします"
   searchLibrary: "検索"
   searchIncludeSubfolders: "サブフォルダーを含む"
+  searchThisFolderOnly: "このフォルダーのみ"
+  searchResultCount: "${count} 件"
   savedServers: "保存済みの NAS"
   newServer: "新しい NAS に接続"
   itemInfoLabels:

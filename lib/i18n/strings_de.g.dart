@@ -1440,6 +1440,8 @@ class _TranslationsDownloadDe extends TranslationsDownloadEn {
 	@override String get clearFilters => 'Filter zurücksetzen';
 	@override String get pauseAll => 'Alle pausieren';
 	@override String get resumeAll => 'Alle starten';
+	@override String remainingTime({required Object time}) => 'noch ${time}';
+	@override late final _TranslationsDownloadTimelineDe timeline = _TranslationsDownloadTimelineDe._(_root);
 	@override late final _TranslationsDownloadErrorTypesDe errorTypes = _TranslationsDownloadErrorTypesDe._(_root);
 	@override String get errorDetailCopied => 'Fehlerdetails kopiert';
 	@override String get errorDetailCopyHint => 'Lange drücken, um Fehlerdetails zu kopieren';
@@ -3471,6 +3473,19 @@ class _TranslationsDownloadErrorsDe extends TranslationsDownloadErrorsEn {
 	@override String get pleaseTryOtherViewer => 'Bitte versuchen Sie, es mit einem anderen Betrachter zu öffnen';
 }
 
+// Path: download.timeline
+class _TranslationsDownloadTimelineDe extends TranslationsDownloadTimelineEn {
+	_TranslationsDownloadTimelineDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get today => 'Heute';
+	@override String get yesterday => 'Gestern';
+	@override String get thisWeek => 'Diese Woche';
+	@override String get thisMonth => 'Diesen Monat';
+}
+
 // Path: download.errorTypes
 class _TranslationsDownloadErrorTypesDe extends TranslationsDownloadErrorTypesEn {
 	_TranslationsDownloadErrorTypesDe._(TranslationsDe root) : this._root = root, super.internal(root);
@@ -3905,6 +3920,13 @@ class _TranslationsLocalMediaBrowseDe extends TranslationsLocalMediaBrowseEn {
 	@override String get hideFolder => 'Diesen Ordner ausblenden';
 	@override String get unhideFolder => 'Einblenden';
 	@override String get showHiddenFolders => 'Ausgeblendete Ordner anzeigen';
+	@override String get includeDotFolders => 'Ordner mit . am Anfang scannen';
+	@override String get dotFoldersIncluded => 'Ordner mit . am Anfang werden jetzt gescannt';
+	@override String get dotFoldersExcluded => 'Ordner mit . am Anfang werden nicht mehr gescannt';
+	@override String get showDotFolders => 'Ordner mit . am Anfang anzeigen';
+	@override String dotFoldersSkipped({required Object count}) => '${count} Ordner mit . am Anfang werden hier nicht gescannt';
+	@override String get scanDotFoldersAction => 'Für diese Quelle aktivieren';
+	@override String get otherAppsPrivateNotice => 'Seit Android 11 kann keine App die Dateien anderer Apps in Android/data oder Android/obb lesen, auch diese App nicht. Lade die Videos in der ursprünglichen App herunter oder exportiere sie in einen öffentlichen Ordner wie Download und füge diesen Ordner hier hinzu. Streaming-Caches bestehen meist aus Fragmenten und lassen sich auch gelesen nicht abspielen.';
 	@override String get folderHidden => 'Ausgeblendet – wird auch beim Scannen übersprungen';
 	@override String get folderUnhidden => 'Nicht mehr ausgeblendet';
 	@override String get hiddenFolderBadge => 'Ausgeblendet';
@@ -5804,6 +5826,11 @@ extension on TranslationsDe {
 			'download.clearFilters' => 'Filter zurücksetzen',
 			'download.pauseAll' => 'Alle pausieren',
 			'download.resumeAll' => 'Alle starten',
+			'download.remainingTime' => ({required Object time}) => 'noch ${time}',
+			'download.timeline.today' => 'Heute',
+			'download.timeline.yesterday' => 'Gestern',
+			'download.timeline.thisWeek' => 'Diese Woche',
+			'download.timeline.thisMonth' => 'Diesen Monat',
 			'download.errorTypes.network' => 'Netzwerkproblem, ein erneuter Versuch kann helfen',
 			'download.errorTypes.serverRejected' => 'Vom Server abgelehnt, möglicherweise müssen Sie sich erneut anmelden',
 			'download.errorTypes.notFound' => 'Ressource ist nicht mehr vorhanden oder wurde gelöscht',
@@ -6156,13 +6183,13 @@ extension on TranslationsDe {
 			'displaySettings.layoutSettingsDesc' => 'Spaltenanzahl und Haltepunkte anpassen',
 			'displaySettings.gridLayout' => 'Raster-Layout',
 			'displaySettings.navigationOrderSettings' => 'Navigationsreihenfolge',
+			_ => null,
+		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Benutzerdefinierte Navigationsreihenfolge',
 			'displaySettings.customNavigationOrderDesc' => 'Passen Sie die Anzeigereihenfolge der Seiten in der unteren Navigationsleiste und der Seitenleiste an',
 			'layoutSettings.title' => 'Layout-Einstellungen',
 			'layoutSettings.descriptionTitle' => 'Beschreibung der Layout-Konfiguration',
 			'layoutSettings.descriptionContent' => 'Die Konfiguration hier bestimmt die Anzahl der Spalten, die in den Video- und Galerielisten angezeigt werden. Sie können den automatischen Modus wählen, damit das System anhand der Bildschirmbreite automatisch anpasst, oder den manuellen Modus, um die Spaltenzahl festzulegen.',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.layoutMode' => 'Layout-Modus',
 			'layoutSettings.reset' => 'Zurücksetzen',
 			'layoutSettings.autoMode' => 'Automatischer Modus',
@@ -6670,13 +6697,13 @@ extension on TranslationsDe {
 			'siteMode.chooseLinkTargetDescription' => 'Dieser Link enthält keine Domain. Bitte wählen Sie, ob er in Main oder AI geöffnet werden soll.',
 			'siteMode.chooseLinkTargetHint' => 'Nach dem Öffnen verwenden diese Seite und ihre nachfolgenden Detailanfragen weiterhin die ausgewählte Website.',
 			'siteMode.alreadyUsing' => 'Sie verwenden diesen Website-Modus bereits.',
+			_ => null,
+		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'In ${site} öffnen',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Nach der Bestätigung verwenden zukünftige Anfragen den Modus ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Zu ${site} gewechselt. Die App wurde neu geladen.',
 			'savedSearchConfig.title' => 'Gespeicherte Filter',
 			'savedSearchConfig.empty' => 'Noch keine gespeicherten Filter',
-			_ => null,
-		} ?? switch (path) {
 			'savedSearchConfig.saveTooltip' => 'Aktuellen Filter speichern',
 			'savedSearchConfig.namePromptTitle' => 'Filter speichern',
 			'savedSearchConfig.nameLabel' => 'Name',
@@ -6926,6 +6953,13 @@ extension on TranslationsDe {
 			'localMedia.browse.hideFolder' => 'Diesen Ordner ausblenden',
 			'localMedia.browse.unhideFolder' => 'Einblenden',
 			'localMedia.browse.showHiddenFolders' => 'Ausgeblendete Ordner anzeigen',
+			'localMedia.browse.includeDotFolders' => 'Ordner mit . am Anfang scannen',
+			'localMedia.browse.dotFoldersIncluded' => 'Ordner mit . am Anfang werden jetzt gescannt',
+			'localMedia.browse.dotFoldersExcluded' => 'Ordner mit . am Anfang werden nicht mehr gescannt',
+			'localMedia.browse.showDotFolders' => 'Ordner mit . am Anfang anzeigen',
+			'localMedia.browse.dotFoldersSkipped' => ({required Object count}) => '${count} Ordner mit . am Anfang werden hier nicht gescannt',
+			'localMedia.browse.scanDotFoldersAction' => 'Für diese Quelle aktivieren',
+			'localMedia.browse.otherAppsPrivateNotice' => 'Seit Android 11 kann keine App die Dateien anderer Apps in Android/data oder Android/obb lesen, auch diese App nicht. Lade die Videos in der ursprünglichen App herunter oder exportiere sie in einen öffentlichen Ordner wie Download und füge diesen Ordner hier hinzu. Streaming-Caches bestehen meist aus Fragmenten und lassen sich auch gelesen nicht abspielen.',
 			'localMedia.browse.folderHidden' => 'Ausgeblendet – wird auch beim Scannen übersprungen',
 			'localMedia.browse.folderUnhidden' => 'Nicht mehr ausgeblendet',
 			'localMedia.browse.hiddenFolderBadge' => 'Ausgeblendet',

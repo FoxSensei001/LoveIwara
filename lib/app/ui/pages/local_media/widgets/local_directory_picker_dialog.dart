@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+import 'package:i_iwara/app/services/local_media_directory_policy.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
@@ -39,6 +39,20 @@ class _LocalDirectoryPickerDialogState
   Directory? _current;
   bool _loading = false;
   int _generation = 0;
+
+  /// 列不列 `.` 开头的目录。只管这一次挑选，不落配置：选中一个 `.` 目录当源根
+  /// 本来就照扫；源**里面**的 `.` 子目录归来源菜单的「扫描 . 开头的文件夹」管。
+  bool _showDotFolders = false;
+
+  /// 当前目录列不出来。原地给说明，不再只弹一个一闪而过的 toast——落在
+  /// `Android/data` 时尤其如此：那段话是「系统不许，别找了」，得让人读完。
+  bool _unreadable = false;
+
+  void _toggleDotFolders() {
+    setState(() => _showDotFolders = !_showDotFolders);
+    final current = _current;
+    if (current != null) _loadDirectory(current);
+  }
 
   List<_VolumeEntry> _volumes = const [];
   List<Directory> _subdirectories = const [];
@@ -208,6 +222,7 @@ class _LocalDirectoryPickerDialogState
       _current = dir;
       _subdirectories = const [];
       _loading = true;
+      _unreadable = false;
     });
 
     final list = <Directory>[];
@@ -216,8 +231,12 @@ class _LocalDirectoryPickerDialogState
     try {
       await for (final entity in dir.list()) {
         if (entity is! Directory) continue;
-        final name = p.basename(entity.path);
-        if (name.startsWith('.')) continue;
+        if (LocalDirectoryPolicy.skipListedChild(
+          p.basename(entity.path),
+          includeDot: _showDotFolders,
+        )) {
+          continue;
+        }
         list.add(entity);
       }
     } catch (_) {
@@ -230,11 +249,8 @@ class _LocalDirectoryPickerDialogState
       setState(() {
         _subdirectories = const [];
         _loading = false;
+        _unreadable = true;
       });
-      showAppToast(
-        slang.t.localMedia.browse.folderUnreadable,
-        type: AppToastType.error,
-      );
       return;
     }
 
@@ -307,7 +323,13 @@ class _LocalDirectoryPickerDialogState
         GlassDialogAction(
           label: slang.t.localMedia.browse.useThisFolder,
           emphasized: true,
-          onPressed: _current == null
+          // 别的应用的私有目录读不动时不给选：选进来只会是一个永远空着的来源。
+          onPressed:
+              _current == null ||
+                  (_unreadable &&
+                      LocalDirectoryPolicy.isUnderOtherAppsPrivate(
+                        _current!.path,
+                      ))
               ? null
               : () => Navigator.of(
                   context,
@@ -338,10 +360,36 @@ class _LocalDirectoryPickerDialogState
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
+              GlassIconButton(
+                standalone: true,
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    _showDotFolders
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    key: ValueKey<bool>(_showDotFolders),
+                  ),
+                ),
+                tooltip: slang.t.localMedia.browse.showDotFolders,
+                onPressed: _toggleDotFolders,
+              ),
             ],
           ),
           const SizedBox(height: 12),
-          SizedBox(height: 320, child: _buildBody(context)),
+          SizedBox(
+            height: 320,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: KeyedSubtree(
+                key: ValueKey<Object>(
+                  '${_current?.path}|$_loading|$_unreadable|$_showDotFolders',
+                ),
+                child: _buildBody(context),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -366,6 +414,40 @@ class _LocalDirectoryPickerDialogState
       );
     }
 
+    if (_unreadable) {
+      final theme = Theme.of(context);
+      final current = _current;
+      final private =
+          current != null &&
+          LocalDirectoryPolicy.isUnderOtherAppsPrivate(current.path);
+      return Center(
+        key: const ValueKey<String>('unreadable'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                private ? Icons.lock_outline : Icons.folder_off_outlined,
+                size: 40,
+                color: theme.colorScheme.outline,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                private
+                    ? slang.t.localMedia.browse.otherAppsPrivateNotice
+                    : slang.t.localMedia.browse.folderUnreadable,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     if (_subdirectories.isEmpty) {
       return Center(
         child: Text(
@@ -381,15 +463,16 @@ class _LocalDirectoryPickerDialogState
       itemCount: _subdirectories.length,
       itemBuilder: (context, index) {
         final dir = _subdirectories[index];
-        return ListTile(
+        final name = p.basename(dir.path);
+        final tile = ListTile(
           leading: const Icon(Icons.folder_outlined),
-          title: Text(
-            p.basename(dir.path),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
           onTap: () => _loadDirectory(dir),
         );
+        // `.` 开头的目录画淡一点：点得进、选得中，但一眼能看出它平时是藏着的。
+        return LocalDirectoryPolicy.isDotEntry(name)
+            ? Opacity(opacity: 0.6, child: tile)
+            : tile;
       },
     );
   }

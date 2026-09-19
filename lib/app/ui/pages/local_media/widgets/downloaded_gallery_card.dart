@@ -197,14 +197,8 @@ _parseGalleryRowInputs(List<_GalleryRowInput> inputs) {
 class DownloadedGalleryCard extends StatelessWidget {
   const DownloadedGalleryCard({super.key, required this.row, this.onDeleted});
 
-  static const double coverAspectRatio = 16 / 10;
-
   static double extentFor(BuildContext context, double cellWidth) =>
-      LocalContainerCard.extentFor(
-        cellWidth: cellWidth,
-        coverAspectRatio: coverAspectRatio,
-        textExtent: LocalContainerCard.textExtentOf(context, lines: 2),
-      );
+      LocalContainerCard.extentFor(context, cellWidth);
 
   final DownloadedGalleryRow row;
   final VoidCallback? onDeleted;
@@ -339,7 +333,6 @@ class DownloadedGalleryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return LocalContainerCard(
-      coverAspectRatio: coverAspectRatio,
       onTap: () => _handleOpen(context),
       onMenu: (cardContext) => _showMenu(cardContext),
       cover: _buildCover(context),
@@ -355,24 +348,14 @@ class DownloadedGalleryCard extends StatelessWidget {
           ),
         ),
       ),
-      lines: <Widget>[
-        Text(
-          row.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          slang.t.localMedia.browse.imageCount(count: row.imageCount),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
+      title: row.title,
+      titleIcon: Icons.photo_library_outlined,
+      countIcon: Icons.photo_library_outlined,
+      itemCount: row.imageCount,
+      meta: LocalCardText.metaText(
+        context,
+        slang.t.localMedia.browse.imageCount(count: row.imageCount),
+      ),
     );
   }
 
