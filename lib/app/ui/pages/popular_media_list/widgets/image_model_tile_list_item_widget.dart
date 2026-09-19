@@ -83,7 +83,11 @@ class _ImageModelTileListItemState extends State<ImageModelTileListItem>
   Widget _buildThumbnail(BuildContext context) {
     return HeroMode(
       enabled: previewHeroEnabled,
-      child: Hero(tag: previewHeroTag, child: _buildThumbnailContent(context)),
+      child: Hero(
+        key: previewHeroKey,
+        tag: previewHeroTag,
+        child: _buildThumbnailContent(context),
+      ),
     );
   }
 

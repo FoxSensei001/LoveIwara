@@ -125,7 +125,11 @@ class _VideoTileListItemState extends State<VideoTileListItem>
   Widget _buildThumbnail(BuildContext context) {
     return HeroMode(
       enabled: previewHeroEnabled,
-      child: Hero(tag: previewHeroTag, child: _buildThumbnailContent(context)),
+      child: Hero(
+        key: previewHeroKey,
+        tag: previewHeroTag,
+        child: _buildThumbnailContent(context),
+      ),
     );
   }
 
@@ -155,9 +159,11 @@ class _VideoTileListItemState extends State<VideoTileListItem>
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: (_showAnimatedPreview && !widget.video.isExternalVideo)
+              child:
+                  (_showAnimatedPreview &&
+                      widget.video.animatedPreviewUrl != null)
                   ? CachedNetworkImage(
-                      imageUrl: widget.video.previewUrl,
+                      imageUrl: widget.video.animatedPreviewUrl!,
                       width: 120,
                       height: 90,
                       fit: BoxFit.cover,

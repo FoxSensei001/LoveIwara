@@ -328,7 +328,11 @@ class _VideoCardListItemWidgetState extends State<VideoCardListItemWidget>
         onExit: enableHover ? (_) => setState(() => _isHovering = false) : null,
         child: HeroMode(
           enabled: previewHeroEnabled,
-          child: Hero(tag: previewHeroTag, child: cardBody),
+          child: Hero(
+            key: previewHeroKey,
+            tag: previewHeroTag,
+            child: cardBody,
+          ),
         ),
       ),
     );

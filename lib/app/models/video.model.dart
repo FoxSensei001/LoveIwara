@@ -157,10 +157,12 @@ class Video {
       tags: json['tags'] != null
           ? (json['tags'] as List).map((tag) => Tag.fromJson(tag)).toList()
           : null,
-      createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'])
+          : null,
       fileUrl: json['fileUrl'],
       videoSources: null,
     );
@@ -217,6 +219,18 @@ class Video {
       return externalVideoThumbnail;
     }
     return '${CommonConstants.iwaraImageBaseUrl}/image/original/${file?.id}/preview.webp';
+  }
+
+  /// 动图预览（`preview.webp`）地址；站外视频 / 没有 file 时为 null。
+  ///
+  /// ⛔ 不能拿 [previewUrl] 顶：设了自定义封面的视频，[previewUrl] 回的是那张
+  /// **静态**封面，动图预览就永远出不来（issue #125）。动图是按视频文件生成的，
+  /// 与封面设没设无关，所以这里只看 file。
+  String? get animatedPreviewUrl {
+    if (isExternalVideo) return null;
+    final String? fileId = file?.id;
+    if (fileId == null || fileId.isEmpty) return null;
+    return '${CommonConstants.iwaraImageBaseUrl}/image/original/$fileId/preview.webp';
   }
 
   // 获取分钟形式的时长
@@ -291,4 +305,3 @@ class Video {
     );
   }
 }
-

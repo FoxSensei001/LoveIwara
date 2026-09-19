@@ -100,6 +100,11 @@
 // 才飞回去。摘的是**弹窗**这一侧：`_allHeroesFor` 要首尾都找得到同一个 tag 才起
 // 飞，少一边就没有飞行——而它在 pop 那一帧的 post-frame 回调里才去数，所以先
 // `setState` 再 `pop` 来得及。
+//
+// ⛔ 不回飞的代价在卡片那侧：push 那段飞行落地时，起点 Hero 被 Flutter 留在占位态
+// （Offstage、不接点按），本该由回飞落地撤掉。所以这种关闭让路由带回 `true`，
+// 卡片据此换掉自己 Hero 的 key 整只重建（`MediaCardActionState.previewHeroKey`），
+// 否则回到列表那张卡就是一块点不动的空白（issue #125）。
 
 import 'dart:async';
 import 'dart:io';
@@ -278,7 +283,13 @@ class MediaPreviewRoute<T> extends PageRoute<T> implements TransientPageRoute {
 /// [onWillLeavePage] 给**承载这只弹窗的那一层**用：弹窗里的动作要把用户带去别的
 /// 页面（作者主页 / 标签列表 / 菜单里的作者）时，先跑它。「接着看」抽屉借它把
 /// 自己也收掉——它是一条 root 弹层路由，不收的话会浮在刚推进来的新页上面。
-Future<void> showMediaPreviewDialog({
+///
+/// 返回值：弹窗是不是**没有回飞**就关掉的（因为要去别的页面，见文件头「⛔
+/// 「要去别的地方」的那种关闭不飞 Hero」）。卡片那侧要靠它把自己的 Hero 换新：
+/// push 那段飞行落地时 Flutter 让起点 Hero 继续顶着占位（`endFlight(keepPlaceholder:
+/// true)`），本来要等回飞落地才撤——不回飞，卡片就一直是一块点不动的空白，直到
+/// 滚出屏幕被回收（issue #125）。
+Future<bool> showMediaPreviewDialog({
   required BuildContext context,
   Video? video,
   ImageModel? gallery,
@@ -313,7 +324,7 @@ Future<void> showMediaPreviewDialog({
   // InheritedWidget 带过去，同 showAppDialog。
   final themes = InheritedTheme.capture(from: context, to: navigator.context);
 
-  final route = MediaPreviewRoute<void>(
+  final route = MediaPreviewRoute<bool>(
     themes: themes,
     barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
     builder: (_) => MediaPreviewDialog(
@@ -333,10 +344,12 @@ Future<void> showMediaPreviewDialog({
       heroSourceIsAllCover: heroSourceIsAllCover,
     ),
   );
-  navigator.push<void>(route);
+  navigator.push<bool>(route);
   // 交结果的时机是 completed（路由销毁、Hero 回飞跑完）而不是 popped，
   // 卡片那侧的 HeroMode 要一直开到这一刻，同 showAppDialog 的理由。
-  return route.completed;
+  return route.completed.then(
+    (bool? withoutFlightBack) => withoutFlightBack ?? false,
+  );
 }
 
 /// 预览弹窗的面板。用 [showMediaPreviewDialog] 打开，别直接塞进别的路由。
@@ -628,9 +641,9 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
     super.dispose();
   }
 
-  void _close() {
+  void _close({bool forNavigation = false}) {
     if (!mounted) return;
-    Navigator.of(context).maybePop();
+    Navigator.of(context).maybePop(forNavigation);
   }
 
   /// 因为「要去别的地方」而关闭：摘掉本侧的 Hero，不回飞。
@@ -639,7 +652,7 @@ class _MediaPreviewDialogState extends State<MediaPreviewDialog>
   void _closeForNavigation() {
     if (!mounted) return;
     if (_heroEnabled) setState(() => _heroEnabled = false);
-    _close();
+    _close(forNavigation: true);
   }
 
   /// 关掉弹窗，再去干那件「离开这一页」的事。
@@ -1793,19 +1806,11 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
 
   /// 动图预览地址；没有（图库 / 站外视频 / 缺 file 的种子模型）时为 null。
   ///
-  /// ⛔ `Video.previewUrl` 在 `file == null` 时拼出来的是 `.../original/null/preview.webp`
-  /// —— 一条必然 404 的地址。列表接口回来的精简模型经常没有 `file`，于是「有的视频
-  /// 预览永远出不来动图」（用户 2026-09-06）。这一层在源头挡掉：没有 file 就当这条
-  /// 压根没有动图，连转圈都不该转。
+  /// 没有 file 的精简模型直接当这条没有动图，连转圈都不该转；设了自定义封面的
+  /// 也照样有动图——两个坑都收在 `Video.animatedPreviewUrl` 里。
   String? get _animatedUrl => _animatedUrlOf(widget);
 
-  String? _animatedUrlOf(MediaPreviewCover w) {
-    final Video? v = w.video;
-    if (v == null || v.isExternalVideo) return null;
-    final String? fileId = v.file?.id;
-    if (fileId == null || fileId.isEmpty) return null;
-    return v.previewUrl;
-  }
+  String? _animatedUrlOf(MediaPreviewCover w) => w.video?.animatedPreviewUrl;
 
   @override
   void didUpdateWidget(covariant MediaPreviewCover oldWidget) {
@@ -1884,11 +1889,11 @@ class _MediaPreviewCoverState extends State<MediaPreviewCover> {
               // 是长按就弹的预览。同 `DownloadedGalleryWall._buildCover`。
               cacheWidth:
                   ((constraints.maxWidth.isFinite
-                                  ? constraints.maxWidth
-                                  : 320) *
-                              MediaQuery.devicePixelRatioOf(context))
-                          .round()
-                          .clamp(1, 1280),
+                              ? constraints.maxWidth
+                              : 320) *
+                          MediaQuery.devicePixelRatioOf(context))
+                      .round()
+                      .clamp(1, 1280),
               errorBuilder: (context, error, stackTrace) => _coverBroken(),
             ),
           )

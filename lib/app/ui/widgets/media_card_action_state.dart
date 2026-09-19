@@ -113,6 +113,15 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
   /// 重复从此不可能发生；顺带也省掉列表里几十个常驻 Hero 的开销。
   bool get previewHeroEnabled => _previewOpen;
 
+  /// 卡片那侧 Hero 的 key。预览弹窗**没回飞**就关掉时（点「打开」进详情页这类）
+  /// 换一个，让 Hero 整只重建。
+  ///
+  /// ⛔ 不换的话卡片会一直是空白：push 那段飞行落地时起点 Hero 继续顶着占位
+  /// （Offstage + 不接点按），本该由回飞落地撤掉；不回飞就没人撤，直到卡片滚出
+  /// 屏幕被回收（issue #125）。那时卡片正被新页盖着，重建用户看不见。
+  Key get previewHeroKey => ValueKey<int>(_previewHeroGeneration);
+  int _previewHeroGeneration = 0;
+
   /// 卡片 ↔ 弹窗面板的 Hero 标签。
   String get previewHeroTag =>
       mediaPreviewHeroTag(video: actionVideo, gallery: actionGallery);
@@ -136,8 +145,9 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
     // 先让卡片带着 Hero 重建一帧：Hero 飞行是在 push 之后的 post-frame 里才去
     // 收集两侧 Hero 的，那时这一帧已经建完，正好收得到。
     setState(() => _previewOpen = true);
+    bool closedWithoutFlightBack = false;
     try {
-      await showMediaPreviewDialog(
+      closedWithoutFlightBack = await showMediaPreviewDialog(
         context: context,
         video: actionVideo,
         gallery: actionGallery,
@@ -152,7 +162,12 @@ mixin MediaCardActionState<T extends StatefulWidget> on State<T> {
     } finally {
       // 等的是路由**销毁**（见 showMediaPreviewDialog），所以回飞已经落地，
       // 这时候摘 Hero 不会把飞到一半的封面掐掉。
-      if (mounted) setState(() => _previewOpen = false);
+      if (mounted) {
+        setState(() {
+          _previewOpen = false;
+          if (closedWithoutFlightBack) _previewHeroGeneration++;
+        });
+      }
     }
   }
 
