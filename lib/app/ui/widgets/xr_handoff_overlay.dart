@@ -26,47 +26,80 @@ class XrHandoffOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!Get.isRegistered<XrImmersiveService>()) return const SizedBox.shrink();
     final xr = Get.find<XrImmersiveService>();
-    return Obx(() {
-      final busy = xr.handoffDepth.value > 0;
-      return IgnorePointer(
-        ignoring: !busy,
-        child: AnimatedOpacity(
-          opacity: busy ? 1 : 0,
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOut,
-          child: AbsorbPointer(
-            absorbing: busy,
-            child: ColoredBox(
-              color: const Color(0x73000000),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    const SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
+    return Obx(() => _HandoffScrim(busy: xr.handoffDepth.value > 0));
+  }
+}
+
+/// ⛔ 罩子不在场时**内容必须整只卸掉**，不能只把透明度打到 0：里面那只
+/// [CircularProgressIndicator] 的 ticker 不看透明度，挂着就每帧转，逼整个应用
+/// 空闲时也按屏幕刷新率满帧重绘（连带底下所有玻璃层，实测 120Hz 下 18 次
+/// saveLayer/帧）。所以淡出播完（[AnimatedOpacity.onEnd]）才卸内容，淡入淡出不变。
+class _HandoffScrim extends StatefulWidget {
+  const _HandoffScrim({required this.busy});
+
+  final bool busy;
+
+  @override
+  State<_HandoffScrim> createState() => _HandoffScrimState();
+}
+
+class _HandoffScrimState extends State<_HandoffScrim> {
+  late bool _mounted = widget.busy;
+
+  @override
+  void didUpdateWidget(_HandoffScrim oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.busy) _mounted = true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final busy = widget.busy;
+    return IgnorePointer(
+      ignoring: !busy,
+      child: AnimatedOpacity(
+        opacity: busy ? 1 : 0,
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOut,
+        onEnd: () {
+          if (!widget.busy && _mounted) setState(() => _mounted = false);
+        },
+        child: !_mounted
+            ? const SizedBox.shrink()
+            : AbsorbPointer(
+                absorbing: busy,
+                child: ColoredBox(
+                  color: const Color(0x73000000),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        const SizedBox(
+                          width: 36,
+                          height: 36,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          slang.t.vrFormat.handingOff,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                    Text(
-                      slang.t.vrFormat.handingOff,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
-      );
-    });
+      ),
+    );
   }
 }
