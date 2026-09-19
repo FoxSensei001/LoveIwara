@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "${count} entrées de l'historique de lecture local effacées"
   clearAction: Effacer
   iosManualRescanNotice: iOS ne détecte pas automatiquement les nouveaux fichiers. Vous devrez relancer une analyse manuellement après avoir ajouté ou supprimé des fichiers.
+historyPage:
+  removeFromHistory: "Retirer de l'historique"
+  removed: "Retiré de l'historique"
+  watchedTo: "Vu jusqu’à ${time}"
+  finished: "Vu"
+  clearTabTitle: "Effacer « ${tab} »"
+  clearTabConfirm: "Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible."
+  rangeByLastViewed: "Filtré par dernière consultation"

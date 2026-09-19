@@ -96,6 +96,7 @@ class TranslationsVi extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueVi playbackQueue = _TranslationsPlaybackQueueVi._(_root);
 	@override late final _TranslationsVrFormatVi vrFormat = _TranslationsVrFormatVi._(_root);
 	@override late final _TranslationsLocalMediaVi localMedia = _TranslationsLocalMediaVi._(_root);
+	@override late final _TranslationsHistoryPageVi historyPage = _TranslationsHistoryPageVi._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaVi extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'Đã xóa ${count} mục lịch sử xem cục bộ';
 	@override String get clearAction => 'Xóa';
 	@override String get iosManualRescanNotice => 'iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageVi extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageVi._(TranslationsVi root) : this._root = root, super.internal(root);
+
+	final TranslationsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Xóa khỏi lịch sử';
+	@override String get removed => 'Đã xóa khỏi lịch sử';
+	@override String watchedTo({required Object time}) => 'Đã xem đến ${time}';
+	@override String get finished => 'Đã xem xong';
+	@override String clearTabTitle({required Object tab}) => 'Xóa "${tab}"';
+	@override String clearTabConfirm({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.';
+	@override String get rangeByLastViewed => 'Lọc theo thời gian xem gần nhất';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsVi {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Đã xóa ${count} mục lịch sử xem cục bộ',
 			'localMedia.clearAction' => 'Xóa',
 			'localMedia.iosManualRescanNotice' => 'iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.',
+			'historyPage.removeFromHistory' => 'Xóa khỏi lịch sử',
+			'historyPage.removed' => 'Đã xóa khỏi lịch sử',
+			'historyPage.watchedTo' => ({required Object time}) => 'Đã xem đến ${time}',
+			'historyPage.finished' => 'Đã xem xong',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Xóa "${tab}"',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Toàn bộ lịch sử trong "${tab}" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác.',
+			'historyPage.rangeByLastViewed' => 'Lọc theo thời gian xem gần nhất',
 			_ => null,
 		};
 	}

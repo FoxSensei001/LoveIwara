@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/single_run_wrap.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/utils/common_utils.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 const double _threadTitleFontSize = 14;
 const double _threadTitleLineHeight = 1.22;
@@ -94,10 +96,9 @@ class _ThreadListItemWidgetState extends State<ThreadListItemWidget> {
                         _TitleLine(thread: widget.thread),
                         const SizedBox(height: 8),
                         _MetaLine(thread: widget.thread),
-                        if (widget.thread.lastPost != null) ...[
-                          const SizedBox(height: 8),
-                          _LastReplyLine(thread: widget.thread),
-                        ],
+                        const SizedBox(height: 8),
+                        // 没回复也占同样高度：网格里每张卡等高
+                        _LastReplyLine(thread: widget.thread),
                       ],
                     ),
                   ),
@@ -247,9 +248,22 @@ class _MetaLine extends StatelessWidget {
           58.0,
         );
 
-        return Wrap(
+        final statColor = theme.colorScheme.onSurfaceVariant;
+        return SingleRunWrap(
           spacing: compact ? 5 : 6,
-          runSpacing: 5,
+          // 状态胶囊与统计胶囊并排当样本，行高取两者中高的那颗
+          placeholder: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _StatusIconChip(icon: Icons.lock_rounded, color: statColor),
+              _StatChip(
+                icon: Icons.visibility,
+                value: '0',
+                color: statColor,
+                maxTextWidth: chipTextMaxWidth,
+              ),
+            ],
+          ),
           children: [
             if (thread.sticky)
               _StatusIconChip(
@@ -288,7 +302,54 @@ class _LastReplyLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lastPost = thread.lastPost!;
+    final lastPost = thread.lastPost;
+    final bodyStyle = theme.textTheme.bodySmall?.copyWith(
+      fontSize: 11,
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    // 两行结构（名字 + 正文摘要）恒定：没回复、正文为空都照样占位，
+    // 这样每张卡的回复块同高，网格里卡片才能等高。
+    final Widget leading;
+    final Widget nameLine;
+    final String body;
+    if (lastPost == null) {
+      leading = SizedBox.square(
+        dimension: 24,
+        child: Icon(
+          Icons.chat_bubble_outline_rounded,
+          size: 16,
+          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+        ),
+      );
+      nameLine = Text(
+        slang.t.common.tmpNoReplies,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+        ),
+      );
+      body = '';
+    } else {
+      leading = InkWell(
+        onTap: () => NaviService.navigateToAuthorProfilePage(
+          lastPost.user.username,
+          initialUser: lastPost.user,
+        ),
+        borderRadius: BorderRadius.circular(99),
+        child: AvatarWidget(user: lastPost.user, size: 24),
+      );
+      nameLine = InkWell(
+        onTap: () => NaviService.navigateToAuthorProfilePage(
+          lastPost.user.username,
+          initialUser: lastPost.user,
+        ),
+        child: buildUserName(context, lastPost.user, bold: true, fontSize: 12),
+      );
+      body = lastPost.body;
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
       decoration: BoxDecoration(
@@ -300,49 +361,20 @@ class _LastReplyLine extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          InkWell(
-            onTap: () => NaviService.navigateToAuthorProfilePage(
-              lastPost.user.username,
-              initialUser: lastPost.user,
-            ),
-            borderRadius: BorderRadius.circular(99),
-            child: AvatarWidget(user: lastPost.user, size: 24),
-          ),
+          leading,
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: InkWell(
-                        onTap: () => NaviService.navigateToAuthorProfilePage(
-                          lastPost.user.username,
-                          initialUser: lastPost.user,
-                        ),
-                        child: buildUserName(
-                          context,
-                          lastPost.user,
-                          bold: true,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
+                SizedBox(width: double.infinity, child: nameLine),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: bodyStyle,
                 ),
-                if (lastPost.body.isNotEmpty) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    lastPost.body,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

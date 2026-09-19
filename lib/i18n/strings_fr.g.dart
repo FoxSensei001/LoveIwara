@@ -96,6 +96,7 @@ class TranslationsFr extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueFr playbackQueue = _TranslationsPlaybackQueueFr._(_root);
 	@override late final _TranslationsVrFormatFr vrFormat = _TranslationsVrFormatFr._(_root);
 	@override late final _TranslationsLocalMediaFr localMedia = _TranslationsLocalMediaFr._(_root);
+	@override late final _TranslationsHistoryPageFr historyPage = _TranslationsHistoryPageFr._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaFr extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => '${count} entrées de l\'historique de lecture local effacées';
 	@override String get clearAction => 'Effacer';
 	@override String get iosManualRescanNotice => 'iOS ne détecte pas automatiquement les nouveaux fichiers. Vous devrez relancer une analyse manuellement après avoir ajouté ou supprimé des fichiers.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageFr extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageFr._(TranslationsFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Retirer de l\'historique';
+	@override String get removed => 'Retiré de l\'historique';
+	@override String watchedTo({required Object time}) => 'Vu jusqu’à ${time}';
+	@override String get finished => 'Vu';
+	@override String clearTabTitle({required Object tab}) => 'Effacer « ${tab} »';
+	@override String clearTabConfirm({required Object tab}) => 'Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible.';
+	@override String get rangeByLastViewed => 'Filtré par dernière consultation';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsFr {
 			'localMedia.clearProgressDone' => ({required Object count}) => '${count} entrées de l\'historique de lecture local effacées',
 			'localMedia.clearAction' => 'Effacer',
 			'localMedia.iosManualRescanNotice' => 'iOS ne détecte pas automatiquement les nouveaux fichiers. Vous devrez relancer une analyse manuellement après avoir ajouté ou supprimé des fichiers.',
+			'historyPage.removeFromHistory' => 'Retirer de l\'historique',
+			'historyPage.removed' => 'Retiré de l\'historique',
+			'historyPage.watchedTo' => ({required Object time}) => 'Vu jusqu’à ${time}',
+			'historyPage.finished' => 'Vu',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Effacer « ${tab} »',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Tout l’historique de « ${tab} » sera supprimé, ainsi que la progression de lecture de ces vidéos. Action irréversible.',
+			'historyPage.rangeByLastViewed' => 'Filtré par dernière consultation',
 			_ => null,
 		};
 	}

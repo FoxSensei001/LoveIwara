@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "Se borraron ${count} entradas del historial de reproducción local"
   clearAction: Borrar
   iosManualRescanNotice: iOS no detecta automáticamente los archivos nuevos. Deberá volver a escanear manualmente después de añadir o eliminar archivos.
+historyPage:
+  removeFromHistory: "Quitar del historial"
+  removed: "Quitado del historial"
+  watchedTo: "Visto hasta ${time}"
+  finished: "Visto"
+  clearTabTitle: "Borrar «${tab}»"
+  clearTabConfirm: "Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer."
+  rangeByLastViewed: "Filtrado por última visualización"

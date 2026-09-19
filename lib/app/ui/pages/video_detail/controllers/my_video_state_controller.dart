@@ -2036,9 +2036,8 @@ class MyVideoStateController extends GetxController
 
   // ==================== 本地库进度（local_media_progress） ====================
   //
-  // ⛔ 这一整块**不能**复用 `video_playback_history`：那张表 `init()` 里有一句
-  // `DELETE ... WHERE created_at < 7天前`，而"看完"是靠删行表达的——"没有这一行"
-  // 同时代表从没看过 / 已看完 / 被清掉，三义。而本地文件最该记住的恰恰是
+  // ⛔ 这一整块**不能**复用 `video_playback_history`：那张表按 Iwara videoId 记、
+  // 跟着浏览历史一起删（删历史就忘掉进度）。而本地文件最该记住的恰恰是
   // 「两周后回来接着看第 3 集」（本地文件不会消失，线上视频会）。
   // 所以走 v23 的 `local_media_progress`：显式 `completed` 列，**永不清理**。
 
@@ -3391,23 +3390,15 @@ class MyVideoStateController extends GetxController
       return;
     }
 
-    final currentMs = position.inMilliseconds;
-    final totalMs = duration.inMilliseconds;
-    if (currentMs <= 5000 || currentMs >= totalMs - 5000) {
-      await _runCleanupStep(
-        '删除播放历史',
-        () => _playbackHistoryService.deletePlaybackHistory(videoId),
-      );
-    } else {
-      await _runCleanupStep(
-        '保存播放历史',
-        () => _playbackHistoryService.savePlaybackHistory(
-          videoId,
-          totalMs,
-          currentMs,
-        ),
-      );
-    }
+    // 开头几秒当作没看（删行）、末尾几秒记成看完，口径在服务里。
+    await _runCleanupStep(
+      '保存播放历史',
+      () => _playbackHistoryService.recordPosition(
+        videoId,
+        duration.inMilliseconds,
+        position.inMilliseconds,
+      ),
+    );
   }
 
   Future<void> _runCleanupStep(
@@ -3847,18 +3838,10 @@ class MyVideoStateController extends GetxController
     try {
       if (!firstLoaded &&
           _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-        final history = await _playbackHistoryService.getPlaybackHistory(
+        targetDuration = await _playbackHistoryService.resumePosition(
           videoId!,
         );
         if (_isDisposed) return;
-
-        if (history != null) {
-          final playedDuration = history['played_duration'] as int;
-          final totalDurationMs = history['total_duration'] as int;
-          targetDuration = Duration(
-            milliseconds: (playedDuration - 4000).clamp(0, totalDurationMs),
-          );
-        }
       }
     } catch (e) {
       LogUtils.e('还原历史记录失败: $e', tag: 'MyVideoStateController', error: e);
@@ -5816,8 +5799,8 @@ class MyVideoStateController extends GetxController
         // 顺带把进度报给「稍后再看」——它自己判"看完没有"（≥90% 或剩余<10s），
         // 并且只在应用处于前台时才写 watched。
         //
-        // ⛔ 不能复用 video_playback_history：那张表只留 7 天、而且"看完"是靠
-        // 删行表达的，"没有这一行"同时代表从没看过 / 已看完 / 被清掉，三义。
+        // ⛔ 不能复用 video_playback_history：那张表跟着浏览历史一起删，
+        // 用户删一条历史不该连「稍后再看」的看完状态一起丢。
         _reportWatchLaterProgress(position);
 
         // 本地库那条路的进度（自己节流，见 [_saveLocalLibraryProgress]）。

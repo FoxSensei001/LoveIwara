@@ -96,6 +96,7 @@ class TranslationsKo extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueKo playbackQueue = _TranslationsPlaybackQueueKo._(_root);
 	@override late final _TranslationsVrFormatKo vrFormat = _TranslationsVrFormatKo._(_root);
 	@override late final _TranslationsLocalMediaKo localMedia = _TranslationsLocalMediaKo._(_root);
+	@override late final _TranslationsHistoryPageKo historyPage = _TranslationsHistoryPageKo._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaKo extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => '로컬 시청 기록 ${count}개를 지웠습니다';
 	@override String get clearAction => '지우기';
 	@override String get iosManualRescanNotice => 'iOS는 새 파일을 자동으로 감지하지 않습니다. 파일을 추가하거나 삭제한 후 수동으로 다시 검사해야 합니다.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageKo extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageKo._(TranslationsKo root) : this._root = root, super.internal(root);
+
+	final TranslationsKo _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => '기록에서 삭제';
+	@override String get removed => '기록에서 삭제했습니다';
+	@override String watchedTo({required Object time}) => '${time}까지 시청';
+	@override String get finished => '시청 완료';
+	@override String clearTabTitle({required Object tab}) => '"${tab}" 지우기';
+	@override String clearTabConfirm({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.';
+	@override String get rangeByLastViewed => '마지막으로 본 시간 기준';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsKo {
 			'localMedia.clearProgressDone' => ({required Object count}) => '로컬 시청 기록 ${count}개를 지웠습니다',
 			'localMedia.clearAction' => '지우기',
 			'localMedia.iosManualRescanNotice' => 'iOS는 새 파일을 자동으로 감지하지 않습니다. 파일을 추가하거나 삭제한 후 수동으로 다시 검사해야 합니다.',
+			'historyPage.removeFromHistory' => '기록에서 삭제',
+			'historyPage.removed' => '기록에서 삭제했습니다',
+			'historyPage.watchedTo' => ({required Object time}) => '${time}까지 시청',
+			'historyPage.finished' => '시청 완료',
+			'historyPage.clearTabTitle' => ({required Object tab}) => '"${tab}" 지우기',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => '"${tab}"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.',
+			'historyPage.rangeByLastViewed' => '마지막으로 본 시간 기준',
 			_ => null,
 		};
 	}

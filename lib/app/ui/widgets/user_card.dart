@@ -6,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/ui/widgets/single_run_wrap.dart';
 
 /// 用户卡片的外壳：不透明 surface 底 + 发丝描边 + 圆角 14 的 Ink 卡片
 /// （无 Material Card 的投影），桌面端悬停时投影浮起。
@@ -183,10 +184,9 @@ class _UserCardState extends State<UserCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           buildUserName(context, user, fontSize: 16),
-          if (user.name.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            _buildUserName(),
-          ],
+          // 没有昵称时也留这一行（空行），列表里每张卡才等高
+          const SizedBox(height: 4),
+          _buildUserName(),
           const SizedBox(height: 8),
           _buildTags(context),
         ],
@@ -201,7 +201,7 @@ class _UserCardState extends State<UserCard> {
   Widget _buildUserName() {
     final colorScheme = Theme.of(context).colorScheme;
     return Text(
-      '@${user.username}',
+      user.name.isNotEmpty ? '@${user.username}' : '',
       style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -210,9 +210,13 @@ class _UserCardState extends State<UserCard> {
 
   Widget _buildTags(BuildContext context) {
     final t = slang.Translations.of(context);
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
+    // 标签只排一行：0 个也留出一行高，多了放不下的整颗藏掉，不换行撑高卡片
+    return SingleRunWrap(
+      placeholder: _buildChip(
+        icon: Icons.stars,
+        label: t.common.premium,
+        color: Colors.transparent,
+      ),
       children: [
         if (user.premium)
           _buildChip(

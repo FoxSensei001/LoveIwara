@@ -118,6 +118,7 @@ class XrPlaylistSource {
         queue is WatchLaterPlaybackQueue && queue.unwatchedOnly
             ? '${t.watchLater.title} · ${t.watchLater.filterUnwatched}'
             : t.watchLater.title,
+      PlaybackQueueKind.history => titled(t.common.history),
     };
   }
 
@@ -133,6 +134,9 @@ class XrPlaylistSource {
     PlaybackQueueKind.downloads => 'download',
     PlaybackQueueKind.localLibrary => 'devices',
     PlaybackQueueKind.watchLater => 'watchLater',
+    // 图标复用 watchLater：Quest 端图标表里还没有 history 语义的那颗（手机端
+    // 抽屉用的是 Icons.history）。图标表扩充后两处一起换，见 xr_queue_catalog。
+    PlaybackQueueKind.history => 'watchLater',
   };
 
   /// 把一条视频解析成沉浸场景能直接吃的东西。解析不出来返回 null。

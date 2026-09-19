@@ -96,6 +96,7 @@ class TranslationsTh extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueTh playbackQueue = _TranslationsPlaybackQueueTh._(_root);
 	@override late final _TranslationsVrFormatTh vrFormat = _TranslationsVrFormatTh._(_root);
 	@override late final _TranslationsLocalMediaTh localMedia = _TranslationsLocalMediaTh._(_root);
+	@override late final _TranslationsHistoryPageTh historyPage = _TranslationsHistoryPageTh._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaTh extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'ล้างประวัติการรับชมในเครื่องแล้ว ${count} รายการ';
 	@override String get clearAction => 'ล้าง';
 	@override String get iosManualRescanNotice => 'iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageTh extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageTh._(TranslationsTh root) : this._root = root, super.internal(root);
+
+	final TranslationsTh _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'ลบออกจากประวัติ';
+	@override String get removed => 'ลบออกจากประวัติแล้ว';
+	@override String watchedTo({required Object time}) => 'ดูถึง ${time}';
+	@override String get finished => 'ดูจบแล้ว';
+	@override String clearTabTitle({required Object tab}) => 'ล้าง "${tab}"';
+	@override String clearTabConfirm({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้';
+	@override String get rangeByLastViewed => 'กรองตามเวลาที่ดูล่าสุด';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsTh {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'ล้างประวัติการรับชมในเครื่องแล้ว ${count} รายการ',
 			'localMedia.clearAction' => 'ล้าง',
 			'localMedia.iosManualRescanNotice' => 'iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์',
+			'historyPage.removeFromHistory' => 'ลบออกจากประวัติ',
+			'historyPage.removed' => 'ลบออกจากประวัติแล้ว',
+			'historyPage.watchedTo' => ({required Object time}) => 'ดูถึง ${time}',
+			'historyPage.finished' => 'ดูจบแล้ว',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'ล้าง "${tab}"',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'ประวัติทั้งหมดใน "${tab}" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้',
+			'historyPage.rangeByLastViewed' => 'กรองตามเวลาที่ดูล่าสุด',
 			_ => null,
 		};
 	}

@@ -110,8 +110,8 @@ void main() {
         ['ancient'],
       );
 
-      // PlaybackHistoryService 是在构造后 init() 里做 7 天清理的；这里刻意再造一个
-      // 实例，验证 VrFormatOverrideService 连 init 都没有，构造不会碰任何数据。
+      // 刻意再造一个实例，验证 VrFormatOverrideService 连 init 都没有，
+      // 构造不会碰任何数据。
       final restarted = VrFormatOverrideService(database: db);
       expect(
         await restarted.get('ancient'),

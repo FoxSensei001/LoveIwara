@@ -17,6 +17,10 @@ class HistoryRecord {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  /// 观看进度（只有视频、且看过超过几秒才有；由列表查询 JOIN 进度表带出）。
+  final int? playedMs;
+  final int? totalMs;
+
   HistoryRecord({
     required this.id,
     required this.itemId,
@@ -28,7 +32,23 @@ class HistoryRecord {
     required this.data,
     this.createdAt,
     this.updatedAt,
+    this.playedMs,
+    this.totalMs,
   });
+
+  /// 播放器把「看完」记成 played == total（见 PlaybackHistoryService.savePlaybackHistory）。
+  bool get isFinished =>
+      playedMs != null &&
+      totalMs != null &&
+      totalMs! > 0 &&
+      playedMs! >= totalMs!;
+
+  /// 0~1；没有进度记录时为 null。
+  double? get progress {
+    final played = playedMs, total = totalMs;
+    if (played == null || total == null || total <= 0) return null;
+    return (played / total).clamp(0.0, 1.0);
+  }
 
   // 从Video创建历史记录
   factory HistoryRecord.fromVideo(Video video) {
@@ -94,8 +114,25 @@ class HistoryRecord {
     );
   }
 
-  // 获取原始数据对象
-  dynamic getOriginalData() {
+  /// 原始数据对象，首次访问时解一次后缓存。
+  ///
+  /// ⛔ 以前每次调用都 jsonDecode + fromJson，而它被放在卡片的 Obx 里：
+  /// 勾选一项、列表重建，整屏卡片就在 UI 线程上把 JSON 重解一遍。
+  /// 坏数据答 null，不让一行脏记录把整页 build 炸掉。
+  late final Object? originalData = _decodeOriginalData();
+
+  // 获取原始数据对象（兼容旧调用点）
+  dynamic getOriginalData() => originalData;
+
+  Object? _decodeOriginalData() {
+    try {
+      return _decode();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Object _decode() {
     final Map<String, dynamic> jsonData = jsonDecode(data);
     switch (itemType) {
       case 'video':
@@ -114,14 +151,17 @@ class HistoryRecord {
   factory HistoryRecord.fromJson(Map<String, dynamic> json) {
     DateTime? parseFlexible(dynamic v) {
       if (v == null) return null;
-      final s = v.toString();
-      // 先尝试严格 ISO 8601 解析
-      final iso = DateTime.tryParse(s);
-      if (iso != null) return iso;
-      // 兼容 SQLite datetime('now') 产生的 "YYYY-MM-DD HH:MM:SS"
-      final replaced = s.replaceFirst(' ', 'T');
-      return DateTime.tryParse(replaced);
+      final s = v.toString().trim();
+      // SQLite datetime('now') 产生的 "YYYY-MM-DD HH:MM:SS" 是 **UTC** 且不带时区后缀；
+      // DateTime.tryParse 会把它当本地时间，UTC+8 下「刚刚看的」显示成「8 小时前」。
+      // 没有时区标记就补 Z 按 UTC 解析，再转回本地。
+      final hasZone = RegExp(r'(Z|[+-]\d{2}:?\d{2})$').hasMatch(s);
+      final parsed = DateTime.tryParse(
+        hasZone ? s : '${s.replaceFirst(' ', 'T')}Z',
+      );
+      return parsed?.toLocal();
     }
+
     return HistoryRecord(
       id: json['id'],
       itemId: json['item_id'],
@@ -133,6 +173,8 @@ class HistoryRecord {
       data: json['data'],
       createdAt: parseFlexible(json['created_at']),
       updatedAt: parseFlexible(json['updated_at']),
+      playedMs: json['progress_played_ms'] as int?,
+      totalMs: json['progress_total_ms'] as int?,
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:i_iwara/app/models/inner_playlist.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
 import 'package:i_iwara/app/models/media_list_query.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
@@ -67,6 +68,10 @@ class PlaybackQueueService extends GetxService {
   static String favoritesQueueId([
     PlaybackMediaType mediaType = PlaybackMediaType.video,
   ]) => 'favorites${_suffix(mediaType)}';
+
+  static String historyQueueId([
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+  ]) => 'history${_suffix(mediaType)}';
 
   static String localFavoriteQueueId(
     String folderId, {
@@ -447,6 +452,38 @@ class PlaybackQueueService extends GetxService {
         service: FavoriteService.to,
         title: title,
         mediaType: mediaType,
+      ),
+    );
+  }
+
+  /// 本地浏览历史池。
+  ///
+  /// 历史的顺序会变（每看一条它就浮到最上面），缓存着的旧池翻到的是旧顺序。
+  /// 从历史页点进来时传 [fresh] + [seed]（历史页已加载的那些，自然顺序）：
+  /// 旧池没人在听就换一个新的，从用户眼前这份顺序接着往下翻。有人在听（抽屉
+  /// 正开着）就照旧复用，不能把别人手上的池换掉。
+  HistoryPlaybackQueue openHistory({
+    PlaybackMediaType mediaType = PlaybackMediaType.video,
+    List<InnerPlaylistItemSnapshot> seed = const [],
+    bool fresh = false,
+  }) {
+    final id = historyQueueId(mediaType);
+    final existing = _queues[id];
+    if (existing is HistoryPlaybackQueue) {
+      if (!fresh || existing.isInUse) {
+        _touch(id);
+        return existing;
+      }
+      _queues.remove(id);
+      _lru.remove(id);
+      existing.dispose();
+    }
+    return _register(
+      HistoryPlaybackQueue(
+        queueId: id,
+        mediaType: mediaType,
+        repository: HistoryRepository(),
+        seed: seed,
       ),
     );
   }

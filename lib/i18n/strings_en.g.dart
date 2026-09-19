@@ -97,6 +97,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsPlaybackQueueEn playbackQueue = TranslationsPlaybackQueueEn.internal(_root);
 	late final TranslationsVrFormatEn vrFormat = TranslationsVrFormatEn.internal(_root);
 	late final TranslationsLocalMediaEn localMedia = TranslationsLocalMediaEn.internal(_root);
+	late final TranslationsHistoryPageEn historyPage = TranslationsHistoryPageEn.internal(_root);
 }
 
 // Path: personalProfile
@@ -6870,6 +6871,36 @@ class TranslationsLocalMediaEn {
 
 	/// en: 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.'
 	String get iosManualRescanNotice => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.';
+}
+
+// Path: historyPage
+class TranslationsHistoryPageEn {
+	TranslationsHistoryPageEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Remove from history'
+	String get removeFromHistory => 'Remove from history';
+
+	/// en: 'Removed from history'
+	String get removed => 'Removed from history';
+
+	/// en: 'Watched to ${time}'
+	String watchedTo({required Object time}) => 'Watched to ${time}';
+
+	/// en: 'Watched'
+	String get finished => 'Watched';
+
+	/// en: 'Clear "${tab}"'
+	String clearTabTitle({required Object tab}) => 'Clear "${tab}"';
+
+	/// en: 'All history in "${tab}" will be deleted, along with the watch progress of those videos. This cannot be undone.'
+	String clearTabConfirm({required Object tab}) => 'All history in "${tab}" will be deleted, along with the watch progress of those videos. This cannot be undone.';
+
+	/// en: 'Filtered by last viewed time'
+	String get rangeByLastViewed => 'Filtered by last viewed time';
 }
 
 // Path: common.pagination
@@ -14389,6 +14420,13 @@ extension on Translations {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Cleared ${count} local watch history entries',
 			'localMedia.clearAction' => 'Clear',
 			'localMedia.iosManualRescanNotice' => 'iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.',
+			'historyPage.removeFromHistory' => 'Remove from history',
+			'historyPage.removed' => 'Removed from history',
+			'historyPage.watchedTo' => ({required Object time}) => 'Watched to ${time}',
+			'historyPage.finished' => 'Watched',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Clear "${tab}"',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'All history in "${tab}" will be deleted, along with the watch progress of those videos. This cannot be undone.',
+			'historyPage.rangeByLastViewed' => 'Filtered by last viewed time',
 			_ => null,
 		};
 	}

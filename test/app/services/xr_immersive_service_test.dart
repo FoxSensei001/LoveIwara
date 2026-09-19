@@ -36,8 +36,24 @@ class _History extends GetxService implements PlaybackHistoryService {
   final saved = <(String, int, int)>[];
   final deleted = <String>[];
   Completer<void>? saveGate;
+
+  // 与真实实现同一个分流：开头几秒当作没看（删），其余交给 save（看完由 save 记）。
   @override
-  Future<void> init() async {}
+  Future<void> recordPosition(
+    String videoId,
+    int totalDuration,
+    int playedDuration,
+  ) async {
+    if (playedDuration <= 5000) {
+      await deletePlaybackHistory(videoId);
+    } else {
+      await savePlaybackHistory(videoId, totalDuration, playedDuration);
+    }
+  }
+
+  @override
+  Future<Duration> resumePosition(String videoId) async => Duration.zero;
+
   @override
   Future<void> savePlaybackHistory(
     String videoId,

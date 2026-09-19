@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "${count} lokale Wiedergabeverlauf-Einträge gelöscht"
   clearAction: Leeren
   iosManualRescanNotice: iOS erkennt neue Dateien nicht automatisch. Nach dem Hinzufügen oder Löschen von Dateien müssen Sie manuell erneut scannen.
+historyPage:
+  removeFromHistory: "Aus Verlauf entfernen"
+  removed: "Aus dem Verlauf entfernt"
+  watchedTo: "Gesehen bis ${time}"
+  finished: "Angesehen"
+  clearTabTitle: "„${tab}“ leeren"
+  clearTabConfirm: "Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden."
+  rangeByLastViewed: "Nach zuletzt angesehen gefiltert"

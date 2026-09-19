@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "로컬 시청 기록 ${count}개를 지웠습니다"
   clearAction: 지우기
   iosManualRescanNotice: iOS는 새 파일을 자동으로 감지하지 않습니다. 파일을 추가하거나 삭제한 후 수동으로 다시 검사해야 합니다.
+historyPage:
+  removeFromHistory: "기록에서 삭제"
+  removed: "기록에서 삭제했습니다"
+  watchedTo: "${time}까지 시청"
+  finished: "시청 완료"
+  clearTabTitle: "\"${tab}\" 지우기"
+  clearTabConfirm: "\"${tab}\"의 모든 기록과 해당 동영상의 시청 위치가 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+  rangeByLastViewed: "마지막으로 본 시간 기준"

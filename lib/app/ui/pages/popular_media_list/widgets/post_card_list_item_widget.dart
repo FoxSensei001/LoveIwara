@@ -23,6 +23,8 @@ class _PostCardListItemWidgetState extends State<PostCardListItemWidget> {
   static const double _titleFontSize = 14;
   static const double _titleLineHeight = 1.22;
   static const double _titleHeight = _titleFontSize * _titleLineHeight * 2;
+  static const double _bodyFontSize = 13;
+  static const double _bodyLineHeight = 1.35;
 
   bool _isHovering = false;
   static const Duration _hoverAnimationDuration = Duration(milliseconds: 220);
@@ -103,24 +105,37 @@ class _PostCardListItemWidgetState extends State<PostCardListItemWidget> {
                             ),
                           ),
                         ),
-                        if (widget.post.body.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final lines = constraints.maxWidth < 230 ? 2 : 4;
-                              return Text(
+                        const SizedBox(height: 8),
+                        // 正文区固定占满 N 行（空正文也占）：列表里每张卡等高
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final lines = constraints.maxWidth < 230 ? 2 : 4;
+                            final lineHeight =
+                                MediaQuery.textScalerOf(
+                                  context,
+                                ).scale(_bodyFontSize) *
+                                _bodyLineHeight;
+                            return SizedBox(
+                              height: lineHeight * lines,
+                              width: double.infinity,
+                              child: Text(
                                 widget.post.body,
                                 maxLines: lines,
                                 overflow: TextOverflow.ellipsis,
+                                strutStyle: const StrutStyle(
+                                  fontSize: _bodyFontSize,
+                                  height: _bodyLineHeight,
+                                  forceStrutHeight: true,
+                                ),
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontSize: 13,
-                                  height: 1.35,
+                                  fontSize: _bodyFontSize,
+                                  height: _bodyLineHeight,
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                              ),
+                            );
+                          },
+                        ),
                         const SizedBox(height: 9),
                         _MetaLine(post: widget.post),
                       ],
@@ -211,9 +226,8 @@ class _MetaLine extends StatelessWidget {
           220.0,
         );
 
-        return Wrap(
-          spacing: compact ? 5 : 6,
-          runSpacing: 5,
+        // 单行不换行：时间胶囊放不下就自己省略号，卡片高度不随宽度/内容变
+        return Row(
           children: [
             _StatChip(
               icon: Icons.visibility,
@@ -221,11 +235,14 @@ class _MetaLine extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
               maxTextWidth: numberChipTextMaxWidth,
             ),
-            _TimeChip(
-              icon: Icons.calendar_today_rounded,
-              value: CommonUtils.formatFriendlyTimestamp(post.createdAt),
-              color: theme.colorScheme.onSurfaceVariant,
-              maxTextWidth: timeChipTextMaxWidth,
+            SizedBox(width: compact ? 5 : 6),
+            Flexible(
+              child: _TimeChip(
+                icon: Icons.calendar_today_rounded,
+                value: CommonUtils.formatFriendlyTimestamp(post.createdAt),
+                color: theme.colorScheme.onSurfaceVariant,
+                maxTextWidth: timeChipTextMaxWidth,
+              ),
             ),
           ],
         );

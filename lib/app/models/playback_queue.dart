@@ -14,6 +14,7 @@ import 'package:i_iwara/app/models/user.model.dart';
 import 'package:i_iwara/app/models/watch_later_item.model.dart';
 import 'package:i_iwara/app/models/favorite/favorite_item.model.dart';
 import 'package:i_iwara/app/repositories/download_task_repository.dart';
+import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/app/models/image.model.dart';
 import 'package:i_iwara/app/models/local_media/local_media_item.model.dart';
@@ -57,6 +58,9 @@ enum PlaybackQueueKind {
 
   /// 本地的稍后再看。
   watchLater,
+
+  /// 本地浏览历史，按最后浏览时间倒序，本地库分页。
+  history,
 
   /// 这条视频作者的全部作品，接口分页。
   authorVideos,
@@ -834,6 +838,62 @@ class LocalFavoritePlaybackQueue extends PagedPlaybackQueue {
       ],
       rawCount: rows.length,
     );
+  }
+}
+
+/// 本地浏览历史池：视频一池、图库一池，[mediaType] 分开。
+/// 按最后浏览时间倒序，本地库分页。
+///
+/// 翻页沿用基类的 `page * limit` 偏移，而历史是**会自己变序的池**：每播一条，
+/// 那条记录的 `updated_at` 就被刷成 now、整份顺序前移——开着池长翻，后面的页
+/// 可能错位漏条（基类按 id 去重，不会重复）。可以接受：从历史页进来时
+/// `PlaybackQueueService.openHistory` 的 `fresh: true` 按用户眼前那份顺序重建、
+/// 种子对齐首屏，池又是 LRU 里的短命快照；要「就地删改不漂移」的那份完整清单
+/// 是历史页自己的 HistoryFeed（偏移 = 已加载条数），两处分工不同。
+class HistoryPlaybackQueue extends PagedPlaybackQueue {
+  HistoryPlaybackQueue({
+    required super.queueId,
+    this.mediaType = PlaybackMediaType.video,
+    required HistoryRepository repository,
+    super.seed,
+  }) : _repository = repository,
+       super(pageSize: 32);
+
+  final HistoryRepository _repository;
+
+  @override
+  final PlaybackMediaType mediaType;
+
+  @override
+  PlaybackQueueKind get kind => PlaybackQueueKind.history;
+
+  @override
+  String? get title => null;
+
+  @override
+  String get debugLabel => '浏览历史';
+
+  @override
+  Future<({List<InnerPlaylistItemSnapshot> items, int rawCount})> fetchPage(
+    int page,
+    int limit,
+  ) async {
+    final records = await _repository.listRecords(
+      itemType: mediaType.isGallery ? 'image' : 'video',
+      limit: limit,
+      offset: page * limit,
+    );
+    final items = <InnerPlaylistItemSnapshot>[];
+    for (final record in records) {
+      final data = record.originalData;
+      if (data == null) continue;
+      if (data is Video) {
+        items.add(InnerPlaylistItemSnapshot.fromVideo(data));
+      } else if (data is ImageModel) {
+        items.add(InnerPlaylistItemSnapshot.fromGallery(data));
+      }
+    }
+    return (items: items, rawCount: records.length);
   }
 }
 

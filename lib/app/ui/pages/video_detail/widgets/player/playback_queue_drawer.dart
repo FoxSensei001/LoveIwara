@@ -811,6 +811,12 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         knownEmpty: _watchLaterKnownEmpty,
         icon: Icons.watch_later_outlined,
       ),
+      ?directEntry(
+        value: _QueuePick.history,
+        kind: PlaybackQueueKind.history,
+        label: t.common.history,
+        icon: Icons.history,
+      ),
       // 「别人的东西」全挂在最下面，各自垫一条分隔线：上面那一片是「我的」。
       // 戴头像而不是一枚通用图标，那层归属关系才读得出来。
       //
@@ -916,6 +922,14 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         await _pickLocalCategory(anchorContext);
       case _QueuePick.watchLater:
         await _pickWatchLaterFilter(anchorContext);
+      case _QueuePick.history:
+        _useQueue(
+          PlaybackQueueService.to.openHistory(
+            mediaType: _isGallery
+                ? PlaybackMediaType.gallery
+                : PlaybackMediaType.video,
+          ),
+        );
     }
   }
 
@@ -2148,6 +2162,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
         _unwatchedOnly
             ? '${t.watchLater.title} · ${t.watchLater.filterUnwatched}'
             : t.watchLater.title,
+      PlaybackQueueKind.history => t.common.history,
     };
     // ⛔ 截断是**必须**的，不是偷懒：胶囊按内容收缩（`GlassCapsuleMorph` 里是
     // 一条 min-size 的 Row），播放列表名可以很长，摆不下不会变省略号而是直接
@@ -2170,6 +2185,7 @@ class _PlaybackQueueDrawerState extends State<_PlaybackQueueDrawer> {
     // 两条都是"某某 + 文件夹图标"必然读混（工作线文档 §3.3）。
     PlaybackQueueKind.localLibrary => Icons.devices_outlined,
     PlaybackQueueKind.watchLater => Icons.watch_later_outlined,
+    PlaybackQueueKind.history => Icons.history,
   };
 
   @override
@@ -2977,6 +2993,7 @@ enum _QueuePick {
   /// 本机文件：扫描建库出来的那些源文件夹。
   localLibrary,
   watchLater,
+  history,
   authorVideos,
 
   /// 这个图库作者的全部图库。

@@ -72,6 +72,21 @@ import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
+/// 调用方追加到媒体操作菜单末尾的一条动作，见 [showMediaActionMenu] 的 `extraActions`。
+class MediaMenuExtraAction {
+  const MediaMenuExtraAction({
+    required this.label,
+    required this.icon,
+    required this.onSelected,
+    this.destructive = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool destructive;
+  final FutureOr<void> Function() onSelected;
+}
+
 /// 打开菜单前解析出来的一份状态快照。
 @immutable
 class MediaActionStatus {
@@ -210,6 +225,10 @@ Future<void> showMediaActionMenu({
   /// 从预览弹窗吐出本菜单时由弹窗给：弹窗和承载它的「接着看」抽屉都得先让开，
   /// 否则它们会浮在刚推进来的作者页上面。卡片那一路不用传。
   Future<void> Function()? onWillLeavePage,
+
+  /// 调用方页面自己的动作（历史页的「从历史中删除」），排在整列最后——优先级
+  /// 最低、离手指最远，破坏性动作本来就不该贴着手指。
+  List<MediaMenuExtraAction> extraActions = const [],
 }) async {
   assert(
     (video == null) != (gallery == null),
@@ -279,12 +298,12 @@ Future<void> showMediaActionMenu({
 
   final entries = <GlassMenuEntry>[
     if (onPreview != null)
-      GlassMenuOption<_MediaAction>(
+      GlassMenuOption<Object>(
         value: _MediaAction.preview,
         label: t.mediaPreview.preview,
         icon: Icons.zoom_out_map,
       ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.watchLater,
       label: resolved.inWatchLater
           ? t.watchLater.removeFromWatchLater
@@ -294,7 +313,7 @@ Future<void> showMediaActionMenu({
           : Icons.watch_later_outlined,
       accentColor: resolved.inWatchLater ? accent : null,
     ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.download,
       label: t.common.download,
       icon: Icons.download_outlined,
@@ -315,7 +334,7 @@ Future<void> showMediaActionMenu({
     // 播放列表接口只吃视频，图库加不进去——这一项对图库**不显示**而不是灰掉：
     // 它不是临时不可用，是对图库永远不存在。
     if (video != null)
-      GlassMenuOption<_MediaAction>(
+      GlassMenuOption<Object>(
         value: _MediaAction.playlist,
         label: t.common.playList,
         // 中性图标：状态是后到的（见下面的 live），在它到之前我们确实不知道这条
@@ -328,7 +347,7 @@ Future<void> showMediaActionMenu({
             ? null
             : t.mediaMenu.inPlaylists(count: 88),
       ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.favorite,
       label: t.favorite.localizeFavorite,
       icon: resolved.favoriteFolderCount > 0
@@ -339,25 +358,32 @@ Future<void> showMediaActionMenu({
           ? t.mediaMenu.inFolders(count: resolved.favoriteFolderCount)
           : null,
     ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.toggleLike,
       label: resolved.liked ? t.mediaMenu.unlike : t.mediaMenu.like,
       icon: resolved.liked ? Icons.favorite : Icons.favorite_border,
       accentColor: resolved.liked ? accent : null,
     ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.viewAuthor,
       label: t.mediaMenu.viewAuthor,
       icon: Icons.person_outline,
     ),
-    GlassMenuOption<_MediaAction>(
+    GlassMenuOption<Object>(
       value: _MediaAction.share,
       label: t.common.share,
       icon: Icons.share_outlined,
     ),
+    for (final extra in extraActions)
+      GlassMenuOption<Object>(
+        value: extra,
+        label: extra.label,
+        icon: extra.icon,
+        destructive: extra.destructive,
+      ),
   ];
 
-  final action = await showGlassMenu<_MediaAction>(
+  final picked = await showGlassMenu<Object>(
     anchorContext: anchorContext,
     entries: entries,
     // 落点没给（三点钮那条路）时退回贴着控件弹。
@@ -366,7 +392,12 @@ Future<void> showMediaActionMenu({
   );
   // 菜单没了，那份后到的状态也就没人看了（请求还在飞的话由它自己收尾）。
   playlistLive?.close();
-  if (action == null || !anchorContext.mounted) return;
+  if (picked == null || !anchorContext.mounted) return;
+  if (picked is MediaMenuExtraAction) {
+    await picked.onSelected();
+    return;
+  }
+  final action = picked as _MediaAction;
 
   switch (action) {
     case _MediaAction.preview:
@@ -587,6 +618,7 @@ class MediaActionMenuButton extends StatefulWidget {
     this.onLikeChanged,
     this.onChanged,
     this.onPreview,
+    this.extraActions = const [],
     this.size = 18,
     this.color,
   });
@@ -602,6 +634,9 @@ class MediaActionMenuButton extends StatefulWidget {
 
   /// 打开预览弹窗。给了它菜单里才有「预览」那一条，见 [showMediaActionMenu]。
   final VoidCallback? onPreview;
+
+  /// 追加在菜单末尾的页面动作，见 [MediaMenuExtraAction]。
+  final List<MediaMenuExtraAction> extraActions;
 
   final double size;
   final Color? color;
@@ -632,6 +667,7 @@ class _MediaActionMenuButtonState extends State<MediaActionMenuButton> {
         onLikeChanged: widget.onLikeChanged,
         onChanged: widget.onChanged,
         onPreview: widget.onPreview,
+        extraActions: widget.extraActions,
       );
     } finally {
       if (mounted) _opening = false;

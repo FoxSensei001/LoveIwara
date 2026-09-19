@@ -3523,3 +3523,11 @@ localMedia:
   clearProgressDone: "已清除 ${count} 筆本機觀看記錄"
   clearAction: 清除
   iosManualRescanNotice: iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。
+historyPage:
+  removeFromHistory: "從歷史中刪除"
+  removed: "已從歷史中刪除"
+  watchedTo: "看到 ${time}"
+  finished: "已看完"
+  clearTabTitle: "清空「${tab}」"
+  clearTabConfirm: "將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。"
+  rangeByLastViewed: "依最後瀏覽時間篩選"

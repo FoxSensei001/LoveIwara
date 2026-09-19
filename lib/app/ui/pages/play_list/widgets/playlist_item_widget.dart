@@ -6,6 +6,9 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+const double _titleFontSize = 14;
+const double _titleLineHeight = 1.22;
+
 class PlaylistItemWidget extends StatelessWidget {
   final PlaylistModel playlist;
 
@@ -109,15 +112,36 @@ class PlaylistItemWidget extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        playlist.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      // 标题固定占两行高（短标题也占）：网格里每张卡等高
+                      SizedBox(
+                        height:
+                            MediaQuery.textScalerOf(
+                              context,
+                            ).scale(_titleFontSize) *
+                            _titleLineHeight *
+                            2,
+                        width: double.infinity,
+                        child: Text(
+                          playlist.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          strutStyle: const StrutStyle(
+                            fontSize: _titleFontSize,
+                            height: _titleLineHeight,
+                            forceStrutHeight: true,
+                          ),
+                          style: const TextStyle(
+                            fontSize: _titleFontSize,
+                            height: _titleLineHeight,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         t.common.videoCount(n: playlist.numVideos),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Theme.of(context).textTheme.bodySmall?.color,
                           fontSize: 12,

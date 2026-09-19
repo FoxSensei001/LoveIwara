@@ -106,8 +106,8 @@ TABLE history_records
   COLUMN thumbnail_url TEXT
   COLUMN title TEXT NOT NULL
   COLUMN updated_at TEXT NOT NULL DEFAULT datetime('now')
-  INDEX idx_history_records_title :: CREATE INDEX idx_history_records_title ON history_records(title)
-  INDEX idx_history_records_type_date :: CREATE INDEX idx_history_records_type_date ON history_records(item_type, created_at)
+  INDEX idx_history_records_type_updated :: CREATE INDEX idx_history_records_type_updated ON history_records(item_type, updated_at)
+  INDEX idx_history_records_updated :: CREATE INDEX idx_history_records_updated ON history_records(updated_at)
   INDEX sqlite_autoindex_history_records_1 :: (auto)
   TRIGGER trigger_history_records_updated_at :: CREATE TRIGGER trigger_history_records_updated_at AFTER UPDATE ON history_records BEGIN UPDATE history_records SET updated_at = datetime('now') WHERE id = NEW.id; END
 TABLE local_media_folders
@@ -223,6 +223,7 @@ TABLE local_media_sources
   COLUMN created_at INTEGER NOT NULL
   COLUMN display_name TEXT NOT NULL
   COLUMN id TEXT PK1
+  COLUMN include_dot_entries INTEGER NOT NULL DEFAULT 0
   COLUMN item_count INTEGER NOT NULL DEFAULT 0
   COLUMN kind TEXT NOT NULL
   COLUMN last_scan_at INTEGER

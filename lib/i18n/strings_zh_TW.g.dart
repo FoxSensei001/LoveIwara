@@ -96,6 +96,7 @@ class TranslationsZhTw extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _TranslationsPlaybackQueueZhTw playbackQueue = _TranslationsPlaybackQueueZhTw._(_root);
 	@override late final _TranslationsVrFormatZhTw vrFormat = _TranslationsVrFormatZhTw._(_root);
 	@override late final _TranslationsLocalMediaZhTw localMedia = _TranslationsLocalMediaZhTw._(_root);
+	@override late final _TranslationsHistoryPageZhTw historyPage = _TranslationsHistoryPageZhTw._(_root);
 }
 
 // Path: personalProfile
@@ -2739,6 +2740,22 @@ class _TranslationsLocalMediaZhTw extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => '已清除 ${count} 筆本機觀看記錄';
 	@override String get clearAction => '清除';
 	@override String get iosManualRescanNotice => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageZhTw extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => '從歷史中刪除';
+	@override String get removed => '已從歷史中刪除';
+	@override String watchedTo({required Object time}) => '看到 ${time}';
+	@override String get finished => '已看完';
+	@override String clearTabTitle({required Object tab}) => '清空「${tab}」';
+	@override String clearTabConfirm({required Object tab}) => '將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。';
+	@override String get rangeByLastViewed => '依最後瀏覽時間篩選';
 }
 
 // Path: common.pagination
@@ -7811,6 +7828,13 @@ extension on TranslationsZhTw {
 			'localMedia.clearProgressDone' => ({required Object count}) => '已清除 ${count} 筆本機觀看記錄',
 			'localMedia.clearAction' => '清除',
 			'localMedia.iosManualRescanNotice' => 'iOS 不會自動發現新檔案，新增或刪除檔案後需要手動重新掃描。',
+			'historyPage.removeFromHistory' => '從歷史中刪除',
+			'historyPage.removed' => '已從歷史中刪除',
+			'historyPage.watchedTo' => ({required Object time}) => '看到 ${time}',
+			'historyPage.finished' => '已看完',
+			'historyPage.clearTabTitle' => ({required Object tab}) => '清空「${tab}」',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => '將刪除「${tab}」中的全部歷史記錄，以及對應影片的觀看進度。此操作無法復原。',
+			'historyPage.rangeByLastViewed' => '依最後瀏覽時間篩選',
 			_ => null,
 		};
 	}

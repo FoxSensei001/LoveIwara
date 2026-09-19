@@ -96,6 +96,7 @@ class TranslationsJa extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueJa playbackQueue = _TranslationsPlaybackQueueJa._(_root);
 	@override late final _TranslationsVrFormatJa vrFormat = _TranslationsVrFormatJa._(_root);
 	@override late final _TranslationsLocalMediaJa localMedia = _TranslationsLocalMediaJa._(_root);
+	@override late final _TranslationsHistoryPageJa historyPage = _TranslationsHistoryPageJa._(_root);
 }
 
 // Path: personalProfile
@@ -2739,6 +2740,22 @@ class _TranslationsLocalMediaJa extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました';
 	@override String get clearAction => '消去';
 	@override String get iosManualRescanNotice => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageJa extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => '履歴から削除';
+	@override String get removed => '履歴から削除しました';
+	@override String watchedTo({required Object time}) => '${time} まで視聴';
+	@override String get finished => '視聴済み';
+	@override String clearTabTitle({required Object tab}) => '「${tab}」を消去';
+	@override String clearTabConfirm({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。';
+	@override String get rangeByLastViewed => '最終閲覧日時で絞り込み';
 }
 
 // Path: common.pagination
@@ -7811,6 +7828,13 @@ extension on TranslationsJa {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'ローカル視聴履歴を ${count} 件消去しました',
 			'localMedia.clearAction' => '消去',
 			'localMedia.iosManualRescanNotice' => 'iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。',
+			'historyPage.removeFromHistory' => '履歴から削除',
+			'historyPage.removed' => '履歴から削除しました',
+			'historyPage.watchedTo' => ({required Object time}) => '${time} まで視聴',
+			'historyPage.finished' => '視聴済み',
+			'historyPage.clearTabTitle' => ({required Object tab}) => '「${tab}」を消去',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => '「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。',
+			'historyPage.rangeByLastViewed' => '最終閲覧日時で絞り込み',
 			_ => null,
 		};
 	}

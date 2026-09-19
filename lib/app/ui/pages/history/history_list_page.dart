@@ -1,39 +1,55 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/models/history_record.dart';
-import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/models/image.model.dart';
+import 'package:i_iwara/app/models/inner_playlist.model.dart';
+import 'package:i_iwara/app/models/playback_queue.dart';
+import 'package:i_iwara/app/models/post.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
+import 'package:i_iwara/app/routes/app_router.dart' show routeObserver;
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/ui/pages/forum/widgets/thread_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/common_media_list_widgets.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/image_model_card_list_item_widget.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/media_list_view.dart';
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/video_card_list_item_widget.dart';
+import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/ui/pages/local_media/widgets/local_grid_metrics.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/batch_confirm_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_selection.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/app/utils/media_layout_utils.dart';
-import 'package:i_iwara/common/constants.dart';
-import 'package:i_iwara/utils/common_utils.dart';
-import 'controllers/history_list_controller.dart';
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
-import 'package:i_iwara/app/ui/pages/popular_media_list/widgets/post_card_list_item_widget.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
+import 'package:i_iwara/app/ui/widgets/timeline_group.dart';
+import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/common_utils.dart';
 
-/// 历史记录页（玻璃化 + 瀑布/分页双模式）。
+import 'controllers/history_feed.dart';
+import 'controllers/history_list_controller.dart';
+import 'widgets/history_tile.dart';
+
+/// 浏览历史页。
 ///
-/// header 两行：第一行「返回 / 玻璃搜索框 / 动作胶囊」，第二行五段类型胶囊。
+/// header 两行：「返回 / 搜索框 / [筛选 · 多选]」，第二行五段类型胶囊。
+/// 列表按**最后浏览时间**分组（今天 / 昨天 / 本周 / 本月 / 按月），窄屏长条、
+/// 宽屏网格——与下载列表 R3 同一套版式。
+///
+/// # 与旧版相比删了什么
+///
+/// - 瀑布 ↔ 分页切换：历史按时间分组，分页会把一组切成两半；要找某天的记录用
+///   时间区间筛选比翻页快。
+/// - 「更多」菜单与 header 上的清空钮：清空挪进筛选抽屉底部（低频 + 破坏性，
+///   不该和多选钮并排）。header 右侧于是在所有宽度下都只有两枚钮，窄屏不用再
+///   往菜单里藏东西。
+/// - 排序开关：「首次浏览」排序没有人要——重看一条老视频，它就该回到最上面。
 class HistoryListPage extends StatefulWidget {
   const HistoryListPage({super.key});
 
@@ -42,107 +58,99 @@ class HistoryListPage extends StatefulWidget {
 }
 
 class _HistoryListPageState extends State<HistoryListPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   /// 标题行与分段行之间的间距。
   static const double _headerRowGap = 6;
 
-  /// 分段行与列表首屏之间的呼吸。
-  ///
-  /// 单行 header 的 56 里天然留了 6 的余量（胶囊只有 44 高），两行 header 的
-  /// 第二行高度就是胶囊高度、一点余量都没有——不补这一段，第一排卡片会紧贴
-  /// 分段胶囊下沿。
+  /// 分段行与列表首屏之间的呼吸（两行 header 的第二行没有余量）。
   static const double _headerBottomGap = 8;
 
-  static const List<String> _tags = ['all', 'video', 'image', 'post', 'thread'];
+  /// 宽屏网格的断点，与全站 `kCornerDockBreakpoint` / 下载列表一致。
+  static const double _wideBreakpoint = 600;
 
-  static const String _menuActionTogglePagination = 'toggle_pagination';
-  static const String _menuActionClear = 'clear_history';
-
-  late TabController _tabController;
-  late final List<HistoryListController> _controllers;
-
+  final HistoryListController _controller = HistoryListController();
+  late final TabController _tabController;
   final List<ScrollController> _scrollControllers = List.generate(
-    _tags.length,
+    HistoryListController.tags.length,
     (_) => ScrollController(),
   );
-
-  /// 每个 tab 一个刷新信号：分页模式必须由 MediaListView 自己刷新，
-  /// 直接 `repository.refresh()` 只会动数据源、不会换掉当前显示的那一页。
-  final List<ValueNotifier<int>> _refreshSignals = List.generate(
-    _tags.length,
-    (_) => ValueNotifier<int>(0),
-  );
-
-  /// 搜索框：整页共用一个 controller，切 tab 时同步成该 tab 的关键字。
   final TextEditingController _searchController = TextEditingController();
-
-  /// 列表滚过一段距离后显示右下角「回到顶部」浮钮。
+  final FocusNode _searchFocus = FocusNode();
   final ValueNotifier<bool> _showBackToTop = ValueNotifier<bool>(false);
 
-  /// 瀑布 ↔ 分页；初值取全局默认，切换后写回（跨页面、跨启动生效）。
-  late bool _isPaginated = CommonConstants.isPaginated;
-
-  HistoryListController get _currentController =>
-      _controllers[_tabController.index];
-
-  ScrollController get _currentScrollController =>
-      _scrollControllers[_tabController.index];
+  int get _index => _tabController.index;
+  HistoryFeed get _feed => _controller.feeds[_index];
+  String get _itemType => HistoryListController.tags[_index];
 
   @override
   void initState() {
     super.initState();
-    final historyRepo = HistoryRepository();
+    _tabController = TabController(
+      length: HistoryListController.tags.length,
+      vsync: this,
+    )..addListener(_handleTabChange);
+    _ensureAround(0);
+  }
 
-    _controllers = [
-      for (final tag in _tags)
-        Get.put(
-          HistoryListController(historyRepository: historyRepo, itemType: tag),
-          tag: tag,
-        ),
-    ];
-
-    _tabController = TabController(length: _tags.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
+  void _ensureAround(int index) {
+    for (var i = index - 1; i <= index + 1; i++) {
+      if (i >= 0 && i < HistoryListController.tags.length) {
+        _controller.ensureLoaded(i);
+      }
+    }
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != null) routeObserver.subscribe(this, route);
+  }
+
+  /// 从详情页回来：刚看的那条「最后浏览」变了，浮到最上面；进度也可能变了。
+  ///
+  /// 只认「从这页点出去的详情页」回来：预览弹窗、筛选抽屉、日期选择器关掉也会
+  /// 触发 didPopNext，那些不改历史，不必重查。
+  @override
+  void didPopNext() {
+    if (!_openedDetail) return;
+    _openedDetail = false;
+    _controller.refreshAfterReturn(_index);
+  }
+
+  bool _openedDetail = false;
+
+  @override
   void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
-    for (final controller in _scrollControllers) {
-      controller.dispose();
-    }
-    for (final signal in _refreshSignals) {
-      signal.dispose();
+    routeObserver.unsubscribe(this);
+    _tabController
+      ..removeListener(_handleTabChange)
+      ..dispose();
+    for (final c in _scrollControllers) {
+      c.dispose();
     }
     _searchController.dispose();
+    _searchFocus.dispose();
     _showBackToTop.dispose();
-    for (final tag in _tags) {
-      Get.delete<HistoryListController>(tag: tag);
-    }
+    _controller.dispose();
     super.dispose();
   }
 
   void _handleTabChange() {
-    // 动画途中 indexIsChanging 为 true，只关心落定后的那次
+    // 点 tab 时 index 在滑动动画**开始**就已是目标页：这时就查库，别等动画
+    // 播完——否则目标页整段滑入都是转圈。相邻页顺手预取，手指横拖切 tab
+    // （只在拖完才改 index）也不会先看到转圈。本地库一页亚毫秒级，代价可忽略。
+    _ensureAround(_index);
     if (_tabController.indexIsChanging) return;
-    final controller = _currentController;
-    // 搜索框跟随当前 tab 的关键字（各 tab 的筛选条件是分开的）
-    final keyword = controller.searchKeyword.value;
-    if (_searchController.text != keyword) {
-      _searchController.text = keyword;
-    }
-    if (mounted) setState(() {});
-    _syncBackToTop();
-  }
-
-  void _syncBackToTop() {
-    final active = _currentScrollController;
+    // 全选 = 本 tab 已加载的；换了 tab，原来勾的已经不在眼前了，留着只会误删。
+    _controller.clearSelection();
+    final active = _scrollControllers[_index];
     _showBackToTop.value = active.hasClients && active.position.pixels >= 300;
+    if (mounted) setState(() {});
   }
 
   void _scrollToTop() {
-    final active = _currentScrollController;
+    final active = _scrollControllers[_index];
     if (active.hasClients) {
       active.animateTo(
         0,
@@ -152,28 +160,271 @@ class _HistoryListPageState extends State<HistoryListPage>
     }
   }
 
-  void _togglePaginationMode() {
-    setState(() => _isPaginated = !_isPaginated);
-    persistPaginationMode(_isPaginated);
-    // 分页与瀑布的下标口径不同，模式一换就把选择清掉
-    _currentController.clearSelection();
-  }
+  // ------------------------------------------------------------------ 打开
 
-  void _onSearchChanged(String value) {
-    _currentController.search(value);
-    if (_isPaginated) {
-      // 分页模式下数据源换了条件也得让 MediaListView 回到第一页重载
-      _refreshSignals[_tabController.index].value++;
+  /// 视频 / 图库带上「历史」这一池进详情页：播完接着放历史里的下一条，Quest
+  /// 沉浸面板的「接着看」里也能顺着历史往下翻。池用眼前这份顺序当种子。
+  Future<void> _open(HistoryRecord record) async {
+    final data = record.originalData;
+    _openedDetail = data != null;
+    switch (data) {
+      case final Video video:
+        final queue = PlaybackQueueService.to.openHistory(
+          fresh: true,
+          seed: _seedFor<Video>(InnerPlaylistItemSnapshot.fromVideo),
+        );
+        if (queue.loaded.isEmpty) unawaited(queue.loadMore());
+        final user = video.user;
+        await NaviService.navigateToVideoDetailPage(
+          video.id,
+          extData: {
+            'thumbnailUrl': video.thumbnailUrl,
+            'title': video.title,
+            'authorId': user?.id,
+            'authorName': user?.name,
+            'authorUsername': user?.username,
+            'authorAvatarUrl': user?.avatar?.avatarUrl,
+            'authorRole': user?.role,
+            'authorPremium': user?.premium,
+          },
+          playbackQueueRef: PlaybackQueueRef(
+            queueId: queue.queueId,
+            currentItemId: video.id,
+          ),
+        );
+      case final ImageModel gallery:
+        final queue = PlaybackQueueService.to.openHistory(
+          mediaType: PlaybackMediaType.gallery,
+          fresh: true,
+          seed: _seedFor<ImageModel>(InnerPlaylistItemSnapshot.fromGallery),
+        );
+        if (queue.loaded.isEmpty) unawaited(queue.loadMore());
+        final user = gallery.user;
+        await NaviService.navigateToGalleryDetailPage(
+          gallery.id,
+          coverUrl: gallery.thumbnailUrl,
+          title: gallery.title,
+          imageCount: gallery.numImages,
+          authorId: user?.id,
+          authorName: user?.name,
+          authorUsername: user?.username,
+          authorAvatarUrl: user?.avatar?.avatarUrl,
+          authorRole: user?.role,
+          authorPremium: user?.premium,
+          playbackQueueRef: PlaybackQueueRef(
+            queueId: queue.queueId,
+            currentItemId: gallery.id,
+          ),
+        );
+      case final PostModel post:
+        NaviService.navigateToPostDetailPage(post.id, post);
+      case final ForumThreadModel thread:
+        NaviService.navigateToForumThreadDetailPage(
+          thread.section,
+          thread.id,
+          initialThread: thread,
+        );
+      default:
+        showAppToast(slang.t.common.noData, type: AppToastType.error);
     }
   }
 
-  /// 筛选条件变化后（排序 / 时间区间 / 删除区间记录）让当前页重新取数。
-  void _notifyFilterChanged() {
-    if (!_isPaginated) return;
-    for (final signal in _refreshSignals) {
-      signal.value++;
+  /// 当前 tab 已加载的同类条目，按列表顺序——池的种子必须是自然顺序。
+  ///
+  /// 有搜索 / 时间区间时不种：池翻的是不带筛选的整份历史，拿筛过的当种子，
+  /// 游标就和池自己的顺序对不上了。
+  List<InnerPlaylistItemSnapshot> _seedFor<T>(
+    InnerPlaylistItemSnapshot Function(T) toSnapshot,
+  ) {
+    final feed = _feed;
+    if (feed.keyword.isNotEmpty || feed.dateRange != null) return const [];
+    return [
+      for (final r in feed.items)
+        if (r.originalData case final T data) toSnapshot(data),
+    ];
+  }
+
+  // ------------------------------------------------------------------ 删除
+
+  /// 单条删除不再弹确认：删掉、toast 里给「撤销」，原样放回（含观看进度）。
+  Future<void> _removeOne(HistoryRecord record) async {
+    final t = slang.t;
+    try {
+      await _controller.deleteRecords([record.id], animate: true);
+    } catch (_) {
+      showAppToast(t.errors.failedToOperate, type: AppToastType.error);
+      return;
+    }
+    if (!mounted) return;
+    showAppToast(
+      t.historyPage.removed,
+      type: AppToastType.success,
+      // 撤销要有够的时间去点；放底部，不压住 header 下的分段 tab。
+      position: AppToastPosition.bottom,
+      duration: const Duration(seconds: 6),
+      actionLabel: t.watchLater.undo,
+      actionIcon: Icons.undo,
+      onAction: () async {
+        try {
+          await _controller.restoreRecords([record], currentIndex: _index);
+        } catch (_) {
+          showAppToast(t.errors.failedToOperate, type: AppToastType.error);
+        }
+      },
+    );
+  }
+
+  /// 批量删除：走全站统一的玻璃确认弹窗（含所选预览）。
+  Future<void> _confirmDeleteSelected() async {
+    final ids = _controller.selected.toSet();
+    if (ids.isEmpty) return;
+    final t = slang.t;
+    final titles = <String>[
+      for (final r in _feed.items)
+        if (ids.contains(r.id))
+          r.title.trim().isEmpty ? t.common.noTitle : r.title.trim(),
+    ].take(3).toList();
+    final confirmed = await showBatchConfirmDialog(
+      title: t.common.confirmDelete,
+      message: t.common.areYouSureYouWantToDeleteSelectedItems(num: ids.length),
+      confirmLabel: t.common.delete,
+      previewTitles: titles,
+      totalCount: ids.length,
+    );
+    if (!confirmed || !mounted) return;
+    try {
+      await _controller.deleteRecords(ids);
+    } catch (_) {
+      showAppToast(t.errors.failedToOperate, type: AppToastType.error);
+      return;
+    }
+    _controller.exitMultiSelect();
+    showAppToast(t.common.success, type: AppToastType.success);
+  }
+
+  String _tabLabel(slang.Translations t, int index) => switch (index) {
+    1 => t.common.video,
+    2 => t.common.gallery,
+    3 => t.common.post,
+    4 => t.forum.forum,
+    _ => t.common.all,
+  };
+
+  /// 清空当前 tab。文案说清楚清的是哪一类（「全部」才是真的全清）。
+  void _confirmClearTab() {
+    final t = slang.t;
+    final index = _index;
+    final itemType = _itemType;
+    final all = itemType == 'all';
+    final label = _tabLabel(t, index);
+    showAppDialog(
+      GlassAlertDialog(
+        title: all
+            ? t.common.clearAllHistory
+            : t.historyPage.clearTabTitle(tab: label),
+        content: Text(
+          all
+              ? t.common.clearAllHistoryConfirm
+              : t.historyPage.clearTabConfirm(tab: label),
+        ),
+        actions: [
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
+            onPressed: () => AppService.tryPop(),
+          ),
+          GlassDialogAction(
+            label: t.common.confirm,
+            emphasized: false,
+            destructive: true,
+            onPressed: () async {
+              AppService.tryPop(); // 确认框
+              AppService.tryPop(); // 筛选抽屉
+              try {
+                await _controller.clearTab(itemType, currentIndex: index);
+              } catch (_) {
+                showAppToast(t.errors.failedToOperate, type: AppToastType.error);
+                return;
+              }
+              showAppToast(t.common.success, type: AppToastType.success);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteRange() async {
+    final t = slang.t;
+    final index = _index;
+    final itemType = _itemType;
+    final count = await _controller.countInRange(itemType);
+    if (!mounted) return;
+    if (count == 0) {
+      showAppToast(t.common.noHistoryRecordsInRange, type: AppToastType.info);
+      return;
+    }
+    showAppDialog(
+      GlassAlertDialog(
+        title: t.common.confirmDelete,
+        content: Text(t.common.deleteRecordsInDateRangeConfirm(num: count)),
+        actions: [
+          GlassDialogAction(
+            label: t.common.cancel,
+            emphasized: false,
+            onPressed: () => AppService.tryPop(),
+          ),
+          GlassDialogAction(
+            label: t.common.delete,
+            emphasized: false,
+            destructive: true,
+            onPressed: () async {
+              AppService.tryPop(); // 确认框
+              AppService.tryPop(); // 筛选抽屉
+              try {
+                await _controller.deleteInRange(itemType, currentIndex: index);
+              } catch (_) {
+                showAppToast(t.errors.failedToOperate, type: AppToastType.error);
+                return;
+              }
+              showAppToast(t.common.success, type: AppToastType.success);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------------ 筛选
+
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: _controller.dateRange.value,
+    );
+    if (picked != null && picked != _controller.dateRange.value) {
+      _controller.setDateRange(picked, currentIndex: _index);
     }
   }
+
+  void _openFilterDrawer() {
+    showGlassSideDrawer<void>(
+      context: context,
+      builder: (_) => _HistoryFilterDrawer(
+        controller: _controller,
+        tabLabel: _tabLabel(slang.t, _index),
+        onPickDateRange: _pickDateRange,
+        onClearDateRange: () =>
+            _controller.setDateRange(null, currentIndex: _index),
+        onDeleteRange: _confirmDeleteRange,
+        onClearTab: _confirmClearTab,
+      ),
+    );
+  }
+
+  // ------------------------------------------------------------------ 构建
 
   @override
   Widget build(BuildContext context) {
@@ -182,192 +433,172 @@ class _HistoryListPageState extends State<HistoryListPage>
     final double headerHeight =
         GlassTokens.headerRowHeight + _headerRowGap + GlassTokens.pillHeight;
     final double headerExtent = statusBarHeight + headerHeight;
-    final bool isWide = MediaQuery.sizeOf(context).width > 600;
 
     final tabItems = [
-      GlassSegmentItem(label: t.common.all),
-      GlassSegmentItem(label: t.common.video),
-      GlassSegmentItem(label: t.common.gallery),
-      GlassSegmentItem(label: t.common.post),
-      GlassSegmentItem(label: t.forum.forum),
+      for (var i = 0; i < HistoryListController.tags.length; i++)
+        GlassSegmentItem(label: _tabLabel(t, i)),
     ];
 
     return Scaffold(
-      body: Obx(() {
-        final controller = _currentController;
-        final bool active = controller.isMultiSelect.value;
-        final int count = controller.selectedRecords.length;
-        return BatchSelectionScope(
+      body: _ObxSelection(
+        controller: _controller,
+        builder: (active, count) => BatchSelectionScope(
           active: active,
           selectedCount: count,
           actions: [
             GlassSelectionAction(
               icon: Icons.delete,
-              label: slang.t.common.delete,
+              label: t.common.delete,
               destructive: true,
-              onPressed: count == 0
-                  ? null
-                  : () => _showDeleteConfirmDialog(controller),
+              onPressed: count == 0 ? null : _confirmDeleteSelected,
             ),
           ],
-          onClear: controller.clearSelection,
+          onClear: _controller.clearSelection,
           // 系统返回 / iOS 侧滑 / Esc 先退选择态，而不是把整页弹掉
           child: SelectionPopScope(
             active: active,
-            // 交给通用键鼠多选
+            // 通用键鼠多选：Shift 区间选、Ctrl/Cmd 点选、Ctrl/Cmd+A、Delete
             model: SelectionModel(
-              enter: () {
-                if (!controller.isMultiSelect.value) {
-                  controller.toggleMultiSelect();
-                }
-              },
-              isSelected: (k) => controller.selectedRecords.contains(k),
-              toggle: (k) => controller.toggleSelection(k as int),
-              loadedKeys: () => [for (final r in controller.repository) r.id],
+              enter: _controller.enterMultiSelect,
+              isSelected: (k) => _controller.selected.contains(k),
+              toggle: (k) => _controller.toggleSelection(k as int),
+              loadedKeys: () => [for (final r in _feed.items) r.id],
               replaceSelection: (keys) =>
-                  controller.selectedRecords.assignAll(keys.cast<int>()),
+                  _controller.selected.assignAll(keys.cast<int>()),
             ),
-            onExit: controller.toggleMultiSelect,
-            child: _buildScaffoldBody(
-              context,
-              headerExtent: headerExtent,
-              headerHeight: headerHeight,
-              statusBarHeight: statusBarHeight,
-              isWide: isWide,
-              tabItems: tabItems,
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildScaffoldBody(
-    BuildContext context, {
-    required double headerExtent,
-    required double headerHeight,
-    required double statusBarHeight,
-    required bool isWide,
-    required List<GlassSegmentItem> tabItems,
-  }) {
-    final t = slang.Translations.of(context);
-    return GlassHeaderOverlay(
-      headerExtent: headerExtent,
-      headerTop: statusBarHeight,
-      headerHeight: headerHeight,
-      solidExtent: statusBarHeight,
-      liquid: true,
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          if (notification.depth == 0 &&
-              notification.metrics.axis == Axis.vertical) {
-            _showBackToTop.value = notification.metrics.pixels >= 300;
-          }
-          return false;
-        },
-        child: TabBarView(
-          controller: _tabController,
-          physics: const ClampingScrollPhysics(),
-          children: [
-            for (var i = 0; i < _tags.length; i++)
-              _buildHistoryList(i, headerExtent),
-          ],
-        ),
-      ),
-      // header：第一行「返回 / 搜索 / 动作胶囊」，第二行五段类型胶囊
-      header: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            height: GlassTokens.headerRowHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.arrow_back),
-                    tooltip: t.common.back,
-                    onPressed: () => AppService.tryPop(),
-                  ),
-                  const SizedBox(width: 8),
-                  // 选择态下搜索框换成「已选 N 项」：单壳常驻、只换内容，
-                  // 与下载列表页同一配方
-                  Expanded(
-                    child: Obx(
-                      () => GlassCapsuleMorph(
-                        child: _currentController.isMultiSelect.value
-                            ? KeyedSubtree(
-                                key: const ValueKey('selection'),
-                                child: GlassSelectionSummary(
-                                  selectedCount:
-                                      _currentController.selectedRecords.length,
-                                  allSelected: false,
-                                  onToggleAll: null,
-                                ),
-                              )
-                            : KeyedSubtree(
-                                key: const ValueKey('search'),
-                                child: _buildSearchField(context, flat: true),
+            onExit: _controller.exitMultiSelect,
+            child: CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.keyF, control: true):
+                    _searchFocus.requestFocus,
+                const SingleActivator(LogicalKeyboardKey.keyF, meta: true):
+                    _searchFocus.requestFocus,
+              },
+              child: GlassHeaderOverlay(
+                headerExtent: headerExtent,
+                headerTop: statusBarHeight,
+                headerHeight: headerHeight,
+                solidExtent: statusBarHeight,
+                liquid: true,
+                body: TabBarView(
+                  controller: _tabController,
+                  physics: const ClampingScrollPhysics(),
+                  children: [
+                    for (var i = 0; i < _controller.feeds.length; i++)
+                      _HistoryTabView(
+                        feed: _controller.feeds[i],
+                        controller: _controller,
+                        scrollController: _scrollControllers[i],
+                        topPadding: headerExtent + _headerBottomGap,
+                        wideBreakpoint: _wideBreakpoint,
+                        onOpen: _open,
+                        onRemove: _removeOne,
+                        // 只有前台 tab 的滚动决定回顶钮（后台 tab 不会发滚动）。
+                        onScrolled: (px) {
+                          if (i == _index) _showBackToTop.value = px >= 300;
+                        },
+                      ),
+                  ],
+                ),
+                header: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: GlassTokens.headerRowHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            GlassIconButton(
+                              standalone: true,
+                              icon: const Icon(Icons.arrow_back),
+                              tooltip: t.common.back,
+                              onPressed: () => AppService.tryPop(),
+                            ),
+                            const SizedBox(width: 8),
+                            // 选择态下搜索框换成「已选 N 项 + 全选」：单壳常驻、只换内容
+                            Expanded(
+                              child: GlassCapsuleMorph(
+                                child: active
+                                    ? KeyedSubtree(
+                                        key: const ValueKey('selection'),
+                                        // 全选键由 SelectionModel 自动接上（本 tab 已加载的）
+                                        child: GlassSelectionSummary(
+                                          selectedCount: count,
+                                          allSelected: false,
+                                          onToggleAll: null,
+                                        ),
+                                      )
+                                    : KeyedSubtree(
+                                        key: const ValueKey('search'),
+                                        child: _buildSearchField(context),
+                                      ),
                               ),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildActionGroup(context, active: active),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: _headerRowGap),
+                    SizedBox(
+                      height: GlassTokens.pillHeight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        // 空间够就平铺分段胶囊，露不出 2.5 段就退化成下拉钮
+                        child: GlassAdaptiveSegmentedControl(
+                          selectedIndex: _index,
+                          progress: _tabController.animation,
+                          onChanged: _tabController.animateTo,
+                          items: tabItems,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                extra: [
+                  Positioned(
+                    right: 16,
+                    bottom:
+                        computeBottomSafeInset(MediaQuery.of(context)) +
+                        16 +
+                        (active ? _dockReserve : 0),
+                    child: ValueListenableBuilder<bool>(
+                      valueListenable: _showBackToTop,
+                      builder: (context, visible, _) => ScrollToTopFab(
+                        visible: visible && !active,
+                        onPressed: _scrollToTop,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  _buildActionGroup(context, isWide: isWide),
+                  const GlassSelectionDock(),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: _headerRowGap),
-          SizedBox(
-            height: GlassTokens.pillHeight,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: // 空间够就平铺分段胶囊，露不出 2.5 个完整段就退化成下拉钮
-                  // （全站同一条约定，见 GlassAdaptiveSegmentedControl）。
-                  GlassAdaptiveSegmentedControl(
-                    selectedIndex: _tabController.index,
-                    progress: _tabController.animation,
-                    onChanged: _tabController.animateTo,
-                    items: tabItems,
-                  ),
-            ),
-          ),
-        ],
+        ),
       ),
-      extra: [
-        _buildScrollToTopFab(context),
-        // 批量动作：瀑布流模式下的底部玻璃坞；分页模式下动作行由分页栏
-        // 自己承载（见 BatchSelectionScope），底部不会出现第二条玻璃。
-        GlassSelectionDock(paginated: _isPaginated),
-      ],
     );
   }
 
-  /// 玻璃搜索框：胶囊底 + 细描边，有输入时右侧长出清空钮。
-  /// [flat] = true 时不自带玻璃壳：壳由外层的 [GlassCapsuleMorph] 常驻提供，
-  /// 搜索框与「已选 N 项」之间才是同一只胶囊在换内容，而不是两只胶囊硬切。
-  Widget _buildSearchField(BuildContext context, {bool flat = false}) {
+  /// 选择态下底部玻璃坞（[GlassSelectionDock]）的占位：列表末尾让出这么多，
+  /// 最后一排才不会被坞盖住（动作钮 48 + 上下留白）。
+  static const double _dockReserve = 72;
+
+  /// 玻璃搜索框（壳由外层 [GlassCapsuleMorph] 常驻提供）。
+  /// 桌面 Ctrl/Cmd+F 聚焦；300ms 防抖后才查库。
+  Widget _buildSearchField(BuildContext context) {
     final t = slang.Translations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
+    return SizedBox(
       height: GlassTokens.pillHeight,
-      decoration: flat
-          ? null
-          : BoxDecoration(
-              color: GlassTokens.fill(colorScheme),
-              borderRadius: BorderRadius.circular(GlassTokens.pillHeight / 2),
-              border: Border.all(
-                color: GlassTokens.stroke(colorScheme),
-                width: GlassTokens.strokeWidth,
-              ),
-            ),
       child: TextField(
         controller: _searchController,
-        onChanged: _onSearchChanged,
+        focusNode: _searchFocus,
+        onChanged: (v) => _controller.search(v, currentIndex: _index),
         textAlignVertical: TextAlignVertical.center,
+        textInputAction: TextInputAction.search,
         style: const TextStyle(fontSize: 14),
         decoration: InputDecoration(
           isDense: true,
@@ -394,7 +625,7 @@ class _HistoryListPageState extends State<HistoryListPage>
                 tooltip: t.common.clear,
                 onPressed: () {
                   _searchController.clear();
-                  _onSearchChanged('');
+                  _controller.search('', currentIndex: _index);
                 },
               ),
             ),
@@ -406,514 +637,22 @@ class _HistoryListPageState extends State<HistoryListPage>
     );
   }
 
-  /// 右侧动作胶囊：[瀑布/分页(宽屏)] 筛选(生效时挂红点) · 多选
-  /// [清空历史(宽屏)] [更多(窄屏，收分页切换 + 清空历史)]。
-  ///
-  /// 没有刷新键：历史记录是本地库，只会被 App 自己的操作改动（浏览、删除、
-  /// 清空都会就地刷新列表），留一个手动刷新纯属占位；真要重拉还有下拉刷新。
-  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+  /// 右侧动作胶囊：筛选（生效时挂红点）· 多选↔退出。所有宽度都只有这两枚。
+  Widget _buildActionGroup(BuildContext context, {required bool active}) {
     final t = slang.Translations.of(context);
-    return Obx(() {
-      final controller = _currentController;
-      final bool filterActive =
-          controller.selectedDateRange.value != null ||
-          controller.orderByUpdated.value;
-      final bool isMultiSelect = controller.isMultiSelect.value;
-
-      return GlassButtonGroup(
+    return Obx(
+      () => GlassButtonGroup(
         children: [
-          GlassGroupSlot(
-            visible: isWide,
-            child: GlassIconButton(
-              icon: Icon(_isPaginated ? Icons.grid_view : Icons.view_stream),
-              tooltip: _isPaginated
-                  ? t.common.pagination.waterfall
-                  : t.common.pagination.pagination,
-              onPressed: _togglePaginationMode,
-            ),
-          ),
           GlassIconButton(
             icon: const Icon(Icons.filter_list),
-            tooltip: t.common.selectDateRange,
-            // 有筛选条件生效时挂小红点
-            showBadge: filterActive,
-            onPressed: _showFilterSheet,
+            tooltip: t.searchFilter.filterSettings,
+            showBadge: _controller.dateRange.value != null,
+            onPressed: _openFilterDrawer,
           ),
           GlassIconButton(
-            // 多选↔退出在同一按钮位上交叉过渡
-            icon: Icon(isMultiSelect ? Icons.close : Icons.checklist),
-            tooltip: isMultiSelect ? t.common.exitEditMode : t.common.editMode,
-            onPressed: controller.toggleMultiSelect,
-          ),
-          GlassGroupSlot(
-            visible: isWide,
-            child: GlassIconButton(
-              icon: const Icon(Icons.delete_sweep),
-              tooltip: t.common.clearAllHistory,
-              onPressed: _showClearHistoryDialog,
-            ),
-          ),
-          // 窄屏胶囊塞不下五个键，分页切换与清空历史收进这里
-          GlassGroupSlot(
-            visible: !isWide,
-            child: Builder(
-              builder: (anchorContext) => GlassIconButton(
-                icon: const Icon(Icons.more_vert),
-                tooltip: t.common.more,
-                // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
-                // 松手选中（见 GlassTapArea.opensOverlay）。
-                opensOverlay: true,
-                onPressed: () => _openMoreMenu(anchorContext),
-              ),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-
-  /// 窄屏「更多」菜单：分页切换 + 清空历史。
-  Future<void> _openMoreMenu(BuildContext anchorContext) async {
-    final t = slang.Translations.of(anchorContext);
-    final picked = await showGlassMenu<String>(
-      anchorContext: anchorContext,
-      entries: [
-        GlassMenuOption(
-          value: _menuActionTogglePagination,
-          icon: _isPaginated ? Icons.grid_view : Icons.view_stream,
-          // 文案与图标一致：显示将要切换到的模式
-          label: _isPaginated
-              ? t.common.pagination.waterfall
-              : t.common.pagination.pagination,
-        ),
-        GlassMenuOption(
-          value: _menuActionClear,
-          icon: Icons.delete_sweep,
-          label: t.common.clearAllHistory,
-          destructive: true,
-        ),
-      ],
-    );
-    if (picked == null) return;
-    switch (picked) {
-      case _menuActionTogglePagination:
-        _togglePaginationMode();
-      case _menuActionClear:
-        _showClearHistoryDialog();
-    }
-  }
-
-  /// 滚过一段后出现在右下角的「回到顶部」浮钮；分页模式下抬到分页栏之上。
-  Widget _buildScrollToTopFab(BuildContext context) {
-    return Positioned(
-      right: 16,
-      bottom:
-          computeBottomSafeInset(MediaQuery.of(context)) +
-          16 +
-          (_isPaginated ? PaginationBar.barHeight : 0),
-      child: ValueListenableBuilder<bool>(
-        valueListenable: _showBackToTop,
-        builder: (context, visible, _) =>
-            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
-      ),
-    );
-  }
-
-  Widget _buildHistoryList(int index, double headerExtent) {
-    final controller = _controllers[index];
-    return MediaListView<HistoryRecord>(
-      sourceList: controller.repository,
-      isPaginated: _isPaginated,
-      refreshSignal: _refreshSignals[index],
-      scrollController: _scrollControllers[index],
-      paddingTop: headerExtent + _headerBottomGap,
-      emptyIcon: Icons.history,
-      // 换页后原来勾的已经不在屏幕上了，留着只会误删
-      onPageChanged: controller.clearSelection,
-      itemBuilder: (context, record, _) =>
-          _buildHistoryItem(context, record, controller),
-    );
-  }
-
-  Widget _buildHistoryItem(
-    BuildContext context,
-    HistoryRecord record,
-    HistoryListController controller,
-  ) {
-    return SelectableItem(
-      itemKey: record.id,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final itemWidth =
-              constraints.maxWidth.isFinite && constraints.maxWidth > 0
-              ? constraints.maxWidth
-              : MediaLayoutUtils.calculateCardWidth(
-                  MediaQuery.sizeOf(context).width,
-                );
-
-          return Obx(() {
-            final bool isSelected = controller.selectedRecords.contains(
-              record.id,
-            );
-            final bool isMultiSelect = controller.isMultiSelect.value;
-            final dynamic originalData = record.getOriginalData();
-
-            return SizedBox(
-              width: itemWidth,
-              child: Card(
-                margin: EdgeInsets.zero,
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(itemWidth < 220 ? 6 : 8),
-                ),
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (record.itemType == 'video')
-                          VideoCardListItemWidget(
-                            video: originalData,
-                            width: itemWidth,
-                          )
-                        else if (record.itemType == 'image')
-                          ImageModelCardListItemWidget(
-                            imageModel: originalData,
-                            width: itemWidth,
-                          )
-                        else if (record.itemType == 'post')
-                          PostCardListItemWidget(post: originalData)
-                        else if (record.itemType == 'thread')
-                          ThreadListItemWidget(
-                            thread: originalData,
-                            categoryId: originalData.section,
-                          ),
-                        _buildHistoryItemFooter(record, controller),
-                      ],
-                    ),
-                    // 选择态：角标勾选片 + 选中描边（全站统一，
-                    // 见 GlassSelectableOverlay）。常驻挂载以获得进出过渡。
-                    Positioned.fill(
-                      child: GlassSelectableOverlay(
-                        selectionMode: isMultiSelect,
-                        selected: isSelected,
-                        borderRadius: BorderRadius.circular(
-                          itemWidth < 220 ? 6 : 8,
-                        ),
-                      ),
-                    ),
-                    if (isMultiSelect)
-                      Positioned.fill(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => controller.toggleSelection(record.id),
-                            child: const SizedBox.expand(),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildHistoryItemFooter(
-    HistoryRecord record,
-    HistoryListController controller,
-  ) {
-    // 获取类型对应的颜色和图标
-    final (color, icon) = _getItemTypeStyle(record.itemType);
-
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 显示时间
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.access_time,
-                size: 12,
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-              const SizedBox(width: 4),
-              Obx(() {
-                final useUpdated = controller.orderByUpdated.value;
-                final dt = useUpdated ? record.updatedAt : record.createdAt;
-                return Text(
-                  CommonUtils.formatFriendlyTimestamp(dt),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
-                );
-              }),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              // 显示类型
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: color.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(icon, size: 12, color: color),
-                    const SizedBox(width: 4),
-                    Text(
-                      _getItemTypeText(record.itemType),
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              // 删除按钮
-              Material(
-                type: MaterialType.transparency,
-                child: InkWell(
-                  onTap: () => _showDeleteRecordDialog(record, controller),
-                  borderRadius: BorderRadius.circular(4),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: Icon(
-                      Icons.delete_outline,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  (Color, IconData) _getItemTypeStyle(String type) {
-    switch (type) {
-      case 'video':
-        return (Colors.blue, Icons.play_circle_outline);
-      case 'image':
-        return (Colors.green, Icons.image_outlined);
-      case 'post':
-        return (Colors.orange, Icons.article_outlined);
-      case 'thread':
-        return (Colors.purple, Icons.forum_outlined);
-      default:
-        return (Colors.grey, Icons.help_outline);
-    }
-  }
-
-  String _getItemTypeText(String type) {
-    switch (type) {
-      case 'video':
-        return slang.t.common.video;
-      case 'image':
-        return slang.t.common.gallery;
-      case 'post':
-        return slang.t.common.post;
-      case 'thread':
-        return slang.t.forum.forum;
-      default:
-        return type;
-    }
-  }
-
-  Future<void> _selectDateRange() async {
-    final controller = _currentController;
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      initialDateRange: controller.selectedDateRange.value,
-    );
-
-    if (picked != null && picked != controller.selectedDateRange.value) {
-      controller.setDateRange(picked);
-      _notifyFilterChanged();
-    }
-  }
-
-  void _clearDateRange() {
-    _currentController.setDateRange(null);
-    _notifyFilterChanged();
-  }
-
-  /// 打开右侧「筛选」抽屉。与全站其它筛选入口同一只抽屉、同一套手势；
-  /// 这里本来就没有确认钮，改动一直是即时生效的。
-  void _showFilterSheet() {
-    final controller = _currentController;
-    showGlassSideDrawer<void>(
-      context: context,
-      builder: (_) => _HistoryFilterDrawer(
-        controller: controller,
-        onSelectDateRange: _selectDateRange,
-        onClearDateRange: _clearDateRange,
-        onOrderChanged: (v) {
-          controller.setOrderByUpdated(v);
-          _notifyFilterChanged();
-        },
-        onDeleteRange: () => _confirmDeleteSelectedRange(controller),
-      ),
-    );
-  }
-
-  /// 删除前确认：先统计数量，无记录则提示，否则弹出确认框。
-  Future<void> _confirmDeleteSelectedRange(
-    HistoryListController controller,
-  ) async {
-    final count = await controller.countRecordsInSelectedRange();
-    if (count == 0) {
-      showAppToast(
-        slang.t.common.noHistoryRecordsInRange,
-        type: AppToastType.info,
-      );
-      return;
-    }
-    if (!mounted) return;
-    showAppDialog(
-      GlassAlertDialog(
-        title: slang.t.common.confirmDelete,
-        content: Text(
-          slang.t.common.deleteRecordsInDateRangeConfirm(num: count),
-        ),
-        actions: [
-          GlassDialogAction(
-            label: slang.t.common.cancel,
-            emphasized: false,
-            onPressed: () => AppService.tryPop(),
-          ),
-          GlassDialogAction(
-            label: slang.t.common.delete,
-            emphasized: false,
-            destructive: true,
-            onPressed: () async {
-              AppService.tryPop(); // 关闭确认框
-              await controller.deleteRecordsInSelectedRange();
-              _notifyFilterChanged();
-              AppService.tryPop(); // 关闭筛选面板
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteRecordDialog(
-    HistoryRecord record,
-    HistoryListController controller,
-  ) {
-    showAppDialog(
-      GlassAlertDialog(
-        title: slang.t.common.confirmDelete,
-        content: Text(
-          slang.t.common.areYouSureYouWantToDeleteSelectedItems(num: 1),
-        ),
-        actions: [
-          GlassDialogAction(
-            label: slang.t.common.cancel,
-            emphasized: false,
-            onPressed: () => AppService.tryPop(),
-          ),
-          GlassDialogAction(
-            label: slang.t.common.delete,
-            emphasized: false,
-            destructive: true,
-            onPressed: () async {
-              AppService.tryPop();
-              await controller.historyDatabaseRepository.deleteRecord(
-                record.id,
-              );
-              await controller.repository.refresh(true);
-              _notifyFilterChanged();
-              showAppToast(slang.t.common.success, type: AppToastType.success);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 批量删除确认：走全站统一的玻璃确认弹窗（含所选预览）。
-  Future<void> _showDeleteConfirmDialog(
-    HistoryListController controller,
-  ) async {
-    final count = controller.selectedRecords.length;
-    if (count == 0) return;
-    final confirmed = await showBatchConfirmDialog(
-      title: slang.t.common.confirmDelete,
-      message: slang.t.common.areYouSureYouWantToDeleteSelectedItems(
-        num: count,
-      ),
-      confirmLabel: slang.t.common.delete,
-      previewTitles: _selectedHistoryTitles(controller),
-      totalCount: count,
-    );
-    if (!confirmed || !mounted) return;
-    await controller.deleteSelected();
-    _notifyFilterChanged();
-  }
-
-  /// 取所选历史项的标题，供确认弹窗列出「到底要删哪几条」。
-  List<String> _selectedHistoryTitles(HistoryListController controller) {
-    final selected = controller.selectedRecords;
-    final titles = <String>[];
-    for (final record in controller.repository) {
-      if (!selected.contains(record.id)) continue;
-      final title = record.title.trim();
-      titles.add(title.isEmpty ? slang.t.common.noTitle : title);
-      if (titles.length >= 3) break;
-    }
-    return titles;
-  }
-
-  void _showClearHistoryDialog() {
-    final controller = _currentController;
-    final itemType = controller.itemType;
-
-    showAppDialog(
-      GlassAlertDialog(
-        title: slang.t.common.clearAllHistory,
-        content: Text(slang.t.common.clearAllHistoryConfirm),
-        actions: [
-          GlassDialogAction(
-            label: slang.t.common.cancel,
-            emphasized: false,
-            onPressed: () => AppService.tryPop(),
-          ),
-          GlassDialogAction(
-            label: slang.t.common.confirm,
-            emphasized: false,
-            destructive: true,
-            onPressed: () async {
-              await controller.clearHistoryByType(itemType);
-              _notifyFilterChanged();
-              AppService.tryPop();
-            },
+            icon: Icon(active ? Icons.close : Icons.checklist),
+            tooltip: active ? t.common.exitEditMode : t.common.editMode,
+            onPressed: _controller.toggleMultiSelect,
           ),
         ],
       ),
@@ -921,26 +660,367 @@ class _HistoryListPageState extends State<HistoryListPage>
   }
 }
 
-/// 筛选面板：排序开关 + 时间区间 + 按区间删除。
-/// 历史记录的筛选抽屉：排序（创建/更新时间）· 时间范围 · 按范围删除。
+/// 选择态（开没开 + 选了几条）的订阅点。只有它依赖选中集合。
+class _ObxSelection extends StatelessWidget {
+  const _ObxSelection({required this.controller, required this.builder});
+
+  final HistoryListController controller;
+  final Widget Function(bool active, int count) builder;
+
+  @override
+  Widget build(BuildContext context) => Obx(
+    () => builder(controller.isMultiSelect.value, controller.selected.length),
+  );
+}
+
+// ============================================================================
+// 一个 tab
+// ============================================================================
+
+class _HistoryTabView extends StatefulWidget {
+  const _HistoryTabView({
+    required this.feed,
+    required this.controller,
+    required this.scrollController,
+    required this.topPadding,
+    required this.wideBreakpoint,
+    required this.onOpen,
+    required this.onRemove,
+    required this.onScrolled,
+  });
+
+  final HistoryFeed feed;
+  final HistoryListController controller;
+  final ScrollController scrollController;
+  final double topPadding;
+  final double wideBreakpoint;
+  final Future<void> Function(HistoryRecord record) onOpen;
+  final void Function(HistoryRecord record) onRemove;
+  final ValueChanged<double> onScrolled;
+
+  @override
+  State<_HistoryTabView> createState() => _HistoryTabViewState();
+}
+
+class _HistoryTabViewState extends State<_HistoryTabView>
+    with AutomaticKeepAliveClientMixin {
+  static const double _gutter = 12;
+  static const double _itemGap = 10;
+
+  // 切 tab 回来滚动位置还在（五个 tab 的数据本来就常驻在 feed 里）。
+  @override
+  bool get wantKeepAlive => true;
+
+  bool _loadMoreScheduled = false;
+
+  HistoryFeed get feed => widget.feed;
+
+  /// 画到离末尾不到几条时翻下一页（一帧只约一次）。
+  void _maybeLoadMore(int index) {
+    if (_loadMoreScheduled || index < feed.items.length - 8) return;
+    if (!feed.hasMore || feed.isLoading || feed.error != null) return;
+    _loadMoreScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMoreScheduled = false;
+      if (mounted) feed.loadMore();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    // 选中集合的订阅落在这一层（Obx），feed 的变动走 ListenableBuilder。
+    return ListenableBuilder(
+      listenable: feed,
+      builder: (context, _) => Obx(() => _build(context)),
+    );
+  }
+
+  Widget _build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final mq = MediaQuery.of(context);
+    final selectionMode = widget.controller.isMultiSelect.value;
+    // 整份读一遍：只读 length 的话，「换成另一批同样多条」的替换不会触发重建。
+    final selected = widget.controller.selected.toSet();
+    final bottom =
+        computeBottomSafeInset(mq) +
+        16 +
+        (selectionMode ? _HistoryListPageState._dockReserve : 0);
+
+    // 首屏：还没加载过就只留个转圈，出错给重试，空了给空态。
+    if (!feed.loadedOnce || (feed.items.isEmpty && feed.error != null)) {
+      return _CenteredState(
+        top: widget.topPadding,
+        child: feed.error != null
+            ? _ErrorState(onRetry: feed.retry)
+            : const CircularProgressIndicator(),
+      );
+    }
+    if (feed.items.isEmpty) {
+      final filtered = feed.keyword.isNotEmpty || feed.dateRange != null;
+      return _CenteredState(
+        top: widget.topPadding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              filtered ? Icons.search_off : Icons.history,
+              size: 56,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              t.common.noData,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final wide = mq.size.width > widget.wideBreakpoint;
+    final grid = wide
+        ? LocalGridMetrics.media(mq.size.width - _gutter * 2)
+        : null;
+
+    // 监听放在 tab 里面：放到 TabBarView 外面时，竖向滚动要穿过 PageView 的
+    // viewport，depth 已经是 1，按 depth == 0 过滤就永远收不到（回顶钮从不出现）。
+    return NotificationListener<ScrollNotification>(
+      onNotification: (n) {
+        if (n.depth == 0 && n.metrics.axis == Axis.vertical) {
+          widget.onScrolled(n.metrics.pixels);
+        }
+        return false;
+      },
+      child: Scrollbar(
+        controller: widget.scrollController,
+        child: CustomScrollView(
+          controller: widget.scrollController,
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: widget.topPadding)),
+            _buildGroups(
+              context,
+              grid: grid,
+              selectionMode: selectionMode,
+              selected: selected,
+            ),
+            SliverToBoxAdapter(child: _buildFooter(context)),
+            SliverToBoxAdapter(child: SizedBox(height: bottom)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 按最后浏览时间切成若干组，每组一行小标题 + 一段行 / 格。
+  ///
+  /// 自己按数据画而不是交给通用列表组件：网格中间要插通栏标题（与下载列表
+  /// 历史区同一个做法）。
+  Widget _buildGroups(
+    BuildContext context, {
+    required LocalGridMetrics? grid,
+    required bool selectionMode,
+    required Set<int> selected,
+  }) {
+    final items = feed.items;
+    final now = DateTime.now();
+    final groups = <({String? label, int start, int end})>[];
+    String? current;
+    var start = 0;
+    for (var i = 0; i < items.length; i++) {
+      final label = timelineGroupLabel(context, items[i].updatedAt, now);
+      if (i > 0 && label != current) {
+        groups.add((label: current, start: start, end: i));
+        start = i;
+      }
+      current = label;
+    }
+    groups.add((label: current, start: start, end: items.length));
+
+    final extent = grid == null
+        ? 0.0
+        : HistoryTile.gridExtentFor(context, grid.cellWidth);
+    final theme = Theme.of(context);
+    final labelStyle = theme.textTheme.titleSmall?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
+    Widget tile(int index, HistoryTileLayout layout) {
+      _maybeLoadMore(index);
+      final record = items[index];
+      return SelectableItem(
+        itemKey: record.id,
+        onToggle: () => widget.controller.toggleSelection(record.id),
+        child: HistoryTile(
+          key: ValueKey(record.id),
+          record: record,
+          layout: layout,
+          selectionMode: selectionMode,
+          selected: selected.contains(record.id),
+          onOpen: widget.onOpen,
+          onRemove: widget.onRemove,
+          onToggleSelect: () => widget.controller.toggleSelection(record.id),
+        ),
+      );
+    }
+
+    return SliverMainAxisGroup(
+      slivers: [
+        for (final group in groups) ...[
+          if (group.label != null)
+            SliverToBoxAdapter(
+              // 组里最后一条被删时组头一起收起，而不是等卡片收完再硬切掉。
+              child: _RemovalTransition(
+                removing: [
+                  for (var i = group.start; i < group.end; i++) items[i].id,
+                ].every(feed.removing.contains),
+                collapse: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Text(group.label!, style: labelStyle),
+                ),
+              ),
+            ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(_gutter, 0, _gutter, 6),
+            sliver: grid == null
+                ? SliverList.builder(
+                    itemCount: group.end - group.start,
+                    itemBuilder: (context, i) => _RemovalTransition(
+                      removing: feed.removing.contains(
+                        items[group.start + i].id,
+                      ),
+                      collapse: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: _itemGap),
+                        child: tile(group.start + i, HistoryTileLayout.row),
+                      ),
+                    ),
+                  )
+                : SliverGrid.builder(
+                    gridDelegate: grid.delegate(extent),
+                    itemCount: group.end - group.start,
+                    itemBuilder: (context, i) => _RemovalTransition(
+                      removing: feed.removing.contains(
+                        items[group.start + i].id,
+                      ),
+                      collapse: false,
+                      child: tile(group.start + i, HistoryTileLayout.grid),
+                    ),
+                  ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// 末尾：加载中 / 出错可重试 / 到底了什么都不画。
+  Widget _buildFooter(BuildContext context) {
+    final Widget child;
+    if (feed.isLoading && feed.items.isNotEmpty) {
+      child = const Padding(
+        key: ValueKey('loading'),
+        padding: EdgeInsets.all(16),
+        child: Center(
+          child: SizedBox.square(
+            dimension: 22,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    } else if (feed.error != null) {
+      child = Padding(
+        key: const ValueKey('error'),
+        padding: const EdgeInsets.all(8),
+        child: Center(child: _ErrorState(onRetry: feed.retry, compact: true)),
+      );
+    } else {
+      child = const SizedBox(key: ValueKey('idle'), height: 8);
+    }
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        child: child,
+      ),
+    );
+  }
+}
+
+class _CenteredState extends StatelessWidget {
+  const _CenteredState({required this.top, required this.child});
+
+  final double top;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.only(top: top),
+    child: Center(
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        child: child,
+      ),
+    ),
+  );
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.onRetry, this.compact = false});
+
+  final Future<void> Function() onRetry;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final retry = TextButton.icon(
+      onPressed: onRetry,
+      icon: const Icon(Icons.refresh),
+      label: Text(t.common.retry),
+    );
+    if (compact) return retry;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.error_outline,
+          size: 48,
+          color: Theme.of(context).colorScheme.error,
+        ),
+        const SizedBox(height: 8),
+        retry,
+      ],
+    );
+  }
+}
+
+// ============================================================================
+// 筛选抽屉
+// ============================================================================
+
+/// 筛选抽屉：时间区间（按最后浏览时间）· 按区间删除 · 清空当前分类。
 ///
-/// 2026-08-26 从底部弹窗改成右侧抽屉，与全站其它筛选入口收口到同一只
-/// [showGlassSideDrawer]。这里本来就没有确认钮——每一项都直接写进 controller，
-/// 与新抽屉「改动即时生效」的约定天然一致。
+/// 改动即时生效，没有确认钮（与全站筛选抽屉同一约定）。
 class _HistoryFilterDrawer extends StatelessWidget {
   const _HistoryFilterDrawer({
     required this.controller,
-    required this.onSelectDateRange,
+    required this.tabLabel,
+    required this.onPickDateRange,
     required this.onClearDateRange,
-    required this.onOrderChanged,
     required this.onDeleteRange,
+    required this.onClearTab,
   });
 
   final HistoryListController controller;
-  final VoidCallback onSelectDateRange;
+  final String tabLabel;
+  final VoidCallback onPickDateRange;
   final VoidCallback onClearDateRange;
-  final ValueChanged<bool> onOrderChanged;
   final VoidCallback onDeleteRange;
+  final VoidCallback onClearTab;
 
   @override
   Widget build(BuildContext context) {
@@ -948,27 +1028,28 @@ class _HistoryFilterDrawer extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Obx(() {
-      final dateRange = controller.selectedDateRange.value;
+      final dateRange = controller.dateRange.value;
       return GlassFilterDrawerShell(
         title: t.searchFilter.filterSettings,
-        subtitle: t.searchFilter.drawerSubtitle,
-        // 这里能「重置」的只有时间范围：排序总得选一个，没有「无排序」这一档
+        subtitle: t.historyPage.rangeByLastViewed,
         onReset: dateRange == null ? null : onClearDateRange,
-        children: [
-          GlassFilterSection(
-            title: t.common.sort,
-            child: GlassSwitchItem(
-              icon: Icons.swap_vert,
-              title: Text(
-                controller.orderByUpdated.value
-                    ? t.common.updatedAt
-                    : t.common.publishedAt,
-              ),
-              subtitle: const Text('(DESC)'),
-              value: controller.orderByUpdated.value,
-              onChanged: onOrderChanged,
+        footer: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: OutlinedButton.icon(
+            onPressed: onClearTab,
+            icon: const Icon(Icons.delete_sweep),
+            label: Text(
+              tabLabel == t.common.all
+                  ? t.common.clearAllHistory
+                  : t.historyPage.clearTabTitle(tab: tabLabel),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colorScheme.error,
+              side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
             ),
           ),
+        ),
+        children: [
           GlassFilterSection(
             title: t.common.selectDateRange,
             actions: [
@@ -995,7 +1076,7 @@ class _HistoryFilterDrawer extends StatelessWidget {
                     horizontal: 16,
                     vertical: 14,
                   ),
-                  onTap: onSelectDateRange,
+                  onTap: onPickDateRange,
                   child: Row(
                     children: [
                       Icon(
@@ -1021,22 +1102,26 @@ class _HistoryFilterDrawer extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                // 按当前所选时间范围删除历史（没选范围时不可用）
-                OutlinedButton.icon(
-                  onPressed: dateRange == null ? null : onDeleteRange,
-                  icon: const Icon(Icons.delete_sweep),
-                  label: Text(t.common.deleteRecordsInDateRange),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.error,
-                    side: BorderSide(
-                      color: dateRange != null
-                          ? colorScheme.error.withValues(alpha: 0.5)
-                          : Theme.of(
-                              context,
-                            ).disabledColor.withValues(alpha: 0.3),
-                    ),
-                  ),
+                // 没选区间时「按区间删除」整条收起（有出有入：高度 + 透明度一起过渡）。
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  child: dateRange == null
+                      ? const SizedBox(width: double.infinity)
+                      : Padding(
+                          padding: const EdgeInsets.only(top: 12),
+                          child: OutlinedButton.icon(
+                            onPressed: onDeleteRange,
+                            icon: const Icon(Icons.delete_outline),
+                            label: Text(t.common.deleteRecordsInDateRange),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: colorScheme.error,
+                              side: BorderSide(
+                                color: colorScheme.error.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                        ),
                 ),
               ],
             ),
@@ -1044,5 +1129,50 @@ class _HistoryFilterDrawer extends StatelessWidget {
         ],
       );
     });
+  }
+}
+
+/// 逐条删除时卡片的退场：长条连同下方间距一起收起高度，网格格子缩小（格子尺寸
+/// 由网格定死，收不了高度）；两者都淡出。播完由控制器真正拿掉这一条。
+class _RemovalTransition extends StatelessWidget {
+  const _RemovalTransition({
+    required this.removing,
+    required this.collapse,
+    required this.child,
+  });
+
+  final bool removing;
+  final bool collapse;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    const duration = HistoryListController.removeAnimation;
+    const curve = Curves.easeInCubic;
+    final faded = AnimatedOpacity(
+      opacity: removing ? 0 : 1,
+      duration: duration,
+      curve: curve,
+      child: child,
+    );
+    if (collapse) {
+      return ClipRect(
+        child: AnimatedAlign(
+          // 只收高度：widthFactor 留空时 Align 会撑满宽度，topStart 让组头文字
+          // 仍然贴左（topCenter 会把它挤到正中）。
+          alignment: AlignmentDirectional.topStart,
+          heightFactor: removing ? 0 : 1,
+          duration: duration,
+          curve: curve,
+          child: faded,
+        ),
+      );
+    }
+    return AnimatedScale(
+      scale: removing ? 0.9 : 1,
+      duration: duration,
+      curve: curve,
+      child: faded,
+    );
   }
 }

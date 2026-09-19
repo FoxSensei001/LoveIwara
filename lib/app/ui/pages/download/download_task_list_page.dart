@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/ui/widgets/timeline_group.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/models/download/download_task_ext_data.model.dart';
@@ -1471,28 +1472,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   ///
   /// 原来是每天插一行 yyyy-MM-dd：下得勤的一屏里一半是日期；网格那边又干脆没有
   /// 分组。现在行与格共用这一套，越久远分得越粗。没有创建时间的老数据不分组。
-  String? _historyGroupOf(BuildContext context, DateTime? date, DateTime now) {
-    if (date == null) return null;
-    final t = slang.Translations.of(context).download.timeline;
-    final local = date.toLocal();
-    final day = DateTime(local.year, local.month, local.day);
-    final today = DateTime(now.year, now.month, now.day);
-    if (!day.isBefore(today)) return t.today;
-    // 按日历字段减，别减 Duration：夏令时切换那天不是 24 小时。
-    if (day == DateTime(today.year, today.month, today.day - 1)) {
-      return t.yesterday;
-    }
-    final weekStart = DateTime(
-      today.year,
-      today.month,
-      today.day - (now.weekday - 1),
-    );
-    if (!day.isBefore(weekStart)) {
-      return t.thisWeek;
-    }
-    if (local.year == now.year && local.month == now.month) return t.thisMonth;
-    return MaterialLocalizations.of(context).formatMonthYear(local);
-  }
+  String? _historyGroupOf(BuildContext context, DateTime? date, DateTime now) =>
+      timelineGroupLabel(context, date, now);
 
   /// 历史区：按 [_historyGroupOf] 切成若干组，每组一行小标题 + 一段行 / 格。
   ///

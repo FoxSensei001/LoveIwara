@@ -9,6 +9,10 @@ import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
+const double _bodyFontSize = 13;
+const double _bodyLineHeight = 1.35;
+const int _bodyMaxLines = 3;
+
 class ForumPostsSearchCard extends StatefulWidget {
   final ThreadCommentModel comment;
 
@@ -83,68 +87,70 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 帖子信息头部 - 简化显示
-          if (threadModel != null)
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+          // 帖子信息头部 - 简化显示。所属帖解析不出来也留这一行（空标题、
+          // 不可点），列表里每张卡才等高
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: threadModel == null
+                    ? null
+                    : () {
+                        NaviService.navigateToForumThreadDetailPage(
+                          threadModel!.section,
+                          threadModel.id,
+                          initialThread: threadModel,
+                        );
+                      },
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
                 ),
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    NaviService.navigateToForumThreadDetailPage(
-                      threadModel!.section,
-                      threadModel.id,
-                      initialThread: threadModel,
-                    );
-                  },
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    topRight: Radius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 6,
+                    horizontal: 12,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 6,
-                      horizontal: 12,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.forum,
-                          size: 14,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            threadModel.title,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.forum,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          threadModel?.title ?? '',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 12,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 12,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+          ),
           // 评论内容 - 简化显示
           InkWell(
             onTap: () {
@@ -159,13 +165,26 @@ class _ForumPostsSearchCardState extends State<ForumPostsSearchCard> {
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              // 正文固定占 3 行高（不足 3 行也占）：列表里每张卡等高
+              height:
+                  MediaQuery.textScalerOf(context).scale(_bodyFontSize) *
+                      _bodyLineHeight *
+                      _bodyMaxLines +
+                  12,
+              alignment: Alignment.topLeft,
               child: Text(
                 widget.comment.body,
+                strutStyle: const StrutStyle(
+                  fontSize: _bodyFontSize,
+                  height: _bodyLineHeight,
+                  forceStrutHeight: true,
+                ),
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: _bodyFontSize,
+                  height: _bodyLineHeight,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
                 ),
-                maxLines: 3,
+                maxLines: _bodyMaxLines,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

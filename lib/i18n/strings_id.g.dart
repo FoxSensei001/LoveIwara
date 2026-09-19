@@ -96,6 +96,7 @@ class TranslationsId extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueId playbackQueue = _TranslationsPlaybackQueueId._(_root);
 	@override late final _TranslationsVrFormatId vrFormat = _TranslationsVrFormatId._(_root);
 	@override late final _TranslationsLocalMediaId localMedia = _TranslationsLocalMediaId._(_root);
+	@override late final _TranslationsHistoryPageId historyPage = _TranslationsHistoryPageId._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaId extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'Membersihkan ${count} entri riwayat tontonan lokal';
 	@override String get clearAction => 'Bersihkan';
 	@override String get iosManualRescanNotice => 'iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageId extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Hapus dari riwayat';
+	@override String get removed => 'Dihapus dari riwayat';
+	@override String watchedTo({required Object time}) => 'Ditonton sampai ${time}';
+	@override String get finished => 'Sudah ditonton';
+	@override String clearTabTitle({required Object tab}) => 'Bersihkan "${tab}"';
+	@override String clearTabConfirm({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.';
+	@override String get rangeByLastViewed => 'Difilter menurut waktu terakhir dilihat';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsId {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Membersihkan ${count} entri riwayat tontonan lokal',
 			'localMedia.clearAction' => 'Bersihkan',
 			'localMedia.iosManualRescanNotice' => 'iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.',
+			'historyPage.removeFromHistory' => 'Hapus dari riwayat',
+			'historyPage.removed' => 'Dihapus dari riwayat',
+			'historyPage.watchedTo' => ({required Object time}) => 'Ditonton sampai ${time}',
+			'historyPage.finished' => 'Sudah ditonton',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Bersihkan "${tab}"',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Semua riwayat di "${tab}" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan.',
+			'historyPage.rangeByLastViewed' => 'Difilter menurut waktu terakhir dilihat',
 			_ => null,
 		};
 	}

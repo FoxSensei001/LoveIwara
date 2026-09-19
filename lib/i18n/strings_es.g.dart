@@ -96,6 +96,7 @@ class TranslationsEs extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueEs playbackQueue = _TranslationsPlaybackQueueEs._(_root);
 	@override late final _TranslationsVrFormatEs vrFormat = _TranslationsVrFormatEs._(_root);
 	@override late final _TranslationsLocalMediaEs localMedia = _TranslationsLocalMediaEs._(_root);
+	@override late final _TranslationsHistoryPageEs historyPage = _TranslationsHistoryPageEs._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaEs extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'Se borraron ${count} entradas del historial de reproducción local';
 	@override String get clearAction => 'Borrar';
 	@override String get iosManualRescanNotice => 'iOS no detecta automáticamente los archivos nuevos. Deberá volver a escanear manualmente después de añadir o eliminar archivos.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageEs extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageEs._(TranslationsEs root) : this._root = root, super.internal(root);
+
+	final TranslationsEs _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Quitar del historial';
+	@override String get removed => 'Quitado del historial';
+	@override String watchedTo({required Object time}) => 'Visto hasta ${time}';
+	@override String get finished => 'Visto';
+	@override String clearTabTitle({required Object tab}) => 'Borrar «${tab}»';
+	@override String clearTabConfirm({required Object tab}) => 'Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer.';
+	@override String get rangeByLastViewed => 'Filtrado por última visualización';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsEs {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Se borraron ${count} entradas del historial de reproducción local',
 			'localMedia.clearAction' => 'Borrar',
 			'localMedia.iosManualRescanNotice' => 'iOS no detecta automáticamente los archivos nuevos. Deberá volver a escanear manualmente después de añadir o eliminar archivos.',
+			'historyPage.removeFromHistory' => 'Quitar del historial',
+			'historyPage.removed' => 'Quitado del historial',
+			'historyPage.watchedTo' => ({required Object time}) => 'Visto hasta ${time}',
+			'historyPage.finished' => 'Visto',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Borrar «${tab}»',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Se eliminará todo el historial de «${tab}», junto con el progreso de reproducción de esos vídeos. No se puede deshacer.',
+			'historyPage.rangeByLastViewed' => 'Filtrado por última visualización',
 			_ => null,
 		};
 	}

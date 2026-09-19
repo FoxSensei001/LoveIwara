@@ -96,6 +96,7 @@ class TranslationsRu extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueRu playbackQueue = _TranslationsPlaybackQueueRu._(_root);
 	@override late final _TranslationsVrFormatRu vrFormat = _TranslationsVrFormatRu._(_root);
 	@override late final _TranslationsLocalMediaRu localMedia = _TranslationsLocalMediaRu._(_root);
+	@override late final _TranslationsHistoryPageRu historyPage = _TranslationsHistoryPageRu._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaRu extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => 'Очищено записей локальной истории просмотров: ${count}';
 	@override String get clearAction => 'Очистить';
 	@override String get iosManualRescanNotice => 'iOS не обнаруживает новые файлы автоматически. После добавления или удаления файлов потребуется вручную запустить повторное сканирование.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageRu extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageRu._(TranslationsRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Удалить из истории';
+	@override String get removed => 'Удалено из истории';
+	@override String watchedTo({required Object time}) => 'Просмотрено до ${time}';
+	@override String get finished => 'Просмотрено';
+	@override String clearTabTitle({required Object tab}) => 'Очистить «${tab}»';
+	@override String clearTabConfirm({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.';
+	@override String get rangeByLastViewed => 'По времени последнего просмотра';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsRu {
 			'localMedia.clearProgressDone' => ({required Object count}) => 'Очищено записей локальной истории просмотров: ${count}',
 			'localMedia.clearAction' => 'Очистить',
 			'localMedia.iosManualRescanNotice' => 'iOS не обнаруживает новые файлы автоматически. После добавления или удаления файлов потребуется вручную запустить повторное сканирование.',
+			'historyPage.removeFromHistory' => 'Удалить из истории',
+			'historyPage.removed' => 'Удалено из истории',
+			'historyPage.watchedTo' => ({required Object time}) => 'Просмотрено до ${time}',
+			'historyPage.finished' => 'Просмотрено',
+			'historyPage.clearTabTitle' => ({required Object tab}) => 'Очистить «${tab}»',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Вся история в «${tab}» будет удалена вместе с прогрессом просмотра этих видео. Действие необратимо.',
+			'historyPage.rangeByLastViewed' => 'По времени последнего просмотра',
 			_ => null,
 		};
 	}

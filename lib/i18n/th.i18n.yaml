@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "ล้างประวัติการรับชมในเครื่องแล้ว ${count} รายการ"
   clearAction: ล้าง
   iosManualRescanNotice: iOS ไม่ตรวจจับไฟล์ใหม่โดยอัตโนมัติ คุณจะต้องสแกนใหม่ด้วยตนเองหลังเพิ่มหรือลบไฟล์
+historyPage:
+  removeFromHistory: "ลบออกจากประวัติ"
+  removed: "ลบออกจากประวัติแล้ว"
+  watchedTo: "ดูถึง ${time}"
+  finished: "ดูจบแล้ว"
+  clearTabTitle: "ล้าง \"${tab}\""
+  clearTabConfirm: "ประวัติทั้งหมดใน \"${tab}\" จะถูกลบ รวมถึงตำแหน่งการรับชมของวิดีโอเหล่านั้น ไม่สามารถย้อนกลับได้"
+  rangeByLastViewed: "กรองตามเวลาที่ดูล่าสุด"

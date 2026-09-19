@@ -651,7 +651,7 @@ class XrImmersiveService extends GetxService {
   }
 
   /// 被换掉的旧片：沉浸端的进度从不经过页面控制器，只能在这一刻回写一次。
-  /// 口径与 `MyVideoStateController._disposeAsyncResources` 一致（头尾 5s 内当作没看 / 看完）。
+  /// 口径与 `MyVideoStateController._disposeAsyncResources` 一致（都走 `recordPosition`）。
   Future<void> _saveHistory(
     String videoId,
     int positionMs,
@@ -667,11 +667,7 @@ class XrImmersiveService extends GetxService {
     if (durationMs <= 0) return;
     final history = Get.find<PlaybackHistoryService>();
     try {
-      if (positionMs <= 5000 || positionMs >= durationMs - 5000) {
-        await history.deletePlaybackHistory(videoId);
-      } else {
-        await history.savePlaybackHistory(videoId, durationMs, positionMs);
-      }
+      await history.recordPosition(videoId, durationMs, positionMs);
     } catch (e) {
       LogUtils.d('回写沉浸态播放历史失败 $videoId: $e', 'XrImmersive');
     }

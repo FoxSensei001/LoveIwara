@@ -96,6 +96,7 @@ class TranslationsDe extends Translations with BaseTranslations<AppLocale, Trans
 	@override late final _TranslationsPlaybackQueueDe playbackQueue = _TranslationsPlaybackQueueDe._(_root);
 	@override late final _TranslationsVrFormatDe vrFormat = _TranslationsVrFormatDe._(_root);
 	@override late final _TranslationsLocalMediaDe localMedia = _TranslationsLocalMediaDe._(_root);
+	@override late final _TranslationsHistoryPageDe historyPage = _TranslationsHistoryPageDe._(_root);
 }
 
 // Path: personalProfile
@@ -2704,6 +2705,22 @@ class _TranslationsLocalMediaDe extends TranslationsLocalMediaEn {
 	@override String clearProgressDone({required Object count}) => '${count} lokale Wiedergabeverlauf-Einträge gelöscht';
 	@override String get clearAction => 'Leeren';
 	@override String get iosManualRescanNotice => 'iOS erkennt neue Dateien nicht automatisch. Nach dem Hinzufügen oder Löschen von Dateien müssen Sie manuell erneut scannen.';
+}
+
+// Path: historyPage
+class _TranslationsHistoryPageDe extends TranslationsHistoryPageEn {
+	_TranslationsHistoryPageDe._(TranslationsDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get removeFromHistory => 'Aus Verlauf entfernen';
+	@override String get removed => 'Aus dem Verlauf entfernt';
+	@override String watchedTo({required Object time}) => 'Gesehen bis ${time}';
+	@override String get finished => 'Angesehen';
+	@override String clearTabTitle({required Object tab}) => '„${tab}“ leeren';
+	@override String clearTabConfirm({required Object tab}) => 'Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden.';
+	@override String get rangeByLastViewed => 'Nach zuletzt angesehen gefiltert';
 }
 
 // Path: common.pagination
@@ -7091,6 +7108,13 @@ extension on TranslationsDe {
 			'localMedia.clearProgressDone' => ({required Object count}) => '${count} lokale Wiedergabeverlauf-Einträge gelöscht',
 			'localMedia.clearAction' => 'Leeren',
 			'localMedia.iosManualRescanNotice' => 'iOS erkennt neue Dateien nicht automatisch. Nach dem Hinzufügen oder Löschen von Dateien müssen Sie manuell erneut scannen.',
+			'historyPage.removeFromHistory' => 'Aus Verlauf entfernen',
+			'historyPage.removed' => 'Aus dem Verlauf entfernt',
+			'historyPage.watchedTo' => ({required Object time}) => 'Gesehen bis ${time}',
+			'historyPage.finished' => 'Angesehen',
+			'historyPage.clearTabTitle' => ({required Object tab}) => '„${tab}“ leeren',
+			'historyPage.clearTabConfirm' => ({required Object tab}) => 'Der gesamte Verlauf in „${tab}“ wird gelöscht, einschließlich des Wiedergabefortschritts dieser Videos. Dies kann nicht rückgängig gemacht werden.',
+			'historyPage.rangeByLastViewed' => 'Nach zuletzt angesehen gefiltert',
 			_ => null,
 		};
 	}

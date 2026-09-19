@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "Đã xóa ${count} mục lịch sử xem cục bộ"
   clearAction: Xóa
   iosManualRescanNotice: iOS không tự động phát hiện tệp mới. Cần quét lại thủ công sau khi thêm hoặc xóa tệp.
+historyPage:
+  removeFromHistory: "Xóa khỏi lịch sử"
+  removed: "Đã xóa khỏi lịch sử"
+  watchedTo: "Đã xem đến ${time}"
+  finished: "Đã xem xong"
+  clearTabTitle: "Xóa \"${tab}\""
+  clearTabConfirm: "Toàn bộ lịch sử trong \"${tab}\" sẽ bị xóa, kèm tiến độ xem của các video đó. Không thể hoàn tác."
+  rangeByLastViewed: "Lọc theo thời gian xem gần nhất"

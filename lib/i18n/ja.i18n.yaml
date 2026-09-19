@@ -3520,3 +3520,11 @@ localMedia:
   clearProgressDone: "ローカル視聴履歴を ${count} 件消去しました"
   clearAction: 消去
   iosManualRescanNotice: iOSでは新しいファイルは自動検出されません。ファイルを追加または削除した後は、手動で再スキャンする必要があります。
+historyPage:
+  removeFromHistory: "履歴から削除"
+  removed: "履歴から削除しました"
+  watchedTo: "${time} まで視聴"
+  finished: "視聴済み"
+  clearTabTitle: "「${tab}」を消去"
+  clearTabConfirm: "「${tab}」の履歴をすべて削除し、該当する動画の視聴位置も消去します。この操作は元に戻せません。"
+  rangeByLastViewed: "最終閲覧日時で絞り込み"

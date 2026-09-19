@@ -3519,3 +3519,11 @@ localMedia:
   clearProgressDone: "Cleared ${count} local watch history entries"
   clearAction: Clear
   iosManualRescanNotice: iOS does not automatically detect new files. You will need to manually rescan after adding or deleting files.
+historyPage:
+  removeFromHistory: "Remove from history"
+  removed: "Removed from history"
+  watchedTo: "Watched to ${time}"
+  finished: "Watched"
+  clearTabTitle: "Clear \"${tab}\""
+  clearTabConfirm: "All history in \"${tab}\" will be deleted, along with the watch progress of those videos. This cannot be undone."
+  rangeByLastViewed: "Filtered by last viewed time"

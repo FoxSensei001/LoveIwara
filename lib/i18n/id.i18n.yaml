@@ -3188,3 +3188,11 @@ localMedia:
   clearProgressDone: "Membersihkan ${count} entri riwayat tontonan lokal"
   clearAction: Bersihkan
   iosManualRescanNotice: iOS tidak mendeteksi berkas baru secara otomatis. Anda perlu memindai ulang secara manual setelah menambah atau menghapus berkas.
+historyPage:
+  removeFromHistory: "Hapus dari riwayat"
+  removed: "Dihapus dari riwayat"
+  watchedTo: "Ditonton sampai ${time}"
+  finished: "Sudah ditonton"
+  clearTabTitle: "Bersihkan \"${tab}\""
+  clearTabConfirm: "Semua riwayat di \"${tab}\" akan dihapus, beserta progres tontonan video tersebut. Tindakan ini tidak dapat dibatalkan."
+  rangeByLastViewed: "Difilter menurut waktu terakhir dilihat"

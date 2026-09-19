@@ -551,6 +551,16 @@ class _Builder {
       _downloadsEntry(),
       ?_localLibraryEntry(),
       _watchLaterEntry(),
+      ?_directEntry(
+        id: PlaybackQueueService.historyQueueId(mediaType),
+        kind: PlaybackQueueKind.history,
+        title: t.common.history,
+        // 与 watchLater 同图标：Quest 端图标表暂无 history 语义的那颗，
+        // 见 XrPlaylistSource.queueIcon 的注释。两项并排时靠标题区分。
+        icon: 'watchLater',
+        queueId: PlaybackQueueService.historyQueueId(mediaType),
+        open: () => service.openHistory(mediaType: mediaType),
+      ),
       if (author != null) ...[
         const XrCatalogNode.separator(),
         if (isGallery)
