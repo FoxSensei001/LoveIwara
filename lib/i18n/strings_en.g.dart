@@ -3413,9 +3413,6 @@ class TranslationsDownloadEn {
 	/// en: 'Quality'
 	String get qualitySectionLabel => 'Quality';
 
-	/// en: 'Save to'
-	String get saveToSectionLabel => 'Save to';
-
 	/// en: 'Category'
 	String get categorySectionLabel => 'Category';
 
@@ -7693,6 +7690,12 @@ class TranslationsSettingsDownloadSettingsEn {
 
 	/// en: 'Test completed'
 	String get testCompleted => 'Test completed';
+
+	/// en: 'Value domain (multi-segment / overflow / escape shapes)'
+	String get testMultisegmentDomain => 'Value domain (multi-segment / overflow / escape shapes)';
+
+	/// en: 'Multi-segment structure rendering (issue'
+	String get testMultisegmentPaths => 'Multi-segment structure rendering (issue';
 
 	/// en: 'items passed'
 	String get testPassed => 'items passed';
@@ -12287,6 +12290,8 @@ extension on Translations {
 			'settings.downloadSettings.testDownloadPathAndPermissions' => 'Test if download path and permission configuration work properly',
 			'settings.downloadSettings.testResults' => 'Test Results',
 			'settings.downloadSettings.testCompleted' => 'Test completed',
+			'settings.downloadSettings.testMultisegmentDomain' => 'Value domain (multi-segment / overflow / escape shapes)',
+			'settings.downloadSettings.testMultisegmentPaths' => 'Multi-segment structure rendering (issue',
 			'settings.downloadSettings.testPassed' => 'items passed',
 			'settings.downloadSettings.testFailed' => 'Test failed',
 			'settings.downloadSettings.testStoragePermissionCheck' => 'Storage Permission Check',
@@ -12317,10 +12322,10 @@ extension on Translations {
 			'settings.downloadSettings.testFileContent' => 'File Content',
 			'settings.downloadSettings.checkingPathStatus' => 'Checking path status...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Unable to get path status',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Note: Actual path differs from selected path',
-			'settings.downloadSettings.grantPermission' => 'Grant Permission',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Note: Actual path differs from selected path',
+			'settings.downloadSettings.grantPermission' => 'Grant Permission',
 			'settings.downloadSettings.fixIssue' => 'Fix Issue',
 			'settings.downloadSettings.issueFixed' => 'Issue fixed',
 			'settings.downloadSettings.fixFailed' => 'Fix failed, please handle manually',
@@ -12831,10 +12836,10 @@ extension on Translations {
 			'forum.editReply' => 'Edit Reply',
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
-			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
-			'notifications.errors.unknownUser' => 'Unknown user',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
+			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
 			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
 			'notifications.notifications' => 'Notifications',
@@ -12969,7 +12974,6 @@ extension on Translations {
 			'download.download' => 'Download',
 			'download.selectDownloadTitle' => 'Select Download',
 			'download.qualitySectionLabel' => 'Quality',
-			'download.saveToSectionLabel' => 'Save to',
 			'download.categorySectionLabel' => 'Category',
 			'download.saveToPreviewLabel' => 'Will save to',
 			'download.saveToPreviewSuggested' => ({required Object name}) => 'Suggested file name: ${name} (editable in the system dialog)',
@@ -13346,9 +13350,9 @@ extension on Translations {
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
-			'download.otherQualities' => 'Other qualities',
 			_ => null,
 		} ?? switch (path) {
+			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
 			'download.batchDownload.userCancelled' => 'User cancelled',
@@ -13860,9 +13864,9 @@ extension on Translations {
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
-			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			_ => null,
 		} ?? switch (path) {
+			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
@@ -14374,9 +14378,9 @@ extension on Translations {
 			'vrFormat.manualBadge' => 'Set manually',
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
-			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
 			'vrFormat.handoffTooltip' => 'Play another way',
 			'vrFormat.suggestedBadge' => 'Suggested',
 			'vrFormat.suggestedEntryDesc' => ({required Object format}) => 'Looks like ${format} — tap to switch',

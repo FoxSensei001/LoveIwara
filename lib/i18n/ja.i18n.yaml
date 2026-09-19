@@ -1044,6 +1044,8 @@ settings:
     testDownloadPathAndPermissions: ダウンロードパスと権限設定が正常に動作するかテストします
     testResults: テスト結果
     testCompleted: テスト完了
+    testMultisegmentDomain: '値域チェック（複数段 / 上限超え / 逸脱形）'
+    testMultisegmentPaths: '複数段構造のレンダリング（issue #126）'
     testPassed: 項目が通過しました
     testFailed: テスト失敗
     testStoragePermissionCheck: ストレージ権限チェック
@@ -1122,6 +1124,7 @@ settings:
     setPathFailed: パスの設定に失敗しました
     # ファイル名テンプレート変数
     variableTitle: タイトル
+    variableAuthorcache: '作者の初回名（改名しても変わりません）'
     variableAuthor: 作者名
     variableUsername: 作者ユーザー名
     variableQuality: 動画品質
@@ -1137,6 +1140,48 @@ settings:
     suchAsTitleQuality: '例: %title_%quality'
     suchAsTitleId: '例: %title_%id'
     suchAsTitleFilename: '例: %title_%filename'
+    structureSection: '保存構造と命名'
+    structureSectionDescription: 'ダウンロードしたファイルは、以下で選んだ方式に従ってサブフォルダへ自動整理されます。今後のダウンロードにのみ影響し、既存ファイルはそのままです。'
+    structureNoticeTitle: '新機能：作者ごとに自動で整理'
+    structureNoticeBody: '下から選ぶだけ · 今後のダウンロードにのみ影響し、既存ファイルはそのままです。'
+    presetFlat: 'フラット'
+    presetFlatDesc: 'すべてのファイルをダウンロードルート直下に置く'
+    presetAuthor: '作者別'
+    presetAuthorBadge: 'おすすめ'
+    presetAuthorDesc: '作者ごとにフォルダ分け · 名前が変わっても迷子にならない'
+    presetDate: '日付別'
+    presetDateDesc: 'ダウンロード日ごとに整理'
+    presetCustom: 'カスタム'
+    presetCustomDesc: 'パステンプレートを自由に編集'
+    presetCustomHint: 'カスタム：「パステンプレート」エディタで編集してください'
+    structurePreviewLabel: 'プレビュー'
+    structurePreviewNote: '色付きの部分が整理の階層です。選択した方式に応じて変わります。'
+    pathTooLongWarning: '相対パスが200文字を超えています。一部の端末では保存できない場合があります'
+    pathTemplateEditorEntry: 'パステンプレート'
+    pathTemplateEditorEntryDesc: 'フォルダの階層とファイル名は自分で決められます'
+    pathTemplateEditor:
+      title: 'パステンプレート'
+      subtitle: 'ダウンロードをサブフォルダへ自動整理'
+      tabVideo: '動画'
+      tabGallery: 'ギャラリー'
+      tabImage: '単体画像'
+      previewLabel: 'プレビュー · 実際に保存される名前'
+      galleryPreviewLabel: 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）'
+      addFolder: 'フォルダ階層を追加（${current}/${max}）'
+      folderCapReached: 'フォルダ階層の上限に達しました'
+      folderSegmentHint: '%authorcache・変数・固定文字列'
+      fileSegmentHint: '例: %title_%quality'
+      videoCapNote: '拡張子（.mp4）は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層'
+      imageCapNote: '元の拡張子は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層'
+      galleryCapNote: 'ギャラリーテンプレートはすべてフォルダ段（最大 ${max} 階層）· 内部画像は画像IDで命名されます'
+      trayHint: 'タップでカーソル位置に挿入 · 長押しで説明'
+      emptySegment: '空のセグメント'
+      emptySegmentSaveBlocked: '保存できません：空のセグメントを削除するか内容を入力してください'
+      savedToast: '保存しました · 今後のダウンロードにのみ影響します'
+      trayCategoryContent: 'コンテンツ'
+      trayCategoryAuthor: '作者'
+      trayCategoryTime: '日時'
+      chipAuthorcache: '作者名・固定'
 favoriteTags:
   title: お気に入りタグ
   emptyIwara: お気に入りの Iwara タグはまだありません
@@ -1736,7 +1781,9 @@ download:
   download: ダウンロード
   selectDownloadTitle: ダウンロードを選択
   qualitySectionLabel: 画質
-  saveToSectionLabel: 保存先
+  categorySectionLabel: '分類'
+  saveToPreviewLabel: '保存先'
+  saveToPreviewSuggested: '推奨ファイル名：${name}（システムダイアログで変更可）'
   lastUsedBadge: 前回選択
   pickedBadge: 選択中
   forceDeleteTask: 強制削除タスク
@@ -2156,6 +2203,11 @@ downloadNotifications:
   failedBody: '${name} のダウンロードに失敗しました'
   completedToast: '${name} をダウンロードしました'
   failedToast: '${name} のダウンロードに失敗しました'
+  savedToFolder: '${dir} に保存しました'
+  savedAsRenamed: '${name} として保存しました（同名ファイルが既にあります）'
+  savedToAppFolder: 'アプリフォルダに保存しました — ${target} に書き込めません（${reason}）'
+  viewFolder: 'フォルダを表示'
+  fixInSettings: '設定で修正'
   channelName: ダウンロード状態
   channelDescription: ダウンロードの完了と失敗の通知
 

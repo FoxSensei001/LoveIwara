@@ -1045,6 +1045,8 @@ settings:
     testDownloadPathAndPermissions: 测试下载路径和权限配置是否正常工作
     testResults: 测试结果
     testCompleted: 测试完成
+    testMultisegmentDomain: 值域校验（多段 / 超段 / 逃逸形状）
+    testMultisegmentPaths: 多段结构渲染（issue #126）
     testPassed: 项通过
     testFailed: 测试失败
     testStoragePermissionCheck: 存储权限检查
@@ -1141,9 +1143,7 @@ settings:
     suchAsTitleFilename: '例如: %title_%filename'
     # [保存结构与命名]（issue #126 下载子文件夹归档）
     structureSection: 保存结构与命名
-    structureSectionDescription: >-
-      下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载，
-      已经下载的不动。
+    structureSectionDescription: 下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载，已经下载的不动。
     structureNoticeTitle: 新功能：可按作者自动归档
     structureNoticeBody: 在下方选择即可 · 只影响新下载的文件，已经下载的不动。
     presetFlat: 平铺
@@ -1782,7 +1782,6 @@ download:
   download: 下载
   selectDownloadTitle: 选择下载
   qualitySectionLabel: 清晰度
-  saveToSectionLabel: 保存到
   categorySectionLabel: 分类
   saveToPreviewLabel: 将保存到
   saveToPreviewSuggested: '建议文件名：${name}（可在系统对话框修改）'

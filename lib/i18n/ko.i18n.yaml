@@ -1043,6 +1043,8 @@ settings:
     testDownloadPathAndPermissions: 다운로드 경로와 권한 설정이 제대로 작동하는지 테스트합니다
     testResults: 테스트 결과
     testCompleted: 테스트 완료
+    testMultisegmentDomain: '값 범위 검사(다중 세그먼트 / 초과 / 탈출 형태)'
+    testMultisegmentPaths: '다중 세그먼트 구조 렌더링(issue #126)'
     testPassed: 개 항목 통과
     testFailed: 테스트 실패
     testStoragePermissionCheck: 저장소 권한 확인
@@ -1121,6 +1123,7 @@ settings:
     setPathFailed: 경로 설정에 실패했습니다
     # Filename template variables
     variableTitle: 제목
+    variableAuthorcache: '작성자 첫 이름(이름이 바뀌어도 유지)'
     variableAuthor: 작성자 이름
     variableUsername: 작성자 사용자 이름
     variableQuality: 동영상 화질
@@ -1136,6 +1139,48 @@ settings:
     suchAsTitleQuality: '예: %title_%quality'
     suchAsTitleId: '예: %title_%id'
     suchAsTitleFilename: '예: %title_%filename'
+    structureSection: '저장 구조와 이름 설정'
+    structureSectionDescription: '다운로드한 파일은 아래에서 선택한 방식에 따라 하위 폴더로 자동 정리됩니다. 이후 새 다운로드에만 적용되며 기존 파일은 그대로 유지됩니다.'
+    structureNoticeTitle: '신규 기능: 작성자별 자동 정리'
+    structureNoticeBody: '아래에서 선택하세요 · 새 다운로드에만 적용되고 기존 파일은 그대로입니다.'
+    presetFlat: '플랫'
+    presetFlatDesc: '모든 파일을 다운로드 루트에 바로 저장'
+    presetAuthor: '작성자별'
+    presetAuthorBadge: '추천'
+    presetAuthorDesc: '작성자별 폴더로 정리 · 이름이 바뀌어도 유지'
+    presetDate: '날짜별'
+    presetDateDesc: '다운로드 날짜별로 정리'
+    presetCustom: '사용자 지정'
+    presetCustomDesc: '경로 템플릿을 자유롭게 편집'
+    presetCustomHint: '사용자 지정: 경로 템플릿 편집기에서 수정하세요'
+    structurePreviewLabel: '미리보기'
+    structurePreviewNote: '색상 부분이 정리 계층이며 선택한 방식에 따라 바뀝니다.'
+    pathTooLongWarning: '상대 경로가 200자를 초과하여 일부 기기에서는 저장이 실패할 수 있습니다'
+    pathTemplateEditorEntry: '사용자 지정 경로 템플릿'
+    pathTemplateEditorEntryDesc: '폴더 구조와 파일 이름을 직접 결정'
+    pathTemplateEditor:
+      title: '경로 템플릿'
+      subtitle: '다운로드 파일을 하위 폴더로 자동 정리'
+      tabVideo: '동영상'
+      tabGallery: '갤러리'
+      tabImage: '개별 이미지'
+      previewLabel: '미리보기 · 정리 후 실제 저장 결과'
+      galleryPreviewLabel: '미리보기 · 갤러리 템플릿=폴더 이름(내부 이미지는 ID로 명명)'
+      addFolder: '폴더 계층 추가(${current}/${max})'
+      folderCapReached: '폴더 계층 한도에 도달했습니다'
+      folderSegmentHint: '%authorcache, 변수 또는 고정 텍스트'
+      fileSegmentHint: '예: %title_%quality'
+      videoCapNote: '확장자(.mp4)는 자동으로 추가됩니다 · 세그먼트 내에서 / 입력 시 두 계층으로 분할 · 최대 ${max}계층'
+      imageCapNote: '원본 확장자는 자동으로 추가됩니다 · 세그먼트 내에서 / 입력 시 두 계층으로 분할 · 최대 ${max}계층'
+      galleryCapNote: '갤러리 템플릿은 모두 폴더 세그먼트(최대 ${max}계층) · 내부 이미지는 이미지 ID로 명명'
+      trayHint: '탭하여 커서 위치에 삽입 · 길게 눌러 설명 보기'
+      emptySegment: '빈 세그먼트'
+      emptySegmentSaveBlocked: '저장할 수 없습니다: 빈 세그먼트를 삭제하거나 내용을 입력하세요'
+      savedToast: '저장됨 · 이후 새 다운로드에만 적용'
+      trayCategoryContent: '콘텐츠'
+      trayCategoryAuthor: '작성자'
+      trayCategoryTime: '시간'
+      chipAuthorcache: '작성자 이름·고정'
 favoriteTags:
   title: 즐겨찾기 태그
   emptyIwara: 아직 즐겨찾기한 Iwara 태그가 없습니다
@@ -1733,7 +1778,9 @@ download:
   download: 다운로드
   selectDownloadTitle: 다운로드 선택
   qualitySectionLabel: 화질
-  saveToSectionLabel: 저장 위치
+  categorySectionLabel: '분류'
+  saveToPreviewLabel: '저장될 위치'
+  saveToPreviewSuggested: '추천 파일 이름: ${name}(시스템 대화상자에서 변경 가능)'
   lastUsedBadge: 최근 사용
   pickedBadge: 선택됨
   startDownloading: 다운로드 시작
@@ -1817,6 +1864,46 @@ download:
     banner: '지난 세션의 미완료 작업 ${num}개가 일시정지되었습니다'
     resume: 모두 재개
     dismiss: 닫기
+  actions:
+    open: Open
+    play: Play
+    openWith: Open with another app
+    redownload: Download again
+    relocate: Move files to…
+    categorize: Categorize…
+    viewOnline: View online page
+    delete: Delete…
+    redownloadStarted: 'Started downloading ${count} items again'
+    redownloadNone: Nothing to download again
+    deleteTitle: 'Delete ${count} downloads?'
+    deleteSummary: '${count} items · ${size}'
+    deleteSummaryNoSize: '${count} items'
+    deleteGalleryNote: 'Size of ${count} galleries not included'
+    deleteFiles: Also delete files from disk
+    deleteFilesDesc: When off, only the list entries are removed and the files stay where they are
+    deleteFilesAllMissing: The files are already gone; only the entries will be removed
+    deleteDone: 'Deleted ${count} items'
+    deletePartial: 'Could not delete the files of ${failed} items (they may be in use); their entries were kept'
+    removeRecordAnyway: Remove entries anyway
+    fileMissing: File is missing
+    filePending: File not found right now, it may still be recoverable
+    statusActive: In progress
+    statusCompleted: Completed
+    needsAttention: Needs attention
+    needsAttentionCount: 'Needs attention · ${count}'
+    organize: Organize
+    checkIntegrity: Check file integrity…
+    migrateToCurrent: Move to current download folder…
+    migrateNone: Everything is already in the current download folder
+  notice:
+    failed: '${count} downloads failed'
+    retryAll: Retry all
+    view: View
+    missing: 'Files of ${count} downloaded items are missing'
+    handle: Handle…
+    outside: '${count} items are still in the old download folder'
+    migrate: Move
+    dismiss: Dismiss
   emptyTaskList: 아직 다운로드 작업이 없습니다
   noMatchingTasks: 일치하는 작업이 없습니다
   deleteByDate:
@@ -1837,6 +1924,141 @@ download:
     deleting: '삭제 중 ${done}/${total}…'
     resultSuccess: '${count}개 작업 삭제됨'
     resultPartial: '${deleted}개 작업 삭제됨, ${skipped}개 건너뜀(사용 중)'
+  relocation:
+    moveFiles: Move files
+    moveFilesEllipsis: Move files…
+    chooseDestination: Move files to
+    currentDownloadDir: Current download folder
+    otherFolder: Choose another folder…
+    pickerUnsupported: Folders can't be picked on this device. Downloads stay in the app's own folder.
+    planning: Checking files…
+    confirmTitle: Move files?
+    confirmNote: Files are moved on disk. Watch progress, VR settings and favorites move with them.
+    nothingToMove: Nothing in the selection can be moved. See the reason for each item below.
+    move: Move
+    moving: 'Moving ${done}/${total}'
+    stop: Stop
+    stopping: Stopping after the current item…
+    resultTitle: Move finished
+    resultMoved: '${count} item(s) moved'
+    cancelled: Stopped. Items already moved are complete.
+    alreadyRunning: Another move is already in progress
+    destination: Destination
+    statMove: To move
+    statSkip: Skipped
+    statRenamed: Renamed
+    statMoved: Moved
+    statFailed: Not moved
+    statLeftover: Left behind
+    sectionMove: Will be moved
+    sectionSkip: Will be skipped
+    sectionMoved: Moved
+    sectionFailed: Not moved (left where it was)
+    sectionLeftover: Old folders not fully removed
+    leftoverHint: The copy at the new location is complete. These leftovers can be deleted.
+    from: From
+    to: To
+    renamedBadge: 'Name taken, will be saved as "${name}"'
+    showPaths: Show paths
+    hidePaths: Hide paths
+    revealInFolder: Show in folder
+    copyPath: Copy path
+    pathCopied: Path copied
+    stateDownloading: 'downloading, ${percent}%'
+    statePending: waiting to download
+    statePaused: 'paused at ${percent}%'
+    stateFailed: download failed
+    skipAlreadyThere: Already in this folder
+    skipInsideSource: The destination is inside this gallery's own folder
+    reasonBusy: Busy with another operation (deleting or moving)
+    reasonSourceLocked: The file is in use (for example, playing), so it couldn't be removed from the old location. Nothing was changed.
+    reasonNoSpace: The destination ran out of space. The rest of the batch was stopped.
+    reasonVerifyFailed: The copy didn't match the original's size. The copy was discarded.
+    reasonIoError: Couldn't read or write the file. Nothing was changed.
+    systemMessage: 'System message: ${message}'
+    outsideTitle: '${count} downloaded item(s) are outside this folder'
+    outsideSubtitle: They still play where they are. Move them here to keep everything together.
+    moveHere: Move here
+    missingTitle: Files not found
+    recordedLocation: Recorded location
+    legendExists: still exists
+    legendMissing: missing
+    diagVolume: 'Storage "${volume}" is not available. The SD card or external drive may not be connected.'
+    diagVolumeShort: 'storage "${volume}" not connected'
+    diagContainer: 'After an app update, the system moved the app''s storage. The file is still here:'
+    diagContainerShort: app storage moved after update
+    diagNoAccess: The app doesn't have permission to read this location. Grant "All files access" and check again.
+    diagNoAccessShort: no permission to read this location
+    diagFolder: 'The folder "${folder}" no longer exists.'
+    diagFolderShort: 'folder "${folder}" no longer exists'
+    diagFile: 'The folder is still there, but "${name}" isn''t in it.'
+    diagFileShort: 'not found in its folder'
+    diagCandidates: 'Found something in that folder that looks like it (maybe renamed):'
+    diagNoCandidates: Nothing with the same size was found in that folder.
+    useThis: Use this
+    fixPath: Fix path
+    checkAgain: Check again
+    grantPermission: Grant permission
+    locate: Find in another folder…
+    deleteRecord: Delete record
+    locateNotFound: This download's files aren't in that folder
+    located: Found. The record now points to the new location.
+    stillMissing: Still not found
+    downloadedOn: 'Downloaded ${date}'
+    galleryImages: '${count} images'
+    unfinishedDownloading: 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues'
+    unfinishedPending: 'Waiting to download: re-queued after the move'
+    unfinishedPaused: 'Paused at ${percent}%: the downloaded part moves too, stays paused'
+    unfinishedFailed: 'Download failed: the downloaded part moves too'
+    noDataYet: 'Nothing downloaded yet, only the save location changes'
+    missingGroup: '${count} item(s) with missing files'
+    missingSkip: 'Leave as is'
+    missingRedownload: 'Re-download to the destination'
+    missingRemove: 'Remove records'
+    missingRemoveVolumeNote: '${count} of them are on storage that isnt connected and wont be removed'
+    failedGroup: '${count} failed download(s)'
+    failedMoveOnly: 'Just move'
+    failedMoveAndRetry: 'Move, then re-download'
+    failedRemove: 'Remove tasks'
+    failedRemoveNote: 'Their partially downloaded files are deleted too'
+    execute: 'Apply'
+    actionWillRedownload: 'Will be re-downloaded to the destination'
+    actionWillRemove: 'This record will be removed'
+    actionWillKeep: 'Storage not connected, will be kept'
+    actionWillRetry: 'Re-downloaded after the move'
+    actionWillRemoveTask: 'This task will be removed'
+    statRedownload: 'Re-download'
+    statRemoved: 'Removed'
+    sectionRedownloaded: 'Re-download started'
+    sectionRedownloadFailed: 'Couldnt start re-download'
+    redownloadFailedHint: 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.'
+    sectionRemoved: 'Removed'
+    sectionKept: 'Kept (storage not connected)'
+    redownload: 'Re-download'
+    redownloadStarted: 'Re-download started'
+    redownloadNotStarted: 'Couldnt start re-download'
+    diagFileShortWithCandidates: 'a file with the same size is in its folder, maybe renamed'
+    cleanupMenu: 'Clean up broken records…'
+    cleanupScanning: 'Checking ${done}/${total}'
+    cleanupTitle: 'Clean up broken records'
+    cleanupNone: 'Checked ${count} completed download(s). All files are there.'
+    statChecked: 'Checked'
+    statMissing: 'Missing'
+    statKeep: 'Keep'
+    cleanupGroupGone: 'Files are gone'
+    cleanupGroupRecoverable: 'May still be recoverable'
+    cleanupRecoverableHint: 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.'
+    selectAll: 'Select all'
+    selectNone: 'Select none'
+    removeSelected: 'Remove selected (${count})'
+    redownloadSelected: 'Re-download selected (${count})'
+    processing: 'Processing ${done}/${total}'
+    cleanupRemoved: '${count} record(s) removed'
+    cleanupRedownloaded: 'Re-download started for ${count} item(s)'
+    tapForDetail: 'Details'
+    deleteRecordFailed: 'Couldnt delete the record. Try again later.'
+    sectionNotAttempted: 'Not processed (stopped, left as is)'
+    unexpectedError: 'Stopped because of an error: ${message}. Items already moved are complete.'
   category:
     manageTitle: 카테고리 관리
     label: 카테고리
@@ -1861,6 +2083,80 @@ download:
     deleteConfirm: '"${title}" 카테고리를 삭제하시겠습니까? 안에 있는 ${count}개 항목은 미분류로 이동합니다. 파일은 삭제되지 않습니다.'
     deleteSuccess: 카테고리 삭제됨
     deleteFailed: 카테고리 삭제 실패
+  location:
+    sectionTitle: Save location
+    behaviorSection: Download behavior
+    namingSection: File naming
+    advancedSection: Advanced
+    advancedSubtitle: Write diagnostics and other tools
+    volumeInternal: Internal storage
+    volumeSdCard: SD card
+    volumeExternalDrive: External drive
+    appSpace: App-only storage
+    downloadsFolder: Downloads
+    askEveryTime: Ask every time
+    askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    freeSpace: '${size} free'
+    statusWritable: Writable
+    statusNeedsPermission: Needs permission
+    statusFallback: Temporarily redirected
+    statusLowSpace: Low space
+    statusChecking: Checking
+    grant: Grant
+    fix: Fix
+    changeLocation: Change location
+    openInFileManager: Open in file manager
+    moreActions: More
+    copyPath: Copy path
+    pathCopied: Path copied
+    manualInput: Enter path manually (advanced)
+    restoreDefault: Restore default
+    runDiagnostics: Run diagnostics
+    restoredDefault: Restored the default location
+    sheetTitle: Choose download location
+    chooseOtherFolder: Choose another folder…
+    chooseOtherFolderDesc: Pick one with the system file picker
+    optionRecommendedDesc: Recommended · no permission needed
+    optionRecommendedLegacyDesc: Recommended · needs storage permission
+    optionAppPrivateDesc: Deleted on uninstall · hidden from the gallery
+    optionRemovableDesc: 'Needs "All files access"'
+    optionDesktopDownloadsDesc: Recommended · your Downloads folder
+    optionAskEveryTimeDesc: Pick a folder for each download
+    current: Current
+    fallbackBanner: Your last download was temporarily saved to app storage because the chosen folder could not be used.
+    fallbackReasonPermission: storage permission is missing
+    fallbackReasonVolumeMissing: the storage device is not connected
+    fallbackReasonCannotCreate: the folder could not be created
+    fallbackReasonNotWritable: the folder cannot be written to
+    fallbackDetail: 'Temporarily redirected: ${reason}'
+    errorUnresolvable: This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.
+    errorNotWritable: This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.
+    errorVolumeMissing: This storage device cannot be found (removed or not connected). The location was not changed.
+    permissionTitle: Permission needed
+    permissionAllFiles: 'Writing to this folder needs "All files access". If you''d rather not allow that, use "Downloads › LoveIwara" instead.'
+    permissionLegacy: 'Writing to this folder needs the storage permission. If you''d rather not allow that, use app-only storage instead.'
+    useDownloadsInstead: Use Downloads › LoveIwara
+    useAppSpaceInstead: Use app-only storage
+    goToSettings: Grant
+    permissionDenied: Permission was not granted. The location was not changed.
+    checking: Checking this location…
+    confirmTitle: Use this location?
+    confirmFree: '${size} free'
+    confirmOutside: '${count} downloaded item(s) stay in the old location'
+    confirmOutsideDesc: New downloads will be saved here. What about the ones you already have?
+    moveThem: Move them here
+    keepThem: Keep them where they are
+    decideLater: Decide later
+    useThisLocation: Use this location
+    locationChanged: Download location changed
+    manualTitle: Enter path manually
+    manualLabel: Folder path
+    manualHint: 'e.g. /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: Check and use
+    manualEmpty: Enter a path
+    manualNotAbsolute: Enter a full absolute path
+    fixStillFailing: This location still cannot be used. Choose another one.
+    fixed: The location works again
   maxConcurrentDownloads: 최대 동시 다운로드 수
   maxConcurrentDownloadsDesc: '동시에 다운로드하는 작업 수(1-5)'
   stillInDevelopment: 아직 개발 중
@@ -1904,6 +2200,11 @@ downloadNotifications:
   failedBody: '${name} 다운로드 실패'
   completedToast: '${name} 다운로드됨'
   failedToast: '${name} 다운로드 실패'
+  savedToFolder: '${dir}에 저장됨'
+  savedAsRenamed: '${name}(으)로 저장됨(같은 이름의 파일이 이미 있음)'
+  savedToAppFolder: '앱 폴더에 저장됨 — ${target}에 쓸 수 없음(${reason})'
+  viewFolder: '폴더 보기'
+  fixInSettings: '설정에서 수정'
   channelName: 다운로드 상태
   channelDescription: 완료 및 실패한 다운로드 알림
 
@@ -2293,6 +2594,7 @@ mediaPlayer:
   localVideoPathEmpty: "로컬 동영상 경로가 비어 있습니다"
   localVideoFileNotExists: "로컬 동영상 파일이 존재하지 않습니다: ${path}"
   unableToPlayLocalVideo: "로컬 동영상을 재생할 수 없습니다: ${error}"
+  unableToPlayNasVideo: "Unable to play the NAS video: ${error}"
   # File drag and drop
   dropVideoFileHere: "재생할 동영상 파일을 여기에 놓으세요"
   supportedFormats: "지원 형식: MP4, MKV, AVI, MOV, WEBM 등"
@@ -3157,6 +3459,87 @@ localMedia:
   addFolder: 폴더 추가
   addDeviceVideos: 기기 동영상 검사
   mediaStoreSourceName: 기기 동영상
+  scanQueued: "Waiting to scan"
+  itemInfo: "File info"
+  revealInFolder: "Show in folder"
+  rescanAll: "Rescan all"
+  rescanAllStarted: "Rescanning ${count} sources"
+  searchLibrary: "Search"
+  searchIncludeSubfolders: "Include subfolders"
+  searchThisFolderOnly: "This folder only"
+  searchResultCount: "Found ${count}"
+  savedServers: "Saved NAS"
+  newServer: "Connect a new NAS"
+  itemInfoLabels:
+    size: "Size"
+    resolution: "Resolution"
+    duration: "Duration"
+    modified: "Modified"
+    lastPlayed: "Last played"
+    neverPlayed: "Not watched yet"
+    completed: "Finished"
+  addSource: "Add source"
+  addSourceKinds: "Folder · NAS"
+  openSettings: "Open settings"
+  removeSourceLoses: "This also clears the following, and re-adding won't bring it back: ${items}"
+  loseProgress: "${count} watch progress"
+  loseFavorites: "${count} featured"
+  losePinned: "${count} pinned folders"
+  loseHidden: "${count} hidden folders"
+  loseCovers: "${count} custom covers"
+  renameSource: "Rename"
+  renameSourceTitle: "Rename source"
+  renameSourceLabel: "Name"
+  renamed: "Renamed"
+  nasAggregateHint: "NAS content only includes folders you have opened. Videos and images in folders you haven't opened won't show up here."
+  rescanDone: "\"${name}\" updated"
+  unknownSourceHint: This source needs a newer version of the app
+  missing:
+    title: "Can't find this file"
+    rescanFolder: "Rescan folder"
+    relistNas: "Refresh this folder"
+    removeFromList: "Remove from list"
+    removed: "Removed from the list. The file on disk was not touched"
+    found: "Found it"
+    nasGone: "\"${name}\" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now."
+  webdav:
+    addNas: "Connect NAS (WebDAV)"
+    connectTitle: "Connect NAS"
+    editTitle: "Sign in to NAS again"
+    hint: "Turn on the WebDAV service in your NAS settings, then enter its address and account."
+    address: "Address"
+    addressHint: "e.g. 192.168.1.10:5005"
+    username: "Username"
+    password: "Password"
+    displayName: "Name (optional)"
+    connect: "Connect"
+    invalidAddress: "Invalid address"
+    errorAuth: "Wrong username or password"
+    errorUnreachable: "Can't reach the server. Check the address and port, and that this device is on the same network as the NAS"
+    errorNotWebdav: "This address is not a WebDAV service"
+    errorGeneric: "Connection failed (${code})"
+    errorCredUnreadable: "Couldn't read the saved password. Try again later"
+    certTitle: "Trust this server?"
+    certBody: "The server's certificate isn't trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:"
+    certChangedBody: "This server's certificate is different from the one you trusted before. If you didn't replace your NAS certificate, someone may be impersonating it. Don't continue."
+    trust: "Trust"
+    pickRootTitle: "Choose a folder to add"
+    serverRoot: "Root"
+    alreadyAdded: "This NAS folder has already been added"
+    relogin: "Sign in again"
+    stateAuthFailed: "Sign-in required"
+    stateCertUntrusted: "Server certificate changed"
+    stateUnreachable: "Can't reach NAS"
+    stateCredUnreadable: "Couldn't read password"
+    connected: "Connected"
+    errorForbidden: "This account has no WebDAV access. Grant it WebDAV permission in the NAS settings."
+    errorTls: "Secure connection failed. Check that http:// or https:// matches the NAS settings."
+    errorTryHttps: "If the NAS only serves HTTPS, add https:// in front of the address."
+    previousStep: "Back"
+    bannerUnreachable: "Can't reach the NAS. Showing what was seen last time."
+    bannerAuthFailed: "Login expired. Sign in again to see the latest content."
+    bannerCertUntrusted: "The NAS certificate changed. Confirm it to continue."
+    bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: 기기 미디어 색인은 Android에서만 사용할 수 있습니다
   mediaStorePermissionDenied: 동영상 접근 권한이 부여되지 않았습니다
   rescan: 다시 검사

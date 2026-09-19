@@ -4,6 +4,8 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/models/user.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'dart:io';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -226,6 +228,9 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
       // 测试3: 文件命名模板
       results.add(await _testFilenameTemplates());
 
+      // 测试3.5: 多段结构渲染（issue #126 子文件夹归档）
+      results.add(await _testMultisegmentPaths());
+
       // 测试4: 目录创建和写入
       results.add(await _testDirectoryOperations());
 
@@ -316,6 +321,66 @@ class _DownloadTestWidgetState extends State<DownloadTestWidget> {
         passed: false,
         message:
             '${t.settings.downloadSettings.testTemplateValidationFailed}: $e',
+      );
+    }
+  }
+
+  /// 多段模板结构自检（issue #126）：值域校验 + 样例渲染出真实的相对路径段。
+  ///
+  /// 渲染走 [FilenameTemplateService.generateVideoPathSegments] 的预览形态
+  /// （writeAuthorCache: false）——自检不该往作者首见名缓存里写合成作者。
+  Future<TestResult> _testMultisegmentPaths() async {
+    final t = slang.Translations.of(context);
+    try {
+      final filenameService = Get.find<FilenameTemplateService>();
+      final details = StringBuffer();
+
+      // 1) 值域：多段合法、超过 4 段拒绝、全点段拒绝（.. 逃逸形状）。
+      final multiValid = filenameService.validateTemplate(
+        '%authorcache/%date/%title_%quality',
+      );
+      final overflowRejected = !filenameService.validateTemplate('a/b/c/d/e');
+      final dotsRejected = !filenameService.validateTemplate('../%title');
+      final domainOk = multiValid && overflowRejected && dotsRejected;
+      details.writeln(
+        '${t.settings.downloadSettings.testMultisegmentDomain}: $domainOk',
+      );
+
+      // 2) 渲染：作者文件夹段 + 文件名段，末段自动补扩展名。
+      final video = Video(
+        id: 'test-video',
+        title: 'TestTitle',
+        user: User(
+          id: 'test-author',
+          name: 'TestAuthor',
+          username: 'test_author',
+        ),
+      );
+      final segments = filenameService.generateVideoPathSegments(
+        template: '%authorcache/%title_%quality',
+        video: video,
+        quality: '1080',
+        writeAuthorCache: false,
+      );
+      final renderOk =
+          segments.length == 2 &&
+          segments.first == 'TestAuthor' &&
+          segments.last.endsWith('.mp4');
+      details.writeln(segments.join(' › '));
+
+      final passed = domainOk && renderOk;
+      return TestResult(
+        name: t.settings.downloadSettings.testMultisegmentPaths,
+        passed: passed,
+        message: passed
+            ? details.toString().trim()
+            : '${t.settings.downloadSettings.testFailed}\n${details.toString().trim()}',
+      );
+    } catch (e) {
+      return TestResult(
+        name: t.settings.downloadSettings.testMultisegmentPaths,
+        passed: false,
+        message: '${t.settings.downloadSettings.testFailed}: $e',
       );
     }
   }

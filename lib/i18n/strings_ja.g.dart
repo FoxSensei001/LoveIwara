@@ -1378,7 +1378,9 @@ class _TranslationsDownloadJa extends TranslationsDownloadEn {
 	@override String get download => 'ダウンロード';
 	@override String get selectDownloadTitle => 'ダウンロードを選択';
 	@override String get qualitySectionLabel => '画質';
-	@override String get saveToSectionLabel => '保存先';
+	@override String get categorySectionLabel => '分類';
+	@override String get saveToPreviewLabel => '保存先';
+	@override String saveToPreviewSuggested({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）';
 	@override String get lastUsedBadge => '前回選択';
 	@override String get pickedBadge => '選択中';
 	@override String get forceDeleteTask => '強制削除タスク';
@@ -1478,6 +1480,11 @@ class _TranslationsDownloadNotificationsJa extends TranslationsDownloadNotificat
 	@override String failedBody({required Object name}) => '${name} のダウンロードに失敗しました';
 	@override String completedToast({required Object name}) => '${name} をダウンロードしました';
 	@override String failedToast({required Object name}) => '${name} のダウンロードに失敗しました';
+	@override String savedToFolder({required Object dir}) => '${dir} に保存しました';
+	@override String savedAsRenamed({required Object name}) => '${name} として保存しました（同名ファイルが既にあります）';
+	@override String savedToAppFolder({required Object target, required Object reason}) => 'アプリフォルダに保存しました — ${target} に書き込めません（${reason}）';
+	@override String get viewFolder => 'フォルダを表示';
+	@override String get fixInSettings => '設定で修正';
 	@override String get channelName => 'ダウンロード状態';
 	@override String get channelDescription => 'ダウンロードの完了と失敗の通知';
 }
@@ -3060,6 +3067,8 @@ class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownlo
 	@override String get testDownloadPathAndPermissions => 'ダウンロードパスと権限設定が正常に動作するかテストします';
 	@override String get testResults => 'テスト結果';
 	@override String get testCompleted => 'テスト完了';
+	@override String get testMultisegmentDomain => '値域チェック（複数段 / 上限超え / 逸脱形）';
+	@override String get testMultisegmentPaths => '複数段構造のレンダリング（issue #126）';
 	@override String get testPassed => '項目が通過しました';
 	@override String get testFailed => 'テスト失敗';
 	@override String get testStoragePermissionCheck => 'ストレージ権限チェック';
@@ -3132,6 +3141,7 @@ class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'ダウンロードパスが設定されました';
 	@override String get setPathFailed => 'パスの設定に失敗しました';
 	@override String get variableTitle => 'タイトル';
+	@override String get variableAuthorcache => '作者の初回名（改名しても変わりません）';
 	@override String get variableAuthor => '作者名';
 	@override String get variableUsername => '作者ユーザー名';
 	@override String get variableQuality => '動画品質';
@@ -3146,6 +3156,26 @@ class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownlo
 	@override String get suchAsTitleQuality => '例: %title_%quality';
 	@override String get suchAsTitleId => '例: %title_%id';
 	@override String get suchAsTitleFilename => '例: %title_%filename';
+	@override String get structureSection => '保存構造と命名';
+	@override String get structureSectionDescription => 'ダウンロードしたファイルは、以下で選んだ方式に従ってサブフォルダへ自動整理されます。今後のダウンロードにのみ影響し、既存ファイルはそのままです。';
+	@override String get structureNoticeTitle => '新機能：作者ごとに自動で整理';
+	@override String get structureNoticeBody => '下から選ぶだけ · 今後のダウンロードにのみ影響し、既存ファイルはそのままです。';
+	@override String get presetFlat => 'フラット';
+	@override String get presetFlatDesc => 'すべてのファイルをダウンロードルート直下に置く';
+	@override String get presetAuthor => '作者別';
+	@override String get presetAuthorBadge => 'おすすめ';
+	@override String get presetAuthorDesc => '作者ごとにフォルダ分け · 名前が変わっても迷子にならない';
+	@override String get presetDate => '日付別';
+	@override String get presetDateDesc => 'ダウンロード日ごとに整理';
+	@override String get presetCustom => 'カスタム';
+	@override String get presetCustomDesc => 'パステンプレートを自由に編集';
+	@override String get presetCustomHint => 'カスタム：「パステンプレート」エディタで編集してください';
+	@override String get structurePreviewLabel => 'プレビュー';
+	@override String get structurePreviewNote => '色付きの部分が整理の階層です。選択した方式に応じて変わります。';
+	@override String get pathTooLongWarning => '相対パスが200文字を超えています。一部の端末では保存できない場合があります';
+	@override String get pathTemplateEditorEntry => 'パステンプレート';
+	@override String get pathTemplateEditorEntryDesc => 'フォルダの階層とファイル名は自分で決められます';
+	@override late final _TranslationsSettingsDownloadSettingsPathTemplateEditorJa pathTemplateEditor = _TranslationsSettingsDownloadSettingsPathTemplateEditorJa._(_root);
 }
 
 // Path: oreno3d.sortTypes
@@ -4409,6 +4439,37 @@ class _TranslationsLocalMediaWebdavJa extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '保存したパスワードを読み取れませんでした。再ログインしてください';
 }
 
+// Path: settings.downloadSettings.pathTemplateEditor
+class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
+	_TranslationsSettingsDownloadSettingsPathTemplateEditorJa._(TranslationsJa root) : this._root = root, super.internal(root);
+
+	final TranslationsJa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'パステンプレート';
+	@override String get subtitle => 'ダウンロードをサブフォルダへ自動整理';
+	@override String get tabVideo => '動画';
+	@override String get tabGallery => 'ギャラリー';
+	@override String get tabImage => '単体画像';
+	@override String get previewLabel => 'プレビュー · 実際に保存される名前';
+	@override String get galleryPreviewLabel => 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）';
+	@override String addFolder({required Object current, required Object max}) => 'フォルダ階層を追加（${current}/${max}）';
+	@override String get folderCapReached => 'フォルダ階層の上限に達しました';
+	@override String get folderSegmentHint => '%authorcache・変数・固定文字列';
+	@override String get fileSegmentHint => '例: %title_%quality';
+	@override String videoCapNote({required Object max}) => '拡張子（.mp4）は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層';
+	@override String imageCapNote({required Object max}) => '元の拡張子は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層';
+	@override String galleryCapNote({required Object max}) => 'ギャラリーテンプレートはすべてフォルダ段（最大 ${max} 階層）· 内部画像は画像IDで命名されます';
+	@override String get trayHint => 'タップでカーソル位置に挿入 · 長押しで説明';
+	@override String get emptySegment => '空のセグメント';
+	@override String get emptySegmentSaveBlocked => '保存できません：空のセグメントを削除するか内容を入力してください';
+	@override String get savedToast => '保存しました · 今後のダウンロードにのみ影響します';
+	@override String get trayCategoryContent => 'コンテンツ';
+	@override String get trayCategoryAuthor => '作者';
+	@override String get trayCategoryTime => '日時';
+	@override String get chipAuthorcache => '作者名・固定';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class _TranslationsVideoDetailGestureGuideQuestJa extends TranslationsVideoDetailGestureGuideQuestEn {
 	_TranslationsVideoDetailGestureGuideQuestJa._(TranslationsJa root) : this._root = root, super.internal(root);
@@ -5534,6 +5595,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.testDownloadPathAndPermissions' => 'ダウンロードパスと権限設定が正常に動作するかテストします',
 			'settings.downloadSettings.testResults' => 'テスト結果',
 			'settings.downloadSettings.testCompleted' => 'テスト完了',
+			'settings.downloadSettings.testMultisegmentDomain' => '値域チェック（複数段 / 上限超え / 逸脱形）',
+			'settings.downloadSettings.testMultisegmentPaths' => '複数段構造のレンダリング（issue #126）',
 			'settings.downloadSettings.testPassed' => '項目が通過しました',
 			'settings.downloadSettings.testFailed' => 'テスト失敗',
 			'settings.downloadSettings.testStoragePermissionCheck' => 'ストレージ権限チェック',
@@ -5564,10 +5627,10 @@ extension on TranslationsJa {
 			'settings.downloadSettings.testFileContent' => 'ファイル内容',
 			'settings.downloadSettings.checkingPathStatus' => 'パス状態を確認中...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'パス状態を取得できません',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
-			'settings.downloadSettings.grantPermission' => '権限を付与',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
+			'settings.downloadSettings.grantPermission' => '権限を付与',
 			'settings.downloadSettings.fixIssue' => '問題を修正',
 			'settings.downloadSettings.issueFixed' => '問題が修正されました',
 			'settings.downloadSettings.fixFailed' => '修正に失敗しました、手動で処理してください',
@@ -5608,6 +5671,7 @@ extension on TranslationsJa {
 			'settings.downloadSettings.downloadPathSetTo' => 'ダウンロードパスが設定されました',
 			'settings.downloadSettings.setPathFailed' => 'パスの設定に失敗しました',
 			'settings.downloadSettings.variableTitle' => 'タイトル',
+			'settings.downloadSettings.variableAuthorcache' => '作者の初回名（改名しても変わりません）',
 			'settings.downloadSettings.variableAuthor' => '作者名',
 			'settings.downloadSettings.variableUsername' => '作者ユーザー名',
 			'settings.downloadSettings.variableQuality' => '動画品質',
@@ -5622,6 +5686,47 @@ extension on TranslationsJa {
 			'settings.downloadSettings.suchAsTitleQuality' => '例: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例: %title_%filename',
+			'settings.downloadSettings.structureSection' => '保存構造と命名',
+			'settings.downloadSettings.structureSectionDescription' => 'ダウンロードしたファイルは、以下で選んだ方式に従ってサブフォルダへ自動整理されます。今後のダウンロードにのみ影響し、既存ファイルはそのままです。',
+			'settings.downloadSettings.structureNoticeTitle' => '新機能：作者ごとに自動で整理',
+			'settings.downloadSettings.structureNoticeBody' => '下から選ぶだけ · 今後のダウンロードにのみ影響し、既存ファイルはそのままです。',
+			'settings.downloadSettings.presetFlat' => 'フラット',
+			'settings.downloadSettings.presetFlatDesc' => 'すべてのファイルをダウンロードルート直下に置く',
+			'settings.downloadSettings.presetAuthor' => '作者別',
+			'settings.downloadSettings.presetAuthorBadge' => 'おすすめ',
+			'settings.downloadSettings.presetAuthorDesc' => '作者ごとにフォルダ分け · 名前が変わっても迷子にならない',
+			'settings.downloadSettings.presetDate' => '日付別',
+			'settings.downloadSettings.presetDateDesc' => 'ダウンロード日ごとに整理',
+			'settings.downloadSettings.presetCustom' => 'カスタム',
+			'settings.downloadSettings.presetCustomDesc' => 'パステンプレートを自由に編集',
+			'settings.downloadSettings.presetCustomHint' => 'カスタム：「パステンプレート」エディタで編集してください',
+			'settings.downloadSettings.structurePreviewLabel' => 'プレビュー',
+			'settings.downloadSettings.structurePreviewNote' => '色付きの部分が整理の階層です。選択した方式に応じて変わります。',
+			'settings.downloadSettings.pathTooLongWarning' => '相対パスが200文字を超えています。一部の端末では保存できない場合があります',
+			'settings.downloadSettings.pathTemplateEditorEntry' => 'パステンプレート',
+			'settings.downloadSettings.pathTemplateEditorEntryDesc' => 'フォルダの階層とファイル名は自分で決められます',
+			'settings.downloadSettings.pathTemplateEditor.title' => 'パステンプレート',
+			'settings.downloadSettings.pathTemplateEditor.subtitle' => 'ダウンロードをサブフォルダへ自動整理',
+			'settings.downloadSettings.pathTemplateEditor.tabVideo' => '動画',
+			'settings.downloadSettings.pathTemplateEditor.tabGallery' => 'ギャラリー',
+			'settings.downloadSettings.pathTemplateEditor.tabImage' => '単体画像',
+			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'プレビュー · 実際に保存される名前',
+			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'フォルダ階層を追加（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'フォルダ階層の上限に達しました',
+			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache・変数・固定文字列',
+			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '例: %title_%quality',
+			'settings.downloadSettings.pathTemplateEditor.videoCapNote' => ({required Object max}) => '拡張子（.mp4）は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層',
+			'settings.downloadSettings.pathTemplateEditor.imageCapNote' => ({required Object max}) => '元の拡張子は自動で付きます · 段内で / を入力すると2階層に分かれます · 最大 ${max} 階層',
+			'settings.downloadSettings.pathTemplateEditor.galleryCapNote' => ({required Object max}) => 'ギャラリーテンプレートはすべてフォルダ段（最大 ${max} 階層）· 内部画像は画像IDで命名されます',
+			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'タップでカーソル位置に挿入 · 長押しで説明',
+			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空のセグメント',
+			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '保存できません：空のセグメントを削除するか内容を入力してください',
+			'settings.downloadSettings.pathTemplateEditor.savedToast' => '保存しました · 今後のダウンロードにのみ影響します',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'コンテンツ',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '日時',
+			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名・固定',
 			'favoriteTags.title' => 'お気に入りタグ',
 			'favoriteTags.emptyIwara' => 'お気に入りの Iwara タグはまだありません',
 			'favoriteTags.emptyOreno3d' => 'お気に入りはまだありません',
@@ -6036,6 +6141,8 @@ extension on TranslationsJa {
 			'forum.editReply' => '編集回覆',
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
@@ -6080,8 +6187,6 @@ extension on TranslationsJa {
 			'notifications.kApprovedThread' => 'スレッドが承認されました',
 			'notifications.kApprovedPost' => '投稿が承認されました',
 			'notifications.kApprovedForumPost' => 'フォーラム投稿が承認されました',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.kRejectedContent' => 'コンテンツ審査が拒否されました',
 			'notifications.kUnknownType' => '不明な通知タイプ',
 			'conversation.errors.pleaseSelectAUser' => 'ユーザーを選択してください',
@@ -6174,7 +6279,9 @@ extension on TranslationsJa {
 			'download.download' => 'ダウンロード',
 			'download.selectDownloadTitle' => 'ダウンロードを選択',
 			'download.qualitySectionLabel' => '画質',
-			'download.saveToSectionLabel' => '保存先',
+			'download.categorySectionLabel' => '分類',
+			'download.saveToPreviewLabel' => '保存先',
+			'download.saveToPreviewSuggested' => ({required Object name}) => '推奨ファイル名：${name}（システムダイアログで変更可）',
 			'download.lastUsedBadge' => '前回選択',
 			'download.pickedBadge' => '選択中',
 			'download.forceDeleteTask' => '強制削除タスク',
@@ -6548,6 +6655,8 @@ extension on TranslationsJa {
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
+			_ => null,
+		} ?? switch (path) {
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
@@ -6582,6 +6691,11 @@ extension on TranslationsJa {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} のダウンロードに失敗しました',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} をダウンロードしました',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} のダウンロードに失敗しました',
+			'downloadNotifications.savedToFolder' => ({required Object dir}) => '${dir} に保存しました',
+			'downloadNotifications.savedAsRenamed' => ({required Object name}) => '${name} として保存しました（同名ファイルが既にあります）',
+			'downloadNotifications.savedToAppFolder' => ({required Object target, required Object reason}) => 'アプリフォルダに保存しました — ${target} に書き込めません（${reason}）',
+			'downloadNotifications.viewFolder' => 'フォルダを表示',
+			'downloadNotifications.fixInSettings' => '設定で修正',
 			'downloadNotifications.channelName' => 'ダウンロード状態',
 			'downloadNotifications.channelDescription' => 'ダウンロードの完了と失敗の通知',
 			'favorite.errors.addFailed' => '追加に失敗しました',
@@ -6594,8 +6708,6 @@ extension on TranslationsJa {
 			'favorite.addFailed' => '追加に失敗しました',
 			'favorite.remove' => '削除',
 			'favorite.removeSuccess' => '削除に成功しました',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeFailed' => '削除に失敗しました',
 			'favorite.removeConfirmation' => 'このアイテムをお気に入りから削除しますか？',
 			'favorite.removeConfirmationSuccess' => 'アイテムがお気に入りから削除されました',
@@ -7057,6 +7169,8 @@ extension on TranslationsJa {
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.enterGroupName' => 'グループ名を入力してください',
 			'emoji.create' => '作成',
 			'emoji.editGroupName' => 'グループ名を編集',
@@ -7108,8 +7222,6 @@ extension on TranslationsJa {
 			'layoutSettings.screenWidthLabel' => '画面幅',
 			'layoutSettings.screenWidthHint' => '600',
 			'layoutSettings.columnsLabel' => 'カラム数',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '幅を入力してください',
 			'layoutSettings.enterValidWidth' => '有効な幅を入力してください',
@@ -7571,6 +7683,8 @@ extension on TranslationsJa {
 			'vrFormat.manualBadge' => '手動で指定済み',
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
 			'vrFormat.handoffTooltip' => '別の方法で再生',
 			'vrFormat.suggestedBadge' => 'おすすめ',
@@ -7622,8 +7736,6 @@ extension on TranslationsJa {
 			'localMedia.browse.hiddenFolderBadge' => '非表示',
 			'localMedia.browse.deleteFolder' => 'フォルダを削除',
 			'localMedia.browse.deleteFolderTitle' => 'このフォルダを削除しますか？',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」と中身のすべてがこの端末から完全に削除されます。元に戻せません。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '中にある他のファイルも一緒に削除されます',
 			'localMedia.browse.folderDeleted' => 'フォルダを削除しました',

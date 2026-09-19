@@ -1043,6 +1043,8 @@ settings:
     testDownloadPathAndPermissions: Uji apakah jalur unduhan dan konfigurasi izin berfungsi dengan benar
     testResults: Hasil Uji
     testCompleted: Uji selesai
+    testMultisegmentDomain: 'Validasi domain nilai (multi-segmen / kelebihan / bentuk pelolosan)'
+    testMultisegmentPaths: 'Render struktur multi-segmen (issue #126)'
     testPassed: item lulus
     testFailed: Uji gagal
     testStoragePermissionCheck: Pemeriksaan Izin Penyimpanan
@@ -1121,6 +1123,7 @@ settings:
     setPathFailed: Gagal mengatur jalur
     # Filename template variables
     variableTitle: Judul
+    variableAuthorcache: 'Nama pertama penulis (stabil meski nama diganti)'
     variableAuthor: Nama penulis
     variableUsername: Nama pengguna penulis
     variableQuality: Kualitas video
@@ -1136,6 +1139,48 @@ settings:
     suchAsTitleQuality: 'Contoh: %title_%quality'
     suchAsTitleId: 'Contoh: %title_%id'
     suchAsTitleFilename: 'Contoh: %title_%filename'
+    structureSection: 'Struktur simpan & penamaan'
+    structureSectionDescription: 'File yang diunduh otomatis masuk subfolder sesuai skema di bawah. Hanya memengaruhi unduhan berikutnya; file yang sudah ada tidak diubah.'
+    structureNoticeTitle: 'Fitur baru: arsip otomatis per penulis'
+    structureNoticeBody: 'Pilih di bawah · hanya memengaruhi unduhan baru, file yang sudah ada tidak diubah.'
+    presetFlat: 'Rata'
+    presetFlatDesc: 'Semua file langsung di root unduhan'
+    presetAuthor: 'Per penulis'
+    presetAuthorBadge: 'Direkomendasikan'
+    presetAuthorDesc: 'Satu folder per penulis · tidak terpecah meski nama berubah'
+    presetDate: 'Per tanggal'
+    presetDateDesc: 'Dikelompokkan menurut tanggal unduh'
+    presetCustom: 'Kustom'
+    presetCustomDesc: 'Edit templat jalur dengan bebas'
+    presetCustomHint: 'Kustom: ubah aturan di editor templat jalur'
+    structurePreviewLabel: 'Pratinjau'
+    structurePreviewNote: 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.'
+    pathTooLongWarning: 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat'
+    pathTemplateEditorEntry: 'Templat jalur kustom'
+    pathTemplateEditorEntryDesc: 'Tentukan sendiri struktur folder dan nama file'
+    pathTemplateEditor:
+      title: 'Templat jalur'
+      subtitle: 'Otomatis memilah unduhan ke subfolder'
+      tabVideo: 'Video'
+      tabGallery: 'Galeri'
+      tabImage: 'Gambar tunggal'
+      previewLabel: 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan'
+      galleryPreviewLabel: 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)'
+      addFolder: 'Tambah satu tingkat folder (${current}/${max})'
+      folderCapReached: 'Batas tingkat folder tercapai'
+      folderSegmentHint: '%authorcache, variabel, atau teks tetap'
+      fileSegmentHint: 'mis. %title_%quality'
+      videoCapNote: 'Ekstensi (.mp4) ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat'
+      imageCapNote: 'Ekstensi asli ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat'
+      galleryCapNote: 'Templat galeri seluruhnya segmen folder, maksimal ${max} tingkat · gambar dalam memakai penamaan ID gambar'
+      trayHint: 'Ketuk untuk menyisipkan di posisi kursor · tahan untuk keterangan'
+      emptySegment: 'Segmen kosong'
+      emptySegmentSaveBlocked: 'Tidak bisa menyimpan: ada segmen kosong, hapus atau isi dulu'
+      savedToast: 'Tersimpan · hanya memengaruhi unduhan berikutnya'
+      trayCategoryContent: 'Konten'
+      trayCategoryAuthor: 'Penulis'
+      trayCategoryTime: 'Waktu'
+      chipAuthorcache: 'Nama penulis·tetap'
 favoriteTags:
   title: Tag Favorit
   emptyIwara: Belum ada tag Iwara favorit
@@ -1733,7 +1778,9 @@ download:
   download: Unduh
   selectDownloadTitle: Pilih Unduhan
   qualitySectionLabel: Kualitas
-  saveToSectionLabel: Simpan ke
+  categorySectionLabel: 'Kategori'
+  saveToPreviewLabel: 'Akan disimpan ke'
+  saveToPreviewSuggested: 'Nama file saran: ${name} (bisa diubah di dialog sistem)'
   lastUsedBadge: Terakhir digunakan
   pickedBadge: Dipilih
   startDownloading: Mulai Mengunduh
@@ -1817,6 +1864,46 @@ download:
     banner: '${num} tugas yang belum selesai dari sesi terakhir telah dijeda'
     resume: Lanjutkan semua
     dismiss: Tutup
+  actions:
+    open: Open
+    play: Play
+    openWith: Open with another app
+    redownload: Download again
+    relocate: Move files to…
+    categorize: Categorize…
+    viewOnline: View online page
+    delete: Delete…
+    redownloadStarted: 'Started downloading ${count} items again'
+    redownloadNone: Nothing to download again
+    deleteTitle: 'Delete ${count} downloads?'
+    deleteSummary: '${count} items · ${size}'
+    deleteSummaryNoSize: '${count} items'
+    deleteGalleryNote: 'Size of ${count} galleries not included'
+    deleteFiles: Also delete files from disk
+    deleteFilesDesc: When off, only the list entries are removed and the files stay where they are
+    deleteFilesAllMissing: The files are already gone; only the entries will be removed
+    deleteDone: 'Deleted ${count} items'
+    deletePartial: 'Could not delete the files of ${failed} items (they may be in use); their entries were kept'
+    removeRecordAnyway: Remove entries anyway
+    fileMissing: File is missing
+    filePending: File not found right now, it may still be recoverable
+    statusActive: In progress
+    statusCompleted: Completed
+    needsAttention: Needs attention
+    needsAttentionCount: 'Needs attention · ${count}'
+    organize: Organize
+    checkIntegrity: Check file integrity…
+    migrateToCurrent: Move to current download folder…
+    migrateNone: Everything is already in the current download folder
+  notice:
+    failed: '${count} downloads failed'
+    retryAll: Retry all
+    view: View
+    missing: 'Files of ${count} downloaded items are missing'
+    handle: Handle…
+    outside: '${count} items are still in the old download folder'
+    migrate: Move
+    dismiss: Dismiss
   emptyTaskList: Belum ada tugas unduhan
   noMatchingTasks: Tidak ada tugas yang cocok
   deleteByDate:
@@ -1837,6 +1924,141 @@ download:
     deleting: 'Menghapus ${done}/${total}…'
     resultSuccess: 'Menghapus ${count} tugas'
     resultPartial: 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)'
+  relocation:
+    moveFiles: Move files
+    moveFilesEllipsis: Move files…
+    chooseDestination: Move files to
+    currentDownloadDir: Current download folder
+    otherFolder: Choose another folder…
+    pickerUnsupported: Folders can't be picked on this device. Downloads stay in the app's own folder.
+    planning: Checking files…
+    confirmTitle: Move files?
+    confirmNote: Files are moved on disk. Watch progress, VR settings and favorites move with them.
+    nothingToMove: Nothing in the selection can be moved. See the reason for each item below.
+    move: Move
+    moving: 'Moving ${done}/${total}'
+    stop: Stop
+    stopping: Stopping after the current item…
+    resultTitle: Move finished
+    resultMoved: '${count} item(s) moved'
+    cancelled: Stopped. Items already moved are complete.
+    alreadyRunning: Another move is already in progress
+    destination: Destination
+    statMove: To move
+    statSkip: Skipped
+    statRenamed: Renamed
+    statMoved: Moved
+    statFailed: Not moved
+    statLeftover: Left behind
+    sectionMove: Will be moved
+    sectionSkip: Will be skipped
+    sectionMoved: Moved
+    sectionFailed: Not moved (left where it was)
+    sectionLeftover: Old folders not fully removed
+    leftoverHint: The copy at the new location is complete. These leftovers can be deleted.
+    from: From
+    to: To
+    renamedBadge: 'Name taken, will be saved as "${name}"'
+    showPaths: Show paths
+    hidePaths: Hide paths
+    revealInFolder: Show in folder
+    copyPath: Copy path
+    pathCopied: Path copied
+    stateDownloading: 'downloading, ${percent}%'
+    statePending: waiting to download
+    statePaused: 'paused at ${percent}%'
+    stateFailed: download failed
+    skipAlreadyThere: Already in this folder
+    skipInsideSource: The destination is inside this gallery's own folder
+    reasonBusy: Busy with another operation (deleting or moving)
+    reasonSourceLocked: The file is in use (for example, playing), so it couldn't be removed from the old location. Nothing was changed.
+    reasonNoSpace: The destination ran out of space. The rest of the batch was stopped.
+    reasonVerifyFailed: The copy didn't match the original's size. The copy was discarded.
+    reasonIoError: Couldn't read or write the file. Nothing was changed.
+    systemMessage: 'System message: ${message}'
+    outsideTitle: '${count} downloaded item(s) are outside this folder'
+    outsideSubtitle: They still play where they are. Move them here to keep everything together.
+    moveHere: Move here
+    missingTitle: Files not found
+    recordedLocation: Recorded location
+    legendExists: still exists
+    legendMissing: missing
+    diagVolume: 'Storage "${volume}" is not available. The SD card or external drive may not be connected.'
+    diagVolumeShort: 'storage "${volume}" not connected'
+    diagContainer: 'After an app update, the system moved the app''s storage. The file is still here:'
+    diagContainerShort: app storage moved after update
+    diagNoAccess: The app doesn't have permission to read this location. Grant "All files access" and check again.
+    diagNoAccessShort: no permission to read this location
+    diagFolder: 'The folder "${folder}" no longer exists.'
+    diagFolderShort: 'folder "${folder}" no longer exists'
+    diagFile: 'The folder is still there, but "${name}" isn''t in it.'
+    diagFileShort: 'not found in its folder'
+    diagCandidates: 'Found something in that folder that looks like it (maybe renamed):'
+    diagNoCandidates: Nothing with the same size was found in that folder.
+    useThis: Use this
+    fixPath: Fix path
+    checkAgain: Check again
+    grantPermission: Grant permission
+    locate: Find in another folder…
+    deleteRecord: Delete record
+    locateNotFound: This download's files aren't in that folder
+    located: Found. The record now points to the new location.
+    stillMissing: Still not found
+    downloadedOn: 'Downloaded ${date}'
+    galleryImages: '${count} images'
+    unfinishedDownloading: 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues'
+    unfinishedPending: 'Waiting to download: re-queued after the move'
+    unfinishedPaused: 'Paused at ${percent}%: the downloaded part moves too, stays paused'
+    unfinishedFailed: 'Download failed: the downloaded part moves too'
+    noDataYet: 'Nothing downloaded yet, only the save location changes'
+    missingGroup: '${count} item(s) with missing files'
+    missingSkip: 'Leave as is'
+    missingRedownload: 'Re-download to the destination'
+    missingRemove: 'Remove records'
+    missingRemoveVolumeNote: '${count} of them are on storage that isnt connected and wont be removed'
+    failedGroup: '${count} failed download(s)'
+    failedMoveOnly: 'Just move'
+    failedMoveAndRetry: 'Move, then re-download'
+    failedRemove: 'Remove tasks'
+    failedRemoveNote: 'Their partially downloaded files are deleted too'
+    execute: 'Apply'
+    actionWillRedownload: 'Will be re-downloaded to the destination'
+    actionWillRemove: 'This record will be removed'
+    actionWillKeep: 'Storage not connected, will be kept'
+    actionWillRetry: 'Re-downloaded after the move'
+    actionWillRemoveTask: 'This task will be removed'
+    statRedownload: 'Re-download'
+    statRemoved: 'Removed'
+    sectionRedownloaded: 'Re-download started'
+    sectionRedownloadFailed: 'Couldnt start re-download'
+    redownloadFailedHint: 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.'
+    sectionRemoved: 'Removed'
+    sectionKept: 'Kept (storage not connected)'
+    redownload: 'Re-download'
+    redownloadStarted: 'Re-download started'
+    redownloadNotStarted: 'Couldnt start re-download'
+    diagFileShortWithCandidates: 'a file with the same size is in its folder, maybe renamed'
+    cleanupMenu: 'Clean up broken records…'
+    cleanupScanning: 'Checking ${done}/${total}'
+    cleanupTitle: 'Clean up broken records'
+    cleanupNone: 'Checked ${count} completed download(s). All files are there.'
+    statChecked: 'Checked'
+    statMissing: 'Missing'
+    statKeep: 'Keep'
+    cleanupGroupGone: 'Files are gone'
+    cleanupGroupRecoverable: 'May still be recoverable'
+    cleanupRecoverableHint: 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.'
+    selectAll: 'Select all'
+    selectNone: 'Select none'
+    removeSelected: 'Remove selected (${count})'
+    redownloadSelected: 'Re-download selected (${count})'
+    processing: 'Processing ${done}/${total}'
+    cleanupRemoved: '${count} record(s) removed'
+    cleanupRedownloaded: 'Re-download started for ${count} item(s)'
+    tapForDetail: 'Details'
+    deleteRecordFailed: 'Couldnt delete the record. Try again later.'
+    sectionNotAttempted: 'Not processed (stopped, left as is)'
+    unexpectedError: 'Stopped because of an error: ${message}. Items already moved are complete.'
   category:
     manageTitle: Kelola kategori
     label: Kategori
@@ -1861,6 +2083,80 @@ download:
     deleteConfirm: 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.'
     deleteSuccess: Kategori dihapus
     deleteFailed: Gagal menghapus kategori
+  location:
+    sectionTitle: Save location
+    behaviorSection: Download behavior
+    namingSection: File naming
+    advancedSection: Advanced
+    advancedSubtitle: Write diagnostics and other tools
+    volumeInternal: Internal storage
+    volumeSdCard: SD card
+    volumeExternalDrive: External drive
+    appSpace: App-only storage
+    downloadsFolder: Downloads
+    askEveryTime: Ask every time
+    askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    freeSpace: '${size} free'
+    statusWritable: Writable
+    statusNeedsPermission: Needs permission
+    statusFallback: Temporarily redirected
+    statusLowSpace: Low space
+    statusChecking: Checking
+    grant: Grant
+    fix: Fix
+    changeLocation: Change location
+    openInFileManager: Open in file manager
+    moreActions: More
+    copyPath: Copy path
+    pathCopied: Path copied
+    manualInput: Enter path manually (advanced)
+    restoreDefault: Restore default
+    runDiagnostics: Run diagnostics
+    restoredDefault: Restored the default location
+    sheetTitle: Choose download location
+    chooseOtherFolder: Choose another folder…
+    chooseOtherFolderDesc: Pick one with the system file picker
+    optionRecommendedDesc: Recommended · no permission needed
+    optionRecommendedLegacyDesc: Recommended · needs storage permission
+    optionAppPrivateDesc: Deleted on uninstall · hidden from the gallery
+    optionRemovableDesc: 'Needs "All files access"'
+    optionDesktopDownloadsDesc: Recommended · your Downloads folder
+    optionAskEveryTimeDesc: Pick a folder for each download
+    current: Current
+    fallbackBanner: Your last download was temporarily saved to app storage because the chosen folder could not be used.
+    fallbackReasonPermission: storage permission is missing
+    fallbackReasonVolumeMissing: the storage device is not connected
+    fallbackReasonCannotCreate: the folder could not be created
+    fallbackReasonNotWritable: the folder cannot be written to
+    fallbackDetail: 'Temporarily redirected: ${reason}'
+    errorUnresolvable: This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.
+    errorNotWritable: This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.
+    errorVolumeMissing: This storage device cannot be found (removed or not connected). The location was not changed.
+    permissionTitle: Permission needed
+    permissionAllFiles: 'Writing to this folder needs "All files access". If you''d rather not allow that, use "Downloads › LoveIwara" instead.'
+    permissionLegacy: 'Writing to this folder needs the storage permission. If you''d rather not allow that, use app-only storage instead.'
+    useDownloadsInstead: Use Downloads › LoveIwara
+    useAppSpaceInstead: Use app-only storage
+    goToSettings: Grant
+    permissionDenied: Permission was not granted. The location was not changed.
+    checking: Checking this location…
+    confirmTitle: Use this location?
+    confirmFree: '${size} free'
+    confirmOutside: '${count} downloaded item(s) stay in the old location'
+    confirmOutsideDesc: New downloads will be saved here. What about the ones you already have?
+    moveThem: Move them here
+    keepThem: Keep them where they are
+    decideLater: Decide later
+    useThisLocation: Use this location
+    locationChanged: Download location changed
+    manualTitle: Enter path manually
+    manualLabel: Folder path
+    manualHint: 'e.g. /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: Check and use
+    manualEmpty: Enter a path
+    manualNotAbsolute: Enter a full absolute path
+    fixStillFailing: This location still cannot be used. Choose another one.
+    fixed: The location works again
   maxConcurrentDownloads: Unduhan bersamaan maksimum
   maxConcurrentDownloadsDesc: 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)'
   stillInDevelopment: Masih dalam pengembangan
@@ -1904,6 +2200,11 @@ downloadNotifications:
   failedBody: '${name} gagal diunduh'
   completedToast: '${name} telah diunduh'
   failedToast: 'Unduhan ${name} gagal'
+  savedToFolder: 'Tersimpan di ${dir}'
+  savedAsRenamed: 'Tersimpan sebagai ${name} (sudah ada file bernama sama)'
+  savedToAppFolder: 'Tersimpan di folder aplikasi — tidak bisa menulis ${target} (${reason})'
+  viewFolder: 'Lihat folder'
+  fixInSettings: 'Perbaiki di Pengaturan'
   channelName: Status unduhan
   channelDescription: Notifikasi untuk unduhan yang selesai dan gagal
 
@@ -2293,6 +2594,7 @@ mediaPlayer:
   localVideoPathEmpty: "Jalur video lokal kosong"
   localVideoFileNotExists: "Berkas video lokal tidak ada: ${path}"
   unableToPlayLocalVideo: "Tidak dapat memutar video lokal: ${error}"
+  unableToPlayNasVideo: "Unable to play the NAS video: ${error}"
   # File drag and drop
   dropVideoFileHere: "Jatuhkan berkas video di sini untuk memutar"
   supportedFormats: "Format yang didukung: MP4, MKV, AVI, MOV, WEBM, dll."
@@ -3157,6 +3459,87 @@ localMedia:
   addFolder: Tambah folder
   addDeviceVideos: Pindai video perangkat
   mediaStoreSourceName: Video perangkat
+  scanQueued: "Waiting to scan"
+  itemInfo: "File info"
+  revealInFolder: "Show in folder"
+  rescanAll: "Rescan all"
+  rescanAllStarted: "Rescanning ${count} sources"
+  searchLibrary: "Search"
+  searchIncludeSubfolders: "Include subfolders"
+  searchThisFolderOnly: "This folder only"
+  searchResultCount: "Found ${count}"
+  savedServers: "Saved NAS"
+  newServer: "Connect a new NAS"
+  itemInfoLabels:
+    size: "Size"
+    resolution: "Resolution"
+    duration: "Duration"
+    modified: "Modified"
+    lastPlayed: "Last played"
+    neverPlayed: "Not watched yet"
+    completed: "Finished"
+  addSource: "Add source"
+  addSourceKinds: "Folder · NAS"
+  openSettings: "Open settings"
+  removeSourceLoses: "This also clears the following, and re-adding won't bring it back: ${items}"
+  loseProgress: "${count} watch progress"
+  loseFavorites: "${count} featured"
+  losePinned: "${count} pinned folders"
+  loseHidden: "${count} hidden folders"
+  loseCovers: "${count} custom covers"
+  renameSource: "Rename"
+  renameSourceTitle: "Rename source"
+  renameSourceLabel: "Name"
+  renamed: "Renamed"
+  nasAggregateHint: "NAS content only includes folders you have opened. Videos and images in folders you haven't opened won't show up here."
+  rescanDone: "\"${name}\" updated"
+  unknownSourceHint: This source needs a newer version of the app
+  missing:
+    title: "Can't find this file"
+    rescanFolder: "Rescan folder"
+    relistNas: "Refresh this folder"
+    removeFromList: "Remove from list"
+    removed: "Removed from the list. The file on disk was not touched"
+    found: "Found it"
+    nasGone: "\"${name}\" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now."
+  webdav:
+    addNas: "Connect NAS (WebDAV)"
+    connectTitle: "Connect NAS"
+    editTitle: "Sign in to NAS again"
+    hint: "Turn on the WebDAV service in your NAS settings, then enter its address and account."
+    address: "Address"
+    addressHint: "e.g. 192.168.1.10:5005"
+    username: "Username"
+    password: "Password"
+    displayName: "Name (optional)"
+    connect: "Connect"
+    invalidAddress: "Invalid address"
+    errorAuth: "Wrong username or password"
+    errorUnreachable: "Can't reach the server. Check the address and port, and that this device is on the same network as the NAS"
+    errorNotWebdav: "This address is not a WebDAV service"
+    errorGeneric: "Connection failed (${code})"
+    errorCredUnreadable: "Couldn't read the saved password. Try again later"
+    certTitle: "Trust this server?"
+    certBody: "The server's certificate isn't trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:"
+    certChangedBody: "This server's certificate is different from the one you trusted before. If you didn't replace your NAS certificate, someone may be impersonating it. Don't continue."
+    trust: "Trust"
+    pickRootTitle: "Choose a folder to add"
+    serverRoot: "Root"
+    alreadyAdded: "This NAS folder has already been added"
+    relogin: "Sign in again"
+    stateAuthFailed: "Sign-in required"
+    stateCertUntrusted: "Server certificate changed"
+    stateUnreachable: "Can't reach NAS"
+    stateCredUnreadable: "Couldn't read password"
+    connected: "Connected"
+    errorForbidden: "This account has no WebDAV access. Grant it WebDAV permission in the NAS settings."
+    errorTls: "Secure connection failed. Check that http:// or https:// matches the NAS settings."
+    errorTryHttps: "If the NAS only serves HTTPS, add https:// in front of the address."
+    previousStep: "Back"
+    bannerUnreachable: "Can't reach the NAS. Showing what was seen last time."
+    bannerAuthFailed: "Login expired. Sign in again to see the latest content."
+    bannerCertUntrusted: "The NAS certificate changed. Confirm it to continue."
+    bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Indeks media perangkat hanya tersedia di Android
   mediaStorePermissionDenied: Akses video tidak diberikan
   rescan: Pindai ulang

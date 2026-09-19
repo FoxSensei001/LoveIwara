@@ -1378,7 +1378,9 @@ class _TranslationsDownloadId extends TranslationsDownloadEn {
 	@override String get download => 'Unduh';
 	@override String get selectDownloadTitle => 'Pilih Unduhan';
 	@override String get qualitySectionLabel => 'Kualitas';
-	@override String get saveToSectionLabel => 'Simpan ke';
+	@override String get categorySectionLabel => 'Kategori';
+	@override String get saveToPreviewLabel => 'Akan disimpan ke';
+	@override String saveToPreviewSuggested({required Object name}) => 'Nama file saran: ${name} (bisa diubah di dialog sistem)';
 	@override String get lastUsedBadge => 'Terakhir digunakan';
 	@override String get pickedBadge => 'Dipilih';
 	@override String get startDownloading => 'Mulai Mengunduh';
@@ -1447,10 +1449,14 @@ class _TranslationsDownloadId extends TranslationsDownloadEn {
 	@override String get errorDetailCopied => 'Rincian kesalahan disalin';
 	@override String get errorDetailCopyHint => 'Tekan lama untuk menyalin rincian kesalahan';
 	@override late final _TranslationsDownloadRestoredPausedId restoredPaused = _TranslationsDownloadRestoredPausedId._(_root);
+	@override late final _TranslationsDownloadActionsId actions = _TranslationsDownloadActionsId._(_root);
+	@override late final _TranslationsDownloadNoticeId notice = _TranslationsDownloadNoticeId._(_root);
 	@override String get emptyTaskList => 'Belum ada tugas unduhan';
 	@override String get noMatchingTasks => 'Tidak ada tugas yang cocok';
 	@override late final _TranslationsDownloadDeleteByDateId deleteByDate = _TranslationsDownloadDeleteByDateId._(_root);
+	@override late final _TranslationsDownloadRelocationId relocation = _TranslationsDownloadRelocationId._(_root);
 	@override late final _TranslationsDownloadCategoryId category = _TranslationsDownloadCategoryId._(_root);
+	@override late final _TranslationsDownloadLocationId location = _TranslationsDownloadLocationId._(_root);
 	@override String get maxConcurrentDownloads => 'Unduhan bersamaan maksimum';
 	@override String get maxConcurrentDownloadsDesc => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)';
 	@override String get stillInDevelopment => 'Masih dalam pengembangan';
@@ -1474,6 +1480,11 @@ class _TranslationsDownloadNotificationsId extends TranslationsDownloadNotificat
 	@override String failedBody({required Object name}) => '${name} gagal diunduh';
 	@override String completedToast({required Object name}) => '${name} telah diunduh';
 	@override String failedToast({required Object name}) => 'Unduhan ${name} gagal';
+	@override String savedToFolder({required Object dir}) => 'Tersimpan di ${dir}';
+	@override String savedAsRenamed({required Object name}) => 'Tersimpan sebagai ${name} (sudah ada file bernama sama)';
+	@override String savedToAppFolder({required Object target, required Object reason}) => 'Tersimpan di folder aplikasi — tidak bisa menulis ${target} (${reason})';
+	@override String get viewFolder => 'Lihat folder';
+	@override String get fixInSettings => 'Perbaiki di Pengaturan';
 	@override String get channelName => 'Status unduhan';
 	@override String get channelDescription => 'Notifikasi untuk unduhan yang selesai dan gagal';
 }
@@ -1885,6 +1896,7 @@ class _TranslationsMediaPlayerId extends TranslationsMediaPlayerEn {
 	@override String get localVideoPathEmpty => 'Jalur video lokal kosong';
 	@override String localVideoFileNotExists({required Object path}) => 'Berkas video lokal tidak ada: ${path}';
 	@override String unableToPlayLocalVideo({required Object error}) => 'Tidak dapat memutar video lokal: ${error}';
+	@override String unableToPlayNasVideo({required Object error}) => 'Unable to play the NAS video: ${error}';
 	@override String get dropVideoFileHere => 'Jatuhkan berkas video di sini untuk memutar';
 	@override String get supportedFormats => 'Format yang didukung: MP4, MKV, AVI, MOV, WEBM, dll.';
 	@override String get noSupportedVideoFile => 'Tidak ditemukan berkas video yang didukung';
@@ -2674,6 +2686,36 @@ class _TranslationsLocalMediaId extends TranslationsLocalMediaEn {
 	@override String get addFolder => 'Tambah folder';
 	@override String get addDeviceVideos => 'Pindai video perangkat';
 	@override String get mediaStoreSourceName => 'Video perangkat';
+	@override String get scanQueued => 'Waiting to scan';
+	@override String get itemInfo => 'File info';
+	@override String get revealInFolder => 'Show in folder';
+	@override String get rescanAll => 'Rescan all';
+	@override String rescanAllStarted({required Object count}) => 'Rescanning ${count} sources';
+	@override String get searchLibrary => 'Search';
+	@override String get searchIncludeSubfolders => 'Include subfolders';
+	@override String get searchThisFolderOnly => 'This folder only';
+	@override String searchResultCount({required Object count}) => 'Found ${count}';
+	@override String get savedServers => 'Saved NAS';
+	@override String get newServer => 'Connect a new NAS';
+	@override late final _TranslationsLocalMediaItemInfoLabelsId itemInfoLabels = _TranslationsLocalMediaItemInfoLabelsId._(_root);
+	@override String get addSource => 'Add source';
+	@override String get addSourceKinds => 'Folder · NAS';
+	@override String get openSettings => 'Open settings';
+	@override String removeSourceLoses({required Object items}) => 'This also clears the following, and re-adding won\'t bring it back: ${items}';
+	@override String loseProgress({required Object count}) => '${count} watch progress';
+	@override String loseFavorites({required Object count}) => '${count} featured';
+	@override String losePinned({required Object count}) => '${count} pinned folders';
+	@override String loseHidden({required Object count}) => '${count} hidden folders';
+	@override String loseCovers({required Object count}) => '${count} custom covers';
+	@override String get renameSource => 'Rename';
+	@override String get renameSourceTitle => 'Rename source';
+	@override String get renameSourceLabel => 'Name';
+	@override String get renamed => 'Renamed';
+	@override String get nasAggregateHint => 'NAS content only includes folders you have opened. Videos and images in folders you haven\'t opened won\'t show up here.';
+	@override String rescanDone({required Object name}) => '"${name}" updated';
+	@override String get unknownSourceHint => 'This source needs a newer version of the app';
+	@override late final _TranslationsLocalMediaMissingId missing = _TranslationsLocalMediaMissingId._(_root);
+	@override late final _TranslationsLocalMediaWebdavId webdav = _TranslationsLocalMediaWebdavId._(_root);
 	@override String get mediaStoreUnavailable => 'Indeks media perangkat hanya tersedia di Android';
 	@override String get mediaStorePermissionDenied => 'Akses video tidak diberikan';
 	@override String get rescan => 'Pindai ulang';
@@ -3025,6 +3067,8 @@ class _TranslationsSettingsDownloadSettingsId extends TranslationsSettingsDownlo
 	@override String get testDownloadPathAndPermissions => 'Uji apakah jalur unduhan dan konfigurasi izin berfungsi dengan benar';
 	@override String get testResults => 'Hasil Uji';
 	@override String get testCompleted => 'Uji selesai';
+	@override String get testMultisegmentDomain => 'Validasi domain nilai (multi-segmen / kelebihan / bentuk pelolosan)';
+	@override String get testMultisegmentPaths => 'Render struktur multi-segmen (issue #126)';
 	@override String get testPassed => 'item lulus';
 	@override String get testFailed => 'Uji gagal';
 	@override String get testStoragePermissionCheck => 'Pemeriksaan Izin Penyimpanan';
@@ -3097,6 +3141,7 @@ class _TranslationsSettingsDownloadSettingsId extends TranslationsSettingsDownlo
 	@override String get downloadPathSetTo => 'Jalur unduhan diatur ke';
 	@override String get setPathFailed => 'Gagal mengatur jalur';
 	@override String get variableTitle => 'Judul';
+	@override String get variableAuthorcache => 'Nama pertama penulis (stabil meski nama diganti)';
 	@override String get variableAuthor => 'Nama penulis';
 	@override String get variableUsername => 'Nama pengguna penulis';
 	@override String get variableQuality => 'Kualitas video';
@@ -3111,6 +3156,26 @@ class _TranslationsSettingsDownloadSettingsId extends TranslationsSettingsDownlo
 	@override String get suchAsTitleQuality => 'Contoh: %title_%quality';
 	@override String get suchAsTitleId => 'Contoh: %title_%id';
 	@override String get suchAsTitleFilename => 'Contoh: %title_%filename';
+	@override String get structureSection => 'Struktur simpan & penamaan';
+	@override String get structureSectionDescription => 'File yang diunduh otomatis masuk subfolder sesuai skema di bawah. Hanya memengaruhi unduhan berikutnya; file yang sudah ada tidak diubah.';
+	@override String get structureNoticeTitle => 'Fitur baru: arsip otomatis per penulis';
+	@override String get structureNoticeBody => 'Pilih di bawah · hanya memengaruhi unduhan baru, file yang sudah ada tidak diubah.';
+	@override String get presetFlat => 'Rata';
+	@override String get presetFlatDesc => 'Semua file langsung di root unduhan';
+	@override String get presetAuthor => 'Per penulis';
+	@override String get presetAuthorBadge => 'Direkomendasikan';
+	@override String get presetAuthorDesc => 'Satu folder per penulis · tidak terpecah meski nama berubah';
+	@override String get presetDate => 'Per tanggal';
+	@override String get presetDateDesc => 'Dikelompokkan menurut tanggal unduh';
+	@override String get presetCustom => 'Kustom';
+	@override String get presetCustomDesc => 'Edit templat jalur dengan bebas';
+	@override String get presetCustomHint => 'Kustom: ubah aturan di editor templat jalur';
+	@override String get structurePreviewLabel => 'Pratinjau';
+	@override String get structurePreviewNote => 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.';
+	@override String get pathTooLongWarning => 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat';
+	@override String get pathTemplateEditorEntry => 'Templat jalur kustom';
+	@override String get pathTemplateEditorEntryDesc => 'Tentukan sendiri struktur folder dan nama file';
+	@override late final _TranslationsSettingsDownloadSettingsPathTemplateEditorId pathTemplateEditor = _TranslationsSettingsDownloadSettingsPathTemplateEditorId._(_root);
 }
 
 // Path: oreno3d.sortTypes
@@ -3532,6 +3597,62 @@ class _TranslationsDownloadRestoredPausedId extends TranslationsDownloadRestored
 	@override String get dismiss => 'Tutup';
 }
 
+// Path: download.actions
+class _TranslationsDownloadActionsId extends TranslationsDownloadActionsEn {
+	_TranslationsDownloadActionsId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get open => 'Open';
+	@override String get play => 'Play';
+	@override String get openWith => 'Open with another app';
+	@override String get redownload => 'Download again';
+	@override String get relocate => 'Move files to…';
+	@override String get categorize => 'Categorize…';
+	@override String get viewOnline => 'View online page';
+	@override String get delete => 'Delete…';
+	@override String redownloadStarted({required Object count}) => 'Started downloading ${count} items again';
+	@override String get redownloadNone => 'Nothing to download again';
+	@override String deleteTitle({required Object count}) => 'Delete ${count} downloads?';
+	@override String deleteSummary({required Object count, required Object size}) => '${count} items · ${size}';
+	@override String deleteSummaryNoSize({required Object count}) => '${count} items';
+	@override String deleteGalleryNote({required Object count}) => 'Size of ${count} galleries not included';
+	@override String get deleteFiles => 'Also delete files from disk';
+	@override String get deleteFilesDesc => 'When off, only the list entries are removed and the files stay where they are';
+	@override String get deleteFilesAllMissing => 'The files are already gone; only the entries will be removed';
+	@override String deleteDone({required Object count}) => 'Deleted ${count} items';
+	@override String deletePartial({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept';
+	@override String get removeRecordAnyway => 'Remove entries anyway';
+	@override String get fileMissing => 'File is missing';
+	@override String get filePending => 'File not found right now, it may still be recoverable';
+	@override String get statusActive => 'In progress';
+	@override String get statusCompleted => 'Completed';
+	@override String get needsAttention => 'Needs attention';
+	@override String needsAttentionCount({required Object count}) => 'Needs attention · ${count}';
+	@override String get organize => 'Organize';
+	@override String get checkIntegrity => 'Check file integrity…';
+	@override String get migrateToCurrent => 'Move to current download folder…';
+	@override String get migrateNone => 'Everything is already in the current download folder';
+}
+
+// Path: download.notice
+class _TranslationsDownloadNoticeId extends TranslationsDownloadNoticeEn {
+	_TranslationsDownloadNoticeId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String failed({required Object count}) => '${count} downloads failed';
+	@override String get retryAll => 'Retry all';
+	@override String get view => 'View';
+	@override String missing({required Object count}) => 'Files of ${count} downloaded items are missing';
+	@override String get handle => 'Handle…';
+	@override String outside({required Object count}) => '${count} items are still in the old download folder';
+	@override String get migrate => 'Move';
+	@override String get dismiss => 'Dismiss';
+}
+
 // Path: download.deleteByDate
 class _TranslationsDownloadDeleteByDateId extends TranslationsDownloadDeleteByDateEn {
 	_TranslationsDownloadDeleteByDateId._(TranslationsId root) : this._root = root, super.internal(root);
@@ -3556,6 +3677,149 @@ class _TranslationsDownloadDeleteByDateId extends TranslationsDownloadDeleteByDa
 	@override String deleting({required Object done, required Object total}) => 'Menghapus ${done}/${total}…';
 	@override String resultSuccess({required Object count}) => 'Menghapus ${count} tugas';
 	@override String resultPartial({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)';
+}
+
+// Path: download.relocation
+class _TranslationsDownloadRelocationId extends TranslationsDownloadRelocationEn {
+	_TranslationsDownloadRelocationId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get moveFiles => 'Move files';
+	@override String get moveFilesEllipsis => 'Move files…';
+	@override String get chooseDestination => 'Move files to';
+	@override String get currentDownloadDir => 'Current download folder';
+	@override String get otherFolder => 'Choose another folder…';
+	@override String get pickerUnsupported => 'Folders can\'t be picked on this device. Downloads stay in the app\'s own folder.';
+	@override String get planning => 'Checking files…';
+	@override String get confirmTitle => 'Move files?';
+	@override String get confirmNote => 'Files are moved on disk. Watch progress, VR settings and favorites move with them.';
+	@override String get nothingToMove => 'Nothing in the selection can be moved. See the reason for each item below.';
+	@override String get move => 'Move';
+	@override String moving({required Object done, required Object total}) => 'Moving ${done}/${total}';
+	@override String get stop => 'Stop';
+	@override String get stopping => 'Stopping after the current item…';
+	@override String get resultTitle => 'Move finished';
+	@override String resultMoved({required Object count}) => '${count} item(s) moved';
+	@override String get cancelled => 'Stopped. Items already moved are complete.';
+	@override String get alreadyRunning => 'Another move is already in progress';
+	@override String get destination => 'Destination';
+	@override String get statMove => 'To move';
+	@override String get statSkip => 'Skipped';
+	@override String get statRenamed => 'Renamed';
+	@override String get statMoved => 'Moved';
+	@override String get statFailed => 'Not moved';
+	@override String get statLeftover => 'Left behind';
+	@override String get sectionMove => 'Will be moved';
+	@override String get sectionSkip => 'Will be skipped';
+	@override String get sectionMoved => 'Moved';
+	@override String get sectionFailed => 'Not moved (left where it was)';
+	@override String get sectionLeftover => 'Old folders not fully removed';
+	@override String get leftoverHint => 'The copy at the new location is complete. These leftovers can be deleted.';
+	@override String get from => 'From';
+	@override String get to => 'To';
+	@override String renamedBadge({required Object name}) => 'Name taken, will be saved as "${name}"';
+	@override String get showPaths => 'Show paths';
+	@override String get hidePaths => 'Hide paths';
+	@override String get revealInFolder => 'Show in folder';
+	@override String get copyPath => 'Copy path';
+	@override String get pathCopied => 'Path copied';
+	@override String stateDownloading({required Object percent}) => 'downloading, ${percent}%';
+	@override String get statePending => 'waiting to download';
+	@override String statePaused({required Object percent}) => 'paused at ${percent}%';
+	@override String get stateFailed => 'download failed';
+	@override String get skipAlreadyThere => 'Already in this folder';
+	@override String get skipInsideSource => 'The destination is inside this gallery\'s own folder';
+	@override String get reasonBusy => 'Busy with another operation (deleting or moving)';
+	@override String get reasonSourceLocked => 'The file is in use (for example, playing), so it couldn\'t be removed from the old location. Nothing was changed.';
+	@override String get reasonNoSpace => 'The destination ran out of space. The rest of the batch was stopped.';
+	@override String get reasonVerifyFailed => 'The copy didn\'t match the original\'s size. The copy was discarded.';
+	@override String get reasonIoError => 'Couldn\'t read or write the file. Nothing was changed.';
+	@override String systemMessage({required Object message}) => 'System message: ${message}';
+	@override String outsideTitle({required Object count}) => '${count} downloaded item(s) are outside this folder';
+	@override String get outsideSubtitle => 'They still play where they are. Move them here to keep everything together.';
+	@override String get moveHere => 'Move here';
+	@override String get missingTitle => 'Files not found';
+	@override String get recordedLocation => 'Recorded location';
+	@override String get legendExists => 'still exists';
+	@override String get legendMissing => 'missing';
+	@override String diagVolume({required Object volume}) => 'Storage "${volume}" is not available. The SD card or external drive may not be connected.';
+	@override String diagVolumeShort({required Object volume}) => 'storage "${volume}" not connected';
+	@override String get diagContainer => 'After an app update, the system moved the app\'s storage. The file is still here:';
+	@override String get diagContainerShort => 'app storage moved after update';
+	@override String get diagNoAccess => 'The app doesn\'t have permission to read this location. Grant "All files access" and check again.';
+	@override String get diagNoAccessShort => 'no permission to read this location';
+	@override String diagFolder({required Object folder}) => 'The folder "${folder}" no longer exists.';
+	@override String diagFolderShort({required Object folder}) => 'folder "${folder}" no longer exists';
+	@override String diagFile({required Object name}) => 'The folder is still there, but "${name}" isn\'t in it.';
+	@override String get diagFileShort => 'not found in its folder';
+	@override String get diagCandidates => 'Found something in that folder that looks like it (maybe renamed):';
+	@override String get diagNoCandidates => 'Nothing with the same size was found in that folder.';
+	@override String get useThis => 'Use this';
+	@override String get fixPath => 'Fix path';
+	@override String get checkAgain => 'Check again';
+	@override String get grantPermission => 'Grant permission';
+	@override String get locate => 'Find in another folder…';
+	@override String get deleteRecord => 'Delete record';
+	@override String get locateNotFound => 'This download\'s files aren\'t in that folder';
+	@override String get located => 'Found. The record now points to the new location.';
+	@override String get stillMissing => 'Still not found';
+	@override String downloadedOn({required Object date}) => 'Downloaded ${date}';
+	@override String galleryImages({required Object count}) => '${count} images';
+	@override String unfinishedDownloading({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues';
+	@override String get unfinishedPending => 'Waiting to download: re-queued after the move';
+	@override String unfinishedPaused({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused';
+	@override String get unfinishedFailed => 'Download failed: the downloaded part moves too';
+	@override String get noDataYet => 'Nothing downloaded yet, only the save location changes';
+	@override String missingGroup({required Object count}) => '${count} item(s) with missing files';
+	@override String get missingSkip => 'Leave as is';
+	@override String get missingRedownload => 'Re-download to the destination';
+	@override String get missingRemove => 'Remove records';
+	@override String missingRemoveVolumeNote({required Object count}) => '${count} of them are on storage that isnt connected and wont be removed';
+	@override String failedGroup({required Object count}) => '${count} failed download(s)';
+	@override String get failedMoveOnly => 'Just move';
+	@override String get failedMoveAndRetry => 'Move, then re-download';
+	@override String get failedRemove => 'Remove tasks';
+	@override String get failedRemoveNote => 'Their partially downloaded files are deleted too';
+	@override String get execute => 'Apply';
+	@override String get actionWillRedownload => 'Will be re-downloaded to the destination';
+	@override String get actionWillRemove => 'This record will be removed';
+	@override String get actionWillKeep => 'Storage not connected, will be kept';
+	@override String get actionWillRetry => 'Re-downloaded after the move';
+	@override String get actionWillRemoveTask => 'This task will be removed';
+	@override String get statRedownload => 'Re-download';
+	@override String get statRemoved => 'Removed';
+	@override String get sectionRedownloaded => 'Re-download started';
+	@override String get sectionRedownloadFailed => 'Couldnt start re-download';
+	@override String get redownloadFailedHint => 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.';
+	@override String get sectionRemoved => 'Removed';
+	@override String get sectionKept => 'Kept (storage not connected)';
+	@override String get redownload => 'Re-download';
+	@override String get redownloadStarted => 'Re-download started';
+	@override String get redownloadNotStarted => 'Couldnt start re-download';
+	@override String get diagFileShortWithCandidates => 'a file with the same size is in its folder, maybe renamed';
+	@override String get cleanupMenu => 'Clean up broken records…';
+	@override String cleanupScanning({required Object done, required Object total}) => 'Checking ${done}/${total}';
+	@override String get cleanupTitle => 'Clean up broken records';
+	@override String cleanupNone({required Object count}) => 'Checked ${count} completed download(s). All files are there.';
+	@override String get statChecked => 'Checked';
+	@override String get statMissing => 'Missing';
+	@override String get statKeep => 'Keep';
+	@override String get cleanupGroupGone => 'Files are gone';
+	@override String get cleanupGroupRecoverable => 'May still be recoverable';
+	@override String get cleanupRecoverableHint => 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.';
+	@override String get selectAll => 'Select all';
+	@override String get selectNone => 'Select none';
+	@override String removeSelected({required Object count}) => 'Remove selected (${count})';
+	@override String redownloadSelected({required Object count}) => 'Re-download selected (${count})';
+	@override String processing({required Object done, required Object total}) => 'Processing ${done}/${total}';
+	@override String cleanupRemoved({required Object count}) => '${count} record(s) removed';
+	@override String cleanupRedownloaded({required Object count}) => 'Re-download started for ${count} item(s)';
+	@override String get tapForDetail => 'Details';
+	@override String get deleteRecordFailed => 'Couldnt delete the record. Try again later.';
+	@override String get sectionNotAttempted => 'Not processed (stopped, left as is)';
+	@override String unexpectedError({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.';
 }
 
 // Path: download.category
@@ -3588,6 +3852,88 @@ class _TranslationsDownloadCategoryId extends TranslationsDownloadCategoryEn {
 	@override String deleteConfirm({required Object title, required Object count}) => 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.';
 	@override String get deleteSuccess => 'Kategori dihapus';
 	@override String get deleteFailed => 'Gagal menghapus kategori';
+}
+
+// Path: download.location
+class _TranslationsDownloadLocationId extends TranslationsDownloadLocationEn {
+	_TranslationsDownloadLocationId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get sectionTitle => 'Save location';
+	@override String get behaviorSection => 'Download behavior';
+	@override String get namingSection => 'File naming';
+	@override String get advancedSection => 'Advanced';
+	@override String get advancedSubtitle => 'Write diagnostics and other tools';
+	@override String get volumeInternal => 'Internal storage';
+	@override String get volumeSdCard => 'SD card';
+	@override String get volumeExternalDrive => 'External drive';
+	@override String get appSpace => 'App-only storage';
+	@override String get downloadsFolder => 'Downloads';
+	@override String get askEveryTime => 'Ask every time';
+	@override String askEveryTimeDesc({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}';
+	@override String freeSpace({required Object size}) => '${size} free';
+	@override String get statusWritable => 'Writable';
+	@override String get statusNeedsPermission => 'Needs permission';
+	@override String get statusFallback => 'Temporarily redirected';
+	@override String get statusLowSpace => 'Low space';
+	@override String get statusChecking => 'Checking';
+	@override String get grant => 'Grant';
+	@override String get fix => 'Fix';
+	@override String get changeLocation => 'Change location';
+	@override String get openInFileManager => 'Open in file manager';
+	@override String get moreActions => 'More';
+	@override String get copyPath => 'Copy path';
+	@override String get pathCopied => 'Path copied';
+	@override String get manualInput => 'Enter path manually (advanced)';
+	@override String get restoreDefault => 'Restore default';
+	@override String get runDiagnostics => 'Run diagnostics';
+	@override String get restoredDefault => 'Restored the default location';
+	@override String get sheetTitle => 'Choose download location';
+	@override String get chooseOtherFolder => 'Choose another folder…';
+	@override String get chooseOtherFolderDesc => 'Pick one with the system file picker';
+	@override String get optionRecommendedDesc => 'Recommended · no permission needed';
+	@override String get optionRecommendedLegacyDesc => 'Recommended · needs storage permission';
+	@override String get optionAppPrivateDesc => 'Deleted on uninstall · hidden from the gallery';
+	@override String get optionRemovableDesc => 'Needs "All files access"';
+	@override String get optionDesktopDownloadsDesc => 'Recommended · your Downloads folder';
+	@override String get optionAskEveryTimeDesc => 'Pick a folder for each download';
+	@override String get current => 'Current';
+	@override String get fallbackBanner => 'Your last download was temporarily saved to app storage because the chosen folder could not be used.';
+	@override String get fallbackReasonPermission => 'storage permission is missing';
+	@override String get fallbackReasonVolumeMissing => 'the storage device is not connected';
+	@override String get fallbackReasonCannotCreate => 'the folder could not be created';
+	@override String get fallbackReasonNotWritable => 'the folder cannot be written to';
+	@override String fallbackDetail({required Object reason}) => 'Temporarily redirected: ${reason}';
+	@override String get errorUnresolvable => 'This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.';
+	@override String get errorNotWritable => 'This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.';
+	@override String get errorVolumeMissing => 'This storage device cannot be found (removed or not connected). The location was not changed.';
+	@override String get permissionTitle => 'Permission needed';
+	@override String get permissionAllFiles => 'Writing to this folder needs "All files access". If you\'d rather not allow that, use "Downloads › LoveIwara" instead.';
+	@override String get permissionLegacy => 'Writing to this folder needs the storage permission. If you\'d rather not allow that, use app-only storage instead.';
+	@override String get useDownloadsInstead => 'Use Downloads › LoveIwara';
+	@override String get useAppSpaceInstead => 'Use app-only storage';
+	@override String get goToSettings => 'Grant';
+	@override String get permissionDenied => 'Permission was not granted. The location was not changed.';
+	@override String get checking => 'Checking this location…';
+	@override String get confirmTitle => 'Use this location?';
+	@override String confirmFree({required Object size}) => '${size} free';
+	@override String confirmOutside({required Object count}) => '${count} downloaded item(s) stay in the old location';
+	@override String get confirmOutsideDesc => 'New downloads will be saved here. What about the ones you already have?';
+	@override String get moveThem => 'Move them here';
+	@override String get keepThem => 'Keep them where they are';
+	@override String get decideLater => 'Decide later';
+	@override String get useThisLocation => 'Use this location';
+	@override String get locationChanged => 'Download location changed';
+	@override String get manualTitle => 'Enter path manually';
+	@override String get manualLabel => 'Folder path';
+	@override String get manualHint => 'e.g. /storage/emulated/0/Download/LoveIwara';
+	@override String get manualSubmit => 'Check and use';
+	@override String get manualEmpty => 'Enter a path';
+	@override String get manualNotAbsolute => 'Enter a full absolute path';
+	@override String get fixStillFailing => 'This location still cannot be used. Choose another one.';
+	@override String get fixed => 'The location works again';
 }
 
 // Path: download.batchDownload
@@ -4013,6 +4359,115 @@ class _TranslationsLocalMediaBrowseId extends TranslationsLocalMediaBrowseEn {
 	@override String get folderInfoNoPath => 'Sumber ini tidak memiliki folder untuk dibuka';
 	@override String get copyPath => 'Salin jalur';
 	@override String get pathCopied => 'Jalur disalin';
+}
+
+// Path: localMedia.itemInfoLabels
+class _TranslationsLocalMediaItemInfoLabelsId extends TranslationsLocalMediaItemInfoLabelsEn {
+	_TranslationsLocalMediaItemInfoLabelsId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get size => 'Size';
+	@override String get resolution => 'Resolution';
+	@override String get duration => 'Duration';
+	@override String get modified => 'Modified';
+	@override String get lastPlayed => 'Last played';
+	@override String get neverPlayed => 'Not watched yet';
+	@override String get completed => 'Finished';
+}
+
+// Path: localMedia.missing
+class _TranslationsLocalMediaMissingId extends TranslationsLocalMediaMissingEn {
+	_TranslationsLocalMediaMissingId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Can\'t find this file';
+	@override String get rescanFolder => 'Rescan folder';
+	@override String get relistNas => 'Refresh this folder';
+	@override String get removeFromList => 'Remove from list';
+	@override String get removed => 'Removed from the list. The file on disk was not touched';
+	@override String get found => 'Found it';
+	@override String nasGone({required Object name}) => '"${name}" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now.';
+}
+
+// Path: localMedia.webdav
+class _TranslationsLocalMediaWebdavId extends TranslationsLocalMediaWebdavEn {
+	_TranslationsLocalMediaWebdavId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get addNas => 'Connect NAS (WebDAV)';
+	@override String get connectTitle => 'Connect NAS';
+	@override String get editTitle => 'Sign in to NAS again';
+	@override String get hint => 'Turn on the WebDAV service in your NAS settings, then enter its address and account.';
+	@override String get address => 'Address';
+	@override String get addressHint => 'e.g. 192.168.1.10:5005';
+	@override String get username => 'Username';
+	@override String get password => 'Password';
+	@override String get displayName => 'Name (optional)';
+	@override String get connect => 'Connect';
+	@override String get invalidAddress => 'Invalid address';
+	@override String get errorAuth => 'Wrong username or password';
+	@override String get errorUnreachable => 'Can\'t reach the server. Check the address and port, and that this device is on the same network as the NAS';
+	@override String get errorNotWebdav => 'This address is not a WebDAV service';
+	@override String errorGeneric({required Object code}) => 'Connection failed (${code})';
+	@override String get errorCredUnreadable => 'Couldn\'t read the saved password. Try again later';
+	@override String get certTitle => 'Trust this server?';
+	@override String get certBody => 'The server\'s certificate isn\'t trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:';
+	@override String get certChangedBody => 'This server\'s certificate is different from the one you trusted before. If you didn\'t replace your NAS certificate, someone may be impersonating it. Don\'t continue.';
+	@override String get trust => 'Trust';
+	@override String get pickRootTitle => 'Choose a folder to add';
+	@override String get serverRoot => 'Root';
+	@override String get alreadyAdded => 'This NAS folder has already been added';
+	@override String get relogin => 'Sign in again';
+	@override String get stateAuthFailed => 'Sign-in required';
+	@override String get stateCertUntrusted => 'Server certificate changed';
+	@override String get stateUnreachable => 'Can\'t reach NAS';
+	@override String get stateCredUnreadable => 'Couldn\'t read password';
+	@override String get connected => 'Connected';
+	@override String get errorForbidden => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.';
+	@override String get errorTls => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.';
+	@override String get errorTryHttps => 'If the NAS only serves HTTPS, add https:// in front of the address.';
+	@override String get previousStep => 'Back';
+	@override String get bannerUnreachable => 'Can\'t reach the NAS. Showing what was seen last time.';
+	@override String get bannerAuthFailed => 'Login expired. Sign in again to see the latest content.';
+	@override String get bannerCertUntrusted => 'The NAS certificate changed. Confirm it to continue.';
+	@override String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
+}
+
+// Path: settings.downloadSettings.pathTemplateEditor
+class _TranslationsSettingsDownloadSettingsPathTemplateEditorId extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
+	_TranslationsSettingsDownloadSettingsPathTemplateEditorId._(TranslationsId root) : this._root = root, super.internal(root);
+
+	final TranslationsId _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Templat jalur';
+	@override String get subtitle => 'Otomatis memilah unduhan ke subfolder';
+	@override String get tabVideo => 'Video';
+	@override String get tabGallery => 'Galeri';
+	@override String get tabImage => 'Gambar tunggal';
+	@override String get previewLabel => 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan';
+	@override String get galleryPreviewLabel => 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)';
+	@override String addFolder({required Object current, required Object max}) => 'Tambah satu tingkat folder (${current}/${max})';
+	@override String get folderCapReached => 'Batas tingkat folder tercapai';
+	@override String get folderSegmentHint => '%authorcache, variabel, atau teks tetap';
+	@override String get fileSegmentHint => 'mis. %title_%quality';
+	@override String videoCapNote({required Object max}) => 'Ekstensi (.mp4) ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat';
+	@override String imageCapNote({required Object max}) => 'Ekstensi asli ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat';
+	@override String galleryCapNote({required Object max}) => 'Templat galeri seluruhnya segmen folder, maksimal ${max} tingkat · gambar dalam memakai penamaan ID gambar';
+	@override String get trayHint => 'Ketuk untuk menyisipkan di posisi kursor · tahan untuk keterangan';
+	@override String get emptySegment => 'Segmen kosong';
+	@override String get emptySegmentSaveBlocked => 'Tidak bisa menyimpan: ada segmen kosong, hapus atau isi dulu';
+	@override String get savedToast => 'Tersimpan · hanya memengaruhi unduhan berikutnya';
+	@override String get trayCategoryContent => 'Konten';
+	@override String get trayCategoryAuthor => 'Penulis';
+	@override String get trayCategoryTime => 'Waktu';
+	@override String get chipAuthorcache => 'Nama penulis·tetap';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5140,6 +5595,8 @@ extension on TranslationsId {
 			'settings.downloadSettings.testDownloadPathAndPermissions' => 'Uji apakah jalur unduhan dan konfigurasi izin berfungsi dengan benar',
 			'settings.downloadSettings.testResults' => 'Hasil Uji',
 			'settings.downloadSettings.testCompleted' => 'Uji selesai',
+			'settings.downloadSettings.testMultisegmentDomain' => 'Validasi domain nilai (multi-segmen / kelebihan / bentuk pelolosan)',
+			'settings.downloadSettings.testMultisegmentPaths' => 'Render struktur multi-segmen (issue #126)',
 			'settings.downloadSettings.testPassed' => 'item lulus',
 			'settings.downloadSettings.testFailed' => 'Uji gagal',
 			'settings.downloadSettings.testStoragePermissionCheck' => 'Pemeriksaan Izin Penyimpanan',
@@ -5170,10 +5627,10 @@ extension on TranslationsId {
 			'settings.downloadSettings.testFileContent' => 'Isi File',
 			'settings.downloadSettings.checkingPathStatus' => 'Memeriksa status jalur...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Tidak dapat memperoleh status jalur',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Catatan: Jalur sebenarnya berbeda dari jalur yang dipilih',
-			'settings.downloadSettings.grantPermission' => 'Beri Izin',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Catatan: Jalur sebenarnya berbeda dari jalur yang dipilih',
+			'settings.downloadSettings.grantPermission' => 'Beri Izin',
 			'settings.downloadSettings.fixIssue' => 'Perbaiki Masalah',
 			'settings.downloadSettings.issueFixed' => 'Masalah diperbaiki',
 			'settings.downloadSettings.fixFailed' => 'Perbaikan gagal, silakan tangani secara manual',
@@ -5214,6 +5671,7 @@ extension on TranslationsId {
 			'settings.downloadSettings.downloadPathSetTo' => 'Jalur unduhan diatur ke',
 			'settings.downloadSettings.setPathFailed' => 'Gagal mengatur jalur',
 			'settings.downloadSettings.variableTitle' => 'Judul',
+			'settings.downloadSettings.variableAuthorcache' => 'Nama pertama penulis (stabil meski nama diganti)',
 			'settings.downloadSettings.variableAuthor' => 'Nama penulis',
 			'settings.downloadSettings.variableUsername' => 'Nama pengguna penulis',
 			'settings.downloadSettings.variableQuality' => 'Kualitas video',
@@ -5228,6 +5686,47 @@ extension on TranslationsId {
 			'settings.downloadSettings.suchAsTitleQuality' => 'Contoh: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => 'Contoh: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => 'Contoh: %title_%filename',
+			'settings.downloadSettings.structureSection' => 'Struktur simpan & penamaan',
+			'settings.downloadSettings.structureSectionDescription' => 'File yang diunduh otomatis masuk subfolder sesuai skema di bawah. Hanya memengaruhi unduhan berikutnya; file yang sudah ada tidak diubah.',
+			'settings.downloadSettings.structureNoticeTitle' => 'Fitur baru: arsip otomatis per penulis',
+			'settings.downloadSettings.structureNoticeBody' => 'Pilih di bawah · hanya memengaruhi unduhan baru, file yang sudah ada tidak diubah.',
+			'settings.downloadSettings.presetFlat' => 'Rata',
+			'settings.downloadSettings.presetFlatDesc' => 'Semua file langsung di root unduhan',
+			'settings.downloadSettings.presetAuthor' => 'Per penulis',
+			'settings.downloadSettings.presetAuthorBadge' => 'Direkomendasikan',
+			'settings.downloadSettings.presetAuthorDesc' => 'Satu folder per penulis · tidak terpecah meski nama berubah',
+			'settings.downloadSettings.presetDate' => 'Per tanggal',
+			'settings.downloadSettings.presetDateDesc' => 'Dikelompokkan menurut tanggal unduh',
+			'settings.downloadSettings.presetCustom' => 'Kustom',
+			'settings.downloadSettings.presetCustomDesc' => 'Edit templat jalur dengan bebas',
+			'settings.downloadSettings.presetCustomHint' => 'Kustom: ubah aturan di editor templat jalur',
+			'settings.downloadSettings.structurePreviewLabel' => 'Pratinjau',
+			'settings.downloadSettings.structurePreviewNote' => 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.',
+			'settings.downloadSettings.pathTooLongWarning' => 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat',
+			'settings.downloadSettings.pathTemplateEditorEntry' => 'Templat jalur kustom',
+			'settings.downloadSettings.pathTemplateEditorEntryDesc' => 'Tentukan sendiri struktur folder dan nama file',
+			'settings.downloadSettings.pathTemplateEditor.title' => 'Templat jalur',
+			'settings.downloadSettings.pathTemplateEditor.subtitle' => 'Otomatis memilah unduhan ke subfolder',
+			'settings.downloadSettings.pathTemplateEditor.tabVideo' => 'Video',
+			'settings.downloadSettings.pathTemplateEditor.tabGallery' => 'Galeri',
+			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Gambar tunggal',
+			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan',
+			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Tambah satu tingkat folder (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Batas tingkat folder tercapai',
+			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, variabel, atau teks tetap',
+			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'mis. %title_%quality',
+			'settings.downloadSettings.pathTemplateEditor.videoCapNote' => ({required Object max}) => 'Ekstensi (.mp4) ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat',
+			'settings.downloadSettings.pathTemplateEditor.imageCapNote' => ({required Object max}) => 'Ekstensi asli ditambah otomatis · ketik / dalam segmen untuk membagi dua tingkat · maksimal ${max} tingkat',
+			'settings.downloadSettings.pathTemplateEditor.galleryCapNote' => ({required Object max}) => 'Templat galeri seluruhnya segmen folder, maksimal ${max} tingkat · gambar dalam memakai penamaan ID gambar',
+			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Ketuk untuk menyisipkan di posisi kursor · tahan untuk keterangan',
+			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Segmen kosong',
+			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Tidak bisa menyimpan: ada segmen kosong, hapus atau isi dulu',
+			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Tersimpan · hanya memengaruhi unduhan berikutnya',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Konten',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Penulis',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Waktu',
+			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nama penulis·tetap',
 			'favoriteTags.title' => 'Tag Favorit',
 			'favoriteTags.emptyIwara' => 'Belum ada tag Iwara favorit',
 			'favoriteTags.emptyOreno3d' => 'Belum ada favorit',
@@ -5642,6 +6141,8 @@ extension on TranslationsId {
 			'forum.editReply' => 'Ubah Balasan',
 			'forum.editTitle' => 'Ubah Judul',
 			'forum.submit' => 'Kirim',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Jenis notifikasi tidak didukung',
 			'notifications.errors.unknownUser' => 'Pengguna tidak dikenal',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Jenis notifikasi tidak didukung: ${type}',
@@ -5686,8 +6187,6 @@ extension on TranslationsId {
 			'notifications.kApprovedThread' => 'Utas disetujui',
 			'notifications.kApprovedPost' => 'Postingan disetujui',
 			'notifications.kApprovedForumPost' => 'Postingan forum disetujui',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.kRejectedContent' => 'Peninjauan konten ditolak',
 			'notifications.kUnknownType' => 'Jenis notifikasi tidak dikenal',
 			'conversation.errors.pleaseSelectAUser' => 'Silakan pilih pengguna',
@@ -5780,7 +6279,9 @@ extension on TranslationsId {
 			'download.download' => 'Unduh',
 			'download.selectDownloadTitle' => 'Pilih Unduhan',
 			'download.qualitySectionLabel' => 'Kualitas',
-			'download.saveToSectionLabel' => 'Simpan ke',
+			'download.categorySectionLabel' => 'Kategori',
+			'download.saveToPreviewLabel' => 'Akan disimpan ke',
+			'download.saveToPreviewSuggested' => ({required Object name}) => 'Nama file saran: ${name} (bisa diubah di dialog sistem)',
 			'download.lastUsedBadge' => 'Terakhir digunakan',
 			'download.pickedBadge' => 'Dipilih',
 			'download.startDownloading' => 'Mulai Mengunduh',
@@ -5861,6 +6362,44 @@ extension on TranslationsId {
 			'download.restoredPaused.banner' => ({required Object num}) => '${num} tugas yang belum selesai dari sesi terakhir telah dijeda',
 			'download.restoredPaused.resume' => 'Lanjutkan semua',
 			'download.restoredPaused.dismiss' => 'Tutup',
+			'download.actions.open' => 'Open',
+			'download.actions.play' => 'Play',
+			'download.actions.openWith' => 'Open with another app',
+			'download.actions.redownload' => 'Download again',
+			'download.actions.relocate' => 'Move files to…',
+			'download.actions.categorize' => 'Categorize…',
+			'download.actions.viewOnline' => 'View online page',
+			'download.actions.delete' => 'Delete…',
+			'download.actions.redownloadStarted' => ({required Object count}) => 'Started downloading ${count} items again',
+			'download.actions.redownloadNone' => 'Nothing to download again',
+			'download.actions.deleteTitle' => ({required Object count}) => 'Delete ${count} downloads?',
+			'download.actions.deleteSummary' => ({required Object count, required Object size}) => '${count} items · ${size}',
+			'download.actions.deleteSummaryNoSize' => ({required Object count}) => '${count} items',
+			'download.actions.deleteGalleryNote' => ({required Object count}) => 'Size of ${count} galleries not included',
+			'download.actions.deleteFiles' => 'Also delete files from disk',
+			'download.actions.deleteFilesDesc' => 'When off, only the list entries are removed and the files stay where they are',
+			'download.actions.deleteFilesAllMissing' => 'The files are already gone; only the entries will be removed',
+			'download.actions.deleteDone' => ({required Object count}) => 'Deleted ${count} items',
+			'download.actions.deletePartial' => ({required Object failed}) => 'Could not delete the files of ${failed} items (they may be in use); their entries were kept',
+			'download.actions.removeRecordAnyway' => 'Remove entries anyway',
+			'download.actions.fileMissing' => 'File is missing',
+			'download.actions.filePending' => 'File not found right now, it may still be recoverable',
+			'download.actions.statusActive' => 'In progress',
+			'download.actions.statusCompleted' => 'Completed',
+			'download.actions.needsAttention' => 'Needs attention',
+			'download.actions.needsAttentionCount' => ({required Object count}) => 'Needs attention · ${count}',
+			'download.actions.organize' => 'Organize',
+			'download.actions.checkIntegrity' => 'Check file integrity…',
+			'download.actions.migrateToCurrent' => 'Move to current download folder…',
+			'download.actions.migrateNone' => 'Everything is already in the current download folder',
+			'download.notice.failed' => ({required Object count}) => '${count} downloads failed',
+			'download.notice.retryAll' => 'Retry all',
+			'download.notice.view' => 'View',
+			'download.notice.missing' => ({required Object count}) => 'Files of ${count} downloaded items are missing',
+			'download.notice.handle' => 'Handle…',
+			'download.notice.outside' => ({required Object count}) => '${count} items are still in the old download folder',
+			'download.notice.migrate' => 'Move',
+			'download.notice.dismiss' => 'Dismiss',
 			'download.emptyTaskList' => 'Belum ada tugas unduhan',
 			'download.noMatchingTasks' => 'Tidak ada tugas yang cocok',
 			'download.deleteByDate.menuTitle' => 'Hapus berdasarkan tanggal',
@@ -5880,6 +6419,140 @@ extension on TranslationsId {
 			'download.deleteByDate.deleting' => ({required Object done, required Object total}) => 'Menghapus ${done}/${total}…',
 			'download.deleteByDate.resultSuccess' => ({required Object count}) => 'Menghapus ${count} tugas',
 			'download.deleteByDate.resultPartial' => ({required Object deleted, required Object skipped}) => 'Menghapus ${deleted} tugas; ${skipped} dilewati (sedang digunakan)',
+			'download.relocation.moveFiles' => 'Move files',
+			'download.relocation.moveFilesEllipsis' => 'Move files…',
+			'download.relocation.chooseDestination' => 'Move files to',
+			'download.relocation.currentDownloadDir' => 'Current download folder',
+			'download.relocation.otherFolder' => 'Choose another folder…',
+			'download.relocation.pickerUnsupported' => 'Folders can\'t be picked on this device. Downloads stay in the app\'s own folder.',
+			'download.relocation.planning' => 'Checking files…',
+			'download.relocation.confirmTitle' => 'Move files?',
+			'download.relocation.confirmNote' => 'Files are moved on disk. Watch progress, VR settings and favorites move with them.',
+			'download.relocation.nothingToMove' => 'Nothing in the selection can be moved. See the reason for each item below.',
+			'download.relocation.move' => 'Move',
+			'download.relocation.moving' => ({required Object done, required Object total}) => 'Moving ${done}/${total}',
+			'download.relocation.stop' => 'Stop',
+			'download.relocation.stopping' => 'Stopping after the current item…',
+			'download.relocation.resultTitle' => 'Move finished',
+			'download.relocation.resultMoved' => ({required Object count}) => '${count} item(s) moved',
+			'download.relocation.cancelled' => 'Stopped. Items already moved are complete.',
+			'download.relocation.alreadyRunning' => 'Another move is already in progress',
+			'download.relocation.destination' => 'Destination',
+			'download.relocation.statMove' => 'To move',
+			'download.relocation.statSkip' => 'Skipped',
+			'download.relocation.statRenamed' => 'Renamed',
+			'download.relocation.statMoved' => 'Moved',
+			'download.relocation.statFailed' => 'Not moved',
+			'download.relocation.statLeftover' => 'Left behind',
+			'download.relocation.sectionMove' => 'Will be moved',
+			'download.relocation.sectionSkip' => 'Will be skipped',
+			'download.relocation.sectionMoved' => 'Moved',
+			'download.relocation.sectionFailed' => 'Not moved (left where it was)',
+			'download.relocation.sectionLeftover' => 'Old folders not fully removed',
+			'download.relocation.leftoverHint' => 'The copy at the new location is complete. These leftovers can be deleted.',
+			'download.relocation.from' => 'From',
+			'download.relocation.to' => 'To',
+			'download.relocation.renamedBadge' => ({required Object name}) => 'Name taken, will be saved as "${name}"',
+			'download.relocation.showPaths' => 'Show paths',
+			'download.relocation.hidePaths' => 'Hide paths',
+			'download.relocation.revealInFolder' => 'Show in folder',
+			'download.relocation.copyPath' => 'Copy path',
+			'download.relocation.pathCopied' => 'Path copied',
+			'download.relocation.stateDownloading' => ({required Object percent}) => 'downloading, ${percent}%',
+			'download.relocation.statePending' => 'waiting to download',
+			'download.relocation.statePaused' => ({required Object percent}) => 'paused at ${percent}%',
+			'download.relocation.stateFailed' => 'download failed',
+			'download.relocation.skipAlreadyThere' => 'Already in this folder',
+			'download.relocation.skipInsideSource' => 'The destination is inside this gallery\'s own folder',
+			'download.relocation.reasonBusy' => 'Busy with another operation (deleting or moving)',
+			'download.relocation.reasonSourceLocked' => 'The file is in use (for example, playing), so it couldn\'t be removed from the old location. Nothing was changed.',
+			'download.relocation.reasonNoSpace' => 'The destination ran out of space. The rest of the batch was stopped.',
+			'download.relocation.reasonVerifyFailed' => 'The copy didn\'t match the original\'s size. The copy was discarded.',
+			'download.relocation.reasonIoError' => 'Couldn\'t read or write the file. Nothing was changed.',
+			'download.relocation.systemMessage' => ({required Object message}) => 'System message: ${message}',
+			'download.relocation.outsideTitle' => ({required Object count}) => '${count} downloaded item(s) are outside this folder',
+			'download.relocation.outsideSubtitle' => 'They still play where they are. Move them here to keep everything together.',
+			'download.relocation.moveHere' => 'Move here',
+			'download.relocation.missingTitle' => 'Files not found',
+			'download.relocation.recordedLocation' => 'Recorded location',
+			'download.relocation.legendExists' => 'still exists',
+			'download.relocation.legendMissing' => 'missing',
+			'download.relocation.diagVolume' => ({required Object volume}) => 'Storage "${volume}" is not available. The SD card or external drive may not be connected.',
+			'download.relocation.diagVolumeShort' => ({required Object volume}) => 'storage "${volume}" not connected',
+			'download.relocation.diagContainer' => 'After an app update, the system moved the app\'s storage. The file is still here:',
+			'download.relocation.diagContainerShort' => 'app storage moved after update',
+			'download.relocation.diagNoAccess' => 'The app doesn\'t have permission to read this location. Grant "All files access" and check again.',
+			'download.relocation.diagNoAccessShort' => 'no permission to read this location',
+			'download.relocation.diagFolder' => ({required Object folder}) => 'The folder "${folder}" no longer exists.',
+			'download.relocation.diagFolderShort' => ({required Object folder}) => 'folder "${folder}" no longer exists',
+			'download.relocation.diagFile' => ({required Object name}) => 'The folder is still there, but "${name}" isn\'t in it.',
+			'download.relocation.diagFileShort' => 'not found in its folder',
+			'download.relocation.diagCandidates' => 'Found something in that folder that looks like it (maybe renamed):',
+			'download.relocation.diagNoCandidates' => 'Nothing with the same size was found in that folder.',
+			'download.relocation.useThis' => 'Use this',
+			'download.relocation.fixPath' => 'Fix path',
+			'download.relocation.checkAgain' => 'Check again',
+			'download.relocation.grantPermission' => 'Grant permission',
+			'download.relocation.locate' => 'Find in another folder…',
+			'download.relocation.deleteRecord' => 'Delete record',
+			'download.relocation.locateNotFound' => 'This download\'s files aren\'t in that folder',
+			'download.relocation.located' => 'Found. The record now points to the new location.',
+			'download.relocation.stillMissing' => 'Still not found',
+			'download.relocation.downloadedOn' => ({required Object date}) => 'Downloaded ${date}',
+			'download.relocation.galleryImages' => ({required Object count}) => '${count} images',
+			'download.relocation.unfinishedDownloading' => ({required Object percent}) => 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues',
+			'download.relocation.unfinishedPending' => 'Waiting to download: re-queued after the move',
+			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
+			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
+			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
+			'download.relocation.missingSkip' => 'Leave as is',
+			'download.relocation.missingRedownload' => 'Re-download to the destination',
+			'download.relocation.missingRemove' => 'Remove records',
+			'download.relocation.missingRemoveVolumeNote' => ({required Object count}) => '${count} of them are on storage that isnt connected and wont be removed',
+			'download.relocation.failedGroup' => ({required Object count}) => '${count} failed download(s)',
+			'download.relocation.failedMoveOnly' => 'Just move',
+			'download.relocation.failedMoveAndRetry' => 'Move, then re-download',
+			'download.relocation.failedRemove' => 'Remove tasks',
+			'download.relocation.failedRemoveNote' => 'Their partially downloaded files are deleted too',
+			'download.relocation.execute' => 'Apply',
+			'download.relocation.actionWillRedownload' => 'Will be re-downloaded to the destination',
+			'download.relocation.actionWillRemove' => 'This record will be removed',
+			'download.relocation.actionWillKeep' => 'Storage not connected, will be kept',
+			'download.relocation.actionWillRetry' => 'Re-downloaded after the move',
+			'download.relocation.actionWillRemoveTask' => 'This task will be removed',
+			'download.relocation.statRedownload' => 'Re-download',
+			'download.relocation.statRemoved' => 'Removed',
+			'download.relocation.sectionRedownloaded' => 'Re-download started',
+			'download.relocation.sectionRedownloadFailed' => 'Couldnt start re-download',
+			'download.relocation.redownloadFailedHint' => 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.',
+			'download.relocation.sectionRemoved' => 'Removed',
+			'download.relocation.sectionKept' => 'Kept (storage not connected)',
+			'download.relocation.redownload' => 'Re-download',
+			'download.relocation.redownloadStarted' => 'Re-download started',
+			'download.relocation.redownloadNotStarted' => 'Couldnt start re-download',
+			'download.relocation.diagFileShortWithCandidates' => 'a file with the same size is in its folder, maybe renamed',
+			'download.relocation.cleanupMenu' => 'Clean up broken records…',
+			'download.relocation.cleanupScanning' => ({required Object done, required Object total}) => 'Checking ${done}/${total}',
+			'download.relocation.cleanupTitle' => 'Clean up broken records',
+			'download.relocation.cleanupNone' => ({required Object count}) => 'Checked ${count} completed download(s). All files are there.',
+			'download.relocation.statChecked' => 'Checked',
+			'download.relocation.statMissing' => 'Missing',
+			'download.relocation.statKeep' => 'Keep',
+			'download.relocation.cleanupGroupGone' => 'Files are gone',
+			'download.relocation.cleanupGroupRecoverable' => 'May still be recoverable',
+			'download.relocation.cleanupRecoverableHint' => 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.',
+			'download.relocation.selectAll' => 'Select all',
+			'download.relocation.selectNone' => 'Select none',
+			'download.relocation.removeSelected' => ({required Object count}) => 'Remove selected (${count})',
+			'download.relocation.redownloadSelected' => ({required Object count}) => 'Re-download selected (${count})',
+			'download.relocation.processing' => ({required Object done, required Object total}) => 'Processing ${done}/${total}',
+			'download.relocation.cleanupRemoved' => ({required Object count}) => '${count} record(s) removed',
+			'download.relocation.cleanupRedownloaded' => ({required Object count}) => 'Re-download started for ${count} item(s)',
+			'download.relocation.tapForDetail' => 'Details',
+			'download.relocation.deleteRecordFailed' => 'Couldnt delete the record. Try again later.',
+			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
+			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Kelola kategori',
 			'download.category.label' => 'Kategori',
 			'download.category.uncategorized' => 'Tanpa Kategori',
@@ -5903,12 +6576,87 @@ extension on TranslationsId {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.',
 			'download.category.deleteSuccess' => 'Kategori dihapus',
 			'download.category.deleteFailed' => 'Gagal menghapus kategori',
+			'download.location.sectionTitle' => 'Save location',
+			'download.location.behaviorSection' => 'Download behavior',
+			'download.location.namingSection' => 'File naming',
+			'download.location.advancedSection' => 'Advanced',
+			'download.location.advancedSubtitle' => 'Write diagnostics and other tools',
+			'download.location.volumeInternal' => 'Internal storage',
+			'download.location.volumeSdCard' => 'SD card',
+			'download.location.volumeExternalDrive' => 'External drive',
+			'download.location.appSpace' => 'App-only storage',
+			'download.location.downloadsFolder' => 'Downloads',
+			'download.location.askEveryTime' => 'Ask every time',
+			'download.location.askEveryTimeDesc' => ({required Object location}) => 'Choose where to save for each download. Batch downloads go to ${location}',
+			'download.location.freeSpace' => ({required Object size}) => '${size} free',
+			'download.location.statusWritable' => 'Writable',
+			'download.location.statusNeedsPermission' => 'Needs permission',
+			'download.location.statusFallback' => 'Temporarily redirected',
+			'download.location.statusLowSpace' => 'Low space',
+			'download.location.statusChecking' => 'Checking',
+			'download.location.grant' => 'Grant',
+			'download.location.fix' => 'Fix',
+			'download.location.changeLocation' => 'Change location',
+			'download.location.openInFileManager' => 'Open in file manager',
+			'download.location.moreActions' => 'More',
+			'download.location.copyPath' => 'Copy path',
+			'download.location.pathCopied' => 'Path copied',
+			'download.location.manualInput' => 'Enter path manually (advanced)',
+			'download.location.restoreDefault' => 'Restore default',
+			'download.location.runDiagnostics' => 'Run diagnostics',
+			'download.location.restoredDefault' => 'Restored the default location',
+			'download.location.sheetTitle' => 'Choose download location',
+			'download.location.chooseOtherFolder' => 'Choose another folder…',
+			'download.location.chooseOtherFolderDesc' => 'Pick one with the system file picker',
+			'download.location.optionRecommendedDesc' => 'Recommended · no permission needed',
+			'download.location.optionRecommendedLegacyDesc' => 'Recommended · needs storage permission',
+			'download.location.optionAppPrivateDesc' => 'Deleted on uninstall · hidden from the gallery',
+			'download.location.optionRemovableDesc' => 'Needs "All files access"',
+			'download.location.optionDesktopDownloadsDesc' => 'Recommended · your Downloads folder',
+			'download.location.optionAskEveryTimeDesc' => 'Pick a folder for each download',
+			'download.location.current' => 'Current',
+			'download.location.fallbackBanner' => 'Your last download was temporarily saved to app storage because the chosen folder could not be used.',
+			'download.location.fallbackReasonPermission' => 'storage permission is missing',
+			'download.location.fallbackReasonVolumeMissing' => 'the storage device is not connected',
+			'download.location.fallbackReasonCannotCreate' => 'the folder could not be created',
+			'download.location.fallbackReasonNotWritable' => 'the folder cannot be written to',
+			'download.location.fallbackDetail' => ({required Object reason}) => 'Temporarily redirected: ${reason}',
+			'download.location.errorUnresolvable' => 'This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.',
+			'download.location.errorNotWritable' => 'This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.',
+			'download.location.errorVolumeMissing' => 'This storage device cannot be found (removed or not connected). The location was not changed.',
+			'download.location.permissionTitle' => 'Permission needed',
+			'download.location.permissionAllFiles' => 'Writing to this folder needs "All files access". If you\'d rather not allow that, use "Downloads › LoveIwara" instead.',
+			'download.location.permissionLegacy' => 'Writing to this folder needs the storage permission. If you\'d rather not allow that, use app-only storage instead.',
+			'download.location.useDownloadsInstead' => 'Use Downloads › LoveIwara',
+			'download.location.useAppSpaceInstead' => 'Use app-only storage',
+			'download.location.goToSettings' => 'Grant',
+			'download.location.permissionDenied' => 'Permission was not granted. The location was not changed.',
+			'download.location.checking' => 'Checking this location…',
+			'download.location.confirmTitle' => 'Use this location?',
+			'download.location.confirmFree' => ({required Object size}) => '${size} free',
+			'download.location.confirmOutside' => ({required Object count}) => '${count} downloaded item(s) stay in the old location',
+			'download.location.confirmOutsideDesc' => 'New downloads will be saved here. What about the ones you already have?',
+			'download.location.moveThem' => 'Move them here',
+			'download.location.keepThem' => 'Keep them where they are',
+			'download.location.decideLater' => 'Decide later',
+			'download.location.useThisLocation' => 'Use this location',
+			'download.location.locationChanged' => 'Download location changed',
+			'download.location.manualTitle' => 'Enter path manually',
+			'download.location.manualLabel' => 'Folder path',
+			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
+			'download.location.manualSubmit' => 'Check and use',
+			'download.location.manualEmpty' => 'Enter a path',
+			'download.location.manualNotAbsolute' => 'Enter a full absolute path',
+			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
+			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Unduhan bersamaan maksimum',
 			'download.maxConcurrentDownloadsDesc' => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)',
 			'download.stillInDevelopment' => 'Masih dalam pengembangan',
 			'download.saveToAppDirectory' => 'Simpan ke direktori aplikasi',
 			'download.alreadyDownloadedWithQuality' => 'Sudah diunduh dengan kualitas yang sama, lanjutkan pengunduhan?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Sudah diunduh dengan kualitas: ${qualities}, lanjutkan pengunduhan?',
+			_ => null,
+		} ?? switch (path) {
 			'download.otherQualities' => 'Kualitas lain',
 			'download.batchDownload.title' => 'Unduhan Massal',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Tugas sedang berjalan, mohon tunggu.',
@@ -5943,6 +6691,11 @@ extension on TranslationsId {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} gagal diunduh',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} telah diunduh',
 			'downloadNotifications.failedToast' => ({required Object name}) => 'Unduhan ${name} gagal',
+			'downloadNotifications.savedToFolder' => ({required Object dir}) => 'Tersimpan di ${dir}',
+			'downloadNotifications.savedAsRenamed' => ({required Object name}) => 'Tersimpan sebagai ${name} (sudah ada file bernama sama)',
+			'downloadNotifications.savedToAppFolder' => ({required Object target, required Object reason}) => 'Tersimpan di folder aplikasi — tidak bisa menulis ${target} (${reason})',
+			'downloadNotifications.viewFolder' => 'Lihat folder',
+			'downloadNotifications.fixInSettings' => 'Perbaiki di Pengaturan',
 			'downloadNotifications.channelName' => 'Status unduhan',
 			'downloadNotifications.channelDescription' => 'Notifikasi untuk unduhan yang selesai dan gagal',
 			'favorite.errors.addFailed' => 'Gagal menambahkan',
@@ -6200,8 +6953,6 @@ extension on TranslationsId {
 			'displaySettings.layoutSettingsDesc' => 'Sesuaikan jumlah kolom dan konfigurasi titik henti',
 			'displaySettings.gridLayout' => 'Tata Letak Kisi',
 			'displaySettings.navigationOrderSettings' => 'Pengaturan Urutan Navigasi',
-			_ => null,
-		} ?? switch (path) {
 			'displaySettings.customNavigationOrder' => 'Urutan Navigasi Kustom',
 			'displaySettings.customNavigationOrderDesc' => 'Sesuaikan urutan tampilan halaman pada bilah navigasi bawah dan bilah samping',
 			'layoutSettings.title' => 'Pengaturan Tata Letak',
@@ -6297,6 +7048,7 @@ extension on TranslationsId {
 			'mediaPlayer.localVideoPathEmpty' => 'Jalur video lokal kosong',
 			'mediaPlayer.localVideoFileNotExists' => ({required Object path}) => 'Berkas video lokal tidak ada: ${path}',
 			'mediaPlayer.unableToPlayLocalVideo' => ({required Object error}) => 'Tidak dapat memutar video lokal: ${error}',
+			'mediaPlayer.unableToPlayNasVideo' => ({required Object error}) => 'Unable to play the NAS video: ${error}',
 			'mediaPlayer.dropVideoFileHere' => 'Jatuhkan berkas video di sini untuk memutar',
 			'mediaPlayer.supportedFormats' => 'Format yang didukung: MP4, MKV, AVI, MOV, WEBM, dll.',
 			'mediaPlayer.noSupportedVideoFile' => 'Tidak ditemukan berkas video yang didukung',
@@ -6417,6 +7169,8 @@ extension on TranslationsId {
 			'log.logManagement' => 'Pengelolaan Log',
 			'log.enableLogPersistence' => 'Aktifkan Persistensi Log',
 			'log.enableLogPersistenceDesc' => 'Simpan log ke basis data untuk analisis',
+			_ => null,
+		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Batas Ukuran Basis Data Log',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Saat ini: ${size}',
 			'log.exportCurrentLogs' => 'Ekspor Log Saat Ini',
@@ -6714,8 +7468,6 @@ extension on TranslationsId {
 			'siteMode.chooseLinkTargetDescription' => 'Tautan ini tidak menyertakan domain. Silakan pilih apakah akan membukanya di Main atau AI.',
 			'siteMode.chooseLinkTargetHint' => 'Setelah dibuka, halaman ini dan permintaan detail lanjutannya akan terus menggunakan situs yang dipilih.',
 			'siteMode.alreadyUsing' => 'Anda sudah menggunakan mode situs ini.',
-			_ => null,
-		} ?? switch (path) {
 			'siteMode.openInSite' => ({required Object site}) => 'Buka di ${site}',
 			'siteMode.confirmUsing' => ({required Object site}) => 'Setelah dikonfirmasi, permintaan mendatang akan menggunakan mode ${site}.',
 			'siteMode.switched' => ({required Object site}) => 'Beralih ke ${site}. Aplikasi telah disegarkan.',
@@ -6931,6 +7683,8 @@ extension on TranslationsId {
 			'vrFormat.manualBadge' => 'Diatur secara manual',
 			'vrFormat.panoramaHint' => 'Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang',
 			'vrFormat.panoramaGestureNotice' => 'Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya',
 			'vrFormat.handoffTooltip' => 'Putar dengan cara lain',
 			'vrFormat.suggestedBadge' => 'Disarankan',
@@ -7077,6 +7831,84 @@ extension on TranslationsId {
 			'localMedia.addFolder' => 'Tambah folder',
 			'localMedia.addDeviceVideos' => 'Pindai video perangkat',
 			'localMedia.mediaStoreSourceName' => 'Video perangkat',
+			'localMedia.scanQueued' => 'Waiting to scan',
+			'localMedia.itemInfo' => 'File info',
+			'localMedia.revealInFolder' => 'Show in folder',
+			'localMedia.rescanAll' => 'Rescan all',
+			'localMedia.rescanAllStarted' => ({required Object count}) => 'Rescanning ${count} sources',
+			'localMedia.searchLibrary' => 'Search',
+			'localMedia.searchIncludeSubfolders' => 'Include subfolders',
+			'localMedia.searchThisFolderOnly' => 'This folder only',
+			'localMedia.searchResultCount' => ({required Object count}) => 'Found ${count}',
+			'localMedia.savedServers' => 'Saved NAS',
+			'localMedia.newServer' => 'Connect a new NAS',
+			'localMedia.itemInfoLabels.size' => 'Size',
+			'localMedia.itemInfoLabels.resolution' => 'Resolution',
+			'localMedia.itemInfoLabels.duration' => 'Duration',
+			'localMedia.itemInfoLabels.modified' => 'Modified',
+			'localMedia.itemInfoLabels.lastPlayed' => 'Last played',
+			'localMedia.itemInfoLabels.neverPlayed' => 'Not watched yet',
+			'localMedia.itemInfoLabels.completed' => 'Finished',
+			'localMedia.addSource' => 'Add source',
+			'localMedia.addSourceKinds' => 'Folder · NAS',
+			'localMedia.openSettings' => 'Open settings',
+			'localMedia.removeSourceLoses' => ({required Object items}) => 'This also clears the following, and re-adding won\'t bring it back: ${items}',
+			'localMedia.loseProgress' => ({required Object count}) => '${count} watch progress',
+			'localMedia.loseFavorites' => ({required Object count}) => '${count} featured',
+			'localMedia.losePinned' => ({required Object count}) => '${count} pinned folders',
+			'localMedia.loseHidden' => ({required Object count}) => '${count} hidden folders',
+			'localMedia.loseCovers' => ({required Object count}) => '${count} custom covers',
+			'localMedia.renameSource' => 'Rename',
+			'localMedia.renameSourceTitle' => 'Rename source',
+			'localMedia.renameSourceLabel' => 'Name',
+			'localMedia.renamed' => 'Renamed',
+			'localMedia.nasAggregateHint' => 'NAS content only includes folders you have opened. Videos and images in folders you haven\'t opened won\'t show up here.',
+			'localMedia.rescanDone' => ({required Object name}) => '"${name}" updated',
+			'localMedia.unknownSourceHint' => 'This source needs a newer version of the app',
+			'localMedia.missing.title' => 'Can\'t find this file',
+			'localMedia.missing.rescanFolder' => 'Rescan folder',
+			'localMedia.missing.relistNas' => 'Refresh this folder',
+			'localMedia.missing.removeFromList' => 'Remove from list',
+			'localMedia.missing.removed' => 'Removed from the list. The file on disk was not touched',
+			'localMedia.missing.found' => 'Found it',
+			'localMedia.missing.nasGone' => ({required Object name}) => '"${name}" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now.',
+			'localMedia.webdav.addNas' => 'Connect NAS (WebDAV)',
+			'localMedia.webdav.connectTitle' => 'Connect NAS',
+			'localMedia.webdav.editTitle' => 'Sign in to NAS again',
+			'localMedia.webdav.hint' => 'Turn on the WebDAV service in your NAS settings, then enter its address and account.',
+			'localMedia.webdav.address' => 'Address',
+			'localMedia.webdav.addressHint' => 'e.g. 192.168.1.10:5005',
+			'localMedia.webdav.username' => 'Username',
+			'localMedia.webdav.password' => 'Password',
+			'localMedia.webdav.displayName' => 'Name (optional)',
+			'localMedia.webdav.connect' => 'Connect',
+			'localMedia.webdav.invalidAddress' => 'Invalid address',
+			'localMedia.webdav.errorAuth' => 'Wrong username or password',
+			'localMedia.webdav.errorUnreachable' => 'Can\'t reach the server. Check the address and port, and that this device is on the same network as the NAS',
+			'localMedia.webdav.errorNotWebdav' => 'This address is not a WebDAV service',
+			'localMedia.webdav.errorGeneric' => ({required Object code}) => 'Connection failed (${code})',
+			'localMedia.webdav.errorCredUnreadable' => 'Couldn\'t read the saved password. Try again later',
+			'localMedia.webdav.certTitle' => 'Trust this server?',
+			'localMedia.webdav.certBody' => 'The server\'s certificate isn\'t trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:',
+			'localMedia.webdav.certChangedBody' => 'This server\'s certificate is different from the one you trusted before. If you didn\'t replace your NAS certificate, someone may be impersonating it. Don\'t continue.',
+			'localMedia.webdav.trust' => 'Trust',
+			'localMedia.webdav.pickRootTitle' => 'Choose a folder to add',
+			'localMedia.webdav.serverRoot' => 'Root',
+			'localMedia.webdav.alreadyAdded' => 'This NAS folder has already been added',
+			'localMedia.webdav.relogin' => 'Sign in again',
+			'localMedia.webdav.stateAuthFailed' => 'Sign-in required',
+			'localMedia.webdav.stateCertUntrusted' => 'Server certificate changed',
+			'localMedia.webdav.stateUnreachable' => 'Can\'t reach NAS',
+			'localMedia.webdav.stateCredUnreadable' => 'Couldn\'t read password',
+			'localMedia.webdav.connected' => 'Connected',
+			'localMedia.webdav.errorForbidden' => 'This account has no WebDAV access. Grant it WebDAV permission in the NAS settings.',
+			'localMedia.webdav.errorTls' => 'Secure connection failed. Check that http:// or https:// matches the NAS settings.',
+			'localMedia.webdav.errorTryHttps' => 'If the NAS only serves HTTPS, add https:// in front of the address.',
+			'localMedia.webdav.previousStep' => 'Back',
+			'localMedia.webdav.bannerUnreachable' => 'Can\'t reach the NAS. Showing what was seen last time.',
+			'localMedia.webdav.bannerAuthFailed' => 'Login expired. Sign in again to see the latest content.',
+			'localMedia.webdav.bannerCertUntrusted' => 'The NAS certificate changed. Confirm it to continue.',
+			'localMedia.webdav.bannerCredUnreadable' => 'Couldn\'t read the saved password. Sign in again.',
 			'localMedia.mediaStoreUnavailable' => 'Indeks media perangkat hanya tersedia di Android',
 			'localMedia.mediaStorePermissionDenied' => 'Akses video tidak diberikan',
 			'localMedia.rescan' => 'Pindai ulang',

@@ -1043,6 +1043,8 @@ settings:
     testDownloadPathAndPermissions: Kiểm tra xem đường dẫn tải xuống và cấu hình quyền có hoạt động đúng hay không
     testResults: Kết quả kiểm tra
     testCompleted: Kiểm tra hoàn tất
+    testMultisegmentDomain: 'Kiểm tra miền giá trị (đa đoạn / vượt giới hạn / dạng thoát)'
+    testMultisegmentPaths: 'Kết cấu đa đoạn (issue #126)'
     testPassed: mục đạt
     testFailed: Kiểm tra thất bại
     testStoragePermissionCheck: Kiểm tra quyền lưu trữ
@@ -1121,6 +1123,7 @@ settings:
     setPathFailed: Đặt đường dẫn thất bại
     # Filename template variables
     variableTitle: Tiêu đề
+    variableAuthorcache: 'Tên đầu tiên của tác giả (không đổi khi tác giả đổi tên)'
     variableAuthor: Tên tác giả
     variableUsername: Tên người dùng tác giả
     variableQuality: Chất lượng video
@@ -1136,6 +1139,48 @@ settings:
     suchAsTitleQuality: 'Ví dụ: %title_%quality'
     suchAsTitleId: 'Ví dụ: %title_%id'
     suchAsTitleFilename: 'Ví dụ: %title_%filename'
+    structureSection: 'Cấu trúc lưu & đặt tên'
+    structureSectionDescription: 'Tệp tải về sẽ tự động vào thư mục con theo cách chọn bên dưới. Chỉ ảnh hưởng đến các lượt tải mới; tệp đã có giữ nguyên.'
+    structureNoticeTitle: 'Tính năng mới: tự động gộp theo tác giả'
+    structureNoticeBody: 'Chọn bên dưới · chỉ ảnh hưởng tệp tải mới, tệp đã có giữ nguyên.'
+    presetFlat: 'Phẳng'
+    presetFlatDesc: 'Mọi tệp nằm ngay thư mục gốc tải về'
+    presetAuthor: 'Theo tác giả'
+    presetAuthorBadge: 'Đề xuất'
+    presetAuthorDesc: 'Mỗi tác giả một thư mục · đổi tên không tách rời'
+    presetDate: 'Theo ngày'
+    presetDateDesc: 'Nhóm theo ngày tải'
+    presetCustom: 'Tùy chỉnh'
+    presetCustomDesc: 'Chỉnh sửa mẫu đường dẫn tự do'
+    presetCustomHint: 'Tùy chỉnh: sửa quy tắc trong trình chỉnh sửa mẫu đường dẫn'
+    structurePreviewLabel: 'Xem trước'
+    structurePreviewNote: 'Đoạn màu là cấp tổ chức, đổi theo cách đã chọn.'
+    pathTooLongWarning: 'Đường dẫn tương đối vượt 200 ký tự, một số thiết bị có thể không lưu được'
+    pathTemplateEditorEntry: 'Mẫu đường dẫn tùy chỉnh'
+    pathTemplateEditorEntryDesc: 'Tự quyết định cấu trúc thư mục và tên tệp'
+    pathTemplateEditor:
+      title: 'Mẫu đường dẫn'
+      subtitle: 'Tự động phân thư mục cho tệp tải về'
+      tabVideo: 'Video'
+      tabGallery: 'Thư viện ảnh'
+      tabImage: 'Ảnh đơn'
+      previewLabel: 'Xem trước · kết quả lưu thực sau khi làm sạch'
+      galleryPreviewLabel: 'Xem trước · mẫu thư viện = tên thư mục (ảnh bên trong đặt theo ID)'
+      addFolder: 'Thêm một cấp thư mục (${current}/${max})'
+      folderCapReached: 'Đã đến giới hạn cấp thư mục'
+      folderSegmentHint: '%authorcache, biến hoặc văn bản cố định'
+      fileSegmentHint: 'vd: %title_%quality'
+      videoCapNote: 'Phần mở rộng (.mp4) tự động thêm · gõ / trong đoạn sẽ tách hai cấp · tối đa ${max} cấp'
+      imageCapNote: 'Phần mở rộng gốc tự động thêm · gõ / trong đoạn sẽ tách hai cấp · tối đa ${max} cấp'
+      galleryCapNote: 'Mẫu thư viện toàn bộ là đoạn thư mục, tối đa ${max} cấp · ảnh bên trong đặt tên theo ID ảnh'
+      trayHint: 'Chạm để chèn tại con trỏ · giữ để xem giải thích'
+      emptySegment: 'Đoạn trống'
+      emptySegmentSaveBlocked: 'Không thể lưu: còn đoạn trống, hãy xóa hoặc điền nội dung'
+      savedToast: 'Đã lưu · chỉ ảnh hưởng các lượt tải sau'
+      trayCategoryContent: 'Nội dung'
+      trayCategoryAuthor: 'Tác giả'
+      trayCategoryTime: 'Thời gian'
+      chipAuthorcache: 'Tên tác giả·cố định'
 favoriteTags:
   title: Thẻ yêu thích
   emptyIwara: Chưa có thẻ Iwara yêu thích
@@ -1733,7 +1778,9 @@ download:
   download: Tải xuống
   selectDownloadTitle: Chọn tải xuống
   qualitySectionLabel: Chất lượng
-  saveToSectionLabel: Lưu vào
+  categorySectionLabel: 'Phân loại'
+  saveToPreviewLabel: 'Sẽ lưu vào'
+  saveToPreviewSuggested: 'Tên tệp gợi ý: ${name} (có thể sửa trong hộp thoại hệ thống)'
   lastUsedBadge: Dùng gần nhất
   pickedBadge: Đã chọn
   startDownloading: Bắt đầu tải xuống
@@ -1817,6 +1864,46 @@ download:
     banner: '${num} tác vụ chưa hoàn thành từ phiên trước đã được tạm dừng'
     resume: Tiếp tục tất cả
     dismiss: Bỏ qua
+  actions:
+    open: Open
+    play: Play
+    openWith: Open with another app
+    redownload: Download again
+    relocate: Move files to…
+    categorize: Categorize…
+    viewOnline: View online page
+    delete: Delete…
+    redownloadStarted: 'Started downloading ${count} items again'
+    redownloadNone: Nothing to download again
+    deleteTitle: 'Delete ${count} downloads?'
+    deleteSummary: '${count} items · ${size}'
+    deleteSummaryNoSize: '${count} items'
+    deleteGalleryNote: 'Size of ${count} galleries not included'
+    deleteFiles: Also delete files from disk
+    deleteFilesDesc: When off, only the list entries are removed and the files stay where they are
+    deleteFilesAllMissing: The files are already gone; only the entries will be removed
+    deleteDone: 'Deleted ${count} items'
+    deletePartial: 'Could not delete the files of ${failed} items (they may be in use); their entries were kept'
+    removeRecordAnyway: Remove entries anyway
+    fileMissing: File is missing
+    filePending: File not found right now, it may still be recoverable
+    statusActive: In progress
+    statusCompleted: Completed
+    needsAttention: Needs attention
+    needsAttentionCount: 'Needs attention · ${count}'
+    organize: Organize
+    checkIntegrity: Check file integrity…
+    migrateToCurrent: Move to current download folder…
+    migrateNone: Everything is already in the current download folder
+  notice:
+    failed: '${count} downloads failed'
+    retryAll: Retry all
+    view: View
+    missing: 'Files of ${count} downloaded items are missing'
+    handle: Handle…
+    outside: '${count} items are still in the old download folder'
+    migrate: Move
+    dismiss: Dismiss
   emptyTaskList: Chưa có tác vụ tải xuống
   noMatchingTasks: Không có tác vụ nào khớp
   deleteByDate:
@@ -1837,6 +1924,141 @@ download:
     deleting: 'Đang xóa ${done}/${total}…'
     resultSuccess: 'Đã xóa ${count} tác vụ'
     resultPartial: 'Đã xóa ${deleted} tác vụ; bỏ qua ${skipped} (đang được dùng)'
+  relocation:
+    moveFiles: Move files
+    moveFilesEllipsis: Move files…
+    chooseDestination: Move files to
+    currentDownloadDir: Current download folder
+    otherFolder: Choose another folder…
+    pickerUnsupported: Folders can't be picked on this device. Downloads stay in the app's own folder.
+    planning: Checking files…
+    confirmTitle: Move files?
+    confirmNote: Files are moved on disk. Watch progress, VR settings and favorites move with them.
+    nothingToMove: Nothing in the selection can be moved. See the reason for each item below.
+    move: Move
+    moving: 'Moving ${done}/${total}'
+    stop: Stop
+    stopping: Stopping after the current item…
+    resultTitle: Move finished
+    resultMoved: '${count} item(s) moved'
+    cancelled: Stopped. Items already moved are complete.
+    alreadyRunning: Another move is already in progress
+    destination: Destination
+    statMove: To move
+    statSkip: Skipped
+    statRenamed: Renamed
+    statMoved: Moved
+    statFailed: Not moved
+    statLeftover: Left behind
+    sectionMove: Will be moved
+    sectionSkip: Will be skipped
+    sectionMoved: Moved
+    sectionFailed: Not moved (left where it was)
+    sectionLeftover: Old folders not fully removed
+    leftoverHint: The copy at the new location is complete. These leftovers can be deleted.
+    from: From
+    to: To
+    renamedBadge: 'Name taken, will be saved as "${name}"'
+    showPaths: Show paths
+    hidePaths: Hide paths
+    revealInFolder: Show in folder
+    copyPath: Copy path
+    pathCopied: Path copied
+    stateDownloading: 'downloading, ${percent}%'
+    statePending: waiting to download
+    statePaused: 'paused at ${percent}%'
+    stateFailed: download failed
+    skipAlreadyThere: Already in this folder
+    skipInsideSource: The destination is inside this gallery's own folder
+    reasonBusy: Busy with another operation (deleting or moving)
+    reasonSourceLocked: The file is in use (for example, playing), so it couldn't be removed from the old location. Nothing was changed.
+    reasonNoSpace: The destination ran out of space. The rest of the batch was stopped.
+    reasonVerifyFailed: The copy didn't match the original's size. The copy was discarded.
+    reasonIoError: Couldn't read or write the file. Nothing was changed.
+    systemMessage: 'System message: ${message}'
+    outsideTitle: '${count} downloaded item(s) are outside this folder'
+    outsideSubtitle: They still play where they are. Move them here to keep everything together.
+    moveHere: Move here
+    missingTitle: Files not found
+    recordedLocation: Recorded location
+    legendExists: still exists
+    legendMissing: missing
+    diagVolume: 'Storage "${volume}" is not available. The SD card or external drive may not be connected.'
+    diagVolumeShort: 'storage "${volume}" not connected'
+    diagContainer: 'After an app update, the system moved the app''s storage. The file is still here:'
+    diagContainerShort: app storage moved after update
+    diagNoAccess: The app doesn't have permission to read this location. Grant "All files access" and check again.
+    diagNoAccessShort: no permission to read this location
+    diagFolder: 'The folder "${folder}" no longer exists.'
+    diagFolderShort: 'folder "${folder}" no longer exists'
+    diagFile: 'The folder is still there, but "${name}" isn''t in it.'
+    diagFileShort: 'not found in its folder'
+    diagCandidates: 'Found something in that folder that looks like it (maybe renamed):'
+    diagNoCandidates: Nothing with the same size was found in that folder.
+    useThis: Use this
+    fixPath: Fix path
+    checkAgain: Check again
+    grantPermission: Grant permission
+    locate: Find in another folder…
+    deleteRecord: Delete record
+    locateNotFound: This download's files aren't in that folder
+    located: Found. The record now points to the new location.
+    stillMissing: Still not found
+    downloadedOn: 'Downloaded ${date}'
+    galleryImages: '${count} images'
+    unfinishedDownloading: 'Downloading ${percent}%: paused first, the downloaded part moves too, then continues'
+    unfinishedPending: 'Waiting to download: re-queued after the move'
+    unfinishedPaused: 'Paused at ${percent}%: the downloaded part moves too, stays paused'
+    unfinishedFailed: 'Download failed: the downloaded part moves too'
+    noDataYet: 'Nothing downloaded yet, only the save location changes'
+    missingGroup: '${count} item(s) with missing files'
+    missingSkip: 'Leave as is'
+    missingRedownload: 'Re-download to the destination'
+    missingRemove: 'Remove records'
+    missingRemoveVolumeNote: '${count} of them are on storage that isnt connected and wont be removed'
+    failedGroup: '${count} failed download(s)'
+    failedMoveOnly: 'Just move'
+    failedMoveAndRetry: 'Move, then re-download'
+    failedRemove: 'Remove tasks'
+    failedRemoveNote: 'Their partially downloaded files are deleted too'
+    execute: 'Apply'
+    actionWillRedownload: 'Will be re-downloaded to the destination'
+    actionWillRemove: 'This record will be removed'
+    actionWillKeep: 'Storage not connected, will be kept'
+    actionWillRetry: 'Re-downloaded after the move'
+    actionWillRemoveTask: 'This task will be removed'
+    statRedownload: 'Re-download'
+    statRemoved: 'Removed'
+    sectionRedownloaded: 'Re-download started'
+    sectionRedownloadFailed: 'Couldnt start re-download'
+    redownloadFailedHint: 'Usually the download link is no longer valid (the work was deleted or made private). You can retry later from the download list.'
+    sectionRemoved: 'Removed'
+    sectionKept: 'Kept (storage not connected)'
+    redownload: 'Re-download'
+    redownloadStarted: 'Re-download started'
+    redownloadNotStarted: 'Couldnt start re-download'
+    diagFileShortWithCandidates: 'a file with the same size is in its folder, maybe renamed'
+    cleanupMenu: 'Clean up broken records…'
+    cleanupScanning: 'Checking ${done}/${total}'
+    cleanupTitle: 'Clean up broken records'
+    cleanupNone: 'Checked ${count} completed download(s). All files are there.'
+    statChecked: 'Checked'
+    statMissing: 'Missing'
+    statKeep: 'Keep'
+    cleanupGroupGone: 'Files are gone'
+    cleanupGroupRecoverable: 'May still be recoverable'
+    cleanupRecoverableHint: 'Storage not connected, no permission, or maybe renamed. Not selected by default. Open an item to see details and recover it.'
+    selectAll: 'Select all'
+    selectNone: 'Select none'
+    removeSelected: 'Remove selected (${count})'
+    redownloadSelected: 'Re-download selected (${count})'
+    processing: 'Processing ${done}/${total}'
+    cleanupRemoved: '${count} record(s) removed'
+    cleanupRedownloaded: 'Re-download started for ${count} item(s)'
+    tapForDetail: 'Details'
+    deleteRecordFailed: 'Couldnt delete the record. Try again later.'
+    sectionNotAttempted: 'Not processed (stopped, left as is)'
+    unexpectedError: 'Stopped because of an error: ${message}. Items already moved are complete.'
   category:
     manageTitle: Quản lý danh mục
     label: Danh mục
@@ -1861,6 +2083,80 @@ download:
     deleteConfirm: 'Xóa danh mục "${title}"? ${count} mục bên trong sẽ chuyển vào Chưa phân loại. Không có tệp nào bị xóa.'
     deleteSuccess: Đã xóa danh mục
     deleteFailed: Xóa danh mục thất bại
+  location:
+    sectionTitle: Save location
+    behaviorSection: Download behavior
+    namingSection: File naming
+    advancedSection: Advanced
+    advancedSubtitle: Write diagnostics and other tools
+    volumeInternal: Internal storage
+    volumeSdCard: SD card
+    volumeExternalDrive: External drive
+    appSpace: App-only storage
+    downloadsFolder: Downloads
+    askEveryTime: Ask every time
+    askEveryTimeDesc: 'Choose where to save for each download. Batch downloads go to ${location}'
+    freeSpace: '${size} free'
+    statusWritable: Writable
+    statusNeedsPermission: Needs permission
+    statusFallback: Temporarily redirected
+    statusLowSpace: Low space
+    statusChecking: Checking
+    grant: Grant
+    fix: Fix
+    changeLocation: Change location
+    openInFileManager: Open in file manager
+    moreActions: More
+    copyPath: Copy path
+    pathCopied: Path copied
+    manualInput: Enter path manually (advanced)
+    restoreDefault: Restore default
+    runDiagnostics: Run diagnostics
+    restoredDefault: Restored the default location
+    sheetTitle: Choose download location
+    chooseOtherFolder: Choose another folder…
+    chooseOtherFolderDesc: Pick one with the system file picker
+    optionRecommendedDesc: Recommended · no permission needed
+    optionRecommendedLegacyDesc: Recommended · needs storage permission
+    optionAppPrivateDesc: Deleted on uninstall · hidden from the gallery
+    optionRemovableDesc: 'Needs "All files access"'
+    optionDesktopDownloadsDesc: Recommended · your Downloads folder
+    optionAskEveryTimeDesc: Pick a folder for each download
+    current: Current
+    fallbackBanner: Your last download was temporarily saved to app storage because the chosen folder could not be used.
+    fallbackReasonPermission: storage permission is missing
+    fallbackReasonVolumeMissing: the storage device is not connected
+    fallbackReasonCannotCreate: the folder could not be created
+    fallbackReasonNotWritable: the folder cannot be written to
+    fallbackDetail: 'Temporarily redirected: ${reason}'
+    errorUnresolvable: This location belongs to a cloud drive or another app and cannot be written to directly. Choose a folder on your device storage or SD card.
+    errorNotWritable: This folder cannot be written to (read-only, protected by the system, or disconnected). The location was not changed.
+    errorVolumeMissing: This storage device cannot be found (removed or not connected). The location was not changed.
+    permissionTitle: Permission needed
+    permissionAllFiles: 'Writing to this folder needs "All files access". If you''d rather not allow that, use "Downloads › LoveIwara" instead.'
+    permissionLegacy: 'Writing to this folder needs the storage permission. If you''d rather not allow that, use app-only storage instead.'
+    useDownloadsInstead: Use Downloads › LoveIwara
+    useAppSpaceInstead: Use app-only storage
+    goToSettings: Grant
+    permissionDenied: Permission was not granted. The location was not changed.
+    checking: Checking this location…
+    confirmTitle: Use this location?
+    confirmFree: '${size} free'
+    confirmOutside: '${count} downloaded item(s) stay in the old location'
+    confirmOutsideDesc: New downloads will be saved here. What about the ones you already have?
+    moveThem: Move them here
+    keepThem: Keep them where they are
+    decideLater: Decide later
+    useThisLocation: Use this location
+    locationChanged: Download location changed
+    manualTitle: Enter path manually
+    manualLabel: Folder path
+    manualHint: 'e.g. /storage/emulated/0/Download/LoveIwara'
+    manualSubmit: Check and use
+    manualEmpty: Enter a path
+    manualNotAbsolute: Enter a full absolute path
+    fixStillFailing: This location still cannot be used. Choose another one.
+    fixed: The location works again
   maxConcurrentDownloads: Số tải xuống đồng thời tối đa
   maxConcurrentDownloadsDesc: 'Số tác vụ tải xuống cùng lúc (1-5)'
   stillInDevelopment: Vẫn đang phát triển
@@ -1904,6 +2200,11 @@ downloadNotifications:
   failedBody: '${name} tải xuống thất bại'
   completedToast: 'Đã tải xuống ${name}'
   failedToast: '${name} tải xuống thất bại'
+  savedToFolder: 'Đã lưu vào ${dir}'
+  savedAsRenamed: 'Đã lưu thành ${name} (đã có tệp trùng tên)'
+  savedToAppFolder: 'Đã lưu vào thư mục ứng dụng — không thể ghi ${target} (${reason})'
+  viewFolder: 'Xem thư mục'
+  fixInSettings: 'Sửa trong Cài đặt'
   channelName: Trạng thái tải xuống
   channelDescription: Thông báo cho các tải xuống đã hoàn thành và thất bại
 
@@ -2293,6 +2594,7 @@ mediaPlayer:
   localVideoPathEmpty: "Đường dẫn video cục bộ trống"
   localVideoFileNotExists: "Tệp video cục bộ không tồn tại: ${path}"
   unableToPlayLocalVideo: "Không thể phát video cục bộ: ${error}"
+  unableToPlayNasVideo: "Unable to play the NAS video: ${error}"
   # File drag and drop
   dropVideoFileHere: "Kéo tệp video vào đây để phát"
   supportedFormats: "Định dạng được hỗ trợ: MP4, MKV, AVI, MOV, WEBM, v.v."
@@ -3157,6 +3459,87 @@ localMedia:
   addFolder: Thêm thư mục
   addDeviceVideos: Quét video trên thiết bị
   mediaStoreSourceName: Video trên thiết bị
+  scanQueued: "Waiting to scan"
+  itemInfo: "File info"
+  revealInFolder: "Show in folder"
+  rescanAll: "Rescan all"
+  rescanAllStarted: "Rescanning ${count} sources"
+  searchLibrary: "Search"
+  searchIncludeSubfolders: "Include subfolders"
+  searchThisFolderOnly: "This folder only"
+  searchResultCount: "Found ${count}"
+  savedServers: "Saved NAS"
+  newServer: "Connect a new NAS"
+  itemInfoLabels:
+    size: "Size"
+    resolution: "Resolution"
+    duration: "Duration"
+    modified: "Modified"
+    lastPlayed: "Last played"
+    neverPlayed: "Not watched yet"
+    completed: "Finished"
+  addSource: "Add source"
+  addSourceKinds: "Folder · NAS"
+  openSettings: "Open settings"
+  removeSourceLoses: "This also clears the following, and re-adding won't bring it back: ${items}"
+  loseProgress: "${count} watch progress"
+  loseFavorites: "${count} featured"
+  losePinned: "${count} pinned folders"
+  loseHidden: "${count} hidden folders"
+  loseCovers: "${count} custom covers"
+  renameSource: "Rename"
+  renameSourceTitle: "Rename source"
+  renameSourceLabel: "Name"
+  renamed: "Renamed"
+  nasAggregateHint: "NAS content only includes folders you have opened. Videos and images in folders you haven't opened won't show up here."
+  rescanDone: "\"${name}\" updated"
+  unknownSourceHint: This source needs a newer version of the app
+  missing:
+    title: "Can't find this file"
+    rescanFolder: "Rescan folder"
+    relistNas: "Refresh this folder"
+    removeFromList: "Remove from list"
+    removed: "Removed from the list. The file on disk was not touched"
+    found: "Found it"
+    nasGone: "\"${name}\" is no longer on the NAS: it may have been deleted, moved or renamed. Refresh this folder to see what it contains now."
+  webdav:
+    addNas: "Connect NAS (WebDAV)"
+    connectTitle: "Connect NAS"
+    editTitle: "Sign in to NAS again"
+    hint: "Turn on the WebDAV service in your NAS settings, then enter its address and account."
+    address: "Address"
+    addressHint: "e.g. 192.168.1.10:5005"
+    username: "Username"
+    password: "Password"
+    displayName: "Name (optional)"
+    connect: "Connect"
+    invalidAddress: "Invalid address"
+    errorAuth: "Wrong username or password"
+    errorUnreachable: "Can't reach the server. Check the address and port, and that this device is on the same network as the NAS"
+    errorNotWebdav: "This address is not a WebDAV service"
+    errorGeneric: "Connection failed (${code})"
+    errorCredUnreadable: "Couldn't read the saved password. Try again later"
+    certTitle: "Trust this server?"
+    certBody: "The server's certificate isn't trusted by the system (common with self-signed NAS certificates). Make sure this fingerprint matches the one shown in your NAS settings:"
+    certChangedBody: "This server's certificate is different from the one you trusted before. If you didn't replace your NAS certificate, someone may be impersonating it. Don't continue."
+    trust: "Trust"
+    pickRootTitle: "Choose a folder to add"
+    serverRoot: "Root"
+    alreadyAdded: "This NAS folder has already been added"
+    relogin: "Sign in again"
+    stateAuthFailed: "Sign-in required"
+    stateCertUntrusted: "Server certificate changed"
+    stateUnreachable: "Can't reach NAS"
+    stateCredUnreadable: "Couldn't read password"
+    connected: "Connected"
+    errorForbidden: "This account has no WebDAV access. Grant it WebDAV permission in the NAS settings."
+    errorTls: "Secure connection failed. Check that http:// or https:// matches the NAS settings."
+    errorTryHttps: "If the NAS only serves HTTPS, add https:// in front of the address."
+    previousStep: "Back"
+    bannerUnreachable: "Can't reach the NAS. Showing what was seen last time."
+    bannerAuthFailed: "Login expired. Sign in again to see the latest content."
+    bannerCertUntrusted: "The NAS certificate changed. Confirm it to continue."
+    bannerCredUnreadable: "Couldn't read the saved password. Sign in again."
   mediaStoreUnavailable: Chỉ mục media của thiết bị chỉ khả dụng trên Android
   mediaStorePermissionDenied: Quyền truy cập video chưa được cấp
   rescan: Quét lại

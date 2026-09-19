@@ -1044,6 +1044,8 @@ settings:
     testDownloadPathAndPermissions: 測試下載路徑和權限配置是否正常運作
     testResults: 測試結果
     testCompleted: 測試完成
+    testMultisegmentDomain: '值域檢查（多段 / 超段 / 逃逸形狀）'
+    testMultisegmentPaths: '多段結構渲染（issue #126）'
     testPassed: 項透過
     testFailed: 測試失敗
     testStoragePermissionCheck: 儲存權限檢查
@@ -1122,6 +1124,7 @@ settings:
     setPathFailed: 設定路徑失敗
     # 檔案命名範本變數
     variableTitle: 標題
+    variableAuthorcache: '作者首見名（作者改名不漂移）'
     variableAuthor: 作者名稱
     variableUsername: 作者使用者名稱
     variableQuality: 影片品質
@@ -1137,6 +1140,48 @@ settings:
     suchAsTitleQuality: '例如: %title_%quality'
     suchAsTitleId: '例如: %title_%id'
     suchAsTitleFilename: '例如: %title_%filename'
+    structureSection: '儲存結構與命名'
+    structureSectionDescription: '下載的檔案會依照下方所選方式自動歸入子資料夾。只影響之後的新下載，已下載的不會動。'
+    structureNoticeTitle: '新功能：可按作者自動歸檔'
+    structureNoticeBody: '在下方選擇即可 · 只影響新下載的檔案，已下載的不會動。'
+    presetFlat: '平鋪'
+    presetFlatDesc: '全部檔案直接放在下載根目錄'
+    presetAuthor: '按作者'
+    presetAuthorBadge: '推薦'
+    presetAuthorDesc: '每位作者一個資料夾 · 改名不漂移'
+    presetDate: '按日期'
+    presetDateDesc: '按下載日期歸檔'
+    presetCustom: '自訂'
+    presetCustomDesc: '自由編輯路徑範本'
+    presetCustomHint: '自訂：在「自訂路徑範本」編輯器中修改'
+    structurePreviewLabel: '效果預覽'
+    structurePreviewNote: '彩色段＝組織層級，隨所選方式即時變化。'
+    pathTooLongWarning: '相對路徑超過 200 字元，部分裝置可能無法儲存'
+    pathTemplateEditorEntry: '自訂路徑範本'
+    pathTemplateEditorEntryDesc: '自己決定資料夾怎麼分'
+    pathTemplateEditor:
+      title: '路徑範本'
+      subtitle: '給下載的檔案自動分資料夾'
+      tabVideo: '影片'
+      tabGallery: '圖庫'
+      tabImage: '單張圖片'
+      previewLabel: '預覽 · 清洗後的真實落盤結果'
+      galleryPreviewLabel: '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）'
+      addFolder: '＋新增一層資料夾（${current}/${max}）'
+      folderCapReached: '已達資料夾層數上限'
+      folderSegmentHint: '%authorcache、變數或固定文字'
+      fileSegmentHint: '如 %title_%quality'
+      videoCapNote: '副檔名（.mp4）會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾'
+      imageCapNote: '原副檔名會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾'
+      galleryCapNote: '圖庫範本全部為資料夾段，最多 ${max} 層 · 內部圖片沿用 圖片ID.副檔名'
+      trayHint: '點按插入到目前焦點段 · 長按查看說明'
+      emptySegment: '空段'
+      emptySegmentSaveBlocked: '無法儲存：存在空段，請刪除或填入內容'
+      savedToast: '已儲存 · 只影響之後的新下載'
+      trayCategoryContent: '內容'
+      trayCategoryAuthor: '作者'
+      trayCategoryTime: '時間'
+      chipAuthorcache: '作者名·固定'
 favoriteTags:
   title: 收藏標籤
   emptyIwara: 還沒有收藏的 Iwara 標籤
@@ -1783,7 +1828,9 @@ download:
   download: 下載
   selectDownloadTitle: 選擇下載
   qualitySectionLabel: 清晰度
-  saveToSectionLabel: 儲存到
+  categorySectionLabel: '分類'
+  saveToPreviewLabel: '將儲存到'
+  saveToPreviewSuggested: '建議檔名：${name}（可在系統對話框修改）'
   lastUsedBadge: 上次選擇
   pickedBadge: 已選擇
   forceDeleteTask: 強制刪除任務
@@ -2203,6 +2250,11 @@ downloadNotifications:
   failedBody: '${name} 下載失敗'
   completedToast: '${name} 已下載完成'
   failedToast: '${name} 下載失敗'
+  savedToFolder: '已儲存到 ${dir}'
+  savedAsRenamed: '已儲存為 ${name}（原位置已有同名檔案）'
+  savedToAppFolder: '已儲存到應用程式資料夾 — 無法寫入 ${target}（${reason}）'
+  viewFolder: '查看資料夾'
+  fixInSettings: '前往設定修復'
   channelName: 下載狀態
   channelDescription: 下載完成與失敗的通知
 

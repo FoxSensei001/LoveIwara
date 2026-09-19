@@ -1378,7 +1378,6 @@ class _TranslationsDownloadZhCn extends TranslationsDownloadEn {
 	@override String get download => '下载';
 	@override String get selectDownloadTitle => '选择下载';
 	@override String get qualitySectionLabel => '清晰度';
-	@override String get saveToSectionLabel => '保存到';
 	@override String get categorySectionLabel => '分类';
 	@override String get saveToPreviewLabel => '将保存到';
 	@override String saveToPreviewSuggested({required Object name}) => '建议文件名：${name}（可在系统对话框修改）';
@@ -3068,6 +3067,8 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get testDownloadPathAndPermissions => '测试下载路径和权限配置是否正常工作';
 	@override String get testResults => '测试结果';
 	@override String get testCompleted => '测试完成';
+	@override String get testMultisegmentDomain => '值域校验（多段 / 超段 / 逃逸形状）';
+	@override String get testMultisegmentPaths => '多段结构渲染（issue';
 	@override String get testPassed => '项通过';
 	@override String get testFailed => '测试失败';
 	@override String get testStoragePermissionCheck => '存储权限检查';
@@ -3156,7 +3157,7 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get suchAsTitleId => '例如: %title_%id';
 	@override String get suchAsTitleFilename => '例如: %title_%filename';
 	@override String get structureSection => '保存结构与命名';
-	@override String get structureSectionDescription => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载， 已经下载的不动。';
+	@override String get structureSectionDescription => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载，已经下载的不动。';
 	@override String get structureNoticeTitle => '新功能：可按作者自动归档';
 	@override String get structureNoticeBody => '在下方选择即可 · 只影响新下载的文件，已经下载的不动。';
 	@override String get presetFlat => '平铺';
@@ -5594,6 +5595,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.testDownloadPathAndPermissions' => '测试下载路径和权限配置是否正常工作',
 			'settings.downloadSettings.testResults' => '测试结果',
 			'settings.downloadSettings.testCompleted' => '测试完成',
+			'settings.downloadSettings.testMultisegmentDomain' => '值域校验（多段 / 超段 / 逃逸形状）',
+			'settings.downloadSettings.testMultisegmentPaths' => '多段结构渲染（issue',
 			'settings.downloadSettings.testPassed' => '项通过',
 			'settings.downloadSettings.testFailed' => '测试失败',
 			'settings.downloadSettings.testStoragePermissionCheck' => '存储权限检查',
@@ -5624,10 +5627,10 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.testFileContent' => '文件内容',
 			'settings.downloadSettings.checkingPathStatus' => '检查路径状态...',
 			'settings.downloadSettings.unableToGetPathStatus' => '无法获取路径状态',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：实际使用路径与选择路径不同',
-			'settings.downloadSettings.grantPermission' => '授权权限',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：实际使用路径与选择路径不同',
+			'settings.downloadSettings.grantPermission' => '授权权限',
 			'settings.downloadSettings.fixIssue' => '修复问题',
 			'settings.downloadSettings.issueFixed' => '问题已修复',
 			'settings.downloadSettings.fixFailed' => '修复失败，请手动处理',
@@ -5684,7 +5687,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.suchAsTitleId' => '例如: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例如: %title_%filename',
 			'settings.downloadSettings.structureSection' => '保存结构与命名',
-			'settings.downloadSettings.structureSectionDescription' => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载， 已经下载的不动。',
+			'settings.downloadSettings.structureSectionDescription' => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载，已经下载的不动。',
 			'settings.downloadSettings.structureNoticeTitle' => '新功能：可按作者自动归档',
 			'settings.downloadSettings.structureNoticeBody' => '在下方选择即可 · 只影响新下载的文件，已经下载的不动。',
 			'settings.downloadSettings.presetFlat' => '平铺',
@@ -6138,10 +6141,10 @@ extension on TranslationsZhCn {
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
 			'forum.submit' => '提交',
-			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
-			'notifications.errors.unknownUser' => '未知用户',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
+			'notifications.errors.unknownUser' => '未知用户',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知类型',
 			'notifications.notifications' => '通知',
@@ -6276,7 +6279,6 @@ extension on TranslationsZhCn {
 			'download.download' => '下载',
 			'download.selectDownloadTitle' => '选择下载',
 			'download.qualitySectionLabel' => '清晰度',
-			'download.saveToSectionLabel' => '保存到',
 			'download.categorySectionLabel' => '分类',
 			'download.saveToPreviewLabel' => '将保存到',
 			'download.saveToPreviewSuggested' => ({required Object name}) => '建议文件名：${name}（可在系统对话框修改）',
@@ -6653,9 +6655,9 @@ extension on TranslationsZhCn {
 			'download.saveToAppDirectory' => '保存到应用目录',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
-			'download.otherQualities' => '其他清晰度',
 			_ => null,
 		} ?? switch (path) {
+			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
 			'download.batchDownload.userCancelled' => '用户取消',
@@ -7167,9 +7169,9 @@ extension on TranslationsZhCn {
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
-			'emoji.enterGroupName' => '请输入分组名称',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.enterGroupName' => '请输入分组名称',
 			'emoji.create' => '创建',
 			'emoji.editGroupName' => '编辑分组名称',
 			'emoji.save' => '保存',
@@ -7681,9 +7683,9 @@ extension on TranslationsZhCn {
 			'vrFormat.manualBadge' => '已手动指定',
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
-			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
 			'vrFormat.handoffTooltip' => '换个方式播放',
 			'vrFormat.suggestedBadge' => '建议',
 			'vrFormat.suggestedEntryDesc' => ({required Object format}) => '可能是 ${format}，点这里切过去',

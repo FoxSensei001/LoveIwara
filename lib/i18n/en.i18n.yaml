@@ -1043,6 +1043,8 @@ settings:
     testDownloadPathAndPermissions: Test if download path and permission configuration work properly
     testResults: Test Results
     testCompleted: Test completed
+    testMultisegmentDomain: Value domain (multi-segment / overflow / escape shapes)
+    testMultisegmentPaths: Multi-segment structure rendering (issue #126)
     testPassed: items passed
     testFailed: Test failed
     testStoragePermissionCheck: Storage Permission Check
@@ -1139,9 +1141,7 @@ settings:
     suchAsTitleFilename: 'For example: %title_%filename'
     # [Save structure & naming] (issue #126 subfolder archiving)
     structureSection: Save structure & naming
-    structureSectionDescription: >-
-      Downloads are organized into subfolders by the scheme below. Only affects
-      future downloads; existing files stay put.
+    structureSectionDescription: 'Downloads are organized into subfolders by the scheme below. Only affects future downloads; existing files stay put.'
     structureNoticeTitle: New — organize downloads by author automatically
     structureNoticeBody: Pick a scheme below · only affects future downloads, existing files stay put.
     presetFlat: Flat
@@ -1779,7 +1779,6 @@ download:
   download: Download
   selectDownloadTitle: Select Download
   qualitySectionLabel: Quality
-  saveToSectionLabel: Save to
   categorySectionLabel: Category
   saveToPreviewLabel: Will save to
   saveToPreviewSuggested: 'Suggested file name: ${name} (editable in the system dialog)'

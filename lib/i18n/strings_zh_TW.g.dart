@@ -1407,7 +1407,9 @@ class _TranslationsDownloadZhTw extends TranslationsDownloadEn {
 	@override String get download => '下載';
 	@override String get selectDownloadTitle => '選擇下載';
 	@override String get qualitySectionLabel => '清晰度';
-	@override String get saveToSectionLabel => '儲存到';
+	@override String get categorySectionLabel => '分類';
+	@override String get saveToPreviewLabel => '將儲存到';
+	@override String saveToPreviewSuggested({required Object name}) => '建議檔名：${name}（可在系統對話框修改）';
 	@override String get lastUsedBadge => '上次選擇';
 	@override String get pickedBadge => '已選擇';
 	@override String get forceDeleteTask => '強制刪除任務';
@@ -1507,6 +1509,11 @@ class _TranslationsDownloadNotificationsZhTw extends TranslationsDownloadNotific
 	@override String failedBody({required Object name}) => '${name} 下載失敗';
 	@override String completedToast({required Object name}) => '${name} 已下載完成';
 	@override String failedToast({required Object name}) => '${name} 下載失敗';
+	@override String savedToFolder({required Object dir}) => '已儲存到 ${dir}';
+	@override String savedAsRenamed({required Object name}) => '已儲存為 ${name}（原位置已有同名檔案）';
+	@override String savedToAppFolder({required Object target, required Object reason}) => '已儲存到應用程式資料夾 — 無法寫入 ${target}（${reason}）';
+	@override String get viewFolder => '查看資料夾';
+	@override String get fixInSettings => '前往設定修復';
 	@override String get channelName => '下載狀態';
 	@override String get channelDescription => '下載完成與失敗的通知';
 }
@@ -3060,6 +3067,8 @@ class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDown
 	@override String get testDownloadPathAndPermissions => '測試下載路徑和權限配置是否正常運作';
 	@override String get testResults => '測試結果';
 	@override String get testCompleted => '測試完成';
+	@override String get testMultisegmentDomain => '值域檢查（多段 / 超段 / 逃逸形狀）';
+	@override String get testMultisegmentPaths => '多段結構渲染（issue #126）';
 	@override String get testPassed => '項透過';
 	@override String get testFailed => '測試失敗';
 	@override String get testStoragePermissionCheck => '儲存權限檢查';
@@ -3132,6 +3141,7 @@ class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDown
 	@override String get downloadPathSetTo => '下載路徑已設定為';
 	@override String get setPathFailed => '設定路徑失敗';
 	@override String get variableTitle => '標題';
+	@override String get variableAuthorcache => '作者首見名（作者改名不漂移）';
 	@override String get variableAuthor => '作者名稱';
 	@override String get variableUsername => '作者使用者名稱';
 	@override String get variableQuality => '影片品質';
@@ -3146,6 +3156,26 @@ class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDown
 	@override String get suchAsTitleQuality => '例如: %title_%quality';
 	@override String get suchAsTitleId => '例如: %title_%id';
 	@override String get suchAsTitleFilename => '例如: %title_%filename';
+	@override String get structureSection => '儲存結構與命名';
+	@override String get structureSectionDescription => '下載的檔案會依照下方所選方式自動歸入子資料夾。只影響之後的新下載，已下載的不會動。';
+	@override String get structureNoticeTitle => '新功能：可按作者自動歸檔';
+	@override String get structureNoticeBody => '在下方選擇即可 · 只影響新下載的檔案，已下載的不會動。';
+	@override String get presetFlat => '平鋪';
+	@override String get presetFlatDesc => '全部檔案直接放在下載根目錄';
+	@override String get presetAuthor => '按作者';
+	@override String get presetAuthorBadge => '推薦';
+	@override String get presetAuthorDesc => '每位作者一個資料夾 · 改名不漂移';
+	@override String get presetDate => '按日期';
+	@override String get presetDateDesc => '按下載日期歸檔';
+	@override String get presetCustom => '自訂';
+	@override String get presetCustomDesc => '自由編輯路徑範本';
+	@override String get presetCustomHint => '自訂：在「自訂路徑範本」編輯器中修改';
+	@override String get structurePreviewLabel => '效果預覽';
+	@override String get structurePreviewNote => '彩色段＝組織層級，隨所選方式即時變化。';
+	@override String get pathTooLongWarning => '相對路徑超過 200 字元，部分裝置可能無法儲存';
+	@override String get pathTemplateEditorEntry => '自訂路徑範本';
+	@override String get pathTemplateEditorEntryDesc => '自己決定資料夾怎麼分';
+	@override late final _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw pathTemplateEditor = _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw._(_root);
 }
 
 // Path: oreno3d.sortTypes
@@ -4409,6 +4439,37 @@ class _TranslationsLocalMediaWebdavZhTw extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '讀取儲存的密碼失敗，重新登入一次即可';
 }
 
+// Path: settings.downloadSettings.pathTemplateEditor
+class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
+	_TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
+
+	final TranslationsZhTw _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '路徑範本';
+	@override String get subtitle => '給下載的檔案自動分資料夾';
+	@override String get tabVideo => '影片';
+	@override String get tabGallery => '圖庫';
+	@override String get tabImage => '單張圖片';
+	@override String get previewLabel => '預覽 · 清洗後的真實落盤結果';
+	@override String get galleryPreviewLabel => '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）';
+	@override String addFolder({required Object current, required Object max}) => '＋新增一層資料夾（${current}/${max}）';
+	@override String get folderCapReached => '已達資料夾層數上限';
+	@override String get folderSegmentHint => '%authorcache、變數或固定文字';
+	@override String get fileSegmentHint => '如 %title_%quality';
+	@override String videoCapNote({required Object max}) => '副檔名（.mp4）會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾';
+	@override String imageCapNote({required Object max}) => '原副檔名會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾';
+	@override String galleryCapNote({required Object max}) => '圖庫範本全部為資料夾段，最多 ${max} 層 · 內部圖片沿用 圖片ID.副檔名';
+	@override String get trayHint => '點按插入到目前焦點段 · 長按查看說明';
+	@override String get emptySegment => '空段';
+	@override String get emptySegmentSaveBlocked => '無法儲存：存在空段，請刪除或填入內容';
+	@override String get savedToast => '已儲存 · 只影響之後的新下載';
+	@override String get trayCategoryContent => '內容';
+	@override String get trayCategoryAuthor => '作者';
+	@override String get trayCategoryTime => '時間';
+	@override String get chipAuthorcache => '作者名·固定';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class _TranslationsVideoDetailGestureGuideQuestZhTw extends TranslationsVideoDetailGestureGuideQuestEn {
 	_TranslationsVideoDetailGestureGuideQuestZhTw._(TranslationsZhTw root) : this._root = root, super.internal(root);
@@ -5534,6 +5595,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.testDownloadPathAndPermissions' => '測試下載路徑和權限配置是否正常運作',
 			'settings.downloadSettings.testResults' => '測試結果',
 			'settings.downloadSettings.testCompleted' => '測試完成',
+			'settings.downloadSettings.testMultisegmentDomain' => '值域檢查（多段 / 超段 / 逃逸形狀）',
+			'settings.downloadSettings.testMultisegmentPaths' => '多段結構渲染（issue #126）',
 			'settings.downloadSettings.testPassed' => '項透過',
 			'settings.downloadSettings.testFailed' => '測試失敗',
 			'settings.downloadSettings.testStoragePermissionCheck' => '儲存權限檢查',
@@ -5564,10 +5627,10 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.testFileContent' => '檔案內容',
 			'settings.downloadSettings.checkingPathStatus' => '檢查路徑狀態...',
 			'settings.downloadSettings.unableToGetPathStatus' => '無法獲取路徑狀態',
-			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：實際使用路徑與選擇路徑不同',
-			'settings.downloadSettings.grantPermission' => '授權權限',
 			_ => null,
 		} ?? switch (path) {
+			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：實際使用路徑與選擇路徑不同',
+			'settings.downloadSettings.grantPermission' => '授權權限',
 			'settings.downloadSettings.fixIssue' => '修復問題',
 			'settings.downloadSettings.issueFixed' => '問題已修復',
 			'settings.downloadSettings.fixFailed' => '修復失敗，請手動處理',
@@ -5608,6 +5671,7 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.downloadPathSetTo' => '下載路徑已設定為',
 			'settings.downloadSettings.setPathFailed' => '設定路徑失敗',
 			'settings.downloadSettings.variableTitle' => '標題',
+			'settings.downloadSettings.variableAuthorcache' => '作者首見名（作者改名不漂移）',
 			'settings.downloadSettings.variableAuthor' => '作者名稱',
 			'settings.downloadSettings.variableUsername' => '作者使用者名稱',
 			'settings.downloadSettings.variableQuality' => '影片品質',
@@ -5622,6 +5686,47 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.suchAsTitleQuality' => '例如: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例如: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例如: %title_%filename',
+			'settings.downloadSettings.structureSection' => '儲存結構與命名',
+			'settings.downloadSettings.structureSectionDescription' => '下載的檔案會依照下方所選方式自動歸入子資料夾。只影響之後的新下載，已下載的不會動。',
+			'settings.downloadSettings.structureNoticeTitle' => '新功能：可按作者自動歸檔',
+			'settings.downloadSettings.structureNoticeBody' => '在下方選擇即可 · 只影響新下載的檔案，已下載的不會動。',
+			'settings.downloadSettings.presetFlat' => '平鋪',
+			'settings.downloadSettings.presetFlatDesc' => '全部檔案直接放在下載根目錄',
+			'settings.downloadSettings.presetAuthor' => '按作者',
+			'settings.downloadSettings.presetAuthorBadge' => '推薦',
+			'settings.downloadSettings.presetAuthorDesc' => '每位作者一個資料夾 · 改名不漂移',
+			'settings.downloadSettings.presetDate' => '按日期',
+			'settings.downloadSettings.presetDateDesc' => '按下載日期歸檔',
+			'settings.downloadSettings.presetCustom' => '自訂',
+			'settings.downloadSettings.presetCustomDesc' => '自由編輯路徑範本',
+			'settings.downloadSettings.presetCustomHint' => '自訂：在「自訂路徑範本」編輯器中修改',
+			'settings.downloadSettings.structurePreviewLabel' => '效果預覽',
+			'settings.downloadSettings.structurePreviewNote' => '彩色段＝組織層級，隨所選方式即時變化。',
+			'settings.downloadSettings.pathTooLongWarning' => '相對路徑超過 200 字元，部分裝置可能無法儲存',
+			'settings.downloadSettings.pathTemplateEditorEntry' => '自訂路徑範本',
+			'settings.downloadSettings.pathTemplateEditorEntryDesc' => '自己決定資料夾怎麼分',
+			'settings.downloadSettings.pathTemplateEditor.title' => '路徑範本',
+			'settings.downloadSettings.pathTemplateEditor.subtitle' => '給下載的檔案自動分資料夾',
+			'settings.downloadSettings.pathTemplateEditor.tabVideo' => '影片',
+			'settings.downloadSettings.pathTemplateEditor.tabGallery' => '圖庫',
+			'settings.downloadSettings.pathTemplateEditor.tabImage' => '單張圖片',
+			'settings.downloadSettings.pathTemplateEditor.previewLabel' => '預覽 · 清洗後的真實落盤結果',
+			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => '＋新增一層資料夾（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => '已達資料夾層數上限',
+			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache、變數或固定文字',
+			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '如 %title_%quality',
+			'settings.downloadSettings.pathTemplateEditor.videoCapNote' => ({required Object max}) => '副檔名（.mp4）會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾',
+			'settings.downloadSettings.pathTemplateEditor.imageCapNote' => ({required Object max}) => '原副檔名會自動加上 · 段內輸入 / 自動拆為兩層 · 最多 ${max} 層資料夾',
+			'settings.downloadSettings.pathTemplateEditor.galleryCapNote' => ({required Object max}) => '圖庫範本全部為資料夾段，最多 ${max} 層 · 內部圖片沿用 圖片ID.副檔名',
+			'settings.downloadSettings.pathTemplateEditor.trayHint' => '點按插入到目前焦點段 · 長按查看說明',
+			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空段',
+			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '無法儲存：存在空段，請刪除或填入內容',
+			'settings.downloadSettings.pathTemplateEditor.savedToast' => '已儲存 · 只影響之後的新下載',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '內容',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '時間',
+			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
 			'favoriteTags.title' => '收藏標籤',
 			'favoriteTags.emptyIwara' => '還沒有收藏的 Iwara 標籤',
 			'favoriteTags.emptyOreno3d' => '還沒有收藏',
@@ -6036,6 +6141,8 @@ extension on TranslationsZhTw {
 			'forum.leafNames.sharing' => '分享',
 			'forum.leafNames.general_zh' => '一般',
 			'forum.leafNames.questions_zh' => '問題',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafNames.requests_zh' => '請求',
 			'forum.leafNames.support_zh' => '幫助',
 			'forum.leafNames.general_ja' => '一般',
@@ -6080,8 +6187,6 @@ extension on TranslationsZhTw {
 			'notifications.inYour' => '在您的',
 			'notifications.video' => '影片',
 			'notifications.repliedYourVideoComment' => '回覆了您的影片評論',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.copyInfoToClipboard' => '複製通知資訊到剪貼簿',
 			'notifications.copySuccess' => '已複製到剪貼簿',
 			'notifications.copySuccessForMessage' => ({required Object str}) => '已複製到剪貼簿: ${str}',
@@ -6208,7 +6313,9 @@ extension on TranslationsZhTw {
 			'download.download' => '下載',
 			'download.selectDownloadTitle' => '選擇下載',
 			'download.qualitySectionLabel' => '清晰度',
-			'download.saveToSectionLabel' => '儲存到',
+			'download.categorySectionLabel' => '分類',
+			'download.saveToPreviewLabel' => '將儲存到',
+			'download.saveToPreviewSuggested' => ({required Object name}) => '建議檔名：${name}（可在系統對話框修改）',
 			'download.lastUsedBadge' => '上次選擇',
 			'download.pickedBadge' => '已選擇',
 			'download.forceDeleteTask' => '強制刪除任務',
@@ -6548,6 +6655,8 @@ extension on TranslationsZhTw {
 			'download.location.fallbackReasonCannotCreate' => '無法建立資料夾',
 			'download.location.fallbackReasonNotWritable' => '資料夾無法寫入',
 			'download.location.fallbackDetail' => ({required Object reason}) => '已暫時改存：${reason}',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.errorUnresolvable' => '這個位置來自雲端硬碟或其他 App，無法直接寫入。請選擇手機儲存空間或 SD 卡裡的資料夾。',
 			'download.location.errorNotWritable' => '這個資料夾無法寫入（唯讀、受系統保護或已中斷連線），位置沒有變更。',
 			'download.location.errorVolumeMissing' => '找不到這個儲存裝置（已移除或沒有連接），位置沒有變更。',
@@ -6594,8 +6703,6 @@ extension on TranslationsZhTw {
 			'download.batchDownload.batchDownloadFailedWithException' => ({required Object exception}) => '批量下載失敗: ${exception}',
 			'download.batchDownload.selectQuality' => '選擇清晰度',
 			'download.batchDownload.downloading' => '下載中',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.downloadResult' => '下載結果',
 			'download.batchDownload.selectedVideosCount' => ({required Object count}) => '已選擇 ${count} 個影片',
 			'download.batchDownload.selectedGalleriesCount' => ({required Object count}) => '已選擇 ${count} 個圖庫',
@@ -6618,6 +6725,11 @@ extension on TranslationsZhTw {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下載失敗',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} 已下載完成',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} 下載失敗',
+			'downloadNotifications.savedToFolder' => ({required Object dir}) => '已儲存到 ${dir}',
+			'downloadNotifications.savedAsRenamed' => ({required Object name}) => '已儲存為 ${name}（原位置已有同名檔案）',
+			'downloadNotifications.savedToAppFolder' => ({required Object target, required Object reason}) => '已儲存到應用程式資料夾 — 無法寫入 ${target}（${reason}）',
+			'downloadNotifications.viewFolder' => '查看資料夾',
+			'downloadNotifications.fixInSettings' => '前往設定修復',
 			'downloadNotifications.channelName' => '下載狀態',
 			'downloadNotifications.channelDescription' => '下載完成與失敗的通知',
 			'favorite.errors.addFailed' => '追加失敗',
@@ -7057,6 +7169,8 @@ extension on TranslationsZhTw {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
@@ -7108,8 +7222,6 @@ extension on TranslationsZhTw {
 			'emoji.uploadingImagesProgress' => ({required Object count}) => '正在上傳 ${count} 張圖片，請稍候...',
 			'emoji.doNotCloseDialog' => '請不要關閉此對話框',
 			'emoji.uploadSuccess' => ({required Object count}) => '成功上傳 ${count} 張圖片',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.uploadFailed' => ({required Object count}) => '失敗 ${count} 張',
 			'emoji.uploadFailedMessage' => '圖片上傳失敗，請檢查網路連接或檔案格式',
 			'emoji.uploadErrorMessage' => ({required Object error}) => '上傳過程中發生錯誤: ${error}',
@@ -7571,6 +7683,8 @@ extension on TranslationsZhTw {
 			'vrFormat.manualBadge' => '已手動指定',
 			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
 			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => '本機不支援即時環視，已退回單眼顯示',
 			'vrFormat.handoffTooltip' => '換個方式播放',
 			'vrFormat.suggestedBadge' => '建議',
@@ -7622,8 +7736,6 @@ extension on TranslationsZhTw {
 			'localMedia.browse.hiddenFolderBadge' => '已隱藏',
 			'localMedia.browse.deleteFolder' => '刪除資料夾',
 			'localMedia.browse.deleteFolderTitle' => '刪除這個資料夾？',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」連同裡面的所有內容都會從這台裝置上真的被刪除，無法復原。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '裡面的其它檔案也會一併刪除',
 			'localMedia.browse.folderDeleted' => '已刪除資料夾',
