@@ -1780,6 +1780,9 @@ download:
   selectDownloadTitle: Select Download
   qualitySectionLabel: Quality
   saveToSectionLabel: Save to
+  categorySectionLabel: Category
+  saveToPreviewLabel: Will save to
+  saveToPreviewSuggested: 'Suggested file name: ${name} (editable in the system dialog)'
   lastUsedBadge: Last used
   pickedBadge: Selected
   startDownloading: Start Downloading
@@ -2199,6 +2202,12 @@ downloadNotifications:
   failedBody: '${name} failed to download'
   completedToast: '${name} downloaded'
   failedToast: '${name} download failed'
+  # 完成回执带相对目录（issue #126）：静默偏差一律显式化
+  savedToFolder: 'Saved to ${dir}'
+  savedAsRenamed: 'Saved as ${name} — a file with the same name already exists'
+  savedToAppFolder: 'Saved to the app folder — could not write ${target} (${reason})'
+  viewFolder: View folder
+  fixInSettings: Fix in Settings
   channelName: Download status
   channelDescription: Notifications for completed and failed downloads
 

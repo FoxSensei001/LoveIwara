@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
 import 'package:i_iwara/app/services/api_service.dart';
-import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
@@ -125,8 +124,9 @@ class ImageUtils {
         type: AppToastType.success,
       );
 
-      // 打开下载管理页面
-      NaviService.navigateToDownloadTaskListPage();
+      // ⛔ 不再入队即跳下载列表（issue #126）：单图是即点即存的轻动作，
+      // 硬拽用户去列表页打断浏览。完成时由下载服务的回执 toast 报出
+      // 「已保存到 作者/标题/」并带跳转/查看动作。
     } catch (e) {
       LogUtils.e('添加下载任务失败', tag: 'ImageUtils', error: e);
       showAppToast(slang.t.download.failed, type: AppToastType.error);

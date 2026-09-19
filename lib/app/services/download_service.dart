@@ -649,7 +649,13 @@ class DownloadService extends GetxService {
         LogUtils.w('自动填充下载任务媒体索引字段失败: $e', 'DownloadService');
       }
 
-      task.savePath = await _resolveUniqueTaskSavePath(task, requestedSavePath);
+      final uniqueSavePath = await _resolveUniqueTaskSavePath(
+        task,
+        requestedSavePath,
+      );
+      // 路径因同名冲突被改过 → 记下来，完成回执里把「静默改序号」说清楚。
+      task.pathSuffixApplied = uniqueSavePath != requestedSavePath;
+      task.savePath = uniqueSavePath;
 
       task.status = DownloadStatus.pending;
       await _insertTaskWithSavePathRetry(task, requestedSavePath);
@@ -713,10 +719,13 @@ class DownloadService extends GetxService {
         return;
       } on DuplicateDownloadTaskException catch (e) {
         if (e.type == DownloadTaskConflictType.savePath && attempt < 2) {
-          task.savePath = await _resolveUniqueTaskSavePath(
+          final retriedPath = await _resolveUniqueTaskSavePath(
             task,
             requestedSavePath,
           );
+          task.pathSuffixApplied =
+              task.pathSuffixApplied || retriedPath != requestedSavePath;
+          task.savePath = retriedPath;
           continue;
         }
         rethrow;
@@ -2072,7 +2081,7 @@ class DownloadService extends GetxService {
               notificationService != null &&
               !notificationService.isAlreadyOnDownloadPage();
           messageService.showActionableMessage(
-            slang.t.downloadNotifications.completedToast(name: title),
+            await _completedToastText(task, title),
             AppToastType.success,
             onTap: showJumpAction
                 ? notificationService.openDownloadTaskList
@@ -2092,7 +2101,12 @@ class DownloadService extends GetxService {
         final svc = Get.find<DownloadNotificationService>();
         unawaited(
           isCompleted
-              ? svc.showDownloadComplete(taskId: task.id, title: title)
+              ? svc.showDownloadComplete(
+                  taskId: task.id,
+                  title: title,
+                  savePath: task.savePath,
+                  isDirectory: _taskUsesDirectorySavePath(task),
+                )
               : svc.showDownloadFailed(
                   taskId: task.id,
                   title: title,
@@ -2103,6 +2117,52 @@ class DownloadService extends GetxService {
     } catch (e) {
       LogUtils.e('派发下载终态通知失败', tag: 'DownloadService', error: e);
     }
+  }
+
+  /// 完成回执文案（issue #126）：报相对目录 + 静默偏差显式化。
+  ///
+  /// 优先级：权限回退（警示）> 同名改序号（说明）> 有子目录（报目录）>
+  /// 平铺/无法判定（维持原文案）。
+  Future<String> _completedToastText(DownloadTask task, String title) async {
+    final notice = slang.t.downloadNotifications;
+
+    // 权限回退：目标目录不可用，临时落在了 App 专属空间——不再静默。
+    if (Get.isRegistered<DownloadPathService>()) {
+      final dirInfo = await Get.find<DownloadPathService>().describeRelativeDir(
+        task.savePath,
+        isDirectory: _taskUsesDirectorySavePath(task),
+      );
+      if (dirInfo != null && dirInfo.fellBack) {
+        final fallback = Get.find<DownloadPathService>().runtimeFallbackState;
+        if (fallback != null) {
+          return notice.savedToAppFolder(
+            target: fallback.target,
+            reason: _fallbackReasonLabel(fallback.reason),
+          );
+        }
+      }
+      if (task.pathSuffixApplied) {
+        return notice.savedAsRenamed(name: path_lib.basename(task.savePath));
+      }
+      if (dirInfo != null && dirInfo.relativeDir.isNotEmpty) {
+        return notice.savedToFolder(dir: dirInfo.relativeDir);
+      }
+    } else if (task.pathSuffixApplied) {
+      return notice.savedAsRenamed(name: path_lib.basename(task.savePath));
+    }
+    return notice.completedToast(name: title);
+  }
+
+  /// 回退原因的人话标签（与 download_location_card 的
+  /// downloadFallbackReasonLabel 同源；服务层不 import UI，此处各自维护）。
+  String _fallbackReasonLabel(DownloadFallbackReason reason) {
+    final t = slang.t.download.location;
+    return switch (reason) {
+      DownloadFallbackReason.needsPermission => t.fallbackReasonPermission,
+      DownloadFallbackReason.volumeMissing => t.fallbackReasonVolumeMissing,
+      DownloadFallbackReason.cannotCreate => t.fallbackReasonCannotCreate,
+      DownloadFallbackReason.notWritable => t.fallbackReasonNotWritable,
+    };
   }
 
   String _getErrorMessage(dynamic error) {

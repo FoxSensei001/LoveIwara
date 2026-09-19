@@ -1,12 +1,16 @@
+import 'dart:io' show Platform, Process;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:local_notifier/local_notifier.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/routes/app_routes.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
+import 'package:path/path.dart' as p;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 跨平台「系统通知」服务。
@@ -146,14 +150,35 @@ class DownloadNotificationService extends GetxService {
   }
 
   /// 下载完成系统通知。
+  ///
+  /// [savePath]/[isDirectory]（issue #126）：传了就把落盘的相对目录写进通知
+  /// 正文，并在 Windows 上挂「查看文件夹」动作；其余平台无可靠的文件夹唤起
+  /// 能力，按「平台降级」只带目录文案。
   Future<void> showDownloadComplete({
     required String taskId,
     required String title,
+    String? savePath,
+    bool isDirectory = false,
   }) async {
+    var body = slang.t.downloadNotifications.completedBody(name: title);
+    if (savePath != null && Get.isRegistered<DownloadPathService>()) {
+      try {
+        final dirInfo = await Get.find<DownloadPathService>()
+            .describeRelativeDir(savePath, isDirectory: isDirectory);
+        final relativeDir = dirInfo?.relativeDir ?? '';
+        if (relativeDir.isNotEmpty) {
+          body =
+              '$body · ${slang.t.downloadNotifications.savedToFolder(dir: relativeDir)}';
+        }
+      } catch (e) {
+        LogUtils.w('计算通知落盘目录失败: $e', 'DownloadNotificationService');
+      }
+    }
     await _show(
       taskId: taskId,
       title: slang.t.downloadNotifications.completedTitle,
-      body: slang.t.downloadNotifications.completedBody(name: title),
+      body: body,
+      revealPath: savePath,
     );
   }
 
@@ -181,6 +206,7 @@ class DownloadNotificationService extends GetxService {
     required String taskId,
     required String title,
     required String body,
+    String? revealPath,
   }) async {
     if (!_initialized) {
       await init();
@@ -189,6 +215,16 @@ class DownloadNotificationService extends GetxService {
       if (_useLocalNotifier) {
         final notification = LocalNotification(title: title, body: body);
         notification.onClick = () => _navigateWhenReady(Routes.DOWNLOAD_TASK_LIST);
+        // 「查看文件夹」动作（issue #126）：仅 Windows 供得出，点击在文件管理器
+        // 里定位落盘位置；其余平台的降级见 [showDownloadComplete]。
+        if (revealPath != null) {
+          notification.actions = [
+            LocalNotificationAction(
+              text: slang.t.downloadNotifications.viewFolder,
+            ),
+          ];
+          notification.onClickAction = (_) => _revealInFileManager(revealPath);
+        }
         await notification.show();
         return;
       }
@@ -293,6 +329,22 @@ class DownloadNotificationService extends GetxService {
       appRouter.push(route);
     } catch (e) {
       LogUtils.w('处理下载通知点击跳转失败: $e', 'DownloadNotificationService');
+    }
+  }
+
+  /// 在系统文件管理器里定位落盘位置（Windows：选中；macOS：Reveal；
+  /// Linux：打开所在目录）。
+  Future<void> _revealInFileManager(String target) async {
+    try {
+      if (Platform.isWindows) {
+        await Process.run('explorer.exe', ['/select,', target]);
+      } else if (Platform.isMacOS) {
+        await Process.run('open', ['-R', target]);
+      } else if (Platform.isLinux) {
+        await Process.run('xdg-open', [p.dirname(target)]);
+      }
+    } catch (e) {
+      LogUtils.w('从通知打开文件夹失败: $e', 'DownloadNotificationService');
     }
   }
 

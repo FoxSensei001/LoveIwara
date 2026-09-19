@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/player_icon.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_category.model.dart';
+import 'package:i_iwara/app/models/video.model.dart';
 import 'package:i_iwara/app/models/video_source.model.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_category_picker.dart'
     show openDownloadCategoryManagePage;
@@ -35,12 +37,15 @@ enum DownloadPickerPreselectSource {
 /// 弹窗按传入顺序铺网格，不再重新排序。[initialQuality] 在 [sources] 中找不到匹配项时
 /// （大小写不敏感）回退为第一个可用源。
 ///
+/// [video] 供「将保存到」路径预览行按当前清晰度联动重算（issue #126）。
+///
 /// 分类的预选值固定读取“上次选择”（[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID]），与清晰度
 /// 的预选来源无关——两个入口对分类的预期是一致的，只有清晰度的预选会因入口而不同。
 ///
 /// 用户取消（下滑关闭/点遮罩）时返回 null；确认下载时返回 [DownloadPickerResult]。
 Future<DownloadPickerResult?> showDownloadPickerSheet(
   BuildContext context, {
+  required Video video,
   required List<VideoSource> sources,
   String? initialQuality,
   DownloadPickerPreselectSource preselectSource =
@@ -53,6 +58,7 @@ Future<DownloadPickerResult?> showDownloadPickerSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     builder: (_) => _DownloadPickerSheet(
+      video: video,
       sources: sources,
       initialQuality: initialQuality,
       preselectSource: preselectSource,
@@ -61,11 +67,13 @@ Future<DownloadPickerResult?> showDownloadPickerSheet(
 }
 
 class _DownloadPickerSheet extends StatefulWidget {
+  final Video video;
   final List<VideoSource> sources;
   final String? initialQuality;
   final DownloadPickerPreselectSource preselectSource;
 
   const _DownloadPickerSheet({
+    required this.video,
     required this.sources,
     required this.initialQuality,
     required this.preselectSource,
@@ -174,7 +182,7 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        t.download.saveToSectionLabel,
+                        t.download.categorySectionLabel,
                         style: sectionLabelStyle,
                       ),
                       InkWell(
@@ -210,6 +218,11 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
                   ),
                   const SizedBox(height: UIConstants.listSpacing),
                   _buildCategoryChips(context, t),
+                  const SizedBox(height: UIConstants.sectionSpacing),
+                  // 「将保存到」：按当前清晰度联动重算的落盘路径预览（issue #126）。
+                  // 只读不点——所见即所得；桌面「每次询问」模式下没有固定基目录，
+                  // 只能给出系统对话框的建议文件名。
+                  _buildSaveToPreview(context, colorScheme, t),
                 ],
               ),
             ),
@@ -294,6 +307,107 @@ class _DownloadPickerSheetState extends State<_DownloadPickerSheet> {
   ///
   /// 直接 Obx 读服务里的分类状态：在这个弹窗上点「管理分类」新建完返回，标签当场
   /// 就在，不需要页面自己订阅广播再去重拉（那条链断掉时是静默的）。
+  /// 「将保存到」预览行。
+  ///
+  /// 与真实落盘共用同一条模板渲染 + 清洗规则（preview 不写作者首见名缓存），
+  /// 用户看到的和落盘的永远一致；桌面「每次询问」模式下退化为建议文件名。
+  Widget _buildSaveToPreview(
+    BuildContext context,
+    ColorScheme colorScheme,
+    slang.Translations t,
+  ) {
+    final pathService = DownloadPathService.to;
+    final segments = pathService.previewVideoRelativePath(
+      video: widget.video,
+      quality: _selectedSource.name ?? '',
+    );
+    final askEveryTime = pathService.asksEveryTime;
+
+    final Widget valueWidget;
+    if (askEveryTime) {
+      valueWidget = Text(
+        t.download.saveToPreviewSuggested(
+          name: segments.isEmpty ? '' : segments.last,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontFamily: 'monospace',
+          fontSize: 11.5,
+          color: colorScheme.onSurface,
+        ),
+      );
+    } else {
+      final spans = <InlineSpan>[];
+      for (var i = 0; i < segments.length; i++) {
+        final isFile = i == segments.length - 1;
+        if (i > 0) {
+          spans.add(
+            TextSpan(
+              text: ' › ',
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+              ),
+            ),
+          );
+        }
+        spans.add(
+          TextSpan(
+            text: segments[i],
+            style: TextStyle(
+              color: isFile ? colorScheme.onSurface : colorScheme.primary,
+              fontWeight: isFile ? FontWeight.w600 : FontWeight.w600,
+            ),
+          ),
+        );
+      }
+      valueWidget = Text.rich(
+        TextSpan(
+          style: const TextStyle(fontFamily: 'monospace', fontSize: 11.5),
+          children: spans,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.folder_outlined, size: 18, color: colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.download.saveToPreviewLabel,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.6,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                valueWidget,
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategoryChips(BuildContext context, slang.Translations t) {
     return Obx(
       () => _buildCategoryChipsContent(t, DownloadService.to.categories),

@@ -92,6 +92,7 @@ Future<void> launchVideoDownload(
 
   final result = await showDownloadPickerSheet(
     context,
+    video: video,
     sources: resolved,
     initialQuality: initialQuality ?? _lastUsedQuality(resolved),
     preselectSource: preselectSource,
@@ -146,8 +147,17 @@ Future<void> launchGalleryDownload(
     return;
   }
 
-  // 下载前选择分类（无分类时不弹框，直接用记住的默认值）
-  final categoryChoice = await showDownloadCategoryDialog(context);
+  // 下载前选择分类（无分类时不弹框，直接用记住的默认值）。
+  // 顺手算一份只读的「将保存到」预览段给确认框展示（不写首见名缓存）。
+  final galleryPreview = Get.isRegistered<DownloadPathService>()
+      ? Get.find<DownloadPathService>().previewGalleryRelativeSegments(
+          gallery: resolved,
+        )
+      : const <String>[];
+  final categoryChoice = await showDownloadCategoryDialog(
+    context,
+    previewSegments: galleryPreview,
+  );
   if (!categoryChoice.confirmed) return;
   if (!context.mounted) return;
 

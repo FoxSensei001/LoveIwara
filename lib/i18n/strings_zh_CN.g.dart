@@ -1379,6 +1379,9 @@ class _TranslationsDownloadZhCn extends TranslationsDownloadEn {
 	@override String get selectDownloadTitle => '选择下载';
 	@override String get qualitySectionLabel => '清晰度';
 	@override String get saveToSectionLabel => '保存到';
+	@override String get categorySectionLabel => '分类';
+	@override String get saveToPreviewLabel => '将保存到';
+	@override String saveToPreviewSuggested({required Object name}) => '建议文件名：${name}（可在系统对话框修改）';
 	@override String get lastUsedBadge => '上次选择';
 	@override String get pickedBadge => '已选中';
 	@override String get forceDeleteTask => '强制删除任务';
@@ -1478,6 +1481,11 @@ class _TranslationsDownloadNotificationsZhCn extends TranslationsDownloadNotific
 	@override String failedBody({required Object name}) => '${name} 下载失败';
 	@override String completedToast({required Object name}) => '${name} 已下载完成';
 	@override String failedToast({required Object name}) => '${name} 下载失败';
+	@override String savedToFolder({required Object dir}) => '已保存到 ${dir}';
+	@override String savedAsRenamed({required Object name}) => '已保存为 ${name}（原位置已有同名文件）';
+	@override String savedToAppFolder({required Object target, required Object reason}) => '已保存到应用目录 — 无法写入 ${target}（${reason}）';
+	@override String get viewFolder => '查看文件夹';
+	@override String get fixInSettings => '去设置修复';
 	@override String get channelName => '下载状态';
 	@override String get channelDescription => '下载完成与失败的通知';
 }
@@ -6269,6 +6277,9 @@ extension on TranslationsZhCn {
 			'download.selectDownloadTitle' => '选择下载',
 			'download.qualitySectionLabel' => '清晰度',
 			'download.saveToSectionLabel' => '保存到',
+			'download.categorySectionLabel' => '分类',
+			'download.saveToPreviewLabel' => '将保存到',
+			'download.saveToPreviewSuggested' => ({required Object name}) => '建议文件名：${name}（可在系统对话框修改）',
 			'download.lastUsedBadge' => '上次选择',
 			'download.pickedBadge' => '已选中',
 			'download.forceDeleteTask' => '强制删除任务',
@@ -6643,11 +6654,11 @@ extension on TranslationsZhCn {
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
 			'download.otherQualities' => '其他清晰度',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
 			'download.batchDownload.userCancelled' => '用户取消',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
 			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
 			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
@@ -6678,6 +6689,11 @@ extension on TranslationsZhCn {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} 下载失败',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} 已下载完成',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} 下载失败',
+			'downloadNotifications.savedToFolder' => ({required Object dir}) => '已保存到 ${dir}',
+			'downloadNotifications.savedAsRenamed' => ({required Object name}) => '已保存为 ${name}（原位置已有同名文件）',
+			'downloadNotifications.savedToAppFolder' => ({required Object target, required Object reason}) => '已保存到应用目录 — 无法写入 ${target}（${reason}）',
+			'downloadNotifications.viewFolder' => '查看文件夹',
+			'downloadNotifications.fixInSettings' => '去设置修复',
 			'downloadNotifications.channelName' => '下载状态',
 			'downloadNotifications.channelDescription' => '下载完成与失败的通知',
 			'favorite.errors.addFailed' => '追加失败',
@@ -7152,6 +7168,8 @@ extension on TranslationsZhCn {
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
 			'emoji.enterGroupName' => '请输入分组名称',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.create' => '创建',
 			'emoji.editGroupName' => '编辑分组名称',
 			'emoji.save' => '保存',
@@ -7160,8 +7178,6 @@ extension on TranslationsZhCn {
 			'emoji.imageCount' => ({required Object count}) => '${count}张图片',
 			'emoji.selectEmoji' => '选择表情包',
 			'emoji.noEmojisInGroup' => '该分组暂无表情包',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.goToSettingsToAddEmojis' => '前往设置添加表情包',
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
@@ -7666,6 +7682,8 @@ extension on TranslationsZhCn {
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
 			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.handoffTooltip' => '换个方式播放',
 			'vrFormat.suggestedBadge' => '建议',
 			'vrFormat.suggestedEntryDesc' => ({required Object format}) => '可能是 ${format}，点这里切过去',
@@ -7674,8 +7692,6 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.browse.pinnedSection' => '常用目录',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.sourcesSection' => '文件夹',
 			'localMedia.browse.pin' => '设为常用',
 			'localMedia.browse.unpin' => '取消常用',

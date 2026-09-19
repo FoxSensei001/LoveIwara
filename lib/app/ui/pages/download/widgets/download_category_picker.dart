@@ -117,9 +117,13 @@ class _DownloadCategoryPickerState extends State<DownloadCategoryPicker> {
 /// 始终弹出（即使没有分类，选择器也会显示「未分类」占位 + 新建入口）。
 /// - 用户确认 → 持久化所选分类为下次默认，返回 (confirmed: true, categoryId)。
 /// - 用户取消 → 返回 (confirmed: false, categoryId: null)。
+///
+/// [previewSegments]（可选）：「将保存到」路径预览（issue #126），由调用方
+/// 用只读 preview 算好传入；弹窗只做展示。
 Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
-  BuildContext context,
-) async {
+  BuildContext context, {
+  List<String>? previewSegments,
+}) async {
   final configService = Get.find<ConfigService>();
   final last = configService[ConfigKey.LAST_DOWNLOAD_CATEGORY_ID] as String?;
   String? selected = (last == null || last.isEmpty) ? null : last;
@@ -138,6 +142,8 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
                 value: selected,
                 onChanged: (value) => setState(() => selected = value),
               ),
+              if (previewSegments != null && previewSegments.isNotEmpty)
+                _buildSaveToPreviewRow(context, previewSegments),
             ],
           ),
         ),
@@ -161,5 +167,78 @@ Future<({bool confirmed, String? categoryId})> showDownloadCategoryDialog(
   return (
     confirmed: true,
     categoryId: (selected?.isEmpty ?? true) ? null : selected,
+  );
+}
+
+/// 「将保存到」预览行（图库确认弹窗用）：与视频下载弹窗同款样式。
+Widget _buildSaveToPreviewRow(BuildContext context, List<String> segments) {
+  final colorScheme = Theme.of(context).colorScheme;
+  final spans = <InlineSpan>[];
+  for (var i = 0; i < segments.length; i++) {
+    final isLast = i == segments.length - 1;
+    if (i > 0) {
+      spans.add(
+        TextSpan(
+          text: ' › ',
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+          ),
+        ),
+      );
+    }
+    spans.add(
+      TextSpan(
+        text: segments[i],
+        style: TextStyle(
+          color: isLast ? colorScheme.onSurface : colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+  return Padding(
+    padding: const EdgeInsets.only(top: 12),
+    child: Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.folder_outlined, size: 18, color: colorScheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.download.saveToPreviewLabel,
+                  style: TextStyle(                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.6,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text.rich(
+                  TextSpan(
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 11.5,
+                    ),
+                    children: spans,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }

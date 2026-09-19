@@ -1783,6 +1783,9 @@ download:
   selectDownloadTitle: 选择下载
   qualitySectionLabel: 清晰度
   saveToSectionLabel: 保存到
+  categorySectionLabel: 分类
+  saveToPreviewLabel: 将保存到
+  saveToPreviewSuggested: '建议文件名：${name}（可在系统对话框修改）'
   lastUsedBadge: 上次选择
   pickedBadge: 已选中
   forceDeleteTask: 强制删除任务
@@ -2202,6 +2205,12 @@ downloadNotifications:
   failedBody: '${name} 下载失败'
   completedToast: '${name} 已下载完成'
   failedToast: '${name} 下载失败'
+  # 完成回执带相对目录（issue #126）：静默偏差一律显式化
+  savedToFolder: '已保存到 ${dir}'
+  savedAsRenamed: '已保存为 ${name}（原位置已有同名文件）'
+  savedToAppFolder: '已保存到应用目录 — 无法写入 ${target}（${reason}）'
+  viewFolder: 查看文件夹
+  fixInSettings: 去设置修复
   channelName: 下载状态
   channelDescription: 下载完成与失败的通知
 favorite:

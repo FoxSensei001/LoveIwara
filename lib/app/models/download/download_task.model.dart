@@ -33,6 +33,12 @@ class DownloadTask {
   /// 所属分类（自定义文件夹）id；null 表示「未分类」。可变元数据。
   String? categoryId;
 
+  /// 入队时路径因同名冲突被追加了 " (N)" 序号（仅内存标记，不落库）。
+  ///
+  /// 完成回执据此把「静默改序号」显式化为「已保存为 xxx（原位置已有同名文件）」
+  /// （issue #126）。任务重进 App 后标记自然消失——那只影响回执措辞，无碍。
+  bool pathSuffixApplied;
+
   /// 任务创建时间（来自数据库 created_at 字段，用于 UI 分组展示）
   final DateTime? createdAt;
 
@@ -61,6 +67,7 @@ class DownloadTask {
     this.mediaId,
     this.quality,
     this.categoryId,
+    this.pathSuffixApplied = false,
     this.createdAt,
     this.updatedAt,
     this.completedAt,

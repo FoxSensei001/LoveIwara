@@ -3416,6 +3416,15 @@ class TranslationsDownloadEn {
 	/// en: 'Save to'
 	String get saveToSectionLabel => 'Save to';
 
+	/// en: 'Category'
+	String get categorySectionLabel => 'Category';
+
+	/// en: 'Will save to'
+	String get saveToPreviewLabel => 'Will save to';
+
+	/// en: 'Suggested file name: ${name} (editable in the system dialog)'
+	String saveToPreviewSuggested({required Object name}) => 'Suggested file name: ${name} (editable in the system dialog)';
+
 	/// en: 'Last used'
 	String get lastUsedBadge => 'Last used';
 
@@ -3678,6 +3687,21 @@ class TranslationsDownloadNotificationsEn {
 
 	/// en: '${name} download failed'
 	String failedToast({required Object name}) => '${name} download failed';
+
+	/// en: 'Saved to ${dir}'
+	String savedToFolder({required Object dir}) => 'Saved to ${dir}';
+
+	/// en: 'Saved as ${name} — a file with the same name already exists'
+	String savedAsRenamed({required Object name}) => 'Saved as ${name} — a file with the same name already exists';
+
+	/// en: 'Saved to the app folder — could not write ${target} (${reason})'
+	String savedToAppFolder({required Object target, required Object reason}) => 'Saved to the app folder — could not write ${target} (${reason})';
+
+	/// en: 'View folder'
+	String get viewFolder => 'View folder';
+
+	/// en: 'Fix in Settings'
+	String get fixInSettings => 'Fix in Settings';
 
 	/// en: 'Download status'
 	String get channelName => 'Download status';
@@ -12946,6 +12970,9 @@ extension on Translations {
 			'download.selectDownloadTitle' => 'Select Download',
 			'download.qualitySectionLabel' => 'Quality',
 			'download.saveToSectionLabel' => 'Save to',
+			'download.categorySectionLabel' => 'Category',
+			'download.saveToPreviewLabel' => 'Will save to',
+			'download.saveToPreviewSuggested' => ({required Object name}) => 'Suggested file name: ${name} (editable in the system dialog)',
 			'download.lastUsedBadge' => 'Last used',
 			'download.pickedBadge' => 'Selected',
 			'download.startDownloading' => 'Start Downloading',
@@ -13320,11 +13347,11 @@ extension on Translations {
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
 			'download.otherQualities' => 'Other qualities',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
 			'download.batchDownload.userCancelled' => 'User cancelled',
-			_ => null,
-		} ?? switch (path) {
 			'download.batchDownload.failedToGetVideoInfo' => 'Failed to get video information',
 			'download.batchDownload.failedToGetVideoSource' => 'Failed to get video source',
 			'download.batchDownload.failedToGetGalleryInfo' => 'Failed to get gallery information',
@@ -13355,6 +13382,11 @@ extension on Translations {
 			'downloadNotifications.failedBody' => ({required Object name}) => '${name} failed to download',
 			'downloadNotifications.completedToast' => ({required Object name}) => '${name} downloaded',
 			'downloadNotifications.failedToast' => ({required Object name}) => '${name} download failed',
+			'downloadNotifications.savedToFolder' => ({required Object dir}) => 'Saved to ${dir}',
+			'downloadNotifications.savedAsRenamed' => ({required Object name}) => 'Saved as ${name} — a file with the same name already exists',
+			'downloadNotifications.savedToAppFolder' => ({required Object target, required Object reason}) => 'Saved to the app folder — could not write ${target} (${reason})',
+			'downloadNotifications.viewFolder' => 'View folder',
+			'downloadNotifications.fixInSettings' => 'Fix in Settings',
 			'downloadNotifications.channelName' => 'Download status',
 			'downloadNotifications.channelDescription' => 'Notifications for completed and failed downloads',
 			'favorite.errors.addFailed' => 'Add failed',
@@ -13829,6 +13861,8 @@ extension on Translations {
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
 			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
+			_ => null,
+		} ?? switch (path) {
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',
 			'log.exportCurrentLogsDesc' => 'Export the current application logs to help developers diagnose problems',
@@ -13837,8 +13871,6 @@ extension on Translations {
 			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
-			_ => null,
-		} ?? switch (path) {
 			'log.logExportSuccess' => 'Log export success',
 			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
 			'log.showLogStatsDesc' => 'View statistics of various types of logs',
@@ -14343,6 +14375,8 @@ extension on Translations {
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
 			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.handoffTooltip' => 'Play another way',
 			'vrFormat.suggestedBadge' => 'Suggested',
 			'vrFormat.suggestedEntryDesc' => ({required Object format}) => 'Looks like ${format} — tap to switch',
@@ -14351,8 +14385,6 @@ extension on Translations {
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
 			'localMedia.browse.pinnedSection' => 'Quick access',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.sourcesSection' => 'Folders',
 			'localMedia.browse.pin' => 'Add to quick access',
 			'localMedia.browse.unpin' => 'Remove from quick access',
