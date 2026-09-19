@@ -70,7 +70,17 @@ class ImageUtils {
   }
 
   // 下载图片
-  static void downloadImageToAppDirectory(ImageItem item) async {
+  ///
+  /// [authorId]/[authorName]/[authorUsername]：作者信息，供子文件夹归档模板
+  /// （%authorcache/%author/%username）解析。`ImageItem` 自身不带作者字段，
+  /// 由调用点从上下文透传（图库详情页/作者主页拿得到；Markdown 正文图等
+  /// 裸链接场景拿不到，留空 → 作者变量回退 unknown，且不写首见名缓存）。
+  static void downloadImageToAppDirectory(
+    ImageItem item, {
+    String? authorId,
+    String? authorName,
+    String? authorUsername,
+  }) async {
     try {
       String url = item.data.originalUrl.isEmpty
           ? item.data.url
@@ -94,7 +104,14 @@ class ImageUtils {
 
       final task = DownloadTask(
         url: url,
-        savePath: await _getSavePath(title, fileName),
+        savePath: await _getSavePath(
+          title,
+          fileName,
+          imageId: item.data.id.isEmpty ? null : item.data.id,
+          authorId: authorId,
+          authorName: authorName,
+          authorUsername: authorUsername,
+        ),
         supportsRange: true,
         fileName: fileName,
       );
@@ -117,15 +134,23 @@ class ImageUtils {
   }
 
   /// title: 可能为空字符串
-  static Future<String> _getSavePath(String title, String fileName) async {
+  static Future<String> _getSavePath(
+    String title,
+    String fileName, {
+    String? imageId,
+    String? authorId,
+    String? authorName,
+    String? authorUsername,
+  }) async {
     // 使用下载路径服务
     final downloadPathService = Get.find<DownloadPathService>();
 
     return await downloadPathService.getImageDownloadPath(
       title: title,
-      authorName: null,
-      authorUsername: null,
-      id: null,
+      authorName: authorName,
+      authorUsername: authorUsername,
+      authorId: authorId,
+      id: imageId,
       originalFilename: fileName,
     );
   }

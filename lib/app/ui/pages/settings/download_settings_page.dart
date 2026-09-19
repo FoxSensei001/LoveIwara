@@ -59,13 +59,16 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     // 获取文件命名模板服务
     filenameTemplateService = Get.find<FilenameTemplateService>();
 
-    // 初始化控制器值
+    // 初始化控制器值（兜底常量与出厂默认保持一致；实际值来自 config 首跑写库）
     _videoTemplateController.text =
-        configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] ?? '%title_%quality';
+        configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] ??
+        '%authorcache/%title_%quality';
     _galleryTemplateController.text =
-        configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] ?? '%title_%id';
+        configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] ??
+        '%authorcache/%title_%id';
     _imageTemplateController.text =
-        configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] ?? '%title_%filename';
+        configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] ??
+        '%authorcache/%title/%filename';
   }
 
   @override

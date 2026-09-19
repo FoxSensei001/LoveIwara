@@ -137,7 +137,7 @@ class _GalleryImageScrollerWidgetState
           aspectRatioBuilder: (item, defaultAspectRatio, loadedAspectRatio) =>
               loadedAspectRatio ?? defaultAspectRatio,
           menuItemsBuilder: (context, item) =>
-              _buildImageMenuItems(context, item),
+              _buildImageMenuItems(context, item, im),
           listController: controller.imageListController,
         ),
       );
@@ -210,8 +210,11 @@ class _GalleryImageScrollerWidgetState
     );
   }
 
-  List<MenuItem> _buildImageMenuItems(BuildContext context, ImageItem item) =>
-      buildGalleryImageMenuItems(context, item);
+  List<MenuItem> _buildImageMenuItems(
+    BuildContext context,
+    ImageItem item,
+    ImageModel gallery,
+  ) => buildGalleryImageMenuItems(context, item, gallery: gallery);
 }
 
 /// 这条图库摆出来的那份清单。
@@ -332,7 +335,8 @@ Future<bool>? openGalleryImageViewer(
           normalizedQuality;
     },
     initialIndex: index < 0 ? 0 : index,
-    menuItemsBuilder: buildGalleryImageMenuItems,
+    menuItemsBuilder: (context, item) =>
+        buildGalleryImageMenuItems(context, item, gallery: gallery),
     instant: instant,
     // 大图页里翻到第几张，底下这条清单就跟到第几张：退出来落在的是刚才看的
     // 那张，不是当初点进去的那张。
@@ -440,8 +444,12 @@ Future<bool> presentGalleryInSpace({
 
 List<MenuItem> buildGalleryImageMenuItems(
   BuildContext context,
-  ImageItem item,
-) {
+  ImageItem item, {
+  // 图库模型：单图保存到应用目录时给路径模板透传作者信息
+  // （%authorcache/%author/%username）。拿不到（如本地媒体查看器）就传 null，
+  // 作者变量回退 unknown。
+  ImageModel? gallery,
+}) {
   final t = slang.Translations.of(context);
   // Assuming ImageUtils and GetPlatform are accessible
   return [
@@ -464,7 +472,12 @@ List<MenuItem> buildGalleryImageMenuItems(
     MenuItem(
       title: t.galleryDetail.saveToAlbum,
       icon: Icons.save,
-      onTap: () => ImageUtils.downloadImageToAppDirectory(item),
+      onTap: () => ImageUtils.downloadImageToAppDirectory(
+        item,
+        authorId: gallery?.user?.id,
+        authorName: gallery?.user?.name,
+        authorUsername: gallery?.user?.username,
+      ),
     ),
   ];
 }

@@ -3132,6 +3132,7 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get downloadPathSetTo => '下载路径已设置为';
 	@override String get setPathFailed => '设置路径失败';
 	@override String get variableTitle => '标题';
+	@override String get variableAuthorcache => '作者首见名（作者改名不漂移）';
 	@override String get variableAuthor => '作者名称';
 	@override String get variableUsername => '作者用户名';
 	@override String get variableQuality => '视频质量';
@@ -5608,6 +5609,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.downloadPathSetTo' => '下载路径已设置为',
 			'settings.downloadSettings.setPathFailed' => '设置路径失败',
 			'settings.downloadSettings.variableTitle' => '标题',
+			'settings.downloadSettings.variableAuthorcache' => '作者首见名（作者改名不漂移）',
 			'settings.downloadSettings.variableAuthor' => '作者名称',
 			'settings.downloadSettings.variableUsername' => '作者用户名',
 			'settings.downloadSettings.variableQuality' => '视频质量',
@@ -6079,9 +6081,9 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedGallery' => '图库审核通过',
 			'notifications.kApprovedThread' => '帖子审核通过',
 			'notifications.kApprovedPost' => '投稿审核通过',
-			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
 			'notifications.kUnknownType' => '未知通知类型',
 			'conversation.errors.pleaseSelectAUser' => '请选择一个用户',
@@ -6593,9 +6595,9 @@ extension on TranslationsZhCn {
 			'favorite.addSuccess' => '追加成功',
 			'favorite.addFailed' => '追加失败',
 			'favorite.remove' => '删除',
-			'favorite.removeSuccess' => '删除成功',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.removeSuccess' => '删除成功',
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
 			'favorite.removeConfirmationSuccess' => '项目已从收藏夹中删除',
@@ -7107,9 +7109,9 @@ extension on TranslationsZhCn {
 			'layoutSettings.deleteBreakpoint' => '删除断点',
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',
-			'layoutSettings.columnsLabel' => '列数',
 			_ => null,
 		} ?? switch (path) {
+			'layoutSettings.columnsLabel' => '列数',
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '请输入宽度',
 			'layoutSettings.enterValidWidth' => '请输入有效宽度',
@@ -7621,9 +7623,9 @@ extension on TranslationsZhCn {
 			'localMedia.browse.folderUnhidden' => '已取消隐藏',
 			'localMedia.browse.hiddenFolderBadge' => '已隐藏',
 			'localMedia.browse.deleteFolder' => '删除文件夹',
-			'localMedia.browse.deleteFolderTitle' => '删除这个文件夹？',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.browse.deleteFolderTitle' => '删除这个文件夹？',
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '里面的其它文件也会一并删掉',
 			'localMedia.browse.folderDeleted' => '已删除文件夹',

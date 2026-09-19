@@ -1123,6 +1123,7 @@ settings:
     setPathFailed: 设置路径失败
     # 文件命名模板变量
     variableTitle: 标题
+    variableAuthorcache: 作者首见名（作者改名不漂移）
     variableAuthor: 作者名称
     variableUsername: 作者用户名
     variableQuality: 视频质量

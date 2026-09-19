@@ -489,8 +489,8 @@ class BatchDownloadService extends GetxService {
       throw DuplicateTaskException();
     }
 
-    // 4. 获取保存路径
-    final savePath = await _downloadPathService.getGalleryDownloadPath(
+    // 4. 获取保存路径（批量从不弹框：桌面「每次询问」模式也全量按模板落盘）
+    final savePath = await _downloadPathService.getGalleryDownloadPathForBatch(
       gallery: galleryInfo,
     );
 

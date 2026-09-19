@@ -14,6 +14,10 @@ TABLE app_config
   COLUMN key TEXT PK1
   COLUMN value TEXT NOT NULL
   INDEX sqlite_autoindex_app_config_1 :: (auto)
+TABLE author_folder_cache
+  COLUMN author_id TEXT PK1
+  COLUMN folder_name TEXT NOT NULL
+  INDEX sqlite_autoindex_author_folder_cache_1 :: (auto)
 TABLE commons
   COLUMN created_at TEXT NOT NULL DEFAULT datetime('now')
   COLUMN data TEXT NOT NULL

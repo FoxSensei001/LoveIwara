@@ -465,9 +465,10 @@ enum ConfigKey {
   CUSTOM_DOWNLOAD_PATH, // 自定义下载路径
   ENABLE_CUSTOM_DOWNLOAD_PATH, // 启用自定义下载路径
   DOWNLOADS_OUTSIDE_DISMISSED_DIR, // 「旧目录里还有 N 项」对哪个目标目录已选过不搬
-  VIDEO_FILENAME_TEMPLATE, // 视频文件命名模板
-  GALLERY_FILENAME_TEMPLATE, // 图库文件命名模板
-  IMAGE_FILENAME_TEMPLATE, // 单张图片文件命名模板
+  DOWNLOAD_STRUCTURE_NOTICE_DISMISSED, // 「可按作者自动归档」一次性提示卡是否已消失（选中任意预设即消失）
+  VIDEO_FILENAME_TEMPLATE, // 视频保存结构与命名模板（允许 / 分隔的 1~4 段）
+  GALLERY_FILENAME_TEMPLATE, // 图库文件夹命名模板（允许 / 分隔的 1~2 段）
+  IMAGE_FILENAME_TEMPLATE, // 单张图片命名模板（允许 / 分隔的 1~4 段）
   // 音视频配置
   EXPAND_BUFFER, // 扩大缓冲区
   VIDEO_SYNC, // 视频同步
@@ -749,6 +750,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'enable_custom_download_path';
       case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
         return 'downloads_outside_dismissed_dir';
+      case ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED:
+        return 'download_structure_notice_dismissed';
       case ConfigKey.VIDEO_FILENAME_TEMPLATE:
         return 'video_filename_template';
       case ConfigKey.GALLERY_FILENAME_TEMPLATE:
@@ -1063,14 +1066,21 @@ extension ConfigKeyExtension on ConfigKey {
         return '';
       case ConfigKey.DOWNLOADS_OUTSIDE_DISMISSED_DIR:
         return '';
+      // 提示卡的显隐另有「三模板是否仍等于旧平铺默认」的门，见下载设置页：
+      // 新装用户出厂即按作者归档，永远看不到这张卡。
+      case ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED:
+        return false;
       case ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH:
         return false;
+      // 出厂默认 = 「按作者」预设（issue #126）：新装用户零配置即按作者归档。
+      // ⚠️ 只对全新安装生效——_loadSettings 首跑就把默认值写进库了，存量用户
+      // 库里那条平铺旧值会原样留着（清数据/重装视为新装，是已接受的边界例外）。
       case ConfigKey.VIDEO_FILENAME_TEMPLATE:
-        return '%title_%quality';
+        return '%authorcache/%title_%quality';
       case ConfigKey.GALLERY_FILENAME_TEMPLATE:
-        return '%title_%id';
+        return '%authorcache/%title_%id';
       case ConfigKey.IMAGE_FILENAME_TEMPLATE:
-        return '%title_%filename';
+        return '%authorcache/%title/%filename';
       case ConfigKey.EXPAND_BUFFER:
         return false;
       case ConfigKey.VIDEO_SYNC:

@@ -759,8 +759,13 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             MenuItem(
                               title: t.download.saveToAppDirectory,
                               icon: Icons.save,
-                              onTap: () =>
-                                  ImageUtils.downloadImageToAppDirectory(item),
+                              onTap: () => ImageUtils.downloadImageToAppDirectory(
+                                item,
+                                authorId: profileController.author.value?.id,
+                                authorName: profileController.author.value?.name,
+                                authorUsername:
+                                    profileController.author.value?.username,
+                              ),
                             ),
                           ];
                           pushPhotoViewWrapperOverlay(
@@ -952,6 +957,14 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                                 onTap: () =>
                                     ImageUtils.downloadImageToAppDirectory(
                                       item,
+                                      authorId:
+                                          profileController.author.value?.id,
+                                      authorName:
+                                          profileController.author.value?.name,
+                                      authorUsername: profileController
+                                          .author
+                                          .value
+                                          ?.username,
                                     ),
                               ),
                             ];

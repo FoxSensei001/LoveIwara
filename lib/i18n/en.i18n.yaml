@@ -1121,6 +1121,7 @@ settings:
     setPathFailed: Failed to set path
     # Filename template variables
     variableTitle: Title
+    variableAuthorcache: Author first-seen name (stable across renames)
     variableAuthor: Author name
     variableUsername: Author username
     variableQuality: Video quality

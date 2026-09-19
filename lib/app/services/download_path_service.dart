@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/author_folder_cache_service.dart';
 import 'package:i_iwara/app/services/download_location.dart';
 import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/models/video.model.dart';
@@ -136,6 +137,12 @@ class DownloadPathService extends GetxService {
     }
     _filenameTemplateService = Get.find<FilenameTemplateService>();
 
+    // 作者首见名缓存（%authorcache 的存储后端）同样在此收口：
+    // 路径解析只会经由本服务触达它，注册顺序跟着本服务走最稳。
+    if (!Get.isRegistered<AuthorFolderCacheService>()) {
+      Get.put(AuthorFolderCacheService());
+    }
+
     // 初始化异步状态
     Future.microtask(() async {
       await _refreshResolvedPackageName();
@@ -222,12 +229,12 @@ class DownloadPathService extends GetxService {
     String? downloadUrl,
   }) async {
     try {
-      // 生成文件名
+      // 生成多段路径（文件夹段 + 文件名段）
       final template =
           _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
       LogUtils.d('使用文件命名模板: $template', 'DownloadPathService');
 
-      final filename = _filenameTemplateService.generateVideoFilename(
+      final segments = _filenameTemplateService.generateVideoPathSegments(
         template: template,
         video: video,
         quality: quality,
@@ -235,7 +242,7 @@ class DownloadPathService extends GetxService {
             ? _extractFilenameFromUrl(downloadUrl)
             : null,
       );
-      LogUtils.d('生成的文件名: $filename', 'DownloadPathService');
+      LogUtils.d('生成的路径段: $segments', 'DownloadPathService');
 
       final isCustomPathEnabled =
           _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
@@ -247,9 +254,11 @@ class DownloadPathService extends GetxService {
       );
 
       if (GetPlatform.isDesktop && !isCustomPathEnabled) {
-        // 桌面平台且未启用自定义路径：让用户选择保存位置
+        // 桌面平台且未启用自定义路径：让用户选择保存位置。
+        // 只把模板末段（文件名）作为系统对话框的建议名——「每次询问」模式下
+        // 没有固定基目录可挂子文件夹，用户在对话框里的选择优先（07 边界表）。
         final result = await getSaveLocation(
-          suggestedName: filename,
+          suggestedName: segments.last,
           acceptedTypeGroups: [
             const XTypeGroup(label: 'MP4 Video', extensions: ['mp4']),
           ],
@@ -258,7 +267,7 @@ class DownloadPathService extends GetxService {
       } else {
         // 移动平台或桌面端启用自定义路径：使用配置的路径
         final basePath = await _getBasePath('');
-        return safeJoinUnderBase(basePath, [filename]);
+        return safeJoinUnderBase(basePath, segments);
       }
     } catch (e) {
       LogUtils.e('获取视频下载路径失败', tag: 'DownloadPathService', error: e);
@@ -274,12 +283,12 @@ class DownloadPathService extends GetxService {
     String? downloadUrl,
   }) async {
     try {
-      // 生成文件名
+      // 生成多段路径（文件夹段 + 文件名段）
       final template =
           _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
       LogUtils.d('批量下载使用文件命名模板: $template', 'DownloadPathService');
 
-      final filename = _filenameTemplateService.generateVideoFilename(
+      final segments = _filenameTemplateService.generateVideoPathSegments(
         template: template,
         video: video,
         quality: quality,
@@ -287,11 +296,11 @@ class DownloadPathService extends GetxService {
             ? _extractFilenameFromUrl(downloadUrl)
             : null,
       );
-      LogUtils.d('批量下载生成的文件名: $filename', 'DownloadPathService');
+      LogUtils.d('批量下载生成的路径段: $segments', 'DownloadPathService');
 
       // 批量下载始终使用默认路径，不弹出对话框
       final basePath = await _getBasePath('');
-      return safeJoinUnderBase(basePath, [filename]);
+      return safeJoinUnderBase(basePath, segments);
     } catch (e) {
       LogUtils.e('获取视频批量下载路径失败', tag: 'DownloadPathService', error: e);
       return null;
@@ -300,31 +309,52 @@ class DownloadPathService extends GetxService {
 
   /// 获取图库下载路径
   Future<String?> getGalleryDownloadPath({required ImageModel gallery}) async {
+    return _resolveGalleryPath(gallery: gallery);
+  }
+
+  /// 获取图库批量下载路径（不弹出对话框，模板全量生效）。
+  ///
+  /// 批量场景与视频批量同一条规矩：绝不逐个弹框——桌面「每次询问」模式下
+  /// 以前会漏进来弹（图库批量复用了单册的路径函数），这里收口。
+  Future<String?> getGalleryDownloadPathForBatch({
+    required ImageModel gallery,
+  }) async {
+    return _resolveGalleryPath(gallery: gallery, forBatch: true);
+  }
+
+  Future<String?> _resolveGalleryPath({
+    required ImageModel gallery,
+    bool forBatch = false,
+  }) async {
     try {
-      // 生成文件夹名
+      // 生成多段文件夹路径
       final template =
           _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
-      final foldername = _filenameTemplateService.generateGalleryFoldername(
+      final segments = _filenameTemplateService.generateGalleryPathSegments(
         template: template,
         gallery: gallery,
+      );
+      LogUtils.d(
+        '${forBatch ? '批量下载' : ''}生成的图库路径段: $segments',
+        'DownloadPathService',
       );
 
       final isCustomPathEnabled =
           _configService[ConfigKey.ENABLE_CUSTOM_DOWNLOAD_PATH] as bool;
 
-      if (GetPlatform.isDesktop && !isCustomPathEnabled) {
-        // 桌面平台且未启用自定义路径：让用户选择保存位置
+      if (GetPlatform.isDesktop && !isCustomPathEnabled && !forBatch) {
+        // 桌面平台且未启用自定义路径（单册下载）：让用户选择保存位置
         final result = await getSaveLocation(
-          suggestedName: foldername,
+          suggestedName: segments.last,
           acceptedTypeGroups: [
             const XTypeGroup(label: 'folders', extensions: ['']),
           ],
         );
         return result?.path;
       } else {
-        // 移动平台或桌面端启用自定义路径：使用配置的路径
+        // 移动平台、桌面端启用自定义路径，或批量下载：使用配置的路径
         final basePath = await _getBasePath('');
-        return safeJoinUnderBase(basePath, [foldername]);
+        return safeJoinUnderBase(basePath, segments);
       }
     } catch (e) {
       LogUtils.e('获取图库下载路径失败', tag: 'DownloadPathService', error: e);
@@ -337,29 +367,47 @@ class DownloadPathService extends GetxService {
     required String title,
     required String? authorName,
     required String? authorUsername,
+    String? authorId,
     required String? id,
     String? originalFilename,
   }) async {
     try {
-      // 生成文件名
       final template =
           _configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String;
-      final filename = _filenameTemplateService.generateImageFilename(
-        template: template,
-        title: title,
-        authorName: authorName,
-        authorUsername: authorUsername,
-        id: id,
-        originalFilename: originalFilename,
-      );
-
-      // 移动平台：使用配置的路径（单张图片下载通常在移动端）
       final basePath = await _getBasePath('');
-      final sanitizedTitle = FilenameTemplateService.sanitizePathSegment(
-        title,
-        fallback: 'images',
-      );
-      return safeJoinUnderBase(basePath, [sanitizedTitle, filename]);
+
+      final List<String> segments;
+      if (template.contains('/')) {
+        // 新式模板：结构写在模板里（如 %authorcache/%title/%filename），
+        // 整条按模板逐段渲染。
+        segments = _filenameTemplateService.generateImagePathSegments(
+          template: template,
+          title: title,
+          authorName: authorName,
+          authorUsername: authorUsername,
+          authorId: authorId,
+          id: id,
+          originalFilename: originalFilename,
+        );
+      } else {
+        // 存量平铺模板：历史上硬编码的「标题」子文件夹层继续保留，
+        // 保证升级用户落盘路径逐字节不变（收编进模板首段是选择新预设之后的事）。
+        final filename = _filenameTemplateService.generateImageFilename(
+          template: template,
+          title: title,
+          authorName: authorName,
+          authorUsername: authorUsername,
+          authorId: authorId,
+          id: id,
+          originalFilename: originalFilename,
+        );
+        final sanitizedTitle = FilenameTemplateService.sanitizePathSegment(
+          title,
+          fallback: 'images',
+        );
+        segments = [sanitizedTitle, filename];
+      }
+      return safeJoinUnderBase(basePath, segments);
     } catch (e) {
       LogUtils.e('获取图片下载路径失败', tag: 'DownloadPathService', error: e);
       // 返回默认路径
@@ -371,6 +419,106 @@ class DownloadPathService extends GetxService {
       return safeJoinUnderBase(basePath, [filename]);
     }
   }
+
+  /// 只读预览：视频下载将落下的相对路径段（下载弹窗「将保存到」用）。
+  ///
+  /// 与真实落盘共用同一套模板渲染和清洗规则，但**不写作者首见名缓存**、
+  /// 不碰文件系统、不弹对话框——预览不该有副作用（缓存的首见名应由真实
+  /// 下载时刻落笔）。
+  List<String> previewVideoRelativePath({
+    required Video video,
+    required String quality,
+    String? downloadUrl,
+  }) {
+    final template =
+        _configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String;
+    return _filenameTemplateService.generateVideoPathSegments(
+      template: template,
+      video: video,
+      quality: quality,
+      originalFilename: downloadUrl != null
+          ? _extractFilenameFromUrl(downloadUrl)
+          : null,
+      writeAuthorCache: false,
+    );
+  }
+
+  /// 只读预览：图库下载将落下的相对路径段（图库确认弹窗用），无副作用。
+  List<String> previewGalleryRelativeSegments({required ImageModel gallery}) {
+    final template =
+        _configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String;
+    return _filenameTemplateService.generateGalleryPathSegments(
+      template: template,
+      gallery: gallery,
+      writeAuthorCache: false,
+    );
+  }
+
+  /// 当前是否处于「目标下载目录不可用、临时退回 App 专属空间」的回退态。
+  ///
+  /// 非空 = 目标目录与原因，完成回执要用它把静默偏差显式化（「已保存到应用
+  /// 目录 — 无法写入 …」）；null = 正常落盘。
+  ({String target, DownloadFallbackReason reason})? get runtimeFallbackState {
+    final fallback = _runtimeFallback;
+    return fallback == null
+        ? null
+        : (target: fallback.target, reason: fallback.reason);
+  }
+
+  /// 算一个落盘路径相对下载根目录的「目录部分」，完成回执用。
+  ///
+  /// [isDirectory]：savePath 是否指向文件夹（图库任务的 savePath 是文件夹
+  /// 本身，调用方由 `mediaType == 'gallery'` 判定；文件任务传 false）。
+  /// - 文件任务取父目录（`…/LoveIwara/花火師さん/x.mp4` → `花火師さん/`）；
+  /// - 图库任务整段保留（`…/LoveIwara/花火師さん/标题_id/`）；
+  /// - 路径不在当前目标目录之下（桌面另存为选到别处、自定义目录刚改过等）
+  ///   返回 null，回执退回与目录无关的原文案；
+  /// - 落在权限回退的 App 专属目录里时照样能算出相对目录，`fellBack` 为 true，
+  ///   回执据此切换到警示态。
+  Future<({String relativeDir, bool fellBack})?> describeRelativeDir(
+    String savePath, {
+    bool isDirectory = false,
+  }) async {
+    try {
+      final normalized = path.normalize(savePath);
+      final directory =
+          isDirectory ||
+          FileSystemEntity.typeSync(normalized) ==
+              FileSystemEntityType.directory;
+
+      ({String base, bool fellBack})? baseState;
+
+      final target = await targetDownloadDirectory();
+      if (isPathInsideBase(target, normalized)) {
+        baseState = (base: target, fellBack: false);
+      } else {
+        // 不在目标目录下：看是不是权限回退（临时落在 App 专属空间）。
+        final fallback = _runtimeFallback;
+        if (fallback != null) {
+          final appDir = await CommonUtils.getAppDirectory(
+            pathSuffix: 'downloads',
+          );
+          if (isPathInsideBase(appDir.path, normalized)) {
+            baseState = (base: appDir.path, fellBack: true);
+          }
+        }
+      }
+      if (baseState == null) return null;
+
+      final inBase = directory ? normalized : path.dirname(normalized);
+      var relative = path.relative(inBase, from: baseState.base);
+      if (relative == '.' || relative.isEmpty) {
+        if (!baseState.fellBack) return null; // 平铺：没有目录信息可报
+        relative = '';
+      }
+      final relativeDir = relative == '' ? '' : '$relative/';
+      return (relativeDir: relativeDir, fellBack: baseState.fellBack);
+    } catch (e) {
+      LogUtils.e('计算相对目录失败', tag: 'DownloadPathService', error: e);
+      return null;
+    }
+  }
+
 
   /// 新下载有没有一个固定的落脚目录。桌面端没开自定义路径时每次都弹「另存为」，
   /// 没有「当前下载目录」可言——「把已下载内容移到当前目录」在那里无从谈起。
@@ -1246,17 +1394,19 @@ class DownloadPathService extends GetxService {
       false,
     );
     await _configService.setSetting(ConfigKey.CUSTOM_DOWNLOAD_PATH, '');
+    // 出厂默认 = 「按作者」预设（与 ConfigKey.defaultValue 保持一致；
+    // 首跑冻结机制保证这只影响显式点了重置/新装的用户，存量值不动）。
     await _configService.setSetting(
       ConfigKey.VIDEO_FILENAME_TEMPLATE,
-      '%title_%quality',
+      '%authorcache/%title_%quality',
     );
     await _configService.setSetting(
       ConfigKey.GALLERY_FILENAME_TEMPLATE,
-      '%title_%id',
+      '%authorcache/%title_%id',
     );
     await _configService.setSetting(
       ConfigKey.IMAGE_FILENAME_TEMPLATE,
-      '%title_%filename',
+      '%authorcache/%title/%filename',
     );
   }
 

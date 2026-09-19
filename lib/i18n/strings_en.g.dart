@@ -7886,6 +7886,9 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Title'
 	String get variableTitle => 'Title';
 
+	/// en: 'Author first-seen name (stable across renames)'
+	String get variableAuthorcache => 'Author first-seen name (stable across renames)';
+
 	/// en: 'Author name'
 	String get variableAuthor => 'Author name';
 
@@ -12200,6 +12203,7 @@ extension on Translations {
 			'settings.downloadSettings.downloadPathSetTo' => 'Download path set to',
 			'settings.downloadSettings.setPathFailed' => 'Failed to set path',
 			'settings.downloadSettings.variableTitle' => 'Title',
+			'settings.downloadSettings.variableAuthorcache' => 'Author first-seen name (stable across renames)',
 			'settings.downloadSettings.variableAuthor' => 'Author name',
 			'settings.downloadSettings.variableUsername' => 'Author username',
 			'settings.downloadSettings.variableQuality' => 'Video quality',
@@ -12671,9 +12675,9 @@ extension on Translations {
 			'notifications.kApprovedGallery' => 'Gallery approved',
 			'notifications.kApprovedThread' => 'Thread approved',
 			'notifications.kApprovedPost' => 'Post approved',
-			'notifications.kApprovedForumPost' => 'Forum post approved',
 			_ => null,
 		} ?? switch (path) {
+			'notifications.kApprovedForumPost' => 'Forum post approved',
 			'notifications.kRejectedContent' => 'Content review rejected',
 			'notifications.kUnknownType' => 'Unknown notification type',
 			'conversation.errors.pleaseSelectAUser' => 'Please select a user',
@@ -13185,9 +13189,9 @@ extension on Translations {
 			'favorite.addSuccess' => 'Add success',
 			'favorite.addFailed' => 'Add failed',
 			'favorite.remove' => 'Remove',
-			'favorite.removeSuccess' => 'Remove success',
 			_ => null,
 		} ?? switch (path) {
+			'favorite.removeSuccess' => 'Remove success',
 			'favorite.removeFailed' => 'Remove failed',
 			'favorite.removeConfirmation' => 'Are you sure you want to remove this item from favorites?',
 			'favorite.removeConfirmationSuccess' => 'Item removed from favorites',
@@ -13699,9 +13703,9 @@ extension on Translations {
 			'log.warning' => 'Warning',
 			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',
 			'log.confirmToContinue' => 'Confirm to continue',
-			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Log size limit set to ${size}',
 			_ => null,
 		} ?? switch (path) {
+			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Log size limit set to ${size}',
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Size',
 			'emoji.small' => 'Small',
@@ -14213,9 +14217,9 @@ extension on Translations {
 			'localMedia.browse.folderUnhidden' => 'No longer hidden',
 			'localMedia.browse.hiddenFolderBadge' => 'Hidden',
 			'localMedia.browse.deleteFolder' => 'Delete folder',
-			'localMedia.browse.deleteFolderTitle' => 'Delete this folder?',
 			_ => null,
 		} ?? switch (path) {
+			'localMedia.browse.deleteFolderTitle' => 'Delete this folder?',
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.',
 			'localMedia.browse.deleteFolderIncludesOthers' => 'Other files inside will be deleted too',
 			'localMedia.browse.folderDeleted' => 'Folder deleted',
