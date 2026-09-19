@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorVi extends Translat
 	@override String get trayHint => 'Chạm để chèn tại con trỏ · giữ để xem giải thích';
 	@override String get emptySegment => 'Đoạn trống';
 	@override String get emptySegmentSaveBlocked => 'Không thể lưu: còn đoạn trống, hãy xóa hoặc điền nội dung';
+	@override String get tooManySegmentsSaveBlocked => 'Không thể lưu: quá nhiều đoạn đường dẫn (tối đa 4), hãy gộp hoặc xóa bớt';
+	@override String get templateInvalidSaveBlocked => 'Không thể lưu: mẫu có chứa ký tự không hợp lệ';
+	@override String get variableInserted => 'Đã chèn biến';
 	@override String get savedToast => 'Đã lưu · chỉ ảnh hưởng các lượt tải sau';
 	@override String get trayCategoryContent => 'Nội dung';
 	@override String get trayCategoryAuthor => 'Tác giả';
@@ -5722,6 +5725,9 @@ extension on TranslationsVi {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Chạm để chèn tại con trỏ · giữ để xem giải thích',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Đoạn trống',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Không thể lưu: còn đoạn trống, hãy xóa hoặc điền nội dung',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'Không thể lưu: quá nhiều đoạn đường dẫn (tối đa 4), hãy gộp hoặc xóa bớt',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'Không thể lưu: mẫu có chứa ký tự không hợp lệ',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Đã chèn biến',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Đã lưu · chỉ ảnh hưởng các lượt tải sau',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Nội dung',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Tác giả',
@@ -6138,11 +6144,11 @@ extension on TranslationsVi {
 			'forum.editedAt' => 'Chỉnh sửa lúc',
 			'forum.copySuccess' => 'Đã sao chép vào clipboard',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Đã sao chép vào clipboard: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Chỉnh sửa trả lời',
 			'forum.editTitle' => 'Chỉnh sửa tiêu đề',
 			'forum.submit' => 'Gửi',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Loại thông báo không được hỗ trợ',
 			'notifications.errors.unknownUser' => 'Người dùng không xác định',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Loại thông báo không được hỗ trợ: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsVi {
 			'download.maxConcurrentDownloads' => 'Số tải xuống đồng thời tối đa',
 			'download.maxConcurrentDownloadsDesc' => 'Số tác vụ tải xuống cùng lúc (1-5)',
 			'download.stillInDevelopment' => 'Vẫn đang phát triển',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Lưu vào thư mục ứng dụng',
 			'download.alreadyDownloadedWithQuality' => 'Đã tải xuống với cùng chất lượng, tiếp tục tải?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Đã tải xuống với chất lượng: ${qualities}, tiếp tục tải?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Chất lượng khác',
 			'download.batchDownload.title' => 'Tải hàng loạt',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Đang có tác vụ chạy, vui lòng đợi.',
@@ -7166,11 +7172,11 @@ extension on TranslationsVi {
 			'linkInputDialog.unsupportedLink' => 'Liên kết không được hỗ trợ',
 			'linkInputDialog.cancel' => 'Hủy',
 			'linkInputDialog.confirm' => 'Mở trong trình duyệt',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Quản lý nhật ký',
 			'log.enableLogPersistence' => 'Bật lưu nhật ký lâu dài',
 			'log.enableLogPersistenceDesc' => 'Lưu nhật ký vào cơ sở dữ liệu để phân tích',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Giới hạn kích thước cơ sở dữ liệu nhật ký',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Hiện tại: ${size}',
 			'log.exportCurrentLogs' => 'Xuất nhật ký hiện tại',
@@ -7680,11 +7686,11 @@ extension on TranslationsVi {
 			'vrFormat.resetViewDesc' => 'Đưa hướng nhìn và trường nhìn về phía trước',
 			'vrFormat.resetToAuto' => 'Quay lại tự động phát hiện',
 			'vrFormat.resetToAutoDesc' => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Đặt thủ công',
 			'vrFormat.panoramaHint' => 'Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn',
 			'vrFormat.panoramaGestureNotice' => 'Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Thiết bị này không thể hiển thị toàn cảnh trực tiếp; thay vào đó hiển thị một mắt',
 			'vrFormat.handoffTooltip' => 'Phát theo cách khác',
 			'vrFormat.suggestedBadge' => 'Đề xuất',

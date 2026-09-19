@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorId extends Translat
 	@override String get trayHint => 'Ketuk untuk menyisipkan di posisi kursor · tahan untuk keterangan';
 	@override String get emptySegment => 'Segmen kosong';
 	@override String get emptySegmentSaveBlocked => 'Tidak bisa menyimpan: ada segmen kosong, hapus atau isi dulu';
+	@override String get tooManySegmentsSaveBlocked => 'Tidak bisa menyimpan: terlalu banyak segmen jalur (maks. 4). Gabungkan atau kurangi';
+	@override String get templateInvalidSaveBlocked => 'Tidak bisa menyimpan: templat mengandung karakter tidak valid';
+	@override String get variableInserted => 'Variabel disisipkan';
 	@override String get savedToast => 'Tersimpan · hanya memengaruhi unduhan berikutnya';
 	@override String get trayCategoryContent => 'Konten';
 	@override String get trayCategoryAuthor => 'Penulis';
@@ -5722,6 +5725,9 @@ extension on TranslationsId {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Ketuk untuk menyisipkan di posisi kursor · tahan untuk keterangan',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Segmen kosong',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Tidak bisa menyimpan: ada segmen kosong, hapus atau isi dulu',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'Tidak bisa menyimpan: terlalu banyak segmen jalur (maks. 4). Gabungkan atau kurangi',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'Tidak bisa menyimpan: templat mengandung karakter tidak valid',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Variabel disisipkan',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Tersimpan · hanya memengaruhi unduhan berikutnya',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Konten',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Penulis',
@@ -6138,11 +6144,11 @@ extension on TranslationsId {
 			'forum.editedAt' => 'Diubah Pada',
 			'forum.copySuccess' => 'Disalin ke papan klip',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Disalin ke papan klip: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Ubah Balasan',
 			'forum.editTitle' => 'Ubah Judul',
 			'forum.submit' => 'Kirim',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Jenis notifikasi tidak didukung',
 			'notifications.errors.unknownUser' => 'Pengguna tidak dikenal',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Jenis notifikasi tidak didukung: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsId {
 			'download.maxConcurrentDownloads' => 'Unduhan bersamaan maksimum',
 			'download.maxConcurrentDownloadsDesc' => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)',
 			'download.stillInDevelopment' => 'Masih dalam pengembangan',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Simpan ke direktori aplikasi',
 			'download.alreadyDownloadedWithQuality' => 'Sudah diunduh dengan kualitas yang sama, lanjutkan pengunduhan?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Sudah diunduh dengan kualitas: ${qualities}, lanjutkan pengunduhan?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Kualitas lain',
 			'download.batchDownload.title' => 'Unduhan Massal',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Tugas sedang berjalan, mohon tunggu.',
@@ -7166,11 +7172,11 @@ extension on TranslationsId {
 			'linkInputDialog.unsupportedLink' => 'Tautan Tidak Didukung',
 			'linkInputDialog.cancel' => 'Batal',
 			'linkInputDialog.confirm' => 'Buka di Peramban',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Pengelolaan Log',
 			'log.enableLogPersistence' => 'Aktifkan Persistensi Log',
 			'log.enableLogPersistenceDesc' => 'Simpan log ke basis data untuk analisis',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Batas Ukuran Basis Data Log',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Saat ini: ${size}',
 			'log.exportCurrentLogs' => 'Ekspor Log Saat Ini',
@@ -7680,11 +7686,11 @@ extension on TranslationsId {
 			'vrFormat.resetViewDesc' => 'Kembalikan arah pandang dan bidang pandang ke depan',
 			'vrFormat.resetToAuto' => 'Kembali ke deteksi otomatis',
 			'vrFormat.resetToAutoDesc' => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Diatur secara manual',
 			'vrFormat.panoramaHint' => 'Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang',
 			'vrFormat.panoramaGestureNotice' => 'Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Perangkat ini tidak dapat menampilkan panorama langsung; menampilkan satu mata sebagai gantinya',
 			'vrFormat.handoffTooltip' => 'Putar dengan cara lain',
 			'vrFormat.suggestedBadge' => 'Disarankan',

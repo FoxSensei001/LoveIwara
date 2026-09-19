@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends Translat
 	@override String get trayHint => '탭하여 커서 위치에 삽입 · 길게 눌러 설명 보기';
 	@override String get emptySegment => '빈 세그먼트';
 	@override String get emptySegmentSaveBlocked => '저장할 수 없습니다: 빈 세그먼트를 삭제하거나 내용을 입력하세요';
+	@override String get tooManySegmentsSaveBlocked => '저장할 수 없습니다: 경로 세그먼트 수가 상한(최대 4개)을 초과했습니다. 병합하거나 줄여 주세요';
+	@override String get templateInvalidSaveBlocked => '저장할 수 없습니다: 템플릿에 잘못된 문자가 포함되어 있습니다';
+	@override String get variableInserted => '변수가 삽입되었습니다';
 	@override String get savedToast => '저장됨 · 이후 새 다운로드에만 적용';
 	@override String get trayCategoryContent => '콘텐츠';
 	@override String get trayCategoryAuthor => '작성자';
@@ -5722,6 +5725,9 @@ extension on TranslationsKo {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => '탭하여 커서 위치에 삽입 · 길게 눌러 설명 보기',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '빈 세그먼트',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '저장할 수 없습니다: 빈 세그먼트를 삭제하거나 내용을 입력하세요',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => '저장할 수 없습니다: 경로 세그먼트 수가 상한(최대 4개)을 초과했습니다. 병합하거나 줄여 주세요',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => '저장할 수 없습니다: 템플릿에 잘못된 문자가 포함되어 있습니다',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => '변수가 삽입되었습니다',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => '저장됨 · 이후 새 다운로드에만 적용',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '콘텐츠',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '작성자',
@@ -6138,11 +6144,11 @@ extension on TranslationsKo {
 			'forum.editedAt' => '수정일',
 			'forum.copySuccess' => '클립보드에 복사되었습니다',
 			'forum.copySuccessForMessage' => ({required Object str}) => '클립보드에 복사됨: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => '답글 편집',
 			'forum.editTitle' => '제목 편집',
 			'forum.submit' => '제출',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => '지원되지 않는 알림 유형',
 			'notifications.errors.unknownUser' => '알 수 없는 사용자',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '지원되지 않는 알림 유형: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsKo {
 			'download.maxConcurrentDownloads' => '최대 동시 다운로드 수',
 			'download.maxConcurrentDownloadsDesc' => '동시에 다운로드하는 작업 수(1-5)',
 			'download.stillInDevelopment' => '아직 개발 중',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => '앱 디렉터리에 저장',
 			'download.alreadyDownloadedWithQuality' => '이미 같은 화질로 다운로드되었습니다. 계속 다운로드하시겠습니까?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '이미 다음 화질로 다운로드됨: ${qualities}, 계속 다운로드하시겠습니까?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => '기타 화질',
 			'download.batchDownload.title' => '일괄 다운로드',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '이미 작업이 실행 중입니다. 잠시 기다려 주세요.',
@@ -7166,11 +7172,11 @@ extension on TranslationsKo {
 			'linkInputDialog.unsupportedLink' => '지원하지 않는 링크',
 			'linkInputDialog.cancel' => '취소',
 			'linkInputDialog.confirm' => '브라우저에서 열기',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => '로그 관리',
 			'log.enableLogPersistence' => '로그 영구 저장 사용',
 			'log.enableLogPersistenceDesc' => '분석을 위해 로그를 데이터베이스에 저장',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => '로그 데이터베이스 크기 제한',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => '현재: ${size}',
 			'log.exportCurrentLogs' => '현재 로그 내보내기',
@@ -7680,11 +7686,11 @@ extension on TranslationsKo {
 			'vrFormat.resetViewDesc' => '시선 방향과 시야각을 정면으로 되돌립니다',
 			'vrFormat.resetToAuto' => '자동 감지로 되돌리기',
 			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => '수동 설정됨',
 			'vrFormat.panoramaHint' => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요',
 			'vrFormat.panoramaGestureNotice' => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => '이 기기는 실시간 파노라마를 렌더링할 수 없어 단일 시점으로 표시합니다',
 			'vrFormat.handoffTooltip' => '다른 방식으로 재생',
 			'vrFormat.suggestedBadge' => '추천',

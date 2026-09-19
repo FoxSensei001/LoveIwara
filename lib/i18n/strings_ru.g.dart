@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends Translat
 	@override String get trayHint => 'Нажмите, чтобы вставить в позицию курсора · долгое нажатие — подробности';
 	@override String get emptySegment => 'Пустой сегмент';
 	@override String get emptySegmentSaveBlocked => 'Нельзя сохранить: есть пустые сегменты, заполните или удалите их';
+	@override String get tooManySegmentsSaveBlocked => 'Нельзя сохранить: слишком много сегментов пути (макс. 4). Объедините или удалите лишние';
+	@override String get templateInvalidSaveBlocked => 'Нельзя сохранить: шаблон содержит недопустимые символы';
+	@override String get variableInserted => 'Переменная вставлена';
 	@override String get savedToast => 'Сохранено · касается только новых загрузок';
 	@override String get trayCategoryContent => 'Содержимое';
 	@override String get trayCategoryAuthor => 'Автор';
@@ -5722,6 +5725,9 @@ extension on TranslationsRu {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Нажмите, чтобы вставить в позицию курсора · долгое нажатие — подробности',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Пустой сегмент',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Нельзя сохранить: есть пустые сегменты, заполните или удалите их',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'Нельзя сохранить: слишком много сегментов пути (макс. 4). Объедините или удалите лишние',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'Нельзя сохранить: шаблон содержит недопустимые символы',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Переменная вставлена',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Сохранено · касается только новых загрузок',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Содержимое',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Автор',
@@ -6138,11 +6144,11 @@ extension on TranslationsRu {
 			'forum.editedAt' => 'Дата изменения',
 			'forum.copySuccess' => 'Скопировано в буфер обмена',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Скопировано в буфер обмена: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Изменить ответ',
 			'forum.editTitle' => 'Изменить заголовок',
 			'forum.submit' => 'Отправить',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Неподдерживаемый тип уведомления',
 			'notifications.errors.unknownUser' => 'Неизвестный пользователь',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Неподдерживаемый тип уведомления: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsRu {
 			'download.maxConcurrentDownloads' => 'Макс. одновременных загрузок',
 			'download.maxConcurrentDownloadsDesc' => 'Число задач, загружаемых одновременно (1–5)',
 			'download.stillInDevelopment' => 'Всё ещё в разработке',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Сохранить в каталог приложения',
 			'download.alreadyDownloadedWithQuality' => 'Уже скачано в том же качестве. Продолжить загрузку?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Уже скачано в качестве: ${qualities}. Продолжить загрузку?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Другое качество',
 			'download.batchDownload.title' => 'Пакетная загрузка',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Задача уже выполняется, подождите.',
@@ -7166,11 +7172,11 @@ extension on TranslationsRu {
 			'linkInputDialog.unsupportedLink' => 'Неподдерживаемая ссылка',
 			'linkInputDialog.cancel' => 'Отмена',
 			'linkInputDialog.confirm' => 'Открыть в браузере',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Управление логами',
 			'log.enableLogPersistence' => 'Сохранять логи в базе данных',
 			'log.enableLogPersistenceDesc' => 'Сохранять логи в базе данных для анализа',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Лимит размера базы данных логов',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Текущий: ${size}',
 			'log.exportCurrentLogs' => 'Экспортировать текущие логи',
@@ -7680,11 +7686,11 @@ extension on TranslationsRu {
 			'vrFormat.resetViewDesc' => 'Вернуть направление взгляда и угол обзора к фронтальному положению',
 			'vrFormat.resetToAuto' => 'Вернуть к автоопределению',
 			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Задано вручную',
 			'vrFormat.panoramaHint' => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора',
 			'vrFormat.panoramaGestureNotice' => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Это устройство не может отображать живую панораму; вместо этого показывается один глаз',
 			'vrFormat.handoffTooltip' => 'Другой способ воспроизведения',
 			'vrFormat.suggestedBadge' => 'Рекомендуется',

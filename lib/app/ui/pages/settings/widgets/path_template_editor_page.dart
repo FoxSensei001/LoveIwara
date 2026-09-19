@@ -50,6 +50,17 @@ class PathTemplateEditorPage extends StatefulWidget {
         MaterialPageRoute(builder: (_) => const PathTemplateEditorPage()),
       );
 
+  /// 草稿段数收敛：超过 [maxRows] 时把超出部分并入末行（与编辑器拆段到顶时
+  /// 的「并回末段」同一约定）——内容一个字不丢，行内保留的 `/` 会在保存时被
+  /// 「段数超限」准确拦下，用户改这一行即可收敛。
+  static List<String> capDraftSegments(List<String> segments, int maxRows) {
+    if (segments.length <= maxRows) return segments;
+    return [
+      ...segments.sublist(0, maxRows - 1),
+      segments.sublist(maxRows - 1).join('/'),
+    ];
+  }
+
   @override
   State<PathTemplateEditorPage> createState() => _PathTemplateEditorPageState();
 }
@@ -83,14 +94,19 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
 
   @override
   void dispose() {
-    for (final controller in _rowControllers) {
+    // 退役队列里可能还有没等到 post-frame 的上一代控制器，一并回收。
+    for (final controller in [..._rowControllers, ..._retiredControllers]) {
       controller.dispose();
     }
-    for (final node in _rowFocusNodes) {
+    for (final node in [..._rowFocusNodes, ..._retiredFocusNodes]) {
       node.dispose();
     }
     super.dispose();
   }
+
+  /// 本 Tab 的草稿行数上限：图库 2 行（全文件夹段）；视频/单图 3 层文件夹 + 1 层文件。
+  static int _maxRowsFor(_SegmentTab tab) =>
+      tab == _SegmentTab.gallery ? 2 : 4;
 
   /// 从 config 读当前模板拆段；值异常（空/全空段）时以出厂默认作草稿起点。
   List<String> _initialDraft(_SegmentTab tab) {
@@ -102,7 +118,9 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
     final segments = FilenameTemplateService.splitTemplateSegments(
       _configService[key] as String? ?? '',
     );
-    if (segments.isNotEmpty) return segments;
+    if (segments.isNotEmpty) {
+      return PathTemplateEditorPage.capDraftSegments(segments, _maxRowsFor(tab));
+    }
     return FilenameTemplateService.splitTemplateSegments(_defaultFor(tab));
   }
 
@@ -128,15 +146,18 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
 
   // ─────────────────────────── 行的物化 ───────────────────────────
 
+  /// 上一代控制器/焦点节点的退役队列。拆段/切 Tab 发生在输入回调里，旧
+  /// controller 此刻可能还在通知链和当前帧的组件树上（其中某个 focus node 正
+  /// 持焦点）——框架对「dispose 后 removeListener」是容忍的，但等当前帧重建
+  /// 完成、EditableText 解绑完再销毁才是无条件的稳。
+  final List<TextEditingController> _retiredControllers = [];
+  final List<FocusNode> _retiredFocusNodes = [];
+
   /// 用草稿重建当前 Tab 的控制器列表（只在拆段 / 删段 / 加段 / 切 Tab 时调用；
   /// 普通打字直接改草稿，不重建——否则光标会跳）。
   void _materializeRows() {
-    for (final controller in _rowControllers) {
-      controller.dispose();
-    }
-    for (final node in _rowFocusNodes) {
-      node.dispose();
-    }
+    _retiredControllers.addAll(_rowControllers);
+    _retiredFocusNodes.addAll(_rowFocusNodes);
     _rowControllers.clear();
     _rowFocusNodes.clear();
     for (final segment in _drafts[_activeTab]!) {
@@ -149,6 +170,20 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
         }
       });
       _rowFocusNodes.add(node);
+    }
+    if (_retiredControllers.isNotEmpty || _retiredFocusNodes.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // State 先于本回调销毁时，dispose() 已统一回收过退役队列，跳过防双销。
+        if (!mounted) return;
+        for (final controller in _retiredControllers) {
+          controller.dispose();
+        }
+        for (final node in _retiredFocusNodes) {
+          node.dispose();
+        }
+        _retiredControllers.clear();
+        _retiredFocusNodes.clear();
+      });
     }
     final target = _pendingFocusRow.clamp(0, _rowControllers.length - 1);
     _pendingFocusRow = target;
@@ -270,7 +305,7 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
       selection: TextSelection.collapsed(offset: start + insertion.length),
     );
     showAppToast(
-      '${t.settings.downloadSettings.variableCopied}: %$token',
+      '${t.settings.downloadSettings.pathTemplateEditor.variableInserted}: %$token',
       type: AppToastType.info,
     );
   }
@@ -324,6 +359,29 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
       }
     }
 
+    // 段数超限单独报：行内并回的 `/`（拆段到顶、或载入了超限的存量值）会让
+    // join 后的段数越界——这和「空段」是两种病，文案必须分开，否则用户对着
+    // 没有空段的表单被告知「存在空段」。
+    for (final tab in _SegmentTab.values) {
+      final segmentCount = FilenameTemplateService.splitTemplateSegments(
+        _drafts[tab]!.join('/'),
+      ).length;
+      if (segmentCount > FilenameTemplateService.maxTemplateSegments) {
+        setState(() => _activeTab = tab);
+        _pendingFocusRow = 0;
+        _materializeRows();
+        showAppToast(
+          t
+              .settings
+              .downloadSettings
+              .pathTemplateEditor
+              .tooManySegmentsSaveBlocked,
+          type: AppToastType.error,
+        );
+        return;
+      }
+    }
+
     final values = {
       ConfigKey.VIDEO_FILENAME_TEMPLATE: _drafts[_SegmentTab.video]!.join('/'),
       ConfigKey.GALLERY_FILENAME_TEMPLATE:
@@ -332,8 +390,14 @@ class _PathTemplateEditorPageState extends State<PathTemplateEditorPage> {
     };
     for (final entry in values.entries) {
       if (!Get.find<FilenameTemplateService>().validateTemplate(entry.value)) {
+        // 空段与段数都查过了，到这里还失败只剩非法字符一类
+        // （如手工改配置写进来的 `\`），给对应的文案而不是「空段」。
         showAppToast(
-          t.settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked,
+          t
+              .settings
+              .downloadSettings
+              .pathTemplateEditor
+              .templateInvalidSaveBlocked,
           type: AppToastType.error,
         );
         return;

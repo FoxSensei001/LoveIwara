@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorDe extends Translat
 	@override String get trayHint => 'Zum Einfügen an der Cursorposition tippen · lange drücken für Details';
 	@override String get emptySegment => 'Leerer Abschnitt';
 	@override String get emptySegmentSaveBlocked => 'Speichern nicht möglich: Es gibt leere Abschnitte, bitte ausfüllen oder entfernen';
+	@override String get tooManySegmentsSaveBlocked => 'Speichern nicht möglich: Zu viele Pfadabschnitte (max. 4). Bitte zusammenführen oder entfernen';
+	@override String get templateInvalidSaveBlocked => 'Speichern nicht möglich: Die Vorlage enthält ungültige Zeichen';
+	@override String get variableInserted => 'Variable eingefügt';
 	@override String get savedToast => 'Gespeichert · betrifft nur künftige Downloads';
 	@override String get trayCategoryContent => 'Inhalt';
 	@override String get trayCategoryAuthor => 'Autor';
@@ -5722,6 +5725,9 @@ extension on TranslationsDe {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Zum Einfügen an der Cursorposition tippen · lange drücken für Details',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Leerer Abschnitt',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Speichern nicht möglich: Es gibt leere Abschnitte, bitte ausfüllen oder entfernen',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'Speichern nicht möglich: Zu viele Pfadabschnitte (max. 4). Bitte zusammenführen oder entfernen',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'Speichern nicht möglich: Die Vorlage enthält ungültige Zeichen',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Variable eingefügt',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Gespeichert · betrifft nur künftige Downloads',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Inhalt',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Autor',
@@ -6138,11 +6144,11 @@ extension on TranslationsDe {
 			'forum.editedAt' => 'Bearbeitet am',
 			'forum.copySuccess' => 'In die Zwischenablage kopiert',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'In die Zwischenablage kopiert: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Antwort bearbeiten',
 			'forum.editTitle' => 'Titel bearbeiten',
 			'forum.submit' => 'Absenden',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Nicht unterstützter Benachrichtigungstyp',
 			'notifications.errors.unknownUser' => 'Unbekannter Benutzer',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Nicht unterstützter Benachrichtigungstyp: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsDe {
 			'download.maxConcurrentDownloads' => 'Max. gleichzeitige Downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Anzahl der gleichzeitig herunterladenden Aufgaben (1-5)',
 			'download.stillInDevelopment' => 'Noch in Entwicklung',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Im App-Verzeichnis speichern',
 			'download.alreadyDownloadedWithQuality' => 'Bereits in der gleichen Qualität heruntergeladen. Möchten Sie den Download fortsetzen?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Bereits in den Qualitätsstufen heruntergeladen: ${qualities}. Möchten Sie den Download fortsetzen?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Andere Qualitäten',
 			'download.batchDownload.title' => 'Stapel-Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Es läuft bereits eine Aufgabe, bitte warten.',
@@ -7166,11 +7172,11 @@ extension on TranslationsDe {
 			'linkInputDialog.unsupportedLink' => 'Nicht unterstützter Link',
 			'linkInputDialog.cancel' => 'Abbrechen',
 			'linkInputDialog.confirm' => 'Im Browser öffnen',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Protokollverwaltung',
 			'log.enableLogPersistence' => 'Protokollpersistenz aktivieren',
 			'log.enableLogPersistenceDesc' => 'Protokolle zur Analyse in der Datenbank speichern',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Größenlimit der Protokolldatenbank',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Aktuell: ${size}',
 			'log.exportCurrentLogs' => 'Aktuelle Protokolle exportieren',
@@ -7680,11 +7686,11 @@ extension on TranslationsDe {
 			'vrFormat.resetViewDesc' => 'Blickrichtung und Sichtfeld wieder nach vorne ausrichten',
 			'vrFormat.resetToAuto' => 'Zurück zur automatischen Erkennung',
 			'vrFormat.resetToAutoDesc' => 'Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Manuell festgelegt',
 			'vrFormat.panoramaHint' => 'Ziehen Sie das Bild, um sich umzusehen; ziehen Sie zusammen, um das Sichtfeld zu ändern',
 			'vrFormat.panoramaGestureNotice' => 'Beim Umsehen dreht Ziehen die Ansicht — verwenden Sie den Fortschrittsbalken zum Spulen',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Dieses Gerät kann Live-Panorama nicht rendern; es wird stattdessen ein einzelnes Auge angezeigt',
 			'vrFormat.handoffTooltip' => 'Anders abspielen',
 			'vrFormat.suggestedBadge' => 'Vorgeschlagen',

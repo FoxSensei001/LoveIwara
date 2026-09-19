@@ -1177,6 +1177,9 @@ settings:
       trayHint: Tap to insert at the cursor · long-press for details
       emptySegment: Empty segment
       emptySegmentSaveBlocked: Cannot save — fill in or remove the empty segment(s)
+      tooManySegmentsSaveBlocked: 'Cannot save — too many path segments (max 4). Merge or remove some'
+      templateInvalidSaveBlocked: 'Cannot save — the template contains invalid characters'
+      variableInserted: 'Variable inserted'
       savedToast: Saved — only affects future downloads
       trayCategoryContent: Content
       trayCategoryAuthor: Author

@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends Transl
 	@override String get trayHint => '点按插入到当前焦点段 · 长按查看说明';
 	@override String get emptySegment => '空段';
 	@override String get emptySegmentSaveBlocked => '无法保存：存在空段，请删除或填入内容';
+	@override String get tooManySegmentsSaveBlocked => '无法保存：路径段数超过上限（最多 4 段），请合并或删减';
+	@override String get templateInvalidSaveBlocked => '无法保存：模板含非法字符或格式无效';
+	@override String get variableInserted => '变量已插入';
 	@override String get savedToast => '已保存 · 只影响之后的新下载';
 	@override String get trayCategoryContent => '内容';
 	@override String get trayCategoryAuthor => '作者';
@@ -5722,6 +5725,9 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => '点按插入到当前焦点段 · 长按查看说明',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空段',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '无法保存：存在空段，请删除或填入内容',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => '无法保存：路径段数超过上限（最多 4 段），请合并或删减',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => '无法保存：模板含非法字符或格式无效',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => '变量已插入',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => '已保存 · 只影响之后的新下载',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '内容',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
@@ -6138,11 +6144,11 @@ extension on TranslationsZhCn {
 			'forum.editedAt' => '编辑时间',
 			'forum.copySuccess' => '已复制到剪贴板',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
 			'forum.submit' => '提交',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
 			'notifications.errors.unknownUser' => '未知用户',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsZhCn {
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => '保存到应用目录',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => '其他清晰度',
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
@@ -7166,11 +7172,11 @@ extension on TranslationsZhCn {
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
 			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.enterGroupName' => '请输入分组名称',
 			'emoji.create' => '创建',
 			'emoji.editGroupName' => '编辑分组名称',
@@ -7680,11 +7686,11 @@ extension on TranslationsZhCn {
 			'vrFormat.resetViewDesc' => '把环视方向和视野角复位到正前方',
 			'vrFormat.resetToAuto' => '恢复自动识别',
 			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => '已手动指定',
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => '本机不支持实时环视，已退回单眼显示',
 			'vrFormat.handoffTooltip' => '换个方式播放',
 			'vrFormat.suggestedBadge' => '建议',

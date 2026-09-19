@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorEs extends Translat
 	@override String get trayHint => 'Toca para insertar en el cursor · mantén pulsado para detalles';
 	@override String get emptySegment => 'Segmento vacío';
 	@override String get emptySegmentSaveBlocked => 'No se puede guardar: hay segmentos vacíos, rellénalos o elimínalos';
+	@override String get tooManySegmentsSaveBlocked => 'No se puede guardar: demasiados segmentos de ruta (máx. 4). Combínalos o elimínalos';
+	@override String get templateInvalidSaveBlocked => 'No se puede guardar: la plantilla contiene caracteres no válidos';
+	@override String get variableInserted => 'Variable insertada';
 	@override String get savedToast => 'Guardado · solo afecta a descargas futuras';
 	@override String get trayCategoryContent => 'Contenido';
 	@override String get trayCategoryAuthor => 'Autor';
@@ -5722,6 +5725,9 @@ extension on TranslationsEs {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Toca para insertar en el cursor · mantén pulsado para detalles',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Segmento vacío',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'No se puede guardar: hay segmentos vacíos, rellénalos o elimínalos',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'No se puede guardar: demasiados segmentos de ruta (máx. 4). Combínalos o elimínalos',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'No se puede guardar: la plantilla contiene caracteres no válidos',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Variable insertada',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Guardado · solo afecta a descargas futuras',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Contenido',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Autor',
@@ -6138,11 +6144,11 @@ extension on TranslationsEs {
 			'forum.editedAt' => 'Editado el',
 			'forum.copySuccess' => 'Copiado al portapapeles',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Copiado al portapapeles: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Editar respuesta',
 			'forum.editTitle' => 'Editar título',
 			'forum.submit' => 'Enviar',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Tipo de notificación no admitido',
 			'notifications.errors.unknownUser' => 'Usuario desconocido',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Tipo de notificación no admitido: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsEs {
 			'download.maxConcurrentDownloads' => 'Descargas simultáneas máximas',
 			'download.maxConcurrentDownloadsDesc' => 'Número de tareas que se descargan a la vez (1-5)',
 			'download.stillInDevelopment' => 'Aún en desarrollo',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Guardar en el directorio de la aplicación',
 			'download.alreadyDownloadedWithQuality' => 'Ya se descargó con la misma calidad. ¿Continuar con la descarga?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Ya se descargó con las calidades: ${qualities}. ¿Continuar con la descarga?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Otras calidades',
 			'download.batchDownload.title' => 'Descarga por lotes',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'Ya hay una tarea en curso; espere, por favor.',
@@ -7166,11 +7172,11 @@ extension on TranslationsEs {
 			'linkInputDialog.unsupportedLink' => 'Enlace no compatible',
 			'linkInputDialog.cancel' => 'Cancelar',
 			'linkInputDialog.confirm' => 'Abrir en el navegador',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Gestión de registros',
 			'log.enableLogPersistence' => 'Activar la persistencia de registros',
 			'log.enableLogPersistenceDesc' => 'Guarda los registros en la base de datos para su análisis',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Límite de tamaño de la base de datos de registros',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Actual: ${size}',
 			'log.exportCurrentLogs' => 'Exportar los registros actuales',
@@ -7680,11 +7686,11 @@ extension on TranslationsEs {
 			'vrFormat.resetViewDesc' => 'Devolver la dirección de mirada y el campo de visión al frente',
 			'vrFormat.resetToAuto' => 'Volver a la detección automática',
 			'vrFormat.resetToAutoDesc' => 'Olvidar la elección manual para este video y dejar que la detección decida de nuevo',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Establecido manualmente',
 			'vrFormat.panoramaHint' => 'Arrastre la imagen para mirar alrededor; pellizque para cambiar el campo de visión',
 			'vrFormat.panoramaGestureNotice' => 'Mientras mira alrededor, arrastrar gira la vista; use la barra de progreso para buscar',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'Este dispositivo no puede renderizar el panorama en vivo; se muestra un solo ojo en su lugar',
 			'vrFormat.handoffTooltip' => 'Reproducir de otra forma',
 			'vrFormat.suggestedBadge' => 'Sugerido',

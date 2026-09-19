@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorTh extends Translat
 	@override String get trayHint => 'แตะเพื่อแทรกที่ตำแหน่งเคอร์เซอร์ · กดค้างเพื่อดูรายละเอียด';
 	@override String get emptySegment => 'ส่วนว่าง';
 	@override String get emptySegmentSaveBlocked => 'บันทึกไม่ได้: มีส่วนว่าง โปรดลบหรือกรอกเนื้อหา';
+	@override String get tooManySegmentsSaveBlocked => 'บันทึกไม่ได้: ส่วนของพาธเกินขีดจำกัด (สูงสุด 4 ส่วน) โปรดรวมหรือลดลง';
+	@override String get templateInvalidSaveBlocked => 'บันทึกไม่ได้: เทมเพลตมีอักขระที่ไม่อนุญาต';
+	@override String get variableInserted => 'แทรกตัวแปรแล้ว';
 	@override String get savedToast => 'บันทึกแล้ว · มีผลเฉพาะการดาวน์โหลดใหม่เท่านั้น';
 	@override String get trayCategoryContent => 'เนื้อหา';
 	@override String get trayCategoryAuthor => 'ผู้สร้าง';
@@ -5722,6 +5725,9 @@ extension on TranslationsTh {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'แตะเพื่อแทรกที่ตำแหน่งเคอร์เซอร์ · กดค้างเพื่อดูรายละเอียด',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'ส่วนว่าง',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'บันทึกไม่ได้: มีส่วนว่าง โปรดลบหรือกรอกเนื้อหา',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'บันทึกไม่ได้: ส่วนของพาธเกินขีดจำกัด (สูงสุด 4 ส่วน) โปรดรวมหรือลดลง',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'บันทึกไม่ได้: เทมเพลตมีอักขระที่ไม่อนุญาต',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'แทรกตัวแปรแล้ว',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'บันทึกแล้ว · มีผลเฉพาะการดาวน์โหลดใหม่เท่านั้น',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'เนื้อหา',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'ผู้สร้าง',
@@ -6138,11 +6144,11 @@ extension on TranslationsTh {
 			'forum.editedAt' => 'แก้ไขเมื่อ',
 			'forum.copySuccess' => 'คัดลอกไปยังคลิปบอร์ดแล้ว',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'แก้ไขการตอบกลับ',
 			'forum.editTitle' => 'แก้ไขชื่อเรื่อง',
 			'forum.submit' => 'ส่ง',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'ไม่รองรับประเภทการแจ้งเตือนนี้',
 			'notifications.errors.unknownUser' => 'ผู้ใช้ที่ไม่รู้จัก',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'ไม่รองรับประเภทการแจ้งเตือน: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsTh {
 			'download.maxConcurrentDownloads' => 'จำนวนการดาวน์โหลดพร้อมกันสูงสุด',
 			'download.maxConcurrentDownloadsDesc' => 'จำนวนงานที่ดาวน์โหลดในเวลาเดียวกัน (1-5)',
 			'download.stillInDevelopment' => 'ยังอยู่ระหว่างการพัฒนา',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'บันทึกไปยังโฟลเดอร์ของแอป',
 			'download.alreadyDownloadedWithQuality' => 'ดาวน์โหลดด้วยความละเอียดเดียวกันนี้แล้ว ดำเนินการดาวน์โหลดต่อหรือไม่?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'ดาวน์โหลดด้วยความละเอียดต่อไปนี้แล้ว: ${qualities} ดำเนินการดาวน์โหลดต่อหรือไม่?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'ความละเอียดอื่นๆ',
 			'download.batchDownload.title' => 'การดาวน์โหลดเป็นชุด',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'มีงานกำลังทำงานอยู่แล้ว โปรดรอสักครู่',
@@ -7166,11 +7172,11 @@ extension on TranslationsTh {
 			'linkInputDialog.unsupportedLink' => 'ลิงก์ที่ไม่รองรับ',
 			'linkInputDialog.cancel' => 'ยกเลิก',
 			'linkInputDialog.confirm' => 'เปิดในเบราว์เซอร์',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'การจัดการบันทึก',
 			'log.enableLogPersistence' => 'เปิดใช้งานการคงอยู่ของบันทึก',
 			'log.enableLogPersistenceDesc' => 'บันทึกประวัติลงในฐานข้อมูลเพื่อนำไปวิเคราะห์',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'จำกัดขนาดฐานข้อมูลบันทึก',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'ปัจจุบัน: ${size}',
 			'log.exportCurrentLogs' => 'ส่งออกบันทึกปัจจุบัน',
@@ -7680,11 +7686,11 @@ extension on TranslationsTh {
 			'vrFormat.resetViewDesc' => 'คืนทิศทางการมองและมุมมองกลับไปด้านหน้า',
 			'vrFormat.resetToAuto' => 'กลับสู่การตรวจจับอัตโนมัติ',
 			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'ตั้งค่าเอง',
 			'vrFormat.panoramaHint' => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง',
 			'vrFormat.panoramaGestureNotice' => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'อุปกรณ์นี้ไม่สามารถเรนเดอร์พาโนรามาแบบสดได้ จึงแสดงเพียงตาเดียว',
 			'vrFormat.handoffTooltip' => 'เล่นด้วยวิธีอื่น',
 			'vrFormat.suggestedBadge' => 'แนะนำ',

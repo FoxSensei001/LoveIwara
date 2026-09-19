@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends Translat
 	@override String get trayHint => 'タップでカーソル位置に挿入 · 長押しで説明';
 	@override String get emptySegment => '空のセグメント';
 	@override String get emptySegmentSaveBlocked => '保存できません：空のセグメントを削除するか内容を入力してください';
+	@override String get tooManySegmentsSaveBlocked => '保存できません：パスのセグメント数が上限（最大4）を超えています。統合するか削減してください';
+	@override String get templateInvalidSaveBlocked => '保存できません：テンプレートに使用できない文字が含まれています';
+	@override String get variableInserted => '変数を挿入しました';
 	@override String get savedToast => '保存しました · 今後のダウンロードにのみ影響します';
 	@override String get trayCategoryContent => 'コンテンツ';
 	@override String get trayCategoryAuthor => '作者';
@@ -5722,6 +5725,9 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'タップでカーソル位置に挿入 · 長押しで説明',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空のセグメント',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '保存できません：空のセグメントを削除するか内容を入力してください',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => '保存できません：パスのセグメント数が上限（最大4）を超えています。統合するか削減してください',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => '保存できません：テンプレートに使用できない文字が含まれています',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => '変数を挿入しました',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => '保存しました · 今後のダウンロードにのみ影響します',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'コンテンツ',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
@@ -6138,11 +6144,11 @@ extension on TranslationsJa {
 			'forum.editedAt' => '編集日時',
 			'forum.copySuccess' => 'クリップボードにコピーされました',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => '編集回覆',
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'サポートされていない通知タイプ',
 			'notifications.errors.unknownUser' => '未知ユーザー',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'サポートされていない通知タイプ: ${type}',
@@ -6652,11 +6658,11 @@ extension on TranslationsJa {
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'その他の品質',
 			'download.batchDownload.title' => '一括ダウンロード',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'タスクが実行中です。しばらくお待ちください',
@@ -7166,11 +7172,11 @@ extension on TranslationsJa {
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.enterGroupName' => 'グループ名を入力してください',
 			'emoji.create' => '作成',
 			'emoji.editGroupName' => 'グループ名を編集',
@@ -7680,11 +7686,11 @@ extension on TranslationsJa {
 			'vrFormat.resetViewDesc' => '見ている向きと視野角を正面に戻します',
 			'vrFormat.resetToAuto' => '自動判定に戻す',
 			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => '手動で指定済み',
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'この端末ではリアルタイムの見回しに対応していないため、片目表示に切り替えました',
 			'vrFormat.handoffTooltip' => '別の方法で再生',
 			'vrFormat.suggestedBadge' => 'おすすめ',

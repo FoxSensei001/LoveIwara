@@ -4463,6 +4463,9 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw extends Transl
 	@override String get trayHint => '點按插入到目前焦點段 · 長按查看說明';
 	@override String get emptySegment => '空段';
 	@override String get emptySegmentSaveBlocked => '無法儲存：存在空段，請刪除或填入內容';
+	@override String get tooManySegmentsSaveBlocked => '無法儲存：路徑段數超過上限（最多 4 段），請合併或刪減';
+	@override String get templateInvalidSaveBlocked => '無法儲存：範本含非法字元或格式無效';
+	@override String get variableInserted => '變數已插入';
 	@override String get savedToast => '已儲存 · 只影響之後的新下載';
 	@override String get trayCategoryContent => '內容';
 	@override String get trayCategoryAuthor => '作者';
@@ -5722,6 +5725,9 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => '點按插入到目前焦點段 · 長按查看說明',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空段',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '無法儲存：存在空段，請刪除或填入內容',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => '無法儲存：路徑段數超過上限（最多 4 段），請合併或刪減',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => '無法儲存：範本含非法字元或格式無效',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => '變數已插入',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => '已儲存 · 只影響之後的新下載',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '內容',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
@@ -6138,11 +6144,11 @@ extension on TranslationsZhTw {
 			'forum.leafNames.guides' => '指南',
 			'forum.leafNames.questions' => '問題',
 			'forum.leafNames.requests' => '請求',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafNames.sharing' => '分享',
 			'forum.leafNames.general_zh' => '一般',
 			'forum.leafNames.questions_zh' => '問題',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.requests_zh' => '請求',
 			'forum.leafNames.support_zh' => '幫助',
 			'forum.leafNames.general_ja' => '一般',
@@ -6652,11 +6658,11 @@ extension on TranslationsZhTw {
 			'download.location.fallbackBanner' => '上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。',
 			'download.location.fallbackReasonPermission' => '缺少儲存權限',
 			'download.location.fallbackReasonVolumeMissing' => '儲存裝置沒有連接',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.fallbackReasonCannotCreate' => '無法建立資料夾',
 			'download.location.fallbackReasonNotWritable' => '資料夾無法寫入',
 			'download.location.fallbackDetail' => ({required Object reason}) => '已暫時改存：${reason}',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.errorUnresolvable' => '這個位置來自雲端硬碟或其他 App，無法直接寫入。請選擇手機儲存空間或 SD 卡裡的資料夾。',
 			'download.location.errorNotWritable' => '這個資料夾無法寫入（唯讀、受系統保護或已中斷連線），位置沒有變更。',
 			'download.location.errorVolumeMissing' => '找不到這個儲存裝置（已移除或沒有連接），位置沒有變更。',
@@ -7166,11 +7172,11 @@ extension on TranslationsZhTw {
 			'log.confirmToContinue' => '確定要繼續嗎？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
 			'emoji.name' => '表情',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.large' => '大',
 			'emoji.extraLarge' => '超大',
 			'emoji.copyEmojiLinkSuccess' => '表情包連結已複製',
@@ -7680,11 +7686,11 @@ extension on TranslationsZhTw {
 			'vrFormat.resetViewDesc' => '把環視方向與視野角復位到正前方',
 			'vrFormat.resetToAuto' => '恢復自動辨識',
 			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => '已手動指定',
 			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
 			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => '本機不支援即時環視，已退回單眼顯示',
 			'vrFormat.handoffTooltip' => '換個方式播放',
 			'vrFormat.suggestedBadge' => '建議',

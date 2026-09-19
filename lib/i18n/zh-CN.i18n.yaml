@@ -1179,6 +1179,9 @@ settings:
       trayHint: 点按插入到当前焦点段 · 长按查看说明
       emptySegment: 空段
       emptySegmentSaveBlocked: 无法保存：存在空段，请删除或填入内容
+      tooManySegmentsSaveBlocked: '无法保存：路径段数超过上限（最多 4 段），请合并或删减'
+      templateInvalidSaveBlocked: '无法保存：模板含非法字符或格式无效'
+      variableInserted: '变量已插入'
       savedToast: 已保存 · 只影响之后的新下载
       trayCategoryContent: 内容
       trayCategoryAuthor: 作者

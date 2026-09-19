@@ -10957,6 +10957,15 @@ class TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	/// en: 'Cannot save — fill in or remove the empty segment(s)'
 	String get emptySegmentSaveBlocked => 'Cannot save — fill in or remove the empty segment(s)';
 
+	/// en: 'Cannot save — too many path segments (max 4). Merge or remove some'
+	String get tooManySegmentsSaveBlocked => 'Cannot save — too many path segments (max 4). Merge or remove some';
+
+	/// en: 'Cannot save — the template contains invalid characters'
+	String get templateInvalidSaveBlocked => 'Cannot save — the template contains invalid characters';
+
+	/// en: 'Variable inserted'
+	String get variableInserted => 'Variable inserted';
+
 	/// en: 'Saved — only affects future downloads'
 	String get savedToast => 'Saved — only affects future downloads';
 
@@ -12417,6 +12426,9 @@ extension on Translations {
 			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Tap to insert at the cursor · long-press for details',
 			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Empty segment',
 			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Cannot save — fill in or remove the empty segment(s)',
+			'settings.downloadSettings.pathTemplateEditor.tooManySegmentsSaveBlocked' => 'Cannot save — too many path segments (max 4). Merge or remove some',
+			'settings.downloadSettings.pathTemplateEditor.templateInvalidSaveBlocked' => 'Cannot save — the template contains invalid characters',
+			'settings.downloadSettings.pathTemplateEditor.variableInserted' => 'Variable inserted',
 			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Saved — only affects future downloads',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Content',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Author',
@@ -12833,11 +12845,11 @@ extension on Translations {
 			'forum.editedAt' => 'Edited At',
 			'forum.copySuccess' => 'Copied to clipboard',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
+			_ => null,
+		} ?? switch (path) {
 			'forum.editReply' => 'Edit Reply',
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			'notifications.errors.unknownUser' => 'Unknown user',
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
@@ -13347,11 +13359,11 @@ extension on Translations {
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
 			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
 			'download.stillInDevelopment' => 'Still in development',
+			_ => null,
+		} ?? switch (path) {
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
-			_ => null,
-		} ?? switch (path) {
 			'download.otherQualities' => 'Other qualities',
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
@@ -13861,11 +13873,11 @@ extension on Translations {
 			'linkInputDialog.unsupportedLink' => 'Unsupported Link',
 			'linkInputDialog.cancel' => 'Cancel',
 			'linkInputDialog.confirm' => 'Open in Browser',
+			_ => null,
+		} ?? switch (path) {
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
-			_ => null,
-		} ?? switch (path) {
 			'log.logDatabaseSizeLimit' => 'Log Database Size Limit',
 			'log.logDatabaseSizeLimitDesc' => ({required Object size}) => 'Current: ${size}',
 			'log.exportCurrentLogs' => 'Export Current Logs',
@@ -14375,11 +14387,11 @@ extension on Translations {
 			'vrFormat.resetViewDesc' => 'Return the look direction and field of view to the front',
 			'vrFormat.resetToAuto' => 'Back to auto-detect',
 			'vrFormat.resetToAutoDesc' => 'Forget the manual choice for this video and let detection decide again',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.manualBadge' => 'Set manually',
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.shaderUnsupported' => 'This device cannot render live panorama; showing a single eye instead',
 			'vrFormat.handoffTooltip' => 'Play another way',
 			'vrFormat.suggestedBadge' => 'Suggested',
