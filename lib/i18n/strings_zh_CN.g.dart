@@ -3147,6 +3147,26 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get suchAsTitleQuality => '例如: %title_%quality';
 	@override String get suchAsTitleId => '例如: %title_%id';
 	@override String get suchAsTitleFilename => '例如: %title_%filename';
+	@override String get structureSection => '保存结构与命名';
+	@override String get structureSectionDescription => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载， 已经下载的不动。';
+	@override String get structureNoticeTitle => '新功能：可按作者自动归档';
+	@override String get structureNoticeBody => '在下方选择即可 · 只影响新下载的文件，已经下载的不动。';
+	@override String get presetFlat => '平铺';
+	@override String get presetFlatDesc => '全部文件直接放在下载根目录';
+	@override String get presetAuthor => '按作者';
+	@override String get presetAuthorBadge => '推荐';
+	@override String get presetAuthorDesc => '每个作者一个文件夹 · 改名不漂移';
+	@override String get presetDate => '按日期';
+	@override String get presetDateDesc => '按下载日期归档';
+	@override String get presetCustom => '自定义';
+	@override String get presetCustomDesc => '自由编辑路径模板';
+	@override String get presetCustomHint => '自定义：在「自定义路径模板」编辑器中修改';
+	@override String get structurePreviewLabel => '效果预览';
+	@override String get structurePreviewNote => '彩色段 = 组织层级，随所选方式即时变化。';
+	@override String get pathTooLongWarning => '相对路径超过 200 字符，部分设备可能无法保存';
+	@override String get pathTemplateEditorEntry => '自定义路径模板';
+	@override String get pathTemplateEditorEntryDesc => '自己决定文件夹怎么分';
+	@override late final _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn pathTemplateEditor = _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn._(_root);
 }
 
 // Path: oreno3d.sortTypes
@@ -4410,6 +4430,37 @@ class _TranslationsLocalMediaWebdavZhCn extends TranslationsLocalMediaWebdavEn {
 	@override String get bannerCredUnreadable => '读取保存的密码失败，重新登录一次即可';
 }
 
+// Path: settings.downloadSettings.pathTemplateEditor
+class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
+	_TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
+
+	final TranslationsZhCn _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '路径模板';
+	@override String get subtitle => '给下载的文件自动分文件夹';
+	@override String get tabVideo => '视频';
+	@override String get tabGallery => '图库';
+	@override String get tabImage => '单张图片';
+	@override String get previewLabel => '预览 · 清洗后的真实落盘结果';
+	@override String get galleryPreviewLabel => '预览 · 图库模板 = 文件夹名（内部图片按 ID 命名）';
+	@override String addFolder({required Object current, required Object max}) => '＋添加一层文件夹（${current}/${max}）';
+	@override String get folderCapReached => '已达文件夹层数上限';
+	@override String get folderSegmentHint => '%authorcache、变量或固定文本';
+	@override String get fileSegmentHint => '如 %title_%quality';
+	@override String videoCapNote({required Object max}) => '扩展名（.mp4）会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹';
+	@override String imageCapNote({required Object max}) => '原扩展名会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹';
+	@override String galleryCapNote({required Object max}) => '图库模板全部为文件夹段，最多 ${max} 层 · 内部图片沿用 图片ID.扩展名';
+	@override String get trayHint => '点按插入到当前焦点段 · 长按查看说明';
+	@override String get emptySegment => '空段';
+	@override String get emptySegmentSaveBlocked => '无法保存：存在空段，请删除或填入内容';
+	@override String get savedToast => '已保存 · 只影响之后的新下载';
+	@override String get trayCategoryContent => '内容';
+	@override String get trayCategoryAuthor => '作者';
+	@override String get trayCategoryTime => '时间';
+	@override String get chipAuthorcache => '作者名·固定';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class _TranslationsVideoDetailGestureGuideQuestZhCn extends TranslationsVideoDetailGestureGuideQuestEn {
 	_TranslationsVideoDetailGestureGuideQuestZhCn._(TranslationsZhCn root) : this._root = root, super.internal(root);
@@ -5624,6 +5675,47 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.suchAsTitleQuality' => '例如: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => '例如: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => '例如: %title_%filename',
+			'settings.downloadSettings.structureSection' => '保存结构与命名',
+			'settings.downloadSettings.structureSectionDescription' => '下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载， 已经下载的不动。',
+			'settings.downloadSettings.structureNoticeTitle' => '新功能：可按作者自动归档',
+			'settings.downloadSettings.structureNoticeBody' => '在下方选择即可 · 只影响新下载的文件，已经下载的不动。',
+			'settings.downloadSettings.presetFlat' => '平铺',
+			'settings.downloadSettings.presetFlatDesc' => '全部文件直接放在下载根目录',
+			'settings.downloadSettings.presetAuthor' => '按作者',
+			'settings.downloadSettings.presetAuthorBadge' => '推荐',
+			'settings.downloadSettings.presetAuthorDesc' => '每个作者一个文件夹 · 改名不漂移',
+			'settings.downloadSettings.presetDate' => '按日期',
+			'settings.downloadSettings.presetDateDesc' => '按下载日期归档',
+			'settings.downloadSettings.presetCustom' => '自定义',
+			'settings.downloadSettings.presetCustomDesc' => '自由编辑路径模板',
+			'settings.downloadSettings.presetCustomHint' => '自定义：在「自定义路径模板」编辑器中修改',
+			'settings.downloadSettings.structurePreviewLabel' => '效果预览',
+			'settings.downloadSettings.structurePreviewNote' => '彩色段 = 组织层级，随所选方式即时变化。',
+			'settings.downloadSettings.pathTooLongWarning' => '相对路径超过 200 字符，部分设备可能无法保存',
+			'settings.downloadSettings.pathTemplateEditorEntry' => '自定义路径模板',
+			'settings.downloadSettings.pathTemplateEditorEntryDesc' => '自己决定文件夹怎么分',
+			'settings.downloadSettings.pathTemplateEditor.title' => '路径模板',
+			'settings.downloadSettings.pathTemplateEditor.subtitle' => '给下载的文件自动分文件夹',
+			'settings.downloadSettings.pathTemplateEditor.tabVideo' => '视频',
+			'settings.downloadSettings.pathTemplateEditor.tabGallery' => '图库',
+			'settings.downloadSettings.pathTemplateEditor.tabImage' => '单张图片',
+			'settings.downloadSettings.pathTemplateEditor.previewLabel' => '预览 · 清洗后的真实落盘结果',
+			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => '预览 · 图库模板 = 文件夹名（内部图片按 ID 命名）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => '＋添加一层文件夹（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => '已达文件夹层数上限',
+			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache、变量或固定文本',
+			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '如 %title_%quality',
+			'settings.downloadSettings.pathTemplateEditor.videoCapNote' => ({required Object max}) => '扩展名（.mp4）会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹',
+			'settings.downloadSettings.pathTemplateEditor.imageCapNote' => ({required Object max}) => '原扩展名会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹',
+			'settings.downloadSettings.pathTemplateEditor.galleryCapNote' => ({required Object max}) => '图库模板全部为文件夹段，最多 ${max} 层 · 内部图片沿用 图片ID.扩展名',
+			'settings.downloadSettings.pathTemplateEditor.trayHint' => '点按插入到当前焦点段 · 长按查看说明',
+			'settings.downloadSettings.pathTemplateEditor.emptySegment' => '空段',
+			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => '无法保存：存在空段，请删除或填入内容',
+			'settings.downloadSettings.pathTemplateEditor.savedToast' => '已保存 · 只影响之后的新下载',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => '内容',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '时间',
+			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
 			'favoriteTags.title' => '收藏标签',
 			'favoriteTags.emptyIwara' => '还没有收藏的 Iwara 标签',
 			'favoriteTags.emptyOreno3d' => '还没有收藏',
@@ -6040,6 +6132,8 @@ extension on TranslationsZhCn {
 			'forum.submit' => '提交',
 			'notifications.errors.unsupportedNotificationType' => '暂不支持的通知类型',
 			'notifications.errors.unknownUser' => '未知用户',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => '暂不支持的通知类型: ${type}',
 			'notifications.errors.unknownNotificationType' => '未知通知类型',
 			'notifications.notifications' => '通知',
@@ -6081,8 +6175,6 @@ extension on TranslationsZhCn {
 			'notifications.kApprovedGallery' => '图库审核通过',
 			'notifications.kApprovedThread' => '帖子审核通过',
 			'notifications.kApprovedPost' => '投稿审核通过',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.kApprovedForumPost' => '论坛发言审核通过',
 			'notifications.kRejectedContent' => '内容审核被拒绝',
 			'notifications.kUnknownType' => '未知通知类型',
@@ -6554,6 +6646,8 @@ extension on TranslationsZhCn {
 			'download.batchDownload.title' => '批量下载',
 			'download.batchDownload.downloadTaskAlreadyRunning' => '任务正在运行中，请稍候',
 			'download.batchDownload.userCancelled' => '用户取消',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.failedToGetVideoInfo' => '无法获取视频信息',
 			'download.batchDownload.failedToGetVideoSource' => '无法获取视频源',
 			'download.batchDownload.failedToGetGalleryInfo' => '无法获取图库信息',
@@ -6595,8 +6689,6 @@ extension on TranslationsZhCn {
 			'favorite.addSuccess' => '追加成功',
 			'favorite.addFailed' => '追加失败',
 			'favorite.remove' => '删除',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeSuccess' => '删除成功',
 			'favorite.removeFailed' => '删除失败',
 			'favorite.removeConfirmation' => '确定要删除这个项目吗？',
@@ -7068,6 +7160,8 @@ extension on TranslationsZhCn {
 			'emoji.imageCount' => ({required Object count}) => '${count}张图片',
 			'emoji.selectEmoji' => '选择表情包',
 			'emoji.noEmojisInGroup' => '该分组暂无表情包',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.goToSettingsToAddEmojis' => '前往设置添加表情包',
 			'emoji.emojiManagement' => '表情包管理',
 			'emoji.manageEmojiGroupsAndImages' => '管理表情包分组和图片',
@@ -7109,8 +7203,6 @@ extension on TranslationsZhCn {
 			'layoutSettings.deleteBreakpoint' => '删除断点',
 			'layoutSettings.screenWidthLabel' => '屏幕宽度',
 			'layoutSettings.screenWidthHint' => '600',
-			_ => null,
-		} ?? switch (path) {
 			'layoutSettings.columnsLabel' => '列数',
 			'layoutSettings.columnsHint' => '3',
 			'layoutSettings.enterWidth' => '请输入宽度',
@@ -7582,6 +7674,8 @@ extension on TranslationsZhCn {
 			'vrFormat.suggestionAction' => '以 VR 播放',
 			'vrFormat.suggestionDismiss' => '不再提示',
 			'localMedia.browse.pinnedSection' => '常用目录',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.sourcesSection' => '文件夹',
 			'localMedia.browse.pin' => '设为常用',
 			'localMedia.browse.unpin' => '取消常用',
@@ -7623,8 +7717,6 @@ extension on TranslationsZhCn {
 			'localMedia.browse.folderUnhidden' => '已取消隐藏',
 			'localMedia.browse.hiddenFolderBadge' => '已隐藏',
 			'localMedia.browse.deleteFolder' => '删除文件夹',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.deleteFolderTitle' => '删除这个文件夹？',
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '「${name}」连同里面的所有内容都会从这台设备上真的被删掉，不能撤销。',
 			'localMedia.browse.deleteFolderIncludesOthers' => '里面的其它文件也会一并删掉',

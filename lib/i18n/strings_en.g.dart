@@ -7930,6 +7930,65 @@ class TranslationsSettingsDownloadSettingsEn {
 
 	/// en: 'For example: %title_%filename'
 	String get suchAsTitleFilename => 'For example: %title_%filename';
+
+	/// en: 'Save structure & naming'
+	String get structureSection => 'Save structure & naming';
+
+	/// en: 'Downloads are organized into subfolders by the scheme below. Only affects future downloads; existing files stay put.'
+	String get structureSectionDescription => 'Downloads are organized into subfolders by the scheme below. Only affects future downloads; existing files stay put.';
+
+	/// en: 'New — organize downloads by author automatically'
+	String get structureNoticeTitle => 'New — organize downloads by author automatically';
+
+	/// en: 'Pick a scheme below · only affects future downloads, existing files stay put.'
+	String get structureNoticeBody => 'Pick a scheme below · only affects future downloads, existing files stay put.';
+
+	/// en: 'Flat'
+	String get presetFlat => 'Flat';
+
+	/// en: 'All files sit directly in the download root'
+	String get presetFlatDesc => 'All files sit directly in the download root';
+
+	/// en: 'By author'
+	String get presetAuthor => 'By author';
+
+	/// en: 'Recommended'
+	String get presetAuthorBadge => 'Recommended';
+
+	/// en: 'One folder per author — renames don't split it'
+	String get presetAuthorDesc => 'One folder per author — renames don\'t split it';
+
+	/// en: 'By date'
+	String get presetDate => 'By date';
+
+	/// en: 'Grouped by download date'
+	String get presetDateDesc => 'Grouped by download date';
+
+	/// en: 'Custom'
+	String get presetCustom => 'Custom';
+
+	/// en: 'Edit the path template freely'
+	String get presetCustomDesc => 'Edit the path template freely';
+
+	/// en: 'Custom — edit the rules in the path template editor'
+	String get presetCustomHint => 'Custom — edit the rules in the path template editor';
+
+	/// en: 'Preview'
+	String get structurePreviewLabel => 'Preview';
+
+	/// en: 'Colored segments are the organization levels — they follow the selected scheme.'
+	String get structurePreviewNote => 'Colored segments are the organization levels — they follow the selected scheme.';
+
+	/// en: 'Relative path exceeds 200 characters — saving may fail on some devices'
+	String get pathTooLongWarning => 'Relative path exceeds 200 characters — saving may fail on some devices';
+
+	/// en: 'Custom path template'
+	String get pathTemplateEditorEntry => 'Custom path template';
+
+	/// en: 'Decide folder levels and file naming yourself'
+	String get pathTemplateEditorEntryDesc => 'Decide folder levels and file naming yourself';
+
+	late final TranslationsSettingsDownloadSettingsPathTemplateEditorEn pathTemplateEditor = TranslationsSettingsDownloadSettingsPathTemplateEditorEn.internal(_root);
 }
 
 // Path: oreno3d.sortTypes
@@ -10812,6 +10871,81 @@ class TranslationsLocalMediaWebdavEn {
 	String get bannerCredUnreadable => 'Couldn\'t read the saved password. Sign in again.';
 }
 
+// Path: settings.downloadSettings.pathTemplateEditor
+class TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
+	TranslationsSettingsDownloadSettingsPathTemplateEditorEn.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Path template'
+	String get title => 'Path template';
+
+	/// en: 'Auto-organize downloads into subfolders'
+	String get subtitle => 'Auto-organize downloads into subfolders';
+
+	/// en: 'Video'
+	String get tabVideo => 'Video';
+
+	/// en: 'Gallery'
+	String get tabGallery => 'Gallery';
+
+	/// en: 'Single image'
+	String get tabImage => 'Single image';
+
+	/// en: 'Preview — the actual save result after cleaning'
+	String get previewLabel => 'Preview — the actual save result after cleaning';
+
+	/// en: 'Preview — gallery template names the folder (inner images use the image ID)'
+	String get galleryPreviewLabel => 'Preview — gallery template names the folder (inner images use the image ID)';
+
+	/// en: 'Add a folder level (${current}/${max})'
+	String addFolder({required Object current, required Object max}) => 'Add a folder level (${current}/${max})';
+
+	/// en: 'Folder level limit reached'
+	String get folderCapReached => 'Folder level limit reached';
+
+	/// en: '%authorcache, a variable or plain text'
+	String get folderSegmentHint => '%authorcache, a variable or plain text';
+
+	/// en: 'e.g. %title_%quality'
+	String get fileSegmentHint => 'e.g. %title_%quality';
+
+	/// en: 'The .mp4 extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels'
+	String videoCapNote({required Object max}) => 'The .mp4 extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels';
+
+	/// en: 'The original extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels'
+	String imageCapNote({required Object max}) => 'The original extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels';
+
+	/// en: 'Gallery template is all folder segments, up to ${max} levels · inner images keep the image ID naming'
+	String galleryCapNote({required Object max}) => 'Gallery template is all folder segments, up to ${max} levels · inner images keep the image ID naming';
+
+	/// en: 'Tap to insert at the cursor · long-press for details'
+	String get trayHint => 'Tap to insert at the cursor · long-press for details';
+
+	/// en: 'Empty segment'
+	String get emptySegment => 'Empty segment';
+
+	/// en: 'Cannot save — fill in or remove the empty segment(s)'
+	String get emptySegmentSaveBlocked => 'Cannot save — fill in or remove the empty segment(s)';
+
+	/// en: 'Saved — only affects future downloads'
+	String get savedToast => 'Saved — only affects future downloads';
+
+	/// en: 'Content'
+	String get trayCategoryContent => 'Content';
+
+	/// en: 'Author'
+	String get trayCategoryAuthor => 'Author';
+
+	/// en: 'Time'
+	String get trayCategoryTime => 'Time';
+
+	/// en: 'Author · fixed'
+	String get chipAuthorcache => 'Author · fixed';
+}
+
 // Path: videoDetail.gestureGuide.quest
 class TranslationsVideoDetailGestureGuideQuestEn {
 	TranslationsVideoDetailGestureGuideQuestEn.internal(this._root);
@@ -12218,6 +12352,47 @@ extension on Translations {
 			'settings.downloadSettings.suchAsTitleQuality' => 'For example: %title_%quality',
 			'settings.downloadSettings.suchAsTitleId' => 'For example: %title_%id',
 			'settings.downloadSettings.suchAsTitleFilename' => 'For example: %title_%filename',
+			'settings.downloadSettings.structureSection' => 'Save structure & naming',
+			'settings.downloadSettings.structureSectionDescription' => 'Downloads are organized into subfolders by the scheme below. Only affects future downloads; existing files stay put.',
+			'settings.downloadSettings.structureNoticeTitle' => 'New — organize downloads by author automatically',
+			'settings.downloadSettings.structureNoticeBody' => 'Pick a scheme below · only affects future downloads, existing files stay put.',
+			'settings.downloadSettings.presetFlat' => 'Flat',
+			'settings.downloadSettings.presetFlatDesc' => 'All files sit directly in the download root',
+			'settings.downloadSettings.presetAuthor' => 'By author',
+			'settings.downloadSettings.presetAuthorBadge' => 'Recommended',
+			'settings.downloadSettings.presetAuthorDesc' => 'One folder per author — renames don\'t split it',
+			'settings.downloadSettings.presetDate' => 'By date',
+			'settings.downloadSettings.presetDateDesc' => 'Grouped by download date',
+			'settings.downloadSettings.presetCustom' => 'Custom',
+			'settings.downloadSettings.presetCustomDesc' => 'Edit the path template freely',
+			'settings.downloadSettings.presetCustomHint' => 'Custom — edit the rules in the path template editor',
+			'settings.downloadSettings.structurePreviewLabel' => 'Preview',
+			'settings.downloadSettings.structurePreviewNote' => 'Colored segments are the organization levels — they follow the selected scheme.',
+			'settings.downloadSettings.pathTooLongWarning' => 'Relative path exceeds 200 characters — saving may fail on some devices',
+			'settings.downloadSettings.pathTemplateEditorEntry' => 'Custom path template',
+			'settings.downloadSettings.pathTemplateEditorEntryDesc' => 'Decide folder levels and file naming yourself',
+			'settings.downloadSettings.pathTemplateEditor.title' => 'Path template',
+			'settings.downloadSettings.pathTemplateEditor.subtitle' => 'Auto-organize downloads into subfolders',
+			'settings.downloadSettings.pathTemplateEditor.tabVideo' => 'Video',
+			'settings.downloadSettings.pathTemplateEditor.tabGallery' => 'Gallery',
+			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Single image',
+			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Preview — the actual save result after cleaning',
+			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Preview — gallery template names the folder (inner images use the image ID)',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Add a folder level (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Folder level limit reached',
+			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, a variable or plain text',
+			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'e.g. %title_%quality',
+			'settings.downloadSettings.pathTemplateEditor.videoCapNote' => ({required Object max}) => 'The .mp4 extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels',
+			'settings.downloadSettings.pathTemplateEditor.imageCapNote' => ({required Object max}) => 'The original extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels',
+			'settings.downloadSettings.pathTemplateEditor.galleryCapNote' => ({required Object max}) => 'Gallery template is all folder segments, up to ${max} levels · inner images keep the image ID naming',
+			'settings.downloadSettings.pathTemplateEditor.trayHint' => 'Tap to insert at the cursor · long-press for details',
+			'settings.downloadSettings.pathTemplateEditor.emptySegment' => 'Empty segment',
+			'settings.downloadSettings.pathTemplateEditor.emptySegmentSaveBlocked' => 'Cannot save — fill in or remove the empty segment(s)',
+			'settings.downloadSettings.pathTemplateEditor.savedToast' => 'Saved — only affects future downloads',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryContent' => 'Content',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Author',
+			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Time',
+			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Author · fixed',
 			'favoriteTags.title' => 'Favorite Tags',
 			'favoriteTags.emptyIwara' => 'No favorite Iwara tags yet',
 			'favoriteTags.emptyOreno3d' => 'No favorites yet',
@@ -12634,6 +12809,8 @@ extension on Translations {
 			'forum.submit' => 'Submit',
 			'notifications.errors.unsupportedNotificationType' => 'Unsupported notification type',
 			'notifications.errors.unknownUser' => 'Unknown user',
+			_ => null,
+		} ?? switch (path) {
 			'notifications.errors.unsupportedNotificationTypeWithType' => ({required Object type}) => 'Unsupported notification type: ${type}',
 			'notifications.errors.unknownNotificationType' => 'Unknown notification type',
 			'notifications.notifications' => 'Notifications',
@@ -12675,8 +12852,6 @@ extension on Translations {
 			'notifications.kApprovedGallery' => 'Gallery approved',
 			'notifications.kApprovedThread' => 'Thread approved',
 			'notifications.kApprovedPost' => 'Post approved',
-			_ => null,
-		} ?? switch (path) {
 			'notifications.kApprovedForumPost' => 'Forum post approved',
 			'notifications.kRejectedContent' => 'Content review rejected',
 			'notifications.kUnknownType' => 'Unknown notification type',
@@ -13148,6 +13323,8 @@ extension on Translations {
 			'download.batchDownload.title' => 'Batch Download',
 			'download.batchDownload.downloadTaskAlreadyRunning' => 'A task is already running, please wait.',
 			'download.batchDownload.userCancelled' => 'User cancelled',
+			_ => null,
+		} ?? switch (path) {
 			'download.batchDownload.failedToGetVideoInfo' => 'Failed to get video information',
 			'download.batchDownload.failedToGetVideoSource' => 'Failed to get video source',
 			'download.batchDownload.failedToGetGalleryInfo' => 'Failed to get gallery information',
@@ -13189,8 +13366,6 @@ extension on Translations {
 			'favorite.addSuccess' => 'Add success',
 			'favorite.addFailed' => 'Add failed',
 			'favorite.remove' => 'Remove',
-			_ => null,
-		} ?? switch (path) {
 			'favorite.removeSuccess' => 'Remove success',
 			'favorite.removeFailed' => 'Remove failed',
 			'favorite.removeConfirmation' => 'Are you sure you want to remove this item from favorites?',
@@ -13662,6 +13837,8 @@ extension on Translations {
 			'log.exportMergedLogs' => 'Export Merged Logs',
 			'log.exportMergedLogsDesc' => 'Export merged logs within a specified date range',
 			'log.showLogStats' => 'Show Log Stats',
+			_ => null,
+		} ?? switch (path) {
 			'log.logExportSuccess' => 'Log export success',
 			'log.logExportFailed' => ({required Object error}) => 'Log export failed: ${error}',
 			'log.showLogStatsDesc' => 'View statistics of various types of logs',
@@ -13703,8 +13880,6 @@ extension on Translations {
 			'log.warning' => 'Warning',
 			'log.newSizeLimit' => ({required Object size}) => 'New size limit: ${size}',
 			'log.confirmToContinue' => 'Confirm to continue',
-			_ => null,
-		} ?? switch (path) {
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Log size limit set to ${size}',
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Size',
@@ -14176,6 +14351,8 @@ extension on Translations {
 			'vrFormat.suggestionAction' => 'Play as VR',
 			'vrFormat.suggestionDismiss' => 'Dismiss',
 			'localMedia.browse.pinnedSection' => 'Quick access',
+			_ => null,
+		} ?? switch (path) {
 			'localMedia.browse.sourcesSection' => 'Folders',
 			'localMedia.browse.pin' => 'Add to quick access',
 			'localMedia.browse.unpin' => 'Remove from quick access',
@@ -14217,8 +14394,6 @@ extension on Translations {
 			'localMedia.browse.folderUnhidden' => 'No longer hidden',
 			'localMedia.browse.hiddenFolderBadge' => 'Hidden',
 			'localMedia.browse.deleteFolder' => 'Delete folder',
-			_ => null,
-		} ?? switch (path) {
 			'localMedia.browse.deleteFolderTitle' => 'Delete this folder?',
 			'localMedia.browse.deleteFolderBody' => ({required Object name}) => '"${name}" and everything inside it will be permanently deleted from this device. This cannot be undone.',
 			'localMedia.browse.deleteFolderIncludesOthers' => 'Other files inside will be deleted too',

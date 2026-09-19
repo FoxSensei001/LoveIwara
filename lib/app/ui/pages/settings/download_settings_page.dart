@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
-import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/services/download_notification_service.dart';
+import 'package:i_iwara/app/services/download_path_service.dart';
+import 'package:i_iwara/app/services/filename_template_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_location_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/downloads_outside_folder_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/download_test_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/path_template_editor_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
-import 'package:i_iwara/app/utils/show_app_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:path/path.dart' as p;
 
-import 'package:i_iwara/app/ui/widgets/glass/glass_slider.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
+/// 「保存结构与命名」的四个预设（issue #126）。
+enum _StructurePreset { flat, author, date, custom }
 
 /// 下载设置页。
 ///
 /// ```
 /// [保存位置]  当前位置卡（DownloadLocationCard） + 目录外的已下载内容
 /// [下载行为]  并发数、通知
-/// [文件命名]  三个模板 + 支持的变量
+/// [保存结构与命名]  预设单选 + 实时预览 + 路径模板编辑器入口（issue #126）
 /// [高级]      可折叠：写入诊断
 /// ```
 ///
@@ -43,41 +45,6 @@ class DownloadSettingsPage extends StatefulWidget {
 
 class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
   final ConfigService configService = Get.find<ConfigService>();
-  late FilenameTemplateService filenameTemplateService;
-
-  final TextEditingController _videoTemplateController =
-      TextEditingController();
-  final TextEditingController _galleryTemplateController =
-      TextEditingController();
-  final TextEditingController _imageTemplateController =
-      TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-
-    // 获取文件命名模板服务
-    filenameTemplateService = Get.find<FilenameTemplateService>();
-
-    // 初始化控制器值（兜底常量与出厂默认保持一致；实际值来自 config 首跑写库）
-    _videoTemplateController.text =
-        configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] ??
-        '%authorcache/%title_%quality';
-    _galleryTemplateController.text =
-        configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] ??
-        '%authorcache/%title_%id';
-    _imageTemplateController.text =
-        configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] ??
-        '%authorcache/%title/%filename';
-  }
-
-  @override
-  void dispose() {
-    _videoTemplateController.dispose();
-    _galleryTemplateController.dispose();
-    _imageTemplateController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +69,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               _buildBehaviorSection(context),
               const SizedBox(height: 16),
 
-              // [文件命名]
-              _buildFilenameTemplateSection(context),
+              // [保存结构与命名]
+              _buildStructureSection(context),
               const SizedBox(height: 16),
 
               // [高级]
@@ -233,225 +200,432 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
     );
   }
 
-  Widget _buildFilenameTemplateSection(BuildContext context) {
+  /// [保存结构与命名]（issue #126）。
+  ///
+  /// 自上而下：一次性提示卡（纯告知，选中任意预设即消失）→ 四选一预设单选卡
+  /// （即点即生效，只影响新下载）→ 实时路径预览 → 编辑器入口 tile。
+  /// 预设只是 canned 模板串：运行时只读一条多段模板，预设不进第二套事实源。
+  Widget _buildStructureSection(BuildContext context) {
     final t = slang.Translations.of(context);
     final theme = Theme.of(context);
     return GlassSettingSection(
-      title: t.download.location.namingSection,
+      title: t.settings.downloadSettings.structureSection,
       divided: false,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
           child: Text(
-            t.settings.downloadSettings.filenameTemplateDescription,
+            t.settings.downloadSettings.structureSectionDescription,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
+        if (_showStructureNotice) _buildStructureNoticeCard(context),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
             children: [
-              // 视频文件命名模板
-              _buildTemplateField(
-                context,
-                controller: _videoTemplateController,
-                label: t.settings.downloadSettings.videoFilenameTemplate,
-                hint: t.settings.downloadSettings.suchAsTitleQuality,
-                configKey: ConfigKey.VIDEO_FILENAME_TEMPLATE,
-              ),
-              const SizedBox(height: 12),
-
-              // 图库文件夹命名模板
-              _buildTemplateField(
-                context,
-                controller: _galleryTemplateController,
-                label: t.settings.downloadSettings.galleryFolderTemplate,
-                hint: t.settings.downloadSettings.suchAsTitleId,
-                configKey: ConfigKey.GALLERY_FILENAME_TEMPLATE,
-              ),
-              const SizedBox(height: 12),
-
-              // 单张图片命名模板
-              _buildTemplateField(
-                context,
-                controller: _imageTemplateController,
-                label: t.settings.downloadSettings.imageFilenameTemplate,
-                hint: t.settings.downloadSettings.suchAsTitleFilename,
-                configKey: ConfigKey.IMAGE_FILENAME_TEMPLATE,
-              ),
+              _buildPresetCard(context, _StructurePreset.flat),
+              _buildPresetCard(context, _StructurePreset.author),
+              _buildPresetCard(context, _StructurePreset.date),
+              _buildPresetCard(context, _StructurePreset.custom),
             ],
           ),
         ),
         const SizedBox(height: 4),
-        // 查看支持的变量
+        _buildStructurePreview(context),
         GlassSettingTile(
-          icon: Icons.help_outline,
-          title: Text(t.settings.downloadSettings.supportedVariables),
+          icon: Icons.edit_note,
+          title: Text(t.settings.downloadSettings.pathTemplateEditorEntry),
+          subtitle: Text(
+            configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String? ?? '',
+            style: TextStyle(
+              fontFamily: 'monospace',
+              fontSize: 11,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
           trailing: Icon(
             Icons.chevron_right,
             color: theme.colorScheme.onSurfaceVariant,
           ),
-          onTap: () => _showVariableHelpDialog(context),
+          onTap: () async {
+            await PathTemplateEditorPage.open(context);
+            if (mounted) setState(() {}); // 刷新预设选中态 / 预览 / 入口副标题
+          },
         ),
       ],
     );
   }
 
-  Widget _buildTemplateField(
-    BuildContext context, {
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required ConfigKey configKey,
-  }) {
+  /// 一次性提示卡：纯告知无按钮（v3.1 裁决）——预设选项就在正下方，
+  /// 「选择即开启」，选中任意预设后由 [_applyPreset] 写 dismiss flag 永久消失。
+  Widget _buildStructureNoticeCard(BuildContext context) {
     final t = slang.Translations.of(context);
-    return GlassInputSurface(
-      borderRadius: 8,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: TextField(
-        controller: controller,
-        decoration: glassFieldDecoration(context, hint: hint, label: label)
-            .copyWith(
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () => _resetTemplate(controller, configKey),
-                tooltip: t.settings.downloadSettings.resetToDefault,
-              ),
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primary.withValues(alpha: 0.16),
+            cs.primary.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.auto_awesome, color: cs.primary, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settings.downloadSettings.structureNoticeTitle,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.settings.downloadSettings.structureNoticeBody,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-        onChanged: (value) {
-          if (filenameTemplateService.validateTemplate(value)) {
-            configService[configKey] = value;
-          }
-        },
+          ),
+        ],
       ),
     );
   }
 
-  void _showVariableHelpDialog(BuildContext context) {
+  Widget _buildPresetCard(BuildContext context, _StructurePreset preset) {
     final t = slang.Translations.of(context);
-    final variables = filenameTemplateService.getSupportedVariables();
+    final cs = Theme.of(context).colorScheme;
+    final selected = _currentPreset == preset;
+    final e = t.settings.downloadSettings;
 
-    showAppDialog(
-      GlassAlertDialog(
-        title: t.settings.downloadSettings.supportedVariables,
-        maxWidth: 600,
-        scrollable: true,
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.settings.downloadSettings.supportedVariablesDescription,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
+    final (title, subtitle) = switch (preset) {
+      _StructurePreset.flat => (e.presetFlat, e.presetFlatDesc),
+      _StructurePreset.author => (e.presetAuthor, e.presetAuthorDesc),
+      _StructurePreset.date => (e.presetDate, e.presetDateDesc),
+      _StructurePreset.custom => (e.presetCustom, e.presetCustomDesc),
+    };
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: selected
+            ? cs.primary.withValues(alpha: 0.10)
+            : cs.surfaceContainerHighest.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _applyPreset(preset),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: selected
+                    ? cs.primary.withValues(alpha: 0.8)
+                    : cs.outlineVariant.withValues(alpha: 0.5),
+                width: selected ? 1.4 : 1,
               ),
             ),
-            const SizedBox(height: 16),
-
-            ...variables.map(
-              (variable) => Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Material(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    onTap: () =>
-                        _copyVariableToClipboard(variable.variable, context),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outline.withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              children: [
+                // 单选圆点
+                Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: selected ? cs.primary : cs.outlineVariant,
+                      width: 2,
+                    ),
+                  ),
+                  child: selected
+                      ? Container(
+                          margin: const EdgeInsets.all(3.5),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: cs.primary,
+                          ),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  variable.variable,
-                                  style: TextStyle(
-                                    fontFamily: 'monospace',
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimaryContainer,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                onPressed: () => _copyVariableToClipboard(
-                                  variable.variable,
-                                  context,
-                                ),
-                                icon: const Icon(Icons.copy, size: 18),
-                                tooltip:
-                                    t.settings.downloadSettings.copyVariable,
-                                visualDensity: VisualDensity.compact,
-                                style: IconButton.styleFrom(
-                                  minimumSize: const Size(36, 36),
-                                  tapTargetSize:
-                                      MaterialTapTargetSize.shrinkWrap,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
                           Text(
-                            variable.description,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            title,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
+                          if (preset == _StructurePreset.author) ...[
+                            const SizedBox(width: 7),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 7,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: cs.primary,
+                                borderRadius: BorderRadius.circular(99),
+                              ),
+                              child: Text(
+                                e.presetAuthorBadge,
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      color: cs.onPrimary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
+                      const SizedBox(height: 1),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // 示例路径（mono 小字，随样例数据实时渲染）
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 118),
+                  child: Text(
+                    _presetExample(preset),
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 10.5,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  void _resetTemplate(TextEditingController controller, ConfigKey configKey) {
+  /// 预览行：用样例数据渲染清洗后的真实落盘结果（预览即文档）。
+  Widget _buildStructurePreview(BuildContext context) {
     final t = slang.Translations.of(context);
-    final defaultValue = configKey.defaultValue as String;
-    controller.text = defaultValue;
-    configService[configKey] = defaultValue;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final template =
+        configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String? ?? '';
+    final segments = FilenameTemplateService.renderSamplePathSegments(template);
+    final totalLength = segments.join('/').length;
+    final overBudget = totalLength > 200;
 
-    showAppToast(
-      t.settings.downloadSettings.templateResetToDefault,
-      type: AppToastType.success,
+    final spans = <InlineSpan>[
+      TextSpan(
+        text: _previewRootLabel,
+        style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+      ),
+    ];
+    for (var i = 0; i < segments.length; i++) {
+      final isFile = i == segments.length - 1;
+      spans.add(
+        TextSpan(
+          text: ' › ',
+          style: TextStyle(color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+        ),
+      );
+      spans.add(
+        TextSpan(
+          text: segments[i],
+          style: TextStyle(
+            color: isFile ? cs.onSurface : cs.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t.settings.downloadSettings.structurePreviewLabel,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest.withValues(alpha: 0.35),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: overBudget
+                    ? cs.tertiary.withValues(alpha: 0.6)
+                    : GlassTokens.stroke(cs),
+              ),
+            ),
+            child: Text.rich(
+              TextSpan(
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                ),
+                children: spans,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            overBudget
+                ? '${t.settings.downloadSettings.pathTooLongWarning} ($totalLength/200)'
+                : t.settings.downloadSettings.structurePreviewNote,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: overBudget
+                  ? cs.tertiary
+                  : cs.onSurfaceVariant.withValues(alpha: 0.8),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  void _copyVariableToClipboard(String variable, BuildContext context) {
+  // ───────────────── 预设派生与切换（issue #126） ─────────────────
+
+  /// 预设 → 三类内容各自的模板串（设计稿 PRESETS 映射）。
+  /// custom 不是第三套模板：它表示「现值不匹配任何 canned 预设」，不覆写值。
+  static String _presetVideo(_StructurePreset preset) => switch (preset) {
+    _StructurePreset.flat => '%title_%quality',
+    _StructurePreset.author => '%authorcache/%title_%quality',
+    _StructurePreset.date => '%date/%title_%quality',
+    _StructurePreset.custom => '',
+  };
+
+  static String _presetGallery(_StructurePreset preset) => switch (preset) {
+    _StructurePreset.flat => '%title_%id',
+    _StructurePreset.author => '%authorcache/%title_%id',
+    _StructurePreset.date => '%date/%title_%id',
+    _StructurePreset.custom => '',
+  };
+
+  static String _presetImage(_StructurePreset preset) => switch (preset) {
+    // 平铺也保留标题文件夹层（图片仍按标题分文件夹，G 屏文案）。
+    _StructurePreset.flat => '%title/%filename',
+    _StructurePreset.author => '%authorcache/%title/%filename',
+    _StructurePreset.date => '%date/%title/%filename',
+    _StructurePreset.custom => '',
+  };
+
+  /// 升级前的存量出厂值（提示卡与「平铺」派生都以它为基准）。
+  static const String _legacyVideoFlat = '%title_%quality';
+  static const String _legacyGalleryFlat = '%title_%id';
+  static const String _legacyImageFlat = '%title_%filename';
+
+  _StructurePreset get _currentPreset {
+    final video =
+        configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String? ?? '';
+    final gallery =
+        configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] as String? ?? '';
+    final image =
+        configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] as String? ?? '';
+    if (video == _presetVideo(_StructurePreset.author) &&
+        gallery == _presetGallery(_StructurePreset.author) &&
+        image == _presetImage(_StructurePreset.author)) {
+      return _StructurePreset.author;
+    }
+    if (video == _presetVideo(_StructurePreset.date) &&
+        gallery == _presetGallery(_StructurePreset.date) &&
+        image == _presetImage(_StructurePreset.date)) {
+      return _StructurePreset.date;
+    }
+    // 平铺：新预设值，或存量旧默认（单图旧值是平铺串，行为同样是平铺）。
+    if (video == _presetVideo(_StructurePreset.flat) &&
+        gallery == _presetGallery(_StructurePreset.flat) &&
+        (image == _presetImage(_StructurePreset.flat) ||
+            image == _legacyImageFlat)) {
+      return _StructurePreset.flat;
+    }
+    return _StructurePreset.custom;
+  }
+
+  /// 一次性提示卡显隐：未 dismiss 且三模板仍等于升级前的平铺出厂值。
+  /// 新装用户出厂即按作者归档，永远看不到这张卡；自定义过的用户也不打扰。
+  bool get _showStructureNotice {
+    final dismissed =
+        configService[ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED] as bool? ??
+        false;
+    if (dismissed) return false;
+    return configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] == _legacyVideoFlat &&
+        configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] ==
+            _legacyGalleryFlat &&
+        configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] == _legacyImageFlat;
+  }
+
+  void _applyPreset(_StructurePreset preset) {
     final t = slang.Translations.of(context);
-    Clipboard.setData(ClipboardData(text: variable));
-    showAppToast(
-      '${t.settings.downloadSettings.variableCopied}: $variable',
-      type: AppToastType.success,
-    );
+    if (preset == _StructurePreset.custom) {
+      // 自定义不覆写值：现值是什么就是什么，规则进编辑器改。
+      showAppToast(
+        t.settings.downloadSettings.presetCustomHint,
+        type: AppToastType.info,
+      );
+      setState(() {});
+      return;
+    }
+    configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] = _presetVideo(preset);
+    configService[ConfigKey.GALLERY_FILENAME_TEMPLATE] = _presetGallery(preset);
+    configService[ConfigKey.IMAGE_FILENAME_TEMPLATE] = _presetImage(preset);
+    // 「选择即开启」：任意预设被选中，一次性提示卡永久消失。
+    configService[ConfigKey.DOWNLOAD_STRUCTURE_NOTICE_DISMISSED] = true;
+    setState(() {});
+  }
+
+  /// 预设卡右侧的示例路径（样例数据实时渲染，与预览行同一套规则）。
+  String _presetExample(_StructurePreset preset) {
+    final template = preset == _StructurePreset.custom
+        ? configService[ConfigKey.VIDEO_FILENAME_TEMPLATE] as String? ?? ''
+        : _presetVideo(preset);
+    final segments = FilenameTemplateService.renderSamplePathSegments(template);
+    if (segments.isEmpty) return '/';
+    return '/${segments.join(' › ')}';
+  }
+
+  /// 预览行根目录的灰字（当前默认下载目录的名字，如 LoveIwara）。
+  String get _previewRootLabel {
+    final base = DownloadPathService.to.defaultDownloadPath;
+    if (base.isEmpty) return '…';
+    return p.basename(base);
   }
 }

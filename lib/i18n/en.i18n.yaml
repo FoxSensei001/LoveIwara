@@ -1137,6 +1137,51 @@ settings:
     suchAsTitleQuality: 'For example: %title_%quality'
     suchAsTitleId: 'For example: %title_%id'
     suchAsTitleFilename: 'For example: %title_%filename'
+    # [Save structure & naming] (issue #126 subfolder archiving)
+    structureSection: Save structure & naming
+    structureSectionDescription: >-
+      Downloads are organized into subfolders by the scheme below. Only affects
+      future downloads; existing files stay put.
+    structureNoticeTitle: New — organize downloads by author automatically
+    structureNoticeBody: Pick a scheme below · only affects future downloads, existing files stay put.
+    presetFlat: Flat
+    presetFlatDesc: All files sit directly in the download root
+    presetAuthor: By author
+    presetAuthorBadge: Recommended
+    presetAuthorDesc: One folder per author — renames don't split it
+    presetDate: By date
+    presetDateDesc: Grouped by download date
+    presetCustom: Custom
+    presetCustomDesc: Edit the path template freely
+    presetCustomHint: Custom — edit the rules in the path template editor
+    structurePreviewLabel: Preview
+    structurePreviewNote: Colored segments are the organization levels — they follow the selected scheme.
+    pathTooLongWarning: Relative path exceeds 200 characters — saving may fail on some devices
+    pathTemplateEditorEntry: Custom path template
+    pathTemplateEditorEntryDesc: Decide folder levels and file naming yourself
+    pathTemplateEditor:
+      title: Path template
+      subtitle: Auto-organize downloads into subfolders
+      tabVideo: Video
+      tabGallery: Gallery
+      tabImage: Single image
+      previewLabel: Preview — the actual save result after cleaning
+      galleryPreviewLabel: Preview — gallery template names the folder (inner images use the image ID)
+      addFolder: 'Add a folder level (${current}/${max})'
+      folderCapReached: Folder level limit reached
+      folderSegmentHint: '%authorcache, a variable or plain text'
+      fileSegmentHint: 'e.g. %title_%quality'
+      videoCapNote: 'The .mp4 extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels'
+      imageCapNote: 'The original extension is added automatically · typing / inside a segment splits it into two levels · up to ${max} folder levels'
+      galleryCapNote: 'Gallery template is all folder segments, up to ${max} levels · inner images keep the image ID naming'
+      trayHint: Tap to insert at the cursor · long-press for details
+      emptySegment: Empty segment
+      emptySegmentSaveBlocked: Cannot save — fill in or remove the empty segment(s)
+      savedToast: Saved — only affects future downloads
+      trayCategoryContent: Content
+      trayCategoryAuthor: Author
+      trayCategoryTime: Time
+      chipAuthorcache: 'Author · fixed'
 favoriteTags:
   title: Favorite Tags
   emptyIwara: No favorite Iwara tags yet

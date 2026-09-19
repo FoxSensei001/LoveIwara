@@ -269,7 +269,7 @@ void main() {
 
     tearDown(() {
       Get.delete<AuthorFolderCacheService>();
-      db.dispose();
+      db.close();
     });
 
     test('first download records first-seen name, rename does not drift', () {

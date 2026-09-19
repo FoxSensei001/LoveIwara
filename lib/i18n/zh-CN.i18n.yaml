@@ -1139,6 +1139,51 @@ settings:
     suchAsTitleQuality: '例如: %title_%quality'
     suchAsTitleId: '例如: %title_%id'
     suchAsTitleFilename: '例如: %title_%filename'
+    # [保存结构与命名]（issue #126 下载子文件夹归档）
+    structureSection: 保存结构与命名
+    structureSectionDescription: >-
+      下载的文件按下方所选方式自动归入子文件夹。只影响之后的新下载，
+      已经下载的不动。
+    structureNoticeTitle: 新功能：可按作者自动归档
+    structureNoticeBody: 在下方选择即可 · 只影响新下载的文件，已经下载的不动。
+    presetFlat: 平铺
+    presetFlatDesc: 全部文件直接放在下载根目录
+    presetAuthor: 按作者
+    presetAuthorBadge: 推荐
+    presetAuthorDesc: 每个作者一个文件夹 · 改名不漂移
+    presetDate: 按日期
+    presetDateDesc: 按下载日期归档
+    presetCustom: 自定义
+    presetCustomDesc: 自由编辑路径模板
+    presetCustomHint: 自定义：在「自定义路径模板」编辑器中修改
+    structurePreviewLabel: 效果预览
+    structurePreviewNote: 彩色段 = 组织层级，随所选方式即时变化。
+    pathTooLongWarning: 相对路径超过 200 字符，部分设备可能无法保存
+    pathTemplateEditorEntry: 自定义路径模板
+    pathTemplateEditorEntryDesc: 自己决定文件夹怎么分
+    pathTemplateEditor:
+      title: 路径模板
+      subtitle: 给下载的文件自动分文件夹
+      tabVideo: 视频
+      tabGallery: 图库
+      tabImage: 单张图片
+      previewLabel: 预览 · 清洗后的真实落盘结果
+      galleryPreviewLabel: 预览 · 图库模板 = 文件夹名（内部图片按 ID 命名）
+      addFolder: '＋添加一层文件夹（${current}/${max}）'
+      folderCapReached: 已达文件夹层数上限
+      folderSegmentHint: '%authorcache、变量或固定文本'
+      fileSegmentHint: '如 %title_%quality'
+      videoCapNote: 扩展名（.mp4）会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹
+      imageCapNote: 原扩展名会自动添加 · 段内输入 / 自动拆为两层 · 最多 ${max} 层文件夹
+      galleryCapNote: 图库模板全部为文件夹段，最多 ${max} 层 · 内部图片沿用 图片ID.扩展名
+      trayHint: 点按插入到当前焦点段 · 长按查看说明
+      emptySegment: 空段
+      emptySegmentSaveBlocked: 无法保存：存在空段，请删除或填入内容
+      savedToast: 已保存 · 只影响之后的新下载
+      trayCategoryContent: 内容
+      trayCategoryAuthor: 作者
+      trayCategoryTime: 时间
+      chipAuthorcache: 作者名·固定
 favoriteTags:
   title: 收藏标签
   emptyIwara: 还没有收藏的 Iwara 标签

@@ -732,6 +732,17 @@ class FilenameTemplateService extends GetxService {
         )
         .toList();
   }
+
+  /// 渲染后的段清洗后是否为空（编辑器判「空段」用）。
+  ///
+  /// 与 [sanitizePathSegment] 同一套去边规则，但**不做兜底回填**——
+  /// 全点/全空白/全零宽的段清洗后就是空，编辑器要标红拦下，而不是替它起名。
+  static bool isRenderedSegmentEmpty(String rendered) {
+    final trimmed = rendered
+        .replaceAll(RegExp(r'^[.\s\u200B-\u200D\uFEFF]+'), '')
+        .replaceAll(RegExp(r'[.\s\u200B-\u200D\uFEFF]+$'), '');
+    return trimmed.isEmpty;
+  }
 }
 
 /// 模板变量类
