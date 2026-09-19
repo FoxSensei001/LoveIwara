@@ -36,11 +36,7 @@ double resolveDownloadUiScale(
 class DownloadUiScale extends InheritedWidget {
   final double scale;
 
-  const DownloadUiScale({
-    super.key,
-    required this.scale,
-    required super.child,
-  });
+  const DownloadUiScale({super.key, required this.scale, required super.child});
 
   /// 读取当前缩放系数；不在 [DownloadScaleScope] 内时回退为 1.0（不缩放）。
   static double of(BuildContext context) {
@@ -109,9 +105,7 @@ class DownloadActionButtonTheme extends StatelessWidget {
   Widget build(BuildContext context) {
     final scale = DownloadUiScale.of(context);
     return IconButtonTheme(
-      data: IconButtonThemeData(
-        style: downloadActionIconButtonStyle(scale),
-      ),
+      data: IconButtonThemeData(style: downloadActionIconButtonStyle(scale)),
       child: child,
     );
   }
@@ -153,7 +147,7 @@ class DownloadMoreButton extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 4 * scale),
               child: Center(
                 child: Icon(
-                  Icons.more_horiz,
+                  Icons.more_vert,
                   size: 22 * scale,
                   // 与身边 IconButton 的默认前景色对齐（M3 的 icon button
                   // 取 onSurfaceVariant，裸 Icon 走的是 iconTheme）。

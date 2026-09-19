@@ -1,15 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:i_iwara/app/models/download/download_task.model.dart';
-import 'package:i_iwara/app/services/download_service.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_actions.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_task_tile.dart';
 import 'package:i_iwara/app/ui/pages/download/widgets/download_scale.dart';
-import 'package:i_iwara/app/ui/pages/download/widgets/status_label_widget.dart';
 import 'package:path/path.dart' as path;
-import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class DefaultDownloadTaskItem extends StatelessWidget {
   final DownloadTask task;
@@ -74,13 +70,18 @@ class DefaultDownloadTaskItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final scale = DownloadUiScale.of(context);
     final cs = Theme.of(context).colorScheme;
+    final extension = path.extension(task.fileName);
     final icon = Center(
-      child: Icon(_getFileIcon(), size: 28 * scale, color: cs.primary),
+      child: Icon(_getFileIcon(), size: 30 * scale, color: cs.onSurfaceVariant),
     );
+    final isImage = _isImageFile();
     return DownloadTaskTile(
       task: task,
-      title: task.fileName,
-      cover: _isImageFile()
+      // 扩展名挪到封面角上，标题只留名字。
+      title: extension.isEmpty
+          ? task.fileName
+          : path.basenameWithoutExtension(task.fileName),
+      cover: isImage
           ? LayoutBuilder(
               builder: (context, constraints) => Image.file(
                 File(task.savePath),
@@ -98,140 +99,35 @@ class DefaultDownloadTaskItem extends StatelessWidget {
               ),
             )
           : icon,
-      statusBuilder: (context) =>
-          StatusLabel(status: task.status, text: _getStatusText(context)),
-      primaryAction: _buildMainActionButton(context),
-      gridMeta: _formatFileSize(task.downloadedBytes),
+      coverBadges: [
+        if (extension.length > 1)
+          Positioned(
+            right: 6,
+            bottom: 6,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                child: Text(
+                  extension.substring(1).toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+      completedMeta: formatDownloadBytes(task.downloadedBytes),
       onTap: task.status == DownloadStatus.completed
           ? () => _onTap(context)
           : null,
     );
-  }
-
-  Widget _buildMainActionButton(BuildContext context) {
-    final t = slang.Translations.of(context);
-    final scale = DownloadUiScale.of(context);
-
-    // 使用 Obx 监听处理状态
-    return Obx(() {
-      final isProcessing = DownloadService.to.isTaskProcessing(task.id);
-
-      // 处理中：用禁用态的图标按钮承载 loading，保持与其它按钮相同的
-      // 填充矩形外观与占位，避免切换时尺寸跳动。
-      if (isProcessing) {
-        return IconButton(
-          onPressed: null,
-          icon: SizedBox(
-            width: 22 * scale,
-            height: 22 * scale,
-            child: const CircularProgressIndicator(strokeWidth: 2),
-          ),
-        );
-      }
-
-      switch (task.status) {
-        case DownloadStatus.pending:
-          return IconButton(
-            icon: const Icon(Icons.pause),
-            tooltip: t.download.pause,
-            onPressed: () => DownloadService.to.pauseTask(task.id),
-          );
-        case DownloadStatus.downloading:
-          return IconButton(
-            icon: const Icon(Icons.pause),
-            tooltip: t.download.pause,
-            onPressed: () => DownloadService.to.pauseTask(task.id),
-          );
-        case DownloadStatus.paused:
-          return IconButton(
-            icon: const Icon(Icons.play_arrow),
-            tooltip: t.download.resume,
-            onPressed: () => DownloadService.to.resumeTask(task.id),
-          );
-        case DownloadStatus.failed:
-          return IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: t.common.retry,
-            onPressed: () => DownloadService.to.retryTask(task.id),
-          );
-        case DownloadStatus.completed:
-          return IconButton(
-            icon: const Icon(Icons.play_circle_outline),
-            tooltip: t.download.openFile,
-            onPressed: () => openDownloadedFile(task),
-          );
-      }
-    });
-  }
-
-  String _getStatusText(BuildContext context) {
-    final t = slang.Translations.of(context);
-    switch (task.status) {
-      case DownloadStatus.pending:
-        return t.download.waitingForDownload;
-      case DownloadStatus.downloading:
-        if (task.totalBytes > 0) {
-          final progress = (task.downloadedBytes / task.totalBytes * 100)
-              .toStringAsFixed(1);
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          final total = _formatFileSize(task.totalBytes);
-          final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded/$total ($progress%) • ${speed}MB/s';
-          return t.download.downloadingDownloadedTotalProgressSpeed(
-            downloaded: downloaded,
-            total: total,
-            progress: progress,
-            speed: speed,
-          );
-        } else {
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          final speed = (task.speed / 1024 / 1024).toStringAsFixed(2);
-          // return '下载中 $downloaded • ${speed}MB/s';
-          return t.download.downloadingOnlyDownloadedAndSpeed(
-            downloaded: downloaded,
-            speed: speed,
-          );
-        }
-      case DownloadStatus.paused:
-        if (task.totalBytes > 0) {
-          final progress = (task.downloadedBytes / task.totalBytes * 100)
-              .toStringAsFixed(1);
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          final total = _formatFileSize(task.totalBytes);
-          // return '已暂停 • $downloaded/$total ($progress%)';
-          return t.download.pausedForDownloadedAndTotal(
-            downloaded: downloaded,
-            total: total,
-            progress: progress,
-          );
-        } else {
-          final downloaded = _formatFileSize(task.downloadedBytes);
-          // return '已暂停 • 已下载 $downloaded';
-          return t.download.pausedAndDownloaded(downloaded: downloaded);
-        }
-      case DownloadStatus.completed:
-        final size = _formatFileSize(task.downloadedBytes);
-        // return '下载完成 • $size';
-        return t.download.downloadedWithSize(size: size);
-      case DownloadStatus.failed:
-        return t.download.errors.downloadFailed;
-    }
-  }
-
-  String _formatFileSize(int bytes) {
-    const units = ['B', 'KB', 'MB', 'GB'];
-    double size = bytes.toDouble();
-    int unitIndex = 0;
-
-    while (size >= 1024 && unitIndex < units.length - 1) {
-      size /= 1024;
-      unitIndex++;
-    }
-
-    String sizeStr = size >= 10
-        ? size.round().toString()
-        : size.toStringAsFixed(1);
-    return '$sizeStr ${units[unitIndex]}';
   }
 
   void _onTap(BuildContext context) {

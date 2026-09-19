@@ -90,8 +90,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
   static const String _menuActionDeleteByDate = 'deleteByDate';
   static const String _menuActionCheckIntegrity = 'checkIntegrity';
   static const String _menuActionMigrate = 'migrateToCurrent';
-  static const String _menuActionResumeAll = 'resumeAll';
-  static const String _menuActionPauseAll = 'pauseAll';
 
   final DownloadTaskRepository _downloadTaskRepository =
       DownloadTaskRepository();
@@ -364,6 +362,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     // 覆盖「服务启动早于本页、期间分类被别处改过」的情况。
     unawaited(DownloadService.to.refreshCategories());
 
+    // 历史区的首屏：以前由 LoadingMoreSliverList 挂上树时自己拉，现在历史区
+    // 按时间分组自己画（见 _buildHistoryGroups），首屏得这里叫一次。
+    _runAfterFrame(_refreshHistory);
+
     // 需要订阅的只剩一件事：历史区（已完成任务分页在 DB 里，不在内存真源）。
     //
     // ⛔ 这里绝不能用 GetX 的 ever()：它走 Rx 的 stream，而 stream 在「第一个
@@ -435,13 +437,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final double headerHeight =
         GlassTokens.headerRowHeight + _headerRowGap + _categoryStripHeight;
     final double headerExtent = statusBarHeight + headerHeight;
-    final bool isWide = MediaQuery.sizeOf(context).width > 600;
     final page = _buildPage(
       context,
       statusBarHeight: statusBarHeight,
       headerHeight: headerHeight,
       headerExtent: headerExtent,
-      isWide: isWide,
     );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -478,7 +478,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     required double statusBarHeight,
     required double headerHeight,
     required double headerExtent,
-    required bool isWide,
   }) {
     return SelectionPopScope(
       model: _selectionModel,
@@ -534,7 +533,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
                       const SizedBox(width: 8),
                       Expanded(child: _buildCenterCapsule(context)),
                       const SizedBox(width: 8),
-                      _buildActionGroup(context, isWide: isWide),
+                      _buildActionGroup(context),
                     ],
                   ),
                 ),
@@ -648,31 +647,15 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 右侧动作胶囊：[全部开始 · 全部暂停(宽屏)] 筛选(生效挂红点) · 多选
-  /// [更多(管理分类 / 按日期删除，窄屏再收下全部开始 · 全部暂停)]。
-  Widget _buildActionGroup(BuildContext context, {required bool isWide}) {
+  /// 右侧动作胶囊：筛选(生效挂红点) · 多选 · [更多(管理分类 / 整理 / 按日期删除)]。
+  ///
+  /// 「全部开始 / 全部暂停」不在这里：它们只跟进行中的任务有关，挪到了列表里
+  /// 「进行中」那一行标题的右端（见 [_buildActiveHeader]），按当下状况只给一个。
+  Widget _buildActionGroup(BuildContext context) {
     final t = slang.Translations.of(context);
-    // 多选时「全部开始 / 全部暂停 / 更多」与当前语境无关，一并挤出胶囊
-    final bool showBulkPlayback = isWide && !_isSelectionMode;
 
     return GlassButtonGroup(
       children: [
-        GlassGroupSlot(
-          visible: showBulkPlayback,
-          child: GlassIconButton(
-            icon: const Icon(Icons.play_arrow_outlined),
-            tooltip: t.download.resumeAll,
-            onPressed: () => DownloadService.to.resumeAll(),
-          ),
-        ),
-        GlassGroupSlot(
-          visible: showBulkPlayback,
-          child: GlassIconButton(
-            icon: const Icon(Icons.pause_outlined),
-            tooltip: t.download.pauseAll,
-            onPressed: () => DownloadService.to.pauseAll(),
-          ),
-        ),
         GlassIconButton(
           icon: const Icon(Icons.filter_list),
           tooltip: t.searchFilter.filterSettings,
@@ -700,7 +683,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
               // 这枚键就是菜单的触发钮：长按也能打开，且长按不抬手可以直接划到某一条上
               // 松手选中（见 GlassTapArea.opensOverlay）。
               opensOverlay: true,
-              onPressed: () => _openMoreMenu(anchorContext, isWide),
+              onPressed: () => _openMoreMenu(anchorContext),
             ),
           ),
         ),
@@ -708,25 +691,11 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  Future<void> _openMoreMenu(BuildContext anchorContext, bool isWide) async {
+  Future<void> _openMoreMenu(BuildContext anchorContext) async {
     final t = slang.Translations.of(anchorContext);
     final picked = await showGlassMenu<String>(
       anchorContext: anchorContext,
       entries: [
-        // 窄屏胶囊塞不下批量播放控制，收进这里
-        if (!isWide) ...[
-          GlassMenuOption(
-            value: _menuActionResumeAll,
-            icon: Icons.play_arrow_outlined,
-            label: t.download.resumeAll,
-          ),
-          GlassMenuOption(
-            value: _menuActionPauseAll,
-            icon: Icons.pause_outlined,
-            label: t.download.pauseAll,
-          ),
-          const GlassMenuSeparator(),
-        ],
         GlassMenuOption(
           value: _menuActionManageCategory,
           icon: Icons.folder_outlined,
@@ -765,10 +734,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         startMissingCleanup();
       case _menuActionMigrate:
         _migrateOutsideToCurrentDir();
-      case _menuActionResumeAll:
-        DownloadService.to.resumeAll();
-      case _menuActionPauseAll:
-        DownloadService.to.pauseAll();
     }
   }
 
@@ -930,12 +895,6 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     _applyFilters();
   }
 
-  void _setNeedsAttention(bool value) {
-    if (_needsAttention == value) return;
-    setState(() => _needsAttention = value);
-    _applyFilters();
-  }
-
   /// 切换当前分类筛选。
   void _onCategorySelected(String value) {
     if (_categoryFilter == value) return;
@@ -971,8 +930,8 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ?.title;
   }
 
-  /// header 第二行：分类下拉胶囊 · 状态分段（全部 / 进行中 / 已完成）·
-  /// 「需处理 · N」筛选片。
+  /// header 第二行：分类下拉胶囊 · 状态分段（全部 / 进行中 / 已完成）
+  /// [· 「需处理」片，只在这个筛选开着时出现]。
   ///
   /// 状态分段放 `Expanded`：摆不下 2.5 段时 [GlassAdaptiveSegmentedControl]
   /// 自己退化成下拉钮。分类胶囊限宽，免得用户起了个超长分类名把分段挤没。
@@ -1001,63 +960,46 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 「需处理 · N」：N = 失败任务 + 已确认失效的已完成下载（可能还能找回的
-  /// 只算待确认，不计入）。N>0 或筛选正开着时才出现，出入场走胶囊收放。
+  /// 「需处理」筛选开着时才出现的一片：告诉用户列表正被它筛着，点它关掉。
+  ///
+  /// 平时不占位——失败与文件失效各有横幅报数，横幅上的「查看」就是打开这个
+  /// 筛选的入口。但开了之后必须看得见、关得掉：状态分段与筛选抽屉都不显示它，
+  /// 少了这一片，列表会一直只剩失败项且无从得知原因。
   Widget _buildNeedsAttentionChip(BuildContext context) {
-    return Obx(() {
-      // 两个计数都先读出来再判断：Obx 的依赖登记不能躲在短路后面。
-      final failed = _store.failedIds.length;
-      final missing = DownloadFileHealth.isReady
-          ? DownloadFileHealth.to.count
-          : 0;
-      final count = failed + missing;
-      final visible = count > 0 || _needsAttention;
-      final t = slang.Translations.of(context).download.actions;
-      final cs = Theme.of(context).colorScheme;
-      final Color fg = _needsAttention ? cs.error : cs.onSurface;
-      return GlassCapsuleReveal(
-        visible: visible,
-        alignment: Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: GlassSurface(
-            tooltip: t.needsAttention,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            onTap: () => _setNeedsAttention(!_needsAttention),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GlassAnimatedIcon(
-                  icon: Icon(
-                    _needsAttention
-                        ? Icons.report_rounded
-                        : Icons.report_outlined,
-                    size: 18,
-                    color: cs.error,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                AnimatedDefaultTextStyle(
-                  duration: GlassTokens.motionDuration,
-                  style: TextStyle(
-                    color: fg,
-                    fontWeight: _needsAttention
-                        ? FontWeight.w700
-                        : FontWeight.w600,
-                  ),
-                  child: Text(
-                    count > 0
-                        ? t.needsAttentionCount(count: count)
-                        : t.needsAttention,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
+    final t = slang.Translations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    return GlassCapsuleReveal(
+      visible: _needsAttention,
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: GlassSurface(
+          tooltip: t.common.clear,
+          padding: const EdgeInsets.only(left: 12, right: 10),
+          onTap: _clearNeedsAttention,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.report_rounded, size: 18, color: cs.error),
+              const SizedBox(width: 6),
+              Text(
+                t.download.actions.needsAttention,
+                maxLines: 1,
+                style: TextStyle(color: cs.error, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 4),
+              Icon(Icons.close_rounded, size: 16, color: cs.onSurfaceVariant),
+            ],
           ),
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  void _clearNeedsAttention() {
+    if (!_needsAttention) return;
+    setState(() => _needsAttention = false);
+    _applyFilters();
   }
 
   /// 分类筛选入口：一只玻璃胶囊报「当前在看哪个分类」，点开才铺开全部。
@@ -1346,7 +1288,7 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     );
   }
 
-  /// 单列列表：顶部「下载中 / 失败 / 等待」活跃区 + 底部无限滚动的历史区。
+  /// 单列列表：顶部「进行中」一组 + 底部按时间分组、滚到底自动翻页的历史区。
   ///
   /// [topPadding] 是玻璃 header 需要让出的高度——留白必须由列表自身的
   /// SliverPadding 提供，不能在外面套 Padding，否则内容滚不到 header 背后。
@@ -1355,6 +1297,9 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
 
   /// 宽于它就把已完成历史铺成网格、进行中的行排成多列。
   static const double _wideBreakpoint = 600;
+
+  /// 卡片之间的竖向间距（行与行、格与格同一个数）。
+  static const double _itemGap = 10;
 
   Widget _buildSingleList(double topPadding) {
     // LayoutBuilder 的 context 在 DownloadScaleScope 里面：网格行高要读缩放
@@ -1377,60 +1322,24 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ? LocalGridMetrics.resolve(
             availableWidth: inner,
             maxCellWidth: 560,
-            spacing: 10,
+            spacing: _itemGap,
           ).crossAxisCount
         : 1;
 
-    // 活跃区四个分区全部来自内存真源。分区由任务状态唯一决定，因此：
-    // - 同一任务不可能同时出现在两个区（旧实现要靠 seenIds 跨区去重）；
-    // - 也不可能与底部历史区重复（历史区只装 completed，见 _HistoryDownloadTasksSource）。
-    // 这两条不变式让此前的跨区去重集合、删除墓碑一并成为多余，已删除。
-    final downloadingTasks = _visibleTasksOf(_store.downloadingIds);
-    final filteredFailedTasks = _visibleTasksOf(_store.failedIds);
-    final filteredPausedTasks = _visibleTasksOf(_store.pausedIds);
-    final filteredPendingTasks = _visibleTasksOf(_store.pendingIds);
-
-    // 构建顶部活跃区域的 widgets
-    final List<Widget> activeWidgets = [];
-
-    void addSection(String title, List<DownloadTask> tasks) {
-      if (tasks.isEmpty) return;
-      activeWidgets.add(_buildSectionHeader(title: title, count: tasks.length));
-      for (var i = 0; i < tasks.length; i += rowColumns) {
-        final chunk = tasks.skip(i).take(rowColumns).toList();
-        activeWidgets.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: _gutter,
-              vertical: 4,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                for (var c = 0; c < rowColumns; c++)
-                  Expanded(
-                    child: c < chunk.length
-                        ? _buildActiveTaskItem(chunk[c].id)
-                        : const SizedBox.shrink(),
-                  ),
-              ],
-            ),
-          ),
-        );
-      }
-    }
-
-    // 顺序：下载中 → 失败（方便快速重试）→ 暂停 → 等待中
-    addSection(slang.t.download.downloading, downloadingTasks);
-    addSection(slang.t.download.failed, filteredFailedTasks);
-    addSection(slang.t.download.paused, filteredPausedTasks);
-    addSection(slang.t.download.waiting, filteredPendingTasks);
-
-    // 是否存在搜索 / 筛选条件（用于区分“暂无任务”与“无匹配结果”）
-    final bool hasActiveFilter = _hasAnyFilter;
-    // 顶部活跃区域是否有内容（决定 history 为空时是否接管为整页空状态）
-    final bool hasActiveWidgets = activeWidgets.isNotEmpty;
+    // 进行中的四个分区全部来自内存真源，分区由任务状态唯一决定，因此同一任务
+    // 不会出现在两处，也不会与历史区（只装 completed）重复。
+    //
+    // 分区不再各挂一行「标题 (N)」：卡片自己的状态行已经说清了它是下载中还是
+    // 暂停，四行标题只是在重复。组内顺序照旧：下载中 → 失败（方便快速重试）→
+    // 暂停 → 等待。
+    final activeTasks = <DownloadTask>[
+      ..._visibleTasksOf(_store.downloadingIds),
+      ..._visibleTasksOf(_store.failedIds),
+      ..._visibleTasksOf(_store.pausedIds),
+      ..._visibleTasksOf(_store.pendingIds),
+    ];
+    final hasActive = activeTasks.isNotEmpty;
+    final activeRows = (activeTasks.length / rowColumns).ceil();
 
     final bottomPadding =
         computeBottomSafeInset(MediaQuery.of(context)) +
@@ -1440,155 +1349,304 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
         ? LocalGridMetrics.resolve(availableWidth: inner, maxCellWidth: 260)
         : null;
 
-    return LoadingMoreCustomScrollView(
-      controller: _scrollController,
-      // 空列表也要能下拉（否则筛不到结果时刷不了）
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        // 顶部留白，为悬浮的玻璃 header（标题行 + 分类条）让出位置
-        SliverPadding(padding: EdgeInsets.only(top: topPadding)),
-        // 提示横幅：上次未完成 / 失败 / 文件失效 / 旧目录里还有 —— 同一时间只摆
-        // 优先级最高的一条。
-        SliverToBoxAdapter(child: _buildNoticeBanner(context)),
-        // 顶部活跃区域
-        if (hasActiveWidgets)
-          SliverList(delegate: SliverChildListDelegate(activeWidgets)),
-        // 网格没有按天的日期标题，与上面的进行中区之间靠一行分区标题隔开。
-        if (grid != null && hasActiveWidgets)
-          SliverToBoxAdapter(child: _buildHistoryHeader()),
-        // 底部历史区域（无限滚动）
-        LoadingMoreSliverList<DownloadTask>(
-          SliverListConfig<DownloadTask>(
-            itemBuilder: (context, task, index) => grid == null
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: _gutter,
-                      vertical: 4,
+    return DownloadTileLayoutScope(
+      layout: DownloadTileLayout.row,
+      onLongPress: _onTileLongPress,
+      child: CustomScrollView(
+        controller: _scrollController,
+        // 空列表也要能下拉（否则筛不到结果时刷不了）
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          // 顶部留白，为悬浮的玻璃 header（标题行 + 分类条）让出位置
+          SliverPadding(padding: EdgeInsets.only(top: topPadding)),
+          // 提示横幅：上次未完成 / 失败 / 文件失效 / 旧目录里还有 —— 同一时间只摆
+          // 优先级最高的一条。
+          SliverToBoxAdapter(child: _buildNoticeBanner(context)),
+          if (hasActive) ...[
+            SliverToBoxAdapter(
+              child: _buildActiveHeader(context, activeTasks.length),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: _gutter),
+              sliver: SliverList.builder(
+                itemCount: activeRows,
+                itemBuilder: (context, row) {
+                  final start = row * rowColumns;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: _itemGap),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: _itemGap,
+                      children: [
+                        for (var c = 0; c < rowColumns; c++)
+                          Expanded(
+                            child: start + c < activeTasks.length
+                                ? KeyedSubtree(
+                                    // 一条移走后下面的行别复用它的进度环动画。
+                                    key: ValueKey(activeTasks[start + c].id),
+                                    child: _buildActiveTaskItem(
+                                      activeTasks[start + c].id,
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                      ],
                     ),
-                    child: _buildHistoryItemWithDateHeader(task, index),
-                  )
-                : DownloadTileLayoutScope(
-                    layout: DownloadTileLayout.grid,
-                    child: _buildTaskItem(task),
-                  ),
-            gridDelegate: grid?.delegate(
-              DownloadTaskTile.gridExtentFor(context, grid.cellWidth),
+                  );
+                },
+              ),
             ),
-            sourceList: _historySource,
-            padding: EdgeInsets.fromLTRB(
-              grid == null ? 0 : _gutter,
-              grid == null ? 0 : 4,
-              grid == null ? 0 : _gutter,
-              bottomPadding,
-            ),
-            indicatorBuilder: (context, status) {
-              // history 为空时：若顶部活跃区域也无内容，则用自定义整页空状态
-              // 接管（区分“暂无任务”/“无匹配结果”）；否则保持默认指示器。
-              if (status == IndicatorStatus.empty &&
-                  !hasActiveWidgets &&
-                  !_isFilterLoading) {
-                return SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _buildEmptyState(hasActiveFilter: hasActiveFilter),
-                );
-              }
-              return myLoadingMoreIndicator(
-                context,
-                status,
-                isSliver: true,
-                loadingMoreBase: _historySource,
-              );
-            },
-          ),
-        ),
-      ],
+          ],
+          _buildHistoryGroups(context, grid: grid),
+          _buildHistoryIndicator(hasActive: hasActive),
+          SliverPadding(padding: EdgeInsets.only(bottom: bottomPadding)),
+        ],
+      ),
     );
   }
 
-  /// 宽屏网格上方的「已完成」分区标题（历史区是分页的，没有总数可报）。
-  Widget _buildHistoryHeader() {
+  /// 长按一张卡：进多选并选中它（卡片从 [DownloadTileLayoutScope] 拿到这个）。
+  void _onTileLongPress(DownloadTask task) {
+    if (_isSelectionMode) return;
+    _enterSelectionMode();
+    _toggleItemSelection(task.id);
+  }
+
+  /// 列表里的小标题（「进行中 · 3」「今天」「2026年8月」）：同一副字样。
+  TextStyle? _listLabelStyle(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.textTheme.titleSmall?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: theme.colorScheme.onSurfaceVariant,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+  }
+
+  /// 「进行中 · N」+ 右端一枚按当下状况给出的批量钮：
+  /// 有在下 / 在等的给「全部暂停」，否则有暂停的给「全部开始」，只剩失败的就
+  /// 不给（失败有横幅上的「全部重试」）。
+  Widget _buildActiveHeader(BuildContext context, int count) {
+    final t = slang.Translations.of(context).download;
+    final canPause =
+        _store.downloadingIds.isNotEmpty || _store.pendingIds.isNotEmpty;
+    final canResume = !canPause && _store.pausedIds.isNotEmpty;
+    final Widget action = canPause
+        ? TextButton.icon(
+            key: const ValueKey('pauseAll'),
+            onPressed: () => DownloadService.to.pauseAll(),
+            icon: const Icon(Icons.pause_rounded, size: 18),
+            label: Text(t.pauseAll),
+          )
+        : canResume
+        ? TextButton.icon(
+            key: const ValueKey('resumeAll'),
+            onPressed: () => DownloadService.to.resumeAll(),
+            icon: const Icon(Icons.play_arrow_rounded, size: 18),
+            label: Text(t.resumeAll),
+          )
+        : const SizedBox(key: ValueKey('none'), height: 40);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 8, 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '${t.actions.statusActive} · $count',
+              style: _listLabelStyle(context),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: action,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 历史区的时间分组：今天 / 昨天 / 本周 / 本月，再往前按月（「2026年8月」）。
+  ///
+  /// 原来是每天插一行 yyyy-MM-dd：下得勤的一屏里一半是日期；网格那边又干脆没有
+  /// 分组。现在行与格共用这一套，越久远分得越粗。没有创建时间的老数据不分组。
+  String? _historyGroupOf(BuildContext context, DateTime? date, DateTime now) {
+    if (date == null) return null;
+    final t = slang.Translations.of(context).download.timeline;
+    final local = date.toLocal();
+    final day = DateTime(local.year, local.month, local.day);
+    final today = DateTime(now.year, now.month, now.day);
+    if (!day.isBefore(today)) return t.today;
+    // 按日历字段减，别减 Duration：夏令时切换那天不是 24 小时。
+    if (day == DateTime(today.year, today.month, today.day - 1)) {
+      return t.yesterday;
+    }
+    final weekStart = DateTime(
+      today.year,
+      today.month,
+      today.day - (now.weekday - 1),
+    );
+    if (!day.isBefore(weekStart)) {
+      return t.thisWeek;
+    }
+    if (local.year == now.year && local.month == now.month) return t.thisMonth;
+    return MaterialLocalizations.of(context).formatMonthYear(local);
+  }
+
+  /// 历史区：按 [_historyGroupOf] 切成若干组，每组一行小标题 + 一段行 / 格。
+  ///
+  /// 自己按数据源画，而不是交给 `LoadingMoreSliverList`：后者整段只能是同一种
+  /// 列表或网格，没法在网格中间插一行通栏标题。翻页照旧由数据源负责——画到离
+  /// 末尾几条时请它 [LoadingMoreBase.loadMore]（见 [_maybeLoadMoreHistory]）。
+  Widget _buildHistoryGroups(
+    BuildContext context, {
+    required LocalGridMetrics? grid,
+  }) {
     return StreamBuilder<Iterable<DownloadTask>>(
       stream: _historySource.rebuild,
       builder: (context, _) {
-        final visible = _historySource.isNotEmpty;
-        return AnimatedSize(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topLeft,
-          child: visible
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-                  child: Text(
-                    slang.t.download.actions.statusCompleted,
-                    style: Theme.of(context).textTheme.titleMedium,
+        final source = _historySource;
+        if (source.isEmpty) return const SliverToBoxAdapter();
+
+        final now = DateTime.now();
+        final groups = <({String? label, int start, int end})>[];
+        String? current;
+        var start = 0;
+        for (var i = 0; i < source.length; i++) {
+          final task = source[i];
+          // 与仓库排序同一个时间（完成 → 更新 → 创建），否则「上周加的、今天才
+          // 下完」的一条排在最上面却归进「本周」，同名分组会断成两截。
+          final label = _historyGroupOf(
+            context,
+            task.completedAt ?? task.updatedAt ?? task.createdAt,
+            now,
+          );
+          if (i > 0 && label != current) {
+            groups.add((label: current, start: start, end: i));
+            start = i;
+          }
+          current = label;
+        }
+        groups.add((label: current, start: start, end: source.length));
+
+        final extent = grid == null
+            ? 0.0
+            : DownloadTaskTile.gridExtentFor(context, grid.cellWidth);
+
+        return SliverMainAxisGroup(
+          slivers: [
+            for (final group in groups) ...[
+              if (group.label != null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Text(group.label!, style: _listLabelStyle(context)),
                   ),
-                )
-              : const SizedBox(width: double.infinity),
+                ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(_gutter, 0, _gutter, 6),
+                sliver: grid == null
+                    ? SliverList.builder(
+                        itemCount: group.end - group.start,
+                        itemBuilder: (context, i) {
+                          final index = group.start + i;
+                          _maybeLoadMoreHistory(index);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: _itemGap),
+                            child: _buildTaskItem(source[index]),
+                          );
+                        },
+                      )
+                    : SliverGrid.builder(
+                        gridDelegate: grid.delegate(extent),
+                        itemCount: group.end - group.start,
+                        itemBuilder: (context, i) {
+                          final index = group.start + i;
+                          _maybeLoadMoreHistory(index);
+                          return DownloadTileLayoutScope(
+                            layout: DownloadTileLayout.grid,
+                            onLongPress: _onTileLongPress,
+                            child: _buildTaskItem(source[index]),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ],
         );
       },
     );
   }
 
-  /// 构建历史任务条目，按天插入日期标题。
-  ///
-  /// 历史区只装已完成任务，与活跃区没有交集，因此这里不再需要任何隐藏 / 去重判断
-  /// （旧实现要跳过「已在活跃区展示」和「已删除墓碑」两类行，还得为此在找上一行时
-  /// 跳过隐藏行才不漏日期标题）。
-  Widget _buildHistoryItemWithDateHeader(DownloadTask task, int index) {
-    final currentDate = task.createdAt;
+  bool _historyLoadMoreScheduled = false;
 
-    // 如果没有创建时间，直接渲染任务
-    if (currentDate == null) {
-      return _buildTaskItem(task);
-    }
-
-    final prevDate = index > 0 ? _historySource[index - 1].createdAt : null;
-    final needHeader =
-        index == 0 || prevDate == null || !_isSameDay(prevDate, currentDate);
-
-    if (!needHeader) {
-      return _buildTaskItem(task);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [_buildDateHeader(currentDate), _buildTaskItem(task)],
-    );
+  /// 画到离末尾不到几条时翻下一页（一帧只约一次）。
+  void _maybeLoadMoreHistory(int index) {
+    final source = _historySource;
+    if (_historyLoadMoreScheduled || index < source.length - 6) return;
+    if (!source.hasMore || source.isLoading || source.hasError) return;
+    if (_isRefreshingHistory) return;
+    _historyLoadMoreScheduled = true;
+    _runAfterFrame(() {
+      _historyLoadMoreScheduled = false;
+      if (!mounted || _isRefreshingHistory) return;
+      if (source.isLoading || !source.hasMore || source.hasError) return;
+      source.loadMore();
+    });
   }
 
-  /// 构建日期标题
-  Widget _buildDateHeader(DateTime date) {
-    final textTheme = Theme.of(context).textTheme;
-    final dateString =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 6, 4, 6),
-      child: Text(
-        dateString,
-        style: textTheme.titleSmall?.copyWith(
-          color: textTheme.bodySmall?.color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-
-  /// 判断是否为同一天
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  Widget _buildSectionHeader({required String title, required int count}) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-      child: Row(
-        children: [
-          Text(title, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(width: 8),
-          Text('($count)', style: Theme.of(context).textTheme.bodySmall),
-        ],
-      ),
+  /// 历史区末尾的状态：加载中 / 出错可重试 / 没有更多 / 整页空状态。
+  Widget _buildHistoryIndicator({required bool hasActive}) {
+    return StreamBuilder<Iterable<DownloadTask>>(
+      stream: _historySource.rebuild,
+      builder: (context, _) {
+        final source = _historySource;
+        final status = source.indicatorStatus;
+        // 整页空状态：历史区与进行中都没有东西时才接管（区分「暂无任务」与
+        // 「无匹配结果」）；进行中有东西时历史区空着就空着。
+        if (status == IndicatorStatus.empty) {
+          if (hasActive || _isFilterLoading) return const SliverToBoxAdapter();
+          return SliverFillRemaining(
+            hasScrollBody: false,
+            child: _buildEmptyState(hasActiveFilter: _hasAnyFilter),
+          );
+        }
+        if (status == IndicatorStatus.none) {
+          if (source.isEmpty || source.hasMore) {
+            return const SliverToBoxAdapter();
+          }
+          return SliverToBoxAdapter(
+            child: myLoadingMoreIndicator(
+              context,
+              IndicatorStatus.noMoreLoad,
+              isSliver: false,
+            ),
+          );
+        }
+        // 上面还有进行中的卡片时，首屏加载只在末尾转个小圈，不铺整页。
+        final shown = hasActive && status == IndicatorStatus.fullScreenBusying
+            ? IndicatorStatus.loadingMoreBusying
+            : status;
+        final fullScreen =
+            shown == IndicatorStatus.fullScreenBusying ||
+            shown == IndicatorStatus.fullScreenError;
+        return fullScreen
+            ? myLoadingMoreIndicator(
+                context,
+                shown,
+                isSliver: true,
+                loadingMoreBase: source,
+              )
+            : SliverToBoxAdapter(
+                child: myLoadingMoreIndicator(
+                  context,
+                  shown,
+                  isSliver: false,
+                  loadingMoreBase: source,
+                ),
+              );
+      },
     );
   }
 
@@ -1780,17 +1838,10 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
           ),
         ],
       );
-    } else {
-      // 使用 GestureDetector 代替 InkWell，避免水波纹超出卡片（因为卡片有 margin，外层 InkWell 会是矩形且包括 margin）
-      // 内部 Item 已经有自己的点击反馈（WaterRipple）
-      return GestureDetector(
-        onLongPress: () {
-          _enterSelectionMode();
-          _toggleItemSelection(task.id);
-        },
-        child: item,
-      );
     }
+    // 长按进多选由卡片自己接（[DownloadTileLayoutScope.onLongPress]）：网格卡的
+    // 外壳自带长按，外面再包一层 GestureDetector 抢不过它。
+    return item;
   }
 
   /// 串行刷新历史区域（已完成任务）。
