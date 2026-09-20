@@ -445,7 +445,7 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
           onPressed: _showReplyDialog,
         ),
       ],
-      bodyBuilder: (context, scrollController, headerExtent) {
+      bodyBuilder: (context, scrollController, headerExtent, _) {
         return NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification scrollInfo) {
             if (scrollInfo.metrics.pixels >=

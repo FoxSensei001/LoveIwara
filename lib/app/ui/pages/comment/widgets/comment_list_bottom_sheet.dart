@@ -104,13 +104,14 @@ class CommentListBottomSheet extends StatelessWidget {
           ],
         ),
       ],
-      bodyBuilder: (context, scrollController, headerExtent) => CommentSection(
-        controller: controller,
-        authorUserId: authorUserId,
-        topPadding: headerExtent,
-        scrollController: scrollController,
-        onTimestampSeek: onTimestampSeek,
-      ),
+      bodyBuilder: (context, scrollController, headerExtent, _) =>
+          CommentSection(
+            controller: controller,
+            authorUserId: authorUserId,
+            topPadding: headerExtent,
+            scrollController: scrollController,
+            onTimestampSeek: onTimestampSeek,
+          ),
     );
   }
 }

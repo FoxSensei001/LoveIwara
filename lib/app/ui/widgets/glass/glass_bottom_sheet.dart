@@ -427,6 +427,8 @@ class GlassFloatingHeaderSheet extends StatefulWidget {
     super.key,
     required this.title,
     required this.bodyBuilder,
+    this.titleWidget,
+    this.footer,
     this.leading,
     this.actions = const <Widget>[],
     this.showCloseButton = true,
@@ -451,6 +453,19 @@ class GlassFloatingHeaderSheet extends StatefulWidget {
 
   final String title;
 
+  /// 顶掉标题文字的自定义控件（表情选择器把分组选项栏摆在这儿）。
+  ///
+  /// 给了它 [title] 仍要传：它退为无障碍标签——弹层总得答得出「这是什么」，
+  /// 而一条分段控件答不出。[leading] 与 [actions] 照常在它两侧。
+  final Widget? titleWidget;
+
+  /// 浮在内容之上的**底栏**（与标题行同一套读法：内容从它背后滚过去，
+  /// 中间只有一层 [EdgeFadeScrim.bottom]）。
+  ///
+  /// 不给就没有底栏，[bodyBuilder] 收到的 `footerExtent` 为 0。给了的话它的高度
+  /// 同样是**实测**的——底栏里装什么（一行胶囊 / 两行）不该回来改常数。
+  final Widget? footer;
+
   /// 标题文字左边的小图标（子回复弹层用）。
   final Widget? leading;
 
@@ -465,11 +480,13 @@ class GlassFloatingHeaderSheet extends StatefulWidget {
 
   /// 内容构建器。`scrollController` 必须接到内容的可滚动组件上（同
   /// [GlassDraggableBottomSheet]）；`headerExtent` 是**实测**的顶部总高
-  /// （拖拽条 + 标题行 + [tailSpacing]），直接当滚动视图的 `padding.top` 用。
+  /// （拖拽条 + 标题行 + [tailSpacing]），直接当滚动视图的 `padding.top` 用，
+  /// `footerExtent` 同理当 `padding.bottom`（没有 [footer] 时为 0）。
   final Widget Function(
     BuildContext context,
     ScrollController scrollController,
     double headerExtent,
+    double footerExtent,
   )
   bodyBuilder;
 
@@ -490,6 +507,9 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
   /// 首帧用预估值，布局跑完立刻换成实测值（默认字号下两者相等，看不到跳变）。
   late double _titleRowHeight = _estimatedTitleRowHeight;
 
+  /// 底栏实测高。没有底栏就恒 0。
+  double _footerHeight = 0;
+
   double get _estimatedTitleRowHeight =>
       GlassFloatingHeaderSheet.titleTopPadding +
       GlassTokens.pillHeight +
@@ -498,6 +518,11 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
   void _onTitleRowMeasured(Size size) {
     if ((size.height - _titleRowHeight).abs() < 0.5) return;
     setState(() => _titleRowHeight = size.height);
+  }
+
+  void _onFooterMeasured(Size size) {
+    if ((size.height - _footerHeight).abs() < 0.5) return;
+    setState(() => _footerHeight = size.height);
   }
 
   @override
@@ -509,6 +534,11 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
     const double handleExtent = GlassDraggableBottomSheet.dragHandleExtent;
     final double headerExtent =
         handleExtent + _titleRowHeight + GlassFloatingHeaderSheet.tailSpacing;
+    // 底栏同理：内容底下要让出「底栏 + 一段呼吸位」。没有底栏时整段为 0，
+    // 与改动前逐字等价。
+    final double footerExtent = widget.footer == null
+        ? 0
+        : _footerHeight + GlassFloatingHeaderSheet.tailSpacing;
 
     return GlassDraggableBottomSheet(
       initialChildSize: widget.initialChildSize,
@@ -522,7 +552,12 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
         fit: StackFit.expand,
         children: [
           Positioned.fill(
-            child: widget.bodyBuilder(context, scrollController, headerExtent),
+            child: widget.bodyBuilder(
+              context,
+              scrollController,
+              headerExtent,
+              footerExtent,
+            ),
           ),
           // 平台段只盖拖拽条那一小截（角色同「接着看」抽屉里的状态栏），整条
           // 标题行连同伸进内容区的尾巴都在 smoothstep 的淡出段里。
@@ -555,14 +590,22 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
                       const SizedBox(width: 8),
                     ],
                     Expanded(
-                      child: Text(
-                        widget.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: widget.titleWidget == null
+                          ? Text(
+                              widget.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            )
+                          // 自定义控件顶掉标题文字时，弹层的名字退成无障碍标签
+                          // ——屏幕阅读器仍答得出「这是什么」。
+                          : Semantics(
+                              label: widget.title,
+                              container: true,
+                              child: widget.titleWidget!,
+                            ),
                     ),
                     for (final action in widget.actions) ...[
                       const SizedBox(width: 8),
@@ -583,6 +626,43 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
               ),
             ),
           ),
+          // 底栏：与标题行同一套读法（蒙层 + 实测高度 + 内容从背后滚过去），
+          // 只是方向反过来。⛔ 蒙层要垫在底栏**身下**，不能反过来盖住它。
+          if (widget.footer != null) ...[
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: EdgeFadeScrim.bottom(
+                  height: EdgeFadeScrim.overlayHeight(
+                    headerExtent: footerExtent,
+                    plateauExtent: 0,
+                  ),
+                  // 底边没有「必须恒定可读」的那一截（系统安全区已由外壳让出），
+                  // 整条都是淡出段。
+                  solidExtent: 0,
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: GlassMeasuredBox(
+                onSize: _onFooterMeasured,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    GlassFloatingHeaderSheet.hPadding,
+                    GlassFloatingHeaderSheet.titleBottomGap,
+                    GlassFloatingHeaderSheet.hPadding,
+                    GlassFloatingHeaderSheet.titleTopPadding,
+                  ),
+                  child: widget.footer!,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
