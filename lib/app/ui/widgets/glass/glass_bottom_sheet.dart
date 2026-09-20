@@ -133,10 +133,21 @@ class GlassBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (maxHeightFactor != null)
-          Flexible(child: paddedBody)
-        else
-          paddedBody,
+        // ⛔ 这里**一律**包 Flexible，不能只在传了 [maxHeightFactor] 时包。
+        //
+        // Column 给非 flex 的孩子的主轴约束是**无限**的，于是正文会按「想多高
+        // 就多高」量一遍：正文里的 `Flexible(ListView(shrinkWrap: true))` 在
+        // 无限高里等于没有限高，ListView 直接摊开全部条目，这个 Column 随之
+        // 超过外壳给的高度——`RenderFlex overflowed by N pixels on the bottom`
+        // （2026-09-20 真机报障，插入变量面板，193px）。调用点少传一个可选
+        // 参数就炸，而且炸在外壳里，看栈根本找不到是哪张弹层。
+        //
+        // 包上之后正文拿到的是**有界**的高度：够放就按内容高（外层 Column 仍是
+        // MainAxisSize.min，弹层不会凭空长满屏），放不下就由正文自己的滚动
+        // 组件接管。FlexFit.loose + MainAxisSize.min 在无限约束下不会断言
+        // （断言只针对 tight/max，见 RenderFlex._computeSizes），所以这么包
+        // 对「外面正好是无界」的调用点也是安全的。
+        Flexible(child: paddedBody),
       ],
     );
 
