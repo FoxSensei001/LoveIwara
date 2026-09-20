@@ -50,6 +50,10 @@ void main() {
       tag: 'PlayerNoticeTest',
       currentPosition: () => position,
       isSuppressed: () => suppressed,
+      // 这一族用例断言的全是**在线播放**下的行为（网络类日志该不该升级成
+      // 「请检查网络」）。`isNetworkSource` 是 c6bccb3f 为「本地视频不再误报」
+      // 新加的必填参数，本地那条路的用例另立，不要在这里改成 false。
+      isNetworkSource: () => true,
     );
   });
 
