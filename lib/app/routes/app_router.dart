@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:swipeable_page_route/swipeable_page_route.dart';
 import 'package:i_iwara/app/routes/home_shell_navigation.dart';
-import 'package:i_iwara/app/routes/swipe_back_guard.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/local_media_derivation_service.dart';
@@ -196,51 +192,28 @@ void goHomeForMedia(MediaType type) {
   appService.currentIndex = HomeShellNavigation.branchIndexForKey(targetKey);
 }
 
-/// 构建一个「跟手侧滑返回」的页面。
+/// 构建一个全站二级页的标准 `Page`：所有平台统一走框架默认的 [MaterialPage]，
+/// 转场与返回手势全部交给框架——iOS / macOS 由主题里的
+/// `CupertinoPageTransitionsBuilder` 接管（原生边缘侧滑手势 + 框架调校好的松手
+/// 收尾动画），Android 是 predictive back，桌面是 Zoom。
 ///
-/// 仅在 iOS 上启用整页跟手侧滑：从页面**任意位置**向右滑动即可返回，页面跟手位移、
-/// 底层页视差跟随（视觉转场与系统默认的 Cupertino 转场一致，仅把手势区从最左边缘
-/// 扩展到全屏）。其它平台（Android / 桌面）维持框架默认的 [MaterialPage] 转场，
-/// 行为完全不变。
+/// # 为什么不再用 `swipeable_page_route` 做「整页跟手侧滑」（2026-09 移除）
 ///
-/// - [fullSwipe] 为 `false` 时退回「仅边缘可滑」（等价系统默认的窄边缘手势）。
+/// 那套实现在 iOS 上把松手后的收尾动画做成了「瞬间完成」：包 0.4.8 复制的
+/// `_CupertinoBackGestureController.dragEnd` 是框架 2024-08（#153765）重调**之前**
+/// 的旧版，判定退出后用 `Curves.fastLinearToSlowEaseIn`（Cubic(0.18, 1.0, 0.04,
+/// 1.0)，初始斜率十几倍于原生）补完剩余距离——前两三帧就走完九成，之后几百毫秒
+/// 只是缓慢爬行，上下两页（下页视差跟随同一个 controller 值）一起「啪」地到位，
+/// 没有原生转场的衔接感。而 video_detail 这类走 `builder:` 默认 [MaterialPage] 的
+/// 页面用的是框架原生手势（固定 350ms + 实测拟合曲线），手感一直是正的。与其
+/// fork 包同步参数，不如退回框架默认；代价是手势区从全屏缩回最左边缘。
 ///
-/// 页内的横向手势（TabBarView / 横向列表 / 横向 tab 条…）不需要页面自己声明：
-/// 每一页都自动包了 [SwipeBackScrollGuard]，按下那一刻就地判定落点，落在还能继续
-/// 朝返回方向滚的横向控件上就临时让位，滑到头则照常返回上一页。因此 [fullSwipe]
-/// 只在「整页都该退回边缘手势」时才需要传 `false`。
-///
-/// 手势底层通过 [SwipeablePageRoute]（继承 [CupertinoPageRoute]）直接调用
-/// `navigator.pop()`，并会自动尊重页面上的 [PopScope]：当 `canPop: false` 时手势
-/// 失效，因此不会与现有的 PopScope / PopCoordinator 返回逻辑冲突。弹窗覆盖当前页时
-/// 手势同样自动失效。
-Page<void> buildAdaptiveSwipeablePage(
+/// 页面上的 [PopScope] / PopCoordinator 返回拦截对原生边缘手势同样生效
+/// （`canPop: false` 时手势不响应），选择态、播放页全屏那层拦截不受影响。
+Page<void> buildDefaultPage(
   GoRouterState state,
-  Widget child, {
-  bool fullSwipe = true,
-}) {
-  if (defaultTargetPlatform == TargetPlatform.iOS) {
-    return SwipeablePage<void>(
-      key: state.pageKey,
-      name: state.name ?? state.fullPath,
-      arguments: state.extra,
-      canOnlySwipeFromEdge: !fullSwipe,
-      // 与包里的默认转场逐字一致（fullscreenDialog 恒为 false），唯一的差别是把
-      // 手势层整只包进 [SwipeBackSinglePointerGate]：包传进来的 child 已经是
-      // 「页面 + 盖在其上的手势层」，只有在这里才够得着手势层的上方。
-      // 见 [SwipeBackSinglePointerGate] 的注释：第二根手指会抢走拖拽、把页面
-      // 定格在半路，并让全应用的跟手返回一起哑掉。
-      transitionBuilder:
-          (context, animation, secondaryAnimation, isSwipeGesture, child) =>
-              CupertinoPageTransition(
-                primaryRouteAnimation: animation,
-                secondaryRouteAnimation: secondaryAnimation,
-                linearTransition: isSwipeGesture,
-                child: SwipeBackSinglePointerGate(child: child),
-              ),
-      builder: (context) => SwipeBackScrollGuard(child: child),
-    );
-  }
+  Widget child,
+) {
   return MaterialPage<void>(
     key: state.pageKey,
     name: state.name ?? state.fullPath,
@@ -510,9 +483,9 @@ final GoRouter appRouter = GoRouter(
             if (parsed == null) {
               // 没有 source 就没有目录可言（多半是手敲或过期的深链）。
               // 退回本机文件栏目的根，而不是画一屏错误。
-              return buildAdaptiveSwipeablePage(state, const LocalHomePage());
+              return buildDefaultPage(state, const LocalHomePage());
             }
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               LocalFolderBrowsePage(
                 sourceId: parsed.sourceId,
@@ -529,9 +502,9 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) {
             final taskId = state.pathParameters['taskId'];
             if (taskId == null || taskId.isEmpty) {
-              return buildAdaptiveSwipeablePage(state, const LocalHomePage());
+              return buildDefaultPage(state, const LocalHomePage());
             }
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               DownloadedGalleryBrowsePage(taskId: taskId),
             );
@@ -575,12 +548,12 @@ final GoRouter appRouter = GoRouter(
             if (postId == null &&
                 (resolvedPostUrl == null || resolvedPostUrl.isEmpty) &&
                 newsExtra == null) {
-              return buildAdaptiveSwipeablePage(
+              return buildDefaultPage(
                 state,
                 const Scaffold(body: Center(child: Text('Invalid news route'))),
               );
             }
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               NewsDetailPage(
                 postId: postId,
@@ -674,7 +647,7 @@ final GoRouter appRouter = GoRouter(
           name: 'search',
           pageBuilder: (context, state) {
             final extra = state.extra as SearchPageExtra?;
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               SearchPage(
                 userInputKeywords: extra?.userInputKeywords ?? '',
@@ -693,7 +666,7 @@ final GoRouter appRouter = GoRouter(
           name: 'search_result',
           pageBuilder: (context, state) {
             final extra = state.extra as SearchResultExtra?;
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               SearchResult(
                 initialSearch: extra?.searchInfo ?? '',
@@ -828,7 +801,7 @@ final GoRouter appRouter = GoRouter(
           path: '/notification_list',
           name: 'notification_list',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const NotificationListPage()),
+              buildDefaultPage(state, const NotificationListPage()),
         ),
 
         // 会话列表
@@ -836,7 +809,7 @@ final GoRouter appRouter = GoRouter(
           path: '/conversation',
           name: 'conversation',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const ConversationPage()),
+              buildDefaultPage(state, const ConversationPage()),
         ),
 
         // 会话详情（消息列表）
@@ -849,7 +822,7 @@ final GoRouter appRouter = GoRouter(
               state,
               conversationId,
             );
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               MessageListWidget(
                 conversation: conversation,
@@ -869,7 +842,7 @@ final GoRouter appRouter = GoRouter(
             final postExtra = extra is PostDetailExtra ? extra : null;
             final initialPost =
                 postExtra?.initialPost ?? (extra is PostModel ? extra : null);
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               PostDetailPage(postId: id, initialPost: initialPost),
             );
@@ -883,7 +856,7 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) {
             final categoryId = state.pathParameters['categoryId']!;
             final extra = state.extra as ForumThreadListExtra?;
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               ThreadListPage(
                 categoryId: categoryId,
@@ -905,7 +878,7 @@ final GoRouter appRouter = GoRouter(
             final initialThread =
                 threadExtra?.initialThread ??
                 (extra is ForumThreadModel ? extra : null);
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               ThreadDetailPage(
                 categoryId: categoryId,
@@ -922,7 +895,7 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_videos',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               TagVideoListPage(tag: tag),
             );
@@ -935,7 +908,7 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_galleries',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               TagGalleryListPage(tag: tag),
             );
@@ -991,7 +964,7 @@ final GoRouter appRouter = GoRouter(
           path: '/local_favorite',
           name: 'local_favorite',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const FavoriteListPage()),
+              buildDefaultPage(state, const FavoriteListPage()),
         ),
 
         // 本地收藏夹详情
@@ -1001,7 +974,7 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) {
             final folderId = state.pathParameters['folderId']!;
             final extra = state.extra as LocalFavoriteDetailExtra?;
-            return buildAdaptiveSwipeablePage(
+            return buildDefaultPage(
               state,
               FavoriteFolderDetailPage(
                 folderId: folderId,
@@ -1016,7 +989,7 @@ final GoRouter appRouter = GoRouter(
           path: '/tag_blacklist',
           name: 'tag_blacklist',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const TagBlacklistPage()),
+              buildDefaultPage(state, const TagBlacklistPage()),
         ),
 
         // 收藏的 Iwara 标签管理
@@ -1038,7 +1011,7 @@ final GoRouter appRouter = GoRouter(
           path: '/personal_profile',
           name: 'personal_profile',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const PersonalProfilePage()),
+              buildDefaultPage(state, const PersonalProfilePage()),
         ),
 
         // 表情库
@@ -1046,7 +1019,7 @@ final GoRouter appRouter = GoRouter(
           path: '/emoji_library',
           name: 'emoji_library',
           pageBuilder: (context, state) =>
-              buildAdaptiveSwipeablePage(state, const EmojiLibraryPage()),
+              buildDefaultPage(state, const EmojiLibraryPage()),
         ),
       ],
     ),
@@ -1055,11 +1028,10 @@ final GoRouter appRouter = GoRouter(
 
 /// 构建一个设置树里的页面。
 ///
-/// 转场按 Q8 定的契约分两档：
-/// - 窄屏走 [buildAdaptiveSwipeablePage]，和全站其它二级页（视频详情 / 帖子详情
-///   / 搜索结果…）**完全一致**，iOS 上顺带拿到整页跟手侧滑返回。历史实现里那套
-///   设置页独有的「右滑入 + 底层左移 30% 视差」手写动画连同
-///   `HorizontalDragGestureRecognizer` 一起删掉了。
+/// 转场分两档：
+/// - 窄屏走 [buildDefaultPage]，和全站其它二级页（视频详情 / 帖子详情
+///   / 搜索结果…）**完全一致**。历史实现里那套设置页独有的「右滑入 + 底层左移
+///   30% 视差」手写动画连同 `HorizontalDragGestureRecognizer` 一起删掉了。
 /// - 宽屏只有右栏在动（左栏在 Shell builder 里，不参与路由转场），沿用原来
 ///   双栏 AnimatedSwitcher 的 200ms 横推观感。
 ///
@@ -1075,9 +1047,8 @@ final GoRouter appRouter = GoRouter(
 Page<void> _buildSettingsPage(
   BuildContext context,
   GoRouterState state,
-  Widget Function(bool isWideScreen) builder, {
-  bool fullSwipe = true,
-}) {
+  Widget Function(bool isWideScreen) builder,
+) {
   final Widget child = Builder(
     builder: (context) => ColoredBox(
       color: Theme.of(context).colorScheme.surface,
@@ -1090,7 +1061,7 @@ Page<void> _buildSettingsPage(
   final bool isWide =
       MediaQuery.sizeOf(context).width > kSettingsTwoPaneBreakpoint;
   if (!isWide) {
-    return buildAdaptiveSwipeablePage(state, child, fullSwipe: fullSwipe);
+    return buildDefaultPage(state, child);
   }
 
   return CustomTransitionPage<void>(

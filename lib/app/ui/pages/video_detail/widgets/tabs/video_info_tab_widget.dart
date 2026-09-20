@@ -1142,7 +1142,8 @@ class _VideoInfoTabWidgetState extends State<VideoInfoTabWidget>
         videoId: widget.controller.videoInfo.value?.id ?? '',
         videoTitle: widget.controller.videoInfo.value?.title ?? '',
         authorName: widget.controller.videoInfo.value?.user?.name ?? '',
-        previewUrl: widget.controller.videoInfo.value?.previewUrl ?? '',
+        // ⛔ 不能传 previewUrl——那是动图预览（preview.webp），分享卡片要静态封面
+        coverUrl: widget.controller.videoInfo.value?.thumbnailUrl ?? '',
       ),
       context: context,
     );

@@ -451,7 +451,7 @@ class ImageModelDetailContent extends StatelessWidget {
                       galleryId: info.id,
                       galleryTitle: info.title,
                       authorName: info.user?.name ?? '',
-                      previewUrl: info.thumbnailUrl,
+                      coverUrl: info.thumbnailUrl,
                     );
                   },
                   context: context,

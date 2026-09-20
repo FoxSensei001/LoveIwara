@@ -363,9 +363,6 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
       builder: (context) => ShareUserBottomSheet(
         username: username,
         authorName: profileController.author.value?.name ?? '',
-        previewUrl:
-            profileController.headerBackgroundUrl.value ??
-            CommonConstants.defaultProfileHeaderUrl,
         avatarUrl: profileController.author.value?.avatar?.avatarUrl,
         followerCount: profileController.followerCounts.value,
         followingCount: profileController.followingCounts.value,

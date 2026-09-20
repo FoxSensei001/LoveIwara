@@ -549,13 +549,13 @@ void _share(BuildContext context, {Video? video, ImageModel? gallery}) {
             videoId: video.id,
             videoTitle: video.title ?? '',
             authorName: video.user?.name ?? '',
-            previewUrl: video.thumbnailUrl,
+            coverUrl: video.thumbnailUrl,
           )
         : ShareGalleryBottomSheet(
             galleryId: gallery!.id,
             galleryTitle: gallery.title,
             authorName: gallery.user?.name ?? '',
-            previewUrl: gallery.thumbnailUrl,
+            coverUrl: gallery.thumbnailUrl,
           ),
   );
 }
