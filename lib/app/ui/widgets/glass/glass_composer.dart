@@ -611,6 +611,7 @@ class GlassComposerBar extends StatelessWidget {
     this.submitText,
     this.isLoading = false,
     this.onEmoji,
+    this.onInsertVariable,
     this.onPreview,
     this.previewHasContent = false,
     this.onTranslate,
@@ -640,6 +641,13 @@ class GlassComposerBar extends StatelessWidget {
   /// 常驻的两枚动作。为 null 即不提供。
   final VoidCallback? onEmoji;
   final VoidCallback? onPreview;
+
+  /// 「插入变量」。**只有小尾巴编辑器给它**——发评论的场合没有变量这回事。
+  ///
+  /// 放在常驻位而不是「更多」菜单里：在那只弹窗里它是主要动作（比表情更常用），
+  /// 而那只弹窗又恰好没有预览键（预览就铺在输入框下面），所以常驻位仍是两枚，
+  /// 没有突破本类文档里那条「窄屏最多 3 枚」的上限。
+  final VoidCallback? onInsertVariable;
 
   /// 眼睛上要不要挂那枚小红点：有东西可看时才挂。
   ///
@@ -803,6 +811,12 @@ class GlassComposerBar extends StatelessWidget {
           icon: const Icon(Icons.emoji_emotions_outlined),
           tooltip: t.emoji.selectEmoji,
           onPressed: onEmoji,
+        ),
+      if (onInsertVariable != null)
+        GlassIconButton(
+          icon: const Icon(Icons.data_object),
+          tooltip: t.settings.signatureInsertVariable,
+          onPressed: onInsertVariable,
         ),
       if (onPreview != null)
         GlassIconButton(

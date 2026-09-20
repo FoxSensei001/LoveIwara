@@ -8,6 +8,7 @@ import 'package:i_iwara/app/repositories/history_repository.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/services/batch_download_service.dart';
 import 'package:i_iwara/app/services/comment_service.dart';
 import 'package:i_iwara/app/services/config_backup_service.dart';
@@ -235,6 +236,10 @@ class AppStartupCoordinator implements AppStartupRunner {
     }
 
     await _applyLocale(configService);
+
+    // 小尾巴求值器。必须晚于 _applyLocale：它启动时按当前语言预载日期符号，
+    // `{weekday}` 要拿那份数据才能出中文的「星期六」。
+    _putIfAbsent<SignatureService>(await SignatureService().init());
   }
 
   Future<void> _runDeferredInitialization({

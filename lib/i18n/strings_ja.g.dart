@@ -895,6 +895,75 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'ここに本文が入ります';
 	@override String get signatureNotSet => '未設定';
 	@override String get signatureRuleHint => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。';
+	@override String get signatureInsertVariable => '変数を挿入';
+	@override String get varDate => '日付';
+	@override String get varTime => '時刻';
+	@override String get varDatetime => '日付と時刻';
+	@override String get varWeekday => '曜日';
+	@override String get varApp => 'アプリ名';
+	@override String get varVersion => 'バージョン';
+	@override String get varPlatform => 'プラットフォーム';
+	@override String get varTitle => '今見ている作品';
+	@override String get varAuthor => 'その作者';
+	@override String get varPick => 'ランダムな一文';
+	@override String get signatureSources => 'データソース';
+	@override String get signatureAutoTranslate => '自分の言語に翻訳する';
+	@override String get signatureAutoTranslateDesc => '一言のようなデータソースは今のところ中国語だけです。取得した一文は送信の直前に翻訳されます。';
+	@override String get signatureWizardTitle => 'データソースを追加';
+	@override String get signatureWizardUrlTitle => 'エンドポイントのURL';
+	@override String get signatureWizardUrlHint => '一文を返してくれるURLを入力してください。下のボタンで実際に一度呼び出して、何が返ってくるか確かめます。';
+	@override String get signatureWizardFetch => '取得してみる';
+	@override String get signatureWizardSkipTest => 'スキップして名前だけ変える';
+	@override String get signatureWizardPickTitle => '使いたい部分を選ぶ';
+	@override String get signatureWizardPickHint => 'これがそのエンドポイントから返ってきた内容です。署名に出したい行をタップしてください。';
+	@override String get signatureWizardPickPlainHint => 'このエンドポイントはテキストをそのまま返しました。全体がそのまま表示されます。';
+	@override String get signatureWizardWholeBody => 'レスポンス全体';
+	@override String get signatureWizardNameTitle => '名前をつける';
+	@override String get signatureWizardNameHint => '名前はあなたが見分けるためのものです。署名から指し示すのは下の参照名のほうです。';
+	@override String get signatureWizardNext => '次へ';
+	@override String get signatureWizardDone => '完了';
+	@override String get signatureWizardStripHtml => 'HTMLタグを取り除く';
+	@override String get signatureWizardAdvanced => '詳細：正規表現で抜き出す';
+	@override String get signatureWizardExtractHint => '正規表現。最初のキャプチャグループを使います';
+	@override String get signatureWizardExtractMissed => 'この式に一致しなかったので、そのままの文字列を使います';
+	@override String get signatureWizardChooseTitle => '選んでください';
+	@override String get signatureWizardChooseHint => '用意されたものを選べばそれで完了です。自分のエンドポイントを指定することもできます。';
+	@override String get signatureWizardCustomSource => '自分のエンドポイントを使う';
+	@override String get signatureWizardWithOrigin => '出典も付ける';
+	@override String get signatureWizardRandomItem => '毎回ランダムに選ぶ';
+	@override String get signatureWizardSuffixTitle => 'もう一つの項目をつなげる';
+	@override String get signatureWizardSuffixNone => 'なし';
+	@override String get signatureOptFlavor => '内容';
+	@override String get signatureOptFlavorAny => '指定しない';
+	@override String get signatureOptFlavorOtaku => 'アニメ・漫画・ゲーム';
+	@override String get signatureOptFlavorLiterary => '文学・詩';
+	@override String get signatureOptFlavorMeme => 'ネット文化';
+	@override String get signatureOptLength => '長さ';
+	@override String get signatureOptLengthAny => '指定しない';
+	@override String get signatureOptLengthShort => '短い一文だけ';
+	@override String get signatureRestoreDefault => '既定に戻す';
+	@override String get signatureSourceHitokoto => 'ひとこと';
+	@override String get signatureVariablesGroup => '組み込み変数';
+	@override String get signatureNeedsNetwork => 'ネットワークが必要';
+	@override String get signatureBuiltinSource => '標準';
+	@override String get signatureSourceIdReserved => 'その名前は組み込み変数が使っています';
+	@override String get signatureSourcesTitle => 'カスタムデータソース';
+	@override String get signatureSourcesHint => '一文を返すエンドポイントを指定すれば、その内容を署名に取り込めます。';
+	@override String get signatureSourcesEmpty => 'データソースはまだありません';
+	@override String get signatureAddSource => '追加';
+	@override String get signatureEditSource => 'データソースを編集';
+	@override String get signatureSourceName => '名前';
+	@override String get signatureSourceId => '参照名';
+	@override String get signatureSourceIdHint => '署名からこのデータソースを呼ぶときの名前';
+	@override String get signatureSourceUrl => 'エンドポイントURL';
+	@override String get signatureSourcePath => '値のパス';
+	@override String get signatureSourcePathHint => 'レスポンス全体がその一文なら空のままに。JSON から取り出す場合は data.text のように指定します。';
+	@override String get signatureSourceTest => 'テスト';
+	@override String get signatureSourceTestOk => '取得できました';
+	@override String get signatureSourceTestFailed => '何も返ってきませんでした';
+	@override String get signatureSourceIdInvalid => '参照名に使えるのは小文字・数字・アンダースコアだけです';
+	@override String get signatureSourceIdDuplicate => 'その参照名はすでに使われています';
+	@override String get signatureSourceUrlRequired => 'エンドポイントURLを入力してください';
 	@override String get exportConfig => 'アプリ設定をエクスポート';
 	@override String get exportConfigDesc => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。';
 	@override String get importConfig => 'アプリ設定をインポート';
@@ -5312,6 +5381,75 @@ extension on TranslationsJa {
 			'settings.signatureSampleBody' => 'ここに本文が入ります',
 			'settings.signatureNotSet' => '未設定',
 			'settings.signatureRuleHint' => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。',
+			'settings.signatureInsertVariable' => '変数を挿入',
+			'settings.varDate' => '日付',
+			'settings.varTime' => '時刻',
+			'settings.varDatetime' => '日付と時刻',
+			'settings.varWeekday' => '曜日',
+			'settings.varApp' => 'アプリ名',
+			'settings.varVersion' => 'バージョン',
+			'settings.varPlatform' => 'プラットフォーム',
+			'settings.varTitle' => '今見ている作品',
+			'settings.varAuthor' => 'その作者',
+			'settings.varPick' => 'ランダムな一文',
+			'settings.signatureSources' => 'データソース',
+			'settings.signatureAutoTranslate' => '自分の言語に翻訳する',
+			'settings.signatureAutoTranslateDesc' => '一言のようなデータソースは今のところ中国語だけです。取得した一文は送信の直前に翻訳されます。',
+			'settings.signatureWizardTitle' => 'データソースを追加',
+			'settings.signatureWizardUrlTitle' => 'エンドポイントのURL',
+			'settings.signatureWizardUrlHint' => '一文を返してくれるURLを入力してください。下のボタンで実際に一度呼び出して、何が返ってくるか確かめます。',
+			'settings.signatureWizardFetch' => '取得してみる',
+			'settings.signatureWizardSkipTest' => 'スキップして名前だけ変える',
+			'settings.signatureWizardPickTitle' => '使いたい部分を選ぶ',
+			'settings.signatureWizardPickHint' => 'これがそのエンドポイントから返ってきた内容です。署名に出したい行をタップしてください。',
+			'settings.signatureWizardPickPlainHint' => 'このエンドポイントはテキストをそのまま返しました。全体がそのまま表示されます。',
+			'settings.signatureWizardWholeBody' => 'レスポンス全体',
+			'settings.signatureWizardNameTitle' => '名前をつける',
+			'settings.signatureWizardNameHint' => '名前はあなたが見分けるためのものです。署名から指し示すのは下の参照名のほうです。',
+			'settings.signatureWizardNext' => '次へ',
+			'settings.signatureWizardDone' => '完了',
+			'settings.signatureWizardStripHtml' => 'HTMLタグを取り除く',
+			'settings.signatureWizardAdvanced' => '詳細：正規表現で抜き出す',
+			'settings.signatureWizardExtractHint' => '正規表現。最初のキャプチャグループを使います',
+			'settings.signatureWizardExtractMissed' => 'この式に一致しなかったので、そのままの文字列を使います',
+			'settings.signatureWizardChooseTitle' => '選んでください',
+			'settings.signatureWizardChooseHint' => '用意されたものを選べばそれで完了です。自分のエンドポイントを指定することもできます。',
+			'settings.signatureWizardCustomSource' => '自分のエンドポイントを使う',
+			'settings.signatureWizardWithOrigin' => '出典も付ける',
+			'settings.signatureWizardRandomItem' => '毎回ランダムに選ぶ',
+			'settings.signatureWizardSuffixTitle' => 'もう一つの項目をつなげる',
+			'settings.signatureWizardSuffixNone' => 'なし',
+			'settings.signatureOptFlavor' => '内容',
+			'settings.signatureOptFlavorAny' => '指定しない',
+			'settings.signatureOptFlavorOtaku' => 'アニメ・漫画・ゲーム',
+			'settings.signatureOptFlavorLiterary' => '文学・詩',
+			'settings.signatureOptFlavorMeme' => 'ネット文化',
+			'settings.signatureOptLength' => '長さ',
+			'settings.signatureOptLengthAny' => '指定しない',
+			'settings.signatureOptLengthShort' => '短い一文だけ',
+			'settings.signatureRestoreDefault' => '既定に戻す',
+			'settings.signatureSourceHitokoto' => 'ひとこと',
+			'settings.signatureVariablesGroup' => '組み込み変数',
+			'settings.signatureNeedsNetwork' => 'ネットワークが必要',
+			'settings.signatureBuiltinSource' => '標準',
+			'settings.signatureSourceIdReserved' => 'その名前は組み込み変数が使っています',
+			'settings.signatureSourcesTitle' => 'カスタムデータソース',
+			'settings.signatureSourcesHint' => '一文を返すエンドポイントを指定すれば、その内容を署名に取り込めます。',
+			'settings.signatureSourcesEmpty' => 'データソースはまだありません',
+			'settings.signatureAddSource' => '追加',
+			'settings.signatureEditSource' => 'データソースを編集',
+			'settings.signatureSourceName' => '名前',
+			'settings.signatureSourceId' => '参照名',
+			'settings.signatureSourceIdHint' => '署名からこのデータソースを呼ぶときの名前',
+			'settings.signatureSourceUrl' => 'エンドポイントURL',
+			'settings.signatureSourcePath' => '値のパス',
+			'settings.signatureSourcePathHint' => 'レスポンス全体がその一文なら空のままに。JSON から取り出す場合は data.text のように指定します。',
+			'settings.signatureSourceTest' => 'テスト',
+			'settings.signatureSourceTestOk' => '取得できました',
+			'settings.signatureSourceTestFailed' => '何も返ってきませんでした',
+			'settings.signatureSourceIdInvalid' => '参照名に使えるのは小文字・数字・アンダースコアだけです',
+			'settings.signatureSourceIdDuplicate' => 'その参照名はすでに使われています',
+			'settings.signatureSourceUrlRequired' => 'エンドポイントURLを入力してください',
 			'settings.exportConfig' => 'アプリ設定をエクスポート',
 			'settings.exportConfigDesc' => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。',
 			'settings.importConfig' => 'アプリ設定をインポート',
@@ -5573,6 +5711,8 @@ extension on TranslationsJa {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'ストレージ権限が付与されませんでしたが、一部の機能が制限される可能性があります',
 			'settings.downloadSettings.storagePermissionRationale' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\nAndroid 11 以降では公開ディレクトリへの書き込みに「すべてのファイルへのアクセス」権限が必要です。許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '選択した場所にファイルを保存するには、ストレージ権限が必要です。\n\n許可しない場合、ファイルはアプリ専用ディレクトリに保存されます。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'ストレージ権限を付与',
 			'settings.downloadSettings.customDownloadPath' => 'カスタムダウンロードパス',
 			'settings.downloadSettings.customDownloadPathDescription' => '有効にすると、ダウンロードファイルのカスタム保存場所を選択できます',
@@ -5642,8 +5782,6 @@ extension on TranslationsJa {
 			'settings.downloadSettings.testError' => 'エラー',
 			'settings.downloadSettings.testPath' => 'テストパス',
 			'settings.downloadSettings.testBasePath' => '基本パス',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'ディレクトリ作成',
 			'settings.downloadSettings.testFileWriting' => 'ファイル書き込み',
 			'settings.downloadSettings.testFileContent' => 'ファイル内容',
@@ -6087,6 +6225,8 @@ extension on TranslationsJa {
 			'markdown.listDescription' => '数字+点号で順序付きリストを作成し、- で順序なしリストを作成',
 			'markdown.listSyntax' => '1. 第一項\n2. 第二項\n\n- 順序なし項\n  - 子項\n  - 別の子項',
 			'markdown.linkAndImage' => 'リンクと画像',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'リンク形式：[テキスト](URL)\n画像形式：![説明](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[リンクテキスト](${link})\n![画像説明](${imgUrl})',
 			'markdown.title' => 'タイトル',
@@ -6156,8 +6296,6 @@ extension on TranslationsJa {
 			'forum.leafDescriptions.requests_zh' => 'リクエストを投稿する',
 			'forum.leafDescriptions.support_zh' => 'サイト関連の問題を解決する手助け',
 			'forum.leafDescriptions.general_ja' => 'あらゆる話題を議論する',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '疑問を提起する',
 			'forum.leafDescriptions.requests_ja' => 'リクエストを投稿する',
 			'forum.leafDescriptions.support_ja' => 'サイト関連の問題を解決する手助け',
@@ -6601,6 +6739,8 @@ extension on TranslationsJa {
 			'download.category.renameSuccess' => '名前を変更しました',
 			'download.category.renameFailed' => '名前の変更に失敗しました',
 			'download.category.deleteTitle' => 'カテゴリーの削除',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'カテゴリ「${title}」を削除しますか？中の ${count} 件は「未分類」へ移動し、ファイルは削除されません。',
 			'download.category.deleteSuccess' => 'カテゴリーを削除しました',
 			'download.category.deleteFailed' => 'カテゴリーの削除に失敗しました',
@@ -6670,8 +6810,6 @@ extension on TranslationsJa {
 			'download.location.useThisLocation' => 'この場所を使う',
 			'download.location.locationChanged' => '保存先を変更しました',
 			'download.location.manualTitle' => 'パスを手動入力',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'フォルダのパス',
 			'download.location.manualHint' => '例: /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => '確認して使う',
@@ -7115,6 +7253,8 @@ extension on TranslationsJa {
 			'log.exportHistoryLogs' => '履歴ログをエクスポート',
 			'log.exportHistoryLogsDesc' => '指定された日付範囲内のログをエクスポート',
 			'log.exportMergedLogs' => 'マージログをエクスポート',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportMergedLogsDesc' => '指定された日付範囲内のマージログをエクスポート',
 			'log.showLogStats' => 'ログ統計情報を表示',
 			'log.logExportSuccess' => 'ログエクスポート成功',
@@ -7184,8 +7324,6 @@ extension on TranslationsJa {
 			'emoji.batchDelete' => '一括削除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
 			'emoji.deleteSuccess' => '削除しました',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.addImage' => '画像を追加',
 			'emoji.addImageByUrl' => 'URLで追加',
 			'emoji.addImageUrl' => '画像URLを追加',
@@ -7629,6 +7767,8 @@ extension on TranslationsJa {
 			'watchLater.emptyUnwatchedVideo' => '未視聴の動画はありません',
 			'watchLater.emptyUnwatchedGallery' => '未視聴のギャラリーはありません',
 			'watchLater.queueLoadFailed' => '読み込みに失敗しました。タップで再試行',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'いいね',
 			'mediaMenu.unlike' => 'いいねを取り消す',
 			'mediaMenu.viewAuthor' => '作者ページを見る',
@@ -7698,8 +7838,6 @@ extension on TranslationsJa {
 			'vrFormat.flatSideBySideDesc' => '1 フレームに左右の目が並ぶ形式。左目だけを表示し比率を戻します',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '1 フレームに上下の目が並ぶ形式。上半分だけを表示し比率を戻します',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球パノラマ + 左右両眼。最も一般的な VR 素材です',
 			'vrFormat.vr180Mono' => 'VR180 単眼',

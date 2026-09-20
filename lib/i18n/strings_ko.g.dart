@@ -895,6 +895,75 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => '여기에 본문이 들어갑니다';
 	@override String get signatureNotSet => '설정되지 않음';
 	@override String get signatureRuleHint => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.';
+	@override String get signatureInsertVariable => '변수 넣기';
+	@override String get varDate => '날짜';
+	@override String get varTime => '시각';
+	@override String get varDatetime => '날짜와 시각';
+	@override String get varWeekday => '요일';
+	@override String get varApp => '앱 이름';
+	@override String get varVersion => '버전';
+	@override String get varPlatform => '플랫폼';
+	@override String get varTitle => '지금 보고 있는 작품';
+	@override String get varAuthor => '그 작가';
+	@override String get varPick => '무작위 문구';
+	@override String get signatureSources => '데이터 소스';
+	@override String get signatureAutoTranslate => '내 언어로 번역하기';
+	@override String get signatureAutoTranslateDesc => 'Hitokoto 같은 데이터 소스는 아직 중국어만 제공합니다. 가져온 문장은 보내기 직전에 번역됩니다.';
+	@override String get signatureWizardTitle => '데이터 소스 추가';
+	@override String get signatureWizardUrlTitle => '엔드포인트 주소';
+	@override String get signatureWizardUrlHint => '한 줄의 텍스트를 돌려주는 주소를 입력하세요. 아래 버튼을 누르면 실제로 한 번 호출해서 무엇이 오는지 보여줍니다.';
+	@override String get signatureWizardFetch => '가져와 보기';
+	@override String get signatureWizardSkipTest => '건너뛰고 이름만 바꾸기';
+	@override String get signatureWizardPickTitle => '쓸 부분 고르기';
+	@override String get signatureWizardPickHint => '이 엔드포인트가 돌려준 내용입니다. 서명에 보이고 싶은 줄을 누르세요.';
+	@override String get signatureWizardPickPlainHint => '이 엔드포인트는 일반 텍스트를 그대로 돌려줬습니다. 전체가 그대로 표시됩니다.';
+	@override String get signatureWizardWholeBody => '응답 전체';
+	@override String get signatureWizardNameTitle => '이름 정하기';
+	@override String get signatureWizardNameHint => '이름은 당신이 알아보기 위한 것입니다. 서명이 가리키는 건 아래의 참조 이름입니다.';
+	@override String get signatureWizardNext => '다음';
+	@override String get signatureWizardDone => '완료';
+	@override String get signatureWizardStripHtml => 'HTML 태그 제거';
+	@override String get signatureWizardAdvanced => '고급: 정규식으로 뽑아내기';
+	@override String get signatureWizardExtractHint => '정규식이며 첫 번째 캡처 그룹을 씁니다';
+	@override String get signatureWizardExtractMissed => '이 식에 걸리지 않아 원래 문장을 그대로 씁니다';
+	@override String get signatureWizardChooseTitle => '하나 고르기';
+	@override String get signatureWizardChooseHint => '준비된 것을 누르면 바로 끝납니다. 직접 만든 엔드포인트를 지정할 수도 있어요.';
+	@override String get signatureWizardCustomSource => '내 엔드포인트 사용';
+	@override String get signatureWizardWithOrigin => '출처도 함께 표시';
+	@override String get signatureWizardRandomItem => '매번 무작위로 하나 고르기';
+	@override String get signatureWizardSuffixTitle => '다른 항목 이어 붙이기';
+	@override String get signatureWizardSuffixNone => '없음';
+	@override String get signatureOptFlavor => '내용';
+	@override String get signatureOptFlavorAny => '제한 없음';
+	@override String get signatureOptFlavorOtaku => '애니·만화·게임';
+	@override String get signatureOptFlavorLiterary => '문학과 시';
+	@override String get signatureOptFlavorMeme => '인터넷 문화';
+	@override String get signatureOptLength => '길이';
+	@override String get signatureOptLengthAny => '제한 없음';
+	@override String get signatureOptLengthShort => '짧은 문장만';
+	@override String get signatureRestoreDefault => '기본값으로 되돌리기';
+	@override String get signatureSourceHitokoto => 'Hitokoto (무작위 문구)';
+	@override String get signatureVariablesGroup => '기본 변수';
+	@override String get signatureNeedsNetwork => '네트워크 필요';
+	@override String get signatureBuiltinSource => '기본';
+	@override String get signatureSourceIdReserved => '그 이름은 기본 변수가 쓰고 있습니다';
+	@override String get signatureSourcesTitle => '사용자 데이터 소스';
+	@override String get signatureSourcesHint => '한 줄의 텍스트를 돌려주는 주소를 적으면 서명에 끌어다 쓸 수 있습니다.';
+	@override String get signatureSourcesEmpty => '아직 데이터 소스가 없습니다';
+	@override String get signatureAddSource => '추가';
+	@override String get signatureEditSource => '데이터 소스 편집';
+	@override String get signatureSourceName => '이름';
+	@override String get signatureSourceId => '참조 이름';
+	@override String get signatureSourceIdHint => '서명에서 이 데이터 소스를 부를 이름';
+	@override String get signatureSourceUrl => '엔드포인트 주소';
+	@override String get signatureSourcePath => '값 경로';
+	@override String get signatureSourcePathHint => '응답 전체가 그 문장이면 비워 두세요. JSON에서 골라내려면 data.text 처럼 적습니다.';
+	@override String get signatureSourceTest => '테스트';
+	@override String get signatureSourceTestOk => '가져왔습니다';
+	@override String get signatureSourceTestFailed => '아무것도 오지 않았습니다';
+	@override String get signatureSourceIdInvalid => '참조 이름에는 소문자, 숫자, 밑줄만 쓸 수 있습니다';
+	@override String get signatureSourceIdDuplicate => '이미 쓰이고 있는 참조 이름입니다';
+	@override String get signatureSourceUrlRequired => '엔드포인트 주소를 입력하세요';
 	@override String get exportConfig => '앱 설정 내보내기';
 	@override String get exportConfigDesc => '설정과 기록(검색 기록, 재생 진행률, 즐겨찾기 등)을 파일로 내보내 백업하거나 다른 기기로 전송합니다. 다운로드 작업은 포함되지 않습니다.';
 	@override String get importConfig => '앱 설정 가져오기';
@@ -5312,6 +5381,75 @@ extension on TranslationsKo {
 			'settings.signatureSampleBody' => '여기에 본문이 들어갑니다',
 			'settings.signatureNotSet' => '설정되지 않음',
 			'settings.signatureRuleHint' => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.',
+			'settings.signatureInsertVariable' => '변수 넣기',
+			'settings.varDate' => '날짜',
+			'settings.varTime' => '시각',
+			'settings.varDatetime' => '날짜와 시각',
+			'settings.varWeekday' => '요일',
+			'settings.varApp' => '앱 이름',
+			'settings.varVersion' => '버전',
+			'settings.varPlatform' => '플랫폼',
+			'settings.varTitle' => '지금 보고 있는 작품',
+			'settings.varAuthor' => '그 작가',
+			'settings.varPick' => '무작위 문구',
+			'settings.signatureSources' => '데이터 소스',
+			'settings.signatureAutoTranslate' => '내 언어로 번역하기',
+			'settings.signatureAutoTranslateDesc' => 'Hitokoto 같은 데이터 소스는 아직 중국어만 제공합니다. 가져온 문장은 보내기 직전에 번역됩니다.',
+			'settings.signatureWizardTitle' => '데이터 소스 추가',
+			'settings.signatureWizardUrlTitle' => '엔드포인트 주소',
+			'settings.signatureWizardUrlHint' => '한 줄의 텍스트를 돌려주는 주소를 입력하세요. 아래 버튼을 누르면 실제로 한 번 호출해서 무엇이 오는지 보여줍니다.',
+			'settings.signatureWizardFetch' => '가져와 보기',
+			'settings.signatureWizardSkipTest' => '건너뛰고 이름만 바꾸기',
+			'settings.signatureWizardPickTitle' => '쓸 부분 고르기',
+			'settings.signatureWizardPickHint' => '이 엔드포인트가 돌려준 내용입니다. 서명에 보이고 싶은 줄을 누르세요.',
+			'settings.signatureWizardPickPlainHint' => '이 엔드포인트는 일반 텍스트를 그대로 돌려줬습니다. 전체가 그대로 표시됩니다.',
+			'settings.signatureWizardWholeBody' => '응답 전체',
+			'settings.signatureWizardNameTitle' => '이름 정하기',
+			'settings.signatureWizardNameHint' => '이름은 당신이 알아보기 위한 것입니다. 서명이 가리키는 건 아래의 참조 이름입니다.',
+			'settings.signatureWizardNext' => '다음',
+			'settings.signatureWizardDone' => '완료',
+			'settings.signatureWizardStripHtml' => 'HTML 태그 제거',
+			'settings.signatureWizardAdvanced' => '고급: 정규식으로 뽑아내기',
+			'settings.signatureWizardExtractHint' => '정규식이며 첫 번째 캡처 그룹을 씁니다',
+			'settings.signatureWizardExtractMissed' => '이 식에 걸리지 않아 원래 문장을 그대로 씁니다',
+			'settings.signatureWizardChooseTitle' => '하나 고르기',
+			'settings.signatureWizardChooseHint' => '준비된 것을 누르면 바로 끝납니다. 직접 만든 엔드포인트를 지정할 수도 있어요.',
+			'settings.signatureWizardCustomSource' => '내 엔드포인트 사용',
+			'settings.signatureWizardWithOrigin' => '출처도 함께 표시',
+			'settings.signatureWizardRandomItem' => '매번 무작위로 하나 고르기',
+			'settings.signatureWizardSuffixTitle' => '다른 항목 이어 붙이기',
+			'settings.signatureWizardSuffixNone' => '없음',
+			'settings.signatureOptFlavor' => '내용',
+			'settings.signatureOptFlavorAny' => '제한 없음',
+			'settings.signatureOptFlavorOtaku' => '애니·만화·게임',
+			'settings.signatureOptFlavorLiterary' => '문학과 시',
+			'settings.signatureOptFlavorMeme' => '인터넷 문화',
+			'settings.signatureOptLength' => '길이',
+			'settings.signatureOptLengthAny' => '제한 없음',
+			'settings.signatureOptLengthShort' => '짧은 문장만',
+			'settings.signatureRestoreDefault' => '기본값으로 되돌리기',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (무작위 문구)',
+			'settings.signatureVariablesGroup' => '기본 변수',
+			'settings.signatureNeedsNetwork' => '네트워크 필요',
+			'settings.signatureBuiltinSource' => '기본',
+			'settings.signatureSourceIdReserved' => '그 이름은 기본 변수가 쓰고 있습니다',
+			'settings.signatureSourcesTitle' => '사용자 데이터 소스',
+			'settings.signatureSourcesHint' => '한 줄의 텍스트를 돌려주는 주소를 적으면 서명에 끌어다 쓸 수 있습니다.',
+			'settings.signatureSourcesEmpty' => '아직 데이터 소스가 없습니다',
+			'settings.signatureAddSource' => '추가',
+			'settings.signatureEditSource' => '데이터 소스 편집',
+			'settings.signatureSourceName' => '이름',
+			'settings.signatureSourceId' => '참조 이름',
+			'settings.signatureSourceIdHint' => '서명에서 이 데이터 소스를 부를 이름',
+			'settings.signatureSourceUrl' => '엔드포인트 주소',
+			'settings.signatureSourcePath' => '값 경로',
+			'settings.signatureSourcePathHint' => '응답 전체가 그 문장이면 비워 두세요. JSON에서 골라내려면 data.text 처럼 적습니다.',
+			'settings.signatureSourceTest' => '테스트',
+			'settings.signatureSourceTestOk' => '가져왔습니다',
+			'settings.signatureSourceTestFailed' => '아무것도 오지 않았습니다',
+			'settings.signatureSourceIdInvalid' => '참조 이름에는 소문자, 숫자, 밑줄만 쓸 수 있습니다',
+			'settings.signatureSourceIdDuplicate' => '이미 쓰이고 있는 참조 이름입니다',
+			'settings.signatureSourceUrlRequired' => '엔드포인트 주소를 입력하세요',
 			'settings.exportConfig' => '앱 설정 내보내기',
 			'settings.exportConfigDesc' => '설정과 기록(검색 기록, 재생 진행률, 즐겨찾기 등)을 파일로 내보내 백업하거나 다른 기기로 전송합니다. 다운로드 작업은 포함되지 않습니다.',
 			'settings.importConfig' => '앱 설정 가져오기',
@@ -5573,6 +5711,8 @@ extension on TranslationsKo {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '저장소 권한 부여에 실패했지만 일부 기능은 제한될 수 있습니다',
 			'settings.downloadSettings.storagePermissionRationale' => '선택한 폴더에 다운로드를 저장하려면 앱에 저장소 접근 권한이 필요합니다.\n\nAndroid 11 이상에서는 "모든 파일 접근" 권한을 의미하며, 이것이 없으면 파일은 대신 앱 비공개 폴더에 저장됩니다.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '선택한 폴더에 다운로드를 저장하려면 앱에 저장소 접근 권한이 필요합니다.\n\n없으면 파일은 대신 앱 비공개 폴더에 저장됩니다.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => '저장소 권한 부여',
 			'settings.downloadSettings.customDownloadPath' => '사용자 지정 다운로드 경로',
 			'settings.downloadSettings.customDownloadPathDescription' => '활성화하면 다운로드한 파일의 저장 위치를 사용자 지정할 수 있습니다',
@@ -5642,8 +5782,6 @@ extension on TranslationsKo {
 			'settings.downloadSettings.testError' => '오류',
 			'settings.downloadSettings.testPath' => '테스트 경로',
 			'settings.downloadSettings.testBasePath' => '기본 경로',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '디렉터리 생성',
 			'settings.downloadSettings.testFileWriting' => '파일 쓰기',
 			'settings.downloadSettings.testFileContent' => '파일 내용',
@@ -6087,6 +6225,8 @@ extension on TranslationsKo {
 			'markdown.listDescription' => '숫자+마침표로 순서 있는 목록을, -로 순서 없는 목록을 만듭니다',
 			'markdown.listSyntax' => '1. 첫 번째 항목\n2. 두 번째 항목\n\n- 순서 없는 항목\n  - 하위 항목\n  - 또 다른 하위 항목',
 			'markdown.linkAndImage' => '링크와 이미지',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => '링크 형식: [텍스트](URL)\n이미지 형식: ![설명](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[링크 텍스트](${link})\n![이미지 설명](${imgUrl})',
 			'markdown.title' => '제목',
@@ -6156,8 +6296,6 @@ extension on TranslationsKo {
 			'forum.leafDescriptions.requests_zh' => '요청을 올리세요',
 			'forum.leafDescriptions.support_zh' => '웹사이트 관련 문제 해결 지원',
 			'forum.leafDescriptions.general_ja' => '모든 주제에 대해 토론',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '질문을 남기세요',
 			'forum.leafDescriptions.requests_ja' => '요청을 올리세요',
 			'forum.leafDescriptions.support_ja' => '웹사이트 관련 문제 해결 지원',
@@ -6601,6 +6739,8 @@ extension on TranslationsKo {
 			'download.category.renameSuccess' => '카테고리 이름 변경됨',
 			'download.category.renameFailed' => '카테고리 이름 변경 실패',
 			'download.category.deleteTitle' => '카테고리 삭제',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '"${title}" 카테고리를 삭제하시겠습니까? 안에 있는 ${count}개 항목은 미분류로 이동합니다. 파일은 삭제되지 않습니다.',
 			'download.category.deleteSuccess' => '카테고리 삭제됨',
 			'download.category.deleteFailed' => '카테고리 삭제 실패',
@@ -6670,8 +6810,6 @@ extension on TranslationsKo {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsKo {
 			'diagnostics.schemaHealthRepairedBefore' => '이전에 안전망으로 복구됨',
 			'diagnostics.logPolicySectionTitle' => '로그 정책',
 			'diagnostics.configServiceUnavailable' => '구성 서비스가 초기화되지 않았습니다. 로그 정책을 조정할 수 없습니다.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => '로그 기록 사용',
 			'diagnostics.enableLoggingSubtitle' => '끄면 새 로그 쓰기를 중지합니다',
 			'diagnostics.enableLogPersistenceTitle' => '로그 영구 저장 사용',
@@ -7184,8 +7324,6 @@ extension on TranslationsKo {
 			'linkInputDialog.multipleLinksDetected' => '여러 링크가 감지되었습니다. 하나를 선택해 주세요:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '유효한 ${webName} 링크가 아닙니다',
 			'linkInputDialog.linkParseError' => ({required Object error}) => '링크 구문 분석 오류: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => '지원하지 않는 링크',
 			'linkInputDialog.unsupportedLinkDialogContent' => '이 링크 유형은 앱에서 직접 열 수 없으며 외부 브라우저를 통해 접속해야 합니다.\n\n이 링크를 브라우저에서 여시겠습니까?',
 			'linkInputDialog.openInBrowser' => '브라우저에서 열기',
@@ -7629,6 +7767,8 @@ extension on TranslationsKo {
 			'watchLater.emptyUnwatchedVideo' => '여기에 볼 남은 항목이 없습니다',
 			'watchLater.emptyUnwatchedGallery' => '여기에 볼 남은 항목이 없습니다',
 			'watchLater.queueLoadFailed' => '불러오지 못했습니다. 탭하여 다시 시도',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => '좋아요',
 			'mediaMenu.unlike' => '좋아요 취소',
 			'mediaMenu.viewAuthor' => '작성자 보기',
@@ -7698,8 +7838,6 @@ extension on TranslationsKo {
 			'vrFormat.flatSideBySideDesc' => '절반마다 한쪽 눈, 좌우로 나열; 왼쪽 눈을 표시하고 화면 비율을 복원합니다',
 			'vrFormat.flatTopBottom' => '상하 3D',
 			'vrFormat.flatTopBottomDesc' => '절반마다 한쪽 눈, 위아래로 배치; 위쪽 절반을 표시하고 화면 비율을 복원합니다',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 나란히',
 			'vrFormat.vr180SideBySideDesc' => '양안 반구형 파노라마 — 가장 흔한 VR 소스',
 			'vrFormat.vr180Mono' => 'VR180 모노',

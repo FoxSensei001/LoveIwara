@@ -3,6 +3,7 @@ import 'package:flutter/services.dart' show MaxLengthEnforcement;
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/translation_dialog_widget.dart';
@@ -64,6 +65,10 @@ class BaseInputWidget extends StatefulWidget {
   /// 不然会出现「编辑签名时界面又给你自动加一条签名」。
   final bool allowSignature;
 
+  /// 小尾巴里 `{title}` `{author}` 要填的那点上下文。不给就是两个空变量，
+  /// 模板里写了也只会静静消失——这是刻意的：发私信时填不出「视频标题」。
+  final SignatureContext signatureContext;
+
   const BaseInputWidget({
     super.key,
     required this.controller,
@@ -86,6 +91,7 @@ class BaseInputWidget extends StatefulWidget {
     this.submitText,
     this.quote,
     this.allowSignature = true,
+    this.signatureContext = SignatureContext.empty,
   });
 
   @override
@@ -94,8 +100,13 @@ class BaseInputWidget extends StatefulWidget {
 
 class _BaseInputWidgetState extends State<BaseInputWidget> {
   final ConfigService _configService = Get.find<ConfigService>();
+  final SignatureService _signatureService = Get.find<SignatureService>();
   late EmojiSize _selectedEmojiSize;
   int _currentLength = 0;
+
+  /// 正在为这次提交求值小尾巴。带网络变量时这会持续几百毫秒到几秒，
+  /// 期间发送键要变成 loading，否则用户会当没反应接着连点。
+  bool _submitting = false;
 
   /// 当前这条回复引用的楼层。**不会被置空**——它同时是「你在回哪一楼」这个
   /// 事实的陈述，带不带引用由 [_quoteEnabled] 管。
@@ -178,11 +189,18 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     return CommentMarkup.compose(
       body: body,
       quote: _quoteEnabled ? _quote : null,
-      signature: _signatureEnabled
-          ? _configService[ConfigKey.SIGNATURE_CONTENT_KEY]
-          : null,
+      signature: _signatureEnabled ? _estimatedSignature() : null,
     );
   }
+
+  /// 小尾巴的**估算**样子：本地变量照常算，网络变量拿上次成功的值撑宽度。
+  ///
+  /// 字数统计每敲一个字就要算一遍，不可能为它去等一次网络请求。真正发出去的
+  /// 那一份在 [_handleSubmit] 里现求，见 [SignatureService.estimate] 的告诫。
+  String _estimatedSignature() => _signatureService.estimate(
+    _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+    context: widget.signatureContext,
+  );
 
   /// 本弹窗要不要露出小尾巴开关：**只问这只弹窗参不参与小尾巴**。
   ///
@@ -230,8 +248,25 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
   }
 
   /// 预览给的是**发出去的样子**，不是输入框里的样子——引用块和小尾巴都在内。
+  ///
+  /// 小尾巴里的网络变量这里**不**现取：预览取一次、发送再取一次，两句不同的
+  /// 一言会让人以为发错了；而且点一次预览就打一次别人的接口也不像话。没有
+  /// 缓存值时就让 `{hitokoto}` 原样留在预览里。
   void _showPreview() {
-    MarkdownPreviewHelper.showPreview(context, _composed());
+    MarkdownPreviewHelper.showPreview(
+      context,
+      CommentMarkup.compose(
+        body: widget.controller.text,
+        quote: _quoteEnabled ? _quote : null,
+        signature: _signatureEnabled
+            ? _signatureService.estimate(
+                _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+                context: widget.signatureContext,
+                padNetwork: false,
+              )
+            : null,
+      ),
+    );
   }
 
   void _showMarkdownHelp() {
@@ -296,7 +331,8 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     }
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
+    if (_submitting) return;
     if (_currentLength > widget.maxLength) return;
 
     // 判「空」看的是用户自己写的正文：只剩一个引用头或一条小尾巴不算内容。
@@ -311,7 +347,52 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
       return;
     }
 
-    widget.onSubmit?.call(_composed());
+    // 小尾巴带网络变量（一言 / 自定义源）时，这一步要等一次请求。超时与失败
+    // 兜底都在 SignatureService 里，最坏情况是小尾巴少一段，不会卡住发送。
+    setState(() => _submitting = true);
+    String composed;
+    try {
+      composed = await _composeForSubmit();
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
+    if (!mounted) return;
+
+    widget.onSubmit?.call(composed);
+  }
+
+  /// 真正要发出去的那一串：小尾巴在这里现求值。
+  Future<String> _composeForSubmit() async {
+    final signature = _signatureEnabled
+        ? await _signatureService.render(
+            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+            context: widget.signatureContext,
+          )
+        : null;
+
+    String build(String? sig) => CommentMarkup.compose(
+      body: widget.controller.text,
+      quote: _quoteEnabled ? _quote : null,
+      signature: sig,
+    );
+
+    final composed = build(signature);
+    if (composed.length <= widget.maxLength ||
+        signature == null ||
+        signature.isEmpty) {
+      return composed;
+    }
+
+    // 估算（[_estimatedSignature]）和真值对不上时会走到这里：一言比上次那句
+    // 长了二十个字，正文又正好写到额度顶，总长就超了。用户写的正文一个字都
+    // 不能动，所以砍小尾巴——砍到放不下就整条不要。
+    // ⛔ 反过来（截正文、或者原样发出去让服务端拒绝）都等于「写了半天发不出
+    // 去」，那比少一句签名严重得多。
+    final overflow = composed.length - widget.maxLength;
+    final room = signature.length - overflow - 1;
+    return build(
+      room >= 8 ? '${signature.substring(0, room).trimRight()}…' : null,
+    );
   }
 
   @override
@@ -413,7 +494,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
             // 会让人以为是坏了。
             onBlockedTap: blocked && canSubmit ? _showRulesDialog : null,
             submitText: widget.submitText,
-            isLoading: widget.isLoading,
+            isLoading: widget.isLoading || _submitting,
             onEmoji: widget.showEmojiPicker ? _showEmojiPickerDialog : null,
             onPreview: widget.showPreview ? _showPreview : null,
             previewHasContent: widget.controller.text.trim().isNotEmpty,

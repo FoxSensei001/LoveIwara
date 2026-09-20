@@ -895,6 +895,75 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'ข้อความของคุณอยู่ตรงนี้';
 	@override String get signatureNotSet => 'ยังไม่ได้ตั้งค่า';
 	@override String get signatureRuleHint => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง';
+	@override String get signatureInsertVariable => 'แทรกตัวแปร';
+	@override String get varDate => 'วันที่';
+	@override String get varTime => 'เวลา';
+	@override String get varDatetime => 'วันที่และเวลา';
+	@override String get varWeekday => 'วันในสัปดาห์';
+	@override String get varApp => 'ชื่อแอป';
+	@override String get varVersion => 'เวอร์ชัน';
+	@override String get varPlatform => 'แพลตฟอร์ม';
+	@override String get varTitle => 'สิ่งที่คุณกำลังดู';
+	@override String get varAuthor => 'ผู้สร้างผลงานนั้น';
+	@override String get varPick => 'ข้อความสุ่ม';
+	@override String get signatureSources => 'แหล่งข้อมูล';
+	@override String get signatureAutoTranslate => 'แปลเป็นภาษาของฉัน';
+	@override String get signatureAutoTranslateDesc => 'แหล่งข้อมูลอย่าง Hitokoto ตอนนี้มีแต่ภาษาจีน ประโยคที่ได้จะถูกแปลก่อนส่งออกไป';
+	@override String get signatureWizardTitle => 'เพิ่มแหล่งข้อมูล';
+	@override String get signatureWizardUrlTitle => 'ที่อยู่ปลายทาง';
+	@override String get signatureWizardUrlHint => 'ใส่ที่อยู่ที่คืนค่าข้อความหนึ่งบรรทัด ปุ่มด้านล่างจะเรียกจริงหนึ่งครั้งเพื่อให้คุณเห็นว่าได้อะไรกลับมา';
+	@override String get signatureWizardFetch => 'ลองเรียกดู';
+	@override String get signatureWizardSkipTest => 'ข้ามไป แค่เปลี่ยนชื่อ';
+	@override String get signatureWizardPickTitle => 'เลือกส่วนที่ต้องการ';
+	@override String get signatureWizardPickHint => 'นี่คือสิ่งที่ปลายทางนั้นส่งกลับมา แตะบรรทัดที่อยากให้ลายเซ็นแสดง';
+	@override String get signatureWizardPickPlainHint => 'ปลายทางนี้ส่งข้อความธรรมดากลับมา ทั้งก้อนคือสิ่งที่จะแสดง';
+	@override String get signatureWizardWholeBody => 'คำตอบทั้งหมด';
+	@override String get signatureWizardNameTitle => 'ตั้งชื่อให้มัน';
+	@override String get signatureWizardNameHint => 'ชื่อมีไว้ให้คุณจำเอง ส่วนที่ลายเซ็นใช้อ้างถึงคือชื่ออ้างอิงด้านล่าง';
+	@override String get signatureWizardNext => 'ถัดไป';
+	@override String get signatureWizardDone => 'เสร็จ';
+	@override String get signatureWizardStripHtml => 'เอาแท็ก HTML ออก';
+	@override String get signatureWizardAdvanced => 'ขั้นสูง: ดึงด้วยรูปแบบ';
+	@override String get signatureWizardExtractHint => 'นิพจน์ทั่วไป ใช้กลุ่มที่จับได้กลุ่มแรก';
+	@override String get signatureWizardExtractMissed => 'รูปแบบนี้ไม่ตรงกับอะไรเลย จึงใช้ข้อความเดิม';
+	@override String get signatureWizardChooseTitle => 'เลือกสักแหล่ง';
+	@override String get signatureWizardChooseHint => 'แตะแหล่งที่เตรียมไว้ให้ก็เสร็จแล้ว หรือจะชี้ไปที่ปลายทางของคุณเองก็ได้';
+	@override String get signatureWizardCustomSource => 'ใช้ปลายทางของฉันเอง';
+	@override String get signatureWizardWithOrigin => 'แสดงที่มาด้วย';
+	@override String get signatureWizardRandomItem => 'สุ่มใหม่ทุกครั้ง';
+	@override String get signatureWizardSuffixTitle => 'ต่อท้ายด้วยอีกฟิลด์';
+	@override String get signatureWizardSuffixNone => 'ไม่ต่อ';
+	@override String get signatureOptFlavor => 'เนื้อหา';
+	@override String get signatureOptFlavorAny => 'ไม่จำกัด';
+	@override String get signatureOptFlavorOtaku => 'อนิเมะ มังงะ และเกม';
+	@override String get signatureOptFlavorLiterary => 'วรรณกรรมและบทกวี';
+	@override String get signatureOptFlavorMeme => 'วัฒนธรรมอินเทอร์เน็ต';
+	@override String get signatureOptLength => 'ความยาว';
+	@override String get signatureOptLengthAny => 'ไม่จำกัด';
+	@override String get signatureOptLengthShort => 'เอาเฉพาะประโยคสั้น';
+	@override String get signatureRestoreDefault => 'คืนค่าเริ่มต้น';
+	@override String get signatureSourceHitokoto => 'Hitokoto (ข้อความสุ่ม)';
+	@override String get signatureVariablesGroup => 'ตัวแปรในตัว';
+	@override String get signatureNeedsNetwork => 'ต้องใช้เครือข่าย';
+	@override String get signatureBuiltinSource => 'ในตัว';
+	@override String get signatureSourceIdReserved => 'ชื่อนี้ถูกตัวแปรในตัวใช้อยู่';
+	@override String get signatureSourcesTitle => 'แหล่งข้อมูลที่กำหนดเอง';
+	@override String get signatureSourcesHint => 'ใส่ที่อยู่ที่คืนค่าข้อความหนึ่งบรรทัด แล้วคุณจะดึงมาใส่ในลายเซ็นได้';
+	@override String get signatureSourcesEmpty => 'ยังไม่มีแหล่งข้อมูล';
+	@override String get signatureAddSource => 'เพิ่ม';
+	@override String get signatureEditSource => 'แก้ไขแหล่งข้อมูล';
+	@override String get signatureSourceName => 'ชื่อ';
+	@override String get signatureSourceId => 'ชื่อที่ใช้อ้างอิง';
+	@override String get signatureSourceIdHint => 'ชื่อที่ลายเซ็นใช้เรียกแหล่งข้อมูลนี้';
+	@override String get signatureSourceUrl => 'ที่อยู่ปลายทาง';
+	@override String get signatureSourcePath => 'เส้นทางของค่า';
+	@override String get signatureSourcePathHint => 'เว้นว่างไว้ถ้าทั้งคำตอบคือข้อความนั้น ใส่ data.text เพื่อดึงฟิลด์นั้นจากคำตอบแบบ JSON';
+	@override String get signatureSourceTest => 'ทดสอบ';
+	@override String get signatureSourceTestOk => 'ดึงมาได้แล้ว';
+	@override String get signatureSourceTestFailed => 'ไม่มีอะไรกลับมา';
+	@override String get signatureSourceIdInvalid => 'ชื่ออ้างอิงใช้ได้เฉพาะตัวพิมพ์เล็ก ตัวเลข และขีดล่าง';
+	@override String get signatureSourceIdDuplicate => 'ชื่ออ้างอิงนี้ถูกใช้ไปแล้ว';
+	@override String get signatureSourceUrlRequired => 'กรุณาใส่ที่อยู่ปลายทาง';
 	@override String get exportConfig => 'ส่งออกการกำหนดค่าแอป';
 	@override String get exportConfigDesc => 'ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด';
 	@override String get importConfig => 'นำเข้าการกำหนดค่าแอป';
@@ -5312,6 +5381,75 @@ extension on TranslationsTh {
 			'settings.signatureSampleBody' => 'ข้อความของคุณอยู่ตรงนี้',
 			'settings.signatureNotSet' => 'ยังไม่ได้ตั้งค่า',
 			'settings.signatureRuleHint' => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง',
+			'settings.signatureInsertVariable' => 'แทรกตัวแปร',
+			'settings.varDate' => 'วันที่',
+			'settings.varTime' => 'เวลา',
+			'settings.varDatetime' => 'วันที่และเวลา',
+			'settings.varWeekday' => 'วันในสัปดาห์',
+			'settings.varApp' => 'ชื่อแอป',
+			'settings.varVersion' => 'เวอร์ชัน',
+			'settings.varPlatform' => 'แพลตฟอร์ม',
+			'settings.varTitle' => 'สิ่งที่คุณกำลังดู',
+			'settings.varAuthor' => 'ผู้สร้างผลงานนั้น',
+			'settings.varPick' => 'ข้อความสุ่ม',
+			'settings.signatureSources' => 'แหล่งข้อมูล',
+			'settings.signatureAutoTranslate' => 'แปลเป็นภาษาของฉัน',
+			'settings.signatureAutoTranslateDesc' => 'แหล่งข้อมูลอย่าง Hitokoto ตอนนี้มีแต่ภาษาจีน ประโยคที่ได้จะถูกแปลก่อนส่งออกไป',
+			'settings.signatureWizardTitle' => 'เพิ่มแหล่งข้อมูล',
+			'settings.signatureWizardUrlTitle' => 'ที่อยู่ปลายทาง',
+			'settings.signatureWizardUrlHint' => 'ใส่ที่อยู่ที่คืนค่าข้อความหนึ่งบรรทัด ปุ่มด้านล่างจะเรียกจริงหนึ่งครั้งเพื่อให้คุณเห็นว่าได้อะไรกลับมา',
+			'settings.signatureWizardFetch' => 'ลองเรียกดู',
+			'settings.signatureWizardSkipTest' => 'ข้ามไป แค่เปลี่ยนชื่อ',
+			'settings.signatureWizardPickTitle' => 'เลือกส่วนที่ต้องการ',
+			'settings.signatureWizardPickHint' => 'นี่คือสิ่งที่ปลายทางนั้นส่งกลับมา แตะบรรทัดที่อยากให้ลายเซ็นแสดง',
+			'settings.signatureWizardPickPlainHint' => 'ปลายทางนี้ส่งข้อความธรรมดากลับมา ทั้งก้อนคือสิ่งที่จะแสดง',
+			'settings.signatureWizardWholeBody' => 'คำตอบทั้งหมด',
+			'settings.signatureWizardNameTitle' => 'ตั้งชื่อให้มัน',
+			'settings.signatureWizardNameHint' => 'ชื่อมีไว้ให้คุณจำเอง ส่วนที่ลายเซ็นใช้อ้างถึงคือชื่ออ้างอิงด้านล่าง',
+			'settings.signatureWizardNext' => 'ถัดไป',
+			'settings.signatureWizardDone' => 'เสร็จ',
+			'settings.signatureWizardStripHtml' => 'เอาแท็ก HTML ออก',
+			'settings.signatureWizardAdvanced' => 'ขั้นสูง: ดึงด้วยรูปแบบ',
+			'settings.signatureWizardExtractHint' => 'นิพจน์ทั่วไป ใช้กลุ่มที่จับได้กลุ่มแรก',
+			'settings.signatureWizardExtractMissed' => 'รูปแบบนี้ไม่ตรงกับอะไรเลย จึงใช้ข้อความเดิม',
+			'settings.signatureWizardChooseTitle' => 'เลือกสักแหล่ง',
+			'settings.signatureWizardChooseHint' => 'แตะแหล่งที่เตรียมไว้ให้ก็เสร็จแล้ว หรือจะชี้ไปที่ปลายทางของคุณเองก็ได้',
+			'settings.signatureWizardCustomSource' => 'ใช้ปลายทางของฉันเอง',
+			'settings.signatureWizardWithOrigin' => 'แสดงที่มาด้วย',
+			'settings.signatureWizardRandomItem' => 'สุ่มใหม่ทุกครั้ง',
+			'settings.signatureWizardSuffixTitle' => 'ต่อท้ายด้วยอีกฟิลด์',
+			'settings.signatureWizardSuffixNone' => 'ไม่ต่อ',
+			'settings.signatureOptFlavor' => 'เนื้อหา',
+			'settings.signatureOptFlavorAny' => 'ไม่จำกัด',
+			'settings.signatureOptFlavorOtaku' => 'อนิเมะ มังงะ และเกม',
+			'settings.signatureOptFlavorLiterary' => 'วรรณกรรมและบทกวี',
+			'settings.signatureOptFlavorMeme' => 'วัฒนธรรมอินเทอร์เน็ต',
+			'settings.signatureOptLength' => 'ความยาว',
+			'settings.signatureOptLengthAny' => 'ไม่จำกัด',
+			'settings.signatureOptLengthShort' => 'เอาเฉพาะประโยคสั้น',
+			'settings.signatureRestoreDefault' => 'คืนค่าเริ่มต้น',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (ข้อความสุ่ม)',
+			'settings.signatureVariablesGroup' => 'ตัวแปรในตัว',
+			'settings.signatureNeedsNetwork' => 'ต้องใช้เครือข่าย',
+			'settings.signatureBuiltinSource' => 'ในตัว',
+			'settings.signatureSourceIdReserved' => 'ชื่อนี้ถูกตัวแปรในตัวใช้อยู่',
+			'settings.signatureSourcesTitle' => 'แหล่งข้อมูลที่กำหนดเอง',
+			'settings.signatureSourcesHint' => 'ใส่ที่อยู่ที่คืนค่าข้อความหนึ่งบรรทัด แล้วคุณจะดึงมาใส่ในลายเซ็นได้',
+			'settings.signatureSourcesEmpty' => 'ยังไม่มีแหล่งข้อมูล',
+			'settings.signatureAddSource' => 'เพิ่ม',
+			'settings.signatureEditSource' => 'แก้ไขแหล่งข้อมูล',
+			'settings.signatureSourceName' => 'ชื่อ',
+			'settings.signatureSourceId' => 'ชื่อที่ใช้อ้างอิง',
+			'settings.signatureSourceIdHint' => 'ชื่อที่ลายเซ็นใช้เรียกแหล่งข้อมูลนี้',
+			'settings.signatureSourceUrl' => 'ที่อยู่ปลายทาง',
+			'settings.signatureSourcePath' => 'เส้นทางของค่า',
+			'settings.signatureSourcePathHint' => 'เว้นว่างไว้ถ้าทั้งคำตอบคือข้อความนั้น ใส่ data.text เพื่อดึงฟิลด์นั้นจากคำตอบแบบ JSON',
+			'settings.signatureSourceTest' => 'ทดสอบ',
+			'settings.signatureSourceTestOk' => 'ดึงมาได้แล้ว',
+			'settings.signatureSourceTestFailed' => 'ไม่มีอะไรกลับมา',
+			'settings.signatureSourceIdInvalid' => 'ชื่ออ้างอิงใช้ได้เฉพาะตัวพิมพ์เล็ก ตัวเลข และขีดล่าง',
+			'settings.signatureSourceIdDuplicate' => 'ชื่ออ้างอิงนี้ถูกใช้ไปแล้ว',
+			'settings.signatureSourceUrlRequired' => 'กรุณาใส่ที่อยู่ปลายทาง',
 			'settings.exportConfig' => 'ส่งออกการกำหนดค่าแอป',
 			'settings.exportConfigDesc' => 'ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด',
 			'settings.importConfig' => 'นำเข้าการกำหนดค่าแอป',
@@ -5573,6 +5711,8 @@ extension on TranslationsTh {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'การอนุญาตสิทธิ์การจัดเก็บข้อมูลล้มเหลว ฟีเจอร์บางอย่างอาจถูกจำกัด',
 			'settings.downloadSettings.storagePermissionRationale' => 'ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nบน Android 11 ขึ้นไป หมายถึงสิทธิ์ "การเข้าถึงไฟล์ทั้งหมด" หากไม่มีสิทธิ์นี้ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'ในการบันทึกไฟล์ดาวน์โหลดลงในโฟลเดอร์ที่คุณเลือก แอปต้องได้รับสิทธิ์การจัดเก็บข้อมูล\n\nหากไม่ได้รับสิทธิ์ ไฟล์จะถูกบันทึกลงในโฟลเดอร์ส่วนตัวของแอปแทน',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'อนุญาตสิทธิ์การจัดเก็บข้อมูล',
 			'settings.downloadSettings.customDownloadPath' => 'เส้นทางดาวน์โหลดที่กำหนดเอง',
 			'settings.downloadSettings.customDownloadPathDescription' => 'เมื่อเปิดใช้งาน คุณสามารถเลือกตำแหน่งบันทึกที่กำหนดเองสำหรับไฟล์ที่ดาวน์โหลดได้',
@@ -5642,8 +5782,6 @@ extension on TranslationsTh {
 			'settings.downloadSettings.testError' => 'ข้อผิดพลาด',
 			'settings.downloadSettings.testPath' => 'เส้นทางการทดสอบ',
 			'settings.downloadSettings.testBasePath' => 'เส้นทางฐาน',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'การสร้างไดเรกทอรี',
 			'settings.downloadSettings.testFileWriting' => 'การเขียนไฟล์',
 			'settings.downloadSettings.testFileContent' => 'เนื้อหาไฟล์',
@@ -6087,6 +6225,8 @@ extension on TranslationsTh {
 			'markdown.listDescription' => 'สร้างรายการแบบมีลำดับด้วย ตัวเลข+จุด สร้างรายการแบบไม่มีลำดับด้วย -',
 			'markdown.listSyntax' => '1. รายการแรก\n2. รายการที่สอง\n\n- รายการแบบไม่มีลำดับ\n  - รายการย่อย\n  - อีกหนึ่งรายการย่อย',
 			'markdown.linkAndImage' => 'ลิงก์และรูปภาพ',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'รูปแบบลิงก์: [ข้อความ](URL)\nรูปแบบรูปภาพ: ![คำอธิบาย](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[ข้อความลิงก์](${link})\n![คำอธิบายรูปภาพ](${imgUrl})',
 			'markdown.title' => 'หัวข้อ',
@@ -6156,8 +6296,6 @@ extension on TranslationsTh {
 			'forum.leafDescriptions.requests_zh' => 'โพสต์คำขอของคุณ',
 			'forum.leafDescriptions.support_zh' => 'ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์',
 			'forum.leafDescriptions.general_ja' => 'พูดคุยในทุกหัวข้อ',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'สอบถามข้อสงสัยของคุณ',
 			'forum.leafDescriptions.requests_ja' => 'โพสต์คำขอของคุณ',
 			'forum.leafDescriptions.support_ja' => 'ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์',
@@ -6601,6 +6739,8 @@ extension on TranslationsTh {
 			'download.category.renameSuccess' => 'เปลี่ยนชื่อหมวดหมู่แล้ว',
 			'download.category.renameFailed' => 'เปลี่ยนชื่อหมวดหมู่ไม่สำเร็จ',
 			'download.category.deleteTitle' => 'ลบหมวดหมู่',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'ลบหมวดหมู่ "${title}" หรือไม่? รายการ ${count} รายการในหมวดหมู่นี้จะถูกย้ายไปที่ "ไม่ได้จัดหมวดหมู่" ไฟล์จะไม่ถูกลบ',
 			'download.category.deleteSuccess' => 'ลบหมวดหมู่แล้ว',
 			'download.category.deleteFailed' => 'ลบหมวดหมู่ไม่สำเร็จ',
@@ -6670,8 +6810,6 @@ extension on TranslationsTh {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsTh {
 			'diagnostics.schemaHealthRepairedBefore' => 'เคยได้รับการซ่อมแซมโดยเครือข่ายความปลอดภัยมาก่อน',
 			'diagnostics.logPolicySectionTitle' => 'นโยบายบันทึก',
 			'diagnostics.configServiceUnavailable' => 'บริการกำหนดค่ายังไม่ได้เริ่มต้น ไม่สามารถปรับนโยบายบันทึกได้',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'เปิดใช้งานการบันทึก',
 			'diagnostics.enableLoggingSubtitle' => 'ปิดใช้งานเพื่อหยุดการเขียนบันทึกใหม่',
 			'diagnostics.enableLogPersistenceTitle' => 'เปิดใช้งานการคงอยู่ของบันทึก',
@@ -7184,8 +7324,6 @@ extension on TranslationsTh {
 			'linkInputDialog.multipleLinksDetected' => 'ตรวจพบหลายลิงก์ โปรดเลือกหนึ่งรายการ:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'ไม่ใช่ลิงก์ ${webName} ที่ถูกต้อง',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'ข้อผิดพลาดในการแยกวิเคราะห์ลิงก์: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'ลิงก์ที่ไม่รองรับ',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'ประเภทลิงก์นี้ไม่สามารถเปิดได้โดยตรงในแอป และจำเป็นต้องเข้าถึงโดยใช้เบราว์เซอร์ภายนอก\n\nคุณต้องการเปิดลิงก์นี้ในเบราว์เซอร์หรือไม่?',
 			'linkInputDialog.openInBrowser' => 'เปิดในเบราว์เซอร์',
@@ -7629,6 +7767,8 @@ extension on TranslationsTh {
 			'watchLater.emptyUnwatchedVideo' => 'ไม่มีอะไรเหลือให้รับชมที่นี่',
 			'watchLater.emptyUnwatchedGallery' => 'ไม่มีอะไรเหลือให้ดูที่นี่',
 			'watchLater.queueLoadFailed' => 'โหลดไม่สำเร็จ แตะเพื่อลองใหม่',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'ถูกใจ',
 			'mediaMenu.unlike' => 'เลิกถูกใจ',
 			'mediaMenu.viewAuthor' => 'ดูผู้สร้าง',
@@ -7698,8 +7838,6 @@ extension on TranslationsTh {
 			'vrFormat.flatSideBySideDesc' => 'หนึ่งตาต่อครึ่งซ้ายและขวา แสดงตาซ้ายและคืนสัดส่วนภาพเดิม',
 			'vrFormat.flatTopBottom' => '3D แบบบนล่าง',
 			'vrFormat.flatTopBottomDesc' => 'หนึ่งตาต่อครึ่งบนและล่าง แสดงครึ่งบนและคืนสัดส่วนภาพเดิม',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 แบบข้างเคียง',
 			'vrFormat.vr180SideBySideDesc' => 'พาโนรามาซีกโลกพร้อมสองตา — แหล่ง VR ที่พบมากที่สุด',
 			'vrFormat.vr180Mono' => 'VR180 ภาพเดียว',

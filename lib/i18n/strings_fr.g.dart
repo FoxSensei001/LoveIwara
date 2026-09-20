@@ -895,6 +895,75 @@ class _TranslationsSettingsFr extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'Votre message ici';
 	@override String get signatureNotSet => 'Non défini';
 	@override String get signatureRuleHint => 'La signature est ajoutée après le corps, séparée par une ligne horizontale. L\'appli ajoute la ligne — écrivez seulement le texte ci-dessous.';
+	@override String get signatureInsertVariable => 'Insérer une variable';
+	@override String get varDate => 'Date';
+	@override String get varTime => 'Heure';
+	@override String get varDatetime => 'Date et heure';
+	@override String get varWeekday => 'Jour de la semaine';
+	@override String get varApp => 'Nom de l\'appli';
+	@override String get varVersion => 'Version';
+	@override String get varPlatform => 'Plateforme';
+	@override String get varTitle => 'Ce que vous regardez';
+	@override String get varAuthor => 'Son auteur';
+	@override String get varPick => 'Phrase au hasard';
+	@override String get signatureSources => 'Sources de données';
+	@override String get signatureAutoTranslate => 'Traduire dans ma langue';
+	@override String get signatureAutoTranslateDesc => 'Des sources comme Hitokoto ne proposent que du chinois pour l’instant. La phrase est traduite juste avant l’envoi.';
+	@override String get signatureWizardTitle => 'Ajouter une source';
+	@override String get signatureWizardUrlTitle => 'Adresse du point d\'accès';
+	@override String get signatureWizardUrlHint => 'Indiquez une URL qui renvoie une ligne de texte. Le bouton ci-dessous l\'appelle vraiment, pour que vous voyiez ce qui revient.';
+	@override String get signatureWizardFetch => 'Récupérer';
+	@override String get signatureWizardSkipTest => 'Passer et juste renommer';
+	@override String get signatureWizardPickTitle => 'Choisissez la partie voulue';
+	@override String get signatureWizardPickHint => 'Voici ce qu\'a renvoyé ce point d\'accès. Touchez la ligne que votre signature doit afficher.';
+	@override String get signatureWizardPickPlainHint => 'Ce point d\'accès a renvoyé du texte brut : c\'est l\'ensemble qui sera affiché.';
+	@override String get signatureWizardWholeBody => 'Toute la réponse';
+	@override String get signatureWizardNameTitle => 'Donnez-lui un nom';
+	@override String get signatureWizardNameHint => 'Le nom n\'est que pour vous. C\'est le nom de référence ci-dessous que la signature utilise.';
+	@override String get signatureWizardNext => 'Suivant';
+	@override String get signatureWizardDone => 'Terminé';
+	@override String get signatureWizardStripHtml => 'Retirer les balises HTML';
+	@override String get signatureWizardAdvanced => 'Avancé : extraire avec un motif';
+	@override String get signatureWizardExtractHint => 'Expression régulière ; le premier groupe capturant est utilisé';
+	@override String get signatureWizardExtractMissed => 'Ce motif ne correspond à rien, le texte reste tel quel';
+	@override String get signatureWizardChooseTitle => 'Choisissez une source';
+	@override String get signatureWizardChooseHint => 'Touchez une source toute prête et c’est fini. Ou indiquez votre propre point d’accès.';
+	@override String get signatureWizardCustomSource => 'Utiliser mon propre point d’accès';
+	@override String get signatureWizardWithOrigin => 'Afficher la provenance';
+	@override String get signatureWizardRandomItem => 'En prendre une différente à chaque fois';
+	@override String get signatureWizardSuffixTitle => 'Ajouter un autre champ';
+	@override String get signatureWizardSuffixNone => 'Rien';
+	@override String get signatureOptFlavor => 'Contenu';
+	@override String get signatureOptFlavorAny => 'Peu importe';
+	@override String get signatureOptFlavorOtaku => 'Anime, manga et jeux';
+	@override String get signatureOptFlavorLiterary => 'Littérature et poésie';
+	@override String get signatureOptFlavorMeme => 'Culture internet';
+	@override String get signatureOptLength => 'Longueur';
+	@override String get signatureOptLengthAny => 'Peu importe';
+	@override String get signatureOptLengthShort => 'Phrases courtes seulement';
+	@override String get signatureRestoreDefault => 'Rétablir les valeurs par défaut';
+	@override String get signatureSourceHitokoto => 'Hitokoto (citation aléatoire)';
+	@override String get signatureVariablesGroup => 'Variables intégrées';
+	@override String get signatureNeedsNetwork => 'Nécessite le réseau';
+	@override String get signatureBuiltinSource => 'Intégré';
+	@override String get signatureSourceIdReserved => 'Ce nom est déjà celui d\'une variable intégrée';
+	@override String get signatureSourcesTitle => 'Sources de données personnalisées';
+	@override String get signatureSourcesHint => 'Indiquez une adresse qui renvoie une ligne de texte et vous pourrez la reprendre dans votre signature.';
+	@override String get signatureSourcesEmpty => 'Aucune source de données';
+	@override String get signatureAddSource => 'Ajouter';
+	@override String get signatureEditSource => 'Modifier la source';
+	@override String get signatureSourceName => 'Nom';
+	@override String get signatureSourceId => 'Nom de référence';
+	@override String get signatureSourceIdHint => 'Le nom sous lequel votre signature appelle cette source';
+	@override String get signatureSourceUrl => 'URL du point d\'accès';
+	@override String get signatureSourcePath => 'Chemin de la valeur';
+	@override String get signatureSourcePathHint => 'Laissez vide si toute la réponse est le texte. Utilisez data.text pour extraire ce champ d\'une réponse JSON.';
+	@override String get signatureSourceTest => 'Tester';
+	@override String get signatureSourceTestOk => 'C\'est bon';
+	@override String get signatureSourceTestFailed => 'Rien n\'est revenu';
+	@override String get signatureSourceIdInvalid => 'Le nom de référence n\'accepte que minuscules, chiffres et tirets bas';
+	@override String get signatureSourceIdDuplicate => 'Ce nom de référence est déjà pris';
+	@override String get signatureSourceUrlRequired => 'Une URL est requise';
 	@override String get exportConfig => 'Exporter la configuration de l\'app';
 	@override String get exportConfigDesc => 'Exporter les paramètres et l\'historique (historique de navigation, progression de lecture, favoris, etc.) dans un fichier pour sauvegarde ou transfert vers un autre appareil. Les tâches de téléchargement ne sont pas incluses.';
 	@override String get importConfig => 'Importer la configuration de l\'app';
@@ -5312,6 +5381,75 @@ extension on TranslationsFr {
 			'settings.signatureSampleBody' => 'Votre message ici',
 			'settings.signatureNotSet' => 'Non défini',
 			'settings.signatureRuleHint' => 'La signature est ajoutée après le corps, séparée par une ligne horizontale. L\'appli ajoute la ligne — écrivez seulement le texte ci-dessous.',
+			'settings.signatureInsertVariable' => 'Insérer une variable',
+			'settings.varDate' => 'Date',
+			'settings.varTime' => 'Heure',
+			'settings.varDatetime' => 'Date et heure',
+			'settings.varWeekday' => 'Jour de la semaine',
+			'settings.varApp' => 'Nom de l\'appli',
+			'settings.varVersion' => 'Version',
+			'settings.varPlatform' => 'Plateforme',
+			'settings.varTitle' => 'Ce que vous regardez',
+			'settings.varAuthor' => 'Son auteur',
+			'settings.varPick' => 'Phrase au hasard',
+			'settings.signatureSources' => 'Sources de données',
+			'settings.signatureAutoTranslate' => 'Traduire dans ma langue',
+			'settings.signatureAutoTranslateDesc' => 'Des sources comme Hitokoto ne proposent que du chinois pour l’instant. La phrase est traduite juste avant l’envoi.',
+			'settings.signatureWizardTitle' => 'Ajouter une source',
+			'settings.signatureWizardUrlTitle' => 'Adresse du point d\'accès',
+			'settings.signatureWizardUrlHint' => 'Indiquez une URL qui renvoie une ligne de texte. Le bouton ci-dessous l\'appelle vraiment, pour que vous voyiez ce qui revient.',
+			'settings.signatureWizardFetch' => 'Récupérer',
+			'settings.signatureWizardSkipTest' => 'Passer et juste renommer',
+			'settings.signatureWizardPickTitle' => 'Choisissez la partie voulue',
+			'settings.signatureWizardPickHint' => 'Voici ce qu\'a renvoyé ce point d\'accès. Touchez la ligne que votre signature doit afficher.',
+			'settings.signatureWizardPickPlainHint' => 'Ce point d\'accès a renvoyé du texte brut : c\'est l\'ensemble qui sera affiché.',
+			'settings.signatureWizardWholeBody' => 'Toute la réponse',
+			'settings.signatureWizardNameTitle' => 'Donnez-lui un nom',
+			'settings.signatureWizardNameHint' => 'Le nom n\'est que pour vous. C\'est le nom de référence ci-dessous que la signature utilise.',
+			'settings.signatureWizardNext' => 'Suivant',
+			'settings.signatureWizardDone' => 'Terminé',
+			'settings.signatureWizardStripHtml' => 'Retirer les balises HTML',
+			'settings.signatureWizardAdvanced' => 'Avancé : extraire avec un motif',
+			'settings.signatureWizardExtractHint' => 'Expression régulière ; le premier groupe capturant est utilisé',
+			'settings.signatureWizardExtractMissed' => 'Ce motif ne correspond à rien, le texte reste tel quel',
+			'settings.signatureWizardChooseTitle' => 'Choisissez une source',
+			'settings.signatureWizardChooseHint' => 'Touchez une source toute prête et c’est fini. Ou indiquez votre propre point d’accès.',
+			'settings.signatureWizardCustomSource' => 'Utiliser mon propre point d’accès',
+			'settings.signatureWizardWithOrigin' => 'Afficher la provenance',
+			'settings.signatureWizardRandomItem' => 'En prendre une différente à chaque fois',
+			'settings.signatureWizardSuffixTitle' => 'Ajouter un autre champ',
+			'settings.signatureWizardSuffixNone' => 'Rien',
+			'settings.signatureOptFlavor' => 'Contenu',
+			'settings.signatureOptFlavorAny' => 'Peu importe',
+			'settings.signatureOptFlavorOtaku' => 'Anime, manga et jeux',
+			'settings.signatureOptFlavorLiterary' => 'Littérature et poésie',
+			'settings.signatureOptFlavorMeme' => 'Culture internet',
+			'settings.signatureOptLength' => 'Longueur',
+			'settings.signatureOptLengthAny' => 'Peu importe',
+			'settings.signatureOptLengthShort' => 'Phrases courtes seulement',
+			'settings.signatureRestoreDefault' => 'Rétablir les valeurs par défaut',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (citation aléatoire)',
+			'settings.signatureVariablesGroup' => 'Variables intégrées',
+			'settings.signatureNeedsNetwork' => 'Nécessite le réseau',
+			'settings.signatureBuiltinSource' => 'Intégré',
+			'settings.signatureSourceIdReserved' => 'Ce nom est déjà celui d\'une variable intégrée',
+			'settings.signatureSourcesTitle' => 'Sources de données personnalisées',
+			'settings.signatureSourcesHint' => 'Indiquez une adresse qui renvoie une ligne de texte et vous pourrez la reprendre dans votre signature.',
+			'settings.signatureSourcesEmpty' => 'Aucune source de données',
+			'settings.signatureAddSource' => 'Ajouter',
+			'settings.signatureEditSource' => 'Modifier la source',
+			'settings.signatureSourceName' => 'Nom',
+			'settings.signatureSourceId' => 'Nom de référence',
+			'settings.signatureSourceIdHint' => 'Le nom sous lequel votre signature appelle cette source',
+			'settings.signatureSourceUrl' => 'URL du point d\'accès',
+			'settings.signatureSourcePath' => 'Chemin de la valeur',
+			'settings.signatureSourcePathHint' => 'Laissez vide si toute la réponse est le texte. Utilisez data.text pour extraire ce champ d\'une réponse JSON.',
+			'settings.signatureSourceTest' => 'Tester',
+			'settings.signatureSourceTestOk' => 'C\'est bon',
+			'settings.signatureSourceTestFailed' => 'Rien n\'est revenu',
+			'settings.signatureSourceIdInvalid' => 'Le nom de référence n\'accepte que minuscules, chiffres et tirets bas',
+			'settings.signatureSourceIdDuplicate' => 'Ce nom de référence est déjà pris',
+			'settings.signatureSourceUrlRequired' => 'Une URL est requise',
 			'settings.exportConfig' => 'Exporter la configuration de l\'app',
 			'settings.exportConfigDesc' => 'Exporter les paramètres et l\'historique (historique de navigation, progression de lecture, favoris, etc.) dans un fichier pour sauvegarde ou transfert vers un autre appareil. Les tâches de téléchargement ne sont pas incluses.',
 			'settings.importConfig' => 'Importer la configuration de l\'app',
@@ -5573,6 +5711,8 @@ extension on TranslationsFr {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Échec de l\'octroi de l\'autorisation de stockage ; certaines fonctions peuvent être limitées',
 			'settings.downloadSettings.storagePermissionRationale' => 'Pour enregistrer les téléchargements dans le dossier choisi, l\'app a besoin d\'un accès au stockage.\n\nSur Android 11 et versions ultérieures, cela correspond à l\'autorisation « Accès à tous les fichiers » ; sans elle, les fichiers sont enregistrés dans le dossier privé de l\'app.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Pour enregistrer les téléchargements dans le dossier choisi, l\'app a besoin d\'un accès au stockage.\n\nSans cela, les fichiers sont enregistrés dans le dossier privé de l\'app.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Accorder l\'autorisation de stockage',
 			'settings.downloadSettings.customDownloadPath' => 'Chemin de téléchargement personnalisé',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Une fois activé, vous pouvez choisir un emplacement d\'enregistrement personnalisé pour les fichiers téléchargés',
@@ -5642,8 +5782,6 @@ extension on TranslationsFr {
 			'settings.downloadSettings.testError' => 'Erreur',
 			'settings.downloadSettings.testPath' => 'Chemin de test',
 			'settings.downloadSettings.testBasePath' => 'Chemin de base',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Création de dossier',
 			'settings.downloadSettings.testFileWriting' => 'Écriture de fichier',
 			'settings.downloadSettings.testFileContent' => 'Contenu du fichier',
@@ -6087,6 +6225,8 @@ extension on TranslationsFr {
 			'markdown.listDescription' => 'Créez une liste ordonnée avec un chiffre suivi d\'un point, une liste non ordonnée avec -',
 			'markdown.listSyntax' => '1. Premier élément\n2. Deuxième élément\n\n- Élément non ordonné\n  - Sous-élément\n  - Autre sous-élément',
 			'markdown.linkAndImage' => 'Lien et image',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Format de lien : [texte](URL)\nFormat d\'image : ![description](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[texte du lien](${link})\n![description de l\'image](${imgUrl})',
 			'markdown.title' => 'Titre',
@@ -6156,8 +6296,6 @@ extension on TranslationsFr {
 			'forum.leafDescriptions.requests_zh' => 'Publiez vos demandes',
 			'forum.leafDescriptions.support_zh' => 'Aidez à résoudre les problèmes liés au site',
 			'forum.leafDescriptions.general_ja' => 'Discutez de tout sujet',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Posez vos questions',
 			'forum.leafDescriptions.requests_ja' => 'Publiez vos demandes',
 			'forum.leafDescriptions.support_ja' => 'Aidez à résoudre les problèmes liés au site',
@@ -6601,6 +6739,8 @@ extension on TranslationsFr {
 			'download.category.renameSuccess' => 'Catégorie renommée',
 			'download.category.renameFailed' => 'Échec du renommage de la catégorie',
 			'download.category.deleteTitle' => 'Supprimer la catégorie',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Supprimer la catégorie « ${title} » ? Les ${count} éléments qu\'elle contient passent dans Sans catégorie. Aucun fichier n\'est supprimé.',
 			'download.category.deleteSuccess' => 'Catégorie supprimée',
 			'download.category.deleteFailed' => 'Échec de la suppression de la catégorie',
@@ -6670,8 +6810,6 @@ extension on TranslationsFr {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsFr {
 			'diagnostics.schemaHealthRepairedBefore' => 'A déjà été réparé par le filet de sécurité',
 			'diagnostics.logPolicySectionTitle' => 'Politique de journalisation',
 			'diagnostics.configServiceUnavailable' => 'Le service de configuration n\'est pas initialisé. La politique de journalisation ne peut pas être modifiée.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Activer la journalisation',
 			'diagnostics.enableLoggingSubtitle' => 'Désactivez pour arrêter d\'écrire de nouveaux journaux',
 			'diagnostics.enableLogPersistenceTitle' => 'Activer la persistance des journaux',
@@ -7184,8 +7324,6 @@ extension on TranslationsFr {
 			'linkInputDialog.multipleLinksDetected' => 'Plusieurs liens détectés, veuillez en choisir un :',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Lien ${webName} non valide',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Erreur d\'analyse du lien : ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Lien non pris en charge',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Ce type de lien ne peut pas être ouvert directement dans l\'application et doit être consulté avec un navigateur externe.\n\nVoulez-vous ouvrir ce lien dans un navigateur ?',
 			'linkInputDialog.openInBrowser' => 'Ouvrir dans le navigateur',
@@ -7629,6 +7767,8 @@ extension on TranslationsFr {
 			'watchLater.emptyUnwatchedVideo' => 'Plus rien à regarder ici',
 			'watchLater.emptyUnwatchedGallery' => 'Plus rien à regarder ici',
 			'watchLater.queueLoadFailed' => 'Échec du chargement, touchez pour réessayer',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'J\'aime',
 			'mediaMenu.unlike' => 'Je n\'aime plus',
 			'mediaMenu.viewAuthor' => 'Voir l\'auteur',
@@ -7698,8 +7838,6 @@ extension on TranslationsFr {
 			'vrFormat.flatSideBySideDesc' => 'Un œil par moitié, gauche et droite ; affiche l\'œil gauche et rétablit ses proportions',
 			'vrFormat.flatTopBottom' => '3D haut-bas',
 			'vrFormat.flatTopBottomDesc' => 'Un œil par moitié, haut et bas ; affiche la moitié supérieure et rétablit ses proportions',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 côte à côte',
 			'vrFormat.vr180SideBySideDesc' => 'Panorama hémisphérique avec les deux yeux — la source VR la plus courante',
 			'vrFormat.vr180Mono' => 'VR180 mono',

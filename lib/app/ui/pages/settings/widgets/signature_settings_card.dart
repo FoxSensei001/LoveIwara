@@ -9,6 +9,8 @@ import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_variable_picker.dart';
 import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -23,12 +25,19 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class SignaturePreviewBlock extends StatelessWidget {
   const SignaturePreviewBlock({super.key, required this.signature});
 
+  /// 用户写的那句话，可以带 `{变量}`。
   final String signature;
 
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final cs = Theme.of(context).colorScheme;
+    // 数据源那几个变量在预览里保持原样（`{hitokoto}`），不会为了画一次预览
+    // 就去打别人的接口。真取一次的地方在设置页的数据源列表里。
+    final resolved = Get.find<SignatureService>().estimate(
+      signature,
+      padNetwork: false,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +64,7 @@ class SignaturePreviewBlock extends StatelessWidget {
             // 看不出它和正文之间是怎么隔开的。
             data: CommentMarkup.compose(
               body: t.settings.signatureSampleBody,
-              signature: signature,
+              signature: resolved,
             ),
             padding: EdgeInsets.zero,
             selectable: false,
@@ -200,9 +209,10 @@ class _SignatureEditSheetState extends State<SignatureEditSheet> {
     // 老配置里的小尾巴自带前导 `\n\n---`，分隔线现在由 CommentMarkup 统一补，
     // 进编辑框前先剥掉，免得用户看见一条自己没写过、改了还会出两条的横线。
     _controller = TextEditingController(
-      text: CommentMarkup.compose(body: '', signature: widget.initialContent)
-          .replaceFirst(RegExp(r'^-{3,}\s*\n*'), '')
-          .trim(),
+      text: CommentMarkup.compose(
+        body: '',
+        signature: widget.initialContent,
+      ).replaceFirst(RegExp(r'^-{3,}\s*\n*'), '').trim(),
     );
     _controller.addListener(() => setState(() {}));
 
@@ -216,6 +226,30 @@ class _SignatureEditSheetState extends State<SignatureEditSheet> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  /// 把一个变量插到光标处（有选区就替换掉选区）。
+  ///
+  /// ⛔ 不能只往末尾追加：用户想写「今天 {date} 在看…」时，变量该落在他停住
+  /// 的地方。`controller.text` 的 setter 会把 selection 置无效，所以整条
+  /// [TextEditingValue] 一起写，顺手把光标钉到插入内容之后。
+  Future<void> _pickVariable() async {
+    final token = await showSignatureVariablePicker(context);
+    if (token == null || !mounted) return;
+    _insertVariable(token);
+  }
+
+  void _insertVariable(String token) {
+    final value = _controller.value;
+    final selection = value.selection;
+    final start = selection.isValid ? selection.start : value.text.length;
+    final end = selection.isValid ? selection.end : value.text.length;
+
+    final next = value.text.replaceRange(start, end, token);
+    _controller.value = TextEditingValue(
+      text: next,
+      selection: TextSelection.collapsed(offset: start + token.length),
+    );
   }
 
   void _showEmojiPicker() {
@@ -257,49 +291,62 @@ class _SignatureEditSheetState extends State<SignatureEditSheet> {
               onClose: () => Navigator.of(context).pop(),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                GlassInputSurface(
-                  error: tooLong,
-                  child: EnhancedEmojiTextField(
-                    key: _emojiKey,
-                    controller: _controller,
-                    maxLines: 3,
-                    maxLength: _maxLength,
-                    decoration: glassFieldDecoration(
-                      context,
-                      hint: t.settings.enterSignature,
-                      errorText: tooLong
-                          ? t.errors.exceedsMaxLength(
-                              max: _maxLength.toString(),
-                            )
-                          : null,
+          // ⛔ 中间这段必须能滚。弹层外壳把键盘高度让在内容**里面**
+          // （`computeSheetBottomInset`），键盘一弹可用高度就少掉两三百，
+          // 而输入框 3 行 + 预览（随小尾巴内容长高，带变量时更高）+ 底栏
+          // 是定死的——真机报过 `RenderFlex overflowed by 193 pixels`。
+          //
+          // 让出的是**正文**，不是底栏：底栏上挂着确定 / 变量 / 表情，被挤出
+          // 屏幕就等于点不着。
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  GlassInputSurface(
+                    error: tooLong,
+                    child: EnhancedEmojiTextField(
+                      key: _emojiKey,
+                      controller: _controller,
+                      maxLines: 3,
+                      maxLength: _maxLength,
+                      decoration: glassFieldDecoration(
+                        context,
+                        hint: t.settings.enterSignature,
+                        errorText: tooLong
+                            ? t.errors.exceedsMaxLength(
+                                max: _maxLength.toString(),
+                              )
+                            : null,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 14),
-                // 边打边看：分隔线怎么来的、签名跟正文怎么隔开，都在这儿。
-                SignaturePreviewBlock(signature: _controller.text),
-                const SizedBox(height: 12),
-                // 与发评论那族共用同一条底栏。本编辑器不提供预览（上面那块
-                // 就是边打边看的实时预览），也不参与小尾巴自身。
-                GlassComposerBar(
-                  submitText: t.common.confirm,
-                  onSubmit: tooLong
-                      ? null
-                      : () => Navigator.of(context).pop(_controller.text.trim()),
-                  onEmoji: _showEmojiPicker,
-                  onMarkdownHelp: () => showGlassDraggableBottomSheet(
-                    context: context,
-                    builder: (context) => const MarkdownSyntaxHelp(),
-                  ),
-                  length: _controller.text.length,
-                  limit: _maxLength,
-                ),
-              ],
+                  const SizedBox(height: 14),
+                  // 边打边看：分隔线怎么来的、签名跟正文怎么隔开、变量会变成
+                  // 什么，都在这儿。
+                  SignaturePreviewBlock(signature: _controller.text),
+                ],
+              ),
+            ),
+          ),
+          // 与发评论那族共用同一条底栏。本编辑器不提供预览（上面那块就是
+          // 边打边看的实时预览），也不参与小尾巴自身。
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            child: GlassComposerBar(
+              submitText: t.common.confirm,
+              onSubmit: tooLong
+                  ? null
+                  : () => Navigator.of(context).pop(_controller.text.trim()),
+              onEmoji: _showEmojiPicker,
+              onInsertVariable: _pickVariable,
+              onMarkdownHelp: () => showGlassDraggableBottomSheet(
+                context: context,
+                builder: (context) => const MarkdownSyntaxHelp(),
+              ),
+              length: _controller.text.length,
+              limit: _maxLength,
             ),
           ),
         ],

@@ -895,6 +895,75 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'Здесь ваш текст';
 	@override String get signatureNotSet => 'Не задано';
 	@override String get signatureRuleHint => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.';
+	@override String get signatureInsertVariable => 'Вставить переменную';
+	@override String get varDate => 'Дата';
+	@override String get varTime => 'Время';
+	@override String get varDatetime => 'Дата и время';
+	@override String get varWeekday => 'День недели';
+	@override String get varApp => 'Название приложения';
+	@override String get varVersion => 'Версия';
+	@override String get varPlatform => 'Платформа';
+	@override String get varTitle => 'Что вы смотрите';
+	@override String get varAuthor => 'Его автор';
+	@override String get varPick => 'Случайная строка';
+	@override String get signatureSources => 'Источники данных';
+	@override String get signatureAutoTranslate => 'Переводить на мой язык';
+	@override String get signatureAutoTranslateDesc => 'Источники вроде Hitokoto пока отдают только китайский. Фраза переводится прямо перед отправкой.';
+	@override String get signatureWizardTitle => 'Добавить источник';
+	@override String get signatureWizardUrlTitle => 'Адрес запроса';
+	@override String get signatureWizardUrlHint => 'Укажите адрес, который возвращает строку текста. Кнопка ниже действительно обратится к нему, чтобы вы увидели ответ.';
+	@override String get signatureWizardFetch => 'Запросить';
+	@override String get signatureWizardSkipTest => 'Пропустить и только переименовать';
+	@override String get signatureWizardPickTitle => 'Выберите нужную часть';
+	@override String get signatureWizardPickHint => 'Вот что вернул этот адрес. Нажмите строку, которую должна показывать подпись.';
+	@override String get signatureWizardPickPlainHint => 'Ответ пришёл обычным текстом — он и будет показан целиком.';
+	@override String get signatureWizardWholeBody => 'Весь ответ';
+	@override String get signatureWizardNameTitle => 'Дайте ему имя';
+	@override String get signatureWizardNameHint => 'Имя нужно только вам. Подпись обращается к источнику по имени для ссылки ниже.';
+	@override String get signatureWizardNext => 'Далее';
+	@override String get signatureWizardDone => 'Готово';
+	@override String get signatureWizardStripHtml => 'Убрать HTML-теги';
+	@override String get signatureWizardAdvanced => 'Дополнительно: вытащить по шаблону';
+	@override String get signatureWizardExtractHint => 'Регулярное выражение; берётся первая группа';
+	@override String get signatureWizardExtractMissed => 'Шаблон ничего не нашёл — текст остался как есть';
+	@override String get signatureWizardChooseTitle => 'Выберите источник';
+	@override String get signatureWizardChooseHint => 'Нажмите на готовый — и всё. Либо укажите свой адрес.';
+	@override String get signatureWizardCustomSource => 'Свой адрес';
+	@override String get signatureWizardWithOrigin => 'Показывать источник цитаты';
+	@override String get signatureWizardRandomItem => 'Каждый раз брать другую';
+	@override String get signatureWizardSuffixTitle => 'Добавить ещё одно поле';
+	@override String get signatureWizardSuffixNone => 'Ничего';
+	@override String get signatureOptFlavor => 'Содержание';
+	@override String get signatureOptFlavorAny => 'Без ограничений';
+	@override String get signatureOptFlavorOtaku => 'Аниме, манга и игры';
+	@override String get signatureOptFlavorLiterary => 'Литература и поэзия';
+	@override String get signatureOptFlavorMeme => 'Интернет-культура';
+	@override String get signatureOptLength => 'Длина';
+	@override String get signatureOptLengthAny => 'Без ограничений';
+	@override String get signatureOptLengthShort => 'Только короткие';
+	@override String get signatureRestoreDefault => 'Вернуть по умолчанию';
+	@override String get signatureSourceHitokoto => 'Hitokoto (случайная цитата)';
+	@override String get signatureVariablesGroup => 'Встроенные переменные';
+	@override String get signatureNeedsNetwork => 'Нужна сеть';
+	@override String get signatureBuiltinSource => 'Встроенный';
+	@override String get signatureSourceIdReserved => 'Это имя занято встроенной переменной';
+	@override String get signatureSourcesTitle => 'Свои источники данных';
+	@override String get signatureSourcesHint => 'Укажите адрес, который возвращает строку текста, и её можно будет подставлять в подпись.';
+	@override String get signatureSourcesEmpty => 'Источников пока нет';
+	@override String get signatureAddSource => 'Добавить';
+	@override String get signatureEditSource => 'Изменить источник';
+	@override String get signatureSourceName => 'Название';
+	@override String get signatureSourceId => 'Имя для ссылки';
+	@override String get signatureSourceIdHint => 'Под этим именем подпись обращается к источнику';
+	@override String get signatureSourceUrl => 'Адрес запроса';
+	@override String get signatureSourcePath => 'Путь к значению';
+	@override String get signatureSourcePathHint => 'Оставьте пустым, если весь ответ — это текст. Укажите data.text, чтобы взять это поле из JSON.';
+	@override String get signatureSourceTest => 'Проверить';
+	@override String get signatureSourceTestOk => 'Получилось';
+	@override String get signatureSourceTestFailed => 'Ничего не пришло';
+	@override String get signatureSourceIdInvalid => 'В имени для ссылки допустимы только строчные буквы, цифры и подчёркивания';
+	@override String get signatureSourceIdDuplicate => 'Такое имя уже занято';
+	@override String get signatureSourceUrlRequired => 'Укажите адрес запроса';
 	@override String get exportConfig => 'Экспорт конфигурации';
 	@override String get exportConfigDesc => 'Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются.';
 	@override String get importConfig => 'Импорт конфигурации';
@@ -5312,6 +5381,75 @@ extension on TranslationsRu {
 			'settings.signatureSampleBody' => 'Здесь ваш текст',
 			'settings.signatureNotSet' => 'Не задано',
 			'settings.signatureRuleHint' => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.',
+			'settings.signatureInsertVariable' => 'Вставить переменную',
+			'settings.varDate' => 'Дата',
+			'settings.varTime' => 'Время',
+			'settings.varDatetime' => 'Дата и время',
+			'settings.varWeekday' => 'День недели',
+			'settings.varApp' => 'Название приложения',
+			'settings.varVersion' => 'Версия',
+			'settings.varPlatform' => 'Платформа',
+			'settings.varTitle' => 'Что вы смотрите',
+			'settings.varAuthor' => 'Его автор',
+			'settings.varPick' => 'Случайная строка',
+			'settings.signatureSources' => 'Источники данных',
+			'settings.signatureAutoTranslate' => 'Переводить на мой язык',
+			'settings.signatureAutoTranslateDesc' => 'Источники вроде Hitokoto пока отдают только китайский. Фраза переводится прямо перед отправкой.',
+			'settings.signatureWizardTitle' => 'Добавить источник',
+			'settings.signatureWizardUrlTitle' => 'Адрес запроса',
+			'settings.signatureWizardUrlHint' => 'Укажите адрес, который возвращает строку текста. Кнопка ниже действительно обратится к нему, чтобы вы увидели ответ.',
+			'settings.signatureWizardFetch' => 'Запросить',
+			'settings.signatureWizardSkipTest' => 'Пропустить и только переименовать',
+			'settings.signatureWizardPickTitle' => 'Выберите нужную часть',
+			'settings.signatureWizardPickHint' => 'Вот что вернул этот адрес. Нажмите строку, которую должна показывать подпись.',
+			'settings.signatureWizardPickPlainHint' => 'Ответ пришёл обычным текстом — он и будет показан целиком.',
+			'settings.signatureWizardWholeBody' => 'Весь ответ',
+			'settings.signatureWizardNameTitle' => 'Дайте ему имя',
+			'settings.signatureWizardNameHint' => 'Имя нужно только вам. Подпись обращается к источнику по имени для ссылки ниже.',
+			'settings.signatureWizardNext' => 'Далее',
+			'settings.signatureWizardDone' => 'Готово',
+			'settings.signatureWizardStripHtml' => 'Убрать HTML-теги',
+			'settings.signatureWizardAdvanced' => 'Дополнительно: вытащить по шаблону',
+			'settings.signatureWizardExtractHint' => 'Регулярное выражение; берётся первая группа',
+			'settings.signatureWizardExtractMissed' => 'Шаблон ничего не нашёл — текст остался как есть',
+			'settings.signatureWizardChooseTitle' => 'Выберите источник',
+			'settings.signatureWizardChooseHint' => 'Нажмите на готовый — и всё. Либо укажите свой адрес.',
+			'settings.signatureWizardCustomSource' => 'Свой адрес',
+			'settings.signatureWizardWithOrigin' => 'Показывать источник цитаты',
+			'settings.signatureWizardRandomItem' => 'Каждый раз брать другую',
+			'settings.signatureWizardSuffixTitle' => 'Добавить ещё одно поле',
+			'settings.signatureWizardSuffixNone' => 'Ничего',
+			'settings.signatureOptFlavor' => 'Содержание',
+			'settings.signatureOptFlavorAny' => 'Без ограничений',
+			'settings.signatureOptFlavorOtaku' => 'Аниме, манга и игры',
+			'settings.signatureOptFlavorLiterary' => 'Литература и поэзия',
+			'settings.signatureOptFlavorMeme' => 'Интернет-культура',
+			'settings.signatureOptLength' => 'Длина',
+			'settings.signatureOptLengthAny' => 'Без ограничений',
+			'settings.signatureOptLengthShort' => 'Только короткие',
+			'settings.signatureRestoreDefault' => 'Вернуть по умолчанию',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (случайная цитата)',
+			'settings.signatureVariablesGroup' => 'Встроенные переменные',
+			'settings.signatureNeedsNetwork' => 'Нужна сеть',
+			'settings.signatureBuiltinSource' => 'Встроенный',
+			'settings.signatureSourceIdReserved' => 'Это имя занято встроенной переменной',
+			'settings.signatureSourcesTitle' => 'Свои источники данных',
+			'settings.signatureSourcesHint' => 'Укажите адрес, который возвращает строку текста, и её можно будет подставлять в подпись.',
+			'settings.signatureSourcesEmpty' => 'Источников пока нет',
+			'settings.signatureAddSource' => 'Добавить',
+			'settings.signatureEditSource' => 'Изменить источник',
+			'settings.signatureSourceName' => 'Название',
+			'settings.signatureSourceId' => 'Имя для ссылки',
+			'settings.signatureSourceIdHint' => 'Под этим именем подпись обращается к источнику',
+			'settings.signatureSourceUrl' => 'Адрес запроса',
+			'settings.signatureSourcePath' => 'Путь к значению',
+			'settings.signatureSourcePathHint' => 'Оставьте пустым, если весь ответ — это текст. Укажите data.text, чтобы взять это поле из JSON.',
+			'settings.signatureSourceTest' => 'Проверить',
+			'settings.signatureSourceTestOk' => 'Получилось',
+			'settings.signatureSourceTestFailed' => 'Ничего не пришло',
+			'settings.signatureSourceIdInvalid' => 'В имени для ссылки допустимы только строчные буквы, цифры и подчёркивания',
+			'settings.signatureSourceIdDuplicate' => 'Такое имя уже занято',
+			'settings.signatureSourceUrlRequired' => 'Укажите адрес запроса',
 			'settings.exportConfig' => 'Экспорт конфигурации',
 			'settings.exportConfigDesc' => 'Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются.',
 			'settings.importConfig' => 'Импорт конфигурации',
@@ -5573,6 +5711,8 @@ extension on TranslationsRu {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Не удалось предоставить разрешение, некоторые функции могут быть ограничены',
 			'settings.downloadSettings.storagePermissionRationale' => 'Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nНа Android 11+ требуется «Доступ ко всем файлам»; без него файлы сохраняются в изолированную папку приложения.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Для сохранения в выбранную папку приложению нужен доступ к памяти.\n\nБез него файлы сохраняются в изолированную папку приложения.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Предоставить доступ',
 			'settings.downloadSettings.customDownloadPath' => 'Пользовательская папка загрузки',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Возможность выбрать свое место для сохранения файлов',
@@ -5642,8 +5782,6 @@ extension on TranslationsRu {
 			'settings.downloadSettings.testError' => 'Ошибка',
 			'settings.downloadSettings.testPath' => 'Тестовый путь',
 			'settings.downloadSettings.testBasePath' => 'Базовый путь',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Создание папки',
 			'settings.downloadSettings.testFileWriting' => 'Запись файла',
 			'settings.downloadSettings.testFileContent' => 'Содержимое файла',
@@ -6087,6 +6225,8 @@ extension on TranslationsRu {
 			'markdown.listDescription' => 'Нумерованный список создаётся цифрой с точкой, маркированный — знаком -',
 			'markdown.listSyntax' => '1. Первый пункт\n2. Второй пункт\n\n- Пункт маркированного списка\n  - Подпункт\n  - Ещё один подпункт',
 			'markdown.linkAndImage' => 'Ссылка и изображение',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Формат ссылки: [текст](URL)\nФормат изображения: ![описание](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[текст ссылки](${link})\n![описание изображения](${imgUrl})',
 			'markdown.title' => 'Заголовок',
@@ -6156,8 +6296,6 @@ extension on TranslationsRu {
 			'forum.leafDescriptions.requests_zh' => 'Публикуйте свои запросы',
 			'forum.leafDescriptions.support_zh' => 'Помощь в решении проблем, связанных с сайтом',
 			'forum.leafDescriptions.general_ja' => 'Обсуждение любых тем',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Задавайте свои вопросы',
 			'forum.leafDescriptions.requests_ja' => 'Публикуйте свои запросы',
 			'forum.leafDescriptions.support_ja' => 'Помощь в решении проблем, связанных с сайтом',
@@ -6601,6 +6739,8 @@ extension on TranslationsRu {
 			'download.category.renameSuccess' => 'Категория переименована',
 			'download.category.renameFailed' => 'Не удалось переименовать категорию',
 			'download.category.deleteTitle' => 'Удалить категорию',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Удалить категорию «${title}»? Элементы (${count}) перейдут в «Без категории». Файлы не удаляются.',
 			'download.category.deleteSuccess' => 'Категория удалена',
 			'download.category.deleteFailed' => 'Не удалось удалить категорию',
@@ -6670,8 +6810,6 @@ extension on TranslationsRu {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsRu {
 			'diagnostics.schemaHealthRepairedBefore' => 'Ранее была восстановлена защитным механизмом',
 			'diagnostics.logPolicySectionTitle' => 'Политика логов',
 			'diagnostics.configServiceUnavailable' => 'Служба конфигурации не инициализирована. Невозможно изменить политику логов.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Вести журнал',
 			'diagnostics.enableLoggingSubtitle' => 'Отключите, чтобы прекратить запись новых логов',
 			'diagnostics.enableLogPersistenceTitle' => 'Сохранять логи на диск',
@@ -7184,8 +7324,6 @@ extension on TranslationsRu {
 			'linkInputDialog.multipleLinksDetected' => 'Обнаружено несколько ссылок, выберите одну:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Недействительная ссылка ${webName}',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Ошибка разбора ссылки: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Неподдерживаемая ссылка',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Этот тип ссылки нельзя открыть напрямую в приложении, требуется внешний браузер.\n\nОткрыть эту ссылку в браузере?',
 			'linkInputDialog.openInBrowser' => 'Открыть в браузере',
@@ -7629,6 +7767,8 @@ extension on TranslationsRu {
 			'watchLater.emptyUnwatchedVideo' => 'Здесь больше нечего смотреть',
 			'watchLater.emptyUnwatchedGallery' => 'Здесь больше нечего смотреть',
 			'watchLater.queueLoadFailed' => 'Не удалось загрузить, нажмите для повтора',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'Нравится',
 			'mediaMenu.unlike' => 'Убрать отметку «Нравится»',
 			'mediaMenu.viewAuthor' => 'Открыть автора',
@@ -7698,8 +7838,6 @@ extension on TranslationsRu {
 			'vrFormat.flatSideBySideDesc' => 'По одному глазу на половину, слева и справа; показывает левый глаз и восстанавливает его соотношение сторон',
 			'vrFormat.flatTopBottom' => 'Стерео 3D (over-under)',
 			'vrFormat.flatTopBottomDesc' => 'По одному глазу на половину, сверху и снизу; показывает верхнюю половину и восстанавливает её соотношение сторон',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 стерео (side-by-side)',
 			'vrFormat.vr180SideBySideDesc' => 'Полусферическая панорама с двумя глазами — самый распространённый VR-источник',
 			'vrFormat.vr180Mono' => 'VR180 моно',

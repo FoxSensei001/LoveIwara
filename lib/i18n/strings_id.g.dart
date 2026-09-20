@@ -895,6 +895,75 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'Tulisan kamu di sini';
 	@override String get signatureNotSet => 'Belum diatur';
 	@override String get signatureRuleHint => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.';
+	@override String get signatureInsertVariable => 'Sisipkan variabel';
+	@override String get varDate => 'Tanggal';
+	@override String get varTime => 'Waktu';
+	@override String get varDatetime => 'Tanggal dan waktu';
+	@override String get varWeekday => 'Hari';
+	@override String get varApp => 'Nama aplikasi';
+	@override String get varVersion => 'Versi';
+	@override String get varPlatform => 'Platform';
+	@override String get varTitle => 'Yang sedang kamu tonton';
+	@override String get varAuthor => 'Pembuatnya';
+	@override String get varPick => 'Kalimat acak';
+	@override String get signatureSources => 'Sumber data';
+	@override String get signatureAutoTranslate => 'Terjemahkan ke bahasa saya';
+	@override String get signatureAutoTranslateDesc => 'Sumber seperti Hitokoto baru menyediakan bahasa Mandarin. Kalimatnya diterjemahkan tepat sebelum dikirim.';
+	@override String get signatureWizardTitle => 'Tambah sumber data';
+	@override String get signatureWizardUrlTitle => 'Alamat endpoint';
+	@override String get signatureWizardUrlHint => 'Masukkan alamat yang mengembalikan sebaris teks. Tombol di bawah benar-benar memanggilnya, jadi kamu bisa lihat apa yang kembali.';
+	@override String get signatureWizardFetch => 'Ambil dulu';
+	@override String get signatureWizardSkipTest => 'Lewati, cukup ganti nama';
+	@override String get signatureWizardPickTitle => 'Pilih bagian yang kamu mau';
+	@override String get signatureWizardPickHint => 'Ini yang dikembalikan endpoint tadi. Ketuk baris yang ingin ditampilkan tanda tanganmu.';
+	@override String get signatureWizardPickPlainHint => 'Endpoint ini mengembalikan teks biasa, jadi seluruhnya yang ditampilkan.';
+	@override String get signatureWizardWholeBody => 'Seluruh respons';
+	@override String get signatureWizardNameTitle => 'Beri nama';
+	@override String get signatureWizardNameHint => 'Nama hanya untukmu. Yang dipakai tanda tangan untuk menunjuk adalah nama rujukan di bawah.';
+	@override String get signatureWizardNext => 'Berikutnya';
+	@override String get signatureWizardDone => 'Selesai';
+	@override String get signatureWizardStripHtml => 'Hapus tag HTML';
+	@override String get signatureWizardAdvanced => 'Lanjutan: ambil dengan pola';
+	@override String get signatureWizardExtractHint => 'Ekspresi reguler; grup tangkap pertama yang dipakai';
+	@override String get signatureWizardExtractMissed => 'Pola itu tidak cocok, teksnya dibiarkan apa adanya';
+	@override String get signatureWizardChooseTitle => 'Pilih satu sumber';
+	@override String get signatureWizardChooseHint => 'Ketuk salah satu yang sudah siap pakai, selesai. Atau arahkan ke endpoint milikmu sendiri.';
+	@override String get signatureWizardCustomSource => 'Pakai endpoint sendiri';
+	@override String get signatureWizardWithOrigin => 'Tampilkan sumber kutipannya';
+	@override String get signatureWizardRandomItem => 'Ambil yang berbeda setiap kali';
+	@override String get signatureWizardSuffixTitle => 'Sambung dengan bidang lain';
+	@override String get signatureWizardSuffixNone => 'Tidak ada';
+	@override String get signatureOptFlavor => 'Isi';
+	@override String get signatureOptFlavorAny => 'Bebas';
+	@override String get signatureOptFlavorOtaku => 'Anime, manga & gim';
+	@override String get signatureOptFlavorLiterary => 'Sastra & puisi';
+	@override String get signatureOptFlavorMeme => 'Budaya internet';
+	@override String get signatureOptLength => 'Panjang';
+	@override String get signatureOptLengthAny => 'Bebas';
+	@override String get signatureOptLengthShort => 'Hanya kalimat pendek';
+	@override String get signatureRestoreDefault => 'Kembalikan ke bawaan';
+	@override String get signatureSourceHitokoto => 'Hitokoto (kutipan acak)';
+	@override String get signatureVariablesGroup => 'Variabel bawaan';
+	@override String get signatureNeedsNetwork => 'Perlu jaringan';
+	@override String get signatureBuiltinSource => 'Bawaan';
+	@override String get signatureSourceIdReserved => 'Nama itu sudah dipakai variabel bawaan';
+	@override String get signatureSourcesTitle => 'Sumber data sendiri';
+	@override String get signatureSourcesHint => 'Arahkan ke alamat yang mengembalikan sebaris teks, lalu kamu bisa memakainya di tanda tangan.';
+	@override String get signatureSourcesEmpty => 'Belum ada sumber data';
+	@override String get signatureAddSource => 'Tambah';
+	@override String get signatureEditSource => 'Edit sumber data';
+	@override String get signatureSourceName => 'Nama';
+	@override String get signatureSourceId => 'Nama rujukan';
+	@override String get signatureSourceIdHint => 'Nama yang dipakai tanda tangan untuk memanggil sumber ini';
+	@override String get signatureSourceUrl => 'Alamat endpoint';
+	@override String get signatureSourcePath => 'Jalur nilai';
+	@override String get signatureSourcePathHint => 'Kosongkan kalau seluruh respons memang teksnya. Pakai data.text untuk mengambil field itu dari respons JSON.';
+	@override String get signatureSourceTest => 'Uji';
+	@override String get signatureSourceTestOk => 'Berhasil diambil';
+	@override String get signatureSourceTestFailed => 'Tidak ada yang kembali';
+	@override String get signatureSourceIdInvalid => 'Nama rujukan hanya boleh huruf kecil, angka, dan garis bawah';
+	@override String get signatureSourceIdDuplicate => 'Nama rujukan itu sudah dipakai';
+	@override String get signatureSourceUrlRequired => 'Alamat endpoint wajib diisi';
 	@override String get exportConfig => 'Ekspor Konfigurasi Aplikasi';
 	@override String get exportConfigDesc => 'Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan.';
 	@override String get importConfig => 'Impor Konfigurasi Aplikasi';
@@ -5312,6 +5381,75 @@ extension on TranslationsId {
 			'settings.signatureSampleBody' => 'Tulisan kamu di sini',
 			'settings.signatureNotSet' => 'Belum diatur',
 			'settings.signatureRuleHint' => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.',
+			'settings.signatureInsertVariable' => 'Sisipkan variabel',
+			'settings.varDate' => 'Tanggal',
+			'settings.varTime' => 'Waktu',
+			'settings.varDatetime' => 'Tanggal dan waktu',
+			'settings.varWeekday' => 'Hari',
+			'settings.varApp' => 'Nama aplikasi',
+			'settings.varVersion' => 'Versi',
+			'settings.varPlatform' => 'Platform',
+			'settings.varTitle' => 'Yang sedang kamu tonton',
+			'settings.varAuthor' => 'Pembuatnya',
+			'settings.varPick' => 'Kalimat acak',
+			'settings.signatureSources' => 'Sumber data',
+			'settings.signatureAutoTranslate' => 'Terjemahkan ke bahasa saya',
+			'settings.signatureAutoTranslateDesc' => 'Sumber seperti Hitokoto baru menyediakan bahasa Mandarin. Kalimatnya diterjemahkan tepat sebelum dikirim.',
+			'settings.signatureWizardTitle' => 'Tambah sumber data',
+			'settings.signatureWizardUrlTitle' => 'Alamat endpoint',
+			'settings.signatureWizardUrlHint' => 'Masukkan alamat yang mengembalikan sebaris teks. Tombol di bawah benar-benar memanggilnya, jadi kamu bisa lihat apa yang kembali.',
+			'settings.signatureWizardFetch' => 'Ambil dulu',
+			'settings.signatureWizardSkipTest' => 'Lewati, cukup ganti nama',
+			'settings.signatureWizardPickTitle' => 'Pilih bagian yang kamu mau',
+			'settings.signatureWizardPickHint' => 'Ini yang dikembalikan endpoint tadi. Ketuk baris yang ingin ditampilkan tanda tanganmu.',
+			'settings.signatureWizardPickPlainHint' => 'Endpoint ini mengembalikan teks biasa, jadi seluruhnya yang ditampilkan.',
+			'settings.signatureWizardWholeBody' => 'Seluruh respons',
+			'settings.signatureWizardNameTitle' => 'Beri nama',
+			'settings.signatureWizardNameHint' => 'Nama hanya untukmu. Yang dipakai tanda tangan untuk menunjuk adalah nama rujukan di bawah.',
+			'settings.signatureWizardNext' => 'Berikutnya',
+			'settings.signatureWizardDone' => 'Selesai',
+			'settings.signatureWizardStripHtml' => 'Hapus tag HTML',
+			'settings.signatureWizardAdvanced' => 'Lanjutan: ambil dengan pola',
+			'settings.signatureWizardExtractHint' => 'Ekspresi reguler; grup tangkap pertama yang dipakai',
+			'settings.signatureWizardExtractMissed' => 'Pola itu tidak cocok, teksnya dibiarkan apa adanya',
+			'settings.signatureWizardChooseTitle' => 'Pilih satu sumber',
+			'settings.signatureWizardChooseHint' => 'Ketuk salah satu yang sudah siap pakai, selesai. Atau arahkan ke endpoint milikmu sendiri.',
+			'settings.signatureWizardCustomSource' => 'Pakai endpoint sendiri',
+			'settings.signatureWizardWithOrigin' => 'Tampilkan sumber kutipannya',
+			'settings.signatureWizardRandomItem' => 'Ambil yang berbeda setiap kali',
+			'settings.signatureWizardSuffixTitle' => 'Sambung dengan bidang lain',
+			'settings.signatureWizardSuffixNone' => 'Tidak ada',
+			'settings.signatureOptFlavor' => 'Isi',
+			'settings.signatureOptFlavorAny' => 'Bebas',
+			'settings.signatureOptFlavorOtaku' => 'Anime, manga & gim',
+			'settings.signatureOptFlavorLiterary' => 'Sastra & puisi',
+			'settings.signatureOptFlavorMeme' => 'Budaya internet',
+			'settings.signatureOptLength' => 'Panjang',
+			'settings.signatureOptLengthAny' => 'Bebas',
+			'settings.signatureOptLengthShort' => 'Hanya kalimat pendek',
+			'settings.signatureRestoreDefault' => 'Kembalikan ke bawaan',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (kutipan acak)',
+			'settings.signatureVariablesGroup' => 'Variabel bawaan',
+			'settings.signatureNeedsNetwork' => 'Perlu jaringan',
+			'settings.signatureBuiltinSource' => 'Bawaan',
+			'settings.signatureSourceIdReserved' => 'Nama itu sudah dipakai variabel bawaan',
+			'settings.signatureSourcesTitle' => 'Sumber data sendiri',
+			'settings.signatureSourcesHint' => 'Arahkan ke alamat yang mengembalikan sebaris teks, lalu kamu bisa memakainya di tanda tangan.',
+			'settings.signatureSourcesEmpty' => 'Belum ada sumber data',
+			'settings.signatureAddSource' => 'Tambah',
+			'settings.signatureEditSource' => 'Edit sumber data',
+			'settings.signatureSourceName' => 'Nama',
+			'settings.signatureSourceId' => 'Nama rujukan',
+			'settings.signatureSourceIdHint' => 'Nama yang dipakai tanda tangan untuk memanggil sumber ini',
+			'settings.signatureSourceUrl' => 'Alamat endpoint',
+			'settings.signatureSourcePath' => 'Jalur nilai',
+			'settings.signatureSourcePathHint' => 'Kosongkan kalau seluruh respons memang teksnya. Pakai data.text untuk mengambil field itu dari respons JSON.',
+			'settings.signatureSourceTest' => 'Uji',
+			'settings.signatureSourceTestOk' => 'Berhasil diambil',
+			'settings.signatureSourceTestFailed' => 'Tidak ada yang kembali',
+			'settings.signatureSourceIdInvalid' => 'Nama rujukan hanya boleh huruf kecil, angka, dan garis bawah',
+			'settings.signatureSourceIdDuplicate' => 'Nama rujukan itu sudah dipakai',
+			'settings.signatureSourceUrlRequired' => 'Alamat endpoint wajib diisi',
 			'settings.exportConfig' => 'Ekspor Konfigurasi Aplikasi',
 			'settings.exportConfigDesc' => 'Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan.',
 			'settings.importConfig' => 'Impor Konfigurasi Aplikasi',
@@ -5573,6 +5711,8 @@ extension on TranslationsId {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Pemberian Izin Penyimpanan Gagal Namun Beberapa Fitur Mungkin Terbatas',
 			'settings.downloadSettings.storagePermissionRationale' => 'Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nDi Android 11 dan yang lebih baru, ini berarti izin "Akses semua file"; tanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Untuk menyimpan unduhan ke folder yang Anda pilih, aplikasi memerlukan akses penyimpanan.\n\nTanpa izin itu, file disimpan ke folder privat aplikasi sebagai gantinya.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Beri Izin Penyimpanan',
 			'settings.downloadSettings.customDownloadPath' => 'Jalur Unduhan Kustom',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Saat diaktifkan, Anda dapat memilih lokasi penyimpanan kustom untuk file yang diunduh',
@@ -5642,8 +5782,6 @@ extension on TranslationsId {
 			'settings.downloadSettings.testError' => 'Kesalahan',
 			'settings.downloadSettings.testPath' => 'Jalur Uji',
 			'settings.downloadSettings.testBasePath' => 'Jalur Dasar',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Pembuatan Direktori',
 			'settings.downloadSettings.testFileWriting' => 'Penulisan File',
 			'settings.downloadSettings.testFileContent' => 'Isi File',
@@ -6087,6 +6225,8 @@ extension on TranslationsId {
 			'markdown.listDescription' => 'Buat daftar berurut dengan angka+titik, buat daftar tak berurut dengan -',
 			'markdown.listSyntax' => '1. Item pertama\n2. Item kedua\n\n- Item tak berurut\n  - Subitem\n  - Subitem lain',
 			'markdown.linkAndImage' => 'Tautan dan Gambar',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Format tautan: [teks](URL)\nFormat gambar: ![deskripsi](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[teks tautan](${link})\n![deskripsi gambar](${imgUrl})',
 			'markdown.title' => 'Judul',
@@ -6156,8 +6296,6 @@ extension on TranslationsId {
 			'forum.leafDescriptions.requests_zh' => 'Kirimkan permintaan Anda',
 			'forum.leafDescriptions.support_zh' => 'Bantuan untuk menyelesaikan masalah terkait situs web',
 			'forum.leafDescriptions.general_ja' => 'Bahas topik apa saja',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Ajukan pertanyaan Anda',
 			'forum.leafDescriptions.requests_ja' => 'Kirimkan permintaan Anda',
 			'forum.leafDescriptions.support_ja' => 'Bantuan untuk menyelesaikan masalah terkait situs web',
@@ -6601,6 +6739,8 @@ extension on TranslationsId {
 			'download.category.renameSuccess' => 'Nama kategori diubah',
 			'download.category.renameFailed' => 'Gagal mengganti nama kategori',
 			'download.category.deleteTitle' => 'Hapus kategori',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Hapus kategori "${title}"? ${count} item di dalamnya akan dipindahkan ke Tanpa Kategori. Tidak ada berkas yang dihapus.',
 			'download.category.deleteSuccess' => 'Kategori dihapus',
 			'download.category.deleteFailed' => 'Gagal menghapus kategori',
@@ -6670,8 +6810,6 @@ extension on TranslationsId {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsId {
 			'diagnostics.schemaHealthRepairedBefore' => 'Sebelumnya pernah diperbaiki oleh jaring pengaman',
 			'diagnostics.logPolicySectionTitle' => 'Kebijakan Log',
 			'diagnostics.configServiceUnavailable' => 'Layanan konfigurasi belum diinisialisasi. Kebijakan log tidak dapat disesuaikan.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Aktifkan pencatatan log',
 			'diagnostics.enableLoggingSubtitle' => 'Nonaktifkan untuk menghentikan penulisan log baru',
 			'diagnostics.enableLogPersistenceTitle' => 'Aktifkan persistensi log',
@@ -7184,8 +7324,6 @@ extension on TranslationsId {
 			'linkInputDialog.multipleLinksDetected' => 'Terdeteksi beberapa tautan, silakan pilih satu:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Bukan tautan ${webName} yang valid',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Kesalahan penguraian tautan: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Tautan Tidak Didukung',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Jenis tautan ini tidak dapat dibuka langsung di aplikasi dan perlu diakses menggunakan peramban eksternal.\n\nApakah Anda ingin membuka tautan ini di peramban?',
 			'linkInputDialog.openInBrowser' => 'Buka di Peramban',
@@ -7629,6 +7767,8 @@ extension on TranslationsId {
 			'watchLater.emptyUnwatchedVideo' => 'Tidak ada lagi yang bisa ditonton di sini',
 			'watchLater.emptyUnwatchedGallery' => 'Tidak ada lagi yang bisa dilihat di sini',
 			'watchLater.queueLoadFailed' => 'Gagal memuat, ketuk untuk mencoba lagi',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'Suka',
 			'mediaMenu.unlike' => 'Batal Suka',
 			'mediaMenu.viewAuthor' => 'Lihat penulis',
@@ -7698,8 +7838,6 @@ extension on TranslationsId {
 			'vrFormat.flatSideBySideDesc' => 'Satu mata per separuh, kiri dan kanan; menampilkan mata kiri dan memulihkan rasio aspeknya',
 			'vrFormat.flatTopBottom' => '3D atas-bawah',
 			'vrFormat.flatTopBottomDesc' => 'Satu mata per separuh, atas dan bawah; menampilkan separuh atas dan memulihkan rasio aspeknya',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 berdampingan',
 			'vrFormat.vr180SideBySideDesc' => 'Panorama hemisferis dengan kedua mata — sumber VR paling umum',
 			'vrFormat.vr180Mono' => 'VR180 mono',

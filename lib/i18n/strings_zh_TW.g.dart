@@ -895,6 +895,75 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => '這裡是你寫的正文';
 	@override String get signatureNotSet => '尚未設定';
 	@override String get signatureRuleHint => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。';
+	@override String get signatureInsertVariable => '插入變數';
+	@override String get varDate => '日期';
+	@override String get varTime => '時間';
+	@override String get varDatetime => '日期時間';
+	@override String get varWeekday => '星期';
+	@override String get varApp => '應用程式名稱';
+	@override String get varVersion => '版本號';
+	@override String get varPlatform => '平台';
+	@override String get varTitle => '正在看的作品';
+	@override String get varAuthor => '作品的作者';
+	@override String get varPick => '隨機一句';
+	@override String get signatureSources => '資料來源';
+	@override String get signatureAutoTranslate => '翻譯成我的語言';
+	@override String get signatureAutoTranslateDesc => '一言這類資料來源目前只有中文。開著的話，取回來的句子會在送出前先翻譯一遍。';
+	@override String get signatureWizardTitle => '接一個資料來源';
+	@override String get signatureWizardUrlTitle => '介面網址';
+	@override String get signatureWizardUrlHint => '填一個打開後會回傳一句話的網址。點下面的按鈕會真的請求一次，看看它回傳什麼。';
+	@override String get signatureWizardFetch => '請求一次';
+	@override String get signatureWizardSkipTest => '跳過，只改名稱';
+	@override String get signatureWizardPickTitle => '挑一段內容';
+	@override String get signatureWizardPickHint => '這是剛才那個介面回傳的東西。點中哪一條，小尾巴裡就顯示哪一條。';
+	@override String get signatureWizardPickPlainHint => '這個介面直接回傳了一段文字，整段就是要顯示的內容。';
+	@override String get signatureWizardWholeBody => '整段內容';
+	@override String get signatureWizardNameTitle => '取個名稱';
+	@override String get signatureWizardNameHint => '名稱只是方便你自己辨認。下面那個引用名稱，才是小尾巴裡用來指向它的詞。';
+	@override String get signatureWizardNext => '下一步';
+	@override String get signatureWizardDone => '完成';
+	@override String get signatureWizardStripHtml => '去掉 HTML 標籤';
+	@override String get signatureWizardAdvanced => '進階：用正規表示式擷取';
+	@override String get signatureWizardExtractHint => '正規表示式，取第一個擷取群組';
+	@override String get signatureWizardExtractMissed => '這條規則沒有比對到，先按原樣使用';
+	@override String get signatureWizardChooseTitle => '挑一個';
+	@override String get signatureWizardChooseHint => '點現成的那幾條就用上了。也可以填自己的介面網址。';
+	@override String get signatureWizardCustomSource => '自己填介面網址';
+	@override String get signatureWizardWithOrigin => '帶上出處';
+	@override String get signatureWizardRandomItem => '每次隨機取一條';
+	@override String get signatureWizardSuffixTitle => '再接一段';
+	@override String get signatureWizardSuffixNone => '不接';
+	@override String get signatureOptFlavor => '內容';
+	@override String get signatureOptFlavorAny => '不限';
+	@override String get signatureOptFlavorOtaku => '二次元';
+	@override String get signatureOptFlavorLiterary => '文學詩詞';
+	@override String get signatureOptFlavorMeme => '網路流行';
+	@override String get signatureOptLength => '長度';
+	@override String get signatureOptLengthAny => '不限';
+	@override String get signatureOptLengthShort => '只要短句';
+	@override String get signatureRestoreDefault => '恢復預設';
+	@override String get signatureSourceHitokoto => '一言';
+	@override String get signatureVariablesGroup => '內建變數';
+	@override String get signatureNeedsNetwork => '需要連網';
+	@override String get signatureBuiltinSource => '內建';
+	@override String get signatureSourceIdReserved => '這個名稱被內建變數佔用了';
+	@override String get signatureSourcesTitle => '自訂資料來源';
+	@override String get signatureSourcesHint => '填一個會回傳一句話的介面網址，就能把它接進小尾巴。';
+	@override String get signatureSourcesEmpty => '還沒有資料來源';
+	@override String get signatureAddSource => '新增';
+	@override String get signatureEditSource => '編輯資料來源';
+	@override String get signatureSourceName => '名稱';
+	@override String get signatureSourceId => '引用名稱';
+	@override String get signatureSourceIdHint => '小尾巴裡用這個名稱引用它';
+	@override String get signatureSourceUrl => '介面網址';
+	@override String get signatureSourcePath => '取值路徑';
+	@override String get signatureSourcePathHint => '留空表示整個回傳內容就是那句話；填 data.text 表示取 JSON 裡的那個欄位。';
+	@override String get signatureSourceTest => '測試';
+	@override String get signatureSourceTestOk => '取到了';
+	@override String get signatureSourceTestFailed => '什麼也沒取到';
+	@override String get signatureSourceIdInvalid => '引用名稱只能用小寫字母、數字和底線';
+	@override String get signatureSourceIdDuplicate => '這個引用名稱已經被用了';
+	@override String get signatureSourceUrlRequired => '請填介面網址';
 	@override String get exportConfig => '匯出應用配置';
 	@override String get exportConfigDesc => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。';
 	@override String get importConfig => '匯入應用配置';
@@ -5312,6 +5381,75 @@ extension on TranslationsZhTw {
 			'settings.signatureSampleBody' => '這裡是你寫的正文',
 			'settings.signatureNotSet' => '尚未設定',
 			'settings.signatureRuleHint' => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。',
+			'settings.signatureInsertVariable' => '插入變數',
+			'settings.varDate' => '日期',
+			'settings.varTime' => '時間',
+			'settings.varDatetime' => '日期時間',
+			'settings.varWeekday' => '星期',
+			'settings.varApp' => '應用程式名稱',
+			'settings.varVersion' => '版本號',
+			'settings.varPlatform' => '平台',
+			'settings.varTitle' => '正在看的作品',
+			'settings.varAuthor' => '作品的作者',
+			'settings.varPick' => '隨機一句',
+			'settings.signatureSources' => '資料來源',
+			'settings.signatureAutoTranslate' => '翻譯成我的語言',
+			'settings.signatureAutoTranslateDesc' => '一言這類資料來源目前只有中文。開著的話，取回來的句子會在送出前先翻譯一遍。',
+			'settings.signatureWizardTitle' => '接一個資料來源',
+			'settings.signatureWizardUrlTitle' => '介面網址',
+			'settings.signatureWizardUrlHint' => '填一個打開後會回傳一句話的網址。點下面的按鈕會真的請求一次，看看它回傳什麼。',
+			'settings.signatureWizardFetch' => '請求一次',
+			'settings.signatureWizardSkipTest' => '跳過，只改名稱',
+			'settings.signatureWizardPickTitle' => '挑一段內容',
+			'settings.signatureWizardPickHint' => '這是剛才那個介面回傳的東西。點中哪一條，小尾巴裡就顯示哪一條。',
+			'settings.signatureWizardPickPlainHint' => '這個介面直接回傳了一段文字，整段就是要顯示的內容。',
+			'settings.signatureWizardWholeBody' => '整段內容',
+			'settings.signatureWizardNameTitle' => '取個名稱',
+			'settings.signatureWizardNameHint' => '名稱只是方便你自己辨認。下面那個引用名稱，才是小尾巴裡用來指向它的詞。',
+			'settings.signatureWizardNext' => '下一步',
+			'settings.signatureWizardDone' => '完成',
+			'settings.signatureWizardStripHtml' => '去掉 HTML 標籤',
+			'settings.signatureWizardAdvanced' => '進階：用正規表示式擷取',
+			'settings.signatureWizardExtractHint' => '正規表示式，取第一個擷取群組',
+			'settings.signatureWizardExtractMissed' => '這條規則沒有比對到，先按原樣使用',
+			'settings.signatureWizardChooseTitle' => '挑一個',
+			'settings.signatureWizardChooseHint' => '點現成的那幾條就用上了。也可以填自己的介面網址。',
+			'settings.signatureWizardCustomSource' => '自己填介面網址',
+			'settings.signatureWizardWithOrigin' => '帶上出處',
+			'settings.signatureWizardRandomItem' => '每次隨機取一條',
+			'settings.signatureWizardSuffixTitle' => '再接一段',
+			'settings.signatureWizardSuffixNone' => '不接',
+			'settings.signatureOptFlavor' => '內容',
+			'settings.signatureOptFlavorAny' => '不限',
+			'settings.signatureOptFlavorOtaku' => '二次元',
+			'settings.signatureOptFlavorLiterary' => '文學詩詞',
+			'settings.signatureOptFlavorMeme' => '網路流行',
+			'settings.signatureOptLength' => '長度',
+			'settings.signatureOptLengthAny' => '不限',
+			'settings.signatureOptLengthShort' => '只要短句',
+			'settings.signatureRestoreDefault' => '恢復預設',
+			'settings.signatureSourceHitokoto' => '一言',
+			'settings.signatureVariablesGroup' => '內建變數',
+			'settings.signatureNeedsNetwork' => '需要連網',
+			'settings.signatureBuiltinSource' => '內建',
+			'settings.signatureSourceIdReserved' => '這個名稱被內建變數佔用了',
+			'settings.signatureSourcesTitle' => '自訂資料來源',
+			'settings.signatureSourcesHint' => '填一個會回傳一句話的介面網址，就能把它接進小尾巴。',
+			'settings.signatureSourcesEmpty' => '還沒有資料來源',
+			'settings.signatureAddSource' => '新增',
+			'settings.signatureEditSource' => '編輯資料來源',
+			'settings.signatureSourceName' => '名稱',
+			'settings.signatureSourceId' => '引用名稱',
+			'settings.signatureSourceIdHint' => '小尾巴裡用這個名稱引用它',
+			'settings.signatureSourceUrl' => '介面網址',
+			'settings.signatureSourcePath' => '取值路徑',
+			'settings.signatureSourcePathHint' => '留空表示整個回傳內容就是那句話；填 data.text 表示取 JSON 裡的那個欄位。',
+			'settings.signatureSourceTest' => '測試',
+			'settings.signatureSourceTestOk' => '取到了',
+			'settings.signatureSourceTestFailed' => '什麼也沒取到',
+			'settings.signatureSourceIdInvalid' => '引用名稱只能用小寫字母、數字和底線',
+			'settings.signatureSourceIdDuplicate' => '這個引用名稱已經被用了',
+			'settings.signatureSourceUrlRequired' => '請填介面網址',
 			'settings.exportConfig' => '匯出應用配置',
 			'settings.exportConfigDesc' => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。',
 			'settings.importConfig' => '匯入應用配置',
@@ -5573,6 +5711,8 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '儲存權限授權失敗，部分功能可能受限',
 			'settings.downloadSettings.storagePermissionRationale' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\nAndroid 11 以上需要授予「所有檔案存取權」才能寫入公共目錄；未授予時，檔案會儲存到應用程式專用目錄。',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '為了把檔案下載到你選擇的位置，應用程式需要儲存權限。\n\n未授予時，檔案會儲存到應用程式專用目錄。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => '授權儲存權限',
 			'settings.downloadSettings.customDownloadPath' => '自訂下載位置',
 			'settings.downloadSettings.customDownloadPathDescription' => '啟用後可以為下載的檔案選擇自訂儲存位置',
@@ -5642,8 +5782,6 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.testError' => '錯誤',
 			'settings.downloadSettings.testPath' => '測試路徑',
 			'settings.downloadSettings.testBasePath' => '基礎路徑',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '目錄建立',
 			'settings.downloadSettings.testFileWriting' => '檔案寫入',
 			'settings.downloadSettings.testFileContent' => '檔案內容',
@@ -6087,6 +6225,8 @@ extension on TranslationsZhTw {
 			'share.shareAsImageFailed' => '分享影片封面為圖片失敗，請稍後再試',
 			'share.shareAsTextFailed' => '分享影片詳情為文字失敗，請稍後再試',
 			'share.shareVideo' => '分享影片',
+			_ => null,
+		} ?? switch (path) {
 			'share.authorIs' => '作者是',
 			'share.shareGallery' => '分享圖庫',
 			'share.galleryTitleIs' => '圖庫名字叫做',
@@ -6156,8 +6296,6 @@ extension on TranslationsZhTw {
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => '全球',
 			'forum.groups.chinese' => '中文',
-			_ => null,
-		} ?? switch (path) {
 			'forum.groups.japanese' => '日語',
 			'forum.groups.korean' => '韓語',
 			'forum.groups.other' => '其他',
@@ -6601,6 +6739,8 @@ extension on TranslationsZhTw {
 			'download.relocation.statChecked' => '已檢查',
 			'download.relocation.statMissing' => '找不到',
 			'download.relocation.statKeep' => '建議保留',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.cleanupGroupGone' => '檔案已不在',
 			'download.relocation.cleanupGroupRecoverable' => '可能還能找回',
 			'download.relocation.cleanupRecoverableHint' => '儲存空間未連接、沒有權限、或可能被改了名，預設不選。點開單項可查看詳情並找回。',
@@ -6670,8 +6810,6 @@ extension on TranslationsZhTw {
 			'download.location.sheetTitle' => '選擇下載位置',
 			'download.location.chooseOtherFolder' => '選擇其他資料夾…',
 			'download.location.chooseOtherFolderDesc' => '用系統檔案選擇器挑一個',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.optionRecommendedDesc' => '推薦 · 無需授權',
 			'download.location.optionRecommendedLegacyDesc' => '推薦 · 需要儲存權限',
 			'download.location.optionAppPrivateDesc' => '解除安裝時刪除 · 相簿看不到',
@@ -7115,6 +7253,8 @@ extension on TranslationsZhTw {
 			'crashRecoveryDialog.previousStart' => ({required Object time}) => '上次啟動: ${time}',
 			'crashRecoveryDialog.lastException' => ({required Object message}) => '最後異常: ${message}',
 			'crashRecoveryDialog.lastHangRecovered' => '上次偵測到介面卡頓，已自動恢復',
+			_ => null,
+		} ?? switch (path) {
 			'crashRecoveryDialog.lastHangStalled' => ({required Object stalledMs}) => '上次偵測到介面可能假死，持續約 ${stalledMs}ms',
 			'crashRecoveryDialog.exportGuide' => '請前往 設定 > 診斷與回饋 > 匯出日誌。',
 			'crashRecoveryDialog.privacyHint' => '日誌可能包含隱私資訊，請先檢查後再透過郵件傳送至：',
@@ -7184,8 +7324,6 @@ extension on TranslationsZhTw {
 			'log.selectMergeRangeHint' => '請選擇要合併的日誌時間範圍',
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 天',
 			'log.logStats' => '日誌統計資訊',
-			_ => null,
-		} ?? switch (path) {
 			'log.todayLogs' => ({required Object count}) => '今日日誌: ${count} 條',
 			'log.recent7DaysLogs' => ({required Object count}) => '最近7天: ${count} 條',
 			'log.totalLogs' => ({required Object count}) => '總計日誌: ${count} 條',
@@ -7629,6 +7767,8 @@ extension on TranslationsZhTw {
 			'watchLater.emptyUnwatchedVideo' => '沒有未看完的影片',
 			'watchLater.emptyUnwatchedGallery' => '沒有未看完的圖庫',
 			'watchLater.queueLoadFailed' => '載入失敗，點擊重試',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => '按讚',
 			'mediaMenu.unlike' => '取消按讚',
 			'mediaMenu.viewAuthor' => '檢視作者主頁',
@@ -7698,8 +7838,6 @@ extension on TranslationsZhTw {
 			'vrFormat.flatSideBySideDesc' => '一幀裡左右各一隻眼，只顯示左眼並還原比例',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '一幀裡上下各一隻眼，只顯示上半幅並還原比例',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右雙眼，最常見的 VR 片源',
 			'vrFormat.vr180Mono' => 'VR180 單目',

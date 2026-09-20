@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
@@ -32,6 +33,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
   int _currentTitleLength = 0;
   int _currentBodyLength = 0;
   final ConfigService _configService = Get.find<ConfigService>();
+  final SignatureService _signatureService = Get.find<SignatureService>();
   late EmojiSize _selectedEmojiSize;
 
   /// 本次发帖要不要带小尾巴。初值取设置，可在工具行当场改；改的是这一次，
@@ -83,14 +85,23 @@ class _PostInputDialogState extends State<PostInputDialog> {
     super.dispose();
   }
 
-  /// 真正会被发出去的正文（含小尾巴）。字数统计 / 预览 / 提交三处都读它——
-  /// 服务端卡的是最终文本，只数输入框里的字会让人在提交那一刻才发现超了。
-  String _composedBody() => CommentMarkup.compose(
+  /// 会被发出去的正文（含小尾巴）的**估算**样子。字数统计与预览读它。
+  ///
+  /// 小尾巴里的网络变量（一言 / 自定义源）在这里只取上次的缓存值——每敲一个
+  /// 字都要重算一遍长度，不可能为它去等请求。真发送那一份见 [_handleSubmit]。
+  String _composedBody({bool padNetwork = true}) => CommentMarkup.compose(
     body: _bodyController.text,
     signature: _signatureEnabled
-        ? _configService[ConfigKey.SIGNATURE_CONTENT_KEY]
+        ? _signatureService.estimate(
+            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+            context: _signatureContext,
+            padNetwork: padNetwork,
+          )
         : null,
   );
+
+  SignatureContext get _signatureContext =>
+      SignatureContext(title: _titleController.text);
 
   /// 用户配过小尾巴的内容没有。
   ///
@@ -106,7 +117,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
   void _showPreview() {
     MarkdownPreviewHelper.showPreviewWithTitle(
       context,
-      _composedBody(),
+      _composedBody(padNetwork: false),
       _titleController.text,
     );
   }
@@ -162,7 +173,19 @@ class _PostInputDialogState extends State<PostInputDialog> {
     setState(() {
       _isLoading = true;
     });
-    await widget.onSubmit(_titleController.text, _composedBody());
+    // 小尾巴在这里才现求值：带网络变量时要等一次请求，超时与失败兜底都在
+    // SignatureService 里（最坏是小尾巴少一段，不会卡住发帖）。
+    final signature = _signatureEnabled
+        ? await _signatureService.render(
+            _configService[ConfigKey.SIGNATURE_CONTENT_KEY] as String,
+            context: _signatureContext,
+          )
+        : null;
+    await widget.onSubmit(
+      _titleController.text,
+      CommentMarkup.compose(body: _bodyController.text, signature: signature),
+    );
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
     });

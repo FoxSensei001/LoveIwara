@@ -10,6 +10,7 @@ import 'package:i_iwara/db/database_service.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:sqlite3/common.dart';
 import 'dart:convert';
+import 'dart:ui' as ui;
 
 class ConfigService extends GetxService {
   static const screenshotChannel = MethodChannel('i_iwara/screenshot');
@@ -438,7 +439,10 @@ enum ConfigKey {
   DEEPLX_DL_SESSION, // Pro 模式需要的 dl_session
   RECENT_EMOJIS_KEY, // 最近用过的表情（JSON 字符串数组）
   ENABLE_SIGNATURE_KEY, // 是否启用小尾巴
-  SIGNATURE_CONTENT_KEY, // 小尾巴内容
+  SIGNATURE_CONTENT_KEY, // 小尾巴内容（可以带 {变量}，发送那一刻求值）
+  SIGNATURE_CUSTOM_SOURCES_KEY, // 小尾巴的自定义数据源列表（JSON）
+  SIGNATURE_VALUE_CACHE_KEY, // 小尾巴网络变量上一次成功取到的值（JSON）
+  SIGNATURE_AUTO_TRANSLATE_KEY, // 小尾巴取回的话是否自动翻译成界面语言
   ENABLE_VIBRATION, // 是否开启震动
   SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN, // 是否在工具栏隐藏时显示进度条
   SHOW_FULLSCREEN_UP_NEXT_HINT, // 是否显示播放器右缘那枚「接着看」把手（**不限全屏**；它是视频池抽屉的唯一入口）
@@ -703,6 +707,12 @@ extension ConfigKeyExtension on ConfigKey {
         return 'enable_signature';
       case ConfigKey.SIGNATURE_CONTENT_KEY:
         return 'signature_content';
+      case ConfigKey.SIGNATURE_CUSTOM_SOURCES_KEY:
+        return 'signature_custom_sources';
+      case ConfigKey.SIGNATURE_VALUE_CACHE_KEY:
+        return 'signature_value_cache';
+      case ConfigKey.SIGNATURE_AUTO_TRANSLATE_KEY:
+        return 'signature_auto_translate';
       case ConfigKey.ENABLE_VIBRATION:
         return 'enable_vibration';
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:
@@ -843,6 +853,11 @@ extension ConfigKeyExtension on ConfigKey {
         return 'default_blacklist_reminder_seen_users';
     }
   }
+
+  /// 设备语言是不是中文（简繁都算）。见 SIGNATURE_AUTO_TRANSLATE_KEY 的默认值。
+
+  static bool get _deviceSpeaksChinese =>
+      ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase() == 'zh';
 
   dynamic get defaultValue {
     switch (this) {
@@ -1028,6 +1043,24 @@ extension ConfigKeyExtension on ConfigKey {
         // 补——让它跟在用户能编辑的内容里，正是旧版语法被改坏的入口。
         // 老用户配置里带 '\n\n---' 的值照常能用，compose 与编辑器都会剥掉。
         return 'Sent from ${CommonConstants.applicationNickname}';
+      case ConfigKey.SIGNATURE_CUSTOM_SOURCES_KEY:
+        // `[{"id":"weather","name":"天气","url":"...","path":"data.text"}]`
+        return '[]';
+      case ConfigKey.SIGNATURE_VALUE_CACHE_KEY:
+        // 网络变量上一次成功取到的值。存它只为一件事：冷启动后第一条评论正好
+        // 断网时，小尾巴还有句话可发，而不是凭空缺一块。
+        return '{}';
+      case ConfigKey.SIGNATURE_AUTO_TRANSLATE_KEY:
+        // ⭐ 默认值看**设备语言**：一言这类数据源目前只有中文，对中文之外的
+        // 用户来说，不翻译等于小尾巴上挂一句看不懂的话，所以默认就开着。
+        //
+        // ⛔ 这个默认只在**第一次启动**那一刻生效：`_loadSettings` 发现库里
+        // 没有这一行就把默认值写进去，之后读的一直是库里那份。所以用户后来
+        // 换界面语言不会把他手动关掉的开关又翻回来。
+        //
+        // 读设备语言而不是界面语言：本方法在 `ConfigService.init` 里就被调到，
+        // 那时 slang 还没按配置切过语言（界面语言本身就存在这份配置里）。
+        return !_deviceSpeaksChinese;
       case ConfigKey.ENABLE_VIBRATION:
         return true;
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:

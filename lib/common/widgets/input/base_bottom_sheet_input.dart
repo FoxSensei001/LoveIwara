@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -34,6 +35,10 @@ class BaseBottomSheetInput extends StatefulWidget {
   /// 本弹窗是否参与小尾巴，透传给 [BaseInputWidget.allowSignature]。
   final bool allowSignature;
 
+  /// 小尾巴里 `{title}` `{author}` 的取值，透传给
+  /// [BaseInputWidget.signatureContext]。
+  final SignatureContext signatureContext;
+
   /// 标题行要不要那枚跳设置的齿轮。
   ///
   /// 评论 / 回复 / 发帖这一族要（用户正对着小尾巴开关，改内容该一步到位）；
@@ -62,6 +67,7 @@ class BaseBottomSheetInput extends StatefulWidget {
     this.submitText,
     this.quote,
     this.allowSignature = true,
+    this.signatureContext = SignatureContext.empty,
     this.showSettingsShortcut = true,
   });
 
@@ -157,6 +163,7 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
               submitText: widget.submitText,
               quote: widget.quote,
               allowSignature: widget.allowSignature,
+              signatureContext: widget.signatureContext,
             ),
           ),
         ],

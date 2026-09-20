@@ -33,6 +33,7 @@
 /// 挪到**发送时**做：写死进发出去的原文，两端从此看到同一个排版。
 library;
 
+import 'package:i_iwara/app/utils/signature_template.dart';
 import 'package:i_iwara/common/constants.dart';
 
 /// 一条回复所指向的楼层。
@@ -332,8 +333,15 @@ class CommentMarkup {
   ///
   /// [knownSignature] 逐字对上时直接放行，不走上面的启发式——自己发的评论
   /// 我们知道确切答案，没必要猜。
+  ///
+  /// 小尾巴带 `{变量}` 时逐字是对不上的（每条发出去的都不一样），改用模板编译
+  /// 出的骨架正则去认；骨架太短（整条都是变量）会退回下面的启发式，理由见
+  /// [SignatureTemplate.toMatchPattern]。
   static int? _detectFooter(List<String> lines, {String? knownSignature}) {
     final expected = _stripLeadingThematicBreak(knownSignature?.trim() ?? '');
+    final expectedPattern = expected.isEmpty
+        ? null
+        : SignatureTemplate.matchPatternOf(expected);
 
     for (var i = lines.length - 1; i > 0; i--) {
       if (!_thematicBreakPattern.hasMatch(lines[i])) continue;
@@ -345,6 +353,7 @@ class CommentMarkup {
       if (lines.sublist(0, i).join('\n').trim().isEmpty) return null;
 
       if (expected.isNotEmpty && tail == expected) return i;
+      if (expectedPattern != null && expectedPattern.hasMatch(tail)) return i;
 
       if (tail.contains('\n')) return null;
       if (tail.length > _footerMaxChars) return null;

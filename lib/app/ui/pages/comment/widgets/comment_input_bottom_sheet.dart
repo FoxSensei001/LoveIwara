@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
@@ -9,6 +10,10 @@ class CommentInputBottomSheet extends StatefulWidget {
   final String submitText;
   final int maxLength;
 
+  /// 正在评论的是哪个作品：小尾巴里的 `{title}` `{author}` 从这里取值。
+  /// 不给就是两个空变量，写了也只会静静消失。
+  final SignatureContext signatureContext;
+
   const CommentInputBottomSheet({
     super.key,
     this.initialText,
@@ -16,16 +21,16 @@ class CommentInputBottomSheet extends StatefulWidget {
     required this.title,
     required this.submitText,
     this.maxLength = 1000,
+    this.signatureContext = SignatureContext.empty,
   });
 
   @override
-  State<CommentInputBottomSheet> createState() => _CommentInputBottomSheetState();
+  State<CommentInputBottomSheet> createState() =>
+      _CommentInputBottomSheetState();
 }
 
 class _CommentInputBottomSheetState extends State<CommentInputBottomSheet> {
   bool _isLoading = false;
-
-
 
   void _handleSubmit(String text) async {
     setState(() {
@@ -40,13 +45,13 @@ class _CommentInputBottomSheetState extends State<CommentInputBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final t = slang.t;
-    
+
     return BaseBottomSheetInput(
       title: widget.title,
       hintText: t.common.writeYourCommentHere,
       maxLength: widget.maxLength,
       maxLines: 5,
-      showEmojiPicker: true,  // 启用表情包功能
+      showEmojiPicker: true, // 启用表情包功能
       showTranslation: true,
       showMarkdownHelp: true,
       showPreview: true,
@@ -56,6 +61,7 @@ class _CommentInputBottomSheetState extends State<CommentInputBottomSheet> {
       initialContent: widget.initialText,
       titleIcon: Icons.edit_outlined,
       submitText: widget.submitText,
+      signatureContext: widget.signatureContext,
     );
   }
 }

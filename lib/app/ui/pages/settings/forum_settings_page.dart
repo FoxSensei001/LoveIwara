@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_providers_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/signature_settings_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
@@ -83,8 +84,7 @@ class ForumSettingsPage extends StatelessWidget {
                     Obx(
                       () => SignatureSettingsBody(
                         enabled: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
-                        content:
-                            configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+                        content: configService[ConfigKey.SIGNATURE_CONTENT_KEY],
                         onContentChanged: (value) {
                           configService[ConfigKey.SIGNATURE_CONTENT_KEY] =
                               value;
@@ -100,6 +100,47 @@ class ForumSettingsPage extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              // 数据源：小尾巴能引用的那些接口。一言就是这张列表的第一条，
+              // 和用户自己接的并列——它不是编辑器里一个特殊的变量。
+              Card(
+                elevation: 2,
+                clipBehavior: Clip.hardEdge,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        t.settings.signatureSourcesTitle,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    // 一言这一族数据源目前只有中文。对中文之外的用户，这个开关
+                    // 第一次启动时就是开着的（默认值看设备语言，见
+                    // ConfigKey.SIGNATURE_AUTO_TRANSLATE_KEY）。
+                    Obx(
+                      () => GlassSwitchItem(
+                        title: Text(t.settings.signatureAutoTranslate),
+                        subtitle: Text(t.settings.signatureAutoTranslateDesc),
+                        value:
+                            configService[ConfigKey
+                                .SIGNATURE_AUTO_TRANSLATE_KEY],
+                        onChanged: (value) {
+                          configService[ConfigKey
+                                  .SIGNATURE_AUTO_TRANSLATE_KEY] =
+                              value;
+                        },
+                      ),
+                    ),
+                    const SignatureProvidersBody(),
                   ],
                 ),
               ),

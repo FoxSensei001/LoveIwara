@@ -895,6 +895,75 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => 'Nội dung của bạn ở đây';
 	@override String get signatureNotSet => 'Chưa đặt';
 	@override String get signatureRuleHint => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.';
+	@override String get signatureInsertVariable => 'Chèn biến';
+	@override String get varDate => 'Ngày';
+	@override String get varTime => 'Giờ';
+	@override String get varDatetime => 'Ngày giờ';
+	@override String get varWeekday => 'Thứ';
+	@override String get varApp => 'Tên ứng dụng';
+	@override String get varVersion => 'Phiên bản';
+	@override String get varPlatform => 'Nền tảng';
+	@override String get varTitle => 'Thứ bạn đang xem';
+	@override String get varAuthor => 'Tác giả của nó';
+	@override String get varPick => 'Câu ngẫu nhiên';
+	@override String get signatureSources => 'Nguồn dữ liệu';
+	@override String get signatureAutoTranslate => 'Dịch sang ngôn ngữ của tôi';
+	@override String get signatureAutoTranslateDesc => 'Các nguồn như Hitokoto hiện chỉ có tiếng Trung. Câu lấy về sẽ được dịch ngay trước khi gửi đi.';
+	@override String get signatureWizardTitle => 'Thêm một nguồn dữ liệu';
+	@override String get signatureWizardUrlTitle => 'Địa chỉ điểm cuối';
+	@override String get signatureWizardUrlHint => 'Nhập một địa chỉ trả về một dòng chữ. Nút bên dưới sẽ gọi thật một lần để bạn thấy nó trả về gì.';
+	@override String get signatureWizardFetch => 'Gọi thử';
+	@override String get signatureWizardSkipTest => 'Bỏ qua, chỉ đổi tên';
+	@override String get signatureWizardPickTitle => 'Chọn phần bạn muốn';
+	@override String get signatureWizardPickHint => 'Đây là thứ điểm cuối đó trả về. Chạm vào dòng bạn muốn chữ ký hiển thị.';
+	@override String get signatureWizardPickPlainHint => 'Điểm cuối này trả về văn bản thuần, nên toàn bộ sẽ được hiển thị.';
+	@override String get signatureWizardWholeBody => 'Toàn bộ phản hồi';
+	@override String get signatureWizardNameTitle => 'Đặt cho nó một cái tên';
+	@override String get signatureWizardNameHint => 'Tên chỉ để bạn dễ nhận ra. Thứ chữ ký dùng để trỏ tới là tên tham chiếu bên dưới.';
+	@override String get signatureWizardNext => 'Tiếp';
+	@override String get signatureWizardDone => 'Xong';
+	@override String get signatureWizardStripHtml => 'Bỏ thẻ HTML';
+	@override String get signatureWizardAdvanced => 'Nâng cao: trích bằng mẫu';
+	@override String get signatureWizardExtractHint => 'Biểu thức chính quy; lấy nhóm bắt đầu tiên';
+	@override String get signatureWizardExtractMissed => 'Mẫu này không khớp, nên giữ nguyên văn bản';
+	@override String get signatureWizardChooseTitle => 'Chọn một nguồn';
+	@override String get signatureWizardChooseHint => 'Chạm vào một nguồn có sẵn là xong. Hoặc trỏ tới endpoint của riêng bạn.';
+	@override String get signatureWizardCustomSource => 'Dùng endpoint của tôi';
+	@override String get signatureWizardWithOrigin => 'Hiện cả xuất xứ';
+	@override String get signatureWizardRandomItem => 'Mỗi lần lấy một câu khác';
+	@override String get signatureWizardSuffixTitle => 'Nối thêm một trường nữa';
+	@override String get signatureWizardSuffixNone => 'Không nối';
+	@override String get signatureOptFlavor => 'Nội dung';
+	@override String get signatureOptFlavorAny => 'Không giới hạn';
+	@override String get signatureOptFlavorOtaku => 'Anime, manga và game';
+	@override String get signatureOptFlavorLiterary => 'Văn học và thơ';
+	@override String get signatureOptFlavorMeme => 'Văn hoá mạng';
+	@override String get signatureOptLength => 'Độ dài';
+	@override String get signatureOptLengthAny => 'Không giới hạn';
+	@override String get signatureOptLengthShort => 'Chỉ câu ngắn';
+	@override String get signatureRestoreDefault => 'Khôi phục mặc định';
+	@override String get signatureSourceHitokoto => 'Hitokoto (câu ngẫu nhiên)';
+	@override String get signatureVariablesGroup => 'Biến có sẵn';
+	@override String get signatureNeedsNetwork => 'Cần mạng';
+	@override String get signatureBuiltinSource => 'Có sẵn';
+	@override String get signatureSourceIdReserved => 'Tên này đã thuộc về một biến có sẵn';
+	@override String get signatureSourcesTitle => 'Nguồn dữ liệu tự thêm';
+	@override String get signatureSourcesHint => 'Trỏ tới một địa chỉ trả về một dòng chữ là bạn có thể đưa nó vào chữ ký.';
+	@override String get signatureSourcesEmpty => 'Chưa có nguồn dữ liệu nào';
+	@override String get signatureAddSource => 'Thêm';
+	@override String get signatureEditSource => 'Sửa nguồn dữ liệu';
+	@override String get signatureSourceName => 'Tên';
+	@override String get signatureSourceId => 'Tên tham chiếu';
+	@override String get signatureSourceIdHint => 'Tên mà chữ ký dùng để gọi nguồn này';
+	@override String get signatureSourceUrl => 'Địa chỉ điểm cuối';
+	@override String get signatureSourcePath => 'Đường dẫn giá trị';
+	@override String get signatureSourcePathHint => 'Để trống nếu toàn bộ phản hồi chính là dòng chữ đó. Dùng data.text để lấy trường đó từ phản hồi JSON.';
+	@override String get signatureSourceTest => 'Kiểm tra';
+	@override String get signatureSourceTestOk => 'Lấy được rồi';
+	@override String get signatureSourceTestFailed => 'Không có gì trả về';
+	@override String get signatureSourceIdInvalid => 'Tên tham chiếu chỉ dùng chữ thường, chữ số và gạch dưới';
+	@override String get signatureSourceIdDuplicate => 'Tên tham chiếu này đã có người dùng';
+	@override String get signatureSourceUrlRequired => 'Cần nhập địa chỉ điểm cuối';
 	@override String get exportConfig => 'Xuất cấu hình ứng dụng';
 	@override String get exportConfigDesc => 'Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống.';
 	@override String get importConfig => 'Nhập cấu hình ứng dụng';
@@ -5312,6 +5381,75 @@ extension on TranslationsVi {
 			'settings.signatureSampleBody' => 'Nội dung của bạn ở đây',
 			'settings.signatureNotSet' => 'Chưa đặt',
 			'settings.signatureRuleHint' => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.',
+			'settings.signatureInsertVariable' => 'Chèn biến',
+			'settings.varDate' => 'Ngày',
+			'settings.varTime' => 'Giờ',
+			'settings.varDatetime' => 'Ngày giờ',
+			'settings.varWeekday' => 'Thứ',
+			'settings.varApp' => 'Tên ứng dụng',
+			'settings.varVersion' => 'Phiên bản',
+			'settings.varPlatform' => 'Nền tảng',
+			'settings.varTitle' => 'Thứ bạn đang xem',
+			'settings.varAuthor' => 'Tác giả của nó',
+			'settings.varPick' => 'Câu ngẫu nhiên',
+			'settings.signatureSources' => 'Nguồn dữ liệu',
+			'settings.signatureAutoTranslate' => 'Dịch sang ngôn ngữ của tôi',
+			'settings.signatureAutoTranslateDesc' => 'Các nguồn như Hitokoto hiện chỉ có tiếng Trung. Câu lấy về sẽ được dịch ngay trước khi gửi đi.',
+			'settings.signatureWizardTitle' => 'Thêm một nguồn dữ liệu',
+			'settings.signatureWizardUrlTitle' => 'Địa chỉ điểm cuối',
+			'settings.signatureWizardUrlHint' => 'Nhập một địa chỉ trả về một dòng chữ. Nút bên dưới sẽ gọi thật một lần để bạn thấy nó trả về gì.',
+			'settings.signatureWizardFetch' => 'Gọi thử',
+			'settings.signatureWizardSkipTest' => 'Bỏ qua, chỉ đổi tên',
+			'settings.signatureWizardPickTitle' => 'Chọn phần bạn muốn',
+			'settings.signatureWizardPickHint' => 'Đây là thứ điểm cuối đó trả về. Chạm vào dòng bạn muốn chữ ký hiển thị.',
+			'settings.signatureWizardPickPlainHint' => 'Điểm cuối này trả về văn bản thuần, nên toàn bộ sẽ được hiển thị.',
+			'settings.signatureWizardWholeBody' => 'Toàn bộ phản hồi',
+			'settings.signatureWizardNameTitle' => 'Đặt cho nó một cái tên',
+			'settings.signatureWizardNameHint' => 'Tên chỉ để bạn dễ nhận ra. Thứ chữ ký dùng để trỏ tới là tên tham chiếu bên dưới.',
+			'settings.signatureWizardNext' => 'Tiếp',
+			'settings.signatureWizardDone' => 'Xong',
+			'settings.signatureWizardStripHtml' => 'Bỏ thẻ HTML',
+			'settings.signatureWizardAdvanced' => 'Nâng cao: trích bằng mẫu',
+			'settings.signatureWizardExtractHint' => 'Biểu thức chính quy; lấy nhóm bắt đầu tiên',
+			'settings.signatureWizardExtractMissed' => 'Mẫu này không khớp, nên giữ nguyên văn bản',
+			'settings.signatureWizardChooseTitle' => 'Chọn một nguồn',
+			'settings.signatureWizardChooseHint' => 'Chạm vào một nguồn có sẵn là xong. Hoặc trỏ tới endpoint của riêng bạn.',
+			'settings.signatureWizardCustomSource' => 'Dùng endpoint của tôi',
+			'settings.signatureWizardWithOrigin' => 'Hiện cả xuất xứ',
+			'settings.signatureWizardRandomItem' => 'Mỗi lần lấy một câu khác',
+			'settings.signatureWizardSuffixTitle' => 'Nối thêm một trường nữa',
+			'settings.signatureWizardSuffixNone' => 'Không nối',
+			'settings.signatureOptFlavor' => 'Nội dung',
+			'settings.signatureOptFlavorAny' => 'Không giới hạn',
+			'settings.signatureOptFlavorOtaku' => 'Anime, manga và game',
+			'settings.signatureOptFlavorLiterary' => 'Văn học và thơ',
+			'settings.signatureOptFlavorMeme' => 'Văn hoá mạng',
+			'settings.signatureOptLength' => 'Độ dài',
+			'settings.signatureOptLengthAny' => 'Không giới hạn',
+			'settings.signatureOptLengthShort' => 'Chỉ câu ngắn',
+			'settings.signatureRestoreDefault' => 'Khôi phục mặc định',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (câu ngẫu nhiên)',
+			'settings.signatureVariablesGroup' => 'Biến có sẵn',
+			'settings.signatureNeedsNetwork' => 'Cần mạng',
+			'settings.signatureBuiltinSource' => 'Có sẵn',
+			'settings.signatureSourceIdReserved' => 'Tên này đã thuộc về một biến có sẵn',
+			'settings.signatureSourcesTitle' => 'Nguồn dữ liệu tự thêm',
+			'settings.signatureSourcesHint' => 'Trỏ tới một địa chỉ trả về một dòng chữ là bạn có thể đưa nó vào chữ ký.',
+			'settings.signatureSourcesEmpty' => 'Chưa có nguồn dữ liệu nào',
+			'settings.signatureAddSource' => 'Thêm',
+			'settings.signatureEditSource' => 'Sửa nguồn dữ liệu',
+			'settings.signatureSourceName' => 'Tên',
+			'settings.signatureSourceId' => 'Tên tham chiếu',
+			'settings.signatureSourceIdHint' => 'Tên mà chữ ký dùng để gọi nguồn này',
+			'settings.signatureSourceUrl' => 'Địa chỉ điểm cuối',
+			'settings.signatureSourcePath' => 'Đường dẫn giá trị',
+			'settings.signatureSourcePathHint' => 'Để trống nếu toàn bộ phản hồi chính là dòng chữ đó. Dùng data.text để lấy trường đó từ phản hồi JSON.',
+			'settings.signatureSourceTest' => 'Kiểm tra',
+			'settings.signatureSourceTestOk' => 'Lấy được rồi',
+			'settings.signatureSourceTestFailed' => 'Không có gì trả về',
+			'settings.signatureSourceIdInvalid' => 'Tên tham chiếu chỉ dùng chữ thường, chữ số và gạch dưới',
+			'settings.signatureSourceIdDuplicate' => 'Tên tham chiếu này đã có người dùng',
+			'settings.signatureSourceUrlRequired' => 'Cần nhập địa chỉ điểm cuối',
 			'settings.exportConfig' => 'Xuất cấu hình ứng dụng',
 			'settings.exportConfigDesc' => 'Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống.',
 			'settings.importConfig' => 'Nhập cấu hình ứng dụng',
@@ -5573,6 +5711,8 @@ extension on TranslationsVi {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Cấp quyền lưu trữ thất bại nhưng một số tính năng có thể bị hạn chế',
 			'settings.downloadSettings.storagePermissionRationale' => 'Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nTrên Android 11 trở lên, điều này có nghĩa là quyền "truy cập mọi tệp"; nếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'Để lưu tệp tải xuống vào thư mục bạn chọn, ứng dụng cần quyền truy cập bộ nhớ.\n\nNếu không có, tệp sẽ được lưu vào thư mục riêng của ứng dụng.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Cấp quyền lưu trữ',
 			'settings.downloadSettings.customDownloadPath' => 'Đường dẫn tải xuống tùy chỉnh',
 			'settings.downloadSettings.customDownloadPathDescription' => 'Khi bật, bạn có thể chọn vị trí lưu tùy chỉnh cho tệp tải xuống',
@@ -5642,8 +5782,6 @@ extension on TranslationsVi {
 			'settings.downloadSettings.testError' => 'Lỗi',
 			'settings.downloadSettings.testPath' => 'Đường dẫn kiểm tra',
 			'settings.downloadSettings.testBasePath' => 'Đường dẫn cơ sở',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Tạo thư mục',
 			'settings.downloadSettings.testFileWriting' => 'Ghi tệp',
 			'settings.downloadSettings.testFileContent' => 'Nội dung tệp',
@@ -6087,6 +6225,8 @@ extension on TranslationsVi {
 			'markdown.listDescription' => 'Tạo danh sách có thứ tự bằng số + dấu chấm, tạo danh sách không thứ tự bằng dấu -',
 			'markdown.listSyntax' => '1. Mục thứ nhất\n2. Mục thứ hai\n\n- Mục không thứ tự\n  - Mục con\n  - Mục con khác',
 			'markdown.linkAndImage' => 'Liên kết và hình ảnh',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Định dạng liên kết: [văn bản](URL)\nĐịnh dạng ảnh: ![mô tả](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[văn bản liên kết](${link})\n![mô tả ảnh](${imgUrl})',
 			'markdown.title' => 'Tiêu đề',
@@ -6156,8 +6296,6 @@ extension on TranslationsVi {
 			'forum.leafDescriptions.requests_zh' => 'Đăng yêu cầu của bạn',
 			'forum.leafDescriptions.support_zh' => 'Giúp giải quyết các vấn đề liên quan tới trang web',
 			'forum.leafDescriptions.general_ja' => 'Thảo luận mọi chủ đề',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Đặt câu hỏi của bạn',
 			'forum.leafDescriptions.requests_ja' => 'Đăng yêu cầu của bạn',
 			'forum.leafDescriptions.support_ja' => 'Giúp giải quyết các vấn đề liên quan tới trang web',
@@ -6601,6 +6739,8 @@ extension on TranslationsVi {
 			'download.category.renameSuccess' => 'Đã đổi tên danh mục',
 			'download.category.renameFailed' => 'Đổi tên danh mục thất bại',
 			'download.category.deleteTitle' => 'Xóa danh mục',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Xóa danh mục "${title}"? ${count} mục bên trong sẽ chuyển vào Chưa phân loại. Không có tệp nào bị xóa.',
 			'download.category.deleteSuccess' => 'Đã xóa danh mục',
 			'download.category.deleteFailed' => 'Xóa danh mục thất bại',
@@ -6670,8 +6810,6 @@ extension on TranslationsVi {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -7115,6 +7253,8 @@ extension on TranslationsVi {
 			'diagnostics.schemaHealthRepairedBefore' => 'Trước đây đã được lưới an toàn sửa chữa',
 			'diagnostics.logPolicySectionTitle' => 'Chính sách nhật ký',
 			'diagnostics.configServiceUnavailable' => 'Dịch vụ cấu hình chưa được khởi tạo. Không thể điều chỉnh chính sách nhật ký.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Bật ghi nhật ký',
 			'diagnostics.enableLoggingSubtitle' => 'Tắt để ngừng ghi nhật ký mới',
 			'diagnostics.enableLogPersistenceTitle' => 'Bật lưu nhật ký lâu dài',
@@ -7184,8 +7324,6 @@ extension on TranslationsVi {
 			'linkInputDialog.multipleLinksDetected' => 'Phát hiện nhiều liên kết, vui lòng chọn một:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Không phải liên kết ${webName} hợp lệ',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Lỗi phân tích liên kết: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Liên kết không được hỗ trợ',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Loại liên kết này không thể mở trực tiếp trong ứng dụng và cần truy cập bằng trình duyệt bên ngoài.\n\nBạn có muốn mở liên kết này trong trình duyệt không?',
 			'linkInputDialog.openInBrowser' => 'Mở trong trình duyệt',
@@ -7629,6 +7767,8 @@ extension on TranslationsVi {
 			'watchLater.emptyUnwatchedVideo' => 'Không còn gì để xem ở đây',
 			'watchLater.emptyUnwatchedGallery' => 'Không còn gì để xem ở đây',
 			'watchLater.queueLoadFailed' => 'Tải thất bại, nhấn để thử lại',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'Thích',
 			'mediaMenu.unlike' => 'Bỏ thích',
 			'mediaMenu.viewAuthor' => 'Xem tác giả',
@@ -7698,8 +7838,6 @@ extension on TranslationsVi {
 			'vrFormat.flatSideBySideDesc' => 'Mỗi mắt một nửa, trái và phải; hiển thị mắt trái và khôi phục tỉ lệ khung hình',
 			'vrFormat.flatTopBottom' => '3D trên dưới',
 			'vrFormat.flatTopBottomDesc' => 'Mỗi mắt một nửa, trên và dưới; hiển thị nửa trên và khôi phục tỉ lệ khung hình',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 cạnh nhau',
 			'vrFormat.vr180SideBySideDesc' => 'Toàn cảnh bán cầu với cả hai mắt — nguồn VR phổ biến nhất',
 			'vrFormat.vr180Mono' => 'VR180 mono',

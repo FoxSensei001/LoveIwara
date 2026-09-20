@@ -2227,6 +2227,213 @@ class TranslationsSettingsEn {
 	/// en: 'Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below.'
 	String get signatureRuleHint => 'Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below.';
 
+	/// en: 'Insert a variable'
+	String get signatureInsertVariable => 'Insert a variable';
+
+	/// en: 'Date'
+	String get varDate => 'Date';
+
+	/// en: 'Time'
+	String get varTime => 'Time';
+
+	/// en: 'Date & time'
+	String get varDatetime => 'Date & time';
+
+	/// en: 'Weekday'
+	String get varWeekday => 'Weekday';
+
+	/// en: 'App name'
+	String get varApp => 'App name';
+
+	/// en: 'Version'
+	String get varVersion => 'Version';
+
+	/// en: 'Platform'
+	String get varPlatform => 'Platform';
+
+	/// en: 'What you are viewing'
+	String get varTitle => 'What you are viewing';
+
+	/// en: 'Its author'
+	String get varAuthor => 'Its author';
+
+	/// en: 'Random pick'
+	String get varPick => 'Random pick';
+
+	/// en: 'Data sources'
+	String get signatureSources => 'Data sources';
+
+	/// en: 'Translate into my language'
+	String get signatureAutoTranslate => 'Translate into my language';
+
+	/// en: 'Quote sources like Hitokoto only serve Chinese. The line is translated right before it goes out.'
+	String get signatureAutoTranslateDesc => 'Quote sources like Hitokoto only serve Chinese. The line is translated right before it goes out.';
+
+	/// en: 'Add a data source'
+	String get signatureWizardTitle => 'Add a data source';
+
+	/// en: 'Endpoint address'
+	String get signatureWizardUrlTitle => 'Endpoint address';
+
+	/// en: 'Enter a URL that returns a line of text. The button below actually calls it, so you can see what comes back.'
+	String get signatureWizardUrlHint => 'Enter a URL that returns a line of text. The button below actually calls it, so you can see what comes back.';
+
+	/// en: 'Fetch it'
+	String get signatureWizardFetch => 'Fetch it';
+
+	/// en: 'Skip and just rename'
+	String get signatureWizardSkipTest => 'Skip and just rename';
+
+	/// en: 'Pick the part you want'
+	String get signatureWizardPickTitle => 'Pick the part you want';
+
+	/// en: 'This is what that endpoint returned. Tap the line you want your signature to show.'
+	String get signatureWizardPickHint => 'This is what that endpoint returned. Tap the line you want your signature to show.';
+
+	/// en: 'This endpoint returned plain text, so the whole thing is what gets shown.'
+	String get signatureWizardPickPlainHint => 'This endpoint returned plain text, so the whole thing is what gets shown.';
+
+	/// en: 'The whole response'
+	String get signatureWizardWholeBody => 'The whole response';
+
+	/// en: 'Give it a name'
+	String get signatureWizardNameTitle => 'Give it a name';
+
+	/// en: 'The name is just for you. The reference name below is what your signature uses to point at it.'
+	String get signatureWizardNameHint => 'The name is just for you. The reference name below is what your signature uses to point at it.';
+
+	/// en: 'Next'
+	String get signatureWizardNext => 'Next';
+
+	/// en: 'Done'
+	String get signatureWizardDone => 'Done';
+
+	/// en: 'Remove HTML tags'
+	String get signatureWizardStripHtml => 'Remove HTML tags';
+
+	/// en: 'Advanced: extract with a pattern'
+	String get signatureWizardAdvanced => 'Advanced: extract with a pattern';
+
+	/// en: 'Regular expression; the first capture group wins'
+	String get signatureWizardExtractHint => 'Regular expression; the first capture group wins';
+
+	/// en: 'That pattern did not match, so the text is left as is'
+	String get signatureWizardExtractMissed => 'That pattern did not match, so the text is left as is';
+
+	/// en: 'Pick a source'
+	String get signatureWizardChooseTitle => 'Pick a source';
+
+	/// en: 'Tap a ready-made one and you are done. Or point at any endpoint of your own.'
+	String get signatureWizardChooseHint => 'Tap a ready-made one and you are done. Or point at any endpoint of your own.';
+
+	/// en: 'Use my own endpoint'
+	String get signatureWizardCustomSource => 'Use my own endpoint';
+
+	/// en: 'Show where it came from'
+	String get signatureWizardWithOrigin => 'Show where it came from';
+
+	/// en: 'Pick a different one every time'
+	String get signatureWizardRandomItem => 'Pick a different one every time';
+
+	/// en: 'Append another field'
+	String get signatureWizardSuffixTitle => 'Append another field';
+
+	/// en: 'Nothing'
+	String get signatureWizardSuffixNone => 'Nothing';
+
+	/// en: 'Content'
+	String get signatureOptFlavor => 'Content';
+
+	/// en: 'Anything'
+	String get signatureOptFlavorAny => 'Anything';
+
+	/// en: 'Anime, manga & games'
+	String get signatureOptFlavorOtaku => 'Anime, manga & games';
+
+	/// en: 'Literature & poetry'
+	String get signatureOptFlavorLiterary => 'Literature & poetry';
+
+	/// en: 'Internet culture'
+	String get signatureOptFlavorMeme => 'Internet culture';
+
+	/// en: 'Length'
+	String get signatureOptLength => 'Length';
+
+	/// en: 'Any length'
+	String get signatureOptLengthAny => 'Any length';
+
+	/// en: 'Short lines only'
+	String get signatureOptLengthShort => 'Short lines only';
+
+	/// en: 'Restore default'
+	String get signatureRestoreDefault => 'Restore default';
+
+	/// en: 'Hitokoto (random quote)'
+	String get signatureSourceHitokoto => 'Hitokoto (random quote)';
+
+	/// en: 'Built-in variables'
+	String get signatureVariablesGroup => 'Built-in variables';
+
+	/// en: 'Needs network'
+	String get signatureNeedsNetwork => 'Needs network';
+
+	/// en: 'Built-in'
+	String get signatureBuiltinSource => 'Built-in';
+
+	/// en: 'That name is taken by a built-in variable'
+	String get signatureSourceIdReserved => 'That name is taken by a built-in variable';
+
+	/// en: 'Custom data sources'
+	String get signatureSourcesTitle => 'Custom data sources';
+
+	/// en: 'Point at any endpoint that returns a line of text and you can pull it into your signature.'
+	String get signatureSourcesHint => 'Point at any endpoint that returns a line of text and you can pull it into your signature.';
+
+	/// en: 'No data sources yet'
+	String get signatureSourcesEmpty => 'No data sources yet';
+
+	/// en: 'Add'
+	String get signatureAddSource => 'Add';
+
+	/// en: 'Edit data source'
+	String get signatureEditSource => 'Edit data source';
+
+	/// en: 'Name'
+	String get signatureSourceName => 'Name';
+
+	/// en: 'Reference name'
+	String get signatureSourceId => 'Reference name';
+
+	/// en: 'How your signature will refer to this source'
+	String get signatureSourceIdHint => 'How your signature will refer to this source';
+
+	/// en: 'Endpoint URL'
+	String get signatureSourceUrl => 'Endpoint URL';
+
+	/// en: 'Value path'
+	String get signatureSourcePath => 'Value path';
+
+	/// en: 'Leave empty if the whole response is the text. Use data.text to pick that field out of a JSON response.'
+	String get signatureSourcePathHint => 'Leave empty if the whole response is the text. Use data.text to pick that field out of a JSON response.';
+
+	/// en: 'Test'
+	String get signatureSourceTest => 'Test';
+
+	/// en: 'Got it'
+	String get signatureSourceTestOk => 'Got it';
+
+	/// en: 'Nothing came back'
+	String get signatureSourceTestFailed => 'Nothing came back';
+
+	/// en: 'Reference names take lowercase letters, digits and underscores only'
+	String get signatureSourceIdInvalid => 'Reference names take lowercase letters, digits and underscores only';
+
+	/// en: 'That reference name is already taken'
+	String get signatureSourceIdDuplicate => 'That reference name is already taken';
+
+	/// en: 'An endpoint URL is required'
+	String get signatureSourceUrlRequired => 'An endpoint URL is required';
+
 	/// en: 'Export App Configuration'
 	String get exportConfig => 'Export App Configuration';
 
@@ -12037,6 +12244,75 @@ extension on Translations {
 			'settings.signatureSampleBody' => 'Your message goes here',
 			'settings.signatureNotSet' => 'Not set',
 			'settings.signatureRuleHint' => 'Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below.',
+			'settings.signatureInsertVariable' => 'Insert a variable',
+			'settings.varDate' => 'Date',
+			'settings.varTime' => 'Time',
+			'settings.varDatetime' => 'Date & time',
+			'settings.varWeekday' => 'Weekday',
+			'settings.varApp' => 'App name',
+			'settings.varVersion' => 'Version',
+			'settings.varPlatform' => 'Platform',
+			'settings.varTitle' => 'What you are viewing',
+			'settings.varAuthor' => 'Its author',
+			'settings.varPick' => 'Random pick',
+			'settings.signatureSources' => 'Data sources',
+			'settings.signatureAutoTranslate' => 'Translate into my language',
+			'settings.signatureAutoTranslateDesc' => 'Quote sources like Hitokoto only serve Chinese. The line is translated right before it goes out.',
+			'settings.signatureWizardTitle' => 'Add a data source',
+			'settings.signatureWizardUrlTitle' => 'Endpoint address',
+			'settings.signatureWizardUrlHint' => 'Enter a URL that returns a line of text. The button below actually calls it, so you can see what comes back.',
+			'settings.signatureWizardFetch' => 'Fetch it',
+			'settings.signatureWizardSkipTest' => 'Skip and just rename',
+			'settings.signatureWizardPickTitle' => 'Pick the part you want',
+			'settings.signatureWizardPickHint' => 'This is what that endpoint returned. Tap the line you want your signature to show.',
+			'settings.signatureWizardPickPlainHint' => 'This endpoint returned plain text, so the whole thing is what gets shown.',
+			'settings.signatureWizardWholeBody' => 'The whole response',
+			'settings.signatureWizardNameTitle' => 'Give it a name',
+			'settings.signatureWizardNameHint' => 'The name is just for you. The reference name below is what your signature uses to point at it.',
+			'settings.signatureWizardNext' => 'Next',
+			'settings.signatureWizardDone' => 'Done',
+			'settings.signatureWizardStripHtml' => 'Remove HTML tags',
+			'settings.signatureWizardAdvanced' => 'Advanced: extract with a pattern',
+			'settings.signatureWizardExtractHint' => 'Regular expression; the first capture group wins',
+			'settings.signatureWizardExtractMissed' => 'That pattern did not match, so the text is left as is',
+			'settings.signatureWizardChooseTitle' => 'Pick a source',
+			'settings.signatureWizardChooseHint' => 'Tap a ready-made one and you are done. Or point at any endpoint of your own.',
+			'settings.signatureWizardCustomSource' => 'Use my own endpoint',
+			'settings.signatureWizardWithOrigin' => 'Show where it came from',
+			'settings.signatureWizardRandomItem' => 'Pick a different one every time',
+			'settings.signatureWizardSuffixTitle' => 'Append another field',
+			'settings.signatureWizardSuffixNone' => 'Nothing',
+			'settings.signatureOptFlavor' => 'Content',
+			'settings.signatureOptFlavorAny' => 'Anything',
+			'settings.signatureOptFlavorOtaku' => 'Anime, manga & games',
+			'settings.signatureOptFlavorLiterary' => 'Literature & poetry',
+			'settings.signatureOptFlavorMeme' => 'Internet culture',
+			'settings.signatureOptLength' => 'Length',
+			'settings.signatureOptLengthAny' => 'Any length',
+			'settings.signatureOptLengthShort' => 'Short lines only',
+			'settings.signatureRestoreDefault' => 'Restore default',
+			'settings.signatureSourceHitokoto' => 'Hitokoto (random quote)',
+			'settings.signatureVariablesGroup' => 'Built-in variables',
+			'settings.signatureNeedsNetwork' => 'Needs network',
+			'settings.signatureBuiltinSource' => 'Built-in',
+			'settings.signatureSourceIdReserved' => 'That name is taken by a built-in variable',
+			'settings.signatureSourcesTitle' => 'Custom data sources',
+			'settings.signatureSourcesHint' => 'Point at any endpoint that returns a line of text and you can pull it into your signature.',
+			'settings.signatureSourcesEmpty' => 'No data sources yet',
+			'settings.signatureAddSource' => 'Add',
+			'settings.signatureEditSource' => 'Edit data source',
+			'settings.signatureSourceName' => 'Name',
+			'settings.signatureSourceId' => 'Reference name',
+			'settings.signatureSourceIdHint' => 'How your signature will refer to this source',
+			'settings.signatureSourceUrl' => 'Endpoint URL',
+			'settings.signatureSourcePath' => 'Value path',
+			'settings.signatureSourcePathHint' => 'Leave empty if the whole response is the text. Use data.text to pick that field out of a JSON response.',
+			'settings.signatureSourceTest' => 'Test',
+			'settings.signatureSourceTestOk' => 'Got it',
+			'settings.signatureSourceTestFailed' => 'Nothing came back',
+			'settings.signatureSourceIdInvalid' => 'Reference names take lowercase letters, digits and underscores only',
+			'settings.signatureSourceIdDuplicate' => 'That reference name is already taken',
+			'settings.signatureSourceUrlRequired' => 'An endpoint URL is required',
 			'settings.exportConfig' => 'Export App Configuration',
 			'settings.exportConfigDesc' => 'Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included.',
 			'settings.importConfig' => 'Import App Configuration',
@@ -12298,6 +12574,8 @@ extension on Translations {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => 'Storage Permission Grant Failed But Some Features May Be Limited',
 			'settings.downloadSettings.storagePermissionRationale' => 'To save downloads to the folder you pick, the app needs storage access.\n\nOn Android 11 and later this means the "All files access" permission; without it, files are saved to the app-private folder instead.',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => 'To save downloads to the folder you pick, the app needs storage access.\n\nWithout it, files are saved to the app-private folder instead.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => 'Grant Storage Permission',
 			'settings.downloadSettings.customDownloadPath' => 'Custom Download Path',
 			'settings.downloadSettings.customDownloadPathDescription' => 'When enabled, you can choose a custom save location for downloaded files',
@@ -12367,8 +12645,6 @@ extension on Translations {
 			'settings.downloadSettings.testError' => 'Error',
 			'settings.downloadSettings.testPath' => 'Test Path',
 			'settings.downloadSettings.testBasePath' => 'Base Path',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Directory Creation',
 			'settings.downloadSettings.testFileWriting' => 'File Writing',
 			'settings.downloadSettings.testFileContent' => 'File Content',
@@ -12812,6 +13088,8 @@ extension on Translations {
 			'markdown.listDescription' => 'Create ordered list with number+dot, create unordered list with -',
 			'markdown.listSyntax' => '1. First item\n2. Second item\n\n- Unordered item\n  - Subitem\n  - Another subitem',
 			'markdown.linkAndImage' => 'Link and Image',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => 'Link format: [text](URL)\nImage format: ![description](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[link text](${link})\n![image description](${imgUrl})',
 			'markdown.title' => 'Title',
@@ -12881,8 +13159,6 @@ extension on Translations {
 			'forum.leafDescriptions.requests_zh' => 'Post your requests',
 			'forum.leafDescriptions.support_zh' => 'Help to resolve website-related issues',
 			'forum.leafDescriptions.general_ja' => 'Discuss any topic',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Raise your inquiries',
 			'forum.leafDescriptions.requests_ja' => 'Post your requests',
 			'forum.leafDescriptions.support_ja' => 'Help to resolve website-related issues',
@@ -13326,6 +13602,8 @@ extension on Translations {
 			'download.category.renameSuccess' => 'Category renamed',
 			'download.category.renameFailed' => 'Failed to rename category',
 			'download.category.deleteTitle' => 'Delete category',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => 'Delete the category "${title}"? The ${count} items in it move to Uncategorized. No files are deleted.',
 			'download.category.deleteSuccess' => 'Category deleted',
 			'download.category.deleteFailed' => 'Failed to delete category',
@@ -13395,8 +13673,6 @@ extension on Translations {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -13840,6 +14116,8 @@ extension on Translations {
 			'diagnostics.schemaHealthRepairedBefore' => 'Was repaired by the safety net before',
 			'diagnostics.logPolicySectionTitle' => 'Log Policy',
 			'diagnostics.configServiceUnavailable' => 'Config service is not initialized. Log policy cannot be adjusted.',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.enableLoggingTitle' => 'Enable logging',
 			'diagnostics.enableLoggingSubtitle' => 'Disable to stop writing new logs',
 			'diagnostics.enableLogPersistenceTitle' => 'Enable log persistence',
@@ -13909,8 +14187,6 @@ extension on Translations {
 			'linkInputDialog.multipleLinksDetected' => 'Multiple links detected, please select one:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Not a valid ${webName} link',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Link parsing error: ${error}',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Unsupported Link',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'This link type cannot be opened directly in the app and needs to be accessed using an external browser.\n\nDo you want to open this link in a browser?',
 			'linkInputDialog.openInBrowser' => 'Open in Browser',
@@ -14354,6 +14630,8 @@ extension on Translations {
 			'watchLater.emptyUnwatchedVideo' => 'Nothing left to watch here',
 			'watchLater.emptyUnwatchedGallery' => 'Nothing left to view here',
 			'watchLater.queueLoadFailed' => 'Failed to load, tap to retry',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => 'Like',
 			'mediaMenu.unlike' => 'Unlike',
 			'mediaMenu.viewAuthor' => 'View author',
@@ -14423,8 +14701,6 @@ extension on Translations {
 			'vrFormat.flatSideBySideDesc' => 'One eye per half, left and right; shows the left eye and restores its aspect ratio',
 			'vrFormat.flatTopBottom' => 'Over-under 3D',
 			'vrFormat.flatTopBottomDesc' => 'One eye per half, top and bottom; shows the top half and restores its aspect ratio',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 side-by-side',
 			'vrFormat.vr180SideBySideDesc' => 'Hemispherical panorama with both eyes — the most common VR source',
 			'vrFormat.vr180Mono' => 'VR180 mono',

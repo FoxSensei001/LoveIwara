@@ -895,6 +895,75 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get signatureSampleBody => '这里是你写的正文';
 	@override String get signatureNotSet => '还没设置';
 	@override String get signatureRuleHint => '小尾巴会跟在正文后面，中间自动隔一条分隔线——分隔线由应用生成，你只需要写下面这句话。';
+	@override String get signatureInsertVariable => '插入变量';
+	@override String get varDate => '日期';
+	@override String get varTime => '时间';
+	@override String get varDatetime => '日期时间';
+	@override String get varWeekday => '星期';
+	@override String get varApp => '应用名';
+	@override String get varVersion => '版本号';
+	@override String get varPlatform => '平台';
+	@override String get varTitle => '正在看的作品';
+	@override String get varAuthor => '作品的作者';
+	@override String get varPick => '随机一句';
+	@override String get signatureSources => '数据源';
+	@override String get signatureAutoTranslate => '翻译成我的语言';
+	@override String get signatureAutoTranslateDesc => '一言这类数据源目前只有中文。开着的话，取回来的话会在发出去之前先翻译一遍。';
+	@override String get signatureWizardTitle => '接一个数据源';
+	@override String get signatureWizardUrlTitle => '接口地址';
+	@override String get signatureWizardUrlHint => '填一个打开后会返回一句话的网址。点下面的按钮会真的请求一次，看看它返回什么。';
+	@override String get signatureWizardFetch => '请求一次';
+	@override String get signatureWizardSkipTest => '跳过，只改名字';
+	@override String get signatureWizardPickTitle => '挑一段内容';
+	@override String get signatureWizardPickHint => '这是刚才那个接口返回的东西。点中哪一条，小尾巴里就显示哪一条。';
+	@override String get signatureWizardPickPlainHint => '这个接口直接返回了一段文本，整段就是要显示的内容。';
+	@override String get signatureWizardWholeBody => '整段内容';
+	@override String get signatureWizardNameTitle => '起个名字';
+	@override String get signatureWizardNameHint => '名字只是方便你自己认。下面那个引用名，才是小尾巴里用来指向它的词。';
+	@override String get signatureWizardNext => '下一步';
+	@override String get signatureWizardDone => '完成';
+	@override String get signatureWizardStripHtml => '去掉 HTML 标签';
+	@override String get signatureWizardAdvanced => '高级：用正则提取';
+	@override String get signatureWizardExtractHint => '正则表达式，取第一个捕获组';
+	@override String get signatureWizardExtractMissed => '这条规则没匹配上，先按原样用了';
+	@override String get signatureWizardChooseTitle => '挑一个';
+	@override String get signatureWizardChooseHint => '点现成的那几条就用上了。也可以填自己的接口地址。';
+	@override String get signatureWizardCustomSource => '自己填接口地址';
+	@override String get signatureWizardWithOrigin => '带上出处';
+	@override String get signatureWizardRandomItem => '每次随机取一条';
+	@override String get signatureWizardSuffixTitle => '再接一段';
+	@override String get signatureWizardSuffixNone => '不接';
+	@override String get signatureOptFlavor => '内容';
+	@override String get signatureOptFlavorAny => '不限';
+	@override String get signatureOptFlavorOtaku => '二次元';
+	@override String get signatureOptFlavorLiterary => '文学诗词';
+	@override String get signatureOptFlavorMeme => '网络流行';
+	@override String get signatureOptLength => '长度';
+	@override String get signatureOptLengthAny => '不限';
+	@override String get signatureOptLengthShort => '只要短句';
+	@override String get signatureRestoreDefault => '恢复默认';
+	@override String get signatureSourceHitokoto => '一言';
+	@override String get signatureVariablesGroup => '内置变量';
+	@override String get signatureNeedsNetwork => '需要联网';
+	@override String get signatureBuiltinSource => '内置';
+	@override String get signatureSourceIdReserved => '这个名字被内置变量占了';
+	@override String get signatureSourcesTitle => '自定义数据源';
+	@override String get signatureSourcesHint => '填一个会返回一句话的接口地址，就能把它接进小尾巴。';
+	@override String get signatureSourcesEmpty => '还没有数据源';
+	@override String get signatureAddSource => '添加';
+	@override String get signatureEditSource => '编辑数据源';
+	@override String get signatureSourceName => '名称';
+	@override String get signatureSourceId => '引用名';
+	@override String get signatureSourceIdHint => '小尾巴里用这个名字引用它';
+	@override String get signatureSourceUrl => '接口地址';
+	@override String get signatureSourcePath => '取值路径';
+	@override String get signatureSourcePathHint => '留空表示整个返回内容就是那句话；填 data.text 表示取 JSON 里的那个字段。';
+	@override String get signatureSourceTest => '测试';
+	@override String get signatureSourceTestOk => '取到了';
+	@override String get signatureSourceTestFailed => '什么也没取到';
+	@override String get signatureSourceIdInvalid => '引用名只能用小写字母、数字和下划线';
+	@override String get signatureSourceIdDuplicate => '这个引用名已经被用了';
+	@override String get signatureSourceUrlRequired => '请填接口地址';
 	@override String get exportConfig => '导出应用配置';
 	@override String get exportConfigDesc => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。';
 	@override String get importConfig => '导入应用配置';
@@ -5312,6 +5381,75 @@ extension on TranslationsZhCn {
 			'settings.signatureSampleBody' => '这里是你写的正文',
 			'settings.signatureNotSet' => '还没设置',
 			'settings.signatureRuleHint' => '小尾巴会跟在正文后面，中间自动隔一条分隔线——分隔线由应用生成，你只需要写下面这句话。',
+			'settings.signatureInsertVariable' => '插入变量',
+			'settings.varDate' => '日期',
+			'settings.varTime' => '时间',
+			'settings.varDatetime' => '日期时间',
+			'settings.varWeekday' => '星期',
+			'settings.varApp' => '应用名',
+			'settings.varVersion' => '版本号',
+			'settings.varPlatform' => '平台',
+			'settings.varTitle' => '正在看的作品',
+			'settings.varAuthor' => '作品的作者',
+			'settings.varPick' => '随机一句',
+			'settings.signatureSources' => '数据源',
+			'settings.signatureAutoTranslate' => '翻译成我的语言',
+			'settings.signatureAutoTranslateDesc' => '一言这类数据源目前只有中文。开着的话，取回来的话会在发出去之前先翻译一遍。',
+			'settings.signatureWizardTitle' => '接一个数据源',
+			'settings.signatureWizardUrlTitle' => '接口地址',
+			'settings.signatureWizardUrlHint' => '填一个打开后会返回一句话的网址。点下面的按钮会真的请求一次，看看它返回什么。',
+			'settings.signatureWizardFetch' => '请求一次',
+			'settings.signatureWizardSkipTest' => '跳过，只改名字',
+			'settings.signatureWizardPickTitle' => '挑一段内容',
+			'settings.signatureWizardPickHint' => '这是刚才那个接口返回的东西。点中哪一条，小尾巴里就显示哪一条。',
+			'settings.signatureWizardPickPlainHint' => '这个接口直接返回了一段文本，整段就是要显示的内容。',
+			'settings.signatureWizardWholeBody' => '整段内容',
+			'settings.signatureWizardNameTitle' => '起个名字',
+			'settings.signatureWizardNameHint' => '名字只是方便你自己认。下面那个引用名，才是小尾巴里用来指向它的词。',
+			'settings.signatureWizardNext' => '下一步',
+			'settings.signatureWizardDone' => '完成',
+			'settings.signatureWizardStripHtml' => '去掉 HTML 标签',
+			'settings.signatureWizardAdvanced' => '高级：用正则提取',
+			'settings.signatureWizardExtractHint' => '正则表达式，取第一个捕获组',
+			'settings.signatureWizardExtractMissed' => '这条规则没匹配上，先按原样用了',
+			'settings.signatureWizardChooseTitle' => '挑一个',
+			'settings.signatureWizardChooseHint' => '点现成的那几条就用上了。也可以填自己的接口地址。',
+			'settings.signatureWizardCustomSource' => '自己填接口地址',
+			'settings.signatureWizardWithOrigin' => '带上出处',
+			'settings.signatureWizardRandomItem' => '每次随机取一条',
+			'settings.signatureWizardSuffixTitle' => '再接一段',
+			'settings.signatureWizardSuffixNone' => '不接',
+			'settings.signatureOptFlavor' => '内容',
+			'settings.signatureOptFlavorAny' => '不限',
+			'settings.signatureOptFlavorOtaku' => '二次元',
+			'settings.signatureOptFlavorLiterary' => '文学诗词',
+			'settings.signatureOptFlavorMeme' => '网络流行',
+			'settings.signatureOptLength' => '长度',
+			'settings.signatureOptLengthAny' => '不限',
+			'settings.signatureOptLengthShort' => '只要短句',
+			'settings.signatureRestoreDefault' => '恢复默认',
+			'settings.signatureSourceHitokoto' => '一言',
+			'settings.signatureVariablesGroup' => '内置变量',
+			'settings.signatureNeedsNetwork' => '需要联网',
+			'settings.signatureBuiltinSource' => '内置',
+			'settings.signatureSourceIdReserved' => '这个名字被内置变量占了',
+			'settings.signatureSourcesTitle' => '自定义数据源',
+			'settings.signatureSourcesHint' => '填一个会返回一句话的接口地址，就能把它接进小尾巴。',
+			'settings.signatureSourcesEmpty' => '还没有数据源',
+			'settings.signatureAddSource' => '添加',
+			'settings.signatureEditSource' => '编辑数据源',
+			'settings.signatureSourceName' => '名称',
+			'settings.signatureSourceId' => '引用名',
+			'settings.signatureSourceIdHint' => '小尾巴里用这个名字引用它',
+			'settings.signatureSourceUrl' => '接口地址',
+			'settings.signatureSourcePath' => '取值路径',
+			'settings.signatureSourcePathHint' => '留空表示整个返回内容就是那句话；填 data.text 表示取 JSON 里的那个字段。',
+			'settings.signatureSourceTest' => '测试',
+			'settings.signatureSourceTestOk' => '取到了',
+			'settings.signatureSourceTestFailed' => '什么也没取到',
+			'settings.signatureSourceIdInvalid' => '引用名只能用小写字母、数字和下划线',
+			'settings.signatureSourceIdDuplicate' => '这个引用名已经被用了',
+			'settings.signatureSourceUrlRequired' => '请填接口地址',
 			'settings.exportConfig' => '导出应用配置',
 			'settings.exportConfigDesc' => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。',
 			'settings.importConfig' => '导入应用配置',
@@ -5573,6 +5711,8 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.storagePermissionGrantFailedButSomeFeaturesMayBeLimited' => '存储权限授权失败，部分功能可能受限',
 			'settings.downloadSettings.storagePermissionRationale' => '为了把文件下载到你选择的位置，应用需要存储权限。\n\nAndroid 11 及以上需要授予「所有文件访问权限」才能写入公共目录；不授予的话，文件会保存到应用专用目录。',
 			'settings.downloadSettings.storagePermissionRationaleLegacy' => '为了把文件下载到你选择的位置，应用需要存储权限。\n\n不授予的话，文件会保存到应用专用目录。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.grantStoragePermission' => '授权存储权限',
 			'settings.downloadSettings.customDownloadPath' => '自定义下载位置',
 			'settings.downloadSettings.customDownloadPathDescription' => '启用后可以为下载的文件选择自定义保存位置',
@@ -5642,8 +5782,6 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.testError' => '错误',
 			'settings.downloadSettings.testPath' => '测试路径',
 			'settings.downloadSettings.testBasePath' => '基础路径',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '目录创建',
 			'settings.downloadSettings.testFileWriting' => '文件写入',
 			'settings.downloadSettings.testFileContent' => '文件内容',
@@ -6087,6 +6225,8 @@ extension on TranslationsZhCn {
 			'markdown.listDescription' => '使用数字+点号创建有序列表，使用 - 创建无序列表',
 			'markdown.listSyntax' => '1. 第一项\n2. 第二项\n\n- 无序项\n  - 子项\n  - 另一个子项',
 			'markdown.linkAndImage' => '链接与图片',
+			_ => null,
+		} ?? switch (path) {
 			'markdown.linkAndImageDescription' => '链接格式：[文字](URL)\n图片格式：![描述](URL)',
 			'markdown.linkAndImageSyntax' => ({required Object link, required Object imgUrl}) => '[链接文字](${link})\n![图片描述](${imgUrl})',
 			'markdown.title' => '标题',
@@ -6156,8 +6296,6 @@ extension on TranslationsZhCn {
 			'forum.leafDescriptions.requests_zh' => '发布你的请求',
 			'forum.leafDescriptions.support_zh' => '帮助解决网站相关问题',
 			'forum.leafDescriptions.general_ja' => '讨论任何话题',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '提出你的疑问',
 			'forum.leafDescriptions.requests_ja' => '发布你的请求',
 			'forum.leafDescriptions.support_ja' => '帮助解决网站相关问题',
@@ -6601,6 +6739,8 @@ extension on TranslationsZhCn {
 			'download.category.renameFailed' => '重命名失败',
 			'download.category.deleteTitle' => '删除分类',
 			'download.category.deleteConfirm' => ({required Object title, required Object count}) => '删除分类「${title}」？该分类下的 ${count} 项内容将移到「未分类」，文件不会被删除。',
+			_ => null,
+		} ?? switch (path) {
 			'download.category.deleteSuccess' => '分类已删除',
 			'download.category.deleteFailed' => '删除分类失败',
 			'download.location.sectionTitle' => '保存位置',
@@ -6670,8 +6810,6 @@ extension on TranslationsZhCn {
 			'download.location.locationChanged' => '下载位置已更改',
 			'download.location.manualTitle' => '手动输入路径',
 			'download.location.manualLabel' => '文件夹路径',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.manualHint' => '例如 /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => '检查并使用',
 			'download.location.manualEmpty' => '请输入路径',
@@ -7115,6 +7253,8 @@ extension on TranslationsZhCn {
 			'log.exportHistoryLogs' => '导出历史日志',
 			'log.exportHistoryLogsDesc' => '导出指定日期范围的日志',
 			'log.exportMergedLogs' => '导出合并日志',
+			_ => null,
+		} ?? switch (path) {
 			'log.exportMergedLogsDesc' => '导出指定日期范围的合并日志',
 			'log.showLogStats' => '显示日志统计信息',
 			'log.logExportSuccess' => '日志导出成功',
@@ -7184,8 +7324,6 @@ extension on TranslationsZhCn {
 			'emoji.batchDelete' => '批量删除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '确定要删除选中的${count}张图片吗？此操作不可撤销。',
 			'emoji.deleteSuccess' => '成功删除',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.addImage' => '添加图片',
 			'emoji.addImageByUrl' => '通过URL添加',
 			'emoji.addImageUrl' => '添加图片URL',
@@ -7629,6 +7767,8 @@ extension on TranslationsZhCn {
 			'watchLater.emptyUnwatchedVideo' => '没有未看完的视频',
 			'watchLater.emptyUnwatchedGallery' => '没有未看完的图库',
 			'watchLater.queueLoadFailed' => '加载失败，点击重试',
+			_ => null,
+		} ?? switch (path) {
 			'mediaMenu.like' => '点赞',
 			'mediaMenu.unlike' => '取消点赞',
 			'mediaMenu.viewAuthor' => '查看作者主页',
@@ -7698,8 +7838,6 @@ extension on TranslationsZhCn {
 			'vrFormat.flatSideBySideDesc' => '一帧里左右各一只眼，只显示左眼并还原比例',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '一帧里上下各一只眼，只显示上半幅并还原比例',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右双眼，最常见的 VR 片源',
 			'vrFormat.vr180Mono' => 'VR180 单目',
