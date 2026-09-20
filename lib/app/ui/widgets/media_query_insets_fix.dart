@@ -9,6 +9,20 @@ double computeBottomSafeInset(MediaQueryData mq) {
   );
 }
 
+/// 软键盘这会儿在不在场。
+///
+/// ⛔ 不能只看 `MediaQuery.viewInsets.bottom`：根布局 [MyAppLayout] 是一个
+/// `resizeToAvoidBottomInset` 的 Scaffold，整棵 Navigator 已经被它整体抬到键盘
+/// 之上，而 `viewInsets.bottom` 在那之下就被抹成 0 了——弹层里量出来永远是 0，
+/// 「键盘开着没有」这个问题会被一律答成「没开」。原始值由
+/// [RawMediaQueryDataScope] 在 app 最外层留着一份。
+bool isSoftKeyboardVisible(BuildContext context) {
+  final double inset = MediaQuery.viewInsetsOf(context).bottom;
+  final double raw =
+      RawMediaQueryDataScope.maybeOf(context)?.rawData.viewInsets.bottom ?? 0.0;
+  return math.max(inset, raw) > 0;
+}
+
 /// 底部弹窗（`showModalBottomSheet`）内容区应当自己让出的底部空间。
 ///
 /// 两件事都得弹窗内容自己做：

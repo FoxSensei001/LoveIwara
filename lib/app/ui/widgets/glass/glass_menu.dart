@@ -9,6 +9,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 import 'package:i_iwara/utils/vibrate_utils.dart';
 
@@ -817,9 +818,18 @@ Future<T?> showGlassMenu<T>({
   // 窗口就关了。
   final GlassPointerHandoffSession? handoff = GlassPointerHandoff.claim();
 
-  // 接了手指就必须走浮层档：路由一 push，`Navigator` 会把这根手指整只取消掉，
-  // 接力当场断掉（详见 [_GlassMenuOverlayHost] 的类注释）。
-  if (handoff != null) {
+  // 浮层档（不压路由栈）有两种触发条件：
+  //
+  // 1. **接了手指**：路由一 push，`Navigator` 会把这根手指整只取消掉，接力当场
+  //    断掉（详见 [_GlassMenuOverlayHost] 的类注释）。
+  // 2. **软键盘正开着**：push 一条路由会让身下那条路由的 FocusScope 失活，输入框
+  //    随之失焦、键盘收起。于是评论 composer 上点「三个点」会连锁出一串位移——
+  //    键盘落下 → 弹层跟着降下去 → 而菜单的落点是开菜单**那一刻**量死的全局坐标，
+  //    它不会跟着降；关掉菜单键盘又回来，弹层再升上去。用户看到的就是「菜单和
+  //    弹层各走各的」（2026-09-20 报障）。浮层不经过 `Navigator`，焦点不动、
+  //    键盘不收、弹层不挪，量死的落点也就一直对得上。
+  final bool keyboardUp = isSoftKeyboardVisible(anchorContext);
+  if (handoff != null || keyboardUp) {
     return _showGlassMenuOverlay<T>(
       navigator: navigator,
       // 浮层不在路由栈上，页面被换掉时不会自己消失，得盯着锚点那条路由，
@@ -893,8 +903,9 @@ bool _panelTouchFlexFits(GlassBackend backend, Size? precomputedSize) =>
       _ => precomputedSize != null,
     };
 
-/// 把菜单挂到根 `Overlay` 上（而不是 push 成路由），只给手指接力那条路用。
-/// 理由见 [_GlassMenuOverlayHost] 的类注释。
+/// 把菜单挂到根 `Overlay` 上（而不是 push 成路由）。
+/// 两种用得上它的场合见 [showGlassMenu] 里那段说明，机理见
+/// [_GlassMenuOverlayHost] 的类注释。
 Future<T?> _showGlassMenuOverlay<T>({
   required NavigatorState navigator,
   required ModalRoute<Object?>? anchorRoute,
@@ -906,7 +917,7 @@ Future<T?> _showGlassMenuOverlay<T>({
   required bool touchFlex,
   required Size? precomputedSize,
   required CapturedThemes capturedThemes,
-  required GlassPointerHandoffSession handoff,
+  required GlassPointerHandoffSession? handoff,
   required bool priorityNearAnchor,
   required T? scrollToValue,
 }) {
@@ -1048,7 +1059,9 @@ class _GlassMenuOverlayHost<T> extends StatefulWidget {
   final bool touchFlex;
   final Size? precomputedSize;
   final CapturedThemes capturedThemes;
-  final GlassPointerHandoffSession handoff;
+
+  /// 从触发钮接过来的那根手指；**键盘档那条路没有手指可接，为 null**。
+  final GlassPointerHandoffSession? handoff;
   final bool priorityNearAnchor;
   final T? scrollToValue;
 
