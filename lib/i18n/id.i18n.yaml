@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Satu folder per penulis · tidak terpecah meski nama berubah'
     presetDate: 'Per tanggal'
     presetDateDesc: 'Dikelompokkan menurut tanggal unduh'
-    presetCustom: 'Kustom'
-    presetCustomDesc: 'Edit templat jalur dengan bebas'
-    presetCustomHint: 'Kustom: ubah aturan di editor templat jalur'
+    presetCustomActive: Digunakan
     structurePreviewLabel: 'Pratinjau'
     structurePreviewNote: 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.'
     pathTooLongWarning: 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Gambar tunggal'
       previewLabel: 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan'
       galleryPreviewLabel: 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)'
-      addFolder: 'Tambah satu tingkat folder (${current}/${max})'
+      addFolder: Tambah satu tingkat folder
       folderCapReached: 'Batas tingkat folder tercapai'
       folderSegmentHint: '%authorcache, variabel, atau teks tetap'
       fileSegmentHint: 'mis. %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Penulis'
       trayCategoryTime: 'Waktu'
       chipAuthorcache: 'Nama penulis·tetap'
+      chipDate: Tanggal
+      chipTime: Waktu
+      chipDatetime: Tanggal & waktu
+      chipCount: Indeks
 favoriteTags:
   title: Tag Favorit
   emptyIwara: Belum ada tag Iwara favorit

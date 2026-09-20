@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Un dossier par auteur · reste stable même si le pseudo change'
     presetDate: 'Par date'
     presetDateDesc: 'Regroupé par date de téléchargement'
-    presetCustom: 'Personnalisé'
-    presetCustomDesc: 'Modifiez librement le modèle de chemin'
-    presetCustomHint: 'Personnalisé : éditez les règles dans la page du modèle de chemin'
+    presetCustomActive: Actif
     structurePreviewLabel: 'Aperçu'
     structurePreviewNote: 'Les segments colorés sont les niveaux de rangement, ils suivent le mode choisi.'
     pathTooLongWarning: 'Le chemin relatif dépasse 200 caractères, la sauvegarde peut échouer sur certains appareils'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Image unique'
       previewLabel: 'Aperçu · résultat réel après nettoyage'
       galleryPreviewLabel: 'Aperçu · le modèle de galerie nomme le dossier (les images internes gardent l''identifiant de l''image)'
-      addFolder: 'Ajouter un niveau de dossier (${current}/${max})'
+      addFolder: Ajouter un niveau de dossier
       folderCapReached: 'Limite de niveaux de dossier atteinte'
       folderSegmentHint: '%authorcache, une variable ou du texte fixe'
       fileSegmentHint: 'ex. %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Auteur'
       trayCategoryTime: 'Temps'
       chipAuthorcache: 'Nom de lauteur·fixe'
+      chipDate: Date
+      chipTime: Heure
+      chipDatetime: Date et heure
+      chipCount: Index
 favoriteTags:
   title: Tags favoris
   emptyIwara: Aucun tag Iwara favori pour l'instant

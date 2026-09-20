@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'โฟลเดอร์ละหนึ่งผู้สร้าง · เปลี่ยนชื่อแล้วไม่แยกโฟลเดอร์'
     presetDate: 'ตามวันที่'
     presetDateDesc: 'จัดเรียงตามวันที่ดาวน์โหลด'
-    presetCustom: 'กำหนดเอง'
-    presetCustomDesc: 'แก้ไขเทมเพลตเส้นทางได้อย่างอิสระ'
-    presetCustomHint: 'กำหนดเอง: แก้ไขกฎในโปรแกรมแก้ไขเทมเพลตเส้นทาง'
+    presetCustomActive: ใช้งานอยู่
     structurePreviewLabel: 'ตัวอย่าง'
     structurePreviewNote: 'ส่วนที่มีสีคือระดับการจัดระเบียบ เปลี่ยนตามรูปแบบที่เลือกทันที'
     pathTooLongWarning: 'เส้นทางสัมพัทธ์เกิน 200 ตัวอักษร อาจบันทึกไม่สำเร็จบนอุปกรณ์บางรุ่น'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'ภาพเดี่ยว'
       previewLabel: 'ตัวอย่าง · ผลลัพธ์จริงหลังทำความสะอาด'
       galleryPreviewLabel: 'ตัวอย่าง · เทมเพลตแกลเลอรีคือชื่อโฟลเดอร์ (ภายในใช้ชื่อตามรหัสภาพ)'
-      addFolder: 'เพิ่มระดับโฟลเดอร์ (${current}/${max})'
+      addFolder: เพิ่มระดับโฟลเดอร์
       folderCapReached: 'ถึงขีดจำกัดระดับโฟลเดอร์แล้ว'
       folderSegmentHint: '%authorcache ตัวแปรหรือข้อความคงที่'
       fileSegmentHint: 'เช่น %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'ผู้สร้าง'
       trayCategoryTime: 'เวลา'
       chipAuthorcache: 'ชื่อผู้สร้าง·คงที่'
+      chipDate: วันที่
+      chipTime: เวลา
+      chipDatetime: วันที่และเวลา
+      chipCount: ลำดับ
 favoriteTags:
   title: แท็กโปรด
   emptyIwara: ยังไม่มีแท็ก Iwara ที่ชื่นชอบ

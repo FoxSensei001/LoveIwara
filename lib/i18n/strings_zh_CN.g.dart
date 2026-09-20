@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsZhCn extends TranslationsSettingsDown
 	@override String get presetAuthorDesc => '每个作者一个文件夹 · 改名不漂移';
 	@override String get presetDate => '按日期';
 	@override String get presetDateDesc => '按下载日期归档';
-	@override String get presetCustom => '自定义';
-	@override String get presetCustomDesc => '自由编辑路径模板';
-	@override String get presetCustomHint => '自定义：在「自定义路径模板」编辑器中修改';
+	@override String get presetCustomActive => '当前生效';
 	@override String get structurePreviewLabel => '效果预览';
 	@override String get structurePreviewNote => '彩色段 = 组织层级，随所选方式即时变化。';
 	@override String get pathTooLongWarning => '相对路径超过 200 字符，部分设备可能无法保存';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends Transl
 	@override String get tabImage => '单张图片';
 	@override String get previewLabel => '预览 · 清洗后的真实落盘结果';
 	@override String get galleryPreviewLabel => '预览 · 图库模板 = 文件夹名（内部图片按 ID 命名）';
-	@override String addFolder({required Object current, required Object max}) => '＋添加一层文件夹（${current}/${max}）';
+	@override String get addFolder => '添加一层文件夹';
 	@override String get folderCapReached => '已达文件夹层数上限';
 	@override String get folderSegmentHint => '%authorcache、变量或固定文本';
 	@override String get fileSegmentHint => '如 %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhCn extends Transl
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '时间';
 	@override String get chipAuthorcache => '作者名·固定';
+	@override String get chipDate => '日期';
+	@override String get chipTime => '时间';
+	@override String get chipDatetime => '日期时间';
+	@override String get chipCount => '序号';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.presetAuthorDesc' => '每个作者一个文件夹 · 改名不漂移',
 			'settings.downloadSettings.presetDate' => '按日期',
 			'settings.downloadSettings.presetDateDesc' => '按下载日期归档',
-			'settings.downloadSettings.presetCustom' => '自定义',
-			'settings.downloadSettings.presetCustomDesc' => '自由编辑路径模板',
-			'settings.downloadSettings.presetCustomHint' => '自定义：在「自定义路径模板」编辑器中修改',
+			'settings.downloadSettings.presetCustomActive' => '当前生效',
 			'settings.downloadSettings.structurePreviewLabel' => '效果预览',
 			'settings.downloadSettings.structurePreviewNote' => '彩色段 = 组织层级，随所选方式即时变化。',
 			'settings.downloadSettings.pathTooLongWarning' => '相对路径超过 200 字符，部分设备可能无法保存',
@@ -5715,7 +5715,7 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => '单张图片',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => '预览 · 清洗后的真实落盘结果',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => '预览 · 图库模板 = 文件夹名（内部图片按 ID 命名）',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => '＋添加一层文件夹（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => '添加一层文件夹',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => '已达文件夹层数上限',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache、变量或固定文本',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '如 %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '时间',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日期',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => '时间',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => '日期时间',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => '序号',
 			'favoriteTags.title' => '收藏标签',
 			'favoriteTags.emptyIwara' => '还没有收藏的 Iwara 标签',
 			'favoriteTags.emptyOreno3d' => '还没有收藏',
@@ -6142,10 +6146,10 @@ extension on TranslationsZhCn {
 			'forum.reply' => '回复',
 			'forum.pendingReview' => '审核中',
 			'forum.editedAt' => '编辑时间',
-			'forum.copySuccess' => '已复制到剪贴板',
-			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => '已复制到剪贴板',
+			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
 			'forum.editTitle' => '编辑标题',
 			'forum.submit' => '提交',
@@ -6656,10 +6660,10 @@ extension on TranslationsZhCn {
 			'download.location.fixed' => '位置已恢复正常',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
-			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
-			'download.stillInDevelopment' => '开发中',
 			_ => null,
 		} ?? switch (path) {
+			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
+			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
 			'download.alreadyDownloadedWithQuality' => '已有相同清晰度的任务，是否继续下载？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '已有清晰度为${qualities}的任务，是否继续下载？',
@@ -7170,10 +7174,10 @@ extension on TranslationsZhCn {
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
-			'emoji.import' => '导入',
-			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.import' => '导入',
+			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
 			'emoji.createGroup' => '创建表情包分组',
 			'emoji.groupName' => '分组名称',
@@ -7684,10 +7688,10 @@ extension on TranslationsZhCn {
 			'vrFormat.vr360TopBottomDesc' => '环绕一圈的全景 + 上下双眼',
 			'vrFormat.resetView' => '重置视角',
 			'vrFormat.resetViewDesc' => '把环视方向和视野角复位到正前方',
-			'vrFormat.resetToAuto' => '恢复自动识别',
-			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => '恢复自动识别',
+			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
 			'vrFormat.manualBadge' => '已手动指定',
 			'vrFormat.panoramaHint' => '拖动画面即可环视，捏合改变视野',
 			'vrFormat.panoramaGestureNotice' => '环视时画面区的拖动用于转头，快进请用进度条',

@@ -149,6 +149,7 @@ class GlassSurface extends StatelessWidget {
     this.materialize = 1.0,
     this.opensOverlay = false,
     this.longPressOpensOverlay = false,
+    this.fillOverride,
   });
 
   final Widget child;
@@ -211,6 +212,13 @@ class GlassSurface extends StatelessWidget {
   /// （见 [LiquidGlassBox.materialize]）。它是给几十到一两百毫秒的**材质淡入**
   /// 用的，不是显隐开关——真要藏起来请让调用方别建这块玻璃。
   final double materialize;
+
+  /// **仅 Material 档**用得上的面色覆盖——只在这块玻璃会被直接叠在另一块也吃
+  /// [GlassTokens.fill] / [GlassTokens.materialFill] 的玻璃上时才需要传（现状
+  /// 唯一调用点是 [showGlassMenu] 的面板：它常年浮在设置卡片一类之上，不覆盖
+  /// 就会跟卡片同色，见 [GlassTokens.panelFill] 注释）。传统档 / 两个液态档
+  /// 忽略它——真玻璃档的面板走完全不同的折射渲染，本来就不会撞色。
+  final Color? fillOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -350,6 +358,7 @@ class GlassSurface extends StatelessWidget {
             pressed: pressed,
             materialize: m,
             clipContent: clipContent,
+            fillOverride: fillOverride,
             child: content,
           );
         case GlassBackend.plain:

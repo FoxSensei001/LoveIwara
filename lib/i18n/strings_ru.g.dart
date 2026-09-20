@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsRu extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'Папка на автора · переименование не разбивает архив';
 	@override String get presetDate => 'По датам';
 	@override String get presetDateDesc => 'Группировка по дате загрузки';
-	@override String get presetCustom => 'Своё';
-	@override String get presetCustomDesc => 'Свободное редактирование шаблона пути';
-	@override String get presetCustomHint => 'Своё: правьте правила в редакторе шаблона пути';
+	@override String get presetCustomActive => 'Активно';
 	@override String get structurePreviewLabel => 'Предпросмотр';
 	@override String get structurePreviewNote => 'Цветные сегменты — уровни структуры, меняются вместе со схемой.';
 	@override String get pathTooLongWarning => 'Относительный путь длиннее 200 символов — на части устройств сохранение может не удаться';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends Translat
 	@override String get tabImage => 'Отдельное изображение';
 	@override String get previewLabel => 'Предпросмотр · реальный результат после очистки';
 	@override String get galleryPreviewLabel => 'Предпросмотр · шаблон галереи = имя папки (внутренние изображения именуются по ID)';
-	@override String addFolder({required Object current, required Object max}) => 'Добавить уровень папок (${current}/${max})';
+	@override String get addFolder => 'Добавить уровень папок';
 	@override String get folderCapReached => 'Достигнут предел уровней папок';
 	@override String get folderSegmentHint => '%authorcache, переменная или текст';
 	@override String get fileSegmentHint => 'напр. %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorRu extends Translat
 	@override String get trayCategoryAuthor => 'Автор';
 	@override String get trayCategoryTime => 'Время';
 	@override String get chipAuthorcache => 'Имя автора·фикс.';
+	@override String get chipDate => 'Дата';
+	@override String get chipTime => 'Время';
+	@override String get chipDatetime => 'Дата и время';
+	@override String get chipCount => 'Номер';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsRu {
 			'settings.downloadSettings.presetAuthorDesc' => 'Папка на автора · переименование не разбивает архив',
 			'settings.downloadSettings.presetDate' => 'По датам',
 			'settings.downloadSettings.presetDateDesc' => 'Группировка по дате загрузки',
-			'settings.downloadSettings.presetCustom' => 'Своё',
-			'settings.downloadSettings.presetCustomDesc' => 'Свободное редактирование шаблона пути',
-			'settings.downloadSettings.presetCustomHint' => 'Своё: правьте правила в редакторе шаблона пути',
+			'settings.downloadSettings.presetCustomActive' => 'Активно',
 			'settings.downloadSettings.structurePreviewLabel' => 'Предпросмотр',
 			'settings.downloadSettings.structurePreviewNote' => 'Цветные сегменты — уровни структуры, меняются вместе со схемой.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Относительный путь длиннее 200 символов — на части устройств сохранение может не удаться',
@@ -5715,7 +5715,7 @@ extension on TranslationsRu {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Отдельное изображение',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Предпросмотр · реальный результат после очистки',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Предпросмотр · шаблон галереи = имя папки (внутренние изображения именуются по ID)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Добавить уровень папок (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Добавить уровень папок',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Достигнут предел уровней папок',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, переменная или текст',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'напр. %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsRu {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Автор',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Время',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Имя автора·фикс.',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Дата',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Время',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Дата и время',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Номер',
 			'favoriteTags.title' => 'Избранные теги',
 			'favoriteTags.emptyIwara' => 'Нет избранных тегов Iwara',
 			'favoriteTags.emptyOreno3d' => 'Нет избранных тегов',
@@ -6142,10 +6146,10 @@ extension on TranslationsRu {
 			'forum.reply' => 'Ответить',
 			'forum.pendingReview' => 'На рассмотрении',
 			'forum.editedAt' => 'Дата изменения',
-			'forum.copySuccess' => 'Скопировано в буфер обмена',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Скопировано в буфер обмена: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'Скопировано в буфер обмена',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'Скопировано в буфер обмена: ${str}',
 			'forum.editReply' => 'Изменить ответ',
 			'forum.editTitle' => 'Изменить заголовок',
 			'forum.submit' => 'Отправить',
@@ -6656,10 +6660,10 @@ extension on TranslationsRu {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Макс. одновременных загрузок',
-			'download.maxConcurrentDownloadsDesc' => 'Число задач, загружаемых одновременно (1–5)',
-			'download.stillInDevelopment' => 'Всё ещё в разработке',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Число задач, загружаемых одновременно (1–5)',
+			'download.stillInDevelopment' => 'Всё ещё в разработке',
 			'download.saveToAppDirectory' => 'Сохранить в каталог приложения',
 			'download.alreadyDownloadedWithQuality' => 'Уже скачано в том же качестве. Продолжить загрузку?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Уже скачано в качестве: ${qualities}. Продолжить загрузку?',
@@ -7170,10 +7174,10 @@ extension on TranslationsRu {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Вы уверены, что хотите продолжить?',
 			'linkInputDialog.browserOpenFailed' => 'Не удалось открыть ссылку',
 			'linkInputDialog.unsupportedLink' => 'Неподдерживаемая ссылка',
-			'linkInputDialog.cancel' => 'Отмена',
-			'linkInputDialog.confirm' => 'Открыть в браузере',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Отмена',
+			'linkInputDialog.confirm' => 'Открыть в браузере',
 			'log.logManagement' => 'Управление логами',
 			'log.enableLogPersistence' => 'Сохранять логи в базе данных',
 			'log.enableLogPersistenceDesc' => 'Сохранять логи в базе данных для анализа',
@@ -7684,10 +7688,10 @@ extension on TranslationsRu {
 			'vrFormat.vr360TopBottomDesc' => 'Полноценная круговая панорама с двумя расположенными друг над другом глазами',
 			'vrFormat.resetView' => 'Сбросить вид',
 			'vrFormat.resetViewDesc' => 'Вернуть направление взгляда и угол обзора к фронтальному положению',
-			'vrFormat.resetToAuto' => 'Вернуть к автоопределению',
-			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Вернуть к автоопределению',
+			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
 			'vrFormat.manualBadge' => 'Задано вручную',
 			'vrFormat.panoramaHint' => 'Перетаскивайте изображение, чтобы осмотреться, сведите пальцы, чтобы изменить угол обзора',
 			'vrFormat.panoramaGestureNotice' => 'При осмотре перетаскивание поворачивает вид — для перемотки используйте полосу прогресса',

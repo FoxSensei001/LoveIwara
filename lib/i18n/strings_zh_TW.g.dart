@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsZhTw extends TranslationsSettingsDown
 	@override String get presetAuthorDesc => '每位作者一個資料夾 · 改名不漂移';
 	@override String get presetDate => '按日期';
 	@override String get presetDateDesc => '按下載日期歸檔';
-	@override String get presetCustom => '自訂';
-	@override String get presetCustomDesc => '自由編輯路徑範本';
-	@override String get presetCustomHint => '自訂：在「自訂路徑範本」編輯器中修改';
+	@override String get presetCustomActive => '目前生效';
 	@override String get structurePreviewLabel => '效果預覽';
 	@override String get structurePreviewNote => '彩色段＝組織層級，隨所選方式即時變化。';
 	@override String get pathTooLongWarning => '相對路徑超過 200 字元，部分裝置可能無法儲存';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw extends Transl
 	@override String get tabImage => '單張圖片';
 	@override String get previewLabel => '預覽 · 清洗後的真實落盤結果';
 	@override String get galleryPreviewLabel => '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）';
-	@override String addFolder({required Object current, required Object max}) => '＋新增一層資料夾（${current}/${max}）';
+	@override String get addFolder => '新增一層資料夾';
 	@override String get folderCapReached => '已達資料夾層數上限';
 	@override String get folderSegmentHint => '%authorcache、變數或固定文字';
 	@override String get fileSegmentHint => '如 %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorZhTw extends Transl
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '時間';
 	@override String get chipAuthorcache => '作者名·固定';
+	@override String get chipDate => '日期';
+	@override String get chipTime => '時間';
+	@override String get chipDatetime => '日期時間';
+	@override String get chipCount => '序號';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.presetAuthorDesc' => '每位作者一個資料夾 · 改名不漂移',
 			'settings.downloadSettings.presetDate' => '按日期',
 			'settings.downloadSettings.presetDateDesc' => '按下載日期歸檔',
-			'settings.downloadSettings.presetCustom' => '自訂',
-			'settings.downloadSettings.presetCustomDesc' => '自由編輯路徑範本',
-			'settings.downloadSettings.presetCustomHint' => '自訂：在「自訂路徑範本」編輯器中修改',
+			'settings.downloadSettings.presetCustomActive' => '目前生效',
 			'settings.downloadSettings.structurePreviewLabel' => '效果預覽',
 			'settings.downloadSettings.structurePreviewNote' => '彩色段＝組織層級，隨所選方式即時變化。',
 			'settings.downloadSettings.pathTooLongWarning' => '相對路徑超過 200 字元，部分裝置可能無法儲存',
@@ -5715,7 +5715,7 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => '單張圖片',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => '預覽 · 清洗後的真實落盤結果',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => '＋新增一層資料夾（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => '新增一層資料夾',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => '已達資料夾層數上限',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache、變數或固定文字',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '如 %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '時間',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名·固定',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日期',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => '時間',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => '日期時間',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => '序號',
 			'favoriteTags.title' => '收藏標籤',
 			'favoriteTags.emptyIwara' => '還沒有收藏的 Iwara 標籤',
 			'favoriteTags.emptyOreno3d' => '還沒有收藏',
@@ -6142,10 +6146,10 @@ extension on TranslationsZhTw {
 			'forum.leafNames.support' => '幫助',
 			'forum.leafNames.general' => '一般',
 			'forum.leafNames.guides' => '指南',
-			'forum.leafNames.questions' => '問題',
-			'forum.leafNames.requests' => '請求',
 			_ => null,
 		} ?? switch (path) {
+			'forum.leafNames.questions' => '問題',
+			'forum.leafNames.requests' => '請求',
 			'forum.leafNames.sharing' => '分享',
 			'forum.leafNames.general_zh' => '一般',
 			'forum.leafNames.questions_zh' => '問題',
@@ -6656,10 +6660,10 @@ extension on TranslationsZhTw {
 			'download.location.optionAskEveryTimeDesc' => '每次下載時挑一個資料夾',
 			'download.location.current' => '目前',
 			'download.location.fallbackBanner' => '上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。',
-			'download.location.fallbackReasonPermission' => '缺少儲存權限',
-			'download.location.fallbackReasonVolumeMissing' => '儲存裝置沒有連接',
 			_ => null,
 		} ?? switch (path) {
+			'download.location.fallbackReasonPermission' => '缺少儲存權限',
+			'download.location.fallbackReasonVolumeMissing' => '儲存裝置沒有連接',
 			'download.location.fallbackReasonCannotCreate' => '無法建立資料夾',
 			'download.location.fallbackReasonNotWritable' => '資料夾無法寫入',
 			'download.location.fallbackDetail' => ({required Object reason}) => '已暫時改存：${reason}',
@@ -7170,10 +7174,10 @@ extension on TranslationsZhTw {
 			'log.warning' => '警告',
 			'log.newSizeLimit' => ({required Object size}) => '新的大小限制: ${size}',
 			'log.confirmToContinue' => '確定要繼續嗎？',
-			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
-			'emoji.name' => '表情',
 			_ => null,
 		} ?? switch (path) {
+			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
+			'emoji.name' => '表情',
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
 			'emoji.medium' => '中',
@@ -7684,10 +7688,10 @@ extension on TranslationsZhTw {
 			'vrFormat.vr360TopBottomDesc' => '環繞一圈的全景 + 上下雙眼',
 			'vrFormat.resetView' => '重設視角',
 			'vrFormat.resetViewDesc' => '把環視方向與視野角復位到正前方',
-			'vrFormat.resetToAuto' => '恢復自動辨識',
-			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => '恢復自動辨識',
+			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
 			'vrFormat.manualBadge' => '已手動指定',
 			'vrFormat.panoramaHint' => '拖曳畫面即可環視，捏合改變視野',
 			'vrFormat.panoramaGestureNotice' => '環視時畫面區的拖曳用於轉頭，快轉請用進度條',

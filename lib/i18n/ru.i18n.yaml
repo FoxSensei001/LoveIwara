@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Папка на автора · переименование не разбивает архив'
     presetDate: 'По датам'
     presetDateDesc: 'Группировка по дате загрузки'
-    presetCustom: 'Своё'
-    presetCustomDesc: 'Свободное редактирование шаблона пути'
-    presetCustomHint: 'Своё: правьте правила в редакторе шаблона пути'
+    presetCustomActive: Активно
     structurePreviewLabel: 'Предпросмотр'
     structurePreviewNote: 'Цветные сегменты — уровни структуры, меняются вместе со схемой.'
     pathTooLongWarning: 'Относительный путь длиннее 200 символов — на части устройств сохранение может не удаться'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Отдельное изображение'
       previewLabel: 'Предпросмотр · реальный результат после очистки'
       galleryPreviewLabel: 'Предпросмотр · шаблон галереи = имя папки (внутренние изображения именуются по ID)'
-      addFolder: 'Добавить уровень папок (${current}/${max})'
+      addFolder: Добавить уровень папок
       folderCapReached: 'Достигнут предел уровней папок'
       folderSegmentHint: '%authorcache, переменная или текст'
       fileSegmentHint: 'напр. %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Автор'
       trayCategoryTime: 'Время'
       chipAuthorcache: 'Имя автора·фикс.'
+      chipDate: Дата
+      chipTime: Время
+      chipDatetime: Дата и время
+      chipCount: Номер
 favoriteTags:
   title: Избранные теги
   emptyIwara: Нет избранных тегов Iwara

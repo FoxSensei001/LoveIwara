@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsJa extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => '作者ごとにフォルダ分け · 名前が変わっても迷子にならない';
 	@override String get presetDate => '日付別';
 	@override String get presetDateDesc => 'ダウンロード日ごとに整理';
-	@override String get presetCustom => 'カスタム';
-	@override String get presetCustomDesc => 'パステンプレートを自由に編集';
-	@override String get presetCustomHint => 'カスタム：「パステンプレート」エディタで編集してください';
+	@override String get presetCustomActive => '使用中';
 	@override String get structurePreviewLabel => 'プレビュー';
 	@override String get structurePreviewNote => '色付きの部分が整理の階層です。選択した方式に応じて変わります。';
 	@override String get pathTooLongWarning => '相対パスが200文字を超えています。一部の端末では保存できない場合があります';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends Translat
 	@override String get tabImage => '単体画像';
 	@override String get previewLabel => 'プレビュー · 実際に保存される名前';
 	@override String get galleryPreviewLabel => 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）';
-	@override String addFolder({required Object current, required Object max}) => 'フォルダ階層を追加（${current}/${max}）';
+	@override String get addFolder => 'フォルダ階層を追加';
 	@override String get folderCapReached => 'フォルダ階層の上限に達しました';
 	@override String get folderSegmentHint => '%authorcache・変数・固定文字列';
 	@override String get fileSegmentHint => '例: %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorJa extends Translat
 	@override String get trayCategoryAuthor => '作者';
 	@override String get trayCategoryTime => '日時';
 	@override String get chipAuthorcache => '作者名・固定';
+	@override String get chipDate => '日付';
+	@override String get chipTime => '時刻';
+	@override String get chipDatetime => '日時';
+	@override String get chipCount => '連番';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsJa {
 			'settings.downloadSettings.presetAuthorDesc' => '作者ごとにフォルダ分け · 名前が変わっても迷子にならない',
 			'settings.downloadSettings.presetDate' => '日付別',
 			'settings.downloadSettings.presetDateDesc' => 'ダウンロード日ごとに整理',
-			'settings.downloadSettings.presetCustom' => 'カスタム',
-			'settings.downloadSettings.presetCustomDesc' => 'パステンプレートを自由に編集',
-			'settings.downloadSettings.presetCustomHint' => 'カスタム：「パステンプレート」エディタで編集してください',
+			'settings.downloadSettings.presetCustomActive' => '使用中',
 			'settings.downloadSettings.structurePreviewLabel' => 'プレビュー',
 			'settings.downloadSettings.structurePreviewNote' => '色付きの部分が整理の階層です。選択した方式に応じて変わります。',
 			'settings.downloadSettings.pathTooLongWarning' => '相対パスが200文字を超えています。一部の端末では保存できない場合があります',
@@ -5715,7 +5715,7 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => '単体画像',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'プレビュー · 実際に保存される名前',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'フォルダ階層を追加（${current}/${max}）',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'フォルダ階層を追加',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'フォルダ階層の上限に達しました',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache・変数・固定文字列',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '例: %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsJa {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '作者',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '日時',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '作者名・固定',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => '日付',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => '時刻',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => '日時',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => '連番',
 			'favoriteTags.title' => 'お気に入りタグ',
 			'favoriteTags.emptyIwara' => 'お気に入りの Iwara タグはまだありません',
 			'favoriteTags.emptyOreno3d' => 'お気に入りはまだありません',
@@ -6142,10 +6146,10 @@ extension on TranslationsJa {
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審査中',
 			'forum.editedAt' => '編集日時',
-			'forum.copySuccess' => 'クリップボードにコピーされました',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'クリップボードにコピーされました',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
 			'forum.editReply' => '編集回覆',
 			'forum.editTitle' => '編集タイトル',
 			'forum.submit' => '提出',
@@ -6656,10 +6660,10 @@ extension on TranslationsJa {
 			'download.location.fixStillFailing' => 'この場所はまだ使えません。別の場所を選んでください。',
 			'download.location.fixed' => '保存先が使えるようになりました',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
-			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
-			'download.stillInDevelopment' => '開発中',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
+			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
 			'download.alreadyDownloadedWithQuality' => 'すでに同じ品質のタスクがあります。続けてダウンロードしますか？',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'すでに品質が${qualities}のタスクがあります。続けてダウンロードしますか？',
@@ -7170,10 +7174,10 @@ extension on TranslationsJa {
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
-			'emoji.import' => 'インポート',
-			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			_ => null,
 		} ?? switch (path) {
+			'emoji.import' => 'インポート',
+			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
 			'emoji.createGroup' => '絵文字グループを作成',
 			'emoji.groupName' => 'グループ名',
@@ -7684,10 +7688,10 @@ extension on TranslationsJa {
 			'vrFormat.vr360TopBottomDesc' => '全周パノラマ + 上下両眼',
 			'vrFormat.resetView' => '視点をリセット',
 			'vrFormat.resetViewDesc' => '見ている向きと視野角を正面に戻します',
-			'vrFormat.resetToAuto' => '自動判定に戻す',
-			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => '自動判定に戻す',
+			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
 			'vrFormat.manualBadge' => '手動で指定済み',
 			'vrFormat.panoramaHint' => '画面をドラッグで見回し、ピンチで視野角を変更',
 			'vrFormat.panoramaGestureNotice' => '見回し中は画面のドラッグが視点操作になります。シークはシークバーをお使いください',

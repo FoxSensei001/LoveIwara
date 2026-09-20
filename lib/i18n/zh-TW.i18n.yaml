@@ -1151,9 +1151,7 @@ settings:
     presetAuthorDesc: '每位作者一個資料夾 · 改名不漂移'
     presetDate: '按日期'
     presetDateDesc: '按下載日期歸檔'
-    presetCustom: '自訂'
-    presetCustomDesc: '自由編輯路徑範本'
-    presetCustomHint: '自訂：在「自訂路徑範本」編輯器中修改'
+    presetCustomActive: 目前生效
     structurePreviewLabel: '效果預覽'
     structurePreviewNote: '彩色段＝組織層級，隨所選方式即時變化。'
     pathTooLongWarning: '相對路徑超過 200 字元，部分裝置可能無法儲存'
@@ -1167,7 +1165,7 @@ settings:
       tabImage: '單張圖片'
       previewLabel: '預覽 · 清洗後的真實落盤結果'
       galleryPreviewLabel: '預覽 · 圖庫範本＝資料夾名（內部圖片按 ID 命名）'
-      addFolder: '＋新增一層資料夾（${current}/${max}）'
+      addFolder: 新增一層資料夾
       folderCapReached: '已達資料夾層數上限'
       folderSegmentHint: '%authorcache、變數或固定文字'
       fileSegmentHint: '如 %title_%quality'
@@ -1185,6 +1183,10 @@ settings:
       trayCategoryAuthor: '作者'
       trayCategoryTime: '時間'
       chipAuthorcache: '作者名·固定'
+      chipDate: 日期
+      chipTime: 時間
+      chipDatetime: 日期時間
+      chipCount: 序號
 favoriteTags:
   title: 收藏標籤
   emptyIwara: 還沒有收藏的 Iwara 標籤

@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Una carpeta por autor · no se divide aunque cambie el nombre'
     presetDate: 'Por fecha'
     presetDateDesc: 'Agrupado por fecha de descarga'
-    presetCustom: 'Personalizado'
-    presetCustomDesc: 'Edita la plantilla de ruta libremente'
-    presetCustomHint: 'Personalizado: edita las reglas en el editor de plantillas de ruta'
+    presetCustomActive: En uso
     structurePreviewLabel: 'Vista previa'
     structurePreviewNote: 'Los segmentos de color son los niveles de organización, cambian con el esquema elegido.'
     pathTooLongWarning: 'La ruta relativa supera los 200 caracteres: puede fallar al guardar en algunos dispositivos'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Imagen individual'
       previewLabel: 'Vista previa · resultado real tras la limpieza'
       galleryPreviewLabel: 'Vista previa · la plantilla de galería nombra la carpeta (las imágenes internas usan el ID)'
-      addFolder: 'Añadir un nivel de carpeta (${current}/${max})'
+      addFolder: Añadir un nivel de carpeta
       folderCapReached: 'Límite de niveles de carpeta alcanzado'
       folderSegmentHint: '%authorcache, una variable o texto fijo'
       fileSegmentHint: 'p. ej. %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Autor'
       trayCategoryTime: 'Tiempo'
       chipAuthorcache: 'Nombre del autor·fijo'
+      chipDate: Fecha
+      chipTime: Hora
+      chipDatetime: Fecha y hora
+      chipCount: Índice
 favoriteTags:
   title: Etiquetas favoritas
   emptyIwara: Aún no hay etiquetas de Iwara favoritas

@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsDe extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'Ein Ordner pro Autor · Umbenennungen spalten das Archiv nicht';
 	@override String get presetDate => 'Nach Datum';
 	@override String get presetDateDesc => 'Nach Download-Datum gruppiert';
-	@override String get presetCustom => 'Benutzerdefiniert';
-	@override String get presetCustomDesc => 'Pfadvorlage frei bearbeiten';
-	@override String get presetCustomHint => 'Benutzerdefiniert: Regeln im Pfadvorlagen-Editor bearbeiten';
+	@override String get presetCustomActive => 'Aktiv';
 	@override String get structurePreviewLabel => 'Vorschau';
 	@override String get structurePreviewNote => 'Farbige Abschnitte sind die Organisationsebenen und folgen der gewählten Regel.';
 	@override String get pathTooLongWarning => 'Relativer Pfad über 200 Zeichen, das Speichern kann auf manchen Geräten fehlschlagen';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorDe extends Translat
 	@override String get tabImage => 'Einzelfoto';
 	@override String get previewLabel => 'Vorschau · tatsächliches Speicherergebnis nach Bereinigung';
 	@override String get galleryPreviewLabel => 'Vorschau · Galerievorlage = Ordnername (interne Bilder tragen die Bild-ID)';
-	@override String addFolder({required Object current, required Object max}) => 'Ordnerebene hinzufügen (${current}/${max})';
+	@override String get addFolder => 'Ordnerebene hinzufügen';
 	@override String get folderCapReached => 'Limit der Ordnerebenen erreicht';
 	@override String get folderSegmentHint => '%authorcache, eine Variable oder fester Text';
 	@override String get fileSegmentHint => 'z. B. %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorDe extends Translat
 	@override String get trayCategoryAuthor => 'Autor';
 	@override String get trayCategoryTime => 'Zeit';
 	@override String get chipAuthorcache => 'Autorenname·fest';
+	@override String get chipDate => 'Datum';
+	@override String get chipTime => 'Uhrzeit';
+	@override String get chipDatetime => 'Datum & Zeit';
+	@override String get chipCount => 'Nr.';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsDe {
 			'settings.downloadSettings.presetAuthorDesc' => 'Ein Ordner pro Autor · Umbenennungen spalten das Archiv nicht',
 			'settings.downloadSettings.presetDate' => 'Nach Datum',
 			'settings.downloadSettings.presetDateDesc' => 'Nach Download-Datum gruppiert',
-			'settings.downloadSettings.presetCustom' => 'Benutzerdefiniert',
-			'settings.downloadSettings.presetCustomDesc' => 'Pfadvorlage frei bearbeiten',
-			'settings.downloadSettings.presetCustomHint' => 'Benutzerdefiniert: Regeln im Pfadvorlagen-Editor bearbeiten',
+			'settings.downloadSettings.presetCustomActive' => 'Aktiv',
 			'settings.downloadSettings.structurePreviewLabel' => 'Vorschau',
 			'settings.downloadSettings.structurePreviewNote' => 'Farbige Abschnitte sind die Organisationsebenen und folgen der gewählten Regel.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Relativer Pfad über 200 Zeichen, das Speichern kann auf manchen Geräten fehlschlagen',
@@ -5715,7 +5715,7 @@ extension on TranslationsDe {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Einzelfoto',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Vorschau · tatsächliches Speicherergebnis nach Bereinigung',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Vorschau · Galerievorlage = Ordnername (interne Bilder tragen die Bild-ID)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Ordnerebene hinzufügen (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Ordnerebene hinzufügen',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Limit der Ordnerebenen erreicht',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, eine Variable oder fester Text',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'z. B. %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsDe {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Autor',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Zeit',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Autorenname·fest',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Datum',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Uhrzeit',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Datum & Zeit',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Nr.',
 			'favoriteTags.title' => 'Favorisierte Tags',
 			'favoriteTags.emptyIwara' => 'Noch keine favorisierten Iwara-Tags',
 			'favoriteTags.emptyOreno3d' => 'Noch keine Favoriten',
@@ -6142,10 +6146,10 @@ extension on TranslationsDe {
 			'forum.reply' => 'Antworten',
 			'forum.pendingReview' => 'Ausstehende Prüfung',
 			'forum.editedAt' => 'Bearbeitet am',
-			'forum.copySuccess' => 'In die Zwischenablage kopiert',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'In die Zwischenablage kopiert: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'In die Zwischenablage kopiert',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'In die Zwischenablage kopiert: ${str}',
 			'forum.editReply' => 'Antwort bearbeiten',
 			'forum.editTitle' => 'Titel bearbeiten',
 			'forum.submit' => 'Absenden',
@@ -6656,10 +6660,10 @@ extension on TranslationsDe {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Max. gleichzeitige Downloads',
-			'download.maxConcurrentDownloadsDesc' => 'Anzahl der gleichzeitig herunterladenden Aufgaben (1-5)',
-			'download.stillInDevelopment' => 'Noch in Entwicklung',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Anzahl der gleichzeitig herunterladenden Aufgaben (1-5)',
+			'download.stillInDevelopment' => 'Noch in Entwicklung',
 			'download.saveToAppDirectory' => 'Im App-Verzeichnis speichern',
 			'download.alreadyDownloadedWithQuality' => 'Bereits in der gleichen Qualität heruntergeladen. Möchten Sie den Download fortsetzen?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Bereits in den Qualitätsstufen heruntergeladen: ${qualities}. Möchten Sie den Download fortsetzen?',
@@ -7170,10 +7174,10 @@ extension on TranslationsDe {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Möchten Sie wirklich fortfahren?',
 			'linkInputDialog.browserOpenFailed' => 'Link konnte nicht geöffnet werden',
 			'linkInputDialog.unsupportedLink' => 'Nicht unterstützter Link',
-			'linkInputDialog.cancel' => 'Abbrechen',
-			'linkInputDialog.confirm' => 'Im Browser öffnen',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Abbrechen',
+			'linkInputDialog.confirm' => 'Im Browser öffnen',
 			'log.logManagement' => 'Protokollverwaltung',
 			'log.enableLogPersistence' => 'Protokollpersistenz aktivieren',
 			'log.enableLogPersistenceDesc' => 'Protokolle zur Analyse in der Datenbank speichern',
@@ -7684,10 +7688,10 @@ extension on TranslationsDe {
 			'vrFormat.vr360TopBottomDesc' => 'Vollständiges Rundumpanorama mit beiden Augen übereinander',
 			'vrFormat.resetView' => 'Ansicht zurücksetzen',
 			'vrFormat.resetViewDesc' => 'Blickrichtung und Sichtfeld wieder nach vorne ausrichten',
-			'vrFormat.resetToAuto' => 'Zurück zur automatischen Erkennung',
-			'vrFormat.resetToAutoDesc' => 'Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Zurück zur automatischen Erkennung',
+			'vrFormat.resetToAutoDesc' => 'Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen',
 			'vrFormat.manualBadge' => 'Manuell festgelegt',
 			'vrFormat.panoramaHint' => 'Ziehen Sie das Bild, um sich umzusehen; ziehen Sie zusammen, um das Sichtfeld zu ändern',
 			'vrFormat.panoramaGestureNotice' => 'Beim Umsehen dreht Ziehen die Ansicht — verwenden Sie den Fortschrittsbalken zum Spulen',

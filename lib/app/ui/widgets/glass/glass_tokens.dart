@@ -257,6 +257,21 @@ abstract final class GlassTokens {
   static bool get _isMaterialTier =>
       glassMaterialMode.value == GlassMaterialMode.material;
 
+  /// 底部弹层（[GlassBottomSheet] / [GlassDraggableBottomSheet]）外壳的面色。
+  ///
+  /// ⛔ 不能直接用 [fill]：传统档下 [fill] = `surfaceContainerLow`
+  /// alpha 0.94，弹层内容常常就是 [GlassSettingSection] 一类同样吃 [fill]
+  /// 的玻璃卡片——外壳与卡片落到同一个基础色阶时，那 6% 的透光不痛不痒，
+  /// 卡片的半透明「膜」等于叠在同色背景上、观感上完全消失，只剩一圈细描边
+  /// （2026-09-20 用户报「更改下载位置」底部面板正是这样）。这里外壳单独
+  /// 上提一档 `surfaceContainerHigh`，让卡片有色阶可衬。
+  ///
+  /// Material 档不吃这条：那一档下 [fill] 本来就是 [materialFill]
+  /// （`surfaceContainerHigh`），外壳仍钉在 `surfaceContainerLow`——两者本来
+  /// 就差了一档、对比一直是对的，跟着传统档一起上提反而会把外壳和卡片拉平。
+  static Color sheetFill(ColorScheme cs) =>
+      _isMaterialTier ? cs.surfaceContainerLow : cs.surfaceContainerHigh;
+
   /// 玻璃体内侧细描边。
   static Color stroke(ColorScheme cs) => cs.outlineVariant.withValues(
     alpha: cs.brightness == Brightness.dark ? 0.55 : 0.45,
@@ -313,6 +328,18 @@ abstract final class GlassTokens {
     cs.onSurface.withValues(alpha: materialPressedStateLayer),
     materialFill(cs),
   );
+
+  /// Material 档下**浮出面板**（[showGlassMenu] 的下拉菜单/选择板）的面色：
+  /// `surfaceContainerHighest`，比 [materialFill] 再深一档。
+  ///
+  /// ⛔ 面板不能沿用 [materialFill]：设置页一类的卡片（[GlassSettingSection]）
+  /// 走的是 [fill]，Material 档下 [fill] 就是 [materialFill]——面板和卡片因此
+  /// 落到同一格色阶，而 Material 档的面板/卡片都不画描边或投影，色阶一撞就
+  /// 是彻彻底底的同色，肉眼完全分不出面板浮在卡片之上（2026-09-20 用户报
+  /// 「下载设置页宽屏下更改位置菜单和设置卡片背景一样」）。真玻璃档不吃这条：
+  /// 面板固定走 easyLens 折射渲染，与卡片的传统档半透明底完全是两套材质，
+  /// 天然不会撞色，见 [panelGlassBackend]。
+  static Color panelFill(ColorScheme cs) => cs.surfaceContainerHighest;
 
   /// Material 档的选中块（分段控件的高亮、底栏指示器）：M3 的
   /// `secondaryContainer`，不透明。

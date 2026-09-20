@@ -1,6 +1,7 @@
 import 'package:path/path.dart' as p;
 
 import 'package:i_iwara/app/services/permission_service.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 下载目录「是哪一类地方」——决定要不要权限、卸载会不会被删、怎么给用户起名字。
 enum DownloadLocationKind {
@@ -348,4 +349,18 @@ enum DownloadFallbackReason {
 
   /// 目录在，但写不进去。
   notWritable,
+}
+
+/// 回退原因的人话标签。
+///
+/// 放在 enum 旁边而不是某一层里：位置卡要用它写横幅，下载服务要用它写完成
+/// 回执——两边说的必须是同一句话，各抄一份 switch 迟早分叉。
+String downloadFallbackReasonLabel(DownloadFallbackReason reason) {
+  final t = slang.t.download.location;
+  return switch (reason) {
+    DownloadFallbackReason.needsPermission => t.fallbackReasonPermission,
+    DownloadFallbackReason.volumeMissing => t.fallbackReasonVolumeMissing,
+    DownloadFallbackReason.cannotCreate => t.fallbackReasonCannotCreate,
+    DownloadFallbackReason.notWritable => t.fallbackReasonNotWritable,
+  };
 }

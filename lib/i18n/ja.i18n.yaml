@@ -1151,9 +1151,7 @@ settings:
     presetAuthorDesc: '作者ごとにフォルダ分け · 名前が変わっても迷子にならない'
     presetDate: '日付別'
     presetDateDesc: 'ダウンロード日ごとに整理'
-    presetCustom: 'カスタム'
-    presetCustomDesc: 'パステンプレートを自由に編集'
-    presetCustomHint: 'カスタム：「パステンプレート」エディタで編集してください'
+    presetCustomActive: 使用中
     structurePreviewLabel: 'プレビュー'
     structurePreviewNote: '色付きの部分が整理の階層です。選択した方式に応じて変わります。'
     pathTooLongWarning: '相対パスが200文字を超えています。一部の端末では保存できない場合があります'
@@ -1167,7 +1165,7 @@ settings:
       tabImage: '単体画像'
       previewLabel: 'プレビュー · 実際に保存される名前'
       galleryPreviewLabel: 'プレビュー · ギャラリーテンプレート＝フォルダ名（内部画像はID名）'
-      addFolder: 'フォルダ階層を追加（${current}/${max}）'
+      addFolder: フォルダ階層を追加
       folderCapReached: 'フォルダ階層の上限に達しました'
       folderSegmentHint: '%authorcache・変数・固定文字列'
       fileSegmentHint: '例: %title_%quality'
@@ -1185,6 +1183,10 @@ settings:
       trayCategoryAuthor: '作者'
       trayCategoryTime: '日時'
       chipAuthorcache: '作者名・固定'
+      chipDate: 日付
+      chipTime: 時刻
+      chipDatetime: 日時
+      chipCount: 連番
 favoriteTags:
   title: お気に入りタグ
   emptyIwara: お気に入りの Iwara タグはまだありません

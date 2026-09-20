@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Mỗi tác giả một thư mục · đổi tên không tách rời'
     presetDate: 'Theo ngày'
     presetDateDesc: 'Nhóm theo ngày tải'
-    presetCustom: 'Tùy chỉnh'
-    presetCustomDesc: 'Chỉnh sửa mẫu đường dẫn tự do'
-    presetCustomHint: 'Tùy chỉnh: sửa quy tắc trong trình chỉnh sửa mẫu đường dẫn'
+    presetCustomActive: Đang dùng
     structurePreviewLabel: 'Xem trước'
     structurePreviewNote: 'Đoạn màu là cấp tổ chức, đổi theo cách đã chọn.'
     pathTooLongWarning: 'Đường dẫn tương đối vượt 200 ký tự, một số thiết bị có thể không lưu được'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Ảnh đơn'
       previewLabel: 'Xem trước · kết quả lưu thực sau khi làm sạch'
       galleryPreviewLabel: 'Xem trước · mẫu thư viện = tên thư mục (ảnh bên trong đặt theo ID)'
-      addFolder: 'Thêm một cấp thư mục (${current}/${max})'
+      addFolder: Thêm một cấp thư mục
       folderCapReached: 'Đã đến giới hạn cấp thư mục'
       folderSegmentHint: '%authorcache, biến hoặc văn bản cố định'
       fileSegmentHint: 'vd: %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Tác giả'
       trayCategoryTime: 'Thời gian'
       chipAuthorcache: 'Tên tác giả·cố định'
+      chipDate: Ngày
+      chipTime: Giờ
+      chipDatetime: Ngày giờ
+      chipCount: Số thứ tự
 favoriteTags:
   title: Thẻ yêu thích
   emptyIwara: Chưa có thẻ Iwara yêu thích

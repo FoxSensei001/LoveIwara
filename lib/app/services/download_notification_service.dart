@@ -1,4 +1,4 @@
-import 'dart:io' show Platform, Process;
+import 'dart:io' show Process;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -10,7 +10,6 @@ import 'package:i_iwara/app/services/download_path_service.dart';
 import 'package:i_iwara/app/services/permission_service.dart';
 import 'package:i_iwara/app/ui/pages/download/download_task_list_page.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
-import 'package:path/path.dart' as p;
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 跨平台「系统通知」服务。
@@ -223,7 +222,7 @@ class DownloadNotificationService extends GetxService {
               text: slang.t.downloadNotifications.viewFolder,
             ),
           ];
-          notification.onClickAction = (_) => _revealInFileManager(revealPath);
+          notification.onClickAction = (_) => _revealInExplorer(revealPath);
         }
         await notification.show();
         return;
@@ -332,17 +331,18 @@ class DownloadNotificationService extends GetxService {
     }
   }
 
-  /// 在系统文件管理器里定位落盘位置（Windows：选中；macOS：Reveal；
-  /// Linux：打开所在目录）。
-  Future<void> _revealInFileManager(String target) async {
+  /// 在资源管理器里选中落盘的文件（只有 Windows 走得到这里）。
+  ///
+  /// 通知动作只挂在 local_notifier 那一支上，而 [_useLocalNotifier] 恒等于
+  /// `isWindows`——所以这里不写 macOS / Linux 分支：写了也永不执行，只会让人
+  /// 误以为那两个平台有这个能力。它们的降级见 [showDownloadComplete]（只在
+  /// 通知正文里报出落盘目录）。
+  Future<void> _revealInExplorer(String target) async {
     try {
-      if (Platform.isWindows) {
-        await Process.run('explorer.exe', ['/select,', target]);
-      } else if (Platform.isMacOS) {
-        await Process.run('open', ['-R', target]);
-      } else if (Platform.isLinux) {
-        await Process.run('xdg-open', [p.dirname(target)]);
-      }
+      // ⛔ `/select,` 和路径必须拼成**同一个**参数。分成两个参数传，命令行里
+      // 会在逗号后多出一个空格，explorer 认不出这个开关，转而打开「文档」
+      // 而不是定位目标文件。
+      await Process.run('explorer.exe', ['/select,$target']);
     } catch (e) {
       LogUtils.w('从通知打开文件夹失败: $e', 'DownloadNotificationService');
     }

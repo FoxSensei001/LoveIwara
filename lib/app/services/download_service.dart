@@ -2137,7 +2137,7 @@ class DownloadService extends GetxService {
         if (fallback != null) {
           return notice.savedToAppFolder(
             target: fallback.target,
-            reason: _fallbackReasonLabel(fallback.reason),
+            reason: downloadFallbackReasonLabel(fallback.reason),
           );
         }
       }
@@ -2151,18 +2151,6 @@ class DownloadService extends GetxService {
       return notice.savedAsRenamed(name: path_lib.basename(task.savePath));
     }
     return notice.completedToast(name: title);
-  }
-
-  /// 回退原因的人话标签（与 download_location_card 的
-  /// downloadFallbackReasonLabel 同源；服务层不 import UI，此处各自维护）。
-  String _fallbackReasonLabel(DownloadFallbackReason reason) {
-    final t = slang.t.download.location;
-    return switch (reason) {
-      DownloadFallbackReason.needsPermission => t.fallbackReasonPermission,
-      DownloadFallbackReason.volumeMissing => t.fallbackReasonVolumeMissing,
-      DownloadFallbackReason.cannotCreate => t.fallbackReasonCannotCreate,
-      DownloadFallbackReason.notWritable => t.fallbackReasonNotWritable,
-    };
   }
 
   String _getErrorMessage(dynamic error) {

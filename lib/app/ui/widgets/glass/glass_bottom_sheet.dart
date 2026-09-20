@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -181,11 +182,14 @@ class _GlassBottomSheetShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // 面板背景用不透明的 surfaceContainerLow：半透明会把下层被遮的内容透出
-    // 来；也不能用 surface——M3 下页面 Scaffold 的背景就是它，弹层会跟页面
-    // 完全同色，只剩遮罩能看出层次。内部按钮通过 LiquidGlassScope 接入液态档。
+    // 面板背景用不透明的 [GlassTokens.sheetFill]：半透明会把下层被遮的内容
+    // 透出来；也不能用 surface——M3 下页面 Scaffold 的背景就是它，弹层会跟
+    // 页面完全同色，只剩遮罩能看出层次；也不能直接用 [GlassTokens.fill]——
+    // 传统档下弹层里的玻璃卡片（[GlassSettingSection] 一类）吃的正是这个
+    // token，外壳跟着同色会把卡片自己那圈半透明「膜」衬没，见该 token 注释。
+    // 内部按钮通过 LiquidGlassScope 接入液态档。
     return Material(
-      color: cs.surfaceContainerLow,
+      color: GlassTokens.sheetFill(cs),
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -302,9 +306,10 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       // 留在 LiquidGlassScope 之外，面板背景保持原样；底部安全区也同样让在
       // Material **里面**（壳外面套 Padding 的话，导航条那条带只剩弹层遮罩）。
       builder: (context, scrollController) => Material(
-        // 同 [_GlassBottomSheetShell]：比页面背景（surface）高一个调，
-        // 否则弹层跟页面同色。
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        // 同 [_GlassBottomSheetShell]：走 [GlassTokens.sheetFill]，
+        // 既要与页面背景（surface）拉开，也要与弹层里的玻璃卡片
+        // （[GlassTokens.fill]）拉开，理由见该 token 注释。
+        color: GlassTokens.sheetFill(Theme.of(context).colorScheme),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         clipBehavior: Clip.antiAlias,
         child: Column(

@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsId extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'Satu folder per penulis · tidak terpecah meski nama berubah';
 	@override String get presetDate => 'Per tanggal';
 	@override String get presetDateDesc => 'Dikelompokkan menurut tanggal unduh';
-	@override String get presetCustom => 'Kustom';
-	@override String get presetCustomDesc => 'Edit templat jalur dengan bebas';
-	@override String get presetCustomHint => 'Kustom: ubah aturan di editor templat jalur';
+	@override String get presetCustomActive => 'Digunakan';
 	@override String get structurePreviewLabel => 'Pratinjau';
 	@override String get structurePreviewNote => 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.';
 	@override String get pathTooLongWarning => 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorId extends Translat
 	@override String get tabImage => 'Gambar tunggal';
 	@override String get previewLabel => 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan';
 	@override String get galleryPreviewLabel => 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)';
-	@override String addFolder({required Object current, required Object max}) => 'Tambah satu tingkat folder (${current}/${max})';
+	@override String get addFolder => 'Tambah satu tingkat folder';
 	@override String get folderCapReached => 'Batas tingkat folder tercapai';
 	@override String get folderSegmentHint => '%authorcache, variabel, atau teks tetap';
 	@override String get fileSegmentHint => 'mis. %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorId extends Translat
 	@override String get trayCategoryAuthor => 'Penulis';
 	@override String get trayCategoryTime => 'Waktu';
 	@override String get chipAuthorcache => 'Nama penulis·tetap';
+	@override String get chipDate => 'Tanggal';
+	@override String get chipTime => 'Waktu';
+	@override String get chipDatetime => 'Tanggal & waktu';
+	@override String get chipCount => 'Indeks';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsId {
 			'settings.downloadSettings.presetAuthorDesc' => 'Satu folder per penulis · tidak terpecah meski nama berubah',
 			'settings.downloadSettings.presetDate' => 'Per tanggal',
 			'settings.downloadSettings.presetDateDesc' => 'Dikelompokkan menurut tanggal unduh',
-			'settings.downloadSettings.presetCustom' => 'Kustom',
-			'settings.downloadSettings.presetCustomDesc' => 'Edit templat jalur dengan bebas',
-			'settings.downloadSettings.presetCustomHint' => 'Kustom: ubah aturan di editor templat jalur',
+			'settings.downloadSettings.presetCustomActive' => 'Digunakan',
 			'settings.downloadSettings.structurePreviewLabel' => 'Pratinjau',
 			'settings.downloadSettings.structurePreviewNote' => 'Segmen berwarna adalah tingkat pengorganisasian, berubah sesuai skema terpilih.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Jalur relatif melebihi 200 karakter, bisa gagal disimpan di sebagian perangkat',
@@ -5715,7 +5715,7 @@ extension on TranslationsId {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Gambar tunggal',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Pratinjau · hasil tersimpan sesungguhnya setelah pembersihan',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Pratinjau · templat galeri = nama folder (gambar dalam pakai ID gambar)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Tambah satu tingkat folder (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Tambah satu tingkat folder',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Batas tingkat folder tercapai',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, variabel, atau teks tetap',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'mis. %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsId {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Penulis',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Waktu',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nama penulis·tetap',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Tanggal',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Waktu',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Tanggal & waktu',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Indeks',
 			'favoriteTags.title' => 'Tag Favorit',
 			'favoriteTags.emptyIwara' => 'Belum ada tag Iwara favorit',
 			'favoriteTags.emptyOreno3d' => 'Belum ada favorit',
@@ -6142,10 +6146,10 @@ extension on TranslationsId {
 			'forum.reply' => 'Balas',
 			'forum.pendingReview' => 'Menunggu Tinjauan',
 			'forum.editedAt' => 'Diubah Pada',
-			'forum.copySuccess' => 'Disalin ke papan klip',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Disalin ke papan klip: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'Disalin ke papan klip',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'Disalin ke papan klip: ${str}',
 			'forum.editReply' => 'Ubah Balasan',
 			'forum.editTitle' => 'Ubah Judul',
 			'forum.submit' => 'Kirim',
@@ -6656,10 +6660,10 @@ extension on TranslationsId {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Unduhan bersamaan maksimum',
-			'download.maxConcurrentDownloadsDesc' => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)',
-			'download.stillInDevelopment' => 'Masih dalam pengembangan',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)',
+			'download.stillInDevelopment' => 'Masih dalam pengembangan',
 			'download.saveToAppDirectory' => 'Simpan ke direktori aplikasi',
 			'download.alreadyDownloadedWithQuality' => 'Sudah diunduh dengan kualitas yang sama, lanjutkan pengunduhan?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Sudah diunduh dengan kualitas: ${qualities}, lanjutkan pengunduhan?',
@@ -7170,10 +7174,10 @@ extension on TranslationsId {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Apakah Anda yakin ingin melanjutkan?',
 			'linkInputDialog.browserOpenFailed' => 'Gagal membuka tautan',
 			'linkInputDialog.unsupportedLink' => 'Tautan Tidak Didukung',
-			'linkInputDialog.cancel' => 'Batal',
-			'linkInputDialog.confirm' => 'Buka di Peramban',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Batal',
+			'linkInputDialog.confirm' => 'Buka di Peramban',
 			'log.logManagement' => 'Pengelolaan Log',
 			'log.enableLogPersistence' => 'Aktifkan Persistensi Log',
 			'log.enableLogPersistenceDesc' => 'Simpan log ke basis data untuk analisis',
@@ -7684,10 +7688,10 @@ extension on TranslationsId {
 			'vrFormat.vr360TopBottomDesc' => 'Panorama sekeliling penuh dengan kedua mata ditumpuk',
 			'vrFormat.resetView' => 'Atur ulang tampilan',
 			'vrFormat.resetViewDesc' => 'Kembalikan arah pandang dan bidang pandang ke depan',
-			'vrFormat.resetToAuto' => 'Kembali ke deteksi otomatis',
-			'vrFormat.resetToAutoDesc' => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Kembali ke deteksi otomatis',
+			'vrFormat.resetToAutoDesc' => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi',
 			'vrFormat.manualBadge' => 'Diatur secara manual',
 			'vrFormat.panoramaHint' => 'Seret gambar untuk melihat sekeliling, cubit untuk mengubah bidang pandang',
 			'vrFormat.panoramaGestureNotice' => 'Saat melihat sekeliling, menyeret akan memutar tampilan — gunakan bilah kemajuan untuk mencari',

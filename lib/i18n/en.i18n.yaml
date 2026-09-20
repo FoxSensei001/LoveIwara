@@ -1151,9 +1151,7 @@ settings:
     presetAuthorDesc: One folder per author — renames don't split it
     presetDate: By date
     presetDateDesc: Grouped by download date
-    presetCustom: Custom
-    presetCustomDesc: Edit the path template freely
-    presetCustomHint: Custom — edit the rules in the path template editor
+    presetCustomActive: In use
     structurePreviewLabel: Preview
     structurePreviewNote: Colored segments are the organization levels — they follow the selected scheme.
     pathTooLongWarning: Relative path exceeds 200 characters — saving may fail on some devices
@@ -1167,7 +1165,7 @@ settings:
       tabImage: Single image
       previewLabel: Preview — the actual save result after cleaning
       galleryPreviewLabel: Preview — gallery template names the folder (inner images use the image ID)
-      addFolder: 'Add a folder level (${current}/${max})'
+      addFolder: Add a folder level
       folderCapReached: Folder level limit reached
       folderSegmentHint: '%authorcache, a variable or plain text'
       fileSegmentHint: 'e.g. %title_%quality'
@@ -1185,6 +1183,10 @@ settings:
       trayCategoryAuthor: Author
       trayCategoryTime: Time
       chipAuthorcache: 'Author · fixed'
+      chipDate: Date
+      chipTime: Time
+      chipDatetime: Date & time
+      chipCount: Index
 favoriteTags:
   title: Favorite Tags
   emptyIwara: No favorite Iwara tags yet

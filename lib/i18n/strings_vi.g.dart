@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsVi extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'Mỗi tác giả một thư mục · đổi tên không tách rời';
 	@override String get presetDate => 'Theo ngày';
 	@override String get presetDateDesc => 'Nhóm theo ngày tải';
-	@override String get presetCustom => 'Tùy chỉnh';
-	@override String get presetCustomDesc => 'Chỉnh sửa mẫu đường dẫn tự do';
-	@override String get presetCustomHint => 'Tùy chỉnh: sửa quy tắc trong trình chỉnh sửa mẫu đường dẫn';
+	@override String get presetCustomActive => 'Đang dùng';
 	@override String get structurePreviewLabel => 'Xem trước';
 	@override String get structurePreviewNote => 'Đoạn màu là cấp tổ chức, đổi theo cách đã chọn.';
 	@override String get pathTooLongWarning => 'Đường dẫn tương đối vượt 200 ký tự, một số thiết bị có thể không lưu được';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorVi extends Translat
 	@override String get tabImage => 'Ảnh đơn';
 	@override String get previewLabel => 'Xem trước · kết quả lưu thực sau khi làm sạch';
 	@override String get galleryPreviewLabel => 'Xem trước · mẫu thư viện = tên thư mục (ảnh bên trong đặt theo ID)';
-	@override String addFolder({required Object current, required Object max}) => 'Thêm một cấp thư mục (${current}/${max})';
+	@override String get addFolder => 'Thêm một cấp thư mục';
 	@override String get folderCapReached => 'Đã đến giới hạn cấp thư mục';
 	@override String get folderSegmentHint => '%authorcache, biến hoặc văn bản cố định';
 	@override String get fileSegmentHint => 'vd: %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorVi extends Translat
 	@override String get trayCategoryAuthor => 'Tác giả';
 	@override String get trayCategoryTime => 'Thời gian';
 	@override String get chipAuthorcache => 'Tên tác giả·cố định';
+	@override String get chipDate => 'Ngày';
+	@override String get chipTime => 'Giờ';
+	@override String get chipDatetime => 'Ngày giờ';
+	@override String get chipCount => 'Số thứ tự';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsVi {
 			'settings.downloadSettings.presetAuthorDesc' => 'Mỗi tác giả một thư mục · đổi tên không tách rời',
 			'settings.downloadSettings.presetDate' => 'Theo ngày',
 			'settings.downloadSettings.presetDateDesc' => 'Nhóm theo ngày tải',
-			'settings.downloadSettings.presetCustom' => 'Tùy chỉnh',
-			'settings.downloadSettings.presetCustomDesc' => 'Chỉnh sửa mẫu đường dẫn tự do',
-			'settings.downloadSettings.presetCustomHint' => 'Tùy chỉnh: sửa quy tắc trong trình chỉnh sửa mẫu đường dẫn',
+			'settings.downloadSettings.presetCustomActive' => 'Đang dùng',
 			'settings.downloadSettings.structurePreviewLabel' => 'Xem trước',
 			'settings.downloadSettings.structurePreviewNote' => 'Đoạn màu là cấp tổ chức, đổi theo cách đã chọn.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Đường dẫn tương đối vượt 200 ký tự, một số thiết bị có thể không lưu được',
@@ -5715,7 +5715,7 @@ extension on TranslationsVi {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Ảnh đơn',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Xem trước · kết quả lưu thực sau khi làm sạch',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Xem trước · mẫu thư viện = tên thư mục (ảnh bên trong đặt theo ID)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Thêm một cấp thư mục (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Thêm một cấp thư mục',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Đã đến giới hạn cấp thư mục',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, biến hoặc văn bản cố định',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'vd: %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsVi {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Tác giả',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Thời gian',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Tên tác giả·cố định',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Ngày',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Giờ',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Ngày giờ',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Số thứ tự',
 			'favoriteTags.title' => 'Thẻ yêu thích',
 			'favoriteTags.emptyIwara' => 'Chưa có thẻ Iwara yêu thích',
 			'favoriteTags.emptyOreno3d' => 'Chưa có mục yêu thích',
@@ -6142,10 +6146,10 @@ extension on TranslationsVi {
 			'forum.reply' => 'Trả lời',
 			'forum.pendingReview' => 'Đang chờ duyệt',
 			'forum.editedAt' => 'Chỉnh sửa lúc',
-			'forum.copySuccess' => 'Đã sao chép vào clipboard',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Đã sao chép vào clipboard: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'Đã sao chép vào clipboard',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'Đã sao chép vào clipboard: ${str}',
 			'forum.editReply' => 'Chỉnh sửa trả lời',
 			'forum.editTitle' => 'Chỉnh sửa tiêu đề',
 			'forum.submit' => 'Gửi',
@@ -6656,10 +6660,10 @@ extension on TranslationsVi {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Số tải xuống đồng thời tối đa',
-			'download.maxConcurrentDownloadsDesc' => 'Số tác vụ tải xuống cùng lúc (1-5)',
-			'download.stillInDevelopment' => 'Vẫn đang phát triển',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Số tác vụ tải xuống cùng lúc (1-5)',
+			'download.stillInDevelopment' => 'Vẫn đang phát triển',
 			'download.saveToAppDirectory' => 'Lưu vào thư mục ứng dụng',
 			'download.alreadyDownloadedWithQuality' => 'Đã tải xuống với cùng chất lượng, tiếp tục tải?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Đã tải xuống với chất lượng: ${qualities}, tiếp tục tải?',
@@ -7170,10 +7174,10 @@ extension on TranslationsVi {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Bạn có chắc muốn tiếp tục?',
 			'linkInputDialog.browserOpenFailed' => 'Mở liên kết thất bại',
 			'linkInputDialog.unsupportedLink' => 'Liên kết không được hỗ trợ',
-			'linkInputDialog.cancel' => 'Hủy',
-			'linkInputDialog.confirm' => 'Mở trong trình duyệt',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Hủy',
+			'linkInputDialog.confirm' => 'Mở trong trình duyệt',
 			'log.logManagement' => 'Quản lý nhật ký',
 			'log.enableLogPersistence' => 'Bật lưu nhật ký lâu dài',
 			'log.enableLogPersistenceDesc' => 'Lưu nhật ký vào cơ sở dữ liệu để phân tích',
@@ -7684,10 +7688,10 @@ extension on TranslationsVi {
 			'vrFormat.vr360TopBottomDesc' => 'Toàn cảnh bao quanh đầy đủ với cả hai mắt xếp chồng',
 			'vrFormat.resetView' => 'Đặt lại tầm nhìn',
 			'vrFormat.resetViewDesc' => 'Đưa hướng nhìn và trường nhìn về phía trước',
-			'vrFormat.resetToAuto' => 'Quay lại tự động phát hiện',
-			'vrFormat.resetToAutoDesc' => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Quay lại tự động phát hiện',
+			'vrFormat.resetToAutoDesc' => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại',
 			'vrFormat.manualBadge' => 'Đặt thủ công',
 			'vrFormat.panoramaHint' => 'Kéo hình để nhìn quanh, chụm để thay đổi trường nhìn',
 			'vrFormat.panoramaGestureNotice' => 'Trong khi nhìn quanh, kéo sẽ xoay tầm nhìn — hãy dùng thanh tiến trình để tua',

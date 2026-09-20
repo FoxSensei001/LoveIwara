@@ -7991,14 +7991,8 @@ class TranslationsSettingsDownloadSettingsEn {
 	/// en: 'Grouped by download date'
 	String get presetDateDesc => 'Grouped by download date';
 
-	/// en: 'Custom'
-	String get presetCustom => 'Custom';
-
-	/// en: 'Edit the path template freely'
-	String get presetCustomDesc => 'Edit the path template freely';
-
-	/// en: 'Custom — edit the rules in the path template editor'
-	String get presetCustomHint => 'Custom — edit the rules in the path template editor';
+	/// en: 'In use'
+	String get presetCustomActive => 'In use';
 
 	/// en: 'Preview'
 	String get structurePreviewLabel => 'Preview';
@@ -10927,8 +10921,8 @@ class TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 	/// en: 'Preview — gallery template names the folder (inner images use the image ID)'
 	String get galleryPreviewLabel => 'Preview — gallery template names the folder (inner images use the image ID)';
 
-	/// en: 'Add a folder level (${current}/${max})'
-	String addFolder({required Object current, required Object max}) => 'Add a folder level (${current}/${max})';
+	/// en: 'Add a folder level'
+	String get addFolder => 'Add a folder level';
 
 	/// en: 'Folder level limit reached'
 	String get folderCapReached => 'Folder level limit reached';
@@ -10980,6 +10974,18 @@ class TranslationsSettingsDownloadSettingsPathTemplateEditorEn {
 
 	/// en: 'Author · fixed'
 	String get chipAuthorcache => 'Author · fixed';
+
+	/// en: 'Date'
+	String get chipDate => 'Date';
+
+	/// en: 'Time'
+	String get chipTime => 'Time';
+
+	/// en: 'Date & time'
+	String get chipDatetime => 'Date & time';
+
+	/// en: 'Index'
+	String get chipCount => 'Index';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -12401,9 +12407,7 @@ extension on Translations {
 			'settings.downloadSettings.presetAuthorDesc' => 'One folder per author — renames don\'t split it',
 			'settings.downloadSettings.presetDate' => 'By date',
 			'settings.downloadSettings.presetDateDesc' => 'Grouped by download date',
-			'settings.downloadSettings.presetCustom' => 'Custom',
-			'settings.downloadSettings.presetCustomDesc' => 'Edit the path template freely',
-			'settings.downloadSettings.presetCustomHint' => 'Custom — edit the rules in the path template editor',
+			'settings.downloadSettings.presetCustomActive' => 'In use',
 			'settings.downloadSettings.structurePreviewLabel' => 'Preview',
 			'settings.downloadSettings.structurePreviewNote' => 'Colored segments are the organization levels — they follow the selected scheme.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Relative path exceeds 200 characters — saving may fail on some devices',
@@ -12416,7 +12420,7 @@ extension on Translations {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Single image',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Preview — the actual save result after cleaning',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Preview — gallery template names the folder (inner images use the image ID)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Add a folder level (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Add a folder level',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Folder level limit reached',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, a variable or plain text',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'e.g. %title_%quality',
@@ -12434,6 +12438,10 @@ extension on Translations {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Author',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Time',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Author · fixed',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Date',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Time',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Date & time',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Index',
 			'favoriteTags.title' => 'Favorite Tags',
 			'favoriteTags.emptyIwara' => 'No favorite Iwara tags yet',
 			'favoriteTags.emptyOreno3d' => 'No favorites yet',
@@ -12843,10 +12851,10 @@ extension on Translations {
 			'forum.reply' => 'Reply',
 			'forum.pendingReview' => 'Pending Review',
 			'forum.editedAt' => 'Edited At',
-			'forum.copySuccess' => 'Copied to clipboard',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'Copied to clipboard',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'Copied to clipboard: ${str}',
 			'forum.editReply' => 'Edit Reply',
 			'forum.editTitle' => 'Edit Title',
 			'forum.submit' => 'Submit',
@@ -13357,10 +13365,10 @@ extension on Translations {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Max concurrent downloads',
-			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
-			'download.stillInDevelopment' => 'Still in development',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Number of tasks downloading at the same time (1-5)',
+			'download.stillInDevelopment' => 'Still in development',
 			'download.saveToAppDirectory' => 'Save to app directory',
 			'download.alreadyDownloadedWithQuality' => 'Already downloaded with the same quality, continue downloading?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Already downloaded with qualities: ${qualities}, continue downloading?',
@@ -13871,10 +13879,10 @@ extension on Translations {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Are you sure you want to continue?',
 			'linkInputDialog.browserOpenFailed' => 'Failed to open link',
 			'linkInputDialog.unsupportedLink' => 'Unsupported Link',
-			'linkInputDialog.cancel' => 'Cancel',
-			'linkInputDialog.confirm' => 'Open in Browser',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Cancel',
+			'linkInputDialog.confirm' => 'Open in Browser',
 			'log.logManagement' => 'Log Management',
 			'log.enableLogPersistence' => 'Enable Log Persistence',
 			'log.enableLogPersistenceDesc' => 'Save logs to the database for analysis',
@@ -14385,10 +14393,10 @@ extension on Translations {
 			'vrFormat.vr360TopBottomDesc' => 'Full surround panorama with both eyes stacked',
 			'vrFormat.resetView' => 'Reset view',
 			'vrFormat.resetViewDesc' => 'Return the look direction and field of view to the front',
-			'vrFormat.resetToAuto' => 'Back to auto-detect',
-			'vrFormat.resetToAutoDesc' => 'Forget the manual choice for this video and let detection decide again',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Back to auto-detect',
+			'vrFormat.resetToAutoDesc' => 'Forget the manual choice for this video and let detection decide again',
 			'vrFormat.manualBadge' => 'Set manually',
 			'vrFormat.panoramaHint' => 'Drag the picture to look around, pinch to change the field of view',
 			'vrFormat.panoramaGestureNotice' => 'While looking around, dragging turns the view — use the progress bar to seek',

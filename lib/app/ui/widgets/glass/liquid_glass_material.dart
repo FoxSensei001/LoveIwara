@@ -1152,6 +1152,7 @@ class MaterialSurfaceBox extends StatelessWidget {
     this.pressed = false,
     this.materialize = 1.0,
     this.clipContent = false,
+    this.fillOverride,
   });
 
   final Widget child;
@@ -1167,6 +1168,11 @@ class MaterialSurfaceBox extends StatelessWidget {
 
   final bool clipContent;
 
+  /// 见 [GlassSurface.fillOverride]。给了就整只顶替 [GlassTokens.materialFill]
+  /// / [GlassTokens.materialPressedFill]（这一档没有单独的「覆盖色的按下态」，
+  /// 面板本来就不吃按压）。
+  final Color? fillOverride;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -1174,9 +1180,11 @@ class MaterialSurfaceBox extends StatelessWidget {
     final double radius = circle
         ? height! / 2
         : (cornerRadius ?? (height ?? GlassTokens.pillHeight) / 2);
-    final Color base = pressed
-        ? GlassTokens.materialPressedFill(cs)
-        : GlassTokens.materialFill(cs);
+    final Color base =
+        fillOverride ??
+        (pressed
+            ? GlassTokens.materialPressedFill(cs)
+            : GlassTokens.materialFill(cs));
 
     return AnimatedContainer(
       duration: GlassTokens.pressDuration,

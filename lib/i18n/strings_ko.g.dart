@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsKo extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => '작성자별 폴더로 정리 · 이름이 바뀌어도 유지';
 	@override String get presetDate => '날짜별';
 	@override String get presetDateDesc => '다운로드 날짜별로 정리';
-	@override String get presetCustom => '사용자 지정';
-	@override String get presetCustomDesc => '경로 템플릿을 자유롭게 편집';
-	@override String get presetCustomHint => '사용자 지정: 경로 템플릿 편집기에서 수정하세요';
+	@override String get presetCustomActive => '사용 중';
 	@override String get structurePreviewLabel => '미리보기';
 	@override String get structurePreviewNote => '색상 부분이 정리 계층이며 선택한 방식에 따라 바뀝니다.';
 	@override String get pathTooLongWarning => '상대 경로가 200자를 초과하여 일부 기기에서는 저장이 실패할 수 있습니다';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends Translat
 	@override String get tabImage => '개별 이미지';
 	@override String get previewLabel => '미리보기 · 정리 후 실제 저장 결과';
 	@override String get galleryPreviewLabel => '미리보기 · 갤러리 템플릿=폴더 이름(내부 이미지는 ID로 명명)';
-	@override String addFolder({required Object current, required Object max}) => '폴더 계층 추가(${current}/${max})';
+	@override String get addFolder => '폴더 계층 추가';
 	@override String get folderCapReached => '폴더 계층 한도에 도달했습니다';
 	@override String get folderSegmentHint => '%authorcache, 변수 또는 고정 텍스트';
 	@override String get fileSegmentHint => '예: %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorKo extends Translat
 	@override String get trayCategoryAuthor => '작성자';
 	@override String get trayCategoryTime => '시간';
 	@override String get chipAuthorcache => '작성자 이름·고정';
+	@override String get chipDate => '날짜';
+	@override String get chipTime => '시간';
+	@override String get chipDatetime => '날짜·시간';
+	@override String get chipCount => '번호';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsKo {
 			'settings.downloadSettings.presetAuthorDesc' => '작성자별 폴더로 정리 · 이름이 바뀌어도 유지',
 			'settings.downloadSettings.presetDate' => '날짜별',
 			'settings.downloadSettings.presetDateDesc' => '다운로드 날짜별로 정리',
-			'settings.downloadSettings.presetCustom' => '사용자 지정',
-			'settings.downloadSettings.presetCustomDesc' => '경로 템플릿을 자유롭게 편집',
-			'settings.downloadSettings.presetCustomHint' => '사용자 지정: 경로 템플릿 편집기에서 수정하세요',
+			'settings.downloadSettings.presetCustomActive' => '사용 중',
 			'settings.downloadSettings.structurePreviewLabel' => '미리보기',
 			'settings.downloadSettings.structurePreviewNote' => '색상 부분이 정리 계층이며 선택한 방식에 따라 바뀝니다.',
 			'settings.downloadSettings.pathTooLongWarning' => '상대 경로가 200자를 초과하여 일부 기기에서는 저장이 실패할 수 있습니다',
@@ -5715,7 +5715,7 @@ extension on TranslationsKo {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => '개별 이미지',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => '미리보기 · 정리 후 실제 저장 결과',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => '미리보기 · 갤러리 템플릿=폴더 이름(내부 이미지는 ID로 명명)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => '폴더 계층 추가(${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => '폴더 계층 추가',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => '폴더 계층 한도에 도달했습니다',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, 변수 또는 고정 텍스트',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => '예: %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsKo {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => '작성자',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => '시간',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => '작성자 이름·고정',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => '날짜',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => '시간',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => '날짜·시간',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => '번호',
 			'favoriteTags.title' => '즐겨찾기 태그',
 			'favoriteTags.emptyIwara' => '아직 즐겨찾기한 Iwara 태그가 없습니다',
 			'favoriteTags.emptyOreno3d' => '아직 즐겨찾기가 없습니다',
@@ -6142,10 +6146,10 @@ extension on TranslationsKo {
 			'forum.reply' => '답글',
 			'forum.pendingReview' => '검토 대기 중',
 			'forum.editedAt' => '수정일',
-			'forum.copySuccess' => '클립보드에 복사되었습니다',
-			'forum.copySuccessForMessage' => ({required Object str}) => '클립보드에 복사됨: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => '클립보드에 복사되었습니다',
+			'forum.copySuccessForMessage' => ({required Object str}) => '클립보드에 복사됨: ${str}',
 			'forum.editReply' => '답글 편집',
 			'forum.editTitle' => '제목 편집',
 			'forum.submit' => '제출',
@@ -6656,10 +6660,10 @@ extension on TranslationsKo {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => '최대 동시 다운로드 수',
-			'download.maxConcurrentDownloadsDesc' => '동시에 다운로드하는 작업 수(1-5)',
-			'download.stillInDevelopment' => '아직 개발 중',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => '동시에 다운로드하는 작업 수(1-5)',
+			'download.stillInDevelopment' => '아직 개발 중',
 			'download.saveToAppDirectory' => '앱 디렉터리에 저장',
 			'download.alreadyDownloadedWithQuality' => '이미 같은 화질로 다운로드되었습니다. 계속 다운로드하시겠습니까?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => '이미 다음 화질로 다운로드됨: ${qualities}, 계속 다운로드하시겠습니까?',
@@ -7170,10 +7174,10 @@ extension on TranslationsKo {
 			'linkInputDialog.confirmContinueBrowserOpen' => '계속하시겠습니까?',
 			'linkInputDialog.browserOpenFailed' => '링크를 열지 못했습니다',
 			'linkInputDialog.unsupportedLink' => '지원하지 않는 링크',
-			'linkInputDialog.cancel' => '취소',
-			'linkInputDialog.confirm' => '브라우저에서 열기',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => '취소',
+			'linkInputDialog.confirm' => '브라우저에서 열기',
 			'log.logManagement' => '로그 관리',
 			'log.enableLogPersistence' => '로그 영구 저장 사용',
 			'log.enableLogPersistenceDesc' => '분석을 위해 로그를 데이터베이스에 저장',
@@ -7684,10 +7688,10 @@ extension on TranslationsKo {
 			'vrFormat.vr360TopBottomDesc' => '양안이 위아래로 쌓인 완전 몰입형 파노라마',
 			'vrFormat.resetView' => '시야 초기화',
 			'vrFormat.resetViewDesc' => '시선 방향과 시야각을 정면으로 되돌립니다',
-			'vrFormat.resetToAuto' => '자동 감지로 되돌리기',
-			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => '자동 감지로 되돌리기',
+			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
 			'vrFormat.manualBadge' => '수동 설정됨',
 			'vrFormat.panoramaHint' => '화면을 끌어 주변을 둘러보고, 핀치하여 시야각을 변경하세요',
 			'vrFormat.panoramaGestureNotice' => '둘러보는 동안 끌면 시야가 돌아갑니다. 탐색은 진행 표시줄을 사용하세요',

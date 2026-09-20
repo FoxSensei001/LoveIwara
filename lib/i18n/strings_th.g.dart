@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsTh extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'โฟลเดอร์ละหนึ่งผู้สร้าง · เปลี่ยนชื่อแล้วไม่แยกโฟลเดอร์';
 	@override String get presetDate => 'ตามวันที่';
 	@override String get presetDateDesc => 'จัดเรียงตามวันที่ดาวน์โหลด';
-	@override String get presetCustom => 'กำหนดเอง';
-	@override String get presetCustomDesc => 'แก้ไขเทมเพลตเส้นทางได้อย่างอิสระ';
-	@override String get presetCustomHint => 'กำหนดเอง: แก้ไขกฎในโปรแกรมแก้ไขเทมเพลตเส้นทาง';
+	@override String get presetCustomActive => 'ใช้งานอยู่';
 	@override String get structurePreviewLabel => 'ตัวอย่าง';
 	@override String get structurePreviewNote => 'ส่วนที่มีสีคือระดับการจัดระเบียบ เปลี่ยนตามรูปแบบที่เลือกทันที';
 	@override String get pathTooLongWarning => 'เส้นทางสัมพัทธ์เกิน 200 ตัวอักษร อาจบันทึกไม่สำเร็จบนอุปกรณ์บางรุ่น';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorTh extends Translat
 	@override String get tabImage => 'ภาพเดี่ยว';
 	@override String get previewLabel => 'ตัวอย่าง · ผลลัพธ์จริงหลังทำความสะอาด';
 	@override String get galleryPreviewLabel => 'ตัวอย่าง · เทมเพลตแกลเลอรีคือชื่อโฟลเดอร์ (ภายในใช้ชื่อตามรหัสภาพ)';
-	@override String addFolder({required Object current, required Object max}) => 'เพิ่มระดับโฟลเดอร์ (${current}/${max})';
+	@override String get addFolder => 'เพิ่มระดับโฟลเดอร์';
 	@override String get folderCapReached => 'ถึงขีดจำกัดระดับโฟลเดอร์แล้ว';
 	@override String get folderSegmentHint => '%authorcache ตัวแปรหรือข้อความคงที่';
 	@override String get fileSegmentHint => 'เช่น %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorTh extends Translat
 	@override String get trayCategoryAuthor => 'ผู้สร้าง';
 	@override String get trayCategoryTime => 'เวลา';
 	@override String get chipAuthorcache => 'ชื่อผู้สร้าง·คงที่';
+	@override String get chipDate => 'วันที่';
+	@override String get chipTime => 'เวลา';
+	@override String get chipDatetime => 'วันที่และเวลา';
+	@override String get chipCount => 'ลำดับ';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsTh {
 			'settings.downloadSettings.presetAuthorDesc' => 'โฟลเดอร์ละหนึ่งผู้สร้าง · เปลี่ยนชื่อแล้วไม่แยกโฟลเดอร์',
 			'settings.downloadSettings.presetDate' => 'ตามวันที่',
 			'settings.downloadSettings.presetDateDesc' => 'จัดเรียงตามวันที่ดาวน์โหลด',
-			'settings.downloadSettings.presetCustom' => 'กำหนดเอง',
-			'settings.downloadSettings.presetCustomDesc' => 'แก้ไขเทมเพลตเส้นทางได้อย่างอิสระ',
-			'settings.downloadSettings.presetCustomHint' => 'กำหนดเอง: แก้ไขกฎในโปรแกรมแก้ไขเทมเพลตเส้นทาง',
+			'settings.downloadSettings.presetCustomActive' => 'ใช้งานอยู่',
 			'settings.downloadSettings.structurePreviewLabel' => 'ตัวอย่าง',
 			'settings.downloadSettings.structurePreviewNote' => 'ส่วนที่มีสีคือระดับการจัดระเบียบ เปลี่ยนตามรูปแบบที่เลือกทันที',
 			'settings.downloadSettings.pathTooLongWarning' => 'เส้นทางสัมพัทธ์เกิน 200 ตัวอักษร อาจบันทึกไม่สำเร็จบนอุปกรณ์บางรุ่น',
@@ -5715,7 +5715,7 @@ extension on TranslationsTh {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'ภาพเดี่ยว',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'ตัวอย่าง · ผลลัพธ์จริงหลังทำความสะอาด',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'ตัวอย่าง · เทมเพลตแกลเลอรีคือชื่อโฟลเดอร์ (ภายในใช้ชื่อตามรหัสภาพ)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'เพิ่มระดับโฟลเดอร์ (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'เพิ่มระดับโฟลเดอร์',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'ถึงขีดจำกัดระดับโฟลเดอร์แล้ว',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache ตัวแปรหรือข้อความคงที่',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'เช่น %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsTh {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'ผู้สร้าง',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'เวลา',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'ชื่อผู้สร้าง·คงที่',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'วันที่',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'เวลา',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'วันที่และเวลา',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'ลำดับ',
 			'favoriteTags.title' => 'แท็กโปรด',
 			'favoriteTags.emptyIwara' => 'ยังไม่มีแท็ก Iwara ที่ชื่นชอบ',
 			'favoriteTags.emptyOreno3d' => 'ยังไม่มีรายการโปรด',
@@ -6142,10 +6146,10 @@ extension on TranslationsTh {
 			'forum.reply' => 'ตอบกลับ',
 			'forum.pendingReview' => 'กำลังรอการตรวจสอบ',
 			'forum.editedAt' => 'แก้ไขเมื่อ',
-			'forum.copySuccess' => 'คัดลอกไปยังคลิปบอร์ดแล้ว',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'คัดลอกไปยังคลิปบอร์ดแล้ว',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}',
 			'forum.editReply' => 'แก้ไขการตอบกลับ',
 			'forum.editTitle' => 'แก้ไขชื่อเรื่อง',
 			'forum.submit' => 'ส่ง',
@@ -6656,10 +6660,10 @@ extension on TranslationsTh {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'จำนวนการดาวน์โหลดพร้อมกันสูงสุด',
-			'download.maxConcurrentDownloadsDesc' => 'จำนวนงานที่ดาวน์โหลดในเวลาเดียวกัน (1-5)',
-			'download.stillInDevelopment' => 'ยังอยู่ระหว่างการพัฒนา',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'จำนวนงานที่ดาวน์โหลดในเวลาเดียวกัน (1-5)',
+			'download.stillInDevelopment' => 'ยังอยู่ระหว่างการพัฒนา',
 			'download.saveToAppDirectory' => 'บันทึกไปยังโฟลเดอร์ของแอป',
 			'download.alreadyDownloadedWithQuality' => 'ดาวน์โหลดด้วยความละเอียดเดียวกันนี้แล้ว ดำเนินการดาวน์โหลดต่อหรือไม่?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'ดาวน์โหลดด้วยความละเอียดต่อไปนี้แล้ว: ${qualities} ดำเนินการดาวน์โหลดต่อหรือไม่?',
@@ -7170,10 +7174,10 @@ extension on TranslationsTh {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?',
 			'linkInputDialog.browserOpenFailed' => 'เปิดลิงก์ไม่สำเร็จ',
 			'linkInputDialog.unsupportedLink' => 'ลิงก์ที่ไม่รองรับ',
-			'linkInputDialog.cancel' => 'ยกเลิก',
-			'linkInputDialog.confirm' => 'เปิดในเบราว์เซอร์',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'ยกเลิก',
+			'linkInputDialog.confirm' => 'เปิดในเบราว์เซอร์',
 			'log.logManagement' => 'การจัดการบันทึก',
 			'log.enableLogPersistence' => 'เปิดใช้งานการคงอยู่ของบันทึก',
 			'log.enableLogPersistenceDesc' => 'บันทึกประวัติลงในฐานข้อมูลเพื่อนำไปวิเคราะห์',
@@ -7684,10 +7688,10 @@ extension on TranslationsTh {
 			'vrFormat.vr360TopBottomDesc' => 'พาโนรามาแบบรอบทิศพร้อมสองตาซ้อนกัน',
 			'vrFormat.resetView' => 'รีเซ็ตมุมมอง',
 			'vrFormat.resetViewDesc' => 'คืนทิศทางการมองและมุมมองกลับไปด้านหน้า',
-			'vrFormat.resetToAuto' => 'กลับสู่การตรวจจับอัตโนมัติ',
-			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'กลับสู่การตรวจจับอัตโนมัติ',
+			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
 			'vrFormat.manualBadge' => 'ตั้งค่าเอง',
 			'vrFormat.panoramaHint' => 'ลากภาพเพื่อมองไปรอบๆ บีบนิ้วเพื่อเปลี่ยนมุมมอง',
 			'vrFormat.panoramaGestureNotice' => 'ขณะมองไปรอบๆ การลากจะหมุนมุมมอง — ใช้แถบความคืบหน้าเพื่อเลื่อนไปยังตำแหน่ง',

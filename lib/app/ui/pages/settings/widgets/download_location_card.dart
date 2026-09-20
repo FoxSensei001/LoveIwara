@@ -83,19 +83,9 @@ IconData downloadLocationIcon(DownloadLocation location) {
   }
 }
 
-String downloadFallbackReasonLabel(DownloadFallbackReason reason) {
-  final t = slang.t.download.location;
-  switch (reason) {
-    case DownloadFallbackReason.needsPermission:
-      return t.fallbackReasonPermission;
-    case DownloadFallbackReason.volumeMissing:
-      return t.fallbackReasonVolumeMissing;
-    case DownloadFallbackReason.cannotCreate:
-      return t.fallbackReasonCannotCreate;
-    case DownloadFallbackReason.notWritable:
-      return t.fallbackReasonNotWritable;
-  }
-}
+// downloadFallbackReasonLabel 搬去了 download_location.dart（enum 旁），
+// 与下载服务的完成回执共用同一份措辞。本文件经 download_path_service 的
+// export 照常拿得到它。
 
 /// 「卷名 · 剩余空间」，两样都没有返回 null。
 String? downloadLocationCaption(DownloadLocation location, int? freeBytes) {

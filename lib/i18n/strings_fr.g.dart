@@ -3167,9 +3167,7 @@ class _TranslationsSettingsDownloadSettingsFr extends TranslationsSettingsDownlo
 	@override String get presetAuthorDesc => 'Un dossier par auteur · reste stable même si le pseudo change';
 	@override String get presetDate => 'Par date';
 	@override String get presetDateDesc => 'Regroupé par date de téléchargement';
-	@override String get presetCustom => 'Personnalisé';
-	@override String get presetCustomDesc => 'Modifiez librement le modèle de chemin';
-	@override String get presetCustomHint => 'Personnalisé : éditez les règles dans la page du modèle de chemin';
+	@override String get presetCustomActive => 'Actif';
 	@override String get structurePreviewLabel => 'Aperçu';
 	@override String get structurePreviewNote => 'Les segments colorés sont les niveaux de rangement, ils suivent le mode choisi.';
 	@override String get pathTooLongWarning => 'Le chemin relatif dépasse 200 caractères, la sauvegarde peut échouer sur certains appareils';
@@ -4453,7 +4451,7 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorFr extends Translat
 	@override String get tabImage => 'Image unique';
 	@override String get previewLabel => 'Aperçu · résultat réel après nettoyage';
 	@override String get galleryPreviewLabel => 'Aperçu · le modèle de galerie nomme le dossier (les images internes gardent l\'identifiant de l\'image)';
-	@override String addFolder({required Object current, required Object max}) => 'Ajouter un niveau de dossier (${current}/${max})';
+	@override String get addFolder => 'Ajouter un niveau de dossier';
 	@override String get folderCapReached => 'Limite de niveaux de dossier atteinte';
 	@override String get folderSegmentHint => '%authorcache, une variable ou du texte fixe';
 	@override String get fileSegmentHint => 'ex. %title_%quality';
@@ -4471,6 +4469,10 @@ class _TranslationsSettingsDownloadSettingsPathTemplateEditorFr extends Translat
 	@override String get trayCategoryAuthor => 'Auteur';
 	@override String get trayCategoryTime => 'Temps';
 	@override String get chipAuthorcache => 'Nom de lauteur·fixe';
+	@override String get chipDate => 'Date';
+	@override String get chipTime => 'Heure';
+	@override String get chipDatetime => 'Date et heure';
+	@override String get chipCount => 'Index';
 }
 
 // Path: videoDetail.gestureGuide.quest
@@ -5700,9 +5702,7 @@ extension on TranslationsFr {
 			'settings.downloadSettings.presetAuthorDesc' => 'Un dossier par auteur · reste stable même si le pseudo change',
 			'settings.downloadSettings.presetDate' => 'Par date',
 			'settings.downloadSettings.presetDateDesc' => 'Regroupé par date de téléchargement',
-			'settings.downloadSettings.presetCustom' => 'Personnalisé',
-			'settings.downloadSettings.presetCustomDesc' => 'Modifiez librement le modèle de chemin',
-			'settings.downloadSettings.presetCustomHint' => 'Personnalisé : éditez les règles dans la page du modèle de chemin',
+			'settings.downloadSettings.presetCustomActive' => 'Actif',
 			'settings.downloadSettings.structurePreviewLabel' => 'Aperçu',
 			'settings.downloadSettings.structurePreviewNote' => 'Les segments colorés sont les niveaux de rangement, ils suivent le mode choisi.',
 			'settings.downloadSettings.pathTooLongWarning' => 'Le chemin relatif dépasse 200 caractères, la sauvegarde peut échouer sur certains appareils',
@@ -5715,7 +5715,7 @@ extension on TranslationsFr {
 			'settings.downloadSettings.pathTemplateEditor.tabImage' => 'Image unique',
 			'settings.downloadSettings.pathTemplateEditor.previewLabel' => 'Aperçu · résultat réel après nettoyage',
 			'settings.downloadSettings.pathTemplateEditor.galleryPreviewLabel' => 'Aperçu · le modèle de galerie nomme le dossier (les images internes gardent l\'identifiant de l\'image)',
-			'settings.downloadSettings.pathTemplateEditor.addFolder' => ({required Object current, required Object max}) => 'Ajouter un niveau de dossier (${current}/${max})',
+			'settings.downloadSettings.pathTemplateEditor.addFolder' => 'Ajouter un niveau de dossier',
 			'settings.downloadSettings.pathTemplateEditor.folderCapReached' => 'Limite de niveaux de dossier atteinte',
 			'settings.downloadSettings.pathTemplateEditor.folderSegmentHint' => '%authorcache, une variable ou du texte fixe',
 			'settings.downloadSettings.pathTemplateEditor.fileSegmentHint' => 'ex. %title_%quality',
@@ -5733,6 +5733,10 @@ extension on TranslationsFr {
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryAuthor' => 'Auteur',
 			'settings.downloadSettings.pathTemplateEditor.trayCategoryTime' => 'Temps',
 			'settings.downloadSettings.pathTemplateEditor.chipAuthorcache' => 'Nom de lauteur·fixe',
+			'settings.downloadSettings.pathTemplateEditor.chipDate' => 'Date',
+			'settings.downloadSettings.pathTemplateEditor.chipTime' => 'Heure',
+			'settings.downloadSettings.pathTemplateEditor.chipDatetime' => 'Date et heure',
+			'settings.downloadSettings.pathTemplateEditor.chipCount' => 'Index',
 			'favoriteTags.title' => 'Tags favoris',
 			'favoriteTags.emptyIwara' => 'Aucun tag Iwara favori pour l\'instant',
 			'favoriteTags.emptyOreno3d' => 'Aucun favori pour l\'instant',
@@ -6142,10 +6146,10 @@ extension on TranslationsFr {
 			'forum.reply' => 'Répondre',
 			'forum.pendingReview' => 'En attente de vérification',
 			'forum.editedAt' => 'Modifié le',
-			'forum.copySuccess' => 'Copié dans le presse-papiers',
-			'forum.copySuccessForMessage' => ({required Object str}) => 'Copié dans le presse-papiers : ${str}',
 			_ => null,
 		} ?? switch (path) {
+			'forum.copySuccess' => 'Copié dans le presse-papiers',
+			'forum.copySuccessForMessage' => ({required Object str}) => 'Copié dans le presse-papiers : ${str}',
 			'forum.editReply' => 'Modifier la réponse',
 			'forum.editTitle' => 'Modifier le titre',
 			'forum.submit' => 'Envoyer',
@@ -6656,10 +6660,10 @@ extension on TranslationsFr {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Téléchargements simultanés maximum',
-			'download.maxConcurrentDownloadsDesc' => 'Nombre de tâches téléchargées en même temps (1-5)',
-			'download.stillInDevelopment' => 'En cours de développement',
 			_ => null,
 		} ?? switch (path) {
+			'download.maxConcurrentDownloadsDesc' => 'Nombre de tâches téléchargées en même temps (1-5)',
+			'download.stillInDevelopment' => 'En cours de développement',
 			'download.saveToAppDirectory' => 'Enregistrer dans le dossier de l\'application',
 			'download.alreadyDownloadedWithQuality' => 'Déjà téléchargé avec la même qualité. Continuer le téléchargement ?',
 			'download.alreadyDownloadedWithQualities' => ({required Object qualities}) => 'Déjà téléchargé avec les qualités : ${qualities}. Continuer le téléchargement ?',
@@ -7170,10 +7174,10 @@ extension on TranslationsFr {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Voulez-vous vraiment continuer ?',
 			'linkInputDialog.browserOpenFailed' => 'Échec de l\'ouverture du lien',
 			'linkInputDialog.unsupportedLink' => 'Lien non pris en charge',
-			'linkInputDialog.cancel' => 'Annuler',
-			'linkInputDialog.confirm' => 'Ouvrir dans le navigateur',
 			_ => null,
 		} ?? switch (path) {
+			'linkInputDialog.cancel' => 'Annuler',
+			'linkInputDialog.confirm' => 'Ouvrir dans le navigateur',
 			'log.logManagement' => 'Gestion des journaux',
 			'log.enableLogPersistence' => 'Activer la persistance des journaux',
 			'log.enableLogPersistenceDesc' => 'Enregistrer les journaux dans la base de données pour analyse',
@@ -7684,10 +7688,10 @@ extension on TranslationsFr {
 			'vrFormat.vr360TopBottomDesc' => 'Panorama à 360° avec les deux yeux empilés',
 			'vrFormat.resetView' => 'Réinitialiser la vue',
 			'vrFormat.resetViewDesc' => 'Ramener la direction du regard et le champ de vision vers l\'avant',
-			'vrFormat.resetToAuto' => 'Revenir à la détection auto.',
-			'vrFormat.resetToAutoDesc' => 'Oublier le choix manuel pour cette vidéo et laisser la détection décider à nouveau',
 			_ => null,
 		} ?? switch (path) {
+			'vrFormat.resetToAuto' => 'Revenir à la détection auto.',
+			'vrFormat.resetToAutoDesc' => 'Oublier le choix manuel pour cette vidéo et laisser la détection décider à nouveau',
 			'vrFormat.manualBadge' => 'Défini manuellement',
 			'vrFormat.panoramaHint' => 'Faites glisser l\'image pour regarder autour, pincez pour changer le champ de vision',
 			'vrFormat.panoramaGestureNotice' => 'Pendant que vous regardez autour, faire glisser tourne la vue — utilisez la barre de progression pour vous déplacer',

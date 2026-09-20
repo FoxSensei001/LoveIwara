@@ -2065,6 +2065,9 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
             // 降级成不开），这里只表态「这块面板该不该跟手」。
             liquidTouch: widget.touchFlex,
             materialize: _material.value,
+            // Material 档专用：面板常年浮在也吃 [GlassTokens.fill] 的设置卡片
+            // 之上，不覆盖就会同色，见 [GlassTokens.panelFill] 注释。
+            fillOverride: GlassTokens.panelFill(Theme.of(context).colorScheme),
             child: Transform(
               // 反着缩回去：玻璃在卷开，内容按自然尺寸留在原地，还没卷到的
               // 部分由玻璃自己的形状裁掉（Telegram 也是这么干的——背景在改

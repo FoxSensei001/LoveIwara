@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: 'Ein Ordner pro Autor · Umbenennungen spalten das Archiv nicht'
     presetDate: 'Nach Datum'
     presetDateDesc: 'Nach Download-Datum gruppiert'
-    presetCustom: 'Benutzerdefiniert'
-    presetCustomDesc: 'Pfadvorlage frei bearbeiten'
-    presetCustomHint: 'Benutzerdefiniert: Regeln im Pfadvorlagen-Editor bearbeiten'
+    presetCustomActive: Aktiv
     structurePreviewLabel: 'Vorschau'
     structurePreviewNote: 'Farbige Abschnitte sind die Organisationsebenen und folgen der gewählten Regel.'
     pathTooLongWarning: 'Relativer Pfad über 200 Zeichen, das Speichern kann auf manchen Geräten fehlschlagen'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: 'Einzelfoto'
       previewLabel: 'Vorschau · tatsächliches Speicherergebnis nach Bereinigung'
       galleryPreviewLabel: 'Vorschau · Galerievorlage = Ordnername (interne Bilder tragen die Bild-ID)'
-      addFolder: 'Ordnerebene hinzufügen (${current}/${max})'
+      addFolder: Ordnerebene hinzufügen
       folderCapReached: 'Limit der Ordnerebenen erreicht'
       folderSegmentHint: '%authorcache, eine Variable oder fester Text'
       fileSegmentHint: 'z. B. %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: 'Autor'
       trayCategoryTime: 'Zeit'
       chipAuthorcache: 'Autorenname·fest'
+      chipDate: Datum
+      chipTime: Uhrzeit
+      chipDatetime: Datum & Zeit
+      chipCount: Nr.
 favoriteTags:
   title: Favorisierte Tags
   emptyIwara: Noch keine favorisierten Iwara-Tags

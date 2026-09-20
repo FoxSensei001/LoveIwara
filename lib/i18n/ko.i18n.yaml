@@ -1150,9 +1150,7 @@ settings:
     presetAuthorDesc: '작성자별 폴더로 정리 · 이름이 바뀌어도 유지'
     presetDate: '날짜별'
     presetDateDesc: '다운로드 날짜별로 정리'
-    presetCustom: '사용자 지정'
-    presetCustomDesc: '경로 템플릿을 자유롭게 편집'
-    presetCustomHint: '사용자 지정: 경로 템플릿 편집기에서 수정하세요'
+    presetCustomActive: 사용 중
     structurePreviewLabel: '미리보기'
     structurePreviewNote: '색상 부분이 정리 계층이며 선택한 방식에 따라 바뀝니다.'
     pathTooLongWarning: '상대 경로가 200자를 초과하여 일부 기기에서는 저장이 실패할 수 있습니다'
@@ -1166,7 +1164,7 @@ settings:
       tabImage: '개별 이미지'
       previewLabel: '미리보기 · 정리 후 실제 저장 결과'
       galleryPreviewLabel: '미리보기 · 갤러리 템플릿=폴더 이름(내부 이미지는 ID로 명명)'
-      addFolder: '폴더 계층 추가(${current}/${max})'
+      addFolder: 폴더 계층 추가
       folderCapReached: '폴더 계층 한도에 도달했습니다'
       folderSegmentHint: '%authorcache, 변수 또는 고정 텍스트'
       fileSegmentHint: '예: %title_%quality'
@@ -1184,6 +1182,10 @@ settings:
       trayCategoryAuthor: '작성자'
       trayCategoryTime: '시간'
       chipAuthorcache: '작성자 이름·고정'
+      chipDate: 날짜
+      chipTime: 시간
+      chipDatetime: 날짜·시간
+      chipCount: 번호
 favoriteTags:
   title: 즐겨찾기 태그
   emptyIwara: 아직 즐겨찾기한 Iwara 태그가 없습니다
