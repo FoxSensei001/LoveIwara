@@ -272,6 +272,27 @@ abstract final class GlassTokens {
   static Color sheetFill(ColorScheme cs) =>
       _isMaterialTier ? cs.surfaceContainerLow : cs.surfaceContainerHigh;
 
+  /// 评论弹层（评论列表 / 子回复）外壳的面色。
+  ///
+  /// ⛔ 不能用 [sheetFill]：传统/液态档下它 = `surfaceContainerHigh`，而评论条
+  /// 目里「回复 / 查看回复 / 翻译 / 更多」那一排胶囊的底色**也是**
+  /// `surfaceContainerHigh`——两者同值，胶囊整只糊进弹层背景里，只剩图标和
+  /// 文字浮着（2026-09-20 用户在作者页报障）。同一套评论条目摆在视频详情页
+  /// 的评论 tab 上没这个问题，那里的背景是页面的 `surface`。
+  ///
+  /// 换成详情页区块卡那一档颜色（`surfaceContainerHighest` alpha 0.55，见
+  /// `video_info_tab_widget.dart` 的 `_buildSectionCard`），但**取压在
+  /// `surface` 上的不透明结果**：弹层壳半透明会把身下被遮的页面透出来。
+  ///
+  /// Material 档不吃这条：那一档的 [sheetFill] 本来就是 `surfaceContainerLow`、
+  /// 与胶囊差着两档，跟着换反而会把两者拉近。
+  static Color commentSheetFill(ColorScheme cs) => _isMaterialTier
+      ? sheetFill(cs)
+      : Color.alphaBlend(
+          cs.surfaceContainerHighest.withValues(alpha: 0.55),
+          cs.surface,
+        );
+
   /// 玻璃体内侧细描边。
   static Color stroke(ColorScheme cs) => cs.outlineVariant.withValues(
     alpha: cs.brightness == Brightness.dark ? 0.55 : 0.45,

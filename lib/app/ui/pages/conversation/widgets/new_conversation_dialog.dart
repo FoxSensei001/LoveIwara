@@ -77,10 +77,10 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
       context: context,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
-        onEmojiSelected: (imageUrl, size) {
-          _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size);
-          Navigator.pop(context);
-        },
+        // ⛔ 这里**不 pop**：连选是刻意的（斗图要连发几张）。弹层由用户
+        // 自己关，底部会实时显示这次插了几个。
+        onEmojiSelected: (imageUrl, size) =>
+            _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size),
         onSizeChanged: (size) {
           setState(() {
             _selectedEmojiSize = size;
@@ -376,17 +376,18 @@ class _NewConversationDialogState extends State<NewConversationDialog> {
                   },
                 ),
               ),
-              const SizedBox(height: 16),
-              // 工具行：Markdown 帮助 · 预览 · 表情
-              GlassComposerToolbar(
-                onMarkdownHelp: _showMarkdownHelp,
-                onPreview: _showPreview,
-                onEmoji: _showEmojiPicker,
-              ),
-              const SizedBox(height: 16),
-              GlassComposerActions(
+              const SizedBox(height: 12),
+              // 单行底栏：动作 · 字数 · 发送（见 GlassComposerBar）。
+              // 私信不参与规则闸门，也不接小尾巴——那是发给某个人的私话，
+              // 不是公开发言。
+              GlassComposerBar(
                 onSubmit: canSubmit ? _handleSubmit : null,
+                submitText: t.common.send,
                 isLoading: _isLoading,
+                onEmoji: _showEmojiPicker,
+                onPreview: _showPreview,
+                previewHasContent: _bodyController.text.trim().isNotEmpty,
+                onMarkdownHelp: _showMarkdownHelp,
               ),
             ],
           ),

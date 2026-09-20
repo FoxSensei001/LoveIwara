@@ -226,6 +226,7 @@ common:
   agree: Acepto
   disagree: No acepto
   agreeToRules: Aceptar las normas
+  tapToReread: 'Toca para releer'
   # Base Input Dialog
   markdownSyntaxHelp: Ayuda de sintaxis de Markdown
   previewContent: Vista previa del contenido
@@ -726,6 +727,10 @@ settings:
   enterSignature: Introducir firma
   editSignature: Editar firma
   signatureContent: Contenido de la firma
+  signaturePreview: 'Vista previa'
+  signatureSampleBody: 'Aquí va tu mensaje'
+  signatureNotSet: 'Sin configurar'
+  signatureRuleHint: "La firma se añade después del texto, separada por una línea horizontal. La app añade la línea; tú solo escribe lo de abajo."
   exportConfig: "Exportar la configuración de la aplicación"
   exportConfigDesc: "Exporte los ajustes y el historial (historial de navegación, progreso de reproducción, favoritos, etc.) a un archivo para hacer una copia de seguridad o transferirlo a otro dispositivo. Las tareas de descarga no se incluyen."
   importConfig: "Importar la configuración de la aplicación"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: Sintaxis
 
 forum:
+  attachQuote: 'Adjuntar cita'
+  replyToFloor: 'Responder a #${floor} @${username}'
+  removeQuote: 'Quitar cita'
   recent: Recientes
   category: Categoría
   lastReply: Última respuesta
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'Límite de tamaño de los registros establecido en ${size}'
 
 emoji:
+  recentlyUsed: 'Recientes'
+  insertedCount: '${count} insertados'
   name: Emoji
   size: Tamaño
   small: Pequeño

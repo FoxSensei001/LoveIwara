@@ -226,6 +226,7 @@ common:
   agree: Đồng ý
   disagree: Không đồng ý
   agreeToRules: Đồng ý với quy tắc
+  tapToReread: 'Chạm để đọc lại'
   # Base Input Dialog
   markdownSyntaxHelp: Trợ giúp cú pháp Markdown
   previewContent: Xem trước nội dung
@@ -726,6 +727,10 @@ settings:
   enterSignature: Nhập chữ ký
   editSignature: Chỉnh sửa chữ ký
   signatureContent: Nội dung chữ ký
+  signaturePreview: 'Xem trước'
+  signatureSampleBody: 'Nội dung của bạn ở đây'
+  signatureNotSet: 'Chưa đặt'
+  signatureRuleHint: "Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới."
   exportConfig: "Xuất cấu hình ứng dụng"
   exportConfigDesc: "Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống."
   importConfig: "Nhập cấu hình ứng dụng"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: Cú pháp
 
 forum:
+  attachQuote: 'Đính kèm trích dẫn'
+  replyToFloor: 'Trả lời #${floor} @${username}'
+  removeQuote: 'Xóa trích dẫn'
   recent: Gần đây
   category: Danh mục
   lastReply: Trả lời gần nhất
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'Đã đặt giới hạn kích thước nhật ký thành ${size}'
 
 emoji:
+  recentlyUsed: 'Gần đây'
+  insertedCount: 'Đã chèn ${count}'
   name: Biểu tượng cảm xúc
   size: Kích thước
   small: Nhỏ

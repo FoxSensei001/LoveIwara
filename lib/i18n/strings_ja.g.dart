@@ -357,6 +357,7 @@ class _TranslationsCommonJa extends TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意ルール';
+	@override String get tapToReread => 'タップで全文を再読';
 	@override String get markdownSyntaxHelp => 'Markdown構文ヘルプ';
 	@override String get previewContent => '内容をプレビュー';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsJa extends TranslationsSettingsEn {
 	@override String get enterSignature => '小尾巴を入力';
 	@override String get editSignature => '小尾巴を編集';
 	@override String get signatureContent => '小尾巴の内容';
+	@override String get signaturePreview => 'プレビュー';
+	@override String get signatureSampleBody => 'ここに本文が入ります';
+	@override String get signatureNotSet => '未設定';
+	@override String get signatureRuleHint => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。';
 	@override String get exportConfig => 'アプリ設定をエクスポート';
 	@override String get exportConfigDesc => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。';
 	@override String get importConfig => 'アプリ設定をインポート';
@@ -1244,6 +1249,9 @@ class _TranslationsForumJa extends TranslationsForumEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => '引用を付ける';
+	@override String replyToFloor({required Object floor, required Object username}) => '#${floor} @${username} に返信';
+	@override String get removeQuote => '引用を削除';
 	@override String get recent => '最近';
 	@override String get category => 'カテゴリ';
 	@override String get lastReply => '最終返信';
@@ -1964,6 +1972,8 @@ class _TranslationsEmojiJa extends TranslationsEmojiEn {
 	final TranslationsJa _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => '最近使った';
+	@override String insertedCount({required Object count}) => '${count} 個挿入しました';
 	@override String get name => '絵文字';
 	@override String get size => 'サイズ';
 	@override String get small => '小';
@@ -4824,6 +4834,7 @@ extension on TranslationsJa {
 			'common.agree' => '同意',
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意ルール',
+			'common.tapToReread' => 'タップで全文を再読',
 			'common.markdownSyntaxHelp' => 'Markdown構文ヘルプ',
 			'common.previewContent' => '内容をプレビュー',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsJa {
 			'settings.rewindTimeMustBeAPositiveInteger' => '巻き戻し時間は正の整数でなければなりません。',
 			'settings.longPressPlaybackSpeed' => '長押し再生速度',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長押し再生速度は正の数でなければなりません。',
-			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'デフォルト再生速度',
 			'settings.rememberPlaybackSpeed' => '再生速度を記憶する',
 			'settings.rememberPlaybackSpeedDesc' => '有効にすると、プレーヤーで調整した再生速度がデフォルトとして保存され、以降の新しい動画に自動的に適用されます。',
 			'settings.repeat' => 'リピート',
@@ -5297,6 +5308,10 @@ extension on TranslationsJa {
 			'settings.enterSignature' => '小尾巴を入力',
 			'settings.editSignature' => '小尾巴を編集',
 			'settings.signatureContent' => '小尾巴の内容',
+			'settings.signaturePreview' => 'プレビュー',
+			'settings.signatureSampleBody' => 'ここに本文が入ります',
+			'settings.signatureNotSet' => '未設定',
+			'settings.signatureRuleHint' => '署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。',
 			'settings.exportConfig' => 'アプリ設定をエクスポート',
 			'settings.exportConfigDesc' => '設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。',
 			'settings.importConfig' => 'アプリ設定をインポート',
@@ -5627,13 +5642,13 @@ extension on TranslationsJa {
 			'settings.downloadSettings.testError' => 'エラー',
 			'settings.downloadSettings.testPath' => 'テストパス',
 			'settings.downloadSettings.testBasePath' => '基本パス',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'ディレクトリ作成',
 			'settings.downloadSettings.testFileWriting' => 'ファイル書き込み',
 			'settings.downloadSettings.testFileContent' => 'ファイル内容',
 			'settings.downloadSettings.checkingPathStatus' => 'パス状態を確認中...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'パス状態を取得できません',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：実際のパスが選択されたパスと異なります',
 			'settings.downloadSettings.grantPermission' => '権限を付与',
 			'settings.downloadSettings.fixIssue' => '問題を修正',
@@ -6081,6 +6096,9 @@ extension on TranslationsJa {
 			'markdown.separatorDescription' => '三個以上の - 号で分隔線を作成',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
+			'forum.attachQuote' => '引用を付ける',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => '#${floor} @${username} に返信',
+			'forum.removeQuote' => '引用を削除',
 			'forum.recent' => '最近',
 			'forum.category' => 'カテゴリ',
 			'forum.lastReply' => '最終返信',
@@ -6138,6 +6156,8 @@ extension on TranslationsJa {
 			'forum.leafDescriptions.requests_zh' => 'リクエストを投稿する',
 			'forum.leafDescriptions.support_zh' => 'サイト関連の問題を解決する手助け',
 			'forum.leafDescriptions.general_ja' => 'あらゆる話題を議論する',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '疑問を提起する',
 			'forum.leafDescriptions.requests_ja' => 'リクエストを投稿する',
 			'forum.leafDescriptions.support_ja' => 'サイト関連の問題を解決する手助け',
@@ -6146,8 +6166,6 @@ extension on TranslationsJa {
 			'forum.reply' => '回覆',
 			'forum.pendingReview' => '審査中',
 			'forum.editedAt' => '編集日時',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'クリップボードにコピーされました',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'クリップボードにコピーされました: ${str}',
 			'forum.editReply' => '編集回覆',
@@ -6652,6 +6670,8 @@ extension on TranslationsJa {
 			'download.location.useThisLocation' => 'この場所を使う',
 			'download.location.locationChanged' => '保存先を変更しました',
 			'download.location.manualTitle' => 'パスを手動入力',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'フォルダのパス',
 			'download.location.manualHint' => '例: /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => '確認して使う',
@@ -6660,8 +6680,6 @@ extension on TranslationsJa {
 			'download.location.fixStillFailing' => 'この場所はまだ使えません。別の場所を選んでください。',
 			'download.location.fixed' => '保存先が使えるようになりました',
 			'download.maxConcurrentDownloads' => '最大同時ダウンロード数',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => '同時にダウンロードするタスク数（1-5）',
 			'download.stillInDevelopment' => '開発中',
 			'download.saveToAppDirectory' => 'アプリケーションディレクトリに保存',
@@ -7141,6 +7159,8 @@ extension on TranslationsJa {
 			'log.newSizeLimit' => ({required Object size}) => '新しいサイズ上限: ${size}',
 			'log.confirmToContinue' => '続行してもよろしいですか？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'ログサイズ上限を ${size} に設定しました',
+			'emoji.recentlyUsed' => '最近使った',
+			'emoji.insertedCount' => ({required Object count}) => '${count} 個挿入しました',
 			'emoji.name' => '絵文字',
 			'emoji.size' => 'サイズ',
 			'emoji.small' => '小',
@@ -7164,6 +7184,8 @@ extension on TranslationsJa {
 			'emoji.batchDelete' => '一括削除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '選択された${count}枚の画像を削除してもよろしいですか？この操作は元に戻せません。',
 			'emoji.deleteSuccess' => '削除しました',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.addImage' => '画像を追加',
 			'emoji.addImageByUrl' => 'URLで追加',
 			'emoji.addImageUrl' => '画像URLを追加',
@@ -7174,8 +7196,6 @@ extension on TranslationsJa {
 			'emoji.enterJsonUrlArray' => 'JSON形式のURL配列を入力してください:',
 			'emoji.formatExample' => '形式例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => 'JSON形式のURL配列を貼り付けてください',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.import' => 'インポート',
 			'emoji.importSuccess' => ({required Object count}) => '${count}枚の画像をインポートしました',
 			'emoji.jsonFormatError' => 'JSON形式エラー、入力を確認してください',
@@ -7678,6 +7698,8 @@ extension on TranslationsJa {
 			'vrFormat.flatSideBySideDesc' => '1 フレームに左右の目が並ぶ形式。左目だけを表示し比率を戻します',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '1 フレームに上下の目が並ぶ形式。上半分だけを表示し比率を戻します',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球パノラマ + 左右両眼。最も一般的な VR 素材です',
 			'vrFormat.vr180Mono' => 'VR180 単眼',
@@ -7688,8 +7710,6 @@ extension on TranslationsJa {
 			'vrFormat.vr360TopBottomDesc' => '全周パノラマ + 上下両眼',
 			'vrFormat.resetView' => '視点をリセット',
 			'vrFormat.resetViewDesc' => '見ている向きと視野角を正面に戻します',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => '自動判定に戻す',
 			'vrFormat.resetToAutoDesc' => 'この動画の手動設定を忘れ、自動判定に任せます',
 			'vrFormat.manualBadge' => '手動で指定済み',

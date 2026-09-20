@@ -845,6 +845,13 @@ class NaviService {
     appRouter.push(SettingsSection.translation.path);
   }
 
+  // 跳转到评论与论坛设置页（小尾巴 / 回复引用 / 表情库都在这一页）。
+  // 发评论弹窗标题行那枚齿轮走这条：用户正对着小尾巴开关，想改内容就该
+  // 一步到位，而不是关掉弹窗自己去设置树里翻。
+  static void navigateToChatSettingsPage() {
+    appRouter.push(SettingsSection.chat.path);
+  }
+
   // 跳转到内容屏蔽设置页
   static void navigateToBlockSettingsPage() {
     appRouter.push(SettingsSection.block.path);

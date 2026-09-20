@@ -349,6 +349,7 @@ class _TranslationsCommonTh extends TranslationsCommonEn {
 	@override String get agree => 'ยอมรับ';
 	@override String get disagree => 'ไม่ยอมรับ';
 	@override String get agreeToRules => 'ยอมรับกฎระเบียบ';
+	@override String get tapToReread => 'แตะเพื่ออ่านอีกครั้ง';
 	@override String get markdownSyntaxHelp => 'วิธีใช้ไวยากรณ์ Markdown';
 	@override String get previewContent => 'แสดงตัวอย่างเนื้อหา';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get enterSignature => 'ป้อนลายเซ็น';
 	@override String get editSignature => 'แก้ไขลายเซ็น';
 	@override String get signatureContent => 'เนื้อหาลายเซ็น';
+	@override String get signaturePreview => 'ตัวอย่าง';
+	@override String get signatureSampleBody => 'ข้อความของคุณอยู่ตรงนี้';
+	@override String get signatureNotSet => 'ยังไม่ได้ตั้งค่า';
+	@override String get signatureRuleHint => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง';
 	@override String get exportConfig => 'ส่งออกการกำหนดค่าแอป';
 	@override String get exportConfigDesc => 'ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด';
 	@override String get importConfig => 'นำเข้าการกำหนดค่าแอป';
@@ -1244,6 +1249,9 @@ class _TranslationsForumTh extends TranslationsForumEn {
 	final TranslationsTh _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => 'แนบการอ้างอิง';
+	@override String replyToFloor({required Object floor, required Object username}) => 'ตอบกลับ #${floor} @${username}';
+	@override String get removeQuote => 'ลบการอ้างอิง';
 	@override String get recent => 'ล่าสุด';
 	@override String get category => 'หมวดหมู่';
 	@override String get lastReply => 'ตอบกลับล่าสุด';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiTh extends TranslationsEmojiEn {
 	final TranslationsTh _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => 'ใช้ล่าสุด';
+	@override String insertedCount({required Object count}) => 'แทรกแล้ว ${count} รายการ';
 	@override String get name => 'อีโมจิ';
 	@override String get size => 'ขนาด';
 	@override String get small => 'เล็ก';
@@ -4816,6 +4826,7 @@ extension on TranslationsTh {
 			'common.agree' => 'ยอมรับ',
 			'common.disagree' => 'ไม่ยอมรับ',
 			'common.agreeToRules' => 'ยอมรับกฎระเบียบ',
+			'common.tapToReread' => 'แตะเพื่ออ่านอีกครั้ง',
 			'common.markdownSyntaxHelp' => 'วิธีใช้ไวยากรณ์ Markdown',
 			'common.previewContent' => 'แสดงตัวอย่างเนื้อหา',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsTh {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'เวลาย้อนกลับต้องเป็นจำนวนเต็มบวก',
 			'settings.longPressPlaybackSpeed' => 'ความเร็วการเล่นเมื่อกดค้าง',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'ความเร็วการเล่นเมื่อกดค้างต้องเป็นตัวเลขบวก',
-			'settings.defaultPlaybackSpeed' => 'ความเร็วการเล่นเริ่มต้น',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'ความเร็วการเล่นเริ่มต้น',
 			'settings.rememberPlaybackSpeed' => 'จำความเร็วการเล่น',
 			'settings.rememberPlaybackSpeedDesc' => 'เมื่อเปิดใช้งาน ความเร็วที่คุณตั้งในเครื่องเล่นจะถูกบันทึกเป็นค่าเริ่มต้นและใช้กับวิดีโอใหม่โดยอัตโนมัติ',
 			'settings.repeat' => 'เล่นซ้ำ',
@@ -5297,6 +5308,10 @@ extension on TranslationsTh {
 			'settings.enterSignature' => 'ป้อนลายเซ็น',
 			'settings.editSignature' => 'แก้ไขลายเซ็น',
 			'settings.signatureContent' => 'เนื้อหาลายเซ็น',
+			'settings.signaturePreview' => 'ตัวอย่าง',
+			'settings.signatureSampleBody' => 'ข้อความของคุณอยู่ตรงนี้',
+			'settings.signatureNotSet' => 'ยังไม่ได้ตั้งค่า',
+			'settings.signatureRuleHint' => 'ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง',
 			'settings.exportConfig' => 'ส่งออกการกำหนดค่าแอป',
 			'settings.exportConfigDesc' => 'ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด',
 			'settings.importConfig' => 'นำเข้าการกำหนดค่าแอป',
@@ -5627,13 +5642,13 @@ extension on TranslationsTh {
 			'settings.downloadSettings.testError' => 'ข้อผิดพลาด',
 			'settings.downloadSettings.testPath' => 'เส้นทางการทดสอบ',
 			'settings.downloadSettings.testBasePath' => 'เส้นทางฐาน',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'การสร้างไดเรกทอรี',
 			'settings.downloadSettings.testFileWriting' => 'การเขียนไฟล์',
 			'settings.downloadSettings.testFileContent' => 'เนื้อหาไฟล์',
 			'settings.downloadSettings.checkingPathStatus' => 'กำลังตรวจสอบสถานะเส้นทาง...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'ไม่สามารถรับสถานะเส้นทางได้',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'หมายเหตุ: เส้นทางจริงแตกต่างจากเส้นทางที่เลือก',
 			'settings.downloadSettings.grantPermission' => 'อนุญาตสิทธิ์',
 			'settings.downloadSettings.fixIssue' => 'แก้ไขปัญหา',
@@ -6081,6 +6096,9 @@ extension on TranslationsTh {
 			'markdown.separatorDescription' => 'สร้างเส้นคั่นด้วยสัญลักษณ์ - สามตัวขึ้นไป',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'ไวยากรณ์',
+			'forum.attachQuote' => 'แนบการอ้างอิง',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => 'ตอบกลับ #${floor} @${username}',
+			'forum.removeQuote' => 'ลบการอ้างอิง',
 			'forum.recent' => 'ล่าสุด',
 			'forum.category' => 'หมวดหมู่',
 			'forum.lastReply' => 'ตอบกลับล่าสุด',
@@ -6138,6 +6156,8 @@ extension on TranslationsTh {
 			'forum.leafDescriptions.requests_zh' => 'โพสต์คำขอของคุณ',
 			'forum.leafDescriptions.support_zh' => 'ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์',
 			'forum.leafDescriptions.general_ja' => 'พูดคุยในทุกหัวข้อ',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'สอบถามข้อสงสัยของคุณ',
 			'forum.leafDescriptions.requests_ja' => 'โพสต์คำขอของคุณ',
 			'forum.leafDescriptions.support_ja' => 'ช่วยเหลือในการแก้ไขปัญหาที่เกี่ยวข้องกับเว็บไซต์',
@@ -6146,8 +6166,6 @@ extension on TranslationsTh {
 			'forum.reply' => 'ตอบกลับ',
 			'forum.pendingReview' => 'กำลังรอการตรวจสอบ',
 			'forum.editedAt' => 'แก้ไขเมื่อ',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'คัดลอกไปยังคลิปบอร์ดแล้ว',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'คัดลอกไปยังคลิปบอร์ดแล้ว: ${str}',
 			'forum.editReply' => 'แก้ไขการตอบกลับ',
@@ -6652,6 +6670,8 @@ extension on TranslationsTh {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsTh {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'จำนวนการดาวน์โหลดพร้อมกันสูงสุด',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => 'จำนวนงานที่ดาวน์โหลดในเวลาเดียวกัน (1-5)',
 			'download.stillInDevelopment' => 'ยังอยู่ระหว่างการพัฒนา',
 			'download.saveToAppDirectory' => 'บันทึกไปยังโฟลเดอร์ของแอป',
@@ -7166,6 +7184,8 @@ extension on TranslationsTh {
 			'linkInputDialog.multipleLinksDetected' => 'ตรวจพบหลายลิงก์ โปรดเลือกหนึ่งรายการ:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'ไม่ใช่ลิงก์ ${webName} ที่ถูกต้อง',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'ข้อผิดพลาดในการแยกวิเคราะห์ลิงก์: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'ลิงก์ที่ไม่รองรับ',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'ประเภทลิงก์นี้ไม่สามารถเปิดได้โดยตรงในแอป และจำเป็นต้องเข้าถึงโดยใช้เบราว์เซอร์ภายนอก\n\nคุณต้องการเปิดลิงก์นี้ในเบราว์เซอร์หรือไม่?',
 			'linkInputDialog.openInBrowser' => 'เปิดในเบราว์เซอร์',
@@ -7174,8 +7194,6 @@ extension on TranslationsTh {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ?',
 			'linkInputDialog.browserOpenFailed' => 'เปิดลิงก์ไม่สำเร็จ',
 			'linkInputDialog.unsupportedLink' => 'ลิงก์ที่ไม่รองรับ',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => 'ยกเลิก',
 			'linkInputDialog.confirm' => 'เปิดในเบราว์เซอร์',
 			'log.logManagement' => 'การจัดการบันทึก',
@@ -7232,6 +7250,8 @@ extension on TranslationsTh {
 			'log.newSizeLimit' => ({required Object size}) => 'ขีดจำกัดขนาดใหม่: ${size}',
 			'log.confirmToContinue' => 'ยืนยันเพื่อดำเนินการต่อ',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'ตั้งค่าขีดจำกัดขนาดบันทึกเป็น ${size} แล้ว',
+			'emoji.recentlyUsed' => 'ใช้ล่าสุด',
+			'emoji.insertedCount' => ({required Object count}) => 'แทรกแล้ว ${count} รายการ',
 			'emoji.name' => 'อีโมจิ',
 			'emoji.size' => 'ขนาด',
 			'emoji.small' => 'เล็ก',
@@ -7678,6 +7698,8 @@ extension on TranslationsTh {
 			'vrFormat.flatSideBySideDesc' => 'หนึ่งตาต่อครึ่งซ้ายและขวา แสดงตาซ้ายและคืนสัดส่วนภาพเดิม',
 			'vrFormat.flatTopBottom' => '3D แบบบนล่าง',
 			'vrFormat.flatTopBottomDesc' => 'หนึ่งตาต่อครึ่งบนและล่าง แสดงครึ่งบนและคืนสัดส่วนภาพเดิม',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 แบบข้างเคียง',
 			'vrFormat.vr180SideBySideDesc' => 'พาโนรามาซีกโลกพร้อมสองตา — แหล่ง VR ที่พบมากที่สุด',
 			'vrFormat.vr180Mono' => 'VR180 ภาพเดียว',
@@ -7688,8 +7710,6 @@ extension on TranslationsTh {
 			'vrFormat.vr360TopBottomDesc' => 'พาโนรามาแบบรอบทิศพร้อมสองตาซ้อนกัน',
 			'vrFormat.resetView' => 'รีเซ็ตมุมมอง',
 			'vrFormat.resetViewDesc' => 'คืนทิศทางการมองและมุมมองกลับไปด้านหน้า',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => 'กลับสู่การตรวจจับอัตโนมัติ',
 			'vrFormat.resetToAutoDesc' => 'ลืมการเลือกเองสำหรับวิดีโอนี้ แล้วให้การตรวจจับตัดสินใจใหม่',
 			'vrFormat.manualBadge' => 'ตั้งค่าเอง',

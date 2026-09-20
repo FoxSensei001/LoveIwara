@@ -6,7 +6,7 @@ import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/layouts.dar
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/first_time_setup/widgets/shared/step_container.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_settings_card.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 class BasicSettingsStepWidget extends StatefulWidget {
@@ -81,11 +81,12 @@ class _BasicSettingsStepWidgetState extends State<BasicSettingsStepWidget> {
   }
 
   Future<void> _editSignatureContent() async {
-    final result = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) =>
-          SignatureEditSheet(initialContent: signatureContent),
+    // 走 showGlassBottomSheet（showSignatureEditor 内部）而不是裸
+    // showModalBottomSheet：液态档供在那条路由上，裸开的弹层里所有玻璃件
+    // 都会静默落回传统档。
+    final result = await showSignatureEditor(
+      context,
+      initialContent: signatureContent,
     );
     if (result != null) {
       setState(() => signatureContent = result);

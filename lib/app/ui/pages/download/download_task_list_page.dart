@@ -1431,19 +1431,27 @@ class _DownloadTaskListPageState extends State<DownloadTaskListPage> {
     final canPause =
         _store.downloadingIds.isNotEmpty || _store.pendingIds.isNotEmpty;
     final canResume = !canPause && _store.pausedIds.isNotEmpty;
+    // 玻璃胶囊而不是裸 TextButton：材质档由主题设置统一供给，裸 Material
+    // 按钮会绕过那个开关（见 test/glass_style_guard_test.dart 的棘轮闸门）。
     final Widget action = canPause
-        ? TextButton.icon(
+        ? GlassButtonGroup(
             key: const ValueKey('pauseAll'),
-            onPressed: () => DownloadService.to.pauseAll(),
-            icon: const Icon(Icons.pause_rounded, size: 18),
-            label: Text(t.pauseAll),
+            children: [
+              GlassTextActionButton(
+                label: t.pauseAll,
+                onPressed: () => DownloadService.to.pauseAll(),
+              ),
+            ],
           )
         : canResume
-        ? TextButton.icon(
+        ? GlassButtonGroup(
             key: const ValueKey('resumeAll'),
-            onPressed: () => DownloadService.to.resumeAll(),
-            icon: const Icon(Icons.play_arrow_rounded, size: 18),
-            label: Text(t.resumeAll),
+            children: [
+              GlassTextActionButton(
+                label: t.resumeAll,
+                onPressed: () => DownloadService.to.resumeAll(),
+              ),
+            ],
           )
         : const SizedBox(key: ValueKey('none'), height: 40);
 

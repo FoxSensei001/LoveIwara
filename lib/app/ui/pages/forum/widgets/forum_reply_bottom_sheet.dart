@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
+import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -12,12 +13,17 @@ class ForumReplyBottomSheet extends StatefulWidget {
     this.onSubmit,
     this.maxBodyInputLimit = 100000,
     this.initialContent,
+    this.quote,
   });
 
   final String threadId;
   final VoidCallback? onSubmit;
   final int maxBodyInputLimit;
   final String? initialContent;
+
+  /// 这条回复冲着哪一楼去。引用卡片画在输入框上方，用户可当场撤销；
+  /// 真正的 markdown 引用块在提交那一刻才由 `CommentMarkup.compose` 拼出来。
+  final ReplyQuote? quote;
 
   @override
   State<ForumReplyBottomSheet> createState() => _ForumReplyBottomSheetState();
@@ -67,6 +73,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
       onSubmit: _handleSubmit,
       isLoading: _isLoading,
       initialContent: widget.initialContent,
+      quote: widget.quote,
       titleIcon: Icons.reply_outlined,
     );
   }
@@ -80,7 +87,7 @@ showGlassBottomSheet(
   context: context,
   builder: (context) => ForumReplyBottomSheet(
     threadId: 'thread_id',
-    initialContent: 'Reply #1: @username\n---\n',
+    quote: ReplyQuote(floor: 1, username: 'username', excerpt: '原文摘要…'),
     onSubmit: () {
       // 刷新帖子列表
       listSourceRepository.refresh();

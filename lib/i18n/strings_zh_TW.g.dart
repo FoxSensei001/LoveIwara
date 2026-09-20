@@ -355,6 +355,7 @@ class _TranslationsCommonZhTw extends TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意規則';
+	@override String get tapToReread => '點擊重讀全文';
 	@override String get markdownSyntaxHelp => 'Markdown語法幫助';
 	@override String get previewContent => '預覽內容';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get enterSignature => '輸入小尾巴';
 	@override String get editSignature => '編輯小尾巴';
 	@override String get signatureContent => '小尾巴內容';
+	@override String get signaturePreview => '效果預覽';
+	@override String get signatureSampleBody => '這裡是你寫的正文';
+	@override String get signatureNotSet => '尚未設定';
+	@override String get signatureRuleHint => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。';
 	@override String get exportConfig => '匯出應用配置';
 	@override String get exportConfigDesc => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。';
 	@override String get importConfig => '匯入應用配置';
@@ -1273,6 +1278,9 @@ class _TranslationsForumZhTw extends TranslationsForumEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => '攜帶引用';
+	@override String replyToFloor({required Object floor, required Object username}) => '回覆 #${floor} @${username}';
+	@override String get removeQuote => '移除引用';
 	@override String get recent => '最近';
 	@override String get category => '分類';
 	@override String get lastReply => '最終回覆';
@@ -1993,6 +2001,8 @@ class _TranslationsEmojiZhTw extends TranslationsEmojiEn {
 	final TranslationsZhTw _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => '最近使用';
+	@override String insertedCount({required Object count}) => '已插入 ${count} 個';
 	@override String get name => '表情';
 	@override String get size => '大小';
 	@override String get small => '小';
@@ -4822,6 +4832,7 @@ extension on TranslationsZhTw {
 			'common.agree' => '同意',
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意規則',
+			'common.tapToReread' => '點擊重讀全文',
 			'common.markdownSyntaxHelp' => 'Markdown語法幫助',
 			'common.previewContent' => '預覽內容',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsZhTw {
 			'settings.rewindTimeMustBeAPositiveInteger' => '快退時間必須是正整數。',
 			'settings.longPressPlaybackSpeed' => '長按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '長按播放倍速必須是正數。',
-			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => '預設播放倍速',
 			'settings.rememberPlaybackSpeed' => '記住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '開啟後，在播放器中調整的倍速會自動儲存為預設倍速，並套用到後續播放的新影片。',
 			'settings.repeat' => '循環播放',
@@ -5297,6 +5308,10 @@ extension on TranslationsZhTw {
 			'settings.enterSignature' => '輸入小尾巴',
 			'settings.editSignature' => '編輯小尾巴',
 			'settings.signatureContent' => '小尾巴內容',
+			'settings.signaturePreview' => '效果預覽',
+			'settings.signatureSampleBody' => '這裡是你寫的正文',
+			'settings.signatureNotSet' => '尚未設定',
+			'settings.signatureRuleHint' => '小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。',
 			'settings.exportConfig' => '匯出應用配置',
 			'settings.exportConfigDesc' => '將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。',
 			'settings.importConfig' => '匯入應用配置',
@@ -5627,13 +5642,13 @@ extension on TranslationsZhTw {
 			'settings.downloadSettings.testError' => '錯誤',
 			'settings.downloadSettings.testPath' => '測試路徑',
 			'settings.downloadSettings.testBasePath' => '基礎路徑',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '目錄建立',
 			'settings.downloadSettings.testFileWriting' => '檔案寫入',
 			'settings.downloadSettings.testFileContent' => '檔案內容',
 			'settings.downloadSettings.checkingPathStatus' => '檢查路徑狀態...',
 			'settings.downloadSettings.unableToGetPathStatus' => '無法獲取路徑狀態',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：實際使用路徑與選擇路徑不同',
 			'settings.downloadSettings.grantPermission' => '授權權限',
 			'settings.downloadSettings.fixIssue' => '修復問題',
@@ -6115,6 +6130,9 @@ extension on TranslationsZhTw {
 			'markdown.separatorDescription' => '使用三個或更多 - 號建立分隔線',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '語法',
+			'forum.attachQuote' => '攜帶引用',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => '回覆 #${floor} @${username}',
+			'forum.removeQuote' => '移除引用',
 			'forum.recent' => '最近',
 			'forum.category' => '分類',
 			'forum.lastReply' => '最終回覆',
@@ -6138,6 +6156,8 @@ extension on TranslationsZhTw {
 			'forum.groups.administration' => '管理',
 			'forum.groups.global' => '全球',
 			'forum.groups.chinese' => '中文',
+			_ => null,
+		} ?? switch (path) {
 			'forum.groups.japanese' => '日語',
 			'forum.groups.korean' => '韓語',
 			'forum.groups.other' => '其他',
@@ -6146,8 +6166,6 @@ extension on TranslationsZhTw {
 			'forum.leafNames.support' => '幫助',
 			'forum.leafNames.general' => '一般',
 			'forum.leafNames.guides' => '指南',
-			_ => null,
-		} ?? switch (path) {
 			'forum.leafNames.questions' => '問題',
 			'forum.leafNames.requests' => '請求',
 			'forum.leafNames.sharing' => '分享',
@@ -6652,6 +6670,8 @@ extension on TranslationsZhTw {
 			'download.location.sheetTitle' => '選擇下載位置',
 			'download.location.chooseOtherFolder' => '選擇其他資料夾…',
 			'download.location.chooseOtherFolderDesc' => '用系統檔案選擇器挑一個',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.optionRecommendedDesc' => '推薦 · 無需授權',
 			'download.location.optionRecommendedLegacyDesc' => '推薦 · 需要儲存權限',
 			'download.location.optionAppPrivateDesc' => '解除安裝時刪除 · 相簿看不到',
@@ -6660,8 +6680,6 @@ extension on TranslationsZhTw {
 			'download.location.optionAskEveryTimeDesc' => '每次下載時挑一個資料夾',
 			'download.location.current' => '目前',
 			'download.location.fallbackBanner' => '上次下載暫時存到了應用程式空間，因為選定的資料夾暫時無法使用。',
-			_ => null,
-		} ?? switch (path) {
 			'download.location.fallbackReasonPermission' => '缺少儲存權限',
 			'download.location.fallbackReasonVolumeMissing' => '儲存裝置沒有連接',
 			'download.location.fallbackReasonCannotCreate' => '無法建立資料夾',
@@ -7166,6 +7184,8 @@ extension on TranslationsZhTw {
 			'log.selectMergeRangeHint' => '請選擇要合併的日誌時間範圍',
 			'log.selectMergeRangeDays' => ({required Object days}) => '最近 ${days} 天',
 			'log.logStats' => '日誌統計資訊',
+			_ => null,
+		} ?? switch (path) {
 			'log.todayLogs' => ({required Object count}) => '今日日誌: ${count} 條',
 			'log.recent7DaysLogs' => ({required Object count}) => '最近7天: ${count} 條',
 			'log.totalLogs' => ({required Object count}) => '總計日誌: ${count} 條',
@@ -7174,9 +7194,9 @@ extension on TranslationsZhTw {
 			'log.warning' => '警告',
 			'log.newSizeLimit' => ({required Object size}) => '新的大小限制: ${size}',
 			'log.confirmToContinue' => '確定要繼續嗎？',
-			_ => null,
-		} ?? switch (path) {
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日誌大小上限已設定為 ${size}',
+			'emoji.recentlyUsed' => '最近使用',
+			'emoji.insertedCount' => ({required Object count}) => '已插入 ${count} 個',
 			'emoji.name' => '表情',
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
@@ -7678,6 +7698,8 @@ extension on TranslationsZhTw {
 			'vrFormat.flatSideBySideDesc' => '一幀裡左右各一隻眼，只顯示左眼並還原比例',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '一幀裡上下各一隻眼，只顯示上半幅並還原比例',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右雙眼，最常見的 VR 片源',
 			'vrFormat.vr180Mono' => 'VR180 單目',
@@ -7688,8 +7710,6 @@ extension on TranslationsZhTw {
 			'vrFormat.vr360TopBottomDesc' => '環繞一圈的全景 + 上下雙眼',
 			'vrFormat.resetView' => '重設視角',
 			'vrFormat.resetViewDesc' => '把環視方向與視野角復位到正前方',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => '恢復自動辨識',
 			'vrFormat.resetToAutoDesc' => '忘掉這部影片的手動選擇，交回給自動判斷',
 			'vrFormat.manualBadge' => '已手動指定',

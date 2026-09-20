@@ -917,6 +917,10 @@ class _EditDescriptionDialogState extends State<_EditDescriptionDialog> {
   @override
   Widget build(BuildContext context) {
     return BaseDialogInput(
+      // 个人简介不是评论：既不该被接上小尾巴（空简介时旧实现会把
+      // 「Sent from …」拼进你的主页介绍），标题行也不该挂「评论设置」。
+      allowSignature: false,
+      showSettingsShortcut: false,
       title: slang.t.personalProfile.editPersonalIntroduction,
       hintText: slang.t.personalProfile.enterPersonalIntroduction,
       maxLength: 5000,

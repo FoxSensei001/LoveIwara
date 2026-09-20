@@ -226,6 +226,7 @@ common:
   agree: Принять
   disagree: Отклонить
   agreeToRules: Принять правила
+  tapToReread: 'Нажмите, чтобы перечитать'
   # Base Input Dialog
   markdownSyntaxHelp: Справка по Markdown
   previewContent: Предпросмотр
@@ -726,6 +727,10 @@ settings:
   enterSignature: Введите подпись
   editSignature: Изменить подпись
   signatureContent: Текст подписи
+  signaturePreview: 'Предпросмотр'
+  signatureSampleBody: 'Здесь ваш текст'
+  signatureNotSet: 'Не задано'
+  signatureRuleHint: "Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже."
   exportConfig: "Экспорт конфигурации"
   exportConfigDesc: "Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются."
   importConfig: "Импорт конфигурации"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: Синтаксис
 
 forum:
+  attachQuote: 'Прикрепить цитату'
+  replyToFloor: 'Ответ на #${floor} @${username}'
+  removeQuote: 'Убрать цитату'
   recent: Недавние
   category: Категория
   lastReply: Последний ответ
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'Лимит размера логов установлен: ${size}'
 
 emoji:
+  recentlyUsed: 'Недавние'
+  insertedCount: 'Вставлено: ${count}'
   name: Эмодзи
   size: Размер
   small: Маленький

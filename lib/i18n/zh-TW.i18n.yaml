@@ -232,6 +232,7 @@ common:
   agree: 同意
   disagree: 不同意
   agreeToRules: 同意規則
+  tapToReread: '點擊重讀全文'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown語法幫助
   previewContent: 預覽內容
@@ -727,6 +728,10 @@ settings:
   enterSignature: 輸入小尾巴
   editSignature: 編輯小尾巴
   signatureContent: 小尾巴內容
+  signaturePreview: '效果預覽'
+  signatureSampleBody: '這裡是你寫的正文'
+  signatureNotSet: '尚未設定'
+  signatureRuleHint: "小尾巴會跟在正文後面，中間自動隔一條分隔線——分隔線由應用程式產生，你只需要寫下面這句話。"
   exportConfig: "匯出應用配置"
   exportConfigDesc: "將設定與歷史紀錄（瀏覽紀錄、播放進度、收藏等）匯出為文件，可用於備份或同步到其他裝置。不包含下載任務。"
   importConfig: "匯入應用配置"
@@ -1610,6 +1615,9 @@ markdown:
   syntax: 語法
 
 forum:
+  attachQuote: '攜帶引用'
+  replyToFloor: '回覆 #${floor} @${username}'
+  removeQuote: '移除引用'
   recent: 最近
   category: 分類
   lastReply: 最終回覆
@@ -2736,6 +2744,8 @@ log:
   logSizeLimitSetSuccess: '日誌大小上限已設定為 ${size}'
 
 emoji:
+  recentlyUsed: '最近使用'
+  insertedCount: '已插入 ${count} 個'
   name: 表情
   size: 大小
   small: 小

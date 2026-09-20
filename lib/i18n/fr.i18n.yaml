@@ -226,6 +226,7 @@ common:
   agree: Accepter
   disagree: Refuser
   agreeToRules: Accepter les règles
+  tapToReread: 'Toucher pour relire'
   # Base Input Dialog
   markdownSyntaxHelp: Aide sur la syntaxe Markdown
   previewContent: Aperçu du contenu
@@ -726,6 +727,10 @@ settings:
   enterSignature: Saisir la signature
   editSignature: Modifier la signature
   signatureContent: Contenu de la signature
+  signaturePreview: 'Aperçu'
+  signatureSampleBody: 'Votre message ici'
+  signatureNotSet: 'Non défini'
+  signatureRuleHint: "La signature est ajoutée après le corps, séparée par une ligne horizontale. L'appli ajoute la ligne — écrivez seulement le texte ci-dessous."
   exportConfig: "Exporter la configuration de l'app"
   exportConfigDesc: "Exporter les paramètres et l'historique (historique de navigation, progression de lecture, favoris, etc.) dans un fichier pour sauvegarde ou transfert vers un autre appareil. Les tâches de téléchargement ne sont pas incluses."
   importConfig: "Importer la configuration de l'app"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: Syntaxe
 
 forum:
+  attachQuote: 'Joindre la citation'
+  replyToFloor: 'Répondre à #${floor} @${username}'
+  removeQuote: 'Retirer la citation'
   recent: Récent
   category: Catégorie
   lastReply: Dernière réponse
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'Limite de taille des journaux définie sur ${size}'
 
 emoji:
+  recentlyUsed: 'Récents'
+  insertedCount: '${count} insérés'
   name: Emoji
   size: Taille
   small: Petit

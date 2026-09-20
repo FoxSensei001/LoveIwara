@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/common/widgets/input/base_input_widget.dart';
 import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
@@ -27,6 +31,20 @@ class BaseDialogInput extends StatefulWidget {
   /// 标题左侧的小图标（与 [BaseBottomSheetInput] 对齐）。
   final IconData? titleIcon;
 
+  /// 这条回复冲着哪一楼去，透传给 [BaseInputWidget.quote]。
+  final ReplyQuote? quote;
+
+  /// 本弹窗是否参与小尾巴，透传给 [BaseInputWidget.allowSignature]。
+  final bool allowSignature;
+
+  /// 标题行要不要那枚跳设置的齿轮。
+  ///
+  /// 评论 / 回复 / 发帖这一族要（用户正对着小尾巴开关，改内容该一步到位）；
+  /// 借这只底座做别的事的场合不要——「编辑个人简介」弹窗上挂一枚「评论设置」
+  /// 是跑题的。
+  final bool showSettingsShortcut;
+
+
   const BaseDialogInput({
     super.key,
     required this.title,
@@ -48,6 +66,9 @@ class BaseDialogInput extends StatefulWidget {
     this.submitText,
     this.cancelText,
     this.titleIcon,
+    this.quote,
+    this.allowSignature = true,
+    this.showSettingsShortcut = true,
   });
 
   @override
@@ -99,6 +120,17 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
               title: widget.title,
               icon: widget.titleIcon,
               onClose: _handleCancel,
+              // 齿轮：用户正对着小尾巴开关，想改内容就该一步到位，而不是
+              // 关掉弹窗自己去设置树里翻。放关闭键左边（trailing 槽），
+              // 关闭永远在最右端不挪窝。
+              trailing: widget.showSettingsShortcut
+                  ? GlassIconButton(
+                      standalone: true,
+                      icon: const Icon(Icons.tune),
+                      tooltip: slang.t.settings.chatSettings.name,
+                      onPressed: NaviService.navigateToChatSettingsPage,
+                    )
+                  : null,
             ),
             const SizedBox(height: 16),
             // 输入区域
@@ -123,6 +155,8 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
                   ? _emojiTextFieldKey
                   : null,
               submitText: widget.submitText,
+              quote: widget.quote,
+              allowSignature: widget.allowSignature,
             ),
           ],
         ),

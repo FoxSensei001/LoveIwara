@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/comment_structure_widgets.dart';
 import 'package:i_iwara/app/ui/widgets/custom_markdown_body_widget.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_original_text_toggle.dart';
@@ -71,13 +73,33 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   /// 正文加工前后确实有差异时才让那枚钮长出来。
   bool _hasProcessedContent = false;
 
+  /// 原文拆出来的三段结构（引用头 / 正文 / 小尾巴）。
+  ///
+  /// 缓存而不是在 build 里现算：[CommentMarkup.parse] 要跑几条正则，
+  /// 列表滚动时每帧重算白烧 CPU。
+  late ParsedComment _parsed;
+
   @override
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
     _showOriginal =
         _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _parsed = _parseBody();
   }
+
+  @override
+  void didUpdateWidget(covariant ThreadCommentCardWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.comment.body != widget.comment.body) {
+      _parsed = _parseBody();
+    }
+  }
+
+  ParsedComment _parseBody() => CommentMarkup.parse(
+    widget.comment.body,
+    knownSignature: _configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+  );
 
   @override
   void dispose() {
@@ -189,9 +211,11 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
   }
 
   Future<void> _handleTranslation() async {
+    // 只译作者自己写的正文：引用头是我们生成的结构，小尾巴是签名，
+    // 两者都没有翻译价值，还会挤占译文篇幅。
     await _translationController.translate(
-      widget.comment.body,
-      originalText: widget.comment.body,
+      _parsed.body,
+      originalText: _parsed.body,
     );
   }
 
@@ -298,13 +322,26 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
 
   void _handleReply() {
     if (!_ensureLoggedIn()) return;
-    final replyTemplate =
-        'Reply #${widget.comment.replyNum + 1}: @${widget.comment.user.username}\n---\n';
+
+    // 引用不再拼成一段躺在输入框里的字符串交给用户改（旧版 `'Reply #N: @x\n---\n'`
+    // 的语法本来就是错的，见 [CommentMarkup]），改成结构化的 [ReplyQuote]：
+    // composer 上方画成引用卡片，提交那一刻才拼成 markdown 引用块。
+    //
+    // 引用**总是**传下去：那张卡片同时是「你在回哪一楼」的陈述，不该因为
+    // 用户关了引用就看不见。带不带由 composer 上那枚常驻勾选框决定，它读写
+    // DISABLE_FORUM_REPLY_QUOTE_KEY——这个开关此前在设置页和首次引导页都摆了
+    // 出来，却从来没有人读过它。
     showGlassBottomSheet(
       context: context,
       builder: (context) => ForumReplyBottomSheet(
         threadId: widget.comment.threadId,
-        initialContent: replyTemplate,
+        quote: ReplyQuote(
+          floor: widget.comment.replyNum + 1,
+          username: widget.comment.user.username,
+          excerpt: CommentMarkup.buildExcerpt(
+            CommentMarkup.parse(widget.comment.body).body,
+          ),
+        ),
         onSubmit: () {
           widget.listSourceRepository.refresh();
         },
@@ -481,11 +518,19 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                         const SizedBox(height: 2),
                         _buildMetaLine(context),
                         const SizedBox(height: 8),
+                        // 引用头：不再混在正文里当一行大标题，提到正文上方
+                        // 单画成引用条。新旧两种格式都认，历史回复一样受益。
+                        if (_parsed.quote != null)
+                          CommentQuoteBlock(
+                            floor: _parsed.quote!.floor,
+                            username: _parsed.quote!.username,
+                            excerpt: _parsed.quote!.excerpt,
+                          ),
                         // 正文；SelectionArea 会吞掉 tap 传不到整行的 InkWell，
                         // 点按回复需经 onTap 显式透传进去
                         CustomMarkdownBody(
-                          data: comment.body,
-                          originalData: comment.body,
+                          data: _parsed.body,
+                          originalData: _parsed.body,
                           showTranslationButton: false,
                           translationController: _translationController,
                           padding: EdgeInsets.zero,
@@ -497,6 +542,9 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
                             setState(() => _hasProcessedContent = hasProcessed);
                           },
                         ),
+                        // 小尾巴降级成脚注小字，不再和正文一样重
+                        if (_parsed.footer != null)
+                          CommentFooterLine(text: _parsed.footer!),
                         const SizedBox(height: 4),
                         // 动作行：回复 …… 翻译 / 更多
                         Row(

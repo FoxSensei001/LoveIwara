@@ -1,443 +1,557 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:i_iwara/app/ui/widgets/emoji_picker_widget.dart';
+import 'package:get/get.dart' hide Translations;
+import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/emoji_library_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_menu.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
-import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/emoji_library_service.dart';
-import 'package:get/get.dart' hide Translations;
-import 'package:shimmer/shimmer.dart';
-import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 
+/// 表情选择器。
+///
+/// # 这一版改了什么，以及为什么
+///
+/// 旧版是「左侧 80px 分组 rail + 右侧固定 4 列网格」，装在一只自建的
+/// `DraggableScrollableSheet` 壳里。四个问题：
+///
+/// 1. **rail 在 360dp 屏上吃掉 22% 的宽度**，而它承载的只是几个分组名。改成
+///    顶部横向分组条之后，这 80px 全部还给了表情本身。
+/// 2. **列数写死 4**：窄屏上格子挤、平板上格子大得离谱。改成按可用宽度算。
+/// 3. **自建壳不走 [GlassBottomSheet]**，材质与全站其它弹层对不上（旧文件里
+///    的注释自己承认了这点）。
+/// 4. **骨架屏写死 `Colors.grey[300]`**，深色模式下是一片刺眼的亮块。
+///
+/// 另外补了两件事：
+///
+/// - **最近用过**排在第一格。斗图是这个站的核心玩法，「再发一次刚才那张」是
+///   最高频的动作，而旧版每次都得重新翻到那一组。存在
+///   [ConfigKey.RECENT_EMOJIS_KEY]。
+/// - **选完不自动关**。旧版由调用点在回调里 `Navigator.pop`，于是连发三张表情
+///   要开三次弹层。现在插入之后弹层留在原地，底部实时显示这次插了几个，用户
+///   自己决定什么时候收。
 class EmojiPickerSheet extends StatefulWidget {
-  final Function(String imageUrl, EmojiSize size) onEmojiSelected;
-  final EmojiSize initialSize;
-  final Function(EmojiSize) onSizeChanged;
-
   const EmojiPickerSheet({
     super.key,
     required this.onEmojiSelected,
-    this.initialSize = EmojiSize.medium,
     required this.onSizeChanged,
+    this.initialSize = EmojiSize.medium,
   });
+
+  /// 插入一个表情。⛔ **不要在这个回调里关闭弹层**——连选是刻意的。
+  final void Function(String imageUrl, EmojiSize size) onEmojiSelected;
+  final void Function(EmojiSize) onSizeChanged;
+  final EmojiSize initialSize;
 
   @override
   State<EmojiPickerSheet> createState() => _EmojiPickerSheetState();
 }
 
-class _EmojiPickerSheetState extends State<EmojiPickerSheet>
-    with SingleTickerProviderStateMixin {
+class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
+  /// 一个表情格子的目标边长。列数由可用宽度除以它算出来，而不是写死——
+  /// 写死列数的话，同一份网格在 360dp 手机上挤成一团、在平板上又大得滑稽。
+  static const double _cellTarget = 76;
+  static const double _cellGap = 8;
+
+  /// 「最近用过」最多记多少个。多了就不是「最近」了，还会把分组挤下去。
+  static const int _recentLimit = 24;
+
+  late final EmojiLibraryService _emojiService;
+  late final ConfigService _configService;
+
   late EmojiSize _selectedSize;
-  late EmojiLibraryService _emojiService;
-  late TabController _tabController;
-  List<EmojiGroup> _groups = [];
-  bool _isLoading = true;
+  List<EmojiGroup> _groups = const [];
+  List<String> _recent = const [];
+
+  /// 当前选中的格子：0 是「最近」（有内容时才在），其余是分组。
+  int _tab = 0;
+  bool _loading = true;
+
+  /// 这次开着弹层一共插了几个，显示在底部。连选没有这个反馈的话，用户不确定
+  /// 刚才那一下到底有没有插进去（输入框被弹层盖住了看不见）。
+  int _inserted = 0;
 
   @override
   void initState() {
     super.initState();
     _selectedSize = widget.initialSize;
     _emojiService = Get.find<EmojiLibraryService>();
-    _loadData();
+    _configService = Get.find<ConfigService>();
+    _recent = _readRecent();
+    _load();
   }
 
-  void _loadData() async {
+  void _load() {
     try {
       _groups = _emojiService.getEmojiGroups();
-      if (_groups.isNotEmpty) {
-        _tabController = TabController(length: _groups.length, vsync: this);
-      } else {
-        _tabController = TabController(length: 1, vsync: this);
-      }
-      setState(() {
-        _isLoading = false;
-      });
-    } catch (e) {
-      _tabController = TabController(length: 1, vsync: this);
-      setState(() {
-        _isLoading = false;
-      });
+    } catch (_) {
+      _groups = const [];
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  // ── 最近用过 ──────────────────────────────────────────────
+
+  List<String> _readRecent() {
+    try {
+      final raw = _configService[ConfigKey.RECENT_EMOJIS_KEY] as String;
+      final list = jsonDecode(raw);
+      if (list is! List) return const [];
+      return list.whereType<String>().toList(growable: false);
+    } catch (_) {
+      // 存坏了就当没有，不要因为一条历史记录把整个选择器炸掉
+      return const [];
     }
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  void _pushRecent(String url) {
+    final next = <String>[url, ..._recent.where((u) => u != url)];
+    if (next.length > _recentLimit) next.removeRange(_recentLimit, next.length);
+    _recent = next;
+    _configService[ConfigKey.RECENT_EMOJIS_KEY] = jsonEncode(next);
   }
 
-  void _handleEmojiSelected(String imageUrl) {
-    widget.onEmojiSelected(imageUrl, _selectedSize);
-  }
+  // ── 事件 ────────────────────────────────────────────────
 
-  void _handleSizeChanged(EmojiSize size) {
+  void _pick(String url) {
+    widget.onEmojiSelected(url, _selectedSize);
     setState(() {
-      _selectedSize = size;
+      _inserted++;
+      final hadRecent = _recent.isNotEmpty;
+      _pushRecent(url);
+      // 第一次用之后「最近」这一格才长出来，此时后面的分组整体右移一位，
+      // 当前选中的那一格要跟着挪，否则用户会发现自己突然换了组。
+      if (!hadRecent && _tab > 0) _tab++;
     });
+  }
+
+  void _changeSize(EmojiSize size) {
+    setState(() => _selectedSize = size);
     widget.onSizeChanged(size);
   }
 
-  /// 尺寸选择钮：玻璃胶囊，点按弹出贴近触发件的玻璃菜单（[showGlassMenu]），
-  /// 拥有长按开菜单 + 手指接力选中能力，与播放器倍速菜单保持一致的交互体验。
-  Widget _buildSizePill(BuildContext context, ColorScheme cs) {
-    return Builder(
-      builder: (anchorContext) => GlassSurface(
-        height: 36,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        opensOverlay: true,
-        onTap: () async {
-          final picked = await showGlassMenu<EmojiSize>(
-            anchorContext: anchorContext,
-            entries: [
-              for (final size in EmojiSize.values)
-                GlassMenuOption<EmojiSize>(
-                  value: size,
-                  label: size.displayName,
-                  selected: size == _selectedSize,
-                ),
-            ],
-          );
-          if (picked != null) {
-            _handleSizeChanged(picked);
-          }
-        },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              _selectedSize.displayName,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: cs.onSurface,
-              ),
-            ),
-            const SizedBox(width: 2),
-            Icon(Icons.expand_more, size: 18, color: cs.onSurfaceVariant),
-          ],
-        ),
+  bool get _hasRecent => _recent.isNotEmpty;
+
+  /// 当前这一格要显示哪些图。
+  List<String> get _currentUrls {
+    if (_hasRecent && _tab == 0) return _recent;
+    final index = _hasRecent ? _tab - 1 : _tab;
+    if (index < 0 || index >= _groups.length) return const [];
+    return _emojiService
+        .getEmojiImages(_groups[index].groupId)
+        .map((e) => e.thumbnailUrl ?? e.url)
+        .toList(growable: false);
+  }
+
+  /// 点格子时要插入的**原图** url（网格里显示的是缩略图）。
+  List<EmojiImage>? get _currentImages {
+    if (_hasRecent && _tab == 0) return null;
+    final index = _hasRecent ? _tab - 1 : _tab;
+    if (index < 0 || index >= _groups.length) return null;
+    return _emojiService.getEmojiImages(_groups[index].groupId);
+  }
+
+  // ── 构建 ────────────────────────────────────────────────
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Translations.of(context);
+    return GlassDraggableBottomSheet(
+      initialChildSize: 0.68,
+      minChildSize: 0.4,
+      maxChildSize: 0.95,
+      builder: (context, scrollController) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildHeader(context, t),
+          if (!_loading) _buildGroupStrip(context, t),
+          Expanded(
+            child: _loading
+                ? _buildSkeleton(context)
+                : _buildGrid(context, t, scrollController),
+          ),
+          _buildFooter(context, t),
+        ],
       ),
     );
   }
 
-  /// 标题行的动作区：尺寸胶囊 / 设置 / 关闭。
-  ///
-  /// 液态档由 `showGlassBottomSheet` 在路由层供——本弹层是自建壳
-  /// （`DraggableScrollableSheet` + 自己的 `Container`），不走 `GlassBottomSheet`，
-  /// 所以必须从那个入口打开，裸 `showModalBottomSheet` 开出来会整只落回传统档。
-  Widget _buildHeaderActions(BuildContext context, ColorScheme cs) {
-    final t = Translations.of(context);
-    return Row(
-      children: [
-        _buildSizePill(context, cs),
-        const Spacer(),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.settings),
-          tooltip: t.settings.settings,
-          onPressed: () {
-            Navigator.pop(context);
-            NaviService.navigateToEmojiLibraryPage();
-          },
-        ),
-        const SizedBox(width: 8),
-        GlassIconButton(
-          standalone: true,
-          icon: const Icon(Icons.close),
-          tooltip: t.common.close,
-          onPressed: () => Navigator.pop(context),
-        ),
-      ],
+  Widget _buildHeader(BuildContext context, Translations t) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+      child: Row(
+        children: [
+          Icon(
+            Icons.emoji_emotions_outlined,
+            size: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              t.emoji.name,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.tune),
+            tooltip: t.emoji.library,
+            onPressed: () {
+              Navigator.pop(context);
+              NaviService.navigateToEmojiLibraryPage();
+            },
+          ),
+          const SizedBox(width: 8),
+          GlassIconButton(
+            standalone: true,
+            icon: const Icon(Icons.close),
+            tooltip: t.common.close,
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) {
-        if (_isLoading) {
-          // Shimmer 骨架屏
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+  /// 顶部横向分组条，取代旧版左侧那条 80px 的 rail。
+  ///
+  /// 分组名是短词（「NG娘」「颜文字」），横排比竖排省地方得多；而且它和全站
+  /// 其它 tab 的语言一致，不用再学一套。
+  Widget _buildGroupStrip(BuildContext context, Translations t) {
+    final cs = Theme.of(context).colorScheme;
+    final labels = <String>[
+      if (_hasRecent) t.emoji.recentlyUsed,
+      for (final g in _groups) g.name,
+    ];
+    if (labels.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: 38,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: labels.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 6),
+        itemBuilder: (context, i) {
+          final bool on = i == _tab;
+          return GlassPressable(
+            onTap: () => setState(() => _tab = i),
+            builder: (context, pressed) => AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOut,
+              padding: const EdgeInsets.symmetric(horizontal: 13),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: on
+                    ? cs.primary.withValues(alpha: pressed ? 0.26 : 0.18)
+                    : cs.onSurface.withValues(alpha: pressed ? 0.12 : 0.05),
+                borderRadius: BorderRadius.circular(999),
               ),
-            ),
-            child: Column(
-              children: [
-                // 拖拽条与标题栏共用同一块底色（同一个 Container），不能分开画：
-                // 分开画的话拖拽条露的是外层 cs.surface，标题栏是叠了一层
-                // surfaceContainerHighest 的淡灰——两截颜色对不上，接缝很难看。
-                Container(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.3),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
+              child: Row(
+                children: [
+                  if (i == 0 && _hasRecent) ...[
+                    Icon(
+                      Icons.history_rounded,
+                      size: 14,
+                      color: on ? cs.primary : cs.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Text(
+                    labels[i],
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: on ? FontWeight.w700 : FontWeight.w500,
+                      color: on ? cs.primary : cs.onSurfaceVariant,
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 12, bottom: 12),
-                          width: 40,
-                          height: 4,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant
-                                .withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 100,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          ...List.generate(
-                            2,
-                            (i) => Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest
-                              .withValues(alpha: 0.3),
-                          border: Border(
-                            right: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: 8,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 4,
-                                horizontal: 8,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              child: Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Expanded(
-                        child: GridView.builder(
-                          controller: scrollController,
-                          padding: const EdgeInsets.all(8),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                              ),
-                          itemCount: 16,
-                          itemBuilder: (context, index) {
-                            return Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGrid(
+    BuildContext context,
+    Translations t,
+    ScrollController controller,
+  ) {
+    final urls = _currentUrls;
+    if (urls.isEmpty) {
+      return _buildEmpty(context, t);
+    }
+    final images = _currentImages;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 列数按可用宽度算，不写死
+        final int columns = ((constraints.maxWidth - 24 + _cellGap) /
+                (_cellTarget + _cellGap))
+            .floor()
+            .clamp(4, 10);
+        return GridView.builder(
+          controller: controller,
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: _cellGap,
+            mainAxisSpacing: _cellGap,
+          ),
+          itemCount: urls.length,
+          itemBuilder: (context, i) {
+            // 网格里放缩略图，插进正文的是原图
+            final String insertUrl = images != null && i < images.length
+                ? images[i].url
+                : urls[i];
+            return _EmojiCell(
+              thumbnailUrl: urls[i],
+              onTap: () => _pick(insertUrl),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildEmpty(BuildContext context, Translations t) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.emoji_emotions_outlined,
+            size: 44,
+            color: cs.onSurface.withValues(alpha: 0.28),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _groups.isEmpty ? t.emoji.noEmojis : t.emoji.noEmojisInGroup,
+            style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+          ),
+          if (_groups.isEmpty) ...[
+            const SizedBox(height: 14),
+            GlassButtonGroup(
+              children: [
+                GlassTextActionButton(
+                  label: t.emoji.addEmojis,
+                  emphasized: true,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    NaviService.navigateToEmojiLibraryPage();
+                  },
                 ),
               ],
             ),
-          );
-        }
+          ],
+        ],
+      ),
+    );
+  }
 
-        final cs = Theme.of(context).colorScheme;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: cs.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+  /// 骨架屏：用主题色的脉动，不用写死的灰。
+  ///
+  /// 旧版是 `Colors.grey[300]` / `Colors.grey[100]`，深色模式下是一片刺眼的
+  /// 亮块；而且它把整套真实布局又抄了一遍（近 180 行），布局一改就对不上。
+  Widget _buildSkeleton(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final int columns = ((constraints.maxWidth - 24 + _cellGap) /
+                (_cellTarget + _cellGap))
+            .floor()
+            .clamp(4, 10);
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: _cellGap,
+            mainAxisSpacing: _cellGap,
           ),
-          // 让内容避开系统手势条/导航条，背景仍然铺到屏幕底部
-          padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
-          child: Column(
-            children: [
-              // 拖拽条与标题栏共用同一块底色（同一个 Container），不能分开画：
-              // 分开画的话拖拽条露的是外层 cs.surface，标题栏是叠了一层
-              // surfaceContainerHighest 的淡灰——两截颜色对不上，接缝很难看。
-              Container(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 12, bottom: 12),
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    // 标题行：左上角尺寸选择钮（打开全站通用弹窗，而不是原生
-                    // DropdownButton 那种孤立的系统菜单）/ 右侧玻璃圆钮，
-                    // 与全站其它弹窗标题行动作键同一约定
-                    _buildHeaderActions(context, cs),
-                  ],
-                ),
-              ),
-
-              // 移除窄屏下方的尺寸选择行（统一使用左上角选择钮）
-
-              // 表情包选择器主体区域
-              Expanded(
-                child: RepaintBoundary(
-                  child: Row(
-                    children: [
-                      // 左侧分组导航 rail
-                      if (_groups.isNotEmpty)
-                        Container(
-                          width: 80,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest
-                                .withValues(alpha: 0.3),
-                            border: Border(
-                              right: BorderSide(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withValues(alpha: 0.2),
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: 16,
-                            ), // 底部留出 padding
-                            child: EmojiPickerWidget(
-                              onEmojiSelected: _handleEmojiSelected,
-                              showOnlyTabs: true, // 只显示标签页，不显示内容
-                              isRailMode: true, // 新增参数，表示 rail 模式
-                              tabController:
-                                  _tabController, // 传递共享的 TabController
-                            ),
-                          ),
-                        ),
-                      // 右侧表情包内容区域
-                      Expanded(
-                        child: EmojiPickerWidget(
-                          onEmojiSelected: _handleEmojiSelected,
-                          showOnlyContent: true, // 只显示内容，不显示标签页
-                          scrollController: scrollController,
-                          tabController: _tabController, // 传递共享的 TabController
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          itemCount: columns * 4,
+          itemBuilder: (context, i) => _SkeletonCell(
+            color: cs.onSurface.withValues(alpha: 0.07),
+            delayIndex: i,
           ),
         );
       },
     );
   }
+
+  /// 底栏：左边尺寸、右边本次插入计数。
+  ///
+  /// 尺寸从旧版的标题行挪到这里——它是「插入时用多大」，属于动作的参数，
+  /// 和标题（这是什么弹层）不是一类东西。
+  Widget _buildFooter(BuildContext context, Translations t) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+      child: Row(
+        children: [
+          Builder(
+            builder: (anchorContext) => GlassSurface(
+              height: 34,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              opensOverlay: true,
+              onTap: () async {
+                final picked = await showGlassMenu<EmojiSize>(
+                  anchorContext: anchorContext,
+                  entries: [
+                    for (final size in EmojiSize.values)
+                      GlassMenuOption<EmojiSize>(
+                        value: size,
+                        label: size.displayName,
+                        selected: size == _selectedSize,
+                      ),
+                  ],
+                );
+                if (picked != null) _changeSize(picked);
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${t.emoji.size} · ${_selectedSize.displayName}',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.expand_more,
+                    size: 17,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Spacer(),
+          // 插入反馈：连选时输入框被弹层盖着，没有这个就不确定插没插进去。
+          // 「有出有入」：它是淡入 + 撑开的，不是硬切出现。
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            child: _inserted == 0
+                ? const SizedBox.shrink()
+                : Text(
+                    t.emoji.insertedCount(count: _inserted),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: cs.primary,
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-/*
-使用示例：
+/// 一枚表情格子。按下缩一点，给出「点到了」的反馈——连选时这个反馈尤其重要。
+class _EmojiCell extends StatefulWidget {
+  const _EmojiCell({required this.thumbnailUrl, required this.onTap});
 
-// 显示表情选择器
-showModalBottomSheet(
-  context: context,
-  isScrollControlled: true,
-  backgroundColor: Colors.transparent,
-  builder: (context) => EmojiPickerSheet(
-    initialSize: EmojiSize.medium, // 初始选中的规格
-    onEmojiSelected: (imageUrl, size) {
-      // 处理表情包选择
-      print('选择了表情包: $imageUrl, 规格: ${size.displayName}');
-      Navigator.pop(context);
-    },
-    onSizeChanged: (size) {
-      // 处理规格变化
-      print('规格变更为: ${size.displayName}');
-    },
-  ),
-);
+  final String thumbnailUrl;
+  final VoidCallback onTap;
 
-// 在其他地方也可以使用，比如评论输入、论坛发帖等
-*/
+  @override
+  State<_EmojiCell> createState() => _EmojiCellState();
+}
+
+class _EmojiCellState extends State<_EmojiCell> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.88 : 1,
+        duration: const Duration(milliseconds: 110),
+        curve: Curves.easeOut,
+        child: Container(
+          decoration: BoxDecoration(
+            color: cs.onSurface.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: CachedNetworkImage(
+            imageUrl: widget.thumbnailUrl,
+            fit: BoxFit.contain,
+            httpHeaders: const {'referer': CommonConstants.iwaraBaseUrl},
+            placeholder: (context, url) => const SizedBox.shrink(),
+            errorWidget: (context, url, error) => Icon(
+              Icons.broken_image_outlined,
+              size: 20,
+              color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 骨架格子：整片一起呼吸会像坏掉的闪烁，按索引错开相位才读得出「在加载」。
+class _SkeletonCell extends StatefulWidget {
+  const _SkeletonCell({required this.color, required this.delayIndex});
+
+  final Color color;
+  final int delayIndex;
+
+  @override
+  State<_SkeletonCell> createState() => _SkeletonCellState();
+}
+
+class _SkeletonCellState extends State<_SkeletonCell>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
+
+  @override
+  void initState() {
+    super.initState();
+    _c.value = (widget.delayIndex % 7) / 7;
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.45, end: 1).animate(_c),
+      child: Container(
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+}

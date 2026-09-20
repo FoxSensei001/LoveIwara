@@ -349,6 +349,7 @@ class _TranslationsCommonRu extends TranslationsCommonEn {
 	@override String get agree => 'Принять';
 	@override String get disagree => 'Отклонить';
 	@override String get agreeToRules => 'Принять правила';
+	@override String get tapToReread => 'Нажмите, чтобы перечитать';
 	@override String get markdownSyntaxHelp => 'Справка по Markdown';
 	@override String get previewContent => 'Предпросмотр';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsRu extends TranslationsSettingsEn {
 	@override String get enterSignature => 'Введите подпись';
 	@override String get editSignature => 'Изменить подпись';
 	@override String get signatureContent => 'Текст подписи';
+	@override String get signaturePreview => 'Предпросмотр';
+	@override String get signatureSampleBody => 'Здесь ваш текст';
+	@override String get signatureNotSet => 'Не задано';
+	@override String get signatureRuleHint => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.';
 	@override String get exportConfig => 'Экспорт конфигурации';
 	@override String get exportConfigDesc => 'Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются.';
 	@override String get importConfig => 'Импорт конфигурации';
@@ -1244,6 +1249,9 @@ class _TranslationsForumRu extends TranslationsForumEn {
 	final TranslationsRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => 'Прикрепить цитату';
+	@override String replyToFloor({required Object floor, required Object username}) => 'Ответ на #${floor} @${username}';
+	@override String get removeQuote => 'Убрать цитату';
 	@override String get recent => 'Недавние';
 	@override String get category => 'Категория';
 	@override String get lastReply => 'Последний ответ';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiRu extends TranslationsEmojiEn {
 	final TranslationsRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => 'Недавние';
+	@override String insertedCount({required Object count}) => 'Вставлено: ${count}';
 	@override String get name => 'Эмодзи';
 	@override String get size => 'Размер';
 	@override String get small => 'Маленький';
@@ -4816,6 +4826,7 @@ extension on TranslationsRu {
 			'common.agree' => 'Принять',
 			'common.disagree' => 'Отклонить',
 			'common.agreeToRules' => 'Принять правила',
+			'common.tapToReread' => 'Нажмите, чтобы перечитать',
 			'common.markdownSyntaxHelp' => 'Справка по Markdown',
 			'common.previewContent' => 'Предпросмотр',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsRu {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Время перемотки должно быть положительным целым числом.',
 			'settings.longPressPlaybackSpeed' => 'Скорость при долгом нажатии',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Скорость при долгом нажатии должна быть положительным числом.',
-			'settings.defaultPlaybackSpeed' => 'Скорость по умолчанию',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'Скорость по умолчанию',
 			'settings.rememberPlaybackSpeed' => 'Запоминать скорость воспроизведения',
 			'settings.rememberPlaybackSpeedDesc' => 'Скорость, установленная в плеере, будет сохранена по умолчанию и применена к новым видео.',
 			'settings.repeat' => 'Повтор',
@@ -5297,6 +5308,10 @@ extension on TranslationsRu {
 			'settings.enterSignature' => 'Введите подпись',
 			'settings.editSignature' => 'Изменить подпись',
 			'settings.signatureContent' => 'Текст подписи',
+			'settings.signaturePreview' => 'Предпросмотр',
+			'settings.signatureSampleBody' => 'Здесь ваш текст',
+			'settings.signatureNotSet' => 'Не задано',
+			'settings.signatureRuleHint' => 'Подпись добавляется после текста и отделяется горизонтальной линией. Линию добавляет приложение — вам нужно написать только строку ниже.',
 			'settings.exportConfig' => 'Экспорт конфигурации',
 			'settings.exportConfigDesc' => 'Экспорт настроек и истории (просмотры, позиция воспроизведения, избранное) в файл для резервного копирования или переноса. Загрузки не включаются.',
 			'settings.importConfig' => 'Импорт конфигурации',
@@ -5627,13 +5642,13 @@ extension on TranslationsRu {
 			'settings.downloadSettings.testError' => 'Ошибка',
 			'settings.downloadSettings.testPath' => 'Тестовый путь',
 			'settings.downloadSettings.testBasePath' => 'Базовый путь',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Создание папки',
 			'settings.downloadSettings.testFileWriting' => 'Запись файла',
 			'settings.downloadSettings.testFileContent' => 'Содержимое файла',
 			'settings.downloadSettings.checkingPathStatus' => 'Проверка статуса пути...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Не удалось получить статус пути',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Примечание: Фактический путь отличается от выбранного',
 			'settings.downloadSettings.grantPermission' => 'Предоставить разрешение',
 			'settings.downloadSettings.fixIssue' => 'Исправить',
@@ -6081,6 +6096,9 @@ extension on TranslationsRu {
 			'markdown.separatorDescription' => 'Разделитель создаётся тремя или более символами -',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Синтаксис',
+			'forum.attachQuote' => 'Прикрепить цитату',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => 'Ответ на #${floor} @${username}',
+			'forum.removeQuote' => 'Убрать цитату',
 			'forum.recent' => 'Недавние',
 			'forum.category' => 'Категория',
 			'forum.lastReply' => 'Последний ответ',
@@ -6138,6 +6156,8 @@ extension on TranslationsRu {
 			'forum.leafDescriptions.requests_zh' => 'Публикуйте свои запросы',
 			'forum.leafDescriptions.support_zh' => 'Помощь в решении проблем, связанных с сайтом',
 			'forum.leafDescriptions.general_ja' => 'Обсуждение любых тем',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Задавайте свои вопросы',
 			'forum.leafDescriptions.requests_ja' => 'Публикуйте свои запросы',
 			'forum.leafDescriptions.support_ja' => 'Помощь в решении проблем, связанных с сайтом',
@@ -6146,8 +6166,6 @@ extension on TranslationsRu {
 			'forum.reply' => 'Ответить',
 			'forum.pendingReview' => 'На рассмотрении',
 			'forum.editedAt' => 'Дата изменения',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'Скопировано в буфер обмена',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Скопировано в буфер обмена: ${str}',
 			'forum.editReply' => 'Изменить ответ',
@@ -6652,6 +6670,8 @@ extension on TranslationsRu {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsRu {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Макс. одновременных загрузок',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => 'Число задач, загружаемых одновременно (1–5)',
 			'download.stillInDevelopment' => 'Всё ещё в разработке',
 			'download.saveToAppDirectory' => 'Сохранить в каталог приложения',
@@ -7166,6 +7184,8 @@ extension on TranslationsRu {
 			'linkInputDialog.multipleLinksDetected' => 'Обнаружено несколько ссылок, выберите одну:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Недействительная ссылка ${webName}',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Ошибка разбора ссылки: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Неподдерживаемая ссылка',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Этот тип ссылки нельзя открыть напрямую в приложении, требуется внешний браузер.\n\nОткрыть эту ссылку в браузере?',
 			'linkInputDialog.openInBrowser' => 'Открыть в браузере',
@@ -7174,8 +7194,6 @@ extension on TranslationsRu {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Вы уверены, что хотите продолжить?',
 			'linkInputDialog.browserOpenFailed' => 'Не удалось открыть ссылку',
 			'linkInputDialog.unsupportedLink' => 'Неподдерживаемая ссылка',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => 'Отмена',
 			'linkInputDialog.confirm' => 'Открыть в браузере',
 			'log.logManagement' => 'Управление логами',
@@ -7232,6 +7250,8 @@ extension on TranslationsRu {
 			'log.newSizeLimit' => ({required Object size}) => 'Новый лимит размера: ${size}',
 			'log.confirmToContinue' => 'Подтвердите для продолжения',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Лимит размера логов установлен: ${size}',
+			'emoji.recentlyUsed' => 'Недавние',
+			'emoji.insertedCount' => ({required Object count}) => 'Вставлено: ${count}',
 			'emoji.name' => 'Эмодзи',
 			'emoji.size' => 'Размер',
 			'emoji.small' => 'Маленький',
@@ -7678,6 +7698,8 @@ extension on TranslationsRu {
 			'vrFormat.flatSideBySideDesc' => 'По одному глазу на половину, слева и справа; показывает левый глаз и восстанавливает его соотношение сторон',
 			'vrFormat.flatTopBottom' => 'Стерео 3D (over-under)',
 			'vrFormat.flatTopBottomDesc' => 'По одному глазу на половину, сверху и снизу; показывает верхнюю половину и восстанавливает её соотношение сторон',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 стерео (side-by-side)',
 			'vrFormat.vr180SideBySideDesc' => 'Полусферическая панорама с двумя глазами — самый распространённый VR-источник',
 			'vrFormat.vr180Mono' => 'VR180 моно',
@@ -7688,8 +7710,6 @@ extension on TranslationsRu {
 			'vrFormat.vr360TopBottomDesc' => 'Полноценная круговая панорама с двумя расположенными друг над другом глазами',
 			'vrFormat.resetView' => 'Сбросить вид',
 			'vrFormat.resetViewDesc' => 'Вернуть направление взгляда и угол обзора к фронтальному положению',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => 'Вернуть к автоопределению',
 			'vrFormat.resetToAutoDesc' => 'Забыть ручной выбор для этого видео и снова доверить решение автоопределению',
 			'vrFormat.manualBadge' => 'Задано вручную',

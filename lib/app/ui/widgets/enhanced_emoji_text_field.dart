@@ -8,7 +8,18 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 class EnhancedEmojiTextField extends StatefulWidget {
   final TextEditingController controller;
   final int? maxLines;
+
+  /// 空态就撑到这么多行。写作区是这类界面唯一值得优化的量，别让输入框
+  /// 从一行慢慢长——它一长，下面的底栏就会跟着往下跳。
+  final int? minLines;
+
   final int? maxLength;
+
+  /// 是否画那条常驻的 `n/max` 计数。
+  ///
+  /// 默认画（老调用点照旧）。composer 走的是底栏上那枚**只在接近上限时才
+  /// 出现**的计数，会把这里关掉——同一件事别在一屏里说两遍。
+  final bool showCounter;
   final InputDecoration? decoration;
   final ValueChanged<String>? onChanged;
   final bool enabled;
@@ -19,7 +30,9 @@ class EnhancedEmojiTextField extends StatefulWidget {
     super.key,
     required this.controller,
     this.maxLines,
+    this.minLines,
     this.maxLength,
+    this.showCounter = true,
     this.decoration,
     this.onChanged,
     this.enabled = true,
@@ -127,6 +140,7 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
             controller: _controller,
             focusNode: _focusNode,
             maxLines: widget.maxLines,
+            minLines: widget.minLines,
             onChanged: widget.onChanged,
             enabled: widget.enabled,
             strutStyle: StrutStyle.disabled,
@@ -146,7 +160,7 @@ class EnhancedEmojiTextFieldState extends State<EnhancedEmojiTextField> {
           ),
 
           // 字符计数
-          if (widget.maxLength != null) ...[
+          if (widget.showCounter && widget.maxLength != null) ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Align(

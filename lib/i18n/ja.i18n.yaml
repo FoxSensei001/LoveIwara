@@ -235,6 +235,7 @@ common:
   agree: 同意
   disagree: 不同意
   agreeToRules: 同意ルール
+  tapToReread: 'タップで全文を再読'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown構文ヘルプ
   previewContent: 内容をプレビュー
@@ -727,6 +728,10 @@ settings:
   enterSignature: 小尾巴を入力
   editSignature: 小尾巴を編集
   signatureContent: 小尾巴の内容
+  signaturePreview: 'プレビュー'
+  signatureSampleBody: 'ここに本文が入ります'
+  signatureNotSet: '未設定'
+  signatureRuleHint: "署名は本文の後ろに、区切り線を挟んで付きます。区切り線はアプリが入れるので、下の一文だけ書いてください。"
   exportConfig: "アプリ設定をエクスポート"
   exportConfigDesc: "設定と履歴（閲覧履歴、再生進捗、お気に入りなど）をファイルにエクスポートし、バックアップや他のデバイスへの同期に利用できます。ダウンロードタスクは含まれません。"
   importConfig: "アプリ設定をインポート"
@@ -1562,6 +1567,9 @@ markdown:
   syntax: 語法
 
 forum:
+  attachQuote: '引用を付ける'
+  replyToFloor: '#${floor} @${username} に返信'
+  removeQuote: '引用を削除'
   recent: 最近
   category: カテゴリ
   lastReply: 最終返信
@@ -2688,6 +2696,8 @@ log:
   logSizeLimitSetSuccess: "ログサイズ上限を ${size} に設定しました"
 
 emoji:
+  recentlyUsed: '最近使った'
+  insertedCount: '${count} 個挿入しました'
   name: 絵文字
   size: サイズ
   small: 小

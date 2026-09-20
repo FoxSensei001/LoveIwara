@@ -226,6 +226,7 @@ common:
   agree: ยอมรับ
   disagree: ไม่ยอมรับ
   agreeToRules: ยอมรับกฎระเบียบ
+  tapToReread: 'แตะเพื่ออ่านอีกครั้ง'
   # Base Input Dialog
   markdownSyntaxHelp: วิธีใช้ไวยากรณ์ Markdown
   previewContent: แสดงตัวอย่างเนื้อหา
@@ -726,6 +727,10 @@ settings:
   enterSignature: ป้อนลายเซ็น
   editSignature: แก้ไขลายเซ็น
   signatureContent: เนื้อหาลายเซ็น
+  signaturePreview: 'ตัวอย่าง'
+  signatureSampleBody: 'ข้อความของคุณอยู่ตรงนี้'
+  signatureNotSet: 'ยังไม่ได้ตั้งค่า'
+  signatureRuleHint: "ลายเซ็นจะต่อท้ายเนื้อหาโดยมีเส้นคั่น แอปจะใส่เส้นคั่นให้เอง คุณแค่เขียนข้อความด้านล่าง"
   exportConfig: "ส่งออกการกำหนดค่าแอป"
   exportConfigDesc: "ส่งออกการตั้งค่าและประวัติ (ประวัติการเข้าชม ความคืบหน้าการเล่น รายการโปรด ฯลฯ) ไปยังไฟล์เพื่อสำรองข้อมูลหรือถ่ายโอนไปยังอุปกรณ์อื่น ไม่รวมงานดาวน์โหลด"
   importConfig: "นำเข้าการกำหนดค่าแอป"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: ไวยากรณ์
 
 forum:
+  attachQuote: 'แนบการอ้างอิง'
+  replyToFloor: 'ตอบกลับ #${floor} @${username}'
+  removeQuote: 'ลบการอ้างอิง'
   recent: ล่าสุด
   category: หมวดหมู่
   lastReply: ตอบกลับล่าสุด
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'ตั้งค่าขีดจำกัดขนาดบันทึกเป็น ${size} แล้ว'
 
 emoji:
+  recentlyUsed: 'ใช้ล่าสุด'
+  insertedCount: 'แทรกแล้ว ${count} รายการ'
   name: อีโมจิ
   size: ขนาด
   small: เล็ก

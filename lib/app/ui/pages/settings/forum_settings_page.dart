@@ -3,7 +3,7 @@ import 'package:get/get.dart' hide Translations;
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
-import 'package:i_iwara/app/ui/pages/settings/widgets/signature_edit_sheet_widget.dart';
+import 'package:i_iwara/app/ui/pages/settings/widgets/signature_settings_card.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -76,51 +76,29 @@ class ForumSettingsPage extends StatelessWidget {
                       ),
                     ),
                     const Divider(height: 1),
+                    // 开关 + 所见即所得预览 + 编辑入口，与首次引导页共用同一份。
+                    // 旧版这里只把小尾巴内容当一行纯文本塞进 subtitle，用户
+                    // 看不到那条 `---` 会渲染成什么——而它正是整件事出问题的
+                    // 地方（详见 CommentMarkup 的类文档）。
                     Obx(
-                      () => GlassSwitchItem(
-                        title: Text(t.settings.enableSignature),
-                        subtitle: Text(t.settings.enableSignatureDesc),
-                        value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
-                        onChanged: (value) {
-                          configService[ConfigKey.ENABLE_SIGNATURE_KEY] = value;
+                      () => SignatureSettingsBody(
+                        enabled: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
+                        content:
+                            configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+                        onContentChanged: (value) {
+                          configService[ConfigKey.SIGNATURE_CONTENT_KEY] =
+                              value;
                         },
+                        switchBuilder: (context) => GlassSwitchItem(
+                          title: Text(t.settings.enableSignature),
+                          subtitle: Text(t.settings.enableSignatureDesc),
+                          value: configService[ConfigKey.ENABLE_SIGNATURE_KEY],
+                          onChanged: (value) {
+                            configService[ConfigKey.ENABLE_SIGNATURE_KEY] =
+                                value;
+                          },
+                        ),
                       ),
-                    ),
-                    Obx(
-                      () => configService[ConfigKey.ENABLE_SIGNATURE_KEY]
-                          ? ListTile(
-                              title: Text(t.settings.signatureContent),
-                              subtitle: Text(
-                                configService[ConfigKey.SIGNATURE_CONTENT_KEY],
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              trailing: const Icon(Icons.edit),
-                              onTap: () async {
-                                final result =
-                                    await showModalBottomSheet<String>(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      builder: (context) => SignatureEditSheet(
-                                        initialContent:
-                                            configService[ConfigKey
-                                                .SIGNATURE_CONTENT_KEY],
-                                      ),
-                                    );
-                                if (result != null) {
-                                  configService[ConfigKey
-                                          .SIGNATURE_CONTENT_KEY] =
-                                      result;
-                                }
-                              },
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(16),
-                                  bottomRight: Radius.circular(16),
-                                ),
-                              ),
-                            )
-                          : const SizedBox.shrink(),
                     ),
                   ],
                 ),

@@ -20,7 +20,9 @@ import 'dart:async';
 import '../../../../models/comment.model.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_touch.dart';
 
+import 'package:i_iwara/app/utils/comment_markup.dart';
 import '../../../widgets/comment_actions_menu.dart';
+import '../../../widgets/comment_structure_widgets.dart';
 import '../../../widgets/custom_markdown_body_widget.dart';
 import '../widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -72,13 +74,34 @@ class _CommentItemState extends State<CommentItem> {
   /// 正文加工前后确实有差异时才让那枚钮长出来。
   bool _hasProcessedContent = false;
 
+  /// 原文拆出来的三段结构（引用头 / 正文 / 小尾巴），见 [CommentMarkup]。
+  ///
+  /// 视频/图库评论自己不生成引用头（回复靠父子关系承载，不靠文本），但别的
+  /// 客户端发来的、以及我们历史上发出去的仍可能带，照样认。缓存而不是在
+  /// build 里现算：列表滚动时每帧跑正则是白烧 CPU。
+  late ParsedComment _parsed;
+
   @override
   void initState() {
     super.initState();
     _translationController = MarkdownTranslationController();
     _showOriginal =
         _configService[ConfigKey.SHOW_UNPROCESSED_MARKDOWN_TEXT_KEY];
+    _parsed = _parseBody();
   }
+
+  @override
+  void didUpdateWidget(covariant CommentItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.comment.body != widget.comment.body) {
+      _parsed = _parseBody();
+    }
+  }
+
+  ParsedComment _parseBody() => CommentMarkup.parse(
+    widget.comment.body,
+    knownSignature: _configService[ConfigKey.SIGNATURE_CONTENT_KEY],
+  );
 
   @override
   void dispose() {
@@ -222,9 +245,11 @@ class _CommentItemState extends State<CommentItem> {
   }
 
   Future<void> _handleTranslation() async {
+    // 只译作者自己写的正文：引用头是结构、小尾巴是签名，两者都没有翻译
+    // 价值，还会挤占译文篇幅。
     await _translationController.translate(
-      widget.comment.body,
-      originalText: widget.comment.body,
+      _parsed.body,
+      originalText: _parsed.body,
     );
   }
 
@@ -616,11 +641,18 @@ class _CommentItemState extends State<CommentItem> {
                           ),
                         ],
                         const SizedBox(height: 8),
+                        // 引用头（若这条评论带）提到正文上方单画成引用条
+                        if (_parsed.quote != null)
+                          CommentQuoteBlock(
+                            floor: _parsed.quote!.floor,
+                            username: _parsed.quote!.username,
+                            excerpt: _parsed.quote!.excerpt,
+                          ),
                         // 正文；SelectionArea 会吞掉 tap 传不到整条评论的
                         // InkWell，点按回复需经 onTap 显式透传进去
                         CustomMarkdownBody(
-                          data: comment.body,
-                          originalData: comment.body,
+                          data: _parsed.body,
+                          originalData: _parsed.body,
                           showTranslationButton: false,
                           translationController: _translationController,
                           onTimestampSeek: widget.onTimestampSeek,
@@ -632,6 +664,9 @@ class _CommentItemState extends State<CommentItem> {
                             setState(() => _hasProcessedContent = hasProcessed);
                           },
                         ),
+                        // 小尾巴降级成脚注小字，不再和正文一样重
+                        if (_parsed.footer != null)
+                          CommentFooterLine(text: _parsed.footer!),
                         const SizedBox(height: 4),
                         // 动作行：回复 / 查看回复 …… 翻译 / 更多
                         Row(

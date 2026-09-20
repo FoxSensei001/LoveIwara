@@ -436,6 +436,7 @@ enum ConfigKey {
   DEEPLX_API_KEY,
   DEEPLX_ENDPOINT_TYPE, // Free, Pro, Official
   DEEPLX_DL_SESSION, // Pro 模式需要的 dl_session
+  RECENT_EMOJIS_KEY, // 最近用过的表情（JSON 字符串数组）
   ENABLE_SIGNATURE_KEY, // 是否启用小尾巴
   SIGNATURE_CONTENT_KEY, // 小尾巴内容
   ENABLE_VIBRATION, // 是否开启震动
@@ -696,6 +697,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'deeplx_dl_session';
       case ConfigKey.USER_TARGET_LANGUAGE_KEY:
         return 'user_target_language';
+      case ConfigKey.RECENT_EMOJIS_KEY:
+        return 'recent_emojis';
       case ConfigKey.ENABLE_SIGNATURE_KEY:
         return 'enable_signature';
       case ConfigKey.SIGNATURE_CONTENT_KEY:
@@ -1014,10 +1017,17 @@ extension ConfigKeyExtension on ConfigKey {
         return 'Free'; // Free, Pro, Official
       case ConfigKey.DEEPLX_DL_SESSION:
         return '';
+      case ConfigKey.RECENT_EMOJIS_KEY:
+        // 最近用过的表情 URL，新的在前，存成 JSON 数组字符串。
+        // 斗图是这个站的核心玩法，翻组找上一次刚用过的那张是最常见的动作。
+        return '[]';
       case ConfigKey.ENABLE_SIGNATURE_KEY:
         return false;
       case ConfigKey.SIGNATURE_CONTENT_KEY:
-        return '\n\n---\nSent from ${CommonConstants.applicationNickname}';
+        // 只存「那句话」本身。分隔线与前面的空行由 CommentMarkup.compose 统一
+        // 补——让它跟在用户能编辑的内容里，正是旧版语法被改坏的入口。
+        // 老用户配置里带 '\n\n---' 的值照常能用，compose 与编辑器都会剥掉。
+        return 'Sent from ${CommonConstants.applicationNickname}';
       case ConfigKey.ENABLE_VIBRATION:
         return true;
       case ConfigKey.SHOW_VIDEO_PROGRESS_BOTTOM_BAR_WHEN_TOOLBAR_HIDDEN:

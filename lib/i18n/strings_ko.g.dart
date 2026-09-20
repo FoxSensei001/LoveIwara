@@ -349,6 +349,7 @@ class _TranslationsCommonKo extends TranslationsCommonEn {
 	@override String get agree => '동의';
 	@override String get disagree => '동의하지 않음';
 	@override String get agreeToRules => '규칙에 동의';
+	@override String get tapToReread => '탭하여 전문 다시 읽기';
 	@override String get markdownSyntaxHelp => 'Markdown 문법 도움말';
 	@override String get previewContent => '내용 미리보기';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get enterSignature => '서명 입력';
 	@override String get editSignature => '서명 편집';
 	@override String get signatureContent => '서명 내용';
+	@override String get signaturePreview => '미리보기';
+	@override String get signatureSampleBody => '여기에 본문이 들어갑니다';
+	@override String get signatureNotSet => '설정되지 않음';
+	@override String get signatureRuleHint => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.';
 	@override String get exportConfig => '앱 설정 내보내기';
 	@override String get exportConfigDesc => '설정과 기록(검색 기록, 재생 진행률, 즐겨찾기 등)을 파일로 내보내 백업하거나 다른 기기로 전송합니다. 다운로드 작업은 포함되지 않습니다.';
 	@override String get importConfig => '앱 설정 가져오기';
@@ -1244,6 +1249,9 @@ class _TranslationsForumKo extends TranslationsForumEn {
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => '인용 첨부';
+	@override String replyToFloor({required Object floor, required Object username}) => '#${floor} @${username}에게 답글';
+	@override String get removeQuote => '인용 삭제';
 	@override String get recent => '최근';
 	@override String get category => '카테고리';
 	@override String get lastReply => '마지막 답글';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiKo extends TranslationsEmojiEn {
 	final TranslationsKo _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => '최근 사용';
+	@override String insertedCount({required Object count}) => '${count}개 삽입됨';
 	@override String get name => '이모지';
 	@override String get size => '크기';
 	@override String get small => '소';
@@ -4816,6 +4826,7 @@ extension on TranslationsKo {
 			'common.agree' => '동의',
 			'common.disagree' => '동의하지 않음',
 			'common.agreeToRules' => '규칙에 동의',
+			'common.tapToReread' => '탭하여 전문 다시 읽기',
 			'common.markdownSyntaxHelp' => 'Markdown 문법 도움말',
 			'common.previewContent' => '내용 미리보기',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsKo {
 			'settings.rewindTimeMustBeAPositiveInteger' => '되감기 시간은 양의 정수여야 합니다.',
 			'settings.longPressPlaybackSpeed' => '길게 누르기 재생 속도',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '길게 누르기 재생 속도는 양수여야 합니다.',
-			'settings.defaultPlaybackSpeed' => '기본 재생 속도',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => '기본 재생 속도',
 			'settings.rememberPlaybackSpeed' => '재생 속도 기억',
 			'settings.rememberPlaybackSpeedDesc' => '활성화하면 플레이어에서 설정한 속도가 기본값으로 저장되어 새 동영상에 자동으로 적용됩니다.',
 			'settings.repeat' => '반복',
@@ -5297,6 +5308,10 @@ extension on TranslationsKo {
 			'settings.enterSignature' => '서명 입력',
 			'settings.editSignature' => '서명 편집',
 			'settings.signatureContent' => '서명 내용',
+			'settings.signaturePreview' => '미리보기',
+			'settings.signatureSampleBody' => '여기에 본문이 들어갑니다',
+			'settings.signatureNotSet' => '설정되지 않음',
+			'settings.signatureRuleHint' => '서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요.',
 			'settings.exportConfig' => '앱 설정 내보내기',
 			'settings.exportConfigDesc' => '설정과 기록(검색 기록, 재생 진행률, 즐겨찾기 등)을 파일로 내보내 백업하거나 다른 기기로 전송합니다. 다운로드 작업은 포함되지 않습니다.',
 			'settings.importConfig' => '앱 설정 가져오기',
@@ -5627,13 +5642,13 @@ extension on TranslationsKo {
 			'settings.downloadSettings.testError' => '오류',
 			'settings.downloadSettings.testPath' => '테스트 경로',
 			'settings.downloadSettings.testBasePath' => '기본 경로',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '디렉터리 생성',
 			'settings.downloadSettings.testFileWriting' => '파일 쓰기',
 			'settings.downloadSettings.testFileContent' => '파일 내용',
 			'settings.downloadSettings.checkingPathStatus' => '경로 상태 확인 중...',
 			'settings.downloadSettings.unableToGetPathStatus' => '경로 상태를 가져올 수 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '참고: 실제 경로가 선택한 경로와 다릅니다',
 			'settings.downloadSettings.grantPermission' => '권한 부여',
 			'settings.downloadSettings.fixIssue' => '문제 수정',
@@ -6081,6 +6096,9 @@ extension on TranslationsKo {
 			'markdown.separatorDescription' => '하이픈 세 개 이상으로 구분선을 만듭니다',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '문법',
+			'forum.attachQuote' => '인용 첨부',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => '#${floor} @${username}에게 답글',
+			'forum.removeQuote' => '인용 삭제',
 			'forum.recent' => '최근',
 			'forum.category' => '카테고리',
 			'forum.lastReply' => '마지막 답글',
@@ -6138,6 +6156,8 @@ extension on TranslationsKo {
 			'forum.leafDescriptions.requests_zh' => '요청을 올리세요',
 			'forum.leafDescriptions.support_zh' => '웹사이트 관련 문제 해결 지원',
 			'forum.leafDescriptions.general_ja' => '모든 주제에 대해 토론',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '질문을 남기세요',
 			'forum.leafDescriptions.requests_ja' => '요청을 올리세요',
 			'forum.leafDescriptions.support_ja' => '웹사이트 관련 문제 해결 지원',
@@ -6146,8 +6166,6 @@ extension on TranslationsKo {
 			'forum.reply' => '답글',
 			'forum.pendingReview' => '검토 대기 중',
 			'forum.editedAt' => '수정일',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => '클립보드에 복사되었습니다',
 			'forum.copySuccessForMessage' => ({required Object str}) => '클립보드에 복사됨: ${str}',
 			'forum.editReply' => '답글 편집',
@@ -6652,6 +6670,8 @@ extension on TranslationsKo {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsKo {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => '최대 동시 다운로드 수',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => '동시에 다운로드하는 작업 수(1-5)',
 			'download.stillInDevelopment' => '아직 개발 중',
 			'download.saveToAppDirectory' => '앱 디렉터리에 저장',
@@ -7166,6 +7184,8 @@ extension on TranslationsKo {
 			'linkInputDialog.multipleLinksDetected' => '여러 링크가 감지되었습니다. 하나를 선택해 주세요:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '유효한 ${webName} 링크가 아닙니다',
 			'linkInputDialog.linkParseError' => ({required Object error}) => '링크 구문 분석 오류: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => '지원하지 않는 링크',
 			'linkInputDialog.unsupportedLinkDialogContent' => '이 링크 유형은 앱에서 직접 열 수 없으며 외부 브라우저를 통해 접속해야 합니다.\n\n이 링크를 브라우저에서 여시겠습니까?',
 			'linkInputDialog.openInBrowser' => '브라우저에서 열기',
@@ -7174,8 +7194,6 @@ extension on TranslationsKo {
 			'linkInputDialog.confirmContinueBrowserOpen' => '계속하시겠습니까?',
 			'linkInputDialog.browserOpenFailed' => '링크를 열지 못했습니다',
 			'linkInputDialog.unsupportedLink' => '지원하지 않는 링크',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => '취소',
 			'linkInputDialog.confirm' => '브라우저에서 열기',
 			'log.logManagement' => '로그 관리',
@@ -7232,6 +7250,8 @@ extension on TranslationsKo {
 			'log.newSizeLimit' => ({required Object size}) => '새 크기 제한: ${size}',
 			'log.confirmToContinue' => '계속하려면 확인',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '로그 크기 제한을 ${size}로 설정했습니다',
+			'emoji.recentlyUsed' => '최근 사용',
+			'emoji.insertedCount' => ({required Object count}) => '${count}개 삽입됨',
 			'emoji.name' => '이모지',
 			'emoji.size' => '크기',
 			'emoji.small' => '소',
@@ -7678,6 +7698,8 @@ extension on TranslationsKo {
 			'vrFormat.flatSideBySideDesc' => '절반마다 한쪽 눈, 좌우로 나열; 왼쪽 눈을 표시하고 화면 비율을 복원합니다',
 			'vrFormat.flatTopBottom' => '상하 3D',
 			'vrFormat.flatTopBottomDesc' => '절반마다 한쪽 눈, 위아래로 배치; 위쪽 절반을 표시하고 화면 비율을 복원합니다',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 나란히',
 			'vrFormat.vr180SideBySideDesc' => '양안 반구형 파노라마 — 가장 흔한 VR 소스',
 			'vrFormat.vr180Mono' => 'VR180 모노',
@@ -7688,8 +7710,6 @@ extension on TranslationsKo {
 			'vrFormat.vr360TopBottomDesc' => '양안이 위아래로 쌓인 완전 몰입형 파노라마',
 			'vrFormat.resetView' => '시야 초기화',
 			'vrFormat.resetViewDesc' => '시선 방향과 시야각을 정면으로 되돌립니다',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => '자동 감지로 되돌리기',
 			'vrFormat.resetToAutoDesc' => '이 동영상의 수동 선택을 지우고 다시 감지하도록 합니다',
 			'vrFormat.manualBadge' => '수동 설정됨',

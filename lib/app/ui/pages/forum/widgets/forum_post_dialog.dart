@@ -135,10 +135,10 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
       context: context,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
-        onEmojiSelected: (imageUrl, size) {
-          _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size);
-          Navigator.pop(context);
-        },
+        // ⛔ 这里**不 pop**：连选是刻意的（斗图要连发几张）。弹层由用户
+        // 自己关，底部会实时显示这次插了几个。
+        onEmojiSelected: (imageUrl, size) =>
+            _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size),
         onSizeChanged: (size) {
           setState(() {
             _selectedEmojiSize = size;
@@ -568,22 +568,8 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                   },
                 ),
               ),
-              const SizedBox(height: 16),
-              // 工具行：翻译 · 表情 · MD 帮助 · 预览
-              GlassComposerToolbar(
-                onTranslate: () {
-                  showTranslationDialog(
-                    context,
-                    text: _bodyController.text,
-                    defaultLanguageKeyMode: false,
-                  );
-                },
-                translateEnabled: _bodyController.text.isNotEmpty,
-                onEmoji: _showEmojiPicker,
-                onMarkdownHelp: _showMarkdownHelp,
-                onPreview: _showPreview,
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+              // 单行底栏：动作 · 状态 · 字数 · 发送（见 GlassComposerBar）
               Obx(() {
                 final bool hasAgreed =
                     _configService[ConfigKey.RULES_AGREEMENT_KEY];
@@ -595,13 +581,26 @@ class _ForumPostDialogState extends State<ForumPostDialog> {
                     _currentBodyLength > 0 &&
                     _currentBodyLength <= maxBodyLength &&
                     _selectedCategoryId != null;
-                return GlassComposerActions(
-                  rulesAgreed: hasAgreed,
-                  onRulesTap: () => _showRulesDialog(),
+                return GlassComposerBar(
                   onSubmit: canSubmit ? _handleSubmit : null,
                   // 只差「同意规则」时：按钮仍可点，点下去弹规则全文
                   onBlockedTap: !hasAgreed ? () => _showRulesDialog() : null,
+                  submitText: t.common.send,
                   isLoading: _isLoading,
+                  onEmoji: _showEmojiPicker,
+                  onPreview: _showPreview,
+                  previewHasContent: _bodyController.text.trim().isNotEmpty,
+                  onTranslate: () => showTranslationDialog(
+                    context,
+                    text: _bodyController.text,
+                    defaultLanguageKeyMode: false,
+                  ),
+                  translateEnabled: _bodyController.text.isNotEmpty,
+                  onMarkdownHelp: _showMarkdownHelp,
+                  rulesAgreed: hasAgreed,
+                  onRulesTap: () => _showRulesDialog(),
+                  length: _currentBodyLength,
+                  limit: maxBodyLength,
                 );
               }),
             ],

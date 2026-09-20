@@ -226,6 +226,7 @@ common:
   agree: 동의
   disagree: 동의하지 않음
   agreeToRules: 규칙에 동의
+  tapToReread: '탭하여 전문 다시 읽기'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown 문법 도움말
   previewContent: 내용 미리보기
@@ -726,6 +727,10 @@ settings:
   enterSignature: 서명 입력
   editSignature: 서명 편집
   signatureContent: 서명 내용
+  signaturePreview: '미리보기'
+  signatureSampleBody: '여기에 본문이 들어갑니다'
+  signatureNotSet: '설정되지 않음'
+  signatureRuleHint: "서명은 본문 뒤에 구분선을 사이에 두고 붙습니다. 구분선은 앱이 넣으니 아래 문장만 작성하세요."
   exportConfig: "앱 설정 내보내기"
   exportConfigDesc: "설정과 기록(검색 기록, 재생 진행률, 즐겨찾기 등)을 파일로 내보내 백업하거나 다른 기기로 전송합니다. 다운로드 작업은 포함되지 않습니다."
   importConfig: "앱 설정 가져오기"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: 문법
 
 forum:
+  attachQuote: '인용 첨부'
+  replyToFloor: '#${floor} @${username}에게 답글'
+  removeQuote: '인용 삭제'
   recent: 최근
   category: 카테고리
   lastReply: 마지막 답글
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: '로그 크기 제한을 ${size}로 설정했습니다'
 
 emoji:
+  recentlyUsed: '최근 사용'
+  insertedCount: '${count}개 삽입됨'
   name: 이모지
   size: 크기
   small: 소

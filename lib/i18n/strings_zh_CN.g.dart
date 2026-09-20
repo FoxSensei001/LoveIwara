@@ -349,6 +349,7 @@ class _TranslationsCommonZhCn extends TranslationsCommonEn {
 	@override String get agree => '同意';
 	@override String get disagree => '不同意';
 	@override String get agreeToRules => '同意规则';
+	@override String get tapToReread => '点击重读全文';
 	@override String get markdownSyntaxHelp => 'Markdown语法帮助';
 	@override String get previewContent => '预览内容';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get enterSignature => '输入小尾巴';
 	@override String get editSignature => '编辑小尾巴';
 	@override String get signatureContent => '小尾巴内容';
+	@override String get signaturePreview => '效果预览';
+	@override String get signatureSampleBody => '这里是你写的正文';
+	@override String get signatureNotSet => '还没设置';
+	@override String get signatureRuleHint => '小尾巴会跟在正文后面，中间自动隔一条分隔线——分隔线由应用生成，你只需要写下面这句话。';
 	@override String get exportConfig => '导出应用配置';
 	@override String get exportConfigDesc => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。';
 	@override String get importConfig => '导入应用配置';
@@ -1244,6 +1249,9 @@ class _TranslationsForumZhCn extends TranslationsForumEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => '携带引用';
+	@override String replyToFloor({required Object floor, required Object username}) => '回复 #${floor} @${username}';
+	@override String get removeQuote => '移除引用';
 	@override String get recent => '最近';
 	@override String get category => '分类';
 	@override String get lastReply => '最后回复';
@@ -1964,6 +1972,8 @@ class _TranslationsEmojiZhCn extends TranslationsEmojiEn {
 	final TranslationsZhCn _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => '最近用过';
+	@override String insertedCount({required Object count}) => '已插入 ${count} 个';
 	@override String get name => '表情';
 	@override String get size => '大小';
 	@override String get small => '小';
@@ -4816,6 +4826,7 @@ extension on TranslationsZhCn {
 			'common.agree' => '同意',
 			'common.disagree' => '不同意',
 			'common.agreeToRules' => '同意规则',
+			'common.tapToReread' => '点击重读全文',
 			'common.markdownSyntaxHelp' => 'Markdown语法帮助',
 			'common.previewContent' => '预览内容',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsZhCn {
 			'settings.rewindTimeMustBeAPositiveInteger' => '后退时间必须是一个正整数。',
 			'settings.longPressPlaybackSpeed' => '长按播放倍速',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => '长按播放倍速必须是一个正数。',
-			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => '默认播放倍速',
 			'settings.rememberPlaybackSpeed' => '记住播放倍速',
 			'settings.rememberPlaybackSpeedDesc' => '开启后，在播放器中调整的倍速会自动保存为默认倍速，并应用到后续播放的新视频。',
 			'settings.repeat' => '循环播放',
@@ -5297,6 +5308,10 @@ extension on TranslationsZhCn {
 			'settings.enterSignature' => '输入小尾巴',
 			'settings.editSignature' => '编辑小尾巴',
 			'settings.signatureContent' => '小尾巴内容',
+			'settings.signaturePreview' => '效果预览',
+			'settings.signatureSampleBody' => '这里是你写的正文',
+			'settings.signatureNotSet' => '还没设置',
+			'settings.signatureRuleHint' => '小尾巴会跟在正文后面，中间自动隔一条分隔线——分隔线由应用生成，你只需要写下面这句话。',
 			'settings.exportConfig' => '导出应用配置',
 			'settings.exportConfigDesc' => '将设置与历史记录（浏览历史、播放进度、收藏等）导出为文件，可用于备份或同步到其他设备。不包含下载任务。',
 			'settings.importConfig' => '导入应用配置',
@@ -5627,13 +5642,13 @@ extension on TranslationsZhCn {
 			'settings.downloadSettings.testError' => '错误',
 			'settings.downloadSettings.testPath' => '测试路径',
 			'settings.downloadSettings.testBasePath' => '基础路径',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => '目录创建',
 			'settings.downloadSettings.testFileWriting' => '文件写入',
 			'settings.downloadSettings.testFileContent' => '文件内容',
 			'settings.downloadSettings.checkingPathStatus' => '检查路径状态...',
 			'settings.downloadSettings.unableToGetPathStatus' => '无法获取路径状态',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => '注意：实际使用路径与选择路径不同',
 			'settings.downloadSettings.grantPermission' => '授权权限',
 			'settings.downloadSettings.fixIssue' => '修复问题',
@@ -6081,6 +6096,9 @@ extension on TranslationsZhCn {
 			'markdown.separatorDescription' => '使用三个或更多 - 号创建分隔线',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => '语法',
+			'forum.attachQuote' => '携带引用',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => '回复 #${floor} @${username}',
+			'forum.removeQuote' => '移除引用',
 			'forum.recent' => '最近',
 			'forum.category' => '分类',
 			'forum.lastReply' => '最后回复',
@@ -6138,6 +6156,8 @@ extension on TranslationsZhCn {
 			'forum.leafDescriptions.requests_zh' => '发布你的请求',
 			'forum.leafDescriptions.support_zh' => '帮助解决网站相关问题',
 			'forum.leafDescriptions.general_ja' => '讨论任何话题',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => '提出你的疑问',
 			'forum.leafDescriptions.requests_ja' => '发布你的请求',
 			'forum.leafDescriptions.support_ja' => '帮助解决网站相关问题',
@@ -6146,8 +6166,6 @@ extension on TranslationsZhCn {
 			'forum.reply' => '回复',
 			'forum.pendingReview' => '审核中',
 			'forum.editedAt' => '编辑时间',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => '已复制到剪贴板',
 			'forum.copySuccessForMessage' => ({required Object str}) => '已复制到剪贴板: ${str}',
 			'forum.editReply' => '编辑回复',
@@ -6652,6 +6670,8 @@ extension on TranslationsZhCn {
 			'download.location.locationChanged' => '下载位置已更改',
 			'download.location.manualTitle' => '手动输入路径',
 			'download.location.manualLabel' => '文件夹路径',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualHint' => '例如 /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => '检查并使用',
 			'download.location.manualEmpty' => '请输入路径',
@@ -6660,8 +6680,6 @@ extension on TranslationsZhCn {
 			'download.location.fixed' => '位置已恢复正常',
 			'download.maxConcurrentDownloads' => '最大同时下载数',
 			'download.maxConcurrentDownloadsDesc' => '同时进行下载的任务数量（1-5）',
-			_ => null,
-		} ?? switch (path) {
 			'download.downloadCompletedWithName' => ({required Object fileName}) => '下载完成: ${fileName}',
 			'download.stillInDevelopment' => '开发中',
 			'download.saveToAppDirectory' => '保存到应用目录',
@@ -7141,6 +7159,8 @@ extension on TranslationsZhCn {
 			'log.newSizeLimit' => ({required Object size}) => '新的大小限制: ${size}',
 			'log.confirmToContinue' => '确定要继续吗？',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => '日志大小上限已设置为 ${size}',
+			'emoji.recentlyUsed' => '最近用过',
+			'emoji.insertedCount' => ({required Object count}) => '已插入 ${count} 个',
 			'emoji.name' => '表情',
 			'emoji.size' => '大小',
 			'emoji.small' => '小',
@@ -7164,6 +7184,8 @@ extension on TranslationsZhCn {
 			'emoji.batchDelete' => '批量删除',
 			'emoji.confirmBatchDelete' => ({required Object count}) => '确定要删除选中的${count}张图片吗？此操作不可撤销。',
 			'emoji.deleteSuccess' => '成功删除',
+			_ => null,
+		} ?? switch (path) {
 			'emoji.addImage' => '添加图片',
 			'emoji.addImageByUrl' => '通过URL添加',
 			'emoji.addImageUrl' => '添加图片URL',
@@ -7174,8 +7196,6 @@ extension on TranslationsZhCn {
 			'emoji.enterJsonUrlArray' => '请输入JSON格式的URL数组:',
 			'emoji.formatExample' => '格式示例:\n["url1", "url2", "url3"]',
 			'emoji.pasteJsonUrlArray' => '请粘贴JSON格式的URL数组',
-			_ => null,
-		} ?? switch (path) {
 			'emoji.import' => '导入',
 			'emoji.importSuccess' => ({required Object count}) => '成功导入${count}张图片',
 			'emoji.jsonFormatError' => 'JSON格式错误，请检查输入',
@@ -7678,6 +7698,8 @@ extension on TranslationsZhCn {
 			'vrFormat.flatSideBySideDesc' => '一帧里左右各一只眼，只显示左眼并还原比例',
 			'vrFormat.flatTopBottom' => '上下 3D',
 			'vrFormat.flatTopBottomDesc' => '一帧里上下各一只眼，只显示上半幅并还原比例',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 左右',
 			'vrFormat.vr180SideBySideDesc' => '半球全景 + 左右双眼，最常见的 VR 片源',
 			'vrFormat.vr180Mono' => 'VR180 单目',
@@ -7688,8 +7710,6 @@ extension on TranslationsZhCn {
 			'vrFormat.vr360TopBottomDesc' => '环绕一圈的全景 + 上下双眼',
 			'vrFormat.resetView' => '重置视角',
 			'vrFormat.resetViewDesc' => '把环视方向和视野角复位到正前方',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => '恢复自动识别',
 			'vrFormat.resetToAutoDesc' => '忘掉这个视频的手动选择，交回给自动判断',
 			'vrFormat.manualBadge' => '已手动指定',

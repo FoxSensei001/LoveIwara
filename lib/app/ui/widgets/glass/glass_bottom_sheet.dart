@@ -288,6 +288,7 @@ class GlassDraggableBottomSheet extends StatelessWidget {
     this.maxChildSize = 0.92,
     this.snap = false,
     this.handleOverContent = false,
+    this.backgroundColor,
   });
 
   /// 拖拽条那一条占的总高：上留白 8 + 条 4 + 下留白 4。
@@ -315,6 +316,11 @@ class GlassDraggableBottomSheet extends StatelessWidget {
   /// true——否则拖拽条那一条既没有蒙层也没有内容经过，看上去是块从弹层里独立
   /// 出来的空带子（2026-09-20 用户报障）。
   final bool handleOverContent;
+
+  /// 外壳面色。不传走 [GlassTokens.sheetFill]（绝大多数弹层）；只有壳底色会
+  /// 与自己内容里的控件撞色的那几张弹层才需要指定（见
+  /// [GlassTokens.commentSheetFill]）。
+  final Color? backgroundColor;
 
   Widget _buildHandle(BuildContext context) {
     return Column(
@@ -354,10 +360,13 @@ class GlassDraggableBottomSheet extends StatelessWidget {
           child: builder(context, scrollController),
         );
         return Material(
-          // 同 [_GlassBottomSheetShell]：走 [GlassTokens.sheetFill]，
+          // 同 [_GlassBottomSheetShell]：默认走 [GlassTokens.sheetFill]，
           // 既要与页面背景（surface）拉开，也要与弹层里的玻璃卡片
-          // （[GlassTokens.fill]）拉开，理由见该 token 注释。
-          color: GlassTokens.sheetFill(Theme.of(context).colorScheme),
+          // （[GlassTokens.fill]）拉开，理由见该 token 注释；
+          // [backgroundColor] 是给「壳与自己内容撞色」的弹层留的口子。
+          color:
+              backgroundColor ??
+              GlassTokens.sheetFill(Theme.of(context).colorScheme),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           clipBehavior: Clip.antiAlias,
           child: handleOverContent
@@ -426,6 +435,7 @@ class GlassFloatingHeaderSheet extends StatefulWidget {
     this.minChildSize = 0.2,
     this.maxChildSize = 0.92,
     this.snap = true,
+    this.backgroundColor,
   });
 
   /// 标题行横向留白——内容区也用这个数，别一处 8 一处 16。
@@ -468,6 +478,9 @@ class GlassFloatingHeaderSheet extends StatefulWidget {
   final double maxChildSize;
   final bool snap;
 
+  /// 外壳面色，透传给 [GlassDraggableBottomSheet]（不传 = 默认弹层底色）。
+  final Color? backgroundColor;
+
   @override
   State<GlassFloatingHeaderSheet> createState() =>
       _GlassFloatingHeaderSheetState();
@@ -502,6 +515,7 @@ class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
       minChildSize: widget.minChildSize,
       maxChildSize: widget.maxChildSize,
       snap: widget.snap,
+      backgroundColor: widget.backgroundColor,
       // 拖拽条浮在内容之上：内容与蒙层都要铺到它背后，否则那一条是块独立空带。
       handleOverContent: true,
       builder: (context, scrollController) => Stack(

@@ -226,6 +226,7 @@ common:
   agree: Agree
   disagree: Disagree
   agreeToRules: Agree to Rules
+  tapToReread: 'Tap to read again'
   # Base Input Dialog
   markdownSyntaxHelp: Markdown Syntax Help
   previewContent: Preview Content
@@ -726,6 +727,10 @@ settings:
   enterSignature: Enter Signature
   editSignature: Edit Signature
   signatureContent: Signature Content
+  signaturePreview: 'Preview'
+  signatureSampleBody: 'Your message goes here'
+  signatureNotSet: 'Not set'
+  signatureRuleHint: "Your signature is appended after the body, separated by a horizontal rule. The app adds the rule for you — just write the line below."
   exportConfig: "Export App Configuration"
   exportConfigDesc: "Export settings and history (browsing history, playback progress, favorites, etc.) to a file for backup or transfer to another device. Download tasks are not included."
   importConfig: "Import App Configuration"
@@ -1560,6 +1565,9 @@ markdown:
   syntax: Syntax
 
 forum:
+  attachQuote: 'Attach quote'
+  replyToFloor: 'Reply #${floor} @${username}'
+  removeQuote: 'Remove quote'
   recent: Recent
   category: Category
   lastReply: Last Reply
@@ -2795,6 +2803,8 @@ log:
   logSizeLimitSetSuccess: 'Log size limit set to ${size}'
 
 emoji:
+  recentlyUsed: 'Recent'
+  insertedCount: '${count} inserted'
   name: Emoji
   size: Size
   small: Small

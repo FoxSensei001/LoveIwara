@@ -8,6 +8,7 @@ import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 评论列表弹层（作者页 / 投稿详情 / 图库详情共用的那一张）。
@@ -72,6 +73,11 @@ class CommentListBottomSheet extends StatelessWidget {
     final t = slang.Translations.of(context);
     return GlassFloatingHeaderSheet(
       title: t.common.commentList,
+      // 壳底色单独指定：默认的 sheetFill 与评论条目里那排动作胶囊同值，
+      // 胶囊会整只糊进背景，理由见 [GlassTokens.commentSheetFill]。
+      backgroundColor: GlassTokens.commentSheetFill(
+        Theme.of(context).colorScheme,
+      ),
       // 排序 / 发评论合成一只玻璃胶囊，关闭圆钮由壳自己摆在最右。
       actions: [
         GlassButtonGroup(

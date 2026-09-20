@@ -10,6 +10,7 @@ import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 
 class CommentRepliesBottomSheet extends StatefulWidget {
@@ -426,6 +427,11 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
     // 背后滚过去。
     return GlassFloatingHeaderSheet(
       title: '$_replyCount ${t.common.replies}',
+      // 同评论列表弹层：默认壳底色与条目里的动作胶囊同值，见
+      // [GlassTokens.commentSheetFill]。
+      backgroundColor: GlassTokens.commentSheetFill(
+        Theme.of(context).colorScheme,
+      ),
       leading: Icon(
         Icons.comment_outlined,
         color: Theme.of(context).colorScheme.primary,

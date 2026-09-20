@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/rules_agreement_dialog_widget.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
@@ -12,6 +13,7 @@ import 'package:i_iwara/app/ui/widgets/enhanced_emoji_text_field.dart';
 import 'package:i_iwara/app/ui/widgets/emoji_picker_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/common/enums/emoji_size_enum.dart';
 
 class PostInputDialog extends StatefulWidget {
@@ -31,6 +33,11 @@ class _PostInputDialogState extends State<PostInputDialog> {
   int _currentBodyLength = 0;
   final ConfigService _configService = Get.find<ConfigService>();
   late EmojiSize _selectedEmojiSize;
+
+  /// 本次发帖要不要带小尾巴。初值取设置，可在工具行当场改；改的是这一次，
+  /// 不写回设置——「这篇不想带」和「以后都不带」是两件事。
+  late bool _signatureEnabled;
+
   final GlobalKey<EnhancedEmojiTextFieldState> _emojiTextFieldKey =
       GlobalKey<EnhancedEmojiTextFieldState>();
 
@@ -44,15 +51,12 @@ class _PostInputDialogState extends State<PostInputDialog> {
     super.initState();
     _titleController = TextEditingController();
 
-    final configService = Get.find<ConfigService>();
-    String initialBody = '';
+    // 小尾巴**不再**拼进正文。旧版把它当初始文本塞给用户编辑，于是那条
+    // `---` 分隔线成了可以被改坏的正文；现在它只是一个状态，提交那一刻才由
+    // [CommentMarkup.compose] 接到末尾。详见 [CommentMarkup] 的类文档。
+    _signatureEnabled = _configService[ConfigKey.ENABLE_SIGNATURE_KEY];
 
-    // 如果启用了小尾巴，则在正文中添加小尾巴
-    if (configService[ConfigKey.ENABLE_SIGNATURE_KEY]) {
-      initialBody += configService[ConfigKey.SIGNATURE_CONTENT_KEY];
-    }
-
-    _bodyController = TextEditingController(text: initialBody);
+    _bodyController = TextEditingController();
 
     _titleController.addListener(() {
       setState(() {
@@ -62,7 +66,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
 
     _bodyController.addListener(() {
       setState(() {
-        _currentBodyLength = _bodyController.text.length;
+        _currentBodyLength = _composedBody().length;
       });
     });
 
@@ -79,10 +83,27 @@ class _PostInputDialogState extends State<PostInputDialog> {
     super.dispose();
   }
 
+  /// 真正会被发出去的正文（含小尾巴）。字数统计 / 预览 / 提交三处都读它——
+  /// 服务端卡的是最终文本，只数输入框里的字会让人在提交那一刻才发现超了。
+  String _composedBody() => CommentMarkup.compose(
+    body: _bodyController.text,
+    signature: _signatureEnabled
+        ? _configService[ConfigKey.SIGNATURE_CONTENT_KEY]
+        : null,
+  );
+
+  /// 用户确实配过小尾巴才露出那枚开关；没配过的人不该看见一个自己从来
+  /// 没用过的开关。
+  bool get _showSignatureToggle {
+    final String content = _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
+    return content.trim().isNotEmpty;
+  }
+
+  /// 预览给的是**发出去的样子**——小尾巴在内。
   void _showPreview() {
     MarkdownPreviewHelper.showPreviewWithTitle(
       context,
-      _bodyController.text,
+      _composedBody(),
       _titleController.text,
     );
   }
@@ -117,7 +138,8 @@ class _PostInputDialogState extends State<PostInputDialog> {
     if (_currentTitleLength > maxTitleLength || _currentTitleLength == 0) {
       return;
     }
-    if (_currentBodyLength > maxBodyLength || _currentBodyLength == 0) return;
+    if (_currentBodyLength > maxBodyLength) return;
+    if (_bodyController.text.trim().isEmpty) return;
 
     // 检查标题是否为空
     if (_titleController.text.trim().isEmpty) {
@@ -137,7 +159,7 @@ class _PostInputDialogState extends State<PostInputDialog> {
     setState(() {
       _isLoading = true;
     });
-    await widget.onSubmit(_titleController.text, _bodyController.text);
+    await widget.onSubmit(_titleController.text, _composedBody());
     setState(() {
       _isLoading = false;
     });
@@ -150,10 +172,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
       context: context,
       builder: (context) => EmojiPickerSheet(
         initialSize: _selectedEmojiSize,
-        onEmojiSelected: (imageUrl, size) {
-          _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size);
-          Navigator.pop(context);
-        },
+        // ⛔ 这里**不 pop**：连选是刻意的（斗图要连发几张）。弹层由用户
+        // 自己关，底部会实时显示这次插了几个。
+        onEmojiSelected: (imageUrl, size) =>
+            _emojiTextFieldKey.currentState?.insertEmoji(imageUrl, size: size),
         onSizeChanged: (size) {
           setState(() {
             _selectedEmojiSize = size;
@@ -179,6 +201,15 @@ class _PostInputDialogState extends State<PostInputDialog> {
               title: t.common.createPost,
               icon: Icons.post_add,
               onClose: () => AppService.tryPop(),
+              // 齿轮：用户正对着小尾巴开关，想改内容就该一步到位，而不是
+              // 关掉弹窗自己去设置树里翻。放关闭键左边（trailing 槽），
+              // 关闭永远在最右端不挪窝。
+              trailing: GlassIconButton(
+                standalone: true,
+                icon: const Icon(Icons.tune),
+                tooltip: slang.t.settings.chatSettings.name,
+                onPressed: NaviService.navigateToChatSettingsPage,
+              ),
             ),
             const SizedBox(height: 16),
             GlassInputSurface(
@@ -215,42 +246,47 @@ class _PostInputDialogState extends State<PostInputDialog> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    _currentBodyLength = value.length;
+                    _currentBodyLength = _composedBody().length;
                   });
                 },
               ),
             ),
-            const SizedBox(height: 16),
-            // 工具行：翻译 · 表情 · MD 帮助 · 预览
-            GlassComposerToolbar(
-              onTranslate: () {
-                showTranslationDialog(
-                  context,
-                  text: _bodyController.text,
-                  defaultLanguageKeyMode: false,
-                );
-              },
-              translateEnabled: _bodyController.text.isNotEmpty,
-              onEmoji: _showEmojiPicker,
-              onMarkdownHelp: _showMarkdownHelp,
-              onPreview: _showPreview,
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            // 单行底栏：动作 · 状态 · 字数 · 发送（见 GlassComposerBar）
             Obx(() {
               final bool hasAgreed =
                   _configService[ConfigKey.RULES_AGREEMENT_KEY];
               final bool contentReady =
                   _currentTitleLength > 0 &&
                   _currentTitleLength <= maxTitleLength &&
-                  _currentBodyLength > 0 &&
+                  _bodyController.text.trim().isNotEmpty &&
                   _currentBodyLength <= maxBodyLength;
-              return GlassComposerActions(
-                rulesAgreed: hasAgreed,
-                onRulesTap: () => _showRulesDialog(),
+              return GlassComposerBar(
                 onSubmit: contentReady && hasAgreed ? _handleSubmit : null,
-                // 只差「同意规则」时：按钮仍可点，点下去弹规则全文
-                onBlockedTap: !hasAgreed ? () => _showRulesDialog() : null,
+                // 只差「同意规则」时按钮仍可点，点下去弹规则全文
+                onBlockedTap: !hasAgreed ? _showRulesDialog : null,
+                submitText: t.common.send,
                 isLoading: _isLoading,
+                onEmoji: _showEmojiPicker,
+                onPreview: _showPreview,
+                previewHasContent: _bodyController.text.trim().isNotEmpty,
+                onTranslate: () => showTranslationDialog(
+                  context,
+                  text: _bodyController.text,
+                  defaultLanguageKeyMode: false,
+                ),
+                translateEnabled: _bodyController.text.isNotEmpty,
+                onMarkdownHelp: _showMarkdownHelp,
+                rulesAgreed: hasAgreed,
+                onRulesTap: _showRulesDialog,
+                showSignatureToggle: _showSignatureToggle,
+                signatureEnabled: _signatureEnabled,
+                onSignatureToggle: () => setState(() {
+                  _signatureEnabled = !_signatureEnabled;
+                  _currentBodyLength = _composedBody().length;
+                }),
+                length: _bodyController.text.length,
+                limit: maxBodyLength,
               );
             }),
           ],

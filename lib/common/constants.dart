@@ -20,7 +20,7 @@ class CommonConstants {
   /// 存在的理由：同一个 semver 重新打包（热修）只有 build 号变。少了它，
   /// `0.5.1+3 → 0.5.1+4` 这种发布**在更新检测里是隐形的**。
   /// 参与比较的规则见 [AppVersion]（lib/utils/app_version.dart）。
-  static const int BUILD_NUMBER = 1;
+  static const int BUILD_NUMBER = 4;
 
   /// 完整版本号 `x.y.z+N`，只用于版本比较；展示给用户的仍然是 [VERSION]。
   static const String FULL_VERSION = '$VERSION+$BUILD_NUMBER';

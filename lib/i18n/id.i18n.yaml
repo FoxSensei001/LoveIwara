@@ -226,6 +226,7 @@ common:
   agree: Setuju
   disagree: Tidak Setuju
   agreeToRules: Setujui Aturan
+  tapToReread: 'Ketuk untuk baca ulang'
   # Base Input Dialog
   markdownSyntaxHelp: Bantuan Sintaks Markdown
   previewContent: Pratinjau Konten
@@ -726,6 +727,10 @@ settings:
   enterSignature: Masukkan Tanda Tangan
   editSignature: Edit Tanda Tangan
   signatureContent: Isi Tanda Tangan
+  signaturePreview: 'Pratinjau'
+  signatureSampleBody: 'Tulisan kamu di sini'
+  signatureNotSet: 'Belum diatur'
+  signatureRuleHint: "Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah."
   exportConfig: "Ekspor Konfigurasi Aplikasi"
   exportConfigDesc: "Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan."
   importConfig: "Impor Konfigurasi Aplikasi"
@@ -1559,6 +1564,9 @@ markdown:
   syntax: Sintaks
 
 forum:
+  attachQuote: 'Sertakan kutipan'
+  replyToFloor: 'Balas #${floor} @${username}'
+  removeQuote: 'Hapus kutipan'
   recent: Terkini
   category: Kategori
   lastReply: Balasan Terakhir
@@ -2793,6 +2801,8 @@ log:
   logSizeLimitSetSuccess: 'Batas ukuran log diatur ke ${size}'
 
 emoji:
+  recentlyUsed: 'Terbaru'
+  insertedCount: '${count} disisipkan'
   name: Emoji
   size: Ukuran
   small: Kecil

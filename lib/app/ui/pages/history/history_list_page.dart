@@ -977,10 +977,12 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
-    final retry = TextButton.icon(
-      onPressed: onRetry,
-      icon: const Icon(Icons.refresh),
-      label: Text(t.common.retry),
+    // 玻璃胶囊而不是裸 TextButton：材质档由主题设置统一供给，裸 Material
+    // 按钮会绕过那个开关（见 test/glass_style_guard_test.dart 的棘轮闸门）。
+    final retry = GlassButtonGroup(
+      children: [
+        GlassTextActionButton(label: t.common.retry, onPressed: onRetry),
+      ],
     );
     if (compact) return retry;
     return Column(
@@ -1035,18 +1037,23 @@ class _HistoryFilterDrawer extends StatelessWidget {
         onReset: dateRange == null ? null : onClearDateRange,
         footer: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: OutlinedButton.icon(
-            onPressed: onClearTab,
-            icon: const Icon(Icons.delete_sweep),
-            label: Text(
-              tabLabel == t.common.all
-                  ? t.common.clearAllHistory
-                  : t.historyPage.clearTabTitle(tab: tabLabel),
-            ),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colorScheme.error,
-              side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
-            ),
+          // 破坏性动作走 destructive 档（文字转 cs.error），不再自己拼
+          // OutlinedButton 的描边配色——裸 Material 按钮会绕过材质开关。
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GlassButtonGroup(
+                children: [
+                  GlassTextActionButton(
+                    label: tabLabel == t.common.all
+                        ? t.common.clearAllHistory
+                        : t.historyPage.clearTabTitle(tab: tabLabel),
+                    destructive: true,
+                    onPressed: onClearTab,
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         children: [
@@ -1110,16 +1117,19 @@ class _HistoryFilterDrawer extends StatelessWidget {
                       ? const SizedBox(width: double.infinity)
                       : Padding(
                           padding: const EdgeInsets.only(top: 12),
-                          child: OutlinedButton.icon(
-                            onPressed: onDeleteRange,
-                            icon: const Icon(Icons.delete_outline),
-                            label: Text(t.common.deleteRecordsInDateRange),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: colorScheme.error,
-                              side: BorderSide(
-                                color: colorScheme.error.withValues(alpha: 0.5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GlassButtonGroup(
+                                children: [
+                                  GlassTextActionButton(
+                                    label: t.common.deleteRecordsInDateRange,
+                                    destructive: true,
+                                    onPressed: onDeleteRange,
+                                  ),
+                                ],
                               ),
-                            ),
+                            ],
                           ),
                         ),
                 ),

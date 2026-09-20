@@ -349,6 +349,7 @@ class _TranslationsCommonId extends TranslationsCommonEn {
 	@override String get agree => 'Setuju';
 	@override String get disagree => 'Tidak Setuju';
 	@override String get agreeToRules => 'Setujui Aturan';
+	@override String get tapToReread => 'Ketuk untuk baca ulang';
 	@override String get markdownSyntaxHelp => 'Bantuan Sintaks Markdown';
 	@override String get previewContent => 'Pratinjau Konten';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get enterSignature => 'Masukkan Tanda Tangan';
 	@override String get editSignature => 'Edit Tanda Tangan';
 	@override String get signatureContent => 'Isi Tanda Tangan';
+	@override String get signaturePreview => 'Pratinjau';
+	@override String get signatureSampleBody => 'Tulisan kamu di sini';
+	@override String get signatureNotSet => 'Belum diatur';
+	@override String get signatureRuleHint => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.';
 	@override String get exportConfig => 'Ekspor Konfigurasi Aplikasi';
 	@override String get exportConfigDesc => 'Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan.';
 	@override String get importConfig => 'Impor Konfigurasi Aplikasi';
@@ -1244,6 +1249,9 @@ class _TranslationsForumId extends TranslationsForumEn {
 	final TranslationsId _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => 'Sertakan kutipan';
+	@override String replyToFloor({required Object floor, required Object username}) => 'Balas #${floor} @${username}';
+	@override String get removeQuote => 'Hapus kutipan';
 	@override String get recent => 'Terkini';
 	@override String get category => 'Kategori';
 	@override String get lastReply => 'Balasan Terakhir';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiId extends TranslationsEmojiEn {
 	final TranslationsId _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => 'Terbaru';
+	@override String insertedCount({required Object count}) => '${count} disisipkan';
 	@override String get name => 'Emoji';
 	@override String get size => 'Ukuran';
 	@override String get small => 'Kecil';
@@ -4816,6 +4826,7 @@ extension on TranslationsId {
 			'common.agree' => 'Setuju',
 			'common.disagree' => 'Tidak Setuju',
 			'common.agreeToRules' => 'Setujui Aturan',
+			'common.tapToReread' => 'Ketuk untuk baca ulang',
 			'common.markdownSyntaxHelp' => 'Bantuan Sintaks Markdown',
 			'common.previewContent' => 'Pratinjau Konten',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsId {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Waktu mundur harus berupa bilangan bulat positif.',
 			'settings.longPressPlaybackSpeed' => 'Kecepatan Pemutaran Tekan Lama',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Kecepatan pemutaran tekan lama harus berupa angka positif.',
-			'settings.defaultPlaybackSpeed' => 'Kecepatan Pemutaran Bawaan',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'Kecepatan Pemutaran Bawaan',
 			'settings.rememberPlaybackSpeed' => 'Ingat Kecepatan Pemutaran',
 			'settings.rememberPlaybackSpeedDesc' => 'Saat diaktifkan, kecepatan yang Anda atur di pemutar disimpan sebagai bawaan dan diterapkan secara otomatis ke video baru.',
 			'settings.repeat' => 'Ulangi',
@@ -5297,6 +5308,10 @@ extension on TranslationsId {
 			'settings.enterSignature' => 'Masukkan Tanda Tangan',
 			'settings.editSignature' => 'Edit Tanda Tangan',
 			'settings.signatureContent' => 'Isi Tanda Tangan',
+			'settings.signaturePreview' => 'Pratinjau',
+			'settings.signatureSampleBody' => 'Tulisan kamu di sini',
+			'settings.signatureNotSet' => 'Belum diatur',
+			'settings.signatureRuleHint' => 'Tanda tangan ditambahkan setelah isi, dipisahkan garis horizontal. Aplikasi yang menambahkan garisnya — kamu cukup menulis kalimat di bawah.',
 			'settings.exportConfig' => 'Ekspor Konfigurasi Aplikasi',
 			'settings.exportConfigDesc' => 'Ekspor pengaturan dan riwayat (riwayat penjelajahan, kemajuan pemutaran, favorit, dll.) ke file untuk pencadangan atau pemindahan ke perangkat lain. Tugas unduhan tidak disertakan.',
 			'settings.importConfig' => 'Impor Konfigurasi Aplikasi',
@@ -5627,13 +5642,13 @@ extension on TranslationsId {
 			'settings.downloadSettings.testError' => 'Kesalahan',
 			'settings.downloadSettings.testPath' => 'Jalur Uji',
 			'settings.downloadSettings.testBasePath' => 'Jalur Dasar',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Pembuatan Direktori',
 			'settings.downloadSettings.testFileWriting' => 'Penulisan File',
 			'settings.downloadSettings.testFileContent' => 'Isi File',
 			'settings.downloadSettings.checkingPathStatus' => 'Memeriksa status jalur...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Tidak dapat memperoleh status jalur',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Catatan: Jalur sebenarnya berbeda dari jalur yang dipilih',
 			'settings.downloadSettings.grantPermission' => 'Beri Izin',
 			'settings.downloadSettings.fixIssue' => 'Perbaiki Masalah',
@@ -6081,6 +6096,9 @@ extension on TranslationsId {
 			'markdown.separatorDescription' => 'Buat pemisah dengan tiga simbol - atau lebih',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Sintaks',
+			'forum.attachQuote' => 'Sertakan kutipan',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => 'Balas #${floor} @${username}',
+			'forum.removeQuote' => 'Hapus kutipan',
 			'forum.recent' => 'Terkini',
 			'forum.category' => 'Kategori',
 			'forum.lastReply' => 'Balasan Terakhir',
@@ -6138,6 +6156,8 @@ extension on TranslationsId {
 			'forum.leafDescriptions.requests_zh' => 'Kirimkan permintaan Anda',
 			'forum.leafDescriptions.support_zh' => 'Bantuan untuk menyelesaikan masalah terkait situs web',
 			'forum.leafDescriptions.general_ja' => 'Bahas topik apa saja',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Ajukan pertanyaan Anda',
 			'forum.leafDescriptions.requests_ja' => 'Kirimkan permintaan Anda',
 			'forum.leafDescriptions.support_ja' => 'Bantuan untuk menyelesaikan masalah terkait situs web',
@@ -6146,8 +6166,6 @@ extension on TranslationsId {
 			'forum.reply' => 'Balas',
 			'forum.pendingReview' => 'Menunggu Tinjauan',
 			'forum.editedAt' => 'Diubah Pada',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'Disalin ke papan klip',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Disalin ke papan klip: ${str}',
 			'forum.editReply' => 'Ubah Balasan',
@@ -6652,6 +6670,8 @@ extension on TranslationsId {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsId {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Unduhan bersamaan maksimum',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => 'Jumlah tugas yang diunduh pada waktu bersamaan (1-5)',
 			'download.stillInDevelopment' => 'Masih dalam pengembangan',
 			'download.saveToAppDirectory' => 'Simpan ke direktori aplikasi',
@@ -7166,6 +7184,8 @@ extension on TranslationsId {
 			'linkInputDialog.multipleLinksDetected' => 'Terdeteksi beberapa tautan, silakan pilih satu:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Bukan tautan ${webName} yang valid',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Kesalahan penguraian tautan: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Tautan Tidak Didukung',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Jenis tautan ini tidak dapat dibuka langsung di aplikasi dan perlu diakses menggunakan peramban eksternal.\n\nApakah Anda ingin membuka tautan ini di peramban?',
 			'linkInputDialog.openInBrowser' => 'Buka di Peramban',
@@ -7174,8 +7194,6 @@ extension on TranslationsId {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Apakah Anda yakin ingin melanjutkan?',
 			'linkInputDialog.browserOpenFailed' => 'Gagal membuka tautan',
 			'linkInputDialog.unsupportedLink' => 'Tautan Tidak Didukung',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => 'Batal',
 			'linkInputDialog.confirm' => 'Buka di Peramban',
 			'log.logManagement' => 'Pengelolaan Log',
@@ -7232,6 +7250,8 @@ extension on TranslationsId {
 			'log.newSizeLimit' => ({required Object size}) => 'Batas ukuran baru: ${size}',
 			'log.confirmToContinue' => 'Konfirmasi untuk melanjutkan',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Batas ukuran log diatur ke ${size}',
+			'emoji.recentlyUsed' => 'Terbaru',
+			'emoji.insertedCount' => ({required Object count}) => '${count} disisipkan',
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Ukuran',
 			'emoji.small' => 'Kecil',
@@ -7678,6 +7698,8 @@ extension on TranslationsId {
 			'vrFormat.flatSideBySideDesc' => 'Satu mata per separuh, kiri dan kanan; menampilkan mata kiri dan memulihkan rasio aspeknya',
 			'vrFormat.flatTopBottom' => '3D atas-bawah',
 			'vrFormat.flatTopBottomDesc' => 'Satu mata per separuh, atas dan bawah; menampilkan separuh atas dan memulihkan rasio aspeknya',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 berdampingan',
 			'vrFormat.vr180SideBySideDesc' => 'Panorama hemisferis dengan kedua mata — sumber VR paling umum',
 			'vrFormat.vr180Mono' => 'VR180 mono',
@@ -7688,8 +7710,6 @@ extension on TranslationsId {
 			'vrFormat.vr360TopBottomDesc' => 'Panorama sekeliling penuh dengan kedua mata ditumpuk',
 			'vrFormat.resetView' => 'Atur ulang tampilan',
 			'vrFormat.resetViewDesc' => 'Kembalikan arah pandang dan bidang pandang ke depan',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => 'Kembali ke deteksi otomatis',
 			'vrFormat.resetToAutoDesc' => 'Lupakan pilihan manual untuk video ini dan biarkan deteksi memutuskan lagi',
 			'vrFormat.manualBadge' => 'Diatur secara manual',

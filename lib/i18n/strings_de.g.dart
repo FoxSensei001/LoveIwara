@@ -349,6 +349,7 @@ class _TranslationsCommonDe extends TranslationsCommonEn {
 	@override String get agree => 'Zustimmen';
 	@override String get disagree => 'Ablehnen';
 	@override String get agreeToRules => 'Den Regeln zustimmen';
+	@override String get tapToReread => 'Zum erneuten Lesen tippen';
 	@override String get markdownSyntaxHelp => 'Markdown-Syntax-Hilfe';
 	@override String get previewContent => 'Inhalt vorschauen';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsDe extends TranslationsSettingsEn {
 	@override String get enterSignature => 'Signatur eingeben';
 	@override String get editSignature => 'Signatur bearbeiten';
 	@override String get signatureContent => 'Signaturinhalt';
+	@override String get signaturePreview => 'Vorschau';
+	@override String get signatureSampleBody => 'Hier steht dein Text';
+	@override String get signatureNotSet => 'Nicht festgelegt';
+	@override String get signatureRuleHint => 'Die Signatur wird nach dem Text angehängt, getrennt durch eine Trennlinie. Die Linie fügt die App hinzu – schreibe nur die Zeile unten.';
 	@override String get exportConfig => 'App-Konfiguration exportieren';
 	@override String get exportConfigDesc => 'Einstellungen und Verlauf (Browserverlauf, Wiedergabefortschritt, Favoriten usw.) zur Sicherung oder Übertragung auf ein anderes Gerät in eine Datei exportieren. Download-Aufgaben sind nicht enthalten.';
 	@override String get importConfig => 'App-Konfiguration importieren';
@@ -1244,6 +1249,9 @@ class _TranslationsForumDe extends TranslationsForumEn {
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => 'Zitat anhängen';
+	@override String replyToFloor({required Object floor, required Object username}) => 'Antwort auf #${floor} @${username}';
+	@override String get removeQuote => 'Zitat entfernen';
 	@override String get recent => 'Neueste';
 	@override String get category => 'Kategorie';
 	@override String get lastReply => 'Letzte Antwort';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiDe extends TranslationsEmojiEn {
 	final TranslationsDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => 'Zuletzt';
+	@override String insertedCount({required Object count}) => '${count} eingefügt';
 	@override String get name => 'Emoji';
 	@override String get size => 'Größe';
 	@override String get small => 'Klein';
@@ -4816,6 +4826,7 @@ extension on TranslationsDe {
 			'common.agree' => 'Zustimmen',
 			'common.disagree' => 'Ablehnen',
 			'common.agreeToRules' => 'Den Regeln zustimmen',
+			'common.tapToReread' => 'Zum erneuten Lesen tippen',
 			'common.markdownSyntaxHelp' => 'Markdown-Syntax-Hilfe',
 			'common.previewContent' => 'Inhalt vorschauen',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsDe {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Die Rückspulzeit muss eine positive ganze Zahl sein.',
 			'settings.longPressPlaybackSpeed' => 'Wiedergabegeschwindigkeit bei Langdruck',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Die Wiedergabegeschwindigkeit bei Langdruck muss eine positive Zahl sein.',
-			'settings.defaultPlaybackSpeed' => 'Standard-Wiedergabegeschwindigkeit',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'Standard-Wiedergabegeschwindigkeit',
 			'settings.rememberPlaybackSpeed' => 'Wiedergabegeschwindigkeit merken',
 			'settings.rememberPlaybackSpeedDesc' => 'Wenn aktiviert, wird die im Player eingestellte Geschwindigkeit als Standard gespeichert und automatisch auf neue Videos angewendet.',
 			'settings.repeat' => 'Wiederholen',
@@ -5297,6 +5308,10 @@ extension on TranslationsDe {
 			'settings.enterSignature' => 'Signatur eingeben',
 			'settings.editSignature' => 'Signatur bearbeiten',
 			'settings.signatureContent' => 'Signaturinhalt',
+			'settings.signaturePreview' => 'Vorschau',
+			'settings.signatureSampleBody' => 'Hier steht dein Text',
+			'settings.signatureNotSet' => 'Nicht festgelegt',
+			'settings.signatureRuleHint' => 'Die Signatur wird nach dem Text angehängt, getrennt durch eine Trennlinie. Die Linie fügt die App hinzu – schreibe nur die Zeile unten.',
 			'settings.exportConfig' => 'App-Konfiguration exportieren',
 			'settings.exportConfigDesc' => 'Einstellungen und Verlauf (Browserverlauf, Wiedergabefortschritt, Favoriten usw.) zur Sicherung oder Übertragung auf ein anderes Gerät in eine Datei exportieren. Download-Aufgaben sind nicht enthalten.',
 			'settings.importConfig' => 'App-Konfiguration importieren',
@@ -5627,13 +5642,13 @@ extension on TranslationsDe {
 			'settings.downloadSettings.testError' => 'Fehler',
 			'settings.downloadSettings.testPath' => 'Testpfad',
 			'settings.downloadSettings.testBasePath' => 'Basispfad',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Verzeichniserstellung',
 			'settings.downloadSettings.testFileWriting' => 'Dateischreiben',
 			'settings.downloadSettings.testFileContent' => 'Dateiinhalt',
 			'settings.downloadSettings.checkingPathStatus' => 'Pfadstatus wird geprüft...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Pfadstatus kann nicht abgerufen werden',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Hinweis: Der tatsächliche Pfad weicht vom ausgewählten Pfad ab',
 			'settings.downloadSettings.grantPermission' => 'Berechtigung erteilen',
 			'settings.downloadSettings.fixIssue' => 'Problem beheben',
@@ -6081,6 +6096,9 @@ extension on TranslationsDe {
 			'markdown.separatorDescription' => 'Erstellen Sie eine Trennlinie mit drei oder mehr -Symbolen',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Syntax',
+			'forum.attachQuote' => 'Zitat anhängen',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => 'Antwort auf #${floor} @${username}',
+			'forum.removeQuote' => 'Zitat entfernen',
 			'forum.recent' => 'Neueste',
 			'forum.category' => 'Kategorie',
 			'forum.lastReply' => 'Letzte Antwort',
@@ -6138,6 +6156,8 @@ extension on TranslationsDe {
 			'forum.leafDescriptions.requests_zh' => 'Veröffentlichen Sie Ihre Wünsche',
 			'forum.leafDescriptions.support_zh' => 'Hilfe bei der Behebung websitebezogener Probleme',
 			'forum.leafDescriptions.general_ja' => 'Über jedes Thema diskutieren',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Stellen Sie Ihre Fragen',
 			'forum.leafDescriptions.requests_ja' => 'Veröffentlichen Sie Ihre Wünsche',
 			'forum.leafDescriptions.support_ja' => 'Hilfe bei der Behebung websitebezogener Probleme',
@@ -6146,8 +6166,6 @@ extension on TranslationsDe {
 			'forum.reply' => 'Antworten',
 			'forum.pendingReview' => 'Ausstehende Prüfung',
 			'forum.editedAt' => 'Bearbeitet am',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'In die Zwischenablage kopiert',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'In die Zwischenablage kopiert: ${str}',
 			'forum.editReply' => 'Antwort bearbeiten',
@@ -6652,6 +6670,8 @@ extension on TranslationsDe {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsDe {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Max. gleichzeitige Downloads',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => 'Anzahl der gleichzeitig herunterladenden Aufgaben (1-5)',
 			'download.stillInDevelopment' => 'Noch in Entwicklung',
 			'download.saveToAppDirectory' => 'Im App-Verzeichnis speichern',
@@ -7166,6 +7184,8 @@ extension on TranslationsDe {
 			'linkInputDialog.multipleLinksDetected' => 'Mehrere Links erkannt, bitte einen auswählen:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Kein gültiger ${webName}-Link',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Fehler beim Parsen des Links: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Nicht unterstützter Link',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Dieser Linktyp kann nicht direkt in der App geöffnet werden und muss über einen externen Browser aufgerufen werden.\n\nMöchten Sie diesen Link in einem Browser öffnen?',
 			'linkInputDialog.openInBrowser' => 'Im Browser öffnen',
@@ -7174,8 +7194,6 @@ extension on TranslationsDe {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Möchten Sie wirklich fortfahren?',
 			'linkInputDialog.browserOpenFailed' => 'Link konnte nicht geöffnet werden',
 			'linkInputDialog.unsupportedLink' => 'Nicht unterstützter Link',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => 'Abbrechen',
 			'linkInputDialog.confirm' => 'Im Browser öffnen',
 			'log.logManagement' => 'Protokollverwaltung',
@@ -7232,6 +7250,8 @@ extension on TranslationsDe {
 			'log.newSizeLimit' => ({required Object size}) => 'Neues Größenlimit: ${size}',
 			'log.confirmToContinue' => 'Zur Fortsetzung bestätigen',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Größenlimit der Protokolle auf ${size} festgelegt',
+			'emoji.recentlyUsed' => 'Zuletzt',
+			'emoji.insertedCount' => ({required Object count}) => '${count} eingefügt',
 			'emoji.name' => 'Emoji',
 			'emoji.size' => 'Größe',
 			'emoji.small' => 'Klein',
@@ -7678,6 +7698,8 @@ extension on TranslationsDe {
 			'vrFormat.flatSideBySideDesc' => 'Ein Auge pro Hälfte, links und rechts; zeigt das linke Auge und stellt dessen Seitenverhältnis wieder her',
 			'vrFormat.flatTopBottom' => 'Over-Under-3D',
 			'vrFormat.flatTopBottomDesc' => 'Ein Auge pro Hälfte, oben und unten; zeigt die obere Hälfte und stellt deren Seitenverhältnis wieder her',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 Side-by-Side',
 			'vrFormat.vr180SideBySideDesc' => 'Hemisphärisches Panorama mit beiden Augen — die häufigste VR-Quelle',
 			'vrFormat.vr180Mono' => 'VR180 Mono',
@@ -7688,8 +7710,6 @@ extension on TranslationsDe {
 			'vrFormat.vr360TopBottomDesc' => 'Vollständiges Rundumpanorama mit beiden Augen übereinander',
 			'vrFormat.resetView' => 'Ansicht zurücksetzen',
 			'vrFormat.resetViewDesc' => 'Blickrichtung und Sichtfeld wieder nach vorne ausrichten',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => 'Zurück zur automatischen Erkennung',
 			'vrFormat.resetToAutoDesc' => 'Die manuelle Auswahl für dieses Video verwerfen und die Erkennung erneut entscheiden lassen',
 			'vrFormat.manualBadge' => 'Manuell festgelegt',

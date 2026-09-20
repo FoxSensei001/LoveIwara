@@ -349,6 +349,7 @@ class _TranslationsCommonVi extends TranslationsCommonEn {
 	@override String get agree => 'Đồng ý';
 	@override String get disagree => 'Không đồng ý';
 	@override String get agreeToRules => 'Đồng ý với quy tắc';
+	@override String get tapToReread => 'Chạm để đọc lại';
 	@override String get markdownSyntaxHelp => 'Trợ giúp cú pháp Markdown';
 	@override String get previewContent => 'Xem trước nội dung';
 	@override String characterCount({required Object current, required Object max}) => '${current}/${max}';
@@ -890,6 +891,10 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get enterSignature => 'Nhập chữ ký';
 	@override String get editSignature => 'Chỉnh sửa chữ ký';
 	@override String get signatureContent => 'Nội dung chữ ký';
+	@override String get signaturePreview => 'Xem trước';
+	@override String get signatureSampleBody => 'Nội dung của bạn ở đây';
+	@override String get signatureNotSet => 'Chưa đặt';
+	@override String get signatureRuleHint => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.';
 	@override String get exportConfig => 'Xuất cấu hình ứng dụng';
 	@override String get exportConfigDesc => 'Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống.';
 	@override String get importConfig => 'Nhập cấu hình ứng dụng';
@@ -1244,6 +1249,9 @@ class _TranslationsForumVi extends TranslationsForumEn {
 	final TranslationsVi _root; // ignore: unused_field
 
 	// Translations
+	@override String get attachQuote => 'Đính kèm trích dẫn';
+	@override String replyToFloor({required Object floor, required Object username}) => 'Trả lời #${floor} @${username}';
+	@override String get removeQuote => 'Xóa trích dẫn';
 	@override String get recent => 'Gần đây';
 	@override String get category => 'Danh mục';
 	@override String get lastReply => 'Trả lời gần nhất';
@@ -2098,6 +2106,8 @@ class _TranslationsEmojiVi extends TranslationsEmojiEn {
 	final TranslationsVi _root; // ignore: unused_field
 
 	// Translations
+	@override String get recentlyUsed => 'Gần đây';
+	@override String insertedCount({required Object count}) => 'Đã chèn ${count}';
 	@override String get name => 'Biểu tượng cảm xúc';
 	@override String get size => 'Kích thước';
 	@override String get small => 'Nhỏ';
@@ -4816,6 +4826,7 @@ extension on TranslationsVi {
 			'common.agree' => 'Đồng ý',
 			'common.disagree' => 'Không đồng ý',
 			'common.agreeToRules' => 'Đồng ý với quy tắc',
+			'common.tapToReread' => 'Chạm để đọc lại',
 			'common.markdownSyntaxHelp' => 'Trợ giúp cú pháp Markdown',
 			'common.previewContent' => 'Xem trước nội dung',
 			'common.characterCount' => ({required Object current, required Object max}) => '${current}/${max}',
@@ -5117,9 +5128,9 @@ extension on TranslationsVi {
 			'settings.rewindTimeMustBeAPositiveInteger' => 'Thời gian tua lại phải là số nguyên dương.',
 			'settings.longPressPlaybackSpeed' => 'Tốc độ phát khi nhấn giữ',
 			'settings.longPressPlaybackSpeedMustBeAPositiveNumber' => 'Tốc độ phát khi nhấn giữ phải là số dương.',
-			'settings.defaultPlaybackSpeed' => 'Tốc độ phát mặc định',
 			_ => null,
 		} ?? switch (path) {
+			'settings.defaultPlaybackSpeed' => 'Tốc độ phát mặc định',
 			'settings.rememberPlaybackSpeed' => 'Ghi nhớ tốc độ phát',
 			'settings.rememberPlaybackSpeedDesc' => 'Khi bật, tốc độ bạn đặt trong trình phát sẽ được lưu làm mặc định và tự động áp dụng cho video mới.',
 			'settings.repeat' => 'Lặp lại',
@@ -5297,6 +5308,10 @@ extension on TranslationsVi {
 			'settings.enterSignature' => 'Nhập chữ ký',
 			'settings.editSignature' => 'Chỉnh sửa chữ ký',
 			'settings.signatureContent' => 'Nội dung chữ ký',
+			'settings.signaturePreview' => 'Xem trước',
+			'settings.signatureSampleBody' => 'Nội dung của bạn ở đây',
+			'settings.signatureNotSet' => 'Chưa đặt',
+			'settings.signatureRuleHint' => 'Chữ ký được thêm sau nội dung, ngăn cách bằng một đường kẻ ngang. Ứng dụng tự thêm đường kẻ — bạn chỉ cần viết dòng bên dưới.',
 			'settings.exportConfig' => 'Xuất cấu hình ứng dụng',
 			'settings.exportConfigDesc' => 'Xuất cài đặt và lịch sử (lịch sử duyệt web, tiến trình phát, yêu thích, v.v.) ra tệp để sao lưu hoặc chuyển sang thiết bị khác. Không bao gồm tác vụ tải xuống.',
 			'settings.importConfig' => 'Nhập cấu hình ứng dụng',
@@ -5627,13 +5642,13 @@ extension on TranslationsVi {
 			'settings.downloadSettings.testError' => 'Lỗi',
 			'settings.downloadSettings.testPath' => 'Đường dẫn kiểm tra',
 			'settings.downloadSettings.testBasePath' => 'Đường dẫn cơ sở',
+			_ => null,
+		} ?? switch (path) {
 			'settings.downloadSettings.testDirectoryCreation' => 'Tạo thư mục',
 			'settings.downloadSettings.testFileWriting' => 'Ghi tệp',
 			'settings.downloadSettings.testFileContent' => 'Nội dung tệp',
 			'settings.downloadSettings.checkingPathStatus' => 'Đang kiểm tra trạng thái đường dẫn...',
 			'settings.downloadSettings.unableToGetPathStatus' => 'Không lấy được trạng thái đường dẫn',
-			_ => null,
-		} ?? switch (path) {
 			'settings.downloadSettings.actualPathDifferentFromSelected' => 'Lưu ý: Đường dẫn thực tế khác với đường dẫn đã chọn',
 			'settings.downloadSettings.grantPermission' => 'Cấp quyền',
 			'settings.downloadSettings.fixIssue' => 'Khắc phục sự cố',
@@ -6081,6 +6096,9 @@ extension on TranslationsVi {
 			'markdown.separatorDescription' => 'Tạo đường phân cách bằng ba ký hiệu - trở lên',
 			'markdown.separatorSyntax' => '---',
 			'markdown.syntax' => 'Cú pháp',
+			'forum.attachQuote' => 'Đính kèm trích dẫn',
+			'forum.replyToFloor' => ({required Object floor, required Object username}) => 'Trả lời #${floor} @${username}',
+			'forum.removeQuote' => 'Xóa trích dẫn',
 			'forum.recent' => 'Gần đây',
 			'forum.category' => 'Danh mục',
 			'forum.lastReply' => 'Trả lời gần nhất',
@@ -6138,6 +6156,8 @@ extension on TranslationsVi {
 			'forum.leafDescriptions.requests_zh' => 'Đăng yêu cầu của bạn',
 			'forum.leafDescriptions.support_zh' => 'Giúp giải quyết các vấn đề liên quan tới trang web',
 			'forum.leafDescriptions.general_ja' => 'Thảo luận mọi chủ đề',
+			_ => null,
+		} ?? switch (path) {
 			'forum.leafDescriptions.questions_ja' => 'Đặt câu hỏi của bạn',
 			'forum.leafDescriptions.requests_ja' => 'Đăng yêu cầu của bạn',
 			'forum.leafDescriptions.support_ja' => 'Giúp giải quyết các vấn đề liên quan tới trang web',
@@ -6146,8 +6166,6 @@ extension on TranslationsVi {
 			'forum.reply' => 'Trả lời',
 			'forum.pendingReview' => 'Đang chờ duyệt',
 			'forum.editedAt' => 'Chỉnh sửa lúc',
-			_ => null,
-		} ?? switch (path) {
 			'forum.copySuccess' => 'Đã sao chép vào clipboard',
 			'forum.copySuccessForMessage' => ({required Object str}) => 'Đã sao chép vào clipboard: ${str}',
 			'forum.editReply' => 'Chỉnh sửa trả lời',
@@ -6652,6 +6670,8 @@ extension on TranslationsVi {
 			'download.location.useThisLocation' => 'Use this location',
 			'download.location.locationChanged' => 'Download location changed',
 			'download.location.manualTitle' => 'Enter path manually',
+			_ => null,
+		} ?? switch (path) {
 			'download.location.manualLabel' => 'Folder path',
 			'download.location.manualHint' => 'e.g. /storage/emulated/0/Download/LoveIwara',
 			'download.location.manualSubmit' => 'Check and use',
@@ -6660,8 +6680,6 @@ extension on TranslationsVi {
 			'download.location.fixStillFailing' => 'This location still cannot be used. Choose another one.',
 			'download.location.fixed' => 'The location works again',
 			'download.maxConcurrentDownloads' => 'Số tải xuống đồng thời tối đa',
-			_ => null,
-		} ?? switch (path) {
 			'download.maxConcurrentDownloadsDesc' => 'Số tác vụ tải xuống cùng lúc (1-5)',
 			'download.stillInDevelopment' => 'Vẫn đang phát triển',
 			'download.saveToAppDirectory' => 'Lưu vào thư mục ứng dụng',
@@ -7166,6 +7184,8 @@ extension on TranslationsVi {
 			'linkInputDialog.multipleLinksDetected' => 'Phát hiện nhiều liên kết, vui lòng chọn một:',
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => 'Không phải liên kết ${webName} hợp lệ',
 			'linkInputDialog.linkParseError' => ({required Object error}) => 'Lỗi phân tích liên kết: ${error}',
+			_ => null,
+		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogTitle' => 'Liên kết không được hỗ trợ',
 			'linkInputDialog.unsupportedLinkDialogContent' => 'Loại liên kết này không thể mở trực tiếp trong ứng dụng và cần truy cập bằng trình duyệt bên ngoài.\n\nBạn có muốn mở liên kết này trong trình duyệt không?',
 			'linkInputDialog.openInBrowser' => 'Mở trong trình duyệt',
@@ -7174,8 +7194,6 @@ extension on TranslationsVi {
 			'linkInputDialog.confirmContinueBrowserOpen' => 'Bạn có chắc muốn tiếp tục?',
 			'linkInputDialog.browserOpenFailed' => 'Mở liên kết thất bại',
 			'linkInputDialog.unsupportedLink' => 'Liên kết không được hỗ trợ',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.cancel' => 'Hủy',
 			'linkInputDialog.confirm' => 'Mở trong trình duyệt',
 			'log.logManagement' => 'Quản lý nhật ký',
@@ -7232,6 +7250,8 @@ extension on TranslationsVi {
 			'log.newSizeLimit' => ({required Object size}) => 'Giới hạn kích thước mới: ${size}',
 			'log.confirmToContinue' => 'Xác nhận để tiếp tục',
 			'log.logSizeLimitSetSuccess' => ({required Object size}) => 'Đã đặt giới hạn kích thước nhật ký thành ${size}',
+			'emoji.recentlyUsed' => 'Gần đây',
+			'emoji.insertedCount' => ({required Object count}) => 'Đã chèn ${count}',
 			'emoji.name' => 'Biểu tượng cảm xúc',
 			'emoji.size' => 'Kích thước',
 			'emoji.small' => 'Nhỏ',
@@ -7678,6 +7698,8 @@ extension on TranslationsVi {
 			'vrFormat.flatSideBySideDesc' => 'Mỗi mắt một nửa, trái và phải; hiển thị mắt trái và khôi phục tỉ lệ khung hình',
 			'vrFormat.flatTopBottom' => '3D trên dưới',
 			'vrFormat.flatTopBottomDesc' => 'Mỗi mắt một nửa, trên và dưới; hiển thị nửa trên và khôi phục tỉ lệ khung hình',
+			_ => null,
+		} ?? switch (path) {
 			'vrFormat.vr180SideBySide' => 'VR180 cạnh nhau',
 			'vrFormat.vr180SideBySideDesc' => 'Toàn cảnh bán cầu với cả hai mắt — nguồn VR phổ biến nhất',
 			'vrFormat.vr180Mono' => 'VR180 mono',
@@ -7688,8 +7710,6 @@ extension on TranslationsVi {
 			'vrFormat.vr360TopBottomDesc' => 'Toàn cảnh bao quanh đầy đủ với cả hai mắt xếp chồng',
 			'vrFormat.resetView' => 'Đặt lại tầm nhìn',
 			'vrFormat.resetViewDesc' => 'Đưa hướng nhìn và trường nhìn về phía trước',
-			_ => null,
-		} ?? switch (path) {
 			'vrFormat.resetToAuto' => 'Quay lại tự động phát hiện',
 			'vrFormat.resetToAutoDesc' => 'Quên lựa chọn thủ công cho video này và để tính năng phát hiện quyết định lại',
 			'vrFormat.manualBadge' => 'Đặt thủ công',
