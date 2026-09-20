@@ -11,14 +11,13 @@ import 'package:i_iwara/app/models/user.model.dart';
 
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/post_service.dart';
-import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/user_preference_service.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/author_profile_skeleton_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_image_model_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_post_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_video_tab_list_widget.dart';
 import 'package:i_iwara/app/ui/pages/author_profile/widgets/profile_playlist_tab_list_widget.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_list_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
@@ -44,7 +43,6 @@ import 'package:i_iwara/utils/image_utils.dart';
 import '../../../../common/constants.dart';
 import '../../../services/user_service.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
-import '../comment/widgets/comment_section_widget.dart';
 import '../popular_media_list/widgets/media_description_widget.dart';
 import 'controllers/authro_profile_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -386,10 +384,8 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
           group: false,
           child: ValueListenableBuilder<bool>(
             valueListenable: _showBackToTop,
-            builder: (context, visible, _) => ScrollToTopFab(
-              visible: visible,
-              onPressed: _scrollToTop,
-            ),
+            builder: (context, visible, _) =>
+                ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
           ),
         ),
       ),
@@ -431,124 +427,10 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
   }
 
   void showCommentModal(BuildContext context) {
-    final t = slang.Translations.of(context);
-    showGlassDraggableBottomSheet(
+    showCommentListBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return GlassDraggableBottomSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.2,
-          maxChildSize: 0.92,
-          snap: true,
-          builder: (context, scrollController) {
-            return Column(
-              children: [
-                // 顶部标题栏
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        t.common.commentList,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      // 排序 / 发评论合成一只玻璃胶囊
-                      GlassButtonGroup(
-                        children: [
-                          Obx(
-                            () => GlassIconButton(
-                              icon: Icon(
-                                profileController
-                                        .commentController
-                                        .sortOrder
-                                        .value
-                                    ? Icons
-                                          .arrow_downward_rounded // 倒序图标
-                                    : Icons.arrow_upward_rounded, // 正序图标
-                              ),
-                              tooltip:
-                                  profileController
-                                      .commentController
-                                      .sortOrder
-                                      .value
-                                  ? t.common.createTimeDesc
-                                  : t.common.createTimeAsc,
-                              onPressed: profileController
-                                  .commentController
-                                  .toggleSortOrder,
-                            ),
-                          ),
-                          // 添加评论按钮
-                          GlassIconButton(
-                            icon: const Icon(Icons.add_comment),
-                            tooltip: t.common.sendComment,
-                            onPressed: () {
-                              showGlassBottomSheet(
-                                context: context,
-                                builder: (context) => CommentInputBottomSheet(
-                                  title: t.common.sendComment,
-                                  submitText: t.common.send,
-                                  onSubmit: (text) async {
-                                    if (text.trim().isEmpty) {
-                                      showAppToast(
-                                        t.errors.commentCanNotBeEmpty,
-                                        type: AppToastType.error,
-                                        position: AppToastPosition.bottom,
-                                      );
-                                      return;
-                                    }
-                                    final UserService userService = Get.find();
-                                    if (!userService.isAuthenticated) {
-                                      showAppToast(
-                                        t.errors.pleaseLoginFirst,
-                                        type: AppToastType.error,
-                                        position: AppToastPosition.bottom,
-                                      );
-                                      LoginService.showLogin();
-                                      return;
-                                    }
-                                    await profileController.commentController
-                                        .postComment(text);
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      // 关闭按钮：弹层关闭键一律玻璃圆钮
-                      GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.close),
-                        tooltip: t.common.close,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
-                // 评论列表
-                Expanded(
-                  child: Obx(
-                    () => CommentSection(
-                      controller: profileController.commentController,
-                      authorUserId: profileController.author.value?.id,
-                      scrollController: scrollController,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      controller: profileController.commentController,
+      authorUserId: profileController.author.value?.id,
     );
   }
 
@@ -756,13 +638,18 @@ class _AuthorProfilePageState extends State<AuthorProfilePage>
                             MenuItem(
                               title: t.download.saveToAppDirectory,
                               icon: Icons.save,
-                              onTap: () => ImageUtils.downloadImageToAppDirectory(
-                                item,
-                                authorId: profileController.author.value?.id,
-                                authorName: profileController.author.value?.name,
-                                authorUsername:
-                                    profileController.author.value?.username,
-                              ),
+                              onTap: () =>
+                                  ImageUtils.downloadImageToAppDirectory(
+                                    item,
+                                    authorId:
+                                        profileController.author.value?.id,
+                                    authorName:
+                                        profileController.author.value?.name,
+                                    authorUsername: profileController
+                                        .author
+                                        .value
+                                        ?.username,
+                                  ),
                             ),
                           ];
                           pushPhotoViewWrapperOverlay(

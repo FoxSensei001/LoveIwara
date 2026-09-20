@@ -13,22 +13,18 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/services/login_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_list_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/tabs/shared_ui_constants.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
 import 'package:i_iwara/app/ui/widgets/follow_button_widget.dart';
-import 'package:i_iwara/app/ui/widgets/glass/glass_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_header_overlay.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_adaptive_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_segmented_control.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/app/ui/widgets/translatable_title.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
@@ -43,7 +39,6 @@ import '../../../../app/utils/layout_calculator.dart';
 import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
-import '../comment/widgets/comment_section_widget.dart';
 import '../popular_media_list/widgets/image_model_card_list_item_widget.dart';
 import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
@@ -247,6 +242,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         ),
       );
     }
+
     final current = detailController.imageModelInfo.value;
     if (current != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) => present(current));
@@ -452,10 +448,8 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }
@@ -547,116 +541,10 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
   }
 
   void showCommentModal(BuildContext context) {
-    showGlassDraggableBottomSheet(
+    showCommentListBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return GlassDraggableBottomSheet(
-          initialChildSize: 0.75,
-          minChildSize: 0.2,
-          maxChildSize: 0.92,
-          snap: true,
-          builder: (context, scrollController) {
-            return Column(
-              children: [
-                // 顶部标题栏
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        slang.t.common.commentList,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      // 排序 / 发评论合成一只玻璃胶囊
-                      GlassButtonGroup(
-                        children: [
-                          Obx(
-                            () => GlassIconButton(
-                              onPressed: () {
-                                commentController.toggleSortOrder();
-                              },
-                              icon: Icon(
-                                commentController.sortOrder.value
-                                    ? Icons
-                                          .arrow_downward_rounded // 倒序图标
-                                    : Icons.arrow_upward_rounded, // 正序图标
-                              ),
-                              tooltip: commentController.sortOrder.value
-                                  ? slang.t.common.createTimeDesc
-                                  : slang.t.common.createTimeAsc,
-                            ),
-                          ),
-                          // 添加评论按钮
-                          GlassIconButton(
-                            icon: const Icon(Icons.add_comment),
-                            tooltip: slang.t.common.sendComment,
-                            onPressed: () {
-                              showGlassBottomSheet(
-                                context: context,
-                                builder: (context) => CommentInputBottomSheet(
-                                  title: slang.t.common.sendComment,
-                                  submitText: slang.t.common.send,
-                                  onSubmit: (text) async {
-                                    if (text.trim().isEmpty) {
-                                      showAppToast(
-                                        slang.t.errors.commentCanNotBeEmpty,
-                                        type: AppToastType.error,
-                                        position: AppToastPosition.bottom,
-                                      );
-                                      return;
-                                    }
-                                    final UserService userService = Get.find();
-                                    if (!userService.isAuthenticated) {
-                                      showAppToast(
-                                        slang.t.errors.pleaseLoginFirst,
-                                        type: AppToastType.error,
-                                        position: AppToastPosition.bottom,
-                                      );
-                                      LoginService.showLogin();
-                                      return;
-                                    }
-                                    await commentController.postComment(text);
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      // 关闭按钮：弹层关闭键一律玻璃圆钮
-                      GlassIconButton(
-                        standalone: true,
-                        icon: const Icon(Icons.close),
-                        tooltip: slang.t.common.close,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                ),
-                // 评论列表
-                Expanded(
-                  child: Obx(
-                    () => CommentSection(
-                      controller: commentController,
-                      authorUserId:
-                          detailController.imageModelInfo.value?.user?.id,
-                      scrollController: scrollController,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      controller: commentController,
+      authorUserId: detailController.imageModelInfo.value?.user?.id,
     );
   }
 

@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/ui/widgets/glass/edge_fade_scrim.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_measured_box.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
@@ -130,7 +133,10 @@ class GlassBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (maxHeightFactor != null) Flexible(child: paddedBody) else paddedBody,
+        if (maxHeightFactor != null)
+          Flexible(child: paddedBody)
+        else
+          paddedBody,
       ],
     );
 
@@ -281,7 +287,14 @@ class GlassDraggableBottomSheet extends StatelessWidget {
     this.minChildSize = 0.3,
     this.maxChildSize = 0.92,
     this.snap = false,
+    this.handleOverContent = false,
   });
+
+  /// 拖拽条那一条占的总高：上留白 8 + 条 4 + 下留白 4。
+  ///
+  /// [handleOverContent] 为真时，它就是内容顶上要让出的第一段，也是顶部蒙层
+  /// 的平台段（恒定不透明那一截，角色等同页面档的状态栏）。
+  static const double dragHandleExtent = 16;
 
   /// 内容构建器，`scrollController` 必须接到正文的可滚动组件上。
   final Widget Function(BuildContext context, ScrollController scrollController)
@@ -294,6 +307,35 @@ class GlassDraggableBottomSheet extends StatelessWidget {
   /// 拖拽松手后是否吸附到 [DraggableScrollableSheet] 的 snap 位置。
   final bool snap;
 
+  /// 拖拽条改成**浮在内容之上**的一层，内容铺到它背后。
+  ///
+  /// 默认 false：拖拽条独占一行，内容从它下面开始（普通弹层的样子）。
+  ///
+  /// [GlassFloatingHeaderSheet] 这类「内容从 header 背后滚过去」的弹层必须传
+  /// true——否则拖拽条那一条既没有蒙层也没有内容经过，看上去是块从弹层里独立
+  /// 出来的空带子（2026-09-20 用户报障）。
+  final bool handleOverContent;
+
+  Widget _buildHandle(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 8),
+        Container(
+          width: 36,
+          height: 4,
+          decoration: BoxDecoration(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(height: 4),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -305,39 +347,229 @@ class GlassDraggableBottomSheet extends StatelessWidget {
       // 同 [_GlassBottomSheetShell]：只给内容接液态，壳自己的 GlassSurface
       // 留在 LiquidGlassScope 之外，面板背景保持原样；底部安全区也同样让在
       // Material **里面**（壳外面套 Padding 的话，导航条那条带只剩弹层遮罩）。
-      builder: (context, scrollController) => Material(
-        // 同 [_GlassBottomSheetShell]：走 [GlassTokens.sheetFill]，
-        // 既要与页面背景（surface）拉开，也要与弹层里的玻璃卡片
-        // （[GlassTokens.fill]）拉开，理由见该 token 注释。
-        color: GlassTokens.sheetFill(Theme.of(context).colorScheme),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 4),
-            // 同上：液态档由 [showGlassDraggableBottomSheet] 在路由层供。
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: computeSheetBottomInset(context),
+      builder: (context, scrollController) {
+        // 同上：液态档由 [showGlassDraggableBottomSheet] 在路由层供。
+        final Widget content = Padding(
+          padding: EdgeInsets.only(bottom: computeSheetBottomInset(context)),
+          child: builder(context, scrollController),
+        );
+        return Material(
+          // 同 [_GlassBottomSheetShell]：走 [GlassTokens.sheetFill]，
+          // 既要与页面背景（surface）拉开，也要与弹层里的玻璃卡片
+          // （[GlassTokens.fill]）拉开，理由见该 token 注释。
+          color: GlassTokens.sheetFill(Theme.of(context).colorScheme),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          clipBehavior: Clip.antiAlias,
+          child: handleOverContent
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned.fill(child: content),
+                    // 拖拽条画在最上层：它身下是内容与蒙层，滚动时内容从它背后
+                    // 经过。IgnorePointer 让这一截照常能滑动列表 / 拖拽弹层。
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: IgnorePointer(child: _buildHandle(context)),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildHandle(context),
+                    Expanded(child: content),
+                  ],
                 ),
-                child: builder(context, scrollController),
+        );
+      },
+    );
+  }
+}
+
+/// 标题行**浮在内容之上**的可拖拽弹层（[GlassDraggableBottomSheet] 的收口变体）。
+///
+/// # 为什么要有这个收口点
+///
+/// [GlassDraggableBottomSheet] 只收口了「壳」，标题行留给各调用点自己写，于是
+/// 评论弹窗那一族（作者页 / 投稿详情 / 图库详情 / 子回复）各抄了一份
+/// `Column[标题 Row, Expanded(列表)]`：标题行与列表**上下分家**，投稿页还自己
+/// 补了一条 `Divider` 当分界，另外三处连分界都没有——同一个弹窗四种长相，而
+/// 且全都不是液态玻璃改造要的那个样子（内容从玻璃标题行**背后**滚过去）。
+///
+/// 这里把页面档的 [GlassHeaderOverlay] / 弹窗档的 [GlassPickerDialog] 那一套
+/// 搬进可拖拽弹层：
+///
+/// - 内容铺满整块（含拖拽条背后那一截，见
+///   [GlassDraggableBottomSheet.handleOverContent]），用 [bodyBuilder] 收到的
+///   `headerExtent` 当 `padding.top` 让出首屏位置（**不要**在外面套 `Padding`，
+///   否则内容滚不到标题行背后）；
+/// - 标题行与内容之间只有一层 [EdgeFadeScrim]，配方与「接着看」抽屉
+///   （[GlassSideDrawerShell]）**逐字相同**：平台段只盖顶上那一小截
+///   （抽屉是状态栏，弹层是拖拽条），整条标题行都在 smoothstep 的淡出段里。
+///   ⛔ 别把平台段设成整行标题的高度——那样 header 每一行的不透明度完全一样，
+///   渐变只发生在 header 之外那十几像素里，观感就是硬切了一刀（见 EdgeFadeScrim
+///   文档里 2026-08-26 的那次报障）；
+/// - 标题行高度**实测**（[GlassMeasuredBox]），字号放大 / 换语言 / 加减动作钮
+///   都不用回来改常数（成因见 [GlassPickerDialog] 类文档）。
+class GlassFloatingHeaderSheet extends StatefulWidget {
+  const GlassFloatingHeaderSheet({
+    super.key,
+    required this.title,
+    required this.bodyBuilder,
+    this.leading,
+    this.actions = const <Widget>[],
+    this.showCloseButton = true,
+    this.onClose,
+    this.initialChildSize = 0.75,
+    this.minChildSize = 0.2,
+    this.maxChildSize = 0.92,
+    this.snap = true,
+  });
+
+  /// 标题行横向留白——内容区也用这个数，别一处 8 一处 16。
+  static const double hPadding = 16;
+
+  /// 标题行上方 / 下方留白。上方那一段从拖拽条底缘算起，所以比
+  /// [GlassPickerDialog.titleTopPadding] 收一档。
+  static const double titleTopPadding = 8;
+  static const double titleBottomGap = 4;
+
+  /// 标题行底缘与内容首屏之间的呼吸位——这一段必须真的空出来。
+  static const double tailSpacing = 8;
+
+  final String title;
+
+  /// 标题文字左边的小图标（子回复弹层用）。
+  final Widget? leading;
+
+  /// 标题行右侧、关闭钮左边的动作件（玻璃圆钮 / 玻璃胶囊组），按 8 的间距排开
+  /// ——8 是 [GlassTokens.chromeBlend] 标定的「刚好不粘连、拖近才融合」的距离。
+  final List<Widget> actions;
+
+  final bool showCloseButton;
+
+  /// 关闭钮动作，默认 pop 掉本弹层。
+  final VoidCallback? onClose;
+
+  /// 内容构建器。`scrollController` 必须接到内容的可滚动组件上（同
+  /// [GlassDraggableBottomSheet]）；`headerExtent` 是**实测**的顶部总高
+  /// （拖拽条 + 标题行 + [tailSpacing]），直接当滚动视图的 `padding.top` 用。
+  final Widget Function(
+    BuildContext context,
+    ScrollController scrollController,
+    double headerExtent,
+  )
+  bodyBuilder;
+
+  final double initialChildSize;
+  final double minChildSize;
+  final double maxChildSize;
+  final bool snap;
+
+  @override
+  State<GlassFloatingHeaderSheet> createState() =>
+      _GlassFloatingHeaderSheetState();
+}
+
+class _GlassFloatingHeaderSheetState extends State<GlassFloatingHeaderSheet> {
+  /// 首帧用预估值，布局跑完立刻换成实测值（默认字号下两者相等，看不到跳变）。
+  late double _titleRowHeight = _estimatedTitleRowHeight;
+
+  double get _estimatedTitleRowHeight =>
+      GlassFloatingHeaderSheet.titleTopPadding +
+      GlassTokens.pillHeight +
+      GlassFloatingHeaderSheet.titleBottomGap;
+
+  void _onTitleRowMeasured(Size size) {
+    if ((size.height - _titleRowHeight).abs() < 0.5) return;
+    setState(() => _titleRowHeight = size.height);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = slang.Translations.of(context);
+    final theme = Theme.of(context);
+    // 顶部三段：拖拽条 / 标题行 / 呼吸位。内容从最上面就开始铺，整段都是它
+    // 要让出的 padding.top。
+    const double handleExtent = GlassDraggableBottomSheet.dragHandleExtent;
+    final double headerExtent =
+        handleExtent + _titleRowHeight + GlassFloatingHeaderSheet.tailSpacing;
+
+    return GlassDraggableBottomSheet(
+      initialChildSize: widget.initialChildSize,
+      minChildSize: widget.minChildSize,
+      maxChildSize: widget.maxChildSize,
+      snap: widget.snap,
+      // 拖拽条浮在内容之上：内容与蒙层都要铺到它背后，否则那一条是块独立空带。
+      handleOverContent: true,
+      builder: (context, scrollController) => Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(
+            child: widget.bodyBuilder(context, scrollController, headerExtent),
+          ),
+          // 平台段只盖拖拽条那一小截（角色同「接着看」抽屉里的状态栏），整条
+          // 标题行连同伸进内容区的尾巴都在 smoothstep 的淡出段里。
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: EdgeFadeScrim.headerOverlay(
+              headerExtent: headerExtent,
+              plateauExtent: handleExtent,
+            ),
+          ),
+          Positioned(
+            top: handleExtent,
+            left: 0,
+            right: 0,
+            child: GlassMeasuredBox(
+              onSize: _onTitleRowMeasured,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  GlassFloatingHeaderSheet.hPadding,
+                  GlassFloatingHeaderSheet.titleTopPadding,
+                  GlassFloatingHeaderSheet.hPadding,
+                  GlassFloatingHeaderSheet.titleBottomGap,
+                ),
+                child: Row(
+                  children: [
+                    if (widget.leading != null) ...[
+                      widget.leading!,
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        widget.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    for (final action in widget.actions) ...[
+                      const SizedBox(width: 8),
+                      action,
+                    ],
+                    if (widget.showCloseButton) ...[
+                      const SizedBox(width: 8),
+                      GlassIconButton(
+                        standalone: true,
+                        icon: const Icon(Icons.close),
+                        tooltip: t.common.close,
+                        onPressed:
+                            widget.onClose ?? () => Navigator.pop(context),
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

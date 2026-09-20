@@ -17,6 +17,9 @@ class MarkdownTranslationController {
   final Rxn<String> rawTranslatedText = Rxn<String>(); // 存储未格式化的翻译文本
   final RxBool isTranslationComplete = false.obs; // 标记翻译是否完成
 
+  // 翻译失败标记：失败时 translatedText 里装的是具体报错，不是译文
+  final RxBool isTranslationFailed = false.obs;
+
   // 推理模型的思考过程（仅推理模型流式翻译时有值）
   final Rxn<String> reasoningText = Rxn<String>();
   bool get hasReasoning => (reasoningText.value?.isNotEmpty ?? false);
@@ -53,6 +56,7 @@ class MarkdownTranslationController {
 
     isTranslating.value = true;
     isTranslationComplete.value = false;
+    isTranslationFailed.value = false;
     rawTranslatedText.value = null;
     translatedText.value = null;
     reasoningText.value = null;
@@ -98,11 +102,7 @@ class MarkdownTranslationController {
             tag: 'MarkdownTranslationController',
             error: error,
           );
-          rawTranslatedText.value =
-              slang.t.common.translateFailedPleaseTryAgainLater;
-          translatedText.value = rawTranslatedText.value;
-          isTranslating.value = false;
-          isTranslationComplete.value = true;
+          _failWith(_describeStreamError(error));
         },
         onDone: () {
           LogUtils.i('流式翻译完成', 'MarkdownTranslationController');
@@ -137,19 +137,32 @@ class MarkdownTranslationController {
         '翻译失败: ${result.message}',
         tag: 'MarkdownTranslationController',
       );
-      rawTranslatedText.value =
-          slang.t.common.translateFailedPleaseTryAgainLater;
-      translatedText.value = rawTranslatedText.value;
-      isTranslating.value = false;
-      isTranslationComplete.value = true;
+      _failWith(result.message);
     }
+  }
+
+  /// 统一的失败落地：把具体报错当成「译文」显示，并打上失败标记
+  void _failWith(String message) {
+    final text = message.trim().isEmpty
+        ? slang.t.common.translateFailedPleaseTryAgainLater
+        : message.trim();
+    rawTranslatedText.value = text;
+    translatedText.value = text;
+    isTranslationFailed.value = true;
+    isTranslating.value = false;
+    isTranslationComplete.value = true;
+  }
+
+  /// 流里的错误既可能是服务已经拼好的文案，也可能是裸异常
+  String _describeStreamError(Object? error) {
+    if (error == null) return slang.t.common.translateFailedPleaseTryAgainLater;
+    if (error is String) return error;
+    return error.toString();
   }
 
   // 处理翻译文本的格式化
   Future<void> _processTranslatedText() async {
-    if (rawTranslatedText.value == null ||
-        rawTranslatedText.value ==
-            slang.t.common.translateFailedPleaseTryAgainLater) {
+    if (rawTranslatedText.value == null || isTranslationFailed.value) {
       isTranslating.value = false;
       isTranslationComplete.value = true;
       return;
@@ -182,6 +195,7 @@ class MarkdownTranslationController {
     rawTranslatedText.value = null;
     reasoningText.value = null;
     isTranslationComplete.value = false;
+    isTranslationFailed.value = false;
   }
 
   void dispose() {

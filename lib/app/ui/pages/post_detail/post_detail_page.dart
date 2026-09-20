@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:i_iwara/app/services/login_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
-import 'package:i_iwara/app/services/user_service.dart';
-import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
+import 'package:i_iwara/app/ui/pages/comment/widgets/comment_list_bottom_sheet.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
 import 'package:i_iwara/app/ui/pages/post_detail/widgets/post_detail_content_widget.dart';
@@ -15,14 +13,12 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_title_pill.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
-import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/empty_widget.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 import '../../widgets/error_widget.dart';
 import '../comment/controllers/comment_controller.dart';
 import '../comment/widgets/comment_entry_area_widget.dart';
-import '../comment/widgets/comment_section_widget.dart';
 import 'controllers/post_detail_controller.dart';
 import 'widgets/post_detail_shimmer.dart';
 import '../../widgets/iwara_site_badge.dart';
@@ -92,119 +88,11 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   void showCommentModal(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
     detailController.isCommentSheetVisible.value = true;
-    showGlassDraggableBottomSheet(
+    showCommentListBottomSheet(
       context: context,
-      builder: (BuildContext context) {
-        return GlassDraggableBottomSheet(
-          initialChildSize: isSmallScreen ? 0.88 : 0.8,
-          minChildSize: 0.25,
-          maxChildSize: 0.95,
-          builder: (context, scrollController) {
-            final theme = Theme.of(context);
-            return Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    isSmallScreen ? 12 : 16,
-                    4,
-                    isSmallScreen ? 12 : 16,
-                    8,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          slang.t.common.commentList,
-                          style: TextStyle(
-                            fontSize: isSmallScreen ? 16 : 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      // 排序 / 发评论 / 关闭进同一只玻璃动作胶囊
-                      GlassButtonGroup(
-                        children: [
-                          Obx(
-                            () => GlassIconButton(
-                              icon: Icon(
-                                commentController.sortOrder.value
-                                    ? Icons.arrow_downward_rounded
-                                    : Icons.arrow_upward_rounded,
-                              ),
-                              tooltip: commentController.sortOrder.value
-                                  ? slang.t.common.createTimeDesc
-                                  : slang.t.common.createTimeAsc,
-                              onPressed: commentController.toggleSortOrder,
-                            ),
-                          ),
-                          GlassIconButton(
-                            icon: const Icon(Icons.add_comment),
-                            tooltip: slang.t.common.sendComment,
-                            onPressed: () {
-                              showGlassBottomSheet(
-                                context: context,
-                                builder: (context) => CommentInputBottomSheet(
-                                  title: slang.t.common.sendComment,
-                                  submitText: slang.t.common.send,
-                                  onSubmit: (text) async {
-                                    if (text.trim().isEmpty) {
-                                      showAppToast(
-                                        slang.t.errors.commentCanNotBeEmpty,
-                                        type: AppToastType.error,
-                                      );
-                                      return;
-                                    }
-                                    final UserService userService = Get.find();
-                                    if (!userService.isAuthenticated) {
-                                      showAppToast(
-                                        slang.t.errors.pleaseLoginFirst,
-                                        type: AppToastType.error,
-                                      );
-                                      LoginService.showLogin();
-                                      return;
-                                    }
-                                    await commentController.postComment(text);
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                          GlassIconButton(
-                            icon: const Icon(Icons.close),
-                            tooltip: slang.t.common.close,
-                            onPressed: () {
-                              detailController.isCommentSheetVisible.value =
-                                  false;
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(
-                  height: 1,
-                  color: theme.colorScheme.outlineVariant.withValues(
-                    alpha: 0.4,
-                  ),
-                ),
-                Expanded(
-                  child: Obx(
-                    () => CommentSection(
-                      controller: commentController,
-                      authorUserId: detailController.postInfo.value?.user.id,
-                      scrollController: scrollController,
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      controller: commentController,
+      authorUserId: detailController.postInfo.value?.user.id,
     ).whenComplete(() {
       detailController.isCommentSheetVisible.value = false;
     });
@@ -285,10 +173,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
       bottom: MediaQuery.paddingOf(context).bottom + 16,
       child: ValueListenableBuilder<bool>(
         valueListenable: _showBackToTop,
-        builder: (context, visible, _) => ScrollToTopFab(
-          visible: visible,
-          onPressed: _scrollToTop,
-        ),
+        builder: (context, visible, _) =>
+            ScrollToTopFab(visible: visible, onPressed: _scrollToTop),
       ),
     );
   }

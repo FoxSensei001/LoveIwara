@@ -61,6 +61,60 @@ class TranslationService extends GetxService {
     return targetLanguage ?? _configService.currentTranslationLanguage;
   }
 
+  // 错误描述 ---------------------------
+
+  /// 把异常拍平成一句「人能看懂、且能据此改配置」的具体原因。
+  ///
+  /// dio 的异常默认 toString() 很长且把关键信息（状态码、服务端回包）埋在中间，
+  /// 这里统一抽成 `类型 / HTTP 状态 / 回包片段` 三段，供 UI 直接展示。
+  String _describeError(Object e) {
+    if (e is DioException) {
+      final parts = <String>[];
+      final status = e.response?.statusCode;
+      if (status != null) {
+        parts.add('HTTP $status');
+      }
+      // 直接用 dio 的类型名（connectionError / receiveTimeout ...）：
+      // 与语言无关，也方便用户把原文贴给开发者
+      if (e.type != DioExceptionType.badResponse &&
+          e.type != DioExceptionType.unknown) {
+        parts.add(e.type.name);
+      }
+      final body = _stringifyBody(e.response?.data);
+      if (body.isNotEmpty) {
+        parts.add(body);
+      } else {
+        final msg = e.message?.trim();
+        if (msg != null && msg.isNotEmpty) parts.add(msg);
+        final inner = e.error;
+        if (inner != null) parts.add(inner.toString());
+      }
+      return _truncate(parts.join(' | '));
+    }
+    return _truncate(e.toString());
+  }
+
+  /// 把服务端回包转成一行可读文本（对象走 json，长文本截断）
+  String _stringifyBody(dynamic data) {
+    if (data == null) return '';
+    try {
+      final text = data is String ? data : jsonEncode(data);
+      return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    } catch (_) {
+      return data.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+    }
+  }
+
+  String _truncate(String text, {int max = 400}) {
+    final trimmed = text.trim();
+    if (trimmed.length <= max) return trimmed;
+    return '${trimmed.substring(0, max)}…';
+  }
+
+  /// 统一的失败文案：`失败原因前缀: 具体细节`
+  String _failMessage(String prefix, Object error) =>
+      '$prefix: ${_describeError(error)}';
+
   // AI 适配层（dartantic_ai）---------------------------
 
   /// 把 `[TL]` 占位替换为目标语言，得到最终系统提示词。
@@ -105,7 +159,8 @@ class TranslationService extends GetxService {
     final provider = _buildProvider(providerId, apiKey, baseUrl);
 
     // 仅 anthropic / google 支持 dartantic 的 thinking；openai(兼容) 端点开启会抛错
-    final supportsThinking = providerId == 'anthropic' || providerId == 'google';
+    final supportsThinking =
+        providerId == 'anthropic' || providerId == 'google';
     final enableThinking = reasoning && supportsThinking;
 
     // 推理模型通常不接受自定义 temperature
@@ -129,15 +184,18 @@ class TranslationService extends GetxService {
 
   /// 基于当前配置构造 Agent
   Agent _buildAgent() => _buildAgentFrom(
-    providerId: _getConfig<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? 'openai',
+    providerId:
+        _getConfig<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? 'openai',
     apiKey: _getConfig<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '',
     baseUrl: _getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
     model: _getConfig<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
-    reasoning: _getConfig<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
+    reasoning:
+        _getConfig<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
     sendTemperature:
         _getConfig<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
     maxTokens: _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
-    temperature: _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
+    temperature:
+        _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
   );
 
   // 翻译核心方法 ---------------------------
@@ -206,7 +264,10 @@ class TranslationService extends GetxService {
         tag: 'TranslationService',
         error: e,
       );
-      return ApiResult.fail(t.errors.failedToOperate);
+      return ApiResult.fail(
+        _failMessage(slang.t.translation.translationFailed, e),
+        exception: e,
+      );
     }
   }
 
@@ -355,8 +416,32 @@ class TranslationService extends GetxService {
         tag: 'TranslationService',
         error: e,
       );
-      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      return ApiResult.fail(
+        _failMessage(slang.t.translation.aiTranslationFailed, e) +
+            _aiConfigHint(),
+        exception: e,
+      );
     }
+  }
+
+  /// AI 翻译失败时附一句配置自查提示。
+  ///
+  /// 不做前置拦截：空模型名是「用服务端默认模型」的合法配置，
+  /// 本地端点也可能不需要密钥，拦下来反而会挡掉本来能用的配置。
+  String _aiConfigHint() {
+    final missing = <String>[];
+    if ((_getConfig<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '')
+        .trim()
+        .isEmpty) {
+      missing.add(slang.t.translation.apiKey);
+    }
+    if ((_getConfig<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '')
+        .trim()
+        .isEmpty) {
+      missing.add(slang.t.translation.modelName);
+    }
+    if (missing.isEmpty) return '';
+    return '\n(${slang.t.translation.notConfigured}: ${missing.join(' / ')})';
   }
 
   /// 使用DeepLX服务进行翻译
@@ -376,7 +461,10 @@ class TranslationService extends GetxService {
       final dlSession = _getConfig<String>(ConfigKey.DEEPLX_DL_SESSION) ?? '';
 
       if (baseUrl.isEmpty) {
-        return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+        return ApiResult.fail(
+          '${slang.t.translation.deeplxTranslationFailed}: '
+          '${slang.t.translation.pleaseFillInDeepLXServerAddress}',
+        );
       }
 
       // 构建请求URL
@@ -432,7 +520,12 @@ class TranslationService extends GetxService {
       );
 
       if (response.statusCode != 200) {
-        return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+        return ApiResult.fail(
+          '${slang.t.translation.deeplxTranslationFailed}: '
+                  'HTTP ${response.statusCode} ${_stringifyBody(response.data)}'
+              .trim(),
+          code: response.statusCode ?? 500,
+        );
       }
 
       return _parseDeepLXResponse(response.data);
@@ -442,26 +535,42 @@ class TranslationService extends GetxService {
         tag: 'TranslationService',
         error: e,
       );
-      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      return ApiResult.fail(
+        _failMessage(slang.t.translation.deeplxTranslationFailed, e),
+        exception: e,
+      );
     }
   }
 
   /// 解析DeepLX响应数据
   ApiResult<String> _parseDeepLXResponse(dynamic data) {
+    final prefix = slang.t.translation.deeplxTranslationFailed;
+
     if (data is! Map<String, dynamic>) {
-      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      return ApiResult.fail(
+        '$prefix: ${slang.t.translation.invalidAPIResponseFormat} '
+        '(${_stringifyBody(data)})',
+      );
     }
 
     // 检查响应状态
     final code = data['code'] as int?;
     if (code != null && code != 200) {
-      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      final serverMessage = data['message'] ?? data['msg'];
+      return ApiResult.fail(
+        '$prefix: code $code'
+        '${serverMessage == null ? '' : ' - $serverMessage'}',
+        code: code,
+      );
     }
 
     // 获取翻译结果
     final translatedText = data['data'] as String?;
     if (translatedText == null || translatedText.isEmpty) {
-      return ApiResult.fail(t.errors.translationFailedPleaseTryAgainLater);
+      return ApiResult.fail(
+        '$prefix: ${slang.t.translation.translationServiceReturnedError} '
+        '(${_stringifyBody(data)})',
+      );
     }
 
     return ApiResult.success(message: '', data: translatedText);
@@ -513,7 +622,7 @@ class TranslationService extends GetxService {
       return ApiResult.success(
         data: AITestResult(
           custMessage: slang.t.translation.connectionFailedForMessage(
-            message: e.toString(),
+            message: _describeError(e),
           ),
           connectionValid: false,
         ),
@@ -599,7 +708,9 @@ class TranslationService extends GetxService {
         return ApiResult.success(
           code: response.statusCode ?? 500,
           data: AITestResult(
-            custMessage: 'HTTP ${response.statusCode}',
+            custMessage:
+                'HTTP ${response.statusCode} ${_stringifyBody(response.data)}'
+                    .trim(),
             connectionValid: false,
           ),
         );
@@ -646,7 +757,7 @@ class TranslationService extends GetxService {
       return ApiResult.success(
         data: AITestResult(
           custMessage:
-              '${slang.t.translation.connectionFailed}: ${e.toString()}',
+              '${slang.t.translation.connectionFailed}: ${_describeError(e)}',
           connectionValid: false,
         ),
       );
@@ -680,7 +791,7 @@ class TranslationService extends GetxService {
       return ApiResult.success(data: models, message: '');
     } catch (e) {
       LogUtils.e('fetch models failed', tag: 'TranslationService', error: e);
-      return ApiResult.fail(e.toString());
+      return ApiResult.fail(_describeError(e), exception: e);
     }
   }
 
@@ -771,7 +882,8 @@ class TranslationService extends GetxService {
     if (streamController != null && !streamController.isClosed) {
       if (isTimeout) {
         streamController.addError(
-          slang.t.translation.translationRequestTimeout,
+          '${slang.t.translation.translationRequestTimeout} '
+          '(${_streamTranslationTimeoutSeconds}s)',
         );
       }
       streamController.close();
@@ -818,7 +930,12 @@ class TranslationService extends GetxService {
                 slang.t.translation.streamingTranslationFailed,
                 error: e,
               );
-              _fallbackToNonStream(text, translationId, targetLanguage);
+              _fallbackToNonStream(
+                text,
+                translationId,
+                targetLanguage,
+                streamError: e,
+              );
             },
             onDone: () {
               // 正常结束：关闭流并清理（cleanup 不会重复关闭）
@@ -830,38 +947,65 @@ class TranslationService extends GetxService {
     } catch (e) {
       // 构造 Agent 阶段就失败（如缺少凭据）：直接降级
       LogUtils.e(slang.t.translation.streamingTranslationFailed, error: e);
-      await _fallbackToNonStream(text, translationId, targetLanguage);
+      await _fallbackToNonStream(
+        text,
+        translationId,
+        targetLanguage,
+        streamError: e,
+      );
     }
   }
 
   /// 流式失败时降级为普通翻译
+  ///
+  /// [streamError] 是流式阶段的原始异常：降级也失败时一并报出来，
+  /// 否则用户只看到降级那次的报错，看不到最先出问题的地方。
   Future<void> _fallbackToNonStream(
     String text,
     String translationId,
-    String? targetLanguage,
-  ) async {
+    String? targetLanguage, {
+    Object? streamError,
+  }) async {
     final streamController = _activeStreamTranslations[translationId];
     if (streamController == null || streamController.isClosed) {
       _cleanupTranslationResources(translationId);
       return;
     }
     try {
-      final result = await _translateWithAI(text, targetLanguage: targetLanguage);
+      final result = await _translateWithAI(
+        text,
+        targetLanguage: targetLanguage,
+      );
       if (!streamController.isClosed) {
         if (result.isSuccess && result.data != null) {
           streamController.add(result.data!);
         } else {
-          streamController.addError(result.message);
+          streamController.addError(
+            _withStreamError(result.message, streamError),
+          );
         }
       }
     } catch (e) {
       LogUtils.e(slang.t.translation.fallbackTranslationFailed, error: e);
       if (!streamController.isClosed) {
-        streamController.addError(e);
+        streamController.addError(
+          _withStreamError(
+            _failMessage(slang.t.translation.fallbackTranslationFailed, e),
+            streamError,
+          ),
+        );
       }
     } finally {
       _cleanupTranslationResources(translationId);
     }
+  }
+
+  /// 把流式阶段的原始异常附在降级失败信息后面
+  String _withStreamError(String message, Object? streamError) {
+    if (streamError == null) return message;
+    return '$message\n'
+        '${slang.t.translation.streamingTranslationFailed}: '
+        '${_describeError(streamError)}';
   }
 
   @override

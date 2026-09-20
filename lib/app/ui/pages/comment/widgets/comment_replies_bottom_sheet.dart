@@ -420,88 +420,53 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
 
-    // 外壳（玻璃材质 + 圆角 + 拖拽条 + 安全区）收口到 GlassDraggableBottomSheet，
-    // 这里只负责标题行 + 可滚动内容；scrollController 由壳的
-    // DraggableScrollableSheet 提供，接到内容的 ListView 上。
-    return GlassDraggableBottomSheet(
-      initialChildSize: 0.75, // 初始高度 75%
-      minChildSize: 0.2, // 最小高度 20%
-      maxChildSize: 0.92, // 最大高度 92%
-      snap: true, // 启用吸附行为
-      builder: (context, scrollController) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 头部标题栏
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              // 标题行：图标 + 回复数 …… 回复圆钮 / 关闭圆钮
-              // 弹窗标题行的动作键一律玻璃圆钮，与全站其它弹窗同族
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.comment_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 20.0,
-                  ),
-                  const SizedBox(width: 8.0),
-                  Expanded(
-                    child: Text(
-                      '$_replyCount ${t.common.replies}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.reply),
-                    tooltip: t.common.reply,
-                    onPressed: _showReplyDialog,
-                  ),
-                  const SizedBox(width: 8.0),
-                  GlassIconButton(
-                    standalone: true,
-                    icon: const Icon(Icons.close_rounded),
-                    tooltip: t.common.close,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ],
-              ),
-            ),
-            // 内容区域
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification scrollInfo) {
-                  if (scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent - 200 &&
-                      !_isLoading &&
-                      _hasMore) {
-                    _loadReplies();
-                  }
-                  return false;
-                },
-                child: _buildContent(scrollController),
-              ),
-            ),
-          ],
+    // 壳 + 版式（玻璃材质 / 圆角 / 拖拽条 / 安全区 / 浮在列表之上的标题行）
+    // 全部收口到 GlassFloatingHeaderSheet，这里只给标题内容与列表；
+    // headerExtent 是实测的标题行高，当列表 padding.top 用，回复从标题行
+    // 背后滚过去。
+    return GlassFloatingHeaderSheet(
+      title: '$_replyCount ${t.common.replies}',
+      leading: Icon(
+        Icons.comment_outlined,
+        color: Theme.of(context).colorScheme.primary,
+        size: 20.0,
+      ),
+      actions: [
+        GlassIconButton(
+          standalone: true,
+          icon: const Icon(Icons.reply),
+          tooltip: t.common.reply,
+          onPressed: _showReplyDialog,
+        ),
+      ],
+      bodyBuilder: (context, scrollController, headerExtent) {
+        return NotificationListener<ScrollNotification>(
+          onNotification: (ScrollNotification scrollInfo) {
+            if (scrollInfo.metrics.pixels >=
+                    scrollInfo.metrics.maxScrollExtent - 200 &&
+                !_isLoading &&
+                _hasMore) {
+              _loadReplies();
+            }
+            return false;
+          },
+          child: _buildContent(scrollController, headerExtent),
         );
       },
     );
   }
 
-  Widget _buildContent(ScrollController scrollController) {
+  Widget _buildContent(ScrollController scrollController, double topPadding) {
+    final EdgeInsets listPadding = EdgeInsets.fromLTRB(
+      8.0,
+      topPadding + 8.0,
+      8.0,
+      8.0,
+    );
     if (_isLoading && _replies.isEmpty) {
       return ListView.separated(
         controller: scrollController,
-        padding: const EdgeInsets.all(8.0),
+        padding: listPadding,
         itemCount: 5,
         itemBuilder: (context, index) =>
             const CommentSkeletonItem(isReply: true),
@@ -515,14 +480,20 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
         ),
       );
     } else if (_errorMessage != null && _replies.isEmpty) {
-      return _buildErrorState();
+      return Padding(
+        padding: EdgeInsets.only(top: topPadding),
+        child: _buildErrorState(),
+      );
     } else if (!_isLoading && _replies.isEmpty) {
-      return _buildEmptyState();
+      return Padding(
+        padding: EdgeInsets.only(top: topPadding),
+        child: _buildEmptyState(),
+      );
     }
 
     return ListView.separated(
       controller: scrollController,
-      padding: const EdgeInsets.all(8.0),
+      padding: listPadding,
       itemCount: _replies.length + 1,
       separatorBuilder: (context, index) => Container(
         margin: const EdgeInsets.symmetric(horizontal: 16.0),

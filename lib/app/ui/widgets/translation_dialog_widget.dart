@@ -216,7 +216,8 @@ class _TranslationDialogState extends State<TranslationDialog> {
         return const SizedBox.shrink();
       }
 
-      final isThinking = _translationController.isStreamTranslating &&
+      final isThinking =
+          _translationController.isStreamTranslating &&
           (_translationController.translatedText.value?.isEmpty ?? true);
 
       return Padding(
@@ -387,9 +388,19 @@ class _TranslationDialogState extends State<TranslationDialog> {
 
                                 if (isTranslating && translatedText == null) {
                                   return _buildShimmerLoading(theme);
-                                } else {
-                                  return SelectableText(translatedText ?? '');
                                 }
+                                // 失败时 translatedText 里装的是具体报错，标红显示
+                                final failed = _translationController
+                                    .isTranslationFailed
+                                    .value;
+                                return SelectableText(
+                                  translatedText ?? '',
+                                  style: failed
+                                      ? TextStyle(
+                                          color: theme.colorScheme.error,
+                                        )
+                                      : null,
+                                );
                               }),
                       ),
                     ],

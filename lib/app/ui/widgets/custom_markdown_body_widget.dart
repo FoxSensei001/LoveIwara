@@ -124,6 +124,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
   String? _translatedText;
   String? _rawTranslatedText; // 存储未格式化的翻译文本
   bool _isTranslationComplete = false; // 标记翻译是否完成
+  bool _isTranslationFailed = false; // 失败时 _translatedText 里装的是具体报错
   TranslationService? _translationService;
   StreamSubscription<String>? _translationStreamSubscription;
 
@@ -186,6 +187,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
           _rawTranslatedText = null;
           _isTranslating = false;
           _isTranslationComplete = false;
+          _isTranslationFailed = false;
           _hasProcessedContent = false;
         });
       }
@@ -281,6 +283,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       setState(() {
         _isTranslating = true;
         _isTranslationComplete = false;
+        _isTranslationFailed = false;
         _rawTranslatedText = null;
         _translatedText = null;
       });
@@ -310,12 +313,8 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
         },
         onError: (error) {
           if (_isCurrentTranslationTask(token)) {
-            setState(() {
-              _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
-              _translatedText = _rawTranslatedText;
-              _isTranslating = false;
-              _isTranslationComplete = true;
-            });
+            LogUtils.e('流式翻译出错', error: error, tag: 'CustomMarkdownBody');
+            _applyTranslationFailure(_describeTranslationError(error));
           }
         },
         onDone: () {
@@ -348,20 +347,36 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
       // 翻译完成后，进行格式化处理
       _processTranslatedText(token);
     } else {
-      setState(() {
-        _rawTranslatedText = t.common.translateFailedPleaseTryAgainLater;
-        _translatedText = _rawTranslatedText;
-        _isTranslating = false;
-        _isTranslationComplete = true;
-      });
+      LogUtils.e('翻译失败: ${result.message}', tag: 'CustomMarkdownBody');
+      _applyTranslationFailure(result.message);
     }
+  }
+
+  /// 统一的失败落地：把具体报错当成「译文」显示，并打上失败标记
+  void _applyTranslationFailure(String message) {
+    final text = message.trim().isEmpty
+        ? t.common.translateFailedPleaseTryAgainLater
+        : message.trim();
+    setState(() {
+      _rawTranslatedText = text;
+      _translatedText = text;
+      _isTranslationFailed = true;
+      _isTranslating = false;
+      _isTranslationComplete = true;
+    });
+  }
+
+  /// 流里的错误既可能是服务已经拼好的文案，也可能是裸异常
+  String _describeTranslationError(Object? error) {
+    if (error == null) return t.common.translateFailedPleaseTryAgainLater;
+    if (error is String) return error;
+    return error.toString();
   }
 
   // 处理翻译文本的格式化
   Future<void> _processTranslatedText(int token) async {
     if (!_isCurrentTranslationTask(token)) return;
-    if (_rawTranslatedText == null ||
-        _rawTranslatedText == t.common.translateFailedPleaseTryAgainLater) {
+    if (_rawTranslatedText == null || _isTranslationFailed) {
       setState(() {
         _isTranslating = false;
       });
@@ -770,12 +785,15 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
     String? customText,
     bool? isTranslating,
     bool? isTranslationComplete,
+    bool? isTranslationFailed,
   }) {
     final translatedText = customText ?? _translatedText;
     if (translatedText == null) return const SizedBox.shrink();
     final effectiveIsTranslating = isTranslating ?? _isTranslating;
     final effectiveIsTranslationComplete =
         isTranslationComplete ?? _isTranslationComplete;
+    final effectiveIsTranslationFailed =
+        isTranslationFailed ?? _isTranslationFailed;
 
     return Container(
       decoration: BoxDecoration(
@@ -829,14 +847,28 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
             ],
           ),
           const SizedBox(height: 8),
-          if (translatedText == t.common.translateFailedPleaseTryAgainLater)
-            SelectableText(
-              translatedText,
-              onTap: widget.onTap,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-                fontSize: 14,
-              ),
+          if (effectiveIsTranslationFailed)
+            // 失败时把服务给出的具体原因原样显示出来（可选中复制，方便反馈）
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: SelectableText(
+                    translatedText,
+                    onTap: widget.onTap,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             )
           else if (!effectiveIsTranslationComplete && effectiveIsTranslating)
             // 翻译中显示纯文本，不使用Markdown渲染
@@ -1252,6 +1284,7 @@ class _CustomMarkdownBodyState extends State<CustomMarkdownBody> {
                     isTranslating: controller.isTranslating.value,
                     isTranslationComplete:
                         controller.isTranslationComplete.value,
+                    isTranslationFailed: controller.isTranslationFailed.value,
                   ),
                 ],
               );
