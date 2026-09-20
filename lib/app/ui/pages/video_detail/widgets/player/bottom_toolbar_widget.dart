@@ -211,6 +211,8 @@ class BottomToolbar extends StatelessWidget {
               showVrFormatMenu(
                 anchorContext: anchorContext,
                 controller: myVideoStateController,
+                // 从建议提示点进来：直接滚到建议档，不是当前档。
+                scrollToSuggested: true,
               ),
             ),
             onDismiss: myVideoStateController.hideVrSuggestionTip,
@@ -668,11 +670,7 @@ class BottomToolbar extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            PlayerIcon(
-              PlayerSymbol.speed,
-              color: Colors.white,
-              size: iconSize,
-            ),
+            PlayerIcon(PlayerSymbol.speed, color: Colors.white, size: iconSize),
             const SizedBox(width: 4),
             // 显示当前视频的实时倍速，便于通过快捷键调整后一眼确认。
             Text(
@@ -1200,7 +1198,11 @@ class _ResumeTipCloseButton extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: const PlayerIcon(PlayerSymbol.close, color: Colors.white70, size: 15),
+            child: const PlayerIcon(
+              PlayerSymbol.close,
+              color: Colors.white70,
+              size: 15,
+            ),
           ),
         ),
       ),

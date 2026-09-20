@@ -757,6 +757,12 @@ Size? _measureMenuPanelSize({
 /// 内容摆不下时该做的是把**当前选中项**亮出来，而不是贴着触发件那一头
 /// （见 [_GlassMenuPanelState._initialScrollOffset]）。默认关是对的：带分组标题
 /// 或分隔线的菜单本来就不许开它。
+///
+/// [scrollToValue]：内容摆不下时，把静止滚动位置钉到**这个值**对应的那一条，
+/// 顶掉 [_GlassMenuPanelState._initialScrollOffset] 默认的「滚到当前选中项」。
+/// 给「建议档」与「当前档」可能同时出现、但用户这次点进来是冲着建议档来的
+/// 场合用（VR 建议提示点开的播放模式菜单）——默认滚到 `selected` 的话，建议
+/// 档如果排在列表靠后，用户点开提示看到的还是当前档附近那一屏，白点了。
 Future<T?> showGlassMenu<T>({
   required BuildContext anchorContext,
   required List<GlassMenuEntry> entries,
@@ -765,6 +771,7 @@ Future<T?> showGlassMenu<T>({
   double maxWidth = _maxPanelWidth,
   bool touchFlex = true,
   bool priorityNearAnchor = false,
+  T? scrollToValue,
 }) {
   final anchorBox = anchorContext.findRenderObject();
   final navigator = Navigator.of(anchorContext, rootNavigator: true);
@@ -831,6 +838,7 @@ Future<T?> showGlassMenu<T>({
       ),
       handoff: handoff,
       priorityNearAnchor: priorityNearAnchor,
+      scrollToValue: scrollToValue,
     );
   }
 
@@ -851,6 +859,7 @@ Future<T?> showGlassMenu<T>({
       anchorContext,
     ).modalBarrierDismissLabel,
     priorityNearAnchor: priorityNearAnchor,
+    scrollToValue: scrollToValue,
   );
   navigator.push(route);
   // ⛔ 交出结果的时机是 `completed`（出场动画跑完、路由已销毁），不是
@@ -899,6 +908,7 @@ Future<T?> _showGlassMenuOverlay<T>({
   required CapturedThemes capturedThemes,
   required GlassPointerHandoffSession handoff,
   required bool priorityNearAnchor,
+  required T? scrollToValue,
 }) {
   final OverlayState? overlay = navigator.overlay;
   if (overlay == null) return Future<T?>.value();
@@ -917,6 +927,7 @@ Future<T?> _showGlassMenuOverlay<T>({
       capturedThemes: capturedThemes,
       handoff: handoff,
       priorityNearAnchor: priorityNearAnchor,
+      scrollToValue: scrollToValue,
       onClosed: (value) {
         entry.remove();
         entry.dispose();
@@ -945,6 +956,7 @@ Widget _buildGlassMenuBody<T>({
   required CapturedThemes capturedThemes,
   required GlassPointerHandoffSession? handoff,
   required bool priorityNearAnchor,
+  required T? scrollToValue,
   required ValueChanged<T> onSelected,
   required VoidCallback onDismissed,
 }) {
@@ -977,6 +989,7 @@ Widget _buildGlassMenuBody<T>({
     ),
     flipped: flipped,
     priorityNearAnchor: priorityNearAnchor,
+    scrollToValue: scrollToValue,
   );
   return capturedThemes.wrap(
     LiquidGlassScope(
@@ -1020,6 +1033,7 @@ class _GlassMenuOverlayHost<T> extends StatefulWidget {
     required this.capturedThemes,
     required this.handoff,
     required this.priorityNearAnchor,
+    required this.scrollToValue,
     required this.onClosed,
   });
 
@@ -1036,6 +1050,7 @@ class _GlassMenuOverlayHost<T> extends StatefulWidget {
   final CapturedThemes capturedThemes;
   final GlassPointerHandoffSession handoff;
   final bool priorityNearAnchor;
+  final T? scrollToValue;
 
   /// 退场动画跑完之后回调，带上选中的值（没选就是 null）。
   final ValueChanged<T?> onClosed;
@@ -1129,6 +1144,7 @@ class _GlassMenuOverlayHostState<T> extends State<_GlassMenuOverlayHost<T>>
           capturedThemes: widget.capturedThemes,
           handoff: widget.handoff,
           priorityNearAnchor: widget.priorityNearAnchor,
+          scrollToValue: widget.scrollToValue,
           onSelected: _close,
           onDismissed: () => _close(null),
         ),
@@ -1163,6 +1179,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
     required this.capturedThemes,
     required this.barrierLabel,
     required this.priorityNearAnchor,
+    this.scrollToValue,
     this.handoff,
   });
 
@@ -1189,6 +1206,10 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
   /// 这是一张优先级菜单（[showGlassMenu] 的同名参数）。内容摆不下时的静止滚动
   /// 位置按它分档，见 [_GlassMenuPanelState._initialScrollOffset]。
   final bool priorityNearAnchor;
+
+  /// 顶掉「滚到当前选中项」，改滚到这个值对应的那一条（[showGlassMenu] 的
+  /// 同名参数）。
+  final T? scrollToValue;
 
   @override
   final String barrierLabel;
@@ -1225,6 +1246,7 @@ class _GlassMenuRoute<T> extends PopupRoute<T> {
       capturedThemes: capturedThemes,
       handoff: handoff,
       priorityNearAnchor: priorityNearAnchor,
+      scrollToValue: scrollToValue,
       onSelected: (value) => Navigator.of(context).pop(value),
       onDismissed: () => Navigator.of(context).pop(),
     );
@@ -1424,6 +1446,7 @@ class _GlassMenuPanel<T> extends StatefulWidget {
     required this.revealBeginScale,
     required this.flipped,
     this.priorityNearAnchor = false,
+    this.scrollToValue,
     this.touchFlex = false,
     this.precomputedSize,
     this.handoff,
@@ -1456,6 +1479,10 @@ class _GlassMenuPanel<T> extends StatefulWidget {
   /// 这是一张**优先级菜单**（[showGlassMenu] 的同名参数）。只影响内容摆不下时
   /// 的静止滚动位置，见 [_GlassMenuPanelState._initialScrollOffset]。
   final bool priorityNearAnchor;
+
+  /// 顶掉「滚到当前选中项」，改滚到这个值对应的那一条（[showGlassMenu] 的
+  /// 同名参数），见 [_GlassMenuPanelState._initialScrollOffset]。
+  final T? scrollToValue;
 
   @override
   State<_GlassMenuPanel<T>> createState() => _GlassMenuPanelState<T>();
@@ -1520,9 +1547,14 @@ class _GlassMenuPanelState<T> extends State<_GlassMenuPanel<T>>
       return widget.flipped ? maxOffset : 0;
     }
 
-    final int index = widget.entries.indexWhere(
-      (entry) => entry is GlassMenuOption && entry.selected,
-    );
+    final T? scrollToValue = widget.scrollToValue;
+    final int index = scrollToValue != null
+        ? widget.entries.indexWhere(
+            (entry) => entry is GlassMenuOption && entry.value == scrollToValue,
+          )
+        : widget.entries.indexWhere(
+            (entry) => entry is GlassMenuOption && entry.selected,
+          );
     if (index < 0) return 0;
     final double rowTop = tops[index];
     final double rowHeight = _entryHeight(widget.entries[index]);

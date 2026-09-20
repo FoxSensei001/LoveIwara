@@ -51,8 +51,7 @@ String vrFormatLabel(VrSourceFormat format) {
   return switch ((format.projection, format.stereoLayout)) {
     (VrProjection.flat, VrStereoLayout.sideBySide) => t.flatSideBySide,
     (VrProjection.flat, VrStereoLayout.topBottom) => t.flatTopBottom,
-    (VrProjection.equirect180, VrStereoLayout.sideBySide) =>
-      t.vr180SideBySide,
+    (VrProjection.equirect180, VrStereoLayout.sideBySide) => t.vr180SideBySide,
     (VrProjection.equirect180, _) => t.vr180Mono,
     (VrProjection.equirect360, VrStereoLayout.topBottom) => t.vr360TopBottom,
     (VrProjection.equirect360, _) => t.vr360Mono,
@@ -84,9 +83,16 @@ String vrFormatDescription(VrSourceFormat format) {
 /// 那一档会**预先高亮**并在行尾打上「建议」：画面从来不会自动换几何（见
 /// `_applyInferredVerdict`），所以这张菜单是用户唯一看得到「机器猜的是哪一档」
 /// 的地方；不标出来，他就得自己在七个选项里挑，两下点完的流程也就不成立了。
+///
+/// [scrollToSuggested]：菜单打开时静止滚动位置滚到**建议档**而不是当前档。
+/// 从 VR 建议提示点进来的这条路要开——用户是冲着「机器猜的是哪一档」来的，
+/// 若建议档排在列表靠后（默认滚到当前档，多半停在最上面的「平面」），提示
+/// 点开却看不到重点。其余入口（顶栏「换个方式放」、设置面板）保持旧行为：
+/// 滚到当前生效档。
 Future<void> showVrFormatMenu({
   required BuildContext anchorContext,
   required MyVideoStateController controller,
+  bool scrollToSuggested = false,
 }) async {
   final t = slang.t.vrFormat;
   final current = controller.vrFormat;
@@ -147,6 +153,7 @@ Future<void> showVrFormatMenu({
   final picked = await showGlassMenu<String>(
     anchorContext: anchorContext,
     entries: entries,
+    scrollToValue: scrollToSuggested ? suggested?.toConfigString() : null,
   );
   if (picked == null) return;
   applyVrMenuSelection(controller, picked);
