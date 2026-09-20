@@ -75,6 +75,45 @@ class MpvPlaybackErrorClassifier {
   static final RegExp _hexPattern = RegExp(r'0x[0-9a-fA-F]+');
   static final RegExp _numberPattern = RegExp(r'-?\d+');
 
+  /// FFmpeg 习惯用「协议名: 正文」的格式打日志（`tcp: ...`、`https: ...`）。
+  /// 只认行首，避免把正文里随口提到的 "http" 当成网络故障。
+  static final RegExp _networkProtocolPattern = RegExp(
+    r'^\s*(tcp|udp|tls|sctp|http|https|rtmp|rtmps|rtsp|hls|srt|ftp|ftps)\s*:',
+  );
+
+  /// 明确指向「连不上 / 连断了」的措辞。只要没命中这些，就不能对用户断言网络有问题。
+  static const List<String> _networkPhrases = <String>[
+    'connection refused',
+    'connection reset',
+    'connection timed out',
+    'connection failed',
+    'connection closed',
+    'failed to connect',
+    'could not connect',
+    'cannot connect',
+    'unable to connect',
+    'network is unreachable',
+    'network unreachable',
+    'no route to host',
+    'name resolution',
+    'could not resolve',
+    'failed to resolve',
+    'server returned',
+    'timed out',
+  ];
+
+  /// 这条日志是否**确实**带网络味道。
+  ///
+  /// 存在的理由：`ffmpeg` / `stream` 两个前缀原先是无条件归因到网络的，
+  /// 于是放本地文件时 lavf/lavc 在首次打开阶段吐的任何一条 error（解复用、
+  /// 封装、缓存）都会换来一句「请检查网络，播放可能卡顿」——用户根本没在联网。
+  static bool _looksNetworky(String prefix, String text) {
+    if (_hasPrefix(prefix, 'ffmpeg/network')) return true;
+    if (_networkProtocolPattern.hasMatch(text)) return true;
+    if (text.contains('http://') || text.contains('https://')) return true;
+    return _networkPhrases.any(text.contains);
+  }
+
   /// 生成去重键：一次网络抖动会刷屏几十条，必须先塌缩成同一个 key
   ///
   /// 注意十六进制和十进制走的是同一个占位符 `<n>`：
@@ -122,7 +161,8 @@ class MpvPlaybackErrorClassifier {
     String text,
   ) {
     // ffmpeg 层：mpv 有时把 prefix 记成 ffmpeg/network，有时正文自带 "tcp:"
-    if (_hasPrefix(prefix, 'ffmpeg') || text.trimLeft().startsWith('tcp:')) {
+    if (_hasPrefix(prefix, 'ffmpeg') ||
+        _networkProtocolPattern.hasMatch(text)) {
       // ★ issue #110 就停在这一行：ffurl_write/ffurl_read 的返回码来自
       // FFmpeg「无法归类此返回码」的兜底分支，mpv 主动关连接时也会打，
       // 播放从未中断，绝不能弹提示。
@@ -130,10 +170,15 @@ class MpvPlaybackErrorClassifier {
           text.contains('ffurl_read returned')) {
         return (PlaybackErrorTier.silent, PlaybackErrorKind.networkReconnect);
       }
-      return (
-        PlaybackErrorTier.transient,
-        PlaybackErrorKind.networkUnreachable,
-      );
+      if (_looksNetworky(prefix, text)) {
+        return (
+          PlaybackErrorTier.transient,
+          PlaybackErrorKind.networkUnreachable,
+        );
+      }
+      // ffmpeg 层里非网络的那些（demuxer/muxer/lavc 的解析、封装、缓存报错）
+      // 无法归因，交给上层静音只记台账——绝不换成「请检查网络」。
+      return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
     }
 
     if (_hasPrefix(prefix, 'vd')) {
@@ -184,11 +229,17 @@ class MpvPlaybackErrorClassifier {
       return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
     }
 
+    // stream 是 mpv 的**通用**流层：本地文件、管道、网络都从它走，
+    // 所以它自己说明不了「是不是网络问题」。只有正文带网络味道才归因到网络，
+    // 否则（"Failed to recreate cache!" 这类缓存报错）不归因。
     if (_hasPrefix(prefix, 'stream')) {
-      return (
-        PlaybackErrorTier.transient,
-        PlaybackErrorKind.networkUnreachable,
-      );
+      if (_looksNetworky(prefix, text)) {
+        return (
+          PlaybackErrorTier.transient,
+          PlaybackErrorKind.networkUnreachable,
+        );
+      }
+      return (PlaybackErrorTier.degraded, PlaybackErrorKind.unknown);
     }
 
     if (_hasPrefix(prefix, 'cplayer')) {

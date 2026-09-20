@@ -1767,6 +1767,8 @@ class MyVideoStateController extends GetxController
       // 拿它记「问题出现在第几秒」会全部落在同一个时间点上。
       currentPosition: () => player.state.position,
       isSuppressed: () => _isDisposed || isPiPMode.value,
+      // 本地文件 / content:// 一律不是网络源，「请检查网络」对它们毫无意义。
+      isNetworkSource: () => _isCurrentMediaNetworkSource,
     );
     LogUtils.i(
       '初始化 MyVideoStateController，videoId: $videoId',
@@ -3838,9 +3840,7 @@ class MyVideoStateController extends GetxController
     try {
       if (!firstLoaded &&
           _configService[ConfigKey.RECORD_AND_RESTORE_VIDEO_PROGRESS]) {
-        targetDuration = await _playbackHistoryService.resumePosition(
-          videoId!,
-        );
+        targetDuration = await _playbackHistoryService.resumePosition(videoId!);
         if (_isDisposed) return;
       }
     } catch (e) {

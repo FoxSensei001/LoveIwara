@@ -83,9 +83,11 @@ class PlayerNoticeCenter {
     required String tag,
     required Duration Function() currentPosition,
     required bool Function() isSuppressed,
+    required bool Function() isNetworkSource,
   }) : _tag = tag,
        _currentPosition = currentPosition,
-       _isSuppressed = isSuppressed;
+       _isSuppressed = isSuppressed,
+       _isNetworkSource = isNetworkSource;
 
   /// 台账上限。超出后按 LRU 丢弃最久未出现的签名。
   static const int _ledgerCapacity = 50;
@@ -103,12 +105,23 @@ class PlayerNoticeCenter {
   /// 两次提示之间的硬下限（I4）。没有例外，也没有排队补发。
   static const Duration _emitFloor = Duration(seconds: 2);
 
+  /// transient 档提示（"播放可能卡顿"）的自证窗口：先憋住这么久，
+  /// 窗口内画面照走就当没发生过。网络抖一下 FFmpeg 就会吐日志，但用户
+  /// 眼里播放全程顺畅——那一刻弹「请检查网络」纯属自曝其短。
+  static const Duration _stallProbe = Duration(seconds: 3);
+
+  /// 自证窗口内推进多少才算「其实没卡」。留足余量给节流与解码抖动。
+  static const Duration _stallProbeAdvance = Duration(milliseconds: 700);
+
   static const Duration _infoDwell = Duration(seconds: 4);
   static const Duration _warningDwell = Duration(seconds: 6);
 
   final String _tag;
   final Duration Function() _currentPosition;
   final bool Function() _isSuppressed;
+
+  /// 当前播的是不是网络源。本地文件永远不该看到「请检查网络」。
+  final bool Function() _isNetworkSource;
 
   /// 唯一插槽：赋值即替换。不做队列，否则又会退化成 ScaffoldMessenger 的 FIFO 堆积。
   final Rxn<PlayerNotice> notice = Rxn<PlayerNotice>();
@@ -122,6 +135,7 @@ class PlayerNoticeCenter {
   final Map<String, DateTime> _window = <String, DateTime>{};
 
   Timer? _dwellTimer;
+  Timer? _probeTimer;
   DateTime? _lastEmitAt;
   PlayerNotice? _pending;
   bool _surfaceAvailable = true;
@@ -191,14 +205,16 @@ class PlayerNoticeCenter {
       return;
     }
 
+    final isTransient = signal.tier == PlaybackErrorTier.transient;
     _emit(
       PlayerNotice(
         kind: _noticeKindOf(signal.kind),
-        level: signal.tier == PlaybackErrorTier.transient
-            ? PlayerNoticeLevel.info
-            : PlayerNoticeLevel.warning,
+        level: isTransient ? PlayerNoticeLevel.info : PlayerNoticeLevel.warning,
         detail: signal.raw,
       ),
+      // transient 档按定义就是「通常会自行恢复」，那就让它先证明自己没恢复。
+      // degraded 档（没声音、解码回落）与画面推进无关，不走自证。
+      proveStall: isTransient,
     );
   }
 
@@ -225,6 +241,8 @@ class PlayerNoticeCenter {
     if (_disposed) return;
     _window.clear();
     _pending = null;
+    _probeTimer?.cancel();
+    _probeTimer = null;
     _dismiss();
   }
 
@@ -237,6 +255,8 @@ class PlayerNoticeCenter {
     _window.clear();
     _pending = null;
     _lastEmitAt = null;
+    _probeTimer?.cancel();
+    _probeTimer = null;
     _dismiss();
   }
 
@@ -245,6 +265,8 @@ class PlayerNoticeCenter {
     _disposed = true;
     _dwellTimer?.cancel();
     _dwellTimer = null;
+    _probeTimer?.cancel();
+    _probeTimer = null;
     _pending = null;
     notice.value = null;
     notice.close();
@@ -294,11 +316,44 @@ class PlayerNoticeCenter {
     return _window.length >= _escalationThreshold;
   }
 
-  void _emit(PlayerNotice next) {
+  void _emit(PlayerNotice next, {bool proveStall = false}) {
     if (_disposed) return;
     // 已销毁或处于画中画时不打扰用户。
     if (_isSuppressed()) return;
 
+    // 放本地文件时绝不说网络。收在这里而不是分类器里，是因为分类器是纯函数、
+    // 不知道当前播的是什么源；任何日后新增的路径漏到这里也一样被挡住。
+    if (next.kind == PlayerNoticeKind.networkUnstable && !_isNetworkSource()) {
+      return;
+    }
+
+    if (proveStall) {
+      _scheduleStallProbe(next);
+      return;
+    }
+    _deliver(next);
+  }
+
+  /// 先憋住，[_stallProbe] 后再看画面有没有往前走：走了就丢掉这条提示。
+  void _scheduleStallProbe(PlayerNotice next) {
+    final markedAt = _readPosition();
+    _probeTimer?.cancel();
+    _probeTimer = Timer(_stallProbe, () {
+      _probeTimer = null;
+      if (_disposed || _isSuppressed()) return;
+      final nowAt = _readPosition();
+      if (markedAt != null &&
+          nowAt != null &&
+          nowAt - markedAt >= _stallProbeAdvance) {
+        // 报错期间画面照走，这条提示是假警报。
+        return;
+      }
+      _deliver(next);
+    });
+  }
+
+  void _deliver(PlayerNotice next) {
+    if (_disposed) return;
     final now = DateTime.now();
     final lastEmitAt = _lastEmitAt;
     if (lastEmitAt != null && now.difference(lastEmitAt) < _emitFloor) return;
