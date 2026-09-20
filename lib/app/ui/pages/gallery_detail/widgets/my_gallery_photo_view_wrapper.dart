@@ -22,6 +22,7 @@ import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_chrome_theme
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_filmstrip.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_video_center_button.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_video_control_bar.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_up_next.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_video_controller.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/player_box_scope.dart';
 import 'package:i_iwara/utils/easy_throttle.dart';
@@ -60,6 +61,7 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
     this.menuItemsBuilder,
     this.enableMenu = true,
     this.onIndexChanged,
+    this.upNext,
   }) : standardGalleryItems = standardGalleryItems ?? standardImageItems,
        originalGalleryItems = originalGalleryItems ?? originalImageItems,
        initialQuality = initialQuality ?? galleryImageQualityStandard;
@@ -85,6 +87,13 @@ class MyGalleryPhotoViewWrapper extends StatefulWidget {
   /// 那条路（预览弹窗直开大图）由调用方自己先播一次种，见
   /// `openGalleryImageViewerByFileId`。
   final ValueChanged<int>? onIndexChanged;
+
+  /// 图库详情页手上那份「接着看」。为 null（本机图片、markdown 里的图、
+  /// 作者页头像这些没有图库上下文的调用点）时顶栏上整只不出现那枚钮。
+  ///
+  /// 对标的是播放器**全屏态**里的「接着看」：看得正起劲的时候不该为了挑下一本
+  /// 先退回详情页。成因与传递方式见 [GalleryUpNext]。
+  final GalleryUpNext? upNext;
 
   @override
   State<MyGalleryPhotoViewWrapper> createState() =>
@@ -1538,6 +1547,26 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
     _showUiAndAutoHide();
   }
 
+  /// 打开「接着看」抽屉。
+  ///
+  /// ⛔ 抽屉里**真的点了一条**时要先把大图页这一层收掉（[GalleryUpNext.open] 的
+  /// `onBeforeNavigate`）：换图库走的是 `pushReplacement`，它替掉的是栈顶——大图页
+  /// 不先退场，被替掉的就是它自己，身下那张旧详情页反而留在栈里。
+  ///
+  /// 收掉之后详情页会带着「就位后自动开大图」的标志换到下一个图库，于是用户仍旧
+  /// 停在大图页上（对标播放器全屏连播的语义）。
+  Future<void> _openUpNextDrawer() async {
+    final upNext = widget.upNext;
+    if (upNext == null) return;
+    _showUiAndAutoHide();
+    await upNext.open(
+      onBeforeNavigate: () {
+        if (!mounted) return;
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
   /// 顶栏。
   ///
   /// 改造前这里是「白图标直接浮在黑底上」的老写法（裸 `IconButton` + 一枚手搓
@@ -1624,6 +1653,19 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
                               ),
                               const SizedBox(width: 4),
                             ],
+                          ),
+                        ),
+                        // 「接着看」：与详情页 header 上那一枚是同一只抽屉、同一
+                        // 份池。没有图库上下文的调用点（本机图片、markdown 里的
+                        // 图）传不出 upNext，这一格整只不在场——走
+                        // [GlassGroupSlot] 是为了宽度渐变地进退，而不是横着跳一格。
+                        GlassGroupSlot(
+                          visible: widget.upNext?.hasQueue ?? false,
+                          child: _TopBarIconButton(
+                            icon: Icons.playlist_play,
+                            tooltip: t.playbackQueue.upNext,
+                            materialize: materialize,
+                            onPressed: _openUpNextDrawer,
                           ),
                         ),
                         _TopBarIconButton(

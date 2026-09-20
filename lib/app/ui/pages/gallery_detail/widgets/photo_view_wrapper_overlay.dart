@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:i_iwara/app/routes/app_router.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_up_next.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
 
@@ -15,6 +16,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
   ValueChanged<int>? onIndexChanged,
   bool enableMenu = true,
   bool instant = false,
+  GalleryUpNext? upNext,
 }) {
   if (!context.mounted) {
     return Future<T?>.value(null);
@@ -31,6 +33,7 @@ Future<T?> pushPhotoViewWrapperOverlay<T>({
     onQualityChanged: onQualityChanged,
     onIndexChanged: onIndexChanged,
     instant: instant,
+    upNext: upNext,
   );
 
   // If triggered from a dialog/bottom sheet (PopupRoute), pushing via GoRouter

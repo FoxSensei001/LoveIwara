@@ -76,6 +76,7 @@ import 'package:i_iwara/app/ui/pages/tag_blacklist/tag_blacklist_page.dart';
 import 'package:i_iwara/app/ui/pages/favorite_tags/favorite_tags_page.dart'
     show FavoriteIwaraTagsPage, FavoriteOreno3dTagsPage;
 import 'package:i_iwara/app/ui/pages/profile/personal_profile_page.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_up_next.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/my_gallery_photo_view_wrapper.dart';
 import 'package:i_iwara/app/ui/pages/emoji_library/emoji_library_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/layout_settings_page.dart';
@@ -616,6 +617,7 @@ final GoRouter appRouter = GoRouter(
               preloadedDetail: galleryExtra?.preloadedDetail,
               initialImageId: galleryExtra?.initialImageId,
               presentInSpace: galleryExtra?.presentInSpace ?? false,
+              openImageViewer: galleryExtra?.openImageViewer ?? false,
             );
           },
         ),
@@ -1368,6 +1370,7 @@ Widget buildPhotoViewWrapperChild(PhotoViewExtra extra) {
     initialQuality: normalizeGalleryImageQuality(extra.initialQuality),
     onQualityChanged: extra.onQualityChanged,
     onIndexChanged: extra.onIndexChanged,
+    upNext: extra.upNext,
   );
 }
 
@@ -1400,6 +1403,13 @@ class GalleryDetailExtra {
   /// Quest：页面落地、详情到手就整本交给空间画廊（沉浸面板「接着看」里点的图库）。
   final bool presentInSpace;
 
+  /// 详情到手就**自动开大图页**（从第一张开始）。
+  ///
+  /// 只有一条路会传 true：用户正在大图页里开「接着看」挑了下一个图库。那边的
+  /// 语义对标播放器全屏连播——换一本不该把人踢回详情页，所以新页就位后要自己
+  /// 把大图页再开起来（见 `GalleryUpNext`）。
+  final bool openImageViewer;
+
   const GalleryDetailExtra({
     this.coverUrl,
     this.title,
@@ -1415,6 +1425,7 @@ class GalleryDetailExtra {
     this.preloadedDetail,
     this.initialImageId,
     this.presentInSpace = false,
+    this.openImageViewer = false,
   });
 }
 
@@ -1597,6 +1608,10 @@ class PhotoViewExtra {
   /// 淡入一次就是在那帧底下多演一遍——撤帧那一刻必然闪。
   final bool instant;
 
+  /// 图库详情页手上那份「接着看」，只有从图库详情页开的大图页才有。
+  /// 成因见 [GalleryUpNext]。
+  final GalleryUpNext? upNext;
+
   const PhotoViewExtra({
     required this.imageItems,
     required this.initialIndex,
@@ -1608,5 +1623,6 @@ class PhotoViewExtra {
     this.onQualityChanged,
     this.onIndexChanged,
     this.instant = false,
+    this.upNext,
   });
 }

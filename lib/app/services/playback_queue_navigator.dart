@@ -57,6 +57,7 @@ class PlaybackQueueNavigator {
     VoidCallback? onRelinquishFullscreen,
     List<PlaybackQueue> companionQueues = const [],
     bool presentInSpace = false,
+    bool presentImageViewer = false,
   }) async {
     final id = item.id.trim();
     if (id.isEmpty) return;
@@ -91,7 +92,12 @@ class PlaybackQueueNavigator {
         _pushLocalImages(queue: queue, itemId: id);
         return;
       }
-      _pushGallery(item: item, ref: ref, presentInSpace: presentInSpace);
+      _pushGallery(
+        item: item,
+        ref: ref,
+        presentInSpace: presentInSpace,
+        presentImageViewer: presentImageViewer,
+      );
       return;
     }
 
@@ -189,6 +195,7 @@ class PlaybackQueueNavigator {
     required InnerPlaylistItemSnapshot item,
     required PlaybackQueueRef ref,
     bool presentInSpace = false,
+    bool presentImageViewer = false,
   }) {
     final extra = GalleryDetailExtra(
       coverUrl: item.thumbnailUrl.isEmpty ? null : item.thumbnailUrl,
@@ -198,6 +205,7 @@ class PlaybackQueueNavigator {
       authorUsername: item.authorUsername,
       playbackQueueRef: ref,
       presentInSpace: presentInSpace,
+      openImageViewer: presentImageViewer,
     );
     try {
       appRouter.pushReplacement(

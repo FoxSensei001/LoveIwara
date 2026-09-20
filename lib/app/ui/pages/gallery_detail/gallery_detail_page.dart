@@ -44,6 +44,7 @@ import '../video_detail/controllers/related_media_controller.dart';
 import 'controllers/gallery_detail_controller.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'widgets/gallery_image_scroller_widget.dart';
+import 'widgets/gallery_up_next.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/scroll_to_top_fab.dart';
 
@@ -75,6 +76,12 @@ class GalleryDetailPage extends StatefulWidget {
   /// （与视频的 `forceAutoPlay` 同一个角色）。
   final bool presentInSpace;
 
+  /// 详情到手就自动把大图页开起来（从第一张开始）。
+  ///
+  /// 只有「在大图页里用『接着看』挑了下一个图库」这一条路会传 true——那边的语义
+  /// 对标播放器全屏连播：换一本不该把人踢回详情页。见 `GalleryUpNext`。
+  final bool openImageViewer;
+
   const GalleryDetailPage({
     super.key,
     required this.imageModelId,
@@ -92,6 +99,7 @@ class GalleryDetailPage extends StatefulWidget {
     this.preloadedDetail,
     this.initialImageId,
     this.presentInSpace = false,
+    this.openImageViewer = false,
   });
 
   @override
@@ -133,6 +141,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     _relatedTabController.dispose();
     _wideScrollController.dispose();
     _showBackToTop.dispose();
+    _autoImageViewerWorker?.dispose();
     for (final queue in _queues) {
       queue.removeListener(_onQueueChanged);
     }
@@ -173,6 +182,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
         // 钉着（见 media_preview_dialog.dart），大图页要做的是**直接就位**，
         // 再淡入一次会在撤帧那一刻露出来。
         instant: true,
+        upNext: _upNext,
       );
     });
   }
@@ -217,6 +227,49 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     _setupPlaybackQueues();
     _syncImmersiveQueues();
     _scheduleImmersivePresent();
+    _scheduleAutoImageViewer();
+  }
+
+  // ------------------------------------------------------------ 自动开大图页
+
+  Worker? _autoImageViewerWorker;
+
+  /// 从**大图页**的「接着看」换过来的：详情一到手就把大图页再开起来。
+  ///
+  /// 对标播放器全屏连播——用户在全屏里点下一条，换页之后仍旧是全屏。图库这边
+  /// 全屏看图是另一条路由，所以换页之后得由新页自己把它开回来。
+  ///
+  /// ⛔ 与 [_scheduleInitialImageViewer] 不是一回事：那条是「预览弹窗点着某张图
+  /// 进来」，名单随页带过来（`preloadedDetail`）、而且要 `instant`（屏幕上已经被
+  /// 一帧同款画面钉着）。这条得**等详情回来**，并且要正常转场——身后是刚退场的
+  /// 上一个大图页，直接就位会闪。
+  void _scheduleAutoImageViewer() {
+    if (!widget.openImageViewer) return;
+    void present(ImageModel? im) {
+      if (im == null || !mounted) return;
+      _autoImageViewerWorker?.dispose();
+      _autoImageViewerWorker = null;
+      final items = buildGalleryImageItems(im);
+      if (items.isEmpty) return;
+      detailController.imageListController.revealIndex(0);
+      openGalleryImageViewer(
+        context,
+        imageItems: items,
+        index: 0,
+        gallery: im,
+        onIndexChanged: detailController.imageListController.revealIndex,
+        upNext: _upNext,
+      )?.ignore();
+    }
+
+    final current = detailController.imageModelInfo.value;
+    if (current != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => present(current));
+      return;
+    }
+    // ⛔ 同 [_scheduleImmersivePresent]：用 rxEver 不用 ever（ever 走 stream，
+    // 同一个 Rx 被别的页面订阅 / 取消过之后会永久失聪）。
+    _autoImageViewerWorker = rxEver(detailController.imageModelInfo, present);
   }
 
   // ------------------------------------------------------------ 空间画廊
@@ -353,8 +406,21 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     if (mounted) setState(() {});
   }
 
+  /// 交给大图页的那份「接着看」。详情页 header 上那枚钮与大图页顶栏那枚
+  /// 用的是同一个判据、同一只抽屉、同一份池。
+  GalleryUpNext get _upNext => GalleryUpNext(
+    hasQueue: _hasPlaybackQueue,
+    open: ({VoidCallback? onBeforeNavigate}) =>
+        _openQueueDrawer(onBeforeNavigate: onBeforeNavigate),
+  );
+
   /// 打开「接着看」抽屉。与播放器共用同一只抽屉（[showPlaybackQueueDrawer]）。
-  Future<void> _openQueueDrawer() async {
+  ///
+  /// [onBeforeNavigate] 由**大图页**传：真要换图库之前先把它那一层收掉。不收的话
+  /// `pushReplacement` 替掉的是栈顶（大图页自己），旧详情页反而留在栈里，返回键
+  /// 会退回上一个图库。给了它也就说明这一下是从大图页发起的，换过去之后新页要
+  /// 把大图页开回来。
+  Future<void> _openQueueDrawer({VoidCallback? onBeforeNavigate}) async {
     final queues = _queues;
     if (queues.isEmpty || !mounted) return;
     final selection = await showPlaybackQueueDrawer(
@@ -385,11 +451,15 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
     }
     _activeQueue = selection.queue;
     _syncImmersiveQueues();
+    // ⛔ 顺序：先让大图页退场，再换页。理由见本方法的文档。
+    onBeforeNavigate?.call();
     await PlaybackQueueNavigator.playItem(
       queue: selection.queue,
       item: selection.item,
       skipWatched: false,
       companionQueues: _queues,
+      // 从大图页来的就回大图页去（对标全屏连播）。
+      presentImageViewer: onBeforeNavigate != null,
     );
   }
 
@@ -569,6 +639,7 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
           controller: detailController,
           maxHeight: height,
           initialImageCount: imageCount,
+          upNext: _upNext,
         ),
       ),
     );

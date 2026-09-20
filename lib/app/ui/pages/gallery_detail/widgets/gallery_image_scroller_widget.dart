@@ -7,6 +7,7 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/immersive_cover_widget.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/controllers/gallery_detail_controller.dart';
+import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/gallery_up_next.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/horizontial_image_list.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/photo_view_wrapper_overlay.dart';
 import 'package:i_iwara/common/gallery_image_quality.dart';
@@ -27,11 +28,15 @@ class GalleryImageScrollerWidget extends StatefulWidget {
   final double maxHeight; // Max height constraint for the image area
   final int? initialImageCount;
 
+  /// 详情页手上那份「接着看」，原样转交给它开出来的大图页（见 [GalleryUpNext]）。
+  final GalleryUpNext? upNext;
+
   const GalleryImageScrollerWidget({
     super.key,
     required this.controller,
     required this.maxHeight,
     this.initialImageCount,
+    this.upNext,
   });
 
   @override
@@ -206,6 +211,7 @@ class _GalleryImageScrollerWidgetState
         index: index,
         gallery: gallery,
         onIndexChanged: widget.controller.imageListController.revealIndex,
+        upNext: widget.upNext,
       ),
     );
   }
@@ -286,6 +292,7 @@ Future<bool>? openGalleryImageViewer(
   bool instant = false,
   ValueChanged<int>? onIndexChanged,
   ImageModel? gallery,
+  GalleryUpNext? upNext,
 }) {
   final configService = Get.find<ConfigService>();
   final initialQuality = normalizeGalleryImageQuality(
@@ -341,6 +348,8 @@ Future<bool>? openGalleryImageViewer(
     // 大图页里翻到第几张，底下这条清单就跟到第几张：退出来落在的是刚才看的
     // 那张，不是当初点进去的那张。
     onIndexChanged: onIndexChanged,
+    // 详情页手上那份池借给大图页画「接着看」（见 [GalleryUpNext]）。
+    upNext: upNext,
   );
   // 2D 大图页是同步压上来的一层路由，没有「在路上」这回事。
   return null;
@@ -357,6 +366,7 @@ bool openGalleryImageViewerByFileId(
   required String fileId,
   bool instant = false,
   ValueChanged<int>? onIndexChanged,
+  GalleryUpNext? upNext,
 }) {
   final List<ImageItem> imageItems = buildGalleryImageItems(imageModel);
   final int index = imageItems.indexWhere((item) => item.data.id == fileId);
@@ -373,6 +383,7 @@ bool openGalleryImageViewerByFileId(
     instant: instant,
     onIndexChanged: onIndexChanged,
     gallery: imageModel,
+    upNext: upNext,
   )?.ignore();
   return true;
 }
