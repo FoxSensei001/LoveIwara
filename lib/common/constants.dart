@@ -46,9 +46,6 @@ class CommonConstants {
   // 应用图标路径
   static String launcherIconPath = 'assets/icon/launcher_icon_v2.png';
 
-  // 默认语言占位符，如果修改的话，注意 @{link /lib/xxxi18n.yml} 文件中对应的翻译
-  static String defaultLanguagePlaceholder = '[TL]';
-
   // 网站基础URL
   static const String iwaraBaseUrl = 'https://www.iwara.tv';
 

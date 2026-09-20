@@ -10,7 +10,7 @@ import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/deeplx_language_mapper.dart';
 import 'package:i_iwara/app/utils/ai_error_describe.dart';
-import 'package:i_iwara/common/constants.dart';
+import 'package:i_iwara/app/utils/translation_prompt.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
@@ -68,16 +68,12 @@ class TranslationService extends GetxService {
   //
   // 这里只剩「翻译这件事怎么说给模型听」。怎么连、怎么流、怎么降级归 AiService。
 
-  /// 把 `[TL]` 占位替换为目标语言，得到最终系统提示词。
+  /// 当前目标语言对应的系统提示词。
   ///
-  /// 用标准语言名称（英文名 + 本地自称）替换，而非 `zh-CN` 这种简写，
-  /// 避免模型拿不准要翻译成什么语言。
-  String _buildPrompt(String? targetLanguage) {
-    final code = _getCurrentLanguage(targetLanguage);
-    final langName = CommonConstants.translationLanguageName(code);
-    return (_getConfig<String>(ConfigKey.AI_TRANSLATION_PROMPT) ?? '')
-        .replaceAll(CommonConstants.defaultLanguagePlaceholder, langName);
-  }
+  /// ⛔ 内置、不可配置，理由见 [TranslationPrompt]——这段话改坏了没有任何征兆，
+  /// 直接表现为「AI 没按我要的语言翻译」。
+  String _buildPrompt(String? targetLanguage) =>
+      TranslationPrompt.build(_getCurrentLanguage(targetLanguage));
 
   /// 拿设置页上**还没保存**的那几项去覆盖当前档案。
   ///

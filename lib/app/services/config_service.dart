@@ -424,7 +424,6 @@ enum ConfigKey {
   AI_TRANSLATION_MAX_TOKENS,
   AI_TRANSLATION_TEMPERATURE,
   REMEMBER_ME_KEY,
-  AI_TRANSLATION_PROMPT,
   AI_TRANSLATION_SUPPORTS_STREAMING,
   // 现代 AI 适配相关配置
   AI_TRANSLATION_PROVIDER, // 服务商：openai / anthropic / google
@@ -680,8 +679,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_translation_temperature';
       case ConfigKey.REMEMBER_ME_KEY:
         return 'remember_me';
-      case ConfigKey.AI_TRANSLATION_PROMPT:
-        return 'ai_translation_prompt';
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
         return 'ai_translation_supports_streaming';
       case ConfigKey.AI_TRANSLATION_PROVIDER:
@@ -1015,8 +1012,6 @@ extension ConfigKeyExtension on ConfigKey {
         return 0.3;
       case ConfigKey.REMEMBER_ME_KEY:
         return false;
-      case ConfigKey.AI_TRANSLATION_PROMPT:
-        return "You are a professional translation engine. Translate the user's text into ${CommonConstants.defaultLanguagePlaceholder}. Output ONLY the translation itself, with no explanations, notes, quotes or wrapping. Preserve the original Markdown formatting, line breaks, code blocks, URLs, @mentions and emoji. Keep proper nouns, usernames and technical terms unchanged. Use natural, idiomatic wording that fits the target language. If the source text is already in the target language, return it unchanged. If the text contains illegal or NSFW content, only soften or replace the sensitive words while still translating the rest.";
       case ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING:
         return true;
       case ConfigKey.AI_TRANSLATION_PROVIDER:

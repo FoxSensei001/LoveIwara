@@ -12,7 +12,6 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/widgets/media_query_insets_fix.dart';
-import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -60,7 +59,6 @@ class _AITranslationSettingsWidgetState
   final GlobalKey<FormState> _formKey = GlobalKey();
   late final TextEditingController _maxTokensController;
   late final TextEditingController _temperatureController;
-  final TextEditingController _promptController = TextEditingController();
 
   @override
   void initState() {
@@ -81,7 +79,6 @@ class _AITranslationSettingsWidgetState
         1,
       ),
     );
-    _promptController.text = configService[ConfigKey.AI_TRANSLATION_PROMPT];
   }
 
   @override
@@ -92,7 +89,6 @@ class _AITranslationSettingsWidgetState
     _apiKeyController.dispose();
     _maxTokensController.dispose();
     _temperatureController.dispose();
-    _promptController.dispose();
     super.dispose();
   }
 
@@ -177,7 +173,6 @@ class _AITranslationSettingsWidgetState
                   _buildDisclaimerCard(context),
                   _buildAPIConfigSection(context),
                   _buildModelCompatibilitySection(context),
-                  _buildAdvancedConfigSection(context),
                   _buildPreviewSection(context),
                   _buildTestConnectionSection(context),
                   _buildEnableSection(context),
@@ -873,95 +868,6 @@ class _AITranslationSettingsWidgetState
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildAdvancedConfigSection(BuildContext context) {
-    return Card(
-      elevation: 2,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              slang.t.translation.advancedSettings,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              spacing: 16,
-              children: [
-                _buildPromptEditor(context),
-                // ...其他高级设置
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPromptEditor(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.edit_note,
-              size: 20,
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white70
-                  : Colors.grey[600],
-            ),
-            const SizedBox(width: 8),
-            Text(
-              slang.t.translation.translationPrompt,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _promptController,
-          maxLines: 5,
-          decoration: InputDecoration(
-            hintText: slang.t.translation.promptHint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            helperText: slang.t.translation.promptHelperText,
-            helperMaxLines: 2,
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return slang.t.translation.thisFieldCannotBeEmpty;
-            }
-            if (!value.contains(CommonConstants.defaultLanguagePlaceholder)) {
-              return slang.t.translation.promptMustContainTargetLang;
-            }
-            return null;
-          },
-          onChanged: (value) {
-            configService[ConfigKey.AI_TRANSLATION_PROMPT] = value;
-            _disableAITranslation(
-              message: slang
-                  .t
-                  .translation
-                  .aiTranslationWillBeDisabledDueToPromptChange,
-            );
-            _isConnectionValid.value = false;
-            _hasTested.value = false;
-            _testResult.value = null;
-          },
-        ),
-      ],
     );
   }
 
