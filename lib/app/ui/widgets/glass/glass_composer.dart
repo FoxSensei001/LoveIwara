@@ -665,16 +665,19 @@ class GlassComposerBar extends StatelessWidget {
 
   /// 用户到底配没配过小尾巴的内容。
   ///
-  /// ⛔ 配没配过**只改这一条的说法，不决定它在不在场**。早先是「没配过就整条
-  /// 不出现」，理由写的是"没配过的人不该看见一个自己从来没用过的开关"——但它
-  /// 同时也是这个功能**唯一的入口**：一个没进过设置树的人因此永远发现不了
+  /// ⛔ 配没配过**只改开关那一条的说法，不决定它在不在场**。早先是「没配过就
+  /// 整条不出现」，理由写的是"没配过的人不该看见一个自己从来没用过的开关"——
+  /// 但它同时也是这个功能**唯一的入口**：一个没进过设置树的人因此永远发现不了
   /// 小尾巴这回事，只会觉得「三个点里根本没有这个选项」（2026-09-20 用户报障）。
-  /// 现在没配过时它照样在场，副标题写「还没设置」，点下去走 [onSignatureSetup]
-  /// 直接把人送到设置页。
+  /// 现在没配过时它照样在场，副标题写「还没设置」、点不动，真正的出口是紧跟着
+  /// 的「编辑小尾巴」（[onSignatureSetup]）。
   final bool signatureConfigured;
   final VoidCallback? onSignatureToggle;
 
-  /// 还没配过内容时点那一条的去处（通常是跳聊天/评论设置页）。
+  /// 菜单里那条「编辑小尾巴」的去处（跳到设置树里改内容的那张子页）。
+  ///
+  /// 为 null 就不排这一条。给了它**两种状态下都在场**：配过的人要改，没配过的
+  /// 人要第一次写，都得有这个口子。
   final VoidCallback? onSignatureSetup;
 
   /// 本条回复有没有可带的引用。为真就在「更多」菜单里放一条带勾选的引用开关。
@@ -722,17 +725,32 @@ class GlassComposerBar extends StatelessWidget {
           icon: Icons.format_quote_rounded,
           selected: quoteEnabled,
         ),
-      if (showSignatureToggle)
+      if (showSignatureToggle) ...[
         GlassMenuOption<String>(
           value: 'sig',
           label: t.settings.signature,
           // 没配过内容时这一条仍旧在场，只是换个说法（见 [signatureConfigured]）：
-          // 副标题告诉用户「还没设置」，勾自然也不画——点下去是去设置，不是开关。
+          // 副标题告诉用户「还没设置」，勾自然也不画，也点不动——一条空的小尾巴
+          // 没什么可开关的，出口是紧跟着的「编辑小尾巴」。
           description: signatureConfigured ? null : t.settings.signatureNotSet,
           icon: Icons.edit_note,
           selected: signatureConfigured && signatureEnabled,
           showCheck: signatureConfigured,
+          enabled: signatureConfigured,
         ),
+        // 「编辑小尾巴」是**独立的一条**，不是上面那条的隐藏行为。
+        //
+        // ⛔ 早先「没配过」时是把上面那条的点击改成跳设置——同一行在两种状态下
+        // 干两件事，配过之后就再也没有入口了（标题行那枚齿轮进的是整张设置页，
+        // 不等于「去改这句话」）。改内容和开不开是两件事，各占一条。
+        if (onSignatureSetup != null)
+          GlassMenuOption<String>(
+            value: 'sig_edit',
+            label: t.settings.editSignature,
+            icon: Icons.tune,
+            showCheck: false,
+          ),
+      ],
       // 已同意规则时才放这里；未同意时它在外面占着位置，不该重复出现。
       // 勾是**状态陈述**（你已经同意过了），点它是重读全文——不会取消同意，
       // 所以配一句副标题把这件事说破，免得被读成「再点一下就反悔」。
@@ -759,11 +777,9 @@ class GlassComposerBar extends StatelessWidget {
       case 'md':
         onMarkdownHelp?.call();
       case 'sig':
-        if (signatureConfigured) {
-          onSignatureToggle?.call();
-        } else {
-          onSignatureSetup?.call();
-        }
+        onSignatureToggle?.call();
+      case 'sig_edit':
+        onSignatureSetup?.call();
       case 'rules':
         onRulesTap?.call();
     }
