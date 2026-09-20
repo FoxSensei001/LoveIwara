@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show MaxLengthEnforcement;
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_syntax_help_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/markdown_preview_dialog.dart';
@@ -183,10 +184,17 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
     );
   }
 
-  /// 本弹窗要不要露出小尾巴开关：参与小尾巴、且用户确实配过内容。
-  /// 没配过的人不该看见一个自己从来没用过的开关。
-  bool get _showSignatureToggle {
-    if (!widget.allowSignature) return false;
+  /// 本弹窗要不要露出小尾巴开关：**只问这只弹窗参不参与小尾巴**。
+  ///
+  /// ⛔ 早先还要求「用户确实配过内容」，理由是"没配过的人不该看见一个自己从来
+  /// 没用过的开关"。可这一条同时是小尾巴**唯一的入口**——没进过设置树的人因此
+  /// 永远发现不了它，只会觉得三个点里根本没有这个选项（2026-09-20 用户报障）。
+  /// 配没配过现在只改那一条的说法，见 [GlassComposerBar.signatureConfigured]。
+  bool get _showSignatureToggle => widget.allowSignature;
+
+  /// 用户配过小尾巴的内容没有。没配过时菜单里那一条变成「还没设置」，
+  /// 点下去跳设置页而不是开关。
+  bool get _signatureConfigured {
     final String content = _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
     return content.trim().isNotEmpty;
   }
@@ -429,6 +437,8 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
             onQuoteToggle: _toggleQuote,
             showSignatureToggle: _showSignatureToggle,
             signatureEnabled: _signatureEnabled,
+            signatureConfigured: _signatureConfigured,
+            onSignatureSetup: NaviService.navigateToChatSettingsPage,
             onSignatureToggle: () => setState(() {
               _signatureEnabled = !_signatureEnabled;
               // 同上：写回持久化配置

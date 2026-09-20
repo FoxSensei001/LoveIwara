@@ -92,9 +92,12 @@ class _PostInputDialogState extends State<PostInputDialog> {
         : null,
   );
 
-  /// 用户确实配过小尾巴才露出那枚开关；没配过的人不该看见一个自己从来
-  /// 没用过的开关。
-  bool get _showSignatureToggle {
+  /// 用户配过小尾巴的内容没有。
+  ///
+  /// ⛔ 它**不决定那一条在不在场**（发帖弹窗恒定参与小尾巴，恒定露出那一条），
+  /// 只决定它的说法：没配过就写「还没设置」、点下去跳设置页。成因见
+  /// [GlassComposerBar.signatureConfigured]。
+  bool get _signatureConfigured {
     final String content = _configService[ConfigKey.SIGNATURE_CONTENT_KEY];
     return content.trim().isNotEmpty;
   }
@@ -279,8 +282,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
                 onMarkdownHelp: _showMarkdownHelp,
                 rulesAgreed: hasAgreed,
                 onRulesTap: _showRulesDialog,
-                showSignatureToggle: _showSignatureToggle,
+                showSignatureToggle: true,
                 signatureEnabled: _signatureEnabled,
+                signatureConfigured: _signatureConfigured,
+                onSignatureSetup: NaviService.navigateToChatSettingsPage,
                 onSignatureToggle: () => setState(() {
                   _signatureEnabled = !_signatureEnabled;
                   _currentBodyLength = _composedBody().length;
