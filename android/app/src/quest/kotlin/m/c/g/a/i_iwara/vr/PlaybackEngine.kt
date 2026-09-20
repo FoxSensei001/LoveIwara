@@ -185,6 +185,12 @@ class PlaybackEngine(private val context: Context) {
         p.repeatMode = if (repeatOne) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
         surface?.let { p.setVideoSurface(it) }
         setPlaying(true)
+        // ⛔ `addListener` **不补发当前状态**：预加载那条是 READY 了才轮到这里换上来的，
+        // 它不会再来一次 `onPlaybackStateChanged`。而老片如果正是在缓冲途中被「接着看」
+        // 换掉的，Activity 手里的 `controls.buffering` 还停在 true —— 没人来把它翻回去，
+        // 那枚转圈就留在新片画面上一直转下去（2026-09-20 用户报障）。换播放器时按新那条的
+        // 真实状态补报一次，这件事只能由引擎自己来：它是唯一知道「谁是当前播放器」的人。
+        listener?.onBuffering(p.playbackState == Player.STATE_BUFFERING)
         val size = p.videoSize
         return if (size.width > 0 && size.height > 0) size.width to size.height else null
     }
