@@ -126,7 +126,9 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
       _pushRecent(url);
       // 第一次用之后「最近」这一格才长出来，此时后面的分组整体右移一位，
       // 当前选中的那一格要跟着挪，否则用户会发现自己突然换了组。
-      if (!hadRecent && _tab > 0) _tab++;
+      // ⛔ 不加 `_tab > 0` 的条件：第 0 格原先是第一个分组，长出「最近」之后
+      // 第 0 格变成了「最近」，不挪的话用户正看着的那一组会当场被换掉。
+      if (!hadRecent) _tab++;
     });
   }
 
@@ -195,9 +197,9 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
           Expanded(
             child: Text(
               t.emoji.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           GlassIconButton(
@@ -296,10 +298,10 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // 列数按可用宽度算，不写死
-        final int columns = ((constraints.maxWidth - 24 + _cellGap) /
-                (_cellTarget + _cellGap))
-            .floor()
-            .clamp(4, 10);
+        final int columns =
+            ((constraints.maxWidth - 24 + _cellGap) / (_cellTarget + _cellGap))
+                .floor()
+                .clamp(4, 10);
         return GridView.builder(
           controller: controller,
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -368,10 +370,10 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
     final cs = Theme.of(context).colorScheme;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final int columns = ((constraints.maxWidth - 24 + _cellGap) /
-                (_cellTarget + _cellGap))
-            .floor()
-            .clamp(4, 10);
+        final int columns =
+            ((constraints.maxWidth - 24 + _cellGap) / (_cellTarget + _cellGap))
+                .floor()
+                .clamp(4, 10);
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
           physics: const NeverScrollableScrollPhysics(),
@@ -431,11 +433,7 @@ class _EmojiPickerSheetState extends State<EmojiPickerSheet> {
                     ),
                   ),
                   const SizedBox(width: 2),
-                  Icon(
-                    Icons.expand_more,
-                    size: 17,
-                    color: cs.onSurfaceVariant,
-                  ),
+                  Icon(Icons.expand_more, size: 17, color: cs.onSurfaceVariant),
                 ],
               ),
             ),
@@ -528,12 +526,15 @@ class _SkeletonCellState extends State<_SkeletonCell>
   late final AnimationController _c = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1100),
-  )..repeat(reverse: true);
+  );
 
   @override
   void initState() {
     super.initState();
+    // ⛔ 顺序不能倒过来：`value` 的 setter 自带一次 stop()，先 repeat 再错峰
+    // 会把动画当场停死，整片骨架冻在各自的静态透明度上。
     _c.value = (widget.delayIndex % 7) / 7;
+    _c.repeat(reverse: true);
   }
 
   @override

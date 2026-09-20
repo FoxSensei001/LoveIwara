@@ -285,7 +285,10 @@ class _PostInputDialogState extends State<PostInputDialog> {
                   _signatureEnabled = !_signatureEnabled;
                   _currentBodyLength = _composedBody().length;
                 }),
-                length: _bodyController.text.length,
+                // 数的是**最终文本**，与 errorText / 提交闸门同一把尺；
+                // 拿输入框里的原始长度去比 maxBodyLength 会出现「计数没超、
+                // 发送却是灰的」。
+                length: _currentBodyLength,
                 limit: maxBodyLength,
               );
             }),

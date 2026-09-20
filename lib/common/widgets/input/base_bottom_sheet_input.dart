@@ -41,7 +41,6 @@ class BaseBottomSheetInput extends StatefulWidget {
   /// 是跑题的。
   final bool showSettingsShortcut;
 
-
   const BaseBottomSheetInput({
     super.key,
     required this.title,
@@ -104,6 +103,9 @@ class _BaseBottomSheetInputState extends State<BaseBottomSheetInput> {
     return GlassBottomSheet(
       showCloseButton: false,
       padding: EdgeInsets.zero,
+      // 与 [BaseDialogInput] 同一个理由：输入框是恒定高度
+      // （minLines == maxLines），矮屏 + 键盘弹起时这一列会超出弹层高度上限。
+      scrollable: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

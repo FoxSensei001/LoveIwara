@@ -44,7 +44,6 @@ class BaseDialogInput extends StatefulWidget {
   /// 是跑题的。
   final bool showSettingsShortcut;
 
-
   const BaseDialogInput({
     super.key,
     required this.title,
@@ -109,7 +108,10 @@ class _BaseDialogInputState extends State<BaseDialogInput> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       // 液态档由 [GlassDialogRoute] 在路由层供，这里不用自己包。
-      child: Padding(
+      // ⛔ 整块内容必须可滚动：输入框现在是恒定高度（minLines == maxLines），
+      // 个人简介那种 maxLines: 10 的弹窗在矮屏 + 键盘弹起时，标题行 + 输入区 +
+      // 底栏加起来会超过 Dialog 给的高度，不滚就是一条 RenderFlex overflowed。
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -143,7 +143,10 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
         _quote ??= parsed.quote;
         _quoteEnabled = true;
       }
-      if (parsed.footer != null) _signatureEnabled = widget.allowSignature;
+      // 两个方向都要写：原文没带小尾巴就**关掉**它，哪怕用户配置里开着。
+      // 否则编辑一条别人从没签过名的旧回复，保存时会凭空给它接上一句
+      // 「Sent from …」。
+      _signatureEnabled = widget.allowSignature && parsed.footer != null;
       final body = CommentMarkup.softenLineBreaks(parsed.body);
       widget.controller.text = body;
       // `controller.text` 的 setter 会把 selection 置成 -1（无效），落焦时
@@ -325,9 +328,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
             username: quote.username,
             excerpt: quote.excerpt,
             enabled: _quoteEnabled,
-            onToggle: widget.enabled && !widget.isLoading
-                ? _toggleQuote
-                : null,
+            onToggle: widget.enabled && !widget.isLoading ? _toggleQuote : null,
           ),
 
         // 输入域：玻璃壳包住无边框输入控件
@@ -349,18 +350,13 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
                     hint: widget.hintText,
                     errorText: errorText,
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _currentLength = value.length;
-                    });
-                  },
+                  // ⛔ 这里不再自己记长度：controller 的监听器已经把
+                  // `_currentLength` 记成**最终文本**的长度，而 onChanged 给的
+                  // `value` 只是输入框里的正文。两处都写的话，后跑的 onChanged
+                  // 每次敲键都会把引用头 / 小尾巴那段开销抹掉，超限判定又退回
+                  // 「提交那一刻才发现」。
                   enabled: widget.enabled && !widget.isLoading,
                   focusNode: widget.focusNode,
-                  onEmojiInserted: (imageUrl) {
-                    setState(() {
-                      _currentLength = widget.controller.text.length;
-                    });
-                  },
                 )
               : TextField(
                   controller: widget.controller,
@@ -381,11 +377,7 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
                     // 这里不再重复画一个常驻计数。
                     counterText: '',
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _currentLength = value.length;
-                    });
-                  },
+                  // 长度同样只由 controller 的监听器记（理由见上面那支）。
                 ),
         ),
 
@@ -396,8 +388,13 @@ class _BaseInputWidgetState extends State<BaseInputWidget> {
         // 左右都是大片空白；合成一行之后省下的高度全部还给写作区——那才是
         // 这类界面唯一值得优化的量。
         Obx(() {
+          // ⛔ 这一读必须**无条件**先发生：Obx 靠 build 期间读到的 Rx 建立订阅，
+          // 一条都没读到会当场抛「improper use of a GetX」。把它写进三目的分支里，
+          // 在 showRulesAgreement: false 的调用点（个人简介弹窗）就会短路成零读取。
+          final bool agreedNow =
+              _configService[ConfigKey.RULES_AGREEMENT_KEY] as bool;
           final bool? rulesAgreed = widget.showRulesAgreement
-              ? _configService[ConfigKey.RULES_AGREEMENT_KEY] as bool
+              ? agreedNow
               : null;
           final bool blocked = rulesAgreed == false;
           return GlassComposerBar(

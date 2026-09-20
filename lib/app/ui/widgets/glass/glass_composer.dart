@@ -480,12 +480,8 @@ class GlassQuoteCard extends StatelessWidget {
                   // 一整行除了「带不带引用」之外没有第二件事可做，不存在误触
                   // 别的动作的可能。
                   onTap: onToggle,
-                  builder: (context, pressed) => _buildSurface(
-                    context,
-                    t,
-                    cs,
-                    pressed: pressed,
-                  ),
+                  builder: (context, pressed) =>
+                      _buildSurface(context, t, cs, pressed: pressed),
                 ),
               ),
             ),
@@ -541,10 +537,7 @@ class GlassQuoteCard extends StatelessWidget {
             Icon(Icons.reply_rounded, size: 13, color: fg),
             const SizedBox(width: 5),
             Text(
-              t.forum.replyToFloor(
-                floor: floor.toString(),
-                username: username,
-              ),
+              t.forum.replyToFloor(floor: floor.toString(), username: username),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -793,19 +786,24 @@ class GlassComposerBar extends StatelessWidget {
 
     return Row(
       children: [
-        // 未同意规则：徽标占左端（它拦着发送，必须看得见）
+        // 未同意规则：徽标占左端（它拦着发送，必须看得见）。
+        // ⛔ 工具键**不随它一起消失**：「更多」是翻译 / markdown 帮助 / 小尾巴 /
+        // 引用开关的唯一入口，藏掉等于新用户在点头同意之前一件工具都用不了。
+        // 徽标用 Flexible 吃剩余宽度，挤的时候先压它、不压工具键。
         if (pendingRules)
           Flexible(
             child: Align(
               alignment: Alignment.centerLeft,
               child: GlassRulesBadge(agreed: false, onTap: onRulesTap),
             ),
-          )
-        else if (actions.isNotEmpty)
+          ),
+        if (actions.isNotEmpty) ...[
+          if (pendingRules) const SizedBox(width: 8),
           GlassButtonGroup(
             touchFlexSignature: 'composer|${actions.length}',
             children: actions,
           ),
+        ],
 
         const Spacer(),
 
