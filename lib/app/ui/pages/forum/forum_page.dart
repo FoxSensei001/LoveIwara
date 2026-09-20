@@ -471,10 +471,7 @@ class ForumPageState extends State<ForumPage> {
     UserService userService = Get.find<UserService>();
     if (!userService.isAuthenticated) {
       AppService.switchGlobalDrawer();
-      showAppToast(
-        slang.t.errors.pleaseLoginFirst,
-        type: AppToastType.warning,
-      );
+      showAppToast(slang.t.errors.pleaseLoginFirst, type: AppToastType.warning);
       return;
     }
     showAppDialog(
@@ -506,8 +503,8 @@ class ForumPageState extends State<ForumPage> {
             (_isPaginated.value && _selectedRailIndex == 0
                 ? PaginationBar.barHeight
                 : 0),
-        // group: false —— 浮钮走 GlassReveal 的 materialize 淡入，材质淡入
-        // 在融合层里无效（见 GlassChromeLayer 最后一段）。
+        // group: false —— 这里只有一枚浮钮，成组没有对象可融、只剩一层的代价
+        // （见 GlassChromeLayer 最后一段）。
         child: GlassChromeLayer(
           group: false,
           child: ValueListenableBuilder<bool>(

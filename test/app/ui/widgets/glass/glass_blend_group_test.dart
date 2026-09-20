@@ -31,7 +31,9 @@ void main() {
 
   Future<void> pump(WidgetTester tester, Widget child) async {
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: Center(child: child))),
+      MaterialApp(
+        home: Scaffold(body: Center(child: child)),
+      ),
     );
     await tester.pump(const Duration(milliseconds: 300));
   }
@@ -44,10 +46,7 @@ void main() {
         LiquidGlassScope(
           backend: backend,
           child: GlassBlendGroup(
-            child: GlassSurface(
-              width: 120,
-              child: probe((v) => joinable = v),
-            ),
+            child: GlassSurface(width: 120, child: probe((v) => joinable = v)),
           ),
         ),
       );
@@ -248,21 +247,58 @@ void main() {
     expect(await sizeOf(blend: true), const Size(200, GlassTokens.pillHeight));
   });
 
-  testWidgets('materialize 撞上融合组：debug 下当场报错，别静默失效', (tester) async {
+  testWidgets('材质淡入途中自己退组：m < 1 单块成层，m == 1 归队', (tester) async {
+    Future<bool> ownLayerAt(double m) async {
+      await pump(
+        tester,
+        LiquidGlassScope(
+          backend: GlassBackend.liquidWidgets,
+          child: GlassBlendGroup(
+            child: GlassSurface(
+              width: 120,
+              materialize: m,
+              child: const SizedBox(),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      return tester
+          .widget<AdaptiveGlass>(find.byType(AdaptiveGlass))
+          .useOwnLayer;
+    }
+
+    // 淡入途中：层里那一份材质是邻居共用的，压不得——这几帧自己成层。
+    expect(await ownLayerAt(0.4), isTrue);
+    // 到位之后归队，静止态还是一层（省的就是这一层的整屏采样）。
+    expect(await ownLayerAt(1), isFalse);
+  });
+
+  testWidgets('退组的那几帧，子树也要挡在祖先那一组之外', (tester) async {
+    bool? joinable;
+    bool? inside;
     await pump(
       tester,
       LiquidGlassScope(
         backend: GlassBackend.liquidWidgets,
         child: GlassBlendGroup(
-          child: const GlassSurface(
+          child: GlassSurface(
             width: 120,
             materialize: 0.4,
-            child: SizedBox(),
+            child: Builder(
+              builder: (context) {
+                joinable = GlassBlendGroup.isJoinable(context);
+                inside = GlassBlendGroup.isInside(context);
+                return const SizedBox();
+              },
+            ),
           ),
         ),
       ),
     );
-    expect(tester.takeException(), isAssertionError);
+    // 否则内容里的玻璃（果冻指示器一类）会越过我们这层去认祖先那一层。
+    expect(joinable, isFalse);
+    expect(inside, isTrue);
   });
 
   group('GlassHeaderOverlay', () {

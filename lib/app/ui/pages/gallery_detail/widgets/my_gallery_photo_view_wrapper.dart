@@ -1545,9 +1545,9 @@ class _MyGalleryPhotoViewWrapperState extends State<MyGalleryPhotoViewWrapper>
   /// 现在收成两块玻璃：左边一枚关闭圆钮，右边一条装着画质 / 快捷键 / ⋮ / 页码
   /// 的胶囊。
   ///
-  /// **两块各自 `group: false`**：它们要跟着 chrome 一起做材质淡入，而融合组里
-  /// 同一层只有一份材质、`materialize` 会被静默吃掉（debug 下有 assert）。
-  /// 左右分居两端本来也不成簇。
+  /// **两块各自 `group: false`**：左右分居屏幕两端，本来就不成簇，收进同一层
+  /// 只剩代价（材质淡入不是理由——淡入途中玻璃会自己临时退组，见
+  /// `GlassBlendGroup` 的类注释）。
   Widget _buildTopChrome(
     BuildContext context,
     slang.Translations t,

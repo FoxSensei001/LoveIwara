@@ -59,9 +59,9 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 ///    静止态三块独立的玻璃，跟手形变把间隙吃掉时才融合。改一个就要改另一个。
 /// 3. **融合只吃最外一层**。胶囊里头的玻璃（分段控件的果冻指示器）自动被挡在
 ///    组外，不会和自己的外壳融成一坨。
-/// 4. **融合态下同一层玻璃只有一份材质**：按下的底色加深与
-///    `GlassSurface.materialize` 材质淡入都无效。要淡入的那块玻璃得留在自己的
-///    层里（`GlassBlendGroup(enabled: false)`），debug 下有 assert 盯着。
+/// 4. **融合态下同一层玻璃只有一份材质**：按下的底色加深在融合态下无效。
+///    `GlassSurface.materialize` 材质淡入不受这条管——淡入途中那块玻璃会自己
+///    临时退出融合组、到位后归队（2026-09-20 起，调用点什么都不用做）。
 ///
 /// 详见 `liquid_glass_material.dart` 里 `GlassBlendGroup` 的类注释。
 ///
@@ -1047,7 +1047,8 @@ class _GlassSpinningArcState extends State<GlassSpinningArc>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.color ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final color =
+        widget.color ?? Theme.of(context).colorScheme.onSurfaceVariant;
     // ⛔ RepaintBoundary 收在这里：每帧变的只有一层 Transform，弧本身一次都
     // 不用重画，更不该把外面那行标题拖进重绘。
     return RepaintBoundary(

@@ -20,9 +20,9 @@ import 'package:i_iwara/utils/common_utils.dart';
 ///
 /// 每块独立玻璃都要为自己整屏采样一次背景（见 `GlassChromeLayer` 的性能记录），
 /// 而这条 chrome 浮在**正在播放的视频**上，每帧背景都在变，收成一块之后采样只有
-/// 一次。这同时也是 [GlassSurface.materialize] 还能用的前提——融合组里同一层只有
-/// 一份材质，淡入会被静默吃掉（debug 下有 assert 盯着），所以外面那只
-/// `GlassChromeLayer` 必须传 `group: false`。
+/// 一次。外面那只 `GlassChromeLayer` 传 `group: false` 是因为整条就这一块玻璃，
+/// 成组没有对象可融、只剩代价（[GlassSurface.materialize] 不在此列——淡入途中
+/// 玻璃会自己临时退组，见 `GlassBlendGroup` 的类注释）。
 ///
 /// # ⛔ 三条容易踩空的约束
 ///
@@ -179,7 +179,7 @@ class _GalleryVideoControlBarState extends State<GalleryVideoControlBar> {
           children: [
             LayoutBuilder(
               builder: (context, constraints) => GlassChromeLayer(
-                // 整条就是一块玻璃，成组没有对象可融，反而会把 materialize 关掉。
+                // 整条就是一块玻璃，成组没有对象可融，只剩一层的代价。
                 group: false,
                 child: GlassSurface(
                   height: _barHeight,

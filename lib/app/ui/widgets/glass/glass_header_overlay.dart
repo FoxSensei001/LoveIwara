@@ -86,9 +86,12 @@ class GlassHeaderOverlay extends StatelessWidget {
   ///
   /// 默认开：头像圆钮被按住往右拖时，跟手形变会把它与中间那只胶囊之间的
   /// 8px 间隙吃掉并融成一坨——与浮动底栏上「搜索圆钮拖向栏目胶囊」是同一种
-  /// 语言。要关掉的只有一种情形：header 里有玻璃要做
-  /// [GlassSurface.materialize] 材质淡入（同一层玻璃只有一份材质，淡入在
-  /// 融合态下无效，debug 下有 assert 盯着）。
+  /// 语言。
+  ///
+  /// ⚠️ 2026-09-20 起**不必为材质淡入关掉它**：[GlassSurface.materialize]
+  /// 途中那块玻璃会自己临时退出融合组、到位后归队（见 [GlassBlendGroup] 的
+  /// 「材质淡入怎么活下来的」）。为一段两三百毫秒的入场把整行常年拆成五层，
+  /// 换的是那张基准表里最贵的一项。
   final bool blendHeader;
 
   /// 本页的浮层 chrome（[header] 与 [extra]）改用真液态玻璃

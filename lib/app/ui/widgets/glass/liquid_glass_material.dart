@@ -379,12 +379,34 @@ class LiquidGlassScope extends InheritedWidget {
 ///   1. **按下时的底色加深没有了**。[GlassSurface] 那条 `pressed` 底色过渡在
 ///      融合态下无效——按下反馈只剩跟手形变（拉伸 + 1.05 呼吸 + 指尖高光），
 ///      而那几项本来就是这一档的主要反馈，不算丢东西。
-///   2. **[GlassSurface.materialize]（材质淡入）无效**。要做材质淡入的那块
-///      玻璃必须留在自己的层里——把它挪出融合组，或给外层传
-///      `GlassBlendGroup(enabled: false)`。debug 下有 assert 盯着。
+///   2. **[GlassSurface.materialize]（材质淡入）没有地方可放**——层里那一份
+///      材质是所有邻居共用的，压它等于把整行一起压没。
 ///
 /// 换来的是：整行只采样一次背景（原来三块玻璃是三次），投影也从三条各自的
 /// 变成融合后轮廓的一条。
+///
+/// ## 材质淡入怎么活下来的：淡入途中临时退组（2026-09-20）
+///
+/// 第 2 条原先是条硬禁令（`m < 1` 撞上融合组 debug 直接 assert，叫调用点自己
+/// 传 `enabled: false`）。代价太大：为了一段两三百毫秒的入场，整行 chrome 要
+/// **常年**从一层拆成五层——而那正是上面那张表里最贵的一项。
+///
+/// 现在由 [LiquidWidgetsGlassBox] 自己分时：`m < 1` 的那几帧它走单块那条路
+/// （自己成层、自己的材质、自己的影子），`m == 1` 归队。多出来的那一层只在
+/// 淡入 / 淡出期间存在，静止态还是一层。
+///
+/// 可行性是上面那张影子像素表的**第三行**量出来的：「单块、但仍在融合层底下」
+/// 与组外的单块逐像素一致——层本身不裁东西，退组的那块玻璃照常画。
+///
+/// 两处要知道的副作用：
+///   - 跨过 `m == 1` 那一帧树形会变（多 / 少一层 `_GlassBlendScope`），子树
+///     重建一次。淡入末尾本来就是「刚出现」的东西，代价是内部状态（分段控件
+///     量出来的高亮位置一类）重新量一遍。
+///   - 归队那一下才开始与邻居吞并。两块离得近（间距 < [GlassTokens.chromeBlend]）
+///     时，看得到轮廓在最后一帧接上。
+///
+/// 2026-09-20 起这条禁令作废，`blendHeader: false` 不再是材质淡入的必需品
+/// （它仍然是「整行都不要融合」的逃生口）。
 ///
 /// # 只在 [GlassBackend.liquidWidgets] 档生效
 ///
@@ -443,7 +465,10 @@ class GlassBlendGroup extends StatelessWidget {
   final EdgeInsets clipExpansion;
 
   /// 置 false 时整只透传（连标记都不供），子树里的玻璃各自成层。
-  /// 子树里有玻璃要做 [GlassSurface.materialize] 淡入时用得上。
+  ///
+  /// ⚠️ 不再是「做材质淡入就得关掉」的那个开关——[GlassSurface.materialize]
+  /// 途中玻璃会自己临时退组（见类注释）。要关的只剩「这一簇本来就不该融合」
+  /// 的情形（例如簇里只有一块玻璃，成组只剩代价）。
   final bool enabled;
 
   /// 当前位置是否处在一个**可加入**的融合组里。由 [LiquidWidgetsGlassBox] 调用。
@@ -755,7 +780,8 @@ class LiquidGlassBox extends StatelessWidget {
 ///
 /// 另外这一档独有**融合**：处在 [GlassBlendGroup] 里时本类改走 grouped
 /// （`useOwnLayer: false`），与同层的邻居互相吞并；代价是层内共用一份材质，
-/// [pressed] 与 [materialize] 在那一支下无效，见 [GlassBlendGroup]。
+/// [pressed] 在那一支下无效，见 [GlassBlendGroup]。[materialize] 是例外
+/// ——淡入途中本类自己退回单块那一支，见那边的「材质淡入怎么活下来的」。
 class LiquidWidgetsGlassBox extends StatelessWidget {
   const LiquidWidgetsGlassBox({
     super.key,
@@ -825,18 +851,18 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
     Widget wrapInteractive(Widget glass) =>
         _LiquidStretchShell(enabled: interactive, shape: shape, child: glass);
 
+    final bool joinable = GlassBlendGroup.isJoinable(context);
+
     // ---- 融合态：加入祖先 [GlassBlendGroup] 那一层，与邻居互相吞并 ----
     //
     // 这一支下**材质由 layer 统一供给**，`settings` 只是个占位常量（包里
-    // `AdaptiveGlass.grouped` 也是这么传的），所以 [pressed] 的底色过渡和
-    // [materialize] 在这里都无效——代价与理由见 [GlassBlendGroup] 的类注释。
-    if (GlassBlendGroup.isJoinable(context)) {
-      assert(
-        m >= 1,
-        'GlassSurface.materialize 在融合组里无效（同一层玻璃只有一份材质）。'
-        '要做材质淡入请把这块玻璃移出融合组，或给外层传 '
-        'GlassBlendGroup(enabled: false)。',
-      );
+    // `AdaptiveGlass.grouped` 也是这么传的），所以 [pressed] 的底色过渡在这里
+    // 无效——代价与理由见 [GlassBlendGroup] 的类注释。
+    //
+    // [materialize] 是那条代价的例外：`m < 1` 的那几帧本类**自己退出融合组**、
+    // 临时长回单块玻璃（下面那一支），淡入跑完（`m == 1`）再归队。见类注释
+    // 「材质淡入怎么活下来的」。
+    if (joinable && m >= 1) {
       return wrapInteractive(
         SizedBox(
           height: height,
@@ -856,6 +882,13 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
       );
     }
 
+    // 从融合组里临时退出来的那几帧（见上），子树也要一并挡在组外：否则内容里
+    // 的玻璃（分段胶囊的果冻指示器一类）会越过我们这层、去认祖先那一层，和
+    // 「加入融合的那块玻璃给自己的 child 关掉标记」这条规矩就对不上了。
+    final Widget content = joinable
+        ? GlassBlendGroup.exclude(child: child)
+        : child;
+
     // 按下的底色变化要和另外两档同一段过渡（pressDuration / easeOut）。
     // 他们的 glass 没有 AnimatedContainer 那样的隐式插值，这里自己插。
     return TweenAnimationBuilder<Color?>(
@@ -866,7 +899,7 @@ class LiquidWidgetsGlassBox extends StatelessWidget {
       ),
       duration: GlassTokens.pressDuration,
       curve: Curves.easeOut,
-      child: child,
+      child: content,
       builder: (context, tint, child) {
         final Widget glass = SizedBox(
           height: height,

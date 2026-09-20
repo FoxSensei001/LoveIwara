@@ -213,9 +213,9 @@ void main() {
           'resolve。2026-08-24 真机实测：一行 chrome 从一层拆成三层要多花 '
           '3ms 光栅、jank 从 3.7% 升到 16.9%（而把画质从 premium 砍到 minimal '
           '只省 0.3ms——层数才是这套材质唯一值得优化的量）。\n'
-          '改用 GlassChromeLayer：它供档的同时把这一簇收进同一层。簇里有玻璃'
-          '要做 materialize 材质淡入的，传 group: false（那种本来也只有一块'
-          '玻璃，不亏）。\n'
+          '改用 GlassChromeLayer：它供档的同时把这一簇收进同一层。只有一块'
+          '玻璃、本来就不成簇的，传 group: false（成组没有对象可融，只剩代价）。'
+          '材质淡入不再是关掉融合的理由——淡入途中玻璃会自己临时退组。\n'
           '${offenders.join('\n')}',
     );
   });

@@ -245,7 +245,8 @@ class _GalleryVideoCenterControlsState extends State<GalleryVideoCenterControls>
             return Transform.scale(
               scale: breath,
               child: GlassChromeLayer(
-                // 这一组里每枚都要各自做材质淡入，融合组会把 materialize 关掉。
+                // 这几枚各自缩放、各自淡入，本来就不是并排站着的一簇，
+                // 成组只会把它们的形状硬拉到一起。
                 group: false,
                 child: GlassSurface(
                   circle: true,
