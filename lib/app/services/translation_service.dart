@@ -1,13 +1,15 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:dartantic_ai/dartantic_ai.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/models/ai_provider.model.dart';
+import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
+import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/deeplx_language_mapper.dart';
+import 'package:i_iwara/app/utils/ai_error_describe.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -15,9 +17,12 @@ import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 翻译服务。
 ///
-/// - AI 翻译经由 [dartantic_ai] 统一接入 OpenAI（含一切 OpenAI 兼容端点）、
-///   Anthropic 原生、Google 原生三家，由 SDK 处理各家协议、流式与推理(thinking)。
-/// - Google 翻译与 DeepLX 仍走本服务自带的 dio。
+/// 这里只剩**翻译的策略**：三家怎么选、提示词怎么拼、目标语言怎么算、
+/// Google 怎么分段、DeepLX 的协议长什么样。
+///
+/// ⭐ 「怎么调 AI」已经不在这儿了——供应商档案、Agent 构造、流式生命周期、
+/// 失败降级、记账全部归 [AiService]。AI 不再是翻译的实现细节，翻译只是 AI
+/// 的**一个用途**（[AiTask.translate]），与搜索、小尾巴并列。
 ///
 /// 代理：应用在启动时设置了 `HttpOverrides.global`，进程级覆盖所有 `HttpClient`，
 /// dartantic 底层的 package:http 默认客户端会自动走用户配置的代理。
@@ -29,18 +34,7 @@ class TranslationService extends GetxService {
     dio.options.persistentConnection = false;
   }
 
-  // 存储当前正在进行的流式翻译
-  final Map<String, StreamController<String>> _activeStreamTranslations = {};
-
-  // 用于管理超时的定时器
-  final Map<String, Timer> _translationTimeouts = {};
-
-  // 每个流式翻译对应的 dartantic 订阅，用于在流被关闭/超时时立即中断
-  final Map<String, StreamSubscription<ChatResult<String>>> _aiSubscriptions =
-      {};
-
-  // 推理过程(reasoning)回调，按翻译 ID 暂存
-  final Map<String, void Function(String reasoning)> _reasoningCallbacks = {};
+  AiService get _ai => Get.find<AiService>();
 
   // 流式翻译的最大超时时间（秒）
   static const int _streamTranslationTimeoutSeconds = 120;
@@ -62,60 +56,17 @@ class TranslationService extends GetxService {
   }
 
   // 错误描述 ---------------------------
-
-  /// 把异常拍平成一句「人能看懂、且能据此改配置」的具体原因。
-  ///
-  /// dio 的异常默认 toString() 很长且把关键信息（状态码、服务端回包）埋在中间，
-  /// 这里统一抽成 `类型 / HTTP 状态 / 回包片段` 三段，供 UI 直接展示。
-  String _describeError(Object e) {
-    if (e is DioException) {
-      final parts = <String>[];
-      final status = e.response?.statusCode;
-      if (status != null) {
-        parts.add('HTTP $status');
-      }
-      // 直接用 dio 的类型名（connectionError / receiveTimeout ...）：
-      // 与语言无关，也方便用户把原文贴给开发者
-      if (e.type != DioExceptionType.badResponse &&
-          e.type != DioExceptionType.unknown) {
-        parts.add(e.type.name);
-      }
-      final body = _stringifyBody(e.response?.data);
-      if (body.isNotEmpty) {
-        parts.add(body);
-      } else {
-        final msg = e.message?.trim();
-        if (msg != null && msg.isNotEmpty) parts.add(msg);
-        final inner = e.error;
-        if (inner != null) parts.add(inner.toString());
-      }
-      return _truncate(parts.join(' | '));
-    }
-    return _truncate(e.toString());
-  }
-
-  /// 把服务端回包转成一行可读文本（对象走 json，长文本截断）
-  String _stringifyBody(dynamic data) {
-    if (data == null) return '';
-    try {
-      final text = data is String ? data : jsonEncode(data);
-      return text.replaceAll(RegExp(r'\s+'), ' ').trim();
-    } catch (_) {
-      return data.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-    }
-  }
-
-  String _truncate(String text, {int max = 400}) {
-    final trimmed = text.trim();
-    if (trimmed.length <= max) return trimmed;
-    return '${trimmed.substring(0, max)}…';
-  }
+  //
+  // 具体实现搬到了 `lib/app/utils/ai_error_describe.dart`：AI 那半边也要用同一套
+  // 措辞，两边各写一份的话，同一个 401 在两处会长得不一样。
 
   /// 统一的失败文案：`失败原因前缀: 具体细节`
   String _failMessage(String prefix, Object error) =>
-      '$prefix: ${_describeError(error)}';
+      failMessageWith(prefix, error);
 
-  // AI 适配层（dartantic_ai）---------------------------
+  // AI 翻译 ---------------------------
+  //
+  // 这里只剩「翻译这件事怎么说给模型听」。怎么连、怎么流、怎么降级归 AiService。
 
   /// 把 `[TL]` 占位替换为目标语言，得到最终系统提示词。
   ///
@@ -128,75 +79,20 @@ class TranslationService extends GetxService {
         .replaceAll(CommonConstants.defaultLanguagePlaceholder, langName);
   }
 
-  /// 依据 providerId + 凭据构造 dartantic Provider。
-  /// - openai：覆盖 OpenAI 及一切 OpenAI 兼容端点（DeepSeek、中转、本地等），支持自定义 baseUrl
-  /// - anthropic：原生 `/v1/messages`（本版本 SDK 不支持自定义 baseUrl）
-  /// - google：原生 Gemini，支持自定义 baseUrl
-  Provider _buildProvider(String providerId, String apiKey, String baseUrl) {
-    final trimmed = baseUrl.trim();
-    final uri = trimmed.isEmpty ? null : Uri.parse(trimmed);
-    switch (providerId) {
-      case 'anthropic':
-        return AnthropicProvider(apiKey: apiKey);
-      case 'google':
-        return GoogleProvider(apiKey: apiKey, baseUrl: uri);
-      default:
-        return OpenAIProvider(apiKey: apiKey, baseUrl: uri);
-    }
-  }
-
-  /// 构造用于翻译的 Agent。
-  Agent _buildAgentFrom({
-    required String providerId,
-    required String apiKey,
-    required String baseUrl,
-    required String model,
-    required bool reasoning,
-    required bool sendTemperature,
-    required int maxTokens,
-    required double temperature,
+  /// 拿设置页上**还没保存**的那几项去覆盖当前档案。
+  ///
+  /// 「测试连接」和「拉模型列表」都要这个：用户刚改完地址还没点保存就想试一下，
+  /// 拿已保存的配置去测等于测了个寂寞。
+  AiProviderProfile _profileWithOverrides({
+    String? baseUrl,
+    String? model,
+    String? apiKey,
   }) {
-    final provider = _buildProvider(providerId, apiKey, baseUrl);
-
-    // 仅 anthropic / google 支持 dartantic 的 thinking；openai(兼容) 端点开启会抛错
-    final supportsThinking =
-        providerId == 'anthropic' || providerId == 'google';
-    final enableThinking = reasoning && supportsThinking;
-
-    // 推理模型通常不接受自定义 temperature
-    final double? temp = (sendTemperature && !reasoning) ? temperature : null;
-
-    // 各家有各自的 options（maxTokens 字段名不同）；OpenAI 会自动映射到 max_completion_tokens
-    final ChatModelOptions options = switch (providerId) {
-      'anthropic' => AnthropicChatOptions(maxTokens: maxTokens),
-      'google' => GoogleChatModelOptions(maxOutputTokens: maxTokens),
-      _ => OpenAIChatOptions(maxTokens: maxTokens),
-    };
-
-    return Agent.forProvider(
-      provider,
-      chatModelName: model.trim().isEmpty ? null : model.trim(),
-      temperature: temp,
-      enableThinking: enableThinking,
-      chatModelOptions: options,
-    );
+    final base =
+        _ai.profileFor(AiTask.translate) ??
+        const AiProviderProfile(id: 'adhoc', name: 'AI');
+    return base.copyWith(baseUrl: baseUrl, model: model, apiKey: apiKey);
   }
-
-  /// 基于当前配置构造 Agent
-  Agent _buildAgent() => _buildAgentFrom(
-    providerId:
-        _getConfig<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? 'openai',
-    apiKey: _getConfig<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '',
-    baseUrl: _getConfig<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
-    model: _getConfig<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
-    reasoning:
-        _getConfig<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
-    sendTemperature:
-        _getConfig<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
-    maxTokens: _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
-    temperature:
-        _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
-  );
 
   // 翻译核心方法 ---------------------------
 
@@ -397,31 +293,31 @@ class TranslationService extends GetxService {
     return '';
   }
 
-  /// 使用AI服务进行翻译（非流式，经 dartantic_ai）
+  /// 一次 AI 翻译请求。流式与非流式共用，**错误措辞因此只有一份**。
+  AiRequest _translateRequest(
+    String text,
+    String? targetLanguage, {
+    Duration? timeout,
+    String? timeoutMessage,
+  }) => AiRequest(
+    task: AiTask.translate,
+    input: text,
+    system: _buildPrompt(targetLanguage),
+    timeout: timeout,
+    timeoutMessage: timeoutMessage,
+    // AiService 只回技术原因（它不知道自己在替谁干活），本域的措辞在这里贴。
+    decorateError: (reason) =>
+        '${slang.t.translation.aiTranslationFailed}: $reason${_aiConfigHint()}',
+    streamErrorLabel: slang.t.translation.streamingTranslationFailed,
+  );
+
+  /// 使用AI服务进行翻译（非流式，经 [AiService]）
   Future<ApiResult<String>> _translateWithAI(
     String text, {
     String? targetLanguage,
-  }) async {
-    try {
-      LogUtils.i('开始 AI 翻译，文本长度: ${text.length}', 'TranslationService');
-      final agent = _buildAgent();
-      final result = await agent.send(
-        text,
-        history: [ChatMessage.system(_buildPrompt(targetLanguage))],
-      );
-      return ApiResult.success(message: '', data: result.output);
-    } catch (e) {
-      LogUtils.e(
-        slang.t.translation.aiTranslationFailed,
-        tag: 'TranslationService',
-        error: e,
-      );
-      return ApiResult.fail(
-        _failMessage(slang.t.translation.aiTranslationFailed, e) +
-            _aiConfigHint(),
-        exception: e,
-      );
-    }
+  }) {
+    LogUtils.i('开始 AI 翻译，文本长度: ${text.length}', 'TranslationService');
+    return _ai.complete(_translateRequest(text, targetLanguage));
   }
 
   /// AI 翻译失败时附一句配置自查提示。
@@ -522,7 +418,7 @@ class TranslationService extends GetxService {
       if (response.statusCode != 200) {
         return ApiResult.fail(
           '${slang.t.translation.deeplxTranslationFailed}: '
-                  'HTTP ${response.statusCode} ${_stringifyBody(response.data)}'
+                  'HTTP ${response.statusCode} ${stringifyResponseBody(response.data)}'
               .trim(),
           code: response.statusCode ?? 500,
         );
@@ -549,7 +445,7 @@ class TranslationService extends GetxService {
     if (data is! Map<String, dynamic>) {
       return ApiResult.fail(
         '$prefix: ${slang.t.translation.invalidAPIResponseFormat} '
-        '(${_stringifyBody(data)})',
+        '(${stringifyResponseBody(data)})',
       );
     }
 
@@ -569,7 +465,7 @@ class TranslationService extends GetxService {
     if (translatedText == null || translatedText.isEmpty) {
       return ApiResult.fail(
         '$prefix: ${slang.t.translation.translationServiceReturnedError} '
-        '(${_stringifyBody(data)})',
+        '(${stringifyResponseBody(data)})',
       );
     }
 
@@ -578,56 +474,42 @@ class TranslationService extends GetxService {
 
   // 测试方法 ---------------------------
 
-  /// 测试AI翻译连接（经 dartantic_ai，按当前 provider 配置 + 传入凭据）
+  /// 测试AI翻译连接（按当前档案 + 设置页上还没保存的那几项）
   Future<ApiResult<AITestResult>> testAITranslation(
     String baseUrl,
     String model,
     String apiKey, {
     String? targetLanguage,
   }) async {
-    try {
-      final agent = _buildAgentFrom(
-        providerId:
-            _getConfig<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? 'openai',
-        apiKey: apiKey,
-        baseUrl: baseUrl,
-        model: model,
-        reasoning:
-            _getConfig<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
-        sendTemperature:
-            _getConfig<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
-        maxTokens: _getConfig<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
-        temperature:
-            _getConfig<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
-      );
-
-      final result = await agent.send(
-        "Hello",
-        history: [ChatMessage.system(_buildPrompt(targetLanguage))],
-      );
-
-      return ApiResult.success(
-        data: AITestResult(
-          translatedText: result.output,
-          connectionValid: true,
-          custMessage: slang.t.translation.testSuccess,
-        ),
-      );
-    } catch (e) {
-      LogUtils.e(
-        slang.t.translation.aiTranslationTestFailed,
-        tag: 'TranslationService',
-        error: e,
-      );
+    final result = await _ai.test(
+      _profileWithOverrides(baseUrl: baseUrl, model: model, apiKey: apiKey),
+      probe: 'Hello',
+      system: _buildPrompt(targetLanguage),
+    );
+    final data = result.data;
+    if (data == null) {
       return ApiResult.success(
         data: AITestResult(
           custMessage: slang.t.translation.connectionFailedForMessage(
-            message: _describeError(e),
+            message: result.message,
           ),
           connectionValid: false,
         ),
       );
     }
+    // 本域的措辞在这里贴：AiService 回的是英文技术原因。
+    return ApiResult.success(
+      data: AITestResult(
+        rawResponse: data.rawResponse,
+        translatedText: data.translatedText,
+        connectionValid: data.connectionValid,
+        custMessage: data.connectionValid
+            ? slang.t.translation.testSuccess
+            : slang.t.translation.connectionFailedForMessage(
+                message: data.custMessage,
+              ),
+      ),
+    );
   }
 
   /// 测试DeepLX翻译连接
@@ -709,7 +591,7 @@ class TranslationService extends GetxService {
           code: response.statusCode ?? 500,
           data: AITestResult(
             custMessage:
-                'HTTP ${response.statusCode} ${_stringifyBody(response.data)}'
+                'HTTP ${response.statusCode} ${stringifyResponseBody(response.data)}'
                     .trim(),
             connectionValid: false,
           ),
@@ -757,51 +639,43 @@ class TranslationService extends GetxService {
       return ApiResult.success(
         data: AITestResult(
           custMessage:
-              '${slang.t.translation.connectionFailed}: ${_describeError(e)}',
+              '${slang.t.translation.connectionFailed}: ${describeRequestError(e)}',
           connectionValid: false,
         ),
       );
     }
   }
 
-  /// 拉取服务端可用模型列表（经 dartantic provider，对三家均有效）。
+  /// 拉取服务端可用模型列表。
   /// 让用户从列表中选择模型，而不是手动猜测模型名。
   Future<ApiResult<List<String>>> fetchAvailableModels(
     String baseUrl,
     String apiKey,
   ) async {
-    try {
-      final provider = _buildProvider(
-        _getConfig<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? 'openai',
-        apiKey,
-        baseUrl,
-      );
-
-      final models = <String>[];
-      await for (final m in provider.listModels()) {
-        if (m.kinds.contains(ModelKind.chat)) {
-          models.add(m.name);
-        }
-      }
-      models.sort();
-
-      if (models.isEmpty) {
-        return ApiResult.fail(t.translation.invalidAPIResponse);
-      }
-      return ApiResult.success(data: models, message: '');
-    } catch (e) {
-      LogUtils.e('fetch models failed', tag: 'TranslationService', error: e);
-      return ApiResult.fail(_describeError(e), exception: e);
-    }
+    final result = await _ai.listModels(
+      _profileWithOverrides(baseUrl: baseUrl, apiKey: apiKey),
+    );
+    if (result.isSuccess) return result;
+    // 空列表是「这个端点没给出可用模型」，用本域既有的文案说这件事。
+    return ApiResult.fail(
+      result.message == AiService.emptyModelListMessage
+          ? t.translation.invalidAPIResponse
+          : result.message,
+      exception: result.exception,
+    );
   }
 
   // 流式翻译相关方法 ---------------------------
 
-  /// 使用流式传输进行翻译，返回一个流
+  /// 使用流式传输进行翻译，返回一个流。
   ///
-  /// [onReasoning] 推理模型的思考过程增量回调（累计文本）；仅 Anthropic/Google
-  /// 原生推理时会触发（OpenAI 兼容端点的推理不经此回调）。
-  /// [cancelToken] 兼容旧调用方而保留；AI 流式通过取消内部订阅来中断。
+  /// 返回 null ＝「这次不走流式」，调用方据此退回一次要完的那条路。三种情况：
+  /// 用的不是 AI、用户关了流式、以及没有可用的 AI 档案。
+  ///
+  /// [onReasoning] 推理模型的思考过程增量回调（累计文本）；仅原生支持 thinking
+  /// 的那几家会触发（见 [AiProviderKind.supportsThinking]）。
+  /// [cancelToken] 兼容旧调用方而保留；AI 流式通过取消订阅来中断（取消返回的
+  /// 这条 Stream 即可，[AiService] 会连底层订阅一起掐掉）。
   Stream<String>? translateStream(
     String text, {
     String? targetLanguage,
@@ -824,211 +698,14 @@ class TranslationService extends GetxService {
       return null; // 如果用户禁用了流式翻译，直接返回null
     }
 
-    // 为每个翻译请求创建一个唯一ID
-    final translationId = DateTime.now().millisecondsSinceEpoch.toString();
-    LogUtils.i('创建流式翻译，ID: $translationId', 'TranslationService');
-
-    final streamController = StreamController<String>();
-    _activeStreamTranslations[translationId] = streamController;
-    if (onReasoning != null) {
-      _reasoningCallbacks[translationId] = onReasoning;
-    }
-
-    // 设置超时计时器
-    _setupTranslationTimeout(translationId);
-
-    // 启动流式翻译
-    _translateWithAIStream(text, translationId, targetLanguage: targetLanguage);
-
-    // 当流被取消时，清理资源（含取消底层订阅）
-    streamController.onCancel = () {
-      LogUtils.i('流式翻译被取消，ID: $translationId', 'TranslationService');
-      _cleanupTranslationResources(translationId);
-    };
-
-    return streamController.stream;
-  }
-
-  /// 设置翻译超时计时器
-  void _setupTranslationTimeout(String translationId) {
-    _translationTimeouts[translationId]?.cancel();
-    _translationTimeouts[translationId] = Timer(
-      Duration(seconds: _streamTranslationTimeoutSeconds),
-      () {
-        LogUtils.w(
-          slang.t.translation.streamingTranslationTimeout,
-          'TranslationService',
-        );
-        _cleanupTranslationResources(translationId, isTimeout: true);
-      },
-    );
-  }
-
-  /// 清理翻译相关资源
-  void _cleanupTranslationResources(
-    String translationId, {
-    bool isTimeout = false,
-  }) {
-    // 取消超时计时器
-    _translationTimeouts[translationId]?.cancel();
-    _translationTimeouts.remove(translationId);
-
-    // 中断底层订阅（关闭对话框 / 超时即断流）
-    _aiSubscriptions.remove(translationId)?.cancel();
-    _reasoningCallbacks.remove(translationId);
-
-    // 关闭并移除流控制器
-    final streamController = _activeStreamTranslations[translationId];
-    if (streamController != null && !streamController.isClosed) {
-      if (isTimeout) {
-        streamController.addError(
-          '${slang.t.translation.translationRequestTimeout} '
-          '(${_streamTranslationTimeoutSeconds}s)',
-        );
-      }
-      streamController.close();
-    }
-    _activeStreamTranslations.remove(translationId);
-  }
-
-  /// 使用流式传输进行AI翻译（经 dartantic_ai）
-  Future<void> _translateWithAIStream(
-    String text,
-    String translationId, {
-    String? targetLanguage,
-  }) async {
-    final streamController = _activeStreamTranslations[translationId];
-    if (streamController == null) return;
-
-    final reasoningCallback = _reasoningCallbacks[translationId];
-    final answer = StringBuffer();
-    final reasoning = StringBuffer();
-
-    try {
-      final agent = _buildAgent();
-
-      final sub = agent
-          .sendStream(
-            text,
-            history: [ChatMessage.system(_buildPrompt(targetLanguage))],
-          )
-          .listen(
-            (chunk) {
-              if (streamController.isClosed) return;
-              if (chunk.output.isNotEmpty) {
-                answer.write(chunk.output);
-                streamController.add(answer.toString());
-              }
-              final th = chunk.thinking;
-              if (th != null && th.isNotEmpty) {
-                reasoning.write(th);
-                reasoningCallback?.call(reasoning.toString());
-              }
-            },
-            onError: (Object e, StackTrace st) {
-              LogUtils.e(
-                slang.t.translation.streamingTranslationFailed,
-                error: e,
-              );
-              _fallbackToNonStream(
-                text,
-                translationId,
-                targetLanguage,
-                streamError: e,
-              );
-            },
-            onDone: () {
-              // 正常结束：关闭流并清理（cleanup 不会重复关闭）
-              _cleanupTranslationResources(translationId);
-            },
-            cancelOnError: true,
-          );
-      _aiSubscriptions[translationId] = sub;
-    } catch (e) {
-      // 构造 Agent 阶段就失败（如缺少凭据）：直接降级
-      LogUtils.e(slang.t.translation.streamingTranslationFailed, error: e);
-      await _fallbackToNonStream(
+    return _ai.stream(
+      _translateRequest(
         text,
-        translationId,
         targetLanguage,
-        streamError: e,
-      );
-    }
-  }
-
-  /// 流式失败时降级为普通翻译
-  ///
-  /// [streamError] 是流式阶段的原始异常：降级也失败时一并报出来，
-  /// 否则用户只看到降级那次的报错，看不到最先出问题的地方。
-  Future<void> _fallbackToNonStream(
-    String text,
-    String translationId,
-    String? targetLanguage, {
-    Object? streamError,
-  }) async {
-    final streamController = _activeStreamTranslations[translationId];
-    if (streamController == null || streamController.isClosed) {
-      _cleanupTranslationResources(translationId);
-      return;
-    }
-    try {
-      final result = await _translateWithAI(
-        text,
-        targetLanguage: targetLanguage,
-      );
-      if (!streamController.isClosed) {
-        if (result.isSuccess && result.data != null) {
-          streamController.add(result.data!);
-        } else {
-          streamController.addError(
-            _withStreamError(result.message, streamError),
-          );
-        }
-      }
-    } catch (e) {
-      LogUtils.e(slang.t.translation.fallbackTranslationFailed, error: e);
-      if (!streamController.isClosed) {
-        streamController.addError(
-          _withStreamError(
-            _failMessage(slang.t.translation.fallbackTranslationFailed, e),
-            streamError,
-          ),
-        );
-      }
-    } finally {
-      _cleanupTranslationResources(translationId);
-    }
-  }
-
-  /// 把流式阶段的原始异常附在降级失败信息后面
-  String _withStreamError(String message, Object? streamError) {
-    if (streamError == null) return message;
-    return '$message\n'
-        '${slang.t.translation.streamingTranslationFailed}: '
-        '${_describeError(streamError)}';
-  }
-
-  @override
-  void onClose() {
-    // 服务销毁时清理所有活动的翻译资源
-    for (final timer in _translationTimeouts.values) {
-      timer.cancel();
-    }
-    _translationTimeouts.clear();
-
-    for (final sub in _aiSubscriptions.values) {
-      sub.cancel();
-    }
-    _aiSubscriptions.clear();
-    _reasoningCallbacks.clear();
-
-    for (final controller in _activeStreamTranslations.values) {
-      if (!controller.isClosed) {
-        controller.close();
-      }
-    }
-    _activeStreamTranslations.clear();
-
-    super.onClose();
+        timeout: const Duration(seconds: _streamTranslationTimeoutSeconds),
+        timeoutMessage: slang.t.translation.translationRequestTimeout,
+      ),
+      onReasoning: onReasoning,
+    );
   }
 }

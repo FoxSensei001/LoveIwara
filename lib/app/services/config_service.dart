@@ -431,6 +431,9 @@ enum ConfigKey {
   AI_TRANSLATION_REASONING_MODEL, // 是否为推理模型(o1/o3、DeepSeek-R1、QwQ 等)
   AI_TRANSLATION_SEND_TEMPERATURE, // 是否下发 temperature 参数
   AI_TRANSLATION_SHOW_REASONING, // 是否展示推理模型的思考过程
+  // AI 用量：`{用途: {calls, promptTokens, responseTokens, failures}}` 的 JSON。
+  // AI 不再只服务翻译之后，用户得看得见钱花在哪儿。
+  AI_USAGE_STATS_KEY,
   // DeepLX 翻译相关配置
   USE_DEEPLX_TRANSLATION,
   DEEPLX_BASE_URL,
@@ -689,6 +692,8 @@ extension ConfigKeyExtension on ConfigKey {
         return 'ai_translation_send_temperature';
       case ConfigKey.AI_TRANSLATION_SHOW_REASONING:
         return 'ai_translation_show_reasoning';
+      case ConfigKey.AI_USAGE_STATS_KEY:
+        return 'ai_usage_stats';
       case ConfigKey.USE_DEEPLX_TRANSLATION:
         return 'use_deeplx_translation';
       case ConfigKey.DEEPLX_BASE_URL:
@@ -1022,6 +1027,8 @@ extension ConfigKeyExtension on ConfigKey {
         return true;
       case ConfigKey.AI_TRANSLATION_SHOW_REASONING:
         return true;
+      case ConfigKey.AI_USAGE_STATS_KEY:
+        return '';
       case ConfigKey.USE_DEEPLX_TRANSLATION:
         return false;
       case ConfigKey.DEEPLX_BASE_URL:

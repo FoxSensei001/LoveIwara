@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/utils/loopback_host.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/app_lock_service.dart';
@@ -414,6 +415,9 @@ class AppStartupCoordinator implements AppStartupRunner {
       BatchDownloadService(),
       permanent: true,
     );
+    // AI 调用层。必须早于 TranslationService：翻译的 AI 那一半靠它，
+    // 后续的搜索 / 小尾巴同样从这里取能力（AI 不再是翻译的实现细节）。
+    _registerDeferredSingleton<AiService>(AiService());
     _registerDeferredSingleton<TranslationService>(TranslationService());
     _registerDeferredSingleton<FavoriteService>(FavoriteService());
     _registerDeferredSingleton<WatchLaterService>(WatchLaterService());
