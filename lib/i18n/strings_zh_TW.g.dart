@@ -905,12 +905,61 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get varTime => '時間';
 	@override String get varDatetime => '日期時間';
 	@override String get varWeekday => '星期';
-	@override String get varApp => '應用程式名稱';
-	@override String get varVersion => '版本號';
 	@override String get varPlatform => '平台';
-	@override String get varTitle => '正在看的作品';
-	@override String get varAuthor => '作品的作者';
 	@override String get varPick => '隨機一句';
+	@override String get varTitle => '標題';
+	@override String get varAuthor => '作者';
+	@override String get varTags => '標籤';
+	@override String get varSection => '所在分區';
+	@override String get varReplyTo => '回覆對象';
+	@override String get varPlaytime => '播放進度';
+	@override String get signatureContextGroup => '上下文變數';
+	@override String get signatureContextHint => '值來自你發這條內容時所在的頁面：影片頁給得出標題、作者、標籤和播放進度，論壇給得出分區和樓層。右邊是示範值，填不出的那一段發出去時會自己消失。';
+	@override String get signatureContextValue => '看頁面而定';
+	@override String get varFloor => '樓層';
+	@override String get varDuration => '影片長度';
+	@override String get signatureRecipesHint => '不知道寫什麼？點一條直接用，再照著改。下面顯示的就是它發出去的樣子。';
+	@override String get recipeWatchingName => '正在看什麼';
+	@override String get recipeWatchingTemplate => '正在看《%title%》 · %date%';
+	@override String get recipeTimestampName => '看到這裡';
+	@override String get recipeTimestampTemplate => '看到 %playtime% / %duration%';
+	@override String get recipeHitokotoName => '今日一言';
+	@override String get recipeHitokotoTemplate => '今日一言：%hitokoto%';
+	@override String get recipeAiName => '讓 AI 現寫';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => '回覆時報個到';
+	@override String get recipeReplyTemplate => '回 %reply_to% · 發自 %platform%';
+	@override String get recipeMoodName => '隨機換著說';
+	@override String get recipeMoodTemplate => '今天心情：%pick:好|普通|不想說%';
+	@override String get signatureRecipesTitle => '範例';
+	@override String get signatureRecipesMore => '更多範例';
+	@override String get signatureSceneVideo => '在影片頁';
+	@override String get signatureSceneForum => '在論壇';
+	@override String get signatureSceneAuthor => '在作者頁';
+	@override String get signatureSceneNone => '沒有上下文';
+	@override String get signatureSceneFromHistory => '示範內容取自你最近看過的那條。真正發送時用的是你當時所在的頁面。';
+	@override String get signatureSceneFromDemo => '還沒有瀏覽記錄，先拿一條示範內容頂著。真正發送時用的是你當時所在的頁面。';
+	@override String get signatureDemoVideoTitle => '月光下的旋轉';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => '求一個畫質設定的建議';
+	@override String get signatureDemoSection => '綜合討論';
+	@override String get signatureDemoQuote => '慢慢來，比較快。';
+	@override String get signatureDemoAiQuote => '三分半那個轉身，值回票價。';
+	@override String get signatureRecipeGroupWatching => '看影片時';
+	@override String get signatureRecipeGroupReplying => '回覆別人時';
+	@override String get signatureRecipeGroupForum => '逛論壇時';
+	@override String get signatureRecipeGroupDaily => '每天換一句';
+	@override String get signatureRecipeGroupAi => '交給 AI 寫';
+	@override String get signaturePromptSampleContext => '這次試寫按「在影片頁」的示範上下文來。真正發送時，AI 拿到的是你當時正看著的那件東西。';
+	@override String get recipeAuthorTagsName => '作者和標籤';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => '回某一樓';
+	@override String get recipeFloorTemplate => '%floor% 樓路過 · 回 %reply_to%';
+	@override String get recipeSectionName => '說清在哪個版塊';
+	@override String get recipeSectionTemplate => '來自「%section%」';
+	@override String get recipeDailyName => '日期加一言';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => '資料來源';
 	@override String get signatureAutoTranslate => '翻譯成我的語言';
 	@override String get signatureAutoTranslateDesc => '一言這類資料來源目前只有中文。開著的話，取回來的句子會在送出前先翻譯一遍。';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsZhTw extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。';
 	@override String signatureResolving({required Object name}) => '正在產生${name}…';
 	@override String get signaturePendingValue => '（發送時產生）';
-	@override String get signatureAiHint => '由 AI 現寫的一句話，每條留言都是新的。用的是你配好的 AI 供應商。';
+	@override String get signatureAiHint => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。在影片、圖庫、論壇送出時，它還知道你正在看什麼，會照著那則內容寫。';
 	@override String get signatureAiUnavailable => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。';
 	@override String get signaturePromptTitle => '提示詞';
 	@override String get signaturePromptHint => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。';
@@ -2931,6 +2980,71 @@ class _TranslationsAiZhTw extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} 筆 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '試搜失敗：${reason}';
 	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。';
+	@override String get revealKey => '顯示';
+	@override String get hideKey => '隱藏';
+	@override String get connection => '連線';
+	@override String get providerEnabled => '啟用';
+	@override String get providerEnabledHint => '關掉之後設定還在，只是不再用這一家。';
+	@override String providerModelCount({required Object count}) => '${count} 個模型';
+	@override String get noModels => '沒有模型';
+	@override String get noModelsHint => '還沒有模型。從伺服器拉一張清單，或者直接填模型名。';
+	@override String get missingApiKey => '缺少金鑰';
+	@override String get providerGone => '這家供應商已經不在了。';
+	@override String get deleteProviderConfirm => '刪除這家供應商？它底下的模型和功能分配會一起消失。';
+	@override String get getApiKey => '去拿一個金鑰';
+	@override String get providerDocs => '文件';
+	@override String get models => '模型';
+	@override String get fetchModels => '從伺服器拉取';
+	@override String get fetchModelsHint => '從這個端點真有的模型裡挑，不用猜名字。';
+	@override String get addModel => '手填模型名';
+	@override String get deleteModel => '移除模型';
+	@override String get modelUnknown => '目錄裡沒有這條，能力未知';
+	@override String get serverDefaultModel => '伺服器預設模型';
+	@override String get resetToDefault => '重設為預設';
+	@override String contextWindow({required Object tokens}) => '上下文 ${tokens}';
+	@override String get capFunctionCall => '函式呼叫';
+	@override String get capReasoning => '推理';
+	@override String get capStructuredOutput => 'JSON 輸出';
+	@override String get capVision => '看圖';
+	@override String get capFileInput => '讀檔案';
+	@override String get triOn => '開';
+	@override String get triOff => '關';
+	@override String get triAutoOn => '自動（開）';
+	@override String get triAutoOff => '自動（關）';
+	@override String get triAutoUnknown => '自動（未知）';
+	@override String endpointPreview({required Object url}) => '實際會請求 ${url}';
+	@override String get endpointTrailingSlash => '結尾這個斜線會讓路徑裡多出一個 //。';
+	@override String get endpointMissingVersion => '沒有版本段——多數 OpenAI 相容端點要帶 /v1。';
+	@override String get modelOverrideHint => '下面每一項都可以不填。不動它就跟著模型自己的能力和內建目錄走。';
+	@override String followCatalog({required Object value}) => '跟隨目錄：${value}';
+	@override String get userOverride => '你改過了';
+	@override String get sendTemperature => '下發 temperature';
+	@override String get sendTemperatureHint => '有的端點收到這個參數會直接拒絕請求。';
+	@override String maxTokensFromCatalog({required Object tokens}) => '目錄裡寫的是 ${tokens}';
+	@override String get maxTokensHint => '留空＝跟隨目錄。填 0 ＝ 根本不發這個參數，由伺服器用該模型自己的上限。';
+	@override String catalogVersion({required Object version}) => '供應商目錄 ${version}';
+	@override String get catalogMissing => '供應商目錄還沒就緒。';
+	@override String get searchModel => '搜尋模型';
+	@override String get searchProvider => '搜尋供應商';
+	@override String get customProvider => '自訂（OpenAI 相容端點）';
+	@override String get customProviderHint => '清單裡沒有的中轉或自建閘道走這條。';
+	@override String get wizardNext => '下一步';
+	@override String get wizardApiKeyTitle => '填金鑰';
+	@override String get wizardModelsTitle => '選模型';
+	@override String get wizardVerifyTitle => '驗證';
+	@override String get wizardModelsHint => '這些是端點自己報上來的，挑你想用的。';
+	@override String get wizardModelsFallbackHint => '沒拉到清單，這些是這一家常見的模型。';
+	@override String get wizardNoModels => '拿不到清單。跳過這一步，回頭手填模型名也行——模型名留空同樣能用，伺服器會挑它的預設模型。';
+	@override String get wizardVerifyHint => '真發一次請求。清單裡有的模型不一定能用，而這家端點認不認 JSON schema，也只有發一次才知道。';
+	@override String get wizardCheckChat => '發一條測試訊息';
+	@override String get wizardCheckSchema => '偵測 JSON 輸出支援';
+	@override String get wizardCheckSchemaWarn => '這家端點會忽略 JSON schema。AI 搜尋仍然能用（走提示詞契約那條路），只是慢一點。';
+	@override String get unsavedBadge => 'Unsaved changes';
+	@override String get unsavedTitle => 'Unsaved changes';
+	@override String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+	@override String get saveAndLeave => 'Save and leave';
+	@override String get discardChanges => 'Discard';
+	@override String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsZhTw {
 			'settings.varTime' => '時間',
 			'settings.varDatetime' => '日期時間',
 			'settings.varWeekday' => '星期',
-			'settings.varApp' => '應用程式名稱',
-			'settings.varVersion' => '版本號',
 			'settings.varPlatform' => '平台',
-			'settings.varTitle' => '正在看的作品',
-			'settings.varAuthor' => '作品的作者',
 			'settings.varPick' => '隨機一句',
+			'settings.varTitle' => '標題',
+			'settings.varAuthor' => '作者',
+			'settings.varTags' => '標籤',
+			'settings.varSection' => '所在分區',
+			'settings.varReplyTo' => '回覆對象',
+			'settings.varPlaytime' => '播放進度',
+			'settings.signatureContextGroup' => '上下文變數',
+			'settings.signatureContextHint' => '值來自你發這條內容時所在的頁面：影片頁給得出標題、作者、標籤和播放進度，論壇給得出分區和樓層。右邊是示範值，填不出的那一段發出去時會自己消失。',
+			'settings.signatureContextValue' => '看頁面而定',
+			'settings.varFloor' => '樓層',
+			'settings.varDuration' => '影片長度',
+			'settings.signatureRecipesHint' => '不知道寫什麼？點一條直接用，再照著改。下面顯示的就是它發出去的樣子。',
+			'settings.recipeWatchingName' => '正在看什麼',
+			'settings.recipeWatchingTemplate' => '正在看《%title%》 · %date%',
+			'settings.recipeTimestampName' => '看到這裡',
+			'settings.recipeTimestampTemplate' => '看到 %playtime% / %duration%',
+			'settings.recipeHitokotoName' => '今日一言',
+			'settings.recipeHitokotoTemplate' => '今日一言：%hitokoto%',
+			'settings.recipeAiName' => '讓 AI 現寫',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => '回覆時報個到',
+			'settings.recipeReplyTemplate' => '回 %reply_to% · 發自 %platform%',
+			'settings.recipeMoodName' => '隨機換著說',
+			'settings.recipeMoodTemplate' => '今天心情：%pick:好|普通|不想說%',
+			'settings.signatureRecipesTitle' => '範例',
+			'settings.signatureRecipesMore' => '更多範例',
+			'settings.signatureSceneVideo' => '在影片頁',
+			'settings.signatureSceneForum' => '在論壇',
+			'settings.signatureSceneAuthor' => '在作者頁',
+			'settings.signatureSceneNone' => '沒有上下文',
+			'settings.signatureSceneFromHistory' => '示範內容取自你最近看過的那條。真正發送時用的是你當時所在的頁面。',
+			'settings.signatureSceneFromDemo' => '還沒有瀏覽記錄，先拿一條示範內容頂著。真正發送時用的是你當時所在的頁面。',
+			'settings.signatureDemoVideoTitle' => '月光下的旋轉',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => '求一個畫質設定的建議',
+			'settings.signatureDemoSection' => '綜合討論',
+			'settings.signatureDemoQuote' => '慢慢來，比較快。',
+			'settings.signatureDemoAiQuote' => '三分半那個轉身，值回票價。',
+			'settings.signatureRecipeGroupWatching' => '看影片時',
+			'settings.signatureRecipeGroupReplying' => '回覆別人時',
+			'settings.signatureRecipeGroupForum' => '逛論壇時',
+			'settings.signatureRecipeGroupDaily' => '每天換一句',
+			'settings.signatureRecipeGroupAi' => '交給 AI 寫',
+			'settings.signaturePromptSampleContext' => '這次試寫按「在影片頁」的示範上下文來。真正發送時，AI 拿到的是你當時正看著的那件東西。',
+			'settings.recipeAuthorTagsName' => '作者和標籤',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => '回某一樓',
+			'settings.recipeFloorTemplate' => '%floor% 樓路過 · 回 %reply_to%',
+			'settings.recipeSectionName' => '說清在哪個版塊',
+			'settings.recipeSectionTemplate' => '來自「%section%」',
+			'settings.recipeDailyName' => '日期加一言',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => '資料來源',
 			'settings.signatureAutoTranslate' => '翻譯成我的語言',
 			'settings.signatureAutoTranslateDesc' => '一言這類資料來源目前只有中文。開著的話，取回來的句子會在送出前先翻譯一遍。',
@@ -5526,7 +5689,7 @@ extension on TranslationsZhTw {
 			'settings.signatureEditTextHint' => '這是這則留言裡已經寫好的小尾巴——一言、日期這會兒都只是普通文字，隨便改。清空就是不要小尾巴了。',
 			'settings.signatureResolving' => ({required Object name}) => '正在產生${name}…',
 			'settings.signaturePendingValue' => '（發送時產生）',
-			'settings.signatureAiHint' => '由 AI 現寫的一句話，每條留言都是新的。用的是你配好的 AI 供應商。',
+			'settings.signatureAiHint' => '由 AI 現寫的一句話，每則留言都是新的，用的是你設定好的 AI 供應商。在影片、圖庫、論壇送出時，它還知道你正在看什麼，會照著那則內容寫。',
 			'settings.signatureAiUnavailable' => '還沒配 AI 供應商，所以它暫時不會出現在變數面板裡。',
 			'settings.signaturePromptTitle' => '提示詞',
 			'settings.signaturePromptHint' => '這就是發給模型的那一段。語氣、長短、寫什麼，隨便改。裡面已有的幾條規矩值得留著。',
@@ -5751,6 +5914,8 @@ extension on TranslationsZhTw {
 			'settings.blockSettings.regexEx1Desc' => '用「|」比對其中任一個詞（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '比對以【…】開頭的標題',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '合集\$',
 			'settings.blockSettings.regexEx3Desc' => '比對以「合集」結尾的標題',
 			'settings.blockSettings.regexEx4Pattern' => '第.話',
@@ -5800,8 +5965,6 @@ extension on TranslationsZhTw {
 			'settings.cdnRefreshServerListTooltip' => '重新整理伺服器清單',
 			'settings.cdnSpeedTestButton' => '測速',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => '測速中 (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => '查無伺服器資料，請點選重新整理按鈕',
 			'settings.cdnTestingStatus' => '測速中',
 			'settings.cdnUnreachableStatus' => '無法連線',
@@ -6265,6 +6428,8 @@ extension on TranslationsZhTw {
 			'videoDetail.download' => '下載',
 			'videoDetail.downloadManager' => '下載管理',
 			'videoDetail.videoLoadError' => '影片載入錯誤',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.resourceNotFound' => '資源未找到',
 			'videoDetail.authorNoOtherVideos' => '作者暫無其他影片',
 			'videoDetail.noRelatedVideos' => '暫無相關影片',
@@ -6314,8 +6479,6 @@ extension on TranslationsZhTw {
 			'videoDetail.likeAvatars.closeTooltip' => '關閉',
 			'videoDetail.likeAvatars.retry' => '重試',
 			'videoDetail.likeAvatars.noLikesYet' => '還沒有人出現在這裡，來當第一個吧！',
-			_ => null,
-		} ?? switch (path) {
 			'videoDetail.likeAvatars.pageInfo' => ({required Object page, required Object totalPages, required Object totalCount}) => '第 ${page} / ${totalPages} 頁 · 共 ${totalCount} 人',
 			'videoDetail.likeAvatars.prevPage' => '上一頁',
 			'videoDetail.likeAvatars.nextPage' => '下一頁',
@@ -6779,6 +6942,8 @@ extension on TranslationsZhTw {
 			'download.relocation.reasonIoError' => '讀寫檔案出錯，什麼都沒改。',
 			'download.relocation.systemMessage' => ({required Object message}) => '系統訊息：${message}',
 			'download.relocation.outsideTitle' => ({required Object count}) => '有 ${count} 項已下載內容不在這個目錄中',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.outsideSubtitle' => '它們在原位置照樣能播放。移到這裡可以把內容集中在一處。',
 			'download.relocation.moveHere' => '移到這裡',
 			'download.relocation.missingTitle' => '找不到檔案',
@@ -6828,8 +6993,6 @@ extension on TranslationsZhTw {
 			'download.relocation.actionWillRemove' => '將移除這條記錄',
 			'download.relocation.actionWillKeep' => '儲存空間未連接，保留不移除',
 			'download.relocation.actionWillRetry' => '移動後重新下載',
-			_ => null,
-		} ?? switch (path) {
 			'download.relocation.actionWillRemoveTask' => '將移除任務',
 			'download.relocation.statRedownload' => '重新下載',
 			'download.relocation.statRemoved' => '已移除',
@@ -7293,6 +7456,8 @@ extension on TranslationsZhTw {
 			'diagnostics.infoSectionTitle' => '診斷資訊',
 			'diagnostics.appVersionLabel' => '應用版本',
 			'diagnostics.memoryUsage' => ({required Object memMB}) => '記憶體使用量: ${memMB}MB',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.deviceInfoUnavailable' => '無法取得裝置資訊',
 			'diagnostics.secureStorageLabel' => '安全儲存',
 			'diagnostics.secureStorageHealthy' => '可用',
@@ -7342,8 +7507,6 @@ extension on TranslationsZhTw {
 			'diagnostics.healthAlert.highFlushLatencyTitle' => '落盤延遲偏高',
 			'diagnostics.healthAlert.droppedTooManyTitle' => '日誌丟棄較多',
 			'diagnostics.healthAlert.droppedTooManyDetail' => ({required Object droppedCount, required Object threshold}) => 'droppedCount=${droppedCount} (門檻=${threshold})',
-			_ => null,
-		} ?? switch (path) {
 			'diagnostics.healthAlert.rateLimitedTitle' => '觸發限流',
 			'diagnostics.healthAlert.exportFailedTitle' => '日誌匯出失敗',
 			'diagnostics.healthAlert.fileNearLimitTitle' => '日誌檔案接近上限',
@@ -7807,6 +7970,8 @@ extension on TranslationsZhTw {
 			'externalPlayer.onlineLinkExpiryHint' => '線上直連有時效，外部播放器可能播到一半失效；先下載再轉交最穩',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器沒出現在選擇器裡的話，用「複製影片連結」再到播放器內貼上開啟',
 			'externalPlayer.noHandler' => '找不到能開啟影片的應用程式',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '轉交失敗：${message}',
 			'externalPlayer.handoffFailedUnknown' => '轉交失敗',
 			'externalPlayer.sourceUnavailable' => '拿不到目前影片的位址，請稍後重試',
@@ -7856,8 +8021,6 @@ extension on TranslationsZhTw {
 			'watchLater.removedFromWatchLater' => '已移出稍後再看',
 			'watchLater.removedCount' => ({required Object count}) => '已移出 ${count} 筆',
 			'watchLater.viewWatchLaterList' => '檢視清單',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => '加入稍後再看失敗',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
@@ -8283,6 +8446,73 @@ extension on TranslationsZhTw {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 筆 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '試搜失敗：${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 條本板塊沒有的篩選。',
+			'ai.revealKey' => '顯示',
+			'ai.hideKey' => '隱藏',
+			'ai.connection' => '連線',
+			'ai.providerEnabled' => '啟用',
+			'ai.providerEnabledHint' => '關掉之後設定還在，只是不再用這一家。',
+			'ai.providerModelCount' => ({required Object count}) => '${count} 個模型',
+			'ai.noModels' => '沒有模型',
+			'ai.noModelsHint' => '還沒有模型。從伺服器拉一張清單，或者直接填模型名。',
+			'ai.missingApiKey' => '缺少金鑰',
+			'ai.providerGone' => '這家供應商已經不在了。',
+			'ai.deleteProviderConfirm' => '刪除這家供應商？它底下的模型和功能分配會一起消失。',
+			'ai.getApiKey' => '去拿一個金鑰',
+			'ai.providerDocs' => '文件',
+			'ai.models' => '模型',
+			'ai.fetchModels' => '從伺服器拉取',
+			'ai.fetchModelsHint' => '從這個端點真有的模型裡挑，不用猜名字。',
+			'ai.addModel' => '手填模型名',
+			'ai.deleteModel' => '移除模型',
+			'ai.modelUnknown' => '目錄裡沒有這條，能力未知',
+			'ai.serverDefaultModel' => '伺服器預設模型',
+			'ai.resetToDefault' => '重設為預設',
+			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
+			'ai.capFunctionCall' => '函式呼叫',
+			'ai.capReasoning' => '推理',
+			'ai.capStructuredOutput' => 'JSON 輸出',
+			'ai.capVision' => '看圖',
+			'ai.capFileInput' => '讀檔案',
+			'ai.triOn' => '開',
+			'ai.triOff' => '關',
+			'ai.triAutoOn' => '自動（開）',
+			'ai.triAutoOff' => '自動（關）',
+			'ai.triAutoUnknown' => '自動（未知）',
+			'ai.endpointPreview' => ({required Object url}) => '實際會請求 ${url}',
+			'ai.endpointTrailingSlash' => '結尾這個斜線會讓路徑裡多出一個 //。',
+			'ai.endpointMissingVersion' => '沒有版本段——多數 OpenAI 相容端點要帶 /v1。',
+			'ai.modelOverrideHint' => '下面每一項都可以不填。不動它就跟著模型自己的能力和內建目錄走。',
+			'ai.followCatalog' => ({required Object value}) => '跟隨目錄：${value}',
+			'ai.userOverride' => '你改過了',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => '下發 temperature',
+			'ai.sendTemperatureHint' => '有的端點收到這個參數會直接拒絕請求。',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => '目錄裡寫的是 ${tokens}',
+			'ai.maxTokensHint' => '留空＝跟隨目錄。填 0 ＝ 根本不發這個參數，由伺服器用該模型自己的上限。',
+			'ai.catalogVersion' => ({required Object version}) => '供應商目錄 ${version}',
+			'ai.catalogMissing' => '供應商目錄還沒就緒。',
+			'ai.searchModel' => '搜尋模型',
+			'ai.searchProvider' => '搜尋供應商',
+			'ai.customProvider' => '自訂（OpenAI 相容端點）',
+			'ai.customProviderHint' => '清單裡沒有的中轉或自建閘道走這條。',
+			'ai.wizardNext' => '下一步',
+			'ai.wizardApiKeyTitle' => '填金鑰',
+			'ai.wizardModelsTitle' => '選模型',
+			'ai.wizardVerifyTitle' => '驗證',
+			'ai.wizardModelsHint' => '這些是端點自己報上來的，挑你想用的。',
+			'ai.wizardModelsFallbackHint' => '沒拉到清單，這些是這一家常見的模型。',
+			'ai.wizardNoModels' => '拿不到清單。跳過這一步，回頭手填模型名也行——模型名留空同樣能用，伺服器會挑它的預設模型。',
+			'ai.wizardVerifyHint' => '真發一次請求。清單裡有的模型不一定能用，而這家端點認不認 JSON schema，也只有發一次才知道。',
+			'ai.wizardCheckChat' => '發一條測試訊息',
+			'ai.wizardCheckSchema' => '偵測 JSON 輸出支援',
+			'ai.wizardCheckSchemaWarn' => '這家端點會忽略 JSON schema。AI 搜尋仍然能用（走提示詞契約那條路），只是慢一點。',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}

@@ -905,12 +905,61 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get varTime => 'Waktu';
 	@override String get varDatetime => 'Tanggal dan waktu';
 	@override String get varWeekday => 'Hari';
-	@override String get varApp => 'Nama aplikasi';
-	@override String get varVersion => 'Versi';
 	@override String get varPlatform => 'Platform';
-	@override String get varTitle => 'Yang sedang kamu tonton';
-	@override String get varAuthor => 'Pembuatnya';
 	@override String get varPick => 'Kalimat acak';
+	@override String get varTitle => 'Judul';
+	@override String get varAuthor => 'Pembuat';
+	@override String get varTags => 'Tag';
+	@override String get varSection => 'Bagian';
+	@override String get varReplyTo => 'Membalas';
+	@override String get varPlaytime => 'Posisi pemutaran';
+	@override String get signatureContextGroup => 'Variabel konteks';
+	@override String get signatureContextHint => 'Nilainya diambil dari halaman tempat kamu menulis: halaman video tahu judul, pembuat, tag, dan posisi pemutaran; forum tahu bagian dan nomor balasan. Di sebelah kanan adalah contoh nilai — bagian yang tidak bisa diisi akan hilang sendiri saat dikirim.';
+	@override String get signatureContextValue => 'Tergantung halaman';
+	@override String get varFloor => 'Nomor balasan';
+	@override String get varDuration => 'Durasi video';
+	@override String get signatureRecipesHint => 'Bingung mau menulis apa? Ketuk salah satu untuk dipakai, lalu ubah sesukamu. Yang tampil di bawah adalah tampilan aslinya.';
+	@override String get recipeWatchingName => 'Sedang menonton apa';
+	@override String get recipeWatchingTemplate => 'Sedang menonton %title% · %date%';
+	@override String get recipeTimestampName => 'Sampai mana';
+	@override String get recipeTimestampTemplate => 'Sampai %playtime% dari %duration%';
+	@override String get recipeHitokotoName => 'Kutipan hari ini';
+	@override String get recipeHitokotoTemplate => 'Kutipan hari ini: %hitokoto%';
+	@override String get recipeAiName => 'Biar AI yang menulis';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => 'Menyapa saat membalas';
+	@override String get recipeReplyTemplate => 'Untuk %reply_to% · dikirim dari %platform%';
+	@override String get recipeMoodName => 'Suasana hati acak';
+	@override String get recipeMoodTemplate => 'Suasana hati: %pick:bagus|biasa saja|rahasia%';
+	@override String get signatureRecipesTitle => 'Contoh';
+	@override String get signatureRecipesMore => 'Contoh lainnya';
+	@override String get signatureSceneVideo => 'Di halaman video';
+	@override String get signatureSceneForum => 'Di forum';
+	@override String get signatureSceneAuthor => 'Di halaman profil';
+	@override String get signatureSceneNone => 'Tanpa konteks';
+	@override String get signatureSceneFromHistory => 'Isi contoh diambil dari yang terakhir kamu tonton. Saat benar-benar mengirim, yang dipakai adalah halaman tempatmu berada.';
+	@override String get signatureSceneFromDemo => 'Belum ada riwayat, jadi dipakai contoh sementara. Saat benar-benar mengirim, yang dipakai adalah halaman tempatmu berada.';
+	@override String get signatureDemoVideoTitle => 'Menari di Bawah Cahaya Bulan';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => 'Minta saran pengaturan kualitas';
+	@override String get signatureDemoSection => 'Umum';
+	@override String get signatureDemoQuote => 'Pelan-pelan justru lebih cepat sampai.';
+	@override String get signatureDemoAiQuote => 'Putaran di menit tiga setengah itu saja sudah sepadan.';
+	@override String get signatureRecipeGroupWatching => 'Saat menonton';
+	@override String get signatureRecipeGroupReplying => 'Saat membalas';
+	@override String get signatureRecipeGroupForum => 'Di forum';
+	@override String get signatureRecipeGroupDaily => 'Satu kalimat tiap hari';
+	@override String get signatureRecipeGroupAi => 'Biar AI yang menulis';
+	@override String get signaturePromptSampleContext => 'Uji coba ini memakai konteks contoh halaman video. Saat benar-benar mengirim, AI menerima apa pun yang sedang kamu lihat.';
+	@override String get recipeAuthorTagsName => 'Pembuat dan tag';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => 'Membalas satu balasan';
+	@override String get recipeFloorTemplate => 'Dari balasan %floor% · untuk %reply_to%';
+	@override String get recipeSectionName => 'Sebutkan bagiannya';
+	@override String get recipeSectionTemplate => 'Dari %section%';
+	@override String get recipeDailyName => 'Tanggal dan kutipan';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => 'Sumber data';
 	@override String get signatureAutoTranslate => 'Terjemahkan ke bahasa saya';
 	@override String get signatureAutoTranslateDesc => 'Sumber seperti Hitokoto baru menyediakan bahasa Mandarin. Kalimatnya diterjemahkan tepat sebelum dikirim.';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsId extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.';
 	@override String signatureResolving({required Object name}) => 'Membuat ${name}…';
 	@override String get signaturePendingValue => '(dibuat saat dikirim)';
-	@override String get signatureAiHint => 'Satu kalimat yang ditulis AI saat itu juga, baru untuk setiap komentar. Memakai penyedia AI yang kamu atur.';
+	@override String get signatureAiHint => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Saat mengirim dari halaman video, galeri, atau forum, AI juga tahu apa yang sedang kamu lihat dan bisa menulis sesuai itu.';
 	@override String get signatureAiUnavailable => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.';
 	@override String get signaturePromptTitle => 'Prompt';
 	@override String get signaturePromptHint => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.';
@@ -2931,6 +2980,71 @@ class _TranslationsAiId extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} hasil · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'Gagal: ${reason}';
 	@override String searchFiltersDropped({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.';
+	@override String get revealKey => 'Show';
+	@override String get hideKey => 'Hide';
+	@override String get connection => 'Connection';
+	@override String get providerEnabled => 'Enabled';
+	@override String get providerEnabledHint => 'Turn off to keep the settings but stop using this provider.';
+	@override String providerModelCount({required Object count}) => '${count} model(s)';
+	@override String get noModels => 'No models';
+	@override String get noModelsHint => 'No models yet. Pull the list from the server, or type a model name.';
+	@override String get missingApiKey => 'API key missing';
+	@override String get providerGone => 'This provider no longer exists.';
+	@override String get deleteProviderConfirm => 'Delete this provider? Its models and feature assignments go with it.';
+	@override String get getApiKey => 'Get an API key';
+	@override String get providerDocs => 'Documentation';
+	@override String get models => 'Models';
+	@override String get fetchModels => 'Pull from server';
+	@override String get fetchModelsHint => 'Pick from what this endpoint actually serves, instead of guessing a name.';
+	@override String get addModel => 'Add a model by name';
+	@override String get deleteModel => 'Remove model';
+	@override String get modelUnknown => 'Not in the catalog — capabilities unknown';
+	@override String get serverDefaultModel => 'Server default model';
+	@override String get resetToDefault => 'Reset to default';
+	@override String contextWindow({required Object tokens}) => 'Context ${tokens}';
+	@override String get capFunctionCall => 'Tools';
+	@override String get capReasoning => 'Reasoning';
+	@override String get capStructuredOutput => 'JSON output';
+	@override String get capVision => 'Vision';
+	@override String get capFileInput => 'Files';
+	@override String get triOn => 'On';
+	@override String get triOff => 'Off';
+	@override String get triAutoOn => 'Auto (on)';
+	@override String get triAutoOff => 'Auto (off)';
+	@override String get triAutoUnknown => 'Auto (unknown)';
+	@override String endpointPreview({required Object url}) => 'Requests go to ${url}';
+	@override String get endpointTrailingSlash => 'The trailing slash produces a doubled // in the path.';
+	@override String get endpointMissingVersion => 'No version segment — most OpenAI-compatible endpoints need /v1.';
+	@override String get modelOverrideHint => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.';
+	@override String followCatalog({required Object value}) => 'Following the catalog: ${value}';
+	@override String get userOverride => 'Overridden by you';
+	@override String get sendTemperature => 'Send temperature';
+	@override String get sendTemperatureHint => 'Some endpoints reject a request that carries this parameter.';
+	@override String maxTokensFromCatalog({required Object tokens}) => 'Catalog says ${tokens}';
+	@override String get maxTokensHint => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.';
+	@override String catalogVersion({required Object version}) => 'Provider catalog ${version}';
+	@override String get catalogMissing => 'Provider catalog unavailable.';
+	@override String get searchModel => 'Search models';
+	@override String get searchProvider => 'Search providers';
+	@override String get customProvider => 'Custom (OpenAI-compatible endpoint)';
+	@override String get customProviderHint => 'For a relay or self-hosted gateway not in the list.';
+	@override String get wizardNext => 'Next';
+	@override String get wizardApiKeyTitle => 'API key';
+	@override String get wizardModelsTitle => 'Pick models';
+	@override String get wizardVerifyTitle => 'Verify';
+	@override String get wizardModelsHint => 'These come from the endpoint itself. Pick the ones you want to use.';
+	@override String get wizardModelsFallbackHint => 'Could not pull the list; these are common models for this provider.';
+	@override String get wizardNoModels => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.';
+	@override String get wizardVerifyHint => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.';
+	@override String get wizardCheckChat => 'Send a test message';
+	@override String get wizardCheckSchema => 'Check JSON output support';
+	@override String get wizardCheckSchemaWarn => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.';
+	@override String get unsavedBadge => 'Unsaved changes';
+	@override String get unsavedTitle => 'Unsaved changes';
+	@override String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+	@override String get saveAndLeave => 'Save and leave';
+	@override String get discardChanges => 'Discard';
+	@override String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsId {
 			'settings.varTime' => 'Waktu',
 			'settings.varDatetime' => 'Tanggal dan waktu',
 			'settings.varWeekday' => 'Hari',
-			'settings.varApp' => 'Nama aplikasi',
-			'settings.varVersion' => 'Versi',
 			'settings.varPlatform' => 'Platform',
-			'settings.varTitle' => 'Yang sedang kamu tonton',
-			'settings.varAuthor' => 'Pembuatnya',
 			'settings.varPick' => 'Kalimat acak',
+			'settings.varTitle' => 'Judul',
+			'settings.varAuthor' => 'Pembuat',
+			'settings.varTags' => 'Tag',
+			'settings.varSection' => 'Bagian',
+			'settings.varReplyTo' => 'Membalas',
+			'settings.varPlaytime' => 'Posisi pemutaran',
+			'settings.signatureContextGroup' => 'Variabel konteks',
+			'settings.signatureContextHint' => 'Nilainya diambil dari halaman tempat kamu menulis: halaman video tahu judul, pembuat, tag, dan posisi pemutaran; forum tahu bagian dan nomor balasan. Di sebelah kanan adalah contoh nilai — bagian yang tidak bisa diisi akan hilang sendiri saat dikirim.',
+			'settings.signatureContextValue' => 'Tergantung halaman',
+			'settings.varFloor' => 'Nomor balasan',
+			'settings.varDuration' => 'Durasi video',
+			'settings.signatureRecipesHint' => 'Bingung mau menulis apa? Ketuk salah satu untuk dipakai, lalu ubah sesukamu. Yang tampil di bawah adalah tampilan aslinya.',
+			'settings.recipeWatchingName' => 'Sedang menonton apa',
+			'settings.recipeWatchingTemplate' => 'Sedang menonton %title% · %date%',
+			'settings.recipeTimestampName' => 'Sampai mana',
+			'settings.recipeTimestampTemplate' => 'Sampai %playtime% dari %duration%',
+			'settings.recipeHitokotoName' => 'Kutipan hari ini',
+			'settings.recipeHitokotoTemplate' => 'Kutipan hari ini: %hitokoto%',
+			'settings.recipeAiName' => 'Biar AI yang menulis',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => 'Menyapa saat membalas',
+			'settings.recipeReplyTemplate' => 'Untuk %reply_to% · dikirim dari %platform%',
+			'settings.recipeMoodName' => 'Suasana hati acak',
+			'settings.recipeMoodTemplate' => 'Suasana hati: %pick:bagus|biasa saja|rahasia%',
+			'settings.signatureRecipesTitle' => 'Contoh',
+			'settings.signatureRecipesMore' => 'Contoh lainnya',
+			'settings.signatureSceneVideo' => 'Di halaman video',
+			'settings.signatureSceneForum' => 'Di forum',
+			'settings.signatureSceneAuthor' => 'Di halaman profil',
+			'settings.signatureSceneNone' => 'Tanpa konteks',
+			'settings.signatureSceneFromHistory' => 'Isi contoh diambil dari yang terakhir kamu tonton. Saat benar-benar mengirim, yang dipakai adalah halaman tempatmu berada.',
+			'settings.signatureSceneFromDemo' => 'Belum ada riwayat, jadi dipakai contoh sementara. Saat benar-benar mengirim, yang dipakai adalah halaman tempatmu berada.',
+			'settings.signatureDemoVideoTitle' => 'Menari di Bawah Cahaya Bulan',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => 'Minta saran pengaturan kualitas',
+			'settings.signatureDemoSection' => 'Umum',
+			'settings.signatureDemoQuote' => 'Pelan-pelan justru lebih cepat sampai.',
+			'settings.signatureDemoAiQuote' => 'Putaran di menit tiga setengah itu saja sudah sepadan.',
+			'settings.signatureRecipeGroupWatching' => 'Saat menonton',
+			'settings.signatureRecipeGroupReplying' => 'Saat membalas',
+			'settings.signatureRecipeGroupForum' => 'Di forum',
+			'settings.signatureRecipeGroupDaily' => 'Satu kalimat tiap hari',
+			'settings.signatureRecipeGroupAi' => 'Biar AI yang menulis',
+			'settings.signaturePromptSampleContext' => 'Uji coba ini memakai konteks contoh halaman video. Saat benar-benar mengirim, AI menerima apa pun yang sedang kamu lihat.',
+			'settings.recipeAuthorTagsName' => 'Pembuat dan tag',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => 'Membalas satu balasan',
+			'settings.recipeFloorTemplate' => 'Dari balasan %floor% · untuk %reply_to%',
+			'settings.recipeSectionName' => 'Sebutkan bagiannya',
+			'settings.recipeSectionTemplate' => 'Dari %section%',
+			'settings.recipeDailyName' => 'Tanggal dan kutipan',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => 'Sumber data',
 			'settings.signatureAutoTranslate' => 'Terjemahkan ke bahasa saya',
 			'settings.signatureAutoTranslateDesc' => 'Sumber seperti Hitokoto baru menyediakan bahasa Mandarin. Kalimatnya diterjemahkan tepat sebelum dikirim.',
@@ -5526,7 +5689,7 @@ extension on TranslationsId {
 			'settings.signatureEditTextHint' => 'Ini tanda tangan yang sudah tertulis di komentar ini — kutipan dan tanggalnya kini hanya teks biasa, ubah sesukamu. Kosongkan untuk menghapusnya.',
 			'settings.signatureResolving' => ({required Object name}) => 'Membuat ${name}…',
 			'settings.signaturePendingValue' => '(dibuat saat dikirim)',
-			'settings.signatureAiHint' => 'Satu kalimat yang ditulis AI saat itu juga, baru untuk setiap komentar. Memakai penyedia AI yang kamu atur.',
+			'settings.signatureAiHint' => 'Satu kalimat yang ditulis AI saat itu juga, selalu baru di tiap komentar, lewat penyedia AI yang kamu atur. Saat mengirim dari halaman video, galeri, atau forum, AI juga tahu apa yang sedang kamu lihat dan bisa menulis sesuai itu.',
 			'settings.signatureAiUnavailable' => 'Belum ada penyedia AI yang diatur, jadi sumber ini tidak muncul di panel variabel.',
 			'settings.signaturePromptTitle' => 'Prompt',
 			'settings.signaturePromptHint' => 'Inilah yang dikirim ke model. Tulis ulang sesukamu: nada, panjang, temanya. Aturan yang sudah ada di dalamnya layak dipertahankan.',
@@ -5751,6 +5914,8 @@ extension on TranslationsId {
 			'settings.blockSettings.regexEx1Desc' => 'Cocok dengan salah satu kata ini ("|" berarti "atau")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Judul yang diawali dengan [tanda kurung]',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Koleksi\$',
 			'settings.blockSettings.regexEx3Desc' => 'Judul yang diakhiri dengan "Koleksi"',
 			'settings.blockSettings.regexEx4Pattern' => 'Ep.[0-9]+',
@@ -5800,8 +5965,6 @@ extension on TranslationsId {
 			'settings.cdnRefreshServerListTooltip' => 'Segarkan daftar server',
 			'settings.cdnSpeedTestButton' => 'Uji Kecepatan',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Menguji (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Tidak ada data server yang tersedia, silakan klik tombol segarkan',
 			'settings.cdnTestingStatus' => 'Menguji',
 			'settings.cdnUnreachableStatus' => 'Tidak Terjangkau',
@@ -6265,6 +6428,8 @@ extension on TranslationsId {
 			'videoDetail.cast.stopCasting' => 'Hentikan penyiaran',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Penyiaran Jarak Jauh',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Tutup',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Mencari perangkat...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Klik tombol cari untuk mencari ulang perangkat penyiaran',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Mencari',
@@ -6314,8 +6479,6 @@ extension on TranslationsId {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Sintaks Markdown Khusus Iwara',
 			'markdown.internalLink' => 'Tautan Internal',
 			'markdown.supportAutoConvertLinkBelow' => 'Mendukung konversi otomatis tautan berikut:',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Tautan Video\n🖼️ Tautan Gambar\n👤 Tautan Pengguna\n📌 Tautan Forum\n🎵 Tautan Daftar Putar\n💬 Tautan Topik',
 			'markdown.mentionUser' => 'Sebutkan Pengguna',
 			'markdown.mentionUserDescription' => 'Masukkan @ diikuti nama pengguna, akan otomatis diubah menjadi tautan pengguna',
@@ -6779,6 +6942,8 @@ extension on TranslationsId {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -6828,8 +6993,6 @@ extension on TranslationsId {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Kelola kategori',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.label' => 'Kategori',
 			'download.category.uncategorized' => 'Tanpa Kategori',
 			'download.category.manage' => 'Kelola',
@@ -7293,6 +7456,8 @@ extension on TranslationsId {
 			'mediaPlayer.appMayLackMediaPermission' => 'Aplikasi mungkin kekurangan izin pemutaran media yang diperlukan',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Silakan coba gunakan pemutar video lain',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Berkas video tidak dikenali',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Tautan mungkin sudah kedaluwarsa, atau responsnya bukan video. Coba lagi, atau buka dengan aplikasi lain.',
 			'mediaPlayer.accessDenied' => 'Server menolak permintaan ini (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Tautan pemutaran kemungkinan besar sudah kedaluwarsa. Ketuk Coba Lagi untuk mengambilnya kembali, atau buka dengan aplikasi lain.',
@@ -7342,8 +7507,6 @@ extension on TranslationsId {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Pada ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Tidak ada masalah yang tercatat',
 			'mediaPlayer.notice.exportLogsAction' => 'Ekspor log',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Gagal Memuat Gambar',
 			'mediaPlayer.unsupportedImageFormat' => 'Format Gambar Tidak Didukung',
 			'mediaPlayer.tryOtherViewer' => 'Silakan coba gunakan penampil lain',
@@ -7807,6 +7970,8 @@ extension on TranslationsId {
 			'externalPlayer.onlineLinkExpiryHint' => 'Tautan langsung dapat kedaluwarsa, sehingga pemutar eksternal mungkin berhenti di tengah jalan. Mengunduh terlebih dahulu adalah cara yang andal.',
 			'externalPlayer.vrPlayerHint' => 'Jika pemutar VR Anda tidak ada di pemilih, gunakan Salin tautan video lalu tempelkan di dalam pemutar tersebut.',
 			'externalPlayer.noHandler' => 'Tidak ada aplikasi di perangkat ini yang dapat membuka video',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Penyerahan gagal: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Penyerahan gagal',
 			'externalPlayer.sourceUnavailable' => 'Tidak dapat mendapatkan alamat video saat ini, silakan coba lagi',
@@ -7856,8 +8021,6 @@ extension on TranslationsId {
 			'watchLater.removedFromWatchLater' => 'Dihapus dari Tonton Nanti',
 			'watchLater.removedCount' => ({required Object count}) => 'Menghapus ${count} item',
 			'watchLater.viewWatchLaterList' => 'Lihat daftar',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => 'Gagal menambahkan ke Tonton Nanti',
 			'watchLater.invalidItem' => 'Tidak Tersedia',
 			'watchLater.clearWatched' => 'Bersihkan yang telah ditonton',
@@ -8283,6 +8446,73 @@ extension on TranslationsId {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} hasil · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Gagal: ${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => '${count} filter yang tidak ada di bagian ini telah dihapus.',
+			'ai.revealKey' => 'Show',
+			'ai.hideKey' => 'Hide',
+			'ai.connection' => 'Connection',
+			'ai.providerEnabled' => 'Enabled',
+			'ai.providerEnabledHint' => 'Turn off to keep the settings but stop using this provider.',
+			'ai.providerModelCount' => ({required Object count}) => '${count} model(s)',
+			'ai.noModels' => 'No models',
+			'ai.noModelsHint' => 'No models yet. Pull the list from the server, or type a model name.',
+			'ai.missingApiKey' => 'API key missing',
+			'ai.providerGone' => 'This provider no longer exists.',
+			'ai.deleteProviderConfirm' => 'Delete this provider? Its models and feature assignments go with it.',
+			'ai.getApiKey' => 'Get an API key',
+			'ai.providerDocs' => 'Documentation',
+			'ai.models' => 'Models',
+			'ai.fetchModels' => 'Pull from server',
+			'ai.fetchModelsHint' => 'Pick from what this endpoint actually serves, instead of guessing a name.',
+			'ai.addModel' => 'Add a model by name',
+			'ai.deleteModel' => 'Remove model',
+			'ai.modelUnknown' => 'Not in the catalog — capabilities unknown',
+			'ai.serverDefaultModel' => 'Server default model',
+			'ai.resetToDefault' => 'Reset to default',
+			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
+			'ai.capFunctionCall' => 'Tools',
+			'ai.capReasoning' => 'Reasoning',
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
+			'ai.capFileInput' => 'Files',
+			'ai.triOn' => 'On',
+			'ai.triOff' => 'Off',
+			'ai.triAutoOn' => 'Auto (on)',
+			'ai.triAutoOff' => 'Auto (off)',
+			'ai.triAutoUnknown' => 'Auto (unknown)',
+			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
+			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
+			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
+			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
+			'ai.userOverride' => 'Overridden by you',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => 'Send temperature',
+			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',
+			'ai.maxTokensHint' => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.',
+			'ai.catalogVersion' => ({required Object version}) => 'Provider catalog ${version}',
+			'ai.catalogMissing' => 'Provider catalog unavailable.',
+			'ai.searchModel' => 'Search models',
+			'ai.searchProvider' => 'Search providers',
+			'ai.customProvider' => 'Custom (OpenAI-compatible endpoint)',
+			'ai.customProviderHint' => 'For a relay or self-hosted gateway not in the list.',
+			'ai.wizardNext' => 'Next',
+			'ai.wizardApiKeyTitle' => 'API key',
+			'ai.wizardModelsTitle' => 'Pick models',
+			'ai.wizardVerifyTitle' => 'Verify',
+			'ai.wizardModelsHint' => 'These come from the endpoint itself. Pick the ones you want to use.',
+			'ai.wizardModelsFallbackHint' => 'Could not pull the list; these are common models for this provider.',
+			'ai.wizardNoModels' => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.',
+			'ai.wizardVerifyHint' => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.',
+			'ai.wizardCheckChat' => 'Send a test message',
+			'ai.wizardCheckSchema' => 'Check JSON output support',
+			'ai.wizardCheckSchemaWarn' => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}

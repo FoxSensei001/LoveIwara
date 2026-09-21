@@ -905,12 +905,61 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get varTime => 'Giờ';
 	@override String get varDatetime => 'Ngày giờ';
 	@override String get varWeekday => 'Thứ';
-	@override String get varApp => 'Tên ứng dụng';
-	@override String get varVersion => 'Phiên bản';
 	@override String get varPlatform => 'Nền tảng';
-	@override String get varTitle => 'Thứ bạn đang xem';
-	@override String get varAuthor => 'Tác giả của nó';
 	@override String get varPick => 'Câu ngẫu nhiên';
+	@override String get varTitle => 'Tiêu đề';
+	@override String get varAuthor => 'Tác giả';
+	@override String get varTags => 'Thẻ';
+	@override String get varSection => 'Chuyên mục';
+	@override String get varReplyTo => 'Đang trả lời';
+	@override String get varPlaytime => 'Vị trí phát';
+	@override String get signatureContextGroup => 'Biến ngữ cảnh';
+	@override String get signatureContextHint => 'Giá trị lấy từ trang bạn đang đăng: trang video biết tiêu đề, tác giả, thẻ và vị trí phát; diễn đàn biết chuyên mục và số tầng. Bên phải là giá trị mẫu — phần nào không điền được sẽ tự biến mất khi gửi.';
+	@override String get signatureContextValue => 'Tùy trang';
+	@override String get varFloor => 'Số thứ tự bài';
+	@override String get varDuration => 'Thời lượng video';
+	@override String get signatureRecipesHint => 'Chưa biết viết gì? Chạm một mục để dùng ngay rồi sửa lại. Phần hiển thị bên dưới chính là dáng vẻ thật khi gửi đi.';
+	@override String get recipeWatchingName => 'Đang xem gì';
+	@override String get recipeWatchingTemplate => 'Đang xem %title% · %date%';
+	@override String get recipeTimestampName => 'Xem tới đâu';
+	@override String get recipeTimestampTemplate => 'Tới %playtime% / %duration%';
+	@override String get recipeHitokotoName => 'Câu nói hôm nay';
+	@override String get recipeHitokotoTemplate => 'Câu nói hôm nay: %hitokoto%';
+	@override String get recipeAiName => 'Để AI viết';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => 'Chào khi trả lời';
+	@override String get recipeReplyTemplate => 'Gửi %reply_to% · từ %platform%';
+	@override String get recipeMoodName => 'Tâm trạng ngẫu nhiên';
+	@override String get recipeMoodTemplate => 'Tâm trạng hôm nay: %pick:tuyệt|bình thường|không nói đâu%';
+	@override String get signatureRecipesTitle => 'Ví dụ';
+	@override String get signatureRecipesMore => 'Thêm ví dụ';
+	@override String get signatureSceneVideo => 'Ở trang video';
+	@override String get signatureSceneForum => 'Ở diễn đàn';
+	@override String get signatureSceneAuthor => 'Ở trang tác giả';
+	@override String get signatureSceneNone => 'Không có ngữ cảnh';
+	@override String get signatureSceneFromHistory => 'Nội dung mẫu lấy từ thứ bạn xem gần đây nhất. Khi gửi thật, ứng dụng dùng trang bạn đang ở.';
+	@override String get signatureSceneFromDemo => 'Chưa có lịch sử nên tạm dùng một ví dụ thay thế. Khi gửi thật, ứng dụng dùng trang bạn đang ở.';
+	@override String get signatureDemoVideoTitle => 'Điệu nhảy dưới ánh trăng';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => 'Xin lời khuyên về thiết lập chất lượng';
+	@override String get signatureDemoSection => 'Tổng hợp';
+	@override String get signatureDemoQuote => 'Chậm mà chắc thì lại nhanh.';
+	@override String get signatureDemoAiQuote => 'Riêng cú xoay ở phút thứ ba rưỡi đã đáng rồi.';
+	@override String get signatureRecipeGroupWatching => 'Khi đang xem';
+	@override String get signatureRecipeGroupReplying => 'Khi trả lời';
+	@override String get signatureRecipeGroupForum => 'Khi ở diễn đàn';
+	@override String get signatureRecipeGroupDaily => 'Mỗi ngày một câu';
+	@override String get signatureRecipeGroupAi => 'Để AI viết hộ';
+	@override String get signaturePromptSampleContext => 'Lần thử này dùng ngữ cảnh mẫu của trang video. Khi gửi thật, AI nhận đúng thứ bạn đang xem.';
+	@override String get recipeAuthorTagsName => 'Tác giả và thẻ';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => 'Trả lời một tầng';
+	@override String get recipeFloorTemplate => 'Từ tầng %floor% · gửi %reply_to%';
+	@override String get recipeSectionName => 'Nói rõ chuyên mục';
+	@override String get recipeSectionTemplate => 'Từ %section%';
+	@override String get recipeDailyName => 'Ngày tháng kèm một câu';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => 'Nguồn dữ liệu';
 	@override String get signatureAutoTranslate => 'Dịch sang ngôn ngữ của tôi';
 	@override String get signatureAutoTranslateDesc => 'Các nguồn như Hitokoto hiện chỉ có tiếng Trung. Câu lấy về sẽ được dịch ngay trước khi gửi đi.';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsVi extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.';
 	@override String signatureResolving({required Object name}) => 'Đang tạo ${name}…';
 	@override String get signaturePendingValue => '(tạo khi gửi)';
-	@override String get signatureAiHint => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới. Dùng nhà cung cấp AI bạn đã thiết lập.';
+	@override String get signatureAiHint => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Khi gửi từ trang video, thư viện ảnh hay diễn đàn, AI còn biết bạn đang xem gì và có thể viết theo.';
 	@override String get signatureAiUnavailable => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.';
 	@override String get signaturePromptTitle => 'Prompt';
 	@override String get signaturePromptHint => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.';
@@ -2931,6 +2980,71 @@ class _TranslationsAiVi extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} kết quả · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'Không chạy được: ${reason}';
 	@override String searchFiltersDropped({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.';
+	@override String get revealKey => 'Show';
+	@override String get hideKey => 'Hide';
+	@override String get connection => 'Connection';
+	@override String get providerEnabled => 'Enabled';
+	@override String get providerEnabledHint => 'Turn off to keep the settings but stop using this provider.';
+	@override String providerModelCount({required Object count}) => '${count} model(s)';
+	@override String get noModels => 'No models';
+	@override String get noModelsHint => 'No models yet. Pull the list from the server, or type a model name.';
+	@override String get missingApiKey => 'API key missing';
+	@override String get providerGone => 'This provider no longer exists.';
+	@override String get deleteProviderConfirm => 'Delete this provider? Its models and feature assignments go with it.';
+	@override String get getApiKey => 'Get an API key';
+	@override String get providerDocs => 'Documentation';
+	@override String get models => 'Models';
+	@override String get fetchModels => 'Pull from server';
+	@override String get fetchModelsHint => 'Pick from what this endpoint actually serves, instead of guessing a name.';
+	@override String get addModel => 'Add a model by name';
+	@override String get deleteModel => 'Remove model';
+	@override String get modelUnknown => 'Not in the catalog — capabilities unknown';
+	@override String get serverDefaultModel => 'Server default model';
+	@override String get resetToDefault => 'Reset to default';
+	@override String contextWindow({required Object tokens}) => 'Context ${tokens}';
+	@override String get capFunctionCall => 'Tools';
+	@override String get capReasoning => 'Reasoning';
+	@override String get capStructuredOutput => 'JSON output';
+	@override String get capVision => 'Vision';
+	@override String get capFileInput => 'Files';
+	@override String get triOn => 'On';
+	@override String get triOff => 'Off';
+	@override String get triAutoOn => 'Auto (on)';
+	@override String get triAutoOff => 'Auto (off)';
+	@override String get triAutoUnknown => 'Auto (unknown)';
+	@override String endpointPreview({required Object url}) => 'Requests go to ${url}';
+	@override String get endpointTrailingSlash => 'The trailing slash produces a doubled // in the path.';
+	@override String get endpointMissingVersion => 'No version segment — most OpenAI-compatible endpoints need /v1.';
+	@override String get modelOverrideHint => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.';
+	@override String followCatalog({required Object value}) => 'Following the catalog: ${value}';
+	@override String get userOverride => 'Overridden by you';
+	@override String get sendTemperature => 'Send temperature';
+	@override String get sendTemperatureHint => 'Some endpoints reject a request that carries this parameter.';
+	@override String maxTokensFromCatalog({required Object tokens}) => 'Catalog says ${tokens}';
+	@override String get maxTokensHint => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.';
+	@override String catalogVersion({required Object version}) => 'Provider catalog ${version}';
+	@override String get catalogMissing => 'Provider catalog unavailable.';
+	@override String get searchModel => 'Search models';
+	@override String get searchProvider => 'Search providers';
+	@override String get customProvider => 'Custom (OpenAI-compatible endpoint)';
+	@override String get customProviderHint => 'For a relay or self-hosted gateway not in the list.';
+	@override String get wizardNext => 'Next';
+	@override String get wizardApiKeyTitle => 'API key';
+	@override String get wizardModelsTitle => 'Pick models';
+	@override String get wizardVerifyTitle => 'Verify';
+	@override String get wizardModelsHint => 'These come from the endpoint itself. Pick the ones you want to use.';
+	@override String get wizardModelsFallbackHint => 'Could not pull the list; these are common models for this provider.';
+	@override String get wizardNoModels => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.';
+	@override String get wizardVerifyHint => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.';
+	@override String get wizardCheckChat => 'Send a test message';
+	@override String get wizardCheckSchema => 'Check JSON output support';
+	@override String get wizardCheckSchemaWarn => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.';
+	@override String get unsavedBadge => 'Unsaved changes';
+	@override String get unsavedTitle => 'Unsaved changes';
+	@override String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+	@override String get saveAndLeave => 'Save and leave';
+	@override String get discardChanges => 'Discard';
+	@override String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsVi {
 			'settings.varTime' => 'Giờ',
 			'settings.varDatetime' => 'Ngày giờ',
 			'settings.varWeekday' => 'Thứ',
-			'settings.varApp' => 'Tên ứng dụng',
-			'settings.varVersion' => 'Phiên bản',
 			'settings.varPlatform' => 'Nền tảng',
-			'settings.varTitle' => 'Thứ bạn đang xem',
-			'settings.varAuthor' => 'Tác giả của nó',
 			'settings.varPick' => 'Câu ngẫu nhiên',
+			'settings.varTitle' => 'Tiêu đề',
+			'settings.varAuthor' => 'Tác giả',
+			'settings.varTags' => 'Thẻ',
+			'settings.varSection' => 'Chuyên mục',
+			'settings.varReplyTo' => 'Đang trả lời',
+			'settings.varPlaytime' => 'Vị trí phát',
+			'settings.signatureContextGroup' => 'Biến ngữ cảnh',
+			'settings.signatureContextHint' => 'Giá trị lấy từ trang bạn đang đăng: trang video biết tiêu đề, tác giả, thẻ và vị trí phát; diễn đàn biết chuyên mục và số tầng. Bên phải là giá trị mẫu — phần nào không điền được sẽ tự biến mất khi gửi.',
+			'settings.signatureContextValue' => 'Tùy trang',
+			'settings.varFloor' => 'Số thứ tự bài',
+			'settings.varDuration' => 'Thời lượng video',
+			'settings.signatureRecipesHint' => 'Chưa biết viết gì? Chạm một mục để dùng ngay rồi sửa lại. Phần hiển thị bên dưới chính là dáng vẻ thật khi gửi đi.',
+			'settings.recipeWatchingName' => 'Đang xem gì',
+			'settings.recipeWatchingTemplate' => 'Đang xem %title% · %date%',
+			'settings.recipeTimestampName' => 'Xem tới đâu',
+			'settings.recipeTimestampTemplate' => 'Tới %playtime% / %duration%',
+			'settings.recipeHitokotoName' => 'Câu nói hôm nay',
+			'settings.recipeHitokotoTemplate' => 'Câu nói hôm nay: %hitokoto%',
+			'settings.recipeAiName' => 'Để AI viết',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => 'Chào khi trả lời',
+			'settings.recipeReplyTemplate' => 'Gửi %reply_to% · từ %platform%',
+			'settings.recipeMoodName' => 'Tâm trạng ngẫu nhiên',
+			'settings.recipeMoodTemplate' => 'Tâm trạng hôm nay: %pick:tuyệt|bình thường|không nói đâu%',
+			'settings.signatureRecipesTitle' => 'Ví dụ',
+			'settings.signatureRecipesMore' => 'Thêm ví dụ',
+			'settings.signatureSceneVideo' => 'Ở trang video',
+			'settings.signatureSceneForum' => 'Ở diễn đàn',
+			'settings.signatureSceneAuthor' => 'Ở trang tác giả',
+			'settings.signatureSceneNone' => 'Không có ngữ cảnh',
+			'settings.signatureSceneFromHistory' => 'Nội dung mẫu lấy từ thứ bạn xem gần đây nhất. Khi gửi thật, ứng dụng dùng trang bạn đang ở.',
+			'settings.signatureSceneFromDemo' => 'Chưa có lịch sử nên tạm dùng một ví dụ thay thế. Khi gửi thật, ứng dụng dùng trang bạn đang ở.',
+			'settings.signatureDemoVideoTitle' => 'Điệu nhảy dưới ánh trăng',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => 'Xin lời khuyên về thiết lập chất lượng',
+			'settings.signatureDemoSection' => 'Tổng hợp',
+			'settings.signatureDemoQuote' => 'Chậm mà chắc thì lại nhanh.',
+			'settings.signatureDemoAiQuote' => 'Riêng cú xoay ở phút thứ ba rưỡi đã đáng rồi.',
+			'settings.signatureRecipeGroupWatching' => 'Khi đang xem',
+			'settings.signatureRecipeGroupReplying' => 'Khi trả lời',
+			'settings.signatureRecipeGroupForum' => 'Khi ở diễn đàn',
+			'settings.signatureRecipeGroupDaily' => 'Mỗi ngày một câu',
+			'settings.signatureRecipeGroupAi' => 'Để AI viết hộ',
+			'settings.signaturePromptSampleContext' => 'Lần thử này dùng ngữ cảnh mẫu của trang video. Khi gửi thật, AI nhận đúng thứ bạn đang xem.',
+			'settings.recipeAuthorTagsName' => 'Tác giả và thẻ',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => 'Trả lời một tầng',
+			'settings.recipeFloorTemplate' => 'Từ tầng %floor% · gửi %reply_to%',
+			'settings.recipeSectionName' => 'Nói rõ chuyên mục',
+			'settings.recipeSectionTemplate' => 'Từ %section%',
+			'settings.recipeDailyName' => 'Ngày tháng kèm một câu',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => 'Nguồn dữ liệu',
 			'settings.signatureAutoTranslate' => 'Dịch sang ngôn ngữ của tôi',
 			'settings.signatureAutoTranslateDesc' => 'Các nguồn như Hitokoto hiện chỉ có tiếng Trung. Câu lấy về sẽ được dịch ngay trước khi gửi đi.',
@@ -5526,7 +5689,7 @@ extension on TranslationsVi {
 			'settings.signatureEditTextHint' => 'Đây là chữ ký đã có sẵn trong bình luận này — câu trích và ngày giờ giờ chỉ là chữ thường, sửa tuỳ ý. Xoá trống là bỏ chữ ký.',
 			'settings.signatureResolving' => ({required Object name}) => 'Đang tạo ${name}…',
 			'settings.signaturePendingValue' => '(tạo khi gửi)',
-			'settings.signatureAiHint' => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới. Dùng nhà cung cấp AI bạn đã thiết lập.',
+			'settings.signatureAiHint' => 'Một câu do AI viết ngay lúc đó, mỗi bình luận một câu mới, dùng nhà cung cấp AI bạn đã thiết lập. Khi gửi từ trang video, thư viện ảnh hay diễn đàn, AI còn biết bạn đang xem gì và có thể viết theo.',
 			'settings.signatureAiUnavailable' => 'Chưa thiết lập nhà cung cấp AI nên nguồn này không hiện trong bảng biến.',
 			'settings.signaturePromptTitle' => 'Prompt',
 			'settings.signaturePromptHint' => 'Đây là thứ được gửi cho mô hình. Viết lại tuỳ ý: giọng điệu, độ dài, chủ đề. Các quy tắc có sẵn trong đó nên giữ lại.',
@@ -5751,6 +5914,8 @@ extension on TranslationsVi {
 			'settings.blockSettings.regexEx1Desc' => 'Khớp với bất kỳ từ nào sau đây ("|" nghĩa là "hoặc")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Tiêu đề bắt đầu bằng [ngoặc vuông]',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Tuyển tập\$',
 			'settings.blockSettings.regexEx3Desc' => 'Tiêu đề kết thúc bằng "Tuyển tập"',
 			'settings.blockSettings.regexEx4Pattern' => 'Tập [0-9]+',
@@ -5800,8 +5965,6 @@ extension on TranslationsVi {
 			'settings.cdnRefreshServerListTooltip' => 'Làm mới danh sách máy chủ',
 			'settings.cdnSpeedTestButton' => 'Kiểm tra tốc độ',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Đang kiểm tra (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'Không có dữ liệu máy chủ, vui lòng nhấn nút làm mới',
 			'settings.cdnTestingStatus' => 'Đang kiểm tra',
 			'settings.cdnUnreachableStatus' => 'Không thể kết nối',
@@ -6265,6 +6428,8 @@ extension on TranslationsVi {
 			'videoDetail.cast.stopCasting' => 'Dừng truyền phát',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Truyền phát từ xa',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Đóng',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Đang tìm thiết bị...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Nhấn nút tìm kiếm để tìm lại thiết bị truyền phát',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Đang tìm kiếm',
@@ -6314,8 +6479,6 @@ extension on TranslationsVi {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Cú pháp Markdown đặc biệt của Iwara',
 			'markdown.internalLink' => 'Liên kết nội bộ',
 			'markdown.supportAutoConvertLinkBelow' => 'Hỗ trợ tự động chuyển đổi liên kết dưới đây:',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Liên kết video\n🖼️ Liên kết ảnh\n👤 Liên kết người dùng\n📌 Liên kết diễn đàn\n🎵 Liên kết danh sách phát\n💬 Liên kết chủ đề',
 			'markdown.mentionUser' => 'Nhắc tên người dùng',
 			'markdown.mentionUserDescription' => 'Nhập @ theo sau là tên người dùng, sẽ tự động chuyển thành liên kết người dùng',
@@ -6779,6 +6942,8 @@ extension on TranslationsVi {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -6828,8 +6993,6 @@ extension on TranslationsVi {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Quản lý danh mục',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.label' => 'Danh mục',
 			'download.category.uncategorized' => 'Chưa phân loại',
 			'download.category.manage' => 'Quản lý',
@@ -7293,6 +7456,8 @@ extension on TranslationsVi {
 			'mediaPlayer.appMayLackMediaPermission' => 'Ứng dụng có thể thiếu quyền phát media cần thiết',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Vui lòng thử dùng trình phát video khác',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Tệp video không nhận dạng được',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'Liên kết có thể đã hết hạn, hoặc phản hồi không phải video. Hãy thử lại, hoặc mở bằng ứng dụng khác.',
 			'mediaPlayer.accessDenied' => 'Máy chủ từ chối yêu cầu này (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'Liên kết phát nhiều khả năng đã hết hạn. Nhấn Thử lại để lấy lại, hoặc mở bằng ứng dụng khác.',
@@ -7342,8 +7507,6 @@ extension on TranslationsVi {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'Tại ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'Không ghi nhận vấn đề nào',
 			'mediaPlayer.notice.exportLogsAction' => 'Xuất nhật ký',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Tải ảnh thất bại',
 			'mediaPlayer.unsupportedImageFormat' => 'Định dạng ảnh không được hỗ trợ',
 			'mediaPlayer.tryOtherViewer' => 'Vui lòng thử dùng trình xem khác',
@@ -7807,6 +7970,8 @@ extension on TranslationsVi {
 			'externalPlayer.onlineLinkExpiryHint' => 'Liên kết trực tiếp sẽ hết hạn nên trình phát ngoài có thể dừng giữa chừng. Tải xuống trước là cách đáng tin cậy hơn.',
 			'externalPlayer.vrPlayerHint' => 'Nếu trình phát VR của bạn không có trong bảng chọn, hãy dùng Sao chép liên kết video và dán vào trình phát đó.',
 			'externalPlayer.noHandler' => 'Không có ứng dụng nào trên thiết bị này mở được video',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Chuyển giao thất bại: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Chuyển giao thất bại',
 			'externalPlayer.sourceUnavailable' => 'Không lấy được địa chỉ video hiện tại, vui lòng thử lại',
@@ -7856,8 +8021,6 @@ extension on TranslationsVi {
 			'watchLater.removedFromWatchLater' => 'Đã xóa khỏi Xem sau',
 			'watchLater.removedCount' => ({required Object count}) => 'Đã xóa ${count} mục',
 			'watchLater.viewWatchLaterList' => 'Xem danh sách',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => 'Thêm vào Xem sau thất bại',
 			'watchLater.invalidItem' => 'Không khả dụng',
 			'watchLater.clearWatched' => 'Xóa các mục đã xem',
@@ -8283,6 +8446,73 @@ extension on TranslationsVi {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} kết quả · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Không chạy được: ${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Đã bỏ ${count} bộ lọc không có trong mục này.',
+			'ai.revealKey' => 'Show',
+			'ai.hideKey' => 'Hide',
+			'ai.connection' => 'Connection',
+			'ai.providerEnabled' => 'Enabled',
+			'ai.providerEnabledHint' => 'Turn off to keep the settings but stop using this provider.',
+			'ai.providerModelCount' => ({required Object count}) => '${count} model(s)',
+			'ai.noModels' => 'No models',
+			'ai.noModelsHint' => 'No models yet. Pull the list from the server, or type a model name.',
+			'ai.missingApiKey' => 'API key missing',
+			'ai.providerGone' => 'This provider no longer exists.',
+			'ai.deleteProviderConfirm' => 'Delete this provider? Its models and feature assignments go with it.',
+			'ai.getApiKey' => 'Get an API key',
+			'ai.providerDocs' => 'Documentation',
+			'ai.models' => 'Models',
+			'ai.fetchModels' => 'Pull from server',
+			'ai.fetchModelsHint' => 'Pick from what this endpoint actually serves, instead of guessing a name.',
+			'ai.addModel' => 'Add a model by name',
+			'ai.deleteModel' => 'Remove model',
+			'ai.modelUnknown' => 'Not in the catalog — capabilities unknown',
+			'ai.serverDefaultModel' => 'Server default model',
+			'ai.resetToDefault' => 'Reset to default',
+			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
+			'ai.capFunctionCall' => 'Tools',
+			'ai.capReasoning' => 'Reasoning',
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
+			'ai.capFileInput' => 'Files',
+			'ai.triOn' => 'On',
+			'ai.triOff' => 'Off',
+			'ai.triAutoOn' => 'Auto (on)',
+			'ai.triAutoOff' => 'Auto (off)',
+			'ai.triAutoUnknown' => 'Auto (unknown)',
+			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
+			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
+			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
+			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
+			'ai.userOverride' => 'Overridden by you',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => 'Send temperature',
+			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',
+			'ai.maxTokensHint' => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.',
+			'ai.catalogVersion' => ({required Object version}) => 'Provider catalog ${version}',
+			'ai.catalogMissing' => 'Provider catalog unavailable.',
+			'ai.searchModel' => 'Search models',
+			'ai.searchProvider' => 'Search providers',
+			'ai.customProvider' => 'Custom (OpenAI-compatible endpoint)',
+			'ai.customProviderHint' => 'For a relay or self-hosted gateway not in the list.',
+			'ai.wizardNext' => 'Next',
+			'ai.wizardApiKeyTitle' => 'API key',
+			'ai.wizardModelsTitle' => 'Pick models',
+			'ai.wizardVerifyTitle' => 'Verify',
+			'ai.wizardModelsHint' => 'These come from the endpoint itself. Pick the ones you want to use.',
+			'ai.wizardModelsFallbackHint' => 'Could not pull the list; these are common models for this provider.',
+			'ai.wizardNoModels' => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.',
+			'ai.wizardVerifyHint' => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.',
+			'ai.wizardCheckChat' => 'Send a test message',
+			'ai.wizardCheckSchema' => 'Check JSON output support',
+			'ai.wizardCheckSchemaWarn' => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}

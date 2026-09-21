@@ -905,12 +905,61 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get varTime => 'เวลา';
 	@override String get varDatetime => 'วันที่และเวลา';
 	@override String get varWeekday => 'วันในสัปดาห์';
-	@override String get varApp => 'ชื่อแอป';
-	@override String get varVersion => 'เวอร์ชัน';
 	@override String get varPlatform => 'แพลตฟอร์ม';
-	@override String get varTitle => 'สิ่งที่คุณกำลังดู';
-	@override String get varAuthor => 'ผู้สร้างผลงานนั้น';
 	@override String get varPick => 'ข้อความสุ่ม';
+	@override String get varTitle => 'ชื่อเรื่อง';
+	@override String get varAuthor => 'ผู้สร้าง';
+	@override String get varTags => 'แท็ก';
+	@override String get varSection => 'หมวด';
+	@override String get varReplyTo => 'กำลังตอบถึง';
+	@override String get varPlaytime => 'ตำแหน่งการเล่น';
+	@override String get signatureContextGroup => 'ตัวแปรบริบท';
+	@override String get signatureContextHint => 'ค่าต่าง ๆ มาจากหน้าที่คุณกำลังโพสต์อยู่ หน้าวิดีโอรู้ชื่อเรื่อง ผู้สร้าง แท็ก และตำแหน่งที่เล่นอยู่ ส่วนฟอรัมรู้หมวดและเลขชั้น ด้านขวาคือค่าตัวอย่าง ส่วนที่เติมไม่ได้จะหายไปเองตอนส่ง';
+	@override String get signatureContextValue => 'แล้วแต่หน้า';
+	@override String get varFloor => 'ลำดับความเห็น';
+	@override String get varDuration => 'ความยาววิดีโอ';
+	@override String get signatureRecipesHint => 'ไม่รู้จะเขียนอะไรดี? แตะสักอันเพื่อใช้เลย แล้วค่อยแก้ ข้างล่างคือหน้าตาจริงเวลาส่งออกไป';
+	@override String get recipeWatchingName => 'กำลังดูอะไรอยู่';
+	@override String get recipeWatchingTemplate => 'กำลังดู %title% · %date%';
+	@override String get recipeTimestampName => 'ดูถึงตรงนี้';
+	@override String get recipeTimestampTemplate => 'ดูถึง %playtime% จาก %duration%';
+	@override String get recipeHitokotoName => 'คำคมประจำวัน';
+	@override String get recipeHitokotoTemplate => 'คำคมประจำวัน: %hitokoto%';
+	@override String get recipeAiName => 'ให้ AI เขียนให้';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => 'ทักทายตอนตอบกลับ';
+	@override String get recipeReplyTemplate => 'ถึง %reply_to% · ส่งจาก %platform%';
+	@override String get recipeMoodName => 'อารมณ์แบบสุ่ม';
+	@override String get recipeMoodTemplate => 'อารมณ์วันนี้: %pick:ดีมาก|เฉย ๆ|ไม่บอก%';
+	@override String get signatureRecipesTitle => 'ตัวอย่าง';
+	@override String get signatureRecipesMore => 'ตัวอย่างเพิ่มเติม';
+	@override String get signatureSceneVideo => 'ในหน้าวิดีโอ';
+	@override String get signatureSceneForum => 'ในฟอรัม';
+	@override String get signatureSceneAuthor => 'ในหน้าโปรไฟล์';
+	@override String get signatureSceneNone => 'ไม่มีบริบท';
+	@override String get signatureSceneFromHistory => 'เนื้อหาตัวอย่างมาจากสิ่งที่คุณดูล่าสุด เวลาส่งจริงจะใช้หน้าที่คุณอยู่ตอนนั้น';
+	@override String get signatureSceneFromDemo => 'ยังไม่มีประวัติการดู จึงใช้ตัวอย่างสำรองไปก่อน เวลาส่งจริงจะใช้หน้าที่คุณอยู่ตอนนั้น';
+	@override String get signatureDemoVideoTitle => 'เต้นรำใต้แสงจันทร์';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => 'ขอคำแนะนำการตั้งค่าคุณภาพ';
+	@override String get signatureDemoSection => 'ทั่วไป';
+	@override String get signatureDemoQuote => 'ช้า ๆ ได้พร้าเล่มงาม';
+	@override String get signatureDemoAiQuote => 'แค่ท่าหมุนตอนสามนาทีครึ่งก็คุ้มแล้ว';
+	@override String get signatureRecipeGroupWatching => 'ตอนดูวิดีโอ';
+	@override String get signatureRecipeGroupReplying => 'ตอนตอบกลับ';
+	@override String get signatureRecipeGroupForum => 'ตอนอยู่ในฟอรัม';
+	@override String get signatureRecipeGroupDaily => 'วันละหนึ่งประโยค';
+	@override String get signatureRecipeGroupAi => 'ให้ AI เขียนให้';
+	@override String get signaturePromptSampleContext => 'การลองเขียนครั้งนี้ใช้บริบทตัวอย่างของหน้าวิดีโอ เวลาส่งจริง AI จะได้รับสิ่งที่คุณกำลังดูอยู่';
+	@override String get recipeAuthorTagsName => 'ผู้สร้างและแท็ก';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => 'ตอบชั้นที่ระบุ';
+	@override String get recipeFloorTemplate => 'จากชั้น %floor% · ถึง %reply_to%';
+	@override String get recipeSectionName => 'บอกหมวดที่อยู่';
+	@override String get recipeSectionTemplate => 'จากหมวด %section%';
+	@override String get recipeDailyName => 'วันที่กับหนึ่งประโยค';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => 'แหล่งข้อมูล';
 	@override String get signatureAutoTranslate => 'แปลเป็นภาษาของฉัน';
 	@override String get signatureAutoTranslateDesc => 'แหล่งข้อมูลอย่าง Hitokoto ตอนนี้มีแต่ภาษาจีน ประโยคที่ได้จะถูกแปลก่อนส่งออกไป';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsTh extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น';
 	@override String signatureResolving({required Object name}) => 'กำลังสร้าง ${name}…';
 	@override String get signaturePendingValue => '(สร้างตอนส่ง)';
-	@override String get signatureAiHint => 'ประโยคที่ AI เขียนขึ้นสด ๆ ใหม่ทุกความเห็น ใช้ผู้ให้บริการ AI ที่คุณตั้งค่าไว้';
+	@override String get signatureAiHint => 'ประโยคที่ AI เขียนสด ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เมื่อส่งจากหน้าวิดีโอ แกลเลอรี หรือฟอรัม AI จะรู้ด้วยว่าคุณกำลังดูอะไรและเขียนให้เข้ากับสิ่งนั้น';
 	@override String get signatureAiUnavailable => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร';
 	@override String get signaturePromptTitle => 'พรอมต์';
 	@override String get signaturePromptHint => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้';
@@ -2931,6 +2980,71 @@ class _TranslationsAiTh extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} รายการ · ${titles}';
 	@override String searchToolFailed({required Object reason}) => 'ล้มเหลว: ${reason}';
 	@override String searchFiltersDropped({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว';
+	@override String get revealKey => 'Show';
+	@override String get hideKey => 'Hide';
+	@override String get connection => 'Connection';
+	@override String get providerEnabled => 'Enabled';
+	@override String get providerEnabledHint => 'Turn off to keep the settings but stop using this provider.';
+	@override String providerModelCount({required Object count}) => '${count} model(s)';
+	@override String get noModels => 'No models';
+	@override String get noModelsHint => 'No models yet. Pull the list from the server, or type a model name.';
+	@override String get missingApiKey => 'API key missing';
+	@override String get providerGone => 'This provider no longer exists.';
+	@override String get deleteProviderConfirm => 'Delete this provider? Its models and feature assignments go with it.';
+	@override String get getApiKey => 'Get an API key';
+	@override String get providerDocs => 'Documentation';
+	@override String get models => 'Models';
+	@override String get fetchModels => 'Pull from server';
+	@override String get fetchModelsHint => 'Pick from what this endpoint actually serves, instead of guessing a name.';
+	@override String get addModel => 'Add a model by name';
+	@override String get deleteModel => 'Remove model';
+	@override String get modelUnknown => 'Not in the catalog — capabilities unknown';
+	@override String get serverDefaultModel => 'Server default model';
+	@override String get resetToDefault => 'Reset to default';
+	@override String contextWindow({required Object tokens}) => 'Context ${tokens}';
+	@override String get capFunctionCall => 'Tools';
+	@override String get capReasoning => 'Reasoning';
+	@override String get capStructuredOutput => 'JSON output';
+	@override String get capVision => 'Vision';
+	@override String get capFileInput => 'Files';
+	@override String get triOn => 'On';
+	@override String get triOff => 'Off';
+	@override String get triAutoOn => 'Auto (on)';
+	@override String get triAutoOff => 'Auto (off)';
+	@override String get triAutoUnknown => 'Auto (unknown)';
+	@override String endpointPreview({required Object url}) => 'Requests go to ${url}';
+	@override String get endpointTrailingSlash => 'The trailing slash produces a doubled // in the path.';
+	@override String get endpointMissingVersion => 'No version segment — most OpenAI-compatible endpoints need /v1.';
+	@override String get modelOverrideHint => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.';
+	@override String followCatalog({required Object value}) => 'Following the catalog: ${value}';
+	@override String get userOverride => 'Overridden by you';
+	@override String get sendTemperature => 'Send temperature';
+	@override String get sendTemperatureHint => 'Some endpoints reject a request that carries this parameter.';
+	@override String maxTokensFromCatalog({required Object tokens}) => 'Catalog says ${tokens}';
+	@override String get maxTokensHint => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.';
+	@override String catalogVersion({required Object version}) => 'Provider catalog ${version}';
+	@override String get catalogMissing => 'Provider catalog unavailable.';
+	@override String get searchModel => 'Search models';
+	@override String get searchProvider => 'Search providers';
+	@override String get customProvider => 'Custom (OpenAI-compatible endpoint)';
+	@override String get customProviderHint => 'For a relay or self-hosted gateway not in the list.';
+	@override String get wizardNext => 'Next';
+	@override String get wizardApiKeyTitle => 'API key';
+	@override String get wizardModelsTitle => 'Pick models';
+	@override String get wizardVerifyTitle => 'Verify';
+	@override String get wizardModelsHint => 'These come from the endpoint itself. Pick the ones you want to use.';
+	@override String get wizardModelsFallbackHint => 'Could not pull the list; these are common models for this provider.';
+	@override String get wizardNoModels => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.';
+	@override String get wizardVerifyHint => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.';
+	@override String get wizardCheckChat => 'Send a test message';
+	@override String get wizardCheckSchema => 'Check JSON output support';
+	@override String get wizardCheckSchemaWarn => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.';
+	@override String get unsavedBadge => 'Unsaved changes';
+	@override String get unsavedTitle => 'Unsaved changes';
+	@override String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+	@override String get saveAndLeave => 'Save and leave';
+	@override String get discardChanges => 'Discard';
+	@override String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsTh {
 			'settings.varTime' => 'เวลา',
 			'settings.varDatetime' => 'วันที่และเวลา',
 			'settings.varWeekday' => 'วันในสัปดาห์',
-			'settings.varApp' => 'ชื่อแอป',
-			'settings.varVersion' => 'เวอร์ชัน',
 			'settings.varPlatform' => 'แพลตฟอร์ม',
-			'settings.varTitle' => 'สิ่งที่คุณกำลังดู',
-			'settings.varAuthor' => 'ผู้สร้างผลงานนั้น',
 			'settings.varPick' => 'ข้อความสุ่ม',
+			'settings.varTitle' => 'ชื่อเรื่อง',
+			'settings.varAuthor' => 'ผู้สร้าง',
+			'settings.varTags' => 'แท็ก',
+			'settings.varSection' => 'หมวด',
+			'settings.varReplyTo' => 'กำลังตอบถึง',
+			'settings.varPlaytime' => 'ตำแหน่งการเล่น',
+			'settings.signatureContextGroup' => 'ตัวแปรบริบท',
+			'settings.signatureContextHint' => 'ค่าต่าง ๆ มาจากหน้าที่คุณกำลังโพสต์อยู่ หน้าวิดีโอรู้ชื่อเรื่อง ผู้สร้าง แท็ก และตำแหน่งที่เล่นอยู่ ส่วนฟอรัมรู้หมวดและเลขชั้น ด้านขวาคือค่าตัวอย่าง ส่วนที่เติมไม่ได้จะหายไปเองตอนส่ง',
+			'settings.signatureContextValue' => 'แล้วแต่หน้า',
+			'settings.varFloor' => 'ลำดับความเห็น',
+			'settings.varDuration' => 'ความยาววิดีโอ',
+			'settings.signatureRecipesHint' => 'ไม่รู้จะเขียนอะไรดี? แตะสักอันเพื่อใช้เลย แล้วค่อยแก้ ข้างล่างคือหน้าตาจริงเวลาส่งออกไป',
+			'settings.recipeWatchingName' => 'กำลังดูอะไรอยู่',
+			'settings.recipeWatchingTemplate' => 'กำลังดู %title% · %date%',
+			'settings.recipeTimestampName' => 'ดูถึงตรงนี้',
+			'settings.recipeTimestampTemplate' => 'ดูถึง %playtime% จาก %duration%',
+			'settings.recipeHitokotoName' => 'คำคมประจำวัน',
+			'settings.recipeHitokotoTemplate' => 'คำคมประจำวัน: %hitokoto%',
+			'settings.recipeAiName' => 'ให้ AI เขียนให้',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => 'ทักทายตอนตอบกลับ',
+			'settings.recipeReplyTemplate' => 'ถึง %reply_to% · ส่งจาก %platform%',
+			'settings.recipeMoodName' => 'อารมณ์แบบสุ่ม',
+			'settings.recipeMoodTemplate' => 'อารมณ์วันนี้: %pick:ดีมาก|เฉย ๆ|ไม่บอก%',
+			'settings.signatureRecipesTitle' => 'ตัวอย่าง',
+			'settings.signatureRecipesMore' => 'ตัวอย่างเพิ่มเติม',
+			'settings.signatureSceneVideo' => 'ในหน้าวิดีโอ',
+			'settings.signatureSceneForum' => 'ในฟอรัม',
+			'settings.signatureSceneAuthor' => 'ในหน้าโปรไฟล์',
+			'settings.signatureSceneNone' => 'ไม่มีบริบท',
+			'settings.signatureSceneFromHistory' => 'เนื้อหาตัวอย่างมาจากสิ่งที่คุณดูล่าสุด เวลาส่งจริงจะใช้หน้าที่คุณอยู่ตอนนั้น',
+			'settings.signatureSceneFromDemo' => 'ยังไม่มีประวัติการดู จึงใช้ตัวอย่างสำรองไปก่อน เวลาส่งจริงจะใช้หน้าที่คุณอยู่ตอนนั้น',
+			'settings.signatureDemoVideoTitle' => 'เต้นรำใต้แสงจันทร์',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => 'ขอคำแนะนำการตั้งค่าคุณภาพ',
+			'settings.signatureDemoSection' => 'ทั่วไป',
+			'settings.signatureDemoQuote' => 'ช้า ๆ ได้พร้าเล่มงาม',
+			'settings.signatureDemoAiQuote' => 'แค่ท่าหมุนตอนสามนาทีครึ่งก็คุ้มแล้ว',
+			'settings.signatureRecipeGroupWatching' => 'ตอนดูวิดีโอ',
+			'settings.signatureRecipeGroupReplying' => 'ตอนตอบกลับ',
+			'settings.signatureRecipeGroupForum' => 'ตอนอยู่ในฟอรัม',
+			'settings.signatureRecipeGroupDaily' => 'วันละหนึ่งประโยค',
+			'settings.signatureRecipeGroupAi' => 'ให้ AI เขียนให้',
+			'settings.signaturePromptSampleContext' => 'การลองเขียนครั้งนี้ใช้บริบทตัวอย่างของหน้าวิดีโอ เวลาส่งจริง AI จะได้รับสิ่งที่คุณกำลังดูอยู่',
+			'settings.recipeAuthorTagsName' => 'ผู้สร้างและแท็ก',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => 'ตอบชั้นที่ระบุ',
+			'settings.recipeFloorTemplate' => 'จากชั้น %floor% · ถึง %reply_to%',
+			'settings.recipeSectionName' => 'บอกหมวดที่อยู่',
+			'settings.recipeSectionTemplate' => 'จากหมวด %section%',
+			'settings.recipeDailyName' => 'วันที่กับหนึ่งประโยค',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => 'แหล่งข้อมูล',
 			'settings.signatureAutoTranslate' => 'แปลเป็นภาษาของฉัน',
 			'settings.signatureAutoTranslateDesc' => 'แหล่งข้อมูลอย่าง Hitokoto ตอนนี้มีแต่ภาษาจีน ประโยคที่ได้จะถูกแปลก่อนส่งออกไป',
@@ -5526,7 +5689,7 @@ extension on TranslationsTh {
 			'settings.signatureEditTextHint' => 'นี่คือลายเซ็นที่เขียนอยู่ในความเห็นนี้แล้ว ทั้งวรรคทองและวันที่ตอนนี้เป็นแค่ข้อความธรรมดา แก้ได้ตามใจ ล้างให้ว่างคือไม่เอาลายเซ็น',
 			'settings.signatureResolving' => ({required Object name}) => 'กำลังสร้าง ${name}…',
 			'settings.signaturePendingValue' => '(สร้างตอนส่ง)',
-			'settings.signatureAiHint' => 'ประโยคที่ AI เขียนขึ้นสด ๆ ใหม่ทุกความเห็น ใช้ผู้ให้บริการ AI ที่คุณตั้งค่าไว้',
+			'settings.signatureAiHint' => 'ประโยคที่ AI เขียนสด ใหม่ทุกความคิดเห็น โดยใช้ผู้ให้บริการ AI ที่คุณตั้งไว้ เมื่อส่งจากหน้าวิดีโอ แกลเลอรี หรือฟอรัม AI จะรู้ด้วยว่าคุณกำลังดูอะไรและเขียนให้เข้ากับสิ่งนั้น',
 			'settings.signatureAiUnavailable' => 'ยังไม่ได้ตั้งค่าผู้ให้บริการ AI แหล่งนี้จึงยังไม่ปรากฏในแผงตัวแปร',
 			'settings.signaturePromptTitle' => 'พรอมต์',
 			'settings.signaturePromptHint' => 'นี่คือสิ่งที่ส่งให้โมเดล เขียนใหม่ได้ตามใจ ทั้งน้ำเสียง ความยาว และหัวข้อ กฎที่มีอยู่แล้วควรเก็บไว้',
@@ -5751,6 +5914,8 @@ extension on TranslationsTh {
 			'settings.blockSettings.regexEx1Desc' => 'ตรงกับคำใดคำหนึ่งเหล่านี้ ("|" หมายถึง "หรือ")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'ชื่อเรื่องที่ขึ้นต้นด้วย [วงเล็บ]',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'คอลเลกชัน\$',
 			'settings.blockSettings.regexEx3Desc' => 'ชื่อเรื่องที่ลงท้ายด้วย "Collection"',
 			'settings.blockSettings.regexEx4Pattern' => 'ตอนที่.',
@@ -5800,8 +5965,6 @@ extension on TranslationsTh {
 			'settings.cdnRefreshServerListTooltip' => 'รีเฟรชรายการเซิร์ฟเวอร์',
 			'settings.cdnSpeedTestButton' => 'ทดสอบความเร็ว',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'กำลังทดสอบ (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'ไม่มีข้อมูลเซิร์ฟเวอร์ โปรดคลิกปุ่มรีเฟรช',
 			'settings.cdnTestingStatus' => 'กำลังทดสอบ',
 			'settings.cdnUnreachableStatus' => 'ไม่สามารถเข้าถึงได้',
@@ -6265,6 +6428,8 @@ extension on TranslationsTh {
 			'videoDetail.cast.stopCasting' => 'หยุดแคสต์',
 			'videoDetail.cast.dlnaCastSheet.title' => 'รีโมตแคสต์',
 			'videoDetail.cast.dlnaCastSheet.close' => 'ปิด',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'กำลังค้นหาอุปกรณ์...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'คลิกปุ่มค้นหาเพื่อค้นหาอุปกรณ์แคสต์อีกครั้ง',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'กำลังค้นหา',
@@ -6314,8 +6479,6 @@ extension on TranslationsTh {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'ไวยากรณ์ Markdown พิเศษของ Iwara',
 			'markdown.internalLink' => 'ลิงก์ภายในเว็บไซต์',
 			'markdown.supportAutoConvertLinkBelow' => 'รองรับการแปลงลิงก์ต่อไปนี้โดยอัตโนมัติ:',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 ลิงก์วิดีโอ\n🖼️ ลิงก์รูปภาพ\n👤 ลิงก์ผู้ใช้\n📌 ลิงก์ฟอรัม\n🎵 ลิงก์เพลย์ลิสต์\n💬 ลิงก์กระทู้',
 			'markdown.mentionUser' => 'กล่าวถึงผู้ใช้',
 			'markdown.mentionUserDescription' => 'พิมพ์ @ ตามด้วยชื่อผู้ใช้ ระบบจะแปลงเป็นลิงก์ผู้ใช้โดยอัตโนมัติ',
@@ -6779,6 +6942,8 @@ extension on TranslationsTh {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -6828,8 +6993,6 @@ extension on TranslationsTh {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'จัดการหมวดหมู่',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.label' => 'หมวดหมู่',
 			'download.category.uncategorized' => 'ไม่ได้จัดหมวดหมู่',
 			'download.category.manage' => 'จัดการ',
@@ -7293,6 +7456,8 @@ extension on TranslationsTh {
 			'mediaPlayer.appMayLackMediaPermission' => 'แอปอาจไม่มีสิทธิ์ในการเล่นสื่อที่จำเป็น',
 			'mediaPlayer.tryOtherVideoPlayer' => 'โปรดลองใช้โปรแกรมเล่นวิดีโออื่น',
 			'mediaPlayer.unrecognizedVideoFormat' => 'ไม่รู้จักไฟล์วิดีโอ',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'ลิงก์อาจหมดอายุแล้ว หรือการตอบกลับไม่ใช่วิดีโอ โปรดลองอีกครั้งหรือเปิดด้วยแอปอื่น',
 			'mediaPlayer.accessDenied' => 'เซิร์ฟเวอร์ปฏิเสธคำขอนี้ (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'ลิงก์เล่นน่าจะหมดอายุแล้ว แตะลองใหม่เพื่อดึงลิงก์อีกครั้ง หรือเปิดด้วยแอปอื่น',
@@ -7342,8 +7507,6 @@ extension on TranslationsTh {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'ที่ตำแหน่ง ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'ไม่มีบันทึกปัญหา',
 			'mediaPlayer.notice.exportLogsAction' => 'ส่งออกบันทึก',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'โหลดรูปภาพไม่สำเร็จ',
 			'mediaPlayer.unsupportedImageFormat' => 'รูปแบบรูปภาพที่ไม่รองรับ',
 			'mediaPlayer.tryOtherViewer' => 'โปรดลองใช้โปรแกรมดูภาพอื่น',
@@ -7807,6 +7970,8 @@ extension on TranslationsTh {
 			'externalPlayer.onlineLinkExpiryHint' => 'ลิงก์ตรงมีอายุจำกัด โปรแกรมเล่นภายนอกอาจหยุดกลางคันได้ การดาวน์โหลดไว้ก่อนเป็นวิธีที่เชื่อถือได้',
 			'externalPlayer.vrPlayerHint' => 'หากไม่มีโปรแกรมเล่น VR ของคุณในตัวเลือก ให้ใช้ คัดลอกลิงก์วิดีโอ แล้ววางในโปรแกรมเล่นนั้น',
 			'externalPlayer.noHandler' => 'ไม่มีแอปบนอุปกรณ์นี้ที่เปิดวิดีโอได้',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'ส่งต่อไม่สำเร็จ: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'ส่งต่อไม่สำเร็จ',
 			'externalPlayer.sourceUnavailable' => 'ไม่สามารถดึงที่อยู่ของวิดีโอปัจจุบันได้ โปรดลองอีกครั้ง',
@@ -7856,8 +8021,6 @@ extension on TranslationsTh {
 			'watchLater.removedFromWatchLater' => 'เอาออกจากดูภายหลังแล้ว',
 			'watchLater.removedCount' => ({required Object count}) => 'ลบออกแล้ว ${count} รายการ',
 			'watchLater.viewWatchLaterList' => 'ดูรายการ',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => 'เพิ่มในดูภายหลังไม่สำเร็จ',
 			'watchLater.invalidItem' => 'ไม่พร้อมใช้งาน',
 			'watchLater.clearWatched' => 'ล้างรายการที่ดูแล้ว',
@@ -8283,6 +8446,73 @@ extension on TranslationsTh {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} รายการ · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'ล้มเหลว: ${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'ลบตัวกรอง ${count} รายการที่ไม่มีในส่วนนี้แล้ว',
+			'ai.revealKey' => 'Show',
+			'ai.hideKey' => 'Hide',
+			'ai.connection' => 'Connection',
+			'ai.providerEnabled' => 'Enabled',
+			'ai.providerEnabledHint' => 'Turn off to keep the settings but stop using this provider.',
+			'ai.providerModelCount' => ({required Object count}) => '${count} model(s)',
+			'ai.noModels' => 'No models',
+			'ai.noModelsHint' => 'No models yet. Pull the list from the server, or type a model name.',
+			'ai.missingApiKey' => 'API key missing',
+			'ai.providerGone' => 'This provider no longer exists.',
+			'ai.deleteProviderConfirm' => 'Delete this provider? Its models and feature assignments go with it.',
+			'ai.getApiKey' => 'Get an API key',
+			'ai.providerDocs' => 'Documentation',
+			'ai.models' => 'Models',
+			'ai.fetchModels' => 'Pull from server',
+			'ai.fetchModelsHint' => 'Pick from what this endpoint actually serves, instead of guessing a name.',
+			'ai.addModel' => 'Add a model by name',
+			'ai.deleteModel' => 'Remove model',
+			'ai.modelUnknown' => 'Not in the catalog — capabilities unknown',
+			'ai.serverDefaultModel' => 'Server default model',
+			'ai.resetToDefault' => 'Reset to default',
+			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
+			'ai.capFunctionCall' => 'Tools',
+			'ai.capReasoning' => 'Reasoning',
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
+			'ai.capFileInput' => 'Files',
+			'ai.triOn' => 'On',
+			'ai.triOff' => 'Off',
+			'ai.triAutoOn' => 'Auto (on)',
+			'ai.triAutoOff' => 'Auto (off)',
+			'ai.triAutoUnknown' => 'Auto (unknown)',
+			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
+			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
+			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
+			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
+			'ai.userOverride' => 'Overridden by you',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => 'Send temperature',
+			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',
+			'ai.maxTokensHint' => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.',
+			'ai.catalogVersion' => ({required Object version}) => 'Provider catalog ${version}',
+			'ai.catalogMissing' => 'Provider catalog unavailable.',
+			'ai.searchModel' => 'Search models',
+			'ai.searchProvider' => 'Search providers',
+			'ai.customProvider' => 'Custom (OpenAI-compatible endpoint)',
+			'ai.customProviderHint' => 'For a relay or self-hosted gateway not in the list.',
+			'ai.wizardNext' => 'Next',
+			'ai.wizardApiKeyTitle' => 'API key',
+			'ai.wizardModelsTitle' => 'Pick models',
+			'ai.wizardVerifyTitle' => 'Verify',
+			'ai.wizardModelsHint' => 'These come from the endpoint itself. Pick the ones you want to use.',
+			'ai.wizardModelsFallbackHint' => 'Could not pull the list; these are common models for this provider.',
+			'ai.wizardNoModels' => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.',
+			'ai.wizardVerifyHint' => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.',
+			'ai.wizardCheckChat' => 'Send a test message',
+			'ai.wizardCheckSchema' => 'Check JSON output support',
+			'ai.wizardCheckSchemaWarn' => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}

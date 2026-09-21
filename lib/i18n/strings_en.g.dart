@@ -2255,23 +2255,170 @@ class TranslationsSettingsEn {
 	/// en: 'Weekday'
 	String get varWeekday => 'Weekday';
 
-	/// en: 'App name'
-	String get varApp => 'App name';
-
-	/// en: 'Version'
-	String get varVersion => 'Version';
-
 	/// en: 'Platform'
 	String get varPlatform => 'Platform';
 
-	/// en: 'What you are viewing'
-	String get varTitle => 'What you are viewing';
-
-	/// en: 'Its author'
-	String get varAuthor => 'Its author';
-
 	/// en: 'Random pick'
 	String get varPick => 'Random pick';
+
+	/// en: 'Title'
+	String get varTitle => 'Title';
+
+	/// en: 'Author'
+	String get varAuthor => 'Author';
+
+	/// en: 'Tags'
+	String get varTags => 'Tags';
+
+	/// en: 'Section'
+	String get varSection => 'Section';
+
+	/// en: 'Replying to'
+	String get varReplyTo => 'Replying to';
+
+	/// en: 'Playback position'
+	String get varPlaytime => 'Playback position';
+
+	/// en: 'Context variables'
+	String get signatureContextGroup => 'Context variables';
+
+	/// en: 'Filled in from wherever you post: a video page knows the title, author, tags and playback position; the forum knows the section and the floor. The column on the right shows sample values — anything that cannot be filled simply disappears when you send.'
+	String get signatureContextHint => 'Filled in from wherever you post: a video page knows the title, author, tags and playback position; the forum knows the section and the floor. The column on the right shows sample values — anything that cannot be filled simply disappears when you send.';
+
+	/// en: 'Depends on the page'
+	String get signatureContextValue => 'Depends on the page';
+
+	/// en: 'Floor'
+	String get varFloor => 'Floor';
+
+	/// en: 'Video length'
+	String get varDuration => 'Video length';
+
+	/// en: 'Not sure what to write? Tap one to use it, then edit it. What you see below is how it will actually look.'
+	String get signatureRecipesHint => 'Not sure what to write? Tap one to use it, then edit it. What you see below is how it will actually look.';
+
+	/// en: 'What I am watching'
+	String get recipeWatchingName => 'What I am watching';
+
+	/// en: 'Watching %title% · %date%'
+	String get recipeWatchingTemplate => 'Watching %title% · %date%';
+
+	/// en: 'Where I got to'
+	String get recipeTimestampName => 'Where I got to';
+
+	/// en: 'At %playtime% of %duration%'
+	String get recipeTimestampTemplate => 'At %playtime% of %duration%';
+
+	/// en: 'Quote of the day'
+	String get recipeHitokotoName => 'Quote of the day';
+
+	/// en: 'Quote of the day: %hitokoto%'
+	String get recipeHitokotoTemplate => 'Quote of the day: %hitokoto%';
+
+	/// en: 'Let the AI write it'
+	String get recipeAiName => 'Let the AI write it';
+
+	/// en: '%ai_hitokoto%'
+	String get recipeAiTemplate => '%ai_hitokoto%';
+
+	/// en: 'Say hi when replying'
+	String get recipeReplyName => 'Say hi when replying';
+
+	/// en: 'Re: %reply_to% · sent from %platform%'
+	String get recipeReplyTemplate => 'Re: %reply_to% · sent from %platform%';
+
+	/// en: 'Rotating mood'
+	String get recipeMoodName => 'Rotating mood';
+
+	/// en: 'Mood today: %pick:great|so-so|do not ask%'
+	String get recipeMoodTemplate => 'Mood today: %pick:great|so-so|do not ask%';
+
+	/// en: 'Examples'
+	String get signatureRecipesTitle => 'Examples';
+
+	/// en: 'More examples'
+	String get signatureRecipesMore => 'More examples';
+
+	/// en: 'On a video'
+	String get signatureSceneVideo => 'On a video';
+
+	/// en: 'In the forum'
+	String get signatureSceneForum => 'In the forum';
+
+	/// en: 'On a profile'
+	String get signatureSceneAuthor => 'On a profile';
+
+	/// en: 'No context'
+	String get signatureSceneNone => 'No context';
+
+	/// en: 'The sample content comes from what you watched most recently. When you actually post, it uses the page you are on.'
+	String get signatureSceneFromHistory => 'The sample content comes from what you watched most recently. When you actually post, it uses the page you are on.';
+
+	/// en: 'No history yet, so a stand-in example is used. When you actually post, it uses the page you are on.'
+	String get signatureSceneFromDemo => 'No history yet, so a stand-in example is used. When you actually post, it uses the page you are on.';
+
+	/// en: 'Dancing in the Moonlight'
+	String get signatureDemoVideoTitle => 'Dancing in the Moonlight';
+
+	/// en: 'Hoshino'
+	String get signatureDemoAuthor => 'Hoshino';
+
+	/// en: 'mmd 4k 60fps'
+	String get signatureDemoTags => 'mmd 4k 60fps';
+
+	/// en: 'Any advice on quality settings?'
+	String get signatureDemoThreadTitle => 'Any advice on quality settings?';
+
+	/// en: 'General'
+	String get signatureDemoSection => 'General';
+
+	/// en: 'Slow is smooth, smooth is fast.'
+	String get signatureDemoQuote => 'Slow is smooth, smooth is fast.';
+
+	/// en: 'That turn around the three-minute mark was worth the whole thing.'
+	String get signatureDemoAiQuote => 'That turn around the three-minute mark was worth the whole thing.';
+
+	/// en: 'While watching'
+	String get signatureRecipeGroupWatching => 'While watching';
+
+	/// en: 'When replying'
+	String get signatureRecipeGroupReplying => 'When replying';
+
+	/// en: 'In the forum'
+	String get signatureRecipeGroupForum => 'In the forum';
+
+	/// en: 'A new line every day'
+	String get signatureRecipeGroupDaily => 'A new line every day';
+
+	/// en: 'Let the AI write it'
+	String get signatureRecipeGroupAi => 'Let the AI write it';
+
+	/// en: 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.'
+	String get signaturePromptSampleContext => 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.';
+
+	/// en: 'Author and tags'
+	String get recipeAuthorTagsName => 'Author and tags';
+
+	/// en: '%author% · %tags%'
+	String get recipeAuthorTagsTemplate => '%author% · %tags%';
+
+	/// en: 'Replying to a floor'
+	String get recipeFloorName => 'Replying to a floor';
+
+	/// en: 'From floor %floor% · re %reply_to%'
+	String get recipeFloorTemplate => 'From floor %floor% · re %reply_to%';
+
+	/// en: 'Name the board'
+	String get recipeSectionName => 'Name the board';
+
+	/// en: 'From the %section% board'
+	String get recipeSectionTemplate => 'From the %section% board';
+
+	/// en: 'Date plus a quote'
+	String get recipeDailyName => 'Date plus a quote';
+
+	/// en: '%date% %weekday% · %hitokoto%'
+	String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 
 	/// en: 'Data sources'
 	String get signatureSources => 'Data sources';
@@ -2396,8 +2543,8 @@ class TranslationsSettingsEn {
 	/// en: '(generated when you send)'
 	String get signaturePendingValue => '(generated when you send)';
 
-	/// en: 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.'
-	String get signatureAiHint => 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.';
+	/// en: 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.'
+	String get signatureAiHint => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.';
 
 	/// en: 'No AI provider configured yet, so this source stays hidden in the variable panel.'
 	String get signatureAiUnavailable => 'No AI provider configured yet, so this source stays hidden in the variable panel.';
@@ -7406,6 +7553,201 @@ class TranslationsAiEn {
 
 	/// en: 'Removed ${count} filter(s) this section does not have.'
 	String searchFiltersDropped({required Object count}) => 'Removed ${count} filter(s) this section does not have.';
+
+	/// en: 'Show'
+	String get revealKey => 'Show';
+
+	/// en: 'Hide'
+	String get hideKey => 'Hide';
+
+	/// en: 'Connection'
+	String get connection => 'Connection';
+
+	/// en: 'Enabled'
+	String get providerEnabled => 'Enabled';
+
+	/// en: 'Turn off to keep the settings but stop using this provider.'
+	String get providerEnabledHint => 'Turn off to keep the settings but stop using this provider.';
+
+	/// en: '${count} model(s)'
+	String providerModelCount({required Object count}) => '${count} model(s)';
+
+	/// en: 'No models'
+	String get noModels => 'No models';
+
+	/// en: 'No models yet. Pull the list from the server, or type a model name.'
+	String get noModelsHint => 'No models yet. Pull the list from the server, or type a model name.';
+
+	/// en: 'API key missing'
+	String get missingApiKey => 'API key missing';
+
+	/// en: 'This provider no longer exists.'
+	String get providerGone => 'This provider no longer exists.';
+
+	/// en: 'Delete this provider? Its models and feature assignments go with it.'
+	String get deleteProviderConfirm => 'Delete this provider? Its models and feature assignments go with it.';
+
+	/// en: 'Get an API key'
+	String get getApiKey => 'Get an API key';
+
+	/// en: 'Documentation'
+	String get providerDocs => 'Documentation';
+
+	/// en: 'Models'
+	String get models => 'Models';
+
+	/// en: 'Pull from server'
+	String get fetchModels => 'Pull from server';
+
+	/// en: 'Pick from what this endpoint actually serves, instead of guessing a name.'
+	String get fetchModelsHint => 'Pick from what this endpoint actually serves, instead of guessing a name.';
+
+	/// en: 'Add a model by name'
+	String get addModel => 'Add a model by name';
+
+	/// en: 'Remove model'
+	String get deleteModel => 'Remove model';
+
+	/// en: 'Not in the catalog — capabilities unknown'
+	String get modelUnknown => 'Not in the catalog — capabilities unknown';
+
+	/// en: 'Server default model'
+	String get serverDefaultModel => 'Server default model';
+
+	/// en: 'Reset to default'
+	String get resetToDefault => 'Reset to default';
+
+	/// en: 'Context ${tokens}'
+	String contextWindow({required Object tokens}) => 'Context ${tokens}';
+
+	/// en: 'Tools'
+	String get capFunctionCall => 'Tools';
+
+	/// en: 'Reasoning'
+	String get capReasoning => 'Reasoning';
+
+	/// en: 'JSON output'
+	String get capStructuredOutput => 'JSON output';
+
+	/// en: 'Vision'
+	String get capVision => 'Vision';
+
+	/// en: 'Files'
+	String get capFileInput => 'Files';
+
+	/// en: 'On'
+	String get triOn => 'On';
+
+	/// en: 'Off'
+	String get triOff => 'Off';
+
+	/// en: 'Auto (on)'
+	String get triAutoOn => 'Auto (on)';
+
+	/// en: 'Auto (off)'
+	String get triAutoOff => 'Auto (off)';
+
+	/// en: 'Auto (unknown)'
+	String get triAutoUnknown => 'Auto (unknown)';
+
+	/// en: 'Requests go to ${url}'
+	String endpointPreview({required Object url}) => 'Requests go to ${url}';
+
+	/// en: 'The trailing slash produces a doubled // in the path.'
+	String get endpointTrailingSlash => 'The trailing slash produces a doubled // in the path.';
+
+	/// en: 'No version segment — most OpenAI-compatible endpoints need /v1.'
+	String get endpointMissingVersion => 'No version segment — most OpenAI-compatible endpoints need /v1.';
+
+	/// en: 'Everything here is optional. Leave a field alone and it follows the model's own capabilities and the built-in catalog.'
+	String get modelOverrideHint => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.';
+
+	/// en: 'Following the catalog: ${value}'
+	String followCatalog({required Object value}) => 'Following the catalog: ${value}';
+
+	/// en: 'Overridden by you'
+	String get userOverride => 'Overridden by you';
+
+	/// en: 'Send temperature'
+	String get sendTemperature => 'Send temperature';
+
+	/// en: 'Some endpoints reject a request that carries this parameter.'
+	String get sendTemperatureHint => 'Some endpoints reject a request that carries this parameter.';
+
+	/// en: 'Catalog says ${tokens}'
+	String maxTokensFromCatalog({required Object tokens}) => 'Catalog says ${tokens}';
+
+	/// en: 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model's own limit.'
+	String get maxTokensHint => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.';
+
+	/// en: 'Provider catalog ${version}'
+	String catalogVersion({required Object version}) => 'Provider catalog ${version}';
+
+	/// en: 'Provider catalog unavailable.'
+	String get catalogMissing => 'Provider catalog unavailable.';
+
+	/// en: 'Search models'
+	String get searchModel => 'Search models';
+
+	/// en: 'Search providers'
+	String get searchProvider => 'Search providers';
+
+	/// en: 'Custom (OpenAI-compatible endpoint)'
+	String get customProvider => 'Custom (OpenAI-compatible endpoint)';
+
+	/// en: 'For a relay or self-hosted gateway not in the list.'
+	String get customProviderHint => 'For a relay or self-hosted gateway not in the list.';
+
+	/// en: 'Next'
+	String get wizardNext => 'Next';
+
+	/// en: 'API key'
+	String get wizardApiKeyTitle => 'API key';
+
+	/// en: 'Pick models'
+	String get wizardModelsTitle => 'Pick models';
+
+	/// en: 'Verify'
+	String get wizardVerifyTitle => 'Verify';
+
+	/// en: 'These come from the endpoint itself. Pick the ones you want to use.'
+	String get wizardModelsHint => 'These come from the endpoint itself. Pick the ones you want to use.';
+
+	/// en: 'Could not pull the list; these are common models for this provider.'
+	String get wizardModelsFallbackHint => 'Could not pull the list; these are common models for this provider.';
+
+	/// en: 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.'
+	String get wizardNoModels => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.';
+
+	/// en: 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.'
+	String get wizardVerifyHint => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.';
+
+	/// en: 'Send a test message'
+	String get wizardCheckChat => 'Send a test message';
+
+	/// en: 'Check JSON output support'
+	String get wizardCheckSchema => 'Check JSON output support';
+
+	/// en: 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.'
+	String get wizardCheckSchemaWarn => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.';
+
+	/// en: 'Unsaved changes'
+	String get unsavedBadge => 'Unsaved changes';
+
+	/// en: 'Unsaved changes'
+	String get unsavedTitle => 'Unsaved changes';
+
+	/// en: 'This page has changes you haven't saved yet. Leaving now discards them.'
+	String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+
+	/// en: 'Save and leave'
+	String get saveAndLeave => 'Save and leave';
+
+	/// en: 'Discard'
+	String get discardChanges => 'Discard';
+
+	/// en: 'Saved'
+	String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -12500,12 +12842,61 @@ extension on Translations {
 			'settings.varTime' => 'Time',
 			'settings.varDatetime' => 'Date & time',
 			'settings.varWeekday' => 'Weekday',
-			'settings.varApp' => 'App name',
-			'settings.varVersion' => 'Version',
 			'settings.varPlatform' => 'Platform',
-			'settings.varTitle' => 'What you are viewing',
-			'settings.varAuthor' => 'Its author',
 			'settings.varPick' => 'Random pick',
+			'settings.varTitle' => 'Title',
+			'settings.varAuthor' => 'Author',
+			'settings.varTags' => 'Tags',
+			'settings.varSection' => 'Section',
+			'settings.varReplyTo' => 'Replying to',
+			'settings.varPlaytime' => 'Playback position',
+			'settings.signatureContextGroup' => 'Context variables',
+			'settings.signatureContextHint' => 'Filled in from wherever you post: a video page knows the title, author, tags and playback position; the forum knows the section and the floor. The column on the right shows sample values — anything that cannot be filled simply disappears when you send.',
+			'settings.signatureContextValue' => 'Depends on the page',
+			'settings.varFloor' => 'Floor',
+			'settings.varDuration' => 'Video length',
+			'settings.signatureRecipesHint' => 'Not sure what to write? Tap one to use it, then edit it. What you see below is how it will actually look.',
+			'settings.recipeWatchingName' => 'What I am watching',
+			'settings.recipeWatchingTemplate' => 'Watching %title% · %date%',
+			'settings.recipeTimestampName' => 'Where I got to',
+			'settings.recipeTimestampTemplate' => 'At %playtime% of %duration%',
+			'settings.recipeHitokotoName' => 'Quote of the day',
+			'settings.recipeHitokotoTemplate' => 'Quote of the day: %hitokoto%',
+			'settings.recipeAiName' => 'Let the AI write it',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => 'Say hi when replying',
+			'settings.recipeReplyTemplate' => 'Re: %reply_to% · sent from %platform%',
+			'settings.recipeMoodName' => 'Rotating mood',
+			'settings.recipeMoodTemplate' => 'Mood today: %pick:great|so-so|do not ask%',
+			'settings.signatureRecipesTitle' => 'Examples',
+			'settings.signatureRecipesMore' => 'More examples',
+			'settings.signatureSceneVideo' => 'On a video',
+			'settings.signatureSceneForum' => 'In the forum',
+			'settings.signatureSceneAuthor' => 'On a profile',
+			'settings.signatureSceneNone' => 'No context',
+			'settings.signatureSceneFromHistory' => 'The sample content comes from what you watched most recently. When you actually post, it uses the page you are on.',
+			'settings.signatureSceneFromDemo' => 'No history yet, so a stand-in example is used. When you actually post, it uses the page you are on.',
+			'settings.signatureDemoVideoTitle' => 'Dancing in the Moonlight',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => 'Any advice on quality settings?',
+			'settings.signatureDemoSection' => 'General',
+			'settings.signatureDemoQuote' => 'Slow is smooth, smooth is fast.',
+			'settings.signatureDemoAiQuote' => 'That turn around the three-minute mark was worth the whole thing.',
+			'settings.signatureRecipeGroupWatching' => 'While watching',
+			'settings.signatureRecipeGroupReplying' => 'When replying',
+			'settings.signatureRecipeGroupForum' => 'In the forum',
+			'settings.signatureRecipeGroupDaily' => 'A new line every day',
+			'settings.signatureRecipeGroupAi' => 'Let the AI write it',
+			'settings.signaturePromptSampleContext' => 'This test run uses the sample context of a video page. When you actually post, the AI gets whatever you were looking at.',
+			'settings.recipeAuthorTagsName' => 'Author and tags',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => 'Replying to a floor',
+			'settings.recipeFloorTemplate' => 'From floor %floor% · re %reply_to%',
+			'settings.recipeSectionName' => 'Name the board',
+			'settings.recipeSectionTemplate' => 'From the %section% board',
+			'settings.recipeDailyName' => 'Date plus a quote',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => 'Data sources',
 			'settings.signatureAutoTranslate' => 'Translate into my language',
 			'settings.signatureAutoTranslateDesc' => 'Quote sources like Hitokoto only serve Chinese. The line is translated right before it goes out.',
@@ -12547,7 +12938,7 @@ extension on Translations {
 			'settings.signatureEditTextHint' => 'This is the signature already written into this comment — the quote line and the AI line are plain text now, edit them however you like. Clear it to drop the signature.',
 			'settings.signatureResolving' => ({required Object name}) => 'Generating ${name}…',
 			'settings.signaturePendingValue' => '(generated when you send)',
-			'settings.signatureAiHint' => 'A line written by AI on the spot, fresh for every comment. Uses the AI provider you configured.',
+			'settings.signatureAiHint' => 'A line the AI writes on the spot, new for every comment, using the AI provider you set up. When you post from a video, gallery or forum page it also knows what you are looking at and can write about it.',
 			'settings.signatureAiUnavailable' => 'No AI provider configured yet, so this source stays hidden in the variable panel.',
 			'settings.signaturePromptTitle' => 'Prompt',
 			'settings.signaturePromptHint' => 'This is what gets sent to the model. Rewrite it however you like — tone, length, subject. The rules already in there are the ones worth keeping.',
@@ -12772,6 +13163,8 @@ extension on Translations {
 			'settings.blockSettings.regexEx1Desc' => 'Match any one of these words ("|" means "or")',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => 'Titles that start with [brackets]',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => 'Collection\$',
 			'settings.blockSettings.regexEx3Desc' => 'Titles that end with "Collection"',
 			'settings.blockSettings.regexEx4Pattern' => 'Ep\\.\\d+',
@@ -12821,8 +13214,6 @@ extension on Translations {
 			'settings.cdnRefreshServerListTooltip' => 'Refresh server list',
 			'settings.cdnSpeedTestButton' => 'Speed Test',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => 'Testing (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => 'No server data available, please click the refresh button',
 			'settings.cdnTestingStatus' => 'Testing',
 			'settings.cdnUnreachableStatus' => 'Unreachable',
@@ -13286,6 +13677,8 @@ extension on Translations {
 			'videoDetail.cast.stopCasting' => 'Stop casting',
 			'videoDetail.cast.dlnaCastSheet.title' => 'Remote Cast',
 			'videoDetail.cast.dlnaCastSheet.close' => 'Close',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => 'Searching for devices...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => 'Click search button to re-search for casting devices',
 			'videoDetail.cast.dlnaCastSheet.searching' => 'Searching',
@@ -13335,8 +13728,6 @@ extension on Translations {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara Special Markdown Syntax',
 			'markdown.internalLink' => 'Internal Link',
 			'markdown.supportAutoConvertLinkBelow' => 'Support auto convert link below:',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 Video Link\n🖼️ Image Link\n👤 User Link\n📌 Forum Link\n🎵 Playlist Link\n💬 Thread Link',
 			'markdown.mentionUser' => 'Mention User',
 			'markdown.mentionUserDescription' => 'Input @ followed by username, will be automatically converted to user link',
@@ -13800,6 +14191,8 @@ extension on Translations {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -13849,8 +14242,6 @@ extension on Translations {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => 'Manage categories',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.label' => 'Categories',
 			'download.category.uncategorized' => 'Uncategorized',
 			'download.category.manage' => 'Manage',
@@ -14314,6 +14705,8 @@ extension on Translations {
 			'mediaPlayer.appMayLackMediaPermission' => 'The app may lack necessary media playback permissions',
 			'mediaPlayer.tryOtherVideoPlayer' => 'Please try using other video players',
 			'mediaPlayer.unrecognizedVideoFormat' => 'Unrecognized video file',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => 'The link may have expired, or the response was not a video. Try again, or open it with another app.',
 			'mediaPlayer.accessDenied' => 'The server refused this request (403)',
 			'mediaPlayer.accessDeniedSuggestion' => 'The playback link has most likely expired. Tap Retry to fetch it again, or open it with another app.',
@@ -14363,8 +14756,6 @@ extension on Translations {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => 'At ${position}',
 			'mediaPlayer.notice.noIssuesRecorded' => 'No issues recorded',
 			'mediaPlayer.notice.exportLogsAction' => 'Export logs',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => 'Image Load Failed',
 			'mediaPlayer.unsupportedImageFormat' => 'Unsupported Image Format',
 			'mediaPlayer.tryOtherViewer' => 'Please try using other viewers',
@@ -14828,6 +15219,8 @@ extension on Translations {
 			'externalPlayer.onlineLinkExpiryHint' => 'Direct links expire, so an external player may stop partway through. Downloading first is the reliable route.',
 			'externalPlayer.vrPlayerHint' => 'If your VR player is missing from the chooser, use Copy video link and paste it inside that player.',
 			'externalPlayer.noHandler' => 'No app on this device can open the video',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => 'Handoff failed: ${message}',
 			'externalPlayer.handoffFailedUnknown' => 'Handoff failed',
 			'externalPlayer.sourceUnavailable' => 'Could not get the current video address, please try again',
@@ -14877,8 +15270,6 @@ extension on Translations {
 			'watchLater.removedFromWatchLater' => 'Removed from Watch Later',
 			'watchLater.removedCount' => ({required Object count}) => 'Removed ${count} items',
 			'watchLater.viewWatchLaterList' => 'View list',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => 'Failed to add to Watch Later',
 			'watchLater.invalidItem' => 'Unavailable',
 			'watchLater.clearWatched' => 'Clear watched',
@@ -15304,6 +15695,73 @@ extension on Translations {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} results · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => 'Couldn\'t run it: ${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => 'Removed ${count} filter(s) this section does not have.',
+			'ai.revealKey' => 'Show',
+			'ai.hideKey' => 'Hide',
+			'ai.connection' => 'Connection',
+			'ai.providerEnabled' => 'Enabled',
+			'ai.providerEnabledHint' => 'Turn off to keep the settings but stop using this provider.',
+			'ai.providerModelCount' => ({required Object count}) => '${count} model(s)',
+			'ai.noModels' => 'No models',
+			'ai.noModelsHint' => 'No models yet. Pull the list from the server, or type a model name.',
+			'ai.missingApiKey' => 'API key missing',
+			'ai.providerGone' => 'This provider no longer exists.',
+			'ai.deleteProviderConfirm' => 'Delete this provider? Its models and feature assignments go with it.',
+			'ai.getApiKey' => 'Get an API key',
+			'ai.providerDocs' => 'Documentation',
+			'ai.models' => 'Models',
+			'ai.fetchModels' => 'Pull from server',
+			'ai.fetchModelsHint' => 'Pick from what this endpoint actually serves, instead of guessing a name.',
+			'ai.addModel' => 'Add a model by name',
+			'ai.deleteModel' => 'Remove model',
+			'ai.modelUnknown' => 'Not in the catalog — capabilities unknown',
+			'ai.serverDefaultModel' => 'Server default model',
+			'ai.resetToDefault' => 'Reset to default',
+			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
+			'ai.capFunctionCall' => 'Tools',
+			'ai.capReasoning' => 'Reasoning',
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
+			'ai.capFileInput' => 'Files',
+			'ai.triOn' => 'On',
+			'ai.triOff' => 'Off',
+			'ai.triAutoOn' => 'Auto (on)',
+			'ai.triAutoOff' => 'Auto (off)',
+			'ai.triAutoUnknown' => 'Auto (unknown)',
+			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
+			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
+			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
+			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
+			'ai.userOverride' => 'Overridden by you',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => 'Send temperature',
+			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',
+			'ai.maxTokensHint' => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.',
+			'ai.catalogVersion' => ({required Object version}) => 'Provider catalog ${version}',
+			'ai.catalogMissing' => 'Provider catalog unavailable.',
+			'ai.searchModel' => 'Search models',
+			'ai.searchProvider' => 'Search providers',
+			'ai.customProvider' => 'Custom (OpenAI-compatible endpoint)',
+			'ai.customProviderHint' => 'For a relay or self-hosted gateway not in the list.',
+			'ai.wizardNext' => 'Next',
+			'ai.wizardApiKeyTitle' => 'API key',
+			'ai.wizardModelsTitle' => 'Pick models',
+			'ai.wizardVerifyTitle' => 'Verify',
+			'ai.wizardModelsHint' => 'These come from the endpoint itself. Pick the ones you want to use.',
+			'ai.wizardModelsFallbackHint' => 'Could not pull the list; these are common models for this provider.',
+			'ai.wizardNoModels' => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.',
+			'ai.wizardVerifyHint' => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.',
+			'ai.wizardCheckChat' => 'Send a test message',
+			'ai.wizardCheckSchema' => 'Check JSON output support',
+			'ai.wizardCheckSchemaWarn' => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}

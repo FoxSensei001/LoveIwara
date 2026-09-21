@@ -905,12 +905,61 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get varTime => '时间';
 	@override String get varDatetime => '日期时间';
 	@override String get varWeekday => '星期';
-	@override String get varApp => '应用名';
-	@override String get varVersion => '版本号';
 	@override String get varPlatform => '平台';
-	@override String get varTitle => '正在看的作品';
-	@override String get varAuthor => '作品的作者';
 	@override String get varPick => '随机一句';
+	@override String get varTitle => '标题';
+	@override String get varAuthor => '作者';
+	@override String get varTags => '标签';
+	@override String get varSection => '所在分区';
+	@override String get varReplyTo => '回复对象';
+	@override String get varPlaytime => '播放进度';
+	@override String get signatureContextGroup => '上下文变量';
+	@override String get signatureContextHint => '值来自你发这条内容时所在的页面：视频页给得出标题、作者、标签和播放进度，论坛给得出分区和楼层。右边是示范值，填不出的那一段发出去时会自己消失。';
+	@override String get signatureContextValue => '看页面而定';
+	@override String get varFloor => '楼层';
+	@override String get varDuration => '视频时长';
+	@override String get signatureRecipesHint => '不知道写什么？点一条直接用，再照着改。下面显示的就是它发出去的样子。';
+	@override String get recipeWatchingName => '正在看什么';
+	@override String get recipeWatchingTemplate => '正在看《%title%》 · %date%';
+	@override String get recipeTimestampName => '看到这里';
+	@override String get recipeTimestampTemplate => '看到 %playtime% / %duration%';
+	@override String get recipeHitokotoName => '今日一言';
+	@override String get recipeHitokotoTemplate => '今日一言：%hitokoto%';
+	@override String get recipeAiName => '让 AI 现写';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => '回复时报个到';
+	@override String get recipeReplyTemplate => '回 %reply_to% · 发自 %platform%';
+	@override String get recipeMoodName => '随机换着说';
+	@override String get recipeMoodTemplate => '今天心情：%pick:好|一般|不想说%';
+	@override String get signatureRecipesTitle => '案例';
+	@override String get signatureRecipesMore => '更多案例';
+	@override String get signatureSceneVideo => '在视频页';
+	@override String get signatureSceneForum => '在论坛';
+	@override String get signatureSceneAuthor => '在作者页';
+	@override String get signatureSceneNone => '没有上下文';
+	@override String get signatureSceneFromHistory => '示范内容取自你最近看过的那条。真发送时用的是你当时所在的页面。';
+	@override String get signatureSceneFromDemo => '还没有浏览记录，先拿一条示范内容顶着。真发送时用的是你当时所在的页面。';
+	@override String get signatureDemoVideoTitle => '月光下的旋转';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => '求一个画质设置的建议';
+	@override String get signatureDemoSection => '综合讨论';
+	@override String get signatureDemoQuote => '慢慢来，比较快。';
+	@override String get signatureDemoAiQuote => '三分半那个转身，值回票价。';
+	@override String get signatureRecipeGroupWatching => '看视频时';
+	@override String get signatureRecipeGroupReplying => '回复别人时';
+	@override String get signatureRecipeGroupForum => '逛论坛时';
+	@override String get signatureRecipeGroupDaily => '每天换一句';
+	@override String get signatureRecipeGroupAi => '交给 AI 写';
+	@override String get signaturePromptSampleContext => '这次试写按「在视频页」的示范上下文来。真发送时，AI 拿到的是你当时正看着的那件东西。';
+	@override String get recipeAuthorTagsName => '作者和标签';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => '回某一楼';
+	@override String get recipeFloorTemplate => '%floor% 楼路过 · 回 %reply_to%';
+	@override String get recipeSectionName => '说清在哪个版块';
+	@override String get recipeSectionTemplate => '来自「%section%」';
+	@override String get recipeDailyName => '日期加一言';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => '数据源';
 	@override String get signatureAutoTranslate => '翻译成我的语言';
 	@override String get signatureAutoTranslateDesc => '一言这类数据源目前只有中文。开着的话，取回来的话会在发出去之前先翻译一遍。';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsZhCn extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '这是这条评论里已经写好的小尾巴——一言、日期这会儿都只是普通文字，随便改。清空就是不要小尾巴了。';
 	@override String signatureResolving({required Object name}) => '正在生成${name}…';
 	@override String get signaturePendingValue => '（发送时生成）';
-	@override String get signatureAiHint => '由 AI 现写的一句话，每条评论都是新的。用的是你配好的 AI 供应商。';
+	@override String get signatureAiHint => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。在视频、图库、论坛里发送时，它还知道你正看着什么，会照着那条内容写。';
 	@override String get signatureAiUnavailable => '还没配 AI 供应商，所以它暂时不会出现在变量面板里。';
 	@override String get signaturePromptTitle => '提示词';
 	@override String get signaturePromptHint => '这就是发给模型的那一段。语气、长短、写什么，随便改。里面已有的几条规矩值得留着。';
@@ -2931,6 +2980,71 @@ class _TranslationsAiZhCn extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count} 条 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '试搜失败：${reason}';
 	@override String searchFiltersDropped({required Object count}) => '已移除 ${count} 条本板块没有的筛选。';
+	@override String get revealKey => '显示';
+	@override String get hideKey => '隐藏';
+	@override String get connection => '连接';
+	@override String get providerEnabled => '启用';
+	@override String get providerEnabledHint => '关掉之后配置还在，只是不再用这一家。';
+	@override String providerModelCount({required Object count}) => '${count} 个模型';
+	@override String get noModels => '没有模型';
+	@override String get noModelsHint => '还没有模型。从服务端拉一张列表，或者直接填模型名。';
+	@override String get missingApiKey => '缺少密钥';
+	@override String get providerGone => '这家供应商已经不在了。';
+	@override String get deleteProviderConfirm => '删除这家供应商？它下面的模型和功能分配会一起没有。';
+	@override String get getApiKey => '去拿一个密钥';
+	@override String get providerDocs => '文档';
+	@override String get models => '模型';
+	@override String get fetchModels => '从服务端拉取';
+	@override String get fetchModelsHint => '从这个端点真有的模型里挑，不用猜名字。';
+	@override String get addModel => '手填模型名';
+	@override String get deleteModel => '移除模型';
+	@override String get modelUnknown => '目录里没有这条，能力未知';
+	@override String get serverDefaultModel => '服务端默认模型';
+	@override String get resetToDefault => '重置为默认';
+	@override String contextWindow({required Object tokens}) => '上下文 ${tokens}';
+	@override String get capFunctionCall => '函数调用';
+	@override String get capReasoning => '推理';
+	@override String get capStructuredOutput => 'JSON 输出';
+	@override String get capVision => '看图';
+	@override String get capFileInput => '读文件';
+	@override String get triOn => '开';
+	@override String get triOff => '关';
+	@override String get triAutoOn => '自动（开）';
+	@override String get triAutoOff => '自动（关）';
+	@override String get triAutoUnknown => '自动（未知）';
+	@override String endpointPreview({required Object url}) => '实际会请求 ${url}';
+	@override String get endpointTrailingSlash => '结尾这个斜杠会让路径里多出一个 //。';
+	@override String get endpointMissingVersion => '没有版本段——多数 OpenAI 兼容端点要带 /v1。';
+	@override String get modelOverrideHint => '下面每一项都可以不填。不动它就跟着模型自己的能力和内置目录走。';
+	@override String followCatalog({required Object value}) => '跟随目录：${value}';
+	@override String get userOverride => '你改过了';
+	@override String get sendTemperature => '下发 temperature';
+	@override String get sendTemperatureHint => '有的端点收到这个参数会直接拒绝请求。';
+	@override String maxTokensFromCatalog({required Object tokens}) => '目录里写的是 ${tokens}';
+	@override String get maxTokensHint => '留空＝跟随目录。填 0 ＝ 根本不发这个参数，由服务端用该模型自己的上限。';
+	@override String catalogVersion({required Object version}) => '供应商目录 ${version}';
+	@override String get catalogMissing => '供应商目录还没就绪。';
+	@override String get searchModel => '搜索模型';
+	@override String get searchProvider => '搜索供应商';
+	@override String get customProvider => '自定义（OpenAI 兼容端点）';
+	@override String get customProviderHint => '列表里没有的中转或自建网关走这条。';
+	@override String get wizardNext => '下一步';
+	@override String get wizardApiKeyTitle => '填密钥';
+	@override String get wizardModelsTitle => '选模型';
+	@override String get wizardVerifyTitle => '验证';
+	@override String get wizardModelsHint => '这些是端点自己报上来的，挑你想用的。';
+	@override String get wizardModelsFallbackHint => '没拉到列表，这些是这一家常见的模型。';
+	@override String get wizardNoModels => '拿不到列表。跳过这一步，回头手填模型名也行——模型名留空同样能用，服务端会挑它的默认模型。';
+	@override String get wizardVerifyHint => '真发一次请求。列表里有的模型不一定能用，而这家端点认不认 JSON schema，也只有发一次才知道。';
+	@override String get wizardCheckChat => '发一条测试消息';
+	@override String get wizardCheckSchema => '探测 JSON 输出支持';
+	@override String get wizardCheckSchemaWarn => '这家端点会忽略 JSON schema。AI 搜索仍然能用（走提示词契约那条路），只是慢一点。';
+	@override String get unsavedBadge => '有未保存的修改';
+	@override String get unsavedTitle => '未保存的修改';
+	@override String get unsavedBody => '这一页有改动还没保存，现在离开就会丢掉。';
+	@override String get saveAndLeave => '保存并离开';
+	@override String get discardChanges => '放弃修改';
+	@override String get savedToast => '已保存';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsZhCn {
 			'settings.varTime' => '时间',
 			'settings.varDatetime' => '日期时间',
 			'settings.varWeekday' => '星期',
-			'settings.varApp' => '应用名',
-			'settings.varVersion' => '版本号',
 			'settings.varPlatform' => '平台',
-			'settings.varTitle' => '正在看的作品',
-			'settings.varAuthor' => '作品的作者',
 			'settings.varPick' => '随机一句',
+			'settings.varTitle' => '标题',
+			'settings.varAuthor' => '作者',
+			'settings.varTags' => '标签',
+			'settings.varSection' => '所在分区',
+			'settings.varReplyTo' => '回复对象',
+			'settings.varPlaytime' => '播放进度',
+			'settings.signatureContextGroup' => '上下文变量',
+			'settings.signatureContextHint' => '值来自你发这条内容时所在的页面：视频页给得出标题、作者、标签和播放进度，论坛给得出分区和楼层。右边是示范值，填不出的那一段发出去时会自己消失。',
+			'settings.signatureContextValue' => '看页面而定',
+			'settings.varFloor' => '楼层',
+			'settings.varDuration' => '视频时长',
+			'settings.signatureRecipesHint' => '不知道写什么？点一条直接用，再照着改。下面显示的就是它发出去的样子。',
+			'settings.recipeWatchingName' => '正在看什么',
+			'settings.recipeWatchingTemplate' => '正在看《%title%》 · %date%',
+			'settings.recipeTimestampName' => '看到这里',
+			'settings.recipeTimestampTemplate' => '看到 %playtime% / %duration%',
+			'settings.recipeHitokotoName' => '今日一言',
+			'settings.recipeHitokotoTemplate' => '今日一言：%hitokoto%',
+			'settings.recipeAiName' => '让 AI 现写',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => '回复时报个到',
+			'settings.recipeReplyTemplate' => '回 %reply_to% · 发自 %platform%',
+			'settings.recipeMoodName' => '随机换着说',
+			'settings.recipeMoodTemplate' => '今天心情：%pick:好|一般|不想说%',
+			'settings.signatureRecipesTitle' => '案例',
+			'settings.signatureRecipesMore' => '更多案例',
+			'settings.signatureSceneVideo' => '在视频页',
+			'settings.signatureSceneForum' => '在论坛',
+			'settings.signatureSceneAuthor' => '在作者页',
+			'settings.signatureSceneNone' => '没有上下文',
+			'settings.signatureSceneFromHistory' => '示范内容取自你最近看过的那条。真发送时用的是你当时所在的页面。',
+			'settings.signatureSceneFromDemo' => '还没有浏览记录，先拿一条示范内容顶着。真发送时用的是你当时所在的页面。',
+			'settings.signatureDemoVideoTitle' => '月光下的旋转',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => '求一个画质设置的建议',
+			'settings.signatureDemoSection' => '综合讨论',
+			'settings.signatureDemoQuote' => '慢慢来，比较快。',
+			'settings.signatureDemoAiQuote' => '三分半那个转身，值回票价。',
+			'settings.signatureRecipeGroupWatching' => '看视频时',
+			'settings.signatureRecipeGroupReplying' => '回复别人时',
+			'settings.signatureRecipeGroupForum' => '逛论坛时',
+			'settings.signatureRecipeGroupDaily' => '每天换一句',
+			'settings.signatureRecipeGroupAi' => '交给 AI 写',
+			'settings.signaturePromptSampleContext' => '这次试写按「在视频页」的示范上下文来。真发送时，AI 拿到的是你当时正看着的那件东西。',
+			'settings.recipeAuthorTagsName' => '作者和标签',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => '回某一楼',
+			'settings.recipeFloorTemplate' => '%floor% 楼路过 · 回 %reply_to%',
+			'settings.recipeSectionName' => '说清在哪个版块',
+			'settings.recipeSectionTemplate' => '来自「%section%」',
+			'settings.recipeDailyName' => '日期加一言',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => '数据源',
 			'settings.signatureAutoTranslate' => '翻译成我的语言',
 			'settings.signatureAutoTranslateDesc' => '一言这类数据源目前只有中文。开着的话，取回来的话会在发出去之前先翻译一遍。',
@@ -5526,7 +5689,7 @@ extension on TranslationsZhCn {
 			'settings.signatureEditTextHint' => '这是这条评论里已经写好的小尾巴——一言、日期这会儿都只是普通文字，随便改。清空就是不要小尾巴了。',
 			'settings.signatureResolving' => ({required Object name}) => '正在生成${name}…',
 			'settings.signaturePendingValue' => '（发送时生成）',
-			'settings.signatureAiHint' => '由 AI 现写的一句话，每条评论都是新的。用的是你配好的 AI 供应商。',
+			'settings.signatureAiHint' => '由 AI 现写的一句话，每条评论都是新的，用的是你配好的 AI 供应商。在视频、图库、论坛里发送时，它还知道你正看着什么，会照着那条内容写。',
 			'settings.signatureAiUnavailable' => '还没配 AI 供应商，所以它暂时不会出现在变量面板里。',
 			'settings.signaturePromptTitle' => '提示词',
 			'settings.signaturePromptHint' => '这就是发给模型的那一段。语气、长短、写什么，随便改。里面已有的几条规矩值得留着。',
@@ -5751,6 +5914,8 @@ extension on TranslationsZhCn {
 			'settings.blockSettings.regexEx1Desc' => '用「|」匹配其中任意一个词（表示「或」）',
 			'settings.blockSettings.regexEx2Pattern' => '^【.*】',
 			'settings.blockSettings.regexEx2Desc' => '匹配以【…】开头的标题',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '合集\$',
 			'settings.blockSettings.regexEx3Desc' => '匹配以「合集」结尾的标题',
 			'settings.blockSettings.regexEx4Pattern' => '第.话',
@@ -5800,8 +5965,6 @@ extension on TranslationsZhCn {
 			'settings.cdnRefreshServerListTooltip' => '刷新服务器列表',
 			'settings.cdnSpeedTestButton' => '测速',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => '测速中 (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => '暂无服务器数据，请点击刷新按钮',
 			'settings.cdnTestingStatus' => '测速中',
 			'settings.cdnUnreachableStatus' => '不可达',
@@ -6265,6 +6428,8 @@ extension on TranslationsZhCn {
 			'videoDetail.cast.stopCasting' => '停止投屏',
 			'videoDetail.cast.dlnaCastSheet.title' => '远程投屏',
 			'videoDetail.cast.dlnaCastSheet.close' => '关闭',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => '正在搜索设备...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '点击搜索按钮重新搜索投屏设备',
 			'videoDetail.cast.dlnaCastSheet.searching' => '搜索中',
@@ -6314,8 +6479,6 @@ extension on TranslationsZhCn {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 专用语法',
 			'markdown.internalLink' => '站内链接',
 			'markdown.supportAutoConvertLinkBelow' => '支持自动转换以下类型的链接：',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 视频链接\n🖼️ 图片链接\n👤 用户链接\n📌 论坛链接\n🎵 播放列表链接\n💬 投稿链接',
 			'markdown.mentionUser' => '提及用户',
 			'markdown.mentionUserDescription' => '输入@后跟用户名，将自动转换为用户链接',
@@ -6779,6 +6942,8 @@ extension on TranslationsZhCn {
 			'download.relocation.unfinishedFailed' => '下载失败：已下的部分一起搬',
 			'download.relocation.noDataYet' => '还没有下载任何内容，只改保存位置',
 			'download.relocation.missingGroup' => ({required Object count}) => '找不到文件的 ${count} 项',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingSkip' => '不处理',
 			'download.relocation.missingRedownload' => '重新下载到目标位置',
 			'download.relocation.missingRemove' => '移除记录',
@@ -6828,8 +6993,6 @@ extension on TranslationsZhCn {
 			'download.relocation.unexpectedError' => ({required Object message}) => '中途出错停止：${message}。已移动的项目都是完整的。',
 			'download.category.manageTitle' => '管理分类',
 			'download.category.label' => '分类',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.uncategorized' => '未分类',
 			'download.category.manage' => '管理',
 			'download.category.createShortcut' => '新建',
@@ -7293,6 +7456,8 @@ extension on TranslationsZhCn {
 			'diagnostics.exportLogsTitle' => '导出日志',
 			'diagnostics.exportLogsSubtitle' => '导出后请先检查隐私，再发送给开发者',
 			'diagnostics.viewLogsTitle' => '查看日志',
+			_ => null,
+		} ?? switch (path) {
 			'diagnostics.viewLogsSubtitle' => '实时查看应用运行日志',
 			'diagnostics.copySupportEmailTitle' => '复制日志邮箱',
 			'diagnostics.reportIssueTitle' => '反馈问题',
@@ -7342,8 +7507,6 @@ extension on TranslationsZhCn {
 			'linkInputDialog.notIwaraLink' => ({required Object webName}) => '不是有效的${webName}链接',
 			'linkInputDialog.linkParseError' => ({required Object error}) => '链接解析出错: ${error}',
 			'linkInputDialog.unsupportedLinkDialogTitle' => '不支持的链接',
-			_ => null,
-		} ?? switch (path) {
 			'linkInputDialog.unsupportedLinkDialogContent' => '该链接类型当前应用无法直接打开，需要使用外部浏览器访问。\n\n是否使用浏览器打开此链接？',
 			'linkInputDialog.openInBrowser' => '用浏览器打开',
 			'linkInputDialog.confirmOpenBrowserDialogTitle' => '确认打开浏览器',
@@ -7807,6 +7970,8 @@ extension on TranslationsZhCn {
 			'externalPlayer.onlineLinkExpiryHint' => '在线直链有时效，外部播放器可能播到一半失效；先下载再转交最稳',
 			'externalPlayer.vrPlayerHint' => 'VR 播放器没出现在选择器里的话，用「复制视频链接」再到播放器内粘贴打开',
 			'externalPlayer.noHandler' => '没有找到能打开视频的应用',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '转交失败：${message}',
 			'externalPlayer.handoffFailedUnknown' => '转交失败',
 			'externalPlayer.sourceUnavailable' => '拿不到当前视频的地址，请稍后重试',
@@ -7856,8 +8021,6 @@ extension on TranslationsZhCn {
 			'watchLater.removedFromWatchLater' => '已移出稍后再看',
 			'watchLater.removedCount' => ({required Object count}) => '已移出 ${count} 条',
 			'watchLater.viewWatchLaterList' => '查看列表',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => '加入稍后再看失败',
 			'watchLater.invalidItem' => '已失效',
 			'watchLater.clearWatched' => '清除已看完',
@@ -8283,6 +8446,73 @@ extension on TranslationsZhCn {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count} 条 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '试搜失败：${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => '已移除 ${count} 条本板块没有的筛选。',
+			'ai.revealKey' => '显示',
+			'ai.hideKey' => '隐藏',
+			'ai.connection' => '连接',
+			'ai.providerEnabled' => '启用',
+			'ai.providerEnabledHint' => '关掉之后配置还在，只是不再用这一家。',
+			'ai.providerModelCount' => ({required Object count}) => '${count} 个模型',
+			'ai.noModels' => '没有模型',
+			'ai.noModelsHint' => '还没有模型。从服务端拉一张列表，或者直接填模型名。',
+			'ai.missingApiKey' => '缺少密钥',
+			'ai.providerGone' => '这家供应商已经不在了。',
+			'ai.deleteProviderConfirm' => '删除这家供应商？它下面的模型和功能分配会一起没有。',
+			'ai.getApiKey' => '去拿一个密钥',
+			'ai.providerDocs' => '文档',
+			'ai.models' => '模型',
+			'ai.fetchModels' => '从服务端拉取',
+			'ai.fetchModelsHint' => '从这个端点真有的模型里挑，不用猜名字。',
+			'ai.addModel' => '手填模型名',
+			'ai.deleteModel' => '移除模型',
+			'ai.modelUnknown' => '目录里没有这条，能力未知',
+			'ai.serverDefaultModel' => '服务端默认模型',
+			'ai.resetToDefault' => '重置为默认',
+			'ai.contextWindow' => ({required Object tokens}) => '上下文 ${tokens}',
+			'ai.capFunctionCall' => '函数调用',
+			'ai.capReasoning' => '推理',
+			'ai.capStructuredOutput' => 'JSON 输出',
+			'ai.capVision' => '看图',
+			'ai.capFileInput' => '读文件',
+			'ai.triOn' => '开',
+			'ai.triOff' => '关',
+			'ai.triAutoOn' => '自动（开）',
+			'ai.triAutoOff' => '自动（关）',
+			'ai.triAutoUnknown' => '自动（未知）',
+			'ai.endpointPreview' => ({required Object url}) => '实际会请求 ${url}',
+			'ai.endpointTrailingSlash' => '结尾这个斜杠会让路径里多出一个 //。',
+			'ai.endpointMissingVersion' => '没有版本段——多数 OpenAI 兼容端点要带 /v1。',
+			'ai.modelOverrideHint' => '下面每一项都可以不填。不动它就跟着模型自己的能力和内置目录走。',
+			'ai.followCatalog' => ({required Object value}) => '跟随目录：${value}',
+			'ai.userOverride' => '你改过了',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => '下发 temperature',
+			'ai.sendTemperatureHint' => '有的端点收到这个参数会直接拒绝请求。',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => '目录里写的是 ${tokens}',
+			'ai.maxTokensHint' => '留空＝跟随目录。填 0 ＝ 根本不发这个参数，由服务端用该模型自己的上限。',
+			'ai.catalogVersion' => ({required Object version}) => '供应商目录 ${version}',
+			'ai.catalogMissing' => '供应商目录还没就绪。',
+			'ai.searchModel' => '搜索模型',
+			'ai.searchProvider' => '搜索供应商',
+			'ai.customProvider' => '自定义（OpenAI 兼容端点）',
+			'ai.customProviderHint' => '列表里没有的中转或自建网关走这条。',
+			'ai.wizardNext' => '下一步',
+			'ai.wizardApiKeyTitle' => '填密钥',
+			'ai.wizardModelsTitle' => '选模型',
+			'ai.wizardVerifyTitle' => '验证',
+			'ai.wizardModelsHint' => '这些是端点自己报上来的，挑你想用的。',
+			'ai.wizardModelsFallbackHint' => '没拉到列表，这些是这一家常见的模型。',
+			'ai.wizardNoModels' => '拿不到列表。跳过这一步，回头手填模型名也行——模型名留空同样能用，服务端会挑它的默认模型。',
+			'ai.wizardVerifyHint' => '真发一次请求。列表里有的模型不一定能用，而这家端点认不认 JSON schema，也只有发一次才知道。',
+			'ai.wizardCheckChat' => '发一条测试消息',
+			'ai.wizardCheckSchema' => '探测 JSON 输出支持',
+			'ai.wizardCheckSchemaWarn' => '这家端点会忽略 JSON schema。AI 搜索仍然能用（走提示词契约那条路），只是慢一点。',
+			'ai.unsavedBadge' => '有未保存的修改',
+			'ai.unsavedTitle' => '未保存的修改',
+			'ai.unsavedBody' => '这一页有改动还没保存，现在离开就会丢掉。',
+			'ai.saveAndLeave' => '保存并离开',
+			'ai.discardChanges' => '放弃修改',
+			'ai.savedToast' => '已保存',
 			_ => null,
 		};
 	}

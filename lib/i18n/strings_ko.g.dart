@@ -905,12 +905,61 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get varTime => '시각';
 	@override String get varDatetime => '날짜와 시각';
 	@override String get varWeekday => '요일';
-	@override String get varApp => '앱 이름';
-	@override String get varVersion => '버전';
 	@override String get varPlatform => '플랫폼';
-	@override String get varTitle => '지금 보고 있는 작품';
-	@override String get varAuthor => '그 작가';
 	@override String get varPick => '무작위 문구';
+	@override String get varTitle => '제목';
+	@override String get varAuthor => '작가';
+	@override String get varTags => '태그';
+	@override String get varSection => '게시판';
+	@override String get varReplyTo => '답장 대상';
+	@override String get varPlaytime => '재생 위치';
+	@override String get signatureContextGroup => '컨텍스트 변수';
+	@override String get signatureContextHint => '값은 글을 쓰는 페이지에서 채워집니다. 동영상 페이지는 제목·작성자·태그·재생 위치를, 포럼은 게시판과 층수를 알고 있습니다. 오른쪽은 예시 값이며, 채울 수 없는 부분은 보낼 때 그대로 사라집니다.';
+	@override String get signatureContextValue => '페이지에 따라 다름';
+	@override String get varFloor => '층수';
+	@override String get varDuration => '영상 길이';
+	@override String get signatureRecipesHint => '무엇을 쓸지 모르겠다면 하나를 골라 그대로 쓰고 고쳐 보세요. 아래에 보이는 것이 실제 모습입니다.';
+	@override String get recipeWatchingName => '지금 보는 것';
+	@override String get recipeWatchingTemplate => '%title% 감상 중 · %date%';
+	@override String get recipeTimestampName => '여기까지 봤어요';
+	@override String get recipeTimestampTemplate => '%playtime% / %duration% 까지 봤어요';
+	@override String get recipeHitokotoName => '오늘의 한마디';
+	@override String get recipeHitokotoTemplate => '오늘의 한마디: %hitokoto%';
+	@override String get recipeAiName => 'AI에게 맡기기';
+	@override String get recipeAiTemplate => '%ai_hitokoto%';
+	@override String get recipeReplyName => '답장할 때 인사';
+	@override String get recipeReplyTemplate => '%reply_to% 님께 · %platform% 에서';
+	@override String get recipeMoodName => '기분은 랜덤';
+	@override String get recipeMoodTemplate => '오늘 기분: %pick:좋음|보통|비밀%';
+	@override String get signatureRecipesTitle => '예시';
+	@override String get signatureRecipesMore => '예시 더 보기';
+	@override String get signatureSceneVideo => '동영상 페이지';
+	@override String get signatureSceneForum => '포럼';
+	@override String get signatureSceneAuthor => '프로필';
+	@override String get signatureSceneNone => '맥락 없음';
+	@override String get signatureSceneFromHistory => '예시 내용은 최근에 본 항목에서 가져왔습니다. 실제로 보낼 때는 그때 있던 페이지를 씁니다.';
+	@override String get signatureSceneFromDemo => '기록이 아직 없어 임시 예시를 씁니다. 실제로 보낼 때는 그때 있던 페이지를 씁니다.';
+	@override String get signatureDemoVideoTitle => '달빛 속의 춤';
+	@override String get signatureDemoAuthor => 'Hoshino';
+	@override String get signatureDemoTags => 'mmd 4k 60fps';
+	@override String get signatureDemoThreadTitle => '화질 설정 추천 부탁드립니다';
+	@override String get signatureDemoSection => '자유게시판';
+	@override String get signatureDemoQuote => '천천히 가는 것이 빠른 길이다.';
+	@override String get signatureDemoAiQuote => '3분 30초쯤의 그 턴 하나로 충분했다.';
+	@override String get signatureRecipeGroupWatching => '영상을 볼 때';
+	@override String get signatureRecipeGroupReplying => '답글을 쓸 때';
+	@override String get signatureRecipeGroupForum => '포럼에서';
+	@override String get signatureRecipeGroupDaily => '매일 한 문장';
+	@override String get signatureRecipeGroupAi => 'AI에게 맡기기';
+	@override String get signaturePromptSampleContext => '이번 시험 작성은 동영상 페이지의 예시 맥락을 씁니다. 실제로 보낼 때는 그때 보던 것이 AI에게 전달됩니다.';
+	@override String get recipeAuthorTagsName => '작성자와 태그';
+	@override String get recipeAuthorTagsTemplate => '%author% · %tags%';
+	@override String get recipeFloorName => '특정 층에 답글';
+	@override String get recipeFloorTemplate => '%floor%층에서 · %reply_to%님께';
+	@override String get recipeSectionName => '게시판 밝히기';
+	@override String get recipeSectionTemplate => '%section%에서';
+	@override String get recipeDailyName => '날짜와 한마디';
+	@override String get recipeDailyTemplate => '%date% %weekday% · %hitokoto%';
 	@override String get signatureSources => '데이터 소스';
 	@override String get signatureAutoTranslate => '내 언어로 번역하기';
 	@override String get signatureAutoTranslateDesc => 'Hitokoto 같은 데이터 소스는 아직 중국어만 제공합니다. 가져온 문장은 보내기 직전에 번역됩니다.';
@@ -952,7 +1001,7 @@ class _TranslationsSettingsKo extends TranslationsSettingsEn {
 	@override String get signatureEditTextHint => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.';
 	@override String signatureResolving({required Object name}) => '${name} 생성 중…';
 	@override String get signaturePendingValue => '(보낼 때 생성)';
-	@override String get signatureAiHint => 'AI 가 그 자리에서 쓰는 한 줄. 댓글마다 새로 생성됩니다. 설정한 AI 공급자를 사용합니다.';
+	@override String get signatureAiHint => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 동영상·갤러리·포럼에서 보낼 때는 지금 보고 있는 것도 알고 그에 맞춰 씁니다.';
 	@override String get signatureAiUnavailable => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.';
 	@override String get signaturePromptTitle => '프롬프트';
 	@override String get signaturePromptHint => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.';
@@ -2931,6 +2980,71 @@ class _TranslationsAiKo extends TranslationsAiEn {
 	@override String searchToolFound({required Object count, required Object titles}) => '${count}개 · ${titles}';
 	@override String searchToolFailed({required Object reason}) => '시험 검색 실패: ${reason}';
 	@override String searchFiltersDropped({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.';
+	@override String get revealKey => 'Show';
+	@override String get hideKey => 'Hide';
+	@override String get connection => 'Connection';
+	@override String get providerEnabled => 'Enabled';
+	@override String get providerEnabledHint => 'Turn off to keep the settings but stop using this provider.';
+	@override String providerModelCount({required Object count}) => '${count} model(s)';
+	@override String get noModels => 'No models';
+	@override String get noModelsHint => 'No models yet. Pull the list from the server, or type a model name.';
+	@override String get missingApiKey => 'API key missing';
+	@override String get providerGone => 'This provider no longer exists.';
+	@override String get deleteProviderConfirm => 'Delete this provider? Its models and feature assignments go with it.';
+	@override String get getApiKey => 'Get an API key';
+	@override String get providerDocs => 'Documentation';
+	@override String get models => 'Models';
+	@override String get fetchModels => 'Pull from server';
+	@override String get fetchModelsHint => 'Pick from what this endpoint actually serves, instead of guessing a name.';
+	@override String get addModel => 'Add a model by name';
+	@override String get deleteModel => 'Remove model';
+	@override String get modelUnknown => 'Not in the catalog — capabilities unknown';
+	@override String get serverDefaultModel => 'Server default model';
+	@override String get resetToDefault => 'Reset to default';
+	@override String contextWindow({required Object tokens}) => 'Context ${tokens}';
+	@override String get capFunctionCall => 'Tools';
+	@override String get capReasoning => 'Reasoning';
+	@override String get capStructuredOutput => 'JSON output';
+	@override String get capVision => 'Vision';
+	@override String get capFileInput => 'Files';
+	@override String get triOn => 'On';
+	@override String get triOff => 'Off';
+	@override String get triAutoOn => 'Auto (on)';
+	@override String get triAutoOff => 'Auto (off)';
+	@override String get triAutoUnknown => 'Auto (unknown)';
+	@override String endpointPreview({required Object url}) => 'Requests go to ${url}';
+	@override String get endpointTrailingSlash => 'The trailing slash produces a doubled // in the path.';
+	@override String get endpointMissingVersion => 'No version segment — most OpenAI-compatible endpoints need /v1.';
+	@override String get modelOverrideHint => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.';
+	@override String followCatalog({required Object value}) => 'Following the catalog: ${value}';
+	@override String get userOverride => 'Overridden by you';
+	@override String get sendTemperature => 'Send temperature';
+	@override String get sendTemperatureHint => 'Some endpoints reject a request that carries this parameter.';
+	@override String maxTokensFromCatalog({required Object tokens}) => 'Catalog says ${tokens}';
+	@override String get maxTokensHint => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.';
+	@override String catalogVersion({required Object version}) => 'Provider catalog ${version}';
+	@override String get catalogMissing => 'Provider catalog unavailable.';
+	@override String get searchModel => 'Search models';
+	@override String get searchProvider => 'Search providers';
+	@override String get customProvider => 'Custom (OpenAI-compatible endpoint)';
+	@override String get customProviderHint => 'For a relay or self-hosted gateway not in the list.';
+	@override String get wizardNext => 'Next';
+	@override String get wizardApiKeyTitle => 'API key';
+	@override String get wizardModelsTitle => 'Pick models';
+	@override String get wizardVerifyTitle => 'Verify';
+	@override String get wizardModelsHint => 'These come from the endpoint itself. Pick the ones you want to use.';
+	@override String get wizardModelsFallbackHint => 'Could not pull the list; these are common models for this provider.';
+	@override String get wizardNoModels => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.';
+	@override String get wizardVerifyHint => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.';
+	@override String get wizardCheckChat => 'Send a test message';
+	@override String get wizardCheckSchema => 'Check JSON output support';
+	@override String get wizardCheckSchemaWarn => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.';
+	@override String get unsavedBadge => 'Unsaved changes';
+	@override String get unsavedTitle => 'Unsaved changes';
+	@override String get unsavedBody => 'This page has changes you haven\'t saved yet. Leaving now discards them.';
+	@override String get saveAndLeave => 'Save and leave';
+	@override String get discardChanges => 'Discard';
+	@override String get savedToast => 'Saved';
 }
 
 // Path: common.pagination
@@ -5479,12 +5593,61 @@ extension on TranslationsKo {
 			'settings.varTime' => '시각',
 			'settings.varDatetime' => '날짜와 시각',
 			'settings.varWeekday' => '요일',
-			'settings.varApp' => '앱 이름',
-			'settings.varVersion' => '버전',
 			'settings.varPlatform' => '플랫폼',
-			'settings.varTitle' => '지금 보고 있는 작품',
-			'settings.varAuthor' => '그 작가',
 			'settings.varPick' => '무작위 문구',
+			'settings.varTitle' => '제목',
+			'settings.varAuthor' => '작가',
+			'settings.varTags' => '태그',
+			'settings.varSection' => '게시판',
+			'settings.varReplyTo' => '답장 대상',
+			'settings.varPlaytime' => '재생 위치',
+			'settings.signatureContextGroup' => '컨텍스트 변수',
+			'settings.signatureContextHint' => '값은 글을 쓰는 페이지에서 채워집니다. 동영상 페이지는 제목·작성자·태그·재생 위치를, 포럼은 게시판과 층수를 알고 있습니다. 오른쪽은 예시 값이며, 채울 수 없는 부분은 보낼 때 그대로 사라집니다.',
+			'settings.signatureContextValue' => '페이지에 따라 다름',
+			'settings.varFloor' => '층수',
+			'settings.varDuration' => '영상 길이',
+			'settings.signatureRecipesHint' => '무엇을 쓸지 모르겠다면 하나를 골라 그대로 쓰고 고쳐 보세요. 아래에 보이는 것이 실제 모습입니다.',
+			'settings.recipeWatchingName' => '지금 보는 것',
+			'settings.recipeWatchingTemplate' => '%title% 감상 중 · %date%',
+			'settings.recipeTimestampName' => '여기까지 봤어요',
+			'settings.recipeTimestampTemplate' => '%playtime% / %duration% 까지 봤어요',
+			'settings.recipeHitokotoName' => '오늘의 한마디',
+			'settings.recipeHitokotoTemplate' => '오늘의 한마디: %hitokoto%',
+			'settings.recipeAiName' => 'AI에게 맡기기',
+			'settings.recipeAiTemplate' => '%ai_hitokoto%',
+			'settings.recipeReplyName' => '답장할 때 인사',
+			'settings.recipeReplyTemplate' => '%reply_to% 님께 · %platform% 에서',
+			'settings.recipeMoodName' => '기분은 랜덤',
+			'settings.recipeMoodTemplate' => '오늘 기분: %pick:좋음|보통|비밀%',
+			'settings.signatureRecipesTitle' => '예시',
+			'settings.signatureRecipesMore' => '예시 더 보기',
+			'settings.signatureSceneVideo' => '동영상 페이지',
+			'settings.signatureSceneForum' => '포럼',
+			'settings.signatureSceneAuthor' => '프로필',
+			'settings.signatureSceneNone' => '맥락 없음',
+			'settings.signatureSceneFromHistory' => '예시 내용은 최근에 본 항목에서 가져왔습니다. 실제로 보낼 때는 그때 있던 페이지를 씁니다.',
+			'settings.signatureSceneFromDemo' => '기록이 아직 없어 임시 예시를 씁니다. 실제로 보낼 때는 그때 있던 페이지를 씁니다.',
+			'settings.signatureDemoVideoTitle' => '달빛 속의 춤',
+			'settings.signatureDemoAuthor' => 'Hoshino',
+			'settings.signatureDemoTags' => 'mmd 4k 60fps',
+			'settings.signatureDemoThreadTitle' => '화질 설정 추천 부탁드립니다',
+			'settings.signatureDemoSection' => '자유게시판',
+			'settings.signatureDemoQuote' => '천천히 가는 것이 빠른 길이다.',
+			'settings.signatureDemoAiQuote' => '3분 30초쯤의 그 턴 하나로 충분했다.',
+			'settings.signatureRecipeGroupWatching' => '영상을 볼 때',
+			'settings.signatureRecipeGroupReplying' => '답글을 쓸 때',
+			'settings.signatureRecipeGroupForum' => '포럼에서',
+			'settings.signatureRecipeGroupDaily' => '매일 한 문장',
+			'settings.signatureRecipeGroupAi' => 'AI에게 맡기기',
+			'settings.signaturePromptSampleContext' => '이번 시험 작성은 동영상 페이지의 예시 맥락을 씁니다. 실제로 보낼 때는 그때 보던 것이 AI에게 전달됩니다.',
+			'settings.recipeAuthorTagsName' => '작성자와 태그',
+			'settings.recipeAuthorTagsTemplate' => '%author% · %tags%',
+			'settings.recipeFloorName' => '특정 층에 답글',
+			'settings.recipeFloorTemplate' => '%floor%층에서 · %reply_to%님께',
+			'settings.recipeSectionName' => '게시판 밝히기',
+			'settings.recipeSectionTemplate' => '%section%에서',
+			'settings.recipeDailyName' => '날짜와 한마디',
+			'settings.recipeDailyTemplate' => '%date% %weekday% · %hitokoto%',
 			'settings.signatureSources' => '데이터 소스',
 			'settings.signatureAutoTranslate' => '내 언어로 번역하기',
 			'settings.signatureAutoTranslateDesc' => 'Hitokoto 같은 데이터 소스는 아직 중국어만 제공합니다. 가져온 문장은 보내기 직전에 번역됩니다.',
@@ -5526,7 +5689,7 @@ extension on TranslationsKo {
 			'settings.signatureEditTextHint' => '이 댓글에 이미 적혀 있는 서명입니다. 한 줄 문구도 날짜도 지금은 그냥 글자라 마음대로 고칠 수 있습니다. 비우면 서명이 빠집니다.',
 			'settings.signatureResolving' => ({required Object name}) => '${name} 생성 중…',
 			'settings.signaturePendingValue' => '(보낼 때 생성)',
-			'settings.signatureAiHint' => 'AI 가 그 자리에서 쓰는 한 줄. 댓글마다 새로 생성됩니다. 설정한 AI 공급자를 사용합니다.',
+			'settings.signatureAiHint' => 'AI가 그 자리에서 쓰는 한 문장으로, 댓글마다 새로 생성됩니다. 설정해 둔 AI 공급자를 사용합니다. 동영상·갤러리·포럼에서 보낼 때는 지금 보고 있는 것도 알고 그에 맞춰 씁니다.',
 			'settings.signatureAiUnavailable' => 'AI 공급자가 아직 없어서 변수 패널에는 나타나지 않습니다.',
 			'settings.signaturePromptTitle' => '프롬프트',
 			'settings.signaturePromptHint' => '모델에 전달되는 내용입니다. 어조도 길이도 소재도 마음대로 고쳐도 됩니다. 이미 들어있는 규칙은 남겨두는 편이 좋습니다.',
@@ -5751,6 +5914,8 @@ extension on TranslationsKo {
 			'settings.blockSettings.regexEx1Desc' => '다음 단어 중 하나와 일치합니다 ("|"는 "또는"을 의미)',
 			'settings.blockSettings.regexEx2Pattern' => '^\\[.*\\]',
 			'settings.blockSettings.regexEx2Desc' => '대괄호로 시작하는 제목',
+			_ => null,
+		} ?? switch (path) {
 			'settings.blockSettings.regexEx3Pattern' => '총집편\$',
 			'settings.blockSettings.regexEx3Desc' => '제목이 "총집편"으로 끝남',
 			'settings.blockSettings.regexEx4Pattern' => '제[0-9]+화',
@@ -5800,8 +5965,6 @@ extension on TranslationsKo {
 			'settings.cdnRefreshServerListTooltip' => '서버 목록 새로 고침',
 			'settings.cdnSpeedTestButton' => '속도 테스트',
 			'settings.cdnSpeedTestingButton' => ({required Object count}) => '테스트 중 (${count})',
-			_ => null,
-		} ?? switch (path) {
 			'settings.cdnNoServerDataHint' => '서버 데이터가 없습니다. 새로 고침 버튼을 눌러 주세요',
 			'settings.cdnTestingStatus' => '테스트 중',
 			'settings.cdnUnreachableStatus' => '연결할 수 없음',
@@ -6265,6 +6428,8 @@ extension on TranslationsKo {
 			'videoDetail.cast.stopCasting' => '캐스트 중지',
 			'videoDetail.cast.dlnaCastSheet.title' => '원격 캐스트',
 			'videoDetail.cast.dlnaCastSheet.close' => '닫기',
+			_ => null,
+		} ?? switch (path) {
 			'videoDetail.cast.dlnaCastSheet.searchingDevices' => '기기 검색 중...',
 			'videoDetail.cast.dlnaCastSheet.searchPrompt' => '검색 버튼을 클릭하여 캐스팅 기기를 다시 검색하세요',
 			'videoDetail.cast.dlnaCastSheet.searching' => '검색 중',
@@ -6314,8 +6479,6 @@ extension on TranslationsKo {
 			'markdown.iwaraSpecialMarkdownSyntax' => 'Iwara 전용 Markdown 문법',
 			'markdown.internalLink' => '내부 링크',
 			'markdown.supportAutoConvertLinkBelow' => '다음 링크의 자동 변환을 지원합니다:',
-			_ => null,
-		} ?? switch (path) {
 			'markdown.convertLinkExample' => '🎬 동영상 링크\n🖼️ 이미지 링크\n👤 사용자 링크\n📌 포럼 링크\n🎵 재생목록 링크\n💬 스레드 링크',
 			'markdown.mentionUser' => '사용자 멘션',
 			'markdown.mentionUserDescription' => '@ 뒤에 사용자 이름을 입력하면 자동으로 사용자 링크로 변환됩니다',
@@ -6779,6 +6942,8 @@ extension on TranslationsKo {
 			'download.relocation.unfinishedPaused' => ({required Object percent}) => 'Paused at ${percent}%: the downloaded part moves too, stays paused',
 			'download.relocation.unfinishedFailed' => 'Download failed: the downloaded part moves too',
 			'download.relocation.noDataYet' => 'Nothing downloaded yet, only the save location changes',
+			_ => null,
+		} ?? switch (path) {
 			'download.relocation.missingGroup' => ({required Object count}) => '${count} item(s) with missing files',
 			'download.relocation.missingSkip' => 'Leave as is',
 			'download.relocation.missingRedownload' => 'Re-download to the destination',
@@ -6828,8 +6993,6 @@ extension on TranslationsKo {
 			'download.relocation.sectionNotAttempted' => 'Not processed (stopped, left as is)',
 			'download.relocation.unexpectedError' => ({required Object message}) => 'Stopped because of an error: ${message}. Items already moved are complete.',
 			'download.category.manageTitle' => '카테고리 관리',
-			_ => null,
-		} ?? switch (path) {
 			'download.category.label' => '카테고리',
 			'download.category.uncategorized' => '미분류',
 			'download.category.manage' => '관리',
@@ -7293,6 +7456,8 @@ extension on TranslationsKo {
 			'mediaPlayer.appMayLackMediaPermission' => '앱에 필요한 미디어 재생 권한이 없을 수 있습니다',
 			'mediaPlayer.tryOtherVideoPlayer' => '다른 동영상 플레이어를 사용해 보세요',
 			'mediaPlayer.unrecognizedVideoFormat' => '인식할 수 없는 동영상 파일',
+			_ => null,
+		} ?? switch (path) {
 			'mediaPlayer.unrecognizedVideoFormatSuggestion' => '링크가 만료되었거나 응답이 동영상이 아닐 수 있습니다. 다시 시도하거나 다른 앱으로 여세요.',
 			'mediaPlayer.accessDenied' => '서버가 이 요청을 거부했습니다(403)',
 			'mediaPlayer.accessDeniedSuggestion' => '재생 링크가 만료되었을 가능성이 높습니다. 재시도를 눌러 다시 가져오거나 다른 앱으로 여세요.',
@@ -7342,8 +7507,6 @@ extension on TranslationsKo {
 			'mediaPlayer.notice.issueAtPosition' => ({required Object position}) => '${position} 지점',
 			'mediaPlayer.notice.noIssuesRecorded' => '기록된 문제가 없습니다',
 			'mediaPlayer.notice.exportLogsAction' => '로그 내보내기',
-			_ => null,
-		} ?? switch (path) {
 			'mediaPlayer.imageLoadFailed' => '이미지 로드 실패',
 			'mediaPlayer.unsupportedImageFormat' => '지원하지 않는 이미지 형식',
 			'mediaPlayer.tryOtherViewer' => '다른 뷰어를 사용해 보세요',
@@ -7807,6 +7970,8 @@ extension on TranslationsKo {
 			'externalPlayer.onlineLinkExpiryHint' => '직접 링크는 만료되므로 외부 플레이어가 중간에 멈출 수 있습니다. 먼저 다운로드하는 것이 안정적입니다.',
 			'externalPlayer.vrPlayerHint' => '선택기에 VR 플레이어가 없으면 동영상 링크 복사를 사용해 해당 플레이어 안에 붙여 넣으세요.',
 			'externalPlayer.noHandler' => '이 기기에서 동영상을 열 수 있는 앱이 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'externalPlayer.handoffFailed' => ({required Object message}) => '전달 실패: ${message}',
 			'externalPlayer.handoffFailedUnknown' => '전달 실패',
 			'externalPlayer.sourceUnavailable' => '현재 동영상 주소를 가져올 수 없습니다. 다시 시도해 주세요',
@@ -7856,8 +8021,6 @@ extension on TranslationsKo {
 			'watchLater.removedFromWatchLater' => '나중에 보기에서 제거되었습니다',
 			'watchLater.removedCount' => ({required Object count}) => '${count}개 항목을 제거했습니다',
 			'watchLater.viewWatchLaterList' => '목록 보기',
-			_ => null,
-		} ?? switch (path) {
 			'watchLater.addFailed' => '나중에 보기에 추가하지 못했습니다',
 			'watchLater.invalidItem' => '사용할 수 없음',
 			'watchLater.clearWatched' => '시청한 항목 지우기',
@@ -8283,6 +8446,73 @@ extension on TranslationsKo {
 			'ai.searchToolFound' => ({required Object count, required Object titles}) => '${count}개 · ${titles}',
 			'ai.searchToolFailed' => ({required Object reason}) => '시험 검색 실패: ${reason}',
 			'ai.searchFiltersDropped' => ({required Object count}) => '이 섹션에 없는 필터 ${count}개를 제거했습니다.',
+			'ai.revealKey' => 'Show',
+			'ai.hideKey' => 'Hide',
+			'ai.connection' => 'Connection',
+			'ai.providerEnabled' => 'Enabled',
+			'ai.providerEnabledHint' => 'Turn off to keep the settings but stop using this provider.',
+			'ai.providerModelCount' => ({required Object count}) => '${count} model(s)',
+			'ai.noModels' => 'No models',
+			'ai.noModelsHint' => 'No models yet. Pull the list from the server, or type a model name.',
+			'ai.missingApiKey' => 'API key missing',
+			'ai.providerGone' => 'This provider no longer exists.',
+			'ai.deleteProviderConfirm' => 'Delete this provider? Its models and feature assignments go with it.',
+			'ai.getApiKey' => 'Get an API key',
+			'ai.providerDocs' => 'Documentation',
+			'ai.models' => 'Models',
+			'ai.fetchModels' => 'Pull from server',
+			'ai.fetchModelsHint' => 'Pick from what this endpoint actually serves, instead of guessing a name.',
+			'ai.addModel' => 'Add a model by name',
+			'ai.deleteModel' => 'Remove model',
+			'ai.modelUnknown' => 'Not in the catalog — capabilities unknown',
+			'ai.serverDefaultModel' => 'Server default model',
+			'ai.resetToDefault' => 'Reset to default',
+			'ai.contextWindow' => ({required Object tokens}) => 'Context ${tokens}',
+			'ai.capFunctionCall' => 'Tools',
+			'ai.capReasoning' => 'Reasoning',
+			'ai.capStructuredOutput' => 'JSON output',
+			'ai.capVision' => 'Vision',
+			'ai.capFileInput' => 'Files',
+			'ai.triOn' => 'On',
+			'ai.triOff' => 'Off',
+			'ai.triAutoOn' => 'Auto (on)',
+			'ai.triAutoOff' => 'Auto (off)',
+			'ai.triAutoUnknown' => 'Auto (unknown)',
+			'ai.endpointPreview' => ({required Object url}) => 'Requests go to ${url}',
+			'ai.endpointTrailingSlash' => 'The trailing slash produces a doubled // in the path.',
+			'ai.endpointMissingVersion' => 'No version segment — most OpenAI-compatible endpoints need /v1.',
+			'ai.modelOverrideHint' => 'Everything here is optional. Leave a field alone and it follows the model\'s own capabilities and the built-in catalog.',
+			'ai.followCatalog' => ({required Object value}) => 'Following the catalog: ${value}',
+			'ai.userOverride' => 'Overridden by you',
+			_ => null,
+		} ?? switch (path) {
+			'ai.sendTemperature' => 'Send temperature',
+			'ai.sendTemperatureHint' => 'Some endpoints reject a request that carries this parameter.',
+			'ai.maxTokensFromCatalog' => ({required Object tokens}) => 'Catalog says ${tokens}',
+			'ai.maxTokensHint' => 'Leave empty to follow the catalog. Enter 0 to omit the parameter entirely and let the server use the model\'s own limit.',
+			'ai.catalogVersion' => ({required Object version}) => 'Provider catalog ${version}',
+			'ai.catalogMissing' => 'Provider catalog unavailable.',
+			'ai.searchModel' => 'Search models',
+			'ai.searchProvider' => 'Search providers',
+			'ai.customProvider' => 'Custom (OpenAI-compatible endpoint)',
+			'ai.customProviderHint' => 'For a relay or self-hosted gateway not in the list.',
+			'ai.wizardNext' => 'Next',
+			'ai.wizardApiKeyTitle' => 'API key',
+			'ai.wizardModelsTitle' => 'Pick models',
+			'ai.wizardVerifyTitle' => 'Verify',
+			'ai.wizardModelsHint' => 'These come from the endpoint itself. Pick the ones you want to use.',
+			'ai.wizardModelsFallbackHint' => 'Could not pull the list; these are common models for this provider.',
+			'ai.wizardNoModels' => 'No list available. Skip this step and add a model by name later — an empty model name also works, the server picks its default.',
+			'ai.wizardVerifyHint' => 'One real round-trip. A model can be listed and still fail, and only an actual request shows whether this endpoint honours JSON schema.',
+			'ai.wizardCheckChat' => 'Send a test message',
+			'ai.wizardCheckSchema' => 'Check JSON output support',
+			'ai.wizardCheckSchemaWarn' => 'This endpoint ignores JSON schema. AI search still works through the prompt-contract path, just a little slower.',
+			'ai.unsavedBadge' => 'Unsaved changes',
+			'ai.unsavedTitle' => 'Unsaved changes',
+			'ai.unsavedBody' => 'This page has changes you haven\'t saved yet. Leaving now discards them.',
+			'ai.saveAndLeave' => 'Save and leave',
+			'ai.discardChanges' => 'Discard',
+			'ai.savedToast' => 'Saved',
 			_ => null,
 		};
 	}
