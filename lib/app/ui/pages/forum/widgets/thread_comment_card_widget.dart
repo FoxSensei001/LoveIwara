@@ -7,6 +7,7 @@ import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_edit_reply_dialog.dart';
@@ -41,6 +42,11 @@ class ThreadCommentCardWidget extends StatefulWidget {
   /// 为 null 时引用条不可点。
   final void Function(int floor)? onJumpToFloor;
 
+  /// 这个主题能给小尾巴的上下文（标题 / 版块 / 楼主）。同样由帖子详情页提供：
+  /// 卡片自己只看得见一楼，看不见主题。取值函数而不是快照——主题详情是异步
+  /// 回来的，而回复弹层在那之后才打开。
+  final SignatureContext Function()? threadSignatureContext;
+
   const ThreadCommentCardWidget({
     super.key,
     required this.comment,
@@ -49,6 +55,7 @@ class ThreadCommentCardWidget extends StatefulWidget {
     required this.lockedThread,
     required this.listSourceRepository,
     this.onJumpToFloor,
+    this.threadSignatureContext,
   });
 
   @override
@@ -337,6 +344,13 @@ class _ThreadCommentCardWidgetState extends State<ThreadCommentCardWidget> {
       context: context,
       builder: (context) => ForumReplyBottomSheet(
         threadId: widget.comment.threadId,
+        // 主题的上下文 + 这一楼是回给谁的、第几楼。
+        signatureContext:
+            (widget.threadSignatureContext?.call() ?? SignatureContext.empty)
+                .withReplyTo(
+                  widget.comment.user.name,
+                  floor: widget.comment.replyNum + 1,
+                ),
         quote: ReplyQuote(
           floor: widget.comment.replyNum + 1,
           username: widget.comment.user.username,

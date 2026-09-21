@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/forum_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/utils/comment_markup.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/common/widgets/input/input_components.dart';
@@ -14,12 +15,17 @@ class ForumReplyBottomSheet extends StatefulWidget {
     this.maxBodyInputLimit = 100000,
     this.initialContent,
     this.quote,
+    this.signatureContext = SignatureContext.empty,
   });
 
   final String threadId;
   final VoidCallback? onSubmit;
   final int maxBodyInputLimit;
   final String? initialContent;
+
+  /// 小尾巴的上下文：论坛给得出主题标题、版块名和楼主，回复某一楼时还多一个
+  /// 「回给谁」。见 [SignatureContext]。
+  final SignatureContext signatureContext;
 
   /// 这条回复冲着哪一楼去。引用卡片画在输入框上方，用户可当场撤销；
   /// 真正的 markdown 引用块在提交那一刻才由 `CommentMarkup.compose` 拼出来。
@@ -74,6 +80,7 @@ class _ForumReplyBottomSheetState extends State<ForumReplyBottomSheet> {
       isLoading: _isLoading,
       initialContent: widget.initialContent,
       quote: widget.quote,
+      signatureContext: widget.signatureContext,
       titleIcon: Icons.reply_outlined,
     );
   }

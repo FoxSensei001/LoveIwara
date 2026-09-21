@@ -33,6 +33,7 @@ import 'controllers/related_media_controller.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
 import 'package:i_iwara/app/repositories/local_media_repository.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
@@ -148,10 +149,25 @@ class MyVideoDetailPageState extends State<MyVideoDetailPage>
         );
 
         // 只在在线模式下初始化评论和相关视频控制器
-        commentController = Get.put(
+        final comments = Get.put(
           CommentController(id: videoId, type: CommentType.video),
           tag: uniqueTag,
         );
+        commentController = comments;
+
+        // 小尾巴的上下文：视频页给得最全（标题 / 作者 / 标签 / 当前播放进度）。
+        // ⛔ 挂的是闭包不是快照——这会儿 videoInfo 还是 null，而 `{playtime}`
+        // 更是必须等到按下发送那一刻才去问播放器。
+        comments.signatureContextBuilder = () {
+          final info = controller.videoInfo.value;
+          return SignatureContext(
+            title: info?.title,
+            author: info?.user?.name,
+            tags: info?.tags?.map((e) => e.id).toList(),
+            duration: controller.totalDuration.value,
+            playPosition: () => controller.currentPosition,
+          );
+        };
 
         relatedVideoController = Get.put(
           RelatedMediasController(mediaId: videoId, mediaType: MediaType.VIDEO),

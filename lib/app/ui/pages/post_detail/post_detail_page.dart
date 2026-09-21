@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/app_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_list_bottom_sheet.dart';
 import 'package:i_iwara/app/models/iwara_site.dart';
 import 'package:i_iwara/app/models/post.model.dart';
@@ -61,6 +62,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
       CommentController(id: postId, type: CommentType.post),
       tag: uniqueTag,
     );
+
+    // 小尾巴的上下文：投稿只给得出标题与作者（它没有标签）。
+    commentController.signatureContextBuilder = () {
+      final post = detailController.postInfo.value;
+      return SignatureContext(title: post?.title, author: post?.user.name);
+    };
 
     if (widget.initialPost != null) {
       detailController.postInfo.value = widget.initialPost;

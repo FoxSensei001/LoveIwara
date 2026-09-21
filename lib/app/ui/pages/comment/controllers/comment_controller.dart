@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/api_result.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/utils/common_utils.dart';
@@ -50,6 +51,20 @@ class CommentController<T extends CommentType> extends GetxController {
   // API 服务实例
   final CommentService _commentService = Get.find<CommentService>();
   final ConfigService _configService = Get.find<ConfigService>();
+
+  /// 「正在评论的是什么」——小尾巴里的 `{title}` `{author}` `{tags}` 从这儿取值。
+  ///
+  /// ⭐ 挂在 controller 上而不是一层层往下传：评论输入框有五个入口（列表弹层、
+  /// 视频页的浮动钮、每条评论的回复、子回复弹层里的回复……），它们唯一共有的
+  /// 东西就是这只 controller。挨个加参数等于把同一件事在五处各写一遍，而漏掉
+  /// 任何一处的表现都是「小尾巴变量在某个入口莫名其妙填不出值」。
+  ///
+  /// ⛔ 存的是**取值函数**不是快照：controller 在详情页 onInit 时就建好了，
+  /// 那会儿标题、作者、标签都还没拉回来。
+  SignatureContext Function()? signatureContextBuilder;
+
+  SignatureContext get signatureContext =>
+      signatureContextBuilder?.call() ?? SignatureContext.empty;
 
   CommentController({required this.id, required this.type});
 

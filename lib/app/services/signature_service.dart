@@ -18,19 +18,111 @@ import 'package:i_iwara/app/utils/signature_ai_prompt.dart';
 import 'package:i_iwara/app/utils/signature_template.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
+import 'package:i_iwara/utils/common_utils.dart';
 import 'package:i_iwara/utils/logger_utils.dart';
 
 /// 求值一条小尾巴时能用上的当前上下文。
 ///
-/// 只带「用户正看着的是什么」——发评论的页面知道这些，模板里的 `{title}`
-/// `{author}` 就是从这儿来的。取不到就留 null，对应的变量会整段消失。
+/// 只带「用户正看着的是什么」——发评论的那张弹窗知道这些，模板里的 `{title}`
+/// `{author}` `{tags}` 就是从这儿来的。取不到就留 null，对应的变量会整段消失。
+///
+/// ⭐ 各处能给的**深浅不一**，这是刻意的：视频页给得出标题、作者、标签和当前
+/// 播放进度，论坛给得出版块名与楼主，作者页只给得出那个人，发帖弹窗只给得出
+/// 用户正在写的标题。写了填不出的变量不报错、也不留花括号，那一段自己消失
+/// （见 [SignatureTemplate.render]）——所以一条模板可以到处通用。
 class SignatureContext {
-  const SignatureContext({this.title, this.author});
+  const SignatureContext({
+    this.title,
+    this.author,
+    this.tags,
+    this.section,
+    this.replyTo,
+    this.floor,
+    this.duration,
+    this.playPosition,
+  });
 
+  /// 正在看的那件东西的标题：视频 / 图库 / 投稿标题、论坛主题、正在写的帖子标题。
   final String? title;
+
+  /// 它的作者：投稿人、论坛楼主、作者页上的那个人。
   final String? author;
 
+  /// 标签（视频 / 图库）。超过 [maxTags] 条时只取前几条——一条小尾巴挂不住
+  /// 四十个标签，而截断出来的省略号比少几个标签难看得多。
+  final List<String>? tags;
+
+  /// 内容所在的分区。目前只有论坛版块填得出。
+  final String? section;
+
+  /// 正在回复谁。回复某条评论 / 引用某一楼时才有。
+  final String? replyTo;
+
+  /// 正在回复第几楼。只有论坛数得出楼层。
+  final int? floor;
+
+  /// 视频总时长。和 [playPosition] 凑成「看到 12:34 / 45:00」。
+  final Duration? duration;
+
+  /// 当前播放进度。
+  ///
+  /// ⛔ 存的是一个**取值函数**而不是一份快照：小尾巴在按下发送那一刻才求值，
+  /// 而用户完全可能对着播放中的视频写上两分钟。`{playtime}` 该是发送时的进度，
+  /// 不是打开输入框那一刻的。
+  final Duration? Function()? playPosition;
+
   static const SignatureContext empty = SignatureContext();
+
+  /// `{tags}` 最多写出几条。
+  static const int maxTags = 5;
+
+  /// 在页面上下文之上补一个「正在回复谁 / 第几楼」。
+  ///
+  /// 回复某一楼 / 某条评论时用：那条回复的上下文＝所在页面的上下文 + 回复对象，
+  /// 没有理由让每个回复入口自己重新拼一份页面信息。
+  SignatureContext withReplyTo(String? who, {int? floor}) {
+    final trimmed = who?.trim();
+    if ((trimmed == null || trimmed.isEmpty) && floor == null) return this;
+    return SignatureContext(
+      title: title,
+      author: author,
+      tags: tags,
+      section: section,
+      replyTo: (trimmed == null || trimmed.isEmpty) ? replyTo : trimmed,
+      floor: floor ?? this.floor,
+      duration: duration,
+      playPosition: playPosition,
+    );
+  }
+
+  /// 摊成「给 AI 看的事实表」：键是英文（说给模型听），值是原样的内容。
+  ///
+  /// ⭐ AI 一言拿到这张表就能**照着用户正看着的东西**现写一句，而不是写一句
+  /// 放之四海而皆准的格言——这是它与接口一言唯一的结构性优势。空上下文返回空表，
+  /// 提示词里那一整块随之不在场（设置页里「试一下」走的就是这条）。
+  Map<String, String> toPromptFacts() {
+    final out = <String, String>{};
+    void put(String key, String? value) {
+      final v = value?.trim();
+      if (v != null && v.isNotEmpty) out[key] = v;
+    }
+
+    put('Title', title);
+    put('Author', author);
+    put('Tags', tags?.take(maxTags).join(', '));
+    put('Section', section);
+    put('Replying to', replyTo);
+    put('Floor', floor?.toString());
+    put('Video length', duration == null ? null : _hhmmss(duration!));
+    final position = playPosition?.call();
+    put(
+      'Watched up to',
+      position == null || position <= Duration.zero ? null : _hhmmss(position),
+    );
+    return out;
+  }
+
+  static String _hhmmss(Duration d) => CommonUtils.formatDuration(d);
 }
 
 /// 一个可以写进小尾巴的变量，以及 UI 要用来介绍它的那点信息。
@@ -204,27 +296,43 @@ class SignatureService extends GetxService {
 
   // ---------------------------------------------------------------- 变量目录
 
-  /// 应用自带、不用联网就能算出来的变量。变量选择面板照这个顺序列。
+  /// 应用自带、不用联网、也不问上下文就能算出来的变量。
   ///
   /// ⛔ 这里**没有**一言：一言是一个数据源（[SignatureProvider.hitokoto]），
   /// 和用户自己接的接口同一个概念、同一条求值管线、同一张设置页列表。
+  ///
+  /// ⛔ 这里也**没有**应用名和版本号。小尾巴是用户说自己的话，不是应用给自己
+  /// 打的广告；「发自 XXX v1.2.3」这种变量只会让人把它当成推广后缀。
   static const List<SignatureVariableSpec> builtinVariables = [
     SignatureVariableSpec(name: 'date', defaultArg: 'yyyy-MM-dd'),
     SignatureVariableSpec(name: 'time', defaultArg: 'HH:mm'),
     SignatureVariableSpec(name: 'datetime', defaultArg: 'yyyy-MM-dd HH:mm'),
     SignatureVariableSpec(name: 'weekday'),
-    SignatureVariableSpec(name: 'app'),
-    SignatureVariableSpec(name: 'version'),
     SignatureVariableSpec(name: 'platform'),
-    SignatureVariableSpec(name: 'title'),
-    SignatureVariableSpec(name: 'author'),
     SignatureVariableSpec(name: 'pick', defaultArg: 'A|B|C'),
   ];
 
+  /// 由**发这条内容时所在的页面**填的变量，见 [SignatureContext]。
+  ///
+  /// 和上面那组分开列，是因为它们的「有没有值」这件事本身就不一样：日期到哪儿
+  /// 都算得出来，而 `{playtime}` 只有视频页给得出。变量面板因此分两组，并在
+  /// 组标题下写明这一点——否则用户会以为自己插的变量坏了。
+  static const List<SignatureVariableSpec> contextVariables = [
+    SignatureVariableSpec(name: 'title'),
+    SignatureVariableSpec(name: 'author'),
+    SignatureVariableSpec(name: 'tags'),
+    SignatureVariableSpec(name: 'section'),
+    SignatureVariableSpec(name: 'reply_to'),
+    SignatureVariableSpec(name: 'floor'),
+    SignatureVariableSpec(name: 'playtime'),
+    SignatureVariableSpec(name: 'duration'),
+  ];
+
   /// 内置变量名，用来挡住「数据源起了个和内置变量一样的名字」。
-  static final Set<String> builtinVariableNames = builtinVariables
-      .map((e) => e.name)
-      .toSet();
+  static final Set<String> builtinVariableNames = {
+    for (final e in builtinVariables) e.name,
+    for (final e in contextVariables) e.name,
+  };
 
   /// 全部数据源：预置的在前，用户自己接的在后。
   ///
@@ -427,11 +535,17 @@ class SignatureService extends GetxService {
   /// 两边都估不准也不至于出事：真发送时 `_composeForSubmit` 会把超出的部分从
   /// 小尾巴上砍掉，不会因为估少了几个字而发不出去。
   /// [pinned] 见 [render]：这一次编辑里当场生成过的值，优先于一切兜底。
+  ///
+  /// [contextComplete] 说的是「[context] 已经是最终答案了」。⛔ 它存在是因为
+  /// 样例档默认把填不出的上下文变量原样留成 `{title}`（见下面那段注释），而
+  /// **示范场景**恰恰要演的是「填不出就整段消失」——尤其是「没有上下文」那一
+  /// 档，留着花括号就等于什么都没演。见 `signature_scenes.dart`。
   String estimate(
     String template, {
     SignatureContext context = SignatureContext.empty,
     SignatureFill fill = SignatureFill.length,
     Map<String, String>? pinned,
+    bool contextComplete = false,
   }) {
     final parsed = SignatureTemplate.parse(template);
     final values = <String, String>{};
@@ -439,6 +553,15 @@ class SignatureService extends GetxService {
     for (final variable in parsed.variables) {
       final local = _resolveLocal(variable, context);
       if (local != null) {
+        // ⛔ 上下文变量在设置页里**本来就算不出值**——那儿没有「正在看的作品」。
+        // 照常让它消失的话，预览里出现的是「我在看《》」，像是自己把模板写坏了。
+        // 所以样例这一档保留原样的 `{title}`（[render] 的 keepUnknown 会放回
+        // 去）。发送前的预览（pending）不走这条：那一档回答的是「按下发送会发
+        // 出什么」，而答案确实是它整段消失。示范场景（[contextComplete]）同理：
+        // 那儿的上下文就是最终答案，演的正是消失这件事。
+        if (local.isEmpty && fill == SignatureFill.sample && !contextComplete) {
+          continue;
+        }
         values[variable.key] = local;
         continue;
       }
@@ -496,7 +619,7 @@ class SignatureService extends GetxService {
         : _httpTimeout;
 
     try {
-      final fetched = await _resolveRemote(variable).timeout(budget);
+      final fetched = await _resolveRemote(variable, context).timeout(budget);
       if (fetched != null && fetched.trim().isNotEmpty) {
         _rememberGood(variable.key, fetched.trim());
         return fetched.trim();
@@ -527,16 +650,34 @@ class SignatureService extends GetxService {
         );
       case 'weekday':
         return _formatDate('EEEE', now);
-      case 'app':
-        return CommonConstants.applicationNickname;
-      case 'version':
-        return CommonConstants.VERSION;
       case 'platform':
         return _platformName();
       case 'title':
         return context.title?.trim() ?? '';
       case 'author':
         return context.author?.trim() ?? '';
+      case 'tags':
+        final tags = context.tags
+            ?.map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .take(SignatureContext.maxTags);
+        return tags == null ? '' : tags.join(' ');
+      case 'section':
+        return context.section?.trim() ?? '';
+      case 'reply_to':
+        return context.replyTo?.trim() ?? '';
+      case 'floor':
+        return context.floor?.toString() ?? '';
+      case 'duration':
+        final total = context.duration;
+        if (total == null || total <= Duration.zero) return '';
+        return CommonUtils.formatDuration(total);
+      case 'playtime':
+        // 写成 `12:34`：评论区的时间节点识别认的就是这个写法，用户的小尾巴
+        // 因此顺手变成一个能点的跳转点（见 `CommonUtils.parseTimestamp`）。
+        final position = context.playPosition?.call();
+        if (position == null || position <= Duration.zero) return '';
+        return CommonUtils.formatDuration(position);
       case 'pick':
         final options = (arg ?? '')
             .split('|')
@@ -551,18 +692,26 @@ class SignatureService extends GetxService {
   }
 
   /// 变量名对上某个数据源就去请求它。对不上就是「不认识这个变量」。
-  Future<String?> _resolveRemote(SignatureVariable variable) async {
+  Future<String?> _resolveRemote(
+    SignatureVariable variable,
+    SignatureContext context,
+  ) async {
     final provider = providerOf(variable.name);
     if (provider == null) return null;
-    return fetchWith(provider);
+    return fetchWith(provider, context: context);
   }
 
   /// 按一个数据源的完整配置（地址 + 参数 + 取值路径 + 加工 + 翻译）取出那句话。
   ///
   /// 公开是为了让设置页的「测试」按钮和向导走**完全同一条路**——测试通过而真
   /// 用起来不行，是最难查的一类问题。
-  Future<String?> fetchWith(SignatureProvider provider) =>
-      resolveValue(provider);
+  ///
+  /// [context] 只对 AI 源有意义（见 [_fetchAiValue]）：接口源那边是别人的地址，
+  /// 我们不会把「用户在看什么」发给它。设置页与向导不传，那边本来就没有上下文。
+  Future<String?> fetchWith(
+    SignatureProvider provider, {
+    SignatureContext context = SignatureContext.empty,
+  }) => resolveValue(provider, context: context);
 
   /// 同上，但可以拿一份**已经取回来的**响应体来算。
   ///
@@ -570,8 +719,9 @@ class SignatureService extends GetxService {
   Future<String?> resolveValue(
     SignatureProvider provider, {
     String? body,
+    SignatureContext context = SignatureContext.empty,
   }) async {
-    final raw = body ?? await fetchBody(provider);
+    final raw = body ?? await fetchBody(provider, context: context);
     if (raw.isEmpty) return null;
     final shaped = provider.composeValue(raw);
     if (shaped.isEmpty) return null;
@@ -647,8 +797,11 @@ class SignatureService extends GetxService {
   ///
   /// 向导拿着它在本地反复试：换出处开关、改提取规则都不必再打一次接口，
   /// 而用户看到的每一个样例都来自真实返回。
-  Future<String> fetchBody(SignatureProvider provider) async {
-    if (provider.isAi) return _fetchAiValue(provider);
+  Future<String> fetchBody(
+    SignatureProvider provider, {
+    SignatureContext context = SignatureContext.empty,
+  }) async {
+    if (provider.isAi) return _fetchAiValue(provider, context);
     final uri = provider.resolvedUri();
     final response = await _dio.getUri<String>(uri);
     final status = response.statusCode ?? 0;
@@ -663,8 +816,15 @@ class SignatureService extends GetxService {
   /// 提示词取这条源自己的 [SignatureProvider.prompt]（用户在设置里改过的），
   /// 空串就是出厂那份。见 [SignatureAiPrompt]。
   ///
+  /// ⭐ [context] 会作为一张事实表进用户消息：AI 一言因此能**照着用户正看着
+  /// 的东西**现写一句，而不是写一句放之四海皆准的格言——这正是它与接口一言的
+  /// 分野。⛔ 上下文只进 AI 源，接口源那边是别人的地址，不往外发。
+  ///
   /// ⛔ 失败或空结果必须返回空串，不抛出异常，由上层自然落到三道兜底。
-  Future<String> _fetchAiValue(SignatureProvider provider) async {
+  Future<String> _fetchAiValue(
+    SignatureProvider provider,
+    SignatureContext context,
+  ) async {
     if (!Get.isRegistered<AiService>()) return '';
     final aiService = Get.find<AiService>();
     if (!aiService.isAvailable(AiTask.signature)) return '';
@@ -673,7 +833,7 @@ class SignatureService extends GetxService {
       final localeTag = slang.LocaleSettings.currentLocale.languageTag;
       final req = AiRequest(
         task: AiTask.signature,
-        input: SignatureAiPrompt.userPrompt,
+        input: SignatureAiPrompt.userPromptFor(context.toPromptFacts()),
         system: SignatureAiPrompt.render(provider.prompt, localeTag),
         // ⛔ 显式给预算，别用 AiService 的 90s 默认值：发送那一刻评论在等这句
         // 话。内层先到（外面留了 [_timeoutSlack]），错误信息才说得出是哪一步。

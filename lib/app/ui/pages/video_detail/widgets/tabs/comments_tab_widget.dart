@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/services/login_service.dart';
-import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_input_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_section_widget.dart';
@@ -85,15 +84,8 @@ class CommentsTabWidget extends StatelessWidget {
                           foregroundColor: Theme.of(
                             context,
                           ).colorScheme.onPrimaryContainer,
-                          onTap: () => _showCommentDialog(
-                            context,
-                            commentController,
-                            SignatureContext(
-                              title: videoController.videoInfo.value?.title,
-                              author:
-                                  videoController.videoInfo.value?.user?.name,
-                            ),
-                          ),
+                          onTap: () =>
+                              _showCommentDialog(context, commentController),
                         ),
                         SpeedDialChild(
                           child: Icon(
@@ -133,7 +125,6 @@ class CommentsTabWidget extends StatelessWidget {
   static void _showCommentDialog(
     BuildContext context,
     CommentController commentController,
-    SignatureContext signatureContext,
   ) {
     final t = slang.Translations.of(context);
     if (!Get.find<UserService>().isAuthenticated) {
@@ -146,8 +137,9 @@ class CommentsTabWidget extends StatelessWidget {
       builder: (context) => CommentInputBottomSheet(
         title: t.common.sendComment,
         submitText: t.common.send,
-        // 小尾巴里写了 `{title}` / `{author}` 的人，在这儿才填得出值
-        signatureContext: signatureContext,
+        // 小尾巴里写了 `{title}` / `{author}` / `{playtime}` 的人，在这儿才
+        // 填得出值。上下文挂在 controller 上，由视频详情页统一供给。
+        signatureContext: commentController.signatureContext,
         onSubmit: (text) async {
           if (text.trim().isNotEmpty) {
             await commentController.postComment(text);

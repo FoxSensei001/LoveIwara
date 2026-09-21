@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/app/models/forum.model.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/config_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/pages/forum/controllers/thread_detail_repository.dart';
 import 'package:i_iwara/app/ui/pages/forum/widgets/forum_reply_bottom_sheet.dart';
@@ -268,6 +269,17 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
     );
   }
 
+  /// 这个主题能给小尾巴的上下文：标题、版块名、楼主。
+  ///
+  /// 版块名走 [idNames]（界面语言那份），不是接口给的 `general-zh` 那种 slug——
+  /// 小尾巴是写给人看的一句话。
+  SignatureContext _signatureContextOf(ForumThreadModel thread) =>
+      SignatureContext(
+        title: thread.title,
+        author: thread.user.name,
+        section: idNames[replaceUnderline(thread.section)] ?? thread.section,
+      );
+
   /// 弹出回复底部弹层（锁定 / 未登录时给出提示）。
   void _showReplySheet() {
     final thread = _thread.value;
@@ -287,6 +299,7 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       context: context,
       builder: (context) => ForumReplyBottomSheet(
         threadId: thread.id,
+        signatureContext: _signatureContextOf(thread),
         onSubmit: () {
           _refresh();
         },
@@ -1117,6 +1130,14 @@ class _ThreadDetailPageState extends State<ThreadDetailPage>
       lockedThread: _thread.value?.locked ?? false,
       listSourceRepository: listSourceRepository,
       onJumpToFloor: _jumpToFloor,
+      // 楼层回复的小尾巴上下文＝这个主题的上下文（楼层自己再补上「回给谁」）。
+      // 只有帖子详情页手里有主题信息，卡片自己看不见。
+      threadSignatureContext: () {
+        final thread = _thread.value;
+        return thread == null
+            ? SignatureContext.empty
+            : _signatureContextOf(thread);
+      },
     );
 
     // 跳过去之后点亮一下，否则在一屏相似的楼层里根本看不出落在了哪条。

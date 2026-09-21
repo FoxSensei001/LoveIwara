@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/controllers/comment_controller.dart';
 
 import '../../../../models/comment.model.dart';
@@ -162,6 +163,11 @@ class _CommentRepliesBottomSheetState extends State<CommentRepliesBottomSheet> {
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,
+        // 页面上下文由 controller 供；没有 controller 的场合（从通知里直接打开
+        // 一串子回复）就只剩「回给谁」，其余变量照常自己消失。
+        signatureContext:
+            (widget.controller?.signatureContext ?? SignatureContext.empty)
+                .withReplyTo(widget.parentComment.user?.name),
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
             showAppToast(

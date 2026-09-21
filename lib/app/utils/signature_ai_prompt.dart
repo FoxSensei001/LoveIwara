@@ -96,4 +96,30 @@ Rules:
       render(defaultTemplate, localeTag);
 
   static const String userPrompt = 'Write one now.';
+
+  /// 带上下文的那份用户消息。
+  ///
+  /// ⭐ 这是 AI 一言相对接口一言**唯一的结构性优势**：接口只能返回一句写好的
+  /// 话，AI 能照着「用户此刻正看着什么」现写。事实表由
+  /// `SignatureContext.toPromptFacts` 摊出来，空表时原样退回 [userPrompt]——
+  /// 设置页的「试一下」就没有上下文，那儿不该凭空出现一段假事实。
+  ///
+  /// ⛔ 三条约束写在指令里，每条都堵一种一眼能看出是机器写的输出：
+  /// 1. **不许复述**，否则模型多半直接把标题抄一遍当"感想"；
+  /// 2. **不许提到这些信息是被喂进来的**（"根据你提供的标题…"）；
+  /// 3. 事实只是**由头**，产出仍旧是一句独立成立的话——小尾巴跟在任何一条评论
+  ///    后面都要读得通。
+  ///
+  /// ⛔ 放在**用户消息**里而不是系统提示词里：系统提示词整份是用户可改的
+  /// （见 [defaultTemplate]），把上下文塞进去意味着用户一改措辞就可能把这块
+  /// 连带删掉，而他根本不知道自己删了什么。
+  static String userPromptFor(Map<String, String> facts) {
+    if (facts.isEmpty) return userPrompt;
+
+    final lines = facts.entries.map((e) => '- ${e.key}: ${e.value}').join('\n');
+    return '''Context — this is what the user is looking at right now:
+$lines
+
+$userPrompt It may take this context as a starting point, but never restate or summarise it, never mention that you were told about it, and it must still read as a standalone line that works under any comment.''';
+  }
 }

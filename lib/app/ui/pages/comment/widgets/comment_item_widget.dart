@@ -370,6 +370,10 @@ class _CommentItemState extends State<CommentItem> {
       builder: (context) => CommentInputBottomSheet(
         title: slang.t.common.replyComment,
         submitText: slang.t.common.reply,
+        // 回复的上下文＝这一页的上下文（标题/作者/标签…）再加上「回给谁」。
+        signatureContext: widget.controller!.signatureContext.withReplyTo(
+          widget.comment.user?.name,
+        ),
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
             showAppToast(

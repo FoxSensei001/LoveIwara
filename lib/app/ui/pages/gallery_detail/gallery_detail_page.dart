@@ -13,6 +13,7 @@ import 'package:i_iwara/app/routes/app_router.dart';
 import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/playback_queue_navigator.dart';
 import 'package:i_iwara/app/services/playback_queue_service.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/app/ui/pages/comment/widgets/comment_list_bottom_sheet.dart';
 import 'package:i_iwara/app/ui/pages/gallery_detail/widgets/image_model_detail_content_widget.dart';
 import 'package:i_iwara/app/ui/pages/video_detail/widgets/player/playback_queue_drawer.dart';
@@ -215,6 +216,17 @@ class GalleryDetailPageState extends State<GalleryDetailPage>
       CommentController(id: imageModelId, type: CommentType.image),
       tag: uniqueTag,
     );
+
+    // 小尾巴的上下文：图库给得出标题、作者和标签。挂闭包不挂快照——详情这会儿
+    // 还没拉回来。
+    commentController.signatureContextBuilder = () {
+      final info = detailController.imageModelInfo.value;
+      return SignatureContext(
+        title: info?.title,
+        author: info?.user?.name,
+        tags: info?.tags.map((e) => e.id).toList(),
+      );
+    };
 
     relatedMediasController = Get.put(
       RelatedMediasController(

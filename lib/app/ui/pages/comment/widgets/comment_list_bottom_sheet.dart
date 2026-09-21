@@ -44,6 +44,9 @@ class CommentListBottomSheet extends StatelessWidget {
       builder: (context) => CommentInputBottomSheet(
         title: t.common.sendComment,
         submitText: t.common.send,
+        // 小尾巴里的 `{title}` `{author}` `{tags}` 从 controller 上那份上下文
+        // 取值——三个调用页各自把「这是谁的什么」挂在了那儿。
+        signatureContext: controller.signatureContext,
         onSubmit: (text) async {
           if (text.trim().isEmpty) {
             showAppToast(

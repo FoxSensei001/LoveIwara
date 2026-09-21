@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:i_iwara/app/services/signature_service.dart';
 import 'package:i_iwara/utils/rx_ever.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -39,12 +40,16 @@ class AuthorProfileController extends GetxController {
   void _bindCommentController(String authorId) {
     if (Get.isRegistered<CommentController>(tag: authorId)) {
       commentController = Get.find<CommentController>(tag: authorId);
-      return;
+    } else {
+      commentController = Get.put(
+        CommentController(id: authorId, type: CommentType.profile),
+        tag: authorId,
+      );
     }
-    commentController = Get.put(
-      CommentController(id: authorId, type: CommentType.profile),
-      tag: authorId,
-    );
+    // 小尾巴的上下文：作者页上没有「作品」，只有这个人——`{author}` 指的就是
+    // 留言板的主人。重新绑定时也要重挂，那条闭包认的是当前这位作者。
+    commentController.signatureContextBuilder = () =>
+        SignatureContext(author: author.value?.name);
   }
 
   @override
