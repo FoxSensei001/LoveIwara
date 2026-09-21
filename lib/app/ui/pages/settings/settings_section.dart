@@ -83,7 +83,8 @@ enum SettingsSection {
     SettingsSection.ai => t.ai.title,
     SettingsSection.keybinding => t.settings.keybinding.title,
     SettingsSection.app => t.settings.appSettings,
-    SettingsSection.download => t.settings.downloadSettings.downloadSettingsTitle,
+    SettingsSection.download =>
+      t.settings.downloadSettings.downloadSettingsTitle,
     SettingsSection.chat => t.settings.chatSettings.name,
     SettingsSection.player => t.settings.playerSettings,
     SettingsSection.theme => t.settings.themeSettings,
@@ -136,14 +137,13 @@ enum SettingsSection {
     SettingsSection.gallery => GallerySettingsPage(isWideScreen: isWideScreen),
     SettingsSection.block => BlockSettingsPage(isWideScreen: isWideScreen),
     SettingsSection.about => AboutPage(isWideScreen: isWideScreen),
-    SettingsSection.diagnostics => DiagnosticsPage(
-      isWideScreen: isWideScreen,
-    ),
+    SettingsSection.diagnostics => DiagnosticsPage(isWideScreen: isWideScreen),
   };
 
   /// 宽屏进入设置时自动选中的分区（第一个在本平台可用的）。
-  static SettingsSection get firstAvailable =>
-      settingsSectionGroups.expand((g) => g.sections).firstWhere(
+  static SettingsSection get firstAvailable => settingsSectionGroups
+      .expand((g) => g.sections)
+      .firstWhere(
         (s) => s.isAvailable,
         orElse: () => SettingsSection.translation,
       );
@@ -170,6 +170,10 @@ enum SettingsSection {
 /// 注意 [navigationOrder] 有两个入口（显示设置直接进、以及布局设置里再进），
 /// 两个入口 push 的是同一个路径——`push` 只压一页，所以两条路径下的返回都正确。
 abstract final class SettingsSubRoutes {
+  /// 一家 AI 供应商的详情页。路径里带 id，所以深链 / 宽屏右栏刷新都能落回同一家。
+  static String aiProvider(String providerId) =>
+      '${SettingsSection.ai.path}/provider/${Uri.encodeComponent(providerId)}';
+
   static String get translationGoogle =>
       '${SettingsSection.translation.path}/google';
   static String get translationDeeplx =>

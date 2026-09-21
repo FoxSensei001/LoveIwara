@@ -11,7 +11,6 @@ import 'package:i_iwara/app/services/config_service.dart';
 import 'package:i_iwara/app/services/deeplx_language_mapper.dart';
 import 'package:i_iwara/app/utils/ai_error_describe.dart';
 import 'package:i_iwara/app/utils/translation_prompt.dart';
-import 'package:i_iwara/i18n/strings.g.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:i_iwara/utils/logger_utils.dart';
 
@@ -74,21 +73,6 @@ class TranslationService extends GetxService {
   /// 直接表现为「AI 没按我要的语言翻译」。
   String _buildPrompt(String? targetLanguage) =>
       TranslationPrompt.build(_getCurrentLanguage(targetLanguage));
-
-  /// 拿设置页上**还没保存**的那几项去覆盖当前档案。
-  ///
-  /// 「测试连接」和「拉模型列表」都要这个：用户刚改完地址还没点保存就想试一下，
-  /// 拿已保存的配置去测等于测了个寂寞。
-  AiProviderProfile _profileWithOverrides({
-    String? baseUrl,
-    String? model,
-    String? apiKey,
-  }) {
-    final base =
-        _ai.profileFor(AiTask.translate) ??
-        const AiProviderProfile(id: 'adhoc', name: 'AI');
-    return base.copyWith(baseUrl: baseUrl, model: model, apiKey: apiKey);
-  }
 
   // 翻译核心方法 ---------------------------
 
@@ -470,44 +454,6 @@ class TranslationService extends GetxService {
 
   // 测试方法 ---------------------------
 
-  /// 测试AI翻译连接（按当前档案 + 设置页上还没保存的那几项）
-  Future<ApiResult<AITestResult>> testAITranslation(
-    String baseUrl,
-    String model,
-    String apiKey, {
-    String? targetLanguage,
-  }) async {
-    final result = await _ai.test(
-      _profileWithOverrides(baseUrl: baseUrl, model: model, apiKey: apiKey),
-      probe: 'Hello',
-      system: _buildPrompt(targetLanguage),
-    );
-    final data = result.data;
-    if (data == null) {
-      return ApiResult.success(
-        data: AITestResult(
-          custMessage: slang.t.translation.connectionFailedForMessage(
-            message: result.message,
-          ),
-          connectionValid: false,
-        ),
-      );
-    }
-    // 本域的措辞在这里贴：AiService 回的是英文技术原因。
-    return ApiResult.success(
-      data: AITestResult(
-        rawResponse: data.rawResponse,
-        translatedText: data.translatedText,
-        connectionValid: data.connectionValid,
-        custMessage: data.connectionValid
-            ? slang.t.translation.testSuccess
-            : slang.t.translation.connectionFailedForMessage(
-                message: data.custMessage,
-              ),
-      ),
-    );
-  }
-
   /// 测试DeepLX翻译连接
   Future<ApiResult<AITestResult>> testDeepLXTranslation(
     String baseUrl,
@@ -640,25 +586,6 @@ class TranslationService extends GetxService {
         ),
       );
     }
-  }
-
-  /// 拉取服务端可用模型列表。
-  /// 让用户从列表中选择模型，而不是手动猜测模型名。
-  Future<ApiResult<List<String>>> fetchAvailableModels(
-    String baseUrl,
-    String apiKey,
-  ) async {
-    final result = await _ai.listModels(
-      _profileWithOverrides(baseUrl: baseUrl, apiKey: apiKey),
-    );
-    if (result.isSuccess) return result;
-    // 空列表是「这个端点没给出可用模型」，用本域既有的文案说这件事。
-    return ApiResult.fail(
-      result.message == AiService.emptyModelListMessage
-          ? t.translation.invalidAPIResponse
-          : result.message,
-      exception: result.exception,
-    );
   }
 
   // 流式翻译相关方法 ---------------------------

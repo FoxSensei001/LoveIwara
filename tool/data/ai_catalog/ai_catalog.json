@@ -1,0 +1,6183 @@
+{
+  "version": 1,
+  "rev": "59a72d7ed4943589",
+  "builtAt": "2026-09-21T08:27:25.436278Z",
+  "count": 647,
+  "upstream": {
+    "source": "CherryHQ/cherry-studio @ packages/provider-registry (MIT)",
+    "providers": "2707d81b155c6c98",
+    "models": "11174ce97b90176e"
+  },
+  "providers": {
+    "silicon": {
+      "n": "SiliconFlow 硅基流动",
+      "k": "openai",
+      "u": "https://api.siliconflow.cn/v1",
+      "w": {
+        "k": "https://cloud.siliconflow.cn/account/ak",
+        "d": "https://docs.siliconflow.cn/",
+        "h": "https://www.siliconflow.cn"
+      }
+    },
+    "aihubmix": {
+      "n": "AiHubMix",
+      "k": "openai",
+      "u": "https://aihubmix.com/v1",
+      "w": {
+        "k": "https://aihubmix.com",
+        "d": "https://doc.aihubmix.com/",
+        "h": "https://aihubmix.com"
+      }
+    },
+    "ovms": {
+      "n": "OpenVINO Model Server",
+      "k": "openai",
+      "u": "http://localhost:8000/v3",
+      "nk": 1,
+      "lo": 1,
+      "w": {
+        "d": "https://docs.openvino.ai/2025/model-server/ovms_what_is_openvino_model_server.html",
+        "h": "https://www.intel.com/content/www/us/en/developer/tools/openvino-toolkit/overview.html"
+      }
+    },
+    "ocoolai": {
+      "n": "ocoolAI",
+      "k": "openai",
+      "u": "https://api.ocoolai.com/v1",
+      "w": {
+        "k": "https://one.ocoolai.com/token",
+        "d": "https://docs.ocoolai.com/",
+        "h": "https://one.ocoolai.com/"
+      }
+    },
+    "zhipu": {
+      "n": "智谱 GLM",
+      "k": "openai",
+      "u": "https://open.bigmodel.cn/api/paas/v4",
+      "w": {
+        "k": "https://open.bigmodel.cn/apikey/platform",
+        "d": "https://docs.bigmodel.cn/",
+        "h": "https://open.bigmodel.cn/"
+      },
+      "s": [
+        "glm-3-turbo",
+        "glm-4",
+        "glm-4-1v",
+        "glm-4-5",
+        "glm-4-5-air",
+        "glm-4-5-flash",
+        "glm-4-5v",
+        "glm-4-6"
+      ]
+    },
+    "deepseek": {
+      "n": "DeepSeek",
+      "k": "openai",
+      "u": "https://api.deepseek.com/v1",
+      "so": 1,
+      "w": {
+        "k": "https://platform.deepseek.com/api_keys",
+        "d": "https://api-docs.deepseek.com/",
+        "h": "https://deepseek.com/"
+      },
+      "s": [
+        "deepseek-chat",
+        "deepseek-chat-v3",
+        "deepseek-chat-v3-1",
+        "deepseek-flash",
+        "deepseek-r1",
+        "deepseek-r1-distill-llama-70b",
+        "deepseek-r1-distill-llama-8b",
+        "deepseek-r1-distill-qwen-1-5b"
+      ]
+    },
+    "alayanew": {
+      "n": "AlayaNew",
+      "k": "openai",
+      "u": "https://deepseek.alayanew.com/v1",
+      "w": {
+        "k": "https://www.alayanew.com/",
+        "d": "https://docs.alayanew.com/docs/modelService/interview",
+        "h": "https://www.alayanew.com/"
+      }
+    },
+    "dmxapi": {
+      "n": "DMXAPI",
+      "k": "openai",
+      "u": "https://www.dmxapi.cn/v1",
+      "w": {
+        "k": "https://www.dmxapi.cn/",
+        "d": "https://doc.dmxapi.cn/",
+        "h": "https://www.dmxapi.cn/"
+      }
+    },
+    "aionly": {
+      "n": "AIOnly",
+      "k": "openai",
+      "u": "https://api.aiionly.com/v1",
+      "w": {
+        "k": "https://maas.aiionly.com/keyApi",
+        "d": "https://maas.aiionly.com/document",
+        "h": "https://www.aiionly.com"
+      }
+    },
+    "burncloud": {
+      "n": "BurnCloud",
+      "k": "openai",
+      "u": "https://ai.burncloud.com/v1",
+      "w": {
+        "k": "https://ai.burncloud.com/token",
+        "d": "https://ai.burncloud.com/docs",
+        "h": "https://ai.burncloud.com/"
+      }
+    },
+    "302ai": {
+      "n": "302.AI",
+      "k": "openai",
+      "u": "https://api.302.ai/v1",
+      "w": {
+        "k": "https://dash.302.ai/apis/list",
+        "d": "https://302ai.apifox.cn/api-147522039",
+        "h": "https://302.ai"
+      }
+    },
+    "lanyun": {
+      "n": "LANYUN",
+      "k": "openai",
+      "u": "https://maas-api.lanyun.net/v1",
+      "w": {
+        "k": "https://maas.lanyun.net/#/system/apiKey",
+        "d": "https://archive.lanyun.net/#/maas/",
+        "h": "https://maas.lanyun.net"
+      }
+    },
+    "ph8": {
+      "n": "PH8",
+      "k": "openai",
+      "u": "https://ph8.co/v1",
+      "w": {
+        "k": "https://ph8.co/apiKey",
+        "d": "https://m1r239or5aw.feishu.cn/wiki/SegzwS4x1i2P4OksFY2cMvujn9f",
+        "h": "https://ph8.co"
+      }
+    },
+    "sophnet": {
+      "n": "SophNet",
+      "k": "openai",
+      "u": "https://www.sophnet.com/api/open-apis/v1",
+      "w": {
+        "k": "https://sophnet.com/#/project/key",
+        "d": "https://sophnet.com/docs/component/introduce.html",
+        "h": "https://sophnet.com"
+      }
+    },
+    "ppio": {
+      "n": "PPIO",
+      "k": "openai",
+      "u": "https://api.ppinfra.com/v3/openai",
+      "w": {
+        "k": "https://ppio.com/settings/key-management",
+        "d": "https://docs.cherry-ai.com/pre-basic/providers/ppio",
+        "h": "https://ppio.com/"
+      }
+    },
+    "qiniu": {
+      "n": "七牛云",
+      "k": "openai",
+      "u": "https://api.qnaigc.com/v1",
+      "w": {
+        "k": "https://portal.qiniu.com/ai-inference/api-key",
+        "d": "https://developer.qiniu.com/aitokenapi",
+        "h": "https://qiniu.com"
+      }
+    },
+    "openrouter": {
+      "n": "OpenRouter",
+      "k": "openai",
+      "u": "https://openrouter.ai/api/v1",
+      "w": {
+        "k": "https://openrouter.ai/settings/keys",
+        "d": "https://openrouter.ai/docs/quick-start",
+        "h": "https://openrouter.ai/"
+      }
+    },
+    "ollama": {
+      "n": "Ollama",
+      "k": "ollama",
+      "u": "http://localhost:11434",
+      "nk": 1,
+      "lo": 1,
+      "w": {
+        "d": "https://github.com/ollama/ollama/tree/main/docs",
+        "h": "https://ollama.com/"
+      }
+    },
+    "radeon-cloud": {
+      "n": "AMD GPU Cloud",
+      "k": "openai",
+      "u": "https://developer.amd.com.cn/radeon/v1",
+      "w": {
+        "k": "https://developer.amd.com.cn/radeon/tokenfactory?source=cherry-studio",
+        "d": "https://developer.amd.com.cn/radeon/",
+        "h": "https://developer.amd.com.cn/radeon/"
+      }
+    },
+    "tokendance": {
+      "n": "TokenDance",
+      "k": "openai",
+      "u": "https://tokendance.space/gateway/v1",
+      "w": {
+        "k": "https://tokendance.space/keys",
+        "d": "https://tokendance.space/docs/cherry-studio",
+        "h": "https://tokendance.space"
+      }
+    },
+    "new-api": {
+      "n": "New API",
+      "k": "openai",
+      "u": "http://localhost:3000/v1",
+      "w": {
+        "d": "https://docs.newapi.pro",
+        "h": "https://docs.newapi.pro/"
+      }
+    },
+    "lmstudio": {
+      "n": "LM Studio",
+      "k": "openai",
+      "u": "http://localhost:1234/v1",
+      "nk": 1,
+      "lo": 1,
+      "w": {
+        "d": "https://lmstudio.ai/docs",
+        "h": "https://lmstudio.ai/"
+      }
+    },
+    "anthropic": {
+      "n": "Anthropic",
+      "k": "anthropic",
+      "so": 1,
+      "w": {
+        "k": "https://console.anthropic.com/settings/keys",
+        "d": "https://docs.anthropic.com/en/docs",
+        "h": "https://anthropic.com/"
+      },
+      "s": [
+        "claude-3-haiku",
+        "claude-fable-5",
+        "claude-fable-5-1",
+        "claude-fable-latest",
+        "claude-haiku-4-5",
+        "claude-haiku-latest",
+        "claude-opus-4",
+        "claude-opus-4-1"
+      ]
+    },
+    "omlx": {
+      "n": "oMLX",
+      "k": "openai",
+      "u": "http://localhost:8000/v1",
+      "nk": 1,
+      "lo": 1,
+      "w": {
+        "d": "https://github.com/jundot/omlx",
+        "h": "https://omlx.ai"
+      }
+    },
+    "openai": {
+      "n": "OpenAI",
+      "k": "openai",
+      "u": "https://api.openai.com/v1",
+      "so": 1,
+      "w": {
+        "k": "https://platform.openai.com/api-keys",
+        "d": "https://platform.openai.com/docs",
+        "h": "https://openai.com/"
+      },
+      "s": [
+        "gpt-3-5-turbo",
+        "gpt-3-5-turbo-16k",
+        "gpt-3-5-turbo-instruct",
+        "gpt-4",
+        "gpt-4-1",
+        "gpt-4-1-mini",
+        "gpt-4-1-nano",
+        "gpt-4-turbo"
+      ]
+    },
+    "opencode": {
+      "n": "OpenCode Go",
+      "k": "openai",
+      "u": "https://opencode.ai/zen/go/v1",
+      "w": {
+        "k": "https://opencode.ai/auth",
+        "d": "https://opencode.ai/docs/go/",
+        "h": "https://opencode.ai"
+      }
+    },
+    "gemini": {
+      "n": "Google Gemini",
+      "k": "google",
+      "u": "https://generativelanguage.googleapis.com",
+      "so": 1,
+      "w": {
+        "k": "https://aistudio.google.com/app/apikey",
+        "d": "https://ai.google.dev/gemini-api/docs",
+        "h": "https://gemini.google.com/"
+      }
+    },
+    "moonshot": {
+      "n": "Moonshot AI",
+      "k": "openai",
+      "u": "https://api.moonshot.cn/v1",
+      "w": {
+        "k": "https://platform.moonshot.cn/console/api-keys",
+        "d": "https://platform.moonshot.cn/docs/",
+        "h": "https://www.moonshot.cn/"
+      },
+      "s": [
+        "kimi-k2",
+        "kimi-k2-5",
+        "kimi-k2-6",
+        "kimi-k2-7-code",
+        "kimi-k2-7-code-highspeed",
+        "kimi-k2-instruct",
+        "kimi-k2-thinking-maas",
+        "kimi-k3"
+      ]
+    },
+    "moonshot-global": {
+      "n": "Moonshot",
+      "k": "openai",
+      "u": "https://api.moonshot.ai/v1",
+      "w": {
+        "k": "https://platform.moonshot.ai/console/api-keys",
+        "d": "https://platform.moonshot.ai/docs/",
+        "h": "https://www.moonshot.ai/"
+      }
+    },
+    "baichuan": {
+      "n": "BAICHUAN AI",
+      "k": "openai",
+      "u": "https://api.baichuan-ai.com/v1",
+      "w": {
+        "k": "https://platform.baichuan-ai.com/console/apikey",
+        "d": "https://platform.baichuan-ai.com/docs",
+        "h": "https://www.baichuan-ai.com/"
+      }
+    },
+    "dashscope": {
+      "n": "阿里云百炼 DashScope",
+      "k": "openai",
+      "u": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "w": {
+        "k": "https://bailian.console.aliyun.com/?tab=model#/api-key",
+        "d": "https://help.aliyun.com/zh/model-studio/getting-started/",
+        "h": "https://www.aliyun.com/product/bailian"
+      }
+    },
+    "stepfun": {
+      "n": "StepFun",
+      "k": "openai",
+      "u": "https://api.stepfun.com/v1",
+      "w": {
+        "k": "https://platform.stepfun.com/interface-key",
+        "d": "https://platform.stepfun.com/docs/overview/concept",
+        "h": "https://platform.stepfun.com/"
+      },
+      "s": [
+        "step-1-32k",
+        "step-2-16k",
+        "step-3-5-flash",
+        "step-3-7-flash",
+        "stepaudio-2-5-asr"
+      ]
+    },
+    "doubao": {
+      "n": "豆包 Doubao",
+      "k": "openai",
+      "u": "https://ark.cn-beijing.volces.com/api/v3",
+      "w": {
+        "k": "https://www.volcengine.com/experience/ark",
+        "d": "https://console.volcengine.com/ark/region:cn-beijing/docs/82379/1099455?lang=zh",
+        "h": "https://console.volcengine.com/ark/"
+      }
+    },
+    "minimax": {
+      "n": "MiniMax",
+      "k": "openai",
+      "u": "https://api.minimaxi.com/v1",
+      "w": {
+        "k": "https://platform.minimaxi.com/user-center/basic-information/interface-key",
+        "d": "https://platform.minimaxi.com/docs/api-reference/text-openai-api",
+        "h": "https://platform.minimaxi.com/"
+      },
+      "s": [
+        "minimax-01",
+        "minimax-m1",
+        "minimax-m2",
+        "minimax-m2-1",
+        "minimax-m2-1-lightning",
+        "minimax-m2-5",
+        "minimax-m2-5-highspeed",
+        "minimax-m2-7"
+      ]
+    },
+    "groq": {
+      "n": "Groq",
+      "k": "openai",
+      "u": "https://api.groq.com/openai/v1",
+      "w": {
+        "k": "https://console.groq.com/keys",
+        "d": "https://console.groq.com/docs/quickstart",
+        "h": "https://groq.com/"
+      }
+    },
+    "together": {
+      "n": "Together",
+      "k": "openai",
+      "u": "https://api.together.ai/v1",
+      "w": {
+        "k": "https://api.together.ai/settings/projects/~current/api-keys",
+        "d": "https://docs.together.ai/intro",
+        "h": "https://www.together.ai"
+      }
+    },
+    "fireworks": {
+      "n": "Fireworks",
+      "k": "openai",
+      "u": "https://api.fireworks.ai/inference/v1",
+      "w": {
+        "k": "https://fireworks.ai/account/api-keys",
+        "d": "https://docs.fireworks.ai/getting-started/introduction",
+        "h": "https://fireworks.ai/"
+      }
+    },
+    "nvidia": {
+      "n": "NVIDIA NIM",
+      "k": "openai",
+      "u": "https://integrate.api.nvidia.com/v1",
+      "w": {
+        "k": "https://build.nvidia.com/meta/llama-3_1-405b-instruct",
+        "d": "https://docs.api.nvidia.com/nim/reference/llm-apis",
+        "h": "https://build.nvidia.com/explore/discover"
+      },
+      "s": [
+        "active-speaker-detection",
+        "bevformer",
+        "cosmos-reason2-8b",
+        "esm2-650m",
+        "esmfold",
+        "gliner-pii",
+        "laguna-xs-2-1",
+        "llama-3-1-nemotron-70b-instruct"
+      ]
+    },
+    "grok": {
+      "n": "xAI Grok",
+      "k": "xai",
+      "nt": 1,
+      "w": {
+        "d": "https://docs.x.ai/",
+        "h": "https://x.ai/"
+      }
+    },
+    "mistral": {
+      "n": "Mistral",
+      "k": "mistral",
+      "w": {
+        "k": "https://console.mistral.ai/api-keys/",
+        "d": "https://docs.mistral.ai",
+        "h": "https://mistral.ai"
+      },
+      "s": [
+        "codestral",
+        "codestral-latest",
+        "devstral",
+        "devstral-2",
+        "devstral-2-123b",
+        "devstral-latest",
+        "devstral-medium",
+        "devstral-medium-latest"
+      ]
+    },
+    "perplexity": {
+      "n": "Perplexity",
+      "k": "openai",
+      "u": "https://api.perplexity.ai",
+      "w": {
+        "k": "https://www.perplexity.ai/settings/api",
+        "d": "https://docs.perplexity.ai/home",
+        "h": "https://perplexity.ai/"
+      },
+      "s": [
+        "sonar",
+        "sonar-deep-research",
+        "sonar-pro",
+        "sonar-reasoning-pro"
+      ]
+    },
+    "modelscope": {
+      "n": "魔搭 ModelScope",
+      "k": "openai",
+      "u": "https://api-inference.modelscope.cn/v1",
+      "w": {
+        "k": "https://modelscope.cn/my/myaccesstoken",
+        "d": "https://modelscope.cn/docs/model-service/API-Inference/intro",
+        "h": "https://modelscope.cn"
+      }
+    },
+    "xirang": {
+      "n": "天翼云息壤",
+      "k": "openai",
+      "u": "https://wishub-x1.ctyun.cn/v1",
+      "w": {
+        "k": "https://huiju.ctyun.cn/service/serviceGroup",
+        "d": "https://www.ctyun.cn/products/ctxirang",
+        "h": "https://www.ctyun.cn"
+      }
+    },
+    "tokenhub": {
+      "n": "TokenHub",
+      "k": "openai",
+      "u": "https://tokenhub.tencentmaas.com/v1",
+      "w": {
+        "k": "https://console.cloud.tencent.com/tokenhub/apikey",
+        "d": "https://cloud.tencent.com/document/product/1823",
+        "h": "https://cloud.tencent.com/product/tokenhub"
+      }
+    },
+    "baidu-cloud": {
+      "n": "百度千帆",
+      "k": "openai",
+      "u": "https://qianfan.baidubce.com/v2",
+      "w": {
+        "k": "https://console.bce.baidu.com/iam/#/iam/apikey/list",
+        "d": "https://cloud.baidu.com/doc/index.html",
+        "h": "https://cloud.baidu.com/"
+      }
+    },
+    "gpustack": {
+      "n": "GPUStack",
+      "k": "openai",
+      "nk": 1,
+      "lo": 1,
+      "w": {
+        "d": "https://docs.gpustack.ai/latest/",
+        "h": "https://gpustack.ai/"
+      }
+    },
+    "poe": {
+      "n": "Poe",
+      "k": "openai",
+      "u": "https://api.poe.com/v1",
+      "w": {
+        "k": "https://poe.com/api/keys",
+        "d": "https://creator.poe.com/docs",
+        "h": "https://poe.com/"
+      }
+    },
+    "longcat": {
+      "n": "LongCat",
+      "k": "openai",
+      "u": "https://api.longcat.chat/openai/v1",
+      "w": {
+        "k": "https://longcat.chat/platform/api_keys",
+        "d": "https://longcat.chat/platform/docs/zh/",
+        "h": "https://longcat.chat"
+      }
+    },
+    "huggingface": {
+      "n": "Hugging Face",
+      "k": "openai",
+      "u": "https://router.huggingface.co/v1",
+      "w": {
+        "k": "https://huggingface.co/settings/tokens",
+        "d": "https://huggingface.co/docs",
+        "h": "https://huggingface.co/"
+      }
+    },
+    "gateway": {
+      "n": "Vercel AI Gateway",
+      "k": "openai",
+      "u": "https://ai-gateway.vercel.sh/v1/ai",
+      "w": {
+        "k": "https://vercel.com/",
+        "d": "https://vercel.com/docs/ai-gateway",
+        "h": "https://vercel.com/ai-gateway"
+      }
+    },
+    "cerebras": {
+      "n": "Cerebras AI",
+      "k": "openai",
+      "u": "https://api.cerebras.ai/v1",
+      "w": {
+        "k": "https://cloud.cerebras.ai",
+        "d": "https://inference-docs.cerebras.ai/introduction",
+        "h": "https://www.cerebras.ai"
+      }
+    },
+    "mimo": {
+      "n": "Xiaomi MiMo",
+      "k": "openai",
+      "u": "https://api.xiaomimimo.com/v1",
+      "w": {
+        "k": "https://platform.xiaomimimo.com/",
+        "d": "https://mimo.mi.com/docs/zh-CN",
+        "h": "https://mimo.mi.com/"
+      }
+    },
+    "zai": {
+      "n": "Z.AI",
+      "k": "openai",
+      "u": "https://api.z.ai/api/paas/v4",
+      "w": {
+        "k": "https://z.ai/manage-apikey/apikey-list",
+        "d": "https://docs.z.ai/",
+        "h": "https://z.ai"
+      }
+    },
+    "minimax-global": {
+      "n": "minimax-global",
+      "k": "openai",
+      "u": "https://api.minimax.io/v1",
+      "w": {
+        "k": "https://platform.minimax.io/user-center/basic-information/interface-key",
+        "d": "https://platform.minimax.io/docs/api-reference/text-openai-api",
+        "h": "https://platform.minimax.io/"
+      }
+    }
+  },
+  "models": {
+    "jamba-1-5-large": {
+      "n": "jamba-1-5-large"
+    },
+    "jamba-1-5-mini": {
+      "n": "jamba-1-5-mini"
+    },
+    "jamba-large-1-7": {
+      "n": "jamba-large-1-7"
+    },
+    "jamba-mini-1-7": {
+      "n": "jamba-mini-1-7"
+    },
+    "qvq-max": {
+      "n": "QVQ Max",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen-2-5-72b-instruct": {
+      "n": "Qwen2.5 72B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 32768
+    },
+    "qwen-2-5-7b-instruct": {
+      "n": "Qwen: Qwen2.5 7B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 32768
+    },
+    "qwen-2-5-coder-32b-instruct": {
+      "n": "Qwen2.5 Coder 32B Instruct",
+      "w": 32768
+    },
+    "qwen-3-14b": {
+      "n": "Qwen3-14B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 40960,
+      "o": 16384
+    },
+    "qwen-3-235b": {
+      "n": "Qwen3 235B A22B Instruct 2507",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 16384
+    },
+    "qwen-3-30b": {
+      "n": "Qwen3-30B-A3B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 40960,
+      "o": 16384
+    },
+    "qwen-3-32b": {
+      "n": "Qwen 3.32B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "qwen-3-6-max-preview": {
+      "n": "Qwen 3.6 Max Preview",
+      "c": [
+        "fc",
+        "fi",
+        "rs"
+      ],
+      "w": 240000,
+      "o": 64000
+    },
+    "qwen-deep-research": {
+      "n": "Qwen Deep Research",
+      "c": [
+        "fc"
+      ],
+      "w": 1000000,
+      "o": 32768
+    },
+    "qwen-doc-turbo": {
+      "n": "Qwen Doc Turbo",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen-flash": {
+      "n": "Qwen Flash",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1000000,
+      "o": 32768
+    },
+    "qwen-long": {
+      "n": "Qwen Long",
+      "c": [
+        "fc"
+      ],
+      "w": 10000000,
+      "o": 8192
+    },
+    "qwen-math-plus": {
+      "n": "Qwen Math Plus",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 3072
+    },
+    "qwen-math-turbo": {
+      "n": "Qwen Math Turbo",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 3072
+    },
+    "qwen-max": {
+      "n": "Qwen Max",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen-mt-plus": {
+      "n": "Qwen-MT Plus",
+      "w": 16384,
+      "o": 8192
+    },
+    "qwen-mt-turbo": {
+      "n": "Qwen-MT Turbo",
+      "w": 16384,
+      "o": 8192
+    },
+    "qwen-plus": {
+      "n": "Qwen Plus",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 32768
+    },
+    "qwen-plus-character": {
+      "n": "Qwen Plus Character",
+      "c": [
+        "fc"
+      ],
+      "w": 32768,
+      "o": 4096
+    },
+    "qwen-plus-character-ja": {
+      "n": "Qwen Plus Character (Japanese)",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 512
+    },
+    "qwen-turbo": {
+      "n": "Qwen Turbo",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1000000,
+      "o": 16384
+    },
+    "qwen-vl-max": {
+      "n": "Qwen-VL Max",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen-vl-ocr": {
+      "n": "Qwen-VL OCR",
+      "c": [
+        "vi"
+      ],
+      "w": 34096,
+      "o": 4096
+    },
+    "qwen-vl-plus": {
+      "n": "Qwen-VL Plus",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-14b-instruct": {
+      "n": "Qwen2.5 14B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-32b-instruct": {
+      "n": "Qwen2.5 32B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-72b-instruct": {
+      "n": "Qwen2.5 72B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-7b-instruct": {
+      "n": "Qwen2.5 7B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-coder-32b-instruct": {
+      "n": "Qwen2.5-Coder 32B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-coder-7b-instruct": {
+      "n": "Qwen2.5-Coder 7B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-math-72b-instruct": {
+      "n": "Qwen2.5-Math 72B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 3072
+    },
+    "qwen2-5-math-7b-instruct": {
+      "n": "Qwen2.5-Math 7B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 3072
+    },
+    "qwen2-5-vl-72b-instruct": {
+      "n": "Qwen2.5-VL 72B Instruct",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen2-5-vl-7b-instruct": {
+      "n": "Qwen2.5-VL 7B Instruct",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen3-14b": {
+      "n": "Qwen3 14B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen3-235b-a22b": {
+      "n": "Qwen3 235B-A22B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "qwen3-235b-a22b-instruct-2507-maas": {
+      "n": "Qwen3 235B A22B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 16384
+    },
+    "qwen3-30b-a3b": {
+      "n": "Qwen: Qwen3 30B A3B Thinking 2507",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072
+    },
+    "qwen3-30b-a3b-instruct": {
+      "n": "Qwen: Qwen3 30B A3B Instruct 2507",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144
+    },
+    "qwen3-32b": {
+      "n": "Qwen3 32B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "qwen3-5-122b-a10b": {
+      "n": "Qwen3.5 122B-A10B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-5-27b": {
+      "n": "Qwen3.5 27B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-5-35b-a3b": {
+      "n": "Qwen3.5 35B-A3B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-5-397b-a17b": {
+      "n": "Qwen3.5 397B-A17B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-5-4b": {
+      "n": "Qwen3.5 4B",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144
+    },
+    "qwen3-5-9b": {
+      "n": "Qwen: Qwen3.5-9B",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144
+    },
+    "qwen3-5-flash": {
+      "n": "Qwen3.5 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-5-flash-02-23": {
+      "n": "Qwen: Qwen3.5-Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "qwen3-5-plus": {
+      "n": "Qwen3.5 Plus",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-5-plus-02-15": {
+      "n": "Qwen: Qwen3.5 Plus 2026-02-15",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "qwen3-6-27b": {
+      "n": "Qwen3.6 27B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "qwen3-6-35b-a3b": {
+      "n": "Qwen3.6 35B-A3B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-6-flash": {
+      "n": "Qwen3.6 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-6-max-preview": {
+      "n": "Qwen3.6 Max Preview",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-6-plus": {
+      "n": "Qwen3.6 Plus",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-7-flash": {
+      "n": "Qwen3.7 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-7-max": {
+      "n": "Qwen3.7 Max",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-7-plus": {
+      "n": "Qwen3.7 Plus",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-8-2-4t-a95b": {
+      "n": "Qwen3.8 2.4T A95B",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 128000
+    },
+    "qwen3-8-27b": {
+      "n": "Qwen3.8 27B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 131072
+    },
+    "qwen3-8-flash": {
+      "n": "Qwen3.8 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 131072
+    },
+    "qwen3-8-flash-next": {
+      "n": "Qwen 3.8 Flash Next",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "qwen3-8-max": {
+      "n": "Qwen3.8 Max",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "qwen3-8-max-preview": {
+      "n": "Qwen3.8 Max Preview",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "qwen3-8b": {
+      "n": "Qwen3 8B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwen3-asr-flash": {
+      "n": "Qwen3-ASR Flash",
+      "w": 53248,
+      "o": 4096
+    },
+    "qwen3-coder": {
+      "n": "Qwen3 Coder 480B A35B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-coder-30b-a3b": {
+      "n": "Qwen 3 Coder 30B A3B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "qwen3-coder-30b-a3b-instruct": {
+      "n": "Qwen3-Coder 30B-A3B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-coder-480b-a35b": {
+      "n": "Qwen3 Coder 480B A35B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 65536
+    },
+    "qwen3-coder-480b-a35b-instruct": {
+      "n": "Qwen3-Coder 480B-A35B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 66536
+    },
+    "qwen3-coder-flash": {
+      "n": "Qwen3 Coder Flash",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "qwen3-coder-next": {
+      "n": "Qwen3 Coder Next",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "qwen3-coder-plus": {
+      "n": "Qwen3 Coder Plus",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "qwen3-max": {
+      "n": "Qwen3 Max",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "qwen3-max-preview": {
+      "n": "Qwen3 Max Preview",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "qwen3-next-80b-a3b": {
+      "n": "Qwen3-Next 80B-A3B (Thinking)",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262000
+    },
+    "qwen3-next-80b-a3b-instruct": {
+      "n": "Qwen3-Next 80B-A3B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "qwen3-vl": {
+      "n": "Qwen3 VL Thinking",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "qwen3-vl-235b-a22b": {
+      "n": "Qwen3-VL 235B-A22B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262000,
+      "o": 262000
+    },
+    "qwen3-vl-235b-a22b-instruct": {
+      "n": "Qwen3 VL 235B A22B Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 129024
+    },
+    "qwen3-vl-30b-a3b": {
+      "n": "Qwen3-VL 30B-A3B",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "qwen3-vl-30b-a3b-instruct": {
+      "n": "Qwen: Qwen3 VL 30B A3B Instruct",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 262144
+    },
+    "qwen3-vl-32b-instruct": {
+      "n": "Qwen: Qwen3 VL 32B Instruct",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "qwen3-vl-8b": {
+      "n": "Qwen: Qwen3 VL 8B Thinking",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "qwen3-vl-8b-instruct": {
+      "n": "Qwen: Qwen3 VL 8B Instruct",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 262144
+    },
+    "qwen3-vl-instruct": {
+      "n": "Qwen3 VL Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 129024
+    },
+    "qwen3-vl-plus": {
+      "n": "Qwen3-VL Plus",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "qwq-32b": {
+      "n": "QwQ 32B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "qwq-plus": {
+      "n": "QwQ Plus",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "tongyi-intent-detect-v3": {
+      "n": "Tongyi Intent Detect V3",
+      "w": 8192,
+      "o": 1024
+    },
+    "nova-2-lite": {
+      "n": "Nova 2 Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 1000000
+    },
+    "nova-2-lite-v1": {
+      "n": "Amazon: Nova 2 Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "nova-lite": {
+      "n": "Nova Lite",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 300000,
+      "o": 8192
+    },
+    "nova-lite-v1": {
+      "n": "Amazon: Nova Lite 1.0",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 300000
+    },
+    "nova-micro": {
+      "n": "Nova Micro",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "nova-micro-v1": {
+      "n": "Amazon: Nova Micro 1.0",
+      "c": [
+        "fc"
+      ],
+      "w": 128000
+    },
+    "nova-premier-v1": {
+      "n": "Amazon: Nova Premier 1.0",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "nova-pro": {
+      "n": "Nova Pro",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 300000,
+      "o": 8192
+    },
+    "nova-pro-v1": {
+      "n": "Amazon: Nova Pro 1.0",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 300000
+    },
+    "claude-3-haiku": {
+      "n": "Claude Haiku 3",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 4096
+    },
+    "claude-fable-5": {
+      "n": "Claude Fable 5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-fable-5-1": {
+      "n": "Claude Fable 5.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-fable-latest": {
+      "n": "Anthropic: Claude Fable Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "claude-haiku-4-5": {
+      "n": "Claude Haiku 4.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 64000
+    },
+    "claude-haiku-latest": {
+      "n": "Anthropic Claude Haiku Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000
+    },
+    "claude-opus-4": {
+      "n": "Claude Opus 4",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 32000
+    },
+    "claude-opus-4-1": {
+      "n": "Claude Opus 4.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 32000
+    },
+    "claude-opus-4-5": {
+      "n": "Claude Opus 4.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 64000
+    },
+    "claude-opus-4-6": {
+      "n": "Claude Opus 4.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-4-6-v1": {
+      "n": "Claude Opus 4.6 (US)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-4-7": {
+      "n": "Claude Opus 4.7",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-4-8": {
+      "n": "Claude Opus 4.8",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-4-8-fast": {
+      "n": "Claude Opus 4.8 (Fast)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-5": {
+      "n": "Claude Opus 5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-5-fast": {
+      "n": "Claude Opus 5 (Fast)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-opus-latest": {
+      "n": "Anthropic: Claude Opus Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "claude-sonnet-4": {
+      "n": "Claude Sonnet 4",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 64000
+    },
+    "claude-sonnet-4-5": {
+      "n": "Claude Sonnet 4.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 64000
+    },
+    "claude-sonnet-4-6": {
+      "n": "Claude Sonnet 4.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-sonnet-5": {
+      "n": "Claude Sonnet 5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "claude-sonnet-latest": {
+      "n": "Anthropic Claude Sonnet Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000
+    },
+    "trinity-large": {
+      "n": "Trinity Large Thinking",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 80000
+    },
+    "ernie-3-5-128k": {
+      "n": "ERNIE 3.5 128K",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "ernie-3-5-8k": {
+      "n": "ERNIE 3.5 8K",
+      "c": [
+        "fc"
+      ],
+      "w": 8192
+    },
+    "ernie-4-0-8k": {
+      "n": "ERNIE 4.0 8K",
+      "c": [
+        "fc"
+      ],
+      "w": 8192
+    },
+    "ernie-4-0-turbo-128k": {
+      "n": "ERNIE 4.0 Turbo 128K",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "ernie-4-0-turbo-8k": {
+      "n": "ERNIE 4.0 Turbo 8K",
+      "c": [
+        "fc"
+      ],
+      "w": 8192
+    },
+    "ernie-4-5": {
+      "n": "ERNIE 4.5",
+      "c": [
+        "fc"
+      ],
+      "w": 123904
+    },
+    "ernie-4-5-a3b": {
+      "n": "ERNIE 4.5 A3B",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "ernie-4-5-a47b": {
+      "n": "ERNIE 4.5 A47B",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "ernie-4-5-turbo": {
+      "n": "ERNIE 4.5 Turbo",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "ernie-4-5-turbo-vl": {
+      "n": "ERNIE 4.5 Turbo VL",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 32768
+    },
+    "ernie-4-5-vl-424b-a47b": {
+      "n": "Baidu: ERNIE 4.5 VL 424B A47B ",
+      "c": [
+        "rs",
+        "vi"
+      ],
+      "w": 123000
+    },
+    "ernie-4-5-vl-a3b": {
+      "n": "ERNIE 4.5 VL A3B",
+      "c": [
+        "rs",
+        "vi"
+      ],
+      "w": 32768
+    },
+    "ernie-5-0": {
+      "n": "ERNIE 5.0",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072
+    },
+    "ernie-character-8k": {
+      "n": "ERNIE Character 8K",
+      "w": 8192
+    },
+    "ernie-lite-8k": {
+      "n": "ERNIE Lite 8K",
+      "w": 8192
+    },
+    "ernie-speed-128k": {
+      "n": "ERNIE Speed 128K",
+      "w": 131072
+    },
+    "ernie-tiny-8k": {
+      "n": "ERNIE Tiny 8K",
+      "w": 8192
+    },
+    "ernie-x1-1-preview": {
+      "n": "ERNIE X1.1 Preview",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768
+    },
+    "ernie-x1-turbo": {
+      "n": "ERNIE X1 Turbo",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768
+    },
+    "inkling": {
+      "n": "Inkling",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 256000
+    },
+    "inkling-small": {
+      "n": "Inkling Small",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1000000
+    },
+    "ling-1t": {
+      "n": "Ling-1T",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 32000
+    },
+    "ling-3-0-flash": {
+      "n": "Ling 3.0 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 32000
+    },
+    "ling-3-0-flash-fin": {
+      "n": "Ling 3.0 Flash Fin",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 32000
+    },
+    "ling-3-0-flash-sante": {
+      "n": "Ling 3.0 Flash Sante",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 32000
+    },
+    "ring-1t": {
+      "n": "Ring-1T",
+      "c": [
+        "rs"
+      ],
+      "w": 128000,
+      "o": 32000
+    },
+    "doubao-1-5-lite-32k": {
+      "n": "Doubao 1.5 Lite 32k",
+      "c": [
+        "fc"
+      ],
+      "w": 32768,
+      "o": 12288
+    },
+    "doubao-1-5-pro-256k": {
+      "n": "Doubao 1.5 Pro 256k",
+      "c": [
+        "fc"
+      ],
+      "w": 262144
+    },
+    "doubao-1-5-pro-32k": {
+      "n": "Doubao 1.5 Pro 32k",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "doubao-1-5-thinking-pro": {
+      "n": "Doubao 1.5 Thinking Pro",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "doubao-1-5-thinking-pro-m": {
+      "n": "Doubao 1.5 Thinking Pro M",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "doubao-1-5-thinking-vision-pro": {
+      "n": "Doubao 1.5 Thinking Vision Pro",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "doubao-1-5-ui-tars": {
+      "n": "Doubao 1.5 UI-TARS",
+      "c": [
+        "fc",
+        "vi"
+      ]
+    },
+    "doubao-1-5-vision-lite": {
+      "n": "Doubao 1.5 Vision Lite",
+      "c": [
+        "fc",
+        "vi"
+      ]
+    },
+    "doubao-1-5-vision-pro": {
+      "n": "Doubao 1.5 Vision Pro",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 32768,
+      "o": 12288
+    },
+    "doubao-1-5-vision-pro-32k": {
+      "n": "Doubao 1.5 Vision Pro 32k",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 32768,
+      "o": 12288
+    },
+    "doubao-seed-1-6": {
+      "n": "Doubao Seed 1.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "doubao-seed-1-6-flash": {
+      "n": "Doubao Seed 1.6 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "doubao-seed-1-6-lite": {
+      "n": "Doubao Seed 1.6 Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "doubao-seed-1-6-vision": {
+      "n": "Doubao Seed 1.6 Vision",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "doubao-seed-1-8": {
+      "n": "doubao-seed-1-8"
+    },
+    "doubao-seed-2-0-code-preview": {
+      "n": "Doubao Seed 2.0 Code",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "doubao-seed-2-0-lite": {
+      "n": "Doubao Seed 2.0 Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "doubao-seed-2-0-mini": {
+      "n": "Doubao Seed 2.0 Mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "doubao-seed-2-0-pro": {
+      "n": "Doubao Seed 2.0 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "doubao-seed-2-1-pro": {
+      "n": "Doubao Seed 2.1 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "doubao-seed-2-1-turbo": {
+      "n": "Doubao Seed 2.1 Turbo",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "doubao-seed-character": {
+      "n": "Doubao Seed Character",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "doubao-seed-code-preview": {
+      "n": "Doubao Seed Code",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "doubao-seed-evolving": {
+      "n": "Doubao Seed Evolving",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1024000,
+      "o": 262144
+    },
+    "doubao-seed-translation": {
+      "n": "Doubao Seed Translation",
+      "w": 4096,
+      "o": 3072
+    },
+    "seed-1-6": {
+      "n": "Seed 1.6",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32000
+    },
+    "seed-1-8": {
+      "n": "Seed 1.8",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 64000
+    },
+    "seed-oss-36b-instruct": {
+      "n": "ByteDance-Seed/Seed-OSS-36B-Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 262000,
+      "o": 262000
+    },
+    "c4ai-aya-expanse-32b": {
+      "n": "Aya Expanse 32B",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "c4ai-aya-expanse-8b": {
+      "n": "Aya Expanse 8B",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 4096
+    },
+    "c4ai-aya-vision-32b": {
+      "n": "Aya Vision 32B",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 16384,
+      "o": 4096
+    },
+    "c4ai-aya-vision-8b": {
+      "n": "Aya Vision 8B",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 16384,
+      "o": 4096
+    },
+    "command": {
+      "n": "Command",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 4096
+    },
+    "command-a": {
+      "n": "Command A",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 8192
+    },
+    "command-a-03-2025": {
+      "n": "Command A",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 8192
+    },
+    "command-a-plus-05-2026": {
+      "n": "Command A+",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 65536
+    },
+    "command-a-reasoning-08-2025": {
+      "n": "Command A Reasoning",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "command-a-translate-08-2025": {
+      "n": "Command A Translate",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "command-a-vision-07-2025": {
+      "n": "Command A Vision",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "command-light": {
+      "n": "Command Light",
+      "c": [
+        "fc"
+      ],
+      "w": 4096,
+      "o": 4096
+    },
+    "command-r": {
+      "n": "Command R",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "command-r-08-2024": {
+      "n": "Command R (08-2024)",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "command-r-plus": {
+      "n": "Command R+",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "command-r-plus-08-2024": {
+      "n": "Command R+ (08-2024)",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "command-r7b-12-2024": {
+      "n": "Command R7B",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "command-r7b-arabic-02-2025": {
+      "n": "Command R7B Arabic",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 4000
+    },
+    "north-mini-code": {
+      "n": "North Mini Code",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "north-mini-code-1-0": {
+      "n": "North Mini Code 1.0",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 64000
+    },
+    "tiny-aya-earth": {
+      "n": "Tiny Aya Earth",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "tiny-aya-fire": {
+      "n": "Tiny Aya Fire",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "tiny-aya-global": {
+      "n": "Tiny Aya Global",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "tiny-aya-water": {
+      "n": "Tiny Aya Water",
+      "c": [
+        "fc"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "deepseek-chat": {
+      "n": "DeepSeek: DeepSeek V3",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 163840
+    },
+    "deepseek-chat-v3": {
+      "n": "DeepSeek: DeepSeek V3 0324",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 163840
+    },
+    "deepseek-chat-v3-1": {
+      "n": "DeepSeek: DeepSeek V3.1",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840
+    },
+    "deepseek-flash": {
+      "n": "DeepSeek V4.1 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 393216
+    },
+    "deepseek-r1": {
+      "n": "DeepSeek R1",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 32768
+    },
+    "deepseek-r1-distill-llama-70b": {
+      "n": "DeepSeek R1 Distill Llama 70B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-r1-distill-llama-8b": {
+      "n": "DeepSeek R1 Distill Llama 8B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-r1-distill-qwen-1-5b": {
+      "n": "DeepSeek R1 Distill Qwen 1.5B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-r1-distill-qwen-14b": {
+      "n": "DeepSeek R1 Distill Qwen 14B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-r1-distill-qwen-32b": {
+      "n": "DeepSeek R1 Distill Qwen 32B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-r1-distill-qwen-7b": {
+      "n": "DeepSeek R1 Distill Qwen 7B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "deepseek-v3": {
+      "n": "DeepSeek V3",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 163840,
+      "o": 163840
+    },
+    "deepseek-v3-1": {
+      "n": "DeepSeek V3.1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 163840,
+      "o": 128000
+    },
+    "deepseek-v3-1-maas": {
+      "n": "DeepSeek V3.1",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 32768
+    },
+    "deepseek-v3-1-terminus": {
+      "n": "siliconflow/deepseek-v3.1-terminus",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 65536
+    },
+    "deepseek-v3-2": {
+      "n": "siliconflow/deepseek-v3.2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 65536
+    },
+    "deepseek-v3-2-exp": {
+      "n": "DeepSeek V3.2 Exp",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 65536
+    },
+    "deepseek-v3-2-maas": {
+      "n": "DeepSeek V3.2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 163840,
+      "o": 65536
+    },
+    "deepseek-v4-1-flash": {
+      "n": "DeepSeek: DeepSeek V4.1 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "deepseek-v4-1-flash-beta": {
+      "n": "DeepSeek V4.1 Flash Beta",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 384000
+    },
+    "deepseek-v4-flash": {
+      "n": "DeepSeek V4 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 393216
+    },
+    "deepseek-v4-flash-vision-exp": {
+      "n": "DeepSeek V4 Flash Vision Exp",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 393216
+    },
+    "deepseek-v4-pro": {
+      "n": "DeepSeek V4 Pro",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 393216
+    },
+    "gemini-2-5-computer-use-preview-10-2025": {
+      "n": "Gemini 2.5 Computer Use Preview 10-2025",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 65536
+    },
+    "gemini-2-5-flash": {
+      "n": "Gemini 2.5 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-2-5-flash-lite": {
+      "n": "Gemini 2.5 Flash-Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-2-5-pro": {
+      "n": "Gemini 2.5 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-2-5-pro-preview": {
+      "n": "Google: Gemini 2.5 Pro Preview 06-05",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "gemini-2-5-pro-preview-05-06": {
+      "n": "Google: Gemini 2.5 Pro Preview 05-06",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "gemini-3-1-flash-lite": {
+      "n": "Gemini 3.1 Flash Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-1-flash-lite-preview": {
+      "n": "Gemini 3.1 Flash Lite Preview",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-1-pro-preview": {
+      "n": "Gemini 3.1 Pro Preview",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-1-pro-preview-customtools": {
+      "n": "Gemini 3.1 Pro Preview Custom Tools",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-5-flash": {
+      "n": "Gemini 3.5 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-5-flash-lite": {
+      "n": "Gemini 3.5 Flash Lite",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-5-transcribe": {
+      "n": "Gemini 3.5 Transcribe"
+    },
+    "gemini-3-5-transcribe-live": {
+      "n": "Gemini 3.5 Transcribe Live"
+    },
+    "gemini-3-6-flash": {
+      "n": "Gemini 3.6 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-7-flash": {
+      "n": "Gemini 3.7 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-8-flash": {
+      "n": "Gemini 3.8 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-3-flash": {
+      "n": "Gemini 3 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 65000
+    },
+    "gemini-3-flash-preview": {
+      "n": "Gemini 3 Flash Preview",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-flash-latest": {
+      "n": "Gemini Flash Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-flash-lite-latest": {
+      "n": "Gemini Flash-Lite Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "gemini-pro-latest": {
+      "n": "Google Gemini Pro Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "gemma-2-27b-it": {
+      "n": "Google: Gemma 2 27B",
+      "c": [
+        "so"
+      ],
+      "w": 8192
+    },
+    "gemma-2-2b-it": {
+      "n": "Gemma 2 2b It",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "gemma-3-12b-it": {
+      "n": "Gemma 3 12B IT",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "gemma-3-27b-it": {
+      "n": "Google Gemma 3 27B Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 202752,
+      "o": 8192
+    },
+    "gemma-3-4b-it": {
+      "n": "Gemma 3 4B IT",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "gemma-3n-e2b-it": {
+      "n": "Gemma 3n E2b It",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "gemma-3n-e4b-it": {
+      "n": "Gemma 3n E4b It",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "gemma-4-26b-a4b-it": {
+      "n": "Gemma 4 26B A4B IT",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "gemma-4-31b-it": {
+      "n": "Gemma-4-31B-IT",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "mercury-2": {
+      "n": "Mercury 2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "mercury-2-5": {
+      "n": "Mercury 2.5",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 260000,
+      "o": 65536
+    },
+    "mercury-coder-small": {
+      "n": "Mercury Coder Small Beta",
+      "c": [
+        "fc"
+      ],
+      "w": 32000,
+      "o": 16384
+    },
+    "mercury-edit-2": {
+      "n": "Mercury Edit 2",
+      "c": [
+        "rs"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "lfm-2-5-2-6b": {
+      "n": "LiquidAI: LFM2.5-2.6B (free)",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 65536
+    },
+    "longcat-2-0": {
+      "n": "LongCat-2.0",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "llama-3-1-70b": {
+      "n": "Llama 3.1 70B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "llama-3-1-70b-instruct": {
+      "n": "Llama 3.1 70b Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "llama-3-1-8b": {
+      "n": "Llama 3.1 8B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "llama-3-1-8b-instruct": {
+      "n": "Llama 3.1 8B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "llama-3-2-11b-vision-instruct": {
+      "n": "Llama 3.2 11b Vision Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama-3-2-1b-instruct": {
+      "n": "Llama 3.2 1b Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama-3-2-3b-instruct": {
+      "n": "Llama 3.2 3B Instruct",
+      "c": [
+        "so"
+      ],
+      "w": 131072,
+      "o": 32000
+    },
+    "llama-3-2-90b-vision-instruct": {
+      "n": "Llama-3.2-90B-Vision-Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "llama-3-3-70b": {
+      "n": "Llama-3.3-70B-Instruct",
+      "c": [
+        "fc",
+        "fi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama-3-3-70b-instruct": {
+      "n": "Llama 3.3 70b Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 131072,
+      "o": 4096
+    },
+    "llama-3-3-70b-instruct-maas": {
+      "n": "Llama 3.3 70B Instruct",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "llama-3-3-nemotron-super-49b-v1": {
+      "n": "Llama 3.3 Nemotron Super 49B v1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 65536
+    },
+    "llama-3-3-nemotron-super-49b-v1-5": {
+      "n": "Llama 3.3 Nemotron Super 49B v1.5",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 65536
+    },
+    "llama-4-maverick": {
+      "n": "Llama-4-Maverick-17B-128E-Instruct-FP8",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 4096
+    },
+    "llama-4-maverick-17b-128e-instruct": {
+      "n": "Llama 4 Maverick 17b 128e Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama-4-maverick-17b-128e-instruct-maas": {
+      "n": "Llama 4 Maverick 17B 128E Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 524288,
+      "o": 8192
+    },
+    "llama-4-scout": {
+      "n": "Llama-4-Scout-17B-16E-Instruct-FP8",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1310720,
+      "o": 4096
+    },
+    "llama-guard-4-12b": {
+      "n": "Llama Guard 4 12B",
+      "c": [
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 163840,
+      "o": 16384
+    },
+    "llama3-1-70b-instruct": {
+      "n": "Llama 3.1 70B Instruct (US)",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama3-1-8b-instruct": {
+      "n": "Llama 3.1 8B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama3-3-70b-instruct": {
+      "n": "Llama 3.3 70B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "llama4-maverick-17b-instruct": {
+      "n": "Llama 4 Maverick 17B Instruct (US)",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 16384
+    },
+    "llama4-scout-17b-instruct": {
+      "n": "Llama 4 Scout 17B Instruct (US)",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 3500000,
+      "o": 16384
+    },
+    "muse-spark-1-3": {
+      "n": "Muse Spark 1.3",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "phi-4": {
+      "n": "Microsoft: Phi 4",
+      "c": [
+        "so"
+      ],
+      "w": 16384
+    },
+    "phi-4-mini-instruct": {
+      "n": "Phi-4-Mini",
+      "c": [
+        "fc"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "phi-4-multimodal-instruct": {
+      "n": "Phi 4 Multimodal",
+      "w": 128000,
+      "o": 16384
+    },
+    "minimax-01": {
+      "n": "MiniMax: MiniMax-01",
+      "c": [
+        "vi"
+      ],
+      "w": 1000192
+    },
+    "minimax-m1": {
+      "n": "MiniMax: MiniMax M1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1000000
+    },
+    "minimax-m2": {
+      "n": "MiniMax-M2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 205000,
+      "o": 205000
+    },
+    "minimax-m2-1": {
+      "n": "MiniMax-M2.1",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "minimax-m2-1-lightning": {
+      "n": "MiniMax M2.1 Lightning",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "minimax-m2-5": {
+      "n": "MiniMax-M2.5",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "minimax-m2-5-highspeed": {
+      "n": "MiniMax-M2.5-highspeed",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "minimax-m2-7": {
+      "n": "MiniMax-M2.7",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "minimax-m2-7-highspeed": {
+      "n": "MiniMax-M2.7-highspeed",
+      "c": [
+        "fc",
+        "fi",
+        "rs"
+      ],
+      "w": 204800,
+      "o": 131100
+    },
+    "minimax-m2-her": {
+      "n": "MiniMax: MiniMax M2-her",
+      "w": 65536
+    },
+    "minimax-m3": {
+      "n": "MiniMax-M3",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 524288
+    },
+    "codestral": {
+      "n": "Codestral (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 256000,
+      "o": 4096
+    },
+    "codestral-latest": {
+      "n": "Codestral (latest)",
+      "c": [
+        "fc"
+      ],
+      "w": 256000,
+      "o": 4096
+    },
+    "devstral": {
+      "n": "Devstral 2",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "devstral-2": {
+      "n": "Devstral 2",
+      "c": [
+        "fc"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "devstral-2-123b": {
+      "n": "Devstral 2 123B",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 256000,
+      "o": 8192
+    },
+    "devstral-latest": {
+      "n": "Devstral 2",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "devstral-medium": {
+      "n": "Devstral Medium",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "devstral-medium-latest": {
+      "n": "Devstral 2 (latest)",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "devstral-small": {
+      "n": "Devstral Small",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "devstral-small-2": {
+      "n": "Devstral Small 2",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "magistral-medium-latest": {
+      "n": "Magistral Medium (latest)",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "magistral-small": {
+      "n": "Magistral Small 2506",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "ministral-14b": {
+      "n": "Ministral 14B",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "ministral-14b-instruct": {
+      "n": "Ministral 3 14B Instruct 2512",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 16384
+    },
+    "ministral-3-14b-instruct": {
+      "n": "Ministral 14B 3.0",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "ministral-3-3b-instruct": {
+      "n": "Ministral 3 3B",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 8192
+    },
+    "ministral-3-8b-instruct": {
+      "n": "Ministral 3 8B",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "ministral-3b": {
+      "n": "Ministral 3B (latest)",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 128000
+    },
+    "ministral-3b-latest": {
+      "n": "Ministral 3B (latest)",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "ministral-8b": {
+      "n": "Ministral 8B (latest)",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 128000
+    },
+    "ministral-8b-latest": {
+      "n": "Ministral 8B (latest)",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "mistral-7b-instruct-v0-3": {
+      "n": "Mistral-7B-Instruct-v0.3",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 65536,
+      "o": 65536
+    },
+    "mistral-large": {
+      "n": "Mistral Large 3",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "mistral-large-3": {
+      "n": "Mistral Large 3",
+      "c": [
+        "fi",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "mistral-large-3-675b-instruct": {
+      "n": "Mistral Large 3 675B Instruct 2512",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "mistral-large-latest": {
+      "n": "Mistral Large (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "mistral-medium": {
+      "n": "Mistral Medium 3.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "mistral-medium-3": {
+      "n": "Mistral: Mistral Medium 3",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "mistral-medium-3-1": {
+      "n": "Mistral: Mistral Medium 3.1",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "mistral-medium-3-5": {
+      "n": "Mistral Medium Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "mistral-medium-3-5-128b": {
+      "n": "Mistral Medium 3.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "mistral-medium-3-instruct": {
+      "n": "Mistral Medium 3",
+      "c": [
+        "fi",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "mistral-medium-latest": {
+      "n": "Mistral Medium (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "mistral-nemo": {
+      "n": "Mistral Nemo",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 128000
+    },
+    "mistral-nemotron": {
+      "n": "mistral-nemotron",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "mistral-saba": {
+      "n": "Mistral: Saba",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 32768
+    },
+    "mistral-small": {
+      "n": "Mistral Small (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "mistral-small-24b-instruct": {
+      "n": "Mistral: Mistral Small 3",
+      "c": [
+        "so"
+      ],
+      "w": 32768
+    },
+    "mistral-small-3-1-24b-instruct": {
+      "n": "Mistral: Mistral Small 3.1 24B",
+      "c": [
+        "vi"
+      ],
+      "w": 128000
+    },
+    "mistral-small-3-2-24b-instruct": {
+      "n": "Mistral: Mistral Small 3.2 24B",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "mistral-small-4-119b": {
+      "n": "mistral-small-4-119b-2603",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "mistral-small-latest": {
+      "n": "Mistral Small (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "open-mistral-7b": {
+      "n": "Mistral 7B",
+      "c": [
+        "fc"
+      ],
+      "w": 8000,
+      "o": 8000
+    },
+    "open-mixtral-8x22b": {
+      "n": "Mixtral 8x22B",
+      "c": [
+        "fc"
+      ],
+      "w": 64000,
+      "o": 64000
+    },
+    "open-mixtral-8x7b": {
+      "n": "Mixtral 8x7B",
+      "c": [
+        "fc"
+      ],
+      "w": 32000,
+      "o": 32000
+    },
+    "pixtral-12b": {
+      "n": "Pixtral 12B",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "pixtral-large": {
+      "n": "Pixtral Large (25.02) (EU)",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "pixtral-large-latest": {
+      "n": "Pixtral Large (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 128000
+    },
+    "voxtral-mini-3b": {
+      "n": "Voxtral Mini 3B 2507",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "voxtral-mini-latest": {
+      "n": "Voxtral Mini (latest)"
+    },
+    "voxtral-small-24b": {
+      "n": "Voxtral Small 24B 2507",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 32768,
+      "o": 8192
+    },
+    "voxtral-small-latest": {
+      "n": "Voxtral Small (latest)",
+      "c": [
+        "fc",
+        "fi"
+      ],
+      "w": 32000,
+      "o": 32000
+    },
+    "kimi-k2": {
+      "n": "Moonshot Kimi K2 Thinking",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 216144
+    },
+    "kimi-k2-5": {
+      "n": "Moonshot Kimi K2.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k2-6": {
+      "n": "Moonshot Kimi K2.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k2-7-code": {
+      "n": "Kimi K2.7 Code",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k2-7-code-highspeed": {
+      "n": "Kimi K2.7 Code High Speed",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k2-instruct": {
+      "n": "Kimi K2 0905",
+      "c": [
+        "fc"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k2-thinking-maas": {
+      "n": "Kimi K2 Thinking",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "kimi-k3": {
+      "n": "Kimi K3",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "kimi-k3-fast": {
+      "n": "Kimi K3 Fast",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 131072
+    },
+    "kimi-latest": {
+      "n": "MoonshotAI Kimi Latest",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576
+    },
+    "hermes-3-llama-3-1-405b": {
+      "n": "Nous: Hermes 3 405B Instruct",
+      "c": [
+        "so"
+      ],
+      "w": 131072
+    },
+    "hermes-4-405b": {
+      "n": "Nous: Hermes 4 405B",
+      "c": [
+        "rs",
+        "so"
+      ],
+      "w": 131072
+    },
+    "active-speaker-detection": {
+      "n": "Active Speaker Detection",
+      "c": [
+        "fi"
+      ],
+      "o": 4096
+    },
+    "bevformer": {
+      "n": "bevformer",
+      "c": [
+        "fi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "cosmos-reason2-8b": {
+      "n": "Cosmos Reason2 8B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "esm2-650m": {
+      "n": "esm2-650m",
+      "w": 128000,
+      "o": 8192
+    },
+    "esmfold": {
+      "n": "esmfold",
+      "w": 128000,
+      "o": 8192
+    },
+    "gliner-pii": {
+      "n": "gliner-pii",
+      "w": 128000,
+      "o": 4096
+    },
+    "laguna-xs-2-1": {
+      "n": "Laguna XS 2.1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 16384
+    },
+    "llama-3-1-nemotron-70b-instruct": {
+      "n": "Llama 3.1 Nemotron 70B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "llama-3-1-nemotron-nano-8b-v1": {
+      "n": "Llama 3.1 Nemotron Nano 8B v1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "llama-3-1-nemotron-nano-vl-8b-v1": {
+      "n": "Llama 3.1 Nemotron Nano VL 8B v1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "llama-3-1-nemotron-safety-guard-8b-v3": {
+      "n": "llama-3.1-nemotron-safety-guard-8b-v3",
+      "w": 128000,
+      "o": 4096
+    },
+    "llama-3-1-nemotron-ultra-253b-v1": {
+      "n": "Llama 3.1 Nemotron Ultra 253B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "mixtral-8x22b-instruct": {
+      "n": "Mistral: Mixtral 8x22B Instruct",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 65536,
+      "o": 13108
+    },
+    "mixtral-8x7b-instruct": {
+      "n": "Mistral: Mixtral 8x7B Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 32768,
+      "o": 16384
+    },
+    "muse-glimmer-30b": {
+      "n": "Muse Glimmer 30B",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 131072
+    },
+    "nemotron-3-5-content-safety": {
+      "n": "NVIDIA: Nemotron 3.5 Content Safety",
+      "c": [
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 131072
+    },
+    "nemotron-3-5-lightning": {
+      "n": "Nemotron 3.5 Lightning 30B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 131072
+    },
+    "nemotron-3-5-lightning-30b-a3b": {
+      "n": "Nemotron 3.5 Lightning 30B A3B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "nemotron-3-content-safety": {
+      "n": "nemotron-3-content-safety",
+      "w": 128000,
+      "o": 4096
+    },
+    "nemotron-3-nano-30b-a3b": {
+      "n": "nemotron-3-nano-30b-a3b",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "nemotron-3-nano-omni-30b-a3b": {
+      "n": "Nemotron 3 Nano Omni",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 65536
+    },
+    "nemotron-3-super-120b-a12b": {
+      "n": "Nemotron 3 Super",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 262144
+    },
+    "nemotron-3-ultra-550b-a55b": {
+      "n": "Nemotron 3 Ultra 550B A55B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 65536
+    },
+    "nemotron-content-safety-reasoning-4b": {
+      "n": "nemotron-content-safety-reasoning-4b",
+      "c": [
+        "rs"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "nemotron-mini-4b-instruct": {
+      "n": "nemotron-mini-4b-instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "nemotron-nano-12b-v2": {
+      "n": "NVIDIA Nemotron Nano 12B v2 VL BF16",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "nemotron-nano-12b-v2-vl": {
+      "n": "Nemotron Nano 12B v2 VL",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 131072
+    },
+    "nemotron-nano-3-30b": {
+      "n": "NVIDIA Nemotron Nano 3 30B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "nemotron-nano-9b-v2": {
+      "n": "nvidia-nemotron-nano-9b-v2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 131072
+    },
+    "nemotron-super-3-120b": {
+      "n": "NVIDIA Nemotron 3 Super 120B A12B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "nemotron-voicechat": {
+      "n": "nemotron-voicechat",
+      "c": [
+        "fc",
+        "fi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "paligemma": {
+      "n": "paligemma",
+      "c": [
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "riva-translate-4b-instruct-v1-1": {
+      "n": "riva-translate-4b-instruct-v1_1",
+      "w": 128000,
+      "o": 4096
+    },
+    "sarvam-m": {
+      "n": "sarvam-m",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "sparsedrive": {
+      "n": "sparsedrive",
+      "c": [
+        "fi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "streampetr": {
+      "n": "streampetr",
+      "c": [
+        "fi"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "studiovoice": {
+      "n": "studiovoice",
+      "w": 128000,
+      "o": 8192
+    },
+    "synthetic-video-detector": {
+      "n": "synthetic-video-detector",
+      "c": [
+        "fi"
+      ],
+      "o": 4096
+    },
+    "usdcode": {
+      "n": "usdcode",
+      "w": 128000,
+      "o": 4096
+    },
+    "usdvalidate": {
+      "n": "usdvalidate",
+      "o": 4096
+    },
+    "whisper-large-v3": {
+      "n": "Whisper Large v3",
+      "o": 4096
+    },
+    "gpt-3-5-turbo": {
+      "n": "GPT-3.5 Turbo",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 16385,
+      "o": 4096
+    },
+    "gpt-3-5-turbo-16k": {
+      "n": "OpenAI: GPT-3.5 Turbo 16k",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 16385
+    },
+    "gpt-3-5-turbo-instruct": {
+      "n": "OpenAI: GPT-3.5 Turbo Instruct",
+      "c": [
+        "so"
+      ],
+      "w": 4095
+    },
+    "gpt-4": {
+      "n": "GPT-4",
+      "c": [
+        "fc",
+        "fi",
+        "so"
+      ],
+      "w": 8192,
+      "o": 8192
+    },
+    "gpt-4-1": {
+      "n": "GPT-4.1",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1047576,
+      "o": 32768
+    },
+    "gpt-4-1-mini": {
+      "n": "GPT-4.1 mini",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1047576,
+      "o": 32768
+    },
+    "gpt-4-1-nano": {
+      "n": "GPT-4.1 nano",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1047576,
+      "o": 32768
+    },
+    "gpt-4-turbo": {
+      "n": "GPT-4 Turbo",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 4096
+    },
+    "gpt-4-turbo-preview": {
+      "n": "OpenAI: GPT-4 Turbo Preview",
+      "c": [
+        "fc",
+        "so"
+      ],
+      "w": 128000
+    },
+    "gpt-4o": {
+      "n": "GPT-4o",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "gpt-4o-mini": {
+      "n": "GPT-4o mini",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "gpt-4o-mini-transcribe": {
+      "n": "GPT-4o mini Transcribe"
+    },
+    "gpt-4o-transcribe": {
+      "n": "GPT-4o Transcribe"
+    },
+    "gpt-5": {
+      "n": "GPT-5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-1": {
+      "n": "GPT 5.1 Thinking",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-1-codex": {
+      "n": "GPT-5.1-Codex",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-1-codex-max": {
+      "n": "GPT 5.1 Codex Max",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-1-codex-mini": {
+      "n": "GPT-5.1 Codex mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-2": {
+      "n": "GPT-5.2",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-2-chat": {
+      "n": "OpenAI: GPT-5.2 Chat",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000
+    },
+    "gpt-5-2-chat-latest": {
+      "n": "GPT-5.2 Chat",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "gpt-5-2-codex": {
+      "n": "GPT-5.2-Codex",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-2-pro": {
+      "n": "GPT 5.2 ",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-3-chat-latest": {
+      "n": "GPT-5.3 Chat (latest)",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "gpt-5-3-codex": {
+      "n": "GPT 5.3 Codex",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-3-codex-spark": {
+      "n": "GPT-5.3 Codex Spark",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 32000
+    },
+    "gpt-5-4": {
+      "n": "GPT 5.4",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-4-mini": {
+      "n": "GPT 5.4 Mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-4-nano": {
+      "n": "GPT 5.4 Nano",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-4-pro": {
+      "n": "GPT 5.4 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-5": {
+      "n": "GPT 5.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-5-pro": {
+      "n": "GPT 5.5 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-6": {
+      "n": "GPT-5.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-6-luna": {
+      "n": "GPT 5.6 Luna",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-6-luna-pro": {
+      "n": "OpenAI: GPT-5.6 Luna Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000
+    },
+    "gpt-5-6-sol": {
+      "n": "GPT 5.6 Sol",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-6-sol-pro": {
+      "n": "OpenAI: GPT-5.6 Sol Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000
+    },
+    "gpt-5-6-terra": {
+      "n": "GPT 5.6 Terra",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-5-6-terra-pro": {
+      "n": "OpenAI: GPT-5.6 Terra Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000
+    },
+    "gpt-5-chat": {
+      "n": "GPT-5 Chat",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ]
+    },
+    "gpt-5-codex": {
+      "n": "GPT-5-Codex",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-mini": {
+      "n": "GPT-5 Mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-nano": {
+      "n": "GPT-5 Nano",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 128000
+    },
+    "gpt-5-pro": {
+      "n": "GPT-5 pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000,
+      "o": 272000
+    },
+    "gpt-6-astra": {
+      "n": "GPT-6 Astra",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 128000
+    },
+    "gpt-6-astra-pro": {
+      "n": "OpenAI: GPT-6 Astra Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000
+    },
+    "gpt-chat-latest": {
+      "n": "OpenAI: GPT Chat Latest",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 400000
+    },
+    "gpt-latest": {
+      "n": "OpenAI GPT Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000
+    },
+    "gpt-mini-latest": {
+      "n": "OpenAI GPT Mini Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 400000
+    },
+    "gpt-oss-120b": {
+      "n": "GPT-OSS-120B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 131072
+    },
+    "gpt-oss-120b-maas": {
+      "n": "GPT OSS 120B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "gpt-oss-20b": {
+      "n": "GPT OSS 20B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "gpt-oss-20b-maas": {
+      "n": "GPT OSS 20B",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "gpt-oss-safeguard-120b": {
+      "n": "GPT OSS Safeguard 120B",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 128000,
+      "o": 16384
+    },
+    "gpt-oss-safeguard-20b": {
+      "n": "gpt-oss-safeguard-20b",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 16384
+    },
+    "gpt-realtime-whisper": {
+      "n": "gpt-realtime-whisper"
+    },
+    "o1": {
+      "n": "o1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "o1-pro": {
+      "n": "o1-pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "o3": {
+      "n": "o3",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "o3-mini": {
+      "n": "o3-mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "o3-pro": {
+      "n": "o3 Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "o4-mini": {
+      "n": "o4-mini",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 100000
+    },
+    "sonar": {
+      "n": "Sonar",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8000
+    },
+    "sonar-deep-research": {
+      "n": "Perplexity Sonar Deep Research",
+      "c": [
+        "rs"
+      ],
+      "w": 128000,
+      "o": 32768
+    },
+    "sonar-pro": {
+      "n": "Sonar Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 200000,
+      "o": 8192
+    },
+    "sonar-reasoning-pro": {
+      "n": "Sonar Reasoning Pro",
+      "c": [
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 128000,
+      "o": 8000
+    },
+    "reka-edge": {
+      "n": "Reka Edge",
+      "c": [
+        "fc",
+        "so",
+        "vi"
+      ],
+      "w": 16384
+    },
+    "reka-flash-3": {
+      "n": "Reka Flash 3",
+      "c": [
+        "rs",
+        "so"
+      ],
+      "w": 65536
+    },
+    "step-1-32k": {
+      "n": "Step 1 (32K)",
+      "c": [
+        "fc"
+      ],
+      "w": 32768,
+      "o": 32768
+    },
+    "step-2-16k": {
+      "n": "Step 2 (16K)",
+      "c": [
+        "fc"
+      ],
+      "w": 16384,
+      "o": 8192
+    },
+    "step-3-5-flash": {
+      "n": "Step 3.5 Flash 2603",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 262114
+    },
+    "step-3-7-flash": {
+      "n": "Step 3.7 Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "stepaudio-2-5-asr": {
+      "n": "StepAudio 2.5 ASR"
+    },
+    "kat-coder-air-v2-5": {
+      "n": "Kat Coder Air V2.5",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 80000
+    },
+    "kat-coder-pro-v1": {
+      "n": "KAT-Coder-Pro V1",
+      "c": [
+        "rs"
+      ],
+      "w": 256000,
+      "o": 32000
+    },
+    "kat-coder-pro-v2": {
+      "n": "Kat Coder Pro V2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "kat-coder-pro-v2-5": {
+      "n": "Kat Coder Pro V2.5",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 80000
+    },
+    "hunyuan-2-0": {
+      "n": "Hunyuan 2.0 Thinking",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 196608,
+      "o": 65536
+    },
+    "hunyuan-2-0-instruct": {
+      "n": "Hunyuan 2.0 Instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 147456,
+      "o": 16384
+    },
+    "hunyuan-a13b-instruct": {
+      "n": "Hunyuan A13B Instruct",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 32768
+    },
+    "hunyuan-t1": {
+      "n": "Hunyuan T1",
+      "c": [
+        "fc",
+        "rs"
+      ]
+    },
+    "hunyuan-turbos": {
+      "n": "Hunyuan TurboS",
+      "c": [
+        "fc"
+      ]
+    },
+    "hy-mt2-1-8b": {
+      "n": "Tencent: Hy-MT2-1.8B",
+      "w": 8192
+    },
+    "hy-mt2-30b-a3b": {
+      "n": "Tencent: Hy-MT2-30B-A3B",
+      "c": [
+        "so"
+      ],
+      "w": 8192
+    },
+    "hy-mt2-7b": {
+      "n": "Tencent: Hy-MT2-7B",
+      "c": [
+        "so"
+      ],
+      "w": 8192
+    },
+    "hy-mt2-lite": {
+      "n": "Hunyuan MT2 Lite",
+      "w": 8192,
+      "o": 4096
+    },
+    "hy-mt2-plus": {
+      "n": "Hunyuan MT2 Plus",
+      "w": 8192,
+      "o": 4096
+    },
+    "hy-mt2-pro": {
+      "n": "Hunyuan MT2 Pro",
+      "w": 8192,
+      "o": 4096
+    },
+    "hy-role": {
+      "n": "Hunyuan Role",
+      "w": 32768,
+      "o": 4096
+    },
+    "hy3": {
+      "n": "Hunyuan 3",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "hy3-preview": {
+      "n": "Hunyuan 3 Preview",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "hy4-preview": {
+      "n": "Hunyuan 4 Preview",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 65536
+    },
+    "tc-code": {
+      "n": "Tencent Code",
+      "c": [
+        "fc"
+      ]
+    },
+    "solar-10-7b-instruct": {
+      "n": "solar-10.7b-instruct",
+      "c": [
+        "fc"
+      ],
+      "w": 128000,
+      "o": 8192
+    },
+    "solar-mini": {
+      "n": "solar-mini",
+      "c": [
+        "fc"
+      ],
+      "w": 32768,
+      "o": 4096
+    },
+    "solar-pro-3": {
+      "n": "Upstage: Solar Pro 3",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072
+    },
+    "solar-pro2": {
+      "n": "solar-pro2",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 65536,
+      "o": 8192
+    },
+    "solar-pro3": {
+      "n": "solar-pro3",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 8192
+    },
+    "solar-pro4": {
+      "n": "Solar Pro 4",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 524288,
+      "o": 131072
+    },
+    "fugu-ultra": {
+      "n": "Fugu Ultra",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 1000000
+    },
+    "interfaze-beta": {
+      "n": "Interfaze Beta",
+      "c": [
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 32000
+    },
+    "laguna-s-2-1": {
+      "n": "Laguna S 2.1 Free",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "morph-v3-fast": {
+      "n": "Morph v3 Fast",
+      "w": 81920,
+      "o": 16000
+    },
+    "morph-v3-large": {
+      "n": "Morph v3 Large",
+      "c": [
+        "so"
+      ],
+      "w": 262144,
+      "o": 32000
+    },
+    "muse-spark-1-1": {
+      "n": "Muse Spark 1.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "muse-spark-1-2": {
+      "n": "Muse Spark 1.2",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "muse-spark-1-2-contributor": {
+      "n": "Muse Spark 1.2 Contributor",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "muse-spark-1-3-contributor": {
+      "n": "Muse Spark 1.3 Contributor",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1048576,
+      "o": 1048576
+    },
+    "namazu": {
+      "n": "Sakana Namazu",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 256000
+    },
+    "transcribe-1": {
+      "n": "Transcribe-1"
+    },
+    "whisper-1": {
+      "n": "Whisper"
+    },
+    "palmyra-x4": {
+      "n": "Palmyra X4 (US)",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 122880,
+      "o": 8192
+    },
+    "palmyra-x5": {
+      "n": "Palmyra X5 (US)",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1040000,
+      "o": 8192
+    },
+    "grok-2": {
+      "n": "Grok 2",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "grok-2-vision": {
+      "n": "Grok 2 Vision",
+      "c": [
+        "fc",
+        "vi"
+      ],
+      "w": 32768
+    },
+    "grok-3": {
+      "n": "Grok 3",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "grok-3-fast": {
+      "n": "Grok 3 Fast",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "grok-3-mini": {
+      "n": "Grok 3 Mini",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072
+    },
+    "grok-3-mini-fast": {
+      "n": "Grok 3 Mini Fast",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072
+    },
+    "grok-4": {
+      "n": "Grok 4",
+      "c": [
+        "fc",
+        "rs",
+        "vi"
+      ],
+      "w": 256000
+    },
+    "grok-4-1": {
+      "n": "Grok 4.1",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 256000
+    },
+    "grok-4-1-fast": {
+      "n": "Grok 4.1 Fast Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 1000000
+    },
+    "grok-4-1-fast-non-reasoning": {
+      "n": "Grok 4.1 Fast Non-Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 1000000
+    },
+    "grok-4-20": {
+      "n": "Grok 4.20 Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-20-0309-non-reasoning": {
+      "n": "Grok 4.20 (Non-Reasoning)",
+      "c": [
+        "fc",
+        "fi",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 30000
+    },
+    "grok-4-20-multi-agent": {
+      "n": "Grok 4.20 Multi-Agent",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-20-multi-agent-beta": {
+      "n": "Grok 4.20 Multi Agent Beta",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-20-non-reasoning": {
+      "n": "Grok 4.20 Non-Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-20-non-reasoning-beta": {
+      "n": "Grok 4.20 Beta Non-Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-20-reasoning-beta": {
+      "n": "Grok 4.20 Beta Reasoning",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 2000000,
+      "o": 2000000
+    },
+    "grok-4-3": {
+      "n": "Grok 4.3",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 1000000
+    },
+    "grok-4-5": {
+      "n": "Grok 4.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 500000,
+      "o": 500000
+    },
+    "grok-4-6": {
+      "n": "Grok 4.6",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 500000,
+      "o": 500000
+    },
+    "grok-4-fast": {
+      "n": "Grok 4 Fast",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 2000000
+    },
+    "grok-beta": {
+      "n": "Grok Beta",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "grok-build-0-1": {
+      "n": "Grok Build 0.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 256000,
+      "o": 256000
+    },
+    "grok-code-fast-1": {
+      "n": "Grok Code Fast 1",
+      "c": [
+        "fc"
+      ],
+      "w": 256000
+    },
+    "grok-latest": {
+      "n": "xAI: Grok Latest",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 500000
+    },
+    "grok-stt": {
+      "n": "Grok STT"
+    },
+    "grok-vision-beta": {
+      "n": "Grok Vision Beta",
+      "c": [
+        "vi"
+      ],
+      "w": 8192
+    },
+    "mimo-v2-5": {
+      "n": "MiMo-V2.5",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1050000,
+      "o": 131072
+    },
+    "mimo-v2-5-pro": {
+      "n": "MiMo-V2.5-Pro",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so"
+      ],
+      "w": 1050000,
+      "o": 131072
+    },
+    "mimo-v2-5-pro-ultraspeed": {
+      "n": "MiMo-V2.5-Pro-UltraSpeed",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "mimo-v2-flash": {
+      "n": "MiMo-V2-Flash",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 262144,
+      "o": 65536
+    },
+    "mimo-v2-omni": {
+      "n": "MiMo-V2-Omni",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "vi"
+      ],
+      "w": 262144,
+      "o": 131072
+    },
+    "mimo-v2-pro": {
+      "n": "MiMo-V2-Pro",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "glm-3-turbo": {
+      "n": "GLM-3-Turbo",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4": {
+      "n": "GLM-4",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4-1v": {
+      "n": "GLM-4.1V-Thinking",
+      "c": [
+        "rs",
+        "vi"
+      ],
+      "w": 65536
+    },
+    "glm-4-5": {
+      "n": "GLM 4.5",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 131072,
+      "o": 98304
+    },
+    "glm-4-5-air": {
+      "n": "GLM 4.5 Air",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 98304
+    },
+    "glm-4-5-flash": {
+      "n": "GLM-4.5-Flash",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 131072,
+      "o": 98304
+    },
+    "glm-4-5v": {
+      "n": "GLM 4.5V",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 66000,
+      "o": 16384
+    },
+    "glm-4-6": {
+      "n": "GLM 4.6",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "glm-4-6v": {
+      "n": "GLM-4.6V",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 131072,
+      "o": 32768
+    },
+    "glm-4-7": {
+      "n": "GLM 4.7",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "glm-4-7-flash": {
+      "n": "GLM 4.7 Flash",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 202752,
+      "o": 131072
+    },
+    "glm-4-7-flashx": {
+      "n": "GLM 4.7 FlashX",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 200000,
+      "o": 131072
+    },
+    "glm-4-7-maas": {
+      "n": "GLM-4.7",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 200000,
+      "o": 128000
+    },
+    "glm-4-air": {
+      "n": "GLM-4-Air",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4-airx": {
+      "n": "GLM-4-AirX",
+      "c": [
+        "fc"
+      ],
+      "w": 8192
+    },
+    "glm-4-flash": {
+      "n": "GLM-4-Flash",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4-flashx": {
+      "n": "GLM-4-FlashX",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4-long": {
+      "n": "GLM-4-Long",
+      "c": [
+        "fc"
+      ],
+      "w": 1024000
+    },
+    "glm-4-plus": {
+      "n": "GLM-4-Plus",
+      "c": [
+        "fc"
+      ],
+      "w": 131072
+    },
+    "glm-4v": {
+      "n": "GLM-4V",
+      "c": [
+        "vi"
+      ],
+      "w": 8192
+    },
+    "glm-4v-flash": {
+      "n": "GLM-4V-Flash",
+      "c": [
+        "vi"
+      ],
+      "w": 8192
+    },
+    "glm-4v-plus": {
+      "n": "GLM-4V-Plus",
+      "c": [
+        "vi"
+      ],
+      "w": 8192
+    },
+    "glm-5": {
+      "n": "GLM-5",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131100
+    },
+    "glm-5-1": {
+      "n": "GLM-5.1",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so"
+      ],
+      "w": 204800,
+      "o": 131072
+    },
+    "glm-5-2": {
+      "n": "GLM-5.2",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 131072
+    },
+    "glm-5-2-fast": {
+      "n": "GLM 5.2 Fast",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1000000,
+      "o": 128000
+    },
+    "glm-5-3": {
+      "n": "GLM 5.3",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1310720,
+      "o": 131072
+    },
+    "glm-5-3-fast": {
+      "n": "GLM 5.3 Fast",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1048576,
+      "o": 262144
+    },
+    "glm-5-3-flash": {
+      "n": "GLM-5.3-Flash",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1000000,
+      "o": 131072
+    },
+    "glm-5-maas": {
+      "n": "GLM-5",
+      "c": [
+        "fc",
+        "rs"
+      ],
+      "w": 202752,
+      "o": 131072
+    },
+    "glm-5-turbo": {
+      "n": "GLM 5 Turbo",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 202800,
+      "o": 131100
+    },
+    "glm-5v-turbo": {
+      "n": "GLM 5V Turbo",
+      "c": [
+        "fc",
+        "fi",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 202752,
+      "o": 131072
+    },
+    "glm-flash-latest": {
+      "n": "Z.ai: GLM Flash Latest",
+      "c": [
+        "fc",
+        "rs",
+        "so",
+        "vi"
+      ],
+      "w": 1310720
+    },
+    "glm-latest": {
+      "n": "Z.ai: GLM Latest",
+      "c": [
+        "fc",
+        "rs",
+        "so"
+      ],
+      "w": 1310720
+    },
+    "glm-z1": {
+      "n": "GLM-Z1",
+      "c": [
+        "rs"
+      ],
+      "w": 131072
+    },
+    "glm-z1-air": {
+      "n": "GLM-Z1-Air",
+      "c": [
+        "rs"
+      ],
+      "w": 131072
+    },
+    "glm-z1-airx": {
+      "n": "GLM-Z1-AirX",
+      "c": [
+        "rs"
+      ],
+      "w": 131072
+    },
+    "glm-z1-flash": {
+      "n": "GLM-Z1-Flash",
+      "c": [
+        "rs"
+      ],
+      "w": 131072
+    }
+  },
+  "aliases": {
+    "deepseek-reasoner": "deepseek-r1"
+  }
+}

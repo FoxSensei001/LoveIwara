@@ -21,12 +21,12 @@ import 'package:i_iwara/app/models/ai_task.model.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
 
 class _FixedStore implements AiProfileStore {
-  _FixedStore(this.profile);
-  final AiProviderProfile profile;
+  _FixedStore(this.model);
+  final AiResolvedModel model;
   @override
-  List<AiProviderProfile> get profiles => [profile];
+  AiProviderConfig get config => const AiProviderConfig();
   @override
-  AiProviderProfile? profileFor(AiTask task) => profile;
+  AiResolvedModel? resolveFor(AiTask task) => model;
 }
 
 void main() {
@@ -37,15 +37,18 @@ void main() {
   test(
     'live probe',
     () async {
-      final profile = AiProviderProfile(
-        id: 'probe',
-        name: 'relay',
-        kind: AiProviderKind.openai,
-        baseUrl: base,
-        model: model,
-        apiKey: key,
-        structuredOutput: true,
-        maxTokens: 256,
+      // 直接摊一份合并好的配置：探针要验的是 AiService 那四条路，不是继承规则
+      // （那个归 ai_provider_test.dart 管）。
+      final profile = resolveAiModel(
+        provider: AiProvider(
+          id: 'probe',
+          name: 'relay',
+          kind: AiProviderKind.openai,
+          baseUrl: base.isEmpty ? null : base,
+          structuredOutput: true,
+          apiKey: key,
+        ),
+        model: AiModel(providerId: 'probe', modelId: model, maxTokens: 256),
       );
       final ai = AiService(store: _FixedStore(profile));
 

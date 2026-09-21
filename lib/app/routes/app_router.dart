@@ -48,6 +48,7 @@ import 'package:i_iwara/app/ui/pages/friends/friends_page.dart';
 import 'package:i_iwara/app/ui/pages/history/history_list_page.dart';
 import 'package:i_iwara/app/models/playback_queue.dart';
 import 'package:i_iwara/app/ui/pages/watch_later/watch_later_page.dart';
+import 'package:i_iwara/app/ui/pages/settings/ai_provider_detail_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_page.dart';
 import 'package:i_iwara/app/ui/pages/settings/settings_section.dart';
 import 'package:i_iwara/app/ui/pages/settings/google_translation_settings_page.dart';
@@ -210,10 +211,7 @@ void goHomeForMedia(MediaType type) {
 ///
 /// 页面上的 [PopScope] / PopCoordinator 返回拦截对原生边缘手势同样生效
 /// （`canPop: false` 时手势不响应），选择态、播放页全屏那层拦截不受影响。
-Page<void> buildDefaultPage(
-  GoRouterState state,
-  Widget child,
-) {
+Page<void> buildDefaultPage(GoRouterState state, Widget child) {
   return MaterialPage<void>(
     key: state.pageKey,
     name: state.name ?? state.fullPath,
@@ -896,10 +894,7 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_videos',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildDefaultPage(
-              state,
-              TagVideoListPage(tag: tag),
-            );
+            return buildDefaultPage(state, TagVideoListPage(tag: tag));
           },
         ),
 
@@ -909,10 +904,7 @@ final GoRouter appRouter = GoRouter(
           name: 'tag_galleries',
           pageBuilder: (context, state) {
             final tag = _resolveTag(state);
-            return buildDefaultPage(
-              state,
-              TagGalleryListPage(tag: tag),
-            );
+            return buildDefaultPage(state, TagGalleryListPage(tag: tag));
           },
         ),
 
@@ -1135,6 +1127,21 @@ GoRoute _settingsSubRoute(
   pageBuilder: (context, state) => _buildSettingsPage(context, state, builder),
 );
 
+/// 带路径参数的三级页（AI 供应商详情那条）。
+///
+/// 单开一个而不是给 [_settingsSubRoute] 加个可空参数，是因为绝大多数三级页
+/// 压根不需要 state，让它们每个都接一个用不上的入参只会让调用点更难读。
+GoRoute _settingsSubRouteWithState(
+  String path,
+  String name,
+  Widget Function(GoRouterState state, bool isWideScreen) builder,
+) => GoRoute(
+  path: path,
+  name: name,
+  pageBuilder: (context, state) =>
+      _buildSettingsPage(context, state, (isWide) => builder(state, isWide)),
+);
+
 /// 分区页下面的三级页。路径即层级，宽窄屏走同一条路由
 /// （历史实现是「宽屏塞进右栏内部 Navigator、窄屏 push 到 Shell 顶层」两套实现）。
 List<RouteBase> _settingsSubRoutesOf(SettingsSection section) =>
@@ -1163,6 +1170,16 @@ List<RouteBase> _settingsSubRoutesOf(SettingsSection section) =>
           'navigation_order',
           'settings_display_navigation_order',
           (isWide) => NavigationOrderSettingsPage(isWideScreen: isWide),
+        ),
+      ],
+      SettingsSection.ai => [
+        _settingsSubRouteWithState(
+          'provider/:id',
+          'settings_ai_provider',
+          (state, isWide) => AiProviderDetailPage(
+            providerId: Uri.decodeComponent(state.pathParameters['id'] ?? ''),
+            isWideScreen: isWide,
+          ),
         ),
       ],
       SettingsSection.about => [

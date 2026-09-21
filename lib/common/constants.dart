@@ -98,6 +98,15 @@ class CommonConstants {
   static const String oreno3dTagsLocalizationCdnUrl =
       'https://cdn.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/oreno3d_tags/oreno3d_tags.min.json';
 
+  // AI 供应商与模型目录 —— 打包内兜底资源（离线可用）
+  // 生成脚本与出处见 tool/data/ai_catalog/（上游是 Cherry Studio 的 provider-registry，MIT）
+  static const String aiCatalogAsset = 'assets/data/ai_catalog.min.json';
+
+  // AI 目录 —— jsDelivr CDN。⭐ 走它之后「某家换了地址」「出了新模型」推到 master
+  // 就到位，不用发版；与上面两份词库共用 TagDictionaryFetcher 那套拉取/缓存。
+  static const String aiCatalogCdnUrl =
+      'https://cdn.jsdelivr.net/gh/FoxSensei001/LoveIwara@master/tool/data/ai_catalog/ai_catalog.min.json';
+
   // 是否设置过亮度
   static bool isSetBrightness = false;
 

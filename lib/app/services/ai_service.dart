@@ -141,7 +141,7 @@ class AiRequest {
     required this.task,
     required this.input,
     this.system = '',
-    this.profile,
+    this.model,
     this.timeout,
     this.timeoutMessage,
     this.decorateError,
@@ -156,7 +156,7 @@ class AiRequest {
   /// 而不是直接报错。
   final List<AiTool> tools;
 
-  /// 用哪个用途的档案。[profile] 非空时它只用于记账。
+  /// 用哪个用途绑定的模型。[model] 非空时它只用于记账。
   final AiTask task;
 
   /// 用户内容。
@@ -165,8 +165,8 @@ class AiRequest {
   /// 系统提示词，空串＝不带。
   final String system;
 
-  /// 指定档案（设置页的"测试"走这条：拿**还没保存**的那份配置去试）。
-  final AiProviderProfile? profile;
+  /// 指定模型（设置页的「测试」与接入向导走这条：拿**还没保存**的那份配置去试）。
+  final AiResolvedModel? model;
 
   final Duration? timeout;
 
@@ -191,80 +191,26 @@ class AiRequest {
       decorateError?.call(technicalReason) ?? technicalReason;
 }
 
-/// 档案从哪儿来。
+/// 配置从哪儿来。
 ///
-/// ⭐ 做成一个口子是为了让"存储"这件事只有一处要改：P0 的实现读的是历史遗留
-/// 的 12 枚 `AI_TRANSLATION_*` 配置项（**行为与改造前完全一致**），P1 换成
-/// 「档案列表 JSON + 安全存储里的密钥」时，只换这个类的实现。
-///
-/// ⛔ 为什么不在 P0 就把存储换掉：设置页那 1800 行现在仍然直接读写
-/// `AI_TRANSLATION_*`。存储先换、UI 后换的话，中间会出现**两个事实源**——
-/// 用户在设置页改的东西和服务实际用的东西不是同一份，而且没有任何征兆。
+/// ⭐ 做成一个口子是为了让「存储」这件事只有一处要改，也为了本服务能在没有
+/// sqlite 的情况下被测到（`AiService(store: 一份假的)`）。
 abstract class AiProfileStore {
-  /// 全部档案（P0 下至多一条）。
-  List<AiProviderProfile> get profiles;
+  /// 整份配置（供应商 + 模型，**不含密钥**）。
+  AiProviderConfig get config;
 
-  /// 某个用途实际该用哪一份。没有可用档案时返回 null。
-  AiProviderProfile? profileFor(AiTask task);
-}
-
-/// P0 的档案来源：把历史遗留的 12 枚 `AI_TRANSLATION_*` 读成一份档案。
-///
-/// 所有用途共用这一份——在还没有绑定 UI 之前，这是唯一诚实的行为
-/// （而不是让搜索/小尾巴"没有配置可用"）。
-class LegacyConfigProfileStore implements AiProfileStore {
-  LegacyConfigProfileStore(this._config);
-
-  final ConfigService _config;
-
-  /// 历史遗留档案的固定 id。P1 迁移时会以它作为第一条档案的 id，
-  /// 这样用途绑定表在迁移前后指向同一个东西。
-  static const String legacyProfileId = 'legacy';
-
-  @override
-  List<AiProviderProfile> get profiles {
-    final profile = _readLegacy();
-    return profile == null ? const [] : [profile];
-  }
-
-  @override
-  AiProviderProfile? profileFor(AiTask task) => _readLegacy();
-
-  AiProviderProfile? _readLegacy() => readLegacy(_config);
-
-  /// 从旧版 12 枚 `AI_TRANSLATION_*` 读取档案。供 P1 自动迁移及测试复用。
-  static AiProviderProfile readLegacy(ConfigService config) {
-    T? get<T>(ConfigKey key) => config[key] as T?;
-    final kind = AiProviderKind.normalize(
-      get<String>(ConfigKey.AI_TRANSLATION_PROVIDER) ?? AiProviderKind.openai,
-    );
-    return AiProviderProfile(
-      id: legacyProfileId,
-      name: AiProviderKind.displayName(kind),
-      kind: kind,
-      baseUrl: get<String>(ConfigKey.AI_TRANSLATION_BASE_URL) ?? '',
-      model: get<String>(ConfigKey.AI_TRANSLATION_MODEL) ?? '',
-      apiKey: get<String>(ConfigKey.AI_TRANSLATION_API_KEY) ?? '',
-      reasoning: get<bool>(ConfigKey.AI_TRANSLATION_REASONING_MODEL) ?? false,
-      sendTemperature:
-          get<bool>(ConfigKey.AI_TRANSLATION_SEND_TEMPERATURE) ?? true,
-      streaming: get<bool>(ConfigKey.AI_TRANSLATION_SUPPORTS_STREAMING) ?? true,
-      // 历史配置里没有这一项，保守给 false ＝「别试 json_schema，直接走提示词
-      // 契约」。实测绝大多数中转会**静默忽略** json_schema（见 [AiService.structured]），
-      // 先试一次只是白等十几秒、白烧几百个 token。
-      structuredOutput: false,
-      temperature: get<double>(ConfigKey.AI_TRANSLATION_TEMPERATURE) ?? 0.3,
-      maxTokens: get<int>(ConfigKey.AI_TRANSLATION_MAX_TOKENS) ?? 4096,
-    );
-  }
+  /// 某个用途实际该用哪一条（已合并目录、已贴上密钥）。没有可用的返回 null。
+  AiResolvedModel? resolveFor(AiTask task);
 }
 
 /// 全 App **唯一**的 AI 调用入口。
 ///
 /// # 它管什么
 ///
-/// - 按 [AiProviderProfile] 造 dartantic 的 `Provider` / `Agent`，并在造之前
-///   把各家的怪癖夹住（见 [AiProviderKind]）；
+/// - 按 [AiResolvedModel] 造 dartantic 的 `Provider` / `Agent`，并在造之前把这条
+///   SDK 路子的怪癖夹住（见 [AiProviderKind]）。⛔ 「发不发 temperature / 开不开
+///   thinking / maxTokens 填多少」**不在这儿算**——那是 [resolveAiModel] 的活，
+///   本服务只负责把算好的值塞进各家名字不同的那个字段；
 /// - 三种调用形态：[complete]（一次要完）、[stream]（逐字）、[structured]
 ///   （吐 JSON，给 AI 搜索用）；
 /// - 流式的生命周期：超时、中断、失败降级为非流式；
@@ -403,8 +349,8 @@ class AiService extends GetxService {
   /// 按 kind 造 dartantic 的 Provider。
   ///
   /// ⛔ baseUrl 只对 openai / google / ollama 生效——另外三家的构造函数**没有**
-  /// 这个参数。夹在 [AiProviderProfile.resolvedBaseUri] 里，不在这儿重复判断。
-  Provider buildProvider(AiProviderProfile profile) {
+  /// 这个参数。夹在 [AiResolvedModel.resolvedBaseUri] 里，不在这儿重复判断。
+  Provider buildProvider(AiResolvedModel profile) {
     final uri = profile.resolvedBaseUri();
     final key = profile.apiKey.trim();
     final headers = profile.headers;
@@ -427,20 +373,12 @@ class AiService extends GetxService {
   }
 
   /// 各家 maxTokens 的字段名都不一样，且类型不同。
-  /// 真正要发出去的输出上限。0 ＝**不发这个参数**（由服务端用模型自己的上限），
-  /// 成因见 [AiProviderProfile.defaultMaxTokens]。
   ///
-  /// ⛔ Anthropic 是例外：它的 `max_tokens` 必填，不给直接 400，所以那一路要
-  /// 落到一个所有 Claude 模型都接受的兜底值上。
-  int? _maxTokensFor(AiProviderProfile profile) {
-    if (profile.maxTokens > 0) return profile.maxTokens;
-    return profile.kind == AiProviderKind.anthropic
-        ? AiProviderProfile.anthropicFallbackMaxTokens
-        : null;
-  }
-
-  ChatModelOptions _optionsFor(AiProviderProfile profile) {
-    final maxTokens = _maxTokensFor(profile);
+  /// ⛔ 「发多少 / 发不发」已经在 [resolveAiModel] 里算完了（用户 delta → 目录 →
+  /// Anthropic 的必填兜底），这里只负责**塞进对的那个字段**。别在这儿再判一次，
+  /// 两处各判一遍迟早分叉。
+  ChatModelOptions _optionsFor(AiResolvedModel profile) {
+    final maxTokens = profile.maxTokens;
     return switch (profile.kind) {
       AiProviderKind.anthropic => AnthropicChatOptions(maxTokens: maxTokens),
       AiProviderKind.google => GoogleChatModelOptions(
@@ -453,14 +391,14 @@ class AiService extends GetxService {
     };
   }
 
-  Agent buildAgent(AiProviderProfile profile, {List<Tool>? tools}) =>
+  Agent buildAgent(AiResolvedModel profile, {List<Tool>? tools}) =>
       Agent.forProvider(
         buildProvider(profile),
-        chatModelName: profile.model.trim().isEmpty
+        chatModelName: profile.modelId.trim().isEmpty
             ? null
-            : profile.model.trim(),
-        temperature: profile.effectiveTemperature,
-        enableThinking: profile.effectiveThinking,
+            : profile.modelId.trim(),
+        temperature: profile.temperature,
+        enableThinking: profile.reasoning,
         chatModelOptions: _optionsFor(profile),
         // ⛔ 空表也要给 null：有的端点收到空 `tools` 数组会 400。
         tools: (tools == null || tools.isEmpty) ? null : tools,
@@ -504,15 +442,16 @@ class AiService extends GetxService {
 
   // ------------------------------------------------------------------ 查询
 
-  AiProviderProfile? profileFor(AiTask task) => _store.profileFor(task);
+  /// 这个用途实际会用哪一条（已合并目录、已贴密钥）。
+  AiResolvedModel? modelFor(AiTask task) => _store.resolveFor(task);
 
-  List<AiProviderProfile> get profiles => _store.profiles;
+  /// 整份配置（供应商 + 模型，不含密钥）。设置页读它。
+  AiProviderConfig get config => _store.config;
 
-  /// 这个用途现在能不能用（有档案且密钥齐）。
-  bool isAvailable(AiTask task) => profileFor(task)?.isUsable ?? false;
+  /// 这个用途现在能不能用（有可用的模型且密钥齐）。
+  bool isAvailable(AiTask task) => modelFor(task)?.isUsable ?? false;
 
-  AiProviderProfile? _resolve(AiRequest req) =>
-      req.profile ?? profileFor(req.task);
+  AiResolvedModel? _resolve(AiRequest req) => req.model ?? modelFor(req.task);
 
   List<ChatMessage> _history(AiRequest req) =>
       req.system.trim().isEmpty ? const [] : [ChatMessage.system(req.system)];
@@ -587,13 +526,16 @@ class AiService extends GetxService {
 
     if (profile.structuredOutput) {
       try {
-        // ⚠️ 这条路**有意不带 [AiRequest.tools]**：Anthropic / Google 的原生
+        // ⛔ 这条路**不能直接带 [AiRequest.tools]**：Anthropic / Google 的原生
         // 结构化输出本身就是靠工具调用编排的，再塞一组自己的工具进去，两套
-        // 编排会抢同一个出口。工具只在下面的文本契约那条路上跑（而那条路才是
-        // 绝大多数中转用户走的）。
+        // 编排会抢同一个出口。所以带工具时拆成两趟——先让它查，再让它填表。
+        // 见 [_researchPass]。
+        final input = req.tools.isEmpty
+            ? req.input
+            : await _researchPass(req, profile, onProgress);
         final result = await buildAgent(profile)
             .sendFor<Map<String, dynamic>>(
-              req.input,
+              input,
               outputSchema: schema,
               history: _history(req),
             )
@@ -612,6 +554,71 @@ class AiService extends GetxService {
     return _structuredViaTextContract(req, schema, onProgress);
   }
 
+  /// 查证那一趟：先带工具跑一轮**纯文本**，把模型查到的东西攒成一段，交给
+  /// 结构化那一轮当上下文。
+  ///
+  /// ⭐ 为什么要拆两趟：原生结构化输出（`sendFor`）没法同时带自己的工具（两套
+  /// 编排抢同一个出口），而工具恰恰是这类功能最值钱的部分——AI 搜索靠
+  /// `preview_search` 去真端点验一遍「这么搜到底有没有结果」。不拆的话，端点
+  /// 越正规（Anthropic / OpenAI 官方，[AiResolvedModel.structuredOutput] 为真）
+  /// 功能反而越弱，走文本契约的中转用户倒有工具可用——能力是倒挂的。
+  ///
+  /// ⛔ 这一趟**失败不阻断**：查不成就当没查过，照原样去填表。它是增强，不是
+  /// 前置条件，不该让整个功能陪着一起失败。
+  ///
+  /// ⚠️ 代价是系统提示词发两遍。`structuredOutput` 为真的恰恰是官方端点，那
+  /// 几家都有 prompt caching，第二遍基本只付缓存价。
+  Future<String> _researchPass(
+    AiRequest req,
+    AiResolvedModel profile,
+    void Function(AiProgress progress)? onProgress,
+  ) async {
+    final researchReq = AiRequest(
+      task: req.task,
+      input: req.input,
+      system: '${req.system}\n\n$_researchPassInstruction',
+      model: req.model,
+      timeout: req.timeout,
+      timeoutMessage: req.timeoutMessage,
+      decorateError: req.decorateError,
+      tools: req.tools,
+    );
+    // 与文本契约那条一样：要播报、档案又开着流式就逐字跑，否则一次要完。
+    final result = (onProgress != null && profile.streaming)
+        ? await _completeStreaming(researchReq, onProgress)
+        : await complete(researchReq);
+
+    final findings = (result.data ?? '').trim();
+    if (!result.isSuccess || findings.isEmpty) {
+      LogUtils.w('查证那一趟没走通，直接去填表：${result.message}', 'AiService');
+      return req.input;
+    }
+
+    // ⛔ 播一声「查完了，回去填表」：流式那条最后停在 drafting（写的是查证
+    // 结论那几句散文），不播的话界面会一直显示「正在写答案」，而接下来
+    // `sendFor` 那一整轮是完全静默的。
+    //
+    // 这里带的 toolCalls 是空表，靠界面「只在非空时覆盖」那条规则保住已经
+    // 画出来的调用记录（见 ai_search_sheet 的 _toolCalls）。
+    onProgress?.call(const AiProgress(stage: AiStage.waiting));
+    return '${req.input}\n\n$_researchPassPreamble\n$findings';
+  }
+
+  /// 查证那一趟附加在提示词末尾的指令。
+  ///
+  /// ⛔ 必须明说「这一趟别回 JSON」：系统提示词里摆着整张表的规则，不拦的话
+  /// 模型在这一趟就把表填了，而这一趟的产物只是**下一趟的上下文**——一份半成品
+  /// JSON 混进去，只会让它在下一趟照抄而不是重新想。
+  static const String _researchPassInstruction =
+      'FIRST PASS — investigate only. Use the tools available to you to check '
+      'your intended answer against reality, then write a few plain sentences '
+      'saying what you verified and what you intend to answer. Do NOT output '
+      'JSON in this pass — you will be asked for the structured answer next.';
+
+  /// 把上一趟的结论接回用户原话时的引子。
+  static const String _researchPassPreamble =
+      'You already investigated this and found:';
+
   /// 文本契约：把 schema 写进提示词，再从自由文本里把 JSON 抠出来。
   Future<ApiResult<Map<String, dynamic>>> _structuredViaTextContract(
     AiRequest req,
@@ -626,7 +633,7 @@ class AiService extends GetxService {
         task: req.task,
         input: req.input,
         system: contract,
-        profile: req.profile,
+        model: req.model,
         timeout: req.timeout,
         timeoutMessage: req.timeoutMessage,
         decorateError: req.decorateError,
@@ -846,7 +853,7 @@ class AiService extends GetxService {
 
   Future<void> _startStream(
     AiRequest req,
-    AiProviderProfile profile,
+    AiResolvedModel profile,
     String requestId,
   ) async {
     // 确保发出真实流式请求前密钥已完成解密加载
@@ -854,8 +861,8 @@ class AiService extends GetxService {
     final controller = _activeStreams[requestId];
     if (controller == null) return;
 
-    // 若调用方未显式指定 profile，以 ready 解密完成后的最新 profile 为准
-    final effectiveProfile = req.profile ?? profileFor(req.task) ?? profile;
+    // 若调用方未显式指定模型，以 ready 解密完成后的最新那条为准
+    final effectiveProfile = req.model ?? modelFor(req.task) ?? profile;
 
     final reasoningCallback = _reasoningCallbacks[requestId];
     // ⛔ 工具的调用记录挂在这一次请求上：流式失败降级重跑时是新的一轮，
@@ -998,7 +1005,7 @@ class AiService extends GetxService {
   /// ⛔ 成功与否走 [AITestResult.connectionValid]，而不是 `ApiResult.isFail`：
   /// "连不上"是测试的一种正常结局，调用方要拿到失败原因去展示，而不是吃一个异常。
   Future<ApiResult<AITestResult>> test(
-    AiProviderProfile profile, {
+    AiResolvedModel profile, {
     String probe = 'Hello',
     String system = '',
   }) async {
@@ -1038,7 +1045,7 @@ class AiService extends GetxService {
 
   /// 拉服务端的可用模型列表。让用户从列表里选，而不是手打模型名——
   /// 打错一个字的报错是 404，没人看得出那是模型名的问题。
-  Future<ApiResult<List<String>>> listModels(AiProviderProfile profile) async {
+  Future<ApiResult<List<String>>> listModels(AiResolvedModel profile) async {
     await ready();
     try {
       final models = <String>[];

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:i_iwara/utils/loopback_host.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:i_iwara/app/repositories/history_repository.dart';
+import 'package:i_iwara/app/services/ai_catalog_service.dart';
 import 'package:i_iwara/app/services/ai_service.dart';
 import 'package:i_iwara/app/services/api_service.dart';
 import 'package:i_iwara/app/services/app_service.dart';
@@ -415,6 +416,12 @@ class AppStartupCoordinator implements AppStartupRunner {
       BatchDownloadService(),
       permanent: true,
     );
+    // AI 供应商与模型的内置目录（打包资源兜底 + CDN 热更，不阻塞启动）。
+    // 必须早于 AiService：供应商配置的「出厂设定」那一半从这里继承，
+    // 用户档案只存 delta。⚠️ init() 是 unawaited 的，所以目录的查询接口
+    // 全部做成了「未就绪时安静降级」，不能假设它已经载入。
+    _registerDeferredSingleton<AiCatalogService>(AiCatalogService());
+    unawaited(Get.find<AiCatalogService>().init());
     // AI 调用层。必须早于 TranslationService：翻译的 AI 那一半靠它，
     // 后续的搜索 / 小尾巴同样从这里取能力（AI 不再是翻译的实现细节）。
     _registerDeferredSingleton<AiService>(AiService());

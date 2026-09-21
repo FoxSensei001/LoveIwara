@@ -1,11 +1,21 @@
 import 'dart:convert';
 
-/// 一家 AI 供应商的**接入方式**。取值直接就是 dartantic 的 provider 名。
+import 'package:i_iwara/app/services/ai_catalog_service.dart';
+
+/// 一家 AI 供应商的**接入方式**——也就是「用 dartantic 的哪个 provider 去打」。
 ///
-/// ⭐ 这个类存在的唯一理由是 [supportsThinking] / [supportsTemperature] /
-/// [supportsCustomBaseUrl] / [needsApiKey] 这四张表：dartantic 的 `Provider`
-/// 接口**不声明任何能力**（没有 caps 枚举），而各家在 `createChatModel` 里
-/// 直接 `throw UnsupportedError`。不在调用前夹住，用户看到的就是一句英文异常。
+/// ⭐ 这个类只剩一件事：dartantic 的 `Provider` 接口**不声明任何能力**（没有 caps
+/// 枚举），而各家在 `createChatModel` 里直接 `throw UnsupportedError`。不在调用前
+/// 夹住，用户看到的就是一句英文异常。
+///
+/// ⛔ 它记的是「**这条 SDK 路子**吃不吃得下」，**不是**「这家服务商支不支持」，
+/// 更不是「这个模型会不会」。三件事三个家：
+///
+/// | 事实 | 家 |
+/// |---|---|
+/// | SDK 路子吃不吃得下（xAI 传 temperature 就抛） | 本类 |
+/// | 这家端点的脾气（静默忽略 json_schema / 要不要密钥） | [AiCatalogProvider] |
+/// | 这个模型天生会什么（推理 / 函数调用 / 结构化输出） | [AiCatalogModel] |
 ///
 /// 四张表的出处（dartantic_ai 3.4.2，读源码逐条核对过，不是推测）：
 /// - `providers/openai_provider.dart:54` enableThinking → throw
@@ -57,7 +67,9 @@ abstract final class AiProviderKind {
     _ => 'OpenAI 兼容',
   };
 
-  /// 要不要密钥。Ollama 跑在本机，逼用户填一个假的密钥是没有意义的刁难。
+  /// 这条 SDK 路子要不要密钥。Ollama 跑在本机，逼用户填一个假的密钥是没有意义
+  /// 的刁难。⚠️ 更准的答案在目录上（LM Studio 也不要密钥，但它的 kind 是
+  /// `openai`）——本表只是目录缺席时的地板。
   static bool needsApiKey(String kind) => normalize(kind) != ollama;
 
   /// 能不能开 thinking。开错了是 `UnsupportedError`，不是降级。
@@ -68,9 +80,9 @@ abstract final class AiProviderKind {
 
   /// 能不能下发 temperature。
   ///
-  /// ⛔ xAI **任何非空 temperature 都会抛**（不是忽略）。而档案的默认值是
-  /// 「发 temperature」，所以这条必须在能力层夹死，不能指望用户自己去关那个
-  /// 开关——否则选了 xAI 的人每一次调用都是 UnsupportedError。
+  /// ⛔ xAI **任何非空 temperature 都会抛**（不是忽略）。所以这条必须在能力层
+  /// 夹死，不能指望用户自己去关那个开关——否则选了 xAI 的人每一次调用都是
+  /// UnsupportedError。
   static bool supportsTemperature(String kind) => normalize(kind) != xai;
 
   /// 能不能自定义端点地址。
@@ -81,151 +93,332 @@ abstract final class AiProviderKind {
     openai || google || ollama => true,
     _ => false,
   };
-
-  /// 端点地址留空时实际会打到哪儿。只用来在 UI 上显示，不参与请求构造。
-  static String? defaultBaseUrlHint(String kind) => switch (normalize(kind)) {
-    openai => 'https://api.openai.com/v1',
-    anthropic => 'https://api.anthropic.com/v1',
-    google => 'https://generativelanguage.googleapis.com',
-    ollama => 'http://localhost:11434',
-    mistral => 'https://api.mistral.ai',
-    xai => 'https://api.x.ai/v1',
-    _ => null,
-  };
 }
 
-/// 一份 AI 供应商配置。
+/// 用户配置的**一条供应商连接**。
 ///
-/// ⭐ 与 `SignatureProvider`（小尾巴数据源）刻意同构：预置项只是「已经填好的
-/// 一份档案」，选完之后它和用户手填的那份走同一条管线、在同一张列表里、用
-/// 同样的方式被引用。用户只需要理解「供应商」这一个概念。
+/// # ⭐ 它只存 delta
+///
+/// 可空字段 `null` ＝「跟目录走」，非空 ＝「用户明确改过」。所以：
+///
+/// - 目录更新（某家换了地址、发现某家其实认 json_schema）**自动到位**，
+///   不用迁移任何数据；
+/// - 用户改过的那几项继续赢，不会被目录悄悄改回去；
+/// - UI 上「哪几项被我改过」是**可见的**（非空即改过），于是那枚「重置为默认」
+///   的回转箭头才有得画。
+///
+/// ⛔ 改造前是反过来的：`AiProviderPreset.toProfile()` 把 baseUrl /
+/// structuredOutput **拷进**用户档案。之后我们更新预设，老用户永远拿不到；而且
+/// 分不出「用户特意填了这个地址」和「当年预设就是这个地址」，所以谁也不敢动那些
+/// 兜底值。
 ///
 /// # ⛔ [apiKey] 不进 JSON
 ///
-/// 这个对象在内存里是完整的（带密钥），[toJson] 却**永远不写密钥**。密钥另
-/// 存 `StorageService` 的安全存储（健康设备走 Keychain/Keystore，坏设备走
-/// `SecureFallbackCipher` 的 AES-GCM 兜底，两条路都不落明文）。
+/// 这个对象在内存里是完整的（带密钥），[toJson] 却**永远不写密钥**。密钥另存
+/// `ConfigKey.AI_PROVIDER_KEYS`（`SecureFallbackCipher` 的 `enc1:` 信封）。
 ///
 /// 为什么非要拆开：`config_backup_service.dart` 的 `_sensitiveConfigKeys` 是
-/// **按 ConfigKey 整格剔除**的黑名单。密钥要是跟着档案列表存进同一格，备份
-/// 就会把**整张供应商列表**一起丢掉——用户看到的是「恢复备份后 AI 全没了」，
-/// 而不只是要重填密钥。
-class AiProviderProfile {
-  const AiProviderProfile({
+/// **按 ConfigKey 整格剔除**的黑名单。密钥要是跟着档案列表存进同一格，备份就会把
+/// **整张供应商列表**一起丢掉——用户看到的是「恢复备份后 AI 全没了」，而不只是
+/// 要重填密钥。
+class AiProvider {
+  const AiProvider({
     required this.id,
-    required this.name,
-    this.kind = AiProviderKind.openai,
-    this.baseUrl = '',
-    this.model = '',
-    this.presetId = '',
-    this.apiKey = '',
-    this.reasoning = false,
-    this.sendTemperature = true,
-    this.streaming = true,
-    this.structuredOutput = true,
-    this.temperature = defaultTemperature,
-    this.maxTokens = defaultMaxTokens,
+    this.catalogId = '',
+    this.name,
+    this.kind,
+    this.baseUrl,
+    this.structuredOutput,
+    this.streaming,
     this.headers = const {},
+    this.enabled = true,
+    this.apiKey = '',
   });
 
-  /// ⭐ [maxTokens] 为 0 ＝**这个参数根本不发出去**，由服务端用该模型自己的
-  /// 输出上限。新建档案的出厂值就是它。
-  ///
-  /// ⛔ 之前写死 4096，那是上一代模型的上限：翻译一篇长帖会在半途**被硬截断**
-  /// 且不报错，用户看到的是译文断在一句话中间，根本猜不到是这个数的问题。
-  ///
-  /// ⛔ 但也**不能换成另一个大常数**——「主流默认值」这种东西不存在：
-  /// OpenAI / Google 不给就用模型自己的上限，Anthropic 的 `max_tokens` 却是
-  /// **必填**；而各家上限差一个数量级，且每代都在涨。填大了有的服务端直接拒
-  /// 请求，填小了静默截断。唯一不会过期、也不用猜的答案是**不填**。
-  static const int defaultMaxTokens = 0;
-
-  /// Anthropic 那条路的兜底：它的 `max_tokens` 必填，不给就是 400，
-  /// [defaultMaxTokens] 的「不填」对它不成立。
-  ///
-  /// 取 64K 是因为它是**当前所有 Claude 模型都接受**的值——2026-09-21 查
-  /// platform.claude.com 的 models/overview：Fable 5.1 / Opus 5 / Sonnet 5
-  /// 的 max output 都是 128K，最小的 Haiku 4.5 是 64K，取最小的那个才不会有
-  /// 模型整个用不了。
-  ///
-  /// ⚠️ 这个数会过期。真正权威的来源是 Anthropic 的 Models API（`/v1/models`
-  /// 的每条都带 `max_tokens`），dartantic 的 `listModels` 现在没透出来；哪天
-  /// 要较真，从那儿读比在这里写死强。
-  static const int anthropicFallbackMaxTokens = 65536;
-
-  /// 采样温度。⭐ 刻意**不**跟各家 API 的裸默认（1.0）走：这一层的主用途是
-  /// 翻译，温度高了模型会开始「润色」原文——加词、改语气、把梗解释一遍。
-  /// 搜索那一路要的是照着 schema 填表，同样不需要发散。
-  ///
-  /// ⛔ 改这个数不会动已存在的档案（存下来的 JSON 里是显式写死的），也**不要**
-  /// 顺手去改 `LegacyConfigProfileStore.readLegacy` 里那两个 `??` ——那是在读
-  /// 老用户的真实配置，换掉兜底值等于偷偷改了他原本的设置。
-  static const double defaultTemperature = 0.3;
-
-  /// 稳定标识。用途绑定表与密钥存储都按它索引，**改名不该换 id**。
+  /// 稳定标识。模型、用途绑定表、密钥存储都按它索引，**改名不该换 id**。
   final String id;
 
-  /// 给人看的名字，用户可改。
-  final String name;
+  /// 指向内置目录的哪一条（[AiCatalogProvider.id]）。空串 ＝ 完全自定义，
+  /// 没有可继承的东西，下面那几项就必须自己填齐。
+  final String catalogId;
 
-  /// 见 [AiProviderKind]。
-  final String kind;
+  /// 以下全部「null ＝ 继承目录」。
 
-  /// 自定义端点。空＝用这一家的默认地址。
-  /// ⛔ 只有 [AiProviderKind.supportsCustomBaseUrl] 为真的几家吃得下。
-  final String baseUrl;
+  final String? name;
+  final String? kind;
+  final String? baseUrl;
 
-  /// 模型名。空＝用服务端默认模型，这是合法配置（本地端点尤其常见），
-  /// 不要在调用前拦。
-  final String model;
-
-  /// 从哪个预置项来的（[AiProviderPreset.id]），手填的是空串。
-  final String presetId;
-
-  /// ⛔ **不进 JSON**，见类文档。
-  final String apiKey;
-
-  /// 推理模型（thinking / 通常也不接受自定义 temperature）。
-  final bool reasoning;
-
-  /// 下发 temperature。能力层还会再夹一道（见 [effectiveTemperature]）。
-  final bool sendTemperature;
-
-  /// 允许流式。翻译对话框据此决定是逐字出还是一次性出。
-  final bool streaming;
-
-  /// 吃不吃得下 `outputSchema`（结构化输出）。
+  /// 这家端点**真的**认 `response_format: json_schema` 吗。
   ///
-  /// ⭐ 做成开关而不是按 kind 推断：一批 OpenAI **兼容中转**并不支持
-  /// `response_format: json_schema`，而它们的 kind 和官方 OpenAI 一模一样，
-  /// 从 kind 上分不出来。AI 搜索要用到它，关掉就退回「这个供应商不能用于搜索」。
-  final bool structuredOutput;
+  /// 三层含义要分清（这是改造前那个孤立布尔的真正问题）：
+  /// - `null` 且目录也没写 → **还不知道**，接入向导会真发一次去探；
+  /// - `false` → 已知不认，直接走提示词契约那条路，别白等十几秒；
+  /// - `true` → 已知认。
+  final bool? structuredOutput;
 
-  final double temperature;
-  final int maxTokens;
+  /// 允许流式。null ＝ 允许。
+  final bool? streaming;
 
   /// 额外请求头（OpenRouter 的 `HTTP-Referer` / `X-Title` 一类）。
   final Map<String, String> headers;
 
-  bool get needsApiKey => AiProviderKind.needsApiKey(kind);
+  /// 关掉的供应商不出现在用途绑定的候选里，但配置留着。
+  final bool enabled;
+
+  /// ⛔ **不进 JSON**，见类文档。
+  final String apiKey;
+
+  AiProvider copyWith({
+    String? id,
+    String? catalogId,
+    String? name,
+    String? kind,
+    String? baseUrl,
+    bool? structuredOutput,
+    bool? streaming,
+    Map<String, String>? headers,
+    bool? enabled,
+    String? apiKey,
+    // ⛔ 可空字段要能被改回 null（＝「不再覆盖，跟目录走」），而 `x ?? this.x`
+    // 表达不出这件事。UI 上那枚「重置为默认」的回转箭头走的就是这几个开关。
+    bool clearName = false,
+    bool clearKind = false,
+    bool clearBaseUrl = false,
+    bool clearStructuredOutput = false,
+    bool clearStreaming = false,
+  }) => AiProvider(
+    id: id ?? this.id,
+    catalogId: catalogId ?? this.catalogId,
+    name: clearName ? null : (name ?? this.name),
+    kind: clearKind ? null : (kind ?? this.kind),
+    baseUrl: clearBaseUrl ? null : (baseUrl ?? this.baseUrl),
+    structuredOutput: clearStructuredOutput
+        ? null
+        : (structuredOutput ?? this.structuredOutput),
+    streaming: clearStreaming ? null : (streaming ?? this.streaming),
+    headers: headers ?? this.headers,
+    enabled: enabled ?? this.enabled,
+    apiKey: apiKey ?? this.apiKey,
+  );
+
+  /// ⛔ 这里**没有 apiKey**，而且永远不要加回来。见类文档。
+  ///
+  /// 只写非空项：缺席就是「跟目录走」，写一堆 null 进去既占地方又容易被后来的人
+  /// 当成「显式设成了空」。
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    if (catalogId.isNotEmpty) 'catalogId': catalogId,
+    if (name != null) 'name': name,
+    if (kind != null) 'kind': kind,
+    if (baseUrl != null) 'baseUrl': baseUrl,
+    if (structuredOutput != null) 'structuredOutput': structuredOutput,
+    if (streaming != null) 'streaming': streaming,
+    if (headers.isNotEmpty) 'headers': headers,
+    if (!enabled) 'enabled': false,
+  };
+
+  /// 解出来的 [apiKey] 恒为空串——密钥由密钥存储单独补进来。
+  factory AiProvider.fromJson(Map<String, dynamic> json) => AiProvider(
+    id: (json['id'] as String?)?.trim() ?? '',
+    catalogId: (json['catalogId'] as String?) ?? '',
+    name: json['name'] as String?,
+    kind: json['kind'] as String?,
+    baseUrl: json['baseUrl'] as String?,
+    structuredOutput: json['structuredOutput'] as bool?,
+    streaming: json['streaming'] as bool?,
+    headers: _headersFromJson(json['headers']),
+    enabled: (json['enabled'] as bool?) ?? true,
+  );
+
+  static Map<String, String> _headersFromJson(dynamic raw) {
+    if (raw is! Map) return const {};
+    final out = <String, String>{};
+    raw.forEach((key, value) {
+      if (key is String && value != null) out[key] = value.toString();
+    });
+    return out;
+  }
+}
+
+/// 用户在某家供应商下**启用的一个模型**。同样只存 delta。
+///
+/// ⭐ 这一层是改造的核心：改造前「模型」只是档案上的一个字符串，于是
+/// - 同一个 key 想跑两个模型 → 必须复制整份档案，密钥存两遍；
+/// - `reasoning` / `structuredOutput` 挂在档案上 → 换模型时开关还留着上一个模型
+///   的答案，不报错，只是从此每次都少发或多发一个参数。
+class AiModel {
+  const AiModel({
+    required this.providerId,
+    required this.modelId,
+    this.name,
+    this.temperature,
+    this.sendTemperature,
+    this.maxTokens,
+    this.reasoning,
+  });
+
+  final String providerId;
+
+  /// **发给服务端的那个名字**（不是目录里的规范 id）。
+  /// 空串 ＝ 用服务端默认模型，这是合法配置（本地端点尤其常见），不要在调用前拦。
+  final String modelId;
+
+  /// 以下全部「null ＝ 继承」（目录 → 应用默认）。
+
+  final String? name;
+  final double? temperature;
+
+  /// 要不要下发 temperature。null ＝ 自动（按模型能力与 SDK 路子决定）。
+  ///
+  /// ⛔ 这**不是**一张能力表，是**用户的选择**——有的端点会因为收到 temperature
+  /// 而拒请求，而我们不可能穷举它们。所以留一个明确的「别发」给用户。
+  /// （改造前它叫 `sendTemperature` 且默认 true，老配置迁过来时原样带着。）
+  final bool? sendTemperature;
+
+  /// 输出上限。null ＝ 继承；**0 ＝ 明确地不发这个参数**。
+  ///
+  /// ⛔ 两者不是一回事，别在读取时把 0 折成 null：用户特意清空那一栏的意思是
+  /// 「让服务端用模型自己的上限」，而继承的意思是「照目录说的来」。
+  final int? maxTokens;
+
+  /// 用户想不想开 thinking。null ＝ 按模型能力自动（目录说它会推理就开）。
+  final bool? reasoning;
+
+  /// 这条模型在存储里的键，也是用途绑定表里存的值。
+  String get key => '$providerId/$modelId';
+
+  AiModel copyWith({
+    String? providerId,
+    String? modelId,
+    String? name,
+    double? temperature,
+    bool? sendTemperature,
+    int? maxTokens,
+    bool? reasoning,
+    bool clearName = false,
+    bool clearTemperature = false,
+    bool clearSendTemperature = false,
+    bool clearMaxTokens = false,
+    bool clearReasoning = false,
+  }) => AiModel(
+    providerId: providerId ?? this.providerId,
+    modelId: modelId ?? this.modelId,
+    name: clearName ? null : (name ?? this.name),
+    temperature: clearTemperature ? null : (temperature ?? this.temperature),
+    sendTemperature: clearSendTemperature
+        ? null
+        : (sendTemperature ?? this.sendTemperature),
+    maxTokens: clearMaxTokens ? null : (maxTokens ?? this.maxTokens),
+    reasoning: clearReasoning ? null : (reasoning ?? this.reasoning),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'providerId': providerId,
+    'modelId': modelId,
+    if (name != null) 'name': name,
+    if (temperature != null) 'temperature': temperature,
+    if (sendTemperature != null) 'sendTemperature': sendTemperature,
+    if (maxTokens != null) 'maxTokens': maxTokens,
+    if (reasoning != null) 'reasoning': reasoning,
+  };
+
+  factory AiModel.fromJson(Map<String, dynamic> json) => AiModel(
+    providerId: (json['providerId'] as String?)?.trim() ?? '',
+    modelId: (json['modelId'] as String?)?.trim() ?? '',
+    name: json['name'] as String?,
+    temperature: (json['temperature'] as num?)?.toDouble(),
+    sendTemperature: json['sendTemperature'] as bool?,
+    maxTokens: (json['maxTokens'] as num?)?.toInt(),
+    reasoning: json['reasoning'] as bool?,
+  );
+}
+
+/// 合并过目录之后的**一份可以直接拿去发请求的配置**。
+///
+/// 读时合并，优先级 `用户 delta > 目录 > 应用默认`。请求构造（`AiService`）只看
+/// 这个类，看不见 delta 也看不见目录——于是「继承规则」只有一处要改。
+class AiResolvedModel {
+  const AiResolvedModel({
+    required this.providerId,
+    required this.modelId,
+    required this.providerName,
+    required this.modelName,
+    required this.kind,
+    required this.baseUrl,
+    required this.apiKey,
+    required this.headers,
+    required this.needsApiKey,
+    required this.streaming,
+    required this.structuredOutput,
+    required this.capabilities,
+    required this.temperature,
+    required this.maxTokens,
+    required this.reasoning,
+    required this.contextWindow,
+    required this.local,
+  });
+
+  final String providerId;
+  final String modelId;
+  final String providerName;
+  final String modelName;
+  final String kind;
+  final String baseUrl;
+  final String apiKey;
+  final Map<String, String> headers;
+  final bool needsApiKey;
+  final bool streaming;
+
+  /// 这条链路上能不能用原生结构化输出。**未知时为 false**——试一次的代价是白等
+  /// 十几秒再降级，而降级那条路本来就走得通。
+  final bool structuredOutput;
+
+  /// 目录记的模型能力。目录查不到时是空集（不是「什么都不会」，是「不知道」，
+  /// UI 上要按「未知」画而不是按「不支持」画）。
+  final Set<AiModelCapability> capabilities;
+
+  /// 要发出去的 temperature，null ＝ 不发。
+  final double? temperature;
+
+  /// 要发出去的输出上限，null ＝ 不发。
+  final int? maxTokens;
+
+  /// 要不要开 thinking。
+  final bool reasoning;
+
+  final int? contextWindow;
+
+  /// 本机地址。⚠️ 不该走用户配的代理。
+  final bool local;
 
   /// 密钥齐不齐。⛔ **不检查模型名**——空模型名是「用服务端默认」的合法配置。
   bool get isUsable => !needsApiKey || apiKey.trim().isNotEmpty;
 
-  /// 实际要开的 thinking：用户想开 **且** 这一家吃得下。
-  bool get effectiveThinking =>
-      reasoning && AiProviderKind.supportsThinking(kind);
-
-  /// 实际要下发的 temperature，null＝不发。
+  /// 只给「探一探」用：接入向导要强行开着 [structuredOutput] 发一次，看这家端点
+  /// 是真认 json_schema 还是**静默忽略**它。
   ///
-  /// 三道闸门叠加：这一家支不支持（xAI 发了就抛）、用户开没开、是不是推理模型
-  /// （推理模型通常不接受自定义 temperature）。
-  double? get effectiveTemperature {
-    if (!AiProviderKind.supportsTemperature(kind)) return null;
-    if (!sendTemperature) return null;
-    if (reasoning) return null;
-    return temperature;
-  }
+  /// ⛔ 别拿它去改别的字段：这是一份**合并好的结果**，改它等于绕过
+  /// [resolveAiModel] 那三道闸门（SDK 路子 / 目录 / 用户 delta），而那正是
+  /// 这次重构要收口的东西。要改配置请改 [AiProvider] / [AiModel]。
+  AiResolvedModel copyWith({required bool structuredOutput}) => AiResolvedModel(
+    providerId: providerId,
+    modelId: modelId,
+    providerName: providerName,
+    modelName: modelName,
+    kind: kind,
+    baseUrl: baseUrl,
+    apiKey: apiKey,
+    headers: headers,
+    needsApiKey: needsApiKey,
+    streaming: streaming,
+    structuredOutput: structuredOutput,
+    capabilities: capabilities,
+    temperature: temperature,
+    maxTokens: maxTokens,
+    reasoning: reasoning,
+    contextWindow: contextWindow,
+    local: local,
+  );
 
   /// 端点地址解析成 Uri；空串或这一家不支持自定义地址时返回 null（＝用默认）。
   ///
@@ -242,262 +435,184 @@ class AiProviderProfile {
     }
     return uri;
   }
+}
 
-  AiProviderProfile copyWith({
-    String? id,
-    String? name,
-    String? kind,
-    String? baseUrl,
-    String? model,
-    String? presetId,
-    String? apiKey,
-    bool? reasoning,
-    bool? sendTemperature,
-    bool? streaming,
-    bool? structuredOutput,
-    double? temperature,
-    int? maxTokens,
-    Map<String, String>? headers,
-  }) => AiProviderProfile(
-    id: id ?? this.id,
-    name: name ?? this.name,
-    kind: kind ?? this.kind,
-    baseUrl: baseUrl ?? this.baseUrl,
-    model: model ?? this.model,
-    presetId: presetId ?? this.presetId,
-    apiKey: apiKey ?? this.apiKey,
-    reasoning: reasoning ?? this.reasoning,
-    sendTemperature: sendTemperature ?? this.sendTemperature,
-    streaming: streaming ?? this.streaming,
-    structuredOutput: structuredOutput ?? this.structuredOutput,
-    temperature: temperature ?? this.temperature,
-    maxTokens: maxTokens ?? this.maxTokens,
-    headers: headers ?? this.headers,
+/// 应用层的默认值。目录和用户都没说时落到这儿。
+abstract final class AiDefaults {
+  /// 采样温度。⭐ 刻意**不**跟各家 API 的裸默认（1.0）走：这一层的主用途是翻译，
+  /// 温度高了模型会开始「润色」原文——加词、改语气、把梗解释一遍。搜索那一路要
+  /// 的是照着 schema 填表，同样不需要发散。
+  static const double temperature = 0.3;
+
+  /// ⭐ 输出上限的默认是**不发这个参数**（由服务端用该模型自己的上限）。
+  ///
+  /// ⛔ 之前写死 4096，那是上一代模型的上限：翻译一篇长帖会在半途**被硬截断**
+  /// 且不报错，用户看到的是译文断在一句话中间，根本猜不到是这个数的问题。
+  ///
+  /// ⛔ 但也**不能换成另一个大常数**——「主流默认值」这种东西不存在：
+  /// OpenAI / Google 不给就用模型自己的上限，Anthropic 的 `max_tokens` 却是
+  /// **必填**；而各家上限差一个数量级，且每代都在涨。填大了有的服务端直接拒请求，
+  /// 填小了静默截断。唯一不会过期、也不用猜的答案是**不填**。
+  static const int maxTokens = 0;
+
+  /// Anthropic 那条路的兜底：它的 `max_tokens` 必填，不给就是 400，
+  /// [maxTokens] 的「不填」对它不成立。
+  ///
+  /// 取 64K 是因为它是**当前所有 Claude 模型都接受**的值——2026-09-21 查
+  /// platform.claude.com 的 models/overview：Fable 5.1 / Opus 5 / Sonnet 5 的
+  /// max output 都是 128K，最小的 Haiku 4.5 是 64K，取最小的那个才不会有模型
+  /// 整个用不了。
+  ///
+  /// ⚠️ 这个数会过期。真正权威的来源是 Anthropic 的 Models API（`/v1/models`
+  /// 的每条都带 `max_tokens`），dartantic 的 `listModels` 现在没透出来。
+  /// 目录里记了 `maxOutputTokens` 的模型会优先用目录值，轮不到这个兜底。
+  static const int anthropicFallbackMaxTokens = 65536;
+}
+
+/// 把一条 delta 配置合并成可以发请求的样子。
+///
+/// 做成**纯函数**（目录从参数进来，不从 `Get` 里摸）是为了能离线测：
+/// 「用户没填 → 跟目录」「用户填了 → 用户赢」「目录也没有 → 应用默认」这三条
+/// 正是最容易在重构里写反的地方。
+AiResolvedModel resolveAiModel({
+  required AiProvider provider,
+  required AiModel model,
+  AiCatalogProvider? providerCatalog,
+  AiCatalogModel? modelCatalog,
+}) {
+  final kind = AiProviderKind.normalize(
+    provider.kind ?? providerCatalog?.kind ?? AiProviderKind.openai,
   );
+  final caps = modelCatalog?.capabilities ?? const <AiModelCapability>{};
 
-  /// ⛔ 这里**没有 apiKey**，而且永远不要加回来。见类文档。
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'kind': kind,
-    if (baseUrl.isNotEmpty) 'baseUrl': baseUrl,
-    if (model.isNotEmpty) 'model': model,
-    if (presetId.isNotEmpty) 'presetId': presetId,
-    'reasoning': reasoning,
-    'sendTemperature': sendTemperature,
-    'streaming': streaming,
-    'structuredOutput': structuredOutput,
-    'temperature': temperature,
-    'maxTokens': maxTokens,
-    if (headers.isNotEmpty) 'headers': headers,
-  };
+  // ── thinking ─────────────────────────────────────────────────────────────
+  // 三道闸叠加：这条 SDK 路子开得了吗、这个模型会吗、用户想不想。
+  // ⛔ 用户没表态时**按模型能力自动**，而不是沿用某个档案上的旧布尔——
+  // 「把 deepseek-chat 换成 deepseek-reasoner 后开关还是关着」就是那么来的。
+  final wantsReasoning =
+      model.reasoning ?? caps.contains(AiModelCapability.reasoning);
+  final reasoning = wantsReasoning && AiProviderKind.supportsThinking(kind);
 
-  /// 解出来的档案 [apiKey] 恒为空串——密钥由密钥存储单独补进来。
-  factory AiProviderProfile.fromJson(Map<String, dynamic> json) =>
-      AiProviderProfile(
-        id: (json['id'] as String?)?.trim() ?? '',
-        name: (json['name'] as String?) ?? '',
-        kind: AiProviderKind.normalize((json['kind'] as String?) ?? ''),
-        baseUrl: (json['baseUrl'] as String?) ?? '',
-        model: (json['model'] as String?) ?? '',
-        presetId: (json['presetId'] as String?) ?? '',
-        reasoning: (json['reasoning'] as bool?) ?? false,
-        sendTemperature: (json['sendTemperature'] as bool?) ?? true,
-        streaming: (json['streaming'] as bool?) ?? true,
-        structuredOutput: (json['structuredOutput'] as bool?) ?? true,
-        temperature:
-            (json['temperature'] as num?)?.toDouble() ?? defaultTemperature,
-        maxTokens: (json['maxTokens'] as num?)?.toInt() ?? defaultMaxTokens,
-        headers: _headersFromJson(json['headers']),
-      );
+  // ── temperature ──────────────────────────────────────────────────────────
+  // 推理模型通常不接受自定义 temperature；xAI 是发了就抛。
+  final temperatureAllowed =
+      AiProviderKind.supportsTemperature(kind) &&
+      (providerCatalog?.sendsTemperature ?? true) &&
+      (model.sendTemperature ?? true) &&
+      !reasoning;
+  final temperature = temperatureAllowed
+      ? (model.temperature ?? AiDefaults.temperature)
+      : null;
 
-  static Map<String, String> _headersFromJson(dynamic raw) {
-    if (raw is! Map) return const {};
-    final out = <String, String>{};
-    raw.forEach((key, value) {
-      if (key is String && value != null) out[key] = value.toString();
-    });
-    return out;
+  // ── maxTokens ────────────────────────────────────────────────────────────
+  // 0 ＝ 明确地不发。用户没说时先问目录，目录也没有才轮到 Anthropic 的兜底
+  // （只有它的 max_tokens 是必填的）。
+  final int? maxTokens;
+  if (model.maxTokens != null) {
+    maxTokens = model.maxTokens! > 0 ? model.maxTokens : null;
+  } else if (modelCatalog?.maxOutputTokens != null) {
+    maxTokens = modelCatalog!.maxOutputTokens;
+  } else {
+    maxTokens = kind == AiProviderKind.anthropic
+        ? AiDefaults.anthropicFallbackMaxTokens
+        : null;
   }
 
-  /// 从配置里存的那串 JSON 解出列表。
+  // ── 结构化输出 ────────────────────────────────────────────────────────────
+  // ⛔ 两件事都要成立：**端点**不把 json_schema 静默丢掉，**模型**也真支持。
+  // 少问一边就是改造前那个孤立布尔的老毛病。
+  // 目录没记过这个模型时不拿能力表当否决——中转上几百个模型目录多半没有，
+  // 一律判成「不支持」会让所有人都走降级路。
+  final endpointOk =
+      provider.structuredOutput ?? providerCatalog?.structuredOutput;
+  final modelOk =
+      modelCatalog == null || caps.contains(AiModelCapability.structuredOutput);
+
+  return AiResolvedModel(
+    providerId: provider.id,
+    modelId: model.modelId,
+    providerName: provider.name ?? providerCatalog?.name ?? provider.id,
+    modelName:
+        model.name ??
+        modelCatalog?.name ??
+        (model.modelId.isEmpty ? '' : model.modelId),
+    kind: kind,
+    baseUrl: provider.baseUrl ?? providerCatalog?.baseUrl ?? '',
+    apiKey: provider.apiKey,
+    headers: provider.headers,
+    needsApiKey:
+        providerCatalog?.needsApiKey ?? AiProviderKind.needsApiKey(kind),
+    streaming: provider.streaming ?? true,
+    structuredOutput: (endpointOk ?? false) && modelOk,
+    capabilities: caps,
+    temperature: temperature,
+    maxTokens: maxTokens,
+    reasoning: reasoning,
+    contextWindow: modelCatalog?.contextWindow,
+    local: providerCatalog?.local ?? false,
+  );
+}
+
+/// 整份 AI 配置：供应商列表 + 每家下面启用的模型。
+///
+/// 存成一格 JSON（`ConfigKey.AI_PROVIDER_PROFILES`），**不含密钥**。
+class AiProviderConfig {
+  const AiProviderConfig({this.providers = const [], this.models = const []});
+
+  final List<AiProvider> providers;
+  final List<AiModel> models;
+
+  List<AiModel> modelsOf(String providerId) =>
+      models.where((m) => m.providerId == providerId).toList();
+
+  AiProvider? providerById(String id) {
+    for (final p in providers) {
+      if (p.id == id) return p;
+    }
+    return null;
+  }
+
+  AiModel? modelByKey(String key) {
+    for (final m in models) {
+      if (m.key == key) return m;
+    }
+    return null;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'providers': providers.map((e) => e.toJson()).toList(),
+    'models': models.map((e) => e.toJson()).toList(),
+  };
+
+  /// 从配置里存的那串 JSON 解出来。
   ///
-  /// 坏数据一律当成空列表：供应商配置坏掉不该让应用起不来，用户重新配一遍
-  /// 就是了——但 [id] 为空的条目必须丢掉，它会让用途绑定表指向一个无主的档案。
-  static List<AiProviderProfile> decodeList(String? raw) {
-    if (raw == null || raw.trim().isEmpty) return const [];
+  /// 坏数据一律当成空配置：供应商配置坏掉不该让应用起不来，用户重新配一遍就是
+  /// 了——但 id 为空的条目必须丢掉，它会让用途绑定表指向一个无主的东西；同理，
+  /// 主人已经不在了的模型也要丢掉。
+  static AiProviderConfig decode(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return const AiProviderConfig();
     try {
       final decoded = jsonDecode(raw);
-      if (decoded is! List) return const [];
-      return decoded
+      if (decoded is! Map) return const AiProviderConfig();
+
+      final providers = ((decoded['providers'] as List?) ?? const [])
           .whereType<Map>()
-          .map((e) => AiProviderProfile.fromJson(e.cast<String, dynamic>()))
+          .map((e) => AiProvider.fromJson(e.cast<String, dynamic>()))
           .where((e) => e.id.isNotEmpty)
           .toList();
+      final ids = providers.map((e) => e.id).toSet();
+
+      final models = ((decoded['models'] as List?) ?? const [])
+          .whereType<Map>()
+          .map((e) => AiModel.fromJson(e.cast<String, dynamic>()))
+          .where((e) => ids.contains(e.providerId))
+          .toList();
+
+      return AiProviderConfig(providers: providers, models: models);
     } catch (_) {
-      return const [];
+      return const AiProviderConfig();
     }
   }
 
-  static String encodeList(List<AiProviderProfile> profiles) =>
-      jsonEncode(profiles.map((e) => e.toJson()).toList());
-}
-
-/// 一个「已经填好的供应商」。用户在向导第一屏点的就是它。
-///
-/// ⛔ 第一屏不是空白表单：用户想要的是「一个能用的 AI」，让他从 baseUrl
-/// 开始填是把我们的实现细节当成了他的任务。[custom] 那一条排在**最后**。
-class AiProviderPreset {
-  const AiProviderPreset({
-    required this.id,
-    required this.name,
-    this.kind = AiProviderKind.openai,
-    this.baseUrl,
-    this.suggestedModel,
-    this.reasoning = false,
-    this.structuredOutput = true,
-    this.custom = false,
-  });
-
-  final String id;
-  final String name;
-  final String kind;
-
-  /// null＝用这一家的默认端点。
-  final String? baseUrl;
-
-  /// 拉不到模型列表时摆出来的建议值。⛔ 只是建议，不写死。
-  final String? suggestedModel;
-
-  final bool reasoning;
-
-  /// 见 [AiProviderProfile.structuredOutput]。中转端点一律保守地给 false。
-  final bool structuredOutput;
-
-  /// 「自己填端点」那一条。
-  final bool custom;
-
-  /// 摊成一份可用的档案。[id] 由调用方给（要保证唯一）。
-  AiProviderProfile toProfile({required String id, String? name}) =>
-      AiProviderProfile(
-        id: id,
-        name: name ?? this.name,
-        kind: kind,
-        baseUrl: baseUrl ?? '',
-        model: suggestedModel ?? '',
-        presetId: this.id,
-        reasoning: reasoning,
-        // 推理模型通常不接受自定义 temperature；xAI 则是发了就抛，
-        // 由 AiProviderProfile.effectiveTemperature 再兜一道。
-        sendTemperature: !reasoning,
-        structuredOutput: structuredOutput,
-      );
-}
-
-/// 预置的供应商。
-///
-/// 来历：原先是 `ai_translation_setting_widget.dart` 里的私有 `_providerPresets`
-/// （11 条），只有翻译设置页看得见。AI 不再只服务翻译之后它必须是公开的。
-const List<AiProviderPreset> kAiProviderPresets = [
-  AiProviderPreset(
-    id: 'openai',
-    name: 'OpenAI',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://api.openai.com/v1',
-    suggestedModel: 'gpt-4o-mini',
-  ),
-  AiProviderPreset(
-    id: 'openai_reasoning',
-    name: 'OpenAI 推理 (o1 / o3 / o4)',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://api.openai.com/v1',
-    reasoning: true,
-  ),
-  AiProviderPreset(
-    id: 'anthropic',
-    name: 'Anthropic Claude',
-    kind: AiProviderKind.anthropic,
-  ),
-  AiProviderPreset(
-    id: 'anthropic_reasoning',
-    name: 'Anthropic Claude 推理 (extended thinking)',
-    kind: AiProviderKind.anthropic,
-    reasoning: true,
-  ),
-  AiProviderPreset(
-    id: 'gemini',
-    name: 'Google Gemini',
-    kind: AiProviderKind.google,
-  ),
-  AiProviderPreset(
-    id: 'gemini_reasoning',
-    name: 'Google Gemini 推理 (thinking)',
-    kind: AiProviderKind.google,
-    reasoning: true,
-  ),
-  // 本机模型：不要密钥、不花钱、不出网。对这个 App 的用户群价值很高。
-  AiProviderPreset(
-    id: 'ollama',
-    name: 'Ollama (本机)',
-    kind: AiProviderKind.ollama,
-    baseUrl: 'http://localhost:11434',
-    // 本地模型对 json_schema 的支持参差，保守关掉，用户可自行打开。
-    structuredOutput: false,
-  ),
-  AiProviderPreset(
-    id: 'mistral',
-    name: 'Mistral',
-    kind: AiProviderKind.mistral,
-  ),
-  AiProviderPreset(id: 'xai', name: 'xAI Grok', kind: AiProviderKind.xai),
-  AiProviderPreset(
-    id: 'deepseek',
-    name: 'DeepSeek',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://api.deepseek.com',
-    suggestedModel: 'deepseek-chat',
-  ),
-  AiProviderPreset(
-    id: 'deepseek_reasoner',
-    name: 'DeepSeek 推理 (R1)',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://api.deepseek.com',
-    suggestedModel: 'deepseek-reasoner',
-    reasoning: true,
-  ),
-  AiProviderPreset(
-    id: 'openrouter',
-    name: 'OpenRouter',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://openrouter.ai/api/v1',
-  ),
-  AiProviderPreset(
-    id: 'siliconflow',
-    name: 'SiliconFlow 硅基流动',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://api.siliconflow.cn/v1',
-    structuredOutput: false,
-  ),
-  AiProviderPreset(
-    id: 'zhipu',
-    name: '智谱 GLM',
-    kind: AiProviderKind.openai,
-    baseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    structuredOutput: false,
-  ),
-  // ⛔ 永远排最后。
-  AiProviderPreset(
-    id: 'custom',
-    name: '自定义 (OpenAI 兼容端点)',
-    kind: AiProviderKind.openai,
-    structuredOutput: false,
-    custom: true,
-  ),
-];
-
-AiProviderPreset? aiPresetById(String id) {
-  for (final preset in kAiProviderPresets) {
-    if (preset.id == id) return preset;
-  }
-  return null;
+  static String encode(AiProviderConfig config) => jsonEncode(config.toJson());
 }

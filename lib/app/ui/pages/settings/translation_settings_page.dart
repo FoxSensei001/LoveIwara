@@ -129,8 +129,14 @@ class TranslationSettingsPage extends StatelessWidget {
     final isDeepLXSelected = useDeepLX;
 
     final aiService = Get.find<AiService>();
-    final translateProfile = aiService.profileFor(AiTask.translate);
-    final aiProfileName = translateProfile?.name ?? slang.t.ai.notConfigured;
+    // 副标题给「供应商 · 模型」两级：一家下面可以挂好几个模型，光说供应商名
+    // 分不出翻译实际走的是哪一个。
+    final translateModel = aiService.modelFor(AiTask.translate);
+    final aiProfileName = translateModel == null
+        ? slang.t.ai.notConfigured
+        : (translateModel.modelName.isEmpty
+              ? translateModel.providerName
+              : '${translateModel.providerName} · ${translateModel.modelName}');
 
     return Card(
       elevation: 2,
