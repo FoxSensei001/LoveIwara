@@ -12,6 +12,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
 import 'package:i_iwara/app/utils/show_app_dialog.dart';
 import 'package:flutter/services.dart';
+import 'package:i_iwara/app/ui/widgets/horizontal_wheel_scroll.dart';
 import 'package:i_iwara/app/ui/widgets/shimmer_card.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:loading_more_list/loading_more_list.dart';
@@ -480,6 +481,10 @@ class PaginationBar extends StatefulWidget {
 class _PaginationBarState extends State<PaginationBar>
     with TickerProviderStateMixin {
   final TextEditingController _pageController = TextEditingController();
+
+  /// 选择态下那排操作键横着摆不下时用的滚动位（桌面端靠滚轮拨，见
+  /// [HorizontalWheelScroll]）。
+  final ScrollController _selectionActionsScroll = ScrollController();
   // 光弧沿页码卡片描边匀速循环游走
   late AnimationController _rotationController;
   // 光环整体的淡入淡出，用 AnimationController 驱动而非手动改 opacity，
@@ -584,6 +589,7 @@ class _PaginationBarState extends State<PaginationBar>
   void dispose() {
     _showDelayTimer?.cancel();
     _pageController.dispose();
+    _selectionActionsScroll.dispose();
     _entranceController.dispose();
     _rotationController.dispose();
     _visibilityController.dispose();
@@ -844,19 +850,23 @@ class _PaginationBarState extends State<PaginationBar>
             onPressed: () => widget.onPageChanged(widget.currentPage + 1),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              reverse: true,
-              padding: const EdgeInsets.only(left: 8),
-              child: GlassSelectionBarContent(
-                selectedCount: selection.selectedCount,
-                actions: selection.actions,
-                onClear: selection.onClear,
-                // 行首已经被页码占住，再加提示文案会挤；0 选中由主操作的
-                // 置灰态表达
-                showEmptyHint: false,
-                // 这条栏本身没有玻璃壳，图标钮得自带壳才跟旁边的翻页圆钮同族
-                standaloneButtons: true,
+            child: HorizontalWheelScroll(
+              controller: _selectionActionsScroll,
+              child: SingleChildScrollView(
+                controller: _selectionActionsScroll,
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                padding: const EdgeInsets.only(left: 8),
+                child: GlassSelectionBarContent(
+                  selectedCount: selection.selectedCount,
+                  actions: selection.actions,
+                  onClear: selection.onClear,
+                  // 行首已经被页码占住，再加提示文案会挤；0 选中由主操作的
+                  // 置灰态表达
+                  showEmptyHint: false,
+                  // 这条栏本身没有玻璃壳，图标钮得自带壳才跟旁边的翻页圆钮同族
+                  standaloneButtons: true,
+                ),
               ),
             ),
           ),

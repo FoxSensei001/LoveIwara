@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +6,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/app/ui/widgets/glass/liquid_glass_material.dart';
+import 'package:i_iwara/app/ui/widgets/horizontal_wheel_scroll.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart' as lgw;
 
 class GlassSegmentItem {
@@ -547,16 +547,6 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     }
   }
 
-  void _onPointerSignal(PointerSignalEvent event) {
-    if (event is! PointerScrollEvent || !_scrollController.hasClients) return;
-    final position = _scrollController.position;
-    final next = (position.pixels + event.scrollDelta.dy).clamp(
-      position.minScrollExtent,
-      position.maxScrollExtent,
-    );
-    _scrollController.jumpTo(next);
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -577,8 +567,10 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
       ],
     );
 
-    final Widget core = Listener(
-      onPointerSignal: _onPointerSignal,
+    // 滚轮拨动横向分段走收口件：它只在这条胶囊还能继续动时才认领滚轮，拨到头
+    // 就让给身下那张竖向列表（原先这里是一份裸 Listener，横竖会同时滚）。
+    final Widget core = HorizontalWheelScroll(
+      controller: _scrollController,
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: SingleChildScrollView(
@@ -746,8 +738,7 @@ class _GlassSegmentedControlState extends State<GlassSegmentedControl>
     // Material 档：高亮块换成不透明的 `secondaryContainer`（M3 分段按钮的选中
     // 容器），并且**不做拖拽时的 1.07 胀大**——那是液态那套「被拽一下会鼓起来」
     // 的语言，压在一块不透明的药丸上只读成「跳了一下」。
-    final bool material =
-        LiquidGlassScope.of(context) == GlassBackend.material;
+    final bool material = LiquidGlassScope.of(context) == GlassBackend.material;
     final decoration = BoxDecoration(
       color: material
           ? GlassTokens.materialSelected(cs)

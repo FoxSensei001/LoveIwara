@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:i_iwara/app/ui/widgets/horizontal_wheel_scroll.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 import 'package:shimmer/shimmer.dart';
 import '../../../../../common/constants.dart';
@@ -92,19 +92,11 @@ class SubscriptionSelectListState extends State<SubscriptionSelectList> {
                 onExit: (_) => setState(() => _showButtons = false),
                 child: Stack(
                   children: [
-                    Listener(
-                      onPointerSignal: (pointerSignal) {
-                        if (pointerSignal is PointerScrollEvent) {
-                          final double scrollAmount =
-                              pointerSignal.scrollDelta.dy * 2;
-                          _scrollController.jumpTo(
-                            (_scrollController.offset + scrollAmount).clamp(
-                              0.0,
-                              _scrollController.position.maxScrollExtent,
-                            ),
-                          );
-                        }
-                      },
+                    // 滚轮拨动这一排头像：走收口件，拨到头就把滚轮让给身下的
+                    // 页面（原先这份手写 Listener 横竖会同时滚）。
+                    HorizontalWheelScroll(
+                      controller: _scrollController,
+                      speed: 2,
                       child: SingleChildScrollView(
                         controller: _scrollController,
                         scrollDirection: Axis.horizontal,

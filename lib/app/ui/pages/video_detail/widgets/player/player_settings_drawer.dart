@@ -7,6 +7,7 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_morph.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_side_drawer.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
+import 'package:i_iwara/app/ui/widgets/horizontal_wheel_scroll.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
 /// 播放器设置抽屉。
@@ -298,13 +299,18 @@ class _SectionNavBarState extends State<_SectionNavBar> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: _kPillHeight,
-      child: ListView.separated(
+      // 桌面端用滚轮也能拨这条导航：横向 Scrollable 本身只吃 dx，滚轮给的是 dy。
+      child: HorizontalWheelScroll(
         controller: _scroll,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.zero,
-        itemCount: widget.sections.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 4),
-        itemBuilder: (context, index) => _pill(context, widget.sections[index]),
+        child: ListView.separated(
+          controller: _scroll,
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.zero,
+          itemCount: widget.sections.length,
+          separatorBuilder: (_, _) => const SizedBox(width: 4),
+          itemBuilder: (context, index) =>
+              _pill(context, widget.sections[index]),
+        ),
       ),
     );
   }

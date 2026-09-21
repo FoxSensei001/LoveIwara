@@ -6,6 +6,7 @@ import 'package:i_iwara/app/services/app_service.dart';
 import 'package:i_iwara/app/services/user_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/avatar_widget.dart';
+import 'package:i_iwara/app/ui/widgets/horizontal_wheel_scroll.dart';
 import 'package:i_iwara/app/ui/widgets/user_name_widget.dart';
 import 'package:i_iwara/common/constants.dart';
 import 'package:i_iwara/i18n/strings.g.dart';
@@ -33,10 +34,19 @@ class _PrivateOrDeletedVideoWidgetState
   bool _isFriendRequestPending = false;
   bool _isLoading = false;
 
+  /// 按钮行横着摆不下时要能拨动它（桌面端靠滚轮，见 [HorizontalWheelScroll]）。
+  final ScrollController _actionsScroll = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _checkRelationshipStatus();
+  }
+
+  @override
+  void dispose() {
+    _actionsScroll.dispose();
+    super.dispose();
   }
 
   Future<void> _checkRelationshipStatus() async {
@@ -149,23 +159,27 @@ class _PrivateOrDeletedVideoWidgetState
               ],
             ),
             // 按钮行
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (widget.author != null &&
-                      _userService.currentUser.value?.id !=
-                          widget.author!.id) ...[
-                    _buildFriendButton(),
-                    const SizedBox(width: 16),
+            HorizontalWheelScroll(
+              controller: _actionsScroll,
+              child: SingleChildScrollView(
+                controller: _actionsScroll,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (widget.author != null &&
+                        _userService.currentUser.value?.id !=
+                            widget.author!.id) ...[
+                      _buildFriendButton(),
+                      const SizedBox(width: 16),
+                    ],
+                    FilledButton.icon(
+                      onPressed: () => AppService.tryPop(),
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(t.common.back),
+                    ),
                   ],
-                  FilledButton.icon(
-                    onPressed: () => AppService.tryPop(),
-                    icon: const Icon(Icons.arrow_back),
-                    label: Text(t.common.back),
-                  ),
-                ],
+                ),
               ),
             ),
           ],
