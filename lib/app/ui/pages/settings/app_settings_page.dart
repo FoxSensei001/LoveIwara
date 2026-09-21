@@ -8,6 +8,8 @@ import 'package:i_iwara/app/services/xr_immersive_service.dart';
 import 'package:i_iwara/app/ui/widgets/app_toast.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_alert_dialog.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_composer.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_picker_dialog.dart';
+import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/glass_setting_tiles.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/settings_app_bar.dart';
 import 'package:i_iwara/app/ui/pages/settings/widgets/app_lock_settings_section.dart';
@@ -111,17 +113,29 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     // 列表要显示每门语言自己的母语名，先确保所有语言的译文都加载好（幂等）。
     await CommonUtils.ensureAllAppLocalesLoaded();
 
+    // 主体是一张列表 → 标题行与底栏都浮在列表之上，列表从它们背后滚过去
+    // （全站约定，见 GlassPickerDialog；原先是 GlassAlertDialog 的
+    // 「标题一格 / 列表一格 / 动作一格」三截分家）。让位高度由它实测下发，
+    // 这里只负责把 headerExtent / footerExtent 当列表的上下内边距用。
     showAppDialog(
       Builder(
         builder: (context) {
-          return GlassAlertDialog(
+          return GlassPickerDialog(
             title: slang.t.settings.language,
-            // ⛔ 这里原来套了一层 `SizedBox(width: double.minPositive)`——
-            // 那是 Material `AlertDialog` 的专用写法（靠它内部的
-            // `IntrinsicWidth` 把 5e-324 解释成「按内容取宽」），
-            // [GlassAlertDialog] 没有那层，正文就真被压成 0 宽，选项文字被迫
-            // 一个字一行。正文宽度由 [GlassAlertDialog] 自己拉满，这里不掺和。
-            content: Obx(
+            footer: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GlassButtonGroup(
+                  children: [
+                    GlassTextActionButton(
+                      label: slang.t.common.cancel,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            bodyBuilder: (context, headerExtent, footerExtent) => Obx(
               () => RadioGroup<String>(
                 groupValue: configService[ConfigKey.APPLICATION_LOCALE],
                 onChanged: (String? value) async {
@@ -170,8 +184,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   }
                 },
                 child: ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.fromLTRB(
+                    GlassPickerDialog.hPadding,
+                    headerExtent,
+                    GlassPickerDialog.hPadding,
+                    footerExtent,
+                  ),
                   children: _languageOptions.entries.map((entry) {
                     return RadioListTile<String>(
                       contentPadding: EdgeInsets.zero,
@@ -182,15 +200,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 ),
               ),
             ),
-            actions: <GlassDialogAction>[
-              GlassDialogAction(
-                label: slang.t.common.cancel,
-                emphasized: false,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
           );
         },
       ),

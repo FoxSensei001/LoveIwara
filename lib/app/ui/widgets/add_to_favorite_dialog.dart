@@ -226,7 +226,7 @@ class _AddToFavoriteDialogState extends State<AddToFavoriteDialog> {
           ),
         ),
       ],
-      bodyBuilder: (context, headerExtent) =>
+      bodyBuilder: (context, headerExtent, footerExtent) =>
           _buildBody(context, t, colorScheme, headerExtent),
     );
   }

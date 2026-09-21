@@ -23,11 +23,13 @@ void main() {
     child: MaterialApp(home: Scaffold(body: child)),
   );
 
-  /// 搭一张 [fieldRows] 行输入框的选择器弹窗，返回它下发给列表的 headerExtent。
-  Future<double> pumpPicker(
+  /// 搭一张 [fieldRows] 行输入框的选择器弹窗，返回它下发给列表的
+  /// (headerExtent, footerExtent)。
+  Future<({double header, double footer})> pumpPicker(
     WidgetTester tester, {
     int fieldRows = 2,
     double textScale = 1.0,
+    Widget? footer,
   }) async {
     final controllers = List.generate(
       fieldRows,
@@ -39,7 +41,8 @@ void main() {
       }
     });
 
-    late double reported;
+    late double reportedHeader;
+    late double reportedFooter;
     await tester.pumpWidget(
       host(
         Builder(
@@ -60,14 +63,16 @@ void main() {
                     ),
                   ),
               ],
-              bodyBuilder: (context, headerExtent) {
-                reported = headerExtent;
+              footer: footer,
+              bodyBuilder: (context, headerExtent, footerExtent) {
+                reportedHeader = headerExtent;
+                reportedFooter = footerExtent;
                 return ListView(
                   padding: EdgeInsets.fromLTRB(
                     GlassPickerDialog.hPadding,
                     headerExtent,
                     GlassPickerDialog.hPadding,
-                    12,
+                    footerExtent + 12,
                   ),
                   children: [
                     Container(key: const ValueKey('firstItem'), height: 60),
@@ -80,7 +85,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    return reported;
+    return (header: reportedHeader, footer: reportedFooter);
   }
 
   group('header 底缘与列表之间的留白', () {
@@ -107,15 +112,11 @@ void main() {
     });
 
     testWidgets('放大字号后留白仍在——高度是实测的，不是常数', (tester) async {
-      final double normal = await pumpPicker(tester, fieldRows: 2);
-      final double scaled = await pumpPicker(
-        tester,
-        fieldRows: 2,
-        textScale: 1.8,
-      );
+      final normal = await pumpPicker(tester, fieldRows: 2);
+      final scaled = await pumpPicker(tester, fieldRows: 2, textScale: 1.8);
       expect(
-        scaled,
-        greaterThan(normal),
+        scaled.header,
+        greaterThan(normal.header),
         reason: '字号放大后 header 真的变高了，headerExtent 必须跟着变',
       );
       final double gap =
@@ -124,6 +125,36 @@ void main() {
       expect(
         gap,
         moreOrLessEquals(GlassPickerDialog.tailSpacing, epsilon: 0.5),
+      );
+    });
+  });
+
+  group('底栏', () {
+    testWidgets('不传 footer 时 footerExtent 恒 0（与加底栏之前逐字等价）', (tester) async {
+      final extents = await pumpPicker(tester, fieldRows: 1);
+      expect(extents.footer, 0);
+    });
+
+    testWidgets('底栏高度同样是实测的：footerExtent = 底栏实高 + tailSpacing', (tester) async {
+      final extents = await pumpPicker(
+        tester,
+        fieldRows: 1,
+        footer: Container(key: const ValueKey('footer'), height: 52),
+      );
+      final Rect footerRect = tester.getRect(
+        find.byKey(const ValueKey('footer')),
+      );
+      // 底栏那块 Padding 的上下留白（titleBottomGap + titleTopPadding）也要算进去。
+      final double footerBlock =
+          footerRect.height +
+          GlassPickerDialog.titleBottomGap +
+          GlassPickerDialog.titleTopPadding;
+      expect(
+        extents.footer,
+        moreOrLessEquals(
+          footerBlock + GlassPickerDialog.tailSpacing,
+          epsilon: 0.5,
+        ),
       );
     });
   });

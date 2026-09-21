@@ -6,8 +6,9 @@ import 'package:i_iwara/app/ui/widgets/glass/glass_surface.dart';
 import 'package:i_iwara/app/ui/widgets/glass/glass_tokens.dart';
 import 'package:i_iwara/i18n/strings.g.dart' as slang;
 
-/// 「选择器弹窗」的统一骨架：标题行 + 若干行控件浮在列表之上，列表铺满整个
-/// 弹窗、用 `paddingTop` 让出 header 高度，从 header 背后滚过去。
+/// 「选择器弹窗」的统一骨架：标题行 + 若干行控件（以及可选的动作底栏 [footer]）
+/// 浮在列表之上，列表铺满整个弹窗、用 `paddingTop` / `paddingBottom` 让出它们的
+/// 高度，从两者背后滚过去。
 ///
 /// # 为什么要有这个收口点
 ///
@@ -35,6 +36,7 @@ class GlassPickerDialog extends StatefulWidget {
     required this.bodyBuilder,
     this.titleActions = const <Widget>[],
     this.rows = const <GlassPickerRow>[],
+    this.footer,
     this.onClose,
     this.constraints = const BoxConstraints(maxWidth: 600, maxHeight: 800),
   });
@@ -63,12 +65,25 @@ class GlassPickerDialog extends StatefulWidget {
   /// 标题行下方的控件行（搜索框、新建框、分段胶囊……）。
   final List<GlassPickerRow> rows;
 
+  /// 浮在列表之上的**底栏**（动作键那一行），与 header 同一套读法：列表从它
+  /// 背后滚过去，中间只有一层 [EdgeFadeScrim.bottom]。
+  ///
+  /// 不给就没有底栏，[bodyBuilder] 收到的 `footerExtent` 恒 0。给了的话高度同样
+  /// 是**实测**的——底栏里装一行胶囊还是两行，都不该回来改常数。
+  final Widget? footer;
+
   /// 关闭钮动作，默认 [AppService.tryPop]。
   final VoidCallback? onClose;
 
   /// 列表主体。`headerExtent` 是**实测**的 header 总高（已含 [tailSpacing]），
-  /// 直接当滚动视图的 `padding.top` 用；横向留白用 [hPadding]。
-  final Widget Function(BuildContext context, double headerExtent) bodyBuilder;
+  /// 直接当滚动视图的 `padding.top` 用，`footerExtent` 同理当 `padding.bottom`
+  /// （没有 [footer] 时为 0）；横向留白用 [hPadding]。
+  final Widget Function(
+    BuildContext context,
+    double headerExtent,
+    double footerExtent,
+  )
+  bodyBuilder;
 
   final BoxConstraints constraints;
 
@@ -98,6 +113,9 @@ class _GlassPickerDialogState extends State<GlassPickerDialog> {
   late double _headerHeight = _estimatedHeaderHeight;
   late double _titleRowHeight = _estimatedTitleRowHeight;
 
+  /// 底栏实测高。没有底栏就恒 0。
+  double _footerHeight = 0;
+
   double get _estimatedTitleRowHeight =>
       GlassPickerDialog.titleTopPadding +
       GlassTokens.pillHeight +
@@ -121,10 +139,20 @@ class _GlassPickerDialogState extends State<GlassPickerDialog> {
     setState(() => _titleRowHeight = size.height);
   }
 
+  void _onFooterMeasured(Size size) {
+    if ((size.height - _footerHeight).abs() < 0.5) return;
+    setState(() => _footerHeight = size.height);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = slang.Translations.of(context);
     final double headerExtent = _headerHeight + GlassPickerDialog.tailSpacing;
+    // 底栏同理：列表底下要让出「底栏 + 一段呼吸位」。没有底栏时整段为 0，
+    // 与改动前逐字等价。
+    final double footerExtent = widget.footer == null
+        ? 0
+        : _footerHeight + GlassPickerDialog.tailSpacing;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
@@ -136,7 +164,9 @@ class _GlassPickerDialogState extends State<GlassPickerDialog> {
             // 主体：列表铺满整个区域，用 paddingTop 让出 header 高度，让内容
             // 可以从上方玻璃 header 背后滚过去（与首页/作者页/搜索页同款
             // Stack + EdgeFadeScrim 模式，见 GlassHeaderOverlay）。
-            Positioned.fill(child: widget.bodyBuilder(context, headerExtent)),
+            Positioned.fill(
+              child: widget.bodyBuilder(context, headerExtent, footerExtent),
+            ),
             // 顶部渐变蒙层：只有标题行恒定不透明，其余连同伸进内容区的尾巴
             // 一起走 smoothstep（曲线与页面档一致）。
             Positioned(
@@ -204,6 +234,43 @@ class _GlassPickerDialogState extends State<GlassPickerDialog> {
                 ),
               ),
             ),
+            // 底栏：与标题行同一套读法（蒙层 + 实测高度 + 列表从背后滚过去），
+            // 只是方向反过来。⛔ 蒙层要垫在底栏**身下**，不能反过来盖住它。
+            if (widget.footer != null) ...[
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: IgnorePointer(
+                  child: EdgeFadeScrim.bottom(
+                    height: EdgeFadeScrim.overlayHeight(
+                      headerExtent: footerExtent,
+                      plateauExtent: 0,
+                    ),
+                    // 底边没有「必须恒定可读」的那一截（弹窗不贴系统导航条），
+                    // 整条都是淡出段。
+                    solidExtent: 0,
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: GlassMeasuredBox(
+                  onSize: _onFooterMeasured,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      GlassPickerDialog.hPadding,
+                      GlassPickerDialog.titleBottomGap,
+                      GlassPickerDialog.hPadding,
+                      GlassPickerDialog.titleTopPadding,
+                    ),
+                    child: widget.footer!,
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),

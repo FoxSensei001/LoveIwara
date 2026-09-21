@@ -108,7 +108,11 @@ class _Oreno3dTagPickerDialogState extends State<Oreno3dTagPickerDialog> {
     );
   }
 
-  Widget _buildBody(BuildContext context, double headerExtent) {
+  Widget _buildBody(
+    BuildContext context,
+    double headerExtent,
+    double footerExtent,
+  ) {
     final t = slang.Translations.of(context);
     final results = _results;
     if (results.isEmpty) {

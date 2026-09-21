@@ -92,7 +92,11 @@ class _AddSearchTagDialogState extends State<AddSearchTagDialog> {
     );
   }
 
-  Widget _buildBody(BuildContext context, double headerExtent) {
+  Widget _buildBody(
+    BuildContext context,
+    double headerExtent,
+    double footerExtent,
+  ) {
     return Obx(() {
       if (tagController.isLoading.value && tagController.tags.isEmpty) {
         return Padding(

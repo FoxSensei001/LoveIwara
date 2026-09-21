@@ -224,7 +224,7 @@ class _AddVideoToPlayListDialogState extends State<AddVideoToPlayListDialog> {
           ),
         ),
       ],
-      bodyBuilder: (context, headerExtent) =>
+      bodyBuilder: (context, headerExtent, footerExtent) =>
           _buildBody(context, t, colorScheme, headerExtent),
     );
   }
