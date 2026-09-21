@@ -130,6 +130,24 @@ class GlassSettingTile extends StatelessWidget {
     this.enabled = true,
   });
 
+  /// 尾部控件最多能占这一行的多少宽度。
+  ///
+  /// ⛔ 尾部**必须有上限**。`Row` 给非 flex 子项的是**无界**约束，所以一个会
+  /// 按内容撑开的尾部（带文字的下拉、徽标、时长）拿到无界宽度后会一路长到
+  /// 超出屏幕：标题那一侧的 `Expanded` 被挤到 0 宽（文字变成一列一个字），
+  /// 右边还照样溢出——2026-09-21 用户报障的「功能分配里模型名一长就超出显示
+  /// 区域」就是这么来的，而同族的每一个带文字尾部都有这个隐患。
+  ///
+  /// 封顶之后尾部自己会省略号截断，标题那一侧则永远留得下 30%。
+  /// ⭐ 仍然用 `Expanded` 而不是给尾部也上 flex：尾部小（chevron / 开关）时
+  /// 标题照旧吃掉全部剩余宽度，钮还是贴右——这条不能因为封顶而变。
+  ///
+  /// 取 0.7 而不是更紧：这是**兜底闸门**，不是版式。现有尾部里最宽的是三枚玻璃
+  /// 圆钮（约 150px），320px 屏上 0.7 仍留得下，不会把本来好好的行反而夹坏。
+  /// 真要放长文字的行别指望这道闸门——把标签放上一行、控件占满下一行才对
+  /// （见 `ai_settings_page.dart` 的 `_BindingRow`）。
+  static const double _trailingMaxFraction = 0.7;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -152,63 +170,77 @@ class GlassSettingTile extends StatelessWidget {
           onLongPress: enabled ? onLongPress : null,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              children: [
-                // 图标 + 文字整体压暗，尾部控件不在内：开关 / 单选点各自有自己
-                // 的禁用色（见 [GlassToggle]），再蒙一层会灰上加灰。
-                Expanded(
-                  child: AnimatedOpacity(
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : GlassTokens.motionDuration,
-                    curve: GlassTokens.motionCurve,
-                    // M3 的禁用态不透明度。可用/不可用之间要过渡——这一行常常
-                    // 是被上面某个开关连带切换的，硬切一下很跳。
-                    opacity: enabled ? 1.0 : 0.38,
-                    child: Row(
-                      children: [
-                        if (leading != null) ...[
-                          leading!,
-                          const SizedBox(width: 12),
-                        ] else if (icon != null) ...[
-                          Icon(icon, size: 20, color: c[1]),
-                          const SizedBox(width: 12),
-                        ],
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DefaultTextStyle(
-                                style:
-                                    (theme.textTheme.bodyMedium ??
-                                            const TextStyle())
-                                        .copyWith(
-                                          fontWeight: selected
-                                              ? FontWeight.w500
-                                              : null,
-                                          color: c[2],
-                                        ),
-                                child: title,
-                              ),
-                              if (subtitle != null) ...[
-                                const SizedBox(height: 2),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  // 图标 + 文字整体压暗，尾部控件不在内：开关 / 单选点各自有自己
+                  // 的禁用色（见 [GlassToggle]），再蒙一层会灰上加灰。
+                  Expanded(
+                    child: AnimatedOpacity(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : GlassTokens.motionDuration,
+                      curve: GlassTokens.motionCurve,
+                      // M3 的禁用态不透明度。可用/不可用之间要过渡——这一行常常
+                      // 是被上面某个开关连带切换的，硬切一下很跳。
+                      opacity: enabled ? 1.0 : 0.38,
+                      child: Row(
+                        children: [
+                          if (leading != null) ...[
+                            leading!,
+                            const SizedBox(width: 12),
+                          ] else if (icon != null) ...[
+                            Icon(icon, size: 20, color: c[1]),
+                            const SizedBox(width: 12),
+                          ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 DefaultTextStyle(
                                   style:
-                                      (theme.textTheme.bodySmall ??
+                                      (theme.textTheme.bodyMedium ??
                                               const TextStyle())
-                                          .copyWith(color: cs.onSurfaceVariant),
-                                  child: subtitle!,
+                                          .copyWith(
+                                            fontWeight: selected
+                                                ? FontWeight.w500
+                                                : null,
+                                            color: c[2],
+                                          ),
+                                  child: title,
                                 ),
+                                if (subtitle != null) ...[
+                                  const SizedBox(height: 2),
+                                  DefaultTextStyle(
+                                    style:
+                                        (theme.textTheme.bodySmall ??
+                                                const TextStyle())
+                                            .copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                    child: subtitle!,
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if (trailing != null) ...[const SizedBox(width: 12), trailing!],
-              ],
+                  if (trailing != null) ...[
+                    const SizedBox(width: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: constraints.maxWidth.isFinite
+                            ? constraints.maxWidth * _trailingMaxFraction
+                            : double.infinity,
+                      ),
+                      child: trailing!,
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
